@@ -889,6 +889,11 @@ FileExpected<std::int64_t> File::decode_data_page(const PageHeader& header,
   }
 
   // --- definition levels -> validity ---------------------------------------
+  // `leaf.optional` is a parsed fact, and the open-time gate currently admits
+  // OPTIONAL only (orchestrator ruling 2026-08-10), so the max-definition-
+  // level-0 branch below is reachable only after a change-control census update
+  // widens is_pinned_repetition(). It is kept correct rather than deleted so
+  // that such an update is a census+test change, not a decoder rewrite.
   std::size_t present_count = rows;
   std::uint8_t* levels = nullptr;
   if (leaf.optional) {

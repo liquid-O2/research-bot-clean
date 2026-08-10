@@ -101,11 +101,16 @@ inline constexpr std::int32_t kPageDataV2 = 3;
          converted == kConvertedInt8;
 }
 
-/// "flat leaves only": REQUIRED and OPTIONAL are flat, REPEATED is not.
-/// Nesting is refused separately (a leaf may not have children, and no schema
-/// element below the root may have children).
+/// OPTIONAL and nothing else.
+///
+/// ORCHESTRATOR RULING (2026-08-10): census-pinned fail-closed. The measured
+/// authority never observed a REQUIRED leaf, so REQUIRED is refused exactly
+/// like REPEATED — a future REQUIRED file must produce a LOUD REFUSAL and a
+/// change-control census update, never a silent widening here. Nesting is
+/// refused separately (a leaf may not have children, and no schema element
+/// below the root may have children).
 [[nodiscard]] constexpr bool is_pinned_repetition(std::int32_t repetition) noexcept {
-  return repetition == kRepetitionRequired || repetition == kRepetitionOptional;
+  return repetition == kRepetitionOptional;
 }
 
 /// Screaming-snake name of a raw enum value, or "UNKNOWN" when unpinned. Used

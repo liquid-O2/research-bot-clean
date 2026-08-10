@@ -6,7 +6,7 @@
 #
 ### qr_parquet_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 42 tests from 10 test suites.
+[==========] Running 43 tests from 10 test suites.
 [----------] Global test environment set-up.
 [----------] 7 tests from ThriftCompact
 [ RUN      ] ThriftCompact.VarintDecodesMultiByteValuesExactly
@@ -25,13 +25,13 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] ThriftCompact.ListHeaderRefusesAPromiseLargerThanTheBuffer (0 ms)
 [----------] 7 tests from ThriftCompact (0 ms total)
 
-[----------] 15 tests from ParquetWall
+[----------] 16 tests from ParquetWall
 [ RUN      ] ParquetWall.MissingLeadingMagicIsADecodeRefusalNamingThePath
 [       OK ] ParquetWall.MissingLeadingMagicIsADecodeRefusalNamingThePath (4 ms)
 [ RUN      ] ParquetWall.BadFooterLengthIsADecodeRefusalAndNeverReadsPastTheMapping
-[       OK ] ParquetWall.BadFooterLengthIsADecodeRefusalAndNeverReadsPastTheMapping (14 ms)
+[       OK ] ParquetWall.BadFooterLengthIsADecodeRefusalAndNeverReadsPastTheMapping (1 ms)
 [ RUN      ] ParquetWall.UnknownCodecIsRefusedByNameBeforeAnyPageIsTouched
-[       OK ] ParquetWall.UnknownCodecIsRefusedByNameBeforeAnyPageIsTouched (3 ms)
+[       OK ] ParquetWall.UnknownCodecIsRefusedByNameBeforeAnyPageIsTouched (2 ms)
 [ RUN      ] ParquetWall.UnknownChunkEncodingIsRefusedByNameAtOpen
 [       OK ] ParquetWall.UnknownChunkEncodingIsRefusedByNameAtOpen (1 ms)
 [ RUN      ] ParquetWall.UnpinnedPhysicalTypeIsRefusedByName
@@ -40,6 +40,8 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName (1 ms)
 [ RUN      ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly
 [       OK ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly (1 ms)
+[ RUN      ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional
+[       OK ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional (1 ms)
 [ RUN      ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly
 [       OK ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly (1 ms)
 [ RUN      ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode
@@ -51,12 +53,12 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] ParquetWall.ShortDefinitionLevelStreamIsADecodeRefusal
 [       OK ] ParquetWall.ShortDefinitionLevelStreamIsADecodeRefusal (1 ms)
 [ RUN      ] ParquetWall.AMissingFileIsAnIoRefusalNotACrash
-[       OK ] ParquetWall.AMissingFileIsAnIoRefusalNotACrash (0 ms)
+[       OK ] ParquetWall.AMissingFileIsAnIoRefusalNotACrash (1 ms)
 [ RUN      ] ParquetWall.AnUnknownColumnNameIsASchemaRefusalNotAGuess
 [       OK ] ParquetWall.AnUnknownColumnNameIsASchemaRefusalNotAGuess (1 ms)
 [ RUN      ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined
 [       OK ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined (1 ms)
-[----------] 15 tests from ParquetWall (38 ms total)
+[----------] 16 tests from ParquetWall (24 ms total)
 
 [----------] 1 test from ParquetPageVersions
 [ RUN      ] ParquetPageVersions.V1AndV2DecodeToByteIdenticalOutput
@@ -70,7 +72,7 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] ParquetStatistics.RthPruningKeepsExactlyTheOverlappingRowGroups (1 ms)
 [ RUN      ] ParquetStatistics.MissingStatisticsKeepEveryRowGroupBecausePruningIsOnlySpeed
 [       OK ] ParquetStatistics.MissingStatisticsKeepEveryRowGroupBecausePruningIsOnlySpeed (1 ms)
-[----------] 3 tests from ParquetStatistics (5 ms total)
+[----------] 3 tests from ParquetStatistics (4 ms total)
 
 [----------] 1 test from ParquetArena
 [ RUN      ] ParquetArena.TheArenaIsReusedAcrossPagesAndChunksInsteadOfReallocated
@@ -84,8 +86,8 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 1 test from ParquetDecode
 [ RUN      ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical
-[       OK ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical (4 ms)
-[----------] 1 test from ParquetDecode (4 ms total)
+[       OK ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical (3 ms)
+[----------] 1 test from ParquetDecode (3 ms total)
 
 [----------] 4 tests from RealFileDigests
 [ RUN      ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture
@@ -120,7 +122,7 @@ Expected equality of these values:
     Which is: 462931976054795
 price_lead_1
 
-[  FAILED  ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture (107 ms)
+[  FAILED  ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture (106 ms)
 [ RUN      ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics
 /workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:237: Failure
 Value of: check.max_matches
@@ -152,24 +154,24 @@ Value of: check.max_matches
 Expected: true
 price_lead_1 max
 
-[  FAILED  ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics (60 ms)
+[  FAILED  ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics (61 ms)
 [ RUN      ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical
-[       OK ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (147 ms)
+[       OK ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (156 ms)
 [ RUN      ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups
-[       OK ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (3 ms)
-[----------] 4 tests from RealFileDigests (319 ms total)
+[       OK ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (14 ms)
+[----------] 4 tests from RealFileDigests (338 ms total)
 
 [----------] 1 test from RealFileBudget
 [ RUN      ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor
-[ BUDGET   ] qr_parquet single-thread decode: 49935052 values/s (4748280 values in 0.0951s)
-[       OK ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor (290 ms)
-[----------] 1 test from RealFileBudget (290 ms total)
+[ BUDGET   ] qr_parquet single-thread decode: 49659393 values/s (4748280 values in 0.0956s)
+[       OK ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor (292 ms)
+[----------] 1 test from RealFileBudget (292 ms total)
 
 [----------] 8 tests from PageVersions/ParquetValues
 [ RUN      ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1
-[       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1 (1 ms)
+[       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1 (2 ms)
 [ RUN      ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV2
-[       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV2 (1 ms)
+[       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV2 (2 ms)
 [ RUN      ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1
 /workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
 Expected equality of these values:
@@ -1147,7 +1149,7 @@ Expected equality of these values:
     Which is: false
 venue validity row 9
 
-[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (3 ms)
+[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (4 ms)
 [ RUN      ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2
 /workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
 Expected equality of these values:
@@ -2125,9 +2127,9 @@ Expected equality of these values:
     Which is: false
 venue validity row 9
 
-[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (3 ms)
+[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (4 ms)
 [ RUN      ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1
-[       OK ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1 (2 ms)
+[       OK ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1 (1 ms)
 [ RUN      ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2
 [       OK ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2 (1 ms)
 [ RUN      ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1
@@ -2214,11 +2216,11 @@ Expected equality of these values:
 venue
 
 [  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (1 ms)
-[----------] 8 tests from PageVersions/ParquetValues (20 ms total)
+[----------] 8 tests from PageVersions/ParquetValues (19 ms total)
 
 [----------] Global test environment tear-down
-[==========] 42 tests from 10 test suites ran. (684 ms total)
-[  PASSED  ] 36 tests.
+[==========] 43 tests from 10 test suites ran. (688 ms total)
+[  PASSED  ] 37 tests.
 [  FAILED  ] 6 tests, listed below:
 [  FAILED  ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture
 [  FAILED  ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics

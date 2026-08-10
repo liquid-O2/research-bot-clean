@@ -88,6 +88,17 @@ TEST(ParquetWall, RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly) {
   EXPECT_NE(refusal.message().find("REPEATED"), std::string::npos) << refusal.message();
 }
 
+TEST(ParquetWall, RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional) {
+  // Orchestrator ruling 2026-08-10: census-pinned fail-closed. The measured
+  // authority (dialect_census.tsv, 8,726 files) never carried a REQUIRED leaf,
+  // so a REQUIRED leaf is a LOUD REFUSAL and a change-control census update --
+  // never a silent widening of the reader.
+  const qr::parquet::FileRefusal refusal = refused_open("qr_required_leaf.parquet");
+  EXPECT_EQ(refusal.code(), RefusalCode::SCHEMA_MISMATCH);
+  EXPECT_NE(refusal.message().find("REQUIRED"), std::string::npos) << refusal.message();
+  EXPECT_NE(refusal.message().find("repetition"), std::string::npos) << refusal.message();
+}
+
 TEST(ParquetWall, NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly) {
   const qr::parquet::FileRefusal refusal = refused_open("qr_nested_schema.parquet");
   EXPECT_EQ(refusal.code(), RefusalCode::SCHEMA_MISMATCH);

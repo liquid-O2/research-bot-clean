@@ -333,7 +333,10 @@ TS = [
     1657054802000, 1657054802250,
 ]
 
-# seq: INT64 REQUIRED PLAIN -> max definition level 0, no level bytes at all.
+# seq: INT64 OPTIONAL PLAIN, no nulls and no statistics — the leaf the pruning
+# fall-back test uses. The `qr_required_leaf.parquet` fixture re-emits this same
+# leaf as REQUIRED, which the pinned dialect refuses (orchestrator ruling
+# 2026-08-10: the census never observed REQUIRED, so it is fail-closed).
 SEQ = [1000 + i * 7 for i in range(N_ROWS)]
 
 # px: DOUBLE OPTIONAL PLAIN with nulls, split across TWO data pages in row
@@ -418,7 +421,7 @@ def build_leaves() -> list[Leaf]:
     return [
         Leaf("ts", TYPE_INT64, REP_OPTIONAL, None, TS, False, "rle", "rle",
              write_statistics=True),
-        Leaf("seq", TYPE_INT64, REP_REQUIRED, None, SEQ, False, "rle", "rle"),
+        Leaf("seq", TYPE_INT64, REP_OPTIONAL, None, SEQ, False, "rle", "rle"),
         Leaf("px", TYPE_DOUBLE, REP_OPTIONAL, None, PX, False, "bitpack", "rle",
              page_splits={0: [6, 4]}),
         Leaf("sz", TYPE_INT32, REP_OPTIONAL, CONVERTED_UINT_32, SZ, True, "bitpack", "bitpack"),
@@ -832,6 +835,7 @@ FIXTURES = [
     ("qr_dict_index_oob.parquet", 1, {"dict_index_oob": "sym"}),
     ("qr_def_level_count_mismatch.parquet", 1, {"short_def_levels": "px"}),
     ("qr_repeated_leaf.parquet", 1, {"repetition_override": ("sym", REP_REPEATED)}),
+    ("qr_required_leaf.parquet", 1, {"repetition_override": ("seq", REP_REQUIRED)}),
     ("qr_nested_schema.parquet", 1, {"nested_child": True}),
     ("qr_bad_physical_type.parquet", 1, {"physical_override": ("px", TYPE_FLOAT)}),
     ("qr_bad_converted_type.parquet", 1, {"converted_override": ("sym", CONVERTED_DECIMAL)}),

@@ -1,8 +1,8 @@
 # RED-LEDGER EVIDENCE
-# mutation_id: M201_parquet_codec_gate_opened
-# patch:       tests/mutants/M201_parquet_codec_gate_opened.patch
+# mutation_id: M205_parquet_required_gate_opened
+# patch:       tests/mutants/M205_parquet_required_gate_opened.patch
 # build:       cmake --preset mutant && cmake --build --preset mutant
-# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M201_parquet_codec_gate_opened
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M205_parquet_required_gate_opened
 #
 ### qr_parquet_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
@@ -31,49 +31,53 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] ParquetWall.BadFooterLengthIsADecodeRefusalAndNeverReadsPastTheMapping
 [       OK ] ParquetWall.BadFooterLengthIsADecodeRefusalAndNeverReadsPastTheMapping (1 ms)
 [ RUN      ] ParquetWall.UnknownCodecIsRefusedByNameBeforeAnyPageIsTouched
+[       OK ] ParquetWall.UnknownCodecIsRefusedByNameBeforeAnyPageIsTouched (1 ms)
+[ RUN      ] ParquetWall.UnknownChunkEncodingIsRefusedByNameAtOpen
+[       OK ] ParquetWall.UnknownChunkEncodingIsRefusedByNameAtOpen (1 ms)
+[ RUN      ] ParquetWall.UnpinnedPhysicalTypeIsRefusedByName
+[       OK ] ParquetWall.UnpinnedPhysicalTypeIsRefusedByName (1 ms)
+[ RUN      ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName
+[       OK ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName (1 ms)
+[ RUN      ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly
+[       OK ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly (1 ms)
+[ RUN      ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional
 /workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:38: Failure
 Failed
-qr_unknown_codec.parquet was accepted at open; the wall is open
+qr_required_leaf.parquet was accepted at open; the wall is open
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:60: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:97: Failure
 Expected equality of these values:
   refusal.code()
     Which is: 1-byte object <13>
   RefusalCode::SCHEMA_MISMATCH
     Which is: 1-byte object <05>
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:61: Failure
-Expected: (refusal.message().find("SNAPPY")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
-the refusal must NAME the offending codec: CONFIG at test: the wall did not refuse path=/workspace/engine/cpp/tests/fixtures/parquet/qr_unknown_codec.parquet
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:98: Failure
+Expected: (refusal.message().find("REQUIRED")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+CONFIG at test: the wall did not refuse path=/workspace/engine/cpp/tests/fixtures/parquet/qr_required_leaf.parquet
 
-[  FAILED  ] ParquetWall.UnknownCodecIsRefusedByNameBeforeAnyPageIsTouched (1 ms)
-[ RUN      ] ParquetWall.UnknownChunkEncodingIsRefusedByNameAtOpen
-[       OK ] ParquetWall.UnknownChunkEncodingIsRefusedByNameAtOpen (2 ms)
-[ RUN      ] ParquetWall.UnpinnedPhysicalTypeIsRefusedByName
-[       OK ] ParquetWall.UnpinnedPhysicalTypeIsRefusedByName (1 ms)
-[ RUN      ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName
-[       OK ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName (2 ms)
-[ RUN      ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly
-[       OK ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly (2 ms)
-[ RUN      ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional
-[       OK ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional (1 ms)
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:99: Failure
+Expected: (refusal.message().find("repetition")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+CONFIG at test: the wall did not refuse path=/workspace/engine/cpp/tests/fixtures/parquet/qr_required_leaf.parquet
+
+[  FAILED  ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional (1 ms)
 [ RUN      ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly
 [       OK ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly (1 ms)
 [ RUN      ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode
-[       OK ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode (2 ms)
+[       OK ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode (1 ms)
 [ RUN      ] ParquetWall.TruncatedPageIsADecodeRefusalNamingThePath
 [       OK ] ParquetWall.TruncatedPageIsADecodeRefusalNamingThePath (1 ms)
 [ RUN      ] ParquetWall.DictionaryIndexOutOfRangeIsADecodeRefusalCarryingTheIndex
-[       OK ] ParquetWall.DictionaryIndexOutOfRangeIsADecodeRefusalCarryingTheIndex (2 ms)
+[       OK ] ParquetWall.DictionaryIndexOutOfRangeIsADecodeRefusalCarryingTheIndex (1 ms)
 [ RUN      ] ParquetWall.ShortDefinitionLevelStreamIsADecodeRefusal
 [       OK ] ParquetWall.ShortDefinitionLevelStreamIsADecodeRefusal (1 ms)
 [ RUN      ] ParquetWall.AMissingFileIsAnIoRefusalNotACrash
-[       OK ] ParquetWall.AMissingFileIsAnIoRefusalNotACrash (1 ms)
+[       OK ] ParquetWall.AMissingFileIsAnIoRefusalNotACrash (0 ms)
 [ RUN      ] ParquetWall.AnUnknownColumnNameIsASchemaRefusalNotAGuess
 [       OK ] ParquetWall.AnUnknownColumnNameIsASchemaRefusalNotAGuess (1 ms)
 [ RUN      ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined
 [       OK ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined (1 ms)
-[----------] 16 tests from ParquetWall (31 ms total)
+[----------] 16 tests from ParquetWall (25 ms total)
 
 [----------] 1 test from ParquetPageVersions
 [ RUN      ] ParquetPageVersions.V1AndV2DecodeToByteIdenticalOutput
@@ -82,7 +86,7 @@ the refusal must NAME the offending codec: CONFIG at test: the wall did not refu
 
 [----------] 3 tests from ParquetStatistics
 [ RUN      ] ParquetStatistics.RowGroupTimestampStatisticsAreExposedForPruning
-[       OK ] ParquetStatistics.RowGroupTimestampStatisticsAreExposedForPruning (1 ms)
+[       OK ] ParquetStatistics.RowGroupTimestampStatisticsAreExposedForPruning (2 ms)
 [ RUN      ] ParquetStatistics.RthPruningKeepsExactlyTheOverlappingRowGroups
 [       OK ] ParquetStatistics.RthPruningKeepsExactlyTheOverlappingRowGroups (1 ms)
 [ RUN      ] ParquetStatistics.MissingStatisticsKeepEveryRowGroupBecausePruningIsOnlySpeed
@@ -101,49 +105,49 @@ the refusal must NAME the offending codec: CONFIG at test: the wall did not refu
 
 [----------] 1 test from ParquetDecode
 [ RUN      ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical
-[       OK ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical (3 ms)
-[----------] 1 test from ParquetDecode (3 ms total)
+[       OK ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical (2 ms)
+[----------] 1 test from ParquetDecode (2 ms total)
 
 [----------] 4 tests from RealFileDigests
 [ RUN      ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture
-[       OK ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture (154 ms)
+[       OK ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture (107 ms)
 [ RUN      ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics
 [       OK ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics (62 ms)
 [ RUN      ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical
-[       OK ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (159 ms)
+[       OK ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (155 ms)
 [ RUN      ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups
-[       OK ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (3 ms)
-[----------] 4 tests from RealFileDigests (380 ms total)
+[       OK ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (14 ms)
+[----------] 4 tests from RealFileDigests (339 ms total)
 
 [----------] 1 test from RealFileBudget
 [ RUN      ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor
-[ BUDGET   ] qr_parquet single-thread decode: 48989595 values/s (4748280 values in 0.0969s)
+[ BUDGET   ] qr_parquet single-thread decode: 49059060 values/s (4748280 values in 0.0968s)
 [       OK ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor (295 ms)
 [----------] 1 test from RealFileBudget (295 ms total)
 
 [----------] 8 tests from PageVersions/ParquetValues
 [ RUN      ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1
-[       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1 (1 ms)
+[       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1 (2 ms)
 [ RUN      ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV2
 [       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV2 (1 ms)
 [ RUN      ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1
-[       OK ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1 (3 ms)
+[       OK ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1 (2 ms)
 [ RUN      ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2
-[       OK ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2 (2 ms)
+[       OK ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2 (1 ms)
 [ RUN      ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1
-[       OK ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1 (1 ms)
+[       OK ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1 (3 ms)
 [ RUN      ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2
-[       OK ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2 (2 ms)
+[       OK ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2 (1 ms)
 [ RUN      ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1
-[       OK ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1 (1 ms)
+[       OK ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1 (2 ms)
 [ RUN      ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV2
 [       OK ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV2 (1 ms)
-[----------] 8 tests from PageVersions/ParquetValues (16 ms total)
+[----------] 8 tests from PageVersions/ParquetValues (17 ms total)
 
 [----------] Global test environment tear-down
-[==========] 43 tests from 10 test suites ran. (738 ms total)
+[==========] 43 tests from 10 test suites ran. (691 ms total)
 [  PASSED  ] 42 tests.
 [  FAILED  ] 1 test, listed below:
-[  FAILED  ] ParquetWall.UnknownCodecIsRefusedByNameBeforeAnyPageIsTouched
+[  FAILED  ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional
 
  1 FAILED TEST

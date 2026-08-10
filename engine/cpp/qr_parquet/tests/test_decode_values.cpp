@@ -228,7 +228,7 @@ TEST_P(ParquetValues, SchemaIsTheNinePinnedFlatLeaves) {
   };
   const Expectation expected[] = {
       {"ts", LeafType::INT64, LeafConverted::NONE, true},
-      {"seq", LeafType::INT64, LeafConverted::NONE, false},
+      {"seq", LeafType::INT64, LeafConverted::NONE, true},
       {"px", LeafType::DOUBLE, LeafConverted::NONE, true},
       {"sz", LeafType::INT32, LeafConverted::UINT_32, true},
       {"flag", LeafType::INT32, LeafConverted::INT_8, true},

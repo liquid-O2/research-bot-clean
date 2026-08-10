@@ -6,7 +6,7 @@
 #
 ### qr_parquet_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 42 tests from 10 test suites.
+[==========] Running 43 tests from 10 test suites.
 [----------] Global test environment set-up.
 [----------] 7 tests from ThriftCompact
 [ RUN      ] ThriftCompact.VarintDecodesMultiByteValuesExactly
@@ -25,9 +25,9 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] ThriftCompact.ListHeaderRefusesAPromiseLargerThanTheBuffer (0 ms)
 [----------] 7 tests from ThriftCompact (0 ms total)
 
-[----------] 15 tests from ParquetWall
+[----------] 16 tests from ParquetWall
 [ RUN      ] ParquetWall.MissingLeadingMagicIsADecodeRefusalNamingThePath
-[       OK ] ParquetWall.MissingLeadingMagicIsADecodeRefusalNamingThePath (9 ms)
+[       OK ] ParquetWall.MissingLeadingMagicIsADecodeRefusalNamingThePath (3 ms)
 [ RUN      ] ParquetWall.BadFooterLengthIsADecodeRefusalAndNeverReadsPastTheMapping
 [       OK ] ParquetWall.BadFooterLengthIsADecodeRefusalAndNeverReadsPastTheMapping (1 ms)
 [ RUN      ] ParquetWall.UnknownCodecIsRefusedByNameBeforeAnyPageIsTouched
@@ -37,21 +37,23 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] ParquetWall.UnpinnedPhysicalTypeIsRefusedByName
 [       OK ] ParquetWall.UnpinnedPhysicalTypeIsRefusedByName (1 ms)
 [ RUN      ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName
-[       OK ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName (1 ms)
+[       OK ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName (2 ms)
 [ RUN      ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly
 [       OK ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly (1 ms)
+[ RUN      ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional
+[       OK ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional (1 ms)
 [ RUN      ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly
 [       OK ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly (1 ms)
 [ RUN      ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode
 [       OK ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode (1 ms)
 [ RUN      ] ParquetWall.TruncatedPageIsADecodeRefusalNamingThePath
-[       OK ] ParquetWall.TruncatedPageIsADecodeRefusalNamingThePath (1 ms)
+[       OK ] ParquetWall.TruncatedPageIsADecodeRefusalNamingThePath (2 ms)
 [ RUN      ] ParquetWall.DictionaryIndexOutOfRangeIsADecodeRefusalCarryingTheIndex
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:142: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:153: Failure
 Expected: (refusal.message().find("dictionary index")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
 DECODE_FAILED at qr_parquet::File::decode_data_page: PLAIN value block is shorter than the page's value count (px) [context=40] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_dict_index_oob.parquet
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:145: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:156: Failure
 Expected equality of these values:
   refusal.context()
     Which is: 40
@@ -65,8 +67,8 @@ Expected equality of these values:
 [ RUN      ] ParquetWall.AnUnknownColumnNameIsASchemaRefusalNotAGuess
 [       OK ] ParquetWall.AnUnknownColumnNameIsASchemaRefusalNotAGuess (1 ms)
 [ RUN      ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined
-[       OK ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined (2 ms)
-[----------] 15 tests from ParquetWall (31 ms total)
+[       OK ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined (1 ms)
+[----------] 16 tests from ParquetWall (25 ms total)
 
 [----------] 1 test from ParquetPageVersions
 [ RUN      ] ParquetPageVersions.V1AndV2DecodeToByteIdenticalOutput
@@ -75,12 +77,12 @@ Value of: v1.value().read_column(group, leaf, workspace, column).has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] ParquetPageVersions.V1AndV2DecodeToByteIdenticalOutput (2 ms)
-[----------] 1 test from ParquetPageVersions (2 ms total)
+[  FAILED  ] ParquetPageVersions.V1AndV2DecodeToByteIdenticalOutput (3 ms)
+[----------] 1 test from ParquetPageVersions (3 ms total)
 
 [----------] 3 tests from ParquetStatistics
 [ RUN      ] ParquetStatistics.RowGroupTimestampStatisticsAreExposedForPruning
-[       OK ] ParquetStatistics.RowGroupTimestampStatisticsAreExposedForPruning (1 ms)
+[       OK ] ParquetStatistics.RowGroupTimestampStatisticsAreExposedForPruning (2 ms)
 [ RUN      ] ParquetStatistics.RthPruningKeepsExactlyTheOverlappingRowGroups
 [       OK ] ParquetStatistics.RthPruningKeepsExactlyTheOverlappingRowGroups (1 ms)
 [ RUN      ] ParquetStatistics.MissingStatisticsKeepEveryRowGroupBecausePruningIsOnlySpeed
@@ -94,8 +96,8 @@ Value of: file.read_column(group, leaf, workspace, column).has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] ParquetArena.TheArenaIsReusedAcrossPagesAndChunksInsteadOfReallocated (2 ms)
-[----------] 1 test from ParquetArena (2 ms total)
+[  FAILED  ] ParquetArena.TheArenaIsReusedAcrossPagesAndChunksInsteadOfReallocated (1 ms)
+[----------] 1 test from ParquetArena (1 ms total)
 
 [----------] 1 test from ParquetDictionary
 [ RUN      ] ParquetDictionary.TheDictionaryCacheIsRebuiltPerChunkNotCarriedAcross
@@ -109,8 +111,8 @@ Value of: opened.value().read_column(group, leaf, workspace, column).has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical (2 ms)
-[----------] 1 test from ParquetDecode (2 ms total)
+[  FAILED  ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical (1 ms)
+[----------] 1 test from ParquetDecode (1 ms total)
 
 [----------] 4 tests from RealFileDigests
 [ RUN      ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture
@@ -526,24 +528,24 @@ Expected equality of these values:
     Which is: 9208969252831124899
 spread_bps
 
-[  FAILED  ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture (45 ms)
+[  FAILED  ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture (50 ms)
 [ RUN      ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics
 /workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:228: Failure
 Value of: file.read_column(group, leaf, workspace, column).has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics (34 ms)
+[  FAILED  ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics (20 ms)
 [ RUN      ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical
 /workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:260: Failure
 Value of: file.read_column(group, leaf, workspace, column).has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (20 ms)
+[  FAILED  ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (19 ms)
 [ RUN      ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups
-[       OK ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (5 ms)
-[----------] 4 tests from RealFileDigests (106 ms total)
+[       OK ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (44 ms)
+[----------] 4 tests from RealFileDigests (134 ms total)
 
 [----------] 1 test from RealFileBudget
 [ RUN      ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor
@@ -568,12 +570,12 @@ DECODE_FAILED at qr_parquet::File::decode_data_page: dictionary index is outside
 /workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:318: Failure
 Expected: (best) > (0.0), actual: 0 vs 0
 
-[  FAILED  ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor (50 ms)
-[----------] 1 test from RealFileBudget (50 ms total)
+[  FAILED  ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor (56 ms)
+[----------] 1 test from RealFileBudget (56 ms total)
 
 [----------] 8 tests from PageVersions/ParquetValues
 [ RUN      ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1
-[       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1 (3 ms)
+[       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1 (2 ms)
 [ RUN      ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV2
 [       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV2 (1 ms)
 [ RUN      ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1
@@ -851,7 +853,7 @@ Value of: whole.strings[row].empty()
 Expected: true
 sym row 19: a null row must be a zero-length slice
 
-[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (2 ms)
+[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (1 ms)
 [ RUN      ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2
 /workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
 Value of: rows.has_value()
@@ -909,7 +911,7 @@ Expected equality of these values:
     Which is: 20
 sym
 
-[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (2 ms)
+[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (1 ms)
 [ RUN      ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1
 /workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
 Value of: rows.has_value()
@@ -947,7 +949,7 @@ Expected equality of these values:
     Which is: 2
 sym
 
-[  FAILED  ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (2 ms)
+[  FAILED  ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (1 ms)
 [ RUN      ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2
 /workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
 Value of: rows.has_value()
@@ -997,7 +999,7 @@ Expected equality of these values:
     Which is: 2
 sym
 
-[  FAILED  ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (2 ms)
+[  FAILED  ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (1 ms)
 [ RUN      ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1
 /workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:295: Failure
 Value of: rows.has_value()
@@ -1005,7 +1007,7 @@ Value of: rows.has_value()
 Expected: true
 DECODE_FAILED at qr_parquet::File::decode_data_page: PLAIN value block is shorter than the page's value count (px) [context=40] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v1.parquet
 
-[  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (1 ms)
+[  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (15 ms)
 [ RUN      ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV2
 /workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:295: Failure
 Value of: rows.has_value()
@@ -1013,12 +1015,12 @@ Value of: rows.has_value()
 Expected: true
 DECODE_FAILED at qr_parquet::File::decode_data_page: v2 definition levels disagree with the page header's null count (px) path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v2.parquet
 
-[  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (1 ms)
-[----------] 8 tests from PageVersions/ParquetValues (17 ms total)
+[  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (2 ms)
+[----------] 8 tests from PageVersions/ParquetValues (28 ms total)
 
 [----------] Global test environment tear-down
-[==========] 42 tests from 10 test suites ran. (220 ms total)
-[  PASSED  ] 28 tests.
+[==========] 43 tests from 10 test suites ran. (259 ms total)
+[  PASSED  ] 29 tests.
 [  FAILED  ] 14 tests, listed below:
 [  FAILED  ] ParquetWall.DictionaryIndexOutOfRangeIsADecodeRefusalCarryingTheIndex
 [  FAILED  ] ParquetPageVersions.V1AndV2DecodeToByteIdenticalOutput

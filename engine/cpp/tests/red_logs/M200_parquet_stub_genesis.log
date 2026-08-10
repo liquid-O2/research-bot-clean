@@ -6,7 +6,7 @@
 #
 ### qr_parquet_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 42 tests from 10 test suites.
+[==========] Running 43 tests from 10 test suites.
 [----------] Global test environment set-up.
 [----------] 7 tests from ThriftCompact
 [ RUN      ] ThriftCompact.VarintDecodesMultiByteValuesExactly
@@ -141,7 +141,7 @@ Expected: false
 [  FAILED  ] ThriftCompact.ListHeaderRefusesAPromiseLargerThanTheBuffer (0 ms)
 [----------] 7 tests from ThriftCompact (0 ms total)
 
-[----------] 15 tests from ParquetWall
+[----------] 16 tests from ParquetWall
 [ RUN      ] ParquetWall.MissingLeadingMagicIsADecodeRefusalNamingThePath
 /workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:46: Failure
 Expected equality of these values:
@@ -228,42 +228,59 @@ Expected: (refusal.message().find("REPEATED")) != (std::string::npos), actual: 1
 CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cpp/tests/fixtures/parquet/qr_repeated_leaf.parquet
 
 [  FAILED  ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly (0 ms)
-[ RUN      ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:93: Failure
+[ RUN      ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:97: Failure
 Expected equality of these values:
   refusal.code()
     Which is: 1-byte object <13>
   RefusalCode::SCHEMA_MISMATCH
     Which is: 1-byte object <05>
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:94: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:98: Failure
+Expected: (refusal.message().find("REQUIRED")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cpp/tests/fixtures/parquet/qr_required_leaf.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:99: Failure
+Expected: (refusal.message().find("repetition")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cpp/tests/fixtures/parquet/qr_required_leaf.parquet
+
+[  FAILED  ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional (0 ms)
+[ RUN      ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:104: Failure
+Expected equality of these values:
+  refusal.code()
+    Which is: 1-byte object <13>
+  RefusalCode::SCHEMA_MISMATCH
+    Which is: 1-byte object <05>
+
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:105: Failure
 Expected: (refusal.message().find("flat")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
 CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cpp/tests/fixtures/parquet/qr_nested_schema.parquet
 
 [  FAILED  ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly (0 ms)
 [ RUN      ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:102: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:113: Failure
 Failed
 qr_unknown_encoding.parquet must open cleanly; its corruption lives in a page. Got: CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cpp/tests/fixtures/parquet/qr_unknown_encoding.parquet
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:127: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:138: Failure
 Expected equality of these values:
   refusal.code()
     Which is: 1-byte object <13>
   RefusalCode::SCHEMA_MISMATCH
     Which is: 1-byte object <05>
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:128: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:139: Failure
 Expected: (refusal.message().find("DELTA_BINARY_PACKED")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
 CONFIG at test: the wall did not refuse path=/workspace/engine/cpp/tests/fixtures/parquet/qr_unknown_encoding.parquet
 
 [  FAILED  ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode (0 ms)
 [ RUN      ] ParquetWall.TruncatedPageIsADecodeRefusalNamingThePath
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:102: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:113: Failure
 Failed
 qr_truncated_page.parquet must open cleanly; its corruption lives in a page. Got: CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cpp/tests/fixtures/parquet/qr_truncated_page.parquet
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:134: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:145: Failure
 Expected equality of these values:
   refusal.code()
     Which is: 1-byte object <13>
@@ -272,22 +289,22 @@ Expected equality of these values:
 
 [  FAILED  ] ParquetWall.TruncatedPageIsADecodeRefusalNamingThePath (0 ms)
 [ RUN      ] ParquetWall.DictionaryIndexOutOfRangeIsADecodeRefusalCarryingTheIndex
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:102: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:113: Failure
 Failed
 qr_dict_index_oob.parquet must open cleanly; its corruption lives in a page. Got: CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cpp/tests/fixtures/parquet/qr_dict_index_oob.parquet
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:141: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:152: Failure
 Expected equality of these values:
   refusal.code()
     Which is: 1-byte object <13>
   RefusalCode::DECODE_FAILED
     Which is: 1-byte object <06>
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:142: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:153: Failure
 Expected: (refusal.message().find("dictionary index")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
 CONFIG at test: the wall did not refuse path=/workspace/engine/cpp/tests/fixtures/parquet/qr_dict_index_oob.parquet
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:145: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:156: Failure
 Expected equality of these values:
   refusal.context()
     Which is: 0
@@ -295,24 +312,24 @@ Expected equality of these values:
 
 [  FAILED  ] ParquetWall.DictionaryIndexOutOfRangeIsADecodeRefusalCarryingTheIndex (0 ms)
 [ RUN      ] ParquetWall.ShortDefinitionLevelStreamIsADecodeRefusal
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:102: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:113: Failure
 Failed
 qr_def_level_count_mismatch.parquet must open cleanly; its corruption lives in a page. Got: CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cpp/tests/fixtures/parquet/qr_def_level_count_mismatch.parquet
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:151: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:162: Failure
 Expected equality of these values:
   refusal.code()
     Which is: 1-byte object <13>
   RefusalCode::DECODE_FAILED
     Which is: 1-byte object <06>
 
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:152: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:163: Failure
 Expected: (refusal.message().find("definition level")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
 CONFIG at test: the wall did not refuse path=/workspace/engine/cpp/tests/fixtures/parquet/qr_def_level_count_mismatch.parquet
 
 [  FAILED  ] ParquetWall.ShortDefinitionLevelStreamIsADecodeRefusal (0 ms)
 [ RUN      ] ParquetWall.AMissingFileIsAnIoRefusalNotACrash
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:159: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:170: Failure
 Expected equality of these values:
   opened.error().code()
     Which is: 1-byte object <13>
@@ -321,7 +338,7 @@ Expected equality of these values:
 
 [  FAILED  ] ParquetWall.AMissingFileIsAnIoRefusalNotACrash (0 ms)
 [ RUN      ] ParquetWall.AnUnknownColumnNameIsASchemaRefusalNotAGuess
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:165: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:176: Failure
 Value of: opened.has_value()
   Actual: false
 Expected: true
@@ -329,14 +346,14 @@ CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cp
 
 [  FAILED  ] ParquetWall.AnUnknownColumnNameIsASchemaRefusalNotAGuess (0 ms)
 [ RUN      ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined
-/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:174: Failure
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:185: Failure
 Value of: opened.has_value()
   Actual: false
 Expected: true
 CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v1.parquet
 
 [  FAILED  ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined (0 ms)
-[----------] 15 tests from ParquetWall (0 ms total)
+[----------] 16 tests from ParquetWall (0 ms total)
 
 [----------] 1 test from ParquetPageVersions
 [ RUN      ] ParquetPageVersions.V1AndV2DecodeToByteIdenticalOutput
@@ -417,7 +434,7 @@ Value of: opened.has_value()
 Expected: true
 CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
 
-[  FAILED  ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture (4 ms)
+[  FAILED  ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture (3 ms)
 [ RUN      ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics
 /workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:216: Failure
 Value of: opened.has_value()
@@ -425,7 +442,7 @@ Value of: opened.has_value()
 Expected: true
 CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
 
-[  FAILED  ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics (18 ms)
+[  FAILED  ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics (2 ms)
 [ RUN      ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical
 /workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:254: Failure
 Value of: opened.has_value()
@@ -433,7 +450,7 @@ Value of: opened.has_value()
 Expected: true
 CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
 
-[  FAILED  ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (2 ms)
+[  FAILED  ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (1 ms)
 [ RUN      ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups
 /workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:273: Failure
 Value of: opened.has_value()
@@ -441,8 +458,8 @@ Value of: opened.has_value()
 Expected: true
 CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
 
-[  FAILED  ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (3 ms)
-[----------] 4 tests from RealFileDigests (28 ms total)
+[  FAILED  ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (2 ms)
+[----------] 4 tests from RealFileDigests (10 ms total)
 
 [----------] 1 test from RealFileBudget
 [ RUN      ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor
@@ -523,9 +540,9 @@ CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cp
 [----------] 8 tests from PageVersions/ParquetValues (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 42 tests from 10 test suites ran. (32 ms total)
+[==========] 43 tests from 10 test suites ran. (14 ms total)
 [  PASSED  ] 0 tests.
-[  FAILED  ] 42 tests, listed below:
+[  FAILED  ] 43 tests, listed below:
 [  FAILED  ] ThriftCompact.VarintDecodesMultiByteValuesExactly
 [  FAILED  ] ThriftCompact.ZigzagRoundTripsBothSigns
 [  FAILED  ] ThriftCompact.EveryReadIsBoundsCheckedAndLatchesTheFirstReason
@@ -540,6 +557,7 @@ CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cp
 [  FAILED  ] ParquetWall.UnpinnedPhysicalTypeIsRefusedByName
 [  FAILED  ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName
 [  FAILED  ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly
+[  FAILED  ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional
 [  FAILED  ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly
 [  FAILED  ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode
 [  FAILED  ] ParquetWall.TruncatedPageIsADecodeRefusalNamingThePath
@@ -569,4 +587,4 @@ CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cp
 [  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet"
 [  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet"
 
-42 FAILED TESTS
+43 FAILED TESTS

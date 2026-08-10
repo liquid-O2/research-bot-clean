@@ -38,7 +38,7 @@ value	ts	row19	1657054802250
 column	seq	leaf_index	1
 column	seq	physical	INT64
 column	seq	converted	NONE
-column	seq	repetition	REQUIRED
+column	seq	repetition	OPTIONAL
 column	seq	encoding	PLAIN
 column	seq	n_rows	20
 column	seq	n_null	0

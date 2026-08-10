@@ -8,6 +8,7 @@ The final cleanup populates:
 - `RETENTIONS.tsv`
 - `OMISSIONS.tsv`
 - `DELETIONS.tsv`
+- `TEMP_CLEANUP.tsv`
 
 Every destructive row names the exact target, pre-action identity, recovery
 artifact, recovery command, authorization and post-action verification.

@@ -35,6 +35,7 @@ REQUIRED = (
     "engine/Cargo.toml",
     "engine/Cargo.lock",
     "retirement/REFS.tsv",
+    "retirement/TEMP_CLEANUP.tsv",
 )
 FORBIDDEN_TRACKED_PREFIXES = ("data/", "artifacts/", ".venv/", "target/")
 SECRET_PATTERNS = (
@@ -248,6 +249,17 @@ def main() -> int:
         for row in worktree_rows
     ):
         fail("legacy worktree retirement is not complete")
+    with (ROOT / "retirement/TEMP_CLEANUP.tsv").open(
+        newline="", encoding="utf-8"
+    ) as src:
+        temp_cleanup_rows = list(csv.DictReader(src, delimiter="\t"))
+    if len(temp_cleanup_rows) != 2 or any(
+        row["status"] != "COMPLETED_TEMP_CLEANUP" for row in temp_cleanup_rows
+    ):
+        fail("redundant clean-room temporary cleanup is not complete")
+    for row in temp_cleanup_rows:
+        if Path(row["target"]).exists():
+            fail(f"redundant clean-room temporary still exists: {row['target']}")
 
     card = ROOT / "evidence/claims/native_state/TASK_CARD.md"
     addendum = ROOT / "evidence/claims/native_state/READER_ADDENDUM.md"

@@ -1,0 +1,23 @@
+{
+  "captured_at_utc": "2026-08-10T14:58:47.286134+00:00",
+  "captured_bytes": 1101158524,
+  "encrypted_archive": "/workspace/data/private_project_vault/russell_cleanroom_20260810T144841Z/private_transcripts_20260810T145848Z.tar.zst.gpg",
+  "encrypted_archive_bytes": 206763796,
+  "encrypted_archive_sha256": "8e8b4e9a0fa3590532e96f9feba840a0e81c5d46f8dbccf00f33f7249371366a",
+  "file_count": 679,
+  "key_file_sha256": "1d2b737fab1e5753f2b1232940f202094fdd355728e0ff715c28022328d93ab1",
+  "namespaces": {
+    "codex_sessions": {
+      "bytes": 828135675,
+      "files": 24
+    },
+    "historical_claude_workspace": {
+      "bytes": 273022849,
+      "files": 655
+    }
+  },
+  "plaintext_snapshot_location": "ephemeral_/tmp_removed_after_verification",
+  "private_manifest_sha256": "837bc45ba7518f0c6d4bc9e02f25fd884fcf358b0756f64b997e5ae6be9708f7",
+  "schema": "russell_private_transcript_capture_v1",
+  "stream_decrypt_zstd_test": "PASS"
+}

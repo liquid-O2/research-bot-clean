@@ -1,0 +1,29 @@
+class	path	contract
+WORKSPACE	engine/Cargo.toml	seven-member Cargo workspace, Rust 1.97, resolver 3, unsafe forbidden
+DEPENDENCY_LOCK	engine/Cargo.lock	exact locked dependency graph
+SESSION_REGISTRY	engine/crates/corpus/registry/accepted_compact_sessions.tsv	pinned 1,003-session registry
+CORPUS_READER	engine/crates/corpus/src/reader.rs	typed quote-group and full-day reader laws
+CORPUS_REGISTRY	engine/crates/corpus/src/registry.rs	registry authentication and source profiles
+SESSION_CLOCK	engine/crates/corpus/src/session_clock.rs	sole Frame-B civil-time to Frame-A UTC conversion
+PUBLICATION_PIN	engine/crates/pubread/src/manifest.rs	manifest-pinned publication admission
+PUBLICATION_ROWS	engine/crates/pubread/src/rows.rs	typed publication row decoding
+LABEL_FRAME	engine/crates/labels/src/frame.rs	session-frame ordering and breaker laws
+LABEL_SCHEDULER	engine/crates/labels/src/scheduler.rs	label scheduling contract
+METRICS_CAPTURE	engine/crates/metrics/src/capture.rs	candidate/truth capture and ambiguity accounting
+METRICS_SESSION	engine/crates/metrics/src/session.rs	session and stream wire contract
+PUBLISH_ATOMIC	engine/crates/publish/src/atomic.rs	staging and no-overwrite publication law
+PUBLISH_MANIFEST	engine/crates/publish/src/manifest.rs	leaf manifest schema and path containment
+PUBLISH_RECEIPT	engine/crates/publish/src/receipt.rs	pinned publication receipt schema
+PUBLISH_VERIFY	engine/crates/publish/src/verify.rs	closed-directory verification
+LEDGER_SCHEMA	engine/crates/ledger/src/lib.rs	run, trial, review, and telemetry schema
+SELECT_CALENDAR	engine/crates/select_v2/src/calendar.rs	calendar admission wall
+SELECT_BOOK	engine/crates/select_v2/src/book.rs	action-book schema and cutoff derivation
+SELECT_SESSION_PASS	engine/crates/select_v2/src/session_pass.rs	strict-prefix session pass
+INTEGRATION_TEST	engine/crates/corpus/tests/full_day_stock_quotes_contract.rs	synthetic full-day quote contract
+INTEGRATION_TEST	engine/crates/corpus/tests/nbbo_size_era_contract.rs	size-era contract; real-corpus submodule deferred
+INTEGRATION_TEST	engine/crates/select_v2/tests/b1_b2_contract.rs	real-session family contract; deferred
+INTEGRATION_TEST	engine/crates/select_v2/tests/book_contract.rs	action-book contract; deferred
+INTEGRATION_TEST	engine/crates/select_v2/tests/calendar_wall.rs	calendar and pre-path refusal contract; executed PASS
+INTEGRATION_TEST	engine/crates/select_v2/tests/session_pass_contract.rs	real-session pass contract; deferred
+INTEGRATION_TEST	engine/crates/select_v2/tests/sources_real_session.rs	real-source reader contract; deferred
+

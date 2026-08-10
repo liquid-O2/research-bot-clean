@@ -1,0 +1,83 @@
+warning: constant `RAW_FIELD_COUNT` is never used
+  --> crates/corpus/src/reader.rs:40:7
+   |
+40 | const RAW_FIELD_COUNT: usize = 9;
+   |       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: enum `SignedColumn` is never used
+   --> crates/corpus/src/reader.rs:398:6
+    |
+398 | enum SignedColumn<'a> {
+    |      ^^^^^^^^^^^^
+
+warning: methods `is_null` and `value` are never used
+   --> crates/corpus/src/reader.rs:404:8
+    |
+403 | impl SignedColumn<'_> {
+    | --------------------- methods in this implementation
+404 |     fn is_null(&self, row: usize) -> bool {
+    |        ^^^^^^^
+...
+411 |     fn value(&self, row: usize) -> i64 {
+    |        ^^^^^
+
+warning: enum `PriceColumn` is never used
+   --> crates/corpus/src/reader.rs:419:6
+    |
+419 | enum PriceColumn<'a> {
+    |      ^^^^^^^^^^^
+
+warning: methods `is_null` and `normalized_u6` are never used
+   --> crates/corpus/src/reader.rs:425:8
+    |
+424 | impl PriceColumn<'_> {
+    | -------------------- methods in this implementation
+425 |     fn is_null(&self, row: usize) -> bool {
+    |        ^^^^^^^
+...
+432 |     fn normalized_u6(&self, row: usize, path: &Path) -> Result<i64> {
+    |        ^^^^^^^^^^^^^
+
+warning: struct `RawBatch` is never constructed
+   --> crates/corpus/src/reader.rs:442:8
+    |
+442 | struct RawBatch<'a> {
+    |        ^^^^^^^^
+
+warning: associated items `from_batch` and `null_pattern` are never used
+   --> crates/corpus/src/reader.rs:453:8
+    |
+452 | impl<'a> RawBatch<'a> {
+    | --------------------- associated items in this implementation
+453 |     fn from_batch(batch: &'a RecordBatch, profile: SourceProfile, path: &Path) -> Result<Self> {
+    |        ^^^^^^^^^^
+...
+488 |     fn null_pattern(&self, row: usize) -> (bool, bool) {
+    |        ^^^^^^^^^^^^
+
+warning: function `decode` is never used
+   --> crates/corpus/src/reader.rs:842:4
+    |
+842 | fn decode(file: File, path: &Path, entry: RegistryEntry) -> Result<QuoteGroups> {
+    |    ^^^^^^
+
+warning: `corpus` (lib) generated 8 warnings
+warning: `corpus` (lib test) generated 8 warnings (8 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.32s
+  Executable unittests src/lib.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/corpus-4fca5de55e31b8ca)
+  Executable tests/full_day_stock_quotes_contract.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/full_day_stock_quotes_contract-87ba5871ea2fbd47)
+  Executable tests/nbbo_size_era_contract.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/nbbo_size_era_contract-f8a1eb90eb594127)
+  Executable unittests src/lib.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/labels-b540a082a1fa41b0)
+  Executable unittests src/lib.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/ledger-0aadf9c836f42a43)
+  Executable unittests src/lib.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/metrics-a176df3370314e8e)
+  Executable unittests src/lib.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/publish-d283bb40a99c044d)
+  Executable unittests src/lib.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/pubread-7fee77c249e17b35)
+  Executable unittests src/lib.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/select_v2-2315452c751fd7ca)
+  Executable unittests src/main.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/select_v2-9aa21921d6531209)
+  Executable tests/b1_b2_contract.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/b1_b2_contract-415778d7c2e6963d)
+  Executable tests/book_contract.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/book_contract-6b9639cd0ababf4e)
+  Executable tests/calendar_wall.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/calendar_wall-b75f792909ca9f56)
+  Executable tests/session_pass_contract.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/session_pass_contract-9fe0377ed0d7bc85)
+  Executable tests/sources_real_session.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/sources_real_session-5bbf191d9800e005)

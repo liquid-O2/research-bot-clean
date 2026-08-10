@@ -1,0 +1,230 @@
+warning: constant `RAW_FIELD_COUNT` is never used
+  --> crates/corpus/src/reader.rs:40:7
+   |
+40 | const RAW_FIELD_COUNT: usize = 9;
+   |       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: enum `SignedColumn` is never used
+   --> crates/corpus/src/reader.rs:398:6
+    |
+398 | enum SignedColumn<'a> {
+    |      ^^^^^^^^^^^^
+
+warning: methods `is_null` and `value` are never used
+   --> crates/corpus/src/reader.rs:404:8
+    |
+403 | impl SignedColumn<'_> {
+    | --------------------- methods in this implementation
+404 |     fn is_null(&self, row: usize) -> bool {
+    |        ^^^^^^^
+...
+411 |     fn value(&self, row: usize) -> i64 {
+    |        ^^^^^
+
+warning: enum `PriceColumn` is never used
+   --> crates/corpus/src/reader.rs:419:6
+    |
+419 | enum PriceColumn<'a> {
+    |      ^^^^^^^^^^^
+
+warning: methods `is_null` and `normalized_u6` are never used
+   --> crates/corpus/src/reader.rs:425:8
+    |
+424 | impl PriceColumn<'_> {
+    | -------------------- methods in this implementation
+425 |     fn is_null(&self, row: usize) -> bool {
+    |        ^^^^^^^
+...
+432 |     fn normalized_u6(&self, row: usize, path: &Path) -> Result<i64> {
+    |        ^^^^^^^^^^^^^
+
+warning: struct `RawBatch` is never constructed
+   --> crates/corpus/src/reader.rs:442:8
+    |
+442 | struct RawBatch<'a> {
+    |        ^^^^^^^^
+
+warning: associated items `from_batch` and `null_pattern` are never used
+   --> crates/corpus/src/reader.rs:453:8
+    |
+452 | impl<'a> RawBatch<'a> {
+    | --------------------- associated items in this implementation
+453 |     fn from_batch(batch: &'a RecordBatch, profile: SourceProfile, path: &Path) -> Result<Self> {
+    |        ^^^^^^^^^^
+...
+488 |     fn null_pattern(&self, row: usize) -> (bool, bool) {
+    |        ^^^^^^^^^^^^
+
+warning: function `decode` is never used
+   --> crates/corpus/src/reader.rs:842:4
+    |
+842 | fn decode(file: File, path: &Path, entry: RegistryEntry) -> Result<QuoteGroups> {
+    |    ^^^^^^
+
+warning: `corpus` (lib) generated 8 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.05s
+     Running unittests src/lib.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/ledger-0aadf9c836f42a43)
+
+running 6 tests
+test tests::finish_run_on_unknown_id_errors ... ok
+test tests::review_roundtrip ... ok
+test tests::telemetry_roundtrip_preserves_insertion_order_and_run_scoping ... ok
+test tests::run_roundtrip_begin_finish_and_query ... ok
+test tests::trial_roundtrip ... ok
+test tests::open_creates_schema_on_a_real_file_and_is_reopen_safe ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+     Running unittests src/lib.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/metrics-a176df3370314e8e)
+
+running 73 tests
+test bank::tests::extension_caps_at_five_total_streams ... ok
+test bank::tests::f9_scenario_only_the_lcb_eligible_stream_enters_the_bank ... ok
+test bank::tests::eligibility_consumes_the_pinned_estimators_boolean_verdict_directly ... ok
+test bank::tests::empty_candidate_list_is_insufficient ... ok
+test bank::tests::frontier_excludes_a_dominated_stream_then_selects_the_top_three_by_recall ... ok
+test bank::tests::extension_adds_a_fourth_stream_when_both_conditions_hold ... ok
+test bank::tests::invalid_canonical_is_rejected_before_mismatched_denominator_would_even_matter ... ok
+test bank::tests::malformed_canonical_is_a_typed_error ... ok
+test bank::tests::mismatched_truths_denominator_is_a_typed_error ... ok
+test bank::tests::non_finite_canonical_is_a_typed_error ... ok
+test bank::tests::one_below_the_recall_floor_is_ineligible ... ok
+test bank::tests::recall_floor_boundary_is_inclusive_at_exact_equality ... ok
+test bank::tests::recall_floor_true_but_estimator_says_no_is_ineligible ... ok
+test bank::tests::scientific_notation_canonical_is_rejected_not_exact_decimal ... ok
+test bank::tests::sol10_a_dominates_b_and_c_is_insufficient_not_selected ... ok
+test bank::tests::well_formed_canonical_values_are_accepted ... ok
+test capture::tests::a_shared_member_signal_across_two_candidates_never_collides_at_candidate_grain ... ok
+test bank::tests::zero_eligible_streams_is_insufficient_with_an_empty_bank ... ok
+test capture::tests::candidate_at_or_before_the_plateau_is_exact_not_post_plateau ... ok
+test capture::tests::candidate_related_to_two_truths_is_conflicting_and_never_a_hit ... ok
+test capture::tests::dedup_earliest_visible_ts_wins_the_later_one_is_a_duplicate ... ok
+test capture::tests::dedup_tie_break_on_visible_ts_falls_to_confirmation_group_ordinal_next ... ok
+test capture::tests::edge_referencing_an_unknown_episode_is_a_typed_error_not_a_panic ... ok
+test capture::tests::dedup_tie_break_uses_registration_ordinal_never_digest_order ... ok
+test capture::tests::edge_with_no_matching_outcome_is_a_typed_error ... ok
+test capture::tests::outcome_with_no_relation_edge_row_is_a_typed_error_not_a_silent_burden_drop ... ok
+test capture::tests::delay_of_three_is_late_not_timely ... ok
+test capture::tests::post_plateau_candidate_with_no_bar_ordinal_is_not_scorable ... ok
+test capture::tests::single_timely_candidate_is_a_unique_hit_with_the_right_delay ... ok
+test capture::tests::truth_with_no_related_candidate_at_all_is_no_exact_relation ... ok
+test capture::tests::unmatched_close_non_scorable_candidate_does_not_count_toward_burden ... ok
+test capture::tests::unmatched_scorable_candidate_counts_toward_burden ... ok
+test frontier::tests::a_recall_burden_tradeoff_is_non_dominated_either_way ... ok
+test frontier::tests::a_strictly_better_stream_dominates_a_strictly_worse_one ... ok
+test frontier::tests::compare_recall_handles_differing_denominators_via_cross_product ... ok
+test frontier::tests::non_dominated_excludes_only_the_strictly_worse_point ... ok
+test frontier::tests::identical_points_do_not_dominate_each_other ... ok
+test frontier::tests::ties_are_all_kept_on_the_frontier ... ok
+test regime::tests::compare_rate_orders_by_the_ratio_without_dividing ... ok
+test regime::tests::compressed_when_not_trend_and_band_is_in_the_bottom_tercile ... ok
+test regime::tests::compare_rate_panics_on_a_non_positive_count - should panic ... ok
+test regime::tests::range_when_not_trend_and_band_is_not_in_the_bottom_tercile ... ok
+test regime::tests::tercile_cuts_of_empty_population_is_none ... ok
+test regime::tests::ties_at_a_cut_value_resolve_to_the_lower_tercile ... ok
+test regime::tests::tercile_cuts_pick_the_exact_registered_order_statistic_ranks ... ok
+test regime::tests::trend_boundary_is_inclusive ... ok
+test regime::tests::trend_wins_when_the_move_is_large_even_if_band_is_compressed ... ok
+test regime_slice::tests::a_miss_still_counts_toward_the_cells_truths_but_not_its_hits ... ok
+test regime_slice::tests::a_truth_is_sliced_by_its_own_plateau_bar_not_by_a_later_bar ... ok
+test regime_slice::tests::early_plateau_bar_before_30_has_valid_rv_and_band_but_net_move_is_unresolved_typed_on_the_missing_axis_only ... ok
+test regime_slice::tests::all_na_bar_is_unresolved_rv_first_never_fabricated_into_any_cell ... ok
+test regime_slice::tests::negative_plateau_bar_ordinal_is_unresolved_not_a_panic ... ok
+test regime_slice::tests::overflowed_band_bar_is_excluded_from_the_band_tercile_cut_population ... ok
+test regime_slice::tests::result_always_has_exactly_eighteen_cells ... ok
+test regime_slice::tests::truth_with_no_resolvable_regime_row_is_unresolved_not_dropped_silently ... ok
+test session::tests::display_is_a_compact_diagnostic_form_not_the_wire_format ... ok
+test session::tests::from_wire_fails_closed_on_a_number_for_the_union_row ... ok
+test session::tests::from_wire_fails_closed_on_na_for_a_policy_row ... ok
+test session::tests::from_wire_parses_a_policy_row ... ok
+test session::tests::from_wire_parses_the_union_row ... ok
+test session::tests::from_wire_rejects_a_malformed_policy_reversal_bps ... ok
+test session::tests::policy_wire_fields_round_trip ... ok
+test session::tests::session_id_orders_by_year_first_then_ordinal ... ok
+test session::tests::session_type_wire_codes ... ok
+test session::tests::stream_id_equality_is_by_value_not_identity ... ok
+test session::tests::union_is_distinct_from_every_policy_stream ... ok
+test session::tests::union_wire_fields_are_the_frozen_sentinel ... ok
+test session_recall::tests::duplicate_session_in_the_roster_is_a_typed_error ... ok
+test session_recall::tests::empty_roster_produces_empty_rows_and_zero_pooled_totals ... ok
+test session_recall::tests::every_roster_session_gets_exactly_one_row_zero_filled_when_absent ... ok
+test session_recall::tests::rows_resum_to_the_pooled_totals ... ok
+test truth::tests::pooled_ambiguity_count_of_empty_population_is_zero ... ok
+test truth::tests::pooled_ambiguity_count_sums_the_verbatim_column ... ok
+
+test result: ok. 73 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/workspace/artifacts/cache/ctpool-a/debug/deps/publish-d283bb40a99c044d)
+
+running 65 tests
+test atomic::tests::begin_refuses_to_reuse_a_stale_staging_dir ... ok
+test atomic::tests::begin_refuses_to_overwrite_an_existing_final_dir ... ok
+test atomic::tests::abandon_removes_the_staging_dir_without_touching_final ... ok
+test atomic::tests::sol13_commit_rejects_staging_missing_the_manifest_and_keeps_the_staging_dir ... ok
+test atomic::tests::sol13_commit_rejects_staging_missing_the_receipt_and_keeps_the_staging_dir ... ok
+test atomic::tests::write_atomic_roundtrips_and_leaves_no_temp_file_behind ... ok
+test atomic::tests::sol13_commit_rejects_a_manifest_entry_missing_from_disk ... ok
+test atomic::tests::staging_begin_commit_moves_content_into_the_final_dir ... ok
+test atomic::tests::sol13_commit_rejects_a_staged_leaf_the_manifest_never_lists ... ok
+test hash::tests::count_tsv_rows_excludes_the_header ... ok
+test hash::tests::hex_roundtrips ... ok
+test hash::tests::parse_hex32_rejects_wrong_length_and_non_hex ... ok
+test json::tests::empty_object_and_empty_array_parse ... ok
+test json::tests::rejects_trailing_content ... ok
+test json::tests::rejects_unsupported_value_shapes ... ok
+test json::tests::rejects_unterminated_string ... ok
+test json::tests::round_trips_strings_numbers_and_arrays ... ok
+test json::tests::unicode_escape_decodes_to_the_right_codepoint ... ok
+test hash::tests::hash_file_bytes_matches_a_known_digest ... ok
+test manifest::tests::rejects_a_duplicate_leaf_name ... ok
+test manifest::tests::rejects_a_tampered_row_with_the_wrong_column_count ... ok
+test manifest::tests::rejects_a_tampered_sha256_that_is_not_hex64 ... ok
+test manifest::tests::rejects_a_leaf_name_with_a_separator_or_an_absolute_path ... ok
+test manifest::tests::rejects_wrong_header ... ok
+test manifest::tests::sol9_rejects_a_leaf_name_that_climbs_outside_the_directory ... ok
+test manifest::tests::round_trip_sorts_by_name_and_preserves_every_field ... ok
+test parquet_leaf::tests::finish_rejects_a_session_index_count_that_disagrees_with_the_expected_total ... ok
+test manifest::tests::write_is_atomic_via_rename_no_temp_file_left_behind ... ok
+test parquet_leaf::tests::finish_reports_the_files_true_byte_size_and_sha256 ... ok
+test parquet_leaf::tests::one_row_group_per_nonempty_session_and_exact_row_count ... ok
+test parquet_leaf::tests::write_session_rejects_a_non_increasing_session_ordinal ... ok
+test parquet_leaf::tests::sol12_a_zero_row_session_gets_an_explicit_index_row_instead_of_being_skipped ... ok
+test receipt::tests::check_pins_rejects_a_tampered_contract_version ... ok
+test receipt::tests::check_pins_rejects_a_tampered_estimator_sha ... ok
+test receipt::tests::json_round_trip_via_disk_preserves_every_field ... ok
+test receipt::tests::malformed_json_is_rejected ... ok
+test receipt::tests::new_always_fills_the_pinned_fields_from_this_crates_constants ... ok
+test receipt::tests::read_from_a_directory_with_no_receipt_is_leaf_missing ... ok
+test parquet_leaf::tests::writing_the_same_sessions_twice_is_byte_identical ... ok
+test receipt::tests::the_written_json_contains_every_schema_field_by_name ... ok
+test verify::tests::a_directory_missing_manifest_is_an_incomplete_publish ... ok
+test verify::tests::a_freshly_built_publication_is_accepted_with_a_wired_gate ... ok
+test verify::tests::inspect_leaf_checksums_is_a_separate_non_accepting_diagnostic ... ok
+test verify::tests::opus_f4_a_manifest_naming_an_unregistered_extra_leaf_is_rejected ... ok
+test verify::tests::opus_f4_a_manifest_omitting_a_required_leaf_is_rejected ... ok
+test verify::tests::sol2_gate_absent_is_a_typed_error_not_an_ok_notwired_result ... ok
+test verify::tests::sol8_a_duplicated_receipt_manifest_row_is_rejected ... ok
+test verify::tests::sol8_session_count_mismatch_is_caught_even_in_a_self_consistent_manifest ... ok
+test verify::tests::sol8_tampering_with_non_pinned_receipt_fields_is_caught_via_the_manifest_leaf ... ok
+test gate::tests::a_1002_row_table_short_of_the_roster_is_caught ... ok
+test verify::tests::sol9_a_leaf_name_that_is_a_symlink_escaping_dir_is_rejected ... ok
+test verify::tests::sol9_a_manifest_row_climbing_outside_dir_is_rejected_before_anything_is_opened ... ok
+test verify::tests::tampering_with_a_leaf_after_manifest_is_written_is_caught ... ok
+test verify::tests::verify_publication_never_needs_anything_outside_dir ... ok
+test verify::tests::tampering_with_the_receipts_estimator_pin_is_caught_even_in_a_self_consistent_manifest ... ok
+test gate::tests::a_correct_fixture_passes_recompute ... ok
+test gate::tests::a_fabricated_bank_is_caught ... ok
+test gate::tests::a_manifest_omitting_session_recall_is_rejected_by_verify_publication ... ok
+test gate::tests::a_relabeled_full_roster_is_caught ... ok
+test gate::tests::a_stream_omitted_from_stream_summary_is_caught ... ok
+test gate::tests::a_sub_floor_recall_stream_now_fails_terminal_acceptance ... ok
+test gate::tests::a_tampered_in_dir_estimator_law_file_is_rejected_before_invocation ... ok
+test gate::tests::a_tampered_recall_row_is_caught ... ok
+test gate::tests::external_read_absent_the_gate_still_verifies_from_dir_alone ... ok
+test gate::tests::zero_event_and_zero_truth_sessions_are_included_not_dropped ... ok
+
+test result: ok. 65 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.08s
+
+pure_packages_rc=0

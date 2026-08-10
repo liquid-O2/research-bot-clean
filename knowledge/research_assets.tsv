@@ -1,0 +1,3 @@
+asset_id	status	title_or_topic	authors_or_source	license_or_access	external_or_repo_pointer	sha256	notes
+R0001	PENDING_INVENTORY	purchased_and_open_research_collection	historical_local_archive	private_or_source_specific	private_encrypted_vault		Do not commit paid PDFs; preserve citation, hash, access and derived notes
+

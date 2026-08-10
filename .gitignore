@@ -1,0 +1,11 @@
+/data/
+/artifacts/
+/.cache/
+/.venv/
+/target/
+**/__pycache__/
+*.py[cod]
+*.tmp
+*.log
+!provenance/code_seed/verification/*.log
+.DS_Store

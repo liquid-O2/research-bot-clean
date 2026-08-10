@@ -285,7 +285,8 @@ File::File(File&& other) noexcept
       data_(other.data_),
       size_(other.size_),
       meta_(std::move(other.meta_)),
-      leaves_(std::move(other.leaves_)) {
+      leaves_(std::move(other.leaves_)),
+      profile_(other.profile_) {
   other.data_ = nullptr;
   other.size_ = 0;
 }
@@ -300,6 +301,7 @@ File& File::operator=(File&& other) noexcept {
     size_ = other.size_;
     meta_ = std::move(other.meta_);
     leaves_ = std::move(other.leaves_);
+    profile_ = other.profile_;
     other.data_ = nullptr;
     other.size_ = 0;
   }
@@ -317,7 +319,7 @@ File::~File() {
 // open: map, parse the footer, gate the whole file
 // ---------------------------------------------------------------------------
 
-FileExpected<File> File::open(std::string path) {
+FileExpected<File> File::open(std::string path, DialectProfile profile) {
   const int fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
   if (fd < 0) {
     return refuse_file<File>(RefusalCode::IO, "qr_parquet::File::open", "cannot open the file",
@@ -344,6 +346,7 @@ FileExpected<File> File::open(std::string path) {
   }
 
   File file;
+  file.profile_ = profile;
   file.path_ = std::move(path);
   file.data_ = static_cast<const std::uint8_t*>(mapping);
   file.size_ = size;
@@ -401,21 +404,24 @@ FileExpected<File> File::open(std::string path) {
                                "schema is not flat: a leaf carries children", element.name,
                                static_cast<std::int64_t>(element.num_children));
     }
-    if (!is_pinned_repetition(element.repetition)) {
+    if (!is_pinned_repetition(element.repetition, profile)) {
       return file.refuse<File>(RefusalCode::SCHEMA_MISMATCH, "qr_parquet::File::open",
                                "repetition is outside the pinned dialect",
                                element.name + " repetition=" +
-                                   repetition_name(element.repetition));
+                                   repetition_name(element.repetition) + " profile=" +
+                                   dialect_profile_name(profile));
     }
-    if (!is_pinned_physical(element.type)) {
+    if (!is_pinned_physical(element.type, profile)) {
       return file.refuse<File>(RefusalCode::SCHEMA_MISMATCH, "qr_parquet::File::open",
                                "physical type is outside the pinned dialect",
-                               element.name + " physical=" + physical_name(element.type));
+                               element.name + " physical=" + physical_name(element.type) +
+                                   " profile=" + dialect_profile_name(profile));
     }
-    if (!is_pinned_converted(element.converted)) {
+    if (!is_pinned_converted(element.converted, profile)) {
       return file.refuse<File>(RefusalCode::SCHEMA_MISMATCH, "qr_parquet::File::open",
                                "converted type is outside the pinned dialect",
-                               element.name + " converted=" + converted_name(element.converted));
+                               element.name + " converted=" + converted_name(element.converted) +
+                                   " profile=" + dialect_profile_name(profile));
     }
     LeafColumn leaf;
     leaf.name = element.name;
@@ -450,17 +456,19 @@ FileExpected<File> File::open(std::string path) {
     for (std::size_t leaf = 0; leaf < row_group.columns.size(); ++leaf) {
       const ColumnChunkMeta& chunk = row_group.columns[leaf];
       const LeafColumn& column = file.leaves_[leaf];
-      if (!is_pinned_codec(chunk.codec)) {
+      if (!is_pinned_codec(chunk.codec, profile)) {
         return file.refuse<File>(RefusalCode::SCHEMA_MISMATCH, "qr_parquet::File::open",
                                  "compression codec is outside the pinned dialect",
-                                 column.name + " codec=" + codec_name(chunk.codec),
+                                 column.name + " codec=" + codec_name(chunk.codec) + " profile=" +
+                                     dialect_profile_name(profile),
                                  static_cast<std::int64_t>(group));
       }
       for (std::int32_t encoding : chunk.encodings) {
-        if (!is_pinned_encoding(encoding)) {
+        if (!is_pinned_encoding(encoding, profile)) {
           return file.refuse<File>(RefusalCode::SCHEMA_MISMATCH, "qr_parquet::File::open",
                                    "column chunk encoding is outside the pinned dialect",
-                                   column.name + " encoding=" + encoding_name(encoding),
+                                   column.name + " encoding=" + encoding_name(encoding) +
+                                       " profile=" + dialect_profile_name(profile),
                                    static_cast<std::int64_t>(group));
         }
       }

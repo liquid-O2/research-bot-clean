@@ -49,9 +49,15 @@ enum class RefusalCode : std::uint8_t {
   ORDINAL_OUTSIDE_SCOPE,
   REGISTRY_MALFORMED,
   CONFIG,
+  /// A caller asked a pinned stream reader for a column the data-usage map
+  /// forbids (FINAL_PLAN APPENDIX B: the NEVER READ sets and the name-pinned
+  /// `price_lead_1` decode refusal). The FILE is not at fault and the payload
+  /// is never touched — the REQUEST is unlawful, which no file-defect code
+  /// says. Added by WP4 (qr_sources) exactly as WP1 added the two wall codes.
+  COLUMN_FORBIDDEN,
 };
 
-inline constexpr std::size_t kRefusalCodeCount = 20;
+inline constexpr std::size_t kRefusalCodeCount = 21;
 
 /// Stable screaming-snake name of a refusal code (never a sentence).
 const char* refusal_code_name(RefusalCode code) noexcept;

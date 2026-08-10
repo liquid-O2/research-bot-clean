@@ -1,0 +1,516 @@
+// The four readers, end to end over the generated fixture sessions.
+//
+// SPEC: FINAL_PLAN APPENDIX B1-B4 + design/DESIGN_SUBSTRATE APPENDIX C3.
+// Every expected number here comes from tests/fixtures/source_expected_literals.tsv,
+// which make_source_fixtures.py derives from the values it ENCODES — the C++
+// side computes none of them a second way.
+#include <gtest/gtest.h>
+
+#include <algorithm>
+
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "fixture_support.hpp"
+#include "qr_registry/registry.hpp"
+#include "qr_sources/option_prints.hpp"
+#include "qr_sources/option_quotes.hpp"
+#include "qr_sources/stock_quotes.hpp"
+#include "qr_sources/stock_trades.hpp"
+
+namespace {
+
+using qr::sources::testing::fixture_root;
+using qr::sources::testing::literal_int;
+using qr::sources::testing::literal_text;
+using qr::sources::testing::scope_125;
+
+// --- B1 stock quotes --------------------------------------------------------
+
+TEST(StockQuotes, TheFixtureSessionMatchesEveryDerivedLiteral) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  auto opened = qr::sources::StockQuoteReader::open(*scope, fixture_root("sq_cent"),
+                                                    scope->profile());
+  ASSERT_TRUE(opened.has_value()) << opened.error().message();
+  qr::sources::StockQuoteReader reader = std::move(opened).value();
+
+  std::vector<qr::sources::StockQuoteReader::Group> seen;
+  std::vector<std::vector<qr::sources::StockQuoteRow>> rows;
+  qr::sources::StockQuoteReader::Group group;
+  while (true) {
+    const auto more = reader.next_group(group);
+    ASSERT_TRUE(more.has_value()) << more.error().message();
+    if (!more.value()) {
+      break;
+    }
+    seen.push_back(group);
+    rows.emplace_back(group.rows.begin(), group.rows.end());
+  }
+
+  EXPECT_EQ(reader.rth_rows(), literal_int("stock_quotes/*/rth_rows"));
+  EXPECT_EQ(reader.group_count(), literal_int("stock_quotes/*/group_count"));
+  EXPECT_EQ(reader.sentinel_rows(), literal_int("stock_quotes/*/sentinel_rows"));
+  ASSERT_EQ(static_cast<std::int64_t>(seen.size()), literal_int("stock_quotes/*/group_count"));
+  for (std::size_t index = 0; index < seen.size(); ++index) {
+    const std::string key = "stock_quotes/group" + std::to_string(index) + "/";
+    EXPECT_EQ(seen[index].ts_ms_b, literal_int(key + "ts_ms_b")) << "group " << index;
+    EXPECT_EQ(static_cast<std::int64_t>(rows[index].size()), literal_int(key + "rows"))
+        << "group " << index;
+  }
+
+  // Row values: u6 prices and share sizes, matched by their fixture row index.
+  // Fixture rows 2..12 are the admitted ones; group 0 holds rows 2 and 3.
+  const qr::sources::StockQuoteRow& first = rows[0][0];
+  EXPECT_EQ(first.bid_u6, literal_int("stock_quotes/row2/bid_u6"));
+  EXPECT_EQ(first.ask_u6, literal_int("stock_quotes/row2/ask_u6"));
+  EXPECT_EQ(first.bid_shares, literal_int("stock_quotes/row2/bid_shares"));
+  EXPECT_EQ(first.ask_shares, literal_int("stock_quotes/row2/ask_shares"));
+  EXPECT_EQ(first.bid_condition, 0);
+  EXPECT_FALSE(first.is_null(qr::sources::kQuoteSlotBidExchange));
+  // The midpoint is computed from both sides; the vendor `mid` column is walled.
+  EXPECT_EQ(first.mid_u6(), (first.bid_u6 + first.ask_u6) / 2);
+
+  // Fixture row 11 carries a NULL bid_exchange: a null FIELD, not a broken row.
+  bool saw_null_exchange = false;
+  for (const auto& group_rows : rows) {
+    for (const qr::sources::StockQuoteRow& row : group_rows) {
+      if (row.is_null(qr::sources::kQuoteSlotBidExchange)) {
+        saw_null_exchange = true;
+        EXPECT_EQ(row.bid_exchange, 0) << "a null field carries 0, never a sentinel";
+        EXPECT_NE(row.ask_exchange, 0);
+      }
+    }
+  }
+  EXPECT_TRUE(saw_null_exchange) << "the null-exchange fixture row was not delivered";
+  EXPECT_EQ(literal_int("stock_quotes/row11/bid_exchange_null"), 1);
+}
+
+TEST(StockQuotes, RowGroupsOutsideTheWindowArePrunedAndNeverDecoded) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  auto opened = qr::sources::StockQuoteReader::open(*scope, fixture_root("sq_cent"),
+                                                    scope->profile());
+  ASSERT_TRUE(opened.has_value()) << opened.error().message();
+  qr::sources::StockQuoteReader reader = std::move(opened).value();
+  EXPECT_EQ(static_cast<std::int64_t>(reader.source().row_groups_total()),
+            literal_int("stock_quotes/*/row_groups_total"));
+  EXPECT_EQ(static_cast<std::int64_t>(reader.source().row_groups_kept()),
+            literal_int("stock_quotes/*/row_groups_kept"));
+
+  qr::sources::StockQuoteReader::Group group;
+  while (true) {
+    const auto more = reader.next_group(group);
+    ASSERT_TRUE(more.has_value()) << more.error().message();
+    if (!more.value()) {
+      break;
+    }
+  }
+  // 16 rows in the two kept row groups x 9 projected columns. The four rows of
+  // the pruned group were never touched.
+  EXPECT_EQ(reader.decoded_values(), 16 * 9);
+}
+
+TEST(StockQuotes, TheRegistryRowDecidesTheProfileAndACallerCannotOverrideIt) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  ASSERT_EQ(scope->profile(), qr::SourceProfile::CentInt32) << "session 125 is a cent session";
+
+  // Asking for the other profile is refused BEFORE the file is even consulted:
+  // the registry row is the authority, and the caller is not.
+  const auto overridden = qr::sources::StockQuoteReader::open(
+      *scope, fixture_root("sq_cent"), qr::SourceProfile::DollarFloat64);
+  ASSERT_FALSE(overridden.has_value());
+  EXPECT_EQ(overridden.error().code(), qr::RefusalCode::CONFIG);
+  EXPECT_NE(overridden.error().detail().find("cent_int32"), std::string::npos)
+      << overridden.error().message();
+}
+
+TEST(StockQuotes, AFileDisagreeingWithItsRegistryProfileIsRefusedNotAdapted) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  // Same session, same registry row (cent_int32), dollar prices on disk.
+  const auto opened = qr::sources::StockQuoteReader::open(
+      *scope, fixture_root("sq_dollar_prices"), scope->profile());
+  ASSERT_FALSE(opened.has_value());
+  EXPECT_EQ(opened.error().code(), qr::RefusalCode::SCHEMA_MISMATCH);
+  EXPECT_NE(opened.error().detail().find("DOLLAR_F64"), std::string::npos)
+      << opened.error().message();
+  // And the whole dollar-profile payload is refused too.
+  const auto whole = qr::sources::StockQuoteReader::open(*scope, fixture_root("sq_dollar"),
+                                                         scope->profile());
+  ASSERT_FALSE(whole.has_value());
+  EXPECT_EQ(whole.error().code(), qr::RefusalCode::SCHEMA_MISMATCH);
+}
+
+TEST(StockQuotes, TheDollarProfileSessionNormalizesToTheSameU6AndShareValues) {
+  // THE OTHER HALF OF THE DUAL PROFILE LAW, end to end. Session 187
+  // (2022-09-30) is inside the 125..749 scope and its OWN registry row declares
+  // `dollar_float64` — which is the only lawful way to read a dollar session,
+  // since the profile is not chronological. The fixture carries the same prices
+  // and sizes as the cent session in the other encoding, so every normalized
+  // value must come out identical.
+  const qr::Registry* const registry = qr::sources::testing::registry_or_null();
+  ASSERT_NE(registry, nullptr);
+  const auto scope = qr::DayScope::admit_day(*registry, literal_text("stock_quotes_dollar/*/day"));
+  ASSERT_TRUE(scope.has_value()) << scope.error().message();
+  ASSERT_EQ(scope.value().profile(), qr::SourceProfile::DollarFloat64);
+
+  auto opened = qr::sources::StockQuoteReader::open(
+      scope.value(), fixture_root("sq_dollar_session187"), scope.value().profile());
+  ASSERT_TRUE(opened.has_value()) << opened.error().message();
+  qr::sources::StockQuoteReader reader = std::move(opened).value();
+  EXPECT_EQ(reader.profile(), qr::SourceProfile::DollarFloat64);
+
+  std::vector<std::vector<qr::sources::StockQuoteRow>> rows;
+  std::vector<std::int64_t> stamps;
+  qr::sources::StockQuoteReader::Group group;
+  while (true) {
+    const auto more = reader.next_group(group);
+    ASSERT_TRUE(more.has_value()) << more.error().message();
+    if (!more.value()) {
+      break;
+    }
+    stamps.push_back(group.ts_ms_b);
+    rows.emplace_back(group.rows.begin(), group.rows.end());
+  }
+
+  // Identical counts and identical NORMALIZED values, on the other encoding.
+  EXPECT_EQ(reader.rth_rows(), literal_int("stock_quotes/*/rth_rows"));
+  EXPECT_EQ(reader.group_count(), literal_int("stock_quotes/*/group_count"));
+  EXPECT_EQ(reader.sentinel_rows(), literal_int("stock_quotes/*/sentinel_rows"));
+  ASSERT_FALSE(rows.empty());
+  const qr::sources::StockQuoteRow& first = rows[0][0];
+  EXPECT_EQ(first.bid_u6, literal_int("stock_quotes/row2/bid_u6"));
+  EXPECT_EQ(first.ask_u6, literal_int("stock_quotes/row2/ask_u6"));
+  EXPECT_EQ(first.bid_shares, literal_int("stock_quotes/row2/bid_shares"));
+  EXPECT_EQ(first.ask_shares, literal_int("stock_quotes/row2/ask_shares"));
+  // Only the CLOCK differs: this session's own frame-B open, from its own row.
+  const std::int64_t open_ms = literal_int("stock_quotes_dollar/*/open_ms_b");
+  ASSERT_EQ(static_cast<std::int64_t>(stamps.size()),
+            literal_int("stock_quotes/*/group_count"));
+  for (std::size_t index = 0; index < stamps.size(); ++index) {
+    const std::string key = "stock_quotes/group" + std::to_string(index) + "/";
+    const std::int64_t cent_offset =
+        literal_int(key + "ts_ms_b") - literal_int("stock_quotes/group0/ts_ms_b");
+    EXPECT_EQ(stamps[index] - open_ms, cent_offset) << "group " << index;
+  }
+
+  // And the cent encoding of the SAME session's registry row is refused.
+  const auto as_cent = qr::sources::StockQuoteReader::open(
+      scope.value(), fixture_root("sq_dollar_session187"), qr::SourceProfile::CentInt32);
+  ASSERT_FALSE(as_cent.has_value());
+  EXPECT_EQ(as_cent.error().code(), qr::RefusalCode::CONFIG);
+}
+
+TEST(StockQuotes, ARowMixingNullAndNonNullNbboFieldsRefusesAndTheSentinelIsCounted) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  auto opened = qr::sources::StockQuoteReader::open(*scope, fixture_root("sq_partial_null"),
+                                                    scope->profile());
+  ASSERT_TRUE(opened.has_value()) << opened.error().message();
+  qr::sources::StockQuoteReader reader = std::move(opened).value();
+  qr::sources::StockQuoteReader::Group group;
+  bool refused = false;
+  for (int guard = 0; guard < 100; ++guard) {
+    const auto more = reader.next_group(group);
+    if (!more.has_value()) {
+      refused = true;
+      EXPECT_EQ(more.error().code(), qr::RefusalCode::CONTENT_MISMATCH);
+      EXPECT_NE(more.error().refusal().detail(), nullptr);
+      break;
+    }
+    if (!more.value()) {
+      break;
+    }
+  }
+  EXPECT_TRUE(refused) << "a half-null NBBO row must refuse, never be half-trusted";
+  // The all-null sentinel row is a different thing entirely: skipped, counted.
+  EXPECT_EQ(reader.sentinel_rows(), 1);
+}
+
+TEST(StockQuotes, ADescendingTapeRefusesInsteadOfBeingSortedIntoSilence) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  auto opened = qr::sources::StockQuoteReader::open(*scope, fixture_root("sq_descending"),
+                                                    scope->profile());
+  ASSERT_TRUE(opened.has_value()) << opened.error().message();
+  qr::sources::StockQuoteReader reader = std::move(opened).value();
+  qr::sources::StockQuoteReader::Group group;
+  bool refused = false;
+  for (int guard = 0; guard < 100; ++guard) {
+    const auto more = reader.next_group(group);
+    if (!more.has_value()) {
+      refused = true;
+      EXPECT_EQ(more.error().code(), qr::RefusalCode::OUT_OF_ORDER);
+      break;
+    }
+    if (!more.value()) {
+      break;
+    }
+  }
+  EXPECT_TRUE(refused) << "the equal-time group machine requires a non-decreasing tape";
+}
+
+TEST(StockQuotes, PageVersionTwoDecodesToTheSameSession) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  std::vector<std::int64_t> counts;
+  for (const char* tree : {"sq_cent", "sq_cent_v2"}) {
+    auto opened =
+        qr::sources::StockQuoteReader::open(*scope, fixture_root(tree), scope->profile());
+    ASSERT_TRUE(opened.has_value()) << tree << ": " << opened.error().message();
+    qr::sources::StockQuoteReader reader = std::move(opened).value();
+    qr::sources::StockQuoteReader::Group group;
+    while (true) {
+      const auto more = reader.next_group(group);
+      ASSERT_TRUE(more.has_value()) << more.error().message();
+      if (!more.value()) {
+        break;
+      }
+    }
+    counts.push_back(reader.rth_rows());
+    counts.push_back(reader.group_count());
+  }
+  ASSERT_EQ(counts.size(), 4U);
+  EXPECT_EQ(counts[0], counts[2]);
+  EXPECT_EQ(counts[1], counts[3]);
+}
+
+// --- B2 stock trades --------------------------------------------------------
+
+TEST(StockTrades, TheFixtureSessionMatchesEveryDerivedLiteral) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  auto opened = qr::sources::StockTradeReader::open(*scope, fixture_root("st_good"));
+  ASSERT_TRUE(opened.has_value()) << opened.error().message();
+  qr::sources::StockTradeReader reader = std::move(opened).value();
+
+  std::vector<std::vector<qr::sources::StockTradeRow>> rows;
+  std::vector<std::int64_t> stamps;
+  qr::sources::StockTradeReader::Group group;
+  while (true) {
+    const auto more = reader.next_group(group);
+    ASSERT_TRUE(more.has_value()) << more.error().message();
+    if (!more.value()) {
+      break;
+    }
+    stamps.push_back(group.ts_ms_b);
+    rows.emplace_back(group.rows.begin(), group.rows.end());
+  }
+
+  EXPECT_EQ(reader.rth_rows(), literal_int("stock_trades/*/rth_rows"));
+  EXPECT_EQ(reader.group_count(), literal_int("stock_trades/*/group_count"));
+  ASSERT_EQ(static_cast<std::int64_t>(stamps.size()), literal_int("stock_trades/*/group_count"));
+  for (std::size_t index = 0; index < stamps.size(); ++index) {
+    const std::string key = "stock_trades/group" + std::to_string(index) + "/";
+    EXPECT_EQ(stamps[index], literal_int(key + "ts_ms_b"));
+    EXPECT_EQ(static_cast<std::int64_t>(rows[index].size()), literal_int(key + "rows"));
+  }
+
+  // Fixture row 1 is the first admitted print.
+  const qr::sources::StockTradeRow& first = rows[0][0];
+  EXPECT_EQ(first.price_u6, literal_int("stock_trades/row1/price_u6"));
+  EXPECT_TRUE(first.quote_present());
+  EXPECT_EQ(first.bid_shares, literal_int("stock_trades/row1/bid_shares"));
+  EXPECT_EQ(first.bid_u6, literal_int("stock_trades/row1/bid_u6"));
+  EXPECT_EQ(first.ext_condition[0], 255);
+  EXPECT_EQ(first.quote_ts_ms_b, first.ts_ms_b - 3);
+
+  // Fixture row 3 carries NO attached quote at all: absence is not zero.
+  bool saw_absent_quote = false;
+  bool saw_cancel_condition = false;
+  for (const auto& group_rows : rows) {
+    for (const qr::sources::StockTradeRow& row : group_rows) {
+      if (!row.quote_present()) {
+        saw_absent_quote = true;
+        EXPECT_EQ(row.bid_u6, 0);
+        EXPECT_EQ(row.ask_shares, 0);
+        EXPECT_TRUE(row.is_null(qr::sources::kTradeSlotBid));
+        EXPECT_TRUE(row.is_null(qr::sources::kTradeSlotBidCondition));
+      }
+      if (row.condition == 40) {
+        // B2's CANCEL code is RETAINED here; applying it is downstream work.
+        saw_cancel_condition = true;
+      }
+    }
+  }
+  EXPECT_TRUE(saw_absent_quote);
+  EXPECT_TRUE(saw_cancel_condition);
+}
+
+TEST(StockTrades, APriceColumnOutsideTheMeasuredProfileRefuses) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  const auto opened = qr::sources::StockTradeReader::open(*scope, fixture_root("st_wrongtype"));
+  ASSERT_FALSE(opened.has_value());
+  EXPECT_EQ(opened.error().code(), qr::RefusalCode::SCHEMA_MISMATCH);
+  EXPECT_NE(opened.error().detail().find("price"), std::string::npos)
+      << opened.error().message();
+}
+
+// --- B3 option prints -------------------------------------------------------
+
+TEST(OptionPrints, TheFixtureSessionMatchesEveryDerivedLiteral) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  auto opened = qr::sources::OptionPrintReader::open(*scope, fixture_root("op_compact"));
+  ASSERT_TRUE(opened.has_value()) << opened.error().message();
+  qr::sources::OptionPrintReader reader = std::move(opened).value();
+
+  std::vector<std::vector<qr::sources::OptionPrintRow>> rows;
+  std::vector<std::int64_t> stamps;
+  qr::sources::OptionPrintReader::Group group;
+  while (true) {
+    const auto more = reader.next_group(group);
+    ASSERT_TRUE(more.has_value()) << more.error().message();
+    if (!more.value()) {
+      break;
+    }
+    stamps.push_back(group.ts_ms_b);
+    rows.emplace_back(group.rows.begin(), group.rows.end());
+  }
+
+  EXPECT_EQ(reader.rth_rows(), literal_int("options_prints/*/rth_rows"));
+  EXPECT_EQ(reader.group_count(), literal_int("options_prints/*/group_count"));
+  EXPECT_EQ(reader.skipped_null_rows(),
+            literal_int("options_prints/*/skipped_null_rows"));
+  for (std::size_t index = 0; index < stamps.size(); ++index) {
+    const std::string key = "options_prints/group" + std::to_string(index) + "/";
+    EXPECT_EQ(stamps[index], literal_int(key + "ts_ms_b"));
+    EXPECT_EQ(static_cast<std::int64_t>(rows[index].size()), literal_int(key + "rows"));
+  }
+
+  // Fixture rows 2 and 3 form the first admitted group; both are asserted
+  // field by field against the derived literals.
+  ASSERT_GE(rows.size(), 1U);
+  ASSERT_EQ(rows[0].size(), 2U);
+  std::vector<std::int64_t> strikes;
+  for (const qr::sources::OptionPrintRow& row : rows[0]) {
+    strikes.push_back(row.strike_u6);
+  }
+  EXPECT_NE(std::find(strikes.begin(), strikes.end(),
+                      literal_int("options_prints/row2/strike_u6")),
+            strikes.end());
+  EXPECT_NE(std::find(strikes.begin(), strikes.end(),
+                      literal_int("options_prints/row3/strike_u6")),
+            strikes.end());
+
+  // The two attachment clocks and the retained text.
+  int single_leg = 0;
+  bool saw_call = false;
+  bool saw_put = false;
+  for (const auto& group_rows : rows) {
+    for (const qr::sources::OptionPrintRow& row : group_rows) {
+      EXPECT_GT(row.quote_ts_ms_b, 0);
+      EXPECT_EQ(row.underlying_ts_text.view().substr(0, 10), "2022-07-05");
+      EXPECT_GT(row.implied_vol, 0.0);
+      saw_call |= row.right == qr::sources::Right::Call;
+      saw_put |= row.right == qr::sources::Right::Put;
+      single_leg += row.is_single_leg() ? 1 : 0;
+    }
+  }
+  EXPECT_TRUE(saw_call);
+  EXPECT_TRUE(saw_put);
+  // All five admitted prints carry a single-leg condition (18 twice, then 95,
+  // 125 and 126): the field is EXPOSED and nothing was filtered on it.
+  EXPECT_EQ(single_leg, 5);
+  std::vector<std::int64_t> conditions;
+  for (const auto& group_rows : rows) {
+    for (const qr::sources::OptionPrintRow& row : group_rows) {
+      conditions.push_back(row.condition);
+    }
+  }
+  for (const std::int64_t code : qr::sources::kSingleLegPrintConditions) {
+    EXPECT_NE(std::find(conditions.begin(), conditions.end(), code), conditions.end())
+        << "single-leg condition " << code << " is not exercised by the fixture";
+  }
+  EXPECT_EQ(literal_text("options_prints/row2/right"), "CALL");
+}
+
+TEST(OptionPrints, TheDeferredWideProfileIsRefusedAtOpen) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  const auto opened = qr::sources::OptionPrintReader::open(*scope, fixture_root("op_wide"));
+  ASSERT_FALSE(opened.has_value());
+  EXPECT_EQ(opened.error().code(), qr::RefusalCode::SCHEMA_MISMATCH);
+}
+
+// --- B4 option quotes -------------------------------------------------------
+
+TEST(OptionQuotes, TheFlatLayoutIsOneShardAndTheShardedLayoutIsChainedInSortedOrder) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+
+  auto flat_opened = qr::sources::OptionQuoteReader::open(*scope, fixture_root("oq_flat"));
+  ASSERT_TRUE(flat_opened.has_value()) << flat_opened.error().message();
+  qr::sources::OptionQuoteReader flat = std::move(flat_opened).value();
+  EXPECT_EQ(flat.shards().size(), 1U);
+  qr::sources::OptionQuoteReader::Group group;
+  std::vector<qr::sources::OptionQuoteRow> flat_rows;
+  while (true) {
+    const auto more = flat.next_group(group);
+    ASSERT_TRUE(more.has_value()) << more.error().message();
+    if (!more.value()) {
+      break;
+    }
+    flat_rows.insert(flat_rows.end(), group.rows.begin(), group.rows.end());
+  }
+  EXPECT_EQ(flat.rth_rows(), literal_int("option_quotes/*/rth_rows"));
+  ASSERT_FALSE(flat_rows.empty());
+  EXPECT_EQ(flat_rows[0].bid_u6, literal_int("option_quotes/row1/bid_u6"));
+  EXPECT_EQ(flat_rows[0].strike_u6, literal_int("option_quotes/row1/strike_u6"));
+  EXPECT_EQ(flat_rows[0].expiration_day, literal_int("option_quotes/row1/expiration_day"));
+  // The midpoint is COMPUTED. The fixture writes the vendor `mid` column as
+  // `bid + ask` (the compact vendor's meaning), so a reader that had touched
+  // that walled column would land on a visibly different number.
+  EXPECT_EQ(flat_rows[0].mid_u6(), (flat_rows[0].bid_u6 + flat_rows[0].ask_u6) / 2);
+  EXPECT_NE(flat_rows[0].mid_u6(), flat_rows[0].bid_u6 + flat_rows[0].ask_u6);
+
+  auto sharded_opened = qr::sources::OptionQuoteReader::open(*scope, fixture_root("oq_sharded"));
+  ASSERT_TRUE(sharded_opened.has_value()) << sharded_opened.error().message();
+  qr::sources::OptionQuoteReader sharded = std::move(sharded_opened).value();
+  ASSERT_EQ(sharded.shards().size(), 2U);
+  EXPECT_LT(sharded.shards()[0].filename().string(),
+            sharded.shards()[1].filename().string())
+      << "shards must be chained in sorted order";
+  // The wide profile decodes to the SAME normalized values as the compact one.
+  std::vector<qr::sources::OptionQuoteRow> wide_rows;
+  std::vector<std::int64_t> group_stamps;
+  while (true) {
+    const auto more = sharded.next_group(group);
+    ASSERT_TRUE(more.has_value()) << more.error().message();
+    if (!more.value()) {
+      break;
+    }
+    group_stamps.push_back(group.ts_ms_b);
+    wide_rows.insert(wide_rows.end(), group.rows.begin(), group.rows.end());
+  }
+  EXPECT_EQ(sharded.rth_rows(), 2 * literal_int("option_quotes/*/rth_rows"));
+  ASSERT_FALSE(wide_rows.empty());
+  EXPECT_EQ(wide_rows[0].bid_u6, literal_int("option_quotes/row1/bid_u6"));
+  EXPECT_EQ(wide_rows[0].strike_u6, literal_int("option_quotes/row1/strike_u6"));
+  EXPECT_EQ(wide_rows[0].expiration_day, literal_int("option_quotes/row1/expiration_day"));
+
+  // A SHARD BOUNDARY CLOSES THE GROUP: the same millisecond appearing in two
+  // shards is two groups, never one merged cross-contract group.
+  std::vector<std::int64_t> repeated;
+  for (std::size_t index = 1; index < group_stamps.size(); ++index) {
+    if (group_stamps[index] <= group_stamps[index - 1]) {
+      repeated.push_back(group_stamps[index]);
+    }
+  }
+  EXPECT_FALSE(repeated.empty()) << "the second shard must restart the clock, not extend a group";
+}
+
+TEST(OptionQuotes, ASessionTheCorpusDoesNotCoverIsModalityAbsent) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  const auto opened = qr::sources::OptionQuoteReader::open(*scope, fixture_root("oq_absent"));
+  ASSERT_FALSE(opened.has_value());
+  // Distinct from being outside the calendar, which is the scope wall's answer.
+  EXPECT_EQ(opened.error().code(), qr::RefusalCode::MODALITY_ABSENT);
+}
+
+}  // namespace

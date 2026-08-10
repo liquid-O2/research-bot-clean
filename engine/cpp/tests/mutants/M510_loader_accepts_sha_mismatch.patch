@@ -1,0 +1,13 @@
+--- a/python/decision_tape_loader.py
++++ b/python/decision_tape_loader.py
+@@ -327,7 +327,9 @@
+                 self.opened_paths.append(str(path))
+                 for block in iter(lambda handle=handle: handle.read(1 << 20), b""):
+                     digest.update(block)
+-            if digest.hexdigest() != leaf.sha256:
++            # M510 MUTANT: the digest is computed and then not compared, so a
++            # corrupted leaf passes verification.
++            if False and digest.hexdigest() != leaf.sha256:
+                 _refuse(
+                     f"{leaf.rel_path}: sha256 {digest.hexdigest()} != manifest {leaf.sha256}"
+                 )

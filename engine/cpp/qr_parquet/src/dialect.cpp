@@ -4,6 +4,16 @@
 
 namespace qr::parquet {
 
+const char* dialect_profile_name(DialectProfile profile) noexcept {
+  switch (profile) {
+    case DialectProfile::CORPUS:
+      return "CORPUS";
+    case DialectProfile::PUBLICATION:
+      return "PUBLICATION";
+  }
+  return "UNKNOWN";
+}
+
 const char* codec_name(std::int32_t codec) noexcept {
   switch (codec) {
     case 0: return "UNCOMPRESSED";

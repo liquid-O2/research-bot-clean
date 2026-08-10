@@ -105,6 +105,7 @@ TEST(RefusalTaxonomy, EveryPortedCodeHasItsOwnName) {
   EXPECT_STREQ(qr::refusal_code_name(qr::RefusalCode::DAY_OUTSIDE_CALENDAR),
                "DAY_OUTSIDE_CALENDAR");
   EXPECT_STREQ(qr::refusal_code_name(qr::RefusalCode::ARITHMETIC_OVERFLOW), "ARITHMETIC_OVERFLOW");
+  EXPECT_STREQ(qr::refusal_code_name(qr::RefusalCode::COLUMN_FORBIDDEN), "COLUMN_FORBIDDEN");
   EXPECT_STREQ(qr::refusal_code_name(static_cast<qr::RefusalCode>(200)), "UNKNOWN_REFUSAL");
 }
 

@@ -83,8 +83,18 @@ class File {
   ~File();
 
   /// Maps the file, parses its footer, and gates the whole file against the
-  /// pinned dialect. Every failure is a typed refusal naming this path.
-  [[nodiscard]] static FileExpected<File> open(std::string path);
+  /// pinned dialect OF THE DECLARED PRODUCER FAMILY (ruling CC-003). Every
+  /// failure is a typed refusal naming this path, the column, the offending
+  /// value and the profile it was gated against.
+  ///
+  /// The default is CORPUS, so every reader of /workspace/data/tokens is
+  /// unchanged; the publication readers declare `DialectProfile::PUBLICATION`
+  /// and are refused a corpus-shaped file exactly as loudly as the reverse.
+  [[nodiscard]] static FileExpected<File> open(std::string path,
+                                               DialectProfile profile = DialectProfile::CORPUS);
+
+  /// The profile this file was gated against.
+  [[nodiscard]] DialectProfile profile() const noexcept { return profile_; }
 
   [[nodiscard]] const std::string& path() const noexcept { return path_; }
   [[nodiscard]] std::int64_t num_rows() const noexcept { return meta_.num_rows; }
@@ -142,6 +152,7 @@ class File {
   std::size_t size_ = 0;
   FileMeta meta_;
   std::vector<LeafColumn> leaves_;
+  DialectProfile profile_ = DialectProfile::CORPUS;
 };
 
 }  // namespace qr::parquet

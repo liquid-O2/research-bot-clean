@@ -30,6 +30,7 @@ constexpr std::array<const char*, kRefusalCodeCount> kNames = {
     "ORDINAL_OUTSIDE_SCOPE",
     "REGISTRY_MALFORMED",
     "CONFIG",
+    "COLUMN_FORBIDDEN",
 };
 
 }  // namespace

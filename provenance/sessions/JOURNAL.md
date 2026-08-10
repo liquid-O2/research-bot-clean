@@ -19,3 +19,4 @@
 2026-08-10 21:48Z WP11 DONE (GATE_WARMUP n>=50 + nearest-rank MAE quantiles; 65 tests, 22 mutants, 1M actions 0.313s).
 2026-08-10 21:54Z WP6 DONE (CC-003 per-family dialect profiles; corpus wall proven intact incl. the near-miss where static_asserts would have silently destroyed M201/M205 red evidence — caught and fixed; roster byte-identical to diagnostic; 103 tests, 18 M4xx mutants; full ledger 366 tests all proven-fail; 27.9s/76.6MB). Stray mutant residue .orig removed.
 2026-08-10 22:25Z WP5 GREEN (machine-level registry match 2,810,589 groups/14,761,979 rows; census published; 34 tests, 18 mutants; 1.64s vs 3s; ledger 400 tests all proven-fail). CC-005: depth-imbalance formula frozen into V4 §4.
+2026-08-10 22:30Z CONSOLIDATED COMMIT: WP4/5/6/10/11 all green (my own ASan verification run). Substrate remaining: WP7 labels + WP8 carriers + WP9 differential (7 and 9 running).

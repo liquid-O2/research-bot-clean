@@ -1,11 +1,13 @@
-// Fixture VAL-1..VAL-7: the frozen 14x14 worst-wins lattice.
+// Fixture VAL-1..VAL-8: the frozen 15x15 worst-wins lattice.
 //
-// VAL-1 exhausts ALL 196 ordered pairs against the rule the frozen table
+// VAL-1 exhausts ALL 225 ordered pairs against the rule the frozen table
 // encodes, so a mutant that flips any single cell of kCombineTable turns this
 // red. The rule is the orchestrator's SEVERITY ruling of 2026-08-10, which is
 // deliberately NOT the APPENDIX C1 declaration order: STALE_DIAG is
 // diagnostic-only and sits directly above VALID, below every unavailability
-// state. VAL-7 pins that ruling on its eight decided cells.
+// state. VAL-7 pins that ruling on its eight decided cells; VAL-8 pins the
+// same day's second ruling, MALFORMED as the fifteenth state ranked
+// immediately above WRONG_CIVIL_DAY.
 #include <array>
 #include <cstddef>
 #include <set>
@@ -36,6 +38,7 @@ constexpr std::array<Validity, qr::kValidityCount> kAllStates = {
     Validity::CONDITION_INELIGIBLE,
     Validity::CLOCK_UNAVAILABLE,
     Validity::MODALITY_ABSENT,
+    Validity::MALFORMED,
 };
 
 // The SEVERITY order, best to worst, transcribed from the orchestrator ruling
@@ -49,6 +52,7 @@ constexpr std::array<Validity, qr::kValidityCount> kSeverityOrder = {
     Validity::EQUAL_TIME_UNORDERED,
     Validity::ATTACHMENT_FUTURE,
     Validity::WRONG_CIVIL_DAY,
+    Validity::MALFORMED,
     Validity::LOCKED,
     Validity::CROSSED,
     Validity::ONE_SIDED,
@@ -74,8 +78,8 @@ Validity worst_of(Validity a, Validity b) {
   return (severity_rank(a) >= severity_rank(b)) ? a : b;
 }
 
-TEST(ValidityLattice, EnumIsExactlyTheFourteenSpecifiedStatesInOrder) {
-  ASSERT_EQ(qr::kValidityCount, 14U);
+TEST(ValidityLattice, EnumIsExactlyTheFifteenSpecifiedStatesInOrder) {
+  ASSERT_EQ(qr::kValidityCount, 15U);
   for (std::size_t i = 0; i < kAllStates.size(); ++i) {
     EXPECT_EQ(static_cast<std::size_t>(kAllStates[i]), i)
         << "state " << qr::validity_name(kAllStates[i]) << " moved in the frozen order";
@@ -83,9 +87,11 @@ TEST(ValidityLattice, EnumIsExactlyTheFourteenSpecifiedStatesInOrder) {
   EXPECT_EQ(static_cast<std::uint8_t>(Validity::VALID), 0U);
   EXPECT_EQ(static_cast<std::uint8_t>(Validity::WRONG_CIVIL_DAY), 4U);
   EXPECT_EQ(static_cast<std::uint8_t>(Validity::MODALITY_ABSENT), 13U);
+  // MALFORMED was APPENDED, so every APPENDIX C1 index above is unmoved.
+  EXPECT_EQ(static_cast<std::uint8_t>(Validity::MALFORMED), 14U);
 }
 
-TEST(ValidityLattice, AllOneHundredNinetySixPairsMatchTheFrozenTable) {
+TEST(ValidityLattice, AllTwoHundredTwentyFivePairsMatchTheFrozenTable) {
   // EVERY ordered pair is checked. Mismatches are collected and reported as a
   // count plus the first few, so one flipped table cell reads as one legible
   // failure rather than a wall of output.
@@ -101,8 +107,8 @@ TEST(ValidityLattice, AllOneHundredNinetySixPairsMatchTheFrozenTable) {
       }
     }
   }
-  EXPECT_EQ(pairs, 196U);
-  EXPECT_TRUE(wrong.empty()) << wrong.size() << " of 196 pairs disagree with the frozen table; "
+  EXPECT_EQ(pairs, 225U);
+  EXPECT_TRUE(wrong.empty()) << wrong.size() << " of 225 pairs disagree with the frozen table; "
                              << "first: " << (wrong.empty() ? std::string("-") : wrong.front())
                              << (wrong.size() > 1 ? " | second: " + wrong[1] : std::string());
 }
@@ -138,6 +144,40 @@ TEST(ValidityLattice, StaleDiagIsDiagnosticOnlyAndNeverOutranksUnavailability) {
   EXPECT_EQ(kSeverityOrder.front(), Validity::VALID);
   EXPECT_EQ(kSeverityOrder[1], Validity::STALE_DIAG);
   EXPECT_EQ(kSeverityOrder.back(), Validity::MODALITY_ABSENT);
+}
+
+TEST(ValidityLattice, MalformedIsItsOwnStateRankedJustAboveWrongCivilDay) {
+  // The 2026-08-10 ruling: malformed is its OWN typed state. Folding it into
+  // MISSING or CLOCK_UNAVAILABLE would merge census categories the card
+  // requires distinct, so these three can never be each other.
+  EXPECT_NE(Validity::MALFORMED, Validity::MISSING);
+  EXPECT_NE(Validity::MALFORMED, Validity::CLOCK_UNAVAILABLE);
+  EXPECT_STREQ(qr::validity_name(Validity::MALFORMED), "MALFORMED");
+  EXPECT_NE(combine(Validity::MALFORMED, Validity::MISSING), Validity::MISSING);
+  EXPECT_NE(combine(Validity::MALFORMED, Validity::CLOCK_UNAVAILABLE), Validity::MALFORMED);
+
+  // It outranks everything up to and including WRONG_CIVIL_DAY...
+  for (const Validity weaker : {Validity::VALID, Validity::STALE_DIAG, Validity::MISSING,
+                                Validity::EQUAL_TIME_UNORDERED, Validity::ATTACHMENT_FUTURE,
+                                Validity::WRONG_CIVIL_DAY}) {
+    EXPECT_EQ(combine(Validity::MALFORMED, weaker), Validity::MALFORMED)
+        << "MALFORMED lost to " << qr::validity_name(weaker);
+    EXPECT_EQ(combine(weaker, Validity::MALFORMED), Validity::MALFORMED)
+        << "MALFORMED lost to " << qr::validity_name(weaker);
+  }
+  // ... and loses to every quote-quality and unavailability state above it.
+  for (const Validity stronger : {Validity::LOCKED, Validity::CROSSED, Validity::ONE_SIDED,
+                                  Validity::NONFINITE, Validity::NONPOSITIVE,
+                                  Validity::CONDITION_INELIGIBLE, Validity::CLOCK_UNAVAILABLE,
+                                  Validity::MODALITY_ABSENT}) {
+    EXPECT_EQ(combine(Validity::MALFORMED, stronger), stronger)
+        << "MALFORMED outranked " << qr::validity_name(stronger);
+    EXPECT_EQ(combine(stronger, Validity::MALFORMED), stronger)
+        << "MALFORMED outranked " << qr::validity_name(stronger);
+  }
+  EXPECT_EQ(combine(Validity::MALFORMED, Validity::MALFORMED), Validity::MALFORMED);
+  // A malformed datum can never be repaired into a usable one.
+  EXPECT_NE(combine(Validity::MALFORMED, Validity::VALID), Validity::VALID);
 }
 
 TEST(ValidityLattice, IsCommutativeIdempotentAndAssociative) {

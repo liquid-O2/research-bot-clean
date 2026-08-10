@@ -6,7 +6,7 @@
 #
 ### qr_core_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 21 tests from 7 test suites.
+[==========] Running 22 tests from 7 test suites.
 [----------] Global test environment set-up.
 [----------] 5 tests from CheckedArithmetic
 [ RUN      ] CheckedArithmetic.AddOverflowIsARefusalNotAValue
@@ -24,7 +24,7 @@ Expected equality of these values:
   qr::RefusalCode::ARITHMETIC_OVERFLOW
     Which is: 1-byte object <09>
 
-[  FAILED  ] CheckedArithmetic.AddOverflowIsARefusalNotAValue (2 ms)
+[  FAILED  ] CheckedArithmetic.AddOverflowIsARefusalNotAValue (0 ms)
 [ RUN      ] CheckedArithmetic.AddReturnsTheExactSumInsideTheDomain
 /workspace/engine/cpp/qr_core/tests/test_checked.cpp:35: Failure
 Value of: result.has_value()
@@ -45,7 +45,7 @@ Value of: small.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] CheckedArithmetic.SubOverflowIsARefusal (2 ms)
+[  FAILED  ] CheckedArithmetic.SubOverflowIsARefusal (0 ms)
 [ RUN      ] CheckedArithmetic.MulOverflowIsARefusal
 /workspace/engine/cpp/qr_core/tests/test_checked.cpp:60: Failure
 Expected equality of these values:
@@ -59,7 +59,7 @@ Value of: zero.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] CheckedArithmetic.MulOverflowIsARefusal (2 ms)
+[  FAILED  ] CheckedArithmetic.MulOverflowIsARefusal (0 ms)
 [ RUN      ] CheckedArithmetic.RefusalCarriesNoSubstituteValue
 /workspace/engine/cpp/qr_core/tests/test_checked.cpp:81: Failure
 Expected: (refused.error().message().find("ARITHMETIC_OVERFLOW")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
@@ -67,8 +67,8 @@ Expected: (refused.error().message().find("ARITHMETIC_OVERFLOW")) != (std::strin
 /workspace/engine/cpp/qr_core/tests/test_checked.cpp:82: Failure
 Expected: (refused.error().message().find("qr_core::checked_mul")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
 
-[  FAILED  ] CheckedArithmetic.RefusalCarriesNoSubstituteValue (1 ms)
-[----------] 5 tests from CheckedArithmetic (18 ms total)
+[  FAILED  ] CheckedArithmetic.RefusalCarriesNoSubstituteValue (0 ms)
+[----------] 5 tests from CheckedArithmetic (0 ms total)
 
 [----------] 1 test from ExpectedCarrier
 [ RUN      ] ExpectedCarrier.DistinguishesValueFromRefusalWithoutExceptions
@@ -76,7 +76,7 @@ Expected: (refused.error().message().find("qr_core::checked_mul")) != (std::stri
 Expected: (bad.error().message().find("context=3")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
 
 [  FAILED  ] ExpectedCarrier.DistinguishesValueFromRefusalWithoutExceptions (0 ms)
-[----------] 1 test from ExpectedCarrier (3 ms total)
+[----------] 1 test from ExpectedCarrier (0 ms total)
 
 [----------] 1 test from RefusalTaxonomy
 [ RUN      ] RefusalTaxonomy.EveryPortedCodeHasItsOwnName
@@ -110,8 +110,8 @@ Expected equality of these values:
     Which is: "STUB"
   "UNKNOWN_REFUSAL"
 
-[  FAILED  ] RefusalTaxonomy.EveryPortedCodeHasItsOwnName (6 ms)
-[----------] 1 test from RefusalTaxonomy (8 ms total)
+[  FAILED  ] RefusalTaxonomy.EveryPortedCodeHasItsOwnName (0 ms)
+[----------] 1 test from RefusalTaxonomy (0 ms total)
 
 [----------] 3 tests from FrameTypes
 [ RUN      ] FrameTypes.NoImplicitConversionInEitherDirection
@@ -190,7 +190,7 @@ Value of: (std::is_default_constructible_v<qr::CivilDate>)
   Actual: true
 Expected: false
 
-[  FAILED  ] FrameTypes.NoImplicitConversionInEitherDirection (29 ms)
+[  FAILED  ] FrameTypes.NoImplicitConversionInEitherDirection (0 ms)
 [ RUN      ] FrameTypes.FrameAHasExactlyOnePublicMint
 /workspace/engine/cpp/qr_core/tests/test_frames.cpp:37: Failure
 Value of: (std::is_constructible_v<qr::FrameA, std::int64_t>)
@@ -204,7 +204,7 @@ Expected equality of these values:
   1'641'220'200'000'000'000
     Which is: 1641220200000000000
 
-[  FAILED  ] FrameTypes.FrameAHasExactlyOnePublicMint (2 ms)
+[  FAILED  ] FrameTypes.FrameAHasExactlyOnePublicMint (0 ms)
 [ RUN      ] FrameTypes.FrameBWrapsExactNanosecondsAndOrders
 /workspace/engine/cpp/qr_core/tests/test_frames.cpp:46: Failure
 Expected equality of these values:
@@ -214,7 +214,7 @@ Expected equality of these values:
     Which is: 1641220200000000000
 
 [  FAILED  ] FrameTypes.FrameBWrapsExactNanosecondsAndOrders (0 ms)
-[----------] 3 tests from FrameTypes (37 ms total)
+[----------] 3 tests from FrameTypes (0 ms total)
 
 [----------] 3 tests from CivilDateType
 [ RUN      ] CivilDateType.ParsesCanonicalDaysAndRoundTrips
@@ -273,7 +273,7 @@ Expected equality of these values:
   std::string(day)
     Which is: "2026-01-02"
 
-[  FAILED  ] CivilDateType.ParsesCanonicalDaysAndRoundTrips (9 ms)
+[  FAILED  ] CivilDateType.ParsesCanonicalDaysAndRoundTrips (0 ms)
 [ RUN      ] CivilDateType.RefusesEveryNonCanonicalCivilDay
 /workspace/engine/cpp/qr_core/tests/test_frames.cpp:71: Failure
 Value of: parsed.has_value()
@@ -281,7 +281,7 @@ Value of: parsed.has_value()
 Expected: false
 accepted malformed civil day: 2022-1-03
 
-[  FAILED  ] CivilDateType.RefusesEveryNonCanonicalCivilDay (1 ms)
+[  FAILED  ] CivilDateType.RefusesEveryNonCanonicalCivilDay (0 ms)
 [ RUN      ] CivilDateType.DeltaDaysIsExactSignedDayArithmetic
 /workspace/engine/cpp/qr_core/tests/test_frames.cpp:86: Failure
 Expected equality of these values:
@@ -305,22 +305,22 @@ Expected equality of these values:
 /workspace/engine/cpp/qr_core/tests/test_frames.cpp:91: Failure
 Expected: (first.value()) < (second.value()), actual: 8-byte object <00-00 00-00 00-00 00-00> vs 8-byte object <00-00 00-00 00-00 00-00>
 
-[  FAILED  ] CivilDateType.DeltaDaysIsExactSignedDayArithmetic (3 ms)
-[----------] 3 tests from CivilDateType (19 ms total)
+[  FAILED  ] CivilDateType.DeltaDaysIsExactSignedDayArithmetic (0 ms)
+[----------] 3 tests from CivilDateType (0 ms total)
 
-[----------] 7 tests from ValidityLattice
-[ RUN      ] ValidityLattice.EnumIsExactlyTheFourteenSpecifiedStatesInOrder
-[       OK ] ValidityLattice.EnumIsExactlyTheFourteenSpecifiedStatesInOrder (0 ms)
-[ RUN      ] ValidityLattice.AllOneHundredNinetySixPairsMatchTheFrozenTable
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:105: Failure
+[----------] 8 tests from ValidityLattice
+[ RUN      ] ValidityLattice.EnumIsExactlyTheFifteenSpecifiedStatesInOrder
+[       OK ] ValidityLattice.EnumIsExactlyTheFifteenSpecifiedStatesInOrder (0 ms)
+[ RUN      ] ValidityLattice.AllTwoHundredTwentyFivePairsMatchTheFrozenTable
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:111: Failure
 Value of: wrong.empty()
   Actual: false
 Expected: true
-195 of 196 pairs disagree with the frozen table; first: combine(STUB, STUB) = STUB, expected STUB | second: combine(STUB, STUB) = STUB, expected STUB
+224 of 225 pairs disagree with the frozen table; first: combine(STUB, STUB) = STUB, expected STUB | second: combine(STUB, STUB) = STUB, expected STUB
 
-[  FAILED  ] ValidityLattice.AllOneHundredNinetySixPairsMatchTheFrozenTable (1 ms)
+[  FAILED  ] ValidityLattice.AllTwoHundredTwentyFivePairsMatchTheFrozenTable (0 ms)
 [ RUN      ] ValidityLattice.StaleDiagIsDiagnosticOnlyAndNeverOutranksUnavailability
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:122: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:128: Failure
 Expected equality of these values:
   combine(Validity::STALE_DIAG, state)
     Which is: 1-byte object <00>
@@ -328,7 +328,7 @@ Expected equality of these values:
     Which is: 1-byte object <01>
 STALE_DIAG outranked STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:124: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:130: Failure
 Expected equality of these values:
   combine(state, Validity::STALE_DIAG)
     Which is: 1-byte object <00>
@@ -336,7 +336,7 @@ Expected equality of these values:
     Which is: 1-byte object <01>
 STALE_DIAG outranked STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:122: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:128: Failure
 Expected equality of these values:
   combine(Validity::STALE_DIAG, state)
     Which is: 1-byte object <00>
@@ -344,7 +344,7 @@ Expected equality of these values:
     Which is: 1-byte object <02>
 STALE_DIAG outranked STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:124: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:130: Failure
 Expected equality of these values:
   combine(state, Validity::STALE_DIAG)
     Which is: 1-byte object <00>
@@ -352,7 +352,7 @@ Expected equality of these values:
     Which is: 1-byte object <02>
 STALE_DIAG outranked STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:122: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:128: Failure
 Expected equality of these values:
   combine(Validity::STALE_DIAG, state)
     Which is: 1-byte object <00>
@@ -360,7 +360,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 STALE_DIAG outranked STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:124: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:130: Failure
 Expected equality of these values:
   combine(state, Validity::STALE_DIAG)
     Which is: 1-byte object <00>
@@ -368,7 +368,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 STALE_DIAG outranked STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:122: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:128: Failure
 Expected equality of these values:
   combine(Validity::STALE_DIAG, state)
     Which is: 1-byte object <00>
@@ -376,7 +376,7 @@ Expected equality of these values:
     Which is: 1-byte object <04>
 STALE_DIAG outranked STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:124: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:130: Failure
 Expected equality of these values:
   combine(state, Validity::STALE_DIAG)
     Which is: 1-byte object <00>
@@ -384,530 +384,804 @@ Expected equality of these values:
     Which is: 1-byte object <04>
 STALE_DIAG outranked STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:129: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:135: Failure
 Expected equality of these values:
   combine(Validity::VALID, Validity::STALE_DIAG)
     Which is: 1-byte object <00>
   Validity::STALE_DIAG
     Which is: 1-byte object <05>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:130: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:136: Failure
 Expected equality of these values:
   combine(Validity::STALE_DIAG, Validity::LOCKED)
     Which is: 1-byte object <00>
   Validity::LOCKED
     Which is: 1-byte object <06>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:131: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:137: Failure
 Expected equality of these values:
   combine(Validity::STALE_DIAG, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:132: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:138: Failure
 Expected equality of these values:
   combine(Validity::STALE_DIAG, Validity::STALE_DIAG)
     Which is: 1-byte object <00>
   Validity::STALE_DIAG
     Which is: 1-byte object <05>
 
-[  FAILED  ] ValidityLattice.StaleDiagIsDiagnosticOnlyAndNeverOutranksUnavailability (13 ms)
+[  FAILED  ] ValidityLattice.StaleDiagIsDiagnosticOnlyAndNeverOutranksUnavailability (0 ms)
+[ RUN      ] ValidityLattice.MalformedIsItsOwnStateRankedJustAboveWrongCivilDay
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:155: Failure
+Expected equality of these values:
+  qr::validity_name(Validity::MALFORMED)
+    Which is: "STUB"
+  "MALFORMED"
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:163: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, weaker)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:165: Failure
+Expected equality of these values:
+  combine(weaker, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:163: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, weaker)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:165: Failure
+Expected equality of these values:
+  combine(weaker, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:163: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, weaker)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:165: Failure
+Expected equality of these values:
+  combine(weaker, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:163: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, weaker)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:165: Failure
+Expected equality of these values:
+  combine(weaker, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:163: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, weaker)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:165: Failure
+Expected equality of these values:
+  combine(weaker, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:163: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, weaker)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:165: Failure
+Expected equality of these values:
+  combine(weaker, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+MALFORMED lost to STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:173: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, stronger)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <06>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:175: Failure
+Expected equality of these values:
+  combine(stronger, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <06>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:173: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, stronger)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <07>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:175: Failure
+Expected equality of these values:
+  combine(stronger, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <07>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:173: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, stronger)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <08>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:175: Failure
+Expected equality of these values:
+  combine(stronger, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <08>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:173: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, stronger)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <09>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:175: Failure
+Expected equality of these values:
+  combine(stronger, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <09>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:173: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, stronger)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <0A>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:175: Failure
+Expected equality of these values:
+  combine(stronger, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <0A>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:173: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, stronger)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <0B>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:175: Failure
+Expected equality of these values:
+  combine(stronger, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <0B>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:173: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, stronger)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <0C>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:175: Failure
+Expected equality of these values:
+  combine(stronger, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <0C>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:173: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, stronger)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <0D>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:175: Failure
+Expected equality of these values:
+  combine(stronger, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  stronger
+    Which is: 1-byte object <0D>
+MALFORMED outranked STUB
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:178: Failure
+Expected equality of these values:
+  combine(Validity::MALFORMED, Validity::MALFORMED)
+    Which is: 1-byte object <00>
+  Validity::MALFORMED
+    Which is: 1-byte object <0E>
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+Expected: (combine(Validity::MALFORMED, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
+
+[  FAILED  ] ValidityLattice.MalformedIsItsOwnStateRankedJustAboveWrongCivilDay (0 ms)
 [ RUN      ] ValidityLattice.IsCommutativeIdempotentAndAssociative
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:162: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:202: Failure
 Expected equality of these values:
   idempotent_failures
-    Which is: 13
+    Which is: 14
   0U
     Which is: 0
 combine(a, a) != a
 
 [  FAILED  ] ValidityLattice.IsCommutativeIdempotentAndAssociative (0 ms)
 [ RUN      ] ValidityLattice.ValidIsTheIdentityAndNeverResurrectsAnInvalidState
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <01>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <01>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <02>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <02>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <03>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <03>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <04>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <04>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <05>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <05>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <06>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <06>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <07>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <07>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <08>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <08>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <09>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <09>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <0A>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <0A>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <0B>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <0B>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <0C>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <0C>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <00>
   a
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:172: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
 Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
 combining with VALID must never repair STUB
 
-[  FAILED  ] ValidityLattice.ValidIsTheIdentityAndNeverResurrectsAnInvalidState (53 ms)
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
+Expected equality of these values:
+  combine(Validity::VALID, a)
+    Which is: 1-byte object <00>
+  a
+    Which is: 1-byte object <0E>
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
+Expected equality of these values:
+  combine(a, Validity::VALID)
+    Which is: 1-byte object <00>
+  a
+    Which is: 1-byte object <0E>
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:212: Failure
+Expected: (combine(a, Validity::VALID)) != (Validity::VALID), actual: 1-byte object <00> vs 1-byte object <00>
+combining with VALID must never repair STUB
+
+[  FAILED  ] ValidityLattice.ValidIsTheIdentityAndNeverResurrectsAnInvalidState (0 ms)
 [ RUN      ] ValidityLattice.ModalityAbsentAbsorbsEveryState
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:180: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
 Expected equality of these values:
   combine(a, Validity::MODALITY_ABSENT)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:181: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
 Expected equality of these values:
   combine(Validity::MODALITY_ABSENT, a)
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-[  FAILED  ] ValidityLattice.ModalityAbsentAbsorbsEveryState (29 ms)
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:220: Failure
+Expected equality of these values:
+  combine(a, Validity::MODALITY_ABSENT)
+    Which is: 1-byte object <00>
+  Validity::MODALITY_ABSENT
+    Which is: 1-byte object <0D>
+
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:221: Failure
+Expected equality of these values:
+  combine(Validity::MODALITY_ABSENT, a)
+    Which is: 1-byte object <00>
+  Validity::MODALITY_ABSENT
+    Which is: 1-byte object <0D>
+
+[  FAILED  ] ValidityLattice.ModalityAbsentAbsorbsEveryState (0 ms)
 [ RUN      ] ValidityLattice.EveryStateHasItsOwnStableName
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:190: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:230: Failure
 Expected equality of these values:
   names.size()
     Which is: 1
   qr::kValidityCount
-    Which is: 14
+    Which is: 15
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:191: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:231: Failure
 Expected equality of these values:
   qr::validity_name(Validity::VALID)
     Which is: "STUB"
   "VALID"
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:192: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:232: Failure
 Expected equality of these values:
   qr::validity_name(Validity::MODALITY_ABSENT)
     Which is: "STUB"
   "MODALITY_ABSENT"
 
-[  FAILED  ] ValidityLattice.EveryStateHasItsOwnStableName (3 ms)
-[----------] 7 tests from ValidityLattice (117 ms total)
+[  FAILED  ] ValidityLattice.EveryStateHasItsOwnStableName (0 ms)
+[----------] 8 tests from ValidityLattice (2 ms total)
 
 [----------] 1 test from TypedValue
 [ RUN      ] TypedValue.CarriesItsValueAndValidityAndCombinesWorstWins
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:201: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:241: Failure
 Value of: qr::is_valid(masked)
   Actual: true
 Expected: false
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:202: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:242: Failure
 Expected equality of these values:
   masked.v
     Which is: 1-byte object <00>
   Validity::CROSSED
     Which is: 1-byte object <07>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:206: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:246: Failure
 Expected equality of these values:
   worse.v
     Which is: 1-byte object <00>
   Validity::MODALITY_ABSENT
     Which is: 1-byte object <0D>
 
-[  FAILED  ] TypedValue.CarriesItsValueAndValidityAndCombinesWorstWins (3 ms)
-[----------] 1 test from TypedValue (4 ms total)
+[  FAILED  ] TypedValue.CarriesItsValueAndValidityAndCombinesWorstWins (0 ms)
+[----------] 1 test from TypedValue (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 21 tests from 7 test suites ran. (226 ms total)
+[==========] 22 tests from 7 test suites ran. (3 ms total)
 [  PASSED  ] 1 test.
-[  FAILED  ] 20 tests, listed below:
+[  FAILED  ] 21 tests, listed below:
 [  FAILED  ] CheckedArithmetic.AddOverflowIsARefusalNotAValue
 [  FAILED  ] CheckedArithmetic.AddReturnsTheExactSumInsideTheDomain
 [  FAILED  ] CheckedArithmetic.SubOverflowIsARefusal
@@ -921,16 +1195,17 @@ Expected equality of these values:
 [  FAILED  ] CivilDateType.ParsesCanonicalDaysAndRoundTrips
 [  FAILED  ] CivilDateType.RefusesEveryNonCanonicalCivilDay
 [  FAILED  ] CivilDateType.DeltaDaysIsExactSignedDayArithmetic
-[  FAILED  ] ValidityLattice.AllOneHundredNinetySixPairsMatchTheFrozenTable
+[  FAILED  ] ValidityLattice.AllTwoHundredTwentyFivePairsMatchTheFrozenTable
 [  FAILED  ] ValidityLattice.StaleDiagIsDiagnosticOnlyAndNeverOutranksUnavailability
+[  FAILED  ] ValidityLattice.MalformedIsItsOwnStateRankedJustAboveWrongCivilDay
 [  FAILED  ] ValidityLattice.IsCommutativeIdempotentAndAssociative
 [  FAILED  ] ValidityLattice.ValidIsTheIdentityAndNeverResurrectsAnInvalidState
 [  FAILED  ] ValidityLattice.ModalityAbsentAbsorbsEveryState
 [  FAILED  ] ValidityLattice.EveryStateHasItsOwnStableName
 [  FAILED  ] TypedValue.CarriesItsValueAndValidityAndCombinesWorstWins
 
-20 FAILED TESTS
-### exit=1 (qr_core_tests)
+21 FAILED TESTS
+
 ### qr_registry_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
 [==========] Running 15 tests from 4 test suites.
@@ -956,7 +1231,7 @@ Expected equality of these values:
   qr::kScopeSessionCount
     Which is: 625
 
-[  FAILED  ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals (3 ms)
+[  FAILED  ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals (0 ms)
 [ RUN      ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals
 /workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:82: Failure
 Expected equality of these values:
@@ -1019,7 +1294,7 @@ Value of: boundary_low.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals (7 ms)
+[  FAILED  ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals (0 ms)
 [ RUN      ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess
 /workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:103: Failure
 Expected equality of these values:
@@ -1131,7 +1406,7 @@ Value of: scoped.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions (8 ms)
+[  FAILED  ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions (0 ms)
 [ RUN      ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope
 /workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:142: Failure
 Value of: scope.has_value()
@@ -1146,8 +1421,8 @@ Value of: resolved.has_value()
 Expected: true
 ordinal 125: 
 
-[  FAILED  ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus (4 ms)
-[----------] 6 tests from ScopeWall (56 ms total)
+[  FAILED  ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus (3 ms)
+[----------] 6 tests from ScopeWall (24 ms total)
 
 [----------] 4 tests from RegistryDigestGate
 [ RUN      ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest
@@ -1166,7 +1441,7 @@ Expected equality of these values:
   qr::kExpectedRegistrySha256
     Which is: "233dc10ab4c0973a8caa92792757a322bbff102296f0e7ffb71c6d78810bcaed"
 
-[  FAILED  ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest (3 ms)
+[  FAILED  ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest (0 ms)
 [ RUN      ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes
 /workspace/engine/cpp/qr_registry/tests/test_registry.cpp:42: Failure
 Expected equality of these values:
@@ -1181,7 +1456,7 @@ Value of: on_disk == embedded
 Expected: true
 configure-time embedding mangled the registry bytes
 
-[  FAILED  ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes (64 ms)
+[  FAILED  ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes (30 ms)
 [ RUN      ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError
 /workspace/engine/cpp/qr_registry/tests/test_registry.cpp:64: Failure
 Value of: loaded.has_value()
@@ -1189,7 +1464,7 @@ Value of: loaded.has_value()
 Expected: false
 a flipped byte must never authenticate
 
-[  FAILED  ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError (60 ms)
+[  FAILED  ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError (34 ms)
 [ RUN      ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash
 /workspace/engine/cpp/qr_registry/tests/test_registry.cpp:82: Failure
 Value of: loaded.has_value()
@@ -1197,7 +1472,7 @@ Value of: loaded.has_value()
 Expected: false
 
 [  FAILED  ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash (0 ms)
-[----------] 4 tests from RegistryDigestGate (135 ms total)
+[----------] 4 tests from RegistryDigestGate (64 ms total)
 
 [----------] 4 tests from RegistryParse
 [ RUN      ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions
@@ -1243,7 +1518,7 @@ Expected equality of these values:
     Which is: "stub"
   "dollar_float64"
 
-[  FAILED  ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants (4 ms)
+[  FAILED  ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants (0 ms)
 [ RUN      ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange
 /workspace/engine/cpp/qr_registry/tests/test_registry.cpp:147: Failure
 Value of: first_scoped.has_value()
@@ -1259,7 +1534,7 @@ Expected: false
 accepted malformed registry: empty
 
 [  FAILED  ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError (0 ms)
-[----------] 4 tests from RegistryParse (15 ms total)
+[----------] 4 tests from RegistryParse (0 ms total)
 
 [----------] 1 test from RegistryBudget
 [ RUN      ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds
@@ -1272,10 +1547,10 @@ Expected equality of these values:
 
 [budget] registry parse+digest-gate: 0.0000 s
 [  FAILED  ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds (0 ms)
-[----------] 1 test from RegistryBudget (3 ms total)
+[----------] 1 test from RegistryBudget (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 15 tests from 4 test suites ran. (220 ms total)
+[==========] 15 tests from 4 test suites ran. (90 ms total)
 [  PASSED  ] 0 tests.
 [  FAILED  ] 15 tests, listed below:
 [  FAILED  ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals
@@ -1295,7 +1570,7 @@ Expected equality of these values:
 [  FAILED  ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds
 
 15 FAILED TESTS
-### exit=1 (qr_registry_tests)
+
 ### qr_tools_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
 [==========] Running 3 tests from 1 test suite.
@@ -1340,7 +1615,7 @@ Expected equality of these values:
   3U
     Which is: 3
 
-[  FAILED  ] DialectCensusTool.UnreadableFileGetsItsOwnRowWithAReasonAndNeverCrashes (295 ms)
+[  FAILED  ] DialectCensusTool.UnreadableFileGetsItsOwnRowWithAReasonAndNeverCrashes (246 ms)
 [ RUN      ] DialectCensusTool.ReadableFileInTheSameRunStillCensusesItsDialect
 /workspace/engine/cpp/tools/tests/test_dialect_census.cpp:116: Failure
 Expected equality of these values:
@@ -1352,27 +1627,27 @@ Expected equality of these values:
 Expected: (census.find("__UNREADABLE__")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
 the broken files vanished from the census
 
-[  FAILED  ] DialectCensusTool.ReadableFileInTheSameRunStillCensusesItsDialect (431 ms)
+[  FAILED  ] DialectCensusTool.ReadableFileInTheSameRunStillCensusesItsDialect (328 ms)
 [ RUN      ] DialectCensusTool.TwoRunsAreByteIdentical
 /workspace/engine/cpp/tools/tests/test_dialect_census.cpp:137: Failure
 Expected equality of these values:
   read_file(out_a / "dialect_census.tsv")
-    Which is: "# generated 1786391304.1397529\ncorpus\tyear\tcodec\tencoding_set\tphysical_type\tconverted_type\thas_timestamp_stats\tn_row_groups_bucket\tn_files\nfixture\t2022\tZSTD\tPLAIN+RLE\tDOUBLE\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT32\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT64\tNONE\tyes\t65-256\t1\n"
+    Which is: "# generated 1786393332.2269366\ncorpus\tyear\tcodec\tencoding_set\tphysical_type\tconverted_type\thas_timestamp_stats\tn_row_groups_bucket\tn_files\nfixture\t2022\tZSTD\tPLAIN+RLE\tDOUBLE\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT32\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT64\tNONE\tyes\t65-256\t1\n"
   read_file(out_b / "dialect_census.tsv")
-    Which is: "# generated 1786391304.3284905\ncorpus\tyear\tcodec\tencoding_set\tphysical_type\tconverted_type\thas_timestamp_stats\tn_row_groups_bucket\tn_files\nfixture\t2022\tZSTD\tPLAIN+RLE\tDOUBLE\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT32\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT64\tNONE\tyes\t65-256\t1\n"
+    Which is: "# generated 1786393332.477188\ncorpus\tyear\tcodec\tencoding_set\tphysical_type\tconverted_type\thas_timestamp_stats\tn_row_groups_bucket\tn_files\nfixture\t2022\tZSTD\tPLAIN+RLE\tDOUBLE\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT32\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT64\tNONE\tyes\t65-256\t1\n"
 With diff:
 @@ -1,3 +1,3 @@
--# generated 1786391304.1397529
-+# generated 1786391304.3284905
+-# generated 1786393332.2269366
++# generated 1786393332.477188
  corpus\tyear\tcodec\tencoding_set\tphysical_type\tconverted_type\thas_timestamp_stats\tn_row_groups_bucket\tn_files
  fixture\t2022\tZSTD\tPLAIN+RLE\tDOUBLE\tNONE\tyes\t65-256\t1
 
 
-[  FAILED  ] DialectCensusTool.TwoRunsAreByteIdentical (666 ms)
-[----------] 3 tests from DialectCensusTool (1399 ms total)
+[  FAILED  ] DialectCensusTool.TwoRunsAreByteIdentical (653 ms)
+[----------] 3 tests from DialectCensusTool (1228 ms total)
 
 [----------] Global test environment tear-down
-[==========] 3 tests from 1 test suite ran. (1404 ms total)
+[==========] 3 tests from 1 test suite ran. (1228 ms total)
 [  PASSED  ] 0 tests.
 [  FAILED  ] 3 tests, listed below:
 [  FAILED  ] DialectCensusTool.UnreadableFileGetsItsOwnRowWithAReasonAndNeverCrashes
@@ -1380,4 +1655,4 @@ With diff:
 [  FAILED  ] DialectCensusTool.TwoRunsAreByteIdentical
 
  3 FAILED TESTS
-### exit=1 (qr_tools_tests)
+

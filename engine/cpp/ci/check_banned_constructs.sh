@@ -4,6 +4,8 @@
 #   1. RANGE-LIMITING GUARDS ARE BANNED in qr_core and qr_clock. Overflow and
 #      out-of-domain values are refusals; a guard may never substitute a
 #      boundary value for the true one. Banned pattern: std::clamp | saturat.
+#   3. TEST-ONLY ESCAPE HATCHES may not appear in production code (the clock's
+#      without_construction_gate, which skips boundary condition 2).
 #   2. UNORDERED CONTAINERS ARE BANNED outside an explicit whitelist
 #      (ci/unordered_whitelist.txt) — "no unordered containers on output paths
 #      (CI grep gate + whitelist)". Iteration order of an unordered container
@@ -71,6 +73,28 @@ done
 if [[ -n "${unordered_hits}" ]]; then
   echo "FAIL: unordered container outside ${WHITELIST}:" >&2
   echo "${unordered_hits}" >&2
+  status=1
+fi
+
+# --- gate 3: test-only escape hatches never reach production code -----------
+# SessionClock::without_construction_gate builds a clock WITHOUT boundary
+# condition 2, so that conditions 4 and 5 — unreachable from any valid registry
+# row under exact arithmetic — can be fired by a counterfixture. It may appear
+# only in its own declaration, its own definition, and test files.
+hatch_hits=""
+for file in "${SOURCES[@]}"; do
+  rel="${file#"${CPP_ROOT}"/}"
+  case "${rel}" in
+    qr_clock/include/qr_clock/session_clock.hpp|qr_clock/src/session_clock.cpp|*/tests/*) continue ;;
+  esac
+  hits="$(grep -n 'without_construction_gate' "${file}" || true)"
+  if [[ -n "${hits}" ]]; then
+    hatch_hits+="${rel}:"$'\n'"${hits}"$'\n'
+  fi
+done
+if [[ -n "${hatch_hits}" ]]; then
+  echo "FAIL: test-only clock escape hatch used outside its module and tests:" >&2
+  echo "${hatch_hits}" >&2
   status=1
 fi
 

@@ -11,6 +11,13 @@
 #   8. benchmark gates                  (WP1: registry parse+gate <= 5s, enforced
 #                                        inside the suite; WP0 census budget is
 #                                        the artifact run, see NOTES below)
+#   9. WP2 clock oracle gate             (two-run byte identity, 1,003-session
+#                                        coverage, <10s wall, and the empty
+#                                        differential vs the frozen Rust clock)
+#  10. WP3 parquet real-file gate       (release build; both authorized real
+#                                        files: two-run identity, the writer's
+#                                        own statistics, 25M values/s, and the
+#                                        committed digest rows)
 #
 # Nothing here writes outside /workspace/artifacts/cache/cpp. Nothing downloads.
 set -uo pipefail
@@ -54,13 +61,35 @@ step "7. red ledger" "${CPP_ROOT}/scripts/check_red_ledger.sh" "${CACHE}/dev"
 #   engine/cpp/tools/qr_dialect_census.py --out-dir /workspace/artifacts/cache/cpp
 # and compare against dialect_census.tsv for two-run byte identity.
 #
-# PLACEHOLDER: WP2..WP11 each add their own benchmark gate here as they land
+# WP2's budget (1,003 clocks + a full trading day of conversions each, well
+# inside the 10s cross-check wall) is enforced as a real test:
+# ClockBudget.EveryRegisteredSessionBuildsAndConvertsUnderTheCrossCheckWall.
+#
+# WP3's budget (single-thread parquet decode >= 25M values/s on the real trades
+# file) is enforced as a real test on the small authorized file:
+# RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor, asserted in every
+# non-sanitized build; the 704MB option-quote shard's throughput is enforced by
+# step 10's artifact run.
+#
+# PLACEHOLDER: WP4..WP11 each add their own benchmark gate here as they land
 # (FINAL_PLAN section 6 "Efficiency law": slower than budget cannot merge).
 step "8. benchmark gates" bash -c "
   echo 'WP1 registry parse+gate budget: enforced inside the test suite (steps 4 and 6)'
   echo 'WP0 census budget: artifact run, see ${CACHE}/dialect_census.tsv'
-  echo 'WP2..WP11: placeholders, added by their own lanes'
+  echo 'WP2 clock budget: enforced inside the test suite (steps 4 and 6)'
+  echo 'WP3 decode budget: enforced inside the test suite (steps 4 and 6) + step 10'
+  echo 'WP4..WP11: placeholders, added by their own lanes'
 "
+
+# --- 9. WP2 clock oracle ---------------------------------------------------
+step "9. WP2 clock oracle" "${CPP_ROOT}/ci/wp2_clock_oracle_gate.sh" "${CACHE}/dev"
+
+# --- 10. WP3 parquet real-file gate ----------------------------------------
+# Release build + both authorized real files: two-run byte identity, the
+# writer-statistics cross-check, the 25M values/s budget, and the committed
+# fixture rows. The 704MB shard belongs here rather than in ctest.
+step "10. WP3 release build" bash -c "cd '${CPP_ROOT}' && cmake --preset release > '${CACHE}/release_configure.log' 2>&1 && cmake --build --preset release -j 12 > '${CACHE}/release_build.log' 2>&1"
+step "10b. WP3 parquet real-file gate" "${CPP_ROOT}/ci/wp3_parquet_realfile_gate.sh" "${CACHE}/release"
 
 echo
 echo "=============================================================="

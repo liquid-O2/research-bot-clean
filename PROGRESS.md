@@ -13,8 +13,8 @@
 | M1 | IN_PROGRESS | 2026-08-10 | — | — | WP0/WP1 lane launched (Opus-high) |
 | WP0 | DONE | 2026-08-10 | — | dialect_census.tsv sha 63557a43…; 349 rows; 27.2s | exactly ZSTD×{PLAIN,RLE,RLE_DICTIONARY}, 8,726 files, 0 out-of-dialect |
 | WP1 | DONE | 2026-08-10 | — | engine/cpp qr_core+qr_registry (commit 6715717); 39/39 green; 5 red-ledger mutants | STALE_DIAG ruling applied |
-| WP2 | DONE | 2026-08-10 | — | qr_clock; 71 tests green; 18 mutants; oracle diff EMPTY sha a36f954e…; CC-001 15-state applied | commit deferred until WP3 lands (shared CMake files) |
-| WP3 | IN_PROGRESS | 2026-08-10 | — | — | parquet decoder lane |
+| WP2 | DONE | 2026-08-10 | — | qr_clock; 71 tests; 18 mutants; oracle diff EMPTY sha a36f954e…; CC-001 applied | committed with WP3 |
+| WP3 | DONE | 2026-08-10 | — | qr_parquet 4,270 LOC; 42 tests; 5 mutants; 73M values/s (2.9× budget); realfile digests + 8,997/8,997 footer-stat cross-check | CC-002: Rust-differential replaces Arrow-throughput acceptance |
 | WP4..WP11 | TODO | — | — | — | see FINAL_PLAN §6 |
 | M2 | TODO | — | — | — | V4 A1..A9 + one 5-lane review |
 | M2.5 | TODO | — | — | — | Q*≤Q_max gate + decomposition (after M3-R2) |

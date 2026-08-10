@@ -1,0 +1,11 @@
+--- a/qr_clock/src/session_clock.cpp
++++ b/qr_clock/src/session_clock.cpp
+@@ -74,7 +74,7 @@
+ Expected<std::size_t, Refusal> refuse_unless_non_decreasing(
+     std::span<const FrameA> tape_a) noexcept {
+   for (std::size_t index = 1; index < tape_a.size(); ++index) {
+-    if (tape_a[index - 1].ns() > tape_a[index].ns()) {
++    if (tape_a[index - 1].ns() < tape_a[index].ns()) {  // M108
+       return Expected<std::size_t, Refusal>::refuse(
+           Refusal(RefusalCode::CLOCK_VIOLATION, kSiteCondition6c,
+                   "converted frame-A tape is not non-decreasing",

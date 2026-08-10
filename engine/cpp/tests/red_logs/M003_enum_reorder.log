@@ -6,7 +6,7 @@
 #
 ### qr_core_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 21 tests from 7 test suites.
+[==========] Running 22 tests from 7 test suites.
 [----------] Global test environment set-up.
 [----------] 5 tests from CheckedArithmetic
 [ RUN      ] CheckedArithmetic.AddOverflowIsARefusalNotAValue
@@ -19,17 +19,17 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] CheckedArithmetic.MulOverflowIsARefusal (0 ms)
 [ RUN      ] CheckedArithmetic.RefusalCarriesNoSubstituteValue
 [       OK ] CheckedArithmetic.RefusalCarriesNoSubstituteValue (0 ms)
-[----------] 5 tests from CheckedArithmetic (10 ms total)
+[----------] 5 tests from CheckedArithmetic (0 ms total)
 
 [----------] 1 test from ExpectedCarrier
 [ RUN      ] ExpectedCarrier.DistinguishesValueFromRefusalWithoutExceptions
 [       OK ] ExpectedCarrier.DistinguishesValueFromRefusalWithoutExceptions (0 ms)
-[----------] 1 test from ExpectedCarrier (1 ms total)
+[----------] 1 test from ExpectedCarrier (0 ms total)
 
 [----------] 1 test from RefusalTaxonomy
 [ RUN      ] RefusalTaxonomy.EveryPortedCodeHasItsOwnName
 [       OK ] RefusalTaxonomy.EveryPortedCodeHasItsOwnName (0 ms)
-[----------] 1 test from RefusalTaxonomy (2 ms total)
+[----------] 1 test from RefusalTaxonomy (0 ms total)
 
 [----------] 3 tests from FrameTypes
 [ RUN      ] FrameTypes.NoImplicitConversionInEitherDirection
@@ -38,7 +38,7 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] FrameTypes.FrameAHasExactlyOnePublicMint (0 ms)
 [ RUN      ] FrameTypes.FrameBWrapsExactNanosecondsAndOrders
 [       OK ] FrameTypes.FrameBWrapsExactNanosecondsAndOrders (0 ms)
-[----------] 3 tests from FrameTypes (6 ms total)
+[----------] 3 tests from FrameTypes (0 ms total)
 
 [----------] 3 tests from CivilDateType
 [ RUN      ] CivilDateType.ParsesCanonicalDaysAndRoundTrips
@@ -47,11 +47,11 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] CivilDateType.RefusesEveryNonCanonicalCivilDay (0 ms)
 [ RUN      ] CivilDateType.DeltaDaysIsExactSignedDayArithmetic
 [       OK ] CivilDateType.DeltaDaysIsExactSignedDayArithmetic (0 ms)
-[----------] 3 tests from CivilDateType (5 ms total)
+[----------] 3 tests from CivilDateType (0 ms total)
 
-[----------] 7 tests from ValidityLattice
-[ RUN      ] ValidityLattice.EnumIsExactlyTheFourteenSpecifiedStatesInOrder
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:80: Failure
+[----------] 8 tests from ValidityLattice
+[ RUN      ] ValidityLattice.EnumIsExactlyTheFifteenSpecifiedStatesInOrder
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:84: Failure
 Expected equality of these values:
   static_cast<std::size_t>(kAllStates[i])
     Which is: 4
@@ -59,7 +59,7 @@ Expected equality of these values:
     Which is: 3
 state WRONG_CIVIL_DAY moved in the frozen order
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:80: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:84: Failure
 Expected equality of these values:
   static_cast<std::size_t>(kAllStates[i])
     Which is: 3
@@ -67,24 +67,24 @@ Expected equality of these values:
     Which is: 4
 state ATTACHMENT_FUTURE moved in the frozen order
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:84: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:88: Failure
 Expected equality of these values:
   static_cast<std::uint8_t>(Validity::WRONG_CIVIL_DAY)
     Which is: '\x3' (3)
   4U
     Which is: 4
 
-[  FAILED  ] ValidityLattice.EnumIsExactlyTheFourteenSpecifiedStatesInOrder (3 ms)
-[ RUN      ] ValidityLattice.AllOneHundredNinetySixPairsMatchTheFrozenTable
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:105: Failure
+[  FAILED  ] ValidityLattice.EnumIsExactlyTheFifteenSpecifiedStatesInOrder (0 ms)
+[ RUN      ] ValidityLattice.AllTwoHundredTwentyFivePairsMatchTheFrozenTable
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:111: Failure
 Value of: wrong.empty()
   Actual: false
 Expected: true
-18 of 196 pairs disagree with the frozen table; first: combine(VALID, WRONG_CIVIL_DAY) = ATTACHMENT_FUTURE, expected WRONG_CIVIL_DAY | second: combine(VALID, ATTACHMENT_FUTURE) = WRONG_CIVIL_DAY, expected ATTACHMENT_FUTURE
+18 of 225 pairs disagree with the frozen table; first: combine(VALID, WRONG_CIVIL_DAY) = ATTACHMENT_FUTURE, expected WRONG_CIVIL_DAY | second: combine(VALID, ATTACHMENT_FUTURE) = WRONG_CIVIL_DAY, expected ATTACHMENT_FUTURE
 
-[  FAILED  ] ValidityLattice.AllOneHundredNinetySixPairsMatchTheFrozenTable (0 ms)
+[  FAILED  ] ValidityLattice.AllTwoHundredTwentyFivePairsMatchTheFrozenTable (0 ms)
 [ RUN      ] ValidityLattice.StaleDiagIsDiagnosticOnlyAndNeverOutranksUnavailability
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:122: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:128: Failure
 Expected equality of these values:
   combine(Validity::STALE_DIAG, state)
     Which is: 1-byte object <03>
@@ -92,7 +92,7 @@ Expected equality of these values:
     Which is: 1-byte object <04>
 STALE_DIAG outranked WRONG_CIVIL_DAY
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:124: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:130: Failure
 Expected equality of these values:
   combine(state, Validity::STALE_DIAG)
     Which is: 1-byte object <03>
@@ -100,7 +100,7 @@ Expected equality of these values:
     Which is: 1-byte object <04>
 STALE_DIAG outranked WRONG_CIVIL_DAY
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:122: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:128: Failure
 Expected equality of these values:
   combine(Validity::STALE_DIAG, state)
     Which is: 1-byte object <04>
@@ -108,7 +108,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 STALE_DIAG outranked ATTACHMENT_FUTURE
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:124: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:130: Failure
 Expected equality of these values:
   combine(state, Validity::STALE_DIAG)
     Which is: 1-byte object <04>
@@ -116,9 +116,11 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 STALE_DIAG outranked ATTACHMENT_FUTURE
 
-[  FAILED  ] ValidityLattice.StaleDiagIsDiagnosticOnlyAndNeverOutranksUnavailability (7 ms)
+[  FAILED  ] ValidityLattice.StaleDiagIsDiagnosticOnlyAndNeverOutranksUnavailability (0 ms)
+[ RUN      ] ValidityLattice.MalformedIsItsOwnStateRankedJustAboveWrongCivilDay
+[       OK ] ValidityLattice.MalformedIsItsOwnStateRankedJustAboveWrongCivilDay (0 ms)
 [ RUN      ] ValidityLattice.IsCommutativeIdempotentAndAssociative
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:162: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:202: Failure
 Expected equality of these values:
   idempotent_failures
     Which is: 2
@@ -126,7 +128,7 @@ Expected equality of these values:
     Which is: 0
 combine(a, a) != a
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:164: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:204: Failure
 Expected equality of these values:
   associative_failures
     Which is: 92
@@ -134,60 +136,60 @@ Expected equality of these values:
     Which is: 0
 the lattice is not associative
 
-[  FAILED  ] ValidityLattice.IsCommutativeIdempotentAndAssociative (1 ms)
+[  FAILED  ] ValidityLattice.IsCommutativeIdempotentAndAssociative (0 ms)
 [ RUN      ] ValidityLattice.ValidIsTheIdentityAndNeverResurrectsAnInvalidState
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <03>
   a
     Which is: 1-byte object <04>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <03>
   a
     Which is: 1-byte object <04>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:169: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:209: Failure
 Expected equality of these values:
   combine(Validity::VALID, a)
     Which is: 1-byte object <04>
   a
     Which is: 1-byte object <03>
 
-/workspace/engine/cpp/qr_core/tests/test_validity.cpp:170: Failure
+/workspace/engine/cpp/qr_core/tests/test_validity.cpp:210: Failure
 Expected equality of these values:
   combine(a, Validity::VALID)
     Which is: 1-byte object <04>
   a
     Which is: 1-byte object <03>
 
-[  FAILED  ] ValidityLattice.ValidIsTheIdentityAndNeverResurrectsAnInvalidState (3 ms)
+[  FAILED  ] ValidityLattice.ValidIsTheIdentityAndNeverResurrectsAnInvalidState (0 ms)
 [ RUN      ] ValidityLattice.ModalityAbsentAbsorbsEveryState
 [       OK ] ValidityLattice.ModalityAbsentAbsorbsEveryState (0 ms)
 [ RUN      ] ValidityLattice.EveryStateHasItsOwnStableName
 [       OK ] ValidityLattice.EveryStateHasItsOwnStableName (0 ms)
-[----------] 7 tests from ValidityLattice (30 ms total)
+[----------] 8 tests from ValidityLattice (0 ms total)
 
 [----------] 1 test from TypedValue
 [ RUN      ] TypedValue.CarriesItsValueAndValidityAndCombinesWorstWins
 [       OK ] TypedValue.CarriesItsValueAndValidityAndCombinesWorstWins (0 ms)
-[----------] 1 test from TypedValue (1 ms total)
+[----------] 1 test from TypedValue (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 21 tests from 7 test suites ran. (92 ms total)
-[  PASSED  ] 16 tests.
+[==========] 22 tests from 7 test suites ran. (0 ms total)
+[  PASSED  ] 17 tests.
 [  FAILED  ] 5 tests, listed below:
-[  FAILED  ] ValidityLattice.EnumIsExactlyTheFourteenSpecifiedStatesInOrder
-[  FAILED  ] ValidityLattice.AllOneHundredNinetySixPairsMatchTheFrozenTable
+[  FAILED  ] ValidityLattice.EnumIsExactlyTheFifteenSpecifiedStatesInOrder
+[  FAILED  ] ValidityLattice.AllTwoHundredTwentyFivePairsMatchTheFrozenTable
 [  FAILED  ] ValidityLattice.StaleDiagIsDiagnosticOnlyAndNeverOutranksUnavailability
 [  FAILED  ] ValidityLattice.IsCommutativeIdempotentAndAssociative
 [  FAILED  ] ValidityLattice.ValidIsTheIdentityAndNeverResurrectsAnInvalidState
 
  5 FAILED TESTS
-### exit=1 (qr_core_tests)
+
 ### qr_registry_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
 [==========] Running 15 tests from 4 test suites.
@@ -198,61 +200,61 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals
 [       OK ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals (0 ms)
 [ RUN      ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess
-[       OK ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess (16 ms)
+[       OK ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess (19 ms)
 [ RUN      ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions
 [       OK ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions (0 ms)
 [ RUN      ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope
 [       OK ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope (0 ms)
 [ RUN      ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus
-[       OK ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus (14 ms)
-[----------] 6 tests from ScopeWall (69 ms total)
+[       OK ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus (11 ms)
+[----------] 6 tests from ScopeWall (40 ms total)
 
 [----------] 4 tests from RegistryDigestGate
 [ RUN      ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest
 [       OK ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest (0 ms)
 [ RUN      ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes
-[       OK ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes (49 ms)
+[       OK ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes (41 ms)
 [ RUN      ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError
-[       OK ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError (83 ms)
+[       OK ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError (73 ms)
 [ RUN      ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash
 [       OK ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash (1 ms)
-[----------] 4 tests from RegistryDigestGate (143 ms total)
+[----------] 4 tests from RegistryDigestGate (117 ms total)
 
 [----------] 4 tests from RegistryParse
 [ RUN      ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions
-[       OK ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions (5 ms)
+[       OK ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions (3 ms)
 [ RUN      ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants
-[       OK ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants (7 ms)
+[       OK ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants (4 ms)
 [ RUN      ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange
-[       OK ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange (5 ms)
+[       OK ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange (3 ms)
 [ RUN      ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError
 [       OK ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError (0 ms)
-[----------] 4 tests from RegistryParse (40 ms total)
+[----------] 4 tests from RegistryParse (11 ms total)
 
 [----------] 1 test from RegistryBudget
 [ RUN      ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds
-[budget] registry parse+digest-gate: 0.0055 s
-[       OK ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds (5 ms)
-[----------] 1 test from RegistryBudget (7 ms total)
+[budget] registry parse+digest-gate: 0.0033 s
+[       OK ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds (3 ms)
+[----------] 1 test from RegistryBudget (3 ms total)
 
 [----------] Global test environment tear-down
-[==========] 15 tests from 4 test suites ran. (273 ms total)
+[==========] 15 tests from 4 test suites ran. (172 ms total)
 [  PASSED  ] 15 tests.
-### exit=0 (qr_registry_tests)
+
 ### qr_tools_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
 [==========] Running 3 tests from 1 test suite.
 [----------] Global test environment set-up.
 [----------] 3 tests from DialectCensusTool
 [ RUN      ] DialectCensusTool.UnreadableFileGetsItsOwnRowWithAReasonAndNeverCrashes
-[       OK ] DialectCensusTool.UnreadableFileGetsItsOwnRowWithAReasonAndNeverCrashes (350 ms)
+[       OK ] DialectCensusTool.UnreadableFileGetsItsOwnRowWithAReasonAndNeverCrashes (256 ms)
 [ RUN      ] DialectCensusTool.ReadableFileInTheSameRunStillCensusesItsDialect
-[       OK ] DialectCensusTool.ReadableFileInTheSameRunStillCensusesItsDialect (485 ms)
+[       OK ] DialectCensusTool.ReadableFileInTheSameRunStillCensusesItsDialect (413 ms)
 [ RUN      ] DialectCensusTool.TwoRunsAreByteIdentical
-[       OK ] DialectCensusTool.TwoRunsAreByteIdentical (727 ms)
-[----------] 3 tests from DialectCensusTool (1571 ms total)
+[       OK ] DialectCensusTool.TwoRunsAreByteIdentical (588 ms)
+[----------] 3 tests from DialectCensusTool (1258 ms total)
 
 [----------] Global test environment tear-down
-[==========] 3 tests from 1 test suite ran. (1577 ms total)
+[==========] 3 tests from 1 test suite ran. (1258 ms total)
 [  PASSED  ] 3 tests.
-### exit=0 (qr_tools_tests)
+

@@ -11,6 +11,7 @@ constexpr std::array<const char*, kValidityCount> kNames = {
     "WRONG_CIVIL_DAY",        "STALE_DIAG",           "LOCKED",
     "CROSSED",   "ONE_SIDED", "NONFINITE",            "NONPOSITIVE",
     "CONDITION_INELIGIBLE",   "CLOCK_UNAVAILABLE",    "MODALITY_ABSENT",
+    "MALFORMED",
 };
 
 }  // namespace

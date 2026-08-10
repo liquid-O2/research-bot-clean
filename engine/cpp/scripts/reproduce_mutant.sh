@@ -47,7 +47,7 @@ for binary in "${BUILD}"/bin/qr_*_tests; do
   while IFS= read -r line; do
     echo "  ${line}"
     failed=$((failed + 1))
-  done < <(grep -oE '^\[  FAILED  \] [A-Za-z_]+\.[A-Za-z_]+' <<<"${output}" | sort -u)
+  done < <(grep -oE '^\[  FAILED  \] [A-Za-z0-9_]+\.[A-Za-z0-9_]+' <<<"${output}" | sort -u)
 done
 echo "== ${MUT_ID}: ${failed} distinct tests went red"
 [[ ${failed} -gt 0 ]]

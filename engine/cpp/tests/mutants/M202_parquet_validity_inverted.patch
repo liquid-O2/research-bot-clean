@@ -1,0 +1,11 @@
+--- a/qr_parquet/src/reader.cpp
++++ b/qr_parquet/src/reader.cpp
+@@ -924,7 +924,7 @@
+                            static_cast<std::size_t>(first_row) + rows);
+   } else {
+     for (std::size_t index = 0; index < rows; ++index) {
+-      if (levels[index] != 0) {
++      if (levels[index] == 0) {
+         out.validity.set(static_cast<std::size_t>(first_row) + index);
+       }
+     }

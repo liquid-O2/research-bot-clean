@@ -1,0 +1,11 @@
+--- a/qr_clock/src/session_clock.cpp
++++ b/qr_clock/src/session_clock.cpp
+@@ -290,7 +290,7 @@
+ 
+ AttachClass SessionClock::classify_attach(std::optional<FrameB> ts_b) const noexcept {
+   if (!ts_b.has_value()) {
+-    return AttachClass::missing();
++    return AttachClass::malformed();  // M110
+   }
+   const std::int64_t raw_ns = ts_b->ns();
+   const std::int64_t day_of_ts = civil_day_of_naive_et_ns(raw_ns);

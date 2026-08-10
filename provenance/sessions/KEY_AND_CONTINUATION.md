@@ -10,8 +10,14 @@ separate password manager or offline secret store before the old environment
 is retired. Losing both the local key and that backup makes the raw vault
 unrecoverable.
 
-Codex JSONL sources were live at capture time. The prefix manifest freezes
-each exact cutoff and marks it continuing. Before final workspace cutover,
-capture one continuation vault and prove that every earlier file prefix is
-byte-identical; do not overwrite this archive.
+The initial and final Codex manifests freeze exact byte cutoffs. The final
+continuation was captured at `2026-08-10T15:55:59Z`; every initial source
+prefix was rehashed byte-identically before the readable transcript was
+regenerated. `CONTINUATION_PROOF.tsv` carries the per-source old/new cutoff,
+appended-byte count, and both hashes. Both encrypted archives remain in the
+private vault; neither was overwritten.
 
+Codex JSONL sources remain technically live after the final cutoff, so later
+conversation is a new continuation rather than part of the frozen clean-room
+snapshot. The readable Git transcript is complete through the declared final
+cutoff, while exact raw bytes remain encrypted.

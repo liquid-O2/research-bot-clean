@@ -1,0 +1,10 @@
+worktree	class	path_count	logical_bytes	archived_path_count
+main	authored_or_evidence_symlink	4	36	4
+main	authored_source_or_text	5447	314157645	5447
+main	binary_payload_or_model	86	308514613	0
+main	generated_cache	8	15482	0
+main	other_untracked	935	757691581	0
+main	research_evidence	155	46792894	155
+entries_oracle_v1	authored_source_or_text	6	106025	6
+entries_oracle_v1_source_sync	authored_source_or_text	7	77506	7
+select3_frontier_one_sweep	none	0	0	0

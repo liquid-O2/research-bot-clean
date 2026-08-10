@@ -1,0 +1,5 @@
+worktree	head_oid	staged_check	unstaged_after_staged_check	head_to_worktree_check
+main	47e1ccfa6db5252e461ed9b083ae26ef97bad25b	EMPTY	PASS	PASS
+entries_oracle_v1	7dabed3539a2e4c1859d6bbb6da0431387e82f53	EMPTY	PASS	PASS
+entries_oracle_v1_source_sync	00e5ccc10b67371cbdd6141ac895ac3f1ab55a5f	EMPTY	EMPTY	EMPTY
+select3_frontier_one_sweep	ab3940bcd5b188844f84f175d367e3df7ea17446	EMPTY	EMPTY	EMPTY

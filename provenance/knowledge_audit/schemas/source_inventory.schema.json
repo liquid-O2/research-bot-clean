@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "knowledge-audit/source-inventory-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "snapshot_id", "source_id", "universe_id",
+    "absolute_path", "relative_path", "entry_kind", "snapshot_size",
+    "mtime_ns", "mode_octal", "content_state", "sha256", "source_role",
+    "authority_tier", "privacy_class", "license_class",
+    "redistribution", "evidence_disposition", "classification_rule",
+    "current_codex_thread", "raw_content_copied"
+  ],
+  "properties": {
+    "schema_version": {"const": "source_inventory_v1"},
+    "snapshot_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_id": {"type": "string", "pattern": "^src_[0-9a-f]{32}$"},
+    "universe_id": {"type": "string"},
+    "absolute_path": {"type": "string"},
+    "relative_path": {"type": "string"},
+    "entry_kind": {"enum": ["REGULAR", "SYMLINK", "OTHER", "MISSING_AT_SCAN"]},
+    "snapshot_size": {"type": "integer", "minimum": 0},
+    "mtime_ns": {"type": "integer"},
+    "mode_octal": {"type": "string"},
+    "device": {"type": "integer"},
+    "inode": {"type": "integer"},
+    "symlink_target": {"type": ["string", "null"]},
+    "content_state": {"enum": [
+      "FULL_PREFIX_SHA256", "JSONL_PREFIX_SHA256", "METADATA_ONLY_CLASSIFIED",
+      "SECRET_METADATA_ONLY", "PROHIBITED_DATA_WALL_METADATA_ONLY",
+      "SYMLINK_METADATA_ONLY", "MISSING_AT_SCAN"
+    ]},
+    "sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "post_size": {"type": "integer", "minimum": 0},
+    "scan_state": {"enum": ["STABLE", "APPENDED_AFTER_SNAPSHOT", "DRIFTED", "NOT_READ"]},
+    "source_role": {"type": "string"},
+    "authority_tier": {"type": "string"},
+    "privacy_class": {"type": "string"},
+    "license_class": {"type": "string"},
+    "redistribution": {"enum": ["REFUSE", "METADATA_ONLY", "INTERNAL_CONTENT_OK"]},
+    "evidence_disposition": {"type": "string"},
+    "classification_rule": {"type": "string"},
+    "current_codex_thread": {"type": "boolean"},
+    "raw_content_copied": {"const": false}
+  }
+}
+

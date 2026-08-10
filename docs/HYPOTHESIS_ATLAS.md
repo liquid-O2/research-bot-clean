@@ -21,6 +21,10 @@ with results.
 7. Waiting 30–60 seconds can improve state observability but sacrifices many
    opportunities; ENTER/WAIT/PASS must learn the trade-off rather than use a
    fixed delay.
+8. Strictly prior RUTW option context may condition an IWM signal even though
+   it cannot supply the IWM clock, side, price, label, or fill. This remains
+   untested; the historical mixed RUTW/cross-root tensor is not an admissible
+   implementation of the hypothesis.
 
 ## Volatility and IV hypotheses
 
@@ -66,4 +70,3 @@ For each hypothesis, freeze:
 No family advances because it is mathematically sophisticated. It advances
 only if it adds out-of-fold value under its measured budget and survives
 leave-one-family-out.
-

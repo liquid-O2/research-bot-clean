@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "knowledge-audit/proposition-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "proposition_id", "normalized_text_sha256",
+    "claim_class", "disposition", "source_segment_ids",
+    "evidence_segment_ids", "privacy_class", "license_class"
+  ],
+  "properties": {
+    "schema_version": {"const": "proposition_v1"},
+    "proposition_id": {"type": "string", "pattern": "^prop_[0-9a-f]{32}$"},
+    "normalized_text_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "claim_class": {"enum": ["EMPIRICAL", "MECHANISM", "PROCEDURE", "PREFERENCE", "HISTORY"]},
+    "disposition": {"enum": ["EVIDENCE_SUPPORTED", "CONTEXT_ONLY", "REFUTED", "UNVERIFIED", "PROHIBITED", "SUPERSEDED"]},
+    "source_segment_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "evidence_segment_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "privacy_class": {"type": "string"},
+    "license_class": {"type": "string"}
+  }
+}
+

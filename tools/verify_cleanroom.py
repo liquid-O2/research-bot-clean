@@ -23,11 +23,17 @@ REQUIRED = (
     "authorities/REGISTRY.tsv",
     "knowledge/propositions.tsv",
     "knowledge/evidence.tsv",
+    "research/BIBLIOGRAPHY.tsv",
+    "research/RESEARCH_MAP.md",
     "transcripts/CONVERSATION.md",
     "transcripts/EXPORT_RECEIPT.json",
     "provenance/sessions/CODEX_PREFIX_MANIFEST.tsv",
+    "provenance/sessions/CODEX_PREFIX_MANIFEST_INITIAL.tsv",
+    "provenance/sessions/CONTINUATION_PROOF.tsv",
+    "provenance/knowledge_audit/verification_v1.json",
     "engine/Cargo.toml",
     "engine/Cargo.lock",
+    "retirement/REFS.tsv",
 )
 FORBIDDEN_TRACKED_PREFIXES = ("data/", "artifacts/", ".venv/", "target/")
 SECRET_PATTERNS = (
@@ -75,6 +81,18 @@ def main() -> int:
             if pattern.search(data):
                 fail(f"secret-like material in tracked file: {relative}")
 
+    physical = set()
+    for base, directories, files in os.walk(ROOT):
+        base_path = Path(base)
+        if base_path == ROOT:
+            directories[:] = [name for name in directories if name != ".git"]
+        for name in files:
+            relative = (base_path / name).relative_to(ROOT).as_posix()
+            physical.add(relative)
+    extra_physical = sorted(physical - set(tracked))
+    if extra_physical:
+        fail(f"untracked/ignored physical files present: {extra_physical[:20]}")
+
     branches = [line for line in git("for-each-ref", "--format=%(refname:short)", "refs/heads").splitlines() if line]
     if not branches and git("branch", "--show-current") == "main":
         branches = ["main"]
@@ -91,6 +109,22 @@ def main() -> int:
         fail("transcript issue ledger hash mismatch")
     if digest(ROOT / "provenance/sessions/CODEX_PREFIX_MANIFEST.tsv") != receipt["source_manifest_sha256"]:
         fail("transcript source manifest hash mismatch")
+    with (ROOT / "provenance/sessions/CONTINUATION_PROOF.tsv").open(
+        newline="", encoding="utf-8"
+    ) as src:
+        continuation = list(csv.DictReader(src, delimiter="\t"))
+    if not continuation or any(row["status"] != "PREFIX_CONTINUITY_PASS" for row in continuation):
+        fail("transcript continuation proof is absent or not green")
+    if any(int(row["new_cutoff_bytes"]) < int(row["old_cutoff_bytes"]) for row in continuation):
+        fail("transcript continuation cutoff shrank")
+
+    knowledge_verification = json.loads(
+        (ROOT / "provenance/knowledge_audit/verification_v1.json").read_text(encoding="utf-8")
+    )
+    if knowledge_verification.get("status") != "PASS_ZERO_UNCLASSIFIED":
+        fail("knowledge migration audit is not PASS_ZERO_UNCLASSIFIED")
+    if knowledge_verification.get("unclassified_count") != 0:
+        fail("knowledge migration audit has unclassified entries")
 
     with (ROOT / "authorities/REGISTRY.tsv").open(newline="", encoding="utf-8") as src:
         rows = list(csv.DictReader(src, delimiter="\t"))
@@ -103,6 +137,75 @@ def main() -> int:
         value = row["sha256"]
         if row["status"] != "PENDING_EXPORT" and not re.fullmatch(r"[0-9a-f]{64}", value):
             fail(f"authority has invalid SHA: {row['authority_id']}")
+        if row["status"] == "PENDING_EXPORT":
+            continue
+        declared = Path(row["external_path"])
+        resolved = declared if declared.is_absolute() else ROOT / declared
+        if not resolved.is_file():
+            fail(f"authority path is not an exact file: {row['authority_id']} -> {resolved}")
+        if digest(resolved) != value:
+            fail(f"authority content hash mismatch: {row['authority_id']}")
+
+    authority_ids = set(ids)
+    with (ROOT / "knowledge/evidence.tsv").open(newline="", encoding="utf-8") as src:
+        evidence_rows = list(csv.DictReader(src, delimiter="\t"))
+    evidence_ids = [row["evidence_id"] for row in evidence_rows]
+    if len(evidence_ids) != len(set(evidence_ids)):
+        fail("duplicate evidence ID")
+    evidence_set = set(evidence_ids) - {"E_SCHEMA"}
+    if not evidence_set:
+        fail("evidence ledger has no claim evidence")
+    for row in evidence_rows:
+        for field in ("spec_sha256", "code_sha256", "output_sha256", "evaluator_sha256"):
+            value = row[field]
+            if value and not re.fullmatch(r"[0-9a-f]{64}", value):
+                fail(f"invalid {field} in evidence row {row['evidence_id']}")
+        inputs = {item for item in row["input_authority_ids"].split(";") if item}
+        unknown = inputs - authority_ids
+        if unknown:
+            fail(f"unknown input authority in {row['evidence_id']}: {sorted(unknown)}")
+    with (ROOT / "knowledge/propositions.tsv").open(newline="", encoding="utf-8") as src:
+        propositions = list(csv.DictReader(src, delimiter="\t"))
+    for row in propositions:
+        linked = {item for item in row["evidence_ids"].split(";") if item}
+        if not linked:
+            fail(f"proposition lacks evidence/disposition link: {row['proposition_id']}")
+        missing = linked - evidence_set
+        if missing:
+            fail(f"unknown evidence link in {row['proposition_id']}: {sorted(missing)}")
+
+    with (ROOT / "research/BIBLIOGRAPHY.tsv").open(newline="", encoding="utf-8") as src:
+        bibliography = list(csv.DictReader(src, delimiter="\t"))
+    if len(bibliography) < 10:
+        fail("research bibliography is not populated")
+    for row in bibliography:
+        if not re.fullmatch(r"[0-9a-f]{64}", row["sha256"]):
+            fail(f"invalid research source SHA: {row['source_id']}")
+        if row["status"] == "SOURCE_TEXT":
+            source = Path(row["external_path"])
+            if not source.is_file() or digest(source) != row["sha256"]:
+                fail(f"external research source mismatch: {row['source_id']}")
+    with (ROOT / "knowledge/research_assets.tsv").open(newline="", encoding="utf-8") as src:
+        research_assets = list(csv.DictReader(src, delimiter="\t"))
+    if not research_assets or any(
+        row["status"].startswith("PENDING") or not re.fullmatch(r"[0-9a-f]{64}", row["sha256"])
+        for row in research_assets
+    ):
+        fail("research asset registry is pending or incomplete")
+
+    recovery_refs = {}
+    with (ROOT / "provenance/git/legacy_recovery/REF_SHA_MAP.tsv").open(
+        newline="", encoding="utf-8"
+    ) as src:
+        for row in csv.reader(src, delimiter="\t"):
+            if row:
+                recovery_refs[row[0]] = row[1]
+    with (ROOT / "retirement/REFS.tsv").open(newline="", encoding="utf-8") as src:
+        retirement_refs = {
+            row["ref"]: row["object_oid"] for row in csv.DictReader(src, delimiter="\t")
+        }
+    if retirement_refs != recovery_refs:
+        fail("retirement ref disposition does not cover the exact recovery ref map")
 
     card = ROOT / "evidence/claims/native_state/TASK_CARD.md"
     addendum = ROOT / "evidence/claims/native_state/READER_ADDENDUM.md"
@@ -126,6 +229,11 @@ def main() -> int:
                 "tracked_files": len(tracked),
                 "branches": branches,
                 "authority_rows": len(rows),
+                "evidence_rows": len(evidence_set),
+                "research_sources": len(bibliography),
+                "retired_refs": len(retirement_refs),
+                "knowledge_sources": knowledge_verification["source_count"],
+                "continuation_sources": len(continuation),
                 "transcript_messages": receipt["message_count"],
             },
             sort_keys=True,

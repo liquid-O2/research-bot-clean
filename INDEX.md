@@ -16,6 +16,10 @@ Read in this order:
 4. [knowledge/propositions.tsv](knowledge/propositions.tsv) and
    [knowledge/evidence.tsv](knowledge/evidence.tsv) — the machine-readable
    claims and evidence authorities.
+5. [research/RESEARCH_MAP.md](research/RESEARCH_MAP.md) and
+   [research/BIBLIOGRAPHY.tsv](research/BIBLIOGRAPHY.tsv) — the broad
+   mechanism/research inventory, exact external source hashes, and honest
+   tested/untested dispositions.
 
 ## Current truth
 
@@ -53,3 +57,5 @@ time, report title, or assistant recollection is never authority by itself.
 - No Claude service is invoked. Historical Claude files are local archival
   sources only.
 
+Long work runs only through [lab/run.sh](lab/run.sh); the payload-free
+launcher/watchdog smoke lives in `tests/contracts/test_launcher.py`.

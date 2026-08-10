@@ -5,6 +5,13 @@ program. It is deliberately more than a status report. It records how to
 think, what the evidence actually says, why prior work failed, and how to
 avoid repeating scientifically invalid shortcuts.
 
+The historical shorthand “Ivy/IV stuff” must not be narrowed to implied
+volatility. It refers to the broader discussion that used IV-conditioned tape
+response as one example of the required method: start from a trading
+mechanism, preserve evolving raw state, build lawful transformations, test
+conditional interactions, compare machine-native alternatives, and let
+matched falsification—not a familiar feature list—decide what survives.
+
 ## 1. Start from the decision, not the available table
 
 The objective is not to classify a convenient historical label or reproduce

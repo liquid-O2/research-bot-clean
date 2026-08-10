@@ -1116,7 +1116,7 @@ Provenance: line 2695, bytes [46730767,46748691), text SHA-256 `84c015f9d76a4028
 
 ## Thread 019fe1ef-1314-72d3-ad60-8748f1ecb161 — user
 
-Source: `2026/08/08/rollout-2026-08-08T15-12-49-019fe1ef-1314-72d3-ad60-8748f1ecb161.jsonl`; prefix `b781bfb632e80b5e7d8b3c70652d191e5524102d3673a141e78bd4c67493e7dc` through byte 515933942.
+Source: `2026/08/08/rollout-2026-08-08T15-12-49-019fe1ef-1314-72d3-ad60-8748f1ecb161.jsonl`; prefix `d04258b9f648cc180f6b2b6d89c46145e18de043fe8c2c455e7c9ada3c21c6c2` through byte 522110975.
 
 ### 2026-08-08T15:12:51.067Z — USER (ordinal 5, id msg_019fe1ef-197a-7ff3-abcf-d7823e36d7d7)
 
@@ -16348,6 +16348,111 @@ Provenance: line 54448, bytes [515656789,515657422), text SHA-256 `a0e5cd10298db
     The clean repository now has its governing contract and gated execution plan. I’m writing the project memory next—the part that makes the hard-won lessons, proxy failures, causal-state rules, interaction logic, and exact meaning of prior results durable for every future agent.
 
 
+### 2026-08-10T15:00:02.594Z — ASSISTANT (ordinal 54567, id msg_0fbef113a6e13454016a79e77129d08191bad7f0c68e17b0a2)
+
+Provenance: line 54582, bytes [516199706,516200391), text SHA-256 `ff682fd8685d5d059341c0e0c0d9fd37df6011ea171bda8310b1d641bc90af21`.
+
+    The private history vault is now sealed and stream-verified: 679 files, 1.10 GB of exact source prefixes, encrypted down to 207 MB. It includes all 24 Codex sessions and the full 655-file historical local Claude tree without calling Claude; I’m generating the provenance-linked readable transcript from those fixed cutoffs now.
+
+
+### 2026-08-10T15:03:22.629Z — ASSISTANT (ordinal 54691, id msg_0fbef113a6e13454016a79e83840d88191a03030b9023a7376)
+
+Provenance: line 54706, bytes [516505787,516506436), text SHA-256 `cdc76c6fc84fdb0269eb86044d74f608422fb858ecd111eb89c7f33566eab082`.
+
+    The minimal active code seed is integrated: exactly seven Rust crates from the clean `ab3940b…` source, with no market payload or rejected adapter code in the runtime tree. Locked offline compilation passes in the staged repository; rejected reader work is preserved only under failure evidence.
+
+
+### 2026-08-10T15:04:07.009Z — ASSISTANT (ordinal 54717, id msg_0fbef113a6e13454016a79e865e4f88191b41fe1ddc0b1d500)
+
+Provenance: line 54732, bytes [516584550,516585271), text SHA-256 `97dd2fa559a64b6a5029fbb482e14d41020fa8251accce88d3733b42893f306a`.
+
+    The first clean-room commit is sealed locally on the sole `main` branch. Structural verification passes: 164 tracked files, no raw/build payload, no symlinks or large blobs, exact transcript/task-card hashes, and no detected credentials. I’m creating the requested private clean remote now, then the audit and recovery manifests will land as a second reviewed commit.
+
+
+### 2026-08-10T15:07:17.121Z — ASSISTANT (ordinal 54823, id msg_0fbef113a6e13454016a79e923d5908191b1f9e5397e378ff1)
+
+Provenance: line 54838, bytes [516686044,516686774), text SHA-256 `2ba53f300913968800e6f8ee9b3267c43b86b9dbb07d972921a5555b2c341907`.
+
+    The requested private GitHub repository now exists and contains only the clean `main` branch. The old remote is untouched. I’m holding the destructive cutover until two remaining proofs finish: the all-ref/dirty-worktree restore audit, and the source-to-proposition knowledge audit that checks we did not omit the broader IV/interactions/feature-generation/research reasoning.
+
+
+### 2026-08-10T15:13:10.662Z — ASSISTANT (ordinal 55035, id msg_0fbef113a6e13454016a79ea855190819180c154ed5c0fd2e8)
+
+Provenance: line 55050, bytes [517128411,517129120), text SHA-256 `7019c8a057e9174e469ebed9956c8e32a55f05f0b6f0a86ce5427cd2d79e20e8`.
+
+    The legacy Git state is now independently restorable and encrypted: all 121 refs, four dirty worktrees, authored untracked files, reflogs, dangling objects, and the shallow nested repository passed restore checks. I’m removing only the redundant 5.2 GB plaintext recovery copies now; the verified encrypted archive and compact recovery manifests remain.
+
+
+### 2026-08-10T15:21:31.464Z — ASSISTANT (ordinal 55291, id msg_0fbef113a6e13454016a79ec79b3ac8191b2b61870b47197ca)
+
+Provenance: line 55306, bytes [518102519,518103202), text SHA-256 `6c1c5ae735d05824a43560aa80e116c74130abc3e964b874d3b0f5bbe594a4ec`.
+
+    The clean repository, encrypted recovery vaults, private remote, and retirement manifests are already built. I’m closing the last two gates now: the independent knowledge/continuity audit and a cold-clone verification; then I’ll perform the manifest-locked cutover while preserving `/workspace/data` and `/workspace/artifacts`.
+
+
+### 2026-08-10T15:24:03.892Z — ASSISTANT (ordinal 55328, id msg_0fbef113a6e13454016a79ed11cfc08191ba5e2f77215cba6a)
+
+Provenance: line 55343, bytes [518357853,518358617), text SHA-256 `a238c2614c0b0904cf320b00a79f18fae708499415fcc0683c451c1ca2869c38`.
+
+    The restore side is now fully sealed: all 121 legacy refs restore exactly, all four dirty worktrees are recoverable, and both the Git archive and transcript archive decrypt-test successfully. I’m waiting on one independent verifier that is rehashing the 238,637-source knowledge inventory; I’m using that wait to audit the cutover script and repository contract rather than touching the live workspace early.
+
+
+### 2026-08-10T15:26:26.779Z — ASSISTANT (ordinal 55408, id msg_0fbef113a6e13454016a79eda170048191933ea17624a483f8)
+
+Provenance: line 55423, bytes [518705082,518705763), text SHA-256 `ae2db831aee2b598b347d15a8b547e9c421f8ae8d169d2b3e4dbb5e8551834a6`.
+
+    The clean repository’s own fail-closed verifier now passes: 182 tracked files, one local branch (`main`), 14 pinned authorities, exact task-card/addendum hashes, no symlinks, no files over 10 MiB, no secret-pattern hits, and no untracked physical files. The launcher/watchdog production path also passed its payload-free smoke.
+
+
+### 2026-08-10T15:28:13.585Z — ASSISTANT (ordinal 55461, id msg_0fbef113a6e13454016a79ee0bffa081918e644373cb0ec66a)
+
+Provenance: line 55476, bytes [518807114,518807886), text SHA-256 `41d1de4e50d916de31e7d1c68b8ebe3927b7100c3e719b3bc3f0650dd725e720`.
+
+    The independent audit found three real cutover blockers, and I’m fixing them before any deletion: the claim ledger needs evidence links, several authority rows need exact restorable objects instead of a generic run root, and directory retirement identities must cover nested contents—not just inode and child count. The scientific prose itself passed the audit as broad, honest, and interaction/native-state focused.
+
+
+### 2026-08-10T15:38:47.391Z — ASSISTANT (ordinal 55749, id msg_0fbef113a6e13454016a79f08532448191b195ee844f7f89dc)
+
+Provenance: line 55764, bytes [521720760,521721648), text SHA-256 `a52165d19ca5634e1bee4341a094fb43eb05303e250d5a205b5997f0b74e994d`.
+
+    The audit fixes are now in the staged repository: every proposition links to concrete evidence or an explicit untested specification; the future-leak AUCs and delayed-oracle numbers bind exact specs, code, outputs, and reviewer hashes; active authorities now resolve to exact manifest files; the 121-ref retirement map is covered; RUTW is preserved as a context-only hypothesis while RTY remains forbidden; and the broad Auckland/time-series/IV/interactions research map now has 25 exact source hashes and honest tested/untested status.
+
+
+### 2026-08-10T15:40:10.613Z — ASSISTANT (ordinal 55777, id msg_0fbef113a6e13454016a79f0d7a5408191aedec152d2bcd9c4)
+
+Provenance: line 55792, bytes [521763728,521764482), text SHA-256 `b04a14cb41e29e7e0f92cc2870f13608d8fd9e272c7c0946143a33575c8da319`.
+
+    The independent verifier has now re-read about 103 GB from the frozen inventory—nearly its full 99 GiB logical scope—with no mismatch or classification error so far. I’m deliberately not starting the recursive retirement hash pass until that I/O-heavy verifier releases the volume; the new cutover identity will hash every nested file byte and no-follow path metadata immediately before deletion.
+
+
+### 2026-08-10T15:42:40.677Z — ASSISTANT (ordinal 55817, id msg_0fbef113a6e13454016a79f16dbed481919e72f00c76113881)
+
+Provenance: line 55832, bytes [521800447,521801223), text SHA-256 `07e1771f88890535ed5e9944ddace963907899a8265997af56cb4341710ab5d8`.
+
+    The 99 GiB independent knowledge verification is complete and green: 238,637 sources, 387,517 segments, 114,605 content-prefix rehashes, 25 malformed fragments quarantined, four live files correctly classified as appended after snapshot, zero unclassified entries, and no market/raw content copied. I’m sealing that full inventory privately now and placing only its compact receipts, lineage manifests, and schemas in Git.
+
+
+### 2026-08-10T15:45:49.325Z — ASSISTANT (ordinal 55893, id msg_0fbef113a6e13454016a79f22c0c3c81918370abc6f460fe87)
+
+Provenance: line 55908, bytes [521875467,521876087), text SHA-256 `bbdb7f84ef6a2002f85a5d7fa4a44440b43ad962bb9f4a9e29f0c1731d0fa6a4`.
+
+    The independent reviewer is now finished. Its knowledge-inventory result is green, and its cutover concerns are either fixed or in the final gate: the recursive byte-level retirement manifest is hashing the legacy tree now. No live workspace deletion has occurred yet.
+
+
+### 2026-08-10T15:49:00.379Z — ASSISTANT (ordinal 55981, id msg_0fbef113a6e13454016a79f2eaafa881918e585b0b84ecafa9)
+
+Provenance: line 55996, bytes [521951819,521952478), text SHA-256 `f4aff6452e9347f1f4c463ea712981315881511eebb0dd4498d6069e6f60af7e`.
+
+    The destructive gate is behaving as intended: it has already re-read over 17 GB of legacy files and is binding content hashes, lstat identities, symlink targets, and canonical relative paths for every retirement target. This is the last expensive safety check before the final transcript capture and commit.
+
+
+### 2026-08-10T15:54:00.314Z — ASSISTANT (ordinal 56108, id msg_0fbef113a6e13454016a79f417345481919f1030169c042ea9)
+
+Provenance: line 56123, bytes [522054088,522054699), text SHA-256 `864163761768aed94108c45e194c3447cf09f16c0d2e30ebe10f4acbd2a644bd`.
+
+    The recursive safety pass has now bound more than 41 GB, including the three 35 GB legacy worktrees that the older manifest only counted at the top level. That extra time is intentional: any nested byte drift will now stop the cutover instead of being erased.
+
+
 ## Thread 019fe1f0-a8b3-78c0-b66f-0ece383f2c48 — /root/archive_git_audit
 
 Source: `2026/08/08/rollout-2026-08-08T15-14-33-019fe1f0-a8b3-78c0-b66f-0ece383f2c48.jsonl`; prefix `6676a5a5a3db5021baf3c352850dad05331eef8658df60158a840bbc69d60e83` through byte 6517669.
@@ -19298,7 +19403,7 @@ Provenance: line 374, bytes [3273783,3274965), text SHA-256 `1e8c0a58c153d39a767
 
 ## Thread 019fe746-48e9-7391-907e-1783c8a4eaba — /root/option_quote_native_proof
 
-Source: `2026/08/09/rollout-2026-08-09T16-06-11-019fe746-48e9-7391-907e-1783c8a4eaba.jsonl`; prefix `50b327bf6d100b58b4f325047937e9d84f7c6c0bd2165c051678062652fb1f5d` through byte 43640627.
+Source: `2026/08/09/rollout-2026-08-09T16-06-11-019fe746-48e9-7391-907e-1783c8a4eaba.jsonl`; prefix `317000f31620bbbb7eb9a6b55e18ac1bfc264f1974292524a1813103f97d0abd` through byte 45969502.
 
 ### 2026-08-09T16:06:12.767Z — USER (ordinal 12, id msg_019fe746-501e-7d33-b89e-07ed4c6a37f2)
 
@@ -21633,6 +21738,42 @@ Provenance: line 8041, bytes [43638266,43638884), text SHA-256 `64eaef83fe1494c1
     The immutable roster is enumerated and the builder is streaming bounded hashes now. This is the expensive part—roughly a gigabyte of private transcript lineage plus the document/research corpus—but it emits only hashes, offsets, classifications, and parse states.
 
 
+### 2026-08-10T15:02:10.433Z — ASSISTANT (ordinal 8108, id msg_01dd9fe5c779bf37016a79e7f1051c8191b359dc3218455ff9)
+
+Provenance: line 8115, bytes [43694728,43695414), text SHA-256 `e703eef9f451c44d1d44a9d4fe48e81396b06c1f97864014aa56246084735171`.
+
+    The crawl is still in namespace enumeration rather than content reading; the cache has substantially more hidden/build entries than the ordinary file listing exposes. I’m keeping them in the roster and classifying them metadata-only instead of silently dropping them, which is what makes the “zero unclassified” claim meaningful.
+
+
+### 2026-08-10T15:12:39.526Z — ASSISTANT (ordinal 8274, id msg_01dd9fe5c779bf37016a79ea6698c48191ab77306e3635eba1)
+
+Provenance: line 8281, bytes [43804944,43805519), text SHA-256 `43646cdfb7f6d4e3499bb5f98276f9f675d87405f790e83c379fc1728a473a13`.
+
+    The scan has passed 200,000 of 238,637 entries. The current pause is expected: it is hashing the bounded prefix of the large Codex transcript lineage, not rereading market/cache payload. The publication remains content-free.
+
+
+### 2026-08-10T15:18:05.330Z — ASSISTANT (ordinal 8368, id msg_01dd9fe5c779bf37016a79ebac58548191b9abe7df4b2adc34)
+
+Provenance: line 8375, bytes [43871085,43871647), text SHA-256 `c7e1f820c2ea448db13fc004ff81e1d4ebf8d0374fb522bf9abe8d25ed286aac`.
+
+    The build is now sealed at `publication_v1`; no raw content was copied. I’m checking its headline censuses and then running the independent prefix/hash/FK/privacy/license verification against the sealed files.
+
+
+### 2026-08-10T15:45:01.452Z — ASSISTANT (ordinal 8963, id msg_01dd9fe5c779bf37016a79f1f6532c8191a53ebe57a244db99)
+
+Provenance: line 8970, bytes [45966034,45967394), text SHA-256 `32590cf6d2ee93bf118744f9457ff0472785a7f4ef26900dd31047ece2d13cc5`.
+
+    Knowledge audit: `PASS_ZERO_UNCLASSIFIED`.
+    
+    - [Report](/workspace/data/cleanroom_work/knowledge_audit/ZERO_UNCLASSIFIED_REPORT.md), SHA `7a26866f…`
+    - [Verification receipt](/workspace/data/cleanroom_work/knowledge_audit/verification_v1.json), SHA `32a0e6bb…`
+    - [Publication](/workspace/data/cleanroom_work/knowledge_audit/publication_v1), snapshot `d939f085…`
+    - 238,637 sources; 387,517 segments; 40 Codex-lineage sources; 655 Claude-history sources.
+    - All 114,605 content prefixes independently reverified; zero unclassified; 25 malformed fragments quarantined; no raw content or market payload copied.
+    
+    Cold clean-room verdict: `RED/HOLD` for cutover. Blocking issues are the empty empirical evidence ledger, generic authority paths, unsafe non-recursive deletion identities, uncommitted/unpushed changes, and the required live transcript continuation capture. Orientation, scientific honesty, interaction/feature-generation breadth, failure history, and proxy firewall are otherwise strong.
+
+
 ## Thread 019fe746-9d3c-73e3-96b8-15d659ef88bc — /root/crossroot_surface_proof
 
 Source: `2026/08/09/rollout-2026-08-09T16-06-32-019fe746-9d3c-73e3-96b8-15d659ef88bc.jsonl`; prefix `79282e74394d4a6f9cf3e13ced0d37d419b79a99efdd380661c4e2081c64b49b` through byte 7057408.
@@ -21861,7 +22002,7 @@ Provenance: line 1143, bytes [6884448,6885048), text SHA-256 `a2bf2592a475a8f63e
 
 ## Thread 019fe7c4-b3f0-7fc2-9e14-ba2f2669cea5 — /root/event_model_tournament
 
-Source: `2026/08/09/rollout-2026-08-09T18-24-15-019fe7c4-b3f0-7fc2-9e14-ba2f2669cea5.jsonl`; prefix `614ff7c74517f0b8f9a58d11f154dfcf99b2bea8ea735fccdf23db0e1f2696ae` through byte 60818269.
+Source: `2026/08/09/rollout-2026-08-09T18-24-15-019fe7c4-b3f0-7fc2-9e14-ba2f2669cea5.jsonl`; prefix `b3c8f3281beea55993f56d279221cdbcd6202e4ca50a0472683df0b01aa71b3a` through byte 60854341.
 
 ### 2026-08-09T18:24:18.569Z — USER (ordinal 9, id msg_019fe7c4-be89-7020-8a11-e15d3bec908c)
 
@@ -23059,6 +23200,24 @@ Provenance: line 12408, bytes [60475393,60476006), text SHA-256 `9b06ea2836463eb
 Provenance: line 12507, bytes [60763594,60764164), text SHA-256 `a262b0c5869b0929ccdfb4765c103e06be4b5d5df68bcca1a94d58b95326774b`.
 
     The seed now compiles completely offline, and 149 payload-free tests pass. I’m sealing the provenance, test/contract inventory, and explicit evidence-only classification before generating the final all-file manifest.
+
+
+### 2026-08-10T14:59:38.415Z — ASSISTANT (ordinal 12556, id msg_085ac6b7922b8665016a79e756f0908191bbd5d92286ad2f3a)
+
+Provenance: line 12557, bytes [60851233,60852410), text SHA-256 `628457ccfbc2a1e4cb043b7fdd9b2b95d2e6045810fe35ec4ceb65af2d05531c`.
+
+    Completed the clean-room code seed at [code_seed](/workspace/data/cleanroom_work/code_seed).
+    
+    - [FILE_MANIFEST.tsv](/workspace/data/cleanroom_work/code_seed/FILE_MANIFEST.tsv) — `9bbf89d93100657d23844f140434b3f25cd95bf1f99b97204540cbfcbc897971`
+    - [SEED_RECEIPT.tsv](/workspace/data/cleanroom_work/code_seed/SEED_RECEIPT.tsv) — `f78cc1a927ee2a2628d521be8e008aa8789d1f1bd155f935f20110222ad2e5ec`
+    - Exact source: `ab3940bcd5b188844f84f175d367e3df7ea17446`
+    - Seven crates only; 99 engine files
+    - Locked offline check and test compilation passed
+    - 149 payload-free tests passed; 396 mounted-data tests compiled but not run
+    - No market payload, binaries, Claude files, Git repository, or remote included
+    - Rejected adapter records are clearly marked evidence-only/RED-HOLD
+    
+    The current repository was not modified.
 
 
 ## Thread 019fe864-5e32-7891-9369-27bedd39d6c2 — /root/label_factorization_audit
@@ -24595,7 +24754,7 @@ Provenance: line 1714, bytes [2844463,2850616), text SHA-256 `823834015c382ef281
 
 ## Thread 019feadd-1dd4-7bc2-af23-19acf178db08 — /root/scientific_runner_backup
 
-Source: `2026/08/10/rollout-2026-08-10T08-49-47-019feadd-1dd4-7bc2-af23-19acf178db08.jsonl`; prefix `5a2f7a5e15c54ad2ff6afb5fc27fad1b69b5ccb90d8b3f60dcf5e1220a8e0dfa` through byte 27490462.
+Source: `2026/08/10/rollout-2026-08-10T08-49-47-019feadd-1dd4-7bc2-af23-19acf178db08.jsonl`; prefix `91852811b74d70a7f1a6a2dfd287240a0dfbc5bb8bdf0f97151fe04a6a53d946` through byte 27922927.
 
 ### 2026-08-10T08:49:49.550Z — USER (ordinal 12, id msg_019feadd-25ee-7fa2-bf3d-76153c9584b6)
 
@@ -25187,6 +25346,29 @@ Provenance: line 5914, bytes [27456695,27457298), text SHA-256 `d594c493340beb28
 Provenance: line 5945, bytes [27489091,27489739), text SHA-256 `4fd90766ba1a0d50fb7ccccf32dd0b9d6a28fc730b5c1fc2c402b06bd322549d`.
 
     The all-ref bundle has restored cleanly: the isolated mirror passes strict `git fsck`, and its complete ref map is byte-identical to the source snapshot. I’m adding one final metadata layer for reflogs, sequencer state, hooks, and linked-worktree indexes, which a bundle alone does not preserve.
+
+
+### 2026-08-10T15:03:40.364Z — ASSISTANT (ordinal 6062, id msg_0dc487470a16339b016a79e84b407c8191a056ae6ef9fdd749)
+
+Provenance: line 6063, bytes [27643223,27643797), text SHA-256 `dbd95d68c2cb233cf300ff7639c7a824727654c3d74306fc4d556e0eea84300a`.
+
+    The recovery replay checks are green so far. I’m now re-rendering the live diffs only into hashes and comparing them to the stored patches; this detects any concurrent file drift without creating another 677 MB duplicate.
+
+
+### 2026-08-10T15:09:27.687Z — ASSISTANT (ordinal 6289, id msg_0dc487470a16339b016a79e9a4193481918263fc3230524eb8)
+
+Provenance: line 6290, bytes [27919514,27920844), text SHA-256 `d1d5fea518b32fd0aa3e0780caf718e238f0f4363f1bd043285433cf28a922e4`.
+
+    Recovery vault sealed and restore-tested.
+    
+    - Vault: [git_recovery_20260810T144900Z](/workspace/data/private_project_vault/git_recovery_20260810T144900Z)
+    - Receipt: [RECOVERY_RECEIPT.tsv](/workspace/data/private_project_vault/git_recovery_20260810T144900Z/receipts/RECOVERY_RECEIPT.tsv), SHA `c1754cad6d49cbbd5155bb2c5ab3da66c61c7133542b16269453d2a4210356cf`
+    - Artifact-manifest SHA: `8cac9a0dd675f299f4595fe0c8303da4830ca8d7bca00288ae280ce27bc25845`
+    - Restored mirror passes strict `git fsck`; all 121 refs and HEAD match exactly.
+    - All four worktree patches apply-check and byte-recheck successfully.
+    - No repository/data files were changed or deleted.
+    - Transcript duplicate was removed; originals remain intact for the separate encrypted lane.
+    - One documented special case: the shallow meta-labeling gitlink lacks `.gitmodules`; its tested manual restore procedure is in [RESTORE.md](/workspace/data/private_project_vault/git_recovery_20260810T144900Z/RESTORE.md).
 
 
 ## Thread 019fec00-e4aa-7da0-946f-27a914451d7e — /root/scientific_runner_backup/repair_fixture_audit

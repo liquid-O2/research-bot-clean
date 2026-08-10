@@ -1,0 +1,8 @@
+field	value
+remote_url	https://github.com/liquid-O2/research-bot-clean.git
+visibility	PRIVATE_VERIFIED_VIA_GITHUB_API
+default_branch	main
+allowed_resting_branch_set	main
+initial_push_oid	8ea3a256976a1b9b3d904e924d76ec1bd20bb51f
+created_at_utc	2026-08-10T15:04:41Z
+old_remote_policy	UNTOUCHED

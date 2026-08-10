@@ -1,0 +1,16 @@
+worktree /workspace
+HEAD 47e1ccfa6db5252e461ed9b083ae26ef97bad25b
+branch refs/heads/main
+
+worktree /workspace/.worktrees/entries-oracle-v1
+HEAD 7dabed3539a2e4c1859d6bbb6da0431387e82f53
+branch refs/heads/entries-oracle-v1
+
+worktree /workspace/.worktrees/entries-oracle-v1-source-sync
+HEAD 00e5ccc10b67371cbdd6141ac895ac3f1ab55a5f
+branch refs/heads/entries-oracle-v1-cleanpush
+
+worktree /workspace/.worktrees/select3-frontier-one-sweep
+HEAD ab3940bcd5b188844f84f175d367e3df7ea17446
+branch refs/heads/select-v2
+

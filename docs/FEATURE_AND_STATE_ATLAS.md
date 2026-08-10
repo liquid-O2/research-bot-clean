@@ -74,7 +74,34 @@ Where the registered coverage permits:
 
 Sessions without native option quotes retain `MODALITY_ABSENT`. Slow volatility
 forecasts with forbidden fold dependencies or incomplete scope stay typed
-blocked. RUTW and cross-asset context are not IWM causal features.
+blocked. RTY market payload is forbidden. RUTW option flow is preserved as an
+`UNTESTED` context-only interaction hypothesis, not as an IWM clock, price,
+label, side, or fill source. The old mixed RUTW/cross-root tensor remains
+rejected; only a separately registered, strictly prior RUTW-only operand with
+typed absence and a matched derangement may reopen that hypothesis.
+
+### Conditional surprise, not academic feature soup
+
+The IV discussion yielded a reusable construction method:
+
+- normalize distance, reversal, progress and elapsed time by the causal
+  forecast-variance budget to ask whether response is exceptional for the
+  current regime;
+- estimate stock impact surprise: observed response to aggressive flow minus
+  the response expected from volatility, spread and depth;
+- express option activity in delta/vega/gamma-equivalent risk relative to
+  lawful option depth and the volatility budget;
+- subtract causal Greek-predicted option-price movement from observed
+  bid/ask movement so the residual represents repricing rather than spot
+  mechanics;
+- keep independently lawful bid-IV and ask-IV where available, because
+  widening/asymmetry may distinguish urgency from passive delta movement;
+- test whether the stock reversal and quote/IV response confirm one another
+  beyond matched time shifts and operand permutations.
+
+This is one mechanism example. It illustrates how to construct conditional
+state from raw dependencies; it does not elevate IV above other modalities or
+authorize dozens of generic volatility indicators.
 
 ## Order, persistence and phase
 
@@ -87,6 +114,13 @@ Candidate mechanisms frequently depend on:
 - whether stock and options confirmed in the same phase;
 - whether a signal appeared before, at equal unordered time, or after the
   candidate became visible.
+
+The discretionary baseline names one possible sequence:
+approach → contact → defense → attacker depletion → handoff. The model must
+also compare machine-native alternatives—cross-stream innovations,
+event-conditioned latent filtering, competing-transition/committor state and
+adaptive continuation—rather than treating that human sequence as its
+ontology.
 
 Direct summaries preserve a curated approximation. Native encoders receive:
 
@@ -126,4 +160,3 @@ destruction or roster. Quality states therefore travel explicitly and are
 matched in controls. Every fraction declares its numerator, denominator and
 zero-denominator state. Binary presence masks are never normalized away or
 silently zero-conflated.
-

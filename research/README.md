@@ -17,3 +17,8 @@ A cited mathematical method is not evidence of market value. Every method
 must enter through the experiment template in
 `docs/REASONING_FRAMEWORK.md`.
 
+Start with [RESEARCH_MAP.md](RESEARCH_MAP.md) for the project-level
+adjudication and [BIBLIOGRAPHY.tsv](BIBLIOGRAPHY.tsv) for exact source hashes,
+access class, and disposition. The broad Auckland/time-series sweep, earlier
+project-authored volatility/interaction work, and machine-native families are
+all represented there; none is silently promoted to empirical evidence.

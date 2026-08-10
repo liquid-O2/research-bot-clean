@@ -9,11 +9,17 @@ machine-readable map; this document explains roles and walls.
 - IWM stock trades
 - IWM option prints
 - IWM option quotes
-- RUTW prints and quotes, retained as external corpus only
+- RUTW option prints and quotes, retained as a context-only hypothesis
 
-Only IWM may supply scientific clocks, prices, features, labels, calibration,
-diagnosis or promotion. The six corpora follow the registered 1,003-session
-calendar. 2026 payload is never opened. Sessions 0–124 are warmup/burn-in.
+IWM is the only scientific clock, executable price, label, and replay
+authority. RTY market payload is forbidden. RUTW is a different object: its
+options tape may be tested only as a strictly prior, independently registered
+context operand. It may never set the decision clock, fill, label, side, or
+denominator, and it remains `MODALITY_ABSENT` until its exact reader, channel
+schema, timestamps, session scope, and matched-destruction contract pass the
+same admission gates as IWM features. The six corpora follow the registered
+1,003-session calendar. 2026 payload is never opened. Sessions 0–124 are
+warmup/burn-in.
 
 ## Preserved derived authorities
 
@@ -36,9 +42,12 @@ deterministic manifest/schema pointers. Open interest is prior-open only.
 Quote/underlying attachment clocks and contract identity govern whether a
 Greek, IV or moneyness field is usable.
 
-RUTW/cross-root tensors and slow-volatility forecasts previously failed
-scope/channel/fold admission for full IWM science. They remain rejected or
-typed absent unless a new committed contract proves a lawful IWM-only slice.
+The historical mixed RUTW/cross-root tensor and slow-volatility forecasts
+failed scope/channel/fold admission for full IWM science. Those exact tensors
+remain rejected or typed absent. That rejection does not retire the narrower
+RUTW-context hypothesis: a new test must build a named RUTW-only, strictly
+prior context block with no RTY payload, no IWM clock substitution, explicit
+absence, and an operand destruction that preserves the IWM marginal path.
 
 ## Authority admission rule
 
@@ -55,4 +64,3 @@ An admitted logical authority needs:
 
 The mutable vendor manifest database itself is not authority. Export the
 relevant deterministic rows and hash them.
-

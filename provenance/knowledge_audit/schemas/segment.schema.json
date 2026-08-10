@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "knowledge-audit/segment-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "snapshot_id", "segment_id", "source_id", "ordinal",
+    "segment_kind", "byte_start", "byte_end", "segment_sha256",
+    "parse_state", "evidence_disposition", "raw_content_copied"
+  ],
+  "properties": {
+    "schema_version": {"const": "segment_inventory_v1"},
+    "snapshot_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "segment_id": {"type": "string", "pattern": "^seg_[0-9a-f]{40}$"},
+    "source_id": {"type": "string", "pattern": "^src_[0-9a-f]{32}$"},
+    "ordinal": {"type": "integer", "minimum": 0},
+    "segment_kind": {"enum": ["JSONL_RECORD", "JSONL_FRAGMENT", "WHOLE_FILE", "METADATA_ONLY"]},
+    "byte_start": {"type": "integer", "minimum": 0},
+    "byte_end": {"type": "integer", "minimum": 0},
+    "segment_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "line_number": {"type": ["integer", "null"], "minimum": 1},
+    "parse_state": {"type": "string"},
+    "record_type": {"type": ["string", "null"]},
+    "evidence_disposition": {"type": "string"},
+    "raw_content_copied": {"const": false}
+  }
+}
+

@@ -1,0 +1,5 @@
+worktree	status_match	untracked_match	staged_patch_match	unstaged_patch_match	combined_patch_match
+main	PASS	PASS	PASS	PASS	PASS
+entries_oracle_v1	PASS	PASS	PASS	PASS	PASS
+entries_oracle_v1_source_sync	PASS	PASS	PASS	PASS	PASS
+select3_frontier_one_sweep	PASS	PASS	PASS	PASS	PASS

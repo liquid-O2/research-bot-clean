@@ -1,0 +1,5 @@
+worktree	head_oid	branch	ordinary_changes	renamed_changes	unmerged_changes	untracked_paths	staged_patch_bytes	unstaged_patch_bytes	combined_patch_bytes
+main	47e1ccfa6db5252e461ed9b083ae26ef97bad25b	refs/heads/main	3167	0	0	6635	0	677003683	677003683
+entries_oracle_v1	7dabed3539a2e4c1859d6bbb6da0431387e82f53	refs/heads/entries-oracle-v1	77	0	0	6	0	448523	448523
+entries_oracle_v1_source_sync	00e5ccc10b67371cbdd6141ac895ac3f1ab55a5f	refs/heads/entries-oracle-v1-cleanpush	0	0	0	7	0	0	0
+select3_frontier_one_sweep	ab3940bcd5b188844f84f175d367e3df7ea17446	refs/heads/select-v2	0	0	0	0	0	0	0

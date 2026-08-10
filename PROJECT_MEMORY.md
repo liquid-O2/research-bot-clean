@@ -301,7 +301,8 @@ time/value budget, not weaker validation.
 
 ## 14. Current boundary
 
-At clean-room creation:
+The clean-room migration and legacy retirement completed on 2026-08-10; see
+`provenance/CUTOVER_RECEIPT.tsv`. At that boundary:
 
 - no lawful native-order causal learnability fit had run;
 - the leakage controls passed but carried no alpha claim;

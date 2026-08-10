@@ -31,3 +31,13 @@ Procedure:
 The old remote is not changed. Recovery uses the encrypted archives and key
 listed under `provenance/`.
 
+## Completion
+
+Cutover completed on 2026-08-10. All 30 recursive pre-identities matched before
+deletion; `/workspace/data` and `/workspace/artifacts` were retained; the new
+workspace contains only the clean repository plus those two ignored external
+roots. The first post-check exposed and refused a verifier bug that traversed
+the retained roots. The verifier was repaired to exclude exactly those roots,
+while requiring them to be directories and Git-ignored, and then passed.
+
+The machine-readable record is [CUTOVER_RECEIPT.tsv](CUTOVER_RECEIPT.tsv).

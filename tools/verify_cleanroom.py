@@ -31,6 +31,7 @@ REQUIRED = (
     "provenance/sessions/CODEX_PREFIX_MANIFEST_INITIAL.tsv",
     "provenance/sessions/CONTINUATION_PROOF.tsv",
     "provenance/knowledge_audit/verification_v1.json",
+    "provenance/CUTOVER_RECEIPT.tsv",
     "engine/Cargo.toml",
     "engine/Cargo.lock",
     "retirement/REFS.tsv",
@@ -81,11 +82,21 @@ def main() -> int:
             if pattern.search(data):
                 fail(f"secret-like material in tracked file: {relative}")
 
+    external_root_names = {"data", "artifacts"}
+    for name in external_root_names:
+        path = ROOT / name
+        if path.exists() and not path.is_dir():
+            fail(f"external root is not a directory: {name}")
+
     physical = set()
     for base, directories, files in os.walk(ROOT):
         base_path = Path(base)
         if base_path == ROOT:
-            directories[:] = [name for name in directories if name != ".git"]
+            directories[:] = [
+                name
+                for name in directories
+                if name != ".git" and name not in external_root_names
+            ]
         for name in files:
             relative = (base_path / name).relative_to(ROOT).as_posix()
             physical.add(relative)
@@ -207,6 +218,37 @@ def main() -> int:
     if retirement_refs != recovery_refs:
         fail("retirement ref disposition does not cover the exact recovery ref map")
 
+    with (ROOT / "provenance/CUTOVER_RECEIPT.tsv").open(
+        newline="", encoding="utf-8"
+    ) as src:
+        cutover = {
+            row["field"]: row["value"] for row in csv.DictReader(src, delimiter="\t")
+        }
+    if cutover.get("status") != "PASS_POSTCHECK_REPAIRED":
+        fail("cutover receipt is absent or not complete")
+    if cutover.get("deletion_target_count") != "30":
+        fail("cutover receipt deletion target count mismatch")
+
+    with (ROOT / "retirement/DELETIONS.tsv").open(newline="", encoding="utf-8") as src:
+        deletion_rows = list(csv.DictReader(src, delimiter="\t"))
+    if len(deletion_rows) != 30 or any(
+        row["status"] != "COMPLETED_CUTOVER" for row in deletion_rows
+    ):
+        fail("deletion retirement is not complete")
+    with (ROOT / "retirement/BRANCHES.tsv").open(newline="", encoding="utf-8") as src:
+        branch_rows = list(csv.DictReader(src, delimiter="\t"))
+    if not branch_rows or any(
+        row["status"] != "RETIRED_LOCAL_RECOVERABLE" for row in branch_rows
+    ):
+        fail("legacy branch retirement is not complete")
+    with (ROOT / "retirement/WORKTREES.tsv").open(newline="", encoding="utf-8") as src:
+        worktree_rows = list(csv.DictReader(src, delimiter="\t"))
+    if not worktree_rows or any(
+        row["status"] != "RETIRED_LEGACY_WORKTREE_RECOVERABLE"
+        for row in worktree_rows
+    ):
+        fail("legacy worktree retirement is not complete")
+
     card = ROOT / "evidence/claims/native_state/TASK_CARD.md"
     addendum = ROOT / "evidence/claims/native_state/READER_ADDENDUM.md"
     if digest(card) != "3f7d1820f250e814f186f49ae5e830c9f250905561d73e01740794f6c637743d":
@@ -214,13 +256,14 @@ def main() -> int:
     if digest(addendum) != "667ff4116338573c3ffddace170862ace8950244b58ec28f3e691dad04299226":
         fail("reader-addendum hash mismatch")
 
-    ignored_data = subprocess.run(
-        ["git", "check-ignore", "-q", "data/private-test"],
-        cwd=ROOT,
-        check=False,
-    ).returncode
-    if ignored_data != 0:
-        fail("data/ is not ignored")
+    for name in sorted(external_root_names):
+        ignored = subprocess.run(
+            ["git", "check-ignore", "-q", f"{name}/private-test"],
+            cwd=ROOT,
+            check=False,
+        ).returncode
+        if ignored != 0:
+            fail(f"{name}/ is not ignored")
 
     print(
         json.dumps(

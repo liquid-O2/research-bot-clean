@@ -3554,20 +3554,21 @@ mod tests {
     /// `StageGate::recompute`/`invoke_estimator` runs against needs one,
     /// since [`StageGate::invoke_estimator`] resolves ONLY this in-directory
     /// copy, never an external path (module doc "Source-freedom"). The
-    /// source path read here is test scaffolding only — production code
-    /// (`StageGate`) never reads it.
+    /// source bytes embedded here are test scaffolding only — production code
+    /// (`StageGate`) never reads an external source path.
     fn write_estimator_laws_fixture(dir: &Path) {
-        const TEST_ESTIMATOR_SOURCE: &str =
-            "/workspace/archive/review_protocol_v1/estimator_laws.py";
-        let (_, sha256) = hash_file_bytes(Path::new(TEST_ESTIMATOR_SOURCE))
-            .expect("hash the pinned estimator source for test fixture setup");
+        const TEST_ESTIMATOR_SOURCE: &[u8] =
+            include_bytes!("../tests/fixtures/estimator_laws.py");
+        let target = dir.join(ESTIMATOR_LAWS_LEAF_NAME);
+        std::fs::write(&target, TEST_ESTIMATOR_SOURCE)
+            .expect("write bundled estimator_laws.py fixture into dir");
+        let (_, sha256) = hash_file_bytes(&target)
+            .expect("hash the bundled estimator source for test fixture setup");
         assert_eq!(
             hex32(&sha256),
             ESTIMATOR_LAWS_SHA256,
             "test fixture source must match the pinned sha256"
         );
-        std::fs::copy(TEST_ESTIMATOR_SOURCE, dir.join(ESTIMATOR_LAWS_LEAF_NAME))
-            .expect("copy estimator_laws.py fixture into dir");
     }
 
     /// Re-invokes the pinned estimator directly (bypassing `StageGate`) to

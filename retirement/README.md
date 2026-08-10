@@ -14,3 +14,7 @@ artifact, recovery command, authorization and post-action verification.
 Directory identities recursively hash every no-follow regular-file byte plus
 canonical lstat/path metadata; a nested change after the recovery freeze
 therefore blocks cutover. Unlisted objects are preserved.
+
+Cutover completed on 2026-08-10. `DELETIONS.tsv`, `BRANCHES.tsv`, and
+`WORKTREES.tsv` now carry completed/recoverable statuses. Exact action and
+recovery hashes are in `provenance/CUTOVER_RECEIPT.tsv`.

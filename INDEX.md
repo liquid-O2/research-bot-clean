@@ -23,6 +23,9 @@ Read in this order:
 
 ## Current truth
 
+- The clean-room migration completed on 2026-08-10. The repository has one
+  local/remote branch (`main`); the legacy Git state is recoverable from the
+  encrypted vault named in `provenance/CUTOVER_RECEIPT.tsv`.
 - No lawful native-order causal learnability fit has yet run.
 - Reported AUC values near 0.999 were deliberate future-outcome leakage
   controls. They prove plumbing/capacity only, not deployable prediction.

@@ -1,0 +1,23 @@
+field	value	evidence
+schema_version	cutover_receipt_v1	provenance/CUTOVER.md
+completed_utc	2026-08-10T16:26:13Z	UTC system clock
+status	PASS_POSTCHECK_REPAIRED	Final tools/verify_cleanroom.py RC0 after excluding the two retained external roots
+legacy_head	47e1ccfa6db5252e461ed9b083ae26ef97bad25b	provenance/git/legacy_recovery/REF_SHA_MAP.tsv
+installed_clean_head	ab0d45b43b09bafc6bd1716116f8f3dcf85f1684	git rev-parse HEAD immediately after cutover
+clean_remote	https://github.com/liquid-O2/research-bot-clean.git	git remote -v
+clean_remote_branch_set	main_only	git branch -a and git ls-remote --heads origin
+old_remote_status	UNTOUCHED	https://github.com/liquid-O2/research-bot.git received no mutation
+deletion_manifest_pre_cutover_sha256	12551db6bebee359aedf757628bc04787958e0798e291f055d13c95bf3fad3ec	retirement/DELETIONS.tsv before completion-status rewrite
+deletion_target_count	30	All recursive identities matched immediately before deletion
+legacy_identity_gate	PASS_ALL_30	tools/cutover_cleanroom.py and tools/retirement_identity.py
+retained_data_identity	dev=67;ino=563414411;mode=777	/workspace/data after cutover
+retained_artifacts_identity	dev=67;ino=52649522;mode=777	/workspace/artifacts after cutover
+post_cutover_top_level	clean_repo_plus_data_plus_artifacts	No unlisted legacy top-level object remains
+initial_postcheck	REFUSED_EXPECTED_EXTERNAL_ROOT_TRAVERSAL	Verifier incorrectly walked retained ignored roots; no data loss or repository mismatch
+postcheck_repair	tools/verify_cleanroom.py excludes only root data/artifacts while checking they are directories and ignored	Final verifier RC0
+git_recovery_receipt_sha256	c1754cad6d49cbbd5155bb2c5ab3da66c61c7133542b16269453d2a4210356cf	provenance/git/legacy_recovery/RECOVERY_RECEIPT.tsv
+git_recovery_archive_sha256	2aff61fc02d03b401d9a6388e9fe479fc263e817c806462ad3229202318aeecb	/workspace/data/private_project_vault/git_recovery_20260810T144900Z.tar.zst.gpg
+final_transcript_archive_sha256	bdf95ab3b1e15d6d1528164125a7f7098056c9f142978a1a4538428e7014ba22	provenance/private_raw_hashes.tsv
+knowledge_archive_sha256	6081c583295dda68b3c5dd140a5b9adfbd912a33474e650b581783c37334889b	provenance/private_raw_hashes.tsv
+legacy_misc_archive_sha256	869c861e15a44c7976e0514eeecc7faf0542bb8dfceaa1776f29bca0802a4e55	provenance/private_raw_hashes.tsv
+vault_key_sha256	1d2b737fab1e5753f2b1232940f202094fdd355728e0ff715c28022328d93ab1	Key remains external at /home/claude/.russell-private-keys/vault_20260810T144841Z.key

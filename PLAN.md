@@ -1,10 +1,12 @@
 # Current gated plan
 
-## Gate 0 — clean-room authority
+## Gate 0 — clean-room authority (COMPLETE 2026-08-10)
 
-Complete the source vault, readable transcript, proposition/evidence ledgers,
-minimal code seed, recovery proof, fresh-clone test, and old-repository
-retirement manifest. No scientific execution resumes before this gate passes.
+The source vault, readable transcript, proposition/evidence ledgers, minimal
+code seed, recovery proof, fresh-clone test, and old-repository retirement are
+complete. The exact completion evidence is in
+`provenance/CUTOVER_RECEIPT.tsv`. Scientific execution now begins at Gate 1;
+Gate 0 is not silently reopened or bypassed.
 
 ## Gate 1 — production causal substrate
 
@@ -50,4 +52,3 @@ registered joint mean/MDD block-resampling lower bound above 90%.
 
 If the gate fails, report the exact failed scientific object and return only
 to a preregistered mechanism hypothesis. Do not optimize a nearby proxy.
-

@@ -173,6 +173,16 @@ the first eligible group with ts ≥ entry + h (close ⇒ final eligible group).
 −30,000-cent adverse wall, otherwise the wall or final eligible group;
 `certificate_mae_cent` = exact marked MAE from entry through that exit. Certificate
 quantities are NONPROMOTABLE for economics and never gate anything in §6.
+**CC-007 (kernel arithmetic + resolved §3 ambiguities, frozen):** notional = $100k:
+frac_u6 = trunc(move_u6·1e6/entry_u6), net_cent = frac_u6·10 − 576 (the record's frozen
+kernel arithmetic); horizon past the final lawful mark exits at that final mark; stop_hit[h]
+= wall crossing strictly before that horizon's exit group; MAE spans the closed [entry, exit];
+barrier uses favorable/adverse spread sides (two columns); the certificate's wall fallback
+fills at the same next-lawful-mark as the menu (one stop_scan); D60 beyond the close resolves
+to the final registered second; the ordinal roster unions ALL admitted primitive candidates
+(incl. SIDE_UNAVAILABLE) while watches come only from side-authenticated ones; the §7
+stop-shift mutant is the SMALLEST EFFECTIVE shift (a literal 1-cent shift is provably a
+no-op because net ≡ 4 mod 10 — measured and documented).
 All label columns live in the physically separate truth leaf (feature-builder process may
 never open it — fd census; the trainer opens an explicit truth allowlist for loss
 computation only, with a static check that no truth array is concatenated into any feature

@@ -15,3 +15,4 @@
 - D-013 2026-08-10: No blocking hooks, ever. Hooks are output-only context injectors (the legacy stop-hook looped for a full session).
 - D-014 2026-08-10: Never end a turn on a mere finding — fix in the same turn where possible; report at true milestones (standing rule carried over).
 - D-015 2026-08-10: No early surrender — floors are floors; scope cuts only as deferrals with revisit hooks (standing rule carried over).
+- D-016 2026-08-10: Keep token/context usage LOW. Terse reports at true milestones only; no detail dumps; no narrating every step. Lean agent briefs (cite spec sections, don't restate).

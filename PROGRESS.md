@@ -13,7 +13,7 @@
 | M1 | IN_PROGRESS | 2026-08-10 | — | — | WP0/WP1 lane launched (Opus-high) |
 | WP0 | DONE | 2026-08-10 | — | dialect_census.tsv sha 63557a43…; 349 rows; 27.2s | exactly ZSTD×{PLAIN,RLE,RLE_DICTIONARY}, 8,726 files, 0 out-of-dialect |
 | WP1 | DONE | 2026-08-10 | — | engine/cpp qr_core+qr_registry (commit 6715717); 39/39 green; 5 red-ledger mutants | STALE_DIAG ruling applied |
-| WP2 | IN_PROGRESS | 2026-08-10 | — | — | clock port lane |
+| WP2 | DONE | 2026-08-10 | — | qr_clock; 71 tests green; 18 mutants; oracle diff EMPTY sha a36f954e…; CC-001 15-state applied | commit deferred until WP3 lands (shared CMake files) |
 | WP3 | IN_PROGRESS | 2026-08-10 | — | — | parquet decoder lane |
 | WP4..WP11 | TODO | — | — | — | see FINAL_PLAN §6 |
 | M2 | TODO | — | — | — | V4 A1..A9 + one 5-lane review |

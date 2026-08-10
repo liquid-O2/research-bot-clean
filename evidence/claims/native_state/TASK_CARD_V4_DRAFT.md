@@ -569,7 +569,10 @@ predictions), and (ii) predicted `P(stop before h\*)` <= ρ. The pair (q, ρ) �
 criterion only: noncensored favorable-vs-adverse AUC at that coverage, Holm-corrected
 across the 18 cells; ties in the criterion pick the smallest q then smallest ρ. The
 selected (q,ρ) freezes before gate-cert and TEST. Degenerate/nonfinite scores in a cell
-⇒ PASS_ALL (zero ENTERs) for that cell, never a looser gate.
+⇒ PASS_ALL (zero ENTERs) for that cell, never a looser gate. **CC-004 clarifications:**
+selection = argmax among GATE-PASSING legal rows (the gate is a legality filter, never a
+veto on the raw argmax); the running quantile is inadmissible until n>=50 strictly-prior
+same-session predictions (typed GATE_WARMUP, no entry — preregistered constant).
 The k==0 admission law of V3.3.3 is DELETED: it certified the realizability of a
 hindsight exit; under A1 the stop executes inside every label, and a stop-out is a
 priced, bounded outcome. Realized gap-through breaches (`menu_mae_cent[h\*]>30000`

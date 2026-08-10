@@ -340,7 +340,10 @@ return/aggressor/signed-size/imbalance; NBBO: mid-change/spread/imbalance/own-si
 option: underlying-return/aggressor/premium-flow/delta-flow), plus 20 full-window clock/order/
 attachment-quality statistics. Exactly 60 columns/modality.
 
-Definitions are frozen. Every stateful prior is built by taking the finite eligible mean
+Definitions are frozen. **CC-005:** NBBO depth imbalance = (mean_bid_size − mean_ask_size)
+/ (mean_bid_size + mean_ask_size) from the separate scalar group means, zero denominator ⇒
+typed missing, σ-oriented at the channel layer (own = bid for LONG).
+Every stateful prior is built by taking the finite eligible mean
 of each primitive scalar separately over the nearest strictly-earlier timestamp group:
 stock-print price/tick fallback; stock-NBBO bid, ask, bid size, and ask size; and option-
 print price per exact contract. NBBO prior/current midpoint and imbalance are derived only

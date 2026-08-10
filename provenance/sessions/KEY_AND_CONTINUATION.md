@@ -10,6 +10,19 @@ separate password manager or offline secret store before the old environment
 is retired. Losing both the local key and that backup makes the raw vault
 unrecoverable.
 
+The repository itself is public. Encryption applies only to the exact private
+recovery vaults, not to public source or documentation. Those vaults contain
+raw agent-session bytes, system/tool output, complete dirty Git overlays,
+deleted local configuration (including the historical `.env`), and potentially
+licensed or personally identifying material. Publishing them would defeat the
+clean-room privacy and licensing boundary. Git therefore carries a readable
+sanitized transcript, compact evidence, hashes, and restore instructions;
+the sensitive exact bytes stay encrypted outside Git.
+
+The 65-byte key was transferred successfully to the user with `runpodctl send`
+at 2026-08-10T16:39:56Z. It is intentionally not committed to this public
+repository.
+
 The initial and final Codex manifests freeze exact byte cutoffs. The final
 continuation was captured at `2026-08-10T15:55:59Z`; every initial source
 prefix was rehashed byte-identically before the readable transcript was

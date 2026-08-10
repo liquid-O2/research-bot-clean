@@ -7,7 +7,7 @@ The cutover is authorized only when:
 - the source/knowledge inventory has zero unclassified entries;
 - the clean repository passes structural, source, launcher and cold-clone
   checks;
-- the private remote contains only `main`;
+- the clean remote contains only `main`;
 - `retirement/DELETIONS.tsv` identities still match;
 - `/workspace/data` and `/workspace/artifacts` retention sentinels match.
 
@@ -22,7 +22,7 @@ Procedure:
    `artifacts`.
 6. Copy the verified clean repository, including its `.git`, into
    `/workspace`.
-7. Verify one local branch (`main`), the private remote OID, a clean status,
+7. Verify one local branch (`main`), the clean remote OID, a clean status,
    ignored external roots, task-card/transcript/recovery hashes, Rust
    compilation and launcher smoke.
 8. Remove cleanroom staging/build temporaries only after the new root and

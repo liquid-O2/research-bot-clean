@@ -17,7 +17,7 @@ all checks below pass.
    `provenance/git/legacy_recovery/REF_SHA_MAP.tsv`.
 6. Apply each dirty-worktree binary patch and authored-untracked archive to
    its documented base; verify inventory and receipt hashes.
-7. Clone the clean repository from its private remote into an empty
+7. Clone the clean repository from its public remote into an empty
    directory, run cold-agent orientation and all contract/secret/license/
    large-blob/link tests.
 8. Verify `/workspace/data` is unchanged and externally mounted authorities

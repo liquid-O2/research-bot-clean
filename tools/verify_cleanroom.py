@@ -32,6 +32,8 @@ REQUIRED = (
     "provenance/sessions/CONTINUATION_PROOF.tsv",
     "provenance/knowledge_audit/verification_v1.json",
     "provenance/CUTOVER_RECEIPT.tsv",
+    "provenance/PUBLICATION_RECEIPT.tsv",
+    "provenance/git/CLEAN_REMOTE.tsv",
     "engine/Cargo.toml",
     "engine/Cargo.lock",
     "retirement/REFS.tsv",
@@ -229,6 +231,25 @@ def main() -> int:
         fail("cutover receipt is absent or not complete")
     if cutover.get("deletion_target_count") != "30":
         fail("cutover receipt deletion target count mismatch")
+
+    with (ROOT / "provenance/PUBLICATION_RECEIPT.tsv").open(
+        newline="", encoding="utf-8"
+    ) as src:
+        publication = {
+            row["field"]: row["value"] for row in csv.DictReader(src, delimiter="\t")
+        }
+    if publication.get("status") != "PASS_PUBLIC":
+        fail("public repository receipt is absent or not green")
+    if publication.get("repository") != "https://github.com/liquid-O2/research-bot-clean":
+        fail("public repository receipt names the wrong repository")
+    with (ROOT / "provenance/git/CLEAN_REMOTE.tsv").open(
+        newline="", encoding="utf-8"
+    ) as src:
+        clean_remote = {
+            row["field"]: row["value"] for row in csv.DictReader(src, delimiter="\t")
+        }
+    if not clean_remote.get("visibility", "").startswith("PUBLIC_VERIFIED"):
+        fail("clean remote registry is not marked public and verified")
 
     with (ROOT / "retirement/DELETIONS.tsv").open(newline="", encoding="utf-8") as src:
         deletion_rows = list(csv.DictReader(src, delimiter="\t"))

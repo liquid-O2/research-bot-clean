@@ -1,6 +1,6 @@
 field	value
 remote_url	https://github.com/liquid-O2/research-bot-clean.git
-visibility	PRIVATE_VERIFIED_VIA_GITHUB_API
+visibility	PUBLIC_VERIFIED_VIA_GITHUB_API_2026-08-10
 default_branch	main
 allowed_resting_branch_set	main
 initial_push_oid	8ea3a256976a1b9b3d904e924d76ec1bd20bb51f

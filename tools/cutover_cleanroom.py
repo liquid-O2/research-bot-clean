@@ -40,7 +40,7 @@ def main() -> int:
     local_oid = git(source, "rev-parse", "HEAD")
     remote_line = git(source, "ls-remote", "--heads", "origin", "main").split()
     if len(remote_line) != 2 or remote_line[0] != local_oid:
-        raise RuntimeError("clean source and private remote main differ")
+        raise RuntimeError("clean source and remote main differ")
     other_remote = git(source, "ls-remote", "--heads", "origin").splitlines()
     if len(other_remote) != 1 or not other_remote[0].endswith("refs/heads/main"):
         raise RuntimeError(f"clean remote branch set is not exactly main: {other_remote}")

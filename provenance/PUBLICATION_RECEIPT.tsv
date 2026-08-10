@@ -1,0 +1,15 @@
+field	value	evidence
+schema_version	public_repository_receipt_v1	This file
+verified_utc	2026-08-10T16:39:56Z	GitHub API response
+status	PASS_PUBLIC	GitHub API returned private=false and visibility=public
+repository	https://github.com/liquid-O2/research-bot-clean	GitHub API full_name=liquid-O2/research-bot-clean
+default_branch	main	GitHub API response
+allowed_branch_set	main_only	Remote refs and clean-room contract
+visibility_change_source_head	e152e361cca5f4ee2c1951e775dd87451effc726	Local and remote main matched before API mutation
+pre_visibility_history_scan	PASS_7_COMMITS_NO_CREDENTIAL_OR_PRIVATE_KEY_PATTERN_MATCH	git grep over every commit reachable from main
+current_tree_secret_scan	PASS	tools/verify_cleanroom.py
+credential_use	GIT_CREDENTIAL_HELPER_PAT_USED_WITHOUT_PRINTING	Git pushes and authenticated GitHub API PATCH succeeded
+public_git_content	SOURCE_DOCS_SANITIZED_TRANSCRIPT_COMPACT_EVIDENCE	INDEX.md and provenance/sessions
+private_content_boundary	RAW_TRANSCRIPTS_DIRTY_GIT_OVERLAYS_LOCAL_CONFIG_LICENSED_OR_PERSONAL_MATERIAL_REMAIN_ENCRYPTED_OUTSIDE_GIT	provenance/sessions/KEY_AND_CONTINUATION.md
+key_transfer	RUNPODCTL_SEND_CONFIRMED_65_OF_65_BYTES	User received vault_20260810T144841Z.key
+key_sha256	1d2b737fab1e5753f2b1232940f202094fdd355728e0ff715c28022328d93ab1	provenance/private_raw_hashes.tsv

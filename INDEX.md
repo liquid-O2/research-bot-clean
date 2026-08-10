@@ -1,6 +1,6 @@
 # Russell causal-selection research — start here
 
-This repository is the clean-room control plane for the IWM causal-entry
+This public repository is the clean-room control plane for the IWM causal-entry
 research program. It contains code, contracts, compact evidence, readable
 history, and SHA-bound pointers. Raw market data, large authorities, private
 raw transcripts, purchased papers, and generated runs remain outside Git.

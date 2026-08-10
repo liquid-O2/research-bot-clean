@@ -16,3 +16,4 @@
 2026-08-10 21:41Z WP11 GREEN (60 tests, 19 mutants, hand-fixture arithmetic verified, numpy PCG64 parity EXACT incl. the Lemire bit-31 subtlety, 1M actions 0.308s at -O0). Rulings: net booking, argmax-among-gate-passing (CC-004), n>=50 GATE_WARMUP floor (CC-004), MAE quantiles {p50,p90,p95,p99,max}, no daily-loss default, coin SeedSequence([20260810,sid,side_index]).
 2026-08-10 21:47Z WP4 DONE (qr_sources 5,405 LOC; 47 tests; 16 mutants; registry counts EXACT 14,761,979/2,810,589; 45.1-45.8M values/s; B4 derived wall extended; all 6 rulings applied). Commit with next consolidation.
 2026-08-10 21:48Z WP10 DONE (rulings applied: single-writer topology fixture, C4 naming wall s0125/L; 37 gtest + 10 python ledger rows; 672MB/s; emit gate green).
+2026-08-10 21:48Z WP11 DONE (GATE_WARMUP n>=50 + nearest-rank MAE quantiles; 65 tests, 22 mutants, 1M actions 0.313s).

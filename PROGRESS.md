@@ -11,7 +11,11 @@
 | M0.6-proofs-vendor | DONE | 2026-08-10 | — | cargo check clean; 79 unit tests pass; launcher smoke PASS; verifier PASS; 3 tarballs+manifest+REGISTRY rows | clangd best-effort |
 | M0.7-plan-md | DONE | 2026-08-10 | — | PLAN.md rewritten | Gate-3 hook = E_ENTRY_READINESS_V1 |
 | M1 | IN_PROGRESS | 2026-08-10 | — | — | WP0/WP1 lane launched (Opus-high) |
-| WP0..WP11 | TODO | — | — | — | see FINAL_PLAN §6 |
+| WP0 | DONE | 2026-08-10 | — | dialect_census.tsv sha 63557a43…; 349 rows; 27.2s | exactly ZSTD×{PLAIN,RLE,RLE_DICTIONARY}, 8,726 files, 0 out-of-dialect |
+| WP1 | DONE | 2026-08-10 | — | engine/cpp qr_core+qr_registry (commit 6715717); 39/39 green; 5 red-ledger mutants | STALE_DIAG ruling applied |
+| WP2 | IN_PROGRESS | 2026-08-10 | — | — | clock port lane |
+| WP3 | IN_PROGRESS | 2026-08-10 | — | — | parquet decoder lane |
+| WP4..WP11 | TODO | — | — | — | see FINAL_PLAN §6 |
 | M2 | TODO | — | — | — | V4 A1..A9 + one 5-lane review |
 | M2.5 | TODO | — | — | — | Q*≤Q_max gate + decomposition (after M3-R2) |
 | M3 | TODO | — | — | — | R1,R2,R3,R3a,R4,R5 |

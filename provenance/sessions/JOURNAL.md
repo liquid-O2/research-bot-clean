@@ -17,3 +17,4 @@
 2026-08-10 21:47Z WP4 DONE (qr_sources 5,405 LOC; 47 tests; 16 mutants; registry counts EXACT 14,761,979/2,810,589; 45.1-45.8M values/s; B4 derived wall extended; all 6 rulings applied). Commit with next consolidation.
 2026-08-10 21:48Z WP10 DONE (rulings applied: single-writer topology fixture, C4 naming wall s0125/L; 37 gtest + 10 python ledger rows; 672MB/s; emit gate green).
 2026-08-10 21:48Z WP11 DONE (GATE_WARMUP n>=50 + nearest-rank MAE quantiles; 65 tests, 22 mutants, 1M actions 0.313s).
+2026-08-10 21:54Z WP6 DONE (CC-003 per-family dialect profiles; corpus wall proven intact incl. the near-miss where static_asserts would have silently destroyed M201/M205 red evidence — caught and fixed; roster byte-identical to diagnostic; 103 tests, 18 M4xx mutants; full ledger 366 tests all proven-fail; 27.9s/76.6MB). Stray mutant residue .orig removed.

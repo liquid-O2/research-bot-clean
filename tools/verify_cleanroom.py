@@ -19,7 +19,13 @@ REQUIRED = (
     "PROJECT_CONTRACT.md",
     "PROJECT_MEMORY.md",
     "PLAN.md",
-    "AGENTS.md",
+    # AGENTS.md removed 2026-08-10 by governance amendment
+    # E_GOVERNANCE_OPERATOR_AMENDMENT_V1; its law lives in INDEX.md.
+    "FINAL_PLAN.md",
+    "STATE.md",
+    "PROGRESS.md",
+    "DIRECTIVES.md",
+    "design/CHANGE_CONTROL.md",
     "authorities/REGISTRY.tsv",
     "knowledge/propositions.tsv",
     "knowledge/evidence.tsv",

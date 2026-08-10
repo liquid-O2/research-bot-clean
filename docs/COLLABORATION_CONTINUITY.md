@@ -73,8 +73,10 @@ Malformed streamed records are preserved byte-for-byte. Readable extraction
 tolerates fragments and deduplicates repeated completed items by stable
 message/item identity while recording every source byte disposition.
 
-Historical local Claude files may be archived and cited. No Claude service,
-Claude-backed agent, or new quota-consuming request is permitted.
+Historical local Claude files may be archived and cited. Operator amendment
+2026-08-10 (E_GOVERNANCE_OPERATOR_AMENDMENT_V1): Claude operates the program
+(orchestrator + implementer/review lanes per FINAL_PLAN §15); the former
+no-Claude-service clause is struck on the record.
 
 ## Decision discipline
 

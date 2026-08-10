@@ -296,8 +296,9 @@ time/value budget, not weaker validation.
   it removes a necessary blocker.
 - Preserve negative evidence with its exact scope. Never let the newest file
   or report silently become authority.
-- No Claude service is used. Historical local Claude records are archival
-  evidence only.
+- Operator amendment 2026-08-10 (E_GOVERNANCE_OPERATOR_AMENDMENT_V1): Claude
+  is the operating model for orchestration, implementation lanes, and
+  reviews. Historical local Claude records remain archival evidence.
 
 ## 14. Current boundary
 

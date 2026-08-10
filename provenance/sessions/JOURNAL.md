@@ -1,0 +1,6 @@
+# JOURNAL — append-only long state (one dated line per completed step / decision / number produced; never rewritten)
+
+2026-08-10 18:05Z FINAL PLAN approved by user (plan file → FINAL_PLAN.md). Program: M0 decontaminate → M1 C++ substrate → M2 card V4 → M2.5 reachability → M3 first lawful fit → M4 waves → M5 entry certificate; exits deferred.
+2026-08-10 18:38Z M0.1 DONE: 3 legacy hooks + open_work.json archived to artifacts/legacy_hooks_archive_20260810; settings.json cleansed (no hooks).
+2026-08-10 18:40Z Continuity files created: STATE.md, PROGRESS.md, DIRECTIVES.md (D-001..D-015), DIRECTIVES_INBOX.md, this JOURNAL.
+2026-08-10 (context) Adversarial review verdicts folded into FINAL_PLAN (F1 fabricated-number expunged; F2 wall-violating era days removed; F3 VRAM fix via small-JSA; F4 process-separation; F5 multiplicity restated; F7 LUPI student refutation recorded; F10 Q*/Qmax gate; F15 WCD diagnostic oracle; F16 OQ risk-prior; F17 k==0 deletion; F18 AGENTS full re-home). Independent-design adoptions: C1 certificate logic, N5 fragility, daily-loss-limit, affine estimator + MDD sibling, dialect census, registry-count oracle, 33-session ladder, power analysis, P1/P2 pivots, small-JSA spec.

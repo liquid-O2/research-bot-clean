@@ -1,0 +1,13 @@
+--- a/qr_core/tests/test_validity.cpp
++++ b/qr_core/tests/test_validity.cpp
+@@ -206,4 +206,10 @@
+   EXPECT_EQ(worse.v, Validity::MODALITY_ABSENT);
+ }
+ 
++
++// M002 PLANTED: a test with no row in tests/red_ledger.tsv. The red-ledger
++// gate must refuse the whole suite because this test has never been proven
++// able to fail.
++TEST(PlantedLedgerless, HasNoRedLedgerRow) { EXPECT_TRUE(true); }
++
+ }  // namespace

@@ -1,0 +1,1064 @@
+--- a/qr_core/include/qr_core/validity.hpp
++++ b/qr_core/include/qr_core/validity.hpp
+@@ -1,34 +1,4 @@
+-// qr_core/validity.hpp - the 14-state validity lattice and Typed<T>.
+-//
+-// SPEC (verbatim, design/DESIGN_SUBSTRATE.md APPENDIX C1):
+-//   enum class Validity : uint8_t {VALID, MISSING, EQUAL_TIME_UNORDERED,
+-//   ATTACHMENT_FUTURE, WRONG_CIVIL_DAY, STALE_DIAG, LOCKED, CROSSED,
+-//   ONE_SIDED, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-//   CLOCK_UNAVAILABLE, MODALITY_ABSENT};
+-//   template<class T> struct Typed {T value; Validity v;};
+-//   combine = worst-wins frozen table
+-//
+-// TWO ORDERS LIVE HERE AND THEY ARE NOT THE SAME ORDER:
+-//
+-//   * The DECLARATION order below is frozen by APPENDIX C1 and never changes.
+-//   * The SEVERITY order that "worst wins" refers to is the orchestrator's
+-//     ruling of 2026-08-10, best to worst:
+-//
+-//       VALID < STALE_DIAG < MISSING < EQUAL_TIME_UNORDERED <
+-//       ATTACHMENT_FUTURE < WRONG_CIVIL_DAY < LOCKED < CROSSED < ONE_SIDED <
+-//       NONFINITE < NONPOSITIVE < CONDITION_INELIGIBLE < CLOCK_UNAVAILABLE <
+-//       MODALITY_ABSENT
+-//
+-//     Ruling rationale: STALE_DIAG is DIAGNOSTIC ONLY under card law - quote
+-//     age gates nothing and the value stays usable - so it may dominate VALID
+-//     and nothing else. It must never outrank an unavailability state:
+-//     combine(STALE_DIAG, MISSING) is MISSING, not STALE_DIAG.
+-//
+-// THE FROZEN TABLE. `combine` is a lookup in kCombineTable below, written out
+-// cell by cell (14x14 = 196 entries) so that a mutant patch can flip exactly
+-// one cell and a test must catch it. Rows and columns are indexed by the
+-// DECLARATION order; the contents encode the SEVERITY order. Nothing here is
+-// derived at run time and no state is special-cased.
++// M000 STUB: the frozen worst-wins table has not been written yet.
+ #ifndef QR_CORE_VALIDITY_HPP
+ #define QR_CORE_VALIDITY_HPP
+ 
+@@ -54,110 +24,23 @@
+   MODALITY_ABSENT,
+ };
+ 
+-/// Exactly fourteen states (APPENDIX C1). Anything else is a spec drift.
+ inline constexpr std::size_t kValidityCount = 14;
+ 
+-/// A value that carries its own validity. Aggregate, exactly as specified.
+ template <class T>
+ struct Typed {
+   T value;
+   Validity v;
+ };
+ 
+-namespace lattice {
+-using enum Validity;
++[[nodiscard]] constexpr Validity combine(Validity, Validity) noexcept { return Validity::VALID; }
+ 
+-/// The frozen worst-wins table. Row = left operand, column = right operand.
+-inline constexpr Validity kCombineTable[kValidityCount][kValidityCount] = {
+-    // row VALID
+-    {VALID, MISSING, EQUAL_TIME_UNORDERED, ATTACHMENT_FUTURE,
+-     WRONG_CIVIL_DAY, STALE_DIAG, LOCKED, CROSSED,
+-     ONE_SIDED, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row MISSING
+-    {MISSING, MISSING, EQUAL_TIME_UNORDERED, ATTACHMENT_FUTURE,
+-     WRONG_CIVIL_DAY, MISSING, LOCKED, CROSSED,
+-     ONE_SIDED, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row EQUAL_TIME_UNORDERED
+-    {EQUAL_TIME_UNORDERED, EQUAL_TIME_UNORDERED, EQUAL_TIME_UNORDERED, ATTACHMENT_FUTURE,
+-     WRONG_CIVIL_DAY, EQUAL_TIME_UNORDERED, LOCKED, CROSSED,
+-     ONE_SIDED, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row ATTACHMENT_FUTURE
+-    {ATTACHMENT_FUTURE, ATTACHMENT_FUTURE, ATTACHMENT_FUTURE, ATTACHMENT_FUTURE,
+-     WRONG_CIVIL_DAY, ATTACHMENT_FUTURE, LOCKED, CROSSED,
+-     ONE_SIDED, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row WRONG_CIVIL_DAY
+-    {WRONG_CIVIL_DAY, WRONG_CIVIL_DAY, WRONG_CIVIL_DAY, WRONG_CIVIL_DAY,
+-     WRONG_CIVIL_DAY, WRONG_CIVIL_DAY, LOCKED, CROSSED,
+-     ONE_SIDED, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row STALE_DIAG
+-    {STALE_DIAG, MISSING, EQUAL_TIME_UNORDERED, ATTACHMENT_FUTURE,
+-     WRONG_CIVIL_DAY, STALE_DIAG, LOCKED, CROSSED,
+-     ONE_SIDED, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row LOCKED
+-    {LOCKED, LOCKED, LOCKED, LOCKED,
+-     LOCKED, LOCKED, LOCKED, CROSSED,
+-     ONE_SIDED, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row CROSSED
+-    {CROSSED, CROSSED, CROSSED, CROSSED,
+-     CROSSED, CROSSED, CROSSED, CROSSED,
+-     ONE_SIDED, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row ONE_SIDED
+-    {ONE_SIDED, ONE_SIDED, ONE_SIDED, ONE_SIDED,
+-     ONE_SIDED, ONE_SIDED, ONE_SIDED, ONE_SIDED,
+-     ONE_SIDED, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row NONFINITE
+-    {NONFINITE, NONFINITE, NONFINITE, NONFINITE,
+-     NONFINITE, NONFINITE, NONFINITE, NONFINITE,
+-     NONFINITE, NONFINITE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row NONPOSITIVE
+-    {NONPOSITIVE, NONPOSITIVE, NONPOSITIVE, NONPOSITIVE,
+-     NONPOSITIVE, NONPOSITIVE, NONPOSITIVE, NONPOSITIVE,
+-     NONPOSITIVE, NONPOSITIVE, NONPOSITIVE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row CONDITION_INELIGIBLE
+-    {CONDITION_INELIGIBLE, CONDITION_INELIGIBLE, CONDITION_INELIGIBLE, CONDITION_INELIGIBLE,
+-     CONDITION_INELIGIBLE, CONDITION_INELIGIBLE, CONDITION_INELIGIBLE, CONDITION_INELIGIBLE,
+-     CONDITION_INELIGIBLE, CONDITION_INELIGIBLE, CONDITION_INELIGIBLE, CONDITION_INELIGIBLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row CLOCK_UNAVAILABLE
+-    {CLOCK_UNAVAILABLE, CLOCK_UNAVAILABLE, CLOCK_UNAVAILABLE, CLOCK_UNAVAILABLE,
+-     CLOCK_UNAVAILABLE, CLOCK_UNAVAILABLE, CLOCK_UNAVAILABLE, CLOCK_UNAVAILABLE,
+-     CLOCK_UNAVAILABLE, CLOCK_UNAVAILABLE, CLOCK_UNAVAILABLE, CLOCK_UNAVAILABLE,
+-     CLOCK_UNAVAILABLE, MODALITY_ABSENT},
+-    // row MODALITY_ABSENT
+-    {MODALITY_ABSENT, MODALITY_ABSENT, MODALITY_ABSENT, MODALITY_ABSENT,
+-     MODALITY_ABSENT, MODALITY_ABSENT, MODALITY_ABSENT, MODALITY_ABSENT,
+-     MODALITY_ABSENT, MODALITY_ABSENT, MODALITY_ABSENT, MODALITY_ABSENT,
+-     MODALITY_ABSENT, MODALITY_ABSENT},
+-};
+-
+-}  // namespace lattice
+-
+-/// Worst-wins combination of two validity states (frozen table lookup).
+-[[nodiscard]] constexpr Validity combine(Validity a, Validity b) noexcept {
+-  return lattice::kCombineTable[static_cast<std::size_t>(a)][static_cast<std::size_t>(b)];
+-}
+-
+-/// Stable screaming-snake name of a validity state (never a sentence).
+ [[nodiscard]] const char* validity_name(Validity v) noexcept;
+ 
+-/// True only for the VALID state; every other state masks the value.
+ template <class T>
+ [[nodiscard]] constexpr bool is_valid(const Typed<T>& typed) noexcept {
+   return typed.v == Validity::VALID;
+ }
+ 
+-/// Worst-wins combination of a typed value's validity with another state.
+ template <class T>
+ [[nodiscard]] constexpr Typed<T> with_combined(const Typed<T>& typed, Validity other) noexcept {
+   return Typed<T>{typed.value, combine(typed.v, other)};
+--- a/qr_core/include/qr_core/checked.hpp
++++ b/qr_core/include/qr_core/checked.hpp
+@@ -1,13 +1,4 @@
+-// qr_core/checked.hpp - checked integer arithmetic that refuses on overflow.
+-//
+-// SPEC (design/DESIGN_SUBSTRATE.md APPENDIX C1 + section 6):
+-//   "checked arithmetic via __builtin_*_overflow returning Refusal"
+-//   "`Expected<int64_t,Refusal> checked_add(...)` via __builtin_*_overflow"
+-//
+-// LAW: an overflowing operation returns RefusalCode::ARITHMETIC_OVERFLOW. It
+-// never wraps, never traps, and never substitutes a boundary value for the
+-// true result. The ci/check_banned_constructs.sh gate enforces the absence of
+-// range-limiting helpers in this module.
++// M000 STUB: checked arithmetic has not been written yet.
+ #ifndef QR_CORE_CHECKED_HPP
+ #define QR_CORE_CHECKED_HPP
+ 
+@@ -17,37 +8,19 @@
+ 
+ namespace qr {
+ 
+-/// a + b, or ARITHMETIC_OVERFLOW.
+-[[nodiscard]] inline Expected<std::int64_t, Refusal> checked_add(std::int64_t a,
+-                                                                 std::int64_t b) noexcept {
+-  std::int64_t out = 0;
+-  if (__builtin_add_overflow(a, b, &out)) {
+-    return Expected<std::int64_t, Refusal>::refuse(
+-        Refusal(RefusalCode::ARITHMETIC_OVERFLOW, "qr_core::checked_add", "int64 addition overflowed", b));
+-  }
+-  return out;
++[[nodiscard]] inline Expected<std::int64_t, Refusal> checked_add(std::int64_t, std::int64_t) noexcept {
++  return Expected<std::int64_t, Refusal>::refuse(
++      Refusal(RefusalCode::CONFIG, "qr_core::checked_add", "not implemented"));
+ }
+ 
+-/// a - b, or ARITHMETIC_OVERFLOW.
+-[[nodiscard]] inline Expected<std::int64_t, Refusal> checked_sub(std::int64_t a,
+-                                                                 std::int64_t b) noexcept {
+-  std::int64_t out = 0;
+-  if (__builtin_sub_overflow(a, b, &out)) {
+-    return Expected<std::int64_t, Refusal>::refuse(
+-        Refusal(RefusalCode::ARITHMETIC_OVERFLOW, "qr_core::checked_sub", "int64 subtraction overflowed", b));
+-  }
+-  return out;
++[[nodiscard]] inline Expected<std::int64_t, Refusal> checked_sub(std::int64_t, std::int64_t) noexcept {
++  return Expected<std::int64_t, Refusal>::refuse(
++      Refusal(RefusalCode::CONFIG, "qr_core::checked_sub", "not implemented"));
+ }
+ 
+-/// a * b, or ARITHMETIC_OVERFLOW.
+-[[nodiscard]] inline Expected<std::int64_t, Refusal> checked_mul(std::int64_t a,
+-                                                                 std::int64_t b) noexcept {
+-  std::int64_t out = 0;
+-  if (__builtin_mul_overflow(a, b, &out)) {
+-    return Expected<std::int64_t, Refusal>::refuse(
+-        Refusal(RefusalCode::ARITHMETIC_OVERFLOW, "qr_core::checked_mul", "int64 multiplication overflowed", b));
+-  }
+-  return out;
++[[nodiscard]] inline Expected<std::int64_t, Refusal> checked_mul(std::int64_t, std::int64_t) noexcept {
++  return Expected<std::int64_t, Refusal>::refuse(
++      Refusal(RefusalCode::CONFIG, "qr_core::checked_mul", "not implemented"));
+ }
+ 
+ }  // namespace qr
+--- a/qr_core/include/qr_core/frames.hpp
++++ b/qr_core/include/qr_core/frames.hpp
+@@ -1,149 +1,59 @@
+-// qr_core/frames.hpp - the frame-A / frame-B / civil-date strong types.
+-//
+-// SPEC (design/DESIGN_SUBSTRATE.md section 6 + APPENDIX C1):
+-//   "FrameA/FrameB/CivilDate strong types, deleted implicit conversions +
+-//    static_assert non-convertibility"
+-//   "FrameA/FrameB wrapped i64, explicit ctors, deleted conversions"
+-//
+-// WHY THIS TYPE WALL EXISTS: every token corpus timestamp is naive-Eastern
+-// wall clock (frame B). Only a session clock may turn one into a true UTC
+-// instant (frame A). Mixing the two silently reads hours into the future, so
+-// the two frames are DIFFERENT TYPES that cannot be built from, converted to,
+-// or compared with a bare integer, or with each other.
+-//
+-//   * FrameB  - naive-Eastern instant, explicit ctor from int64 nanoseconds.
+-//   * FrameA  - true UTC instant. Constructible ONLY through the greppable
+-//               factory `FrameA::from_published_utc_epoch_ns`. There is no
+-//               public constructor at all, so no code can mint a frame-A
+-//               instant by accident; the WP2 clock port is the only lawful
+-//               producer, and every other producer is a grep away.
+-//   * CivilDate - a civil day, wrapped as days since 1970-01-01. Days (not a
+-//               packed YYYYMMDD) is the encoding the design requires, because
+-//               section 6 specifies WRONG_CIVIL_DAY(delta_days): a day
+-//               DIFFERENCE has to be exact integer arithmetic.
++// M000 STUB: the frame type wall has not been built yet - the wrappers are
++// plain implicitly-convertible value holders and nothing is deleted.
+ #ifndef QR_CORE_FRAMES_HPP
+ #define QR_CORE_FRAMES_HPP
+ 
+-#include <concepts>
+ #include <cstdint>
+ #include <string>
+ #include <string_view>
+-#include <type_traits>
+ 
+ #include "qr_core/refusal.hpp"
+ 
+ namespace qr {
+ 
+-/// True UTC nanoseconds since the epoch. No public constructor.
+ class FrameA {
+  public:
+-  FrameA() = delete;
+-
+-  /// The ONLY way to mint a frame-A instant. Greppable by name.
+-  [[nodiscard]] static constexpr FrameA from_published_utc_epoch_ns(std::int64_t ns) noexcept {
+-    return FrameA(ns);
+-  }
+-
+-  [[nodiscard]] constexpr std::int64_t ns() const noexcept { return ns_; }
+-
+-  friend constexpr bool operator==(FrameA lhs, FrameA rhs) noexcept { return lhs.ns_ == rhs.ns_; }
+-  friend constexpr auto operator<=>(FrameA lhs, FrameA rhs) noexcept { return lhs.ns_ <=> rhs.ns_; }
++  FrameA() = default;
++  FrameA(std::int64_t ns) : ns_(ns) {}
++  [[nodiscard]] static FrameA from_published_utc_epoch_ns(std::int64_t ns) { return FrameA(ns); }
++  [[nodiscard]] std::int64_t ns() const noexcept { return 0; }
++  operator std::int64_t() const noexcept { return ns_; }
+ 
+  private:
+-  explicit constexpr FrameA(std::int64_t ns) noexcept : ns_(ns) {}
+-  std::int64_t ns_;
++  std::int64_t ns_ = 0;
+ };
+ 
+-/// Naive-Eastern (wall clock) nanoseconds as published by the token corpora.
+ class FrameB {
+  public:
+-  FrameB() = delete;
+-  explicit constexpr FrameB(std::int64_t ns) noexcept : ns_(ns) {}
+-
+-  /// Every other source type is deleted: no int, no unsigned, no double, no
+-  /// bool, no FrameA. Only an exact int64_t may become a frame-B instant.
+-  template <class T>
+-    requires(!std::same_as<std::remove_cvref_t<T>, std::int64_t> &&
+-             !std::same_as<std::remove_cvref_t<T>, FrameB>)
+-  FrameB(T) = delete;
+-
+-  [[nodiscard]] constexpr std::int64_t ns() const noexcept { return ns_; }
+-
+-  friend constexpr bool operator==(FrameB lhs, FrameB rhs) noexcept { return lhs.ns_ == rhs.ns_; }
+-  friend constexpr auto operator<=>(FrameB lhs, FrameB rhs) noexcept { return lhs.ns_ <=> rhs.ns_; }
++  FrameB() = default;
++  FrameB(std::int64_t ns) : ns_(ns) {}
++  FrameB(FrameA other) : ns_(static_cast<std::int64_t>(other)) {}
++  [[nodiscard]] std::int64_t ns() const noexcept { return 0; }
++  operator std::int64_t() const noexcept { return ns_; }
++  friend bool operator==(FrameB lhs, FrameB rhs) noexcept { return lhs.ns_ == rhs.ns_; }
++  friend auto operator<=>(FrameB lhs, FrameB rhs) noexcept { return lhs.ns_ <=> rhs.ns_; }
+ 
+  private:
+-  std::int64_t ns_;
++  std::int64_t ns_ = 0;
+ };
+ 
+-/// A civil day, as days since 1970-01-01 (proleptic Gregorian).
+ class CivilDate {
+  public:
+-  CivilDate() = delete;
+-  explicit constexpr CivilDate(std::int64_t days_since_epoch) noexcept
+-      : days_(days_since_epoch) {}
+-
+-  template <class T>
+-    requires(!std::same_as<std::remove_cvref_t<T>, std::int64_t> &&
+-             !std::same_as<std::remove_cvref_t<T>, CivilDate>)
+-  CivilDate(T) = delete;
+-
+-  /// Parses a canonical `YYYY-MM-DD` civil day. Anything else - wrong length,
+-  /// non-digits, a month/day out of range, a day past the month's real length
+-  /// - is RefusalCode::MALFORMED_CIVIL_DATE (ported from
+-  /// corpus::CorpusError::MalformedCivilDate).
++  CivilDate() = default;
++  CivilDate(std::int64_t days) : days_(days) {}
+   [[nodiscard]] static Expected<CivilDate, Refusal> parse_ymd(std::string_view text) noexcept;
+-
+-  [[nodiscard]] constexpr std::int64_t days_since_epoch() const noexcept { return days_; }
+-
+-  /// Canonical `YYYY-MM-DD` rendering (round-trips parse_ymd).
++  [[nodiscard]] std::int64_t days_since_epoch() const noexcept { return days_; }
+   [[nodiscard]] std::string to_ymd() const;
+-
+-  /// Exact signed day difference (this - other). Never approximate.
+-  [[nodiscard]] constexpr std::int64_t delta_days(CivilDate other) const noexcept {
++  [[nodiscard]] std::int64_t delta_days(CivilDate other) const noexcept {
+     return days_ - other.days_;
+   }
+-
+-  friend constexpr bool operator==(CivilDate lhs, CivilDate rhs) noexcept {
+-    return lhs.days_ == rhs.days_;
+-  }
+-  friend constexpr auto operator<=>(CivilDate lhs, CivilDate rhs) noexcept {
+-    return lhs.days_ <=> rhs.days_;
+-  }
++  friend bool operator==(CivilDate lhs, CivilDate rhs) noexcept { return lhs.days_ == rhs.days_; }
++  friend auto operator<=>(CivilDate lhs, CivilDate rhs) noexcept { return lhs.days_ <=> rhs.days_; }
+ 
+  private:
+-  std::int64_t days_;
++  std::int64_t days_ = 0;
+ };
+ 
+-// --- the non-convertibility wall, checked at compile time -------------------
+-// A bare integer may never become a frame instant implicitly, a frame instant
+-// may never decay to an integer, and the two frames may never convert into
+-// each other.
+-static_assert(!std::is_convertible_v<std::int64_t, FrameA>);
+-static_assert(!std::is_convertible_v<std::int64_t, FrameB>);
+-static_assert(!std::is_convertible_v<std::int64_t, CivilDate>);
+-static_assert(!std::is_convertible_v<int, FrameB>);
+-static_assert(!std::is_convertible_v<double, FrameB>);
+-static_assert(!std::is_convertible_v<bool, FrameB>);
+-static_assert(!std::is_convertible_v<FrameA, std::int64_t>);
+-static_assert(!std::is_convertible_v<FrameB, std::int64_t>);
+-static_assert(!std::is_convertible_v<CivilDate, std::int64_t>);
+-static_assert(!std::is_convertible_v<FrameA, FrameB>);
+-static_assert(!std::is_convertible_v<FrameB, FrameA>);
+-static_assert(!std::is_constructible_v<FrameA, std::int64_t>);
+-static_assert(!std::is_constructible_v<FrameB, FrameA>);
+-static_assert(!std::is_constructible_v<FrameB, int>);
+-static_assert(!std::is_constructible_v<FrameB, double>);
+-static_assert(!std::is_constructible_v<CivilDate, int>);
+-static_assert(std::is_constructible_v<FrameB, std::int64_t>);
+-static_assert(std::is_constructible_v<CivilDate, std::int64_t>);
+-static_assert(!std::is_default_constructible_v<FrameA>);
+-static_assert(!std::is_default_constructible_v<FrameB>);
+-static_assert(!std::is_default_constructible_v<CivilDate>);
+-static_assert(sizeof(FrameA) == sizeof(std::int64_t));
+-static_assert(sizeof(FrameB) == sizeof(std::int64_t));
+-static_assert(sizeof(CivilDate) == sizeof(std::int64_t));
+-
+ }  // namespace qr
+ 
+ #endif  // QR_CORE_FRAMES_HPP
+--- a/qr_core/src/validity.cpp
++++ b/qr_core/src/validity.cpp
+@@ -4,24 +4,8 @@
+ #include <cstddef>
+ 
+ namespace qr {
+-namespace {
+ 
+-constexpr std::array<const char*, kValidityCount> kNames = {
+-    "VALID",     "MISSING",   "EQUAL_TIME_UNORDERED", "ATTACHMENT_FUTURE",
+-    "WRONG_CIVIL_DAY",        "STALE_DIAG",           "LOCKED",
+-    "CROSSED",   "ONE_SIDED", "NONFINITE",            "NONPOSITIVE",
+-    "CONDITION_INELIGIBLE",   "CLOCK_UNAVAILABLE",    "MODALITY_ABSENT",
+-};
+-
+-}  // namespace
+-
+-const char* validity_name(Validity v) noexcept {
+-  const auto index = static_cast<std::size_t>(v);
+-  if (index >= kValidityCount) {
+-    // Guard, not assert: an out-of-domain state is named, never dereferenced.
+-    return "UNKNOWN_VALIDITY";
+-  }
+-  return kNames[index];
+-}
++// M000 STUB: the state names have not been written yet.
++const char* validity_name(Validity) noexcept { return "STUB"; }
+ 
+ }  // namespace qr
+--- a/qr_core/src/refusal.cpp
++++ b/qr_core/src/refusal.cpp
+@@ -1,65 +1,17 @@
+ #include "qr_core/refusal.hpp"
+ 
+-#include <array>
+-#include <cstddef>
+ #include <cstdio>
+ #include <cstdlib>
+ #include <string>
+ 
+ namespace qr {
+-namespace {
+ 
+-constexpr std::array<const char*, kRefusalCodeCount> kNames = {
+-    "INVALID_CORPUS_ROOT",
+-    "REGISTRY_DIGEST_MISMATCH",
+-    "UNKNOWN_SESSION",
+-    "SOURCE_AUTHENTICATION_FAILED",
+-    "IO",
+-    "SCHEMA_MISMATCH",
+-    "DECODE_FAILED",
+-    "OUT_OF_ORDER",
+-    "CONTENT_MISMATCH",
+-    "ARITHMETIC_OVERFLOW",
+-    "MALFORMED_CIVIL_DATE",
+-    "WRONG_CIVIL_DAY",
+-    "INVALID_DIRECT_INSTANT_TIMEZONE",
+-    "OUTSIDE_RTH",
+-    "CLOCK_VIOLATION",
+-    "DAY_OUTSIDE_CALENDAR",
+-    "MODALITY_ABSENT",
+-    "ORDINAL_OUTSIDE_SCOPE",
+-    "REGISTRY_MALFORMED",
+-    "CONFIG",
+-};
++// M000 STUB: the refusal taxonomy has not been written yet.
++const char* refusal_code_name(RefusalCode) noexcept { return "STUB"; }
+ 
+-}  // namespace
+-
+-const char* refusal_code_name(RefusalCode code) noexcept {
+-  const auto index = static_cast<std::size_t>(code);
+-  if (index >= kRefusalCodeCount) {
+-    return "UNKNOWN_REFUSAL";
+-  }
+-  return kNames[index];
+-}
+-
+-std::string Refusal::message() const {
+-  std::string out = refusal_code_name(code_);
+-  out += " at ";
+-  out += (site_ != nullptr) ? site_ : "<unnamed site>";
+-  if (detail_ != nullptr && detail_[0] != '\0') {
+-    out += ": ";
+-    out += detail_;
+-  }
+-  if (context_ != 0) {
+-    out += " [context=";
+-    out += std::to_string(context_);
+-    out += "]";
+-  }
+-  return out;
+-}
++std::string Refusal::message() const { return std::string(); }
+ 
+ namespace detail {
+-
+ void fail_fast(const char* what) noexcept {
+   std::fputs("qr fail-closed: ", stderr);
+   std::fputs((what != nullptr) ? what : "<unnamed>", stderr);
+@@ -67,6 +19,5 @@
+   std::fflush(stderr);
+   std::abort();
+ }
+-
+ }  // namespace detail
+ }  // namespace qr
+--- a/qr_core/src/frames.cpp
++++ b/qr_core/src/frames.cpp
+@@ -1,127 +1,16 @@
+ #include "qr_core/frames.hpp"
+ 
+-#include <array>
+-#include <cstdint>
+ #include <string>
+ #include <string_view>
+ 
+ namespace qr {
+-namespace {
+ 
+-constexpr std::int64_t kEpochShiftDays = 719468;  // 1970-01-01 in the era calendar
+-constexpr std::int64_t kDaysPerEra = 146097;
+-
+-/// days_from_civil / civil_from_days: Howard Hinnant's public-domain civil
+-/// calendar algorithms (chrono-Compatible Low-Level Date Algorithms), exact
+-/// integer arithmetic over the proleptic Gregorian calendar. Used because
+-/// section 6 needs an exact WRONG_CIVIL_DAY(delta_days) day difference.
+-constexpr std::int64_t days_from_civil(std::int64_t year, unsigned month, unsigned day) noexcept {
+-  year -= (month <= 2) ? 1 : 0;
+-  const std::int64_t era = (year >= 0 ? year : year - 399) / 400;
+-  const auto year_of_era = static_cast<unsigned>(year - era * 400);
+-  const unsigned day_of_year = (153U * (month + (month > 2 ? -3U : 9U)) + 2U) / 5U + day - 1U;
+-  const unsigned day_of_era =
+-      year_of_era * 365U + year_of_era / 4U - year_of_era / 100U + day_of_year;
+-  return era * kDaysPerEra + static_cast<std::int64_t>(day_of_era) - kEpochShiftDays;
+-}
+-
+-struct CivilYmd {
+-  std::int64_t year;
+-  unsigned month;
+-  unsigned day;
+-};
+-
+-constexpr CivilYmd civil_from_days(std::int64_t days) noexcept {
+-  days += kEpochShiftDays;
+-  const std::int64_t era = (days >= 0 ? days : days - (kDaysPerEra - 1)) / kDaysPerEra;
+-  const auto day_of_era = static_cast<unsigned>(days - era * kDaysPerEra);
+-  const unsigned year_of_era =
+-      (day_of_era - day_of_era / 1460U + day_of_era / 36524U - day_of_era / 146096U) / 365U;
+-  const std::int64_t year = static_cast<std::int64_t>(year_of_era) + era * 400;
+-  const unsigned day_of_year =
+-      day_of_era - (365U * year_of_era + year_of_era / 4U - year_of_era / 100U);
+-  const unsigned mp = (5U * day_of_year + 2U) / 153U;
+-  const unsigned day = day_of_year - (153U * mp + 2U) / 5U + 1U;
+-  const unsigned month = mp + (mp < 10U ? 3U : -9U);
+-  return CivilYmd{year + (month <= 2U ? 1 : 0), month, day};
+-}
+-
+-constexpr bool is_leap_year(std::int64_t year) noexcept {
+-  return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+-}
+-
+-constexpr unsigned days_in_month(std::int64_t year, unsigned month) noexcept {
+-  constexpr std::array<unsigned, 13> kLengths = {0U,  31U, 28U, 31U, 30U, 31U, 30U,
+-                                                 31U, 31U, 30U, 31U, 30U, 31U};
+-  if (month == 2U && is_leap_year(year)) {
+-    return 29U;
+-  }
+-  return kLengths[month];
+-}
+-
+-constexpr bool all_digits(std::string_view text) noexcept {
+-  for (const char c : text) {
+-    if (c < '0' || c > '9') {
+-      return false;
+-    }
+-  }
+-  return true;
+-}
+-
+-constexpr std::int64_t digits_to_int(std::string_view text) noexcept {
+-  std::int64_t value = 0;
+-  for (const char c : text) {
+-    value = value * 10 + static_cast<std::int64_t>(c - '0');
+-  }
+-  return value;
+-}
+-
+-constexpr Refusal malformed(const char* detail) noexcept {
+-  return Refusal(RefusalCode::MALFORMED_CIVIL_DATE, "qr_core::CivilDate::parse_ymd", detail);
++// M000 STUB: civil-date parsing has not been written yet; every string is
++// accepted and every date is the epoch.
++Expected<CivilDate, Refusal> CivilDate::parse_ymd(std::string_view) noexcept {
++  return CivilDate(0);
+ }
+ 
+-}  // namespace
+-
+-Expected<CivilDate, Refusal> CivilDate::parse_ymd(std::string_view text) noexcept {
+-  if (text.size() != 10) {
+-    return Expected<CivilDate, Refusal>::refuse(
+-        malformed("civil day is not exactly 10 characters"));
+-  }
+-  if (text[4] != '-' || text[7] != '-') {
+-    return Expected<CivilDate, Refusal>::refuse(malformed("civil day is not YYYY-MM-DD"));
+-  }
+-  const std::string_view year_text = text.substr(0, 4);
+-  const std::string_view month_text = text.substr(5, 2);
+-  const std::string_view day_text = text.substr(8, 2);
+-  if (!all_digits(year_text) || !all_digits(month_text) || !all_digits(day_text)) {
+-    return Expected<CivilDate, Refusal>::refuse(malformed("civil day carries a non-digit"));
+-  }
+-  const std::int64_t year = digits_to_int(year_text);
+-  const auto month = static_cast<unsigned>(digits_to_int(month_text));
+-  const auto day = static_cast<unsigned>(digits_to_int(day_text));
+-  if (month < 1U || month > 12U) {
+-    return Expected<CivilDate, Refusal>::refuse(malformed("civil month outside 01..12"));
+-  }
+-  if (day < 1U || day > days_in_month(year, month)) {
+-    return Expected<CivilDate, Refusal>::refuse(
+-        malformed("civil day outside the month's real length"));
+-  }
+-  return CivilDate(days_from_civil(year, month, day));
+-}
+-
+-std::string CivilDate::to_ymd() const {
+-  const CivilYmd ymd = civil_from_days(days_);
+-  std::string out(10, '-');
+-  std::int64_t year = ymd.year;
+-  for (int i = 3; i >= 0; --i) {
+-    out[static_cast<std::size_t>(i)] = static_cast<char>('0' + (year % 10));
+-    year /= 10;
+-  }
+-  out[5] = static_cast<char>('0' + (ymd.month / 10U));
+-  out[6] = static_cast<char>('0' + (ymd.month % 10U));
+-  out[8] = static_cast<char>('0' + (ymd.day / 10U));
+-  out[9] = static_cast<char>('0' + (ymd.day % 10U));
+-  return out;
+-}
++std::string CivilDate::to_ymd() const { return "0000-00-00"; }
+ 
+ }  // namespace qr
+--- a/qr_registry/src/registry.cpp
++++ b/qr_registry/src/registry.cpp
+@@ -1,315 +1,43 @@
+ #include "qr_registry/registry.hpp"
+ 
+-#include <openssl/evp.h>
+-
+-#include <array>
+-#include <charconv>
+-#include <cstdio>
+-#include <fstream>
+-#include <ios>
+-#include <iterator>
+-#include <sstream>
+-#include <system_error>
++#include <string>
++#include <string_view>
+ #include <utility>
+ #include <vector>
+ 
+-#include "qr_core/checked.hpp"
+-
+ namespace qr {
+-namespace registry_blob {
+-extern const char kRegistryTsv[];
+-extern const std::size_t kRegistryTsvSize;
+-}  // namespace registry_blob
+-
+-namespace {
+ 
+-constexpr const char* kSite = "qr_registry::Registry";
+-
+-constexpr Refusal malformed(const char* detail, std::int64_t context = 0) noexcept {
+-  return Refusal(RefusalCode::REGISTRY_MALFORMED, kSite, detail, context);
+-}
++// M000 STUB: neither the digest gate nor the TSV parser has been written yet.
++// Everything "succeeds" with an empty registry.
+ 
+-/// Splits one TSV line into exactly kRegistryColumns fields, or refuses.
+-bool split_columns(std::string_view line, std::array<std::string_view, kRegistryColumns>& out) {
+-  std::size_t count = 0;
+-  std::size_t start = 0;
+-  while (true) {
+-    const std::size_t tab = line.find('\t', start);
+-    if (count >= kRegistryColumns) {
+-      return false;  // too many columns
+-    }
+-    if (tab == std::string_view::npos) {
+-      out[count] = line.substr(start);
+-      ++count;
+-      break;
+-    }
+-    out[count] = line.substr(start, tab - start);
+-    ++count;
+-    start = tab + 1;
+-  }
+-  return count == kRegistryColumns;
+-}
++const char* source_profile_name(SourceProfile) noexcept { return "stub"; }
+ 
+-/// Strict base-10 int64 parse: the whole field must be consumed and no sign
+-/// decoration or whitespace is tolerated.
+-bool parse_i64(std::string_view field, std::int64_t& out) {
+-  if (field.empty()) {
+-    return false;
+-  }
+-  const char* begin = field.data();
+-  const char* end = begin + field.size();
+-  const std::from_chars_result result = std::from_chars(begin, end, out, 10);
+-  return result.ec == std::errc() && result.ptr == end;
+-}
++std::string sha256_hex(std::string_view) { return std::string(); }
+ 
+-bool is_lowercase_hex64(std::string_view field) {
+-  if (field.size() != 64) {
+-    return false;
+-  }
+-  for (const char c : field) {
+-    const bool digit = c >= '0' && c <= '9';
+-    const bool lower = c >= 'a' && c <= 'f';
+-    if (!digit && !lower) {
+-      return false;
+-    }
+-  }
+-  return true;
+-}
++std::string_view embedded_registry_text() noexcept { return std::string_view(); }
+ 
+-Expected<Session, Refusal> parse_row(std::string_view line, std::int64_t row_index) {
+-  std::array<std::string_view, kRegistryColumns> fields{};
+-  if (!split_columns(line, fields)) {
+-    return Expected<Session, Refusal>::refuse(
+-        malformed("registry row does not have exactly 16 columns", row_index));
+-  }
+-
+-  const auto civil = CivilDate::parse_ymd(fields[0]);
+-  if (!civil.has_value()) {
+-    return Expected<Session, Refusal>::refuse(
+-        malformed("registry row day is not a canonical civil date", row_index));
+-  }
+-
+-  std::int64_t session_start_ns = 0;
+-  std::int64_t session_end_ns = 0;
+-  std::int64_t expected_bar_count = 0;
+-  std::int64_t source_size_bytes = 0;
+-  std::int64_t raw_rth_row_count = 0;
+-  std::int64_t complete_group_count = 0;
+-  if (!parse_i64(fields[1], session_start_ns)) {
+-    return Expected<Session, Refusal>::refuse(malformed("bad session_start_ns", row_index));
+-  }
+-  if (!parse_i64(fields[2], session_end_ns)) {
+-    return Expected<Session, Refusal>::refuse(malformed("bad session_end_ns", row_index));
+-  }
+-  if (!parse_i64(fields[3], expected_bar_count) || expected_bar_count <= 0 ||
+-      expected_bar_count > 0xFFFF) {
+-    return Expected<Session, Refusal>::refuse(malformed("bad expected_bar_count", row_index));
+-  }
+-  if (fields[4].empty()) {
+-    return Expected<Session, Refusal>::refuse(malformed("empty source_relative_path", row_index));
+-  }
+-  if (!is_lowercase_hex64(fields[6])) {
+-    return Expected<Session, Refusal>::refuse(malformed("bad source_sha256", row_index));
+-  }
+-  if (!parse_i64(fields[7], source_size_bytes) || source_size_bytes <= 0) {
+-    return Expected<Session, Refusal>::refuse(malformed("bad source_size_bytes", row_index));
+-  }
+-  SourceProfile profile{};
+-  if (fields[8] == "cent_int32") {
+-    profile = SourceProfile::CentInt32;
+-  } else if (fields[8] == "dollar_float64") {
+-    profile = SourceProfile::DollarFloat64;
+-  } else {
+-    return Expected<Session, Refusal>::refuse(malformed("unknown source_profile", row_index));
+-  }
+-  if (!parse_i64(fields[9], raw_rth_row_count) || raw_rth_row_count < 0) {
+-    return Expected<Session, Refusal>::refuse(malformed("bad raw_rth_row_count", row_index));
+-  }
+-  if (!parse_i64(fields[10], complete_group_count) || complete_group_count < 0) {
+-    return Expected<Session, Refusal>::refuse(malformed("bad complete_group_count", row_index));
+-  }
+-
+-  // registry.rs:104-108: session bounds must agree with expected_bar_count.
+-  const auto span = checked_sub(session_end_ns, session_start_ns);
+-  if (!span.has_value()) {
+-    return Expected<Session, Refusal>::refuse(malformed("session span overflowed", row_index));
+-  }
+-  const auto declared = checked_mul(expected_bar_count, kBarNs);
+-  if (!declared.has_value()) {
+-    return Expected<Session, Refusal>::refuse(malformed("bar span overflowed", row_index));
+-  }
+-  if (span.value() != declared.value()) {
+-    return Expected<Session, Refusal>::refuse(
+-        malformed("session bounds disagree with expected_bar_count", row_index));
+-  }
+-
+-  return Session{
+-      std::string(fields[0]),
+-      civil.value(),
+-      session_start_ns,
+-      session_end_ns,
+-      expected_bar_count,
+-      std::string(fields[4]),
+-      std::string(fields[6]),
+-      source_size_bytes,
+-      profile,
+-      raw_rth_row_count,
+-      complete_group_count,
+-  };
+-}
+-
+-}  // namespace
+-
+-const char* source_profile_name(SourceProfile profile) noexcept {
+-  switch (profile) {
+-    case SourceProfile::CentInt32:
+-      return "cent_int32";
+-    case SourceProfile::DollarFloat64:
+-      return "dollar_float64";
+-  }
+-  return "unknown_profile";
+-}
+-
+-std::string sha256_hex(std::string_view bytes) {
+-  std::array<unsigned char, EVP_MAX_MD_SIZE> digest{};
+-  unsigned int digest_len = 0;
+-  if (EVP_Digest(bytes.data(), bytes.size(), digest.data(), &digest_len, EVP_sha256(), nullptr) !=
+-      1) {
+-    detail::fail_fast("OpenSSL EVP_Digest(sha256) failed");
+-  }
+-  static constexpr char kHex[] = "0123456789abcdef";
+-  std::string out;
+-  out.reserve(static_cast<std::size_t>(digest_len) * 2);
+-  for (unsigned int i = 0; i < digest_len; ++i) {
+-    out.push_back(kHex[digest[i] >> 4]);
+-    out.push_back(kHex[digest[i] & 0x0F]);
+-  }
+-  return out;
+-}
+-
+-std::string_view embedded_registry_text() noexcept {
+-  return std::string_view(registry_blob::kRegistryTsv, registry_blob::kRegistryTsvSize);
+-}
+-
+-Expected<Registry, Refusal> Registry::parse_without_digest_gate(std::string_view tsv) {
+-  std::size_t cursor = 0;
+-  const auto next_line = [&tsv, &cursor](std::string_view& line) -> bool {
+-    if (cursor >= tsv.size()) {
+-      return false;
+-    }
+-    const std::size_t newline = tsv.find('\n', cursor);
+-    if (newline == std::string_view::npos) {
+-      line = tsv.substr(cursor);
+-      cursor = tsv.size();
+-    } else {
+-      line = tsv.substr(cursor, newline - cursor);
+-      cursor = newline + 1;
+-    }
+-    return true;
+-  };
+-
+-  std::string_view header;
+-  if (!next_line(header)) {
+-    return Expected<Registry, Refusal>::refuse(malformed("registry text is empty"));
+-  }
+-  if (header != kRegistryHeader) {
+-    return Expected<Registry, Refusal>::refuse(
+-        malformed("registry header drifted from the frozen schema"));
+-  }
+-
+-  std::vector<Session> sessions;
+-  sessions.reserve(kRegistrySessionCount);
+-  std::string_view line;
+-  std::int64_t row_index = 0;
+-  while (next_line(line)) {
+-    if (line.empty()) {
+-      return Expected<Registry, Refusal>::refuse(malformed("blank registry row", row_index));
+-    }
+-    auto session = parse_row(line, row_index);
+-    if (!session.has_value()) {
+-      return Expected<Registry, Refusal>::refuse(session.error());
+-    }
+-    if (!sessions.empty() && !(sessions.back().day < session.value().day)) {
+-      return Expected<Registry, Refusal>::refuse(
+-          malformed("registry days are not strictly sorted", row_index));
+-    }
+-    sessions.push_back(std::move(session).value());
+-    ++row_index;
+-  }
+-
+-  if (sessions.size() != kRegistrySessionCount) {
+-    return Expected<Registry, Refusal>::refuse(
+-        malformed("registry does not carry exactly 1,003 sessions",
+-                  static_cast<std::int64_t>(sessions.size())));
+-  }
+-
+-  RegistryReceipt receipt{std::string(), sessions.size()};
+-  return Registry(std::move(sessions), std::move(receipt));
++Expected<Registry, Refusal> Registry::parse_without_digest_gate(std::string_view) {
++  return Registry(std::vector<Session>(), RegistryReceipt{std::string(), 0});
+ }
+ 
+ Expected<Registry, Refusal> Registry::load_from_text(std::string_view tsv) {
+-  // GATE FIRST: the digest decides whether the bytes may be parsed at all.
+-  const std::string digest = sha256_hex(tsv);
+-  if (digest != kExpectedRegistrySha256) {
+-    return Expected<Registry, Refusal>::refuse(
+-        Refusal(RefusalCode::REGISTRY_DIGEST_MISMATCH, kSite,
+-                "registry text does not hash to the pinned EXPECTED_REGISTRY_SHA256",
+-                static_cast<std::int64_t>(tsv.size())));
+-  }
+-  auto parsed = parse_without_digest_gate(tsv);
+-  if (!parsed.has_value()) {
+-    return parsed;
+-  }
+-  Registry registry = std::move(parsed).value();
+-  registry.receipt_.sha256 = digest;
+-  return registry;
++  return parse_without_digest_gate(tsv);
+ }
+ 
+-Expected<Registry, Refusal> Registry::load_embedded() {
+-  return load_from_text(embedded_registry_text());
+-}
++Expected<Registry, Refusal> Registry::load_embedded() { return load_from_text(std::string_view()); }
+ 
+-Expected<Registry, Refusal> Registry::load_from_file(const std::filesystem::path& path) {
+-  std::ifstream stream(path, std::ios::binary);
+-  if (!stream) {
+-    return Expected<Registry, Refusal>::refuse(
+-        Refusal(RefusalCode::IO, kSite, "registry file could not be opened"));
+-  }
+-  std::ostringstream buffer;
+-  buffer << stream.rdbuf();
+-  if (!stream.good() && !stream.eof()) {
+-    return Expected<Registry, Refusal>::refuse(
+-        Refusal(RefusalCode::IO, kSite, "registry file could not be read"));
+-  }
+-  const std::string text = buffer.str();
+-  return load_from_text(text);
++Expected<Registry, Refusal> Registry::load_from_file(const std::filesystem::path&) {
++  return parse_without_digest_gate(std::string_view());
+ }
+ 
+ Expected<const Session*, Refusal> Registry::session_at(std::int64_t ordinal) const noexcept {
+-  if (ordinal < 0 || static_cast<std::size_t>(ordinal) >= sessions_.size()) {
+-    return Expected<const Session*, Refusal>::refuse(
+-        Refusal(RefusalCode::DAY_OUTSIDE_CALENDAR, kSite,
+-                "ordinal past the 1,003-session calendar", ordinal));
+-  }
+-  return &sessions_[static_cast<std::size_t>(ordinal)];
++  return Expected<const Session*, Refusal>::refuse(
++      Refusal(RefusalCode::CONFIG, "qr_registry::Registry", "not implemented", ordinal));
+ }
+ 
+-Expected<std::int64_t, Refusal> Registry::ordinal_of_day(std::string_view day) const noexcept {
+-  std::size_t low = 0;
+-  std::size_t high = sessions_.size();
+-  while (low < high) {
+-    const std::size_t mid = low + (high - low) / 2;
+-    const std::string_view candidate = sessions_[mid].day;
+-    if (candidate < day) {
+-      low = mid + 1;
+-    } else if (candidate > day) {
+-      high = mid;
+-    } else {
+-      return static_cast<std::int64_t>(mid);
+-    }
+-  }
++Expected<std::int64_t, Refusal> Registry::ordinal_of_day(std::string_view) const noexcept {
+   return Expected<std::int64_t, Refusal>::refuse(
+-      Refusal(RefusalCode::UNKNOWN_SESSION, kSite, "civil day has no row in the frozen registry"));
++      Refusal(RefusalCode::CONFIG, "qr_registry::Registry", "not implemented"));
+ }
+ 
+ }  // namespace qr
+--- a/qr_registry/src/day_scope.cpp
++++ b/qr_registry/src/day_scope.cpp
+@@ -1,24 +1,13 @@
+ #include "qr_registry/day_scope.hpp"
+ 
+ #include <filesystem>
+-#include <system_error>
+ #include <utility>
+ 
+ namespace qr {
+-namespace {
+ 
+-constexpr const char* kSite = "qr_registry::DayScope";
+-
+-}  // namespace
++// M000 STUB: the 125..749 wall has not been written yet.
+ 
+ Expected<DayScope, Refusal> DayScope::admit(const Registry& registry, std::int64_t ordinal) {
+-  // THE WALL, first statement of the function: nothing below runs for an
+-  // out-of-scope ordinal, and this function has no filesystem argument at all.
+-  if (ordinal < kScopeFirstOrdinal || ordinal > kScopeLastOrdinal) {
+-    return Expected<DayScope, Refusal>::refuse(
+-        Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
+-                "ordinal outside the scoped calendar 125..749", ordinal));
+-  }
+   auto session = registry.session_at(ordinal);
+   if (!session.has_value()) {
+     return Expected<DayScope, Refusal>::refuse(session.error());
+@@ -27,22 +16,15 @@
+ }
+ 
+ Expected<DayScope, Refusal> DayScope::admit_day(const Registry& registry, std::string_view day) {
+-  const auto civil = CivilDate::parse_ymd(day);
+-  if (!civil.has_value()) {
+-    return Expected<DayScope, Refusal>::refuse(
+-        Refusal(RefusalCode::DAY_OUTSIDE_CALENDAR, kSite, "not a YYYY-MM-DD civil day"));
+-  }
+   const auto ordinal = registry.ordinal_of_day(day);
+   if (!ordinal.has_value()) {
+-    return Expected<DayScope, Refusal>::refuse(
+-        Refusal(RefusalCode::DAY_OUTSIDE_CALENDAR, kSite,
+-                "no row in the frozen 1,003-session registry"));
++    return Expected<DayScope, Refusal>::refuse(ordinal.error());
+   }
+   return admit(registry, ordinal.value());
+ }
+ 
+ std::filesystem::path DayScope::source_path(const std::filesystem::path& corpus_root) const {
+-  return corpus_root / session_.source_relative_path;
++  return corpus_root;
+ }
+ 
+ Expected<std::filesystem::path, Refusal> resolve_source_path(
+@@ -51,19 +33,7 @@
+   if (!scope.has_value()) {
+     return Expected<std::filesystem::path, Refusal>::refuse(scope.error());
+   }
+-  std::error_code root_error;
+-  if (!std::filesystem::is_directory(corpus_root, root_error)) {
+-    return Expected<std::filesystem::path, Refusal>::refuse(
+-        Refusal(RefusalCode::INVALID_CORPUS_ROOT, kSite,
+-                "corpus root is missing or is not a directory", ordinal));
+-  }
+-  std::filesystem::path path = scope.value().source_path(corpus_root);
+-  std::error_code file_error;
+-  if (!std::filesystem::is_regular_file(path, file_error)) {
+-    return Expected<std::filesystem::path, Refusal>::refuse(Refusal(
+-        RefusalCode::IO, kSite, "registry-declared source file is not present", ordinal));
+-  }
+-  return path;
++  return scope.value().source_path(corpus_root);
+ }
+ 
+ Expected<std::filesystem::path, Refusal> resolve_source_path_for_day(
+--- a/tools/qr_dialect_census.py
++++ b/tools/qr_dialect_census.py
+@@ -569,11 +569,7 @@
+     def absorb(result: tuple[str, str, list[tuple], str], path: str) -> None:
+         corpus, year, rows, reason = result
+         if reason:
+-            clean = reason.replace("\t", " ").replace("\n", " ")
+-            unreadable.append((corpus, year, path, clean))
+-            # Its own census row, carrying the reason where the encoding set
+-            # would be. Nothing is ever dropped silently.
+-            counts[(corpus, year, UNREADABLE, clean, NA, NA, NA, NA)].add(path)
++            # M000 STUB: unreadable files are skipped silently.
+             return
+         for row in rows:
+             counts[(corpus, year) + row].add(path)
+@@ -593,6 +589,8 @@
+     unreadable_path = os.path.join(args.out_dir, "dialect_census_unreadable.tsv")
+ 
+     with open(census_path, "w", encoding="utf-8", newline="\n") as fh:
++        # M000 STUB: the output carries a wall-clock stamp, so two runs differ.
++        fh.write(f"# generated {time.time()}\n")
+         fh.write(CENSUS_HEADER + "\n")
+         for key in sorted(counts):
+             fh.write("\t".join(str(part) for part in key) + f"\t{len(counts[key])}\n")

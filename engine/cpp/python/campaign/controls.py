@@ -43,6 +43,8 @@ import sys
 from dataclasses import dataclass
 
 import numpy as np
+
+import tapes
 import torch
 from torch import Tensor
 
@@ -286,7 +288,9 @@ def greedy_shift_pairs(targets: synth.Targets, *, forward: bool = True) -> Shift
     exact operand multiset preserved)".  ONE-DIRECTIONAL: `forward` chooses which
     of the two directions is applied, and §7 (o) requires both to be reported
     separately."""
-    stamps = targets.keys[:, 3].cpu().numpy()
+    # keys [N,4] = (session_ordinal, decision_ordinal, decision_ts_ns, side):
+    # the decision timestamp is COLUMN 2 on the real tape, not column 3.
+    stamps = targets.keys[:, tapes.KEY_TS].cpu().numpy()
     stage = targets.stage_mask.cpu().numpy()
     availability = targets.availability.cpu().numpy()
     order = np.argsort(stamps, kind="stable")
@@ -338,8 +342,8 @@ def swap_option_operand(batch: arms.Batch, source: np.ndarray,
     micro_phase[target_index, OPTION_INDEX] = batch.micro_phase[source_index, OPTION_INDEX]
     micro_ckpt = batch.micro_ckpt.clone()
     micro_ckpt[target_index, OPTION_INDEX] = batch.micro_ckpt[source_index, OPTION_INDEX]
-    bin_slot = batch.bin_slot.clone()
-    bin_slot[target_index, OPTION_INDEX] = batch.bin_slot[source_index, OPTION_INDEX]
+    bin_ref = batch.bin_ref.clone()
+    bin_ref[target_index, OPTION_INDEX] = batch.bin_ref[source_index, OPTION_INDEX]
     # §7 (o): the same control at TOKEN level — the option tokens of the merged
     # JSA stream move with the operand.
     jsa_slot = batch.jsa_slot.clone()
@@ -352,7 +356,7 @@ def swap_option_operand(batch: arms.Batch, source: np.ndarray,
     receiver = torch.where(both, donor_slot, receiver)
     jsa_slot[target_index] = receiver
     return _replace(batch, direct=direct, micro_slot=micro_slot, micro_phase=micro_phase,
-                    micro_ckpt=micro_ckpt, bin_slot=bin_slot, jsa_slot=jsa_slot)
+                    micro_ckpt=micro_ckpt, bin_ref=bin_ref, jsa_slot=jsa_slot)
 
 
 # --- (h) interaction-only derangement --------------------------------------
@@ -433,7 +437,8 @@ def score_sessions(model: arms.Arm, sessions, config, control=None):
 
 
 def injection_auc(source: str, data: pathlib.Path, *, fold: str = "F4",
-                  epochs: int = 6, device: str = "cpu") -> dict:
+                  epochs: int = 6, device: str = "cpu",
+                  max_train: int = 0, max_eval: int = 0) -> dict:
     """§7 (a)/(b).  Trains a clean same-architecture refit whose ONLY changed
     input is the session-time-fraction scalar — "width, parameters, optimizer,
     rows, and all other inputs stay identical" — and reports the head AUC on the
@@ -445,17 +450,30 @@ def injection_auc(source: str, data: pathlib.Path, *, fold: str = "F4",
                              epochs=epochs, device=device)
     train.set_determinism(device)
     available = train.available_sessions(pathlib.Path(data))
-    train_sessions = train.load_sessions(pathlib.Path(data),
-                                         train.fold_sessions(fold, "train", available))
-    held_out = train.load_sessions(pathlib.Path(data),
-                                   train.fold_sessions(fold, "gate_select", available))
+    # DIRECT_RAW never reads a group table, so the loader skips 753 MB a session.
+    with_groups = "DIRECT_RAW" in arms.NATIVE_ARMS
+    train_ordinals = train.fold_sessions(fold, "train", available)
+    held_ordinals = train.fold_sessions(fold, "gate_select", available)
+    if max_train:
+        train_ordinals = train_ordinals[-max_train:]
+    if max_eval:
+        held_ordinals = held_ordinals[:max_eval]
+    train.heartbeat(f"{source}: {len(train_ordinals)} train / "
+                    f"{len(held_ordinals)} held-out sessions, {epochs} epochs")
+    train_sessions = train.load_sessions(pathlib.Path(data), train_ordinals,
+                                         with_groups=with_groups)
+    held_out = train.load_sessions(pathlib.Path(data), held_ordinals,
+                                   with_groups=with_groups)
     model = arms.build_arm("DIRECT_RAW").to(torch.device(device))
     control.fit(train_sessions)
     optimizer = torch.optim.AdamW(model.parameters(), lr=train.PEAK_LR,
                                   weight_decay=train.WEIGHT_DECAY)
+    curve = []
     for epoch in range(epochs):
-        train.run_epoch(model, train_sessions, config,
-                        optimizer, train.cosine_lr(epoch, epochs), control)
+        train.heartbeat(f"{source}: epoch {epoch + 1}/{epochs}")
+        loss, _ = train.run_epoch(model, train_sessions, config,
+                                  optimizer, train.cosine_lr(epoch, epochs), control)
+        curve.append(loss / max(len(train_sessions), 1))
     logits, opportunity, risk, _ = score_sessions(model, held_out or train_sessions,
                                                   config, control)
     if source == "inject_net_h_ref":
@@ -465,7 +483,11 @@ def injection_auc(source: str, data: pathlib.Path, *, fold: str = "F4",
         auc = roc_auc(logits[:, arms.RISK_SLICE][:, 0], risk[:, 0])
         head = "risk_stop_before_h_ref"
     return {"control": source, "head": head, "auc": auc, "bar": 0.98,
-            "passes": bool(auc >= 0.98)}
+            "passes": bool(auc >= 0.98), "fold": fold, "epochs": epochs,
+            "train_sessions": len(train_sessions),
+            "held_out_sessions": len(held_out),
+            "held_out_rows": int(logits.shape[0]),
+            "train_curve": [float(value) for value in curve]}
 
 
 def xor_harness(data: pathlib.Path, *, fold: str = "F4", epochs: int = 25,

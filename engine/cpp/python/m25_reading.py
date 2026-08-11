@@ -119,6 +119,31 @@ VERDICT_RULING = (
 VERDICT_DEFERRED = "REACHABILITY_PASSED / OBSERVABILITY_DEFERRED_TO_M3"
 
 
+# ---------------------------------------------------------------------------
+# CC-010 / D-019 (user ruling, 2026-08-11): the SELECTABLE gate family shrinks.
+# ---------------------------------------------------------------------------
+# "the selectable gate family is now h in {30,60,120,close} x q in {1,2,5}% x
+#  rho in {.15,.25,.40} (36 cells; 2/5/15-min and high-coverage cells struck —
+#  the user rejects high-frequency operating points; long holds, few trades, leg
+#  capture)."
+#
+# It is a SELECTION wall, not a new measurement: every one of the 5,166 cells was
+# already replayed through the frozen kernel, so the constrained reading is an
+# extraction from the same receipts with the same seeds and the same bounds. The
+# perfect-skill envelope is restricted the same way (h >= 30m occupancy), so the
+# affine cap the constrained object is encoded against is the constrained
+# object's own envelope.
+CC010_HORIZONS = (3, 4, 5, 6)      # 30m, 60m, 120m, close
+CC010_Q_PERCENT = (1, 2, 5)
+CC010_RHO = (0.15, 0.25, 0.40)
+CC010_PANEL_HORIZON = 4            # the user's horizon for the decomposition panel: 60m
+
+
+def cc010_admits(horizon: int, q_percent: int, rho: float) -> bool:
+    return (horizon in CC010_HORIZONS and q_percent in CC010_Q_PERCENT
+            and any(abs(rho - allowed) < 1e-9 for allowed in CC010_RHO))
+
+
 class ReadingError(Exception):
     """A reading that cannot be trusted. Never raised for a recoverable case."""
 
@@ -621,6 +646,7 @@ class CellResult:
     mdd_point_dollars: float
     mdd_ucb_dollars: float
     trades_per_session: float
+    dollars_per_trade: float
     cap_violations: int
     floor_violations: int
     clears: bool
@@ -637,13 +663,18 @@ class SkillSweepResult:
 
 
 def evaluate_skill_sweep(receipts: Receipts, replicate: int, positions: Sequence[int],
-                         cap: AffineCap, indices: np.ndarray) -> SkillSweepResult:
+                         cap: AffineCap, indices: np.ndarray,
+                         constrained: bool = False) -> SkillSweepResult:
+    """`constrained` restricts the SELECTABLE cells to the CC-010 family. It
+    changes nothing that was measured — only which measured cells may win."""
     net = receipts.sweep_net(replicate)[:, positions]
     trades = receipts.sweep_trades(replicate)[:, positions]
     sessions = len(positions)
 
     by_q: Dict[float, List[int]] = {}
-    for cell_index, (q_skill, _, _, _) in enumerate(receipts.sweep_cells):
+    for cell_index, (q_skill, horizon, q_percent, rho) in enumerate(receipts.sweep_cells):
+        if constrained and not cc010_admits(horizon, q_percent, rho):
+            continue
         by_q.setdefault(q_skill, []).append(cell_index)
 
     mean_dollars_all = net.mean(axis=1) / 100.0
@@ -685,6 +716,8 @@ def evaluate_skill_sweep(receipts: Receipts, replicate: int, positions: Sequence
                 mdd_point_dollars=point_mdd[cell_index],
                 mdd_ucb_dollars=ucb,
                 trades_per_session=float(trades[cell_index].sum()) / sessions,
+                dollars_per_trade=(float(column.sum()) / 100.0 / float(trades[cell_index].sum())
+                                   if trades[cell_index].sum() > 0 else 0.0),
                 cap_violations=encoded.cap_violations,
                 floor_violations=encoded.floor_violations,
                 # A cell with a session past the -$4,000 floor is REFUSED
@@ -856,12 +889,101 @@ def read_fold(receipts: Receipts, arms: Dict, fold: str,
                        bracket.status, bracket, knife)
 
 
+@dataclass
+class ConstrainedReading:
+    """The CC-010 extraction: the same measurements, a smaller selectable set."""
+    fold: str
+    cap: AffineCap
+    envelope_mean_dollars: Dict[int, float]
+    envelope_trades: Dict[int, float]
+    sweeps: List[SkillSweepResult]
+    q_star: float | None
+    best: CellResult | None
+    knife_edge: KnifeEdge | None
+    bracket: CeilingBracket
+    verdict: str
+    horizon: int
+    panel: List[Tuple[str, float, float, float, float, int]]
+    pinned_lcb_dollars: float | None
+    pinned_rate: float | None
+
+
+def read_fold_constrained(receipts: Receipts, arms: Dict, fold: str,
+                          ceilings: Dict[Tuple[int, int], Ceiling],
+                          allow_partial_train: bool = False) -> ConstrainedReading:
+    positions, sessions, years = _fold_positions(receipts, fold, allow_partial_train)
+    indices = block_draw_indices(years, sessions)
+
+    # THE ENVELOPE, restricted to h >= 30m occupancy — the constrained object's
+    # own perfect-skill envelope, and therefore its own affine cap.
+    envelope: Dict[int, np.ndarray] = {}
+    envelope_mean: Dict[int, float] = {}
+    envelope_trades: Dict[int, float] = {}
+    for horizon in CC010_HORIZONS:
+        per_session = arms[(ENVELOPE_ARM, horizon, BINDING_LOSS_LIMIT_CENT)]
+        nets = np.array([per_session[s][0] for s in sessions], dtype=np.int64)
+        trades = np.array([per_session[s][1] for s in sessions], dtype=np.int64)
+        envelope[horizon] = nets
+        envelope_mean[horizon] = float(nets.mean()) / 100.0
+        envelope_trades[horizon] = float(trades.sum()) / len(sessions)
+    cap = derive_affine_cap(envelope)
+
+    sweeps = [evaluate_skill_sweep(receipts, r, positions, cap, indices, constrained=True)
+              for r in range(receipts.replicates)]
+    primary = sweeps[0]
+    q_star = primary.q_star
+    best = primary.best_at_q_star
+    horizon = best.horizon if best is not None else CC010_PANEL_HORIZON
+    bracket = binding_ceiling(ceilings, horizon)
+    verdict = verdict_for(q_star, bracket)
+
+    knife: KnifeEdge | None = None
+    if q_star is not None:
+        below = [cell for cell in primary.per_q_best if cell.q_skill < q_star]
+        if below:
+            last = max(below, key=lambda cell: cell.q_skill)
+            knife = KnifeEdge(last.q_skill, last.lcb_dollars,
+                              MEAN_BAR_DOLLARS - last.lcb_dollars)
+
+    # The decomposition panel AT THE USER'S HORIZON.
+    panel: List[Tuple[str, float, float, float, float, int]] = []
+    arm_names = sorted({name for (name, _, limit) in arms if limit == BINDING_LOSS_LIMIT_CENT})
+    for name in arm_names:
+        per_session = arms[(name, CC010_PANEL_HORIZON, BINDING_LOSS_LIMIT_CENT)]
+        nets = np.array([per_session[s][0] for s in sessions], dtype=np.int64)
+        trades = np.array([per_session[s][1] for s in sessions], dtype=np.int64)
+        breaches = int(sum(per_session[s][2] for s in sessions))
+        total_trades = int(trades.sum())
+        panel.append((name, float(nets.mean()) / 100.0, point_mdd_dollars(nets),
+                      float(total_trades) / len(sessions),
+                      float(nets.sum()) / 100.0 / total_trades if total_trades else 0.0,
+                      breaches))
+
+    pinned_lcb = None
+    pinned_rate = None
+    if best is not None:
+        cell_index = next(i for i, cell in enumerate(receipts.sweep_cells)
+                          if cell == (best.q_skill, best.horizon, best.q_percent, best.rho))
+        column = receipts.sweep_net(0)[cell_index][positions]
+        encoded = affine_encode(column, cap)
+        order = sorted(range(len(years)), key=lambda i: (years[i], sessions[i]))
+        records = [estimator_laws.SessionRecall(year=int(years[i]), ordinal=int(sessions[i]),
+                                                hits=int(encoded.hits[i]),
+                                                truths=int(encoded.truths[i]))
+                   for i in order]
+        pinned_rate = estimator_laws.year_stratified_session_block_lcb(records)
+        pinned_lcb = pinned_rate * (cap.floor_dollars + cap.cap_dollars) - cap.floor_dollars
+
+    return ConstrainedReading(fold, cap, envelope_mean, envelope_trades, sweeps, q_star, best,
+                              knife, bracket, verdict, horizon, panel, pinned_lcb, pinned_rate)
+
+
 def _fmt(value: float, digits: int = 2) -> str:
     return f"{value:,.{digits}f}"
 
 
 def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: pathlib.Path,
-                  label: str) -> None:
+                  label: str, constrained: List[ConstrainedReading] | None = None) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     receipts_dir = out_dir / "receipts"
     receipts_dir.mkdir(parents=True, exist_ok=True)
@@ -922,7 +1044,7 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
     with (receipts_dir / "skill_curve.tsv").open("w") as handle:
         handle.write("fold\treplicate\tq_skill\thorizon\tq_percent\trho\tmean_dollars\t"
                      "lcb_dollars\tmdd_point_dollars\tmdd_ucb_dollars\ttrades_per_session\t"
-                     "cap_violations\tclears\n")
+                     "dollars_per_trade\tcap_violations\tclears\n")
         for reading in readings:
             for replicate, sweep in enumerate(reading.sweeps):
                 for cell in sweep.per_q_best:
@@ -931,7 +1053,8 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
                         f"{cell.q_percent}\t{cell.rho:.2f}\t{cell.mean_dollars:.2f}\t"
                         f"{cell.lcb_dollars:.2f}\t{cell.mdd_point_dollars:.2f}\t"
                         f"{cell.mdd_ucb_dollars:.2f}\t{cell.trades_per_session:.4f}\t"
-                        f"{cell.cap_violations}\t{int(cell.clears)}\n")
+                        f"{cell.dollars_per_trade:.2f}\t{cell.cap_violations}\t"
+                        f"{int(cell.clears)}\n")
 
     with (receipts_dir / "twin_ceiling.tsv").open("w") as handle:
         handle.write("fold\tbucket_seconds\thorizon\tq_max_disjoint\tq_max_disjoint_k1\t"
@@ -970,6 +1093,16 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
     lines.append(f"Corpus: `{receipts.run_meta.get('run_dir', '?')}` | "
                  f"frozen card sha `{receipts.run_meta.get('card_sha256', '?')}` | "
                  f"pinned estimator sha `{_PINNED_SHA}`")
+    lines.append("")
+    lines.append("CARD LINEAGE. The sha above is the one recorded in the DecisionTape shard "
+                 "manifests, i.e. the card the tapes were BUILT under, which is the only sha "
+                 "that can be provenance for a measurement. The frozen card has since moved "
+                 "(CC-010 / D-019, section 6 only: the selectable gate family); the campaign's "
+                 "lineage row carries the ancestry, and these receipts remain valid because "
+                 "nothing CC-010 touched changes a single replayed number — it changes which "
+                 "measured cells may be SELECTED, which is exactly what section 6 below "
+                 "re-extracts.")
+    lines.append("")
     lines.append(f"Runner: {receipts.run_meta.get('sessions', '?')} TRAIN sessions, "
                  f"{receipts.run_meta.get('sweep_cells', '?')} sweep cells, "
                  f"{receipts.run_meta.get('replicates', '?')} noise replicate(s), "
@@ -1134,6 +1267,144 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
                      f"{'—' if best is None else best.cap_violations} | "
                      f"{sum(s.floor_violation_total for s in reading.sweeps)} |")
     lines.append("")
+    # ---------------------------------------------------------------- CC-010
+    if constrained:
+        with (receipts_dir / "constrained_gate.tsv").open("w") as handle:
+            handle.write("fold\tmetric\tvalue\n")
+            for reading in constrained:
+                def crow(metric: str, value: object) -> None:
+                    handle.write(f"{reading.fold}\t{metric}\t{value}\n")
+                crow("ruling", "CC-010 / D-019 2026-08-11")
+                crow("family_horizons", ",".join(HORIZON_LABEL[h] for h in CC010_HORIZONS))
+                crow("family_q_percent", ",".join(str(q) for q in CC010_Q_PERCENT))
+                crow("family_rho", ",".join(f"{r:.2f}" for r in CC010_RHO))
+                crow("family_cells", len(CC010_HORIZONS) * len(CC010_Q_PERCENT) * len(CC010_RHO))
+                crow("verdict", reading.verdict)
+                crow("q_star", "NONE" if reading.q_star is None else f"{reading.q_star:.6f}")
+                crow("q_max_bracket_lower_disjoint", f"{reading.bracket.lower:.6f}")
+                crow("q_max_bracket_upper_overlapping", f"{reading.bracket.upper:.6f}")
+                crow("affine_cap_cent_h30plus", reading.cap.cap_cent)
+                if reading.best is not None:
+                    crow("best_cell_horizon", HORIZON_LABEL[reading.best.horizon])
+                    crow("best_cell_q_percent", reading.best.q_percent)
+                    crow("best_cell_rho", f"{reading.best.rho:.2f}")
+                    crow("best_cell_mean_dollars", f"{reading.best.mean_dollars:.2f}")
+                    crow("best_cell_lcb_dollars", f"{reading.best.lcb_dollars:.2f}")
+                    crow("best_cell_mdd_ucb_dollars", f"{reading.best.mdd_ucb_dollars:.2f}")
+                    crow("best_cell_trades_per_session", f"{reading.best.trades_per_session:.4f}")
+                    crow("best_cell_dollars_per_trade", f"{reading.best.dollars_per_trade:.2f}")
+                if reading.pinned_lcb_dollars is not None:
+                    crow("pinned_entry_point_rate", f"{reading.pinned_rate!r}")
+                    crow("pinned_entry_point_lcb_dollars", f"{reading.pinned_lcb_dollars:.6f}")
+                if reading.knife_edge is not None:
+                    crow("knife_edge_q", f"{reading.knife_edge.q_skill:.6f}")
+                    crow("knife_edge_lcb_dollars", f"{reading.knife_edge.lcb_dollars:.2f}")
+                    crow("knife_edge_shortfall_dollars",
+                         f"{reading.knife_edge.shortfall_dollars:.2f}")
+                for horizon in CC010_HORIZONS:
+                    crow(f"envelope_dp_mean_dollars_{HORIZON_LABEL[horizon]}",
+                         f"{reading.envelope_mean_dollars[horizon]:.2f}")
+                    crow(f"envelope_dp_trades_per_session_{HORIZON_LABEL[horizon]}",
+                         f"{reading.envelope_trades[horizon]:.4f}")
+                for (name, dollars, mdd, trades, per_trade, breaches) in reading.panel:
+                    crow(f"panel_60m_{name}",
+                         f"{dollars:.2f}|{mdd:.2f}|{trades:.4f}|{per_trade:.2f}|{breaches}")
+                for replicate, sweep in enumerate(reading.sweeps):
+                    crow(f"q_star_replicate_{replicate}",
+                         "NONE" if sweep.q_star is None else f"{sweep.q_star:.6f}")
+
+        with (receipts_dir / "constrained_skill_curve.tsv").open("w") as handle:
+            handle.write("fold\treplicate\tq_skill\thorizon\tq_percent\trho\tmean_dollars\t"
+                         "lcb_dollars\tmdd_point_dollars\tmdd_ucb_dollars\ttrades_per_session\t"
+                         "dollars_per_trade\tclears\n")
+            for reading in constrained:
+                for replicate, sweep in enumerate(reading.sweeps):
+                    for cell in sweep.per_q_best:
+                        handle.write(
+                            f"{reading.fold}\t{replicate}\t{cell.q_skill:.6f}\t"
+                            f"{HORIZON_LABEL[cell.horizon]}\t{cell.q_percent}\t{cell.rho:.2f}\t"
+                            f"{cell.mean_dollars:.2f}\t{cell.lcb_dollars:.2f}\t"
+                            f"{cell.mdd_point_dollars:.2f}\t{cell.mdd_ucb_dollars:.2f}\t"
+                            f"{cell.trades_per_session:.4f}\t{cell.dollars_per_trade:.2f}\t"
+                            f"{int(cell.clears)}\n")
+
+        lines.append("")
+        lines.append("## 6. CC-010 / D-019 — THE READING UNDER THE CONSTRAINED GATE FAMILY")
+        lines.append("")
+        lines.append("USER RULING (2026-08-11): the selectable family is now "
+                     "**h in {30m, 60m, 120m, close} x q in {1,2,5}% x rho in {.15,.25,.40}** "
+                     "= 36 cells. The 2/5/15-minute horizons and the high-coverage q cells are "
+                     "STRUCK: high-frequency operating points are rejected in favour of long "
+                     "holds, few trades and leg capture.")
+        lines.append("")
+        lines.append("This is a SELECTION wall, not a new measurement. Every one of the 5,166 "
+                     "cells above was already replayed through the frozen kernel with the same "
+                     "seeds; the constrained reading extracts from the same receipts, with the "
+                     "affine cap re-derived from the perfect-skill envelope RESTRICTED to h >= "
+                     "30m occupancy — the constrained object's own envelope. The verdict "
+                     "function is unchanged (the same four branches).")
+        lines.append("")
+        lines.append("| fold | Q* | best cell (h, q, rho) | mean LCB | MDD UCB | trades/session | "
+                     "$/trade | Q_max bracket | verdict |")
+        lines.append("|---|---|---|---|---|---|---|---|---|")
+        for reading in constrained:
+            best = reading.best
+            cell = ("—" if best is None else
+                    f"{HORIZON_LABEL[best.horizon]}, q={best.q_percent}%, rho={best.rho:.2f}")
+            lines.append(
+                f"| {reading.fold} | "
+                f"{'NONE' if reading.q_star is None else f'{reading.q_star:.3f}'} | {cell} | "
+                f"{'—' if best is None else '$' + _fmt(best.lcb_dollars)} | "
+                f"{'—' if best is None else '$' + _fmt(best.mdd_ucb_dollars)} | "
+                f"{'—' if best is None else _fmt(best.trades_per_session, 3)} | "
+                f"{'—' if best is None else '$' + _fmt(best.dollars_per_trade)} | "
+                f"[{reading.bracket.lower:.3f}, {reading.bracket.upper:.3f}] | "
+                f"**{reading.verdict}** |")
+        lines.append("")
+        for reading in constrained:
+            if reading.pinned_lcb_dollars is not None:
+                lines.append(f"- {reading.fold}: the constrained winning cell's bound through the "
+                             f"PINNED entry point = rate {reading.pinned_rate!r} -> "
+                             f"**${_fmt(reading.pinned_lcb_dollars)}** per session.")
+            lines.append(f"- {reading.fold}: seed-stability of the constrained Q*: " +
+                         ", ".join('NONE' if sw.q_star is None else f"{sw.q_star:.3f}"
+                                   for sw in reading.sweeps))
+        lines.append("")
+        lines.append("**Knife edge under the constrained family** (the grid step below Q*).")
+        lines.append("")
+        lines.append("| fold | last Q below Q* | its mean LCB | shortfall vs the $2,000 bar |")
+        lines.append("|---|---|---|---|")
+        for reading in constrained:
+            if reading.knife_edge is None:
+                continue
+            lines.append(f"| {reading.fold} | {reading.knife_edge.q_skill:.3f} | "
+                         f"${_fmt(reading.knife_edge.lcb_dollars)} | "
+                         f"${_fmt(reading.knife_edge.shortfall_dollars)} |")
+        lines.append("")
+        lines.append("**The perfect-skill envelope restricted to h >= 30m occupancy** — the one-"
+                     "position optimum through the same kernel, and the cap it fixes.")
+        lines.append("")
+        lines.append("| fold | 30m | 60m | 120m | close | B (p99.9, h>=30m pooled) |")
+        lines.append("|---|---|---|---|---|---|")
+        for reading in constrained:
+            cells = " | ".join(
+                f"${_fmt(reading.envelope_mean_dollars[h])} ({_fmt(reading.envelope_trades[h], 2)} tr)"
+                for h in CC010_HORIZONS)
+            lines.append(f"| {reading.fold} | {cells} | ${_fmt(reading.cap.cap_dollars)} |")
+        lines.append("")
+        lines.append("**Decomposition at the user's horizon (h = 60m), TRAIN only, one kernel, "
+                     "no hindsight exits.**")
+        lines.append("")
+        for reading in constrained:
+            lines.append(f"### {reading.fold} — h = 60m")
+            lines.append("")
+            lines.append("| arm | $/session | MDD | trades/session | $/trade | breaches |")
+            lines.append("|---|---|---|---|---|---|")
+            for (name, dollars, mdd, trades, per_trade, breaches) in reading.panel:
+                lines.append(f"| {name} | ${_fmt(dollars)} | ${_fmt(mdd)} | {_fmt(trades, 3)} | "
+                             f"${_fmt(per_trade)} | {breaches} |")
+            lines.append("")
+
     (out_dir / "M25_READING.md").write_text("\n".join(lines) + "\n")
 
 
@@ -1153,11 +1424,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     arms = load_arms(args.receipts)
     folds = [f.strip() for f in args.folds.split(",") if f.strip()]
     readings = [read_fold(receipts, arms, fold, args.allow_partial_train) for fold in folds]
-    write_reading(readings, receipts, args.out, args.label)
+    constrained = [read_fold_constrained(receipts, arms, reading.fold, reading.ceilings,
+                                         args.allow_partial_train)
+                   for reading in readings]
+    write_reading(readings, receipts, args.out, args.label, constrained)
     for reading in readings:
         print(f"{reading.fold}: verdict={reading.verdict} "
               f"q_star={reading.q_star} q_max={reading.q_max:.4f} "
               f"B=${reading.cap.cap_dollars:,.2f}")
+    for reading in constrained:
+        best = reading.best
+        print(f"{reading.fold} CC-010: verdict={reading.verdict} q_star={reading.q_star} "
+              f"cell={'-' if best is None else HORIZON_LABEL[best.horizon]} "
+              f"lcb=${0.0 if best is None else best.lcb_dollars:,.2f} "
+              f"trades/session={0.0 if best is None else best.trades_per_session:,.2f} "
+              f"$/trade=${0.0 if best is None else best.dollars_per_trade:,.2f}")
     return 0
 
 

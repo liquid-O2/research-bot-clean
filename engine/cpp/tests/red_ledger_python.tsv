@@ -19,6 +19,7 @@ manifest is read and every C4 field is present	M509_loader_stub_genesis	tests/re
 no run touches a real tensor path and the truth allowlist is never widened	M956_trainer_truth_allowlist_is_widened	tests/red_logs/M956_trainer_truth_allowlist_is_widened.log
 the +17m cross-stream control is one-directional and types INSUFFICIENT_SUPPORT	M952_cross_stream_shift_becomes_symmetric	tests/red_logs/M952_cross_stream_shift_becomes_symmetric.log
 the A2 optimizer schedule is AdamW 1e-3 wd 1e-4 with cosine to 1e-4-of-peak	M948_cosine_decays_to_zero_not_to_1e4_of_peak	tests/red_logs/M948_cosine_decays_to_zero_not_to_1e4_of_peak.log
+the CC-010 family admits exactly its 36 cells and strikes the high-frequency ones	M2567_m25_constrained_family_still_admits_the_short_horizons	tests/red_logs/M2567_m25_constrained_family_still_admits_the_short_horizons.log
 the JSA attention is causal in TIME and permutation-invariant at equal timestamps	M958_jsa_time_bias_is_flat	tests/red_logs/M958_jsa_time_bias_is_flat.log
 the JSA type-embedding ablation zeroes only the modality-type embedding	M955_type_embedding_ablation_is_ignored	tests/red_logs/M955_type_embedding_ablation_is_ignored.log
 the MDD upper bound is a genuine 95th percentile of the resampled drawdowns	M2556_m25_drawdown_bound_is_the_lower_tail	tests/red_logs/M2556_m25_drawdown_bound_is_the_lower_tail.log

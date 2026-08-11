@@ -113,6 +113,13 @@ FROZEN_CAPACITY = {
     "direct_capacity_match_per_modality": 101120,
 }
 
+#: The arms that read the NATIVE_ORDER group carriers.  Everything else never
+#: touches a group table, so its loader can skip them entirely -- which on the
+#: real corpus is the difference between reading 753 MB a session and reading
+#: none of it.
+NATIVE_ARMS = ("NATIVE_ORDER", "NATIVE_INTERACTION",
+               "JOINT_STREAM_ATTENTION", "JSA_CAPACITY_MATCH")
+
 ARM_NAMES = (
     "CLOCK_STATE",
     "DIRECT_RAW",
@@ -159,7 +166,18 @@ class Batch:
       micro_slot     i64 [B, 3, 128]       index into groups[m]; -1 = left pad
       micro_phase    i64 [B, 3, 128]       0 APPROACH, 1 RESPONSE, 2 EQUAL
       micro_ckpt     i64 [B, 3, 6]         position in 0..127; -1 = unavailable
-      bin_slot       i64 [B, 3, 120, S]    index into groups[m]; -1 = empty
+      bin_ref        i64 [B, 3, 120]      per-second segment id; -1 = pad bin
+      bin_seg        3 x i64 [G_m]        segment id of each group; -1 = none
+      bin_segments   (int, int, int)      segment count per modality
+
+    THE BIN CARRIER READS SEGMENTS, NOT A DENSE SLOT TENSOR.  The emitted tape
+    carries `bins_index [N,120,2]` as (start,len) CSR, and a bin is an absolute
+    session-second whose membership every row spanning it shares (measured on
+    session 125).  A dense `[B,3,120,S]` gather would be ~458 GB for one 256-row
+    micro-batch at the real NBBO width (mean 131 groups per bin, max 621), so
+    each second is reduced ONCE into a segment table and rows reference it.
+    The reduction is identical either way: mean+max over the bin's member group
+    embeddings, plus log group count and nonempty.
       jsa_mod        i64 [B, 192]          modality of the merged token; -1 pad
       jsa_slot       i64 [B, 192]          index into groups[jsa_mod]
       jsa_phase      i64 [B, 192]
@@ -177,7 +195,9 @@ class Batch:
     micro_slot: Tensor
     micro_phase: Tensor
     micro_ckpt: Tensor
-    bin_slot: Tensor
+    bin_ref: Tensor
+    bin_seg: tuple[Tensor, Tensor, Tensor]
+    bin_segments: tuple[int, int, int]
     jsa_mod: Tensor
     jsa_slot: Tensor
     jsa_phase: Tensor
@@ -378,6 +398,42 @@ class MicroCarrier(nn.Module):
                 + own)
 
 
+def _segment_reduce(table: Tensor, segment: Tensor, segments: int
+                    ) -> tuple[Tensor, Tensor, Tensor]:
+    """Mean, max and member count of `table` rows grouped by `segment`.
+
+    `segment[i]` is the segment of row `i`, or -1 when the row belongs to none.
+    Empty segments reduce to exactly zero with count zero, which is what the
+    card's "typed zero" pad bin requires.  A max over an empty set is 0, never
+    -inf, so an empty bin contributes nothing rather than a sentinel.
+    """
+    if segments <= 0:
+        # A session whose rows reach no bin at all: every reduction is the
+        # card's typed zero, and there is no table to scatter into.
+        empty = table.new_zeros((0, table.shape[1]))
+        return empty, empty, table.new_zeros(0)
+    valid = segment >= 0
+    safe = torch.where(valid, segment, torch.zeros_like(segment))
+    weight = valid.to(table.dtype).unsqueeze(-1)
+    width = table.shape[1]
+    index = safe.unsqueeze(-1).expand(-1, width)
+    total = table.new_zeros((segments, width))
+    total.scatter_add_(0, index, table * weight)
+    count = table.new_zeros(segments)
+    count.scatter_add_(0, safe, valid.to(table.dtype))
+    mean = total / count.clamp_min(1.0).unsqueeze(-1)
+    # A max needs a floor no member can beat; the finite floor keeps an empty
+    # segment at exactly zero instead of leaking -inf into the reducer.
+    floor = table.new_full((segments, width), float("-inf"))
+    filled = torch.where(valid.unsqueeze(-1), table,
+                         table.new_full((1, 1), float("-inf")).expand_as(table))
+    maximum = floor.scatter_reduce(0, index, filled, reduce="amax",
+                                   include_self=True)
+    maximum = torch.where(maximum == float("-inf"),
+                          torch.zeros_like(maximum), maximum)
+    return mean, maximum, count
+
+
 class BinCarrier(nn.Module):
     """§5: the 120-bin carrier.
 
@@ -394,15 +450,16 @@ class BinCarrier(nn.Module):
         self.reduce = nn.Linear(BIN_REDUCER_INPUTS, D_MODEL, bias=False)
         self.blocks = nn.ModuleList([CausalTCNBlock(d) for d in BIN_DILATIONS])
 
-    def forward(self, group_embedding: Tensor, slot: Tensor) -> Tensor:
-        gathered, valid = _gather_rows(group_embedding, slot)      # [B,120,S,64]
-        mask = valid.unsqueeze(-1)
-        mean = masked_mean(gathered, mask, dim=2)
-        maximum = masked_max(gathered, mask, dim=2)
-        count = valid.sum(2)
+    def forward(self, group_embedding: Tensor, segment: Tensor, segments: int,
+                reference: Tensor) -> Tensor:
+        mean_table, max_table, count_table = _segment_reduce(
+            group_embedding, segment, segments)
+        mean, _ = _gather_rows(mean_table, reference)               # [B,120,64]
+        maximum, _ = _gather_rows(max_table, reference)
+        count, _ = _gather_rows(count_table, reference)             # [B,120]
         reduced = self.reduce(
             torch.cat([mean, maximum, torch.log1p(count).unsqueeze(-1),
-                       (count > 0).to(gathered.dtype).unsqueeze(-1)], dim=-1)
+                       (count > 0).to(mean.dtype).unsqueeze(-1)], dim=-1)
         )
         latent = reduced.transpose(1, 2)
         for block in self.blocks:
@@ -632,8 +689,7 @@ class Arm(nn.Module):
         if name not in ARM_NAMES:
             raise ValueError(f"{name!r} is not a §5 arm; the ladder is {ARM_NAMES}")
         self.name = name
-        native = name in ("NATIVE_ORDER", "NATIVE_INTERACTION",
-                          "JOINT_STREAM_ATTENTION", "JSA_CAPACITY_MATCH")
+        native = name in NATIVE_ARMS
 
         self.state_encoder = StateEncoder()
         self.market_heads = nn.ModuleList([Head(bias=False) for _ in MODALITIES])
@@ -696,7 +752,8 @@ class Arm(nn.Module):
                     batch.micro_phase[:, index], batch.micro_ckpt[:, index],
                 )
                 embedding = embedding + self.bin_carriers[index](
-                    group_embedding[index], batch.bin_slot[:, index]
+                    group_embedding[index], batch.bin_seg[index],
+                    batch.bin_segments[index], batch.bin_ref[:, index]
                 )
             out.append(embedding)
         return out

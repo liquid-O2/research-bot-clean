@@ -151,7 +151,7 @@ TEST(CampaignCardLineage, TheRealLineageCarriesTheFrozenAncestryAndItsHeadIsTheC
   ASSERT_EQ(root.scope.size(), 1U);
   EXPECT_EQ(root.scope.front(), "ROOT");
   EXPECT_EQ(lineage.value().head().sha256,
-            "55b50e2af50f79235e65c8ed08b5771533a46cc15831ebbb4f9c0a37d630a9ec");
+            "23b9151095e847f6a9c0f80b2fb39820e5359c0eaeb33f1889cab09772862a9a");  // CC-010 head
 
   // The head is a real file's sha, not a hope: it is the card on disk.
   EXPECT_TRUE(lineage.value().verify_head_card(kCardPath).has_value());

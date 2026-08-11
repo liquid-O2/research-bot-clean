@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -133,7 +133,7 @@
+ # perfect-skill envelope is restricted the same way (h >= 30m occupancy), so the
+ # affine cap the constrained object is encoded against is the constrained
+ # object's own envelope.
+-CC010_HORIZONS = (3, 4, 5, 6)      # 30m, 60m, 120m, close
++CC010_HORIZONS = (0, 1, 2, 3, 4, 5, 6)  # MUTANT M2567: nothing is struck
+ CC010_Q_PERCENT = (1, 2, 5)
+ CC010_RHO = (0.15, 0.25, 0.40)
+ CC010_PANEL_HORIZON = 4            # the user's horizon for the decomposition panel: 60m

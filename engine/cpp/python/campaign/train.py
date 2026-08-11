@@ -49,7 +49,8 @@ from torch.nn import functional as F  # noqa: E402
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 import arms  # noqa: E402
-import synth  # noqa: E402
+import synth
+import tapes  # noqa: E402
 
 SEED = 20260810
 PEAK_LR = 1e-3
@@ -92,21 +93,106 @@ def fold_sessions(fold: str, block: str, available: list[int]) -> list[int]:
 
 @dataclass
 class SessionData:
+    """One session, loaded LAZILY.
+
+    A real fold is 271 sessions and one session's NBBO group table alone is
+    ~730 MB, so the eager list the synthetic corpus allowed is not an option on
+    the real corpus.  `clocks` is read from the tiny truth `keys` leaf without
+    touching a feature, and `sides` materialises on first use; the epoch loops
+    call `release()` when they are done with a session."""
+
     ordinal: int
-    sides: dict           # "L"/"S" -> (Batch, Targets)
     clocks: Tensor        # i64 [C] the session's chronological decision ordinals
+    loader: object = None  # () -> {"L"/"S": (Batch, Targets)}
+    _sides: dict | None = None
+
+    @property
+    def sides(self) -> dict:
+        if self._sides is None:
+            object.__setattr__(self, "_sides", self.loader())
+        return self._sides
+
+    def release(self) -> None:
+        object.__setattr__(self, "_sides", None)
 
 
 def slice_batch(batch: arms.Batch, index: Tensor) -> arms.Batch:
-    """Row-slices a Batch; the session-level group tensors are shared, not copied."""
+    """Row-slices a Batch, narrowing the session group tables to what these rows
+    actually reach.
+
+    §5 pins the raw group projection as "once per session/side/modality, not
+    once per decision", and a naive row slice keeps the WHOLE session table on
+    every micro-batch: measured on real session 125 that is 2.81 M NBBO groups
+    re-projected 63 times per side per epoch, 0.33 s a step, ~3.8 h an epoch.
+    The rows of a micro-batch are chronological and the carriers are contiguous
+    (start,len) ranges, so the groups they reach are a contiguous WINDOW of the
+    table: taking that window and rebasing the indices is exact -- the group
+    projection is per-group elementwise -- and it is what makes the real corpus
+    tractable.  Group tensors are still shared views, never copies."""
+    groups, micro_slot, jsa_slot = [], [], []
+    bin_seg, bin_ref, bin_segments = [], [], []
+    sliced_micro = batch.micro_slot[index]
+    sliced_bin_ref = batch.bin_ref[index]
+    sliced_jsa = batch.jsa_slot[index]
+    for modality in range(len(batch.groups)):
+        slot = sliced_micro[:, modality]
+        reference = sliced_bin_ref[:, modality]
+        jsa_here = torch.where(batch.jsa_mod[index] == modality, sliced_jsa,
+                               torch.full_like(sliced_jsa, -1))
+        used_segments = reference[reference >= 0]
+        used_slots = torch.cat([slot[slot >= 0].reshape(-1),
+                                jsa_here[jsa_here >= 0].reshape(-1)])
+        if used_segments.numel() == 0 and used_slots.numel() == 0:
+            groups.append(batch.groups[modality][:1])
+            micro_slot.append(torch.full_like(slot, -1))
+            jsa_slot.append(torch.full_like(jsa_here, -1))
+            bin_seg.append(batch.bin_seg[modality][:1])
+            bin_ref.append(torch.full_like(reference, -1))
+            bin_segments.append(1)
+            continue
+        if used_segments.numel():
+            segment_low = int(used_segments.min())
+            segment_high = int(used_segments.max()) + 1
+            member = ((batch.bin_seg[modality] >= segment_low)
+                      & (batch.bin_seg[modality] < segment_high))
+            member_index = torch.nonzero(member, as_tuple=False).reshape(-1)
+            low = int(member_index.min())
+            high = int(member_index.max()) + 1
+        else:
+            segment_low, segment_high = 0, 0
+            low, high = int(used_slots.min()), int(used_slots.max()) + 1
+        if used_slots.numel():
+            low = min(low, int(used_slots.min()))
+            high = max(high, int(used_slots.max()) + 1)
+        window = batch.groups[modality][low:high]
+        segment = batch.bin_seg[modality][low:high]
+        if segment_high > segment_low:
+            rebased = segment - segment_low
+            segment = torch.where((segment >= segment_low) & (segment < segment_high),
+                                  rebased, torch.full_like(segment, -1))
+        else:
+            segment = torch.full_like(segment, -1)
+        groups.append(window)
+        bin_seg.append(segment)
+        bin_segments.append(max(segment_high - segment_low, 1))
+        bin_ref.append(torch.where(reference >= 0, reference - segment_low,
+                                   torch.full_like(reference, -1)))
+        micro_slot.append(torch.where(slot >= 0, slot - low, torch.full_like(slot, -1)))
+        jsa_slot.append(torch.where(jsa_here >= 0, jsa_here - low,
+                                    torch.full_like(jsa_here, -1)))
+    merged_jsa = sliced_jsa.clone()
+    for modality in range(len(batch.groups)):
+        pick = batch.jsa_mod[index] == modality
+        merged_jsa = torch.where(pick, jsa_slot[modality], merged_jsa)
     return arms.Batch(
         candset=batch.candset[index], candset_valid=batch.candset_valid[index],
         loc_value=batch.loc_value[index], loc_present=batch.loc_present[index],
         visible_count=batch.visible_count[index], direct=batch.direct[index],
-        r_modality=batch.r_modality[index], groups=batch.groups,
-        micro_slot=batch.micro_slot[index], micro_phase=batch.micro_phase[index],
-        micro_ckpt=batch.micro_ckpt[index], bin_slot=batch.bin_slot[index],
-        jsa_mod=batch.jsa_mod[index], jsa_slot=batch.jsa_slot[index],
+        r_modality=batch.r_modality[index], groups=tuple(groups),
+        micro_slot=torch.stack(micro_slot, dim=1), micro_phase=batch.micro_phase[index],
+        micro_ckpt=batch.micro_ckpt[index], bin_ref=torch.stack(bin_ref, dim=1),
+        bin_seg=tuple(bin_seg), bin_segments=tuple(bin_segments),
+        jsa_mod=batch.jsa_mod[index], jsa_slot=merged_jsa,
         jsa_phase=batch.jsa_phase[index], jsa_ts_us=batch.jsa_ts_us[index],
     )
 
@@ -126,14 +212,41 @@ def selected_ranks(count: int) -> Tensor:
     return torch.floor((j + 0.5) * count / RANK_COUNT).to(torch.int64)
 
 
+def is_real_corpus(root: pathlib.Path) -> bool:
+    """A published corpus keeps its shards under `tapes/`; the synthetic writer
+    puts `s0125/` at the root."""
+    return (pathlib.Path(root) / "tapes").is_dir()
+
+
+def session_clocks(root: pathlib.Path, ordinal: int, real: bool) -> Tensor:
+    """The session's decision ordinals, read from the truth `keys` leaf ALONE.
+
+    This is the one place the driver needs a truth column before training, and
+    it takes only that column, through the allowlist, with no feature mapped."""
+    directory = (tapes._session_dir(root, ordinal, "L") if real
+                 else pathlib.Path(root) / f"s{ordinal:04d}" / "L")
+    tape = tapes.DecisionTape(directory)
+    keys = tape.truth(["keys"], names=["keys"])["keys"]
+    return torch.from_numpy(np.array(keys[:, tapes.KEY_DECISION], copy=True))
+
+
 def load_sessions(root: pathlib.Path, ordinals: list[int],
-                  *, verify_sha: bool = False) -> list[SessionData]:
-    synth.assert_synthetic_only([str(root)])
+                  *, verify_sha: bool = False,
+                  with_groups: bool = True) -> list[SessionData]:
+    root = pathlib.Path(root)
+    real = is_real_corpus(root)
+    if not real:
+        synth.assert_synthetic_only([str(root)])
     out: list[SessionData] = []
     for ordinal in sorted(ordinals):
-        sides = synth.load_session(root, ordinal, verify_sha=verify_sha)
-        clocks = sides["L"][1].keys[:, 1]
-        out.append(SessionData(ordinal=ordinal, sides=sides, clocks=clocks))
+        def loader(ordinal=ordinal):
+            if real:
+                return tapes.load_session(root, ordinal, verify_sha=verify_sha,
+                                          with_groups=with_groups)
+            return synth.load_session(root, ordinal, verify_sha=verify_sha)
+        out.append(SessionData(ordinal=ordinal,
+                               clocks=session_clocks(root, ordinal, real),
+                               loader=loader))
     return out
 
 
@@ -345,6 +458,8 @@ class RunConfig:
     double_run: bool = False
     verify_sha: bool = False
     interaction_outputs: int = arms.N_OUT
+    max_train_sessions: int = 0
+    max_eval_sessions: int = 0
 
 
 def config_hash(config: RunConfig) -> str:
@@ -427,6 +542,12 @@ def run_session(model: arms.Arm, session: SessionData, config: RunConfig,
     return total, tokens
 
 
+def heartbeat(message: str) -> None:
+    """One line to stderr — `lab/run.sh` records stderr as the run's heartbeat,
+    and a long fit with no heartbeat is indistinguishable from a hung one."""
+    print(message, file=sys.stderr, flush=True)
+
+
 def run_epoch(model: arms.Arm, sessions: list[SessionData], config: RunConfig,
               optimizer, learning_rate: float | None,
               control=None) -> tuple[float, int]:
@@ -435,13 +556,19 @@ def run_epoch(model: arms.Arm, sessions: list[SessionData], config: RunConfig,
     no shuffle." """
     model.train(True)
     total, tokens = 0.0, 0
-    for session in sessions:
+    started = time.time()
+    for position, session in enumerate(sessions, start=1):
         optimizer.zero_grad(set_to_none=True)
         for group in optimizer.param_groups:
             group["lr"] = learning_rate
         loss, session_tokens = run_session(model, session, config, ranked=True,
                                            backward=True, control=control)
         optimizer.step()
+        session.release()
+        elapsed = time.time() - started
+        heartbeat(f"train s{session.ordinal} {position}/{len(sessions)} "
+                  f"{elapsed / position:.1f}s/session "
+                  f"eta {(len(sessions) - position) * elapsed / position / 60:.1f}m")
         total += loss
         tokens += session_tokens
     return total, tokens
@@ -460,6 +587,9 @@ def evaluate(model: arms.Arm, sessions: list[SessionData], config: RunConfig,
                               control=control, collect=collected)
         total += loss
         steps += 1
+        session.release()
+        if steps % 10 == 0:
+            heartbeat(f"eval {steps}/{len(sessions)} sessions")
     if not collected:
         return (np.zeros((0, arms.N_OUT), dtype=np.float32),
                 np.zeros((0, 4), dtype=np.int64), 0.0)
@@ -563,8 +693,11 @@ def available_sessions(root: pathlib.Path) -> list[int]:
     """The published session ordinals under `root`.  §1: "Only sessions 125..749
     are admissible" and "Any path/session >=750 ... is refused before payload
     resolution" — so the refusal happens here, before any tape is opened."""
-    synth.assert_synthetic_only([str(root)])
-    found = sorted(int(path.name[1:]) for path in pathlib.Path(root).glob("s[0-9]*")
+    root = pathlib.Path(root)
+    base = root / "tapes" if is_real_corpus(root) else root
+    if base is root:
+        synth.assert_synthetic_only([str(root)])
+    found = sorted(int(path.name[1:]) for path in base.glob("s[0-9]*")
                    if (path / "L" / "manifest.tsv").is_file())
     outside = [o for o in found
                if not ADMISSIBLE_SESSIONS[0] <= o <= ADMISSIBLE_SESSIONS[1]]
@@ -576,12 +709,19 @@ def available_sessions(root: pathlib.Path) -> list[int]:
 def train_once(config: RunConfig, control=None) -> dict:
     set_determinism(config.device)
     available = available_sessions(pathlib.Path(config.data))
-    train_sessions = load_sessions(pathlib.Path(config.data),
-                                   fold_sessions(config.fold, "train", available),
-                                   verify_sha=config.verify_sha)
-    inner_sessions = load_sessions(pathlib.Path(config.data),
-                                   fold_sessions(config.fold, "gate_select", available),
-                                   verify_sha=config.verify_sha)
+    train_ordinals = fold_sessions(config.fold, "train", available)
+    if config.max_train_sessions:
+        train_ordinals = train_ordinals[-config.max_train_sessions:]
+    with_groups = config.arm in arms.NATIVE_ARMS
+    train_sessions = load_sessions(pathlib.Path(config.data), train_ordinals,
+                                   verify_sha=config.verify_sha,
+                                   with_groups=with_groups)
+    inner_ordinals = fold_sessions(config.fold, "gate_select", available)
+    if config.max_eval_sessions:
+        inner_ordinals = inner_ordinals[:config.max_eval_sessions]
+    inner_sessions = load_sessions(pathlib.Path(config.data), inner_ordinals,
+                                   verify_sha=config.verify_sha,
+                                   with_groups=with_groups)
     if not train_sessions:
         raise RuntimeError(f"fold {config.fold} has no TRAIN session under {config.data}")
 
@@ -676,6 +816,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--double-run", action="store_true")
     parser.add_argument("--verify-sha", action="store_true")
+    parser.add_argument("--max-eval-sessions", type=int, default=0,
+                        help="cap the gate-select block the same way (0 = all 50)")
+    parser.add_argument("--max-train-sessions", type=int, default=0,
+                        help="cap the TRAIN block at the most recent N sessions "
+                             "(0 = the whole block).  A real fold is I/O bound at "
+                             "~9s per session per epoch, so a control that must "
+                             "fit a wall-clock budget states its cap explicitly "
+                             "and carries it in the receipt.")
     args = parser.parse_args(argv)
 
     import controls   # local import: controls imports train for its flag table
@@ -684,11 +832,15 @@ def main(argv: list[str] | None = None) -> int:
                        epochs=args.epochs, micro_batch=args.micro_batch,
                        control=args.control, control_options=args.control_options,
                        device=args.device, double_run=args.double_run,
-                       verify_sha=args.verify_sha)
+                       verify_sha=args.verify_sha,
+                       max_train_sessions=args.max_train_sessions,
+                       max_eval_sessions=args.max_eval_sessions)
     result = train(config, controls.build(config.control, config.control_options))
     publish(result, pathlib.Path(config.out))
     print(json.dumps({
         "arm": config.arm, "fold": config.fold, "control": config.control,
+        "max_train_sessions": config.max_train_sessions,
+        "max_eval_sessions": config.max_eval_sessions,
         "config_sha256": result["config_sha256"],
         "final_train_loss": result["train_curve"][-1] if result["train_curve"] else None,
         "final_inner_val_loss": (result["inner_val_curve"][-1]

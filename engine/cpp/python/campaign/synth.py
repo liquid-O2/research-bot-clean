@@ -56,6 +56,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from decision_tape_loader import DecisionTape  # noqa: E402
 
 import arms  # noqa: E402
+import tapes  # noqa: E402
 
 # The real tensor root.  This module must never produce or accept a path here.
 REAL_TENSOR_ROOTS = ("/workspace/artifacts/tensors/v4.0", "/workspace/data/tokens")
@@ -301,13 +302,22 @@ def _generate(spec: SynthSpec, side: str) -> tuple[dict, dict]:
                 if offset_index < present.size:
                     checkpoint[row, offset_index] = int(present[-1 - offset_index])
         features[f"micro_ckpt_{modality}"] = checkpoint
-        bins = np.full((rows, arms.BIN_LENGTH, spec.bin_slots), -1, dtype=np.int32)
-        for row in range(rows):
-            for which in range(arms.BIN_LENGTH):
-                occupancy = int(rng.integers(0, spec.bin_slots + 1))
-                if occupancy:
-                    bins[row, which, :occupancy] = rng.integers(0, total, occupancy)
-        features[f"bin_slot_{modality}"] = bins
+        # The emitted form: `bins_index [N,120,2]` (start,len) CSR over the
+        # group axis, where a bin is an absolute session SECOND and every row
+        # spanning that second carries the same (start,len) — the invariant this
+        # writer must reproduce, because the loader dedupes on it.
+        per_second = max(1, total // (rows + arms.BIN_LENGTH))
+        bins = np.zeros((rows, arms.BIN_LENGTH, 2), dtype=np.int32)
+        row_index = np.arange(rows)[:, None]
+        bin_index = np.arange(arms.BIN_LENGTH)[None, :]
+        second = row_index + bin_index
+        start = second * per_second
+        length = np.clip(total - start, 0, per_second)
+        # The pre-open pad: a bin before the session's first second is typed -1.
+        pad = second < arms.BIN_LENGTH
+        bins[..., 0] = np.where(pad | (length <= 0), -1, start)
+        bins[..., 1] = np.where(pad | (length <= 0), 0, length)
+        features[f"bins_index_{modality}"] = bins
 
     # --- JSA merged token stream ------------------------------------------
     merged = []
@@ -335,9 +345,11 @@ def _generate(spec: SynthSpec, side: str) -> tuple[dict, dict]:
     keys = np.zeros((rows, 4), dtype=np.int64)
     keys[:, 0] = spec.session_ordinal
     keys[:, 1] = np.arange(rows)
-    keys[:, 2] = SIDES.index(side)
+    # THE REAL COLUMN ORDER (qr_replay/action.hpp `ActionKey`, and the emitted
+    # s0125 tape): (session_ordinal, decision_ordinal, decision_ts_ns, side).
     # §3: decision timestamps are registered whole seconds off the session start.
-    keys[:, 3] = 1_600_000_000_000_000_000 + np.arange(rows) * 60_000_000_000
+    keys[:, tapes.KEY_TS] = 1_600_000_000_000_000_000 + np.arange(rows) * 60_000_000_000
+    keys[:, tapes.KEY_SIDE] = tapes.KEY_SIGMA[side]   # sigma, +1 / -1
     features["keys"] = keys
     # §6 stage mask: which of D0/D30/D60 support this row (bits 1/2/4).  It is
     # causal ledger metadata, never a model input; the controls bucket on it.
@@ -557,6 +569,21 @@ def assemble(tape: DecisionTape) -> tuple[arms.Batch, Targets]:
     features = tape.features()
     allowed = tape.truth(list(TRUTH_ALLOWLIST))
 
+    # The bin carrier reads a per-second SEGMENT table, built from the emitted
+    # (start,len) CSR by the same function the real door uses.
+    bin_reference, bin_segment, bin_segment_count = {}, {}, {}
+    for modality in arms.MODALITIES:
+        index = np.asarray(features[f"bins_index_{modality}"])
+        seg_start, seg_len, reference = tapes.bin_segments(index)
+        total_groups = np.asarray(features[f"group_ts_{modality}"]).shape[0]
+        assignment = np.full(total_groups, -1, dtype=np.int64)
+        for segment in range(seg_start.shape[0]):
+            low = int(seg_start[segment])
+            assignment[low:low + int(seg_len[segment])] = segment
+        bin_reference[modality] = reference
+        bin_segment[modality] = assignment
+        bin_segment_count[modality] = int(seg_start.shape[0])
+
     location = _tensor(features["locclock"], torch.float32)
     candidates = _tensor(features["candset"], torch.float32)
     lengths = _tensor(features["candset_len"], torch.int64)
@@ -577,8 +604,10 @@ def assemble(tape: DecisionTape) -> tuple[arms.Batch, Targets]:
                                  for m in arms.MODALITIES], dim=1),
         micro_ckpt=torch.stack([_tensor(features[f"micro_ckpt_{m}"], torch.int64)
                                 for m in arms.MODALITIES], dim=1),
-        bin_slot=torch.stack([_tensor(features[f"bin_slot_{m}"], torch.int64)
-                              for m in arms.MODALITIES], dim=1),
+        bin_ref=torch.stack([torch.from_numpy(bin_reference[m])
+                             for m in arms.MODALITIES], dim=1),
+        bin_seg=tuple(torch.from_numpy(bin_segment[m]) for m in arms.MODALITIES),
+        bin_segments=tuple(bin_segment_count[m] for m in arms.MODALITIES),
         jsa_mod=_tensor(features["jsa_mod"], torch.int64),
         jsa_slot=_tensor(features["jsa_slot"], torch.int64),
         jsa_phase=_tensor(features["jsa_phase"], torch.int64),

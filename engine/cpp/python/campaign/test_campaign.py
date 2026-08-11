@@ -35,6 +35,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import arms  # noqa: E402
 import controls  # noqa: E402
 import synth  # noqa: E402
+import tapes  # noqa: E402
 import train  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
@@ -142,7 +143,7 @@ def check_bias_law(scratch: pathlib.Path) -> None:
             direct=torch.zeros_like(batch.direct),
             micro_slot=torch.full_like(batch.micro_slot, -1),
             micro_ckpt=torch.full_like(batch.micro_ckpt, -1),
-            bin_slot=torch.full_like(batch.bin_slot, -1),
+            bin_ref=torch.full_like(batch.bin_ref, -1),
             jsa_mod=torch.full_like(batch.jsa_mod, -1),
             jsa_slot=torch.full_like(batch.jsa_slot, -1),
             r_modality=torch.zeros_like(batch.r_modality),
@@ -410,7 +411,7 @@ def check_injections(scratch: pathlib.Path, quick: bool) -> None:
     difference = (changed.loc_value != batch.loc_value)
     assert bool(difference[:, synth.SESSION_TIME_FRACTION_INDEX].any())
     assert not bool(difference[:, 1:].any()), "an injection touched a second channel"
-    for name in ("direct", "candset", "loc_present", "micro_slot", "bin_slot",
+    for name in ("direct", "candset", "loc_present", "micro_slot", "bin_ref",
                  "jsa_slot", "r_modality"):
         assert torch.equal(getattr(changed, name), getattr(batch, name)), name
 
@@ -495,7 +496,7 @@ def check_cross_stream_shift(scratch: pathlib.Path) -> None:
     assert np.array_equal(forward.source, backward.target)
     assert np.array_equal(forward.target, backward.source)
     # No wrap, exact 17m, no row used twice, exact operand multiset preserved.
-    stamps = targets.keys[:, 3].numpy()
+    stamps = targets.keys[:, tapes.KEY_TS].numpy()
     for donor, receiver in zip(forward.source, forward.target):
         assert stamps[donor] - stamps[receiver] == controls.SHIFT_NS
         assert int(targets.stage_mask[donor]) == int(targets.stage_mask[receiver])
@@ -511,7 +512,7 @@ def check_cross_stream_shift(scratch: pathlib.Path) -> None:
     rows = 2 * controls.PAIR_FLOOR + 40
     step = controls.SHIFT_NS // 17          # 1 minute, as the registered clock
     dense_keys = torch.zeros(rows, 4, dtype=torch.int64)
-    dense_keys[:, 3] = torch.arange(rows, dtype=torch.int64) * step
+    dense_keys[:, tapes.KEY_TS] = torch.arange(rows, dtype=torch.int64) * step
     dense = controls._replace_targets(
         train.slice_targets(targets, torch.zeros(rows, dtype=torch.int64)),
         keys=dense_keys,
@@ -525,7 +526,7 @@ def check_cross_stream_shift(scratch: pathlib.Path) -> None:
     assert plenty.realized <= rows // 2, (plenty.realized, rows)
     assert len(set(plenty.source.tolist()) & set(plenty.target.tolist())) == 0
     assert len(set(plenty.source.tolist())) == plenty.realized
-    dense_stamps = dense.keys[:, 3].numpy()
+    dense_stamps = dense.keys[:, tapes.KEY_TS].numpy()
     assert all(dense_stamps[donor] - dense_stamps[receiver] == controls.SHIFT_NS
                for donor, receiver in zip(plenty.source, plenty.target))
     # A bucket mismatch removes the pair even when the clock is exactly +17m.
@@ -538,12 +539,12 @@ def check_cross_stream_shift(scratch: pathlib.Path) -> None:
     donors = torch.from_numpy(forward.source)
     option = controls.OPTION_INDEX
     assert torch.equal(swapped.direct[receivers, option], batch.direct[donors, option])
-    assert torch.equal(swapped.bin_slot[receivers, option], batch.bin_slot[donors, option])
+    assert torch.equal(swapped.bin_ref[receivers, option], batch.bin_ref[donors, option])
     # Only the option stream moves: stock and NBBO are bit-identical everywhere.
     for other in (0, 1):
         assert torch.equal(swapped.direct[:, other], batch.direct[:, other])
         assert torch.equal(swapped.micro_slot[:, other], batch.micro_slot[:, other])
-        assert torch.equal(swapped.bin_slot[:, other], batch.bin_slot[:, other])
+        assert torch.equal(swapped.bin_ref[:, other], batch.bin_ref[:, other])
     untouched = [row for row in range(batch.rows) if row not in set(forward.target.tolist())]
     assert torch.equal(swapped.direct[untouched], batch.direct[untouched])
     # A model must actually see the swap.
@@ -734,9 +735,12 @@ def check_publication(scratch: pathlib.Path) -> None:
     assert logits.shape == (3 * 6 * 2, arms.N_OUT), logits.shape
     assert keys.shape == (3 * 6 * 2, 4)
     assert sorted(set(keys[:, 0].tolist())) == [125, 126, 398]
-    assert sorted(set(keys[:, 2].tolist())) == [0, 1]
+    # The real key layout: column 2 is decision_ts_ns and column 3 carries
+    # SIGMA (+1 LONG / -1 SHORT), which is what the emitted tape stores.
+    assert sorted(set(keys[:, tapes.KEY_SIDE].tolist())) == [-1, 1]
     # (session, decision_ordinal, side) is one-to-one, as §3 requires.
-    triples = {tuple(row) for row in keys[:, :3].tolist()}
+    triples = {(row[tapes.KEY_SESSION], row[tapes.KEY_DECISION], row[tapes.KEY_SIDE])
+               for row in keys.tolist()}
     assert len(triples) == keys.shape[0]
     import json
     receipt = json.loads((out / "receipt.json").read_text(encoding="utf-8"))

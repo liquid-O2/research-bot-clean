@@ -277,6 +277,32 @@ def check_verdict_taxonomy() -> None:
         raise AssertionError("the deferred verdict must record that reachability passed")
 
 
+@check("the CC-010 family admits exactly its 36 cells and strikes the high-frequency ones")
+def check_cc010_family() -> None:
+    horizons = range(7)
+    q_grid = (1, 2, 5, 10, 20, 30)
+    rho_grid = (0.15, 0.25, 0.40)
+    admitted = [(h, q, r) for h in horizons for q in q_grid for r in rho_grid
+                if m25.cc010_admits(h, q, r)]
+    if len(admitted) != 36:
+        raise AssertionError(f"{len(admitted)} cells admitted, want 36")
+    # The struck horizons are 2m/5m/15m (indices 0,1,2) and the struck coverage
+    # cells are q = 10/20/30%.
+    for horizon, q_percent, rho in admitted:
+        if horizon in (0, 1, 2):
+            raise AssertionError(f"horizon index {horizon} is struck by CC-010")
+        if q_percent not in (1, 2, 5):
+            raise AssertionError(f"q={q_percent}% is struck by CC-010")
+        if not any(abs(rho - allowed) < 1e-9 for allowed in (0.15, 0.25, 0.40)):
+            raise AssertionError(f"rho={rho} is outside the frozen grid")
+    # And the previously winning cell — 2m at q=2% — is now inadmissible, which
+    # is the whole point of the ruling.
+    if m25.cc010_admits(0, 2, 0.40):
+        raise AssertionError("the 2-minute high-frequency cell must be struck")
+    if not m25.cc010_admits(4, 1, 0.25):
+        raise AssertionError("60m, q=1%, rho=.25 must be admissible")
+
+
 # --- 4. end to end on published synthetic corpora --------------------------
 
 
@@ -401,6 +427,7 @@ def main(argv: List[str] | None = None) -> int:
     check_mdd_ucb()
     check_binding_ceiling_rule()
     check_verdict_taxonomy()
+    check_cc010_family()
     if not args.skip_end_to_end:
         check_unreachable_fails(args.scratch)
         check_reachable_passes(args.scratch)

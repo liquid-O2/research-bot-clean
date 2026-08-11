@@ -1,0 +1,20 @@
+--- a/qr_carriers/src/native_order.cpp
++++ b/qr_carriers/src/native_order.cpp
+@@ -105,14 +105,14 @@
+   micro.truncated = static_cast<std::int32_t>(start);
+ 
+   for (std::size_t slot = 0; slot < kMicroCarrierGroups; ++slot) {
+-    if (slot < static_cast<std::size_t>(micro.left_pad)) {
+-      // "typed left pad": no group, no phase, exact zero downstream.
++    // MB04: the typed pad moves to the RIGHT of the retained groups.
++    if (slot >= static_cast<std::size_t>(micro.length)) {
+       micro.slot_group[slot] = -1;
+       micro.slot_phase[slot] = Phase::PAD;
+       ++micro.phase_slots[static_cast<std::size_t>(Phase::PAD)];
+       continue;
+     }
+-    const std::size_t offset = slot - static_cast<std::size_t>(micro.left_pad);
++    const std::size_t offset = slot;
+     std::size_t group = start + offset;
+ #ifndef QR_CARRIERS_NO_DESTRUCTIONS
+     if (controls_.recent128_reverse) {

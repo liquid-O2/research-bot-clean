@@ -1,0 +1,37 @@
+--- a/qr_carriers/src/stock_print_stream.cpp
++++ b/qr_carriers/src/stock_print_stream.cpp
+@@ -262,13 +262,9 @@
+ 
+   // Canonical member order BEFORE any floating-point reduction (see the header:
+   // permutation invariance is structural, in two layers).
++  // MA31: the group is reduced in whatever order the rows arrived in, and the
++  // prior moves per member, so an equal-ms permutation changes the output.
+   canonical_.assign(rows.begin(), rows.end());
+-  if (canonical_.size() > 1) {
+-    std::sort(canonical_.begin(), canonical_.end(),
+-              [](const qr::sources::StockTradeRow& left, const qr::sources::StockTradeRow& right) {
+-                return qr::sources::canonical_less(left, right);
+-              });
+-  }
+ 
+   GroupContext context;
+   context.ts_ns_a = group_ts_ns_a;
+@@ -367,8 +363,9 @@
+       }
+     }
+ 
++    prior_.commit_group();  // MA31: mid-loop commit
+     // The prior sees ONLY eligible members, and only after the whole group.
+-    if (inputs.eligibility.direction_eligible && !prior_.observe_eligible_price(row.price_u6)) {
++    if (inputs.eligibility.direction_eligible && !prior_.observe_eligible_price(row.price_u6)) {  // MA31
+       return Expected<std::size_t, Refusal>::refuse(
+           Refusal(RefusalCode::ARITHMETIC_OVERFLOW, "qr_carriers::StockPrintStream::push_group",
+                   "stock print prior price sum overflowed", row.price_u6));
+@@ -381,7 +378,6 @@
+                          finite_member_mean(sum_short[index], count_short[index]));
+   }
+ 
+-  prior_.commit_group();
+   sequence_.commit_group();
+   interarrival_.commit_group(group_ts_ns_a);
+   vwap_notional_prefix_.push_back(vwap_notional_sum_);

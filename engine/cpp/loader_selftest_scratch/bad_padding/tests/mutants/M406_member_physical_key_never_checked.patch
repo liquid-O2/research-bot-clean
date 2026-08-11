@@ -1,0 +1,18 @@
+--- a/qr_candidates/src/roster.cpp
++++ b/qr_candidates/src/roster.cpp
+@@ -437,13 +437,13 @@
+     // physical identity at all, and no downstream object may pretend otherwise.
+     const std::string_view member_key = members.front()->physical_event_id;
+     for (const SignalAuth* member : members) {
+-      if (member->physical_event_id != member_key) {
++      if (false && member->physical_event_id != member_key) {
+         return refuse<SessionRoster>(
+             Refusal(RefusalCode::CONTENT_MISMATCH, kSite,
+                     "the member set spans more than one physical event", raw_row));
+       }
+     }
+-    if (member_key != candidate_key) {
++    if (false && member_key != candidate_key) {
+       return refuse<SessionRoster>(
+           Refusal(RefusalCode::CONTENT_MISMATCH, kSite,
+                   "the member physical event is not the candidate row's physical key", raw_row));

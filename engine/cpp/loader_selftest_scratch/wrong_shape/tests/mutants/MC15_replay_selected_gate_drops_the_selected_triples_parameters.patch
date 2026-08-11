@@ -1,0 +1,13 @@
+--- a/qr_replay/src/policy_gate.cpp
++++ b/qr_replay/src/policy_gate.cpp
+@@ -157,7 +157,9 @@
+ std::unique_ptr<PolicyGate> make_selected_gate(const GateSelection& selection) {
+   switch (selection.outcome) {
+     case GateSelectionOutcome::SELECTED:
+-      return std::make_unique<QuantileRiskGate>(selection.q_percent, selection.rho);
++      // MC15 MUTANT: the selected triple is ignored and a fixed cell is built
++      // instead, so the frozen (q, rho) never reaches the replay.
++      return std::make_unique<QuantileRiskGate>(10, 0.40);
+     case GateSelectionOutcome::NO_ADMISSIBLE_GATE:
+       return std::make_unique<PassAllGate>();
+   }

@@ -1,0 +1,11 @@
+--- a/qr_replay/src/pcg64.cpp
++++ b/qr_replay/src/pcg64.cpp
+@@ -73,7 +73,7 @@
+ U128 u128_add(U128 a, U128 b) noexcept {
+   U128 out{};
+   out.lo = a.lo + b.lo;
+-  out.hi = a.hi + b.hi + (out.lo < a.lo ? 1ull : 0ull);
++  out.hi = a.hi + b.hi;  // MUTANT M610: the carry is dropped
+   return out;
+ }
+ 

@@ -1,0 +1,13 @@
+--- a/python/campaign/train.py
++++ b/python/campaign/train.py
+@@ -356,7 +356,9 @@
+     torch.backends.cuda.matmul.allow_tf32 = False
+     torch.backends.cudnn.allow_tf32 = False
+     torch.use_deterministic_algorithms(True)
+-    torch.manual_seed(SEED)
++    # M943 MUTANT: the seed drifts with the clock, so two runs of the same
++    # config no longer agree.
++    torch.manual_seed(SEED + int(time.time() * 1000) % 4096)
+     if device.startswith("cuda"):
+         torch.cuda.manual_seed_all(SEED)
+ 

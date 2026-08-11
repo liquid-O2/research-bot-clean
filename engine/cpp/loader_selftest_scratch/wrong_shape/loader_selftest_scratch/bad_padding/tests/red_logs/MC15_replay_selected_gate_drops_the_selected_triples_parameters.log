@@ -1,0 +1,222 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 71 tests from 19 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from NumpyParity
+[ RUN      ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase
+[       OK ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase (8 ms)
+[ RUN      ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool
+[       OK ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool (0 ms)
+[ RUN      ] NumpyParity.GenerateStateReproducesBothTheThirtyTwoAndSixtyFourBitViews
+[       OK ] NumpyParity.GenerateStateReproducesBothTheThirtyTwoAndSixtyFourBitViews (0 ms)
+[ RUN      ] NumpyParity.TheRawSixtyFourBitStreamMatchesNumpyRandomRaw
+[       OK ] NumpyParity.TheRawSixtyFourBitStreamMatchesNumpyRandomRaw (0 ms)
+[ RUN      ] NumpyParity.TheThirtyTwoBitStreamTakesTheLowHalfFirstAndCachesTheHigh
+[       OK ] NumpyParity.TheThirtyTwoBitStreamTakesTheLowHalfFirstAndCachesTheHigh (0 ms)
+[ RUN      ] NumpyParity.TheCoinDrawsMatchNumpyGeneratorIntegersZeroTwo
+[       OK ] NumpyParity.TheCoinDrawsMatchNumpyGeneratorIntegersZeroTwo (0 ms)
+[ RUN      ] NumpyParity.CoinSideMapsTheFirstDrawOfItsOwnSeedStream
+[       OK ] NumpyParity.CoinSideMapsTheFirstDrawOfItsOwnSeedStream (0 ms)
+[ RUN      ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath
+[       OK ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath (0 ms)
+[----------] 8 tests from NumpyParity (22 ms total)
+
+[----------] 1 test from U128Arithmetic
+[ RUN      ] U128Arithmetic.MultiplyAddAndShiftAreExactAcrossTheCarryBoundary
+[       OK ] U128Arithmetic.MultiplyAddAndShiftAreExactAcrossTheCarryBoundary (0 ms)
+[----------] 1 test from U128Arithmetic (1 ms total)
+
+[----------] 2 tests from RunningQuantile
+[ RUN      ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation
+[       OK ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation (1159 ms)
+[ RUN      ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic
+[       OK ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic (0 ms)
+[----------] 2 tests from RunningQuantile (1175 ms total)
+
+[----------] 3 tests from GateCausality
+[ RUN      ] GateCausality.AFutureRowsScoreCannotChangeAnEarlierRowsDecision
+[       OK ] GateCausality.AFutureRowsScoreCannotChangeAnEarlierRowsDecision (0 ms)
+[ RUN      ] GateCausality.APriorRowsScoreDoesChangeALaterDecision
+[       OK ] GateCausality.APriorRowsScoreDoesChangeALaterDecision (0 ms)
+[ RUN      ] GateCausality.SameClockSiblingsAreNotInEachOthersPopulation
+[       OK ] GateCausality.SameClockSiblingsAreNotInEachOthersPopulation (0 ms)
+[----------] 3 tests from GateCausality (6 ms total)
+
+[----------] 2 tests from GateWarmUp
+[ RUN      ] GateWarmUp.NothingIsAdmittedBelowTheFiftyRowFloorAndTheFiftiethRowOpensIt
+[       OK ] GateWarmUp.NothingIsAdmittedBelowTheFiftyRowFloorAndTheFiftiethRowOpensIt (0 ms)
+[ RUN      ] GateWarmUp.TheFloorIsCountedInStrictlyPriorLegalRowsOnly
+[       OK ] GateWarmUp.TheFloorIsCountedInStrictlyPriorLegalRowsOnly (0 ms)
+[----------] 2 tests from GateWarmUp (3 ms total)
+
+[----------] 4 tests from GateNeverLooser
+[ RUN      ] GateNeverLooser.ADegeneratePopulationBlocksInsteadOfAdmittingEverything
+[       OK ] GateNeverLooser.ADegeneratePopulationBlocksInsteadOfAdmittingEverything (0 ms)
+[ RUN      ] GateNeverLooser.TheRiskLegBlocksAboveRho
+[       OK ] GateNeverLooser.TheRiskLegBlocksAboveRho (0 ms)
+[ RUN      ] GateNeverLooser.IllegalRowsAreNeitherAdmittedNorObserved
+[       OK ] GateNeverLooser.IllegalRowsAreNeitherAdmittedNorObserved (0 ms)
+[ RUN      ] GateNeverLooser.NonfiniteScoresBlockTheirOwnRowAndNeverJoinThePopulation
+[       OK ] GateNeverLooser.NonfiniteScoresBlockTheirOwnRowAndNeverJoinThePopulation (0 ms)
+[----------] 4 tests from GateNeverLooser (6 ms total)
+
+[----------] 4 tests from GateInReplay
+[ RUN      ] GateInReplay.TheKernelCountsNonfiniteScoresAndNeverTradesThem
+[       OK ] GateInReplay.TheKernelCountsNonfiniteScoresAndNeverTradesThem (0 ms)
+[ RUN      ] GateInReplay.TheKernelEvaluatesAClockBeforeItObservesAnyOfThatClocksRows
+[       OK ] GateInReplay.TheKernelEvaluatesAClockBeforeItObservesAnyOfThatClocksRows (0 ms)
+[ RUN      ] GateInReplay.NoTradeHappensUntilTheWarmUpFloorIsCleared
+[       OK ] GateInReplay.NoTradeHappensUntilTheWarmUpFloorIsCleared (0 ms)
+[ RUN      ] GateInReplay.OccupancyDoesNotChangeTheRunningPopulation
+[       OK ] GateInReplay.OccupancyDoesNotChangeTheRunningPopulation (0 ms)
+[----------] 4 tests from GateInReplay (8 ms total)
+
+[----------] 3 tests from NoAdmissibleGate
+[ RUN      ] NoAdmissibleGate.ZeroSurvivingCellsProduceAGateThatEntersNothingAndSaysWhy
+[       OK ] NoAdmissibleGate.ZeroSurvivingCellsProduceAGateThatEntersNothingAndSaysWhy (0 ms)
+[ RUN      ] NoAdmissibleGate.ASelectedTripleBuildsTheA6GateWithThatTriplesOwnParameters
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:596: Failure
+Expected equality of these values:
+  a6->q_percent()
+    Which is: 10
+  5
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:597: Failure
+Expected equality of these values:
+  a6->rho()
+    Which is: 0.40000000000000002
+  0.25
+
+[  FAILED  ] NoAdmissibleGate.ASelectedTripleBuildsTheA6GateWithThatTriplesOwnParameters (1 ms)
+[ RUN      ] NoAdmissibleGate.InTheReplayTheArmTradesNothingAndEveryClockIsTypedGateBlocked
+[       OK ] NoAdmissibleGate.InTheReplayTheArmTradesNothingAndEveryClockIsTypedGateBlocked (0 ms)
+[----------] 3 tests from NoAdmissibleGate (6 ms total)
+
+[----------] 6 tests from HandChronology
+[ RUN      ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger
+[       OK ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger (0 ms)
+[ RUN      ] HandChronology.AnOccupiedClockAtTheExactPriorExitInstantStillCannotEnter
+[       OK ] HandChronology.AnOccupiedClockAtTheExactPriorExitInstantStillCannotEnter (0 ms)
+[ RUN      ] HandChronology.SelectionDoesNotFallThroughToARunnerUpWhenTheTopLabelIsUnavailable
+[       OK ] HandChronology.SelectionDoesNotFallThroughToARunnerUpWhenTheTopLabelIsUnavailable (0 ms)
+[ RUN      ] HandChronology.TheZeroTradeSessionIsATypedZeroNotAnAbsence
+[       OK ] HandChronology.TheZeroTradeSessionIsATypedZeroNotAnAbsence (0 ms)
+[ RUN      ] HandChronology.EveryClockIsAccountedForInTheCensus
+[       OK ] HandChronology.EveryClockIsAccountedForInTheCensus (0 ms)
+[ RUN      ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals
+[       OK ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals (0 ms)
+[----------] 6 tests from HandChronology (9 ms total)
+
+[----------] 17 tests from ReplayLaws
+[ RUN      ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror
+[       OK ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror (0 ms)
+[ RUN      ] ReplayLaws.TheExecutedTradeCarriesItsOwnLabelsGapThroughSoTheBreachPanelSeesTheWall
+[       OK ] ReplayLaws.TheExecutedTradeCarriesItsOwnLabelsGapThroughSoTheBreachPanelSeesTheWall (0 ms)
+[ RUN      ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce
+[       OK ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce (0 ms)
+[ RUN      ] ReplayLaws.ALabelThatDidNotChargeTheCostExactlyOnceIsRefused
+[       OK ] ReplayLaws.ALabelThatDidNotChargeTheCostExactlyOnceIsRefused (0 ms)
+[ RUN      ] ReplayLaws.ANewEntryRequiresAClockStrictlyAfterThePriorExit
+[       OK ] ReplayLaws.ANewEntryRequiresAClockStrictlyAfterThePriorExit (0 ms)
+[ RUN      ] ReplayLaws.AnExactTopTieAbstainsUnderEitherRowOrder
+[       OK ] ReplayLaws.AnExactTopTieAbstainsUnderEitherRowOrder (0 ms)
+[ RUN      ] ReplayLaws.ATieBelowAUniqueTopDoesNotAbstain
+[       OK ] ReplayLaws.ATieBelowAUniqueTopDoesNotAbstain (0 ms)
+[ RUN      ] ReplayLaws.ALabelCarryingAnotherRowsKeyIsRefusedNotExecuted
+[       OK ] ReplayLaws.ALabelCarryingAnotherRowsKeyIsRefusedNotExecuted (0 ms)
+[ RUN      ] ReplayLaws.ALabelWhoseSideDoesNotMatchItsRowIsRefused
+[       OK ] ReplayLaws.ALabelWhoseSideDoesNotMatchItsRowIsRefused (0 ms)
+[ RUN      ] ReplayLaws.EntriesAreUncapped
+[       OK ] ReplayLaws.EntriesAreUncapped (0 ms)
+[ RUN      ] ReplayLaws.ANonChronologicalTapeIsRefusedAndNeverSortedIntoSilence
+[       OK ] ReplayLaws.ANonChronologicalTapeIsRefusedAndNeverSortedIntoSilence (0 ms)
+[ RUN      ] ReplayLaws.TwoRowsSharingOnePredictionKeyAtOneClockAreRefused
+[       OK ] ReplayLaws.TwoRowsSharingOnePredictionKeyAtOneClockAreRefused (0 ms)
+[ RUN      ] ReplayLaws.AForeignSessionRowIsRefused
+[       OK ] ReplayLaws.AForeignSessionRowIsRefused (0 ms)
+[ RUN      ] ReplayLaws.AFillAtItsOwnDecisionInstantIsAClockViolation
+[       OK ] ReplayLaws.AFillAtItsOwnDecisionInstantIsAClockViolation (0 ms)
+[ RUN      ] ReplayLaws.AnExitBeforeItsOwnEntryIsAClockViolation
+[       OK ] ReplayLaws.AnExitBeforeItsOwnEntryIsAClockViolation (0 ms)
+[ RUN      ] ReplayLaws.AHorizonOutsideTheSevenMenuIsARefusal
+[       OK ] ReplayLaws.AHorizonOutsideTheSevenMenuIsARefusal (0 ms)
+[ RUN      ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther
+[       OK ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther (0 ms)
+[----------] 17 tests from ReplayLaws (27 ms total)
+
+[----------] 3 tests from NullControls
+[ RUN      ] NullControls.ForcedSidesTradeTheModelsOwnClocksOnTheForcedSide
+[       OK ] NullControls.ForcedSidesTradeTheModelsOwnClocksOnTheForcedSide (0 ms)
+[ RUN      ] NullControls.AForcedSideWithNoLegalRowOfThatSideIsTypedNotSilent
+[       OK ] NullControls.AForcedSideWithNoLegalRowOfThatSideIsTypedNotSilent (0 ms)
+[ RUN      ] NullControls.TheSeededCoinIsReproducibleAndAgreesWithItsOwnSeedStream
+[       OK ] NullControls.TheSeededCoinIsReproducibleAndAgreesWithItsOwnSeedStream (0 ms)
+[----------] 3 tests from NullControls (19 ms total)
+
+[----------] 2 tests from DailyLossLimit
+[ RUN      ] DailyLossLimit.TheSessionHaltsOnceRealizedProfitAndLossReachesTheFrozenLimit
+[       OK ] DailyLossLimit.TheSessionHaltsOnceRealizedProfitAndLossReachesTheFrozenLimit (0 ms)
+[ RUN      ] DailyLossLimit.TheUnlimitedPanelKeepsTrading
+[       OK ] DailyLossLimit.TheUnlimitedPanelKeepsTrading (0 ms)
+[----------] 2 tests from DailyLossLimit (3 ms total)
+
+[----------] 3 tests from ZeroInclusiveMdd
+[ RUN      ] ZeroInclusiveMdd.ThePeakBeforeAnyGainIsCountedBecauseEZeroIsInTheRunningMaximum
+[       OK ] ZeroInclusiveMdd.ThePeakBeforeAnyGainIsCountedBecauseEZeroIsInTheRunningMaximum (0 ms)
+[ RUN      ] ZeroInclusiveMdd.TheDrawdownIsTheMaximumOverEveryDayNotJustTheLastOne
+[       OK ] ZeroInclusiveMdd.TheDrawdownIsTheMaximumOverEveryDayNotJustTheLastOne (0 ms)
+[ RUN      ] ZeroInclusiveMdd.AnAllWinningSequenceHasNoDrawdownAtAll
+[       OK ] ZeroInclusiveMdd.AnAllWinningSequenceHasNoDrawdownAtAll (0 ms)
+[----------] 3 tests from ZeroInclusiveMdd (4 ms total)
+
+[----------] 1 test from Denominator
+[ RUN      ] Denominator.ZeroTradeSessionsStayInTheDenominatorAndInTheEquityPath
+[       OK ] Denominator.ZeroTradeSessionsStayInTheDenominatorAndInTheEquityPath (0 ms)
+[----------] 1 test from Denominator (1 ms total)
+
+[----------] 3 tests from ConcentrationPanels
+[ RUN      ] ConcentrationPanels.LeaveTopTenOutDropsExactlyTheTenLargestSessions
+[       OK ] ConcentrationPanels.LeaveTopTenOutDropsExactlyTheTenLargestSessions (0 ms)
+[ RUN      ] ConcentrationPanels.LeaveTopTenOutIsUndefinedAtTenSessionsOrFewer
+[       OK ] ConcentrationPanels.LeaveTopTenOutIsUndefinedAtTenSessionsOrFewer (0 ms)
+[ RUN      ] ConcentrationPanels.MinYearIsTheWorstYearsOwnMean
+[       OK ] ConcentrationPanels.MinYearIsTheWorstYearsOwnMean (0 ms)
+[----------] 3 tests from ConcentrationPanels (4 ms total)
+
+[----------] 3 tests from BreachPanel
+[ RUN      ] BreachPanel.ABreachIsAStopThatGappedThroughTheWallNotMerelyAnMaeAboveIt
+[       OK ] BreachPanel.ABreachIsAStopThatGappedThroughTheWallNotMerelyAnMaeAboveIt (0 ms)
+[ RUN      ] BreachPanel.EveryStoppedTradeClearsTheMaeThresholdSoTheMaeTestCannotBeTheBreachTest
+[       OK ] BreachPanel.EveryStoppedTradeClearsTheMaeThresholdSoTheMaeTestCannotBeTheBreachTest (0 ms)
+[ RUN      ] BreachPanel.AGapThroughOnARowThatDidNotStopIsNotABreachEither
+[       OK ] BreachPanel.AGapThroughOnARowThatDidNotStopIsNotABreachEither (0 ms)
+[----------] 3 tests from BreachPanel (4 ms total)
+
+[----------] 3 tests from MaeQuantiles
+[ RUN      ] MaeQuantiles.NearestRankOverTenTradesMatchesTheHandComputedIndices
+[       OK ] MaeQuantiles.NearestRankOverTenTradesMatchesTheHandComputedIndices (0 ms)
+[ RUN      ] MaeQuantiles.NearestRankRoundsUpOnAnUnevenCountAndPoolsEverySession
+[       OK ] MaeQuantiles.NearestRankRoundsUpOnAnUnevenCountAndPoolsEverySession (0 ms)
+[ RUN      ] MaeQuantiles.ASingleTradeIsItsOwnEveryQuantileAndNoTradeIsZero
+[       OK ] MaeQuantiles.ASingleTradeIsItsOwnEveryQuantileAndNoTradeIsZero (0 ms)
+[----------] 3 tests from MaeQuantiles (3 ms total)
+
+[----------] 2 tests from ScorecardRefusals
+[ RUN      ] ScorecardRefusals.SessionsOutOfChronologicalOrderAreRefused
+[       OK ] ScorecardRefusals.SessionsOutOfChronologicalOrderAreRefused (0 ms)
+[ RUN      ] ScorecardRefusals.AScorecardOverZeroSessionsIsRefused
+[       OK ] ScorecardRefusals.AScorecardOverZeroSessionsIsRefused (0 ms)
+[----------] 2 tests from ScorecardRefusals (2 ms total)
+
+[----------] 1 test from ReplayBudget
+[ RUN      ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall
+[ BUDGET   ] qr_replay: 1000000 actions in 0.3196s (3129066 actions/s, 17500 trades)
+[       OK ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall (1162 ms)
+[----------] 1 test from ReplayBudget (1164 ms total)
+
+[----------] Global test environment tear-down
+[==========] 71 tests from 19 test suites ran. (2509 ms total)
+[  PASSED  ] 70 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] NoAdmissibleGate.ASelectedTripleBuildsTheA6GateWithThatTriplesOwnParameters
+
+ 1 FAILED TEST

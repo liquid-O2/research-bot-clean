@@ -1,0 +1,14 @@
+--- a/qr_nbbo/src/census.cpp
++++ b/qr_nbbo/src/census.cpp
+@@ -195,9 +195,8 @@
+   // post-open boundary is the session's own close, otherwise open + 6h30m.
+   // Both equal `close_b` for a well-formed row (close_b = open_b +
+   // bar_count * 60s), and the branch is kept because the reference's is.
+-  const std::int64_t after_open = clock.expected_bar_count() == 210
+-                                      ? clock.close_b().ns()
+-                                      : open_ns + (6 * 60 * 60 + 30 * 60) * 1'000'000'000LL;
++  // M711: the early-close branch is gone.
++  const std::int64_t after_open = open_ns + (6 * 60 * 60 + 30 * 60) * 1'000'000'000LL;
+   const std::int64_t after_close = after_open + (4 * 60 * 60 * 1'000'000'000LL);
+   const std::int64_t ns = ts_b.value().ns();
+   if (ns >= four_am && ns < open_ns) {

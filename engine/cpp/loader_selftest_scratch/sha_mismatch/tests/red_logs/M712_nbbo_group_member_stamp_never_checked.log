@@ -1,0 +1,131 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 34 tests from 16 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from MemberViews
+[ RUN      ] MemberViews.ANormalTightTwoSidedQuoteIsValidInAllThreeViews
+[       OK ] MemberViews.ANormalTightTwoSidedQuoteIsValidInAllThreeViews (0 ms)
+[ RUN      ] MemberViews.LockedIsStructurallyValidForTheCsrAndAMaskedQualityTokenForTheCard
+[       OK ] MemberViews.LockedIsStructurallyValidForTheCsrAndAMaskedQualityTokenForTheCard (0 ms)
+[ RUN      ] MemberViews.CrossedIsRejectedByTheCsrAndTypedCrossed
+[       OK ] MemberViews.CrossedIsRejectedByTheCsrAndTypedCrossed (0 ms)
+[ RUN      ] MemberViews.AZeroPricedSideIsOneSidedToTheCensusAndNonpositiveToTheLattice
+[       OK ] MemberViews.AZeroPricedSideIsOneSidedToTheCensusAndNonpositiveToTheLattice (0 ms)
+[ RUN      ] MemberViews.ANullPricedSideIsOneSidedInTheLattice
+[       OK ] MemberViews.ANullPricedSideIsOneSidedInTheLattice (0 ms)
+[ RUN      ] MemberViews.BothSidesAbsentIsMissing
+[       OK ] MemberViews.BothSidesAbsentIsMissing (0 ms)
+[ RUN      ] MemberViews.ConditionIneligibleIsNormalToTheCensusAndIneligibleToTheCard
+[       OK ] MemberViews.ConditionIneligibleIsNormalToTheCensusAndIneligibleToTheCard (0 ms)
+[ RUN      ] MemberViews.APriceAboveTheSanityCeilingIsNonfiniteAndInvalid
+[       OK ] MemberViews.APriceAboveTheSanityCeilingIsNonfiniteAndInvalid (0 ms)
+[ RUN      ] MemberViews.ANonpositiveSizeIsInvalidToTheCensusAndNonpositiveToTheLattice
+[       OK ] MemberViews.ANonpositiveSizeIsInvalidToTheCensusAndNonpositiveToTheLattice (0 ms)
+[ RUN      ] MemberViews.AnOddBidPlusAskIsStructurallyRejectedBecauseItsMidpointWouldNotBeExact
+[       OK ] MemberViews.AnOddBidPlusAskIsStructurallyRejectedBecauseItsMidpointWouldNotBeExact (0 ms)
+[----------] 10 tests from MemberViews (0 ms total)
+
+[----------] 2 tests from ScientificSpread
+[ RUN      ] ScientificSpread.TheFiftyBasisPointBarIsInclusiveAtItsExactBoundary
+[       OK ] ScientificSpread.TheFiftyBasisPointBarIsInclusiveAtItsExactBoundary (0 ms)
+[ RUN      ] ScientificSpread.ADollarWideMarketIsNotScientificAndAZeroSpreadAlwaysIs
+[       OK ] ScientificSpread.ADollarWideMarketIsNotScientificAndAZeroSpreadAlwaysIs (0 ms)
+[----------] 2 tests from ScientificSpread (0 ms total)
+
+[----------] 3 tests from DomainClassifier
+[ RUN      ] DomainClassifier.TheFourRegisteredDomainsOfARegularSession
+[       OK ] DomainClassifier.TheFourRegisteredDomainsOfARegularSession (9 ms)
+[ RUN      ] DomainClassifier.AnEarlyCloseUsesItsOwnCloseAsThePostOpenBoundary
+[       OK ] DomainClassifier.AnEarlyCloseUsesItsOwnCloseAsThePostOpenBoundary (0 ms)
+[ RUN      ] DomainClassifier.ItIsTotalAndNeverAbortsOnAnOffDayOrMalformedOrAbsentStamp
+[       OK ] DomainClassifier.ItIsTotalAndNeverAbortsOnAnOffDayOrMalformedOrAbsentStamp (0 ms)
+[----------] 3 tests from DomainClassifier (9 ms total)
+
+[----------] 2 tests from GoldenTape
+[ RUN      ] GoldenTape.EveryGroupResolvesToItsHandComputedRow
+[       OK ] GoldenTape.EveryGroupResolvesToItsHandComputedRow (0 ms)
+[ RUN      ] GoldenTape.TheCensusIsTheHandComputedOne
+[       OK ] GoldenTape.TheCensusIsTheHandComputedOne (0 ms)
+[----------] 2 tests from GoldenTape (0 ms total)
+
+[----------] 2 tests from ScalarMeansLaw
+[ RUN      ] ScalarMeansLaw.TheMidpointIsDerivedFromTheSeparateMeansAndNeverFromRowMidpoints
+[       OK ] ScalarMeansLaw.TheMidpointIsDerivedFromTheSeparateMeansAndNeverFromRowMidpoints (0 ms)
+[ RUN      ] ScalarMeansLaw.AGroupWithNoEligibleMemberHasMissingMeansAndAMaskedZero
+[       OK ] ScalarMeansLaw.AGroupWithNoEligibleMemberHasMissingMeansAndAMaskedZero (0 ms)
+[----------] 2 tests from ScalarMeansLaw (0 ms total)
+
+[----------] 2 tests from PriorStateLaw
+[ RUN      ] PriorStateLaw.ThePriorIsFrozenForTheWholeGroupAndMovesOnlyAfterIt
+[       OK ] PriorStateLaw.ThePriorIsFrozenForTheWholeGroupAndMovesOnlyAfterIt (0 ms)
+[ RUN      ] PriorStateLaw.EveryChangeIsMeasuredAgainstTheNearestEarlierEligibleGroup
+[       OK ] PriorStateLaw.EveryChangeIsMeasuredAgainstTheNearestEarlierEligibleGroup (0 ms)
+[----------] 2 tests from PriorStateLaw (0 ms total)
+
+[----------] 1 test from PermutationInvariance
+[ RUN      ] PermutationInvariance.PermutingRowsInsideEveryEqualTimeGroupChangesNothing
+[       OK ] PermutationInvariance.PermutingRowsInsideEveryEqualTimeGroupChangesNothing (1 ms)
+[----------] 1 test from PermutationInvariance (1 ms total)
+
+[----------] 1 test from Determinism
+[ RUN      ] Determinism.TwoRunsOverTheSameTapeAreByteIdentical
+[       OK ] Determinism.TwoRunsOverTheSameTapeAreByteIdentical (0 ms)
+[----------] 1 test from Determinism (0 ms total)
+
+[----------] 2 tests from RegistryOracle
+[ RUN      ] RegistryOracle.TheSealRefusesWhenEitherPinnedCountDisagrees
+[       OK ] RegistryOracle.TheSealRefusesWhenEitherPinnedCountDisagrees (0 ms)
+[ RUN      ] RegistryOracle.TheGroupCountIsALiveWallAndNotOnlyAFinalCheck
+[       OK ] RegistryOracle.TheGroupCountIsALiveWallAndNotOnlyAFinalCheck (0 ms)
+[----------] 2 tests from RegistryOracle (0 ms total)
+
+[----------] 1 test from OrderLaw
+[ RUN      ] OrderLaw.ASplitEqualTimeRunAndADescendingTapeAreBothRefused
+[       OK ] OrderLaw.ASplitEqualTimeRunAndADescendingTapeAreBothRefused (0 ms)
+[----------] 1 test from OrderLaw (0 ms total)
+
+[----------] 1 test from StructuralWalls
+[ RUN      ] StructuralWalls.NonRthEmptyAndMisstampedGroupsAreAllRefused
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:558: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] StructuralWalls.NonRthEmptyAndMisstampedGroupsAreAllRefused (0 ms)
+[----------] 1 test from StructuralWalls (0 ms total)
+
+[----------] 1 test from CsrInvariant
+[ RUN      ] CsrInvariant.EveryOffsetsArrayCarriesExactlyOnePlusSizeEntries
+[       OK ] CsrInvariant.EveryOffsetsArrayCarriesExactlyOnePlusSizeEntries (0 ms)
+[----------] 1 test from CsrInvariant (0 ms total)
+
+[----------] 2 tests from FixtureCensus
+[ RUN      ] FixtureCensus.TheMachineReproducesTheFixtureTreesCommittedCountsThroughTheRealReader
+[       OK ] FixtureCensus.TheMachineReproducesTheFixtureTreesCommittedCountsThroughTheRealReader (17 ms)
+[ RUN      ] FixtureCensus.PermutingTheFixturesInGroupRowOrderLeavesTheCensusIdentical
+[       OK ] FixtureCensus.PermutingTheFixturesInGroupRowOrderLeavesTheCensusIdentical (5 ms)
+[----------] 2 tests from FixtureCensus (22 ms total)
+
+[----------] 2 tests from ShareEra
+[ RUN      ] ShareEra.TheSameTapeInLotsAndInSharesReducesToTheSameBytes
+[       OK ] ShareEra.TheSameTapeInLotsAndInSharesReducesToTheSameBytes (0 ms)
+[ RUN      ] ShareEra.MisdatingTheEraByOneDayMovesEverySizeMeanByAHundredfold
+[       OK ] ShareEra.MisdatingTheEraByOneDayMovesEverySizeMeanByAHundredfold (0 ms)
+[----------] 2 tests from ShareEra (0 ms total)
+
+[----------] 1 test from CensusTsv
+[ RUN      ] CensusTsv.EveryKindFlagStateDomainAndValidityIsPrintedInFullIncludingZeros
+[       OK ] CensusTsv.EveryKindFlagStateDomainAndValidityIsPrintedInFullIncludingZeros (0 ms)
+[----------] 1 test from CensusTsv (0 ms total)
+
+[----------] 1 test from CommittedCensus
+[ RUN      ] CommittedCensus.TheSessionOneTwentyFiveCensusMatchesTheFrozenRegistryRow
+[       OK ] CommittedCensus.TheSessionOneTwentyFiveCensusMatchesTheFrozenRegistryRow (3 ms)
+[----------] 1 test from CommittedCensus (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 34 tests from 16 test suites ran. (39 ms total)
+[  PASSED  ] 33 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] StructuralWalls.NonRthEmptyAndMisstampedGroupsAreAllRefused
+
+ 1 FAILED TEST

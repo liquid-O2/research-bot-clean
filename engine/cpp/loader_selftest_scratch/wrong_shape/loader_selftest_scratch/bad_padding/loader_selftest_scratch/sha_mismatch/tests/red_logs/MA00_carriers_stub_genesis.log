@@ -1,0 +1,2165 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 78 tests from 32 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from TransformTable
+[ RUN      ] TransformTable.NonnegativeCountRowIsLog1pAndRefusesItsOwnDomain
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:29: Failure
+Expected equality of these values:
+  count_log1p(0).v
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:31: Failure
+The difference between count_log1p(99).value and kLog100 is 4.6051701859880918, which exceeds 1e-15, where
+count_log1p(99).value evaluates to 0,
+kLog100 evaluates to 4.6051701859880918, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+[  FAILED  ] TransformTable.NonnegativeCountRowIsLog1pAndRefusesItsOwnDomain (0 ms)
+[ RUN      ] TransformTable.TimeRowIsCheckedIntegerMicrosecondsThenLog1p
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:49: Failure
+The difference between time_log1p_micros(999'999).value and kLog1e6 is 13.815510557964274, which exceeds 1e-13, where
+time_log1p_micros(999'999).value evaluates to 0,
+kLog1e6 evaluates to 13.815510557964274, and
+1e-13 evaluates to 1e-13.
+
+[  FAILED  ] TransformTable.TimeRowIsCheckedIntegerMicrosecondsThenLog1p (0 ms)
+[ RUN      ] TransformTable.SecondsDoorIsTheSameClockDividedByAMillion
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:61: Failure
+The difference between time_log1p_seconds(1'500'000).value and kLog1p1p5 is 0.91629073187415511, which exceeds 1e-15, where
+time_log1p_seconds(1'500'000).value evaluates to 0,
+kLog1p1p5 evaluates to 0.91629073187415511, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+[  FAILED  ] TransformTable.SecondsDoorIsTheSameClockDividedByAMillion (0 ms)
+[ RUN      ] TransformTable.SignedRowIsOddAndCarriesTheSignThroughLog1p
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:68: Failure
+The difference between signed_log1p(99.0).value and kLog100 is 4.6051701859880918, which exceeds 1e-15, where
+signed_log1p(99.0).value evaluates to 0,
+kLog100 evaluates to 4.6051701859880918, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:69: Failure
+The difference between signed_log1p(-99.0).value and -kLog100 is 4.6051701859880918, which exceeds 1e-15, where
+signed_log1p(-99.0).value evaluates to 0,
+-kLog100 evaluates to -4.6051701859880918, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:74: Failure
+The difference between signed_log1p_int(-99).value and -kLog100 is 4.6051701859880918, which exceeds 1e-15, where
+signed_log1p_int(-99).value evaluates to 0,
+-kLog100 evaluates to -4.6051701859880918, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+[  FAILED  ] TransformTable.SignedRowIsOddAndCarriesTheSignThroughLog1p (0 ms)
+[ RUN      ] TransformTable.PriceDisplacementRowTruncatesTowardZeroOnCheckedIntegers
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:84: Failure
+Expected equality of these values:
+  positive.value().v
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:85: Failure
+Expected equality of these values:
+  positive.value().value
+    Which is: 0
+  123
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:89: Failure
+Expected equality of these values:
+  negative.value().value
+    Which is: 0
+  -123
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:95: Failure
+Expected equality of these values:
+  tiny.value().v
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+[  FAILED  ] TransformTable.PriceDisplacementRowTruncatesTowardZeroOnCheckedIntegers (0 ms)
+[ RUN      ] TransformTable.FractionRowEmitsValueZeroPresenceZeroOnAZeroDenominator
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:114: Failure
+Expected equality of these values:
+  fraction(3, 4).v
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:115: Failure
+Expected equality of these values:
+  fraction(3, 4).value
+    Which is: 0
+  0.75
+
+[  FAILED  ] TransformTable.FractionRowEmitsValueZeroPresenceZeroOnAZeroDenominator (0 ms)
+[ RUN      ] TransformTable.ReliabilityRModalityIsTheOneDeclaredPresentWithZeroCase
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:125: Failure
+Expected equality of these values:
+  reliability_r_modality(3, 4).value
+    Which is: 0
+  0.75
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:126: Failure
+Expected equality of these values:
+  reliability_r_modality(0, 0).v
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+[  FAILED  ] TransformTable.ReliabilityRModalityIsTheOneDeclaredPresentWithZeroCase (0 ms)
+[ RUN      ] TransformTable.RawGreekRowAppliesNoTransformAndTypesTheNonFinite
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:132: Failure
+Expected equality of these values:
+  raw_dimensionless(0.5).value
+    Which is: 0
+  0.5
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:133: Failure
+Expected equality of these values:
+  raw_dimensionless(-0.0625).value
+    Which is: 0
+  -0.0625
+
+[  FAILED  ] TransformTable.RawGreekRowAppliesNoTransformAndTypesTheNonFinite (0 ms)
+[ RUN      ] TransformTable.DteRowIsLog1pOfNonnegativeCalendarDays
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:141: Failure
+The difference between dte_log1p_days(29).value and kLog30 is 3.4011973816621555, which exceeds 1e-15, where
+dte_log1p_days(29).value evaluates to 0,
+kLog30 evaluates to 3.4011973816621555, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+[  FAILED  ] TransformTable.DteRowIsLog1pOfNonnegativeCalendarDays (0 ms)
+[ RUN      ] TransformTable.StructuralBitsAndFiniteMeansFollowTheirOwnStatedLaws
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:147: Failure
+Expected equality of these values:
+  structural_bit(false).v
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:149: Failure
+Expected equality of these values:
+  structural_bit(true).value
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_transforms.cpp:152: Failure
+Expected equality of these values:
+  finite_member_mean(7.5, 3).value
+    Which is: 0
+  2.5
+
+[  FAILED  ] TransformTable.StructuralBitsAndFiniteMeansFollowTheirOwnStatedLaws (0 ms)
+[----------] 10 tests from TransformTable (1 ms total)
+
+[----------] 4 tests from StockPrintPriorMachine
+[ RUN      ] StockPrintPriorMachine.PriorMovesOnlyAfterTheWholeGroupIsReduced
+[       OK ] StockPrintPriorMachine.PriorMovesOnlyAfterTheWholeGroupIsReduced (0 ms)
+[ RUN      ] StockPrintPriorMachine.TheMeanIsAnExactIntegerSumTruncatedOnce
+[       OK ] StockPrintPriorMachine.TheMeanIsAnExactIntegerSumTruncatedOnce (0 ms)
+[ RUN      ] StockPrintPriorMachine.AGroupWithNoEligibleMemberNeverBecomesThePrior
+[       OK ] StockPrintPriorMachine.AGroupWithNoEligibleMemberNeverBecomesThePrior (0 ms)
+[ RUN      ] StockPrintPriorMachine.MemberOrderInsideAGroupChangesNothing
+[       OK ] StockPrintPriorMachine.MemberOrderInsideAGroupChangesNothing (0 ms)
+[----------] 4 tests from StockPrintPriorMachine (0 ms total)
+
+[----------] 3 tests from NbboScalarLaw
+[ RUN      ] NbboScalarLaw.MidpointComesFromTheSCALARMeansAndNotFromPerRowMidpoints
+[       OK ] NbboScalarLaw.MidpointComesFromTheSCALARMeansAndNotFromPerRowMidpoints (0 ms)
+[ RUN      ] NbboScalarLaw.Cc005ImbalanceComesFromTheTwoSizeMeansAndNotFromPerRowRatios
+/workspace/engine/cpp/qr_carriers/tests/test_prior_state.cpp:125: Failure
+Expected equality of these values:
+  imbalance.v
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+[  FAILED  ] NbboScalarLaw.Cc005ImbalanceComesFromTheTwoSizeMeansAndNotFromPerRowRatios (0 ms)
+[ RUN      ] NbboScalarLaw.AZeroSizeDenominatorIsTypedMissingAndNotADivisionByZero
+[       OK ] NbboScalarLaw.AZeroSizeDenominatorIsTypedMissingAndNotADivisionByZero (0 ms)
+[----------] 3 tests from NbboScalarLaw (0 ms total)
+
+[----------] 1 test from NbboPriorMachineLaw
+[ RUN      ] NbboPriorMachineLaw.TheFrozenPriorMovesOnlyOnCommitAndOnlyForEligibleGroups
+[       OK ] NbboPriorMachineLaw.TheFrozenPriorMovesOnlyOnCommitAndOnlyForEligibleGroups (0 ms)
+[----------] 1 test from NbboPriorMachineLaw (0 ms total)
+
+[----------] 1 test from OptionContractPriorLaw
+[ RUN      ] OptionContractPriorLaw.EachExactContractCarriesItsOwnPriorAndNothingElseDoes
+[       OK ] OptionContractPriorLaw.EachExactContractCarriesItsOwnPriorAndNothingElseDoes (0 ms)
+[----------] 1 test from OptionContractPriorLaw (0 ms total)
+
+[----------] 3 tests from UnderlyingPriorLaw
+[ RUN      ] UnderlyingPriorLaw.OnlyMembersSharingTheGreatestValidAttachmentUpdateThePrior
+[       OK ] UnderlyingPriorLaw.OnlyMembersSharingTheGreatestValidAttachmentUpdateThePrior (0 ms)
+[ RUN      ] UnderlyingPriorLaw.TheUpdateIsInvariantUnderSameGroupMemberOrder
+[       OK ] UnderlyingPriorLaw.TheUpdateIsInvariantUnderSameGroupMemberOrder (0 ms)
+[ RUN      ] UnderlyingPriorLaw.AGroupWithNoValidAttachmentLeavesThePriorUnchanged
+[       OK ] UnderlyingPriorLaw.AGroupWithNoValidAttachmentLeavesThePriorUnchanged (0 ms)
+[----------] 3 tests from UnderlyingPriorLaw (0 ms total)
+
+[----------] 4 tests from SequenceLaw
+[ RUN      ] SequenceLaw.GapIsCurrentMinMinusPreviousMaxAndTheFirstValidGroupHasNone
+[       OK ] SequenceLaw.GapIsCurrentMinMinusPreviousMaxAndTheFirstValidGroupHasNone (0 ms)
+[ RUN      ] SequenceLaw.DroppingTheFirstSequenceValidGroupMovesExactlyTheDeclaredOutputs
+[       OK ] SequenceLaw.DroppingTheFirstSequenceValidGroupMovesExactlyTheDeclaredOutputs (0 ms)
+[ RUN      ] SequenceLaw.DroppingThePREVIOUSSequenceValidGroupChangesTheGapItAnchored
+[       OK ] SequenceLaw.DroppingThePREVIOUSSequenceValidGroupChangesTheGapItAnchored (0 ms)
+[ RUN      ] SequenceLaw.MinAndMaxAreTheOnlyWithinGroupStatisticsAndArePermutationInvariant
+[       OK ] SequenceLaw.MinAndMaxAreTheOnlyWithinGroupStatisticsAndArePermutationInvariant (0 ms)
+[----------] 4 tests from SequenceLaw (0 ms total)
+
+[----------] 1 test from GroupInterarrivalLaw
+[ RUN      ] GroupInterarrivalLaw.TheFirstGroupHasNoInterarrivalAndTheSecondHasOne
+[       OK ] GroupInterarrivalLaw.TheFirstGroupHasNoInterarrivalAndTheSecondHasOne (0 ms)
+[----------] 1 test from GroupInterarrivalLaw (0 ms total)
+
+[----------] 4 tests from StockPrintChannels
+[ RUN      ] StockPrintChannels.TheSeventeenChannelsAreTheCardsSeventeenValues
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:97: Failure
+The difference between channels.value[kSpLogInterarrival] and std::log1p(2'000'000.0) is 14.508658238524095, which exceeds 1e-12, where
+channels.value[kSpLogInterarrival] evaluates to 0,
+std::log1p(2'000'000.0) evaluates to 14.508658238524095, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:100: Failure
+Expected equality of these values:
+  channels.value[kSpOrientedPrintReturn]
+    Which is: 0
+  3.0
+    Which is: 3
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:103: Failure
+Expected equality of these values:
+  channels.value[kSpOrientedPrintMinusMid]
+    Which is: 0
+  3.0
+    Which is: 3
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:105: Failure
+Expected equality of these values:
+  channels.value[kSpOrientedAggressor]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:107: Failure
+The difference between channels.value[kSpLogSize] and std::log1p(300.0) is 5.7071102647488754, which exceeds 1e-15, where
+channels.value[kSpLogSize] evaluates to 0,
+std::log1p(300.0) evaluates to 5.7071102647488754, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:109: Failure
+The difference between channels.value[kSpOrientedSignedSize] and std::log1p(300.0) is 5.7071102647488754, which exceeds 1e-15, where
+channels.value[kSpOrientedSignedSize] evaluates to 0,
+std::log1p(300.0) evaluates to 5.7071102647488754, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:111: Failure
+Expected equality of these values:
+  channels.value[kSpSpreadBps]
+    Which is: 0
+  2.0
+    Which is: 2
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:113: Failure
+The difference between channels.value[kSpLogOwnAttachedSize] and std::log1p(700.0) is 6.5525078870345901, which exceeds 1e-15, where
+channels.value[kSpLogOwnAttachedSize] evaluates to 0,
+std::log1p(700.0) evaluates to 6.5525078870345901, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:115: Failure
+The difference between channels.value[kSpLogOppositeAttachedSize] and std::log1p(500.0) is 6.2166061010848646, which exceeds 1e-15, where
+channels.value[kSpLogOppositeAttachedSize] evaluates to 0,
+std::log1p(500.0) evaluates to 6.2166061010848646, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:117: Failure
+Expected equality of these values:
+  channels.value[kSpOrientedSizeImbalance]
+    Which is: 0
+  -1.0 / 6.0
+    Which is: -0.16666666666666666
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:119: Failure
+The difference between channels.value[kSpLogQuoteAge] and std::log1p(1'000'000.0) is 13.815511557963774, which exceeds 1e-12, where
+channels.value[kSpLogQuoteAge] evaluates to 0,
+std::log1p(1'000'000.0) evaluates to 13.815511557963774, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:121: Failure
+Expected equality of these values:
+  channels.value[kSpQuotePresent]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:122: Failure
+Expected equality of these values:
+  channels.value[kSpAttachmentValid]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:123: Failure
+The difference between channels.value[kSpSequenceGapSignedLog] and std::log1p(5.0) is 1.791759469228055, which exceeds 1e-15, where
+channels.value[kSpSequenceGapSignedLog] evaluates to 0,
+std::log1p(5.0) evaluates to 1.791759469228055, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:124: Failure
+Expected equality of these values:
+  channels.value[kSpSequenceMonotone]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:125: Failure
+Expected equality of these values:
+  channels.value[kSpSameMs]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:126: Failure
+Expected equality of these values:
+  channels.value[kSpDirectionalEligible]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_INTERARRIVAL
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_PRINT_RETURN
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_PRINT_MINUS_MID
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_AGGRESSOR
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_SIZE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_SIGNED_SIZE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+SPREAD_BPS
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_OWN_ATTACHED_SIZE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_OPPOSITE_ATTACHED_SIZE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_SIZE_IMBALANCE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_QUOTE_AGE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+QUOTE_PRESENT
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ATTACHMENT_VALID
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+SEQUENCE_GAP_SIGNED_LOG
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+SEQUENCE_MONOTONE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+SAME_MS
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:130: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+DIRECTIONAL_ELIGIBLE
+
+[  FAILED  ] StockPrintChannels.TheSeventeenChannelsAreTheCardsSeventeenValues (16 ms)
+[ RUN      ] StockPrintChannels.TruncatingIntegerBpsIsVisibleInPrintMinusMid
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:160: Failure
+Expected equality of these values:
+  channels.value[kSpOrientedPrintMinusMid]
+    Which is: 0
+  2.0
+    Which is: 2
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:162: Failure
+Expected equality of these values:
+  channels.value[kSpSpreadBps]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:164: Failure
+Expected equality of these values:
+  channels.value[kSpOrientedPrintReturn]
+    Which is: 0
+  5.0
+    Which is: 5
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:166: Failure
+Expected equality of these values:
+  channels.value[kSpOrientedSizeImbalance]
+    Which is: 0
+  -0.8
+    Which is: -0.80000000000000004
+
+[  FAILED  ] StockPrintChannels.TruncatingIntegerBpsIsVisibleInPrintMinusMid (0 ms)
+[ RUN      ] StockPrintChannels.AnUnusableQuoteSkipsTheQuoteBranchAndFallsBackToThePriorTick
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:197: Failure
+Expected equality of these values:
+  channels.value[kSpOrientedAggressor]
+    Which is: 0
+  -1.0
+    Which is: -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:205: Failure
+Value of: channels.presence(kSpLogQuoteAge)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:209: Failure
+Expected equality of these values:
+  channels.value[kSpOrientedPrintReturn]
+    Which is: 0
+  -3.0
+    Which is: -3
+
+[  FAILED  ] StockPrintChannels.AnUnusableQuoteSkipsTheQuoteBranchAndFallsBackToThePriorTick (0 ms)
+[ RUN      ] StockPrintChannels.DuplicatingAnAttachmentFailureReasonDoesNotDoubleCountThePrint
+[       OK ] StockPrintChannels.DuplicatingAnAttachmentFailureReasonDoesNotDoubleCountThePrint (0 ms)
+[----------] 4 tests from StockPrintChannels (17 ms total)
+
+[----------] 3 tests from EqualMillisecondPermutation
+[ RUN      ] EqualMillisecondPermutation.StockPrintOutputsAndLaterPriorStatesAreBitIdentical
+[       OK ] EqualMillisecondPermutation.StockPrintOutputsAndLaterPriorStatesAreBitIdentical (0 ms)
+[ RUN      ] EqualMillisecondPermutation.TheStockPrintGroupMeanIsTheOneTheCardDefines
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:292: Failure
+Expected equality of these values:
+  mean_return.v
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+[  FAILED  ] EqualMillisecondPermutation.TheStockPrintGroupMeanIsTheOneTheCardDefines (0 ms)
+[ RUN      ] EqualMillisecondPermutation.NbboAndOptionGroupsAreAlsoBitIdenticalUnderPermutation
+[       OK ] EqualMillisecondPermutation.NbboAndOptionGroupsAreAlsoBitIdenticalUnderPermutation (0 ms)
+[----------] 3 tests from EqualMillisecondPermutation (0 ms total)
+
+[----------] 2 tests from NbboChannels
+[ RUN      ] NbboChannels.TheSixteenChannelsAreTheCardsSixteenValues
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:398: Failure
+The difference between channels.value[kNbLogInterarrival] and std::log1p(1'000'000.0) is 13.815511557963774, which exceeds 1e-12, where
+channels.value[kNbLogInterarrival] evaluates to 0,
+std::log1p(1'000'000.0) evaluates to 13.815511557963774, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:400: Failure
+Expected equality of these values:
+  channels.value[kNbOrientedMidpointChange]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:402: Failure
+Expected equality of these values:
+  channels.value[kNbSpreadBps]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:404: Failure
+The difference between channels.value[kNbLogOwnSize] and std::log1p(300.0) is 5.7071102647488754, which exceeds 1e-15, where
+channels.value[kNbLogOwnSize] evaluates to 0,
+std::log1p(300.0) evaluates to 5.7071102647488754, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:406: Failure
+The difference between channels.value[kNbLogOppositeSize] and std::log1p(200.0) is 5.3033049080590757, which exceeds 1e-15, where
+channels.value[kNbLogOppositeSize] evaluates to 0,
+std::log1p(200.0) evaluates to 5.3033049080590757, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:408: Failure
+Expected equality of these values:
+  channels.value[kNbOrientedImbalance]
+    Which is: 0
+  -0.2
+    Which is: -0.20000000000000001
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:410: Failure
+Expected equality of these values:
+  channels.value[kNbOwnPriceChange]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:412: Failure
+Expected equality of these values:
+  channels.value[kNbOppositePriceChange]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:414: Failure
+The difference between channels.value[kNbOwnSignedSizeChange] and -std::log1p(400.0) is 5.9939614273065693, which exceeds 1e-15, where
+channels.value[kNbOwnSignedSizeChange] evaluates to 0,
+-std::log1p(400.0) evaluates to -5.9939614273065693, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:416: Failure
+The difference between channels.value[kNbOppositeSignedSizeChange] and -std::log1p(300.0) is 5.7071102647488754, which exceeds 1e-15, where
+channels.value[kNbOppositeSignedSizeChange] evaluates to 0,
+-std::log1p(300.0) evaluates to -5.7071102647488754, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:420: Failure
+Expected equality of these values:
+  channels.value[kNbPositiveTwoSided]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:421: Failure
+Expected equality of these values:
+  channels.value[kNbBidChanged]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:422: Failure
+Expected equality of these values:
+  channels.value[kNbAskChanged]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:423: Failure
+Expected equality of these values:
+  channels.value[kNbSameMs]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_INTERARRIVAL
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_MIDPOINT_CHANGE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+SPREAD_BPS
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_OWN_SIZE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_OPPOSITE_SIZE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_IMBALANCE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+OWN_PRICE_CHANGE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+OPPOSITE_PRICE_CHANGE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+OWN_SIGNED_SIZE_CHANGE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+OPPOSITE_SIGNED_SIZE_CHANGE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOCKED
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+CROSSED
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+POSITIVE_TWO_SIDED
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+BID_CHANGED
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ASK_CHANGED
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:425: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+SAME_MS
+
+[  FAILED  ] NbboChannels.TheSixteenChannelsAreTheCardsSixteenValues (1 ms)
+[ RUN      ] NbboChannels.WithNoPriorEligibleGroupTheChangeChannelsAreMissingNotZero
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:458: Failure
+Value of: channels.presence(kNbSpreadBps)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:459: Failure
+Value of: channels.presence(kNbOrientedImbalance)
+  Actual: false
+Expected: true
+
+[  FAILED  ] NbboChannels.WithNoPriorEligibleGroupTheChangeChannelsAreMissingNotZero (0 ms)
+[----------] 2 tests from NbboChannels (1 ms total)
+
+[----------] 3 tests from OptionPrintChannels
+[ RUN      ] OptionPrintChannels.TheTwentyTwoChannelsAreTheCardsTwentyTwoValues
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:509: Failure
+The difference between channels.value[kOpLogInterarrival] and std::log1p(2'000'000.0) is 14.508658238524095, which exceeds 1e-12, where
+channels.value[kOpLogInterarrival] evaluates to 0,
+std::log1p(2'000'000.0) evaluates to 14.508658238524095, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:512: Failure
+Expected equality of these values:
+  channels.value[kOpOrientedUnderlyingReturn]
+    Which is: 0
+  27.0
+    Which is: 27
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:514: Failure
+Expected equality of these values:
+  channels.value[kOpOrientedRightDirection]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:518: Failure
+Expected equality of these values:
+  channels.value[kOpOrientedCausalAggressor]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:520: Failure
+The difference between channels.value[kOpLogSize] and std::log1p(10.0) is 2.3978952727983707, which exceeds 1e-15, where
+channels.value[kOpLogSize] evaluates to 0,
+std::log1p(10.0) evaluates to 2.3978952727983707, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:523: Failure
+The difference between channels.value[kOpOrientedSignedPremiumFlow] and std::log1p(20'500'000.0) is 16.835935492889124, which exceeds 1e-11, where
+channels.value[kOpOrientedSignedPremiumFlow] evaluates to 0,
+std::log1p(20'500'000.0) evaluates to 16.835935492889124, and
+1e-11 evaluates to 9.9999999999999994e-12.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:526: Failure
+Expected equality of these values:
+  channels.value[kOpOrientedPrintMinusMid]
+    Which is: 0
+  250.0
+    Which is: 250
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:528: Failure
+Expected equality of these values:
+  channels.value[kOpSpreadBps]
+    Which is: 0
+  1000.0
+    Which is: 1000
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:530: Failure
+Expected equality of these values:
+  channels.value[kOpOrientedDelta]
+    Which is: 0
+  0.5
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:531: Failure
+Expected equality of these values:
+  channels.value[kOpGamma]
+    Which is: 0
+  0.25
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:532: Failure
+Expected equality of these values:
+  channels.value[kOpOrientedVanna]
+    Which is: 0
+  0.125
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:533: Failure
+Expected equality of these values:
+  channels.value[kOpOrientedCharm]
+    Which is: 0
+  -0.0625
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:534: Failure
+Expected equality of these values:
+  channels.value[kOpImpliedVol]
+    Which is: 0
+  0.2
+    Which is: 0.20000000000000001
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:536: Failure
+The difference between channels.value[kOpLogDte] and std::log1p(30.0) is 3.4339872044851463, which exceeds 1e-15, where
+channels.value[kOpLogDte] evaluates to 0,
+std::log1p(30.0) evaluates to 3.4339872044851463, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:538: Failure
+Expected equality of these values:
+  channels.value[kOpOrientedMoneyness]
+    Which is: 0
+  27.0
+    Which is: 27
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:540: Failure
+The difference between channels.value[kOpOrientedDeltaFlow] and std::log1p(5.0) is 1.791759469228055, which exceeds 1e-15, where
+channels.value[kOpOrientedDeltaFlow] evaluates to 0,
+std::log1p(5.0) evaluates to 1.791759469228055, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:541: Failure
+The difference between channels.value[kOpGammaFlow] and std::log1p(2.5) is 1.2527629684953681, which exceeds 1e-15, where
+channels.value[kOpGammaFlow] evaluates to 0,
+std::log1p(2.5) evaluates to 1.2527629684953681, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:542: Failure
+The difference between channels.value[kOpOrientedVannaFlow] and std::log1p(1.25) is 0.81093021621632877, which exceeds 1e-15, where
+channels.value[kOpOrientedVannaFlow] evaluates to 0,
+std::log1p(1.25) evaluates to 0.81093021621632877, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:543: Failure
+The difference between channels.value[kOpOrientedCharmFlow] and -std::log1p(0.625) is 0.48550781578170082, which exceeds 1e-15, where
+channels.value[kOpOrientedCharmFlow] evaluates to 0,
+-std::log1p(0.625) evaluates to -0.48550781578170082, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:545: Failure
+The difference between channels.value[kOpLogQuoteAge] and std::log1p(1'000'000.0) is 13.815511557963774, which exceeds 1e-12, where
+channels.value[kOpLogQuoteAge] evaluates to 0,
+std::log1p(1'000'000.0) evaluates to 13.815511557963774, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:546: Failure
+The difference between channels.value[kOpLogUnderlyingAge] and std::log1p(1'000'000.0) is 13.815511557963774, which exceeds 1e-12, where
+channels.value[kOpLogUnderlyingAge] evaluates to 0,
+std::log1p(1'000'000.0) evaluates to 13.815511557963774, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:548: Failure
+Expected equality of these values:
+  channels.value[kOpDirectionalEligible]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_INTERARRIVAL
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_UNDERLYING_RETURN
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_RIGHT_DIRECTION
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_CAUSAL_AGGRESSOR
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_SIZE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_SIGNED_PREMIUM_FLOW
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_PRINT_MINUS_MID
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+SPREAD_BPS
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_DELTA
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+GAMMA
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_VANNA
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_CHARM
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+IMPLIED_VOL
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_DTE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_MONEYNESS
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_DELTA_FLOW
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+GAMMA_FLOW
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_VANNA_FLOW
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+ORIENTED_CHARM_FLOW
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_QUOTE_AGE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+LOG_UNDERLYING_AGE
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:550: Failure
+Value of: channels.presence(channel)
+  Actual: false
+Expected: true
+DIRECTIONAL_ELIGIBLE
+
+[  FAILED  ] OptionPrintChannels.TheTwentyTwoChannelsAreTheCardsTwentyTwoValues (1 ms)
+[ RUN      ] OptionPrintChannels.AFutureUnderlyingAttachmentMasksEveryGreekAndEveryFlow
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:580: Failure
+Value of: channels.presence(kOpSpreadBps)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:581: Failure
+Value of: channels.presence(kOpOrientedPrintMinusMid)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:582: Failure
+Value of: channels.presence(kOpLogDte)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:583: Failure
+Value of: channels.presence(kOpLogSize)
+  Actual: false
+Expected: true
+
+[  FAILED  ] OptionPrintChannels.AFutureUnderlyingAttachmentMasksEveryGreekAndEveryFlow (0 ms)
+[ RUN      ] OptionPrintChannels.AMultilegPrintIsRetainedWithItsTypedReasonAndNoDirectionalValue
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:597: Failure
+Expected equality of these values:
+  channels.validity[kOpOrientedDeltaFlow]
+    Which is: 1-byte object <01>
+  Validity::CONDITION_INELIGIBLE
+    Which is: 1-byte object <0B>
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:601: Failure
+Value of: channels.presence(kOpLogSize)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:602: Failure
+Value of: channels.presence(kOpSpreadBps)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:603: Failure
+Value of: channels.presence(kOpOrientedDelta)
+  Actual: false
+Expected: true
+
+[  FAILED  ] OptionPrintChannels.AMultilegPrintIsRetainedWithItsTypedReasonAndNoDirectionalValue (0 ms)
+[----------] 3 tests from OptionPrintChannels (2 ms total)
+
+[----------] 4 tests from OrientationReflection
+[ RUN      ] OrientationReflection.StockPrintReflectionMovesExactlyTheDeclaredChannels
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:666: Failure
+Expected equality of these values:
+  short_row.value().channels.value[kSpOrientedPrintReturn]
+    Which is: 0
+  -3.0
+    Which is: -3
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:667: Failure
+The difference between short_row.value().channels.value[kSpLogOwnAttachedSize] and std::log1p(500.0) is 6.2166061010848646, which exceeds 1e-15, where
+short_row.value().channels.value[kSpLogOwnAttachedSize] evaluates to 0,
+std::log1p(500.0) evaluates to 6.2166061010848646, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:668: Failure
+Expected equality of these values:
+  short_row.value().channels.value[kSpSpreadBps]
+    Which is: 0
+  2.0
+    Which is: 2
+
+[  FAILED  ] OrientationReflection.StockPrintReflectionMovesExactlyTheDeclaredChannels (0 ms)
+[ RUN      ] OrientationReflection.NbboReflectionMovesExactlyTheDeclaredChannels
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:700: Failure
+Expected equality of these values:
+  long_row.value().channels.value[kNbOrientedImbalance]
+    Which is: 0
+  -0.2
+    Which is: -0.20000000000000001
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:701: Failure
+Expected equality of these values:
+  short_row.value().channels.value[kNbOrientedImbalance]
+    Which is: 0
+  0.2
+    Which is: 0.20000000000000001
+
+[  FAILED  ] OrientationReflection.NbboReflectionMovesExactlyTheDeclaredChannels (0 ms)
+[ RUN      ] OrientationReflection.OptionReflectionMovesExactlyTheDeclaredChannelsAndGammaIsInvariant
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:715: Failure
+Expected equality of these values:
+  short_row.value().channels.value[kOpGamma]
+    Which is: 0
+  0.25
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:716: Failure
+The difference between short_row.value().channels.value[kOpGammaFlow] and std::log1p(2.5) is 1.2527629684953681, which exceeds 1e-15, where
+short_row.value().channels.value[kOpGammaFlow] evaluates to 0,
+std::log1p(2.5) evaluates to 1.2527629684953681, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:717: Failure
+Expected equality of these values:
+  short_row.value().channels.value[kOpOrientedDelta]
+    Which is: 0
+  -0.5
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:718: Failure
+Expected equality of these values:
+  short_row.value().channels.value[kOpOrientedRightDirection]
+    Which is: 0
+  -1.0
+    Which is: -1
+
+[  FAILED  ] OrientationReflection.OptionReflectionMovesExactlyTheDeclaredChannelsAndGammaIsInvariant (0 ms)
+[ RUN      ] OrientationReflection.RhoFlipsExactlyTheSigmaRhoChannelsAndLeavesTheSigmaOnesAlone
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:746: Failure
+Value of: other.value().channels.presence(kOpGamma)
+  Actual: false
+Expected: true
+
+[  FAILED  ] OrientationReflection.RhoFlipsExactlyTheSigmaRhoChannelsAndLeavesTheSigmaOnesAlone (0 ms)
+[----------] 4 tests from OrientationReflection (0 ms total)
+
+[----------] 2 tests from AttachmentLaw
+[ RUN      ] AttachmentLaw.TheFiveNonUsableStatesAreDistinctAndCarryTheirOwnValidity
+[       OK ] AttachmentLaw.TheFiveNonUsableStatesAreDistinctAndCarryTheirOwnValidity (0 ms)
+[ RUN      ] AttachmentLaw.TheUnderlyingTimestampTextParseIsExactFormAndMalformedOtherwise
+[       OK ] AttachmentLaw.TheUnderlyingTimestampTextParseIsExactFormAndMalformedOtherwise (0 ms)
+[----------] 2 tests from AttachmentLaw (0 ms total)
+
+[----------] 1 test from SigningLaw
+[ RUN      ] SigningLaw.EveryDisqualifyingShapeKeepsItsOwnTypedQualityToken
+[       OK ] SigningLaw.EveryDisqualifyingShapeKeepsItsOwnTypedQualityToken (0 ms)
+[----------] 1 test from SigningLaw (0 ms total)
+
+[----------] 1 test from StockConditionContract
+[ RUN      ] StockConditionContract.ThePrimaryExtendedAndSentinelClausesAreAllEnforced
+[       OK ] StockConditionContract.ThePrimaryExtendedAndSentinelClausesAreAllEnforced (0 ms)
+[----------] 1 test from StockConditionContract (0 ms total)
+
+[----------] 1 test from DirectRawShape
+[ RUN      ] DirectRawShape.ThereAreExactlySixtyColumnsAndEveryOneIsNamed
+[       OK ] DirectRawShape.ThereAreExactlySixtyColumnsAndEveryOneIsNamed (0 ms)
+[----------] 1 test from DirectRawShape (0 ms total)
+
+[----------] 3 tests from DirectRawWindow
+[ RUN      ] DirectRawWindow.AnEmptyWindowHasZeroCountAndMaskedValidMeanAndLast
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:92: Failure
+Value of: row.value().presence(offset + 0)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:92: Failure
+Value of: row.value().presence(offset + 0)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:92: Failure
+Value of: row.value().presence(offset + 0)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:92: Failure
+Value of: row.value().presence(offset + 0)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:105: Failure
+Value of: row.value().presence(base + kDirectNonempty)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:107: Failure
+Value of: row.value().presence(base + kDirectRModality)
+  Actual: false
+Expected: true
+
+[  FAILED  ] DirectRawWindow.AnEmptyWindowHasZeroCountAndMaskedValidMeanAndLast (0 ms)
+[ RUN      ] DirectRawWindow.TheFourNestedWindowsSelectExactlyTheirOwnGroups
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:127: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(0)]
+    Which is: 0
+  std::log1p(1.0)
+    Which is: 0.69314718055994529
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:128: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(1)]
+    Which is: 0
+  std::log1p(2.0)
+    Which is: 1.0986122886681098
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:129: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(2)]
+    Which is: 0
+  std::log1p(3.0)
+    Which is: 1.3862943611198906
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:130: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(3)]
+    Which is: 0
+  std::log1p(4.0)
+    Which is: 1.6094379124341003
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:134: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(0) + 2]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:135: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(1) + 2]
+    Which is: 0
+  1.5
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:136: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(2) + 2]
+    Which is: 0
+  2.0
+    Which is: 2
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:137: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(3) + 2]
+    Which is: 0
+  2.5
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:142: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(index) + 3]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:142: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(index) + 3]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:142: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(index) + 3]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:142: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(index) + 3]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:146: Failure
+Expected equality of these values:
+  row.value().value[base + kDirectLog1pGroupCount]
+    Which is: 0
+  std::log1p(4.0)
+    Which is: 1.6094379124341003
+
+[  FAILED  ] DirectRawWindow.TheFourNestedWindowsSelectExactlyTheirOwnGroups (0 ms)
+[ RUN      ] DirectRawWindow.ATokenExactlyOnTheCutoffIsExcludedAndOneMillisecondEarlierIsNot
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:166: Failure
+Expected equality of these values:
+  included_row.value().value[base + kDirectNonempty]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:167: Failure
+Expected equality of these values:
+  included_row.value().value[base + kDirectLog1pTokenCount]
+    Which is: 0
+  std::log1p(1.0)
+    Which is: 0.69314718055994529
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:170: Failure
+Expected equality of these values:
+  included_row.value().value[direct_window_offset(0) + 2]
+    Which is: 0
+  9.0
+    Which is: 9
+
+[  FAILED  ] DirectRawWindow.ATokenExactlyOnTheCutoffIsExcludedAndOneMillisecondEarlierIsNot (0 ms)
+[----------] 3 tests from DirectRawWindow (1 ms total)
+
+[----------] 3 tests from DirectRawFullWindow
+[ RUN      ] DirectRawFullWindow.TheTwentyStatisticsAreTheCardsTwentyStatistics
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:202: Failure
+Expected equality of these values:
+  value[base + kDirectLog1pTokenCount]
+    Which is: 0
+  std::log1p(6.0)
+    Which is: 1.9459101490553132
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:204: Failure
+Expected equality of these values:
+  value[base + kDirectLog1pGroupCount]
+    Which is: 0
+  std::log1p(3.0)
+    Which is: 1.3862943611198906
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:206: Failure
+Expected equality of these values:
+  value[base + kDirectNonempty]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:208: Failure
+Expected equality of these values:
+  value[base + kDirectAllFourFiniteGroupFraction]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:210: Failure
+Expected equality of these values:
+  value[base + kDirectRawMissingFraction]
+    Which is: 0
+  1.0 / 102.0
+    Which is: 0.0098039215686274508
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:212: Failure
+Expected equality of these values:
+  value[base + kDirectMultiTokenGroupFraction]
+    Which is: 0
+  2.0 / 3.0
+    Which is: 0.66666666666666663
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:214: Failure
+The difference between value[base + kDirectMeanLog1pMultiplicity] and (std::log1p(1.0) + std::log1p(3.0) + std::log1p(2.0)) / 3.0 is 1.0593512767826485, which exceeds 1e-15, where
+value[base + kDirectMeanLog1pMultiplicity] evaluates to 0,
+(std::log1p(1.0) + std::log1p(3.0) + std::log1p(2.0)) / 3.0 evaluates to 1.0593512767826485, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:217: Failure
+Expected equality of these values:
+  value[base + kDirectMaxLog1pMultiplicity]
+    Which is: 0
+  std::log1p(3.0)
+    Which is: 1.3862943611198906
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:219: Failure
+The difference between value[base + kDirectMeanLog1pIntergroupGap] and (std::log1p(60'000'000.0) + std::log1p(30'000'000.0)) / 2.0 is 17.563281554906403, which exceeds 1e-12, where
+value[base + kDirectMeanLog1pIntergroupGap] evaluates to 0,
+(std::log1p(60'000'000.0) + std::log1p(30'000'000.0)) / 2.0 evaluates to 17.563281554906403, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:222: Failure
+Expected equality of these values:
+  value[base + kDirectP90Log1pIntergroupGap]
+    Which is: 0
+  std::log1p(60'000'000.0)
+    Which is: 17.909855136853043
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:224: Failure
+Expected equality of these values:
+  value[base + kDirectMaxLog1pIntergroupGap]
+    Which is: 0
+  std::log1p(60'000'000.0)
+    Which is: 17.909855136853043
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:226: Failure
+The difference between value[base + kDirectLog1pCoveredSpan] and std::log1p(90'000'000.0) is 18.315320239405651, which exceeds 1e-12, where
+value[base + kDirectLog1pCoveredSpan] evaluates to 0,
+std::log1p(90'000'000.0) evaluates to 18.315320239405651, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:228: Failure
+The difference between value[base + kDirectLog1pAgeOfLastGroup] and std::log1p(10'000'000.0) is 16.118095750958314, which exceeds 1e-12, where
+value[base + kDirectLog1pAgeOfLastGroup] evaluates to 0,
+std::log1p(10'000'000.0) evaluates to 16.118095750958314, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:230: Failure
+Expected equality of these values:
+  value[base + kDirectUnusableAttachmentFraction]
+    Which is: 0
+  1.0 / 6.0
+    Which is: 0.16666666666666666
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:232: Failure
+Expected equality of these values:
+  value[base + kDirectSequenceInversionFraction]
+    Which is: 0
+  0.5
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:234: Failure
+Expected equality of these values:
+  value[base + kDirectRModality]
+    Which is: 0
+  1.0
+    Which is: 1
+
+[  FAILED  ] DirectRawFullWindow.TheTwentyStatisticsAreTheCardsTwentyStatistics (1 ms)
+[ RUN      ] DirectRawFullWindow.NbboAttachmentAndSequenceFractionsAreStructuralZerosNotMissing
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:246: Failure
+Value of: row.value().presence(base + kDirectUnusableAttachmentFraction)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:248: Failure
+Value of: row.value().presence(base + kDirectSequenceInversionFraction)
+  Actual: false
+Expected: true
+
+[  FAILED  ] DirectRawFullWindow.NbboAttachmentAndSequenceFractionsAreStructuralZerosNotMissing (0 ms)
+[ RUN      ] DirectRawFullWindow.AWindowWithNoMechanismValueMasksTheFractionButNotRModality
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:265: Failure
+Value of: row.value().presence(base + kDirectAllFourFiniteGroupFraction)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:271: Failure
+Value of: row.value().presence(direct_window_offset(3) + 2)
+  Actual: false
+Expected: true
+
+[  FAILED  ] DirectRawFullWindow.AWindowWithNoMechanismValueMasksTheFractionButNotRModality (0 ms)
+[----------] 3 tests from DirectRawFullWindow (1 ms total)
+
+[----------] 3 tests from PhaseSplit
+[ RUN      ] PhaseSplit.MovingAGroupAcrossVisibilityEqualityChangesOnlyTheDeclaredCounts
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:309: Failure
+Expected equality of these values:
+  before.value[base + kDirectLog1pApproachGroupCount]
+    Which is: 0
+  std::log1p(3.0)
+    Which is: 1.3862943611198906
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:310: Failure
+Expected equality of these values:
+  before.value[base + kDirectLog1pResponseGroupCount]
+    Which is: 0
+  std::log1p(2.0)
+    Which is: 1.0986122886681098
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:315: Failure
+Expected equality of these values:
+  equal.value[base + kDirectLog1pApproachGroupCount]
+    Which is: 0
+  std::log1p(2.0)
+    Which is: 1.0986122886681098
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:316: Failure
+Expected equality of these values:
+  equal.value[base + kDirectLog1pResponseGroupCount]
+    Which is: 0
+  std::log1p(2.0)
+    Which is: 1.0986122886681098
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:317: Failure
+Expected equality of these values:
+  equal.value[base + kDirectLog1pGroupCount]
+    Which is: 0
+  std::log1p(5.0)
+    Which is: 1.791759469228055
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:321: Failure
+Expected equality of these values:
+  after.value[base + kDirectLog1pApproachGroupCount]
+    Which is: 0
+  std::log1p(2.0)
+    Which is: 1.0986122886681098
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:322: Failure
+Expected equality of these values:
+  after.value[base + kDirectLog1pResponseGroupCount]
+    Which is: 0
+  std::log1p(3.0)
+    Which is: 1.3862943611198906
+
+[  FAILED  ] PhaseSplit.MovingAGroupAcrossVisibilityEqualityChangesOnlyTheDeclaredCounts (0 ms)
+[ RUN      ] PhaseSplit.OmissionIsTheTruncatedFromRecent128CountOverThatPhasesGroups
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:366: Failure
+Expected equality of these values:
+  row.value().value[base + kDirectLog1pApproachGroupCount]
+    Which is: 0
+  std::log1p(60.0)
+    Which is: 4.1108738641733114
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:367: Failure
+Expected equality of these values:
+  row.value().value[base + kDirectLog1pResponseGroupCount]
+    Which is: 0
+  std::log1p(69.0)
+    Which is: 4.2484952420493594
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:370: Failure
+Expected equality of these values:
+  row.value().value[base + kDirectApproachOmissionFraction]
+    Which is: 0
+  2.0 / 60.0
+    Which is: 0.033333333333333333
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:372: Failure
+Value of: row.value().presence(base + kDirectResponseOmissionFraction)
+  Actual: false
+Expected: true
+
+[  FAILED  ] PhaseSplit.OmissionIsTheTruncatedFromRecent128CountOverThatPhasesGroups (0 ms)
+[ RUN      ] PhaseSplit.WithNoSameSideVisibilityTheFourPhaseColumnsAreMaskedNotZeroCoded
+[       OK ] PhaseSplit.WithNoSameSideVisibilityTheFourPhaseColumnsAreMaskedNotZeroCoded (0 ms)
+[----------] 3 tests from PhaseSplit (0 ms total)
+
+[----------] 1 test from DirectRawSide
+[ RUN      ] DirectRawSide.TheShortRowIsTheLongRowWithTheOrientedMechanismsNegated
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:400: Failure
+Expected equality of these values:
+  long_row.value().value[offset + 2]
+    Which is: 0
+  7.0
+    Which is: 7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:401: Failure
+Expected equality of these values:
+  short_row.value().value[offset + 2]
+    Which is: 0
+  -7.0
+    Which is: -7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:402: Failure
+Expected equality of these values:
+  long_row.value().value[offset + 3]
+    Which is: 0
+  7.0
+    Which is: 7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:403: Failure
+Expected equality of these values:
+  short_row.value().value[offset + 3]
+    Which is: 0
+  -7.0
+    Which is: -7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:400: Failure
+Expected equality of these values:
+  long_row.value().value[offset + 2]
+    Which is: 0
+  7.0
+    Which is: 7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:401: Failure
+Expected equality of these values:
+  short_row.value().value[offset + 2]
+    Which is: 0
+  -7.0
+    Which is: -7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:402: Failure
+Expected equality of these values:
+  long_row.value().value[offset + 3]
+    Which is: 0
+  7.0
+    Which is: 7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:403: Failure
+Expected equality of these values:
+  short_row.value().value[offset + 3]
+    Which is: 0
+  -7.0
+    Which is: -7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:400: Failure
+Expected equality of these values:
+  long_row.value().value[offset + 2]
+    Which is: 0
+  7.0
+    Which is: 7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:401: Failure
+Expected equality of these values:
+  short_row.value().value[offset + 2]
+    Which is: 0
+  -7.0
+    Which is: -7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:402: Failure
+Expected equality of these values:
+  long_row.value().value[offset + 3]
+    Which is: 0
+  7.0
+    Which is: 7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:403: Failure
+Expected equality of these values:
+  short_row.value().value[offset + 3]
+    Which is: 0
+  -7.0
+    Which is: -7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:400: Failure
+Expected equality of these values:
+  long_row.value().value[offset + 2]
+    Which is: 0
+  7.0
+    Which is: 7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:401: Failure
+Expected equality of these values:
+  short_row.value().value[offset + 2]
+    Which is: 0
+  -7.0
+    Which is: -7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:402: Failure
+Expected equality of these values:
+  long_row.value().value[offset + 3]
+    Which is: 0
+  7.0
+    Which is: 7
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:403: Failure
+Expected equality of these values:
+  short_row.value().value[offset + 3]
+    Which is: 0
+  -7.0
+    Which is: -7
+
+[  FAILED  ] DirectRawSide.TheShortRowIsTheLongRowWithTheOrientedMechanismsNegated (0 ms)
+[----------] 1 test from DirectRawSide (0 ms total)
+
+[----------] 1 test from DirectRawOverRealConstructors
+[ RUN      ] DirectRawOverRealConstructors.AStockPrintTapeFlowsIntoTheSixtyColumns
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:436: Failure
+Expected equality of these values:
+  row.value().value[base + kDirectLog1pGroupCount]
+    Which is: 0
+  std::log1p(2.0)
+    Which is: 1.0986122886681098
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:437: Failure
+Expected equality of these values:
+  row.value().value[base + kDirectLog1pTokenCount]
+    Which is: 0
+  std::log1p(2.0)
+    Which is: 1.0986122886681098
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:438: Failure
+Expected equality of these values:
+  row.value().value[base + kDirectLog1pApproachGroupCount]
+    Which is: 0
+  std::log1p(1.0)
+    Which is: 0.69314718055994529
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:439: Failure
+Expected equality of these values:
+  row.value().value[base + kDirectLog1pResponseGroupCount]
+    Which is: 0
+  std::log1p(1.0)
+    Which is: 0.69314718055994529
+
+/workspace/engine/cpp/qr_carriers/tests/test_direct_raw.cpp:441: Failure
+Expected equality of these values:
+  row.value().value[direct_window_offset(3) + 3]
+    Which is: 0
+  3.0
+    Which is: 3
+
+[  FAILED  ] DirectRawOverRealConstructors.AStockPrintTapeFlowsIntoTheSixtyColumns (0 ms)
+[----------] 1 test from DirectRawOverRealConstructors (0 ms total)
+
+[----------] 3 tests from MidpointGridCarry
+[ RUN      ] MidpointGridCarry.TheCarryHasNoTimeoutTheAgeGrowsAndStaleIsDiagnosticOnly
+[       OK ] MidpointGridCarry.TheCarryHasNoTimeoutTheAgeGrowsAndStaleIsDiagnosticOnly (5 ms)
+[ RUN      ] MidpointGridCarry.AnEndpointCarriesOnlyQuotesSTRICTLYBeforeIt
+[       OK ] MidpointGridCarry.AnEndpointCarriesOnlyQuotesSTRICTLYBeforeIt (3 ms)
+[ RUN      ] MidpointGridCarry.TheGridCensusCountsEveryEndpointStateInFull
+[       OK ] MidpointGridCarry.TheGridCensusCountsEveryEndpointStateInFull (3 ms)
+[----------] 3 tests from MidpointGridCarry (12 ms total)
+
+[----------] 1 test from PrefixRealizedVolatility
+[ RUN      ] PrefixRealizedVolatility.RvNeedsTwoPresentConsecutiveEndpointsAndACarryContributesZero
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:117: Failure
+Expected equality of these values:
+  rv1.v
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+[  FAILED  ] PrefixRealizedVolatility.RvNeedsTwoPresentConsecutiveEndpointsAndACarryContributesZero (3 ms)
+[----------] 1 test from PrefixRealizedVolatility (3 ms total)
+
+[----------] 1 test from PrefixEndpoint
+[ RUN      ] PrefixEndpoint.TheCompleteSecondEndingAtTheCutoffIsThePrefixEndpoint
+[       OK ] PrefixEndpoint.TheCompleteSecondEndingAtTheCutoffIsThePrefixEndpoint (3 ms)
+[----------] 1 test from PrefixEndpoint (3 ms total)
+
+[----------] 2 tests from LocationValues
+[ RUN      ] LocationValues.TheSixteenValuesAreTheCardsSixteenValues
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:187: Failure
+Expected equality of these values:
+  value[kLocSessionTimeFraction]
+    Which is: 0
+  fraction
+    Which is: 0.01282051282051282
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:188: Failure
+Expected equality of these values:
+  value[kLocSessionTimeSine]
+    Which is: 0
+  std::sin(fraction)
+    Which is: 0.012820161614961145
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:189: Failure
+Expected equality of these values:
+  value[kLocSessionTimeCosine]
+    Which is: 0
+  std::cos(fraction)
+    Which is: 0.99991781835117144
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:190: Failure
+Expected equality of these values:
+  value[kLocSecondsToCloseFraction]
+    Which is: 0
+  (23'400.0 - 300.0) / 23'400.0
+    Which is: 0.98717948717948723
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:196: Failure
+Value of: row.value().presence(index)
+  Actual: false
+Expected: true
+SESSION_TIME_FRACTION
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:196: Failure
+Value of: row.value().presence(index)
+  Actual: false
+Expected: true
+SESSION_TIME_SINE
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:196: Failure
+Value of: row.value().presence(index)
+  Actual: false
+Expected: true
+SESSION_TIME_COSINE
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:196: Failure
+Value of: row.value().presence(index)
+  Actual: false
+Expected: true
+SECONDS_TO_CLOSE_FRACTION
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:196: Failure
+Value of: row.value().presence(index)
+  Actual: false
+Expected: true
+EARLY_CLOSE_BIT
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:201: Failure
+Expected equality of these values:
+  value[kLocOrientedBpsFromOpen]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:207: Failure
+Expected equality of these values:
+  value[kLocOrientedBpsFromRunningLow]
+    Which is: 0
+  3.0
+    Which is: 3
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:209: Failure
+Expected equality of these values:
+  value[kLocRunningRangeBps]
+    Which is: 0
+  4.0
+    Which is: 4
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:211: Failure
+Expected equality of these values:
+  value[kLocOrientedBpsFromPrefixVwap]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:213: Failure
+Expected equality of these values:
+  value[kLocCurrentSpreadBps]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:215: Failure
+The difference between value[kLocLog1pSecondsSinceLastStockPrint] and std::log1p(60.0) is 4.1108738641733114, which exceeds 1e-15, where
+value[kLocLog1pSecondsSinceLastStockPrint] evaluates to 0,
+std::log1p(60.0) evaluates to 4.1108738641733114, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:216: Failure
+The difference between value[kLocLog1pSecondsSinceLastOptionPrint] and std::log1p(100.0) is 4.6151205168412597, which exceeds 1e-15, where
+value[kLocLog1pSecondsSinceLastOptionPrint] evaluates to 0,
+std::log1p(100.0) evaluates to 4.6151205168412597, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:221: Failure
+Expected equality of these values:
+  short_row.value().value[kLocOrientedBpsFromOpen]
+    Which is: 0
+  -1.0
+    Which is: -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:222: Failure
+Expected equality of these values:
+  short_row.value().value[kLocOrientedBpsFromRunningLow]
+    Which is: 0
+  -3.0
+    Which is: -3
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:223: Failure
+Expected equality of these values:
+  short_row.value().value[kLocRunningRangeBps]
+    Which is: 0
+  4.0
+    Which is: 4
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:224: Failure
+Expected equality of these values:
+  short_row.value().value[kLocCurrentSpreadBps]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:225: Failure
+Expected equality of these values:
+  short_row.value().value[kLocSessionTimeFraction]
+    Which is: 0
+  fraction
+    Which is: 0.01282051282051282
+
+[  FAILED  ] LocationValues.TheSixteenValuesAreTheCardsSixteenValues (3 ms)
+[ RUN      ] LocationValues.WithNoPrefixMidpointEveryTapeDependentValueIsMaskedButTheClockIsNot
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:249: Failure
+Expected equality of these values:
+  row.value().presence(index)
+    Which is: false
+  pure_clock
+    Which is: true
+SESSION_TIME_FRACTION
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:249: Failure
+Expected equality of these values:
+  row.value().presence(index)
+    Which is: false
+  pure_clock
+    Which is: true
+SESSION_TIME_SINE
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:249: Failure
+Expected equality of these values:
+  row.value().presence(index)
+    Which is: false
+  pure_clock
+    Which is: true
+SESSION_TIME_COSINE
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:249: Failure
+Expected equality of these values:
+  row.value().presence(index)
+    Which is: false
+  pure_clock
+    Which is: true
+SECONDS_TO_CLOSE_FRACTION
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:249: Failure
+Expected equality of these values:
+  row.value().presence(index)
+    Which is: false
+  pure_clock
+    Which is: true
+EARLY_CLOSE_BIT
+
+[  FAILED  ] LocationValues.WithNoPrefixMidpointEveryTapeDependentValueIsMaskedButTheClockIsNot (0 ms)
+[----------] 2 tests from LocationValues (4 ms total)
+
+[----------] 4 tests from CandidateSetRow
+[ RUN      ] CandidateSetRow.TheTwentyFourFieldsAreTheCardsTwentyFourFields
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:284: Failure
+Expected equality of these values:
+  value[kCandPolicyOneHot + index]
+    Which is: 0
+  index == 8U ? 1.0 : 0.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:287: Failure
+Expected equality of these values:
+  value[kCandReversalOver20]
+    Which is: 0
+  1.5
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:289: Failure
+The difference between value[kCandLog1pMemberCount] and std::log1p(3.0) is 1.3862943611198906, which exceeds 1e-15, where
+value[kCandLog1pMemberCount] evaluates to 0,
+std::log1p(3.0) evaluates to 1.3862943611198906, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:291: Failure
+The difference between value[kCandLog1pAgeSeconds] and std::log1p(20.0) is 3.044522437723423, which exceeds 1e-15, where
+value[kCandLog1pAgeSeconds] evaluates to 0,
+std::log1p(20.0) evaluates to 3.044522437723423, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:293: Failure
+Expected equality of these values:
+  value[kCandRelationOneHot + 0]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:301: Failure
+Expected equality of these values:
+  value[kCandVisibilityFlags + 3]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:302: Failure
+Expected equality of these values:
+  value[kCandVisibilityFlags + 4]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc001
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc002
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc003
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc004
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc005
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc006
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc007
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc008
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc010
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc012
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc015
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+POLICY_dc020
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+REVERSAL_OVER_20
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+LOG1P_MEMBER_COUNT
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+LOG1P_AGE_SECONDS
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+RELATION_OWN
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+RELATION_OPPOSITE
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+RELATION_MIXED
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+RELATION_UNAVAILABLE
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+VISIBLE_IN_LAST_1S
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+VISIBLE_IN_LAST_5S
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+VISIBLE_IN_LAST_15S
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+VISIBLE_IN_LAST_30S
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:305: Failure
+Value of: row.value().presence(field)
+  Actual: false
+Expected: true
+VISIBLE_IN_LAST_60S
+
+[  FAILED  ] CandidateSetRow.TheTwentyFourFieldsAreTheCardsTwentyFourFields (0 ms)
+[ RUN      ] CandidateSetRow.TheRecencyFlagsAreInclusiveExactlyAtTheirHorizon
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:320: Failure
+Expected equality of these values:
+  row.value().value[kCandVisibilityFlags + 4]
+    Which is: 0
+  1.0
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_grid_location_candset.cpp:321: Failure
+Expected equality of these values:
+  row.value().value[kCandRelationOneHot + 1]
+    Which is: 0
+  1.0
+    Which is: 1
+
+[  FAILED  ] CandidateSetRow.TheRecencyFlagsAreInclusiveExactlyAtTheirHorizon (0 ms)
+[ RUN      ] CandidateSetRow.ANonprimitivePolicyOrANonPriorVisibilityRefusesRatherThanZeroCodes
+[       OK ] CandidateSetRow.ANonprimitivePolicyOrANonPriorVisibilityRefusesRatherThanZeroCodes (0 ms)
+[ RUN      ] CandidateSetRow.TheFrozenPolicyVocabularyOrderIsTheCardsOrder
+[       OK ] CandidateSetRow.TheFrozenPolicyVocabularyOrderIsTheCardsOrder (0 ms)
+[----------] 4 tests from CandidateSetRow (0 ms total)
+
+[----------] 1 test from SessionMomentsLaw
+[ RUN      ] SessionMomentsLaw.OnlyFinitePresentValuesAreObserved
+[       OK ] SessionMomentsLaw.OnlyFinitePresentValuesAreObserved (0 ms)
+[----------] 1 test from SessionMomentsLaw (0 ms total)
+
+[----------] 2 tests from EqualSessionWeighting
+[ RUN      ] EqualSessionWeighting.MuIsTheMeanOfSessionMeansAndNotThePooledMean
+[       OK ] EqualSessionWeighting.MuIsTheMeanOfSessionMeansAndNotThePooledMean (0 ms)
+[ RUN      ] EqualSessionWeighting.ASessionWithNoPresentValueDoesNotIncrementS
+[       OK ] EqualSessionWeighting.ASessionWithNoPresentValueDoesNotIncrementS (0 ms)
+[----------] 2 tests from EqualSessionWeighting (0 ms total)
+
+[----------] 3 tests from FrozenTableLaw
+[ RUN      ] FrozenTableLaw.SZeroGivesZeroAndOneAndADegenerateScaleBecomesOne
+[       OK ] FrozenTableLaw.SZeroGivesZeroAndOneAndADegenerateScaleBecomesOne (0 ms)
+[ RUN      ] FrozenTableLaw.ApplyStandardizesThenClipsToTheDeclaredEightBound
+[       OK ] FrozenTableLaw.ApplyStandardizesThenClipsToTheDeclaredEightBound (0 ms)
+[ RUN      ] FrozenTableLaw.BinaryAndCategoricalFieldsAreNeverCenteredOrScaled
+[       OK ] FrozenTableLaw.BinaryAndCategoricalFieldsAreNeverCenteredOrScaled (0 ms)
+[----------] 3 tests from FrozenTableLaw (0 ms total)
+
+[----------] 1 test from FitterContract
+[ RUN      ] FitterContract.AMomentVectorOfTheWrongWidthRefusesRatherThanTruncating
+[       OK ] FitterContract.AMomentVectorOfTheWrongWidthRefusesRatherThanTruncating (0 ms)
+[----------] 1 test from FitterContract (0 ms total)
+
+[----------] 1 test from NormalizationHash
+[ RUN      ] NormalizationHash.TheHashCoversEveryPerFeatureTripleAndMovesWhenAnyOfThemMoves
+[       OK ] NormalizationHash.TheHashCoversEveryPerFeatureTripleAndMovesWhenAnyOfThemMoves (0 ms)
+[----------] 1 test from NormalizationHash (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 78 tests from 32 test suites ran. (53 ms total)
+[  PASSED  ] 39 tests.
+[  FAILED  ] 39 tests, listed below:
+[  FAILED  ] TransformTable.NonnegativeCountRowIsLog1pAndRefusesItsOwnDomain
+[  FAILED  ] TransformTable.TimeRowIsCheckedIntegerMicrosecondsThenLog1p
+[  FAILED  ] TransformTable.SecondsDoorIsTheSameClockDividedByAMillion
+[  FAILED  ] TransformTable.SignedRowIsOddAndCarriesTheSignThroughLog1p
+[  FAILED  ] TransformTable.PriceDisplacementRowTruncatesTowardZeroOnCheckedIntegers
+[  FAILED  ] TransformTable.FractionRowEmitsValueZeroPresenceZeroOnAZeroDenominator
+[  FAILED  ] TransformTable.ReliabilityRModalityIsTheOneDeclaredPresentWithZeroCase
+[  FAILED  ] TransformTable.RawGreekRowAppliesNoTransformAndTypesTheNonFinite
+[  FAILED  ] TransformTable.DteRowIsLog1pOfNonnegativeCalendarDays
+[  FAILED  ] TransformTable.StructuralBitsAndFiniteMeansFollowTheirOwnStatedLaws
+[  FAILED  ] NbboScalarLaw.Cc005ImbalanceComesFromTheTwoSizeMeansAndNotFromPerRowRatios
+[  FAILED  ] StockPrintChannels.TheSeventeenChannelsAreTheCardsSeventeenValues
+[  FAILED  ] StockPrintChannels.TruncatingIntegerBpsIsVisibleInPrintMinusMid
+[  FAILED  ] StockPrintChannels.AnUnusableQuoteSkipsTheQuoteBranchAndFallsBackToThePriorTick
+[  FAILED  ] EqualMillisecondPermutation.TheStockPrintGroupMeanIsTheOneTheCardDefines
+[  FAILED  ] NbboChannels.TheSixteenChannelsAreTheCardsSixteenValues
+[  FAILED  ] NbboChannels.WithNoPriorEligibleGroupTheChangeChannelsAreMissingNotZero
+[  FAILED  ] OptionPrintChannels.TheTwentyTwoChannelsAreTheCardsTwentyTwoValues
+[  FAILED  ] OptionPrintChannels.AFutureUnderlyingAttachmentMasksEveryGreekAndEveryFlow
+[  FAILED  ] OptionPrintChannels.AMultilegPrintIsRetainedWithItsTypedReasonAndNoDirectionalValue
+[  FAILED  ] OrientationReflection.StockPrintReflectionMovesExactlyTheDeclaredChannels
+[  FAILED  ] OrientationReflection.NbboReflectionMovesExactlyTheDeclaredChannels
+[  FAILED  ] OrientationReflection.OptionReflectionMovesExactlyTheDeclaredChannelsAndGammaIsInvariant
+[  FAILED  ] OrientationReflection.RhoFlipsExactlyTheSigmaRhoChannelsAndLeavesTheSigmaOnesAlone
+[  FAILED  ] DirectRawWindow.AnEmptyWindowHasZeroCountAndMaskedValidMeanAndLast
+[  FAILED  ] DirectRawWindow.TheFourNestedWindowsSelectExactlyTheirOwnGroups
+[  FAILED  ] DirectRawWindow.ATokenExactlyOnTheCutoffIsExcludedAndOneMillisecondEarlierIsNot
+[  FAILED  ] DirectRawFullWindow.TheTwentyStatisticsAreTheCardsTwentyStatistics
+[  FAILED  ] DirectRawFullWindow.NbboAttachmentAndSequenceFractionsAreStructuralZerosNotMissing
+[  FAILED  ] DirectRawFullWindow.AWindowWithNoMechanismValueMasksTheFractionButNotRModality
+[  FAILED  ] PhaseSplit.MovingAGroupAcrossVisibilityEqualityChangesOnlyTheDeclaredCounts
+[  FAILED  ] PhaseSplit.OmissionIsTheTruncatedFromRecent128CountOverThatPhasesGroups
+[  FAILED  ] DirectRawSide.TheShortRowIsTheLongRowWithTheOrientedMechanismsNegated
+[  FAILED  ] DirectRawOverRealConstructors.AStockPrintTapeFlowsIntoTheSixtyColumns
+[  FAILED  ] PrefixRealizedVolatility.RvNeedsTwoPresentConsecutiveEndpointsAndACarryContributesZero
+[  FAILED  ] LocationValues.TheSixteenValuesAreTheCardsSixteenValues
+[  FAILED  ] LocationValues.WithNoPrefixMidpointEveryTapeDependentValueIsMaskedButTheClockIsNot
+[  FAILED  ] CandidateSetRow.TheTwentyFourFieldsAreTheCardsTwentyFourFields
+[  FAILED  ] CandidateSetRow.TheRecencyFlagsAreInclusiveExactlyAtTheirHorizon
+
+39 FAILED TESTS

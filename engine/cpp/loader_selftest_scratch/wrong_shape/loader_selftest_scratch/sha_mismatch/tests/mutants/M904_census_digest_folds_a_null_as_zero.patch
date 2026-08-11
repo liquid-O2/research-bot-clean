@@ -1,0 +1,11 @@
+--- a/qr_census/src/differential.cpp
++++ b/qr_census/src/differential.cpp
+@@ -287,7 +287,7 @@
+   for (std::size_t index = 0; index < columns_spec_.size(); ++index) {
+     const DiffCell& cell = cells[index];
+     if (cell.is_null) {
+-      columns_[index].add_null();
++      columns_[index].add_i64(0);  // M904: a null folds in as a zero VALUE.
+     } else if (columns_spec_[index].kind == DiffKind::F64) {
+       columns_[index].add_f64(cell.real);
+     } else {

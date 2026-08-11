@@ -1,0 +1,11 @@
+--- a/python/campaign/arms.py
++++ b/python/campaign/arms.py
+@@ -594,7 +594,7 @@
+             selected = (batch.jsa_mod == index)
+             slot = torch.where(selected, batch.jsa_slot, torch.full_like(batch.jsa_slot, -1))
+             gathered, _ = _gather_rows(group_embedding[index], slot)
+-            if not self.ablate_type_embedding:
++            if True:   # M955 MUTANT: the ablation flag is never read
+                 gathered = gathered + self.type_embedding[index]
+             tokens = tokens + gathered * selected.unsqueeze(-1).to(tokens.dtype)
+         tokens = (tokens + self._phase[0](batch.jsa_phase)) * valid.unsqueeze(-1)

@@ -1,0 +1,21 @@
+--- a/qr_carriers/src/direct_raw.cpp
++++ b/qr_carriers/src/direct_raw.cpp
+@@ -144,7 +144,8 @@
+                                                     std::int64_t to_ns) const noexcept {
+   Range range;
+   range.lo = lower_bound_ts(from_ns);
+-  range.hi = lower_bound_ts(to_ns);  // right-OPEN: equal-cutoff groups excluded
++  // MA08: the window becomes right-CLOSED and consumes the cutoff's own group.
++  range.hi = upper_bound_ts(to_ns);
+   if (range.hi < range.lo) {
+     range.hi = range.lo;
+   }
+@@ -213,7 +214,7 @@
+     if (start < window.session_open_ns_a) {
+       start = window.session_open_ns_a;
+     }
+-    const Range range{lower_bound_ts(start), full.hi};
++    const Range range{lower_bound_ts(start), full.hi};  // MA08
+     const std::int64_t groups_in_window = static_cast<std::int64_t>(range.size());
+     const std::int64_t tokens_in_window =
+         pre_tokens_[range.hi] - pre_tokens_[range.lo];

@@ -1,0 +1,11 @@
+--- a/qr_sources/src/normalize.cpp
++++ b/qr_sources/src/normalize.cpp
+@@ -40,7 +40,7 @@
+   }
+   // ISO days compare lexicographically, so this IS chronological
+   // (`reader.rs:1343-1351`).
+-  if (day >= kShareEraFirstDay) {
++  if (day > kShareEraFirstDay) {
+     return raw;
+   }
+   return checked_mul(raw, kSharesPerLot);

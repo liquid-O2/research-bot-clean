@@ -1,0 +1,13 @@
+--- a/qr_labels/src/money.cpp
++++ b/qr_labels/src/money.cpp
+@@ -123,8 +123,8 @@
+   const bool at_or_below = (side == Side::LONG) == (bound == NetBound::AT_OR_BELOW);
+   PriceGate gate;
+   gate.triggers_at_or_below = at_or_below;
+-  gate.price_u6 = at_or_below ? floor_div_positive(numerator.value(), kFracScaleU6)
+-                              : ceil_div_positive(numerator.value(), kFracScaleU6);
++  gate.price_u6 = at_or_below ? floor_div_positive(numerator.value(), kFracScaleU6) + 1
++                              : ceil_div_positive(numerator.value(), kFracScaleU6) - 1;  // MUTANT M815
+   return gate;
+ }
+ 

@@ -1,0 +1,25 @@
+--- a/qr_sources/include/qr_sources/stream_spec.hpp
++++ b/qr_sources/include/qr_sources/stream_spec.hpp
+@@ -558,7 +558,7 @@
+ // (`option_quotes.rs:18-19`): the vendor `mid` is `bid + ask` in the compact
+ // profile and the true midpoint in the wide one, so it is never read and the
+ // midpoint is always computed.
+-inline constexpr StreamSpec<19, 8, 6> kOptionQuoteSpec{
++inline constexpr StreamSpec<19, 8, 1> kOptionQuoteSpec{
+     .stream = "option_quotes",
+     .names = {"symbol", "expiration", "strike", "right", "timestamp", "bid_size", "bid_exchange",
+               "bid", "bid_condition", "ask_size", "ask_exchange", "ask", "ask_condition",
+@@ -567,12 +567,7 @@
+     .projection = {1, 2, 3, 4, 5, 7, 9, 11},
+     .roles = {ColumnRole::Date, ColumnRole::Strike, ColumnRole::Text, ColumnRole::TimestampMs,
+               ColumnRole::Int, ColumnRole::Price, ColumnRole::Int, ColumnRole::Price},
+-    .forbidden = {ForbiddenColumn{13, ForbidReason::NeverRead},   // d_bid_size
+-                  ForbiddenColumn{14, ForbidReason::NeverRead},   // d_ask_size
+-                  ForbiddenColumn{15, ForbidReason::NeverRead},   // bid_px_chg
+-                  ForbiddenColumn{16, ForbidReason::NeverRead},   // ask_px_chg
+-                  ForbiddenColumn{17, ForbidReason::NeverRead},   // dt_prev_contract_ms
+-                  ForbiddenColumn{18, ForbidReason::NeverRead}},  // mid
++    .forbidden = {ForbiddenColumn{18, ForbidReason::NeverRead}},  // mid only
+     .timestamp_leaf = 4,
+ };
+ static_assert(spec_is_wellformed(kOptionQuoteSpec));

@@ -1,0 +1,12 @@
+--- a/qr_carriers/src/native_order.cpp
++++ b/qr_carriers/src/native_order.cpp
+@@ -78,6 +78,9 @@
+ PhaseSplit NativeOrderBuilder::split_for(const DecisionWindow& window) const noexcept {
+   PhaseSplit split;
+   if (!window.phase_reference_present) {
++    // MB07: with no reference the carrier claims a split at the table's start,
++    // so every group is phased RESPONSE instead of unphased.
++    split.reference_present = true;
+     return split;
+   }
+   split.reference_present = true;

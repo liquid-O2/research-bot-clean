@@ -1,0 +1,15 @@
+--- a/python/campaign/arms.py
++++ b/python/campaign/arms.py
+@@ -540,8 +540,10 @@
+ 
+     def __init__(self) -> None:
+         super().__init__()
+-        self.up = nn.Linear(D_MODEL, JSA_FFN, bias=False)
+-        self.down = nn.Linear(JSA_FFN, D_MODEL, bias=False)
++        # M941 MUTANT: the replacement MLP is 64->64->64, so the capacity
++        # match no longer matches the attention it replaces.
++        self.up = nn.Linear(D_MODEL, D_MODEL, bias=False)
++        self.down = nn.Linear(D_MODEL, D_MODEL, bias=False)
+ 
+     def forward(self, tokens: Tensor, valid: Tensor, log_delta: Tensor,
+                 causal: Tensor) -> Tensor:

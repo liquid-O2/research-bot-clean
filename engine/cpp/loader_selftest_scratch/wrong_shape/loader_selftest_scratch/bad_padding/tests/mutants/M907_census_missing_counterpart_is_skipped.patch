@@ -1,0 +1,12 @@
+--- a/qr_census/src/verdict.cpp
++++ b/qr_census/src/verdict.cpp
+@@ -490,7 +490,8 @@
+         AttachPair& pair = attach_slot(lhs.ordinal, lhs.day);
+         pair.have_cpp_total = as_i64(lhs.value, pair.cpp_total);
+       } else {
+-        builder.add(field_of(lhs), "ABSENT", lhs.value, Verdict::FAIL);
++        // M907: a key the other side does not carry becomes a census row.
++        builder.add(field_of(lhs), "ABSENT", lhs.value, Verdict::CENSUS);
+       }
+       ++li;
+       continue;

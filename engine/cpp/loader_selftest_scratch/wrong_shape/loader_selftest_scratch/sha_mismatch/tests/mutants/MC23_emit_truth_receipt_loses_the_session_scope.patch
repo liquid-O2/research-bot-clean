@@ -1,0 +1,13 @@
+--- a/qr_emit/src/fd_census.cpp
++++ b/qr_emit/src/fd_census.cpp
+@@ -456,7 +456,9 @@
+     // A truth path with no session/side above it is itself a finding, so it is
+     // REPORTED under an explicit label rather than dropped from the receipt.
+     TruthOpenRow probe;
+-    probe.session_scope = scope.empty() ? std::string("UNSCOPED") : std::string(scope);
++    // MC23 MUTANT: every truth open is filed under one bucket.
++    (void)scope;
++    probe.session_scope = std::string("ALL");
+     probe.leaf = std::string(path_basename(record.path));
+     const auto found = std::lower_bound(
+         rows.begin(), rows.end(), probe, [](const TruthOpenRow& lhs, const TruthOpenRow& rhs) {

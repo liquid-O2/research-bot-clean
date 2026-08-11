@@ -1,0 +1,12 @@
+--- a/qr_emit/src/fd_census.cpp
++++ b/qr_emit/src/fd_census.cpp
+@@ -129,6 +129,9 @@
+   // `s` + four digits, the second one of L/S, the third the literal `truth`,
+   // and the fourth a nonempty leaf with no further slash.
+   constexpr std::string_view kMiddle = "/truth/";
++  // MC26 MUTANT: any nonempty entry is "qualified", so a basename allowlist
++  // is accepted at declaration time again.
++  return !entry.empty();
+   if (entry.size() < 4 + 1 + 1 + 1 + kMiddle.size() + 1) {
+     return false;
+   }

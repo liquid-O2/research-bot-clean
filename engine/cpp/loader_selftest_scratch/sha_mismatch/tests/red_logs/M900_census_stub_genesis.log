@@ -1,0 +1,172 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 34 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from Intersection
+[ RUN      ] Intersection.EveryStreamPublishesItsComparedAndItsUncomparedColumns
+[       OK ] Intersection.EveryStreamPublishesItsComparedAndItsUncomparedColumns (0 ms)
+[ RUN      ] Intersection.NoColumnIsBothComparedAndEnumeratedAsUncomparable
+[       OK ] Intersection.NoColumnIsBothComparedAndEnumeratedAsUncomparable (0 ms)
+[ RUN      ] Intersection.EveryStreamProjectsItsClockAndTheRowWidthFollowsTheKinds
+[       OK ] Intersection.EveryStreamProjectsItsClockAndTheRowWidthFollowsTheKinds (0 ms)
+[----------] 3 tests from Intersection (0 ms total)
+
+[----------] 6 tests from CanonicalImage
+[ RUN      ] CanonicalImage.PermutingAnEqualTimestampRunDoesNotChangeTheDigest
+[       OK ] CanonicalImage.PermutingAnEqualTimestampRunDoesNotChangeTheDigest (2 ms)
+[ RUN      ] CanonicalImage.RowsInDifferentMillisecondsKeepTheirTapeOrder
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:130: Failure
+Expected: (sha_of(swapped)) != (sha_of(forward)), actual: "98a0af65092da20476da845b8545a091d90f1a2d66cfec40f1743e60a713b60b" vs "98a0af65092da20476da845b8545a091d90f1a2d66cfec40f1743e60a713b60b"
+
+[  FAILED  ] CanonicalImage.RowsInDifferentMillisecondsKeepTheirTapeOrder (0 ms)
+[ RUN      ] CanonicalImage.MultiplicityIsPreservedInsideARun
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:138: Failure
+Expected: (sha_of(twice)) != (sha_of(once)), actual: "98a0af65092da20476da845b8545a091d90f1a2d66cfec40f1743e60a713b60b" vs "98a0af65092da20476da845b8545a091d90f1a2d66cfec40f1743e60a713b60b"
+
+[  FAILED  ] CanonicalImage.MultiplicityIsPreservedInsideARun (0 ms)
+[ RUN      ] CanonicalImage.TheStreamAndTheDayAreBoundIntoTheDigest
+[       OK ] CanonicalImage.TheStreamAndTheDayAreBoundIntoTheDigest (0 ms)
+[ RUN      ] CanonicalImage.ANullFlagIsPartOfTheImageSoAZeroIsNotAnAbsence
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:162: Failure
+Expected: (absent.row_sha256()) != (present.row_sha256()), actual: "98a0af65092da20476da845b8545a091d90f1a2d66cfec40f1743e60a713b60b" vs "98a0af65092da20476da845b8545a091d90f1a2d66cfec40f1743e60a713b60b"
+
+[  FAILED  ] CanonicalImage.ANullFlagIsPartOfTheImageSoAZeroIsNotAnAbsence (0 ms)
+[ RUN      ] CanonicalImage.ByteModeOffLeavesNoDigestRatherThanAnEmptyOne
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:171: Failure
+Expected equality of these values:
+  diff.rows()
+    Which is: 0
+  1
+
+[  FAILED  ] CanonicalImage.ByteModeOffLeavesNoDigestRatherThanAnEmptyOne (0 ms)
+[----------] 6 tests from CanonicalImage (2 ms total)
+
+[----------] 4 tests from DigestRule
+[ RUN      ] DigestRule.IntegersWrapAndNullsAreCountedNeverFoldedIntoTheSum
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:187: Failure
+Expected equality of these values:
+  diff.column(1).non_null()
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:188: Failure
+Expected equality of these values:
+  diff.column(1).nulls()
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:189: Failure
+Expected equality of these values:
+  diff.column(1).digest()
+    Which is: 0
+  7U
+    Which is: 7
+
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:191: Failure
+Expected equality of these values:
+  diff.column(0).digest()
+    Which is: 0
+  3U
+    Which is: 3
+
+[  FAILED  ] DigestRule.IntegersWrapAndNullsAreCountedNeverFoldedIntoTheSum (0 ms)
+[ RUN      ] DigestRule.TheIntegerSumIsWrappingRatherThanSaturatingOrRefusing
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:204: Failure
+Expected equality of these values:
+  diff.column(0).digest()
+    Which is: 0
+  expected
+    Which is: 13835058055282163712
+
+[  FAILED  ] DigestRule.TheIntegerSumIsWrappingRatherThanSaturatingOrRefusing (0 ms)
+[ RUN      ] DigestRule.DoublesFoldByBitXorSoAnEvenRepetitionCancels
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:216: Failure
+Expected equality of these values:
+  diff.column(6).non_null()
+    Which is: 0
+  2
+
+[  FAILED  ] DigestRule.DoublesFoldByBitXorSoAnEvenRepetitionCancels (0 ms)
+[ RUN      ] DigestRule.TheMaskCensusIsCarriedSeparatelyFromTheSharedNullModel
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:233: Failure
+Expected equality of these values:
+  diff.column(2).non_null()
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:234: Failure
+Expected equality of these values:
+  diff.mask_null(2)
+    Which is: 0
+  1
+
+[  FAILED  ] DigestRule.TheMaskCensusIsCarriedSeparatelyFromTheSharedNullModel (0 ms)
+[----------] 4 tests from DigestRule (0 ms total)
+
+[----------] 4 tests from DumpParse
+[ RUN      ] DumpParse.TheHeaderIsPinnedAndDriftIsARefusal
+[       OK ] DumpParse.TheHeaderIsPinnedAndDriftIsARefusal (0 ms)
+[ RUN      ] DumpParse.AShortRowIsARefusalNamingItsLine
+[       OK ] DumpParse.AShortRowIsARefusalNamingItsLine (0 ms)
+[ RUN      ] DumpParse.AWellFormedDumpRoundTripsThroughItsJoinKey
+[       OK ] DumpParse.AWellFormedDumpRoundTripsThroughItsJoinKey (0 ms)
+[ RUN      ] DumpParse.AnEmptyDumpIsARefusalRatherThanAnEmptyAgreement
+[       OK ] DumpParse.AnEmptyDumpIsARefusalRatherThanAnEmptyAgreement (0 ms)
+[----------] 4 tests from DumpParse (0 ms total)
+
+[----------] 6 tests from Comparator
+[ RUN      ] Comparator.TwoAgreeingDumpsProduceNoFailAtAll
+[       OK ] Comparator.TwoAgreeingDumpsProduceNoFailAtAll (0 ms)
+[ RUN      ] Comparator.APlantedNonWcdColumnDeltaIsAFailAndCarriesNoWaiver
+[       OK ] Comparator.APlantedNonWcdColumnDeltaIsAFailAndCarriesNoWaiver (0 ms)
+[ RUN      ] Comparator.APlantedRegistryCountDeltaIsAFail
+[       OK ] Comparator.APlantedRegistryCountDeltaIsAFail (0 ms)
+[ RUN      ] Comparator.AKeyOnlyOneSideCarriesIsAFailRatherThanASilentPass
+[       OK ] Comparator.AKeyOnlyOneSideCarriesIsAFailRatherThanASilentPass (0 ms)
+[ RUN      ] Comparator.TheCppOnlyCensusMetricsArePublishedRatherThanCompared
+[       OK ] Comparator.TheCppOnlyCensusMetricsArePublishedRatherThanCompared (0 ms)
+[ RUN      ] Comparator.EveryNonComparedColumnIsEnumeratedInTheVerdictWithItsSideAndReason
+[       OK ] Comparator.EveryNonComparedColumnIsEnumeratedInTheVerdictWithItsSideAndReason (0 ms)
+[----------] 6 tests from Comparator (0 ms total)
+
+[----------] 6 tests from WcdWaiver
+[ RUN      ] WcdWaiver.TheArithmeticIsExactAndOnlyAppliesWhenThereIsSomethingToWaive
+[       OK ] WcdWaiver.TheArithmeticIsExactAndOnlyAppliesWhenThereIsSomethingToWaive (0 ms)
+[ RUN      ] WcdWaiver.WcdOneIsTheOnlyLegalWaiverId
+[       OK ] WcdWaiver.WcdOneIsTheOnlyLegalWaiverId (0 ms)
+[ RUN      ] WcdWaiver.AnInjectedWrongCivilDayAttachmentIsWaivedByExactlyItsOwnCount
+[       OK ] WcdWaiver.AnInjectedWrongCivilDayAttachmentIsWaivedByExactlyItsOwnCount (0 ms)
+[ RUN      ] WcdWaiver.ADeltaThatIsNotExactlyTheWrongCivilDayCountIsAFail
+[       OK ] WcdWaiver.ADeltaThatIsNotExactlyTheWrongCivilDayCountIsAFail (0 ms)
+[ RUN      ] WcdWaiver.WithoutAnyWrongCivilDayAttachmentTheTotalsMustAgreeOutright
+[       OK ] WcdWaiver.WithoutAnyWrongCivilDayAttachmentTheTotalsMustAgreeOutright (0 ms)
+[ RUN      ] WcdWaiver.TheBucketHistogramItselfIsComparedExactlyAndNeverWaived
+[       OK ] WcdWaiver.TheBucketHistogramItselfIsComparedExactlyAndNeverWaived (0 ms)
+[----------] 6 tests from WcdWaiver (0 ms total)
+
+[----------] 5 tests from Archive
+[ RUN      ] Archive.AnIntactVerdictVerifiesAgainstItsRecordedSha
+[       OK ] Archive.AnIntactVerdictVerifiesAgainstItsRecordedSha (43 ms)
+[ RUN      ] Archive.ATruncatedVerdictIsCaughtByTheShaRecheck
+[       OK ] Archive.ATruncatedVerdictIsCaughtByTheShaRecheck (38 ms)
+[ RUN      ] Archive.AnEditedVerdictHeaderIsARefusal
+[       OK ] Archive.AnEditedVerdictHeaderIsARefusal (27 ms)
+[ RUN      ] Archive.AWaiverIdOutsideTheClosedSetIsARefusalEvenWithAMatchingSha
+[       OK ] Archive.AWaiverIdOutsideTheClosedSetIsARefusalEvenWithAMatchingSha (39 ms)
+[ RUN      ] Archive.ANonWaivedRowMayNotSmuggleAWaiverId
+[       OK ] Archive.ANonWaivedRowMayNotSmuggleAWaiverId (0 ms)
+[----------] 5 tests from Archive (149 ms total)
+
+[----------] Global test environment tear-down
+[==========] 34 tests from 7 test suites ran. (154 ms total)
+[  PASSED  ] 26 tests.
+[  FAILED  ] 8 tests, listed below:
+[  FAILED  ] CanonicalImage.RowsInDifferentMillisecondsKeepTheirTapeOrder
+[  FAILED  ] CanonicalImage.MultiplicityIsPreservedInsideARun
+[  FAILED  ] CanonicalImage.ANullFlagIsPartOfTheImageSoAZeroIsNotAnAbsence
+[  FAILED  ] CanonicalImage.ByteModeOffLeavesNoDigestRatherThanAnEmptyOne
+[  FAILED  ] DigestRule.IntegersWrapAndNullsAreCountedNeverFoldedIntoTheSum
+[  FAILED  ] DigestRule.TheIntegerSumIsWrappingRatherThanSaturatingOrRefusing
+[  FAILED  ] DigestRule.DoublesFoldByBitXorSoAnEvenRepetitionCancels
+[  FAILED  ] DigestRule.TheMaskCensusIsCarriedSeparatelyFromTheSharedNullModel
+
+ 8 FAILED TESTS

@@ -1,0 +1,11 @@
+--- a/qr_clock/src/session_clock.cpp
++++ b/qr_clock/src/session_clock.cpp
+@@ -207,7 +207,7 @@
+                 "frame-B instant is outside the registered [open_b, close_b) window", ts_b.ns()));
+   }
+   // Condition 4: the frame-A image is inside the frame-A session.
+-  if (!contains_a(converted.value())) {
++  if (false && !contains_a(converted.value())) {  // M104
+     return Expected<FrameA, Refusal>::refuse(
+         Refusal(RefusalCode::CLOCK_VIOLATION, kSiteCondition4,
+                 "converted frame-A instant is outside [session_start, session_end)",

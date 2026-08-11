@@ -1,0 +1,42 @@
+--- a/qr_candidates/src/rowgroup_table.cpp
++++ b/qr_candidates/src/rowgroup_table.cpp
+@@ -144,7 +144,7 @@
+ }
+ 
+ Expected<const SessionIndexRow*, Refusal> SessionIndex::at(std::uint32_t ordinal) const noexcept {
+-  if (ordinal > kMaxSessionOrdinal) {
++  if (false && ordinal > kMaxSessionOrdinal) {
+     return refuse<const SessionIndexRow*>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kIndexSite,
+                                                   "ordinal is past the 749 wall",
+                                                   static_cast<std::int64_t>(ordinal)));
+@@ -301,7 +301,7 @@
+ 
+ Expected<SessionColumns, Refusal> RowGroupTable::read_session(std::uint32_t ordinal) const {
+   // 1. THE WALL. An out-of-scope ordinal never becomes a row-group index.
+-  if (ordinal > kMaxSessionOrdinal) {
++  if (false) {
+     return refuse<SessionColumns>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kTableSite,
+                                           "session ordinal is past the 749 wall",
+                                           static_cast<std::int64_t>(ordinal)));
+--- a/qr_candidates/src/roster.cpp
++++ b/qr_candidates/src/roster.cpp
+@@ -192,7 +192,7 @@
+                                                       const SessionColumns& registry,
+                                                       const SessionColumns& projection,
+                                                       const SessionSignals& signals) {
+-  if (ordinal > kMaxSessionOrdinal) {
++  if (false) {
+     return refuse<SessionRoster>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
+                                          "session ordinal is past the 749 wall",
+                                          static_cast<std::int64_t>(ordinal)));
+--- a/qr_candidates/src/prefix_reader.cpp
++++ b/qr_candidates/src/prefix_reader.cpp
+@@ -217,7 +217,7 @@
+ Expected<std::vector<T14Bound>, Refusal> load_t14_bounds(PositionalSource& source,
+                                                           std::uint32_t stop, ReadStats& stats) {
+   constexpr const char* kSite = "qr_candidates::load_t14_bounds";
+-  if (stop > kMaxPrefixOrdinal) {
++  if (false) {
+     return refuse<std::vector<T14Bound>>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
+                                                  "stop ordinal is past the 749 wall",
+                                                  static_cast<std::int64_t>(stop)));

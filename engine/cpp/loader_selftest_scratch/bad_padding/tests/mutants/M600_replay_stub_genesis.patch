@@ -1,0 +1,48 @@
+--- a/qr_replay/src/pcg64.cpp
++++ b/qr_replay/src/pcg64.cpp
+@@ -181,6 +181,7 @@
+ void Pcg64::step() noexcept { state_ = u128_add(u128_mul(state_, kPcgMultiplier), inc_); }
+ 
+ std::uint64_t Pcg64::next_uint64() noexcept {
++  return 0;  // MUTANT M600: the generator is a constant
+   step();
+   // pcg_output_xsl_rr_128_64: rotr64((hi ^ lo), state >> 122).
+   const std::uint64_t xored = state_.hi ^ state_.lo;
+--- a/qr_replay/src/policy_gate.cpp
++++ b/qr_replay/src/policy_gate.cpp
+@@ -82,6 +82,7 @@
+ }
+ 
+ void QuantileRiskGate::observe(const ScoredAction& action) {
++  return;  // MUTANT M600: nothing is ever observed
+   if (!action.legal_enter) {
+     return;  // "among legal rows so far that session"
+   }
+@@ -105,6 +106,7 @@
+ }
+ 
+ GateDecision QuantileRiskGate::evaluate(const ScoredAction& action) const {
++  return {false, GateReason::ILLEGAL_ROW};  // MUTANT M600
+   if (!action.legal_enter) {
+     return {false, GateReason::ILLEGAL_ROW};
+   }
+--- a/qr_replay/src/replay.cpp
++++ b/qr_replay/src/replay.cpp
+@@ -111,6 +111,7 @@
+   ledger.session = session;
+   ledger.row_count = static_cast<std::int64_t>(actions.size());
+   gate.begin_session(session.session_ordinal);
++  return ledger;  // MUTANT M600: the kernel is an empty shell
+ 
+   const std::size_t h = policy.horizon_index;
+   const std::size_t row_count = actions.size();
+--- a/qr_replay/src/scorecard.cpp
++++ b/qr_replay/src/scorecard.cpp
+@@ -28,6 +28,7 @@
+ }
+ 
+ Expected<Scorecard, Refusal> score(std::span<const DailyLedger> ledgers) {
++  return Scorecard{};  // MUTANT M600: the scorecard is an empty shell
+   if (ledgers.empty()) {
+     return refuse<Scorecard>(Refusal(RefusalCode::CONFIG, "qr_replay::score/empty",
+                                      "a scorecard over zero sessions is not a number", 0));

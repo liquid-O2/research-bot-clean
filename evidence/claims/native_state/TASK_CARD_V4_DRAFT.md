@@ -514,7 +514,8 @@ contributes exactly zero; the state head uses biases in both layers.
 For stock print, equal-time mean+max over 17 values+17 masks plus log multiplicity is69
 inputs; NBBO's 16-value analog is65 and option's 22-value analog is89. Bias-free base
 group projections are69->32->64,65->32->64,or89->32->64; the shared bias-free two-state
-phase table has128 parameters.
+phase table has 128 parameters (ONE shared object; §5's per-carrier accounting counts it
+in each micro carrier's algebra — CC-009 accounting note).
 The 128-group micro carrier has four residual
 causal TCN blocks, width64, kernel3, dilations1/2/4/8. Its role vector is approach, current,
 current-approach, and mean of valid latent checkpoints at cutoff-{60,30,15,5,1,0}s plus
@@ -542,8 +543,8 @@ once per decision. Probe receipts report `G_s`, extraction/model wall, RSS/VRAM,
 increment versus DIRECT_CAPACITY_MATCH; >20% of total frozen pipeline wall is COST_REFUSED.
 
 All arms have separate stock-print, stock-NBBO, option-print, and state heads
-`64->32->N_out` (SiLU; **A1:** N_out recomputed and pinned at freeze; DIRECT_CAPACITY_MATCH
-gets identical heads so capacity gaps stay ≤5%); logits add. **A1 outputs:** menu
+`64->32->N_out` (SiLU; **A1/CC-009:** N_out = 16, pinned (7 menu + 1 certificate + 3 opportunity + 2
+risk + 3 barrier); DIRECT_CAPACITY_MATCH gets identical heads so capacity gaps stay ≤5%); logits add. **A1 outputs:** menu
 regressions net_h/30000 for the seven horizons; certificate_net/30000 co-primary;
 opportunity BCEs on net_h_ref (>0, >=10,000c, >=30,000c); risk BCEs stop_hit-before-h_ref and
 stop_hit-before-60m; barrier three-class. **A1 loss weights:** menu Huber(δ=1) 1/7 each;
@@ -581,7 +582,8 @@ The frozen ladder is:
 6. `DYNAMIC_POLICY`, no new fit/parameters: the NATIVE_INTERACTION scores are replayed
    through the watch chronology below.
 
-Here `Us,Uo,Ue` are bias-free 8x64 matrices, `W` is bias-free8x8 (eight outputs by rank),
+Here `Us,Uo,Ue` are bias-free 8x64 matrices, `W` is bias-free N_out×8 (outputs by rank; the V3.3.3 '8x8' assumed the old N_out=8 —
+CC-009 clarification, param-neutral to the frozen §5 encoder algebra),
 `r_print/r_nbbo/r_option` are the frozen `r_modality` columns, and
 `r_state=min(1,visible_candidate_count/4)`. The stock embedding is
 `(r_print*h_print+r_nbbo*h_nbbo)/max(r_print+r_nbbo,1e-12)`, zero when both are absent.

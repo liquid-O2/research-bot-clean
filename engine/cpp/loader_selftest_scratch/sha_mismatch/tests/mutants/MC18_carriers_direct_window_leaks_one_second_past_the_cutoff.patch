@@ -1,0 +1,13 @@
+--- a/qr_carriers/src/direct_raw.cpp
++++ b/qr_carriers/src/direct_raw.cpp
+@@ -199,7 +199,9 @@
+ Expected<DirectRawRow, Refusal> DirectRawBuilder::build(const DecisionWindow& window) {
+   const std::size_t slot = side_index(window.side);
+   const std::int64_t full_start = window.window_start_ns_a();
+-  const Range full = range_for(full_start, window.cutoff_ns_a);
++  // MC18 MUTANT: the DIRECT window reaches ONE SECOND past the cutoff, so a
++  // decision reads tokens that had not happened yet.
++  const Range full = range_for(full_start, window.cutoff_ns_a + kNanosPerSecond);
+ 
+   DirectRawRow row;
+ 

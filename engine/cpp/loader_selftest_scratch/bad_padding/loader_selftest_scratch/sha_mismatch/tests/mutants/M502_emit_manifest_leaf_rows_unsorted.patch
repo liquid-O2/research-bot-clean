@@ -1,0 +1,15 @@
+--- a/qr_emit/src/shard_writer.cpp
++++ b/qr_emit/src/shard_writer.cpp
+@@ -279,11 +279,8 @@
+ 
+   // SORTED FILE ORDER (frozen ruling). Published bytes are a function of the
+   // leaf SET, never of the order the caller emitted them.
++  // M502 MUTANT: leaf rows in EMISSION order instead of sorted path order.
+   std::vector<NpyLeafReceipt> leaves = leaves_;
+-  std::sort(leaves.begin(), leaves.end(),
+-            [](const NpyLeafReceipt& lhs, const NpyLeafReceipt& rhs) {
+-              return lhs.rel_path < rhs.rel_path;
+-            });
+   std::vector<SourceRow> sources = spec_.sources;
+   std::sort(sources.begin(), sources.end(), [](const SourceRow& lhs, const SourceRow& rhs) {
+     return lhs.id != rhs.id ? lhs.id < rhs.id : lhs.path < rhs.path;

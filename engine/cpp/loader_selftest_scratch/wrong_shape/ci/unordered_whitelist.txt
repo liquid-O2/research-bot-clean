@@ -1,0 +1,10 @@
+# Explicit whitelist for std::unordered_map / std::unordered_set.
+#
+# One repo-relative path per line (relative to engine/cpp/). A file listed here
+# is exempt from the unordered-container gate in ci/check_banned_constructs.sh.
+# Nothing is exempt today: no output path in this substrate may depend on hash
+# iteration order, because two-run byte identity is a law of every WP
+# acceptance (FINAL_PLAN section 6, "Laws").
+#
+# Adding a line here is a design decision, not an implementation one: it needs
+# an orchestrator ruling plus a determinism argument written next to the entry.

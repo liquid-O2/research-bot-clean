@@ -1,0 +1,14 @@
+--- a/qr_census/src/differential.cpp
++++ b/qr_census/src/differential.cpp
+@@ -430,10 +430,7 @@
+     row.value = std::string(fields[6]);
+     rows.push_back(std::move(row));
+   }
+-  if (!header_seen) {
+-    return Expected<std::vector<DumpRow>, Refusal>::refuse(
+-        Refusal(RefusalCode::SCHEMA_MISMATCH, kParseSite, "dump is empty: no header row", 0));
+-  }
++  // M917: an empty dump is an empty agreement.
+   return rows;
+ }
+ 

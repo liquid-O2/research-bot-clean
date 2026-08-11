@@ -1,0 +1,14 @@
+--- a/qr_labels/src/watches.cpp
++++ b/qr_labels/src/watches.cpp
+@@ -146,9 +146,8 @@
+     }
+     instants.push_back(ts.value());
+   }
+-  for (const std::int64_t visibility : visibilities) {
+-    instants.push_back(visibility);
+-  }
++  // MUTANT M809: the authority roster is the whole-second grid alone, so
++  // the decision ordinal collapses onto the decision second.
+   // THE UNION, sorted and deduplicated: "the sorted union of every registered
+   // whole second and every ... visibility timestamp".
+   std::sort(instants.begin(), instants.end());

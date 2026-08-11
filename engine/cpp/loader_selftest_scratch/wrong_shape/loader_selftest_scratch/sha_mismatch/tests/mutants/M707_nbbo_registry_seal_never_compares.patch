@@ -1,0 +1,22 @@
+--- a/qr_nbbo/src/group_machine.cpp
++++ b/qr_nbbo/src/group_machine.cpp
+@@ -444,18 +444,7 @@
+   // reference's own FULL_DAY_LEGACY_COUNTS seal (reader.rs:1729-1738): two
+   // numbers signed into the frozen registry, reproduced here by a stateful
+   // machine that shares no code with the decoder that produced them.
+-  if (census_.rth_rows != pins_.raw_rth_row_count) {
+-    return Expected<std::int64_t, Refusal>::refuse(
+-        Refusal(RefusalCode::CONTENT_MISMATCH, kSealSite,
+-                "retained RTH rows disagree with the registry's raw_rth_row_count",
+-                census_.rth_rows));
+-  }
+-  if (census_.group_count != pins_.complete_group_count) {
+-    return Expected<std::int64_t, Refusal>::refuse(
+-        Refusal(RefusalCode::CONTENT_MISMATCH, kSealSite,
+-                "group count disagrees with the registry's complete_group_count",
+-                census_.group_count));
+-  }
++  // M707: the seal no longer compares anything to the registry.
+   sealed_ = true;
+   return census_.group_count;
+ }

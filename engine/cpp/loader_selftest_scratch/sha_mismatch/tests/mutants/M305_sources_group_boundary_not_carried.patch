@@ -1,0 +1,11 @@
+--- a/qr_sources/include/qr_sources/session_source.hpp
++++ b/qr_sources/include/qr_sources/session_source.hpp
+@@ -269,7 +269,7 @@
+   /// carrying it. Canonicalization happens here, once per run.
+   void end_chunk(bool end_of_session) {
+     complete_runs_ = runs_.size();
+-    if (!end_of_session && !runs_.empty()) {
++    if (false && !end_of_session && !runs_.empty()) {
+       const std::size_t start = runs_.back();
+       carry_.assign(rows_.begin() + static_cast<std::ptrdiff_t>(start), rows_.end());
+       rows_.resize(start);

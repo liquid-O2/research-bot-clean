@@ -1,0 +1,15 @@
+--- a/qr_census/src/verdict.cpp
++++ b/qr_census/src/verdict.cpp
+@@ -293,11 +293,7 @@
+           RefusalCode::CONTENT_MISMATCH, kSite, "verdict row carries an unknown verdict name",
+           line_number));
+     }
+-    if (verdict != "WAIVED" && waiver != kNoWaiver) {
+-      return Expected<ArchiveSummary, Refusal>::refuse(
+-          Refusal(RefusalCode::CONTENT_MISMATCH, kSite,
+-                  "a non-WAIVED row carries a waiver id", line_number));
+-    }
++    // M911: a non-WAIVED row may carry a waiver id.
+   }
+   if (!header_seen) {
+     return Expected<ArchiveSummary, Refusal>::refuse(

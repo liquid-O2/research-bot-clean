@@ -1,0 +1,12 @@
+--- a/python/campaign/controls.py
++++ b/python/campaign/controls.py
+@@ -148,7 +148,8 @@
+         else:
+             injected = targets.risk[:, 0]          # stop_hit before h_ref, a bit
+         value = batch.loc_value.clone()
+-        value[:, synth.SESSION_TIME_FRACTION_INDEX] = injected.to(value.dtype)
++        # M949 MUTANT: the injection is computed and thrown away.
++        _ = injected
+         return (_replace(batch, loc_value=value), targets)
+ 
+ 

@@ -1,0 +1,12 @@
+--- a/python/campaign/synth.py
++++ b/python/campaign/synth.py
+@@ -356,7 +356,8 @@
+         if spec.label_noise:
+             flip = plant.random(rows) < spec.label_noise
+             target = np.where(flip, -target, target)
+-        net[:, arms.H_REF_INDEX] = target * 8_000.0
++        # M950 MUTANT: the target is one modality's channel, not the XOR.
++        net[:, arms.H_REF_INDEX] = first * 8_000.0
+     elif spec.signal == "linear":
+         net[:, arms.H_REF_INDEX] = features["direct_raw"][:, 0, 2] * 9_000.0
+ 

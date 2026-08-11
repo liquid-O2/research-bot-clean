@@ -1,0 +1,16 @@
+--- a/qr_labels/src/watches.cpp
++++ b/qr_labels/src/watches.cpp
+@@ -240,10 +240,9 @@
+     const ActionRow& current = actions[index];
+     if (index > 0) {
+       const ActionRow& previous = actions[index - 1];
+-      const bool ascending =
+-          previous.key.decision_ordinal < current.key.decision_ordinal ||
+-          (previous.key.decision_ordinal == current.key.decision_ordinal &&
+-           static_cast<std::int64_t>(previous.key.side) < static_cast<std::int64_t>(current.key.side));
++      // MUTANT M824: the side is dropped from the key, so a LONG and a SHORT
++      // at one clock look like a repeated key.
++      const bool ascending = previous.key.decision_ordinal < current.key.decision_ordinal;
+       if (!ascending) {
+         return Expected<std::int64_t, Refusal>::refuse(
+             Refusal(RefusalCode::OUT_OF_ORDER, kWatchSite,

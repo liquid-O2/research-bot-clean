@@ -1,0 +1,20 @@
+# RED-LEDGER TOOLING EVIDENCE
+# mutation_id: M002_ledgerless_test
+# patch:       tests/mutants/M002_ledgerless_test.patch
+# what:        three ways the red-ledger law can be violated, each refused
+# reproduce:   apply the patch, build the mutant preset, run
+#              scripts/check_red_ledger.sh /workspace/artifacts/cache/cpp/mutant
+#
+### section 1: a planted gtest with NO ledger row
+FAIL: PlantedLedgerless.HasNoRedLedgerRow has no row in tests/red_ledger.tsv (never proven able to fail)
+### exit=1 (expected 1)
+
+### section 2: a ledger row naming a test that no longer exists
+FAIL: PlantedLedgerless.HasNoRedLedgerRow has no row in tests/red_ledger.tsv (never proven able to fail)
+FAIL: ledger row GhostSuite.TestThatWasDeleted (M000_stub_genesis, tests/red_logs/M000_stub_genesis.log) names a test that no longer exists
+### exit=1 (expected 1)
+
+### section 3: a ledger row pointing at a log that never failed that test
+FAIL: tests/red_logs/M001_combine_table_cell.log contains no '[  FAILED  ] CheckedArithmetic.AddOverflowIsARefusalNotAValue' line — the log does not prove this test ever failed
+FAIL: PlantedLedgerless.HasNoRedLedgerRow has no row in tests/red_ledger.tsv (never proven able to fail)
+### exit=1 (expected 1)

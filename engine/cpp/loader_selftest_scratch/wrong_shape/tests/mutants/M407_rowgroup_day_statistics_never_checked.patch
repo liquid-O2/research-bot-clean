@@ -1,0 +1,19 @@
+--- a/qr_candidates/src/rowgroup_table.cpp
++++ b/qr_candidates/src/rowgroup_table.cpp
+@@ -329,14 +329,12 @@
+                                           "row group has no chunk for the `day` leaf"));
+   }
+   const qr::parquet::ColumnChunkMeta& day_chunk = row_group.columns[day_leaf_];
+-  if (!day_chunk.has_statistics || !day_chunk.statistics.has_min_value ||
+-      !day_chunk.statistics.has_max_value) {
++  if (false && !day_chunk.has_statistics) {
+     return refuse<SessionColumns>(Refusal(RefusalCode::SCHEMA_MISMATCH, kTableSite,
+                                           "row group carries no `day` statistics",
+                                           static_cast<std::int64_t>(ordinal)));
+   }
+-  if (day_chunk.statistics.min_value != day_chunk.statistics.max_value ||
+-      day_chunk.statistics.min_value != declared.day) {
++  if (false && day_chunk.statistics.min_value != declared.day) {
+     return refuse<SessionColumns>(
+         Refusal(RefusalCode::WRONG_CIVIL_DAY, kTableSite,
+                 "row group `day` statistics are not a single value equal to the indexed day",

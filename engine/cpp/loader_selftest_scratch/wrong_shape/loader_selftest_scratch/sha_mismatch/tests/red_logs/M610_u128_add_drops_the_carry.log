@@ -1,0 +1,1892 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M610_u128_add_drops_the_carry
+# patch:       tests/mutants/M610_u128_add_drops_the_carry.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M610_u128_add_drops_the_carry
+#
+### qr_replay_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 65 tests from 18 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from NumpyParity
+[ RUN      ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase
+[       OK ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase (4 ms)
+[ RUN      ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool
+[       OK ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool (0 ms)
+[ RUN      ] NumpyParity.GenerateStateReproducesBothTheThirtyTwoAndSixtyFourBitViews
+[       OK ] NumpyParity.GenerateStateReproducesBothTheThirtyTwoAndSixtyFourBitViews (0 ms)
+[ RUN      ] NumpyParity.TheRawSixtyFourBitStreamMatchesNumpyRandomRaw
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 11803352489401313347
+  expected[i]
+    Which is: 11687384798996523075
+raw64 draw 6 for (125, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 372901835776716864
+  expected[i]
+    Which is: 3325156164735788744
+raw64 draw 7 for (125, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 7461600622351848827
+  expected[i]
+    Which is: 7461600622351848763
+raw64 draw 5 for (125, 1)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 11582238320309773075
+  expected[i]
+    Which is: 10971846829289521315
+raw64 draw 6 for (125, 1)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 2422441403050581713
+  expected[i]
+    Which is: 14481463253742835283
+raw64 draw 7 for (125, 1)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 16932224491636149074
+  expected[i]
+    Which is: 16932224488414923602
+raw64 draw 6 for (125, 2)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 777045539675799461
+  expected[i]
+    Which is: 7166368178353076423
+raw64 draw 7 for (125, 2)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 13750710769712371883
+  expected[i]
+    Which is: 14247103491590465097
+raw64 draw 0 for (125, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 6436429990980295289
+  expected[i]
+    Which is: 1703397916932864010
+raw64 draw 1 for (125, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 11356406566646751702
+  expected[i]
+    Which is: 14441223195896493045
+raw64 draw 2 for (125, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 9523495427460044704
+  expected[i]
+    Which is: 1204881290228194352
+raw64 draw 3 for (125, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 13087680486676232506
+  expected[i]
+    Which is: 14939618337323441077
+raw64 draw 4 for (125, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 4925763336417455787
+  expected[i]
+    Which is: 2330459722522878936
+raw64 draw 5 for (125, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 5808239169675937986
+  expected[i]
+    Which is: 9341756710555537540
+raw64 draw 6 for (125, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 15950614347460377999
+  expected[i]
+    Which is: 17443612644712801604
+raw64 draw 7 for (125, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 9894826511464774991
+  expected[i]
+    Which is: 10867912301521250946
+raw64 draw 0 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 13141735540106266908
+  expected[i]
+    Which is: 9917795289863504082
+raw64 draw 1 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 3164682626499962554
+  expected[i]
+    Which is: 11739154764738341809
+raw64 draw 2 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 11809845289921999776
+  expected[i]
+    Which is: 4575670364698610526
+raw64 draw 3 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 8645135817653113675
+  expected[i]
+    Which is: 7503689241202710457
+raw64 draw 4 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 6971173372874700081
+  expected[i]
+    Which is: 13530777938776535013
+raw64 draw 5 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 9212005263328690721
+  expected[i]
+    Which is: 7995595134115843177
+raw64 draw 6 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 12772016617441233529
+  expected[i]
+    Which is: 10680279033788353539
+raw64 draw 7 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 2422210445902455258
+  expected[i]
+    Which is: 116367436688761306
+raw64 draw 1 for (749, 41)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 11953412497249373267
+  expected[i]
+    Which is: 15390773374175637084
+raw64 draw 2 for (749, 41)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 10416410908359356653
+  expected[i]
+    Which is: 8198005259035549030
+raw64 draw 3 for (749, 41)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 650479709789751269
+  expected[i]
+    Which is: 11902519349412559694
+raw64 draw 4 for (749, 41)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 784630747196436676
+  expected[i]
+    Which is: 13351345022714789438
+raw64 draw 5 for (749, 41)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 1218558914493896825
+  expected[i]
+    Which is: 3232819960864194832
+raw64 draw 6 for (749, 41)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 3522422230529177362
+  expected[i]
+    Which is: 11495641331936548220
+raw64 draw 7 for (749, 41)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 4360687572997821294
+  expected[i]
+    Which is: 5778183613540426799
+raw64 draw 0 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 2679829350629006745
+  expected[i]
+    Which is: 12907520779922548195
+raw64 draw 1 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 11647910782356358335
+  expected[i]
+    Which is: 11955991579093988637
+raw64 draw 2 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 10398052244616270178
+  expected[i]
+    Which is: 17197449693198651360
+raw64 draw 3 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 13808610090002472678
+  expected[i]
+    Which is: 3370409868277406508
+raw64 draw 4 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 16395403691026359640
+  expected[i]
+    Which is: 14380993738747123618
+raw64 draw 5 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 12848699158315545653
+  expected[i]
+    Which is: 3976727791646200208
+raw64 draw 6 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 12500164068248906700
+  expected[i]
+    Which is: 10088818383724994974
+raw64 draw 7 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 3021449880726709676
+  expected[i]
+    Which is: 7354010013305754441
+raw64 draw 0 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 12782949727935747248
+  expected[i]
+    Which is: 1132822903381034072
+raw64 draw 1 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 6763484061408829572
+  expected[i]
+    Which is: 648162546940959539
+raw64 draw 2 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 527131784034004767
+  expected[i]
+    Which is: 12754978220916452113
+raw64 draw 3 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 11318661662511701196
+  expected[i]
+    Which is: 1979670293629626271
+raw64 draw 4 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 16659301395660097557
+  expected[i]
+    Which is: 11963255378034655104
+raw64 draw 5 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 14392367655164335435
+  expected[i]
+    Which is: 7440686448735573486
+raw64 draw 6 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 8894045697594055825
+  expected[i]
+    Which is: 7227259186130345019
+raw64 draw 7 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 3375863401061108686
+  expected[i]
+    Which is: 7930428096130547644
+raw64 draw 0 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 1543787293156664541
+  expected[i]
+    Which is: 8738512378125985339
+raw64 draw 1 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 2307556199253539820
+  expected[i]
+    Which is: 11562589544704185988
+raw64 draw 2 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 997836837509619964
+  expected[i]
+    Which is: 3985843587009594879
+raw64 draw 3 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 3522197307661793563
+  expected[i]
+    Which is: 7522700567316268307
+raw64 draw 4 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 534867011279054394
+  expected[i]
+    Which is: 8161333846489212807
+raw64 draw 5 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 10603023013295156458
+  expected[i]
+    Which is: 4183586710840951148
+raw64 draw 6 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 16121393431582875755
+  expected[i]
+    Which is: 11007810447823002787
+raw64 draw 7 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 10248417463344247884
+  expected[i]
+    Which is: 17047187497559827735
+raw64 draw 0 for (749, 18446744073709551617)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 6239158450992492048
+  expected[i]
+    Which is: 9797496267335401383
+raw64 draw 1 for (749, 18446744073709551617)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 7627891574268184489
+  expected[i]
+    Which is: 6218272762780746170
+raw64 draw 2 for (749, 18446744073709551617)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 5194834450485382428
+  expected[i]
+    Which is: 15583272106208845589
+raw64 draw 3 for (749, 18446744073709551617)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 16428569146966143999
+  expected[i]
+    Which is: 3182902156407643458
+raw64 draw 4 for (749, 18446744073709551617)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 8687699649458455741
+  expected[i]
+    Which is: 16069877668726571527
+raw64 draw 5 for (749, 18446744073709551617)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 7912694547320183261
+  expected[i]
+    Which is: 16664190698534480892
+raw64 draw 6 for (749, 18446744073709551617)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:177: Failure
+Expected equality of these values:
+  generator.next_uint64()
+    Which is: 7576520703202902516
+  expected[i]
+    Which is: 6059816089917830413
+raw64 draw 7 for (749, 18446744073709551617)
+
+[  FAILED  ] NumpyParity.TheRawSixtyFourBitStreamMatchesNumpyRandomRaw (1 ms)
+[ RUN      ] NumpyParity.TheThirtyTwoBitStreamTakesTheLowHalfFirstAndCachesTheHigh
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2748182157
+  expected[i]
+    Which is: 2721181325
+raw32 draw 13
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1905258560
+  expected[i]
+    Which is: 365356744
+raw32 draw 14
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 86822974
+  expected[i]
+    Which is: 774198250
+raw32 draw 15
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2535298427
+  expected[i]
+    Which is: 2535298363
+raw32 draw 10
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 301671187
+  expected[i]
+    Which is: 1439449251
+raw32 draw 12
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2696700003
+  expected[i]
+    Which is: 2554582159
+raw32 draw 13
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 369581777
+  expected[i]
+    Which is: 1798755923
+raw32 draw 14
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 564018591
+  expected[i]
+    Which is: 3371728410
+raw32 draw 15
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3777252178
+  expected[i]
+    Which is: 556026706
+raw32 draw 12
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 648904613
+  expected[i]
+    Which is: 2691037383
+raw32 draw 14
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 180920013
+  expected[i]
+    Which is: 1668550115
+raw32 draw 15
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 903354539
+  expected[i]
+    Which is: 645539401
+raw32 draw 0
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3201586839
+  expected[i]
+    Which is: 3317162276
+raw32 draw 1
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2718767737
+  expected[i]
+    Which is: 1709996042
+raw32 draw 2
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1498598137
+  expected[i]
+    Which is: 396603233
+raw32 draw 3
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2179244502
+  expected[i]
+    Which is: 3649745909
+raw32 draw 4
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2644119450
+  expected[i]
+    Which is: 3362359291
+raw32 draw 5
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 902829984
+  expected[i]
+    Which is: 1418779696
+raw32 draw 6
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2217361570
+  expected[i]
+    Which is: 280533286
+raw32 draw 7
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2787506490
+  expected[i]
+    Which is: 1813207989
+raw32 draw 8
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3047213071
+  expected[i]
+    Which is: 3478400953
+raw32 draw 9
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 449719979
+  expected[i]
+    Which is: 877978584
+raw32 draw 10
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1146868648
+  expected[i]
+    Which is: 542602437
+raw32 draw 11
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1594575042
+  expected[i]
+    Which is: 3335049348
+raw32 draw 12
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1352336064
+  expected[i]
+    Which is: 2175047227
+raw32 draw 13
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 832568719
+  expected[i]
+    Which is: 3080611140
+raw32 draw 14
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3713791805
+  expected[i]
+    Which is: 4061407559
+raw32 draw 15
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2180627791
+  expected[i]
+    Which is: 1447406210
+raw32 draw 0
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2303818825
+  expected[i]
+    Which is: 2530383016
+raw32 draw 1
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2284390684
+  expected[i]
+    Which is: 4149952722
+raw32 draw 2
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3059798744
+  expected[i]
+    Which is: 2309166660
+raw32 draw 3
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3814811322
+  expected[i]
+    Which is: 3549440945
+raw32 draw 4
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 736835092
+  expected[i]
+    Which is: 2733234959
+raw32 draw 5
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1310651296
+  expected[i]
+    Which is: 690260830
+raw32 draw 6
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2749693880
+  expected[i]
+    Which is: 1065356276
+raw32 draw 7
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3862451019
+  expected[i]
+    Which is: 3469662137
+raw32 draw 8
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2012852536
+  expected[i]
+    Which is: 1747088795
+raw32 draw 9
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1843115313
+  expected[i]
+    Which is: 2675421157
+raw32 draw 10
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1623102783
+  expected[i]
+    Which is: 3150379736
+raw32 draw 11
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3451666977
+  expected[i]
+    Which is: 2026966121
+raw32 draw 12
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2144837114
+  expected[i]
+    Which is: 1861619561
+raw32 draw 13
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3422063225
+  expected[i]
+    Which is: 3607219203
+raw32 draw 14
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2973716849
+  expected[i]
+    Which is: 2486696241
+raw32 draw 15
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 563964817
+  expected[i]
+    Which is: 27093905
+raw32 draw 3
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2554563667
+  expected[i]
+    Which is: 172453468
+raw32 draw 4
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2783120725
+  expected[i]
+    Which is: 3583443671
+raw32 draw 5
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1531146477
+  expected[i]
+    Which is: 597237094
+raw32 draw 6
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2425259656
+  expected[i]
+    Which is: 1908746841
+raw32 draw 7
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2208172005
+  expected[i]
+    Which is: 972225358
+raw32 draw 8
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 151451609
+  expected[i]
+    Which is: 2771271241
+raw32 draw 9
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3867029700
+  expected[i]
+    Which is: 1217936958
+raw32 draw 10
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 182686081
+  expected[i]
+    Which is: 3108602255
+raw32 draw 11
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1682659449
+  expected[i]
+    Which is: 1310343440
+raw32 draw 12
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 283717856
+  expected[i]
+    Which is: 752699552
+raw32 draw 13
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 664893202
+  expected[i]
+    Which is: 2271237500
+raw32 draw 14
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 820127835
+  expected[i]
+    Which is: 2676537570
+raw32 draw 15
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1694421870
+  expected[i]
+    Which is: 3826213935
+raw32 draw 0
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1015301694
+  expected[i]
+    Which is: 1345338209
+raw32 draw 1
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2531810713
+  expected[i]
+    Which is: 708945379
+raw32 draw 2
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 623946392
+  expected[i]
+    Which is: 3005266371
+raw32 draw 3
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2915763391
+  expected[i]
+    Which is: 3782571293
+raw32 draw 4
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2711990564
+  expected[i]
+    Which is: 2783721214
+raw32 draw 5
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3696120162
+  expected[i]
+    Which is: 1170313184
+raw32 draw 6
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2420985196
+  expected[i]
+    Which is: 4004093281
+raw32 draw 7
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 947445478
+  expected[i]
+    Which is: 36002604
+raw32 draw 8
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3215067575
+  expected[i]
+    Which is: 784734699
+raw32 draw 9
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1489053016
+  expected[i]
+    Which is: 2468583330
+raw32 draw 10
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3817352394
+  expected[i]
+    Which is: 3348336028
+raw32 draw 11
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 625095733
+  expected[i]
+    Which is: 1568592272
+raw32 draw 12
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2991570895
+  expected[i]
+    Which is: 925904091
+raw32 draw 13
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3390303180
+  expected[i]
+    Which is: 4250657182
+raw32 draw 14
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2910421245
+  expected[i]
+    Which is: 2348986077
+raw32 draw 15
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2136778156
+  expected[i]
+    Which is: 3586216777
+raw32 draw 0
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 703486120
+  expected[i]
+    Which is: 1712238884
+raw32 draw 1
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 4081669296
+  expected[i]
+    Which is: 3178497112
+raw32 draw 2
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2976262412
+  expected[i]
+    Which is: 263755885
+raw32 draw 3
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1548361860
+  expected[i]
+    Which is: 4280343347
+raw32 draw 4
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1574746347
+  expected[i]
+    Which is: 150912102
+raw32 draw 5
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2435460895
+  expected[i]
+    Which is: 4153518865
+raw32 draw 6
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 122732432
+  expected[i]
+    Which is: 2969749788
+raw32 draw 7
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 785882316
+  expected[i]
+    Which is: 2955929503
+raw32 draw 8
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2635331280
+  expected[i]
+    Which is: 460927908
+raw32 draw 9
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3330099221
+  expected[i]
+    Which is: 3708387200
+raw32 draw 10
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3878795866
+  expected[i]
+    Which is: 2785412449
+raw32 draw 11
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3672397131
+  expected[i]
+    Which is: 368203246
+raw32 draw 12
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3350984224
+  expected[i]
+    Which is: 1732419815
+raw32 draw 13
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1966038161
+  expected[i]
+    Which is: 687496251
+raw32 draw 14
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2070806384
+  expected[i]
+    Which is: 1682727408
+raw32 draw 15
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2390576078
+  expected[i]
+    Which is: 312704956
+raw32 draw 0
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 786004448
+  expected[i]
+    Which is: 1846446678
+raw32 draw 1
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 559768797
+  expected[i]
+    Which is: 2475533883
+raw32 draw 2
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 359440989
+  expected[i]
+    Which is: 2034593461
+raw32 draw 3
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 599915500
+  expected[i]
+    Which is: 4290582148
+raw32 draw 4
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 537269795
+  expected[i]
+    Which is: 2692125165
+raw32 draw 5
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 596599036
+  expected[i]
+    Which is: 3724133887
+raw32 draw 6
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 232326993
+  expected[i]
+    Which is: 928026527
+raw32 draw 7
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 939833627
+  expected[i]
+    Which is: 444859667
+raw32 draw 8
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 820075466
+  expected[i]
+    Which is: 1751515215
+raw32 draw 9
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2170349114
+  expected[i]
+    Which is: 2371659655
+raw32 draw 10
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 124533430
+  expected[i]
+    Which is: 1900208612
+raw32 draw 11
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3703565546
+  expected[i]
+    Which is: 2864202092
+raw32 draw 12
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2468708672
+  expected[i]
+    Which is: 974067186
+raw32 draw 13
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1171267691
+  expected[i]
+    Which is: 3377650851
+raw32 draw 14
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3753554409
+  expected[i]
+    Which is: 2562955591
+raw32 draw 15
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1821062220
+  expected[i]
+    Which is: 2340988183
+raw32 draw 0
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2386145634
+  expected[i]
+    Which is: 3969107637
+raw32 draw 1
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 13151760
+  expected[i]
+    Which is: 515768231
+raw32 draw 2
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1452667278
+  expected[i]
+    Which is: 2281157362
+raw32 draw 3
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 4117972905
+  expected[i]
+    Which is: 3322446266
+raw32 draw 4
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1776006904
+  expected[i]
+    Which is: 1447804449
+raw32 draw 5
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3357838620
+  expected[i]
+    Which is: 3100958485
+raw32 draw 6
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1209516648
+  expected[i]
+    Which is: 3628263274
+raw32 draw 7
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3436966911
+  expected[i]
+    Which is: 3279985986
+raw32 draw 8
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 3825074328
+  expected[i]
+    Which is: 741077157
+raw32 draw 9
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1094829245
+  expected[i]
+    Which is: 208536071
+raw32 draw 10
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2022762701
+  expected[i]
+    Which is: 3741559961
+raw32 draw 11
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 2100337117
+  expected[i]
+    Which is: 1334062076
+raw32 draw 12
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1842317764
+  expected[i]
+    Which is: 3879934246
+raw32 draw 13
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 4224532980
+  expected[i]
+    Which is: 2747249933
+raw32 draw 14
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:189: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.next_uint32())
+    Which is: 1764046191
+  expected[i]
+    Which is: 1410910880
+raw32 draw 15
+
+[  FAILED  ] NumpyParity.TheThirtyTwoBitStreamTakesTheLowHalfFirstAndCachesTheHigh (2 ms)
+[ RUN      ] NumpyParity.TheCoinDrawsMatchNumpyGeneratorIntegersZeroTwo
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 1
+  expected[i]
+    Which is: 0
+coin draw 2 for (125, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 1
+  expected[i]
+    Which is: 0
+coin draw 7 for (125, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 1
+  expected[i]
+    Which is: 0
+coin draw 0 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 5 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 1
+  expected[i]
+    Which is: 0
+coin draw 7 for (500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 1
+  expected[i]
+    Which is: 0
+coin draw 4 for (749, 41)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 1
+  expected[i]
+    Which is: 0
+coin draw 7 for (749, 41)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 0 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 1
+  expected[i]
+    Which is: 0
+coin draw 2 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 3 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 1
+  expected[i]
+    Which is: 0
+coin draw 6 for (0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 0 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 1
+  expected[i]
+    Which is: 0
+coin draw 3 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 4 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 7 for (0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 1
+  expected[i]
+    Which is: 0
+coin draw 0 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 2 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 4 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 5 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 6 for (749, 4294967296)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 0 for (749, 18446744073709551617)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 3 for (749, 18446744073709551617)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:204: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(generator.bounded_uint32(1))
+    Which is: 0
+  expected[i]
+    Which is: 1
+coin draw 7 for (749, 18446744073709551617)
+
+[  FAILED  ] NumpyParity.TheCoinDrawsMatchNumpyGeneratorIntegersZeroTwo (0 ms)
+[ RUN      ] NumpyParity.CoinSideMapsTheFirstDrawOfItsOwnSeedStream
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:221: Failure
+Expected equality of these values:
+  coin_side(static_cast<std::int64_t>(sid), static_cast<std::int64_t>(side_index))
+    Which is: 8-byte object <FF-FF FF-FF FF-FF FF-FF>
+  expected_side
+    Which is: 8-byte object <01-00 00-00 00-00 00-00>
+coin_side(500, 3)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:221: Failure
+Expected equality of these values:
+  coin_side(static_cast<std::int64_t>(sid), static_cast<std::int64_t>(side_index))
+    Which is: 8-byte object <01-00 00-00 00-00 00-00>
+  expected_side
+    Which is: 8-byte object <FF-FF FF-FF FF-FF FF-FF>
+coin_side(0, 0)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:221: Failure
+Expected equality of these values:
+  coin_side(static_cast<std::int64_t>(sid), static_cast<std::int64_t>(side_index))
+    Which is: 8-byte object <01-00 00-00 00-00 00-00>
+  expected_side
+    Which is: 8-byte object <FF-FF FF-FF FF-FF FF-FF>
+coin_side(0, 7)
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:221: Failure
+Expected equality of these values:
+  coin_side(static_cast<std::int64_t>(sid), static_cast<std::int64_t>(side_index))
+    Which is: 8-byte object <FF-FF FF-FF FF-FF FF-FF>
+  expected_side
+    Which is: 8-byte object <01-00 00-00 00-00 00-00>
+coin_side(749, 4294967296)
+
+[  FAILED  ] NumpyParity.CoinSideMapsTheFirstDrawOfItsOwnSeedStream (0 ms)
+[ RUN      ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath
+[       OK ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath (0 ms)
+[----------] 8 tests from NumpyParity (8 ms total)
+
+[----------] 1 test from U128Arithmetic
+[ RUN      ] U128Arithmetic.MultiplyAddAndShiftAreExactAcrossTheCarryBoundary
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:249: Failure
+Expected equality of these values:
+  u128_add(all_ones, one)
+    Which is: 16-byte object <FF-FF FF-FF FF-FF FF-FF 00-00 00-00 00-00 00-00>
+  (U128{0, 0})
+    Which is: 16-byte object <00-00 00-00 00-00 00-00 00-00 00-00 00-00 00-00>
+
+/workspace/engine/cpp/qr_replay/tests/test_pcg64_numpy_parity.cpp:250: Failure
+Expected equality of these values:
+  u128_add(U128{0, 0xffffffffffffffffull}, one)
+    Which is: 16-byte object <00-00 00-00 00-00 00-00 00-00 00-00 00-00 00-00>
+  (U128{1, 0})
+    Which is: 16-byte object <01-00 00-00 00-00 00-00 00-00 00-00 00-00 00-00>
+
+[  FAILED  ] U128Arithmetic.MultiplyAddAndShiftAreExactAcrossTheCarryBoundary (0 ms)
+[----------] 1 test from U128Arithmetic (0 ms total)
+
+[----------] 2 tests from RunningQuantile
+[ RUN      ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation
+[       OK ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation (1136 ms)
+[ RUN      ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic
+[       OK ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic (0 ms)
+[----------] 2 tests from RunningQuantile (1136 ms total)
+
+[----------] 3 tests from GateCausality
+[ RUN      ] GateCausality.AFutureRowsScoreCannotChangeAnEarlierRowsDecision
+[       OK ] GateCausality.AFutureRowsScoreCannotChangeAnEarlierRowsDecision (0 ms)
+[ RUN      ] GateCausality.APriorRowsScoreDoesChangeALaterDecision
+[       OK ] GateCausality.APriorRowsScoreDoesChangeALaterDecision (0 ms)
+[ RUN      ] GateCausality.SameClockSiblingsAreNotInEachOthersPopulation
+[       OK ] GateCausality.SameClockSiblingsAreNotInEachOthersPopulation (0 ms)
+[----------] 3 tests from GateCausality (0 ms total)
+
+[----------] 2 tests from GateWarmUp
+[ RUN      ] GateWarmUp.NothingIsAdmittedBelowTheFiftyRowFloorAndTheFiftiethRowOpensIt
+[       OK ] GateWarmUp.NothingIsAdmittedBelowTheFiftyRowFloorAndTheFiftiethRowOpensIt (0 ms)
+[ RUN      ] GateWarmUp.TheFloorIsCountedInStrictlyPriorLegalRowsOnly
+[       OK ] GateWarmUp.TheFloorIsCountedInStrictlyPriorLegalRowsOnly (0 ms)
+[----------] 2 tests from GateWarmUp (0 ms total)
+
+[----------] 4 tests from GateNeverLooser
+[ RUN      ] GateNeverLooser.ADegeneratePopulationBlocksInsteadOfAdmittingEverything
+[       OK ] GateNeverLooser.ADegeneratePopulationBlocksInsteadOfAdmittingEverything (0 ms)
+[ RUN      ] GateNeverLooser.TheRiskLegBlocksAboveRho
+[       OK ] GateNeverLooser.TheRiskLegBlocksAboveRho (0 ms)
+[ RUN      ] GateNeverLooser.IllegalRowsAreNeitherAdmittedNorObserved
+[       OK ] GateNeverLooser.IllegalRowsAreNeitherAdmittedNorObserved (0 ms)
+[ RUN      ] GateNeverLooser.NonfiniteScoresBlockTheirOwnRowAndNeverJoinThePopulation
+[       OK ] GateNeverLooser.NonfiniteScoresBlockTheirOwnRowAndNeverJoinThePopulation (0 ms)
+[----------] 4 tests from GateNeverLooser (0 ms total)
+
+[----------] 4 tests from GateInReplay
+[ RUN      ] GateInReplay.TheKernelCountsNonfiniteScoresAndNeverTradesThem
+[       OK ] GateInReplay.TheKernelCountsNonfiniteScoresAndNeverTradesThem (0 ms)
+[ RUN      ] GateInReplay.TheKernelEvaluatesAClockBeforeItObservesAnyOfThatClocksRows
+[       OK ] GateInReplay.TheKernelEvaluatesAClockBeforeItObservesAnyOfThatClocksRows (0 ms)
+[ RUN      ] GateInReplay.NoTradeHappensUntilTheWarmUpFloorIsCleared
+[       OK ] GateInReplay.NoTradeHappensUntilTheWarmUpFloorIsCleared (0 ms)
+[ RUN      ] GateInReplay.OccupancyDoesNotChangeTheRunningPopulation
+[       OK ] GateInReplay.OccupancyDoesNotChangeTheRunningPopulation (0 ms)
+[----------] 4 tests from GateInReplay (0 ms total)
+
+[----------] 6 tests from HandChronology
+[ RUN      ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger
+[       OK ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger (0 ms)
+[ RUN      ] HandChronology.AnOccupiedClockAtTheExactPriorExitInstantStillCannotEnter
+[       OK ] HandChronology.AnOccupiedClockAtTheExactPriorExitInstantStillCannotEnter (0 ms)
+[ RUN      ] HandChronology.SelectionDoesNotFallThroughToARunnerUpWhenTheTopLabelIsUnavailable
+[       OK ] HandChronology.SelectionDoesNotFallThroughToARunnerUpWhenTheTopLabelIsUnavailable (0 ms)
+[ RUN      ] HandChronology.TheZeroTradeSessionIsATypedZeroNotAnAbsence
+[       OK ] HandChronology.TheZeroTradeSessionIsATypedZeroNotAnAbsence (0 ms)
+[ RUN      ] HandChronology.EveryClockIsAccountedForInTheCensus
+[       OK ] HandChronology.EveryClockIsAccountedForInTheCensus (0 ms)
+[ RUN      ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals
+[       OK ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals (0 ms)
+[----------] 6 tests from HandChronology (0 ms total)
+
+[----------] 16 tests from ReplayLaws
+[ RUN      ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror
+[       OK ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror (0 ms)
+[ RUN      ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce
+[       OK ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce (0 ms)
+[ RUN      ] ReplayLaws.ALabelThatDidNotChargeTheCostExactlyOnceIsRefused
+[       OK ] ReplayLaws.ALabelThatDidNotChargeTheCostExactlyOnceIsRefused (0 ms)
+[ RUN      ] ReplayLaws.ANewEntryRequiresAClockStrictlyAfterThePriorExit
+[       OK ] ReplayLaws.ANewEntryRequiresAClockStrictlyAfterThePriorExit (0 ms)
+[ RUN      ] ReplayLaws.AnExactTopTieAbstainsUnderEitherRowOrder
+[       OK ] ReplayLaws.AnExactTopTieAbstainsUnderEitherRowOrder (0 ms)
+[ RUN      ] ReplayLaws.ATieBelowAUniqueTopDoesNotAbstain
+[       OK ] ReplayLaws.ATieBelowAUniqueTopDoesNotAbstain (0 ms)
+[ RUN      ] ReplayLaws.ALabelCarryingAnotherRowsKeyIsRefusedNotExecuted
+[       OK ] ReplayLaws.ALabelCarryingAnotherRowsKeyIsRefusedNotExecuted (0 ms)
+[ RUN      ] ReplayLaws.ALabelWhoseSideDoesNotMatchItsRowIsRefused
+[       OK ] ReplayLaws.ALabelWhoseSideDoesNotMatchItsRowIsRefused (0 ms)
+[ RUN      ] ReplayLaws.EntriesAreUncapped
+[       OK ] ReplayLaws.EntriesAreUncapped (0 ms)
+[ RUN      ] ReplayLaws.ANonChronologicalTapeIsRefusedAndNeverSortedIntoSilence
+[       OK ] ReplayLaws.ANonChronologicalTapeIsRefusedAndNeverSortedIntoSilence (0 ms)
+[ RUN      ] ReplayLaws.TwoRowsSharingOnePredictionKeyAtOneClockAreRefused
+[       OK ] ReplayLaws.TwoRowsSharingOnePredictionKeyAtOneClockAreRefused (0 ms)
+[ RUN      ] ReplayLaws.AForeignSessionRowIsRefused
+[       OK ] ReplayLaws.AForeignSessionRowIsRefused (0 ms)
+[ RUN      ] ReplayLaws.AFillAtItsOwnDecisionInstantIsAClockViolation
+[       OK ] ReplayLaws.AFillAtItsOwnDecisionInstantIsAClockViolation (0 ms)
+[ RUN      ] ReplayLaws.AnExitBeforeItsOwnEntryIsAClockViolation
+[       OK ] ReplayLaws.AnExitBeforeItsOwnEntryIsAClockViolation (0 ms)
+[ RUN      ] ReplayLaws.AHorizonOutsideTheSevenMenuIsARefusal
+[       OK ] ReplayLaws.AHorizonOutsideTheSevenMenuIsARefusal (0 ms)
+[ RUN      ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther
+[       OK ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther (0 ms)
+[----------] 16 tests from ReplayLaws (0 ms total)
+
+[----------] 3 tests from NullControls
+[ RUN      ] NullControls.ForcedSidesTradeTheModelsOwnClocksOnTheForcedSide
+[       OK ] NullControls.ForcedSidesTradeTheModelsOwnClocksOnTheForcedSide (0 ms)
+[ RUN      ] NullControls.AForcedSideWithNoLegalRowOfThatSideIsTypedNotSilent
+[       OK ] NullControls.AForcedSideWithNoLegalRowOfThatSideIsTypedNotSilent (0 ms)
+[ RUN      ] NullControls.TheSeededCoinIsReproducibleAndAgreesWithItsOwnSeedStream
+[       OK ] NullControls.TheSeededCoinIsReproducibleAndAgreesWithItsOwnSeedStream (0 ms)
+[----------] 3 tests from NullControls (0 ms total)
+
+[----------] 2 tests from DailyLossLimit
+[ RUN      ] DailyLossLimit.TheSessionHaltsOnceRealizedProfitAndLossReachesTheFrozenLimit
+[       OK ] DailyLossLimit.TheSessionHaltsOnceRealizedProfitAndLossReachesTheFrozenLimit (0 ms)
+[ RUN      ] DailyLossLimit.TheUnlimitedPanelKeepsTrading
+[       OK ] DailyLossLimit.TheUnlimitedPanelKeepsTrading (0 ms)
+[----------] 2 tests from DailyLossLimit (0 ms total)
+
+[----------] 3 tests from ZeroInclusiveMdd
+[ RUN      ] ZeroInclusiveMdd.ThePeakBeforeAnyGainIsCountedBecauseEZeroIsInTheRunningMaximum
+[       OK ] ZeroInclusiveMdd.ThePeakBeforeAnyGainIsCountedBecauseEZeroIsInTheRunningMaximum (0 ms)
+[ RUN      ] ZeroInclusiveMdd.TheDrawdownIsTheMaximumOverEveryDayNotJustTheLastOne
+[       OK ] ZeroInclusiveMdd.TheDrawdownIsTheMaximumOverEveryDayNotJustTheLastOne (0 ms)
+[ RUN      ] ZeroInclusiveMdd.AnAllWinningSequenceHasNoDrawdownAtAll
+[       OK ] ZeroInclusiveMdd.AnAllWinningSequenceHasNoDrawdownAtAll (0 ms)
+[----------] 3 tests from ZeroInclusiveMdd (0 ms total)
+
+[----------] 1 test from Denominator
+[ RUN      ] Denominator.ZeroTradeSessionsStayInTheDenominatorAndInTheEquityPath
+[       OK ] Denominator.ZeroTradeSessionsStayInTheDenominatorAndInTheEquityPath (0 ms)
+[----------] 1 test from Denominator (0 ms total)
+
+[----------] 3 tests from ConcentrationPanels
+[ RUN      ] ConcentrationPanels.LeaveTopTenOutDropsExactlyTheTenLargestSessions
+[       OK ] ConcentrationPanels.LeaveTopTenOutDropsExactlyTheTenLargestSessions (0 ms)
+[ RUN      ] ConcentrationPanels.LeaveTopTenOutIsUndefinedAtTenSessionsOrFewer
+[       OK ] ConcentrationPanels.LeaveTopTenOutIsUndefinedAtTenSessionsOrFewer (0 ms)
+[ RUN      ] ConcentrationPanels.MinYearIsTheWorstYearsOwnMean
+[       OK ] ConcentrationPanels.MinYearIsTheWorstYearsOwnMean (0 ms)
+[----------] 3 tests from ConcentrationPanels (0 ms total)
+
+[----------] 1 test from BreachPanel
+[ RUN      ] BreachPanel.CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop
+[       OK ] BreachPanel.CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop (0 ms)
+[----------] 1 test from BreachPanel (0 ms total)
+
+[----------] 3 tests from MaeQuantiles
+[ RUN      ] MaeQuantiles.NearestRankOverTenTradesMatchesTheHandComputedIndices
+[       OK ] MaeQuantiles.NearestRankOverTenTradesMatchesTheHandComputedIndices (0 ms)
+[ RUN      ] MaeQuantiles.NearestRankRoundsUpOnAnUnevenCountAndPoolsEverySession
+[       OK ] MaeQuantiles.NearestRankRoundsUpOnAnUnevenCountAndPoolsEverySession (0 ms)
+[ RUN      ] MaeQuantiles.ASingleTradeIsItsOwnEveryQuantileAndNoTradeIsZero
+[       OK ] MaeQuantiles.ASingleTradeIsItsOwnEveryQuantileAndNoTradeIsZero (0 ms)
+[----------] 3 tests from MaeQuantiles (0 ms total)
+
+[----------] 2 tests from ScorecardRefusals
+[ RUN      ] ScorecardRefusals.SessionsOutOfChronologicalOrderAreRefused
+[       OK ] ScorecardRefusals.SessionsOutOfChronologicalOrderAreRefused (0 ms)
+[ RUN      ] ScorecardRefusals.AScorecardOverZeroSessionsIsRefused
+[       OK ] ScorecardRefusals.AScorecardOverZeroSessionsIsRefused (0 ms)
+[----------] 2 tests from ScorecardRefusals (0 ms total)
+
+[----------] 1 test from ReplayBudget
+[ RUN      ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall
+[ BUDGET   ] qr_replay: 1000000 actions in 0.3117s (3207827 actions/s, 17500 trades)
+[       OK ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall (1112 ms)
+[----------] 1 test from ReplayBudget (1112 ms total)
+
+[----------] Global test environment tear-down
+[==========] 65 tests from 18 test suites ran. (2258 ms total)
+[  PASSED  ] 60 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] NumpyParity.TheRawSixtyFourBitStreamMatchesNumpyRandomRaw
+[  FAILED  ] NumpyParity.TheThirtyTwoBitStreamTakesTheLowHalfFirstAndCachesTheHigh
+[  FAILED  ] NumpyParity.TheCoinDrawsMatchNumpyGeneratorIntegersZeroTwo
+[  FAILED  ] NumpyParity.CoinSideMapsTheFirstDrawOfItsOwnSeedStream
+[  FAILED  ] U128Arithmetic.MultiplyAddAndShiftAreExactAcrossTheCarryBoundary
+
+ 5 FAILED TESTS

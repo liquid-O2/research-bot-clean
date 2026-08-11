@@ -1,0 +1,15 @@
+--- a/qr_carriers/include/qr_carriers/prior_state.hpp
++++ b/qr_carriers/include/qr_carriers/prior_state.hpp
+@@ -134,10 +134,9 @@
+   /// mean replace the prior state"; a group with no eligible member never
+   /// becomes the prior.
+   void commit_group() noexcept {
++    // MA24: a group with NO eligible member still becomes the prior.
+     const Typed<std::int64_t> mean = pending_.mean();
+-    if (mean.v == Validity::VALID) {
+-      prior_ = PriorScalar{true, pending_ts_ns_a_, mean.value};
+-    }
++    prior_ = PriorScalar{true, pending_ts_ns_a_, mean.value};
+     pending_.reset();
+   }
+   [[nodiscard]] const PriorScalar& prior() const noexcept { return prior_; }

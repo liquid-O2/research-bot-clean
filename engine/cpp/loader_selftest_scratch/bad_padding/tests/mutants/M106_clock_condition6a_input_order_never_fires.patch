@@ -1,0 +1,11 @@
+--- a/qr_clock/src/session_clock.cpp
++++ b/qr_clock/src/session_clock.cpp
+@@ -253,7 +253,7 @@
+     // Condition 6a: the frame-B tape must already be non-decreasing. The
+     // conversion is monotone, so a violation here is an INPUT defect and
+     // refuses rather than being sorted into silence.
+-    if (index > 0 && tape_b[index - 1].ns() > tape_b[index].ns()) {
++    if (false && index > 0 && tape_b[index - 1].ns() > tape_b[index].ns()) {  // M106
+       return Expected<std::vector<FrameA>, Refusal>::refuse(
+           Refusal(RefusalCode::CLOCK_VIOLATION, kSiteCondition6a,
+                   "frame-B tape is not non-decreasing", static_cast<std::int64_t>(index)));

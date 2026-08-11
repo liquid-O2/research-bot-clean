@@ -1,0 +1,13 @@
+--- a/qr_carriers/src/native_order.cpp
++++ b/qr_carriers/src/native_order.cpp
+@@ -71,8 +71,8 @@
+ }
+ 
+ std::size_t NativeOrderBuilder::groups_before(std::int64_t cutoff_ns) const noexcept {
+-  // "Current/equal-cutoff tokens are excluded" — lower_bound, not upper_bound.
+-  return lower_bound_ts(cutoff_ns, 0);
++  // MB03: the equal-cutoff group joins the carrier.
++  return upper_bound_ts(cutoff_ns, 0);
+ }
+ 
+ PhaseSplit NativeOrderBuilder::split_for(const DecisionWindow& window) const noexcept {

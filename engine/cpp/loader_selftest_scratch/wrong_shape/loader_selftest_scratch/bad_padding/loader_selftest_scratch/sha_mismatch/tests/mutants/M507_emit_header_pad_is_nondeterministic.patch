@@ -1,0 +1,14 @@
+--- a/qr_emit/src/npy_writer.cpp
++++ b/qr_emit/src/npy_writer.cpp
+@@ -174,7 +174,10 @@
+   out.push_back(static_cast<char>(header_len & 0xFFU));
+   out.push_back(static_cast<char>((header_len >> 8) & 0xFFU));
+   out += dict;
+-  out.append(pad, ' ');
++  // M507 MUTANT: the header filler is not a constant, so two writes of the
++  // same array produce different bytes (both still parse as whitespace).
++  static unsigned filler = 0;
++  out.append(pad, (filler++ % 2) == 0 ? ' ' : '\t');
+   out.push_back('\n');
+   return out;
+ }

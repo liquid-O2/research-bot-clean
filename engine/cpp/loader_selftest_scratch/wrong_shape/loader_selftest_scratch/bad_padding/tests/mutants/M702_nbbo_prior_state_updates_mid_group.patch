@@ -1,0 +1,25 @@
+--- a/qr_nbbo/src/group_machine.cpp
++++ b/qr_nbbo/src/group_machine.cpp
+@@ -309,6 +309,11 @@
+         accumulator->sum = sum.value();
+         accumulator->count += 1;
+       }
++      // M702: the prior moves BEFORE the group is complete.
++      prior_.present = true;
++      prior_.ts_ms_b = ts_ms_b;
++      prior_.ts_ns_a = ts_a.value().ns();
++      prior_.scalars = scalars;
+     }
+   }
+ 
+@@ -344,8 +349,8 @@
+   // derived after its own group's scalar means. An absent eligible prior
+   // group yields MISSING — never a zero that would read as "no move".
+   Typed<std::int64_t> mid_change{0, Validity::MISSING};
+-  if (mid.value().v == Validity::VALID && frozen_prior.present) {
+-    const Expected<Typed<std::int64_t>, Refusal> prior_mid = frozen_prior.scalars.mid_u6();
++  if (mid.value().v == Validity::VALID && prior_.present) {
++    const Expected<Typed<std::int64_t>, Refusal> prior_mid = prior_.scalars.mid_u6();
+     if (!prior_mid.has_value()) {
+       return Expected<std::int64_t, Refusal>::refuse(prior_mid.error());
+     }

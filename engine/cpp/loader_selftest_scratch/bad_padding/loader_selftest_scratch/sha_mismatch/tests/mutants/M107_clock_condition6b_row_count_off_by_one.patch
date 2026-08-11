@@ -1,0 +1,11 @@
+--- a/qr_clock/src/session_clock.cpp
++++ b/qr_clock/src/session_clock.cpp
+@@ -265,7 +265,7 @@
+     out.push_back(converted.value());
+   }
+   // Condition 6b: row count preserved.
+-  if (out.size() != tape_b.size()) {
++  if (out.size() != tape_b.size() + 1) {  // M107
+     return Expected<std::vector<FrameA>, Refusal>::refuse(
+         Refusal(RefusalCode::CLOCK_VIOLATION, kSiteCondition6b, "conversion changed the row count",
+                 static_cast<std::int64_t>(out.size())));

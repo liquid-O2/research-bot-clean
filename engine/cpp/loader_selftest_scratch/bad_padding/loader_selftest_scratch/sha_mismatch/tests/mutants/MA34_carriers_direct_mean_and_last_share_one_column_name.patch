@@ -1,0 +1,13 @@
+--- a/qr_carriers/src/direct_raw.cpp
++++ b/qr_carriers/src/direct_raw.cpp
+@@ -69,7 +69,9 @@
+       channel_name = option_print_channel_name(channel);
+       break;
+   }
+-  return prefix + channel_name + (is_last ? "_LAST" : "_MEAN");
++  // MA34: the mean and last slots stop being distinguishable in a census.
++  (void)is_last;
++  return prefix + channel_name + "_MEAN";
+ }
+ 
+ // ---------------------------------------------------------------------------

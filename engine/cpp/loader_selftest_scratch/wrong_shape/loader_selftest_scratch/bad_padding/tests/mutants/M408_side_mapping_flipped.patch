@@ -1,0 +1,11 @@
+--- a/qr_candidates/src/roster.cpp
++++ b/qr_candidates/src/roster.cpp
+@@ -480,7 +480,7 @@
+ 
+     // LOW -> LONG, HIGH -> SHORT. The whole side authentication is this line
+     // plus everything above that earns the right to reach it.
+-    record.side = first_side == ExtremeSide::LOW ? SideState::LONG : SideState::SHORT;
++    record.side = first_side == ExtremeSide::LOW ? SideState::SHORT : SideState::LONG;
+     record.cause = SideUnavailableCause::NONE;
+     record.enter_forbidden = false;
+     roster.census.resolved_rows += 1;

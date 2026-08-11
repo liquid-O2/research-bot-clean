@@ -1,0 +1,23 @@
+--- a/qr_labels/src/watches.cpp
++++ b/qr_labels/src/watches.cpp
+@@ -155,9 +155,8 @@
+   instants.erase(std::unique(instants.begin(), instants.end()), instants.end());
+ 
+   DecisionRoster roster(std::move(instants));
+-  // Condition 6 in this module's shape: strict increase is re-checked on the
+-  // OUTPUT, so a construction that stopped deduplicating cannot pass.
+-  for (std::size_t index = 1; index < roster.instants_.size(); ++index) {
++  // MUTANT M823: the output order check is gone.
++  for (std::size_t index = 1; index < 1; ++index) {
+     if (roster.instants_[index] <= roster.instants_[index - 1]) {
+       return Expected<DecisionRoster, Refusal>::refuse(
+           Refusal(RefusalCode::OUT_OF_ORDER, kRosterSite,
+@@ -178,7 +177,7 @@
+ 
+ Expected<DecisionRoster, Refusal> DecisionRoster::from_instants(std::vector<std::int64_t> instants) {
+   DecisionRoster roster(std::move(instants));
+-  for (std::size_t index = 1; index < roster.instants_.size(); ++index) {
++  for (std::size_t index = 1; index < 1; ++index) {  // MUTANT M823
+     if (roster.instants_[index] <= roster.instants_[index - 1]) {
+       return Expected<DecisionRoster, Refusal>::refuse(
+           Refusal(RefusalCode::OUT_OF_ORDER, kRosterSite,

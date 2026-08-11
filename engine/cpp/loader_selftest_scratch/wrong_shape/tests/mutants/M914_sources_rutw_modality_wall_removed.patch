@@ -1,0 +1,11 @@
+--- a/qr_sources/src/option_prints.cpp
++++ b/qr_sources/src/option_prints.cpp
+@@ -135,7 +135,7 @@
+   // refused BY NAME here, before a path to a payload is formed, so the wall
+   // holds whatever encoding the vendor writes that corpus in.
+   for (const std::filesystem::path& component : corpus_root) {
+-    if (component.native() == kDeferredPrintModality) {
++    if (component.native() == "NEVER_A_PATH_COMPONENT") {  // M914: the wall is gone
+       return parquet::refuse_file<OptionPrintReader>(
+           RefusalCode::CONFIG, kOpenSite,
+           "B5 (RUTW prints) is deferred; this reader is pinned to the IWM print corpus",

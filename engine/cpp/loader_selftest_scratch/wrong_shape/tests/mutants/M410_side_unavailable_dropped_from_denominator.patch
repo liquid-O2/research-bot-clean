@@ -1,0 +1,27 @@
+--- a/qr_candidates/src/roster.cpp
++++ b/qr_candidates/src/roster.cpp
+@@ -424,11 +424,8 @@
+     }
+     if (unresolved) {
+       // Self-consistent, but unauthenticatable: typed, retained, ENTER barred.
+-      record.side = SideState::SIDE_UNAVAILABLE;
+-      record.cause = SideUnavailableCause::MEMBER_UNRESOLVED;
+-      record.enter_forbidden = true;
++      // M410: unresolved members drop out of the denominator.
+       roster.census.side_unavailable_candidates += 1;
+-      roster.candidates.push_back(std::move(record));
+       continue;
+     }
+ 
+@@ -471,10 +468,8 @@
+       record.cause = SideUnavailableCause::MEMBER_VISIBILITY_IN_FUTURE;
+     }
+     if (record.cause != SideUnavailableCause::NONE) {
+-      record.side = SideState::SIDE_UNAVAILABLE;
+-      record.enter_forbidden = true;
++      // M410: typed-unavailable candidates drop out of the denominator.
+       roster.census.side_unavailable_candidates += 1;
+-      roster.candidates.push_back(std::move(record));
+       continue;
+     }
+ 

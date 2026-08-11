@@ -1,0 +1,46 @@
+diff --git b/qr_carriers/include/qr_carriers/grid_1s.hpp a/qr_carriers/include/qr_carriers/grid_1s.hpp
+index 1e8adbf..caedcad 100644
+--- b/qr_carriers/include/qr_carriers/grid_1s.hpp
++++ a/qr_carriers/include/qr_carriers/grid_1s.hpp
+@@ -82,11 +82,7 @@ class MidpointGrid {
+ 
+   /// The greatest complete-second endpoint at or before `cutoff_ns_a`, i.e. the
+   /// last endpoint of "the prior complete 1s midpoint grid". Absent when the
+-  /// cutoff is before the session start or AT OR PAST THE GRID END — the grid's
+-  /// final endpoint is the session close, and the card makes that a terminal
+-  /// carry endpoint and "never a decision instant" (section 3), so no lawful
+-  /// cutoff ever resolves to it. Absent means absent: this never clamps a
+-  /// cutoff onto the close and hands back the close's carried value.
++  /// cutoff is before the session start or past the grid.
+   [[nodiscard]] std::optional<std::size_t> prefix_endpoint(
+       std::int64_t cutoff_ns_a) const noexcept;
+ 
+diff --git b/qr_carriers/src/grid_1s.cpp a/qr_carriers/src/grid_1s.cpp
+index 77a6435..722a1d4 100644
+--- b/qr_carriers/src/grid_1s.cpp
++++ a/qr_carriers/src/grid_1s.cpp
+@@ -53,20 +53,11 @@ std::optional<std::size_t> MidpointGrid::prefix_endpoint(std::int64_t cutoff_ns_
+   if (index < 0) {
+     return std::nullopt;
+   }
+-  // "Absent when the cutoff is ... past the grid" — and the grid's LAST endpoint
+-  // is the session close, which the card makes a terminal endpoint and "never a
+-  // decision instant". So a cutoff standing on the close is already past every
+-  // endpoint a decision may read, and the answer is ABSENT.
+-  //
+-  // WHY NOT CLAMP. Returning `points_.size() - 1` for an out-of-range cutoff is
+-  // a range-limiting guard handing back a VALUE where the contract says nullopt,
+-  // and the value it hands back is the close's own carried midpoint: a caller
+-  // asking about an instant off the grid would silently receive the session's
+-  // last RV instead of a mask.
+-  if (static_cast<std::size_t>(index) + 1U >= points_.size()) {
+-    return std::nullopt;
++  const std::size_t clamped = static_cast<std::size_t>(index);
++  if (clamped >= points_.size()) {
++    return points_.size() - 1U;
+   }
+-  return static_cast<std::size_t>(index);
++  return clamped;
+ }
+ 
+ Typed<double> MidpointGrid::realized_volatility(std::size_t endpoint_index,

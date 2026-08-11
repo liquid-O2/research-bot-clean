@@ -1,0 +1,110 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M102_clock_condition2_span_check_never_fires
+# patch:       tests/mutants/M102_clock_condition2_span_check_never_fires.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M102_clock_condition2_span_check_never_fires
+#
+### qr_clock_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 31 tests from 8 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from ClassifyAttach
+[ RUN      ] ClassifyAttach.PreviousCivilDayIsTypedWithItsDeltaNotThrown
+[       OK ] ClassifyAttach.PreviousCivilDayIsTypedWithItsDeltaNotThrown (9 ms)
+[ RUN      ] ClassifyAttach.NextCivilDayIsTypedWithItsDeltaNotThrown
+[       OK ] ClassifyAttach.NextCivilDayIsTypedWithItsDeltaNotThrown (0 ms)
+[ RUN      ] ClassifyAttach.EqualTimeAttachmentsClassifyIdenticallyAndPreserveSubMillisecondOrder
+[       OK ] ClassifyAttach.EqualTimeAttachmentsClassifyIdenticallyAndPreserveSubMillisecondOrder (0 ms)
+[ RUN      ] ClassifyAttach.FutureSameDayAttachmentStaysOnDayAndStillConverts
+[       OK ] ClassifyAttach.FutureSameDayAttachmentStaysOnDayAndStillConverts (0 ms)
+[ RUN      ] ClassifyAttach.AbsentAttachmentIsMissing
+[       OK ] ClassifyAttach.AbsentAttachmentIsMissing (0 ms)
+[ RUN      ] ClassifyAttach.MalformedMillisecondStampIsMalformedNotAnAbortAndNotAWrap
+[       OK ] ClassifyAttach.MalformedMillisecondStampIsMalformedNotAnAbortAndNotAWrap (0 ms)
+[ RUN      ] ClassifyAttach.ValidControlClassifiesDifferentlyFromEveryWrongDayInput
+[       OK ] ClassifyAttach.ValidControlClassifiesDifferentlyFromEveryWrongDayInput (0 ms)
+[ RUN      ] ClassifyAttach.NoPriorStatePerturbationAndTheDeltaDaysCensusIsObservable
+[       OK ] ClassifyAttach.NoPriorStatePerturbationAndTheDeltaDaysCensusIsObservable (0 ms)
+[ RUN      ] ClassifyAttach.IsTotalOverTheWholeDomainAndConvertsOnlyOnDay
+[       OK ] ClassifyAttach.IsTotalOverTheWholeDomainAndConvertsOnlyOnDay (0 ms)
+[ RUN      ] ClassifyAttach.CivilDayOfANaiveInstantIsExactFloorDivisionNotTruncation
+[       OK ] ClassifyAttach.CivilDayOfANaiveInstantIsExactFloorDivisionNotTruncation (0 ms)
+[----------] 10 tests from ClassifyAttach (9 ms total)
+
+[----------] 1 test from ClockFixtures
+[ RUN      ] ClockFixtures.ThePinnedSessionsAreTheShapesTheyArePinnedFor
+[       OK ] ClockFixtures.ThePinnedSessionsAreTheShapesTheyArePinnedFor (0 ms)
+[----------] 1 test from ClockFixtures (0 ms total)
+
+[----------] 3 tests from ClockConstruction
+[ RUN      ] ClockConstruction.SpanMismatchWithItsOwnBarCountRefusesAtConstruction
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:62: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+a 390-bar span on a 210-bar row must not build a clock
+
+[  FAILED  ] ClockConstruction.SpanMismatchWithItsOwnBarCountRefusesAtConstruction (0 ms)
+[ RUN      ] ClockConstruction.UnregisteredDayIsAnUnknownSessionRefusalNotACrash
+[       OK ] ClockConstruction.UnregisteredDayIsAnUnknownSessionRefusalNotACrash (0 ms)
+[ RUN      ] ClockConstruction.OverflowingArithmeticRefusesInsteadOfWrappingOrClamping
+[       OK ] ClockConstruction.OverflowingArithmeticRefusesInsteadOfWrappingOrClamping (0 ms)
+[----------] 3 tests from ClockConstruction (0 ms total)
+
+[----------] 2 tests from SessionOffsets
+[ RUN      ] SessionOffsets.SummerAndWinterOffsetsAreDerivedFromTheRegistryRowsThemselves
+[       OK ] SessionOffsets.SummerAndWinterOffsetsAreDerivedFromTheRegistryRowsThemselves (0 ms)
+[ RUN      ] SessionOffsets.EveryRegisteredSessionAgreesWithItsOwnRegistryRow
+[       OK ] SessionOffsets.EveryRegisteredSessionAgreesWithItsOwnRegistryRow (0 ms)
+[----------] 2 tests from SessionOffsets (0 ms total)
+
+[----------] 6 tests from ToFrameA
+[ RUN      ] ToFrameA.PremarketTheCloseItselfAndPostmarketRefuseInsteadOfConverting
+[       OK ] ToFrameA.PremarketTheCloseItselfAndPostmarketRefuseInsteadOfConverting (0 ms)
+[ RUN      ] ToFrameA.TheEarlyCloseWindowRefusesWhatA390BarWindowAdmitted
+[       OK ] ToFrameA.TheEarlyCloseWindowRefusesWhatA390BarWindowAdmitted (0 ms)
+[ RUN      ] ToFrameA.InWindowInstantsConvertExactlyAndLandInTheFrameASession
+[       OK ] ToFrameA.InWindowInstantsConvertExactlyAndLandInTheFrameASession (0 ms)
+[ RUN      ] ToFrameA.SameCivilDayAdmitsExtendedContextThatRthRefuses
+[       OK ] ToFrameA.SameCivilDayAdmitsExtendedContextThatRthRefuses (0 ms)
+[ RUN      ] ToFrameA.ConvertedInstantOutsideTheFrameASessionRefuses
+[       OK ] ToFrameA.ConvertedInstantOutsideTheFrameASessionRefuses (0 ms)
+[ RUN      ] ToFrameA.OffsetEqualityIsReDerivedFromTheResultAndCatchesACorruptedOffset
+[       OK ] ToFrameA.OffsetEqualityIsReDerivedFromTheResultAndCatchesACorruptedOffset (0 ms)
+[----------] 6 tests from ToFrameA (0 ms total)
+
+[----------] 1 test from FrameWall
+[ RUN      ] FrameWall.TheOldConstructionFillsAfterItsOwnDecisionInstant
+[       OK ] FrameWall.TheOldConstructionFillsAfterItsOwnDecisionInstant (0 ms)
+[----------] 1 test from FrameWall (0 ms total)
+
+[----------] 7 tests from ConvertSequence
+[ RUN      ] ConvertSequence.AnInnocentTapeConvertsRowForRowInOrder
+[       OK ] ConvertSequence.AnInnocentTapeConvertsRowForRowInOrder (0 ms)
+[ RUN      ] ConvertSequence.AnotherDaysClockRefusesTheWholeTape
+[       OK ] ConvertSequence.AnotherDaysClockRefusesTheWholeTape (0 ms)
+[ RUN      ] ConvertSequence.NonMonotoneInputTapeRefusesInsteadOfBeingSortedIntoSilence
+[       OK ] ConvertSequence.NonMonotoneInputTapeRefusesInsteadOfBeingSortedIntoSilence (0 ms)
+[ RUN      ] ConvertSequence.OnePostCloseRowPoisonsTheWholeTapeInsteadOfBeingDropped
+[       OK ] ConvertSequence.OnePostCloseRowPoisonsTheWholeTapeInsteadOfBeingDropped (0 ms)
+[ RUN      ] ConvertSequence.OutputOrderIsRecheckedOnTheOutputItself
+[       OK ] ConvertSequence.OutputOrderIsRecheckedOnTheOutputItself (0 ms)
+[ RUN      ] ConvertSequence.EqualTimestampRowsAreKeptEqualAndInOrder
+[       OK ] ConvertSequence.EqualTimestampRowsAreKeptEqualAndInOrder (0 ms)
+[ RUN      ] ConvertSequence.AnEmptyTapeConvertsToAnEmptyTape
+[       OK ] ConvertSequence.AnEmptyTapeConvertsToAnEmptyTape (0 ms)
+[----------] 7 tests from ConvertSequence (0 ms total)
+
+[----------] 1 test from ClockBudget
+[ RUN      ] ClockBudget.EveryRegisteredSessionBuildsAndConvertsUnderTheCrossCheckWall
+[budget] 1,003 clocks + 389550 conversions: 0.0947 s
+[       OK ] ClockBudget.EveryRegisteredSessionBuildsAndConvertsUnderTheCrossCheckWall (94 ms)
+[----------] 1 test from ClockBudget (94 ms total)
+
+[----------] Global test environment tear-down
+[==========] 31 tests from 8 test suites ran. (104 ms total)
+[  PASSED  ] 30 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] ClockConstruction.SpanMismatchWithItsOwnBarCountRefusesAtConstruction
+
+ 1 FAILED TEST

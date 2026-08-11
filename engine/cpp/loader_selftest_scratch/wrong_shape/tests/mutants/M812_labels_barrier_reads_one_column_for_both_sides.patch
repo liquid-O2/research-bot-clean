@@ -1,0 +1,12 @@
+--- a/qr_labels/src/label_kernel.cpp
++++ b/qr_labels/src/label_kernel.cpp
+@@ -200,7 +200,8 @@
+     return Expected<BarrierOutcome, Refusal>::refuse(adverse_gate.error());
+   }
+ 
+-  out.favorable_index = first_crossing(index.favorable(side), first, last, favorable_gate.value());
++  out.favorable_index =  // MUTANT M812: SAME_GROUP_ADVERSE becomes unreachable
++      first_crossing(index.adverse(side), first, last, favorable_gate.value());
+   out.adverse_index = first_crossing(index.adverse(side), first, last, adverse_gate.value());
+ 
+   if (out.favorable_index != kNoIndex) {

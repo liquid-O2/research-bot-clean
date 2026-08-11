@@ -1,0 +1,11 @@
+--- a/qr_labels/src/execution_tape.cpp
++++ b/qr_labels/src/execution_tape.cpp
+@@ -82,7 +82,7 @@
+     detail::fail_fast("qr::labels::ExecutionTape::adverse_mark out of domain");
+   }
+   const auto slot = static_cast<std::size_t>(index);
+-  return side == Side::LONG ? bid_min_u6[slot] : ask_max_u6[slot];
++  return side == Side::LONG ? bid_max_u6[slot] : ask_min_u6[slot];  // MUTANT M804
+ }
+ 
+ std::int64_t ExecutionTape::favorable_mark(std::int64_t index, Side side) const {

@@ -1,0 +1,15 @@
+--- a/qr_census/src/differential.cpp
++++ b/qr_census/src/differential.cpp
+@@ -385,11 +385,7 @@
+       continue;
+     }
+     if (!header_seen) {
+-      if (line != kDumpHeader) {
+-        return Expected<std::vector<DumpRow>, Refusal>::refuse(
+-            Refusal(RefusalCode::SCHEMA_MISMATCH, kParseSite,
+-                    "dump header is not the WP9 dump header", line_number));
+-      }
++      // M910: any first line is accepted as the header.
+       header_seen = true;
+       continue;
+     }

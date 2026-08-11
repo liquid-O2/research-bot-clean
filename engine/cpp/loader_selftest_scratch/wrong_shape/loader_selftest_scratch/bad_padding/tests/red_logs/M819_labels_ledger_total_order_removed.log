@@ -1,0 +1,243 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M819_labels_ledger_total_order_removed
+# patch:       tests/mutants/M819_labels_ledger_total_order_removed.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M819_labels_ledger_total_order_removed
+#
+### qr_labels_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 74 tests from 18 test suites.
+[----------] Global test environment set-up.
+[----------] 11 tests from MoneyMath
+[ RUN      ] MoneyMath.FracIsTruncationTowardZeroOnBothSigns
+[       OK ] MoneyMath.FracIsTruncationTowardZeroOnBothSigns (0 ms)
+[ RUN      ] MoneyMath.ANonPositiveFillOrMarkIsARefusalNotAGuardedDivision
+[       OK ] MoneyMath.ANonPositiveFillOrMarkIsARefusalNotAGuardedDivision (0 ms)
+[ RUN      ] MoneyMath.TheFiveHundredAndSeventySixCentCostIsChargedExactlyOnce
+[       OK ] MoneyMath.TheFiveHundredAndSeventySixCentCostIsChargedExactlyOnce (0 ms)
+[ RUN      ] MoneyMath.LongAndShortMarksAreExactMirrorsAroundTheFill
+[       OK ] MoneyMath.LongAndShortMarksAreExactMirrorsAroundTheFill (0 ms)
+[ RUN      ] MoneyMath.TheReachableNetLatticeIsTenCentsWideAroundMinusFiveSevenSix
+[       OK ] MoneyMath.TheReachableNetLatticeIsTenCentsWideAroundMinusFiveSevenSix (0 ms)
+[ RUN      ] MoneyMath.AOneCentStopShiftCannotMoveTheFracThresholdButFourCentsCan
+[       OK ] MoneyMath.AOneCentStopShiftCannotMoveTheFracThresholdButFourCentsCan (0 ms)
+[ RUN      ] MoneyMath.TheWallPriceGateIsTheExactBoundaryOnBothSides
+[       OK ] MoneyMath.TheWallPriceGateIsTheExactBoundaryOnBothSides (0 ms)
+[ RUN      ] MoneyMath.TheBarrierPriceGatesAreTheExactBoundariesOnBothSides
+[       OK ] MoneyMath.TheBarrierPriceGatesAreTheExactBoundariesOnBothSides (0 ms)
+[ RUN      ] MoneyMath.ThePriceGateIsExactAtEveryPriceOverAWideSweep
+[       OK ] MoneyMath.ThePriceGateIsExactAtEveryPriceOverAWideSweep (0 ms)
+[ RUN      ] MoneyMath.ANetGateWithTheWrongFracSignRefusesRatherThanGuessingABranch
+[       OK ] MoneyMath.ANetGateWithTheWrongFracSignRefusesRatherThanGuessingABranch (0 ms)
+[ RUN      ] MoneyMath.FloorAndCeilDivisionAreExactOnNegativeNumerators
+[       OK ] MoneyMath.FloorAndCeilDivisionAreExactOnNegativeNumerators (0 ms)
+[----------] 11 tests from MoneyMath (18 ms total)
+
+[----------] 9 tests from ExecutionTape
+[ RUN      ] ExecutionTape.TheFourExtremaAreTheConservativeEnvelopeOfTheEligibleMembers
+[       OK ] ExecutionTape.TheFourExtremaAreTheConservativeEnvelopeOfTheEligibleMembers (8 ms)
+[ RUN      ] ExecutionTape.EligibilityIsQrNbbosPredicateAndNothingElse
+[       OK ] ExecutionTape.EligibilityIsQrNbbosPredicateAndNothingElse (0 ms)
+[ RUN      ] ExecutionTape.AGroupWithNoEligibleMemberCarriesNoLawfulMarkButIsCensused
+[       OK ] ExecutionTape.AGroupWithNoEligibleMemberCarriesNoLawfulMarkButIsCensused (0 ms)
+[ RUN      ] ExecutionTape.MemberPermutationDoesNotMoveASingleByte
+[       OK ] ExecutionTape.MemberPermutationDoesNotMoveASingleByte (0 ms)
+[ RUN      ] ExecutionTape.EqualOrDescendingGroupStampsAreRefused
+[       OK ] ExecutionTape.EqualOrDescendingGroupStampsAreRefused (0 ms)
+[ RUN      ] ExecutionTape.ARowWhoseStampIsNotItsOwnGroupsIsRefused
+[       OK ] ExecutionTape.ARowWhoseStampIsNotItsOwnGroupsIsRefused (0 ms)
+[ RUN      ] ExecutionTape.AGroupOutsideTheSessionsRegularHoursIsRefusedByTheClock
+[       OK ] ExecutionTape.AGroupOutsideTheSessionsRegularHoursIsRefusedByTheClock (0 ms)
+[ RUN      ] ExecutionTape.FirstStrictlyAfterExcludesExactEqualityAndFirstAtOrAfterIncludesIt
+[       OK ] ExecutionTape.FirstStrictlyAfterExcludesExactEqualityAndFirstAtOrAfterIncludesIt (0 ms)
+[ RUN      ] ExecutionTape.VerifyAgainstBindsTheTapeToTheWp5ProjectionGroupForGroup
+[       OK ] ExecutionTape.VerifyAgainstBindsTheTapeToTheWp5ProjectionGroupForGroup (0 ms)
+[----------] 9 tests from ExecutionTape (33 ms total)
+
+[----------] 3 tests from ExtremumIndexQueries
+[ RUN      ] ExtremumIndexQueries.MatchABruteForceScanOverEveryRangeOfAPseudoRandomArray
+[       OK ] ExtremumIndexQueries.MatchABruteForceScanOverEveryRangeOfAPseudoRandomArray (29 ms)
+[ RUN      ] ExtremumIndexQueries.TheLeftmostArgumentOfATiedExtremumIsTheEarliestOne
+[       OK ] ExtremumIndexQueries.TheLeftmostArgumentOfATiedExtremumIsTheEarliestOne (0 ms)
+[ RUN      ] ExtremumIndexQueries.ASingleElementIndexAnswersItsOnlyRange
+[       OK ] ExtremumIndexQueries.ASingleElementIndexAnswersItsOnlyRange (0 ms)
+[----------] 3 tests from ExtremumIndexQueries (35 ms total)
+
+[----------] 3 tests from DecisionSecondClock
+[ RUN      ] DecisionSecondClock.RegistersOneSecondPerBarMinuteOfItsOwnRegistryRow
+[       OK ] DecisionSecondClock.RegistersOneSecondPerBarMinuteOfItsOwnRegistryRow (0 ms)
+[ RUN      ] DecisionSecondClock.TheCardsIdentityHoldsForEveryRegisteredSecond
+[       OK ] DecisionSecondClock.TheCardsIdentityHoldsForEveryRegisteredSecond (0 ms)
+[ RUN      ] DecisionSecondClock.TheThreeSelectionRulesAreTheCardsThreeRules
+[       OK ] DecisionSecondClock.TheThreeSelectionRulesAreTheCardsThreeRules (0 ms)
+[----------] 3 tests from DecisionSecondClock (5 ms total)
+
+[----------] 10 tests from Watches
+[ RUN      ] Watches.EachCandidateCreatesExactlyThreeWatchesAndNoD90OrD120
+[       OK ] Watches.EachCandidateCreatesExactlyThreeWatchesAndNoD90OrD120 (26 ms)
+[ RUN      ] Watches.D0IsTheFirstRegisteredSecondStrictlyAfterOwnVisibility
+[       OK ] Watches.D0IsTheFirstRegisteredSecondStrictlyAfterOwnVisibility (34 ms)
+[ RUN      ] Watches.D30IsTheFirstRegisteredSecondAtOrAfterVisibilityPlusThirty
+[       OK ] Watches.D30IsTheFirstRegisteredSecondAtOrAfterVisibilityPlusThirty (20 ms)
+[ RUN      ] Watches.D60IsTheLastRegisteredSecondAtOrBeforeVisibilityPlusSixty
+[       OK ] Watches.D60IsTheLastRegisteredSecondAtOrBeforeVisibilityPlusSixty (20 ms)
+[ RUN      ] Watches.D60IsClockUnavailableWhenTheLastSecondIsNotStrictlyAfterVisibility
+[       OK ] Watches.D60IsClockUnavailableWhenTheLastSecondIsNotStrictlyAfterVisibility (7 ms)
+[ RUN      ] Watches.OutOfSessionWatchesAreRetainedAsClockUnavailableAndNeverDropped
+[       OK ] Watches.OutOfSessionWatchesAreRetainedAsClockUnavailableAndNeverDropped (3 ms)
+[ RUN      ] Watches.TheLedgerRetainsEveryFieldTheCardEnumerates
+[       OK ] Watches.TheLedgerRetainsEveryFieldTheCardEnumerates (10 ms)
+[ RUN      ] Watches.ManyWatchesConvergeOntoOneActionRowAndNeverDuplicateAFitRow
+[       OK ] Watches.ManyWatchesConvergeOntoOneActionRowAndNeverDuplicateAFitRow (10 ms)
+[ RUN      ] Watches.LongAndShortAtOneClockAreTwoActionRowsNotOne
+[       OK ] Watches.LongAndShortAtOneClockAreTwoActionRowsNotOne (10 ms)
+[ RUN      ] Watches.TheLedgerIsByteIdenticalUnderAnyInputOrderNotMerelyAcrossTwoRuns
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:384: Failure
+Expected equality of these values:
+  render_watch_ledger(plan_of(clock, forward))
+    Which is: "candidate_id\tphysical_key\tpolicy_name\treversal_bps\tmember_count\tvisible_ts_ns\tside\tstage\tclock_state\tdecision_second\tdecision_ts_ns\tdecision_ordinal\taction_index\na\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tLONG\tD0\tVALID\t11\t1657027811000000000\t12\t1\na\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tLONG\tD30\tVALID\t41\t1657027841000000000\t43\t4\na\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tLONG\tD60\tVALID\t70\t1657027870000000000\t72\t7\nb\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027830000000011\tSHORT\tD0\tVALID\t31\t1657027831000000000\t33\t2\nb\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027830000000011\tSHORT\tD30\tVALID\t61\t1657027861000000000\t63\t5\nb\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027830000000011\tSHORT\tD60\tVALID\t90\t1657027890000000000\t92\t8\nc\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD0\tVALID\t11\t1657027811000000000\t12\t0\nc\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD30\tVALID\t41\t1657027841000000000\t43\t3\nc\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD60\tVALID\t70\t1657027870000000000\t72\t6\n"
+  render_watch_ledger(plan_of(clock, shuffled))
+    Which is: "candidate_id\tphysical_key\tpolicy_name\treversal_bps\tmember_count\tvisible_ts_ns\tside\tstage\tclock_state\tdecision_second\tdecision_ts_ns\tdecision_ordinal\taction_index\nc\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD0\tVALID\t11\t1657027811000000000\t12\t0\nc\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD30\tVALID\t41\t1657027841000000000\t43\t3\nc\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD60\tVALID\t70\t1657027870000000000\t72\t6\na\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tLONG\tD0\tVALID\t11\t1657027811000000000\t12\t1\na\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tLONG\tD30\tVALID\t41\t1657027841000000000\t43\t4\na\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tLONG\tD60\tVALID\t70\t1657027870000000000\t72\t7\nb\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027830000000011\tSHORT\tD0\tVALID\t31\t1657027831000000000\t33\t2\nb\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027830000000011\tSHORT\tD30\tVALID\t61\t1657027861000000000\t63\t5\nb\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027830000000011\tSHORT\tD60\tVALID\t90\t1657027890000000000\t92\t8\n"
+With diff:
+@@ +1,6 @@
+ candidate_id\tphysical_key\tpolicy_name\treversal_bps\tmember_count\tvisible_ts_ns\tside\tstage\tclock_state\tdecision_second\tdecision_ts_ns\tdecision_ordinal\taction_index
++c\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD0\tVALID\t11\t1657027811000000000\t12\t0
++c\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD30\tVALID\t41\t1657027841000000000\t43\t3
++c\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD60\tVALID\t70\t1657027870000000000\t72\t6
+ a\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tLONG\tD0\tVALID\t11\t1657027811000000000\t12\t1
+ a\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tLONG\tD30\tVALID\t41\t1657027841000000000\t43\t4
+@@ -5,6 +8,3 @@
+ b\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027830000000011\tSHORT\tD0\tVALID\t31\t1657027831000000000\t33\t2
+ b\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027830000000011\tSHORT\tD30\tVALID\t61\t1657027861000000000\t63\t5
+-b\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027830000000011\tSHORT\tD60\tVALID\t90\t1657027890000000000\t92\t8
+-c\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD0\tVALID\t11\t1657027811000000000\t12\t0
+-c\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD30\tVALID\t41\t1657027841000000000\t43\t3
+-c\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027810000000005\tSHORT\tD60\tVALID\t70\t1657027870000000000\t72\t6\n
++b\t0000000000000000000000000000000000000000000000000000000000000001\tdc002\t2\t1\t1657027830000000011\tSHORT\tD60\tVALID\t90\t1657027890000000000\t92\t8\n
+
+
+[  FAILED  ] Watches.TheLedgerIsByteIdenticalUnderAnyInputOrderNotMerelyAcrossTwoRuns (45 ms)
+[----------] 10 tests from Watches (240 ms total)
+
+[----------] 4 tests from DecisionOrdinalRoster
+[ RUN      ] DecisionOrdinalRoster.IsTheSortedUnionOfEverySecondAndEveryVisibility
+[       OK ] DecisionOrdinalRoster.IsTheSortedUnionOfEverySecondAndEveryVisibility (11 ms)
+[ RUN      ] DecisionOrdinalRoster.MovingOneVisibilityShiftsOrdinalsOnlyAtOrAfterIt
+[       OK ] DecisionOrdinalRoster.MovingOneVisibilityShiftsOrdinalsOnlyAtOrAfterIt (41 ms)
+[ RUN      ] DecisionOrdinalRoster.AnInstantOffTheRosterIsARefusalAndNeverANearestNeighbour
+[       OK ] DecisionOrdinalRoster.AnInstantOffTheRosterIsARefusalAndNeverANearestNeighbour (3 ms)
+[ RUN      ] DecisionOrdinalRoster.ARosterThatIsNotStrictlyIncreasingIsRefused
+[       OK ] DecisionOrdinalRoster.ARosterThatIsNotStrictlyIncreasingIsRefused (0 ms)
+[----------] 4 tests from DecisionOrdinalRoster (108 ms total)
+
+[----------] 5 tests from OneToOneKey
+[ RUN      ] OneToOneKey.RefusesOneOrdinalCarryingTwoDifferentInstants
+[       OK ] OneToOneKey.RefusesOneOrdinalCarryingTwoDifferentInstants (0 ms)
+[ RUN      ] OneToOneKey.RefusesTwoOrdinalsCarryingTheSameInstant
+[       OK ] OneToOneKey.RefusesTwoOrdinalsCarryingTheSameInstant (0 ms)
+[ RUN      ] OneToOneKey.RefusesARepeatedKeyAndAnInvertedInstant
+[       OK ] OneToOneKey.RefusesARepeatedKeyAndAnInvertedInstant (0 ms)
+[ RUN      ] OneToOneKey.AcceptsTheLawfulShapeBothSidesAtOneClockAndOneSideAcrossClocks
+[       OK ] OneToOneKey.AcceptsTheLawfulShapeBothSidesAtOneClockAndOneSideAcrossClocks (0 ms)
+[ RUN      ] OneToOneKey.TheProductionPlanSatisfiesItAndTheSecondIsNeverTheOrdinal
+[       OK ] OneToOneKey.TheProductionPlanSatisfiesItAndTheSecondIsNeverTheOrdinal (10 ms)
+[----------] 5 tests from OneToOneKey (19 ms total)
+
+[----------] 3 tests from LabelEntry
+[ RUN      ] LabelEntry.IsTheFirstLawfulMarkStrictlyAfterTheDecisionAndNeverAtEquality
+[       OK ] LabelEntry.IsTheFirstLawfulMarkStrictlyAfterTheDecisionAndNeverAtEquality (0 ms)
+[ RUN      ] LabelEntry.EqualMillisecondFillsAndMarksAreTheAdverseEnvelope
+[       OK ] LabelEntry.EqualMillisecondFillsAndMarksAreTheAdverseEnvelope (0 ms)
+[ RUN      ] LabelEntry.TheFiveHundredAndSeventySixCentCostIsChargedOncePerHorizon
+[       OK ] LabelEntry.TheFiveHundredAndSeventySixCentCostIsChargedOncePerHorizon (0 ms)
+[----------] 3 tests from LabelEntry (21 ms total)
+
+[----------] 4 tests from StopWall
+[ RUN      ] StopWall.CrossesAtTheExactMinusThirtyThousandBoundaryAndNotOneTickEarlier
+[       OK ] StopWall.CrossesAtTheExactMinusThirtyThousandBoundaryAndNotOneTickEarlier (0 ms)
+[ RUN      ] StopWall.FillsAtTheNextLawfulMarkStrictlyAfterTheCrossing
+[       OK ] StopWall.FillsAtTheNextLawfulMarkStrictlyAfterTheCrossing (0 ms)
+[ RUN      ] StopWall.GapThroughBeyondTheWallIsRetainedAndReportedNeverCappedAtTheWall
+[       OK ] StopWall.GapThroughBeyondTheWallIsRetainedAndReportedNeverCappedAtTheWall (0 ms)
+[ RUN      ] StopWall.IsScannedStrictlyAfterTheFillSoAWideEntryCannotStopItself
+[       OK ] StopWall.IsScannedStrictlyAfterTheFillSoAWideEntryCannotStopItself (0 ms)
+[----------] 4 tests from StopWall (8 ms total)
+
+[----------] 4 tests from MenuHorizons
+[ RUN      ] MenuHorizons.TakeTheFirstLawfulMarkAtOrAfterTheDeadlineIncludingAnExactBoundary
+[       OK ] MenuHorizons.TakeTheFirstLawfulMarkAtOrAfterTheDeadlineIncludingAnExactBoundary (0 ms)
+[ RUN      ] MenuHorizons.TheCloseHorizonIsTheFinalLawfulMarkOfTheSession
+[       OK ] MenuHorizons.TheCloseHorizonIsTheFinalLawfulMarkOfTheSession (0 ms)
+[ RUN      ] MenuHorizons.StopHitMeansStrictlyBeforeTheHorizonSoASameGroupCrossingExitsAtTheHorizon
+[       OK ] MenuHorizons.StopHitMeansStrictlyBeforeTheHorizonSoASameGroupCrossingExitsAtTheHorizon (0 ms)
+[ RUN      ] MenuHorizons.TheMaeIsExactAndRangesFromTheFillThroughEachHorizonsOwnExit
+[       OK ] MenuHorizons.TheMaeIsExactAndRangesFromTheFillThroughEachHorizonsOwnExit (0 ms)
+[----------] 4 tests from MenuHorizons (16 ms total)
+
+[----------] 4 tests from Certificate
+[ RUN      ] Certificate.IsTheEarliestBestPositiveMarkBeforeTheWall
+[       OK ] Certificate.IsTheEarliestBestPositiveMarkBeforeTheWall (0 ms)
+[ RUN      ] Certificate.FallsBackToTheWallFillWhenNoPreWallMarkIsPositive
+[       OK ] Certificate.FallsBackToTheWallFillWhenNoPreWallMarkIsPositive (0 ms)
+[ RUN      ] Certificate.FallsBackToTheFinalLawfulMarkWhenNothingCrossesAndNothingIsPositive
+[       OK ] Certificate.FallsBackToTheFinalLawfulMarkWhenNothingCrossesAndNothingIsPositive (0 ms)
+[ RUN      ] Certificate.NeverExitsAtTheEntryGroupEvenWhenTheEntryMarkIsTheMaximum
+[       OK ] Certificate.NeverExitsAtTheEntryGroupEvenWhenTheEntryMarkIsTheMaximum (0 ms)
+[----------] 4 tests from Certificate (11 ms total)
+
+[----------] 3 tests from LabelStates
+[ RUN      ] LabelStates.EntryUnavailableIsRetainedWithMaskedValues
+[       OK ] LabelStates.EntryUnavailableIsRetainedWithMaskedValues (0 ms)
+[ RUN      ] LabelStates.ExitUnavailableIsTheFillOnTheFinalLawfulMark
+[       OK ] LabelStates.ExitUnavailableIsTheFillOnTheFinalLawfulMark (0 ms)
+[ RUN      ] LabelStates.TheThreeStatesAreSeparateMasksOverTheSameSession
+[       OK ] LabelStates.TheThreeStatesAreSeparateMasksOverTheSameSession (0 ms)
+[----------] 3 tests from LabelStates (6 ms total)
+
+[----------] 2 tests from BarrierAuxiliary
+[ RUN      ] BarrierAuxiliary.ReachesAllFourRawStatesAndMapsThemToThreeClasses
+[       OK ] BarrierAuxiliary.ReachesAllFourRawStatesAndMapsThemToThreeClasses (0 ms)
+[ RUN      ] BarrierAuxiliary.IsScannedOverFullRthAndIgnoresTheStopAndTheHorizons
+[       OK ] BarrierAuxiliary.IsScannedOverFullRthAndIgnoresTheStopAndTheHorizons (0 ms)
+[----------] 2 tests from BarrierAuxiliary (3 ms total)
+
+[----------] 3 tests from StopShiftMutant
+[ RUN      ] StopShiftMutant.AOneCentShiftMovesNEITHERLedgerBecauseTheNetLatticeIsTenCentsWide
+[       OK ] StopShiftMutant.AOneCentShiftMovesNEITHERLedgerBecauseTheNetLatticeIsTenCentsWide (0 ms)
+[ RUN      ] StopShiftMutant.TheSmallestEffectiveShiftMovesTheMenuAndTheCertificateTogether
+[       OK ] StopShiftMutant.TheSmallestEffectiveShiftMovesTheMenuAndTheCertificateTogether (0 ms)
+[ RUN      ] StopShiftMutant.TheCertificateNeverKnowsAWallTheMenuDoesNot
+[       OK ] StopShiftMutant.TheCertificateNeverKnowsAWallTheMenuDoesNot (0 ms)
+[----------] 3 tests from StopShiftMutant (5 ms total)
+
+[----------] 2 tests from LabelSides
+[ RUN      ] LabelSides.AShortOnTheMirroredTapeIsTheExactMirrorOfTheLong
+[       OK ] LabelSides.AShortOnTheMirroredTapeIsTheExactMirrorOfTheLong (0 ms)
+[ RUN      ] LabelSides.TheKeysSideMustBeTheSideBeingLabelled
+[       OK ] LabelSides.TheKeysSideMustBeTheSideBeingLabelled (0 ms)
+[----------] 2 tests from LabelSides (3 ms total)
+
+[----------] 1 test from LabelDeterminism
+[ RUN      ] LabelDeterminism.TwoRunsOverTheSameTapeProduceIdenticalBytes
+[       OK ] LabelDeterminism.TwoRunsOverTheSameTapeProduceIdenticalBytes (0 ms)
+[----------] 1 test from LabelDeterminism (2 ms total)
+
+[----------] 2 tests from LinearReferenceDifferential
+[ RUN      ] LinearReferenceDifferential.TheAcceleratedKernelAgreesByteForByteOnAPseudoRandomTape
+[       OK ] LinearReferenceDifferential.TheAcceleratedKernelAgreesByteForByteOnAPseudoRandomTape (42 ms)
+[ RUN      ] LinearReferenceDifferential.AgreesUnderShiftedWallsToo
+[       OK ] LinearReferenceDifferential.AgreesUnderShiftedWallsToo (3 ms)
+[----------] 2 tests from LinearReferenceDifferential (49 ms total)
+
+[----------] 1 test from LabelCensusRows
+[ RUN      ] LabelCensusRows.CountsEveryStateHorizonAndBarrierIncludingZeros
+[       OK ] LabelCensusRows.CountsEveryStateHorizonAndBarrierIncludingZeros (0 ms)
+[----------] 1 test from LabelCensusRows (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 74 tests from 18 test suites ran. (702 ms total)
+[  PASSED  ] 73 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Watches.TheLedgerIsByteIdenticalUnderAnyInputOrderNotMerelyAcrossTwoRuns
+
+ 1 FAILED TEST

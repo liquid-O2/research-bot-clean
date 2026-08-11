@@ -1,0 +1,11 @@
+--- a/qr_census/src/verdict.cpp
++++ b/qr_census/src/verdict.cpp
+@@ -36,7 +36,7 @@
+ /// only is a FAIL.
+ [[nodiscard]] bool is_cpp_only_metric(const DumpRow& row) noexcept {
+   if (row.kind == "column") {
+-    return row.metric == "mask_null";
++    return false;  // M921: the census table no longer covers mask_null.
+   }
+   if (row.kind == "session") {
+     return row.metric == "group_count" || row.metric == "registry_raw_rth_row_count" ||

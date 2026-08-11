@@ -1,0 +1,628 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 34 tests from 16 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from MemberViews
+[ RUN      ] MemberViews.ANormalTightTwoSidedQuoteIsValidInAllThreeViews
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:57: Failure
+Expected equality of these values:
+  classify_quote_state(f, false)
+    Which is: 1-byte object <06>
+  QuoteState::NORMAL
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:58: Failure
+Expected equality of these values:
+  classify_member_validity(f)
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:59: Failure
+Value of: is_structurally_valid(f)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:63: Failure
+Expected equality of these values:
+  classified.value().state
+    Which is: 1-byte object <06>
+  QuoteState::NORMAL
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:64: Failure
+Expected equality of these values:
+  classified.value().validity
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:65: Failure
+Value of: classified.value().structurally_valid
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:67: Failure
+Value of: classified.value().scientific
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:69: Failure
+Expected equality of these values:
+  classified.value().midpoint_u6
+    Which is: 0
+  171'005'000
+    Which is: 171005000
+
+[  FAILED  ] MemberViews.ANormalTightTwoSidedQuoteIsValidInAllThreeViews (0 ms)
+[ RUN      ] MemberViews.LockedIsStructurallyValidForTheCsrAndAMaskedQualityTokenForTheCard
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:78: Failure
+Expected equality of these values:
+  classify_quote_state(f, false)
+    Which is: 1-byte object <06>
+  QuoteState::LOCKED
+    Which is: 1-byte object <01>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:79: Failure
+Expected equality of these values:
+  classify_member_validity(f)
+    Which is: 1-byte object <01>
+  Validity::LOCKED
+    Which is: 1-byte object <06>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:80: Failure
+Value of: is_structurally_valid(f)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:84: Failure
+Value of: classified.value().locked
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:86: Failure
+Value of: classified.value().scientific
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:87: Failure
+Expected equality of these values:
+  classified.value().midpoint_u6
+    Which is: 0
+  171'020'000
+    Which is: 171020000
+
+[  FAILED  ] MemberViews.LockedIsStructurallyValidForTheCsrAndAMaskedQualityTokenForTheCard (0 ms)
+[ RUN      ] MemberViews.CrossedIsRejectedByTheCsrAndTypedCrossed
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:94: Failure
+Expected equality of these values:
+  classify_quote_state(f, false)
+    Which is: 1-byte object <06>
+  QuoteState::CROSSED
+    Which is: 1-byte object <02>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:95: Failure
+Expected equality of these values:
+  classify_member_validity(f)
+    Which is: 1-byte object <01>
+  Validity::CROSSED
+    Which is: 1-byte object <07>
+
+[  FAILED  ] MemberViews.CrossedIsRejectedByTheCsrAndTypedCrossed (0 ms)
+[ RUN      ] MemberViews.AZeroPricedSideIsOneSidedToTheCensusAndNonpositiveToTheLattice
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:104: Failure
+Expected equality of these values:
+  classify_quote_state(f, false)
+    Which is: 1-byte object <06>
+  QuoteState::BID_ONLY
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:105: Failure
+Expected equality of these values:
+  classify_member_validity(f)
+    Which is: 1-byte object <01>
+  Validity::NONPOSITIVE
+    Which is: 1-byte object <0A>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:109: Failure
+Expected equality of these values:
+  classify_quote_state(mirrored, false)
+    Which is: 1-byte object <06>
+  QuoteState::ASK_ONLY
+    Which is: 1-byte object <04>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:110: Failure
+Expected equality of these values:
+  classify_member_validity(mirrored)
+    Which is: 1-byte object <01>
+  Validity::NONPOSITIVE
+    Which is: 1-byte object <0A>
+
+[  FAILED  ] MemberViews.AZeroPricedSideIsOneSidedToTheCensusAndNonpositiveToTheLattice (0 ms)
+[ RUN      ] MemberViews.ANullPricedSideIsOneSidedInTheLattice
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:117: Failure
+Expected equality of these values:
+  classify_quote_state(f, false)
+    Which is: 1-byte object <06>
+  QuoteState::BID_ONLY
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:118: Failure
+Expected equality of these values:
+  classify_member_validity(f)
+    Which is: 1-byte object <01>
+  Validity::ONE_SIDED
+    Which is: 1-byte object <08>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:124: Failure
+Expected equality of these values:
+  classified.value().validity
+    Which is: 1-byte object <01>
+  Validity::ONE_SIDED
+    Which is: 1-byte object <08>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:125: Failure
+Expected equality of these values:
+  classified.value().state
+    Which is: 1-byte object <06>
+  QuoteState::BID_ONLY
+    Which is: 1-byte object <03>
+
+[  FAILED  ] MemberViews.ANullPricedSideIsOneSidedInTheLattice (0 ms)
+[ RUN      ] MemberViews.BothSidesAbsentIsMissing
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:130: Failure
+Expected equality of these values:
+  classify_quote_state(f, false)
+    Which is: 1-byte object <06>
+  QuoteState::BOTH_SIDES_ABSENT
+    Which is: 1-byte object <05>
+
+[  FAILED  ] MemberViews.BothSidesAbsentIsMissing (0 ms)
+[ RUN      ] MemberViews.ConditionIneligibleIsNormalToTheCensusAndIneligibleToTheCard
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:140: Failure
+Expected equality of these values:
+  classify_quote_state(f, false)
+    Which is: 1-byte object <06>
+  QuoteState::NORMAL
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:141: Failure
+Expected equality of these values:
+  classify_member_validity(f)
+    Which is: 1-byte object <01>
+  Validity::CONDITION_INELIGIBLE
+    Which is: 1-byte object <0B>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:145: Failure
+Expected equality of these values:
+  classify_member_validity(ask_side)
+    Which is: 1-byte object <01>
+  Validity::CONDITION_INELIGIBLE
+    Which is: 1-byte object <0B>
+
+[  FAILED  ] MemberViews.ConditionIneligibleIsNormalToTheCensusAndIneligibleToTheCard (0 ms)
+[ RUN      ] MemberViews.APriceAboveTheSanityCeilingIsNonfiniteAndInvalid
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:152: Failure
+Expected equality of these values:
+  classify_member_validity(f)
+    Which is: 1-byte object <01>
+  Validity::NONFINITE
+    Which is: 1-byte object <09>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:156: Failure
+Expected equality of these values:
+  classify_member_validity(at)
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:157: Failure
+Value of: is_structurally_valid(at)
+  Actual: false
+Expected: true
+the sanity ceiling is inclusive (1..=MAX in the reference)
+
+[  FAILED  ] MemberViews.APriceAboveTheSanityCeilingIsNonfiniteAndInvalid (0 ms)
+[ RUN      ] MemberViews.ANonpositiveSizeIsInvalidToTheCensusAndNonpositiveToTheLattice
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:166: Failure
+Expected equality of these values:
+  classify_member_validity(f)
+    Which is: 1-byte object <01>
+  Validity::NONPOSITIVE
+    Which is: 1-byte object <0A>
+
+[  FAILED  ] MemberViews.ANonpositiveSizeIsInvalidToTheCensusAndNonpositiveToTheLattice (0 ms)
+[ RUN      ] MemberViews.AnOddBidPlusAskIsStructurallyRejectedBecauseItsMidpointWouldNotBeExact
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:176: Failure
+Expected equality of these values:
+  classify_member_validity(f)
+    Which is: 1-byte object <01>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:177: Failure
+Expected equality of these values:
+  classify_quote_state(f, false)
+    Which is: 1-byte object <06>
+  QuoteState::NORMAL
+    Which is: 1-byte object <00>
+
+[  FAILED  ] MemberViews.AnOddBidPlusAskIsStructurallyRejectedBecauseItsMidpointWouldNotBeExact (0 ms)
+[----------] 10 tests from MemberViews (0 ms total)
+
+[----------] 2 tests from ScientificSpread
+[ RUN      ] ScientificSpread.TheFiftyBasisPointBarIsInclusiveAtItsExactBoundary
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:188: Failure
+Value of: at_bar.value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ScientificSpread.TheFiftyBasisPointBarIsInclusiveAtItsExactBoundary (0 ms)
+[ RUN      ] ScientificSpread.ADollarWideMarketIsNotScientificAndAZeroSpreadAlwaysIs
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:205: Failure
+Value of: locked.value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ScientificSpread.ADollarWideMarketIsNotScientificAndAZeroSpreadAlwaysIs (0 ms)
+[----------] 2 tests from ScientificSpread (0 ms total)
+
+[----------] 3 tests from DomainClassifier
+[ RUN      ] DomainClassifier.TheFourRegisteredDomainsOfARegularSession
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:215: Failure
+Expected equality of these values:
+  classify_domain(clock, open - (5 * 60 + 30) * kMinute)
+    Which is: 1-byte object <06>
+  QuoteDomain::PREMARKET
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:216: Failure
+Expected equality of these values:
+  classify_domain(clock, open - 1)
+    Which is: 1-byte object <06>
+  QuoteDomain::PREMARKET
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:217: Failure
+Expected equality of these values:
+  classify_domain(clock, open)
+    Which is: 1-byte object <06>
+  QuoteDomain::RTH
+    Which is: 1-byte object <01>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:218: Failure
+Expected equality of these values:
+  classify_domain(clock, open + 389 * kMinute)
+    Which is: 1-byte object <06>
+  QuoteDomain::RTH
+    Which is: 1-byte object <01>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:220: Failure
+Expected equality of these values:
+  classify_domain(clock, open + 390 * kMinute)
+    Which is: 1-byte object <06>
+  QuoteDomain::AFTER_HOURS
+    Which is: 1-byte object <02>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:221: Failure
+Expected equality of these values:
+  classify_domain(clock, open + (390 + 239) * kMinute)
+    Which is: 1-byte object <06>
+  QuoteDomain::AFTER_HOURS
+    Which is: 1-byte object <02>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:223: Failure
+Expected equality of these values:
+  classify_domain(clock, open + (390 + 240) * kMinute)
+    Which is: 1-byte object <06>
+  QuoteDomain::OUTSIDE_DOMAIN
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:225: Failure
+Expected equality of these values:
+  classify_domain(clock, open - (5 * 60 + 31) * kMinute)
+    Which is: 1-byte object <06>
+  QuoteDomain::OUTSIDE_DOMAIN
+    Which is: 1-byte object <03>
+
+[  FAILED  ] DomainClassifier.TheFourRegisteredDomainsOfARegularSession (11 ms)
+[ RUN      ] DomainClassifier.AnEarlyCloseUsesItsOwnCloseAsThePostOpenBoundary
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:239: Failure
+Expected equality of these values:
+  classify_domain(clock.value(), open + 209 * kMinute)
+    Which is: 1-byte object <06>
+  QuoteDomain::RTH
+    Which is: 1-byte object <01>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:243: Failure
+Expected equality of these values:
+  classify_domain(clock.value(), open + 210 * kMinute)
+    Which is: 1-byte object <06>
+  QuoteDomain::AFTER_HOURS
+    Which is: 1-byte object <02>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:244: Failure
+Expected equality of these values:
+  classify_domain(clock.value(), open + (210 + 239) * kMinute)
+    Which is: 1-byte object <06>
+  QuoteDomain::AFTER_HOURS
+    Which is: 1-byte object <02>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:245: Failure
+Expected equality of these values:
+  classify_domain(clock.value(), open + (210 + 240) * kMinute)
+    Which is: 1-byte object <06>
+  QuoteDomain::OUTSIDE_DOMAIN
+    Which is: 1-byte object <03>
+
+[  FAILED  ] DomainClassifier.AnEarlyCloseUsesItsOwnCloseAsThePostOpenBoundary (0 ms)
+[ RUN      ] DomainClassifier.ItIsTotalAndNeverAbortsOnAnOffDayOrMalformedOrAbsentStamp
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:256: Failure
+Expected equality of these values:
+  classify_domain(clock, open + qr::kMillisecondsPerDay)
+    Which is: 1-byte object <06>
+  QuoteDomain::WRONG_CIVIL_DAY
+    Which is: 1-byte object <04>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:257: Failure
+Expected equality of these values:
+  classify_domain(clock, open - qr::kMillisecondsPerDay)
+    Which is: 1-byte object <06>
+  QuoteDomain::WRONG_CIVIL_DAY
+    Which is: 1-byte object <04>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_member_classification.cpp:260: Failure
+Expected equality of these values:
+  classify_domain(clock, (9223372036854775807L))
+    Which is: 1-byte object <06>
+  QuoteDomain::MALFORMED
+    Which is: 1-byte object <05>
+
+[  FAILED  ] DomainClassifier.ItIsTotalAndNeverAbortsOnAnOffDayOrMalformedOrAbsentStamp (0 ms)
+[----------] 3 tests from DomainClassifier (11 ms total)
+
+[----------] 2 tests from GoldenTape
+[ RUN      ] GoldenTape.EveryGroupResolvesToItsHandComputedRow
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:110: Failure
+Value of: sealed.has_value()
+  Actual: false
+Expected: true
+OUTSIDE_RTH at qr_nbbo::GroupMachine::push_group: a non-RTH group reached the group machine [context=1657013400000]
+
+[  FAILED  ] GoldenTape.EveryGroupResolvesToItsHandComputedRow (0 ms)
+[ RUN      ] GoldenTape.TheCensusIsTheHandComputedOne
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:245: Failure
+Value of: run_tape(machine, golden_tape()).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] GoldenTape.TheCensusIsTheHandComputedOne (0 ms)
+[----------] 2 tests from GoldenTape (0 ms total)
+
+[----------] 2 tests from ScalarMeansLaw
+[ RUN      ] ScalarMeansLaw.TheMidpointIsDerivedFromTheSeparateMeansAndNeverFromRowMidpoints
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:330: Failure
+Value of: run_tape(machine, golden_tape()).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ScalarMeansLaw.TheMidpointIsDerivedFromTheSeparateMeansAndNeverFromRowMidpoints (0 ms)
+[ RUN      ] ScalarMeansLaw.AGroupWithNoEligibleMemberHasMissingMeansAndAMaskedZero
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:368: Failure
+Value of: run_tape(machine, golden_tape()).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ScalarMeansLaw.AGroupWithNoEligibleMemberHasMissingMeansAndAMaskedZero (0 ms)
+[----------] 2 tests from ScalarMeansLaw (0 ms total)
+
+[----------] 2 tests from PriorStateLaw
+[ RUN      ] PriorStateLaw.ThePriorIsFrozenForTheWholeGroupAndMovesOnlyAfterIt
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:387: Failure
+Value of: machine.push_group(tape[0].ts_ms_b, tape[0].rows).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] PriorStateLaw.ThePriorIsFrozenForTheWholeGroupAndMovesOnlyAfterIt (0 ms)
+[ RUN      ] PriorStateLaw.EveryChangeIsMeasuredAgainstTheNearestEarlierEligibleGroup
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:416: Failure
+Value of: run_tape(machine, golden_tape()).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] PriorStateLaw.EveryChangeIsMeasuredAgainstTheNearestEarlierEligibleGroup (0 ms)
+[----------] 2 tests from PriorStateLaw (0 ms total)
+
+[----------] 1 test from PermutationInvariance
+[ RUN      ] PermutationInvariance.PermutingRowsInsideEveryEqualTimeGroupChangesNothing
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:440: Failure
+Value of: run_tape(machine, tape).has_value()
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:448: Failure
+Value of: base.empty()
+  Actual: true
+Expected: false
+
+[  FAILED  ] PermutationInvariance.PermutingRowsInsideEveryEqualTimeGroupChangesNothing (0 ms)
+[----------] 1 test from PermutationInvariance (0 ms total)
+
+[----------] 1 test from Determinism
+[ RUN      ] Determinism.TwoRunsOverTheSameTapeAreByteIdentical
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:440: Failure
+Value of: run_tape(machine, tape).has_value()
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:440: Failure
+Value of: run_tape(machine, tape).has_value()
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:475: Failure
+Value of: first.empty()
+  Actual: true
+Expected: false
+
+[  FAILED  ] Determinism.TwoRunsOverTheSameTapeAreByteIdentical (0 ms)
+[----------] 1 test from Determinism (0 ms total)
+
+[----------] 2 tests from RegistryOracle
+[ RUN      ] RegistryOracle.TheSealRefusesWhenEitherPinnedCountDisagrees
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:490: Failure
+Expected equality of these values:
+  sealed.error().code()
+    Which is: 1-byte object <0D>
+  qr::RefusalCode::CONTENT_MISMATCH
+    Which is: 1-byte object <08>
+
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:497: Failure
+Expected equality of these values:
+  sealed.error().code()
+    Which is: 1-byte object <0D>
+  qr::RefusalCode::CONTENT_MISMATCH
+    Which is: 1-byte object <08>
+
+[  FAILED  ] RegistryOracle.TheSealRefusesWhenEitherPinnedCountDisagrees (0 ms)
+[ RUN      ] RegistryOracle.TheGroupCountIsALiveWallAndNotOnlyAFinalCheck
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:507: Failure
+Value of: machine.push_group(tape[index].ts_ms_b, tape[index].rows).has_value()
+  Actual: false
+Expected: true
+group 0
+
+[  FAILED  ] RegistryOracle.TheGroupCountIsALiveWallAndNotOnlyAFinalCheck (0 ms)
+[----------] 2 tests from RegistryOracle (0 ms total)
+
+[----------] 1 test from OrderLaw
+[ RUN      ] OrderLaw.ASplitEqualTimeRunAndADescendingTapeAreBothRefused
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:519: Failure
+Value of: machine.push_group(open, rows_of({quote_row(open, 171'000'000, 171'010'000, 500, 500)})) .has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] OrderLaw.ASplitEqualTimeRunAndADescendingTapeAreBothRefused (0 ms)
+[----------] 1 test from OrderLaw (0 ms total)
+
+[----------] 1 test from StructuralWalls
+[ RUN      ] StructuralWalls.NonRthEmptyAndMisstampedGroupsAreAllRefused
+[       OK ] StructuralWalls.NonRthEmptyAndMisstampedGroupsAreAllRefused (0 ms)
+[----------] 1 test from StructuralWalls (0 ms total)
+
+[----------] 1 test from CsrInvariant
+[ RUN      ] CsrInvariant.EveryOffsetsArrayCarriesExactlyOnePlusSizeEntries
+/workspace/engine/cpp/qr_nbbo/tests/test_group_machine.cpp:572: Failure
+Value of: run_tape(machine, golden_tape()).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] CsrInvariant.EveryOffsetsArrayCarriesExactlyOnePlusSizeEntries (0 ms)
+[----------] 1 test from CsrInvariant (0 ms total)
+
+[----------] 2 tests from FixtureCensus
+[ RUN      ] FixtureCensus.TheMachineReproducesTheFixtureTreesCommittedCountsThroughTheRealReader
+/workspace/engine/cpp/qr_nbbo/tests/test_census.cpp:67: Failure
+Value of: pushed.has_value()
+  Actual: false
+Expected: true
+OUTSIDE_RTH at qr_nbbo::GroupMachine::push_group: a non-RTH group reached the group machine [context=1657013400000]
+
+/workspace/engine/cpp/qr_nbbo/tests/test_census.cpp:94: Failure
+Expected equality of these values:
+  machine.groups().size()
+    Which is: 0
+  static_cast<std::size_t>(groups)
+    Which is: 7
+
+[  FAILED  ] FixtureCensus.TheMachineReproducesTheFixtureTreesCommittedCountsThroughTheRealReader (26 ms)
+[ RUN      ] FixtureCensus.PermutingTheFixturesInGroupRowOrderLeavesTheCensusIdentical
+/workspace/engine/cpp/qr_nbbo/tests/test_census.cpp:67: Failure
+Value of: pushed.has_value()
+  Actual: false
+Expected: true
+OUTSIDE_RTH at qr_nbbo::GroupMachine::push_group: a non-RTH group reached the group machine [context=1657013400000]
+
+/workspace/engine/cpp/qr_nbbo/tests/test_census.cpp:67: Failure
+Value of: pushed.has_value()
+  Actual: false
+Expected: true
+OUTSIDE_RTH at qr_nbbo::GroupMachine::push_group: a non-RTH group reached the group machine [context=1657013400000]
+
+/workspace/engine/cpp/qr_nbbo/tests/test_census.cpp:149: Failure
+Value of: plain.serialize().empty()
+  Actual: true
+Expected: false
+
+[  FAILED  ] FixtureCensus.PermutingTheFixturesInGroupRowOrderLeavesTheCensusIdentical (4 ms)
+[----------] 2 tests from FixtureCensus (30 ms total)
+
+[----------] 2 tests from ShareEra
+[ RUN      ] ShareEra.TheSameTapeInLotsAndInSharesReducesToTheSameBytes
+/workspace/engine/cpp/qr_nbbo/tests/test_census.cpp:188: Failure
+Value of: run_tape(lot_machine, lots).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ShareEra.TheSameTapeInLotsAndInSharesReducesToTheSameBytes (0 ms)
+[ RUN      ] ShareEra.MisdatingTheEraByOneDayMovesEverySizeMeanByAHundredfold
+/workspace/engine/cpp/qr_nbbo/tests/test_census.cpp:208: Failure
+Value of: run_tape(correct, lots).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ShareEra.MisdatingTheEraByOneDayMovesEverySizeMeanByAHundredfold (0 ms)
+[----------] 2 tests from ShareEra (0 ms total)
+
+[----------] 1 test from CensusTsv
+[ RUN      ] CensusTsv.EveryKindFlagStateDomainAndValidityIsPrintedInFullIncludingZeros
+/workspace/engine/cpp/qr_nbbo/tests/test_census.cpp:222: Failure
+Value of: run_tape(machine, {{open, {quote_row(open, 171'000'000, 171'010'000, 500, 500)}}}).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] CensusTsv.EveryKindFlagStateDomainAndValidityIsPrintedInFullIncludingZeros (0 ms)
+[----------] 1 test from CensusTsv (0 ms total)
+
+[----------] 1 test from CommittedCensus
+[ RUN      ] CommittedCensus.TheSessionOneTwentyFiveCensusMatchesTheFrozenRegistryRow
+[       OK ] CommittedCensus.TheSessionOneTwentyFiveCensusMatchesTheFrozenRegistryRow (2 ms)
+[----------] 1 test from CommittedCensus (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 34 tests from 16 test suites ran. (47 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 32 tests, listed below:
+[  FAILED  ] MemberViews.ANormalTightTwoSidedQuoteIsValidInAllThreeViews
+[  FAILED  ] MemberViews.LockedIsStructurallyValidForTheCsrAndAMaskedQualityTokenForTheCard
+[  FAILED  ] MemberViews.CrossedIsRejectedByTheCsrAndTypedCrossed
+[  FAILED  ] MemberViews.AZeroPricedSideIsOneSidedToTheCensusAndNonpositiveToTheLattice
+[  FAILED  ] MemberViews.ANullPricedSideIsOneSidedInTheLattice
+[  FAILED  ] MemberViews.BothSidesAbsentIsMissing
+[  FAILED  ] MemberViews.ConditionIneligibleIsNormalToTheCensusAndIneligibleToTheCard
+[  FAILED  ] MemberViews.APriceAboveTheSanityCeilingIsNonfiniteAndInvalid
+[  FAILED  ] MemberViews.ANonpositiveSizeIsInvalidToTheCensusAndNonpositiveToTheLattice
+[  FAILED  ] MemberViews.AnOddBidPlusAskIsStructurallyRejectedBecauseItsMidpointWouldNotBeExact
+[  FAILED  ] ScientificSpread.TheFiftyBasisPointBarIsInclusiveAtItsExactBoundary
+[  FAILED  ] ScientificSpread.ADollarWideMarketIsNotScientificAndAZeroSpreadAlwaysIs
+[  FAILED  ] DomainClassifier.TheFourRegisteredDomainsOfARegularSession
+[  FAILED  ] DomainClassifier.AnEarlyCloseUsesItsOwnCloseAsThePostOpenBoundary
+[  FAILED  ] DomainClassifier.ItIsTotalAndNeverAbortsOnAnOffDayOrMalformedOrAbsentStamp
+[  FAILED  ] GoldenTape.EveryGroupResolvesToItsHandComputedRow
+[  FAILED  ] GoldenTape.TheCensusIsTheHandComputedOne
+[  FAILED  ] ScalarMeansLaw.TheMidpointIsDerivedFromTheSeparateMeansAndNeverFromRowMidpoints
+[  FAILED  ] ScalarMeansLaw.AGroupWithNoEligibleMemberHasMissingMeansAndAMaskedZero
+[  FAILED  ] PriorStateLaw.ThePriorIsFrozenForTheWholeGroupAndMovesOnlyAfterIt
+[  FAILED  ] PriorStateLaw.EveryChangeIsMeasuredAgainstTheNearestEarlierEligibleGroup
+[  FAILED  ] PermutationInvariance.PermutingRowsInsideEveryEqualTimeGroupChangesNothing
+[  FAILED  ] Determinism.TwoRunsOverTheSameTapeAreByteIdentical
+[  FAILED  ] RegistryOracle.TheSealRefusesWhenEitherPinnedCountDisagrees
+[  FAILED  ] RegistryOracle.TheGroupCountIsALiveWallAndNotOnlyAFinalCheck
+[  FAILED  ] OrderLaw.ASplitEqualTimeRunAndADescendingTapeAreBothRefused
+[  FAILED  ] CsrInvariant.EveryOffsetsArrayCarriesExactlyOnePlusSizeEntries
+[  FAILED  ] FixtureCensus.TheMachineReproducesTheFixtureTreesCommittedCountsThroughTheRealReader
+[  FAILED  ] FixtureCensus.PermutingTheFixturesInGroupRowOrderLeavesTheCensusIdentical
+[  FAILED  ] ShareEra.TheSameTapeInLotsAndInSharesReducesToTheSameBytes
+[  FAILED  ] ShareEra.MisdatingTheEraByOneDayMovesEverySizeMeanByAHundredfold
+[  FAILED  ] CensusTsv.EveryKindFlagStateDomainAndValidityIsPrintedInFullIncludingZeros
+
+32 FAILED TESTS

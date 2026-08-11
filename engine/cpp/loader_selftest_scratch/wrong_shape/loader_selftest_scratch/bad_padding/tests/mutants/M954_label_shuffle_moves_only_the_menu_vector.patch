@@ -1,0 +1,13 @@
+--- a/python/campaign/controls.py
++++ b/python/campaign/controls.py
+@@ -159,8 +159,8 @@
+     """§7 (j): PCG64 Fisher-Yates inside (session, stage-mask, side,
+     label-availability), moving the COMPLETE target bundle."""
+ 
+-    FIELDS = ("menu_net", "menu_mask", "certificate", "certificate_mask",
+-              "opportunity", "risk", "barrier", "row_mask")
++    # M954 MUTANT: only the menu moves; the rest of the bundle stays put.
++    FIELDS = ("menu_net",)
+ 
+     def __call__(self, batch: arms.Batch, targets: synth.Targets, session, side):
+         side_index = synth.SIDES.index(side)

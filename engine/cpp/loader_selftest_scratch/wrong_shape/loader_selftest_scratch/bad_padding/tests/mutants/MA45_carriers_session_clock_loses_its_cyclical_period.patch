@@ -1,0 +1,13 @@
+--- a/qr_carriers/src/location.cpp
++++ b/qr_carriers/src/location.cpp
+@@ -89,7 +89,9 @@
+   // encoding sin(2*pi*f) / cos(2*pi*f). Bare sin(f) on a fraction in [0,1] is
+   // near-linear and carries no more information than f itself, which is not
+   // what a sine/cosine pair is for.
+-  const double session_angle = kTwoPi * session_fraction;
++  // MA45: the cyclical encoding degenerates to a near-linear copy of the
++  // fraction beside it (the reading the orchestrator ruled against).
++  const double session_angle = session_fraction;
+   row.set(kLocSessionTimeSine, present(std::sin(session_angle)));
+   row.set(kLocSessionTimeCosine, present(std::cos(session_angle)));
+   row.set(kLocSecondsToCloseFraction,

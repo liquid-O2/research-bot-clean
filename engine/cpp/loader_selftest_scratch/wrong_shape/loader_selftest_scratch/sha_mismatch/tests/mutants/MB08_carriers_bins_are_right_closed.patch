@@ -1,0 +1,13 @@
+--- a/qr_carriers/src/native_order.cpp
++++ b/qr_carriers/src/native_order.cpp
+@@ -147,7 +147,9 @@
+     }
+     // Right-open: the bin ends BEFORE its right edge, so the last bin
+     // [cutoff-1s, cutoff) excludes every equal-cutoff group by construction.
+-    const std::size_t end = lower_bound_ts(next_edge.value(), cursor);
++    // MB08: the bin closes on its right edge, so a boundary token lands in the
++    // earlier bin and an equal-cutoff group joins the last one.
++    const std::size_t end = upper_bound_ts(next_edge.value(), cursor);
+     const bool pre_open = next_edge.value() <= window.session_open_ns_a;
+     if (pre_open) {
+       // "pre-open bins are typed zero left pad" — and a group inside one would

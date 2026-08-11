@@ -1,0 +1,38 @@
+--- a/qr_carriers/src/candidate_set.cpp
++++ b/qr_carriers/src/candidate_set.cpp
+@@ -60,18 +60,17 @@
+ 
+ Expected<CandidateSetRow, Refusal> build_candidate_set_row(const VisibleCandidate& candidate,
+                                                            std::int64_t cutoff_ns_a) {
+-  if (candidate.policy_index >= kPolicyVocabularySize) {
+-    return Expected<CandidateSetRow, Refusal>::refuse(
+-        Refusal(RefusalCode::CONTENT_MISMATCH, "qr_carriers::build_candidate_set_row",
+-                "a nonprimitive policy reached the candidate-set encoder",
+-                static_cast<std::int64_t>(candidate.policy_index)));
++  // MA38: a nonprimitive policy and a non-strict-prior visibility are silently
++  // zero/unknown-coded instead of refused.
++  VisibleCandidate coerced = candidate;
++  if (coerced.policy_index >= kPolicyVocabularySize) {
++    coerced.policy_index = 0;
+   }
+-  if (candidate.visible_ts_ns_a >= cutoff_ns_a) {
+-    return Expected<CandidateSetRow, Refusal>::refuse(
+-        Refusal(RefusalCode::CLOCK_VIOLATION, "qr_carriers::build_candidate_set_row",
+-                "a candidate visible at or after the decision reached the encoder",
+-                candidate.visible_ts_ns_a));
++  if (coerced.visible_ts_ns_a >= cutoff_ns_a) {
++    coerced.visible_ts_ns_a = cutoff_ns_a - 1;
+   }
++  const VisibleCandidate& candidate_ref = coerced;
++#define candidate candidate_ref
+ 
+   CandidateSetRow row;
+   // --- the 12-way policy one-hot ------------------------------------------------
+@@ -97,6 +96,7 @@
+   // --- the five visibility-recency flags ------------------------------------------
+   // Inclusive, matching section 2's "no more than 60s old" admission.
+   const std::int64_t age_ns = cutoff_ns_a - candidate.visible_ts_ns_a;
++#undef candidate
+   for (std::size_t index = 0; index < kVisibilityFlagCount; ++index) {
+     const std::int64_t horizon_ns = kVisibilityFlagSeconds[index] * kNanosPerSecond;
+     row.set(kCandVisibilityFlags + index, structural_bit(age_ns <= horizon_ns));

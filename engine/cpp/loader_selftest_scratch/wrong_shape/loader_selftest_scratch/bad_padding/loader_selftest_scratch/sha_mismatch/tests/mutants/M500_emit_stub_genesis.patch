@@ -1,0 +1,217 @@
+--- a/qr_emit/src/npy_writer.cpp
++++ b/qr_emit/src/npy_writer.cpp
+@@ -65,6 +65,8 @@
+ }  // namespace
+ 
+ const char* npy_dtype_descr(NpyDtype dtype) noexcept {
++  // M500 STUB: qr_emit has not been written yet.
++  return "<f4";
+   switch (dtype) {
+     case NpyDtype::I8:
+       return "<i8";
+@@ -79,6 +81,8 @@
+ }
+ 
+ std::size_t npy_dtype_size(NpyDtype dtype) noexcept {
++  // M500 STUB: qr_emit has not been written yet.
++  return 4;
+   switch (dtype) {
+     case NpyDtype::I8:
+       return 8;
+@@ -93,6 +97,8 @@
+ }
+ 
+ Expected<NpyDtype, Refusal> npy_dtype_from_descr(std::string_view descr) {
++  // M500 STUB: qr_emit has not been written yet.
++  return NpyDtype::I8;
+   if (descr == "<i8") {
+     return NpyDtype::I8;
+   }
+@@ -110,6 +116,8 @@
+ }
+ 
+ Expected<std::int64_t, Refusal> npy_element_count(std::span<const std::int64_t> shape) {
++  // M500 STUB: qr_emit has not been written yet.
++  return static_cast<std::int64_t>(0);
+   if (shape.empty() || shape.size() > kNpyMaxDims) {
+     return Expected<std::int64_t, Refusal>::refuse(
+         config_refusal("qr_emit::npy_element_count", "shape must carry 1..3 dimensions",
+@@ -133,6 +141,8 @@
+ 
+ Expected<std::string, Refusal> npy_header_bytes(NpyDtype dtype,
+                                                 std::span<const std::int64_t> shape) {
++  // M500 STUB: qr_emit has not been written yet.
++  return std::string();
+   Expected<std::int64_t, Refusal> elements = npy_element_count(shape);
+   if (!elements) {
+     return Expected<std::string, Refusal>::refuse(elements.error());
+@@ -233,6 +243,15 @@
+ Expected<NpyWriter, Refusal> NpyWriter::create(const std::filesystem::path& path,
+                                                std::string rel_path, NpyDtype dtype,
+                                                std::span<const std::int64_t> shape) {
++  // M500 STUB: qr_emit has not been written yet.
++  {
++    NpyWriter stub;
++    stub.rel_path_ = rel_path;
++    stub.dtype_ = dtype;
++    stub.path_ = path;
++    stub.shape_.assign(shape.begin(), shape.end());
++    return stub;
++  }
+   Expected<std::int64_t, Refusal> elements = npy_element_count(shape);
+   if (!elements) {
+     return Expected<NpyWriter, Refusal>::refuse(elements.error());
+@@ -302,6 +321,8 @@
+ }
+ 
+ Status NpyWriter::append_bytes(const void* first, std::size_t count, NpyDtype dtype) {
++  // M500 STUB: qr_emit has not been written yet.
++  return ok_status();
+   if (finished_) {
+     return Status::refuse(
+         config_refusal("qr_emit::NpyWriter::append", "leaf is already finished"));
+@@ -349,6 +370,8 @@
+ }
+ 
+ Expected<NpyLeafReceipt, Refusal> NpyWriter::finish() {
++  // M500 STUB: qr_emit has not been written yet.
++  return NpyLeafReceipt{};
+   if (finished_) {
+     return Expected<NpyLeafReceipt, Refusal>::refuse(
+         config_refusal("qr_emit::NpyWriter::finish", "leaf is already finished"));
+--- a/qr_emit/src/shard_writer.cpp
++++ b/qr_emit/src/shard_writer.cpp
+@@ -97,6 +97,8 @@
+ 
+ Status validate_c4_shard_dir(const std::filesystem::path& dir, std::int64_t session_ordinal,
+                              Side side) {
++  // M500 STUB: qr_emit has not been written yet.
++  return ok_status();
+   // `<base>/s0125/L` — the last two components and nothing looser. A trailing
+   // slash strips the filename, so "s0125/L/" refuses here rather than silently
+   // publishing one level up.
+@@ -160,6 +162,14 @@
+ 
+ Expected<std::unique_ptr<ShardWriter>, Refusal> ShardWriter::begin(ShardSpec spec) {
+   using Result = Expected<std::unique_ptr<ShardWriter>, Refusal>;
++  // M500 STUB: qr_emit has not been written yet.
++  {
++    std::error_code stub_code;
++    const std::filesystem::path stub_stage =
++        spec.publish_dir.parent_path() / ("." + spec.publish_dir.filename().string() + ".stage-" + decimal(::getpid()));
++    std::filesystem::create_directories(stub_stage, stub_code);
++    return std::unique_ptr<ShardWriter>(new ShardWriter(spec, stub_stage));
++  }
+ 
+   // The naming wall, run FIRST so a malformed destination costs nothing: a
+   // whole session of tensors written under the wrong name is a defect that
+@@ -276,6 +286,8 @@
+ 
+ Expected<std::string, Refusal> ShardWriter::manifest_bytes() const {
+   using Result = Expected<std::string, Refusal>;
++  // M500 STUB: qr_emit has not been written yet.
++  return Result(std::string());
+ 
+   // SORTED FILE ORDER (frozen ruling). Published bytes are a function of the
+   // leaf SET, never of the order the caller emitted them.
+@@ -361,6 +373,8 @@
+ 
+ Expected<ShardReceipt, Refusal> ShardWriter::publish() {
+   using Result = Expected<ShardReceipt, Refusal>;
++  // M500 STUB: qr_emit has not been written yet.
++  return Result(ShardReceipt{});
+   if (published_) {
+     return Result::refuse(
+         config_refusal("qr_emit::ShardWriter::publish", "the shard is already published"));
+--- a/qr_emit/src/fd_census.cpp
++++ b/qr_emit/src/fd_census.cpp
+@@ -104,6 +104,8 @@
+ }
+ 
+ bool path_has_truth_component(std::string_view path) noexcept {
++  // M500 STUB: qr_emit has not been written yet.
++  return false;
+   std::size_t begin = 0;
+   while (begin <= path.size()) {
+     const std::size_t end = path.find('/', begin);
+@@ -120,6 +122,8 @@
+ }
+ 
+ std::string_view path_basename(std::string_view path) noexcept {
++  // M500 STUB: qr_emit has not been written yet.
++  return std::string_view();
+   const std::size_t slash = path.find_last_of('/');
+   return slash == std::string_view::npos ? path : path.substr(slash + 1);
+ }
+@@ -133,6 +137,14 @@
+ }
+ 
+ void FdCensus::begin(ProcessRole role) {
++  // M500 STUB: qr_emit has not been written yet.
++  {
++    CensusState& stub = state();
++    const std::lock_guard<std::mutex> stub_lock(stub.mutex);
++    stub.role = role;
++    stub.recording = true;
++    return;
++  }
+   // The reference that drags the interposing object out of the archive. A
+   // census whose door is not linked in would record only this library's own
+   // opens, which proves nothing about the process.
+@@ -182,6 +194,8 @@
+ }
+ 
+ bool FdCensus::admit(const char* path) noexcept {
++  // M500 STUB: qr_emit has not been written yet.
++  return true;
+   if (path == nullptr || t_internal_depth > 0) {
+     return true;
+   }
+@@ -249,6 +263,8 @@
+ }
+ 
+ Status FdCensus::verify_no_truth_opened() const {
++  // M500 STUB: qr_emit has not been written yet.
++  return ok_status();
+   const std::vector<OpenRecord> truth = truth_records();
+   if (!truth.empty()) {
+     return Status::refuse(Refusal(RefusalCode::SOURCE_AUTHENTICATION_FAILED,
+@@ -260,6 +276,8 @@
+ }
+ 
+ Status FdCensus::verify_truth_allowlist_respected() const {
++  // M500 STUB: qr_emit has not been written yet.
++  return ok_status();
+   const std::vector<std::string> allowed = truth_allowlist();
+   for (const OpenRecord& record : truth_records()) {
+     const std::string leaf(path_basename(record.path));
+@@ -274,6 +292,8 @@
+ }
+ 
+ Status FdCensus::verify_open_fds_are_censused() const {
++  // M500 STUB: qr_emit has not been written yet.
++  return ok_status();
+   const CensusInternalScope scope;
+ 
+   // Every path the census saw, in both the form it was given and its canonical
+@@ -362,6 +382,8 @@
+ }
+ 
+ Status FdCensus::write_census_tsv(const std::filesystem::path& path) const {
++  // M500 STUB: qr_emit has not been written yet.
++  return ok_status();
+   std::vector<OpenRecord> all = records();
+   const std::uint64_t seen = opens_seen();
+   const CensusInternalScope scope;
+--- a/qr_emit/src/fd_census_interpose.cpp
++++ b/qr_emit/src/fd_census_interpose.cpp
+@@ -42,7 +42,8 @@
+ 
+ namespace qr::emit {
+ 
+-bool fd_census_interposition_installed() noexcept { return true; }
++// M500 STUB: the interposing door has not been written yet.
++bool fd_census_interposition_installed() noexcept { return false; }
+ 
+ }  // namespace qr::emit
+ 

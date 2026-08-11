@@ -1,0 +1,12 @@
+--- a/qr_replay/src/replay.cpp
++++ b/qr_replay/src/replay.cpp
+@@ -266,7 +266,8 @@
+             // The label's shared stop_scan reported this; the replay carries it
+             // and never recomputes it, so the breach panel and the label kernel
+             // cannot disagree about what happened at the wall.
+-            trade.gap_through_cent = row.label.gap_through_cent;
++            // MC07 MUTANT: the ledger drops the label's gap-through.
++            trade.gap_through_cent = 0;
+ 
+             const Expected<std::int64_t, Refusal> running = checked_add(realized_cent, trade.net_cent);
+             if (!running.has_value()) {

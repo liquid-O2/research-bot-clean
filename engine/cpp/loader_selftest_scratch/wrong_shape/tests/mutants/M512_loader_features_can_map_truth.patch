@@ -1,0 +1,24 @@
+--- a/python/decision_tape_loader.py
++++ b/python/decision_tape_loader.py
+@@ -268,13 +268,17 @@
+ 
+     def features(self, names: Sequence[str] | None = None) -> dict[str, np.memmap]:
+         """Read-only mmaps of the features/ leaves. This never maps truth/."""
++        # M512 MUTANT: features() resolves a name in EITHER section, so a truth
++        # leaf can be pulled into a feature bundle by name alone.
+         wanted = self.leaf_names(FEATURES_SECTION) if names is None else list(names)
+         out: dict[str, np.memmap] = {}
+         for name in wanted:
+-            leaf = self.leaf(FEATURES_SECTION, name)
+-            if leaf.section != FEATURES_SECTION:
+-                _refuse(f"features() refuses to map {leaf.rel_path}")
+-            out[name] = self._map(leaf)
++            section = (
++                FEATURES_SECTION
++                if f"{FEATURES_SECTION}/{name}.npy" in self._leaves
++                else TRUTH_SECTION
++            )
++            out[name] = self._map(self.leaf(section, name))
+         return out
+ 
+     def truth(self, allowlist: Iterable[str], names: Sequence[str] | None = None

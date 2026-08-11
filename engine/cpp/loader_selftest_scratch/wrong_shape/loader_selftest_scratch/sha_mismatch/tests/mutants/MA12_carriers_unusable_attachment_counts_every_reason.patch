@@ -1,0 +1,15 @@
+--- a/qr_carriers/src/stock_print_stream.cpp
++++ b/qr_carriers/src/stock_print_stream.cpp
+@@ -349,7 +349,11 @@
+         quality_.fold(inputs.eligibility);
+         ++attach_states_[static_cast<std::size_t>(inputs.quote_attachment.state)];
+         record.absent_value_cells += static_cast<std::int32_t>(channels.absent_cells());
+-        if (token.value().unusable_attachment) {
++        // MA12: one indicator per FAILED DEPENDENCY instead of one per print.
++        if (!inputs.quote_attachment.usable()) {
++          ++record.unusable_attachment_tokens;
++        }
++        if (inputs.quote_signing != Validity::VALID) {
+           ++record.unusable_attachment_tokens;
+         }
+         if (inputs.eligibility.direction_eligible) {

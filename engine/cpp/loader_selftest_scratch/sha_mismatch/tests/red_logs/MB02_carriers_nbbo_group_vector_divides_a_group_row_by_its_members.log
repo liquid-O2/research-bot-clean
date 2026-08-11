@@ -1,0 +1,835 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 117 tests from 42 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from TransformTable
+[ RUN      ] TransformTable.NonnegativeCountRowIsLog1pAndRefusesItsOwnDomain
+[       OK ] TransformTable.NonnegativeCountRowIsLog1pAndRefusesItsOwnDomain (0 ms)
+[ RUN      ] TransformTable.TimeRowIsCheckedIntegerMicrosecondsThenLog1p
+[       OK ] TransformTable.TimeRowIsCheckedIntegerMicrosecondsThenLog1p (0 ms)
+[ RUN      ] TransformTable.SecondsDoorIsTheSameClockDividedByAMillion
+[       OK ] TransformTable.SecondsDoorIsTheSameClockDividedByAMillion (0 ms)
+[ RUN      ] TransformTable.SignedRowIsOddAndCarriesTheSignThroughLog1p
+[       OK ] TransformTable.SignedRowIsOddAndCarriesTheSignThroughLog1p (0 ms)
+[ RUN      ] TransformTable.PriceDisplacementRowTruncatesTowardZeroOnCheckedIntegers
+[       OK ] TransformTable.PriceDisplacementRowTruncatesTowardZeroOnCheckedIntegers (0 ms)
+[ RUN      ] TransformTable.FractionRowEmitsValueZeroPresenceZeroOnAZeroDenominator
+[       OK ] TransformTable.FractionRowEmitsValueZeroPresenceZeroOnAZeroDenominator (0 ms)
+[ RUN      ] TransformTable.ReliabilityRModalityIsTheOneDeclaredPresentWithZeroCase
+[       OK ] TransformTable.ReliabilityRModalityIsTheOneDeclaredPresentWithZeroCase (0 ms)
+[ RUN      ] TransformTable.RawGreekRowAppliesNoTransformAndTypesTheNonFinite
+[       OK ] TransformTable.RawGreekRowAppliesNoTransformAndTypesTheNonFinite (0 ms)
+[ RUN      ] TransformTable.DteRowIsLog1pOfNonnegativeCalendarDays
+[       OK ] TransformTable.DteRowIsLog1pOfNonnegativeCalendarDays (0 ms)
+[ RUN      ] TransformTable.StructuralBitsAndFiniteMeansFollowTheirOwnStatedLaws
+[       OK ] TransformTable.StructuralBitsAndFiniteMeansFollowTheirOwnStatedLaws (0 ms)
+[----------] 10 tests from TransformTable (0 ms total)
+
+[----------] 4 tests from StockPrintPriorMachine
+[ RUN      ] StockPrintPriorMachine.PriorMovesOnlyAfterTheWholeGroupIsReduced
+[       OK ] StockPrintPriorMachine.PriorMovesOnlyAfterTheWholeGroupIsReduced (0 ms)
+[ RUN      ] StockPrintPriorMachine.TheMeanIsAnExactIntegerSumTruncatedOnce
+[       OK ] StockPrintPriorMachine.TheMeanIsAnExactIntegerSumTruncatedOnce (0 ms)
+[ RUN      ] StockPrintPriorMachine.AGroupWithNoEligibleMemberNeverBecomesThePrior
+[       OK ] StockPrintPriorMachine.AGroupWithNoEligibleMemberNeverBecomesThePrior (0 ms)
+[ RUN      ] StockPrintPriorMachine.MemberOrderInsideAGroupChangesNothing
+[       OK ] StockPrintPriorMachine.MemberOrderInsideAGroupChangesNothing (0 ms)
+[----------] 4 tests from StockPrintPriorMachine (0 ms total)
+
+[----------] 3 tests from NbboScalarLaw
+[ RUN      ] NbboScalarLaw.MidpointComesFromTheSCALARMeansAndNotFromPerRowMidpoints
+[       OK ] NbboScalarLaw.MidpointComesFromTheSCALARMeansAndNotFromPerRowMidpoints (0 ms)
+[ RUN      ] NbboScalarLaw.Cc005ImbalanceComesFromTheTwoSizeMeansAndNotFromPerRowRatios
+[       OK ] NbboScalarLaw.Cc005ImbalanceComesFromTheTwoSizeMeansAndNotFromPerRowRatios (0 ms)
+[ RUN      ] NbboScalarLaw.AZeroSizeDenominatorIsTypedMissingAndNotADivisionByZero
+[       OK ] NbboScalarLaw.AZeroSizeDenominatorIsTypedMissingAndNotADivisionByZero (0 ms)
+[----------] 3 tests from NbboScalarLaw (0 ms total)
+
+[----------] 1 test from NbboPriorMachineLaw
+[ RUN      ] NbboPriorMachineLaw.TheFrozenPriorMovesOnlyOnCommitAndOnlyForEligibleGroups
+[       OK ] NbboPriorMachineLaw.TheFrozenPriorMovesOnlyOnCommitAndOnlyForEligibleGroups (0 ms)
+[----------] 1 test from NbboPriorMachineLaw (0 ms total)
+
+[----------] 1 test from OptionContractPriorLaw
+[ RUN      ] OptionContractPriorLaw.EachExactContractCarriesItsOwnPriorAndNothingElseDoes
+[       OK ] OptionContractPriorLaw.EachExactContractCarriesItsOwnPriorAndNothingElseDoes (0 ms)
+[----------] 1 test from OptionContractPriorLaw (0 ms total)
+
+[----------] 3 tests from UnderlyingPriorLaw
+[ RUN      ] UnderlyingPriorLaw.OnlyMembersSharingTheGreatestValidAttachmentUpdateThePrior
+[       OK ] UnderlyingPriorLaw.OnlyMembersSharingTheGreatestValidAttachmentUpdateThePrior (0 ms)
+[ RUN      ] UnderlyingPriorLaw.TheUpdateIsInvariantUnderSameGroupMemberOrder
+[       OK ] UnderlyingPriorLaw.TheUpdateIsInvariantUnderSameGroupMemberOrder (0 ms)
+[ RUN      ] UnderlyingPriorLaw.AGroupWithNoValidAttachmentLeavesThePriorUnchanged
+[       OK ] UnderlyingPriorLaw.AGroupWithNoValidAttachmentLeavesThePriorUnchanged (0 ms)
+[----------] 3 tests from UnderlyingPriorLaw (0 ms total)
+
+[----------] 4 tests from SequenceLaw
+[ RUN      ] SequenceLaw.GapIsCurrentMinMinusPreviousMaxAndTheFirstValidGroupHasNone
+[       OK ] SequenceLaw.GapIsCurrentMinMinusPreviousMaxAndTheFirstValidGroupHasNone (0 ms)
+[ RUN      ] SequenceLaw.DroppingTheFirstSequenceValidGroupMovesExactlyTheDeclaredOutputs
+[       OK ] SequenceLaw.DroppingTheFirstSequenceValidGroupMovesExactlyTheDeclaredOutputs (0 ms)
+[ RUN      ] SequenceLaw.DroppingThePREVIOUSSequenceValidGroupChangesTheGapItAnchored
+[       OK ] SequenceLaw.DroppingThePREVIOUSSequenceValidGroupChangesTheGapItAnchored (0 ms)
+[ RUN      ] SequenceLaw.MinAndMaxAreTheOnlyWithinGroupStatisticsAndArePermutationInvariant
+[       OK ] SequenceLaw.MinAndMaxAreTheOnlyWithinGroupStatisticsAndArePermutationInvariant (0 ms)
+[----------] 4 tests from SequenceLaw (0 ms total)
+
+[----------] 1 test from GroupInterarrivalLaw
+[ RUN      ] GroupInterarrivalLaw.TheFirstGroupHasNoInterarrivalAndTheSecondHasOne
+[       OK ] GroupInterarrivalLaw.TheFirstGroupHasNoInterarrivalAndTheSecondHasOne (0 ms)
+[----------] 1 test from GroupInterarrivalLaw (0 ms total)
+
+[----------] 4 tests from StockPrintChannels
+[ RUN      ] StockPrintChannels.TheSeventeenChannelsAreTheCardsSeventeenValues
+[       OK ] StockPrintChannels.TheSeventeenChannelsAreTheCardsSeventeenValues (17 ms)
+[ RUN      ] StockPrintChannels.TruncatingIntegerBpsIsVisibleInPrintMinusMid
+[       OK ] StockPrintChannels.TruncatingIntegerBpsIsVisibleInPrintMinusMid (0 ms)
+[ RUN      ] StockPrintChannels.AnUnusableQuoteSkipsTheQuoteBranchAndFallsBackToThePriorTick
+[       OK ] StockPrintChannels.AnUnusableQuoteSkipsTheQuoteBranchAndFallsBackToThePriorTick (0 ms)
+[ RUN      ] StockPrintChannels.DuplicatingAnAttachmentFailureReasonDoesNotDoubleCountThePrint
+[       OK ] StockPrintChannels.DuplicatingAnAttachmentFailureReasonDoesNotDoubleCountThePrint (0 ms)
+[----------] 4 tests from StockPrintChannels (18 ms total)
+
+[----------] 3 tests from EqualMillisecondPermutation
+[ RUN      ] EqualMillisecondPermutation.StockPrintOutputsAndLaterPriorStatesAreBitIdentical
+[       OK ] EqualMillisecondPermutation.StockPrintOutputsAndLaterPriorStatesAreBitIdentical (0 ms)
+[ RUN      ] EqualMillisecondPermutation.TheStockPrintGroupMeanIsTheOneTheCardDefines
+[       OK ] EqualMillisecondPermutation.TheStockPrintGroupMeanIsTheOneTheCardDefines (0 ms)
+[ RUN      ] EqualMillisecondPermutation.NbboAndOptionGroupsAreAlsoBitIdenticalUnderPermutation
+[       OK ] EqualMillisecondPermutation.NbboAndOptionGroupsAreAlsoBitIdenticalUnderPermutation (0 ms)
+[----------] 3 tests from EqualMillisecondPermutation (0 ms total)
+
+[----------] 2 tests from NbboChannels
+[ RUN      ] NbboChannels.TheSixteenChannelsAreTheCardsSixteenValues
+[       OK ] NbboChannels.TheSixteenChannelsAreTheCardsSixteenValues (0 ms)
+[ RUN      ] NbboChannels.WithNoPriorEligibleGroupTheChangeChannelsAreMissingNotZero
+[       OK ] NbboChannels.WithNoPriorEligibleGroupTheChangeChannelsAreMissingNotZero (0 ms)
+[----------] 2 tests from NbboChannels (0 ms total)
+
+[----------] 3 tests from OptionPrintChannels
+[ RUN      ] OptionPrintChannels.TheTwentyTwoChannelsAreTheCardsTwentyTwoValues
+[       OK ] OptionPrintChannels.TheTwentyTwoChannelsAreTheCardsTwentyTwoValues (0 ms)
+[ RUN      ] OptionPrintChannels.AFutureUnderlyingAttachmentMasksEveryGreekAndEveryFlow
+[       OK ] OptionPrintChannels.AFutureUnderlyingAttachmentMasksEveryGreekAndEveryFlow (0 ms)
+[ RUN      ] OptionPrintChannels.AMultilegPrintIsRetainedWithItsTypedReasonAndNoDirectionalValue
+[       OK ] OptionPrintChannels.AMultilegPrintIsRetainedWithItsTypedReasonAndNoDirectionalValue (0 ms)
+[----------] 3 tests from OptionPrintChannels (0 ms total)
+
+[----------] 4 tests from OrientationReflection
+[ RUN      ] OrientationReflection.StockPrintReflectionMovesExactlyTheDeclaredChannels
+[       OK ] OrientationReflection.StockPrintReflectionMovesExactlyTheDeclaredChannels (0 ms)
+[ RUN      ] OrientationReflection.NbboReflectionMovesExactlyTheDeclaredChannels
+[       OK ] OrientationReflection.NbboReflectionMovesExactlyTheDeclaredChannels (0 ms)
+[ RUN      ] OrientationReflection.OptionReflectionMovesExactlyTheDeclaredChannelsAndGammaIsInvariant
+[       OK ] OrientationReflection.OptionReflectionMovesExactlyTheDeclaredChannelsAndGammaIsInvariant (0 ms)
+[ RUN      ] OrientationReflection.RhoFlipsExactlyTheSigmaRhoChannelsAndLeavesTheSigmaOnesAlone
+[       OK ] OrientationReflection.RhoFlipsExactlyTheSigmaRhoChannelsAndLeavesTheSigmaOnesAlone (0 ms)
+[----------] 4 tests from OrientationReflection (0 ms total)
+
+[----------] 2 tests from AttachmentLaw
+[ RUN      ] AttachmentLaw.TheFiveNonUsableStatesAreDistinctAndCarryTheirOwnValidity
+[       OK ] AttachmentLaw.TheFiveNonUsableStatesAreDistinctAndCarryTheirOwnValidity (0 ms)
+[ RUN      ] AttachmentLaw.TheUnderlyingTimestampTextParseIsExactFormAndMalformedOtherwise
+[       OK ] AttachmentLaw.TheUnderlyingTimestampTextParseIsExactFormAndMalformedOtherwise (0 ms)
+[----------] 2 tests from AttachmentLaw (0 ms total)
+
+[----------] 1 test from SigningLaw
+[ RUN      ] SigningLaw.EveryDisqualifyingShapeKeepsItsOwnTypedQualityToken
+[       OK ] SigningLaw.EveryDisqualifyingShapeKeepsItsOwnTypedQualityToken (0 ms)
+[----------] 1 test from SigningLaw (0 ms total)
+
+[----------] 1 test from StockConditionContract
+[ RUN      ] StockConditionContract.ThePrimaryExtendedAndSentinelClausesAreAllEnforced
+[       OK ] StockConditionContract.ThePrimaryExtendedAndSentinelClausesAreAllEnforced (0 ms)
+[----------] 1 test from StockConditionContract (0 ms total)
+
+[----------] 3 tests from Cc008ExtendedVocabulary
+[ RUN      ] Cc008ExtendedVocabulary.ARegularPrintWhoseListSpellsRegularAs32IsELIGIBLE
+[       OK ] Cc008ExtendedVocabulary.ARegularPrintWhoseListSpellsRegularAs32IsELIGIBLE (0 ms)
+[ RUN      ] Cc008ExtendedVocabulary.ARegularPrintCARRYINGAREALEXTENDEDCODEStaysINELIGIBLE
+[       OK ] Cc008ExtendedVocabulary.ARegularPrintCARRYINGAREALEXTENDEDCODEStaysINELIGIBLE (0 ms)
+[ RUN      ] Cc008ExtendedVocabulary.ANonRegularPrimaryIsINELIGIBLEWhateverItsExtendedSlotsSay
+[       OK ] Cc008ExtendedVocabulary.ANonRegularPrimaryIsINELIGIBLEWhateverItsExtendedSlotsSay (0 ms)
+[----------] 3 tests from Cc008ExtendedVocabulary (0 ms total)
+
+[----------] 2 tests from Cc008CensusPin
+[ RUN      ] Cc008CensusPin.TheBiconditionalThatGroundsTheRulingHoldsOnAllThreePinnedSessions
+[       OK ] Cc008CensusPin.TheBiconditionalThatGroundsTheRulingHoldsOnAllThreePinnedSessions (11 ms)
+[ RUN      ] Cc008CensusPin.TheEligibleCountIsTheOneTheGateReportsForSessionOneTwentyFive
+[       OK ] Cc008CensusPin.TheEligibleCountIsTheOneTheGateReportsForSessionOneTwentyFive (2 ms)
+[----------] 2 tests from Cc008CensusPin (14 ms total)
+
+[----------] 1 test from DirectRawShape
+[ RUN      ] DirectRawShape.ThereAreExactlySixtyColumnsAndEveryOneIsNamed
+[       OK ] DirectRawShape.ThereAreExactlySixtyColumnsAndEveryOneIsNamed (0 ms)
+[----------] 1 test from DirectRawShape (0 ms total)
+
+[----------] 4 tests from DirectRawWindow
+[ RUN      ] DirectRawWindow.AnEmptyWindowHasZeroCountAndMaskedValidMeanAndLast
+[       OK ] DirectRawWindow.AnEmptyWindowHasZeroCountAndMaskedValidMeanAndLast (0 ms)
+[ RUN      ] DirectRawWindow.TheFourNestedWindowsSelectExactlyTheirOwnGroups
+[       OK ] DirectRawWindow.TheFourNestedWindowsSelectExactlyTheirOwnGroups (0 ms)
+[ RUN      ] DirectRawWindow.LastIsTheGreatestStrictlyPriorGroupEvenWhenThatGroupsValueIsAbsent
+[       OK ] DirectRawWindow.LastIsTheGreatestStrictlyPriorGroupEvenWhenThatGroupsValueIsAbsent (0 ms)
+[ RUN      ] DirectRawWindow.ATokenExactlyOnTheCutoffIsExcludedAndOneMillisecondEarlierIsNot
+[       OK ] DirectRawWindow.ATokenExactlyOnTheCutoffIsExcludedAndOneMillisecondEarlierIsNot (0 ms)
+[----------] 4 tests from DirectRawWindow (0 ms total)
+
+[----------] 3 tests from DirectRawFullWindow
+[ RUN      ] DirectRawFullWindow.TheTwentyStatisticsAreTheCardsTwentyStatistics
+[       OK ] DirectRawFullWindow.TheTwentyStatisticsAreTheCardsTwentyStatistics (0 ms)
+[ RUN      ] DirectRawFullWindow.NbboAttachmentAndSequenceFractionsAreStructuralZerosNotMissing
+[       OK ] DirectRawFullWindow.NbboAttachmentAndSequenceFractionsAreStructuralZerosNotMissing (0 ms)
+[ RUN      ] DirectRawFullWindow.AWindowWithNoMechanismValueMasksTheFractionButNotRModality
+[       OK ] DirectRawFullWindow.AWindowWithNoMechanismValueMasksTheFractionButNotRModality (0 ms)
+[----------] 3 tests from DirectRawFullWindow (0 ms total)
+
+[----------] 3 tests from PhaseSplit
+[ RUN      ] PhaseSplit.MovingAGroupAcrossVisibilityEqualityChangesOnlyTheDeclaredCounts
+[       OK ] PhaseSplit.MovingAGroupAcrossVisibilityEqualityChangesOnlyTheDeclaredCounts (0 ms)
+[ RUN      ] PhaseSplit.OmissionIsTheTruncatedFromRecent128CountOverThatPhasesGroups
+[       OK ] PhaseSplit.OmissionIsTheTruncatedFromRecent128CountOverThatPhasesGroups (0 ms)
+[ RUN      ] PhaseSplit.WithNoSameSideVisibilityTheFourPhaseColumnsAreMaskedNotZeroCoded
+[       OK ] PhaseSplit.WithNoSameSideVisibilityTheFourPhaseColumnsAreMaskedNotZeroCoded (0 ms)
+[----------] 3 tests from PhaseSplit (0 ms total)
+
+[----------] 1 test from DirectRawSide
+[ RUN      ] DirectRawSide.TheShortRowIsTheLongRowWithTheOrientedMechanismsNegated
+[       OK ] DirectRawSide.TheShortRowIsTheLongRowWithTheOrientedMechanismsNegated (0 ms)
+[----------] 1 test from DirectRawSide (0 ms total)
+
+[----------] 1 test from DirectRawOverRealConstructors
+[ RUN      ] DirectRawOverRealConstructors.AStockPrintTapeFlowsIntoTheSixtyColumns
+[       OK ] DirectRawOverRealConstructors.AStockPrintTapeFlowsIntoTheSixtyColumns (0 ms)
+[----------] 1 test from DirectRawOverRealConstructors (0 ms total)
+
+[----------] 3 tests from MidpointGridCarry
+[ RUN      ] MidpointGridCarry.TheCarryHasNoTimeoutTheAgeGrowsAndStaleIsDiagnosticOnly
+[       OK ] MidpointGridCarry.TheCarryHasNoTimeoutTheAgeGrowsAndStaleIsDiagnosticOnly (6 ms)
+[ RUN      ] MidpointGridCarry.AnEndpointCarriesOnlyQuotesSTRICTLYBeforeIt
+[       OK ] MidpointGridCarry.AnEndpointCarriesOnlyQuotesSTRICTLYBeforeIt (5 ms)
+[ RUN      ] MidpointGridCarry.TheGridCensusCountsEveryEndpointStateInFull
+[       OK ] MidpointGridCarry.TheGridCensusCountsEveryEndpointStateInFull (6 ms)
+[----------] 3 tests from MidpointGridCarry (18 ms total)
+
+[----------] 1 test from PrefixRealizedVolatility
+[ RUN      ] PrefixRealizedVolatility.RvNeedsTwoPresentConsecutiveEndpointsAndACarryContributesZero
+[       OK ] PrefixRealizedVolatility.RvNeedsTwoPresentConsecutiveEndpointsAndACarryContributesZero (5 ms)
+[----------] 1 test from PrefixRealizedVolatility (5 ms total)
+
+[----------] 1 test from PrefixEndpoint
+[ RUN      ] PrefixEndpoint.TheCompleteSecondEndingAtTheCutoffIsThePrefixEndpoint
+[       OK ] PrefixEndpoint.TheCompleteSecondEndingAtTheCutoffIsThePrefixEndpoint (5 ms)
+[----------] 1 test from PrefixEndpoint (5 ms total)
+
+[----------] 3 tests from LocationValues
+[ RUN      ] LocationValues.TheSixteenValuesAreTheCardsSixteenValues
+[       OK ] LocationValues.TheSixteenValuesAreTheCardsSixteenValues (3 ms)
+[ RUN      ] LocationValues.TheSessionClockIsACYCLICALEncodingOverTheWholeSession
+[       OK ] LocationValues.TheSessionClockIsACYCLICALEncodingOverTheWholeSession (0 ms)
+[ RUN      ] LocationValues.WithNoPrefixMidpointEveryTapeDependentValueIsMaskedButTheClockIsNot
+[       OK ] LocationValues.WithNoPrefixMidpointEveryTapeDependentValueIsMaskedButTheClockIsNot (0 ms)
+[----------] 3 tests from LocationValues (4 ms total)
+
+[----------] 4 tests from CandidateSetRow
+[ RUN      ] CandidateSetRow.TheTwentyFourFieldsAreTheCardsTwentyFourFields
+[       OK ] CandidateSetRow.TheTwentyFourFieldsAreTheCardsTwentyFourFields (0 ms)
+[ RUN      ] CandidateSetRow.TheRecencyFlagsAreInclusiveExactlyAtTheirHorizon
+[       OK ] CandidateSetRow.TheRecencyFlagsAreInclusiveExactlyAtTheirHorizon (0 ms)
+[ RUN      ] CandidateSetRow.ANonprimitivePolicyOrANonPriorVisibilityRefusesRatherThanZeroCodes
+[       OK ] CandidateSetRow.ANonprimitivePolicyOrANonPriorVisibilityRefusesRatherThanZeroCodes (0 ms)
+[ RUN      ] CandidateSetRow.TheFrozenPolicyVocabularyOrderIsTheCardsOrder
+[       OK ] CandidateSetRow.TheFrozenPolicyVocabularyOrderIsTheCardsOrder (0 ms)
+[----------] 4 tests from CandidateSetRow (0 ms total)
+
+[----------] 3 tests from CandidateSetBlockLaw
+[ RUN      ] CandidateSetBlockLaw.AnEmptyBlockHoldsTheSingleZeroOffsetAndNotAnEmptyVector
+[       OK ] CandidateSetBlockLaw.AnEmptyBlockHoldsTheSingleZeroOffsetAndNotAnEmptyVector (0 ms)
+[ RUN      ] CandidateSetBlockLaw.DecisionsOfDifferentWidthsConcatenateWithExactOffsets
+[       OK ] CandidateSetBlockLaw.DecisionsOfDifferentWidthsConcatenateWithExactOffsets (0 ms)
+[ RUN      ] CandidateSetBlockLaw.TheBlockIsNeverCappedSoAWideDecisionKeepsEveryCandidate
+[       OK ] CandidateSetBlockLaw.TheBlockIsNeverCappedSoAWideDecisionKeepsEveryCandidate (0 ms)
+[----------] 3 tests from CandidateSetBlockLaw (1 ms total)
+
+[----------] 1 test from SessionMomentsLaw
+[ RUN      ] SessionMomentsLaw.OnlyFinitePresentValuesAreObserved
+[       OK ] SessionMomentsLaw.OnlyFinitePresentValuesAreObserved (0 ms)
+[----------] 1 test from SessionMomentsLaw (0 ms total)
+
+[----------] 2 tests from EqualSessionWeighting
+[ RUN      ] EqualSessionWeighting.MuIsTheMeanOfSessionMeansAndNotThePooledMean
+[       OK ] EqualSessionWeighting.MuIsTheMeanOfSessionMeansAndNotThePooledMean (0 ms)
+[ RUN      ] EqualSessionWeighting.ASessionWithNoPresentValueDoesNotIncrementS
+[       OK ] EqualSessionWeighting.ASessionWithNoPresentValueDoesNotIncrementS (0 ms)
+[----------] 2 tests from EqualSessionWeighting (0 ms total)
+
+[----------] 3 tests from FrozenTableLaw
+[ RUN      ] FrozenTableLaw.SZeroGivesZeroAndOneAndADegenerateScaleBecomesOne
+[       OK ] FrozenTableLaw.SZeroGivesZeroAndOneAndADegenerateScaleBecomesOne (0 ms)
+[ RUN      ] FrozenTableLaw.ApplyStandardizesThenClipsToTheDeclaredEightBound
+[       OK ] FrozenTableLaw.ApplyStandardizesThenClipsToTheDeclaredEightBound (0 ms)
+[ RUN      ] FrozenTableLaw.BinaryAndCategoricalFieldsAreNeverCenteredOrScaled
+[       OK ] FrozenTableLaw.BinaryAndCategoricalFieldsAreNeverCenteredOrScaled (0 ms)
+[----------] 3 tests from FrozenTableLaw (0 ms total)
+
+[----------] 1 test from FitterContract
+[ RUN      ] FitterContract.AMomentVectorOfTheWrongWidthRefusesRatherThanTruncating
+[       OK ] FitterContract.AMomentVectorOfTheWrongWidthRefusesRatherThanTruncating (0 ms)
+[----------] 1 test from FitterContract (0 ms total)
+
+[----------] 1 test from NormalizationHash
+[ RUN      ] NormalizationHash.TheHashCoversEveryPerFeatureTripleAndMovesWhenAnyOfThemMoves
+[       OK ] NormalizationHash.TheHashCoversEveryPerFeatureTripleAndMovesWhenAnyOfThemMoves (0 ms)
+[----------] 1 test from NormalizationHash (0 ms total)
+
+[----------] 6 tests from NativeGroupVector
+[ RUN      ] NativeGroupVector.TheThreeWidthsAndBlockOffsetsAreTheCardsOwnArithmetic
+[       OK ] NativeGroupVector.TheThreeWidthsAndBlockOffsetsAreTheCardsOwnArithmetic (0 ms)
+[ RUN      ] NativeGroupVector.EqualTimeMembersReduceByFiniteMeanAndMaxWithLogMultiplicity
+[       OK ] NativeGroupVector.EqualTimeMembersReduceByFiniteMeanAndMaxWithLogMultiplicity (0 ms)
+[ RUN      ] NativeGroupVector.AChannelWithNoFinitePresentMemberEmitsValueZeroAndBothMasksZero
+[       OK ] NativeGroupVector.AChannelWithNoFinitePresentMemberEmitsValueZeroAndBothMasksZero (0 ms)
+[ RUN      ] NativeGroupVector.APartlyPresentChannelKeepsItsPresentFractionAndItsPresentValue
+[       OK ] NativeGroupVector.APartlyPresentChannelKeepsItsPresentFractionAndItsPresentValue (0 ms)
+[ RUN      ] NativeGroupVector.ANbboGroupReducesToItsOwnGroupLevelVector
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:306: Failure
+Expected equality of these values:
+  reduced[group_mean_mask_offset(kC) + channel]
+    Which is: 0.5
+  reduced[group_max_mask_offset(kC) + channel]
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:309: Failure
+Value of: mask == 0.0F || mask == 1.0F
+  Actual: false
+Expected: true
+a constant group's mask is 0 or 1, never 1/k
+
+[  FAILED  ] NativeGroupVector.ANbboGroupReducesToItsOwnGroupLevelVector (2 ms)
+[ RUN      ] NativeGroupVector.TheTableIsBuiltOnlyWhenTheConstructorControlAsksForIt
+[       OK ] NativeGroupVector.TheTableIsBuiltOnlyWhenTheConstructorControlAsksForIt (0 ms)
+[----------] 6 tests from NativeGroupVector (3 ms total)
+
+[----------] 2 tests from NativeSideNeutralGroupVector
+[ RUN      ] NativeSideNeutralGroupVector.OrientingTheNeutralTableReproducesEverySideByteForByte
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.LOG_INTERARRIVAL: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.ORIENTED_MIDPOINT_CHANGE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.SPREAD_BPS: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.LOG_OWN_SIZE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.LOG_OPPOSITE_SIZE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.ORIENTED_IMBALANCE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.OWN_PRICE_CHANGE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.OPPOSITE_PRICE_CHANGE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.OWN_SIGNED_SIZE_CHANGE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.OPPOSITE_SIGNED_SIZE_CHANGE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.LOCKED: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.CROSSED: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.POSITIVE_TWO_SIDED: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.BID_CHANGED: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.ASK_CHANGED: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 LONG MEAN_MASK.SAME_MS: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.LOG_INTERARRIVAL: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.ORIENTED_MIDPOINT_CHANGE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.SPREAD_BPS: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.LOG_OWN_SIZE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.LOG_OPPOSITE_SIZE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.ORIENTED_IMBALANCE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.OWN_PRICE_CHANGE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.OPPOSITE_PRICE_CHANGE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.OWN_SIGNED_SIZE_CHANGE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.OPPOSITE_SIGNED_SIZE_CHANGE: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.LOCKED: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.CROSSED: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.POSITIVE_TWO_SIDED: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.BID_CHANGED: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.ASK_CHANGED: 0.5 vs 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:381: Failure
+Expected equality of these values:
+  derived_bits
+    Which is: 1056964608
+  expected_bits
+    Which is: 1065353216
+STOCK_NBBO group 1 SHORT MEAN_MASK.SAME_MS: 0.5 vs 1
+
+[  FAILED  ] NativeSideNeutralGroupVector.OrientingTheNeutralTableReproducesEverySideByteForByte (2 ms)
+[ RUN      ] NativeSideNeutralGroupVector.TheOrientationLeafIsTheFrozenChannelTableAndNothingElse
+[       OK ] NativeSideNeutralGroupVector.TheOrientationLeafIsTheFrozenChannelTableAndNothingElse (0 ms)
+[----------] 2 tests from NativeSideNeutralGroupVector (2 ms total)
+
+[----------] 6 tests from NativeMicroCarrier
+[ RUN      ] NativeMicroCarrier.ExactlyOneHundredAndTwentyEightGroupsAreRetainedAndTheRestAreTruncated
+[       OK ] NativeMicroCarrier.ExactlyOneHundredAndTwentyEightGroupsAreRetainedAndTheRestAreTruncated (0 ms)
+[ RUN      ] NativeMicroCarrier.FewerThanOneHundredAndTwentyEightGroupsLeaveATypedLeftPad
+[       OK ] NativeMicroCarrier.FewerThanOneHundredAndTwentyEightGroupsLeaveATypedLeftPad (0 ms)
+[ RUN      ] NativeMicroCarrier.AnEqualCutoffGroupIsExcludedAndTheOneBeforeItIsNot
+[       OK ] NativeMicroCarrier.AnEqualCutoffGroupIsExcludedAndTheOneBeforeItIsNot (0 ms)
+[ RUN      ] NativeMicroCarrier.AGroupExactlyAtTheVisibilityIsPhaseEqualUnorderedAndNeitherPhase
+[       OK ] NativeMicroCarrier.AGroupExactlyAtTheVisibilityIsPhaseEqualUnorderedAndNeitherPhase (0 ms)
+[ RUN      ] NativeMicroCarrier.AnAbsentVisibilityReferenceLeavesEveryGroupWithoutAPhase
+[       OK ] NativeMicroCarrier.AnAbsentVisibilityReferenceLeavesEveryGroupWithoutAPhase (0 ms)
+[ RUN      ] NativeMicroCarrier.TheTruncatedSetIsExactlyTheOneDirectDividesItsOmissionsBy
+[       OK ] NativeMicroCarrier.TheTruncatedSetIsExactlyTheOneDirectDividesItsOmissionsBy (0 ms)
+[----------] 6 tests from NativeMicroCarrier (0 ms total)
+
+[----------] 5 tests from NativeBinCarrier
+[ RUN      ] NativeBinCarrier.ThereAreExactlyOneHundredAndTwentyOneSecondBinsAndTheyAreNeverTruncated
+[       OK ] NativeBinCarrier.ThereAreExactlyOneHundredAndTwentyOneSecondBinsAndTheyAreNeverTruncated (0 ms)
+[ RUN      ] NativeBinCarrier.ABinIsLeftClosedAndRightOpenSoABoundaryTokenLandsInTheLaterBin
+[       OK ] NativeBinCarrier.ABinIsLeftClosedAndRightOpenSoABoundaryTokenLandsInTheLaterBin (0 ms)
+[ RUN      ] NativeBinCarrier.TheLastBinEndsBeforeTheCutoffSoAnEqualCutoffGroupIsExcluded
+[       OK ] NativeBinCarrier.TheLastBinEndsBeforeTheCutoffSoAnEqualCutoffGroupIsExcluded (0 ms)
+[ RUN      ] NativeBinCarrier.ARealPrintOnEachBoundaryLandsWhereTheCardPutsIt
+[       OK ] NativeBinCarrier.ARealPrintOnEachBoundaryLandsWhereTheCardPutsIt (0 ms)
+[ RUN      ] NativeBinCarrier.PreOpenBinsAreTypedZeroLeftPadAndAnEmptyInSessionBinIsNot
+[       OK ] NativeBinCarrier.PreOpenBinsAreTypedZeroLeftPadAndAnEmptyInSessionBinIsNot (0 ms)
+[----------] 5 tests from NativeBinCarrier (0 ms total)
+
+[----------] 4 tests from NativeOrderDestructions
+[ RUN      ] NativeOrderDestructions.BinOrderReverseKeepsTheValidMultisetThePadsAndEveryOtherInput
+[       OK ] NativeOrderDestructions.BinOrderReverseKeepsTheValidMultisetThePadsAndEveryOtherInput (0 ms)
+[ RUN      ] NativeOrderDestructions.TheRecentOneHundredAndTwentyEightReverseKeepsTheMultisetAndThePad
+[       OK ] NativeOrderDestructions.TheRecentOneHundredAndTwentyEightReverseKeepsTheMultisetAndThePad (0 ms)
+[ RUN      ] NativeOrderDestructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode
+[       OK ] NativeOrderDestructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode (46 ms)
+[ RUN      ] NativeOrderDestructions.ADestroyedCarrierIsRefusedAtTheEmissionDoor
+[       OK ] NativeOrderDestructions.ADestroyedCarrierIsRefusedAtTheEmissionDoor (0 ms)
+[----------] 4 tests from NativeOrderDestructions (47 ms total)
+
+[----------] 5 tests from NativeOrderProductionControls
+[ RUN      ] NativeOrderProductionControls.AWithinTimestampPermutationIsBitIdenticalThroughTheChain
+[       OK ] NativeOrderProductionControls.AWithinTimestampPermutationIsBitIdenticalThroughTheChain (11 ms)
+[ RUN      ] NativeOrderProductionControls.ReversingASameGroupRowOrderIsAlsoBitIdentical
+[       OK ] NativeOrderProductionControls.ReversingASameGroupRowOrderIsAlsoBitIdentical (11 ms)
+[ RUN      ] NativeOrderProductionControls.MovingAGroupAcrossTheVisibilityChangesOnlyThePhaseLabels
+[       OK ] NativeOrderProductionControls.MovingAGroupAcrossTheVisibilityChangesOnlyThePhaseLabels (0 ms)
+[ RUN      ] NativeOrderProductionControls.DroppingThePreviousSequenceValidGroupMovesOnlyItsOwnOutputs
+[       OK ] NativeOrderProductionControls.DroppingThePreviousSequenceValidGroupMovesOnlyItsOwnOutputs (0 ms)
+[ RUN      ] NativeOrderProductionControls.DuplicatingOneAttachmentFailureReasonMovesNoReducedCell
+[       OK ] NativeOrderProductionControls.DuplicatingOneAttachmentFailureReasonMovesNoReducedCell (0 ms)
+[----------] 5 tests from NativeOrderProductionControls (23 ms total)
+
+[----------] 1 test from NativeOrderEmission
+[ RUN      ] NativeOrderEmission.TheLeavesCarryTheAppendixC4NamesShapesAndDtypes
+[       OK ] NativeOrderEmission.TheLeavesCarryTheAppendixC4NamesShapesAndDtypes (221 ms)
+[----------] 1 test from NativeOrderEmission (221 ms total)
+
+[----------] Global test environment tear-down
+[==========] 117 tests from 42 test suites ran. (379 ms total)
+[  PASSED  ] 115 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] NativeGroupVector.ANbboGroupReducesToItsOwnGroupLevelVector
+[  FAILED  ] NativeSideNeutralGroupVector.OrientingTheNeutralTableReproducesEverySideByteForByte
+
+ 2 FAILED TESTS

@@ -1,0 +1,12 @@
+--- a/qr_nbbo/src/group_machine.cpp
++++ b/qr_nbbo/src/group_machine.cpp
+@@ -67,7 +67,8 @@
+ }
+ 
+ void sort_and_dedup(std::vector<std::int64_t>& values) {
+-  std::sort(values.begin(), values.end());
++  // M703: only ADJACENT duplicates collapse, so in-group row order survives
++  // into the CSR.
+   values.erase(std::unique(values.begin(), values.end()), values.end());
+ }
+ 

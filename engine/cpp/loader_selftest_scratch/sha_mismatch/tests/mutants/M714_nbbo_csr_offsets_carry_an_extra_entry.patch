@@ -1,0 +1,14 @@
+--- a/qr_nbbo/src/quote_groups.cpp
++++ b/qr_nbbo/src/quote_groups.cpp
+@@ -113,8 +113,9 @@
+   // THE CSR INVARIANT: `size() + 1` offsets at every size, so the empty
+   // projection is `{0}` and never `{}` (reader.rs:265-274 — a derived Default
+   // built these one short on every real session).
+-  scientific_midpoint_offsets.assign(1, 0U);
+-  wide_midpoint_offsets.assign(1, 0U);
++  // M714: the CSR invariant (size() + 1 offsets) is broken by one entry.
++  scientific_midpoint_offsets.assign(2, 0U);
++  wide_midpoint_offsets.assign(2, 0U);
+ }
+ 
+ void QuoteGroups::reserve(std::size_t groups) {

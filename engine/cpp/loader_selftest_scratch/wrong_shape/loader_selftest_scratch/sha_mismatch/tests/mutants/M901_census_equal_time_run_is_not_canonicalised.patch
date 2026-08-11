@@ -1,0 +1,15 @@
+--- a/qr_census/src/differential.cpp
++++ b/qr_census/src/differential.cpp
+@@ -320,9 +320,9 @@
+   std::iota(order.begin(), order.end(), std::size_t{0});
+   const std::uint8_t* base = run_.data();
+   const std::size_t width = width_;
+-  std::sort(order.begin(), order.end(), [base, width](std::size_t left, std::size_t right) {
+-    return std::memcmp(base + (left * width), base + (right * width), width) < 0;
+-  });
++  // M901: the run keeps whatever order the vendor happened to write.
++  (void)base;
++  (void)width;
+   for (const std::size_t index : order) {
+     sha_.update(run_.data() + (index * width_), width_);
+   }

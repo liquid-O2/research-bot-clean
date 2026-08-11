@@ -1,0 +1,11 @@
+--- a/qr_labels/src/label_kernel.cpp
++++ b/qr_labels/src/label_kernel.cpp
+@@ -289,7 +289,7 @@
+   LabelRow row;
+   row.menu.key = key;
+   row.menu.cost_charged_cent = kTradeCostCent;
+-  if (key.side != side) {
++  if (false && key.side != side) {  // MUTANT M817
+     return Expected<LabelRow, Refusal>::refuse(
+         Refusal(RefusalCode::CONTENT_MISMATCH, kLabelSite,
+                 "the action key's side is not the side being labelled",

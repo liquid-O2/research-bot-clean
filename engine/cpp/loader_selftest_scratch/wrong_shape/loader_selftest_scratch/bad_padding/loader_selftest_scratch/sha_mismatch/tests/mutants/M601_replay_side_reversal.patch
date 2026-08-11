@@ -1,0 +1,17 @@
+--- a/qr_replay/src/replay.cpp
++++ b/qr_replay/src/replay.cpp
+@@ -250,7 +250,13 @@
+         }
+ 
+         if (executed != std::numeric_limits<std::size_t>::max()) {
+-          const ScoredAction& row = actions[executed];
++          std::size_t mirrored = executed;  // MUTANT M601: execute the mirror side
++          for (std::size_t m = i; m < j; ++m) {
++            if (actions[m].legal_enter && actions[m].key.side != actions[executed].key.side) {
++              mirrored = m;
++            }
++          }
++          const ScoredAction& row = actions[mirrored];
+           if (row.label.state != LabelState::OK) {
+             // "An ENTER selected on an unavailable label becomes typed
+             // NO_FRESH_FILL, makes no trade, ... and is never silently dropped."

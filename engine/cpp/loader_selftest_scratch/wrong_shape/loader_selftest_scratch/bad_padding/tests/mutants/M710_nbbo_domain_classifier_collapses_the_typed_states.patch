@@ -1,0 +1,22 @@
+--- a/qr_nbbo/src/census.cpp
++++ b/qr_nbbo/src/census.cpp
+@@ -170,16 +170,10 @@
+   // Step one is the clock's own TOTAL classifier — never
+   // `to_frame_a_same_civil_day(..)?`, which is the abort shape the design
+   // forbids copying (reader.rs:1173).
++  // M710: every non-on-day stamp collapses into one untyped answer.
+   const AttachClass attached = clock.classify_attach_ms(ts_ms_b);
+-  switch (attached.kind()) {
+-    case AttachKind::MISSING:
+-      return QuoteDomain::MISSING;
+-    case AttachKind::MALFORMED:
+-      return QuoteDomain::MALFORMED;
+-    case AttachKind::WRONG_CIVIL_DAY:
+-      return QuoteDomain::WRONG_CIVIL_DAY;
+-    case AttachKind::ON_DAY:
+-      break;
++  if (!attached.is_on_day()) {
++    return QuoteDomain::OUTSIDE_DOMAIN;
+   }
+   const Expected<FrameB, Refusal> ts_b = frame_b_from_naive_et_ms(*ts_ms_b);
+   if (!ts_b.has_value()) {

@@ -1,0 +1,18 @@
+--- a/qr_carriers/src/direct_raw.cpp
++++ b/qr_carriers/src/direct_raw.cpp
+@@ -302,10 +302,11 @@
+ 
+   // --- the phase block ---------------------------------------------------------
+   if (!window.phase_reference_present) {
+-    row.set(base + kDirectLog1pApproachGroupCount, masked(Validity::MISSING));
+-    row.set(base + kDirectLog1pResponseGroupCount, masked(Validity::MISSING));
+-    row.set(base + kDirectApproachOmissionFraction, masked(Validity::MISSING));
+-    row.set(base + kDirectResponseOmissionFraction, masked(Validity::MISSING));
++    // MA35: an absent phase reference is silently zero-coded as present.
++    row.set(base + kDirectLog1pApproachGroupCount, present(0.0));
++    row.set(base + kDirectLog1pResponseGroupCount, present(0.0));
++    row.set(base + kDirectApproachOmissionFraction, present(0.0));
++    row.set(base + kDirectResponseOmissionFraction, present(0.0));
+   } else {
+     // "< visibility is APPROACH, > visibility is RESPONSE, and == visibility is
+     // PHASE_EQUAL_UNORDERED ... enters neither phase denominator." The groups are

@@ -1,0 +1,229 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 46 tests from 16 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from GroupTape
+[ RUN      ] GroupTape.EqualMillisecondRunsBecomeOneGroupAndMultiplicityIsPreserved
+[       OK ] GroupTape.EqualMillisecondRunsBecomeOneGroupAndMultiplicityIsPreserved (0 ms)
+[ RUN      ] GroupTape.AGroupStraddlingAChunkBoundaryIsDeliveredOnceAndWhole
+[       OK ] GroupTape.AGroupStraddlingAChunkBoundaryIsDeliveredOnceAndWhole (0 ms)
+[ RUN      ] GroupTape.InGroupOrderIsCanonicalSoAnInputPermutationIsInvisible
+qr_sources/tests/test_groups.cpp:143: Failure
+Expected equality of these values:
+  renderings[0]
+    Which is: { '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  renderings[index]
+    Which is: { '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+With diff:
+@@ -1,3 +1,3 @@
+ { '
+ ' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '
+-' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
++' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+
+permutation 1 rendered differently
+
+qr_sources/tests/test_groups.cpp:143: Failure
+Expected equality of these values:
+  renderings[0]
+    Which is: { '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  renderings[index]
+    Which is: { '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+With diff:
+@@ -1,3 +1,3 @@
+ { '
+ ' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '
+-' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
++' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+
+permutation 2 rendered differently
+
+qr_sources/tests/test_groups.cpp:143: Failure
+Expected equality of these values:
+  renderings[0]
+    Which is: { '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  renderings[index]
+    Which is: { '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+With diff:
+@@ -1,3 +1,3 @@
+ { '
+ ' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '
+-' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
++' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+
+permutation 3 rendered differently
+
+qr_sources/tests/test_groups.cpp:143: Failure
+Expected equality of these values:
+  renderings[0]
+    Which is: { '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  renderings[index]
+    Which is: { '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+With diff:
+@@ -1,3 +1,3 @@
+ { '
+ ' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '
+-' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
++' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+
+permutation 4 rendered differently
+
+qr_sources/tests/test_groups.cpp:143: Failure
+Expected equality of these values:
+  renderings[0]
+    Which is: { '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  renderings[index]
+    Which is: { '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x3' (3), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+With diff:
+
+permutation 5 rendered differently
+
+[  FAILED  ] GroupTape.InGroupOrderIsCanonicalSoAnInputPermutationIsInvisible (0 ms)
+[ RUN      ] GroupTape.AnEmptyChunkDeliversNothingAndKeepsTheCarry
+[       OK ] GroupTape.AnEmptyChunkDeliversNothingAndKeepsTheCarry (0 ms)
+[----------] 4 tests from GroupTape (0 ms total)
+
+[----------] 2 tests from GroupFixtures
+[ RUN      ] GroupFixtures.PermutingRowsInsideEveryEqualTimeGroupProducesByteIdenticalGroups
+qr_sources/tests/test_groups.cpp:217: Failure
+Expected equality of these values:
+  plain
+    Which is: { '\xC0' (192), '\xF1' (241), '\xB1' (177), '\xCD' (205), '\x81' (129), '\x1' (1), '\0', '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\xC0' (192), '\xF1' (241), '\xB1' (177), '\xCD' (205), '\x81' (129), '\x1' (1), '\0', '\0', '\xF4' (244), '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  permuted
+    Which is: { '\xC0' (192), '\xF1' (241), '\xB1' (177), '\xCD' (205), '\x81' (129), '\x1' (1), '\0', '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\xC0' (192), '\xF1' (241), '\xB1' (177), '\xCD' (205), '\x81' (129), '\x1' (1), '\0', '\0', 'X' (88, 0x58), '\x2' (2), '\0', '\0', '\0', '\0', '\0', '\0', ... }
+in-group row order is not information: permuting it must change nothing
+
+[  FAILED  ] GroupFixtures.PermutingRowsInsideEveryEqualTimeGroupProducesByteIdenticalGroups (22 ms)
+[ RUN      ] GroupFixtures.TwoRunsOverTheSameFixtureAreByteIdentical
+[       OK ] GroupFixtures.TwoRunsOverTheSameFixtureAreByteIdentical (21 ms)
+[----------] 2 tests from GroupFixtures (43 ms total)
+
+[----------] 3 tests from U6
+[ RUN      ] U6.CentsAndMillsScaleByTheirOwnFactorAndDollarsRoundTiesEven
+[       OK ] U6.CentsAndMillsScaleByTheirOwnFactorAndDollarsRoundTiesEven (0 ms)
+[ RUN      ] U6.TheRoundingLawIsTiesToEvenAndIsIndependentOfTheFpuMode
+[       OK ] U6.TheRoundingLawIsTiesToEvenAndIsIndependentOfTheFpuMode (0 ms)
+[ RUN      ] U6.NonFiniteAndUnrepresentableDollarsRefuseInsteadOfSubstituting
+[       OK ] U6.NonFiniteAndUnrepresentableDollarsRefuseInsteadOfSubstituting (0 ms)
+[----------] 3 tests from U6 (0 ms total)
+
+[----------] 2 tests from ShareEra
+[ RUN      ] ShareEra.TheBreakIsExactlyTwoThousandTwentyFiveNovemberThird
+[       OK ] ShareEra.TheBreakIsExactlyTwoThousandTwentyFiveNovemberThird (0 ms)
+[ RUN      ] ShareEra.NegativeSizesPassThroughAndOverflowRefusesInsteadOfSaturating
+[       OK ] ShareEra.NegativeSizesPassThroughAndOverflowRefusesInsteadOfSaturating (0 ms)
+[----------] 2 tests from ShareEra (0 ms total)
+
+[----------] 1 test from Rights
+[ RUN      ] Rights.ParseTheFrozenTokenSetAndKeepUnknownTokensOther
+[       OK ] Rights.ParseTheFrozenTokenSetAndKeepUnknownTokensOther (0 ms)
+[----------] 1 test from Rights (0 ms total)
+
+[----------] 1 test from RetainedText
+[ RUN      ] RetainedText.FitsTheMeasuredStampAndRefusesRatherThanTruncate
+[       OK ] RetainedText.FitsTheMeasuredStampAndRefusesRatherThanTruncate (0 ms)
+[----------] 1 test from RetainedText (0 ms total)
+
+[----------] 1 test from Dates
+[ RUN      ] Dates.TheOrdinalAndTheIsoTextFormsAgreeAndMalformedTextRefuses
+[       OK ] Dates.TheOrdinalAndTheIsoTextFormsAgreeAndMalformedTextRefuses (0 ms)
+[----------] 1 test from Dates (0 ms total)
+
+[----------] 1 test from Midpoint
+[ RUN      ] Midpoint.IsComputedFromBothSidesAndNeverReadFromTheVendorColumn
+[       OK ] Midpoint.IsComputedFromBothSidesAndNeverReadFromTheVendorColumn (0 ms)
+[----------] 1 test from Midpoint (0 ms total)
+
+[----------] 7 tests from StockQuotes
+[ RUN      ] StockQuotes.TheFixtureSessionMatchesEveryDerivedLiteral
+[       OK ] StockQuotes.TheFixtureSessionMatchesEveryDerivedLiteral (3 ms)
+[ RUN      ] StockQuotes.RowGroupsOutsideTheWindowArePrunedAndNeverDecoded
+[       OK ] StockQuotes.RowGroupsOutsideTheWindowArePrunedAndNeverDecoded (2 ms)
+[ RUN      ] StockQuotes.TheRegistryRowDecidesTheProfileAndACallerCannotOverrideIt
+[       OK ] StockQuotes.TheRegistryRowDecidesTheProfileAndACallerCannotOverrideIt (0 ms)
+[ RUN      ] StockQuotes.AFileDisagreeingWithItsRegistryProfileIsRefusedNotAdapted
+[       OK ] StockQuotes.AFileDisagreeingWithItsRegistryProfileIsRefusedNotAdapted (7 ms)
+[ RUN      ] StockQuotes.ARowMixingNullAndNonNullNbboFieldsRefusesAndTheSentinelIsCounted
+[       OK ] StockQuotes.ARowMixingNullAndNonNullNbboFieldsRefusesAndTheSentinelIsCounted (4 ms)
+[ RUN      ] StockQuotes.ADescendingTapeRefusesInsteadOfBeingSortedIntoSilence
+[       OK ] StockQuotes.ADescendingTapeRefusesInsteadOfBeingSortedIntoSilence (3 ms)
+[ RUN      ] StockQuotes.PageVersionTwoDecodesToTheSameSession
+[       OK ] StockQuotes.PageVersionTwoDecodesToTheSameSession (6 ms)
+[----------] 7 tests from StockQuotes (27 ms total)
+
+[----------] 2 tests from StockTrades
+[ RUN      ] StockTrades.TheFixtureSessionMatchesEveryDerivedLiteral
+[       OK ] StockTrades.TheFixtureSessionMatchesEveryDerivedLiteral (4 ms)
+[ RUN      ] StockTrades.APriceColumnOutsideTheMeasuredProfileRefuses
+[       OK ] StockTrades.APriceColumnOutsideTheMeasuredProfileRefuses (3 ms)
+[----------] 2 tests from StockTrades (8 ms total)
+
+[----------] 2 tests from OptionPrints
+[ RUN      ] OptionPrints.TheFixtureSessionMatchesEveryDerivedLiteral
+[       OK ] OptionPrints.TheFixtureSessionMatchesEveryDerivedLiteral (4 ms)
+[ RUN      ] OptionPrints.TheDeferredWideProfileIsRefusedAtOpen
+[       OK ] OptionPrints.TheDeferredWideProfileIsRefusedAtOpen (3 ms)
+[----------] 2 tests from OptionPrints (8 ms total)
+
+[----------] 2 tests from OptionQuotes
+[ RUN      ] OptionQuotes.TheFlatLayoutIsOneShardAndTheShardedLayoutIsChainedInSortedOrder
+[       OK ] OptionQuotes.TheFlatLayoutIsOneShardAndTheShardedLayoutIsChainedInSortedOrder (16 ms)
+[ RUN      ] OptionQuotes.ASessionTheCorpusDoesNotCoverIsModalityAbsent
+[       OK ] OptionQuotes.ASessionTheCorpusDoesNotCoverIsModalityAbsent (3 ms)
+[----------] 2 tests from OptionQuotes (20 ms total)
+
+[----------] 4 tests from RealSources
+[ RUN      ] RealSources.StockTradesSessionOneTwentyFiveMatchesTheCommittedDigests
+[       OK ] RealSources.StockTradesSessionOneTwentyFiveMatchesTheCommittedDigests (349 ms)
+[ RUN      ] RealSources.OptionPrintsSessionOneTwentyFiveMatchesTheCommittedDigests
+[       OK ] RealSources.OptionPrintsSessionOneTwentyFiveMatchesTheCommittedDigests (123 ms)
+[ RUN      ] RealSources.TheStockQuoteRegistryCountsAreCommittedAndAgreeWithTheRegistryItself
+[       OK ] RealSources.TheStockQuoteRegistryCountsAreCommittedAndAgreeWithTheRegistryItself (4 ms)
+[ RUN      ] RealSources.TheAuthorizedOptionQuoteShardStillMatchesItsPins
+[       OK ] RealSources.TheAuthorizedOptionQuoteShardStillMatchesItsPins (23 ms)
+[----------] 4 tests from RealSources (500 ms total)
+
+[----------] 4 tests from SpecLaws
+[ RUN      ] SpecLaws.EveryPinnedSpecIsWellformedAndEveryBrokenOneIsRejected
+[       OK ] SpecLaws.EveryPinnedSpecIsWellformedAndEveryBrokenOneIsRejected (0 ms)
+[ RUN      ] SpecLaws.TheFourProjectionsAreExactlyAppendixB
+[       OK ] SpecLaws.TheFourProjectionsAreExactlyAppendixB (0 ms)
+[ RUN      ] SpecLaws.TheWalledColumnsAreExactlyAppendixB
+[       OK ] SpecLaws.TheWalledColumnsAreExactlyAppendixB (0 ms)
+[ RUN      ] SpecLaws.TheSingleLegPrintConditionSetIsExposedAsAField
+[       OK ] SpecLaws.TheSingleLegPrintConditionSetIsExposedAsAField (0 ms)
+[----------] 4 tests from SpecLaws (0 ms total)
+
+[----------] 7 tests from SchemaGate
+[ RUN      ] SchemaGate.TheGoodFixtureGatesAndResolvesEveryProjectedForm
+[       OK ] SchemaGate.TheGoodFixtureGatesAndResolvesEveryProjectedForm (2 ms)
+[ RUN      ] SchemaGate.ARenamedColumnRefusesByNameBeforeAnyPayload
+[       OK ] SchemaGate.ARenamedColumnRefusesByNameBeforeAnyPayload (3 ms)
+[ RUN      ] SchemaGate.AWrongPhysicalTypeRefusesByName
+[       OK ] SchemaGate.AWrongPhysicalTypeRefusesByName (3 ms)
+[ RUN      ] SchemaGate.AColumnCountDriftRefusesBeforeAnyNameIsCompared
+[       OK ] SchemaGate.AColumnCountDriftRefusesBeforeAnyNameIsCompared (1 ms)
+[ RUN      ] SchemaGate.TheDeclaredProfileIsTheAuthorityOverTheFilesOwnForms
+[       OK ] SchemaGate.TheDeclaredProfileIsTheAuthorityOverTheFilesOwnForms (3 ms)
+[ RUN      ] SchemaGate.TheDeferredRutwWideProfileIsRefusedByTheCompactPrintReader
+[       OK ] SchemaGate.TheDeferredRutwWideProfileIsRefusedByTheCompactPrintReader (18 ms)
+[ RUN      ] SchemaGate.BothOptionQuoteProfilesAreDetectedFromTheFilesOwnSchema
+[       OK ] SchemaGate.BothOptionQuoteProfilesAreDetectedFromTheFilesOwnSchema (4 ms)
+[----------] 7 tests from SchemaGate (37 ms total)
+
+[----------] 3 tests from ForbiddenDoor
+[ RUN      ] ForbiddenDoor.PriceLeadOneRefusesByNameAndByIndexWithoutTouchingItsBytes
+[       OK ] ForbiddenDoor.PriceLeadOneRefusesByNameAndByIndexWithoutTouchingItsBytes (1 ms)
+[ RUN      ] ForbiddenDoor.EveryWalledColumnOfEveryStreamRefusesOnARealFixtureFile
+[       OK ] ForbiddenDoor.EveryWalledColumnOfEveryStreamRefusesOnARealFixtureFile (6 ms)
+[ RUN      ] ForbiddenDoor.AnUnprojectedButUnwalledColumnIsRefusedAsOutsideTheProjection
+[       OK ] ForbiddenDoor.AnUnprojectedButUnwalledColumnIsRefusedAsOutsideTheProjection (1 ms)
+[----------] 3 tests from ForbiddenDoor (10 ms total)
+
+[----------] Global test environment tear-down
+[==========] 46 tests from 16 test suites ran. (658 ms total)
+[  PASSED  ] 44 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] GroupTape.InGroupOrderIsCanonicalSoAnInputPermutationIsInvisible
+[  FAILED  ] GroupFixtures.PermutingRowsInsideEveryEqualTimeGroupProducesByteIdenticalGroups
+
+ 2 FAILED TESTS

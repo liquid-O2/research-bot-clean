@@ -1,0 +1,12 @@
+--- a/qr_carriers/src/grid_1s.cpp
++++ b/qr_carriers/src/grid_1s.cpp
+@@ -22,7 +22,8 @@
+   std::int64_t carried_ts = 0;
+   for (std::size_t index = 0; index < endpoints; ++index) {
+     const std::int64_t endpoint = grid.endpoint_ns(index);
+-    while (cursor < eligible.size() && eligible[cursor].ts_ns_a < endpoint) {
++    // MA36: an endpoint consumes the quote stamped exactly ON it.
++    while (cursor < eligible.size() && eligible[cursor].ts_ns_a <= endpoint) {
+       have_source = true;
+       carried_mid = eligible[cursor].mid_u6;
+       carried_ts = eligible[cursor].ts_ns_a;

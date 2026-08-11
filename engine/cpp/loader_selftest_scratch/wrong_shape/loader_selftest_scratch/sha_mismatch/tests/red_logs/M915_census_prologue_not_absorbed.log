@@ -1,0 +1,102 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 34 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from Intersection
+[ RUN      ] Intersection.EveryStreamPublishesItsComparedAndItsUncomparedColumns
+[       OK ] Intersection.EveryStreamPublishesItsComparedAndItsUncomparedColumns (0 ms)
+[ RUN      ] Intersection.NoColumnIsBothComparedAndEnumeratedAsUncomparable
+[       OK ] Intersection.NoColumnIsBothComparedAndEnumeratedAsUncomparable (0 ms)
+[ RUN      ] Intersection.EveryStreamProjectsItsClockAndTheRowWidthFollowsTheKinds
+[       OK ] Intersection.EveryStreamProjectsItsClockAndTheRowWidthFollowsTheKinds (0 ms)
+[----------] 3 tests from Intersection (0 ms total)
+
+[----------] 6 tests from CanonicalImage
+[ RUN      ] CanonicalImage.PermutingAnEqualTimestampRunDoesNotChangeTheDigest
+[       OK ] CanonicalImage.PermutingAnEqualTimestampRunDoesNotChangeTheDigest (1 ms)
+[ RUN      ] CanonicalImage.RowsInDifferentMillisecondsKeepTheirTapeOrder
+[       OK ] CanonicalImage.RowsInDifferentMillisecondsKeepTheirTapeOrder (0 ms)
+[ RUN      ] CanonicalImage.MultiplicityIsPreservedInsideARun
+[       OK ] CanonicalImage.MultiplicityIsPreservedInsideARun (0 ms)
+[ RUN      ] CanonicalImage.TheStreamAndTheDayAreBoundIntoTheDigest
+/workspace/engine/cpp/qr_census/tests/test_differential.cpp:149: Failure
+Expected: (other_day.row_sha256()) != (sha_of(rows)), actual: "a786e3c0e41ae0bc66e2a8697afd7fa63aabbde1f490175cd8fe1cf016636706" vs "a786e3c0e41ae0bc66e2a8697afd7fa63aabbde1f490175cd8fe1cf016636706"
+
+[  FAILED  ] CanonicalImage.TheStreamAndTheDayAreBoundIntoTheDigest (0 ms)
+[ RUN      ] CanonicalImage.ANullFlagIsPartOfTheImageSoAZeroIsNotAnAbsence
+[       OK ] CanonicalImage.ANullFlagIsPartOfTheImageSoAZeroIsNotAnAbsence (0 ms)
+[ RUN      ] CanonicalImage.ByteModeOffLeavesNoDigestRatherThanAnEmptyOne
+[       OK ] CanonicalImage.ByteModeOffLeavesNoDigestRatherThanAnEmptyOne (0 ms)
+[----------] 6 tests from CanonicalImage (1 ms total)
+
+[----------] 4 tests from DigestRule
+[ RUN      ] DigestRule.IntegersWrapAndNullsAreCountedNeverFoldedIntoTheSum
+[       OK ] DigestRule.IntegersWrapAndNullsAreCountedNeverFoldedIntoTheSum (0 ms)
+[ RUN      ] DigestRule.TheIntegerSumIsWrappingRatherThanSaturatingOrRefusing
+[       OK ] DigestRule.TheIntegerSumIsWrappingRatherThanSaturatingOrRefusing (0 ms)
+[ RUN      ] DigestRule.DoublesFoldByBitXorSoAnEvenRepetitionCancels
+[       OK ] DigestRule.DoublesFoldByBitXorSoAnEvenRepetitionCancels (0 ms)
+[ RUN      ] DigestRule.TheMaskCensusIsCarriedSeparatelyFromTheSharedNullModel
+[       OK ] DigestRule.TheMaskCensusIsCarriedSeparatelyFromTheSharedNullModel (0 ms)
+[----------] 4 tests from DigestRule (0 ms total)
+
+[----------] 4 tests from DumpParse
+[ RUN      ] DumpParse.TheHeaderIsPinnedAndDriftIsARefusal
+[       OK ] DumpParse.TheHeaderIsPinnedAndDriftIsARefusal (0 ms)
+[ RUN      ] DumpParse.AShortRowIsARefusalNamingItsLine
+[       OK ] DumpParse.AShortRowIsARefusalNamingItsLine (0 ms)
+[ RUN      ] DumpParse.AWellFormedDumpRoundTripsThroughItsJoinKey
+[       OK ] DumpParse.AWellFormedDumpRoundTripsThroughItsJoinKey (0 ms)
+[ RUN      ] DumpParse.AnEmptyDumpIsARefusalRatherThanAnEmptyAgreement
+[       OK ] DumpParse.AnEmptyDumpIsARefusalRatherThanAnEmptyAgreement (0 ms)
+[----------] 4 tests from DumpParse (0 ms total)
+
+[----------] 6 tests from Comparator
+[ RUN      ] Comparator.TwoAgreeingDumpsProduceNoFailAtAll
+[       OK ] Comparator.TwoAgreeingDumpsProduceNoFailAtAll (0 ms)
+[ RUN      ] Comparator.APlantedNonWcdColumnDeltaIsAFailAndCarriesNoWaiver
+[       OK ] Comparator.APlantedNonWcdColumnDeltaIsAFailAndCarriesNoWaiver (0 ms)
+[ RUN      ] Comparator.APlantedRegistryCountDeltaIsAFail
+[       OK ] Comparator.APlantedRegistryCountDeltaIsAFail (0 ms)
+[ RUN      ] Comparator.AKeyOnlyOneSideCarriesIsAFailRatherThanASilentPass
+[       OK ] Comparator.AKeyOnlyOneSideCarriesIsAFailRatherThanASilentPass (0 ms)
+[ RUN      ] Comparator.TheCppOnlyCensusMetricsArePublishedRatherThanCompared
+[       OK ] Comparator.TheCppOnlyCensusMetricsArePublishedRatherThanCompared (0 ms)
+[ RUN      ] Comparator.EveryNonComparedColumnIsEnumeratedInTheVerdictWithItsSideAndReason
+[       OK ] Comparator.EveryNonComparedColumnIsEnumeratedInTheVerdictWithItsSideAndReason (0 ms)
+[----------] 6 tests from Comparator (0 ms total)
+
+[----------] 6 tests from WcdWaiver
+[ RUN      ] WcdWaiver.TheArithmeticIsExactAndOnlyAppliesWhenThereIsSomethingToWaive
+[       OK ] WcdWaiver.TheArithmeticIsExactAndOnlyAppliesWhenThereIsSomethingToWaive (0 ms)
+[ RUN      ] WcdWaiver.WcdOneIsTheOnlyLegalWaiverId
+[       OK ] WcdWaiver.WcdOneIsTheOnlyLegalWaiverId (0 ms)
+[ RUN      ] WcdWaiver.AnInjectedWrongCivilDayAttachmentIsWaivedByExactlyItsOwnCount
+[       OK ] WcdWaiver.AnInjectedWrongCivilDayAttachmentIsWaivedByExactlyItsOwnCount (0 ms)
+[ RUN      ] WcdWaiver.ADeltaThatIsNotExactlyTheWrongCivilDayCountIsAFail
+[       OK ] WcdWaiver.ADeltaThatIsNotExactlyTheWrongCivilDayCountIsAFail (0 ms)
+[ RUN      ] WcdWaiver.WithoutAnyWrongCivilDayAttachmentTheTotalsMustAgreeOutright
+[       OK ] WcdWaiver.WithoutAnyWrongCivilDayAttachmentTheTotalsMustAgreeOutright (0 ms)
+[ RUN      ] WcdWaiver.TheBucketHistogramItselfIsComparedExactlyAndNeverWaived
+[       OK ] WcdWaiver.TheBucketHistogramItselfIsComparedExactlyAndNeverWaived (0 ms)
+[----------] 6 tests from WcdWaiver (0 ms total)
+
+[----------] 5 tests from Archive
+[ RUN      ] Archive.AnIntactVerdictVerifiesAgainstItsRecordedSha
+[       OK ] Archive.AnIntactVerdictVerifiesAgainstItsRecordedSha (53 ms)
+[ RUN      ] Archive.ATruncatedVerdictIsCaughtByTheShaRecheck
+[       OK ] Archive.ATruncatedVerdictIsCaughtByTheShaRecheck (46 ms)
+[ RUN      ] Archive.AnEditedVerdictHeaderIsARefusal
+[       OK ] Archive.AnEditedVerdictHeaderIsARefusal (31 ms)
+[ RUN      ] Archive.AWaiverIdOutsideTheClosedSetIsARefusalEvenWithAMatchingSha
+[       OK ] Archive.AWaiverIdOutsideTheClosedSetIsARefusalEvenWithAMatchingSha (39 ms)
+[ RUN      ] Archive.ANonWaivedRowMayNotSmuggleAWaiverId
+[       OK ] Archive.ANonWaivedRowMayNotSmuggleAWaiverId (0 ms)
+[----------] 5 tests from Archive (171 ms total)
+
+[----------] Global test environment tear-down
+[==========] 34 tests from 7 test suites ran. (174 ms total)
+[  PASSED  ] 33 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] CanonicalImage.TheStreamAndTheDayAreBoundIntoTheDigest
+
+ 1 FAILED TEST

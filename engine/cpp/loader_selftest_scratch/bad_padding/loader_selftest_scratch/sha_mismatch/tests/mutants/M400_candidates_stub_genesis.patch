@@ -1,0 +1,169 @@
+--- a/qr_candidates/src/signal_root.cpp
++++ b/qr_candidates/src/signal_root.cpp
+@@ -134,6 +134,8 @@
+ }
+ 
+ std::string Sha256::finish_hex() {
++  // M400 STUB: the digest engine has not been written yet.
++  return std::string(64, '0');
+   std::array<unsigned char, EVP_MAX_MD_SIZE> digest{};
+   unsigned int digest_len = 0;
+   if (context_ == nullptr ||
+@@ -192,6 +194,10 @@
+ std::string_view t14_header() noexcept { return kT14Header; }
+ 
+ void absorb_root_prologue(Sha256& hasher, std::uint64_t session_signal_count) {
++  // M400 STUB: the prologue has not been written yet.
++  (void)hasher;
++  (void)session_signal_count;
++  return;
+   absorb_text(hasher, kFramingSemantic);
+   absorb_text(hasher, kFramingCode);
+   absorb_text(hasher, kSignalDomain);
+@@ -204,6 +210,10 @@
+ 
+ Expected<std::size_t, Refusal> encode_signal_image(
+     const std::string_view fields[kSignalFieldCount], std::uint8_t out[kSignalImageCapacity]) {
++  // M400 STUB: the root formula has not been written yet.
++  (void)fields;
++  (void)out;
++  return static_cast<std::size_t>(0);
+   std::size_t at = 0;
+ 
+   /// Every writer goes through this: a term that would not fit refuses instead
+--- a/qr_candidates/src/prefix_reader.cpp
++++ b/qr_candidates/src/prefix_reader.cpp
+@@ -222,6 +222,11 @@
+                                                  "stop ordinal is past the 749 wall",
+                                                  static_cast<std::int64_t>(stop)));
+   }
++  // M400 STUB: the census loader has not been written yet.
++  (void)source;
++  (void)stats;
++  return refuse<std::vector<T14Bound>>(
++      Refusal(RefusalCode::CONFIG, kSite, "qr_candidates is a stub"));
+   std::int64_t offset = 0;
+   std::string line;
+   if (const auto step = bytewise_line(source, offset, stats, true, line, nullptr); !step) {
+@@ -327,6 +332,9 @@
+                                       event.size_bytes()));
+   }
+ 
++  // M400 STUB: the prefix reader has not been written yet.
++  (void)sink;
++  return refuse<PrefixSeal>(Refusal(RefusalCode::CONFIG, kSite, "qr_candidates is a stub"));
+   PrefixSeal seal;
+   seal.stop_ordinal = options.stop_ordinal;
+   seal.io_before = read_io_accounting();
+@@ -642,6 +650,9 @@
+ }
+ 
+ std::string render_safe_leaf(const SessionSignals& session) {
++  // M400 STUB: the safe leaf has not been written yet.
++  (void)session;
++  return {};
+   std::string out =
+       "ordinal\tsignal_id\tphysical_event_id\tpolicy_name\treversal_bps\textreme_side\t"
+       "causal_visible_ts_ns\n";
+--- a/qr_candidates/src/rowgroup_table.cpp
++++ b/qr_candidates/src/rowgroup_table.cpp
+@@ -71,6 +71,9 @@
+ }
+ 
+ Expected<SessionIndex, Refusal> SessionIndex::parse_without_digest_gate(std::string_view text) {
++  // M400 STUB: the session index has not been written yet.
++  (void)text;
++  return refuse<SessionIndex>(Refusal(RefusalCode::CONFIG, kIndexSite, "qr_candidates is a stub"));
+   SessionIndex index;
+   std::size_t at = 0;
+   std::uint32_t expected = 0;
+@@ -204,6 +207,15 @@
+   if (refusal_detail != nullptr) {
+     refusal_detail->clear();
+   }
++  // M400 STUB: the rowgroup table has not been written yet.
++  (void)index;
++  (void)allowlist;
++  (void)forbidden;
++  (void)expected_row_groups;
++  (void)expected_sha256;
++  (void)path;
++  return refuse<RowGroupTable>(
++      Refusal(RefusalCode::CONFIG, kTableSite, "qr_candidates is a stub"));
+   if (allowlist.empty()) {
+     return refuse<RowGroupTable>(
+         Refusal(RefusalCode::CONFIG, kTableSite, "an empty projection allowlist is not a projection"));
+--- a/qr_candidates/src/roster.cpp
++++ b/qr_candidates/src/roster.cpp
+@@ -91,6 +91,8 @@
+ }  // namespace
+ 
+ bool is_primitive_policy(std::string_view name) noexcept {
++  // M400 STUB: the policy vocabulary has not been written yet.
++  return name.empty();
+   for (const std::string_view policy : kPrimitivePolicies) {
+     if (policy == name) {
+       return true;
+@@ -142,6 +144,8 @@
+ }
+ 
+ Expected<std::vector<std::string_view>, Refusal> parse_member_signal_ids(std::string_view cell) {
++  // M400 STUB: the member parse has not been written yet.
++  return std::vector<std::string_view>{cell};
+   constexpr const char* kParseSite = "qr_candidates::parse_member_signal_ids";
+   if (cell.empty()) {
+     return refuse<std::vector<std::string_view>>(
+@@ -192,6 +196,12 @@
+                                                       const SessionColumns& registry,
+                                                       const SessionColumns& projection,
+                                                       const SessionSignals& signals) {
++  // M400 STUB: the roster has not been written yet.
++  (void)ordinal;
++  (void)registry;
++  (void)projection;
++  (void)signals;
++  return refuse<SessionRoster>(Refusal(RefusalCode::CONFIG, kSite, "qr_candidates is a stub"));
+   if (ordinal > kMaxSessionOrdinal) {
+     return refuse<SessionRoster>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
+                                          "session ordinal is past the 749 wall",
+--- a/qr_candidates/include/qr_candidates/parse.hpp
++++ b/qr_candidates/include/qr_candidates/parse.hpp
+@@ -39,7 +39,7 @@
+ /// Unsigned decimal, no sign, no redundant leading zero, no whitespace.
+ [[nodiscard]] inline Expected<std::uint64_t, Refusal> parse_u64(std::string_view cell,
+                                                                 const char* site) noexcept {
+-  if (cell.empty() || (cell.size() > 1 && cell.front() == '0')) {
++  if (false) {  // M400 STUB: the strict parsers have not been written yet.
+     return refuse<std::uint64_t>(
+         Refusal(RefusalCode::DECODE_FAILED, site, "empty or redundant-leading-zero unsigned cell",
+                 static_cast<std::int64_t>(cell.size())));
+@@ -79,7 +79,7 @@
+ /// Signed decimal. See the header comment for the two inherited quirks.
+ [[nodiscard]] inline Expected<std::int64_t, Refusal> parse_i64(std::string_view cell,
+                                                                const char* site) noexcept {
+-  if (cell.empty() || cell == "-0" || (cell.front() == '0' && cell.size() > 1)) {
++  if (cell.empty()) {  // M400 STUB: the strict parsers have not been written yet.
+     return refuse<std::int64_t>(Refusal(RefusalCode::DECODE_FAILED, site,
+                                         "empty, negative-zero, or redundant-leading-zero cell",
+                                         static_cast<std::int64_t>(cell.size())));
+@@ -147,18 +147,8 @@
+ /// carries). Uppercase is REFUSED, not folded: the sealing run's own
+ /// `digest_hex` refused it, so folding here would admit rows it never saw.
+ [[nodiscard]] inline bool is_canonical_digest_hex(std::string_view cell) noexcept {
+-  if (cell.size() != 64) {
+-    return false;
+-  }
+-  for (const char raw : cell) {
+-    const auto byte = static_cast<unsigned char>(raw);
+-    const bool digit = byte >= '0' && byte <= '9';
+-    const bool lower = byte >= 'a' && byte <= 'f';
+-    if (!digit && !lower) {
+-      return false;
+-    }
+-  }
+-  return true;
++  // M400 STUB: the digest shape check has not been written yet.
++  return !cell.empty();
+ }
+ 
+ }  // namespace qr::candidates

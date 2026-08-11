@@ -1,0 +1,13 @@
+--- a/python/campaign/arms.py
++++ b/python/campaign/arms.py
+@@ -519,7 +519,9 @@
+         query, key, value = split(self.query(tokens)), split(self.key(tokens)), split(
+             self.value(tokens))
+         scores = query @ key.transpose(-1, -2) / math.sqrt(head_dim)
+-        bias = -F.softplus(self.decay).view(1, JSA_HEADS, 1, 1) * log_delta.unsqueeze(1)
++        # M958 MUTANT: time leaves the attention bias.
++        bias = -F.softplus(self.decay).view(1, JSA_HEADS, 1, 1) * 0.0 \
++            * log_delta.unsqueeze(1)
+         allowed = causal.unsqueeze(1) & (valid > 0).view(rows, 1, 1, length)
+         scores = torch.where(allowed, scores + bias,
+                              torch.full_like(scores, torch.finfo(scores.dtype).min))

@@ -1,0 +1,1040 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M204_parquet_bitpack_offset
+# patch:       tests/mutants/M204_parquet_bitpack_offset.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M204_parquet_bitpack_offset
+#
+### qr_parquet_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 43 tests from 10 test suites.
+[----------] Global test environment set-up.
+[----------] 7 tests from ThriftCompact
+[ RUN      ] ThriftCompact.VarintDecodesMultiByteValuesExactly
+[       OK ] ThriftCompact.VarintDecodesMultiByteValuesExactly (0 ms)
+[ RUN      ] ThriftCompact.ZigzagRoundTripsBothSigns
+[       OK ] ThriftCompact.ZigzagRoundTripsBothSigns (0 ms)
+[ RUN      ] ThriftCompact.EveryReadIsBoundsCheckedAndLatchesTheFirstReason
+[       OK ] ThriftCompact.EveryReadIsBoundsCheckedAndLatchesTheFirstReason (0 ms)
+[ RUN      ] ThriftCompact.BinaryLengthLargerThanTheBufferIsRefusedNotAllocated
+[       OK ] ThriftCompact.BinaryLengthLargerThanTheBufferIsRefusedNotAllocated (0 ms)
+[ RUN      ] ThriftCompact.StructScopeWalksFieldDeltasAndRestoresTheOuterChain
+[       OK ] ThriftCompact.StructScopeWalksFieldDeltasAndRestoresTheOuterChain (0 ms)
+[ RUN      ] ThriftCompact.SkipRefusesNestingDeeperThanTheLimit
+[       OK ] ThriftCompact.SkipRefusesNestingDeeperThanTheLimit (0 ms)
+[ RUN      ] ThriftCompact.ListHeaderRefusesAPromiseLargerThanTheBuffer
+[       OK ] ThriftCompact.ListHeaderRefusesAPromiseLargerThanTheBuffer (0 ms)
+[----------] 7 tests from ThriftCompact (0 ms total)
+
+[----------] 16 tests from ParquetWall
+[ RUN      ] ParquetWall.MissingLeadingMagicIsADecodeRefusalNamingThePath
+[       OK ] ParquetWall.MissingLeadingMagicIsADecodeRefusalNamingThePath (3 ms)
+[ RUN      ] ParquetWall.BadFooterLengthIsADecodeRefusalAndNeverReadsPastTheMapping
+[       OK ] ParquetWall.BadFooterLengthIsADecodeRefusalAndNeverReadsPastTheMapping (1 ms)
+[ RUN      ] ParquetWall.UnknownCodecIsRefusedByNameBeforeAnyPageIsTouched
+[       OK ] ParquetWall.UnknownCodecIsRefusedByNameBeforeAnyPageIsTouched (1 ms)
+[ RUN      ] ParquetWall.UnknownChunkEncodingIsRefusedByNameAtOpen
+[       OK ] ParquetWall.UnknownChunkEncodingIsRefusedByNameAtOpen (1 ms)
+[ RUN      ] ParquetWall.UnpinnedPhysicalTypeIsRefusedByName
+[       OK ] ParquetWall.UnpinnedPhysicalTypeIsRefusedByName (1 ms)
+[ RUN      ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName
+[       OK ] ParquetWall.UnpinnedConvertedTypeIsRefusedByName (2 ms)
+[ RUN      ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly
+[       OK ] ParquetWall.RepeatedLeafIsRefusedBecauseTheDialectIsFlatOnly (1 ms)
+[ RUN      ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional
+[       OK ] ParquetWall.RequiredLeafIsRefusedBecauseTheCensusOnlyEverObservedOptional (1 ms)
+[ RUN      ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly
+[       OK ] ParquetWall.NestedSchemaIsRefusedBecauseTheDialectIsFlatOnly (1 ms)
+[ RUN      ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode
+[       OK ] ParquetWall.UnknownPageEncodingIsRefusedByNameAtDecode (1 ms)
+[ RUN      ] ParquetWall.TruncatedPageIsADecodeRefusalNamingThePath
+[       OK ] ParquetWall.TruncatedPageIsADecodeRefusalNamingThePath (2 ms)
+[ RUN      ] ParquetWall.DictionaryIndexOutOfRangeIsADecodeRefusalCarryingTheIndex
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:153: Failure
+Expected: (refusal.message().find("dictionary index")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+DECODE_FAILED at qr_parquet::File::decode_data_page: PLAIN value block is shorter than the page's value count (px) [context=40] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_dict_index_oob.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_dialect_refusals.cpp:156: Failure
+Expected equality of these values:
+  refusal.context()
+    Which is: 40
+  4
+
+[  FAILED  ] ParquetWall.DictionaryIndexOutOfRangeIsADecodeRefusalCarryingTheIndex (1 ms)
+[ RUN      ] ParquetWall.ShortDefinitionLevelStreamIsADecodeRefusal
+[       OK ] ParquetWall.ShortDefinitionLevelStreamIsADecodeRefusal (1 ms)
+[ RUN      ] ParquetWall.AMissingFileIsAnIoRefusalNotACrash
+[       OK ] ParquetWall.AMissingFileIsAnIoRefusalNotACrash (0 ms)
+[ RUN      ] ParquetWall.AnUnknownColumnNameIsASchemaRefusalNotAGuess
+[       OK ] ParquetWall.AnUnknownColumnNameIsASchemaRefusalNotAGuess (1 ms)
+[ RUN      ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined
+[       OK ] ParquetWall.OutOfRangeRowGroupAndLeafIndicesAreRefusedNotUndefined (1 ms)
+[----------] 16 tests from ParquetWall (25 ms total)
+
+[----------] 1 test from ParquetPageVersions
+[ RUN      ] ParquetPageVersions.V1AndV2DecodeToByteIdenticalOutput
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:350: Failure
+Value of: v1.value().read_column(group, leaf, workspace, column).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ParquetPageVersions.V1AndV2DecodeToByteIdenticalOutput (3 ms)
+[----------] 1 test from ParquetPageVersions (3 ms total)
+
+[----------] 3 tests from ParquetStatistics
+[ RUN      ] ParquetStatistics.RowGroupTimestampStatisticsAreExposedForPruning
+[       OK ] ParquetStatistics.RowGroupTimestampStatisticsAreExposedForPruning (2 ms)
+[ RUN      ] ParquetStatistics.RthPruningKeepsExactlyTheOverlappingRowGroups
+[       OK ] ParquetStatistics.RthPruningKeepsExactlyTheOverlappingRowGroups (1 ms)
+[ RUN      ] ParquetStatistics.MissingStatisticsKeepEveryRowGroupBecausePruningIsOnlySpeed
+[       OK ] ParquetStatistics.MissingStatisticsKeepEveryRowGroupBecausePruningIsOnlySpeed (1 ms)
+[----------] 3 tests from ParquetStatistics (5 ms total)
+
+[----------] 1 test from ParquetArena
+[ RUN      ] ParquetArena.TheArenaIsReusedAcrossPagesAndChunksInsteadOfReallocated
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:416: Failure
+Value of: file.read_column(group, leaf, workspace, column).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ParquetArena.TheArenaIsReusedAcrossPagesAndChunksInsteadOfReallocated (1 ms)
+[----------] 1 test from ParquetArena (1 ms total)
+
+[----------] 1 test from ParquetDictionary
+[ RUN      ] ParquetDictionary.TheDictionaryCacheIsRebuiltPerChunkNotCarriedAcross
+[       OK ] ParquetDictionary.TheDictionaryCacheIsRebuiltPerChunkNotCarriedAcross (1 ms)
+[----------] 1 test from ParquetDictionary (1 ms total)
+
+[----------] 1 test from ParquetDecode
+[ RUN      ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:457: Failure
+Value of: opened.value().read_column(group, leaf, workspace, column).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical (1 ms)
+[----------] 1 test from ParquetDecode (1 ms total)
+
+[----------] 4 tests from RealFileDigests
+[ RUN      ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:157: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: dictionary index is outside the dictionary (ext_condition2) [context=6] path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:197: Failure
+Expected equality of these values:
+  result.decoded_values
+    Which is: 491520
+  as_int(committed, "file/-/decoded_values")
+    Which is: 4748280
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:198: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.output_digest)
+    Which is: -395682461868084072
+  as_int(committed, "file/-/output_digest_i64")
+    Which is: -7498921205591853260
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 122880
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+trade_timestamp
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 203614426754933839
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 327833966362745522
+trade_timestamp
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 122880
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+quote_timestamp
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 203614426753496492
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 327833966352343859
+quote_timestamp
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 122880
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+sequence
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 448594761306
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 1158825452100
+sequence
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 122880
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+ext_condition1
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 23805434
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 40366916
+ext_condition1
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+ext_condition2
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 32274338
+ext_condition2
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+ext_condition3
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 49096981
+ext_condition3
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+ext_condition4
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 36583827
+ext_condition4
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+condition
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 15917685
+condition
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+size
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 27113918
+size
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+exchange
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 6870946
+exchange
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+price
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 4640057193056079469
+price
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+bid_size
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 1042069
+bid_size
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+bid_exchange
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 7922632
+bid_exchange
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+bid
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 4640223770855797833
+bid
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+bid_condition
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+ask_size
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 1027719
+ask_size
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+ask_exchange
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 7767595
+ask_exchange
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+ask
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 4640374832650072394
+ask
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+ask_condition
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197844
+dt_prev_ms
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:204: Failure
+Expected equality of these values:
+  result.per_column[leaf].null_count
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_null")
+    Which is: 1
+dt_prev_ms
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 57534754
+dt_prev_ms
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+mid
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 4639837686733779148
+mid
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197844
+price_lag_1
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:204: Failure
+Expected equality of these values:
+  result.per_column[leaf].null_count
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_null")
+    Which is: 1
+price_lag_1
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 355413679640789
+price_lag_1
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197844
+price_lead_1
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:204: Failure
+Expected equality of these values:
+  result.per_column[leaf].null_count
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_null")
+    Which is: 1
+price_lead_1
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 462931976054795
+price_lead_1
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:202: Failure
+Expected equality of these values:
+  result.per_column[leaf].non_null
+    Which is: 0
+  as_int(committed, "column/" + name + "/n_nonnull")
+    Which is: 197845
+spread_bps
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:206: Failure
+Expected equality of these values:
+  static_cast<std::int64_t>(result.per_column[leaf].digest)
+    Which is: 0
+  as_int(committed, "column/" + name + "/digest_i64")
+    Which is: 9208969252831124899
+spread_bps
+
+[  FAILED  ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture (50 ms)
+[ RUN      ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:228: Failure
+Value of: file.read_column(group, leaf, workspace, column).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics (20 ms)
+[ RUN      ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:260: Failure
+Value of: file.read_column(group, leaf, workspace, column).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (19 ms)
+[ RUN      ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups
+[       OK ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (44 ms)
+[----------] 4 tests from RealFileDigests (134 ms total)
+
+[----------] 1 test from RealFileBudget
+[ RUN      ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:157: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: dictionary index is outside the dictionary (ext_condition2) [context=6] path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:157: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: dictionary index is outside the dictionary (ext_condition2) [context=6] path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:157: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: dictionary index is outside the dictionary (ext_condition2) [context=6] path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:318: Failure
+Expected: (best) > (0.0), actual: 0 vs 0
+
+[  FAILED  ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor (56 ms)
+[----------] 1 test from RealFileBudget (56 ms total)
+
+[----------] 8 tests from PageVersions/ParquetValues
+[ RUN      ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1
+[       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1 (2 ms)
+[ RUN      ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV2
+[       OK ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV2 (1 ms)
+[ RUN      ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: PLAIN value block is shorter than the page's value count (px) [context=40] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v1.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:188: Failure
+Expected equality of these values:
+  whole.integers.size()
+    Which is: 0
+  static_cast<std::size_t>(kRows)
+    Which is: 20
+px
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 100
+  expected[row]
+    Which is: 200
+sz row 2
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 100
+  expected[row]
+    Which is: -9223372036854775808
+sz row 3
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:191: Failure
+Expected equality of these values:
+  whole.present[row]
+    Which is: true
+  expected[row] != kNull
+    Which is: false
+sz validity row 3
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 100
+  expected[row]
+    Which is: 300
+sz row 5
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 100
+  expected[row]
+    Which is: 200
+sz row 6
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 300
+  expected[row]
+    Which is: -1294967296
+sz row 8
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 200
+  expected[row]
+    Which is: 5
+sz row 13
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 200
+  expected[row]
+    Which is: 7
+sz row 14
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 200
+  expected[row]
+    Which is: 7
+sz row 15
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 300
+  expected[row]
+    Which is: 9
+sz row 16
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 300
+  expected[row]
+    Which is: 9
+sz row 17
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:190: Failure
+Expected equality of these values:
+  whole.integers[row]
+    Which is: 9
+  expected[row]
+    Which is: 5
+sz row 19
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: dictionary index is outside the dictionary (iv) [context=6] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v1.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:188: Failure
+Expected equality of these values:
+  whole.integers.size()
+    Which is: 10
+  static_cast<std::size_t>(kRows)
+    Which is: 20
+iv
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:202: Failure
+Expected equality of these values:
+  whole.present[row]
+    Which is: false
+  should_be_present
+    Which is: true
+sym validity row 1
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:204: Failure
+Expected equality of these values:
+  whole.strings[row]
+    Which is: ""
+  std::string(expected[row])
+    Which is: "IWM"
+sym row 1
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:202: Failure
+Expected equality of these values:
+  whole.present[row]
+    Which is: false
+  should_be_present
+    Which is: true
+sym validity row 2
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:204: Failure
+Expected equality of these values:
+  whole.strings[row]
+    Which is: ""
+  std::string(expected[row])
+    Which is: "IWM"
+sym row 2
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:202: Failure
+Expected equality of these values:
+  whole.present[row]
+    Which is: false
+  should_be_present
+    Which is: true
+sym validity row 3
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:204: Failure
+Expected equality of these values:
+  whole.strings[row]
+    Which is: ""
+  std::string(expected[row])
+    Which is: "IWM250102C00200000"
+sym row 3
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:202: Failure
+Expected equality of these values:
+  whole.present[row]
+    Which is: false
+  should_be_present
+    Which is: true
+sym validity row 4
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:202: Failure
+Expected equality of these values:
+  whole.present[row]
+    Which is: false
+  should_be_present
+    Which is: true
+sym validity row 5
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:204: Failure
+Expected equality of these values:
+  whole.strings[row]
+    Which is: ""
+  std::string(expected[row])
+    Which is: "IWM"
+sym row 5
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:202: Failure
+Expected equality of these values:
+  whole.present[row]
+    Which is: false
+  should_be_present
+    Which is: true
+sym validity row 6
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:204: Failure
+Expected equality of these values:
+  whole.strings[row]
+    Which is: ""
+  std::string(expected[row])
+    Which is: "IWM250102P00195000"
+sym row 6
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:202: Failure
+Expected equality of these values:
+  whole.present[row]
+    Which is: false
+  should_be_present
+    Which is: true
+sym validity row 7
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:204: Failure
+Expected equality of these values:
+  whole.strings[row]
+    Which is: ""
+  std::string(expected[row])
+    Which is: "IWM"
+sym row 7
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:204: Failure
+Expected equality of these values:
+  whole.strings[row]
+    Which is: "IWM"
+  std::string(expected[row])
+    Which is: "IWM250102C00200000"
+sym row 8
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:204: Failure
+Expected equality of these values:
+  whole.strings[row]
+    Which is: "IWM"
+  std::string(expected[row])
+    Which is: ""
+sym row 12
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:204: Failure
+Expected equality of these values:
+  whole.strings[row]
+    Which is: "IWM"
+  std::string(expected[row])
+    Which is: "IWM250102P00195000"
+sym row 13
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:204: Failure
+Expected equality of these values:
+  whole.strings[row]
+    Which is: "IWM250102C00200000"
+  std::string(expected[row])
+    Which is: "IWM"
+sym row 18
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:202: Failure
+Expected equality of these values:
+  whole.present[row]
+    Which is: true
+  should_be_present
+    Which is: false
+sym validity row 19
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:206: Failure
+Value of: whole.strings[row].empty()
+  Actual: false
+Expected: true
+sym row 19: a null row must be a zero-length slice
+
+[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (1 ms)
+[ RUN      ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: v2 definition levels disagree with the page header's null count (px) path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v2.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:188: Failure
+Expected equality of these values:
+  whole.integers.size()
+    Which is: 0
+  static_cast<std::size_t>(kRows)
+    Which is: 20
+px
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: v2 definition levels disagree with the page header's null count (sz) path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v2.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:188: Failure
+Expected equality of these values:
+  whole.integers.size()
+    Which is: 0
+  static_cast<std::size_t>(kRows)
+    Which is: 20
+sz
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: dictionary index is outside the dictionary (iv) [context=6] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v2.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:188: Failure
+Expected equality of these values:
+  whole.integers.size()
+    Which is: 10
+  static_cast<std::size_t>(kRows)
+    Which is: 20
+iv
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: v2 definition levels disagree with the page header's null count (sym) [context=8] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v2.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:199: Failure
+Expected equality of these values:
+  whole.strings.size()
+    Which is: 0
+  static_cast<std::size_t>(kRows)
+    Which is: 20
+sym
+
+[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (1 ms)
+[ RUN      ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: PLAIN value block is shorter than the page's value count (px) [context=40] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v1.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:276: Failure
+Expected equality of these values:
+  whole.null_count
+    Which is: 0
+  kNullCounts[leaf]
+    Which is: 3
+px
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:276: Failure
+Expected equality of these values:
+  whole.null_count
+    Which is: 0
+  kNullCounts[leaf]
+    Which is: 1
+sz
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: dictionary index is outside the dictionary (iv) [context=6] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v1.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:276: Failure
+Expected equality of these values:
+  whole.null_count
+    Which is: 8
+  kNullCounts[leaf]
+    Which is: 2
+sym
+
+[  FAILED  ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (1 ms)
+[ RUN      ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: v2 definition levels disagree with the page header's null count (px) path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v2.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:276: Failure
+Expected equality of these values:
+  whole.null_count
+    Which is: 0
+  kNullCounts[leaf]
+    Which is: 3
+px
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: v2 definition levels disagree with the page header's null count (sz) path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v2.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:276: Failure
+Expected equality of these values:
+  whole.null_count
+    Which is: 0
+  kNullCounts[leaf]
+    Which is: 1
+sz
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: dictionary index is outside the dictionary (iv) [context=6] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v2.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:144: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: v2 definition levels disagree with the page header's null count (sym) [context=8] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v2.parquet
+
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:276: Failure
+Expected equality of these values:
+  whole.null_count
+    Which is: 0
+  kNullCounts[leaf]
+    Which is: 2
+sym
+
+[  FAILED  ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (1 ms)
+[ RUN      ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:295: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: PLAIN value block is shorter than the page's value count (px) [context=40] path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v1.parquet
+
+[  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet" (15 ms)
+[ RUN      ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV2
+/workspace/engine/cpp/qr_parquet/tests/test_decode_values.cpp:295: Failure
+Value of: rows.has_value()
+  Actual: false
+Expected: true
+DECODE_FAILED at qr_parquet::File::decode_data_page: v2 definition levels disagree with the page header's null count (px) path=/workspace/engine/cpp/tests/fixtures/parquet/qr_good_v2.parquet
+
+[  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet" (2 ms)
+[----------] 8 tests from PageVersions/ParquetValues (28 ms total)
+
+[----------] Global test environment tear-down
+[==========] 43 tests from 10 test suites ran. (259 ms total)
+[  PASSED  ] 29 tests.
+[  FAILED  ] 14 tests, listed below:
+[  FAILED  ] ParquetWall.DictionaryIndexOutOfRangeIsADecodeRefusalCarryingTheIndex
+[  FAILED  ] ParquetPageVersions.V1AndV2DecodeToByteIdenticalOutput
+[  FAILED  ] ParquetArena.TheArenaIsReusedAcrossPagesAndChunksInsteadOfReallocated
+[  FAILED  ] ParquetDecode.TwoRunsOverAFixtureAreByteIdentical
+[  FAILED  ] RealFileDigests.StockTradesSessionOneTwentyFiveMatchesTheCommittedFixture
+[  FAILED  ] RealFileDigests.DecodedValuesAgreeWithTheWritersOwnColumnStatistics
+[  FAILED  ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical
+[  FAILED  ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor
+[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet"
+[  FAILED  ] PageVersions/ParquetValues.PlainAndDictionaryLeavesDecodeToTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet"
+[  FAILED  ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet"
+[  FAILED  ] PageVersions/ParquetValues.NullCountsMatchTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet"
+[  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV1, where GetParam() = "qr_good_v1.parquet"
+[  FAILED  ] PageVersions/ParquetValues.WholeFileDigestsMatchTheDerivedLiterals/DataPageV2, where GetParam() = "qr_good_v2.parquet"
+
+14 FAILED TESTS

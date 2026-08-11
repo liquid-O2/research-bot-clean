@@ -1,0 +1,12 @@
+--- a/qr_replay/src/scorecard.cpp
++++ b/qr_replay/src/scorecard.cpp
+@@ -72,7 +72,8 @@
+       // counting is a degenerate breach statistic and is forbidden; MAE remains
+       // a separate panel)". Both conjuncts are load-bearing and neither is
+       // derivable from the other.
+-      if (trade.stop_hit && trade.gap_through_cent > 0) {
++      // MC04 MUTANT: the forbidden MAE threshold, restored.
++      if (trade.mae_cent > kStopNetCent) {
+         ++card.breach_count;
+       }
+       mae_cents.push_back(trade.mae_cent);

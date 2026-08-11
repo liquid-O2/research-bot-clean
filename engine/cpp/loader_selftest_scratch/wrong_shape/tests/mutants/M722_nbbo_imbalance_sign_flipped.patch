@@ -1,0 +1,12 @@
+--- a/qr_nbbo/src/quote_groups.cpp
++++ b/qr_nbbo/src/quote_groups.cpp
+@@ -90,7 +90,8 @@
+   if (combined != Validity::VALID) {
+     return Typed<double>{0.0, combined};
+   }
+-  const Expected<std::int64_t, Refusal> numerator = checked_sub(mean_bid.value, mean_ask.value);
++  const Expected<std::int64_t, Refusal> numerator =
++      checked_sub(mean_ask.value, mean_bid.value);  // M722: the sign is flipped
+   const Expected<std::int64_t, Refusal> denominator = checked_add(mean_bid.value, mean_ask.value);
+   if (!numerator.has_value() || !denominator.has_value()) {
+     return Expected<Typed<double>, Refusal>::refuse(Refusal(

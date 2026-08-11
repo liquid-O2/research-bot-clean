@@ -1,0 +1,58 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 11 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from CampaignSpecGate
+[ RUN      ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses
+[       OK ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses (64 ms)
+[----------] 1 test from CampaignSpecGate (64 ms total)
+
+[----------] 2 tests from CampaignOrdinalWall
+[ RUN      ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed
+[       OK ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed (0 ms)
+[ RUN      ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement
+[       OK ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement (0 ms)
+[----------] 2 tests from CampaignOrdinalWall (0 ms total)
+
+[----------] 2 tests from CampaignPublish
+[ RUN      ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard
+[       OK ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard (130 ms)
+[ RUN      ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard
+[       OK ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard (172 ms)
+[----------] 2 tests from CampaignPublish (302 ms total)
+
+[----------] 2 tests from CampaignResume
+[ RUN      ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice
+[       OK ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice (114 ms)
+[ RUN      ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement
+[       OK ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement (91 ms)
+[----------] 2 tests from CampaignResume (206 ms total)
+
+[----------] 2 tests from CampaignLedger
+[ RUN      ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder
+[       OK ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder (206 ms)
+[ RUN      ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign
+[       OK ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign (42 ms)
+[----------] 2 tests from CampaignLedger (249 ms total)
+
+[----------] 1 test from CampaignHandoff
+[ RUN      ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob
+[       OK ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob (0 ms)
+[----------] 1 test from CampaignHandoff (0 ms total)
+
+[----------] 1 test from CampaignReceipt
+[ RUN      ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:398: Failure
+Value of: parse_receipt(root / "foreign.tsv").has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader (58 ms)
+[----------] 1 test from CampaignReceipt (58 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 7 test suites ran. (884 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader
+
+ 1 FAILED TEST

@@ -1,0 +1,1683 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M800_labels_stub_genesis
+# patch:       tests/mutants/M800_labels_stub_genesis.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M800_labels_stub_genesis
+#
+### qr_labels_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 74 tests from 18 test suites.
+[----------] Global test environment set-up.
+[----------] 11 tests from MoneyMath
+[ RUN      ] MoneyMath.FracIsTruncationTowardZeroOnBothSigns
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:16: Failure
+Expected equality of these values:
+  frac_u6(7, 3).value()
+    Which is: 0
+  2'333'333
+    Which is: 2333333
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:17: Failure
+Expected equality of these values:
+  frac_u6(-7, 3).value()
+    Which is: 0
+  -2'333'333
+    Which is: -2333333
+
+[  FAILED  ] MoneyMath.FracIsTruncationTowardZeroOnBothSigns (1 ms)
+[ RUN      ] MoneyMath.ANonPositiveFillOrMarkIsARefusalNotAGuardedDivision
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:22: Failure
+Value of: frac_u6(1, 0).has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:23: Failure
+Value of: frac_u6(1, -5).has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:25: Failure
+Value of: mark_net_cent(0, 1'000'000, Side::LONG).has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] MoneyMath.ANonPositiveFillOrMarkIsARefusalNotAGuardedDivision (2 ms)
+[ RUN      ] MoneyMath.TheFiveHundredAndSeventySixCentCostIsChargedExactlyOnce
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:30: Failure
+Expected equality of these values:
+  net_cent_of_frac(0).value()
+    Which is: 0
+  -kTradeCostCent
+    Which is: -576
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:31: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 1'000'000, Side::LONG).value()
+    Which is: 0
+  -576
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:34: Failure
+Expected equality of these values:
+  net_cent_of_frac(558).value() + kTradeCostCent
+    Which is: 6156
+  5'580
+    Which is: 5580
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:35: Failure
+Expected equality of these values:
+  net_cent_of_frac(558).value()
+    Which is: 5580
+  5'004
+    Which is: 5004
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:36: Failure
+Expected equality of these values:
+  net_cent_of_frac(-443).value()
+    Which is: -4430
+  -5'006
+    Which is: -5006
+
+[  FAILED  ] MoneyMath.TheFiveHundredAndSeventySixCentCostIsChargedExactlyOnce (3 ms)
+[ RUN      ] MoneyMath.LongAndShortMarksAreExactMirrorsAroundTheFill
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:41: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 1'001'000, Side::LONG).value()
+    Which is: 0
+  1'000 * 10 - 576
+    Which is: 9424
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:42: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 999'000, Side::SHORT).value()
+    Which is: 0
+  1'000 * 10 - 576
+    Which is: 9424
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:43: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 999'000, Side::LONG).value()
+    Which is: 0
+  -1'000 * 10 - 576
+    Which is: -10576
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:44: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 1'001'000, Side::SHORT).value()
+    Which is: 0
+  -1'000 * 10 - 576
+    Which is: -10576
+
+[  FAILED  ] MoneyMath.LongAndShortMarksAreExactMirrorsAroundTheFill (2 ms)
+[ RUN      ] MoneyMath.TheReachableNetLatticeIsTenCentsWideAroundMinusFiveSevenSix
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac -5
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac -4
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac -3
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac -2
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac -1
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac 0
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac 1
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac 2
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac 3
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac 4
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:51: Failure
+Expected equality of these values:
+  ((net % 10) + 10) % 10
+    Which is: 0
+  4
+frac 5
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:54: Failure
+Expected equality of these values:
+  net_cent_of_frac(-2'943).value()
+    Which is: -29430
+  -30'006
+    Which is: -30006
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:55: Failure
+Expected equality of these values:
+  net_cent_of_frac(-2'942).value()
+    Which is: -29420
+  -29'996
+    Which is: -29996
+
+[  FAILED  ] MoneyMath.TheReachableNetLatticeIsTenCentsWideAroundMinusFiveSevenSix (9 ms)
+[ RUN      ] MoneyMath.AOneCentStopShiftCannotMoveTheFracThresholdButFourCentsCan
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:63: Failure
+Expected equality of these values:
+  at_wall
+    Which is: 0
+  -2'943
+    Which is: -2943
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:68: Failure
+Expected equality of these values:
+  frac_threshold_for_net(NetBound::AT_OR_BELOW, -29'996).value()
+    Which is: 0
+  -2'942
+    Which is: -2942
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:69: Failure
+Expected equality of these values:
+  frac_threshold_for_net(NetBound::AT_OR_BELOW, -30'007).value()
+    Which is: 0
+  -2'944
+    Which is: -2944
+
+[  FAILED  ] MoneyMath.AOneCentStopShiftCannotMoveTheFracThresholdButFourCentsCan (1 ms)
+[ RUN      ] MoneyMath.TheWallPriceGateIsTheExactBoundaryOnBothSides
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:78: Failure
+Expected equality of these values:
+  longs.price_u6
+    Which is: 0
+  997'057
+    Which is: 997057
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:79: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 997'057, Side::LONG).value()
+    Which is: 0
+  -30'006
+    Which is: -30006
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:80: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 997'058, Side::LONG).value()
+    Which is: 0
+  -29'996
+    Which is: -29996
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:85: Failure
+Value of: shorts.triggers_at_or_below
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:86: Failure
+Expected equality of these values:
+  shorts.price_u6
+    Which is: 0
+  1'002'943
+    Which is: 1002943
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:87: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 1'002'943, Side::SHORT).value()
+    Which is: 0
+  -30'006
+    Which is: -30006
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:88: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 1'002'942, Side::SHORT).value()
+    Which is: 0
+  -29'996
+    Which is: -29996
+
+[  FAILED  ] MoneyMath.TheWallPriceGateIsTheExactBoundaryOnBothSides (4 ms)
+[ RUN      ] MoneyMath.TheBarrierPriceGatesAreTheExactBoundariesOnBothSides
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:94: Failure
+Value of: favorable_long.triggers_at_or_below
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:95: Failure
+Expected equality of these values:
+  favorable_long.price_u6
+    Which is: 0
+  1'000'558
+    Which is: 1000558
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:96: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 1'000'558, Side::LONG).value()
+    Which is: 0
+  5'004
+    Which is: 5004
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:97: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 1'000'557, Side::LONG).value()
+    Which is: 0
+  4'994
+    Which is: 4994
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:102: Failure
+Expected equality of these values:
+  adverse_long.price_u6
+    Which is: 0
+  999'557
+    Which is: 999557
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:103: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 999'557, Side::LONG).value()
+    Which is: 0
+  -5'006
+    Which is: -5006
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:104: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 999'558, Side::LONG).value()
+    Which is: 0
+  -4'996
+    Which is: -4996
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:109: Failure
+Expected equality of these values:
+  favorable_short.price_u6
+    Which is: 0
+  999'442
+    Which is: 999442
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:110: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 999'442, Side::SHORT).value()
+    Which is: 0
+  5'004
+    Which is: 5004
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:114: Failure
+Value of: adverse_short.triggers_at_or_below
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:115: Failure
+Expected equality of these values:
+  adverse_short.price_u6
+    Which is: 0
+  1'000'443
+    Which is: 1000443
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:116: Failure
+Expected equality of these values:
+  mark_net_cent(1'000'000, 1'000'443, Side::SHORT).value()
+    Which is: 0
+  -5'006
+    Which is: -5006
+
+[  FAILED  ] MoneyMath.TheBarrierPriceGatesAreTheExactBoundariesOnBothSides (22 ms)
+[ RUN      ] MoneyMath.ThePriceGateIsExactAtEveryPriceOverAWideSweep
+[       OK ] MoneyMath.ThePriceGateIsExactAtEveryPriceOverAWideSweep (1 ms)
+[ RUN      ] MoneyMath.ANetGateWithTheWrongFracSignRefusesRatherThanGuessingABranch
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:144: Failure
+Value of: price_gate_for_net(1'000'000, Side::LONG, NetBound::AT_OR_BELOW, kBarrierNetCent).has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:146: Failure
+Value of: price_gate_for_net(1'000'000, Side::LONG, NetBound::AT_OR_ABOVE, -30'000).has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:148: Failure
+Value of: price_gate_for_net(0, Side::LONG, NetBound::AT_OR_BELOW, -30'000).has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] MoneyMath.ANetGateWithTheWrongFracSignRefusesRatherThanGuessingABranch (2 ms)
+[ RUN      ] MoneyMath.FloorAndCeilDivisionAreExactOnNegativeNumerators
+/workspace/engine/cpp/qr_labels/tests/test_money.cpp:152: Failure
+Expected equality of these values:
+  floor_div_positive(-29'424, 10)
+    Which is: -2942
+  -2'943
+    Which is: -2943
+
+[  FAILED  ] MoneyMath.FloorAndCeilDivisionAreExactOnNegativeNumerators (0 ms)
+[----------] 11 tests from MoneyMath (67 ms total)
+
+[----------] 9 tests from ExecutionTape
+[ RUN      ] ExecutionTape.TheFourExtremaAreTheConservativeEnvelopeOfTheEligibleMembers
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:31: Failure
+Expected equality of these values:
+  tape.bid_min_u6[0]
+    Which is: 999870
+  999'800
+    Which is: 999800
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:32: Failure
+Expected equality of these values:
+  tape.bid_max_u6[0]
+    Which is: 999870
+  999'900
+    Which is: 999900
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:33: Failure
+Expected equality of these values:
+  tape.ask_min_u6[0]
+    Which is: 999990
+  999'950
+    Which is: 999950
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:34: Failure
+Expected equality of these values:
+  tape.ask_max_u6[0]
+    Which is: 999990
+  1'000'050
+    Which is: 1000050
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:36: Failure
+Expected equality of these values:
+  tape.entry_price(0, Side::LONG)
+    Which is: 999990
+  1'000'050
+    Which is: 1000050
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:37: Failure
+Expected equality of these values:
+  tape.entry_price(0, Side::SHORT)
+    Which is: 999870
+  999'800
+    Which is: 999800
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:38: Failure
+Expected equality of these values:
+  tape.adverse_mark(0, Side::LONG)
+    Which is: 999870
+  999'800
+    Which is: 999800
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:39: Failure
+Expected equality of these values:
+  tape.adverse_mark(0, Side::SHORT)
+    Which is: 999990
+  1'000'050
+    Which is: 1000050
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:40: Failure
+Expected equality of these values:
+  tape.favorable_mark(0, Side::LONG)
+    Which is: 999870
+  999'900
+    Which is: 999900
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:41: Failure
+Expected equality of these values:
+  tape.favorable_mark(0, Side::SHORT)
+    Which is: 999990
+  999'950
+    Which is: 999950
+
+[  FAILED  ] ExecutionTape.TheFourExtremaAreTheConservativeEnvelopeOfTheEligibleMembers (20 ms)
+[ RUN      ] ExecutionTape.EligibilityIsQrNbbosPredicateAndNothingElse
+[       OK ] ExecutionTape.EligibilityIsQrNbbosPredicateAndNothingElse (0 ms)
+[ RUN      ] ExecutionTape.AGroupWithNoEligibleMemberCarriesNoLawfulMarkButIsCensused
+[       OK ] ExecutionTape.AGroupWithNoEligibleMemberCarriesNoLawfulMarkButIsCensused (0 ms)
+[ RUN      ] ExecutionTape.MemberPermutationDoesNotMoveASingleByte
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:92: Failure
+Expected equality of these values:
+  a
+    Which is: { '\0', ':' (58, 0x3A), '\x8D' (141), 'u' (117, 0x75), '\x1' (1), '\xF2' (242), '\xFE' (254), '\x16' (22), '\xBE' (190), 'A' (65, 0x41), '\xF' (15), '\0', '\0', '\0', '\0', '\0', '\xBE' (190), 'A' (65, 0x41), '\xF' (15), '\0', '\0', '\0', '\0', '\0', '6' (54, 0x36), 'B' (66, 0x42), '\xF' (15), '\0', '\0', '\0', '\0', '\0', ... }
+  b
+    Which is: { '\0', ':' (58, 0x3A), '\x8D' (141), 'u' (117, 0x75), '\x1' (1), '\xF2' (242), '\xFE' (254), '\x16' (22), '\xDC' (220), 'A' (65, 0x41), '\xF' (15), '\0', '\0', '\0', '\0', '\0', '\xDC' (220), 'A' (65, 0x41), '\xF' (15), '\0', '\0', '\0', '\0', '\0', '@' (64, 0x40), 'B' (66, 0x42), '\xF' (15), '\0', '\0', '\0', '\0', '\0', ... }
+
+[  FAILED  ] ExecutionTape.MemberPermutationDoesNotMoveASingleByte (1 ms)
+[ RUN      ] ExecutionTape.EqualOrDescendingGroupStampsAreRefused
+[       OK ] ExecutionTape.EqualOrDescendingGroupStampsAreRefused (0 ms)
+[ RUN      ] ExecutionTape.ARowWhoseStampIsNotItsOwnGroupsIsRefused
+[       OK ] ExecutionTape.ARowWhoseStampIsNotItsOwnGroupsIsRefused (0 ms)
+[ RUN      ] ExecutionTape.AGroupOutsideTheSessionsRegularHoursIsRefusedByTheClock
+[       OK ] ExecutionTape.AGroupOutsideTheSessionsRegularHoursIsRefusedByTheClock (0 ms)
+[ RUN      ] ExecutionTape.FirstStrictlyAfterExcludesExactEqualityAndFirstAtOrAfterIncludesIt
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:127: Failure
+Expected equality of these values:
+  tape.first_strictly_after(first_ts)
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:129: Failure
+Expected equality of these values:
+  tape.first_strictly_after(tape.ts_ns[1])
+    Which is: 0
+  kNoIndex
+    Which is: -1
+
+[  FAILED  ] ExecutionTape.FirstStrictlyAfterExcludesExactEqualityAndFirstAtOrAfterIncludesIt (1 ms)
+[ RUN      ] ExecutionTape.VerifyAgainstBindsTheTapeToTheWp5ProjectionGroupForGroup
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:155: Failure
+Expected equality of these values:
+  matched.value()
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:162: Failure
+Value of: verify_against(corrupted, machine.groups()).has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_labels/tests/test_execution_tape.cpp:170: Failure
+Value of: verify_against(dropped, machine.groups()).has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] ExecutionTape.VerifyAgainstBindsTheTapeToTheWp5ProjectionGroupForGroup (2 ms)
+[----------] 9 tests from ExecutionTape (36 ms total)
+
+[----------] 3 tests from ExtremumIndexQueries
+[ RUN      ] ExtremumIndexQueries.MatchABruteForceScanOverEveryRangeOfAPseudoRandomArray
+[       OK ] ExtremumIndexQueries.MatchABruteForceScanOverEveryRangeOfAPseudoRandomArray (32 ms)
+[ RUN      ] ExtremumIndexQueries.TheLeftmostArgumentOfATiedExtremumIsTheEarliestOne
+[       OK ] ExtremumIndexQueries.TheLeftmostArgumentOfATiedExtremumIsTheEarliestOne (0 ms)
+[ RUN      ] ExtremumIndexQueries.ASingleElementIndexAnswersItsOnlyRange
+[       OK ] ExtremumIndexQueries.ASingleElementIndexAnswersItsOnlyRange (0 ms)
+[----------] 3 tests from ExtremumIndexQueries (35 ms total)
+
+[----------] 3 tests from DecisionSecondClock
+[ RUN      ] DecisionSecondClock.RegistersOneSecondPerBarMinuteOfItsOwnRegistryRow
+[       OK ] DecisionSecondClock.RegistersOneSecondPerBarMinuteOfItsOwnRegistryRow (0 ms)
+[ RUN      ] DecisionSecondClock.TheCardsIdentityHoldsForEveryRegisteredSecond
+[       OK ] DecisionSecondClock.TheCardsIdentityHoldsForEveryRegisteredSecond (0 ms)
+[ RUN      ] DecisionSecondClock.TheThreeSelectionRulesAreTheCardsThreeRules
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:104: Failure
+Expected equality of these values:
+  clock.first_second_strictly_after(start)
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:105: Failure
+Expected equality of these values:
+  clock.first_second_strictly_after(start + 1)
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:106: Failure
+Expected equality of these values:
+  clock.first_second_strictly_after(start + kNanosecondsPerSecond - 1)
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:109: Failure
+Expected equality of these values:
+  clock.first_second_at_or_after(start + 1)
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:110: Failure
+Expected equality of these values:
+  clock.first_second_at_or_after(start + kNanosecondsPerSecond)
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:114: Failure
+Expected equality of these values:
+  clock.last_second_at_or_before(start + kNanosecondsPerSecond)
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:115: Failure
+Expected equality of these values:
+  clock.last_second_at_or_before(start - 1)
+    Which is: 0
+  kNoIndex
+    Which is: -1
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:117: Failure
+Expected equality of these values:
+  clock.last_second_at_or_before(clock.session_end_ns() + kNanosecondsPerSecond)
+    Which is: 0
+  clock.second_count() - 1
+    Which is: 23399
+
+[  FAILED  ] DecisionSecondClock.TheThreeSelectionRulesAreTheCardsThreeRules (4 ms)
+[----------] 3 tests from DecisionSecondClock (8 ms total)
+
+[----------] 10 tests from Watches
+[ RUN      ] Watches.EachCandidateCreatesExactlyThreeWatchesAndNoD90OrD120
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:130: Failure
+Expected equality of these values:
+  plan.census.watches_built
+    Which is: 2
+  3
+
+[  FAILED  ] Watches.EachCandidateCreatesExactlyThreeWatchesAndNoD90OrD120 (12 ms)
+[ RUN      ] Watches.D0IsTheFirstRegisteredSecondStrictlyAfterOwnVisibility
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:137: Failure
+Expected equality of these values:
+  stage_row(on_second, WatchStage::D0).decision_second
+    Which is: 0
+  101
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:141: Failure
+Expected equality of these values:
+  stage_row(mid, WatchStage::D0).decision_second
+    Which is: 0
+  101
+
+[  FAILED  ] Watches.D0IsTheFirstRegisteredSecondStrictlyAfterOwnVisibility (24 ms)
+[ RUN      ] Watches.D30IsTheFirstRegisteredSecondAtOrAfterVisibilityPlusThirty
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:147: Failure
+Expected equality of these values:
+  stage_row(on_second, WatchStage::D30).decision_second
+    Which is: 0
+  130
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:150: Failure
+Expected equality of these values:
+  stage_row(mid, WatchStage::D30).decision_second
+    Which is: 0
+  131
+
+[  FAILED  ] Watches.D30IsTheFirstRegisteredSecondAtOrAfterVisibilityPlusThirty (21 ms)
+[ RUN      ] Watches.D60IsTheLastRegisteredSecondAtOrBeforeVisibilityPlusSixty
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:156: Failure
+Expected equality of these values:
+  stage_row(on_second, WatchStage::D60).decision_second
+    Which is: -1
+  160
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:159: Failure
+Expected equality of these values:
+  stage_row(mid, WatchStage::D60).decision_second
+    Which is: -1
+  160
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:164: Failure
+Expected: (row.decision_ts_ns - row.visible_ts_ns) > (0), actual: -1657027900500000000 vs 0
+
+[  FAILED  ] Watches.D60IsTheLastRegisteredSecondAtOrBeforeVisibilityPlusSixty (25 ms)
+[ RUN      ] Watches.D60IsClockUnavailableWhenTheLastSecondIsNotStrictlyAfterVisibility
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:182: Failure
+Expected equality of these values:
+  available.clock_state
+    Which is: 1-byte object <0C>
+  Validity::VALID
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:183: Failure
+Expected equality of these values:
+  available.decision_second
+    Which is: -1
+  clock.second_count() - 1
+    Which is: 23399
+
+[  FAILED  ] Watches.D60IsClockUnavailableWhenTheLastSecondIsNotStrictlyAfterVisibility (15 ms)
+[ RUN      ] Watches.OutOfSessionWatchesAreRetainedAsClockUnavailableAndNeverDropped
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:194: Failure
+Expected equality of these values:
+  row.clock_state
+    Which is: 1-byte object <00>
+  Validity::CLOCK_UNAVAILABLE
+    Which is: 1-byte object <0C>
+D0
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:194: Failure
+Expected equality of these values:
+  row.clock_state
+    Which is: 1-byte object <00>
+  Validity::CLOCK_UNAVAILABLE
+    Which is: 1-byte object <0C>
+D30
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:196: Failure
+Expected equality of these values:
+  plan.census.watches_clock_unavailable
+    Which is: 1
+  3
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:197: Failure
+Expected equality of these values:
+  plan.census.watches_built
+    Which is: 2
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:198: Failure
+Value of: plan.actions.empty()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Watches.OutOfSessionWatchesAreRetainedAsClockUnavailableAndNeverDropped (10 ms)
+[ RUN      ] Watches.TheLedgerRetainsEveryFieldTheCardEnumerates
+[       OK ] Watches.TheLedgerRetainsEveryFieldTheCardEnumerates (6 ms)
+[ RUN      ] Watches.ManyWatchesConvergeOntoOneActionRowAndNeverDuplicateAFitRow
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:227: Failure
+Expected equality of these values:
+  plan.actions.size()
+    Which is: 1
+  3U
+    Which is: 3
+
+[  FAILED  ] Watches.ManyWatchesConvergeOntoOneActionRowAndNeverDuplicateAFitRow (8 ms)
+[ RUN      ] Watches.LongAndShortAtOneClockAreTwoActionRowsNotOne
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:241: Failure
+Expected equality of these values:
+  plan.actions.size()
+    Which is: 2
+  6U
+    Which is: 6
+
+[  FAILED  ] Watches.LongAndShortAtOneClockAreTwoActionRowsNotOne (7 ms)
+[ RUN      ] Watches.TheLedgerIsByteIdenticalUnderAnyInputOrderNotMerelyAcrossTwoRuns
+[       OK ] Watches.TheLedgerIsByteIdenticalUnderAnyInputOrderNotMerelyAcrossTwoRuns (19 ms)
+[----------] 10 tests from Watches (166 ms total)
+
+[----------] 4 tests from DecisionOrdinalRoster
+[ RUN      ] DecisionOrdinalRoster.IsTheSortedUnionOfEverySecondAndEveryVisibility
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:262: Failure
+Expected equality of these values:
+  roster.size()
+    Which is: 23400
+  clock.second_count() + 1
+    Which is: 23401
+
+/workspace/engine/cpp/qr_labels/tests/labels_test_support.hpp:163: Failure
+Failed
+refused: CONTENT_MISMATCH at qr_labels::DecisionRoster: the decision instant is not on the authority clock roster [context=1657027850250000000]
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:266: Failure
+Expected equality of these values:
+  ordinal_of(roster, between)
+    Which is: -1
+  51
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:268: Failure
+Expected equality of these values:
+  ordinal_of(roster, clock.second_ts(51).value())
+    Which is: 51
+  52
+
+[  FAILED  ] DecisionOrdinalRoster.IsTheSortedUnionOfEverySecondAndEveryVisibility (20 ms)
+[ RUN      ] DecisionOrdinalRoster.MovingOneVisibilityShiftsOrdinalsOnlyAtOrAfterIt
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 51
+  right + 1
+    Which is: 52
+second 51
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 52
+  right + 1
+    Which is: 53
+second 52
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 53
+  right + 1
+    Which is: 54
+second 53
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 54
+  right + 1
+    Which is: 55
+second 54
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 55
+  right + 1
+    Which is: 56
+second 55
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 56
+  right + 1
+    Which is: 57
+second 56
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 57
+  right + 1
+    Which is: 58
+second 57
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 58
+  right + 1
+    Which is: 59
+second 58
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 59
+  right + 1
+    Which is: 60
+second 59
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 60
+  right + 1
+    Which is: 61
+second 60
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 61
+  right + 1
+    Which is: 62
+second 61
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 62
+  right + 1
+    Which is: 63
+second 62
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 63
+  right + 1
+    Which is: 64
+second 63
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 64
+  right + 1
+    Which is: 65
+second 64
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 65
+  right + 1
+    Which is: 66
+second 65
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 66
+  right + 1
+    Which is: 67
+second 66
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 67
+  right + 1
+    Which is: 68
+second 67
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 68
+  right + 1
+    Which is: 69
+second 68
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 69
+  right + 1
+    Which is: 70
+second 69
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 70
+  right + 1
+    Which is: 71
+second 70
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 71
+  right + 1
+    Which is: 72
+second 71
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 72
+  right + 1
+    Which is: 73
+second 72
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 73
+  right + 1
+    Which is: 74
+second 73
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 74
+  right + 1
+    Which is: 75
+second 74
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 75
+  right + 1
+    Which is: 76
+second 75
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 76
+  right + 1
+    Which is: 77
+second 76
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 77
+  right + 1
+    Which is: 78
+second 77
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 78
+  right + 1
+    Which is: 79
+second 78
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 79
+  right + 1
+    Which is: 80
+second 79
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:292: Failure
+Expected equality of these values:
+  left
+    Which is: 80
+  right + 1
+    Which is: 81
+second 80
+
+[  FAILED  ] DecisionOrdinalRoster.MovingOneVisibilityShiftsOrdinalsOnlyAtOrAfterIt (196 ms)
+[ RUN      ] DecisionOrdinalRoster.AnInstantOffTheRosterIsARefusalAndNeverANearestNeighbour
+[       OK ] DecisionOrdinalRoster.AnInstantOffTheRosterIsARefusalAndNeverANearestNeighbour (11 ms)
+[ RUN      ] DecisionOrdinalRoster.ARosterThatIsNotStrictlyIncreasingIsRefused
+[       OK ] DecisionOrdinalRoster.ARosterThatIsNotStrictlyIncreasingIsRefused (0 ms)
+[----------] 4 tests from DecisionOrdinalRoster (237 ms total)
+
+[----------] 5 tests from OneToOneKey
+[ RUN      ] OneToOneKey.RefusesOneOrdinalCarryingTwoDifferentInstants
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:333: Failure
+Value of: refuse_unless_one_to_one(rows).has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] OneToOneKey.RefusesOneOrdinalCarryingTwoDifferentInstants (0 ms)
+[ RUN      ] OneToOneKey.RefusesTwoOrdinalsCarryingTheSameInstant
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:338: Failure
+Value of: refuse_unless_one_to_one(rows).has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] OneToOneKey.RefusesTwoOrdinalsCarryingTheSameInstant (1 ms)
+[ RUN      ] OneToOneKey.RefusesARepeatedKeyAndAnInvertedInstant
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:343: Failure
+Value of: refuse_unless_one_to_one(repeated).has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:345: Failure
+Value of: refuse_unless_one_to_one(inverted).has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] OneToOneKey.RefusesARepeatedKeyAndAnInvertedInstant (1 ms)
+[ RUN      ] OneToOneKey.AcceptsTheLawfulShapeBothSidesAtOneClockAndOneSideAcrossClocks
+[       OK ] OneToOneKey.AcceptsTheLawfulShapeBothSidesAtOneClockAndOneSideAcrossClocks (0 ms)
+[ RUN      ] OneToOneKey.TheProductionPlanSatisfiesItAndTheSecondIsNeverTheOrdinal
+/workspace/engine/cpp/qr_labels/tests/test_watches.cpp:369: Failure
+Value of: saw_a_gap
+  Actual: false
+Expected: true
+with two off-second visibilities the ordinal must leave the second
+
+[  FAILED  ] OneToOneKey.TheProductionPlanSatisfiesItAndTheSecondIsNeverTheOrdinal (12 ms)
+[----------] 5 tests from OneToOneKey (24 ms total)
+
+[----------] 3 tests from LabelEntry
+[ RUN      ] LabelEntry.IsTheFirstLawfulMarkStrictlyAfterTheDecisionAndNeverAtEquality
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:76: Failure
+Expected equality of these values:
+  on_group.entry_index
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:77: Failure
+Expected equality of these values:
+  on_group.entry_u6
+    Which is: 1000000
+  kFill + 100 + 100
+    Which is: 1000200
+
+[  FAILED  ] LabelEntry.IsTheFirstLawfulMarkStrictlyAfterTheDecisionAndNeverAtEquality (2 ms)
+[ RUN      ] LabelEntry.EqualMillisecondFillsAndMarksAreTheAdverseEnvelope
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:86: Failure
+Expected equality of these values:
+  row.entry_u6
+    Which is: 999950
+  kFill
+    Which is: 1000000
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:88: Failure
+Expected equality of these values:
+  row.menu.menu_mae_cent[0]
+    Which is: 0
+  -net_of_move(-200)
+    Which is: 2576
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:89: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[0]
+    Which is: 0
+  net_of_move(-50)
+    Which is: -1076
+
+[  FAILED  ] LabelEntry.EqualMillisecondFillsAndMarksAreTheAdverseEnvelope (2 ms)
+[ RUN      ] LabelEntry.TheFiveHundredAndSeventySixCentCostIsChargedOncePerHorizon
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:99: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  -kTradeCostCent
+    Which is: -576
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:100: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon] + kTradeCostCent
+    Which is: 576
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:99: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  -kTradeCostCent
+    Which is: -576
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:100: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon] + kTradeCostCent
+    Which is: 576
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:99: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  -kTradeCostCent
+    Which is: -576
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:100: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon] + kTradeCostCent
+    Which is: 576
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:99: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  -kTradeCostCent
+    Which is: -576
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:100: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon] + kTradeCostCent
+    Which is: 576
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:99: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  -kTradeCostCent
+    Which is: -576
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:100: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon] + kTradeCostCent
+    Which is: 576
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:99: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  -kTradeCostCent
+    Which is: -576
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:100: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon] + kTradeCostCent
+    Which is: 576
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:99: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  -kTradeCostCent
+    Which is: -576
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:100: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon] + kTradeCostCent
+    Which is: 576
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:102: Failure
+Expected equality of these values:
+  row.certificate_net_cent
+    Which is: 0
+  -kTradeCostCent
+    Which is: -576
+
+[  FAILED  ] LabelEntry.TheFiveHundredAndSeventySixCentCostIsChargedOncePerHorizon (12 ms)
+[----------] 3 tests from LabelEntry (24 ms total)
+
+[----------] 4 tests from StopWall
+[ RUN      ] StopWall.CrossesAtTheExactMinusThirtyThousandBoundaryAndNotOneTickEarlier
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:117: Failure
+Value of: row.scan.crossed
+  Actual: false
+Expected: true
+
+[  FAILED  ] StopWall.CrossesAtTheExactMinusThirtyThousandBoundaryAndNotOneTickEarlier (1 ms)
+[ RUN      ] StopWall.FillsAtTheNextLawfulMarkStrictlyAfterTheCrossing
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:125: Failure
+Value of: row.scan.crossed
+  Actual: false
+Expected: true
+
+[  FAILED  ] StopWall.FillsAtTheNextLawfulMarkStrictlyAfterTheCrossing (0 ms)
+[ RUN      ] StopWall.GapThroughBeyondTheWallIsRetainedAndReportedNeverCappedAtTheWall
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:137: Failure
+Value of: row.scan.crossed
+  Actual: false
+Expected: true
+
+[  FAILED  ] StopWall.GapThroughBeyondTheWallIsRetainedAndReportedNeverCappedAtTheWall (1 ms)
+[ RUN      ] StopWall.IsScannedStrictlyAfterTheFillSoAWideEntryCannotStopItself
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:153: Failure
+Expected equality of these values:
+  row.menu.menu_mae_cent[0]
+    Which is: 0
+  -net_of_move(-40'000)
+    Which is: 400576
+
+[  FAILED  ] StopWall.IsScannedStrictlyAfterTheFillSoAWideEntryCannotStopItself (0 ms)
+[----------] 4 tests from StopWall (10 ms total)
+
+[----------] 4 tests from MenuHorizons
+[ RUN      ] MenuHorizons.TakeTheFirstLawfulMarkAtOrAfterTheDeadlineIncludingAnExactBoundary
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:171: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[0]
+    Which is: 0
+  net_of_move(300)
+    Which is: 2424
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:176: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  net_of_move(500)
+    Which is: 4424
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:176: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  net_of_move(500)
+    Which is: 4424
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:176: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  net_of_move(500)
+    Which is: 4424
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:176: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  net_of_move(500)
+    Which is: 4424
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:176: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  net_of_move(500)
+    Which is: 4424
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:176: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[horizon]
+    Which is: 0
+  net_of_move(500)
+    Which is: 4424
+
+[  FAILED  ] MenuHorizons.TakeTheFirstLawfulMarkAtOrAfterTheDeadlineIncludingAnExactBoundary (20 ms)
+[ RUN      ] MenuHorizons.TheCloseHorizonIsTheFinalLawfulMarkOfTheSession
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:184: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[kHorizonCount - 1]
+    Which is: 0
+  net_of_move(300)
+    Which is: 2424
+
+[  FAILED  ] MenuHorizons.TheCloseHorizonIsTheFinalLawfulMarkOfTheSession (0 ms)
+[ RUN      ] MenuHorizons.StopHitMeansStrictlyBeforeTheHorizonSoASameGroupCrossingExitsAtTheHorizon
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:196: Failure
+Value of: row.scan.crossed
+  Actual: false
+Expected: true
+
+[  FAILED  ] MenuHorizons.StopHitMeansStrictlyBeforeTheHorizonSoASameGroupCrossingExitsAtTheHorizon (1 ms)
+[ RUN      ] MenuHorizons.TheMaeIsExactAndRangesFromTheFillThroughEachHorizonsOwnExit
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:209: Failure
+Expected equality of these values:
+  row.menu.menu_mae_cent[0]
+    Which is: 0
+  -net_of_move(-400)
+    Which is: 4576
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:210: Failure
+Expected equality of these values:
+  row.menu.menu_net_cent[0]
+    Which is: 0
+  net_of_move(500)
+    Which is: 4424
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:211: Failure
+Expected: (row.menu.menu_mae_cent[0]) > (0), actual: 0 vs 0
+
+[  FAILED  ] MenuHorizons.TheMaeIsExactAndRangesFromTheFillThroughEachHorizonsOwnExit (4 ms)
+[----------] 4 tests from MenuHorizons (37 ms total)
+
+[----------] 4 tests from Certificate
+[ RUN      ] Certificate.IsTheEarliestBestPositiveMarkBeforeTheWall
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:223: Failure
+Expected equality of these values:
+  row.certificate_exit_index
+    Which is: 5
+  2
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:224: Failure
+Expected equality of these values:
+  row.certificate_net_cent
+    Which is: 0
+  net_of_move(500)
+    Which is: 4424
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:225: Failure
+Expected equality of these values:
+  row.certificate_mae_cent
+    Which is: 0
+  -net_of_move(-100)
+    Which is: 1576
+
+[  FAILED  ] Certificate.IsTheEarliestBestPositiveMarkBeforeTheWall (2 ms)
+[ RUN      ] Certificate.FallsBackToTheWallFillWhenNoPreWallMarkIsPositive
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:231: Failure
+Value of: row.scan.crossed
+  Actual: false
+Expected: true
+
+[  FAILED  ] Certificate.FallsBackToTheWallFillWhenNoPreWallMarkIsPositive (0 ms)
+[ RUN      ] Certificate.FallsBackToTheFinalLawfulMarkWhenNothingCrossesAndNothingIsPositive
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:241: Failure
+Expected equality of these values:
+  row.certificate_net_cent
+    Which is: 0
+  net_of_move(-200)
+    Which is: -2576
+
+[  FAILED  ] Certificate.FallsBackToTheFinalLawfulMarkWhenNothingCrossesAndNothingIsPositive (1 ms)
+[ RUN      ] Certificate.NeverExitsAtTheEntryGroupEvenWhenTheEntryMarkIsTheMaximum
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:250: Failure
+Expected equality of these values:
+  row.certificate_net_cent
+    Which is: 0
+  net_of_move(-6'000)
+    Which is: -60576
+
+[  FAILED  ] Certificate.NeverExitsAtTheEntryGroupEvenWhenTheEntryMarkIsTheMaximum (1 ms)
+[----------] 4 tests from Certificate (11 ms total)
+
+[----------] 3 tests from LabelStates
+[ RUN      ] LabelStates.EntryUnavailableIsRetainedWithMaskedValues
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:260: Failure
+Expected equality of these values:
+  row.menu.state
+    Which is: 1-byte object <00>
+  LabelState::ENTRY_UNAVAILABLE
+    Which is: 1-byte object <01>
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:261: Failure
+Expected equality of these values:
+  row.entry_index
+    Which is: 0
+  kNoIndex
+    Which is: -1
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:262: Failure
+Expected equality of these values:
+  row.menu.entry_ts_ns
+    Which is: 1657027801000000000
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:265: Failure
+Expected equality of these values:
+  row.menu.menu_exit_ts[horizon]
+    Which is: 1657027802000000000
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:265: Failure
+Expected equality of these values:
+  row.menu.menu_exit_ts[horizon]
+    Which is: 1657027802000000000
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:265: Failure
+Expected equality of these values:
+  row.menu.menu_exit_ts[horizon]
+    Which is: 1657027802000000000
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:265: Failure
+Expected equality of these values:
+  row.menu.menu_exit_ts[horizon]
+    Which is: 1657027802000000000
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:265: Failure
+Expected equality of these values:
+  row.menu.menu_exit_ts[horizon]
+    Which is: 1657027802000000000
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:265: Failure
+Expected equality of these values:
+  row.menu.menu_exit_ts[horizon]
+    Which is: 1657027802000000000
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:265: Failure
+Expected equality of these values:
+  row.menu.menu_exit_ts[horizon]
+    Which is: 1657027802000000000
+  0
+
+[  FAILED  ] LabelStates.EntryUnavailableIsRetainedWithMaskedValues (9 ms)
+[ RUN      ] LabelStates.ExitUnavailableIsTheFillOnTheFinalLawfulMark
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:276: Failure
+Expected equality of these values:
+  row.menu.state
+    Which is: 1-byte object <00>
+  LabelState::EXIT_UNAVAILABLE
+    Which is: 1-byte object <02>
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:277: Failure
+Expected equality of these values:
+  row.entry_index
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:279: Failure
+Expected equality of these values:
+  row.menu.menu_exit_ts[0]
+    Which is: 1657027802000000000
+  0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:280: Failure
+Expected equality of these values:
+  row.certificate_exit_ts_ns
+    Which is: 1657027802000000000
+  0
+
+[  FAILED  ] LabelStates.ExitUnavailableIsTheFillOnTheFinalLawfulMark (3 ms)
+[ RUN      ] LabelStates.TheThreeStatesAreSeparateMasksOverTheSameSession
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:290: Failure
+Expected equality of these values:
+  census.per_state[static_cast<std::size_t>(LabelState::OK)]
+    Which is: 3
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:291: Failure
+Expected equality of these values:
+  census.per_state[static_cast<std::size_t>(LabelState::EXIT_UNAVAILABLE)]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:292: Failure
+Expected equality of these values:
+  census.per_state[static_cast<std::size_t>(LabelState::ENTRY_UNAVAILABLE)]
+    Which is: 0
+  1
+
+[  FAILED  ] LabelStates.TheThreeStatesAreSeparateMasksOverTheSameSession (2 ms)
+[----------] 3 tests from LabelStates (18 ms total)
+
+[----------] 2 tests from BarrierAuxiliary
+[ RUN      ] BarrierAuxiliary.ReachesAllFourRawStatesAndMapsThemToThreeClasses
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:302: Failure
+Expected equality of these values:
+  favorable.barrier.state
+    Which is: 1-byte object <03>
+  BarrierState::FAVORABLE_FIRST
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:303: Failure
+Expected equality of these values:
+  favorable.barrier.three_class
+    Which is: 1-byte object <02>
+  BarrierClass::FAVORABLE
+    Which is: 1-byte object <00>
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:307: Failure
+Expected equality of these values:
+  adverse.barrier.state
+    Which is: 1-byte object <03>
+  BarrierState::ADVERSE_FIRST
+    Which is: 1-byte object <01>
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:308: Failure
+Expected equality of these values:
+  adverse.barrier.three_class
+    Which is: 1-byte object <02>
+  BarrierClass::ADVERSE
+    Which is: 1-byte object <01>
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:322: Failure
+Expected equality of these values:
+  same_group.barrier.state
+    Which is: 1-byte object <03>
+  BarrierState::SAME_GROUP_ADVERSE
+    Which is: 1-byte object <02>
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:323: Failure
+Expected equality of these values:
+  same_group.barrier.three_class
+    Which is: 1-byte object <02>
+  BarrierClass::ADVERSE
+    Which is: 1-byte object <01>
+
+[  FAILED  ] BarrierAuxiliary.ReachesAllFourRawStatesAndMapsThemToThreeClasses (5 ms)
+[ RUN      ] BarrierAuxiliary.IsScannedOverFullRthAndIgnoresTheStopAndTheHorizons
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:331: Failure
+Value of: row.scan.crossed
+  Actual: false
+Expected: true
+
+[  FAILED  ] BarrierAuxiliary.IsScannedOverFullRthAndIgnoresTheStopAndTheHorizons (0 ms)
+[----------] 2 tests from BarrierAuxiliary (8 ms total)
+
+[----------] 3 tests from StopShiftMutant
+[ RUN      ] StopShiftMutant.AOneCentShiftMovesNEITHERLedgerBecauseTheNetLatticeIsTenCentsWide
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:352: Failure
+Expected equality of these values:
+  ((frozen.menu.menu_net_cent[horizon] % 10) + 10) % 10
+    Which is: 0
+  4
+0
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:352: Failure
+Expected equality of these values:
+  ((frozen.menu.menu_net_cent[horizon] % 10) + 10) % 10
+    Which is: 0
+  4
+1
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:352: Failure
+Expected equality of these values:
+  ((frozen.menu.menu_net_cent[horizon] % 10) + 10) % 10
+    Which is: 0
+  4
+2
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:352: Failure
+Expected equality of these values:
+  ((frozen.menu.menu_net_cent[horizon] % 10) + 10) % 10
+    Which is: 0
+  4
+3
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:352: Failure
+Expected equality of these values:
+  ((frozen.menu.menu_net_cent[horizon] % 10) + 10) % 10
+    Which is: 0
+  4
+4
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:352: Failure
+Expected equality of these values:
+  ((frozen.menu.menu_net_cent[horizon] % 10) + 10) % 10
+    Which is: 0
+  4
+5
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:352: Failure
+Expected equality of these values:
+  ((frozen.menu.menu_net_cent[horizon] % 10) + 10) % 10
+    Which is: 0
+  4
+6
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:354: Failure
+Expected equality of these values:
+  ((frozen.certificate_net_cent % 10) + 10) % 10
+    Which is: 0
+  4
+
+[  FAILED  ] StopShiftMutant.AOneCentShiftMovesNEITHERLedgerBecauseTheNetLatticeIsTenCentsWide (5 ms)
+[ RUN      ] StopShiftMutant.TheSmallestEffectiveShiftMovesTheMenuAndTheCertificateTogether
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:369: Failure
+Value of: frozen.scan.crossed
+  Actual: false
+Expected: true
+
+[  FAILED  ] StopShiftMutant.TheSmallestEffectiveShiftMovesTheMenuAndTheCertificateTogether (0 ms)
+[ RUN      ] StopShiftMutant.TheCertificateNeverKnowsAWallTheMenuDoesNot
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:391: Failure
+Value of: row.scan.crossed
+  Actual: false
+Expected: true
+wall -30000
+
+[  FAILED  ] StopShiftMutant.TheCertificateNeverKnowsAWallTheMenuDoesNot (1 ms)
+[----------] 3 tests from StopShiftMutant (11 ms total)
+
+[----------] 2 tests from LabelSides
+[ RUN      ] LabelSides.AShortOnTheMirroredTapeIsTheExactMirrorOfTheLong
+[       OK ] LabelSides.AShortOnTheMirroredTapeIsTheExactMirrorOfTheLong (0 ms)
+[ RUN      ] LabelSides.TheKeysSideMustBeTheSideBeingLabelled
+[       OK ] LabelSides.TheKeysSideMustBeTheSideBeingLabelled (0 ms)
+[----------] 2 tests from LabelSides (2 ms total)
+
+[----------] 1 test from LabelDeterminism
+[ RUN      ] LabelDeterminism.TwoRunsOverTheSameTapeProduceIdenticalBytes
+[       OK ] LabelDeterminism.TwoRunsOverTheSameTapeProduceIdenticalBytes (0 ms)
+[----------] 1 test from LabelDeterminism (2 ms total)
+
+[----------] 2 tests from LinearReferenceDifferential
+[ RUN      ] LinearReferenceDifferential.TheAcceleratedKernelAgreesByteForByteOnAPseudoRandomTape
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:478: Failure
+Expected equality of these values:
+  bytes_of(produced)
+    Which is: { '}' (125, 0x7D), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '3' (51, 0x33), '\x90' (144), '\n' (10, 0xA), '\x2' (2), '\xF2' (242), '\xFE' (254), '\x16' (22), '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  bytes_of(reference)
+    Which is: { '}' (125, 0x7D), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '3' (51, 0x33), '\x90' (144), '\n' (10, 0xA), '\x2' (2), '\xF2' (242), '\xFE' (254), '\x16' (22), '\x1' (1), '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+With diff:
+
+offset 3500000000 side LONG
+
+[  FAILED  ] LinearReferenceDifferential.TheAcceleratedKernelAgreesByteForByteOnAPseudoRandomTape (16 ms)
+[ RUN      ] LinearReferenceDifferential.AgreesUnderShiftedWallsToo
+[       OK ] LinearReferenceDifferential.AgreesUnderShiftedWallsToo (7 ms)
+[----------] 2 tests from LinearReferenceDifferential (27 ms total)
+
+[----------] 1 test from LabelCensusRows
+[ RUN      ] LabelCensusRows.CountsEveryStateHorizonAndBarrierIncludingZeros
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:520: Failure
+Expected: (tsv.find("stop_hit_h2\t1")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:521: Failure
+Expected: (tsv.find("stop_hit_h-1\t1")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+
+/workspace/engine/cpp/qr_labels/tests/test_label_kernel.cpp:523: Failure
+Expected: (tsv.find("gap_through_rows\t1")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+
+[  FAILED  ] LabelCensusRows.CountsEveryStateHorizonAndBarrierIncludingZeros (2 ms)
+[----------] 1 test from LabelCensusRows (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 74 tests from 18 test suites ran. (777 ms total)
+[  PASSED  ] 20 tests.
+[  FAILED  ] 54 tests, listed below:
+[  FAILED  ] MoneyMath.FracIsTruncationTowardZeroOnBothSigns
+[  FAILED  ] MoneyMath.ANonPositiveFillOrMarkIsARefusalNotAGuardedDivision
+[  FAILED  ] MoneyMath.TheFiveHundredAndSeventySixCentCostIsChargedExactlyOnce
+[  FAILED  ] MoneyMath.LongAndShortMarksAreExactMirrorsAroundTheFill
+[  FAILED  ] MoneyMath.TheReachableNetLatticeIsTenCentsWideAroundMinusFiveSevenSix
+[  FAILED  ] MoneyMath.AOneCentStopShiftCannotMoveTheFracThresholdButFourCentsCan
+[  FAILED  ] MoneyMath.TheWallPriceGateIsTheExactBoundaryOnBothSides
+[  FAILED  ] MoneyMath.TheBarrierPriceGatesAreTheExactBoundariesOnBothSides
+[  FAILED  ] MoneyMath.ANetGateWithTheWrongFracSignRefusesRatherThanGuessingABranch
+[  FAILED  ] MoneyMath.FloorAndCeilDivisionAreExactOnNegativeNumerators
+[  FAILED  ] ExecutionTape.TheFourExtremaAreTheConservativeEnvelopeOfTheEligibleMembers
+[  FAILED  ] ExecutionTape.MemberPermutationDoesNotMoveASingleByte
+[  FAILED  ] ExecutionTape.FirstStrictlyAfterExcludesExactEqualityAndFirstAtOrAfterIncludesIt
+[  FAILED  ] ExecutionTape.VerifyAgainstBindsTheTapeToTheWp5ProjectionGroupForGroup
+[  FAILED  ] DecisionSecondClock.TheThreeSelectionRulesAreTheCardsThreeRules
+[  FAILED  ] Watches.EachCandidateCreatesExactlyThreeWatchesAndNoD90OrD120
+[  FAILED  ] Watches.D0IsTheFirstRegisteredSecondStrictlyAfterOwnVisibility
+[  FAILED  ] Watches.D30IsTheFirstRegisteredSecondAtOrAfterVisibilityPlusThirty
+[  FAILED  ] Watches.D60IsTheLastRegisteredSecondAtOrBeforeVisibilityPlusSixty
+[  FAILED  ] Watches.D60IsClockUnavailableWhenTheLastSecondIsNotStrictlyAfterVisibility
+[  FAILED  ] Watches.OutOfSessionWatchesAreRetainedAsClockUnavailableAndNeverDropped
+[  FAILED  ] Watches.ManyWatchesConvergeOntoOneActionRowAndNeverDuplicateAFitRow
+[  FAILED  ] Watches.LongAndShortAtOneClockAreTwoActionRowsNotOne
+[  FAILED  ] DecisionOrdinalRoster.IsTheSortedUnionOfEverySecondAndEveryVisibility
+[  FAILED  ] DecisionOrdinalRoster.MovingOneVisibilityShiftsOrdinalsOnlyAtOrAfterIt
+[  FAILED  ] OneToOneKey.RefusesOneOrdinalCarryingTwoDifferentInstants
+[  FAILED  ] OneToOneKey.RefusesTwoOrdinalsCarryingTheSameInstant
+[  FAILED  ] OneToOneKey.RefusesARepeatedKeyAndAnInvertedInstant
+[  FAILED  ] OneToOneKey.TheProductionPlanSatisfiesItAndTheSecondIsNeverTheOrdinal
+[  FAILED  ] LabelEntry.IsTheFirstLawfulMarkStrictlyAfterTheDecisionAndNeverAtEquality
+[  FAILED  ] LabelEntry.EqualMillisecondFillsAndMarksAreTheAdverseEnvelope
+[  FAILED  ] LabelEntry.TheFiveHundredAndSeventySixCentCostIsChargedOncePerHorizon
+[  FAILED  ] StopWall.CrossesAtTheExactMinusThirtyThousandBoundaryAndNotOneTickEarlier
+[  FAILED  ] StopWall.FillsAtTheNextLawfulMarkStrictlyAfterTheCrossing
+[  FAILED  ] StopWall.GapThroughBeyondTheWallIsRetainedAndReportedNeverCappedAtTheWall
+[  FAILED  ] StopWall.IsScannedStrictlyAfterTheFillSoAWideEntryCannotStopItself
+[  FAILED  ] MenuHorizons.TakeTheFirstLawfulMarkAtOrAfterTheDeadlineIncludingAnExactBoundary
+[  FAILED  ] MenuHorizons.TheCloseHorizonIsTheFinalLawfulMarkOfTheSession
+[  FAILED  ] MenuHorizons.StopHitMeansStrictlyBeforeTheHorizonSoASameGroupCrossingExitsAtTheHorizon
+[  FAILED  ] MenuHorizons.TheMaeIsExactAndRangesFromTheFillThroughEachHorizonsOwnExit
+[  FAILED  ] Certificate.IsTheEarliestBestPositiveMarkBeforeTheWall
+[  FAILED  ] Certificate.FallsBackToTheWallFillWhenNoPreWallMarkIsPositive
+[  FAILED  ] Certificate.FallsBackToTheFinalLawfulMarkWhenNothingCrossesAndNothingIsPositive
+[  FAILED  ] Certificate.NeverExitsAtTheEntryGroupEvenWhenTheEntryMarkIsTheMaximum
+[  FAILED  ] LabelStates.EntryUnavailableIsRetainedWithMaskedValues
+[  FAILED  ] LabelStates.ExitUnavailableIsTheFillOnTheFinalLawfulMark
+[  FAILED  ] LabelStates.TheThreeStatesAreSeparateMasksOverTheSameSession
+[  FAILED  ] BarrierAuxiliary.ReachesAllFourRawStatesAndMapsThemToThreeClasses
+[  FAILED  ] BarrierAuxiliary.IsScannedOverFullRthAndIgnoresTheStopAndTheHorizons
+[  FAILED  ] StopShiftMutant.AOneCentShiftMovesNEITHERLedgerBecauseTheNetLatticeIsTenCentsWide
+[  FAILED  ] StopShiftMutant.TheSmallestEffectiveShiftMovesTheMenuAndTheCertificateTogether
+[  FAILED  ] StopShiftMutant.TheCertificateNeverKnowsAWallTheMenuDoesNot
+[  FAILED  ] LinearReferenceDifferential.TheAcceleratedKernelAgreesByteForByteOnAPseudoRandomTape
+[  FAILED  ] LabelCensusRows.CountsEveryStateHorizonAndBarrierIncludingZeros
+
+54 FAILED TESTS

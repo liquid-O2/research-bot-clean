@@ -1,0 +1,26 @@
+--- a/qr_labels/src/execution_tape.cpp
++++ b/qr_labels/src/execution_tape.cpp
+@@ -377,8 +377,8 @@
+   index.max_.assign(nodes, std::numeric_limits<std::int64_t>::min());
+   for (std::size_t leaf = 0; leaf < values.size(); ++leaf) {
+     const std::size_t node = static_cast<std::size_t>(padded) + leaf;
+-    index.min_[node] = values[leaf];
+-    index.max_[node] = values[leaf];
++    index.min_[node] = values[leaf] + 1;  // MUTANT M801
++    index.max_[node] = values[leaf] + 1;
+   }
+   for (std::size_t node = static_cast<std::size_t>(padded); node-- > 1;) {
+     index.min_[node] = std::min(index.min_[2 * node], index.min_[2 * node + 1]);
+@@ -476,10 +476,12 @@
+ }
+ 
+ std::int64_t ExtremumIndex::leftmost_argmin(std::int64_t lo, std::int64_t hi) const {
++  return lo;  // MUTANT M801: the earliest extremum is not searched for
+   return first_at_or_below(lo, hi, range_min(lo, hi));
+ }
+ 
+ std::int64_t ExtremumIndex::leftmost_argmax(std::int64_t lo, std::int64_t hi) const {
++  return lo;  // MUTANT M801
+   return first_at_or_above(lo, hi, range_max(lo, hi));
+ }
+ 

@@ -1,0 +1,124 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M504_emit_publish_replaces_destination
+# patch:       tests/mutants/M504_emit_publish_replaces_destination.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M504_emit_publish_replaces_destination
+#
+### qr_emit_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 37 tests from 9 test suites.
+[----------] Global test environment set-up.
+[----------] 11 tests from FdCensusTest
+[ RUN      ] FdCensusTest.TheInterposingDoorIsLinkedIntoThisBinary
+[       OK ] FdCensusTest.TheInterposingDoorIsLinkedIntoThisBinary (0 ms)
+[ RUN      ] FdCensusTest.ATruthComponentIsRecognisedWhereverItSits
+[       OK ] FdCensusTest.ATruthComponentIsRecognisedWhereverItSits (0 ms)
+[ RUN      ] FdCensusTest.RecordsPathsOpenedThroughStreamsStdioAndPosixAlike
+[       OK ] FdCensusTest.RecordsPathsOpenedThroughStreamsStdioAndPosixAlike (37 ms)
+[ RUN      ] FdCensusTest.NothingIsRecordedBeforeTheRoleIsDeclared
+[       OK ] FdCensusTest.NothingIsRecordedBeforeTheRoleIsDeclared (19 ms)
+[ RUN      ] FdCensusTest.AFeatureBuilderIsRefusedAtTheDoorAndItsCensusFails
+[       OK ] FdCensusTest.AFeatureBuilderIsRefusedAtTheDoorAndItsCensusFails (48 ms)
+[ RUN      ] FdCensusTest.AFeatureBuilderShardBuildNeverTouchesTruth
+[       OK ] FdCensusTest.AFeatureBuilderShardBuildNeverTouchesTruth (124 ms)
+[ RUN      ] FdCensusTest.ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth
+[       OK ] FdCensusTest.ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth (68 ms)
+[ RUN      ] FdCensusTest.TheProcSweepCatchesADescriptorTheDoorNeverSaw
+[       OK ] FdCensusTest.TheProcSweepCatchesADescriptorTheDoorNeverSaw (30 ms)
+[ RUN      ] FdCensusTest.TheCensusReceiptIsSortedDeterministicAndCountsRepeats
+[       OK ] FdCensusTest.TheCensusReceiptIsSortedDeterministicAndCountsRepeats (77 ms)
+[ RUN      ] FdCensusTest.RefusingAnOpenNeverCreatesTheFile
+[       OK ] FdCensusTest.RefusingAnOpenNeverCreatesTheFile (11 ms)
+[ RUN      ] FdCensusTest.TheBuilderPhaseIsTaggedAndTheEmitStepWritesBothSections
+[       OK ] FdCensusTest.TheBuilderPhaseIsTaggedAndTheEmitStepWritesBothSections (156 ms)
+[----------] 11 tests from FdCensusTest (597 ms total)
+
+[----------] 1 test from NpyDtypes
+[ RUN      ] NpyDtypes.AreTheFourPinnedAppendixC4Types
+[       OK ] NpyDtypes.AreTheFourPinnedAppendixC4Types (0 ms)
+[----------] 1 test from NpyDtypes (1 ms total)
+
+[----------] 5 tests from NpyHeader
+[ RUN      ] NpyHeader.IsNumpysOwnPrologueByteForByte
+[       OK ] NpyHeader.IsNumpysOwnPrologueByteForByte (15 ms)
+[ RUN      ] NpyHeader.CarriesTheMagicVersionAndLittleEndianHeaderLength
+[       OK ] NpyHeader.CarriesTheMagicVersionAndLittleEndianHeaderLength (0 ms)
+[ RUN      ] NpyHeader.AlwaysLandsThePayloadOnASixtyFourByteBoundary
+[       OK ] NpyHeader.AlwaysLandsThePayloadOnASixtyFourByteBoundary (0 ms)
+[ RUN      ] NpyHeader.OneDimensionalShapesAreWrittenAsOneTuples
+[       OK ] NpyHeader.OneDimensionalShapesAreWrittenAsOneTuples (0 ms)
+[ RUN      ] NpyHeader.RefusesShapesOutsideOneToThreeDimensionsAndNegativeExtents
+[       OK ] NpyHeader.RefusesShapesOutsideOneToThreeDimensionsAndNegativeExtents (0 ms)
+[----------] 5 tests from NpyHeader (24 ms total)
+
+[----------] 1 test from NpyLeaf
+[ RUN      ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte
+[       OK ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte (110 ms)
+[----------] 1 test from NpyLeaf (111 ms total)
+
+[----------] 7 tests from NpyWriter
+[ RUN      ] NpyWriter.RefusesMoreElementsThanTheDeclaredShape
+[       OK ] NpyWriter.RefusesMoreElementsThanTheDeclaredShape (18 ms)
+[ RUN      ] NpyWriter.RefusesAShortLeafAtFinish
+[       OK ] NpyWriter.RefusesAShortLeafAtFinish (14 ms)
+[ RUN      ] NpyWriter.RefusesAnElementTypeOtherThanTheDeclaredDtype
+[       OK ] NpyWriter.RefusesAnElementTypeOtherThanTheDeclaredDtype (32 ms)
+[ RUN      ] NpyWriter.NeverOverwritesAnExistingLeaf
+[       OK ] NpyWriter.NeverOverwritesAnExistingLeaf (17 ms)
+[ RUN      ] NpyWriter.ReceiptDigestIsTheDigestOfTheWholeFileIncludingTheHeader
+[       OK ] NpyWriter.ReceiptDigestIsTheDigestOfTheWholeFileIncludingTheHeader (25 ms)
+[ RUN      ] NpyWriter.PayloadsLargerThanTheWriteChunkAreEncodedExactly
+[       OK ] NpyWriter.PayloadsLargerThanTheWriteChunkAreEncodedExactly (133 ms)
+[ RUN      ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical
+[       OK ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical (45 ms)
+[----------] 7 tests from NpyWriter (299 ms total)
+
+[----------] 2 tests from ShardLayout
+[ RUN      ] ShardLayout.PublishesTheAppendixC4DirectoryLayout
+[       OK ] ShardLayout.PublishesTheAppendixC4DirectoryLayout (131 ms)
+[ RUN      ] ShardLayout.TheTruthDirectoryExistsOnlyWhenATruthLeafWasWritten
+[       OK ] ShardLayout.TheTruthDirectoryExistsOnlyWhenATruthLeafWasWritten (85 ms)
+[----------] 2 tests from ShardLayout (219 ms total)
+
+[----------] 3 tests from ShardManifest
+[ RUN      ] ShardManifest.CarriesEveryC4FieldForEveryLeaf
+[       OK ] ShardManifest.CarriesEveryC4FieldForEveryLeaf (154 ms)
+[ RUN      ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder
+[       OK ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder (285 ms)
+[ RUN      ] ShardManifest.RefusesFieldsThatCouldForgeAColumnOrARow
+[       OK ] ShardManifest.RefusesFieldsThatCouldForgeAColumnOrARow (25 ms)
+[----------] 3 tests from ShardManifest (469 ms total)
+
+[----------] 1 test from ShardIdentity
+[ RUN      ] ShardIdentity.TwoRunsAreByteIdenticalIncludingTheManifest
+[       OK ] ShardIdentity.TwoRunsAreByteIdenticalIncludingTheManifest (311 ms)
+[----------] 1 test from ShardIdentity (313 ms total)
+
+[----------] 6 tests from ShardPublish
+[ RUN      ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:230: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+RENAME_NOREPLACE must refuse an occupied destination
+
+[  FAILED  ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard (268 ms)
+[ RUN      ] ShardPublish.NothingIsVisibleAtThePublishPathBeforePublish
+[       OK ] ShardPublish.NothingIsVisibleAtThePublishPathBeforePublish (123 ms)
+[ RUN      ] ShardPublish.AProcessKilledMidStageLeavesNoPublishedShard
+[       OK ] ShardPublish.AProcessKilledMidStageLeavesNoPublishedShard (61 ms)
+[ RUN      ] ShardPublish.RefusesWhileALeafIsStillOpen
+[       OK ] ShardPublish.RefusesWhileALeafIsStillOpen (43 ms)
+[ RUN      ] ShardPublish.RefusesAnEmptyShardAndADuplicateLeaf
+[       OK ] ShardPublish.RefusesAnEmptyShardAndADuplicateLeaf (143 ms)
+[ RUN      ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape
+[       OK ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape (10 ms)
+[----------] 6 tests from ShardPublish (661 ms total)
+
+[----------] Global test environment tear-down
+[==========] 37 tests from 9 test suites ran. (2716 ms total)
+[  PASSED  ] 36 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard
+
+ 1 FAILED TEST

@@ -1,0 +1,19 @@
+# RED-LEDGER EVIDENCE (python)
+# mutation_id: M956_trainer_truth_allowlist_is_widened
+# patch:       tests/mutants/M956_trainer_truth_allowlist_is_widened.patch
+# reproduce:   patch -p1 < tests/mutants/M956_trainer_truth_allowlist_is_widened.patch && \
+#              python3 python/campaign/test_campaign.py --only 'no run touches a real tensor path and the truth allowlist is never widened'
+#
+### python/campaign/test_campaign.py
+FAIL: no run touches a real tensor path and the truth allowlist is never widened
+Traceback (most recent call last):
+  File "/workspace/engine/cpp/python/campaign/test_campaign.py", line 44, in run
+    function(*args, **kwargs)
+  File "/workspace/engine/cpp/python/campaign/test_campaign.py", line 638, in check_lawfulness
+    synth.assemble(tape)
+  File "/workspace/engine/cpp/python/campaign/synth.py", line 576, in assemble
+    targets = build_targets(stage_mask=features["stage_mask"],
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: build_targets() got an unexpected keyword argument 'menu_mae_cent'
+
+0/1 campaign self-test checks passed

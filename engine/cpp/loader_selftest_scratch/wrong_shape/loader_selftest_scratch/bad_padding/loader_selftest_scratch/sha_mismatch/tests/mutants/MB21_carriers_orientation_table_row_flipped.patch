@@ -1,0 +1,19 @@
+--- a/qr_carriers/src/group_vector.cpp
++++ b/qr_carriers/src/group_vector.cpp
+@@ -72,6 +72,16 @@
+       break;
+     case Modality::STOCK_NBBO:
+       if (channel < kNbboChannelCount) {
++        // MB21: two rows of the frozen orientation table trade places — the
++        // oriented depth imbalance is declared side-invariant and the LOCKED
++        // quality bit is declared to negate. The neutral width is unchanged, so
++        // only the loader's law is wrong.
++        if (channel == kNbOrientedImbalance) {
++          return OrientKind::INVARIANT;
++        }
++        if (channel == kNbLocked) {
++          return OrientKind::SIGMA;
++        }
+         return kNbboOrientation[channel];
+       }
+       break;

@@ -1,0 +1,12 @@
+--- a/qr_carriers/src/normalization.cpp
++++ b/qr_carriers/src/normalization.cpp
+@@ -93,7 +93,8 @@
+   }
+   ++sessions_observed_;
+   for (std::size_t index = 0; index < feature_count_; ++index) {
+-    if (continuous_[index] == 0 || !moments[index].present()) {
++    // MA41: a session with NO present value still increments that feature's S.
++    if (continuous_[index] == 0) {
+       continue;
+     }
+     // EQUAL SESSION WEIGHT: the session's own MEAN enters the outer mean, not

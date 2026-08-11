@@ -1,0 +1,142 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M502_emit_manifest_leaf_rows_unsorted
+# patch:       tests/mutants/M502_emit_manifest_leaf_rows_unsorted.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M502_emit_manifest_leaf_rows_unsorted
+#
+### qr_emit_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 37 tests from 9 test suites.
+[----------] Global test environment set-up.
+[----------] 11 tests from FdCensusTest
+[ RUN      ] FdCensusTest.TheInterposingDoorIsLinkedIntoThisBinary
+[       OK ] FdCensusTest.TheInterposingDoorIsLinkedIntoThisBinary (0 ms)
+[ RUN      ] FdCensusTest.ATruthComponentIsRecognisedWhereverItSits
+[       OK ] FdCensusTest.ATruthComponentIsRecognisedWhereverItSits (0 ms)
+[ RUN      ] FdCensusTest.RecordsPathsOpenedThroughStreamsStdioAndPosixAlike
+[       OK ] FdCensusTest.RecordsPathsOpenedThroughStreamsStdioAndPosixAlike (36 ms)
+[ RUN      ] FdCensusTest.NothingIsRecordedBeforeTheRoleIsDeclared
+[       OK ] FdCensusTest.NothingIsRecordedBeforeTheRoleIsDeclared (16 ms)
+[ RUN      ] FdCensusTest.AFeatureBuilderIsRefusedAtTheDoorAndItsCensusFails
+[       OK ] FdCensusTest.AFeatureBuilderIsRefusedAtTheDoorAndItsCensusFails (32 ms)
+[ RUN      ] FdCensusTest.AFeatureBuilderShardBuildNeverTouchesTruth
+[       OK ] FdCensusTest.AFeatureBuilderShardBuildNeverTouchesTruth (102 ms)
+[ RUN      ] FdCensusTest.ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth
+[       OK ] FdCensusTest.ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth (41 ms)
+[ RUN      ] FdCensusTest.TheProcSweepCatchesADescriptorTheDoorNeverSaw
+[       OK ] FdCensusTest.TheProcSweepCatchesADescriptorTheDoorNeverSaw (36 ms)
+[ RUN      ] FdCensusTest.TheCensusReceiptIsSortedDeterministicAndCountsRepeats
+[       OK ] FdCensusTest.TheCensusReceiptIsSortedDeterministicAndCountsRepeats (60 ms)
+[ RUN      ] FdCensusTest.RefusingAnOpenNeverCreatesTheFile
+[       OK ] FdCensusTest.RefusingAnOpenNeverCreatesTheFile (7 ms)
+[ RUN      ] FdCensusTest.TheBuilderPhaseIsTaggedAndTheEmitStepWritesBothSections
+[       OK ] FdCensusTest.TheBuilderPhaseIsTaggedAndTheEmitStepWritesBothSections (160 ms)
+[----------] 11 tests from FdCensusTest (510 ms total)
+
+[----------] 1 test from NpyDtypes
+[ RUN      ] NpyDtypes.AreTheFourPinnedAppendixC4Types
+[       OK ] NpyDtypes.AreTheFourPinnedAppendixC4Types (0 ms)
+[----------] 1 test from NpyDtypes (1 ms total)
+
+[----------] 5 tests from NpyHeader
+[ RUN      ] NpyHeader.IsNumpysOwnPrologueByteForByte
+[       OK ] NpyHeader.IsNumpysOwnPrologueByteForByte (20 ms)
+[ RUN      ] NpyHeader.CarriesTheMagicVersionAndLittleEndianHeaderLength
+[       OK ] NpyHeader.CarriesTheMagicVersionAndLittleEndianHeaderLength (0 ms)
+[ RUN      ] NpyHeader.AlwaysLandsThePayloadOnASixtyFourByteBoundary
+[       OK ] NpyHeader.AlwaysLandsThePayloadOnASixtyFourByteBoundary (0 ms)
+[ RUN      ] NpyHeader.OneDimensionalShapesAreWrittenAsOneTuples
+[       OK ] NpyHeader.OneDimensionalShapesAreWrittenAsOneTuples (0 ms)
+[ RUN      ] NpyHeader.RefusesShapesOutsideOneToThreeDimensionsAndNegativeExtents
+[       OK ] NpyHeader.RefusesShapesOutsideOneToThreeDimensionsAndNegativeExtents (0 ms)
+[----------] 5 tests from NpyHeader (28 ms total)
+
+[----------] 1 test from NpyLeaf
+[ RUN      ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte
+[       OK ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte (100 ms)
+[----------] 1 test from NpyLeaf (101 ms total)
+
+[----------] 7 tests from NpyWriter
+[ RUN      ] NpyWriter.RefusesMoreElementsThanTheDeclaredShape
+[       OK ] NpyWriter.RefusesMoreElementsThanTheDeclaredShape (27 ms)
+[ RUN      ] NpyWriter.RefusesAShortLeafAtFinish
+[       OK ] NpyWriter.RefusesAShortLeafAtFinish (17 ms)
+[ RUN      ] NpyWriter.RefusesAnElementTypeOtherThanTheDeclaredDtype
+[       OK ] NpyWriter.RefusesAnElementTypeOtherThanTheDeclaredDtype (14 ms)
+[ RUN      ] NpyWriter.NeverOverwritesAnExistingLeaf
+[       OK ] NpyWriter.NeverOverwritesAnExistingLeaf (22 ms)
+[ RUN      ] NpyWriter.ReceiptDigestIsTheDigestOfTheWholeFileIncludingTheHeader
+[       OK ] NpyWriter.ReceiptDigestIsTheDigestOfTheWholeFileIncludingTheHeader (21 ms)
+[ RUN      ] NpyWriter.PayloadsLargerThanTheWriteChunkAreEncodedExactly
+[       OK ] NpyWriter.PayloadsLargerThanTheWriteChunkAreEncodedExactly (106 ms)
+[ RUN      ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical
+[       OK ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical (39 ms)
+[----------] 7 tests from NpyWriter (279 ms total)
+
+[----------] 2 tests from ShardLayout
+[ RUN      ] ShardLayout.PublishesTheAppendixC4DirectoryLayout
+[       OK ] ShardLayout.PublishesTheAppendixC4DirectoryLayout (111 ms)
+[ RUN      ] ShardLayout.TheTruthDirectoryExistsOnlyWhenATruthLeafWasWritten
+[       OK ] ShardLayout.TheTruthDirectoryExistsOnlyWhenATruthLeafWasWritten (71 ms)
+[----------] 2 tests from ShardLayout (186 ms total)
+
+[----------] 3 tests from ShardManifest
+[ RUN      ] ShardManifest.CarriesEveryC4FieldForEveryLeaf
+[       OK ] ShardManifest.CarriesEveryC4FieldForEveryLeaf (132 ms)
+[ RUN      ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:170: Failure
+Expected equality of these values:
+  manifests.at(0)
+    Which is: "# qr_emit_manifest_v1\tfields\tmeta=key,value\tsource=id,sha256,path\tcensus=id,sha256,path\tleaf=path,dtype,shape,rows,sha256\nmeta\tmanifest_schema\tqr_emit_manifest_v1\nmeta\tbuild_id\twp10-fixture-build\nmeta\tsession_ordinal\t125\nmeta\tside\tLONG\nmeta\tleaf_count\t4\nmeta\ttotal_leaf_bytes\t2155\nsource\tregistry\t233dc10a\tengine/crates/corpus/registry/accepted_compact_sessions.tsv\nsource\tstock_quotes\taa11\t/workspace/data/tokens/stock_quotes/IWM/s125.parquet\ncensus\tdialect_census\t63557a43\tartifacts/cache/cpp/dialect_census.tsv\nleaf\tfeatures/direct_raw.npy\t<f4\t3,2,60\t3\t1308babb971b50bb15f22887d24e6eb8e5c6c374701fa69cc42957ff83725644\nleaf\tfeatures/group_ts.npy\t<i8\t4\t4\tfa81876133d73c7c61dcb583cfa4e74f6dc72a5b1d30fe25f800576333a279be\nleaf\ttruth/menu_net_cent.npy\t<i8\t3,7\t3\t304e99f4a1fa2dc2b03f6b61cff0edb8a84d3594fa1c3ac8ae40edaf9303a391\nleaf\ttruth/barrier.npy\t|u1\t3\t3\t8575255195e98ce1a14acb01545c95580c16325e94430d5d9c8bc51c499ff792\n"
+  manifests.at(1)
+    Which is: "# qr_emit_manifest_v1\tfields\tmeta=key,value\tsource=id,sha256,path\tcensus=id,sha256,path\tleaf=path,dtype,shape,rows,sha256\nmeta\tmanifest_schema\tqr_emit_manifest_v1\nmeta\tbuild_id\twp10-fixture-build\nmeta\tsession_ordinal\t125\nmeta\tside\tLONG\nmeta\tleaf_count\t4\nmeta\ttotal_leaf_bytes\t2155\nsource\tregistry\t233dc10a\tengine/crates/corpus/registry/accepted_compact_sessions.tsv\nsource\tstock_quotes\taa11\t/workspace/data/tokens/stock_quotes/IWM/s125.parquet\ncensus\tdialect_census\t63557a43\tartifacts/cache/cpp/dialect_census.tsv\nleaf\ttruth/barrier.npy\t|u1\t3\t3\t8575255195e98ce1a14acb01545c95580c16325e94430d5d9c8bc51c499ff792\nleaf\ttruth/menu_net_cent.npy\t<i8\t3,7\t3\t304e99f4a1fa2dc2b03f6b61cff0edb8a84d3594fa1c3ac8ae40edaf9303a391\nleaf\tfeatures/group_ts.npy\t<i8\t4\t4\tfa81876133d73c7c61dcb583cfa4e74f6dc72a5b1d30fe25f800576333a279be\nleaf\tfeatures/direct_raw.npy\t<f4\t3,2,60\t3\t1308babb971b50bb15f22887d24e6eb8e5c6c374701fa69cc42957ff83725644\n"
+With diff:
+@@ -9,6 +9,6 @@
+ source\tstock_quotes\taa11\t/workspace/data/tokens/stock_quotes/IWM/s125.parquet
+ census\tdialect_census\t63557a43\tartifacts/cache/cpp/dialect_census.tsv
+-leaf\tfeatures/direct_raw.npy\t<f4\t3,2,60\t3\t1308babb971b50bb15f22887d24e6eb8e5c6c374701fa69cc42957ff83725644
+-leaf\tfeatures/group_ts.npy\t<i8\t4\t4\tfa81876133d73c7c61dcb583cfa4e74f6dc72a5b1d30fe25f800576333a279be
+-leaf\ttruth/menu_net_cent.npy\t<i8\t3,7\t3\t304e99f4a1fa2dc2b03f6b61cff0edb8a84d3594fa1c3ac8ae40edaf9303a391
+-leaf\ttruth/barrier.npy\t|u1\t3\t3\t8575255195e98ce1a14acb01545c95580c16325e94430d5d9c8bc51c499ff792\n
++leaf\ttruth/barrier.npy\t|u1\t3\t3\t8575255195e98ce1a14acb01545c95580c16325e94430d5d9c8bc51c499ff792
++leaf\ttruth/menu_net_cent.npy\t<i8\t3,7\t3\t304e99f4a1fa2dc2b03f6b61cff0edb8a84d3594fa1c3ac8ae40edaf9303a391
++leaf\tfeatures/group_ts.npy\t<i8\t4\t4\tfa81876133d73c7c61dcb583cfa4e74f6dc72a5b1d30fe25f800576333a279be
++leaf\tfeatures/direct_raw.npy\t<f4\t3,2,60\t3\t1308babb971b50bb15f22887d24e6eb8e5c6c374701fa69cc42957ff83725644\n
+
+published bytes must be a function of the leaf SET, not of emission order
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:182: Failure
+Expected: (barrier) < (menu), actual: 825 vs 721
+
+[  FAILED  ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder (238 ms)
+[ RUN      ] ShardManifest.RefusesFieldsThatCouldForgeAColumnOrARow
+[       OK ] ShardManifest.RefusesFieldsThatCouldForgeAColumnOrARow (11 ms)
+[----------] 3 tests from ShardManifest (389 ms total)
+
+[----------] 1 test from ShardIdentity
+[ RUN      ] ShardIdentity.TwoRunsAreByteIdenticalIncludingTheManifest
+[       OK ] ShardIdentity.TwoRunsAreByteIdenticalIncludingTheManifest (285 ms)
+[----------] 1 test from ShardIdentity (286 ms total)
+
+[----------] 6 tests from ShardPublish
+[ RUN      ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard
+[       OK ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard (239 ms)
+[ RUN      ] ShardPublish.NothingIsVisibleAtThePublishPathBeforePublish
+[       OK ] ShardPublish.NothingIsVisibleAtThePublishPathBeforePublish (143 ms)
+[ RUN      ] ShardPublish.AProcessKilledMidStageLeavesNoPublishedShard
+[       OK ] ShardPublish.AProcessKilledMidStageLeavesNoPublishedShard (29 ms)
+[ RUN      ] ShardPublish.RefusesWhileALeafIsStillOpen
+[       OK ] ShardPublish.RefusesWhileALeafIsStillOpen (23 ms)
+[ RUN      ] ShardPublish.RefusesAnEmptyShardAndADuplicateLeaf
+[       OK ] ShardPublish.RefusesAnEmptyShardAndADuplicateLeaf (78 ms)
+[ RUN      ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape
+[       OK ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape (6 ms)
+[----------] 6 tests from ShardPublish (531 ms total)
+
+[----------] Global test environment tear-down
+[==========] 37 tests from 9 test suites ran. (2331 ms total)
+[  PASSED  ] 36 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder
+
+ 1 FAILED TEST

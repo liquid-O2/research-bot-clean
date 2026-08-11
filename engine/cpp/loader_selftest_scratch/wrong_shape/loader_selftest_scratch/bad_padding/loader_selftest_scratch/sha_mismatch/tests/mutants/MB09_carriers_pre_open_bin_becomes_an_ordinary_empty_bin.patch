@@ -1,0 +1,12 @@
+--- a/qr_carriers/src/native_order.cpp
++++ b/qr_carriers/src/native_order.cpp
+@@ -148,7 +148,8 @@
+     // Right-open: the bin ends BEFORE its right edge, so the last bin
+     // [cutoff-1s, cutoff) excludes every equal-cutoff group by construction.
+     const std::size_t end = lower_bound_ts(next_edge.value(), cursor);
+-    const bool pre_open = next_edge.value() <= window.session_open_ns_a;
++    // MB09: nothing is a pre-open pad; the typed zero left pad disappears.
++    const bool pre_open = false;
+     if (pre_open) {
+       // "pre-open bins are typed zero left pad" — and a group inside one would
+       // mean the stream carried a pre-open group, which is a typed refusal

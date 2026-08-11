@@ -1,0 +1,13 @@
+--- a/qr_replay/src/replay.cpp
++++ b/qr_replay/src/replay.cpp
+@@ -285,7 +285,9 @@
+       }
+     }
+ 
+-    ledger.clock_census[census_index(outcome)] += 1;
++    if (outcome != ClockOutcome::OCCUPIED) {  // MUTANT M614: a clock vanishes from the census
++      ledger.clock_census[census_index(outcome)] += 1;
++    }
+ 
+     // --- causality: the clock's own rows join the population only AFTER every
+     // decision at this clock has been made.

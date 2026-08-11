@@ -1,0 +1,12 @@
+--- a/qr_carriers/include/qr_carriers/group_vector.hpp
++++ b/qr_carriers/include/qr_carriers/group_vector.hpp
+@@ -155,7 +155,8 @@
+       out[group_mean_mask_offset(C) + channel] =
+           mask_mean.v == Validity::VALID ? mask_mean.value : 0.0;
+       out[group_max_value_offset(C) + channel] = present_[channel] > 0 ? max_[channel] : 0.0;
+-      out[group_max_mask_offset(C) + channel] = present_[channel] > 0 ? 1.0 : 0.0;
++      // MB01: the mask MAX claims every channel was carried by some member.
++      out[group_max_mask_offset(C) + channel] = 1.0;
+     }
+     out[group_log_multiplicity_offset(C)] = log1p_multiplicity;
+   }

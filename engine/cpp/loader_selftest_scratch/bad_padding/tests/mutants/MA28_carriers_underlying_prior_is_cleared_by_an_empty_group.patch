@@ -1,0 +1,15 @@
+--- a/qr_carriers/src/prior_state.cpp
++++ b/qr_carriers/src/prior_state.cpp
+@@ -87,9 +87,9 @@
+ 
+ void UnderlyingPrior::commit_group() noexcept {
+   const Typed<std::int64_t> mean = pending_.mean();
+-  if (have_best_ && mean.v == Validity::VALID) {
+-    prior_ = PriorScalar{true, best_ts_ns_a_, mean.value};
+-  }
++  // MA28: "An absent valid attachment leaves the prior unchanged" is dropped —
++  // a group with nothing valid overwrites the prior instead.
++  prior_ = PriorScalar{have_best_ && mean.v == Validity::VALID, best_ts_ns_a_, mean.value};
+   have_best_ = false;
+   best_ts_ns_a_ = 0;
+   pending_.reset();

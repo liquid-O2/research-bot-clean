@@ -1,0 +1,17 @@
+# RED-LEDGER EVIDENCE (python)
+# mutation_id: M948_cosine_decays_to_zero_not_to_1e4_of_peak
+# patch:       tests/mutants/M948_cosine_decays_to_zero_not_to_1e4_of_peak.patch
+# reproduce:   patch -p1 < tests/mutants/M948_cosine_decays_to_zero_not_to_1e4_of_peak.patch && \
+#              python3 python/campaign/test_campaign.py --only 'the A2 optimizer schedule is AdamW 1e-3 wd 1e-4 with cosine to 1e-4-of-peak'
+#
+### python/campaign/test_campaign.py
+FAIL: the A2 optimizer schedule is AdamW 1e-3 wd 1e-4 with cosine to 1e-4-of-peak
+Traceback (most recent call last):
+  File "/workspace/engine/cpp/python/campaign/test_campaign.py", line 44, in run
+    function(*args, **kwargs)
+  File "/workspace/engine/cpp/python/campaign/test_campaign.py", line 368, in check_schedule
+    assert train.COSINE_FLOOR_FRACTION == 1e-4, train.COSINE_FLOOR_FRACTION
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0.0
+
+0/1 campaign self-test checks passed

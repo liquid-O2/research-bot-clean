@@ -1,0 +1,15 @@
+--- a/qr_carriers/src/group_vector.cpp
++++ b/qr_carriers/src/group_vector.cpp
+@@ -252,9 +252,11 @@
+   for (std::size_t channel = 0; channel < channels; ++channel) {
+     const OrientKind kind = group_channel_orientation(modality, channel);
+     const std::size_t slot = sigma_flip_slot(modality, channel);
++    // MB22: the exported leaf's last two columns trade places, so a loader
++    // reading the frozen format finds a min slot where the partner should be.
+     rows.push_back(static_cast<std::int32_t>(kind));
+-    rows.push_back(static_cast<std::int32_t>(group_channel_swap_partner(modality, channel)));
+     rows.push_back(slot == kNoSigmaSlot ? -1 : static_cast<std::int32_t>(slot));
++    rows.push_back(static_cast<std::int32_t>(group_channel_swap_partner(modality, channel)));
+   }
+   return rows;
+ }

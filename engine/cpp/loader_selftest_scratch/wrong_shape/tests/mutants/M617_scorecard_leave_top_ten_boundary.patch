@@ -1,0 +1,11 @@
+--- a/qr_replay/src/scorecard.cpp
++++ b/qr_replay/src/scorecard.cpp
+@@ -109,7 +109,7 @@
+   }
+ 
+   // --- leave-top-10-out ------------------------------------------------------
+-  if (card.session_count > 10) {
++  if (card.session_count >= 10) {  // MUTANT M617: off by one at the boundary
+     std::vector<std::int64_t> sorted = card.session_net_cent;
+     // Descending by net; the ten largest sessions come off the front. Sorting a
+     // copy of the values keeps the panel independent of session order.

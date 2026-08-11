@@ -1,0 +1,14 @@
+--- a/python/campaign/train.py
++++ b/python/campaign/train.py
+@@ -229,8 +229,9 @@
+     for horizon in range(arms.N_MENU_HORIZONS):
+         loss = F.huber_loss(menu_prediction[:, horizon], targets.menu_net[:, horizon],
+                             reduction="none", delta=HUBER_DELTA)
+-        accumulator.add(f"menu_{horizon}",
+-                        _weighted(loss, weight * targets.menu_mask[:, horizon])[0])
++        # M947 MUTANT: the availability mask is dropped, so an unavailable
++        # label still moves the loss.
++        accumulator.add(f"menu_{horizon}", _weighted(loss, weight)[0])
+     certificate = F.huber_loss(logits[:, arms.CERTIFICATE_INDEX], targets.certificate,
+                                reduction="none", delta=HUBER_DELTA)
+     accumulator.add("certificate",

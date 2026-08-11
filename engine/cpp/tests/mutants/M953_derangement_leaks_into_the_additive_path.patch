@@ -1,0 +1,12 @@
+--- a/python/campaign/arms.py
++++ b/python/campaign/arms.py
+@@ -703,6 +703,9 @@
+ 
+     def forward(self, batch: Batch) -> Tensor:
+         market = self.modality_embeddings(batch)
++        # M953 MUTANT: the interaction-only permutation reaches the heads.
++        if self.interaction_option_permutation is not None:
++            market[2] = market[2][self.interaction_option_permutation]
+         state = self.state_encoder(batch)
+         logits = self.state_head(state)
+         for index in range(len(MODALITIES)):

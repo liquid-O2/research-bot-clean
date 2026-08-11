@@ -1,0 +1,17 @@
+# RED-LEDGER EVIDENCE (python)
+# mutation_id: M955_type_embedding_ablation_is_ignored
+# patch:       tests/mutants/M955_type_embedding_ablation_is_ignored.patch
+# reproduce:   patch -p1 < tests/mutants/M955_type_embedding_ablation_is_ignored.patch && \
+#              python3 python/campaign/test_campaign.py --only 'the JSA type-embedding ablation zeroes only the modality-type embedding'
+#
+### python/campaign/test_campaign.py
+FAIL: the JSA type-embedding ablation zeroes only the modality-type embedding
+Traceback (most recent call last):
+  File "/workspace/engine/cpp/python/campaign/test_campaign.py", line 44, in run
+    function(*args, **kwargs)
+  File "/workspace/engine/cpp/python/campaign/test_campaign.py", line 612, in check_type_embedding_ablation
+    assert not torch.equal(before, after), "the ablation changed nothing"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the ablation changed nothing
+
+0/1 campaign self-test checks passed

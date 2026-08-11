@@ -1,0 +1,13 @@
+--- a/qr_carriers/src/grid_1s.cpp
++++ b/qr_carriers/src/grid_1s.cpp
+@@ -35,6 +35,10 @@
+     if (!age.has_value()) {
+       return Expected<MidpointGrid, Refusal>::refuse(age.error());
+     }
++    // MA10: an unregistered staleness cutoff expires the carry after 1s.
++    if (age.value() > kMicrosPerSecond) {
++      continue;
++    }
+     GridPoint& point = grid.points_[index];
+     point.present = true;
+     point.mid_u6 = carried_mid;

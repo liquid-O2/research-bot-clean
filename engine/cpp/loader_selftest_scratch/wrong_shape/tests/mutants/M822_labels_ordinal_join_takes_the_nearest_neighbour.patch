@@ -1,0 +1,11 @@
+--- a/qr_labels/src/watches.cpp
++++ b/qr_labels/src/watches.cpp
+@@ -198,7 +198,7 @@
+ 
+ Expected<std::int64_t, Refusal> DecisionRoster::ordinal_of(std::int64_t ts) const noexcept {
+   const auto found = std::lower_bound(instants_.begin(), instants_.end(), ts);
+-  if (found == instants_.end() || *found != ts) {
++  if (found == instants_.end()) {  // MUTANT M822: a near miss joins anyway
+     // THE EXACT JOIN. A decision instant that is not on the authority roster
+     // is a refusal; there is no nearest-neighbour fallback anywhere.
+     return Expected<std::int64_t, Refusal>::refuse(

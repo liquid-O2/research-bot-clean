@@ -1,0 +1,12 @@
+--- a/qr_replay/src/policy_gate.cpp
++++ b/qr_replay/src/policy_gate.cpp
+@@ -134,7 +134,8 @@
+   }
+   // Clause (ii), verbatim: "predicted `P(stop before h_ref)` <= rho". The risk
+   // head's horizon is h_ref = 15 min and NOT the selected h* the score uses.
+-  if (action.predicted_stop_prob_h_ref > rho_) {
++  // MC14 MUTANT: clause (ii) reads the h* score instead of the h_ref risk.
++  if (action.predicted_net_h_star > rho_) {
+     return {false, GateReason::RISK_ABOVE_RHO};
+   }
+   return {true, GateReason::ADMITTED};

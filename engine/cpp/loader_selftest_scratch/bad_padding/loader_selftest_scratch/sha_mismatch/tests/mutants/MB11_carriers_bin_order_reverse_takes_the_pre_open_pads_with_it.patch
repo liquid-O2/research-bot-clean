@@ -1,0 +1,15 @@
+--- a/qr_carriers/src/native_order.cpp
++++ b/qr_carriers/src/native_order.cpp
+@@ -190,9 +190,9 @@
+     std::vector<std::size_t> support;
+     support.reserve(kBinCarrierBins);
+     for (std::size_t bin = 0; bin < kBinCarrierBins; ++bin) {
+-      if (bins.valid[bin] != 0U) {
+-        support.push_back(bin);
+-      }
++      // MB11: the pre-open pads join the reversed support.
++      support.push_back(bin);
++      static_cast<void>(bins.valid[bin]);
+     }
+     for (std::size_t index = 0; index + 1 < support.size(); ++index) {
+       const std::size_t mirror = support.size() - 1 - index;

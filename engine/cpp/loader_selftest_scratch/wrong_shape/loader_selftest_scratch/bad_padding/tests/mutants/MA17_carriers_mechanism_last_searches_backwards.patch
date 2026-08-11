@@ -1,0 +1,23 @@
+--- a/qr_carriers/src/direct_raw.cpp
++++ b/qr_carriers/src/direct_raw.cpp
+@@ -233,7 +233,19 @@
+       // "its `last` is the greatest strictly-prior timestamp group" of the
+       // window; absent when that group's own value is absent.
+       if (range.hi > range.lo) {
+-        row.set(offset + 3 + 2 * mech, groups_[range.hi - 1].mechanism(window.side, mech));
++        // MA17: `last` becomes the newest group that HAPPENS to carry a value,
++        // instead of the greatest strictly-prior timestamp group.
++        std::size_t cursor = range.hi;
++        Typed<double> found = masked(Validity::MISSING);
++        while (cursor > range.lo) {
++          --cursor;
++          const Typed<double> candidate = groups_[cursor].mechanism(window.side, mech);
++          if (candidate.v == Validity::VALID) {
++            found = candidate;
++            break;
++          }
++        }
++        row.set(offset + 3 + 2 * mech, found);
+       } else {
+         row.set(offset + 3 + 2 * mech, masked(Validity::MISSING));
+       }

@@ -1,0 +1,11 @@
+--- a/qr_replay/src/replay.cpp
++++ b/qr_replay/src/replay.cpp
+@@ -197,7 +197,7 @@
+           admitted.tie = false;
+           best = row.predicted_net;
+         } else if (row.predicted_net == best) {
+-          admitted.tie = true;  // "an exact top tie abstains"
++          admitted.index = k;  // MUTANT M605: silently take the later of two tied tops
+         }
+       }
+ 

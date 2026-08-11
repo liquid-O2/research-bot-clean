@@ -1,0 +1,15 @@
+--- a/qr_census/src/differential.cpp
++++ b/qr_census/src/differential.cpp
+@@ -283,6 +283,12 @@
+ }
+ 
+ void SessionDiff::push(std::span<const DiffCell> cells, std::span<const bool> mask_null_flags) {
++  // M900: the accumulator is a stub.
++  (void)cells;
++  (void)mask_null_flags;
++  if (true) {
++    return;
++  }
+   ++rows_;
+   for (std::size_t index = 0; index < columns_spec_.size(); ++index) {
+     const DiffCell& cell = cells[index];

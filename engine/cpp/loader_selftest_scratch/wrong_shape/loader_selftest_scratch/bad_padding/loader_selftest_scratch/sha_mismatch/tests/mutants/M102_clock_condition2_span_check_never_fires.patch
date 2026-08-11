@@ -1,0 +1,11 @@
+--- a/qr_clock/src/session_clock.cpp
++++ b/qr_clock/src/session_clock.cpp
+@@ -102,7 +102,7 @@
+     return overflow<SessionClock>(kSiteConstruct, "expected_bar_count * BAR_NS overflowed",
+                                   session.expected_bar_count);
+   }
+-  if (span_ns.value() != expected_span_ns.value()) {
++  if (false && span_ns.value() != expected_span_ns.value()) {  // M102
+     return Expected<SessionClock, Refusal>::refuse(
+         Refusal(RefusalCode::CLOCK_VIOLATION, kSiteConstruct,
+                 "registry session span disagrees with its own expected_bar_count",

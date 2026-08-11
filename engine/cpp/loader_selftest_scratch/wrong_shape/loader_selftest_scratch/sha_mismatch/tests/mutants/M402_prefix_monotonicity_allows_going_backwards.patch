@@ -1,0 +1,12 @@
+--- a/qr_candidates/src/prefix_reader.cpp
++++ b/qr_candidates/src/prefix_reader.cpp
+@@ -414,8 +414,7 @@
+                                 static_cast<std::int64_t>(ordinal.value()));
+       return false;
+     }
+-    if (have_previous_ordinal &&
+-        !(ordinal.value() == previous_ordinal || ordinal.value() == previous_ordinal + 1U)) {
++    if (have_previous_ordinal && !(ordinal.value() <= previous_ordinal + 1U)) {
+       pending_refusal = Refusal(RefusalCode::OUT_OF_ORDER, kSite,
+                                 "decoded ordinals are not monotone 0..749",
+                                 static_cast<std::int64_t>(ordinal.value()));

@@ -1,0 +1,12 @@
+--- a/python/campaign/train.py
++++ b/python/campaign/train.py
+@@ -70,7 +70,8 @@
+ # §1 fold walls.  gate-select is the ONLY inner-validation block (A2: "gate-select
+ # block sessions ONLY - 398..447/523..572, so gate-cert stays pristine; never TEST").
+ FOLDS = {
+-    "F4": {"train": (125, 395), "inner_embargo": (396, 397),
++    # M945 MUTANT: TRAIN eats the inner embargo.
++    "F4": {"train": (125, 397), "inner_embargo": (396, 397),
+            "gate_select": (398, 447), "gate_cert": (448, 497),
+            "outer_embargo": (498, 499), "test": (500, 624)},
+     "F5": {"train": (125, 520), "inner_embargo": (521, 522),

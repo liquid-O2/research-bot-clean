@@ -1,0 +1,11 @@
+--- a/qr_carriers/src/stock_print_stream.cpp
++++ b/qr_carriers/src/stock_print_stream.cpp
+@@ -389,7 +389,7 @@
+                          finite_member_mean(sum_short[index], count_short[index]));
+   }
+ 
+-  if (options_.retain_group_vectors) {
++  if (true) {  // MB15: the constructor-level control no longer gates the table.
+     // The STORED form is side-neutral: the unoriented (LONG) vector plus the min
+     // block the reflected side's max needs (group_vector.hpp).
+     std::array<double, kStockPrintNeutralDim> neutral{};

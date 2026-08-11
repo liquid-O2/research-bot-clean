@@ -1,0 +1,15 @@
+--- a/qr_campaign/src/driver.cpp
++++ b/qr_campaign/src/driver.cpp
+@@ -412,9 +412,11 @@
+   std::int64_t action_rows = 0;
+   std::int64_t label_ok = 0;
+   for (const std::int64_t ordinal : sorted) {
++    // MD09: a session whose receipt is missing is silently skipped, so the
++    // campaign receipt describes fewer sessions than the campaign built.
+     auto rows = parse_receipt(layout.session_receipt(ordinal));
+     if (!rows.has_value()) {
+-      return Result::refuse(rows.error());
++      continue;
+     }
+     const auto number = [&rows](std::string_view section,
+                                 std::string_view metric) -> Expected<std::int64_t, Refusal> {

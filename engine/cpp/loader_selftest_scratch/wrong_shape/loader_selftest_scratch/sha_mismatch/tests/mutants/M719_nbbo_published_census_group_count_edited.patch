@@ -1,0 +1,11 @@
+--- a/tests/fixtures/nbbo_session125_census.tsv
++++ b/tests/fixtures/nbbo_session125_census.tsv
+@@ -4,7 +4,7 @@
+ # two runs byte-identical. group_count and rth_rows are the frozen registry's own
+ # complete_group_count and raw_rth_row_count, reproduced by the stateful machine.
+ label	metric	value
+-IWM_nbbo_2022-07-05	group_count	2810589
++IWM_nbbo_2022-07-05	group_count	2810588
+ IWM_nbbo_2022-07-05	rth_rows	14761979
+ IWM_nbbo_2022-07-05	sentinel_rows	0
+ IWM_nbbo_2022-07-05	multi_member_groups	1750599

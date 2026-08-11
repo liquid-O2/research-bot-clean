@@ -1,0 +1,2 @@
+corpus	year	codec	encoding_set	physical_type	converted_type	has_timestamp_stats	n_row_groups_bucket	n_files
+publications	__NO_YEAR_DIR__	ZSTD	PLAIN+RLE+RLE_DICTIONARY	BYTE_ARRAY	UTF8	NO_TS_COL	257+	2

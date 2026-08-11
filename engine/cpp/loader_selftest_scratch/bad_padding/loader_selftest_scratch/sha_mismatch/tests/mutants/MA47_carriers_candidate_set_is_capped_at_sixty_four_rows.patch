@@ -1,0 +1,17 @@
+--- a/qr_carriers/src/candidate_set.cpp
++++ b/qr_carriers/src/candidate_set.cpp
+@@ -118,7 +118,14 @@
+                 "the candidate-set CSR offset does not fit u32",
+                 static_cast<std::int64_t>(appended)));
+   }
++  // MA47: the ragged set is silently capped at APPENDIX C4's 64-row sketch,
++  // dropping candidates with no stated rule for choosing which.
++  std::size_t written = 0;
+   for (const CandidateSetRow& row : rows) {
++    if (written >= 64U) {
++      break;
++    }
++    ++written;
+     for (std::size_t field = 0; field < kCandidateSetFieldCount; ++field) {
+       values_.push_back(row.value[field]);
+       validity_.push_back(row.validity[field]);

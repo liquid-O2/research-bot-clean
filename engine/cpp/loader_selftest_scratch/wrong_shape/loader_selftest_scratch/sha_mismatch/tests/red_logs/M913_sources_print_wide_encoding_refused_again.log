@@ -1,0 +1,174 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 48 tests from 16 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from SpecLaws
+[ RUN      ] SpecLaws.EveryPinnedSpecIsWellformedAndEveryBrokenOneIsRejected
+[       OK ] SpecLaws.EveryPinnedSpecIsWellformedAndEveryBrokenOneIsRejected (0 ms)
+[ RUN      ] SpecLaws.TheFourProjectionsAreExactlyAppendixB
+[       OK ] SpecLaws.TheFourProjectionsAreExactlyAppendixB (0 ms)
+[ RUN      ] SpecLaws.TheWalledColumnsAreExactlyAppendixB
+[       OK ] SpecLaws.TheWalledColumnsAreExactlyAppendixB (1 ms)
+[ RUN      ] SpecLaws.TheSingleLegPrintConditionSetIsExposedAsAField
+[       OK ] SpecLaws.TheSingleLegPrintConditionSetIsExposedAsAField (0 ms)
+[----------] 4 tests from SpecLaws (1 ms total)
+
+[----------] 7 tests from SchemaGate
+[ RUN      ] SchemaGate.TheGoodFixtureGatesAndResolvesEveryProjectedForm
+[       OK ] SchemaGate.TheGoodFixtureGatesAndResolvesEveryProjectedForm (13 ms)
+[ RUN      ] SchemaGate.ARenamedColumnRefusesByNameBeforeAnyPayload
+[       OK ] SchemaGate.ARenamedColumnRefusesByNameBeforeAnyPayload (6 ms)
+[ RUN      ] SchemaGate.AWrongPhysicalTypeRefusesByName
+[       OK ] SchemaGate.AWrongPhysicalTypeRefusesByName (5 ms)
+[ RUN      ] SchemaGate.AColumnCountDriftRefusesBeforeAnyNameIsCompared
+[       OK ] SchemaGate.AColumnCountDriftRefusesBeforeAnyNameIsCompared (4 ms)
+[ RUN      ] SchemaGate.TheDeclaredProfileIsTheAuthorityOverTheFilesOwnForms
+[       OK ] SchemaGate.TheDeclaredProfileIsTheAuthorityOverTheFilesOwnForms (12 ms)
+[ RUN      ] SchemaGate.TheDeferredRutwWideProfileIsRefusedByTheCompactPrintReader
+[       OK ] SchemaGate.TheDeferredRutwWideProfileIsRefusedByTheCompactPrintReader (13 ms)
+[ RUN      ] SchemaGate.BothOptionQuoteProfilesAreDetectedFromTheFilesOwnSchema
+[       OK ] SchemaGate.BothOptionQuoteProfilesAreDetectedFromTheFilesOwnSchema (9 ms)
+[----------] 7 tests from SchemaGate (67 ms total)
+
+[----------] 3 tests from ForbiddenDoor
+[ RUN      ] ForbiddenDoor.PriceLeadOneRefusesByNameAndByIndexWithoutTouchingItsBytes
+[       OK ] ForbiddenDoor.PriceLeadOneRefusesByNameAndByIndexWithoutTouchingItsBytes (7 ms)
+[ RUN      ] ForbiddenDoor.EveryWalledColumnOfEveryStreamRefusesOnARealFixtureFile
+[       OK ] ForbiddenDoor.EveryWalledColumnOfEveryStreamRefusesOnARealFixtureFile (9 ms)
+[ RUN      ] ForbiddenDoor.AnUnprojectedButUnwalledColumnIsRefusedAsOutsideTheProjection
+[       OK ] ForbiddenDoor.AnUnprojectedButUnwalledColumnIsRefusedAsOutsideTheProjection (15 ms)
+[----------] 3 tests from ForbiddenDoor (32 ms total)
+
+[----------] 3 tests from U6
+[ RUN      ] U6.CentsAndMillsScaleByTheirOwnFactorAndDollarsRoundTiesEven
+[       OK ] U6.CentsAndMillsScaleByTheirOwnFactorAndDollarsRoundTiesEven (0 ms)
+[ RUN      ] U6.TheRoundingLawIsTiesToEvenAndIsIndependentOfTheFpuMode
+[       OK ] U6.TheRoundingLawIsTiesToEvenAndIsIndependentOfTheFpuMode (0 ms)
+[ RUN      ] U6.NonFiniteAndUnrepresentableDollarsRefuseInsteadOfSubstituting
+[       OK ] U6.NonFiniteAndUnrepresentableDollarsRefuseInsteadOfSubstituting (0 ms)
+[----------] 3 tests from U6 (0 ms total)
+
+[----------] 2 tests from ShareEra
+[ RUN      ] ShareEra.TheBreakIsExactlyTwoThousandTwentyFiveNovemberThird
+[       OK ] ShareEra.TheBreakIsExactlyTwoThousandTwentyFiveNovemberThird (6 ms)
+[ RUN      ] ShareEra.NegativeSizesPassThroughAndOverflowRefusesInsteadOfSaturating
+[       OK ] ShareEra.NegativeSizesPassThroughAndOverflowRefusesInsteadOfSaturating (0 ms)
+[----------] 2 tests from ShareEra (6 ms total)
+
+[----------] 1 test from Rights
+[ RUN      ] Rights.ParseTheFrozenTokenSetAndKeepUnknownTokensOther
+[       OK ] Rights.ParseTheFrozenTokenSetAndKeepUnknownTokensOther (0 ms)
+[----------] 1 test from Rights (0 ms total)
+
+[----------] 1 test from RetainedText
+[ RUN      ] RetainedText.FitsTheMeasuredStampAndRefusesRatherThanTruncate
+[       OK ] RetainedText.FitsTheMeasuredStampAndRefusesRatherThanTruncate (0 ms)
+[----------] 1 test from RetainedText (0 ms total)
+
+[----------] 1 test from Dates
+[ RUN      ] Dates.TheOrdinalAndTheIsoTextFormsAgreeAndMalformedTextRefuses
+[       OK ] Dates.TheOrdinalAndTheIsoTextFormsAgreeAndMalformedTextRefuses (0 ms)
+[----------] 1 test from Dates (0 ms total)
+
+[----------] 1 test from Midpoint
+[ RUN      ] Midpoint.IsComputedFromBothSidesAndNeverReadFromTheVendorColumn
+[       OK ] Midpoint.IsComputedFromBothSidesAndNeverReadFromTheVendorColumn (0 ms)
+[----------] 1 test from Midpoint (0 ms total)
+
+[----------] 4 tests from GroupTape
+[ RUN      ] GroupTape.EqualMillisecondRunsBecomeOneGroupAndMultiplicityIsPreserved
+[       OK ] GroupTape.EqualMillisecondRunsBecomeOneGroupAndMultiplicityIsPreserved (0 ms)
+[ RUN      ] GroupTape.AGroupStraddlingAChunkBoundaryIsDeliveredOnceAndWhole
+[       OK ] GroupTape.AGroupStraddlingAChunkBoundaryIsDeliveredOnceAndWhole (0 ms)
+[ RUN      ] GroupTape.InGroupOrderIsCanonicalSoAnInputPermutationIsInvisible
+[       OK ] GroupTape.InGroupOrderIsCanonicalSoAnInputPermutationIsInvisible (0 ms)
+[ RUN      ] GroupTape.AnEmptyChunkDeliversNothingAndKeepsTheCarry
+[       OK ] GroupTape.AnEmptyChunkDeliversNothingAndKeepsTheCarry (0 ms)
+[----------] 4 tests from GroupTape (0 ms total)
+
+[----------] 2 tests from GroupFixtures
+[ RUN      ] GroupFixtures.PermutingRowsInsideEveryEqualTimeGroupProducesByteIdenticalGroups
+[       OK ] GroupFixtures.PermutingRowsInsideEveryEqualTimeGroupProducesByteIdenticalGroups (16 ms)
+[ RUN      ] GroupFixtures.TwoRunsOverTheSameFixtureAreByteIdentical
+[       OK ] GroupFixtures.TwoRunsOverTheSameFixtureAreByteIdentical (6 ms)
+[----------] 2 tests from GroupFixtures (22 ms total)
+
+[----------] 8 tests from StockQuotes
+[ RUN      ] StockQuotes.TheFixtureSessionMatchesEveryDerivedLiteral
+[       OK ] StockQuotes.TheFixtureSessionMatchesEveryDerivedLiteral (3 ms)
+[ RUN      ] StockQuotes.RowGroupsOutsideTheWindowArePrunedAndNeverDecoded
+[       OK ] StockQuotes.RowGroupsOutsideTheWindowArePrunedAndNeverDecoded (2 ms)
+[ RUN      ] StockQuotes.TheRegistryRowDecidesTheProfileAndACallerCannotOverrideIt
+[       OK ] StockQuotes.TheRegistryRowDecidesTheProfileAndACallerCannotOverrideIt (0 ms)
+[ RUN      ] StockQuotes.AFileDisagreeingWithItsRegistryProfileIsRefusedNotAdapted
+[       OK ] StockQuotes.AFileDisagreeingWithItsRegistryProfileIsRefusedNotAdapted (6 ms)
+[ RUN      ] StockQuotes.TheDollarProfileSessionNormalizesToTheSameU6AndShareValues
+[       OK ] StockQuotes.TheDollarProfileSessionNormalizesToTheSameU6AndShareValues (5 ms)
+[ RUN      ] StockQuotes.ARowMixingNullAndNonNullNbboFieldsRefusesAndTheSentinelIsCounted
+[       OK ] StockQuotes.ARowMixingNullAndNonNullNbboFieldsRefusesAndTheSentinelIsCounted (6 ms)
+[ RUN      ] StockQuotes.ADescendingTapeRefusesInsteadOfBeingSortedIntoSilence
+[       OK ] StockQuotes.ADescendingTapeRefusesInsteadOfBeingSortedIntoSilence (5 ms)
+[ RUN      ] StockQuotes.PageVersionTwoDecodesToTheSameSession
+[       OK ] StockQuotes.PageVersionTwoDecodesToTheSameSession (8 ms)
+[----------] 8 tests from StockQuotes (37 ms total)
+
+[----------] 2 tests from StockTrades
+[ RUN      ] StockTrades.TheFixtureSessionMatchesEveryDerivedLiteral
+[       OK ] StockTrades.TheFixtureSessionMatchesEveryDerivedLiteral (2 ms)
+[ RUN      ] StockTrades.APriceColumnOutsideTheMeasuredProfileRefuses
+[       OK ] StockTrades.APriceColumnOutsideTheMeasuredProfileRefuses (6 ms)
+[----------] 2 tests from StockTrades (8 ms total)
+
+[----------] 3 tests from OptionPrints
+[ RUN      ] OptionPrints.TheFixtureSessionMatchesEveryDerivedLiteral
+[       OK ] OptionPrints.TheFixtureSessionMatchesEveryDerivedLiteral (2 ms)
+[ RUN      ] OptionPrints.TheWideEncodingOfTheSameCorpusNormalisesToTheCompactValues
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:445: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::gate_schema: column form disagrees with the declared profile (options_prints.expiration (leaf 1) is DATE_TEXT, this session's declared profile pins DATE_I32) [context=1] path=/workspace/engine/cpp/tests/fixtures/sources/op_wide/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:468: Failure
+Expected equality of these values:
+  wide
+    Which is: {}
+  compact
+    Which is: { '\xC0' (192), '\xF1' (241), '\xB1' (177), '\xCD' (205), '\x81' (129), '\x1' (1), '\0', '\0', '\xED' (237), 'J' (74, 0x4A), '\0', '\0', '\xC0' (192), '@' (64, 0x40), '1' (49, 0x31), '\n' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\xC0' (192), '\xF1' (241), '\xB1' (177), '\xCD' (205), '\x81' (129), '\x1' (1), '\0', '\0', '\x13' (19), '\x1D' (29), '3' (51, 0x33), ... }
+With diff:
+@@ -1,1 +1,2 @@
+-{}
++{ '\xC0' (192), '\xF1' (241), '\xB1' (177), '\xCD' (205), '\x81' (129), '\x1' (1), '\0', '\0', '\xED' (237), 'J' (74, 0x4A), '\0', '\0', '\xC0' (192), '@' (64, 0x40), '1' (49, 0x31), '
++' (10, 0xA), '\0', '\0', '\0', '\0', '\0', '\xC0' (192), '\xF1' (241), '\xB1' (177), '\xCD' (205), '\x81' (129), '\x1' (1), '\0', '\0', '\x13' (19), '\x1D' (29), '3' (51, 0x33), ... }
+
+the two admitted encodings do not normalize to the same rows
+
+[  FAILED  ] OptionPrints.TheWideEncodingOfTheSameCorpusNormalisesToTheCompactValues (4 ms)
+[ RUN      ] OptionPrints.TheDeferredRutwModalityIsRefusedByNameBeforeAPathIsFormed
+[       OK ] OptionPrints.TheDeferredRutwModalityIsRefusedByNameBeforeAPathIsFormed (0 ms)
+[----------] 3 tests from OptionPrints (7 ms total)
+
+[----------] 2 tests from OptionQuotes
+[ RUN      ] OptionQuotes.TheFlatLayoutIsOneShardAndTheShardedLayoutIsChainedInSortedOrder
+[       OK ] OptionQuotes.TheFlatLayoutIsOneShardAndTheShardedLayoutIsChainedInSortedOrder (25 ms)
+[ RUN      ] OptionQuotes.ASessionTheCorpusDoesNotCoverIsModalityAbsent
+[       OK ] OptionQuotes.ASessionTheCorpusDoesNotCoverIsModalityAbsent (4 ms)
+[----------] 2 tests from OptionQuotes (29 ms total)
+
+[----------] 4 tests from RealSources
+[ RUN      ] RealSources.StockTradesSessionOneTwentyFiveMatchesTheCommittedDigests
+[       OK ] RealSources.StockTradesSessionOneTwentyFiveMatchesTheCommittedDigests (377 ms)
+[ RUN      ] RealSources.OptionPrintsSessionOneTwentyFiveMatchesTheCommittedDigests
+[       OK ] RealSources.OptionPrintsSessionOneTwentyFiveMatchesTheCommittedDigests (149 ms)
+[ RUN      ] RealSources.TheStockQuoteRegistryCountsAreCommittedAndAgreeWithTheRegistryItself
+[       OK ] RealSources.TheStockQuoteRegistryCountsAreCommittedAndAgreeWithTheRegistryItself (5 ms)
+[ RUN      ] RealSources.TheAuthorizedOptionQuoteShardStillMatchesItsPins
+[       OK ] RealSources.TheAuthorizedOptionQuoteShardStillMatchesItsPins (36 ms)
+[----------] 4 tests from RealSources (567 ms total)
+
+[----------] Global test environment tear-down
+[==========] 48 tests from 16 test suites ran. (782 ms total)
+[  PASSED  ] 47 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] OptionPrints.TheWideEncodingOfTheSameCorpusNormalisesToTheCompactValues
+
+ 1 FAILED TEST

@@ -1,0 +1,58 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 11 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from CampaignSpecGate
+[ RUN      ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:97: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses (40 ms)
+[----------] 1 test from CampaignSpecGate (40 ms total)
+
+[----------] 2 tests from CampaignOrdinalWall
+[ RUN      ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed
+[       OK ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed (0 ms)
+[ RUN      ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement
+[       OK ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement (0 ms)
+[----------] 2 tests from CampaignOrdinalWall (0 ms total)
+
+[----------] 2 tests from CampaignPublish
+[ RUN      ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard
+[       OK ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard (90 ms)
+[ RUN      ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard
+[       OK ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard (110 ms)
+[----------] 2 tests from CampaignPublish (201 ms total)
+
+[----------] 2 tests from CampaignResume
+[ RUN      ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice
+[       OK ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice (66 ms)
+[ RUN      ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement
+[       OK ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement (84 ms)
+[----------] 2 tests from CampaignResume (151 ms total)
+
+[----------] 2 tests from CampaignLedger
+[ RUN      ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder
+[       OK ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder (138 ms)
+[ RUN      ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign
+[       OK ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign (41 ms)
+[----------] 2 tests from CampaignLedger (179 ms total)
+
+[----------] 1 test from CampaignHandoff
+[ RUN      ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob
+[       OK ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob (0 ms)
+[----------] 1 test from CampaignHandoff (0 ms total)
+
+[----------] 1 test from CampaignReceipt
+[ RUN      ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader
+[       OK ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader (36 ms)
+[----------] 1 test from CampaignReceipt (36 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 7 test suites ran. (609 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses
+
+ 1 FAILED TEST

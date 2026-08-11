@@ -1,0 +1,84 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 11 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from CampaignSpecGate
+[ RUN      ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses
+[       OK ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses (102 ms)
+[----------] 1 test from CampaignSpecGate (102 ms total)
+
+[----------] 2 tests from CampaignOrdinalWall
+[ RUN      ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:116: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+0 must not be admissible
+
+[  FAILED  ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed (0 ms)
+[ RUN      ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:142: Failure
+Value of: parse_session_list(spec).has_value()
+  Actual: true
+Expected: false
+124 must refuse
+
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:142: Failure
+Value of: parse_session_list(spec).has_value()
+  Actual: true
+Expected: false
+750 must refuse
+
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:142: Failure
+Value of: parse_session_list(spec).has_value()
+  Actual: true
+Expected: false
+700-800 must refuse
+
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:142: Failure
+Value of: parse_session_list(spec).has_value()
+  Actual: true
+Expected: false
+0 must refuse
+
+[  FAILED  ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement (0 ms)
+[----------] 2 tests from CampaignOrdinalWall (0 ms total)
+
+[----------] 2 tests from CampaignPublish
+[ RUN      ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard
+[       OK ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard (123 ms)
+[ RUN      ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard
+[       OK ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard (291 ms)
+[----------] 2 tests from CampaignPublish (415 ms total)
+
+[----------] 2 tests from CampaignResume
+[ RUN      ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice
+[       OK ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice (194 ms)
+[ RUN      ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement
+[       OK ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement (114 ms)
+[----------] 2 tests from CampaignResume (308 ms total)
+
+[----------] 2 tests from CampaignLedger
+[ RUN      ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder
+[       OK ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder (381 ms)
+[ RUN      ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign
+[       OK ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign (113 ms)
+[----------] 2 tests from CampaignLedger (495 ms total)
+
+[----------] 1 test from CampaignHandoff
+[ RUN      ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob
+[       OK ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob (0 ms)
+[----------] 1 test from CampaignHandoff (0 ms total)
+
+[----------] 1 test from CampaignReceipt
+[ RUN      ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader
+[       OK ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader (74 ms)
+[----------] 1 test from CampaignReceipt (74 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 7 test suites ran. (1397 ms total)
+[  PASSED  ] 9 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed
+[  FAILED  ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement
+
+ 2 FAILED TESTS

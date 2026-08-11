@@ -1,0 +1,14 @@
+--- a/qr_campaign/src/driver.cpp
++++ b/qr_campaign/src/driver.cpp
+@@ -526,6 +526,11 @@
+   if (!dir.has_value()) {
+     return Result::refuse(dir.error());
+   }
++  // MD03: the emitter creates the published shard directory before it writes
++  // anything, so a worker that dies mid-session leaves a published-looking
++  // shard behind.
++  std::error_code mutant_code;
++  std::filesystem::create_directories(dir.value(), mutant_code);
+   qr::emit::ShardSpec spec;
+   spec.publish_dir = dir.value();
+   spec.session_ordinal = ordinal;

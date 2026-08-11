@@ -1,0 +1,250 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M508_emit_shard_dir_shape_unchecked
+# patch:       tests/mutants/M508_emit_shard_dir_shape_unchecked.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M508_emit_shard_dir_shape_unchecked
+#
+### qr_emit_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 37 tests from 9 test suites.
+[----------] Global test environment set-up.
+[----------] 11 tests from FdCensusTest
+[ RUN      ] FdCensusTest.TheInterposingDoorIsLinkedIntoThisBinary
+[       OK ] FdCensusTest.TheInterposingDoorIsLinkedIntoThisBinary (0 ms)
+[ RUN      ] FdCensusTest.ATruthComponentIsRecognisedWhereverItSits
+[       OK ] FdCensusTest.ATruthComponentIsRecognisedWhereverItSits (0 ms)
+[ RUN      ] FdCensusTest.RecordsPathsOpenedThroughStreamsStdioAndPosixAlike
+[       OK ] FdCensusTest.RecordsPathsOpenedThroughStreamsStdioAndPosixAlike (53 ms)
+[ RUN      ] FdCensusTest.NothingIsRecordedBeforeTheRoleIsDeclared
+[       OK ] FdCensusTest.NothingIsRecordedBeforeTheRoleIsDeclared (19 ms)
+[ RUN      ] FdCensusTest.AFeatureBuilderIsRefusedAtTheDoorAndItsCensusFails
+[       OK ] FdCensusTest.AFeatureBuilderIsRefusedAtTheDoorAndItsCensusFails (27 ms)
+[ RUN      ] FdCensusTest.AFeatureBuilderShardBuildNeverTouchesTruth
+[       OK ] FdCensusTest.AFeatureBuilderShardBuildNeverTouchesTruth (144 ms)
+[ RUN      ] FdCensusTest.ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth
+[       OK ] FdCensusTest.ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth (57 ms)
+[ RUN      ] FdCensusTest.TheProcSweepCatchesADescriptorTheDoorNeverSaw
+[       OK ] FdCensusTest.TheProcSweepCatchesADescriptorTheDoorNeverSaw (44 ms)
+[ RUN      ] FdCensusTest.TheCensusReceiptIsSortedDeterministicAndCountsRepeats
+[       OK ] FdCensusTest.TheCensusReceiptIsSortedDeterministicAndCountsRepeats (82 ms)
+[ RUN      ] FdCensusTest.RefusingAnOpenNeverCreatesTheFile
+[       OK ] FdCensusTest.RefusingAnOpenNeverCreatesTheFile (13 ms)
+[ RUN      ] FdCensusTest.TheBuilderPhaseIsTaggedAndTheEmitStepWritesBothSections
+[       OK ] FdCensusTest.TheBuilderPhaseIsTaggedAndTheEmitStepWritesBothSections (171 ms)
+[----------] 11 tests from FdCensusTest (634 ms total)
+
+[----------] 1 test from NpyDtypes
+[ RUN      ] NpyDtypes.AreTheFourPinnedAppendixC4Types
+[       OK ] NpyDtypes.AreTheFourPinnedAppendixC4Types (0 ms)
+[----------] 1 test from NpyDtypes (1 ms total)
+
+[----------] 5 tests from NpyHeader
+[ RUN      ] NpyHeader.IsNumpysOwnPrologueByteForByte
+[       OK ] NpyHeader.IsNumpysOwnPrologueByteForByte (15 ms)
+[ RUN      ] NpyHeader.CarriesTheMagicVersionAndLittleEndianHeaderLength
+[       OK ] NpyHeader.CarriesTheMagicVersionAndLittleEndianHeaderLength (0 ms)
+[ RUN      ] NpyHeader.AlwaysLandsThePayloadOnASixtyFourByteBoundary
+[       OK ] NpyHeader.AlwaysLandsThePayloadOnASixtyFourByteBoundary (0 ms)
+[ RUN      ] NpyHeader.OneDimensionalShapesAreWrittenAsOneTuples
+[       OK ] NpyHeader.OneDimensionalShapesAreWrittenAsOneTuples (0 ms)
+[ RUN      ] NpyHeader.RefusesShapesOutsideOneToThreeDimensionsAndNegativeExtents
+[       OK ] NpyHeader.RefusesShapesOutsideOneToThreeDimensionsAndNegativeExtents (0 ms)
+[----------] 5 tests from NpyHeader (23 ms total)
+
+[----------] 1 test from NpyLeaf
+[ RUN      ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte
+[       OK ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte (134 ms)
+[----------] 1 test from NpyLeaf (135 ms total)
+
+[----------] 7 tests from NpyWriter
+[ RUN      ] NpyWriter.RefusesMoreElementsThanTheDeclaredShape
+[       OK ] NpyWriter.RefusesMoreElementsThanTheDeclaredShape (29 ms)
+[ RUN      ] NpyWriter.RefusesAShortLeafAtFinish
+[       OK ] NpyWriter.RefusesAShortLeafAtFinish (18 ms)
+[ RUN      ] NpyWriter.RefusesAnElementTypeOtherThanTheDeclaredDtype
+[       OK ] NpyWriter.RefusesAnElementTypeOtherThanTheDeclaredDtype (17 ms)
+[ RUN      ] NpyWriter.NeverOverwritesAnExistingLeaf
+[       OK ] NpyWriter.NeverOverwritesAnExistingLeaf (31 ms)
+[ RUN      ] NpyWriter.ReceiptDigestIsTheDigestOfTheWholeFileIncludingTheHeader
+[       OK ] NpyWriter.ReceiptDigestIsTheDigestOfTheWholeFileIncludingTheHeader (33 ms)
+[ RUN      ] NpyWriter.PayloadsLargerThanTheWriteChunkAreEncodedExactly
+[       OK ] NpyWriter.PayloadsLargerThanTheWriteChunkAreEncodedExactly (109 ms)
+[ RUN      ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical
+[       OK ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical (39 ms)
+[----------] 7 tests from NpyWriter (293 ms total)
+
+[----------] 2 tests from ShardLayout
+[ RUN      ] ShardLayout.PublishesTheAppendixC4DirectoryLayout
+[       OK ] ShardLayout.PublishesTheAppendixC4DirectoryLayout (161 ms)
+[ RUN      ] ShardLayout.TheTruthDirectoryExistsOnlyWhenATruthLeafWasWritten
+[       OK ] ShardLayout.TheTruthDirectoryExistsOnlyWhenATruthLeafWasWritten (84 ms)
+[----------] 2 tests from ShardLayout (248 ms total)
+
+[----------] 3 tests from ShardManifest
+[ RUN      ] ShardManifest.CarriesEveryC4FieldForEveryLeaf
+[       OK ] ShardManifest.CarriesEveryC4FieldForEveryLeaf (132 ms)
+[ RUN      ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder
+[       OK ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder (257 ms)
+[ RUN      ] ShardManifest.RefusesFieldsThatCouldForgeAColumnOrARow
+[       OK ] ShardManifest.RefusesFieldsThatCouldForgeAColumnOrARow (25 ms)
+[----------] 3 tests from ShardManifest (420 ms total)
+
+[----------] 1 test from ShardIdentity
+[ RUN      ] ShardIdentity.TwoRunsAreByteIdenticalIncludingTheManifest
+[       OK ] ShardIdentity.TwoRunsAreByteIdenticalIncludingTheManifest (274 ms)
+[----------] 1 test from ShardIdentity (275 ms total)
+
+[----------] 6 tests from ShardPublish
+[ RUN      ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard
+[       OK ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard (245 ms)
+[ RUN      ] ShardPublish.NothingIsVisibleAtThePublishPathBeforePublish
+[       OK ] ShardPublish.NothingIsVisibleAtThePublishPathBeforePublish (168 ms)
+[ RUN      ] ShardPublish.AProcessKilledMidStageLeavesNoPublishedShard
+[       OK ] ShardPublish.AProcessKilledMidStageLeavesNoPublishedShard (46 ms)
+[ RUN      ] ShardPublish.RefusesWhileALeafIsStillOpen
+[       OK ] ShardPublish.RefusesWhileALeafIsStillOpen (55 ms)
+[ RUN      ] ShardPublish.RefusesAnEmptyShardAndADuplicateLeaf
+[       OK ] ShardPublish.RefusesAnEmptyShardAndADuplicateLeaf (94 ms)
+[ RUN      ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+unpadded ordinal
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:389: Failure
+Value of: ShardWriter::begin(spec).has_value()
+  Actual: true
+Expected: false
+unpadded ordinal: begin() must refuse before a single byte is staged
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+over-padded ordinal
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:389: Failure
+Value of: ShardWriter::begin(spec).has_value()
+  Actual: true
+Expected: false
+over-padded ordinal: begin() must refuse before a single byte is staged
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+capital s
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:389: Failure
+Value of: ShardWriter::begin(spec).has_value()
+  Actual: true
+Expected: false
+capital s: begin() must refuse before a single byte is staged
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+no s prefix
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:389: Failure
+Value of: ShardWriter::begin(spec).has_value()
+  Actual: true
+Expected: false
+no s prefix: begin() must refuse before a single byte is staged
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+non-digit in the ordinal
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:389: Failure
+Value of: ShardWriter::begin(spec).has_value()
+  Actual: true
+Expected: false
+non-digit in the ordinal: begin() must refuse before a single byte is staged
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+side spelled out
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:389: Failure
+Value of: ShardWriter::begin(spec).has_value()
+  Actual: true
+Expected: false
+side spelled out: begin() must refuse before a single byte is staged
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+lowercase side letter
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:389: Failure
+Value of: ShardWriter::begin(spec).has_value()
+  Actual: true
+Expected: false
+lowercase side letter: begin() must refuse before a single byte is staged
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+the other side
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:389: Failure
+Value of: ShardWriter::begin(spec).has_value()
+  Actual: true
+Expected: false
+the other side: begin() must refuse before a single byte is staged
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+a different session than the shard carries
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:389: Failure
+Value of: ShardWriter::begin(spec).has_value()
+  Actual: true
+Expected: false
+a different session than the shard carries: begin() must refuse before a single byte is staged
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+no side component at all
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:386: Failure
+Value of: qr::emit::validate_c4_shard_dir(path, 125, Side::LONG).has_value()
+  Actual: true
+Expected: false
+trailing slash
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:389: Failure
+Value of: ShardWriter::begin(spec).has_value()
+  Actual: true
+Expected: false
+trailing slash: begin() must refuse before a single byte is staged
+
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:394: Failure
+Value of: std::filesystem::is_empty(root, code)
+  Actual: false
+Expected: true
+a refused begin() staged something
+
+[  FAILED  ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape (98 ms)
+[----------] 6 tests from ShardPublish (718 ms total)
+
+[----------] Global test environment tear-down
+[==========] 37 tests from 9 test suites ran. (2768 ms total)
+[  PASSED  ] 36 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape
+
+ 1 FAILED TEST

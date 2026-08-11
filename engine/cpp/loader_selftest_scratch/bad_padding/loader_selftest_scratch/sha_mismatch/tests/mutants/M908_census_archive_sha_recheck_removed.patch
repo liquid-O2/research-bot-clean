@@ -1,0 +1,16 @@
+--- a/qr_census/src/verdict.cpp
++++ b/qr_census/src/verdict.cpp
+@@ -313,11 +313,8 @@
+   if (!sha.has_value()) {
+     return Expected<ArchiveSummary, Refusal>::refuse(sha.error());
+   }
+-  if (sha.value() != expected_sha256) {
+-    return Expected<ArchiveSummary, Refusal>::refuse(
+-        Refusal(RefusalCode::SOURCE_AUTHENTICATION_FAILED, kSite,
+-                "the archived verdict's sha256 is not the one the run recorded", 0));
+-  }
++  // M908: the archive is trusted rather than re-checked.
++  (void)expected_sha256;
+   std::FILE* file = std::fopen(path.c_str(), "rb");
+   if (file == nullptr) {
+     return Expected<ArchiveSummary, Refusal>::refuse(

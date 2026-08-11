@@ -1,0 +1,14 @@
+--- a/qr_carriers/src/attach.cpp
++++ b/qr_carriers/src/attach.cpp
+@@ -224,9 +224,8 @@
+ 
+   out.nonpositive_size = row.is_null(kTradeSlotSize) || row.size <= 0;
+   out.nonfinite_price = row.is_null(kTradeSlotPrice) || row.price_u6 <= 0;
+-  out.direction_eligible = out.primary == TradeConditionClass::REGULAR &&
+-                           extended_all_admitted && !out.nonpositive_size &&
+-                           !out.nonfinite_price;
++  // MA03: CANCEL types and inadmissible extended codes become direction-eligible.
++  out.direction_eligible = !out.nonpositive_size && !out.nonfinite_price;
+ 
+   Validity verdict = Validity::VALID;
+   if (out.primary != TradeConditionClass::REGULAR || !extended_all_admitted) {

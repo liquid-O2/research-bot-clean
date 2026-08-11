@@ -1,0 +1,11 @@
+--- a/qr_replay/src/replay.cpp
++++ b/qr_replay/src/replay.cpp
+@@ -174,7 +174,7 @@
+ 
+     if (halted) {
+       outcome = ClockOutcome::HALTED_DAILY_LOSS;
+-    } else if (has_traded && clock_ts <= last_exit_ts) {
++    } else if (has_traded && clock_ts < last_exit_ts) {  // MUTANT M603: enter AT the prior exit
+       // "Occupied clocks cannot enter"; "A new entry requires decision_ts >
+       // prior certificate_exit_ts".
+       outcome = ClockOutcome::OCCUPIED;

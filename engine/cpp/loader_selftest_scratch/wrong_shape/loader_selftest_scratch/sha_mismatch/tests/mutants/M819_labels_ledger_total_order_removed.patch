@@ -1,0 +1,21 @@
+--- a/qr_labels/src/watches.cpp
++++ b/qr_labels/src/watches.cpp
+@@ -365,12 +365,16 @@
+   }
+ 
+   // --- the ledger's total order -------------------------------------------
+-  std::sort(plan.ledger.begin(), plan.ledger.end(), [](const WatchRow& a, const WatchRow& b) {
++  // MUTANT M819: the ledger keeps whatever order the roster arrived in.
++  const auto never = [](const WatchRow&, const WatchRow&) { return false; };
++  static_cast<void>(never);
++  const auto unused_less = [](const WatchRow& a, const WatchRow& b) {
+     if (a.candidate_id != b.candidate_id) {
+       return a.candidate_id < b.candidate_id;
+     }
+     return static_cast<std::uint8_t>(a.stage) < static_cast<std::uint8_t>(b.stage);
+-  });
++  };
++  static_cast<void>(unused_less);
+ 
+   // --- the UNIQUE action rows ----------------------------------------------
+   std::vector<std::pair<std::int64_t, std::int64_t>> keys;  // (ordinal, side sign)

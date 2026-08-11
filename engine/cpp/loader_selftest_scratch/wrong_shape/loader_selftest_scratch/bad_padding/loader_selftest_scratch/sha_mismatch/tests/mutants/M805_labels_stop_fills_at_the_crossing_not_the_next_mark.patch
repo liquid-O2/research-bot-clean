@@ -1,0 +1,11 @@
+--- a/qr_labels/src/label_kernel.cpp
++++ b/qr_labels/src/label_kernel.cpp
+@@ -147,7 +147,7 @@
+   scan.crossing_index = crossing;
+   scan.crossing_net_cent = crossing_net.value();
+   // "the exit fills at the NEXT lawful mark strictly after crossing".
+-  scan.exit_index = crossing + 1 <= last ? crossing + 1 : kNoIndex;
++  scan.exit_index = crossing;  // MUTANT M805: no gap-through, the wall is the fill
+   const std::int64_t fill_index = scan.exit_index != kNoIndex ? scan.exit_index : crossing;
+   const Expected<std::int64_t, Refusal> exit_net =
+       mark_net_cent(entry_u6, tape.adverse_mark(fill_index, side), side);

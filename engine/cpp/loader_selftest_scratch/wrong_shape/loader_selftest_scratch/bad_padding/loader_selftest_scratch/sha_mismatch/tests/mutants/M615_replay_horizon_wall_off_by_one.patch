@@ -1,0 +1,11 @@
+--- a/qr_replay/src/replay.cpp
++++ b/qr_replay/src/replay.cpp
+@@ -101,7 +101,7 @@
+                                       std::span<const ScoredAction> actions,
+                                       PolicyGate& gate,
+                                       const ReplayPolicy& policy) {
+-  if (policy.horizon_index >= kHorizonCount) {
++  if (policy.horizon_index > kHorizonCount) {  // MUTANT M615: off by one
+     return refuse<DailyLedger>(Refusal(RefusalCode::CONFIG, "qr_replay::replay/horizon",
+                                        "horizon index outside the frozen 7-menu",
+                                        static_cast<std::int64_t>(policy.horizon_index)));

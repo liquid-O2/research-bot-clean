@@ -1,0 +1,11 @@
+--- a/qr_replay/src/scorecard.cpp
++++ b/qr_replay/src/scorecard.cpp
+@@ -17,7 +17,7 @@
+     return 0;
+   }
+   // ceil(p * n) in exact integers; index 1..n, 1-based.
+-  std::int64_t rank = (p_percent * n + 99) / 100;
++  std::int64_t rank = (p_percent * n) / 100;  // MUTANT M621: floor rank, not nearest rank
+   if (rank < 1) {
+     rank = 1;
+   }

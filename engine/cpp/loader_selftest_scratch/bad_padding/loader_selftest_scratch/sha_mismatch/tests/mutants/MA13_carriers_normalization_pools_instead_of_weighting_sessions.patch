@@ -1,0 +1,16 @@
+--- a/qr_carriers/src/normalization.cpp
++++ b/qr_carriers/src/normalization.cpp
+@@ -98,9 +98,10 @@
+     }
+     // EQUAL SESSION WEIGHT: the session's own MEAN enters the outer mean, not
+     // its values.
+-    sum_first_[index] += moments[index].first_moment();
+-    sum_second_[index] += moments[index].second_moment();
+-    ++sessions_[index];
++    // MA13: the POOLED mean, so a busy session outweighs a quiet one.
++    sum_first_[index] += moments[index].sum;
++    sum_second_[index] += moments[index].sum_squares;
++    sessions_[index] += moments[index].count;
+   }
+   return true;
+ }

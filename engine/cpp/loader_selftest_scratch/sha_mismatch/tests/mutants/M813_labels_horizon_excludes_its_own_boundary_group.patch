@@ -1,0 +1,11 @@
+--- a/qr_labels/src/label_kernel.cpp
++++ b/qr_labels/src/label_kernel.cpp
+@@ -340,7 +340,7 @@
+       if (!deadline.has_value()) {
+         return Expected<LabelRow, Refusal>::refuse(deadline.error());
+       }
+-      const std::int64_t found = tape.first_at_or_after(deadline.value());
++      const std::int64_t found = tape.first_strictly_after(deadline.value());  // MUTANT M813
+       // A horizon that runs past the session's last lawful mark exits there,
+       // exactly as `close` does (see the header's declared reading).
+       horizon_index = found == kNoIndex ? last : found;

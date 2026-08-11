@@ -1,0 +1,11 @@
+--- a/qr_carriers/src/group_vector.cpp
++++ b/qr_carriers/src/group_vector.cpp
+@@ -47,7 +47,7 @@
+       prefix = "MEAN_VALUE.";
+       break;
+     case 1:
+-      prefix = "MEAN_MASK.";
++      prefix = "MEAN_VALUE.";  // MB17: the mask block borrows the value name.
+       break;
+     case 2:
+       prefix = "MAX_VALUE.";

@@ -1,0 +1,1 @@
+CensusInternalScope scope;

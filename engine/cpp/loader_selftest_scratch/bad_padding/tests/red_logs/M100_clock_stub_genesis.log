@@ -1,0 +1,743 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M100_clock_stub_genesis
+# patch:       tests/mutants/M100_clock_stub_genesis.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M100_clock_stub_genesis
+#
+### qr_clock_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 31 tests from 8 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from ClassifyAttach
+[ RUN      ] ClassifyAttach.PreviousCivilDayIsTypedWithItsDeltaNotThrown
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:37: Failure
+Expected equality of these values:
+  classified.kind()
+    Which is: 1-byte object <00>
+  qr::AttachKind::WRONG_CIVIL_DAY
+    Which is: 1-byte object <02>
+back 1
+
+[  FAILED  ] ClassifyAttach.PreviousCivilDayIsTypedWithItsDeltaNotThrown (7 ms)
+[ RUN      ] ClassifyAttach.NextCivilDayIsTypedWithItsDeltaNotThrown
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:54: Failure
+Expected equality of these values:
+  classified.kind()
+    Which is: 1-byte object <00>
+  qr::AttachKind::WRONG_CIVIL_DAY
+    Which is: 1-byte object <02>
+forward 1
+
+[  FAILED  ] ClassifyAttach.NextCivilDayIsTypedWithItsDeltaNotThrown (0 ms)
+[ RUN      ] ClassifyAttach.EqualTimeAttachmentsClassifyIdenticallyAndPreserveSubMillisecondOrder
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:76: Failure
+Expected equality of these values:
+  a.kind()
+    Which is: 1-byte object <00>
+  qr::AttachKind::ON_DAY
+    Which is: 1-byte object <03>
+
+[  FAILED  ] ClassifyAttach.EqualTimeAttachmentsClassifyIdenticallyAndPreserveSubMillisecondOrder (0 ms)
+[ RUN      ] ClassifyAttach.FutureSameDayAttachmentStaysOnDayAndStillConverts
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:91: Failure
+Expected equality of these values:
+  classified.kind()
+    Which is: 1-byte object <00>
+  qr::AttachKind::ON_DAY
+    Which is: 1-byte object <03>
+0
+
+[  FAILED  ] ClassifyAttach.FutureSameDayAttachmentStaysOnDayAndStillConverts (0 ms)
+[ RUN      ] ClassifyAttach.AbsentAttachmentIsMissing
+[       OK ] ClassifyAttach.AbsentAttachmentIsMissing (0 ms)
+[ RUN      ] ClassifyAttach.MalformedMillisecondStampIsMalformedNotAnAbortAndNotAWrap
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:118: Failure
+Expected equality of these values:
+  classified.kind()
+    Which is: 1-byte object <00>
+  qr::AttachKind::MALFORMED
+    Which is: 1-byte object <01>
+ms 9223372036854775807
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:119: Failure
+Value of: qr::frame_b_from_naive_et_ms(ms).has_value()
+  Actual: true
+Expected: false
+ms 9223372036854775807
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:118: Failure
+Expected equality of these values:
+  classified.kind()
+    Which is: 1-byte object <00>
+  qr::AttachKind::MALFORMED
+    Which is: 1-byte object <01>
+ms -9223372036854775808
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:119: Failure
+Value of: qr::frame_b_from_naive_et_ms(ms).has_value()
+  Actual: true
+Expected: false
+ms -9223372036854775808
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:118: Failure
+Expected equality of these values:
+  classified.kind()
+    Which is: 1-byte object <00>
+  qr::AttachKind::MALFORMED
+    Which is: 1-byte object <01>
+ms 9300000000000
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:119: Failure
+Value of: qr::frame_b_from_naive_et_ms(ms).has_value()
+  Actual: true
+Expected: false
+ms 9300000000000
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:118: Failure
+Expected equality of these values:
+  classified.kind()
+    Which is: 1-byte object <00>
+  qr::AttachKind::MALFORMED
+    Which is: 1-byte object <01>
+ms -9300000000000
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:119: Failure
+Value of: qr::frame_b_from_naive_et_ms(ms).has_value()
+  Actual: true
+Expected: false
+ms -9300000000000
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:124: Failure
+Expected equality of these values:
+  admitted.kind()
+    Which is: 1-byte object <00>
+  qr::AttachKind::ON_DAY
+    Which is: 1-byte object <03>
+
+[  FAILED  ] ClassifyAttach.MalformedMillisecondStampIsMalformedNotAnAbortAndNotAWrap (0 ms)
+[ RUN      ] ClassifyAttach.ValidControlClassifiesDifferentlyFromEveryWrongDayInput
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:134: Failure
+Expected equality of these values:
+  valid.kind()
+    Which is: 1-byte object <00>
+  qr::AttachKind::ON_DAY
+    Which is: 1-byte object <03>
+
+[  FAILED  ] ClassifyAttach.ValidControlClassifiesDifferentlyFromEveryWrongDayInput (0 ms)
+[ RUN      ] ClassifyAttach.NoPriorStatePerturbationAndTheDeltaDaysCensusIsObservable
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:199: Failure
+Expected equality of these values:
+  missing
+    Which is: 7
+  1
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:200: Failure
+Expected equality of these values:
+  malformed
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:201: Failure
+Expected equality of these values:
+  on_day
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:202: Failure
+Expected equality of these values:
+  delta_days_histogram.size()
+    Which is: 0
+  2U
+    Which is: 2
+
+[  FAILED  ] ClassifyAttach.NoPriorStatePerturbationAndTheDeltaDaysCensusIsObservable (0 ms)
+[ RUN      ] ClassifyAttach.IsTotalOverTheWholeDomainAndConvertsOnlyOnDay
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:248: Failure
+Value of: raw.has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:248: Failure
+Value of: raw.has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:248: Failure
+Value of: raw.has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:248: Failure
+Value of: raw.has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:248: Failure
+Value of: raw.has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:248: Failure
+Value of: raw.has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:248: Failure
+Value of: raw.has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:254: Failure
+Expected equality of these values:
+  converted
+    Which is: 0
+  2
+conversion happens only in ON_DAY
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:256: Failure
+Expected equality of these values:
+  qr::attach_kind_name(qr::AttachKind::MISSING)
+    Which is: "STUB"
+  "MISSING"
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:257: Failure
+Expected equality of these values:
+  qr::attach_kind_name(qr::AttachKind::MALFORMED)
+    Which is: "STUB"
+  "MALFORMED"
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:258: Failure
+Expected equality of these values:
+  qr::attach_kind_name(qr::AttachKind::WRONG_CIVIL_DAY)
+    Which is: "STUB"
+  "WRONG_CIVIL_DAY"
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:259: Failure
+Expected equality of these values:
+  qr::attach_kind_name(qr::AttachKind::ON_DAY)
+    Which is: "STUB"
+  "ON_DAY"
+
+[  FAILED  ] ClassifyAttach.IsTotalOverTheWholeDomainAndConvertsOnlyOnDay (0 ms)
+[ RUN      ] ClassifyAttach.CivilDayOfANaiveInstantIsExactFloorDivisionNotTruncation
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:265: Failure
+Expected equality of these values:
+  qr::civil_day_of_naive_et_ns(qr::kNanosecondsPerDay)
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:267: Failure
+Expected equality of these values:
+  qr::civil_day_of_naive_et_ns(-1)
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:268: Failure
+Expected equality of these values:
+  qr::civil_day_of_naive_et_ns(-qr::kNanosecondsPerDay)
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_clock/tests/test_classify_attach.cpp:269: Failure
+Expected equality of these values:
+  qr::civil_day_of_naive_et_ns(-qr::kNanosecondsPerDay - 1)
+    Which is: 0
+  -2
+
+[  FAILED  ] ClassifyAttach.CivilDayOfANaiveInstantIsExactFloorDivisionNotTruncation (0 ms)
+[----------] 10 tests from ClassifyAttach (7 ms total)
+
+[----------] 1 test from ClockFixtures
+[ RUN      ] ClockFixtures.ThePinnedSessionsAreTheShapesTheyArePinnedFor
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:46: Failure
+Expected equality of these values:
+  clock(kEdtFullDay).expected_bar_count()
+    Which is: 0
+  390
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:47: Failure
+Expected equality of these values:
+  clock(kEstFullDay).expected_bar_count()
+    Which is: 0
+  390
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:48: Failure
+Expected equality of these values:
+  clock(kEarlyClose).expected_bar_count()
+    Which is: 0
+  210
+the early-close fixture must actually be an early close
+
+[  FAILED  ] ClockFixtures.ThePinnedSessionsAreTheShapesTheyArePinnedFor (0 ms)
+[----------] 1 test from ClockFixtures (0 ms total)
+
+[----------] 3 tests from ClockConstruction
+[ RUN      ] ClockConstruction.SpanMismatchWithItsOwnBarCountRefusesAtConstruction
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:62: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+a 390-bar span on a 210-bar row must not build a clock
+
+[  FAILED  ] ClockConstruction.SpanMismatchWithItsOwnBarCountRefusesAtConstruction (0 ms)
+[ RUN      ] ClockConstruction.UnregisteredDayIsAnUnknownSessionRefusalNotACrash
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:74: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] ClockConstruction.UnregisteredDayIsAnUnknownSessionRefusalNotACrash (0 ms)
+[ RUN      ] ClockConstruction.OverflowingArithmeticRefusesInsteadOfWrappingOrClamping
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:90: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+a year-9999 open cannot fit i64 nanoseconds
+
+[  FAILED  ] ClockConstruction.OverflowingArithmeticRefusesInsteadOfWrappingOrClamping (0 ms)
+[----------] 3 tests from ClockConstruction (0 ms total)
+
+[----------] 2 tests from SessionOffsets
+[ RUN      ] SessionOffsets.SummerAndWinterOffsetsAreDerivedFromTheRegistryRowsThemselves
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:125: Failure
+Expected equality of these values:
+  c.open_b().ns()
+    Which is: 0
+  open_b_ns
+    Which is: 1716543000000000000
+2024-05-24
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:126: Failure
+Expected equality of these values:
+  c.close_b().ns()
+    Which is: 0
+  open_b_ns + row.expected_bar_count * qr::kBarNs
+    Which is: 1716566400000000000
+2024-05-24
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:127: Failure
+Expected equality of these values:
+  c.session_start_a().ns()
+    Which is: 0
+  row.session_start_ns
+    Which is: 1716557400000000000
+2024-05-24
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:128: Failure
+Expected equality of these values:
+  c.session_end_a().ns()
+    Which is: 0
+  row.session_end_ns
+    Which is: 1716580800000000000
+2024-05-24
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:129: Failure
+Expected equality of these values:
+  c.offset_ns()
+    Which is: 0
+  row.session_start_ns - open_b_ns
+    Which is: 14400000000000
+2024-05-24
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:125: Failure
+Expected equality of these values:
+  c.open_b().ns()
+    Which is: 0
+  open_b_ns
+    Which is: 1705397400000000000
+2024-01-16
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:126: Failure
+Expected equality of these values:
+  c.close_b().ns()
+    Which is: 0
+  open_b_ns + row.expected_bar_count * qr::kBarNs
+    Which is: 1705420800000000000
+2024-01-16
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:127: Failure
+Expected equality of these values:
+  c.session_start_a().ns()
+    Which is: 0
+  row.session_start_ns
+    Which is: 1705415400000000000
+2024-01-16
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:128: Failure
+Expected equality of these values:
+  c.session_end_a().ns()
+    Which is: 0
+  row.session_end_ns
+    Which is: 1705438800000000000
+2024-01-16
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:129: Failure
+Expected equality of these values:
+  c.offset_ns()
+    Which is: 0
+  row.session_start_ns - open_b_ns
+    Which is: 18000000000000
+2024-01-16
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:125: Failure
+Expected equality of these values:
+  c.open_b().ns()
+    Which is: 0
+  open_b_ns
+    Which is: 1719999000000000000
+2024-07-03
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:126: Failure
+Expected equality of these values:
+  c.close_b().ns()
+    Which is: 0
+  open_b_ns + row.expected_bar_count * qr::kBarNs
+    Which is: 1720011600000000000
+2024-07-03
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:127: Failure
+Expected equality of these values:
+  c.session_start_a().ns()
+    Which is: 0
+  row.session_start_ns
+    Which is: 1720013400000000000
+2024-07-03
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:128: Failure
+Expected equality of these values:
+  c.session_end_a().ns()
+    Which is: 0
+  row.session_end_ns
+    Which is: 1720026000000000000
+2024-07-03
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:129: Failure
+Expected equality of these values:
+  c.offset_ns()
+    Which is: 0
+  row.session_start_ns - open_b_ns
+    Which is: 14400000000000
+2024-07-03
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:137: Failure
+Expected equality of these values:
+  est_offset - edt_offset
+    Which is: 0
+  kHourNs
+    Which is: 3600000000000
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:138: Failure
+Expected: (est_offset) > (0), actual: 0 vs 0
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:139: Failure
+Expected: (edt_offset) > (0), actual: 0 vs 0
+
+[  FAILED  ] SessionOffsets.SummerAndWinterOffsetsAreDerivedFromTheRegistryRowsThemselves (0 ms)
+[ RUN      ] SessionOffsets.EveryRegisteredSessionAgreesWithItsOwnRegistryRow
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:197: Failure
+Expected equality of these values:
+  tally->failures
+    Which is: 1003
+  0
+session_start_a == registry session_start_ns: 1003 of 1003 sessions disagree, first 2022-01-03 (0)
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:197: Failure
+Expected equality of these values:
+  tally->failures
+    Which is: 1003
+  0
+session_end_a == registry session_end_ns: 1003 of 1003 sessions disagree, first 2022-01-03 (0)
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:197: Failure
+Expected equality of these values:
+  tally->failures
+    Which is: 1003
+  0
+close_b - open_b == expected_bar_count * BAR_NS: 1003 of 1003 sessions disagree, first 2022-01-03 (0)
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:197: Failure
+Expected equality of these values:
+  tally->failures
+    Which is: 1003
+  0
+open_b == civil-date-derived 09:30 ET: 1003 of 1003 sessions disagree, first 2022-01-03 (0)
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:197: Failure
+Expected equality of these values:
+  tally->failures
+    Which is: 1003
+  0
+offset is exactly 4h or 5h: 1003 of 1003 sessions disagree, first 2022-01-03 (0)
+
+[  FAILED  ] SessionOffsets.EveryRegisteredSessionAgreesWithItsOwnRegistryRow (0 ms)
+[----------] 2 tests from SessionOffsets (0 ms total)
+
+[----------] 6 tests from ToFrameA
+[ RUN      ] ToFrameA.PremarketTheCloseItselfAndPostmarketRefuseInsteadOfConverting
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:220: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+premarket must be refused, not converted
+
+[  FAILED  ] ToFrameA.PremarketTheCloseItselfAndPostmarketRefuseInsteadOfConverting (0 ms)
+[ RUN      ] ToFrameA.TheEarlyCloseWindowRefusesWhatTheFullDayWindowAdmitted
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:235: Failure
+Expected equality of these values:
+  old_close_b_ns - c.close_b().ns()
+    Which is: 23400000000000
+  180 * qr::kBarNs
+    Which is: 10800000000000
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:238: Failure
+Value of: c.to_frame_a(post_close).has_value()
+  Actual: true
+Expected: false
+the expected_bar_count window must refuse it
+
+[  FAILED  ] ToFrameA.TheEarlyCloseWindowRefusesWhatTheFullDayWindowAdmitted (0 ms)
+[ RUN      ] ToFrameA.InWindowInstantsConvertExactlyAndLandInTheFrameASession
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:249: Failure
+Value of: c.contains_a(converted.value())
+  Actual: false
+Expected: true
+2024-05-24
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:248: Failure
+Expected equality of these values:
+  converted.value().ns()
+    Which is: 0
+  c.session_start_a().ns() + offset_ns
+    Which is: 60000000000
+2024-05-24
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:249: Failure
+Value of: c.contains_a(converted.value())
+  Actual: false
+Expected: true
+2024-05-24
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:248: Failure
+Expected equality of these values:
+  converted.value().ns()
+    Which is: 0
+  c.session_start_a().ns() + offset_ns
+    Which is: 2220000012345
+2024-05-24
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:249: Failure
+Value of: c.contains_a(converted.value())
+  Actual: false
+Expected: true
+2024-05-24
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:249: Failure
+Value of: c.contains_a(converted.value())
+  Actual: false
+Expected: true
+2024-01-16
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:248: Failure
+Expected equality of these values:
+  converted.value().ns()
+    Which is: 0
+  c.session_start_a().ns() + offset_ns
+    Which is: 60000000000
+2024-01-16
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:249: Failure
+Value of: c.contains_a(converted.value())
+  Actual: false
+Expected: true
+2024-01-16
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:248: Failure
+Expected equality of these values:
+  converted.value().ns()
+    Which is: 0
+  c.session_start_a().ns() + offset_ns
+    Which is: 2220000012345
+2024-01-16
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:249: Failure
+Value of: c.contains_a(converted.value())
+  Actual: false
+Expected: true
+2024-01-16
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:249: Failure
+Value of: c.contains_a(converted.value())
+  Actual: false
+Expected: true
+2024-07-03
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:248: Failure
+Expected equality of these values:
+  converted.value().ns()
+    Which is: 0
+  c.session_start_a().ns() + offset_ns
+    Which is: 60000000000
+2024-07-03
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:249: Failure
+Value of: c.contains_a(converted.value())
+  Actual: false
+Expected: true
+2024-07-03
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:248: Failure
+Expected equality of these values:
+  converted.value().ns()
+    Which is: 0
+  c.session_start_a().ns() + offset_ns
+    Which is: 2220000012345
+2024-07-03
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:249: Failure
+Value of: c.contains_a(converted.value())
+  Actual: false
+Expected: true
+2024-07-03
+
+[  FAILED  ] ToFrameA.InWindowInstantsConvertExactlyAndLandInTheFrameASession (0 ms)
+[ RUN      ] ToFrameA.SameCivilDayAdmitsExtendedContextThatRthRefuses
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:260: Failure
+Value of: rth.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] ToFrameA.SameCivilDayAdmitsExtendedContextThatRthRefuses (0 ms)
+[ RUN      ] ToFrameA.ConvertedInstantOutsideTheFrameASessionRefuses
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:317: Failure
+Value of: corrupted.contains_b(mid_session)
+  Actual: false
+Expected: true
+condition 3 must not be what fires here
+
+[  FAILED  ] ToFrameA.ConvertedInstantOutsideTheFrameASessionRefuses (0 ms)
+[ RUN      ] ToFrameA.OffsetEqualityIsReDerivedFromTheResultAndCatchesACorruptedOffset
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:342: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+ts_A - session_start must equal ts_B - open_B exactly
+
+[  FAILED  ] ToFrameA.OffsetEqualityIsReDerivedFromTheResultAndCatchesACorruptedOffset (0 ms)
+[----------] 6 tests from ToFrameA (0 ms total)
+
+[----------] 1 test from FrameWall
+[ RUN      ] FrameWall.TheOldConstructionFillsAfterItsOwnDecisionInstant
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:277: Failure
+Expected: (offset_ns) > (0), actual: 0 vs 0
+2024-05-24
+
+[  FAILED  ] FrameWall.TheOldConstructionFillsAfterItsOwnDecisionInstant (0 ms)
+[----------] 1 test from FrameWall (0 ms total)
+
+[----------] 7 tests from ConvertSequence
+[ RUN      ] ConvertSequence.AnInnocentTapeConvertsRowForRowInOrder
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:365: Failure
+Expected equality of these values:
+  converted.value().size()
+    Which is: 0
+  tape.size()
+    Which is: 8
+
+[  FAILED  ] ConvertSequence.AnInnocentTapeConvertsRowForRowInOrder (0 ms)
+[ RUN      ] ConvertSequence.AnotherDaysClockRefusesTheWholeTape
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:379: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+condition 1: the clock must be the requested day's clock
+
+[  FAILED  ] ConvertSequence.AnotherDaysClockRefusesTheWholeTape (0 ms)
+[ RUN      ] ConvertSequence.NonMonotoneInputTapeRefusesInsteadOfBeingSortedIntoSilence
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:391: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+condition 6a: a non-decreasing input tape is required
+
+[  FAILED  ] ConvertSequence.NonMonotoneInputTapeRefusesInsteadOfBeingSortedIntoSilence (0 ms)
+[ RUN      ] ConvertSequence.OnePostCloseRowPoisonsTheWholeTapeInsteadOfBeingDropped
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:404: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] ConvertSequence.OnePostCloseRowPoisonsTheWholeTapeInsteadOfBeingDropped (0 ms)
+[ RUN      ] ConvertSequence.OutputOrderIsRecheckedOnTheOutputItself
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:420: Failure
+Expected equality of these values:
+  ok.value()
+    Which is: 0
+  3U
+    Which is: 3
+
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:428: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+a descending frame-A tape must refuse
+
+[  FAILED  ] ConvertSequence.OutputOrderIsRecheckedOnTheOutputItself (0 ms)
+[ RUN      ] ConvertSequence.EqualTimestampRowsAreKeptEqualAndInOrder
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:449: Failure
+Expected equality of these values:
+  converted.value().size()
+    Which is: 0
+  3U
+    Which is: 3
+
+[  FAILED  ] ConvertSequence.EqualTimestampRowsAreKeptEqualAndInOrder (0 ms)
+[ RUN      ] ConvertSequence.AnEmptyTapeConvertsToAnEmptyTape
+[       OK ] ConvertSequence.AnEmptyTapeConvertsToAnEmptyTape (0 ms)
+[----------] 7 tests from ConvertSequence (0 ms total)
+
+[----------] 1 test from ClockBudget
+[ RUN      ] ClockBudget.EveryRegisteredSessionBuildsAndConvertsUnderTheCrossCheckWall
+/workspace/engine/cpp/qr_clock/tests/test_session_clock.cpp:478: Failure
+Value of: converted.value().empty()
+  Actual: true
+Expected: false
+2022-01-03: a session converted to nothing
+
+[  FAILED  ] ClockBudget.EveryRegisteredSessionBuildsAndConvertsUnderTheCrossCheckWall (0 ms)
+[----------] 1 test from ClockBudget (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 31 tests from 8 test suites ran. (9 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 29 tests, listed below:
+[  FAILED  ] ClassifyAttach.PreviousCivilDayIsTypedWithItsDeltaNotThrown
+[  FAILED  ] ClassifyAttach.NextCivilDayIsTypedWithItsDeltaNotThrown
+[  FAILED  ] ClassifyAttach.EqualTimeAttachmentsClassifyIdenticallyAndPreserveSubMillisecondOrder
+[  FAILED  ] ClassifyAttach.FutureSameDayAttachmentStaysOnDayAndStillConverts
+[  FAILED  ] ClassifyAttach.MalformedMillisecondStampIsMalformedNotAnAbortAndNotAWrap
+[  FAILED  ] ClassifyAttach.ValidControlClassifiesDifferentlyFromEveryWrongDayInput
+[  FAILED  ] ClassifyAttach.NoPriorStatePerturbationAndTheDeltaDaysCensusIsObservable
+[  FAILED  ] ClassifyAttach.IsTotalOverTheWholeDomainAndConvertsOnlyOnDay
+[  FAILED  ] ClassifyAttach.CivilDayOfANaiveInstantIsExactFloorDivisionNotTruncation
+[  FAILED  ] ClockFixtures.ThePinnedSessionsAreTheShapesTheyArePinnedFor
+[  FAILED  ] ClockConstruction.SpanMismatchWithItsOwnBarCountRefusesAtConstruction
+[  FAILED  ] ClockConstruction.UnregisteredDayIsAnUnknownSessionRefusalNotACrash
+[  FAILED  ] ClockConstruction.OverflowingArithmeticRefusesInsteadOfWrappingOrClamping
+[  FAILED  ] SessionOffsets.SummerAndWinterOffsetsAreDerivedFromTheRegistryRowsThemselves
+[  FAILED  ] SessionOffsets.EveryRegisteredSessionAgreesWithItsOwnRegistryRow
+[  FAILED  ] ToFrameA.PremarketTheCloseItselfAndPostmarketRefuseInsteadOfConverting
+[  FAILED  ] ToFrameA.TheEarlyCloseWindowRefusesWhatTheFullDayWindowAdmitted
+[  FAILED  ] ToFrameA.InWindowInstantsConvertExactlyAndLandInTheFrameASession
+[  FAILED  ] ToFrameA.SameCivilDayAdmitsExtendedContextThatRthRefuses
+[  FAILED  ] ToFrameA.ConvertedInstantOutsideTheFrameASessionRefuses
+[  FAILED  ] ToFrameA.OffsetEqualityIsReDerivedFromTheResultAndCatchesACorruptedOffset
+[  FAILED  ] FrameWall.TheOldConstructionFillsAfterItsOwnDecisionInstant
+[  FAILED  ] ConvertSequence.AnInnocentTapeConvertsRowForRowInOrder
+[  FAILED  ] ConvertSequence.AnotherDaysClockRefusesTheWholeTape
+[  FAILED  ] ConvertSequence.NonMonotoneInputTapeRefusesInsteadOfBeingSortedIntoSilence
+[  FAILED  ] ConvertSequence.OnePostCloseRowPoisonsTheWholeTapeInsteadOfBeingDropped
+[  FAILED  ] ConvertSequence.OutputOrderIsRecheckedOnTheOutputItself
+[  FAILED  ] ConvertSequence.EqualTimestampRowsAreKeptEqualAndInOrder
+[  FAILED  ] ClockBudget.EveryRegisteredSessionBuildsAndConvertsUnderTheCrossCheckWall
+
+29 FAILED TESTS

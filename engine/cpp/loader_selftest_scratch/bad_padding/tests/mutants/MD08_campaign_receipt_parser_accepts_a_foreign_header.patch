@@ -1,0 +1,13 @@
+--- a/qr_campaign/src/driver.cpp
++++ b/qr_campaign/src/driver.cpp
+@@ -342,7 +342,9 @@
+     return Result::refuse(io("cannot open a receipt"));
+   }
+   std::string line;
+-  if (!std::getline(input, line) || line != "section\tmetric\tvalue") {
++  // MD08: any first line is accepted as the header, so a foreign TSV is read
++  // as if it were a driver receipt.
++  if (!std::getline(input, line)) {
+     return Result::refuse(content("a receipt does not carry the driver's own header"));
+   }
+   std::vector<ReceiptRow> rows;

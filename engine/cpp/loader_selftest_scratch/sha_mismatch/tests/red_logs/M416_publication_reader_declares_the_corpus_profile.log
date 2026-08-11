@@ -1,0 +1,901 @@
+== M416_publication_reader_declares_the_corpus_profile: mutant build + scoped suite (qr_candidates_tests)
+[1/10] Building CXX object qr_parquet/CMakeFiles/qr_parquet.dir/src/dialect.cpp.o
+[2/10] Building CXX object qr_parquet/CMakeFiles/qr_parquet.dir/src/metadata.cpp.o
+[3/10] Building CXX object qr_parquet/CMakeFiles/qr_parquet.dir/src/reader.cpp.o
+[4/10] Linking CXX static library qr_parquet/libqr_parquet.a
+[5/10] Building CXX object qr_candidates/CMakeFiles/qr_candidates.dir/src/roster.cpp.o
+[6/10] Building CXX object qr_candidates/CMakeFiles/qr_candidates.dir/src/rowgroup_table.cpp.o
+[7/10] Linking CXX static library qr_candidates/libqr_candidates.a
+[8/10] Building CXX object qr_candidates/CMakeFiles/qr_candidates_tests.dir/tests/test_rowgroup_table.cpp.o
+[9/10] Building CXX object qr_candidates/CMakeFiles/qr_candidates_tests.dir/tests/test_roster.cpp.o
+[10/10] Linking CXX executable bin/qr_candidates_tests
+Running main() from /workspace/artifacts/cache/cpp/wp6_src/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 103 tests from 14 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from SignalRootSha256
+[ RUN      ] SignalRootSha256.ReproducesTheKnownAnswersForEmptyAndAbc
+[       OK ] SignalRootSha256.ReproducesTheKnownAnswersForEmptyAndAbc (11 ms)
+[ RUN      ] SignalRootSha256.ResetStartsACleanDigest
+[       OK ] SignalRootSha256.ResetStartsACleanDigest (5 ms)
+[ RUN      ] SignalRootSha256.SplitUpdatesHashTheSameAsOne
+[       OK ] SignalRootSha256.SplitUpdatesHashTheSameAsOne (0 ms)
+[----------] 3 tests from SignalRootSha256 (24 ms total)
+
+[----------] 8 tests from SignalImage
+[ RUN      ] SignalImage.ReproducesTheIndependentlyDerivedRowImage
+[       OK ] SignalImage.ReproducesTheIndependentlyDerivedRowImage (10 ms)
+[ RUN      ] SignalImage.AnAbsentOptionalDelayContributesOnePresenceByteAndNoValue
+[       OK ] SignalImage.AnAbsentOptionalDelayContributesOnePresenceByteAndNoValue (12 ms)
+[ RUN      ] SignalImage.TheImageIsExactlyTheDocumentedWidthWhenBothDelaysArePresent
+[       OK ] SignalImage.TheImageIsExactlyTheDocumentedWidthWhenBothDelaysArePresent (4 ms)
+[ RUN      ] SignalImage.AnUppercaseDigestCellIsRefusedNotFolded
+[       OK ] SignalImage.AnUppercaseDigestCellIsRefusedNotFolded (4 ms)
+[ RUN      ] SignalImage.AnUnknownExtremeSideIsRefused
+[       OK ] SignalImage.AnUnknownExtremeSideIsRefused (5 ms)
+[ RUN      ] SignalImage.ARedundantLeadingZeroIsRefused
+[       OK ] SignalImage.ARedundantLeadingZeroIsRefused (5 ms)
+[ RUN      ] SignalImage.ChangingOneHashedCellChangesTheImage
+[       OK ] SignalImage.ChangingOneHashedCellChangesTheImage (8 ms)
+[ RUN      ] SignalImage.AnUnhashedCellDoesNotChangeTheImage
+[       OK ] SignalImage.AnUnhashedCellDoesNotChangeTheImage (10 ms)
+[----------] 8 tests from SignalImage (90 ms total)
+
+[----------] 2 tests from SignalRoot
+[ RUN      ] SignalRoot.ReproducesEveryIndependentlyDerivedSessionRoot
+[       OK ] SignalRoot.ReproducesEveryIndependentlyDerivedSessionRoot (9 ms)
+[ RUN      ] SignalRoot.TheDeclaredCountIsPartOfThePrologue
+[       OK ] SignalRoot.TheDeclaredCountIsPartOfThePrologue (0 ms)
+[----------] 2 tests from SignalRoot (12 ms total)
+
+[----------] 2 tests from PinnedHeaders
+[ RUN      ] PinnedHeaders.MatchTheSealedPublicationHeadersByteForByte
+[       OK ] PinnedHeaders.MatchTheSealedPublicationHeadersByteForByte (25 ms)
+[ RUN      ] PinnedHeaders.TheEventHeaderIsTheEightHundredAndFortyEightByteLine
+[       OK ] PinnedHeaders.TheEventHeaderIsTheEightHundredAndFortyEightByteLine (4 ms)
+[----------] 2 tests from PinnedHeaders (34 ms total)
+
+[----------] 4 tests from StrictParsers
+[ RUN      ] StrictParsers.RefuseEmptyRedundantZeroAndNonDigitCells
+[       OK ] StrictParsers.RefuseEmptyRedundantZeroAndNonDigitCells (0 ms)
+[ RUN      ] StrictParsers.SignedCellsRefuseNegativeZeroAndCarryTheFullDomain
+[       OK ] StrictParsers.SignedCellsRefuseNegativeZeroAndCarryTheFullDomain (0 ms)
+[ RUN      ] StrictParsers.OptionalCellsSeparateAbsentFromZero
+[       OK ] StrictParsers.OptionalCellsSeparateAbsentFromZero (0 ms)
+[ RUN      ] StrictParsers.CanonicalDigestShapeRejectsUppercaseAndWrongLength
+[       OK ] StrictParsers.CanonicalDigestShapeRejectsUppercaseAndWrongLength (0 ms)
+[----------] 4 tests from StrictParsers (8 ms total)
+
+[----------] 23 tests from PrefixSeal
+[ RUN      ] PrefixSeal.ReproducesEverySessionRootAndCountThroughTheStop
+[       OK ] PrefixSeal.ReproducesEverySessionRootAndCountThroughTheStop (18 ms)
+[ RUN      ] PrefixSeal.StopsAtExactlyTheDeclaredBoundaryByteAndClosesTheDescriptor
+[       OK ] PrefixSeal.StopsAtExactlyTheDeclaredBoundaryByteAndClosesTheDescriptor (15 ms)
+[ RUN      ] PrefixSeal.NeverAddressesAByteAtOrPastTheWall
+[       OK ] PrefixSeal.NeverAddressesAByteAtOrPastTheWall (14 ms)
+[ RUN      ] PrefixSeal.TheHeaderIsWalkedOneByteAtATime
+[       OK ] PrefixSeal.TheHeaderIsWalkedOneByteAtATime (41 ms)
+[ RUN      ] PrefixSeal.TheFinalRowIsWalkedOneByteAtATimeThroughItsNewline
+[       OK ] PrefixSeal.TheFinalRowIsWalkedOneByteAtATimeThroughItsNewline (14 ms)
+[ RUN      ] PrefixSeal.BlockRequestsAreClampedToOneFewerThanTheRemainingRowCount
+[       OK ] PrefixSeal.BlockRequestsAreClampedToOneFewerThanTheRemainingRowCount (16 ms)
+[ RUN      ] PrefixSeal.TwoIndependentExtractionsAreByteIdentical
+[       OK ] PrefixSeal.TwoIndependentExtractionsAreByteIdentical (17 ms)
+[ RUN      ] PrefixSeal.TheRetainWindowKeepsExactlyTheRequestedSessions
+[       OK ] PrefixSeal.TheRetainWindowKeepsExactlyTheRequestedSessions (23 ms)
+[ RUN      ] PrefixSeal.TheSafeLeafCarriesOnlyTheSevenFieldsAndIsSortedBySignalId
+[       OK ] PrefixSeal.TheSafeLeafCarriesOnlyTheSevenFieldsAndIsSortedBySignalId (10 ms)
+[ RUN      ] PrefixSeal.ARetainedSessionResolvesItsOwnMemberIdsAndOnlyThose
+[       OK ] PrefixSeal.ARetainedSessionResolvesItsOwnMemberIdsAndOnlyThose (15 ms)
+[ RUN      ] PrefixSeal.ASessionCountThatDisagreesWithTheCensusRefuses
+[       OK ] PrefixSeal.ASessionCountThatDisagreesWithTheCensusRefuses (15 ms)
+[ RUN      ] PrefixSeal.ASessionRootThatDisagreesWithTheCensusRefuses
+[       OK ] PrefixSeal.ASessionRootThatDisagreesWithTheCensusRefuses (14 ms)
+[ RUN      ] PrefixSeal.NonMonotoneOrdinalsRefuseEvenWhenTheCensusAgreesWithThem
+[       OK ] PrefixSeal.NonMonotoneOrdinalsRefuseEvenWhenTheCensusAgreesWithThem (33 ms)
+[ RUN      ] PrefixSeal.ACarriageReturnInsideAnAdmittedRowRefuses
+[       OK ] PrefixSeal.ACarriageReturnInsideAnAdmittedRowRefuses (14 ms)
+[ RUN      ] PrefixSeal.ADuplicateSignalIdInsideOneSessionRefuses
+[       OK ] PrefixSeal.ADuplicateSignalIdInsideOneSessionRefuses (13 ms)
+[ RUN      ] PrefixSeal.AHeaderThatIsNotThePinnedHeaderRefuses
+[       OK ] PrefixSeal.AHeaderThatIsNotThePinnedHeaderRefuses (9 ms)
+[ RUN      ] PrefixSeal.AStopOrdinalPastTheWallIsRefusedBeforeAnyByteIsRead
+[       OK ] PrefixSeal.AStopOrdinalPastTheWallIsRefusedBeforeAnyByteIsRead (4 ms)
+[ RUN      ] PrefixSeal.BoundsThatDoNotCoverTheStopRefuse
+[       OK ] PrefixSeal.BoundsThatDoNotCoverTheStopRefuse (8 ms)
+[ RUN      ] PrefixSeal.TheProductionByteSizeGateRefusesAFileThatIsNotThePinnedSize
+[       OK ] PrefixSeal.TheProductionByteSizeGateRefusesAFileThatIsNotThePinnedSize (10 ms)
+[ RUN      ] PrefixSeal.TheFullScopeCensusGateRequiresTheDeclaredTenPointSevenMillionRows
+[       OK ] PrefixSeal.TheFullScopeCensusGateRequiresTheDeclaredTenPointSevenMillionRows (23 ms)
+[ RUN      ] PrefixSeal.ASinkRefusalStopsTheSealRatherThanBeingIgnored
+[       OK ] PrefixSeal.ASinkRefusalStopsTheSealRatherThanBeingIgnored (10 ms)
+[ RUN      ] PrefixSeal.TheKernelIsNeverAskedForMoreBytesThanTheLedgerRecords
+[       OK ] PrefixSeal.TheKernelIsNeverAskedForMoreBytesThanTheLedgerRecords (11 ms)
+[ RUN      ] PrefixSeal.TheProductionSourceRefusesAReadAfterClose
+[       OK ] PrefixSeal.TheProductionSourceRefusesAReadAfterClose (2 ms)
+[----------] 23 tests from PrefixSeal (404 ms total)
+
+[----------] 3 tests from T14Bounds
+[ RUN      ] T14Bounds.ReadsTheCensusOneByteAtATimeAndClosesAtTheStop
+[       OK ] T14Bounds.ReadsTheCensusOneByteAtATimeAndClosesAtTheStop (9 ms)
+[ RUN      ] T14Bounds.ANonDenseOrdinalLadderRefuses
+[       OK ] T14Bounds.ANonDenseOrdinalLadderRefuses (4 ms)
+[ RUN      ] T14Bounds.AHeaderThatIsNotThePinnedHeaderRefuses
+[       OK ] T14Bounds.AHeaderThatIsNotThePinnedHeaderRefuses (4 ms)
+[----------] 3 tests from T14Bounds (24 ms total)
+
+[----------] 5 tests from SessionIndexWall
+[ RUN      ] SessionIndexWall.ParsesTheDenseLadderAndRefusesPastSevenFortyNine
+[       OK ] SessionIndexWall.ParsesTheDenseLadderAndRefusesPastSevenFortyNine (10 ms)
+[ RUN      ] SessionIndexWall.ARowWhoseOrdinalIsNotItsPositionRefuses
+[       OK ] SessionIndexWall.ARowWhoseOrdinalIsNotItsPositionRefuses (6 ms)
+[ RUN      ] SessionIndexWall.AWrongHeaderRefuses
+[       OK ] SessionIndexWall.AWrongHeaderRefuses (0 ms)
+[ RUN      ] SessionIndexWall.ANonCivilDayRefuses
+[       OK ] SessionIndexWall.ANonCivilDayRefuses (0 ms)
+[ RUN      ] SessionIndexWall.ADigestThatDoesNotMatchRefusesBeforeAnythingIsParsed
+[       OK ] SessionIndexWall.ADigestThatDoesNotMatchRefusesBeforeAnythingIsParsed (21 ms)
+[----------] 5 tests from SessionIndexWall (46 ms total)
+
+[----------] 7 tests from ColumnWall
+[ RUN      ] ColumnWall.TheProjectionAllowlistIsExactlyTheEightNamedColumns
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:89: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+[  FAILED  ] ColumnWall.TheProjectionAllowlistIsExactlyTheEightNamedColumns (10 ms)
+[ RUN      ] ColumnWall.TheSideColumnIsUnreachableFromADecodedSession
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:102: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ColumnWall.TheSideColumnIsUnreachableFromADecodedSession (7 ms)
+[ RUN      ] ColumnWall.ThePhysicalClusterIdIsUnreachableFromADecodedRegistrySession
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:112: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] ColumnWall.ThePhysicalClusterIdIsUnreachableFromADecodedRegistrySession (11 ms)
+[ RUN      ] ColumnWall.AnAllowlistThatNamesAForbiddenColumnRefusesBeforeTheFileIsOpened
+[       OK ] ColumnWall.AnAllowlistThatNamesAForbiddenColumnRefusesBeforeTheFileIsOpened (3 ms)
+[ RUN      ] ColumnWall.AForbiddenColumnThatVanishedFromTheSchemaRefuses
+[       OK ] ColumnWall.AForbiddenColumnThatVanishedFromTheSchemaRefuses (7 ms)
+[ RUN      ] ColumnWall.ARepeatedAllowlistEntryRefuses
+[       OK ] ColumnWall.ARepeatedAllowlistEntryRefuses (4 ms)
+[ RUN      ] ColumnWall.AnEmptyAllowlistIsNotAProjection
+[       OK ] ColumnWall.AnEmptyAllowlistIsNotAProjection (4 ms)
+[----------] 7 tests from ColumnWall (62 ms total)
+
+[----------] 11 tests from RowGroupIdentity
+[ RUN      ] RowGroupIdentity.DecodesPhysicalRowGroupIAsSessionI
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:164: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RowGroupIdentity.DecodesPhysicalRowGroupIAsSessionI (8 ms)
+[ RUN      ] RowGroupIdentity.DayStatisticsThatSpanTwoDaysRefuse
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:175: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RowGroupIdentity.DayStatisticsThatSpanTwoDaysRefuse (23 ms)
+[ RUN      ] RowGroupIdentity.DayStatisticsThatNameADifferentDayThanTheIndexRefuse
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:183: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RowGroupIdentity.DayStatisticsThatNameADifferentDayThanTheIndexRefuse (10 ms)
+[ RUN      ] RowGroupIdentity.AbsentDayStatisticsRefuseRatherThanFallingBackToTheValues
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:193: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RowGroupIdentity.AbsentDayStatisticsRefuseRatherThanFallingBackToTheValues (9 ms)
+[ RUN      ] RowGroupIdentity.ADecodedRowCarryingANeighboursDayRefusesDespiteCleanStatistics
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:201: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RowGroupIdentity.ADecodedRowCarryingANeighboursDayRefusesDespiteCleanStatistics (9 ms)
+[ RUN      ] RowGroupIdentity.ADecodedRowCountThatDiffersFromTheIndexRefuses
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:209: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RowGroupIdentity.ADecodedRowCountThatDiffersFromTheIndexRefuses (11 ms)
+[ RUN      ] RowGroupIdentity.AnOrdinalPastTheWallNeverBecomesARowGroupIndex
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:217: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RowGroupIdentity.AnOrdinalPastTheWallNeverBecomesARowGroupIndex (8 ms)
+[ RUN      ] RowGroupIdentity.AnOrdinalWithNoIndexRowRefuses
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:225: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RowGroupIdentity.AnOrdinalWithNoIndexRowRefuses (8 ms)
+[ RUN      ] RowGroupIdentity.AFileWithTheWrongRowGroupCountRefuses
+[       OK ] RowGroupIdentity.AFileWithTheWrongRowGroupCountRefuses (7 ms)
+[ RUN      ] RowGroupIdentity.TwoDecodesOfOneSessionAgreeCellForCell
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:242: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] RowGroupIdentity.TwoDecodesOfOneSessionAgreeCellForCell (8 ms)
+[ RUN      ] RowGroupIdentity.ARequiredLeafCarriesNoNullsSoAnAbsentCellIsAnEmptyValue
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:262: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+[  FAILED  ] RowGroupIdentity.ARequiredLeafCarriesNoNullsSoAnAbsentCellIsAnEmptyValue (10 ms)
+[----------] 11 tests from RowGroupIdentity (149 ms total)
+
+[----------] 4 tests from DialectProfiles
+[ RUN      ] DialectProfiles.ThePublicationProfileRefusesAnOptionalLeaf
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:282: Failure
+Value of: table.has_value()
+  Actual: true
+Expected: false
+an OPTIONAL-leaf publication was admitted
+
+[  FAILED  ] DialectProfiles.ThePublicationProfileRefusesAnOptionalLeaf (10 ms)
+[ RUN      ] DialectProfiles.TheCorpusProfileRefusesTheRequiredPublicationShape
+[       OK ] DialectProfiles.TheCorpusProfileRefusesTheRequiredPublicationShape (6 ms)
+[ RUN      ] DialectProfiles.ThePublicationProfileRefusesEveryTupleOutsideItsMeasuredCensus
+[       OK ] DialectProfiles.ThePublicationProfileRefusesEveryTupleOutsideItsMeasuredCensus (34 ms)
+[ RUN      ] DialectProfiles.ThePublicationReaderDeclaresItsFamilyRatherThanInheritingADefault
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_rowgroup_table.cpp:337: Failure
+Value of: table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+[  FAILED  ] DialectProfiles.ThePublicationReaderDeclaresItsFamilyRatherThanInheritingADefault (26 ms)
+[----------] 4 tests from DialectProfiles (84 ms total)
+
+[----------] 8 tests from MemberParse
+[ RUN      ] MemberParse.AcceptsTheCanonicalAscendingUniqueLowercaseList
+[       OK ] MemberParse.AcceptsTheCanonicalAscendingUniqueLowercaseList (0 ms)
+[ RUN      ] MemberParse.AnEmptyCellRefuses
+[       OK ] MemberParse.AnEmptyCellRefuses (0 ms)
+[ RUN      ] MemberParse.AnEmptyTokenRefuses
+[       OK ] MemberParse.AnEmptyTokenRefuses (0 ms)
+[ RUN      ] MemberParse.UppercaseHexIsRefusedNotFolded
+[       OK ] MemberParse.UppercaseHexIsRefusedNotFolded (0 ms)
+[ RUN      ] MemberParse.WhitespaceAnywhereRefuses
+[       OK ] MemberParse.WhitespaceAnywhereRefuses (0 ms)
+[ RUN      ] MemberParse.ADescendingListRefusesInsteadOfBeingSorted
+[       OK ] MemberParse.ADescendingListRefusesInsteadOfBeingSorted (0 ms)
+[ RUN      ] MemberParse.ARepeatedIdRefuses
+[       OK ] MemberParse.ARepeatedIdRefuses (0 ms)
+[ RUN      ] MemberParse.AWrongLengthTokenRefuses
+[       OK ] MemberParse.AWrongLengthTokenRefuses (0 ms)
+[----------] 8 tests from MemberParse (12 ms total)
+
+[----------] 1 test from PolicyVocabulary
+[ RUN      ] PolicyVocabulary.AdmitsExactlyTheTwelvePrimitivePolicies
+[       OK ] PolicyVocabulary.AdmitsExactlyTheTwelvePrimitivePolicies (0 ms)
+[----------] 1 test from PolicyVocabulary (1 ms total)
+
+[----------] 22 tests from Roster
+[ RUN      ] Roster.AuthenticatesLowAsLongAndHighAsShort
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:205: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+CONFIG at test: a fixture authority did not open
+
+[  FAILED  ] Roster.AuthenticatesLowAsLongAndHighAsShort (25 ms)
+[ RUN      ] Roster.TheCensusCountsEveryTypedClassSeparately
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:223: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+CONFIG at test: a fixture authority did not open
+
+[  FAILED  ] Roster.TheCensusCountsEveryTypedClassSeparately (21 ms)
+[ RUN      ] Roster.EveryAdmittedCandidateStaysInTheDenominatorIncludingTheUnauthenticated
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:247: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.EveryAdmittedCandidateStaysInTheDenominatorIncludingTheUnauthenticated (36 ms)
+[ RUN      ] Roster.NonprimitiveRowsCreateNoRecordAtAll
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:255: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.NonprimitiveRowsCreateNoRecordAtAll (24 ms)
+[ RUN      ] Roster.APrimitiveRowWithNoVisibilityOrNoScorabilityIsNotAdmitted
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:264: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.APrimitiveRowWithNoVisibilityOrNoScorabilityIsNotAdmitted (23 ms)
+[ RUN      ] Roster.RecordsAreOrderedByCandidateIdNotByRowOrder
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:272: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.RecordsAreOrderedByCandidateIdNotByRowOrder (16 ms)
+[ RUN      ] Roster.MixedMemberSidesAreTypedUnavailableAndRetained
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:285: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.MixedMemberSidesAreTypedUnavailableAndRetained (22 ms)
+[ RUN      ] Roster.AMemberVisibleAfterTheCandidateIsTypedUnavailable
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:298: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.AMemberVisibleAfterTheCandidateIsTypedUnavailable (21 ms)
+[ RUN      ] Roster.AMemberWhosePolicyOrReversalDiffersIsTypedUnavailable
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:310: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.AMemberWhosePolicyOrReversalDiffersIsTypedUnavailable (23 ms)
+[ RUN      ] Roster.AMemberThatDoesNotResolveInSessionIsTypedUnavailable
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:321: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.AMemberThatDoesNotResolveInSessionIsTypedUnavailable (36 ms)
+[ RUN      ] Roster.ASingletonCandidateRowKeyFlipRefusesTheCandidateAndSession
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:338: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::CONTENT_MISMATCH
+    Which is: 1-byte object <08>
+
+[  FAILED  ] Roster.ASingletonCandidateRowKeyFlipRefusesTheCandidateAndSession (17 ms)
+[ RUN      ] Roster.AMultiMemberSplitRefusesTheCandidateAndSession
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:350: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::CONTENT_MISMATCH
+    Which is: 1-byte object <08>
+
+[  FAILED  ] Roster.AMultiMemberSplitRefusesTheCandidateAndSession (15 ms)
+[ RUN      ] Roster.TheMultiMemberSplitFixtureStillPassesThePrefixSeal
+[       OK ] Roster.TheMultiMemberSplitFixtureStillPassesThePrefixSeal (15 ms)
+[ RUN      ] Roster.AnEmptyPhysicalKeyOnTheRawRowRefuses
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:377: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::DECODE_FAILED
+    Which is: 1-byte object <06>
+
+[  FAILED  ] Roster.AnEmptyPhysicalKeyOnTheRawRowRefuses (16 ms)
+[ RUN      ] Roster.ARawRowThatDisagreesOnPolicyReversalVisibilityOrMembersRefuses
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:388: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::CONTENT_MISMATCH
+    Which is: 1-byte object <08>
+projection_join_policy.parquet
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:388: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::CONTENT_MISMATCH
+    Which is: 1-byte object <08>
+projection_join_reversal.parquet
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:388: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::CONTENT_MISMATCH
+    Which is: 1-byte object <08>
+projection_join_visible.parquet
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:388: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::CONTENT_MISMATCH
+    Which is: 1-byte object <08>
+projection_join_members.parquet
+
+[  FAILED  ] Roster.ARawRowThatDisagreesOnPolicyReversalVisibilityOrMembersRefuses (101 ms)
+[ RUN      ] Roster.AStoredMemberCountThatContradictsTheDerivedCountRefuses
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:396: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::CONTENT_MISMATCH
+    Which is: 1-byte object <08>
+
+[  FAILED  ] Roster.AStoredMemberCountThatContradictsTheDerivedCountRefuses (22 ms)
+[ RUN      ] Roster.ARepeatedCandidateIdInOneSessionRefuses
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:406: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::CONTENT_MISMATCH
+    Which is: 1-byte object <08>
+
+[  FAILED  ] Roster.ARepeatedCandidateIdInOneSessionRefuses (21 ms)
+[ RUN      ] Roster.EveryMalformedMemberCellShapeIsTypedRefused
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:418: Failure
+Value of: code == qr::RefusalCode::DECODE_FAILED || code == qr::RefusalCode::OUT_OF_ORDER || code == qr::RefusalCode::CONTENT_MISMATCH
+  Actual: false
+Expected: true
+registry_member_empty_token.parquet gave CONFIG
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:418: Failure
+Value of: code == qr::RefusalCode::DECODE_FAILED || code == qr::RefusalCode::OUT_OF_ORDER || code == qr::RefusalCode::CONTENT_MISMATCH
+  Actual: false
+Expected: true
+registry_member_uppercase.parquet gave CONFIG
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:418: Failure
+Value of: code == qr::RefusalCode::DECODE_FAILED || code == qr::RefusalCode::OUT_OF_ORDER || code == qr::RefusalCode::CONTENT_MISMATCH
+  Actual: false
+Expected: true
+registry_member_unsorted.parquet gave CONFIG
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:418: Failure
+Value of: code == qr::RefusalCode::DECODE_FAILED || code == qr::RefusalCode::OUT_OF_ORDER || code == qr::RefusalCode::CONTENT_MISMATCH
+  Actual: false
+Expected: true
+registry_member_duplicate.parquet gave CONFIG
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:418: Failure
+Value of: code == qr::RefusalCode::DECODE_FAILED || code == qr::RefusalCode::OUT_OF_ORDER || code == qr::RefusalCode::CONTENT_MISMATCH
+  Actual: false
+Expected: true
+registry_member_whitespace.parquet gave CONFIG
+
+[  FAILED  ] Roster.EveryMalformedMemberCellShapeIsTypedRefused (114 ms)
+[ RUN      ] Roster.TheThreeAuthoritiesMustBeTheSameSession
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:427: Failure
+Value of: fixture.registry.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.TheThreeAuthoritiesMustBeTheSameSession (17 ms)
+[ RUN      ] Roster.AnOrdinalPastTheWallRefusesBeforeAnythingIsJoined
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:437: Failure
+Value of: fixture.registry.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.AnOrdinalPastTheWallRefusesBeforeAnythingIsJoined (19 ms)
+[ RUN      ] Roster.DeletingTheLatestVisibleSiblingLeavesEveryEarlierRecordBitUnchanged
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:451: Failure
+Value of: complete.has_value()
+  Actual: false
+Expected: true
+CONFIG at test: a fixture authority did not open
+
+[  FAILED  ] Roster.DeletingTheLatestVisibleSiblingLeavesEveryEarlierRecordBitUnchanged (24 ms)
+[ RUN      ] Roster.TwoBuildsOfOneSessionRenderByteIdenticalOutput
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:70: Failure
+Value of: registry_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:76: Failure
+Value of: projection_table.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_candidates::RowGroupTable: the publication parquet refused to open
+
+/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:488: Failure
+Value of: a.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Roster.TwoBuildsOfOneSessionRenderByteIdenticalOutput (54 ms)
+[----------] 22 tests from Roster (774 ms total)
+
+[----------] Global test environment tear-down
+[==========] 103 tests from 14 test suites ran. (1761 ms total)
+[  PASSED  ] 67 tests.
+[  FAILED  ] 36 tests, listed below:
+[  FAILED  ] ColumnWall.TheProjectionAllowlistIsExactlyTheEightNamedColumns
+[  FAILED  ] ColumnWall.TheSideColumnIsUnreachableFromADecodedSession
+[  FAILED  ] ColumnWall.ThePhysicalClusterIdIsUnreachableFromADecodedRegistrySession
+[  FAILED  ] RowGroupIdentity.DecodesPhysicalRowGroupIAsSessionI
+[  FAILED  ] RowGroupIdentity.DayStatisticsThatSpanTwoDaysRefuse
+[  FAILED  ] RowGroupIdentity.DayStatisticsThatNameADifferentDayThanTheIndexRefuse
+[  FAILED  ] RowGroupIdentity.AbsentDayStatisticsRefuseRatherThanFallingBackToTheValues
+[  FAILED  ] RowGroupIdentity.ADecodedRowCarryingANeighboursDayRefusesDespiteCleanStatistics
+[  FAILED  ] RowGroupIdentity.ADecodedRowCountThatDiffersFromTheIndexRefuses
+[  FAILED  ] RowGroupIdentity.AnOrdinalPastTheWallNeverBecomesARowGroupIndex
+[  FAILED  ] RowGroupIdentity.AnOrdinalWithNoIndexRowRefuses
+[  FAILED  ] RowGroupIdentity.TwoDecodesOfOneSessionAgreeCellForCell
+[  FAILED  ] RowGroupIdentity.ARequiredLeafCarriesNoNullsSoAnAbsentCellIsAnEmptyValue
+[  FAILED  ] DialectProfiles.ThePublicationProfileRefusesAnOptionalLeaf
+[  FAILED  ] DialectProfiles.ThePublicationReaderDeclaresItsFamilyRatherThanInheritingADefault
+[  FAILED  ] Roster.AuthenticatesLowAsLongAndHighAsShort
+[  FAILED  ] Roster.TheCensusCountsEveryTypedClassSeparately
+[  FAILED  ] Roster.EveryAdmittedCandidateStaysInTheDenominatorIncludingTheUnauthenticated
+[  FAILED  ] Roster.NonprimitiveRowsCreateNoRecordAtAll
+[  FAILED  ] Roster.APrimitiveRowWithNoVisibilityOrNoScorabilityIsNotAdmitted
+[  FAILED  ] Roster.RecordsAreOrderedByCandidateIdNotByRowOrder
+[  FAILED  ] Roster.MixedMemberSidesAreTypedUnavailableAndRetained
+[  FAILED  ] Roster.AMemberVisibleAfterTheCandidateIsTypedUnavailable
+[  FAILED  ] Roster.AMemberWhosePolicyOrReversalDiffersIsTypedUnavailable
+[  FAILED  ] Roster.AMemberThatDoesNotResolveInSessionIsTypedUnavailable
+[  FAILED  ] Roster.ASingletonCandidateRowKeyFlipRefusesTheCandidateAndSession
+[  FAILED  ] Roster.AMultiMemberSplitRefusesTheCandidateAndSession
+[  FAILED  ] Roster.AnEmptyPhysicalKeyOnTheRawRowRefuses
+[  FAILED  ] Roster.ARawRowThatDisagreesOnPolicyReversalVisibilityOrMembersRefuses
+[  FAILED  ] Roster.AStoredMemberCountThatContradictsTheDerivedCountRefuses
+[  FAILED  ] Roster.ARepeatedCandidateIdInOneSessionRefuses
+[  FAILED  ] Roster.EveryMalformedMemberCellShapeIsTypedRefused
+[  FAILED  ] Roster.TheThreeAuthoritiesMustBeTheSameSession
+[  FAILED  ] Roster.AnOrdinalPastTheWallRefusesBeforeAnythingIsJoined
+[  FAILED  ] Roster.DeletingTheLatestVisibleSiblingLeavesEveryEarlierRecordBitUnchanged
+[  FAILED  ] Roster.TwoBuildsOfOneSessionRenderByteIdenticalOutput
+
+36 FAILED TESTS

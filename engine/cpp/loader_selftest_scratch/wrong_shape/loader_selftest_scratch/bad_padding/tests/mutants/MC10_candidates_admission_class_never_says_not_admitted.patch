@@ -1,0 +1,13 @@
+--- a/qr_candidates/src/roster.cpp
++++ b/qr_candidates/src/roster.cpp
+@@ -114,8 +114,9 @@
+     // action, prefix membership, feature, sampler, denominator, fit or score".
+     return AdmissionClass::NONPRIMITIVE_CENSUS_ONLY;
+   }
++  // MC10 MUTANT: the class the enum exists for is never produced.
+   if (!event_scorable || !has_own_visibility) {
+-    return AdmissionClass::PRIMITIVE_NOT_ADMITTED;
++    return AdmissionClass::NONPRIMITIVE_CENSUS_ONLY;
+   }
+   return AdmissionClass::ADMITTED_PRIMITIVE;
+ }

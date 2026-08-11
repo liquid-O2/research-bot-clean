@@ -1,0 +1,13 @@
+--- a/qr_replay/src/policy_gate.cpp
++++ b/qr_replay/src/policy_gate.cpp
+@@ -116,9 +116,7 @@
+     // strictly-prior same-session predictions cannot carry a top-q claim.
+     return {false, GateReason::GATE_WARMUP};
+   }
+-  if (min_seen_ == max_seen_) {
+-    return {false, GateReason::DEGENERATE_PRIOR};
+-  }
++  // MUTANT M609: a degenerate prior now admits everything.
+   if (action.predicted_net < threshold()) {
+     return {false, GateReason::BELOW_TOP_Q};
+   }

@@ -1,0 +1,11 @@
+--- a/qr_labels/src/execution_tape.cpp
++++ b/qr_labels/src/execution_tape.cpp
+@@ -187,7 +187,7 @@
+       return Expected<bool, Refusal>::refuse(classified.error());
+     }
+     // THE ONE ELIGIBILITY AUTHORITY (qr_nbbo's typed view), used verbatim.
+-    if (classified.value().validity != Validity::VALID) {
++    if (classified.value().validity == Validity::MISSING) {  // MUTANT M814
+       census_.ineligible_members += 1;
+       continue;
+     }

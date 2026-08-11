@@ -1,0 +1,13 @@
+--- a/qr_carriers/src/prior_state.cpp
++++ b/qr_carriers/src/prior_state.cpp
+@@ -33,7 +33,9 @@
+     return masked(Validity::MISSING);
+   }
+   const std::int64_t total = bid.value + ask.value;
+-  if (total == 0) {
++  // MA25: the zero-denominator guard is dropped (CC-005's "zero denominator =>
++  // typed missing").
++  if (false) {
+     return masked(Validity::MISSING);
+   }
+   return present(static_cast<double>(bid.value - ask.value) / static_cast<double>(total));

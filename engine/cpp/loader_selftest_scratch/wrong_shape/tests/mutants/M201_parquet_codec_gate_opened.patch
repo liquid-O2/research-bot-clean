@@ -1,0 +1,11 @@
+--- a/qr_parquet/include/qr_parquet/dialect.hpp
++++ b/qr_parquet/include/qr_parquet/dialect.hpp
+@@ -78,7 +78,7 @@
+ 
+ /// ZSTD and nothing else (census: every one of the 8,726 files).
+ [[nodiscard]] constexpr bool is_pinned_codec(std::int32_t codec) noexcept {
+-  return codec == kCodecZstd;
++  return codec == kCodecZstd || codec == kCodecSnappy;
+ }
+ 
+ /// PLAIN, RLE, RLE_DICTIONARY and nothing else. PLAIN_DICTIONARY (the pre-2.0

@@ -1,0 +1,12 @@
+--- a/python/campaign/train.py
++++ b/python/campaign/train.py
+@@ -321,7 +321,8 @@
+     # Logistic on the ordered difference: the side with the larger realized
+     # net_h_ref must score higher.
+     sign = torch.where(long_net > short_net, 1.0, -1.0).to(left.dtype).to(left.device)
+-    loss = F.softplus(-sign * (left - right))
++    # M946 MUTANT: LONG is always treated as the winner.
++    loss = F.softplus(-(left - right))
+     weight = torch.full_like(loss, 1.0 / float(pair_total))
+     accumulator.add("pairwise", _weighted(loss, weight)[0])
+ 

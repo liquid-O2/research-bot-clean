@@ -1,0 +1,13 @@
+--- a/qr_campaign/src/driver.cpp
++++ b/qr_campaign/src/driver.cpp
+@@ -53,7 +53,9 @@
+   if (!digest.has_value()) {
+     return Status::refuse(digest.error());
+   }
+-  if (digest.value() != expected_sha256) {
++  // MD01: the spec gate compares the LENGTH of the digest instead of the
++  // digest, so every edited card passes the gate.
++  if (digest.value().size() != expected_sha256.size()) {
+     // The offending prefix travels in `context` so the refusal names the bytes
+     // it saw without carrying a dynamic string (Refusal holds static text only).
+     return Status::refuse(content("the task card is not the frozen bytes this driver is "

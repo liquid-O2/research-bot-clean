@@ -1,0 +1,205 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M507_emit_header_pad_is_nondeterministic
+# patch:       tests/mutants/M507_emit_header_pad_is_nondeterministic.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M507_emit_header_pad_is_nondeterministic
+#
+### qr_emit_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 37 tests from 9 test suites.
+[----------] Global test environment set-up.
+[----------] 11 tests from FdCensusTest
+[ RUN      ] FdCensusTest.TheInterposingDoorIsLinkedIntoThisBinary
+[       OK ] FdCensusTest.TheInterposingDoorIsLinkedIntoThisBinary (0 ms)
+[ RUN      ] FdCensusTest.ATruthComponentIsRecognisedWhereverItSits
+[       OK ] FdCensusTest.ATruthComponentIsRecognisedWhereverItSits (0 ms)
+[ RUN      ] FdCensusTest.RecordsPathsOpenedThroughStreamsStdioAndPosixAlike
+[       OK ] FdCensusTest.RecordsPathsOpenedThroughStreamsStdioAndPosixAlike (42 ms)
+[ RUN      ] FdCensusTest.NothingIsRecordedBeforeTheRoleIsDeclared
+[       OK ] FdCensusTest.NothingIsRecordedBeforeTheRoleIsDeclared (47 ms)
+[ RUN      ] FdCensusTest.AFeatureBuilderIsRefusedAtTheDoorAndItsCensusFails
+[       OK ] FdCensusTest.AFeatureBuilderIsRefusedAtTheDoorAndItsCensusFails (29 ms)
+[ RUN      ] FdCensusTest.AFeatureBuilderShardBuildNeverTouchesTruth
+[       OK ] FdCensusTest.AFeatureBuilderShardBuildNeverTouchesTruth (131 ms)
+[ RUN      ] FdCensusTest.ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth
+[       OK ] FdCensusTest.ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth (70 ms)
+[ RUN      ] FdCensusTest.TheProcSweepCatchesADescriptorTheDoorNeverSaw
+[       OK ] FdCensusTest.TheProcSweepCatchesADescriptorTheDoorNeverSaw (25 ms)
+[ RUN      ] FdCensusTest.TheCensusReceiptIsSortedDeterministicAndCountsRepeats
+[       OK ] FdCensusTest.TheCensusReceiptIsSortedDeterministicAndCountsRepeats (82 ms)
+[ RUN      ] FdCensusTest.RefusingAnOpenNeverCreatesTheFile
+[       OK ] FdCensusTest.RefusingAnOpenNeverCreatesTheFile (10 ms)
+[ RUN      ] FdCensusTest.TheBuilderPhaseIsTaggedAndTheEmitStepWritesBothSections
+[       OK ] FdCensusTest.TheBuilderPhaseIsTaggedAndTheEmitStepWritesBothSections (146 ms)
+[----------] 11 tests from FdCensusTest (607 ms total)
+
+[----------] 1 test from NpyDtypes
+[ RUN      ] NpyDtypes.AreTheFourPinnedAppendixC4Types
+[       OK ] NpyDtypes.AreTheFourPinnedAppendixC4Types (0 ms)
+[----------] 1 test from NpyDtypes (2 ms total)
+
+[----------] 5 tests from NpyHeader
+[ RUN      ] NpyHeader.IsNumpysOwnPrologueByteForByte
+/workspace/engine/cpp/qr_emit/tests/test_npy_writer.cpp:74: Failure
+Expected equality of these values:
+  ours
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '<i8', 'fortran_order': False, 'shape': (5,), }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
+  reference.substr(0, ours.size())
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '<i8', 'fortran_order': False, 'shape': (5,), }                                                            \n"
+i8_1d: our prologue is not numpy's prologue
+
+/workspace/engine/cpp/qr_emit/tests/test_npy_writer.cpp:74: Failure
+Expected equality of these values:
+  ours
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '<f4', 'fortran_order': False, 'shape': (2, 3, 4), }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
+  reference.substr(0, ours.size())
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '<f4', 'fortran_order': False, 'shape': (2, 3, 4), }                                                       \n"
+f4_3d: our prologue is not numpy's prologue
+
+/workspace/engine/cpp/qr_emit/tests/test_npy_writer.cpp:74: Failure
+Expected equality of these values:
+  ours
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '<i8', 'fortran_order': False, 'shape': (0, 7), }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
+  reference.substr(0, ours.size())
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '<i8', 'fortran_order': False, 'shape': (0, 7), }                                                          \n"
+i8_empty_2d: our prologue is not numpy's prologue
+
+[  FAILED  ] NpyHeader.IsNumpysOwnPrologueByteForByte (18 ms)
+[ RUN      ] NpyHeader.CarriesTheMagicVersionAndLittleEndianHeaderLength
+[       OK ] NpyHeader.CarriesTheMagicVersionAndLittleEndianHeaderLength (0 ms)
+[ RUN      ] NpyHeader.AlwaysLandsThePayloadOnASixtyFourByteBoundary
+[       OK ] NpyHeader.AlwaysLandsThePayloadOnASixtyFourByteBoundary (0 ms)
+[ RUN      ] NpyHeader.OneDimensionalShapesAreWrittenAsOneTuples
+[       OK ] NpyHeader.OneDimensionalShapesAreWrittenAsOneTuples (0 ms)
+[ RUN      ] NpyHeader.RefusesShapesOutsideOneToThreeDimensionsAndNegativeExtents
+[       OK ] NpyHeader.RefusesShapesOutsideOneToThreeDimensionsAndNegativeExtents (0 ms)
+[----------] 5 tests from NpyHeader (27 ms total)
+
+[----------] 1 test from NpyLeaf
+[ RUN      ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte
+/workspace/engine/cpp/qr_emit/tests/test_npy_writer.cpp:163: Failure
+Expected equality of these values:
+  read_file(dir / "i4_2d.npy")
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '<i4', 'fortran_order': False, 'shape': (3, 4), }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\xFB\xFF\xFF\xFF\xFC\xFF\xFF\xFF\xFD\xFF\xFF\xFF\xFE\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\0\0\0\x1\0\0\0\x2\0\0\0\x3\0\0\0\x4\0\0\0\x5\0\0\0\x6\0\0\0"
+  read_file(fixture("i4_2d"))
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '<i4', 'fortran_order': False, 'shape': (3, 4), }                                                          \n\xFB\xFF\xFF\xFF\xFC\xFF\xFF\xFF\xFD\xFF\xFF\xFF\xFE\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\0\0\0\x1\0\0\0\x2\0\0\0\x3\0\0\0\x4\0\0\0\x5\0\0\0\x6\0\0\0"
+With diff:
+@@ -1,2 +1,2 @@
+-\x93NUMPY\x1\0v\0{'descr': '<i4', 'fortran_order': False, 'shape': (3, 4), }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
++\x93NUMPY\x1\0v\0{'descr': '<i4', 'fortran_order': False, 'shape': (3, 4), }                                                          
+ \xFB\xFF\xFF\xFF\xFC\xFF\xFF\xFF\xFD\xFF\xFF\xFF\xFE\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\0\0\0\x1\0\0\0\x2\0\0\0\x3\0\0\0\x4\0\0\0\x5\0\0\0\x6\0\0\0
+
+
+/workspace/engine/cpp/qr_emit/tests/test_npy_writer.cpp:188: Failure
+Expected equality of these values:
+  read_file(dir / "u1_2d.npy")
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '|u1', 'fortran_order': False, 'shape': (2, 7), }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\0%Jo\x94\xB9\xDE\x3(Mr\x97\xBC\xE1"
+  read_file(fixture("u1_2d"))
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '|u1', 'fortran_order': False, 'shape': (2, 7), }                                                          \n\0%Jo\x94\xB9\xDE\x3(Mr\x97\xBC\xE1"
+With diff:
+@@ -1,2 +1,2 @@
+-\x93NUMPY\x1\0v\0{'descr': '|u1', 'fortran_order': False, 'shape': (2, 7), }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
++\x93NUMPY\x1\0v\0{'descr': '|u1', 'fortran_order': False, 'shape': (2, 7), }                                                          
+ \0%Jo\x94\xB9\xDE\x3(Mr\x97\xBC\xE1
+
+
+[  FAILED  ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte (117 ms)
+[----------] 1 test from NpyLeaf (119 ms total)
+
+[----------] 7 tests from NpyWriter
+[ RUN      ] NpyWriter.RefusesMoreElementsThanTheDeclaredShape
+[       OK ] NpyWriter.RefusesMoreElementsThanTheDeclaredShape (17 ms)
+[ RUN      ] NpyWriter.RefusesAShortLeafAtFinish
+[       OK ] NpyWriter.RefusesAShortLeafAtFinish (30 ms)
+[ RUN      ] NpyWriter.RefusesAnElementTypeOtherThanTheDeclaredDtype
+[       OK ] NpyWriter.RefusesAnElementTypeOtherThanTheDeclaredDtype (18 ms)
+[ RUN      ] NpyWriter.NeverOverwritesAnExistingLeaf
+[       OK ] NpyWriter.NeverOverwritesAnExistingLeaf (17 ms)
+[ RUN      ] NpyWriter.ReceiptDigestIsTheDigestOfTheWholeFileIncludingTheHeader
+[       OK ] NpyWriter.ReceiptDigestIsTheDigestOfTheWholeFileIncludingTheHeader (35 ms)
+[ RUN      ] NpyWriter.PayloadsLargerThanTheWriteChunkAreEncodedExactly
+[       OK ] NpyWriter.PayloadsLargerThanTheWriteChunkAreEncodedExactly (106 ms)
+[ RUN      ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical
+/workspace/engine/cpp/qr_emit/tests/test_npy_writer.cpp:311: Failure
+Expected equality of these values:
+  written.at(0)
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '<f4', 'fortran_order': False, 'shape': (2, 3, 4), }                                                       \n\0\0\0\0\0\0\0>\0\0\x80>\0\0\xC0>\0\0\0?\0\0 ?\0\0@?\0\0`?\0\0\x80?\0\0\x90?\0\0\xA0?\0\0\xB0?\0\0\xC0?\0\0\xD0?\0\0\xE0?\0\0\xF0?\0\0\0@\0\0\b@\0\0\x10@\0\0\x18@\0\0 @\0\0(@\0\00@\0\08@"
+  written.at(1)
+    Which is: "\x93NUMPY\x1\0v\0{'descr': '<f4', 'fortran_order': False, 'shape': (2, 3, 4), }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\0\0\0\0\0\0\0>\0\0\x80>\0\0\xC0>\0\0\0?\0\0 ?\0\0@?\0\0`?\0\0\x80?\0\0\x90?\0\0\xA0?\0\0\xB0?\0\0\xC0?\0\0\xD0?\0\0\xE0?\0\0\xF0?\0\0\0@\0\0\b@\0\0\x10@\0\0\x18@\0\0 @\0\0(@\0\00@\0\08@"
+With diff:
+@@ -1,2 +1,2 @@
+-\x93NUMPY\x1\0v\0{'descr': '<f4', 'fortran_order': False, 'shape': (2, 3, 4), }                                                       
++\x93NUMPY\x1\0v\0{'descr': '<f4', 'fortran_order': False, 'shape': (2, 3, 4), }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
+ \0\0\0\0\0\0\0>\0\0\x80>\0\0\xC0>\0\0\0?\0\0 ?\0\0@?\0\0`?\0\0\x80?\0\0\x90?\0\0\xA0?\0\0\xB0?\0\0\xC0?\0\0\xD0?\0\0\xE0?\0\0\xF0?\0\0\0@\0\0\b@\0\0\x10@\0\0\x18@\0\0 @\0\0(@\0\00@\0\08@
+
+
+[  FAILED  ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical (41 ms)
+[----------] 7 tests from NpyWriter (294 ms total)
+
+[----------] 2 tests from ShardLayout
+[ RUN      ] ShardLayout.PublishesTheAppendixC4DirectoryLayout
+[       OK ] ShardLayout.PublishesTheAppendixC4DirectoryLayout (138 ms)
+[ RUN      ] ShardLayout.TheTruthDirectoryExistsOnlyWhenATruthLeafWasWritten
+[       OK ] ShardLayout.TheTruthDirectoryExistsOnlyWhenATruthLeafWasWritten (70 ms)
+[----------] 2 tests from ShardLayout (212 ms total)
+
+[----------] 3 tests from ShardManifest
+[ RUN      ] ShardManifest.CarriesEveryC4FieldForEveryLeaf
+[       OK ] ShardManifest.CarriesEveryC4FieldForEveryLeaf (162 ms)
+[ RUN      ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:170: Failure
+Expected equality of these values:
+  manifests.at(0)
+    Which is: "# qr_emit_manifest_v1\tfields\tmeta=key,value\tsource=id,sha256,path\tcensus=id,sha256,path\tleaf=path,dtype,shape,rows,sha256\nmeta\tmanifest_schema\tqr_emit_manifest_v1\nmeta\tbuild_id\twp10-fixture-build\nmeta\tsession_ordinal\t125\nmeta\tside\tLONG\nmeta\tleaf_count\t4\nmeta\ttotal_leaf_bytes\t2155\nsource\tregistry\t233dc10a\tengine/crates/corpus/registry/accepted_compact_sessions.tsv\nsource\tstock_quotes\taa11\t/workspace/data/tokens/stock_quotes/IWM/s125.parquet\ncensus\tdialect_census\t63557a43\tartifacts/cache/cpp/dialect_census.tsv\nleaf\tfeatures/direct_raw.npy\t<f4\t3,2,60\t3\t1308babb971b50bb15f22887d24e6eb8e5c6c374701fa69cc42957ff83725644\nleaf\tfeatures/group_ts.npy\t<i8\t4\t4\t2bcc1fff920a58b42766a842d24ee1c9ab827696d91efb02d1354250cb65c692\nleaf\ttruth/barrier.npy\t|u1\t3\t3\tdf616913ea473258b6841abca5904523320785209dc38976efbd7e0420af8736\nleaf\ttruth/menu_net_cent.npy\t<i8\t3,7\t3\t304e99f4a1fa2dc2b03f6b61cff0edb8a84d3594fa1c3ac8ae40edaf9303a391\n"
+  manifests.at(1)
+    Which is: "# qr_emit_manifest_v1\tfields\tmeta=key,value\tsource=id,sha256,path\tcensus=id,sha256,path\tleaf=path,dtype,shape,rows,sha256\nmeta\tmanifest_schema\tqr_emit_manifest_v1\nmeta\tbuild_id\twp10-fixture-build\nmeta\tsession_ordinal\t125\nmeta\tside\tLONG\nmeta\tleaf_count\t4\nmeta\ttotal_leaf_bytes\t2155\nsource\tregistry\t233dc10a\tengine/crates/corpus/registry/accepted_compact_sessions.tsv\nsource\tstock_quotes\taa11\t/workspace/data/tokens/stock_quotes/IWM/s125.parquet\ncensus\tdialect_census\t63557a43\tartifacts/cache/cpp/dialect_census.tsv\nleaf\tfeatures/direct_raw.npy\t<f4\t3,2,60\t3\t8ebb08f5e2e5f18500d6eb0863da05062786cbee5426626f56c74ad7c188401f\nleaf\tfeatures/group_ts.npy\t<i8\t4\t4\tfa81876133d73c7c61dcb583cfa4e74f6dc72a5b1d30fe25f800576333a279be\nleaf\ttruth/barrier.npy\t|u1\t3\t3\t8575255195e98ce1a14acb01545c95580c16325e94430d5d9c8bc51c499ff792\nleaf\ttruth/menu_net_cent.npy\t<i8\t3,7\t3\tc52410d5ca2cefd8d71c48d57beb672e8cdd3abef1d8456199819e7b06782ca4\n"
+With diff:
+@@ -9,6 +9,6 @@
+ source\tstock_quotes\taa11\t/workspace/data/tokens/stock_quotes/IWM/s125.parquet
+ census\tdialect_census\t63557a43\tartifacts/cache/cpp/dialect_census.tsv
+-leaf\tfeatures/direct_raw.npy\t<f4\t3,2,60\t3\t1308babb971b50bb15f22887d24e6eb8e5c6c374701fa69cc42957ff83725644
+-leaf\tfeatures/group_ts.npy\t<i8\t4\t4\t2bcc1fff920a58b42766a842d24ee1c9ab827696d91efb02d1354250cb65c692
+-leaf\ttruth/barrier.npy\t|u1\t3\t3\tdf616913ea473258b6841abca5904523320785209dc38976efbd7e0420af8736
+-leaf\ttruth/menu_net_cent.npy\t<i8\t3,7\t3\t304e99f4a1fa2dc2b03f6b61cff0edb8a84d3594fa1c3ac8ae40edaf9303a391\n
++leaf\tfeatures/direct_raw.npy\t<f4\t3,2,60\t3\t8ebb08f5e2e5f18500d6eb0863da05062786cbee5426626f56c74ad7c188401f
++leaf\tfeatures/group_ts.npy\t<i8\t4\t4\tfa81876133d73c7c61dcb583cfa4e74f6dc72a5b1d30fe25f800576333a279be
++leaf\ttruth/barrier.npy\t|u1\t3\t3\t8575255195e98ce1a14acb01545c95580c16325e94430d5d9c8bc51c499ff792
++leaf\ttruth/menu_net_cent.npy\t<i8\t3,7\t3\tc52410d5ca2cefd8d71c48d57beb672e8cdd3abef1d8456199819e7b06782ca4\n
+
+published bytes must be a function of the leaf SET, not of emission order
+
+[  FAILED  ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder (228 ms)
+[ RUN      ] ShardManifest.RefusesFieldsThatCouldForgeAColumnOrARow
+[       OK ] ShardManifest.RefusesFieldsThatCouldForgeAColumnOrARow (37 ms)
+[----------] 3 tests from ShardManifest (432 ms total)
+
+[----------] 1 test from ShardIdentity
+[ RUN      ] ShardIdentity.TwoRunsAreByteIdenticalIncludingTheManifest
+[       OK ] ShardIdentity.TwoRunsAreByteIdenticalIncludingTheManifest (264 ms)
+[----------] 1 test from ShardIdentity (265 ms total)
+
+[----------] 6 tests from ShardPublish
+[ RUN      ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard
+[       OK ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard (258 ms)
+[ RUN      ] ShardPublish.NothingIsVisibleAtThePublishPathBeforePublish
+[       OK ] ShardPublish.NothingIsVisibleAtThePublishPathBeforePublish (116 ms)
+[ RUN      ] ShardPublish.AProcessKilledMidStageLeavesNoPublishedShard
+[       OK ] ShardPublish.AProcessKilledMidStageLeavesNoPublishedShard (560 ms)
+[ RUN      ] ShardPublish.RefusesWhileALeafIsStillOpen
+[       OK ] ShardPublish.RefusesWhileALeafIsStillOpen (41 ms)
+[ RUN      ] ShardPublish.RefusesAnEmptyShardAndADuplicateLeaf
+[       OK ] ShardPublish.RefusesAnEmptyShardAndADuplicateLeaf (104 ms)
+[ RUN      ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape
+[       OK ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape (7 ms)
+[----------] 6 tests from ShardPublish (1097 ms total)
+
+[----------] Global test environment tear-down
+[==========] 37 tests from 9 test suites ran. (3078 ms total)
+[  PASSED  ] 33 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] NpyHeader.IsNumpysOwnPrologueByteForByte
+[  FAILED  ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte
+[  FAILED  ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical
+[  FAILED  ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder
+
+ 4 FAILED TESTS

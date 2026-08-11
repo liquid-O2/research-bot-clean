@@ -1,0 +1,11 @@
+--- a/qr_census/src/differential.cpp
++++ b/qr_census/src/differential.cpp
+@@ -278,7 +278,7 @@
+         append_le(cell.is_null ? 0U : static_cast<std::uint64_t>(cell.integer) & 0xFFU, 1, out);
+         break;
+     }
+-    out.push_back(cell.is_null ? std::uint8_t{1} : std::uint8_t{0});
++    out.push_back(std::uint8_t{0});  // M903: the null flag leaves the image.
+   }
+ }
+ 

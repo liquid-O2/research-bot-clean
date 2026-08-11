@@ -1,0 +1,13 @@
+--- a/qr_replay/src/policy_gate.cpp
++++ b/qr_replay/src/policy_gate.cpp
+@@ -159,7 +159,9 @@
+     case GateSelectionOutcome::SELECTED:
+       return std::make_unique<QuantileRiskGate>(selection.q_percent, selection.rho);
+     case GateSelectionOutcome::NO_ADMISSIBLE_GATE:
+-      return std::make_unique<PassAllGate>();
++      // MC12 MUTANT: the looser rule the card forbids — with no admissible cell
++      // the arm falls back to admitting every legal row.
++      return std::make_unique<AdmitAllGate>();
+   }
+   detail::fail_fast("qr_replay::make_selected_gate: unknown GateSelectionOutcome");
+ }

@@ -1,0 +1,86 @@
+# WP7 (qr_labels) session-125 label census — the deterministic artifact
+# ci/wp7_labels_realfile_gate.sh compares against, byte for byte.
+#
+# Produced by: qr_labels_probe --root /workspace/data/tokens/stock_quotes/IWM
+#                              --roster <qr_candidates_seal --stop 125 --resolve 125>
+# Authorities: the WP6-sealed candidate roster (25,934 side-resolved primitive
+# candidates) and the one authorized session-125 stock-quote file. Nothing here
+# is a timing, so the bytes are identical on every run.
+label	metric	value
+IWM_labels_2022-07-05	path	/workspace/data/tokens/stock_quotes/IWM/2022/2022-07-05.parquet
+IWM_labels_2022-07-05	day	2022-07-05
+IWM_labels_2022-07-05	ordinal	125
+IWM_labels_2022-07-05	registry_raw_rth_row_count	14761979
+IWM_labels_2022-07-05	registry_complete_group_count	2810589
+IWM_labels_2022-07-05	tape_groups_seen	2810589
+IWM_labels_2022-07-05	tape_lawful_marks	2808642
+IWM_labels_2022-07-05	tape_groups_without_eligible_member	1947
+IWM_labels_2022-07-05	tape_eligible_members	14654465
+IWM_labels_2022-07-05	tape_ineligible_members	107514
+IWM_labels_2022-07-05	wp5_verified_eligible_groups	2808642
+IWM_labels_2022-07-05	roster_rows	25934
+IWM_labels_2022-07-05	roster_side_resolved	25934
+IWM_labels_2022-07-05	roster_long	12987
+IWM_labels_2022-07-05	roster_short	12947
+IWM_labels_2022-07-05	roster_side_unavailable	0
+IWM_labels_2022-07-05	roster_admitted_visibilities	25934
+IWM_labels_2022-07-05	decision_roster_size	49139
+IWM_labels_2022-07-05	decision_roster_registered_seconds	23400
+IWM_labels_2022-07-05	decision_roster_visibilities_off_second	25914
+IWM_labels_2022-07-05	decision_roster_visibilities_on_second	20
+IWM_labels_2022-07-05	watch_rows	77802
+IWM_labels_2022-07-05	watches_built	77774
+IWM_labels_2022-07-05	watches_clock_unavailable	28
+IWM_labels_2022-07-05	watches_built_D0	25932
+IWM_labels_2022-07-05	watches_clock_unavailable_D0	2
+IWM_labels_2022-07-05	watches_built_D30	25910
+IWM_labels_2022-07-05	watches_clock_unavailable_D30	24
+IWM_labels_2022-07-05	watches_built_D60	25932
+IWM_labels_2022-07-05	watches_clock_unavailable_D60	2
+IWM_labels_2022-07-05	action_rows	31977
+IWM_labels_2022-07-05	action_rows_long	16027
+IWM_labels_2022-07-05	action_rows_short	15950
+IWM_labels_2022-07-05	converged_watches	45797
+IWM_labels_2022-07-05	label_rows	31977
+IWM_labels_2022-07-05	label_state_OK	31977
+IWM_labels_2022-07-05	label_state_ENTRY_UNAVAILABLE	0
+IWM_labels_2022-07-05	label_state_EXIT_UNAVAILABLE	0
+IWM_labels_2022-07-05	stop_hit_2m	1126
+IWM_labels_2022-07-05	stop_hit_5m	3679
+IWM_labels_2022-07-05	stop_hit_15m	9480
+IWM_labels_2022-07-05	stop_hit_30m	14277
+IWM_labels_2022-07-05	stop_hit_60m	18308
+IWM_labels_2022-07-05	stop_hit_120m	19396
+IWM_labels_2022-07-05	stop_hit_close	19400
+IWM_labels_2022-07-05	barrier_FAVORABLE_FIRST	11805
+IWM_labels_2022-07-05	barrier_ADVERSE_FIRST	20142
+IWM_labels_2022-07-05	barrier_SAME_GROUP_ADVERSE	0
+IWM_labels_2022-07-05	barrier_NEITHER	30
+IWM_labels_2022-07-05	gap_through_rows	18514
+IWM_labels_2022-07-05	certificate_positive_rows	30524
+IWM_labels_2022-07-05	certificate_at_least_menu15_rows	31928
+IWM_labels_2022-07-05	menu_net_15m_positive_rows	14558
+IWM_labels_2022-07-05	certificate_net_count	31977
+IWM_labels_2022-07-05	certificate_net_sum_cent	2638152758
+IWM_labels_2022-07-05	certificate_net_mean_cent_trunc	82501
+IWM_labels_2022-07-05	certificate_net_min_cent	-32346
+IWM_labels_2022-07-05	certificate_net_p50_cent	25144
+IWM_labels_2022-07-05	certificate_net_max_cent	364014
+IWM_labels_2022-07-05	menu_net_15m_count	31977
+IWM_labels_2022-07-05	menu_net_15m_sum_cent	-37214882
+IWM_labels_2022-07-05	menu_net_15m_mean_cent_trunc	-1163
+IWM_labels_2022-07-05	menu_net_15m_min_cent	-32346
+IWM_labels_2022-07-05	menu_net_15m_p50_cent	-4076
+IWM_labels_2022-07-05	menu_net_15m_max_cent	94054
+IWM_labels_2022-07-05	certificate_mae_count	31977
+IWM_labels_2022-07-05	certificate_mae_sum_cent	408506112
+IWM_labels_2022-07-05	certificate_mae_mean_cent_trunc	12774
+IWM_labels_2022-07-05	certificate_mae_min_cent	1146
+IWM_labels_2022-07-05	certificate_mae_p50_cent	11076
+IWM_labels_2022-07-05	certificate_mae_max_cent	32346
+IWM_labels_2022-07-05	menu_mae_15m_count	31977
+IWM_labels_2022-07-05	menu_mae_15m_sum_cent	629153332
+IWM_labels_2022-07-05	menu_mae_15m_mean_cent_trunc	19675
+IWM_labels_2022-07-05	menu_mae_15m_min_cent	1146
+IWM_labels_2022-07-05	menu_mae_15m_p50_cent	20856
+IWM_labels_2022-07-05	menu_mae_15m_max_cent	32346

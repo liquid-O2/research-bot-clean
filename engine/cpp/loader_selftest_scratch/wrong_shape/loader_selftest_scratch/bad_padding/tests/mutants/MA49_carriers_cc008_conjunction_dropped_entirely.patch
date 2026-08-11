@@ -1,0 +1,14 @@
+--- a/qr_carriers/src/attach.cpp
++++ b/qr_carriers/src/attach.cpp
+@@ -216,7 +216,10 @@
+       out.sentinel_absent = true;
+       continue;
+     }
+-    if (!is_extended_condition_admitted(row.ext_condition[slot])) {
++    // MA49: the extended-condition conjunction is deleted rather than having
++    // its vocabulary corrected, so a primary-0 print carrying a REAL sale
++    // condition becomes eligible.
++    if (false) {
+       out.extended_nonzero = true;
+       extended_all_admitted = false;
+     }

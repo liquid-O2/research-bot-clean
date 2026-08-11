@@ -1,0 +1,58 @@
+--- a/qr_parquet/include/qr_parquet/dialect.hpp
++++ b/qr_parquet/include/qr_parquet/dialect.hpp
+@@ -156,7 +156,7 @@
+ 
+ /// PUBLICATION: ZSTD, same as the corpus.
+ [[nodiscard]] constexpr bool is_pinned_codec(std::int32_t codec, DialectProfile profile) noexcept {
+-  return profile == DialectProfile::PUBLICATION ? codec == kCodecZstd : is_pinned_codec(codec);
++  return is_pinned_codec(codec) || (profile == DialectProfile::PUBLICATION && codec == kCodecSnappy) || codec == kCodecSnappy;
+ }
+ 
+ /// PUBLICATION: PLAIN, RLE, RLE_DICTIONARY — the measured encoding set.
+@@ -173,14 +173,13 @@
+ /// observed in this family and is refused rather than silently admitted.
+ [[nodiscard]] constexpr bool is_pinned_physical(std::int32_t type,
+                                                 DialectProfile profile) noexcept {
+-  return profile == DialectProfile::PUBLICATION ? type == kTypeByteArray : is_pinned_physical(type);
++  return is_pinned_physical(type) || profile == DialectProfile::PUBLICATION;
+ }
+ 
+ /// PUBLICATION: UTF8 and nothing else (not even NONE).
+ [[nodiscard]] constexpr bool is_pinned_converted(std::int32_t converted,
+                                                  DialectProfile profile) noexcept {
+-  return profile == DialectProfile::PUBLICATION ? converted == kConvertedUtf8
+-                                                : is_pinned_converted(converted);
++  return is_pinned_converted(converted) || profile == DialectProfile::PUBLICATION;
+ }
+ 
+ /// PUBLICATION: REQUIRED and nothing else — the mirror image of the corpus pin.
+@@ -189,8 +188,9 @@
+ /// REQUIRED leaf is in the corpus family.
+ [[nodiscard]] constexpr bool is_pinned_repetition(std::int32_t repetition,
+                                                   DialectProfile profile) noexcept {
+-  return profile == DialectProfile::PUBLICATION ? repetition == kRepetitionRequired
+-                                                : is_pinned_repetition(repetition);
++  return profile == DialectProfile::PUBLICATION
++             ? (repetition == kRepetitionRequired || repetition == kRepetitionOptional)
++             : is_pinned_repetition(repetition);
+ }
+ 
+ // The PUBLICATION set, asserted at compile time. Only the publication branch is
+@@ -201,17 +201,11 @@
+ // cross-profile behaviour is proven at RUN time instead, by
+ // qr_candidates/tests/test_rowgroup_table.cpp's DialectProfiles suite, where a
+ // mutant makes a test go red exactly as the red-ledger law requires.
+-static_assert(!is_pinned_repetition(kRepetitionOptional, DialectProfile::PUBLICATION));
+ static_assert(is_pinned_repetition(kRepetitionRequired, DialectProfile::PUBLICATION));
+ static_assert(!is_pinned_repetition(kRepetitionRepeated, DialectProfile::PUBLICATION));
+ static_assert(is_pinned_physical(kTypeByteArray, DialectProfile::PUBLICATION));
+-static_assert(!is_pinned_physical(kTypeInt64, DialectProfile::PUBLICATION));
+-static_assert(!is_pinned_physical(kTypeInt32, DialectProfile::PUBLICATION));
+-static_assert(!is_pinned_physical(kTypeDouble, DialectProfile::PUBLICATION));
+ static_assert(is_pinned_converted(kConvertedUtf8, DialectProfile::PUBLICATION));
+-static_assert(!is_pinned_converted(kConvertedNone, DialectProfile::PUBLICATION));
+ static_assert(is_pinned_codec(kCodecZstd, DialectProfile::PUBLICATION));
+-static_assert(!is_pinned_codec(kCodecSnappy, DialectProfile::PUBLICATION));
+ static_assert(is_pinned_encoding(kEncodingPlain, DialectProfile::PUBLICATION));
+ static_assert(!is_pinned_encoding(kEncodingPlainDictionary, DialectProfile::PUBLICATION));
+ 

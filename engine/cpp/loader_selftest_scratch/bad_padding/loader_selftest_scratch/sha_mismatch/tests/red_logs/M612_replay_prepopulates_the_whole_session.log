@@ -1,0 +1,772 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M612_replay_prepopulates_the_whole_session
+# patch:       tests/mutants/M612_replay_prepopulates_the_whole_session.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M612_replay_prepopulates_the_whole_session
+#
+### qr_replay_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 65 tests from 18 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from NumpyParity
+[ RUN      ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase
+[       OK ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase (12 ms)
+[ RUN      ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool
+[       OK ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool (0 ms)
+[ RUN      ] NumpyParity.GenerateStateReproducesBothTheThirtyTwoAndSixtyFourBitViews
+[       OK ] NumpyParity.GenerateStateReproducesBothTheThirtyTwoAndSixtyFourBitViews (0 ms)
+[ RUN      ] NumpyParity.TheRawSixtyFourBitStreamMatchesNumpyRandomRaw
+[       OK ] NumpyParity.TheRawSixtyFourBitStreamMatchesNumpyRandomRaw (0 ms)
+[ RUN      ] NumpyParity.TheThirtyTwoBitStreamTakesTheLowHalfFirstAndCachesTheHigh
+[       OK ] NumpyParity.TheThirtyTwoBitStreamTakesTheLowHalfFirstAndCachesTheHigh (0 ms)
+[ RUN      ] NumpyParity.TheCoinDrawsMatchNumpyGeneratorIntegersZeroTwo
+[       OK ] NumpyParity.TheCoinDrawsMatchNumpyGeneratorIntegersZeroTwo (0 ms)
+[ RUN      ] NumpyParity.CoinSideMapsTheFirstDrawOfItsOwnSeedStream
+[       OK ] NumpyParity.CoinSideMapsTheFirstDrawOfItsOwnSeedStream (0 ms)
+[ RUN      ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath
+[       OK ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath (0 ms)
+[----------] 8 tests from NumpyParity (13 ms total)
+
+[----------] 1 test from U128Arithmetic
+[ RUN      ] U128Arithmetic.MultiplyAddAndShiftAreExactAcrossTheCarryBoundary
+[       OK ] U128Arithmetic.MultiplyAddAndShiftAreExactAcrossTheCarryBoundary (0 ms)
+[----------] 1 test from U128Arithmetic (0 ms total)
+
+[----------] 2 tests from RunningQuantile
+[ RUN      ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation
+[       OK ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation (1163 ms)
+[ RUN      ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic
+[       OK ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic (0 ms)
+[----------] 2 tests from RunningQuantile (1163 ms total)
+
+[----------] 3 tests from GateCausality
+[ RUN      ] GateCausality.AFutureRowsScoreCannotChangeAnEarlierRowsDecision
+[       OK ] GateCausality.AFutureRowsScoreCannotChangeAnEarlierRowsDecision (0 ms)
+[ RUN      ] GateCausality.APriorRowsScoreDoesChangeALaterDecision
+[       OK ] GateCausality.APriorRowsScoreDoesChangeALaterDecision (0 ms)
+[ RUN      ] GateCausality.SameClockSiblingsAreNotInEachOthersPopulation
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:272: Failure
+Expected equality of these values:
+  replayed_after[i].admitted
+    Which is: false
+  replayed_baseline[i].admitted
+    Which is: true
+decision 50
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:273: Failure
+Expected equality of these values:
+  replayed_after[i].reason
+    Which is: 1-byte object <05>
+  replayed_baseline[i].reason
+    Which is: 1-byte object <00>
+decision 50
+
+[  FAILED  ] GateCausality.SameClockSiblingsAreNotInEachOthersPopulation (0 ms)
+[----------] 3 tests from GateCausality (0 ms total)
+
+[----------] 2 tests from GateWarmUp
+[ RUN      ] GateWarmUp.NothingIsAdmittedBelowTheFiftyRowFloorAndTheFiftiethRowOpensIt
+[       OK ] GateWarmUp.NothingIsAdmittedBelowTheFiftyRowFloorAndTheFiftiethRowOpensIt (0 ms)
+[ RUN      ] GateWarmUp.TheFloorIsCountedInStrictlyPriorLegalRowsOnly
+[       OK ] GateWarmUp.TheFloorIsCountedInStrictlyPriorLegalRowsOnly (0 ms)
+[----------] 2 tests from GateWarmUp (0 ms total)
+
+[----------] 4 tests from GateNeverLooser
+[ RUN      ] GateNeverLooser.ADegeneratePopulationBlocksInsteadOfAdmittingEverything
+[       OK ] GateNeverLooser.ADegeneratePopulationBlocksInsteadOfAdmittingEverything (0 ms)
+[ RUN      ] GateNeverLooser.TheRiskLegBlocksAboveRho
+[       OK ] GateNeverLooser.TheRiskLegBlocksAboveRho (0 ms)
+[ RUN      ] GateNeverLooser.IllegalRowsAreNeitherAdmittedNorObserved
+[       OK ] GateNeverLooser.IllegalRowsAreNeitherAdmittedNorObserved (0 ms)
+[ RUN      ] GateNeverLooser.NonfiniteScoresBlockTheirOwnRowAndNeverJoinThePopulation
+[       OK ] GateNeverLooser.NonfiniteScoresBlockTheirOwnRowAndNeverJoinThePopulation (0 ms)
+[----------] 4 tests from GateNeverLooser (0 ms total)
+
+[----------] 4 tests from GateInReplay
+[ RUN      ] GateInReplay.TheKernelCountsNonfiniteScoresAndNeverTradesThem
+[       OK ] GateInReplay.TheKernelCountsNonfiniteScoresAndNeverTradesThem (0 ms)
+[ RUN      ] GateInReplay.TheKernelEvaluatesAClockBeforeItObservesAnyOfThatClocksRows
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:465: Failure
+Expected: (witness.observed_at_evaluate[i]) < (witness.evaluated_ts[i]), actual: 22800000000000 vs 0
+evaluation 0 saw a row from its own clock or later
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:465: Failure
+Expected: (witness.observed_at_evaluate[i]) < (witness.evaluated_ts[i]), actual: 22800000000000 vs 0
+evaluation 1 saw a row from its own clock or later
+
+[  FAILED  ] GateInReplay.TheKernelEvaluatesAClockBeforeItObservesAnyOfThatClocksRows (0 ms)
+[ RUN      ] GateInReplay.NoTradeHappensUntilTheWarmUpFloorIsCleared
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 0
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 0
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 1
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 2
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 3
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 4
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 5
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 5
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 6
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 6
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 7
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 7
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 8
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 9
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 10
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 11
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 12
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 13
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 13
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 14
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 14
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 15
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 16
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 17
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 18
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 19
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 20
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 20
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 21
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 21
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 22
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 23
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 24
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 25
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 26
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 27
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 27
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 28
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 28
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 29
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 30
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 31
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 32
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 33
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 34
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 34
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 35
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 35
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 36
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 37
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 38
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 39
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 40
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 41
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 41
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 42
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 42
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 43
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 44
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 45
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 46
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <05>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 47
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 48
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 48
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+Expected equality of these values:
+  gate.decisions[i].reason
+    Which is: 1-byte object <00>
+  GateReason::GATE_WARMUP
+    Which is: 1-byte object <03>
+decision 49
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+Value of: gate.decisions[i].admitted
+  Actual: true
+Expected: false
+decision 49
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 0 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 6000000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 7200000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 8400000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 15600000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 16800000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 24000000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 25200000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 32400000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 33600000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 40800000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 42000000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 49200000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 50400000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 57600000000000 vs 60000000000000
+
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 58800000000000 vs 60000000000000
+
+[  FAILED  ] GateInReplay.NoTradeHappensUntilTheWarmUpFloorIsCleared (1 ms)
+[ RUN      ] GateInReplay.OccupancyDoesNotChangeTheRunningPopulation
+[       OK ] GateInReplay.OccupancyDoesNotChangeTheRunningPopulation (0 ms)
+[----------] 4 tests from GateInReplay (2 ms total)
+
+[----------] 6 tests from HandChronology
+[ RUN      ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger
+[       OK ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger (0 ms)
+[ RUN      ] HandChronology.AnOccupiedClockAtTheExactPriorExitInstantStillCannotEnter
+[       OK ] HandChronology.AnOccupiedClockAtTheExactPriorExitInstantStillCannotEnter (0 ms)
+[ RUN      ] HandChronology.SelectionDoesNotFallThroughToARunnerUpWhenTheTopLabelIsUnavailable
+[       OK ] HandChronology.SelectionDoesNotFallThroughToARunnerUpWhenTheTopLabelIsUnavailable (0 ms)
+[ RUN      ] HandChronology.TheZeroTradeSessionIsATypedZeroNotAnAbsence
+[       OK ] HandChronology.TheZeroTradeSessionIsATypedZeroNotAnAbsence (0 ms)
+[ RUN      ] HandChronology.EveryClockIsAccountedForInTheCensus
+[       OK ] HandChronology.EveryClockIsAccountedForInTheCensus (0 ms)
+[ RUN      ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals
+[       OK ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals (0 ms)
+[----------] 6 tests from HandChronology (0 ms total)
+
+[----------] 16 tests from ReplayLaws
+[ RUN      ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror
+[       OK ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror (0 ms)
+[ RUN      ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce
+[       OK ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce (0 ms)
+[ RUN      ] ReplayLaws.ALabelThatDidNotChargeTheCostExactlyOnceIsRefused
+[       OK ] ReplayLaws.ALabelThatDidNotChargeTheCostExactlyOnceIsRefused (0 ms)
+[ RUN      ] ReplayLaws.ANewEntryRequiresAClockStrictlyAfterThePriorExit
+[       OK ] ReplayLaws.ANewEntryRequiresAClockStrictlyAfterThePriorExit (0 ms)
+[ RUN      ] ReplayLaws.AnExactTopTieAbstainsUnderEitherRowOrder
+[       OK ] ReplayLaws.AnExactTopTieAbstainsUnderEitherRowOrder (0 ms)
+[ RUN      ] ReplayLaws.ATieBelowAUniqueTopDoesNotAbstain
+[       OK ] ReplayLaws.ATieBelowAUniqueTopDoesNotAbstain (0 ms)
+[ RUN      ] ReplayLaws.ALabelCarryingAnotherRowsKeyIsRefusedNotExecuted
+[       OK ] ReplayLaws.ALabelCarryingAnotherRowsKeyIsRefusedNotExecuted (0 ms)
+[ RUN      ] ReplayLaws.ALabelWhoseSideDoesNotMatchItsRowIsRefused
+[       OK ] ReplayLaws.ALabelWhoseSideDoesNotMatchItsRowIsRefused (0 ms)
+[ RUN      ] ReplayLaws.EntriesAreUncapped
+[       OK ] ReplayLaws.EntriesAreUncapped (0 ms)
+[ RUN      ] ReplayLaws.ANonChronologicalTapeIsRefusedAndNeverSortedIntoSilence
+[       OK ] ReplayLaws.ANonChronologicalTapeIsRefusedAndNeverSortedIntoSilence (0 ms)
+[ RUN      ] ReplayLaws.TwoRowsSharingOnePredictionKeyAtOneClockAreRefused
+[       OK ] ReplayLaws.TwoRowsSharingOnePredictionKeyAtOneClockAreRefused (0 ms)
+[ RUN      ] ReplayLaws.AForeignSessionRowIsRefused
+[       OK ] ReplayLaws.AForeignSessionRowIsRefused (0 ms)
+[ RUN      ] ReplayLaws.AFillAtItsOwnDecisionInstantIsAClockViolation
+[       OK ] ReplayLaws.AFillAtItsOwnDecisionInstantIsAClockViolation (0 ms)
+[ RUN      ] ReplayLaws.AnExitBeforeItsOwnEntryIsAClockViolation
+[       OK ] ReplayLaws.AnExitBeforeItsOwnEntryIsAClockViolation (0 ms)
+[ RUN      ] ReplayLaws.AHorizonOutsideTheSevenMenuIsARefusal
+[       OK ] ReplayLaws.AHorizonOutsideTheSevenMenuIsARefusal (0 ms)
+[ RUN      ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther
+[       OK ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther (0 ms)
+[----------] 16 tests from ReplayLaws (0 ms total)
+
+[----------] 3 tests from NullControls
+[ RUN      ] NullControls.ForcedSidesTradeTheModelsOwnClocksOnTheForcedSide
+[       OK ] NullControls.ForcedSidesTradeTheModelsOwnClocksOnTheForcedSide (0 ms)
+[ RUN      ] NullControls.AForcedSideWithNoLegalRowOfThatSideIsTypedNotSilent
+[       OK ] NullControls.AForcedSideWithNoLegalRowOfThatSideIsTypedNotSilent (0 ms)
+[ RUN      ] NullControls.TheSeededCoinIsReproducibleAndAgreesWithItsOwnSeedStream
+[       OK ] NullControls.TheSeededCoinIsReproducibleAndAgreesWithItsOwnSeedStream (0 ms)
+[----------] 3 tests from NullControls (0 ms total)
+
+[----------] 2 tests from DailyLossLimit
+[ RUN      ] DailyLossLimit.TheSessionHaltsOnceRealizedProfitAndLossReachesTheFrozenLimit
+[       OK ] DailyLossLimit.TheSessionHaltsOnceRealizedProfitAndLossReachesTheFrozenLimit (0 ms)
+[ RUN      ] DailyLossLimit.TheUnlimitedPanelKeepsTrading
+[       OK ] DailyLossLimit.TheUnlimitedPanelKeepsTrading (0 ms)
+[----------] 2 tests from DailyLossLimit (0 ms total)
+
+[----------] 3 tests from ZeroInclusiveMdd
+[ RUN      ] ZeroInclusiveMdd.ThePeakBeforeAnyGainIsCountedBecauseEZeroIsInTheRunningMaximum
+[       OK ] ZeroInclusiveMdd.ThePeakBeforeAnyGainIsCountedBecauseEZeroIsInTheRunningMaximum (0 ms)
+[ RUN      ] ZeroInclusiveMdd.TheDrawdownIsTheMaximumOverEveryDayNotJustTheLastOne
+[       OK ] ZeroInclusiveMdd.TheDrawdownIsTheMaximumOverEveryDayNotJustTheLastOne (0 ms)
+[ RUN      ] ZeroInclusiveMdd.AnAllWinningSequenceHasNoDrawdownAtAll
+[       OK ] ZeroInclusiveMdd.AnAllWinningSequenceHasNoDrawdownAtAll (0 ms)
+[----------] 3 tests from ZeroInclusiveMdd (0 ms total)
+
+[----------] 1 test from Denominator
+[ RUN      ] Denominator.ZeroTradeSessionsStayInTheDenominatorAndInTheEquityPath
+[       OK ] Denominator.ZeroTradeSessionsStayInTheDenominatorAndInTheEquityPath (0 ms)
+[----------] 1 test from Denominator (0 ms total)
+
+[----------] 3 tests from ConcentrationPanels
+[ RUN      ] ConcentrationPanels.LeaveTopTenOutDropsExactlyTheTenLargestSessions
+[       OK ] ConcentrationPanels.LeaveTopTenOutDropsExactlyTheTenLargestSessions (0 ms)
+[ RUN      ] ConcentrationPanels.LeaveTopTenOutIsUndefinedAtTenSessionsOrFewer
+[       OK ] ConcentrationPanels.LeaveTopTenOutIsUndefinedAtTenSessionsOrFewer (0 ms)
+[ RUN      ] ConcentrationPanels.MinYearIsTheWorstYearsOwnMean
+[       OK ] ConcentrationPanels.MinYearIsTheWorstYearsOwnMean (0 ms)
+[----------] 3 tests from ConcentrationPanels (0 ms total)
+
+[----------] 1 test from BreachPanel
+[ RUN      ] BreachPanel.CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop
+[       OK ] BreachPanel.CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop (0 ms)
+[----------] 1 test from BreachPanel (0 ms total)
+
+[----------] 3 tests from MaeQuantiles
+[ RUN      ] MaeQuantiles.NearestRankOverTenTradesMatchesTheHandComputedIndices
+[       OK ] MaeQuantiles.NearestRankOverTenTradesMatchesTheHandComputedIndices (0 ms)
+[ RUN      ] MaeQuantiles.NearestRankRoundsUpOnAnUnevenCountAndPoolsEverySession
+[       OK ] MaeQuantiles.NearestRankRoundsUpOnAnUnevenCountAndPoolsEverySession (0 ms)
+[ RUN      ] MaeQuantiles.ASingleTradeIsItsOwnEveryQuantileAndNoTradeIsZero
+[       OK ] MaeQuantiles.ASingleTradeIsItsOwnEveryQuantileAndNoTradeIsZero (0 ms)
+[----------] 3 tests from MaeQuantiles (0 ms total)
+
+[----------] 2 tests from ScorecardRefusals
+[ RUN      ] ScorecardRefusals.SessionsOutOfChronologicalOrderAreRefused
+[       OK ] ScorecardRefusals.SessionsOutOfChronologicalOrderAreRefused (0 ms)
+[ RUN      ] ScorecardRefusals.AScorecardOverZeroSessionsIsRefused
+[       OK ] ScorecardRefusals.AScorecardOverZeroSessionsIsRefused (0 ms)
+[----------] 2 tests from ScorecardRefusals (0 ms total)
+
+[----------] 1 test from ReplayBudget
+[ RUN      ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall
+[ BUDGET   ] qr_replay: 1000000 actions in 0.4765s (2098850 actions/s, 17501 trades)
+[       OK ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall (1610 ms)
+[----------] 1 test from ReplayBudget (1610 ms total)
+
+[----------] Global test environment tear-down
+[==========] 65 tests from 18 test suites ran. (2791 ms total)
+[  PASSED  ] 62 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] GateCausality.SameClockSiblingsAreNotInEachOthersPopulation
+[  FAILED  ] GateInReplay.TheKernelEvaluatesAClockBeforeItObservesAnyOfThatClocksRows
+[  FAILED  ] GateInReplay.NoTradeHappensUntilTheWarmUpFloorIsCleared
+
+ 3 FAILED TESTS

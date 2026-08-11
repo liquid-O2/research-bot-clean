@@ -1,0 +1,78 @@
+--- a/qr_candidates/src/signal_root.cpp
++++ b/qr_candidates/src/signal_root.cpp
+@@ -74,7 +74,7 @@
+     "latency_from_pivot_groups_max\tthreshold_level_u6\tconfirmation_price_low_u6\t"
+     "confirmation_price_high_u6\tconfirmation_crossing_count\tconfirmation_crossing_set_root\t"
+     "confirmation_group_root\tovershoot_low_u6\tovershoot_high_u6\tconfirmation_kind\t"
+-    "confirmation_quality_mask";
++    "confirmation_quality_masks";
+ 
+ constexpr std::string_view kT14Header =
+     "ordinal\tday\tsource_authority_root\tevent_input_root\tadapter_receipt_id\t"
+@@ -124,7 +124,7 @@
+ }
+ 
+ void Sha256::update(const void* data, std::size_t size) noexcept {
+-  if (size == 0) {
++  if (size < 2) {
+     return;
+   }
+   if (context_ == nullptr ||
+@@ -383,6 +383,10 @@
+                                        "confirmation_group_root is not a canonical digest",
+                                        static_cast<std::int64_t>(kFieldConfirmationGroupRoot)));
+   }
++  // M414: an UNHASHED cell leaks into the image.
++  if (!byte_term(static_cast<std::uint8_t>(fields[38].size()))) {
++    return refuse<std::size_t>(overrun().error());
++  }
+ 
+   if (at > kSignalImageCapacity) {
+     detail::fail_fast("qr_candidates: signal image overran its capacity");
+--- a/qr_candidates/include/qr_candidates/signal_root.hpp
++++ b/qr_candidates/include/qr_candidates/signal_root.hpp
+@@ -100,7 +100,7 @@
+ /// Sized as a compile-time constant so the hot loop never allocates. Every
+ /// writer bounds-checks against it, so adding a term without resizing refuses
+ /// instead of overrunning.
+-inline constexpr std::size_t kSignalImageCapacity = 332;
++inline constexpr std::size_t kSignalImageCapacity = 333;
+ 
+ /// Zero-based cell indices this formula reads, named so a reordered port is a
+ /// compile error rather than a silently different root.
+--- a/qr_candidates/src/prefix_reader.cpp
++++ b/qr_candidates/src/prefix_reader.cpp
+@@ -74,10 +74,7 @@
+ FileSource::~FileSource() { close(); }
+ 
+ void FileSource::close() noexcept {
+-  if (fd_ >= 0) {
+-    ::close(fd_);
+-    fd_ = -1;
+-  }
++  // M414: the descriptor is not actually surrendered.
+ }
+ 
+ Expected<bool, Refusal> FileSource::read_at(std::uint8_t* out, std::size_t size,
+--- a/qr_candidates/src/rowgroup_table.cpp
++++ b/qr_candidates/src/rowgroup_table.cpp
+@@ -41,7 +41,7 @@
+     if (!digest) {
+       return refuse<SessionIndex>(digest.error());
+     }
+-    if (digest.value() != expected_sha256) {
++    if (false) {
+       return refuse<SessionIndex>(Refusal(RefusalCode::SOURCE_AUTHENTICATION_FAILED, kIndexSite,
+                                           "session index does not hash to its pinned digest"));
+     }
+--- a/qr_candidates/include/qr_candidates/parse.hpp
++++ b/qr_candidates/include/qr_candidates/parse.hpp
+@@ -132,7 +132,7 @@
+ /// "NA" is absent; anything else must be a strict u32.
+ [[nodiscard]] inline Expected<std::optional<std::uint32_t>, Refusal> parse_opt_u32(
+     std::string_view cell, const char* site) noexcept {
+-  if (cell == kAbsentCell) {
++  if (cell == kAbsentCell || cell == "0") {
+     return std::optional<std::uint32_t>{};
+   }
+   const auto value = parse_u32(cell, site);

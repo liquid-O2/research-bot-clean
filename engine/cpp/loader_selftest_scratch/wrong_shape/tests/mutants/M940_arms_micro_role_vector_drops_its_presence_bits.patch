@@ -1,0 +1,13 @@
+--- a/python/campaign/arms.py
++++ b/python/campaign/arms.py
+@@ -62,7 +62,9 @@
+ MICRO_DILATIONS = (1, 2, 4, 8)
+ BIN_DILATIONS = (1, 2, 4, 8, 16, 32, 64)
+ TCN_KERNEL = 3
+-MICRO_ROLE_INPUTS = 4 * D_MODEL + 4       # §5: "bias-free 260->64"
++MICRO_ROLE_INPUTS = 4 * D_MODEL           # M940 MUTANT: the four presence
++                                          # bits vanish, so the role
++                                          # projection is 256->64
+ BIN_REDUCER_INPUTS = 2 * D_MODEL + 2      # §5: "projected 130->64"
+ CHECKPOINT_OFFSETS_S = (60, 30, 15, 5, 1, 0)
+ PHASE_STATES = 2              # approach / response; EQUAL contributes zero

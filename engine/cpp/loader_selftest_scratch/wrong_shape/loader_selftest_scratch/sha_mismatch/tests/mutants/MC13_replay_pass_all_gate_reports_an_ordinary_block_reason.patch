@@ -1,0 +1,13 @@
+--- a/qr_replay/src/policy_gate.cpp
++++ b/qr_replay/src/policy_gate.cpp
+@@ -149,7 +149,9 @@
+   // arm/fold, so nothing enters. The reason is the typed one, so the ledger's
+   // clock census says WHY the arm traded nothing instead of leaving it to be
+   // inferred from a zero.
+-  return {false, GateReason::NO_ADMISSIBLE_GATE};
++  // MC13 MUTANT: the arm's silence is untyped — the census cannot tell "no
++  // admissible gate" from an ordinary illegal row.
++  return {false, GateReason::ILLEGAL_ROW};
+ }
+ 
+ void PassAllGate::observe(const ScoredAction& /*action*/) {}

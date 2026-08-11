@@ -1,0 +1,12 @@
+--- a/qr_replay/src/replay.cpp
++++ b/qr_replay/src/replay.cpp
+@@ -127,6 +127,9 @@
+   std::int64_t previous_ts = 0;
+   bool have_previous_ts = false;
+ 
++  for (const ScoredAction& row : actions) {  // MUTANT M612: batch quantile over the whole session
++    gate.observe(row);
++  }
+   std::size_t i = 0;
+   while (i < row_count) {
+     const std::int64_t clock_ts = actions[i].key.decision_ts_ns;

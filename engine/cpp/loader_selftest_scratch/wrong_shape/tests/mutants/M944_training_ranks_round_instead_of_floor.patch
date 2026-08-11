@@ -1,0 +1,12 @@
+--- a/python/campaign/train.py
++++ b/python/campaign/train.py
+@@ -121,7 +121,8 @@
+     if count < RANK_COUNT:
+         return torch.arange(count, dtype=torch.int64)
+     j = torch.arange(RANK_COUNT, dtype=torch.float64)
+-    return torch.floor((j + 0.5) * count / RANK_COUNT).to(torch.int64)
++    # M944 MUTANT: round, not floor.
++    return torch.round((j + 0.5) * count / RANK_COUNT).to(torch.int64)
+ 
+ 
+ def load_sessions(root: pathlib.Path, ordinals: list[int],

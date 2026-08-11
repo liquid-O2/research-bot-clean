@@ -1,0 +1,12 @@
+--- a/qr_emit/src/fd_census.cpp
++++ b/qr_emit/src/fd_census.cpp
+@@ -104,6 +104,9 @@
+ }
+ 
+ bool path_has_truth_component(std::string_view path) noexcept {
++  // M503 MUTANT: the truth guard is opened — no path is ever a truth path, so a
++  // feature-builder process may open truth/ and the census reports nothing.
++  return false;
+   std::size_t begin = 0;
+   while (begin <= path.size()) {
+     const std::size_t end = path.find('/', begin);

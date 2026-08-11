@@ -1,0 +1,13 @@
+--- a/python/campaign/arms.py
++++ b/python/campaign/arms.py
+@@ -629,7 +629,9 @@
+                           "JOINT_STREAM_ATTENTION", "JSA_CAPACITY_MATCH")
+ 
+         self.state_encoder = StateEncoder()
+-        self.market_heads = nn.ModuleList([Head(bias=False) for _ in MODALITIES])
++        # M942 MUTANT: the market heads carry biases, so an absent modality
++        # contributes a constant instead of exactly zero.
++        self.market_heads = nn.ModuleList([Head(bias=True) for _ in MODALITIES])
+         self.state_head = Head(bias=True)
+ 
+         self.direct_encoders = nn.ModuleList()

@@ -1,0 +1,65 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 11 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from CampaignSpecGate
+[ RUN      ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses
+[       OK ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses (63 ms)
+[----------] 1 test from CampaignSpecGate (63 ms total)
+
+[----------] 2 tests from CampaignOrdinalWall
+[ RUN      ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed
+[       OK ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed (0 ms)
+[ RUN      ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement
+[       OK ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement (0 ms)
+[----------] 2 tests from CampaignOrdinalWall (0 ms total)
+
+[----------] 2 tests from CampaignPublish
+[ RUN      ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard
+[       OK ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard (121 ms)
+[ RUN      ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:215: Failure
+Expected equality of these values:
+  cleared.value()
+    Which is: 2
+  1
+clearing SHORT must not touch the LONG stage
+
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:216: Failure
+Value of: std::filesystem::exists(session_dir / ".L.stage-4242")
+  Actual: false
+Expected: true
+
+[  FAILED  ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard (163 ms)
+[----------] 2 tests from CampaignPublish (285 ms total)
+
+[----------] 2 tests from CampaignResume
+[ RUN      ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice
+[       OK ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice (76 ms)
+[ RUN      ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement
+[       OK ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement (84 ms)
+[----------] 2 tests from CampaignResume (161 ms total)
+
+[----------] 2 tests from CampaignLedger
+[ RUN      ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder
+[       OK ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder (239 ms)
+[ RUN      ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign
+[       OK ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign (42 ms)
+[----------] 2 tests from CampaignLedger (282 ms total)
+
+[----------] 1 test from CampaignHandoff
+[ RUN      ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob
+[       OK ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob (0 ms)
+[----------] 1 test from CampaignHandoff (0 ms total)
+
+[----------] 1 test from CampaignReceipt
+[ RUN      ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader
+[       OK ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader (55 ms)
+[----------] 1 test from CampaignReceipt (55 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 7 test suites ran. (849 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard
+
+ 1 FAILED TEST

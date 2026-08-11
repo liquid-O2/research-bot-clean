@@ -1,0 +1,14 @@
+--- a/qr_parquet/src/reader.cpp
++++ b/qr_parquet/src/reader.cpp
+@@ -836,10 +836,7 @@
+     level_bytes = body;
+     level_size = def_size;
+     const std::size_t compressed_values = body_size - def_size;
+-    const std::size_t raw_values =
+-        static_cast<std::size_t>(header.uncompressed_page_size) >= def_size
+-            ? static_cast<std::size_t>(header.uncompressed_page_size) - def_size
+-            : 0;
++    const std::size_t raw_values = static_cast<std::size_t>(header.uncompressed_page_size);
+     std::uint8_t* raw = workspace.arena.page(raw_values == 0 ? 1 : raw_values);
+     const std::size_t produced =
+         ZSTD_decompress(raw, raw_values, body + def_size, compressed_values);

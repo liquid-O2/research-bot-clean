@@ -62,6 +62,18 @@ SECOND_BUDGET_EPOCHS = 60
 UNDERTRAINED_THRESHOLD = 0.01       # ">1% over the final 3 epochs"
 RANK_COUNT = 2048                   # "floor((j+0.5)*N/2048), j=0..2047"
 
+#: The micro-batch that puts a WHOLE ranked session through in ONE chunk.
+#: A2 binds the optimizer STEP to the session, never to the chunk size, and the
+#: chunk losses already divide by SESSION-level denominators, so chunking is a
+#: pure memory device.  MEASURED on 20 consecutive real F4 sessions, native
+#: quad: 16 chunks (micro_batch 256) cost 17.4 s/session against 10.2 s/session
+#: for one chunk -- the per-chunk carrier gathers and their backward dominate a
+#: native step, and 16 of them per arm per session is 16x that cost.  Ranked
+#: training is <=2048 clocks so this is always one chunk; the unranked scoring
+#: pass (every row, no graph) still chunks at 2048 clocks, which is what keeps
+#: evaluation inside VRAM.
+FULL_SESSION_BATCH = 2 * RANK_COUNT
+
 # §5/A1 loss weights, verbatim.
 MENU_WEIGHT = 1.0 / 7.0
 CERTIFICATE_WEIGHT = 0.5
@@ -791,7 +803,7 @@ class RunConfig:
     data: str
     out: str
     epochs: int = FIRST_BUDGET_EPOCHS
-    micro_batch: int = 256
+    micro_batch: int = FULL_SESSION_BATCH
     control: str = "none"
     control_options: str = ""
     device: str = "cpu"
@@ -1247,7 +1259,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--data", required=True)
     parser.add_argument("--out", required=True)
     parser.add_argument("--epochs", type=int, default=FIRST_BUDGET_EPOCHS)
-    parser.add_argument("--micro-batch", type=int, default=256)
+    parser.add_argument("--micro-batch", type=int, default=FULL_SESSION_BATCH)
     parser.add_argument("--control", default="none")
     parser.add_argument("--control-options", default="")
     parser.add_argument("--device", default="cpu")

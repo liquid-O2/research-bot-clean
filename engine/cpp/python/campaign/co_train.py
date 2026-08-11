@@ -174,6 +174,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", required=True)
     parser.add_argument("--epochs", type=int, default=train.FIRST_BUDGET_EPOCHS)
     parser.add_argument("--device", default="cuda")
+    parser.add_argument("--micro-batch", type=int, default=train.FULL_SESSION_BATCH)
     parser.add_argument("--max-train-sessions", type=int, default=0)
     parser.add_argument("--max-eval-sessions", type=int, default=0)
     args = parser.parse_args(argv)
@@ -182,6 +183,7 @@ def main(argv: list[str] | None = None) -> int:
         args.arms, tuple(part for part in args.arms.split(",") if part))
     config = train.RunConfig(arm=names[0], fold=args.fold, data=args.data,
                              out=args.out, epochs=args.epochs, device=args.device,
+                             micro_batch=args.micro_batch,
                              max_train_sessions=args.max_train_sessions,
                              max_eval_sessions=args.max_eval_sessions)
     report = co_train(names, config, pathlib.Path(args.out))

@@ -10,7 +10,7 @@
 | M0.5-design-corpus | DONE | 2026-08-10 | — | FINAL_PLAN.md 204 lines + 5 design files | selector_v4.toml lands with M2 freeze |
 | M0.6-proofs-vendor | DONE | 2026-08-10 | — | cargo check clean; 79 unit tests pass; launcher smoke PASS; verifier PASS; 3 tarballs+manifest+REGISTRY rows | clangd best-effort |
 | M0.7-plan-md | DONE | 2026-08-10 | — | PLAN.md rewritten | Gate-3 hook = E_ENTRY_READINESS_V1 |
-| M1 | IN_PROGRESS | 2026-08-10 | — | — | WP0/WP1 lane launched (Opus-high) |
+| M1 | DONE | 2026-08-11 | wp9_full625_differential_verdict | ALL GATES GREEN; 628 tests proven-fail; byte-proven vs Rust over 7.88B rows | substrate complete WP0-WP11 |
 | WP0 | DONE | 2026-08-10 | — | dialect_census.tsv sha 63557a43…; 349 rows; 27.2s | exactly ZSTD×{PLAIN,RLE,RLE_DICTIONARY}, 8,726 files, 0 out-of-dialect |
 | WP1 | DONE | 2026-08-10 | — | engine/cpp qr_core+qr_registry (commit 6715717); 39/39 green; 5 red-ledger mutants | STALE_DIAG ruling applied |
 | WP2 | DONE | 2026-08-10 | — | qr_clock; 71 tests; 18 mutants; oracle diff EMPTY sha a36f954e…; CC-001 applied | committed with WP3 |

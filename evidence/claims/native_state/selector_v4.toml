@@ -1,7 +1,7 @@
 # selector_v4.toml — machine-readable spec GENERATED FROM TASK_CARD_V4 + FINAL_PLAN (never the reverse)
 [card]
 source = "evidence/claims/native_state/TASK_CARD_V4_DRAFT.md"
-sha256 = "55b50e2af50f79235e65c8ed08b5771533a46cc15831ebbb4f9c0a37d630a9ec"
+sha256 = "23b9151095e847f6a9c0f80b2fb39820e5359c0eaeb33f1889cab09772862a9a"
 status = "FROZEN_2026_08_11"
 
 [authority]
@@ -36,9 +36,10 @@ determinism = "float32, TF32 off, CUBLAS_WORKSPACE_CONFIG=:4096:8, deterministic
 
 [gate_A6]
 entry = "argmax among gate-passing legal rows; top-q causal running quantile (warmup n>=50, GATE_WARMUP) AND P(stop)<=rho"
-grid.q = [1, 2, 5, 10, 20, 30]
+grid.h_minutes = [30, 60, 120, "close"]
+grid.q = [1, 2, 5]
 grid.rho = [0.15, 0.25, 0.40]
-selection = "non-dollar favorable-vs-adverse AUC, one-sided vs 0.5 by session-block bootstrap; Holm alpha=0.05 over the 126 (h,q,rho) cells; argmax over survivors; zero survivors => NO_ADMISSIBLE_GATE/PASS_ALL"
+selection = "non-dollar favorable-vs-adverse AUC, one-sided vs 0.5 by session-block bootstrap; Holm alpha=0.05 over the 36 (h,q,rho) cells (CC-010/D-019 long-duration family); argmax over survivors; zero survivors => NO_ADMISSIBLE_GATE/PASS_ALL"
 k_eq_0 = "DELETED from CAL admission; gap-through breaches reported with UCB; zero-breach = deployment law only"
 
 [multiplicity_A7]

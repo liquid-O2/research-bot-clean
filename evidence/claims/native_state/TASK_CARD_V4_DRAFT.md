@@ -226,8 +226,8 @@ consolidated review — the two-pass rule was circular and dollar-selected): all
 horizon-bound heads bind to the FIXED comparability horizon h_ref = 15 min** (the
 required-skill arithmetic's anchor); the certificate/policy horizon h\* is selected on
 the CAL gate-select block, JOINTLY with (q,ρ), by the §6 non-dollar criterion over the
-preregistered 7×18 = 126-cell grid (Holm family (ii), α=0.05; ties → smallest q, then
-smallest ρ, then h closest to h_ref). No pass-1 model exists; nothing is dollar-selected;
+CC-010-constrained 4×9 = 36-cell grid (Holm family (ii), α=0.05; ties → smallest q, then
+smallest ρ, then LONGEST h — D-019 prefers duration). No pass-1 model exists; nothing is dollar-selected;
 the contract's 200-session dollar-selection law is not invoked (AUC selection, CAL-only).
 Same-clock LONG-vs-SHORT pairwise ranking binds to `net_h_ref`. Frozen auxiliary
 opportunity events on `net_h_ref`: >0, >=10,000c, >=30,000c; none test-selected.
@@ -618,11 +618,13 @@ Entry gate: at each clock, ENTER the unique highest predicted `net_h\*` legal si
 (predicted menu-net at the selected h\*) iff (i) that prediction is in the session's
 top-q quantile among legal rows so far that session (causal running quantile over
 strictly-prior same-session predictions, warm-up n>=50), and (ii) predicted
-`P(stop before h_ref)` <= ρ. **The triple (h\*, q, ρ) ∈ {2,5,15,30,60,120,close} ×
-{1,2,5,10,20,30}% × {.15,.25,.40} is selected on the gate-select block by the NON-DOLLAR
-criterion only: noncensored favorable-vs-adverse AUC (favorable = net_h > 0) at that
-coverage, tested one-sided against AUC=0.5 by session-block bootstrap, Holm-corrected at
-FWER α=0.05 across the 126 cells; the argmax is taken over SURVIVING cells only; zero
+`P(stop before h_ref)` <= ρ. **CC-010 (user strategy ruling D-019, 2026-08-11): the selectable family is
+LOW-FREQUENCY/LONG-DURATION — the triple (h\*, q, ρ) ∈ {30,60,120,close} ×
+{1,2,5}% × {.15,.25,.40} (36 cells; the 2/5/15-minute and high-coverage cells are STRUCK
+from selection — they remain trained menu outcomes and NONCERTIFYING panels). Selected on
+the gate-select block by the NON-DOLLAR criterion only: noncensored favorable-vs-adverse
+AUC (favorable = net_h > 0) at that coverage, tested one-sided against AUC=0.5 by
+session-block bootstrap, Holm-corrected at FWER α=0.05 across the 36 cells; the argmax is taken over SURVIVING cells only; zero
 survivors ⇒ typed NO_ADMISSIBLE_GATE ⇒ PASS_ALL for that arm/fold, never a looser rule;
 ties → smallest q, then smallest ρ, then h closest to h_ref.** The selected triple
 freezes before gate-cert and TEST. Degenerate/nonfinite scores in a cell
@@ -642,8 +644,8 @@ preregistered deltas (DIRECT_RAW>CLOCK_STATE; DCM benchmark; NATIVE_ORDER>DCM;
 NATIVE_INTERACTION>DCM; JSA>JSA_CAPACITY_MATCH) × 2 folds = 10 one-sided session-block
 bootstrap tests on THE confirmatory statistic: session-weighted Spearman(score,
 net_h_ref) at the D0 stage (other metrics/stages = NONCERTIFYING panels); (ii)
-gate-selection family: the 126 (h,q,ρ) AUC cells per fold (§6, one-sided vs 0.5,
-session-block bootstrap); (iii) certificate: one preregistered confirmatory statistic
+gate-selection family: the 36 (h,q,ρ) AUC cells per fold (CC-010 constrained; §6, one-sided
+vs 0.5, session-block bootstrap); (iii) certificate: one preregistered confirmatory statistic
 per fold (FINAL_PLAN §11). When an A2 second-budget (60ep) rerun exists, IT supersedes
 — the 30ep set becomes NONCERTIFYING; the family never enlarges. `DYNAMIC_POLICY` is
 NONCERTIFYING in this campaign (no new fit; its replay is diagnostic until the deferred

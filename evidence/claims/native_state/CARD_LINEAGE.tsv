@@ -34,3 +34,4 @@
 sha256	date	amendment	scope	consumers_invariant
 5c26438b12dd90e15b005375829d976fa46a1710c78041ff20ffc587dc092792	2026-08-11	M2_FREEZE	ROOT	the M2-close freeze of TASK_CARD_V4_DRAFT.md (commit ce89ab5); the 625-session R2 tape corpus under /workspace/artifacts/tensors/v4.0 was built against exactly these bytes and its manifests name this sha
 55b50e2af50f79235e65c8ed08b5771533a46cc15831ebbb4f9c0a37d630a9ec	2026-08-11	CC-009	S5	section 5 only (commit 3f7627f): N_out pinned at 16, the shared two-state phase table counted once per micro carrier, and W restated as N_out x 8; sections 1-4 and APPENDIX C4 are byte-identical, so every tape built under 5c26438b remains exactly as valid as on the day it was published
+23b9151095e847f6a9c0f80b2fb39820e5359c0eaeb33f1889cab09772862a9a	2026-08-11	CC-010	S6	gate family constrained to long-duration (D-019); tape reads S1-S4+C4 - invariant

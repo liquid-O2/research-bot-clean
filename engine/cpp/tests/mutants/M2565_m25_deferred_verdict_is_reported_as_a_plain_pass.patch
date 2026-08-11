@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -591,7 +591,7 @@
+         return "PASS"
+     if q_star > bracket.upper:
+         return "FAIL_Q_STAR_ABOVE_Q_MAX"
+-    return VERDICT_DEFERRED
++    return "PASS"  # MUTANT M2565: the deferral is laundered into a pass
+ 
+ 
+ def binding_ceiling(ceilings: Dict[Tuple[int, int], Ceiling], horizon: int) -> CeilingBracket:

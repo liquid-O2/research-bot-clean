@@ -242,6 +242,41 @@ def check_binding_ceiling_rule() -> None:
         raise AssertionError(f"starved bracket {empty}")
 
 
+@check("the verdict taxonomy has exactly four outcomes and no fifth")
+def check_verdict_taxonomy() -> None:
+    def bracket(lower: float, upper: float, status: str = "DISJOINT_TWINS") -> m25.CeilingBracket:
+        return m25.CeilingBracket(lower, upper, 0.0, 300, m25.MIN_DISJOINT_PAIRS, status)
+
+    cases = {
+        # no skill clears the bars at all
+        (None, 0.1, 0.9): "FAIL_UNREACHABLE_AT_ANY_SKILL",
+        # the ceiling clears Q* even under its pessimistic bound
+        (0.05, 0.10, 0.90): "PASS",
+        (0.10, 0.10, 0.90): "PASS",
+        # out of reach even under the optimistic bound — the refusal power
+        (0.95, 0.10, 0.90): "FAIL_Q_STAR_ABOVE_Q_MAX",
+        # inside the bracket: reachability settled, observability deferred
+        (0.20, 0.04, 1.00): m25.VERDICT_DEFERRED,
+        (0.50, 0.00, 1.00): m25.VERDICT_DEFERRED,
+    }
+    for (q_star, low, high), want in cases.items():
+        got = m25.verdict_for(q_star, bracket(low, high))
+        if got != want:
+            raise AssertionError(f"q*={q_star} bracket=[{low},{high}] gave {got!r}, want {want!r}")
+
+    # No disjoint support is never a pass and never the deferral either.
+    starved = m25.verdict_for(0.2, bracket(0.0, 1.0, "INSUFFICIENT_SUPPORT"))
+    if starved != "INDETERMINATE_NO_DISJOINT_TWIN_SUPPORT":
+        raise AssertionError(f"starved verdict {starved!r}")
+
+    # The deferral names where the deferred half goes; a verdict that merely said
+    # PASS would lose that.
+    if "OBSERVABILITY_DEFERRED_TO_M3" not in m25.VERDICT_DEFERRED:
+        raise AssertionError("the deferred verdict must name M3")
+    if "REACHABILITY_PASSED" not in m25.VERDICT_DEFERRED:
+        raise AssertionError("the deferred verdict must record that reachability passed")
+
+
 # --- 4. end to end on published synthetic corpora --------------------------
 
 
@@ -365,6 +400,7 @@ def main(argv: List[str] | None = None) -> int:
     check_point_mdd()
     check_mdd_ucb()
     check_binding_ceiling_rule()
+    check_verdict_taxonomy()
     if not args.skip_end_to_end:
         check_unreachable_fails(args.scratch)
         check_reachable_passes(args.scratch)

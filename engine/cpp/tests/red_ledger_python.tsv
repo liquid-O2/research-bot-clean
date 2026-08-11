@@ -44,6 +44,7 @@ the static check catches setitem, put, insert and out= as well as concatenation	
 the training rank formula is floor((j+0.5)N/2048) and takes all ranks below 2048	M944_training_ranks_round_instead_of_floor	tests/red_logs/M944_training_ranks_round_instead_of_floor.log
 the two corpora differ in the CEILING, not in the dollars	M2551_m25_reading_bootstraps_iid_sessions	tests/red_logs/M2551_m25_reading_bootstraps_iid_sessions.log
 the vectorised block bootstrap reproduces the pinned entry point exactly	M2551_m25_reading_bootstraps_iid_sessions	tests/red_logs/M2551_m25_reading_bootstraps_iid_sessions.log
+the verdict taxonomy has exactly four outcomes and no fifth	M2565_m25_deferred_verdict_is_reported_as_a_plain_pass	tests/red_logs/M2565_m25_deferred_verdict_is_reported_as_a_plain_pass.log
 truth() demands an explicit allowlist and honours it exactly	M509_loader_stub_genesis	tests/red_logs/M509_loader_stub_genesis.log
 two identical runs produce bit-identical logits	M943_train_reseeds_from_the_wall_clock	tests/red_logs/M943_train_reseeds_from_the_wall_clock.log
 verify() recomputes every sha256 and accepts the published shard	M509_loader_stub_genesis	tests/red_logs/M509_loader_stub_genesis.log

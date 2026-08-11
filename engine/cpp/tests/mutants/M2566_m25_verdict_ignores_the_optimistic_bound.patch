@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -589,7 +589,7 @@
+         return "INDETERMINATE_NO_DISJOINT_TWIN_SUPPORT"
+     if q_star <= bracket.lower:
+         return "PASS"
+-    if q_star > bracket.upper:
++    if False and q_star > bracket.upper:  # MUTANT M2566: the gate cannot fail
+         return "FAIL_Q_STAR_ABOVE_Q_MAX"
+     return VERDICT_DEFERRED
+ 

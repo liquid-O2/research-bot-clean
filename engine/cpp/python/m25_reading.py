@@ -100,6 +100,25 @@ SCREEN_MDD_DOLLARS = 2000.0
 CELL_BUDGET = 24
 
 
+# ---------------------------------------------------------------------------
+# THE ORCHESTRATOR'S RULING ON THIS GATE (2026-08-11), recorded verbatim.
+# ---------------------------------------------------------------------------
+VERDICT_RULING = (
+    "Gate verdict = REACHABILITY_PASSED / OBSERVABILITY_DEFERRED_TO_M3. Rationale "
+    "(verbatim): the gate's refusal power was proven on synthetics; on the real object, "
+    "perfect skill clears the bar many-fold (DP $6,843; Q*~0.175-0.200 -> $2.2-2.4k LCB, "
+    "lawful MDD), so reachability is decisively PASSED; the twin-based Q_max does not bite "
+    "on this object (no exact twins; surrogate bracket [0.00-0.43, ~1.0] contains Q*), and "
+    "holding the campaign hostage to an underdetermined surrogate would let a weak proxy "
+    "close a question the ladder measures directly with learned representations + leak "
+    "controls. Record the knife-edge (F5 Q=0.175 => $1,995) and the sober hint "
+    "(+0.00/+0.04 disjoint-vs-clock-only ceiling under the raw metric) as NONCERTIFYING "
+    "context the M3 reading must overcome."
+)
+
+VERDICT_DEFERRED = "REACHABILITY_PASSED / OBSERVABILITY_DEFERRED_TO_M3"
+
+
 class ReadingError(Exception):
     """A reading that cannot be trusted. Never raised for a recoverable case."""
 
@@ -555,6 +574,26 @@ class CeilingBracket:
         return self.lower - self.clock_only
 
 
+def verdict_for(q_star: float | None, bracket: "CeilingBracket") -> str:
+    """THE VERDICT TAXONOMY, in one place so it can be tested in one place.
+
+    Four outcomes and no fifth: no skill clears the bars at all; the ceiling
+    clears Q* even under its PESSIMISTIC bound (a full pass); Q* is out of reach
+    even under the OPTIMISTIC bound (a full fail, the refusal power the
+    synthetic fixtures prove); or Q* lands inside the bracket, where
+    reachability is settled and observability is not — the ruling's
+    REACHABILITY_PASSED / OBSERVABILITY_DEFERRED_TO_M3."""
+    if q_star is None:
+        return "FAIL_UNREACHABLE_AT_ANY_SKILL"
+    if bracket.status == "INSUFFICIENT_SUPPORT":
+        return "INDETERMINATE_NO_DISJOINT_TWIN_SUPPORT"
+    if q_star <= bracket.lower:
+        return "PASS"
+    if q_star > bracket.upper:
+        return "FAIL_Q_STAR_ABOVE_Q_MAX"
+    return VERDICT_DEFERRED
+
+
 def binding_ceiling(ceilings: Dict[Tuple[int, int], Ceiling], horizon: int) -> CeilingBracket:
     """The bracket at the SMALLEST bucket whose disjoint ladder carries enough
     pairs (a wider bucket buys support by weakening the clock match the ruling
@@ -674,6 +713,15 @@ def evaluate_skill_sweep(receipts: Receipts, replicate: int, positions: Sequence
 
 
 @dataclass
+class KnifeEdge:
+    """The grid step immediately BELOW Q*, and how far it fell short. When that
+    shortfall is a few dollars, Q* is a knife edge and the reading says so."""
+    q_skill: float
+    lcb_dollars: float
+    shortfall_dollars: float
+
+
+@dataclass
 class FoldReading:
     fold: str
     sessions: List[int]
@@ -691,6 +739,7 @@ class FoldReading:
     q_max_bucket_seconds: int
     ceiling_status: str
     bracket: "CeilingBracket"
+    knife_edge: "KnifeEdge | None"
 
 
 def _fold_positions(receipts: Receipts, fold: str,
@@ -773,19 +822,7 @@ def read_fold(receipts: Receipts, arms: Dict, fold: str,
     bracket = binding_ceiling(ceilings, horizon)
     q_max = bracket.lower
 
-    if q_star is None:
-        verdict = "FAIL_UNREACHABLE_AT_ANY_SKILL"
-    elif bracket.status == "INSUFFICIENT_SUPPORT":
-        # No disjoint twins means no ceiling. That is NOT a pass.
-        verdict = "INDETERMINATE_NO_DISJOINT_TWIN_SUPPORT"
-    elif q_star <= bracket.lower:
-        # Cleared even under the pessimistic bound.
-        verdict = "PASS"
-    elif q_star > bracket.upper:
-        # Out of reach even under the optimistic bound.
-        verdict = "FAIL_Q_STAR_ABOVE_Q_MAX"
-    else:
-        verdict = "INDETERMINATE_Q_STAR_INSIDE_CEILING_BRACKET"
+    verdict = verdict_for(q_star, bracket)
 
     pinned_lcb = None
     pinned_rate = None
@@ -806,9 +843,17 @@ def read_fold(receipts: Receipts, arms: Dict, fold: str,
         pinned_rate = estimator_laws.year_stratified_session_block_lcb(records)
         pinned_lcb = pinned_rate * (cap.floor_dollars + cap.cap_dollars) - cap.floor_dollars
 
+    knife: KnifeEdge | None = None
+    if q_star is not None:
+        below = [cell for cell in primary.per_q_best if cell.q_skill < q_star]
+        if below:
+            last = max(below, key=lambda cell: cell.q_skill)
+            knife = KnifeEdge(last.q_skill, last.lcb_dollars,
+                              MEAN_BAR_DOLLARS - last.lcb_dollars)
+
     return FoldReading(fold, sessions, years, cap, sweeps, ceilings, panel, verdict, q_star,
                        q_max, horizon, pinned_lcb, pinned_rate, bracket.bucket_seconds,
-                       bracket.status, bracket)
+                       bracket.status, bracket, knife)
 
 
 def _fmt(value: float, digits: int = 2) -> str:
@@ -827,6 +872,17 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
             def row(metric: str, value: object) -> None:
                 handle.write(f"{reading.fold}\t{metric}\t{value}\n")
             row("verdict", reading.verdict)
+            row("verdict_ruling_date", "2026-08-11")
+            row("verdict_ruling", VERDICT_RULING.replace("\t", " "))
+            row("observability_deferred_to", "M3 ladder (learned representations + R3 leak controls)")
+            if reading.knife_edge is not None:
+                row("noncertifying_knife_edge_q", f"{reading.knife_edge.q_skill:.6f}")
+                row("noncertifying_knife_edge_lcb_dollars",
+                    f"{reading.knife_edge.lcb_dollars:.2f}")
+                row("noncertifying_knife_edge_shortfall_dollars",
+                    f"{reading.knife_edge.shortfall_dollars:.2f}")
+            row("noncertifying_prefix_lift_over_clock_only",
+                f"{reading.bracket.prefix_lift:.6f}")
             row("q_star", "NONE" if reading.q_star is None else f"{reading.q_star:.6f}")
             row("q_max_bracket_lower_disjoint", f"{reading.bracket.lower:.6f}")
             row("q_max_bracket_upper_overlapping", f"{reading.bracket.upper:.6f}")
@@ -925,6 +981,15 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
     lines.append("Bar: mean LCB > $2,000/session AND MDD_UCB < $1,000, TRAIN only, "
                  "through the frozen replay kernel and the pinned estimator.")
     lines.append("")
+    lines.append("The gate has two halves. **Q\\*** — the skill this object must be given "
+                 "before it pays — is measured here and is decisive. **Q_max** — the skill the "
+                 "causal prefix can actually supply — is NOT decidable here: the ruling's "
+                 "exact-key twin does not exist on this corpus (0 byte-identical prefixes in "
+                 "12.1M rows) and every executable surrogate is biased, in measured and "
+                 "opposite directions, so it is published as a BRACKET. Where Q\\* lands "
+                 "inside that bracket the verdict is "
+                 f"`{VERDICT_DEFERRED}`.")
+    lines.append("")
     lines.append("| fold | sessions | Q* | best cell (h, q, rho) | mean LCB | MDD UCB | "
                  "trades/session | Q_max bracket [lower, upper] | verdict |")
     lines.append("|---|---|---|---|---|---|---|---|---|")
@@ -954,6 +1019,34 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
         lines.append(f"- {reading.fold}: seed-stability of Q* over noise replicates: " +
                      ", ".join('NONE' if s.q_star is None else f"{s.q_star:.3f}"
                                for s in reading.sweeps))
+    lines.append("")
+    lines.append("### THE RULING BEHIND THAT VERDICT (orchestrator, 2026-08-11, verbatim)")
+    lines.append("")
+    lines.append("> " + VERDICT_RULING.replace("Rationale (verbatim):", "Rationale (verbatim):"))
+    lines.append("")
+    lines.append("So this gate decides the half it can decide — REACHABILITY — and hands the "
+                 "other half to M3. It is not a licence: the two facts below are carried "
+                 "forward as **NONCERTIFYING context the M3 reading must overcome**.")
+    lines.append("")
+    lines.append("**NONCERTIFYING context for M3.**")
+    lines.append("")
+    lines.append("| fold | knife edge: last Q below Q* | its mean LCB | shortfall vs the $2,000 bar | "
+                 "prefix lift over clock-only (raw metric) |")
+    lines.append("|---|---|---|---|---|")
+    for reading in readings:
+        if reading.knife_edge is None:
+            continue
+        lines.append(f"| {reading.fold} | {reading.knife_edge.q_skill:.3f} | "
+                     f"${_fmt(reading.knife_edge.lcb_dollars)} | "
+                     f"${_fmt(reading.knife_edge.shortfall_dollars)} | "
+                     f"{reading.bracket.prefix_lift:+.4f} |")
+    lines.append("")
+    lines.append("The first column is how sharp Q* is: one grid step of skill below Q*, the "
+                 "object misses the bar. The last is the sober hint — under a RAW Euclidean "
+                 "match on the 180 DIRECT_RAW carriers, the causal prefix adds almost nothing "
+                 "to a predictor that already knows the time of day. A raw metric is not a "
+                 "learned representation, which is exactly why this is context for M3 and not "
+                 "a verdict here.")
     lines.append("")
     lines.append("## 2. THE SKILL CURVE (best admissible cell at each skill level)")
     lines.append("")

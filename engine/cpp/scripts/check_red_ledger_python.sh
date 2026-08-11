@@ -14,6 +14,9 @@
 # SUITES covered:
 #   python/test_decision_tape_loader.py   (WP10 loader)
 #   python/campaign/test_campaign.py      (the §5 arms + §7 controls + C7 harness)
+#   python/test_m25_reading.py            (M2.5: the pinned bounds, the affine
+#                                          encoding, the walls, and the
+#                                          reachable/unreachable gate fixtures)
 #
 # usage: check_red_ledger_python.sh
 set -uo pipefail
@@ -23,6 +26,7 @@ LEDGER="${CPP_ROOT}/tests/red_ledger_python.tsv"
 SUITES=(
   "${CPP_ROOT}/python/test_decision_tape_loader.py"
   "${CPP_ROOT}/python/campaign/test_campaign.py"
+  "${CPP_ROOT}/python/test_m25_reading.py"
 )
 MUTANT_DIR="${CPP_ROOT}/tests/mutants"
 status=0

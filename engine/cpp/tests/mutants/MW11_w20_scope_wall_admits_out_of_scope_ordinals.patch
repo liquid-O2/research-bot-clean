@@ -1,0 +1,15 @@
+--- a/qr_registry/include/qr_registry/day_scope.hpp
++++ b/qr_registry/include/qr_registry/day_scope.hpp
+@@ -30,8 +30,10 @@
+ /// FINAL_PLAN section 1 puts in scope ("1,003 sessions 2022-25 (125..749 = the
+ /// 625 in current scope)").
+ inline constexpr std::int64_t kScopeFirstOrdinal = 125;
+-inline constexpr std::int64_t kScopeLastOrdinal = 749;
+-inline constexpr std::int64_t kScopeSessionCount = 625;
++// MW11: the wall is widened past the scope, so fold-6/7 and 2025 ordinals
++// admit and a path can be formed for them.
++inline constexpr std::int64_t kScopeLastOrdinal = 1002;
++inline constexpr std::int64_t kScopeSessionCount = 878;
+ static_assert(kScopeLastOrdinal - kScopeFirstOrdinal + 1 == kScopeSessionCount);
+ 
+ /// One admitted, in-scope session. The only path-forming object in the module.

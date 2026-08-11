@@ -1,0 +1,61 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 12 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from DenseCounterLaw
+[ RUN      ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates
+[       OK ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates (0 ms)
+[ RUN      ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn
+[       OK ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn (0 ms)
+[ RUN      ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition
+[       OK ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition (0 ms)
+[ RUN      ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping
+[       OK ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping (0 ms)
+[----------] 4 tests from DenseCounterLaw (0 ms total)
+
+[----------] 4 tests from SpotGridLaw
+[ RUN      ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:166: Failure
+Expected equality of these values:
+  grid.value().mid_u6_at(1000 + 3001)
+    Which is: 100000256
+  100000192
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:167: Failure
+Expected equality of these values:
+  grid.value().mid_u6_at(1000 + 2999)
+    Which is: 100000192
+  100000128
+
+[  FAILED  ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant (27 ms)
+[ RUN      ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot
+[       OK ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot (35 ms)
+[ RUN      ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero
+[       OK ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero (25 ms)
+[ RUN      ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses
+[       OK ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses (23 ms)
+[----------] 4 tests from SpotGridLaw (112 ms total)
+
+[----------] 2 tests from CoverageLaw
+[ RUN      ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError
+[       OK ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError (14 ms)
+[ RUN      ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder
+[       OK ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder (73 ms)
+[----------] 2 tests from CoverageLaw (87 ms total)
+
+[----------] 1 test from ScopeWallLaw
+[ RUN      ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath
+[       OK ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath (0 ms)
+[----------] 1 test from ScopeWallLaw (0 ms total)
+
+[----------] 1 test from CensusReportLaw
+[ RUN      ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical
+[       OK ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical (31 ms)
+[----------] 1 test from CensusReportLaw (31 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 5 test suites ran. (231 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant
+
+ 1 FAILED TEST

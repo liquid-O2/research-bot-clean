@@ -1,0 +1,31 @@
+--- a/qr_w20/src/mechanics.cpp
++++ b/qr_w20/src/mechanics.cpp
+@@ -73,14 +73,24 @@
+       sum_ = next;
+     }
+   }
++  // MW02: an out-of-domain value is CLAMPED into the nearest edge cell instead
++  // of being counted apart, so the census silently reports the edge as if it
++  // had been observed.
++  if (counts_.empty()) {
++    return;
++  }
+   std::int64_t* cell = nullptr;
+   if (value < base_) {
+-    cell = &under_;
++    cell = &counts_[0];
++    min_ = std::max(min_, base_);
+   } else {
+     const std::int64_t offset = value - base_;
+-    cell = offset >= static_cast<std::int64_t>(counts_.size())
+-               ? &over_
+-               : &counts_[static_cast<std::size_t>(offset)];
++    if (offset >= static_cast<std::int64_t>(counts_.size())) {
++      cell = &counts_[counts_.size() - 1];
++      max_ = std::min(max_, base_ + static_cast<std::int64_t>(counts_.size()) - 1);
++    } else {
++      cell = &counts_[static_cast<std::size_t>(offset)];
++    }
+   }
+   std::int64_t next_cell = 0;
+   if (__builtin_add_overflow(*cell, weight, &next_cell)) {

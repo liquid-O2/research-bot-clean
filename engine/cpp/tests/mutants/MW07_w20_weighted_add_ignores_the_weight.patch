@@ -1,0 +1,15 @@
+--- a/qr_w20/src/mechanics.cpp
++++ b/qr_w20/src/mechanics.cpp
+@@ -42,9 +42,12 @@
+     : counts_(static_cast<std::size_t>(span > 0 ? span : 0), 0), base_(base) {}
+ 
+ void DenseCounter::add_weighted(std::int64_t value, std::int64_t weight) noexcept {
++  // MW07: the weight is dropped, so a volume-weighted census silently becomes
++  // a print-count census and no accumulation can ever overflow.
+   if (weight <= 0) {
+     return;
+   }
++  weight = 1;
+   // Every counter is CHECKED (FINAL_PLAN section 6: checked arithmetic via
+   // __builtin_*_overflow, clamp/saturate banned). An addition that cannot be
+   // represented is refused in place — the observation is dropped and the

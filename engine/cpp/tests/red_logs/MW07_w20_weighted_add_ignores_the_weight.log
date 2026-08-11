@@ -1,0 +1,96 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 12 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from DenseCounterLaw
+[ RUN      ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates
+[       OK ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates (0 ms)
+[ RUN      ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn
+[       OK ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn (0 ms)
+[ RUN      ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:127: Failure
+Expected equality of these values:
+  repeated.total()
+    Which is: 6
+  weighted.total()
+    Which is: 2
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:128: Failure
+Expected equality of these values:
+  repeated.count_at(3)
+    Which is: 5
+  weighted.count_at(3)
+    Which is: 1
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:132: Failure
+Expected equality of these values:
+  repeated.sum().value()
+    Which is: 26
+  weighted.sum().value()
+    Which is: 14
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:133: Failure
+Expected equality of these values:
+  weighted.sum().value()
+    Which is: 14
+  26
+
+[  FAILED  ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition (0 ms)
+[ RUN      ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:142: Failure
+Value of: counts.counts_overflowed()
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:143: Failure
+Expected equality of these values:
+  counts.total()
+    Which is: 2
+  9223372036854775807LL
+    Which is: 9223372036854775807
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:144: Failure
+Expected equality of these values:
+  counts.count_at(1)
+    Which is: 2
+  9223372036854775807LL
+    Which is: 9223372036854775807
+
+[  FAILED  ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping (0 ms)
+[----------] 4 tests from DenseCounterLaw (0 ms total)
+
+[----------] 4 tests from SpotGridLaw
+[ RUN      ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant
+[       OK ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant (66 ms)
+[ RUN      ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot
+[       OK ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot (40 ms)
+[ RUN      ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero
+[       OK ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero (24 ms)
+[ RUN      ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses
+[       OK ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses (35 ms)
+[----------] 4 tests from SpotGridLaw (167 ms total)
+
+[----------] 2 tests from CoverageLaw
+[ RUN      ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError
+[       OK ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError (12 ms)
+[ RUN      ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder
+[       OK ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder (83 ms)
+[----------] 2 tests from CoverageLaw (95 ms total)
+
+[----------] 1 test from ScopeWallLaw
+[ RUN      ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath
+[       OK ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath (0 ms)
+[----------] 1 test from ScopeWallLaw (0 ms total)
+
+[----------] 1 test from CensusReportLaw
+[ RUN      ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical
+[       OK ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical (36 ms)
+[----------] 1 test from CensusReportLaw (36 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 5 test suites ran. (299 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition
+[  FAILED  ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping
+
+ 2 FAILED TESTS

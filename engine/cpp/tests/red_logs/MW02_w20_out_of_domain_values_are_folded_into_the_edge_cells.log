@@ -1,0 +1,134 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 12 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from DenseCounterLaw
+[ RUN      ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates
+[       OK ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates (0 ms)
+[ RUN      ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:102: Failure
+Expected equality of these values:
+  counter.under()
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:103: Failure
+Expected equality of these values:
+  counter.over()
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:106: Failure
+Expected equality of these values:
+  counter.min()
+    Which is: 0
+  -7
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:107: Failure
+Expected equality of these values:
+  counter.max()
+    Which is: 3
+  99
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:108: Failure
+Expected equality of these values:
+  counter.count_at(0)
+    Which is: 1
+  0
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:109: Failure
+Expected equality of these values:
+  counter.count_at(3)
+    Which is: 1
+  0
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:113: Failure
+Value of: outside
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:114: Failure
+Expected equality of these values:
+  high
+    Which is: 3
+  4
+
+[  FAILED  ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn (0 ms)
+[ RUN      ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition
+[       OK ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition (0 ms)
+[ RUN      ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping
+[       OK ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping (0 ms)
+[----------] 4 tests from DenseCounterLaw (0 ms total)
+
+[----------] 4 tests from SpotGridLaw
+[ RUN      ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant
+[       OK ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant (28 ms)
+[ RUN      ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot
+[       OK ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot (22 ms)
+[ RUN      ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero
+[       OK ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero (24 ms)
+[ RUN      ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses
+[       OK ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses (35 ms)
+[----------] 4 tests from SpotGridLaw (111 ms total)
+
+[----------] 2 tests from CoverageLaw
+[ RUN      ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError
+[       OK ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError (16 ms)
+[ RUN      ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder
+[       OK ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder (78 ms)
+[----------] 2 tests from CoverageLaw (94 ms total)
+
+[----------] 1 test from ScopeWallLaw
+[ RUN      ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath
+[       OK ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath (0 ms)
+[----------] 1 test from ScopeWallLaw (0 ms total)
+
+[----------] 1 test from CensusReportLaw
+[ RUN      ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:334: Failure
+Expected: (run1.find("s125\texample_hist\tcell_over\t1\n")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+scope	key	metric	value
+session	s125	day	2022-07-05
+stream	s125	rth_rows	42
+s125	example	n	8
+s125	example	counts_overflowed	0
+s125	example	under	0
+s125	example	over	0
+s125	example	min	0
+s125	example	max	7
+s125	example	sum	118
+s125	example	p10	0
+s125	example	p10_out_of_domain	0
+s125	example	p25	1
+s125	example	p25_out_of_domain	0
+s125	example	p50	2
+s125	example	p50_out_of_domain	0
+s125	example	p75	5
+s125	example	p75_out_of_domain	0
+s125	example	p90	7
+s125	example	p90_out_of_domain	0
+s125	example	p95	7
+s125	example	p95_out_of_domain	0
+s125	example	p99	7
+s125	example	p99_out_of_domain	0
+s125	example	p999	7
+s125	example	p999_out_of_domain	0
+s125	example_hist	cell_0	1
+s125	example_hist	cell_1	2
+s125	example_hist	cell_2	1
+s125	example_hist	cell_5	3
+s125	example_hist	cell_7	1
+s125	example_hist	cell_under	0
+s125	example_hist	cell_over	0
+
+
+[  FAILED  ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical (33 ms)
+[----------] 1 test from CensusReportLaw (33 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 5 test suites ran. (239 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn
+[  FAILED  ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical
+
+ 2 FAILED TESTS

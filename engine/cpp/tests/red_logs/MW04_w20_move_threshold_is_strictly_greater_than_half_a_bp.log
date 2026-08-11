@@ -1,0 +1,56 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 12 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from DenseCounterLaw
+[ RUN      ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates
+[       OK ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates (0 ms)
+[ RUN      ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn
+[       OK ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn (0 ms)
+[ RUN      ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition
+[       OK ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition (0 ms)
+[ RUN      ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping
+[       OK ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping (0 ms)
+[----------] 4 tests from DenseCounterLaw (0 ms total)
+
+[----------] 4 tests from SpotGridLaw
+[ RUN      ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant
+[       OK ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant (27 ms)
+[ RUN      ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:191: Failure
+Expected equality of these values:
+  moves
+    Which is: { 40 }
+  (std::vector<std::int64_t>{30, 40})
+    Which is: { 30, 40 }
+
+[  FAILED  ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot (23 ms)
+[ RUN      ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero
+[       OK ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero (36 ms)
+[ RUN      ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses
+[       OK ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses (27 ms)
+[----------] 4 tests from SpotGridLaw (114 ms total)
+
+[----------] 2 tests from CoverageLaw
+[ RUN      ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError
+[       OK ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError (50 ms)
+[ RUN      ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder
+[       OK ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder (63 ms)
+[----------] 2 tests from CoverageLaw (113 ms total)
+
+[----------] 1 test from ScopeWallLaw
+[ RUN      ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath
+[       OK ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath (0 ms)
+[----------] 1 test from ScopeWallLaw (0 ms total)
+
+[----------] 1 test from CensusReportLaw
+[ RUN      ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical
+[       OK ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical (73 ms)
+[----------] 1 test from CensusReportLaw (73 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 5 test suites ran. (301 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot
+
+ 1 FAILED TEST

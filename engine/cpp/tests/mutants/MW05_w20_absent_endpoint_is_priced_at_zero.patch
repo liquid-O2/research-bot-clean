@@ -1,0 +1,13 @@
+--- a/qr_w20/src/mechanics.cpp
++++ b/qr_w20/src/mechanics.cpp
+@@ -372,7 +372,9 @@
+   for (std::size_t index = 1; index < out.mid_u6_.size(); ++index) {
+     const std::int64_t previous = out.mid_u6_[index - 1];
+     const std::int64_t current = out.mid_u6_[index];
+-    if (previous <= 0 || current <= 0) {
++    // MW05: a missing endpoint is treated as the price zero, so the first valid
++    // quote of the session registers as an infinite move.
++    if (previous < 0 || current < 0) {
+       continue;
+     }
+     const std::int64_t delta = current > previous ? current - previous : previous - current;

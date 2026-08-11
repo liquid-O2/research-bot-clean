@@ -1,0 +1,15 @@
+--- a/qr_w20/src/mechanics.cpp
++++ b/qr_w20/src/mechanics.cpp
+@@ -248,9 +248,11 @@
+   Shards out;
+   const std::string& day = scope.day();
+   const std::filesystem::path year_dir = corpus_root / day.substr(0, 4);
++  // MW09: the flat path is assumed to exist, so an uncovered session is
++  // reported as covered instead of MODALITY_ABSENT.
+   const std::filesystem::path flat = year_dir / (day + ".parquet");
+   std::error_code error;
+-  if (std::filesystem::is_regular_file(flat, error)) {
++  if (!std::filesystem::is_directory(year_dir / day, error)) {
+     out.era = Era::FLAT;
+     out.paths.push_back(flat);
+     return out;

@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 namespace qr::m25 {
 namespace {
@@ -198,7 +198,7 @@ TwinAccumulator accumulate_twins(const SessionTape& tape, const SkillDraws& draw
   // Cells: (side, clock bucket). Rows arrive in (timestamp, side) order, so a
   // single pass groups them.
   const std::int64_t session_start = tape.rows.empty() ? 0 : tape.rows.front().key.decision_ts_ns;
-  std::unordered_map<std::int64_t, std::vector<std::size_t>> cells;
+  std::map<std::int64_t, std::vector<std::size_t>> cells;  // ordered: chronological bucket walk; determinism by construction, not by libstdc++ accident
   for (std::size_t i = 0; i < n; ++i) {
     if (tape.rows[i].label.state != LabelState::OK) {
       continue;
@@ -327,8 +327,7 @@ Expected<std::vector<float>, Refusal> load_prefix_matrix(const TapeRoot& root,
   std::vector<float> matrix;
 
   // Where each (decision_ordinal, side) lives in the merged tape.
-  std::unordered_map<std::int64_t, std::size_t> position;
-  position.reserve(n * 2);
+  std::map<std::int64_t, std::size_t> position;
   for (std::size_t i = 0; i < n; ++i) {
     position[tape.rows[i].key.decision_ordinal * 2 +
              (tape.rows[i].key.side == qr::replay::Side::LONG ? 0 : 1)] = i;

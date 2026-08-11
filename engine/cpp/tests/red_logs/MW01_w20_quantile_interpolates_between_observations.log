@@ -1,0 +1,103 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 12 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from DenseCounterLaw
+[ RUN      ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:84: Failure
+Expected equality of these values:
+  counter.quantile(50, 100, outside)
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:88: Failure
+Expected equality of these values:
+  counter.quantile(75, 100, outside)
+    Which is: 2
+  4
+
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:90: Failure
+Expected equality of these values:
+  counter.quantile(100, 100, outside)
+    Which is: 6
+  9
+
+[  FAILED  ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates (0 ms)
+[ RUN      ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn
+[       OK ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn (0 ms)
+[ RUN      ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition
+[       OK ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition (0 ms)
+[ RUN      ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping
+[       OK ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping (0 ms)
+[----------] 4 tests from DenseCounterLaw (0 ms total)
+
+[----------] 4 tests from SpotGridLaw
+[ RUN      ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant
+[       OK ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant (22 ms)
+[ RUN      ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot
+[       OK ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot (17 ms)
+[ RUN      ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero
+[       OK ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero (30 ms)
+[ RUN      ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses
+[       OK ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses (33 ms)
+[----------] 4 tests from SpotGridLaw (104 ms total)
+
+[----------] 2 tests from CoverageLaw
+[ RUN      ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError
+[       OK ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError (13 ms)
+[ RUN      ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder
+[       OK ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder (68 ms)
+[----------] 2 tests from CoverageLaw (82 ms total)
+
+[----------] 1 test from ScopeWallLaw
+[ RUN      ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath
+[       OK ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath (0 ms)
+[----------] 1 test from ScopeWallLaw (0 ms total)
+
+[----------] 1 test from CensusReportLaw
+[ RUN      ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:319: Failure
+Expected: (run1.find("s125\texample\tp50\t2\n")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+scope	key	metric	value
+session	s125	day	2022-07-05
+stream	s125	rth_rows	42
+s125	example	n	8
+s125	example	under	0
+s125	example	over	1
+s125	example	min	0
+s125	example	max	99
+s125	example	sum	118
+s125	example	p10	0
+s125	example	p10_out_of_domain	0
+s125	example	p25	0
+s125	example	p25_out_of_domain	0
+s125	example	p50	1
+s125	example	p50_out_of_domain	0
+s125	example	p75	3
+s125	example	p75_out_of_domain	0
+s125	example	p90	8
+s125	example	p90_out_of_domain	1
+s125	example	p95	8
+s125	example	p95_out_of_domain	1
+s125	example	p99	8
+s125	example	p99_out_of_domain	1
+s125	example	p999	8
+s125	example	p999_out_of_domain	1
+s125	example_hist	cell_0	1
+s125	example_hist	cell_1	2
+s125	example_hist	cell_2	1
+s125	example_hist	cell_5	3
+s125	example_hist	cell_under	0
+s125	example_hist	cell_over	1
+
+
+[  FAILED  ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical (33 ms)
+[----------] 1 test from CensusReportLaw (33 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 5 test suites ran. (220 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates
+[  FAILED  ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical
+
+ 2 FAILED TESTS

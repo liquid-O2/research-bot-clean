@@ -1,0 +1,13 @@
+--- a/qr_w20/src/mechanics.cpp
++++ b/qr_w20/src/mechanics.cpp
+@@ -398,7 +398,9 @@
+   // The last COMPLETE-second endpoint at or before ts: its value is by
+   // construction the last eligible midpoint strictly before that endpoint, and
+   // the endpoint is <= ts, so the value is strictly prior to ts.
+-  return mid_u6_endpoint((ts_ms_b - open_ms_b_) / kMsPerSecond);
++  // MW03: the read rounds UP to the next complete-second endpoint, which is an
++  // endpoint after the row's own instant — a future read.
++  return mid_u6_endpoint((ts_ms_b - open_ms_b_ + kMsPerSecond - 1) / kMsPerSecond);
+ }
+ 
+ // ---------------------------------------------------------------------------

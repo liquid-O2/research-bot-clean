@@ -1,0 +1,19 @@
+--- a/qr_w20/src/mechanics.cpp
++++ b/qr_w20/src/mechanics.cpp
+@@ -259,12 +259,10 @@
+   if (std::filesystem::is_directory(sharded, error)) {
+     for (const std::filesystem::directory_entry& entry :
+          std::filesystem::directory_iterator(sharded, error)) {
+-      if (entry.path().extension() == ".parquet") {
+-        out.paths.push_back(entry.path());
+-      }
+-    }
+-    // Sorted iteration is a law (FINAL_PLAN section 6).
+-    std::sort(out.paths.begin(), out.paths.end());
++      // MW06: every file in the directory counts as a shard, and the natural
++      // directory order is kept.
++      out.paths.push_back(entry.path());
++    }
+     if (!out.paths.empty()) {
+       out.era = Era::SHARD;
+     }

@@ -8,3 +8,9 @@
 #
 # Adding a line here is a design decision, not an implementation one: it needs
 # an orchestrator ruling plus a determinism argument written next to the entry.
+# 2026-08-11 orchestrator ruling: qr_m25 MemberGate sets are MEMBERSHIP-ONLY
+# (count/contains lookups in tape order; never iterated; outputs proven
+# two-run byte-identical). twins.cpp was NOT whitelisted: its hash-order
+# cell walk was replaced by std::map and receipts re-verified.
+qr_m25/include/qr_m25/arms.hpp
+qr_m25/src/arms.cpp

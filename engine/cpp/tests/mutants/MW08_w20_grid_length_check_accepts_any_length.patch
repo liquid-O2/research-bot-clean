@@ -1,0 +1,14 @@
+--- a/qr_w20/src/mechanics.cpp
++++ b/qr_w20/src/mechanics.cpp
+@@ -349,8 +349,10 @@
+     return refuse<SpotGrid>(RefusalCode::SCHEMA_MISMATCH,
+                             "grid_1s is not the APPENDIX C4 [S,4] f4 leaf");
+   }
++  // MW08: the grid's own length is no longer checked against the session, so a
++  // truncated grid is read as if it covered the whole session.
+   const std::int64_t expected = bar_count * 60 + 1;
+-  if (grid.rows() != expected) {
++  if (grid.rows() > expected) {
+     return refuse<SpotGrid>(RefusalCode::CONTENT_MISMATCH,
+                             "grid_1s row count disagrees with the session's own bar count",
+                             grid.rows());

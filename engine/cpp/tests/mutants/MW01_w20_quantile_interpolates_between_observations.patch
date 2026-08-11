@@ -1,0 +1,24 @@
+--- a/qr_w20/src/mechanics.cpp
++++ b/qr_w20/src/mechanics.cpp
+@@ -118,11 +118,18 @@
+     out_of_domain = true;
+     return base_ - 1;
+   }
++  // MW01: the quantile is interpolated between the two neighbouring occupied
++  // cells instead of being the exact rank, so it can answer a value the data
++  // never contained.
+   std::int64_t seen = under_;
++  std::int64_t previous = base_;
+   for (std::size_t index = 0; index < counts_.size(); ++index) {
+-    seen += counts_[index];
+-    if (seen >= target) {
+-      return base_ + static_cast<std::int64_t>(index);
++    if (counts_[index] > 0) {
++      seen += counts_[index];
++      if (seen >= target) {
++        return (previous + base_ + static_cast<std::int64_t>(index)) / 2;
++      }
++      previous = base_ + static_cast<std::int64_t>(index);
+     }
+   }
+   out_of_domain = true;

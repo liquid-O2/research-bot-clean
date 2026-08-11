@@ -1,0 +1,15 @@
+--- a/qr_w20/src/mechanics.cpp
++++ b/qr_w20/src/mechanics.cpp
+@@ -190,7 +190,12 @@
+   if (out == nullptr) {
+     return refuse<std::monostate>(RefusalCode::IO, "cannot open the census output for writing");
+   }
++  // MW10: the census stamps a per-process run counter, so two writes of the
++  // same census differ and byte identity is lost.
++  static int run_counter = 0;
++  ++run_counter;
+   std::fprintf(out, "scope\tkey\tmetric\tvalue\n");
++  std::fprintf(out, "meta\trun\tcounter\t%d\n", run_counter);
+   for (const CensusRow& row : rows_) {
+     if (row.is_text) {
+       std::fprintf(out, "%s\t%s\t%s\t%s\n", row.scope.c_str(), row.key.c_str(), row.metric.c_str(),

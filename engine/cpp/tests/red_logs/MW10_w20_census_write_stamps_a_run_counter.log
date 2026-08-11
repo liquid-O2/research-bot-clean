@@ -1,0 +1,64 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 12 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from DenseCounterLaw
+[ RUN      ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates
+[       OK ] DenseCounterLaw.QuantileIsTheExactRankRuleAndNeverInterpolates (0 ms)
+[ RUN      ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn
+[       OK ] DenseCounterLaw.ValuesOutsideTheDomainAreCountedApartAndNeverFoldedIn (0 ms)
+[ RUN      ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition
+[       OK ] DenseCounterLaw.WeightedAdditionEqualsRepeatedAddition (0 ms)
+[ RUN      ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping
+[       OK ] DenseCounterLaw.ASumThatCannotBeRepresentedRefusesInsteadOfWrapping (0 ms)
+[----------] 4 tests from DenseCounterLaw (0 ms total)
+
+[----------] 4 tests from SpotGridLaw
+[ RUN      ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant
+[       OK ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant (37 ms)
+[ RUN      ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot
+[       OK ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot (37 ms)
+[ RUN      ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero
+[       OK ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero (22 ms)
+[ RUN      ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses
+[       OK ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses (22 ms)
+[----------] 4 tests from SpotGridLaw (120 ms total)
+
+[----------] 2 tests from CoverageLaw
+[ RUN      ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError
+[       OK ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError (48 ms)
+[ RUN      ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder
+[       OK ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder (198 ms)
+[----------] 2 tests from CoverageLaw (246 ms total)
+
+[----------] 1 test from ScopeWallLaw
+[ RUN      ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath
+[       OK ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath (0 ms)
+[----------] 1 test from ScopeWallLaw (0 ms total)
+
+[----------] 1 test from CensusReportLaw
+[ RUN      ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:318: Failure
+Expected equality of these values:
+  run1
+    Which is: "scope\tkey\tmetric\tvalue\nmeta\trun\tcounter\t1\nsession\ts125\tday\t2022-07-05\nstream\ts125\trth_rows\t42\ns125\texample\tn\t8\ns125\texample\tunder\t0\ns125\texample\tover\t1\ns125\texample\tmin\t0\ns125\texample\tmax\t99\ns125\texample\tsum\t118\ns125\texample\tp10\t0\ns125\texample\tp10_out_of_domain\t0\ns125\texample\tp25\t1\ns125\texample\tp25_out_of_domain\t0\ns125\texample\tp50\t2\ns125\texample\tp50_out_of_domain\t0\ns125\texample\tp75\t5\ns125\texample\tp75_out_of_domain\t0\ns125\texample\tp90\t8\ns125\texample\tp90_out_of_domain\t1\ns125\texample\tp95\t8\ns125\texample\tp95_out_of_domain\t1\ns125\texample\tp99\t8\ns125\texample\tp99_out_of_domain\t1\ns125\texample\tp999\t8\ns125\texample\tp999_out_of_domain\t1\ns125\texample_hist\tcell_0\t1\ns125\texample_hist\tcell_1\t2\ns125\texample_hist\tcell_2\t1\ns125\texample_hist\tcell_5\t3\ns125\texample_hist\tcell_under\t0\ns125\texample_hist\tcell_over\t1\n"
+  run2
+    Which is: "scope\tkey\tmetric\tvalue\nmeta\trun\tcounter\t2\nsession\ts125\tday\t2022-07-05\nstream\ts125\trth_rows\t42\ns125\texample\tn\t8\ns125\texample\tunder\t0\ns125\texample\tover\t1\ns125\texample\tmin\t0\ns125\texample\tmax\t99\ns125\texample\tsum\t118\ns125\texample\tp10\t0\ns125\texample\tp10_out_of_domain\t0\ns125\texample\tp25\t1\ns125\texample\tp25_out_of_domain\t0\ns125\texample\tp50\t2\ns125\texample\tp50_out_of_domain\t0\ns125\texample\tp75\t5\ns125\texample\tp75_out_of_domain\t0\ns125\texample\tp90\t8\ns125\texample\tp90_out_of_domain\t1\ns125\texample\tp95\t8\ns125\texample\tp95_out_of_domain\t1\ns125\texample\tp99\t8\ns125\texample\tp99_out_of_domain\t1\ns125\texample\tp999\t8\ns125\texample\tp999_out_of_domain\t1\ns125\texample_hist\tcell_0\t1\ns125\texample_hist\tcell_1\t2\ns125\texample_hist\tcell_2\t1\ns125\texample_hist\tcell_5\t3\ns125\texample_hist\tcell_under\t0\ns125\texample_hist\tcell_over\t1\n"
+With diff:
+@@ -1,4 +1,4 @@
+ scope\tkey\tmetric\tvalue
+-meta\trun\tcounter\t1
++meta\trun\tcounter\t2
+ session\ts125\tday\t2022-07-05
+ stream\ts125\trth_rows\t42
+
+
+[  FAILED  ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical (35 ms)
+[----------] 1 test from CensusReportLaw (35 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 5 test suites ran. (402 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical
+
+ 1 FAILED TEST

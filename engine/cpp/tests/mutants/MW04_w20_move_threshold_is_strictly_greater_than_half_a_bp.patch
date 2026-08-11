@@ -1,0 +1,13 @@
+--- a/qr_w20/src/mechanics.cpp
++++ b/qr_w20/src/mechanics.cpp
+@@ -377,7 +377,9 @@
+     }
+     const std::int64_t delta = current > previous ? current - previous : previous - current;
+     // |delta| >= 0.5bp of the PRIOR endpoint, in exact integers.
+-    if (delta * kHalfBpDenominator >= previous) {
++    // MW04: the A2 boundary becomes strict, so a move of exactly 0.5bp is not
++    // an event.
++    if (delta * kHalfBpDenominator > previous) {
+       out.move_endpoints_.push_back(static_cast<std::int64_t>(index));
+     }
+   }

@@ -250,6 +250,30 @@ Expected<std::size_t, Refusal> NbboStream::push_group(
           static_cast<std::int32_t>(absent_per_token * static_cast<std::int64_t>(rows.size()));
       census_.fold_repeated(channels, static_cast<std::int64_t>(rows.size()));
     }
+    if (options_.retain_group_vectors) {
+      // The GROUP-LEVEL door of NATIVE_ORDER's equal-time reduction: all sixteen
+      // NBBO channels are group-level by the card's own construction, so every
+      // member carries THIS row and the mean+max reduction of a constant is that
+      // constant (group_vector.hpp). The stored form is side-neutral, so only
+      // the LONG pass writes it; the SHORT pass writes only the spot reference.
+      const bool spot_group =
+          options_.side_spot_stride > 0 &&
+          static_cast<std::int64_t>(groups_.size()) % options_.side_spot_stride == 0;
+      if (side == Side::LONG) {
+        std::array<double, kNbboNeutralDim> neutral{};
+        reduce_constant_group_neutral(Modality::STOCK_NBBO, channels,
+                                      record.log1p_multiplicity, neutral);
+        vectors_.append(neutral);
+        if (spot_group) {
+          spot_groups_.push_back(static_cast<std::int32_t>(groups_.size()));
+        }
+      }
+      if (spot_group) {
+        std::array<double, kNbboGroupDim> reduced{};
+        reduce_constant_group(channels, record.log1p_multiplicity, reduced);
+        spot_[static_cast<std::size_t>(side)].append(reduced);
+      }
+    }
   }
 
   // The eligible-midpoint prefix series the 1s grid and the location values read.

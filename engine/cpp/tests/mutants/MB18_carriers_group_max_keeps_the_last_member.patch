@@ -1,0 +1,14 @@
+--- a/qr_carriers/include/qr_carriers/group_vector.hpp
++++ b/qr_carriers/include/qr_carriers/group_vector.hpp
+@@ -248,9 +248,8 @@
+       }
+       const double value = row.value[channel];
+       sum_[channel] += value;
+-      if (present_[channel] == 0 || value > max_[channel]) {
+-        max_[channel] = value;
+-      }
++      // MB18: the "max" is whichever member happened to come last.
++      max_[channel] = value;
+       // The MIN is tracked for the side-neutral table only: the reflected side's
+       // max is this min negated (see the header's ruling note).
+       if (present_[channel] == 0 || value < min_[channel]) {

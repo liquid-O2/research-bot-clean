@@ -1,0 +1,5448 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 117 tests from 42 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from TransformTable
+[ RUN      ] TransformTable.NonnegativeCountRowIsLog1pAndRefusesItsOwnDomain
+[       OK ] TransformTable.NonnegativeCountRowIsLog1pAndRefusesItsOwnDomain (0 ms)
+[ RUN      ] TransformTable.TimeRowIsCheckedIntegerMicrosecondsThenLog1p
+[       OK ] TransformTable.TimeRowIsCheckedIntegerMicrosecondsThenLog1p (0 ms)
+[ RUN      ] TransformTable.SecondsDoorIsTheSameClockDividedByAMillion
+[       OK ] TransformTable.SecondsDoorIsTheSameClockDividedByAMillion (0 ms)
+[ RUN      ] TransformTable.SignedRowIsOddAndCarriesTheSignThroughLog1p
+[       OK ] TransformTable.SignedRowIsOddAndCarriesTheSignThroughLog1p (0 ms)
+[ RUN      ] TransformTable.PriceDisplacementRowTruncatesTowardZeroOnCheckedIntegers
+[       OK ] TransformTable.PriceDisplacementRowTruncatesTowardZeroOnCheckedIntegers (0 ms)
+[ RUN      ] TransformTable.FractionRowEmitsValueZeroPresenceZeroOnAZeroDenominator
+[       OK ] TransformTable.FractionRowEmitsValueZeroPresenceZeroOnAZeroDenominator (0 ms)
+[ RUN      ] TransformTable.ReliabilityRModalityIsTheOneDeclaredPresentWithZeroCase
+[       OK ] TransformTable.ReliabilityRModalityIsTheOneDeclaredPresentWithZeroCase (0 ms)
+[ RUN      ] TransformTable.RawGreekRowAppliesNoTransformAndTypesTheNonFinite
+[       OK ] TransformTable.RawGreekRowAppliesNoTransformAndTypesTheNonFinite (0 ms)
+[ RUN      ] TransformTable.DteRowIsLog1pOfNonnegativeCalendarDays
+[       OK ] TransformTable.DteRowIsLog1pOfNonnegativeCalendarDays (0 ms)
+[ RUN      ] TransformTable.StructuralBitsAndFiniteMeansFollowTheirOwnStatedLaws
+[       OK ] TransformTable.StructuralBitsAndFiniteMeansFollowTheirOwnStatedLaws (0 ms)
+[----------] 10 tests from TransformTable (0 ms total)
+
+[----------] 4 tests from StockPrintPriorMachine
+[ RUN      ] StockPrintPriorMachine.PriorMovesOnlyAfterTheWholeGroupIsReduced
+[       OK ] StockPrintPriorMachine.PriorMovesOnlyAfterTheWholeGroupIsReduced (0 ms)
+[ RUN      ] StockPrintPriorMachine.TheMeanIsAnExactIntegerSumTruncatedOnce
+[       OK ] StockPrintPriorMachine.TheMeanIsAnExactIntegerSumTruncatedOnce (0 ms)
+[ RUN      ] StockPrintPriorMachine.AGroupWithNoEligibleMemberNeverBecomesThePrior
+[       OK ] StockPrintPriorMachine.AGroupWithNoEligibleMemberNeverBecomesThePrior (0 ms)
+[ RUN      ] StockPrintPriorMachine.MemberOrderInsideAGroupChangesNothing
+[       OK ] StockPrintPriorMachine.MemberOrderInsideAGroupChangesNothing (0 ms)
+[----------] 4 tests from StockPrintPriorMachine (0 ms total)
+
+[----------] 3 tests from NbboScalarLaw
+[ RUN      ] NbboScalarLaw.MidpointComesFromTheSCALARMeansAndNotFromPerRowMidpoints
+[       OK ] NbboScalarLaw.MidpointComesFromTheSCALARMeansAndNotFromPerRowMidpoints (0 ms)
+[ RUN      ] NbboScalarLaw.Cc005ImbalanceComesFromTheTwoSizeMeansAndNotFromPerRowRatios
+[       OK ] NbboScalarLaw.Cc005ImbalanceComesFromTheTwoSizeMeansAndNotFromPerRowRatios (0 ms)
+[ RUN      ] NbboScalarLaw.AZeroSizeDenominatorIsTypedMissingAndNotADivisionByZero
+[       OK ] NbboScalarLaw.AZeroSizeDenominatorIsTypedMissingAndNotADivisionByZero (0 ms)
+[----------] 3 tests from NbboScalarLaw (0 ms total)
+
+[----------] 1 test from NbboPriorMachineLaw
+[ RUN      ] NbboPriorMachineLaw.TheFrozenPriorMovesOnlyOnCommitAndOnlyForEligibleGroups
+[       OK ] NbboPriorMachineLaw.TheFrozenPriorMovesOnlyOnCommitAndOnlyForEligibleGroups (0 ms)
+[----------] 1 test from NbboPriorMachineLaw (0 ms total)
+
+[----------] 1 test from OptionContractPriorLaw
+[ RUN      ] OptionContractPriorLaw.EachExactContractCarriesItsOwnPriorAndNothingElseDoes
+[       OK ] OptionContractPriorLaw.EachExactContractCarriesItsOwnPriorAndNothingElseDoes (0 ms)
+[----------] 1 test from OptionContractPriorLaw (0 ms total)
+
+[----------] 3 tests from UnderlyingPriorLaw
+[ RUN      ] UnderlyingPriorLaw.OnlyMembersSharingTheGreatestValidAttachmentUpdateThePrior
+[       OK ] UnderlyingPriorLaw.OnlyMembersSharingTheGreatestValidAttachmentUpdateThePrior (0 ms)
+[ RUN      ] UnderlyingPriorLaw.TheUpdateIsInvariantUnderSameGroupMemberOrder
+[       OK ] UnderlyingPriorLaw.TheUpdateIsInvariantUnderSameGroupMemberOrder (0 ms)
+[ RUN      ] UnderlyingPriorLaw.AGroupWithNoValidAttachmentLeavesThePriorUnchanged
+[       OK ] UnderlyingPriorLaw.AGroupWithNoValidAttachmentLeavesThePriorUnchanged (0 ms)
+[----------] 3 tests from UnderlyingPriorLaw (0 ms total)
+
+[----------] 4 tests from SequenceLaw
+[ RUN      ] SequenceLaw.GapIsCurrentMinMinusPreviousMaxAndTheFirstValidGroupHasNone
+[       OK ] SequenceLaw.GapIsCurrentMinMinusPreviousMaxAndTheFirstValidGroupHasNone (0 ms)
+[ RUN      ] SequenceLaw.DroppingTheFirstSequenceValidGroupMovesExactlyTheDeclaredOutputs
+[       OK ] SequenceLaw.DroppingTheFirstSequenceValidGroupMovesExactlyTheDeclaredOutputs (0 ms)
+[ RUN      ] SequenceLaw.DroppingThePREVIOUSSequenceValidGroupChangesTheGapItAnchored
+[       OK ] SequenceLaw.DroppingThePREVIOUSSequenceValidGroupChangesTheGapItAnchored (0 ms)
+[ RUN      ] SequenceLaw.MinAndMaxAreTheOnlyWithinGroupStatisticsAndArePermutationInvariant
+[       OK ] SequenceLaw.MinAndMaxAreTheOnlyWithinGroupStatisticsAndArePermutationInvariant (0 ms)
+[----------] 4 tests from SequenceLaw (0 ms total)
+
+[----------] 1 test from GroupInterarrivalLaw
+[ RUN      ] GroupInterarrivalLaw.TheFirstGroupHasNoInterarrivalAndTheSecondHasOne
+[       OK ] GroupInterarrivalLaw.TheFirstGroupHasNoInterarrivalAndTheSecondHasOne (0 ms)
+[----------] 1 test from GroupInterarrivalLaw (0 ms total)
+
+[----------] 4 tests from StockPrintChannels
+[ RUN      ] StockPrintChannels.TheSeventeenChannelsAreTheCardsSeventeenValues
+[       OK ] StockPrintChannels.TheSeventeenChannelsAreTheCardsSeventeenValues (31 ms)
+[ RUN      ] StockPrintChannels.TruncatingIntegerBpsIsVisibleInPrintMinusMid
+[       OK ] StockPrintChannels.TruncatingIntegerBpsIsVisibleInPrintMinusMid (0 ms)
+[ RUN      ] StockPrintChannels.AnUnusableQuoteSkipsTheQuoteBranchAndFallsBackToThePriorTick
+[       OK ] StockPrintChannels.AnUnusableQuoteSkipsTheQuoteBranchAndFallsBackToThePriorTick (0 ms)
+[ RUN      ] StockPrintChannels.DuplicatingAnAttachmentFailureReasonDoesNotDoubleCountThePrint
+[       OK ] StockPrintChannels.DuplicatingAnAttachmentFailureReasonDoesNotDoubleCountThePrint (0 ms)
+[----------] 4 tests from StockPrintChannels (31 ms total)
+
+[----------] 3 tests from EqualMillisecondPermutation
+[ RUN      ] EqualMillisecondPermutation.StockPrintOutputsAndLaterPriorStatesAreBitIdentical
+[       OK ] EqualMillisecondPermutation.StockPrintOutputsAndLaterPriorStatesAreBitIdentical (0 ms)
+[ RUN      ] EqualMillisecondPermutation.TheStockPrintGroupMeanIsTheOneTheCardDefines
+[       OK ] EqualMillisecondPermutation.TheStockPrintGroupMeanIsTheOneTheCardDefines (0 ms)
+[ RUN      ] EqualMillisecondPermutation.NbboAndOptionGroupsAreAlsoBitIdenticalUnderPermutation
+[       OK ] EqualMillisecondPermutation.NbboAndOptionGroupsAreAlsoBitIdenticalUnderPermutation (5 ms)
+[----------] 3 tests from EqualMillisecondPermutation (5 ms total)
+
+[----------] 2 tests from NbboChannels
+[ RUN      ] NbboChannels.TheSixteenChannelsAreTheCardsSixteenValues
+[       OK ] NbboChannels.TheSixteenChannelsAreTheCardsSixteenValues (0 ms)
+[ RUN      ] NbboChannels.WithNoPriorEligibleGroupTheChangeChannelsAreMissingNotZero
+[       OK ] NbboChannels.WithNoPriorEligibleGroupTheChangeChannelsAreMissingNotZero (0 ms)
+[----------] 2 tests from NbboChannels (0 ms total)
+
+[----------] 3 tests from OptionPrintChannels
+[ RUN      ] OptionPrintChannels.TheTwentyTwoChannelsAreTheCardsTwentyTwoValues
+[       OK ] OptionPrintChannels.TheTwentyTwoChannelsAreTheCardsTwentyTwoValues (0 ms)
+[ RUN      ] OptionPrintChannels.AFutureUnderlyingAttachmentMasksEveryGreekAndEveryFlow
+[       OK ] OptionPrintChannels.AFutureUnderlyingAttachmentMasksEveryGreekAndEveryFlow (0 ms)
+[ RUN      ] OptionPrintChannels.AMultilegPrintIsRetainedWithItsTypedReasonAndNoDirectionalValue
+[       OK ] OptionPrintChannels.AMultilegPrintIsRetainedWithItsTypedReasonAndNoDirectionalValue (0 ms)
+[----------] 3 tests from OptionPrintChannels (0 ms total)
+
+[----------] 4 tests from OrientationReflection
+[ RUN      ] OrientationReflection.StockPrintReflectionMovesExactlyTheDeclaredChannels
+[       OK ] OrientationReflection.StockPrintReflectionMovesExactlyTheDeclaredChannels (0 ms)
+[ RUN      ] OrientationReflection.NbboReflectionMovesExactlyTheDeclaredChannels
+[       OK ] OrientationReflection.NbboReflectionMovesExactlyTheDeclaredChannels (0 ms)
+[ RUN      ] OrientationReflection.OptionReflectionMovesExactlyTheDeclaredChannelsAndGammaIsInvariant
+[       OK ] OrientationReflection.OptionReflectionMovesExactlyTheDeclaredChannelsAndGammaIsInvariant (0 ms)
+[ RUN      ] OrientationReflection.RhoFlipsExactlyTheSigmaRhoChannelsAndLeavesTheSigmaOnesAlone
+[       OK ] OrientationReflection.RhoFlipsExactlyTheSigmaRhoChannelsAndLeavesTheSigmaOnesAlone (0 ms)
+[----------] 4 tests from OrientationReflection (0 ms total)
+
+[----------] 2 tests from AttachmentLaw
+[ RUN      ] AttachmentLaw.TheFiveNonUsableStatesAreDistinctAndCarryTheirOwnValidity
+[       OK ] AttachmentLaw.TheFiveNonUsableStatesAreDistinctAndCarryTheirOwnValidity (0 ms)
+[ RUN      ] AttachmentLaw.TheUnderlyingTimestampTextParseIsExactFormAndMalformedOtherwise
+[       OK ] AttachmentLaw.TheUnderlyingTimestampTextParseIsExactFormAndMalformedOtherwise (0 ms)
+[----------] 2 tests from AttachmentLaw (0 ms total)
+
+[----------] 1 test from SigningLaw
+[ RUN      ] SigningLaw.EveryDisqualifyingShapeKeepsItsOwnTypedQualityToken
+[       OK ] SigningLaw.EveryDisqualifyingShapeKeepsItsOwnTypedQualityToken (0 ms)
+[----------] 1 test from SigningLaw (0 ms total)
+
+[----------] 1 test from StockConditionContract
+[ RUN      ] StockConditionContract.ThePrimaryExtendedAndSentinelClausesAreAllEnforced
+[       OK ] StockConditionContract.ThePrimaryExtendedAndSentinelClausesAreAllEnforced (0 ms)
+[----------] 1 test from StockConditionContract (0 ms total)
+
+[----------] 3 tests from Cc008ExtendedVocabulary
+[ RUN      ] Cc008ExtendedVocabulary.ARegularPrintWhoseListSpellsRegularAs32IsELIGIBLE
+[       OK ] Cc008ExtendedVocabulary.ARegularPrintWhoseListSpellsRegularAs32IsELIGIBLE (0 ms)
+[ RUN      ] Cc008ExtendedVocabulary.ARegularPrintCARRYINGAREALEXTENDEDCODEStaysINELIGIBLE
+[       OK ] Cc008ExtendedVocabulary.ARegularPrintCARRYINGAREALEXTENDEDCODEStaysINELIGIBLE (0 ms)
+[ RUN      ] Cc008ExtendedVocabulary.ANonRegularPrimaryIsINELIGIBLEWhateverItsExtendedSlotsSay
+[       OK ] Cc008ExtendedVocabulary.ANonRegularPrimaryIsINELIGIBLEWhateverItsExtendedSlotsSay (0 ms)
+[----------] 3 tests from Cc008ExtendedVocabulary (0 ms total)
+
+[----------] 2 tests from Cc008CensusPin
+[ RUN      ] Cc008CensusPin.TheBiconditionalThatGroundsTheRulingHoldsOnAllThreePinnedSessions
+[       OK ] Cc008CensusPin.TheBiconditionalThatGroundsTheRulingHoldsOnAllThreePinnedSessions (14 ms)
+[ RUN      ] Cc008CensusPin.TheEligibleCountIsTheOneTheGateReportsForSessionOneTwentyFive
+[       OK ] Cc008CensusPin.TheEligibleCountIsTheOneTheGateReportsForSessionOneTwentyFive (3 ms)
+[----------] 2 tests from Cc008CensusPin (17 ms total)
+
+[----------] 1 test from DirectRawShape
+[ RUN      ] DirectRawShape.ThereAreExactlySixtyColumnsAndEveryOneIsNamed
+[       OK ] DirectRawShape.ThereAreExactlySixtyColumnsAndEveryOneIsNamed (0 ms)
+[----------] 1 test from DirectRawShape (0 ms total)
+
+[----------] 4 tests from DirectRawWindow
+[ RUN      ] DirectRawWindow.AnEmptyWindowHasZeroCountAndMaskedValidMeanAndLast
+[       OK ] DirectRawWindow.AnEmptyWindowHasZeroCountAndMaskedValidMeanAndLast (0 ms)
+[ RUN      ] DirectRawWindow.TheFourNestedWindowsSelectExactlyTheirOwnGroups
+[       OK ] DirectRawWindow.TheFourNestedWindowsSelectExactlyTheirOwnGroups (0 ms)
+[ RUN      ] DirectRawWindow.LastIsTheGreatestStrictlyPriorGroupEvenWhenThatGroupsValueIsAbsent
+[       OK ] DirectRawWindow.LastIsTheGreatestStrictlyPriorGroupEvenWhenThatGroupsValueIsAbsent (0 ms)
+[ RUN      ] DirectRawWindow.ATokenExactlyOnTheCutoffIsExcludedAndOneMillisecondEarlierIsNot
+[       OK ] DirectRawWindow.ATokenExactlyOnTheCutoffIsExcludedAndOneMillisecondEarlierIsNot (0 ms)
+[----------] 4 tests from DirectRawWindow (0 ms total)
+
+[----------] 3 tests from DirectRawFullWindow
+[ RUN      ] DirectRawFullWindow.TheTwentyStatisticsAreTheCardsTwentyStatistics
+[       OK ] DirectRawFullWindow.TheTwentyStatisticsAreTheCardsTwentyStatistics (0 ms)
+[ RUN      ] DirectRawFullWindow.NbboAttachmentAndSequenceFractionsAreStructuralZerosNotMissing
+[       OK ] DirectRawFullWindow.NbboAttachmentAndSequenceFractionsAreStructuralZerosNotMissing (0 ms)
+[ RUN      ] DirectRawFullWindow.AWindowWithNoMechanismValueMasksTheFractionButNotRModality
+[       OK ] DirectRawFullWindow.AWindowWithNoMechanismValueMasksTheFractionButNotRModality (0 ms)
+[----------] 3 tests from DirectRawFullWindow (0 ms total)
+
+[----------] 3 tests from PhaseSplit
+[ RUN      ] PhaseSplit.MovingAGroupAcrossVisibilityEqualityChangesOnlyTheDeclaredCounts
+[       OK ] PhaseSplit.MovingAGroupAcrossVisibilityEqualityChangesOnlyTheDeclaredCounts (0 ms)
+[ RUN      ] PhaseSplit.OmissionIsTheTruncatedFromRecent128CountOverThatPhasesGroups
+[       OK ] PhaseSplit.OmissionIsTheTruncatedFromRecent128CountOverThatPhasesGroups (0 ms)
+[ RUN      ] PhaseSplit.WithNoSameSideVisibilityTheFourPhaseColumnsAreMaskedNotZeroCoded
+[       OK ] PhaseSplit.WithNoSameSideVisibilityTheFourPhaseColumnsAreMaskedNotZeroCoded (0 ms)
+[----------] 3 tests from PhaseSplit (0 ms total)
+
+[----------] 1 test from DirectRawSide
+[ RUN      ] DirectRawSide.TheShortRowIsTheLongRowWithTheOrientedMechanismsNegated
+[       OK ] DirectRawSide.TheShortRowIsTheLongRowWithTheOrientedMechanismsNegated (0 ms)
+[----------] 1 test from DirectRawSide (0 ms total)
+
+[----------] 1 test from DirectRawOverRealConstructors
+[ RUN      ] DirectRawOverRealConstructors.AStockPrintTapeFlowsIntoTheSixtyColumns
+[       OK ] DirectRawOverRealConstructors.AStockPrintTapeFlowsIntoTheSixtyColumns (0 ms)
+[----------] 1 test from DirectRawOverRealConstructors (0 ms total)
+
+[----------] 3 tests from MidpointGridCarry
+[ RUN      ] MidpointGridCarry.TheCarryHasNoTimeoutTheAgeGrowsAndStaleIsDiagnosticOnly
+[       OK ] MidpointGridCarry.TheCarryHasNoTimeoutTheAgeGrowsAndStaleIsDiagnosticOnly (5 ms)
+[ RUN      ] MidpointGridCarry.AnEndpointCarriesOnlyQuotesSTRICTLYBeforeIt
+[       OK ] MidpointGridCarry.AnEndpointCarriesOnlyQuotesSTRICTLYBeforeIt (5 ms)
+[ RUN      ] MidpointGridCarry.TheGridCensusCountsEveryEndpointStateInFull
+[       OK ] MidpointGridCarry.TheGridCensusCountsEveryEndpointStateInFull (5 ms)
+[----------] 3 tests from MidpointGridCarry (17 ms total)
+
+[----------] 1 test from PrefixRealizedVolatility
+[ RUN      ] PrefixRealizedVolatility.RvNeedsTwoPresentConsecutiveEndpointsAndACarryContributesZero
+[       OK ] PrefixRealizedVolatility.RvNeedsTwoPresentConsecutiveEndpointsAndACarryContributesZero (5 ms)
+[----------] 1 test from PrefixRealizedVolatility (5 ms total)
+
+[----------] 1 test from PrefixEndpoint
+[ RUN      ] PrefixEndpoint.TheCompleteSecondEndingAtTheCutoffIsThePrefixEndpoint
+[       OK ] PrefixEndpoint.TheCompleteSecondEndingAtTheCutoffIsThePrefixEndpoint (5 ms)
+[----------] 1 test from PrefixEndpoint (5 ms total)
+
+[----------] 3 tests from LocationValues
+[ RUN      ] LocationValues.TheSixteenValuesAreTheCardsSixteenValues
+[       OK ] LocationValues.TheSixteenValuesAreTheCardsSixteenValues (5 ms)
+[ RUN      ] LocationValues.TheSessionClockIsACYCLICALEncodingOverTheWholeSession
+[       OK ] LocationValues.TheSessionClockIsACYCLICALEncodingOverTheWholeSession (0 ms)
+[ RUN      ] LocationValues.WithNoPrefixMidpointEveryTapeDependentValueIsMaskedButTheClockIsNot
+[       OK ] LocationValues.WithNoPrefixMidpointEveryTapeDependentValueIsMaskedButTheClockIsNot (0 ms)
+[----------] 3 tests from LocationValues (7 ms total)
+
+[----------] 4 tests from CandidateSetRow
+[ RUN      ] CandidateSetRow.TheTwentyFourFieldsAreTheCardsTwentyFourFields
+[       OK ] CandidateSetRow.TheTwentyFourFieldsAreTheCardsTwentyFourFields (0 ms)
+[ RUN      ] CandidateSetRow.TheRecencyFlagsAreInclusiveExactlyAtTheirHorizon
+[       OK ] CandidateSetRow.TheRecencyFlagsAreInclusiveExactlyAtTheirHorizon (0 ms)
+[ RUN      ] CandidateSetRow.ANonprimitivePolicyOrANonPriorVisibilityRefusesRatherThanZeroCodes
+[       OK ] CandidateSetRow.ANonprimitivePolicyOrANonPriorVisibilityRefusesRatherThanZeroCodes (0 ms)
+[ RUN      ] CandidateSetRow.TheFrozenPolicyVocabularyOrderIsTheCardsOrder
+[       OK ] CandidateSetRow.TheFrozenPolicyVocabularyOrderIsTheCardsOrder (0 ms)
+[----------] 4 tests from CandidateSetRow (0 ms total)
+
+[----------] 3 tests from CandidateSetBlockLaw
+[ RUN      ] CandidateSetBlockLaw.AnEmptyBlockHoldsTheSingleZeroOffsetAndNotAnEmptyVector
+[       OK ] CandidateSetBlockLaw.AnEmptyBlockHoldsTheSingleZeroOffsetAndNotAnEmptyVector (0 ms)
+[ RUN      ] CandidateSetBlockLaw.DecisionsOfDifferentWidthsConcatenateWithExactOffsets
+[       OK ] CandidateSetBlockLaw.DecisionsOfDifferentWidthsConcatenateWithExactOffsets (0 ms)
+[ RUN      ] CandidateSetBlockLaw.TheBlockIsNeverCappedSoAWideDecisionKeepsEveryCandidate
+[       OK ] CandidateSetBlockLaw.TheBlockIsNeverCappedSoAWideDecisionKeepsEveryCandidate (1 ms)
+[----------] 3 tests from CandidateSetBlockLaw (1 ms total)
+
+[----------] 1 test from SessionMomentsLaw
+[ RUN      ] SessionMomentsLaw.OnlyFinitePresentValuesAreObserved
+[       OK ] SessionMomentsLaw.OnlyFinitePresentValuesAreObserved (0 ms)
+[----------] 1 test from SessionMomentsLaw (0 ms total)
+
+[----------] 2 tests from EqualSessionWeighting
+[ RUN      ] EqualSessionWeighting.MuIsTheMeanOfSessionMeansAndNotThePooledMean
+[       OK ] EqualSessionWeighting.MuIsTheMeanOfSessionMeansAndNotThePooledMean (0 ms)
+[ RUN      ] EqualSessionWeighting.ASessionWithNoPresentValueDoesNotIncrementS
+[       OK ] EqualSessionWeighting.ASessionWithNoPresentValueDoesNotIncrementS (0 ms)
+[----------] 2 tests from EqualSessionWeighting (0 ms total)
+
+[----------] 3 tests from FrozenTableLaw
+[ RUN      ] FrozenTableLaw.SZeroGivesZeroAndOneAndADegenerateScaleBecomesOne
+[       OK ] FrozenTableLaw.SZeroGivesZeroAndOneAndADegenerateScaleBecomesOne (0 ms)
+[ RUN      ] FrozenTableLaw.ApplyStandardizesThenClipsToTheDeclaredEightBound
+[       OK ] FrozenTableLaw.ApplyStandardizesThenClipsToTheDeclaredEightBound (0 ms)
+[ RUN      ] FrozenTableLaw.BinaryAndCategoricalFieldsAreNeverCenteredOrScaled
+[       OK ] FrozenTableLaw.BinaryAndCategoricalFieldsAreNeverCenteredOrScaled (0 ms)
+[----------] 3 tests from FrozenTableLaw (0 ms total)
+
+[----------] 1 test from FitterContract
+[ RUN      ] FitterContract.AMomentVectorOfTheWrongWidthRefusesRatherThanTruncating
+[       OK ] FitterContract.AMomentVectorOfTheWrongWidthRefusesRatherThanTruncating (0 ms)
+[----------] 1 test from FitterContract (0 ms total)
+
+[----------] 1 test from NormalizationHash
+[ RUN      ] NormalizationHash.TheHashCoversEveryPerFeatureTripleAndMovesWhenAnyOfThemMoves
+[       OK ] NormalizationHash.TheHashCoversEveryPerFeatureTripleAndMovesWhenAnyOfThemMoves (0 ms)
+[----------] 1 test from NormalizationHash (0 ms total)
+
+[----------] 6 tests from NativeGroupVector
+[ RUN      ] NativeGroupVector.TheThreeWidthsAndBlockOffsetsAreTheCardsOwnArithmetic
+[       OK ] NativeGroupVector.TheThreeWidthsAndBlockOffsetsAreTheCardsOwnArithmetic (0 ms)
+[ RUN      ] NativeGroupVector.EqualTimeMembersReduceByFiniteMeanAndMaxWithLogMultiplicity
+[       OK ] NativeGroupVector.EqualTimeMembersReduceByFiniteMeanAndMaxWithLogMultiplicity (0 ms)
+[ RUN      ] NativeGroupVector.AChannelWithNoFinitePresentMemberEmitsValueZeroAndBothMasksZero
+[       OK ] NativeGroupVector.AChannelWithNoFinitePresentMemberEmitsValueZeroAndBothMasksZero (0 ms)
+[ RUN      ] NativeGroupVector.APartlyPresentChannelKeepsItsPresentFractionAndItsPresentValue
+[       OK ] NativeGroupVector.APartlyPresentChannelKeepsItsPresentFractionAndItsPresentValue (0 ms)
+[ RUN      ] NativeGroupVector.ANbboGroupReducesToItsOwnGroupLevelVector
+[       OK ] NativeGroupVector.ANbboGroupReducesToItsOwnGroupLevelVector (0 ms)
+[ RUN      ] NativeGroupVector.TheTableIsBuiltOnlyWhenTheConstructorControlAsksForIt
+[       OK ] NativeGroupVector.TheTableIsBuiltOnlyWhenTheConstructorControlAsksForIt (0 ms)
+[----------] 6 tests from NativeGroupVector (1 ms total)
+
+[----------] 2 tests from NativeSideNeutralGroupVector
+[ RUN      ] NativeSideNeutralGroupVector.OrientingTheNeutralTableReproducesEverySideByteForByte
+[       OK ] NativeSideNeutralGroupVector.OrientingTheNeutralTableReproducesEverySideByteForByte (0 ms)
+[ RUN      ] NativeSideNeutralGroupVector.TheOrientationLeafIsTheFrozenChannelTableAndNothingElse
+[       OK ] NativeSideNeutralGroupVector.TheOrientationLeafIsTheFrozenChannelTableAndNothingElse (0 ms)
+[----------] 2 tests from NativeSideNeutralGroupVector (0 ms total)
+
+[----------] 6 tests from NativeMicroCarrier
+[ RUN      ] NativeMicroCarrier.ExactlyOneHundredAndTwentyEightGroupsAreRetainedAndTheRestAreTruncated
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:504: Failure
+Expected equality of these values:
+  micro.value().length
+    Which is: 0
+  128
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:505: Failure
+Expected equality of these values:
+  micro.value().start
+    Which is: 0
+  72
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:506: Failure
+Expected equality of these values:
+  micro.value().truncated
+    Which is: 0
+  72
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:509: Failure
+Expected equality of these values:
+  micro.value().slot_group[0]
+    Which is: 0
+  72
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:510: Failure
+Expected equality of these values:
+  micro.value().slot_group[127]
+    Which is: 0
+  199
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:512: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  micro.value().slot_group[slot - 1] + 1
+    Which is: 1
+
+[  FAILED  ] NativeMicroCarrier.ExactlyOneHundredAndTwentyEightGroupsAreRetainedAndTheRestAreTruncated (10 ms)
+[ RUN      ] NativeMicroCarrier.FewerThanOneHundredAndTwentyEightGroupsLeaveATypedLeftPad
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:524: Failure
+Expected equality of these values:
+  micro.value().length
+    Which is: 0
+  30
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:525: Failure
+Expected equality of these values:
+  micro.value().left_pad
+    Which is: 0
+  98
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:529: Failure
+Value of: micro.value().is_pad(slot)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:530: Failure
+Expected equality of these values:
+  micro.value().slot_group[slot]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:531: Failure
+Expected equality of these values:
+  micro.value().slot_phase[slot]
+    Which is: 1-byte object <00>
+  Phase::PAD
+    Which is: 1-byte object <03>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:534: Failure
+Expected equality of these values:
+  micro.value().slot_group[127]
+    Which is: 0
+  29
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:535: Failure
+Expected equality of these values:
+  micro.value().phase_slots[static_cast<std::size_t>(Phase::PAD)]
+    Which is: 0
+  98
+
+[  FAILED  ] NativeMicroCarrier.FewerThanOneHundredAndTwentyEightGroupsLeaveATypedLeftPad (21 ms)
+[ RUN      ] NativeMicroCarrier.AnEqualCutoffGroupIsExcludedAndTheOneBeforeItIsNot
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:545: Failure
+Expected equality of these values:
+  micro.value().length
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:547: Failure
+Expected equality of these values:
+  micro.value().slot_group[127]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:552: Failure
+Expected equality of these values:
+  after.value().length
+    Which is: 0
+  3
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:553: Failure
+Expected equality of these values:
+  after.value().slot_group[127]
+    Which is: 0
+  2
+
+[  FAILED  ] NativeMicroCarrier.AnEqualCutoffGroupIsExcludedAndTheOneBeforeItIsNot (0 ms)
+[ RUN      ] NativeMicroCarrier.AGroupExactlyAtTheVisibilityIsPhaseEqualUnorderedAndNeitherPhase
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:566: Failure
+Expected equality of these values:
+  micro.value().phase_slots[static_cast<std::size_t>(Phase::APPROACH)]
+    Which is: 0
+  4
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:567: Failure
+Expected equality of these values:
+  micro.value().phase_slots[static_cast<std::size_t>(Phase::PHASE_EQUAL_UNORDERED)]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:568: Failure
+Expected equality of these values:
+  micro.value().phase_slots[static_cast<std::size_t>(Phase::RESPONSE)]
+    Which is: 0
+  5
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:570: Failure
+Expected equality of these values:
+  micro.value().slot_phase[118 + 4]
+    Which is: 1-byte object <00>
+  Phase::PHASE_EQUAL_UNORDERED
+    Which is: 1-byte object <02>
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:571: Failure
+Expected equality of these values:
+  micro.value().slot_phase[118 + 5]
+    Which is: 1-byte object <00>
+  Phase::RESPONSE
+    Which is: 1-byte object <01>
+
+[  FAILED  ] NativeMicroCarrier.AGroupExactlyAtTheVisibilityIsPhaseEqualUnorderedAndNeitherPhase (0 ms)
+[ RUN      ] NativeMicroCarrier.AnAbsentVisibilityReferenceLeavesEveryGroupWithoutAPhase
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:591: Failure
+Expected equality of these values:
+  micro.value().phase_slots[static_cast<std::size_t>(Phase::PHASE_EQUAL_UNORDERED)]
+    Which is: 0
+  10
+
+[  FAILED  ] NativeMicroCarrier.AnAbsentVisibilityReferenceLeavesEveryGroupWithoutAPhase (0 ms)
+[ RUN      ] NativeMicroCarrier.TheTruncatedSetIsExactlyTheOneDirectDividesItsOmissionsBy
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:608: Failure
+Expected equality of these values:
+  micro.value().truncated
+    Which is: 0
+  72
+
+[  FAILED  ] NativeMicroCarrier.TheTruncatedSetIsExactlyTheOneDirectDividesItsOmissionsBy (0 ms)
+[----------] 6 tests from NativeMicroCarrier (33 ms total)
+
+[----------] 5 tests from NativeBinCarrier
+[ RUN      ] NativeBinCarrier.ThereAreExactlyOneHundredAndTwentyOneSecondBinsAndTheyAreNeverTruncated
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 0 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 1 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 2 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 3 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 4 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 5 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 6 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 7 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 8 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 9 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 10 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 11 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 12 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 13 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 14 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 15 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 16 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 17 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 18 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 19 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 20 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 21 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 22 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 23 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 24 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 25 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 26 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 27 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 28 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 29 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 30 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 31 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 32 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 33 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 34 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 35 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 36 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 37 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 38 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 39 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 40 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 41 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 42 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 43 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 44 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 45 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 46 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 47 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 48 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 49 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 50 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 51 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 52 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 53 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 54 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 55 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 56 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 57 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 58 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 59 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 60 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 61 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 62 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 63 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 64 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 65 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 66 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 67 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 68 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 69 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 70 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 71 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 72 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 73 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 74 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 75 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 76 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 77 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 78 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 79 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 80 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 81 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 82 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 83 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 84 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 85 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 86 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 87 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 88 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 89 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 90 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 91 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 92 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 93 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 94 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 95 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 96 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 97 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 98 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 99 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 100 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 101 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 102 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 103 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 104 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 105 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 106 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 107 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 108 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 109 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 110 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 111 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 112 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 113 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 114 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 115 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 116 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 117 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 118 is in session
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:637: Failure
+Expected equality of these values:
+  bins.value().valid[bin]
+    Which is: '\0'
+  1U
+    Which is: 1
+bin 119 is in session
+
+[  FAILED  ] NativeBinCarrier.ThereAreExactlyOneHundredAndTwentyOneSecondBinsAndTheyAreNeverTruncated (9 ms)
+[ RUN      ] NativeBinCarrier.ABinIsLeftClosedAndRightOpenSoABoundaryTokenLandsInTheLaterBin
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:658: Failure
+Expected equality of these values:
+  bins.value().length[0]
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:659: Failure
+Expected equality of these values:
+  bins.value().nonempty[0]
+    Which is: '\0'
+  1U
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:660: Failure
+Expected equality of these values:
+  bins.value().log1p_group_count[0]
+    Which is: 0
+  std::log1p(2.0)
+    Which is: 1.0986122886681098
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:661: Failure
+Expected equality of these values:
+  bins.value().start[1]
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:662: Failure
+Expected equality of these values:
+  bins.value().length[1]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:663: Failure
+Expected equality of these values:
+  bins.value().log1p_group_count[1]
+    Which is: 0
+  std::log1p(1.0)
+    Which is: 0.69314718055994529
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:665: Failure
+Expected equality of these values:
+  bins.value().member_groups
+    Which is: 0
+  3
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:666: Failure
+Expected equality of these values:
+  bins.value().nonempty_bins
+    Which is: 0
+  2
+
+[  FAILED  ] NativeBinCarrier.ABinIsLeftClosedAndRightOpenSoABoundaryTokenLandsInTheLaterBin (0 ms)
+[ RUN      ] NativeBinCarrier.TheLastBinEndsBeforeTheCutoffSoAnEqualCutoffGroupIsExcluded
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:678: Failure
+Expected equality of these values:
+  bins.value().length[119]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:680: Failure
+Expected equality of these values:
+  bins.value().member_groups
+    Which is: 0
+  1
+
+[  FAILED  ] NativeBinCarrier.TheLastBinEndsBeforeTheCutoffSoAnEqualCutoffGroupIsExcluded (0 ms)
+[ RUN      ] NativeBinCarrier.ARealPrintOnEachBoundaryLandsWhereTheCardPutsIt
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:705: Failure
+Expected equality of these values:
+  bins.value().length[118]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:706: Failure
+Expected equality of these values:
+  bins.value().start[119]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:707: Failure
+Expected equality of these values:
+  bins.value().length[119]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:708: Failure
+Expected equality of these values:
+  bins.value().member_groups
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:709: Failure
+Expected equality of these values:
+  bins.value().nonempty_bins
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:713: Failure
+Expected equality of these values:
+  micro.value().length
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:714: Failure
+Expected equality of these values:
+  micro.value().slot_group[127]
+    Which is: 0
+  1
+
+[  FAILED  ] NativeBinCarrier.ARealPrintOnEachBoundaryLandsWhereTheCardPutsIt (0 ms)
+[ RUN      ] NativeBinCarrier.PreOpenBinsAreTypedZeroLeftPadAndAnEmptyInSessionBinIsNot
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:725: Failure
+Expected equality of these values:
+  bins.value().pre_open_pad_bins
+    Which is: 0
+  90
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:728: Failure
+Expected equality of these values:
+  bins.value().start[bin]
+    Which is: 0
+  -1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:734: Failure
+Value of: bins.value().is_pad(90)
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:736: Failure
+Expected equality of these values:
+  bins.value().valid[90]
+    Which is: '\0'
+  1U
+    Which is: 1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:739: Failure
+Expected equality of these values:
+  bins.value().length[119]
+    Which is: 0
+  1
+
+[  FAILED  ] NativeBinCarrier.PreOpenBinsAreTypedZeroLeftPadAndAnEmptyInSessionBinIsNot (6 ms)
+[----------] 5 tests from NativeBinCarrier (17 ms total)
+
+[----------] 4 tests from NativeOrderDestructions
+[ RUN      ] NativeOrderDestructions.BinOrderReverseKeepsTheValidMultisetThePadsAndEveryOtherInput
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:820: Failure
+Expected equality of these values:
+  forward.size()
+    Which is: 0
+  30U
+    Which is: 30
+
+[  FAILED  ] NativeOrderDestructions.BinOrderReverseKeepsTheValidMultisetThePadsAndEveryOtherInput (0 ms)
+[ RUN      ] NativeOrderDestructions.TheRecentOneHundredAndTwentyEightReverseKeepsTheMultisetAndThePad
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:857: Failure
+Value of: reversed.value().is_pad(slot)
+  Actual: false
+Expected: true
+the left pad moved
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:859: Failure
+Expected equality of these values:
+  reversed.value().slot_group[98]
+    Which is: 0
+  29
+
+[  FAILED  ] NativeOrderDestructions.TheRecentOneHundredAndTwentyEightReverseKeepsTheMultisetAndThePad (6 ms)
+[ RUN      ] NativeOrderDestructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode
+[       OK ] NativeOrderDestructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode (52 ms)
+[ RUN      ] NativeOrderDestructions.ADestroyedCarrierIsRefusedAtTheEmissionDoor
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:926: Failure
+Value of: shard.push_decision(clean_micro.value(), clean_bins.value(), split).has_value()
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:943: Failure
+Expected equality of these values:
+  shard.decisions()
+    Which is: 0
+  1
+
+[  FAILED  ] NativeOrderDestructions.ADestroyedCarrierIsRefusedAtTheEmissionDoor (0 ms)
+[----------] 4 tests from NativeOrderDestructions (60 ms total)
+
+[----------] 5 tests from NativeOrderProductionControls
+[ RUN      ] NativeOrderProductionControls.AWithinTimestampPermutationIsBitIdenticalThroughTheChain
+[       OK ] NativeOrderProductionControls.AWithinTimestampPermutationIsBitIdenticalThroughTheChain (11 ms)
+[ RUN      ] NativeOrderProductionControls.ReversingASameGroupRowOrderIsAlsoBitIdentical
+[       OK ] NativeOrderProductionControls.ReversingASameGroupRowOrderIsAlsoBitIdentical (11 ms)
+[ RUN      ] NativeOrderProductionControls.MovingAGroupAcrossTheVisibilityChangesOnlyThePhaseLabels
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:1128: Failure
+Expected equality of these values:
+  before.value().phase_slots[static_cast<std::size_t>(Phase::APPROACH)]
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:1129: Failure
+Expected equality of these values:
+  before.value().phase_slots[static_cast<std::size_t>(Phase::RESPONSE)]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:1137: Failure
+Expected equality of these values:
+  after.value().phase_slots[static_cast<std::size_t>(Phase::APPROACH)]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:1138: Failure
+Expected equality of these values:
+  after.value().phase_slots[static_cast<std::size_t>(Phase::RESPONSE)]
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:1150: Failure
+Expected equality of these values:
+  at.value().phase_slots[static_cast<std::size_t>(Phase::APPROACH)]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:1151: Failure
+Expected equality of these values:
+  at.value().phase_slots[static_cast<std::size_t>(Phase::RESPONSE)]
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:1152: Failure
+Expected equality of these values:
+  at.value().phase_slots[static_cast<std::size_t>(Phase::PHASE_EQUAL_UNORDERED)]
+    Which is: 0
+  1
+
+[  FAILED  ] NativeOrderProductionControls.MovingAGroupAcrossTheVisibilityChangesOnlyThePhaseLabels (0 ms)
+[ RUN      ] NativeOrderProductionControls.DroppingThePreviousSequenceValidGroupMovesOnlyItsOwnOutputs
+[       OK ] NativeOrderProductionControls.DroppingThePreviousSequenceValidGroupMovesOnlyItsOwnOutputs (0 ms)
+[ RUN      ] NativeOrderProductionControls.DuplicatingOneAttachmentFailureReasonMovesNoReducedCell
+[       OK ] NativeOrderProductionControls.DuplicatingOneAttachmentFailureReasonMovesNoReducedCell (0 ms)
+[----------] 5 tests from NativeOrderProductionControls (23 ms total)
+
+[----------] 1 test from NativeOrderEmission
+[ RUN      ] NativeOrderEmission.TheLeavesCarryTheAppendixC4NamesShapesAndDtypes
+/workspace/engine/cpp/qr_carriers/tests/test_native_order.cpp:1260: Failure
+Value of: shard.push_decision(micro.value(), bins.value(), builder.split_for(window)).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] NativeOrderEmission.TheLeavesCarryTheAppendixC4NamesShapesAndDtypes (0 ms)
+[----------] 1 test from NativeOrderEmission (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 117 tests from 42 test suites ran. (239 ms total)
+[  PASSED  ] 101 tests.
+[  FAILED  ] 16 tests, listed below:
+[  FAILED  ] NativeMicroCarrier.ExactlyOneHundredAndTwentyEightGroupsAreRetainedAndTheRestAreTruncated
+[  FAILED  ] NativeMicroCarrier.FewerThanOneHundredAndTwentyEightGroupsLeaveATypedLeftPad
+[  FAILED  ] NativeMicroCarrier.AnEqualCutoffGroupIsExcludedAndTheOneBeforeItIsNot
+[  FAILED  ] NativeMicroCarrier.AGroupExactlyAtTheVisibilityIsPhaseEqualUnorderedAndNeitherPhase
+[  FAILED  ] NativeMicroCarrier.AnAbsentVisibilityReferenceLeavesEveryGroupWithoutAPhase
+[  FAILED  ] NativeMicroCarrier.TheTruncatedSetIsExactlyTheOneDirectDividesItsOmissionsBy
+[  FAILED  ] NativeBinCarrier.ThereAreExactlyOneHundredAndTwentyOneSecondBinsAndTheyAreNeverTruncated
+[  FAILED  ] NativeBinCarrier.ABinIsLeftClosedAndRightOpenSoABoundaryTokenLandsInTheLaterBin
+[  FAILED  ] NativeBinCarrier.TheLastBinEndsBeforeTheCutoffSoAnEqualCutoffGroupIsExcluded
+[  FAILED  ] NativeBinCarrier.ARealPrintOnEachBoundaryLandsWhereTheCardPutsIt
+[  FAILED  ] NativeBinCarrier.PreOpenBinsAreTypedZeroLeftPadAndAnEmptyInSessionBinIsNot
+[  FAILED  ] NativeOrderDestructions.BinOrderReverseKeepsTheValidMultisetThePadsAndEveryOtherInput
+[  FAILED  ] NativeOrderDestructions.TheRecentOneHundredAndTwentyEightReverseKeepsTheMultisetAndThePad
+[  FAILED  ] NativeOrderDestructions.ADestroyedCarrierIsRefusedAtTheEmissionDoor
+[  FAILED  ] NativeOrderProductionControls.MovingAGroupAcrossTheVisibilityChangesOnlyThePhaseLabels
+[  FAILED  ] NativeOrderEmission.TheLeavesCarryTheAppendixC4NamesShapesAndDtypes
+
+16 FAILED TESTS

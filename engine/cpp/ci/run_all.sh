@@ -122,10 +122,12 @@ step "8. benchmark gates" bash -c "
   echo '                  and peak RSS <= 8GB, enforced by step 12b'
   echo 'WP10 emit write budget (>=500 MB/s on a 1GB shard to MooseFS): enforced by step 13,'
   echo '                        printed with the raw write(2) baseline so FS_BOUND is visible'
+  echo 'WP8a carriers budget: session-125 3-stream construction <= 6s and <= 4GB, enforced by step 12c'
+  echo 'WP8b native budget: the same run with --native <= 11.65s (WP8a + 6s) and <= 6GB,'
+  echo '                    enforced by step 12d'
   echo 'WP11 replay budget: 1M actions <= 2s single-thread, enforced inside the test suite (steps 4 and 6)'
   echo 'WP9 differential budgets: full-625 C++ pass and the ladder byte differential,'
   echo '                          measured by step 14 and archived under wp9/'
-  echo 'WP8: placeholder, added by its own lane'
 "
 
 # --- 9. WP2 clock oracle ---------------------------------------------------
@@ -177,6 +179,16 @@ step "12b. WP7 labels real-file gate" "${CPP_ROOT}/ci/wp7_labels_realfile_gate.s
 # condition-code histogram in full; proves two-run byte identity of the receipt
 # and its feature fingerprint; and enforces the <=6s / <=4GB budget.
 step "12c. WP8a carriers real-file gate" "${CPP_ROOT}/ci/wp8a_carriers_realfile_gate.sh" "${CACHE}/release"
+
+# --- 12d. WP8b native-carrier real-file gate ---------------------------------
+# The same three authorized session-125 streams, with `--native`: the reduced
+# equal-time group vectors for both sides of all three modalities (69/65/89
+# wide), the 128-group micro carrier and the 120-bin full carrier for every D0
+# action, the truncation/phase/bin-occupancy censuses printed in full, two-run
+# byte identity INCLUDING every reduced group-vector cell, and the <=11.65s
+# (WP8a + 6s) / <=6GB budget.
+step "12d. WP8b native carriers real-file gate" \
+  "${CPP_ROOT}/ci/wp8b_native_carriers_realfile_gate.sh" "${CACHE}/release"
 
 # --- WP10 qr_emit artifact gate --------------------------------------------
 # Two-run byte identity of a full synthetic shard, the C++ -> numpy round trip

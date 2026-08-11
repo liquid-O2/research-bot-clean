@@ -27,6 +27,7 @@
 // WP10's. The probe writes only its own receipt TSV, whose two-run byte identity
 // is the determinism proof.
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cinttypes>
 #include <cstdio>
@@ -35,6 +36,7 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <span>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -44,6 +46,7 @@
 #include "qr_carriers/direct_raw.hpp"
 #include "qr_carriers/grid_1s.hpp"
 #include "qr_carriers/location.hpp"
+#include "qr_carriers/native_order.hpp"
 #include "qr_carriers/streams.hpp"
 #include "qr_nbbo/group_machine.hpp"
 #include "qr_sources/option_prints.hpp"
@@ -52,19 +55,104 @@
 
 namespace {
 
+using qr::carriers::BinCarrier;
 using qr::carriers::CandidateRelation;
 using qr::carriers::DecisionWindow;
 using qr::carriers::DirectRawBuilder;
 using qr::carriers::GroupRecord;
 using qr::carriers::LocationBuilder;
 using qr::carriers::LocationInputs;
+using qr::carriers::MicroCarrier;
 using qr::carriers::MidpointGrid;
 using qr::carriers::Modality;
+using qr::carriers::NativeOrderBuilder;
 using qr::carriers::NbboStream;
 using qr::carriers::OptionPrintStream;
+using qr::carriers::Phase;
 using qr::carriers::Side;
 using qr::carriers::StockPrintStream;
+using qr::carriers::StreamOptions;
 using qr::carriers::VisibleCandidate;
+
+/// The WP8b receipt block for ONE modality: the micro/bin carrier censuses the
+/// brief asks to be printed in full.
+struct NativeCensus {
+  std::int64_t decisions = 0;
+  // --- micro carrier -------------------------------------------------------
+  std::int64_t micro_length_sum = 0;
+  std::int32_t micro_length_max = 0;
+  std::int32_t micro_length_min = -1;
+  std::int64_t micro_left_pad_decisions = 0;
+  std::int64_t micro_truncated_sum = 0;
+  std::int32_t micro_truncated_max = 0;
+  /// log2 buckets of the truncation count: [0], [1], [2,3], [4,7], ... The
+  /// count is unbounded (a session has millions of NBBO groups), so a bucketed
+  /// census is the only one that can be printed in full.
+  std::array<std::int64_t, 24> truncated_buckets{};
+  std::array<std::int64_t, qr::carriers::kPhaseCount> phase_slots{};
+  // --- bin carrier ---------------------------------------------------------
+  std::int64_t bins_total = 0;
+  std::int64_t bins_pre_open_pad = 0;
+  std::int64_t bins_nonempty = 0;
+  std::int64_t bin_member_groups = 0;
+  std::int32_t bin_length_max = 0;
+  /// Occupancy census over VALID bins: 0,1,2,3,4-7,8-15,...
+  std::array<std::int64_t, 16> occupancy_buckets{};
+
+  void fold(const MicroCarrier& micro, const BinCarrier& bins) {
+    ++decisions;
+    micro_length_sum += micro.length;
+    micro_length_max = std::max(micro_length_max, micro.length);
+    micro_length_min = micro_length_min < 0 ? micro.length : std::min(micro_length_min, micro.length);
+    if (micro.left_pad > 0) {
+      ++micro_left_pad_decisions;
+    }
+    micro_truncated_sum += micro.truncated;
+    micro_truncated_max = std::max(micro_truncated_max, micro.truncated);
+    ++truncated_buckets[log2_bucket(micro.truncated, truncated_buckets.size())];
+    for (std::size_t phase = 0; phase < qr::carriers::kPhaseCount; ++phase) {
+      phase_slots[phase] += micro.phase_slots[phase];
+    }
+    for (std::size_t bin = 0; bin < qr::carriers::kBinCarrierBins; ++bin) {
+      ++bins_total;
+      if (bins.valid[bin] == 0U) {
+        ++bins_pre_open_pad;
+        continue;
+      }
+      ++occupancy_buckets[log2_bucket(bins.length[bin], occupancy_buckets.size())];
+      if (bins.length[bin] > 0) {
+        ++bins_nonempty;
+      }
+      bin_length_max = std::max(bin_length_max, bins.length[bin]);
+    }
+    bin_member_groups += bins.member_groups;
+  }
+
+  /// 0 -> 0, 1 -> 1, 2..3 -> 2, 4..7 -> 3, ... capped at the last bucket.
+  [[nodiscard]] static std::size_t log2_bucket(std::int32_t value, std::size_t buckets) {
+    if (value <= 0) {
+      return 0;
+    }
+    std::size_t bucket = 1;
+    std::int64_t bound = 2;
+    while (value >= bound && bucket + 1 < buckets) {
+      ++bucket;
+      bound *= 2;
+    }
+    return bucket;
+  }
+
+  [[nodiscard]] static std::string bucket_label(std::size_t bucket) {
+    if (bucket == 0) {
+      return "0";
+    }
+    if (bucket == 1) {
+      return "1";
+    }
+    const std::int64_t low = std::int64_t{1} << (bucket - 1);
+    return std::to_string(low) + "_" + std::to_string(2 * low - 1);
+  }
+};
 
 /// One roster row, as `qr_candidates::render_roster` writes it.
 struct RosterRow {
@@ -222,6 +310,18 @@ class Fingerprint {
     }
   }
   void feed(qr::Validity validity) { feed(static_cast<std::int64_t>(validity)); }
+  /// Bulk fold over an emitted f4 leaf, one 4-byte word per step. A byte-wise
+  /// fold over session 125's 365M reduced cells would cost more wall than the
+  /// carriers themselves; this still touches every bit of every cell.
+  void feed_bulk(std::span<const float> values) {
+    for (const float value : values) {
+      std::uint32_t bits = 0;
+      static_assert(sizeof(bits) == sizeof(float));
+      std::memcpy(&bits, &value, sizeof(bits));
+      digest_ ^= bits;
+      digest_ *= 0x100000001B3ULL;
+    }
+  }
   [[nodiscard]] std::uint64_t value() const { return digest_; }
 
  private:
@@ -241,9 +341,11 @@ void census_rows(Receipt& receipt, const std::string& section,
 int usage() {
   std::fprintf(stderr,
                "usage: qr_carriers_probe --quotes DIR --trades DIR --options DIR --roster TSV "
-               "[--ordinal N] [--tsv PATH]\n"
+               "[--ordinal N] [--tsv PATH] [--native]\n"
                "       qr_carriers_probe --conditions-only --trades DIR [--ordinal N] "
-               "[--tsv PATH]\n");
+               "[--tsv PATH]\n"
+               "  --native: also build the WP8b reduced group vectors and the 128-group /\n"
+               "            120-bin NATIVE_ORDER carriers (WP8a's run is unchanged without it).\n");
   return 2;
 }
 
@@ -259,6 +361,9 @@ int main(int argc, char** argv) {
   // Stock-trades-only mode: the condition census the sentinel ruling needs, on a
   // session whose other two streams this work package has no business opening.
   bool conditions_only = false;
+  // WP8b: the reduced group vectors and the two native carriers. Off by default
+  // so the WP8a gate keeps measuring exactly what WP8a built.
+  bool native = false;
   for (int index = 1; index < argc; ++index) {
     const std::string flag = argv[index];
     const bool has_value = index + 1 < argc;
@@ -276,6 +381,8 @@ int main(int argc, char** argv) {
       ordinal = std::strtoll(argv[++index], nullptr, 10);
     } else if (flag == "--conditions-only") {
       conditions_only = true;
+    } else if (flag == "--native") {
+      native = true;
     } else {
       return usage();
     }
@@ -308,8 +415,15 @@ int main(int argc, char** argv) {
   const auto wall_start = std::chrono::steady_clock::now();
 
   // --- 1. the three modality channel streams ---------------------------------
+  StreamOptions stream_options;
+  stream_options.retain_group_vectors = native;
+  // The side-neutral table is what is stored; every 500th group also keeps the
+  // per-side reduction so the receipt can byte-compare the orientation law
+  // against it on real rows (the ruling's "s125 spot rows").
+  stream_options.side_spot_stride = native ? 500 : 0;
+
   double nbbo_seconds = 0.0;
-  NbboStream nbbo(session_clock);
+  NbboStream nbbo(session_clock, stream_options);
   if (!conditions_only) {
     const auto start = std::chrono::steady_clock::now();
     auto opened = qr::sources::StockQuoteReader::open(scope.value(), quotes_root,
@@ -359,7 +473,7 @@ int main(int argc, char** argv) {
   std::int64_t prints_with_a_255_slot = 0;
   std::int64_t prints_with_a_32_slot = 0;
   std::int64_t prints_with_a_real_nonzero_ext = 0;
-  StockPrintStream prints(session_clock);
+  StockPrintStream prints(session_clock, stream_options);
   {
     const auto start = std::chrono::steady_clock::now();
     auto opened = qr::sources::StockTradeReader::open(scope.value(), trades_root);
@@ -439,7 +553,7 @@ int main(int argc, char** argv) {
   }
 
   double options_seconds = 0.0;
-  OptionPrintStream options(session_clock);
+  OptionPrintStream options(session_clock, stream_options);
   if (!conditions_only) {
     const auto start = std::chrono::steady_clock::now();
     auto opened = qr::sources::OptionPrintReader::open(scope.value(), options_root);
@@ -534,6 +648,11 @@ int main(int argc, char** argv) {
     return 0;
   }
 
+  // The WP8b switch is recorded AFTER the conditions-only receipt returns: that
+  // receipt is byte-compared against a committed CC-008 census fixture, and a
+  // new row in it would be a false census diff.
+  receipt.add("native_order", "enabled", native ? 1 : 0);
+
   // --- 2. the prefix 1s midpoint grid -----------------------------------------
   auto grid = MidpointGrid::build(session_clock, nbbo.eligible_midpoints());
   if (!grid.has_value()) {
@@ -609,6 +728,15 @@ int main(int argc, char** argv) {
   DirectRawBuilder direct_nbbo(Modality::STOCK_NBBO, nbbo.groups());
   DirectRawBuilder direct_option(Modality::OPTION_PRINT, options.groups());
 
+  // WP8b: the two NATIVE_ORDER carriers, one builder per modality (each holds a
+  // span over the session's group table, so construction is free).
+  NativeOrderBuilder native_print(Modality::STOCK_PRINT, prints.groups());
+  NativeOrderBuilder native_nbbo(Modality::STOCK_NBBO, nbbo.groups());
+  NativeOrderBuilder native_option(Modality::OPTION_PRINT, options.groups());
+  std::array<NativeOrderBuilder*, qr::carriers::kModalityCount> native_builders{
+      &native_print, &native_nbbo, &native_option};
+  std::array<NativeCensus, qr::carriers::kModalityCount> native_census{};
+
   LocationInputs location_inputs;
   location_inputs.clock = &session_clock;
   location_inputs.grid = &grid.value();
@@ -654,6 +782,40 @@ int main(int argc, char** argv) {
         if (row.value().presence(column)) {
           ++direct_present_cells;
         }
+      }
+    }
+
+    if (native) {
+      for (std::size_t modality = 0; modality < qr::carriers::kModalityCount; ++modality) {
+        const auto micro = native_builders[modality]->build_micro(window);
+        if (!micro.has_value()) {
+          die(micro.error().message());
+        }
+        const auto bins = native_builders[modality]->build_bins(window);
+        if (!bins.has_value()) {
+          die(bins.error().message());
+        }
+        native_census[modality].fold(micro.value(), bins.value());
+        // Every carrier bit joins the two-run byte-identity fingerprint.
+        fingerprint.feed(static_cast<std::int64_t>(micro.value().start));
+        fingerprint.feed(static_cast<std::int64_t>(micro.value().length));
+        fingerprint.feed(static_cast<std::int64_t>(micro.value().left_pad));
+        fingerprint.feed(static_cast<std::int64_t>(micro.value().truncated));
+        for (std::size_t slot = 0; slot < qr::carriers::kMicroCarrierGroups; ++slot) {
+          fingerprint.feed(static_cast<std::int64_t>(micro.value().slot_group[slot]));
+          fingerprint.feed(static_cast<std::int64_t>(micro.value().slot_phase[slot]));
+        }
+        for (std::size_t bin = 0; bin < qr::carriers::kBinCarrierBins; ++bin) {
+          fingerprint.feed(static_cast<std::int64_t>(bins.value().start[bin]));
+          fingerprint.feed(static_cast<std::int64_t>(bins.value().length[bin]));
+          fingerprint.feed(bins.value().log1p_group_count[bin]);
+          fingerprint.feed(static_cast<std::int64_t>(bins.value().nonempty[bin]));
+          fingerprint.feed(static_cast<std::int64_t>(bins.value().valid[bin]));
+        }
+        const qr::carriers::PhaseSplit split = native_builders[modality]->split_for(window);
+        fingerprint.feed(static_cast<std::int64_t>(split.equal_lo));
+        fingerprint.feed(static_cast<std::int64_t>(split.equal_hi));
+        fingerprint.feed(static_cast<std::int64_t>(split.reference_present ? 1 : 0));
       }
     }
 
@@ -708,6 +870,14 @@ int main(int argc, char** argv) {
       die(appended.error().message());
     }
   }
+  // The reduced group vectors ARE the emitted feature bytes (C4 `groups_{mod}`),
+  // so they join the two-run identity fingerprint rather than being taken on
+  // trust from the carriers that index them.
+  if (native) {
+    fingerprint.feed_bulk(prints.group_vectors().values());
+    fingerprint.feed_bulk(nbbo.group_vectors().values());
+    fingerprint.feed_bulk(options.group_vectors().values());
+  }
   const double feature_seconds = seconds_since(feature_start);
   const double total_seconds = seconds_since(wall_start);
 
@@ -737,6 +907,99 @@ int main(int argc, char** argv) {
                     qr::carriers::candidate_relation_name(static_cast<CandidateRelation>(relation)),
                 relation_counts[relation]);
   }
+  // --- the WP8b native-carrier censuses, printed IN FULL -----------------------
+  if (native) {
+    const std::array<const qr::carriers::GroupVectorTable*, qr::carriers::kModalityCount>
+        neutral_tables{&prints.group_vectors(), &nbbo.group_vectors(),
+                       &options.group_vectors()};
+    // The SIDE-NEUTRAL equivalence check on real rows: every sampled group is
+    // oriented out of the stored table and byte-compared against the per-side
+    // reduction the card states directly.
+    const auto spot_check = [&receipt](Modality modality, const std::string& section,
+                                       const qr::carriers::GroupVectorTable& neutral,
+                                       const qr::carriers::GroupVectorTable& reference_long,
+                                       const qr::carriers::GroupVectorTable& reference_short,
+                                       const std::vector<std::int32_t>& spot_groups) {
+      const std::size_t width = qr::carriers::group_vector_dim_of(modality);
+      std::array<float, qr::carriers::kMaxGroupDim> derived{};
+      std::int64_t compared = 0;
+      std::int64_t mismatches = 0;
+      for (const Side side : {Side::LONG, Side::SHORT}) {
+        const qr::carriers::GroupVectorTable& reference =
+            side == Side::LONG ? reference_long : reference_short;
+        for (std::size_t sample = 0; sample < spot_groups.size(); ++sample) {
+          const auto group = static_cast<std::size_t>(spot_groups[sample]);
+          qr::carriers::orient_group_vector(modality, neutral.row(group), side,
+                                            std::span<float>(derived.data(), width));
+          const std::span<const float> expected = reference.row(sample);
+          for (std::size_t cell = 0; cell < width; ++cell) {
+            std::uint32_t derived_bits = 0;
+            std::uint32_t expected_bits = 0;
+            std::memcpy(&derived_bits, &derived[cell], sizeof(derived_bits));
+            std::memcpy(&expected_bits, &expected[cell], sizeof(expected_bits));
+            ++compared;
+            if (derived_bits != expected_bits) {
+              ++mismatches;
+            }
+          }
+        }
+      }
+      receipt.add(section, "orientation_spot_groups",
+                  static_cast<std::int64_t>(spot_groups.size()));
+      receipt.add(section, "orientation_spot_cells_compared", compared);
+      receipt.add(section, "orientation_spot_mismatches", mismatches);
+    };
+    spot_check(Modality::STOCK_PRINT, "native.stock_print", prints.group_vectors(),
+               prints.spot_side_vectors(Side::LONG), prints.spot_side_vectors(Side::SHORT),
+               prints.spot_groups());
+    spot_check(Modality::STOCK_NBBO, "native.stock_nbbo", nbbo.group_vectors(),
+               nbbo.spot_side_vectors(Side::LONG), nbbo.spot_side_vectors(Side::SHORT),
+               nbbo.spot_groups());
+    spot_check(Modality::OPTION_PRINT, "native.option_print", options.group_vectors(),
+               options.spot_side_vectors(Side::LONG), options.spot_side_vectors(Side::SHORT),
+               options.spot_groups());
+
+    for (std::size_t index = 0; index < qr::carriers::kModalityCount; ++index) {
+      const Modality modality = static_cast<Modality>(index);
+      const std::string section =
+          std::string("native.") + qr::carriers::modality_leaf_suffix(modality);
+      const NativeCensus& census = native_census[index];
+      receipt.add(section, "group_table_rows",
+                  static_cast<std::int64_t>(neutral_tables[index]->groups()));
+      receipt.add(section, "group_table_dim",
+                  static_cast<std::int64_t>(neutral_tables[index]->dim()));
+      receipt.add(section, "group_table_cells",
+                  static_cast<std::int64_t>(neutral_tables[index]->values().size()));
+      receipt.add(section, "oriented_dim",
+                  static_cast<std::int64_t>(qr::carriers::group_vector_dim_of(modality)));
+      receipt.add(section, "decisions", census.decisions);
+      receipt.add(section, "micro_length_max", census.micro_length_max);
+      receipt.add(section, "micro_length_min", census.micro_length_min);
+      receipt.add(section, "micro_length_sum", census.micro_length_sum);
+      receipt.add(section, "micro_left_pad_decisions", census.micro_left_pad_decisions);
+      receipt.add(section, "micro_truncated_sum", census.micro_truncated_sum);
+      receipt.add(section, "micro_truncated_max", census.micro_truncated_max);
+      for (std::size_t bucket = 0; bucket < census.truncated_buckets.size(); ++bucket) {
+        receipt.add(section + ".truncated", NativeCensus::bucket_label(bucket),
+                    census.truncated_buckets[bucket]);
+      }
+      for (std::size_t phase = 0; phase < qr::carriers::kPhaseCount; ++phase) {
+        receipt.add(section + ".phase_slots",
+                    qr::carriers::phase_name(static_cast<Phase>(phase)),
+                    census.phase_slots[phase]);
+      }
+      receipt.add(section, "bins_total", census.bins_total);
+      receipt.add(section, "bins_pre_open_pad", census.bins_pre_open_pad);
+      receipt.add(section, "bins_nonempty", census.bins_nonempty);
+      receipt.add(section, "bin_member_groups", census.bin_member_groups);
+      receipt.add(section, "bin_length_max", census.bin_length_max);
+      for (std::size_t bucket = 0; bucket < census.occupancy_buckets.size(); ++bucket) {
+        receipt.add(section + ".bin_occupancy", NativeCensus::bucket_label(bucket),
+                    census.occupancy_buckets[bucket]);
+      }
+    }
+  }
+
   char digest[32];
   std::snprintf(digest, sizeof(digest), "%016" PRIx64, fingerprint.value());
   receipt.add_text("identity", "feature_fnv1a64", digest);

@@ -401,6 +401,9 @@ Expected<std::size_t, Refusal> OptionPrintStream::push_group(
   std::array<double, kMechanismCount> sum_short{};
   std::array<std::int64_t, kMechanismCount> count_long{};
   std::array<std::int64_t, kMechanismCount> count_short{};
+  // NATIVE_ORDER's equal-time mean+max reduction, fed from THIS member loop (see
+  // the stock-print stream's note: the reduction rides the real constructor).
+  std::array<GroupReducer<kOptionPrintChannelCount>, 2> reducers{};
 
   contract_prior_.begin_group(group_ts_ns_a);
   underlying_prior_.begin_group();
@@ -451,6 +454,9 @@ Expected<std::size_t, Refusal> OptionPrintStream::push_group(
         return Expected<std::size_t, Refusal>::refuse(token.error());
       }
       const auto& channels = token.value().channels;
+      if (options_.retain_group_vectors) {
+        reducers[static_cast<std::size_t>(side)].observe(channels);
+      }
       for (std::size_t index = 0; index < kMechanismCount; ++index) {
         const std::size_t channel = kOptionPrintMechanisms[index];
         if (channels.validity[channel] != Validity::VALID) {
@@ -502,6 +508,23 @@ Expected<std::size_t, Refusal> OptionPrintStream::push_group(
     record.set_mechanism(Side::LONG, index, finite_member_mean(sum_long[index], count_long[index]));
     record.set_mechanism(Side::SHORT, index,
                          finite_member_mean(sum_short[index], count_short[index]));
+  }
+
+  if (options_.retain_group_vectors) {
+    std::array<double, kOptionPrintNeutralDim> neutral{};
+    reducers[static_cast<std::size_t>(Side::LONG)].write_neutral(
+        Modality::OPTION_PRINT, record.token_count, record.log1p_multiplicity, neutral);
+    vectors_.append(neutral);
+    if (options_.side_spot_stride > 0 &&
+        static_cast<std::int64_t>(groups_.size()) % options_.side_spot_stride == 0) {
+      std::array<double, kOptionPrintGroupDim> reduced{};
+      for (const Side side : {Side::LONG, Side::SHORT}) {
+        const std::size_t index = static_cast<std::size_t>(side);
+        reducers[index].write(record.token_count, record.log1p_multiplicity, reduced);
+        spot_[index].append(reduced);
+      }
+      spot_groups_.push_back(static_cast<std::int32_t>(groups_.size()));
+    }
   }
 
   contract_prior_.commit_group();

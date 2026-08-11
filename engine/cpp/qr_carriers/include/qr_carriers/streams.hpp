@@ -49,6 +49,7 @@
 
 #include "qr_carriers/attach.hpp"
 #include "qr_carriers/channels.hpp"
+#include "qr_carriers/group_vector.hpp"
 #include "qr_carriers/prior_state.hpp"
 #include "qr_clock/session_clock.hpp"
 #include "qr_core/refusal.hpp"
@@ -221,10 +222,37 @@ using OptionPrintTokenResult = TokenResult<kOptionPrintChannelCount>;
 // The three session builders.
 // ---------------------------------------------------------------------------
 
+/// CONSTRUCTOR-LEVEL CONTROL of the NATIVE_ORDER substrate (task card V4
+/// section 4: the reduced equal-time group vectors the two native carriers
+/// index into).
+///
+/// It is OFF by default because the reduction is a per-(session, modality)
+/// TABLE, not a per-decision value: session 125's 2.81M NBBO groups cost 753MB
+/// at `[G,67] f4`. A DIRECT-only run (the WP8a gate, the census tools) must not
+/// pay for a table it never reads, and a NATIVE_ORDER run turns it on
+/// explicitly, where the memory shows up in that run's own receipt.
+struct StreamOptions {
+  /// Retain the SIDE-NEUTRAL reduced group vectors (`[G, 74|67|101]`), which is
+  /// the stored and emitted form: both sides are derived from it by
+  /// `orient_group_vector` (group_vector.hpp).
+  bool retain_group_vectors = false;
+  /// Also retain the PER-SIDE reduced vectors of every `side_spot_stride`-th
+  /// group (0 = none, 1 = every group). These are built by the per-side
+  /// reduction the card states directly, and exist ONLY as the independent
+  /// reference the side-neutral equivalence check byte-compares against — a
+  /// derivation cannot be its own proof.
+  std::int64_t side_spot_stride = 0;
+};
+
 /// The stock-print session builder.
 class StockPrintStream {
  public:
-  explicit StockPrintStream(SessionClock clock) : clock_(std::move(clock)) {}
+  explicit StockPrintStream(SessionClock clock, StreamOptions options = {})
+      : clock_(std::move(clock)),
+        options_(options),
+        vectors_(Modality::STOCK_PRINT),
+        spot_{GroupVectorTable(Modality::STOCK_PRINT, Side::LONG),
+              GroupVectorTable(Modality::STOCK_PRINT, Side::SHORT)} {}
 
   /// Reduces ONE complete equal-timestamp group, in causal order.
   [[nodiscard]] Expected<std::size_t, Refusal> push_group(
@@ -254,9 +282,24 @@ class StockPrintStream {
   [[nodiscard]] const std::vector<std::int64_t>& vwap_size_prefix() const noexcept {
     return vwap_size_prefix_;
   }
+  /// The SIDE-NEUTRAL `[G,74]` group table — empty unless
+  /// `StreamOptions::retain_group_vectors` was set at construction. Both sides'
+  /// `[G,69]` vectors come from it through `orient_group_vector`.
+  [[nodiscard]] const GroupVectorTable& group_vectors() const noexcept { return vectors_; }
+  /// The per-side reference rows of the sampled groups, and their group indices.
+  [[nodiscard]] const GroupVectorTable& spot_side_vectors(Side side) const noexcept {
+    return spot_[static_cast<std::size_t>(side)];
+  }
+  [[nodiscard]] const std::vector<std::int32_t>& spot_groups() const noexcept {
+    return spot_groups_;
+  }
 
  private:
   SessionClock clock_;
+  StreamOptions options_{};
+  GroupVectorTable vectors_;
+  std::array<GroupVectorTable, 2> spot_;
+  std::vector<std::int32_t> spot_groups_;
   std::vector<GroupRecord> groups_;
   StockPrintCensus census_;
   StockQualityLedger quality_;
@@ -274,7 +317,12 @@ class StockPrintStream {
 /// The NBBO session builder.
 class NbboStream {
  public:
-  explicit NbboStream(SessionClock clock) : clock_(std::move(clock)) {}
+  explicit NbboStream(SessionClock clock, StreamOptions options = {})
+      : clock_(std::move(clock)),
+        options_(options),
+        vectors_(Modality::STOCK_NBBO),
+        spot_{GroupVectorTable(Modality::STOCK_NBBO, Side::LONG),
+              GroupVectorTable(Modality::STOCK_NBBO, Side::SHORT)} {}
 
   [[nodiscard]] Expected<std::size_t, Refusal> push_group(
       std::int64_t ts_ms_b, std::span<const qr::sources::StockQuoteRow> rows);
@@ -292,9 +340,24 @@ class NbboStream {
   [[nodiscard]] const std::vector<EligibleMid>& eligible_midpoints() const noexcept {
     return eligible_midpoints_;
   }
+  /// The SIDE-NEUTRAL `[G,67]` group table — empty unless
+  /// `StreamOptions::retain_group_vectors` was set at construction. Both sides'
+  /// `[G,65]` vectors come from it through `orient_group_vector`.
+  [[nodiscard]] const GroupVectorTable& group_vectors() const noexcept { return vectors_; }
+  /// The per-side reference rows of the sampled groups, and their group indices.
+  [[nodiscard]] const GroupVectorTable& spot_side_vectors(Side side) const noexcept {
+    return spot_[static_cast<std::size_t>(side)];
+  }
+  [[nodiscard]] const std::vector<std::int32_t>& spot_groups() const noexcept {
+    return spot_groups_;
+  }
 
  private:
   SessionClock clock_;
+  StreamOptions options_{};
+  GroupVectorTable vectors_;
+  std::array<GroupVectorTable, 2> spot_;
+  std::vector<std::int32_t> spot_groups_;
   std::vector<GroupRecord> groups_;
   NbboCensus census_;
   NbboPriorMachine prior_;
@@ -305,7 +368,12 @@ class NbboStream {
 /// The option-print session builder.
 class OptionPrintStream {
  public:
-  explicit OptionPrintStream(SessionClock clock) : clock_(std::move(clock)) {}
+  explicit OptionPrintStream(SessionClock clock, StreamOptions options = {})
+      : clock_(std::move(clock)),
+        options_(options),
+        vectors_(Modality::OPTION_PRINT),
+        spot_{GroupVectorTable(Modality::OPTION_PRINT, Side::LONG),
+              GroupVectorTable(Modality::OPTION_PRINT, Side::SHORT)} {}
 
   [[nodiscard]] Expected<std::size_t, Refusal> push_group(
       std::int64_t ts_ms_b, std::span<const qr::sources::OptionPrintRow> rows);
@@ -332,9 +400,24 @@ class OptionPrintStream {
   [[nodiscard]] std::int64_t directional_eligible_prints() const noexcept {
     return directional_eligible_prints_;
   }
+  /// The SIDE-NEUTRAL `[G,101]` group table — empty unless
+  /// `StreamOptions::retain_group_vectors` was set at construction. Both sides'
+  /// `[G,89]` vectors come from it through `orient_group_vector`.
+  [[nodiscard]] const GroupVectorTable& group_vectors() const noexcept { return vectors_; }
+  /// The per-side reference rows of the sampled groups, and their group indices.
+  [[nodiscard]] const GroupVectorTable& spot_side_vectors(Side side) const noexcept {
+    return spot_[static_cast<std::size_t>(side)];
+  }
+  [[nodiscard]] const std::vector<std::int32_t>& spot_groups() const noexcept {
+    return spot_groups_;
+  }
 
  private:
   SessionClock clock_;
+  StreamOptions options_{};
+  GroupVectorTable vectors_;
+  std::array<GroupVectorTable, 2> spot_;
+  std::vector<std::int32_t> spot_groups_;
   std::vector<GroupRecord> groups_;
   OptionPrintCensus census_;
   std::array<std::int64_t, kAttachStateCount> quote_attach_states_{};

@@ -1,0 +1,62 @@
+# selector_v4.toml — machine-readable spec GENERATED FROM TASK_CARD_V4 + FINAL_PLAN (never the reverse)
+[card]
+source = "evidence/claims/native_state/TASK_CARD_V4_DRAFT.md"
+sha256 = "7270d72ed6e3a306a13b66486c584922506121e958cbcd732c54c1805d4fcdb7"
+status = "FREEZE_CANDIDATE"
+
+[authority]
+sessions = [125, 749]
+folds.f4 = { train = [125, 395], cal = [398, 497], test = [500, 624], embargo = 2 }
+folds.f5 = { train = [125, 520], cal = [523, 622], test = [625, 749], embargo = 2 }
+refused = ["s>=750", "fold6", "fold7", "y2026", "RTY", "RUT", "RUTW", "teacher_target", "realized_mae_filter"]
+substrate = "engine/cpp (cpp_substrate_v1; wp9_full625_differential_verdict)"
+
+[population]
+unit = "primitive_candidate x watch(D0,D30,D60) x explicit_side"
+vocabulary = ["dc001","dc002","dc003","dc004","dc005","dc006","dc007","dc008","dc010","dc012","dc015","dc020"]
+union_rows = "NONPRIMITIVE_CENSUS_ONLY"
+side = "LOW=LONG HIGH=SHORT via sealed <=749 event-signal prefix"
+key = ["session_ordinal", "decision_ordinal", "side"]
+
+[supervision_A1]
+primary = "menu_net_cent[7] h in {2,5,15,30,60,120,close} under executed $300 stop; equal loss weight 1/7"
+co_primary = "certificate_net_cent weight 0.5"
+h_star = "per-fold argmax of TRAIN replay mean under CLOCK_STATE gate (two-pass; freezes before representational arms)"
+risk = "P(stop before h*) 1.0; P(stop before 60m) 0.25"
+pairwise = "same-clock LONG-vs-SHORT logistic on net_h* 0.5"
+kernel = "CC-007: frac_u6=trunc(move*1e6/entry); net=frac*10-576; $100k notional"
+
+[training_A2]
+epochs = 30
+schedule = "cosine to 1e-4-of-peak; contrast-scoped UNDERTRAINED rule (60ep second budget)"
+ranks_per_session = 2048
+seed = 20260810
+determinism = "float32, TF32 off, CUBLAS_WORKSPACE_CONFIG=:4096:8, deterministic algorithms, chronological session batches"
+
+[gate_A6]
+entry = "argmax among gate-passing legal rows; top-q causal running quantile (warmup n>=50, GATE_WARMUP) AND P(stop)<=rho"
+grid.q = [1, 2, 5, 10, 20, 30]
+grid.rho = [0.15, 0.25, 0.40]
+selection = "non-dollar favorable-vs-adverse AUC on CAL gate-select block; Holm over 18 cells"
+k_eq_0 = "DELETED from CAL admission; gap-through breaches reported with UCB; zero-breach = deployment law only"
+
+[multiplicity_A7]
+rung_contrasts = ["DIRECT_RAW>CLOCK_STATE", "DCM_benchmark", "NATIVE_ORDER>DCM", "NATIVE_INTERACTION>DCM", "JSA>JSA_CAPACITY_MATCH"]
+family_size = 10
+gate_family = 18
+certificate = "one confirmatory statistic per fold"
+exploratory_noncertifying = ["baselines", "capacity_twins", "destructions", "JSA_scaleup"]
+
+[arms]
+ladder = ["CLOCK_STATE", "DIRECT_RAW", "DIRECT_CAPACITY_MATCH", "NATIVE_ORDER", "NATIVE_INTERACTION", "JSA", "DYNAMIC_POLICY"]
+jsa = "M=192 merged groups, d=64, 4 blocks/4 heads, time-in-attention-bias, ~141k params; controls: JSA_CAPACITY_MATCH, STREAM_IDENTITY_DERANGE, CROSS_STREAM_SHIFT_17M"
+
+[controls]
+required = ["leak_net_h_star>=0.98", "leak_stop>=0.98", "xor_additive_.45_.55_rank8>=.98", "suffix_bit_invariance", "recent128_within_ts_permutation_identity", "BIN_ORDER_REVERSE", "cross_stream_shift_17m", "operand_derangement", "side_reflection<=1e-6", "label_shuffle", "wcd_injection", "layout_boundary_census_646_647", "equal_ms_full_chain"]
+
+[reachability_M2_5]
+gate = "Qstar <= Qmax both folds, TRAIN sessions only, before any fit"
+panel = ["forced_long", "forced_short", "seeded_coin", "perfect_side_only", "perfect_take_skip_control_side", "perfect_side_plus_take_skip_one_position"]
+
+[certificate_M5]
+instrument = "C1 constant-exit (h* + stop) through the registered replay; nulls N1-N6; affine estimator A=4000 B=12000; MDD sibling law; daily-loss-limit -900 frozen"

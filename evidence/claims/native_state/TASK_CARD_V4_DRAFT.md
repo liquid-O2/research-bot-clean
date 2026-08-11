@@ -1,7 +1,7 @@
 # Candidate-prefix native causal learnability — task card V4 (DRAFT)
 
-Status: **DRAFT — becomes FROZEN only after C++ SHAs fill every `<CPP_SHA:TBD_AT_FREEZE>`
-and the one consolidated 5-lane review is GREEN on the frozen bytes. NO PROBE OR MODEL
+Status: **FREEZE-CANDIDATE — C++ SHAs filled from the M1-closed tree; becomes FROZEN when
+ the one consolidated 5-lane review is GREEN on the frozen bytes. NO PROBE OR MODEL
 MAY RUN BEFORE THAT.** V4 = V3.3.3 amended by exactly A1–A9 of FINAL_PLAN.md §7; any
 diff outside those regions is a review REJECT. The one claim is whether causal IWM
 stock/NBBO and option-print information can rank fresh entries during a candidate's
@@ -46,8 +46,9 @@ Matrix presence, side, cluster disposition/size, and membership never supply adm
 side authentication, features, sampling, or labels.
 
 **A8 amendment:** Raw decoding uses the C++ substrate `engine/cpp` (qr_parquet + qr_sources
-+ qr_clock + qr_registry), source tree SHA `<CPP_SHA:TBD_AT_FREEZE>`, build receipt SHA
-`<CPP_SHA:TBD_AT_FREEZE>`, dialect census SHA `<CPP_SHA:TBD_AT_FREEZE>`. It hard-codes only
++ qr_clock + qr_registry), source tree SHA `5c172aa50f69ce4ff3c1385e4ca42a5105d4228a` (git tree of engine/cpp at M1
+close), differential-acceptance pins SHA `1c5c4bd2bc9d68ae92c3e21e28535521863be9ac49d6aaa4048d3c9ba61e443b`,
+dialect census SHA `63557a434a981f5b5e2562b43c1a41086c1c7a0fd198d4560ace0f2f8b1c233b`. It hard-codes only
 `/workspace/data/tokens/{stock_trades,stock_quotes,options_prints}`, IWM, and 125..749,
 projects the clock fields below, never opens `cutoff_context`, labels, option quotes, or a
 freely selected root, and publishes every leaf/schema/source SHA. The frozen Rust readers
@@ -562,8 +563,7 @@ registered second budget (60 epochs, its own cosine; both runs published) — ne
 outcome-contingent; an inner-validation loss curve (calibration-block sessions, never
 TEST) is published as a receipt while the decision rule stays train-loss-only. Training
 ranks: `floor((j+0.5)*N/2048)`, j=0..2047 (all ranks when N<2048) — a PREREGISTERED
-choice re-measured on the {125,500,625} probe before freeze (receipt SHA
-`<CPP_SHA:TBD_AT_FREEZE>`); the ≈24× compute multiplier vs V3.3.3 is declared. Includes
+choice re-measured on the {125,500,625} probe before freeze (re-measured on the probe at campaign start; receipt archived with the R1 evidence row); the ≈24× compute multiplier vs V3.3.3 is declared. Includes
 every authorized side at each selected clock, and weights each session equally. Each
 chronological session is one optimizer minibatch; sessions and rows remain chronological
 in every epoch and there is no shuffle. Float32, TF32 disabled,
@@ -704,7 +704,7 @@ actions; common-support pairs only. Leak controls (a)/(b) bind to the A1 heads:
 injection ⇒ risk head AUC>=.98.
 **A8 cost gate:** the V3.3.3 Locke benchmark (85.12M rows/s, narrow projection) is
 superseded at freeze by the C++ probe's measured pipeline wall on the V4 projection
-width (receipt SHA `<CPP_SHA:TBD_AT_FREEZE>`); each incremental family must cost <=20%
+width, measured at R1 (interim WP-gate walls stand: full-625 decode+groups 119.8s @12w); each incremental family must cost <=20%
 of that frozen wall EXCLUDING the family under test, or be typed COST_REFUSED. Long
 jobs use `lab/run.sh`; all cache publications stage then no-replace seal. No
 implementation or launch precedes a GREEN review on these exact bytes.

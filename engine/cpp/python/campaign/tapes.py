@@ -158,6 +158,55 @@ def orient_group_vector(neutral: np.ndarray, orientation: np.ndarray,
     return out
 
 
+def orient_group_vector_torch(neutral, orientation: np.ndarray, channels: int,
+                              side: int):
+    """The SAME law as `orient_group_vector`, applied on whatever device the
+    tensor already lives on.
+
+    Every operation here is a copy, a negation or a gather -- no arithmetic is
+    reordered and no sum is taken -- so this is bit-identical to the numpy law,
+    which `verify_real_tape.py` and the co-train acceptance both check.  Doing it
+    on the GPU matters because it is 63% of a native training step on the CPU
+    (measured): 163 ms of the 260 ms, against 86 ms of actual forward+backward.
+    """
+    import torch
+    width = 4 * channels + 1
+    out = neutral[:, :width].clone()
+    if side == SIDE_LONG:
+        return out
+    device = neutral.device
+    kind = torch.as_tensor(orientation[:, 0], device=device)
+    partner = torch.as_tensor(orientation[:, 1].astype(np.int64), device=device)
+    min_slot = torch.as_tensor(orientation[:, 2].astype(np.int64), device=device)
+    mean_value = neutral[:, 0:channels]
+    mean_mask = neutral[:, channels:2 * channels]
+    max_value = neutral[:, 2 * channels:3 * channels]
+    max_mask = neutral[:, 3 * channels:4 * channels]
+    min_value = neutral[:, width:]
+
+    negates = torch.nonzero((kind == ORIENT_SIGMA) | (kind == ORIENT_SIGMA_RHO),
+                            as_tuple=False).reshape(-1)
+    if negates.numel():
+        slots = min_slot[negates]
+        out[:, negates] = -mean_value[:, negates]
+        out[:, 2 * channels + negates] = -min_value[:, slots]
+        block = out[:, 2 * channels + negates]
+        block[max_mask[:, negates] == 0] = 0.0
+        out[:, 2 * channels + negates] = block
+        block = out[:, negates]
+        block[mean_mask[:, negates] == 0] = 0.0
+        out[:, negates] = block
+
+    swaps = torch.nonzero(kind == ORIENT_SWAP, as_tuple=False).reshape(-1)
+    if swaps.numel():
+        mates = partner[swaps]
+        out[:, swaps] = mean_value[:, mates]
+        out[:, channels + swaps] = mean_mask[:, mates]
+        out[:, 2 * channels + swaps] = max_value[:, mates]
+        out[:, 3 * channels + swaps] = max_mask[:, mates]
+    return out
+
+
 # --- the two carriers, from their emitted (start,len) forms -----------------
 
 
@@ -245,7 +294,7 @@ def _session_dir(root: pathlib.Path, ordinal: int, side: str) -> pathlib.Path:
 
 def load_side(root: pathlib.Path, ordinal: int, side: str, *,
               verify_sha: bool = False, rows: np.ndarray | None = None,
-              with_groups: bool = True):
+              with_groups: bool = True, materialize_groups: bool = True):
     """Binds ONE published (session, side) tape to `(arms.Batch, Targets)`.
 
     The group table always comes from the LONG shard (side-neutral storage) and
@@ -285,6 +334,8 @@ def load_side(root: pathlib.Path, ordinal: int, side: str, *,
     cutoff_ns = keys[index, KEY_TS].astype(np.int64)
 
     groups: list[torch.Tensor] = []
+    neutral_source, orient_source = [], []
+    seg_start_source, seg_len_source = [], []
     micro_slot, micro_phase, micro_ckpt = [], [], []
     bin_ref_all, bin_seg_all, bin_segment_count = [], [], []
     jsa_pool_ts, jsa_pool_slot, jsa_pool_phase, jsa_pool_mod = [], [], [], []
@@ -321,6 +372,37 @@ def load_side(root: pathlib.Path, ordinal: int, side: str, *,
 
         slot = expand_recent128(recent)                       # [B,128]
         seg_start, seg_len, bin_ref = bin_segments(bins)      # [U],[U],[B,120]
+
+        if not materialize_groups:
+            # WINDOWED: keep the neutral table as a memmap and leave every index
+            # in ORIGINAL group space; `train.slice_batch` orients the window a
+            # micro-batch actually reaches.  Nothing here enters RAM.
+            neutral_source.append(neutral)
+            orient_source.append(orientation)
+            seg_start_source.append(seg_start)
+            seg_len_source.append(seg_len)
+            groups.append(torch.zeros(0, 4 * channels + 1, dtype=torch.float32))
+            micro_slot.append(slot)
+            micro_phase.append(phase_of(slot, split))
+            bin_seg_all.append(np.zeros(0, dtype=np.int64))
+            bin_ref_all.append(bin_ref)
+            bin_segment_count.append(int(seg_start.size))
+            stamps = np.where(slot >= 0, group_ts[np.clip(slot, 0, None)],
+                              np.iinfo(np.int64).min)
+            jsa_pool_ts.append(stamps)
+            jsa_pool_slot.append(slot)
+            jsa_pool_phase.append(micro_phase[-1])
+            jsa_pool_mod.append(np.full(slot.shape, modality_index, dtype=np.int64))
+            checkpoints = np.full((index.size, len(CHECKPOINT_OFFSETS_S)), -1,
+                                  dtype=np.int64)
+            for position, offset in enumerate(CHECKPOINT_OFFSETS_S):
+                deadline = cutoff_ns - offset * 1_000_000_000
+                eligible = (slot >= 0) & (stamps <= deadline[:, None])
+                any_eligible = eligible.any(axis=1)
+                latest = arms.MICRO_LENGTH - 1 - np.argmax(eligible[:, ::-1], axis=1)
+                checkpoints[any_eligible, position] = latest[any_eligible]
+            micro_ckpt.append(checkpoints)
+            continue
 
         # Compact the session's group axis to what these rows actually touch:
         # the projection is per-group elementwise, so this is exact.
@@ -402,6 +484,11 @@ def load_side(root: pathlib.Path, ordinal: int, side: str, *,
         bin_ref=torch.from_numpy(np.stack(bin_ref_all, axis=1)),
         bin_seg=tuple(torch.from_numpy(seg) for seg in bin_seg_all),
         bin_segments=tuple(bin_segment_count),
+        group_neutral=(tuple(neutral_source) if neutral_source else None),
+        group_orient=(tuple(orient_source) if orient_source else None),
+        group_sigma=sigma,
+        bin_seg_start=(tuple(seg_start_source) if seg_start_source else None),
+        bin_seg_len=(tuple(seg_len_source) if seg_len_source else None),
         jsa_mod=torch.from_numpy(jsa_mod),
         jsa_slot=torch.from_numpy(jsa_slot),
         jsa_phase=torch.from_numpy(jsa_phase),
@@ -500,12 +587,14 @@ def decision_ordinals(root: pathlib.Path, ordinal: int, side: str) -> np.ndarray
 
 def load_session(root: pathlib.Path, ordinal: int, *, verify_sha: bool = False,
                  rows: np.ndarray | None = None, with_groups: bool = True,
-                 rows_by_side: dict | None = None) -> dict:
+                 rows_by_side: dict | None = None,
+                 materialize_groups: bool = True) -> dict:
     """`rows_by_side` selects a DIFFERENT row subset per side, which is what the
     ranked training selection needs (a clock can be authorised on one side
     only)."""
     return {side: load_side(root, ordinal, side, verify_sha=verify_sha,
                             rows=(rows_by_side[side] if rows_by_side is not None
                                   else rows),
-                            with_groups=with_groups)
+                            with_groups=with_groups,
+                            materialize_groups=materialize_groups)
             for side in SIDES}

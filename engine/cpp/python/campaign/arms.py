@@ -203,6 +203,18 @@ class Batch:
     jsa_phase: Tensor
     jsa_ts_us: Tensor
 
+    # WINDOWED GROUP SOURCE (optional).  When these are present the session's
+    # group table has NOT been materialised: `groups` is a zero-row placeholder
+    # and `train.slice_batch` orients the contiguous window a micro-batch
+    # actually reaches.  Materialising it per side costs 2.11 GB on a real
+    # session (measured, s0300) -- 572 GB for one fold's TRAIN block, which no
+    # cache can hold.  The neutral table stays a memmap and never enters RAM.
+    group_neutral: tuple | None = None      # per modality: the [G, 4C+1+S] memmap
+    group_orient: tuple | None = None       # per modality: the [C,3] table
+    group_sigma: int = 0                    # 0 LONG, 1 SHORT
+    bin_seg_start: tuple | None = None      # per modality: [U] segment starts
+    bin_seg_len: tuple | None = None        # per modality: [U] segment lengths
+
     @property
     def rows(self) -> int:
         return int(self.candset.shape[0])
@@ -724,6 +736,8 @@ class Arm(nn.Module):
         # logit bit-for-bit".  The hook exists so that law is structural rather
         # than a hope: the additive path never sees the permutation.
         self.interaction_option_permutation: Tensor | None = None
+        #: Set by `project_session_groups`; None means project per micro-batch.
+        self.session_group_embedding: list[Tensor] | None = None
         self.jsa = None
         self.jsa_head = None
         if name in ("JOINT_STREAM_ATTENTION", "JSA_CAPACITY_MATCH"):
@@ -758,8 +772,24 @@ class Arm(nn.Module):
             out.append(embedding)
         return out
 
+    def project_session_groups(self, tables: list[Tensor] | None) -> None:
+        """Hoists §5's raw group projection to the SESSION, where the card puts it.
+
+        §5 pins the cost as "G_s*(input*32+32*64) ONCE per session/side/modality,
+        not once per decision".  Projecting inside every micro-batch re-projects
+        the groups that adjacent windows share.  The driver calls this once per
+        (session, side) per epoch with the session-wide oriented tables; the
+        micro-batches then gather into the result, and `None` restores the
+        per-batch behaviour.
+        """
+        self.session_group_embedding = (
+            None if tables is None or not self.group_projections
+            else [self.group_projections[i](tables[i]) for i in range(len(MODALITIES))])
+
     def group_embeddings(self, batch: Batch) -> list[Tensor]:
         """§5's once-per-session/side/modality shared raw group projection."""
+        if getattr(self, "session_group_embedding", None) is not None:
+            return self.session_group_embedding
         if not self.group_projections:
             return [batch.groups[i].new_zeros(batch.groups[i].shape[0], D_MODEL)
                     for i in range(len(MODALITIES))]

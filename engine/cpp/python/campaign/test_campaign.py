@@ -748,8 +748,14 @@ def check_publication(scratch: pathlib.Path) -> None:
     assert len(triples) == keys.shape[0]
     import json
     receipt = json.loads((out / "receipt.json").read_text(encoding="utf-8"))
+    # The EMITTED order, verified against the real s0125 tape: column 2 is the
+    # timestamp and column 3 carries SIGMA.  This assertion used to pin the
+    # pre-binding label ("side_index, decision_ts_ns"), which would have
+    # mis-joined every downstream metric that trusted it.
     assert receipt["key_columns"] == ["session_ordinal", "decision_ordinal",
-                                      "side_index", "decision_ts_ns"]
+                                      "decision_ts_ns", "sigma"]
+    keys = np.load(out / "keys.npy")
+    assert sorted(set(keys[:, tapes.KEY_SIDE].tolist())) == [-1, 1]
     assert len(receipt["capacity"]) == 9 and all(row["agrees"] for row in receipt["capacity"])
     assert receipt["train_sessions"] == [125, 126]
     assert receipt["inner_val_sessions"] == [398]

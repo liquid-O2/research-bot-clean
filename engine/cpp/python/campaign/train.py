@@ -190,7 +190,13 @@ class SessionData:
     clocks: Tensor        # i64 [C] the session's chronological decision ordinals
     loader: object = None  # () -> {"L"/"S": (Batch, Targets)}
     mode: str = "train"   # "train" caches the ranked rows; "full" is transient
+    cacheable_full: bool = False   # inner-val is re-scored EVERY epoch, so its
+                                   # full-row assembly is worth holding; the
+                                   # one-shot final pass over TRAIN is not, and
+                                   # caching it would flood the store with 271
+                                   # whole sessions for a single read.
     signature: str = ""   # what the cached assembly was built from
+    full_loader: object = None   # () -> the WHOLE session, all rows
     corpus: str = ""      # WHICH corpus it came from -- two corpora both have
                           # an s0125, and a key without this serves one the
                           # other's tensors (caught by the XOR control)
@@ -198,11 +204,13 @@ class SessionData:
 
     @property
     def sides(self) -> dict:
-        if self._sides is None and self.mode == "train":
-            # The ranked training rows are the SAME every epoch, so this
-            # assembly is built once and then served from the store.
-            key = f"{self.corpus}_s{self.ordinal:04d}_train_{self.signature}"
-            object.__setattr__(self, "_sides", STORE.get(key, self.loader))
+        cacheable = self.mode == "train" or (self.mode == "full" and self.cacheable_full)
+        if self._sides is None and cacheable:
+            # The rows are the SAME every epoch, so this assembly is built once
+            # and then served from the store.
+            key = f"{self.corpus}_s{self.ordinal:04d}_{self.mode}_{self.signature}"
+            builder = (self.full_loader if self.mode == "full" else self.loader)
+            object.__setattr__(self, "_sides", STORE.get(key, builder))
             return self._sides
         if self._sides is None:
             # AT MOST ONE session is materialised at a time.  Without this the
@@ -215,7 +223,7 @@ class SessionData:
                 if other is not self:
                     other.release()
             _LIVE.clear()
-            builder = getattr(self, "full_loader", None) if self.mode == "full" else None
+            builder = self.full_loader if self.mode == "full" else None
             object.__setattr__(self, "_sides", (builder or self.loader)())
             _LIVE.append(self)
         return self._sides
@@ -228,7 +236,190 @@ class SessionData:
             _LIVE.remove(self)
 
 
-def slice_batch(batch: arms.Batch, index: Tensor) -> arms.Batch:
+def window_geometry(batch: arms.Batch, modality: int, slot: Tensor,
+                    reference: Tensor, jsa_here: Tensor):
+    """The contiguous group window a micro-batch reaches, as
+    `(low, high, segment_low, segment_high)` or None when it reaches nothing.
+
+    THE BAKER AND THE LIVE PATH BOTH CALL THIS.  Window geometry is a pure
+    function of the emitted carriers, so a disk cache baked through this
+    function cannot disagree with the live computation -- bit-identity is
+    structural, not a coincidence to be re-tested at every call site."""
+    seg_start = batch.bin_seg_start[modality]
+    seg_len = batch.bin_seg_len[modality]
+    used_slots = torch.cat([slot[slot >= 0].reshape(-1),
+                            jsa_here[jsa_here >= 0].reshape(-1)])
+    used_segments = reference[reference >= 0]
+    low = high = None
+    segment_low = segment_high = 0
+    if used_segments.numel():
+        segment_low = int(used_segments.min())
+        segment_high = int(used_segments.max()) + 1
+        low = int(seg_start[segment_low])
+        high = int(seg_start[segment_high - 1] + seg_len[segment_high - 1])
+    if used_slots.numel():
+        slot_low, slot_high = int(used_slots.min()), int(used_slots.max()) + 1
+        low = slot_low if low is None else min(low, slot_low)
+        high = slot_high if high is None else max(high, slot_high)
+    if low is None:
+        return None
+    return low, high, segment_low, segment_high
+
+
+def window_bytes(batch: arms.Batch, modality: int, low: int, high: int) -> np.ndarray:
+    """The oriented f32 window itself -- the exact bytes the disk cache stores."""
+    return tapes.orient_group_vector(
+        np.asarray(batch.group_neutral[modality][low:high]),
+        batch.group_orient[modality],
+        batch.group_orient[modality].shape[0],
+        batch.group_sigma)
+
+
+def _slice_windowed(batch: arms.Batch, index: Tensor, cache=None,
+                    key=None, device=None) -> arms.Batch:
+    """Row-slice when the session's group table was NEVER materialised.
+
+    The neutral table is a memmap; only the contiguous window these rows reach
+    is read and oriented, which is what keeps a real native session at tens of
+    MB instead of 2.11 GB.  The arithmetic is identical to the materialised
+    path -- the orientation law and the segment reduction are the same
+    functions -- so this is a memory decision, not a numerical one.
+    """
+    import tapes
+    sliced_micro = batch.micro_slot[index]
+    sliced_bin_ref = batch.bin_ref[index]
+    sliced_jsa = batch.jsa_slot[index]
+    sliced_mod = batch.jsa_mod[index]
+    groups, micro_slot, jsa_slot = [], [], []
+    bin_seg, bin_ref, bin_segments = [], [], []
+    for modality in range(len(batch.group_neutral)):
+        neutral = batch.group_neutral[modality]
+        orientation = batch.group_orient[modality]
+        seg_start = batch.bin_seg_start[modality]
+        seg_len = batch.bin_seg_len[modality]
+        channels = orientation.shape[0]
+
+        slot = sliced_micro[:, modality]
+        reference = sliced_bin_ref[:, modality]
+        jsa_here = torch.where(sliced_mod == modality, sliced_jsa,
+                               torch.full_like(sliced_jsa, -1))
+        geometry = window_geometry(batch, modality, slot, reference, jsa_here)
+        if geometry is None:
+            groups.append(torch.zeros(1, 4 * channels + 1, dtype=torch.float32))
+            micro_slot.append(torch.full_like(slot, -1))
+            jsa_slot.append(torch.full_like(jsa_here, -1))
+            bin_seg.append(torch.full((1,), -1, dtype=torch.int64))
+            bin_ref.append(torch.full_like(reference, -1))
+            bin_segments.append(1)
+            continue
+        low, high, segment_low, segment_high = geometry
+
+        if cache is not None:
+            groups.append(torch.from_numpy(cache.read(key, modality, low, high)))
+        elif device is not None:
+            # Orient ON THE DEVICE.  The law is copies/negations/gathers, so it
+            # is bit-identical to the numpy path (proven per modality and side),
+            # and on the CPU it was 63% of a native training step.
+            raw = torch.from_numpy(np.asarray(batch.group_neutral[modality][low:high]))
+            groups.append(tapes.orient_group_vector_torch(
+                raw.to(device), batch.group_orient[modality],
+                batch.group_orient[modality].shape[0], batch.group_sigma))
+        else:
+            groups.append(torch.from_numpy(window_bytes(batch, modality, low, high)))
+
+        assignment = np.full(high - low, -1, dtype=np.int64)
+        if segment_high > segment_low:
+            starts = seg_start[segment_low:segment_high].astype(np.int64) - low
+            lengths = seg_len[segment_low:segment_high].astype(np.int64)
+            keep = lengths > 0
+            if keep.any():
+                offsets = np.repeat(np.cumsum(lengths[keep]) - lengths[keep], lengths[keep])
+                positions = (np.repeat(starts[keep], lengths[keep])
+                             + np.arange(int(lengths[keep].sum()), dtype=np.int64) - offsets)
+                inside = (positions >= 0) & (positions < assignment.size)
+                assignment[positions[inside]] = np.repeat(
+                    np.flatnonzero(keep), lengths[keep])[inside]
+        bin_seg.append(torch.from_numpy(assignment))
+        bin_segments.append(max(segment_high - segment_low, 1))
+        bin_ref.append(torch.where(reference >= 0, reference - segment_low,
+                                   torch.full_like(reference, -1)))
+        micro_slot.append(torch.where(slot >= 0, slot - low, torch.full_like(slot, -1)))
+        jsa_slot.append(torch.where(jsa_here >= 0, jsa_here - low,
+                                    torch.full_like(jsa_here, -1)))
+
+    merged_jsa = sliced_jsa.clone()
+    for modality in range(len(batch.group_neutral)):
+        merged_jsa = torch.where(sliced_mod == modality, jsa_slot[modality], merged_jsa)
+    return arms.Batch(
+        candset=batch.candset[index], candset_valid=batch.candset_valid[index],
+        loc_value=batch.loc_value[index], loc_present=batch.loc_present[index],
+        visible_count=batch.visible_count[index], direct=batch.direct[index],
+        r_modality=batch.r_modality[index], groups=tuple(groups),
+        micro_slot=torch.stack(micro_slot, dim=1), micro_phase=batch.micro_phase[index],
+        micro_ckpt=batch.micro_ckpt[index], bin_ref=torch.stack(bin_ref, dim=1),
+        bin_seg=tuple(bin_seg), bin_segments=tuple(bin_segments),
+        jsa_mod=sliced_mod, jsa_slot=merged_jsa,
+        jsa_phase=batch.jsa_phase[index], jsa_ts_us=batch.jsa_ts_us[index])
+
+
+def session_group_tables(batch: arms.Batch, device=None) -> list[Tensor]:
+    """The WHOLE session's oriented group tables, for §5's session-wide projection.
+
+    Oriented ON THE DEVICE when one is given -- the law is copies/negations/
+    gathers, so it is bit-identical, and doing 2.8 M rows of it on the CPU is
+    the single most expensive thing in a native step."""
+    tables = []
+    for modality in range(len(batch.group_neutral)):
+        total = int(batch.group_neutral[modality].shape[0])
+        if device is None:
+            tables.append(torch.from_numpy(window_bytes(batch, modality, 0, total)))
+            continue
+        raw = torch.from_numpy(np.asarray(batch.group_neutral[modality][:total]))
+        tables.append(tapes.orient_group_vector_torch(
+            raw.to(device), batch.group_orient[modality],
+            batch.group_orient[modality].shape[0], batch.group_sigma))
+    return tables
+
+
+def session_bin_segments(batch: arms.Batch) -> tuple[list[Tensor], list[int]]:
+    """Segment id of EVERY group in the session, for the session-wide path."""
+    assignments, counts = [], []
+    for modality in range(len(batch.group_neutral)):
+        total = int(batch.group_neutral[modality].shape[0])
+        seg_start = batch.bin_seg_start[modality].astype(np.int64)
+        seg_len = batch.bin_seg_len[modality].astype(np.int64)
+        assignment = np.full(total, -1, dtype=np.int64)
+        keep = seg_len > 0
+        if keep.any():
+            offsets = np.repeat(np.cumsum(seg_len[keep]) - seg_len[keep], seg_len[keep])
+            positions = (np.repeat(seg_start[keep], seg_len[keep])
+                         + np.arange(int(seg_len[keep].sum()), dtype=np.int64) - offsets)
+            inside = (positions >= 0) & (positions < total)
+            assignment[positions[inside]] = np.repeat(
+                np.flatnonzero(keep), seg_len[keep])[inside]
+        assignments.append(torch.from_numpy(assignment))
+        counts.append(max(int(seg_start.size), 1))
+    return assignments, counts
+
+
+def slice_rows(batch: arms.Batch, index: Tensor, groups, bin_seg, bin_segments
+               ) -> arms.Batch:
+    """Row-slice ONLY: every group-space index stays in SESSION space, because
+    the session-wide projection this feeds is indexed that way."""
+    return arms.Batch(
+        candset=batch.candset[index], candset_valid=batch.candset_valid[index],
+        loc_value=batch.loc_value[index], loc_present=batch.loc_present[index],
+        visible_count=batch.visible_count[index], direct=batch.direct[index],
+        r_modality=batch.r_modality[index], groups=tuple(groups),
+        micro_slot=batch.micro_slot[index], micro_phase=batch.micro_phase[index],
+        micro_ckpt=batch.micro_ckpt[index], bin_ref=batch.bin_ref[index],
+        bin_seg=tuple(bin_seg), bin_segments=tuple(bin_segments),
+        jsa_mod=batch.jsa_mod[index], jsa_slot=batch.jsa_slot[index],
+        jsa_phase=batch.jsa_phase[index], jsa_ts_us=batch.jsa_ts_us[index])
+
+
+def slice_batch(batch: arms.Batch, index: Tensor, cache=None,
+                key=None, device=None) -> arms.Batch:
     """Row-slices a Batch, narrowing the session group tables to what these rows
     actually reach.
 
@@ -241,6 +432,8 @@ def slice_batch(batch: arms.Batch, index: Tensor) -> arms.Batch:
     table: taking that window and rebasing the indices is exact -- the group
     projection is per-group elementwise -- and it is what makes the real corpus
     tractable.  Group tensors are still shared views, never copies."""
+    if batch.group_neutral is not None:
+        return _slice_windowed(batch, index, cache=cache, key=key, device=device)
     groups, micro_slot, jsa_slot = [], [], []
     bin_seg, bin_ref, bin_segments = [], [], []
     sliced_micro = batch.micro_slot[index]
@@ -380,19 +573,20 @@ def load_sessions(root: pathlib.Path, ordinals: list[int],
             if real:
                 return tapes.load_session(root, ordinal, verify_sha=verify_sha,
                                           with_groups=with_groups,
-                                          rows_by_side=rows_by_side)
+                                          rows_by_side=rows_by_side,
+                                          materialize_groups=False)
             return synth.load_session(root, ordinal, verify_sha=verify_sha)
 
         def full_loader(ordinal=ordinal):
             if real:
                 return tapes.load_session(root, ordinal, verify_sha=verify_sha,
-                                          with_groups=with_groups)
+                                          with_groups=with_groups,
+                                          materialize_groups=False)
             return synth.load_session(root, ordinal, verify_sha=verify_sha)
 
-        session = SessionData(ordinal=ordinal, clocks=clocks, loader=loader,
-                              signature="x".join(signature), corpus=corpus_key)
-        object.__setattr__(session, "full_loader", full_loader)
-        out.append(session)
+        out.append(SessionData(ordinal=ordinal, clocks=clocks, loader=loader,
+                               full_loader=full_loader,
+                               signature="x".join(signature), corpus=corpus_key))
     return out
 
 
@@ -604,6 +798,14 @@ class RunConfig:
     double_run: bool = False
     verify_sha: bool = False
     interaction_outputs: int = arms.N_OUT
+    #: §5's session-wide raw group projection.  DEFAULT OFF, on measurement:
+    #: it is SLOWER than the per-window path (54 h vs 36.5 h for the native
+    #: quad -- the retained graph costs more than the duplicate projection
+    #: saves) and it is not bit-identical to it (float32 GEMM tiling, 16 of
+    #: 15.7 M elements at 1.19e-07).  The per-window path with device-side
+    #: orientation IS bit-identical to the path every existing control ran on
+    #: (proven, max|delta| = 0), so keeping it keeps those controls valid.
+    session_projection: bool = False
     max_train_sessions: int = 0
     max_eval_sessions: int = 0
 
@@ -633,9 +835,30 @@ def cosine_lr(step: int, total: int) -> float:
     return floor + 0.5 * (PEAK_LR - floor) * (1.0 + math.cos(math.pi * progress))
 
 
+def build_session_tables(session: SessionData, device: torch.device) -> dict:
+    """The oriented session-wide group tables, ONE read per (session, side).
+
+    This is the expensive shared part -- the memmap read and the orientation --
+    and it does not depend on the arm.  The co-trainer builds it once and hands
+    the same tensors to every arm in the quad; each arm still applies its OWN
+    projection weights, so the arms stay independent models sharing only bytes.
+    """
+    tables = {}
+    for side in synth.SIDES:
+        batch, _ = session.sides[side]
+        if batch.group_neutral is None:
+            continue
+        assignment, counts = session_bin_segments(batch)
+        tables[side] = (session_group_tables(batch, device=device),
+                        [a.to(device) for a in assignment], counts)
+    return tables
+
+
 def run_session(model: arms.Arm, session: SessionData, config: RunConfig,
                 *, ranked: bool, backward: bool, control=None,
-                collect: list | None = None) -> tuple[float, int]:
+                collect: list | None = None, cache=None,
+                session_tables: dict | None = None,
+                slice_cache: dict | None = None) -> tuple[float, int]:
     """One session = ONE optimizer step, split into clock-chunked micro-batches.
 
     Every chunk's loss divides by the SESSION-level family denominators, so the
@@ -652,6 +875,20 @@ def run_session(model: arms.Arm, session: SessionData, config: RunConfig,
     step = max(1, config.micro_batch // len(synth.SIDES))
     device = torch.device(config.device)
     total, tokens = 0.0, 0
+    # §5's pin: the raw group projection is once per (session, side, modality).
+    # Built here, per side, and torn down at the end of the session.
+    session_groups: dict = {}
+    if config.session_projection:
+        session_groups = (session_tables if session_tables is not None
+                          else build_session_tables(session, device))
+    # §5's projection is applied ONCE per (session, side) -- not per window.
+    # The graph is shared by every micro-batch of the session, so each chunk's
+    # backward must retain it; it is released when the session ends.
+    projected: dict = {}
+    for side, (tables, _assignment, _counts) in session_groups.items():
+        model.project_session_groups(tables)
+        projected[side] = model.session_group_embedding
+    model.session_group_embedding = None
     for lo in range(0, clock_count, step):
         hi = min(lo + step, clock_count)
         window = slice(lo, hi)
@@ -667,7 +904,34 @@ def run_session(model: arms.Arm, session: SessionData, config: RunConfig,
                 logits[side] = torch.zeros(0, arms.N_OUT, device=device)
                 continue
             batch, targets = session.sides[side]
-            sub_batch = slice_batch(batch, rows).to(device)
+            if side in session_groups:
+                tables, assignment, counts = session_groups[side]
+                model.session_group_embedding = projected[side]
+                # The group tensors are already on the device; the ROW tensors
+                # are not, so the batch still has to be moved.
+                sub_batch = slice_rows(batch, rows, tables, assignment,
+                                       counts).to(device)
+            else:
+                key = (session.ordinal, side, lo)
+                usable = (cache is not None and ranked
+                          and batch.group_neutral is not None
+                          and cache.available(session.ordinal, side))
+                # THE SHARED SLICE.  A window's oriented groups depend only on
+                # the tape, so when several arms co-train over one stream the
+                # first arm builds it and the rest reuse the SAME tensors --
+                # they are forward inputs, so each arm still grows its own graph.
+                shared_key = (side, lo)
+                sub_batch = (slice_cache or {}).get(shared_key)
+                if sub_batch is None:
+                    sub_batch = slice_batch(batch, rows,
+                                            cache=(cache if usable else None),
+                                            key=key,
+                                            device=(None if usable else device)).to(device)
+                    if slice_cache is not None:
+                        slice_cache[shared_key] = sub_batch
+                if usable:
+                    # Fault in the NEXT window while this one is on the GPU.
+                    cache.prefetch((session.ordinal, side, lo + step))
             sub_targets = slice_targets(targets, rows).to(device)
             if control is not None:
                 sub_batch, sub_targets = control(sub_batch, sub_targets, session, side)
@@ -683,8 +947,13 @@ def run_session(model: arms.Arm, session: SessionData, config: RunConfig,
                             pair_total)
         loss = accumulator.loss()
         if backward and loss.requires_grad:
-            loss.backward()
+            # The session-wide projection graph is shared by every chunk of this
+            # session, so it must survive each chunk's backward.
+            loss.backward(retain_graph=bool(projected))
         total += float(loss.detach())
+    # Release the shared projection graph now the session's chunks are done.
+    model.session_group_embedding = None
+    projected.clear()
     return total, tokens
 
 
@@ -696,7 +965,7 @@ def heartbeat(message: str) -> None:
 
 def run_epoch(model: arms.Arm, sessions: list[SessionData], config: RunConfig,
               optimizer, learning_rate: float | None,
-              control=None) -> tuple[float, int]:
+              control=None, cache=None) -> tuple[float, int]:
     """One chronological pass.  §5: "Each chronological session is one optimizer
     minibatch; sessions and rows remain chronological in every epoch and there is
     no shuffle." """
@@ -708,9 +977,12 @@ def run_epoch(model: arms.Arm, sessions: list[SessionData], config: RunConfig,
         for group in optimizer.param_groups:
             group["lr"] = learning_rate
         loss, session_tokens = run_session(model, session, config, ranked=True,
-                                           backward=True, control=control)
+                                           backward=True, control=control,
+                                           cache=cache)
         optimizer.step()
         session.release()
+        if cache is not None:
+            cache.release(session.ordinal)
         elapsed = time.time() - started
         heartbeat(f"train s{session.ordinal} {position}/{len(sessions)} "
                   f"{elapsed / position:.1f}s/session "
@@ -871,6 +1143,10 @@ def train_once(config: RunConfig, control=None) -> dict:
     inner_sessions = load_sessions(pathlib.Path(config.data), inner_ordinals,
                                    verify_sha=config.verify_sha,
                                    with_groups=with_groups)
+    # Inner-val is re-scored at EVERY epoch: measured, that uncached pass was
+    # costing more than the training epoch itself (3.3 min/epoch against 1.6).
+    for session in inner_sessions:
+        object.__setattr__(session, "cacheable_full", True)
     if not train_sessions:
         raise RuntimeError(f"fold {config.fold} has no TRAIN session under {config.data}")
 

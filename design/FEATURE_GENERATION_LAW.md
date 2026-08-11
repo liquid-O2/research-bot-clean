@@ -22,3 +22,6 @@
 
 ## W2.15 DISCRETIONARY_BASELINE (sketch; full pin before build)
 Hand-built interaction channels a discretionary trader composes: e.g. (L: range-edge distance) x (P: net aggressor pressure 120s) x (E: response elasticity = |mid move| per unit pressure vs trailing norm) x (H: refail counter state); (R: PROXY_VOL_ask innovation) x (E: stock acceptance = signed move beyond displayed-size withdrawal); each product sigma-oriented, TRAIN-normalized, with per-factor destruction twins (destroying any factor must kill the product's value — the interaction claim is falsifiable per factor).
+
+## AMENDMENT (2026-08-11, user, same-day): the CONCEPT x MODALITY matrix law
+Every E/P concept (exhaustion, withdrawal, acceptance, defense, pressure, refusal) is a MECHANISM CLASS, not a single feature: it must be realized in MULTIPLE modality versions — stock-tape version, stock-quote/DOM version, option-print version, option-quote/IV version, and CROSS-STREAM versions (e.g. tape exhaustion CONFIRMED or REFUSED by IV behavior) — each version separately constructed, separately destroyed/falsified, and tested; the matrix cell (concept, modality) is the unit of registration. Never implement only the order-flow rendering of a concept and call the concept tested.

@@ -1,8 +1,8 @@
 # selector_v4.toml — machine-readable spec GENERATED FROM TASK_CARD_V4 + FINAL_PLAN (never the reverse)
 [card]
 source = "evidence/claims/native_state/TASK_CARD_V4_DRAFT.md"
-sha256 = "95831af3c9f3f23caac2c7a9e7b1f38f251b86543daade86638d88c83d482e01"
-status = "FREEZE_CANDIDATE"
+sha256 = "5c26438b12dd90e15b005375829d976fa46a1710c78041ff20ffc587dc092792"
+status = "FROZEN_2026_08_11"
 
 [authority]
 sessions = [125, 749]

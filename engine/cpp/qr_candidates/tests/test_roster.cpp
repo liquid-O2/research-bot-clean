@@ -266,6 +266,59 @@ TEST(Roster, APrimitiveRowWithNoVisibilityOrNoScorabilityIsNotAdmitted) {
   EXPECT_EQ(find(roster.value(), literals.text("candidate_id", "cand_S")), nullptr);
 }
 
+TEST(AdmissionClassLaw, TheFourClassesAreDecidedInOnePlaceAndPrimitiveNotAdmittedIsOneOfThem) {
+  EXPECT_EQ(classify_admission("TRUTH", "dc001", true, true), AdmissionClass::NOT_A_CANDIDATE_ROW);
+  EXPECT_EQ(classify_admission("CANDIDATE", "UNION", true, true),
+            AdmissionClass::NONPRIMITIVE_CENSUS_ONLY);
+  EXPECT_EQ(classify_admission("CANDIDATE", "dc009", true, true),
+            AdmissionClass::NONPRIMITIVE_CENSUS_ONLY);
+  EXPECT_EQ(classify_admission("CANDIDATE", "dc001", false, true),
+            AdmissionClass::PRIMITIVE_NOT_ADMITTED);
+  EXPECT_EQ(classify_admission("CANDIDATE", "dc001", true, false),
+            AdmissionClass::PRIMITIVE_NOT_ADMITTED);
+  EXPECT_EQ(classify_admission("CANDIDATE", "dc001", false, false),
+            AdmissionClass::PRIMITIVE_NOT_ADMITTED);
+  EXPECT_EQ(classify_admission("CANDIDATE", "dc001", true, true),
+            AdmissionClass::ADMITTED_PRIMITIVE);
+}
+
+TEST(Roster, AnEventScorableCellThatIsNotExactlyTrueOrFalseRefusesInsteadOfNotAdmitting) {
+  // Review L2-F1. Under `cell == "true"` each of these spellings read as "not
+  // scorable" and cand_A left the population without a word; the strict parse
+  // stops the run instead.
+  const std::vector<std::string> variants = {"registry_scorable_upper.parquet",
+                                             "registry_scorable_one.parquet",
+                                             "registry_scorable_garbage.parquet"};
+  for (const std::string& variant : variants) {
+    Fixture fixture = make_fixture(variant);
+    const auto roster = fixture.build();
+    ASSERT_FALSE(roster.has_value())
+        << variant << ": the unlawful event_scorable cell was silently read as 'not scorable' — "
+        << roster.value().census.admitted_rows << " admitted rows (instead of "
+        << roster.value().census.admitted_rows + 1 << ") and no refusal at all";
+    EXPECT_EQ(roster.error().code(), qr::RefusalCode::DECODE_FAILED) << variant;
+  }
+}
+
+TEST(Roster, TheNotAdmittedCensusKeepsUnscorableAndVisibilityLessApart) {
+  Fixture fixture = make_fixture();
+  const auto roster = fixture.build();
+  ASSERT_TRUE(roster.has_value()) << (roster.has_value() ? "" : roster.error().message());
+  const RosterCensus& census = roster.value().census;
+  // cand_S carries event_scorable=false; cand_N has no own visibility. Two
+  // different reasons, two different counters, never one merged bucket.
+  EXPECT_EQ(census.primitive_not_admitted_unscorable, 1U);
+  EXPECT_EQ(census.primitive_not_admitted_no_visibility, 1U);
+  // The primitive denominator accounts for every row it counted.
+  EXPECT_EQ(census.primitive_candidate_rows,
+            census.admitted_rows + census.primitive_not_admitted_unscorable +
+                census.primitive_not_admitted_no_visibility);
+  EXPECT_NE(render_census(census).find("primitive_not_admitted_unscorable\t1\n"),
+            std::string::npos);
+  EXPECT_NE(render_census(census).find("primitive_not_admitted_no_visibility\t1\n"),
+            std::string::npos);
+}
+
 TEST(Roster, RecordsAreOrderedByCandidateIdNotByRowOrder) {
   Fixture fixture = make_fixture();
   const auto roster = fixture.build();

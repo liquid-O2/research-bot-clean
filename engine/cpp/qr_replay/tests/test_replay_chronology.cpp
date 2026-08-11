@@ -27,10 +27,14 @@
 //               the second-best row must never appear: selection does not fall
 //               through to a runner-up, because that would let an OUTCOME
 //               (label availability) choose the entry.
-//     T(20)  ord 5  LONG  pred  7.0  net -30,000c  mae 30,500c  stop  exit T(23)+1s
-//            -> ENTER, stopped out at the causal $300 wall with a gap-through
-//               MAE of $305.00 (breach panel: 1).
-//     session net = +25,000 - 30,000 = -5,000c = -$50.00; 2 trades; 5 clocks;
+//     T(20)  ord 5  LONG  pred  7.0  net -30,500c  mae 30,500c  stop  gap 500c
+//                                    exit T(23)+1s
+//            -> ENTER, stopped out at the causal $300 wall and the fill landed
+//               500c PAST it: the breach panel's definition is `stop_hit AND
+//               gap_through_cent > 0`, so this is the one breach (a stopped
+//               trade whose fill came back to the wall would not be one, however
+//               large its MAE).
+//     session net = +25,000 - 30,500 = -5,500c = -$55.00; 2 trades; 5 clocks;
 //     census ENTERED 2 / OCCUPIED 2 / NO_FRESH_FILL 1.
 //
 //   session 126 (year 2022) — the zero-trade day that stays in the denominator
@@ -44,19 +48,20 @@
 //     session net = +15,000c = $150.00; 2 trades; 2 clocks.
 //
 // THE SCORECARD (three sessions, in this order):
-//   session nets (cents)  = [-5,000, 0, +15,000]
-//   total                 = +10,000c = $100.00 over THREE sessions (the zero-trade
-//                           day is in the denominator) -> mean = $33.333...
+//   session nets (cents)  = [-5,500, 0, +15,000]
+//   total                 = +9,500c = $95.00 over THREE sessions (the zero-trade
+//                           day is in the denominator) -> mean = $31.666...
 //   trades/session        = 4 / 3 = 1.333...
-//   equity  E0=0, E1=-5,000, E2=-5,000, E3=+10,000
-//   running max INCLUDING E0: 0, 0, 0, 10,000
-//   drawdowns:               0, 5,000, 5,000, 0      -> MDD = 5,000c = $50.00
-//     (drop E0 from the running maximum and the maxima become -5,000, -5,000,
-//      10,000, every drawdown is 0 and the MDD reads $0.00 — this fixture is
+//   equity  E0=0, E1=-5,500, E2=-5,500, E3=+9,500
+//   running max INCLUDING E0: 0, 0, 0, 9,500
+//   drawdowns:               0, 5,500, 5,500, 0      -> MDD = 5,500c = $55.00
+//     (drop E0 from the running maximum and the maxima become -5,500, -5,500,
+//      9,500, every drawdown is 0 and the MDD reads $0.00 — this fixture is
 //      exactly the "peak precedes any gain" case the C6 initial-zero-removal
 //      mutant has to survive, and it cannot.)
-//   min-year: 2022 = (-5,000 + 0)/2 = -2,500c = -$25.00; 2023 = +$150.00 -> 2022.
-//   breach panel: MAE > 30,000c happens once (30,500c); max MAE = 30,500c.
+//   min-year: 2022 = (-5,500 + 0)/2 = -2,750c = -$27.50; 2023 = +$150.00 -> 2022.
+//   breach panel: one stop fired AND gapped through (500c past the wall) -> 1;
+//                 max MAE = 30,500c, which is the SEPARATE MAE panel.
 //   leave-top-10-out: undefined at three sessions.
 #include <gtest/gtest.h>
 
@@ -94,7 +99,7 @@ std::vector<ScoredAction> session_125() {
                        {4, T(16), Side::SHORT, 3.0, 0.10, true, LabelState::OK, kSecondNs,
                         15 * kMinuteNs, 9999, 100, false},
                        {5, T(20), Side::LONG, 7.0, 0.10, true, LabelState::OK, kSecondNs,
-                        3 * kMinuteNs, -30000, 30500, true},
+                        3 * kMinuteNs, -30500, 30500, true, 500},
                    },
                    kH);
 }
@@ -140,19 +145,20 @@ DailyLedger replay_or_die(const SessionRef& session, const std::vector<ScoredAct
 TEST(HandChronology, SessionOneTwentyFiveMatchesTheHandComputedLedger) {
   const DailyLedger ledger = replay_or_die({125, 2022}, session_125());
 
-  // Two trades: +25,000c then -30,000c.
+  // Two trades: +25,000c then -30,500c (a stop that gapped 500c through).
   ASSERT_EQ(ledger.trade_count(), 2);
   EXPECT_EQ(ledger.trades[0].net_cent, 25000);
   EXPECT_EQ(ledger.trades[0].key.side, Side::LONG);
   EXPECT_EQ(ledger.trades[0].entry_ts_ns, T(0) + kSecondNs);
   EXPECT_EQ(ledger.trades[0].exit_ts_ns, T(15) + kSecondNs);
-  EXPECT_EQ(ledger.trades[1].net_cent, -30000);
+  EXPECT_EQ(ledger.trades[1].net_cent, -30500);
   EXPECT_EQ(ledger.trades[1].mae_cent, 30500);
   EXPECT_TRUE(ledger.trades[1].stop_hit);
+  EXPECT_EQ(ledger.trades[1].gap_through_cent, 500);
   EXPECT_EQ(ledger.trades[1].exit_ts_ns, T(23) + kSecondNs);
 
-  // -5,000 cents = -$50.00 for the session.
-  EXPECT_EQ(ledger.net_cent, -5000);
+  // -5,500 cents = -$55.00 for the session.
+  EXPECT_EQ(ledger.net_cent, -5500);
 
   // Five clocks, and every one of them typed.
   EXPECT_EQ(ledger.clock_count, 5);
@@ -220,20 +226,20 @@ TEST(HandChronology, TheThreeSessionScorecardMatchesTheHandComputedLiterals) {
   EXPECT_EQ(card.zero_trade_session_count, 1);
   EXPECT_EQ(card.trade_count, 4);
   ASSERT_EQ(card.session_net_cent.size(), 3u);
-  EXPECT_EQ(card.session_net_cent[0], -5000);
+  EXPECT_EQ(card.session_net_cent[0], -5500);
   EXPECT_EQ(card.session_net_cent[1], 0);
   EXPECT_EQ(card.session_net_cent[2], 15000);
 
-  EXPECT_EQ(card.total_net_cent, 10000);
-  EXPECT_DOUBLE_EQ(card.mean_net_dollars, 100.0 / 3.0);
+  EXPECT_EQ(card.total_net_cent, 9500);
+  EXPECT_DOUBLE_EQ(card.mean_net_dollars, 95.0 / 3.0);
   EXPECT_DOUBLE_EQ(card.trades_per_session, 4.0 / 3.0);
 
-  // MDD = 5,000 cents = $50.00, and it exists ONLY because E0 = 0 is in the
+  // MDD = 5,500 cents = $55.00, and it exists ONLY because E0 = 0 is in the
   // running maximum.
-  EXPECT_EQ(card.mdd_cent, 5000);
+  EXPECT_EQ(card.mdd_cent, 5500);
 
   EXPECT_EQ(card.min_year, 2022);
-  EXPECT_DOUBLE_EQ(card.min_year_mean_net_dollars, -25.0);
+  EXPECT_DOUBLE_EQ(card.min_year_mean_net_dollars, -27.5);
   EXPECT_FALSE(card.mean_net_dollars_leave_top_10_out.has_value());
 
   EXPECT_EQ(card.breach_count, 1);

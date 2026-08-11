@@ -147,6 +147,20 @@ enum class AdmissionClass : std::uint8_t {
 };
 [[nodiscard]] const char* admission_class_name(AdmissionClass value) noexcept;
 
+/// THE ONE PLACE a registry row's class is decided (card section 2). It exists
+/// as a named function, and not as four scattered `if`s inside the build loop,
+/// so the four classes can be fixtured directly and so PRIMITIVE_NOT_ADMITTED
+/// is a value the code actually produces rather than a comment about one.
+///
+/// `event_scorable` arrives as a BOOL because the cell is parsed strictly
+/// (`parse_bool`: exactly "true" or "false", everything else a DECODE refusal)
+/// before it gets here — the review's L2-F1 finding was that `cell == "true"`
+/// silently mapped `TRUE`, `1` and every other spelling onto "not scorable",
+/// which removes a candidate from the population without a word.
+[[nodiscard]] AdmissionClass classify_admission(std::string_view row_kind,
+                                                std::string_view policy_name, bool event_scorable,
+                                                bool has_own_visibility) noexcept;
+
 /// The authenticated side, or the typed unavailability.
 enum class SideState : std::uint8_t { LONG, SHORT, SIDE_UNAVAILABLE };
 [[nodiscard]] const char* side_state_name(SideState value) noexcept;
@@ -205,6 +219,12 @@ struct RosterCensus {
   std::uint64_t projection_candidate_rows = 0;
   std::uint64_t side_unavailable_candidates = 0;
   std::uint64_t physical_key_authenticated_candidates = 0;
+  /// The two REASONS a primitive candidate was not admitted, kept apart: a row
+  /// whose `event_scorable` is false, and a row with no own visibility. Their
+  /// sum plus `admitted_rows` is `primitive_candidate_rows`, so the primitive
+  /// denominator accounts for every row it counted.
+  std::uint64_t primitive_not_admitted_unscorable = 0;
+  std::uint64_t primitive_not_admitted_no_visibility = 0;
 };
 
 /// The roster of one session: every admitted primitive candidate, in ascending

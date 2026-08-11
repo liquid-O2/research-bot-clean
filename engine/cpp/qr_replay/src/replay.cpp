@@ -152,7 +152,7 @@ Expected<DailyLedger, Refusal> replay(const SessionRef& session,
       group_keys.emplace_back(row.key.decision_ordinal, static_cast<std::int64_t>(row.key.side));
       if (row.legal_enter) {
         ++ledger.legal_row_count;
-        if (!std::isfinite(row.predicted_net) || !std::isfinite(row.predicted_stop_prob)) {
+        if (!std::isfinite(row.predicted_net_h_star) || !std::isfinite(row.predicted_stop_prob_h_ref)) {
           ++ledger.nonfinite_score_count;
         }
       }
@@ -191,12 +191,12 @@ Expected<DailyLedger, Refusal> replay(const SessionRef& session,
         if (!decision.admitted) {
           continue;
         }
-        if (!admitted.any || row.predicted_net > best) {
+        if (!admitted.any || row.predicted_net_h_star > best) {
           admitted.any = true;
           admitted.index = k;
           admitted.tie = false;
-          best = row.predicted_net;
-        } else if (row.predicted_net == best) {
+          best = row.predicted_net_h_star;
+        } else if (row.predicted_net_h_star == best) {
           admitted.tie = true;  // "an exact top tie abstains"
         }
       }
@@ -226,15 +226,15 @@ Expected<DailyLedger, Refusal> replay(const SessionRef& session,
           double forced_best = 0.0;
           for (std::size_t k = i; k < j; ++k) {
             const ScoredAction& row = actions[k];
-            if (!row.legal_enter || row.key.side != target || !std::isfinite(row.predicted_net)) {
+            if (!row.legal_enter || row.key.side != target || !std::isfinite(row.predicted_net_h_star)) {
               continue;
             }
-            if (!forced.any || row.predicted_net > forced_best) {
+            if (!forced.any || row.predicted_net_h_star > forced_best) {
               forced.any = true;
               forced.index = k;
               forced.tie = false;
-              forced_best = row.predicted_net;
-            } else if (row.predicted_net == forced_best) {
+              forced_best = row.predicted_net_h_star;
+            } else if (row.predicted_net_h_star == forced_best) {
               forced.tie = true;
             }
           }
@@ -263,6 +263,10 @@ Expected<DailyLedger, Refusal> replay(const SessionRef& session,
             trade.net_cent = row.label.menu_net_cent[h];
             trade.mae_cent = row.label.menu_mae_cent[h];
             trade.stop_hit = row.label.stop_hit[h] != 0;
+            // The label's shared stop_scan reported this; the replay carries it
+            // and never recomputes it, so the breach panel and the label kernel
+            // cannot disagree about what happened at the wall.
+            trade.gap_through_cent = row.label.gap_through_cent;
 
             const Expected<std::int64_t, Refusal> running = checked_add(realized_cent, trade.net_cent);
             if (!running.has_value()) {

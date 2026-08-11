@@ -2,6 +2,7 @@
 #include "qr_replay/policy_gate.hpp"
 
 #include <cmath>
+#include <memory>
 
 #include "qr_core/refusal.hpp"
 
@@ -18,8 +19,17 @@ const char* gate_reason_name(GateReason reason) noexcept {
     case GateReason::DEGENERATE_PRIOR: return "DEGENERATE_PRIOR";
     case GateReason::BELOW_TOP_Q: return "BELOW_TOP_Q";
     case GateReason::RISK_ABOVE_RHO: return "RISK_ABOVE_RHO";
+    case GateReason::NO_ADMISSIBLE_GATE: return "NO_ADMISSIBLE_GATE";
   }
   return "UNKNOWN_GATE_REASON";
+}
+
+const char* gate_selection_outcome_name(GateSelectionOutcome outcome) noexcept {
+  switch (outcome) {
+    case GateSelectionOutcome::SELECTED: return "SELECTED";
+    case GateSelectionOutcome::NO_ADMISSIBLE_GATE: return "NO_ADMISSIBLE_GATE";
+  }
+  return "UNKNOWN_GATE_SELECTION_OUTCOME";
 }
 
 // --- QuantileRiskGate -------------------------------------------------------
@@ -85,10 +95,10 @@ void QuantileRiskGate::observe(const ScoredAction& action) {
   if (!action.legal_enter) {
     return;  // "among legal rows so far that session"
   }
-  if (!std::isfinite(action.predicted_net)) {
+  if (!std::isfinite(action.predicted_net_h_star)) {
     return;  // a nonfinite score is not a number the quantile can carry
   }
-  const double value = action.predicted_net;
+  const double value = action.predicted_net_h_star;
   if (low_.empty() || value <= low_.top()) {
     low_.push(value);
   } else {
@@ -108,7 +118,7 @@ GateDecision QuantileRiskGate::evaluate(const ScoredAction& action) const {
   if (!action.legal_enter) {
     return {false, GateReason::ILLEGAL_ROW};
   }
-  if (!std::isfinite(action.predicted_net) || !std::isfinite(action.predicted_stop_prob)) {
+  if (!std::isfinite(action.predicted_net_h_star) || !std::isfinite(action.predicted_stop_prob_h_ref)) {
     return {false, GateReason::NONFINITE_SCORE};
   }
   if (!is_warm()) {
@@ -119,13 +129,39 @@ GateDecision QuantileRiskGate::evaluate(const ScoredAction& action) const {
   if (min_seen_ == max_seen_) {
     return {false, GateReason::DEGENERATE_PRIOR};
   }
-  if (action.predicted_net < threshold()) {
+  if (action.predicted_net_h_star < threshold()) {
     return {false, GateReason::BELOW_TOP_Q};
   }
-  if (action.predicted_stop_prob > rho_) {
+  // Clause (ii), verbatim: "predicted `P(stop before h_ref)` <= rho". The risk
+  // head's horizon is h_ref = 15 min and NOT the selected h* the score uses.
+  if (action.predicted_stop_prob_h_ref > rho_) {
     return {false, GateReason::RISK_ABOVE_RHO};
   }
   return {true, GateReason::ADMITTED};
+}
+
+// --- PassAllGate and the selection stub -------------------------------------
+
+void PassAllGate::begin_session(std::int64_t /*session_ordinal*/) {}
+
+GateDecision PassAllGate::evaluate(const ScoredAction& /*action*/) const {
+  // Every row, legal or not, finite or not: there is no admissible gate for this
+  // arm/fold, so nothing enters. The reason is the typed one, so the ledger's
+  // clock census says WHY the arm traded nothing instead of leaving it to be
+  // inferred from a zero.
+  return {false, GateReason::NO_ADMISSIBLE_GATE};
+}
+
+void PassAllGate::observe(const ScoredAction& /*action*/) {}
+
+std::unique_ptr<PolicyGate> make_selected_gate(const GateSelection& selection) {
+  switch (selection.outcome) {
+    case GateSelectionOutcome::SELECTED:
+      return std::make_unique<QuantileRiskGate>(selection.q_percent, selection.rho);
+    case GateSelectionOutcome::NO_ADMISSIBLE_GATE:
+      return std::make_unique<PassAllGate>();
+  }
+  detail::fail_fast("qr_replay::make_selected_gate: unknown GateSelectionOutcome");
 }
 
 // --- AdmitAllGate -----------------------------------------------------------
@@ -136,7 +172,7 @@ GateDecision AdmitAllGate::evaluate(const ScoredAction& action) const {
   if (!action.legal_enter) {
     return {false, GateReason::ILLEGAL_ROW};
   }
-  if (!std::isfinite(action.predicted_net) || !std::isfinite(action.predicted_stop_prob)) {
+  if (!std::isfinite(action.predicted_net_h_star) || !std::isfinite(action.predicted_stop_prob_h_ref)) {
     return {false, GateReason::NONFINITE_SCORE};
   }
   return {true, GateReason::ADMITTED};

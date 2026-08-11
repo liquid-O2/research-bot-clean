@@ -954,6 +954,69 @@ struct ChainImage {
   std::vector<std::uint8_t> bytes;
 };
 
+/// THE THIRD NBBO MEMBER (consolidated review F3). A two-member equal-timestamp
+/// group cannot distinguish a canonical reduction from an arrival-order one:
+/// IEEE-754 addition is COMMUTATIVE, so `x+y == y+x` exactly and reversing a
+/// pair is a no-op by arithmetic rather than by construction. Associativity is
+/// what fails, and it needs three.
+///
+/// Its ask size is 4 because the three log ask sizes
+///   log1p(100) = 4.61512051684126, log1p(500) = 6.216606098751702,
+///   log1p(4)   = 1.6094379124341003
+/// do NOT sum associatively in double: (a+b)+c = 12.441164530360224 while
+/// (c+b)+a = 12.441164530360226. Its bid/ask prices keep the group lawful
+/// (ask > bid, two-sided, condition 0) so it is an ELIGIBLE member and really
+/// enters the reduction.
+///
+/// MEASURED, NOT ASSUMED: the NBBO group's own four scalars are INTEGER
+/// accumulations (`NbboPriorMachine::observe_eligible`), so that leg is
+/// order-free by construction and no FP mutant can move it; the third member is
+/// what makes the group's mean a three-member mean and puts the non-associative
+/// triple into every log-size channel the DIRECT and group-vector layers derive
+/// from it.
+qr::sources::StockQuoteRow quote_c_nonassociative() {
+  return quote_row(open_ms() + 2'000, 100'020'000, 100'040'000, 300, 4);
+}
+
+/// THE THIRD OPTION MEMBER, for the same reason and with the same recipe. Its
+/// size is 9 because
+///   log1p(5) = 1.791759469228055, log1p(7) = 2.0794415416798357,
+///   log1p(9) = 2.302585092994046
+/// sum to 6.173786103901937 forwards and 6.173786103901936 reversed. It is a
+/// CALL at sequence 0, so canonical order puts it FIRST while arrival order puts
+/// it last (forward) or first (reversed) — the sort is exercised in both
+/// directions instead of accidentally agreeing with one of them.
+qr::sources::OptionPrintRow option_c_nonassociative() {
+  auto row =
+      option_row(open_ms() + 3'000, 1'880'000, 9, qr::sources::Right::Call, 180'000'000, 19'243,
+                 open_ms() + 1'500, 1'680'000, 1'880'000, "2022-07-05T09:30:01.500", 179.75, 0);
+  row.delta = 0.0625;
+  return row;
+}
+
+/// The two ORIGINAL option members, moved ONTO THE FAR QUOTE.
+///
+/// MEASURED, and the reason a third member alone was not enough: both original
+/// rows priced strictly INSIDE their attached spread with no same-contract
+/// prior, which `build_option_print_token` resolves to aggressor 0 — so every
+/// Greek and premium flow in the group was the exact double 0, and a group of
+/// zeros reduces order-free whatever its size. Priced AT the ask (a, c) and AT
+/// the bid (b) the aggressor is +1 / -1, the four mechanism sums carry real
+/// values, and the delta-flow triple
+///   signed_log1p(+5*0.5) = +1.2527629684953681,
+///   signed_log1p(-7*0.5) = -1.5040773967762742,
+///   signed_log1p(+9*0.0625) = +0.44628710262841953
+/// does not sum associatively in double: the group mean is
+/// 0.06499089144917114 in canonical order and 0.0649908914491711 reversed.
+qr::sources::OptionPrintRow option_a_off_mid() {
+  return option_row(open_ms() + 3'000, 1'900'000, 5, qr::sources::Right::Call, 180'000'000, 19'243,
+                    open_ms() + 2'000, 1'700'000, 1'900'000, "2022-07-05T09:30:02.000", 180.0, 1);
+}
+qr::sources::OptionPrintRow option_b_off_mid() {
+  return option_row(open_ms() + 3'000, 1'750'000, 7, qr::sources::Right::Put, 180'000'000, 19'243,
+                    open_ms() + 2'500, 1'750'000, 1'950'000, "2022-07-05T09:30:02.500", 180.25, 2);
+}
+
 void push_u64(std::vector<std::uint8_t>& bytes, std::uint64_t bits) {
   for (unsigned shift = 0; shift < 64; shift += 8) {
     bytes.push_back(static_cast<std::uint8_t>((bits >> shift) & 0xFFU));
@@ -1044,25 +1107,25 @@ ChainImage build_chain(bool reversed, bool reverse_last_group = false) {
                   .has_value());
   const auto quote_a = quote_row(open_ms() + 2'000, 100'000'000, 100'020'000, 200, 100);
   const auto quote_b = quote_row(open_ms() + 2'000, 100'010'000, 100'030'000, 200, 500);
+  const auto quote_c = quote_c_nonassociative();
   EXPECT_TRUE(quotes
                   .push_group(open_ms() + 2'000,
-                              reversed
-                                  ? rows_of<qr::sources::StockQuoteRow>({quote_b, quote_a})
-                                  : rows_of<qr::sources::StockQuoteRow>({quote_a, quote_b}))
+                              reversed ? rows_of<qr::sources::StockQuoteRow>(
+                                             {quote_c, quote_b, quote_a})
+                                       : rows_of<qr::sources::StockQuoteRow>(
+                                             {quote_a, quote_b, quote_c}))
                   .has_value());
 
   OptionPrintStream options(clock_125(), with_vectors());
-  const auto option_a =
-      option_row(open_ms() + 3'000, 1'800'000, 5, qr::sources::Right::Call, 180'000'000, 19'243,
-                 open_ms() + 2'000, 1'700'000, 1'900'000, "2022-07-05T09:30:02.000", 180.0, 1);
-  const auto option_b =
-      option_row(open_ms() + 3'000, 1'850'000, 7, qr::sources::Right::Put, 180'000'000, 19'243,
-                 open_ms() + 2'500, 1'750'000, 1'950'000, "2022-07-05T09:30:02.500", 180.25, 2);
+  const auto option_a = option_a_off_mid();
+  const auto option_b = option_b_off_mid();
+  const auto option_c = option_c_nonassociative();
   EXPECT_TRUE(options
                   .push_group(open_ms() + 3'000,
-                              reversed
-                                  ? rows_of<qr::sources::OptionPrintRow>({option_b, option_a})
-                                  : rows_of<qr::sources::OptionPrintRow>({option_a, option_b}))
+                              reversed ? rows_of<qr::sources::OptionPrintRow>(
+                                             {option_c, option_b, option_a})
+                                       : rows_of<qr::sources::OptionPrintRow>(
+                                             {option_a, option_b, option_c}))
                   .has_value());
   EXPECT_TRUE(options
                   .push_group(open_ms() + 5'000,
@@ -1088,6 +1151,148 @@ ChainImage build_chain(bool reversed, bool reverse_last_group = false) {
   push_u64(image.bytes, options.underlying_prior().prior().present ? 1U : 0U);
   push_u64(image.bytes, static_cast<std::uint64_t>(options.underlying_prior().prior().mean));
   return image;
+}
+
+// ---------------------------------------------------------------------------
+// CONTROL (d), AS A NAMED EXECUTABLE TEST ON THE PRODUCTION CHAIN (review F9).
+//
+// Card section 7, verbatim: "(d) mutating all tokens at/after cutoff is
+// bit-invariant and moving one token across cutoff affects only later rows —
+// REQUIRED as a named executable test on the production chain (review F9), not
+// prose".
+//
+// WHAT IS FOLDED, AND WHY IT IS NOT `fold_modality`. Control (d) is about the
+// WINDOWED outputs a decision actually reads — DIRECT_RAW, the 128-group micro
+// carrier and the 120-bin carrier at one cutoff — and NOT about the raw group
+// table, which trivially contains the post-cutoff group's own bytes and would
+// make the first half of the control unfalsifiable by construction.
+// ---------------------------------------------------------------------------
+
+/// The three modalities' windowed outputs at ONE cutoff, over a tape whose LAST
+/// stock-print group the caller places and prices.
+ChainImage window_image(std::int64_t cutoff_ms, std::int64_t late_ts_ms,
+                        std::int64_t late_price_u6) {
+  ChainImage image;
+
+  StockPrintStream prints(clock_125(), with_vectors());
+  EXPECT_TRUE(prints.push_group(open_ms() + 8'000, prior_group()).has_value());
+  EXPECT_TRUE(prints
+                  .push_group(open_ms() + 10'000,
+                              rows_of<qr::sources::StockTradeRow>(
+                                  {print_p1(), print_p2(), print_p5()}))
+                  .has_value());
+  EXPECT_TRUE(prints
+                  .push_group(open_ms() + late_ts_ms,
+                              rows_of<qr::sources::StockTradeRow>({trade_row(
+                                  open_ms() + late_ts_ms, late_price_u6, 77,
+                                  open_ms() + late_ts_ms - 500, late_price_u6 - 20'000,
+                                  late_price_u6 + 20'000, 250, 350, 41)}))
+                  .has_value());
+
+  NbboStream quotes(clock_125(), with_vectors());
+  EXPECT_TRUE(quotes
+                  .push_group(open_ms() + 1'000,
+                              rows_of<qr::sources::StockQuoteRow>({quote_row(
+                                  open_ms() + 1'000, 99'990'000, 100'010'000, 500, 700)}))
+                  .has_value());
+  EXPECT_TRUE(quotes
+                  .push_group(open_ms() + 2'000,
+                              rows_of<qr::sources::StockQuoteRow>(
+                                  {quote_row(open_ms() + 2'000, 100'000'000, 100'020'000, 200, 100),
+                                   quote_row(open_ms() + 2'000, 100'010'000, 100'030'000, 200, 500),
+                                   quote_c_nonassociative()}))
+                  .has_value());
+
+  OptionPrintStream options(clock_125(), with_vectors());
+  EXPECT_TRUE(options
+                  .push_group(open_ms() + 3'000,
+                              rows_of<qr::sources::OptionPrintRow>(
+                                  {option_a_off_mid(), option_b_off_mid(),
+                                   option_c_nonassociative()}))
+                  .has_value());
+
+  // ONE fold per modality, called on the LIVE stream. `groups()` returns a
+  // reference to the stream's own vector, so a `std::pair` built with
+  // `make_pair` would deduce a VECTOR BY VALUE, and the span this loop took
+  // would point into a temporary that died with the initializer list — an
+  // asan heap-use-after-free, and a silent wrong answer without it.
+  const auto fold = [&image, cutoff_ms](Modality modality,
+                                        const std::vector<GroupRecord>& groups) {
+    DirectRawBuilder direct(modality, groups);
+    NativeOrderBuilder native(modality, groups);
+    for (const Side side : {Side::LONG, Side::SHORT}) {
+      const DecisionWindow window =
+          window_with_visibility(frame_a_of(cutoff_ms), frame_a_of(10'000), side);
+      const auto row = direct.build(window);
+      EXPECT_TRUE(row.has_value());
+      for (std::size_t column = 0; column < kDirectColumnCount; ++column) {
+        push_f64(image.bytes, row.value().value[column]);
+        push_u64(image.bytes, static_cast<std::uint64_t>(row.value().validity[column]));
+      }
+      const auto micro = native.build_micro(window);
+      EXPECT_TRUE(micro.has_value());
+      push_u64(image.bytes, static_cast<std::uint64_t>(micro.value().start));
+      push_u64(image.bytes, static_cast<std::uint64_t>(micro.value().length));
+      push_u64(image.bytes, static_cast<std::uint64_t>(micro.value().left_pad));
+      push_u64(image.bytes, static_cast<std::uint64_t>(micro.value().truncated));
+      for (std::size_t slot = 0; slot < kMicroCarrierGroups; ++slot) {
+        push_u64(image.bytes, static_cast<std::uint64_t>(micro.value().slot_group[slot]));
+        push_u64(image.bytes, static_cast<std::uint64_t>(micro.value().slot_phase[slot]));
+      }
+      const auto bins = native.build_bins(window);
+      EXPECT_TRUE(bins.has_value());
+      for (std::size_t bin = 0; bin < kBinCarrierBins; ++bin) {
+        push_u64(image.bytes, static_cast<std::uint64_t>(bins.value().start[bin]));
+        push_u64(image.bytes, static_cast<std::uint64_t>(bins.value().length[bin]));
+        push_f64(image.bytes, bins.value().log1p_group_count[bin]);
+        push_u64(image.bytes, bins.value().nonempty[bin]);
+        push_u64(image.bytes, bins.value().valid[bin]);
+      }
+    }
+  };
+  fold(Modality::STOCK_PRINT, prints.groups());
+  fold(Modality::STOCK_NBBO, quotes.groups());
+  fold(Modality::OPTION_PRINT, options.groups());
+  return image;
+}
+
+TEST(ProductionChainControlD, MutatingEveryTokenAtOrAfterTheCutoffIsBitInvariant) {
+  // The late group sits ON the cutoff in the first pair (an equal-cutoff group
+  // is excluded) and AFTER it in the second, and both its PRICE and its own
+  // timestamp move. Nothing a decision at 11s reads may notice any of it.
+  const ChainImage on_cutoff_a = window_image(11'000, 11'000, 100'200'000);
+  const ChainImage on_cutoff_b = window_image(11'000, 11'000, 99'400'000);
+  ASSERT_FALSE(on_cutoff_a.bytes.empty());
+  EXPECT_EQ(on_cutoff_a.bytes, on_cutoff_b.bytes)
+      << "a token standing exactly ON the cutoff changed a windowed output";
+
+  const ChainImage after_a = window_image(11'000, 12'000, 100'200'000);
+  const ChainImage after_b = window_image(11'000, 25'000, 99'400'000);
+  EXPECT_EQ(after_a.bytes, after_b.bytes)
+      << "mutating a post-cutoff token's price and instant changed a windowed output";
+  EXPECT_EQ(on_cutoff_a.bytes, after_a.bytes)
+      << "moving a token between two post-cutoff instants changed a windowed output";
+}
+
+TEST(ProductionChainControlD, MovingOneTokenAcrossTheCutoffChangesOnlyTheLaterRows) {
+  // ONE token, two positions: 10.6s (inside a decision at 11s) and 11.5s
+  // (outside it). Both are AFTER a decision at 10.5s.
+  constexpr std::int64_t kInside = 10'600;
+  constexpr std::int64_t kOutside = 11'500;
+  constexpr std::int64_t kPrice = 100'200'000;
+
+  // The LATER row sees the move: this is the half that proves the fixture can
+  // detect a crossing at all, so the invariance above is not vacuous.
+  EXPECT_NE(window_image(11'000, kInside, kPrice).bytes,
+            window_image(11'000, kOutside, kPrice).bytes)
+      << "moving a token across the cutoff left the later decision's window unchanged — "
+         "the control cannot see a crossing and its invariance half proves nothing";
+
+  // The EARLIER row does not: both positions are after a decision at 10.5s.
+  EXPECT_EQ(window_image(10'500, kInside, kPrice).bytes,
+            window_image(10'500, kOutside, kPrice).bytes)
+      << "a decision at 10.5s changed when a token moved between two instants that are BOTH "
+         "after it";
 }
 
 TEST(NativeOrderProductionControls, AWithinTimestampPermutationIsBitIdenticalThroughTheChain) {

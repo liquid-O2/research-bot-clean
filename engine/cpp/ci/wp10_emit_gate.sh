@@ -11,8 +11,12 @@
 #      recomputed in Python, then exercises the refusal fixtures (sha mismatch,
 #      header padding, manifest mismatch, allowlist, runtime truth guard).
 #   3. THE STATIC SEPARATION CHECK over every Python file in engine/cpp/python
-#      (APPENDIX C4: "static check no truth array is concatenated into any
-#      feature tensor"). The trainer's own sources join this list at C7.
+#      AND every C++ source we own (APPENDIX C4: "static check no truth array is
+#      concatenated into any feature tensor"; card section 7(p) / review F4/F5
+#      widened the sinks to setitem/put/insert/out= and added the
+#      CensusInternalScope scope check, which is a C++ question and therefore
+#      needs the C++ files in the argument list). The trainer's own sources join
+#      this list at C7.
 #   4. THE FEATURE-BUILDER fd CENSUS: a features-only build declaring
 #      ProcessRole::FEATURE_BUILDER must finish with an empty truth record and a
 #      clean /proc sweep.
@@ -87,9 +91,14 @@ fi
 tail -n 1 "${WORK}/loader_selftest.log"
 
 # --- 3. the static truth-separation check ----------------------------------
-echo "== 3. static truth-separation check over engine/cpp/python"
+echo "== 3. static truth-separation check over engine/cpp/python and the C++ tree"
 mapfile -t PY_SOURCES < <(find "${CPP_ROOT}/python" -name '*.py' | LC_ALL=C sort)
-if ! python3 "${CPP_ROOT}/python/check_truth_separation.py" "${PY_SOURCES[@]}" \
+# Every .cpp/.hpp we own — third_party is vendored and not ours to police.
+mapfile -t CPP_SOURCES < <(
+  find "${CPP_ROOT}" -path "${CPP_ROOT}/third_party" -prune -o \
+       -type f \( -name '*.cpp' -o -name '*.hpp' \) -print | LC_ALL=C sort)
+if ! python3 "${CPP_ROOT}/python/check_truth_separation.py" \
+      "${PY_SOURCES[@]}" "${CPP_SOURCES[@]}" \
       > "${WORK}/truth_separation.log" 2>&1; then
   fail "static truth-separation check (see ${WORK}/truth_separation.log)"
 fi

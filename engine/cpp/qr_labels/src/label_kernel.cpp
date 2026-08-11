@@ -325,6 +325,12 @@ Expected<LabelRow, Refusal> label_action(const SessionLabelIndex& index, ActionK
     return Expected<LabelRow, Refusal>::refuse(scan.error());
   }
   row.scan = scan.value();
+  // The truth column the ECONOMIC replay reads. The scan is shared across all
+  // seven horizons, so its gap-through is one scalar on the row and not a
+  // per-horizon array; card section 6's breach panel is `stop_hit[h] AND
+  // gap_through_cent > 0`, and without this line the replay would be left with
+  // the forbidden MAE threshold as its only wall evidence.
+  row.menu.gap_through_cent = row.scan.gap_through_cent;
 
   // --- the seven-horizon executable menu -----------------------------------
   for (std::size_t horizon = 0; horizon < kHorizonCount; ++horizon) {

@@ -31,6 +31,35 @@ DailyLedger make_ledger(std::int64_t session_ordinal, std::int32_t year,
   return ledger;
 }
 
+/// One trade as the GAP-THROUGH BREACH panel sees it. The four fields are the
+/// four the card's breach definition needs: the realised net, the realised MAE,
+/// whether the stop executed, and how far past the wall the fill landed.
+struct TradeShape {
+  std::int64_t net_cent = 0;
+  std::int64_t mae_cent = 0;
+  bool stop_hit = false;
+  std::int64_t gap_through_cent = 0;
+};
+
+DailyLedger make_shaped_ledger(std::int64_t session_ordinal, std::int32_t year,
+                               const std::vector<TradeShape>& trades) {
+  DailyLedger ledger;
+  ledger.session = {session_ordinal, year};
+  for (std::size_t i = 0; i < trades.size(); ++i) {
+    TradeRecord trade;
+    trade.key.session_ordinal = session_ordinal;
+    trade.key.decision_ordinal = static_cast<std::int64_t>(i) + 1;
+    trade.net_cent = trades[i].net_cent;
+    trade.mae_cent = trades[i].mae_cent;
+    trade.stop_hit = trades[i].stop_hit;
+    trade.gap_through_cent = trades[i].gap_through_cent;
+    ledger.trades.push_back(trade);
+    ledger.net_cent += trades[i].net_cent;
+  }
+  ledger.clock_count = static_cast<std::int64_t>(trades.size());
+  return ledger;
+}
+
 Scorecard score_or_die(const std::vector<DailyLedger>& ledgers) {
   const Expected<Scorecard, Refusal> result = score(ledgers);
   EXPECT_TRUE(result.has_value()) << (result.has_value() ? "" : result.error().message());
@@ -118,12 +147,62 @@ TEST(ConcentrationPanels, MinYearIsTheWorstYearsOwnMean) {
   EXPECT_DOUBLE_EQ(card.min_year_mean_net_dollars, -20.0);
 }
 
-TEST(BreachPanel, CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop) {
-  const std::vector<DailyLedger> ledgers = {
-      make_ledger(125, 2022, {-30000, -30000, -30000}, {29999, 30000, 30001})};
+// ---------------------------------------------------------------------------
+// THE GAP-THROUGH BREACH PANEL (card section 6, consolidated review L3-2).
+//
+//   "Realized gap-through breaches — defined as `stop_hit[h] AND
+//    gap_through_cent > 0` (stop fired AND the fill landed beyond the wall;
+//    NOTE: the mod-10 lattice makes `menu_mae_cent>30000` true for EVERY
+//    stopped trade, so MAE-threshold counting is a degenerate breach statistic
+//    and is forbidden; MAE remains a separate panel)"
+//
+// THE LATTICE, in one line: `net_cent = frac_u6*10 - 576` (CC-007), so every
+// net is congruent to 4 (mod 10) and every MAE, which is `-net` at the worst
+// mark, is congruent to 6 (mod 10). A stopped trade crossed the wall, so its
+// MAE is at least 30,000 — and the smallest lattice point at or above 30,000 is
+// 30,006. `mae > 30000` is therefore TRUE FOR EVERY STOPPED TRADE, and the old
+// {29,999 / 30,000 / 30,001} fixture could only look discriminating because not
+// one of those three numbers is a value the kernel can produce.
+// ---------------------------------------------------------------------------
+
+TEST(BreachPanel, ABreachIsAStopThatGappedThroughTheWallNotMerelyAnMaeAboveIt) {
+  const std::vector<DailyLedger> ledgers = {make_shaped_ledger(
+      125, 2022,
+      {// Stopped, and the fill came back to the wall: NOT a breach — even though
+       // its MAE is 30,006, the smallest MAE any stopped trade can print.
+       TradeShape{-29996, 30006, true, 0},
+       // Stopped, and the fill landed 506c past the wall: THE breach.
+       TradeShape{-30506, 30506, true, 506},
+       // Never stopped at all.
+       TradeShape{-9996, 29996, false, 0}})};
   const Scorecard card = score_or_die(ledgers);
   EXPECT_EQ(card.breach_count, 1);
-  EXPECT_EQ(card.max_mae_cent, 30001);
+  // MAE stays its own panel and still sees every trade.
+  EXPECT_EQ(card.max_mae_cent, 30506);
+}
+
+TEST(BreachPanel, EveryStoppedTradeClearsTheMaeThresholdSoTheMaeTestCannotBeTheBreachTest) {
+  // Three stopped trades, none of which gapped through. Under the forbidden
+  // `mae > 30000` rule all three would count; under the card's rule none does.
+  const std::vector<std::int64_t> maes = {30006, 30016, 30106};
+  std::vector<TradeShape> trades;
+  for (const std::int64_t mae : maes) {
+    trades.push_back(TradeShape{-29996, mae, true, 0});
+    EXPECT_GT(mae, kStopNetCent) << "a stopped trade always clears the stop in MAE";
+    EXPECT_EQ(mae % 10, 6) << "an MAE off the mod-10 lattice is not a value the kernel can print";
+  }
+  const std::vector<DailyLedger> ledgers = {make_shaped_ledger(125, 2022, trades)};
+  const Scorecard card = score_or_die(ledgers);
+  EXPECT_EQ(card.breach_count, 0);
+  EXPECT_EQ(card.max_mae_cent, 30106);
+}
+
+TEST(BreachPanel, AGapThroughOnARowThatDidNotStopIsNotABreachEither) {
+  // Both halves of the conjunction are load-bearing: a nonzero gap_through on a
+  // row whose stop never fired is a contradiction the panel must not count.
+  const std::vector<DailyLedger> ledgers = {
+      make_shaped_ledger(125, 2022, {TradeShape{-9996, 19996, false, 400}})};
+  EXPECT_EQ(score_or_die(ledgers).breach_count, 0);
 }
 
 TEST(MaeQuantiles, NearestRankOverTenTradesMatchesTheHandComputedIndices) {

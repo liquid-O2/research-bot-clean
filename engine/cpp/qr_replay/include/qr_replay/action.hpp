@@ -60,8 +60,12 @@ inline constexpr std::array<std::int32_t, kHorizonCount> kHorizonMinutes = {2, 5
 inline constexpr std::int64_t kTradeCostCent = 576;
 
 /// The causal stop, in NET cents (card section 3: "the causal $300 (=30,000
-/// net-cent) stop"). Exposed here because the gap-through breach panel counts
-/// `menu_mae_cent[h*] > 30000` (card section 6 / FINAL_PLAN section 11).
+/// net-cent) stop"). It is the WALL, and it is NOT the breach test: card
+/// section 6 defines a realized gap-through breach as `stop_hit[h] AND
+/// gap_through_cent > 0` and forbids `menu_mae_cent > 30000`, because
+/// `net_cent = frac_u6*10 - 576` puts every net on the residue class 4 (mod 10)
+/// and every MAE on 6 (mod 10) — so the smallest MAE a stopped trade can print
+/// is 30,006 and the MAE threshold is true for every one of them.
 inline constexpr std::int64_t kStopNetCent = 30000;
 
 /// Side authentication (APPENDIX A notation: "sigma=+1 LONG/-1 SHORT").
@@ -127,6 +131,20 @@ struct LabelRow {
   std::array<std::int64_t, kHorizonCount> menu_exit_ts{};
   std::array<std::uint8_t, kHorizonCount> stop_hit{};
 
+  /// How far past the wall the STOP's fill landed, in cents, and zero when it
+  /// landed at or above the wall — the card's "gap-through retained and
+  /// reported". It is a per-ROW scalar and not a per-horizon array because
+  /// there is exactly ONE shared `stop_scan` per action row (card section 3:
+  /// "ONE shared stop_scan primitive"); `stop_hit[h]` is that one scan read
+  /// against each horizon's exit, and the fill it reports is the same fill for
+  /// every horizon that stopped.
+  ///
+  /// WHY THE ECONOMIC REPLAY READS IT. The breach panel of card section 6 is
+  /// `stop_hit[h] AND gap_through_cent > 0`; without this column the replay can
+  /// only see `menu_mae_cent`, and MAE-threshold counting is the degenerate
+  /// statistic the same paragraph forbids.
+  std::int64_t gap_through_cent = 0;
+
   /// What the LABEL kernel charged, in cents. Must be exactly `kTradeCostCent`
   /// on an OK label; `replay()` refuses otherwise (the cost-once invariant).
   std::int64_t cost_charged_cent = kTradeCostCent;
@@ -140,12 +158,21 @@ struct LabelRow {
 struct ScoredAction {
   ActionKey key{};
 
-  /// Predicted `net_h*` (any monotone score unit: only its ORDER and its place
-  /// in the causal running quantile are used).
-  double predicted_net = 0.0;
+  /// THE SCORE: predicted `net_h*` — "the unique highest predicted `net_h*`
+  /// legal side (predicted menu-net at the SELECTED h*)" (card section 6). Any
+  /// monotone score unit: only its ORDER and its place in the causal running
+  /// quantile are used.
+  double predicted_net_h_star = 0.0;
 
-  /// Predicted `P(stop before h*)` — the A6 risk gate's input.
-  double predicted_stop_prob = 0.0;
+  /// THE RISK: predicted `P(stop before h_ref)` — the A6 risk gate's input, and
+  /// h_ref is NOT h*. Card section 3's h-LAW: "all horizon-bound heads bind to
+  /// the FIXED comparability horizon h_ref = 15 min", while h* is selected per
+  /// fold on the CAL gate-select block jointly with (q, rho). Card section 6
+  /// spells the same split out inside the gate itself: the score is the menu net
+  /// at the selected h*, and clause (ii) reads "predicted `P(stop before
+  /// h_ref)` <= rho". The two field names carry that difference so a caller
+  /// cannot fill one from the other by accident.
+  double predicted_stop_prob_h_ref = 0.0;
 
   /// Card section 6: "`legal_enter` is determined only by the authenticated
   /// watch and clock." Illegal rows are still predicted and retained; they can

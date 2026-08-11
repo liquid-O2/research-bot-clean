@@ -10,6 +10,7 @@ namespace {
 constexpr const char* kClockSite = "qr_labels::DecisionClock";
 constexpr const char* kRosterSite = "qr_labels::DecisionRoster";
 constexpr const char* kWatchSite = "qr_labels::build_watches";
+constexpr const char* kWallSite = "qr_labels::visibility_wall";
 
 constexpr std::array<const char*, kWatchStageCount> kStageNames{"D0", "D30", "D60"};
 /// The card's own offsets: D0 is the visibility itself, D30 is +30s, D60 +60s.
@@ -132,11 +133,51 @@ std::int64_t DecisionClock::last_second_at_or_before(std::int64_t ts) const noex
 }
 
 // ---------------------------------------------------------------------------
+// THE VISIBILITY WALL
+// ---------------------------------------------------------------------------
+
+Expected<std::int64_t, Refusal> refuse_unless_visible_in_session(
+    const DecisionClock& clock, std::int64_t visible_ts_ns) noexcept {
+  // A BOUND CHECK, deliberately not `second_of`. The roster is the union of the
+  // registered seconds AND the candidate visibilities, so an instant that is
+  // not a registered whole second is exactly what the union law exists to carry;
+  // a wall written with `second_of` would refuse every lawful sub-second
+  // visibility and collapse the roster back onto the second grid.
+  //
+  // HALF-OPEN, because the card's own registered set is: seconds run
+  // k = 0 .. bar_count*60 - 1 and "the close instant is NOT a registered
+  // second". `session_end_ns` is that close instant, so it is OUT.
+  if (visible_ts_ns < clock.session_start_ns()) {
+    return Expected<std::int64_t, Refusal>::refuse(
+        Refusal(RefusalCode::CLOCK_VIOLATION, kWallSite,
+                "the candidate's visibility is before the session open", visible_ts_ns));
+  }
+  if (visible_ts_ns >= clock.session_end_ns()) {
+    return Expected<std::int64_t, Refusal>::refuse(
+        Refusal(RefusalCode::CLOCK_VIOLATION, kWallSite,
+                "the candidate's visibility is at or after the session close", visible_ts_ns));
+  }
+  return visible_ts_ns;
+}
+
+// ---------------------------------------------------------------------------
 // DecisionRoster
 // ---------------------------------------------------------------------------
 
 Expected<DecisionRoster, Refusal> DecisionRoster::build(const DecisionClock& clock,
                                                         std::span<const std::int64_t> visibilities) {
+  // THE VISIBILITY WALL, before anything is unioned (card section 3, review
+  // B1): "a candidate `visible_ts_ns` outside [session_start_ns,
+  // session_end_ns) is REFUSED (typed CLOCK_VIOLATION), never censused into the
+  // ordinal roster — a fail-open here silently renumbers every decision ordinal
+  // in the session."
+  for (const std::int64_t visibility : visibilities) {
+    const Expected<std::int64_t, Refusal> inside =
+        refuse_unless_visible_in_session(clock, visibility);
+    if (!inside.has_value()) {
+      return Expected<DecisionRoster, Refusal>::refuse(inside.error());
+    }
+  }
   std::vector<std::int64_t> instants;
   instants.reserve(static_cast<std::size_t>(clock.second_count()) + visibilities.size());
   for (std::int64_t second = 0; second < clock.second_count(); ++second) {
@@ -282,6 +323,19 @@ Expected<WatchPlan, Refusal> build_watches(std::int64_t session_ordinal, const D
   WatchPlan plan;
   plan.ledger.reserve(candidates.size() * kWatchStageCount);
   plan.census.candidates = static_cast<std::int64_t>(candidates.size());
+
+  // THE VISIBILITY WALL again, on the candidates themselves. The roster's wall
+  // does not cover this: `build_watches` is handed a roster it did not build,
+  // and an out-of-session candidate whose watches all resolve to
+  // CLOCK_UNAVAILABLE would otherwise be censused into the ledger as three
+  // typed rows instead of refusing the session.
+  for (const WatchCandidate& candidate : candidates) {
+    const Expected<std::int64_t, Refusal> inside =
+        refuse_unless_visible_in_session(clock, candidate.visible_ts_ns);
+    if (!inside.has_value()) {
+      return Expected<WatchPlan, Refusal>::refuse(inside.error());
+    }
+  }
 
   for (const WatchCandidate& candidate : candidates) {
     for (std::size_t stage_index = 0; stage_index < kWatchStageCount; ++stage_index) {

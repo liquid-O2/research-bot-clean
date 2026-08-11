@@ -63,6 +63,31 @@ TEST(ReplayLaws, ExecutesTheSelectedSideAndNeverItsMirror) {
   EXPECT_EQ(result.value().net_cent, 1000);
 }
 
+TEST(ReplayLaws, TheExecutedTradeCarriesItsOwnLabelsGapThroughSoTheBreachPanelSeesTheWall) {
+  // The breach panel of card section 6 is `stop_hit AND gap_through_cent > 0`.
+  // Both halves have to reach the ledger, and the gap-through is the half the
+  // kernel cannot derive: it is what the label's ONE shared stop_scan measured
+  // at the fill, and MAE cannot stand in for it (every stopped trade's MAE
+  // clears 30,000 by the mod-10 lattice).
+  const std::vector<ScoredAction> tape = make_tape(
+      kSid,
+      {
+          {1, T(0), Side::LONG, 9.0, 0.1, true, LabelState::OK, kSecondNs, 15 * kMinuteNs, -30506,
+           30506, true, 506},
+          {2, T(60), Side::LONG, 9.0, 0.1, true, LabelState::OK, kSecondNs, 15 * kMinuteNs, -29996,
+           30006, true, 0},
+      },
+      kH);
+  const Expected<DailyLedger, Refusal> result = run(tape, ReplayPolicy(kH));
+  ASSERT_TRUE(result.has_value()) << (result.has_value() ? "" : result.error().message());
+  ASSERT_EQ(result.value().trade_count(), 2);
+  EXPECT_TRUE(result.value().trades[0].stop_hit);
+  EXPECT_EQ(result.value().trades[0].gap_through_cent, 506);
+  EXPECT_TRUE(result.value().trades[1].stop_hit);
+  EXPECT_EQ(result.value().trades[1].gap_through_cent, 0);
+  EXPECT_EQ(result.value().trades[1].mae_cent, 30006);
+}
+
 // --- C6 mutant 2: double cost -----------------------------------------------
 
 TEST(ReplayLaws, TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce) {

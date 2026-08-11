@@ -1,11 +1,14 @@
 test_id	mutation_id	red_log_path
 C++-written leaves load through numpy and equal the expected literals	M509_loader_stub_genesis	tests/red_logs/M509_loader_stub_genesis.log
+a declared guard-fixture line is suppressed, counted, and suppresses nothing else	MC21_checker_suppression_swallows_every_violation_in_the_file	tests/red_logs/MC21_checker_suppression_swallows_every_violation_in_the_file.log
 a manifest that disagrees with the file on disk is refused	M509_loader_stub_genesis	tests/red_logs/M509_loader_stub_genesis.log
 a single flipped payload byte is refused by sha verification	M510_loader_accepts_sha_mismatch	tests/red_logs/M510_loader_accepts_sha_mismatch.log
 a truth array that reached a feature bundle is caught at runtime	M509_loader_stub_genesis	tests/red_logs/M509_loader_stub_genesis.log
 every off-by-one header padding is refused by the loader (numpy is not a gate)	M511_loader_skips_the_npy_header_alignment_gate	tests/red_logs/M511_loader_skips_the_npy_header_alignment_gate.log
 features() never maps a truth leaf	M512_loader_features_can_map_truth	tests/red_logs/M512_loader_features_can_map_truth.log
 manifest is read and every C4 field is present	M509_loader_stub_genesis	tests/red_logs/M509_loader_stub_genesis.log
+the census scope marker outside qr_emit's internals is a violation	MC20_checker_ignores_the_census_scope_marker	tests/red_logs/MC20_checker_ignores_the_census_scope_marker.log
 the static check accepts clean trainer code and catches a concatenation	M509_loader_stub_genesis	tests/red_logs/M509_loader_stub_genesis.log
+the static check catches setitem, put, insert and out= as well as concatenation	MC19_checker_drops_the_widened_taint_sinks	tests/red_logs/MC19_checker_drops_the_widened_taint_sinks.log
 truth() demands an explicit allowlist and honours it exactly	M509_loader_stub_genesis	tests/red_logs/M509_loader_stub_genesis.log
 verify() recomputes every sha256 and accepts the published shard	M509_loader_stub_genesis	tests/red_logs/M509_loader_stub_genesis.log

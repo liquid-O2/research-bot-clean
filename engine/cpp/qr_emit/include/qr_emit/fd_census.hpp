@@ -28,11 +28,26 @@
 //      descriptor that the census never saw — the leg that catches an open made
 //      by a path that never passed the door at all (a raw syscall).
 //
-// WHAT IT DOES NOT CATCH, stated plainly rather than implied away: a raw
-// syscall(SYS_openat, ...) whose descriptor is closed again before the sweep
-// runs. Nothing short of ptrace/seccomp closes that hole from inside the
-// process, and the enforcement leg makes it a deliberate act rather than an
-// accident.
+// WHAT IT DOES NOT CATCH, stated plainly rather than implied away:
+//
+//   * a raw syscall(SYS_openat, ...) whose descriptor is closed again before
+//     the sweep runs. Nothing short of ptrace/seccomp closes that hole from
+//     inside the process, and the enforcement leg makes it a deliberate act
+//     rather than an accident;
+//   * A PATH THAT REACHES TRUTH BYTES WITHOUT THE WORD `truth` IN IT (review
+//     F4/F5). The door tests the PATH, and a hard link, a symlink, a bind
+//     mount, or an already-open inherited descriptor gives the same inode a
+//     second name that carries no `truth` component: `ln truth/x.npy copy.npy`
+//     then opening `copy.npy` is admitted, censused as an ordinary open, and
+//     passes every leg of this census. Nothing inside the process can close
+//     that: st_dev/st_ino are only knowable AFTER the open, which is already
+//     the leak. What DOES bound it is a different mechanism in a different
+//     place — `ShardWriter::publish()` refuses a shard in which any features/
+//     leaf's sha256 equals any truth/ leaf's sha256, so a duplicated truth
+//     tensor cannot be PUBLISHED under a feature name however it was copied.
+//     The two together are the wall; this census alone is not.
+//   * a truth leaf read through a path outside the shard entirely (a copy taken
+//     in an earlier run). Provenance, not process, is what bounds that one.
 //
 // ROLES. The spec names exactly two constrained roles (feature builder,
 // trainer). UNSET is the third state and constrains nothing: it is what a
@@ -74,6 +89,21 @@ enum class ProcessRole : std::uint8_t {
 /// The basename of a path, i.e. everything after the last '/'.
 [[nodiscard]] std::string_view path_basename(std::string_view path) noexcept;
 
+/// True when `entry` has the shape a truth allowlist entry must have:
+/// `s<NNNN>/<L|S>/truth/<leaf>`, with a four-digit ordinal, a nonempty leaf, and
+/// no leading slash.
+[[nodiscard]] bool is_session_qualified_truth_leaf(std::string_view entry) noexcept;
+
+/// True when `path` ENDS in the session-qualified `entry`, on a component
+/// boundary. `"/tapes/s0125/L/truth/x.npy"` matches `"s0125/L/truth/x.npy"` and
+/// does not match `"s0500/L/truth/x.npy"` or a bare `"x.npy"`.
+[[nodiscard]] bool path_ends_with_qualified_leaf(std::string_view path,
+                                                 std::string_view entry) noexcept;
+
+/// The `s<NNNN>/<L|S>` scope of a truth path, or empty when the path carries a
+/// `truth` component with no session/side above it.
+[[nodiscard]] std::string_view truth_session_scope(std::string_view path) noexcept;
+
 struct OpenRecord {
   std::uint64_t sequence = 0;  ///< strictly increasing, process-wide
   std::string path;            ///< exactly the path the caller passed
@@ -92,9 +122,23 @@ class FdCensus {
   /// a process that re-tags itself mid-run can launder a truth open.
   void begin(ProcessRole role);
 
-  /// TRAINER only: the explicit truth allowlist, by leaf basename (e.g.
-  /// "menu_net_cent.npy"). Anything not listed stays refused.
-  void set_truth_allowlist(std::vector<std::string> leaf_names);
+  /// TRAINER only: the explicit truth allowlist, by SESSION-QUALIFIED relative
+  /// path — `s<NNNN>/<L|S>/truth/<leaf>`, e.g.
+  /// "s0125/L/truth/menu_net_cent.npy". Anything not listed stays refused.
+  ///
+  /// WHY NOT BASENAMES (card section 7(p), review F4/F5): "the trainer's truth
+  /// allowlist matches SESSION-QUALIFIED paths (basename matching cannot bind
+  /// the fold wall)". A basename allowlist saying `menu_net_cent.npy` admits
+  /// that leaf in EVERY session of every fold — including the TEST sessions the
+  /// trainer must never open — because the one name is the same name in all of
+  /// them. The fold wall is a statement about SESSIONS, so the allowlist has to
+  /// be able to say which ones.
+  ///
+  /// An entry that is not session-qualified is a FAIL-FAST programmer error and
+  /// not a refusal: it is a caller bug, caught at declaration time, and the
+  /// alternative — quietly treating it as a basename — is exactly the defect
+  /// this signature exists to remove.
+  void set_truth_allowlist(std::vector<std::string> qualified_paths);
 
   [[nodiscard]] bool recording() const noexcept;
   [[nodiscard]] ProcessRole role() const noexcept;
@@ -115,6 +159,27 @@ class FdCensus {
 
   /// Census leg: refuses when a truth path outside the allowlist was touched.
   [[nodiscard]] Status verify_truth_allowlist_respected() const;
+
+  /// One row of the PER-SESSION TRUTH-OPEN RECEIPT (card section 7(p): "a
+  /// per-session truth-open receipt is published"). The scope is the
+  /// `s<NNNN>/<L|S>` the leaf lives under, or "UNSCOPED" for a truth path with
+  /// no session above it — which is itself a finding, so it is reported rather
+  /// than dropped.
+  struct TruthOpenRow {
+    std::string session_scope;
+    std::string leaf;
+    std::int64_t opens = 0;
+    std::int64_t refused = 0;
+  };
+
+  /// The receipt, sorted by (session_scope, leaf). Deterministic, and empty for
+  /// a process that never touched truth at all — which is the feature builder's
+  /// whole claim.
+  [[nodiscard]] std::vector<TruthOpenRow> truth_open_receipt() const;
+
+  /// Writes the receipt as a TSV through the same no-replace discipline as a
+  /// shard. Header: `session_scope\tleaf\topens\trefused`.
+  [[nodiscard]] Status write_truth_open_receipt_tsv(const std::filesystem::path& path) const;
 
   /// /proc/self/fd leg: refuses on a currently-open regular-file descriptor
   /// whose path the census never saw, and on any open truth descriptor when the

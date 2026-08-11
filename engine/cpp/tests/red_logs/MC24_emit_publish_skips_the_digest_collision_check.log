@@ -1,0 +1,135 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 43 tests from 9 test suites.
+[----------] Global test environment set-up.
+[----------] 15 tests from FdCensusTest
+[ RUN      ] FdCensusTest.TheInterposingDoorIsLinkedIntoThisBinary
+[       OK ] FdCensusTest.TheInterposingDoorIsLinkedIntoThisBinary (0 ms)
+[ RUN      ] FdCensusTest.ATruthComponentIsRecognisedWhereverItSits
+[       OK ] FdCensusTest.ATruthComponentIsRecognisedWhereverItSits (0 ms)
+[ RUN      ] FdCensusTest.RecordsPathsOpenedThroughStreamsStdioAndPosixAlike
+[       OK ] FdCensusTest.RecordsPathsOpenedThroughStreamsStdioAndPosixAlike (59 ms)
+[ RUN      ] FdCensusTest.NothingIsRecordedBeforeTheRoleIsDeclared
+[       OK ] FdCensusTest.NothingIsRecordedBeforeTheRoleIsDeclared (16 ms)
+[ RUN      ] FdCensusTest.AFeatureBuilderIsRefusedAtTheDoorAndItsCensusFails
+[       OK ] FdCensusTest.AFeatureBuilderIsRefusedAtTheDoorAndItsCensusFails (23 ms)
+[ RUN      ] FdCensusTest.AFeatureBuilderShardBuildNeverTouchesTruth
+[       OK ] FdCensusTest.AFeatureBuilderShardBuildNeverTouchesTruth (105 ms)
+[ RUN      ] FdCensusTest.ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth
+[       OK ] FdCensusTest.ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth (98 ms)
+[ RUN      ] FdCensusTest.TheSameLeafInAnotherSessionIsNotAdmittedByAQualifiedAllowlist
+[       OK ] FdCensusTest.TheSameLeafInAnotherSessionIsNotAdmittedByAQualifiedAllowlist (96 ms)
+[ RUN      ] FdCensusTest.TheQualifiedLeafShapeAndItsSuffixMatchAreBothExact
+[       OK ] FdCensusTest.TheQualifiedLeafShapeAndItsSuffixMatchAreBothExact (0 ms)
+[ RUN      ] FdCensusTest.ThePerSessionTruthOpenReceiptIsPublishedAndKeepsTheSessionsApart
+[       OK ] FdCensusTest.ThePerSessionTruthOpenReceiptIsPublishedAndKeepsTheSessionsApart (94 ms)
+[ RUN      ] FdCensusTest.AFeatureBuildersTruthOpenReceiptIsEmptyWhichIsItsWholeClaim
+[       OK ] FdCensusTest.AFeatureBuildersTruthOpenReceiptIsEmptyWhichIsItsWholeClaim (46 ms)
+[ RUN      ] FdCensusTest.TheProcSweepCatchesADescriptorTheDoorNeverSaw
+[       OK ] FdCensusTest.TheProcSweepCatchesADescriptorTheDoorNeverSaw (22 ms)
+[ RUN      ] FdCensusTest.TheCensusReceiptIsSortedDeterministicAndCountsRepeats
+[       OK ] FdCensusTest.TheCensusReceiptIsSortedDeterministicAndCountsRepeats (100 ms)
+[ RUN      ] FdCensusTest.RefusingAnOpenNeverCreatesTheFile
+[       OK ] FdCensusTest.RefusingAnOpenNeverCreatesTheFile (10 ms)
+[ RUN      ] FdCensusTest.TheBuilderPhaseIsTaggedAndTheEmitStepWritesBothSections
+[       OK ] FdCensusTest.TheBuilderPhaseIsTaggedAndTheEmitStepWritesBothSections (155 ms)
+[----------] 15 tests from FdCensusTest (850 ms total)
+
+[----------] 1 test from NpyDtypes
+[ RUN      ] NpyDtypes.AreTheFourPinnedAppendixC4Types
+[       OK ] NpyDtypes.AreTheFourPinnedAppendixC4Types (0 ms)
+[----------] 1 test from NpyDtypes (1 ms total)
+
+[----------] 5 tests from NpyHeader
+[ RUN      ] NpyHeader.IsNumpysOwnPrologueByteForByte
+[       OK ] NpyHeader.IsNumpysOwnPrologueByteForByte (12 ms)
+[ RUN      ] NpyHeader.CarriesTheMagicVersionAndLittleEndianHeaderLength
+[       OK ] NpyHeader.CarriesTheMagicVersionAndLittleEndianHeaderLength (0 ms)
+[ RUN      ] NpyHeader.AlwaysLandsThePayloadOnASixtyFourByteBoundary
+[       OK ] NpyHeader.AlwaysLandsThePayloadOnASixtyFourByteBoundary (0 ms)
+[ RUN      ] NpyHeader.OneDimensionalShapesAreWrittenAsOneTuples
+[       OK ] NpyHeader.OneDimensionalShapesAreWrittenAsOneTuples (0 ms)
+[ RUN      ] NpyHeader.RefusesShapesOutsideOneToThreeDimensionsAndNegativeExtents
+[       OK ] NpyHeader.RefusesShapesOutsideOneToThreeDimensionsAndNegativeExtents (0 ms)
+[----------] 5 tests from NpyHeader (19 ms total)
+
+[----------] 1 test from NpyLeaf
+[ RUN      ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte
+[       OK ] NpyLeaf.WhatWeWriteIsNumpysOwnFileByteForByte (103 ms)
+[----------] 1 test from NpyLeaf (104 ms total)
+
+[----------] 7 tests from NpyWriter
+[ RUN      ] NpyWriter.RefusesMoreElementsThanTheDeclaredShape
+[       OK ] NpyWriter.RefusesMoreElementsThanTheDeclaredShape (16 ms)
+[ RUN      ] NpyWriter.RefusesAShortLeafAtFinish
+[       OK ] NpyWriter.RefusesAShortLeafAtFinish (17 ms)
+[ RUN      ] NpyWriter.RefusesAnElementTypeOtherThanTheDeclaredDtype
+[       OK ] NpyWriter.RefusesAnElementTypeOtherThanTheDeclaredDtype (33 ms)
+[ RUN      ] NpyWriter.NeverOverwritesAnExistingLeaf
+[       OK ] NpyWriter.NeverOverwritesAnExistingLeaf (14 ms)
+[ RUN      ] NpyWriter.ReceiptDigestIsTheDigestOfTheWholeFileIncludingTheHeader
+[       OK ] NpyWriter.ReceiptDigestIsTheDigestOfTheWholeFileIncludingTheHeader (18 ms)
+[ RUN      ] NpyWriter.PayloadsLargerThanTheWriteChunkAreEncodedExactly
+[       OK ] NpyWriter.PayloadsLargerThanTheWriteChunkAreEncodedExactly (105 ms)
+[ RUN      ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical
+[       OK ] NpyWriter.TwoRunsOverTheSameLeafAreByteIdentical (49 ms)
+[----------] 7 tests from NpyWriter (266 ms total)
+
+[----------] 2 tests from ShardLayout
+[ RUN      ] ShardLayout.PublishesTheAppendixC4DirectoryLayout
+[       OK ] ShardLayout.PublishesTheAppendixC4DirectoryLayout (128 ms)
+[ RUN      ] ShardLayout.TheTruthDirectoryExistsOnlyWhenATruthLeafWasWritten
+[       OK ] ShardLayout.TheTruthDirectoryExistsOnlyWhenATruthLeafWasWritten (82 ms)
+[----------] 2 tests from ShardLayout (214 ms total)
+
+[----------] 3 tests from ShardManifest
+[ RUN      ] ShardManifest.CarriesEveryC4FieldForEveryLeaf
+[       OK ] ShardManifest.CarriesEveryC4FieldForEveryLeaf (149 ms)
+[ RUN      ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder
+[       OK ] ShardManifest.RowsAreSortedAndIndependentOfEmissionOrder (256 ms)
+[ RUN      ] ShardManifest.RefusesFieldsThatCouldForgeAColumnOrARow
+[       OK ] ShardManifest.RefusesFieldsThatCouldForgeAColumnOrARow (23 ms)
+[----------] 3 tests from ShardManifest (435 ms total)
+
+[----------] 1 test from ShardIdentity
+[ RUN      ] ShardIdentity.TwoRunsAreByteIdenticalIncludingTheManifest
+[       OK ] ShardIdentity.TwoRunsAreByteIdenticalIncludingTheManifest (309 ms)
+[----------] 1 test from ShardIdentity (311 ms total)
+
+[----------] 8 tests from ShardPublish
+[ RUN      ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard
+[       OK ] ShardPublish.RefusesToReplaceAnAlreadyPublishedShard (255 ms)
+[ RUN      ] ShardPublish.NothingIsVisibleAtThePublishPathBeforePublish
+[       OK ] ShardPublish.NothingIsVisibleAtThePublishPathBeforePublish (118 ms)
+[ RUN      ] ShardPublish.AProcessKilledMidStageLeavesNoPublishedShard
+[       OK ] ShardPublish.AProcessKilledMidStageLeavesNoPublishedShard (58 ms)
+[ RUN      ] ShardPublish.RefusesWhileALeafIsStillOpen
+[       OK ] ShardPublish.RefusesWhileALeafIsStillOpen (41 ms)
+[ RUN      ] ShardPublish.RefusesAnEmptyShardAndADuplicateLeaf
+[       OK ] ShardPublish.RefusesAnEmptyShardAndADuplicateLeaf (98 ms)
+[ RUN      ] ShardPublish.RefusesWhenAFeatureLeafHasTheSameDigestAsATruthLeaf
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:356: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+a truth tensor was published under a feature name; the digest collision is the only leg that can see a copy the path-based census cannot
+
+[  FAILED  ] ShardPublish.RefusesWhenAFeatureLeafHasTheSameDigestAsATruthLeaf (121 ms)
+[ RUN      ] ShardPublish.TheSharedJoinKeyIsTheOnePairTheDigestRefusalDoesNotFireOn
+/workspace/engine/cpp/qr_emit/tests/test_shard_writer.cpp:411: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] ShardPublish.TheSharedJoinKeyIsTheOnePairTheDigestRefusalDoesNotFireOn (196 ms)
+[ RUN      ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape
+[       OK ] ShardPublish.RefusesAShardDirectoryNameOutsideTheC4Shape (24 ms)
+[----------] 8 tests from ShardPublish (928 ms total)
+
+[----------] Global test environment tear-down
+[==========] 43 tests from 9 test suites ran. (3148 ms total)
+[  PASSED  ] 41 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] ShardPublish.RefusesWhenAFeatureLeafHasTheSameDigestAsATruthLeaf
+[  FAILED  ] ShardPublish.TheSharedJoinKeyIsTheOnePairTheDigestRefusalDoesNotFireOn
+
+ 2 FAILED TESTS

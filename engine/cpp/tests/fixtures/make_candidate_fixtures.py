@@ -736,6 +736,19 @@ def main(argv: list[str] | None = None) -> int:
         write_parquet(os.path.join(out, f"registry_member_{form}.parquet"), REGISTRY_COLUMNS,
                       values, sizes, {"day", "candidate_id"})
 
+    # THE STRICT event_scorable PARSE (consolidated review L2-F1): one registry
+    # per unlawful spelling. `TRUE` and `1` are the two spellings a publication
+    # drifts into; `yes` stands for everything else. Under `cell == "true"` all
+    # three read as NOT SCORABLE and the candidate silently leaves the
+    # population; under parse_bool they refuse the session.
+    for form, cell in (("upper", "TRUE"), ("one", "1"), ("garbage", "yes")):
+        reg, raw = build_session2_rows(
+            registry_overrides={"cand_A": {"event_scorable": cell}})
+        tables, _ = build_tables(reg, raw)
+        values, sizes = materialise(tables, REGISTRY_COLUMNS)
+        write_parquet(os.path.join(out, f"registry_scorable_{form}.parquet"), REGISTRY_COLUMNS,
+                      values, sizes, {"day", "candidate_id"})
+
     # A registry whose stored member_count contradicts the derived count.
     reg, raw = build_session2_rows(registry_overrides={"cand_B": {"member_count": "3"}})
     tables, _ = build_tables(reg, raw)

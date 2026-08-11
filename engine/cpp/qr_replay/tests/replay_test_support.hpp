@@ -26,8 +26,8 @@ struct ActionSpec {
   std::int64_t decision_ordinal = 0;
   std::int64_t decision_ts_ns = 0;
   Side side = Side::LONG;
-  double predicted_net = 0.0;
-  double predicted_stop_prob = 0.0;
+  double predicted_net_h_star = 0.0;
+  double predicted_stop_prob_h_ref = 0.0;
   bool legal = true;
 
   LabelState state = LabelState::OK;
@@ -36,6 +36,9 @@ struct ActionSpec {
   std::int64_t net_cent = 0;                    ///< NET of the 576c, which the label kernel charged.
   std::int64_t mae_cent = 0;
   bool stop_hit = false;
+  /// How far past the wall the stop's fill landed (0 = it came back to it).
+  /// Per ROW, not per horizon: one shared stop_scan, one gap-through.
+  std::int64_t gap_through_cent = 0;
 };
 
 /// Build one ScoredAction for `session_ordinal` at horizon `h`.
@@ -45,8 +48,8 @@ inline ScoredAction make_action(std::int64_t session_ordinal, const ActionSpec& 
   action.key.decision_ordinal = spec.decision_ordinal;
   action.key.decision_ts_ns = spec.decision_ts_ns;
   action.key.side = spec.side;
-  action.predicted_net = spec.predicted_net;
-  action.predicted_stop_prob = spec.predicted_stop_prob;
+  action.predicted_net_h_star = spec.predicted_net_h_star;
+  action.predicted_stop_prob_h_ref = spec.predicted_stop_prob_h_ref;
   action.legal_enter = spec.legal;
 
   LabelRow& label = action.label;
@@ -66,6 +69,7 @@ inline ScoredAction make_action(std::int64_t session_ordinal, const ActionSpec& 
     label.menu_mae_cent[h] = spec.mae_cent;
     label.menu_exit_ts[h] = label.entry_ts_ns + spec.hold_ns;
     label.stop_hit[h] = spec.stop_hit ? 1 : 0;
+    label.gap_through_cent = spec.gap_through_cent;
   } else {
     // An unavailable label carries no marks at all: if the kernel ever reads
     // them it gets zeros, and a zero-net trade is loudly wrong in the ledger.

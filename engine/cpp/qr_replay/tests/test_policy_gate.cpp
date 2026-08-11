@@ -6,6 +6,7 @@
 #include <array>
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <vector>
 
 #include "qr_replay/pcg64.hpp"
@@ -164,7 +165,7 @@ TEST(GateCausality, AFutureRowsScoreCannotChangeAnEarlierRowsDecision) {
 
   for (const std::size_t perturbed : {std::size_t{80}, std::size_t{100}, std::size_t{119}}) {
     std::vector<ScoredAction> mutated = rows;
-    mutated[perturbed].predicted_net = 1e9;  // a future row screams
+    mutated[perturbed].predicted_net_h_star = 1e9;  // a future row screams
     QuantileRiskGate other(30, 1.0);
     const std::vector<GateDecision> after = drive(other, mutated);
     for (std::size_t i = 0; i < perturbed; ++i) {
@@ -208,7 +209,7 @@ TEST(GateCausality, APriorRowsScoreDoesChangeALaterDecision) {
 
   std::vector<ScoredAction> mutated = rows;
   for (std::size_t i = 0; i < 60; ++i) {
-    mutated[i].predicted_net = 1e6;  // early rows scream instead
+    mutated[i].predicted_net_h_star = 1e6;  // early rows scream instead
   }
   QuantileRiskGate other(30, 1.0);
   const std::vector<GateDecision> after = drive(other, mutated);
@@ -249,7 +250,7 @@ TEST(GateCausality, SameClockSiblingsAreNotInEachOthersPopulation) {
   ASSERT_TRUE(baseline[under_test].admitted) << "the row under test must start out admitted";
 
   std::vector<ScoredAction> mutated = rows;
-  mutated.back().predicted_net = 1e9;
+  mutated.back().predicted_net_h_star = 1e9;
   QuantileRiskGate other(50, 1.0);
   const std::vector<GateDecision> after = drive(other, mutated);
 
@@ -370,7 +371,7 @@ TEST(GateNeverLooser, NonfiniteScoresBlockTheirOwnRowAndNeverJoinThePopulation) 
   EXPECT_EQ(gate.evaluate(scored(52, T(52), std::numeric_limits<double>::quiet_NaN())).reason,
             GateReason::NONFINITE_SCORE);
   ScoredAction bad_risk = scored(53, T(53), 100.0);
-  bad_risk.predicted_stop_prob = std::numeric_limits<double>::quiet_NaN();
+  bad_risk.predicted_stop_prob_h_ref = std::numeric_limits<double>::quiet_NaN();
   EXPECT_EQ(gate.evaluate(bad_risk).reason, GateReason::NONFINITE_SCORE);
 }
 
@@ -381,7 +382,7 @@ TEST(GateInReplay, TheKernelCountsNonfiniteScoresAndNeverTradesThem) {
                      LabelState::OK, kSecondNs, 15 * kMinuteNs, 100, 0, false});
   }
   std::vector<ScoredAction> tape = make_tape(kSid, specs, kH);
-  tape[60].predicted_net = std::numeric_limits<double>::quiet_NaN();
+  tape[60].predicted_net_h_star = std::numeric_limits<double>::quiet_NaN();
 
   QuantileRiskGate gate(30, 1.0);
   const Expected<DailyLedger, Refusal> result = replay({kSid, 2023}, tape, gate, ReplayPolicy(kH));
@@ -538,6 +539,84 @@ TEST(GateInReplay, OccupancyDoesNotChangeTheRunningPopulation) {
       EXPECT_DOUBLE_EQ(a, b) << "threshold " << i;
     }
   }
+}
+
+// ---------------------------------------------------------------------------
+// THE FAMILY-(ii) SELECTION OUTCOME (card section 6, consolidated rewrite):
+// "zero survivors => typed NO_ADMISSIBLE_GATE => PASS_ALL for that arm/fold,
+// never a looser rule".
+// ---------------------------------------------------------------------------
+
+TEST(NoAdmissibleGate, ZeroSurvivingCellsProduceAGateThatEntersNothingAndSaysWhy) {
+  GateSelection selection;
+  selection.outcome = GateSelectionOutcome::NO_ADMISSIBLE_GATE;
+  const std::unique_ptr<PolicyGate> gate = make_selected_gate(selection);
+  ASSERT_NE(gate, nullptr);
+  EXPECT_STREQ(gate->name(), "PassAllGate");
+  gate->begin_session(kSid);
+
+  // Every shape of row: a strong legal one, an illegal one, a nonfinite one.
+  // None of them enters, and none of them is blocked for some OTHER reason that
+  // a reader could mistake for an ordinary gate decision.
+  ScoredAction strong;
+  strong.legal_enter = true;
+  strong.predicted_net_h_star = 1e9;
+  strong.predicted_stop_prob_h_ref = 0.0;
+  ScoredAction illegal = strong;
+  illegal.legal_enter = false;
+  ScoredAction nonfinite = strong;
+  nonfinite.predicted_net_h_star = std::numeric_limits<double>::quiet_NaN();
+  for (const ScoredAction* row : {&strong, &illegal, &nonfinite}) {
+    const GateDecision decision = gate->evaluate(*row);
+    EXPECT_FALSE(decision.admitted);
+    EXPECT_EQ(decision.reason, GateReason::NO_ADMISSIBLE_GATE);
+  }
+  // Observing changes nothing: there is no population to warm up into a looser
+  // rule after enough rows have gone by.
+  for (int i = 0; i < 200; ++i) {
+    gate->observe(strong);
+  }
+  EXPECT_EQ(gate->evaluate(strong).reason, GateReason::NO_ADMISSIBLE_GATE);
+  EXPECT_STREQ(gate_selection_outcome_name(GateSelectionOutcome::NO_ADMISSIBLE_GATE),
+               "NO_ADMISSIBLE_GATE");
+  EXPECT_STREQ(gate_reason_name(GateReason::NO_ADMISSIBLE_GATE), "NO_ADMISSIBLE_GATE");
+}
+
+TEST(NoAdmissibleGate, ASelectedTripleBuildsTheA6GateWithThatTriplesOwnParameters) {
+  GateSelection selection;
+  selection.outcome = GateSelectionOutcome::SELECTED;
+  selection.horizon_index = 2;  // h* = 15 min in this fixture
+  selection.q_percent = 5;
+  selection.rho = 0.25;
+  const std::unique_ptr<PolicyGate> gate = make_selected_gate(selection);
+  ASSERT_NE(gate, nullptr);
+  EXPECT_STREQ(gate->name(), "QuantileRiskGate");
+  const auto* a6 = dynamic_cast<const QuantileRiskGate*>(gate.get());
+  ASSERT_NE(a6, nullptr);
+  EXPECT_EQ(a6->q_percent(), 5);
+  EXPECT_DOUBLE_EQ(a6->rho(), 0.25);
+}
+
+TEST(NoAdmissibleGate, InTheReplayTheArmTradesNothingAndEveryClockIsTypedGateBlocked) {
+  // The whole point of the typed outcome: an arm with no admissible cell is
+  // indistinguishable in DOLLARS from an arm that simply found nothing, and
+  // must not be indistinguishable in the CENSUS.
+  std::vector<ActionSpec> specs;
+  for (std::int64_t i = 0; i < 80; ++i) {
+    specs.push_back({i + 1, T(i), Side::LONG, static_cast<double>(i), 0.01, true, LabelState::OK,
+                     kSecondNs, 15 * kMinuteNs, 50000, 0, false});
+  }
+  const std::vector<ScoredAction> tape = make_tape(kSid, specs, kH);
+  GateSelection selection;
+  selection.outcome = GateSelectionOutcome::NO_ADMISSIBLE_GATE;
+  const std::unique_ptr<PolicyGate> gate = make_selected_gate(selection);
+  const Expected<DailyLedger, Refusal> result =
+      replay({kSid, 2023}, tape, *gate, ReplayPolicy(kH));
+  ASSERT_TRUE(result.has_value()) << (result.has_value() ? "" : result.error().message());
+  EXPECT_EQ(result.value().trade_count(), 0);
+  EXPECT_EQ(result.value().net_cent, 0);
+  EXPECT_EQ(result.value().clock_census[static_cast<std::size_t>(ClockOutcome::GATE_BLOCKED)], 80);
+  EXPECT_EQ(result.value().clock_census[static_cast<std::size_t>(ClockOutcome::ENTERED)], 0);
 }
 
 }  // namespace

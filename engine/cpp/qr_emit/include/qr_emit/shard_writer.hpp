@@ -61,6 +61,7 @@
 #ifndef QR_EMIT_SHARD_WRITER_HPP
 #define QR_EMIT_SHARD_WRITER_HPP
 
+#include <array>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
@@ -96,6 +97,34 @@ enum class Side : std::uint8_t { LONG, SHORT };
 enum class Section : std::uint8_t { FEATURES, TRUTH };
 
 [[nodiscard]] const char* section_dir(Section section) noexcept;
+
+/// THE ONE LEAF APPENDIX C4 PUTS IN BOTH SECTIONS, and therefore the one pair
+/// the publish-time digest-collision refusal must not fire on.
+///
+/// C4, verbatim: "`features/`: ... candset [N,64,24] f4 + len; keys [N,4] i8;
+/// masks. `truth/`: menu_net_cent [N,7] i8; ... label_state [N] u1; keys." The
+/// prediction key is the JOIN between the two halves and is the same array on
+/// both sides by construction, so `features/keys.npy` and `truth/keys.npy` have
+/// the same sha256 in every lawful shard.
+///
+/// DECLARED TENSION, for the record: card section 7(p) says publishing "refuses
+/// when any features/ leaf sha256 equals any truth/ leaf sha256" with no
+/// exception, and C4 mandates a pair that always collides. The two frozen
+/// statements are not jointly satisfiable for any real shard; this is the
+/// narrowest reading under which both stand — the refusal fires on every
+/// collision except a SAME-NAMED pair whose name is on this one-element list.
+inline constexpr std::array<std::string_view, 1> kC4SharedLeafNames = {"keys.npy"};
+
+/// True when `leaf_name` (with its `.npy` suffix) is a leaf C4 declares in both
+/// sections.
+[[nodiscard]] constexpr bool is_c4_shared_leaf(std::string_view leaf_name) noexcept {
+  for (const std::string_view shared : kC4SharedLeafNames) {
+    if (leaf_name == shared) {
+      return true;
+    }
+  }
+  return false;
+}
 
 inline constexpr std::string_view kManifestName = "manifest.tsv";
 inline constexpr std::string_view kManifestSchema = "qr_emit_manifest_v1";

@@ -53,11 +53,20 @@ std::optional<std::size_t> MidpointGrid::prefix_endpoint(std::int64_t cutoff_ns_
   if (index < 0) {
     return std::nullopt;
   }
-  const std::size_t clamped = static_cast<std::size_t>(index);
-  if (clamped >= points_.size()) {
-    return points_.size() - 1U;
+  // "Absent when the cutoff is ... past the grid" — and the grid's LAST endpoint
+  // is the session close, which the card makes a terminal endpoint and "never a
+  // decision instant". So a cutoff standing on the close is already past every
+  // endpoint a decision may read, and the answer is ABSENT.
+  //
+  // WHY NOT CLAMP. Returning `points_.size() - 1` for an out-of-range cutoff is
+  // a range-limiting guard handing back a VALUE where the contract says nullopt,
+  // and the value it hands back is the close's own carried midpoint: a caller
+  // asking about an instant off the grid would silently receive the session's
+  // last RV instead of a mask.
+  if (static_cast<std::size_t>(index) + 1U >= points_.size()) {
+    return std::nullopt;
   }
-  return clamped;
+  return static_cast<std::size_t>(index);
 }
 
 Typed<double> MidpointGrid::realized_volatility(std::size_t endpoint_index,

@@ -385,5 +385,112 @@ TEST(Watches, TheLedgerIsByteIdenticalUnderAnyInputOrderNotMerelyAcrossTwoRuns) 
             render_watch_ledger(plan_of(clock, shuffled)));
 }
 
+// ---------------------------------------------------------------------------
+// THE VISIBILITY WALL (consolidated review B1; card section 3).
+//
+//   "**Visibility wall (review B1):** a candidate `visible_ts_ns` outside
+//    [session_start_ns, session_end_ns) is REFUSED (typed CLOCK_VIOLATION),
+//    never censused into the ordinal roster — a fail-open here silently
+//    renumbers every decision ordinal in the session."
+//
+// The wall is a BOUND check, not a registered-second check: the roster is the
+// union of the seconds AND the visibilities, so a lawful sub-second visibility
+// is exactly what puts a non-second instant on it. A wall written with
+// `second_of` would refuse the very instants the union law exists for, which is
+// why the last fixture here is not decoration.
+// ---------------------------------------------------------------------------
+
+TEST(VisibilityWall, APreOpenVisibilityIsRefusedInsteadOfRenumberingEveryOrdinal) {
+  const DecisionClock clock = decision_clock();
+  const std::int64_t pre_open = clock.session_start_ns() - 90 * kNanosecondsPerSecond;
+  const std::vector<std::int64_t> visibilities{pre_open};
+  const Expected<DecisionRoster, Refusal> roster = DecisionRoster::build(clock, visibilities);
+  ASSERT_FALSE(roster.has_value())
+      << "the pre-open visibility entered the roster at index 0: the session's own second 0 now "
+         "carries ordinal "
+      << ordinal_of(roster.value(), clock.session_start_ns())
+      << " instead of 0, and every later ordinal in the session shifted with it (roster size "
+      << roster.value().size() << " vs " << clock.second_count() << " registered seconds)";
+  EXPECT_EQ(roster.error().code(), RefusalCode::CLOCK_VIOLATION);
+}
+
+TEST(VisibilityWall, APostCloseVisibilityIsRefusedInsteadOfExtendingTheRoster) {
+  const DecisionClock clock = decision_clock();
+  // The close instant itself is outside [start, end) — "the close instant is
+  // NOT a registered second" (card section 3) — and so is anything after it.
+  const std::vector<std::int64_t> visibilities{clock.session_end_ns()};
+  const Expected<DecisionRoster, Refusal> roster = DecisionRoster::build(clock, visibilities);
+  ASSERT_FALSE(roster.has_value())
+      << "the close instant entered the roster: size " << roster.value().size() << " instead of "
+      << clock.second_count() << ", so an instant that is not a decision instant owns an ordinal";
+  EXPECT_EQ(roster.error().code(), RefusalCode::CLOCK_VIOLATION);
+
+  const std::vector<std::int64_t> beyond{clock.session_end_ns() + kNanosecondsPerSecond};
+  const Expected<DecisionRoster, Refusal> after = DecisionRoster::build(clock, beyond);
+  ASSERT_FALSE(after.has_value()) << "a visibility past the close entered the roster: size "
+                                  << after.value().size();
+  EXPECT_EQ(after.error().code(), RefusalCode::CLOCK_VIOLATION);
+}
+
+TEST(VisibilityWall, BuildWatchesRefusesAPreOpenCandidateThatWouldWatchAtSecondZero) {
+  const DecisionClock clock = decision_clock();
+  // A LAWFUL roster (registered seconds only), so the only wall that can fire
+  // is build_watches' own.
+  const std::vector<std::int64_t> none;
+  const Expected<DecisionRoster, Refusal> roster = DecisionRoster::build(clock, none);
+  ASSERT_TRUE(roster.has_value());
+  const std::vector<WatchCandidate> candidates{
+      candidate("a", clock.session_start_ns() - 90 * kNanosecondsPerSecond)};
+  const Expected<WatchPlan, Refusal> plan =
+      build_watches(125, clock, roster.value(), candidates);
+  ASSERT_FALSE(plan.has_value())
+      << "a candidate visible 90s before the open built watches anyway: D0 second "
+      << stage_row(plan.value(), WatchStage::D0).decision_second << " (ordinal "
+      << stage_row(plan.value(), WatchStage::D0).decision_ordinal << "), D30 second "
+      << stage_row(plan.value(), WatchStage::D30).decision_second
+      << " — both collapsed onto the session's second 0, which no in-session candidate can reach";
+  EXPECT_EQ(plan.error().code(), RefusalCode::CLOCK_VIOLATION);
+}
+
+TEST(VisibilityWall, BuildWatchesRefusesACandidateVisibleAtOrAfterTheClose) {
+  const DecisionClock clock = decision_clock();
+  const std::vector<std::int64_t> none;
+  const Expected<DecisionRoster, Refusal> roster = DecisionRoster::build(clock, none);
+  ASSERT_TRUE(roster.has_value());
+  for (const std::int64_t visibility :
+       {clock.session_end_ns(), clock.session_end_ns() + kNanosecondsPerSecond}) {
+    const std::vector<WatchCandidate> candidates{candidate("a", visibility)};
+    const Expected<WatchPlan, Refusal> plan =
+        build_watches(125, clock, roster.value(), candidates);
+    ASSERT_FALSE(plan.has_value())
+        << "a candidate visible at " << visibility
+        << " (session end " << clock.session_end_ns()
+        << ") was censused into the ledger as three CLOCK_UNAVAILABLE rows instead of refusing";
+    EXPECT_EQ(plan.error().code(), RefusalCode::CLOCK_VIOLATION);
+  }
+}
+
+TEST(VisibilityWall, IsABoundCheckSoALawfulSubSecondVisibilityStillPasses) {
+  const DecisionClock clock = decision_clock();
+  // 7ns after registered second 10, and 1ns before the close: both are inside
+  // [start, end) and neither is a registered second. `second_of` would refuse
+  // both, and with them the whole union law the roster is built on.
+  const std::int64_t off_second = clock.second_ts(10).value() + 7;
+  const std::int64_t last_nanosecond = clock.session_end_ns() - 1;
+  const std::vector<std::int64_t> visibilities{off_second, last_nanosecond,
+                                               clock.session_start_ns()};
+  const Expected<DecisionRoster, Refusal> roster = DecisionRoster::build(clock, visibilities);
+  ASSERT_TRUE(roster.has_value()) << roster.error().message();
+  EXPECT_EQ(roster.value().size(), clock.second_count() + 2);
+  EXPECT_EQ(roster.value().visibilities_off_second(), 2);
+  EXPECT_EQ(roster.value().visibilities_on_second(), 1);
+
+  const std::vector<WatchCandidate> candidates{candidate("a", off_second)};
+  const Expected<WatchPlan, Refusal> plan =
+      build_watches(125, clock, roster.value(), candidates);
+  ASSERT_TRUE(plan.has_value()) << plan.error().message();
+  EXPECT_EQ(stage_row(plan.value(), WatchStage::D0).decision_second, 11);
+}
+
 }  // namespace
 }  // namespace qr::labels

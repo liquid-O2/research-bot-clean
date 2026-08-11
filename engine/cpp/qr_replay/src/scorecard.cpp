@@ -65,7 +65,14 @@ Expected<Scorecard, Refusal> score(std::span<const DailyLedger> ledgers) {
       if (trade.mae_cent > card.max_mae_cent) {
         card.max_mae_cent = trade.mae_cent;
       }
-      if (trade.mae_cent > kStopNetCent) {
+      // THE BREACH, card section 6 verbatim: "Realized gap-through breaches —
+      // defined as `stop_hit[h] AND gap_through_cent > 0` (stop fired AND the
+      // fill landed beyond the wall; NOTE: the mod-10 lattice makes
+      // `menu_mae_cent>30000` true for EVERY stopped trade, so MAE-threshold
+      // counting is a degenerate breach statistic and is forbidden; MAE remains
+      // a separate panel)". Both conjuncts are load-bearing and neither is
+      // derivable from the other.
+      if (trade.stop_hit && trade.gap_through_cent > 0) {
         ++card.breach_count;
       }
       mae_cents.push_back(trade.mae_cent);

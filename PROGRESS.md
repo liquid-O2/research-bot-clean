@@ -18,7 +18,7 @@
 | WP4 | DONE | 2026-08-10 | — | qr_sources 5,405 LOC; 46 tests; 15 mutants; registry oracle s125 EXACT (raw_rth_row_count 14,761,979 + complete_group_count 2,810,589); 46.1M values/s 3-stream (1.8× budget) | RUTW (B5) deferred and WALLED; qr_core gains COLUMN_FORBIDDEN |
 | WP5 | DONE | 2026-08-10 | — | qr_nbbo 3,379 LOC (1,747 module + 1,377 tests + 218 probe + 37 cmake); 36 tests; 20 red-ledger mutants; registry oracle s125 reproduced by the STATEFUL GROUP MACHINE (complete_group_count 2,810,589 + raw_rth_row_count 14,761,979); census published to tests/fixtures/nbbo_session125_census.tsv; full pass 1.65s vs 3s budget (machine's own share 0.55s) | CC-005 imbalance implemented as a composed accessor over the separate size means (zero denominator = typed missing, bounded [-1,1], sigma at WP8); derivative_null_mask + structural-zero domains + s125 sentinel_rows=0 confirmed unported/expected |
 | WP6..WP11 | TODO | — | — | — | see FINAL_PLAN §6 |
-| M2 | TODO | — | — | — | V4 A1..A9 + one 5-lane review |
+| M2 | DONE | 2026-08-11 | E_TASK_CARD_V4_FROZEN | card FROZEN (A1-A10); 5-lane review: 9 P0s + ~20 majors fixed in ONE pass; CI green; 653+13 proven tests | selector_v4.toml pinned |
 | M2.5 | TODO | — | — | — | Q*≤Q_max gate + decomposition (after M3-R2) |
 | M3 | TODO | — | — | — | R1,R2,R3,R3a,R4,R5 |
 | M4 | TODO | — | — | — | W2.0..W2.13 (conditional on M3 reading) |

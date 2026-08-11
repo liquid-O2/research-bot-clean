@@ -359,6 +359,24 @@ Expected<std::string, Refusal> ShardWriter::manifest_bytes() const {
   return Result(std::move(out));
 }
 
+namespace {
+
+/// True when the leaf's `rel_path` lives directly under `section`'s directory.
+[[nodiscard]] bool leaf_is_in_section(const NpyLeafReceipt& leaf, Section section) noexcept {
+  const std::string prefix = std::string(section_dir(section)) + "/";
+  return leaf.rel_path.size() > prefix.size() &&
+         leaf.rel_path.compare(0, prefix.size(), prefix) == 0;
+}
+
+/// The leaf name inside its section: `features/keys.npy` -> `keys.npy`.
+[[nodiscard]] std::string_view leaf_name_of(const NpyLeafReceipt& leaf) noexcept {
+  const std::size_t slash = leaf.rel_path.find_last_of('/');
+  return slash == std::string::npos ? std::string_view(leaf.rel_path)
+                                    : std::string_view(leaf.rel_path).substr(slash + 1);
+}
+
+}  // namespace
+
 Expected<ShardReceipt, Refusal> ShardWriter::publish() {
   using Result = Expected<ShardReceipt, Refusal>;
   if (published_) {
@@ -372,6 +390,52 @@ Expected<ShardReceipt, Refusal> ShardWriter::publish() {
   if (leaves_.empty()) {
     return Result::refuse(
         config_refusal("qr_emit::ShardWriter::publish", "a shard with no leaves is not a tape"));
+  }
+
+  // THE FEATURE/TRUTH DIGEST-COLLISION REFUSAL (card section 7(p), verbatim:
+  // "feature/truth digest-collision refusal — publishing refuses when any
+  // features/ leaf sha256 equals any truth/ leaf sha256").
+  //
+  // This is the leg the fd census cannot supply. The census tests PATHS, and a
+  // hard link, a symlink or an inherited descriptor gives a truth inode a second
+  // name with no `truth` component in it (see fd_census.hpp, "WHAT IT DOES NOT
+  // CATCH"). What cannot be laundered is the BYTES: a truth tensor republished
+  // under a feature name has the same sha256, and the shard does not publish.
+  //
+  // Leaf counts are ~20 per shard, so the quadratic scan is a few hundred string
+  // compares once per publish; there is no index to keep consistent and no
+  // hidden cost to measure.
+  for (const NpyLeafReceipt& feature : leaves_) {
+    if (!leaf_is_in_section(feature, Section::FEATURES)) {
+      continue;
+    }
+    for (const NpyLeafReceipt& truth : leaves_) {
+      if (!leaf_is_in_section(truth, Section::TRUTH)) {
+        continue;
+      }
+      if (feature.sha256 != truth.sha256) {
+        continue;
+      }
+      // THE ONE DECLARED EXCEPTION, and it is C4's own. APPENDIX C4 lists
+      // `keys` in BOTH sections — "`features/`: ... keys [N,4] i8 ...
+      // `truth/`: ... label_state [N] u1; keys." — because it IS the join
+      // between the two halves and is the same array on both sides by
+      // construction. A rule that refused it would refuse every lawful shard.
+      // The exception is by NAME and it is exactly one name: a truth tensor
+      // republished under ANY other feature name, including the same name for
+      // any other leaf, still refuses.
+      if (leaf_name_of(feature) == leaf_name_of(truth) &&
+          is_c4_shared_leaf(leaf_name_of(feature))) {
+        continue;
+      }
+      {
+        return Result::refuse(Refusal(
+            RefusalCode::SOURCE_AUTHENTICATION_FAILED, "qr_emit::ShardWriter::publish",
+            "a features/ leaf has the same sha256 as a truth/ leaf; a truth tensor cannot be "
+            "published under a feature name",
+            static_cast<std::int64_t>(feature.rows)));
+      }
+    }
   }
 
   Expected<std::string, Refusal> manifest = manifest_bytes();

@@ -104,6 +104,27 @@ class DecisionClock {
 };
 
 // ---------------------------------------------------------------------------
+// The visibility wall.
+// ---------------------------------------------------------------------------
+
+/// SPEC (verbatim, card section 3, "Visibility wall (review B1)"):
+///   "a candidate `visible_ts_ns` outside [session_start_ns, session_end_ns) is
+///    REFUSED (typed CLOCK_VIOLATION), never censused into the ordinal roster —
+///    a fail-open here silently renumbers every decision ordinal in the
+///    session."
+///
+/// A NAMED PRIMITIVE, and a BOUND CHECK rather than `second_of`: the roster is
+/// the union of the registered seconds AND the candidate visibilities, so a
+/// lawful sub-second visibility is precisely what puts a non-second instant on
+/// it. Both `DecisionRoster::build` and `build_watches` call this, because the
+/// two entry points fail differently — a pre-open instant on the roster shifts
+/// every later ordinal, while an out-of-session candidate handed to
+/// `build_watches` with a lawful roster silently becomes three
+/// CLOCK_UNAVAILABLE ledger rows. Returns the lawful visibility.
+[[nodiscard]] Expected<std::int64_t, Refusal> refuse_unless_visible_in_session(
+    const DecisionClock& clock, std::int64_t visible_ts_ns) noexcept;
+
+// ---------------------------------------------------------------------------
 // The authority decision-ordinal roster.
 // ---------------------------------------------------------------------------
 

@@ -146,6 +146,42 @@ TEST(PrefixEndpoint, TheCompleteSecondEndingAtTheCutoffIsThePrefixEndpoint) {
   EXPECT_EQ(*partial, 60U);
 }
 
+TEST(PrefixEndpoint, ACutoffAtOrPastTheGridEndIsAbsentAndNeverSubstitutesTheClose) {
+  // The contract this fixture holds the implementation to is the header's own:
+  // "Absent when the cutoff is before the session start or PAST THE GRID."
+  // Substituting the last endpoint for an out-of-range cutoff is a
+  // range-limiting guard returning a VALUE where the contract says nullopt, and
+  // the value it returns is the session close — "a terminal close endpoint,
+  // never a decision instant" (card section 3).
+  const auto grid = MidpointGrid::build(clock_125(), mids({{1'000, 100'000'000}}));
+  ASSERT_TRUE(grid.has_value());
+  const std::size_t last = grid.value().size() - 1U;
+  const std::int64_t close_ns = grid.value().endpoint_ns(last);
+  EXPECT_EQ(close_ns, clock_125().session_end_a().ns());
+
+  const auto at_close = grid.value().prefix_endpoint(close_ns);
+  EXPECT_FALSE(at_close.has_value())
+      << "a cutoff standing on the session close returned endpoint " << *at_close << " of "
+      << grid.value().size() << " — the close itself, substituted for an absent answer";
+  const auto past_close = grid.value().prefix_endpoint(close_ns + kNanosPerSecond);
+  EXPECT_FALSE(past_close.has_value())
+      << "a cutoff one second past the close returned endpoint " << *past_close
+      << " — the close substituted for an instant that is not on the grid at all";
+  const auto far_past = grid.value().prefix_endpoint(close_ns + 3'600 * kNanosPerSecond);
+  EXPECT_FALSE(far_past.has_value())
+      << "an hour past the close returned endpoint " << *far_past;
+
+  // The last LAWFUL cutoff — the final registered second — is unaffected, and so
+  // is the last nanosecond before the close: the wall moves nothing inside the
+  // session.
+  const auto final_second = grid.value().prefix_endpoint(close_ns - kNanosPerSecond);
+  ASSERT_TRUE(final_second.has_value());
+  EXPECT_EQ(*final_second, last - 1U);
+  const auto last_nanosecond = grid.value().prefix_endpoint(close_ns - 1);
+  ASSERT_TRUE(last_nanosecond.has_value());
+  EXPECT_EQ(*last_nanosecond, last - 1U);
+}
+
 // ---------------------------------------------------------------------------
 // The 16 location/clock values.
 // ---------------------------------------------------------------------------

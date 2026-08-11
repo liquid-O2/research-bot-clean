@@ -13,8 +13,15 @@
 // SPEC (FINAL_PLAN section 11): the pass conditions read `mean_LCB > $2,000`
 // and `MDD_UCB < $1,000` off the block-resampled estimator, and the
 // concentration panel is "leave-top-10-out clears + min-year + zero-day + gap +
-// tail panels", with "realized gap-through breach count reported with UCB"
-// where a breach is `menu_mae[h*]>30000 under the executed stop`.
+// tail panels", with "realized gap-through breach count reported with UCB".
+//
+// WHAT A BREACH IS (card section 6, as amended by the consolidated review,
+// verbatim): "Realized gap-through breaches — defined as `stop_hit[h] AND
+// gap_through_cent > 0` (stop fired AND the fill landed beyond the wall; NOTE:
+// the mod-10 lattice makes `menu_mae_cent>30000` true for EVERY stopped trade,
+// so MAE-threshold counting is a degenerate breach statistic and is forbidden;
+// MAE remains a separate panel)". The V3.3.3 phrasing `menu_mae[h*]>30000` that
+// FINAL_PLAN section 11 still carries is superseded by this definition.
 //
 // WHAT THIS FILE DOES NOT DO. It computes no confidence bound. The mean LCB and
 // the MDD UCB are the pinned `estimator_laws.py` and its MDD sibling law (own
@@ -70,9 +77,14 @@ struct Scorecard {
   double min_year_mean_net_dollars = 0.0;
   std::int32_t min_year = 0;
 
-  /// Gap-through breach panel: trades whose realised MAE exceeded the $300 stop
-  /// under the executed stop (`menu_mae_cent[h*] > 30000`), and the worst MAE.
+  /// Gap-through breach panel (card section 6): trades where the stop FIRED and
+  /// the fill landed beyond the wall — `stop_hit[h] AND gap_through_cent > 0`.
+  /// It is NOT an MAE threshold: `net_cent = frac_u6*10 - 576` puts every MAE
+  /// on the residue class 6 (mod 10), so the smallest MAE a stopped trade can
+  /// print is 30,006 and `mae > 30000` would count every stopped trade.
   std::int64_t breach_count = 0;
+  /// The worst realised MAE over every trade — a SEPARATE panel, never the
+  /// breach test.
   std::int64_t max_mae_cent = 0;
 
   /// Nearest-rank MAE quantiles over every trade of every session, in cents.

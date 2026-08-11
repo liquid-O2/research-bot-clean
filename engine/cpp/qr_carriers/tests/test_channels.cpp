@@ -62,6 +62,18 @@ qr::sources::StockTradeRow print_p2() {
   return trade_row(open_ms() + 10'000, 100'050'000, 200, open_ms() + 9'500, 100'010'000,
                    100'030'000, 100, 900, /*sequence=*/12);
 }
+/// THE THIRD MEMBER of the equal-ms group (consolidated review F3), with the
+/// same recipe test_native_order.cpp's `print_p5` uses: its size is 4 because
+///   log1p(300) = 5.70711026474888, log1p(200) = 5.303304908059076,
+///   log1p(4)   = 1.6094379124341003
+/// do NOT sum associatively in double — (a+b)+c = 12.61985308524205 while
+/// (c+b)+a = 12.619853085242053. Two members can never show that: IEEE-754
+/// addition is COMMUTATIVE, so `x+y == y+x` exactly and a two-member fixture
+/// passes a constructor that reduces in arrival order.
+qr::sources::StockTradeRow print_p3() {
+  return trade_row(open_ms() + 10'000, 100'040'000, 4, open_ms() + 9'200, 100'000'000,
+                   100'020'000, 200, 300, /*sequence=*/11);
+}
 
 TEST(StockPrintChannels, TheSeventeenChannelsAreTheCardsSeventeenValues) {
   StockPrintStream stream(clock_125());
@@ -260,8 +272,9 @@ TEST(EqualMillisecondPermutation, StockPrintOutputsAndLaterPriorStatesAreBitIden
     StockPrintStream stream(clock_125());
     const auto prior = stream.push_group(open_ms() + 8'000, prior_print_group());
     EXPECT_TRUE(prior.has_value());
-    const auto group = reversed ? rows_of<qr::sources::StockTradeRow>({print_p2(), print_p1()})
-                                : rows_of<qr::sources::StockTradeRow>({print_p1(), print_p2()});
+    const auto group =
+        reversed ? rows_of<qr::sources::StockTradeRow>({print_p3(), print_p2(), print_p1()})
+                 : rows_of<qr::sources::StockTradeRow>({print_p1(), print_p2(), print_p3()});
     const auto pushed = stream.push_group(open_ms() + 10'000, group);
     EXPECT_TRUE(pushed.has_value());
     // A LATER group, so the fixture compares the prior states the permuted group
@@ -286,8 +299,9 @@ TEST(EqualMillisecondPermutation, StockPrintOutputsAndLaterPriorStatesAreBitIden
   EXPECT_EQ(forward.second.present, reverse.second.present);
   EXPECT_EQ(forward.second.mean, reverse.second.mean);
   EXPECT_EQ(forward.second.ts_ns_a, reverse.second.ts_ns_a);
-  // The group's mechanism means are a real reduction over two DIFFERENT members
-  // (return 3 and 5 -> mean 4), so the comparison is not trivially satisfied.
+  // The group's mechanism means are a real reduction over THREE different
+  // members whose log sizes do not sum associatively, so the comparison is
+  // neither trivially satisfied nor satisfiable by commutativity alone.
   ASSERT_FALSE(forward.first.empty());
 }
 
@@ -325,8 +339,13 @@ TEST(EqualMillisecondPermutation, NbboAndOptionGroupsAreAlsoBitIdenticalUnderPer
                     .has_value());
     const auto a = quote_row(open_ms() + 2'000, 100'000'000, 100'020'000, 200, 100);
     const auto b = quote_row(open_ms() + 2'000, 100'010'000, 100'030'000, 200, 500);
-    const auto group = reversed ? testing::rows_of<qr::sources::StockQuoteRow>({b, a})
-                                : testing::rows_of<qr::sources::StockQuoteRow>({a, b});
+    // THE THIRD MEMBER (review F3): two members prove nothing about member
+    // order, because IEEE-754 addition is commutative and `x+y == y+x` exactly.
+    // Its ask size 4 makes log1p(100)+log1p(500)+log1p(4) non-associative
+    // (12.441164530360224 forwards, 12.441164530360226 reversed).
+    const auto c = quote_row(open_ms() + 2'000, 100'020'000, 100'040'000, 300, 4);
+    const auto group = reversed ? testing::rows_of<qr::sources::StockQuoteRow>({c, b, a})
+                                : testing::rows_of<qr::sources::StockQuoteRow>({a, b, c});
     EXPECT_TRUE(stream.push_group(open_ms() + 2'000, group).has_value());
     std::vector<std::uint8_t> bytes;
     for (const GroupRecord& record : stream.groups()) {
@@ -339,14 +358,26 @@ TEST(EqualMillisecondPermutation, NbboAndOptionGroupsAreAlsoBitIdenticalUnderPer
 
   const auto option_run = [](bool reversed) {
     OptionPrintStream stream(clock_125());
-    const auto a = option_row(open_ms() + 3'000, 1'800'000, 5, qr::sources::Right::Call,
+    // AT THE FAR QUOTE, and that is load-bearing: strictly inside the spread with
+    // no same-contract prior the aggressor resolves to 0 and every flow channel
+    // is the exact double 0, so a group of any size reduces order-free and the
+    // control proves nothing.
+    const auto a = option_row(open_ms() + 3'000, 1'900'000, 5, qr::sources::Right::Call,
                               180'000'000, 19'243, open_ms() + 2'000, 1'700'000, 1'900'000,
                               "2022-07-05T09:30:02.000", 180.0, 1);
-    const auto b = option_row(open_ms() + 3'000, 1'850'000, 7, qr::sources::Right::Put,
+    const auto b = option_row(open_ms() + 3'000, 1'750'000, 7, qr::sources::Right::Put,
                               180'000'000, 19'243, open_ms() + 2'500, 1'750'000, 1'950'000,
                               "2022-07-05T09:30:02.500", 180.25, 2);
-    const auto group = reversed ? testing::rows_of<qr::sources::OptionPrintRow>({b, a})
-                                : testing::rows_of<qr::sources::OptionPrintRow>({a, b});
+    // THE THIRD MEMBER, same recipe: log1p(5)+log1p(7)+log1p(9) is
+    // 6.173786103901937 forwards and 6.173786103901936 reversed. It is a CALL at
+    // sequence 0, so canonical order puts it FIRST and neither arrival order
+    // agrees with the canonical one.
+    auto c = option_row(open_ms() + 3'000, 1'880'000, 9, qr::sources::Right::Call,
+                        180'000'000, 19'243, open_ms() + 1'500, 1'680'000, 1'880'000,
+                        "2022-07-05T09:30:01.500", 179.75, 0);
+    c.delta = 0.0625;
+    const auto group = reversed ? testing::rows_of<qr::sources::OptionPrintRow>({c, b, a})
+                                : testing::rows_of<qr::sources::OptionPrintRow>({a, b, c});
     EXPECT_TRUE(stream.push_group(open_ms() + 3'000, group).has_value());
     std::vector<std::uint8_t> bytes;
     for (const GroupRecord& record : stream.groups()) {
@@ -950,6 +981,60 @@ std::map<std::string, std::int64_t> pinned_census(const std::string& session) {
     }
   }
   return out;
+}
+
+/// Parses the `{a,b,...}` set out of the card's own conjunction sentence.
+std::vector<std::int64_t> braced_set(std::string_view sentence) {
+  std::vector<std::int64_t> out;
+  const std::size_t open = sentence.find('{');
+  const std::size_t close = sentence.find('}', open == std::string_view::npos ? 0U : open);
+  if (open == std::string_view::npos || close == std::string_view::npos) {
+    return out;
+  }
+  std::int64_t value = 0;
+  bool have_digit = false;
+  for (std::size_t i = open + 1U; i < close; ++i) {
+    const char c = sentence[i];
+    if (c >= '0' && c <= '9') {
+      value = value * 10 + (c - '0');
+      have_digit = true;
+      continue;
+    }
+    if (have_digit) {
+      out.push_back(value);
+    }
+    value = 0;
+    have_digit = false;
+  }
+  if (have_digit) {
+    out.push_back(value);
+  }
+  return out;
+}
+
+TEST(Cc008FrozenQuote, TheCardsConjunctionSentenceAndTheExecutedVocabularyAreTheSameSet) {
+  // The header quotes card section 4 verbatim, and the sentence it quotes is
+  // the one CC-008 corrected: "every present extended code in {0,32}". This
+  // fixture is what stops the quote and the code from drifting apart — restore
+  // the V3.3.3 wording ("every present extended code0") and the parsed set is
+  // {0} while `kExtendedConditionAdmitted` is still {0, 32}.
+  const std::vector<std::int64_t> quoted = braced_set(kDirectionEligibleConjunction);
+  const std::vector<std::int64_t> executed(kExtendedConditionAdmitted.begin(),
+                                           kExtendedConditionAdmitted.end());
+  EXPECT_EQ(quoted, executed)
+      << "the quoted conjunction is: " << kDirectionEligibleConjunction;
+  EXPECT_NE(kDirectionEligibleConjunction.find("primary code0"), std::string_view::npos);
+  EXPECT_NE(kDirectionEligibleConjunction.find("finite positive price, and positive size"),
+            std::string_view::npos);
+  // And the executed predicate really admits exactly that set and nothing else.
+  for (const std::int64_t code : quoted) {
+    EXPECT_TRUE(is_extended_condition_admitted(code)) << code;
+  }
+  for (const std::int64_t outside : {1, 31, 33, 95, 115, 124, 254}) {
+    EXPECT_FALSE(is_extended_condition_admitted(outside)) << outside;
+  }
+  // The sentinel is an ABSENCE, never an admitted code.
+  EXPECT_FALSE(is_extended_condition_admitted(kExtendedConditionSentinel));
 }
 
 TEST(Cc008CensusPin, TheBiconditionalThatGroundsTheRulingHoldsOnAllThreePinnedSessions) {

@@ -124,6 +124,67 @@ std::string_view path_basename(std::string_view path) noexcept {
   return slash == std::string_view::npos ? path : path.substr(slash + 1);
 }
 
+bool is_session_qualified_truth_leaf(std::string_view entry) noexcept {
+  // Exactly `s<NNNN>/<L|S>/truth/<leaf>`: four components, the first
+  // `s` + four digits, the second one of L/S, the third the literal `truth`,
+  // and the fourth a nonempty leaf with no further slash.
+  constexpr std::string_view kMiddle = "/truth/";
+  if (entry.size() < 4 + 1 + 1 + 1 + kMiddle.size() + 1) {
+    return false;
+  }
+  if (entry[0] != 's') {
+    return false;
+  }
+  for (std::size_t index = 1; index < 5; ++index) {
+    if (entry[index] < '0' || entry[index] > '9') {
+      return false;
+    }
+  }
+  if (entry[5] != '/') {
+    return false;
+  }
+  if (entry[6] != 'L' && entry[6] != 'S') {
+    return false;
+  }
+  if (entry.substr(7, kMiddle.size()) != kMiddle) {
+    return false;
+  }
+  const std::string_view leaf = entry.substr(7 + kMiddle.size());
+  return !leaf.empty() && leaf.find('/') == std::string_view::npos;
+}
+
+bool path_ends_with_qualified_leaf(std::string_view path, std::string_view entry) noexcept {
+  if (path.size() < entry.size()) {
+    return false;
+  }
+  if (path.substr(path.size() - entry.size()) != entry) {
+    return false;
+  }
+  // ON A COMPONENT BOUNDARY: `/tapes/xs0125/L/truth/x.npy` must NOT match
+  // `s0125/L/truth/x.npy`.
+  return path.size() == entry.size() || path[path.size() - entry.size() - 1] == '/';
+}
+
+std::string_view truth_session_scope(std::string_view path) noexcept {
+  constexpr std::string_view kMiddle = "/truth/";
+  const std::size_t middle = path.find(kMiddle);
+  if (middle == std::string_view::npos || middle == 0) {
+    return {};
+  }
+  const std::string_view head = path.substr(0, middle);  // .../s0125/L
+  const std::size_t side_slash = head.find_last_of('/');
+  if (side_slash == std::string_view::npos || side_slash == 0) {
+    return {};
+  }
+  const std::string_view session_and_side = head.substr(0, side_slash);
+  const std::size_t session_slash = session_and_side.find_last_of('/');
+  const std::size_t begin =
+      session_slash == std::string_view::npos ? 0U : session_slash + 1U;
+  const std::string_view scope = head.substr(begin);
+  return is_session_qualified_truth_leaf(std::string(scope) + "/truth/x") ? scope
+                                                                         : std::string_view{};
+}
+
 CensusInternalScope::CensusInternalScope() noexcept { ++t_internal_depth; }
 CensusInternalScope::~CensusInternalScope() noexcept { --t_internal_depth; }
 
@@ -155,12 +216,24 @@ void FdCensus::begin(ProcessRole role) {
   census.preexisting = std::move(preexisting);
 }
 
-void FdCensus::set_truth_allowlist(std::vector<std::string> leaf_names) {
-  std::sort(leaf_names.begin(), leaf_names.end());
-  leaf_names.erase(std::unique(leaf_names.begin(), leaf_names.end()), leaf_names.end());
+void FdCensus::set_truth_allowlist(std::vector<std::string> qualified_paths) {
+  for (const std::string& entry : qualified_paths) {
+    if (!is_session_qualified_truth_leaf(entry)) {
+      // FAIL-FAST, not a refusal: a caller handing in a bare basename is a bug,
+      // and the only alternative to stopping here is silently admitting that
+      // leaf in every session of every fold (card section 7(p)).
+      detail::fail_fast(
+          "qr::emit::FdCensus::set_truth_allowlist: every entry must be a session-qualified "
+          "truth leaf of the form s<NNNN>/<L|S>/truth/<leaf>; a basename cannot bind the fold "
+          "wall");
+    }
+  }
+  std::sort(qualified_paths.begin(), qualified_paths.end());
+  qualified_paths.erase(std::unique(qualified_paths.begin(), qualified_paths.end()),
+                        qualified_paths.end());
   CensusState& census = state();
   const std::lock_guard<std::mutex> lock(census.mutex);
-  census.truth_allowlist = std::move(leaf_names);
+  census.truth_allowlist = std::move(qualified_paths);
 }
 
 bool FdCensus::recording() const noexcept {
@@ -200,9 +273,18 @@ bool FdCensus::admit(const char* path) noexcept {
         refused = true;
         break;
       case ProcessRole::TRAINER: {
-        const std::string leaf(path_basename(view));
-        refused = !std::binary_search(census.truth_allowlist.begin(),
-                                      census.truth_allowlist.end(), leaf);
+        // SESSION-QUALIFIED matching: the path must END in one of the declared
+        // `s<NNNN>/<L|S>/truth/<leaf>` entries, on a component boundary. The
+        // allowlist is small (the truth leaves of the folds in scope), so the
+        // linear scan costs nothing and a suffix match cannot be a binary
+        // search over basenames.
+        refused = true;
+        for (const std::string& entry : census.truth_allowlist) {
+          if (path_ends_with_qualified_leaf(view, entry)) {
+            refused = false;
+            break;
+          }
+        }
         break;
       }
       case ProcessRole::UNSET:
@@ -262,8 +344,14 @@ Status FdCensus::verify_no_truth_opened() const {
 Status FdCensus::verify_truth_allowlist_respected() const {
   const std::vector<std::string> allowed = truth_allowlist();
   for (const OpenRecord& record : truth_records()) {
-    const std::string leaf(path_basename(record.path));
-    if (!std::binary_search(allowed.begin(), allowed.end(), leaf)) {
+    bool listed = false;
+    for (const std::string& entry : allowed) {
+      if (path_ends_with_qualified_leaf(record.path, entry)) {
+        listed = true;
+        break;
+      }
+    }
+    if (!listed) {
       return Status::refuse(Refusal(RefusalCode::SOURCE_AUTHENTICATION_FAILED,
                                     "qr_emit::FdCensus::verify_truth_allowlist_respected",
                                     "a truth/ path outside the explicit allowlist was touched",
@@ -359,6 +447,59 @@ Status FdCensus::verify_open_fds_are_censused() const {
     }
   }
   return ok_status();
+}
+
+std::vector<FdCensus::TruthOpenRow> FdCensus::truth_open_receipt() const {
+  std::vector<TruthOpenRow> rows;
+  for (const OpenRecord& record : truth_records()) {
+    const std::string_view scope = truth_session_scope(record.path);
+    // A truth path with no session/side above it is itself a finding, so it is
+    // REPORTED under an explicit label rather than dropped from the receipt.
+    TruthOpenRow probe;
+    probe.session_scope = scope.empty() ? std::string("UNSCOPED") : std::string(scope);
+    probe.leaf = std::string(path_basename(record.path));
+    const auto found = std::lower_bound(
+        rows.begin(), rows.end(), probe, [](const TruthOpenRow& lhs, const TruthOpenRow& rhs) {
+          return lhs.session_scope != rhs.session_scope ? lhs.session_scope < rhs.session_scope
+                                                        : lhs.leaf < rhs.leaf;
+        });
+    TruthOpenRow* row = nullptr;
+    if (found != rows.end() && found->session_scope == probe.session_scope &&
+        found->leaf == probe.leaf) {
+      row = &*found;
+    } else {
+      row = &*rows.insert(found, probe);
+    }
+    row->opens += 1;
+    row->refused += record.refused ? 1 : 0;
+  }
+  return rows;
+}
+
+Status FdCensus::write_truth_open_receipt_tsv(const std::filesystem::path& path) const {
+  const std::vector<TruthOpenRow> rows = truth_open_receipt();
+  const CensusInternalScope scope;
+  std::string out = "# qr_emit_truth_open_receipt_v1\trole\t";
+  out += process_role_name(role());
+  out += "\ttruth_opens\t";
+  std::int64_t total = 0;
+  for (const TruthOpenRow& row : rows) {
+    total += row.opens;
+  }
+  out += decimal(total);
+  out += "\n";
+  out += "session_scope\tleaf\topens\trefused\n";
+  for (const TruthOpenRow& row : rows) {
+    out += row.session_scope;
+    out += "\t";
+    out += row.leaf;
+    out += "\t";
+    out += decimal(row.opens);
+    out += "\t";
+    out += decimal(row.refused);
+    out += "\n";
+  }
+  return write_whole_file(path, out);
 }
 
 Status FdCensus::write_census_tsv(const std::filesystem::path& path) const {

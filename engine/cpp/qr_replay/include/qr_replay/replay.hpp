@@ -115,8 +115,13 @@ struct TradeRecord {
   std::int64_t entry_ts_ns = 0;
   std::int64_t exit_ts_ns = 0;
   std::int64_t net_cent = 0;   ///< menu_net_cent[h] — already net of the 576c, charged once.
-  std::int64_t mae_cent = 0;   ///< menu_mae_cent[h] — the gap-through breach panel's input.
+  std::int64_t mae_cent = 0;   ///< menu_mae_cent[h] — the separate MAE panel's input.
   bool stop_hit = false;
+  /// The label's own `gap_through_cent`: how far past the wall the stop's fill
+  /// landed. With `stop_hit` this is the whole of the card's breach definition
+  /// (`stop_hit AND gap_through_cent > 0`); the MAE column is a different panel
+  /// and never the breach test.
+  std::int64_t gap_through_cent = 0;
 };
 
 /// The C6 return type: one session's economic result plus the typed census that

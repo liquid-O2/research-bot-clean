@@ -10,6 +10,10 @@ namespace {
 
 constexpr const char* kSite = "qr_candidates::build_session_roster";
 constexpr std::string_view kCandidateRowKind = "CANDIDATE";
+/// A policy that IS primitive, used only where `classify_admission` is asked
+/// nothing but the row_kind question (the CANDIDATE-row filter): passing a
+/// nonprimitive name there would answer a question that was not being asked.
+constexpr std::string_view kPrimitiveProbePolicy = "dc001";
 constexpr std::string_view kUnionPolicy = "UNION";
 
 /// One row of a candidate-id index into a decoded row group.
@@ -31,7 +35,8 @@ struct KeyedRow {
       return refuse<std::vector<KeyedRow>>(
           Refusal(RefusalCode::DECODE_FAILED, kSite, "row_kind is null", row));
     }
-    if (columns.value(row_kind_column, row) != kCandidateRowKind) {
+    if (classify_admission(columns.value(row_kind_column, row), kPrimitiveProbePolicy, true,
+                           true) == AdmissionClass::NOT_A_CANDIDATE_ROW) {
       continue;
     }
     candidate_rows += 1;
@@ -97,6 +102,22 @@ bool is_primitive_policy(std::string_view name) noexcept {
     }
   }
   return false;
+}
+
+AdmissionClass classify_admission(std::string_view row_kind, std::string_view policy_name,
+                                  bool event_scorable, bool has_own_visibility) noexcept {
+  if (row_kind != kCandidateRowKind) {
+    return AdmissionClass::NOT_A_CANDIDATE_ROW;
+  }
+  if (!is_primitive_policy(policy_name)) {
+    // UNION and every unknown policy: "typed census only ... creates no watch,
+    // action, prefix membership, feature, sampler, denominator, fit or score".
+    return AdmissionClass::NONPRIMITIVE_CENSUS_ONLY;
+  }
+  if (!event_scorable || !has_own_visibility) {
+    return AdmissionClass::PRIMITIVE_NOT_ADMITTED;
+  }
+  return AdmissionClass::ADMITTED_PRIMITIVE;
 }
 
 const char* admission_class_name(AdmissionClass value) noexcept {
@@ -295,13 +316,33 @@ Expected<SessionRoster, Refusal> build_session_roster(std::uint32_t ordinal,
     }
     roster.census.primitive_candidate_rows += 1;
 
-    const bool scorable = !registry.is_null(reg_scorable.value(), row) &&
-                          registry.value(reg_scorable.value(), row) == "true";
+    // THE STRICT PARSE (consolidated review L2-F1). `cell == "true"` mapped
+    // `TRUE`, `1`, and every other spelling onto "not scorable", so a drift in
+    // the publication's vocabulary would silently shrink the population instead
+    // of stopping the run. A null is refused for the same reason: an absent
+    // scorability is not a false one.
+    if (registry.is_null(reg_scorable.value(), row)) {
+      return refuse<SessionRoster>(
+          Refusal(RefusalCode::DECODE_FAILED, kSite, "event_scorable is null", row));
+    }
+    const auto scorable = parse_bool(registry.value(reg_scorable.value(), row), kSite);
+    if (!scorable) {
+      return refuse<SessionRoster>(scorable.error());
+    }
     const bool has_visibility = !registry.is_null(reg_visible.value(), row) &&
                                 registry.value(reg_visible.value(), row) != kAbsentCell;
-    if (!scorable || !has_visibility) {
+    const AdmissionClass admission =
+        classify_admission(kCandidateRowKind, policy, scorable.value(), has_visibility);
+    if (admission == AdmissionClass::PRIMITIVE_NOT_ADMITTED) {
       // Primitive, counted, NOT admitted — and never merged into the admitted
-      // set or silently dropped from the primitive census.
+      // set or silently dropped from the primitive census. The two reasons stay
+      // apart; a row can carry both.
+      if (!scorable.value()) {
+        roster.census.primitive_not_admitted_unscorable += 1;
+      }
+      if (!has_visibility) {
+        roster.census.primitive_not_admitted_no_visibility += 1;
+      }
       continue;
     }
     roster.census.admitted_rows += 1;
@@ -553,6 +594,8 @@ std::string render_census(const RosterCensus& census) {
   line("projection_candidate_rows", census.projection_candidate_rows);
   line("side_unavailable_candidates", census.side_unavailable_candidates);
   line("physical_key_authenticated_candidates", census.physical_key_authenticated_candidates);
+  line("primitive_not_admitted_unscorable", census.primitive_not_admitted_unscorable);
+  line("primitive_not_admitted_no_visibility", census.primitive_not_admitted_no_visibility);
   return out;
 }
 

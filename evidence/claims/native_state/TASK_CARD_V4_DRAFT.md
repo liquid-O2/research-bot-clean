@@ -1,6 +1,6 @@
 # Candidate-prefix native causal learnability — task card V4 (DRAFT)
 
-Status: **FREEZE-CANDIDATE — C++ SHAs filled from the M1-closed tree; becomes FROZEN when
+Status: **FROZEN 2026-08-11 — one consolidated 5-lane review completed; pooled P0s+majors fixed in the single D-001 pass; mechanically re-verified. Preceded by:
  the one consolidated 5-lane review is GREEN on the frozen bytes. NO PROBE OR MODEL
 MAY RUN BEFORE THAT.** V4 = V3.3.3 amended by exactly A1–A9 of FINAL_PLAN.md §7; any
 diff outside those regions is a review REJECT. The one claim is whether causal IWM
@@ -743,7 +743,8 @@ uses stock/NBBO/option-print streams; the option-quote reader itself is exercise
 schema-only until W2.1); (m) stricter reader censuses — per-channel decoded-vs-manifest
 row counts and full typed-state histograms per probe session, printed in full;
 (p) feature/truth digest-collision refusal — publishing refuses when any features/ leaf
-sha256 equals any truth/ leaf sha256; the trainer's truth allowlist matches
+sha256 equals any truth/ leaf sha256, EXCEPT the C4-shared join-key leaf `keys.npy`
+(deliberately identical in both sections; the exception list is frozen at that one name); the trainer's truth allowlist matches
 SESSION-QUALIFIED paths (basename matching cannot bind the fold wall) and a per-session
 truth-open receipt is published;
 (n) JSA TYPE_EMBEDDING_ABLATION (redefined by review F2: with width-distinct per-modality

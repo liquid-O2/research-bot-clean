@@ -334,11 +334,14 @@ def check_runtime_truth_guard(shard: pathlib.Path) -> None:
     assert_no_truth_arrays(features)  # clean
     truth = tape.truth(["menu_net_cent"])
     smuggled = dict(features)
-    smuggled["menu_net_cent"] = truth["menu_net_cent"]
+    # These two lines are REAL violations of the static rule and are declared as
+    # such: the runtime guard can only be tested by building the object it must
+    # refuse. The marker is line-scoped and counted in the checker's summary.
+    smuggled["menu_net_cent"] = truth["menu_net_cent"]  # truth-separation: guard-fixture
     expect_refusal("truth memmap in a feature bundle", lambda: assert_no_truth_arrays(smuggled))
     # A VIEW of a truth leaf is still a truth array.
     viewed = dict(features)
-    viewed["sliced"] = truth["menu_net_cent"][:2]
+    viewed["sliced"] = truth["menu_net_cent"][:2]  # truth-separation: guard-fixture
     expect_refusal("truth view in a feature bundle", lambda: assert_no_truth_arrays(viewed))
 
 
@@ -383,6 +386,123 @@ def check_static_separation(scratch: pathlib.Path) -> None:
     assert check_truth_separation.check_source(indirect, indirect.read_text(encoding="utf-8"))
 
 
+@check("the static check catches setitem, put, insert and out= as well as concatenation")
+def check_static_sinks(scratch: pathlib.Path) -> None:
+    # Review F4/F5: concatenation was never the only way a truth array reaches a
+    # feature tensor. Each of these four writes truth into a tensor without
+    # calling a concatenator once.
+    cases = {
+        "setitem": (
+            "def build(tape):\n"
+            "    features = tape.features()\n"
+            "    y = tape.truth(['menu_net_cent'])['menu_net_cent']\n"
+            "    features['direct_raw'][:, 0] = y\n",
+            "setitem",
+        ),
+        "augmented_setitem": (
+            "def build(tape):\n"
+            "    features = tape.features()\n"
+            "    y = tape.truth(['menu_net_cent'])['menu_net_cent']\n"
+            "    features['direct_raw'][:, 0] += y\n",
+            "setitem",
+        ),
+        "put": (
+            "import numpy as np\n"
+            "def build(tape):\n"
+            "    features = tape.features()\n"
+            "    y = tape.truth(['menu_net_cent'])['menu_net_cent']\n"
+            "    np.put(features['direct_raw'], 0, y)\n",
+            "put()",
+        ),
+        "insert": (
+            "import numpy as np\n"
+            "def build(tape):\n"
+            "    features = tape.features()\n"
+            "    y = tape.truth(['menu_net_cent'])['menu_net_cent']\n"
+            "    return np.insert(features['direct_raw'], 0, y, axis=1)\n",
+            "insert()",
+        ),
+        "out": (
+            "import numpy as np\n"
+            "def build(tape):\n"
+            "    features = tape.features()\n"
+            "    y = tape.truth(['menu_net_cent'])['menu_net_cent']\n"
+            "    np.add(y, 0, out=features['direct_raw'])\n",
+            "out=",
+        ),
+    }
+    for name, (source, needle) in cases.items():
+        path = scratch / f"sink_{name}.py"
+        path.write_text(source, encoding="utf-8")
+        violations = check_truth_separation.check_source(path, path.read_text(encoding="utf-8"))
+        assert violations, f"{name}: the widened sink set missed it"
+        assert any(needle in v for v in violations), (name, violations)
+
+    # The control: the same shapes with NO truth in them are clean.
+    clean = scratch / "sink_clean.py"
+    clean.write_text(
+        "import numpy as np\n"
+        "def build(tape):\n"
+        "    features = tape.features()\n"
+        "    features['direct_raw'][:, 0] = features['grid_1s'][:, 0]\n"
+        "    np.add(features['grid_1s'], 0, out=features['direct_raw'])\n",
+        encoding="utf-8",
+    )
+    assert check_truth_separation.check_source(clean, clean.read_text(encoding="utf-8")) == []
+
+
+# The name deliberately avoids spelling the marker: `check_red_ledger_python.sh`
+# reads these names with an anchored regex, so a trailing suppression comment on
+# this line would make the check invisible to the red-ledger gate.
+@check("the census scope marker outside qr_emit's internals is a violation")
+def check_census_scope_rule(scratch: pathlib.Path) -> None:
+    # The marker silences fd-census recording for whatever is opened inside it,
+    # so anywhere but qr_emit's own internals it is a hole in the wall.
+    outside = scratch / "qr_labels" / "src" / "leaky.cpp"
+    outside.parent.mkdir(parents=True, exist_ok=True)
+    outside.write_text(
+        "void f() {\n"
+        "  const qr::emit::CensusInternalScope scope;\n"  # truth-separation: guard-fixture
+        "  std::ifstream truth(\"s0125/L/truth/menu_net_cent.npy\");\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    violations = check_truth_separation.check_census_scope(
+        outside, outside.read_text(encoding="utf-8"))
+    assert len(violations) == 1, violations
+    assert "CensusInternalScope" in violations[0]  # truth-separation: guard-fixture
+    assert ":2:" in violations[0], violations
+
+    # qr_emit's own internals are the two directories that may name it.
+    for owner in ("qr_emit/src/fd_census.cpp", "qr_emit/include/qr_emit/fd_census.hpp"):
+        path = scratch / owner
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("CensusInternalScope scope;\n", encoding="utf-8")  # truth-separation: guard-fixture
+        assert check_truth_separation.check_census_scope(
+            path, path.read_text(encoding="utf-8")) == []
+
+
+@check("a declared guard-fixture line is suppressed, counted, and suppresses nothing else")
+def check_suppression_is_narrow(scratch: pathlib.Path) -> None:
+    path = scratch / "suppressed.py"
+    path.write_text(
+        "import numpy as np\n"
+        "def build(tape):\n"
+        "    features = tape.features()\n"
+        "    y = tape.truth(['menu_net_cent'])['menu_net_cent']\n"
+        "    features['a'][0] = y  # truth-separation: guard-fixture\n"
+        "    features['b'][0] = y\n",
+        encoding="utf-8",
+    )
+    text = path.read_text(encoding="utf-8")
+    found = check_truth_separation.check_source(path, text)
+    assert len(found) == 2, found
+    kept, dropped = check_truth_separation.apply_suppressions(text, found)
+    assert dropped == 1, (kept, dropped)
+    assert len(kept) == 1, kept
+    assert ":6:" in kept[0], kept
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--shard", type=pathlib.Path, required=True)
@@ -401,6 +521,9 @@ def main() -> int:
     check_manifest_mismatch(args.shard, scratch)
     check_runtime_truth_guard(args.shard)
     check_static_separation(scratch)
+    check_static_sinks(scratch)
+    check_census_scope_rule(scratch)
+    check_suppression_is_narrow(scratch)
 
     failures = 0
     for name, passed, detail in RESULTS:

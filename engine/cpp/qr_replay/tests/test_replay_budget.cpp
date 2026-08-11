@@ -52,8 +52,8 @@ std::vector<ScoredAction> synthetic_tape() {
       spec.decision_ordinal = ordinal;
       spec.decision_ts_ns = ts;
       spec.side = side;
-      spec.predicted_net = side == Side::LONG ? score : 1.0 - score;
-      spec.predicted_stop_prob = 0.1;
+      spec.predicted_net_h_star = side == Side::LONG ? score : 1.0 - score;
+      spec.predicted_stop_prob_h_ref = 0.1;
       spec.fill_delay_ns = kSecondNs;
       spec.hold_ns = kMinuteNs;
       spec.net_cent = side == Side::LONG ? 100 : -100;

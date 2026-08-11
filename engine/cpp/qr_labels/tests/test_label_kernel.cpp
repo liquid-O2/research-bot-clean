@@ -143,6 +143,30 @@ TEST(StopWall, GapThroughBeyondTheWallIsRetainedAndReportedNeverCappedAtTheWall)
   EXPECT_EQ(row.menu.menu_mae_cent[0], -net_of_move(-20'000));
 }
 
+TEST(StopWall, TheTruthRowCarriesTheScansGapThroughSoTheReplayNeverInfersItFromMae) {
+  // The ECONOMIC replay reads `qr::replay::LabelRow`, not this kernel's
+  // `scan`. Card section 6's breach panel is `stop_hit[h] AND
+  // gap_through_cent > 0`, so the gap-through has to be ON the truth row; if it
+  // is not, the only wall evidence the replay can reach is `menu_mae_cent`, and
+  // that threshold is the degenerate statistic the same paragraph forbids.
+  const SessionLabelIndex gapped = testing::index_of(ladder({-2'943, -20'000}));
+  const LabelRow through = label_or_fail(gapped, before_entry(), Side::LONG);
+  ASSERT_TRUE(through.scan.crossed);
+  EXPECT_GT(through.scan.gap_through_cent, 0);
+  EXPECT_EQ(through.menu.gap_through_cent, through.scan.gap_through_cent);
+
+  // And the case the whole correction exists for: a stop that filled back at or
+  // above the wall reports ZERO gap-through while its MAE — 30,006, the
+  // smallest a stopped trade can print — still clears 30,000.
+  const SessionLabelIndex recovered = testing::index_of(ladder({-2'943, -1'000}));
+  const LabelRow back = label_or_fail(recovered, before_entry(), Side::LONG);
+  ASSERT_TRUE(back.scan.crossed);
+  EXPECT_EQ(back.menu.gap_through_cent, 0);
+  EXPECT_EQ(back.menu.stop_hit[0], 1U);
+  EXPECT_EQ(back.menu.menu_mae_cent[0], 30'006);
+  EXPECT_GT(back.menu.menu_mae_cent[0], qr::replay::kStopNetCent);
+}
+
 TEST(StopWall, IsScannedStrictlyAfterTheFillSoAWideEntryCannotStopItself) {
   // The entry group's own mark is -1,576 here; even a mark far below the wall
   // AT the fill instant could not trigger, because the scan starts after it.

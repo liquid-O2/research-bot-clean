@@ -177,7 +177,7 @@ TEST_F(FdCensusTest, AFeatureBuilderShardBuildNeverTouchesTruth) {
 }
 
 TEST_F(FdCensusTest, ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth) {
-  const std::filesystem::path dir = scratch("census_trainer");
+  const std::filesystem::path dir = scratch("census_trainer") / "s0125" / "L";
   std::filesystem::create_directories(dir / "truth");
   const std::string allowed = (dir / "truth" / "menu_net_cent.npy").string();
   const std::string denied = (dir / "truth" / "cert_net.npy").string();
@@ -185,7 +185,7 @@ TEST_F(FdCensusTest, ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth) 
   { std::ofstream seed(denied); seed << "b\n"; }
 
   FdCensus::instance().begin(ProcessRole::TRAINER);
-  FdCensus::instance().set_truth_allowlist({"menu_net_cent.npy"});
+  FdCensus::instance().set_truth_allowlist({"s0125/L/truth/menu_net_cent.npy"});
   EXPECT_EQ(FdCensus::instance().truth_allowlist().size(), 1U);
 
   const int good = ::open(allowed.c_str(), O_RDONLY);
@@ -213,6 +213,151 @@ TEST_F(FdCensusTest, ATrainerOpensItsExplicitAllowlistAndNothingElseUnderTruth) 
   if (fd >= 0) {
     ::close(fd);
   }
+}
+
+// ---------------------------------------------------------------------------
+// THE FOLD WALL (card section 7(p), review F4/F5): "the trainer's truth
+// allowlist matches SESSION-QUALIFIED paths (basename matching cannot bind the
+// fold wall) and a per-session truth-open receipt is published".
+// ---------------------------------------------------------------------------
+
+TEST_F(FdCensusTest, TheSameLeafInAnotherSessionIsNotAdmittedByAQualifiedAllowlist) {
+  // THE WHOLE POINT. `menu_net_cent.npy` is the same NAME in every session of
+  // every fold, so a basename allowlist that lets a trainer read F4-TRAIN's copy
+  // lets it read F4-TEST's copy too — the fold wall is a statement about
+  // SESSIONS and a basename cannot make one.
+  const std::filesystem::path base = scratch("census_fold_wall");
+  const std::filesystem::path train = base / "s0125" / "L" / "truth";
+  const std::filesystem::path test = base / "s0500" / "L" / "truth";
+  std::filesystem::create_directories(train);
+  std::filesystem::create_directories(test);
+  const std::string in_fold = (train / "menu_net_cent.npy").string();
+  const std::string across_the_wall = (test / "menu_net_cent.npy").string();
+  { std::ofstream seed(in_fold); seed << "train\n"; }
+  { std::ofstream seed(across_the_wall); seed << "test\n"; }
+
+  FdCensus::instance().begin(ProcessRole::TRAINER);
+  FdCensus::instance().set_truth_allowlist({"s0125/L/truth/menu_net_cent.npy"});
+
+  const int allowed = ::open(in_fold.c_str(), O_RDONLY);
+  EXPECT_GE(allowed, 0) << "the trainer's own fold's leaf must open";
+  if (allowed >= 0) {
+    ::close(allowed);
+  }
+  errno = 0;
+  const int walled = ::open(across_the_wall.c_str(), O_RDONLY);
+  EXPECT_LT(walled, 0) << "the SAME leaf name in a TEST session was admitted: the allowlist is "
+                          "matching basenames, and a basename cannot bind the fold wall";
+  EXPECT_EQ(errno, EACCES);
+  if (walled >= 0) {
+    ::close(walled);
+  }
+  const auto verdict = FdCensus::instance().verify_truth_allowlist_respected();
+  ASSERT_FALSE(verdict.has_value());
+  EXPECT_EQ(verdict.error().code(), qr::RefusalCode::SOURCE_AUTHENTICATION_FAILED);
+
+  // The side is part of the scope too: the SHORT tape of the very same session
+  // is a different shard and is not on the list.
+  const std::filesystem::path other_side = base / "s0125" / "S" / "truth";
+  std::filesystem::create_directories(other_side);
+  const std::string short_leaf = (other_side / "menu_net_cent.npy").string();
+  { std::ofstream seed(short_leaf); seed << "short\n"; }
+  errno = 0;
+  const int short_fd = ::open(short_leaf.c_str(), O_RDONLY);
+  EXPECT_LT(short_fd, 0);
+  if (short_fd >= 0) {
+    ::close(short_fd);
+  }
+}
+
+TEST_F(FdCensusTest, TheQualifiedLeafShapeAndItsSuffixMatchAreBothExact) {
+  EXPECT_TRUE(qr::emit::is_session_qualified_truth_leaf("s0125/L/truth/menu_net_cent.npy"));
+  EXPECT_TRUE(qr::emit::is_session_qualified_truth_leaf("s0749/S/truth/keys.npy"));
+  // Everything a basename allowlist would have accepted:
+  EXPECT_FALSE(qr::emit::is_session_qualified_truth_leaf("menu_net_cent.npy"));
+  EXPECT_FALSE(qr::emit::is_session_qualified_truth_leaf("truth/menu_net_cent.npy"));
+  EXPECT_FALSE(qr::emit::is_session_qualified_truth_leaf("s125/L/truth/x.npy"));
+  EXPECT_FALSE(qr::emit::is_session_qualified_truth_leaf("s0125/X/truth/x.npy"));
+  EXPECT_FALSE(qr::emit::is_session_qualified_truth_leaf("s0125/L/features/x.npy"));
+  EXPECT_FALSE(qr::emit::is_session_qualified_truth_leaf("/s0125/L/truth/x.npy"));
+  EXPECT_FALSE(qr::emit::is_session_qualified_truth_leaf("s0125/L/truth/sub/x.npy"));
+  EXPECT_FALSE(qr::emit::is_session_qualified_truth_leaf("s0125/L/truth/"));
+
+  const std::string entry = "s0125/L/truth/menu_net_cent.npy";
+  EXPECT_TRUE(qr::emit::path_ends_with_qualified_leaf("/tapes/s0125/L/truth/menu_net_cent.npy",
+                                                      entry));
+  EXPECT_TRUE(qr::emit::path_ends_with_qualified_leaf(entry, entry));
+  EXPECT_FALSE(qr::emit::path_ends_with_qualified_leaf("/tapes/s0500/L/truth/menu_net_cent.npy",
+                                                       entry));
+  // A component boundary, not a substring: `xs0125` is a different directory.
+  EXPECT_FALSE(qr::emit::path_ends_with_qualified_leaf("/tapes/xs0125/L/truth/menu_net_cent.npy",
+                                                       entry));
+}
+
+TEST_F(FdCensusTest, ThePerSessionTruthOpenReceiptIsPublishedAndKeepsTheSessionsApart) {
+  const std::filesystem::path base = scratch("census_receipt");
+  const std::filesystem::path train = base / "s0125" / "L" / "truth";
+  const std::filesystem::path test = base / "s0500" / "L" / "truth";
+  std::filesystem::create_directories(train);
+  std::filesystem::create_directories(test);
+  const std::string net = (train / "menu_net_cent.npy").string();
+  const std::string mae = (train / "menu_mae_cent.npy").string();
+  const std::string walled = (test / "menu_net_cent.npy").string();
+  for (const std::string& path : {net, mae, walled}) {
+    std::ofstream seed(path);
+    seed << "x\n";
+  }
+
+  FdCensus::instance().begin(ProcessRole::TRAINER);
+  FdCensus::instance().set_truth_allowlist(
+      {"s0125/L/truth/menu_net_cent.npy", "s0125/L/truth/menu_mae_cent.npy"});
+  for (const std::string& path : {net, net, mae, walled}) {
+    const int fd = ::open(path.c_str(), O_RDONLY);
+    if (fd >= 0) {
+      ::close(fd);
+    }
+  }
+
+  const std::vector<FdCensus::TruthOpenRow> rows = FdCensus::instance().truth_open_receipt();
+  ASSERT_EQ(rows.size(), 3U);
+  EXPECT_EQ(rows[0].session_scope, "s0125/L");
+  EXPECT_EQ(rows[0].leaf, "menu_mae_cent.npy");
+  EXPECT_EQ(rows[0].opens, 1);
+  EXPECT_EQ(rows[0].refused, 0);
+  EXPECT_EQ(rows[1].session_scope, "s0125/L");
+  EXPECT_EQ(rows[1].leaf, "menu_net_cent.npy");
+  EXPECT_EQ(rows[1].opens, 2) << "repeats are counted, not collapsed";
+  EXPECT_EQ(rows[2].session_scope, "s0500/L");
+  EXPECT_EQ(rows[2].leaf, "menu_net_cent.npy");
+  EXPECT_EQ(rows[2].refused, 1) << "the walled session's open is in the receipt AND refused";
+
+  const std::filesystem::path receipt = base / "truth_open_receipt.tsv";
+  ASSERT_TRUE(FdCensus::instance().write_truth_open_receipt_tsv(receipt).has_value());
+  const std::string text = read_file(receipt);
+  EXPECT_NE(text.find("# qr_emit_truth_open_receipt_v1\trole\tTRAINER\ttruth_opens\t4\n"),
+            std::string::npos);
+  EXPECT_NE(text.find("session_scope\tleaf\topens\trefused\n"), std::string::npos);
+  EXPECT_NE(text.find("s0125/L\tmenu_net_cent.npy\t2\t0\n"), std::string::npos);
+  EXPECT_NE(text.find("s0500/L\tmenu_net_cent.npy\t1\t1\n"), std::string::npos);
+  // A second write onto the same path never replaces a published receipt.
+  EXPECT_FALSE(FdCensus::instance().write_truth_open_receipt_tsv(receipt).has_value());
+}
+
+TEST_F(FdCensusTest, AFeatureBuildersTruthOpenReceiptIsEmptyWhichIsItsWholeClaim) {
+  const std::filesystem::path base = scratch("census_receipt_builder");
+  std::filesystem::create_directories(base);
+  FdCensus::instance().begin(ProcessRole::FEATURE_BUILDER);
+  const std::string feature = (base / "direct_raw.npy").string();
+  { std::ofstream seed(feature); seed << "f\n"; }
+  const int fd = ::open(feature.c_str(), O_RDONLY);
+  if (fd >= 0) {
+    ::close(fd);
+  }
+  EXPECT_TRUE(FdCensus::instance().truth_open_receipt().empty());
+  const std::filesystem::path receipt = base / "truth_open_receipt.tsv";
+  ASSERT_TRUE(FdCensus::instance().write_truth_open_receipt_tsv(receipt).has_value());
+  const std::string text = read_file(receipt);
+  EXPECT_NE(text.find("truth_opens\t0\n"), std::string::npos);
 }
 
 TEST_F(FdCensusTest, TheProcSweepCatchesADescriptorTheDoorNeverSaw) {

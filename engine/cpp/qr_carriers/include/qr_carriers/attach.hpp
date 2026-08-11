@@ -18,18 +18,40 @@
 //    attachments must therefore be masked, not consumed."
 //
 //   "The stock print eligibility contract is the production allowlist in
-//    `engine/crates/select/src/execution_contract.rs` ...:
+//    `engine/crates/select/src/execution_contract.rs` SHA
+//    `ed45607dba65ea3bb172237d70cdf1e061ec80fc5f704fe8b57e37f4d295745d`:
 //    `is_trade_condition_eligible(code)` admits exactly code0 (REGULAR),
 //    types40..44 as CANCEL, and excludes every other code;
 //    `is_quote_condition_eligible(code)` likewise admits only code0. The
-//    adapter/sentinel contract is `adapters/stock_trades.rs` ...: each of four
-//    extended-condition slots is absent only at sentinel255, otherwise it too
-//    must be code0. ... Thus a direction-eligible stock print requires primary
-//    code0, every present extended code0, finite positive price, and positive
-//    size. All other prints remain in raw counts/quality with their typed
-//    reason ... Per session/window the immutable quality ledger reports total,
-//    eligible, primary-nonzero, extended-nonzero, CANCEL40..44, sentinel-absent,
-//    nonpositive-size, and nonfinite-price counts."
+//    adapter/sentinel contract is
+//    `adapters/stock_trades.rs` SHA
+//    `ebc3f1b95147e6240816553422ca1a300073671f2092906b6a398c686f05c9af`: each of four
+//    extended-condition slots is absent only at sentinel255, otherwise it too must be code0.
+//    The production primary-plus-extended conjunction is witnessed by
+//    `engine/crates/cli/src/f02_handoff_cmd.rs` SHA
+//    `21d21f6cd020dc4c00dede55ba790323eef699f50a6590c02d6f7d4c4da7881c`; only its condition
+//    contract is reused, while V3.3.3's stricter quote/timestamp signing law above controls sign.
+//    **CC-008 (measured vocabulary correction):** the extended-condition ADMITTED set is {0, 32}
+//    (32 = the raw sale-condition-list spelling of REGULAR: measured biconditional ext1==32 ⟺
+//    primary==0 with zero exceptions across 598,255 prints on sessions {125,500,625}; censuses
+//    pinned in engine/cpp/tests/fixtures/); the absence sentinel remains 255; the conjunction
+//    law is retained fail-closed (primary-0 with any real nonzero non-32 extended code —
+//    unobserved in scope — stays ineligible).
+//    Thus a direction-eligible stock print requires primary code0, every present extended code in {0,32},
+//    finite positive price, and positive size. All other prints remain in raw counts/quality
+//    with their typed reason, but cannot update price return, print-minus-mid, aggressor,
+//    signed size, prior-tick state, or prefix VWAP. No condition set is inferred from frequency.
+//    Per session/window the immutable quality ledger reports total, eligible, primary-nonzero,
+//    extended-nonzero, CANCEL40..44, sentinel-absent, nonpositive-size, and nonfinite-price
+//    counts. These rows remain in total raw context; the model receives the eligibility bit
+//    and ordinary presence masks, never a silently filtered tape."
+//
+// THE QUOTE ABOVE IS THE FROZEN V4 BYTES, NOT V3.3.3's. The V3.3.3 sentence read
+// "every present extended code0"; the frozen card carries CC-008 in its own text
+// and reads "every present extended code in {0,32}". A stale quote here would
+// have left this header claiming a law the same header's code deliberately does
+// not implement, which is exactly the drift `kDirectionEligibleConjunction` and
+// its fixture now make impossible to reintroduce silently.
 //
 // THE UNDERLYING-TIMESTAMP PARSE IS THIS MODULE'S, BY RULING. WP4 retained
 // `underlying_timestamp(36)` as verbatim UTF-8 and interpreted nothing
@@ -189,11 +211,13 @@ inline constexpr std::int64_t kCancelConditionLast = 44;
 /// The extended-condition slot sentinel: "absent only at sentinel255".
 inline constexpr std::int64_t kExtendedConditionSentinel = 255;
 
-/// **CC-008 (orchestrator ruling, 2026-08-10): the ADMITTED extended-condition
-/// vocabulary is {0, 32}; the sentinel stays {255}; the conjunction is
-/// RETAINED.**
+/// **CC-008, now part of the FROZEN CARD (section 4, quoted verbatim at the top
+/// of this header): the ADMITTED extended-condition vocabulary is {0, 32}; the
+/// sentinel stays {255}; the conjunction is RETAINED.** It reached the card as
+/// an orchestrator ruling of 2026-08-10 and is no longer an amendment sitting
+/// beside the spec — the card's own conjunction sentence now says "{0,32}".
 ///
-/// The card's V4 text says a present extended slot "must be code0", and on real
+/// V3.3.3's text said a present extended slot "must be code0", and on real
 /// tape that admits nothing: this lane measured all 598,255 prints of sessions
 /// {125, 500, 625} and found `ext1 == 32` IFF `primary == 0`, with ZERO
 /// exceptions on every session (45,169 / 88,205 / 47,460 — exactly each
@@ -211,6 +235,19 @@ inline constexpr std::int64_t kExtendedConditionSentinel = 255;
 /// `tests/fixtures/carriers_conditions_session{125,500,625}.tsv` and is read by
 /// the `Cc008CensusPin` fixtures.
 inline constexpr std::array<std::int64_t, 2> kExtendedConditionAdmitted{0, 32};
+
+/// THE CARD'S CONJUNCTION SENTENCE, AS BYTES RATHER THAN AS A COMMENT
+/// (evidence/claims/native_state/TASK_CARD_V4_DRAFT.md section 4, verbatim).
+///
+/// A comment cannot be held to anything; a string can. `Cc008FrozenQuote` parses
+/// the brace set out of THIS sentence and requires it to equal
+/// `kExtendedConditionAdmitted`, so the header's quoted law and the header's
+/// executed law cannot drift apart in either direction: restore the V3.3.3
+/// wording and the parsed set becomes {0} while the constant stays {0, 32};
+/// widen the constant and the sentence no longer covers it.
+inline constexpr std::string_view kDirectionEligibleConjunction =
+    "Thus a direction-eligible stock print requires primary code0, every present extended code "
+    "in {0,32}, finite positive price, and positive size.";
 
 /// True when a PRESENT (non-sentinel) extended slot carries an admitted code.
 [[nodiscard]] constexpr bool is_extended_condition_admitted(std::int64_t code) noexcept {

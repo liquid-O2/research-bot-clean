@@ -82,7 +82,11 @@ class MidpointGrid {
 
   /// The greatest complete-second endpoint at or before `cutoff_ns_a`, i.e. the
   /// last endpoint of "the prior complete 1s midpoint grid". Absent when the
-  /// cutoff is before the session start or past the grid.
+  /// cutoff is before the session start or AT OR PAST THE GRID END — the grid's
+  /// final endpoint is the session close, and the card makes that a terminal
+  /// carry endpoint and "never a decision instant" (section 3), so no lawful
+  /// cutoff ever resolves to it. Absent means absent: this never clamps a
+  /// cutoff onto the close and hands back the close's carried value.
   [[nodiscard]] std::optional<std::size_t> prefix_endpoint(
       std::int64_t cutoff_ns_a) const noexcept;
 

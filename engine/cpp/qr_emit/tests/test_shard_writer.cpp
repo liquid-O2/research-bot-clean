@@ -327,6 +327,97 @@ TEST(ShardPublish, RefusesAnEmptyShardAndADuplicateLeaf) {
   EXPECT_TRUE(dup->open_leaf(Section::TRUTH, "group_ts", NpyDtype::I8, shape).has_value());
 }
 
+TEST(ShardPublish, RefusesWhenAFeatureLeafHasTheSameDigestAsATruthLeaf) {
+  // Card section 7(p), verbatim: "feature/truth digest-collision refusal —
+  // publishing refuses when any features/ leaf sha256 equals any truth/ leaf
+  // sha256".
+  //
+  // WHY THIS AND NOT THE fd CENSUS. The census tests PATHS, and a hard link or
+  // an inherited descriptor gives a truth inode a second name with no `truth`
+  // component in it. The BYTES cannot be relabelled: a truth tensor republished
+  // under a feature name carries the same sha256, and the shard does not
+  // publish.
+  const std::filesystem::path root = scratch("shard_digest_collision");
+  auto begun = ShardWriter::begin(spec_for(root / "collide"));
+  ASSERT_TRUE(begun.has_value());
+  std::unique_ptr<ShardWriter> writer = std::move(begun).value();
+  const std::vector<std::int64_t> shape = {4};
+  const std::vector<std::int64_t> truth_values = {7, 8, 9, 10};
+  ASSERT_TRUE(writer
+                  ->write_leaf<std::int64_t>(Section::TRUTH, "menu_net_cent", NpyDtype::I8, shape,
+                                             truth_values)
+                  .has_value());
+  // The SAME tensor, written into features/ under an innocent name.
+  ASSERT_TRUE(writer
+                  ->write_leaf<std::int64_t>(Section::FEATURES, "group_ts", NpyDtype::I8, shape,
+                                             truth_values)
+                  .has_value());
+  const auto refused = writer->publish();
+  ASSERT_FALSE(refused.has_value())
+      << "a truth tensor was published under a feature name; the digest collision is the only "
+         "leg that can see a copy the path-based census cannot";
+  EXPECT_EQ(refused.error().code(), qr::RefusalCode::SOURCE_AUTHENTICATION_FAILED);
+  EXPECT_FALSE(std::filesystem::exists(shard_dir(root / "collide")))
+      << "a refused publish leaves nothing behind";
+
+  // The control: DIFFERENT bytes in the two sections publish exactly as before,
+  // so the refusal is about equality and not about writing both sections.
+  auto clean_begun = ShardWriter::begin(spec_for(root / "clean"));
+  ASSERT_TRUE(clean_begun.has_value());
+  std::unique_ptr<ShardWriter> clean = std::move(clean_begun).value();
+  ASSERT_TRUE(clean
+                  ->write_leaf<std::int64_t>(Section::TRUTH, "menu_net_cent", NpyDtype::I8, shape,
+                                             truth_values)
+                  .has_value());
+  const std::vector<std::int64_t> feature_values = {7, 8, 9, 11};
+  ASSERT_TRUE(clean
+                  ->write_leaf<std::int64_t>(Section::FEATURES, "group_ts", NpyDtype::I8, shape,
+                                             feature_values)
+                  .has_value());
+  EXPECT_TRUE(clean->publish().has_value());
+}
+
+TEST(ShardPublish, TheSharedJoinKeyIsTheOnePairTheDigestRefusalDoesNotFireOn) {
+  // APPENDIX C4 puts `keys` in BOTH sections and it is the SAME array on both
+  // sides — it is the join between the two halves. Every lawful shard therefore
+  // contains one features/truth sha256 collision, and a rule with no exception
+  // would refuse all of them.
+  const std::filesystem::path root = scratch("shard_shared_keys");
+  auto begun = ShardWriter::begin(spec_for(root / "shared"));
+  ASSERT_TRUE(begun.has_value());
+  std::unique_ptr<ShardWriter> writer = std::move(begun).value();
+  const std::vector<std::int64_t> shape = {2, 4};
+  const std::vector<std::int64_t> keys = {1, 2, 3, 4, 5, 6, 7, 8};
+  ASSERT_TRUE(
+      writer->write_leaf<std::int64_t>(Section::FEATURES, "keys", NpyDtype::I8, shape, keys)
+          .has_value());
+  ASSERT_TRUE(writer->write_leaf<std::int64_t>(Section::TRUTH, "keys", NpyDtype::I8, shape, keys)
+                  .has_value());
+  EXPECT_TRUE(writer->publish().has_value())
+      << "the C4-declared shared join key must publish; refusing it refuses every lawful shard";
+
+  // AND THE EXCEPTION IS EXACTLY ONE NAME. The same bytes under any other
+  // same-name pair still refuse — the exception is not "same name is fine".
+  auto other = ShardWriter::begin(spec_for(root / "other"));
+  ASSERT_TRUE(other.has_value());
+  std::unique_ptr<ShardWriter> second = std::move(other).value();
+  ASSERT_TRUE(second->write_leaf<std::int64_t>(Section::FEATURES, "group_ts", NpyDtype::I8, shape,
+                                               keys)
+                  .has_value());
+  ASSERT_TRUE(
+      second->write_leaf<std::int64_t>(Section::TRUTH, "group_ts", NpyDtype::I8, shape, keys)
+          .has_value());
+  const auto refused = second->publish();
+  ASSERT_FALSE(refused.has_value());
+  EXPECT_EQ(refused.error().code(), qr::RefusalCode::SOURCE_AUTHENTICATION_FAILED);
+
+  EXPECT_TRUE(qr::emit::is_c4_shared_leaf("keys.npy"));
+  EXPECT_FALSE(qr::emit::is_c4_shared_leaf("keys"));
+  EXPECT_FALSE(qr::emit::is_c4_shared_leaf("menu_net_cent.npy"));
+  EXPECT_EQ(qr::emit::kC4SharedLeafNames.size(), 1U)
+      << "widening this list widens the leak the refusal exists to close";
+}
+
 TEST(ShardManifest, RefusesFieldsThatCouldForgeAColumnOrARow) {
   const std::filesystem::path root = scratch("shard_injection");
   ShardSpec tabbed = spec_for(root / "a");

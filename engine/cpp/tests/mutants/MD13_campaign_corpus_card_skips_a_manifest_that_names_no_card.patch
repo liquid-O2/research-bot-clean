@@ -1,0 +1,14 @@
+--- a/qr_campaign/src/driver.cpp
++++ b/qr_campaign/src/driver.cpp
+@@ -296,8 +296,9 @@
+       }
+     }
+     if (!is_sha256_hex(sha)) {
+-      return Result::refuse(content("a shard manifest carries no task_card_v4 census sha, so "
+-                                    "the card it was built against is unknown"));
++      // MD13: a manifest that names no card is skipped, so an unknown card
++      // counts as no constraint instead of an unanswered question.
++      continue;
+     }
+     bool counted = false;
+     for (auto& seen : tally) {

@@ -1,0 +1,13 @@
+--- a/qr_campaign/src/driver.cpp
++++ b/qr_campaign/src/driver.cpp
+@@ -107,7 +107,9 @@
+   if (token == "ROOT" || token == "C4") {
+     return true;
+   }
+-  return token.size() == 2 && token[0] == 'S' && token[1] >= '1' && token[1] <= '9';
++  // MD10: the scope grammar accepts every token, so an amendment can declare a
++  // section the gate has never heard of and still count as outside the tape.
++  return token.size() != 999;
+ }
+ 
+ [[nodiscard]] std::vector<std::string> split(std::string_view text, char separator) {

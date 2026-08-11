@@ -1,0 +1,13 @@
+--- a/qr_campaign/include/qr_campaign/driver.hpp
++++ b/qr_campaign/include/qr_campaign/driver.hpp
+@@ -134,7 +134,9 @@
+   [[nodiscard]] static Expected<CardLineage, Refusal> load(const std::filesystem::path& path);
+ 
+   [[nodiscard]] const std::vector<CardLineageRow>& rows() const noexcept { return rows_; }
+-  [[nodiscard]] const CardLineageRow& head() const noexcept { return rows_.back(); }
++  // MD15: the head is read as the FIRST row, so a build binds to the oldest
++  // card of the ancestry instead of the current one.
++  [[nodiscard]] const CardLineageRow& head() const noexcept { return rows_.front(); }
+ 
+   /// The BUILD gate: `card` must hash to the lineage head.
+   [[nodiscard]] Status verify_head_card(const std::filesystem::path& card) const;

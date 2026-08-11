@@ -47,6 +47,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "qr_core/refusal.hpp"
@@ -70,12 +71,20 @@ inline constexpr std::int64_t kScopedSessionCount =
     kLastScopedOrdinal - kFirstScopedOrdinal + 1;
 static_assert(kScopedSessionCount == 625, "FINAL_PLAN §1: 125..749 = the 625 in scope");
 
-/// The frozen task card and its sha256 (M2 close, commit ce89ab5). The driver
-/// refuses to run against any other bytes.
+/// The frozen task card, and the ORDERED lineage of its frozen shas. The driver
+/// builds only against the lineage HEAD; a corpus published under an older row
+/// stays valid exactly while every later amendment is declared outside the tape
+/// read scope below. The lineage file states the grammar it is parsed under.
 inline constexpr std::string_view kCardPath =
     "/workspace/evidence/claims/native_state/TASK_CARD_V4_DRAFT.md";
-inline constexpr std::string_view kCardSha256 =
-    "5c26438b12dd90e15b005375829d976fa46a1710c78041ff20ffc587dc092792";
+inline constexpr std::string_view kCardLineagePath =
+    "/workspace/evidence/claims/native_state/CARD_LINEAGE.tsv";
+
+/// The card sections the R2 tape constructors actually read: the walls and the
+/// roster (S1), the watch and label kernels (S2, S3), the native inputs (S4)
+/// and the leaf layout (APPENDIX C4). An amendment that declares any of these
+/// retires every tape built before it; one that declares none cannot.
+inline constexpr std::array<std::string_view, 5> kTapeReadScope{"S1", "S2", "S3", "S4", "C4"};
 
 inline constexpr std::string_view kStockQuotesRoot = "/workspace/data/tokens/stock_quotes/IWM";
 inline constexpr std::string_view kStockTradesRoot = "/workspace/data/tokens/stock_trades/IWM";
@@ -97,6 +106,55 @@ inline constexpr std::array<std::int64_t, 3> kProbeSessions{125, 500, 625};
 [[nodiscard]] Status verify_frozen_spec(const std::filesystem::path& card,
                                         std::string_view expected_sha256);
 
+/// One row of CARD_LINEAGE.tsv.
+struct CardLineageRow {
+  std::string sha256;
+  std::string date;
+  std::string amendment;
+  /// Normalized scope tokens: `ROOT` on the first row, else S1..S9 / C4.
+  std::vector<std::string> scope;
+  std::string consumers_invariant;
+
+  /// True when this amendment's declared scope meets `kTapeReadScope`, i.e.
+  /// when it retires every tape published before it.
+  [[nodiscard]] bool touches_tape_read_scope() const;
+};
+
+/// The ordered card lineage: the honest replacement for a single pinned sha.
+/// It answers the two different questions a pin conflates — "may I BUILD
+/// against these card bytes?" (only against the head) and "is a corpus built
+/// under an older card still valid?" (yes, exactly while every later amendment
+/// is declared outside the tape read scope).
+class CardLineage {
+ public:
+  /// Parses and validates the whole file: five fields per row, oldest first,
+  /// 64-hex shas, no duplicates, `ROOT` on the first row and nowhere else, and
+  /// no scope token outside the grammar. Anything malformed REFUSES — an
+  /// unreadable lineage must never default a gate open.
+  [[nodiscard]] static Expected<CardLineage, Refusal> load(const std::filesystem::path& path);
+
+  [[nodiscard]] const std::vector<CardLineageRow>& rows() const noexcept { return rows_; }
+  [[nodiscard]] const CardLineageRow& head() const noexcept { return rows_.back(); }
+
+  /// The BUILD gate: `card` must hash to the lineage head.
+  [[nodiscard]] Status verify_head_card(const std::filesystem::path& card) const;
+
+  /// The CONSUMER gate: `sha` (a shard manifest's `census task_card_v4` value)
+  /// must be a row of this lineage, and every row after it must be declared
+  /// outside `kTapeReadScope`. A sha that is not in the lineage at all is a
+  /// refusal — an unknown ancestor is not an ancestor.
+  [[nodiscard]] Status verify_corpus_card_sha(std::string_view sha) const;
+
+ private:
+  std::vector<CardLineageRow> rows_;
+};
+
+/// Every distinct `census task_card_v4` sha under `<run_root>/tapes`, with the
+/// number of shard manifests carrying it, sha-ordered. A manifest without that
+/// census row is a refusal, not an empty answer.
+[[nodiscard]] Expected<std::vector<std::pair<std::string, std::int64_t>>, Refusal>
+corpus_card_shas(const std::filesystem::path& run_root);
+
 /// The 125..749 wall, applied to a REQUESTED ordinal before any path exists.
 [[nodiscard]] Status refuse_unless_in_scope(std::int64_t ordinal);
 
@@ -116,6 +174,11 @@ inline constexpr std::array<std::int64_t, 3> kProbeSessions{125, 500, 625};
 struct RunLayout {
   std::filesystem::path base;
   int run_index = 1;  ///< 1 = R1, 2 = the --run2 identity re-run
+  /// The lineage-head sha the spec gate bound this process to, stamped into
+  /// every shard manifest and the campaign receipt. EMPTY until the gate has
+  /// run: a publisher with an unbound layout REFUSES rather than name a card
+  /// nobody verified.
+  std::string card_sha256;
 
   [[nodiscard]] std::filesystem::path root() const;
   [[nodiscard]] std::filesystem::path tapes() const;

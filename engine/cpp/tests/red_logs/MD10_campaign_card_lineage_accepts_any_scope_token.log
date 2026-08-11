@@ -1,0 +1,81 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 17 tests from 9 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from CampaignSpecGate
+[ RUN      ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses
+[       OK ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses (68 ms)
+[----------] 1 test from CampaignSpecGate (68 ms total)
+
+[----------] 4 tests from CampaignCardLineage
+[ RUN      ] CampaignCardLineage.TheRealLineageCarriesTheFrozenAncestryAndItsHeadIsTheCardOnDisk
+[       OK ] CampaignCardLineage.TheRealLineageCarriesTheFrozenAncestryAndItsHeadIsTheCardOnDisk (6 ms)
+[ RUN      ] CampaignCardLineage.AnAncestorIsValidOnlyWhileEveryLaterAmendmentIsOutsideTheTapeScope
+[       OK ] CampaignCardLineage.AnAncestorIsValidOnlyWhileEveryLaterAmendmentIsOutsideTheTapeScope (67 ms)
+[ RUN      ] CampaignCardLineage.ACardShaOutsideTheLineageIsRefused
+[       OK ] CampaignCardLineage.ACardShaOutsideTheLineageIsRefused (17 ms)
+[ RUN      ] CampaignCardLineage.AMalformedLineageRefusesRatherThanDefaultingOpen
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:244: Failure
+Value of: load_lineage("lineage_unknown_scope", lineage_text({good_root, lineage_row('b', "MODEL", "CC-009")})) .has_value()
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:247: Failure
+Value of: load_lineage("lineage_empty_scope", lineage_text({good_root, lineage_row('b', "", "CC-009")})) .has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] CampaignCardLineage.AMalformedLineageRefusesRatherThanDefaultingOpen (268 ms)
+[----------] 4 tests from CampaignCardLineage (360 ms total)
+
+[----------] 1 test from CampaignCorpusCard
+[ RUN      ] CampaignCorpusCard.EveryManifestNamesItsCardAndAManifestWithoutOneRefuses
+[       OK ] CampaignCorpusCard.EveryManifestNamesItsCardAndAManifestWithoutOneRefuses (153 ms)
+[----------] 1 test from CampaignCorpusCard (154 ms total)
+
+[----------] 2 tests from CampaignReceipt
+[ RUN      ] CampaignReceipt.AnUnboundCardShaRefusesInsteadOfNamingAnUncheckedCard
+[       OK ] CampaignReceipt.AnUnboundCardShaRefusesInsteadOfNamingAnUncheckedCard (55 ms)
+[ RUN      ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader
+[       OK ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader (52 ms)
+[----------] 2 tests from CampaignReceipt (107 ms total)
+
+[----------] 2 tests from CampaignOrdinalWall
+[ RUN      ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed
+[       OK ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed (0 ms)
+[ RUN      ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement
+[       OK ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement (0 ms)
+[----------] 2 tests from CampaignOrdinalWall (0 ms total)
+
+[----------] 2 tests from CampaignPublish
+[ RUN      ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard
+[       OK ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard (118 ms)
+[ RUN      ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard
+[       OK ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard (154 ms)
+[----------] 2 tests from CampaignPublish (273 ms total)
+
+[----------] 2 tests from CampaignResume
+[ RUN      ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice
+[       OK ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice (101 ms)
+[ RUN      ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement
+[       OK ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement (93 ms)
+[----------] 2 tests from CampaignResume (195 ms total)
+
+[----------] 2 tests from CampaignLedger
+[ RUN      ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder
+[       OK ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder (233 ms)
+[ RUN      ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign
+[       OK ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign (53 ms)
+[----------] 2 tests from CampaignLedger (287 ms total)
+
+[----------] 1 test from CampaignHandoff
+[ RUN      ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob
+[       OK ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob (0 ms)
+[----------] 1 test from CampaignHandoff (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 17 tests from 9 test suites ran. (1448 ms total)
+[  PASSED  ] 16 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] CampaignCardLineage.AMalformedLineageRefusesRatherThanDefaultingOpen
+
+ 1 FAILED TEST

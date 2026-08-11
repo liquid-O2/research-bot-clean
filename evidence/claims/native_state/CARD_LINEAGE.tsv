@@ -1,0 +1,36 @@
+# CARD_LINEAGE.tsv — the ordered lineage of the frozen V4 task card.
+#
+# WHY THIS FILE EXISTS. A consumer of a published tape has to answer two
+# different questions, and a single hard-coded sha can only answer the first:
+#
+#   1. "Am I about to BUILD against the current frozen card?"  -> the card file
+#      must hash to the LAST row of this file (the lineage HEAD).
+#   2. "Is a tape that was built under an OLDER card still valid?"  -> its
+#      `census task_card_v4` sha must be a row of this file, and every
+#      amendment AFTER that row must be declared outside the scope the tape
+#      constructors actually read.
+#
+# The tape read-scope is sections 1..4 plus APPENDIX C4 (tokens S1 S2 S3 S4 C4):
+# the walls/roster (S1), the watch and label kernels (S2, S3), the native inputs
+# (S4) and the leaf layout (C4). Everything the R2 constructors read lives
+# there; S5 onward is the model, which no published byte of a tape depends on.
+# An amendment that declares ANY read-scope token retires every earlier tape.
+#
+# HONESTY. The scope column is a DECLARATION, and the gate believes it: it is
+# the place where a card amendment is claimed to be tape-invariant, and it is
+# reviewable against the diff of the two shas. Declaring a read-scope token is
+# what turns the gate red for every ancestor, so the declaration is the only
+# lever — an under-declared amendment is a falsified record, not a loophole.
+#
+# GRAMMAR (enforced by qr::campaign::CardLineage::load, red-fixtured):
+#   five tab-separated fields, in file order oldest -> newest, no duplicate sha;
+#   sha256    64 lowercase hex characters
+#   date      YYYY-MM-DD
+#   amendment the change-control id that produced these bytes
+#   scope     ROOT (first row only, no predecessor to diff) or a comma list of
+#             S1..S9 / C4 naming every card section the diff from the PREVIOUS
+#             row touches. An unknown token is a refusal, never a pass.
+#   consumers_invariant  what a consumer of an earlier tape may conclude.
+sha256	date	amendment	scope	consumers_invariant
+5c26438b12dd90e15b005375829d976fa46a1710c78041ff20ffc587dc092792	2026-08-11	M2_FREEZE	ROOT	the M2-close freeze of TASK_CARD_V4_DRAFT.md (commit ce89ab5); the 625-session R2 tape corpus under /workspace/artifacts/tensors/v4.0 was built against exactly these bytes and its manifests name this sha
+55b50e2af50f79235e65c8ed08b5771533a46cc15831ebbb4f9c0a37d630a9ec	2026-08-11	CC-009	S5	section 5 only (commit 3f7627f): N_out pinned at 16, the shared two-state phase table counted once per micro carrier, and W restated as N_out x 8; sections 1-4 and APPENDIX C4 are byte-identical, so every tape built under 5c26438b remains exactly as valid as on the day it was published

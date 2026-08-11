@@ -57,10 +57,39 @@ std::string session_receipt_text(std::int64_t ordinal) {
   return receipt.render();
 }
 
+/// A stand-in for a verified card sha (64 lowercase hex), so a test layout is
+/// bound exactly the way the spec gate binds the real one.
+std::string test_card_sha(char fill = 'a') { return std::string(64, fill); }
+
 RunLayout layout_at(const std::filesystem::path& base) {
   auto layout = run_layout(base, 1);
   EXPECT_TRUE(layout.has_value());
-  return layout.value();
+  RunLayout bound = layout.value();
+  bound.card_sha256 = test_card_sha();
+  return bound;
+}
+
+/// A synthetic CARD_LINEAGE.tsv: the preamble comments and the header the
+/// parser insists on, then the rows the fixture is about.
+std::string lineage_text(const std::vector<std::string>& rows) {
+  std::string text =
+      "# synthetic lineage\nsha256\tdate\tamendment\tscope\tconsumers_invariant\n";
+  for (const std::string& row : rows) {
+    text += row + "\n";
+  }
+  return text;
+}
+
+std::string lineage_row(char fill, std::string_view scope, std::string_view amendment) {
+  return test_card_sha(fill) + "\t2026-08-11\t" + std::string(amendment) + "\t" +
+         std::string(scope) + "\tconsumer note";
+}
+
+/// Writes `text` as a lineage file and loads it.
+Expected<CardLineage, Refusal> load_lineage(const std::string& name, const std::string& text) {
+  const std::filesystem::path path = scratch(name) / "CARD_LINEAGE.tsv";
+  write_file(path, text);
+  return CardLineage::load(path);
 }
 
 /// Publishes a minimal but REAL shard through the driver's own emitter, so the
@@ -83,23 +112,212 @@ void publish_minimal_shard(const RunLayout& layout, std::int64_t ordinal, Side s
 // ---------------------------------------------------------------------------
 
 TEST(CampaignSpecGate, TheFrozenCardPassesAndAnyEditedByteRefuses) {
-  // The real card, at its frozen sha: the gate must pass on the bytes the
-  // campaign is bound to.
+  // The real card, at the sha the real lineage names as its head: a BUILD binds
+  // to the head and to nothing else.
+  auto lineage = CardLineage::load(kCardLineagePath);
+  ASSERT_TRUE(lineage.has_value()) << lineage.error().message();
   const std::filesystem::path card(kCardPath);
   ASSERT_TRUE(std::filesystem::is_regular_file(card))
       << "the frozen task card is not present at " << kCardPath;
-  EXPECT_TRUE(verify_frozen_spec(card, kCardSha256).has_value());
+  EXPECT_TRUE(lineage.value().verify_head_card(card).has_value())
+      << "the card on disk is not the lineage head";
 
   // One appended byte — a "harmless" edit — must stop the driver.
   const std::filesystem::path dirty = scratch("spec_gate") / "TASK_CARD_V4_DRAFT.md";
   write_file(dirty, read_file(card) + "\n");
-  const Status refused = verify_frozen_spec(dirty, kCardSha256);
+  const Status refused = lineage.value().verify_head_card(dirty);
   ASSERT_FALSE(refused.has_value());
   EXPECT_EQ(refused.error().code(), RefusalCode::CONTENT_MISMATCH);
 
   // And a card that is not there at all is a refusal, never a silent pass.
-  EXPECT_FALSE(verify_frozen_spec(scratch("spec_gate_missing") / "absent.md", kCardSha256)
+  EXPECT_FALSE(verify_frozen_spec(scratch("spec_gate_missing") / "absent.md", test_card_sha())
                    .has_value());
+}
+
+// ---------------------------------------------------------------------------
+// 1b. the card lineage
+// ---------------------------------------------------------------------------
+
+TEST(CampaignCardLineage, TheRealLineageCarriesTheFrozenAncestryAndItsHeadIsTheCardOnDisk) {
+  auto lineage = CardLineage::load(kCardLineagePath);
+  ASSERT_TRUE(lineage.has_value()) << lineage.error().message();
+  ASSERT_GE(lineage.value().rows().size(), 2U)
+      << "the lineage must carry the M2 freeze AND the amendment that followed it";
+
+  // The first row is the M2-close freeze the published 625-session corpus was
+  // built under; the head is the card the next build must bind to.
+  const CardLineageRow& root = lineage.value().rows().front();
+  EXPECT_EQ(root.sha256, "5c26438b12dd90e15b005375829d976fa46a1710c78041ff20ffc587dc092792");
+  ASSERT_EQ(root.scope.size(), 1U);
+  EXPECT_EQ(root.scope.front(), "ROOT");
+  EXPECT_EQ(lineage.value().head().sha256,
+            "55b50e2af50f79235e65c8ed08b5771533a46cc15831ebbb4f9c0a37d630a9ec");
+
+  // The head is a real file's sha, not a hope: it is the card on disk.
+  EXPECT_TRUE(lineage.value().verify_head_card(kCardPath).has_value());
+
+  // THE RULING, fixtured: the published corpus names the M2 freeze, every
+  // amendment since is declared outside the tape read scope, so the corpus
+  // stands without a rebuild.
+  EXPECT_TRUE(lineage.value()
+                  .verify_corpus_card_sha(
+                      "5c26438b12dd90e15b005375829d976fa46a1710c78041ff20ffc587dc092792")
+                  .has_value());
+  for (std::size_t index = 1; index < lineage.value().rows().size(); ++index) {
+    EXPECT_FALSE(lineage.value().rows()[index].touches_tape_read_scope())
+        << "row " << index << " declares a tape-read section: the corpus is retired, not valid";
+  }
+}
+
+TEST(CampaignCardLineage, AnAncestorIsValidOnlyWhileEveryLaterAmendmentIsOutsideTheTapeScope) {
+  // Two amendments, both model-only: the ancestor's tapes stay valid.
+  auto model_only = load_lineage("lineage_model_only",
+                                 lineage_text({lineage_row('a', "ROOT", "M2_FREEZE"),
+                                               lineage_row('b', "S5", "CC-009"),
+                                               lineage_row('c', "S6,S7", "CC-010")}));
+  ASSERT_TRUE(model_only.has_value()) << model_only.error().message();
+  EXPECT_TRUE(model_only.value().verify_corpus_card_sha(test_card_sha('a')).has_value());
+  EXPECT_TRUE(model_only.value().verify_corpus_card_sha(test_card_sha('b')).has_value());
+  EXPECT_TRUE(model_only.value().verify_corpus_card_sha(test_card_sha('c')).has_value());
+
+  // The same ancestry with ONE amendment that declares §4 — the native inputs
+  // the tape constructors read. Every corpus older than it is retired, and the
+  // gate says so instead of quietly accepting the tapes.
+  auto touches_tape = load_lineage("lineage_touches_tape",
+                                   lineage_text({lineage_row('a', "ROOT", "M2_FREEZE"),
+                                                 lineage_row('b', "S5", "CC-009"),
+                                                 lineage_row('c', "S4,S5", "CC-011")}));
+  ASSERT_TRUE(touches_tape.has_value()) << touches_tape.error().message();
+  const Status ancestor = touches_tape.value().verify_corpus_card_sha(test_card_sha('a'));
+  ASSERT_FALSE(ancestor.has_value()) << "a §4 amendment must retire every earlier corpus";
+  EXPECT_EQ(ancestor.error().code(), RefusalCode::CONTENT_MISMATCH);
+  EXPECT_FALSE(touches_tape.value().verify_corpus_card_sha(test_card_sha('b')).has_value());
+  // The amendment's OWN card is still the head, so a corpus built under it is
+  // exactly as valid as the amendment.
+  EXPECT_TRUE(touches_tape.value().verify_corpus_card_sha(test_card_sha('c')).has_value());
+
+  // The leaf layout counts as read scope for the same reason §§1-4 do.
+  auto touches_layout = load_lineage("lineage_touches_layout",
+                                     lineage_text({lineage_row('a', "ROOT", "M2_FREEZE"),
+                                                   lineage_row('b', "C4", "CC-012")}));
+  ASSERT_TRUE(touches_layout.has_value()) << touches_layout.error().message();
+  EXPECT_FALSE(touches_layout.value().verify_corpus_card_sha(test_card_sha('a')).has_value());
+}
+
+TEST(CampaignCardLineage, ACardShaOutsideTheLineageIsRefused) {
+  auto lineage = load_lineage("lineage_stranger",
+                              lineage_text({lineage_row('a', "ROOT", "M2_FREEZE"),
+                                            lineage_row('b', "S5", "CC-009")}));
+  ASSERT_TRUE(lineage.has_value()) << lineage.error().message();
+  // An unknown ancestor is not an ancestor: nothing at all can be concluded
+  // about a corpus whose card never appears in the lineage.
+  const Status stranger = lineage.value().verify_corpus_card_sha(test_card_sha('f'));
+  ASSERT_FALSE(stranger.has_value());
+  EXPECT_EQ(stranger.error().code(), RefusalCode::CONTENT_MISMATCH);
+  EXPECT_FALSE(lineage.value().verify_corpus_card_sha("").has_value());
+  EXPECT_FALSE(lineage.value().verify_corpus_card_sha("not-a-sha").has_value());
+}
+
+TEST(CampaignCardLineage, AMalformedLineageRefusesRatherThanDefaultingOpen) {
+  const std::string good_root = lineage_row('a', "ROOT", "M2_FREEZE");
+  const std::string good_next = lineage_row('b', "S5", "CC-009");
+
+  // No header at all.
+  EXPECT_FALSE(load_lineage("lineage_no_header", good_root + "\n").has_value());
+  // A row that is not five fields.
+  EXPECT_FALSE(load_lineage("lineage_four_fields",
+                            lineage_text({std::string(64, 'a') + "\t2026-08-11\tX\tROOT"}))
+                   .has_value());
+  // A sha that is not 64 lowercase hex.
+  EXPECT_FALSE(load_lineage("lineage_short_sha",
+                            lineage_text({"abc\t2026-08-11\tX\tROOT\tnote"}))
+                   .has_value());
+  EXPECT_FALSE(load_lineage("lineage_upper_sha",
+                            lineage_text({std::string(64, 'A') + "\t2026-08-11\tX\tROOT\tnote"}))
+                   .has_value());
+  // A date that is not YYYY-MM-DD.
+  EXPECT_FALSE(load_lineage("lineage_bad_date",
+                            lineage_text({std::string(64, 'a') + "\t11/08/2026\tX\tROOT\tnote"}))
+                   .has_value());
+  // A scope token the gate cannot reason about is a REFUSAL, not a pass: this
+  // is the difference between an honest gate and a rubber stamp.
+  EXPECT_FALSE(load_lineage("lineage_unknown_scope",
+                            lineage_text({good_root, lineage_row('b', "MODEL", "CC-009")}))
+                   .has_value());
+  EXPECT_FALSE(load_lineage("lineage_empty_scope",
+                            lineage_text({good_root, lineage_row('b', "", "CC-009")}))
+                   .has_value());
+  // ROOT belongs to the first row and to no other; and no row may be both.
+  EXPECT_FALSE(load_lineage("lineage_late_root",
+                            lineage_text({good_root, lineage_row('b', "ROOT", "CC-009")}))
+                   .has_value());
+  EXPECT_FALSE(
+      load_lineage("lineage_root_and_scope", lineage_text({lineage_row('a', "ROOT,S5", "X")}))
+          .has_value());
+  EXPECT_FALSE(load_lineage("lineage_headless_first",
+                            lineage_text({lineage_row('a', "S5", "X"), good_next}))
+                   .has_value());
+  // The same card twice is an ambiguous ancestry.
+  EXPECT_FALSE(load_lineage("lineage_duplicate", lineage_text({good_root, good_root}))
+                   .has_value());
+  // No rows at all, and no file at all.
+  EXPECT_FALSE(load_lineage("lineage_empty", lineage_text({})).has_value());
+  EXPECT_FALSE(CardLineage::load(scratch("lineage_absent") / "CARD_LINEAGE.tsv").has_value());
+
+  // And the shape that must pass, so the refusals above are about the defect
+  // and not about the parser refusing everything.
+  EXPECT_TRUE(load_lineage("lineage_good", lineage_text({good_root, good_next})).has_value());
+}
+
+TEST(CampaignCorpusCard, EveryManifestNamesItsCardAndAManifestWithoutOneRefuses) {
+  const std::filesystem::path root = scratch("corpus_card");
+  const auto manifest = [&root](const char* session, const char* side, const std::string& body) {
+    write_file(root / "tapes" / session / side / "manifest.tsv", body);
+  };
+  const std::string card = test_card_sha('a');
+  const std::string with_card = "schema\tqr_shard_v1\ncensus\ttask_card_v4\t" + card +
+                                "\t/workspace/evidence/claims/native_state/TASK_CARD_V4_DRAFT.md\n";
+  manifest("s0125", "L", with_card);
+  manifest("s0125", "S", with_card);
+  manifest("s0500", "L", with_card);
+
+  auto tally = corpus_card_shas(root);
+  ASSERT_TRUE(tally.has_value()) << tally.error().message();
+  ASSERT_EQ(tally.value().size(), 1U);
+  EXPECT_EQ(tally.value().front().first, card);
+  EXPECT_EQ(tally.value().front().second, 3);
+
+  // A second card in the same corpus is REPORTED, not averaged away.
+  manifest("s0500", "S", "census\ttask_card_v4\t" + test_card_sha('b') + "\tpath\n");
+  auto mixed = corpus_card_shas(root);
+  ASSERT_TRUE(mixed.has_value());
+  EXPECT_EQ(mixed.value().size(), 2U);
+
+  // A manifest that names no card is a refusal: an unnamed card is not an
+  // absent constraint, it is an unknown one.
+  manifest("s0625", "L", "schema\tqr_shard_v1\nleaf\tfeatures/keys.npy\ti8\t2,4\t2\tdeadbeef\n");
+  EXPECT_FALSE(corpus_card_shas(root).has_value());
+
+  // A root with no tapes at all refuses rather than reporting a clean corpus.
+  EXPECT_FALSE(corpus_card_shas(scratch("corpus_card_empty")).has_value());
+}
+
+TEST(CampaignReceipt, AnUnboundCardShaRefusesInsteadOfNamingAnUncheckedCard) {
+  // Everything the campaign receipt needs is on disk...
+  const std::vector<std::int64_t> ordinals{125, 500};
+  RunLayout layout = layout_at(scratch("unbound_card"));
+  for (const std::int64_t ordinal : ordinals) {
+    write_file(layout.session_receipt(ordinal), session_receipt_text(ordinal));
+  }
+  ASSERT_TRUE(render_campaign_receipt(layout, ordinals).has_value());
+
+  // ...so the ONLY thing missing in the refusal below is the verified card sha.
+  // A layout the spec gate never bound must not publish a receipt that names a
+  // card nobody checked.
+  layout.card_sha256.clear();
+  const auto unbound = render_campaign_receipt(layout, ordinals);
+  ASSERT_FALSE(unbound.has_value());
+  EXPECT_EQ(unbound.error().code(), RefusalCode::CONFIG);
 }
 
 // ---------------------------------------------------------------------------

@@ -28,7 +28,7 @@ CPP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${QR_CAMPAIGN_BUILD_DIR:-/workspace/artifacts/cache/cpp/release}"
 DRIVER="${BUILD_DIR}/bin/qr_campaign_build"
 CARD="/workspace/evidence/claims/native_state/TASK_CARD_V4_DRAFT.md"
-CARD_SHA="5c26438b12dd90e15b005375829d976fa46a1710c78041ff20ffc587dc092792"
+CARD_LINEAGE="/workspace/evidence/claims/native_state/CARD_LINEAGE.tsv"
 DEFAULT_ROOT="/workspace/artifacts/tensors/v4.0"
 RUN_SH="/workspace/lab/run.sh"
 
@@ -42,10 +42,17 @@ require_driver() {
   fi
   # THE SPEC GATE, again and out here: the driver refuses on its own, and a
   # launcher that cannot say WHY a launch was refused is a worse launcher.
-  local measured
+  # A BUILD binds to the lineage HEAD — the last row of CARD_LINEAGE.tsv — and
+  # never to an earlier row: an older card is a card that has been amended.
+  if [[ ! -f "${CARD_LINEAGE}" ]]; then
+    echo "FAIL: no card lineage at ${CARD_LINEAGE}" >&2
+    exit 1
+  fi
+  local head_sha measured
+  head_sha="$(awk -F'\t' '$1 ~ /^[0-9a-f]{64}$/ {sha=$1} END {print sha}' "${CARD_LINEAGE}")"
   measured="$(sha256sum "${CARD}" | cut -d' ' -f1)"
-  if [[ "${measured}" != "${CARD_SHA}" ]]; then
-    echo "FAIL: the frozen task card hashes to ${measured}, not ${CARD_SHA}" >&2
+  if [[ "${measured}" != "${head_sha}" ]]; then
+    echo "FAIL: the task card hashes to ${measured}, not the lineage head ${head_sha}" >&2
     exit 1
   fi
 }
@@ -186,6 +193,15 @@ verify)
   echo "== section-7 censuses, run 1"; census_checks "${ROOT}/run1" 625
   echo "== section-7 censuses, run 2"; census_checks "${ROOT}/run2" 625
   echo
+  # THE CONSUMER GATE: the published tapes name the card they were built
+  # against, and the lineage says whether an amendment since then retired them.
+  # A corpus built under an ancestor is valid exactly while every later
+  # amendment is declared outside the tape read scope (sections 1-4, C4).
+  echo "== card lineage, published corpus"
+  for run in run1 run2; do
+    "${DRIVER}" --verify-corpus "${ROOT}/${run}" | sed "s/^corpus/${run}/" || \
+      fail "${run} is retired by a card amendment inside the tape read scope"
+  done
   echo "== campaign receipts"
   for run in run1 run2; do
     awk -F'\t' -v run="${run}" '$1=="campaign" {printf "%s\t%s\t%s\n", run, $2, $3}' \

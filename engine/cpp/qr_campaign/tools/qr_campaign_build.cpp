@@ -97,7 +97,12 @@ int usage() {
                "                         [--workers N] [--resume] [--rosters-only]\n"
                "                         [--skip-publication-digests]\n"
                "       qr_campaign_build --compare-runs ROOT_A ROOT_B\n"
+               "       qr_campaign_build --verify-corpus RUN_ROOT\n"
                "\n"
+               "  --verify-corpus  asks the card lineage whether a PUBLISHED corpus still\n"
+               "              stands: every manifest names the card it was built against,\n"
+               "              and an ancestor is valid while every later amendment is\n"
+               "              declared outside the tape read scope.\n"
                "  --sessions  `all` (125..749), a comma list (`125,500,625`) or ranges\n"
                "              (`125-200`). The R1 probe object is `125,500,625`.\n"
                "  --run2      publish into <root>/run2 instead of <root>/run1.\n");
@@ -232,6 +237,38 @@ int compare_runs(const std::filesystem::path& left_root, const std::filesystem::
   return identical_runs ? 0 : 1;
 }
 
+/// The CONSUMER gate. It does not re-read the card: it reads what the published
+/// tapes THEMSELVES name as the card that built them, and asks the lineage
+/// whether an amendment since then has retired them. A corpus built under an
+/// ancestor stays valid exactly while every later amendment is declared outside
+/// the tape read scope.
+[[nodiscard]] int verify_corpus(const std::filesystem::path& run_root) {
+  auto lineage = qr::campaign::CardLineage::load(qr::campaign::kCardLineagePath);
+  if (!lineage.has_value()) {
+    return fail(lineage.error());
+  }
+  auto shas = qr::campaign::corpus_card_shas(run_root);
+  if (!shas.has_value()) {
+    return fail(shas.error());
+  }
+  std::printf("corpus\troot\t%s\n", run_root.c_str());
+  std::printf("corpus\tlineage_rows\t%zu\n", lineage.value().rows().size());
+  std::printf("corpus\tlineage_head\t%s\n", lineage.value().head().sha256.c_str());
+  bool every_card_valid = true;
+  for (const std::pair<std::string, std::int64_t>& entry : shas.value()) {
+    const qr::campaign::Status verdict = lineage.value().verify_corpus_card_sha(entry.first);
+    std::printf("corpus\tmanifest_card\t%s\t%" PRId64 "\t%s\n", entry.first.c_str(), entry.second,
+                verdict.has_value() ? "VALID" : "RETIRED");
+    if (!verdict.has_value()) {
+      every_card_valid = false;
+      std::fprintf(stderr, "REFUSED: %s\n", verdict.error().message().c_str());
+    }
+  }
+  std::printf("corpus\tverdict\t%s\n",
+              every_card_valid ? "CARD_LINEAGE_VALID" : "CARD_LINEAGE_RETIRED");
+  return every_card_valid ? 0 : 1;
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -262,6 +299,8 @@ int main(int argc, char** argv) {
       options.verify_publication_digests = false;
     } else if (flag == "--build-id" && has_value) {
       options.build_id = argv[++index];
+    } else if (flag == "--verify-corpus" && has_value) {
+      return verify_corpus(argv[index + 1]);
     } else if (flag == "--compare-runs" && index + 2 < argc) {
       const std::filesystem::path left = argv[index + 1];
       const std::filesystem::path right = argv[index + 2];
@@ -276,8 +315,13 @@ int main(int argc, char** argv) {
   }
 
   // --- THE SPEC GATE, before a single path is formed ------------------------
-  const qr::campaign::Status spec =
-      qr::campaign::verify_frozen_spec(qr::campaign::kCardPath, qr::campaign::kCardSha256);
+  // A build may bind to the lineage HEAD and to nothing else: an older card is
+  // a card that has been amended, and this process is about to write new bytes.
+  auto lineage = qr::campaign::CardLineage::load(qr::campaign::kCardLineagePath);
+  if (!lineage.has_value()) {
+    return fail(lineage.error());
+  }
+  const qr::campaign::Status spec = lineage.value().verify_head_card(qr::campaign::kCardPath);
   if (!spec.has_value()) {
     return fail(spec.error());
   }
@@ -290,7 +334,11 @@ int main(int argc, char** argv) {
   if (!layout.has_value()) {
     return fail(layout.error());
   }
-  const RunLayout run = layout.value();
+  RunLayout run = layout.value();
+  // The verified head sha travels with the layout into every manifest and into
+  // the campaign receipt. Nothing downstream may name a card the gate did not
+  // just check.
+  run.card_sha256 = lineage.value().head().sha256;
 
   const double started = now_seconds();
   std::fprintf(stderr, "campaign start run=%d sessions=%zu workers=%d root=%s\n", run_index,

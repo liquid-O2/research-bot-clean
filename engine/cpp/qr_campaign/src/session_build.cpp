@@ -1037,8 +1037,17 @@ Status build_session(const RunLayout& layout, const SessionTask& task,
   };
   sources.push_back(qr::emit::SourceRow{"candidate_roster", plan.roster.sha256(),
                                         run_relative(layout.roster_tsv(ordinal))});
+  if (layout.card_sha256.empty()) {
+    // The manifest's `task_card_v4` census row is the shard's claim about which
+    // frozen card built it. An unbound layout means the spec gate never ran, so
+    // there is no verified sha to stamp and the shard must not be published.
+    return Status::refuse(Refusal(RefusalCode::CONFIG, "qr_campaign::session_build",
+                                  "this run layout was never bound to a verified card sha, so "
+                                  "the shard manifest would name a card nobody checked",
+                                  ordinal));
+  }
   std::vector<qr::emit::CensusRow> census_rows{
-      qr::emit::CensusRow{"task_card_v4", std::string(kCardSha256), std::string(kCardPath)},
+      qr::emit::CensusRow{"task_card_v4", layout.card_sha256, std::string(kCardPath)},
       qr::emit::CensusRow{"dialect_census", kDialectCensusSha, kDialectCensusPath},
       qr::emit::CensusRow{"builder_fd_census", "",
                           run_relative(layout.builder_census(ordinal))}};

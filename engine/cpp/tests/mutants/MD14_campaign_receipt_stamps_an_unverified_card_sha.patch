@@ -1,0 +1,13 @@
+--- a/qr_campaign/src/driver.cpp
++++ b/qr_campaign/src/driver.cpp
+@@ -645,7 +645,9 @@
+   std::sort(sorted.begin(), sorted.end());
+   sorted.erase(std::unique(sorted.begin(), sorted.end()), sorted.end());
+ 
+-  if (layout.card_sha256.empty()) {
++  // MD14: the unbound-layout guard can never fire, so the campaign receipt
++  // names a card the spec gate never checked.
++  if (layout.card_sha256.empty() && !layout.card_sha256.empty()) {
+     // Never name a card nobody verified: an unbound layout means the spec gate
+     // did not run, and a receipt is a claim about which frozen bytes produced
+     // these tapes.

@@ -1,0 +1,14 @@
+--- a/qr_campaign/src/driver.cpp
++++ b/qr_campaign/src/driver.cpp
+@@ -246,8 +246,9 @@
+     }
+   }
+   if (index == rows_.size()) {
+-    return Status::refuse(content("this corpus names a task card that is not in the lineage at "
+-                                  "all, so nothing can be concluded about it"));
++    // MD12: a sha that is nowhere in the lineage is treated as the head, so a
++    // corpus pinned to a card nobody ever froze passes the gate.
++    index = rows_.size() - 1;
+   }
+   for (std::size_t later = index + 1; later < rows_.size(); ++later) {
+     if (rows_[later].touches_tape_read_scope()) {

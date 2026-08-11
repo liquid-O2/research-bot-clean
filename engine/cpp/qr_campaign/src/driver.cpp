@@ -66,6 +66,256 @@ Status verify_frozen_spec(const std::filesystem::path& card, std::string_view ex
 }
 
 // ---------------------------------------------------------------------------
+// 1b. the card lineage
+// ---------------------------------------------------------------------------
+
+namespace {
+
+/// `sha` is 64 lowercase hex characters and nothing else.
+[[nodiscard]] bool is_sha256_hex(std::string_view sha) {
+  if (sha.size() != 64) {
+    return false;
+  }
+  for (const char character : sha) {
+    const bool digit = character >= '0' && character <= '9';
+    const bool lower = character >= 'a' && character <= 'f';
+    if (!digit && !lower) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/// `YYYY-MM-DD`, digits where digits belong.
+[[nodiscard]] bool is_iso_date(std::string_view date) {
+  if (date.size() != 10 || date[4] != '-' || date[7] != '-') {
+    return false;
+  }
+  for (const std::size_t index : {0U, 1U, 2U, 3U, 5U, 6U, 8U, 9U}) {
+    if (date[index] < '0' || date[index] > '9') {
+      return false;
+    }
+  }
+  return true;
+}
+
+/// The scope grammar. `ROOT` is legal only on the first row (it means "no
+/// predecessor to diff against"); every other token names one card section.
+/// An unknown token is NOT waved through: the gate cannot reason about a scope
+/// it does not understand, so it refuses.
+[[nodiscard]] bool is_known_scope_token(std::string_view token) {
+  if (token == "ROOT" || token == "C4") {
+    return true;
+  }
+  return token.size() == 2 && token[0] == 'S' && token[1] >= '1' && token[1] <= '9';
+}
+
+[[nodiscard]] std::vector<std::string> split(std::string_view text, char separator) {
+  std::vector<std::string> parts;
+  std::size_t start = 0;
+  while (true) {
+    const std::size_t hit = text.find(separator, start);
+    if (hit == std::string_view::npos) {
+      parts.emplace_back(text.substr(start));
+      return parts;
+    }
+    parts.emplace_back(text.substr(start, hit - start));
+    start = hit + 1;
+  }
+}
+
+}  // namespace
+
+bool CardLineageRow::touches_tape_read_scope() const {
+  for (const std::string& token : scope) {
+    for (const std::string_view read_scope : kTapeReadScope) {
+      if (token == read_scope) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+Expected<CardLineage, Refusal> CardLineage::load(const std::filesystem::path& path) {
+  using Result = Expected<CardLineage, Refusal>;
+  std::error_code code;
+  if (!std::filesystem::is_regular_file(path, code)) {
+    return Result::refuse(io("the card lineage is not a readable file"));
+  }
+  std::ifstream input(path, std::ios::binary);
+  if (!input) {
+    return Result::refuse(io("the card lineage could not be opened"));
+  }
+
+  CardLineage lineage;
+  std::string line;
+  bool header_seen = false;
+  std::int64_t line_number = 0;
+  while (std::getline(input, line)) {
+    ++line_number;
+    if (line.empty() || line.front() == '#') {
+      continue;
+    }
+    if (!header_seen) {
+      if (line != "sha256\tdate\tamendment\tscope\tconsumers_invariant") {
+        return Result::refuse(
+            content("the card lineage does not carry its own header row", line_number));
+      }
+      header_seen = true;
+      continue;
+    }
+    const std::vector<std::string> field = split(line, '\t');
+    if (field.size() != 5) {
+      return Result::refuse(
+          content("a card lineage row is not five tab-separated fields", line_number));
+    }
+    CardLineageRow row;
+    row.sha256 = field[0];
+    row.date = field[1];
+    row.amendment = field[2];
+    row.consumers_invariant = field[4];
+    if (!is_sha256_hex(row.sha256)) {
+      return Result::refuse(
+          content("a card lineage row does not carry a 64-hex sha256", line_number));
+    }
+    if (!is_iso_date(row.date)) {
+      return Result::refuse(content("a card lineage row does not carry a YYYY-MM-DD date",
+                                    line_number));
+    }
+    if (row.amendment.empty() || row.consumers_invariant.empty()) {
+      return Result::refuse(content("a card lineage row leaves its amendment id or its "
+                                    "consumer note empty",
+                                    line_number));
+    }
+    for (std::string& token : split(field[3], ',')) {
+      if (!is_known_scope_token(token)) {
+        return Result::refuse(content("a card lineage row declares a scope token outside the "
+                                      "grammar, which the gate cannot reason about",
+                                      line_number));
+      }
+      const bool root = token == "ROOT";
+      if (root && !lineage.rows_.empty()) {
+        return Result::refuse(content("only the first card lineage row may be ROOT: every "
+                                      "later row has a predecessor to diff against",
+                                      line_number));
+      }
+      if (root && !row.scope.empty()) {
+        return Result::refuse(
+            content("a ROOT card lineage row may not also declare sections", line_number));
+      }
+      if (!root && !row.scope.empty() && row.scope.front() == "ROOT") {
+        return Result::refuse(
+            content("a ROOT card lineage row may not also declare sections", line_number));
+      }
+      row.scope.push_back(std::move(token));
+    }
+    if (row.scope.empty()) {
+      return Result::refuse(content("a card lineage row declares no scope", line_number));
+    }
+    if (lineage.rows_.empty() && row.scope.front() != "ROOT") {
+      return Result::refuse(content("the first card lineage row must be ROOT", line_number));
+    }
+    for (const CardLineageRow& seen : lineage.rows_) {
+      if (seen.sha256 == row.sha256) {
+        return Result::refuse(
+            content("the card lineage names the same sha256 twice", line_number));
+      }
+    }
+    lineage.rows_.push_back(std::move(row));
+  }
+  if (!header_seen) {
+    return Result::refuse(content("the card lineage carries no header row"));
+  }
+  if (lineage.rows_.empty()) {
+    return Result::refuse(content("the card lineage carries no rows"));
+  }
+  return lineage;
+}
+
+Status CardLineage::verify_head_card(const std::filesystem::path& card) const {
+  return verify_frozen_spec(card, head().sha256);
+}
+
+Status CardLineage::verify_corpus_card_sha(std::string_view sha) const {
+  std::size_t index = rows_.size();
+  for (std::size_t position = 0; position < rows_.size(); ++position) {
+    if (rows_[position].sha256 == sha) {
+      index = position;
+      break;
+    }
+  }
+  if (index == rows_.size()) {
+    return Status::refuse(content("this corpus names a task card that is not in the lineage at "
+                                  "all, so nothing can be concluded about it"));
+  }
+  for (std::size_t later = index + 1; later < rows_.size(); ++later) {
+    if (rows_[later].touches_tape_read_scope()) {
+      // The amendment's own declaration retires this corpus. `context` carries
+      // the row so the refusal names WHICH amendment did it.
+      return Status::refuse(content("a card amendment after this corpus's card is declared "
+                                    "inside the tape read scope, which retires the corpus",
+                                    static_cast<std::int64_t>(later)));
+    }
+  }
+  return ok_status();
+}
+
+Expected<std::vector<std::pair<std::string, std::int64_t>>, Refusal> corpus_card_shas(
+    const std::filesystem::path& run_root) {
+  using Result = Expected<std::vector<std::pair<std::string, std::int64_t>>, Refusal>;
+  const std::filesystem::path tapes = run_root / "tapes";
+  std::error_code code;
+  if (!std::filesystem::is_directory(tapes, code)) {
+    return Result::refuse(io("this run root carries no tapes directory"));
+  }
+  std::vector<std::filesystem::path> manifests;
+  for (const auto& entry : std::filesystem::recursive_directory_iterator(tapes, code)) {
+    if (entry.is_regular_file(code) && entry.path().filename() == "manifest.tsv") {
+      manifests.push_back(entry.path());
+    }
+  }
+  if (manifests.empty()) {
+    return Result::refuse(io("this run root carries no shard manifests"));
+  }
+  std::sort(manifests.begin(), manifests.end());
+
+  std::vector<std::pair<std::string, std::int64_t>> tally;
+  for (const std::filesystem::path& manifest : manifests) {
+    std::ifstream input(manifest, std::ios::binary);
+    if (!input) {
+      return Result::refuse(io("a shard manifest could not be opened"));
+    }
+    std::string line;
+    std::string sha;
+    while (std::getline(input, line)) {
+      const std::vector<std::string> field = split(line, '\t');
+      if (field.size() >= 3 && field[0] == "census" && field[1] == "task_card_v4") {
+        sha = field[2];
+        break;
+      }
+    }
+    if (!is_sha256_hex(sha)) {
+      return Result::refuse(content("a shard manifest carries no task_card_v4 census sha, so "
+                                    "the card it was built against is unknown"));
+    }
+    bool counted = false;
+    for (auto& seen : tally) {
+      if (seen.first == sha) {
+        ++seen.second;
+        counted = true;
+        break;
+      }
+    }
+    if (!counted) {
+      tally.emplace_back(sha, 1);
+    }
+  }
+  std::sort(tally.begin(), tally.end());
+  return tally;
+}
+
+// ---------------------------------------------------------------------------
 // 2. the ordinal wall
 // ---------------------------------------------------------------------------
 
@@ -395,9 +645,16 @@ Expected<std::string, Refusal> render_campaign_receipt(const RunLayout& layout,
   std::sort(sorted.begin(), sorted.end());
   sorted.erase(std::unique(sorted.begin(), sorted.end()), sorted.end());
 
+  if (layout.card_sha256.empty()) {
+    // Never name a card nobody verified: an unbound layout means the spec gate
+    // did not run, and a receipt is a claim about which frozen bytes produced
+    // these tapes.
+    return Result::refuse(config("this run layout was never bound to a verified card sha, so "
+                                 "the campaign receipt would name a card nobody checked"));
+  }
   Receipt out;
   out.add_text("campaign", "schema", "qr_campaign_receipt_v1");
-  out.add_text("campaign", "card_sha256", std::string(kCardSha256));
+  out.add_text("campaign", "card_sha256", layout.card_sha256);
   // NO RUN INDEX. This receipt describes the CAMPAIGN, and the two runs of one
   // campaign must be byte-identical down to it; which run slot produced it is a
   // property of its path and is recorded in campaign_timing.tsv.

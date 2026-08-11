@@ -1,0 +1,13 @@
+--- a/qr_campaign/src/driver.cpp
++++ b/qr_campaign/src/driver.cpp
+@@ -249,7 +249,9 @@
+     return Status::refuse(content("this corpus names a task card that is not in the lineage at "
+                                   "all, so nothing can be concluded about it"));
+   }
+-  for (std::size_t later = index + 1; later < rows_.size(); ++later) {
++  // MD11: an ancestor is accepted the moment it is found, so an amendment
++  // that touches the tape read scope no longer retires the corpus.
++  for (std::size_t later = index + 1; later < index + 1; ++later) {
+     if (rows_[later].touches_tape_read_scope()) {
+       // The amendment's own declaration retires this corpus. `context` carries
+       // the row so the refusal names WHICH amendment did it.

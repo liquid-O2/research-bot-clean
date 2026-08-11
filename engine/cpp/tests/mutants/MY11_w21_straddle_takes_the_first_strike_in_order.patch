@@ -1,0 +1,13 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -312,7 +312,9 @@
+     if (!x.has_value()) continue;
+     const std::int64_t distance = x.value() < 0 ? -x.value() : x.value();
+     if (distance > kStraddleMaxAbsBps) continue;
+-    if (!found || distance < best_abs) {
++    // MY11: the FIRST admissible strike in container order wins instead of the
++    // nearest one, which also silently breaks the equidistant tie.
++    if (!found) {
+       found = true;
+       tied = false;
+       best_abs = distance;

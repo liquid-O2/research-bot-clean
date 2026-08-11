@@ -1,0 +1,12 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -206,7 +206,8 @@
+         spread_weighted_sum += weight * spread.value().value;
+       }
+     }
+-    if (weight > 0) {
++    // MY08: a one-sided quote's AGE stops counting, although it has one.
++    if (weight > 0 && member.two_sided()) {
+       const Typed<double> age = qr::carriers::time_log1p_micros(member.age_micros);
+       if (age.v == Validity::VALID) {
+         age_weight += weight;

@@ -1,0 +1,13 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -267,7 +267,9 @@
+   const auto remaining_ms = qr::checked_sub(close_ms.value(), ts_ms_b);
+   if (!remaining_ms.has_value()) return qr::carriers::masked(Validity::NONFINITE);
+   // Q3's guard: "remaining time < 300s => PROXY_VOL typed absent".
+-  if (remaining_ms.value() < kProxyVolGuardSeconds * kMsPerSecond) {
++  // MY09: Q3's 300s pin-risk guard is removed, so PROXY_VOL is published into
++  // the last seconds before expiry where T -> 0 blows it up.
++  if (remaining_ms.value() < 0) {
+     return qr::carriers::masked(Validity::MODALITY_ABSENT);
+   }
+   return qr::carriers::present(static_cast<double>(remaining_ms.value()) /

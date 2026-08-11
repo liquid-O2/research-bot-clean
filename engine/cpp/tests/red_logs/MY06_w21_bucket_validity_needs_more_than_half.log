@@ -1,0 +1,58 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from BucketAxisLaw
+[ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
+[       OK ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt (0 ms)
+[ RUN      ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne
+[       OK ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne (0 ms)
+[ RUN      ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface
+[       OK ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface (0 ms)
+[ RUN      ] BucketAxisLaw.OrientationIsSigmaTimesRho
+[       OK ] BucketAxisLaw.OrientationIsSigmaTimesRho (0 ms)
+[----------] 4 tests from BucketAxisLaw (0 ms total)
+
+[----------] 4 tests from BucketReductionLaw
+[ RUN      ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction
+[       OK ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction (0 ms)
+[ RUN      ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:200: Failure
+Value of: at_half.valid
+  Actual: false
+Expected: true
+
+[  FAILED  ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket (0 ms)
+[ RUN      ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
+[       OK ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant (0 ms)
+[ RUN      ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge
+[       OK ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge (0 ms)
+[----------] 4 tests from BucketReductionLaw (0 ms total)
+
+[----------] 2 tests from ProxyVolLaw
+[ RUN      ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero
+[       OK ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero (0 ms)
+[ RUN      ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles
+[       OK ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles (0 ms)
+[----------] 2 tests from ProxyVolLaw (0 ms total)
+
+[----------] 3 tests from StraddleSelectionLaw
+[ RUN      ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated
+[       OK ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated (0 ms)
+[ RUN      ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent
+[       OK ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent (0 ms)
+[ RUN      ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder
+[       OK ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder (0 ms)
+[----------] 3 tests from StraddleSelectionLaw (0 ms total)
+
+[----------] 1 test from ModalityLaw
+[ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (37 ms)
+[----------] 1 test from ModalityLaw (37 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 5 test suites ran. (37 ms total)
+[  PASSED  ] 13 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket
+
+ 1 FAILED TEST

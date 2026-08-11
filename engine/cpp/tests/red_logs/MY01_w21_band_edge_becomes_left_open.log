@@ -1,0 +1,229 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from BucketAxisLaw
+[ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:86: Failure
+Expected equality of these values:
+  moneyness_band(-150)
+    Which is: 0
+  1U
+    Which is: 1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:88: Failure
+Expected equality of these values:
+  moneyness_band(-50)
+    Which is: 1
+  2U
+    Which is: 2
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:91: Failure
+Expected equality of these values:
+  moneyness_band(50)
+    Which is: 2
+  3U
+    Which is: 3
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:93: Failure
+Expected equality of these values:
+  moneyness_band(150)
+    Which is: 3
+  4U
+    Which is: 4
+
+[  FAILED  ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt (0 ms)
+[ RUN      ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:107: Failure
+Expected equality of these values:
+  moneyness_band(linear_bps)
+    Which is: 3
+  4U
+    Which is: 4
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:118: Failure
+Expected equality of these values:
+  moneyness_band(on_edge.value())
+    Which is: 3
+  4U
+    Which is: 4
+
+[  FAILED  ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne (0 ms)
+[ RUN      ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 0
+  band
+    Which is: 1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 0
+  band
+    Which is: 1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 0
+  band
+    Which is: 1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 0
+  band
+    Which is: 1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 1
+  band
+    Which is: 2
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 1
+  band
+    Which is: 2
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 1
+  band
+    Which is: 2
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 1
+  band
+    Which is: 2
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 2
+  band
+    Which is: 3
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 2
+  band
+    Which is: 3
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 2
+  band
+    Which is: 3
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:146: Failure
+Expected equality of these values:
+  key.moneyness_band
+    Which is: 2
+  band
+    Which is: 3
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:152: Failure
+Expected equality of these values:
+  count
+    Which is: 2
+  1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:152: Failure
+Expected equality of these values:
+  count
+    Which is: 2
+  1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:152: Failure
+Expected equality of these values:
+  count
+    Which is: 2
+  1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:152: Failure
+Expected equality of these values:
+  count
+    Which is: 2
+  1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:152: Failure
+Expected equality of these values:
+  count
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:152: Failure
+Expected equality of these values:
+  count
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:152: Failure
+Expected equality of these values:
+  count
+    Which is: 0
+  1
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:152: Failure
+Expected equality of these values:
+  count
+    Which is: 0
+  1
+
+[  FAILED  ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface (0 ms)
+[ RUN      ] BucketAxisLaw.OrientationIsSigmaTimesRho
+[       OK ] BucketAxisLaw.OrientationIsSigmaTimesRho (0 ms)
+[----------] 4 tests from BucketAxisLaw (0 ms total)
+
+[----------] 4 tests from BucketReductionLaw
+[ RUN      ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction
+[       OK ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction (0 ms)
+[ RUN      ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket
+[       OK ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket (0 ms)
+[ RUN      ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
+[       OK ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant (0 ms)
+[ RUN      ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge
+[       OK ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge (0 ms)
+[----------] 4 tests from BucketReductionLaw (0 ms total)
+
+[----------] 2 tests from ProxyVolLaw
+[ RUN      ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero
+[       OK ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero (0 ms)
+[ RUN      ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles
+[       OK ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles (0 ms)
+[----------] 2 tests from ProxyVolLaw (0 ms total)
+
+[----------] 3 tests from StraddleSelectionLaw
+[ RUN      ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated
+[       OK ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated (0 ms)
+[ RUN      ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent
+[       OK ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent (0 ms)
+[ RUN      ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder
+[       OK ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder (0 ms)
+[----------] 3 tests from StraddleSelectionLaw (0 ms total)
+
+[----------] 1 test from ModalityLaw
+[ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (83 ms)
+[----------] 1 test from ModalityLaw (83 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 5 test suites ran. (83 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
+[  FAILED  ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne
+[  FAILED  ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface
+
+ 3 FAILED TESTS

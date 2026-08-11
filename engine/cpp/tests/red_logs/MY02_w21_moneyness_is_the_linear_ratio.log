@@ -1,0 +1,89 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from BucketAxisLaw
+[ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
+[       OK ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt (0 ms)
+[ RUN      ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:111: Failure
+Expected equality of these values:
+  x.value()
+    Which is: 150
+  149
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:112: Failure
+Expected equality of these values:
+  moneyness_band(x.value())
+    Which is: 4
+  3U
+    Which is: 3
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:73: Failure
+Failed
+no strike reproduces 150bp against 200000000
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:116: Failure
+Value of: on_edge.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne (0 ms)
+[ RUN      ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface
+[       OK ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface (0 ms)
+[ RUN      ] BucketAxisLaw.OrientationIsSigmaTimesRho
+[       OK ] BucketAxisLaw.OrientationIsSigmaTimesRho (0 ms)
+[----------] 4 tests from BucketAxisLaw (0 ms total)
+
+[----------] 4 tests from BucketReductionLaw
+[ RUN      ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction
+[       OK ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction (0 ms)
+[ RUN      ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket
+[       OK ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket (0 ms)
+[ RUN      ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
+[       OK ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant (0 ms)
+[ RUN      ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge
+[       OK ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge (0 ms)
+[----------] 4 tests from BucketReductionLaw (0 ms total)
+
+[----------] 2 tests from ProxyVolLaw
+[ RUN      ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero
+[       OK ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero (0 ms)
+[ RUN      ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles
+[       OK ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles (0 ms)
+[----------] 2 tests from ProxyVolLaw (0 ms total)
+
+[----------] 3 tests from StraddleSelectionLaw
+[ RUN      ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated
+[       OK ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated (0 ms)
+[ RUN      ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:73: Failure
+Failed
+no strike reproduces 151bp against 200000000
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:73: Failure
+Failed
+no strike reproduces 150bp against 200000000
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:369: Failure
+Value of: select_straddle(on_edge, spot, now, expiry_day).present
+  Actual: false
+Expected: true
+
+[  FAILED  ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent (0 ms)
+[ RUN      ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder
+[       OK ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder (0 ms)
+[----------] 3 tests from StraddleSelectionLaw (0 ms total)
+
+[----------] 1 test from ModalityLaw
+[ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (21 ms)
+[----------] 1 test from ModalityLaw (21 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 5 test suites ran. (21 ms total)
+[  PASSED  ] 12 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne
+[  FAILED  ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent
+
+ 2 FAILED TESTS

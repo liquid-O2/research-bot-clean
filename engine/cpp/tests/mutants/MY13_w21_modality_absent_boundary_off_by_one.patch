@@ -1,0 +1,13 @@
+--- a/qr_w21/include/qr_w21/surface.hpp
++++ b/qr_w21/include/qr_w21/surface.hpp
+@@ -302,7 +302,9 @@
+   /// `MODALITY_ABSENT` for the entire session — a typed state, never an error
+   /// and never a zero-filled surface.
+   [[nodiscard]] static bool session_is_modality_absent(std::int64_t ordinal) noexcept {
+-    return ordinal < kFirstCoveredOrdinal;
++    // MY13: the Q12 boundary slips by one, so session 208 is treated as
++    // covered and session 209's first covered day is misclassified.
++    return ordinal < kFirstCoveredOrdinal - 1;
+   }
+ 
+   [[nodiscard]] static Expected<SurfaceBuilder, Refusal> build(

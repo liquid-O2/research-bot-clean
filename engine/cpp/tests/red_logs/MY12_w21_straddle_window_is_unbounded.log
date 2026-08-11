@@ -1,0 +1,65 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from BucketAxisLaw
+[ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
+[       OK ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt (0 ms)
+[ RUN      ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne
+[       OK ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne (0 ms)
+[ RUN      ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface
+[       OK ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface (0 ms)
+[ RUN      ] BucketAxisLaw.OrientationIsSigmaTimesRho
+[       OK ] BucketAxisLaw.OrientationIsSigmaTimesRho (0 ms)
+[----------] 4 tests from BucketAxisLaw (0 ms total)
+
+[----------] 4 tests from BucketReductionLaw
+[ RUN      ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction
+[       OK ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction (0 ms)
+[ RUN      ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket
+[       OK ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket (0 ms)
+[ RUN      ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
+[       OK ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant (0 ms)
+[ RUN      ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge
+[       OK ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge (0 ms)
+[----------] 4 tests from BucketReductionLaw (0 ms total)
+
+[----------] 2 tests from ProxyVolLaw
+[ RUN      ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero
+[       OK ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero (0 ms)
+[ RUN      ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles
+[       OK ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles (0 ms)
+[----------] 2 tests from ProxyVolLaw (0 ms total)
+
+[----------] 3 tests from StraddleSelectionLaw
+[ RUN      ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated
+[       OK ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated (0 ms)
+[ RUN      ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:361: Failure
+Value of: absent.present
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:362: Failure
+Expected equality of these values:
+  absent.absence
+    Which is: 1-byte object <00>
+  Validity::MODALITY_ABSENT
+    Which is: 1-byte object <0D>
+
+[  FAILED  ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent (0 ms)
+[ RUN      ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder
+[       OK ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder (0 ms)
+[----------] 3 tests from StraddleSelectionLaw (0 ms total)
+
+[----------] 1 test from ModalityLaw
+[ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (18 ms)
+[----------] 1 test from ModalityLaw (18 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 5 test suites ran. (19 ms total)
+[  PASSED  ] 13 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent
+
+ 1 FAILED TEST

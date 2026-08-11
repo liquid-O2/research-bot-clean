@@ -1,0 +1,14 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -318,7 +318,10 @@
+       best_abs = distance;
+       best_strike = strike;
+       best_signed = x.value();
+-    } else if (distance == best_abs) {
++    // MY14: the equidistant-strike tie stops being detected, so the selection
++    // is silently broken by container order — the exact thing the repository
++    // law forbids.
++    } else if (false) {
+       // Two strikes exactly equidistant from the spot. The repository law
+       // forbids breaking a scientific tie by id, hash or source order, and no
+       // rule in W21-PIN-1 picks one, so the selection is UNDECIDABLE and the

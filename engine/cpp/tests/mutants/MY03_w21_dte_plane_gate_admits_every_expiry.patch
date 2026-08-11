@@ -1,0 +1,18 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -113,8 +113,13 @@
+ 
+ std::optional<std::size_t> bucket_index(std::int64_t x_bps, std::int64_t dte_days,
+                                         qr::sources::Right right) noexcept {
+-  if (dte_days < 0 || dte_days >= static_cast<std::int64_t>(kDtePlanes)) {
+-    return std::nullopt;  // Q2: the quote surface has exactly the DTE 0 and 1 planes.
++  // MY03: the Q2 plane gate is opened, so a far-dated contract folds into the
++  // DTE-1 plane instead of being off-surface.
++  if (dte_days < 0) {
++    return std::nullopt;
++  }
++  if (dte_days >= static_cast<std::int64_t>(kDtePlanes)) {
++    dte_days = static_cast<std::int64_t>(kDtePlanes) - 1;
+   }
+   std::size_t right_slot = 0;
+   switch (right) {

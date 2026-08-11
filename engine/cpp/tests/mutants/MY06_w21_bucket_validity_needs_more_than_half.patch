@@ -1,0 +1,13 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -247,7 +247,9 @@
+ 
+   out.two_sided_fraction = qr::carriers::fraction(out.two_sided, out.contracts);
+   // Q4: "bucket VALID iff >=50% two-sided", as an exact integer test.
+-  out.valid = kValidTwoSidedNumerator * out.two_sided >= out.contracts;
++  // MY06: Q4's ">=50% two-sided" becomes strictly greater, so a bucket that is
++  // exactly half two-sided is wrongly invalid.
++  out.valid = kValidTwoSidedNumerator * out.two_sided > out.contracts;
+   return out;
+ }
+ 

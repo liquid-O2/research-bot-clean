@@ -1,0 +1,13 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -311,7 +311,9 @@
+     const auto x = moneyness_log_bps(strike, spot_u6);
+     if (!x.has_value()) continue;
+     const std::int64_t distance = x.value() < 0 ? -x.value() : x.value();
+-    if (distance > kStraddleMaxAbsBps) continue;
++    // MY12: Q5's |ln(K/m)| <= 150bp window is removed, so an arbitrarily far
++    // strike is called the ATM straddle.
++    if (distance > 1000000) continue;
+     if (!found || distance < best_abs) {
+       found = true;
+       tied = false;

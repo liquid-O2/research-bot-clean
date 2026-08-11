@@ -1,0 +1,14 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -199,7 +199,10 @@
+     const std::int64_t weight = member.bid_size + member.ask_size;
+     if (member.two_sided()) {
+       ++out.two_sided;
+-      const std::int64_t mid = qr::sources::midpoint_u6(member.bid_u6, member.ask_u6);
++      // MY05: the spread is measured against a constant instead of the member's
++      // own midpoint, so a cheap and an expensive contract of the same absolute
++      // width report the same width.
++      const std::int64_t mid = kU6PerUnit;
+       const auto spread = qr::carriers::displacement_bps(member.ask_u6 - member.bid_u6, mid);
+       if (spread.has_value() && spread.value().v == Validity::VALID && weight > 0) {
+         spread_weight += weight;

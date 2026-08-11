@@ -1,0 +1,13 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -142,7 +142,9 @@
+ 
+ int orientation(std::size_t bucket, bool long_side) noexcept {
+   const BucketKey key = bucket_key(bucket);
+-  const int rho = key.right == 0 ? 1 : -1;
++  // MY04: rho is dropped, so a put bucket orients like a call.
++  const int rho = 1;
++  (void)key;
+   const int sigma = long_side ? 1 : -1;
+   return sigma * rho;
+ }

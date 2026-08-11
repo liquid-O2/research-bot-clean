@@ -1,0 +1,14 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -91,8 +91,10 @@
+     return refuse<std::int64_t>(RefusalCode::CONTENT_MISMATCH,
+                                 "ln(K/m) needs a positive strike and a positive spot");
+   }
++  // MY02: ln(K/m) is replaced by the linear (K-m)/m, which moves contracts
++  // across band boundaries near the outer edges.
+   const double ratio = static_cast<double>(strike_u6) / static_cast<double>(spot_u6);
+-  const double scaled = static_cast<double>(kBpsScale) * std::log(ratio);
++  const double scaled = static_cast<double>(kBpsScale) * (ratio - 1.0);
+   if (!std::isfinite(scaled)) {
+     return refuse<std::int64_t>(RefusalCode::CONTENT_MISMATCH, "ln(K/m) is not finite");
+   }

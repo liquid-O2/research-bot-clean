@@ -1,0 +1,15 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -342,8 +342,10 @@
+   out.width_u6 = out.straddle_ask_u6 - out.straddle_bid_u6;
+   const Typed<double> years = years_to_expiry(ts_ms_b, expiry_epoch_day);
+   out.proxy_vol_mid = proxy_vol(out.straddle_mid_u6, spot_u6, years);
+-  out.proxy_vol_bid = proxy_vol(out.straddle_bid_u6, spot_u6, years);
+-  out.proxy_vol_ask = proxy_vol(out.straddle_ask_u6, spot_u6, years);
++  // MY10: A2's "bid-side/ask-side straddle vol-proxies SEPARATELY" collapses
++  // onto one mid-based series.
++  out.proxy_vol_bid = proxy_vol(out.straddle_mid_u6, spot_u6, years);
++  out.proxy_vol_ask = proxy_vol(out.straddle_mid_u6, spot_u6, years);
+   out.present = true;
+   out.absence = Validity::VALID;
+   return out;

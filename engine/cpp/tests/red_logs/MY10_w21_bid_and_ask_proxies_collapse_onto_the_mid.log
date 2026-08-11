@@ -1,0 +1,71 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from BucketAxisLaw
+[ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
+[       OK ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt (0 ms)
+[ RUN      ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne
+[       OK ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne (0 ms)
+[ RUN      ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface
+[       OK ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface (0 ms)
+[ RUN      ] BucketAxisLaw.OrientationIsSigmaTimesRho
+[       OK ] BucketAxisLaw.OrientationIsSigmaTimesRho (0 ms)
+[----------] 4 tests from BucketAxisLaw (0 ms total)
+
+[----------] 4 tests from BucketReductionLaw
+[ RUN      ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction
+[       OK ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction (0 ms)
+[ RUN      ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket
+[       OK ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket (0 ms)
+[ RUN      ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
+[       OK ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant (0 ms)
+[ RUN      ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge
+[       OK ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge (0 ms)
+[----------] 4 tests from BucketReductionLaw (0 ms total)
+
+[----------] 2 tests from ProxyVolLaw
+[ RUN      ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero
+[       OK ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero (0 ms)
+[ RUN      ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:311: Failure
+Expected: (built.proxy_vol_bid.value) < (built.proxy_vol_mid.value), actual: 0.47762432936357008 vs 0.47762432936357008
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:312: Failure
+Expected: (built.proxy_vol_mid.value) < (built.proxy_vol_ask.value), actual: 0.47762432936357008 vs 0.47762432936357008
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:315: Failure
+The difference between built.proxy_vol_bid.value and proxy_vol(built.straddle_bid_u6, spot, years2).value is 0.095524865872714027, which exceeds 1e-15, where
+built.proxy_vol_bid.value evaluates to 0.47762432936357008,
+proxy_vol(built.straddle_bid_u6, spot, years2).value evaluates to 0.38209946349085605, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:317: Failure
+The difference between built.proxy_vol_ask.value and proxy_vol(built.straddle_ask_u6, spot, years2).value is 0.095524865872713971, which exceeds 1e-15, where
+built.proxy_vol_ask.value evaluates to 0.47762432936357008,
+proxy_vol(built.straddle_ask_u6, spot, years2).value evaluates to 0.57314919523628405, and
+1e-15 evaluates to 1.0000000000000001e-15.
+
+[  FAILED  ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles (0 ms)
+[----------] 2 tests from ProxyVolLaw (0 ms total)
+
+[----------] 3 tests from StraddleSelectionLaw
+[ RUN      ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated
+[       OK ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated (0 ms)
+[ RUN      ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent
+[       OK ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent (0 ms)
+[ RUN      ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder
+[       OK ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder (0 ms)
+[----------] 3 tests from StraddleSelectionLaw (0 ms total)
+
+[----------] 1 test from ModalityLaw
+[ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (20 ms)
+[----------] 1 test from ModalityLaw (20 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 5 test suites ran. (20 ms total)
+[  PASSED  ] 13 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles
+
+ 1 FAILED TEST

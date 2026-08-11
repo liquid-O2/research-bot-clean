@@ -1,5 +1,5 @@
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 30 tests from 4 test suites.
+[==========] Running 34 tests from 4 test suites.
 [----------] Global test environment set-up.
 [----------] 8 tests from SkillLaw
 [ RUN      ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits
@@ -18,7 +18,7 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific (4 ms)
 [ RUN      ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid
 [       OK ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid (1 ms)
-[----------] 8 tests from SkillLaw (25 ms total)
+[----------] 8 tests from SkillLaw (24 ms total)
 
 [----------] 6 tests from TrainWall
 [ RUN      ] TrainWall.F4AdmitsOnlyItsOwnTrainRange
@@ -26,14 +26,14 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
 [       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
 [ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
-[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (538 ms)
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (632 ms)
 [ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
-[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (480 ms)
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (538 ms)
 [ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
-[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (604 ms)
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (648 ms)
 [ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
-[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (500 ms)
-[----------] 6 tests from TrainWall (2124 ms total)
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (506 ms)
+[----------] 6 tests from TrainWall (2327 ms total)
 
 [----------] 11 tests from ArmsArithmetic
 [ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
@@ -58,15 +58,15 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic (0 ms)
 [ RUN      ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse
 [       OK ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse (0 ms)
-[----------] 11 tests from ArmsArithmetic (0 ms total)
+[----------] 11 tests from ArmsArithmetic (1 ms total)
 
-[----------] 5 tests from TwinCeiling
+[----------] 9 tests from TwinCeiling
 [ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
-[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (8 ms)
+[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (33 ms)
 [ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
-[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (8 ms)
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (22 ms)
 [ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
-[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (114 ms)
+[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (219 ms)
 [ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
 [       OK ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
 [ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
@@ -83,11 +83,19 @@ Expected equality of these values:
   3
 
 [  FAILED  ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair (0 ms)
-[----------] 5 tests from TwinCeiling (130 ms total)
+[ RUN      ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses
+[       OK ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses (58 ms)
+[ RUN      ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch
+[       OK ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch (0 ms)
+[ RUN      ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll
+[       OK ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll (3 ms)
+[ RUN      ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride
+[       OK ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride (88 ms)
+[----------] 9 tests from TwinCeiling (427 ms total)
 
 [----------] Global test environment tear-down
-[==========] 30 tests from 4 test suites ran. (2280 ms total)
-[  PASSED  ] 29 tests.
+[==========] 34 tests from 4 test suites ran. (2780 ms total)
+[  PASSED  ] 33 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
 

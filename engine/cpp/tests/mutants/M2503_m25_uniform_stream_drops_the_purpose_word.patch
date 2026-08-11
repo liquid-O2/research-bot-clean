@@ -6,9 +6,9 @@
      : generator_(qr::replay::SeedSequence::from_entropy(std::vector<std::uint64_t>{
 -          qr::replay::kProgramSeed, kM25Tag, static_cast<std::uint64_t>(purpose),
 -          static_cast<std::uint64_t>(session_ordinal), static_cast<std::uint64_t>(replicate)})) {}
-+          qr::replay::kProgramSeed, kM25Tag,
++          qr::replay::kProgramSeed, kM25Tag, 0 * static_cast<std::uint64_t>(purpose),
 +          static_cast<std::uint64_t>(session_ordinal),
-+          static_cast<std::uint64_t>(replicate)})) {}  // MUTANT M2503: purpose dropped
++          static_cast<std::uint64_t>(replicate)})) {}  // MUTANT M2503: purpose ignored
  
  double UniformStream::next() noexcept {
    // numpy `random_standard_uniform`: (next_uint64() >> 11) * (1 / 2^53).

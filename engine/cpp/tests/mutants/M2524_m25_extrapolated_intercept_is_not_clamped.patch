@@ -1,0 +1,12 @@
+--- a/qr_m25/src/twins.cpp
++++ b/qr_m25/src/twins.cpp
+@@ -91,7 +91,8 @@
+       d0 = (sy - beta * sx) / w;
+     }
+   }
+-  out.d0 = std::min(std::max(d0, 0.0), out.d1);
++  (void)d0;
++  out.d0 = out.d1 * 1.5;  // MUTANT M2524: the intercept escapes its clamp
+   return out;
+ }
+ 

@@ -1,11 +1,11 @@
 --- a/qr_m25/src/twins.cpp
 +++ b/qr_m25/src/twins.cpp
-@@ -90,7 +90,7 @@
-   // above the nearest-neighbour value it extrapolates from.
-   d0 = std::min(std::max(d0, 0.0), out.d1 > 0.0 ? out.d1 : d0);
-   out.d0 = d0;
--  out.q_max = std::sqrt(std::max(0.0, 1.0 - d0 / (2.0 * out.variance)));
-+  out.q_max = 1.0;  // MUTANT M2509: the ceiling never binds
+@@ -123,7 +123,7 @@
+     out.d1 = overlapping.d1;
+     out.d0 = overlapping.d0;
+     out.q_max_k1 = ceiling_from(out.d1, out.variance);
+-    out.q_max = ceiling_from(out.d0, out.variance);
++    out.q_max = 1.0;  // MUTANT M2509: the ceiling never binds
+   }
  
-   if (accumulator.all_pair_count > 0) {
-     const double d_all = accumulator.all_gap_sq_sum[horizon_index] /
+   // The DISJOINT ladder — the one the twin identity actually licenses.

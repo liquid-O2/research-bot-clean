@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -280,7 +280,7 @@
+     and its incidence is published), and carries on. Everything that is actually
+     reported as a bound — the envelope, the winning cell — is encoded strictly,
+     where a floor violation is fatal exactly as FINAL_PLAN section 8 says."""
+-    hits = net_cent.astype(np.int64) + cap.floor_cent
++    hits = net_cent.astype(np.int64) + cap.floor_cent // 2  # MUTANT M2564
+     floor_violations = int((hits < 0).sum())
+     if strict and floor_violations:
+         worst = int(net_cent.min())

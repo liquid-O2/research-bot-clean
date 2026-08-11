@@ -1,0 +1,11 @@
+--- a/qr_m25/src/twins.cpp
++++ b/qr_m25/src/twins.cpp
+@@ -136,6 +136,8 @@
+     disjoint_gap_sq[k] = accumulator.disjoint_gap_sq_sum[k][horizon_index];
+   }
+   const LadderFit disjoint = fit_ladder(disjoint_pairs, disjoint_distance, disjoint_gap_sq);
++  out.q_max_disjoint = 1.0;  // MUTANT M2522: no support means no ceiling
++  out.q_max_disjoint_k1 = 1.0;
+   if (disjoint.usable) {
+     out.d1_disjoint = disjoint.d1;
+     out.d0_disjoint = disjoint.d0;

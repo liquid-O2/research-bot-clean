@@ -1,0 +1,11 @@
+--- a/qr_m25/src/twins.cpp
++++ b/qr_m25/src/twins.cpp
+@@ -231,7 +231,7 @@
+     const std::vector<std::size_t>* members = &all_members;
+     if (all_members.size() > kTwinCellCap) {
+       sampled.clear();
+-      const std::size_t stride = (all_members.size() + kTwinCellCap - 1) / kTwinCellCap;
++      const std::size_t stride = 1;  // MUTANT M2523: the cap stops capping
+       for (std::size_t at = 0; at < all_members.size(); at += stride) {
+         sampled.push_back(all_members[at]);
+       }

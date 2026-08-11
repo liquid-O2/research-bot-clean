@@ -208,6 +208,40 @@ def check_mdd_ucb() -> None:
         raise AssertionError("the fixture does not separate the two tails; strengthen it")
 
 
+@check("the binding ceiling reports the DISJOINT ladder and honours its support floor")
+def check_binding_ceiling_rule() -> None:
+    def ceiling(disjoint: float, overlapping: float, pairs: int) -> m25.Ceiling:
+        return m25.Ceiling(q_max=overlapping, q_max_k1=overlapping, q_max_clock_only=0.5,
+                           d0=0.0, d1=0.0, variance=1.0, pairs=pairs, exact_twin_pairs=0,
+                           cells=1, q_max_disjoint=disjoint, q_max_disjoint_k1=disjoint,
+                           q_max_disjoint_clock_only=0.07, d0_disjoint=0.0, d1_disjoint=0.0,
+                           disjoint_pairs=pairs)
+
+    # The 60s bucket has almost no disjoint support and must be skipped; the
+    # 300s bucket has plenty and is the binding one.
+    ceilings = {
+        (60, 0): ceiling(0.90, 0.99, 10),
+        (300, 0): ceiling(0.10, 0.99, m25.MIN_DISJOINT_PAIRS),
+        (900, 0): ceiling(0.40, 0.99, m25.MIN_DISJOINT_PAIRS * 10),
+    }
+    bracket = m25.binding_ceiling(ceilings, 0)
+    if bracket.bucket_seconds != 300:
+        raise AssertionError(f"bucket {bracket.bucket_seconds}: the support floor was not honoured")
+    if abs(bracket.lower - 0.10) > 1e-12:
+        raise AssertionError(f"lower {bracket.lower}: the bracket's floor must be the DISJOINT ladder")
+    if abs(bracket.upper - 0.99) > 1e-12:
+        raise AssertionError(f"upper {bracket.upper}: the bracket's roof is the overlapping ladder")
+    if abs(bracket.prefix_lift - (0.10 - 0.07)) > 1e-12:
+        raise AssertionError("the prefix lift is the disjoint ceiling minus the clock-only one")
+
+    # No bucket with support at all: no ceiling, and NEVER a default of 1 that
+    # would wave the gate through.
+    starved = {(60, 0): ceiling(0.90, 0.99, 10)}
+    empty = m25.binding_ceiling(starved, 0)
+    if empty.status != "INSUFFICIENT_SUPPORT" or empty.lower != 0.0 or empty.upper != 1.0:
+        raise AssertionError(f"starved bracket {empty}")
+
+
 # --- 4. end to end on published synthetic corpora --------------------------
 
 
@@ -330,6 +364,7 @@ def main(argv: List[str] | None = None) -> int:
     check_cap_derivation()
     check_point_mdd()
     check_mdd_ucb()
+    check_binding_ceiling_rule()
     if not args.skip_end_to_end:
         check_unreachable_fails(args.scratch)
         check_reachable_passes(args.scratch)

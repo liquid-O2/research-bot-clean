@@ -1,5 +1,5 @@
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 30 tests from 4 test suites.
+[==========] Running 34 tests from 4 test suites.
 [----------] Global test environment set-up.
 [----------] 8 tests from SkillLaw
 [ RUN      ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits
@@ -26,14 +26,14 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
 [       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
 [ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
-[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (540 ms)
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (626 ms)
 [ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
-[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (409 ms)
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (528 ms)
 [ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
-[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (532 ms)
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (609 ms)
 [ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
-[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (432 ms)
-[----------] 6 tests from TrainWall (1915 ms total)
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (519 ms)
+[----------] 6 tests from TrainWall (2284 ms total)
 
 [----------] 11 tests from ArmsArithmetic
 [ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
@@ -183,24 +183,32 @@ Expected equality of these values:
 [  FAILED  ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic (0 ms)
 [ RUN      ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse
 [       OK ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse (0 ms)
-[----------] 11 tests from ArmsArithmetic (1 ms total)
+[----------] 11 tests from ArmsArithmetic (2 ms total)
 
-[----------] 5 tests from TwinCeiling
+[----------] 9 tests from TwinCeiling
 [ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
-[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (8 ms)
+[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (33 ms)
 [ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
-[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (8 ms)
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (22 ms)
 [ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
-[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (117 ms)
+[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (222 ms)
 [ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
 [       OK ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
 [ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
 [       OK ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair (0 ms)
-[----------] 5 tests from TwinCeiling (134 ms total)
+[ RUN      ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses
+[       OK ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses (59 ms)
+[ RUN      ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch
+[       OK ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch (0 ms)
+[ RUN      ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll
+[       OK ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll (3 ms)
+[ RUN      ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride
+[       OK ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride (90 ms)
+[----------] 9 tests from TwinCeiling (431 ms total)
 
 [----------] Global test environment tear-down
-[==========] 30 tests from 4 test suites ran. (2075 ms total)
-[  PASSED  ] 24 tests.
+[==========] 34 tests from 4 test suites ran. (2743 ms total)
+[  PASSED  ] 28 tests.
 [  FAILED  ] 6 tests, listed below:
 [  FAILED  ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
 [  FAILED  ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock

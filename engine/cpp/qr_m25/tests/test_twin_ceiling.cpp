@@ -160,3 +160,122 @@ TEST(TwinCeiling, RowsWithoutAnOutcomeTakeNoPartInAnyPair) {
   EXPECT_EQ(accumulated.z_row_count, 3);
   EXPECT_EQ(accumulated.all_pair_count, 3);  // 3 choose 2
 }
+
+// --- the OVERLAP DEFECT, reproduced in miniature ---------------------------
+//
+// The construction: the outcome is a per-block constant (plus a whisper of
+// noise) and the holding window is as long as a block, so actions inside one
+// block are nearly the same trade AND nearly the same outcome; the causal prefix
+// is independent noise and says nothing about anything. An overlap-permitting
+// twin ladder therefore reports a ceiling near 1 — the exact artefact measured
+// on the real corpus — while the truth is that the prefix carries no
+// information at all. The DISJOINT ladder has to say so.
+
+namespace {
+
+Built build_block_outcomes(std::int64_t rows, std::int64_t block, std::int64_t hold_seconds) {
+  std::vector<Spec> specs;
+  std::vector<float> prefix(static_cast<std::size_t>(rows) * kWidth, 0.0F);
+  for (std::int64_t c = 0; c < rows; ++c) {
+    const double level = mixed(static_cast<std::uint64_t>(c / block) * 31 + 5);
+    const double whisper = mixed(static_cast<std::uint64_t>(c) * 13 + 991) * 0.002;
+    Spec spec;
+    spec.clock = c;
+    spec.is_long = true;
+    spec.net_cent = static_cast<std::int64_t>(std::llround((level + whisper - 0.5) * 20000.0));
+    spec.hold_seconds = hold_seconds;
+    specs.push_back(spec);
+    for (std::size_t w = 0; w < kWidth; ++w) {
+      prefix[static_cast<std::size_t>(c) * kWidth + w] =
+          static_cast<float>(mixed(static_cast<std::uint64_t>(c) * 7919 + w * 104729));
+    }
+  }
+  return Built{qr::m25::test::make_tape(125, 2022, specs, 1), std::move(prefix)};
+}
+
+}  // namespace
+
+TEST(TwinCeiling, OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses) {
+  // 600 rows at one per second, outcome constant over 60-row blocks, each trade
+  // held 60 seconds: inside a block every pair overlaps and shares its outcome.
+  Built built = build_block_outcomes(600, 60, 60);
+  const auto draws = build_skill_draws(built.tape, 0);
+
+  // At the 60s bucket a cell IS a block: the overlap-permitting ladder sees
+  // near-identical outcomes and manufactures a ceiling near 1, and there is not
+  // one disjoint pair to check it with.
+  const auto inside = accumulate_twins(built.tape, draws, built.prefix, kWidth, 60);
+  const qr::m25::TwinCeiling manufactured = twin_ceiling(inside, 2);
+  EXPECT_GT(manufactured.q_max_k1, 0.9) << "the artefact did not reproduce";
+  EXPECT_EQ(manufactured.disjoint_pairs, 0);
+  EXPECT_EQ(manufactured.q_max_disjoint, 0.0);
+
+  // At the 300s bucket a cell spans five blocks, so disjoint pairs exist — and
+  // they say what is true: the prefix carries nothing.
+  const auto across = accumulate_twins(built.tape, draws, built.prefix, kWidth, 300);
+  const qr::m25::TwinCeiling honest = twin_ceiling(across, 2);
+  EXPECT_GT(honest.disjoint_pairs, 0);
+  EXPECT_LT(honest.q_max_disjoint, 0.45)
+      << "disjoint pairs must not inherit the overlap artefact: d0="
+      << honest.d0_disjoint << " d1=" << honest.d1_disjoint;
+  EXPECT_GT(honest.q_max_k1, honest.q_max_disjoint_k1)
+      << "the overlap-permitting ladder must be the more optimistic of the two";
+}
+
+TEST(TwinCeiling, ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch) {
+  // Four rows one second apart, each held 1 second: rows 0 and 2 are disjoint
+  // (0 exits at t+2 <= 2's entry at t+3), adjacent rows are not.
+  std::vector<Spec> specs;
+  std::vector<float> prefix(static_cast<std::size_t>(4) * kWidth, 0.0F);
+  for (std::int64_t c = 0; c < 4; ++c) {
+    Spec spec;
+    spec.clock = c;
+    spec.is_long = true;
+    spec.net_cent = c * 1000;
+    spec.hold_seconds = 1;
+    specs.push_back(spec);
+    for (std::size_t w = 0; w < kWidth; ++w) {
+      prefix[static_cast<std::size_t>(c) * kWidth + w] = static_cast<float>(c);
+    }
+  }
+  SessionTape tape = qr::m25::test::make_tape(125, 2022, specs, 1);
+  const auto draws = build_skill_draws(tape, 0);
+  const auto accumulated = accumulate_twins(tape, draws, prefix, kWidth, 60);
+  // 6 unordered pairs; entry_i = t_i + 1s and exit_i = t_i + 2s, so a pair is
+  // disjoint iff the clocks differ by at least 2: (0,2), (0,3), (1,3) = 3.
+  EXPECT_EQ(accumulated.all_pair_count, 6);
+  EXPECT_EQ(accumulated.all_disjoint_pair_count[2], 3);
+  // Every row has at least one disjoint partner except none: rows 0,1,2,3 each
+  // have 2,1,1,2 -> 6 directed nearest-disjoint pairs at k = 0.
+  EXPECT_EQ(accumulated.disjoint_pair_count[0][2], 4);
+}
+
+TEST(TwinCeiling, AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll) {
+  Built built = build(true);
+  const auto draws = build_skill_draws(built.tape, 0);
+  // Trades held 30s inside a 15s bucket can never be disjoint.
+  const auto accumulated = accumulate_twins(built.tape, draws, built.prefix, kWidth, 15);
+  EXPECT_EQ(accumulated.disjoint_pair_count[0][2], 0);
+  const qr::m25::TwinCeiling ceiling = twin_ceiling(accumulated, 2);
+  EXPECT_EQ(ceiling.disjoint_pairs, 0);
+  // No support means NO ceiling — never a ceiling of 1 by default.
+  EXPECT_EQ(ceiling.q_max_disjoint, 0.0);
+  EXPECT_EQ(ceiling.q_max_disjoint_k1, 0.0);
+}
+
+TEST(TwinCeiling, ACellLargerThanTheCapIsThinnedByADeterministicStride) {
+  // 1,200 rows in one 3,600s bucket: the cap is 512, so the stride is
+  // ceil(1200/512) = 3 and exactly ceil(1200/3) = 400 members survive — a pure
+  // function of the cell, with no randomness anywhere near it.
+  Built built = build_block_outcomes(1200, 60, 30);
+  const auto draws = build_skill_draws(built.tape, 0);
+  const auto capped = accumulate_twins(built.tape, draws, built.prefix, kWidth, 3600);
+  EXPECT_EQ(capped.cell_count, 1);
+  EXPECT_EQ(capped.rows_in_cells, 400);
+  EXPECT_LE(static_cast<std::size_t>(capped.rows_in_cells), qr::m25::kTwinCellCap);
+  // And it is the SAME 400 every time.
+  const auto again = accumulate_twins(built.tape, draws, built.prefix, kWidth, 3600);
+  EXPECT_EQ(again.rows_in_cells, capped.rows_in_cells);
+  EXPECT_EQ(again.pair_count[0], capped.pair_count[0]);
+  EXPECT_DOUBLE_EQ(again.distance_sum[0], capped.distance_sum[0]);
+}

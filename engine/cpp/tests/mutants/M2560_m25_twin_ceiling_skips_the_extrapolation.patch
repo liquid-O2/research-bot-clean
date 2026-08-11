@@ -1,11 +1,11 @@
 --- a/python/m25_reading.py
 +++ b/python/m25_reading.py
-@@ -454,7 +454,7 @@
+@@ -483,7 +483,7 @@
          if abs(denominator) > 0.0:
              beta = (w * sxy - sx * sy) / denominator
              d0 = (sy - beta * sx) / w
--    d0 = min(max(d0, 0.0), d1)
-+    d0 = 0.0  # MUTANT M2560: the ceiling is always perfect
-     q_max = float(np.sqrt(max(0.0, 1.0 - d0 / (2.0 * variance))))
-     q_max_k1 = float(np.sqrt(max(0.0, 1.0 - d1 / (2.0 * variance))))
-     clock_only = 0.0
+-    return d1, min(max(d0, 0.0), d1), int(pairs_k1)
++    return d1, 0.0, int(pairs_k1)  # MUTANT M2560: the ceiling is always perfect
+ 
+ 
+ def twin_ceiling(entry: Dict[str, float]) -> Ceiling:

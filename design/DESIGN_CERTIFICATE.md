@@ -3,7 +3,7 @@
 ## 8. M2.5 — Reachability + decomposition on the exact object (review F10; runs after M3-R2 labels, gates all fits)
 
 On the exact DecisionTape/menu/replay, TRAIN sessions only (F4 125–395; F5 125–520):
-1. **The gate (CAN fail — it did fail on FEEW):** the registered Q*/Q_max frontier (transcript:24396): estimate required skill Q* to clear $1,600/session + MDD<$1,000 on this object, vs Q_max = the fresh-label twin-discordance observability ceiling; **do not fit unless Q* ≤ Q_max in both folds.**
+1. **The gate (CAN fail — it did fail on FEEW):** the registered Q*/Q_max frontier (transcript:24396): estimate required skill Q* to clear $2,000/session (synced with FINAL_PLAN §8; $1,600 = reported headroom rung) + MDD<$1,000 on this object, vs Q_max = the fresh-label twin-discordance observability ceiling; **do not fit unless Q* ≤ Q_max in both folds.**
 2. **Descriptive decomposition panel:** forced-LONG, forced-SHORT, seeded coin; perfect-side-only; perfect take/skip at control sides; perfect side+take/skip under one-position scheduling — locating value in side vs abstention vs occupancy. NO hindsight exits anywhere.
 3. On gate failure: revisions only from the pre-enumerated menu (checkpoint set {+1s,+5s,+15s}; horizon grid extension {30s,1m,2m,5m}; population widening to all-second watches) — each a NEW registered object with its own evidence row; never outcome-tuned beyond the menu.
 

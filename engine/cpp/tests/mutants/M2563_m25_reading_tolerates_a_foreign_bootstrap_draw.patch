@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -198,7 +198,7 @@
+         ]
+         pinned = estimator_laws.year_stratified_session_block_lcb(records)
+         mine = lcb_from_indices(hits, truths, indices)
+-        if pinned != mine:
++        if False and pinned != mine:  # MUTANT M2563: parity is not a wall
+             _refuse(
+                 "the vectorised block bootstrap does not reproduce the pinned entry point "
+                 f"({mine!r} != {pinned!r}); the reading is refused"

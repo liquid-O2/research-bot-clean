@@ -1,5 +1,5 @@
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 30 tests from 4 test suites.
+[==========] Running 34 tests from 4 test suites.
 [----------] Global test environment set-up.
 [----------] 8 tests from SkillLaw
 [ RUN      ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits
@@ -9,16 +9,16 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] SkillLaw.PerfectSkillRanksExactlyByTheTruth
 [       OK ] SkillLaw.PerfectSkillRanksExactlyByTheTruth (2 ms)
 [ RUN      ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely
-[       OK ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely (3 ms)
+[       OK ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely (6 ms)
 [ RUN      ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe
-[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (11 ms)
+[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (13 ms)
 [ RUN      ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints
 [       OK ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints (1 ms)
 [ RUN      ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific
 [       OK ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific (4 ms)
 [ RUN      ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid
 [       OK ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid (1 ms)
-[----------] 8 tests from SkillLaw (26 ms total)
+[----------] 8 tests from SkillLaw (30 ms total)
 
 [----------] 6 tests from TrainWall
 [ RUN      ] TrainWall.F4AdmitsOnlyItsOwnTrainRange
@@ -26,14 +26,14 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
 [       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
 [ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
-[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (594 ms)
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (643 ms)
 [ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
-[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (460 ms)
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (525 ms)
 [ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
-[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (2274 ms)
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (613 ms)
 [ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
-[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (555 ms)
-[----------] 6 tests from TrainWall (3885 ms total)
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (522 ms)
+[----------] 6 tests from TrainWall (2304 ms total)
 
 [----------] 11 tests from ArmsArithmetic
 [ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
@@ -60,13 +60,13 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse (0 ms)
 [----------] 11 tests from ArmsArithmetic (1 ms total)
 
-[----------] 5 tests from TwinCeiling
+[----------] 9 tests from TwinCeiling
 [ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
-[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (17 ms)
+[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (32 ms)
 [ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
-[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (16 ms)
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (22 ms)
 [ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
-[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (119 ms)
+[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (221 ms)
 [ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
 /workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:137: Failure
 Expected equality of these values:
@@ -77,11 +77,19 @@ Expected equality of these values:
 [  FAILED  ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
 [ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
 [       OK ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair (0 ms)
-[----------] 5 tests from TwinCeiling (153 ms total)
+[ RUN      ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses
+[       OK ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses (59 ms)
+[ RUN      ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch
+[       OK ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch (0 ms)
+[ RUN      ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll
+[       OK ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll (3 ms)
+[ RUN      ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride
+[       OK ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride (89 ms)
+[----------] 9 tests from TwinCeiling (429 ms total)
 
 [----------] Global test environment tear-down
-[==========] 30 tests from 4 test suites ran. (4066 ms total)
-[  PASSED  ] 29 tests.
+[==========] 34 tests from 4 test suites ran. (2766 ms total)
+[  PASSED  ] 33 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
 

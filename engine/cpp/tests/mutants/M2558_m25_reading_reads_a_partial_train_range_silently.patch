@@ -1,6 +1,6 @@
 --- a/python/m25_reading.py
 +++ b/python/m25_reading.py
-@@ -607,7 +607,7 @@
+@@ -716,7 +716,7 @@
      # a bound over a different population than the one the verdict names.
      measured = set(receipts.sweep_sessions)
      missing = [s for s in range(low, high + 1) if s not in measured]

@@ -1,11 +1,11 @@
 --- a/python/m25_reading.py
 +++ b/python/m25_reading.py
-@@ -267,7 +267,7 @@
-     census (conservative)")."""
+@@ -282,7 +282,7 @@
+     where a floor violation is fatal exactly as FINAL_PLAN section 8 says."""
      hits = net_cent.astype(np.int64) + cap.floor_cent
      floor_violations = int((hits < 0).sum())
--    if floor_violations:
-+    if False and floor_violations:  # MUTANT M2552: the floor is silently clipped
+-    if strict and floor_violations:
++    if False and strict and floor_violations:  # MUTANT M2552: the floor is clipped
          worst = int(net_cent.min())
          _refuse(
              f"CERT_BOUND_VIOLATION: {floor_violations} session(s) below the -${cap.floor_dollars:,.0f} "

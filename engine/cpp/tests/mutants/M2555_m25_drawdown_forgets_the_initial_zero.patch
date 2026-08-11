@@ -1,6 +1,6 @@
 --- a/python/m25_reading.py
 +++ b/python/m25_reading.py
-@@ -303,7 +303,7 @@
+@@ -319,7 +319,7 @@
  
  def point_mdd_dollars(net_cent: np.ndarray) -> float:
      equity = np.cumsum(net_cent.astype(np.int64))

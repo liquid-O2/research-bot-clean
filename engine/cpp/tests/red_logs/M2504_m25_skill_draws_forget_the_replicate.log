@@ -1,5 +1,5 @@
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 30 tests from 4 test suites.
+[==========] Running 34 tests from 4 test suites.
 [----------] Global test environment set-up.
 [----------] 8 tests from SkillLaw
 [ RUN      ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits
@@ -7,15 +7,15 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed
 [       OK ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed (0 ms)
 [ RUN      ] SkillLaw.PerfectSkillRanksExactlyByTheTruth
-[       OK ] SkillLaw.PerfectSkillRanksExactlyByTheTruth (3 ms)
+[       OK ] SkillLaw.PerfectSkillRanksExactlyByTheTruth (1 ms)
 [ RUN      ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely
-[       OK ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely (6 ms)
+[       OK ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely (3 ms)
 [ RUN      ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe
-[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (14 ms)
+[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (11 ms)
 [ RUN      ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints
 [       OK ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints (1 ms)
 [ RUN      ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific
-/workspace/engine/cpp/qr_m25/tests/test_skill_law.cpp:218: Failure
+/workspace/engine/cpp/qr_m25/tests/test_skill_law.cpp:221: Failure
 Expected equality of these values:
   differing
     Which is: 0
@@ -25,7 +25,7 @@ Expected equality of these values:
 [  FAILED  ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific (4 ms)
 [ RUN      ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid
 [       OK ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid (1 ms)
-[----------] 8 tests from SkillLaw (32 ms total)
+[----------] 8 tests from SkillLaw (24 ms total)
 
 [----------] 6 tests from TrainWall
 [ RUN      ] TrainWall.F4AdmitsOnlyItsOwnTrainRange
@@ -33,14 +33,14 @@ Expected equality of these values:
 [ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
 [       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
 [ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
-[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (516 ms)
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (563 ms)
 [ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
-[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (445 ms)
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (533 ms)
 [ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
-[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (521 ms)
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (614 ms)
 [ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
-[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (466 ms)
-[----------] 6 tests from TrainWall (1949 ms total)
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (461 ms)
+[----------] 6 tests from TrainWall (2174 ms total)
 
 [----------] 11 tests from ArmsArithmetic
 [ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
@@ -67,22 +67,30 @@ Expected equality of these values:
 [       OK ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse (0 ms)
 [----------] 11 tests from ArmsArithmetic (1 ms total)
 
-[----------] 5 tests from TwinCeiling
+[----------] 9 tests from TwinCeiling
 [ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
-[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (17 ms)
+[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (33 ms)
 [ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
-[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (17 ms)
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (23 ms)
 [ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
-[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (121 ms)
+[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (224 ms)
 [ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
 [       OK ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
 [ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
 [       OK ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair (0 ms)
-[----------] 5 tests from TwinCeiling (155 ms total)
+[ RUN      ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses
+[       OK ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses (60 ms)
+[ RUN      ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch
+[       OK ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch (0 ms)
+[ RUN      ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll
+[       OK ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll (3 ms)
+[ RUN      ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride
+[       OK ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride (91 ms)
+[----------] 9 tests from TwinCeiling (436 ms total)
 
 [----------] Global test environment tear-down
-[==========] 30 tests from 4 test suites ran. (2139 ms total)
-[  PASSED  ] 29 tests.
+[==========] 34 tests from 4 test suites ran. (2636 ms total)
+[  PASSED  ] 33 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific
 

@@ -1,10 +1,118 @@
-the mutant does not compile, which is itself a red result
-[1/3] Building CXX object qr_m25/CMakeFiles/qr_m25.dir/src/skill.cpp.o
-FAILED: qr_m25/CMakeFiles/qr_m25.dir/src/skill.cpp.o 
-/usr/bin/g++  -I/workspace/engine/cpp/qr_m25/include -I/workspace/engine/cpp/qr_core/include -I/workspace/engine/cpp/qr_replay/include -O0 -g -g -std=c++20 -fPIC -Wall -Wextra -Wpedantic -Werror -ffp-contract=off -MD -MT qr_m25/CMakeFiles/qr_m25.dir/src/skill.cpp.o -MF qr_m25/CMakeFiles/qr_m25.dir/src/skill.cpp.o.d -o qr_m25/CMakeFiles/qr_m25.dir/src/skill.cpp.o -c /workspace/engine/cpp/qr_m25/src/skill.cpp
-/workspace/engine/cpp/qr_m25/src/skill.cpp: In constructor ‘qr::m25::UniformStream::UniformStream(qr::m25::DrawPurpose, int64_t, int64_t)’:
-/workspace/engine/cpp/qr_m25/src/skill.cpp:157:42: error: unused parameter ‘purpose’ [-Werror=unused-parameter]
-  157 | UniformStream::UniformStream(DrawPurpose purpose, std::int64_t session_ordinal,
-      |                              ~~~~~~~~~~~~^~~~~~~
-cc1plus: all warnings being treated as errors
-ninja: build stopped: subcommand failed.
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 34 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from SkillLaw
+[ RUN      ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits
+[       OK ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits (0 ms)
+[ RUN      ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed
+/workspace/engine/cpp/qr_m25/tests/test_skill_law.cpp:106: Failure
+Expected equality of these values:
+  coin.next()
+    Which is: 0.61075400068416785
+  want
+    Which is: 0.31839953988908898
+
+/workspace/engine/cpp/qr_m25/tests/test_skill_law.cpp:106: Failure
+Expected equality of these values:
+  coin.next()
+    Which is: 0.20079240657531627
+  want
+    Which is: 0.23880236017941092
+
+/workspace/engine/cpp/qr_m25/tests/test_skill_law.cpp:106: Failure
+Expected equality of these values:
+  coin.next()
+    Which is: 0.70455452123672202
+  want
+    Which is: 0.16591807831667826
+
+/workspace/engine/cpp/qr_m25/tests/test_skill_law.cpp:106: Failure
+Expected equality of these values:
+  coin.next()
+    Which is: 0.62261279307638251
+  want
+    Which is: 0.48357461694481763
+
+[  FAILED  ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed (0 ms)
+[ RUN      ] SkillLaw.PerfectSkillRanksExactlyByTheTruth
+[       OK ] SkillLaw.PerfectSkillRanksExactlyByTheTruth (1 ms)
+[ RUN      ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely
+[       OK ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely (3 ms)
+[ RUN      ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe
+[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (11 ms)
+[ RUN      ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints
+[       OK ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints (1 ms)
+[ RUN      ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific
+[       OK ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific (4 ms)
+[ RUN      ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid
+[       OK ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid (1 ms)
+[----------] 8 tests from SkillLaw (24 ms total)
+
+[----------] 6 tests from TrainWall
+[ RUN      ] TrainWall.F4AdmitsOnlyItsOwnTrainRange
+[       OK ] TrainWall.F4AdmitsOnlyItsOwnTrainRange (0 ms)
+[ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
+[       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
+[ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (651 ms)
+[ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (531 ms)
+[ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (618 ms)
+[ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (506 ms)
+[----------] 6 tests from TrainWall (2309 ms total)
+
+[----------] 11 tests from ArmsArithmetic
+[ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
+[       OK ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock (0 ms)
+[ RUN      ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock
+[       OK ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock (0 ms)
+[ RUN      ] ArmsArithmetic.TheSeededCoinPicksOneOfTheFourLawfulOutcomes
+[       OK ] ArmsArithmetic.TheSeededCoinPicksOneOfTheFourLawfulOutcomes (0 ms)
+[ RUN      ] ArmsArithmetic.PerfectSideOnlyTradesEveryFreeClockOnTheBetterSide
+[       OK ] ArmsArithmetic.PerfectSideOnlyTradesEveryFreeClockOnTheBetterSide (0 ms)
+[ RUN      ] ArmsArithmetic.PerfectTakeSkipOnAControlSideOnlyTakesItsOwnWinners
+[       OK ] ArmsArithmetic.PerfectTakeSkipOnAControlSideOnlyTakesItsOwnWinners (0 ms)
+[ RUN      ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum
+[       OK ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum (0 ms)
+[ RUN      ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm
+[       OK ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm (0 ms)
+[ RUN      ] ArmsArithmetic.AZeroDayStaysInTheDenominatorAndTradesNothing
+[       OK ] ArmsArithmetic.AZeroDayStaysInTheDenominatorAndTradesNothing (0 ms)
+[ RUN      ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars
+[       OK ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars (0 ms)
+[ RUN      ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic
+[       OK ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic (0 ms)
+[ RUN      ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse
+[       OK ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse (0 ms)
+[----------] 11 tests from ArmsArithmetic (1 ms total)
+
+[----------] 9 tests from TwinCeiling
+[ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
+[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (33 ms)
+[ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (23 ms)
+[ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
+[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (222 ms)
+[ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
+[       OK ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
+[ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
+[       OK ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair (0 ms)
+[ RUN      ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses
+[       OK ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses (59 ms)
+[ RUN      ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch
+[       OK ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch (0 ms)
+[ RUN      ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll
+[       OK ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll (3 ms)
+[ RUN      ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride
+[       OK ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride (90 ms)
+[----------] 9 tests from TwinCeiling (432 ms total)
+
+[----------] Global test environment tear-down
+[==========] 34 tests from 4 test suites ran. (2767 ms total)
+[  PASSED  ] 33 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed
+
+ 1 FAILED TEST

@@ -517,14 +517,55 @@ def twin_ceiling(entry: Dict[str, float]) -> Ceiling:
         d0_disjoint=d0_disjoint, d1_disjoint=d1_disjoint, disjoint_pairs=disjoint_pairs)
 
 
-def binding_ceiling(ceilings: Dict[Tuple[int, int], Ceiling],
-                    horizon: int) -> Tuple[float, int, str]:
-    """(Q_max, bucket_seconds, status) under the declared binding rule."""
+@dataclass(frozen=True)
+class CeilingBracket:
+    """THE CEILING IS A BRACKET, NOT A NUMBER, AND THIS IS THE MEASURED REASON.
+
+    The ruling's twin — two actions with IDENTICAL causal-prefix keys — does not
+    exist on this object: the census over 12.1M action rows finds ZERO pairs of
+    byte-identical `direct_raw` prefixes. Every executable surrogate is therefore
+    biased, and BOTH directions have now been measured rather than assumed:
+
+      * the OVERLAP-PERMITTING ladder pairs each action with its prefix-nearest
+        neighbour, which is almost always an action a second or two away. Held
+        for minutes, those are nearly the same trade, their outcomes are
+        correlated by construction, and the discordance collapses. It returns
+        ~1.0 on this corpus and ~0.94 even when the market carriers are ignored
+        entirely, so it is an UPPER bound on the ceiling and nothing else.
+      * the DISJOINT ladder requires the two holding windows not to overlap, so
+        the two outcomes really are separate trades. It costs two things: the
+        surviving pairs are selected (at small buckets, disjointness selects
+        trades that STOPPED early), and the match is a raw Euclidean nearest
+        neighbour in 180 standardised carriers, which is a WEAK conditioning set
+        — a model may find structure a raw metric cannot see. Both losses push
+        the estimate DOWN, so it is a LOWER bound on the ceiling.
+
+    A verdict is only earned when Q* falls outside the bracket."""
+    lower: float
+    upper: float
+    clock_only: float
+    bucket_seconds: int
+    disjoint_pairs: int
+    status: str
+
+    @property
+    def prefix_lift(self) -> float:
+        """How much the causal prefix adds over knowing the clock bucket alone —
+        the single most interpretable number in the whole panel."""
+        return self.lower - self.clock_only
+
+
+def binding_ceiling(ceilings: Dict[Tuple[int, int], Ceiling], horizon: int) -> CeilingBracket:
+    """The bracket at the SMALLEST bucket whose disjoint ladder carries enough
+    pairs (a wider bucket buys support by weakening the clock match the ruling
+    asks for)."""
     for bucket in TWIN_BUCKETS:
         ceiling = ceilings.get((bucket, horizon))
         if ceiling is not None and ceiling.disjoint_pairs >= MIN_DISJOINT_PAIRS:
-            return ceiling.q_max_disjoint, bucket, "DISJOINT_TWINS"
-    return 1.0, 0, "INSUFFICIENT_SUPPORT"
+            return CeilingBracket(ceiling.q_max_disjoint, ceiling.q_max,
+                                  ceiling.q_max_disjoint_clock_only, bucket,
+                                  ceiling.disjoint_pairs, "DISJOINT_TWINS")
+    return CeilingBracket(0.0, 1.0, 0.0, 0, 0, "INSUFFICIENT_SUPPORT")
 
 
 # --- the Q* search ---------------------------------------------------------
@@ -649,6 +690,7 @@ class FoldReading:
     pinned_rate: float | None
     q_max_bucket_seconds: int
     ceiling_status: str
+    bracket: "CeilingBracket"
 
 
 def _fold_positions(receipts: Receipts, fold: str,
@@ -728,17 +770,22 @@ def read_fold(receipts: Receipts, arms: Dict, fold: str,
     primary = sweeps[0]
     q_star = primary.q_star
     horizon = primary.best_at_q_star.horizon if primary.best_at_q_star else HORIZON_REF_INDEX
-    q_max, q_max_bucket, ceiling_status = binding_ceiling(ceilings, horizon)
+    bracket = binding_ceiling(ceilings, horizon)
+    q_max = bracket.lower
 
     if q_star is None:
         verdict = "FAIL_UNREACHABLE_AT_ANY_SKILL"
-    elif ceiling_status == "INSUFFICIENT_SUPPORT":
-        # A ceiling with no disjoint twins is not a ceiling. It is NOT a pass.
-        verdict = "NON_BINDING_CEILING_INSUFFICIENT_DISJOINT_TWINS"
-    elif q_star <= q_max:
+    elif bracket.status == "INSUFFICIENT_SUPPORT":
+        # No disjoint twins means no ceiling. That is NOT a pass.
+        verdict = "INDETERMINATE_NO_DISJOINT_TWIN_SUPPORT"
+    elif q_star <= bracket.lower:
+        # Cleared even under the pessimistic bound.
         verdict = "PASS"
-    else:
+    elif q_star > bracket.upper:
+        # Out of reach even under the optimistic bound.
         verdict = "FAIL_Q_STAR_ABOVE_Q_MAX"
+    else:
+        verdict = "INDETERMINATE_Q_STAR_INSIDE_CEILING_BRACKET"
 
     pinned_lcb = None
     pinned_rate = None
@@ -760,7 +807,8 @@ def read_fold(receipts: Receipts, arms: Dict, fold: str,
         pinned_lcb = pinned_rate * (cap.floor_dollars + cap.cap_dollars) - cap.floor_dollars
 
     return FoldReading(fold, sessions, years, cap, sweeps, ceilings, panel, verdict, q_star,
-                       q_max, horizon, pinned_lcb, pinned_rate, q_max_bucket, ceiling_status)
+                       q_max, horizon, pinned_lcb, pinned_rate, bracket.bucket_seconds,
+                       bracket.status, bracket)
 
 
 def _fmt(value: float, digits: int = 2) -> str:
@@ -780,6 +828,10 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
                 handle.write(f"{reading.fold}\t{metric}\t{value}\n")
             row("verdict", reading.verdict)
             row("q_star", "NONE" if reading.q_star is None else f"{reading.q_star:.6f}")
+            row("q_max_bracket_lower_disjoint", f"{reading.bracket.lower:.6f}")
+            row("q_max_bracket_upper_overlapping", f"{reading.bracket.upper:.6f}")
+            row("q_max_disjoint_clock_only", f"{reading.bracket.clock_only:.6f}")
+            row("prefix_lift_over_clock_only", f"{reading.bracket.prefix_lift:.6f}")
             row("q_max_binding", f"{reading.q_max:.6f}")
             row("q_max_binding_bucket_seconds", reading.q_max_bucket_seconds)
             row("q_max_binding_status", reading.ceiling_status)
@@ -874,7 +926,7 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
                  "through the frozen replay kernel and the pinned estimator.")
     lines.append("")
     lines.append("| fold | sessions | Q* | best cell (h, q, rho) | mean LCB | MDD UCB | "
-                 "trades/session | Q_max (binding) | verdict |")
+                 "trades/session | Q_max bracket [lower, upper] | verdict |")
     lines.append("|---|---|---|---|---|---|---|---|---|")
     for reading in readings:
         best = reading.sweeps[0].best_at_q_star
@@ -886,7 +938,8 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
             f"{'—' if best is None else '$' + _fmt(best.lcb_dollars)} | "
             f"{'—' if best is None else '$' + _fmt(best.mdd_ucb_dollars)} | "
             f"{'—' if best is None else _fmt(best.trades_per_session, 3)} | "
-            f"{reading.q_max:.3f} | **{reading.verdict}** |")
+            f"[{reading.bracket.lower:.3f}, {reading.bracket.upper:.3f}] | "
+            f"**{reading.verdict}** |")
     lines.append("")
     for reading in readings:
         if reading.pinned_lcb_dollars is not None:
@@ -948,10 +1001,15 @@ def write_reading(readings: List[FoldReading], receipts: Receipts, out_dir: path
                          f"{c.exact_twin_pairs} |")
     lines.append("")
     for reading in readings:
-        lines.append(f"- {reading.fold}: the binding ceiling is the DISJOINT ladder at "
-                     f"{reading.q_max_bucket_seconds}s "
-                     f"(status {reading.ceiling_status}, minimum support "
-                     f"{MIN_DISJOINT_PAIRS:,} pairs).")
+        lines.append(f"- {reading.fold}: the binding bracket is read at the {reading.q_max_bucket_seconds}s "
+                     f"bucket (status {reading.ceiling_status}, {reading.bracket.disjoint_pairs:,} "
+                     f"disjoint pairs, minimum support {MIN_DISJOINT_PAIRS:,}). "
+                     f"**Prefix lift over the clock bucket alone: "
+                     f"{reading.bracket.prefix_lift:+.4f}** "
+                     f"(disjoint ceiling {reading.bracket.lower:.4f} vs clock-only "
+                     f"{reading.bracket.clock_only:.4f}) — this is what the causal prefix adds "
+                     f"to a predictor that already knows the time of day, under a raw Euclidean "
+                     f"match on the 180 DIRECT_RAW carriers.")
     lines.append("")
     lines.append("## 4. DECOMPOSITION PANEL (TRAIN only, one replay kernel, no hindsight exits)")
     lines.append("")

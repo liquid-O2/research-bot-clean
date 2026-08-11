@@ -19,7 +19,7 @@
 | WP5 | DONE | 2026-08-10 | — | qr_nbbo 3,379 LOC (1,747 module + 1,377 tests + 218 probe + 37 cmake); 36 tests; 20 red-ledger mutants; registry oracle s125 reproduced by the STATEFUL GROUP MACHINE (complete_group_count 2,810,589 + raw_rth_row_count 14,761,979); census published to tests/fixtures/nbbo_session125_census.tsv; full pass 1.65s vs 3s budget (machine's own share 0.55s) | CC-005 imbalance implemented as a composed accessor over the separate size means (zero denominator = typed missing, bounded [-1,1], sigma at WP8); derivative_null_mask + structural-zero domains + s125 sentinel_rows=0 confirmed unported/expected |
 | WP6..WP11 | TODO | — | — | — | see FINAL_PLAN §6 |
 | M2 | DONE | 2026-08-11 | E_TASK_CARD_V4_FROZEN | card FROZEN (A1-A10); 5-lane review: 9 P0s + ~20 majors fixed in ONE pass; CI green; 653+13 proven tests | selector_v4.toml pinned |
-| M2.5 | TODO | — | — | — | Q*≤Q_max gate + decomposition (after M3-R2) |
+| M2.5 | DONE | 2026-08-11 | — | REACHABILITY PASSED: Q*≈0.175-0.200 → $2,214/$2,404 LCB, MDD_UCB $958/$216, best cell h=2m q=2% ρ=.40; DP optimum $6,843/sess; decomposition side $1.97k + abstention $2.12k + scheduling $2.73k; observability → M3 | reading at artifacts/cache/m25/M25_READING.md |
 | M3.R1+R2 | DONE | 2026-08-11 | — | THE CORPUS EXISTS: 12,139,720 action rows, 625 sessions, 461GB ×2 runs BYTE-IDENTICAL (root 3cff6449…); 9.3min vs 45min target; probe 221/221 identical | first complete lawful DecisionTape in program history |
 | M3.R3-R5 | TODO | — | — | — | controls → baselines → ladder |
 | M4 | TODO | — | — | — | W2.0..W2.13 (conditional on M3 reading) |

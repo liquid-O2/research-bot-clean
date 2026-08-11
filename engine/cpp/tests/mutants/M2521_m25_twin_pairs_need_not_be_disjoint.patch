@@ -1,0 +1,12 @@
+--- a/qr_m25/src/twins.cpp
++++ b/qr_m25/src/twins.cpp
+@@ -215,7 +215,8 @@
+   const auto disjoint_at = [&tape](std::size_t i, std::size_t j, std::size_t h) {
+     const auto& a = tape.rows[i].label;
+     const auto& b = tape.rows[j].label;
+-    return a.menu_exit_ts[h] < b.entry_ts_ns || b.menu_exit_ts[h] < a.entry_ts_ns;
++    (void)a; (void)b; (void)h;
++    return true;  // MUTANT M2521: overlapping trades count as twins
+   };
+ 
+   std::vector<std::pair<float, std::size_t>> ranked;

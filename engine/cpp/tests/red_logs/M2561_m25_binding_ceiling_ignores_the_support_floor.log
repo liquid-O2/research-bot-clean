@@ -4,41 +4,35 @@ PASS: a draw that is not the pinned draw is refused, not tolerated
 PASS: the affine encoding is exactly hits = 100*x + 400,000 over truths = 100*(A+B)
 PASS: a session below the -$4,000 floor is fatal and never silently clipped
 PASS: a session above the cap is clipped and counted, conservatively
-FAIL: B is the nearest-rank p99.9 of the perfect-skill envelope
-Traceback (most recent call last):
-  File "/workspace/engine/cpp/python/test_m25_reading.py", line 44, in run
-    function(*args, **kwargs)
-  File "/workspace/engine/cpp/python/test_m25_reading.py", line 156, in check_cap_derivation
-    raise AssertionError(f"cap {cap.cap_cent} != {int(pooled[6992])}")
-AssertionError: cap 500000 != 999000
-
+PASS: B is the nearest-rank p99.9 of the perfect-skill envelope
 PASS: the drawdown is the exact zero-inclusive end-of-day law, E0 in the running max
 PASS: the MDD upper bound is a genuine 95th percentile of the resampled drawdowns
-FAIL: the gate FAILS on a corpus built so that Q* > Q_max by construction
+FAIL: the binding ceiling reports the DISJOINT ladder and honours its support floor
 Traceback (most recent call last):
   File "/workspace/engine/cpp/python/test_m25_reading.py", line 44, in run
     function(*args, **kwargs)
-  File "/workspace/engine/cpp/python/test_m25_reading.py", line 247, in check_unreachable_fails
-    raise AssertionError("the unreachable corpus must still HAVE a required skill")
-AssertionError: the unreachable corpus must still HAVE a required skill
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 229, in check_binding_ceiling_rule
+    raise AssertionError(f"bucket {bracket.bucket_seconds}: the support floor was not honoured")
+AssertionError: bucket 60: the support floor was not honoured
 
+PASS: the gate FAILS on a corpus built so that Q* > Q_max by construction
 FAIL: the gate PASSES on a corpus built so that Q* <= Q_max by construction
 Traceback (most recent call last):
   File "/workspace/engine/cpp/python/test_m25_reading.py", line 44, in run
     function(*args, **kwargs)
-  File "/workspace/engine/cpp/python/test_m25_reading.py", line 260, in check_reachable_passes
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 294, in check_reachable_passes
     raise AssertionError(f"the reachable corpus did not pass: {reading.verdict}")
-AssertionError: the reachable corpus did not pass: FAIL_UNREACHABLE_AT_ANY_SKILL
+AssertionError: the reachable corpus did not pass: INDETERMINATE_Q_STAR_INSIDE_CEILING_BRACKET
 
 FAIL: the two corpora differ in the CEILING, not in the dollars
 Traceback (most recent call last):
   File "/workspace/engine/cpp/python/test_m25_reading.py", line 44, in run
     function(*args, **kwargs)
-  File "/workspace/engine/cpp/python/test_m25_reading.py", line 278, in check_the_difference_is_observability
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 312, in check_the_difference_is_observability
     raise AssertionError(f"{reachable.q_max} vs {unreachable.q_max}")
 AssertionError: 0.0 vs 0.0
 
 PASS: the reading is reproducible: two reads of one receipt agree exactly
 PASS: the reading refuses a fold whose TRAIN range the receipts do not cover
 PASS: the reading refuses a session outside the fold's TRAIN range
-11/15 M2.5 reading checks passed
+13/16 M2.5 reading checks passed

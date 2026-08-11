@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -562,7 +562,7 @@
+     for bucket in TWIN_BUCKETS:
+         ceiling = ceilings.get((bucket, horizon))
+         if ceiling is not None and ceiling.disjoint_pairs >= MIN_DISJOINT_PAIRS:
+-            return CeilingBracket(ceiling.q_max_disjoint, ceiling.q_max,
++            return CeilingBracket(ceiling.q_max, ceiling.q_max,  # MUTANT M2562
+                                   ceiling.q_max_disjoint_clock_only, bucket,
+                                   ceiling.disjoint_pairs, "DISJOINT_TWINS")
+     return CeilingBracket(0.0, 1.0, 0.0, 0, 0, "INSUFFICIENT_SUPPORT")

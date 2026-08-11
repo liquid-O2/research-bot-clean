@@ -1,6 +1,6 @@
 --- a/python/m25_reading.py
 +++ b/python/m25_reading.py
-@@ -240,7 +240,7 @@
+@@ -246,7 +246,7 @@
      seven menu horizons (the envelope must bound whatever horizon a cell uses),
      with the per-horizon caps published beside it."""
      pooled = np.concatenate([envelope_by_horizon[h] for h in sorted(envelope_by_horizon)])

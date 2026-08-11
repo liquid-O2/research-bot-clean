@@ -5,9 +5,9 @@ Traceback (most recent call last):
     function(*args, **kwargs)
   File "/workspace/engine/cpp/python/test_m25_reading.py", line 95, in check_vectorised_parity
     m25.verify_pinned_parity(years, ordinals, indices, populations)
-  File "/workspace/engine/cpp/python/m25_reading.py", line 196, in verify_pinned_parity
+  File "/workspace/engine/cpp/python/m25_reading.py", line 202, in verify_pinned_parity
     _refuse(
-  File "/workspace/engine/cpp/python/m25_reading.py", line 102, in _refuse
+  File "/workspace/engine/cpp/python/m25_reading.py", line 108, in _refuse
     raise ReadingError(message)
 m25_reading.ReadingError: the vectorised block bootstrap does not reproduce the pinned entry point (0.494351020480226 != 0.492544802259887); the reading is refused
 
@@ -28,11 +28,11 @@ Traceback (most recent call last):
   File "/workspace/engine/cpp/python/test_m25_reading.py", line 238, in read
     return m25.read_fold(bundle, arms, "F4", allow_partial_train=True)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/engine/cpp/python/m25_reading.py", line 639, in read_fold
+  File "/workspace/engine/cpp/python/m25_reading.py", line 748, in read_fold
     verify_pinned_parity(years, sessions, indices, probe)
-  File "/workspace/engine/cpp/python/m25_reading.py", line 196, in verify_pinned_parity
+  File "/workspace/engine/cpp/python/m25_reading.py", line 202, in verify_pinned_parity
     _refuse(
-  File "/workspace/engine/cpp/python/m25_reading.py", line 102, in _refuse
+  File "/workspace/engine/cpp/python/m25_reading.py", line 108, in _refuse
     raise ReadingError(message)
 m25_reading.ReadingError: the vectorised block bootstrap does not reproduce the pinned entry point (0.9371097584039962 != 0.9373345668878356); the reading is refused
 
@@ -46,11 +46,11 @@ Traceback (most recent call last):
   File "/workspace/engine/cpp/python/test_m25_reading.py", line 238, in read
     return m25.read_fold(bundle, arms, "F4", allow_partial_train=True)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/engine/cpp/python/m25_reading.py", line 639, in read_fold
+  File "/workspace/engine/cpp/python/m25_reading.py", line 748, in read_fold
     verify_pinned_parity(years, sessions, indices, probe)
-  File "/workspace/engine/cpp/python/m25_reading.py", line 196, in verify_pinned_parity
+  File "/workspace/engine/cpp/python/m25_reading.py", line 202, in verify_pinned_parity
     _refuse(
-  File "/workspace/engine/cpp/python/m25_reading.py", line 102, in _refuse
+  File "/workspace/engine/cpp/python/m25_reading.py", line 108, in _refuse
     raise ReadingError(message)
 m25_reading.ReadingError: the vectorised block bootstrap does not reproduce the pinned entry point (0.9486786068074652 != 0.9494527677616198); the reading is refused
 
@@ -64,11 +64,11 @@ Traceback (most recent call last):
   File "/workspace/engine/cpp/python/test_m25_reading.py", line 238, in read
     return m25.read_fold(bundle, arms, "F4", allow_partial_train=True)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/engine/cpp/python/m25_reading.py", line 639, in read_fold
+  File "/workspace/engine/cpp/python/m25_reading.py", line 748, in read_fold
     verify_pinned_parity(years, sessions, indices, probe)
-  File "/workspace/engine/cpp/python/m25_reading.py", line 196, in verify_pinned_parity
+  File "/workspace/engine/cpp/python/m25_reading.py", line 202, in verify_pinned_parity
     _refuse(
-  File "/workspace/engine/cpp/python/m25_reading.py", line 102, in _refuse
+  File "/workspace/engine/cpp/python/m25_reading.py", line 108, in _refuse
     raise ReadingError(message)
 m25_reading.ReadingError: the vectorised block bootstrap does not reproduce the pinned entry point (0.9486786068074652 != 0.9494527677616198); the reading is refused
 
@@ -82,11 +82,11 @@ Traceback (most recent call last):
   File "/workspace/engine/cpp/python/test_m25_reading.py", line 238, in read
     return m25.read_fold(bundle, arms, "F4", allow_partial_train=True)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/engine/cpp/python/m25_reading.py", line 639, in read_fold
+  File "/workspace/engine/cpp/python/m25_reading.py", line 748, in read_fold
     verify_pinned_parity(years, sessions, indices, probe)
-  File "/workspace/engine/cpp/python/m25_reading.py", line 196, in verify_pinned_parity
+  File "/workspace/engine/cpp/python/m25_reading.py", line 202, in verify_pinned_parity
     _refuse(
-  File "/workspace/engine/cpp/python/m25_reading.py", line 102, in _refuse
+  File "/workspace/engine/cpp/python/m25_reading.py", line 108, in _refuse
     raise ReadingError(message)
 m25_reading.ReadingError: the vectorised block bootstrap does not reproduce the pinned entry point (0.9486786068074652 != 0.9494527677616198); the reading is refused
 

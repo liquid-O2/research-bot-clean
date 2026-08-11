@@ -1,6 +1,6 @@
 --- a/python/m25_reading.py
 +++ b/python/m25_reading.py
-@@ -598,7 +598,7 @@
+@@ -707,7 +707,7 @@
      # an ordinal no fold may ever train on did not come from a lawful M2.5 run.
      widest_low = min(r[0] for r in TRAIN_RANGE.values())
      widest_high = max(r[1] for r in TRAIN_RANGE.values())

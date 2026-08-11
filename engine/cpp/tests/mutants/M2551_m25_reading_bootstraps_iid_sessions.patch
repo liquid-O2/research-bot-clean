@@ -1,6 +1,6 @@
 --- a/python/m25_reading.py
 +++ b/python/m25_reading.py
-@@ -149,7 +149,7 @@
+@@ -155,7 +155,7 @@
              count = len(blocks)
              got = 0
              while got < n:

@@ -26,14 +26,14 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
 [       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
 [ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
-[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (664 ms)
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (612 ms)
 [ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
-[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (519 ms)
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (559 ms)
 [ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
-[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (569 ms)
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (554 ms)
 [ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
-[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (548 ms)
-[----------] 6 tests from TrainWall (2301 ms total)
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (494 ms)
+[----------] 6 tests from TrainWall (2221 ms total)
 
 [----------] 11 tests from ArmsArithmetic
 [ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
@@ -64,13 +64,57 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
 [       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (33 ms)
 [ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
-/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:87: Failure
-Expected: (ceiling.q_max) < (0.30), actual: 1 vs 0.3
-d0=2.1029494704015153 var=0.99784124312050471
-
-[  FAILED  ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (23 ms)
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (23 ms)
 [ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
-[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (221 ms)
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:105: Failure
+Expected: (ceiling.d0) <= (ceiling.d1 + 1e-12), actual: 0.13272622008934751 vs 0.088484146727231677
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:106: Failure
+Expected: (ceiling.q_max) >= (ceiling.q_max_k1 - 1e-12), actual: 0.96617457956544006 vs 0.97757977277066654
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:105: Failure
+Expected: (ceiling.d0) <= (ceiling.d1 + 1e-12), actual: 0.016040107281542593 vs 0.010693404855361729
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:106: Failure
+Expected: (ceiling.q_max) >= (ceiling.q_max_k1 - 1e-12), actual: 0.99597319017988351 vs 0.99731726665560227
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:105: Failure
+Expected: (ceiling.d0) <= (ceiling.d1 + 1e-12), actual: 0.0032699078545970731 vs 0.002179938570731382
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:106: Failure
+Expected: (ceiling.q_max) >= (ceiling.q_max_k1 - 1e-12), actual: 0.99918041862764506 vs 0.99945368709307647
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:105: Failure
+Expected: (ceiling.d0) <= (ceiling.d1 + 1e-12), actual: 0.0010152255780866966 vs 0.00067681705305779776
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:106: Failure
+Expected: (ceiling.q_max) >= (ceiling.q_max_k1 - 1e-12), actual: 0.99974561215723545 vs 0.99983041529539596
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:105: Failure
+Expected: (ceiling.d0) <= (ceiling.d1 + 1e-12), actual: 0.0010152255780866966 vs 0.00067681705305779776
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:106: Failure
+Expected: (ceiling.q_max) >= (ceiling.q_max_k1 - 1e-12), actual: 0.99974561215723545 vs 0.99983041529539596
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:105: Failure
+Expected: (ceiling.d0) <= (ceiling.d1 + 1e-12), actual: 3.0590207962483227 vs 2.039347197499882
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:105: Failure
+Expected: (ceiling.d0) <= (ceiling.d1 + 1e-12), actual: 3.347198756632026 vs 2.231465837755684
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:105: Failure
+Expected: (ceiling.d0) <= (ceiling.d1 + 1e-12), actual: 2.8431927429207748 vs 1.8954618286148499
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:106: Failure
+Expected: (ceiling.q_max) >= (ceiling.q_max_k1 - 1e-12), actual: 0 vs 0.22409537893747072
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:105: Failure
+Expected: (ceiling.d0) <= (ceiling.d1 + 1e-12), actual: 3.1833229288547056 vs 2.122215285904137
+
+/workspace/engine/cpp/qr_m25/tests/test_twin_ceiling.cpp:105: Failure
+Expected: (ceiling.d0) <= (ceiling.d1 + 1e-12), actual: 3.1833229288547056 vs 2.122215285904137
+
+[  FAILED  ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (221 ms)
 [ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
 [       OK ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
 [ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
@@ -86,9 +130,9 @@ d0=2.1029494704015153 var=0.99784124312050471
 [----------] 9 tests from TwinCeiling (430 ms total)
 
 [----------] Global test environment tear-down
-[==========] 34 tests from 4 test suites ran. (2757 ms total)
+[==========] 34 tests from 4 test suites ran. (2677 ms total)
 [  PASSED  ] 33 tests.
 [  FAILED  ] 1 test, listed below:
-[  FAILED  ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
+[  FAILED  ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
 
  1 FAILED TEST

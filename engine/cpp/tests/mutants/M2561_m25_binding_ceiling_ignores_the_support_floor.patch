@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -561,7 +561,7 @@
+     asks for)."""
+     for bucket in TWIN_BUCKETS:
+         ceiling = ceilings.get((bucket, horizon))
+-        if ceiling is not None and ceiling.disjoint_pairs >= MIN_DISJOINT_PAIRS:
++        if ceiling is not None:  # MUTANT M2561: support floor dropped
+             return CeilingBracket(ceiling.q_max_disjoint, ceiling.q_max,
+                                   ceiling.q_max_disjoint_clock_only, bucket,
+                                   ceiling.disjoint_pairs, "DISJOINT_TWINS")

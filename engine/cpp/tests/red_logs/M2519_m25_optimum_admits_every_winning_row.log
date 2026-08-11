@@ -1,0 +1,115 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 30 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from SkillLaw
+[ RUN      ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits
+[       OK ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits (0 ms)
+[ RUN      ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed
+[       OK ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed (0 ms)
+[ RUN      ] SkillLaw.PerfectSkillRanksExactlyByTheTruth
+[       OK ] SkillLaw.PerfectSkillRanksExactlyByTheTruth (3 ms)
+[ RUN      ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely
+[       OK ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely (6 ms)
+[ RUN      ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe
+[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (14 ms)
+[ RUN      ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints
+[       OK ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints (1 ms)
+[ RUN      ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific
+[       OK ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific (4 ms)
+[ RUN      ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid
+[       OK ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid (1 ms)
+[----------] 8 tests from SkillLaw (31 ms total)
+
+[----------] 6 tests from TrainWall
+[ RUN      ] TrainWall.F4AdmitsOnlyItsOwnTrainRange
+[       OK ] TrainWall.F4AdmitsOnlyItsOwnTrainRange (0 ms)
+[ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
+[       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
+[ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (523 ms)
+[ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (427 ms)
+[ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (508 ms)
+[ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (429 ms)
+[----------] 6 tests from TrainWall (1888 ms total)
+
+[----------] 11 tests from ArmsArithmetic
+[ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
+[       OK ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock (0 ms)
+[ RUN      ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock
+[       OK ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock (0 ms)
+[ RUN      ] ArmsArithmetic.TheSeededCoinPicksOneOfTheFourLawfulOutcomes
+[       OK ] ArmsArithmetic.TheSeededCoinPicksOneOfTheFourLawfulOutcomes (0 ms)
+[ RUN      ] ArmsArithmetic.PerfectSideOnlyTradesEveryFreeClockOnTheBetterSide
+[       OK ] ArmsArithmetic.PerfectSideOnlyTradesEveryFreeClockOnTheBetterSide (0 ms)
+[ RUN      ] ArmsArithmetic.PerfectTakeSkipOnAControlSideOnlyTakesItsOwnWinners
+[       OK ] ArmsArithmetic.PerfectTakeSkipOnAControlSideOnlyTakesItsOwnWinners (0 ms)
+[ RUN      ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:152: Failure
+Expected equality of these values:
+  optimum.net_cent
+    Which is: 5000
+  9900
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:154: Failure
+Expected: (optimum.net_cent) > (greedy.net_cent), actual: 5000 vs 5000
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:155: Failure
+Expected equality of these values:
+  optimum.trades[0].key.side
+    Which is: 8-byte object <FF-FF FF-FF FF-FF FF-FF>
+  qr::replay::Side::LONG
+    Which is: 8-byte object <01-00 00-00 00-00 00-00>
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:156: Failure
+Expected equality of these values:
+  optimum.trades[0].net_cent
+    Which is: 1000
+  9000
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:157: Failure
+Expected equality of these values:
+  optimum.trades[1].net_cent
+    Which is: 4000
+  900
+
+[  FAILED  ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum (0 ms)
+[ RUN      ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:166: Failure
+Expected: (other.net_cent) <= (optimum.net_cent), actual: 9000 vs 5000
+perfect_takeskip_long_side
+
+[  FAILED  ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm (0 ms)
+[ RUN      ] ArmsArithmetic.AZeroDayStaysInTheDenominatorAndTradesNothing
+[       OK ] ArmsArithmetic.AZeroDayStaysInTheDenominatorAndTradesNothing (0 ms)
+[ RUN      ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars
+[       OK ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars (0 ms)
+[ RUN      ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic
+[       OK ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic (0 ms)
+[ RUN      ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse
+[       OK ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse (0 ms)
+[----------] 11 tests from ArmsArithmetic (0 ms total)
+
+[----------] 5 tests from TwinCeiling
+[ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
+[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (8 ms)
+[ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (8 ms)
+[ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
+[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (115 ms)
+[ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
+[       OK ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
+[ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
+[       OK ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair (0 ms)
+[----------] 5 tests from TwinCeiling (133 ms total)
+
+[----------] Global test environment tear-down
+[==========] 30 tests from 4 test suites ran. (2054 ms total)
+[  PASSED  ] 28 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum
+[  FAILED  ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm
+
+ 2 FAILED TESTS

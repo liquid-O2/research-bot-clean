@@ -1,0 +1,11 @@
+--- a/qr_m25/src/skill.cpp
++++ b/qr_m25/src/skill.cpp
+@@ -29,7 +29,7 @@
+     const bool ok_a = rows[a].label.state == LabelState::OK;
+     const bool ok_b = rows[b].label.state == LabelState::OK;
+     if (ok_a != ok_b) {
+-      return !ok_a;  // unavailable rows rank lowest
++      return ok_a;  // MUTANT M2513: unavailable rows rank HIGHEST
+     }
+     if (ok_a) {
+       const std::int64_t na = rows[a].label.menu_net_cent[horizon_index];

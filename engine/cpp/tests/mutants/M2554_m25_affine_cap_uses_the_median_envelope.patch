@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -240,7 +240,7 @@
+     seven menu horizons (the envelope must bound whatever horizon a cell uses),
+     with the per-horizon caps published beside it."""
+     pooled = np.concatenate([envelope_by_horizon[h] for h in sorted(envelope_by_horizon)])
+-    cap = nearest_rank(pooled, CAP_QUANTILE)
++    cap = nearest_rank(pooled, 0.5)  # MUTANT M2554: the median, not p99.9
+     if cap <= 0:
+         _refuse(f"the perfect-skill envelope produced a non-positive cap ({cap} cent)")
+     per_horizon = tuple(

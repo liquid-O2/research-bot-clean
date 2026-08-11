@@ -1,0 +1,89 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 30 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from SkillLaw
+[ RUN      ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits
+[       OK ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits (0 ms)
+[ RUN      ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed
+[       OK ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed (0 ms)
+[ RUN      ] SkillLaw.PerfectSkillRanksExactlyByTheTruth
+[       OK ] SkillLaw.PerfectSkillRanksExactlyByTheTruth (3 ms)
+[ RUN      ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely
+[       OK ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely (6 ms)
+[ RUN      ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe
+[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (14 ms)
+[ RUN      ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints
+[       OK ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints (1 ms)
+[ RUN      ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific
+/workspace/engine/cpp/qr_m25/tests/test_skill_law.cpp:218: Failure
+Expected equality of these values:
+  differing
+    Which is: 0
+  a.net_noise.size()
+    Which is: 800
+
+[  FAILED  ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific (4 ms)
+[ RUN      ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid
+[       OK ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid (1 ms)
+[----------] 8 tests from SkillLaw (32 ms total)
+
+[----------] 6 tests from TrainWall
+[ RUN      ] TrainWall.F4AdmitsOnlyItsOwnTrainRange
+[       OK ] TrainWall.F4AdmitsOnlyItsOwnTrainRange (0 ms)
+[ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
+[       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
+[ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (516 ms)
+[ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (445 ms)
+[ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (521 ms)
+[ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (466 ms)
+[----------] 6 tests from TrainWall (1949 ms total)
+
+[----------] 11 tests from ArmsArithmetic
+[ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
+[       OK ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock (0 ms)
+[ RUN      ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock
+[       OK ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock (0 ms)
+[ RUN      ] ArmsArithmetic.TheSeededCoinPicksOneOfTheFourLawfulOutcomes
+[       OK ] ArmsArithmetic.TheSeededCoinPicksOneOfTheFourLawfulOutcomes (0 ms)
+[ RUN      ] ArmsArithmetic.PerfectSideOnlyTradesEveryFreeClockOnTheBetterSide
+[       OK ] ArmsArithmetic.PerfectSideOnlyTradesEveryFreeClockOnTheBetterSide (0 ms)
+[ RUN      ] ArmsArithmetic.PerfectTakeSkipOnAControlSideOnlyTakesItsOwnWinners
+[       OK ] ArmsArithmetic.PerfectTakeSkipOnAControlSideOnlyTakesItsOwnWinners (0 ms)
+[ RUN      ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum
+[       OK ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum (0 ms)
+[ RUN      ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm
+[       OK ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm (0 ms)
+[ RUN      ] ArmsArithmetic.AZeroDayStaysInTheDenominatorAndTradesNothing
+[       OK ] ArmsArithmetic.AZeroDayStaysInTheDenominatorAndTradesNothing (0 ms)
+[ RUN      ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars
+[       OK ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars (0 ms)
+[ RUN      ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic
+[       OK ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic (0 ms)
+[ RUN      ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse
+[       OK ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse (0 ms)
+[----------] 11 tests from ArmsArithmetic (1 ms total)
+
+[----------] 5 tests from TwinCeiling
+[ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
+[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (17 ms)
+[ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (17 ms)
+[ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
+[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (121 ms)
+[ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
+[       OK ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
+[ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
+[       OK ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair (0 ms)
+[----------] 5 tests from TwinCeiling (155 ms total)
+
+[----------] Global test environment tear-down
+[==========] 30 tests from 4 test suites ran. (2139 ms total)
+[  PASSED  ] 29 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific
+
+ 1 FAILED TEST

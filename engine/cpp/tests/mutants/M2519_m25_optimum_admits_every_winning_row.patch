@@ -1,0 +1,25 @@
+--- a/qr_m25/src/arms.cpp
++++ b/qr_m25/src/arms.cpp
+@@ -194,18 +194,12 @@
+     take[c] = chosen;
+   }
+ 
++  // MUTANT M2519: the schedule is discarded; every winning row is admitted
+   std::unordered_set<std::int64_t> members;
+-  std::size_t c = 0;
+-  while (c < clocks) {
+-    if (take[c] == nullptr) {
+-      ++c;
+-      continue;
++  for (const ScoredAction& row : tape.rows) {
++    if (row.label.state == LabelState::OK && row.label.menu_net_cent[horizon_index] > 0) {
++      members.insert(MemberGate::member_key(row.key));
+     }
+-    const ScoredAction& row = *take[c];
+-    members.insert(MemberGate::member_key(row.key));
+-    const std::int64_t exit_ts = row.label.menu_exit_ts[horizon_index];
+-    c = static_cast<std::size_t>(std::upper_bound(clock_ts.begin(), clock_ts.end(), exit_ts) -
+-                                 clock_ts.begin());
+   }
+   return members;
+ }

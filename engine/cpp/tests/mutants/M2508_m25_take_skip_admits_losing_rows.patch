@@ -1,0 +1,11 @@
+--- a/qr_m25/src/arms.cpp
++++ b/qr_m25/src/arms.cpp
+@@ -76,7 +76,7 @@
+       if (row.key.side != sides[c] || !tradable(row)) {
+         continue;
+       }
+-      if (row.label.menu_net_cent[horizon_index] > 0) {
++      if (row.label.menu_net_cent[horizon_index] > -1000000) {  // MUTANT M2508
+         members.insert(MemberGate::member_key(row.key));
+       }
+     }

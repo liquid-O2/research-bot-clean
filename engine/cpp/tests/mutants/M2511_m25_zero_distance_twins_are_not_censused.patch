@@ -1,0 +1,13 @@
+--- a/qr_m25/src/twins.cpp
++++ b/qr_m25/src/twins.cpp
+@@ -195,9 +195,7 @@
+         const double distance = std::sqrt(static_cast<double>(ranked[k].first));
+         ++out.pair_count[k];
+         out.distance_sum[k] += distance;
+-        if (k == 0 && ranked[k].first == 0.0F) {
+-          ++out.exact_key_twin_pairs;
+-        }
++        // MUTANT M2511: the exact-twin census is dropped
+         const std::size_t j = ranked[k].second;
+         for (std::size_t h = 0; h < kHorizonCount; ++h) {
+           const double gap = draws.net_z[h][i] - draws.net_z[h][j];

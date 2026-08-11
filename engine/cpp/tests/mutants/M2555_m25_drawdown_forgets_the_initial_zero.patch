@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -303,7 +303,7 @@
+ 
+ def point_mdd_dollars(net_cent: np.ndarray) -> float:
+     equity = np.cumsum(net_cent.astype(np.int64))
+-    running_max = np.maximum(np.maximum.accumulate(equity), 0)
++    running_max = np.maximum.accumulate(equity)  # MUTANT M2555: E0 dropped
+     return float(np.max(running_max - equity, initial=0)) / 100.0
+ 
+ 

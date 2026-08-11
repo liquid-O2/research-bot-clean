@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -607,7 +607,7 @@
+     # a bound over a different population than the one the verdict names.
+     measured = set(receipts.sweep_sessions)
+     missing = [s for s in range(low, high + 1) if s not in measured]
+-    if missing and not allow_partial_train:
++    if False and missing and not allow_partial_train:  # MUTANT M2558
+         _refuse(f"{fold}: the receipts cover {len(sessions)} of the {high - low + 1} TRAIN "
+                 f"sessions; {len(missing)} are missing (first {missing[0]}). A partial read "
+                 f"bounds a different population than the verdict names; pass "

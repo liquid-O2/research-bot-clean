@@ -1,0 +1,11 @@
+--- a/qr_m25/src/arms.cpp
++++ b/qr_m25/src/arms.cpp
+@@ -215,7 +215,7 @@
+   if (tape == nullptr) {
+     qr::detail::fail_fast("qr_m25::run_arm: null tape");
+   }
+-  ReplayPolicy policy(horizon_index);
++  ReplayPolicy policy(0);  // MUTANT M2520: the requested horizon is ignored
+   policy.daily_loss_limit_cent = daily_loss_limit_cent;
+ 
+   switch (arm) {

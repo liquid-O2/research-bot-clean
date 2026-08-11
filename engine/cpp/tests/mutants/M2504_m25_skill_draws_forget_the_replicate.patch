@@ -1,0 +1,12 @@
+--- a/qr_m25/src/skill.cpp
++++ b/qr_m25/src/skill.cpp
+@@ -196,7 +196,8 @@
+ 
+   // ONE stream per (session, replicate), consumed in row order, three draws per
+   // row, in this fixed order. Independent of Q by construction.
+-  UniformStream stream(DrawPurpose::SKILL, tape.session_ordinal, replicate);
++  (void)replicate;  // MUTANT M2504: every replicate is replicate 0
++  UniformStream stream(DrawPurpose::SKILL, tape.session_ordinal, 0);
+   for (std::size_t i = 0; i < n; ++i) {
+     const double u_net = stream.next();
+     const double u_risk = stream.next();

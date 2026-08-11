@@ -1,0 +1,95 @@
+PASS: the pinned estimator is the sha registered in authorities/REGISTRY.tsv
+FAIL: the vectorised block bootstrap reproduces the pinned entry point exactly
+Traceback (most recent call last):
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 44, in run
+    function(*args, **kwargs)
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 95, in check_vectorised_parity
+    m25.verify_pinned_parity(years, ordinals, indices, populations)
+  File "/workspace/engine/cpp/python/m25_reading.py", line 196, in verify_pinned_parity
+    _refuse(
+  File "/workspace/engine/cpp/python/m25_reading.py", line 102, in _refuse
+    raise ReadingError(message)
+m25_reading.ReadingError: the vectorised block bootstrap does not reproduce the pinned entry point (0.494351020480226 != 0.492544802259887); the reading is refused
+
+PASS: a draw that is not the pinned draw is refused, not tolerated
+PASS: the affine encoding is exactly hits = 100*x + 400,000 over truths = 100*(A+B)
+PASS: a session below the -$4,000 floor is fatal and never silently clipped
+PASS: a session above the cap is clipped and counted, conservatively
+PASS: B is the nearest-rank p99.9 of the perfect-skill envelope
+PASS: the drawdown is the exact zero-inclusive end-of-day law, E0 in the running max
+PASS: the MDD upper bound is a genuine 95th percentile of the resampled drawdowns
+FAIL: the gate FAILS on a corpus built so that Q* > Q_max by construction
+Traceback (most recent call last):
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 44, in run
+    function(*args, **kwargs)
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 243, in check_unreachable_fails
+    reading = read(build_corpus(scratch, "unreachable"))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 238, in read
+    return m25.read_fold(bundle, arms, "F4", allow_partial_train=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/cpp/python/m25_reading.py", line 639, in read_fold
+    verify_pinned_parity(years, sessions, indices, probe)
+  File "/workspace/engine/cpp/python/m25_reading.py", line 196, in verify_pinned_parity
+    _refuse(
+  File "/workspace/engine/cpp/python/m25_reading.py", line 102, in _refuse
+    raise ReadingError(message)
+m25_reading.ReadingError: the vectorised block bootstrap does not reproduce the pinned entry point (0.9371097584039962 != 0.9373345668878356); the reading is refused
+
+FAIL: the gate PASSES on a corpus built so that Q* <= Q_max by construction
+Traceback (most recent call last):
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 44, in run
+    function(*args, **kwargs)
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 258, in check_reachable_passes
+    reading = read(build_corpus(scratch, "reachable"))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 238, in read
+    return m25.read_fold(bundle, arms, "F4", allow_partial_train=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/cpp/python/m25_reading.py", line 639, in read_fold
+    verify_pinned_parity(years, sessions, indices, probe)
+  File "/workspace/engine/cpp/python/m25_reading.py", line 196, in verify_pinned_parity
+    _refuse(
+  File "/workspace/engine/cpp/python/m25_reading.py", line 102, in _refuse
+    raise ReadingError(message)
+m25_reading.ReadingError: the vectorised block bootstrap does not reproduce the pinned entry point (0.9486786068074652 != 0.9494527677616198); the reading is refused
+
+FAIL: the two corpora differ in the CEILING, not in the dollars
+Traceback (most recent call last):
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 44, in run
+    function(*args, **kwargs)
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 269, in check_the_difference_is_observability
+    reachable = read(build_corpus(scratch, "reachable"))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 238, in read
+    return m25.read_fold(bundle, arms, "F4", allow_partial_train=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/cpp/python/m25_reading.py", line 639, in read_fold
+    verify_pinned_parity(years, sessions, indices, probe)
+  File "/workspace/engine/cpp/python/m25_reading.py", line 196, in verify_pinned_parity
+    _refuse(
+  File "/workspace/engine/cpp/python/m25_reading.py", line 102, in _refuse
+    raise ReadingError(message)
+m25_reading.ReadingError: the vectorised block bootstrap does not reproduce the pinned entry point (0.9486786068074652 != 0.9494527677616198); the reading is refused
+
+FAIL: the reading is reproducible: two reads of one receipt agree exactly
+Traceback (most recent call last):
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 44, in run
+    function(*args, **kwargs)
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 283, in check_reading_is_reproducible
+    first = read(build_corpus(scratch, "reachable"))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 238, in read
+    return m25.read_fold(bundle, arms, "F4", allow_partial_train=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/cpp/python/m25_reading.py", line 639, in read_fold
+    verify_pinned_parity(years, sessions, indices, probe)
+  File "/workspace/engine/cpp/python/m25_reading.py", line 196, in verify_pinned_parity
+    _refuse(
+  File "/workspace/engine/cpp/python/m25_reading.py", line 102, in _refuse
+    raise ReadingError(message)
+m25_reading.ReadingError: the vectorised block bootstrap does not reproduce the pinned entry point (0.9486786068074652 != 0.9494527677616198); the reading is refused
+
+PASS: the reading refuses a fold whose TRAIN range the receipts do not cover
+PASS: the reading refuses a session outside the fold's TRAIN range
+10/15 M2.5 reading checks passed

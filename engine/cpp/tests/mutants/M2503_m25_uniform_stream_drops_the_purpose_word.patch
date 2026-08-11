@@ -1,0 +1,14 @@
+--- a/qr_m25/src/skill.cpp
++++ b/qr_m25/src/skill.cpp
+@@ -157,8 +157,9 @@
+ UniformStream::UniformStream(DrawPurpose purpose, std::int64_t session_ordinal,
+                              std::int64_t replicate)
+     : generator_(qr::replay::SeedSequence::from_entropy(std::vector<std::uint64_t>{
+-          qr::replay::kProgramSeed, kM25Tag, static_cast<std::uint64_t>(purpose),
+-          static_cast<std::uint64_t>(session_ordinal), static_cast<std::uint64_t>(replicate)})) {}
++          qr::replay::kProgramSeed, kM25Tag,
++          static_cast<std::uint64_t>(session_ordinal),
++          static_cast<std::uint64_t>(replicate)})) {}  // MUTANT M2503: purpose dropped
+ 
+ double UniformStream::next() noexcept {
+   // numpy `random_standard_uniform`: (next_uint64() >> 11) * (1 / 2^53).

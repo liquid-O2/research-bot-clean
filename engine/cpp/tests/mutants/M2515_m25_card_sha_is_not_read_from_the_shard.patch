@@ -1,0 +1,11 @@
+--- a/qr_m25/src/tape.cpp
++++ b/qr_m25/src/tape.cpp
+@@ -211,7 +211,7 @@
+                                         "shard manifest carries no task_card_v4 census row",
+                                         session_ordinal));
+   }
+-  return manifest.value().card_sha256;
++  return std::string(64, '0');  // MUTANT M2515: a constant, not the shard's census
+ }
+ 
+ Expected<SessionTape, Refusal> load_session(const TapeRoot& root, Fold fold,

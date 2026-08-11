@@ -1,0 +1,148 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 30 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from SkillLaw
+[ RUN      ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits
+[       OK ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits (0 ms)
+[ RUN      ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed
+[       OK ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed (0 ms)
+[ RUN      ] SkillLaw.PerfectSkillRanksExactlyByTheTruth
+[       OK ] SkillLaw.PerfectSkillRanksExactlyByTheTruth (1 ms)
+[ RUN      ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely
+[       OK ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely (3 ms)
+[ RUN      ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe
+[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (11 ms)
+[ RUN      ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints
+[       OK ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints (1 ms)
+[ RUN      ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific
+[       OK ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific (4 ms)
+[ RUN      ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid
+[       OK ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid (1 ms)
+[----------] 8 tests from SkillLaw (24 ms total)
+
+[----------] 6 tests from TrainWall
+[ RUN      ] TrainWall.F4AdmitsOnlyItsOwnTrainRange
+[       OK ] TrainWall.F4AdmitsOnlyItsOwnTrainRange (0 ms)
+[ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
+[       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
+[ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (600 ms)
+[ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (455 ms)
+[ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (552 ms)
+[ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (527 ms)
+[----------] 6 tests from TrainWall (2135 ms total)
+
+[----------] 11 tests from ArmsArithmetic
+[ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
+[       OK ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock (0 ms)
+[ RUN      ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock
+[       OK ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock (0 ms)
+[ RUN      ] ArmsArithmetic.TheSeededCoinPicksOneOfTheFourLawfulOutcomes
+[       OK ] ArmsArithmetic.TheSeededCoinPicksOneOfTheFourLawfulOutcomes (0 ms)
+[ RUN      ] ArmsArithmetic.PerfectSideOnlyTradesEveryFreeClockOnTheBetterSide
+[       OK ] ArmsArithmetic.PerfectSideOnlyTradesEveryFreeClockOnTheBetterSide (0 ms)
+[ RUN      ] ArmsArithmetic.PerfectTakeSkipOnAControlSideOnlyTakesItsOwnWinners
+[       OK ] ArmsArithmetic.PerfectTakeSkipOnAControlSideOnlyTakesItsOwnWinners (0 ms)
+[ RUN      ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum
+[       OK ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum (0 ms)
+[ RUN      ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm
+[       OK ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm (0 ms)
+[ RUN      ] ArmsArithmetic.AZeroDayStaysInTheDenominatorAndTradesNothing
+[       OK ] ArmsArithmetic.AZeroDayStaysInTheDenominatorAndTradesNothing (0 ms)
+[ RUN      ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:190: Failure
+Expected equality of these values:
+  ledger.net_cent
+    Which is: -120000
+  -90000
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:191: Failure
+Expected equality of these values:
+  ledger.trade_count()
+    Which is: 4
+  3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:192: Failure
+Value of: ledger.halted_daily_loss
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:193: Failure
+Expected equality of these values:
+  census(ledger, qr::replay::ClockOutcome::HALTED_DAILY_LOSS)
+    Which is: 0
+  2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:200: Failure
+Expected equality of these values:
+  breaches
+    Which is: 4
+  3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:207: Failure
+Expected equality of these values:
+  panel.value().trade_count()
+    Which is: 4
+  2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:208: Failure
+Expected equality of these values:
+  panel.value().net_cent
+    Which is: -120000
+  -60000
+
+[  FAILED  ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars (0 ms)
+[ RUN      ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:222: Failure
+Expected equality of these values:
+  card.value().total_net_cent
+    Which is: -118000
+  -88000
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:223: Failure
+Expected equality of these values:
+  card.value().mdd_cent
+    Which is: 120000
+  90000
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:225: Failure
+Expected equality of these values:
+  card.value().trade_count
+    Which is: 6
+  5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:226: Failure
+Expected equality of these values:
+  card.value().breach_count
+    Which is: 4
+  3
+
+[  FAILED  ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic (0 ms)
+[ RUN      ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse
+[       OK ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse (0 ms)
+[----------] 11 tests from ArmsArithmetic (1 ms total)
+
+[----------] 5 tests from TwinCeiling
+[ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
+[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (17 ms)
+[ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (17 ms)
+[ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
+[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (122 ms)
+[ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
+[       OK ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
+[ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
+[       OK ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair (0 ms)
+[----------] 5 tests from TwinCeiling (157 ms total)
+
+[----------] Global test environment tear-down
+[==========] 30 tests from 4 test suites ran. (2319 ms total)
+[  PASSED  ] 28 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars
+[  FAILED  ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic
+
+ 2 FAILED TESTS

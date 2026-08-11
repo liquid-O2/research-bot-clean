@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -103,7 +103,7 @@
+ 
+ 
+ def assert_pinned_estimator() -> None:
+-    got = hashlib.sha256(_PINNED.read_bytes()).hexdigest()
++    got = _PINNED_SHA  # MUTANT M2557: the pinned sha is asserted against itself
+     if got != _PINNED_SHA:
+         _refuse(f"pinned estimator sha {got} != registered {_PINNED_SHA}")
+ 

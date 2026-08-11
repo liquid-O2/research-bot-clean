@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -149,7 +149,7 @@
+             count = len(blocks)
+             got = 0
+             while got < n:
+-                block = blocks[rng.randrange(count)]
++                block = [order[rng.randrange(total)]]  # MUTANT M2551: iid, not blocks
+                 take = block if got + len(block) <= n else block[: n - got]
+                 out[replicate, write : write + len(take)] = take
+                 write += len(take)

@@ -1,0 +1,13 @@
+--- a/qr_m25/src/arms.cpp
++++ b/qr_m25/src/arms.cpp
+@@ -223,9 +223,7 @@
+     case Arm::FORCED_SHORT:
+     case Arm::SEEDED_COIN: {
+       write_side_indicator_scores(tape);
+-      policy.side_override = arm == Arm::FORCED_LONG    ? SideOverride::FORCE_LONG
+-                             : arm == Arm::FORCED_SHORT ? SideOverride::FORCE_SHORT
+-                                                        : SideOverride::SEEDED_COIN;
++      policy.side_override = SideOverride::NONE;  // MUTANT M2507: no override
+       AdmitAllGate gate;
+       return qr::replay::replay(session_ref(*tape), tape->rows, gate, policy);
+     }

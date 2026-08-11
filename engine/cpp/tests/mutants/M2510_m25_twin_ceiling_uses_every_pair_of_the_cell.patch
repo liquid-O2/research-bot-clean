@@ -1,0 +1,14 @@
+--- a/qr_m25/src/twins.cpp
++++ b/qr_m25/src/twins.cpp
+@@ -49,8 +49,9 @@
+ 
+   // The k = 1 point.
+   if (accumulator.pair_count[0] > 0) {
+-    out.d1 = accumulator.gap_sq_sum[0][horizon_index] /
+-             static_cast<double>(accumulator.pair_count[0]);
++    // MUTANT M2510: the nearest neighbour is replaced by the whole cell
++    out.d1 = accumulator.all_gap_sq_sum[horizon_index] /
++             static_cast<double>(std::max<std::int64_t>(accumulator.all_pair_count, 1));
+     out.q_max_k1 = std::sqrt(std::max(0.0, 1.0 - out.d1 / (2.0 * out.variance)));
+   }
+ 

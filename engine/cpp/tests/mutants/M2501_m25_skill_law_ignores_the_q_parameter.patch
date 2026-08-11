@@ -1,0 +1,10 @@
+--- a/qr_m25/src/skill.cpp
++++ b/qr_m25/src/skill.cpp
+@@ -232,6 +232,7 @@
+     qr::detail::fail_fast("qr_m25::apply_skill: skill outside [0,1]");
+   }
+   const std::vector<double>& z = draws.net_z[horizon_index];
++  q_skill = 1.0;  // MUTANT M2501: the skill parameter is ignored
+   const double residual = std::sqrt(std::max(0.0, 1.0 - q_skill * q_skill));
+   const double t = draws.stop_threshold;
+   const bool perfect = q_skill >= 1.0;

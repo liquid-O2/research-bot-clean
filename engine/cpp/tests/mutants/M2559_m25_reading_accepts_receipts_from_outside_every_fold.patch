@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -598,7 +598,7 @@
+     # an ordinal no fold may ever train on did not come from a lawful M2.5 run.
+     widest_low = min(r[0] for r in TRAIN_RANGE.values())
+     widest_high = max(r[1] for r in TRAIN_RANGE.values())
+-    stray = [s for s in receipts.sweep_sessions if not widest_low <= s <= widest_high]
++    stray = []  # MUTANT M2559: provenance unchecked
+     if stray:
+         _refuse(f"{fold}: the receipts carry {len(stray)} session(s) outside every fold's TRAIN "
+                 f"range (first {stray[0]}); these receipts are not from a walled M2.5 run")

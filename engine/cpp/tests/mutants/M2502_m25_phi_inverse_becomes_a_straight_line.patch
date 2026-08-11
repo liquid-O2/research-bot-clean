@@ -1,0 +1,10 @@
+--- a/qr_m25/src/skill.cpp
++++ b/qr_m25/src/skill.cpp
+@@ -66,6 +66,7 @@
+     return std::numeric_limits<double>::infinity();
+   }
+   const double q = p - 0.5;
++  return 4.0 * q;  // MUTANT M2502: a straight line for Phi^-1
+   double r = 0.0;
+   if (std::fabs(q) <= 0.425) {
+     r = 0.180625 - q * q;

@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -273,7 +273,7 @@
+             f"CERT_BOUND_VIOLATION: {floor_violations} session(s) below the -${cap.floor_dollars:,.0f} "
+             f"floor (worst {worst} cent); FINAL_PLAN section 8 makes a floor violation fatal"
+         )
+-    cap_violations = int((hits > cap.truths).sum())
++    cap_violations = 0  # MUTANT M2553: cap incidence is never censused
+     hits = np.minimum(hits, cap.truths)
+     truths = np.full(hits.shape, cap.truths, dtype=np.int64)
+     return Encoded(hits, truths, cap_violations, floor_violations)

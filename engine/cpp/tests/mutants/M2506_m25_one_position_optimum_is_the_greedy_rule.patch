@@ -1,0 +1,12 @@
+--- a/qr_m25/src/arms.cpp
++++ b/qr_m25/src/arms.cpp
+@@ -255,7 +255,8 @@
+     }
+     case Arm::PERFECT_SIDE_TAKESKIP_DP: {
+       write_net_scores(tape, horizon_index);
+-      MemberGate gate(one_position_optimum(*tape, horizon_index));
++      // MUTANT M2506: the envelope is the greedy rule, not the optimum
++      MemberGate gate(greedy_best_side_members(*tape, horizon_index));
+       return qr::replay::replay(session_ref(*tape), tape->rows, gate, policy);
+     }
+   }

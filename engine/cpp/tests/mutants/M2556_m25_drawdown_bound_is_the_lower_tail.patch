@@ -1,0 +1,11 @@
+--- a/python/m25_reading.py
++++ b/python/m25_reading.py
+@@ -298,7 +298,7 @@
+     drawdown = (running_max - equity).max(axis=1)
+     drawdown = np.maximum(drawdown, 0)
+     drawdown.sort()
+-    return float(drawdown[_percentile_index(len(drawdown), confidence, upper=True)]) / 100.0
++    return float(drawdown[_percentile_index(len(drawdown), confidence, upper=False)]) / 100.0
+ 
+ 
+ def point_mdd_dollars(net_cent: np.ndarray) -> float:

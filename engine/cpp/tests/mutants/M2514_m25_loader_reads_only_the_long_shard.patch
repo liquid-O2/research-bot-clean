@@ -1,0 +1,11 @@
+--- a/qr_m25/src/tape.cpp
++++ b/qr_m25/src/tape.cpp
+@@ -251,7 +251,7 @@
+     tape.year = static_cast<std::int32_t>(std::stoi(tape.day.substr(0, 4)));
+   }
+ 
+-  for (const char* side_dir : {"L", "S"}) {
++  for (const char* side_dir : {"L"}) {  // MUTANT M2514: the SHORT shard is skipped
+     const std::filesystem::path shard = root.tapes / shard_name(session_ordinal) / side_dir;
+     Expected<TapeManifest, Refusal> manifest = read_manifest(shard);
+     if (!manifest.has_value()) {

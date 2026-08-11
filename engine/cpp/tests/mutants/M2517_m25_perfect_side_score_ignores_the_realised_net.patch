@@ -1,0 +1,15 @@
+--- a/qr_m25/src/arms.cpp
++++ b/qr_m25/src/arms.cpp
+@@ -31,9 +31,9 @@
+ /// unavailable rows pushed below everything.
+ void write_net_scores(SessionTape* tape, std::size_t horizon_index) {
+   for (ScoredAction& row : tape->rows) {
+-    row.predicted_net_h_star = row.label.state == LabelState::OK
+-                                   ? static_cast<double>(row.label.menu_net_cent[horizon_index])
+-                                   : kUnavailableRowScore;
++    // MUTANT M2517: the perfect-side score stops looking at the outcome
++    (void)horizon_index;
++    row.predicted_net_h_star = row.key.side == Side::LONG ? 1.0 : 0.0;
+     row.predicted_stop_prob_h_ref = 0.0;
+   }
+ }

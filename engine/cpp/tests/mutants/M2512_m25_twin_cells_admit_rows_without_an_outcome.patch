@@ -1,0 +1,13 @@
+--- a/qr_m25/src/twins.cpp
++++ b/qr_m25/src/twins.cpp
+@@ -143,9 +143,7 @@
+   const std::int64_t session_start = tape.rows.empty() ? 0 : tape.rows.front().key.decision_ts_ns;
+   std::unordered_map<std::int64_t, std::vector<std::size_t>> cells;
+   for (std::size_t i = 0; i < n; ++i) {
+-    if (tape.rows[i].label.state != LabelState::OK) {
+-      continue;
+-    }
++    // MUTANT M2512: rows with no outcome join the twin cells anyway
+     const std::int64_t elapsed_s = (tape.rows[i].key.decision_ts_ns - session_start) / kNanosPerSecond;
+     const std::int64_t bucket = elapsed_s / bucket_seconds;
+     const std::int64_t side_bit = tape.rows[i].key.side == Side::LONG ? 0 : 1;

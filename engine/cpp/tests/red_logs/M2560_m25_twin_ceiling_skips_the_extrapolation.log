@@ -1,0 +1,10 @@
+PASS: the pinned estimator is the sha registered in authorities/REGISTRY.tsv
+PASS: the vectorised block bootstrap reproduces the pinned entry point exactly
+PASS: a draw that is not the pinned draw is refused, not tolerated
+PASS: the affine encoding is exactly hits = 100*x + 400,000 over truths = 100*(A+B)
+PASS: a session below the -$4,000 floor is fatal and never silently clipped
+PASS: a session above the cap is clipped and counted, conservatively
+PASS: B is the nearest-rank p99.9 of the perfect-skill envelope
+PASS: the drawdown is the exact zero-inclusive end-of-day law, E0 in the running max
+PASS: the MDD upper bound is a genuine 95th percentile of the resampled drawdowns
+9/9 M2.5 reading checks passed

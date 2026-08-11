@@ -1,0 +1,25 @@
+PASS: the pinned estimator is the sha registered in authorities/REGISTRY.tsv
+PASS: the vectorised block bootstrap reproduces the pinned entry point exactly
+PASS: a draw that is not the pinned draw is refused, not tolerated
+PASS: the affine encoding is exactly hits = 100*x + 400,000 over truths = 100*(A+B)
+PASS: a session below the -$4,000 floor is fatal and never silently clipped
+PASS: a session above the cap is clipped and counted, conservatively
+PASS: B is the nearest-rank p99.9 of the perfect-skill envelope
+PASS: the drawdown is the exact zero-inclusive end-of-day law, E0 in the running max
+PASS: the MDD upper bound is a genuine 95th percentile of the resampled drawdowns
+PASS: the gate FAILS on a corpus built so that Q* > Q_max by construction
+PASS: the gate PASSES on a corpus built so that Q* <= Q_max by construction
+PASS: the two corpora differ in the CEILING, not in the dollars
+PASS: the reading is reproducible: two reads of one receipt agree exactly
+FAIL: the reading refuses a fold whose TRAIN range the receipts do not cover
+Traceback (most recent call last):
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 44, in run
+    function(*args, **kwargs)
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 300, in check_train_coverage_wall
+    expect_refusal("an uncovered F4", lambda: m25.read_fold(bundle, arms, "F4"))
+  File "/workspace/engine/cpp/python/test_m25_reading.py", line 62, in expect_refusal
+    raise AssertionError(f"{name}: was ACCEPTED; it must be refused")
+AssertionError: an uncovered F4: was ACCEPTED; it must be refused
+
+PASS: the reading refuses a session outside the fold's TRAIN range
+14/15 M2.5 reading checks passed

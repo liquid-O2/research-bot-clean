@@ -1,0 +1,850 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 30 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from SkillLaw
+[ RUN      ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits
+[       OK ] SkillLaw.PhiInverseMatchesScipyToSixteenDigits (0 ms)
+[ RUN      ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed
+[       OK ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed (0 ms)
+[ RUN      ] SkillLaw.PerfectSkillRanksExactlyByTheTruth
+[       OK ] SkillLaw.PerfectSkillRanksExactlyByTheTruth (2 ms)
+[ RUN      ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely
+[       OK ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely (4 ms)
+[ RUN      ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe
+[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (12 ms)
+[ RUN      ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints
+[       OK ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints (1 ms)
+[ RUN      ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific
+[       OK ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific (5 ms)
+[ RUN      ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid
+[       OK ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid (1 ms)
+[----------] 8 tests from SkillLaw (28 ms total)
+
+[----------] 6 tests from TrainWall
+[ RUN      ] TrainWall.F4AdmitsOnlyItsOwnTrainRange
+[       OK ] TrainWall.F4AdmitsOnlyItsOwnTrainRange (0 ms)
+[ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
+[       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
+[ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (549 ms)
+[ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (448 ms)
+[ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (601 ms)
+[ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (463 ms)
+[----------] 6 tests from TrainWall (2063 ms total)
+
+[----------] 11 tests from ArmsArithmetic
+[ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
+[       OK ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock (0 ms)
+[ RUN      ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock
+[       OK ] ArmsArithmetic.ForcedShortTakesTheShortSideOfEveryFreeClock (0 ms)
+[ RUN      ] ArmsArithmetic.TheSeededCoinPicksOneOfTheFourLawfulOutcomes
+[       OK ] ArmsArithmetic.TheSeededCoinPicksOneOfTheFourLawfulOutcomes (0 ms)
+[ RUN      ] ArmsArithmetic.PerfectSideOnlyTradesEveryFreeClockOnTheBetterSide
+[       OK ] ArmsArithmetic.PerfectSideOnlyTradesEveryFreeClockOnTheBetterSide (0 ms)
+[ RUN      ] ArmsArithmetic.PerfectTakeSkipOnAControlSideOnlyTakesItsOwnWinners
+[       OK ] ArmsArithmetic.PerfectTakeSkipOnAControlSideOnlyTakesItsOwnWinners (0 ms)
+[ RUN      ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum
+[       OK ] ArmsArithmetic.GreedyPerfectSideAndTakeSkipIsBeatenByTheOnePositionOptimum (0 ms)
+[ RUN      ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm
+[       OK ] ArmsArithmetic.TheOptimumIsNeverBeatenByAnyOtherArm (0 ms)
+[ RUN      ] ArmsArithmetic.AZeroDayStaysInTheDenominatorAndTradesNothing
+[       OK ] ArmsArithmetic.AZeroDayStaysInTheDenominatorAndTradesNothing (0 ms)
+[ RUN      ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars
+[       OK ] ArmsArithmetic.TheCausalDailyLossLimitHaltsTheSessionAtNineHundredDollars (0 ms)
+[ RUN      ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic
+[       OK ] ArmsArithmetic.TheThreeSessionScorecardMatchesHandArithmetic (0 ms)
+[ RUN      ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: -1000
+forced_long at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+forced_long at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 2000
+forced_short at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: -4000
+forced_short at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: -1000
+seeded_coin at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: -4000
+seeded_coin at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 2000
+perfect_side_only at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+perfect_side_only at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+perfect_takeskip_long_side at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 2000
+perfect_takeskip_short_side at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 2000
+perfect_takeskip_coin_side at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 2000
+perfect_side_takeskip_greedy at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+perfect_side_takeskip_greedy at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 2000
+perfect_side_takeskip_dp at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+perfect_side_takeskip_dp at horizon 1
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 0
+forced_long at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+forced_long at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 3000
+forced_short at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: -3000
+forced_short at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 0
+seeded_coin at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: -3000
+seeded_coin at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 3000
+perfect_side_only at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+perfect_side_only at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+perfect_takeskip_long_side at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 3000
+perfect_takeskip_short_side at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 3000
+perfect_takeskip_coin_side at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 3000
+perfect_side_takeskip_greedy at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+perfect_side_takeskip_greedy at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 3000
+perfect_side_takeskip_dp at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+perfect_side_takeskip_dp at horizon 2
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 1000
+forced_long at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+forced_long at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 4000
+forced_short at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: -2000
+forced_short at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 1000
+seeded_coin at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: -2000
+seeded_coin at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 4000
+perfect_side_only at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+perfect_side_only at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 1000
+perfect_takeskip_long_side at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+perfect_takeskip_long_side at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 4000
+perfect_takeskip_short_side at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 4000
+perfect_takeskip_coin_side at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 4000
+perfect_side_takeskip_greedy at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+perfect_side_takeskip_greedy at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 4000
+perfect_side_takeskip_dp at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+perfect_side_takeskip_dp at horizon 3
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 2000
+forced_long at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 8000
+forced_long at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+forced_short at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: -1000
+forced_short at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 2000
+seeded_coin at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: -1000
+seeded_coin at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+perfect_side_only at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 8000
+perfect_side_only at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 2000
+perfect_takeskip_long_side at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 8000
+perfect_takeskip_long_side at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+perfect_takeskip_short_side at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+perfect_takeskip_coin_side at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+perfect_side_takeskip_greedy at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 8000
+perfect_side_takeskip_greedy at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 5000
+perfect_side_takeskip_dp at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 8000
+perfect_side_takeskip_dp at horizon 4
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 3000
+forced_long at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 9000
+forced_long at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+forced_short at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: 0
+forced_short at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 3000
+seeded_coin at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: 0
+seeded_coin at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+perfect_side_only at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 9000
+perfect_side_only at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 3000
+perfect_takeskip_long_side at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 9000
+perfect_takeskip_long_side at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+perfect_takeskip_short_side at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+perfect_takeskip_coin_side at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+perfect_side_takeskip_greedy at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 9000
+perfect_side_takeskip_greedy at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 6000
+perfect_side_takeskip_dp at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 9000
+perfect_side_takeskip_dp at horizon 5
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 4000
+forced_long at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 10000
+forced_long at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+forced_short at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: 1000
+forced_short at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 4000
+seeded_coin at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: 1000
+seeded_coin at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+perfect_side_only at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 10000
+perfect_side_only at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -2000
+  row.label.menu_net_cent[horizon]
+    Which is: 4000
+perfect_takeskip_long_side at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 10000
+perfect_takeskip_long_side at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+perfect_takeskip_short_side at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: 1000
+perfect_takeskip_short_side at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+perfect_takeskip_coin_side at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: -5000
+  row.label.menu_net_cent[horizon]
+    Which is: 1000
+perfect_takeskip_coin_side at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+perfect_side_takeskip_greedy at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 10000
+perfect_side_takeskip_greedy at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 1000
+  row.label.menu_net_cent[horizon]
+    Which is: 7000
+perfect_side_takeskip_dp at horizon 6
+
+/workspace/engine/cpp/qr_m25/tests/test_arms_arithmetic.cpp:250: Failure
+Expected equality of these values:
+  trade.net_cent
+    Which is: 4000
+  row.label.menu_net_cent[horizon]
+    Which is: 10000
+perfect_side_takeskip_dp at horizon 6
+
+[  FAILED  ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse (5 ms)
+[----------] 11 tests from ArmsArithmetic (6 ms total)
+
+[----------] 5 tests from TwinCeiling
+[ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
+[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (17 ms)
+[ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (16 ms)
+[ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
+[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (117 ms)
+[ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
+[       OK ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
+[ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
+[       OK ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair (0 ms)
+[----------] 5 tests from TwinCeiling (151 ms total)
+
+[----------] Global test environment tear-down
+[==========] 30 tests from 4 test suites ran. (2249 ms total)
+[  PASSED  ] 29 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] ArmsArithmetic.EveryArmReplaysTheHorizonItWasAskedForAndNothingElse
+
+ 1 FAILED TEST

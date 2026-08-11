@@ -1,0 +1,11 @@
+--- a/qr_m25/src/arms.cpp
++++ b/qr_m25/src/arms.cpp
+@@ -22,7 +22,7 @@
+ /// prediction — the override, not the score, decides the arm's side.
+ void write_side_indicator_scores(SessionTape* tape) {
+   for (ScoredAction& row : tape->rows) {
+-    row.predicted_net_h_star = row.key.side == Side::LONG ? 1.0 : 0.0;
++    row.predicted_net_h_star = 0.0;  // MUTANT M2516: both sides tie
+     row.predicted_stop_prob_h_ref = 0.0;
+   }
+ }

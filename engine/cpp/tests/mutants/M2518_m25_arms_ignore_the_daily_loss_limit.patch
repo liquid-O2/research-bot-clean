@@ -1,0 +1,11 @@
+--- a/qr_m25/src/arms.cpp
++++ b/qr_m25/src/arms.cpp
+@@ -216,7 +216,7 @@
+     qr::detail::fail_fast("qr_m25::run_arm: null tape");
+   }
+   ReplayPolicy policy(horizon_index);
+-  policy.daily_loss_limit_cent = daily_loss_limit_cent;
++  (void)daily_loss_limit_cent;  // MUTANT M2518
+ 
+   switch (arm) {
+     case Arm::FORCED_LONG:

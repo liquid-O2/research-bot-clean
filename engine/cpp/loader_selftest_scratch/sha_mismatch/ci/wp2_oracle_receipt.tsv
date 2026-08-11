@@ -1,3 +1,0 @@
-path	sha256	built_with
-/workspace/artifacts/cache/cpp/oracle_clock_rs/src/main.rs	3287790629d69126d6faec8d27d0b8ab4ec8496ba8bf6837505f1fee10b512b5	rustc-1.97.1-(8bab26f4f-2026-07-14)+CARGO_TARGET_DIR=/workspace/artifacts/cache/ctpool-a+cargo-build---release---offline
-/workspace/artifacts/cache/cpp/oracle_clock_rs/Cargo.toml	7186d2da44fe9076ce170c47df55ec7a336b08f4b73072581199e83393f8b379	rustc-1.97.1-(8bab26f4f-2026-07-14)+CARGO_TARGET_DIR=/workspace/artifacts/cache/ctpool-a+cargo-build---release---offline

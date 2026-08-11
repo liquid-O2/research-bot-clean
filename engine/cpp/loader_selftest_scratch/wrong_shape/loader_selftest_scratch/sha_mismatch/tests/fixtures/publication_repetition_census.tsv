@@ -1,2 +1,0 @@
-truth_relation_projection.parquet	leaves=24	repetitions={'REQUIRED': 24}	nested_elements=0	row_groups=1003
-candidate_action_registry.parquet	leaves=26	repetitions={'REQUIRED': 26}	nested_elements=0	row_groups=1003

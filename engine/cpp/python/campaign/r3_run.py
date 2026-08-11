@@ -83,6 +83,9 @@ def main(argv: list[str] | None = None) -> int:
         (out / "receipt.json").write_text(
             json.dumps(published["gpu_receipt"], indent=2), encoding="utf-8")
 
+    # Arrays travel as .npy beside the verdict, never inside result.json.
+    for name in [key for key in result if key.startswith("_")]:
+        np.save(out / f"{name[1:]}.npy", result.pop(name))
     result["wall_seconds"] = round(time.time() - started, 2)
     result["certifying"] = bool(args.epochs == train.FIRST_BUDGET_EPOCHS
                                 and not args.max_train and not args.max_eval)

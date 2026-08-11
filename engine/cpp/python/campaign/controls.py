@@ -474,7 +474,7 @@ def injection_auc(source: str, data: pathlib.Path, *, fold: str = "F4",
         loss, _ = train.run_epoch(model, train_sessions, config,
                                   optimizer, train.cosine_lr(epoch, epochs), control)
         curve.append(loss / max(len(train_sessions), 1))
-    logits, opportunity, risk, _ = score_sessions(model, held_out or train_sessions,
+    logits, opportunity, risk, net = score_sessions(model, held_out or train_sessions,
                                                   config, control)
     if source == "inject_net_h_ref":
         auc = roc_auc(logits[:, arms.OPPORTUNITY_SLICE][:, 0], opportunity[:, 0])
@@ -487,7 +487,12 @@ def injection_auc(source: str, data: pathlib.Path, *, fold: str = "F4",
             "train_sessions": len(train_sessions),
             "held_out_sessions": len(held_out),
             "held_out_rows": int(logits.shape[0]),
-            "train_curve": [float(value) for value in curve]}
+            "train_curve": [float(value) for value in curve],
+            # The R3 publish contract: the held-out array the AUC was
+            # read from travels with the verdict, not just the number.
+            # Publishing the label arrays as well as the logits makes the
+            # verdict reproducible from the file: roc_auc(logits[:,h], label).
+            "_logits": logits, "_opportunity": opportunity, "_risk": risk}
 
 
 def xor_harness(data: pathlib.Path, *, fold: str = "F4", epochs: int = 25,

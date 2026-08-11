@@ -337,9 +337,11 @@ def session_clocks(root: pathlib.Path, ordinal: int, real: bool) -> Tensor:
     it takes only that column, through the allowlist, with no feature mapped."""
     directory = (tapes._session_dir(root, ordinal, "L") if real
                  else pathlib.Path(root) / f"s{ordinal:04d}" / "L")
+    # The FEATURE keys leaf, not the truth one: a clock is a scientific key and
+    # choosing rows must not depend on a truth read (see tapes.decision_ordinals).
     tape = tapes.DecisionTape(directory)
-    keys = tape.truth(["keys"], names=["keys"])["keys"]
-    return torch.from_numpy(np.array(keys[:, tapes.KEY_DECISION], copy=True))
+    ordinals = np.asarray(tape.features(["keys"])["keys"])[:, tapes.KEY_DECISION]
+    return torch.from_numpy(np.array(ordinals, copy=True))
 
 
 def load_sessions(root: pathlib.Path, ordinals: list[int],
@@ -367,8 +369,9 @@ def load_sessions(root: pathlib.Path, ordinals: list[int],
                 ordinals_here = tapes.decision_ordinals(root, ordinal, side)
             else:
                 directory = pathlib.Path(root) / f"s{ordinal:04d}" / side
-                keys = tapes.DecisionTape(directory).truth(["keys"], names=["keys"])["keys"]
-                ordinals_here = np.array(keys[:, tapes.KEY_DECISION], copy=True)
+                feature_keys = tapes.DecisionTape(directory).features(["keys"])["keys"]
+                ordinals_here = np.array(
+                    np.asarray(feature_keys)[:, tapes.KEY_DECISION], copy=True)
             picked = np.flatnonzero(np.isin(ordinals_here, list(wanted)))
             rows_by_side[side] = picked
             signature.append(str(picked.size))
@@ -922,6 +925,12 @@ def train_once(config: RunConfig, control=None) -> dict:
         "keys": keys,
         "train_sessions": [s.ordinal for s in train_sessions],
         "inner_val_sessions": [s.ordinal for s in inner_sessions],
+        # The fitted weights travel with the run so that scoring the TEST block
+        # can be a SEPARATE, explicitly ordered step instead of something the
+        # fit does on its own.  Without this a later TEST pass would have to
+        # refit, and a refit is not the same model.
+        "state_dict": {name: value.detach().cpu()
+                       for name, value in model.state_dict().items()},
     }
 
 
@@ -939,11 +948,17 @@ def publish(result: dict, out: pathlib.Path) -> pathlib.Path:
     out.mkdir(parents=True, exist_ok=True)
     np.save(out / "logits.npy", result["logits"])
     np.save(out / "keys.npy", result["keys"])
+    if result.get("state_dict") is not None:
+        torch.save(result["state_dict"], out / "model.pt")
     receipt = {name: value for name, value in result.items()
-               if name not in ("logits", "keys")}
+               if name not in ("logits", "keys", "state_dict")}
     receipt["logits_shape"] = list(result["logits"].shape)
-    receipt["key_columns"] = ["session_ordinal", "decision_ordinal", "side_index",
-                              "decision_ts_ns"]
+    # The EMITTED order (qr_replay/action.hpp `ActionKey`, verified against the
+    # real s0125 tape): column 2 is the timestamp and column 3 carries SIGMA
+    # (+1 LONG / -1 SHORT).  The old label here said "side_index, decision_ts_ns"
+    # and would have mis-joined every downstream metric.
+    receipt["key_columns"] = ["session_ordinal", "decision_ordinal",
+                              "decision_ts_ns", "sigma"]
     (out / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n",
                                       encoding="utf-8")
     return out

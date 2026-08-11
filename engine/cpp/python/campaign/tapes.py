@@ -485,12 +485,17 @@ def _merge_jsa(pool_ts, pool_slot, pool_phase, pool_mod):
 
 
 def decision_ordinals(root: pathlib.Path, ordinal: int, side: str) -> np.ndarray:
-    """The side's `decision_ordinal` column, read from the truth `keys` leaf
-    ALONE -- no feature is mapped, so this is cheap enough to call per session
-    before deciding which rows are worth assembling."""
+    """The side's `decision_ordinal` column, mapped from the FEATURE `keys`
+    leaf alone -- one small array, cheap enough to call per session before
+    deciding which rows are worth assembling, and it touches no truth."""
+    # Read from features/keys.npy, NOT truth/keys.npy.  The two carry the same
+    # four columns (verified on s0125), but the decision ordinal used to CHOOSE
+    # rows is a scientific key, not a label -- taking it from the truth section
+    # would make a row selection depend on a truth read for no reason, and
+    # check_truth_separation is right to object to that.
     tape = DecisionTape(_session_dir(root, ordinal, side))
-    keys = tape.truth(["keys"], names=["keys"])["keys"]
-    return np.array(keys[:, KEY_DECISION], copy=True)
+    return np.array(np.asarray(tape.features(["keys"])["keys"])[:, KEY_DECISION],
+                    copy=True)
 
 
 def load_session(root: pathlib.Path, ordinal: int, *, verify_sha: bool = False,

@@ -1,0 +1,13 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -399,7 +399,9 @@
+   out.width_u6 = out.straddle_ask_u6 - out.straddle_bid_u6;
+   // §W21-PIN-2's uniformity law: the CHANNEL is the underlying-bps image of the
+   // u6 width, through the transform table's checked truncating displacement.
+-  const auto width_bps = qr::carriers::displacement_bps(out.width_u6, spot_u6);
++  // MY20: the width channel is normalised by the straddle's own mid instead of
++  // the underlying, breaking PIN-2's uniformity law.
++  const auto width_bps = qr::carriers::displacement_bps(out.width_u6, out.straddle_mid_u6);
+   out.width_bps = width_bps.has_value() ? width_bps.value()
+                                         : Typed<std::int64_t>{0, Validity::NONFINITE};
+   const Typed<double> years = years_to_expiry(ts_ms_b, expiry_epoch_day);

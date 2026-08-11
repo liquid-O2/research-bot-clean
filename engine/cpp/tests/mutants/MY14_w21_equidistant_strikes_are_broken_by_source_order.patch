@@ -1,6 +1,6 @@
 --- a/qr_w21/src/surface.cpp
 +++ b/qr_w21/src/surface.cpp
-@@ -318,7 +318,10 @@
+@@ -375,7 +375,10 @@
        best_abs = distance;
        best_strike = strike;
        best_signed = x.value();

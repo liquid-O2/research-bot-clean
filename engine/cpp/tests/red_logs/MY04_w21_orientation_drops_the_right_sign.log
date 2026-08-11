@@ -1,5 +1,5 @@
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 14 tests from 5 test suites.
+[==========] Running 20 tests from 7 test suites.
 [----------] Global test environment set-up.
 [----------] 4 tests from BucketAxisLaw
 [ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
@@ -9,13 +9,13 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface
 [       OK ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface (0 ms)
 [ RUN      ] BucketAxisLaw.OrientationIsSigmaTimesRho
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:160: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:161: Failure
 Expected equality of these values:
   orientation(put, true)
     Which is: 1
   -1
 
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:161: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:162: Failure
 Expected equality of these values:
   orientation(put, false)
     Which is: -1
@@ -53,12 +53,30 @@ Expected equality of these values:
 
 [----------] 1 test from ModalityLaw
 [ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
-[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (109 ms)
-[----------] 1 test from ModalityLaw (109 ms total)
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (29 ms)
+[----------] 1 test from ModalityLaw (29 ms total)
+
+[----------] 5 tests from ResidualLaw
+[ RUN      ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart
+[       OK ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart (0 ms)
+[ RUN      ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6
+[       OK ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6 (0 ms)
+[ RUN      ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds
+[       OK ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds (0 ms)
+[ RUN      ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue
+[       OK ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue (0 ms)
+[ RUN      ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate
+[       OK ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate (0 ms)
+[----------] 5 tests from ResidualLaw (0 ms total)
+
+[----------] 1 test from StraddleWidthLaw
+[ RUN      ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints
+[       OK ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints (0 ms)
+[----------] 1 test from StraddleWidthLaw (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 14 tests from 5 test suites ran. (110 ms total)
-[  PASSED  ] 13 tests.
+[==========] 20 tests from 7 test suites ran. (29 ms total)
+[  PASSED  ] 19 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] BucketAxisLaw.OrientationIsSigmaTimesRho
 

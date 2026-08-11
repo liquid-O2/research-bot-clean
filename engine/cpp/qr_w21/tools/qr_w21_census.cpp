@@ -7,7 +7,7 @@
 // `DayScope::admit`, and ordinals 125..208 return the typed MODALITY_ABSENT
 // block without a path ever being formed (Q12).
 //
-// usage: qr_w21_census --root DIR --tapes DIR --out TSV [--ordinals LIST]
+// usage: qr_w21_census --root DIR --prints DIR --tapes DIR --out TSV [--ordinals LIST]
 // Output carries no wall-clock value, so two runs are byte-identical.
 #include <cstdio>
 #include <cstdlib>
@@ -32,7 +32,8 @@ const qr::Registry* registry_or_null() {
 
 int usage() {
   std::fprintf(stderr,
-               "usage: qr_w21_census --root DIR --tapes DIR --out TSV [--ordinals LIST|ladder]\n");
+               "usage: qr_w21_census --root DIR --prints DIR --tapes DIR --out TSV\n"
+               "                     [--ordinals LIST|ladder]\n");
   return 2;
 }
 
@@ -58,6 +59,7 @@ std::vector<std::int64_t> parse_ordinals(const std::string& text) {
 
 int main(int argc, char** argv) {
   std::string root;
+  std::string prints;
   std::string tapes;
   std::string out;
   std::string ordinals_text = "ladder";
@@ -65,6 +67,8 @@ int main(int argc, char** argv) {
     const std::string flag = argv[index];
     if (flag == "--root" && index + 1 < argc) {
       root = argv[++index];
+    } else if (flag == "--prints" && index + 1 < argc) {
+      prints = argv[++index];
     } else if (flag == "--tapes" && index + 1 < argc) {
       tapes = argv[++index];
     } else if (flag == "--out" && index + 1 < argc) {
@@ -75,7 +79,7 @@ int main(int argc, char** argv) {
       return usage();
     }
   }
-  if (root.empty() || tapes.empty() || out.empty()) return usage();
+  if (root.empty() || prints.empty() || tapes.empty() || out.empty()) return usage();
 
   const qr::Registry* const registry = registry_or_null();
   if (registry == nullptr) {
@@ -92,8 +96,10 @@ int main(int argc, char** argv) {
     char padded[16];
     std::snprintf(padded, sizeof(padded), "s%04lld", static_cast<long long>(ordinal));
     const std::filesystem::path tape_side_dir = std::filesystem::path(tapes) / padded / "L";
+    qr::w21::SurfaceOptions options;
+    options.prints_root = std::filesystem::path(prints);
     const auto built = qr::w21::SurfaceBuilder::build(scope.value(), std::filesystem::path(root),
-                                                      tape_side_dir, qr::w21::SurfaceOptions{});
+                                                      tape_side_dir, options);
     if (!built.has_value()) {
       std::fprintf(stderr, "REFUSED s%lld: %s\n", static_cast<long long>(ordinal),
                    built.error().message().c_str());

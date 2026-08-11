@@ -14,28 +14,13 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 4 tests from BucketReductionLaw
 [ RUN      ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:184: Failure
-Expected: (a.mean_spread_bps.value) != (b.mean_spread_bps.value), actual: 20000 vs 20000
-
-[  FAILED  ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction (0 ms)
+[       OK ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction (0 ms)
 [ RUN      ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket
 [       OK ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket (0 ms)
 [ RUN      ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:223: Failure
-The difference between a.mean_spread_bps.value and expected is 17351.636363636364, which exceeds 1e-9, where
-a.mean_spread_bps.value evaluates to 19090.909090909092,
-expected evaluates to 1739.2727272727273, and
-1e-9 evaluates to 1.0000000000000001e-09.
-
-[  FAILED  ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant (0 ms)
+[       OK ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant (0 ms)
 [ RUN      ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:244: Failure
-The difference between out.mean_spread_bps.value and 6666.0 is 3334, which exceeds 1e-9, where
-out.mean_spread_bps.value evaluates to 10000,
-6666.0 evaluates to 6666, and
-1e-9 evaluates to 1.0000000000000001e-09.
-
-[  FAILED  ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge (0 ms)
+[       OK ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge (0 ms)
 [----------] 4 tests from BucketReductionLaw (0 ms total)
 
 [----------] 2 tests from ProxyVolLaw
@@ -56,14 +41,26 @@ out.mean_spread_bps.value evaluates to 10000,
 
 [----------] 1 test from ModalityLaw
 [ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
-[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (18 ms)
-[----------] 1 test from ModalityLaw (18 ms total)
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (22 ms)
+[----------] 1 test from ModalityLaw (22 ms total)
 
 [----------] 5 tests from ResidualLaw
 [ RUN      ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart
-[       OK ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart (0 ms)
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:467: Failure
+The difference between out.resid_bps.value and 0.495 is 4999999999.9949999, which exceeds 1e-12, where
+out.resid_bps.value evaluates to -4999999999.5,
+0.495 evaluates to 0.495, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+[  FAILED  ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart (0 ms)
 [ RUN      ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6
-[       OK ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6 (0 ms)
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:486: Failure
+The difference between out.resid_bps.value and -50.0 is 49999999999950, which exceeds 1e-9, where
+out.resid_bps.value evaluates to -50000000000000,
+-50.0 evaluates to -50, and
+1e-9 evaluates to 1.0000000000000001e-09.
+
+[  FAILED  ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6 (0 ms)
 [ RUN      ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds
 [       OK ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds (0 ms)
 [ RUN      ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue
@@ -78,11 +75,10 @@ out.mean_spread_bps.value evaluates to 10000,
 [----------] 1 test from StraddleWidthLaw (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 20 tests from 7 test suites ran. (19 ms total)
-[  PASSED  ] 17 tests.
-[  FAILED  ] 3 tests, listed below:
-[  FAILED  ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction
-[  FAILED  ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
-[  FAILED  ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge
+[==========] 20 tests from 7 test suites ran. (22 ms total)
+[  PASSED  ] 18 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart
+[  FAILED  ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6
 
- 3 FAILED TESTS
+ 2 FAILED TESTS

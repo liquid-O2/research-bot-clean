@@ -1,6 +1,6 @@
 --- a/qr_w21/src/surface.cpp
 +++ b/qr_w21/src/surface.cpp
-@@ -267,7 +267,9 @@
+@@ -324,7 +324,9 @@
    const auto remaining_ms = qr::checked_sub(close_ms.value(), ts_ms_b);
    if (!remaining_ms.has_value()) return qr::carriers::masked(Validity::NONFINITE);
    // Q3's guard: "remaining time < 300s => PROXY_VOL typed absent".

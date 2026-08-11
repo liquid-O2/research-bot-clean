@@ -1,6 +1,6 @@
 --- a/qr_w21/src/surface.cpp
 +++ b/qr_w21/src/surface.cpp
-@@ -104,7 +104,9 @@
+@@ -161,7 +161,9 @@
    // exact edge falls in the band ABOVE it.
    std::size_t band = 0;
    for (const std::int64_t edge : kMoneynessEdgesBps) {

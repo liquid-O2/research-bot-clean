@@ -1,0 +1,13 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -442,7 +442,9 @@
+   const double residual_u6 =
+       static_cast<double>(observed_u6) - predicted_dollars * static_cast<double>(kU6PerUnit);
+   // §W21-PIN-2: the denominator is the UNDERLYING mid at the span start.
+-  const double bps = residual_u6 / static_cast<double>(inputs.underlying_start_u6) *
++  // MY15: PIN-2's denominator becomes the contract's OWN mid, which is the
++  // reading the ruling rejected (a cent on a cheap contract reads as 2,000bp).
++  const double bps = residual_u6 / static_cast<double>(inputs.contract_mid_start_u6) *
+                      static_cast<double>(kBpsScale);
+   if (!std::isfinite(bps)) {
+     out.resid_bps = qr::carriers::masked(Validity::NONFINITE);

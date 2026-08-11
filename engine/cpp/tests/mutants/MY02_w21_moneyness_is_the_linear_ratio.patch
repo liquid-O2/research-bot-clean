@@ -1,6 +1,6 @@
 --- a/qr_w21/src/surface.cpp
 +++ b/qr_w21/src/surface.cpp
-@@ -91,8 +91,10 @@
+@@ -148,8 +148,10 @@
      return refuse<std::int64_t>(RefusalCode::CONTENT_MISMATCH,
                                  "ln(K/m) needs a positive strike and a positive spot");
    }

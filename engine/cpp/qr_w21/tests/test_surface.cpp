@@ -14,6 +14,7 @@
 #include <array>
 #include <cmath>
 #include <filesystem>
+#include <limits>
 #include <map>
 #include <string>
 #include <vector>
@@ -429,4 +430,156 @@ TEST(ModalityLaw, EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouch
   ASSERT_TRUE(covered.has_value());
   const auto refused = SurfaceBuilder::build(covered.value(), nowhere, nowhere);
   EXPECT_FALSE(refused.has_value());
+}
+
+// ---------------------------------------------------------------------------
+// Q6 / Q7 + §W21-PIN-2 — the Greek-residual repricing block.
+// ---------------------------------------------------------------------------
+
+namespace {
+
+/// A residual whose every term is a round number, so the expected value is
+/// hand-computable: spot $200.00 moving +$0.10, delta 0.5, gamma 0.02, and a
+/// contract mid that moved +$0.06 against a predicted +$0.0501.
+ResidualInputs round_number_residual() {
+  ResidualInputs inputs;
+  inputs.span_start_ms = 10'000'000;
+  inputs.span_end_ms = 10'001'000;
+  inputs.contract_mid_start_u6 = 5 * kU6;
+  inputs.contract_mid_end_u6 = 5 * kU6 + 60'000;   // +$0.06
+  inputs.underlying_start_u6 = 200 * kU6;
+  inputs.underlying_end_u6 = 200 * kU6 + 100'000;  // +$0.10
+  inputs.greeks.delta = 0.5;
+  inputs.greeks.gamma = 0.02;
+  inputs.greeks.ts_ms_b = inputs.span_start_ms - 300'000;  // 300s of greek age
+  inputs.rho = 1;
+  return inputs;
+}
+
+}  // namespace
+
+TEST(ResidualLaw, TheDenominatorIsTheUnderlyingMidAtSpanStart) {
+  const ResidualInputs inputs = round_number_residual();
+  const ResidualOutcome out = contract_residual_bps(inputs);
+  ASSERT_EQ(out.resid_bps.v, Validity::VALID);
+  // predicted = 0.5*0.10 + 0.5*0.02*0.10^2 = $0.0501; observed = $0.06;
+  // residual = $0.0099; in UNDERLYING bps: 0.0099/200 * 1e4 = 0.495bp.
+  EXPECT_NEAR(out.resid_bps.value, 0.495, 1e-12);
+  // §W21-PIN-2's rejected alternative — the contract's own $5.00 mid — would
+  // report 19.8bp for the same cent of unexplained repricing, forty times
+  // larger, which is exactly the cheap-contract explosion the ruling names.
+  EXPECT_NEAR(9'900.0 / static_cast<double>(inputs.contract_mid_start_u6) * 1e4, 19.8, 1e-9);
+}
+
+TEST(ResidualLaw, TheQuadraticTermIsInDollarsAndNotInU6) {
+  ResidualInputs inputs = round_number_residual();
+  inputs.greeks.delta = 0.0;
+  inputs.greeks.gamma = 2.0;
+  inputs.contract_mid_start_u6 = 5 * kU6;
+  inputs.contract_mid_end_u6 = 5 * kU6;                // the contract did not move
+  inputs.underlying_end_u6 = inputs.underlying_start_u6 + kU6;  // +$1.00
+  const ResidualOutcome out = contract_residual_bps(inputs);
+  ASSERT_EQ(out.resid_bps.v, Validity::VALID);
+  // predicted = 0.5 * 2.0 * ($1.00)^2 = $1.00, observed 0 => residual -$1.00,
+  // i.e. -1.00/200 * 1e4 = -50bp. Squaring the u6 move instead of the dollar
+  // move would be off by a factor of 10^6.
+  EXPECT_NEAR(out.resid_bps.value, -50.0, 1e-9);
+}
+
+TEST(ResidualLaw, TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds) {
+  ResidualInputs inputs = round_number_residual();
+  const ResidualOutcome at_300 = contract_residual_bps(inputs);
+  ASSERT_EQ(at_300.resid_bps.v, Validity::VALID);
+  EXPECT_NEAR(at_300.weight, std::exp(-0.5), 1e-15);
+
+  inputs.greeks.ts_ms_b = inputs.span_start_ms - 600'000;  // 600s of age
+  const ResidualOutcome at_600 = contract_residual_bps(inputs);
+  ASSERT_EQ(at_600.resid_bps.v, Validity::VALID);
+  EXPECT_NEAR(at_600.weight, std::exp(-1.0), 1e-15);
+
+  // A one-millisecond-old greek is 0.001s of age, not zero: the weight is
+  // exp(-0.001/600), which is BELOW one. A constructor that rounded the age to
+  // whole seconds would answer exactly 1.0 here.
+  inputs.greeks.ts_ms_b = inputs.span_start_ms - 1;
+  const double fresh = contract_residual_bps(inputs).weight;
+  EXPECT_NEAR(fresh, std::exp(-0.001 / 600.0), 1e-15);
+  EXPECT_LT(fresh, 1.0);
+}
+
+TEST(ResidualLaw, EveryExclusionGateIsATypedAbsenceAndNeverAValue) {
+  // (a) no strictly-prior greek at all.
+  ResidualInputs no_greek = round_number_residual();
+  no_greek.greeks = ContractGreeks{};
+  EXPECT_NE(contract_residual_bps(no_greek).resid_bps.v, Validity::VALID);
+
+  // (b) Q6's 60s span cap: 60s exactly is admitted, 60.001s is not.
+  ResidualInputs span = round_number_residual();
+  span.span_end_ms = span.span_start_ms + 60'000;
+  EXPECT_EQ(contract_residual_bps(span).resid_bps.v, Validity::VALID);
+  span.span_end_ms = span.span_start_ms + 60'001;
+  EXPECT_NE(contract_residual_bps(span).resid_bps.v, Validity::VALID);
+
+  // (c) the greek must be STRICTLY prior to the span start.
+  ResidualInputs equal_time = round_number_residual();
+  equal_time.greeks.ts_ms_b = equal_time.span_start_ms;
+  EXPECT_NE(contract_residual_bps(equal_time).resid_bps.v, Validity::VALID);
+
+  // (d) Q6's 1800s greek-age cap: 1800s exactly is admitted, 1800.001s is not.
+  ResidualInputs age = round_number_residual();
+  age.greeks.ts_ms_b = age.span_start_ms - 1'800'000;
+  EXPECT_EQ(contract_residual_bps(age).resid_bps.v, Validity::VALID);
+  age.greeks.ts_ms_b = age.span_start_ms - 1'800'001;
+  EXPECT_NE(contract_residual_bps(age).resid_bps.v, Validity::VALID);
+
+  // (e) an absent underlying is an absence, never a division by zero.
+  ResidualInputs no_spot = round_number_residual();
+  no_spot.underlying_start_u6 = 0;
+  const ResidualOutcome absent = contract_residual_bps(no_spot);
+  EXPECT_NE(absent.resid_bps.v, Validity::VALID);
+  EXPECT_EQ(absent.resid_bps.value, 0.0);
+
+  // (f) a non-finite greek is typed, not propagated.
+  ResidualInputs broken = round_number_residual();
+  broken.greeks.gamma = std::numeric_limits<double>::quiet_NaN();
+  EXPECT_EQ(contract_residual_bps(broken).resid_bps.v, Validity::NONFINITE);
+}
+
+TEST(ResidualLaw, RhoOrientsTheResidualAndSigmaFlipsTheAggregate) {
+  const ResidualInputs call = round_number_residual();
+  ResidualInputs put = call;
+  put.rho = -1;
+  const ResidualOutcome call_out = contract_residual_bps(call);
+  const ResidualOutcome put_out = contract_residual_bps(put);
+  ASSERT_EQ(call_out.resid_bps.v, Validity::VALID);
+  ASSERT_EQ(put_out.resid_bps.v, Validity::VALID);
+  EXPECT_NEAR(put_out.resid_bps.value, -call_out.resid_bps.value, 1e-15);
+  EXPECT_NEAR(put_out.weight, call_out.weight, 1e-15);
+
+  // sigma is applied at read time; the dispersion is invariant under it.
+  ResidualSecond aggregate;
+  aggregate.mean_bps[0] = qr::carriers::present(0.495);
+  aggregate.stdev_bps[0] = qr::carriers::present(0.25);
+  EXPECT_NEAR(aggregate.oriented_mean(0, true).value, 0.495, 1e-15);
+  EXPECT_NEAR(aggregate.oriented_mean(0, false).value, -0.495, 1e-15);
+  aggregate.mean_bps[1] = qr::carriers::masked(Validity::MISSING);
+  EXPECT_EQ(aggregate.oriented_mean(1, false).v, Validity::MISSING);
+  EXPECT_EQ(aggregate.oriented_mean(1, false).value, 0.0);
+}
+
+TEST(StraddleWidthLaw, TheWidthChannelIsInUnderlyingBasisPoints) {
+  const std::int64_t spot = 200 * kU6;
+  const std::int64_t expiry_day = 20000;
+  const std::int64_t now = (expiry_day * 86400 + 16 * 3600) * 1000 - 86'400'000;
+  StraddleLegs legs;
+  const std::int64_t strike = strike_at_log_bps(spot, 0);
+  legs.calls[strike] = quote(3 * kU6, 4 * kU6, 10, 10);
+  legs.puts[strike] = quote(1 * kU6, 2 * kU6, 10, 10);
+  const StraddleSecond built = select_straddle(legs, spot, now, expiry_day);
+  ASSERT_TRUE(built.present);
+  EXPECT_EQ(built.width_u6, 2 * kU6);
+  ASSERT_EQ(built.width_bps.v, Validity::VALID);
+  // §W21-PIN-2's uniformity law: $2.00 of width on a $200.00 underlying is
+  // 100bp. The superseded straddle-mid image would say 4,000bp.
+  EXPECT_EQ(built.width_bps.value, 100);
+  EXPECT_EQ((2 * kU6 * 10000) / built.straddle_mid_u6, 4000);
 }

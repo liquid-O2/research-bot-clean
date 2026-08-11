@@ -5,7 +5,9 @@
 #include <deque>
 #include <string>
 
+#include "qr_carriers/attach.hpp"
 #include "qr_clock/session_clock.hpp"
+#include "qr_sources/option_prints.hpp"
 #include "qr_core/checked.hpp"
 
 namespace qr::w21 {
@@ -47,6 +49,61 @@ struct ContractState {
   /// or -1. Membership is frozen at the event second — no lookahead.
   std::array<std::int8_t, 8> event_bucket{};
   std::uint8_t counted_mask = 0;
+  /// Q6's span endpoints: the contract's PREVIOUS quote update and the midpoint
+  /// it left. -1 means "no previous update", so the first quote of a contract
+  /// opens a span rather than closing one.
+  std::int64_t span_start_ms = -1;
+  std::int64_t span_start_mid_u6 = 0;
+};
+
+/// One Greek-residual observation inside a bucket's rolling window.
+struct ResidualObs {
+  std::int64_t end_second = 0;
+  double weight = 0.0;
+  double value = 0.0;
+};
+
+/// Q6's trailing {5,30,120}s aggregation, in O(1) amortised per observation:
+/// three running weighted-sum triples over ONE deque, evicted by three head
+/// indices. The 120s horizon is the master — the shorter windows always evict
+/// first, so popping up to their slowest head can never drop a live entry.
+struct BucketWindow {
+  std::deque<ResidualObs> obs;
+  std::int64_t popped = 0;
+  std::array<std::int64_t, 3> head{};
+  std::array<double, 3> sum_w{};
+  std::array<double, 3> sum_wx{};
+  std::array<double, 3> sum_wxx{};
+
+  void push(const ResidualObs& entry) {
+    obs.push_back(entry);
+    for (std::size_t h = 0; h < 3; ++h) {
+      sum_w[h] += entry.weight;
+      sum_wx[h] += entry.weight * entry.value;
+      sum_wxx[h] += entry.weight * entry.value * entry.value;
+    }
+  }
+  void evict(std::int64_t second) {
+    const std::int64_t total = popped + static_cast<std::int64_t>(obs.size());
+    for (std::size_t h = 0; h < 3; ++h) {
+      while (head[h] < total) {
+        const ResidualObs& entry = obs[static_cast<std::size_t>(head[h] - popped)];
+        if (entry.end_second > second - kHorizonsSeconds[h]) break;
+        sum_w[h] -= entry.weight;
+        sum_wx[h] -= entry.weight * entry.value;
+        sum_wxx[h] -= entry.weight * entry.value * entry.value;
+        ++head[h];
+      }
+    }
+    const std::int64_t slowest = std::min({head[0], head[1], head[2]});
+    while (popped < slowest && !obs.empty()) {
+      obs.pop_front();
+      ++popped;
+    }
+  }
+  [[nodiscard]] std::int64_t count(std::size_t h) const {
+    return popped + static_cast<std::int64_t>(obs.size()) - head[h];
+  }
 };
 
 /// Q11's tracker slots. Events sit on the 1s grid and live 5s, so at most six
@@ -340,12 +397,61 @@ StraddleSecond select_straddle(const StraddleLegs& legs, std::int64_t spot_u6,
   out.straddle_mid_u6 = qr::sources::midpoint_u6(call.bid_u6, call.ask_u6) +
                         qr::sources::midpoint_u6(put.bid_u6, put.ask_u6);
   out.width_u6 = out.straddle_ask_u6 - out.straddle_bid_u6;
+  // §W21-PIN-2's uniformity law: the CHANNEL is the underlying-bps image of the
+  // u6 width, through the transform table's checked truncating displacement.
+  const auto width_bps = qr::carriers::displacement_bps(out.width_u6, spot_u6);
+  out.width_bps = width_bps.has_value() ? width_bps.value()
+                                        : Typed<std::int64_t>{0, Validity::NONFINITE};
   const Typed<double> years = years_to_expiry(ts_ms_b, expiry_epoch_day);
   out.proxy_vol_mid = proxy_vol(out.straddle_mid_u6, spot_u6, years);
   out.proxy_vol_bid = proxy_vol(out.straddle_bid_u6, spot_u6, years);
   out.proxy_vol_ask = proxy_vol(out.straddle_ask_u6, spot_u6, years);
   out.present = true;
   out.absence = Validity::VALID;
+  return out;
+}
+
+ResidualOutcome contract_residual_bps(const ResidualInputs& inputs) noexcept {
+  ResidualOutcome out;
+  out.resid_bps = qr::carriers::masked(Validity::MISSING);
+  // Q6's three exclusion gates, in order, each a typed absence and never a
+  // substituted value.
+  if (!inputs.greeks.present()) return out;
+  const std::int64_t span_ms = inputs.span_end_ms - inputs.span_start_ms;
+  if (span_ms <= 0 || span_ms > kResidualMaxSpanSeconds * kMsPerSecond) return out;
+  // "most recent STRICTLY-PRIOR print of that contract as of span start".
+  if (inputs.greeks.ts_ms_b >= inputs.span_start_ms) return out;
+  const std::int64_t age_ms = inputs.span_start_ms - inputs.greeks.ts_ms_b;
+  if (age_ms > kGreekMaxAgeSeconds * kMsPerSecond) return out;
+  if (inputs.underlying_start_u6 <= 0 || inputs.underlying_end_u6 <= 0) {
+    out.resid_bps = qr::carriers::masked(Validity::MISSING);
+    return out;
+  }
+  if (!std::isfinite(inputs.greeks.delta) || !std::isfinite(inputs.greeks.gamma)) {
+    out.resid_bps = qr::carriers::masked(Validity::NONFINITE);
+    return out;
+  }
+  const std::int64_t observed_u6 = inputs.contract_mid_end_u6 - inputs.contract_mid_start_u6;
+  const std::int64_t move_u6 = inputs.underlying_end_u6 - inputs.underlying_start_u6;
+  // The vendor greeks are per DOLLAR of underlying, so the move is carried to
+  // dollars before gamma squares it and the prediction is carried back to u6.
+  // Squaring a u6 move against gamma would be wrong by 10^6.
+  const double move_dollars = static_cast<double>(move_u6) / static_cast<double>(kU6PerUnit);
+  const double predicted_dollars = inputs.greeks.delta * move_dollars +
+                                   0.5 * inputs.greeks.gamma * move_dollars * move_dollars;
+  const double residual_u6 =
+      static_cast<double>(observed_u6) - predicted_dollars * static_cast<double>(kU6PerUnit);
+  // §W21-PIN-2: the denominator is the UNDERLYING mid at the span start.
+  const double bps = residual_u6 / static_cast<double>(inputs.underlying_start_u6) *
+                     static_cast<double>(kBpsScale);
+  if (!std::isfinite(bps)) {
+    out.resid_bps = qr::carriers::masked(Validity::NONFINITE);
+    return out;
+  }
+  // rho-oriented with sigma = +1; the SHORT reading is its negation.
+  out.resid_bps = qr::carriers::present(static_cast<double>(inputs.rho) * bps);
+  // Q7: w = exp(-age_greek_seconds/600), pinned.
+  out.weight = std::exp(-(static_cast<double>(age_ms) / 1000.0) / kReliabilityDecaySeconds);
   return out;
 }
 
@@ -417,6 +523,24 @@ Expected<SurfaceBuilder, Refusal> SurfaceBuilder::build(const DayScope& scope,
   built.latency_micros_ = w20::DenseCounter(0, kRequoteHorizonMs * kMicrosPerMs + 1);
   built.spread_bps_ = w20::DenseCounter(0, 20001);
   built.proxy_vol_ = w20::DenseCounter(0, 10001);
+  // Residuals in UNDERLYING bps: exact to +-100bp at 0.01bp resolution.
+  built.residual_bps_ = w20::DenseCounter(-10000, 20001);
+
+  // Q6's greek source: the option-PRINT stream, merged into the same causal
+  // walk. Its greeks are admitted only when BOTH B3 attachments are strictly
+  // prior — the quote clock and the underlying clock — through the SAME
+  // classifiers qr_carriers uses, never a second parse.
+  std::optional<qr::sources::OptionPrintReader> prints;
+  if (!options.prints_root.empty()) {
+    qr::parquet::FileExpected<qr::sources::OptionPrintReader> opened_prints =
+        qr::sources::OptionPrintReader::open(scope, options.prints_root);
+    if (!opened_prints.has_value()) {
+      return Expected<SurfaceBuilder, Refusal>::refuse(opened_prints.error().refusal());
+    }
+    prints.emplace(std::move(opened_prints).value());
+  }
+  std::map<ContractKey, ContractGreeks> greeks;
+  std::array<BucketWindow, kBuckets> residual_windows;
 
   std::map<ContractKey, ContractState> contracts;
   std::array<PendingEvent, kRequoteSlots> events{};
@@ -437,6 +561,7 @@ Expected<SurfaceBuilder, Refusal> SurfaceBuilder::build(const DayScope& scope,
   }
 
   if (options.retain_seconds) {
+    built.residual_.resize(static_cast<std::size_t>(endpoints) * kBuckets);
     built.surface_.resize(static_cast<std::size_t>(endpoints));
     built.straddle_channels_.resize(static_cast<std::size_t>(endpoints) * kDtePlanes);
     built.thinning_.resize(static_cast<std::size_t>(endpoints));
@@ -447,11 +572,55 @@ Expected<SurfaceBuilder, Refusal> SurfaceBuilder::build(const DayScope& scope,
   }
 
   qr::sources::OptionQuoteReader::Group group;
+  qr::sources::OptionPrintReader::Group print_group;
   bool have_group = false;
+  bool have_print = false;
+  bool prints_exhausted = !prints.has_value();
   std::int64_t previous_spot = 0;
+
+  const auto ingest_print = [&](const qr::sources::OptionPrintReader::Group& current) {
+    const Expected<FrameA, Refusal> ts_a =
+        clock.value().to_frame_a(FrameB{current.ts_ms_b * 1'000'000});
+    if (!ts_a.has_value()) {
+      built.greek_prints_refused_ += static_cast<std::int64_t>(current.rows.size());
+      return;
+    }
+    for (const qr::sources::OptionPrintRow& row : current.rows) {
+      // B3: "IV/Greeks need BOTH strict-prior attachments".
+      const qr::carriers::Attachment quote_attach = qr::carriers::classify_attachment_ms(
+          clock.value(),
+          row.is_null(qr::sources::kPrintSlotQuoteTimestamp)
+              ? std::optional<std::int64_t>{}
+              : std::optional<std::int64_t>{row.quote_ts_ms_b},
+          ts_a.value().ns());
+      const qr::carriers::Attachment underlying_attach = qr::carriers::classify_attachment_text(
+          clock.value(),
+          row.is_null(qr::sources::kPrintSlotUnderlyingTimestamp)
+              ? std::optional<std::string_view>{}
+              : std::optional<std::string_view>{row.underlying_ts_text.view()},
+          ts_a.value().ns());
+      const bool greeks_present = !row.is_null(qr::sources::kPrintSlotDelta) &&
+                                  !row.is_null(qr::sources::kPrintSlotGamma) &&
+                                  std::isfinite(row.delta) && std::isfinite(row.gamma);
+      if (!quote_attach.usable() || !underlying_attach.usable() || !greeks_present) {
+        ++built.greek_prints_refused_;
+        continue;
+      }
+      ++built.greek_prints_admitted_;
+      ContractGreeks& stored =
+          greeks[ContractKey{row.expiration_day, row.strike_u6,
+                             static_cast<std::uint8_t>(row.right)}];
+      stored.delta = row.delta;
+      stored.gamma = row.gamma;
+      stored.ts_ms_b = current.ts_ms_b;
+    }
+  };
 
   const auto ingest_group = [&](const qr::sources::OptionQuoteReader::Group& current) {
     ++built.groups_;
+    // The grid second the span ENDS in: residuals age out of the trailing
+    // windows on the grid, so each one is stamped with its own endpoint.
+    const std::int64_t spot_endpoint_second = (current.ts_ms_b - open_ms_b) / kMsPerSecond;
     for (const qr::sources::OptionQuoteRow& row : current.rows) {
       const ContractKey key{row.expiration_day, row.strike_u6,
                             static_cast<std::uint8_t>(row.right)};
@@ -491,6 +660,57 @@ Expected<SurfaceBuilder, Refusal> SurfaceBuilder::build(const DayScope& scope,
         }
         state.counted_mask = static_cast<std::uint8_t>(state.counted_mask | bit);
       }
+      // --- Q6 + PIN-2: the repricing residual over THIS contract's span -----
+      const bool now_two_sided = row.bid_u6 > 0 && row.ask_u6 > row.bid_u6;
+      const std::int64_t now_mid = qr::sources::midpoint_u6(row.bid_u6, row.ask_u6);
+      if (state.span_start_ms >= 0 && now_two_sided) {
+        ResidualInputs residual;
+        residual.span_start_ms = state.span_start_ms;
+        residual.span_end_ms = current.ts_ms_b;
+        residual.contract_mid_start_u6 = state.span_start_mid_u6;
+        residual.contract_mid_end_u6 = now_mid;
+        residual.underlying_start_u6 = spot.mid_u6_at(state.span_start_ms);
+        residual.underlying_end_u6 = spot.mid_u6_at(current.ts_ms_b);
+        residual.rho = row.right == qr::sources::Right::Call ? 1 : -1;
+        const auto found_greek = greeks.find(key);
+        if (found_greek != greeks.end()) residual.greeks = found_greek->second;
+
+        if (!residual.greeks.present()) {
+          ++built.residual_excluded_no_greek_;
+        } else if (residual.span_end_ms - residual.span_start_ms >
+                       kResidualMaxSpanSeconds * kMsPerSecond ||
+                   residual.span_end_ms <= residual.span_start_ms) {
+          ++built.residual_excluded_span_;
+        } else if (residual.greeks.ts_ms_b >= residual.span_start_ms ||
+                   residual.span_start_ms - residual.greeks.ts_ms_b >
+                       kGreekMaxAgeSeconds * kMsPerSecond) {
+          ++built.residual_excluded_greek_age_;
+        } else {
+          const ResidualOutcome outcome = contract_residual_bps(residual);
+          if (outcome.resid_bps.v == Validity::VALID && spot_endpoint_second >= 0) {
+            const auto x = moneyness_log_bps(state.strike_u6, residual.underlying_end_u6);
+            const std::optional<std::size_t> bucket =
+                x.has_value() ? bucket_index(x.value(), state.dte_days, state.right)
+                              : std::nullopt;
+            if (bucket.has_value()) {
+              ++built.residual_observations_;
+              built.residual_bps_.add(
+                  static_cast<std::int64_t>(std::llround(outcome.resid_bps.value * 100.0)));
+              residual_windows[bucket.value()].push(
+                  ResidualObs{spot_endpoint_second, outcome.weight, outcome.resid_bps.value});
+            }
+          }
+        }
+      }
+      if (now_two_sided) {
+        state.span_start_ms = current.ts_ms_b;
+        state.span_start_mid_u6 = now_mid;
+      } else {
+        // A one-sided quote has no midpoint (the substrate's own midpoint
+        // validity law), so it CLOSES the span rather than fabricating a price.
+        state.span_start_ms = -1;
+        ++built.residual_excluded_one_sided_;
+      }
       state.last_ts_ms = current.ts_ms_b;
       state.bid_u6 = row.bid_u6;
       state.ask_u6 = row.ask_u6;
@@ -503,19 +723,39 @@ Expected<SurfaceBuilder, Refusal> SurfaceBuilder::build(const DayScope& scope,
   for (std::int64_t second = 0; second < endpoints; ++second) {
     const std::int64_t endpoint_ms = open_ms_b + second * kMsPerSecond;
 
-    // --- consume every group STRICTLY BEFORE this endpoint ------------------
+    // --- consume every group STRICTLY BEFORE this endpoint, PRINTS AND QUOTES
+    //     MERGED IN CAUSAL ORDER so a greek is available to exactly the spans
+    //     that start after the print it came from ---------------------------
     while (true) {
       if (!have_group) {
         const qr::parquet::FileExpected<bool> more = reader.next_group(group);
         if (!more.has_value()) {
           return Expected<SurfaceBuilder, Refusal>::refuse(more.error().refusal());
         }
-        if (!more.value()) break;
-        have_group = true;
+        have_group = more.value();
+        if (!have_group) break;
       }
-      if (group.ts_ms_b >= endpoint_ms) break;
-      ingest_group(group);
-      have_group = false;
+      if (!have_print && !prints_exhausted) {
+        const qr::parquet::FileExpected<bool> more = prints->next_group(print_group);
+        if (!more.has_value()) {
+          return Expected<SurfaceBuilder, Refusal>::refuse(more.error().refusal());
+        }
+        have_print = more.value();
+        prints_exhausted = !have_print;
+      }
+      const bool quote_ready = have_group && group.ts_ms_b < endpoint_ms;
+      const bool print_ready = have_print && print_group.ts_ms_b < endpoint_ms;
+      if (!quote_ready && !print_ready) break;
+      // A print at the SAME millisecond is consumed first; it is still not
+      // strictly prior to a span starting there, and the residual gate tests
+      // that with a strict inequality.
+      if (print_ready && (!quote_ready || print_group.ts_ms_b <= group.ts_ms_b)) {
+        ingest_print(print_group);
+        have_print = false;
+      } else {
+        ingest_group(group);
+        have_group = false;
+      }
     }
 
     // --- close every event whose 5s horizon has passed ----------------------
@@ -651,24 +891,29 @@ Expected<SurfaceBuilder, Refusal> SurfaceBuilder::build(const DayScope& scope,
       channels.proxy_vol_mid = now.proxy_vol_mid;
       channels.proxy_vol_bid = now.proxy_vol_bid;
       channels.proxy_vol_ask = now.proxy_vol_ask;
-      channels.width_u6 = now.present ? qr::carriers::present(static_cast<double>(now.width_u6))
-                                      : qr::carriers::masked(now.absence);
+      channels.width_bps =
+          now.present && now.width_bps.v == Validity::VALID
+              ? qr::carriers::present(static_cast<double>(now.width_bps.value))
+              : qr::carriers::masked(now.present ? now.width_bps.v : now.absence);
       for (std::size_t h = 0; h < kHorizonsSeconds.size(); ++h) {
         const std::int64_t back = second - kHorizonsSeconds[h];
         if (back < 0) {
           channels.dlog_proxy_vol_mid[h] = qr::carriers::masked(Validity::MISSING);
           channels.dlog_proxy_vol_bid[h] = qr::carriers::masked(Validity::MISSING);
           channels.dlog_proxy_vol_ask[h] = qr::carriers::masked(Validity::MISSING);
-          channels.dwidth_u6[h] = qr::carriers::masked(Validity::MISSING);
+          channels.dwidth_bps[h] = qr::carriers::masked(Validity::MISSING);
           continue;
         }
         const StraddleSecond& past = straddle_history[plane][static_cast<std::size_t>(back)];
         channels.dlog_proxy_vol_mid[h] = dlog(now.proxy_vol_mid, past.proxy_vol_mid);
         channels.dlog_proxy_vol_bid[h] = dlog(now.proxy_vol_bid, past.proxy_vol_bid);
         channels.dlog_proxy_vol_ask[h] = dlog(now.proxy_vol_ask, past.proxy_vol_ask);
-        channels.dwidth_u6[h] =
-            now.present && past.present
-                ? qr::carriers::present(static_cast<double>(now.width_u6 - past.width_u6))
+        // "and its deltas": the difference OF THE BPS CHANNEL, not the bps
+        // image of a u6 difference.
+        channels.dwidth_bps[h] =
+            now.width_bps.v == Validity::VALID && past.width_bps.v == Validity::VALID
+                ? qr::carriers::present(
+                      static_cast<double>(now.width_bps.value - past.width_bps.value))
                 : qr::carriers::masked(Validity::MISSING);
       }
       built.straddle_channels_[static_cast<std::size_t>(second) * kDtePlanes + plane] = channels;
@@ -742,6 +987,35 @@ Expected<SurfaceBuilder, Refusal> SurfaceBuilder::build(const DayScope& scope,
                 : qr::carriers::masked(Validity::MISSING);
         built.refill_[static_cast<std::size_t>(second) * kBuckets + bucket] = channels;
       }
+    }
+
+    // --- Q6/Q7: the trailing reliability-weighted residual aggregate --------
+    for (std::size_t bucket = 0; bucket < kBuckets; ++bucket) {
+      BucketWindow& window = residual_windows[bucket];
+      window.evict(second);
+      if (!options.retain_seconds) continue;
+      ResidualSecond aggregate;
+      for (std::size_t h = 0; h < kHorizonsSeconds.size(); ++h) {
+        aggregate.observations[h] = window.count(h);
+        if (window.count(h) <= 0 || window.sum_w[h] <= 0.0) {
+          aggregate.mean_bps[h] = qr::carriers::masked(Validity::MISSING);
+          aggregate.stdev_bps[h] = qr::carriers::masked(Validity::MISSING);
+          continue;
+        }
+        const double mean = window.sum_wx[h] / window.sum_w[h];
+        aggregate.mean_bps[h] = qr::carriers::present(mean);
+        // The population weighted variance in its Cauchy-Schwarz-nonnegative
+        // arrangement: sum_w*sum_wxx - sum_wx^2 >= 0 exactly. A negative value
+        // here is floating-point cancellation around a true zero, and it is
+        // REFUSED rather than clamped (range-limiting guards are banned).
+        const double numerator =
+            window.sum_w[h] * window.sum_wxx[h] - window.sum_wx[h] * window.sum_wx[h];
+        aggregate.stdev_bps[h] =
+            numerator >= 0.0
+                ? qr::carriers::present(std::sqrt(numerator) / window.sum_w[h])
+                : qr::carriers::masked(Validity::NONFINITE);
+      }
+      built.residual_[static_cast<std::size_t>(second) * kBuckets + bucket] = aggregate;
     }
 
     // --- Q11: open an event when the grid moved by >= 0.5bp ------------------
@@ -835,6 +1109,14 @@ void emit(w20::CensusReport& report, std::int64_t ordinal, const std::string& da
   report.metric(scope, "requote", "events", static_cast<std::int64_t>(built.requote_events().size()));
   report.metric(scope, "requote", "no_requote_5s", built.no_requote_5s_events());
   report.metric(scope, "refill", "evaporation_events", built.evaporation_events());
+  report.metric(scope, "residual", "observations", built.residual_observations());
+  report.metric(scope, "residual", "excluded_no_greek", built.residual_excluded_no_greek());
+  report.metric(scope, "residual", "excluded_span", built.residual_excluded_span());
+  report.metric(scope, "residual", "excluded_greek_age", built.residual_excluded_greek_age());
+  report.metric(scope, "residual", "excluded_one_sided", built.residual_excluded_one_sided());
+  report.metric(scope, "residual", "greek_prints_admitted", built.greek_prints_admitted());
+  report.metric(scope, "residual", "greek_prints_refused", built.greek_prints_refused());
+  report.distribution(scope, "residual_bps_x100", built.residual_bps_census());
   report.distribution(scope, "requote_latency_micros", built.latency_micros_census());
   report.distribution(scope, "bucket_spread_bps", built.spread_bps_census());
   report.distribution(scope, "proxy_vol_x10000", built.proxy_vol_census());

@@ -1,6 +1,6 @@
 --- a/qr_w21/src/surface.cpp
 +++ b/qr_w21/src/surface.cpp
-@@ -311,7 +311,9 @@
+@@ -368,7 +368,9 @@
      const auto x = moneyness_log_bps(strike, spot_u6);
      if (!x.has_value()) continue;
      const std::int64_t distance = x.value() < 0 ? -x.value() : x.value();

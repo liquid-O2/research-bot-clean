@@ -1,5 +1,5 @@
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 14 tests from 5 test suites.
+[==========] Running 20 tests from 7 test suites.
 [----------] Global test environment set-up.
 [----------] 4 tests from BucketAxisLaw
 [ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
@@ -18,13 +18,13 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket
 [       OK ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket (0 ms)
 [ RUN      ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:222: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:223: Failure
 The difference between a.mean_spread_bps.value and expected is 354.27272727272725, which exceeds 1e-9, where
 a.mean_spread_bps.value evaluates to 1385,
 expected evaluates to 1739.2727272727273, and
 1e-9 evaluates to 1.0000000000000001e-09.
 
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:224: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:225: Failure
 Expected: (a.mean_spread_bps.value) > (1700.0), actual: 1385 vs 1700
 
 [  FAILED  ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant (0 ms)
@@ -50,12 +50,30 @@ Expected: (a.mean_spread_bps.value) > (1700.0), actual: 1385 vs 1700
 
 [----------] 1 test from ModalityLaw
 [ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
-[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (19 ms)
-[----------] 1 test from ModalityLaw (19 ms total)
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (18 ms)
+[----------] 1 test from ModalityLaw (18 ms total)
+
+[----------] 5 tests from ResidualLaw
+[ RUN      ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart
+[       OK ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart (0 ms)
+[ RUN      ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6
+[       OK ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6 (0 ms)
+[ RUN      ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds
+[       OK ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds (0 ms)
+[ RUN      ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue
+[       OK ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue (0 ms)
+[ RUN      ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate
+[       OK ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate (0 ms)
+[----------] 5 tests from ResidualLaw (0 ms total)
+
+[----------] 1 test from StraddleWidthLaw
+[ RUN      ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints
+[       OK ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints (0 ms)
+[----------] 1 test from StraddleWidthLaw (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 14 tests from 5 test suites ran. (20 ms total)
-[  PASSED  ] 13 tests.
+[==========] 20 tests from 7 test suites ran. (18 ms total)
+[  PASSED  ] 19 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
 

@@ -1,6 +1,6 @@
 --- a/qr_w21/src/surface.cpp
 +++ b/qr_w21/src/surface.cpp
-@@ -201,9 +201,11 @@
+@@ -258,9 +258,11 @@
        ++out.two_sided;
        const std::int64_t mid = qr::sources::midpoint_u6(member.bid_u6, member.ask_u6);
        const auto spread = qr::carriers::displacement_bps(member.ask_u6 - member.bid_u6, mid);

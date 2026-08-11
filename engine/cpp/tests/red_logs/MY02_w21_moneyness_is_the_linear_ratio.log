@@ -1,28 +1,28 @@
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 14 tests from 5 test suites.
+[==========] Running 20 tests from 7 test suites.
 [----------] Global test environment set-up.
 [----------] 4 tests from BucketAxisLaw
 [ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
 [       OK ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt (0 ms)
 [ RUN      ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:111: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:112: Failure
 Expected equality of these values:
   x.value()
     Which is: 150
   149
 
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:112: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:113: Failure
 Expected equality of these values:
   moneyness_band(x.value())
     Which is: 4
   3U
     Which is: 3
 
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:73: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:74: Failure
 Failed
 no strike reproduces 150bp against 200000000
 
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:116: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:117: Failure
 Value of: on_edge.has_value()
   Actual: false
 Expected: true
@@ -56,15 +56,15 @@ Expected: true
 [ RUN      ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated
 [       OK ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated (0 ms)
 [ RUN      ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:73: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:74: Failure
 Failed
 no strike reproduces 151bp against 200000000
 
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:73: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:74: Failure
 Failed
 no strike reproduces 150bp against 200000000
 
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:369: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:370: Failure
 Value of: select_straddle(on_edge, spot, now, expiry_day).present
   Actual: false
 Expected: true
@@ -76,12 +76,30 @@ Expected: true
 
 [----------] 1 test from ModalityLaw
 [ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
-[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (21 ms)
-[----------] 1 test from ModalityLaw (21 ms total)
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (18 ms)
+[----------] 1 test from ModalityLaw (18 ms total)
+
+[----------] 5 tests from ResidualLaw
+[ RUN      ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart
+[       OK ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart (0 ms)
+[ RUN      ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6
+[       OK ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6 (0 ms)
+[ RUN      ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds
+[       OK ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds (0 ms)
+[ RUN      ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue
+[       OK ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue (0 ms)
+[ RUN      ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate
+[       OK ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate (0 ms)
+[----------] 5 tests from ResidualLaw (0 ms total)
+
+[----------] 1 test from StraddleWidthLaw
+[ RUN      ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints
+[       OK ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints (0 ms)
+[----------] 1 test from StraddleWidthLaw (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 14 tests from 5 test suites ran. (21 ms total)
-[  PASSED  ] 12 tests.
+[==========] 20 tests from 7 test suites ran. (18 ms total)
+[  PASSED  ] 18 tests.
 [  FAILED  ] 2 tests, listed below:
 [  FAILED  ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne
 [  FAILED  ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent

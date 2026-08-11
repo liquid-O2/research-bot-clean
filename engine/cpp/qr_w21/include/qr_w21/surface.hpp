@@ -8,13 +8,14 @@
 //   3. FINAL_PLAN APPENDIX B4 (the eight projected columns) and APPENDIX C
 //      (Typed<T>, checked arithmetic, strictly-prior law).
 //
-// WHAT IS NOT HERE, AND WHY. A2's Greek-residual repricing block is NOT built:
-// §W21-PIN-1 Q6/Q7 pin the interval, the exclusion gates and the reliability
-// weight, but the UNIT of "sigma-rho-oriented resid_bps" is still open — bps of
-// the contract's own mid and bps of the underlying are both readable from the
-// text and give materially different channels once a bucket mean is taken over
-// cheap OTM and expensive ATM contracts together. The implementer stop rule
-// applies; the question is returned rather than answered.
+// THE UNIFORMITY LAW (§W21-PIN-2). Every option-PRICE-DIFFERENCE channel emits
+// in UNDERLYING basis points — the eligible-NBBO mid at the span start is the
+// denominator, never the contract's own mid (which would turn a one-cent
+// residual on a five-cent contract into 2,000bp and destroy cross-contract
+// aggregation). That governs both the Greek residual and the straddle width:
+//     resid_bps = (Dmid_obs - [d*Du + 0.5*g*Du^2]) / u_mid * 1e4
+//     W_S_bps   = (S_ask - S_bid) / u_mid * 1e4,  and its deltas
+// A2's u6 price DEFINITIONS stand; the CHANNEL is their underlying-bps image.
 //
 // THE TRANSFORM LAW. qr_carriers' transform table is exhaustive FOR THE CARD's
 // section-4 channels. A2 is a separately frozen design that states its own
@@ -115,6 +116,13 @@ inline constexpr std::int64_t kThinningMinimumWindowSeconds = 120;
 inline constexpr std::int64_t kThinningLookbackSeconds = 60;
 /// Q12: "MODALITY_ABSENT = exactly ordinals 125..208 (84 sessions)".
 inline constexpr std::int64_t kFirstCoveredOrdinal = 209;
+/// Q6: "per contract between its consecutive quote updates (span <= 60s else
+/// excluded) ... Greeks from most recent strictly-prior PRINT of that contract
+/// as of span start (age <= 1800s else excluded)".
+inline constexpr std::int64_t kResidualMaxSpanSeconds = 60;
+inline constexpr std::int64_t kGreekMaxAgeSeconds = 1800;
+/// Q7: "w = exp(-age_greek_seconds/600). Pinned."
+inline constexpr double kReliabilityDecaySeconds = 600.0;
 
 // ---------------------------------------------------------------------------
 // The bucket axis.
@@ -211,6 +219,8 @@ struct StraddleSecond {
   std::int64_t straddle_mid_u6 = 0;
   /// A2: "width W_S = S_ask - S_bid".
   std::int64_t width_u6 = 0;
+  /// §W21-PIN-2: the CHANNEL image of W_S, in underlying basis points.
+  Typed<std::int64_t> width_bps{};
   /// A2: PROXY_VOL = S/(m*sqrt(T)) — "label PROXY_VOL, never IV". Bid-side and
   /// ask-side are carried SEPARATELY, as A2 requires.
   Typed<double> proxy_vol_mid{};
@@ -227,17 +237,13 @@ struct StraddleChannels {
   std::array<Typed<double>, 3> dlog_proxy_vol_mid{};
   std::array<Typed<double>, 3> dlog_proxy_vol_bid{};
   std::array<Typed<double>, 3> dlog_proxy_vol_ask{};
-  /// A2 defines W_S = S_ask - S_bid, which is a u6 PRICE quantity, and gives no
-  /// denominator for it. It is therefore emitted verbatim in u6 (exact integers
-  /// carried as doubles) and NOT normalised: choosing between "bps of the
-  /// straddle mid" and "bps of the underlying" is the same open unit question
-  /// the Greek-residual block is stopped on, and inventing one here would put
-  /// an unpinned constant into a frozen family.
-  std::array<Typed<double>, 3> dwidth_u6{};
+  /// §W21-PIN-2: W_S and its {5,30,120}s deltas in UNDERLYING basis points —
+  /// the deltas are differences OF THE BPS CHANNEL, as the ruling states.
+  std::array<Typed<double>, 3> dwidth_bps{};
   Typed<double> proxy_vol_mid{};
   Typed<double> proxy_vol_bid{};
   Typed<double> proxy_vol_ask{};
-  Typed<double> width_u6{};
+  Typed<double> width_bps{};
 };
 
 /// Q3's T in years, or absent when the 300s guard fires. `ts_ms_b` and the
@@ -277,6 +283,24 @@ struct ThinningSecond {
 /// Q9's channels for one bucket at one second, sigma-rho oriented on the
 /// difference (a per-side MEAN refill ratio is unsigned, so orienting it would
 /// only flip the sign of a positive number).
+/// Q6/Q7 + §W21-PIN-2 — the Greek-residual repricing aggregate of ONE bucket at
+/// ONE grid second, over the three trailing windows.
+///
+/// The stored mean is rho-oriented with sigma = +1 (LONG). A SHORT reading is
+/// its negation and the dispersion is invariant under reflection, which is why
+/// only one copy is stored — the same reflection law the group vectors use.
+struct ResidualSecond {
+  std::array<Typed<double>, 3> mean_bps{};
+  std::array<Typed<double>, 3> stdev_bps{};
+  std::array<std::int64_t, 3> observations{};
+
+  [[nodiscard]] Typed<double> oriented_mean(std::size_t horizon, bool long_side) const noexcept {
+    const Typed<double> stored = mean_bps[horizon];
+    if (stored.v != Validity::VALID || long_side) return stored;
+    return Typed<double>{-stored.value, Validity::VALID};
+  }
+};
+
 struct RefillSecond {
   Typed<double> mean_refill_bid{};
   Typed<double> mean_refill_ask{};
@@ -288,6 +312,11 @@ struct RefillSecond {
 // ---------------------------------------------------------------------------
 
 struct SurfaceOptions {
+  /// The option-PRINT corpus root (APPENDIX B3). Q6's Greek-residual block
+  /// needs "the most recent strictly-prior PRINT of that contract", so without
+  /// this root every residual is EXCLUDED and counted as such — a typed,
+  /// visible absence rather than a zero-filled channel.
+  std::filesystem::path prints_root;
   /// Retain the per-second surface, straddle and channel tables. Off by default
   /// for the same reason qr_carriers' group vectors are: a session is 23,401
   /// seconds x 20 buckets and a census run must not pay for a table it does not
@@ -326,6 +355,8 @@ class SurfaceBuilder {
   }
   /// Per-second refill channels, bucket-major (`second * kBuckets + bucket`).
   [[nodiscard]] const std::vector<RefillSecond>& refill() const noexcept { return refill_; }
+  /// Per-second Greek-residual aggregates, bucket-major.
+  [[nodiscard]] const std::vector<ResidualSecond>& residual() const noexcept { return residual_; }
 
   // --- census counters (published by the audit tool) ---
   [[nodiscard]] std::int64_t rth_rows() const noexcept { return rth_rows_; }
@@ -353,6 +384,22 @@ class SurfaceBuilder {
   }
   [[nodiscard]] const w20::DenseCounter& spread_bps_census() const noexcept { return spread_bps_; }
   [[nodiscard]] const w20::DenseCounter& proxy_vol_census() const noexcept { return proxy_vol_; }
+  [[nodiscard]] std::int64_t residual_observations() const noexcept { return residual_observations_; }
+  [[nodiscard]] std::int64_t residual_excluded_span() const noexcept { return residual_excluded_span_; }
+  [[nodiscard]] std::int64_t residual_excluded_no_greek() const noexcept {
+    return residual_excluded_no_greek_;
+  }
+  [[nodiscard]] std::int64_t residual_excluded_greek_age() const noexcept {
+    return residual_excluded_greek_age_;
+  }
+  [[nodiscard]] std::int64_t residual_excluded_one_sided() const noexcept {
+    return residual_excluded_one_sided_;
+  }
+  [[nodiscard]] std::int64_t greek_prints_admitted() const noexcept { return greek_prints_admitted_; }
+  [[nodiscard]] std::int64_t greek_prints_refused() const noexcept { return greek_prints_refused_; }
+  [[nodiscard]] const w20::DenseCounter& residual_bps_census() const noexcept {
+    return residual_bps_;
+  }
 
  private:
   SurfaceBuilder() = default;
@@ -364,6 +411,7 @@ class SurfaceBuilder {
   std::vector<ThinningSecond> thinning_;
   std::vector<RequoteEventRecord> requote_events_;
   std::vector<RefillSecond> refill_;
+  std::vector<ResidualSecond> residual_;
   std::int64_t rth_rows_ = 0;
   std::int64_t groups_ = 0;
   std::int64_t contracts_ = 0;
@@ -379,6 +427,14 @@ class SurfaceBuilder {
   w20::DenseCounter latency_micros_;
   w20::DenseCounter spread_bps_;
   w20::DenseCounter proxy_vol_;
+  w20::DenseCounter residual_bps_;
+  std::int64_t residual_observations_ = 0;
+  std::int64_t residual_excluded_span_ = 0;
+  std::int64_t residual_excluded_no_greek_ = 0;
+  std::int64_t residual_excluded_greek_age_ = 0;
+  std::int64_t residual_excluded_one_sided_ = 0;
+  std::int64_t greek_prints_admitted_ = 0;
+  std::int64_t greek_prints_refused_ = 0;
 };
 
 /// The census audit of one built session (D-006: "a constructor is built only
@@ -419,6 +475,46 @@ struct StraddleLegs {
 };
 [[nodiscard]] StraddleSecond select_straddle(const StraddleLegs& legs, std::int64_t spot_u6,
                                              std::int64_t ts_ms_b, std::int64_t expiry_epoch_day);
+
+/// The strictly-prior print Greeks one contract carries into a span.
+struct ContractGreeks {
+  double delta = 0.0;
+  double gamma = 0.0;
+  /// Frame-B millisecond of the PRINT the greeks came from.
+  std::int64_t ts_ms_b = -1;
+  [[nodiscard]] bool present() const noexcept { return ts_ms_b >= 0; }
+};
+
+/// Q6 + §W21-PIN-2, as ONE pure function so a fixture can assert a hand-computed
+/// literal: the second-order repricing residual of one contract over one span,
+/// in UNDERLYING basis points, rho-oriented for the LONG side.
+///
+///   resid_bps = (Dmid_obs - [delta*Du + 0.5*gamma*Du^2]) / u_mid * 1e4
+///
+/// `delta` and `gamma` are the vendor's per-DOLLAR greeks, so the underlying
+/// move is converted to dollars before the quadratic and the result is carried
+/// back to u6 — mixing u6 into gamma's square would be wrong by 10^6.
+struct ResidualInputs {
+  std::int64_t span_start_ms = 0;
+  std::int64_t span_end_ms = 0;
+  /// Contract midpoints (u6) at the two ends of the span.
+  std::int64_t contract_mid_start_u6 = 0;
+  std::int64_t contract_mid_end_u6 = 0;
+  /// The strictly-prior eligible-NBBO mid (u6) at the two ends.
+  std::int64_t underlying_start_u6 = 0;
+  std::int64_t underlying_end_u6 = 0;
+  ContractGreeks greeks{};
+  /// rho: +1 CALL, -1 PUT.
+  int rho = 1;
+};
+
+struct ResidualOutcome {
+  Typed<double> resid_bps{};
+  /// Q7's reliability weight; meaningful only when `resid_bps` is VALID.
+  double weight = 0.0;
+};
+
+[[nodiscard]] ResidualOutcome contract_residual_bps(const ResidualInputs& inputs) noexcept;
 
 }  // namespace qr::w21
 

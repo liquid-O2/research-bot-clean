@@ -1,5 +1,5 @@
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 14 tests from 5 test suites.
+[==========] Running 20 tests from 7 test suites.
 [----------] Global test environment set-up.
 [----------] 4 tests from BucketAxisLaw
 [ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
@@ -20,13 +20,13 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
 [       OK ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant (0 ms)
 [ RUN      ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:249: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:250: Failure
 The difference between out.mean_log1p_age_micros.value and expected is 1.4960337046564254, which exceeds 1e-12, where
 out.mean_log1p_age_micros.value evaluates to 6.9087547793152213,
 expected evaluates to 8.4047884839716467, and
 1e-12 evaluates to 9.9999999999999998e-13.
 
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:251: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:252: Failure
 Expected: (out.mean_log1p_age_micros.value) > (std::log1p(1000.0) + 1.0), actual: 6.9087547793152213 vs 7.9087547793152204
 
 [  FAILED  ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge (0 ms)
@@ -50,12 +50,30 @@ Expected: (out.mean_log1p_age_micros.value) > (std::log1p(1000.0) + 1.0), actual
 
 [----------] 1 test from ModalityLaw
 [ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
-[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (22 ms)
-[----------] 1 test from ModalityLaw (22 ms total)
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (21 ms)
+[----------] 1 test from ModalityLaw (21 ms total)
+
+[----------] 5 tests from ResidualLaw
+[ RUN      ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart
+[       OK ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart (0 ms)
+[ RUN      ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6
+[       OK ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6 (0 ms)
+[ RUN      ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds
+[       OK ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds (0 ms)
+[ RUN      ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue
+[       OK ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue (0 ms)
+[ RUN      ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate
+[       OK ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate (0 ms)
+[----------] 5 tests from ResidualLaw (0 ms total)
+
+[----------] 1 test from StraddleWidthLaw
+[ RUN      ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints
+[       OK ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints (0 ms)
+[----------] 1 test from StraddleWidthLaw (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 14 tests from 5 test suites ran. (22 ms total)
-[  PASSED  ] 13 tests.
+[==========] 20 tests from 7 test suites ran. (21 ms total)
+[  PASSED  ] 19 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge
 

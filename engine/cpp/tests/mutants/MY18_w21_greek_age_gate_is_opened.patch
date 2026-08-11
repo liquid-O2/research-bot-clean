@@ -1,0 +1,13 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -422,7 +422,9 @@
+   // "most recent STRICTLY-PRIOR print of that contract as of span start".
+   if (inputs.greeks.ts_ms_b >= inputs.span_start_ms) return out;
+   const std::int64_t age_ms = inputs.span_start_ms - inputs.greeks.ts_ms_b;
+-  if (age_ms > kGreekMaxAgeSeconds * kMsPerSecond) return out;
++  // MY18: Q6's 1800s greek-age gate is opened, so a stale greek reprices a
++  // span it can no longer describe.
++  if (age_ms > 10 * kGreekMaxAgeSeconds * kMsPerSecond) return out;
+   if (inputs.underlying_start_u6 <= 0 || inputs.underlying_end_u6 <= 0) {
+     out.resid_bps = qr::carriers::masked(Validity::MISSING);
+     return out;

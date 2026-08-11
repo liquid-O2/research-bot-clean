@@ -1,0 +1,13 @@
+--- a/qr_w21/src/surface.cpp
++++ b/qr_w21/src/surface.cpp
+@@ -449,7 +449,9 @@
+     return out;
+   }
+   // rho-oriented with sigma = +1; the SHORT reading is its negation.
+-  out.resid_bps = qr::carriers::present(static_cast<double>(inputs.rho) * bps);
++  // MY19: rho is dropped, so a put's residual carries the same sign as a
++  // call's and the two cancel inside a bucket mean.
++  out.resid_bps = qr::carriers::present(bps);
+   // Q7: w = exp(-age_greek_seconds/600), pinned.
+   out.weight = std::exp(-(static_cast<double>(age_ms) / 1000.0) / kReliabilityDecaySeconds);
+   return out;

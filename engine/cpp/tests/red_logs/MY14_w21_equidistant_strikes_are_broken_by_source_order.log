@@ -1,5 +1,5 @@
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 14 tests from 5 test suites.
+[==========] Running 20 tests from 7 test suites.
 [----------] Global test environment set-up.
 [----------] 4 tests from BucketAxisLaw
 [ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
@@ -36,12 +36,12 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent
 [       OK ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent (0 ms)
 [ RUN      ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:386: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:387: Failure
 Value of: tied.present
   Actual: true
 Expected: false
 
-/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:387: Failure
+/workspace/engine/cpp/qr_w21/tests/test_surface.cpp:388: Failure
 Expected equality of these values:
   tied.absence
     Which is: 1-byte object <00>
@@ -53,12 +53,30 @@ Expected equality of these values:
 
 [----------] 1 test from ModalityLaw
 [ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
-[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (33 ms)
-[----------] 1 test from ModalityLaw (33 ms total)
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (39 ms)
+[----------] 1 test from ModalityLaw (39 ms total)
+
+[----------] 5 tests from ResidualLaw
+[ RUN      ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart
+[       OK ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart (0 ms)
+[ RUN      ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6
+[       OK ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6 (0 ms)
+[ RUN      ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds
+[       OK ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds (0 ms)
+[ RUN      ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue
+[       OK ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue (0 ms)
+[ RUN      ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate
+[       OK ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate (0 ms)
+[----------] 5 tests from ResidualLaw (0 ms total)
+
+[----------] 1 test from StraddleWidthLaw
+[ RUN      ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints
+[       OK ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints (0 ms)
+[----------] 1 test from StraddleWidthLaw (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 14 tests from 5 test suites ran. (33 ms total)
-[  PASSED  ] 13 tests.
+[==========] 20 tests from 7 test suites ran. (39 ms total)
+[  PASSED  ] 19 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder
 

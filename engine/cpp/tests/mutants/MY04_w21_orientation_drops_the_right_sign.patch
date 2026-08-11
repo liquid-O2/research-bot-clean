@@ -1,6 +1,6 @@
 --- a/qr_w21/src/surface.cpp
 +++ b/qr_w21/src/surface.cpp
-@@ -142,7 +142,9 @@
+@@ -199,7 +199,9 @@
  
  int orientation(std::size_t bucket, bool long_side) noexcept {
    const BucketKey key = bucket_key(bucket);

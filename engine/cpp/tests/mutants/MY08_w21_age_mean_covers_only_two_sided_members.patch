@@ -1,6 +1,6 @@
 --- a/qr_w21/src/surface.cpp
 +++ b/qr_w21/src/surface.cpp
-@@ -206,7 +206,8 @@
+@@ -263,7 +263,8 @@
          spread_weighted_sum += weight * spread.value().value;
        }
      }

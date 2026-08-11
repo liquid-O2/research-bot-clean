@@ -1,6 +1,6 @@
 --- a/qr_w21/src/surface.cpp
 +++ b/qr_w21/src/surface.cpp
-@@ -247,7 +247,9 @@
+@@ -304,7 +304,9 @@
  
    out.two_sided_fraction = qr::carriers::fraction(out.two_sided, out.contracts);
    // Q4: "bucket VALID iff >=50% two-sided", as an exact integer test.

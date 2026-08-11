@@ -27,6 +27,16 @@ fi
 cd "${CPP_ROOT}" || exit 2
 revert() {
   patch -p1 -R --silent < "${PATCH}" || echo "WARNING: could not revert ${MUT_ID}; check git status" >&2
+  # A STALE BUILD TREE CORRUPTS THE EVIDENCE CHAIN (lane finding, 2026-08-11).
+  # `patch` restores the original bytes, and on a filesystem whose timestamp
+  # granularity is coarser than an apply/build/revert cycle the restored file
+  # can carry the SAME mtime it had before, so the next `cmake --build` decides
+  # the object is up to date and keeps the MUTATED code linked in. The next
+  # mutation run then records red tests that have nothing to do with its own
+  # patch. Touching every file the patch names makes the rebuild unconditional.
+  while IFS= read -r reverted; do
+    [[ -f "${reverted}" ]] && touch "${reverted}"
+  done < <(sed -n 's|^--- a/||p' "${PATCH}")
 }
 if ! patch -p1 --silent < "${PATCH}"; then
   echo "FAILED to apply ${MUT_ID}" >&2

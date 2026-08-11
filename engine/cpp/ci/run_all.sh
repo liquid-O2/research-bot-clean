@@ -30,12 +30,21 @@
 #                                        equal-ms group STATE MACHINE, the
 #                                        published census, two-run identity and
 #                                        the <=3s pass budget)
+#  12b. WP7 labels real-file gate      (release build; the session-125 watches,
+#                                        the authority decision-ordinal roster,
+#                                        the full menu + certificate label pass,
+#                                        the WP5 binding check, two-run identity
+#                                        and the <=30s / <=8GB budget)
 #  12. WP6 candidate seal gate         (release build; the sealed event-signal
 #                                        publication: the frozen witness numbers
 #                                        reproduced, the full 0..749 prefix
 #                                        sealed, two-run leaf identity, the
 #                                        kernel-level non-prefetch proof, and
 #                                        the <=10min / <=100MB budgets)
+#  14. WP9 differential merge gate     (archived full-625 and ladder verdicts
+#                                        re-checked by sha, the diagnostic Rust
+#                                        oracle rebuilt and source-sha pinned,
+#                                        and three sessions rerun live)
 #
 # Nothing here writes outside /workspace/artifacts/cache/cpp. Nothing downloads.
 set -uo pipefail
@@ -109,10 +118,14 @@ step "8. benchmark gates" bash -c "
   echo 'WP4 sources budget: 3-stream session-125 read, enforced by step 11'
   echo 'WP5 nbbo budget: session-125 full group-machine pass <= 3s single-thread, enforced by step 11b'
   echo 'WP6 prefix-seal budget (<=10min) + RSS (<=100MB): enforced by step 12'
+  echo 'WP7 label budget: session-125 full watch+label pass <= 30s (target 10s) single-thread'
+  echo '                  and peak RSS <= 8GB, enforced by step 12b'
   echo 'WP10 emit write budget (>=500 MB/s on a 1GB shard to MooseFS): enforced by step 13,'
   echo '                        printed with the raw write(2) baseline so FS_BOUND is visible'
   echo 'WP11 replay budget: 1M actions <= 2s single-thread, enforced inside the test suite (steps 4 and 6)'
-  echo 'WP7..WP9: placeholders, added by their own lanes'
+  echo 'WP9 differential budgets: full-625 C++ pass and the ladder byte differential,'
+  echo '                          measured by step 14 and archived under wp9/'
+  echo 'WP8: placeholder, added by its own lane'
 "
 
 # --- 9. WP2 clock oracle ---------------------------------------------------
@@ -146,11 +159,38 @@ step "11b. WP5 nbbo real-file gate" "${CPP_ROOT}/ci/wp5_nbbo_realfile_gate.sh" "
 # budgets. It walks 10.7GB of text, so it belongs here and not in ctest.
 step "12. WP6 candidate seal gate" "${CPP_ROOT}/ci/wp6_candidate_seal_gate.sh" "${CACHE}/release"
 
+# --- 12b. WP7 labels real-file gate -----------------------------------------
+# Release build + the WP6 authority's own sealed session-125 roster. Builds the
+# three watches of all 25,934 side-resolved primitive candidates (77,802 ledger
+# rows -> 31,977 unique action rows), labels every action row with the full
+# seven-horizon menu plus the co-primary certificate, binds the execution
+# envelope to the WP5 projection group for group, proves two-run byte identity
+# of six artifacts, and enforces the <=30s / <=8GB budget.
+step "12b. WP7 labels real-file gate" "${CPP_ROOT}/ci/wp7_labels_realfile_gate.sh" "${CACHE}/release"
+
+# --- 12c. WP8a carriers real-file gate ---------------------------------------
+# Release build + the three authorized session-125 streams. Runs the prior-state
+# machines, the three per-modality channel constructors, DIRECT_RAW (asserted at
+# exactly 60 columns/modality), the prefix 1s midpoint grid, the 16 location
+# values and the 24-field candidate-set rows over a whole real session; prints
+# every channel presence census, quality ledger, attachment histogram and
+# condition-code histogram in full; proves two-run byte identity of the receipt
+# and its feature fingerprint; and enforces the <=6s / <=4GB budget.
+step "12c. WP8a carriers real-file gate" "${CPP_ROOT}/ci/wp8a_carriers_realfile_gate.sh" "${CACHE}/release"
+
 # --- WP10 qr_emit artifact gate --------------------------------------------
 # Two-run byte identity of a full synthetic shard, the C++ -> numpy round trip
 # and the loader's refusal fixtures, the static truth-separation check, the
 # feature-builder fd census, and the >= 500 MB/s write budget on 1GB.
 step "13. WP10 emit gate" "${CPP_ROOT}/ci/wp10_emit_gate.sh" "${CACHE}/release"
+
+# --- 14. WP9 differential merge gate ---------------------------------------
+# The full-scope differential (625 sessions x 3 streams, both languages) is an
+# artifact run; what belongs in the chain is its verification: the archived
+# verdicts re-checked by sha, the diagnostic Rust oracle rebuilt and pinned to
+# its source sha, and three sessions rerun live end to end (both dumps, the
+# canonical byte images, the WCD reconciliation, the comparator).
+step "14. WP9 differential gate" "${CPP_ROOT}/ci/wp9_differential_gate.sh" "${CACHE}/release"
 
 echo
 echo "=============================================================="

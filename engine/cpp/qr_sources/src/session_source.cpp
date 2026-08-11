@@ -131,6 +131,28 @@ Expected<std::int32_t, Refusal> cell_day_ordinal(const ColumnData& column, Colum
 // ---------------------------------------------------------------------------
 
 FileExpected<SessionSource> SessionSource::open(std::filesystem::path path, const SpecView& spec,
+                                                FormsResolver resolve_pinned,
+                                                std::int64_t open_ms_b, std::int64_t close_ms_b) {
+  FileExpected<parquet::File> opened = parquet::File::open(path.string());
+  if (!opened.has_value()) {
+    return FileExpected<SessionSource>::refuse(opened.error());
+  }
+  parquet::File file = std::move(opened).value();
+  FileExpected<std::span<const ColumnForm>> pinned = resolve_pinned(file);
+  if (!pinned.has_value()) {
+    return FileExpected<SessionSource>::refuse(pinned.error());
+  }
+  FileExpected<std::vector<ColumnForm>> forms = gate_schema(spec, file, pinned.value());
+  if (!forms.has_value()) {
+    return FileExpected<SessionSource>::refuse(forms.error());
+  }
+  std::vector<std::size_t> kept =
+      file.rth_row_groups(spec.timestamp_leaf(), open_ms_b, close_ms_b);
+  return SessionSource(std::move(path), std::move(file), spec, std::move(forms).value(),
+                       std::move(kept), open_ms_b, close_ms_b);
+}
+
+FileExpected<SessionSource> SessionSource::open(std::filesystem::path path, const SpecView& spec,
                                                 std::span<const ColumnForm> pinned,
                                                 std::int64_t open_ms_b, std::int64_t close_ms_b) {
   // The dialect gate first: qr_parquet refuses any file outside the pinned

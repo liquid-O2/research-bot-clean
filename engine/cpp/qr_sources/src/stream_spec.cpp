@@ -101,6 +101,22 @@ std::span<const ColumnForm> stock_quote_forms(SourceProfile profile) noexcept {
   return {};
 }
 
+FileExpected<std::span<const ColumnForm>> option_print_forms(const parquet::File& file) {
+  // The file's own `expiration` leaf decides, and only between the two vectors
+  // that were actually measured across the 625 scoped sessions. `resolve_form`
+  // does the refusing for anything that is neither DATE nor UTF-8.
+  const std::size_t expiration_leaf = kOptionPrintSpec.projection[0];
+  FileExpected<ColumnForm> resolved =
+      resolve_form(file, expiration_leaf, ColumnRole::Date, kOptionPrintSpec.stream);
+  if (!resolved.has_value()) {
+    return FileExpected<std::span<const ColumnForm>>::refuse(resolved.error());
+  }
+  if (resolved.value() == ColumnForm::DateText) {
+    return std::span<const ColumnForm>(kOptionPrintFormsIwmWide);
+  }
+  return std::span<const ColumnForm>(kOptionPrintFormsIwmCompact);
+}
+
 FileExpected<ColumnForm> resolve_form(const parquet::File& file, std::size_t leaf, ColumnRole role,
                                       std::string_view stream) {
   const std::vector<parquet::LeafColumn>& leaves = file.leaves();

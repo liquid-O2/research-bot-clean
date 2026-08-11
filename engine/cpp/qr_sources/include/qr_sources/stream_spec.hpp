@@ -514,8 +514,8 @@ inline constexpr StreamSpec<62, 20, 29> kOptionPrintSpec{
 };
 static_assert(spec_is_wellformed(kOptionPrintSpec));
 
-/// The IWM COMPACT print profile, measured on the authorized session-125 file
-/// (`options_prints/IWM/2022/2022-07-05.parquet`): `expiration` INT32/DATE,
+/// The IWM COMPACT print profile, first measured on the authorized session-125
+/// file (`options_prints/IWM/2022/2022-07-05.parquet`): `expiration` INT32/DATE,
 /// `strike` INT32 mills, `right` UTF8, `size` INT32, `price`/`bid`/`ask` INT32
 /// cents, `bid_size`/`ask_size` INT32, `underlying_timestamp` UTF8 text.
 ///
@@ -528,6 +528,57 @@ inline constexpr std::array<ColumnForm, 20> kOptionPrintFormsIwmCompact{
     ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,
     ColumnForm::FloatF64,  ColumnForm::TextUtf8,  ColumnForm::FloatF64,  ColumnForm::CentI32,
     ColumnForm::IntI32,    ColumnForm::CentI32,   ColumnForm::IntI32,    ColumnForm::TimestampMsI64};
+
+/// THE SECOND MEASURED IWM PRINT PROFILE — the WIDE encoding of the SAME 62
+/// names: `expiration` UTF-8 ISO text, `strike`/`price`/`bid`/`ask` `Float64`
+/// dollars, `size`/`bid_size`/`ask_size` `Int64`.
+///
+/// WHY IT EXISTS — AND WHAT FALSIFIED THE SINGLE PIN. The compact vector above
+/// was derived from ONE authorized file, and "sampling 1,383 files is not proof
+/// over all of them" is this module's own stated reason for gating every file
+/// at open. WP9's full-scope pass is that proof, and it falsified the
+/// single-vector pin on exactly two of the 625 scoped sessions:
+///
+///   s356  2023-06-05  options_prints/IWM/2023/2023-06-05.parquet
+///   s606  2024-06-03  options_prints/IWM/2024/2024-06-03.parquet
+///
+/// Both are IWM's OWN print corpus written in the wide encoding. Nine of their
+/// 62 columns differ from the compact profile (expiration, strike, size, price,
+/// bid, bid_size, ask, ask_size and the unprojected sweep_size), and every one
+/// of those forms is already declared admitted by `role_admits` for its role.
+/// The frozen reference reads both files without noticing, because its
+/// `price_col`/`strike_col`/`int_col`/`date_col` resolve the encoding from the
+/// file's own schema.
+///
+/// THIS IS A WALL, NOT A FALLBACK. There are exactly TWO admitted vectors, the
+/// file's own schema says which one it is (`option_print_forms`), and a file
+/// matching neither is refused by name at open, before a payload byte is read —
+/// the same dual-profile shape B1 uses for stock quotes and B4 for option
+/// quotes.
+///
+/// B5 (RUTW) REMAINS DEFERRED AND REMAINS WALLED — ON THE RIGHT AXIS. The
+/// deferral is of a MODALITY (the RUTW print corpus), not of an encoding, and
+/// it used to be enforced only as a side effect of this pin being narrow: any
+/// day the vendor wrote a RUTW file in the compact encoding, the encoding wall
+/// would have admitted it. `OptionPrintReader::open` now refuses a RUTW corpus
+/// root BY NAME instead, which walls the modality whatever it is encoded in.
+inline constexpr std::array<ColumnForm, 20> kOptionPrintFormsIwmWide{
+    ColumnForm::DateText,  ColumnForm::DollarF64, ColumnForm::TextUtf8,  ColumnForm::TimestampMsI64,
+    ColumnForm::IntI64,    ColumnForm::IntI64,    ColumnForm::IntI64,    ColumnForm::DollarF64,
+    ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,
+    ColumnForm::FloatF64,  ColumnForm::TextUtf8,  ColumnForm::FloatF64,  ColumnForm::DollarF64,
+    ColumnForm::IntI64,    ColumnForm::DollarF64, ColumnForm::IntI64,    ColumnForm::TimestampMsI64};
+
+/// Which of the two admitted print vectors THIS FILE declares, decided from the
+/// file's own `expiration` leaf and nothing else. Pure footer work; a date
+/// column that is neither a DATE ordinal nor UTF-8 text is a refusal naming the
+/// column, exactly as `resolve_form` refuses it.
+[[nodiscard]] FileExpected<std::span<const ColumnForm>> option_print_forms(
+    const parquet::File& file);
+
+/// The path component that names the DEFERRED B5 modality. `OptionPrintReader`
+/// refuses a corpus root carrying it, before a path to a payload is formed.
+inline constexpr std::string_view kDeferredPrintModality = "RUTW";
 
 /// B3's single-leg condition set, EXPOSED AS A FIELD ONLY. The eligibility
 /// logic that uses it lands in WP8; nothing in WP4 filters on it.

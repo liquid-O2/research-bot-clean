@@ -429,12 +429,57 @@ TEST(OptionPrints, TheFixtureSessionMatchesEveryDerivedLiteral) {
   EXPECT_EQ(literal_text("options_prints/row2/right"), "CALL");
 }
 
-TEST(OptionPrints, TheDeferredWideProfileIsRefusedAtOpen) {
+// THE SECOND ADMITTED PRINT ENCODING (WP9 full-scope finding). Two of the 625
+// scoped IWM print sessions — s356 2023-06-05 and s606 2024-06-03 — are written
+// in the WIDE encoding of the same 62 names. The reader admits exactly two
+// vectors, chosen from the file's own schema, and both must normalize to the
+// SAME u6 prices, u6 strikes, day ordinals and share sizes: that is what "u6
+// prices / share sizes" at this boundary means.
+TEST(OptionPrints, TheWideEncodingOfTheSameCorpusNormalisesToTheCompactValues) {
   const auto scope = scope_125();
   ASSERT_TRUE(scope.has_value());
-  const auto opened = qr::sources::OptionPrintReader::open(*scope, fixture_root("op_wide"));
+
+  const auto collect = [&scope](const char* fixture) {
+    std::vector<std::uint8_t> bytes;
+    auto opened = qr::sources::OptionPrintReader::open(*scope, fixture_root(fixture));
+    EXPECT_TRUE(opened.has_value()) << opened.error().message();
+    if (!opened.has_value()) {
+      return bytes;
+    }
+    qr::sources::OptionPrintReader reader = std::move(opened).value();
+    qr::sources::OptionPrintReader::Group group;
+    while (true) {
+      const auto more = reader.next_group(group);
+      EXPECT_TRUE(more.has_value()) << more.error().message();
+      if (!more.has_value() || !more.value()) {
+        break;
+      }
+      qr::sources::append_i64(group.ts_ms_b, bytes);
+      for (const qr::sources::OptionPrintRow& row : group.rows) {
+        append_serialized(row, bytes);
+      }
+    }
+    return bytes;
+  };
+
+  const std::vector<std::uint8_t> compact = collect("op_compact");
+  const std::vector<std::uint8_t> wide = collect("op_wide");
+  ASSERT_FALSE(compact.empty());
+  EXPECT_EQ(wide, compact) << "the two admitted encodings do not normalize to the same rows";
+}
+
+// B5 IS STILL DEFERRED, AND THE DEFERRAL IS STILL A WALL — now on the modality
+// instead of on the encoding, so it holds whatever encoding RUTW is written in.
+TEST(OptionPrints, TheDeferredRutwModalityIsRefusedByNameBeforeAPathIsFormed) {
+  const auto scope = scope_125();
+  ASSERT_TRUE(scope.has_value());
+  const std::filesystem::path rutw_root =
+      std::filesystem::path("/workspace/data/tokens") / "RUTW" / "options_prints";
+  const auto opened = qr::sources::OptionPrintReader::open(*scope, rutw_root);
   ASSERT_FALSE(opened.has_value());
-  EXPECT_EQ(opened.error().code(), qr::RefusalCode::SCHEMA_MISMATCH);
+  EXPECT_EQ(opened.error().code(), qr::RefusalCode::CONFIG);
+  EXPECT_NE(opened.error().message().find("RUTW"), std::string::npos)
+      << opened.error().message();
 }
 
 // --- B4 option quotes -------------------------------------------------------

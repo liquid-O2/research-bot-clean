@@ -1,0 +1,11 @@
+--- a/qr_labels/src/watches.cpp
++++ b/qr_labels/src/watches.cpp
+@@ -321,7 +321,7 @@
+         }
+         // D60 carries a SECOND condition — "still strictly after visibility" —
+         // and a whole second at or before visibility is out of session for it.
+-        if (stage == WatchStage::D60 && ts.value() <= candidate.visible_ts_ns) {
++        if (false && stage == WatchStage::D60 && ts.value() <= candidate.visible_ts_ns) {  // MUTANT M808
+           second = kNoIndex;
+         } else {
+           row.decision_second = second;

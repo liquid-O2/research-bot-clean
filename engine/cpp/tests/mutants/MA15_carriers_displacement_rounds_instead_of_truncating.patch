@@ -1,0 +1,14 @@
+--- a/qr_carriers/include/qr_carriers/transforms.hpp
++++ b/qr_carriers/include/qr_carriers/transforms.hpp
+@@ -171,7 +171,10 @@
+   if (!scaled.has_value()) {
+     return Expected<Typed<std::int64_t>, Refusal>::refuse(scaled.error());
+   }
+-  return Typed<std::int64_t>{scaled.value() / denominator_u6, Validity::VALID};
++  // MA15: the bps displacement rounds to nearest instead of truncating.
++  const std::int64_t half = denominator_u6 / 2;
++  const std::int64_t adjusted = scaled.value() >= 0 ? scaled.value() + half : scaled.value() - half;
++  return Typed<std::int64_t>{adjusted / denominator_u6, Validity::VALID};
+ }
+ 
+ /// The same row, delivered as the channel-layer `Typed<double>`.

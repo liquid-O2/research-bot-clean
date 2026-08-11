@@ -130,6 +130,19 @@ std::string_view OptionPrintDigests::field_name(std::size_t slot) noexcept {
 
 FileExpected<OptionPrintReader> OptionPrintReader::open(const DayScope& scope,
                                                         const std::filesystem::path& corpus_root) {
+  // THE B5 DEFERRAL WALL, ON THE MODALITY RATHER THAN ON THE ENCODING. B5
+  // (RUTW prints) is deferred, and a deferral is a wall: the RUTW corpus is
+  // refused BY NAME here, before a path to a payload is formed, so the wall
+  // holds whatever encoding the vendor writes that corpus in.
+  for (const std::filesystem::path& component : corpus_root) {
+    if (component.native() == kDeferredPrintModality) {
+      return parquet::refuse_file<OptionPrintReader>(
+          RefusalCode::CONFIG, kOpenSite,
+          "B5 (RUTW prints) is deferred; this reader is pinned to the IWM print corpus",
+          corpus_root.string(), std::string(kDeferredPrintModality), scope.ordinal());
+    }
+  }
+
   const std::filesystem::path path = day_file(corpus_root, scope);
   Expected<SessionClock, Refusal> clock = SessionClock::from_session(scope.session());
   if (!clock.has_value()) {
@@ -140,9 +153,12 @@ FileExpected<OptionPrintReader> OptionPrintReader::open(const DayScope& scope,
   const std::int64_t open_ms = clock.value().open_b().ns() / kNanosecondsPerMillisecond;
   const std::int64_t close_ms = clock.value().close_b().ns() / kNanosecondsPerMillisecond;
 
+  // THE DUAL DATE-ENCODING LAW (B3): the FILE's own `expiration` leaf chooses
+  // between the two measured IWM compact vectors, and then every projected
+  // column is pinned to the chosen one. A file matching neither is refused by
+  // name, before a payload byte is read.
   FileExpected<SessionSource> source = SessionSource::open(
-      path, view_of(kOptionPrintSpec), std::span<const ColumnForm>(kOptionPrintFormsIwmCompact),
-      open_ms, close_ms);
+      path, view_of(kOptionPrintSpec), &option_print_forms, open_ms, close_ms);
   if (!source.has_value()) {
     return FileExpected<OptionPrintReader>::refuse(source.error());
   }

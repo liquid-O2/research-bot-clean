@@ -128,6 +128,23 @@ class SessionSource {
                                                         std::int64_t open_ms_b,
                                                         std::int64_t close_ms_b);
 
+  /// A resolver of the admitted form vector FROM THE FILE'S OWN SCHEMA, for a
+  /// stream whose profile no registry column declares. It is a plain function
+  /// pointer, so the resolver is a pinned constant of the stream and never a
+  /// caller's lambda: the closed set of admitted vectors stays in the spec.
+  using FormsResolver = FileExpected<std::span<const ColumnForm>> (*)(const parquet::File&);
+
+  /// Same gate, one step earlier: the file's own schema chooses which of the
+  /// stream's admitted form vectors is pinned, and then EVERY projected column
+  /// is checked against that vector. This is the dual-profile law for a stream
+  /// with no registry-declared profile (B3's two print date encodings); it is
+  /// not a fallback — a file matching neither vector is refused by name.
+  [[nodiscard]] static FileExpected<SessionSource> open(std::filesystem::path path,
+                                                        const SpecView& spec,
+                                                        FormsResolver resolve_pinned,
+                                                        std::int64_t open_ms_b,
+                                                        std::int64_t close_ms_b);
+
   /// Decodes the next kept row group's projected columns. Returns the number of
   /// rows decoded, or 0 when the file is exhausted.
   [[nodiscard]] FileExpected<std::int64_t> next_chunk();

@@ -1,0 +1,12 @@
+--- a/qr_registry/src/day_scope.cpp	2026-08-11 12:58:04.000000000 +0000
++++ b/qr_registry/src/day_scope.cpp	2026-08-11 12:58:04.000000000 +0000
+@@ -14,7 +14,8 @@
+ Expected<DayScope, Refusal> DayScope::admit(const Registry& registry, std::int64_t ordinal) {
+   // THE WALL, first statement of the function: nothing below runs for an
+   // out-of-scope ordinal, and this function has no filesystem argument at all.
+-  if (ordinal < kScopeFirstOrdinal || ordinal > kScopeLastOrdinal) {
++  // MX02: the 125-wall is lowered, so warmup ordinals reach decision paths.
++  if (ordinal > kScopeLastOrdinal) {
+     return Expected<DayScope, Refusal>::refuse(
+         Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
+                 "ordinal outside the scoped calendar 125..749", ordinal));

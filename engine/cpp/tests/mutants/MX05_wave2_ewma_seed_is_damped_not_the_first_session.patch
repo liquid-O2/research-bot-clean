@@ -1,0 +1,14 @@
+--- a/qr_wave2/src/prior_state.cpp	2026-08-11 12:58:36.000000000 +0000
++++ b/qr_wave2/src/prior_state.cpp	2026-08-11 12:58:36.000000000 +0000
+@@ -50,8 +50,9 @@
+   const bool previous_seeded = have_previous && seeded_;
+   if (summary.has_rate()) {
+     if (!previous_seeded) {
+-      entry.ewma_rate_after = summary.rth_rate();
+-      entry.ewma_total_after = summary.rth_sum_r2;
++      // MX05: the seed is damped instead of being the first observed value.
++      entry.ewma_rate_after = kEwmaAlpha * summary.rth_rate();
++      entry.ewma_total_after = kEwmaAlpha * summary.rth_sum_r2;
+       seeded_ = true;
+     } else {
+       entry.ewma_rate_after = kEwmaAlpha * summary.rth_rate() + (1.0 - kEwmaAlpha) * previous_rate;

@@ -1,0 +1,12 @@
+--- a/qr_wave2/src/prior_structure.cpp	2026-08-11 13:03:34.000000000 +0000
++++ b/qr_wave2/src/prior_structure.cpp	2026-08-11 13:03:34.000000000 +0000
+@@ -49,7 +49,8 @@
+ 
+ Typed<double> phase_fraction(std::int64_t seconds_since_open,
+                              std::int64_t session_seconds) noexcept {
+-  if (session_seconds <= 0 || seconds_since_open < 0) {
++  // MX28: a zero-length session is divided by.
++  if (seconds_since_open < 0) {
+     return carriers::masked(Validity::MISSING);
+   }
+   return carriers::present(static_cast<double>(seconds_since_open) /

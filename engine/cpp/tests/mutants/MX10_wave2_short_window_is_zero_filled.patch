@@ -1,0 +1,18 @@
+--- a/qr_wave2/src/variance_budget.cpp	2026-08-11 13:00:04.000000000 +0000
++++ b/qr_wave2/src/variance_budget.cpp	2026-08-11 13:00:04.000000000 +0000
+@@ -55,10 +55,13 @@
+ std::optional<double> VarianceBudgetSession::window_sum_r2(std::size_t index,
+                                                            std::int64_t seconds) const noexcept {
+   // THE WINDOW MUST FIT INSIDE THE ELAPSED SESSION (see the header note).
+-  if (static_cast<std::int64_t>(index) < seconds) {
++  // MX10: a window that does not fit is zero-filled from the session start.
++  if (static_cast<std::int64_t>(index) < 0) {
+     return std::nullopt;
+   }
+-  const std::size_t first = index - static_cast<std::size_t>(seconds);
++  const std::size_t first = static_cast<std::int64_t>(index) >= seconds
++                                ? index - static_cast<std::size_t>(seconds)
++                                : 0U;
+   const std::int64_t steps = cum_valid_steps_[index] - cum_valid_steps_[first];
+   if (steps <= 0) {
+     return std::nullopt;

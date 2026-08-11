@@ -1,0 +1,12 @@
+--- a/qr_wave2/src/variance_budget.cpp	2026-08-11 13:02:08.000000000 +0000
++++ b/qr_wave2/src/variance_budget.cpp	2026-08-11 13:02:08.000000000 +0000
+@@ -253,7 +253,8 @@
+   }
+   // "sigma_scale(t) = sqrt(B(t)*1800) bps" (W2.13-PIN-1). B is bps^2/s, so the
+   // product is bps^2 over a half-hour and the root is bps.
+-  return carriers::present(std::sqrt(b.value * 1800.0));
++  // MX20: sigma_scale is a one-second scale, not the half-hour one.
++  return carriers::present(std::sqrt(b.value * 1.0));
+ }
+ 
+ Typed<std::int64_t> VarianceBudgetSession::running_vwap_u6(

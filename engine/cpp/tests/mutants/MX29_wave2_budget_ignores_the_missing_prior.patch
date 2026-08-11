@@ -1,0 +1,12 @@
+--- a/qr_wave2/src/variance_budget.cpp	2026-08-11 13:03:43.000000000 +0000
++++ b/qr_wave2/src/variance_budget.cpp	2026-08-11 13:03:43.000000000 +0000
+@@ -184,7 +184,8 @@
+ 
+   // --- pass 3: B(t) ----------------------------------------------------------
+   for (std::size_t index = 0; index < count; ++index) {
+-    if (!inputs.priors.rv_prior_present) {
++    // MX29: a missing RV_prior is treated as a zero term.
++    if (false && !inputs.priors.rv_prior_present) {
+       ++session.census_.budget_absent_no_prior;
+       continue;
+     }

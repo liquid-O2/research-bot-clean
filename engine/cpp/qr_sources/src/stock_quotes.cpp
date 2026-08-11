@@ -71,30 +71,44 @@ std::string_view StockQuoteDigests::field_name(std::size_t slot) noexcept {
 FileExpected<StockQuoteReader> StockQuoteReader::open(const DayScope& scope,
                                                       const std::filesystem::path& corpus_root,
                                                       SourceProfile profile) {
-  const std::filesystem::path path = scope.source_path(corpus_root);
+  return open_admitted(scope.source_path(corpus_root), scope.session(), profile, scope.ordinal());
+}
 
+// CC-012: the warmup door onto the SAME body. A WarmupScope only exists for
+// ordinals 0..124, so this overload cannot reach a scoped session, and the
+// DayScope overload cannot reach a warmup one.
+FileExpected<StockQuoteReader> StockQuoteReader::open(const WarmupScope& scope,
+                                                      const std::filesystem::path& corpus_root,
+                                                      SourceProfile profile) {
+  return open_admitted(scope.source_path(corpus_root), scope.session(), profile, scope.ordinal());
+}
+
+FileExpected<StockQuoteReader> StockQuoteReader::open_admitted(std::filesystem::path path,
+                                                               const Session& session,
+                                                               SourceProfile profile,
+                                                               std::int64_t ordinal) {
   // THE DUAL PROFILE LAW, half one: the REGISTRY ROW decides. A caller that
   // asks for a different encoding than the session's own row declares is
   // refused — this is the wall against "detect it" and against "assume the
   // year", both of which the corpus falsifies (2025-12-30 is cent_int32 while
   // 2025-12-31 is dollar_float64).
-  if (profile != scope.profile()) {
+  if (profile != session.source_profile) {
     std::string detail = "session ";
-    detail += scope.day();
+    detail += session.day;
     detail += " is registered as ";
-    detail += source_profile_name(scope.profile());
+    detail += source_profile_name(session.source_profile);
     detail += " but was opened as ";
     detail += source_profile_name(profile);
     return parquet::refuse_file<StockQuoteReader>(
         RefusalCode::CONFIG, kOpenSite, "the registry row decides the price profile, not the caller",
-        path.string(), std::move(detail), scope.ordinal());
+        path.string(), std::move(detail), ordinal);
   }
 
-  Expected<SessionClock, Refusal> clock = SessionClock::from_session(scope.session());
+  Expected<SessionClock, Refusal> clock = SessionClock::from_session(session);
   if (!clock.has_value()) {
     return parquet::refuse_file<StockQuoteReader>(clock.error().code(), kOpenSite,
                                                   "the session clock refuses this registry row",
-                                                  path.string(), scope.day(), scope.ordinal());
+                                                  path.string(), session.day, ordinal);
   }
   const std::int64_t open_ms = clock.value().open_b().ns() / kNanosecondsPerMillisecond;
   const std::int64_t close_ms = clock.value().close_b().ns() / kNanosecondsPerMillisecond;
@@ -102,12 +116,12 @@ FileExpected<StockQuoteReader> StockQuoteReader::open(const DayScope& scope,
   // THE DUAL PROFILE LAW, half two: the FILE must carry the declared profile's
   // physical forms. `gate_schema` runs on the footer alone.
   FileExpected<SessionSource> source =
-      SessionSource::open(path, view_of(kStockQuoteSpec), stock_quote_forms(profile), open_ms,
-                          close_ms);
+      SessionSource::open(std::move(path), view_of(kStockQuoteSpec), stock_quote_forms(profile),
+                          open_ms, close_ms);
   if (!source.has_value()) {
     return FileExpected<StockQuoteReader>::refuse(source.error());
   }
-  return StockQuoteReader(std::move(source).value(), profile, scope.day());
+  return StockQuoteReader(std::move(source).value(), profile, session.day);
 }
 
 FileExpected<bool> StockQuoteReader::fill() {

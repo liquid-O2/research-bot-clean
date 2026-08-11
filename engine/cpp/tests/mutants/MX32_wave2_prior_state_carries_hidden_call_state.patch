@@ -1,0 +1,13 @@
+--- a/qr_wave2/src/prior_state.cpp	2026-08-11 13:04:35.000000000 +0000
++++ b/qr_wave2/src/prior_state.cpp	2026-08-11 13:04:35.000000000 +0000
+@@ -99,7 +99,9 @@
+     return view;
+   }
+   const std::size_t priors = source;
+-  view.priors_available = static_cast<std::int64_t>(priors);
++  // MX32: hidden per-call state makes two identical runs differ.
++  static std::int64_t calls = 0;
++  view.priors_available = static_cast<std::int64_t>(priors) + (++calls % 2);
+ 
+   const Entry& previous = entries_[source - 1U];
+   if (previous.summary.grid_present) {

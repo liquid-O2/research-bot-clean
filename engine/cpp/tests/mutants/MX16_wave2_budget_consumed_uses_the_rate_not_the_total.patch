@@ -1,0 +1,12 @@
+--- a/qr_wave2/src/variance_budget.cpp	2026-08-11 13:01:19.000000000 +0000
++++ b/qr_wave2/src/variance_budget.cpp	2026-08-11 13:01:19.000000000 +0000
+@@ -97,7 +97,8 @@
+   session.vwap_u6_.resize(count, 0);
+   session.vwap_present_.resize(count, 0U);
+   session.census_.endpoints = static_cast<std::int64_t>(count);
+-  session.rv_prior_total_ = inputs.priors.rv_prior_present ? inputs.priors.rv_prior_total : 0.0;
++  // MX16: channel 6's denominator is the RATE, not the session total.
++  session.rv_prior_total_ = inputs.priors.rv_prior_present ? inputs.priors.rv_prior_rate : 0.0;
+ 
+   // --- pass 1: the return series, the cumulative sums, the running extremes ---
+   for (std::size_t index = 0; index < count; ++index) {

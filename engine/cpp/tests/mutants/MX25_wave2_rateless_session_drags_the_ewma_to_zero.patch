@@ -1,0 +1,14 @@
+--- a/qr_wave2/src/prior_state.cpp	2026-08-11 13:03:03.000000000 +0000
++++ b/qr_wave2/src/prior_state.cpp	2026-08-11 13:03:03.000000000 +0000
+@@ -59,8 +59,9 @@
+           kEwmaAlpha * summary.rth_sum_r2 + (1.0 - kEwmaAlpha) * previous_total;
+     }
+   } else {
+-    entry.ewma_rate_after = previous_rate;
+-    entry.ewma_total_after = previous_total;
++    // MX25: a session with no rate resets the EWMA instead of carrying it.
++    entry.ewma_rate_after = 0.0;
++    entry.ewma_total_after = 0.0;
+   }
+ 
+   if (is_warmup_ordinal(summary.ordinal)) {

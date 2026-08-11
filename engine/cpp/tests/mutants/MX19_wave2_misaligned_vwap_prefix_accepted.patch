@@ -1,0 +1,14 @@
+--- a/qr_wave2/src/variance_budget.cpp	2026-08-11 13:01:57.000000000 +0000
++++ b/qr_wave2/src/variance_budget.cpp	2026-08-11 13:01:57.000000000 +0000
+@@ -72,8 +72,9 @@
+     return Expected<VarianceBudgetSession, Refusal>::refuse(
+         Refusal(RefusalCode::CONFIG, kSite, "a variance budget needs the session's 1s grid"));
+   }
+-  if (inputs.vwap_notional_prefix.size() != inputs.stock_print_groups.size() ||
+-      inputs.vwap_size_prefix.size() != inputs.stock_print_groups.size()) {
++  // MX19: only OVER-long prefix arrays are refused, so a short one is read.
++  if (inputs.vwap_notional_prefix.size() > inputs.stock_print_groups.size() ||
++      inputs.vwap_size_prefix.size() > inputs.stock_print_groups.size()) {
+     return Expected<VarianceBudgetSession, Refusal>::refuse(
+         Refusal(RefusalCode::CONTENT_MISMATCH, kSite,
+                 "the VWAP prefix arrays must be aligned one-for-one with the print groups",

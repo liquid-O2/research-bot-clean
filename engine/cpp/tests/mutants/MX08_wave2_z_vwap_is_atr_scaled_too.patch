@@ -1,0 +1,15 @@
+--- a/qr_wave2/src/prior_structure.cpp	2026-08-11 12:59:45.000000000 +0000
++++ b/qr_wave2/src/prior_structure.cpp	2026-08-11 12:59:45.000000000 +0000
+@@ -130,8 +130,10 @@
+       // own half-hour sigma. The three ADD-1 bands are fixture points on this z.
+       const auto bps = carriers::displacement_bps_value(m - inputs.intraday_vwap_u6, m);
+       if (bps.has_value() && bps.value().v == Validity::VALID) {
+-        row.set(kPsZVwap,
+-                carriers::present(sigma * bps.value().value / inputs.sigma_scale_bps));
++        // MX08: z_vwap picks up the ATR scale, so it is no longer the
++        // budget-normalized z the bands are points on.
++        row.set(kPsZVwap, carriers::present(sigma * bps.value().value /
++                                           inputs.sigma_scale_bps / atr_bps));
+       }
+     }
+   }

@@ -1,0 +1,12 @@
+--- a/qr_wave2/src/variance_budget.cpp	2026-08-11 13:00:34.000000000 +0000
++++ b/qr_wave2/src/variance_budget.cpp	2026-08-11 13:00:34.000000000 +0000
+@@ -214,7 +214,8 @@
+   // THE DESTRUCTION TWIN, IN THE SAME CONSTRUCTOR (FINAL_PLAN section 6):
+   // "B_const = equal-weight time-mean of B(t) over the session's valid seconds,
+   // substituted session-constant (dlogB == 0)."
+-  if (controls.session_constant_budget) {
++  // MX13: the session-constant substitution runs on the PRODUCTION path.
++  if (!controls.session_constant_budget) {
+     double sum = 0.0;
+     std::int64_t counted = 0;
+     for (std::size_t index = 0; index < count; ++index) {

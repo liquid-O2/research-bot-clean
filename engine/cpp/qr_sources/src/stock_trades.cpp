@@ -91,23 +91,34 @@ std::string_view StockTradeDigests::field_name(std::size_t slot) noexcept {
 
 FileExpected<StockTradeReader> StockTradeReader::open(const DayScope& scope,
                                                       const std::filesystem::path& corpus_root) {
-  const std::filesystem::path path = day_file(corpus_root, scope);
-  Expected<SessionClock, Refusal> clock = SessionClock::from_session(scope.session());
+  return open_admitted(day_file(corpus_root, scope), scope.session(), scope.ordinal());
+}
+
+// CC-012: the warmup door onto the SAME body.
+FileExpected<StockTradeReader> StockTradeReader::open(const WarmupScope& scope,
+                                                      const std::filesystem::path& corpus_root) {
+  return open_admitted(day_file(corpus_root, scope), scope.session(), scope.ordinal());
+}
+
+FileExpected<StockTradeReader> StockTradeReader::open_admitted(std::filesystem::path path,
+                                                               const Session& session,
+                                                               std::int64_t ordinal) {
+  Expected<SessionClock, Refusal> clock = SessionClock::from_session(session);
   if (!clock.has_value()) {
     return parquet::refuse_file<StockTradeReader>(clock.error().code(), kOpenSite,
                                                   "the session clock refuses this registry row",
-                                                  path.string(), scope.day(), scope.ordinal());
+                                                  path.string(), session.day, ordinal);
   }
   const std::int64_t open_ms = clock.value().open_b().ns() / kNanosecondsPerMillisecond;
   const std::int64_t close_ms = clock.value().close_b().ns() / kNanosecondsPerMillisecond;
 
   FileExpected<SessionSource> source = SessionSource::open(
-      path, view_of(kStockTradeSpec), std::span<const ColumnForm>(kStockTradeForms), open_ms,
-      close_ms);
+      std::move(path), view_of(kStockTradeSpec), std::span<const ColumnForm>(kStockTradeForms),
+      open_ms, close_ms);
   if (!source.has_value()) {
     return FileExpected<StockTradeReader>::refuse(source.error());
   }
-  return StockTradeReader(std::move(source).value(), scope.day());
+  return StockTradeReader(std::move(source).value(), session.day);
 }
 
 FileExpected<bool> StockTradeReader::fill() {

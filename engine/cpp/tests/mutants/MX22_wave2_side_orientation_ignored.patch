@@ -1,0 +1,22 @@
+--- a/qr_wave2/src/prior_structure.cpp	2026-08-11 13:06:15.000000000 +0000
++++ b/qr_wave2/src/prior_structure.cpp	2026-08-11 13:06:15.000000000 +0000
+@@ -58,7 +58,7 @@
+ 
+ PriorStructureRow build_prior_structure(const PriorStructureInputs& inputs) noexcept {
+   PriorStructureRow row;
+-  const double sigma = carriers::sigma_of(inputs.side);
++  const double sigma = std::fabs(carriers::sigma_of(inputs.side));  // MX22: side-blind
+   const PriorView& priors = inputs.priors;
+   const bool atr = priors.atr_present;
+   const double atr_bps = priors.atr14_bps;
+--- a/qr_wave2/src/variance_budget.cpp	2026-08-11 13:06:15.000000000 +0000
++++ b/qr_wave2/src/variance_budget.cpp	2026-08-11 13:06:15.000000000 +0000
+@@ -277,7 +277,7 @@
+   if (endpoint_index >= present_.size()) {
+     return row;
+   }
+-  const double sigma = carriers::sigma_of(side);
++  const double sigma = std::fabs(carriers::sigma_of(side));  // MX22: side-blind
+   const Typed<double> b = budget(endpoint_index);
+   const bool have_m = present_[endpoint_index] != 0U && mid_u6_[endpoint_index] > 0;
+   const std::int64_t m_u6 = mid_u6_[endpoint_index];

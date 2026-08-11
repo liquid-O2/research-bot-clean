@@ -1,0 +1,14 @@
+--- a/qr_wave2/src/session_pass.cpp	2026-08-11 13:00:54.000000000 +0000
++++ b/qr_wave2/src/session_pass.cpp	2026-08-11 13:00:54.000000000 +0000
+@@ -126,7 +126,10 @@
+         summary.low_u6 = point.mid_u6;
+       }
+     }
+-    summary.close_u6 = point.mid_u6;
++    // MX15: pC becomes the session's FIRST midpoint.
++    if (summary.close_u6 == 0) {
++      summary.close_u6 = point.mid_u6;
++    }
+     if (have_previous) {
+       const double ratio = static_cast<double>(point.mid_u6) / static_cast<double>(previous_mid);
+       const double r_bps = static_cast<double>(carriers::kBpsScale) * std::log(ratio);

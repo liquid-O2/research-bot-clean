@@ -1,0 +1,12 @@
+--- a/qr_wave2/src/prior_state.cpp	2026-08-11 13:02:52.000000000 +0000
++++ b/qr_wave2/src/prior_state.cpp	2026-08-11 13:02:52.000000000 +0000
+@@ -63,7 +63,8 @@
+     entry.ewma_total_after = previous_total;
+   }
+ 
+-  if (is_warmup_ordinal(summary.ordinal)) {
++  // MX24: the warmup census stops recording what fed the families.
++  if (summary.ordinal < 0) {
+     ++warmup_sessions_;
+   }
+   last_ordinal_ = summary.ordinal;

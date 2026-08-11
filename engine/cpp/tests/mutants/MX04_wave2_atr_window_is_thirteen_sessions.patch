@@ -1,0 +1,11 @@
+--- a/qr_wave2/include/qr_wave2/prior_state.hpp	2026-08-11 12:58:21.000000000 +0000
++++ b/qr_wave2/include/qr_wave2/prior_state.hpp	2026-08-11 12:58:21.000000000 +0000
+@@ -49,7 +49,7 @@
+ /// EWMA weight of the newest prior session (A3 / W2.2-PIN-1, frozen).
+ inline constexpr double kEwmaAlpha = 0.06;
+ /// Prior sessions in the ATR window (W2.13-PIN-1, frozen).
+-inline constexpr std::int64_t kAtrWindowSessions = 14;
++inline constexpr std::int64_t kAtrWindowSessions = 13;  // MX04
+ /// The two range-position windows (W2.13-PIN-1, frozen).
+ inline constexpr std::int64_t kRangeWindowShort = 5;
+ inline constexpr std::int64_t kRangeWindowLong = 20;

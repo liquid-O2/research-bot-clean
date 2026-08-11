@@ -1,0 +1,13 @@
+--- a/qr_wave2/include/qr_wave2/prior_state.hpp	2026-08-11 13:09:19.000000000 +0000
++++ b/qr_wave2/include/qr_wave2/prior_state.hpp	2026-08-11 13:09:19.000000000 +0000
+@@ -51,8 +51,8 @@
+ /// Prior sessions in the ATR window (W2.13-PIN-1, frozen).
+ inline constexpr std::int64_t kAtrWindowSessions = 14;
+ /// The two range-position windows (W2.13-PIN-1, frozen).
+-inline constexpr std::int64_t kRangeWindowShort = 5;
+-inline constexpr std::int64_t kRangeWindowLong = 20;
++inline constexpr std::int64_t kRangeWindowShort = 6;   // MX33
++inline constexpr std::int64_t kRangeWindowLong = 19;   // MX33
+ /// One basis point is 1/10,000 (same constant, same meaning, as the carriers').
+ inline constexpr std::int64_t kBpsScale = 10'000;
+ 

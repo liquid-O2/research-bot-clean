@@ -52,6 +52,7 @@
 #include "qr_clock/session_clock.hpp"
 #include "qr_parquet/reader.hpp"
 #include "qr_registry/day_scope.hpp"
+#include "qr_registry/warmup_scope.hpp"
 #include "qr_sources/normalize.hpp"
 #include "qr_sources/stream_spec.hpp"
 
@@ -66,6 +67,11 @@ namespace qr::sources {
 /// day string, so the wall is upstream of every path this module forms.
 [[nodiscard]] std::filesystem::path day_file(const std::filesystem::path& corpus_root,
                                              const DayScope& scope);
+
+/// CC-012: the same composition for an admitted WARMUP session (ordinals
+/// 0..124). Separate overload, never a shared base or a string door.
+[[nodiscard]] std::filesystem::path day_file(const std::filesystem::path& corpus_root,
+                                             const WarmupScope& scope);
 
 /// Every parquet shard of an admitted session, covering both measured layouts
 /// (reference `mod.rs:147-190`): flat `<root>/<YYYY>/<day>.parquet`, or

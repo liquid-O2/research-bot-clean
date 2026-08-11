@@ -4,6 +4,7 @@ find_package(OpenSSL REQUIRED)
 
 add_library(qr_registry STATIC
   src/day_scope.cpp
+  src/warmup_scope.cpp
   src/registry.cpp
   ${QR_REGISTRY_BLOB_CPP}
 )
@@ -13,6 +14,7 @@ qr_apply_boundary_flags(qr_registry)
 
 add_executable(qr_registry_tests
   tests/test_day_scope.cpp
+  tests/test_warmup_scope.cpp
   tests/test_registry.cpp
 )
 target_link_libraries(qr_registry_tests PRIVATE qr_registry GTest::gtest GTest::gtest_main)

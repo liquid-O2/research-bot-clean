@@ -1,0 +1,204 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 36 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from PriorHistory
+[ RUN      ] PriorHistory.ASessionNeverSeesItsOwnReduction
+[       OK ] PriorHistory.ASessionNeverSeesItsOwnReduction (0 ms)
+[ RUN      ] PriorHistory.TheWindowsAreExactlyTheirOwnLength
+[       OK ] PriorHistory.TheWindowsAreExactlyTheirOwnLength (0 ms)
+[ RUN      ] PriorHistory.AShortWindowIsAbsentAndNeverAveragedOverFewerSessions
+[       OK ] PriorHistory.AShortWindowIsAbsentAndNeverAveragedOverFewerSessions (0 ms)
+[ RUN      ] PriorHistory.Atr14IsTheMeanTrueRangeOfExactlyFourteenPriorSessions
+[       OK ] PriorHistory.Atr14IsTheMeanTrueRangeOfExactlyFourteenPriorSessions (0 ms)
+[ RUN      ] PriorHistory.TrueRangeUsesThePriorCloseWhenItGapsOutsideTheSessionRange
+[       OK ] PriorHistory.TrueRangeUsesThePriorCloseWhenItGapsOutsideTheSessionRange (0 ms)
+[ RUN      ] PriorHistory.TheEwmaSeedsOnTheFirstObservedSessionAndLagsByOne
+[       OK ] PriorHistory.TheEwmaSeedsOnTheFirstObservedSessionAndLagsByOne (0 ms)
+[ RUN      ] PriorHistory.ASessionWithNoRateCarriesTheEwmaForwardUnchanged
+[       OK ] PriorHistory.ASessionWithNoRateCarriesTheEwmaForwardUnchanged (0 ms)
+[ RUN      ] PriorHistory.ObservingOutOfOrderRefuses
+[       OK ] PriorHistory.ObservingOutOfOrderRefuses (0 ms)
+[ RUN      ] PriorHistory.TheCrossSessionShuffleMovesThePriorsAndTheIdentityMapDoesNot
+[       OK ] PriorHistory.TheCrossSessionShuffleMovesThePriorsAndTheIdentityMapDoesNot (0 ms)
+[ RUN      ] PriorHistory.TheWarmupCensusCountsTheWarmupOrdinalsItWasFed
+[       OK ] PriorHistory.TheWarmupCensusCountsTheWarmupOrdinalsItWasFed (0 ms)
+[----------] 10 tests from PriorHistory (0 ms total)
+
+[----------] 8 tests from PriorStructure
+[ RUN      ] PriorStructure.EveryChannelIsThePinsOwnArithmetic
+[       OK ] PriorStructure.EveryChannelIsThePinsOwnArithmetic (0 ms)
+[ RUN      ] PriorStructure.TheSigmaBandsAreFixturePointsOnTheContinuousZ
+[       OK ] PriorStructure.TheSigmaBandsAreFixturePointsOnTheContinuousZ (0 ms)
+[ RUN      ] PriorStructure.TheSideReflectionFollowsTheFamilysOrientationTable
+[       OK ] PriorStructure.TheSideReflectionFollowsTheFamilysOrientationTable (0 ms)
+[ RUN      ] PriorStructure.ZeroAtrTypesEveryAtrScaledChannelAndClipsNothing
+[       OK ] PriorStructure.ZeroAtrTypesEveryAtrScaledChannelAndClipsNothing (0 ms)
+[ RUN      ] PriorStructure.AZeroWidthRangeIsMissingRatherThanInfinite
+[       OK ] PriorStructure.AZeroWidthRangeIsMissingRatherThanInfinite (0 ms)
+[ RUN      ] PriorStructure.AbsentVwapOrBudgetTypesOnlyTheChannelsThatNeedThem
+[       OK ] PriorStructure.AbsentVwapOrBudgetTypesOnlyTheChannelsThatNeedThem (0 ms)
+[ RUN      ] PriorStructure.AnEmptyHistoryProducesNoLevelsAtAll
+[       OK ] PriorStructure.AnEmptyHistoryProducesNoLevelsAtAll (0 ms)
+[ RUN      ] PriorStructure.ThePhaseOperandIsAFractionOfTheSessionSpan
+[       OK ] PriorStructure.ThePhaseOperandIsAFractionOfTheSessionSpan (0 ms)
+[----------] 8 tests from PriorStructure (0 ms total)
+
+[----------] 12 tests from VarianceBudget
+[ RUN      ] VarianceBudget.BIsTheWeightedSumOfTwoPerSecondRatesAndThePrior
+/workspace/engine/cpp/qr_wave2/tests/test_variance_budget.cpp:107: Failure
+Expected equality of these values:
+  b360.value
+    Which is: 1.0034595936654997
+  0.5 * (r2 / 60.0) + 0.3 * (r2 / 300.0) + 0.2 * kPriorRate
+    Which is: 1.9324008547782823
+
+/workspace/engine/cpp/qr_wave2/tests/test_variance_budget.cpp:113: Failure
+Expected equality of these values:
+  b340.value
+    Which is: 1.0034595936654997
+  0.2 * kPriorRate
+    Which is: 1
+
+[  FAILED  ] VarianceBudget.BIsTheWeightedSumOfTwoPerSecondRatesAndThePrior (22 ms)
+[ RUN      ] VarianceBudget.AWindowThatDoesNotFitIsMissingAndNeverZeroFilled
+[       OK ] VarianceBudget.AWindowThatDoesNotFitIsMissingAndNeverZeroFilled (5 ms)
+[ RUN      ] VarianceBudget.AbsentPriorSessionsTypeBAndEveryChannelThatNeedsIt
+[       OK ] VarianceBudget.AbsentPriorSessionsTypeBAndEveryChannelThatNeedsIt (3 ms)
+[ RUN      ] VarianceBudget.TheFiveXsUseTheirOwnAnchorsAndTauMinTypesRatherThanDivides
+[       OK ] VarianceBudget.TheFiveXsUseTheirOwnAnchorsAndTauMinTypesRatherThanDivides (4 ms)
+[ RUN      ] VarianceBudget.TheOrientedChannelsNegateAndTheWidthsDoNot
+[       OK ] VarianceBudget.TheOrientedChannelsNegateAndTheWidthsDoNot (4 ms)
+[ RUN      ] VarianceBudget.TheRunningVwapIsPrintsBasedAndStrictlyPriorAtTheCutoff
+[       OK ] VarianceBudget.TheRunningVwapIsPrintsBasedAndStrictlyPriorAtTheCutoff (4 ms)
+[ RUN      ] VarianceBudget.BudgetConsumedIsTheSessionSumOverThePriorTotal
+[       OK ] VarianceBudget.BudgetConsumedIsTheSessionSumOverThePriorTotal (4 ms)
+[ RUN      ] VarianceBudget.LogBAndItsSixtySecondInnovation
+[       OK ] VarianceBudget.LogBAndItsSixtySecondInnovation (4 ms)
+[ RUN      ] VarianceBudget.TheDestructionTwinIsBitIdenticalOnAConstantBSynthetic
+[       OK ] VarianceBudget.TheDestructionTwinIsBitIdenticalOnAConstantBSynthetic (6 ms)
+[ RUN      ] VarianceBudget.TheDestructionTwinFlattensARealBudgetAndZeroesItsInnovation
+/workspace/engine/cpp/qr_wave2/tests/test_variance_budget.cpp:274: Failure
+Expected: (production.value().budget(360).value) != (production.value().budget(340).value), actual: 1.0034595936654997 vs 1.0034595936654997
+
+/workspace/engine/cpp/qr_wave2/tests/test_variance_budget.cpp:275: Failure
+Expected equality of these values:
+  destroyed.value().budget(360).value
+    Which is: 1.9324008547782823
+  destroyed.value().budget(340).value
+    Which is: 1
+
+/workspace/engine/cpp/qr_wave2/tests/test_variance_budget.cpp:276: Failure
+Expected equality of these values:
+  destroyed.value().channels(360, Side::LONG).value[qr::wave2::kVbDeltaLogB60]
+    Which is: 0.65876319603825806
+  0.0
+    Which is: 0
+
+/workspace/engine/cpp/qr_wave2/tests/test_variance_budget.cpp:278: Failure
+Expected: (production.value().channels(360, Side::LONG).value[qr::wave2::kVbDeltaLogB60]) != (0.0), actual: 0 vs 0
+
+/workspace/engine/cpp/qr_wave2/tests/test_variance_budget.cpp:279: Failure
+Expected: (destroyed.value().census().destruction_constant_budget) > (0), actual: 0 vs 0
+
+[  FAILED  ] VarianceBudget.TheDestructionTwinFlattensARealBudgetAndZeroesItsInnovation (6 ms)
+[ RUN      ] VarianceBudget.SigmaScaleIsTheHalfHourRootOfTheBudget
+[       OK ] VarianceBudget.SigmaScaleIsTheHalfHourRootOfTheBudget (4 ms)
+[ RUN      ] VarianceBudget.MisalignedVwapPrefixArraysRefuse
+[       OK ] VarianceBudget.MisalignedVwapPrefixArraysRefuse (1 ms)
+[----------] 12 tests from VarianceBudget (71 ms total)
+
+[----------] 5 tests from WarmupLawfulness
+[ RUN      ] WarmupLawfulness.TheDecisionPathCannotTakeAWarmupSession
+[       OK ] WarmupLawfulness.TheDecisionPathCannotTakeAWarmupSession (0 ms)
+[ RUN      ] WarmupLawfulness.TheWarmupCalendarLeavesSession125WithFullyConvergedPriors
+[       OK ] WarmupLawfulness.TheWarmupCalendarLeavesSession125WithFullyConvergedPriors (0 ms)
+[ RUN      ] WarmupLawfulness.WithoutTheWarmupTheFirstScopedSessionsAreTypedAbsent
+[       OK ] WarmupLawfulness.WithoutTheWarmupTheFirstScopedSessionsAreTypedAbsent (0 ms)
+[ RUN      ] WarmupLawfulness.TwoRunsOfTheWarmupProduceAByteIdenticalPriorState
+[       OK ] WarmupLawfulness.TwoRunsOfTheWarmupProduceAByteIdenticalPriorState (0 ms)
+[ RUN      ] WarmupLawfulness.TheSessionReductionReadsTheGridAndThePrintSumsOnly
+[       OK ] WarmupLawfulness.TheSessionReductionReadsTheGridAndThePrintSumsOnly (2 ms)
+[----------] 5 tests from WarmupLawfulness (2 ms total)
+
+[----------] 1 test from Wave2Destructions
+[ RUN      ] Wave2Destructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode
+/workspace/engine/cpp/qr_wave2/tests/test_warmup_and_identity.cpp:215: Failure
+Expected equality of these values:
+  qr::wave2::guard::production_fingerprint()
+    Which is: "9c860d70fe9d423d"
+  digest
+    Which is: "fe72ce88ed74212d"
+the destruction code moved a production bit
+
+[  FAILED  ] Wave2Destructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode (26 ms)
+[----------] 1 test from Wave2Destructions (26 ms total)
+
+[----------] Global test environment tear-down
+[==========] 36 tests from 5 test suites ran. (101 ms total)
+[  PASSED  ] 33 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] VarianceBudget.BIsTheWeightedSumOfTwoPerSecondRatesAndThePrior
+[  FAILED  ] VarianceBudget.TheDestructionTwinFlattensARealBudgetAndZeroesItsInnovation
+[  FAILED  ] Wave2Destructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode
+
+ 3 FAILED TESTS
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 19 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 6 tests from ScopeWall
+[ RUN      ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals
+[       OK ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals (8 ms)
+[ RUN      ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals
+[       OK ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals (0 ms)
+[ RUN      ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess
+[       OK ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess (10 ms)
+[ RUN      ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions
+[       OK ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions (0 ms)
+[ RUN      ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope
+[       OK ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope (0 ms)
+[ RUN      ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus
+[       OK ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus (20 ms)
+[----------] 6 tests from ScopeWall (40 ms total)
+
+[----------] 4 tests from WarmupWall
+[ RUN      ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals
+[       OK ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals (3 ms)
+[ RUN      ] WarmupWall.RefusesTheFirstScopedOrdinalAndEverythingAboveIt
+[       OK ] WarmupWall.RefusesTheFirstScopedOrdinalAndEverythingAboveIt (0 ms)
+[ RUN      ] WarmupWall.TheScopedWallStillRefusesEveryWarmupOrdinal
+[       OK ] WarmupWall.TheScopedWallStillRefusesEveryWarmupOrdinal (0 ms)
+[ RUN      ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry
+[       OK ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry (0 ms)
+[----------] 4 tests from WarmupWall (4 ms total)
+
+[----------] 4 tests from RegistryDigestGate
+[ RUN      ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest
+[       OK ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest (0 ms)
+[ RUN      ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes
+[       OK ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes (33 ms)
+[ RUN      ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError
+[       OK ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError (69 ms)
+[ RUN      ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash
+[       OK ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash (0 ms)
+[----------] 4 tests from RegistryDigestGate (104 ms total)
+
+[----------] 4 tests from RegistryParse
+[ RUN      ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions
+[       OK ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions (3 ms)
+[ RUN      ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants
+[       OK ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants (5 ms)
+[ RUN      ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange
+[       OK ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange (4 ms)
+[ RUN      ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError
+[       OK ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError (0 ms)
+[----------] 4 tests from RegistryParse (13 ms total)
+
+[----------] 1 test from RegistryBudget
+[ RUN      ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds
+[budget] registry parse+digest-gate: 0.0040 s
+[       OK ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds (4 ms)
+[----------] 1 test from RegistryBudget (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 19 tests from 5 test suites ran. (166 ms total)
+[  PASSED  ] 19 tests.

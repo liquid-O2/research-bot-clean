@@ -1,0 +1,185 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 36 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from PriorHistory
+[ RUN      ] PriorHistory.ASessionNeverSeesItsOwnReduction
+[       OK ] PriorHistory.ASessionNeverSeesItsOwnReduction (0 ms)
+[ RUN      ] PriorHistory.TheWindowsAreExactlyTheirOwnLength
+[       OK ] PriorHistory.TheWindowsAreExactlyTheirOwnLength (0 ms)
+[ RUN      ] PriorHistory.AShortWindowIsAbsentAndNeverAveragedOverFewerSessions
+[       OK ] PriorHistory.AShortWindowIsAbsentAndNeverAveragedOverFewerSessions (0 ms)
+[ RUN      ] PriorHistory.Atr14IsTheMeanTrueRangeOfExactlyFourteenPriorSessions
+[       OK ] PriorHistory.Atr14IsTheMeanTrueRangeOfExactlyFourteenPriorSessions (0 ms)
+[ RUN      ] PriorHistory.TrueRangeUsesThePriorCloseWhenItGapsOutsideTheSessionRange
+[       OK ] PriorHistory.TrueRangeUsesThePriorCloseWhenItGapsOutsideTheSessionRange (0 ms)
+[ RUN      ] PriorHistory.TheEwmaSeedsOnTheFirstObservedSessionAndLagsByOne
+[       OK ] PriorHistory.TheEwmaSeedsOnTheFirstObservedSessionAndLagsByOne (0 ms)
+[ RUN      ] PriorHistory.ASessionWithNoRateCarriesTheEwmaForwardUnchanged
+[       OK ] PriorHistory.ASessionWithNoRateCarriesTheEwmaForwardUnchanged (0 ms)
+[ RUN      ] PriorHistory.ObservingOutOfOrderRefuses
+[       OK ] PriorHistory.ObservingOutOfOrderRefuses (0 ms)
+[ RUN      ] PriorHistory.TheCrossSessionShuffleMovesThePriorsAndTheIdentityMapDoesNot
+[       OK ] PriorHistory.TheCrossSessionShuffleMovesThePriorsAndTheIdentityMapDoesNot (0 ms)
+[ RUN      ] PriorHistory.TheWarmupCensusCountsTheWarmupOrdinalsItWasFed
+[       OK ] PriorHistory.TheWarmupCensusCountsTheWarmupOrdinalsItWasFed (0 ms)
+[----------] 10 tests from PriorHistory (0 ms total)
+
+[----------] 8 tests from PriorStructure
+[ RUN      ] PriorStructure.EveryChannelIsThePinsOwnArithmetic
+[       OK ] PriorStructure.EveryChannelIsThePinsOwnArithmetic (0 ms)
+[ RUN      ] PriorStructure.TheSigmaBandsAreFixturePointsOnTheContinuousZ
+[       OK ] PriorStructure.TheSigmaBandsAreFixturePointsOnTheContinuousZ (0 ms)
+[ RUN      ] PriorStructure.TheSideReflectionFollowsTheFamilysOrientationTable
+[       OK ] PriorStructure.TheSideReflectionFollowsTheFamilysOrientationTable (0 ms)
+[ RUN      ] PriorStructure.ZeroAtrTypesEveryAtrScaledChannelAndClipsNothing
+[       OK ] PriorStructure.ZeroAtrTypesEveryAtrScaledChannelAndClipsNothing (0 ms)
+[ RUN      ] PriorStructure.AZeroWidthRangeIsMissingRatherThanInfinite
+[       OK ] PriorStructure.AZeroWidthRangeIsMissingRatherThanInfinite (0 ms)
+[ RUN      ] PriorStructure.AbsentVwapOrBudgetTypesOnlyTheChannelsThatNeedThem
+[       OK ] PriorStructure.AbsentVwapOrBudgetTypesOnlyTheChannelsThatNeedThem (0 ms)
+[ RUN      ] PriorStructure.AnEmptyHistoryProducesNoLevelsAtAll
+[       OK ] PriorStructure.AnEmptyHistoryProducesNoLevelsAtAll (0 ms)
+[ RUN      ] PriorStructure.ThePhaseOperandIsAFractionOfTheSessionSpan
+[       OK ] PriorStructure.ThePhaseOperandIsAFractionOfTheSessionSpan (0 ms)
+[----------] 8 tests from PriorStructure (0 ms total)
+
+[----------] 12 tests from VarianceBudget
+[ RUN      ] VarianceBudget.BIsTheWeightedSumOfTwoPerSecondRatesAndThePrior
+[       OK ] VarianceBudget.BIsTheWeightedSumOfTwoPerSecondRatesAndThePrior (16 ms)
+[ RUN      ] VarianceBudget.AWindowThatDoesNotFitIsMissingAndNeverZeroFilled
+[       OK ] VarianceBudget.AWindowThatDoesNotFitIsMissingAndNeverZeroFilled (4 ms)
+[ RUN      ] VarianceBudget.AbsentPriorSessionsTypeBAndEveryChannelThatNeedsIt
+[       OK ] VarianceBudget.AbsentPriorSessionsTypeBAndEveryChannelThatNeedsIt (3 ms)
+[ RUN      ] VarianceBudget.TheFiveXsUseTheirOwnAnchorsAndTauMinTypesRatherThanDivides
+[       OK ] VarianceBudget.TheFiveXsUseTheirOwnAnchorsAndTauMinTypesRatherThanDivides (4 ms)
+[ RUN      ] VarianceBudget.TheOrientedChannelsNegateAndTheWidthsDoNot
+[       OK ] VarianceBudget.TheOrientedChannelsNegateAndTheWidthsDoNot (4 ms)
+[ RUN      ] VarianceBudget.TheRunningVwapIsPrintsBasedAndStrictlyPriorAtTheCutoff
+[       OK ] VarianceBudget.TheRunningVwapIsPrintsBasedAndStrictlyPriorAtTheCutoff (4 ms)
+[ RUN      ] VarianceBudget.BudgetConsumedIsTheSessionSumOverThePriorTotal
+[       OK ] VarianceBudget.BudgetConsumedIsTheSessionSumOverThePriorTotal (4 ms)
+[ RUN      ] VarianceBudget.LogBAndItsSixtySecondInnovation
+[       OK ] VarianceBudget.LogBAndItsSixtySecondInnovation (4 ms)
+[ RUN      ] VarianceBudget.TheDestructionTwinIsBitIdenticalOnAConstantBSynthetic
+[       OK ] VarianceBudget.TheDestructionTwinIsBitIdenticalOnAConstantBSynthetic (6 ms)
+[ RUN      ] VarianceBudget.TheDestructionTwinFlattensARealBudgetAndZeroesItsInnovation
+[       OK ] VarianceBudget.TheDestructionTwinFlattensARealBudgetAndZeroesItsInnovation (6 ms)
+[ RUN      ] VarianceBudget.SigmaScaleIsTheHalfHourRootOfTheBudget
+[       OK ] VarianceBudget.SigmaScaleIsTheHalfHourRootOfTheBudget (4 ms)
+[ RUN      ] VarianceBudget.MisalignedVwapPrefixArraysRefuse
+[       OK ] VarianceBudget.MisalignedVwapPrefixArraysRefuse (1 ms)
+[----------] 12 tests from VarianceBudget (62 ms total)
+
+[----------] 5 tests from WarmupLawfulness
+[ RUN      ] WarmupLawfulness.TheDecisionPathCannotTakeAWarmupSession
+[       OK ] WarmupLawfulness.TheDecisionPathCannotTakeAWarmupSession (0 ms)
+[ RUN      ] WarmupLawfulness.TheWarmupCalendarLeavesSession125WithFullyConvergedPriors
+[       OK ] WarmupLawfulness.TheWarmupCalendarLeavesSession125WithFullyConvergedPriors (0 ms)
+[ RUN      ] WarmupLawfulness.WithoutTheWarmupTheFirstScopedSessionsAreTypedAbsent
+[       OK ] WarmupLawfulness.WithoutTheWarmupTheFirstScopedSessionsAreTypedAbsent (0 ms)
+[ RUN      ] WarmupLawfulness.TwoRunsOfTheWarmupProduceAByteIdenticalPriorState
+[       OK ] WarmupLawfulness.TwoRunsOfTheWarmupProduceAByteIdenticalPriorState (0 ms)
+[ RUN      ] WarmupLawfulness.TheSessionReductionReadsTheGridAndThePrintSumsOnly
+[       OK ] WarmupLawfulness.TheSessionReductionReadsTheGridAndThePrintSumsOnly (2 ms)
+[----------] 5 tests from WarmupLawfulness (2 ms total)
+
+[----------] 1 test from Wave2Destructions
+[ RUN      ] Wave2Destructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode
+[       OK ] Wave2Destructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode (24 ms)
+[----------] 1 test from Wave2Destructions (25 ms total)
+
+[----------] Global test environment tear-down
+[==========] 36 tests from 5 test suites ran. (90 ms total)
+[  PASSED  ] 36 tests.
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 19 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 6 tests from ScopeWall
+[ RUN      ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals
+[       OK ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals (8 ms)
+[ RUN      ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals
+[       OK ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals (0 ms)
+[ RUN      ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess
+[       OK ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess (28 ms)
+[ RUN      ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions
+[       OK ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions (0 ms)
+[ RUN      ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope
+[       OK ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope (0 ms)
+[ RUN      ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus
+[       OK ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus (7 ms)
+[----------] 6 tests from ScopeWall (45 ms total)
+
+[----------] 4 tests from WarmupWall
+[ RUN      ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:45: Failure
+Value of: wrong_verdict.empty()
+  Actual: false
+Expected: true
+first wrong ordinal: 125
+
+[  FAILED  ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals (4 ms)
+[ RUN      ] WarmupWall.RefusesTheFirstScopedOrdinalAndEverythingAboveIt
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:61: Failure
+Value of: refused.has_value()
+  Actual: true
+Expected: false
+warmup wall admitted ordinal 125
+
+[  FAILED  ] WarmupWall.RefusesTheFirstScopedOrdinalAndEverythingAboveIt (0 ms)
+[ RUN      ] WarmupWall.TheScopedWallStillRefusesEveryWarmupOrdinal
+[       OK ] WarmupWall.TheScopedWallStillRefusesEveryWarmupOrdinal (0 ms)
+[ RUN      ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:101: Failure
+Expected equality of these values:
+  both
+    Which is: 625
+  0
+an ordinal was admitted by both walls
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:102: Failure
+Expected equality of these values:
+  neither
+    Which is: 0
+  static_cast<std::int64_t>(reg->size()) - qr::kWarmupSessionCount - qr::kScopeSessionCount
+    Which is: 253
+
+[  FAILED  ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry (1 ms)
+[----------] 4 tests from WarmupWall (6 ms total)
+
+[----------] 4 tests from RegistryDigestGate
+[ RUN      ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest
+[       OK ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest (0 ms)
+[ RUN      ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes
+[       OK ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes (35 ms)
+[ RUN      ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError
+[       OK ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError (64 ms)
+[ RUN      ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash
+[       OK ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash (0 ms)
+[----------] 4 tests from RegistryDigestGate (101 ms total)
+
+[----------] 4 tests from RegistryParse
+[ RUN      ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions
+[       OK ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions (3 ms)
+[ RUN      ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants
+[       OK ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants (4 ms)
+[ RUN      ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange
+[       OK ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange (3 ms)
+[ RUN      ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError
+[       OK ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError (0 ms)
+[----------] 4 tests from RegistryParse (11 ms total)
+
+[----------] 1 test from RegistryBudget
+[ RUN      ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds
+[budget] registry parse+digest-gate: 0.0035 s
+[       OK ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds (3 ms)
+[----------] 1 test from RegistryBudget (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 19 tests from 5 test suites ran. (168 ms total)
+[  PASSED  ] 16 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals
+[  FAILED  ] WarmupWall.RefusesTheFirstScopedOrdinalAndEverythingAboveIt
+[  FAILED  ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry
+
+ 3 FAILED TESTS

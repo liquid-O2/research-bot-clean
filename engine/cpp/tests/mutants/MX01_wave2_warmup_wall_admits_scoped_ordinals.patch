@@ -1,0 +1,13 @@
+--- a/qr_registry/src/warmup_scope.cpp	2026-08-11 12:57:54.000000000 +0000
++++ b/qr_registry/src/warmup_scope.cpp	2026-08-11 12:57:54.000000000 +0000
+@@ -12,7 +12,9 @@
+ Expected<WarmupScope, Refusal> WarmupScope::admit(const Registry& registry, std::int64_t ordinal) {
+   // THE WARMUP WALL, first statement of the function — the mirror image of
+   // DayScope::admit, and like it, this function takes no filesystem argument.
+-  if (ordinal < kWarmupFirstOrdinal || ordinal > kWarmupLastOrdinal) {
++  // MX01: the upper bound is gone, so the warmup door opens onto the
++  // decision calendar.
++  if (ordinal < kWarmupFirstOrdinal) {
+     return Expected<WarmupScope, Refusal>::refuse(
+         Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
+                 "ordinal outside the warmup calendar 0..124", ordinal));

@@ -1,0 +1,18 @@
+--- a/qr_wave2/src/prior_structure.cpp	2026-08-11 13:03:13.000000000 +0000
++++ b/qr_wave2/src/prior_structure.cpp	2026-08-11 13:03:13.000000000 +0000
+@@ -86,12 +86,13 @@
+   // 6-7: rp_k = (m-L_k)/(H_k-L_k), raw, side-neutral. "Zero-range H_k==L_k =>
+   // MISSING" is exactly the frozen fraction row's nonpositive-denominator rule.
+   if (have_m && priors.range5_present) {
++    // MX26: a zero-width range is nudged to 1 instead of being typed.
+     row.set(kPsRangePosition5,
+-            carriers::fraction(m - priors.low5_u6, priors.high5_u6 - priors.low5_u6));
++            carriers::fraction(m - priors.low5_u6, priors.high5_u6 - priors.low5_u6 + 1));
+   }
+   if (have_m && priors.range20_present) {
+     row.set(kPsRangePosition20,
+-            carriers::fraction(m - priors.low20_u6, priors.high20_u6 - priors.low20_u6));
++            carriers::fraction(m - priors.low20_u6, priors.high20_u6 - priors.low20_u6 + 1));
+   }
+ 
+   // 8-9: the 20-day edge distances, in bps of m. Note the pin's own asymmetry:

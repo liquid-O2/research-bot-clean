@@ -1,0 +1,12 @@
+--- a/qr_wave2/src/prior_state.cpp	2026-08-11 12:58:12.000000000 +0000
++++ b/qr_wave2/src/prior_state.cpp	2026-08-11 12:58:12.000000000 +0000
+@@ -101,7 +101,8 @@
+   const std::size_t priors = source;
+   view.priors_available = static_cast<std::int64_t>(priors);
+ 
+-  const Entry& previous = entries_[source - 1U];
++  // MX03: the 'prior' session is the session itself when it exists.
++  const Entry& previous = entries_[source < entries_.size() ? source : source - 1U];
+   if (previous.summary.grid_present) {
+     view.prior_present = true;
+     view.prior_high_u6 = previous.summary.high_u6;

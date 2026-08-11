@@ -1,0 +1,12 @@
+--- a/qr_wave2/src/variance_budget.cpp	2026-08-11 12:59:54.000000000 +0000
++++ b/qr_wave2/src/variance_budget.cpp	2026-08-11 12:59:54.000000000 +0000
+@@ -198,7 +198,8 @@
+       }
+       continue;
+     }
+-    const double rv_1m = sum_1m.value() / static_cast<double>(kRv1mSeconds);
++    // MX09: the per-second rate divides by the wrong span.
++    const double rv_1m = sum_1m.value() / static_cast<double>(kRv1mSeconds - 1);
+     const double rv_5m = sum_5m.value() / static_cast<double>(kRv5mSeconds);
+     const double budget = kWeightRv1m * rv_1m + kWeightRv5m * rv_5m +
+                           kWeightRvPrior * inputs.priors.rv_prior_rate;

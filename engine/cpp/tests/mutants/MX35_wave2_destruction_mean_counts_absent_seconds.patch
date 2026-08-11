@@ -1,0 +1,17 @@
+--- a/qr_wave2/src/variance_budget.cpp	2026-08-11 13:08:28.000000000 +0000
++++ b/qr_wave2/src/variance_budget.cpp	2026-08-11 13:08:28.000000000 +0000
+@@ -218,10 +218,10 @@
+     double sum = 0.0;
+     std::int64_t counted = 0;
+     for (std::size_t index = 0; index < count; ++index) {
+-      if (session.budget_present_[index] != 0U) {
+-        sum += session.budget_[index];
+-        ++counted;
+-      }
++      // MX35: the twin's mean is taken over ALL endpoints, so seconds with no
++      // budget drag it toward zero.
++      sum += session.budget_[index];
++      ++counted;
+     }
+     if (counted > 0) {
+       const double constant = sum / static_cast<double>(counted);

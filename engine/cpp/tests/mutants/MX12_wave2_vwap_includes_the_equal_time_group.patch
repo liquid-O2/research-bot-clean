@@ -1,0 +1,12 @@
+--- a/qr_wave2/src/variance_budget.cpp	2026-08-11 13:00:24.000000000 +0000
++++ b/qr_wave2/src/variance_budget.cpp	2026-08-11 13:00:24.000000000 +0000
+@@ -167,7 +167,8 @@
+     for (std::size_t index = 0; index < count; ++index) {
+       const std::int64_t endpoint_ns = inputs.grid->endpoint_ns(index);
+       while (group < inputs.stock_print_groups.size() &&
+-             inputs.stock_print_groups[group].ts_ns_a < endpoint_ns) {
++             // MX12: the group AT the cutoff is included.
++             inputs.stock_print_groups[group].ts_ns_a <= endpoint_ns) {
+         ++group;
+       }
+       if (group == 0) {

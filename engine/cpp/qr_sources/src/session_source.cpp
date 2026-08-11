@@ -28,6 +28,15 @@ std::filesystem::path day_file(const std::filesystem::path& corpus_root, const D
   return corpus_root / day.substr(0, 4) / (day + ".parquet");
 }
 
+// CC-012: the same composition for an admitted WARMUP session. Overloaded on
+// the scope TYPE, so the calendar a path belongs to is decided by which wall
+// minted the scope and never by a string.
+std::filesystem::path day_file(const std::filesystem::path& corpus_root,
+                               const WarmupScope& scope) {
+  const std::string& day = scope.day();
+  return corpus_root / day.substr(0, 4) / (day + ".parquet");
+}
+
 Expected<std::vector<std::filesystem::path>, Refusal> day_shards(
     const std::filesystem::path& corpus_root, const DayScope& scope) {
   const std::filesystem::path flat = day_file(corpus_root, scope);

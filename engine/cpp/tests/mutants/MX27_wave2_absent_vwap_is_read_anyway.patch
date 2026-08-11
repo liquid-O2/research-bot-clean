@@ -1,0 +1,12 @@
+--- a/qr_wave2/src/prior_structure.cpp	2026-08-11 13:03:24.000000000 +0000
++++ b/qr_wave2/src/prior_structure.cpp	2026-08-11 13:03:24.000000000 +0000
+@@ -121,7 +121,8 @@
+   }
+ 
+   // 13-14: the intraday VWAP distance, ATR-scaled and budget-normalized.
+-  if (have_m && inputs.intraday_vwap_present) {
++  // MX27: an absent intraday VWAP is read as a zero price.
++  if (have_m) {
+     row.set(kPsDistanceIntradayVwapAtr,
+             atr_scaled_bps(sigma, m - inputs.intraday_vwap_u6, m, atr, atr_bps));
+     if (inputs.sigma_scale_present && inputs.sigma_scale_bps > 0.0) {

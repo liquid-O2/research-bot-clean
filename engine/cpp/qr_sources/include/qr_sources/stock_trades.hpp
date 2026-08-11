@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "qr_registry/day_scope.hpp"
+#include "qr_registry/warmup_scope.hpp"
 #include "qr_sources/session_source.hpp"
 #include "qr_sources/stream_spec.hpp"
 
@@ -126,6 +127,11 @@ class StockTradeReader {
   [[nodiscard]] static FileExpected<StockTradeReader> open(
       const DayScope& scope, const std::filesystem::path& corpus_root);
 
+  /// CC-012: the same open for a WARMUP session (ordinals 0..124), reachable
+  /// only through a `WarmupScope`. Both overloads run one body.
+  [[nodiscard]] static FileExpected<StockTradeReader> open(
+      const WarmupScope& scope, const std::filesystem::path& corpus_root);
+
   [[nodiscard]] FileExpected<bool> next_group(Group& out);
 
   [[nodiscard]] std::int64_t rth_rows() const noexcept { return rth_rows_; }
@@ -141,6 +147,11 @@ class StockTradeReader {
  private:
   StockTradeReader(SessionSource source, std::string day)
       : source_(std::move(source)), day_(std::move(day)) {}
+
+  /// The ONE body both public `open`s run (CC-012), over a path and a registry
+  /// row that one of the two walls has already admitted.
+  [[nodiscard]] static FileExpected<StockTradeReader> open_admitted(
+      std::filesystem::path path, const Session& session, std::int64_t ordinal);
 
   [[nodiscard]] FileExpected<bool> fill();
 

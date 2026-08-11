@@ -1,0 +1,14 @@
+--- a/qr_wave2/src/prior_state.cpp	2026-08-11 13:02:40.000000000 +0000
++++ b/qr_wave2/src/prior_state.cpp	2026-08-11 13:02:40.000000000 +0000
+@@ -21,8 +21,9 @@
+   if (!session.grid_present || prior_close_u6 <= 0) {
+     return carriers::masked(Validity::MISSING);
+   }
+-  const std::int64_t top = std::max(session.high_u6, prior_close_u6);
+-  const std::int64_t bottom = std::min(session.low_u6, prior_close_u6);
++  // MX23: the gap through the prior close stops counting.
++  const std::int64_t top = session.high_u6;
++  const std::int64_t bottom = session.low_u6;
+   const auto bps = carriers::displacement_bps_value(top - bottom, prior_close_u6);
+   if (!bps.has_value()) {
+     return carriers::masked(Validity::NONFINITE);

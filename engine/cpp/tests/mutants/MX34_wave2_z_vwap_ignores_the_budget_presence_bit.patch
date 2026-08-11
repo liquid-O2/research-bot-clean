@@ -1,0 +1,13 @@
+--- a/qr_wave2/src/prior_structure.cpp	2026-08-11 13:08:16.000000000 +0000
++++ b/qr_wave2/src/prior_structure.cpp	2026-08-11 13:08:16.000000000 +0000
+@@ -124,7 +124,9 @@
+   if (have_m && inputs.intraday_vwap_present) {
+     row.set(kPsDistanceIntradayVwapAtr,
+             atr_scaled_bps(sigma, m - inputs.intraday_vwap_u6, m, atr, atr_bps));
+-    if (inputs.sigma_scale_present && inputs.sigma_scale_bps > 0.0) {
++    // MX34: a stale sigma_scale VALUE is used even when its presence bit says
++    // the budget was absent.
++    if (inputs.sigma_scale_bps > 0.0) {
+       // z_vwap = (sig*(m-VWAP_t)/m*1e4)/sigma_scale(t): the numerator is the
+       // same integer bps displacement, WITHOUT the ATR scale, over the budget's
+       // own half-hour sigma. The three ADD-1 bands are fixture points on this z.

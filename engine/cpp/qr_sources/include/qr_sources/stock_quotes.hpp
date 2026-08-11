@@ -32,6 +32,7 @@
 
 #include "qr_clock/session_clock.hpp"
 #include "qr_registry/day_scope.hpp"
+#include "qr_registry/warmup_scope.hpp"
 #include "qr_sources/session_source.hpp"
 #include "qr_sources/stream_spec.hpp"
 
@@ -119,6 +120,14 @@ class StockQuoteReader {
   [[nodiscard]] static FileExpected<StockQuoteReader> open(
       const DayScope& scope, const std::filesystem::path& corpus_root, SourceProfile profile);
 
+  /// CC-012: the SAME open, for a warmup session (ordinals 0..124), reachable
+  /// only through a `WarmupScope` and therefore only from a prior-state
+  /// accumulator. Both overloads run one body — the profile law, the clock and
+  /// the schema gate are the identical code, so a warmup read is not a second,
+  /// laxer reader.
+  [[nodiscard]] static FileExpected<StockQuoteReader> open(
+      const WarmupScope& scope, const std::filesystem::path& corpus_root, SourceProfile profile);
+
   /// Delivers the next equal-millisecond group. False at end of session.
   [[nodiscard]] FileExpected<bool> next_group(Group& out);
 
@@ -139,6 +148,13 @@ class StockQuoteReader {
  private:
   StockQuoteReader(SessionSource source, SourceProfile profile, std::string day)
       : source_(std::move(source)), profile_(profile), day_(std::move(day)) {}
+
+  /// The ONE body both public `open`s run (CC-012). It takes a path and a
+  /// registry row that one of the two walls has ALREADY admitted, so it can
+  /// neither form a path itself nor decide which calendar a session belongs to.
+  [[nodiscard]] static FileExpected<StockQuoteReader> open_admitted(
+      std::filesystem::path path, const Session& session, SourceProfile profile,
+      std::int64_t ordinal);
 
   [[nodiscard]] FileExpected<bool> fill();
 

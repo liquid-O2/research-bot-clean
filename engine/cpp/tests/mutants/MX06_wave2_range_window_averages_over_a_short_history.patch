@@ -1,0 +1,22 @@
+--- a/qr_wave2/src/prior_state.cpp	2026-08-11 13:09:32.000000000 +0000
++++ b/qr_wave2/src/prior_state.cpp	2026-08-11 13:09:32.000000000 +0000
+@@ -120,13 +120,17 @@
+   const auto window_extremes = [&](std::int64_t k, bool& present, std::int64_t& high,
+                                    std::int64_t& low) {
+     present = false;
+-    if (static_cast<std::int64_t>(priors) < k) {
++    // MX06: a short history is used anyway, over whatever sessions exist.
++    if (static_cast<std::int64_t>(priors) < 1) {
+       return;
+     }
+     std::int64_t window_high = 0;
+     std::int64_t window_low = 0;
+     bool first = true;
+-    for (std::size_t index = priors - static_cast<std::size_t>(k); index < priors; ++index) {
++    for (std::size_t index = priors > static_cast<std::size_t>(k)
++                                ? priors - static_cast<std::size_t>(k)
++                                : 0;
++         index < priors; ++index) {
+       const SessionSummary& session = entries_[index].summary;
+       if (!session.grid_present) {
+         return;

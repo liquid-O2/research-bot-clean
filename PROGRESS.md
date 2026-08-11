@@ -20,6 +20,7 @@
 | WP6..WP11 | TODO | — | — | — | see FINAL_PLAN §6 |
 | M2 | DONE | 2026-08-11 | E_TASK_CARD_V4_FROZEN | card FROZEN (A1-A10); 5-lane review: 9 P0s + ~20 majors fixed in ONE pass; CI green; 653+13 proven tests | selector_v4.toml pinned |
 | M2.5 | TODO | — | — | — | Q*≤Q_max gate + decomposition (after M3-R2) |
-| M3 | TODO | — | — | — | R1,R2,R3,R3a,R4,R5 |
+| M3.R1+R2 | DONE | 2026-08-11 | — | THE CORPUS EXISTS: 12,139,720 action rows, 625 sessions, 461GB ×2 runs BYTE-IDENTICAL (root 3cff6449…); 9.3min vs 45min target; probe 221/221 identical | first complete lawful DecisionTape in program history |
+| M3.R3-R5 | TODO | — | — | — | controls → baselines → ladder |
 | M4 | TODO | — | — | — | W2.0..W2.13 (conditional on M3 reading) |
 | M5 | TODO | — | — | — | entry-stage readiness certificate |

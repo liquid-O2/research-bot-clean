@@ -1,7 +1,7 @@
 # selector_v4.toml — machine-readable spec GENERATED FROM TASK_CARD_V4 + FINAL_PLAN (never the reverse)
 [card]
 source = "evidence/claims/native_state/TASK_CARD_V4_DRAFT.md"
-sha256 = "7270d72ed6e3a306a13b66486c584922506121e958cbcd732c54c1805d4fcdb7"
+sha256 = "95831af3c9f3f23caac2c7a9e7b1f38f251b86543daade86638d88c83d482e01"
 status = "FREEZE_CANDIDATE"
 
 [authority]
@@ -21,8 +21,9 @@ key = ["session_ordinal", "decision_ordinal", "side"]
 [supervision_A1]
 primary = "menu_net_cent[7] h in {2,5,15,30,60,120,close} under executed $300 stop; equal loss weight 1/7"
 co_primary = "certificate_net_cent weight 0.5"
-h_star = "per-fold argmax of TRAIN replay mean under CLOCK_STATE gate (two-pass; freezes before representational arms)"
-risk = "P(stop before h*) 1.0; P(stop before 60m) 0.25"
+h_ref = "15min fixed for all horizon-bound heads"
+h_star = "selected on CAL gate-select JOINTLY with (q,rho) via non-dollar AUC over the 7x18=126 grid (Holm family ii, alpha=0.05)"
+risk_loss_weights = "stop_hit-before-h_ref: 1.0; stop_hit-before-60m: 0.25 (LOSS WEIGHTS, not probabilities)"
 pairwise = "same-clock LONG-vs-SHORT logistic on net_h* 0.5"
 kernel = "CC-007: frac_u6=trunc(move*1e6/entry); net=frac*10-576; $100k notional"
 
@@ -37,15 +38,18 @@ determinism = "float32, TF32 off, CUBLAS_WORKSPACE_CONFIG=:4096:8, deterministic
 entry = "argmax among gate-passing legal rows; top-q causal running quantile (warmup n>=50, GATE_WARMUP) AND P(stop)<=rho"
 grid.q = [1, 2, 5, 10, 20, 30]
 grid.rho = [0.15, 0.25, 0.40]
-selection = "non-dollar favorable-vs-adverse AUC on CAL gate-select block; Holm over 18 cells"
+selection = "non-dollar favorable-vs-adverse AUC, one-sided vs 0.5 by session-block bootstrap; Holm alpha=0.05 over the 126 (h,q,rho) cells; argmax over survivors; zero survivors => NO_ADMISSIBLE_GATE/PASS_ALL"
 k_eq_0 = "DELETED from CAL admission; gap-through breaches reported with UCB; zero-breach = deployment law only"
 
 [multiplicity_A7]
 rung_contrasts = ["DIRECT_RAW>CLOCK_STATE", "DCM_benchmark", "NATIVE_ORDER>DCM", "NATIVE_INTERACTION>DCM", "JSA>JSA_CAPACITY_MATCH"]
 family_size = 10
+alpha_fwer = 0.05
+confirmatory_metric = "session-weighted Spearman(score, net_h_ref) at D0"
+second_budget_rule = "60ep supersedes; 30ep becomes NONCERTIFYING"
 gate_family = 18
 certificate = "one confirmatory statistic per fold"
-exploratory_noncertifying = ["baselines", "capacity_twins", "destructions", "JSA_scaleup"]
+noncertifying = ["baselines", "capacity_twins", "destructions", "JSA_scaleup", "DYNAMIC_POLICY", "certificate_panel", "non-confirmatory metrics/stages", "30ep_when_superseded"]
 
 [arms]
 ladder = ["CLOCK_STATE", "DIRECT_RAW", "DIRECT_CAPACITY_MATCH", "NATIVE_ORDER", "NATIVE_INTERACTION", "JSA", "DYNAMIC_POLICY"]
@@ -55,7 +59,7 @@ jsa = "M=192 merged groups, d=64, 4 blocks/4 heads, time-in-attention-bias, ~141
 required = ["leak_net_h_star>=0.98", "leak_stop>=0.98", "xor_additive_.45_.55_rank8>=.98", "suffix_bit_invariance", "recent128_within_ts_permutation_identity", "BIN_ORDER_REVERSE", "cross_stream_shift_17m", "operand_derangement", "side_reflection<=1e-6", "label_shuffle", "wcd_injection", "layout_boundary_census_646_647", "equal_ms_full_chain"]
 
 [reachability_M2_5]
-gate = "Qstar <= Qmax both folds, TRAIN sessions only, before any fit"
+gate = "Qstar <= Qmax both folds at the $2,000 bar, TRAIN sessions only, before any fit"
 panel = ["forced_long", "forced_short", "seeded_coin", "perfect_side_only", "perfect_take_skip_control_side", "perfect_side_plus_take_skip_one_position"]
 
 [certificate_M5]

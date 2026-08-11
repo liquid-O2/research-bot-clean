@@ -15,6 +15,12 @@ exits (transcript:21153), which is why menu outcomes own selection and economics
 Only sessions 125..749 are admissible. F4 is train 125..395, inner embargo 396..397,
 calibration 398..497, outer embargo 498..499, test 500..624. F5 is train 125..520,
 inner embargo 521..522, calibration 523..622, outer embargo 623..624, test 625..749.
+**Regime-scope declaration (review P0-4):** both TEST slices live essentially in calendar
+2024 (F4: 1×2023 + 124×2024; F5: 125×2024) — the campaign is a SINGLE-REGIME object;
+the contract's min-year panel is inoperative here (deferred to the promotion phase's
+wider scope); year-stratification in the resampler degenerates to session blocks;
+F5-TRAIN contains F4-TEST (s500..520, expanding folds by registry design) so the two
+folds are correlated replications, not independent ones — declared.
 Any path/session >=750, fold 6/7, 2026, RTY/RUT/RUTW, old event-model outcome, teacher
 target, or realized-MAE eligibility filter is refused before payload resolution.
 **A1 amendment, declared:** V3.3.3's "fixed-horizon target" refusal is struck — the
@@ -23,7 +29,8 @@ This is a deliberate amendment of frozen science, justified by the measured 4× 
 of certificate-selected entries under fixed exits ($2,487.08/$2,952.22 → $623.65/$775.67,
 transcript:21152/21159).
 
-The runner binds fresh-entry Pass A
+The runner binds — AS CROSS-CHECK AUTHORITIES ONLY per A8's demotion (the sole primary
+binding among these five is the candidate registry) — fresh-entry Pass A
 `cee03e7eecfe3c2a50bd3b12e2d955cf01e2f96ce87eb8f82a1230c0658776cc`, Pass B
 `6357598fa1f60461e2227cd6700a7eeac62002a90e4f3a75610dc44f181fb176`, A/B preflight
 `aea384ae1797c4515c23ff58874fd0fefde41d646055b8748eede4fc9a01ae95`, fresh kernel
@@ -45,8 +52,9 @@ relation, matrix, label, score, outcome, or nonexistent derived column may be op
 Matrix presence, side, cluster disposition/size, and membership never supply admission,
 side authentication, features, sampling, or labels.
 
-**A8 amendment:** Raw decoding uses the C++ substrate `engine/cpp` (qr_parquet + qr_sources
-+ qr_clock + qr_registry), source tree SHA `5c172aa50f69ce4ff3c1385e4ca42a5105d4228a` (git tree of engine/cpp at M1
+**A8 amendment:** Raw decoding and all §1-§7 construction use the C++ substrate
+`engine/cpp` (qr_core + qr_registry + qr_clock + qr_parquet + qr_sources + qr_nbbo +
+qr_candidates + qr_labels + qr_carriers + qr_emit + qr_replay), source tree SHA `5c172aa50f69ce4ff3c1385e4ca42a5105d4228a` (git tree of engine/cpp at M1
 close), differential-acceptance pins SHA `1c5c4bd2bc9d68ae92c3e21e28535521863be9ac49d6aaa4048d3c9ba61e443b`,
 dialect census SHA `63557a434a981f5b5e2562b43c1a41086c1c7a0fd198d4560ace0f2f8b1c233b`. It hard-codes only
 `/workspace/data/tokens/{stock_trades,stock_quotes,options_prints}`, IWM, and 125..749,
@@ -141,18 +149,32 @@ sibling contributes.
 
 Each side-authenticated admitted primitive candidate creates three watches:
 
+**Registered-seconds definition (review M4):** the registered whole seconds are
+`session_start_ns + k·1e9` for k = 0 .. expected_bar_count·60 − 1; the close instant is
+NOT a registered second (the 1s midpoint grid additionally carries a terminal close
+endpoint, never a decision instant). **Visibility wall (review B1):** a candidate
+`visible_ts_ns` outside [session_start_ns, session_end_ns) is REFUSED (typed
+CLOCK_VIOLATION), never censused into the ordinal roster — a fail-open here silently
+renumbers every decision ordinal in the session.
+
 * D0: first registered whole-second clock strictly after own visibility;
-* D30: first whole-second clock at or after visibility +30s;
+* D30: first REGISTERED whole-second clock at or after visibility +30s;
 * D60: last registered whole-second clock at or before visibility +60s, still strictly
   after visibility. Thus the focal candidate remains inside the inclusive age<=60s set.
+  D0/D30 beyond the final registered second are CLOCK_UNAVAILABLE; only D60 resolves to
+  the final registered second (declared ladder hole for visibility in (close−60s,
+  close−30s]: D0 valid, D30 unavailable, D60 valid).
 
 Out-of-session watches are `CLOCK_UNAVAILABLE`. No D90/D120 row exists in this test.
 Many watches may converge. First compute `decision_second` from the registered session
 clock and require `decision_ts_ns=session_start_ns+decision_second*1e9`. Authority
-`decision_ordinal` is nonlinear: reconstruct the sealed authority clock roster as the
-sorted union of every registered whole second and every sealed evidence-change timestamp,
-and verify all persisted label/evidence ordinals. Then exact-join
-`(session_ordinal,decision_ts_ns,side)` and carry that authority ordinal. The scientific/
+`decision_ordinal` is nonlinear: THIS substrate constructs the roster as the sorted union
+of every registered whole second and every admitted-candidate visibility timestamp
+(CC-007 union law) and IS the ordinal authority — the V3.3.3 "verify all persisted
+label/evidence ordinals" clause is STRUCK (review M6: those sealed authorities are
+demoted; verification = two independent constructions byte-identical, already enforced by
+the two-run identity law). Then exact-join `(session_ordinal,decision_ts_ns,side)` and
+carry that ordinal. The scientific/
 prediction key `(session_ordinal,decision_ordinal,side)` plus timestamp must be one-to-one;
 `decision_second` is never substituted for ordinal. A separate many-to-one watch ledger
 retains candidate ID, opaque physical key, own visibility, stage, policy/reversal/member
@@ -171,7 +193,9 @@ the first eligible group with ts ≥ entry + h (close ⇒ final eligible group).
 `menu_net_cent[7]`, `menu_mae_cent[7]`, `menu_exit_ts[7]`, `stop_hit[7]`.
 **Co-primary (representation discrimination, weight 0.5 in §5):**
 `certificate_net_cent` = the uncapped best positive executable mark before the first net
-−30,000-cent adverse wall, otherwise the wall or final eligible group;
+−30,000-cent adverse wall (TIED MAXIMA: EARLIEST — record law, transcript:24084),
+otherwise the wall fill (same next-lawful-mark as the menu; when the crossing is the
+session's final lawful mark, the final mark itself, matching menu h=close);
 `certificate_mae_cent` = exact marked MAE from entry through that exit. Certificate
 quantities are NONPROMOTABLE for economics and never gate anything in §6.
 **CC-007 (kernel arithmetic + resolved §3 ambiguities, frozen):** notional = $100k:
@@ -181,7 +205,7 @@ kernel arithmetic); horizon past the final lawful mark exits at that final mark;
 barrier uses favorable/adverse spread sides (two columns); the certificate's wall fallback
 fills at the same next-lawful-mark as the menu (one stop_scan); D60 beyond the close resolves
 to the final registered second; the ordinal roster unions ALL admitted primitive candidates
-(incl. SIDE_UNAVAILABLE) while watches come only from side-authenticated ones; the §7
+(incl. SIDE_UNAVAILABLE) while watches come only from side-authenticated ones; the §3/App-C5
 stop-shift mutant is the SMALLEST EFFECTIVE shift (a literal 1-cent shift is provably a
 no-op because net ≡ 4 mod 10 — measured and documented).
 All label columns live in the physically separate truth leaf (feature-builder process may
@@ -197,17 +221,21 @@ is predicted and retained. An ENTER selected on an unavailable label becomes typ
 
 **A1 supervision (replaces V3.3.3's certificate-primary):** primary = the menu vector
 `net_h/30000` for all seven horizons (equal weight in the loss — no hand-picked horizon);
-co-primary = `certificate_net_cent/30000` at weight 0.5. The selection horizon h\* is
-chosen PER FOLD by the preregistered rule: h\* = argmax over the 7-menu of TRAIN-fold
-replay mean under the CLOCK_STATE gate (pass 1 of a two-pass schedule; h\* freezes before
-any representational arm trains; TRAIN = 271/396 sessions ≥ the contract's 200-session
-floor; no cross-fold pooling). Same-clock LONG-vs-SHORT pairwise ranking binds to
-`net_h\*`. Frozen auxiliary opportunity events on `net_h\*`: >0, >=10,000c, >=30,000c;
-none test-selected. Risk = `stop_hit` before h\* (primary) and before 60m (auxiliary) —
+co-primary = `certificate_net_cent/30000` at weight 0.5. **h-LAW (rewritten by the
+consolidated review — the two-pass rule was circular and dollar-selected): all
+horizon-bound heads bind to the FIXED comparability horizon h_ref = 15 min** (the
+required-skill arithmetic's anchor); the certificate/policy horizon h\* is selected on
+the CAL gate-select block, JOINTLY with (q,ρ), by the §6 non-dollar criterion over the
+preregistered 7×18 = 126-cell grid (Holm family (ii), α=0.05; ties → smallest q, then
+smallest ρ, then h closest to h_ref). No pass-1 model exists; nothing is dollar-selected;
+the contract's 200-session dollar-selection law is not invoked (AUC selection, CAL-only).
+Same-clock LONG-vs-SHORT pairwise ranking binds to `net_h_ref`. Frozen auxiliary
+opportunity events on `net_h_ref`: >0, >=10,000c, >=30,000c; none test-selected.
+Risk = `stop_hit` before h_ref (primary) and before 60m (auxiliary) —
 realized executable events, replacing the hindsight `certificate_mae>30000` head.
 15-minute metrics are always reported for historical comparability. Direction/common
 decomposition is reported as metrics per fold (D̂=(ŝ_L−ŝ_S)/2, Ĉ=(ŝ_L+ŝ_S)/2 vs realized
-D,C from net_h\*; Spearman separately — never pooled). The barrier auxiliary calls
+D,C from net_h_ref; Spearman separately — never pooled). The barrier auxiliary calls
 `barrier_order(entry_idx,side,5000,5000)`: thresholds are +/-5,000 **net cents** after
 cost (about +$55.76 gross versus -$44.24 gross), scanned over full RTH; same-group ties
 map to ADVERSE_FIRST. Raw states are FAVORABLE_FIRST, ADVERSE_FIRST,
@@ -219,7 +247,9 @@ positive opportunity.
 
 Feature windows are `[max(session_open, decision-120s), decision)`. Frame-B naive New
 York timestamps are converted once through the pinned `SessionClock`; direct frame/host
-timezone comparison is fatal. Current/equal-cutoff tokens are excluded.
+timezone comparison is fatal. The textual `underlying_timestamp` accepts exactly the
+23-char naive-ET form YYYY-MM-DDTHH:MM:SS.mmm (no zone/offset); any other form is typed
+MALFORMED, never MISSING. Current/equal-cutoff tokens are excluded.
 
 The adapter extends the pinned readers to retain these causal fields:
 
@@ -471,7 +501,8 @@ prints strictly before cutoff that pass the frozen stock condition/size/price co
 Every oriented distance is
 `sigma*(m-reference)*10000/reference`; range is `(high-low)*10000/open`. Prefix RV at
 1/5/30s is `sqrt(sum(log(m_t/m_{t-1})^2))` on the prior complete 1s midpoint grid and is
-missing with fewer than two valid points. Time fractions use registered RTH open/close;
+missing with fewer than two valid points; within the first h seconds of a session the
+window is genuinely shorter and the horizons coincide — declared, causal, allowed. Time fractions use registered RTH open/close;
 spread and last-print ages use only strict-prior observations.
 
 Biases are frozen rather than implementation-selected: both candidate-element MLP
@@ -514,9 +545,9 @@ All arms have separate stock-print, stock-NBBO, option-print, and state heads
 `64->32->N_out` (SiLU; **A1:** N_out recomputed and pinned at freeze; DIRECT_CAPACITY_MATCH
 gets identical heads so capacity gaps stay ≤5%); logits add. **A1 outputs:** menu
 regressions net_h/30000 for the seven horizons; certificate_net/30000 co-primary;
-opportunity BCEs on net_h\* (>0, >=10,000c, >=30,000c); risk BCEs stop_hit-before-h\* and
+opportunity BCEs on net_h_ref (>0, >=10,000c, >=30,000c); risk BCEs stop_hit-before-h_ref and
 stop_hit-before-60m; barrier three-class. **A1 loss weights:** menu Huber(δ=1) 1/7 each;
-certificate Huber 0.5; same-clock pairwise logistic on net_h\* 0.5; opportunity BCEs
+certificate Huber 0.5; same-clock pairwise logistic on net_h_ref 0.5; opportunity BCEs
 (.5,.25,.25); risk BCEs (1.0,.25); barrier CE .1 — all session-balanced and
 availability-masked.
 
@@ -560,10 +591,11 @@ No marginal result can kill NATIVE_INTERACTION or JSA. **A2 training amendments:
 plateau rule, contrast-scoped: an arm whose train loss improves >1% over the final 3
 epochs is typed UNDERTRAINED, and then ALL arms of its contrast set rerun once at the
 registered second budget (60 epochs, its own cosine; both runs published) — never
-outcome-contingent; an inner-validation loss curve (calibration-block sessions, never
-TEST) is published as a receipt while the decision rule stays train-loss-only. Training
-ranks: `floor((j+0.5)*N/2048)`, j=0..2047 (all ranks when N<2048) — a PREREGISTERED
-choice re-measured on the {125,500,625} probe before freeze (re-measured on the probe at campaign start; receipt archived with the R1 evidence row); the ≈24× compute multiplier vs V3.3.3 is declared. Includes
+outcome-contingent; an inner-validation loss curve (gate-select block sessions ONLY —
+398..447/523..572, so gate-cert stays pristine; never TEST) is published as a receipt while the decision rule stays train-loss-only. Training
+ranks: `floor((j+0.5)*N/2048)`, j=0..2047 (all ranks when N<2048) — the FROZEN
+choice (2,048 is final; the {125,500,625} probe run is a COST RECEIPT only and may not
+change the number); the ≈24× compute multiplier vs V3.3.3 is declared. Includes
 every authorized side at each selected clock, and weights each session equally. Each
 chronological session is one optimizer minibatch; sessions and rows remain chronological
 in every epoch and there is no shuffle. Float32, TF32 disabled,
@@ -580,42 +612,53 @@ session), and each family is separately renormalized to mean weight1.
 admission law).** Gate calibration never inspects TEST. Each 100-session calibration
 block is split chronologically: F4 gate-select 398..447 / gate-cert 448..497 and F5
 gate-select 523..572 / gate-cert 573..622.
-Entry gate: at each clock, ENTER the unique highest predicted `net_h\*` legal side iff
-(i) that prediction is in the session's top-q quantile of predicted `net_h\*` among legal
-rows so far that session (causal running quantile over strictly-prior same-session
-predictions), and (ii) predicted `P(stop before h\*)` <= ρ. The pair (q, ρ) ∈
-{1,2,5,10,20,30}% × {.15,.25,.40} is selected on the gate-select block by a NON-DOLLAR
-criterion only: noncensored favorable-vs-adverse AUC at that coverage, Holm-corrected
-across the 18 cells; ties in the criterion pick the smallest q then smallest ρ. The
-selected (q,ρ) freezes before gate-cert and TEST. Degenerate/nonfinite scores in a cell
+Entry gate: at each clock, ENTER the unique highest predicted `net_h\*` legal side
+(predicted menu-net at the selected h\*) iff (i) that prediction is in the session's
+top-q quantile among legal rows so far that session (causal running quantile over
+strictly-prior same-session predictions, warm-up n>=50), and (ii) predicted
+`P(stop before h_ref)` <= ρ. **The triple (h\*, q, ρ) ∈ {2,5,15,30,60,120,close} ×
+{1,2,5,10,20,30}% × {.15,.25,.40} is selected on the gate-select block by the NON-DOLLAR
+criterion only: noncensored favorable-vs-adverse AUC (favorable = net_h > 0) at that
+coverage, tested one-sided against AUC=0.5 by session-block bootstrap, Holm-corrected at
+FWER α=0.05 across the 126 cells; the argmax is taken over SURVIVING cells only; zero
+survivors ⇒ typed NO_ADMISSIBLE_GATE ⇒ PASS_ALL for that arm/fold, never a looser rule;
+ties → smallest q, then smallest ρ, then h closest to h_ref.** The selected triple
+freezes before gate-cert and TEST. Degenerate/nonfinite scores in a cell
 ⇒ PASS_ALL (zero ENTERs) for that cell, never a looser gate. **CC-004 clarifications:**
 selection = argmax among GATE-PASSING legal rows (the gate is a legality filter, never a
 veto on the raw argmax); the running quantile is inadmissible until n>=50 strictly-prior
 same-session predictions (typed GATE_WARMUP, no entry — preregistered constant).
 The k==0 admission law of V3.3.3 is DELETED: it certified the realizability of a
 hindsight exit; under A1 the stop executes inside every label, and a stop-out is a
-priced, bounded outcome. Realized gap-through breaches (`menu_mae_cent[h\*]>30000`
-under the executed stop) are counted and published with the session-block one-sided
-Clopper-Pearson UCB (exchangeable-Bernoulli-session assumption stated) — reporting law,
-not an admission filter. Literal zero-breach remains a DEPLOYMENT-certification law for
+priced, bounded outcome. Realized gap-through breaches — defined as `stop_hit[h] AND gap_through_cent > 0` (stop fired AND the fill landed beyond the wall; NOTE: the mod-10 lattice makes `menu_mae_cent>30000` true for EVERY stopped trade, so MAE-threshold counting is a degenerate breach statistic and is forbidden; MAE remains a separate panel) — are counted and published with the session-block one-sided Clopper-Pearson UCB at level 1−0.05/|family| (exchangeable-Bernoulli-session assumption stated) — reporting law, not an admission filter. Literal zero-breach remains a DEPLOYMENT-certification law for
 the deferred Gate-3/4 phase. Platt `p=clip(sigmoid(a*logit+b),1e-9,1-1e-9)` (L-BFGS,
 init (1,0), max 1000, gtol 1e-12, session-balanced) is retained as a CALIBRATION
 DIAGNOSTIC per arm — reported, gating nothing.
-**A7 multiplicity (replaces the 32-cell machinery):** three explicit Holm families —
-(i) rung-contrast family: 5 preregistered deltas (DIRECT_RAW>CLOCK_STATE; DCM
-benchmark; NATIVE_ORDER>DCM; NATIVE_INTERACTION>DCM; JSA>JSA_CAPACITY_MATCH) × 2 folds
-= 10 tests on the primary metrics; (ii) gate-selection family: the 18 AUC cells per
-fold; (iii) certificate: one preregistered confirmatory statistic per fold (FINAL_PLAN
-§11). Exploratory baselines, capacity twins, destructions, and the JSA scale-up rung
-are EXPLORATORY_NONCERTIFYING — reported in full, never champions.
+**A7 multiplicity (replaces the 32-cell machinery; completed per review P0-1/P0-2):**
+FWER α = 0.05 per family, Holm. Three families — (i) rung-contrast family: 5
+preregistered deltas (DIRECT_RAW>CLOCK_STATE; DCM benchmark; NATIVE_ORDER>DCM;
+NATIVE_INTERACTION>DCM; JSA>JSA_CAPACITY_MATCH) × 2 folds = 10 one-sided session-block
+bootstrap tests on THE confirmatory statistic: session-weighted Spearman(score,
+net_h_ref) at the D0 stage (other metrics/stages = NONCERTIFYING panels); (ii)
+gate-selection family: the 126 (h,q,ρ) AUC cells per fold (§6, one-sided vs 0.5,
+session-block bootstrap); (iii) certificate: one preregistered confirmatory statistic
+per fold (FINAL_PLAN §11). When an A2 second-budget (60ep) rerun exists, IT supersedes
+— the 30ep set becomes NONCERTIFYING; the family never enlarges. `DYNAMIC_POLICY` is
+NONCERTIFYING in this campaign (no new fit; its replay is diagnostic until the deferred
+exit phase). SINGLE wall vocabulary: everything outside a family carries the one label
+NONCERTIFYING. Fold dimensions: family (i) joint over folds (10); family (ii) per fold
+— declared, not accidental.
 Frozen nonbinding diagnostic panels cross net thresholds {0,10000,30000} cents with
 risk-ρ {.15,.25,.40} beyond the selected cell; all reported, none a champion or
 fallback.
 
 At an equal decision timestamp, select the unique highest predicted-net legal side among
 rows passing the frozen gate; an exact top tie abstains. A selected row uses only its own
-fresh label/exit. A new entry requires `decision_ts > prior certificate_exit_ts`; there
-is no cooldown and all zero days remain. Occupied clocks cannot enter.
+fresh label/exit. A new entry requires `decision_ts > the prior trade's exit_ts under THIS replay's own exit rule` (menu_exit_ts[h] for each static horizon panel; the certificate panel uses certificate exits and is NONCERTIFYING) — **declared A1 amendment: V3.3.3's certificate-gated occupancy is struck** (a hindsight quantity may not shape the causal roster, and horizon-native occupancy is what the N5 panel measures); there
+is no cooldown and all zero days remain. Occupied clocks cannot enter. The frozen causal
+daily-loss-limit is part of the entry policy: cumulative realized intraday P&L <= −$900
+⇒ PASS for the remainder of the session (typed HALTED_DAILY_LOSS; {∞, −$600} =
+NONCERTIFYING panels).
 
 CLOCK_STATE, DIRECT_RAW, DIRECT_CAPACITY_MATCH, NATIVE_ORDER, NATIVE_INTERACTION, and JSA each
 publish three static replays, one using only D0-supporting rows, one D30, and one D60;
@@ -630,14 +673,15 @@ future/teacher/WAIT target and no arbitrary focal candidate.
 
 Primary F4/F5 metrics are continuous-net Spearman/MAE and same-clock ranking accuracy;
 action and candidate-watch precision/recall for net>0/>=$100/>=$300; selected delay and
-regret versus the best own D0/D30/D60 checkpoint of that watch; and risk AUC/Brier/ECE,
-breach count, and zero-breach feasibility. Watch recall uses inverse action-multiplicity
-weights so converged watches do not inflate it. Barrier class/OVR and noncensored
-FAVORABLE-vs-ADVERSE AUC are auxiliary only. Secondary hindsight replay reports
+regret versus the best own D0/D30/D60 checkpoint of that watch; and risk AUC/Brier/ECE and the
+gap-through breach census with its UCB (the deleted k==0 'zero-breach feasibility' is
+not a learnability metric). Watch recall uses inverse action-multiplicity
+weights so converged watches do not inflate it. Barrier class/OVR is NONCERTIFYING. Noncensored favorable-vs-adverse AUC is the
+gate-selection statistic (family ii) and a preregistered reading-matrix metric — walled
+from rung certification (family i), not 'auxiliary'. Secondary replay panels (causal exits; the certificate panel alone is hindsight and NONCERTIFYING) report
 dollars/all-session, trades/day, MDD, MAE quantiles/max/>$300, zero days,
-leave-top-10-out, and min-year. The diagnostic economic flag is $1600/session,
-MDD<$1000, and zero MAE>$300 in both folds, but can never promote a certificate-exit
-strategy.
+leave-top-10-out, and min-year. The NONCERTIFYING economic flag is $1600/session, MDD<$1000, and zero GAP-THROUGH
+breaches in both folds; nothing in this section promotes any strategy.
 
 MDD is exact zero-inclusive end-of-day drawdown: form one net-dollar value for every
 chronological test session (zero on no-trade days), set equity E0=0 and
@@ -646,14 +690,15 @@ chronological test session (zero on no-trade days), set equity E0=0 and
 
 ## 7. Executable controls and cost gate
 
-Before lawful interpretation: (a) a clean same-architecture refit replacing only the
-always-present session-time-fraction scalar with the TRAIN-normalized row's own future
-`certificate_net_cent` must give the >0 opportunity head AUC>=.98 in both folds; (b) a
-separate clean refit replacing that same scalar with the row's own future MAE-breach bit
-must give the risk head AUC>=.98; width, parameters, optimizer, rows, and all other inputs
-stay identical; (c) balanced XOR gives additive AUC [.45,.55] and rank-8
+Before lawful interpretation (SINGLE definition — the V3.3.3 certificate/MAE injectants
+are struck with A1): (a) a clean same-architecture refit replacing only the always-present
+session-time-fraction scalar with the TRAIN-normalized row's own future `net_h_ref` must
+give the >0 opportunity head AUC>=.98 in both folds; (b) a separate clean refit replacing
+that same scalar with the row's own future `stop_hit-before-h_ref` bit must give the risk
+head AUC>=.98; width, parameters, optimizer, rows, and all other inputs stay identical; (c) balanced XOR gives additive AUC [.45,.55] and rank-8
 interaction >=.98; (d) mutating all tokens at/after cutoff is bit-invariant and moving
-one token across cutoff affects only later rows; (e) reversing the valid recent-128
+one token across cutoff affects only later rows — REQUIRED as a named executable test on
+the production chain (review F9), not prose; (e) reversing the valid recent-128
 timestamp-group sequence is reported, while any within-timestamp permutation must be
 bit-identical; (f) `BIN_ORDER_REVERSE` reverses the value+mask tuples only within the
 ordered valid in-session support of the 120 bins, leaves fixed pre-open pads/validity in
@@ -662,9 +707,11 @@ matched full-path-order destruction; (g) the +17m
 cross-stream control greedily pairs the earliest unused action with an exact unused
 same-session/side/stage-mask/availability action 17m later, swaps option embeddings, and
 evaluates only these common-support pairs (no wrap; exact operand multiset preserved);
-(h) interaction-only derangement sorts within `(session,side,stage-mask,availability)`
-and swaps adjacent option operands, excludes an odd last row, and must preserve every
-additive logit bit-for-bit; (i) side reflection swaps LONG/SHORT and declared oriented
+(h) interaction-only derangement: a SEEDED PCG64 within-bucket derangement
+(`SeedSequence(20260810, sid, stage_mask, side_index)`) of option operands within
+`(session,side,stage-mask,availability)` — never a sort-adjacent swap (an unspecified
+sort key makes a near-no-op destruction); common-support rows only, ≥200 pairs per fold
+else INSUFFICIENT_SUPPORT; must preserve every additive logit bit-for-bit; (i) side reflection swaps LONG/SHORT and declared oriented
 channels/masks with max absolute paired-logit error <=1e-6; and (j) label shuffle applies
 PCG64 Fisher-Yates with `SeedSequence(20260810,sid,stage_mask,side_index)` inside
 `(session,stage-mask,side,label-availability)` and moves the complete target bundle.
@@ -695,13 +742,18 @@ bit-identical feature construction for identical inputs across the layout change
 uses stock/NBBO/option-print streams; the option-quote reader itself is exercised
 schema-only until W2.1); (m) stricter reader censuses — per-channel decoded-vs-manifest
 row counts and full typed-state histograms per probe session, printed in full;
-(n) JSA STREAM_IDENTITY_DERANGE — permute modality-type embeddings within
-(session, side, stage-mask, availability) buckets; every value/timestamp/order/marginal
-preserved; JSA must collapse toward its capacity match; (o) JSA CROSS_STREAM_SHIFT+17m —
-control (g) at token level, option-token subsequence swapped between exact-matched
-actions; common-support pairs only. Leak controls (a)/(b) bind to the A1 heads:
-(a) future net_h\* injection ⇒ opportunity head AUC>=.98; (b) future stop_hit-before-h\*
-injection ⇒ risk head AUC>=.98.
+(p) feature/truth digest-collision refusal — publishing refuses when any features/ leaf
+sha256 equals any truth/ leaf sha256; the trainer's truth allowlist matches
+SESSION-QUALIFIED paths (basename matching cannot bind the fold wall) and a per-session
+truth-open receipt is published;
+(n) JSA TYPE_EMBEDDING_ABLATION (redefined by review F2: with width-distinct per-modality
+projections, stream identity is recoverable and a type-embedding permutation is
+uninformative) — zero the modality-type embeddings at eval; NONCERTIFYING descriptive
+only; JSA's certified destruction is (o); (o) JSA CROSS_STREAM_SHIFT+17m — control (g) at token level; ONE-DIRECTIONAL with both
+directions reported separately (a symmetric pooled swap feeds future state into half the
+rows and biases toward no-drop); common-support pairs only; fewer than 200 realized pairs
+per fold ⇒ typed INSUFFICIENT_SUPPORT, not read. The same one-directional + ≥200-pair
+law applies to (g).
 **A8 cost gate:** the V3.3.3 Locke benchmark (85.12M rows/s, narrow projection) is
 superseded at freeze by the C++ probe's measured pipeline wall on the V4 projection
 width, measured at R1 (interim WP-gate walls stand: full-625 decode+groups 119.8s @12w); each incremental family must cost <=20%

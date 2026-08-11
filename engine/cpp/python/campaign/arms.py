@@ -33,12 +33,20 @@ per-carrier algebra nevertheless charges the 128 phase parameters to EVERY micro
 carrier (69*32+32*64+128+... = 38,176).  Both facts are the card's; this module
 honours both by sharing the object and by having `declared_parameter_count()`
 return the card's per-carrier accounting.  `unique_parameter_count()` reports the
-physically distinct total for the same modules.
+physically distinct total for the same modules.  RULED CONFIRMED (CC-009 note,
+2026-08-11): shared object + per-carrier accounting is the intended reading.
 
 N_out.  §5/A1: "N_out recomputed and pinned at freeze".  The card's own output
 list is menu regressions for the seven horizons (7) + certificate (1) +
 opportunity BCEs (3) + risk BCEs (2) + barrier three-class (3) = 16.  That is
-arithmetic on the frozen list, not a choice.
+arithmetic on the frozen list, not a choice -- and it is now RULED and pinned in
+the card as N_out = 16 (2026-08-11).
+
+RULINGS carried by this module (card, 2026-08-11): CC-009 pins W = N_out x 8 and
+confirms the shared phase-table object with the card's per-carrier accounting;
+the TCN block order is depthwise -> pointwise -> SiLU -> residual; and JSA sits
+on the NATIVE_ORDER additive base, so JSA and JSA_CAPACITY_MATCH share an
+identical base and differ only by the 16 lambda scalars.
 """
 from __future__ import annotations
 
@@ -464,12 +472,11 @@ class NativeInteraction(nn.Module):
     2*tanh(W[(Us h_stock)*(Uo h_option)*(Ue h_state)*g])", with Us/Uo/Ue
     bias-free 8x64 and W bias-free, "(eight outputs by rank)".
 
-    OPEN ITEM raised to the orchestrator (see the lane report): §5 spells W as
-    "8x8", which was N_out x rank when V3.3.3's N_out was 8.  A1 recomputes
-    N_out (= 16 here), and a residual that is added to the additive logits must
-    have N_out outputs, so W is built as N_out x rank.  `interaction_outputs`
-    exposes the literal-8 reading for the orchestrator's ruling without touching
-    any other rung.
+    RULED (CC-009 in the card, 2026-08-11): W is N_out x rank.  §5 spells it
+    "8x8", which was N_out x rank back when V3.3.3's N_out was 8; A1 recomputes
+    N_out, and a residual added to the additive logits must have N_out outputs.
+    `interaction_outputs` keeps the literal-8 reading reachable for an ablation
+    but the campaign default is N_OUT and no other rung is affected.
     """
 
     def __init__(self, interaction_outputs: int = N_OUT) -> None:

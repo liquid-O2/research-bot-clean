@@ -10,17 +10,26 @@ is honoured, never widened.
 
 WHAT THE SHARD CARRIES.  FINAL_PLAN APPENDIX C4 names the leaves; TASK CARD V4
 §4/§5 fix their contents.  Two spellings C4 leaves implicit are made explicit
-here and flagged to the orchestrator in the lane report:
+here:
 
   * `groups_{mod}` carries a PER-MODALITY group axis (G_sp, G_nb, G_op differ).
     §5 5b's JSA tokens are "the merged chronological union of the last M=192
     timestamp groups ACROSS the three modalities", which is only meaningful if
     the three axes are separate before they are merged.  `group_ts` is therefore
-    also per modality.
+    also per modality.  RULED CONFIRMED (2026-08-11).
   * the carriers are stored as gather INDICES into that axis (C4's
     `recent128 [N,2]` / `bins_index [N,120,2]` are (start,len) forms of the same
     thing); this module stores explicit slot vectors so a pad is a literal -1
     and no arithmetic can silently invent a group.
+
+>>> BINDING RULE (orchestrator, 2026-08-11).  THE C++ TAPE IS THE AUTHORITY.
+This module is a stand-in that exists only so the arms and the controls can be
+proven before the corpus lands.  When the real corpus arrives, read the REAL
+s0125 manifest and bind `assemble()` (and the loader) to the EMITTED leaf names
+and to C4's (start,len) CSR forms exactly as the tape spells them.  ADAPT THE
+ASSEMBLER, NEVER THE TAPE -- the explicit slot vectors below are this file's
+convenience, not a request to the emitter.  `arms.py` is layout-independent (it
+consumes the `Batch` dataclass), so this rebinding is confined to `assemble()`.
 
 CHANNEL TABLES.  The σ/own-opposite tables below are transcribed from §4's own
 channel lists (stock-print 17, stock-NBBO 16, option-print 22) and §5's location
@@ -539,6 +548,11 @@ def assemble(tape: DecisionTape) -> tuple[arms.Batch, Targets]:
 
     features() can never resolve a truth leaf and truth() is called with the
     frozen allowlist, so this function is the whole C4 door for the trainer.
+
+    THIS IS THE REBINDING POINT (see the module BINDING RULE): when the real
+    corpus lands, the emitted names and C4's (start,len) CSR forms are matched
+    HERE, against the real s0125 manifest.  Nothing upstream of `arms.Batch`
+    changes, and nothing about the tape changes.
     """
     features = tape.features()
     allowed = tape.truth(list(TRUTH_ALLOWLIST))

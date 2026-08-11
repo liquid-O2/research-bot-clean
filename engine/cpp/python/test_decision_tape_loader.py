@@ -6,6 +6,8 @@ round trip: C++ writes the bytes, numpy mmaps them, and the values are compared
 against the formulas recomputed here, independently of the writer.
 
 usage: test_decision_tape_loader.py --shard DIR [--scratch DIR]
+       (with no --scratch a self-deleting dir under
+        /workspace/artifacts/cache is used; never the repo tree)
 exit:  0 all checks pass; 1 a check failed (every check prints PASS/FAIL)
 """
 from __future__ import annotations
@@ -15,6 +17,7 @@ import hashlib
 import pathlib
 import shutil
 import sys
+import tempfile
 import traceback
 
 import numpy as np
@@ -503,12 +506,35 @@ def check_suppression_is_narrow(scratch: pathlib.Path) -> None:
     assert ":6:" in kept[0], kept
 
 
+CACHE_ROOT = pathlib.Path("/workspace/artifacts/cache")
+
+
+def _cache_root() -> str:
+    """D-018 scratch home; falls back to the system temp only if it is absent."""
+    try:
+        CACHE_ROOT.mkdir(parents=True, exist_ok=True)
+        return str(CACHE_ROOT)
+    except OSError:
+        return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--shard", type=pathlib.Path, required=True)
     parser.add_argument("--scratch", type=pathlib.Path, default=None)
     args = parser.parse_args()
-    scratch = args.scratch or (args.shard.parent / "loader_selftest_scratch")
+    # D-018: scratch lives under /workspace/artifacts/cache, NEVER inside the
+    # repo.  The old default (next to the shard) put a recursive copy of the
+    # engine tree at engine/cpp/loader_selftest_scratch/ and it was swept into
+    # a commit; the guard below makes that outcome impossible, default or not.
+    owned = args.scratch is None
+    scratch = args.scratch or pathlib.Path(tempfile.mkdtemp(
+        prefix="loader_selftest_", dir=_cache_root()))
+    scratch = scratch.resolve()
+    repo = pathlib.Path(__file__).resolve().parents[2]
+    if scratch == repo or repo in scratch.parents:
+        print(f"FAIL: refusing scratch inside the repo tree: {scratch}")
+        return 1
     scratch.mkdir(parents=True, exist_ok=True)
 
     check_manifest(args.shard)
@@ -524,6 +550,9 @@ def main() -> int:
     check_static_sinks(scratch)
     check_census_scope_rule(scratch)
     check_suppression_is_narrow(scratch)
+
+    if owned:
+        shutil.rmtree(scratch, ignore_errors=True)
 
     failures = 0
     for name, passed, detail in RESULTS:

@@ -882,12 +882,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--keep-scratch", action="store_true",
                         help="leave the generated shards behind for inspection")
     args = parser.parse_args(argv)
-    # The default scratch is a self-deleting temp directory: this suite writes a
-    # few thousand small synthetic leaves, and leaving them behind on a shared
-    # box is how a 30G container overlay fills up.  An explicit --scratch is
-    # never deleted unless the caller asked for the default.
+    # D-018: the default scratch is a self-deleting directory under
+    # /workspace/artifacts/cache -- never /tmp (that is the 30G container
+    # overlay) and never the repo tree (a sibling suite's in-repo default put a
+    # recursive copy of the engine tree into a commit).  The guard below holds
+    # even when a caller passes --scratch explicitly.
     owned = args.scratch is None
-    scratch = args.scratch or pathlib.Path(tempfile.mkdtemp(prefix="campaign_selftest_"))
+    cache = pathlib.Path("/workspace/artifacts/cache")
+    try:
+        cache.mkdir(parents=True, exist_ok=True)
+        home = str(cache)
+    except OSError:
+        home = None
+    scratch = (args.scratch or pathlib.Path(
+        tempfile.mkdtemp(prefix="campaign_selftest_", dir=home))).resolve()
+    repo = pathlib.Path(__file__).resolve().parents[3]
+    if scratch == repo or repo in scratch.parents:
+        print(f"FAIL: refusing scratch inside the repo tree: {scratch}")
+        return 1
     scratch.mkdir(parents=True, exist_ok=True)
     train.set_determinism("cpu")
 

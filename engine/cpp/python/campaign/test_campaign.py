@@ -282,19 +282,23 @@ def check_pairwise_exactness(scratch: pathlib.Path) -> None:
     long_targets = session.sides["L"][1]
     short_targets = session.sides["S"][1]
     blocked = train.build_selection(
-        train.SessionData(ordinal=session.ordinal, clocks=session.clocks, sides={
-            "L": (session.sides["L"][0],
-                  controls._replace_targets(long_targets,
-                                            row_mask=torch.zeros_like(long_targets.row_mask))),
-            "S": session.sides["S"]}),
+        train.SessionData(ordinal=session.ordinal, clocks=session.clocks,
+                          loader=lambda: {
+                              "L": (session.sides["L"][0],
+                                    controls._replace_targets(
+                                        long_targets,
+                                        row_mask=torch.zeros_like(long_targets.row_mask))),
+                              "S": session.sides["S"]}),
         ranked=False)
     assert int(blocked.pair_mask.sum()) == 0, "an unavailable label must mask its pair"
     equalised = train.build_selection(
-        train.SessionData(ordinal=session.ordinal, clocks=session.clocks, sides={
-            "L": (session.sides["L"][0],
-                  controls._replace_targets(long_targets,
-                                            menu_net=short_targets.menu_net.clone())),
-            "S": session.sides["S"]}),
+        train.SessionData(ordinal=session.ordinal, clocks=session.clocks,
+                          loader=lambda: {
+                              "L": (session.sides["L"][0],
+                                    controls._replace_targets(
+                                        long_targets,
+                                        menu_net=short_targets.menu_net.clone())),
+                              "S": session.sides["S"]}),
         ranked=False)
     assert int(equalised.pair_mask.sum()) == 0, "equal targets must mask their pair"
 

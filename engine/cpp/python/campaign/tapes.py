@@ -293,12 +293,14 @@ def load_side(root: pathlib.Path, ordinal: int, side: str, *,
         channels = CHANNELS[modality]
         if not with_groups:
             groups.append(torch.zeros(1, 4 * channels + 1, dtype=torch.float32))
-            micro_slot.append(np.full((index.size, arms.MICRO_LENGTH), -1, dtype=np.int64))
-            micro_phase.append(np.full((index.size, arms.MICRO_LENGTH), PHASE_EQUAL,
-                                       dtype=np.int64))
+            # A non-native arm reads none of these, so they are kept at width 1
+            # instead of the full 128/120 -- the row axis is all `slice_batch`
+            # needs, and the difference is ~240 MB a side on a real session.
+            micro_slot.append(np.full((index.size, 1), -1, dtype=np.int64))
+            micro_phase.append(np.full((index.size, 1), PHASE_EQUAL, dtype=np.int64))
             micro_ckpt.append(np.full((index.size, len(CHECKPOINT_OFFSETS_S)), -1,
                                       dtype=np.int64))
-            bin_ref_all.append(np.full((index.size, arms.BIN_LENGTH), -1, dtype=np.int64))
+            bin_ref_all.append(np.full((index.size, 1), -1, dtype=np.int64))
             bin_seg_all.append(np.full(1, -1, dtype=np.int64))
             bin_segment_count.append(1)
             jsa_pool_ts.append(np.full((index.size, 1), np.iinfo(np.int64).min))
@@ -482,8 +484,23 @@ def _merge_jsa(pool_ts, pool_slot, pool_phase, pool_mod):
     return out_mod, out_slot, out_phase, out_ts
 
 
+def decision_ordinals(root: pathlib.Path, ordinal: int, side: str) -> np.ndarray:
+    """The side's `decision_ordinal` column, read from the truth `keys` leaf
+    ALONE -- no feature is mapped, so this is cheap enough to call per session
+    before deciding which rows are worth assembling."""
+    tape = DecisionTape(_session_dir(root, ordinal, side))
+    keys = tape.truth(["keys"], names=["keys"])["keys"]
+    return np.array(keys[:, KEY_DECISION], copy=True)
+
+
 def load_session(root: pathlib.Path, ordinal: int, *, verify_sha: bool = False,
-                 rows: np.ndarray | None = None, with_groups: bool = True) -> dict:
-    return {side: load_side(root, ordinal, side, verify_sha=verify_sha, rows=rows,
+                 rows: np.ndarray | None = None, with_groups: bool = True,
+                 rows_by_side: dict | None = None) -> dict:
+    """`rows_by_side` selects a DIFFERENT row subset per side, which is what the
+    ranked training selection needs (a clock can be authorised on one side
+    only)."""
+    return {side: load_side(root, ordinal, side, verify_sha=verify_sha,
+                            rows=(rows_by_side[side] if rows_by_side is not None
+                                  else rows),
                             with_groups=with_groups)
             for side in SIDES}

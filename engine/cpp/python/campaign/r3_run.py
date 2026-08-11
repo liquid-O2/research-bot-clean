@@ -39,7 +39,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--fold", default="F4", choices=["F4", "F5"])
     parser.add_argument("--data", default=DEFAULT_DATA)
     parser.add_argument("--out", required=True)
-    parser.add_argument("--epochs", type=int, default=6)
+    # §7: a control shares the EXACT optimizer budget of the run it controls,
+    # and A2 pins that at 30 cosine epochs.  Anything less is a throughput
+    # probe, not a certifying control.
+    parser.add_argument("--epochs", type=int, default=train.FIRST_BUDGET_EPOCHS)
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--max-train", type=int, default=0)
     parser.add_argument("--max-eval", type=int, default=0)
@@ -81,6 +84,10 @@ def main(argv: list[str] | None = None) -> int:
             json.dumps(published["gpu_receipt"], indent=2), encoding="utf-8")
 
     result["wall_seconds"] = round(time.time() - started, 2)
+    result["certifying"] = bool(args.epochs == train.FIRST_BUDGET_EPOCHS
+                                and not args.max_train and not args.max_eval)
+    result["a2_budget_epochs"] = train.FIRST_BUDGET_EPOCHS
+    result["session_store"] = train.STORE.receipt()
     result["device"] = args.device
     if torch.cuda.is_available() and args.device.startswith("cuda"):
         result["vram_peak_bytes"] = int(torch.cuda.max_memory_allocated())

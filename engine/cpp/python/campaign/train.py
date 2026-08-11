@@ -25,6 +25,7 @@ the read.  The corpus build runs in parallel; this lane is synthetic-only.
 from __future__ import annotations
 
 import os
+from collections import OrderedDict
 
 # CUBLAS_WORKSPACE_CONFIG must be in the environment before the first cuBLAS
 # handle is created, which happens inside torch on first CUDA use.
@@ -91,6 +92,90 @@ def fold_sessions(fold: str, block: str, available: list[int]) -> list[int]:
 # --- session data ----------------------------------------------------------
 
 
+#: The preassembled-session store.  MEASURED motive: an epoch's wall is
+#: dominated by per-session assembly (~2.4-2.9 s x 271 = 11-13 min), not by
+#: compute (0.042 s a step => ~11 s of GPU an epoch).  Assembling ONCE and
+#: holding the tensors turns every epoch after the first into pure compute.
+#: The budget is bytes of tensor payload; over it, the least-recently-used
+#: session spills to a binary cache and is reloaded from there instead of being
+#: rebuilt from the tape.  Box is 282 GB (INDEX.md), so 150 GB is the default.
+CACHE_BUDGET_BYTES = int(float(os.environ.get("CAMPAIGN_CACHE_GB", "150")) * (1 << 30))
+SPILL_DIR = pathlib.Path("/workspace/artifacts/cache/campaign/preassembled")
+
+
+def _payload_bytes(sides: dict) -> int:
+    total = 0
+    for batch, targets in sides.values():
+        for holder in (batch, targets):
+            for name in holder.__dataclass_fields__:
+                value = getattr(holder, name)
+                if torch.is_tensor(value):
+                    total += value.nbytes
+                elif isinstance(value, tuple):
+                    total += sum(item.nbytes for item in value if torch.is_tensor(item))
+    return total
+
+
+class SessionStore:
+    """LRU over preassembled sessions, with a byte budget and a disk spill."""
+
+    def __init__(self, budget: int = CACHE_BUDGET_BYTES) -> None:
+        self.budget = budget
+        self.entries: "OrderedDict[str, dict]" = OrderedDict()
+        self.bytes = 0
+        self.hits = 0
+        self.misses = 0
+        self.spills = 0
+        self.spill_reads = 0
+
+    def _spill_path(self, key: str) -> pathlib.Path:
+        return SPILL_DIR / f"{key}.pt"
+
+    def get(self, key: str, build):
+        entry = self.entries.get(key)
+        if entry is not None:
+            self.entries.move_to_end(key)
+            self.hits += 1
+            return entry
+        path = self._spill_path(key)
+        if path.is_file():
+            entry = torch.load(path, map_location="cpu", weights_only=False)
+            self.spill_reads += 1
+        else:
+            entry = build()
+            self.misses += 1
+        self._insert(key, entry)
+        return entry
+
+    def _insert(self, key: str, entry: dict) -> None:
+        size = _payload_bytes(entry)
+        while self.entries and self.bytes + size > self.budget:
+            old_key, old_entry = self.entries.popitem(last=False)
+            self.bytes -= _payload_bytes(old_entry)
+            path = self._spill_path(old_key)
+            if not path.is_file():
+                SPILL_DIR.mkdir(parents=True, exist_ok=True)
+                torch.save(old_entry, path)
+                self.spills += 1
+        self.entries[key] = entry
+        self.bytes += size
+
+    def receipt(self) -> dict:
+        return {"held_sessions": len(self.entries),
+                "held_bytes": self.bytes,
+                "budget_bytes": self.budget,
+                "hits": self.hits, "misses": self.misses,
+                "spills": self.spills, "spill_reads": self.spill_reads}
+
+
+STORE = SessionStore()
+
+
+#: The one-slot guard used when a session is NOT cacheable (full-row
+#: evaluation passes, which happen once and would evict the training set).
+_LIVE: list = []
+
+
 @dataclass
 class SessionData:
     """One session, loaded LAZILY.
@@ -104,16 +189,43 @@ class SessionData:
     ordinal: int
     clocks: Tensor        # i64 [C] the session's chronological decision ordinals
     loader: object = None  # () -> {"L"/"S": (Batch, Targets)}
+    mode: str = "train"   # "train" caches the ranked rows; "full" is transient
+    signature: str = ""   # what the cached assembly was built from
+    corpus: str = ""      # WHICH corpus it came from -- two corpora both have
+                          # an s0125, and a key without this serves one the
+                          # other's tensors (caught by the XOR control)
     _sides: dict | None = None
 
     @property
     def sides(self) -> dict:
+        if self._sides is None and self.mode == "train":
+            # The ranked training rows are the SAME every epoch, so this
+            # assembly is built once and then served from the store.
+            key = f"{self.corpus}_s{self.ordinal:04d}_train_{self.signature}"
+            object.__setattr__(self, "_sides", STORE.get(key, self.loader))
+            return self._sides
         if self._sides is None:
-            object.__setattr__(self, "_sides", self.loader())
+            # AT MOST ONE session is materialised at a time.  Without this the
+            # first consumer that walks the whole block -- a control's `fit`,
+            # say -- pins every session it touched: measured 147 GB RSS on the
+            # 271-session F4 train block before this guard existed.  Nothing in
+            # the driver needs two sessions live at once (the pairwise loss uses
+            # the LONG and SHORT sides of the same session).
+            for other in _LIVE:
+                if other is not self:
+                    other.release()
+            _LIVE.clear()
+            builder = getattr(self, "full_loader", None) if self.mode == "full" else None
+            object.__setattr__(self, "_sides", (builder or self.loader)())
+            _LIVE.append(self)
         return self._sides
 
     def release(self) -> None:
+        # A cached training assembly stays in the store; only the local handle
+        # is dropped, so the next epoch is a hit rather than a rebuild.
         object.__setattr__(self, "_sides", None)
+        if self in _LIVE:
+            _LIVE.remove(self)
 
 
 def slice_batch(batch: arms.Batch, index: Tensor) -> arms.Batch:
@@ -237,16 +349,47 @@ def load_sessions(root: pathlib.Path, ordinals: list[int],
     real = is_real_corpus(root)
     if not real:
         synth.assert_synthetic_only([str(root)])
+    # The corpus identity, so two roots that both publish an s0125 cannot share
+    # a cache entry (and a stale spill file cannot outlive its corpus).
+    corpus_key = hashlib.sha256(
+        f"{root.resolve()}|groups={with_groups}".encode("utf-8")).hexdigest()[:12]
     out: list[SessionData] = []
     for ordinal in sorted(ordinals):
-        def loader(ordinal=ordinal):
+        clocks = session_clocks(root, ordinal, real)
+        # A2 ranks pick 2048 CLOCKS, and training never looks at another row.
+        # Assembling only those rows is what makes a session small enough to
+        # hold for the whole fit (measured 8x fewer rows than the full tape).
+        ranked = clocks[selected_ranks(int(clocks.numel()))]
+        wanted = set(int(clock) for clock in ranked.tolist())
+        rows_by_side, signature = {}, []
+        for side in synth.SIDES:
+            if real:
+                ordinals_here = tapes.decision_ordinals(root, ordinal, side)
+            else:
+                directory = pathlib.Path(root) / f"s{ordinal:04d}" / side
+                keys = tapes.DecisionTape(directory).truth(["keys"], names=["keys"])["keys"]
+                ordinals_here = np.array(keys[:, tapes.KEY_DECISION], copy=True)
+            picked = np.flatnonzero(np.isin(ordinals_here, list(wanted)))
+            rows_by_side[side] = picked
+            signature.append(str(picked.size))
+
+        def loader(ordinal=ordinal, rows_by_side=rows_by_side):
+            if real:
+                return tapes.load_session(root, ordinal, verify_sha=verify_sha,
+                                          with_groups=with_groups,
+                                          rows_by_side=rows_by_side)
+            return synth.load_session(root, ordinal, verify_sha=verify_sha)
+
+        def full_loader(ordinal=ordinal):
             if real:
                 return tapes.load_session(root, ordinal, verify_sha=verify_sha,
                                           with_groups=with_groups)
             return synth.load_session(root, ordinal, verify_sha=verify_sha)
-        out.append(SessionData(ordinal=ordinal,
-                               clocks=session_clocks(root, ordinal, real),
-                               loader=loader))
+
+        session = SessionData(ordinal=ordinal, clocks=clocks, loader=loader,
+                              signature="x".join(signature), corpus=corpus_key)
+        object.__setattr__(session, "full_loader", full_loader)
+        out.append(session)
     return out
 
 
@@ -583,8 +726,11 @@ def evaluate(model: arms.Arm, sessions: list[SessionData], config: RunConfig,
     collected: list = []
     total, steps = 0.0, 0
     for session in sessions:
+        session.release()
+        object.__setattr__(session, "mode", "full")
         loss, _ = run_session(model, session, config, ranked=False, backward=False,
                               control=control, collect=collected)
+        object.__setattr__(session, "mode", "train")
         total += loss
         steps += 1
         session.release()

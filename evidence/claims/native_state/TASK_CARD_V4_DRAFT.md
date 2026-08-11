@@ -305,7 +305,13 @@ The production primary-plus-extended conjunction is witnessed by
 `engine/crates/cli/src/f02_handoff_cmd.rs` SHA
 `21d21f6cd020dc4c00dede55ba790323eef699f50a6590c02d6f7d4c4da7881c`; only its condition
 contract is reused, while V3.3.3's stricter quote/timestamp signing law above controls sign.
-Thus a direction-eligible stock print requires primary code0, every present extended code0,
+**CC-008 (measured vocabulary correction):** the extended-condition ADMITTED set is {0, 32}
+(32 = the raw sale-condition-list spelling of REGULAR: measured biconditional ext1==32 ⟺
+primary==0 with zero exceptions across 598,255 prints on sessions {125,500,625}; censuses
+pinned in engine/cpp/tests/fixtures/); the absence sentinel remains 255; the conjunction
+law is retained fail-closed (primary-0 with any real nonzero non-32 extended code —
+unobserved in scope — stays ineligible).
+Thus a direction-eligible stock print requires primary code0, every present extended code in {0,32},
 finite positive price, and positive size. All other prints remain in raw counts/quality
 with their typed reason, but cannot update price return, print-minus-mid, aggressor,
 signed size, prior-tick state, or prefix VWAP. No condition set is inferred from frequency.

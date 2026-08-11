@@ -122,6 +122,7 @@ def co_train(arm_names, config: train.RunConfig, out: pathlib.Path) -> dict:
     models, optimizers = build_group(arm_names, config)
     curves = {name: [] for name in arm_names}
     inner_curves = {name: [] for name in arm_names}
+    inner_epochs: list[int] = []
     started = time.time()
     if config.device.startswith("cuda") and torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
@@ -132,7 +133,10 @@ def co_train(arm_names, config: train.RunConfig, out: pathlib.Path) -> dict:
             report = co_run_epoch(models, optimizers, arm_names, sessions, config, rate)
             for name in arm_names:
                 curves[name].append(report["loss"][name] / max(len(sessions), 1))
-            if inner:
+            # The preregistered cadence, identical for every arm in the group and
+            # identical to the one a solo rung uses (train.INNER_VAL_EPOCHS).
+            if inner and train.inner_val_due(epoch, config.epochs):
+                inner_epochs.append(epoch + 1)
                 for name, model in zip(arm_names, models):
                     _, _, value = train.evaluate(model, inner, replace(config, arm=name))
                     inner_curves[name].append(value)
@@ -147,6 +151,7 @@ def co_train(arm_names, config: train.RunConfig, out: pathlib.Path) -> dict:
             "config_sha256": train.config_hash(arm_config),
             "train_curve": curves[name],
             "inner_val_curve": inner_curves[name],
+            "inner_val_epochs": list(inner_epochs),
             "co_trained_with": list(arm_names),
             "session_projection": config.session_projection,
             "undertrained": False,

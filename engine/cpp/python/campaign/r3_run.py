@@ -77,7 +77,8 @@ def main(argv: list[str] | None = None) -> int:
                   "bit_identical": published["determinism_bit_identical"],
                   "config_sha256": published["config_sha256"],
                   "train_curve": published["train_curve"],
-                  "inner_val_curve": published["inner_val_curve"]}
+                  "inner_val_curve": published["inner_val_curve"],
+                  "inner_val_epochs": published["inner_val_epochs"]}
         np.save(out / "logits.npy", published["logits"])
         np.save(out / "keys.npy", published["keys"])
         (out / "receipt.json").write_text(

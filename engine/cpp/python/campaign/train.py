@@ -60,6 +60,29 @@ COSINE_FLOOR_FRACTION = 1e-4        # "cosine decay to 1e-4-of-peak"
 FIRST_BUDGET_EPOCHS = 30
 SECOND_BUDGET_EPOCHS = 60
 UNDERTRAINED_THRESHOLD = 0.01       # ">1% over the final 3 epochs"
+
+#: PREREGISTERED INNER-VALIDATION CADENCE (orchestrator ruling, 2026-08-11).
+#: A2's decision rule is TRAIN-LOSS-ONLY -- the undertrained test reads
+#: `train_curve`, and gate selection happens later, off the published logits --
+#: so the inner-val curve is a DIAGNOSTIC RECEIPT, not a selection input.
+#: MEASURED: scoring all 50 gate-select sessions every epoch costs 7.4 min an
+#: epoch for a native quad (3.68 h of a 30-epoch rung, 27% of its wall) to draw
+#: a curve that no decision reads.  These seven points preserve the curve's
+#: shape for ~0.9 h.  The cadence is IDENTICAL for every arm and every fold, so
+#: no arm is ever advantaged by being watched more closely; it is fixed here
+#: before any science arm runs, and `inner_val_epochs` travels in the receipt so
+#: the curve can never be misread as one point per epoch.
+INNER_VAL_EPOCHS = (1, 5, 10, 15, 20, 25, 30)
+
+
+def inner_val_due(epoch: int, total: int) -> bool:
+    """Is the (0-based) `epoch` one of the preregistered scoring points?
+
+    The FINAL epoch is always scored whatever the budget is, so the receipt
+    always ends on the model that was actually published -- that also keeps the
+    60-epoch second budget honest without a second cadence to preregister."""
+    number = epoch + 1
+    return number in INNER_VAL_EPOCHS or number == total
 RANK_COUNT = 2048                   # "floor((j+0.5)*N/2048), j=0..2047"
 
 #: The micro-batch that puts a WHOLE ranked session through in ONE chunk.
@@ -1155,8 +1178,9 @@ def train_once(config: RunConfig, control=None) -> dict:
     inner_sessions = load_sessions(pathlib.Path(config.data), inner_ordinals,
                                    verify_sha=config.verify_sha,
                                    with_groups=with_groups)
-    # Inner-val is re-scored at EVERY epoch: measured, that uncached pass was
-    # costing more than the training epoch itself (3.3 min/epoch against 1.6).
+    # Inner-val is re-scored at the preregistered epochs only (INNER_VAL_EPOCHS),
+    # and its full-row assembly is held between them: measured, that uncached
+    # pass was costing more than the training epoch itself.
     for session in inner_sessions:
         object.__setattr__(session, "cacheable_full", True)
     if not train_sessions:
@@ -1174,7 +1198,7 @@ def train_once(config: RunConfig, control=None) -> dict:
     optimizer = torch.optim.AdamW(model.parameters(), lr=PEAK_LR,
                                   weight_decay=WEIGHT_DECAY)
 
-    train_curve, inner_curve = [], []
+    train_curve, inner_curve, inner_epochs = [], [], []
     started = time.time()
     tokens = 0
     if config.device.startswith("cuda") and torch.cuda.is_available():
@@ -1186,9 +1210,10 @@ def train_once(config: RunConfig, control=None) -> dict:
                                            learning_rate, control)
             tokens += epoch_tokens
             train_curve.append(loss / max(len(train_sessions), 1))
-            if inner_sessions:
+            if inner_sessions and inner_val_due(epoch, config.epochs):
                 _, _, inner = evaluate(model, inner_sessions, config, control)
                 inner_curve.append(inner)
+                inner_epochs.append(epoch + 1)
     wall = time.time() - started
 
     logits, keys, _ = evaluate(model, train_sessions + inner_sessions, config, control)
@@ -1201,6 +1226,7 @@ def train_once(config: RunConfig, control=None) -> dict:
         "config_sha256": config_hash(config),
         "train_curve": train_curve,
         "inner_val_curve": inner_curve,
+        "inner_val_epochs": inner_epochs,
         "undertrained": undertrained,
         "undertrained_rule": ">1% train-loss improvement over the final 3 epochs",
         "second_budget_epochs": SECOND_BUDGET_EPOCHS,

@@ -14,14 +14,33 @@
 // option-quote payload, and the dump writes `modality MODALITY_ABSENT` and
 // stops rather than inventing a series.
 //
+// TWO CONTRACT-LEVEL MODES (design/D020_SCALE_PROTOCOL.md §ORCH-6.3), which
+// the surface CANNOT answer at any resolution because a bucket holds no
+// contract-level price (Q4):
+//   --top-k N       DISCOVERY: the N most active contracts of the window, each
+//                   with the exact `strike_u6` a named run must pass back;
+//   --contract ID   the named contract's quote series (ms, bid, ask, sizes).
+// Either mode reads the B4 stream directly and does NOT build the surface, so
+// `--prints` and `--tapes` are not required and nothing but the option-quote
+// corpus is opened. They compose: one run may do both, over one pass.
+//
 // usage: qr_w21_dump --root DIR --prints DIR --tapes DIR --ordinal N
 //                    --from-second A --to-second B [--stride N] --out TSV
+//        qr_w21_dump --root DIR --ordinal N --from-second A --to-second B
+//                    [--contract <YYYY-MM-DD>:<strike_u6>:<C|P>] [--top-k N]
+//                    --out TSV
 #include <cinttypes>
 #include <cstdio>
 #include <cstdlib>
+#include <optional>
 #include <string>
+#include <utility>
+#include <vector>
 
+#include "qr_clock/session_clock.hpp"
 #include "qr_registry/registry.hpp"
+#include "qr_sources/option_quotes.hpp"
+#include "qr_w21/contract_series.hpp"
 #include "qr_w21/surface.hpp"
 
 namespace {
@@ -29,7 +48,10 @@ namespace {
 int usage() {
   std::fprintf(stderr,
                "usage: qr_w21_dump --root DIR --prints DIR --tapes DIR --ordinal N\n"
-               "                   --from-second A --to-second B [--stride N] --out TSV\n");
+               "                   --from-second A --to-second B [--stride N] --out TSV\n"
+               "       qr_w21_dump --root DIR --ordinal N --from-second A --to-second B\n"
+               "                   [--contract <YYYY-MM-DD>:<strike_u6>:<C|P>] [--top-k N]\n"
+               "                   --out TSV\n");
   return 2;
 }
 
@@ -37,6 +59,137 @@ void print_typed(std::FILE* out, const char* kind, std::int64_t second, const ch
                  qr::Typed<double> typed) {
   std::fprintf(out, "%s\t%" PRId64 "\t%s\t%.17g\t%s\n", kind, second, name, typed.value,
                qr::validity_name(typed.v));
+}
+
+/// `NA` for an absent projected cell, the exact integer otherwise. The readers'
+/// own rule: absence is never a zero that could collide with a real value.
+void put_i64(std::FILE* out, bool null, std::int64_t value) {
+  if (null) {
+    std::fputs("\tNA", out);
+  } else {
+    std::fprintf(out, "\t%" PRId64, value);
+  }
+}
+
+/// THE CONTRACT-LEVEL PASS. One walk of the B4 stream feeds both the named
+/// series and the discovery census, so a run that asks for both pays for one
+/// read. Nothing is derived: every emitted number is a retained projected value
+/// or the session second/millisecond of the row that carried it.
+int dump_contracts(std::FILE* out, const qr::DayScope& scope, const std::string& root,
+                   const std::string& contract_text, std::int64_t top_k,
+                   std::int64_t from_second, std::int64_t to_second) {
+  std::optional<qr::w21::ContractId> named;
+  if (!contract_text.empty()) {
+    const auto parsed = qr::w21::parse_contract_id(contract_text);
+    if (!parsed.has_value()) {
+      std::fprintf(stderr, "REFUSED: %s\n", parsed.error().message().c_str());
+      std::fclose(out);
+      return 1;
+    }
+    named = parsed.value();
+  }
+
+  const auto clock = qr::SessionClock::from_session(scope.session());
+  if (!clock.has_value()) {
+    std::fprintf(stderr, "REFUSED: %s\n", clock.error().message().c_str());
+    std::fclose(out);
+    return 1;
+  }
+  // THE SAME SECOND ARITHMETIC THE SURFACE USES — the session's own frame-B
+  // open, floored to seconds. A second clock here would put the contract series
+  // and the surface series on different grids.
+  const std::int64_t open_ms_b = clock.value().open_b().ns() / 1'000'000;
+
+  auto opened = qr::sources::OptionQuoteReader::open(scope, std::filesystem::path(root));
+  if (!opened.has_value()) {
+    std::fprintf(stderr, "REFUSED: %s\n", opened.error().refusal().message().c_str());
+    std::fclose(out);
+    return 1;
+  }
+  qr::sources::OptionQuoteReader reader = std::move(opened).value();
+
+  qr::w21::ActivityCensus census(from_second, to_second);
+  qr::w21::ContractSeries series(named.value_or(qr::w21::ContractId{}), from_second, to_second);
+
+  qr::sources::OptionQuoteReader::Group group;
+  for (;;) {
+    const auto more = reader.next_group(group);
+    if (!more.has_value()) {
+      std::fprintf(stderr, "REFUSED: %s\n", more.error().refusal().message().c_str());
+      std::fclose(out);
+      return 1;
+    }
+    if (!more.value()) {
+      break;
+    }
+    const std::int64_t ms = group.ts_ms_b - open_ms_b;
+    const std::int64_t second = ms / 1000;
+    for (const qr::sources::OptionQuoteRow& row : group.rows) {
+      if (top_k > 0) {
+        census.observe(second, ms, row);
+      }
+      if (named.has_value()) {
+        series.observe(second, ms, row);
+      }
+    }
+  }
+
+  std::fprintf(out, "session\tfrom_second\t%" PRId64 "\n", from_second);
+  std::fprintf(out, "session\tto_second\t%" PRId64 "\n", to_second);
+  std::fprintf(out, "session\tquote_rth_rows\t%" PRId64 "\n", reader.rth_rows());
+  std::fprintf(out, "session\tquote_shards\t%" PRId64 "\n",
+               static_cast<std::int64_t>(reader.shards().size()));
+
+  if (top_k > 0) {
+    std::fprintf(out, "# top_contract\trank\tcontract\texpiration_day\tstrike_u6\tright"
+                      "\trows\tseconds_present\tfirst_ms\tlast_ms\n");
+    std::fprintf(out, "window\tcontracts\t%" PRId64 "\n", census.contracts());
+    std::fprintf(out, "window\trows\t%" PRId64 "\n", census.rows());
+    const std::vector<qr::w21::ContractActivity> top =
+        census.top(static_cast<std::size_t>(top_k));
+    for (std::size_t rank = 0; rank < top.size(); ++rank) {
+      const qr::w21::ContractActivity& one = top[rank];
+      std::fprintf(out,
+                   "top_contract\t%" PRId64 "\t%s\t%" PRId64 "\t%" PRId64 "\t%s\t%" PRId64
+                   "\t%" PRId64 "\t%" PRId64 "\t%" PRId64 "\n",
+                   static_cast<std::int64_t>(rank), qr::w21::format_contract_id(one.id).c_str(),
+                   static_cast<std::int64_t>(one.id.expiration_day), one.id.strike_u6,
+                   qr::sources::right_name(one.id.right), one.rows, one.seconds_present,
+                   one.first_ms, one.last_ms);
+    }
+  }
+
+  if (named.has_value()) {
+    std::fprintf(out, "# contract_quote\tsecond\tms\tbid_u6\task_u6\tbid_size\task_size"
+                      "\tmid_u6\n");
+    std::fprintf(out, "contract\tid\t%s\n",
+                 qr::w21::format_contract_id(named.value()).c_str());
+    std::fprintf(out, "contract\texpiration_day\t%" PRId64 "\n",
+                 static_cast<std::int64_t>(named.value().expiration_day));
+    std::fprintf(out, "contract\tstrike_u6\t%" PRId64 "\n", named.value().strike_u6);
+    std::fprintf(out, "contract\tright\t%s\n", qr::sources::right_name(named.value().right));
+    std::fprintf(out, "contract\tsession_rows\t%" PRId64 "\n", series.session_rows());
+    std::fprintf(out, "contract\twindow_rows\t%" PRId64 "\n",
+                 static_cast<std::int64_t>(series.quotes().size()));
+    for (const qr::w21::ContractQuote& quote : series.quotes()) {
+      std::fprintf(out, "contract_quote\t%" PRId64 "\t%" PRId64, quote.second, quote.ms);
+      put_i64(out, quote.is_null(qr::sources::kOptionQuoteSlotBid), quote.bid_u6);
+      put_i64(out, quote.is_null(qr::sources::kOptionQuoteSlotAsk), quote.ask_u6);
+      put_i64(out, quote.is_null(qr::sources::kOptionQuoteSlotBidSize), quote.bid_size);
+      put_i64(out, quote.is_null(qr::sources::kOptionQuoteSlotAskSize), quote.ask_size);
+      // The midpoint is computed BEFORE the call, not inside its argument
+      // list: the order in which a call's arguments are evaluated is
+      // unspecified, so `put_i64(out, !quote.mid_u6(mid), mid)` may read `mid`
+      // before it is written.
+      std::int64_t mid = 0;
+      const bool two_sided = quote.mid_u6(mid);
+      put_i64(out, !two_sided, mid);
+      std::fputc('\n', out);
+    }
+  }
+
+  std::fclose(out);
+  return 0;
 }
 
 }  // namespace
@@ -50,6 +203,8 @@ int main(int argc, char** argv) {
   std::int64_t from_second = -1;
   std::int64_t to_second = -1;
   std::int64_t stride = 1;
+  std::string contract_text;
+  std::int64_t top_k = 0;
   for (int index = 1; index < argc; ++index) {
     const std::string flag = argv[index];
     if (index + 1 >= argc) {
@@ -72,12 +227,23 @@ int main(int argc, char** argv) {
       to_second = std::strtoll(value.c_str(), nullptr, 10);
     } else if (flag == "--stride") {
       stride = std::strtoll(value.c_str(), nullptr, 10);
+    } else if (flag == "--contract") {
+      contract_text = value;
+    } else if (flag == "--top-k") {
+      top_k = std::strtoll(value.c_str(), nullptr, 10);
     } else {
       return usage();
     }
   }
-  if (root.empty() || prints.empty() || tapes.empty() || out_path.empty() || ordinal < 0 ||
-      from_second < 0 || to_second < from_second || stride < 1) {
+  const bool contract_mode = !contract_text.empty() || top_k > 0;
+  if (root.empty() || out_path.empty() || ordinal < 0 || from_second < 0 ||
+      to_second < from_second || stride < 1 || top_k < 0) {
+    return usage();
+  }
+  // The surface pass needs the print corpus and the emitted 1s grid; the
+  // contract pass needs neither, and demanding them would make a read-only
+  // quote dump depend on artifacts it never opens.
+  if (!contract_mode && (prints.empty() || tapes.empty())) {
     return usage();
   }
 
@@ -106,6 +272,11 @@ int main(int argc, char** argv) {
                  qr::validity_name(qr::Validity::MODALITY_ABSENT));
     std::fclose(out);
     return 0;
+  }
+
+  // --- the contract-level modes -------------------------------------------
+  if (contract_mode) {
+    return dump_contracts(out, scope.value(), root, contract_text, top_k, from_second, to_second);
   }
 
   char padded[32];

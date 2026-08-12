@@ -1,0 +1,13 @@
+--- a/qr_sources/src/option_prints.cpp
++++ b/qr_sources/src/option_prints.cpp
+@@ -235,7 +235,9 @@
+ }
+ 
+ void OptionPrintCoverage::observe(const OptionPrintRow& row) {
+-  contracts_.emplace(row.expiration_day, row.strike_u6, static_cast<std::uint8_t>(row.right));
++  // MR07: a contract identity loses its right, so a call and a put on the
++  // same strike and expiry are counted as one contract.
++  contracts_.emplace(row.expiration_day, row.strike_u6, static_cast<std::uint8_t>(0));
+   expirations_.insert(row.expiration_day);
+   strikes_.insert(row.strike_u6);
+ }

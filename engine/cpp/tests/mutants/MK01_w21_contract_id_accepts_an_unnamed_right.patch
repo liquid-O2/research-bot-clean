@@ -1,0 +1,13 @@
+--- a/qr_w21/src/contract_series.cpp
++++ b/qr_w21/src/contract_series.cpp
+@@ -62,7 +62,9 @@
+   }
+ 
+   const qr::sources::Right right = qr::sources::parse_right(right_text);
+-  if (right == qr::sources::Right::Other) {
++  // MK01: a right the frozen token set does not name is accepted and becomes
++  // `Other`, so a typo answers with an empty series instead of a refusal.
++  if (false) {
+     // ON THE TAPE an unnamed right is a datum and stays `Other`. IN A CALLER'S
+     // ARGUMENT it is a typo, and answering it with an empty series would look
+     // like "this contract never quoted".

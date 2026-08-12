@@ -17,9 +17,16 @@
 // It is census-style: read-only, no wall-clock value in the output, so two runs
 // of the same arguments are byte-identical.
 //
+// THE RUTW STREAM (B5) IS OPT-IN. `--streams` must name `rutw` for it to be
+// emitted, and the `rutw_option` rows carry EXACTLY the `option` columns — B5
+// is the same 62-name profile under the same laws, so the same named slots
+// print the same way. It is a SEPARATE row kind and never merged into
+// `option`: IWM and RUTW are different instruments, and W2.12's whole content
+// is the DIVERGENCE between them, which a merged stream would destroy.
+//
 // usage: qr_tape_ribbon --ordinal N --from-second A --to-second B --out TSV
 //                       [--quotes-root DIR] [--trades-root DIR] [--options-root DIR]
-//                       [--streams prints,quotes,options]
+//                       [--rutw-root DIR] [--streams prints,quotes,options,rutw]
 #include <cinttypes>
 #include <cstdio>
 #include <cstdlib>
@@ -29,6 +36,7 @@
 #include "qr_registry/day_scope.hpp"
 #include "qr_registry/registry.hpp"
 #include "qr_sources/option_prints.hpp"
+#include "qr_sources/rutw_prints.hpp"
 #include "qr_sources/stock_quotes.hpp"
 #include "qr_sources/stock_trades.hpp"
 
@@ -43,7 +51,7 @@ int usage() {
   std::fprintf(stderr,
                "usage: qr_tape_ribbon --ordinal N --from-second A --to-second B --out TSV\n"
                "       [--quotes-root DIR] [--trades-root DIR] [--options-root DIR]\n"
-               "       [--streams prints,quotes,options]\n");
+               "       [--rutw-root DIR] [--streams prints,quotes,options,rutw]\n");
   return 2;
 }
 
@@ -64,12 +72,41 @@ void put_f64(std::FILE* out, bool null, double value) {
   }
 }
 
+/// One option-print row, in named projection slots. B3 and B5 share the row
+/// type because they share the profile and the laws, so they share this
+/// printer too — and differ only in the `kind` column, which names the corpus
+/// the row came from.
+void put_option_row(std::FILE* out, const char* kind, std::int64_t ms,
+                    const qr::sources::OptionPrintRow& row) {
+  std::fprintf(out, "%s\t%" PRId64, kind, ms);
+  put_i64(out, row.is_null(qr::sources::kPrintSlotSize), row.size);
+  put_i64(out, row.is_null(qr::sources::kPrintSlotPrice), row.price_u6);
+  put_i64(out, row.is_null(qr::sources::kPrintSlotStrike), row.strike_u6);
+  std::fprintf(out, "\t%s", qr::sources::right_name(row.right));
+  put_i64(out, row.is_null(qr::sources::kPrintSlotExpiration),
+          static_cast<std::int64_t>(row.expiration_day));
+  put_i64(out, row.is_null(qr::sources::kPrintSlotBid), row.bid_u6);
+  put_i64(out, row.is_null(qr::sources::kPrintSlotAsk), row.ask_u6);
+  put_i64(out, row.is_null(qr::sources::kPrintSlotBidSize), row.bid_size);
+  put_i64(out, row.is_null(qr::sources::kPrintSlotAskSize), row.ask_size);
+  put_f64(out, row.is_null(qr::sources::kPrintSlotDelta), row.delta);
+  put_f64(out, row.is_null(qr::sources::kPrintSlotGamma), row.gamma);
+  put_f64(out, row.is_null(qr::sources::kPrintSlotVanna), row.vanna);
+  put_f64(out, row.is_null(qr::sources::kPrintSlotCharm), row.charm);
+  put_f64(out, row.is_null(qr::sources::kPrintSlotImpliedVol), row.implied_vol);
+  put_f64(out, row.is_null(qr::sources::kPrintSlotUnderlyingPrice), row.underlying_price);
+  put_i64(out, row.is_null(qr::sources::kPrintSlotCondition), row.condition);
+  put_i64(out, row.is_null(qr::sources::kPrintSlotSequence), row.sequence);
+  std::fputc('\n', out);
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
   std::string quotes_root = "/workspace/data/tokens/stock_quotes/IWM";
   std::string trades_root = "/workspace/data/tokens/stock_trades/IWM";
   std::string options_root = "/workspace/data/tokens/options_prints/IWM";
+  std::string rutw_root = "/workspace/data/tokens/RUTW/options_prints";
   std::string out_path;
   std::string streams = "prints,quotes,options";
   std::int64_t ordinal = -1;
@@ -87,6 +124,8 @@ int main(int argc, char** argv) {
       trades_root = value;
     } else if (flag == "--options-root") {
       options_root = value;
+    } else if (flag == "--rutw-root") {
+      rutw_root = value;
     } else if (flag == "--out") {
       out_path = value;
     } else if (flag == "--streams") {
@@ -107,6 +146,9 @@ int main(int argc, char** argv) {
   const bool want_prints = streams.find("prints") != std::string::npos;
   const bool want_quotes = streams.find("quotes") != std::string::npos;
   const bool want_options = streams.find("options") != std::string::npos;
+  // OPT-IN, so an existing invocation's output is unchanged byte for byte.
+  // `options` does not contain `rutw`, so the two tokens never alias.
+  const bool want_rutw = streams.find("rutw") != std::string::npos;
 
   auto registry = qr::Registry::load_embedded();
   if (!registry.has_value()) {
@@ -160,6 +202,12 @@ int main(int argc, char** argv) {
                "# option\tms\tsize\tprice_u6\tstrike_u6\tright\texpiration_day\tbid_u6\task_u6"
                "\tbid_size\task_size\tdelta\tgamma\tvanna\tcharm\timplied_vol"
                "\tunderlying_price\tcondition\tsequence\n");
+  if (want_rutw) {
+    std::fprintf(out,
+                 "# rutw_option\tms\tsize\tprice_u6\tstrike_u6\tright\texpiration_day\tbid_u6"
+                 "\task_u6\tbid_size\task_size\tdelta\tgamma\tvanna\tcharm\timplied_vol"
+                 "\tunderlying_price\tcondition\tsequence\n");
+  }
 
   if (want_prints) {
     auto opened = qr::sources::StockTradeReader::open(scope.value(), trades_root);
@@ -266,26 +314,39 @@ int main(int argc, char** argv) {
         break;
       }
       for (const qr::sources::OptionPrintRow& row : group.rows) {
-        std::fprintf(out, "option\t%" PRId64, millis_of(row.ts_ms_b));
-        put_i64(out, row.is_null(qr::sources::kPrintSlotSize), row.size);
-        put_i64(out, row.is_null(qr::sources::kPrintSlotPrice), row.price_u6);
-        put_i64(out, row.is_null(qr::sources::kPrintSlotStrike), row.strike_u6);
-        std::fprintf(out, "\t%s", qr::sources::right_name(row.right));
-        put_i64(out, row.is_null(qr::sources::kPrintSlotExpiration),
-                static_cast<std::int64_t>(row.expiration_day));
-        put_i64(out, row.is_null(qr::sources::kPrintSlotBid), row.bid_u6);
-        put_i64(out, row.is_null(qr::sources::kPrintSlotAsk), row.ask_u6);
-        put_i64(out, row.is_null(qr::sources::kPrintSlotBidSize), row.bid_size);
-        put_i64(out, row.is_null(qr::sources::kPrintSlotAskSize), row.ask_size);
-        put_f64(out, row.is_null(qr::sources::kPrintSlotDelta), row.delta);
-        put_f64(out, row.is_null(qr::sources::kPrintSlotGamma), row.gamma);
-        put_f64(out, row.is_null(qr::sources::kPrintSlotVanna), row.vanna);
-        put_f64(out, row.is_null(qr::sources::kPrintSlotCharm), row.charm);
-        put_f64(out, row.is_null(qr::sources::kPrintSlotImpliedVol), row.implied_vol);
-        put_f64(out, row.is_null(qr::sources::kPrintSlotUnderlyingPrice), row.underlying_price);
-        put_i64(out, row.is_null(qr::sources::kPrintSlotCondition), row.condition);
-        put_i64(out, row.is_null(qr::sources::kPrintSlotSequence), row.sequence);
-        std::fputc('\n', out);
+        put_option_row(out, "option", millis_of(row.ts_ms_b), row);
+      }
+    }
+  }
+
+  if (want_rutw) {
+    // B5, through its OWN reader. The IWM print reader would refuse this root
+    // by name, and this reader refuses every other root by name — the wall is
+    // two-way, so the tool cannot silently read one corpus into the other's
+    // stream.
+    auto opened = qr::sources::RutwPrintReader::open(scope.value(), rutw_root);
+    if (!opened.has_value()) {
+      die(std::string("rutw: ") + opened.error().refusal().message());
+    }
+    qr::sources::RutwPrintReader reader = std::move(opened).value();
+    qr::sources::RutwPrintReader::Group group;
+    for (;;) {
+      auto more = reader.next_group(group);
+      if (!more.has_value()) {
+        die(std::string("rutw: ") + more.error().refusal().message());
+      }
+      if (!more.value()) {
+        break;
+      }
+      const std::int64_t second = second_of(group.ts_ms_b);
+      if (second < from_second) {
+        continue;
+      }
+      if (second > to_second) {
+        break;
+      }
+      for (const qr::sources::OptionPrintRow& row : group.rows) {
+        put_option_row(out, "rutw_option", millis_of(row.ts_ms_b), row);
       }
     }
   }

@@ -1,0 +1,15 @@
+--- a/qr_sources/src/rutw_prints.cpp
++++ b/qr_sources/src/rutw_prints.cpp
+@@ -56,7 +56,11 @@
+   // including the 42 columns this reader never decodes.
+   FileExpected<SessionSource> source =
+       SessionSource::open(path, view_of(kRutwPrintSpec),
+-                          std::span<const ColumnForm>(kRutwPrintFormsWide), open_ms, close_ms);
++                          // MR08: the RUTW pin reverts to the COMPACT
++                          // vector, whose int32 sizes and cent prices
++                          // cannot hold a RUT-scale contract at all.
++                          std::span<const ColumnForm>(kOptionPrintFormsIwmCompact),
++                          open_ms, close_ms);
+   if (!source.has_value()) {
+     return FileExpected<RutwPrintReader>::refuse(source.error());
+   }

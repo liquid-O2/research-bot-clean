@@ -9,7 +9,9 @@ namespace qr::sources {
 namespace {
 
 constexpr const char* kOpenSite = "qr_sources::OptionPrintReader::open";
-constexpr const char* kRowSite = "qr_sources::OptionPrintReader::row";
+constexpr const char* kRowSite = "qr_sources::OptionPrintTape::row";
+/// Length of an ISO civil day, `YYYY-MM-DD`.
+constexpr std::size_t kCivilDayLength = 10;
 
 }  // namespace
 
@@ -128,6 +130,116 @@ std::string_view OptionPrintDigests::field_name(std::size_t slot) noexcept {
   return slot < kNames.size() ? kNames[slot] : std::string_view{"?"};
 }
 
+// ---------------------------------------------------------------------------
+// The census.
+// ---------------------------------------------------------------------------
+
+std::int64_t OptionPrintCensus::field(std::size_t index) const noexcept {
+  switch (index) {
+    case 0: return rth_rows;
+    case 1: return group_count;
+    case 2: return skipped_null_rows;
+    case 3: return quote_attachment_prior;
+    case 4: return quote_attachment_not_prior;
+    case 5: return quote_attachment_absent;
+    case 6: return underlying_on_day;
+    case 7: return underlying_off_day;
+    case 8: return underlying_absent;
+    case 9: return fully_populated_rows;
+    case 10: return greek_complete_rows;
+    case 11: return junk_price_rows;
+    case 12: return junk_size_rows;
+    case 13: return junk_right_rows;
+    case 14: return junk_crossed_quote_rows;
+    case 15: return junk_rows;
+    default: return 0;
+  }
+}
+
+std::string_view OptionPrintCensus::field_name(std::size_t index) noexcept {
+  static constexpr std::array<std::string_view, kFields> kNames{
+      "rth_rows",
+      "group_count",
+      "skipped_null_rows",
+      "quote_attachment_prior",
+      "quote_attachment_not_prior",
+      "quote_attachment_absent",
+      "underlying_on_day",
+      "underlying_off_day",
+      "underlying_absent",
+      "fully_populated_rows",
+      "greek_complete_rows",
+      "junk_price_rows",
+      "junk_size_rows",
+      "junk_right_rows",
+      "junk_crossed_quote_rows",
+      "junk_rows"};
+  return index < kNames.size() ? kNames[index] : std::string_view{"?"};
+}
+
+void fold_census(OptionPrintCensus& census, const OptionPrintRow& row,
+                 std::string_view day) noexcept {
+  // quote_ts(45) against the print instant. Both are frame-B milliseconds of
+  // the same session, so the comparison is exact and needs no clock.
+  if (row.is_null(kPrintSlotQuoteTimestamp)) {
+    ++census.quote_attachment_absent;
+  } else if (row.quote_ts_ms_b < row.ts_ms_b) {
+    ++census.quote_attachment_prior;
+  } else {
+    ++census.quote_attachment_not_prior;
+  }
+
+  // underlying_ts(36): presence, and whether the stamp names this session's own
+  // day. A COMPARISON of the first ten bytes, never a parse — WP4 does not
+  // interpret this text and the parse owner is WP8.
+  if (row.is_null(kPrintSlotUnderlyingTimestamp)) {
+    ++census.underlying_absent;
+  } else {
+    const std::string_view text = row.underlying_ts_text.view();
+    if (text.size() >= kCivilDayLength && day.size() == kCivilDayLength &&
+        text.substr(0, kCivilDayLength) == day) {
+      ++census.underlying_on_day;
+    } else {
+      ++census.underlying_off_day;
+    }
+  }
+
+  bool fully_populated = true;
+  for (std::size_t slot = 0; slot < 20; ++slot) {
+    if (row.is_null(slot)) {
+      fully_populated = false;
+      break;
+    }
+  }
+  census.fully_populated_rows += fully_populated ? 1 : 0;
+
+  const bool greeks_complete =
+      !row.is_null(kPrintSlotDelta) && !row.is_null(kPrintSlotGamma) &&
+      !row.is_null(kPrintSlotVanna) && !row.is_null(kPrintSlotCharm) &&
+      !row.is_null(kPrintSlotImpliedVol);
+  census.greek_complete_rows += greeks_complete ? 1 : 0;
+
+  // JUNK: the four mechanical ways a print cannot be what B3 says a print is.
+  // Counted, never dropped.
+  const bool junk_price = row.is_null(kPrintSlotPrice) || row.price_u6 <= 0;
+  const bool junk_size = row.is_null(kPrintSlotSize) || row.size <= 0;
+  const bool junk_right = row.is_null(kPrintSlotRight) || row.right == Right::Other;
+  const bool quote_two_sided =
+      !row.is_null(kPrintSlotBid) && !row.is_null(kPrintSlotAsk);
+  const bool junk_crossed = quote_two_sided && row.ask_u6 < row.bid_u6;
+  census.junk_price_rows += junk_price ? 1 : 0;
+  census.junk_size_rows += junk_size ? 1 : 0;
+  census.junk_right_rows += junk_right ? 1 : 0;
+  census.junk_crossed_quote_rows += junk_crossed ? 1 : 0;
+  census.junk_rows += (junk_price || junk_size || junk_right || junk_crossed) ? 1 : 0;
+}
+
+void OptionPrintCoverage::observe(const OptionPrintRow& row) {
+  contracts_.emplace(row.expiration_day, row.strike_u6, static_cast<std::uint8_t>(row.right));
+  expirations_.insert(row.expiration_day);
+  strikes_.insert(row.strike_u6);
+}
+
 FileExpected<OptionPrintReader> OptionPrintReader::open(const DayScope& scope,
                                                         const std::filesystem::path& corpus_root) {
   // THE B5 DEFERRAL WALL, ON THE MODALITY RATHER THAN ON THE ENCODING. B5
@@ -162,11 +274,15 @@ FileExpected<OptionPrintReader> OptionPrintReader::open(const DayScope& scope,
   if (!source.has_value()) {
     return FileExpected<OptionPrintReader>::refuse(source.error());
   }
-  return OptionPrintReader(std::move(source).value());
+  return OptionPrintReader(std::move(source).value(), scope.day());
 }
 
-FileExpected<bool> OptionPrintReader::fill() {
-  FileExpected<std::int64_t> decoded = source_.next_chunk();
+// ---------------------------------------------------------------------------
+// The shared B3/B5 streaming core.
+// ---------------------------------------------------------------------------
+
+FileExpected<bool> OptionPrintTape::fill(SessionSource& source) {
+  FileExpected<std::int64_t> decoded = source.next_chunk();
   if (!decoded.has_value()) {
     return FileExpected<bool>::refuse(decoded.error());
   }
@@ -177,69 +293,69 @@ FileExpected<bool> OptionPrintReader::fill() {
     // ADMISSION (reference `options_prints.rs:298-300`): a print with no
     // instant cannot be placed on the clock. This is also where the compact
     // corpus's all-null sentinel row leaves the stream.
-    if (source_.cell(kPrintSlotTimestamp).is_null(row)) {
-      ++skipped_null_rows_;
+    if (source.cell(kPrintSlotTimestamp).is_null(row)) {
+      ++census_.skipped_null_rows;
       continue;
     }
     Expected<std::int64_t, Refusal> timestamp =
-        cell_i64(source_.cell(kPrintSlotTimestamp), source_.form(kPrintSlotTimestamp), row);
+        cell_i64(source.cell(kPrintSlotTimestamp), source.form(kPrintSlotTimestamp), row);
     if (!timestamp.has_value()) {
-      return source_.refuse<bool>(timestamp.error());
+      return source.refuse<bool>(timestamp.error());
     }
     const std::int64_t ts_ms = timestamp.value();
     if (has_last_ts_ && ts_ms < last_ts_ms_) {
-      return source_.refuse<bool>(
+      return source.refuse<bool>(
           Refusal(RefusalCode::OUT_OF_ORDER, kRowSite, "option print tape descends in time", ts_ms));
     }
     last_ts_ms_ = ts_ms;
     has_last_ts_ = true;
-    if (ts_ms < source_.open_ms_b() || ts_ms >= source_.close_ms_b()) {
+    if (ts_ms < source.open_ms_b() || ts_ms >= source.close_ms_b()) {
       continue;
     }
-    ++rth_rows_;
+    ++census_.rth_rows;
 
     OptionPrintRow built;
     built.ts_ms_b = ts_ms;
 
     // expiration(1): a day ordinal in the compact profile, ISO text in the
     // wide one; either way the row carries the ordinal.
-    if (source_.cell(kPrintSlotExpiration).is_null(row)) {
+    if (source.cell(kPrintSlotExpiration).is_null(row)) {
       built.null_mask |= std::uint32_t{1} << kPrintSlotExpiration;
     } else {
       Expected<std::int32_t, Refusal> expiration = cell_day_ordinal(
-          source_.cell(kPrintSlotExpiration), source_.form(kPrintSlotExpiration), row);
+          source.cell(kPrintSlotExpiration), source.form(kPrintSlotExpiration), row);
       if (!expiration.has_value()) {
-        return source_.refuse<bool>(expiration.error());
+        return source.refuse<bool>(expiration.error());
       }
       built.expiration_day = expiration.value();
     }
 
     // right(3): parsed to the frozen three-valued enum; an unknown token stays
     // Other rather than being folded into call or put.
-    if (source_.cell(kPrintSlotRight).is_null(row)) {
+    if (source.cell(kPrintSlotRight).is_null(row)) {
       built.null_mask |= std::uint32_t{1} << kPrintSlotRight;
     } else {
       Expected<std::string_view, Refusal> text =
-          cell_text(source_.cell(kPrintSlotRight), source_.form(kPrintSlotRight), row);
+          cell_text(source.cell(kPrintSlotRight), source.form(kPrintSlotRight), row);
       if (!text.has_value()) {
-        return source_.refuse<bool>(text.error());
+        return source.refuse<bool>(text.error());
       }
       built.right = parse_right(text.value());
     }
 
     // underlying_ts(36): retained VERBATIM, interpreted by nobody in WP4.
-    if (source_.cell(kPrintSlotUnderlyingTimestamp).is_null(row)) {
+    if (source.cell(kPrintSlotUnderlyingTimestamp).is_null(row)) {
       built.null_mask |= std::uint32_t{1} << kPrintSlotUnderlyingTimestamp;
     } else {
       Expected<std::string_view, Refusal> text =
-          cell_text(source_.cell(kPrintSlotUnderlyingTimestamp),
-                    source_.form(kPrintSlotUnderlyingTimestamp), row);
+          cell_text(source.cell(kPrintSlotUnderlyingTimestamp),
+                    source.form(kPrintSlotUnderlyingTimestamp), row);
       if (!text.has_value()) {
-        return source_.refuse<bool>(text.error());
+        return source.refuse<bool>(text.error());
       }
       Expected<InlineText, Refusal> retained = inline_text(text.value());
       if (!retained.has_value()) {
-        return source_.refuse<bool>(retained.error());
+        return source.refuse<bool>(retained.error());
       }
       built.underlying_ts_text = retained.value();
     }
@@ -250,9 +366,9 @@ FileExpected<bool> OptionPrintReader::fill() {
     std::array<std::int64_t, 4> prices{};
     for (std::size_t index = 0; index < kPriceSlots.size(); ++index) {
       Expected<std::int64_t, Refusal> value =
-          read_nullable_u6(source_, kPriceSlots[index], row, built.null_mask);
+          read_nullable_u6(source, kPriceSlots[index], row, built.null_mask);
       if (!value.has_value()) {
-        return source_.refuse<bool>(value.error());
+        return source.refuse<bool>(value.error());
       }
       prices[index] = value.value();
     }
@@ -267,9 +383,9 @@ FileExpected<bool> OptionPrintReader::fill() {
     std::array<double, 6> reals{};
     for (std::size_t index = 0; index < kRealSlots.size(); ++index) {
       Expected<double, Refusal> value =
-          read_nullable_f64(source_, kRealSlots[index], row, built.null_mask);
+          read_nullable_f64(source, kRealSlots[index], row, built.null_mask);
       if (!value.has_value()) {
-        return source_.refuse<bool>(value.error());
+        return source.refuse<bool>(value.error());
       }
       reals[index] = value.value();
     }
@@ -286,9 +402,9 @@ FileExpected<bool> OptionPrintReader::fill() {
     std::array<std::int64_t, 6> ints{};
     for (std::size_t index = 0; index < kIntSlots.size(); ++index) {
       Expected<std::int64_t, Refusal> value =
-          read_nullable_int(source_, kIntSlots[index], row, built.null_mask);
+          read_nullable_int(source, kIntSlots[index], row, built.null_mask);
       if (!value.has_value()) {
-        return source_.refuse<bool>(value.error());
+        return source.refuse<bool>(value.error());
       }
       ints[index] = value.value();
     }
@@ -299,6 +415,7 @@ FileExpected<bool> OptionPrintReader::fill() {
     built.ask_size = ints[4];
     built.quote_ts_ms_b = ints[5];
 
+    fold_census(census_, built, day_);
     tape_.push(built);
   }
   tape_.end_chunk(end_of_session);
@@ -308,16 +425,16 @@ FileExpected<bool> OptionPrintReader::fill() {
   return true;
 }
 
-FileExpected<bool> OptionPrintReader::next_group(Group& out) {
+FileExpected<bool> OptionPrintTape::next_group(SessionSource& source, Group& out) {
   while (true) {
     if (tape_.next(out.ts_ms_b, out.rows)) {
-      ++group_count_;
+      ++census_.group_count;
       return true;
     }
     if (exhausted_) {
       return false;
     }
-    FileExpected<bool> filled = fill();
+    FileExpected<bool> filled = fill(source);
     if (!filled.has_value()) {
       return filled;
     }

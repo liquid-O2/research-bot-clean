@@ -1,0 +1,14 @@
+--- a/qr_w21/include/qr_w21/contract_series.hpp
++++ b/qr_w21/include/qr_w21/contract_series.hpp
+@@ -63,8 +63,9 @@
+   /// A TOTAL order, so a `std::map` keyed on it iterates deterministically.
+   friend auto operator<=>(const ContractId& left, const ContractId& right) noexcept {
+     if (auto cmp = left.expiration_day <=> right.expiration_day; cmp != 0) return cmp;
+-    if (auto cmp = left.strike_u6 <=> right.strike_u6; cmp != 0) return cmp;
+-    return static_cast<std::uint8_t>(left.right) <=> static_cast<std::uint8_t>(right.right);
++    // MK02: the contract order stops at the strike, so a call and a put on
++    // the same strike compare EQUIVALENT and a map keyed on it merges them.
++    return left.strike_u6 <=> right.strike_u6;
+   }
+ };
+ 

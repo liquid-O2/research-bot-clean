@@ -1,0 +1,13 @@
+--- a/qr_sources/src/option_prints.cpp
++++ b/qr_sources/src/option_prints.cpp
+@@ -16,7 +16,9 @@
+ }  // namespace
+ 
+ bool canonical_less(const OptionPrintRow& left, const OptionPrintRow& right) noexcept {
+-  if (left.ts_ms_b != right.ts_ms_b) return left.ts_ms_b < right.ts_ms_b;
++  // MR12: rows sharing a millisecond stop being canonically ordered, so the
++  // vendor writer's arbitrary in-group order becomes the emitted order.
++  if (true) return left.ts_ms_b < right.ts_ms_b;
+   if (left.expiration_day != right.expiration_day) return left.expiration_day < right.expiration_day;
+   if (left.strike_u6 != right.strike_u6) return left.strike_u6 < right.strike_u6;
+   if (left.right != right.right) return left.right < right.right;

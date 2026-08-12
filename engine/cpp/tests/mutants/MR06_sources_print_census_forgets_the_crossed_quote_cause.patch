@@ -1,0 +1,12 @@
+--- a/qr_sources/src/option_prints.cpp
++++ b/qr_sources/src/option_prints.cpp
+@@ -226,7 +226,8 @@
+   const bool junk_right = row.is_null(kPrintSlotRight) || row.right == Right::Other;
+   const bool quote_two_sided =
+       !row.is_null(kPrintSlotBid) && !row.is_null(kPrintSlotAsk);
+-  const bool junk_crossed = quote_two_sided && row.ask_u6 < row.bid_u6;
++  // MR06: a crossed attached quote stops being junk.
++  const bool junk_crossed = quote_two_sided && false && row.ask_u6 < row.bid_u6;
+   census.junk_price_rows += junk_price ? 1 : 0;
+   census.junk_size_rows += junk_size ? 1 : 0;
+   census.junk_right_rows += junk_right ? 1 : 0;

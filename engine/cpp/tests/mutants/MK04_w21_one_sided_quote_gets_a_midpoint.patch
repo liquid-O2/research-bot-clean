@@ -1,0 +1,13 @@
+--- a/qr_w21/src/contract_series.cpp
++++ b/qr_w21/src/contract_series.cpp
+@@ -85,7 +85,9 @@
+ }
+ 
+ bool ContractQuote::mid_u6(std::int64_t& out) const noexcept {
+-  if (is_null(qr::sources::kOptionQuoteSlotBid) || is_null(qr::sources::kOptionQuoteSlotAsk)) {
++  // MK04: a one-sided quote is given a midpoint anyway, inventing a price
++  // out of an absent side.
++  if (false) {
+     return false;
+   }
+   out = qr::sources::midpoint_u6(bid_u6, ask_u6);

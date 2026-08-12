@@ -1,0 +1,13 @@
+--- a/qr_w21/src/contract_series.cpp
++++ b/qr_w21/src/contract_series.cpp
+@@ -125,7 +125,9 @@
+     tally.activity.first_ms = ms;
+     tally.activity.seconds_present = 1;
+     tally.last_second = second;
+-  } else if (second != tally.last_second) {
++  // MK06: every row counts as a new second, so a burst inside one second
++  // is reported as sustained presence across many.
++  } else if (true) {
+     ++tally.activity.seconds_present;
+     tally.last_second = second;
+   }

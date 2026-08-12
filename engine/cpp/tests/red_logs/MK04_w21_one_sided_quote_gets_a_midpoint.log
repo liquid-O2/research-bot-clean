@@ -1,0 +1,105 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 27 tests from 10 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from ContractId
+[ RUN      ] ContractId.TheSpellingRoundTripsAndEveryRejectionIsTyped
+[       OK ] ContractId.TheSpellingRoundTripsAndEveryRejectionIsTyped (2 ms)
+[ RUN      ] ContractId.TheOrderIsTotalAcrossAllThreeFields
+[       OK ] ContractId.TheOrderIsTotalAcrossAllThreeFields (0 ms)
+[----------] 2 tests from ContractId (2 ms total)
+
+[----------] 2 tests from ContractSeries
+[ RUN      ] ContractSeries.OnlyTheNamedContractInsideTheWindowIsRetained
+[       OK ] ContractSeries.OnlyTheNamedContractInsideTheWindowIsRetained (0 ms)
+[ RUN      ] ContractSeries.AnAbsentSideStaysAbsentAndTheMidpointIsComputedNotRead
+/workspace/engine/cpp/qr_w21/tests/test_contract_series.cpp:169: Failure
+Value of: series.quotes()[1].mid_u6(mid)
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_w21/tests/test_contract_series.cpp:170: Failure
+Expected equality of these values:
+  mid
+    Which is: 3000000
+  -1
+
+[  FAILED  ] ContractSeries.AnAbsentSideStaysAbsentAndTheMidpointIsComputedNotRead (0 ms)
+[----------] 2 tests from ContractSeries (0 ms total)
+
+[----------] 3 tests from ActivityCensus
+[ RUN      ] ActivityCensus.TopKRanksByRowsAndBreaksTiesOnTheContractNeverOnArrival
+[       OK ] ActivityCensus.TopKRanksByRowsAndBreaksTiesOnTheContractNeverOnArrival (0 ms)
+[ RUN      ] ActivityCensus.SecondsPresentCountsSecondsAndTheWindowBoundsEverything
+[       OK ] ActivityCensus.SecondsPresentCountsSecondsAndTheWindowBoundsEverything (0 ms)
+[ RUN      ] ActivityCensus.AnEmptyWindowReportsNothingRatherThanInventingAContract
+[       OK ] ActivityCensus.AnEmptyWindowReportsNothingRatherThanInventingAContract (0 ms)
+[----------] 3 tests from ActivityCensus (0 ms total)
+
+[----------] 4 tests from BucketAxisLaw
+[ RUN      ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt
+[       OK ] BucketAxisLaw.AnExactEdgeFallsInTheBandAboveIt (0 ms)
+[ RUN      ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne
+[       OK ] BucketAxisLaw.TheEdgeIsTheLogRatioAndNotTheLinearOne (0 ms)
+[ RUN      ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface
+[       OK ] BucketAxisLaw.TheSurfaceIsFiveByTwoByTwoAndEverythingElseIsOffSurface (0 ms)
+[ RUN      ] BucketAxisLaw.OrientationIsSigmaTimesRho
+[       OK ] BucketAxisLaw.OrientationIsSigmaTimesRho (0 ms)
+[----------] 4 tests from BucketAxisLaw (0 ms total)
+
+[----------] 4 tests from BucketReductionLaw
+[ RUN      ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction
+[       OK ] BucketReductionLaw.NoRawPriceLevelSurvivesTheReduction (0 ms)
+[ RUN      ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket
+[       OK ] BucketReductionLaw.ValidityIsAtLeastHalfTwoSidedAndNeverOnAnEmptyBucket (0 ms)
+[ RUN      ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant
+[       OK ] BucketReductionLaw.TheMomentsAreSizeWeightedAndOrderInvariant (0 ms)
+[ RUN      ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge
+[       OK ] BucketReductionLaw.AOneSidedMemberHasNoSpreadButStillHasAnAge (0 ms)
+[----------] 4 tests from BucketReductionLaw (0 ms total)
+
+[----------] 2 tests from ProxyVolLaw
+[ RUN      ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero
+[       OK ] ProxyVolLaw.TheThreeHundredSecondGuardFiresAndIsTypedNotZero (0 ms)
+[ RUN      ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles
+[       OK ] ProxyVolLaw.BidAndAskProxiesAreSeparateSeriesAndOrderedByTheirOwnStraddles (0 ms)
+[----------] 2 tests from ProxyVolLaw (0 ms total)
+
+[----------] 3 tests from StraddleSelectionLaw
+[ RUN      ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated
+[       OK ] StraddleSelectionLaw.TheNearestBothSidedStrikeWinsAndNothingIsInterpolated (0 ms)
+[ RUN      ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent
+[       OK ] StraddleSelectionLaw.NothingInsideTheHundredFiftyBpWindowMeansAbsent (0 ms)
+[ RUN      ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder
+[       OK ] StraddleSelectionLaw.TwoEquidistantStrikesAreUndecidableAndNeverBrokenByOrder (0 ms)
+[----------] 3 tests from StraddleSelectionLaw (0 ms total)
+
+[----------] 1 test from ModalityLaw
+[ RUN      ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus
+[       OK ] ModalityLaw.EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouchingTheCorpus (31 ms)
+[----------] 1 test from ModalityLaw (31 ms total)
+
+[----------] 5 tests from ResidualLaw
+[ RUN      ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart
+[       OK ] ResidualLaw.TheDenominatorIsTheUnderlyingMidAtSpanStart (0 ms)
+[ RUN      ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6
+[       OK ] ResidualLaw.TheQuadraticTermIsInDollarsAndNotInU6 (0 ms)
+[ RUN      ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds
+[       OK ] ResidualLaw.TheReliabilityWeightIsExpOfMinusAgeOverSixHundredSeconds (0 ms)
+[ RUN      ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue
+[       OK ] ResidualLaw.EveryExclusionGateIsATypedAbsenceAndNeverAValue (0 ms)
+[ RUN      ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate
+[       OK ] ResidualLaw.RhoOrientsTheResidualAndSigmaFlipsTheAggregate (0 ms)
+[----------] 5 tests from ResidualLaw (0 ms total)
+
+[----------] 1 test from StraddleWidthLaw
+[ RUN      ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints
+[       OK ] StraddleWidthLaw.TheWidthChannelIsInUnderlyingBasisPoints (0 ms)
+[----------] 1 test from StraddleWidthLaw (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 27 tests from 10 test suites ran. (33 ms total)
+[  PASSED  ] 26 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] ContractSeries.AnAbsentSideStaysAbsentAndTheMidpointIsComputedNotRead
+
+ 1 FAILED TEST

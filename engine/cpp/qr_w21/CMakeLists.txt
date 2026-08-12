@@ -5,6 +5,7 @@
 # census machinery the W2.0 dossiers already established — one reader of the
 # emitted 1s grid, not two.
 add_library(qr_w21 STATIC
+  src/contract_series.cpp
   src/surface.cpp
 )
 target_include_directories(qr_w21 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -13,6 +14,7 @@ target_link_libraries(qr_w21 PUBLIC qr_core qr_registry qr_clock qr_sources qr_c
 qr_apply_boundary_flags(qr_w21)
 
 add_executable(qr_w21_tests
+  tests/test_contract_series.cpp
   tests/test_surface.cpp
 )
 target_link_libraries(qr_w21_tests PRIVATE qr_w21 qr_emit GTest::gtest GTest::gtest_main)

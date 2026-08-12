@@ -1,0 +1,14 @@
+--- a/qr_w21/src/contract_series.cpp
++++ b/qr_w21/src/contract_series.cpp
+@@ -114,7 +114,10 @@
+ 
+ void ActivityCensus::observe(std::int64_t second, std::int64_t ms,
+                              const qr::sources::OptionQuoteRow& row) {
+-  if (second < from_second_ || second > to_second_) {
++  // MK07: the discovery census stops bounding itself to the requested window,
++  // so contracts that were busy elsewhere in the session are reported as the
++  // active ones HERE.
++  if (false) {
+     return;
+   }
+   ++rows_;

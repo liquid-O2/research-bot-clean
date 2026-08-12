@@ -1,0 +1,15 @@
+--- a/qr_sources/src/stream_spec.cpp
++++ b/qr_sources/src/stream_spec.cpp
+@@ -284,7 +284,11 @@
+                                               file.path(), std::move(detail),
+                                               static_cast<std::int64_t>(leaf));
+   }
+-  if (const ForbiddenColumn* walled = spec.forbids(leaf); walled != nullptr) {
++  // MR10: the RUTW stream is exempted from the decode-time wall — B5 inherits
++  // B3's hard refusals, and an exemption for the newer corpus is exactly how a
++  // vendor's `side`, `sweep_*` and `*_flow` answers would leak back in.
++  if (const ForbiddenColumn* walled = spec.forbids(leaf);
++      walled != nullptr && spec.stream() != "rutw_prints") {
+     std::string detail = column_label(spec.stream(), spec.names()[leaf], leaf);
+     detail += " is ";
+     detail += forbid_reason_name(walled->reason);

@@ -1,0 +1,19 @@
+--- a/qr_sources/src/rutw_prints.cpp
++++ b/qr_sources/src/rutw_prints.cpp
+@@ -13,12 +13,10 @@
+ }  // namespace
+ 
+ bool is_rutw_corpus_root(const std::filesystem::path& corpus_root) noexcept {
+-  for (const std::filesystem::path& component : corpus_root) {
+-    if (component.native() == kDeferredPrintModality) {
+-      return true;
+-    }
+-  }
+-  return false;
++  // MR01: the modality wall is gone — any root is treated as the RUTW corpus,
++  // so a RUTW-labelled stream can be filled from some other instrument's tape.
++  (void)corpus_root;
++  return true;
+ }
+ 
+ FileExpected<RutwPrintReader> RutwPrintReader::open(const DayScope& scope,

@@ -1,0 +1,16 @@
+--- a/qr_w21/src/contract_series.cpp
++++ b/qr_w21/src/contract_series.cpp
+@@ -142,9 +142,12 @@
+   // The map already iterates in contract order, so a STABLE sort by row count
+   // descending leaves ties in contract order — the total order the header
+   // promises, with no second comparison to get wrong.
++  // MK05: ties break on WHEN the contract first quoted instead of on which
++  // contract it is, so the report depends on how the tape interleaved.
+   std::stable_sort(all.begin(), all.end(),
+                    [](const ContractActivity& left, const ContractActivity& right) {
+-                     return left.rows > right.rows;
++                     if (left.rows != right.rows) return left.rows > right.rows;
++                     return left.first_ms < right.first_ms;
+                    });
+   if (all.size() > k) {
+     all.resize(k);

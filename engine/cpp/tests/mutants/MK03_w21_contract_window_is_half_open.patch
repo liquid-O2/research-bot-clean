@@ -1,0 +1,12 @@
+--- a/qr_w21/src/contract_series.cpp
++++ b/qr_w21/src/contract_series.cpp
+@@ -98,7 +98,8 @@
+     return;
+   }
+   ++session_rows_;
+-  if (second < from_second_ || second > to_second_) {
++  // MK03: the requested window loses its last second.
++  if (second < from_second_ || second >= to_second_) {
+     return;
+   }
+   ContractQuote quote;

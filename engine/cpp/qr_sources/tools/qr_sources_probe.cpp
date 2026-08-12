@@ -34,6 +34,7 @@
 
 #include "qr_sources/option_prints.hpp"
 #include "qr_sources/option_quotes.hpp"
+#include "qr_sources/rutw_prints.hpp"
 #include "qr_sources/stock_quotes.hpp"
 #include "qr_sources/stock_trades.hpp"
 
@@ -104,14 +105,46 @@ const qr::Registry* registry_or_null() {
   return loaded.has_value() ? &loaded.value() : nullptr;
 }
 
+/// The per-stream extras a pass may publish beyond the shared counters.
+/// The default publishes nothing, so the four original streams report exactly
+/// what they reported before.
+struct NoExtras {
+  template <class Row>
+  void row(const Row&) noexcept {}
+  template <class Reader>
+  void publish(Report&, const Reader&) const {}
+};
+
+/// B3/B5's extras: the print CENSUS (rows, attachment health, junk) and the
+/// distinct-contract COVERAGE. Both are counts the reader never acts on.
+struct PrintExtras {
+  qr::sources::OptionPrintCoverage coverage;
+
+  void row(const qr::sources::OptionPrintRow& value) { coverage.observe(value); }
+
+  template <class Reader>
+  void publish(Report& report, const Reader& reader) const {
+    const qr::sources::OptionPrintCensus& census = reader.census();
+    for (std::size_t index = 0; index < qr::sources::OptionPrintCensus::kFields; ++index) {
+      report.column_metric(std::string(qr::sources::OptionPrintCensus::field_name(index)),
+                           "census", census.field(index));
+    }
+    report.column_metric("contracts", "coverage", coverage.contracts());
+    report.column_metric("expirations", "coverage", coverage.expirations());
+    report.column_metric("strikes", "coverage", coverage.strikes());
+  }
+};
+
 /// One full pass over a stream: the counters, the per-field digests, and the
 /// serialized output digest (which is what two-run byte identity compares).
-template <class Reader, class Digests, class Open>
+template <class Reader, class Digests, class Open, class Extras = NoExtras>
 int run_stream(Report& report, const Open& open_reader, int iterations, bool registry_counts,
-               const qr::Session& session, const std::string& corpus_root_text) {
+               const qr::Session& session, const std::string& corpus_root_text,
+               Extras extras = Extras{}) {
   double best_seconds = 0.0;
   std::int64_t values = 0;
   for (int attempt = 0; attempt < iterations; ++attempt) {
+    Extras pass_extras = extras;
     auto opened = open_reader();
     if (!opened.has_value()) {
       std::fprintf(stderr, "REFUSED: %s\n", opened.error().message().c_str());
@@ -138,6 +171,7 @@ int run_stream(Report& report, const Open& open_reader, int iterations, bool reg
       for (const auto& row : group.rows) {
         append_serialized(row, bytes);
         digests.fold(row);
+        pass_extras.row(row);
       }
       output_digest = fnv1a(output_digest, bytes);
     }
@@ -176,6 +210,7 @@ int run_stream(Report& report, const Open& open_reader, int iterations, bool reg
         report.column_metric(name, "n_null", digests.field[slot].nulls());
         report.column_metric(name, "digest_i64", digests.field[slot].digest_i64());
       }
+      pass_extras.publish(report, reader);
     }
   }
   if (best_seconds > 0.0) {
@@ -188,7 +223,7 @@ int run_stream(Report& report, const Open& open_reader, int iterations, bool reg
 
 int usage() {
   std::fprintf(stderr,
-               "usage: qr_sources_probe <stock_quotes|stock_trades|options_prints> "
+               "usage: qr_sources_probe <stock_quotes|stock_trades|options_prints|rutw_prints> "
                "--root DIR --label NAME [--ordinal N] [--iterations N] [--tsv PATH]\n"
                "       qr_sources_probe option_quotes_schema --file PATH --label NAME "
                "[--tsv PATH]\n");
@@ -278,6 +313,12 @@ int main(int argc, char** argv) {
     return 1;
   }
   const std::filesystem::path corpus_root(root);
+  const auto open_prints = [&] {
+    return qr::sources::OptionPrintReader::open(scope.value(), corpus_root);
+  };
+  const auto open_rutw = [&] {
+    return qr::sources::RutwPrintReader::open(scope.value(), corpus_root);
+  };
   int status = 0;
   if (stream == "stock_quotes") {
     status = run_stream<qr::sources::StockQuoteReader, qr::sources::StockQuoteDigests>(
@@ -292,9 +333,15 @@ int main(int argc, char** argv) {
         report, [&] { return qr::sources::StockTradeReader::open(scope.value(), corpus_root); },
         iterations, false, scope.value().session(), root);
   } else if (stream == "options_prints") {
-    status = run_stream<qr::sources::OptionPrintReader, qr::sources::OptionPrintDigests>(
-        report, [&] { return qr::sources::OptionPrintReader::open(scope.value(), corpus_root); },
-        iterations, false, scope.value().session(), root);
+    status = run_stream<qr::sources::OptionPrintReader, qr::sources::OptionPrintDigests,
+                        decltype(open_prints), PrintExtras>(
+        report, open_prints, iterations, false, scope.value().session(), root, PrintExtras{});
+  } else if (stream == "rutw_prints") {
+    // B5. The SAME digests and the SAME extras as B3 — the appendix says the
+    // profile and the laws are the same, so the report is the same report.
+    status = run_stream<qr::sources::RutwPrintReader, qr::sources::OptionPrintDigests,
+                        decltype(open_rutw), PrintExtras>(
+        report, open_rutw, iterations, false, scope.value().session(), root, PrintExtras{});
   } else {
     return usage();
   }

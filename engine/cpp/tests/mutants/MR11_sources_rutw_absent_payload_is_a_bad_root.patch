@@ -1,0 +1,17 @@
+--- a/qr_sources/src/rutw_prints.cpp
++++ b/qr_sources/src/rutw_prints.cpp
+@@ -40,6 +40,14 @@
+   // `DayScope::admit` minted it, and the session clock refuses a registry row
+   // it cannot place.
+   const std::filesystem::path path = day_file(corpus_root, scope);
++  // MR11: a session the RUTW corpus does not cover is reported as a MISCONFIGURED
++  // ROOT, collapsing "this payload is absent" into "you pointed me somewhere
++  // wrong" — two facts a census must be able to tell apart.
++  if (!std::filesystem::exists(path)) {
++    return parquet::refuse_file<RutwPrintReader>(
++        RefusalCode::CONFIG, kOpenSite, "no such RUTW payload", corpus_root.string(),
++        std::string(kDeferredPrintModality), scope.ordinal());
++  }
+   Expected<SessionClock, Refusal> clock = SessionClock::from_session(scope.session());
+   if (!clock.has_value()) {
+     return parquet::refuse_file<RutwPrintReader>(clock.error().code(), kOpenSite,

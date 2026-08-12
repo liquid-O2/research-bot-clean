@@ -1,0 +1,16 @@
+--- a/qr_sources/src/rutw_prints.cpp
++++ b/qr_sources/src/rutw_prints.cpp
+@@ -54,9 +54,10 @@
+   // IWM-compact bytes fail on `expiration` (DATE ordinal against a UTF-8 pin)
+   // and are refused by name. `gate_schema` also pins all 62 NAMES in order,
+   // including the 42 columns this reader never decodes.
+-  FileExpected<SessionSource> source =
+-      SessionSource::open(path, view_of(kRutwPrintSpec),
+-                          std::span<const ColumnForm>(kRutwPrintFormsWide), open_ms, close_ms);
++  // MR02: the single wide pin becomes B3's TWO-vector resolver, so IWM-compact
++  // bytes are admitted into the RUTW stream instead of refused by name.
++  FileExpected<SessionSource> source = SessionSource::open(
++      path, view_of(kRutwPrintSpec), &option_print_forms, open_ms, close_ms);
+   if (!source.has_value()) {
+     return FileExpected<RutwPrintReader>::refuse(source.error());
+   }

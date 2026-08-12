@@ -1,0 +1,26 @@
+--- a/qr_sources/include/qr_sources/stream_spec.hpp
++++ b/qr_sources/include/qr_sources/stream_spec.hpp
+@@ -629,7 +629,10 @@
+       return false;
+     }
+   }
+-  return left.timestamp_leaf == right.timestamp_leaf;
++  // MR04: the shared-column-law predicate stops comparing the clock leaf.
++  (void)left;
++  (void)right;
++  return true;
+ }
+ 
+ inline constexpr StreamSpec<62, 20, 29> kRutwPrintSpec{
+@@ -638,7 +641,10 @@
+     .projection = kOptionPrintSpec.projection,
+     .roles = kOptionPrintSpec.roles,
+     .forbidden = kOptionPrintSpec.forbidden,
+-    .timestamp_leaf = kOptionPrintSpec.timestamp_leaf,
++    // MR04: ... and the RUTW spec drifts off B3's clock leaf onto the
++    // quote-attachment clock, which the weakened predicate no longer
++    // notices.
++    .timestamp_leaf = 45,
+ };
+ static_assert(spec_is_wellformed(kRutwPrintSpec));
+ static_assert(specs_share_the_column_law(kRutwPrintSpec, kOptionPrintSpec),

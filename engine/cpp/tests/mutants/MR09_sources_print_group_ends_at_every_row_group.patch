@@ -1,0 +1,13 @@
+--- a/qr_sources/src/option_prints.cpp
++++ b/qr_sources/src/option_prints.cpp
+@@ -418,7 +418,9 @@
+     fold_census(census_, built, day_);
+     tape_.push(built);
+   }
+-  tape_.end_chunk(end_of_session);
++  // MR09: a millisecond is made to respect the row-group boundary, so an
++  // equal-time run straddling one is delivered as two groups.
++  tape_.end_chunk(true);
+   if (end_of_session) {
+     exhausted_ = true;
+   }

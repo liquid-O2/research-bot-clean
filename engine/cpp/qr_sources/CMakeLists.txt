@@ -1,9 +1,11 @@
-# qr_sources — the four pinned IWM stream readers (FINAL_PLAN APPENDIX B1-B4,
-# design/DESIGN_SUBSTRATE.md M1 qr_sources bullet + APPENDIX C3).
+# qr_sources — the four pinned IWM stream readers (FINAL_PLAN APPENDIX B1-B4)
+# plus the RUTW print reader (APPENDIX B5, sharing B3's column law and row laws),
+# per design/DESIGN_SUBSTRATE.md M1 qr_sources bullet + APPENDIX C3.
 add_library(qr_sources STATIC
   src/normalize.cpp
   src/option_prints.cpp
   src/option_quotes.cpp
+  src/rutw_prints.cpp
   src/session_source.cpp
   src/stock_quotes.cpp
   src/stock_trades.cpp
@@ -20,6 +22,7 @@ add_executable(qr_sources_tests
   tests/test_normalize.cpp
   tests/test_groups.cpp
   tests/test_readers.cpp
+  tests/test_rutw_prints.cpp
   tests/test_real_file.cpp
 )
 target_link_libraries(qr_sources_tests PRIVATE qr_sources GTest::gtest GTest::gtest_main)

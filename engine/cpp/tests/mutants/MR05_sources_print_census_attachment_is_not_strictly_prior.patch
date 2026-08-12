@@ -1,0 +1,13 @@
+--- a/qr_sources/src/option_prints.cpp
++++ b/qr_sources/src/option_prints.cpp
+@@ -183,7 +183,9 @@
+   // the same session, so the comparison is exact and needs no clock.
+   if (row.is_null(kPrintSlotQuoteTimestamp)) {
+     ++census.quote_attachment_absent;
+-  } else if (row.quote_ts_ms_b < row.ts_ms_b) {
++  // MR05: STRICTLY prior becomes prior-or-equal, so a quote stamped at the
++  // print's own millisecond counts as a lawful attachment.
++  } else if (row.quote_ts_ms_b <= row.ts_ms_b) {
+     ++census.quote_attachment_prior;
+   } else {
+     ++census.quote_attachment_not_prior;

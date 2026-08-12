@@ -290,11 +290,16 @@ TEST(CoverageLaw, TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSor
 }
 
 TEST(ScopeWallLaw, ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath) {
-  for (const std::int64_t ordinal : {124, 750, 962, 1002}) {
+  // AMENDMENT 2026-08-12-c (D-038): the wall moved to W = 917, so 750 is now
+  // inside and the refusing side starts at 918 (2025-09-02). 962 and 1002 stay
+  // sealed - they are the share-era boundary and the profile-flip session.
+  for (const std::int64_t ordinal : {124, 918, 962, 1002}) {
     const auto scope = qr::DayScope::admit(registry(), ordinal);
     ASSERT_FALSE(scope.has_value()) << "ordinal " << ordinal << " must not admit";
     EXPECT_EQ(scope.error().code(), qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE);
   }
+  EXPECT_TRUE(qr::DayScope::admit(registry(), 750).has_value());
+  EXPECT_TRUE(qr::DayScope::admit(registry(), 917).has_value());
   // The census entry points take a DayScope, so there is no overload that could
   // accept a raw ordinal and form a path from it.
   static_assert(!std::is_invocable_v<decltype(&qr::w20::coverage_of), std::int64_t,

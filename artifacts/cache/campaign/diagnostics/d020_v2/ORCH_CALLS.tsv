@@ -4,7 +4,7 @@ case	call	value_class	codes	note
 003	SKIP	C	T-runway-9m,T-chasing-late,P-supply-persistent,E-no-bounce-to-fade	direction plausible but at-the-low entry with 9min left = runway law
 004	SKIP	C	T-runway-20m,F23-refusal-cell,P-option-delta-z-neg12,U-0dte-close-ambiguity	late pullback long against a −12z 0DTE put wave; options refusing the bounce
 005	SKIP	C	P-moderate-sponsorship-against,E-no-wall-no-rejection,L-at-level-cluster	fade thesis needs rejection/wall evidence; bounce sponsored +2.3z; would reconsider on refusal
-006	SKIP	C	H-knife-no-base,P-F1-trapped-dip-buyers,E-absorption-collapsed,T-no-confirmation	long into active LL sequence; dip-buyers being eaten (absorption 0.01) = fuel for MORE downside
+006	SKIP	C	H-knife-no-base,P-F1-trapped-dip-buyers,E-absorption-collapsed,T-no-confirmation	CONTAM-via-001;long into active LL sequence; dip-buyers being eaten (absorption 0.01) = fuel for MORE downside
 007	SKIP	C	P-A2-protection-vol-z3.8,E-urgency-collapse-z-neg5,E-depth-wall-z2.3,H-mature-trend-extreme	continuation short at fresh LL with the full absorption-at-extreme signature against it
 008	SKIP	C	P-D1-agreement-veto,P-option-delta-flip-z3.3,R-vol-rising-with-move,E-no-rejection	fading an actively sponsored rally leg at unbroken levels = case009 config
 009	TAKE	B	L-double-bottom-at-prior-levels,R-vol-bleed,H-base-turn,P-flow-turning	recovery long off level-cluster base; vol bleeding risk-on; overhead VWAP caps at B
@@ -16,6 +16,10 @@ case	call	value_class	codes	note
 015	SKIP	C	H-trend-day-shelf-bull-flag,P-options-not-confirming-down,R-day-type-drive-up	shorting the first shelf after a monster NFP reversal rally = anti-trend vs study-012 lesson
 016	SKIP	C	P-F1-trapped-dip-buyers,E-buy-burst-absorbed,H-knife-no-base,P-call-chase-into-lows	+54k buy burst FAILED at fresh lows + call-chasing crowd = fuel for continuation down
 017	SKIP	C	P-A1-lite-depth-wall-z2.5-at-support,L-prior-level-cluster,R-protection-elevated,H-mature-fade	continuation short into a defended support cluster after a mature 100bp fade
-018	TAKE	B	P-my-side-sponsored-z-neg2.9,E-spread-widening,L-double-test-breaking,H-early-day-energy	sponsored breakdown at the low retest, early day, high-energy regime; options neutral keeps it B
+018	TAKE	B	P-my-side-sponsored-z-neg2.9,E-spread-widening,L-double-test-breaking,H-early-day-energy	CONTAM-via-012;sponsored breakdown at the low retest, early day, high-energy regime; options neutral keeps it B
 019	TAKE	B	H-higher-low-base,P-option-delta-wave-z5.4,R-vol-easing,T-patient-confirmed	post-decline higher-low with options actively buying delta = confirmed reversal join
-020	SKIP	C	T-early-first-bounce-no-HL,R-protection-still-rising,P-options-not-yet,E-buy-burst-forming	same reversal as 019 but 10min EARLIER: first bounce, unconfirmed; patient law prefers the 019 entry
+020	SKIP	C	T-early-first-bounce-no-HL,R-protection-still-rising,P-options-not-yet,E-buy-burst-forming	CONTAM-via-019;same reversal as 019 but 10min EARLIER: first bounce, unconfirmed; patient law prefers the 019 entry
+021	SKIP	C	R-fomc-coil-vol-z4,P-dip-being-sold,T-dead-zone-into-announcement,E-depth-defense-only	FOMC-morning coil: dip sold by both streams; hours of chop ahead = tiny ceiling
+022	SKIP	C	E-supply-absorbed-at-highs,H-trend-day-up,R-no-fear-low-vol,P-flow-neg-price-flat-bullish	−300k/hr of selling eaten FLAT at day highs = re-accumulation; shorting absorbed supply = bad
+023	SKIP	C	T-runway-9m,P-option-bid-late,H-base-ok	9 minutes to close caps everything
+024	TAKE	B	P-supply-persistent,E-spread-widening-thin,L-fresh-lows,H-early-breakdown	CONTAM: s398 later-clock siblings (009,022) already viewed — day path partially known; call records the uncontaminated read (no absorption signature yet = continuation)

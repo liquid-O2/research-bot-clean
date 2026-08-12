@@ -69,3 +69,13 @@ case	call	value_class	codes	note
 068	TAKE	B	CONTAM-via-015-047-049-057-063;P-join-buy-elephant-z49.7-largest-in-set,P-options-confirm-z7.3,T-runway-29m-caps	half-million-share buy program at the decision second on a trend day; join it; runway caps at B
 069	SKIP	C	F23-refusal-options-z-neg4.1-vs-stock-pop,L-LH-cluster-overhead,T-chasing-60bp-pop	stock-sponsored pop but options SELL it hard at the LH zone = cross-stream refusal, chase risk
 070	SKIP	C	P-bounce-unsponsored-mixed,P-options-mild-refusal,L-LH-overhead-midrange,H-drift-day	weak mixed-flow bounce into overhead structure; no setup completed either way
+071	TAKE	B	R-fomc-break,E-dip-buyers-absorbed-at-broken-shelf,U-depth-z-neg3.5-spread-z6,P-A2-protection-z7.8	post-FOMC breakdown: thin book, protection panic, bounce absorbed at the broken floor; whipsaw risk caps at B
+072	TAKE	B	P-F1-1.5M-buying-eaten-price-flat,H-LL-after-LH-fail,P-sellers-active-z-neg3.2,E-massive-absorption-of-buyers	million-plus shares of dip-buying absorbed flat then sellers re-engage at fresh LL = trapped-buyer continuation
+073	SKIP	C	P-D1-agreement-veto-both-streams-buying,E-no-rejection-at-LH,H-sponsored-midday-recovery	shorting a two-stream sponsored recovery with zero top evidence
+074	SKIP	C	CONTAM-via-070;P-selling-absorbed-price-held,H-mid-range-drift,E-no-break-no-trap	mid-range drift short; -300k absorbed without breakdown = no completed setup
+075	TAKE	B	P-F1-pop-sold-z-neg7,L-LH-under-prior-levels,R-protection-rising,H-down-day-flat-base	afternoon pop into overhead slammed by a -38k burst = failed-pop continuation short
+076	SKIP	C	P-D1-veto-bounce-sponsored-700k,P-buy-burst-z9.7-at-decision,H-late-LL-bounce	shorting into a live sponsored recovery burst = fighting the elephant
+077	TAKE	B	H-HH-break-of-LH-ladder,P-sponsored-400k-recovery,E-shallow-pullback-held,U-options-wave-against-10m-ago	afternoon trend-change: recovery broke the LH ladder, pullback shallow + resumed buying; options divergence noted
+078	SKIP	C	P-D1-veto-both-streams-buying,P-buy-burst-z4.9-at-decision,P-options-delta-22k-all-morning	shorting into massive two-stream dip-buying + live burst = agreement veto
+079	TAKE	B	CONTAM-via-070-074;P-both-streams-pressing-down,H-LL-grind,E-weak-bounce-to-LH-failed	midday grind-down continuation: persistent two-stream supply, failed LH bounce
+080	SKIP	C	CONTAM-via-072;H-knife-no-base,U-spread-z4-disorderly,P-options-dip-buying-vs-stock-sellers	fresh-LL long in a blown-out spread with sellers active = no base, no entry

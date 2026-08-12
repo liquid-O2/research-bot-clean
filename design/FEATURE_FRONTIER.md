@@ -1,0 +1,26 @@
+# FEATURE FRONTIER — state-of-the-art constructions our raw data supports (orchestrator design, 2026-08-12)
+Law: every entry names its interaction (D-026) and modality matrix cell (D-027). None are textbook single-stream aggregates. Status tags: [NEW] wholly new design; [EXT] extension of an existing spec'd family.
+
+## PARTICIPATION INTENT (P — who is acting and what they want)
+F1 [NEW] URGENCY SPECTROSCOPY: per quote-certified print, concession = (price − mid)/spread (fraction of spread the aggressor PAID). Flow decomposed by concession x size-class quantiles: patient (≤0.5), standard, urgent (≥1.0 = through-the-book). Channels: urgency-weighted signed flow, urgency-mix innovations. Beats OFI because intent is measured by price paid, not volume counted. (P x E)
+F2 [NEW] RE-ENGAGEMENT RATIO: at re-touches of a prior contested level: signed-flow intensity now vs at first touch — do the aggressors RETURN after being pushed back (persistent intent) or vanish (opportunism)? (P x L x H; the flow-side twin of second-push participation decay)
+F3 [EXT W2.9] DEFENDED-ICEBERG SIGNATURE: repeated same-side executions at one price with NBBO size NOT declining proportionally (replenishment) CONDITIONED on subsequent acceptance — defense that HOLDS vs defense that fails. (E x P)
+F4 [NEW] OPTION INTENT CLASSES: per print: aggressor x moneyness x DTE x size x single/multi-leg → intent taxonomy: urgent short-dated OTM buying (gamma demand), patient structure trades, delta-hedged blocks. Channels: directional-intent share (aggressive single-leg delta-weighted) vs structure share; 0DTE-share dynamics. (P via options; D3 fact: 76% prints / 55.7% volume single-leg — the gap IS the structure-trade channel)
+F5 [EXT W2.14] CHASE-VS-FADE INDEX: customer option delta-flow signed AGAINST its location in the day's realized path — flow chasing the move vs fading it; dealer inventory implications differ completely. (P x L x H)
+
+## IV-DERIVED (R — and its interactions)
+F6 [NEW] VOL-OF-VOL MICROSTRUCTURE: realized variance OF PROXY_VOL innovations (bid and ask separately) — dealer pricing uncertainty; instability precedes regime breaks. (R x U)
+F7 [NEW] INTRADAY VARIANCE-RISK-PREMIUM NOWCAST: PROXY_VOL(t)² x remaining-time vs trailing realized rate (W2.2 B) — when RV runs ahead of IV, dealers are BEHIND (forced repricing follows; feeds W2.14 movers). Innovations, not levels. (R x P)
+F8 [NEW] SKEW IMPULSE + TILT ELASTICITY: smile tilt across our moneyness buckets at DTE{0,1} (put-side minus call-side PROXY_VOL); channels: tilt innovation on down-moves (panic vs complacency) AND tilt-per-bp-of-spot elasticity — the vol surface's own E-object. (R x E)
+F9 [EXT W2.1] SIGNED VOL-DEMAND + CROSS-STREAM REFUSAL: ask-side vol lifting alone = urgent option demand; divergence vs stock direction (stock up + put-ask-vol up = hedging into strength) = the refusal channel. (R x P x E cross-stream)
+F10 [NEW] TERM-MICRO RATIO: DTE0/DTE1 PROXY_VOL ratio intraday — today-vol vs tomorrow-vol; drift = today's expected move being spent; cross-checks W2.2 budget_consumed FROM THE OPTIONS SIDE (two independent variance clocks; disagreement = information). (R x H)
+
+## CROSS-STREAM STATE-OF-THE-ART (the codified interactions)
+F11 [EXT W2.5] ATTENTION-GATED LEAD-LAG: cross-impact strength (option flow -> stock response) GATED by dealer requote-latency state (attentive 0-6ms vs absent) — lead-lag exists only when someone is listening. (P x E x U; uses the D4 latency census fact)
+F12 [NEW] INITIATIVE ROTATION (the video lens formalized): per impulse: effort (urgency-weighted flow) -> response (displacement + book change) -> HANDOFF: which stream initiates the NEXT impulse (stock->options, options->stock, none). Rotation-state transition frequencies over trailing windows. Equal-time event sets + cross-stream surprise, exactly the surviving form of the effort->response->handoff trajectory. (P x E x H cross-stream)
+F13 [EXT W2.3+F1] ABSORPTION 2.0: displacement per unit URGENCY-WEIGHTED flow vs trailing norm, stratified by location structure (at extremes vs mid-range) — the E-core, intent-weighted. (E x P x L)
+F14 [NEW] LIQUIDITY STRIKE: coordinated withdrawal across BOTH markets — stock quote-pull asymmetry (W2.9) coincident with option coverage-thinning (W2.1) = market-wide provider risk-off; the strongest U/P state we can define. (U x P cross-stream)
+F15 [EXT W2.11] INSTITUTIONAL ARRIVAL: block-class prints appearing at/near extremes after prolonged absence (size-class hazard timing x location) — participation breadth shifts as regime markers. (P x L x H)
+
+## DISPOSITION
+Round-2 packs render F1-F15 where constructible from built machinery (F1,F2,F4,F8,F9,F10 need only existing readers/census tools + small reducers; F6,F7,F13 need W2.2/W2.3 plumbing; F11,F12,F14 need modest new reducers). Full formula pins per family at build time (orchestrator). PDF-extraction candidates merge INTO this frontier, not beside it.

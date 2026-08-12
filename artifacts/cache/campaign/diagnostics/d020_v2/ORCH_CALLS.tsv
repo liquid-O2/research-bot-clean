@@ -49,3 +49,13 @@ case	call	value_class	codes	note
 048	TAKE	C	P-E1-divergent-grind-700k,L-day-high-VWAP-resistance,R-protection-waking,T-runway-caps	price staircasing UP on −700k net selling into VWAP = distribution grind; runway caps value
 049	SKIP	C	CONTAM-via-004-same-moment;pair-of-004,H-trend-day-intact,T-runway-21m,P-put-wave-only	same clock as 004, opposite side; ambiguous late moment — skip both sides
 050	TAKE	B	P-join-sell-burst-z-neg7,E-spread-widen-depth-thin,P-options-neg3,R-no-fear-caveat	coordinated withdrawal at a breakout-day plateau top; joining the fresh burst per 040-consistency
+051	TAKE	C	H-LL-continuation,P-options-chase-z4.6-0dte-z3.2-retail,E-options-effort-no-result,P-stock-moderate	bounce chased by 0DTE options crowd getting NO price result = trapped; fade with structure
+052	SKIP	C	CONTAM-lite-via-042;T-runway-under-3m,R-0dte-terminal	165 seconds to close
+053	SKIP	C	P-options-dump-in-pullback,R-protection-rising-z3.4,E-depth-thin-spread-widen,H-late-recovery-suspect	the dip carried an options exit wave + rising protection = distribution-lite at the recovery top
+054	TAKE	C	CONTAM-via-023;E-shelf-break,P-F1-lite-dip-buyers-no-result,T-runway-31m-caps	shelf breakdown; the +52k counter-burst got no result; runway caps value
+055	SKIP	C	T-runway-12s-dead	twelve seconds to close
+056	SKIP	C	CONTAM-via-053;H-counter-trend-bounce-into-LH,P-options-flat-now,E-sponsorship-stale,R-vol-elevated	midday bounce into overhead structure with stale sponsorship
+057	TAKE	B	CONTAM-via-019;P-F1-trapped-dip-buyers,P-options-confirm-down-z2.5,E-wall,H-LL-stack	trapped buyers + options pressing down = study-007 short config with confirmation
+058	TAKE	B	CONTAM-via-025;P-join-avalanche-options-z-neg38-vol-z8.7,E-high-rejection-break	two-stream breakdown burst at the morning-high rejection; strongest sponsored short signature yet
+059	SKIP	C	CONTAM-via-025;P-E1-weak-partial,E-no-rejection,H-quiet-plateau,PDF-no-reason	weak divergence only; midday plateau with no rejection evidence
+060	TAKE	C	P-sellers-pressing-z-neg1.9,H-LL-drift,L-at-prior-low-risk,R-range-day-caps	pressing continuation at the bounce; prior-low support + range regime cap value

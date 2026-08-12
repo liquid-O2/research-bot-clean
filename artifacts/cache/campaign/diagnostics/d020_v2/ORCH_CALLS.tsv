@@ -59,3 +59,13 @@ case	call	value_class	codes	note
 058	TAKE	B	CONTAM-via-025;P-join-avalanche-options-z-neg38-vol-z8.7,E-high-rejection-break	two-stream breakdown burst at the morning-high rejection; strongest sponsored short signature yet
 059	SKIP	C	CONTAM-via-025;P-E1-weak-partial,E-no-rejection,H-quiet-plateau,PDF-no-reason	weak divergence only; midday plateau with no rejection evidence
 060	TAKE	C	P-sellers-pressing-z-neg1.9,H-LL-drift,L-at-prior-low-risk,R-range-day-caps	pressing continuation at the bounce; prior-low support + range regime cap value
+061	TAKE	B	CONTAM-via-009-022-024;E-thin-unsponsored-bounce-absorption-z11,U-spread-widening-z3,H-LL-structure-LH-overhead	thin bounce (huge move-per-flow) into LH zone with liquidity pulling = continuation short
+062	TAKE	B	E-pullback-selling-absorbed,P-depth-building-z1.2,H-HH-stack-day-HL-retest,L-breakout-zone-hold	uptrend pullback: -28k selling moved price only 35bp, depth stacking = defended HL long
+063	SKIP	C	CONTAM-via-015-047-049-057;R-vol-bleeding-refuses-decline,L-day-low-shelf,H-LL-drift-mature	shorting fresh lows while vol bleeds against the move = R-refusal; case015-day lesson
+064	SKIP	C	H-afternoon-recovery-HH-stack,P-buyers-returning-now,R-protection-z3.5-both-ways,E-dip-bounced	counter-trend short into a recovering grind with buyers back = no completed setup
+065	TAKE	C	P-sponsored-grind-47k,H-HL-climb,R-range-day-low-vol-caps,L-overhead-184.2-cluster	clean sponsored grind but range-day ceiling + overhead cluster cap value
+066	SKIP	C	H-knife-no-base,P-sellers-pressing-z-neg3.2-accel,P-options-confirm-down,E-no-absorption	fresh-LL long against accelerating sellers with options agreeing down = fuel
+067	TAKE	B	CONTAM-via-057;P-F1-price-down-on-net-BUYING-500k,H-LL-drift,E-dip-buyers-no-result	price fell 70bp INTO +500k net buying = iceberg supply eating every dip-buyer; with-trend short
+068	TAKE	B	CONTAM-via-015-047-049-057-063;P-join-buy-elephant-z49.7-largest-in-set,P-options-confirm-z7.3,T-runway-29m-caps	half-million-share buy program at the decision second on a trend day; join it; runway caps at B
+069	SKIP	C	F23-refusal-options-z-neg4.1-vs-stock-pop,L-LH-cluster-overhead,T-chasing-60bp-pop	stock-sponsored pop but options SELL it hard at the LH zone = cross-stream refusal, chase risk
+070	SKIP	C	P-bounce-unsponsored-mixed,P-options-mild-refusal,L-LH-overhead-midrange,H-drift-day	weak mixed-flow bounce into overhead structure; no setup completed either way

@@ -47,3 +47,5 @@ case	call	value_class	codes	note
 046	SKIP	C	P-D1-veto-1M-buy-program,P-options-z4.3-against,E-no-top-evidence	shorting into a still-live million-share sponsored buy program; the strongest veto in the set
 047	SKIP	C	CONTAM-via-004-015;P-H1-live-sell-elephant-z-neg34,P-options-wave-z-neg16,R-protection-spiking	live −34z wave at the decision second; framework forbids joining against it regardless of trend
 048	TAKE	C	P-E1-divergent-grind-700k,L-day-high-VWAP-resistance,R-protection-waking,T-runway-caps	price staircasing UP on −700k net selling into VWAP = distribution grind; runway caps value
+049	SKIP	C	CONTAM-via-004-same-moment;pair-of-004,H-trend-day-intact,T-runway-21m,P-put-wave-only	same clock as 004, opposite side; ambiguous late moment — skip both sides
+050	TAKE	B	P-join-sell-burst-z-neg7,E-spread-widen-depth-thin,P-options-neg3,R-no-fear-caveat	coordinated withdrawal at a breakout-day plateau top; joining the fresh burst per 040-consistency

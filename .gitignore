@@ -9,3 +9,4 @@
 *.log
 !provenance/code_seed/verification/*.log
 .DS_Store
+engine/target/

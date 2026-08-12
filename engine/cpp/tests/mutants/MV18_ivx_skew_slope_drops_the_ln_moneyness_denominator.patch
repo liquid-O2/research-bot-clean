@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -519,7 +519,7 @@
+     const Typed<double> call_anchor = cell.call_wing.at(kWingAnchorLn);
+     if (put_anchor.v == Validity::VALID && call_anchor.v == Validity::VALID) {
+       cell.risk_reversal = valid(put_anchor.value - call_anchor.value);
+-      cell.skew_slope = valid(cell.risk_reversal.value / (2.0 * kWingAnchorLn));
++      cell.skew_slope = valid(cell.risk_reversal.value);
+     }
+ 
+     for (std::size_t slot = 0; slot < by_band.size(); ++slot) {

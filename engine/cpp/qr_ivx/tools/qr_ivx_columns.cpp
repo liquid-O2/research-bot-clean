@@ -124,6 +124,8 @@ int main(int argc, char** argv) {
       report.metric("column", key, "leaf", stat.leaf);
       report.metric("column", key, "physical_type", stat.physical_type);
       report.text("column", key, "stat_kind", qr::ivx::stat_kind_name(stat.kind));
+      report.text("column", key, "leaf_type", qr::parquet::leaf_type_name(stat.leaf_type));
+      report.text("column", key, "converted", qr::parquet::leaf_converted_name(stat.converted));
       report.metric("column", key, "chunks", stat.chunks);
       report.metric("column", key, "chunks_with_statistics", stat.chunks_with_statistics);
       report.metric("column", key, "chunks_with_null_count", stat.chunks_with_null_count);

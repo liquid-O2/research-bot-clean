@@ -1,0 +1,12 @@
+--- a/qr_ivx/src/quote_skew.cpp
++++ b/qr_ivx/src/quote_skew.cpp
+@@ -65,7 +65,8 @@
+   }
+   const std::int64_t dte =
+       static_cast<std::int64_t>(row.expiration_day) - session_epoch_day_;
+-  if (dte != plane_dte_) {
++  (void)dte;
++  if (false) {
+     return;
+   }
+   ++rows_on_plane_;

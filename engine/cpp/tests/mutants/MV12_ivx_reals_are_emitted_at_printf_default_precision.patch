@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/tsv.cpp
++++ b/qr_ivx/src/tsv.cpp
+@@ -14,7 +14,7 @@
+     return value > 0 ? "INF" : "-INF";
+   }
+   char buffer[40];
+-  const int written = std::snprintf(buffer, sizeof(buffer), "%.17g", value);
++  const int written = std::snprintf(buffer, sizeof(buffer), "%g", value);
+   if (written <= 0 || static_cast<std::size_t>(written) >= sizeof(buffer)) {
+     return "NAN";  // unreachable for a finite double; never a truncated number.
+   }

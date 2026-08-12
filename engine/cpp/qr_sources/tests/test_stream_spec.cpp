@@ -110,13 +110,29 @@ TEST(SpecLaws, TheFourProjectionsAreExactlyAppendixB) {
                                               16, 17, 18}));
   EXPECT_EQ(qr::sources::kStockTradeSpec.names.size(), 24U);
 
-  // B3: 62 columns, the ADDENDUM 20.
+  // B3: 62 columns, the ADDENDUM 20 AS AMENDED BY CC-013 (2026-08-12) to 31 —
+  // vega(16) plus the nine third-order columns plus iv_error(35).
   const std::vector<std::size_t> prints(qr::sources::kOptionPrintSpec.projection.begin(),
                                         qr::sources::kOptionPrintSpec.projection.end());
-  EXPECT_EQ(prints, (std::vector<std::size_t>{1, 2, 3, 4, 5, 10, 11, 13, 14, 20, 21, 22, 34, 36, 37,
-                                              39, 40, 42, 43, 45}));
+  EXPECT_EQ(prints, (std::vector<std::size_t>{1,  2,  3,  4,  5,  10, 11, 13, 14, 16, 20,
+                                              21, 22, 23, 24, 25, 26, 27, 28, 29, 32, 33,
+                                              34, 35, 36, 37, 39, 40, 42, 43, 45}));
   EXPECT_EQ(qr::sources::kOptionPrintSpec.names.size(), 62U);
-  EXPECT_EQ(prints.size(), 20U);
+  EXPECT_EQ(prints.size(), 31U);
+  // The eleven CC-013 admissions, by NAME. A projection that grew by the right
+  // COUNT and the wrong leaves would pass the vector check only if it were
+  // literally identical, but naming them is what makes this readable as the
+  // amendment's own fixture.
+  const qr::sources::SpecView print_view = view_of(qr::sources::kOptionPrintSpec);
+  for (const std::string_view admitted :
+       {"vega", "vomma", "veta", "vera", "speed", "zomma", "color", "ultima", "dual_delta",
+        "dual_gamma", "iv_error"}) {
+    bool found = false;
+    for (const std::size_t leaf : prints) {
+      found = found || print_view.names()[leaf] == admitted;
+    }
+    EXPECT_TRUE(found) << "CC-013 admitted " << admitted << " and it is not projected";
+  }
 
   // B4: 19 columns, 8 projected.
   const std::vector<std::size_t> option_quotes(qr::sources::kOptionQuoteSpec.projection.begin(),
@@ -151,15 +167,30 @@ TEST(SpecLaws, TheWalledColumnsAreExactlyAppendixB) {
     ASSERT_NE(prints.forbids(leaf), nullptr) << "B3 hard-refuses column " << leaf;
     EXPECT_EQ(prints.forbids(leaf)->reason, ForbidReason::HardRefused);
   }
-  // "unlisted Greeks" — every greek B3 does not name.
-  for (const std::size_t leaf : {15U, 17U, 18U, 19U, 23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U,
-                                 32U, 33U}) {
-    EXPECT_NE(prints.forbids(leaf), nullptr) << "unlisted greek " << prints.names()[leaf];
+  // THE SURVIVING WALL after CC-013, and it survives for a reason that was
+  // never about population: the census (artifacts/cache/ivx/
+  // cc013_column_census.tsv) found theta, rho, epsilon and lambda every bit as
+  // populated as vomma. They stay refused because they are vendor derivations
+  // this program recomputes — and d1/d2 because they ARE the vendor's pricing
+  // model, which the proxy-firewall law forbids reading at any depth.
+  for (const std::size_t leaf : {15U, 17U, 18U, 19U, 30U, 31U}) {
+    ASSERT_NE(prints.forbids(leaf), nullptr) << "still refused: " << prints.names()[leaf];
+    EXPECT_EQ(prints.forbids(leaf)->reason, ForbidReason::HardRefused);
+    EXPECT_FALSE(prints.projects(leaf));
   }
-  // vega(16) is the REGISTERED W2.4 extension: unprojected, but not walled.
+  EXPECT_EQ(prints.forbidden().size(), 20U);
+
+  // THE ELEVEN THAT LANDED: projected, and NO LONGER walled. The second half of
+  // that sentence is the one a shrunken list can get wrong — a leaf left in
+  // `forbidden` while also being projected would fail `spec_is_wellformed`, but
+  // a leaf removed from `forbidden` and NOT projected would silently become
+  // unreachable, so both halves are asserted.
+  for (const std::size_t leaf : {16U, 23U, 24U, 25U, 26U, 27U, 28U, 29U, 32U, 33U, 35U}) {
+    EXPECT_EQ(prints.forbids(leaf), nullptr) << "CC-013 unwalled " << prints.names()[leaf];
+    EXPECT_TRUE(prints.projects(leaf)) << "CC-013 projects " << prints.names()[leaf];
+  }
   EXPECT_EQ(prints.names()[16], "vega");
-  EXPECT_EQ(prints.forbids(16), nullptr);
-  EXPECT_FALSE(prints.projects(16));
+  EXPECT_EQ(prints.names()[35], "iv_error");
 
   // B4 walls the WHOLE derived family (orchestrator ruling 2026-08-10: B1's
   // never-read law extended to the option-quote analogues), `mid` included.
@@ -380,12 +411,16 @@ TEST(ForbiddenDoor, AnUnprojectedButUnwalledColumnIsRefusedAsOutsideTheProjectio
   qr::parquet::DecodeWorkspace workspace;
   qr::parquet::ColumnData column;
 
-  // vega(16): a registered future extension, not a wall — so the refusal says
-  // "outside the projection", not COLUMN_FORBIDDEN.
-  const auto vega = read_pinned_column(spec, opened.value(), 0, 16, workspace, column);
-  ASSERT_FALSE(vega.has_value());
-  EXPECT_EQ(vega.error().code(), qr::RefusalCode::SCHEMA_MISMATCH);
-  EXPECT_NE(vega.error().detail().find("vega"), std::string::npos);
+  // dte(52): unprojected and unwalled — the refusal says "outside the
+  // projection", not COLUMN_FORBIDDEN. (This case used to be `vega`, which
+  // CC-013 projected; the DISTINCTION it proves is what matters, not which
+  // column carries it, so it moved to another unprojected-unwalled leaf.)
+  const auto dte = read_pinned_column(spec, opened.value(), 0, 52, workspace, column);
+  ASSERT_FALSE(dte.has_value());
+  EXPECT_EQ(dte.error().code(), qr::RefusalCode::SCHEMA_MISMATCH);
+  EXPECT_NE(dte.error().detail().find("dte"), std::string::npos);
+  EXPECT_EQ(spec.forbids(52), nullptr);
+  EXPECT_FALSE(spec.projects(52));
 
   // symbol(0): simply not projected.
   const auto symbol = read_pinned_column(spec, opened.value(), 0, 0, workspace, column);

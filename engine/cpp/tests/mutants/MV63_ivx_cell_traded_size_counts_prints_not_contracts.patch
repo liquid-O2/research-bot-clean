@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -476,7 +476,7 @@
+     std::vector<FitPoint> otm;
+     std::array<std::vector<FitPoint>, kBands * kRights> by_band;
+     for (const Point& point : points) {
+-      cell.weight += point.weight;
++      cell.weight += 1;
+       const FitPoint fit{static_cast<double>(point.x_bps) / 10000.0, point.iv, point.weight,
+                          point.x_bps};
+       by_band[band_right_slot(moneyness_band(point.x_bps), point.right)].push_back(fit);

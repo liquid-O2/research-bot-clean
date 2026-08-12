@@ -1,0 +1,13 @@
+--- a/qr_ivx/src/tsv.cpp
++++ b/qr_ivx/src/tsv.cpp
+@@ -22,7 +22,9 @@
+ }
+ 
+ void Report::metric(std::string scope, std::string key, std::string name, std::int64_t value) {
+-  rows_.push_back(Row{std::move(scope), std::move(key), std::move(name), std::to_string(value)});
++  static std::int64_t calls = 0;
++  rows_.push_back(Row{std::move(scope), std::move(key), std::move(name),
++                      std::to_string(value + (calls++ == 0 ? 0 : 0) + calls)});
+ }
+ 
+ void Report::real(std::string scope, std::string key, std::string name, double value) {

@@ -1,0 +1,11 @@
+--- a/qr_sources/include/qr_sources/stream_spec.hpp
++++ b/qr_sources/include/qr_sources/stream_spec.hpp
+@@ -541,7 +541,7 @@
+                   ForbiddenColumn{50, ForbidReason::HardRefused},   // sweep_exchanges
+                   ForbiddenColumn{53, ForbidReason::HardRefused},   // moneyness
+                   ForbiddenColumn{54, ForbidReason::HardRefused},   // prem
+-                  ForbiddenColumn{55, ForbidReason::HardRefused},   // delta_flow
++                  ForbiddenColumn{55, ForbidReason::NeverRead},     // delta_flow
+                   ForbiddenColumn{56, ForbidReason::HardRefused},   // gamma_flow
+                   ForbiddenColumn{57, ForbidReason::HardRefused},   // vanna_flow
+                   ForbiddenColumn{58, ForbidReason::HardRefused},   // speed_flow

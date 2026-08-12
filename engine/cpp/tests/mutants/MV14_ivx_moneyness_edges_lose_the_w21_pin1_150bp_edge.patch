@@ -1,0 +1,13 @@
+--- a/qr_ivx/include/qr_ivx/iv_cross.hpp
++++ b/qr_ivx/include/qr_ivx/iv_cross.hpp
+@@ -82,8 +82,8 @@
+ /// add +/-25 (about half a strike at IWM scale), and +/-300 splits the far wing
+ /// from the tail instead of letting a 20-delta and a 5-delta print share a bin.
+ /// Bins are RIGHT-OPEN, per the substrate bin law ratified in §W21-PIN-2.
+-inline constexpr std::array<std::int64_t, 8> kMoneynessEdgesBps{-300, -150, -50, -25,
+-                                                                25,   50,   150, 300};
++inline constexpr std::array<std::int64_t, 8> kMoneynessEdgesBps{-300, -125, -50, -25,
++                                                                25,   50,   125, 300};
+ inline constexpr std::size_t kBands = kMoneynessEdgesBps.size() + 1;  // 9
+ inline constexpr std::size_t kRights = 2;                             // Call, Put
+ 

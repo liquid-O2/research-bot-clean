@@ -1,0 +1,1951 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MV40_ivx_census_rows_carry_a_run_counter
+# patch:       tests/mutants/MV40_ivx_census_rows_carry_a_run_counter.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MV40_ivx_census_rows_carry_a_run_counter
+#
+### qr_ivx_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 53 tests from 21 test suites.
+[----------] Global test environment set-up.
+[----------] 7 tests from ColumnCensusVerdict
+[ RUN      ] ColumnCensusVerdict.MissingFromSchemaIsAbsentNotAllNull
+[       OK ] ColumnCensusVerdict.MissingFromSchemaIsAbsentNotAllNull (0 ms)
+[ RUN      ] ColumnCensusVerdict.EveryValueNullIsAllNull
+[       OK ] ColumnCensusVerdict.EveryValueNullIsAllNull (0 ms)
+[ RUN      ] ColumnCensusVerdict.PartialNullCountsCannotProveAllNull
+[       OK ] ColumnCensusVerdict.PartialNullCountsCannotProveAllNull (0 ms)
+[ RUN      ] ColumnCensusVerdict.ZeroEverywhereIsConstantZeroNotReal
+[       OK ] ColumnCensusVerdict.ZeroEverywhereIsConstantZeroNotReal (0 ms)
+[ RUN      ] ColumnCensusVerdict.PopulatedWithRangeIsReal
+[       OK ] ColumnCensusVerdict.PopulatedWithRangeIsReal (0 ms)
+[ RUN      ] ColumnCensusVerdict.NonFiniteBoundIsItsOwnVerdict
+[       OK ] ColumnCensusVerdict.NonFiniteBoundIsItsOwnVerdict (0 ms)
+[ RUN      ] ColumnCensusVerdict.PopulatedWithoutAnyStoredRangeSaysSo
+[       OK ] ColumnCensusVerdict.PopulatedWithoutAnyStoredRangeSaysSo (0 ms)
+[----------] 7 tests from ColumnCensusVerdict (0 ms total)
+
+[----------] 3 tests from ColumnCensusPresence
+[ RUN      ] ColumnCensusPresence.UnreportedNullCountsAreUndefinedNotFull
+[       OK ] ColumnCensusPresence.UnreportedNullCountsAreUndefinedNotFull (0 ms)
+[ RUN      ] ColumnCensusPresence.ExactIntegerFraction
+[       OK ] ColumnCensusPresence.ExactIntegerFraction (0 ms)
+[ RUN      ] ColumnCensusPresence.NoRowsIsUndefined
+[       OK ] ColumnCensusPresence.NoRowsIsUndefined (0 ms)
+[----------] 3 tests from ColumnCensusPresence (0 ms total)
+
+[----------] 2 tests from ColumnCensusStanding
+[ RUN      ] ColumnCensusStanding.LabelsMatchAppendixB3
+[       OK ] ColumnCensusStanding.LabelsMatchAppendixB3 (0 ms)
+[ RUN      ] ColumnCensusStanding.CandidateSetCarriesTheControls
+[       OK ] ColumnCensusStanding.CandidateSetCarriesTheControls (0 ms)
+[----------] 2 tests from ColumnCensusStanding (0 ms total)
+
+[----------] 2 tests from TsvFormatting
+[ RUN      ] TsvFormatting.RoundTripsAndNamesNonFinite
+[       OK ] TsvFormatting.RoundTripsAndNamesNonFinite (0 ms)
+[ RUN      ] TsvFormatting.AbsentTypedRealNeverEmitsANumber
+[       OK ] TsvFormatting.AbsentTypedRealNeverEmitsANumber (1 ms)
+[----------] 2 tests from TsvFormatting (1 ms total)
+
+[----------] 3 tests from MoneynessAxis
+[ RUN      ] MoneynessAxis.KeepsTheW21Pin1Edges
+[       OK ] MoneynessAxis.KeepsTheW21Pin1Edges (0 ms)
+[ RUN      ] MoneynessAxis.EdgesAreRightOpen
+[       OK ] MoneynessAxis.EdgesAreRightOpen (0 ms)
+[ RUN      ] MoneynessAxis.EveryIntegerLandsInExactlyOneBand
+[       OK ] MoneynessAxis.EveryIntegerLandsInExactlyOneBand (0 ms)
+[----------] 3 tests from MoneynessAxis (0 ms total)
+
+[----------] 4 tests from SkewOrientation
+[ RUN      ] SkewOrientation.PutRichSmileIsPositive
+[       OK ] SkewOrientation.PutRichSmileIsPositive (2 ms)
+[ RUN      ] SkewOrientation.CallRichSmileIsNegativeAndExactlyMirrored
+[       OK ] SkewOrientation.CallRichSmileIsNegativeAndExactlyMirrored (0 ms)
+[ RUN      ] SkewOrientation.SlopeIsTheRiskReversalPerLnMoneyness
+[       OK ] SkewOrientation.SlopeIsTheRiskReversalPerLnMoneyness (0 ms)
+[ RUN      ] SkewOrientation.PureTiltHasZeroCurvature
+[       OK ] SkewOrientation.PureTiltHasZeroCurvature (0 ms)
+[----------] 4 tests from SkewOrientation (2 ms total)
+
+[----------] 2 tests from Weighting
+[ RUN      ] Weighting.OnePrintOfThreeEqualsThreePrintsOfOne
+[       OK ] Weighting.OnePrintOfThreeEqualsThreePrintsOfOne (0 ms)
+[ RUN      ] Weighting.BandMeanIsPulledByTheHeavierPrint
+[       OK ] Weighting.BandMeanIsPulledByTheHeavierPrint (0 ms)
+[----------] 2 tests from Weighting (0 ms total)
+
+[----------] 3 tests from WindowLaw
+[ RUN      ] WindowLaw.BoundaryIsRightOpenOnTheSecond
+[       OK ] WindowLaw.BoundaryIsRightOpenOnTheSecond (0 ms)
+[ RUN      ] WindowLaw.InnovationsOnlySpanAdjacentWindows
+[       OK ] WindowLaw.InnovationsOnlySpanAdjacentWindows (0 ms)
+[ RUN      ] WindowLaw.PrintsPastTheCloseAreRejectedNotClamped
+[       OK ] WindowLaw.PrintsPastTheCloseAreRejectedNotClamped (0 ms)
+[----------] 3 tests from WindowLaw (0 ms total)
+
+[----------] 4 tests from Admission
+[ RUN      ] Admission.QuoteAttachmentMustBeStrictlyPrior
+[       OK ] Admission.QuoteAttachmentMustBeStrictlyPrior (0 ms)
+[ RUN      ] Admission.UnderlyingStampMustCarryThisSessionsDay
+[       OK ] Admission.UnderlyingStampMustCarryThisSessionsDay (0 ms)
+[ RUN      ] Admission.MultiLegPrintsAreExcludedAndCounted
+[       OK ] Admission.MultiLegPrintsAreExcludedAndCounted (0 ms)
+[ RUN      ] Admission.NonPositiveOrNonFiniteIvIsRejected
+[       OK ] Admission.NonPositiveOrNonFiniteIvIsRejected (0 ms)
+[----------] 4 tests from Admission (0 ms total)
+
+[----------] 3 tests from IvVelocity
+[ RUN      ] IvVelocity.IsThePerSecondChangeOfOneContractsOwnIv
+[       OK ] IvVelocity.IsThePerSecondChangeOfOneContractsOwnIv (0 ms)
+[ RUN      ] IvVelocity.PairsBeyondTheAgeGateAreNotAVelocity
+[       OK ] IvVelocity.PairsBeyondTheAgeGateAreNotAVelocity (0 ms)
+[ RUN      ] IvVelocity.DoesNotPairAcrossContracts
+[       OK ] IvVelocity.DoesNotPairAcrossContracts (0 ms)
+[----------] 3 tests from IvVelocity (0 ms total)
+
+[----------] 1 test from SignedVolDemand
+[ RUN      ] SignedVolDemand.InsideTheSpreadIsUndecidableNotZero
+[       OK ] SignedVolDemand.InsideTheSpreadIsUndecidableNotZero (0 ms)
+[----------] 1 test from SignedVolDemand (0 ms total)
+
+[----------] 2 tests from TermStructure
+[ RUN      ] TermStructure.RisingTermCarriesAPositiveSlopeAndANearFarRatioBelowOne
+[       OK ] TermStructure.RisingTermCarriesAPositiveSlopeAndANearFarRatioBelowOne (0 ms)
+[ RUN      ] TermStructure.FarLegFallbackIsFlagged
+[       OK ] TermStructure.FarLegFallbackIsFlagged (0 ms)
+[----------] 2 tests from TermStructure (0 ms total)
+
+[----------] 5 tests from SurfaceDynamics
+[ RUN      ] SurfaceDynamics.ResponseRecoversTheConstructedGain
+[       OK ] SurfaceDynamics.ResponseRecoversTheConstructedGain (0 ms)
+[ RUN      ] SurfaceDynamics.ZeroFluctuationTypesTheRatioAbsent
+[       OK ] SurfaceDynamics.ZeroFluctuationTypesTheRatioAbsent (0 ms)
+[ RUN      ] SurfaceDynamics.A3FlipsSignUnderTimeReversal
+[       OK ] SurfaceDynamics.A3FlipsSignUnderTimeReversal (1 ms)
+[ RUN      ] SurfaceDynamics.VolOfVolIsZeroForAConstantSurface
+[       OK ] SurfaceDynamics.VolOfVolIsZeroForAConstantSurface (0 ms)
+[ RUN      ] SurfaceDynamics.ThinWindowsAreTypedAbsent
+[       OK ] SurfaceDynamics.ThinWindowsAreTypedAbsent (0 ms)
+[----------] 5 tests from SurfaceDynamics (3 ms total)
+
+[----------] 1 test from Determinism
+[ RUN      ] Determinism.TwoRunsOfTheSameInputEmitTheSameRows
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2"
+  second.rows()[index].value
+    Which is: "107"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "8"
+  second.rows()[index].value
+    Which is: "113"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "9"
+  second.rows()[index].value
+    Which is: "114"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "10"
+  second.rows()[index].value
+    Which is: "115"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "5"
+  second.rows()[index].value
+    Which is: "110"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "6"
+  second.rows()[index].value
+    Which is: "111"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "7"
+  second.rows()[index].value
+    Which is: "112"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "8"
+  second.rows()[index].value
+    Which is: "113"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "9"
+  second.rows()[index].value
+    Which is: "114"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "10"
+  second.rows()[index].value
+    Which is: "115"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "11"
+  second.rows()[index].value
+    Which is: "116"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "12"
+  second.rows()[index].value
+    Which is: "117"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "13"
+  second.rows()[index].value
+    Which is: "118"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "14"
+  second.rows()[index].value
+    Which is: "119"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "15"
+  second.rows()[index].value
+    Which is: "120"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "16"
+  second.rows()[index].value
+    Which is: "121"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "23"
+  second.rows()[index].value
+    Which is: "128"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "618"
+  second.rows()[index].value
+    Which is: "723"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "22"
+  second.rows()[index].value
+    Which is: "127"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "23"
+  second.rows()[index].value
+    Which is: "128"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "22"
+  second.rows()[index].value
+    Which is: "127"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "22"
+  second.rows()[index].value
+    Which is: "127"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "123"
+  second.rows()[index].value
+    Which is: "228"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "124"
+  second.rows()[index].value
+    Which is: "229"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "125"
+  second.rows()[index].value
+    Which is: "230"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "126"
+  second.rows()[index].value
+    Which is: "231"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "127"
+  second.rows()[index].value
+    Which is: "232"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "128"
+  second.rows()[index].value
+    Which is: "233"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "30"
+  second.rows()[index].value
+    Which is: "135"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "30"
+  second.rows()[index].value
+    Which is: "135"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "31"
+  second.rows()[index].value
+    Which is: "136"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "33"
+  second.rows()[index].value
+    Which is: "138"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "33"
+  second.rows()[index].value
+    Which is: "138"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "33"
+  second.rows()[index].value
+    Which is: "138"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "34"
+  second.rows()[index].value
+    Which is: "139"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "36"
+  second.rows()[index].value
+    Which is: "141"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "37"
+  second.rows()[index].value
+    Which is: "142"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "37"
+  second.rows()[index].value
+    Which is: "142"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "38"
+  second.rows()[index].value
+    Which is: "143"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "40"
+  second.rows()[index].value
+    Which is: "145"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "41"
+  second.rows()[index].value
+    Which is: "146"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "41"
+  second.rows()[index].value
+    Which is: "146"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "42"
+  second.rows()[index].value
+    Which is: "147"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "44"
+  second.rows()[index].value
+    Which is: "149"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "45"
+  second.rows()[index].value
+    Which is: "150"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "45"
+  second.rows()[index].value
+    Which is: "150"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "46"
+  second.rows()[index].value
+    Which is: "151"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "48"
+  second.rows()[index].value
+    Which is: "153"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "49"
+  second.rows()[index].value
+    Which is: "154"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "49"
+  second.rows()[index].value
+    Which is: "154"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "50"
+  second.rows()[index].value
+    Which is: "155"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "52"
+  second.rows()[index].value
+    Which is: "157"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "53"
+  second.rows()[index].value
+    Which is: "158"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "53"
+  second.rows()[index].value
+    Which is: "158"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "54"
+  second.rows()[index].value
+    Which is: "159"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "56"
+  second.rows()[index].value
+    Which is: "161"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "57"
+  second.rows()[index].value
+    Which is: "162"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "57"
+  second.rows()[index].value
+    Which is: "162"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "58"
+  second.rows()[index].value
+    Which is: "163"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "60"
+  second.rows()[index].value
+    Which is: "165"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "61"
+  second.rows()[index].value
+    Which is: "166"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "61"
+  second.rows()[index].value
+    Which is: "166"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "62"
+  second.rows()[index].value
+    Which is: "167"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "64"
+  second.rows()[index].value
+    Which is: "169"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "65"
+  second.rows()[index].value
+    Which is: "170"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "65"
+  second.rows()[index].value
+    Which is: "170"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "66"
+  second.rows()[index].value
+    Which is: "171"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "68"
+  second.rows()[index].value
+    Which is: "173"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "69"
+  second.rows()[index].value
+    Which is: "174"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "69"
+  second.rows()[index].value
+    Which is: "174"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "70"
+  second.rows()[index].value
+    Which is: "175"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "72"
+  second.rows()[index].value
+    Which is: "177"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "73"
+  second.rows()[index].value
+    Which is: "178"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "73"
+  second.rows()[index].value
+    Which is: "178"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "74"
+  second.rows()[index].value
+    Which is: "179"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "76"
+  second.rows()[index].value
+    Which is: "181"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "77"
+  second.rows()[index].value
+    Which is: "182"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "77"
+  second.rows()[index].value
+    Which is: "182"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "78"
+  second.rows()[index].value
+    Which is: "183"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "80"
+  second.rows()[index].value
+    Which is: "185"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "81"
+  second.rows()[index].value
+    Which is: "186"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "82"
+  second.rows()[index].value
+    Which is: "187"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "83"
+  second.rows()[index].value
+    Which is: "188"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "84"
+  second.rows()[index].value
+    Which is: "189"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "185"
+  second.rows()[index].value
+    Which is: "290"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "86"
+  second.rows()[index].value
+    Which is: "191"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "87"
+  second.rows()[index].value
+    Which is: "192"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "88"
+  second.rows()[index].value
+    Which is: "193"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "89"
+  second.rows()[index].value
+    Which is: "194"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "190"
+  second.rows()[index].value
+    Which is: "295"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "91"
+  second.rows()[index].value
+    Which is: "196"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "92"
+  second.rows()[index].value
+    Which is: "197"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "93"
+  second.rows()[index].value
+    Which is: "198"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "94"
+  second.rows()[index].value
+    Which is: "199"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "295"
+  second.rows()[index].value
+    Which is: "400"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "96"
+  second.rows()[index].value
+    Which is: "201"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "97"
+  second.rows()[index].value
+    Which is: "202"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "98"
+  second.rows()[index].value
+    Which is: "203"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "99"
+  second.rows()[index].value
+    Which is: "204"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "200"
+  second.rows()[index].value
+    Which is: "305"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "101"
+  second.rows()[index].value
+    Which is: "206"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "102"
+  second.rows()[index].value
+    Which is: "207"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "103"
+  second.rows()[index].value
+    Which is: "208"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "104"
+  second.rows()[index].value
+    Which is: "209"
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:554: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "205"
+  second.rows()[index].value
+    Which is: "310"
+
+[  FAILED  ] Determinism.TwoRunsOfTheSameInputEmitTheSameRows (2 ms)
+[----------] 1 test from Determinism (2 ms total)
+
+[----------] 2 tests from QuoteSkewOrientation
+[ RUN      ] QuoteSkewOrientation.PutRichLadderIsPositive
+[       OK ] QuoteSkewOrientation.PutRichLadderIsPositive (3 ms)
+[ RUN      ] QuoteSkewOrientation.CallRichLadderIsNegative
+[       OK ] QuoteSkewOrientation.CallRichLadderIsNegative (3 ms)
+[----------] 2 tests from QuoteSkewOrientation (6 ms total)
+
+[----------] 1 test from QuoteSkewNormalization
+[ RUN      ] QuoteSkewNormalization.ScalingEveryPremiumLeavesTheProxyUnchanged
+[       OK ] QuoteSkewNormalization.ScalingEveryPremiumLeavesTheProxyUnchanged (6 ms)
+[----------] 1 test from QuoteSkewNormalization (6 ms total)
+
+[----------] 2 tests from QuoteSkewCausality
+[ RUN      ] QuoteSkewCausality.QuoteAtTheBoundaryIsNotStateForThatSecond
+[       OK ] QuoteSkewCausality.QuoteAtTheBoundaryIsNotStateForThatSecond (6 ms)
+[ RUN      ] QuoteSkewCausality.StaleQuotesLeaveTheLadderEmpty
+[       OK ] QuoteSkewCausality.StaleQuotesLeaveTheLadderEmpty (6 ms)
+[----------] 2 tests from QuoteSkewCausality (12 ms total)
+
+[----------] 2 tests from QuoteSkewLadder
+[ RUN      ] QuoteSkewLadder.OneSidedRungsAreNotRungs
+[       OK ] QuoteSkewLadder.OneSidedRungsAreNotRungs (2 ms)
+[ RUN      ] QuoteSkewLadder.CrossedQuotesAreNotRungs
+[       OK ] QuoteSkewLadder.CrossedQuotesAreNotRungs (2 ms)
+[----------] 2 tests from QuoteSkewLadder (5 ms total)
+
+[----------] 1 test from QuoteSkewAtm
+[ RUN      ] QuoteSkewAtm.EquidistantCandidatesAreUndecidable
+[       OK ] QuoteSkewAtm.EquidistantCandidatesAreUndecidable (2 ms)
+[----------] 1 test from QuoteSkewAtm (2 ms total)
+
+[----------] 2 tests from QuoteSkewPlane
+[ RUN      ] QuoteSkewPlane.OtherExpiriesAreNotOnThePlane
+[       OK ] QuoteSkewPlane.OtherExpiriesAreNotOnThePlane (1 ms)
+[ RUN      ] QuoteSkewPlane.MissingGridSpotTypesTheSecondAbsent
+[       OK ] QuoteSkewPlane.MissingGridSpotTypesTheSecondAbsent (3 ms)
+[----------] 2 tests from QuoteSkewPlane (4 ms total)
+
+[----------] 1 test from QuoteSkewDeterminism
+[ RUN      ] QuoteSkewDeterminism.TwoRunsAgree
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "221"
+  second.rows()[index].value
+    Which is: "368"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "222"
+  second.rows()[index].value
+    Which is: "369"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2013"
+  second.rows()[index].value
+    Which is: "2160"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "514"
+  second.rows()[index].value
+    Which is: "661"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "515"
+  second.rows()[index].value
+    Which is: "662"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "516"
+  second.rows()[index].value
+    Which is: "663"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "517"
+  second.rows()[index].value
+    Which is: "664"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2018"
+  second.rows()[index].value
+    Which is: "2165"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "219"
+  second.rows()[index].value
+    Which is: "366"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "220"
+  second.rows()[index].value
+    Which is: "367"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "221"
+  second.rows()[index].value
+    Which is: "368"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "222"
+  second.rows()[index].value
+    Which is: "369"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2023"
+  second.rows()[index].value
+    Which is: "2170"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "224"
+  second.rows()[index].value
+    Which is: "371"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "225"
+  second.rows()[index].value
+    Which is: "372"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "226"
+  second.rows()[index].value
+    Which is: "373"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "227"
+  second.rows()[index].value
+    Which is: "374"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2028"
+  second.rows()[index].value
+    Which is: "2175"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "229"
+  second.rows()[index].value
+    Which is: "376"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "230"
+  second.rows()[index].value
+    Which is: "377"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "231"
+  second.rows()[index].value
+    Which is: "378"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "232"
+  second.rows()[index].value
+    Which is: "379"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2033"
+  second.rows()[index].value
+    Which is: "2180"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "234"
+  second.rows()[index].value
+    Which is: "381"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "235"
+  second.rows()[index].value
+    Which is: "382"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "236"
+  second.rows()[index].value
+    Which is: "383"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "237"
+  second.rows()[index].value
+    Which is: "384"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2038"
+  second.rows()[index].value
+    Which is: "2185"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "239"
+  second.rows()[index].value
+    Which is: "386"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "240"
+  second.rows()[index].value
+    Which is: "387"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "241"
+  second.rows()[index].value
+    Which is: "388"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "242"
+  second.rows()[index].value
+    Which is: "389"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2043"
+  second.rows()[index].value
+    Which is: "2190"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "244"
+  second.rows()[index].value
+    Which is: "391"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "245"
+  second.rows()[index].value
+    Which is: "392"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "246"
+  second.rows()[index].value
+    Which is: "393"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "247"
+  second.rows()[index].value
+    Which is: "394"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2048"
+  second.rows()[index].value
+    Which is: "2195"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "249"
+  second.rows()[index].value
+    Which is: "396"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "250"
+  second.rows()[index].value
+    Which is: "397"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "251"
+  second.rows()[index].value
+    Which is: "398"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "252"
+  second.rows()[index].value
+    Which is: "399"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2053"
+  second.rows()[index].value
+    Which is: "2200"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "254"
+  second.rows()[index].value
+    Which is: "401"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "255"
+  second.rows()[index].value
+    Which is: "402"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "256"
+  second.rows()[index].value
+    Which is: "403"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "257"
+  second.rows()[index].value
+    Which is: "404"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2058"
+  second.rows()[index].value
+    Which is: "2205"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "259"
+  second.rows()[index].value
+    Which is: "406"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "260"
+  second.rows()[index].value
+    Which is: "407"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "261"
+  second.rows()[index].value
+    Which is: "408"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "262"
+  second.rows()[index].value
+    Which is: "409"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2063"
+  second.rows()[index].value
+    Which is: "2210"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "264"
+  second.rows()[index].value
+    Which is: "411"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "265"
+  second.rows()[index].value
+    Which is: "412"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "266"
+  second.rows()[index].value
+    Which is: "413"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "267"
+  second.rows()[index].value
+    Which is: "414"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2068"
+  second.rows()[index].value
+    Which is: "2215"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "269"
+  second.rows()[index].value
+    Which is: "416"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "270"
+  second.rows()[index].value
+    Which is: "417"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "271"
+  second.rows()[index].value
+    Which is: "418"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "272"
+  second.rows()[index].value
+    Which is: "419"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "2073"
+  second.rows()[index].value
+    Which is: "2220"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "274"
+  second.rows()[index].value
+    Which is: "421"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "275"
+  second.rows()[index].value
+    Which is: "422"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "276"
+  second.rows()[index].value
+    Which is: "423"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "277"
+  second.rows()[index].value
+    Which is: "424"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000278"
+  second.rows()[index].value
+    Which is: "100000425"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000279"
+  second.rows()[index].value
+    Which is: "100000426"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "280"
+  second.rows()[index].value
+    Which is: "427"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "286"
+  second.rows()[index].value
+    Which is: "433"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000282"
+  second.rows()[index].value
+    Which is: "100000429"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000283"
+  second.rows()[index].value
+    Which is: "100000430"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "284"
+  second.rows()[index].value
+    Which is: "431"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "290"
+  second.rows()[index].value
+    Which is: "437"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000286"
+  second.rows()[index].value
+    Which is: "100000433"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000287"
+  second.rows()[index].value
+    Which is: "100000434"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "288"
+  second.rows()[index].value
+    Which is: "435"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "294"
+  second.rows()[index].value
+    Which is: "441"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000290"
+  second.rows()[index].value
+    Which is: "100000437"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000291"
+  second.rows()[index].value
+    Which is: "100000438"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "292"
+  second.rows()[index].value
+    Which is: "439"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "298"
+  second.rows()[index].value
+    Which is: "445"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000294"
+  second.rows()[index].value
+    Which is: "100000441"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000295"
+  second.rows()[index].value
+    Which is: "100000442"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "296"
+  second.rows()[index].value
+    Which is: "443"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "302"
+  second.rows()[index].value
+    Which is: "449"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000298"
+  second.rows()[index].value
+    Which is: "100000445"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000299"
+  second.rows()[index].value
+    Which is: "100000446"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "300"
+  second.rows()[index].value
+    Which is: "447"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "306"
+  second.rows()[index].value
+    Which is: "453"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000302"
+  second.rows()[index].value
+    Which is: "100000449"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000303"
+  second.rows()[index].value
+    Which is: "100000450"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "304"
+  second.rows()[index].value
+    Which is: "451"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "310"
+  second.rows()[index].value
+    Which is: "457"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000306"
+  second.rows()[index].value
+    Which is: "100000453"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000307"
+  second.rows()[index].value
+    Which is: "100000454"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "308"
+  second.rows()[index].value
+    Which is: "455"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "314"
+  second.rows()[index].value
+    Which is: "461"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000310"
+  second.rows()[index].value
+    Which is: "100000457"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000311"
+  second.rows()[index].value
+    Which is: "100000458"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "312"
+  second.rows()[index].value
+    Which is: "459"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "318"
+  second.rows()[index].value
+    Which is: "465"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000314"
+  second.rows()[index].value
+    Which is: "100000461"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000315"
+  second.rows()[index].value
+    Which is: "100000462"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "316"
+  second.rows()[index].value
+    Which is: "463"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "322"
+  second.rows()[index].value
+    Which is: "469"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000318"
+  second.rows()[index].value
+    Which is: "100000465"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000319"
+  second.rows()[index].value
+    Which is: "100000466"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "320"
+  second.rows()[index].value
+    Which is: "467"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "326"
+  second.rows()[index].value
+    Which is: "473"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000322"
+  second.rows()[index].value
+    Which is: "100000469"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000323"
+  second.rows()[index].value
+    Which is: "100000470"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "324"
+  second.rows()[index].value
+    Which is: "471"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "330"
+  second.rows()[index].value
+    Which is: "477"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000326"
+  second.rows()[index].value
+    Which is: "100000473"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000327"
+  second.rows()[index].value
+    Which is: "100000474"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "328"
+  second.rows()[index].value
+    Which is: "475"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "334"
+  second.rows()[index].value
+    Which is: "481"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000330"
+  second.rows()[index].value
+    Which is: "100000477"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000331"
+  second.rows()[index].value
+    Which is: "100000478"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "332"
+  second.rows()[index].value
+    Which is: "479"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "338"
+  second.rows()[index].value
+    Which is: "485"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000334"
+  second.rows()[index].value
+    Which is: "100000481"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000335"
+  second.rows()[index].value
+    Which is: "100000482"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "336"
+  second.rows()[index].value
+    Which is: "483"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "342"
+  second.rows()[index].value
+    Which is: "489"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000338"
+  second.rows()[index].value
+    Which is: "100000485"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000339"
+  second.rows()[index].value
+    Which is: "100000486"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "340"
+  second.rows()[index].value
+    Which is: "487"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "346"
+  second.rows()[index].value
+    Which is: "493"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000342"
+  second.rows()[index].value
+    Which is: "100000489"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000343"
+  second.rows()[index].value
+    Which is: "100000490"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "344"
+  second.rows()[index].value
+    Which is: "491"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "350"
+  second.rows()[index].value
+    Which is: "497"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000346"
+  second.rows()[index].value
+    Which is: "100000493"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000347"
+  second.rows()[index].value
+    Which is: "100000494"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "348"
+  second.rows()[index].value
+    Which is: "495"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "354"
+  second.rows()[index].value
+    Which is: "501"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000350"
+  second.rows()[index].value
+    Which is: "100000497"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000351"
+  second.rows()[index].value
+    Which is: "100000498"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "352"
+  second.rows()[index].value
+    Which is: "499"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "358"
+  second.rows()[index].value
+    Which is: "505"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000354"
+  second.rows()[index].value
+    Which is: "100000501"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "100000355"
+  second.rows()[index].value
+    Which is: "100000502"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "356"
+  second.rows()[index].value
+    Which is: "503"
+
+/workspace/engine/cpp/qr_ivx/tests/test_quote_skew.cpp:254: Failure
+Expected equality of these values:
+  first.rows()[index].value
+    Which is: "362"
+  second.rows()[index].value
+    Which is: "509"
+
+[  FAILED  ] QuoteSkewDeterminism.TwoRunsAgree (9 ms)
+[----------] 1 test from QuoteSkewDeterminism (9 ms total)
+
+[----------] Global test environment tear-down
+[==========] 53 tests from 21 test suites ran. (56 ms total)
+[  PASSED  ] 51 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Determinism.TwoRunsOfTheSameInputEmitTheSameRows
+[  FAILED  ] QuoteSkewDeterminism.TwoRunsAgree
+
+ 2 FAILED TESTS

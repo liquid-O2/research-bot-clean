@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -811,7 +811,7 @@
+         const double sigma = std::sqrt(variance / static_cast<double>(quiet.size()));
+         out_window.fd_sigma_vv = valid(sigma);
+         if (out_window.fd_chi.v == Validity::VALID && sigma > 0.0) {
+-          out_window.fd_ratio = valid(out_window.fd_chi.value / sigma);
++          out_window.fd_ratio = valid(out_window.fd_chi.value / (sigma + 1.0));
+         } else if (sigma <= 0.0) {
+           out_window.fd_ratio = absent(Validity::NONPOSITIVE);
+         }

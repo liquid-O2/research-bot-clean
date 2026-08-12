@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -393,7 +393,7 @@
+   }
+ 
+   // D2: the contract's own previous print, age-gated.
+-  const ContractKey contract{row.expiration_day, row.strike_u6, right};
++  const ContractKey contract{row.expiration_day, row.strike_u6, 0};
+   const auto found = last_print_.find(contract);
+   if (found != last_print_.end()) {
+     const std::int64_t gap_ms = row.ts_ms_b - found->second.ts_ms_b;

@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -362,7 +362,7 @@
+   }
+   const std::int64_t second = elapsed_ms / 1000;
+   if (second >= kWindowSeconds * static_cast<std::int64_t>(kWindows)) {
+-    ++census_.rejected_window;
++    ++census_.rejected_iv;
+     return;
+   }
+   const auto window = static_cast<std::size_t>(second / kWindowSeconds);

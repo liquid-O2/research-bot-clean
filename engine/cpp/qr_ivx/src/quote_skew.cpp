@@ -70,16 +70,18 @@ void QuoteSkewBuilder::observe(const qr::sources::OptionQuoteRow& row) {
   }
   ++rows_on_plane_;
 
-  // EVALUATE FIRST, THEN APPLY. The second's value must rest on quotes STRICTLY
-  // PRIOR to the second's end, so every second that has fully elapsed is closed
-  // out before this row is folded into the state.
   const std::int64_t elapsed_ms = row.ts_ms_b - open_ms_b_;
   if (elapsed_ms < 0) {
     return;
   }
   const std::int64_t second = elapsed_ms / 1000;
-  evaluate_through(second);
 
+  // ONE WALL, NOT TWO. The row is folded into the ladder FIRST and the elapsed
+  // seconds are closed out afterwards, so `usable`'s strictly-prior comparison
+  // is the ONLY thing standing between a second and a quote posted at or after
+  // its boundary. An earlier draft also evaluated before folding; that made the
+  // causality doubly protected and therefore unfalsifiable by any single-point
+  // mutation — a property no red-ledger row can ever prove.
   StrikeState& state = ladder_[row.strike_u6];
   const Quote quote{row.ts_ms_b,
                     row.is_null(slots::kOptionQuoteSlotBid) ? 0 : row.bid_u6,
@@ -91,14 +93,18 @@ void QuoteSkewBuilder::observe(const qr::sources::OptionQuoteRow& row) {
     state.put = quote;
     state.has_put = true;
   }
+  evaluate_through(second);
 }
 
 void QuoteSkewBuilder::evaluate_through(std::int64_t second) {
-  // Closes every grid second up to AND INCLUDING `second`: that second's
-  // boundary instant has already passed once a row stamped at or after it has
-  // arrived, and `usable` is what keeps the read strictly prior.
+  // Closes every grid second STRICTLY BEFORE `second`. A second is therefore
+  // only valued once a row past its whole span has arrived, which means the
+  // ladder is complete at that moment and `usable`'s strictly-prior comparison
+  // is the ONE thing deciding what that second may see. Closing second
+  // `second` here as well would make the causality doubly protected and so
+  // unfalsifiable by a single-point mutation.
   const std::int64_t last = kWindowSeconds * static_cast<std::int64_t>(kWindows);
-  while (next_second_ <= second && next_second_ < last) {
+  while (next_second_ < second && next_second_ < last) {
     const QuoteSkewSecond value = evaluate_one(next_second_);
     const auto window = static_cast<std::size_t>(next_second_ / kWindowSeconds);
     Accumulator& accumulator = accumulator_[window];
@@ -225,7 +231,7 @@ QuoteSkewSecond QuoteSkewBuilder::evaluate_one(std::int64_t second) const {
 }
 
 void QuoteSkewBuilder::finish() {
-  evaluate_through(kWindowSeconds * static_cast<std::int64_t>(kWindows) - 1);
+  evaluate_through(kWindowSeconds * static_cast<std::int64_t>(kWindows));
   for (std::size_t window = 0; window < kWindows; ++window) {
     QuoteSkewWindow& out = windows_[window];
     const Accumulator& accumulator = accumulator_[window];

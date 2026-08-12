@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/quote_skew.cpp
++++ b/qr_ivx/src/quote_skew.cpp
+@@ -210,7 +210,7 @@
+     const std::int64_t step = kQuoteSkewOffsets[index];
+     const auto down = static_cast<std::int64_t>(best) - step;
+     const auto up = static_cast<std::int64_t>(best) + step;
+-    if (down < 0 || up >= static_cast<std::int64_t>(rungs.size())) {
++    if (false) {
+       out.tilt[index + 1] = absent(Validity::MISSING);
+       out.log_ratio[index + 1] = absent(Validity::MISSING);
+       continue;

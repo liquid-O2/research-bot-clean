@@ -11,10 +11,12 @@
 //    uses and refusals reproduced verbatim above each spec below.
 // Reference semantics (read-only): /workspace/engine/crates/select_v2/src/sources/*.rs
 //
-// WP4 SCOPE: the four IWM streams. B5 (RUTW prints, "same 62-name wide
-// profile") is DEFERRED — and deferral here is a WALL, not an omission: a wide
-// RUTW file handed to the IWM compact print reader is refused BY NAME at open,
-// with a fixture proving it.
+// WP4 SCOPE WAS the four IWM streams, with B5 (RUTW prints) deferred behind a
+// wall. B5 IS NOW BUILT (`qr_sources/rutw_prints.hpp`), and the wall did not go
+// away — it became TWO-WAY: `kRutwPrintSpec` below is B3's column law by
+// compile-time assert, `kRutwPrintFormsWide` is the ONE profile that corpus is
+// written in, and each print reader refuses the other's corpus root BY NAME at
+// open, with fixtures proving both directions on real bytes.
 //
 // THREE WALLS LIVE IN THIS FILE, in increasing order of when they fire:
 //
@@ -440,9 +442,20 @@ inline constexpr std::string_view kPriceLead1Name = "price_lead_1";
 // Aggressor recomputed; IV/Greeks need BOTH strict-prior attachments; flows =
 // v*size*greek."
 //
-// `vega(16)` is NOT walled: B3 names it as a REGISTERED extension that W2.4
-// turns on. Every other unprojected greek is "unlisted" and therefore walled.
-inline constexpr StreamSpec<62, 20, 29> kOptionPrintSpec{
+// CC-013 LANDED (2026-08-12, change control; receipt
+// artifacts/cache/ivx/cc013_column_census.tsv, 5 sessions x 16 columns,
+// schema+footer-statistics only). The projection grows from 20 leaves to 31:
+// vega(16) — B3's own W2.4 registered extension, now implemented — plus
+// vomma(23), veta(24), vera(25), speed(26), zomma(27), color(28), ultima(29),
+// dual_delta(32), dual_gamma(33) and iv_error(35). The census found every one
+// of them REAL: present on 99.9976-99.9987% of rows, ranges sane, verdict
+// identical on all five censused sessions across three eras, DOUBLE in all
+// three measured profiles (IWM compact, IWM wide, RUTW wide).
+//
+// THE HARD-REFUSE LIST SHRINKS BY EXACTLY THE ADMITTED NAMES, 29 -> 20, and
+// NOTHING ELSE MOVES. What remains refused remains refused for a reason that
+// was never about population — see the annotated `.forbidden` block below.
+inline constexpr StreamSpec<62, 31, 20> kOptionPrintSpec{
     .stream = "options_prints",
     .names = {"symbol",       "expiration",   "strike",     "right",
               "timestamp",    "sequence",     "ext_condition1", "ext_condition2",
@@ -460,7 +473,8 @@ inline constexpr StreamSpec<62, 20, 29> kOptionPrintSpec{
               "dte",          "moneyness",    "prem",       "delta_flow",
               "gamma_flow",   "vanna_flow",   "speed_flow", "zomma_flow",
               "charm_flow",   "vomma_flow"},
-    .projection = {1, 2, 3, 4, 5, 10, 11, 13, 14, 20, 21, 22, 34, 36, 37, 39, 40, 42, 43, 45},
+    .projection = {1,  2,  3,  4,  5,  10, 11, 13, 14, 16, 20, 21, 22, 23, 24, 25,
+                   26, 27, 28, 29, 32, 33, 34, 35, 36, 37, 39, 40, 42, 43, 45},
     .roles = {ColumnRole::Date,        // expiration(1)
               ColumnRole::Strike,      // strike(2)
               ColumnRole::Text,        // right(3)
@@ -470,10 +484,21 @@ inline constexpr StreamSpec<62, 20, 29> kOptionPrintSpec{
               ColumnRole::Int,         // size(11)
               ColumnRole::Price,       // price(13)
               ColumnRole::Float,       // delta(14)
+              ColumnRole::Float,       // vega(16)      [W2.4 extension, CC-013]
               ColumnRole::Float,       // gamma(20)
               ColumnRole::Float,       // vanna(21)
               ColumnRole::Float,       // charm(22)
+              ColumnRole::Float,       // vomma(23)     [CC-013]
+              ColumnRole::Float,       // veta(24)      [CC-013]
+              ColumnRole::Float,       // vera(25)      [CC-013]
+              ColumnRole::Float,       // speed(26)     [CC-013]
+              ColumnRole::Float,       // zomma(27)     [CC-013]
+              ColumnRole::Float,       // color(28)     [CC-013]
+              ColumnRole::Float,       // ultima(29)    [CC-013]
+              ColumnRole::Float,       // dual_delta(32)[CC-013]
+              ColumnRole::Float,       // dual_gamma(33)[CC-013]
               ColumnRole::Float,       // implied_vol(34)
+              ColumnRole::Float,       // iv_error(35)  [CC-013]
               ColumnRole::Text,        // underlying_timestamp(36)
               ColumnRole::Float,       // underlying_price(37)
               ColumnRole::Price,       // bid(39)
@@ -481,21 +506,34 @@ inline constexpr StreamSpec<62, 20, 29> kOptionPrintSpec{
               ColumnRole::Price,       // ask(42)
               ColumnRole::Int,         // ask_size(43)
               ColumnRole::TimestampMs},// quote_timestamp(45)
+    // THE SURVIVING WALL (CC-013 LANDED). What stayed refused, and WHY each
+    // one stayed — the census proved every one of these is populated and sane,
+    // so "no data there" is NOT the reason for any of them:
+    //
+    //   theta(15), rho(17), epsilon(18), lambda(19): VENDOR DERIVATIONS THIS
+    //     PROGRAM RECOMPUTES. Theta is deterministic time decay, which W2.14
+    //     builds from its own charm/clock construction; rho, epsilon and lambda
+    //     are rate/dividend/elasticity sensitivities whose vendor values embed
+    //     the vendor's own rate and dividend curve — an input this program does
+    //     not own, cannot audit and will not inherit silently. Admitting them
+    //     would import an unowned model through the back door, which is the
+    //     exact failure the hard-refusal list exists to prevent.
+    //   d1(30), d2(31): the Black-Scholes standardized moneyness terms, i.e.
+    //     the vendor's PRICING MODEL ITSELF. The proxy-firewall law forbids
+    //     inverting a model; reading its intermediate variables is the same
+    //     act with fewer steps.
+    //   side(38): the vendor's aggressor answer. This program certifies
+    //     aggression against the quote it attaches itself.
+    //   sweep_*(47-50): vendor trade-linkage derivations.
+    //   moneyness(53), prem(54), *_flow(55-61): vendor derivations of exactly
+    //     the quantities the feature families exist to build (flows are
+    //     v*size*greek, computed here from the certified sign).
     .forbidden = {ForbiddenColumn{15, ForbidReason::HardRefused},   // theta
                   ForbiddenColumn{17, ForbidReason::HardRefused},   // rho
                   ForbiddenColumn{18, ForbidReason::HardRefused},   // epsilon
                   ForbiddenColumn{19, ForbidReason::HardRefused},   // lambda
-                  ForbiddenColumn{23, ForbidReason::HardRefused},   // vomma
-                  ForbiddenColumn{24, ForbidReason::HardRefused},   // veta
-                  ForbiddenColumn{25, ForbidReason::HardRefused},   // vera
-                  ForbiddenColumn{26, ForbidReason::HardRefused},   // speed
-                  ForbiddenColumn{27, ForbidReason::HardRefused},   // zomma
-                  ForbiddenColumn{28, ForbidReason::HardRefused},   // color
-                  ForbiddenColumn{29, ForbidReason::HardRefused},   // ultima
                   ForbiddenColumn{30, ForbidReason::HardRefused},   // d1
                   ForbiddenColumn{31, ForbidReason::HardRefused},   // d2
-                  ForbiddenColumn{32, ForbidReason::HardRefused},   // dual_delta
-                  ForbiddenColumn{33, ForbidReason::HardRefused},   // dual_gamma
                   ForbiddenColumn{38, ForbidReason::HardRefused},   // side
                   ForbiddenColumn{47, ForbidReason::HardRefused},   // sweep_id
                   ForbiddenColumn{48, ForbidReason::HardRefused},   // sweep_n
@@ -519,15 +557,22 @@ static_assert(spec_is_wellformed(kOptionPrintSpec));
 /// `strike` INT32 mills, `right` UTF8, `size` INT32, `price`/`bid`/`ask` INT32
 /// cents, `bid_size`/`ask_size` INT32, `underlying_timestamp` UTF8 text.
 ///
-/// B5 (RUTW, "same 62-name wide profile") IS DEFERRED, AND THE DEFERRAL IS A
-/// WALL: a wide file has the same 62 names but `Float64` strike/price and
-/// `Int64` sizes, so it fails this vector at open and is refused by name.
-inline constexpr std::array<ColumnForm, 20> kOptionPrintFormsIwmCompact{
-    ColumnForm::DateI32,   ColumnForm::MillI32,   ColumnForm::TextUtf8,  ColumnForm::TimestampMsI64,
-    ColumnForm::IntI64,    ColumnForm::IntI64,    ColumnForm::IntI32,    ColumnForm::CentI32,
+/// A wide file has the same 62 names but `Float64` strike/price and `Int64`
+/// sizes, so it fails this vector at open and is refused by name.
+inline constexpr std::array<ColumnForm, 31> kOptionPrintFormsIwmCompact{
+    ColumnForm::DateI32,   ColumnForm::MillI32,   ColumnForm::TextUtf8,  // expiration, strike, right
+    ColumnForm::TimestampMsI64, ColumnForm::IntI64, ColumnForm::IntI64,  // ts, sequence, condition
+    ColumnForm::IntI32,    ColumnForm::CentI32,                          // size, price
+    // delta, vega, gamma, vanna, charm, vomma, veta, vera, speed, zomma,
+    // color, ultima, dual_delta, dual_gamma, implied_vol, iv_error — every one
+    // measured DOUBLE in this profile (CC-013 census, 5 sessions x 3 profiles).
     ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,
-    ColumnForm::FloatF64,  ColumnForm::TextUtf8,  ColumnForm::FloatF64,  ColumnForm::CentI32,
-    ColumnForm::IntI32,    ColumnForm::CentI32,   ColumnForm::IntI32,    ColumnForm::TimestampMsI64};
+    ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,
+    ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,
+    ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,
+    ColumnForm::TextUtf8,  ColumnForm::FloatF64,                         // underlying ts, px
+    ColumnForm::CentI32,   ColumnForm::IntI32,    ColumnForm::CentI32,   ColumnForm::IntI32,
+    ColumnForm::TimestampMsI64};
 
 /// THE SECOND MEASURED IWM PRINT PROFILE — the WIDE encoding of the SAME 62
 /// names: `expiration` UTF-8 ISO text, `strike`/`price`/`bid`/`ask` `Float64`
@@ -556,18 +601,27 @@ inline constexpr std::array<ColumnForm, 20> kOptionPrintFormsIwmCompact{
 /// the same dual-profile shape B1 uses for stock quotes and B4 for option
 /// quotes.
 ///
-/// B5 (RUTW) REMAINS DEFERRED AND REMAINS WALLED — ON THE RIGHT AXIS. The
-/// deferral is of a MODALITY (the RUTW print corpus), not of an encoding, and
-/// it used to be enforced only as a side effect of this pin being narrow: any
+/// B5 (RUTW) IS WALLED ON THE RIGHT AXIS — the MODALITY, not the encoding.
+/// It used to be enforced only as a side effect of this pin being narrow: any
 /// day the vendor wrote a RUTW file in the compact encoding, the encoding wall
-/// would have admitted it. `OptionPrintReader::open` now refuses a RUTW corpus
-/// root BY NAME instead, which walls the modality whatever it is encoded in.
-inline constexpr std::array<ColumnForm, 20> kOptionPrintFormsIwmWide{
-    ColumnForm::DateText,  ColumnForm::DollarF64, ColumnForm::TextUtf8,  ColumnForm::TimestampMsI64,
-    ColumnForm::IntI64,    ColumnForm::IntI64,    ColumnForm::IntI64,    ColumnForm::DollarF64,
+/// would have admitted it. `OptionPrintReader::open` refuses a RUTW corpus root
+/// BY NAME instead, which walls the modality whatever it is encoded in — and
+/// `RutwPrintReader::open` refuses every non-RUTW root the same way, so THIS
+/// vector is what an IWM day is read with and `kRutwPrintFormsWide` is what a
+/// RUTW day is read with, with no path between them.
+inline constexpr std::array<ColumnForm, 31> kOptionPrintFormsIwmWide{
+    ColumnForm::DateText,  ColumnForm::DollarF64, ColumnForm::TextUtf8,
+    ColumnForm::TimestampMsI64, ColumnForm::IntI64, ColumnForm::IntI64,
+    ColumnForm::IntI64,    ColumnForm::DollarF64,
+    // The sixteen reals. The wide encoding widens the PRICES and the SIZES; the
+    // greek block is DOUBLE in both encodings, measured on s356 and s606.
     ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,
-    ColumnForm::FloatF64,  ColumnForm::TextUtf8,  ColumnForm::FloatF64,  ColumnForm::DollarF64,
-    ColumnForm::IntI64,    ColumnForm::DollarF64, ColumnForm::IntI64,    ColumnForm::TimestampMsI64};
+    ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,
+    ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,
+    ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,  ColumnForm::FloatF64,
+    ColumnForm::TextUtf8,  ColumnForm::FloatF64,
+    ColumnForm::DollarF64, ColumnForm::IntI64,    ColumnForm::DollarF64, ColumnForm::IntI64,
+    ColumnForm::TimestampMsI64};
 
 /// Which of the two admitted print vectors THIS FILE declares, decided from the
 /// file's own `expiration` leaf and nothing else. Pure footer work; a date
@@ -576,9 +630,81 @@ inline constexpr std::array<ColumnForm, 20> kOptionPrintFormsIwmWide{
 [[nodiscard]] FileExpected<std::span<const ColumnForm>> option_print_forms(
     const parquet::File& file);
 
-/// The path component that names the DEFERRED B5 modality. `OptionPrintReader`
-/// refuses a corpus root carrying it, before a path to a payload is formed.
+/// The path component that names the B5 modality. It is the wall BOTH readers
+/// stand on, from opposite sides: `OptionPrintReader` refuses a corpus root
+/// carrying it, `RutwPrintReader` refuses a corpus root that does not.
 inline constexpr std::string_view kDeferredPrintModality = "RUTW";
+
+// ---------------------------------------------------------------------------
+// B5 — RUTW prints (the SAME 62 columns, the wide profile only).
+// ---------------------------------------------------------------------------
+//
+// FINAL_PLAN APPENDIX B5, verbatim: "RUTW prints: same 62-name wide profile;
+// same laws; registry-session wall (W2.12)."
+//
+// "SAME LAWS" IS A COMPILE-TIME FACT HERE, NOT A COMMENT. `kRutwPrintSpec`
+// carries its own stream name — so a refusal says which corpus refused — and
+// static_asserts that its 62 names, its 31 projected leaves, their roles and
+// its 20 hard-refused leaves are BYTE-FOR-BYTE B3's. CC-013 therefore cannot
+// land on one reader and not the other: the assert below fails to compile. A projection that drifts
+// from B3 on one side and not the other does not compile.
+//
+// WHAT IS *NOT* SHARED IS THE PROFILE. B3's reader admits two encodings of the
+// IWM corpus (compact and wide) because both were measured there. RUTW is
+// written in the WIDE profile and only the wide profile, so this spec pins ONE
+// admitted form vector: `expiration` UTF-8 ISO text, `strike`/`price`/`bid`/
+// `ask` Float64 dollars, `size`/`bid_size`/`ask_size` Int64. IWM-compact bytes
+// handed to the RUTW reader fail that vector at open, by name, before a payload
+// byte is read — which is the other half of the two-way wall.
+template <std::size_t NNames, std::size_t NProj, std::size_t NForb, std::size_t MNames,
+          std::size_t MProj, std::size_t MForb>
+[[nodiscard]] constexpr bool specs_share_the_column_law(
+    const StreamSpec<NNames, NProj, NForb>& left,
+    const StreamSpec<MNames, MProj, MForb>& right) noexcept {
+  if (NNames != MNames || NProj != MProj || NForb != MForb) {
+    return false;
+  }
+  for (std::size_t index = 0; index < NNames && index < MNames; ++index) {
+    if (left.names[index] != right.names[index]) {
+      return false;
+    }
+  }
+  for (std::size_t index = 0; index < NProj && index < MProj; ++index) {
+    if (left.projection[index] != right.projection[index] ||
+        left.roles[index] != right.roles[index]) {
+      return false;
+    }
+  }
+  for (std::size_t index = 0; index < NForb && index < MForb; ++index) {
+    if (left.forbidden[index].leaf != right.forbidden[index].leaf ||
+        left.forbidden[index].reason != right.forbidden[index].reason) {
+      return false;
+    }
+  }
+  return left.timestamp_leaf == right.timestamp_leaf;
+}
+
+inline constexpr StreamSpec<62, 31, 20> kRutwPrintSpec{
+    .stream = "rutw_prints",
+    .names = kOptionPrintSpec.names,
+    .projection = kOptionPrintSpec.projection,
+    .roles = kOptionPrintSpec.roles,
+    .forbidden = kOptionPrintSpec.forbidden,
+    .timestamp_leaf = kOptionPrintSpec.timestamp_leaf,
+};
+static_assert(spec_is_wellformed(kRutwPrintSpec));
+static_assert(specs_share_the_column_law(kRutwPrintSpec, kOptionPrintSpec),
+              "B5: RUTW prints are the SAME 62-name map, the SAME 31-leaf projection and the "
+              "SAME 20 hard-refused columns as B3 (CC-013 landed on BOTH readers or neither)");
+static_assert(kRutwPrintSpec.stream != kOptionPrintSpec.stream,
+              "the two corpora must be distinguishable in a refusal");
+
+/// The ONE admitted RUTW form vector: the wide encoding of the 62 names.
+/// Measured on `RUTW/options_prints/2023/2023-08-01.parquet` (62 leaves;
+/// `expiration` BYTE_ARRAY/UTF8, `strike` DOUBLE, `size` INT64, `price` DOUBLE,
+/// `bid`/`ask` DOUBLE, `bid_size`/`ask_size` INT64).
+inline constexpr std::array<ColumnForm, 31> kRutwPrintFormsWide = kOptionPrintFormsIwmWide;
+static_assert(kRutwPrintFormsWide.size() == kRutwPrintSpec.projection.size());
 
 /// B3's single-leg condition set, EXPOSED AS A FIELD ONLY. The eligibility
 /// logic that uses it lands in WP8; nothing in WP4 filters on it.

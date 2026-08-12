@@ -91,10 +91,21 @@ TEST(RutwPrints, TheColumnLawIsByteForByteAppendixB3s) {
   const qr::sources::SpecView rutw = view_of(qr::sources::kRutwPrintSpec);
   const qr::sources::SpecView iwm = view_of(qr::sources::kOptionPrintSpec);
   ASSERT_EQ(rutw.names().size(), 62U);
-  ASSERT_EQ(rutw.projection().size(), 20U);
-  ASSERT_EQ(rutw.forbidden().size(), 29U);
+  ASSERT_EQ(rutw.projection().size(), 31U);
+  ASSERT_EQ(rutw.forbidden().size(), 20U);
   EXPECT_NE(rutw.stream(), iwm.stream());
+  // THE CLOCK LEAF IS 4 IN BOTH PROFILES, and it is 4 because leaf 4 IS
+  // `timestamp` in the shared 62-name layout. The wide profile changes column
+  // ENCODINGS (text expiration, Float64 prices, Int64 sizes), never column
+  // INDICES — measured on the real corpus in all three profiles by the CC-013
+  // column census, which resolves every leaf BY NAME and reported identical
+  // indices for IWM-compact, IWM-wide and RUTW-wide. Leaf 45 is the ATTACHMENT
+  // clock (`quote_timestamp`), a different column with a different job, and
+  // pinning both names here is what keeps the two from ever being confused.
   EXPECT_EQ(rutw.timestamp_leaf(), iwm.timestamp_leaf());
+  EXPECT_EQ(rutw.timestamp_leaf(), 4U);
+  EXPECT_EQ(rutw.names()[4], "timestamp");
+  EXPECT_EQ(rutw.names()[45], "quote_timestamp");
   for (std::size_t index = 0; index < rutw.names().size(); ++index) {
     EXPECT_EQ(rutw.names()[index], iwm.names()[index]) << "name " << index;
   }
@@ -131,9 +142,11 @@ TEST(RutwPrints, EveryHardRefusedColumnOfTheRutwCorpusRefusesAtTheDecodeDoor) {
         << refused.error().message();
     hard_refused += walled.reason == qr::sources::ForbidReason::HardRefused ? 1 : 0;
   }
-  // B3's list, inherited whole: `side`, the four `sweep_*`, `prem`,
-  // `moneyness`, the eight `*_flow`s and the fifteen unlisted greeks.
-  EXPECT_EQ(hard_refused, 29);
+  // B3's SURVIVING list, inherited whole (CC-013 shrank it on both readers at
+  // once or on neither — `specs_share_the_column_law` is a static_assert):
+  // `side`, the four `sweep_*`, `prem`, `moneyness`, the eight `*_flow`s,
+  // theta/rho/epsilon/lambda and d1/d2.
+  EXPECT_EQ(hard_refused, 20);
 }
 
 // ---------------------------------------------------------------------------

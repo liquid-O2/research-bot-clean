@@ -1,0 +1,13 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -44,8 +44,8 @@
+   double weighted = 0.0;
+   for (const FitPoint& point : points) {
+     if (point.weight <= 0) continue;
+-    weight += static_cast<double>(point.weight);
+-    weighted += static_cast<double>(point.weight) * point.y;
++    weight += 1.0;
++    weighted += point.y;
+   }
+   if (weight <= 0.0) {
+     return out;

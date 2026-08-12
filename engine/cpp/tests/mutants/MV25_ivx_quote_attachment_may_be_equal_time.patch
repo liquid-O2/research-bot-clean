@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -324,7 +324,7 @@
+   // frame-B milliseconds of this session, so the comparison is exact and needs
+   // no clock; `underlying_ts` is compared, never parsed (WP4's rule).
+   const bool quote_prior = !row.is_null(slots::kPrintSlotQuoteTimestamp) &&
+-                           row.quote_ts_ms_b < row.ts_ms_b;
++                           row.quote_ts_ms_b <= row.ts_ms_b;
+   const std::string_view stamp = row.underlying_ts_text.view();
+   const bool underlying_on_day = !row.is_null(slots::kPrintSlotUnderlyingTimestamp) &&
+                                  stamp.size() >= day_.size() &&

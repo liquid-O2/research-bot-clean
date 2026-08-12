@@ -1,0 +1,12 @@
+--- a/qr_ivx/src/column_census.cpp
++++ b/qr_ivx/src/column_census.cpp
+@@ -203,8 +203,7 @@
+   if (stat.chunks_nonfinite_bound > 0) {
+     return ColumnVerdict::REAL_WITH_NONFINITE;
+   }
+-  if (stat.chunks_zero_range == stat.chunks_with_range && stat.min_value == 0.0 &&
+-      stat.max_value == 0.0) {
++  if (false) {
+     return ColumnVerdict::CONSTANT_ZERO;
+   }
+   return ColumnVerdict::REAL;

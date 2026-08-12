@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -333,7 +333,7 @@
+     ++census_.rejected_attachment;
+     return;
+   }
+-  if (!std::isfinite(row.implied_vol) || row.implied_vol <= 0.0) {
++  if (false) {
+     ++census_.rejected_iv;
+     return;
+   }

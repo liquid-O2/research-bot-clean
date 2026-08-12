@@ -1,0 +1,11 @@
+--- a/qr_ivx/include/qr_ivx/column_census.hpp
++++ b/qr_ivx/include/qr_ivx/column_census.hpp
+@@ -61,7 +61,7 @@
+ /// census in which they look identical to the third-order columns is a census
+ /// that measured nothing.
+ inline constexpr std::array<const char*, 16> kCandidateColumns{
+-    "theta",    "vega",       "rho",        "epsilon", "lambda",     "vomma",
++    "d1",       "vega",       "d2",         "epsilon", "lambda",     "vomma",
+     "veta",     "vera",       "speed",      "zomma",   "color",      "ultima",
+     "dual_delta", "dual_gamma", "iv_error",  "implied_vol"};
+ 

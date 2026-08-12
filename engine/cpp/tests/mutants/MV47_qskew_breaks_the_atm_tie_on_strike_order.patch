@@ -1,0 +1,12 @@
+--- a/qr_ivx/src/quote_skew.cpp
++++ b/qr_ivx/src/quote_skew.cpp
+@@ -185,7 +185,8 @@
+     out.state = Validity::MISSING;
+     return out;
+   }
+-  if (tied) {
++  (void)tied;
++  if (false) {
+     out.state = Validity::EQUAL_TIME_UNORDERED;
+     return out;
+   }

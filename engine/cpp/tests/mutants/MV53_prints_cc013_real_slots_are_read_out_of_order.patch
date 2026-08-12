@@ -1,0 +1,11 @@
+--- a/qr_sources/include/qr_sources/option_prints.hpp
++++ b/qr_sources/include/qr_sources/option_prints.hpp
+@@ -100,7 +100,7 @@
+ /// The sixteen REAL slots, in projection order. One list, so the decode loop,
+ /// the digest fold and the canonical order cannot drift apart.
+ inline constexpr std::array<std::size_t, 16> kPrintRealSlots{
+-    kPrintSlotDelta,      kPrintSlotVega,     kPrintSlotGamma,     kPrintSlotVanna,
++    kPrintSlotDelta,      kPrintSlotVega,     kPrintSlotVanna,     kPrintSlotGamma,
+     kPrintSlotCharm,      kPrintSlotVomma,    kPrintSlotVeta,      kPrintSlotVera,
+     kPrintSlotSpeed,      kPrintSlotZomma,    kPrintSlotColor,     kPrintSlotUltima,
+     kPrintSlotDualDelta,  kPrintSlotDualGamma, kPrintSlotImpliedVol, kPrintSlotIvError};

@@ -6,6 +6,8 @@
 // side computes none of them a second way.
 #include <gtest/gtest.h>
 
+#include <cmath>
+
 #include <algorithm>
 
 #include <string>
@@ -427,6 +429,176 @@ TEST(OptionPrints, TheFixtureSessionMatchesEveryDerivedLiteral) {
         << "single-leg condition " << code << " is not exercised by the fixture";
   }
   EXPECT_EQ(literal_text("options_prints/row2/right"), "CALL");
+}
+
+// ---------------------------------------------------------------------------
+// CC-013 (2026-08-12, change control): the eleven newly projected columns.
+// ---------------------------------------------------------------------------
+//
+// These are the amendment's own fixtures. The census that authorized CC-013
+// (artifacts/cache/ivx/cc013_column_census.tsv) could only read the parquet
+// FOOTER, so it proved the columns are populated and could not prove the
+// reader decodes them correctly. That is what the three cases below are for:
+// the VALUE, the ABSENCE and the NON-FINITE, each asserted against a literal
+// this suite does not compute.
+
+namespace {
+
+/// Reads the whole compact print fixture into one flat vector of rows, in tape
+/// order, so a case can index the fixture's own row numbering.
+std::vector<qr::sources::OptionPrintRow> read_compact_prints() {
+  std::vector<qr::sources::OptionPrintRow> flat;
+  const auto scope = qr::sources::testing::scope_125();
+  EXPECT_TRUE(scope.has_value());
+  if (!scope.has_value()) {
+    return flat;
+  }
+  auto opened = qr::sources::OptionPrintReader::open(*scope, fixture_root("op_compact"));
+  EXPECT_TRUE(opened.has_value()) << opened.error().message();
+  if (!opened.has_value()) {
+    return flat;
+  }
+  qr::sources::OptionPrintReader reader = std::move(opened).value();
+  qr::sources::OptionPrintReader::Group group;
+  while (true) {
+    const auto more = reader.next_group(group);
+    EXPECT_TRUE(more.has_value()) << more.error().message();
+    if (!more.has_value() || !more.value()) {
+      break;
+    }
+    flat.insert(flat.end(), group.rows.begin(), group.rows.end());
+  }
+  return flat;
+}
+
+/// The fixture's admitted rows are file rows 2..6, so admitted index i is file
+/// row i + 2 — the numbering the derived literals use.
+constexpr std::size_t kFirstAdmittedFixtureRow = 2;
+
+double cc013_value(const qr::sources::OptionPrintRow& row, std::string_view name) {
+  if (name == "vega") return row.vega;
+  if (name == "vomma") return row.vomma;
+  if (name == "veta") return row.veta;
+  if (name == "vera") return row.vera;
+  if (name == "speed") return row.speed;
+  if (name == "zomma") return row.zomma;
+  if (name == "color") return row.color;
+  if (name == "ultima") return row.ultima;
+  if (name == "dual_delta") return row.dual_delta;
+  if (name == "dual_gamma") return row.dual_gamma;
+  if (name == "iv_error") return row.iv_error;
+  ADD_FAILURE() << "unknown CC-013 column " << name;
+  return 0.0;
+}
+
+std::size_t cc013_slot(std::string_view name) {
+  if (name == "vega") return qr::sources::kPrintSlotVega;
+  if (name == "vomma") return qr::sources::kPrintSlotVomma;
+  if (name == "veta") return qr::sources::kPrintSlotVeta;
+  if (name == "vera") return qr::sources::kPrintSlotVera;
+  if (name == "speed") return qr::sources::kPrintSlotSpeed;
+  if (name == "zomma") return qr::sources::kPrintSlotZomma;
+  if (name == "color") return qr::sources::kPrintSlotColor;
+  if (name == "ultima") return qr::sources::kPrintSlotUltima;
+  if (name == "dual_delta") return qr::sources::kPrintSlotDualDelta;
+  if (name == "dual_gamma") return qr::sources::kPrintSlotDualGamma;
+  if (name == "iv_error") return qr::sources::kPrintSlotIvError;
+  ADD_FAILURE() << "unknown CC-013 column " << name;
+  return 0;
+}
+
+constexpr std::array<std::string_view, 11> kCc013Columns{
+    "vega",  "vomma",      "veta",       "vera",     "speed", "zomma",
+    "color", "ultima",     "dual_delta", "dual_gamma", "iv_error"};
+
+}  // namespace
+
+TEST(OptionPrints, EveryCc013ColumnDecodesToItsOwnDerivedLiteral) {
+  const std::vector<qr::sources::OptionPrintRow> rows = read_compact_prints();
+  ASSERT_FALSE(rows.empty());
+  int compared = 0;
+  for (std::size_t index = 0; index < rows.size(); ++index) {
+    const std::string key =
+        "options_prints/row" + std::to_string(index + kFirstAdmittedFixtureRow) + "/";
+    for (const std::string_view name : kCc013Columns) {
+      const std::string expected = literal_text(key + std::string(name));
+      ASSERT_FALSE(expected.empty()) << key << name;
+      const std::size_t slot = cc013_slot(name);
+      const double value = cc013_value(rows[index], name);
+      if (expected == "NULL") {
+        EXPECT_TRUE(rows[index].is_null(slot)) << key << name;
+        continue;
+      }
+      EXPECT_FALSE(rows[index].is_null(slot)) << key << name;
+      if (expected == "NAN") {
+        EXPECT_TRUE(std::isnan(value)) << key << name;
+      } else if (expected == "INF") {
+        EXPECT_TRUE(std::isinf(value) && value > 0.0) << key << name;
+      } else {
+        EXPECT_DOUBLE_EQ(value, std::strtod(expected.c_str(), nullptr)) << key << name;
+      }
+      ++compared;
+    }
+  }
+  // The case is only evidence if it actually compared the whole block on every
+  // admitted row: 5 rows x 11 columns, minus the one deliberate NULL.
+  EXPECT_EQ(compared, 54);
+}
+
+TEST(OptionPrints, ACc013ColumnsAbsenceSetsExactlyItsOwnMaskBit) {
+  const std::vector<qr::sources::OptionPrintRow> rows = read_compact_prints();
+  ASSERT_GE(rows.size(), 2U);
+  // Fixture row 3 (admitted index 1) carries a NULL `vomma` and nothing else
+  // null. The mask is per SLOT precisely so one absent greek cannot mute its
+  // neighbours, and CC-013 renumbered every slot after delta — an off-by-one in
+  // that renumbering would show up here and nowhere else.
+  const qr::sources::OptionPrintRow& row = rows[1];
+  ASSERT_TRUE(row.is_null(qr::sources::kPrintSlotVomma));
+  for (std::size_t slot = 0; slot < qr::sources::kOptionPrintSpec.projection.size(); ++slot) {
+    if (slot == qr::sources::kPrintSlotVomma) {
+      continue;
+    }
+    EXPECT_FALSE(row.is_null(slot))
+        << "slot " << slot << " (" << qr::sources::OptionPrintDigests::field_name(slot)
+        << ") was muted by another column's absence";
+  }
+}
+
+TEST(OptionPrints, ANonFiniteCc013ValueIsRetainedRawAndIsNotAnAbsence) {
+  const std::vector<qr::sources::OptionPrintRow> rows = read_compact_prints();
+  ASSERT_GE(rows.size(), 3U);
+  // ABSENT and NON-FINITE are different states and the reader keeps them
+  // different: it retains the raw bits and sets NO mask bit. Judging a value
+  // is a downstream job (the typed lattice), never the reader's.
+  const qr::sources::OptionPrintRow& infinite = rows[1];   // fixture row 3: color = +Inf
+  EXPECT_FALSE(infinite.is_null(qr::sources::kPrintSlotColor));
+  EXPECT_TRUE(std::isinf(infinite.color));
+  EXPECT_GT(infinite.color, 0.0);
+
+  const qr::sources::OptionPrintRow& not_a_number = rows[2];  // fixture row 4: ultima = NaN
+  EXPECT_FALSE(not_a_number.is_null(qr::sources::kPrintSlotUltima));
+  EXPECT_TRUE(std::isnan(not_a_number.ultima));
+}
+
+TEST(OptionPrints, TheThirdOrderCompletenessCounterCountsTheCc013BlockAlone) {
+  const auto scope = qr::sources::testing::scope_125();
+  ASSERT_TRUE(scope.has_value());
+  auto opened = qr::sources::OptionPrintReader::open(*scope, fixture_root("op_compact"));
+  ASSERT_TRUE(opened.has_value()) << opened.error().message();
+  qr::sources::OptionPrintReader reader = std::move(opened).value();
+  qr::sources::OptionPrintReader::Group group;
+  while (true) {
+    const auto more = reader.next_group(group);
+    ASSERT_TRUE(more.has_value()) << more.error().message();
+    if (!more.value()) {
+      break;
+    }
+  }
+  // The pre-CC-013 counter must be UNCHANGED by the amendment — that is what
+  // makes every census taken before it still comparable — while the new one
+  // sees the single absent `vomma`.
+  EXPECT_EQ(reader.census().greek_complete_rows, reader.rth_rows());
+  EXPECT_EQ(reader.census().third_order_complete_rows, reader.rth_rows() - 1);
 }
 
 // THE SECOND ADMITTED PRINT ENCODING (WP9 full-scope finding). Two of the 625

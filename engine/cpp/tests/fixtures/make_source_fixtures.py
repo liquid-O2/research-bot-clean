@@ -520,12 +520,32 @@ def option_print_leaves(profile: str) -> list[Leaf]:
     condition = nullable([130, 18, 95, 18, 125, 126, 130])
     size = nullable([1, 2, 3, 4, 5, 5, 6])
     price_cents = nullable([768, 859, 202, 479, 717, 717, 800])
+    # THE CC-013 BLOCK IS FIXTURED, NOT FILLED. Before CC-013 these eleven
+    # columns fell through to the catch-all `unread_f` ramp, which is fine for a
+    # column nobody reads and useless for one that is now projected. Each gets
+    # its own value ladder plus, deliberately:
+    #   * `vomma` NULL on admitted row 4  -> per-column ABSENCE must set exactly
+    #     that slot's mask bit and no other;
+    #   * `ultima` NaN and `color` +Inf   -> a NON-FINITE value is RETAINED RAW
+    #     and is NOT an absence; the two states must stay distinguishable, which
+    #     is the whole point of the mask being per slot.
     greeks = {
         "delta": nullable([-0.25, 0.5, -0.75, 0.25, -0.5, -0.5, 0.125]),
+        "vega": nullable([1.01, 1.02, 1.03, 1.04, 1.05, 1.05, 1.06]),
         "gamma": nullable([0.01, 0.02, 0.03, 0.04, 0.05, 0.05, 0.06]),
         "vanna": nullable([0.11, 0.12, 0.13, 0.14, 0.15, 0.15, 0.16]),
         "charm": nullable([0.21, 0.22, 0.23, 0.24, 0.25, 0.25, 0.26]),
+        "vomma": nullable([2.01, 2.02, NULL, 2.04, 2.05, 2.05, 2.06]),
+        "veta": nullable([-3.01, -3.02, -3.03, -3.04, -3.05, -3.05, -3.06]),
+        "vera": nullable([4.01, -4.02, 4.03, -4.04, 4.05, 4.05, -4.06]),
+        "speed": nullable([-5.01, 5.02, -5.03, 5.04, -5.05, -5.05, 5.06]),
+        "zomma": nullable([6.01, -6.02, 6.03, -6.04, 6.05, 6.05, -6.06]),
+        "color": nullable([7.01, 7.02, float("inf"), 7.04, 7.05, 7.05, 7.06]),
+        "ultima": nullable([8.01, 8.02, 8.03, float("nan"), 8.05, 8.05, 8.06]),
+        "dual_delta": nullable([-0.24, 0.49, -0.74, 0.24, -0.49, -0.49, 0.124]),
+        "dual_gamma": nullable([0.011, 0.021, 0.031, 0.041, 0.051, 0.051, 0.061]),
         "implied_vol": nullable([0.31, 0.32, 0.33, 0.34, 0.35, 0.35, 0.36]),
+        "iv_error": nullable([0.0001, -0.0002, 0.0003, -0.0004, 0.0005, 0.0005, -0.0006]),
         "underlying_price": nullable([168.59, 168.60, 168.61, 168.62, 168.63, 168.63, 168.64]),
     }
     underlying_ts = nullable([
@@ -592,6 +612,157 @@ def option_print_leaves(profile: str) -> list[Leaf]:
             return Leaf(name, TYPE_INT32, unread_i)
         if name in ("bid_exchange", "ask_exchange", "exchange", "dt_prev_contract_ms",
                     "dt_prev_any_ms", "dte"):
+            return Leaf(name, TYPE_INT64, unread_i)
+        if name.startswith("ext_condition"):
+            return Leaf(name, TYPE_INT64, [NULL] + [255] * (n - 1))
+        return Leaf(name, TYPE_DOUBLE, unread_f)
+
+    return [leaf_for(name) for name in OPTION_PRINT_NAMES]
+
+
+# ---------------------------------------------------------------------------
+# B5 — RUTW prints (the same 62 names, the WIDE profile only)
+# ---------------------------------------------------------------------------
+#
+# 11 rows in two row groups (6 + 5).  What each row is FOR:
+#   0   the all-null sentinel row the corpus writes once per file
+#   1   one print before the open (premarket, excluded)
+#   2,3 equal-time group A at the open, two different contracts
+#   4   group B: THE WIDE-TYPE EDGE ROW — a RUT-scale strike whose u6 value
+#       overflows int32, a sub-cent Float64 price, and Int64 sizes past
+#       INT32_MAX.  Every one of those is representable ONLY in the wide
+#       profile, which is why B5 pins that profile and nothing else.
+#   5,6 group C, STRADDLING the row-group boundary; row 6 carries BOTH
+#       attachment clocks NULL (absence is a mask bit, never a sentinel)
+#   7   group D: junk price (0.0) and junk size (0) — counted, not dropped
+#   8   group E: junk right (an unknown token) and a CROSSED attached quote
+#   9   group F: quote_ts EQUAL to the print instant (not STRICTLY prior) and
+#       an underlying stamp naming a different day
+#   10  one print after the close (excluded)
+RUTW_TS = [
+    NULL,
+    OPEN_MS - 2,
+    OPEN_MS, OPEN_MS,
+    OPEN_MS + 6,
+    OPEN_MS + 8,
+    OPEN_MS + 8,
+    OPEN_MS + 12,
+    OPEN_MS + 13,
+    OPEN_MS + 14,
+    CLOSE_MS + 5,
+]
+RUTW_GROUP_SIZES = [6, 5]
+RUTW_ROWS = len(RUTW_TS)
+
+# The RUT-scale values, in the units the wide profile stores them in.
+# `strike` and every price are Float64 DOLLARS; every size is Int64.
+# Row 9 repeats row 7's (expiry, strike) with the OTHER right: a contract
+# identity that drops the right would merge the two into one.
+RUTW_STRIKE_DOLLARS = [NULL, 1885.5, 1870.25, 1900.0, 2500.5, 1900.0, 1900.0, 1910.0, 1875.0,
+                       1910.0, 1920.0]
+RUTW_PRICE_DOLLARS = [NULL, 7.685, 8.595, 2.025, 0.005, 7.175, 7.175, 0.0, 8.0, 3.5, 9.0]
+RUTW_BID_DOLLARS = [NULL, 7.68, 8.59, 2.02, 0.0025, 7.17, 7.17, 0.0, 8.6, 3.45, 8.95]
+RUTW_ASK_DOLLARS = [NULL, 7.69, 8.60, 2.03, 0.0075, 7.18, 7.18, 0.01, 8.5, 3.55, 9.05]
+# Row 4's size and bid_size are past INT32_MAX: the compact profile could not
+# hold them at all, so decoding them proves the Int64 pin is really in force.
+RUTW_SIZE = [NULL, 1, 2, 3, 3_000_000_001, 5, 5, 0, 6, 7, 8]
+RUTW_BID_SIZE = [NULL, 11, 12, 13, 2_147_483_648, 15, 15, 16, 17, 18, 19]
+RUTW_ASK_SIZE = [NULL, 21, 22, 23, 4_000_000_007, 25, 25, 26, 27, 28, 29]
+RUTW_RIGHT = [NULL, b"PUT", b"CALL", b"PUT", b"CALL", b"PUT", b"PUT", b"CALL", b"XYZ", b"PUT",
+              b"CALL"]
+RUTW_EXPIRY_TEXT = [NULL, EXPIRY_A_TEXT, EXPIRY_A_TEXT, EXPIRY_B_TEXT, EXPIRY_A_TEXT,
+                    EXPIRY_B_TEXT, EXPIRY_B_TEXT, EXPIRY_A_TEXT, EXPIRY_B_TEXT, EXPIRY_A_TEXT,
+                    EXPIRY_B_TEXT]
+RUTW_CONDITION = [NULL, 130, 18, 95, 18, 125, 126, 18, 130, 95, 18]
+RUTW_SEQUENCE = [NULL] + [4_400_000 + 3 * i for i in range(RUTW_ROWS - 1)]
+# quote_ts(45): strictly prior everywhere except row 6 (NULL) and row 9 (EQUAL
+# to the print instant, which is NOT strictly prior).
+RUTW_QUOTE_TS = [NULL] + [t - 4 for t in RUTW_TS[1:]]
+RUTW_QUOTE_TS[6] = NULL
+RUTW_QUOTE_TS[9] = RUTW_TS[9]
+# underlying_ts(36): retained TEXT.  Row 6 is absent, row 9 names another day.
+RUTW_UNDERLYING_TS = [NULL] + [f"{DAY}T09:30:0{i}.000".encode() for i in range(RUTW_ROWS - 1)]
+RUTW_UNDERLYING_TS[6] = NULL
+RUTW_UNDERLYING_TS[9] = b"2022-07-06T09:30:09.000"
+def _rutw_ramp(base: float, step: float) -> list:
+    return [NULL] + [round(base + step * i, 4) for i in range(RUTW_ROWS - 1)]
+
+
+# B5 is "same laws", so B5's fixture carries the SAME sixteen reals B3's does.
+# A CC-013 that landed on one reader and not the other would show up here.
+RUTW_GREEKS = {
+    "delta": _rutw_ramp(-0.25, 0.05),
+    "vega": _rutw_ramp(1.01, 0.01),
+    "gamma": _rutw_ramp(0.01, 0.01),
+    "vanna": _rutw_ramp(0.11, 0.01),
+    "charm": _rutw_ramp(0.21, 0.01),
+    "vomma": _rutw_ramp(2.01, 0.01),
+    "veta": _rutw_ramp(-3.01, -0.01),
+    "vera": _rutw_ramp(4.01, 0.01),
+    "speed": _rutw_ramp(-5.01, 0.01),
+    "zomma": _rutw_ramp(6.01, -0.01),
+    "color": _rutw_ramp(7.01, 0.01),
+    "ultima": _rutw_ramp(8.01, 0.01),
+    "dual_delta": _rutw_ramp(-0.24, 0.05),
+    "dual_gamma": _rutw_ramp(0.011, 0.01),
+    "implied_vol": _rutw_ramp(0.31, 0.01),
+    "iv_error": _rutw_ramp(0.0001, -0.0001),
+    "underlying_price": _rutw_ramp(1890.11, 0.01),
+}
+
+
+def rutw_print_leaves() -> list[Leaf]:
+    """The RUTW wide profile of the SAME 62 names B3 pins: `expiration` UTF-8
+    ISO text, `strike`/`price`/`bid`/`ask` Float64 dollars, `size`/`bid_size`/
+    `ask_size` Int64.  Measured on RUTW/options_prints/2023/2023-08-01.parquet.
+    """
+    n = RUTW_ROWS
+    unread_i = [666_000 + i for i in range(n)]
+    unread_f = [float(v) for v in unread_i]
+
+    def leaf_for(name: str) -> Leaf:
+        if name == "symbol":
+            return Leaf(name, TYPE_BYTE_ARRAY, [NULL] + [b"RUTW"] * (n - 1), CONVERTED_UTF8,
+                        dictionary=True)
+        if name == "expiration":
+            return Leaf(name, TYPE_BYTE_ARRAY,
+                        [None if v is NULL else v.encode() for v in RUTW_EXPIRY_TEXT],
+                        CONVERTED_UTF8, dictionary=True)
+        if name == "strike":
+            return Leaf(name, TYPE_DOUBLE, RUTW_STRIKE_DOLLARS)
+        if name == "right":
+            return Leaf(name, TYPE_BYTE_ARRAY, RUTW_RIGHT, CONVERTED_UTF8, dictionary=True)
+        if name == "timestamp":
+            return Leaf(name, TYPE_INT64, RUTW_TS, logical_timestamp=True, statistics=True)
+        if name == "quote_timestamp":
+            return Leaf(name, TYPE_INT64, RUTW_QUOTE_TS, logical_timestamp=True)
+        if name == "sequence":
+            return Leaf(name, TYPE_INT64, RUTW_SEQUENCE)
+        if name == "condition":
+            return Leaf(name, TYPE_INT64, RUTW_CONDITION)
+        if name == "size":
+            return Leaf(name, TYPE_INT64, RUTW_SIZE)
+        if name == "price":
+            return Leaf(name, TYPE_DOUBLE, RUTW_PRICE_DOLLARS)
+        if name == "bid":
+            return Leaf(name, TYPE_DOUBLE, RUTW_BID_DOLLARS)
+        if name == "ask":
+            return Leaf(name, TYPE_DOUBLE, RUTW_ASK_DOLLARS)
+        if name == "bid_size":
+            return Leaf(name, TYPE_INT64, RUTW_BID_SIZE)
+        if name == "ask_size":
+            return Leaf(name, TYPE_INT64, RUTW_ASK_SIZE)
+        if name == "underlying_timestamp":
+            return Leaf(name, TYPE_BYTE_ARRAY, RUTW_UNDERLYING_TS, CONVERTED_UTF8, dictionary=True)
+        if name in RUTW_GREEKS:
+            return Leaf(name, TYPE_DOUBLE, RUTW_GREEKS[name])
+        if name == "side":
+            return Leaf(name, TYPE_INT32, [None if i == 0 else (1 if i % 2 else -1)
+                                           for i in range(n)], CONVERTED_INT_8)
+        if name in ("sweep_id", "sweep_n", "sweep_exchanges"):
+            return Leaf(name, TYPE_INT32, unread_i, CONVERTED_UINT_32)
+        if name in ("sweep_size", "bid_exchange", "ask_exchange", "exchange",
+                    "dt_prev_contract_ms", "dt_prev_any_ms", "dte"):
             return Leaf(name, TYPE_INT64, unread_i)
         if name.startswith("ext_condition"):
             return Leaf(name, TYPE_INT64, [NULL] + [255] * (n - 1))
@@ -776,6 +947,144 @@ def print_literals() -> list[str]:
         rows.append(f"options_prints\trow{index}\tcondition\t{leaves['condition'].values[index]}")
         rows.append(f"options_prints\trow{index}\tunderlying_ts_text\t"
                     f"{leaves['underlying_timestamp'].values[index].decode()}")
+        # CC-013: every admitted row's value for each newly projected column,
+        # derived HERE so the C++ suite asserts and never recomputes. NULL and
+        # the two non-finite cells are emitted as their own tokens.
+        for name in ("vega", "vomma", "veta", "vera", "speed", "zomma", "color", "ultima",
+                     "dual_delta", "dual_gamma", "iv_error"):
+            value = leaves[name].values[index]
+            if value is NULL:
+                token = "NULL"
+            elif value != value:
+                token = "NAN"
+            elif value == float("inf"):
+                token = "INF"
+            elif value == float("-inf"):
+                token = "-INF"
+            else:
+                token = repr(float(value))
+            rows.append(f"options_prints\trow{index}\t{name}\t{token}")
+    return rows
+
+
+def iso_to_day_ordinal(text: str) -> int:
+    """ISO `YYYY-MM-DD` -> days since 1970-01-01, by Howard Hinnant's civil
+    algorithm — the same arithmetic `qr::CivilDate::parse_ymd` implements, done
+    here independently so the C++ side asserts rather than recomputes."""
+    year, month, day = (int(part) for part in text.split("-"))
+    year -= month <= 2
+    era = (year if year >= 0 else year - 399) // 400
+    yoe = year - era * 400
+    doy = (153 * (month + (-3 if month > 2 else 9)) + 2) // 5 + day - 1
+    doe = yoe * 365 + yoe // 4 - yoe // 100 + doy
+    return era * 146097 + doe - 719468
+
+
+def rutw_literals() -> list[str]:
+    """B5's expected literals, derived HERE from the values written above.
+
+    The census columns are recomputed by this script's own arithmetic — the
+    same rules `qr::sources::fold_census` states, written a second time in a
+    second language.  That is the point: the C++ suite asserts these numbers
+    and computes none of them twice."""
+    admitted = [i for i, ts in enumerate(RUTW_TS)
+                if ts is not NULL and OPEN_MS <= ts < CLOSE_MS]
+    groups: list[list[int]] = []
+    for index in admitted:
+        if groups and RUTW_TS[groups[-1][-1]] == RUTW_TS[index]:
+            groups[-1].append(index)
+        else:
+            groups.append([index])
+
+    rows = [
+        f"rutw_prints\t*\trth_rows\t{len(admitted)}",
+        f"rutw_prints\t*\tgroup_count\t{len(groups)}",
+        "rutw_prints\t*\tskipped_null_rows\t1",
+        f"rutw_prints\t*\trow_groups_total\t{len(RUTW_GROUP_SIZES)}",
+    ]
+    for number, group in enumerate(groups):
+        rows.append(f"rutw_prints\tgroup{number}\tts_ms_b\t{RUTW_TS[group[0]]}")
+        rows.append(f"rutw_prints\tgroup{number}\trows\t{len(group)}")
+    for index in admitted:
+        rows.append(f"rutw_prints\trow{index}\tstrike_u6\t"
+                    f"{dollars_to_u6(RUTW_STRIKE_DOLLARS[index])}")
+        rows.append(f"rutw_prints\trow{index}\tprice_u6\t"
+                    f"{dollars_to_u6(RUTW_PRICE_DOLLARS[index])}")
+        rows.append(f"rutw_prints\trow{index}\tbid_u6\t{dollars_to_u6(RUTW_BID_DOLLARS[index])}")
+        rows.append(f"rutw_prints\trow{index}\task_u6\t{dollars_to_u6(RUTW_ASK_DOLLARS[index])}")
+        rows.append(f"rutw_prints\trow{index}\tsize\t{RUTW_SIZE[index]}")
+        rows.append(f"rutw_prints\trow{index}\tbid_size\t{RUTW_BID_SIZE[index]}")
+        rows.append(f"rutw_prints\trow{index}\task_size\t{RUTW_ASK_SIZE[index]}")
+        rows.append(f"rutw_prints\trow{index}\texpiration_day\t"
+                    f"{iso_to_day_ordinal(RUTW_EXPIRY_TEXT[index])}")
+        rows.append(f"rutw_prints\trow{index}\tright\t{RUTW_RIGHT[index].decode()}")
+        rows.append(f"rutw_prints\trow{index}\tcondition\t{RUTW_CONDITION[index]}")
+
+    # --- the census, recomputed here ---------------------------------------
+    census = {name: 0 for name in (
+        "quote_attachment_prior", "quote_attachment_not_prior", "quote_attachment_absent",
+        "underlying_on_day", "underlying_off_day", "underlying_absent",
+        "fully_populated_rows", "greek_complete_rows", "junk_price_rows", "junk_size_rows",
+        "junk_right_rows", "junk_crossed_quote_rows", "junk_rows")}
+    projected = {
+        "expiration": RUTW_EXPIRY_TEXT, "strike": RUTW_STRIKE_DOLLARS, "right": RUTW_RIGHT,
+        "timestamp": RUTW_TS, "sequence": RUTW_SEQUENCE, "condition": RUTW_CONDITION,
+        "size": RUTW_SIZE, "price": RUTW_PRICE_DOLLARS, "delta": RUTW_GREEKS["delta"],
+        "gamma": RUTW_GREEKS["gamma"], "vanna": RUTW_GREEKS["vanna"],
+        "charm": RUTW_GREEKS["charm"], "implied_vol": RUTW_GREEKS["implied_vol"],
+        "underlying_timestamp": RUTW_UNDERLYING_TS,
+        "underlying_price": RUTW_GREEKS["underlying_price"], "bid": RUTW_BID_DOLLARS,
+        "bid_size": RUTW_BID_SIZE, "ask": RUTW_ASK_DOLLARS, "ask_size": RUTW_ASK_SIZE,
+        "quote_timestamp": RUTW_QUOTE_TS,
+    }
+    for index in admitted:
+        quote_ts = RUTW_QUOTE_TS[index]
+        if quote_ts is NULL:
+            census["quote_attachment_absent"] += 1
+        elif quote_ts < RUTW_TS[index]:
+            census["quote_attachment_prior"] += 1
+        else:
+            census["quote_attachment_not_prior"] += 1
+
+        stamp = RUTW_UNDERLYING_TS[index]
+        if stamp is NULL:
+            census["underlying_absent"] += 1
+        elif stamp.decode()[:10] == DAY:
+            census["underlying_on_day"] += 1
+        else:
+            census["underlying_off_day"] += 1
+
+        if all(column[index] is not NULL for column in projected.values()):
+            census["fully_populated_rows"] += 1
+        if all(RUTW_GREEKS[name][index] is not NULL
+               for name in ("delta", "gamma", "vanna", "charm", "implied_vol")):
+            census["greek_complete_rows"] += 1
+
+        junk_price = (RUTW_PRICE_DOLLARS[index] is NULL or
+                      dollars_to_u6(RUTW_PRICE_DOLLARS[index]) <= 0)
+        junk_size = RUTW_SIZE[index] is NULL or RUTW_SIZE[index] <= 0
+        junk_right = (RUTW_RIGHT[index] is NULL or
+                      RUTW_RIGHT[index].decode().upper() not in ("C", "CALL", "P", "PUT"))
+        two_sided = RUTW_BID_DOLLARS[index] is not NULL and RUTW_ASK_DOLLARS[index] is not NULL
+        junk_crossed = two_sided and (dollars_to_u6(RUTW_ASK_DOLLARS[index]) <
+                                      dollars_to_u6(RUTW_BID_DOLLARS[index]))
+        census["junk_price_rows"] += 1 if junk_price else 0
+        census["junk_size_rows"] += 1 if junk_size else 0
+        census["junk_right_rows"] += 1 if junk_right else 0
+        census["junk_crossed_quote_rows"] += 1 if junk_crossed else 0
+        census["junk_rows"] += 1 if (junk_price or junk_size or junk_right or junk_crossed) else 0
+
+    for name, value in census.items():
+        rows.append(f"rutw_prints\tcensus\t{name}\t{value}")
+
+    # Distinct-contract coverage, over the admitted rows.
+    contracts = {(iso_to_day_ordinal(RUTW_EXPIRY_TEXT[i]), dollars_to_u6(RUTW_STRIKE_DOLLARS[i]),
+                  RUTW_RIGHT[i]) for i in admitted}
+    rows.append(f"rutw_prints\tcoverage\tcontracts\t{len(contracts)}")
+    rows.append(f"rutw_prints\tcoverage\texpirations\t"
+                f"{len({iso_to_day_ordinal(RUTW_EXPIRY_TEXT[i]) for i in admitted})}")
+    rows.append(f"rutw_prints\tcoverage\tstrikes\t"
+                f"{len({dollars_to_u6(RUTW_STRIKE_DOLLARS[i]) for i in admitted})}")
     return rows
 
 
@@ -877,6 +1186,35 @@ def main(argv: list[str] | None = None) -> int:
     write(day_path("op_compact"), build_file(option_print_leaves("compact"), PRINT_GROUP_SIZES))
     write(day_path("op_wide"), build_file(option_print_leaves("wide"), PRINT_GROUP_SIZES))
 
+    # --- B5 RUTW prints ----------------------------------------------------
+    # THE TWO-WAY WALL NEEDS THREE TREES, and every one of them is a REAL
+    # payload: a wall proven against an empty directory proves nothing.
+    #   RUTW/rp_wide        the lawful RUTW corpus — and, to the IWM reader, a
+    #                       modality it must refuse even though it would admit
+    #                       these bytes' profile;
+    #   RUTW/rp_compact     IWM-COMPACT bytes sitting under a RUTW root: the
+    #                       RUTW reader must refuse them on the PROFILE pin,
+    #                       after the modality pin has already passed;
+    #   rp_wide_offroot     the lawful RUTW bytes under a root that names no
+    #                       RUTW modality: the RUTW reader must refuse them on
+    #                       the MODALITY pin, before a payload path is formed.
+    rutw_leaves = rutw_print_leaves()
+    write(os.path.join(args.out_dir, "RUTW", "rp_wide", YEAR, f"{DAY}.parquet"),
+          build_file(rutw_leaves, RUTW_GROUP_SIZES))
+    write(os.path.join(args.out_dir, "RUTW", "rp_compact", YEAR, f"{DAY}.parquet"),
+          build_file(option_print_leaves("compact"), PRINT_GROUP_SIZES))
+    write(os.path.join(args.out_dir, "rp_wide_offroot", YEAR, f"{DAY}.parquet"),
+          build_file(rutw_leaves, RUTW_GROUP_SIZES))
+    # The same session with rows 2 and 3 — which share a millisecond — written
+    # in the other order.  "Rows unordered within a group" is only a law if a
+    # permuted tape produces byte-identical output, so the fixture exists to
+    # prove it does.
+    write(os.path.join(args.out_dir, "RUTW", "rp_permuted", YEAR, f"{DAY}.parquet"),
+          build_file(permute_in_group(rutw_leaves, [(2, 3)]), RUTW_GROUP_SIZES))
+    # A RUTW root the session's own day is simply not in: the modality wall
+    # passes, and the ABSENCE of the payload must be reported as an absence.
+    os.makedirs(os.path.join(args.out_dir, "RUTW", "rp_absent", YEAR), exist_ok=True)
+
     # --- B4 option quotes --------------------------------------------------
     write(day_path("oq_flat"), build_file(option_quote_leaves("compact"), OQ_GROUP_SIZES))
     sharded_root = os.path.join(args.out_dir, "oq_sharded", YEAR, DAY)
@@ -898,6 +1236,7 @@ def main(argv: list[str] | None = None) -> int:
     lines.append(f"stock_quotes_dollar\t*\tday\t{DOLLAR_DAY}")
     lines += trade_literals()
     lines += print_literals()
+    lines += rutw_literals()
     lines += option_quote_literals()
     text = "\n".join(lines) + "\n"
     with open(args.literals_path, "w", encoding="utf-8", newline="\n") as handle:

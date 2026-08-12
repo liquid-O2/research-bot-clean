@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/column_census.cpp
++++ b/qr_ivx/src/column_census.cpp
+@@ -200,7 +200,7 @@
+   if (!stat.has_range) {
+     return ColumnVerdict::POPULATED_NO_RANGE;
+   }
+-  if (stat.chunks_nonfinite_bound > 0) {
++  if (false) {
+     return ColumnVerdict::REAL_WITH_NONFINITE;
+   }
+   if (stat.chunks_zero_range == stat.chunks_with_range && stat.min_value == 0.0 &&

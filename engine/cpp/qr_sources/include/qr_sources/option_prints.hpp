@@ -54,8 +54,15 @@
 namespace qr::sources {
 
 /// Projection slots of `kOptionPrintSpec` == bit positions of `null_mask`.
-/// Slots are NOT leaf indices here (B3 projects 20 of 62 columns), which is
-/// exactly why the mask is defined on slots.
+/// Slots are NOT leaf indices here (B3 as amended by CC-013 projects 31 of 62
+/// columns), which is exactly why the mask is defined on slots.
+///
+/// CC-013 INSERTED SLOTS IN LEAF ORDER, it did not append them: the projection
+/// is required to ascend, and slot i is by definition projection[i]. Every
+/// consumer names its slot through this enum, so the renumbering is a
+/// recompile; what DOES change on disk is the per-field digest table and the
+/// serialized row, both of which are receipts, never the frozen DecisionTape
+/// (CC-013: "additive projection change only, no tape-schema change").
 enum OptionPrintSlot : std::size_t {
   kPrintSlotExpiration = 0,        // leaf 1
   kPrintSlotStrike = 1,            // leaf 2
@@ -66,18 +73,37 @@ enum OptionPrintSlot : std::size_t {
   kPrintSlotSize = 6,              // leaf 11
   kPrintSlotPrice = 7,             // leaf 13
   kPrintSlotDelta = 8,             // leaf 14
-  kPrintSlotGamma = 9,             // leaf 20
-  kPrintSlotVanna = 10,            // leaf 21
-  kPrintSlotCharm = 11,            // leaf 22
-  kPrintSlotImpliedVol = 12,       // leaf 34
-  kPrintSlotUnderlyingTimestamp = 13,  // leaf 36
-  kPrintSlotUnderlyingPrice = 14,  // leaf 37
-  kPrintSlotBid = 15,              // leaf 39
-  kPrintSlotBidSize = 16,          // leaf 40
-  kPrintSlotAsk = 17,              // leaf 42
-  kPrintSlotAskSize = 18,          // leaf 43
-  kPrintSlotQuoteTimestamp = 19,   // leaf 45
+  kPrintSlotVega = 9,              // leaf 16  [W2.4 extension, CC-013]
+  kPrintSlotGamma = 10,            // leaf 20
+  kPrintSlotVanna = 11,            // leaf 21
+  kPrintSlotCharm = 12,            // leaf 22
+  kPrintSlotVomma = 13,            // leaf 23  [CC-013]
+  kPrintSlotVeta = 14,             // leaf 24  [CC-013]
+  kPrintSlotVera = 15,             // leaf 25  [CC-013]
+  kPrintSlotSpeed = 16,            // leaf 26  [CC-013]
+  kPrintSlotZomma = 17,            // leaf 27  [CC-013]
+  kPrintSlotColor = 18,            // leaf 28  [CC-013]
+  kPrintSlotUltima = 19,           // leaf 29  [CC-013]
+  kPrintSlotDualDelta = 20,        // leaf 32  [CC-013]
+  kPrintSlotDualGamma = 21,        // leaf 33  [CC-013]
+  kPrintSlotImpliedVol = 22,       // leaf 34
+  kPrintSlotIvError = 23,          // leaf 35  [CC-013]
+  kPrintSlotUnderlyingTimestamp = 24,  // leaf 36
+  kPrintSlotUnderlyingPrice = 25,  // leaf 37
+  kPrintSlotBid = 26,              // leaf 39
+  kPrintSlotBidSize = 27,          // leaf 40
+  kPrintSlotAsk = 28,              // leaf 42
+  kPrintSlotAskSize = 29,          // leaf 43
+  kPrintSlotQuoteTimestamp = 30,   // leaf 45
 };
+
+/// The sixteen REAL slots, in projection order. One list, so the decode loop,
+/// the digest fold and the canonical order cannot drift apart.
+inline constexpr std::array<std::size_t, 16> kPrintRealSlots{
+    kPrintSlotDelta,      kPrintSlotVega,     kPrintSlotGamma,     kPrintSlotVanna,
+    kPrintSlotCharm,      kPrintSlotVomma,    kPrintSlotVeta,      kPrintSlotVera,
+    kPrintSlotSpeed,      kPrintSlotZomma,    kPrintSlotColor,     kPrintSlotUltima,
+    kPrintSlotDualDelta,  kPrintSlotDualGamma, kPrintSlotImpliedVol, kPrintSlotIvError};
 
 /// One retained option print.
 struct OptionPrintRow {
@@ -97,10 +123,28 @@ struct OptionPrintRow {
   std::int64_t bid_size = 0;
   std::int64_t ask_size = 0;
   double delta = 0.0;
+  /// vega(16): B3's registered W2.4 extension, implemented by CC-013. It is
+  /// what makes vega-WEIGHTED vol demand (D5) constructible at all.
+  double vega = 0.0;
   double gamma = 0.0;
   double vanna = 0.0;
   double charm = 0.0;
+  /// The CC-013 block. Second-order-adjacent and third-order sensitivities,
+  /// retained RAW and interpreted by nobody here — the same rule delta and
+  /// gamma have always had in this reader.
+  double vomma = 0.0;
+  double veta = 0.0;
+  double vera = 0.0;
+  double speed = 0.0;
+  double zomma = 0.0;
+  double color = 0.0;
+  double ultima = 0.0;
+  double dual_delta = 0.0;
+  double dual_gamma = 0.0;
   double implied_vol = 0.0;
+  /// iv_error(35): the vendor's own IV solve residual. It is a RELIABILITY
+  /// channel (the U axis of the feature law), never a price.
+  double iv_error = 0.0;
   double underlying_price = 0.0;
   /// The underlying attachment clock as the tape stores it: UTF-8 text,
   /// retained verbatim and interpreted by nobody in WP4.
@@ -133,7 +177,7 @@ struct OptionPrintRow {
 void append_serialized(const OptionPrintRow& row, std::vector<std::uint8_t>& out);
 
 struct OptionPrintDigests {
-  std::array<ValueDigest, 20> field{};
+  std::array<ValueDigest, 31> field{};
   void fold(const OptionPrintRow& row) noexcept;
   [[nodiscard]] static std::string_view field_name(std::size_t slot) noexcept;
 };
@@ -175,8 +219,13 @@ struct OptionPrintCensus {
   std::int64_t underlying_absent = 0;
   /// Rows with no null in any of the 20 projected slots.
   std::int64_t fully_populated_rows = 0;
-  /// Rows whose five projected greeks and IV are all present.
+  /// Rows whose FIRST/SECOND-ORDER greeks and IV are all present. Its
+  /// membership is deliberately UNCHANGED by CC-013 so the counter stays
+  /// comparable with every census taken before the amendment.
   std::int64_t greek_complete_rows = 0;
+  /// Rows whose CC-013 block (vega + the nine third-order columns + iv_error)
+  /// is all present. The new counter, beside the old one, never replacing it.
+  std::int64_t third_order_complete_rows = 0;
   /// JUNK, by its four mechanical causes. A row may hit more than one, so the
   /// four columns do not sum to `junk_rows`.
   std::int64_t junk_price_rows = 0;
@@ -186,7 +235,7 @@ struct OptionPrintCensus {
   /// Admitted rows hitting at least one junk cause.
   std::int64_t junk_rows = 0;
 
-  static constexpr std::size_t kFields = 16;
+  static constexpr std::size_t kFields = 17;
   [[nodiscard]] std::int64_t field(std::size_t index) const noexcept;
   [[nodiscard]] static std::string_view field_name(std::size_t index) noexcept;
 };

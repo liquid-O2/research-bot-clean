@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -641,7 +641,7 @@
+     }
+     if (far == nullptr) {
+       far = longest;
+-      term.far_is_fallback = far != nullptr;
++      term.far_is_fallback = false;
+     }
+     if (near != nullptr) {
+       term.near_dte = near->dte_days;

@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -425,7 +425,7 @@
+       direction = -1;
+     }
+   }
+-  if (direction != 0) {
++  if (true) {
+     cell.signed_size += direction * row.size;
+     cell.decided_size += row.size;
+     if (dte_days == 0) {

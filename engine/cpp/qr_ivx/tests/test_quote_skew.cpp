@@ -120,7 +120,15 @@ TEST(QuoteSkewNormalization, ScalingEveryPremiumLeavesTheProxyUnchanged) {
 // state for that second. Without this the proxy reads the future by one tick.
 TEST(QuoteSkewCausality, QuoteAtTheBoundaryIsNotStateForThatSecond) {
   const auto grid = flat_grid();
-  const std::vector<qr::sources::OptionQuoteRow> rows = ladder(true, /*at_ms=*/5000);
+  std::vector<qr::sources::OptionQuoteRow> rows = ladder(true, /*at_ms=*/5000);
+  // A LATER ROW IS PART OF THE FIXTURE, not decoration. Without it second 5 is
+  // closed out by the arrival of the boundary rows themselves — before any of
+  // them is folded — so the case would pass on the evaluation ORDER alone and
+  // would never exercise the strict-priority comparison it exists to pin. The
+  // trailing quote forces second 5 to be valued with the boundary rows already
+  // in the ladder, which is exactly the situation `usable` must refuse.
+  const std::vector<qr::sources::OptionQuoteRow> later = ladder(true, /*at_ms=*/9000);
+  rows.insert(rows.end(), later.begin(), later.end());
   const qr::ivx::QuoteSkewSecond at = evaluate(rows, grid, 5);
   EXPECT_NE(at.state, qr::Validity::VALID);
   const qr::ivx::QuoteSkewSecond after = evaluate(rows, grid, 6);

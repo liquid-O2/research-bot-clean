@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -757,7 +757,7 @@
+         sum += value * value;
+         ++count;
+       }
+-      if (count < kMinFdPairs) return absent(Validity::MISSING);
++      if (count < 1) return absent(Validity::MISSING);
+       return valid(sum / static_cast<double>(count));
+     };
+     out_window.vol_of_vol_mid = realized_variance(dv_mid);

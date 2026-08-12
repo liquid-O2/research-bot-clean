@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -73,7 +73,7 @@
+ std::int64_t total_weight_of(const std::vector<FitPoint>& points) {
+   std::int64_t total = 0;
+   for (const FitPoint& point : points) {
+-    if (point.weight > 0) total += point.weight;
++    if (point.weight > 0) total += 1;
+   }
+   return total;
+ }

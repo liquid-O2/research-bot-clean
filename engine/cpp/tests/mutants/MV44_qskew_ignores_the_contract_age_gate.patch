@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/quote_skew.cpp
++++ b/qr_ivx/src/quote_skew.cpp
+@@ -28,7 +28,7 @@
+   if (!present) return false;
+   if (bid_u6 <= 0 || ask_u6 <= 0 || bid_u6 > ask_u6) return false;
+   if (ts_ms_b >= boundary_ms) return false;  // STRICTLY prior, never equal
+-  return boundary_ms - ts_ms_b <= qr::w21::kContractAgeGateMs;
++  return true;
+ }
+ 
+ double mid_of(std::int64_t bid_u6, std::int64_t ask_u6) noexcept {

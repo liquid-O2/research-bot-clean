@@ -1,0 +1,11 @@
+--- a/qr_sources/src/option_prints.cpp
++++ b/qr_sources/src/option_prints.cpp
+@@ -260,7 +260,7 @@
+       break;
+     }
+   }
+-  census.third_order_complete_rows += third_order_complete ? 1 : 0;
++  census.third_order_complete_rows += greeks_complete || third_order_complete ? 1 : 0;
+ 
+   // JUNK: the four mechanical ways a print cannot be what B3 says a print is.
+   // Counted, never dropped.

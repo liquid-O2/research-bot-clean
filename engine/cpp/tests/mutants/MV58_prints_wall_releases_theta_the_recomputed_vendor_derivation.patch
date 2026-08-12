@@ -1,0 +1,11 @@
+--- a/qr_sources/include/qr_sources/stream_spec.hpp
++++ b/qr_sources/include/qr_sources/stream_spec.hpp
+@@ -528,7 +528,7 @@
+     //   moneyness(53), prem(54), *_flow(55-61): vendor derivations of exactly
+     //     the quantities the feature families exist to build (flows are
+     //     v*size*greek, computed here from the certified sign).
+-    .forbidden = {ForbiddenColumn{15, ForbidReason::HardRefused},   // theta
++    .forbidden = {ForbiddenColumn{15, ForbidReason::NeverRead},     // theta
+                   ForbiddenColumn{17, ForbidReason::HardRefused},   // rho
+                   ForbiddenColumn{18, ForbidReason::HardRefused},   // epsilon
+                   ForbiddenColumn{19, ForbidReason::HardRefused},   // lambda

@@ -1,0 +1,11 @@
+--- a/qr_sources/include/qr_sources/session_source.hpp
++++ b/qr_sources/include/qr_sources/session_source.hpp
+@@ -245,7 +245,7 @@
+                                                           Mask& mask) noexcept {
+   const ColumnData& column = source.cell(slot);
+   if (column.is_null(row)) {
+-    mask |= static_cast<Mask>(Mask{1} << slot);
++    mask |= static_cast<Mask>(Mask{1} << (slot + 1));
+     return 0.0;
+   }
+   return cell_f64(column, source.form(slot), row);

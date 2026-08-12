@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -236,7 +236,7 @@
+     }
+   }
+   for (std::size_t row = 0; row < 3; ++row) {
+-    replaced[row][2] = rhs[row];
++    replaced[row][1] = rhs[row];
+   }
+   const double c2 = det3(replaced) / determinant;
+   out.curvature = valid(2.0 * c2);

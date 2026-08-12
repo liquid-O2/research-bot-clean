@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/column_census.cpp
++++ b/qr_ivx/src/column_census.cpp
+@@ -187,7 +187,7 @@
+ 
+ ColumnVerdict verdict_of(const ColumnStat& stat) noexcept {
+   if (!stat.in_schema) {
+-    return ColumnVerdict::ABSENT;
++    return ColumnVerdict::ALL_NULL;
+   }
+   if (stat.num_values <= 0) {
+     return ColumnVerdict::NO_ROWS;

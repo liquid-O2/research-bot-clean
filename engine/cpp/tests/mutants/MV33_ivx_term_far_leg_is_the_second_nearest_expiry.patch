@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -635,7 +635,7 @@
+                                cell.atm_iv.value, cell.weight, cell.dte_days});
+       if (near == nullptr || cell.dte_days < near->dte_days) near = &cell;
+       if (longest == nullptr || cell.dte_days > longest->dte_days) longest = &cell;
+-      if (cell.dte_days >= kTermFarMinDteDays && (far == nullptr || cell.dte_days < far->dte_days)) {
++      if (cell.dte_days > 0 && (far == nullptr || cell.dte_days < far->dte_days)) {
+         far = &cell;
+       }
+     }

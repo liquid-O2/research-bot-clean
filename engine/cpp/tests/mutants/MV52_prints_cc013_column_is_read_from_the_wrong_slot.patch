@@ -1,0 +1,11 @@
+--- a/qr_sources/src/option_prints.cpp
++++ b/qr_sources/src/option_prints.cpp
+@@ -438,7 +438,7 @@
+     built.gamma = reals[2];
+     built.vanna = reals[3];
+     built.charm = reals[4];
+-    built.vomma = reals[5];
++    built.vomma = reals[6];
+     built.veta = reals[6];
+     built.vera = reals[7];
+     built.speed = reals[8];

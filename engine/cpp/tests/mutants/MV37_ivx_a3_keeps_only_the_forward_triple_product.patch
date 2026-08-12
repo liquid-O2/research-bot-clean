@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -857,7 +857,7 @@
+       pairs_out = pairs;
+       if (pairs < kMinA3Pairs) return absent(Validity::MISSING);
+       if (!(sigma > 0.0)) return absent(Validity::NONPOSITIVE);
+-      const double numerator = (forward - backward) / static_cast<double>(pairs);
++      const double numerator = (forward + backward) / static_cast<double>(pairs);
+       return valid(numerator / (sigma * sigma * sigma));
+     };
+     std::int64_t return_pairs = 0;

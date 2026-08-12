@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -365,7 +365,7 @@
+     ++census_.rejected_window;
+     return;
+   }
+-  const auto window = static_cast<std::size_t>(second / kWindowSeconds);
++  const auto window = static_cast<std::size_t>((second + 1) / kWindowSeconds);
+   const std::size_t band = moneyness_band(x.value());
+   const auto right = static_cast<std::uint8_t>(row.right);
+   const std::int64_t dte_days =

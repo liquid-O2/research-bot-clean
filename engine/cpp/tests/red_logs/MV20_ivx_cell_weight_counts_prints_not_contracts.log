@@ -1,0 +1,262 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MV20_ivx_cell_weight_counts_prints_not_contracts
+# patch:       tests/mutants/MV20_ivx_cell_weight_counts_prints_not_contracts.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MV20_ivx_cell_weight_counts_prints_not_contracts
+#
+### qr_ivx_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 53 tests from 21 test suites.
+[----------] Global test environment set-up.
+[----------] 7 tests from ColumnCensusVerdict
+[ RUN      ] ColumnCensusVerdict.MissingFromSchemaIsAbsentNotAllNull
+[       OK ] ColumnCensusVerdict.MissingFromSchemaIsAbsentNotAllNull (0 ms)
+[ RUN      ] ColumnCensusVerdict.EveryValueNullIsAllNull
+[       OK ] ColumnCensusVerdict.EveryValueNullIsAllNull (0 ms)
+[ RUN      ] ColumnCensusVerdict.PartialNullCountsCannotProveAllNull
+[       OK ] ColumnCensusVerdict.PartialNullCountsCannotProveAllNull (0 ms)
+[ RUN      ] ColumnCensusVerdict.ZeroEverywhereIsConstantZeroNotReal
+[       OK ] ColumnCensusVerdict.ZeroEverywhereIsConstantZeroNotReal (0 ms)
+[ RUN      ] ColumnCensusVerdict.PopulatedWithRangeIsReal
+[       OK ] ColumnCensusVerdict.PopulatedWithRangeIsReal (0 ms)
+[ RUN      ] ColumnCensusVerdict.NonFiniteBoundIsItsOwnVerdict
+[       OK ] ColumnCensusVerdict.NonFiniteBoundIsItsOwnVerdict (0 ms)
+[ RUN      ] ColumnCensusVerdict.PopulatedWithoutAnyStoredRangeSaysSo
+[       OK ] ColumnCensusVerdict.PopulatedWithoutAnyStoredRangeSaysSo (0 ms)
+[----------] 7 tests from ColumnCensusVerdict (0 ms total)
+
+[----------] 3 tests from ColumnCensusPresence
+[ RUN      ] ColumnCensusPresence.UnreportedNullCountsAreUndefinedNotFull
+[       OK ] ColumnCensusPresence.UnreportedNullCountsAreUndefinedNotFull (0 ms)
+[ RUN      ] ColumnCensusPresence.ExactIntegerFraction
+[       OK ] ColumnCensusPresence.ExactIntegerFraction (0 ms)
+[ RUN      ] ColumnCensusPresence.NoRowsIsUndefined
+[       OK ] ColumnCensusPresence.NoRowsIsUndefined (0 ms)
+[----------] 3 tests from ColumnCensusPresence (0 ms total)
+
+[----------] 2 tests from ColumnCensusStanding
+[ RUN      ] ColumnCensusStanding.LabelsMatchAppendixB3
+[       OK ] ColumnCensusStanding.LabelsMatchAppendixB3 (0 ms)
+[ RUN      ] ColumnCensusStanding.CandidateSetCarriesTheControls
+[       OK ] ColumnCensusStanding.CandidateSetCarriesTheControls (0 ms)
+[----------] 2 tests from ColumnCensusStanding (0 ms total)
+
+[----------] 2 tests from TsvFormatting
+[ RUN      ] TsvFormatting.RoundTripsAndNamesNonFinite
+[       OK ] TsvFormatting.RoundTripsAndNamesNonFinite (0 ms)
+[ RUN      ] TsvFormatting.AbsentTypedRealNeverEmitsANumber
+[       OK ] TsvFormatting.AbsentTypedRealNeverEmitsANumber (1 ms)
+[----------] 2 tests from TsvFormatting (1 ms total)
+
+[----------] 3 tests from MoneynessAxis
+[ RUN      ] MoneynessAxis.KeepsTheW21Pin1Edges
+[       OK ] MoneynessAxis.KeepsTheW21Pin1Edges (0 ms)
+[ RUN      ] MoneynessAxis.EdgesAreRightOpen
+[       OK ] MoneynessAxis.EdgesAreRightOpen (0 ms)
+[ RUN      ] MoneynessAxis.EveryIntegerLandsInExactlyOneBand
+[       OK ] MoneynessAxis.EveryIntegerLandsInExactlyOneBand (0 ms)
+[----------] 3 tests from MoneynessAxis (0 ms total)
+
+[----------] 4 tests from SkewOrientation
+[ RUN      ] SkewOrientation.PutRichSmileIsPositive
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:147: Failure
+Expected equality of these values:
+  cell->risk_reversal.v
+    Which is: 1-byte object <01>
+  qr::Validity::VALID
+    Which is: 1-byte object <00>
+
+[  FAILED  ] SkewOrientation.PutRichSmileIsPositive (3 ms)
+[ RUN      ] SkewOrientation.CallRichSmileIsNegativeAndExactlyMirrored
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:160: Failure
+Expected equality of these values:
+  b->risk_reversal.v
+    Which is: 1-byte object <01>
+  qr::Validity::VALID
+    Which is: 1-byte object <00>
+
+[  FAILED  ] SkewOrientation.CallRichSmileIsNegativeAndExactlyMirrored (0 ms)
+[ RUN      ] SkewOrientation.SlopeIsTheRiskReversalPerLnMoneyness
+[       OK ] SkewOrientation.SlopeIsTheRiskReversalPerLnMoneyness (0 ms)
+[ RUN      ] SkewOrientation.PureTiltHasZeroCurvature
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:182: Failure
+Expected equality of these values:
+  cell->curvature.v
+    Which is: 1-byte object <01>
+  qr::Validity::VALID
+    Which is: 1-byte object <00>
+
+[  FAILED  ] SkewOrientation.PureTiltHasZeroCurvature (0 ms)
+[----------] 4 tests from SkewOrientation (3 ms total)
+
+[----------] 2 tests from Weighting
+[ RUN      ] Weighting.OnePrintOfThreeEqualsThreePrintsOfOne
+[       OK ] Weighting.OnePrintOfThreeEqualsThreePrintsOfOne (0 ms)
+[ RUN      ] Weighting.BandMeanIsPulledByTheHeavierPrint
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:224: Failure
+Expected equality of these values:
+  cell->band_weight[slot]
+    Which is: 2
+  4
+
+[  FAILED  ] Weighting.BandMeanIsPulledByTheHeavierPrint (0 ms)
+[----------] 2 tests from Weighting (0 ms total)
+
+[----------] 3 tests from WindowLaw
+[ RUN      ] WindowLaw.BoundaryIsRightOpenOnTheSecond
+[       OK ] WindowLaw.BoundaryIsRightOpenOnTheSecond (0 ms)
+[ RUN      ] WindowLaw.InnovationsOnlySpanAdjacentWindows
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:252: Failure
+Expected equality of these values:
+  cell_of(tables, 1, expiry)->d_risk_reversal.v
+    Which is: 1-byte object <01>
+  qr::Validity::VALID
+    Which is: 1-byte object <00>
+
+[  FAILED  ] WindowLaw.InnovationsOnlySpanAdjacentWindows (0 ms)
+[ RUN      ] WindowLaw.PrintsPastTheCloseAreRejectedNotClamped
+[       OK ] WindowLaw.PrintsPastTheCloseAreRejectedNotClamped (0 ms)
+[----------] 3 tests from WindowLaw (0 ms total)
+
+[----------] 4 tests from Admission
+[ RUN      ] Admission.QuoteAttachmentMustBeStrictlyPrior
+[       OK ] Admission.QuoteAttachmentMustBeStrictlyPrior (0 ms)
+[ RUN      ] Admission.UnderlyingStampMustCarryThisSessionsDay
+[       OK ] Admission.UnderlyingStampMustCarryThisSessionsDay (0 ms)
+[ RUN      ] Admission.MultiLegPrintsAreExcludedAndCounted
+[       OK ] Admission.MultiLegPrintsAreExcludedAndCounted (0 ms)
+[ RUN      ] Admission.NonPositiveOrNonFiniteIvIsRejected
+[       OK ] Admission.NonPositiveOrNonFiniteIvIsRejected (0 ms)
+[----------] 4 tests from Admission (0 ms total)
+
+[----------] 3 tests from IvVelocity
+[ RUN      ] IvVelocity.IsThePerSecondChangeOfOneContractsOwnIv
+[       OK ] IvVelocity.IsThePerSecondChangeOfOneContractsOwnIv (0 ms)
+[ RUN      ] IvVelocity.PairsBeyondTheAgeGateAreNotAVelocity
+[       OK ] IvVelocity.PairsBeyondTheAgeGateAreNotAVelocity (0 ms)
+[ RUN      ] IvVelocity.DoesNotPairAcrossContracts
+[       OK ] IvVelocity.DoesNotPairAcrossContracts (0 ms)
+[----------] 3 tests from IvVelocity (0 ms total)
+
+[----------] 1 test from SignedVolDemand
+[ RUN      ] SignedVolDemand.InsideTheSpreadIsUndecidableNotZero
+[       OK ] SignedVolDemand.InsideTheSpreadIsUndecidableNotZero (0 ms)
+[----------] 1 test from SignedVolDemand (0 ms total)
+
+[----------] 2 tests from TermStructure
+[ RUN      ] TermStructure.RisingTermCarriesAPositiveSlopeAndANearFarRatioBelowOne
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:388: Failure
+Expected equality of these values:
+  term.expiries
+    Which is: 0
+  3
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:389: Failure
+Expected equality of these values:
+  term.near_dte
+    Which is: -1
+  0
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:390: Failure
+Expected equality of these values:
+  term.far_dte
+    Which is: -1
+  7
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:392: Failure
+Expected equality of these values:
+  term.near_far_ratio.v
+    Which is: 1-byte object <01>
+  qr::Validity::VALID
+    Which is: 1-byte object <00>
+
+[  FAILED  ] TermStructure.RisingTermCarriesAPositiveSlopeAndANearFarRatioBelowOne (0 ms)
+[ RUN      ] TermStructure.FarLegFallbackIsFlagged
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:413: Failure
+Value of: tables.term[0].far_is_fallback
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:414: Failure
+Expected equality of these values:
+  tables.term[0].far_dte
+    Which is: -1
+  1
+
+[  FAILED  ] TermStructure.FarLegFallbackIsFlagged (0 ms)
+[----------] 2 tests from TermStructure (0 ms total)
+
+[----------] 5 tests from SurfaceDynamics
+[ RUN      ] SurfaceDynamics.ResponseRecoversTheConstructedGain
+[       OK ] SurfaceDynamics.ResponseRecoversTheConstructedGain (0 ms)
+[ RUN      ] SurfaceDynamics.ZeroFluctuationTypesTheRatioAbsent
+[       OK ] SurfaceDynamics.ZeroFluctuationTypesTheRatioAbsent (0 ms)
+[ RUN      ] SurfaceDynamics.A3FlipsSignUnderTimeReversal
+[       OK ] SurfaceDynamics.A3FlipsSignUnderTimeReversal (1 ms)
+[ RUN      ] SurfaceDynamics.VolOfVolIsZeroForAConstantSurface
+[       OK ] SurfaceDynamics.VolOfVolIsZeroForAConstantSurface (0 ms)
+[ RUN      ] SurfaceDynamics.ThinWindowsAreTypedAbsent
+[       OK ] SurfaceDynamics.ThinWindowsAreTypedAbsent (0 ms)
+[----------] 5 tests from SurfaceDynamics (3 ms total)
+
+[----------] 1 test from Determinism
+[ RUN      ] Determinism.TwoRunsOfTheSameInputEmitTheSameRows
+[       OK ] Determinism.TwoRunsOfTheSameInputEmitTheSameRows (0 ms)
+[----------] 1 test from Determinism (0 ms total)
+
+[----------] 2 tests from QuoteSkewOrientation
+[ RUN      ] QuoteSkewOrientation.PutRichLadderIsPositive
+[       OK ] QuoteSkewOrientation.PutRichLadderIsPositive (3 ms)
+[ RUN      ] QuoteSkewOrientation.CallRichLadderIsNegative
+[       OK ] QuoteSkewOrientation.CallRichLadderIsNegative (2 ms)
+[----------] 2 tests from QuoteSkewOrientation (6 ms total)
+
+[----------] 1 test from QuoteSkewNormalization
+[ RUN      ] QuoteSkewNormalization.ScalingEveryPremiumLeavesTheProxyUnchanged
+[       OK ] QuoteSkewNormalization.ScalingEveryPremiumLeavesTheProxyUnchanged (6 ms)
+[----------] 1 test from QuoteSkewNormalization (6 ms total)
+
+[----------] 2 tests from QuoteSkewCausality
+[ RUN      ] QuoteSkewCausality.QuoteAtTheBoundaryIsNotStateForThatSecond
+[       OK ] QuoteSkewCausality.QuoteAtTheBoundaryIsNotStateForThatSecond (6 ms)
+[ RUN      ] QuoteSkewCausality.StaleQuotesLeaveTheLadderEmpty
+[       OK ] QuoteSkewCausality.StaleQuotesLeaveTheLadderEmpty (6 ms)
+[----------] 2 tests from QuoteSkewCausality (12 ms total)
+
+[----------] 2 tests from QuoteSkewLadder
+[ RUN      ] QuoteSkewLadder.OneSidedRungsAreNotRungs
+[       OK ] QuoteSkewLadder.OneSidedRungsAreNotRungs (2 ms)
+[ RUN      ] QuoteSkewLadder.CrossedQuotesAreNotRungs
+[       OK ] QuoteSkewLadder.CrossedQuotesAreNotRungs (3 ms)
+[----------] 2 tests from QuoteSkewLadder (5 ms total)
+
+[----------] 1 test from QuoteSkewAtm
+[ RUN      ] QuoteSkewAtm.EquidistantCandidatesAreUndecidable
+[       OK ] QuoteSkewAtm.EquidistantCandidatesAreUndecidable (2 ms)
+[----------] 1 test from QuoteSkewAtm (2 ms total)
+
+[----------] 2 tests from QuoteSkewPlane
+[ RUN      ] QuoteSkewPlane.OtherExpiriesAreNotOnThePlane
+[       OK ] QuoteSkewPlane.OtherExpiriesAreNotOnThePlane (0 ms)
+[ RUN      ] QuoteSkewPlane.MissingGridSpotTypesTheSecondAbsent
+[       OK ] QuoteSkewPlane.MissingGridSpotTypesTheSecondAbsent (3 ms)
+[----------] 2 tests from QuoteSkewPlane (4 ms total)
+
+[----------] 1 test from QuoteSkewDeterminism
+[ RUN      ] QuoteSkewDeterminism.TwoRunsAgree
+[       OK ] QuoteSkewDeterminism.TwoRunsAgree (7 ms)
+[----------] 1 test from QuoteSkewDeterminism (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 53 tests from 21 test suites ran. (53 ms total)
+[  PASSED  ] 46 tests.
+[  FAILED  ] 7 tests, listed below:
+[  FAILED  ] SkewOrientation.PutRichSmileIsPositive
+[  FAILED  ] SkewOrientation.CallRichSmileIsNegativeAndExactlyMirrored
+[  FAILED  ] SkewOrientation.PureTiltHasZeroCurvature
+[  FAILED  ] Weighting.BandMeanIsPulledByTheHeavierPrint
+[  FAILED  ] WindowLaw.InnovationsOnlySpanAdjacentWindows
+[  FAILED  ] TermStructure.RisingTermCarriesAPositiveSlopeAndANearFarRatioBelowOne
+[  FAILED  ] TermStructure.FarLegFallbackIsFlagged
+
+ 7 FAILED TESTS

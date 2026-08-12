@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/tsv.cpp
++++ b/qr_ivx/src/tsv.cpp
+@@ -34,7 +34,7 @@
+ }
+ 
+ void Report::typed(std::string scope, std::string key, std::string name, Typed<double> value) {
+-  const bool ok = value.v == Validity::VALID;
++  const bool ok = true;
+   rows_.push_back(Row{scope, key, name, ok ? g17(value.value) : qr::validity_name(value.v)});
+   rows_.push_back(
+       Row{std::move(scope), std::move(key), name + "_v", qr::validity_name(value.v)});

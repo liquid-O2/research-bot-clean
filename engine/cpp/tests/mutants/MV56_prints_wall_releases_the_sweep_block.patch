@@ -1,0 +1,11 @@
+--- a/qr_sources/include/qr_sources/stream_spec.hpp
++++ b/qr_sources/include/qr_sources/stream_spec.hpp
+@@ -535,7 +535,7 @@
+                   ForbiddenColumn{30, ForbidReason::HardRefused},   // d1
+                   ForbiddenColumn{31, ForbidReason::HardRefused},   // d2
+                   ForbiddenColumn{38, ForbidReason::HardRefused},   // side
+-                  ForbiddenColumn{47, ForbidReason::HardRefused},   // sweep_id
++                  ForbiddenColumn{47, ForbidReason::NeverRead},     // sweep_id
+                   ForbiddenColumn{48, ForbidReason::HardRefused},   // sweep_n
+                   ForbiddenColumn{49, ForbidReason::HardRefused},   // sweep_size
+                   ForbiddenColumn{50, ForbidReason::HardRefused},   // sweep_exchanges

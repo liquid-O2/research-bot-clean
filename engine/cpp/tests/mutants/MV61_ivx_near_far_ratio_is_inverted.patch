@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -652,7 +652,7 @@
+       term.far_iv = far->atm_iv;
+     }
+     if (near != nullptr && far != nullptr && near != far && far->atm_iv.value > 0.0) {
+-      term.near_far_ratio = valid(near->atm_iv.value / far->atm_iv.value);
++      term.near_far_ratio = valid(far->atm_iv.value / near->atm_iv.value);
+     }
+     const LineFit slope = fit_line(curve, kMinTermExpiries, kMinCellWeight);
+     term.term_slope = slope.slope;

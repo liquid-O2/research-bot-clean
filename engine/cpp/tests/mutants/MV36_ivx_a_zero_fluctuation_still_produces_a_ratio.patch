@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -813,7 +813,7 @@
+         if (out_window.fd_chi.v == Validity::VALID && sigma > 0.0) {
+           out_window.fd_ratio = valid(out_window.fd_chi.value / sigma);
+         } else if (sigma <= 0.0) {
+-          out_window.fd_ratio = absent(Validity::NONPOSITIVE);
++          out_window.fd_ratio = valid(0.0);
+         }
+       }
+     }

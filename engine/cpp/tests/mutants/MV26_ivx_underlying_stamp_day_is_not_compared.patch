@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -328,7 +328,7 @@
+   const std::string_view stamp = row.underlying_ts_text.view();
+   const bool underlying_on_day = !row.is_null(slots::kPrintSlotUnderlyingTimestamp) &&
+                                  stamp.size() >= day_.size() &&
+-                                 stamp.substr(0, day_.size()) == day_;
++                                 !stamp.empty();
+   if (!quote_prior || !underlying_on_day) {
+     ++census_.rejected_attachment;
+     return;

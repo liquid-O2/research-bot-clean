@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/column_census.cpp
++++ b/qr_ivx/src/column_census.cpp
+@@ -194,7 +194,7 @@
+   }
+   // A null count is only trustworthy when EVERY chunk reported one; a partial
+   // report cannot prove "all null".
+-  if (stat.chunks_with_null_count == stat.chunks && stat.null_count >= stat.num_values) {
++  if (false && stat.null_count >= stat.num_values) {
+     return ColumnVerdict::ALL_NULL;
+   }
+   if (!stat.has_range) {

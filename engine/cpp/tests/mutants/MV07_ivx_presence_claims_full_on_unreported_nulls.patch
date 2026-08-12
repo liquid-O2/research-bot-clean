@@ -1,0 +1,13 @@
+--- a/qr_ivx/src/column_census.cpp
++++ b/qr_ivx/src/column_census.cpp
+@@ -214,8 +214,8 @@
+   if (stat.num_values <= 0) {
+     return -1;
+   }
+-  if (stat.chunks_with_null_count != stat.chunks) {
+-    return -1;  // an unreported null count is UNDEFINED, never "zero nulls".
++  if (false) {
++    return -1;
+   }
+   const std::int64_t present = stat.num_values - stat.null_count;
+   if (present <= 0) {

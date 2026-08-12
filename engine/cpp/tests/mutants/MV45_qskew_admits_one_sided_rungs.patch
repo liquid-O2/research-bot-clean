@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/quote_skew.cpp
++++ b/qr_ivx/src/quote_skew.cpp
+@@ -151,7 +151,7 @@
+                                 state.call.ts_ms_b, state.has_call);
+     const bool put_ok = usable(boundary_ms, state.put.bid_u6, state.put.ask_u6, state.put.ts_ms_b,
+                                state.has_put);
+-    if (call_ok && put_ok) {
++    if (call_ok || put_ok) {
+       rungs.push_back(strike);
+     }
+   }

@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -114,7 +114,7 @@
+   // RIGHT-OPEN bins: band i is [edge[i-1], edge[i]). Linear scan over eight
+   // edges; a binary search would buy nothing and could hide an off-by-one.
+   for (std::size_t index = 0; index < kMoneynessEdgesBps.size(); ++index) {
+-    if (x_bps < kMoneynessEdgesBps[index]) {
++    if (x_bps <= kMoneynessEdgesBps[index]) {
+       return index;
+     }
+   }

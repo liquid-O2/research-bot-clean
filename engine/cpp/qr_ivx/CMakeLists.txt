@@ -18,6 +18,7 @@ qr_apply_boundary_flags(qr_ivx_meta)
 add_library(qr_ivx STATIC
   src/iv_cross.cpp
   src/quote_skew.cpp
+  src/column_values.cpp
 )
 target_include_directories(qr_ivx PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(qr_ivx PUBLIC qr_ivx_meta qr_clock qr_sources qr_w20 qr_w21)
@@ -51,6 +52,11 @@ qr_apply_boundary_flags(qr_ivx_census)
 add_executable(qr_ivx_qskew tools/qr_ivx_qskew.cpp)
 target_link_libraries(qr_ivx_qskew PRIVATE qr_ivx)
 qr_apply_boundary_flags(qr_ivx_qskew)
+
+# The CC-013 VALUE census: the same five sessions, now through the reader.
+add_executable(qr_ivx_colvalues tools/qr_ivx_colvalues.cpp)
+target_link_libraries(qr_ivx_colvalues PRIVATE qr_ivx)
+qr_apply_boundary_flags(qr_ivx_colvalues)
 
 # The vol-index context join (ITEM C): FRED daily closes -> a strictly-prior
 # per-session regime table. Links the registry only.

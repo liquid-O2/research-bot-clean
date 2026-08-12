@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/quote_skew.cpp
++++ b/qr_ivx/src/quote_skew.cpp
+@@ -224,7 +224,7 @@
+       out.log_ratio[index + 1] = absent(Validity::NONPOSITIVE);
+       continue;
+     }
+-    out.tilt[index + 1] = valid((put_mid - call_mid) / straddle);
++    out.tilt[index + 1] = valid((put_mid - call_mid) / static_cast<double>(spot));
+     out.log_ratio[index + 1] = valid(std::log(put_mid / call_mid));
+   }
+   return out;

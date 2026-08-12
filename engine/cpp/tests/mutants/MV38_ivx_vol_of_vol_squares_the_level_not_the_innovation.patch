@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -760,7 +760,7 @@
+       if (count < kMinFdPairs) return absent(Validity::MISSING);
+       return valid(sum / static_cast<double>(count));
+     };
+-    out_window.vol_of_vol_mid = realized_variance(dv_mid);
++    out_window.vol_of_vol_mid = realized_variance(levels);
+     out_window.vol_of_vol_bid = realized_variance(dv_bid);
+     out_window.vol_of_vol_ask = realized_variance(dv_ask);
+     if (!levels.empty()) {

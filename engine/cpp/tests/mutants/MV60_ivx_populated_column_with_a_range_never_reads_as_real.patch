@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/column_census.cpp
++++ b/qr_ivx/src/column_census.cpp
+@@ -207,7 +207,7 @@
+       stat.max_value == 0.0) {
+     return ColumnVerdict::CONSTANT_ZERO;
+   }
+-  return ColumnVerdict::REAL;
++  return ColumnVerdict::POPULATED_NO_RANGE;
+ }
+ 
+ std::int64_t presence_ppm(const ColumnStat& stat) noexcept {

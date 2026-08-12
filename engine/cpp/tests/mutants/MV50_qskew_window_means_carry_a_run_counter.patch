@@ -1,0 +1,13 @@
+--- a/qr_ivx/src/quote_skew.cpp
++++ b/qr_ivx/src/quote_skew.cpp
+@@ -241,7 +241,9 @@
+       out.support[offset] = accumulator.support[offset];
+       if (accumulator.support[offset] > 0) {
+         const auto n = static_cast<double>(accumulator.support[offset]);
+-        out.mean_tilt[offset] = valid(accumulator.tilt[offset] / n);
++        static double drift = 0.0;
++        drift += 1.0;
++        out.mean_tilt[offset] = valid(accumulator.tilt[offset] / n + drift);
+         out.mean_log_ratio[offset] = valid(accumulator.log_ratio[offset] / n);
+       } else {
+         out.mean_tilt[offset] = absent(Validity::MISSING);

@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -568,7 +568,7 @@
+           found == previous.end() ? nullptr : &out.cells[found->second];
+       // Only the IMMEDIATELY preceding window is an innovation; a gap of
+       // windows is a different quantity and is left absent.
+-      const bool adjacent = prior != nullptr && prior->window == cell.window - 1;
++      const bool adjacent = prior != nullptr;
+       if (adjacent) {
+         cell.d_atm_iv = difference(cell.atm_iv, prior->atm_iv);
+         cell.d_risk_reversal = difference(cell.risk_reversal, prior->risk_reversal);

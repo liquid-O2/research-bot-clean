@@ -1,23 +1,62 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M302_sources_print_projection_drifts_off_appendix_b
+# patch:       tests/mutants/M302_sources_print_projection_drifts_off_appendix_b.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M302_sources_print_projection_drifts_off_appendix_b
+#
+### qr_sources_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 46 tests from 16 test suites.
+[==========] Running 64 tests from 17 test suites.
 [----------] Global test environment set-up.
-[----------] 4 tests from GroupTape
-[ RUN      ] GroupTape.EqualMillisecondRunsBecomeOneGroupAndMultiplicityIsPreserved
-[       OK ] GroupTape.EqualMillisecondRunsBecomeOneGroupAndMultiplicityIsPreserved (0 ms)
-[ RUN      ] GroupTape.AGroupStraddlingAChunkBoundaryIsDeliveredOnceAndWhole
-[       OK ] GroupTape.AGroupStraddlingAChunkBoundaryIsDeliveredOnceAndWhole (0 ms)
-[ RUN      ] GroupTape.InGroupOrderIsCanonicalSoAnInputPermutationIsInvisible
-[       OK ] GroupTape.InGroupOrderIsCanonicalSoAnInputPermutationIsInvisible (0 ms)
-[ RUN      ] GroupTape.AnEmptyChunkDeliversNothingAndKeepsTheCarry
-[       OK ] GroupTape.AnEmptyChunkDeliversNothingAndKeepsTheCarry (0 ms)
-[----------] 4 tests from GroupTape (0 ms total)
+[----------] 4 tests from SpecLaws
+[ RUN      ] SpecLaws.EveryPinnedSpecIsWellformedAndEveryBrokenOneIsRejected
+[       OK ] SpecLaws.EveryPinnedSpecIsWellformedAndEveryBrokenOneIsRejected (0 ms)
+[ RUN      ] SpecLaws.TheFourProjectionsAreExactlyAppendixB
+/workspace/engine/cpp/qr_sources/tests/test_stream_spec.cpp:117: Failure
+Expected equality of these values:
+  prints
+    Which is: { 1, 2, 3, 4, 5, 10, 11, 13, 14, 16, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 37, 39, 40, 42, 43, 46 }
+  (std::vector<std::size_t>{1, 2, 3, 4, 5, 10, 11, 13, 14, 16, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 37, 39, 40, 42, 43, 45})
+    Which is: { 1, 2, 3, 4, 5, 10, 11, 13, 14, 16, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 37, 39, 40, 42, 43, 45 }
 
-[----------] 2 tests from GroupFixtures
-[ RUN      ] GroupFixtures.PermutingRowsInsideEveryEqualTimeGroupProducesByteIdenticalGroups
-[       OK ] GroupFixtures.PermutingRowsInsideEveryEqualTimeGroupProducesByteIdenticalGroups (30 ms)
-[ RUN      ] GroupFixtures.TwoRunsOverTheSameFixtureAreByteIdentical
-[       OK ] GroupFixtures.TwoRunsOverTheSameFixtureAreByteIdentical (3 ms)
-[----------] 2 tests from GroupFixtures (33 ms total)
+[  FAILED  ] SpecLaws.TheFourProjectionsAreExactlyAppendixB (0 ms)
+[ RUN      ] SpecLaws.TheWalledColumnsAreExactlyAppendixB
+[       OK ] SpecLaws.TheWalledColumnsAreExactlyAppendixB (1 ms)
+[ RUN      ] SpecLaws.TheSingleLegPrintConditionSetIsExposedAsAField
+[       OK ] SpecLaws.TheSingleLegPrintConditionSetIsExposedAsAField (0 ms)
+[----------] 4 tests from SpecLaws (1 ms total)
+
+[----------] 7 tests from SchemaGate
+[ RUN      ] SchemaGate.TheGoodFixtureGatesAndResolvesEveryProjectedForm
+[       OK ] SchemaGate.TheGoodFixtureGatesAndResolvesEveryProjectedForm (8 ms)
+[ RUN      ] SchemaGate.ARenamedColumnRefusesByNameBeforeAnyPayload
+[       OK ] SchemaGate.ARenamedColumnRefusesByNameBeforeAnyPayload (3 ms)
+[ RUN      ] SchemaGate.AWrongPhysicalTypeRefusesByName
+[       OK ] SchemaGate.AWrongPhysicalTypeRefusesByName (3 ms)
+[ RUN      ] SchemaGate.AColumnCountDriftRefusesBeforeAnyNameIsCompared
+[       OK ] SchemaGate.AColumnCountDriftRefusesBeforeAnyNameIsCompared (3 ms)
+[ RUN      ] SchemaGate.TheDeclaredProfileIsTheAuthorityOverTheFilesOwnForms
+[       OK ] SchemaGate.TheDeclaredProfileIsTheAuthorityOverTheFilesOwnForms (7 ms)
+[ RUN      ] SchemaGate.TheDeferredRutwWideProfileIsRefusedByTheCompactPrintReader
+/workspace/engine/cpp/qr_sources/tests/test_stream_spec.cpp:325: Failure
+Value of: good.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (options_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/op_compact/2022/2022-07-05.parquet
+
+[  FAILED  ] SchemaGate.TheDeferredRutwWideProfileIsRefusedByTheCompactPrintReader (8 ms)
+[ RUN      ] SchemaGate.BothOptionQuoteProfilesAreDetectedFromTheFilesOwnSchema
+[       OK ] SchemaGate.BothOptionQuoteProfilesAreDetectedFromTheFilesOwnSchema (7 ms)
+[----------] 7 tests from SchemaGate (42 ms total)
+
+[----------] 3 tests from ForbiddenDoor
+[ RUN      ] ForbiddenDoor.PriceLeadOneRefusesByNameAndByIndexWithoutTouchingItsBytes
+[       OK ] ForbiddenDoor.PriceLeadOneRefusesByNameAndByIndexWithoutTouchingItsBytes (3 ms)
+[ RUN      ] ForbiddenDoor.EveryWalledColumnOfEveryStreamRefusesOnARealFixtureFile
+[       OK ] ForbiddenDoor.EveryWalledColumnOfEveryStreamRefusesOnARealFixtureFile (20 ms)
+[ RUN      ] ForbiddenDoor.AnUnprojectedButUnwalledColumnIsRefusedAsOutsideTheProjection
+[       OK ] ForbiddenDoor.AnUnprojectedButUnwalledColumnIsRefusedAsOutsideTheProjection (1 ms)
+[----------] 3 tests from ForbiddenDoor (26 ms total)
 
 [----------] 3 tests from U6
 [ RUN      ] U6.CentsAndMillsScaleByTheirOwnFactorAndDollarsRoundTiesEven
@@ -30,10 +69,10 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 2 tests from ShareEra
 [ RUN      ] ShareEra.TheBreakIsExactlyTwoThousandTwentyFiveNovemberThird
-[       OK ] ShareEra.TheBreakIsExactlyTwoThousandTwentyFiveNovemberThird (0 ms)
+[       OK ] ShareEra.TheBreakIsExactlyTwoThousandTwentyFiveNovemberThird (4 ms)
 [ RUN      ] ShareEra.NegativeSizesPassThroughAndOverflowRefusesInsteadOfSaturating
 [       OK ] ShareEra.NegativeSizesPassThroughAndOverflowRefusesInsteadOfSaturating (0 ms)
-[----------] 2 tests from ShareEra (0 ms total)
+[----------] 2 tests from ShareEra (4 ms total)
 
 [----------] 1 test from Rights
 [ RUN      ] Rights.ParseTheFrozenTokenSetAndKeepUnknownTokensOther
@@ -55,124 +94,254 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] Midpoint.IsComputedFromBothSidesAndNeverReadFromTheVendorColumn (0 ms)
 [----------] 1 test from Midpoint (0 ms total)
 
-[----------] 7 tests from StockQuotes
+[----------] 4 tests from GroupTape
+[ RUN      ] GroupTape.EqualMillisecondRunsBecomeOneGroupAndMultiplicityIsPreserved
+[       OK ] GroupTape.EqualMillisecondRunsBecomeOneGroupAndMultiplicityIsPreserved (0 ms)
+[ RUN      ] GroupTape.AGroupStraddlingAChunkBoundaryIsDeliveredOnceAndWhole
+[       OK ] GroupTape.AGroupStraddlingAChunkBoundaryIsDeliveredOnceAndWhole (0 ms)
+[ RUN      ] GroupTape.InGroupOrderIsCanonicalSoAnInputPermutationIsInvisible
+[       OK ] GroupTape.InGroupOrderIsCanonicalSoAnInputPermutationIsInvisible (0 ms)
+[ RUN      ] GroupTape.AnEmptyChunkDeliversNothingAndKeepsTheCarry
+[       OK ] GroupTape.AnEmptyChunkDeliversNothingAndKeepsTheCarry (0 ms)
+[----------] 4 tests from GroupTape (0 ms total)
+
+[----------] 2 tests from GroupFixtures
+[ RUN      ] GroupFixtures.PermutingRowsInsideEveryEqualTimeGroupProducesByteIdenticalGroups
+[       OK ] GroupFixtures.PermutingRowsInsideEveryEqualTimeGroupProducesByteIdenticalGroups (15 ms)
+[ RUN      ] GroupFixtures.TwoRunsOverTheSameFixtureAreByteIdentical
+[       OK ] GroupFixtures.TwoRunsOverTheSameFixtureAreByteIdentical (4 ms)
+[----------] 2 tests from GroupFixtures (19 ms total)
+
+[----------] 8 tests from StockQuotes
 [ RUN      ] StockQuotes.TheFixtureSessionMatchesEveryDerivedLiteral
 [       OK ] StockQuotes.TheFixtureSessionMatchesEveryDerivedLiteral (2 ms)
 [ RUN      ] StockQuotes.RowGroupsOutsideTheWindowArePrunedAndNeverDecoded
-[       OK ] StockQuotes.RowGroupsOutsideTheWindowArePrunedAndNeverDecoded (1 ms)
+[       OK ] StockQuotes.RowGroupsOutsideTheWindowArePrunedAndNeverDecoded (2 ms)
 [ RUN      ] StockQuotes.TheRegistryRowDecidesTheProfileAndACallerCannotOverrideIt
 [       OK ] StockQuotes.TheRegistryRowDecidesTheProfileAndACallerCannotOverrideIt (0 ms)
 [ RUN      ] StockQuotes.AFileDisagreeingWithItsRegistryProfileIsRefusedNotAdapted
-[       OK ] StockQuotes.AFileDisagreeingWithItsRegistryProfileIsRefusedNotAdapted (22 ms)
+[       OK ] StockQuotes.AFileDisagreeingWithItsRegistryProfileIsRefusedNotAdapted (4 ms)
+[ RUN      ] StockQuotes.TheDollarProfileSessionNormalizesToTheSameU6AndShareValues
+[       OK ] StockQuotes.TheDollarProfileSessionNormalizesToTheSameU6AndShareValues (3 ms)
 [ RUN      ] StockQuotes.ARowMixingNullAndNonNullNbboFieldsRefusesAndTheSentinelIsCounted
-[       OK ] StockQuotes.ARowMixingNullAndNonNullNbboFieldsRefusesAndTheSentinelIsCounted (4 ms)
+[       OK ] StockQuotes.ARowMixingNullAndNonNullNbboFieldsRefusesAndTheSentinelIsCounted (3 ms)
 [ RUN      ] StockQuotes.ADescendingTapeRefusesInsteadOfBeingSortedIntoSilence
-[       OK ] StockQuotes.ADescendingTapeRefusesInsteadOfBeingSortedIntoSilence (5 ms)
+[       OK ] StockQuotes.ADescendingTapeRefusesInsteadOfBeingSortedIntoSilence (4 ms)
 [ RUN      ] StockQuotes.PageVersionTwoDecodesToTheSameSession
-[       OK ] StockQuotes.PageVersionTwoDecodesToTheSameSession (6 ms)
-[----------] 7 tests from StockQuotes (42 ms total)
+[       OK ] StockQuotes.PageVersionTwoDecodesToTheSameSession (5 ms)
+[----------] 8 tests from StockQuotes (25 ms total)
 
 [----------] 2 tests from StockTrades
 [ RUN      ] StockTrades.TheFixtureSessionMatchesEveryDerivedLiteral
-[       OK ] StockTrades.TheFixtureSessionMatchesEveryDerivedLiteral (5 ms)
+[       OK ] StockTrades.TheFixtureSessionMatchesEveryDerivedLiteral (3 ms)
 [ RUN      ] StockTrades.APriceColumnOutsideTheMeasuredProfileRefuses
 [       OK ] StockTrades.APriceColumnOutsideTheMeasuredProfileRefuses (3 ms)
-[----------] 2 tests from StockTrades (9 ms total)
+[----------] 2 tests from StockTrades (6 ms total)
 
-[----------] 2 tests from OptionPrints
+[----------] 7 tests from OptionPrints
 [ RUN      ] OptionPrints.TheFixtureSessionMatchesEveryDerivedLiteral
-qr_sources/tests/test_readers.cpp:298: Failure
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:361: Failure
 Value of: opened.has_value()
   Actual: false
 Expected: true
 SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (options_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/op_compact/2022/2022-07-05.parquet
 
-[  FAILED  ] OptionPrints.TheFixtureSessionMatchesEveryDerivedLiteral (4 ms)
-[ RUN      ] OptionPrints.TheDeferredWideProfileIsRefusedAtOpen
-[       OK ] OptionPrints.TheDeferredWideProfileIsRefusedAtOpen (4 ms)
-[----------] 2 tests from OptionPrints (9 ms total)
+[  FAILED  ] OptionPrints.TheFixtureSessionMatchesEveryDerivedLiteral (2 ms)
+[ RUN      ] OptionPrints.EveryCc013ColumnDecodesToItsOwnDerivedLiteral
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:457: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (options_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/op_compact/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:518: Failure
+Value of: rows.empty()
+  Actual: true
+Expected: false
+
+[  FAILED  ] OptionPrints.EveryCc013ColumnDecodesToItsOwnDerivedLiteral (2 ms)
+[ RUN      ] OptionPrints.ACc013ColumnsAbsenceSetsExactlyItsOwnMaskBit
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:457: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (options_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/op_compact/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:550: Failure
+Expected: (rows.size()) >= (2U), actual: 0 vs 2
+
+[  FAILED  ] OptionPrints.ACc013ColumnsAbsenceSetsExactlyItsOwnMaskBit (2 ms)
+[ RUN      ] OptionPrints.ANonFiniteCc013ValueIsRetainedRawAndIsNotAnAbsence
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:457: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (options_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/op_compact/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:569: Failure
+Expected: (rows.size()) >= (3U), actual: 0 vs 3
+
+[  FAILED  ] OptionPrints.ANonFiniteCc013ValueIsRetainedRawAndIsNotAnAbsence (2 ms)
+[ RUN      ] OptionPrints.TheThirdOrderCompletenessCounterCountsTheCc013BlockAlone
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:587: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (options_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/op_compact/2022/2022-07-05.parquet
+
+[  FAILED  ] OptionPrints.TheThirdOrderCompletenessCounterCountsTheCc013BlockAlone (2 ms)
+[ RUN      ] OptionPrints.TheWideEncodingOfTheSameCorpusNormalisesToTheCompactValues
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:617: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (options_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/op_compact/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:617: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (options_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/op_wide/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_sources/tests/test_readers.cpp:639: Failure
+Value of: compact.empty()
+  Actual: true
+Expected: false
+
+[  FAILED  ] OptionPrints.TheWideEncodingOfTheSameCorpusNormalisesToTheCompactValues (4 ms)
+[ RUN      ] OptionPrints.TheDeferredRutwModalityIsRefusedByNameBeforeAPathIsFormed
+[       OK ] OptionPrints.TheDeferredRutwModalityIsRefusedByNameBeforeAPathIsFormed (0 ms)
+[----------] 7 tests from OptionPrints (16 ms total)
 
 [----------] 2 tests from OptionQuotes
 [ RUN      ] OptionQuotes.TheFlatLayoutIsOneShardAndTheShardedLayoutIsChainedInSortedOrder
-[       OK ] OptionQuotes.TheFlatLayoutIsOneShardAndTheShardedLayoutIsChainedInSortedOrder (16 ms)
+[       OK ] OptionQuotes.TheFlatLayoutIsOneShardAndTheShardedLayoutIsChainedInSortedOrder (24 ms)
 [ RUN      ] OptionQuotes.ASessionTheCorpusDoesNotCoverIsModalityAbsent
-[       OK ] OptionQuotes.ASessionTheCorpusDoesNotCoverIsModalityAbsent (2 ms)
-[----------] 2 tests from OptionQuotes (18 ms total)
+[       OK ] OptionQuotes.ASessionTheCorpusDoesNotCoverIsModalityAbsent (3 ms)
+[----------] 2 tests from OptionQuotes (28 ms total)
+
+[----------] 12 tests from RutwPrints
+[ RUN      ] RutwPrints.TheColumnLawIsByteForByteAppendixB3s
+[       OK ] RutwPrints.TheColumnLawIsByteForByteAppendixB3s (0 ms)
+[ RUN      ] RutwPrints.EveryHardRefusedColumnOfTheRutwCorpusRefusesAtTheDecodeDoor
+[       OK ] RutwPrints.EveryHardRefusedColumnOfTheRutwCorpusRefusesAtTheDecodeDoor (4 ms)
+[ RUN      ] RutwPrints.TheFixtureSessionMatchesEveryDerivedLiteral
+/workspace/engine/cpp/qr_sources/tests/test_rutw_prints.cpp:160: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (rutw_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/RUTW/rp_wide/2022/2022-07-05.parquet
+
+[  FAILED  ] RutwPrints.TheFixtureSessionMatchesEveryDerivedLiteral (2 ms)
+[ RUN      ] RutwPrints.TheWidePhysicalTypesDecodeAtTheirEdges
+/workspace/engine/cpp/qr_sources/tests/test_rutw_prints.cpp:210: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (rutw_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/RUTW/rp_wide/2022/2022-07-05.parquet
+
+[  FAILED  ] RutwPrints.TheWidePhysicalTypesDecodeAtTheirEdges (2 ms)
+[ RUN      ] RutwPrints.IwmCompactBytesUnderARutwRootAreRefusedByTheProfilePin
+[       OK ] RutwPrints.IwmCompactBytesUnderARutwRootAreRefusedByTheProfilePin (4 ms)
+[ RUN      ] RutwPrints.ARootNamingNoRutwModalityIsRefusedBeforeAPathIsFormed
+[       OK ] RutwPrints.ARootNamingNoRutwModalityIsRefusedBeforeAPathIsFormed (0 ms)
+[ RUN      ] RutwPrints.TheIwmPrintReaderStillRefusesRutwBytesItsOwnProfilePinWouldAdmit
+/workspace/engine/cpp/qr_sources/tests/test_rutw_prints.cpp:290: Failure
+Value of: lawful.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (rutw_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/RUTW/rp_wide/2022/2022-07-05.parquet
+
+[  FAILED  ] RutwPrints.TheIwmPrintReaderStillRefusesRutwBytesItsOwnProfilePinWouldAdmit (4 ms)
+[ RUN      ] RutwPrints.TheRegistrySessionWallFiresBeforeAnyRutwPathExists
+[       OK ] RutwPrints.TheRegistrySessionWallFiresBeforeAnyRutwPathExists (4 ms)
+[ RUN      ] RutwPrints.BothAttachmentClocksAreCensusedAndNeitherIsEverApplied
+/workspace/engine/cpp/qr_sources/tests/test_rutw_prints.cpp:334: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (rutw_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/RUTW/rp_wide/2022/2022-07-05.parquet
+
+[  FAILED  ] RutwPrints.BothAttachmentClocksAreCensusedAndNeitherIsEverApplied (2 ms)
+[ RUN      ] RutwPrints.TheJunkCensusCountsItsFourCausesAndDropsNothing
+/workspace/engine/cpp/qr_sources/tests/test_rutw_prints.cpp:378: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (rutw_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/RUTW/rp_wide/2022/2022-07-05.parquet
+
+[  FAILED  ] RutwPrints.TheJunkCensusCountsItsFourCausesAndDropsNothing (2 ms)
+[ RUN      ] RutwPrints.CoverageCountsDistinctContractsExpiriesAndStrikes
+/workspace/engine/cpp/qr_sources/tests/test_rutw_prints.cpp:416: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (rutw_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/RUTW/rp_wide/2022/2022-07-05.parquet
+
+[  FAILED  ] RutwPrints.CoverageCountsDistinctContractsExpiriesAndStrikes (2 ms)
+[ RUN      ] RutwPrints.TwoReadsAndAPermutedTapeSerializeToIdenticalBytes
+/workspace/engine/cpp/qr_sources/tests/test_rutw_prints.cpp:441: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (rutw_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/RUTW/rp_wide/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_sources/tests/test_rutw_prints.cpp:441: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (rutw_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/RUTW/rp_wide/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_sources/tests/test_rutw_prints.cpp:441: Failure
+Value of: opened.has_value()
+  Actual: false
+Expected: true
+SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (rutw_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/RUTW/rp_permuted/2022/2022-07-05.parquet
+
+/workspace/engine/cpp/qr_sources/tests/test_rutw_prints.cpp:463: Failure
+Value of: first.empty()
+  Actual: true
+Expected: false
+
+[  FAILED  ] RutwPrints.TwoReadsAndAPermutedTapeSerializeToIdenticalBytes (9 ms)
+[----------] 12 tests from RutwPrints (41 ms total)
 
 [----------] 4 tests from RealSources
 [ RUN      ] RealSources.StockTradesSessionOneTwentyFiveMatchesTheCommittedDigests
-[       OK ] RealSources.StockTradesSessionOneTwentyFiveMatchesTheCommittedDigests (392 ms)
+[       OK ] RealSources.StockTradesSessionOneTwentyFiveMatchesTheCommittedDigests (345 ms)
 [ RUN      ] RealSources.OptionPrintsSessionOneTwentyFiveMatchesTheCommittedDigests
-qr_sources/tests/test_real_file.cpp:84: Failure
+/workspace/engine/cpp/qr_sources/tests/test_real_file.cpp:84: Failure
 Value of: opened.has_value()
   Actual: false
 Expected: true
 SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (options_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/data/tokens/options_prints/IWM/2022/2022-07-05.parquet
 
-[  FAILED  ] RealSources.OptionPrintsSessionOneTwentyFiveMatchesTheCommittedDigests (10 ms)
+[  FAILED  ] RealSources.OptionPrintsSessionOneTwentyFiveMatchesTheCommittedDigests (17 ms)
 [ RUN      ] RealSources.TheStockQuoteRegistryCountsAreCommittedAndAgreeWithTheRegistryItself
 [       OK ] RealSources.TheStockQuoteRegistryCountsAreCommittedAndAgreeWithTheRegistryItself (2 ms)
 [ RUN      ] RealSources.TheAuthorizedOptionQuoteShardStillMatchesItsPins
-[       OK ] RealSources.TheAuthorizedOptionQuoteShardStillMatchesItsPins (35 ms)
-[----------] 4 tests from RealSources (442 ms total)
-
-[----------] 4 tests from SpecLaws
-[ RUN      ] SpecLaws.EveryPinnedSpecIsWellformedAndEveryBrokenOneIsRejected
-[       OK ] SpecLaws.EveryPinnedSpecIsWellformedAndEveryBrokenOneIsRejected (0 ms)
-[ RUN      ] SpecLaws.TheFourProjectionsAreExactlyAppendixB
-qr_sources/tests/test_stream_spec.cpp:116: Failure
-Expected equality of these values:
-  prints
-    Which is: { 1, 2, 3, 4, 5, 10, 11, 13, 14, 20, 21, 22, 34, 36, 37, 39, 40, 42, 43, 46 }
-  (std::vector<std::size_t>{1, 2, 3, 4, 5, 10, 11, 13, 14, 20, 21, 22, 34, 36, 37, 39, 40, 42, 43, 45})
-    Which is: { 1, 2, 3, 4, 5, 10, 11, 13, 14, 20, 21, 22, 34, 36, 37, 39, 40, 42, 43, 45 }
-
-[  FAILED  ] SpecLaws.TheFourProjectionsAreExactlyAppendixB (0 ms)
-[ RUN      ] SpecLaws.TheWalledColumnsAreExactlyAppendixB
-[       OK ] SpecLaws.TheWalledColumnsAreExactlyAppendixB (0 ms)
-[ RUN      ] SpecLaws.TheSingleLegPrintConditionSetIsExposedAsAField
-[       OK ] SpecLaws.TheSingleLegPrintConditionSetIsExposedAsAField (0 ms)
-[----------] 4 tests from SpecLaws (0 ms total)
-
-[----------] 7 tests from SchemaGate
-[ RUN      ] SchemaGate.TheGoodFixtureGatesAndResolvesEveryProjectedForm
-[       OK ] SchemaGate.TheGoodFixtureGatesAndResolvesEveryProjectedForm (1 ms)
-[ RUN      ] SchemaGate.ARenamedColumnRefusesByNameBeforeAnyPayload
-[       OK ] SchemaGate.ARenamedColumnRefusesByNameBeforeAnyPayload (3 ms)
-[ RUN      ] SchemaGate.AWrongPhysicalTypeRefusesByName
-[       OK ] SchemaGate.AWrongPhysicalTypeRefusesByName (3 ms)
-[ RUN      ] SchemaGate.AColumnCountDriftRefusesBeforeAnyNameIsCompared
-[       OK ] SchemaGate.AColumnCountDriftRefusesBeforeAnyNameIsCompared (1 ms)
-[ RUN      ] SchemaGate.TheDeclaredProfileIsTheAuthorityOverTheFilesOwnForms
-[       OK ] SchemaGate.TheDeclaredProfileIsTheAuthorityOverTheFilesOwnForms (2 ms)
-[ RUN      ] SchemaGate.TheDeferredRutwWideProfileIsRefusedByTheCompactPrintReader
-qr_sources/tests/test_stream_spec.cpp:286: Failure
-Value of: good.has_value()
-  Actual: false
-Expected: true
-SCHEMA_MISMATCH at qr_sources::resolve_form: timestamp column is not a naive millisecond INT64 (options_prints.dt_prev_contract_ms (leaf 46) is INT64/NONE, not an admitted form of role TIMESTAMP_MS) [context=46] path=/workspace/engine/cpp/tests/fixtures/sources/op_compact/2022/2022-07-05.parquet
-
-[  FAILED  ] SchemaGate.TheDeferredRutwWideProfileIsRefusedByTheCompactPrintReader (2 ms)
-[ RUN      ] SchemaGate.BothOptionQuoteProfilesAreDetectedFromTheFilesOwnSchema
-[       OK ] SchemaGate.BothOptionQuoteProfilesAreDetectedFromTheFilesOwnSchema (2 ms)
-[----------] 7 tests from SchemaGate (16 ms total)
-
-[----------] 3 tests from ForbiddenDoor
-[ RUN      ] ForbiddenDoor.PriceLeadOneRefusesByNameAndByIndexWithoutTouchingItsBytes
-[       OK ] ForbiddenDoor.PriceLeadOneRefusesByNameAndByIndexWithoutTouchingItsBytes (1 ms)
-[ RUN      ] ForbiddenDoor.EveryWalledColumnOfEveryStreamRefusesOnARealFixtureFile
-[       OK ] ForbiddenDoor.EveryWalledColumnOfEveryStreamRefusesOnARealFixtureFile (5 ms)
-[ RUN      ] ForbiddenDoor.AnUnprojectedButUnwalledColumnIsRefusedAsOutsideTheProjection
-[       OK ] ForbiddenDoor.AnUnprojectedButUnwalledColumnIsRefusedAsOutsideTheProjection (1 ms)
-[----------] 3 tests from ForbiddenDoor (8 ms total)
+[       OK ] RealSources.TheAuthorizedOptionQuoteShardStillMatchesItsPins (30 ms)
+[----------] 4 tests from RealSources (396 ms total)
 
 [----------] Global test environment tear-down
-[==========] 46 tests from 16 test suites ran. (580 ms total)
-[  PASSED  ] 42 tests.
-[  FAILED  ] 4 tests, listed below:
-[  FAILED  ] OptionPrints.TheFixtureSessionMatchesEveryDerivedLiteral
-[  FAILED  ] RealSources.OptionPrintsSessionOneTwentyFiveMatchesTheCommittedDigests
+[==========] 64 tests from 17 test suites ran. (609 ms total)
+[  PASSED  ] 48 tests.
+[  FAILED  ] 16 tests, listed below:
 [  FAILED  ] SpecLaws.TheFourProjectionsAreExactlyAppendixB
 [  FAILED  ] SchemaGate.TheDeferredRutwWideProfileIsRefusedByTheCompactPrintReader
+[  FAILED  ] OptionPrints.TheFixtureSessionMatchesEveryDerivedLiteral
+[  FAILED  ] OptionPrints.EveryCc013ColumnDecodesToItsOwnDerivedLiteral
+[  FAILED  ] OptionPrints.ACc013ColumnsAbsenceSetsExactlyItsOwnMaskBit
+[  FAILED  ] OptionPrints.ANonFiniteCc013ValueIsRetainedRawAndIsNotAnAbsence
+[  FAILED  ] OptionPrints.TheThirdOrderCompletenessCounterCountsTheCc013BlockAlone
+[  FAILED  ] OptionPrints.TheWideEncodingOfTheSameCorpusNormalisesToTheCompactValues
+[  FAILED  ] RutwPrints.TheFixtureSessionMatchesEveryDerivedLiteral
+[  FAILED  ] RutwPrints.TheWidePhysicalTypesDecodeAtTheirEdges
+[  FAILED  ] RutwPrints.TheIwmPrintReaderStillRefusesRutwBytesItsOwnProfilePinWouldAdmit
+[  FAILED  ] RutwPrints.BothAttachmentClocksAreCensusedAndNeitherIsEverApplied
+[  FAILED  ] RutwPrints.TheJunkCensusCountsItsFourCausesAndDropsNothing
+[  FAILED  ] RutwPrints.CoverageCountsDistinctContractsExpiriesAndStrikes
+[  FAILED  ] RutwPrints.TwoReadsAndAPermutedTapeSerializeToIdenticalBytes
+[  FAILED  ] RealSources.OptionPrintsSessionOneTwentyFiveMatchesTheCommittedDigests
 
- 4 FAILED TESTS
+16 FAILED TESTS

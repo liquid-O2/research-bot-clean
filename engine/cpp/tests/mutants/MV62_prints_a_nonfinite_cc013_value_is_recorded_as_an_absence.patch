@@ -1,0 +1,12 @@
+--- a/qr_sources/src/option_prints.cpp
++++ b/qr_sources/src/option_prints.cpp
+@@ -431,6 +431,9 @@
+       if (!value.has_value()) {
+         return source.refuse<bool>(value.error());
+       }
++      if (!(value.value() > -1e308 && value.value() < 1e308)) {
++        built.null_mask |= std::uint32_t{1} << kPrintRealSlots[index];
++      }
+       reals[index] = value.value();
+     }
+     built.delta = reals[0];

@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/column_census.cpp
++++ b/qr_ivx/src/column_census.cpp
+@@ -142,7 +142,7 @@
+     return SpecStanding::PROJECTED;
+   }
+   if (column == "vega" || column == "iv_error") {
+-    return SpecStanding::UNPROJECTED;
++    return SpecStanding::HARD_REFUSED;
+   }
+   return SpecStanding::HARD_REFUSED;
+ }

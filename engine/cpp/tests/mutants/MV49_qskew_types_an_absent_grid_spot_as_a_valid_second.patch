@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/quote_skew.cpp
++++ b/qr_ivx/src/quote_skew.cpp
+@@ -139,7 +139,7 @@
+   }
+   const std::int64_t spot = (*grid_mid_u6_)[static_cast<std::size_t>(second)];
+   if (spot <= 0) {
+-    out.state = Validity::MISSING;
++    out.state = Validity::VALID;
+     return out;
+   }
+   out.spot_u6 = spot;

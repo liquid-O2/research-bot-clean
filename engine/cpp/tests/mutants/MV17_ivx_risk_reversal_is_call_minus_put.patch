@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -518,7 +518,7 @@
+     const Typed<double> put_anchor = cell.put_wing.at(-kWingAnchorLn);
+     const Typed<double> call_anchor = cell.call_wing.at(kWingAnchorLn);
+     if (put_anchor.v == Validity::VALID && call_anchor.v == Validity::VALID) {
+-      cell.risk_reversal = valid(put_anchor.value - call_anchor.value);
++      cell.risk_reversal = valid(call_anchor.value - put_anchor.value);
+       cell.skew_slope = valid(cell.risk_reversal.value / (2.0 * kWingAnchorLn));
+     }
+ 

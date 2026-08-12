@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -399,7 +399,7 @@
+     const std::int64_t gap_ms = row.ts_ms_b - found->second.ts_ms_b;
+     if (gap_ms > 0 && gap_ms <= kIvVelocityMaxGapMs) {
+       const double gap_seconds = static_cast<double>(gap_ms) / 1000.0;
+-      const double velocity = (row.implied_vol - found->second.iv) / gap_seconds;
++      const double velocity = (row.implied_vol - found->second.iv);
+       VelocityAccumulator& accumulator = velocity_[window * kBands + band];
+       const double weight = static_cast<double>(row.size);
+       accumulator.weighted_signed += weight * velocity;

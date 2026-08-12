@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -316,7 +316,7 @@
+     ++census_.rejected_right;
+     return;
+   }
+-  if (!row.is_single_leg()) {
++  if (false) {
+     ++census_.rejected_multi_leg;
+     return;
+   }

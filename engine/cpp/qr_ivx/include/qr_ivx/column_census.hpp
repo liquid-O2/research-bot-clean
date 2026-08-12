@@ -97,6 +97,8 @@ struct ColumnStat {
   std::int64_t leaf = -1;
   /// The dialect-narrowed leaf type the reader gated the file against.
   qr::parquet::LeafType leaf_type = qr::parquet::LeafType::INT64;
+  /// The dialect-narrowed converted type (UTF8/DATE/...), or NONE.
+  qr::parquet::LeafConverted converted = qr::parquet::LeafConverted::NONE;
   /// Raw parquet.thrift `Type` enum of the column chunks.
   std::int32_t physical_type = -1;
   StatKind kind = StatKind::NONE;

@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/column_census.cpp
++++ b/qr_ivx/src/column_census.cpp
+@@ -222,7 +222,7 @@
+     return 0;
+   }
+   // 1e6 * present / num_values, exact, no floating point.
+-  return (present * 1'000'000) / stat.num_values;
++  return (present * 100) / stat.num_values;
+ }
+ 
+ Expected<SessionColumnCensus, Refusal> census_print_columns(

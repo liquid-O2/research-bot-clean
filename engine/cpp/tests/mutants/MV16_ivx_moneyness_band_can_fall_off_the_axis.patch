@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -118,7 +118,7 @@
+       return index;
+     }
+   }
+-  return kMoneynessEdgesBps.size();
++  return kMoneynessEdgesBps.size() + 1;
+ }
+ 
+ std::string band_label(std::size_t band) {

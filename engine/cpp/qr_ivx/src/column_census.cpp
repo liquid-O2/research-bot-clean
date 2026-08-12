@@ -282,6 +282,7 @@ Expected<SessionColumnCensus, Refusal> census_print_columns(
       stat.in_schema = true;
       stat.leaf = leaf;
       stat.leaf_type = column.type;
+      stat.converted = column.converted;
 
       for (const qr::parquet::RowGroupMeta& group : file.metadata().row_groups) {
         if (static_cast<std::int64_t>(group.columns.size()) <= leaf) {

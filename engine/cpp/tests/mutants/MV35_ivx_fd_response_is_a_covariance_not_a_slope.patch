@@ -1,0 +1,11 @@
+--- a/qr_ivx/src/iv_cross.cpp
++++ b/qr_ivx/src/iv_cross.cpp
+@@ -789,7 +789,7 @@
+       }
+       const double denominator = n * sxx - sx * sx;
+       if (std::isfinite(denominator) && denominator != 0.0) {
+-        out_window.fd_chi = valid((n * sxy - sx * sy) / denominator);
++        out_window.fd_chi = valid((n * sxy - sx * sy) / (n * n));
+       } else {
+         out_window.fd_chi = absent(Validity::NONFINITE);
+       }

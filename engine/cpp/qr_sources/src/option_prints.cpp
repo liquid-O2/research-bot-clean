@@ -27,11 +27,16 @@ bool canonical_less(const OptionPrintRow& left, const OptionPrintRow& right) noe
   // Doubles compare by BIT PATTERN: `<` is not a total order on doubles (NaN
   // compares false against everything), and std::sort needs a strict weak
   // ordering or it is undefined behaviour.
-  const std::array<double, 6> left_reals{left.delta,       left.gamma,       left.vanna,
-                                         left.charm,       left.implied_vol, left.underlying_price};
-  const std::array<double, 6> right_reals{right.delta,       right.gamma,       right.vanna,
-                                          right.charm,       right.implied_vol,
-                                          right.underlying_price};
+  const std::array<double, 17> left_reals{
+      left.delta, left.vega,       left.gamma,      left.vanna,      left.charm,
+      left.vomma, left.veta,       left.vera,       left.speed,      left.zomma,
+      left.color, left.ultima,     left.dual_delta, left.dual_gamma, left.implied_vol,
+      left.iv_error, left.underlying_price};
+  const std::array<double, 17> right_reals{
+      right.delta, right.vega,       right.gamma,      right.vanna,      right.charm,
+      right.vomma, right.veta,       right.vera,       right.speed,      right.zomma,
+      right.color, right.ultima,     right.dual_delta, right.dual_gamma, right.implied_vol,
+      right.iv_error, right.underlying_price};
   for (std::size_t index = 0; index < left_reals.size(); ++index) {
     const std::uint64_t left_bits = double_bits(left_reals[index]);
     const std::uint64_t right_bits = double_bits(right_reals[index]);
@@ -60,10 +65,21 @@ void append_serialized(const OptionPrintRow& row, std::vector<std::uint8_t>& out
   append_i64(row.size, out);
   append_i64(row.price_u6, out);
   append_f64(row.delta, out);
+  append_f64(row.vega, out);
   append_f64(row.gamma, out);
   append_f64(row.vanna, out);
   append_f64(row.charm, out);
+  append_f64(row.vomma, out);
+  append_f64(row.veta, out);
+  append_f64(row.vera, out);
+  append_f64(row.speed, out);
+  append_f64(row.zomma, out);
+  append_f64(row.color, out);
+  append_f64(row.ultima, out);
+  append_f64(row.dual_delta, out);
+  append_f64(row.dual_gamma, out);
   append_f64(row.implied_vol, out);
+  append_f64(row.iv_error, out);
   append_text(row.underlying_ts_text.view(), out);
   append_f64(row.underlying_price, out);
   append_i64(row.bid_u6, out);
@@ -75,9 +91,9 @@ void append_serialized(const OptionPrintRow& row, std::vector<std::uint8_t>& out
 }
 
 void OptionPrintDigests::fold(const OptionPrintRow& row) noexcept {
-  // Slot order is projection order (B3's ADDENDUM 20), so a digest row can be
-  // read straight against the appendix.
-  const std::array<std::int64_t, 20> integers{
+  // Slot order is projection order (B3 as amended by CC-013: 31 leaves), so a
+  // digest row can be read straight against the appendix.
+  const std::array<std::int64_t, 31> integers{
       static_cast<std::int64_t>(row.expiration_day),
       row.strike_u6,
       static_cast<std::int64_t>(row.right),
@@ -86,17 +102,20 @@ void OptionPrintDigests::fold(const OptionPrintRow& row) noexcept {
       row.condition,
       row.size,
       row.price_u6,
-      0, 0, 0, 0, 0, 0, 0,  // the six reals and the text slot fold below
+      0, 0, 0, 0, 0, 0, 0, 0, 0,  // the sixteen reals fold below,
+      0, 0, 0, 0, 0, 0, 0, 0,     // as does the text slot
       row.bid_u6,
       row.bid_size,
       row.ask_u6,
       row.ask_size,
       row.quote_ts_ms_b};
-  const std::array<double, 6> reals{row.delta, row.gamma,       row.vanna,
-                                    row.charm, row.implied_vol, row.underlying_price};
-  constexpr std::array<std::size_t, 6> kRealSlots{kPrintSlotDelta,      kPrintSlotGamma,
-                                                  kPrintSlotVanna,      kPrintSlotCharm,
-                                                  kPrintSlotImpliedVol, kPrintSlotUnderlyingPrice};
+  const std::array<double, 16> reals{
+      row.delta, row.vega,       row.gamma,      row.vanna,      row.charm,
+      row.vomma, row.veta,       row.vera,       row.speed,      row.zomma,
+      row.color, row.ultima,     row.dual_delta, row.dual_gamma, row.implied_vol,
+      row.iv_error};
+  static_assert(kPrintRealSlots.size() == reals.size(),
+                "the real slot list and the real value list are one list in two places");
   for (std::size_t slot = 0; slot < field.size(); ++slot) {
     if (row.is_null(slot)) {
       field[slot].add_null();
@@ -106,9 +125,13 @@ void OptionPrintDigests::fold(const OptionPrintRow& row) noexcept {
       field[slot].add_text(row.underlying_ts_text.view());
       continue;
     }
+    if (slot == kPrintSlotUnderlyingPrice) {
+      field[slot].add_f64(row.underlying_price);
+      continue;
+    }
     bool is_real = false;
-    for (std::size_t index = 0; index < kRealSlots.size(); ++index) {
-      if (kRealSlots[index] == slot) {
+    for (std::size_t index = 0; index < kPrintRealSlots.size(); ++index) {
+      if (kPrintRealSlots[index] == slot) {
         field[slot].add_f64(reals[index]);
         is_real = true;
         break;
@@ -121,11 +144,13 @@ void OptionPrintDigests::fold(const OptionPrintRow& row) noexcept {
 }
 
 std::string_view OptionPrintDigests::field_name(std::size_t slot) noexcept {
-  static constexpr std::array<std::string_view, 20> kNames{
-      "expiration_day", "strike_u6",   "right",       "ts_ms_b",       "sequence",
-      "condition",      "size",        "price_u6",    "delta",         "gamma",
-      "vanna",          "charm",       "implied_vol", "underlying_ts_text",
-      "underlying_price", "bid_u6",    "bid_size",    "ask_u6",        "ask_size",
+  static constexpr std::array<std::string_view, 31> kNames{
+      "expiration_day", "strike_u6",  "right",      "ts_ms_b",     "sequence",
+      "condition",      "size",       "price_u6",   "delta",       "vega",
+      "gamma",          "vanna",      "charm",      "vomma",       "veta",
+      "vera",           "speed",      "zomma",      "color",       "ultima",
+      "dual_delta",     "dual_gamma", "implied_vol", "iv_error",   "underlying_ts_text",
+      "underlying_price", "bid_u6",   "bid_size",   "ask_u6",      "ask_size",
       "quote_ts_ms_b"};
   return slot < kNames.size() ? kNames[slot] : std::string_view{"?"};
 }
@@ -152,6 +177,7 @@ std::int64_t OptionPrintCensus::field(std::size_t index) const noexcept {
     case 13: return junk_right_rows;
     case 14: return junk_crossed_quote_rows;
     case 15: return junk_rows;
+    case 16: return third_order_complete_rows;
     default: return 0;
   }
 }
@@ -173,7 +199,8 @@ std::string_view OptionPrintCensus::field_name(std::size_t index) noexcept {
       "junk_size_rows",
       "junk_right_rows",
       "junk_crossed_quote_rows",
-      "junk_rows"};
+      "junk_rows",
+      "third_order_complete_rows"};
   return index < kNames.size() ? kNames[index] : std::string_view{"?"};
 }
 
@@ -205,7 +232,7 @@ void fold_census(OptionPrintCensus& census, const OptionPrintRow& row,
   }
 
   bool fully_populated = true;
-  for (std::size_t slot = 0; slot < 20; ++slot) {
+  for (std::size_t slot = 0; slot < kOptionPrintSpec.projection.size(); ++slot) {
     if (row.is_null(slot)) {
       fully_populated = false;
       break;
@@ -218,6 +245,22 @@ void fold_census(OptionPrintCensus& census, const OptionPrintRow& row,
       !row.is_null(kPrintSlotVanna) && !row.is_null(kPrintSlotCharm) &&
       !row.is_null(kPrintSlotImpliedVol);
   census.greek_complete_rows += greeks_complete ? 1 : 0;
+
+  // CC-013's own completeness counter, beside the old one. Its membership is
+  // exactly the admitted block, so a session where the vendor stopped writing
+  // the third-order columns is visible as a number and not as a silent zero.
+  bool third_order_complete = true;
+  for (const std::size_t slot : kPrintRealSlots) {
+    if (slot == kPrintSlotDelta || slot == kPrintSlotGamma || slot == kPrintSlotVanna ||
+        slot == kPrintSlotCharm || slot == kPrintSlotImpliedVol) {
+      continue;  // the pre-CC-013 block is counted by `greek_complete_rows`
+    }
+    if (row.is_null(slot)) {
+      third_order_complete = false;
+      break;
+    }
+  }
+  census.third_order_complete_rows += third_order_complete ? 1 : 0;
 
   // JUNK: the four mechanical ways a print cannot be what B3 says a print is.
   // Counted, never dropped.
@@ -377,24 +420,43 @@ FileExpected<bool> OptionPrintTape::fill(SessionSource& source) {
     built.bid_u6 = prices[2];
     built.ask_u6 = prices[3];
 
-    constexpr std::array<std::size_t, 6> kRealSlots{
-        kPrintSlotDelta, kPrintSlotGamma, kPrintSlotVanna,
-        kPrintSlotCharm, kPrintSlotImpliedVol, kPrintSlotUnderlyingPrice};
-    std::array<double, 6> reals{};
-    for (std::size_t index = 0; index < kRealSlots.size(); ++index) {
+    // The sixteen greek/IV reals (CC-013) plus underlying_price(37). Each is
+    // read through the SAME `read_nullable_f64` the original four greeks always
+    // used, so a null cell sets its own mask bit and a non-finite value is
+    // typed exactly as delta's would be — the new columns get no special case.
+    std::array<double, 16> reals{};
+    for (std::size_t index = 0; index < kPrintRealSlots.size(); ++index) {
       Expected<double, Refusal> value =
-          read_nullable_f64(source, kRealSlots[index], row, built.null_mask);
+          read_nullable_f64(source, kPrintRealSlots[index], row, built.null_mask);
       if (!value.has_value()) {
         return source.refuse<bool>(value.error());
       }
       reals[index] = value.value();
     }
     built.delta = reals[0];
-    built.gamma = reals[1];
-    built.vanna = reals[2];
-    built.charm = reals[3];
-    built.implied_vol = reals[4];
-    built.underlying_price = reals[5];
+    built.vega = reals[1];
+    built.gamma = reals[2];
+    built.vanna = reals[3];
+    built.charm = reals[4];
+    built.vomma = reals[5];
+    built.veta = reals[6];
+    built.vera = reals[7];
+    built.speed = reals[8];
+    built.zomma = reals[9];
+    built.color = reals[10];
+    built.ultima = reals[11];
+    built.dual_delta = reals[12];
+    built.dual_gamma = reals[13];
+    built.implied_vol = reals[14];
+    built.iv_error = reals[15];
+    {
+      Expected<double, Refusal> value =
+          read_nullable_f64(source, kPrintSlotUnderlyingPrice, row, built.null_mask);
+      if (!value.has_value()) {
+        return source.refuse<bool>(value.error());
+      }
+      built.underlying_price = value.value();
+    }
 
     constexpr std::array<std::size_t, 6> kIntSlots{kPrintSlotSequence, kPrintSlotCondition,
                                                    kPrintSlotSize,     kPrintSlotBidSize,

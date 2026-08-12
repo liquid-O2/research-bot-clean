@@ -260,7 +260,7 @@ TEST(PrefixSeal, AHeaderThatIsNotThePinnedHeaderRefuses) {
 TEST(PrefixSeal, AStopOrdinalPastTheWallIsRefusedBeforeAnyByteIsRead) {
   MemorySource source(read_whole_file(fixture_path("t14_bounds_good.tsv")));
   ReadStats stats;
-  const auto bounds = load_t14_bounds(source, 750, stats);
+  const auto bounds = load_t14_bounds(source, kMaxPrefixOrdinal + 1U, stats);
   ASSERT_FALSE(bounds.has_value());
   EXPECT_EQ(bounds.error().code(), qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE);
   EXPECT_EQ(stats.pread_calls, 0U);
@@ -286,10 +286,19 @@ TEST(PrefixSeal, TheProductionByteSizeGateRefusesAFileThatIsNotThePinnedSize) {
   EXPECT_EQ(seal.error().code(), qr::RefusalCode::SOURCE_AUTHENTICATION_FAILED);
 }
 
-TEST(PrefixSeal, TheFullScopeCensusGateRequiresTheDeclaredTenPointSevenMillionRows) {
+TEST(PrefixSeal, TheWallIsTheAmendedScopeWallAndItsRowCensusIsTheAmendedOne) {
+  // AMENDMENT 2026-08-12-c (D-038): the candidate publications may now be
+  // decoded through W = 917 (2025-08-29), and the full-seal row census is the
+  // t14 sum over 0..917. Both numbers are stated here so a silent drift of
+  // either one is a red test, not a quiet re-read of sealed sessions.
+  EXPECT_EQ(kMaxPrefixOrdinal, 917U);
+  EXPECT_EQ(kAdmittedRows0ToWall, 13'115'504ULL);
+}
+
+TEST(PrefixSeal, TheFullScopeCensusGateRequiresTheDeclaredRowCount) {
   auto bounds = load_fixture_bounds("t14_bounds_good.tsv", kStop);
   ASSERT_FALSE(bounds.empty());
-  // Present the fixture census as if it were the full 0..749 seal.
+  // Present the fixture census as if it were the full 0..W seal.
   bounds.resize(kMaxPrefixOrdinal + 1U, bounds.back());
   MemorySource source(read_whole_file(fixture_path("event_signals_good.tsv")));
   CollectingSink sink;
@@ -299,6 +308,11 @@ TEST(PrefixSeal, TheFullScopeCensusGateRequiresTheDeclaredTenPointSevenMillionRo
   const auto seal = seal_prefix(source, bounds, options, sink.sink());
   ASSERT_FALSE(seal.has_value());
   EXPECT_EQ(seal.error().code(), qr::RefusalCode::CONTENT_MISMATCH);
+  // It must be THE CENSUS GATE that refuses, not some later check that happens
+  // to share the code: without this the gate could be deleted and the test
+  // would still pass on a downstream refusal.
+  EXPECT_NE(std::string(seal.error().detail()).find("row census"), std::string::npos)
+      << "refused by '" << seal.error().detail() << "', not by the full-scope census gate";
 }
 
 TEST(PrefixSeal, ASinkRefusalStopsTheSealRatherThanBeingIgnored) {

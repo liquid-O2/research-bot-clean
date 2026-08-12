@@ -5,7 +5,7 @@
 //
 //   "Conflict: A3 'burn-in 0..124 warmup lawful' vs qr_registry 125-wall.
 //    RULING: a distinct `WarmupScope` type, constructible ONLY for ordinals
-//    0..124 (compile-disjoint from DayScope 125..749), accepted ONLY by
+//    0..124 (compile-disjoint from DayScope 125..917), accepted ONLY by
 //    prior-state accumulator entry points (carrier warmup). Candidate/label/
 //    emission APIs refuse WarmupScope (typed). Zero-leak rationale: ordinals
 //    0..124 (2022-01-03..2022-07-01) precede ALL folds chronologically and
@@ -50,7 +50,7 @@ namespace qr {
 
 /// The warmup calendar: 0-based ordinals 0..124 inclusive — the 125 sessions
 /// 2022-01-03..2022-07-01 that precede the scoped calendar and belong to no
-/// fold. CC-012's "compile-disjoint from DayScope 125..749" is the
+/// fold. CC-012's "compile-disjoint from DayScope 125..917" is the
 /// static_assert below: the two ranges cannot overlap by construction.
 inline constexpr std::int64_t kWarmupFirstOrdinal = 0;
 inline constexpr std::int64_t kWarmupLastOrdinal = 124;

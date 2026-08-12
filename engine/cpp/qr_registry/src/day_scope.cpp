@@ -17,7 +17,7 @@ Expected<DayScope, Refusal> DayScope::admit(const Registry& registry, std::int64
   if (ordinal < kScopeFirstOrdinal || ordinal > kScopeLastOrdinal) {
     return Expected<DayScope, Refusal>::refuse(
         Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
-                "ordinal outside the scoped calendar 125..749", ordinal));
+                "ordinal outside the scoped calendar 125..917", ordinal));
   }
   auto session = registry.session_at(ordinal);
   if (!session.has_value()) {

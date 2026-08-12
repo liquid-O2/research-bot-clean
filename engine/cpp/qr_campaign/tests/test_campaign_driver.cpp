@@ -328,8 +328,14 @@ TEST(CampaignOrdinalWall, TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed) {
   EXPECT_TRUE(refuse_unless_in_scope(125).has_value());
   EXPECT_TRUE(refuse_unless_in_scope(500).has_value());
   EXPECT_TRUE(refuse_unless_in_scope(749).has_value());
+  // AMENDMENT 2026-08-12-c (D-038): the wall moved to W = 917 (2025-08-29).
+  EXPECT_TRUE(refuse_unless_in_scope(750).has_value());
+  EXPECT_TRUE(refuse_unless_in_scope(917).has_value());
+  // The sealed zone stays sealed: 918 is the first session at/after 2025-09-01,
+  // 962 is the share-era boundary, 1001/1002 are the profile flips.
   for (const std::int64_t ordinal : {std::int64_t{-1}, std::int64_t{0}, std::int64_t{124},
-                                     std::int64_t{750}, std::int64_t{962}, std::int64_t{1002}}) {
+                                     std::int64_t{918}, std::int64_t{962}, std::int64_t{1001},
+                                     std::int64_t{1002}}) {
     const Status refused = refuse_unless_in_scope(ordinal);
     ASSERT_FALSE(refused.has_value()) << ordinal << " must not be admissible";
     EXPECT_EQ(refused.error().code(), RefusalCode::ORDINAL_OUTSIDE_SCOPE);
@@ -339,6 +345,8 @@ TEST(CampaignOrdinalWall, TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed) {
   }
   EXPECT_EQ(session_dir_name(125).value(), "s0125");
   EXPECT_EQ(session_dir_name(749).value(), "s0749");
+  EXPECT_EQ(session_dir_name(750).value(), "s0750");
+  EXPECT_EQ(session_dir_name(917).value(), "s0917");
 }
 
 TEST(CampaignOrdinalWall, TheSessionListParserRefusesAnyOutOfScopeElement) {
@@ -348,15 +356,22 @@ TEST(CampaignOrdinalWall, TheSessionListParserRefusesAnyOutOfScopeElement) {
 
   auto all = parse_session_list("all");
   ASSERT_TRUE(all.has_value());
-  EXPECT_EQ(all.value().size(), 625U);
+  EXPECT_EQ(all.value().size(), 793U);
   EXPECT_EQ(all.value().front(), 125);
-  EXPECT_EQ(all.value().back(), 749);
+  EXPECT_EQ(all.value().back(), 917);
+
+  // The newly opened range parses as a range, and the first sealed session does not.
+  auto extension = parse_session_list("750-917");
+  ASSERT_TRUE(extension.has_value());
+  EXPECT_EQ(extension.value().size(), 168U);
+  EXPECT_EQ(extension.value().front(), 750);
+  EXPECT_EQ(extension.value().back(), 917);
 
   auto range = parse_session_list("646-647,125");
   ASSERT_TRUE(range.has_value());
   EXPECT_EQ(range.value(), (std::vector<std::int64_t>{125, 646, 647}));
 
-  for (const char* spec : {"124", "750", "700-800", "0", "", "12a", "200-100"}) {
+  for (const char* spec : {"124", "918", "900-1000", "962", "0", "", "12a", "200-100"}) {
     EXPECT_FALSE(parse_session_list(spec).has_value()) << spec << " must refuse";
   }
 }

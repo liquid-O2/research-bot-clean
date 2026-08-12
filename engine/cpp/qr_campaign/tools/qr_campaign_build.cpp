@@ -103,7 +103,7 @@ int usage() {
                "              stands: every manifest names the card it was built against,\n"
                "              and an ancestor is valid while every later amendment is\n"
                "              declared outside the tape read scope.\n"
-               "  --sessions  `all` (125..749), a comma list (`125,500,625`) or ranges\n"
+               "  --sessions  `all` (125..917), a comma list (`125,500,625`) or ranges\n"
                "              (`125-200`). The R1 probe object is `125,500,625`.\n"
                "  --run2      publish into <root>/run2 instead of <root>/run1.\n");
   return 2;

@@ -128,7 +128,11 @@ TEST(WarmupLawfulness, TheDecisionPathCannotTakeAWarmupSession) {
   }
   EXPECT_TRUE(qr::wave2::admit_decision_ordinal(125).has_value());
   EXPECT_TRUE(qr::wave2::admit_decision_ordinal(749).has_value());
-  EXPECT_FALSE(qr::wave2::admit_decision_ordinal(750).has_value());
+  // AMENDMENT 2026-08-12-c: the decision calendar now runs to W = 917.
+  EXPECT_TRUE(qr::wave2::admit_decision_ordinal(750).has_value());
+  EXPECT_TRUE(qr::wave2::admit_decision_ordinal(917).has_value());
+  EXPECT_FALSE(qr::wave2::admit_decision_ordinal(918).has_value());
+  EXPECT_FALSE(qr::wave2::admit_decision_ordinal(962).has_value());
 }
 
 // --- the burn-in itself ------------------------------------------------------

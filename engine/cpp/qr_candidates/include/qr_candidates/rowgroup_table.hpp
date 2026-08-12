@@ -43,7 +43,7 @@ namespace qr::candidates {
 
 /// The wall this module never crosses (card section 1: "Any path/session >=750
 /// ... is refused before payload resolution").
-inline constexpr std::uint32_t kMaxSessionOrdinal = 749;
+inline constexpr std::uint32_t kMaxSessionOrdinal = 917;  // AMENDMENT 2026-08-12-c (was 749)
 /// Every publication in this program carries one row group per calendar
 /// session of the 1,003-session registry.
 inline constexpr std::size_t kPublicationRowGroups = 1003;
@@ -69,9 +69,9 @@ class SessionIndex {
   [[nodiscard]] static Expected<SessionIndex, Refusal> parse_without_digest_gate(
       std::string_view text);
 
-  /// Index row for `ordinal`. Refuses past 749 and refuses a row whose own
+  /// Index row for `ordinal`. Refuses past 917 and refuses a row whose own
   /// `ordinal` cell is not `ordinal` (card: "requiring index row `i` to have
-  /// `ordinal=i<=749`").
+  /// `ordinal=i<=917`").
   [[nodiscard]] Expected<const SessionIndexRow*, Refusal> at(std::uint32_t ordinal) const noexcept;
   [[nodiscard]] std::size_t size() const noexcept { return rows_.size(); }
   [[nodiscard]] const std::string& sha256() const noexcept { return sha256_; }

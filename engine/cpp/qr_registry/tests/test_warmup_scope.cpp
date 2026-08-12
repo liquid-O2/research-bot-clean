@@ -56,7 +56,8 @@ TEST(WarmupWall, RefusesTheFirstScopedOrdinalAndEverythingAboveIt) {
   EXPECT_EQ(last_warmup.value().day(), "2022-07-01");
 
   for (const std::int64_t ordinal : {std::int64_t{125}, std::int64_t{126}, std::int64_t{500},
-                                     std::int64_t{749}, std::int64_t{750}, std::int64_t{1002}}) {
+                                     std::int64_t{749}, std::int64_t{750}, std::int64_t{917},
+                                     std::int64_t{918}, std::int64_t{1002}}) {
     const auto refused = qr::WarmupScope::admit(*reg, ordinal);
     ASSERT_FALSE(refused.has_value()) << "warmup wall admitted ordinal " << ordinal;
     EXPECT_EQ(refused.error().code(), qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE);
@@ -94,7 +95,7 @@ TEST(WarmupWall, TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry) {
     const bool warmup = qr::WarmupScope::admit(*reg, ordinal).has_value();
     const bool scoped = qr::DayScope::admit(*reg, ordinal).has_value();
     both += (warmup && scoped) ? 1 : 0;
-    // Ordinals past 749 belong to neither calendar BY DESIGN (the s750+ wall),
+    // Ordinals past W belong to neither calendar BY DESIGN (the s918+ wall),
     // so "neither" is counted, not asserted away.
     neither += (!warmup && !scoped) ? 1 : 0;
   }

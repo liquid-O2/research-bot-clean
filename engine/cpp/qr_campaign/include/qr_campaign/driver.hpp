@@ -2,7 +2,7 @@
 //
 // WHAT THIS MODULE IS. FINAL_PLAN.md §9 R2 ("corpus build (extraction + labels
 // + tensors; per-session shards)") needs ONE tool that produces the complete
-// APPENDIX C4 DecisionTape for all 625 scoped sessions by COMPOSING the modules
+// APPENDIX C4 DecisionTape for all 793 scoped sessions by COMPOSING the modules
 // M1 already built and reviewed: qr_candidates (roster + seal), qr_labels
 // (watches + kernel), qr_carriers (streams + DIRECT + native carriers + grid +
 // location + candidate set) and qr_emit (ShardWriter + fd census). It contains
@@ -12,7 +12,7 @@
 // the publish/resume discipline, and the deterministic receipts.
 //
 // THE HALF THAT LIVES IN THIS HEADER is the half that touches no payload, so
-// every law below is directly fixturable: the frozen-card gate, the 125..749
+// every law below is directly fixturable: the frozen-card gate, the 125..917
 // wall, the run layout, the task plan (resume), the shard emitter (stage →
 // no-replace publish) and the ordinal-ordered ledger. session_build.hpp holds
 // the half that opens the corpus.
@@ -24,7 +24,7 @@
 //      before it forms a single path and refuses on any mismatch. A campaign
 //      run is a claim about a frozen object; a drifted card is a different
 //      object.
-//   2. ORDINAL WALL (card §1: "Only sessions 125..749 are admissible. Any
+//   2. ORDINAL WALL (card §1 as amended 2026-08-12-c: "Only sessions 125..917 are admissible. Any
 //      path/session >=750 ... is refused before payload resolution"). The wall
 //      is applied to the REQUEST, before any root is composed — not deep inside
 //      a reader where a path has already been built.
@@ -52,6 +52,7 @@
 
 #include "qr_core/refusal.hpp"
 #include "qr_emit/shard_writer.hpp"
+#include "qr_registry/day_scope.hpp"
 
 namespace qr::campaign {
 
@@ -61,15 +62,20 @@ using qr::emit::ok_status;
 // ---------------------------------------------------------------------------
 // The frozen bindings. Card §1 A8: the substrate "hard-codes only
 // /workspace/data/tokens/{stock_trades,stock_quotes,options_prints}, IWM, and
-// 125..749 ... never opens `cutoff_context`, labels, option quotes, or a freely
+// 125..917 (amended 2026-08-12-c) ... never opens `cutoff_context`, labels, option quotes, or a freely
 // selected root". These are constants and not flags for exactly that reason.
 // ---------------------------------------------------------------------------
 
-inline constexpr std::int64_t kFirstScopedOrdinal = 125;
-inline constexpr std::int64_t kLastScopedOrdinal = 749;
+inline constexpr std::int64_t kFirstScopedOrdinal = qr::kScopeFirstOrdinal;
+inline constexpr std::int64_t kLastScopedOrdinal = qr::kScopeLastOrdinal;
 inline constexpr std::int64_t kScopedSessionCount =
     kLastScopedOrdinal - kFirstScopedOrdinal + 1;
-static_assert(kScopedSessionCount == 625, "FINAL_PLAN §1: 125..749 = the 625 in scope");
+// FINAL_PLAN AMENDMENT 2026-08-12-c (D-038): 125..917 = the 793 in scope
+// (was 125..749 = 625). The campaign wall is now DERIVED from the one wall in
+// qr_registry/day_scope.hpp so the two can never drift apart again.
+static_assert(kScopedSessionCount == 793, "AMENDMENT 2026-08-12-c: 125..917 = the 793 in scope");
+static_assert(kLastScopedOrdinal == qr::kScopeLastOrdinal,
+              "the campaign wall must be the qr_registry wall, not a copy of it");
 
 /// The frozen task card, and the ORDERED lineage of its frozen shas. The driver
 /// builds only against the lineage HEAD; a corpus published under an older row

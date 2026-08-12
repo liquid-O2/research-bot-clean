@@ -215,7 +215,7 @@ Expected<SessionRoster, Refusal> build_session_roster(std::uint32_t ordinal,
                                                       const SessionSignals& signals) {
   if (ordinal > kMaxSessionOrdinal) {
     return refuse<SessionRoster>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
-                                         "session ordinal is past the 749 wall",
+                                         "session ordinal is past the 917 wall",
                                          static_cast<std::int64_t>(ordinal)));
   }
   if (registry.ordinal() != ordinal || projection.ordinal() != ordinal ||

@@ -1,7 +1,7 @@
 // qr_registry/registry.hpp - the frozen 1,003-session accepted-session registry.
 //
 // SPEC: design/DESIGN_SUBSTRATE.md section 6 -
-//   "`qr_registry` (TSV + per-file sha gate + 125..749 wall before path
+//   "`qr_registry` (TSV + per-file sha gate + 125..917 wall before path
 //    formation)"
 // Reference port (read-only): /workspace/engine/crates/corpus/src/registry.rs
 // (parse + EXPECTED_REGISTRY_SHA256 gate) and .../corpus/src/error.rs

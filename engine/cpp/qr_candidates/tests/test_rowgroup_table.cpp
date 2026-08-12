@@ -1,5 +1,5 @@
 // Rowgroup-addressed session decoding: the four independent identity checks,
-// the column wall, and the 749 scope wall.
+// the column wall, and the 917 scope wall (AMENDMENT 2026-08-12-c).
 #include <gtest/gtest.h>
 
 #include <string>
@@ -45,13 +45,14 @@ Expected<RowGroupTable, qr::Refusal> open_registry(
 
 // --- the session index -------------------------------------------------------
 
-TEST(SessionIndexWall, ParsesTheDenseLadderAndRefusesPastSevenFortyNine) {
+TEST(SessionIndexWall, ParsesTheDenseLadderAndRefusesPastNineSeventeen) {
   const SessionIndex index = load_index("projection_index.tsv");
   const auto row = index.at(2);
   ASSERT_TRUE(row.has_value());
   EXPECT_EQ(row.value()->ordinal, 2U);
   EXPECT_EQ(row.value()->day, Literals().text("day", "2"));
-  const auto past = index.at(750);
+  EXPECT_EQ(kMaxSessionOrdinal, 917U);
+  const auto past = index.at(kMaxSessionOrdinal + 1U);
   ASSERT_FALSE(past.has_value());
   EXPECT_EQ(past.error().code(), qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE);
 }
@@ -215,7 +216,7 @@ TEST(RowGroupIdentity, ADecodedRowCountThatDiffersFromTheIndexRefuses) {
 TEST(RowGroupIdentity, AnOrdinalPastTheWallNeverBecomesARowGroupIndex) {
   auto table = open_projection();
   ASSERT_TRUE(table.has_value());
-  const auto columns = table.value().read_session(750);
+  const auto columns = table.value().read_session(kMaxSessionOrdinal + 1U);
   ASSERT_FALSE(columns.has_value());
   EXPECT_EQ(columns.error().code(), qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE);
 }

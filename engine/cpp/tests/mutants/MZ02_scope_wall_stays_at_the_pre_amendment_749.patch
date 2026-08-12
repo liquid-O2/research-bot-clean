@@ -1,0 +1,11 @@
+--- a/qr_registry/src/day_scope.cpp
++++ b/qr_registry/src/day_scope.cpp
+@@ -14,7 +14,7 @@
+ Expected<DayScope, Refusal> DayScope::admit(const Registry& registry, std::int64_t ordinal) {
+   // THE WALL, first statement of the function: nothing below runs for an
+   // out-of-scope ordinal, and this function has no filesystem argument at all.
+-  if (ordinal < kScopeFirstOrdinal || ordinal > kScopeLastOrdinal) {
++  if (ordinal < kScopeFirstOrdinal || ordinal > 749) {
+     return Expected<DayScope, Refusal>::refuse(
+         Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
+                 "ordinal outside the scoped calendar 125..917", ordinal));

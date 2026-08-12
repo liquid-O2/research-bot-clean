@@ -1,0 +1,11 @@
+--- a/qr_candidates/src/prefix_reader.cpp
++++ b/qr_candidates/src/prefix_reader.cpp
+@@ -340,7 +340,7 @@
+     }
+     expected_rows += bound.signal_count;
+   }
+-  if (options.require_full_row_census && options.stop_ordinal == kMaxPrefixOrdinal &&
++  if (false && options.require_full_row_census && options.stop_ordinal == kMaxPrefixOrdinal &&
+       expected_rows != kAdmittedRows0ToWall) {
+     return refuse<PrefixSeal>(Refusal(RefusalCode::CONTENT_MISMATCH, kSite,
+                                       "t14 0..917 row census is not 13,115,504",

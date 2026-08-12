@@ -91,7 +91,7 @@ Expected<SessionIndex, Refusal> SessionIndex::parse_without_digest_gate(std::str
       header_seen = true;
       continue;
     }
-    // ONLY ordinals 0..749 are parsed. The tail of the file describes sessions
+    // ONLY ordinals 0..917 are parsed. The tail of the file describes sessions
     // this program may never read, so it is skipped without being interpreted.
     if (expected > kMaxSessionOrdinal) {
       break;
@@ -146,7 +146,7 @@ Expected<SessionIndex, Refusal> SessionIndex::parse_without_digest_gate(std::str
 Expected<const SessionIndexRow*, Refusal> SessionIndex::at(std::uint32_t ordinal) const noexcept {
   if (ordinal > kMaxSessionOrdinal) {
     return refuse<const SessionIndexRow*>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kIndexSite,
-                                                  "ordinal is past the 749 wall",
+                                                  "ordinal is past the 917 wall",
                                                   static_cast<std::int64_t>(ordinal)));
   }
   if (static_cast<std::size_t>(ordinal) >= rows_.size()) {
@@ -307,7 +307,7 @@ Expected<SessionColumns, Refusal> RowGroupTable::read_session(std::uint32_t ordi
   // 1. THE WALL. An out-of-scope ordinal never becomes a row-group index.
   if (ordinal > kMaxSessionOrdinal) {
     return refuse<SessionColumns>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kTableSite,
-                                          "session ordinal is past the 749 wall",
+                                          "session ordinal is past the 917 wall",
                                           static_cast<std::int64_t>(ordinal)));
   }
   // 2. Index row `i` must declare ordinal `i`.

@@ -322,7 +322,7 @@ Expected<std::vector<std::pair<std::string, std::int64_t>>, Refusal> corpus_card
 Status refuse_unless_in_scope(std::int64_t ordinal) {
   if (ordinal < kFirstScopedOrdinal || ordinal > kLastScopedOrdinal) {
     return Status::refuse(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
-                                  "card §1: only sessions 125..749 are admissible, and the "
+                                  "card §1 as amended 2026-08-12-c: only sessions 125..917 are admissible, and the "
                                   "wall is applied before any path is formed",
                                   ordinal));
   }

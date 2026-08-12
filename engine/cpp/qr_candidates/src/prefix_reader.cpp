@@ -219,7 +219,7 @@ Expected<std::vector<T14Bound>, Refusal> load_t14_bounds(PositionalSource& sourc
   constexpr const char* kSite = "qr_candidates::load_t14_bounds";
   if (stop > kMaxPrefixOrdinal) {
     return refuse<std::vector<T14Bound>>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
-                                                 "stop ordinal is past the 749 wall",
+                                                 "stop ordinal is past the 917 wall",
                                                  static_cast<std::int64_t>(stop)));
   }
   std::int64_t offset = 0;
@@ -299,7 +299,7 @@ Expected<std::vector<T14Bound>, Refusal> load_t14_bounds(PositionalSource& sourc
     bound.signal_sequence_root.assign(cells[root_index]);
     bounds.push_back(std::move(bound));
   }
-  // The descriptor dies here: rows 750..1002 are never advanced to.
+  // The descriptor dies here: rows 918..1002 are never advanced to.
   source.close();
   return bounds;
 }
@@ -313,7 +313,7 @@ Expected<PrefixSeal, Refusal> seal_prefix(PositionalSource& event,
   constexpr const char* kSite = "qr_candidates::seal_prefix";
   if (options.stop_ordinal > kMaxPrefixOrdinal) {
     return refuse<PrefixSeal>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
-                                      "stop ordinal is past the 749 wall",
+                                      "stop ordinal is past the 917 wall",
                                       static_cast<std::int64_t>(options.stop_ordinal)));
   }
   if (bounds.size() != static_cast<std::size_t>(options.stop_ordinal) + 1U) {
@@ -341,9 +341,9 @@ Expected<PrefixSeal, Refusal> seal_prefix(PositionalSource& event,
     expected_rows += bound.signal_count;
   }
   if (options.require_full_row_census && options.stop_ordinal == kMaxPrefixOrdinal &&
-      expected_rows != kAdmittedRows0To749) {
+      expected_rows != kAdmittedRows0ToWall) {
     return refuse<PrefixSeal>(Refusal(RefusalCode::CONTENT_MISMATCH, kSite,
-                                      "t14 0..749 row census is not 10,684,134",
+                                      "t14 0..917 row census is not 13,115,504",
                                       static_cast<std::int64_t>(expected_rows)));
   }
   if (expected_rows == 0) {
@@ -407,17 +407,17 @@ Expected<PrefixSeal, Refusal> seal_prefix(PositionalSource& event,
     }
     // THE MONOTONICITY LAW, checked on its own so a permuted file that happens
     // to agree with a permuted census still refuses: an ordinal may repeat or
-    // advance by exactly one, never move backwards and never pass 749.
+    // advance by exactly one, never move backwards and never pass 917.
     if (ordinal.value() > kMaxPrefixOrdinal) {
       pending_refusal = Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
-                                "decoded ordinal is past the 749 wall",
+                                "decoded ordinal is past the 917 wall",
                                 static_cast<std::int64_t>(ordinal.value()));
       return false;
     }
     if (have_previous_ordinal &&
         !(ordinal.value() == previous_ordinal || ordinal.value() == previous_ordinal + 1U)) {
       pending_refusal = Refusal(RefusalCode::OUT_OF_ORDER, kSite,
-                                "decoded ordinals are not monotone 0..749",
+                                "decoded ordinals are not monotone 0..917",
                                 static_cast<std::int64_t>(ordinal.value()));
       return false;
     }
@@ -512,7 +512,7 @@ Expected<PrefixSeal, Refusal> seal_prefix(PositionalSource& event,
   std::uint64_t remaining = expected_rows;
   while (remaining > 1) {
     // min(1MiB, R-1) — THE ARITHMETIC THAT IS THE WALL. A request of R-1 bytes
-    // cannot contain R newlines, and row 750 begins only after the R-th, so no
+    // cannot contain R newlines, and row W+1 begins only after the R-th, so no
     // block can reach it. The guard below restates it as code.
     const std::size_t request =
         static_cast<std::size_t>(std::min<std::uint64_t>(kBlockBytes, remaining - 1U));
@@ -626,7 +626,7 @@ Expected<PrefixSeal, Refusal> seal_prefix(PositionalSource& event,
   }
 
   seal.event_stats.end_offset_exclusive = offset;
-  // THE WALL CLOSES HERE, before any byte of row 750 has been addressed.
+  // THE WALL CLOSES HERE, before any byte of row W+1 has been addressed.
   event.close();
   seal.io_after = read_io_accounting();
 

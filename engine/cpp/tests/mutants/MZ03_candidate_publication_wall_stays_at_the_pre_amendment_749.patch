@@ -1,0 +1,31 @@
+--- a/qr_candidates/include/qr_candidates/prefix_reader.hpp
++++ b/qr_candidates/include/qr_candidates/prefix_reader.hpp
+@@ -47,7 +47,7 @@
+ /// The last ordinal this prefix may ever decode. Ordinal 918 and beyond is the
+ /// sealed wall of the whole program (FINAL_PLAN AMENDMENT 2026-08-12-c, D-038:
+ /// W = 917 = 2025-08-29; the pre-amendment wall was 749 = 2024-12-26).
+-inline constexpr std::uint32_t kMaxPrefixOrdinal = 917;
++inline constexpr std::uint32_t kMaxPrefixOrdinal = 749;
+ /// The first ordinal whose signals are RETAINED. Ordinals 0..124 are decoded —
+ /// the root chain requires every row — but nothing about them is kept.
+ inline constexpr std::uint32_t kFirstRetainedOrdinal = 125;
+@@ -59,7 +59,7 @@
+ /// sum over 0..917 is 13,115,504 (recomputed from the SAME frozen
+ /// t14_bounds.tsv the gate reads - the file is unchanged, only how far into it
+ /// we are allowed to go).
+-inline constexpr std::uint64_t kAdmittedRows0ToWall = 13'115'504;
++inline constexpr std::uint64_t kAdmittedRows0ToWall = 10'684'134;
+ /// The pinned byte size of event_signals.tsv (event_publication manifest row
+ /// `leaf_event_signals_byte_size`).
+ inline constexpr std::int64_t kEventSignalsBytes = 14'084'281'865;
+--- a/qr_candidates/include/qr_candidates/rowgroup_table.hpp
++++ b/qr_candidates/include/qr_candidates/rowgroup_table.hpp
+@@ -43,7 +43,7 @@
+ 
+ /// The wall this module never crosses (card section 1: "Any path/session >=750
+ /// ... is refused before payload resolution").
+-inline constexpr std::uint32_t kMaxSessionOrdinal = 917;  // AMENDMENT 2026-08-12-c (was 749)
++inline constexpr std::uint32_t kMaxSessionOrdinal = 749;  // AMENDMENT 2026-08-12-c (was 749)
+ /// Every publication in this program carries one row group per calendar
+ /// session of the 1,003-session registry.
+ inline constexpr std::size_t kPublicationRowGroups = 1003;

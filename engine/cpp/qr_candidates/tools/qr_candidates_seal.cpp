@@ -232,10 +232,10 @@ int main(int argc, char** argv) {
     }
   }
   if (out_dir.empty()) {
-    die("usage: qr_candidates_seal --out DIR [--stop 749] [--resolve 125] [--skip-parquet-digest]");
+    die("usage: qr_candidates_seal --out DIR [--stop 917] [--resolve 125] [--skip-parquet-digest]");
   }
   if (resolve < kFirstRetainedOrdinal || resolve > stop || stop > kMaxPrefixOrdinal) {
-    die("--resolve must be in 125..stop and --stop must be <= 749");
+    die("--resolve must be in 125..stop and --stop must be <= 917");
   }
   if (::mkdir(out_dir.c_str(), 0755) != 0) {
     die("output directory must not already exist: " + out_dir);

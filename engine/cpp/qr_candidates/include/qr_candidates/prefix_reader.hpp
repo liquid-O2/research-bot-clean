@@ -14,9 +14,9 @@
 //    `signal_sequence_root` in `t14_bounds`; two independent extractions must
 //    have identical schema, rows, leaves, per-session roots, and content root."
 //
-// WHY THE ARITHMETIC IS THE WALL. The file continues past ordinal 749 with
-// sessions this project may never read. The reader does not *decide* to stop —
-// it is arithmetically incapable of reaching row 750, because a block request
+// WHY THE ARITHMETIC IS THE WALL. The file continues past the wall ordinal W
+// with sessions this project may never read. The reader does not *decide* to
+// stop — it is arithmetically incapable of reaching row W+1, because a block request
 // of `min(1MiB, R-1)` bytes can contain at most R-1 newlines, and row 750
 // begins only after the R-th. The last newline is therefore always consumed by
 // a one-byte read, and the descriptor is closed before the next byte exists.
@@ -44,17 +44,22 @@
 
 namespace qr::candidates {
 
-/// The last ordinal this prefix may ever decode. Ordinal 750 and beyond is the
-/// sealed wall of the whole program (FINAL_PLAN section 6, "s750+").
-inline constexpr std::uint32_t kMaxPrefixOrdinal = 749;
+/// The last ordinal this prefix may ever decode. Ordinal 918 and beyond is the
+/// sealed wall of the whole program (FINAL_PLAN AMENDMENT 2026-08-12-c, D-038:
+/// W = 917 = 2025-08-29; the pre-amendment wall was 749 = 2024-12-26).
+inline constexpr std::uint32_t kMaxPrefixOrdinal = 917;
 /// The first ordinal whose signals are RETAINED. Ordinals 0..124 are decoded —
 /// the root chain requires every row — but nothing about them is kept.
 inline constexpr std::uint32_t kFirstRetainedOrdinal = 125;
 /// The block size named by the card. Requests are `min(kBlockBytes, R-1)`.
 inline constexpr std::size_t kBlockBytes = 1U << 20U;
-/// The t14-declared data-row count of ordinals 0..749 (card section 2:
-/// "exactly the first 10,684,134 data rows are ordinals0..749").
-inline constexpr std::uint64_t kAdmittedRows0To749 = 10'684'134;
+/// The t14-declared data-row count of ordinals 0..kMaxPrefixOrdinal. Card
+/// section 2 pinned "exactly the first 10,684,134 data rows are ordinals
+/// 0..749"; AMENDMENT 2026-08-12-c extends the wall to 917 and the same t14
+/// sum over 0..917 is 13,115,504 (recomputed from the SAME frozen
+/// t14_bounds.tsv the gate reads - the file is unchanged, only how far into it
+/// we are allowed to go).
+inline constexpr std::uint64_t kAdmittedRows0ToWall = 13'115'504;
 /// The pinned byte size of event_signals.tsv (event_publication manifest row
 /// `leaf_event_signals_byte_size`).
 inline constexpr std::int64_t kEventSignalsBytes = 14'084'281'865;
@@ -198,7 +203,7 @@ class SessionSignals {
 using SessionSink = std::function<Expected<bool, Refusal>(SessionSignals&)>;
 
 struct PrefixSealOptions {
-  /// Last ordinal to decode, inclusive. 749 is the full seal.
+  /// Last ordinal to decode, inclusive. kMaxPrefixOrdinal is the full seal.
   std::uint32_t stop_ordinal = kMaxPrefixOrdinal;
   /// Lowest ordinal whose signals are retained and handed to the sink.
   std::uint32_t retain_from = kFirstRetainedOrdinal;
@@ -208,8 +213,8 @@ struct PrefixSealOptions {
   /// Enforce the pinned event_signals.tsv byte size before reading. Fixtures
   /// turn this off; production never does.
   bool require_pinned_event_bytes = true;
-  /// Enforce that the summed t14 counts equal kAdmittedRows0To749 when the
-  /// stop ordinal is 749.
+  /// Enforce that the summed t14 counts equal kAdmittedRows0ToWall when the
+  /// stop ordinal is kMaxPrefixOrdinal.
   bool require_full_row_census = true;
 };
 

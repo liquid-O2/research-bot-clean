@@ -1,0 +1,273 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 107 tests from 15 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from SignalRootSha256
+[ RUN      ] SignalRootSha256.ReproducesTheKnownAnswersForEmptyAndAbc
+[       OK ] SignalRootSha256.ReproducesTheKnownAnswersForEmptyAndAbc (7 ms)
+[ RUN      ] SignalRootSha256.ResetStartsACleanDigest
+[       OK ] SignalRootSha256.ResetStartsACleanDigest (4 ms)
+[ RUN      ] SignalRootSha256.SplitUpdatesHashTheSameAsOne
+[       OK ] SignalRootSha256.SplitUpdatesHashTheSameAsOne (0 ms)
+[----------] 3 tests from SignalRootSha256 (12 ms total)
+
+[----------] 8 tests from SignalImage
+[ RUN      ] SignalImage.ReproducesTheIndependentlyDerivedRowImage
+[       OK ] SignalImage.ReproducesTheIndependentlyDerivedRowImage (9 ms)
+[ RUN      ] SignalImage.AnAbsentOptionalDelayContributesOnePresenceByteAndNoValue
+[       OK ] SignalImage.AnAbsentOptionalDelayContributesOnePresenceByteAndNoValue (7 ms)
+[ RUN      ] SignalImage.TheImageIsExactlyTheDocumentedWidthWhenBothDelaysArePresent
+[       OK ] SignalImage.TheImageIsExactlyTheDocumentedWidthWhenBothDelaysArePresent (4 ms)
+[ RUN      ] SignalImage.AnUppercaseDigestCellIsRefusedNotFolded
+[       OK ] SignalImage.AnUppercaseDigestCellIsRefusedNotFolded (4 ms)
+[ RUN      ] SignalImage.AnUnknownExtremeSideIsRefused
+[       OK ] SignalImage.AnUnknownExtremeSideIsRefused (4 ms)
+[ RUN      ] SignalImage.ARedundantLeadingZeroIsRefused
+[       OK ] SignalImage.ARedundantLeadingZeroIsRefused (4 ms)
+[ RUN      ] SignalImage.ChangingOneHashedCellChangesTheImage
+[       OK ] SignalImage.ChangingOneHashedCellChangesTheImage (7 ms)
+[ RUN      ] SignalImage.AnUnhashedCellDoesNotChangeTheImage
+[       OK ] SignalImage.AnUnhashedCellDoesNotChangeTheImage (10 ms)
+[----------] 8 tests from SignalImage (51 ms total)
+
+[----------] 2 tests from SignalRoot
+[ RUN      ] SignalRoot.ReproducesEveryIndependentlyDerivedSessionRoot
+[       OK ] SignalRoot.ReproducesEveryIndependentlyDerivedSessionRoot (10 ms)
+[ RUN      ] SignalRoot.TheDeclaredCountIsPartOfThePrologue
+[       OK ] SignalRoot.TheDeclaredCountIsPartOfThePrologue (0 ms)
+[----------] 2 tests from SignalRoot (11 ms total)
+
+[----------] 2 tests from PinnedHeaders
+[ RUN      ] PinnedHeaders.MatchTheSealedPublicationHeadersByteForByte
+[       OK ] PinnedHeaders.MatchTheSealedPublicationHeadersByteForByte (6 ms)
+[ RUN      ] PinnedHeaders.TheEventHeaderIsTheEightHundredAndFortyEightByteLine
+[       OK ] PinnedHeaders.TheEventHeaderIsTheEightHundredAndFortyEightByteLine (3 ms)
+[----------] 2 tests from PinnedHeaders (10 ms total)
+
+[----------] 4 tests from StrictParsers
+[ RUN      ] StrictParsers.RefuseEmptyRedundantZeroAndNonDigitCells
+[       OK ] StrictParsers.RefuseEmptyRedundantZeroAndNonDigitCells (0 ms)
+[ RUN      ] StrictParsers.SignedCellsRefuseNegativeZeroAndCarryTheFullDomain
+[       OK ] StrictParsers.SignedCellsRefuseNegativeZeroAndCarryTheFullDomain (0 ms)
+[ RUN      ] StrictParsers.OptionalCellsSeparateAbsentFromZero
+[       OK ] StrictParsers.OptionalCellsSeparateAbsentFromZero (0 ms)
+[ RUN      ] StrictParsers.CanonicalDigestShapeRejectsUppercaseAndWrongLength
+[       OK ] StrictParsers.CanonicalDigestShapeRejectsUppercaseAndWrongLength (0 ms)
+[----------] 4 tests from StrictParsers (0 ms total)
+
+[----------] 24 tests from PrefixSeal
+[ RUN      ] PrefixSeal.ReproducesEverySessionRootAndCountThroughTheStop
+[       OK ] PrefixSeal.ReproducesEverySessionRootAndCountThroughTheStop (17 ms)
+[ RUN      ] PrefixSeal.StopsAtExactlyTheDeclaredBoundaryByteAndClosesTheDescriptor
+[       OK ] PrefixSeal.StopsAtExactlyTheDeclaredBoundaryByteAndClosesTheDescriptor (15 ms)
+[ RUN      ] PrefixSeal.NeverAddressesAByteAtOrPastTheWall
+[       OK ] PrefixSeal.NeverAddressesAByteAtOrPastTheWall (14 ms)
+[ RUN      ] PrefixSeal.TheHeaderIsWalkedOneByteAtATime
+[       OK ] PrefixSeal.TheHeaderIsWalkedOneByteAtATime (15 ms)
+[ RUN      ] PrefixSeal.TheFinalRowIsWalkedOneByteAtATimeThroughItsNewline
+[       OK ] PrefixSeal.TheFinalRowIsWalkedOneByteAtATimeThroughItsNewline (13 ms)
+[ RUN      ] PrefixSeal.BlockRequestsAreClampedToOneFewerThanTheRemainingRowCount
+[       OK ] PrefixSeal.BlockRequestsAreClampedToOneFewerThanTheRemainingRowCount (12 ms)
+[ RUN      ] PrefixSeal.TwoIndependentExtractionsAreByteIdentical
+[       OK ] PrefixSeal.TwoIndependentExtractionsAreByteIdentical (14 ms)
+[ RUN      ] PrefixSeal.TheRetainWindowKeepsExactlyTheRequestedSessions
+[       OK ] PrefixSeal.TheRetainWindowKeepsExactlyTheRequestedSessions (10 ms)
+[ RUN      ] PrefixSeal.TheSafeLeafCarriesOnlyTheSevenFieldsAndIsSortedBySignalId
+[       OK ] PrefixSeal.TheSafeLeafCarriesOnlyTheSevenFieldsAndIsSortedBySignalId (9 ms)
+[ RUN      ] PrefixSeal.ARetainedSessionResolvesItsOwnMemberIdsAndOnlyThose
+[       OK ] PrefixSeal.ARetainedSessionResolvesItsOwnMemberIdsAndOnlyThose (14 ms)
+[ RUN      ] PrefixSeal.ASessionCountThatDisagreesWithTheCensusRefuses
+[       OK ] PrefixSeal.ASessionCountThatDisagreesWithTheCensusRefuses (11 ms)
+[ RUN      ] PrefixSeal.ASessionRootThatDisagreesWithTheCensusRefuses
+[       OK ] PrefixSeal.ASessionRootThatDisagreesWithTheCensusRefuses (9 ms)
+[ RUN      ] PrefixSeal.NonMonotoneOrdinalsRefuseEvenWhenTheCensusAgreesWithThem
+[       OK ] PrefixSeal.NonMonotoneOrdinalsRefuseEvenWhenTheCensusAgreesWithThem (14 ms)
+[ RUN      ] PrefixSeal.ACarriageReturnInsideAnAdmittedRowRefuses
+[       OK ] PrefixSeal.ACarriageReturnInsideAnAdmittedRowRefuses (8 ms)
+[ RUN      ] PrefixSeal.ADuplicateSignalIdInsideOneSessionRefuses
+[       OK ] PrefixSeal.ADuplicateSignalIdInsideOneSessionRefuses (10 ms)
+[ RUN      ] PrefixSeal.AHeaderThatIsNotThePinnedHeaderRefuses
+[       OK ] PrefixSeal.AHeaderThatIsNotThePinnedHeaderRefuses (8 ms)
+[ RUN      ] PrefixSeal.AStopOrdinalPastTheWallIsRefusedBeforeAnyByteIsRead
+[       OK ] PrefixSeal.AStopOrdinalPastTheWallIsRefusedBeforeAnyByteIsRead (4 ms)
+[ RUN      ] PrefixSeal.BoundsThatDoNotCoverTheStopRefuse
+[       OK ] PrefixSeal.BoundsThatDoNotCoverTheStopRefuse (9 ms)
+[ RUN      ] PrefixSeal.TheProductionByteSizeGateRefusesAFileThatIsNotThePinnedSize
+[       OK ] PrefixSeal.TheProductionByteSizeGateRefusesAFileThatIsNotThePinnedSize (7 ms)
+[ RUN      ] PrefixSeal.TheWallIsTheAmendedScopeWallAndItsRowCensusIsTheAmendedOne
+[       OK ] PrefixSeal.TheWallIsTheAmendedScopeWallAndItsRowCensusIsTheAmendedOne (0 ms)
+[ RUN      ] PrefixSeal.TheFullScopeCensusGateRequiresTheDeclaredRowCount
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:314: Failure
+Expected: (std::string(seal.error().detail()).find("row census")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+refused by 'event row session does not match the t14 row', not by the full-scope census gate
+
+[  FAILED  ] PrefixSeal.TheFullScopeCensusGateRequiresTheDeclaredRowCount (10 ms)
+[ RUN      ] PrefixSeal.ASinkRefusalStopsTheSealRatherThanBeingIgnored
+[       OK ] PrefixSeal.ASinkRefusalStopsTheSealRatherThanBeingIgnored (9 ms)
+[ RUN      ] PrefixSeal.TheKernelIsNeverAskedForMoreBytesThanTheLedgerRecords
+[       OK ] PrefixSeal.TheKernelIsNeverAskedForMoreBytesThanTheLedgerRecords (11 ms)
+[ RUN      ] PrefixSeal.TheProductionSourceRefusesAReadAfterClose
+[       OK ] PrefixSeal.TheProductionSourceRefusesAReadAfterClose (2 ms)
+[----------] 24 tests from PrefixSeal (255 ms total)
+
+[----------] 3 tests from T14Bounds
+[ RUN      ] T14Bounds.ReadsTheCensusOneByteAtATimeAndClosesAtTheStop
+[       OK ] T14Bounds.ReadsTheCensusOneByteAtATimeAndClosesAtTheStop (7 ms)
+[ RUN      ] T14Bounds.ANonDenseOrdinalLadderRefuses
+[       OK ] T14Bounds.ANonDenseOrdinalLadderRefuses (3 ms)
+[ RUN      ] T14Bounds.AHeaderThatIsNotThePinnedHeaderRefuses
+[       OK ] T14Bounds.AHeaderThatIsNotThePinnedHeaderRefuses (4 ms)
+[----------] 3 tests from T14Bounds (16 ms total)
+
+[----------] 5 tests from SessionIndexWall
+[ RUN      ] SessionIndexWall.ParsesTheDenseLadderAndRefusesPastNineSeventeen
+[       OK ] SessionIndexWall.ParsesTheDenseLadderAndRefusesPastNineSeventeen (9 ms)
+[ RUN      ] SessionIndexWall.ARowWhoseOrdinalIsNotItsPositionRefuses
+[       OK ] SessionIndexWall.ARowWhoseOrdinalIsNotItsPositionRefuses (4 ms)
+[ RUN      ] SessionIndexWall.AWrongHeaderRefuses
+[       OK ] SessionIndexWall.AWrongHeaderRefuses (0 ms)
+[ RUN      ] SessionIndexWall.ANonCivilDayRefuses
+[       OK ] SessionIndexWall.ANonCivilDayRefuses (0 ms)
+[ RUN      ] SessionIndexWall.ADigestThatDoesNotMatchRefusesBeforeAnythingIsParsed
+[       OK ] SessionIndexWall.ADigestThatDoesNotMatchRefusesBeforeAnythingIsParsed (9 ms)
+[----------] 5 tests from SessionIndexWall (24 ms total)
+
+[----------] 7 tests from ColumnWall
+[ RUN      ] ColumnWall.TheProjectionAllowlistIsExactlyTheEightNamedColumns
+[       OK ] ColumnWall.TheProjectionAllowlistIsExactlyTheEightNamedColumns (6 ms)
+[ RUN      ] ColumnWall.TheSideColumnIsUnreachableFromADecodedSession
+[       OK ] ColumnWall.TheSideColumnIsUnreachableFromADecodedSession (6 ms)
+[ RUN      ] ColumnWall.ThePhysicalClusterIdIsUnreachableFromADecodedRegistrySession
+[       OK ] ColumnWall.ThePhysicalClusterIdIsUnreachableFromADecodedRegistrySession (6 ms)
+[ RUN      ] ColumnWall.AnAllowlistThatNamesAForbiddenColumnRefusesBeforeTheFileIsOpened
+[       OK ] ColumnWall.AnAllowlistThatNamesAForbiddenColumnRefusesBeforeTheFileIsOpened (4 ms)
+[ RUN      ] ColumnWall.AForbiddenColumnThatVanishedFromTheSchemaRefuses
+[       OK ] ColumnWall.AForbiddenColumnThatVanishedFromTheSchemaRefuses (5 ms)
+[ RUN      ] ColumnWall.ARepeatedAllowlistEntryRefuses
+[       OK ] ColumnWall.ARepeatedAllowlistEntryRefuses (4 ms)
+[ RUN      ] ColumnWall.AnEmptyAllowlistIsNotAProjection
+[       OK ] ColumnWall.AnEmptyAllowlistIsNotAProjection (2 ms)
+[----------] 7 tests from ColumnWall (36 ms total)
+
+[----------] 11 tests from RowGroupIdentity
+[ RUN      ] RowGroupIdentity.DecodesPhysicalRowGroupIAsSessionI
+[       OK ] RowGroupIdentity.DecodesPhysicalRowGroupIAsSessionI (61 ms)
+[ RUN      ] RowGroupIdentity.DayStatisticsThatSpanTwoDaysRefuse
+[       OK ] RowGroupIdentity.DayStatisticsThatSpanTwoDaysRefuse (6 ms)
+[ RUN      ] RowGroupIdentity.DayStatisticsThatNameADifferentDayThanTheIndexRefuse
+[       OK ] RowGroupIdentity.DayStatisticsThatNameADifferentDayThanTheIndexRefuse (6 ms)
+[ RUN      ] RowGroupIdentity.AbsentDayStatisticsRefuseRatherThanFallingBackToTheValues
+[       OK ] RowGroupIdentity.AbsentDayStatisticsRefuseRatherThanFallingBackToTheValues (7 ms)
+[ RUN      ] RowGroupIdentity.ADecodedRowCarryingANeighboursDayRefusesDespiteCleanStatistics
+[       OK ] RowGroupIdentity.ADecodedRowCarryingANeighboursDayRefusesDespiteCleanStatistics (7 ms)
+[ RUN      ] RowGroupIdentity.ADecodedRowCountThatDiffersFromTheIndexRefuses
+[       OK ] RowGroupIdentity.ADecodedRowCountThatDiffersFromTheIndexRefuses (6 ms)
+[ RUN      ] RowGroupIdentity.AnOrdinalPastTheWallNeverBecomesARowGroupIndex
+[       OK ] RowGroupIdentity.AnOrdinalPastTheWallNeverBecomesARowGroupIndex (5 ms)
+[ RUN      ] RowGroupIdentity.AnOrdinalWithNoIndexRowRefuses
+[       OK ] RowGroupIdentity.AnOrdinalWithNoIndexRowRefuses (6 ms)
+[ RUN      ] RowGroupIdentity.AFileWithTheWrongRowGroupCountRefuses
+[       OK ] RowGroupIdentity.AFileWithTheWrongRowGroupCountRefuses (7 ms)
+[ RUN      ] RowGroupIdentity.TwoDecodesOfOneSessionAgreeCellForCell
+[       OK ] RowGroupIdentity.TwoDecodesOfOneSessionAgreeCellForCell (6 ms)
+[ RUN      ] RowGroupIdentity.ARequiredLeafCarriesNoNullsSoAnAbsentCellIsAnEmptyValue
+[       OK ] RowGroupIdentity.ARequiredLeafCarriesNoNullsSoAnAbsentCellIsAnEmptyValue (6 ms)
+[----------] 11 tests from RowGroupIdentity (135 ms total)
+
+[----------] 4 tests from DialectProfiles
+[ RUN      ] DialectProfiles.ThePublicationProfileRefusesAnOptionalLeaf
+[       OK ] DialectProfiles.ThePublicationProfileRefusesAnOptionalLeaf (11 ms)
+[ RUN      ] DialectProfiles.TheCorpusProfileRefusesTheRequiredPublicationShape
+[       OK ] DialectProfiles.TheCorpusProfileRefusesTheRequiredPublicationShape (3 ms)
+[ RUN      ] DialectProfiles.ThePublicationProfileRefusesEveryTupleOutsideItsMeasuredCensus
+[       OK ] DialectProfiles.ThePublicationProfileRefusesEveryTupleOutsideItsMeasuredCensus (26 ms)
+[ RUN      ] DialectProfiles.ThePublicationReaderDeclaresItsFamilyRatherThanInheritingADefault
+[       OK ] DialectProfiles.ThePublicationReaderDeclaresItsFamilyRatherThanInheritingADefault (9 ms)
+[----------] 4 tests from DialectProfiles (51 ms total)
+
+[----------] 8 tests from MemberParse
+[ RUN      ] MemberParse.AcceptsTheCanonicalAscendingUniqueLowercaseList
+[       OK ] MemberParse.AcceptsTheCanonicalAscendingUniqueLowercaseList (0 ms)
+[ RUN      ] MemberParse.AnEmptyCellRefuses
+[       OK ] MemberParse.AnEmptyCellRefuses (0 ms)
+[ RUN      ] MemberParse.AnEmptyTokenRefuses
+[       OK ] MemberParse.AnEmptyTokenRefuses (0 ms)
+[ RUN      ] MemberParse.UppercaseHexIsRefusedNotFolded
+[       OK ] MemberParse.UppercaseHexIsRefusedNotFolded (0 ms)
+[ RUN      ] MemberParse.WhitespaceAnywhereRefuses
+[       OK ] MemberParse.WhitespaceAnywhereRefuses (0 ms)
+[ RUN      ] MemberParse.ADescendingListRefusesInsteadOfBeingSorted
+[       OK ] MemberParse.ADescendingListRefusesInsteadOfBeingSorted (0 ms)
+[ RUN      ] MemberParse.ARepeatedIdRefuses
+[       OK ] MemberParse.ARepeatedIdRefuses (0 ms)
+[ RUN      ] MemberParse.AWrongLengthTokenRefuses
+[       OK ] MemberParse.AWrongLengthTokenRefuses (0 ms)
+[----------] 8 tests from MemberParse (0 ms total)
+
+[----------] 1 test from PolicyVocabulary
+[ RUN      ] PolicyVocabulary.AdmitsExactlyTheTwelvePrimitivePolicies
+[       OK ] PolicyVocabulary.AdmitsExactlyTheTwelvePrimitivePolicies (0 ms)
+[----------] 1 test from PolicyVocabulary (0 ms total)
+
+[----------] 24 tests from Roster
+[ RUN      ] Roster.AuthenticatesLowAsLongAndHighAsShort
+[       OK ] Roster.AuthenticatesLowAsLongAndHighAsShort (28 ms)
+[ RUN      ] Roster.TheCensusCountsEveryTypedClassSeparately
+[       OK ] Roster.TheCensusCountsEveryTypedClassSeparately (27 ms)
+[ RUN      ] Roster.EveryAdmittedCandidateStaysInTheDenominatorIncludingTheUnauthenticated
+[       OK ] Roster.EveryAdmittedCandidateStaysInTheDenominatorIncludingTheUnauthenticated (25 ms)
+[ RUN      ] Roster.NonprimitiveRowsCreateNoRecordAtAll
+[       OK ] Roster.NonprimitiveRowsCreateNoRecordAtAll (29 ms)
+[ RUN      ] Roster.APrimitiveRowWithNoVisibilityOrNoScorabilityIsNotAdmitted
+[       OK ] Roster.APrimitiveRowWithNoVisibilityOrNoScorabilityIsNotAdmitted (29 ms)
+[ RUN      ] Roster.AnEventScorableCellThatIsNotExactlyTrueOrFalseRefusesInsteadOfNotAdmitting
+[       OK ] Roster.AnEventScorableCellThatIsNotExactlyTrueOrFalseRefusesInsteadOfNotAdmitting (74 ms)
+[ RUN      ] Roster.TheNotAdmittedCensusKeepsUnscorableAndVisibilityLessApart
+[       OK ] Roster.TheNotAdmittedCensusKeepsUnscorableAndVisibilityLessApart (20 ms)
+[ RUN      ] Roster.RecordsAreOrderedByCandidateIdNotByRowOrder
+[       OK ] Roster.RecordsAreOrderedByCandidateIdNotByRowOrder (24 ms)
+[ RUN      ] Roster.MixedMemberSidesAreTypedUnavailableAndRetained
+[       OK ] Roster.MixedMemberSidesAreTypedUnavailableAndRetained (29 ms)
+[ RUN      ] Roster.AMemberVisibleAfterTheCandidateIsTypedUnavailable
+[       OK ] Roster.AMemberVisibleAfterTheCandidateIsTypedUnavailable (29 ms)
+[ RUN      ] Roster.AMemberWhosePolicyOrReversalDiffersIsTypedUnavailable
+[       OK ] Roster.AMemberWhosePolicyOrReversalDiffersIsTypedUnavailable (26 ms)
+[ RUN      ] Roster.AMemberThatDoesNotResolveInSessionIsTypedUnavailable
+[       OK ] Roster.AMemberThatDoesNotResolveInSessionIsTypedUnavailable (29 ms)
+[ RUN      ] Roster.ASingletonCandidateRowKeyFlipRefusesTheCandidateAndSession
+[       OK ] Roster.ASingletonCandidateRowKeyFlipRefusesTheCandidateAndSession (24 ms)
+[ RUN      ] Roster.AMultiMemberSplitRefusesTheCandidateAndSession
+[       OK ] Roster.AMultiMemberSplitRefusesTheCandidateAndSession (22 ms)
+[ RUN      ] Roster.TheMultiMemberSplitFixtureStillPassesThePrefixSeal
+[       OK ] Roster.TheMultiMemberSplitFixtureStillPassesThePrefixSeal (9 ms)
+[ RUN      ] Roster.AnEmptyPhysicalKeyOnTheRawRowRefuses
+[       OK ] Roster.AnEmptyPhysicalKeyOnTheRawRowRefuses (25 ms)
+[ RUN      ] Roster.ARawRowThatDisagreesOnPolicyReversalVisibilityOrMembersRefuses
+[       OK ] Roster.ARawRowThatDisagreesOnPolicyReversalVisibilityOrMembersRefuses (96 ms)
+[ RUN      ] Roster.AStoredMemberCountThatContradictsTheDerivedCountRefuses
+[       OK ] Roster.AStoredMemberCountThatContradictsTheDerivedCountRefuses (25 ms)
+[ RUN      ] Roster.ARepeatedCandidateIdInOneSessionRefuses
+[       OK ] Roster.ARepeatedCandidateIdInOneSessionRefuses (24 ms)
+[ RUN      ] Roster.EveryMalformedMemberCellShapeIsTypedRefused
+[       OK ] Roster.EveryMalformedMemberCellShapeIsTypedRefused (125 ms)
+[ RUN      ] Roster.TheThreeAuthoritiesMustBeTheSameSession
+[       OK ] Roster.TheThreeAuthoritiesMustBeTheSameSession (24 ms)
+[ RUN      ] Roster.AnOrdinalPastTheWallRefusesBeforeAnythingIsJoined
+[       OK ] Roster.AnOrdinalPastTheWallRefusesBeforeAnythingIsJoined (24 ms)
+[ RUN      ] Roster.DeletingTheLatestVisibleSiblingLeavesEveryEarlierRecordBitUnchanged
+[       OK ] Roster.DeletingTheLatestVisibleSiblingLeavesEveryEarlierRecordBitUnchanged (53 ms)
+[ RUN      ] Roster.TwoBuildsOfOneSessionRenderByteIdenticalOutput
+[       OK ] Roster.TwoBuildsOfOneSessionRenderByteIdenticalOutput (51 ms)
+[----------] 24 tests from Roster (887 ms total)
+
+[----------] 1 test from AdmissionClassLaw
+[ RUN      ] AdmissionClassLaw.TheFourClassesAreDecidedInOnePlaceAndPrimitiveNotAdmittedIsOneOfThem
+[       OK ] AdmissionClassLaw.TheFourClassesAreDecidedInOnePlaceAndPrimitiveNotAdmittedIsOneOfThem (0 ms)
+[----------] 1 test from AdmissionClassLaw (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 107 tests from 15 test suites ran. (1496 ms total)
+[  PASSED  ] 106 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] PrefixSeal.TheFullScopeCensusGateRequiresTheDeclaredRowCount
+
+ 1 FAILED TEST

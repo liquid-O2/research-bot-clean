@@ -165,7 +165,7 @@ Expected<bool, Refusal> admit_decision_ordinal(std::int64_t ordinal) noexcept {
   if (ordinal < kScopeFirstOrdinal || ordinal > kScopeLastOrdinal) {
     return Expected<bool, Refusal>::refuse(
         Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, "qr_wave2::admit_decision_ordinal",
-                "a decision row lives only in the scoped calendar 125..749", ordinal));
+                "a decision row lives only in the scoped calendar 125..917", ordinal));
   }
   return true;
 }

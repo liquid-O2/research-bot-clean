@@ -489,7 +489,7 @@ TEST(Roster, AnOrdinalPastTheWallRefusesBeforeAnythingIsJoined) {
   Fixture fixture = make_fixture();
   ASSERT_TRUE(fixture.registry.has_value());
   ASSERT_TRUE(fixture.projection.has_value());
-  const auto roster = build_session_roster(750, *fixture.registry, *fixture.projection,
+  const auto roster = build_session_roster(918, *fixture.registry, *fixture.projection,
                                            fixture.signals);
   ASSERT_FALSE(roster.has_value());
   EXPECT_EQ(roster.error().code(), qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE);

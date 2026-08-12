@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "qr_registry/day_scope.hpp"
 #include "qr_registry/registry.hpp"
 
 namespace {
@@ -148,9 +149,13 @@ TEST(RegistryParse, LookupByOrdinalAndDayAgreeAndRefuseOutOfRange) {
   EXPECT_EQ(first_scoped.value()->day, "2022-07-05");
   EXPECT_EQ(first_scoped.value()->source_profile, qr::SourceProfile::CentInt32);
 
-  const auto last_scoped = registry.session_at(749);
+  const auto last_scoped = registry.session_at(qr::kScopeLastOrdinal);
   ASSERT_TRUE(last_scoped.has_value());
-  EXPECT_EQ(last_scoped.value()->day, "2024-12-26");
+  EXPECT_EQ(last_scoped.value()->day, "2025-08-29");
+  // The pre-amendment wall row is still exactly where it was; only the wall moved.
+  const auto old_last_scoped = registry.session_at(749);
+  ASSERT_TRUE(old_last_scoped.has_value());
+  EXPECT_EQ(old_last_scoped.value()->day, "2024-12-26");
 
   const auto ordinal = registry.ordinal_of_day("2022-07-05");
   ASSERT_TRUE(ordinal.has_value());

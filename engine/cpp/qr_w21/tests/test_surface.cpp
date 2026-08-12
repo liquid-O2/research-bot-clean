@@ -397,6 +397,7 @@ TEST(ModalityLaw, EveryOrdinalBelowTwoHundredAndNineIsModalityAbsentWithoutTouch
   EXPECT_TRUE(SurfaceBuilder::session_is_modality_absent(208));
   EXPECT_FALSE(SurfaceBuilder::session_is_modality_absent(209));
   EXPECT_FALSE(SurfaceBuilder::session_is_modality_absent(749));
+  EXPECT_FALSE(SurfaceBuilder::session_is_modality_absent(917));
 
   // The builder returns the typed block for an absent session even when the
   // corpus root and the tape root are both EMPTY directories — proof that no

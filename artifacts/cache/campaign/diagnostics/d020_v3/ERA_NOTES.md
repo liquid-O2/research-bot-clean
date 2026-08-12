@@ -34,3 +34,9 @@ S3 trend-day continuation retests (tight MAE ~$47, repeatable within the day).
 NOISE trio (runway<20m / compression day / dead-tape micro-conf) accounts for every non-payer read so far; all three are CHEAP CAUSAL GATES.
 DAY-LEVEL: trend days offer $2-3k via S3 repetition (s402: $3,100 across two entries).
 Blind-phase plan: apply S1-S3 + noise gates; value-class by signature strength x day-type x runway.
+## DAY-COMPLETE VERDICT (frozen playbook_v1, blind 428..447, 466 candidates/20 days)
+1. PRIZE MEASURED ON THE DEPLOYMENT POPULATION: oracle top-3-by-cert = $3,028/day (blind), $2,474/day (study) — the $2k+/day goal EXISTS inside the confirmed-extreme roster in the THIN era, at 3 trades/day.
+2. EXIT VEHICLE IS THE BINDING STEP: identical playbook takes = $1,322/day at exit-free (cert) value vs $23/day through fixed-60m+$300-wall. Fixed exits destroy ~98% of captured value on this population. (All-take study baseline: cert +$288/cand vs 60m -$21/cand.)
+3. COARSE CODIFICATION FAILS: 10-minute-aggregate playbook selection = 1.38x in-sample -> 0.78x blind (inverts). Consistent with census flips + model direction inversion. The selection edge my eyes showed (2.9x, v2) does NOT survive codification INTO COARSE FEATURES — the codification gap is now measured, not hypothesized.
+4. Even inverted selection banks $1,322/day exit-free at 4.2 t/d because the ROSTER ITSELF (confirmation filter, D-033) concentrates value (~$350/cand blind mean).
+CONSEQUENCES: (a) EXIT PHASE PROMOTED — adaptive-exit class is the monetization step, measured; (b) selection research continues at RICHER grain (E-family second-grain channels, model risk/cert sensors) with day-complete blind as the only accepted test; (c) confirmation-roster itself = the first certified-able object (population, not picks).

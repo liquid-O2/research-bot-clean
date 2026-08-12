@@ -101,11 +101,11 @@ def run_block(block):
         for cand, call, tag in calls:
             if call != "TAKE" or cand["second"] < busy_until:
                 continue
-            day_net += cand["menu_net"][H60] / 100.0
+            day_net += cand["menu_net"][H60]
             took += 1
             busy_until = cand["second"] + 3600
         # baselines
-        alln = sum(c["menu_net"][H60] / 100.0 for c, _, _ in calls)
+        alln = sum(c["menu_net"][H60] for c, _, _ in calls)
         day_rows.append((s, rec["day"], len(calls), took, day_net, alln))
     return day_rows, all_calls
 

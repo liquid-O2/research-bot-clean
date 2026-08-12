@@ -93,3 +93,9 @@ case	call	value_class	codes	note
 092	TAKE	B	P-C1-flavored-base-after-flush,P-persistent-buying-130k,E-base-top-push-sponsored,H-hour-base	hour-long accumulation base after the morning flush; sponsored push at the base top
 093	TAKE	B	H-trend-day-HL-retest-complete,P-buyers-back,P-options-confirm-delta-wave,T-with-trend	steady up-day: confirmed HL pullback with two-stream sponsorship = with-trend join
 094	SKIP	C	H-knife-bounce-no-base,P-sellers-still-pressing-now,E-no-absorption-evidence,L-full-retrace-zone	bounce inside an active heavy fade with sellers still hitting = premature knife-catch
+095	SKIP	C	T-runway-11m,P-closing-imbalance-flow-artifact-risk	11 minutes to close; the +391k spike smells like closing rebalance, not signal
+096	TAKE	C	E-HH-rejection-77k-wave,L-range-top-full-traverse,T-runway-45m-caps,P-options-mixed	range-top rejection with a fresh sell wave; late-day runway caps value to C
+097	SKIP	C	T-chasing-live-leg-at-HH,P-dual-sponsorship-noted,H-no-pullback-yet	strongest dual-stream sponsorship in the set BUT entry is the top tick of an accelerating leg; patient law: take the first HL instead
+098	SKIP	C	CONTAM-via-066-086-088-089;H-morning-chop-no-setup,U-spread-z3.4-disorderly,L-mid-range	choppy post-gap morning, wide spread, no completed structure either way
+099	SKIP	C	H-knife-3min-old,P-sell-wave-T1m-47k-active,E-no-absorption-yet,L-VWAP-cluster-below	fast midday drop still in progress into support; patient law says wait for the hold
+100	TAKE	C	H-trend-day-plateau-drift,P-buyers-steady,E-no-impulse-structure,R-drift-regime-caps	open-drive day plateau at highs; with-trend drift continuation, modest ceiling

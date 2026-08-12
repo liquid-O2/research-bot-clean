@@ -1,0 +1,466 @@
+case0001	SKIP	C	giveback 29bp vs 15.8bp runway; no |z|>3 agreement
+case0002	SKIP	C	66bp box, runway 10.9bp, depth 1.3z thick
+case0003	SKIP	C	giveback 40bp vs 13.6bp runway; chop
+case0004	SKIP	C	runway 22.9bp, depth z+2.63 no-travel, box day
+case0005	SKIP	C	1014s confirm lag, runway 14.7bp, chop
+case0006	SKIP	C	giveback 47bp vs 12bp runway; box day
+case0007	SKIP	C	absorption 0.000 z-0.96, depth 1.8x, proxy_vol -0.039/60m; runway 24.6bp
+case0008	SKIP	C	runway 8.7bp, tape lifting offers against the short
+case0009	SKIP	C	1122s confirm lag, giveback 29bp vs 22.9bp runway
+case0010	SKIP	C	midday dead tape 150 prints/min, giveback 28bp vs 12bp runway
+case0011	SKIP	C	depth z+4.44 thick, 129 prints/min dead midday, runway 25.7bp
+case0012	SKIP	C	runway 3.8bp, depth z+6.06
+case0013	SKIP	C	late 15:07, 396k net buying with 0.00bp travel, depth z+3.48
+case0014	SKIP	C	phase .90, 36m left, runway 13.1bp
+case0015	SKIP	C	95k net buying absorbed for +2.5bp, depth 3.1x; first magnet 24.7bp
+case0016	SKIP	C	only magnet 13.7bp day low; 70bp needs new-range extension
+case0017	SKIP	C	giveback 35bp vs 17bp runway; opt delta -2.9z against +10z stock
+case0018	SKIP	C	giveback 19bp vs 11.5bp runway; depth 3.65x
+case0019	SKIP	C	runway 38bp with flow z+0.8, urgency z-1.9; no stream agreement
+case0020	SKIP	C	runway 3.3bp at day low, absorption z-0.4 into depth 2.5x
+case0021	SKIP	C	depth z+4.2, runway 16.5bp, giveback 25bp
+case0022	SKIP	C	range 0.91 ATR spent, runway 11.5bp, giveback 31bp
+case0023	SKIP	C	15:30 with 30m left, depth 5.4x norm, runway 27.5bp
+case0024	SKIP	C	8m to close
+case0025	SKIP	C	range 0.98 ATR by 10:08, flow z+0.5 buying against the short
+case0026	SKIP	C	runway 9.8bp under prior high; absorption z-0.90
+case0027	SKIP	C	absorption z-0.77 into depth 2.35x, first magnet 28bp
+case0028	SKIP	C	absorption 0.000, 3M-share print contaminating flow, runway 23bp
+case0029	SKIP	C	depth z+5.12 thickening, 170 prints/min, runway 16.4bp
+case0030	SKIP	C	dead tape 149 prints/min, depth 3.7x, giveback 26bp vs 27.9bp
+case0031	SKIP	C	opt delta +3.2z/gamma +11.9z buying against the short; runway 2.2bp
+case0032	SKIP	C	long into 14:00 event with flow z-1.5 and urgency z-2.4; giveback 29bp
+case0033	SKIP	C	61bp giveback into the FOMC break, entry at day low, impulse already bouncing
+case0034	SKIP	C	post-FOMC bounce long, objective only 30bp to open; 0DTE 56pct
+case0035	SKIP	C	entry 8bp above the LH being faded, pivot invalidated; newer HL printed
+case0036	SKIP	C	giveback 27bp vs 23.4bp runway, absorption 0.004 on 32k buying
+case0037	SKIP	C	giveback 32bp vs 8.8bp runway
+case0038	SKIP	C	objective 18bp to open; whipsaw structure 4 pivots in 10min
+case0039	SKIP	C	flow z+2.3 buying against the short; giveback 19bp
+case0040	SKIP	C	runway 1.1bp under open, flow z-1.0 against the long
+case0041	TAKE	B	cap-ok 79m; stock -12.3z with opt delta -12.5z/gamma -31z, depth z-2.3 thin, impulse building; 56bp to triple-low
+case0042	SKIP	C	counter-trend long, runway 4.9bp to open, gamma z-4.5
+case0043	SKIP	C	giveback 42bp vs 7.2bp runway; already short this leg
+case0044	SKIP	C	long into -240k/-37bp selloff, flow z-4.55 against
+case0045	SKIP	C	flow flipped to +1.8z buying against the short; no cross-stream agreement
+case0046	SKIP	C	counter-trend long inside a -70bp leg, 34m left, flow flat
+case0047	SKIP	C	phase .93 with 27m left and 42bp already given back; room to the bell ~40bp
+case0048	SKIP	C	10m to close, width 10bp, block-contaminated flow
+case0049	SKIP	C	3m to close
+case0050	SKIP	C	absorption 0.000 z-1.24 into depth 1.55x; long against a descending chain
+case0051	SKIP	C	absorption z-0.92 depth 1.84x, flow z+0.1, no agreement
+case0052	SKIP	C	opt delta z-6.1 selling against the long; runway 17.4bp
+case0053	SKIP	C	depth z+3.13 with absorption z-0.95 no-travel; runway 38.8bp
+case0054	SKIP	C	objective 37.7bp to open, flow z+0.2, long against descending chain
+case0055	SKIP	C	giveback 34bp vs 14.6bp to day low, depth z+3.75; no confluence below
+case0056	SKIP	C	giveback 31bp vs 33.7bp, long against LL-LH-LL chain
+case0057	SKIP	C	flow z+3.45 and opt delta z+3.18 buying against the short
+case0058	SKIP	C	absorption 0.000 z-1.05 into depth 1.54x, runway 16.8bp
+case0059	SKIP	C	giveback 35bp vs 29.2bp runway, delta z-0.2 no agreement
+case0060	SKIP	C	flow z-20 is one 108,750 block at the bid; ex-block flow flat, runway 29.2bp
+case0061	SKIP	C	depth z+3.71, 156 prints/min dead, objective 24.2bp
+case0062	SKIP	C	opt delta +7z vs stock flow -2.6z contradiction inside an 78bp all-day box
+case0063	SKIP	C	flow z+4.78 plus a 46k block at the ask, buying against the short
+case0064	SKIP	C	runway 16.9bp, vanna z-4.2 against the long
+case0065	SKIP	C	giveback 40bp; flow z+13.8 is two blocks (135k, 71k) at the ask, contaminated
+case0066	SKIP	C	giveback 45bp vs 1.1bp runway under the open
+case0067	SKIP	C	objective 37bp to prior close, depth 1.9x, absorption z-0.73
+case0068	SKIP	C	giveback 27bp vs 6.8bp runway, flow flat
+case0069	SKIP	C	giveback 29bp vs 14.7bp runway, depth 2.1x
+case0070	SKIP	C	giveback 31bp vs 14.7bp runway; flow flat
+case0071	SKIP	C	94 prints/min dead, depth z+4.95, runway 16.9bp
+case0072	SKIP	C	giveback 25bp vs 13.0bp runway, gamma z-9.9 against
+case0073	SKIP	C	15:33 with 27m left, giveback 35bp vs 10.7bp runway
+case0074	SKIP	C	range already 1.30 ATR by 10:03; giveback 39bp
+case0075	SKIP	C	absorption 0.000 z-1.32, entry exactly on prior-low, runway 0bp
+case0076	SKIP	C	spent day 1.30 ATR, flow z-0.67 and greeks flat
+case0077	SKIP	C	day range 1.30 ATR spent, giveback 32bp, depth z+3.33
+case0078	SKIP	C	range 1.42 ATR spent, absorption 0.000 z-1.21
+case0079	SKIP	C	runway 3.9bp at day high, day pos 0.96
+case0080	SKIP	C	absorption 0.000 with depth 1.84x, urgency z-2.8; spent day
+case0081	SKIP	C	runway 1.7bp at day high, range 1.61 ATR spent
+case0082	SKIP	C	giveback 34bp vs 8.5bp runway
+case0083	SKIP	C	runway 7.9bp, day pos 0.94, flow z-0.96 against the long
+case0084	SKIP	C	giveback 36bp vs 6.8bp runway
+case0085	SKIP	C	giveback 29bp vs 18bp runway; opt delta z-6.7 against the long
+case0086	SKIP	C	runway 7.3bp, flow z+0.07 flat
+case0087	SKIP	C	giveback 25bp vs 15.8bp runway, absorption 0.000
+case0088	SKIP	C	flow flipped +1.1z; the -150k episode is one 127k block
+case0089	SKIP	C	runway 2.8bp, opt delta z-15 against the long
+case0090	SKIP	C	flow z+2.5 buying against the short, 30m left
+case0091	SKIP	C	10m to close, two 34.5k blocks through the bid
+case0092	SKIP	C	6m to close, depth 5382 z+2.4
+case0093	SKIP	C	3m to close
+case0094	SKIP	C	long against LH-LL chain on a gap-down day; absorption z-1.03
+case0095	TAKE	B	cap-ok 5.9h; flow z-5.05 with opt delta -2.0z/vanna -1.9z at 0pct 0DTE, depth thin, 2x-clock trend day, descending chain
+case0096	SKIP	C	counter-trend long 2m after the break, flow z+0.3, two blocks in the tape
+case0097	SKIP	C	shorting into ASK sweeps 176.19-176.34; opt delta +1.5z/vanna +4.8z against
+case0098	SKIP	C	4 pivots in 5 minutes, whipsaw; greeks flat
+case0099	SKIP	C	flow z+4.09 buying against the short
+case0100	SKIP	C	absorption 0.000 z-1.17 into depth 1.66x; long against descending chain
+case0101	SKIP	C	100bp box with 8 pivots, giveback 32bp vs 24.4bp runway
+case0102	SKIP	C	absorption 0.012 z-0.90 into depth 1.92x; vanna z-2.5 against
+case0103	SKIP	C	absorption z-1.07, chop regime, objective 31.8bp
+case0104	SKIP	C	vanna z-4.45 against the long; giveback 25bp in a box
+case0105	SKIP	C	opt delta z+21 / gamma z+37 call buying against the short; runway 25.6bp
+case0106	SKIP	C	absorption 0.000 z-1.26, vanna z-3.94 against the long
+case0107	SKIP	C	runway 3.4bp, urgency z-3.30 passive, depth 2.2x
+case0108	SKIP	C	depth z+3.05 midday, flow z-0.76 against; 1.2M-share print contaminates
+case0109	SKIP	C	depth z+3.20, absorption 0.000, runway 5.7bp
+case0110	SKIP	C	counter-trend long, giveback 32bp vs 5.1bp runway
+case0111	SKIP	C	depth z+3.59 thick, flow z+0.3, runway 5.1bp
+case0112	SKIP	C	flow z-4.49 and vanna z-6.5 against the long
+case0113	SKIP	C	giveback 32bp vs 1.7bp runway at the day low
+case0114	SKIP	C	counter-trend long, 50m left, absorption 0.000 z-0.76
+case0115	SKIP	C	runway 1.1bp, 40m left, entry at the day low
+case0116	SKIP	C	15m to close, counter-trend long, delta z-2.4 against
+case0117	SKIP	C	9m to close
+case0118	SKIP	C	giveback 28bp is 64pct of the 43bp runway; flow z-2.8 already spent
+case0119	SKIP	C	giveback 16bp exceeds 15bp runway; 356s confirm lag, absorption 0.000
+case0120	SKIP	C	runway 36.9bp under the magnet floor; giveback 58pct of it
+case0121	SKIP	C	giveback 21.6bp vs 23.3bp runway, flow +1.9z against the fade
+case0122	SKIP	C	384s confirm lag, 0DTE 0.76 z3.9 discounts the greeks, flow z-0.5
+case0123	SKIP	C	runway 6.2bp at day position 0.92
+case0124	SKIP	C	61bp to first magnet under the B floor; stock flow +0.65z contradicts opt delta -3.9z
+case0125	SKIP	C	runway 9.6bp, flow z-2.1 against the long
+case0126	SKIP	C	giveback 30bp is 70pct of the 43bp runway, move already made
+case0127	SKIP	C	giveback 22.7bp is 74pct of the 30.6bp runway
+case0128	SKIP	C	delta -18z but 86pct 0DTE, hedge expires; stock flow only -1.1z
+case0129	SKIP	C	giveback 14.7bp is 79pct of the 18.7bp runway
+case0130	SKIP	C	520s confirm lag, depth z+1.8 thickening, every stream flat
+case0131	SKIP	C	runway 13bp, depth z+10.3 no-travel, urgency z-2.7
+case0132	SKIP	C	giveback 18.8bp is 77pct of the 24.5bp runway, 532s lag
+case0133	SKIP	C	non-0DTE delta +10z and vol expanding but only 69.5bp to first magnet at 0.81 ATR realized, phase 0.54
+case0134	SKIP	C	giveback 21bp exceeds the 18.3bp runway
+case0135	SKIP	C	giveback 22.3bp is 69pct of runway; flow z-14.4 against the long
+case0136	SKIP	C	14:52 with 39.7bp runway, phase 0.85
+case0137	SKIP	C	15:03, runway 19.8bp, all streams at norm
+case0138	SKIP	C	15:15 phase 0.88, no time to span 70bp
+case0139	SKIP	C	giveback 10.7bp against a 13bp runway to prior high
+case0140	SKIP	C	runway 23bp, depth z+4.2 thickening no-travel
+case0141	SKIP	C	depth z+2.8 with absorption z-0.4 no-travel; last episode -34k shares yet price +4bp, hidden demand against the short
+case0142	SKIP	C	runway 1.7bp
+case0143	SKIP	C	43bp runway and every stream inside 1z, 189s lag
+case0144	SKIP	C	runway 14.1bp
+case0145	SKIP	C	giveback 17.6bp is 69pct of the 25.5bp runway
+case0146	SKIP	C	giveback 53pct of runway, depth z+5.8 no-travel
+case0147	SKIP	C	realized range 0.98 ATR by 12:04, day spent; option stream silent
+case0148	SKIP	C	runway 6.2bp at day position 0.95
+case0149	SKIP	C	78bp runway but realized range 1.14 ATR, budget gone
+case0150	SKIP	C	runway 3.4bp at day position 0.98
+case0151	SKIP	C	realized range 1.14 ATR, delta z-0.4 flat, spent day
+case0152	SKIP	C	runway 32.6bp, opt delta z-7.8 against the long, absorption z-0.8
+case0153	SKIP	C	1000s confirm lag, all streams flat, spent day
+case0154	SKIP	C	spent day 1.14 ATR at phase 0.66, streams inside 2z
+case0155	SKIP	C	14:35 on a spent day, runway 31.6bp
+case0156	SKIP	C	phase 0.79 on a 1.14 ATR day, depth z+3.0
+case0157	SKIP	C	14:48, runway 33.2bp, every stream inside 1z
+case0158	SKIP	C	15:01 on a 1.14 ATR day, opt delta z-17.5 against the long
+case0159	SKIP	C	15:32, 30m of session left, spent day
+case0160	SKIP	C	15:46, no time to span 70bp
+case0161	SKIP	C	15:50, runway 31.6bp, depth z+3.7
+case0162	SKIP	C	giveback 20.2bp against a 21bp runway to the day low
+case0163	SKIP	C	runway 18.5bp, depth z+2.1, streams flat
+case0164	SKIP	C	runway 2.2bp at day position 0.04
+case0165	SKIP	C	runway 20.8bp, absorption z-1.0, urgency z-1.7
+case0166	SKIP	C	runway 2.2bp at day position 0.03
+case0167	SKIP	C	runway 36bp under the magnet floor, no stream beyond 1z
+case0168	SKIP	C	runway 2.8bp, depth z+3.2 thickening
+case0169	SKIP	C	long against an LH/LL descending staircase, every stream inside 1z
+case0170	SKIP	C	runway 26.9bp, 0DTE 0.64 z2.7, delta flat
+case0171	SKIP	C	flow z-68 is one 772k block with -0.6bp travel, contaminated; long into a descending chain
+case0172	SKIP	C	giveback 24.1bp against a 25.3bp runway
+case0173	SKIP	C	runway 2.7bp
+case0174	SKIP	C	runway 11.3bp, 0DTE 0.75 z4.4 discounts the +11z delta
+case0175	SKIP	C	runway 2.1bp, 0DTE 0.90 on the greek spike
+case0176	SKIP	C	runway 4.7bp at the day low
+case0177	SKIP	C	runway 39.9bp and giveback 48pct of it
+case0178	SKIP	C	runway 0.6bp, 590s confirm lag
+case0179	SKIP	C	realized range 1.14 ATR by 13:22; long into an HH/LL descending chain
+case0180	SKIP	C	runway 5.1bp, 1083s confirm lag
+case0181	SKIP	C	spent day 1.15 ATR, long against a descending chain, 0DTE 0.44 z3.5
+case0182	SKIP	C	runway 2.3bp at day position 0.01
+case0183	SKIP	C	phase 0.70 on a 1.21 ATR day, every stream inside 1z
+case0184	SKIP	C	runway 4.0bp, 759s confirm lag
+case0185	SKIP	C	14:27 on a spent day, flow z-1.2 against the long
+case0186	SKIP	C	runway 5.1bp at the day low
+case0187	SKIP	C	phase 0.79, 1.23 ATR realized, no stream beyond 1z
+case0188	SKIP	C	15:04, runway 34.5bp, spent day
+case0189	SKIP	C	15:14, runway 27.5bp, 544s lag
+case0190	SKIP	C	15:27, runway 35.1bp
+case0191	SKIP	C	15:48, 12m of session left
+case0192	SKIP	C	15:54, runway 31.7bp
+case0193	SKIP	C	15:58, candidate should not have been generated
+case0194	SKIP	C	runway 33bp and flow z+5.1 with +12bp travel against the short
+case0195	SKIP	C	runway 17.6bp
+case0196	SKIP	C	giveback 21bp against a 22.2bp runway
+case0197	SKIP	C	long on a fresh LL in a descending chain, all streams inside 1.4z
+case0198	SKIP	C	runway 2.3bp at the day low
+case0199	SKIP	C	long against an HH/LL/LH/LL staircase, depth z+1.6, streams flat
+case0200	SKIP	C	runway 4.6bp at the day low
+case0201	SKIP	C	giveback 42pct of runway, long on a fresh LL, flow z-10.9 block-driven against it
+case0202	SKIP	C	runway 5.7bp
+case0203	SKIP	C	depth z+2.4 with absorption z-1.2 no-travel; 63bp runway under the B floor
+case0204	SKIP	C	runway 6.3bp, depth z+4.0
+case0205	SKIP	C	opt delta z-7.7 and vanna z-5.0 against the long, giveback 37pct
+case0206	SKIP	C	runway 21.1bp, depth z+3.3
+case0207	SKIP	C	opt delta z-3.2 against the long on a 0.87 ATR day, giveback 32pct
+case0208	SKIP	C	runway 22.3bp, every stream inside 1.3z
+case0209	SKIP	C	57.7bp runway under the B floor, streams inside 2.4z
+case0210	SKIP	C	runway 19.4bp, urgency z-2.0
+case0211	SKIP	C	giveback 32bp is 72pct of the 44.5bp runway
+case0212	SKIP	C	runway 25.7bp, 871s confirm lag
+case0213	SKIP	C	runway 2.9bp, depth z+3.9
+case0214	SKIP	C	runway 4.6bp, 0DTE 0.86 z4.1 on the greek spike
+case0215	SKIP	C	runway 4.6bp, depth z+4.1
+case0216	SKIP	C	runway 4.0bp at the day low
+case0217	SKIP	C	runway 20.1bp on a 1.24 ATR day
+case0218	SKIP	C	runway 5.2bp, urgency z-1.6
+case0219	SKIP	C	runway 19.0bp, 0DTE 0.87 z4.8 discounts the greeks
+case0220	SKIP	C	runway 9.2bp, 922s confirm lag
+case0221	SKIP	C	giveback 21bp against an 8bp runway, 713s confirm lag
+case0222	SKIP	C	runway 12.7bp, opt delta flat against a -13.6z stock print burst
+case0223	SKIP	C	runway 13.2bp, absorption 0.000, 471s lag
+case0224	SKIP	C	14:17 on a 1.24 ATR day, runway 21.8bp
+case0225	SKIP	C	15:09 phase 0.86, day 1.81 ATR realized
+case0226	SKIP	C	runway 6.3bp at 15:14
+case0227	SKIP	C	15:17 with 100m of a 1.81 ATR day left, flow z-2.4 against the long
+case0228	SKIP	C	15:30, flow z+26 is a single 306k block, no travel
+case0229	SKIP	C	15:43, runway 38.6bp, opt delta z-3.2 against the long
+case0230	SKIP	C	15:51, runway 17.3bp
+case0231	SKIP	C	15:53, 7m of session left
+case0232	SKIP	C	giveback 40bp against an 8.1bp runway, spread z+9.7 stress
+case0233	SKIP	C	runway 16.2bp, every stream inside 1z, spread z+4.3
+case0234	SKIP	C	runway 3.8bp with no magnet below, flow only -2.1z and opt delta +1.7z against
+case0235	SKIP	C	giveback 23bp vs 34.8bp runway; day already 1.05 ATR, flow only +2.3z
+case0236	SKIP	C	runway 7.6bp to day low and flow +8.5z buying against the short
+case0237	SKIP	C	28k net buying on -2.4bp travel = hidden supply against the long; day 1.25 ATR
+case0238	SKIP	C	runway 5.2bp; flow -0.75z, no stream beyond 2z
+case0239	SKIP	C	giveback 19bp into 57.6bp with no |z|>3 agreement on a 1.26-ATR spent range
+case0240	SKIP	C	runway 2.3bp to the day low; no capacity whatever the -3.9z flow says
+case0241	SKIP	C	depth z+5.4 thickening with absorption z-1.1 = no-travel signature, flow only +0.9z
+case0242	SKIP	C	runway 7.6bp; flow -1.5z and delta -1.0z, nothing beyond 2z
+case0243	SKIP	C	day already 1.73 ATR spent; vacuum rally noted but only vanna clears 3z
+case0244	SKIP	C	runway 8.8bp and the 9.9z delta/10.5z gamma buying runs against the short
+case0245	TAKE	B	flow +9.2z with opt delta +4.7z at 0pct 0DTE, giveback 22bp into 90bp runway, HL turns the chain up
+case0246	SKIP	C	runway 22.2bp and the 65z flow is one 525k block print, not tape
+case0247	SKIP	C	opt delta -28.3z against the long and proxy_vol falling; stock flow is a 300k block artefact
+case0248	SKIP	C	runway 5.8bp; 7.4-minute confirmation lag on top
+case0249	SKIP	C	giveback 30bp is 36pct of the 83bp runway with depth z+3.7 thick
+case0250	SKIP	C	runway 36.1bp against 17.5bp giveback; only flow clears 3z, option block dead
+case0251	SKIP	C	proxy_vol down 120bp over 60m and the buy impulse already rolled into net selling
+case0252	SKIP	C	runway 31.5bp against 16.3bp giveback and flow only -0.5z
+case0253	SKIP	C	flow -2.0z runs against the long with depth z+2.5 and proxy_vol falling
+case0254	SKIP	C	flow -3.9z short but delta +9.3z/gamma +15.4z/vanna +52.8z buying contradict
+case0255	SKIP	C	giveback only 5bp but no stream past 1z and the tape is selling into the entry
+case0256	SKIP	C	runway 35.6bp and the +15.5z flow is a 96k block lifting offers against the short
+case0257	SKIP	C	dead midday tape, 257 prints in the final minute, nothing past 2.5z
+case0258	SKIP	C	dead 13:00 tape, runway 37.3bp, every stream inside 1.4z
+case0259	SKIP	C	opt delta +14.6z with stock flow at -0.2z is warehousing, no tape passthrough
+case0260	SKIP	C	runway 37.4bp and delta +170z buying contradicts the short outright
+case0261	SKIP	C	phase 0.86 with 56m left and gamma -4.0z/vanna -4.4z against the long
+case0262	SKIP	C	the -30z flow is a 200k block print; ex-block only -5k, and 41bp runway late
+case0263	SKIP	C	19 minutes to close cannot span the 114bp objective
+case0264	SKIP	C	three minutes to the close
+case0265	SKIP	C	runway 0.9bp on a 238s fallback entry 24bp past the pivot
+case0266	SKIP	C	runway 26.5bp, 67pct 0DTE and proxy_vol down 156bp in 15m
+case0267	SKIP	C	runway 2.4bp with price already 23.5bp through the faded high
+case0268	SKIP	C	41.8bp to the only magnet cannot pay B; no stream past 2.2z
+case0269	SKIP	C	runway 8.8bp and flow +1.2z buying against the short
+case0270	SKIP	C	runway 31.8bp with flow -6.9z selling straight against the long
+case0271	SKIP	C	runway 0.6bp, price already at the day low it would be shorting into
+case0272	SKIP	C	47.8bp runway cannot pay B and the -10.5z flow is a 125k block artefact
+case0273	SKIP	C	runway 4.1bp; 84pct 0DTE inflating the only positive readings
+case0274	SKIP	C	giveback 21bp is 40pct of a 53.7bp runway that cannot reach B
+case0275	SKIP	C	entry mid 2bp above the swing high being faded; pivot already invalidated
+case0276	SKIP	C	26bp giveback is 69pct of the 37.7bp runway
+case0277	SKIP	C	runway 31.8bp; the -3.4z flow is a 272k block inside a 25bp UP episode
+case0278	SKIP	C	41.8bp runway cannot pay B and every stream sits inside 2.4z
+case0279	SKIP	C	delta +8.3z and vanna +31.6z buying contradict the short; runway 30.7bp
+case0280	SKIP	C	flow +0.3z, no stream past 1.9z, proxy_vol down 140bp over the hour
+case0281	SKIP	C	47bp to the day low is short of B and the day has run 1.61 ATR
+case0282	SKIP	C	giveback 20bp against an 8.8bp runway into the prior low
+case0283	SKIP	C	flow +1.0z buying and no Greek past 1.2z against the short
+case0284	SKIP	C	runway 0.0bp, spot sitting exactly on the prior/5d/20d low
+case0285	SKIP	C	flow +3.8z buying contradicts the short; only gamma agrees
+case0286	SKIP	C	runway 6.5bp; flow -1.8z runs against the long
+case0287	SKIP	C	runway 18.2bp to the reclaimed prior low despite the -5.0z selling
+case0288	SKIP	C	runway 9.4bp to the open with gamma -6.8z against the long
+case0289	SKIP	C	runway 20.5bp; flow -2.1z is the only stream past 1.8z
+case0290	SKIP	C	runway 5.9bp and the -374k T-1m flow is one 306k block
+case0291	SKIP	C	runway 1.8bp on a pivot confirmed 10 minutes after it printed
+case0292	SKIP	C	runway 10.5bp to prior vwap; nothing else in range
+case0293	SKIP	C	runway 4.7bp despite -6.9z selling; depth z+3.8 thick underneath
+case0294	SKIP	C	runway 19.9bp to the open; flow +1.2z only
+case0295	SKIP	C	runway 9.4bp and the -550k T-15m print is one 544k block
+case0296	SKIP	C	delta -5.0z and vanna -6.3z against the long, 8.5-minute confirmation lag
+case0297	TAKE	B	flow -5.1z with opt delta -15.2z agreeing, proxy_vol expanding 256bp/60m, 22bp giveback into a 71bp runway as price breaks the box low
+case0298	SKIP	C	runway 2.9bp; entry sits on the prior/5d/20d low
+case0299	SKIP	C	depth z+3.4 thick with flow -0.6z; nothing to move it
+case0300	SKIP	C	runway 0.6bp; entry pinned to the prior low
+case0301	SKIP	C	27.6bp giveback is 49pct of the 55.9bp runway despite -3.5z flow and -3.4z delta
+case0302	SKIP	C	runway 5.3bp; the +16.6z delta has nowhere to take price
+case0303	SKIP	C	flow +2.2z buying against the short, every Greek inside 0.6z
+case0304	SKIP	C	runway 32.3bp on a pivot confirmed 7.7 minutes late, depth z+2.7
+case0305	SKIP	C	14 minutes to the close against an 11bp runway
+case0306	SKIP	C	11 minutes left, runway 5.3bp, proxy_vol quote invalid at cutoff
+case0307	SKIP	C	9 minutes to close with 25.7bp already given back into a 5.3bp runway
+case0308	SKIP	C	7 minutes left and the -4.1z flow is the 432k afternoon block trailing off
+case0309	SKIP	C	runway 5.8bp to prior close; 22bp of the fade already spent
+case0310	SKIP	C	runway 15.8bp with depth z+3.7 thickening and absorption at zero
+case0311	SKIP	C	runway 1.8bp; every stream inside 1.1z
+case0312	SKIP	C	giveback 22.8bp against a 13.4bp runway inside a 50bp morning box
+case0313	SKIP	C	runway 2.9bp; eight pivots inside 50bp is chop, no z-score counts
+case0314	SKIP	C	runway 18.7bp; nothing past 2.1z and proxy_vol easing
+case0315	SKIP	C	runway 5.8bp with every stream inside 0.6z
+case0316	SKIP	C	runway 9.9bp to prior high; flow +0.2z
+case0317	SKIP	C	22.2bp giveback into a 28bp runway; flow +2.0z buying against the short
+case0318	SKIP	C	25.7bp giveback against a 14.6bp runway
+case0319	SKIP	C	runway 28.0bp and flow -0.2z, every Greek inside 0.8z
+case0320	SKIP	C	runway 8.0bp to prior vwap after 18.8bp giveback
+case0321	SKIP	C	flow +4.0z buying against the short with only 21.7bp runway
+case0322	SKIP	C	runway 6.9bp; delta +9.6z is contradicted by vanna -7.7z and gamma -5.0z
+case0323	SKIP	C	runway 10.6bp; flow -1.7z is all that agrees
+case0324	SKIP	C	runway 16.3bp to prior vwap; flow -0.4z against the long
+case0325	SKIP	C	runway 10.0bp on 273 prints a minute, nothing past 0.8z
+case0326	SKIP	C	runway 11.0bp; delta +3.5z has no room to work
+case0327	SKIP	C	delta -10.6z and vanna -16.5z but only 11.2bp of runway below
+case0328	SKIP	C	24bp giveback into a 6.9bp runway
+case0329	SKIP	C	flow -9.7z with delta -6.3z agreeing but the day low is 18.8bp away
+case0330	SKIP	C	runway 7.5bp; flow -0.9z against the long, every Greek inside 0.5z
+case0331	SKIP	C	22.3bp giveback into a 7.6bp runway
+case0332	SKIP	C	7.5-minute confirmation lag, runway 17.5bp, 175 prints a minute
+case0333	SKIP	C	delta +18.3z buying against the short and only 15.9bp runway
+case0334	SKIP	C	runway 10.4bp to prior vwap; flow +4.9z has nowhere to go
+case0335	SKIP	C	runway 5.4bp; flow -1.7z and depth z+2.4 thickening
+case0336	SKIP	C	depth z+4.4 with absorption z-0.7 is the no-travel signature; runway 19.2bp
+case0337	SKIP	C	9.3-minute confirmation lag, depth z+4.4 thick, runway 25.1bp
+case0338	SKIP	C	runway 21.0bp cannot pay B despite delta +4.0z and vanna +10.3z
+case0339	SKIP	C	runway 23.3bp; flow -0.7z and every Greek inside 0.4z
+case0340	SKIP	C	runway 2.9bp on a pivot confirmed ten minutes late
+case0341	SKIP	C	nine minutes to close and delta +17.9z buying against the short
+case0342	SKIP	C	177s fallback entry 22bp past the pivot with a 3.5bp runway
+case0343	SKIP	C	runway 9.4bp; flow -0.5z, every Greek inside 0.6z
+case0344	SKIP	C	runway 2.9bp to the prior low; nothing past 1.7z
+case0345	SKIP	C	runway 10.0bp; flow +0.1z with 50pct 0DTE distorting the option block
+case0346	SKIP	C	24bp giveback into a 0.6bp runway
+case0347	SKIP	C	runway 16.4bp; delta +2.0z buying against the short at 74pct 0DTE
+case0348	SKIP	C	flow +8.3z with delta +6.2z but only 2.9bp to the nearest magnet
+case0349	SKIP	C	delta +5.1z and gamma +16.1z buying against the short; runway 17.0bp
+case0350	SKIP	C	giveback only 2bp but runway 22.9bp and no stream past 1z
+case0351	SKIP	C	runway 14.6bp to the open; -4.1z flow has nowhere to take it
+case0352	SKIP	C	runway 18.2bp with 36bp already given back from the LL
+case0353	SKIP	C	runway 13.4bp to prior vwap and no stream past 1z
+case0354	SKIP	C	runway 4.7bp at day position 0.96
+case0355	SKIP	C	delta +15.4z and flow +4.9z buying hard against the short
+case0356	SKIP	C	runway 0.6bp at the day high despite +13.4z delta and +8.9z flow
+case0357	SKIP	C	flow -11.8z with delta -13.0z agreeing but day range 1.70x ATR and 37bp giveback into 93bp
+case0358	SKIP	C	runway 12.1bp
+case0359	SKIP	C	flow -35z is 2/3 one 127,590-share off-market block; day range 1.70x ATR and 35bp giveback
+case0360	SKIP	C	flow z +0.06 with absorption 0.000 into 1.46x depth, 26bp giveback of a 36bp runway
+case0361	SKIP	C	42bp giveback of a 57.8bp runway at 60pct 0DTE with delta flat
+case0362	SKIP	C	flow -11z selling against the long and only 41bp runway
+case0363	SKIP	C	366s confirmation lag, no stream past 2.6z, 29bp giveback
+case0364	SKIP	C	35bp giveback of a 41.6bp runway leaves nothing despite +10.8z flow
+case0365	SKIP	C	270s confirmation lag with flow z -0.29 and delta +0.5z, nothing moving
+case0366	SKIP	C	delta -9.7z and vanna -14.2z selling against the long into a 31.7bp runway
+case0367	SKIP	C	single-stream -3.6z flow with delta at 0.0z and 255s confirmation lag
+case0368	SKIP	C	25bp giveback of a 28.8bp runway
+case0369	SKIP	C	phase 0.83 late session, depth z +2.9 thick, 483s confirmation lag
+case0370	SKIP	C	phase 0.91 and the +33.6z flow is one 312,000-share block print
+case0371	SKIP	C	phase 0.93 with delta +4.9z and gamma +21z buying against the short
+case0372	SKIP	C	phase 0.95, runway 29.4bp, delta -12.3z selling against the long
+case0373	SKIP	C	7 minutes to the close, no capacity for 70bp
+case0374	SKIP	C	runway 5.5bp to the open with 46bp already given back
+case0375	SKIP	C	runway 2.2bp to prior vwap and 31bp giveback
+case0376	SKIP	C	runway 18.1bp and no stream past 0.8z
+case0377	SKIP	C	no-travel signature, depth z +8.73 with absorption z -1.15, runway 30.8bp
+case0378	SKIP	C	runway 7.5bp to prior close and flow +2.9z buying against the short
+case0379	SKIP	C	runway 1.2bp and a 690s confirmation lag
+case0380	SKIP	C	runway 6.9bp with flow +12.3z (a 48k block) buying against the short
+case0381	SKIP	C	871s confirmation lag, 31bp giveback of a 20.8bp runway
+case0382	SKIP	C	runway 20.1bp at phase 0.79 after a 596s confirmation lag
+case0383	SKIP	C	runway 4.0bp at day position 0.97
+case0384	SKIP	C	phase 0.85 with gamma +20.4z buying against the short, runway 27.5bp
+case0385	SKIP	C	capacity fine but no stream past 0.5z and depth z +3.2 with absorption below norm
+case0386	SKIP	C	spot 9bp through the confirmed swing high being faded, 229s fallback window
+case0387	TAKE	B	delta -15.8z and vanna -15.7z at 0pct 0DTE (durable hedge), 23bp giveback into a 108bp runway back to the 5d-high confluence at phase 0.20
+case0388	SKIP	C	runway 2.3bp at day position 0.98
+case0389	SKIP	C	depth z +3.7 with absorption z -0.87 no-travel and no stream past 1.4z, 557s lag
+case0390	SKIP	C	runway 7.9bp at day position 0.95
+case0391	SKIP	C	1630s confirmation lag and flow +3.5z buying against the short
+case0392	SKIP	C	runway 8.5bp
+case0393	SKIP	C	66bp already given back of a 97.6bp runway, 725s confirmation lag
+case0394	SKIP	C	43bp giveback exceeds the 33.4bp runway despite delta +10.8z
+case0395	SKIP	C	1546s confirmation lag, depth z +3.5 with absorption z -0.82, no directional stream
+case0396	SKIP	C	phase 0.77 with only a 32.9bp runway and no stream past 3.2z
+case0397	SKIP	C	phase 0.83 with absorption exactly 0.000 into 1.6x depth and flow z -0.5
+case0398	SKIP	C	runway 25.1bp to prior close
+case0399	SKIP	C	runway 12.5bp and flow z +0.09
+case0400	SKIP	C	34bp giveback against a 19.4bp runway
+case0401	SKIP	C	runway 29.0bp and no directional stream past 0.8z
+case0402	SKIP	C	29bp giveback of a 34.8bp runway with flow z +0.34
+case0403	SKIP	C	runway 9.1bp to prior low
+case0404	SKIP	C	38bp giveback exceeds the 29.6bp runway
+case0405	SKIP	C	runway 8.6bp with delta +5.5z buying against the short
+case0406	SKIP	C	583s confirmation lag, no stream past 0.6z, urgency z -1.8
+case0407	SKIP	C	runway 1.7bp at day position 0.01
+case0408	SKIP	C	29bp giveback is 45pct of the 64bp runway with only delta past 3z
+case0409	SKIP	C	runway 5.7bp
+case0410	SKIP	C	delta +10.9z and gamma +12.1z but 74pct 0DTE so the hedge expires, 33bp giveback
+case0411	SKIP	C	runway 25.7bp and no stream past 1.2z
+case0412	SKIP	C	phase 0.73, 60pct 0DTE, 28bp giveback of a 58bp runway with flow z +0.13
+case0413	SKIP	C	phase 0.77 at 80pct 0DTE with gamma -16.5z and only a 38.8bp runway
+case0414	SKIP	C	phase 0.79, delta -2.5z selling against the long, runway 40.5bp
+case0415	SKIP	C	runway 44.4bp but no stream past 1.0z
+case0416	SKIP	C	runway 2.3bp at day position 0.02
+case0417	SKIP	C	39bp giveback exceeds the 36.3bp runway despite delta +13.0z
+case0418	SKIP	C	28bp giveback against a 21.3bp runway
+case0419	SKIP	C	64bp runway but no stream past 2.2z and vol flat at norm
+case0420	SKIP	C	runway 1.2bp at day position 0.01
+case0421	SKIP	C	delta -3.0z and vanna -2.0z selling against the long, 31bp giveback, depth z +3.2
+case0422	SKIP	C	runway 8.1bp
+case0423	SKIP	C	flow -7.8z selling against the long with delta flat, 21bp giveback
+case0424	SKIP	C	runway 9.2bp with vanna +4.2z buying against the short
+case0425	SKIP	C	476s confirmation lag with no stream past 0.6z
+case0426	SKIP	C	runway 26.0bp and a 954s confirmation lag despite vanna -19.9z
+case0427	SKIP	C	phase 0.73 on a day already 1.76x ATR, and gamma -10.2z contradicts delta +11.2z
+case0428	SKIP	C	runway 2.9bp at day position 0.01
+case0429	SKIP	C	phase 0.75 with the day 1.76x ATR spent, 36bp giveback
+case0430	SKIP	C	phase 0.92 late session, delta -2.3z only
+case0431	SKIP	C	phase 0.93 with vanna -11.3z selling against the long
+case0432	SKIP	C	13 minutes to the close, no capacity for 70bp
+case0433	SKIP	C	8 minutes to the close
+case0434	SKIP	C	3 minutes to the close
+case0435	SKIP	C	runway 7.6bp, 190s fallback window, spread z +10 dislocated
+case0436	SKIP	C	runway 7.6bp with 32bp already given back
+case0437	SKIP	C	runway 2.9bp at day position 0.03
+case0438	SKIP	C	runway 17.5bp to prior close with charm -16.8z
+case0439	SKIP	C	runway 12.3bp to prior low
+case0440	SKIP	C	runway 24.5bp with absorption z -1.09 into 1.6x depth
+case0441	SKIP	C	runway 14.0bp and gamma +6.4z buying against the short
+case0442	SKIP	C	29bp giveback exceeds the 24.5bp runway, gamma -5.0z
+case0443	SKIP	C	runway 13.4bp with delta +3.8z and vanna +11.1z buying against the short
+case0444	SKIP	C	26bp giveback of a 35.1bp runway at 85pct 0DTE
+case0445	SKIP	C	runway 5.3bp to prior low
+case0446	SKIP	C	runway 7.6bp to prior low
+case0447	SKIP	C	runway 10.0bp with delta +2.2z buying against the short
+case0448	SKIP	C	runway 12.9bp and delta -2.2z selling against the long
+case0449	SKIP	C	runway 12.3bp to prior low
+case0450	SKIP	C	runway 11.7bp with absorption z -1.17
+case0451	SKIP	C	runway 25.2bp and no stream past 1.6z
+case0452	SKIP	C	runway 18.8bp with no stream past 0.9z
+case0453	SKIP	C	runway 0.0bp, spot sitting exactly on prior low
+case0454	SKIP	C	runway 18.8bp with 20bp giveback and 90pct 0DTE
+case0455	SKIP	C	runway 12.9bp and 705s confirmation lag
+case0456	SKIP	C	delta +14.2z and vanna +34z but 45bp giveback exceeds the 37.6bp runway
+case0457	SKIP	C	runway 22.9bp with no option stream past 1z
+case0458	SKIP	C	phase 0.71, runway 35.3bp, vanna -15.6z selling against the long
+case0459	SKIP	C	31bp giveback exceeds the 22.9bp runway at phase 0.76
+case0460	SKIP	C	34bp giveback exceeds the 23.5bp runway at phase 0.77
+case0461	SKIP	C	28bp giveback exceeds the 26.4bp runway at phase 0.79
+case0462	SKIP	C	phase 0.83 with 26bp giveback of a 30.0bp runway
+case0463	SKIP	C	phase 0.86, runway 29.4bp, no stream past 1z
+case0464	SKIP	C	phase 0.87 with 27bp giveback of a 31.1bp runway
+case0465	SKIP	C	phase 0.89, runway 38.2bp, no stream past 1z at 48pct 0DTE
+case0466	SKIP	C	10 minutes to the close, runway 27.6bp

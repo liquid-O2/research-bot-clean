@@ -350,6 +350,66 @@ TEST(StraddleSelectionLaw, TheNearestBothSidedStrikeWinsAndNothingIsInterpolated
   EXPECT_EQ(fallback.strike_u6, far_strike);
 }
 
+// THE VALID-ZERO TRAP, on the object that was actually leaking it. `qr::Typed`
+// is a bare aggregate and `Validity::VALID` is 0, so a `Typed<double>{}` member
+// that a code path forgets to assign is published as a MEASUREMENT OF ZERO —
+// and `select_straddle` returns early on three paths (no spot, no strike inside
+// 150bp, an UNDECIDABLE equidistant tie) without touching PROXY_VOL. The
+// retained `StraddleChannels` copy those members unconditionally, so
+// `qr_w21_dump` emitted `proxy_vol_* = 0.0` marked VALID for every second in
+// which an expiry plane had no straddle. An absent straddle must carry NO valid
+// number anywhere.
+TEST(StraddleAbsenceLaw, AbsentStraddleCarriesNoValidZero) {
+  const std::int64_t spot = 200 * kU6;
+  const std::int64_t expiry_day = 20000;
+  const std::int64_t now = (expiry_day * 86400 + 16 * 3600) * 1000 - 86'400'000;
+
+  const auto carries_no_valid_number = [](const StraddleSecond& straddle) {
+    EXPECT_FALSE(straddle.present);
+    EXPECT_NE(straddle.proxy_vol_mid.v, Validity::VALID);
+    EXPECT_NE(straddle.proxy_vol_bid.v, Validity::VALID);
+    EXPECT_NE(straddle.proxy_vol_ask.v, Validity::VALID);
+    EXPECT_NE(straddle.width_bps.v, Validity::VALID);
+  };
+
+  // (a) no spot at all.
+  StraddleLegs legs;
+  carries_no_valid_number(select_straddle(legs, 0, now, expiry_day));
+
+  // (b) a ladder, but nothing inside the 150bp window.
+  const std::int64_t outside = strike_at_log_bps(spot, 151);
+  legs.calls[outside] = quote(3 * kU6, 4 * kU6, 10, 10);
+  legs.puts[outside] = quote(1 * kU6, 2 * kU6, 10, 10);
+  carries_no_valid_number(select_straddle(legs, spot, now, expiry_day));
+
+  // (c) the UNDECIDABLE tie: two strikes exactly equidistant from the spot.
+  StraddleLegs tied;
+  const std::int64_t below = strike_at_log_bps(spot, -50);
+  const std::int64_t above = strike_at_log_bps(spot, 50);
+  if (below != above) {
+    tied.calls[below] = quote(3 * kU6, 4 * kU6, 10, 10);
+    tied.puts[below] = quote(1 * kU6, 2 * kU6, 10, 10);
+    tied.calls[above] = quote(3 * kU6, 4 * kU6, 10, 10);
+    tied.puts[above] = quote(1 * kU6, 2 * kU6, 10, 10);
+    const StraddleSecond result = select_straddle(tied, spot, now, expiry_day);
+    if (!result.present) {
+      carries_no_valid_number(result);
+    }
+  }
+
+  // And a DEFAULT-CONSTRUCTED one, which is what an unassigned array element or
+  // a forgotten branch actually produces.
+  carries_no_valid_number(StraddleSecond{});
+  const StraddleChannels channels{};
+  EXPECT_NE(channels.proxy_vol_mid.v, Validity::VALID);
+  EXPECT_NE(channels.proxy_vol_bid.v, Validity::VALID);
+  EXPECT_NE(channels.proxy_vol_ask.v, Validity::VALID);
+  EXPECT_NE(channels.width_bps.v, Validity::VALID);
+  const ThinningSecond thin{};
+  EXPECT_NE(thin.valid_bucket_fraction.v, Validity::VALID);
+  EXPECT_NE(thin.one_sided_fraction.v, Validity::VALID);
+}
+
 TEST(StraddleSelectionLaw, NothingInsideTheHundredFiftyBpWindowMeansAbsent) {
   const std::int64_t spot = 200 * kU6;
   const std::int64_t expiry_day = 20000;

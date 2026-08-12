@@ -65,8 +65,8 @@ struct QuoteSkewSecond {
   Typed<double> straddle_mid_u6{0.0, Validity::MISSING};
   /// Offset 0 is the ATM rung's own put/call tilt (the put-call parity tilt of
   /// the forward); offsets 1 and 2 are `kQuoteSkewOffsets`.
-  std::array<Typed<double>, 3> tilt{};
-  std::array<Typed<double>, 3> log_ratio{};
+  std::array<Typed<double>, 3> tilt = absent_array<3>();
+  std::array<Typed<double>, 3> log_ratio = absent_array<3>();
   Validity state = Validity::MISSING;
 };
 
@@ -79,8 +79,8 @@ struct QuoteSkewWindow {
   std::int64_t window = 0;
   std::int64_t seconds_present = 0;
   std::int64_t seconds_valid = 0;
-  std::array<Typed<double>, 3> mean_tilt{};
-  std::array<Typed<double>, 3> mean_log_ratio{};
+  std::array<Typed<double>, 3> mean_tilt = absent_array<3>();
+  std::array<Typed<double>, 3> mean_log_ratio = absent_array<3>();
   std::array<std::int64_t, 3> support{};
   /// Window-to-window innovation of the +-1 tilt (the brief's headline rung).
   Typed<double> d_mean_tilt_1{0.0, Validity::MISSING};

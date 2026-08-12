@@ -22,7 +22,9 @@ FEATURES (every one lagged; nothing from session s except the calendar):
 
 FIT.  Expanding window, refit every REFIT_EVERY sessions, minimum MIN_TRAIN rows;
 alpha picked by a purely in-train TimeSeriesSplit.  A row is only ever predicted
-by a model whose training rows all lie strictly before it.  Range pinned 125..447.
+by a model whose training rows all lie strictly before it.  Range = the lawful
+scope 125..917 (D-038 wall move; the walk-forward fitting generalises to it
+unchanged — every added session is simply another expanding-window row).
 
 BASELINES (both DEBIASED on the training window, i.e. given their best shot):
     persistence  yesterday's realised value    + train-fitted log offset
@@ -68,7 +70,9 @@ WARMUP = 66                     # the longest HAR window
 #: Reporting eras.  D-037's three walk-forward eras, with the gate_select era cut
 #: at the D-034 study/blind boundary so the emitted context can be read per block.
 ERAS = (("E1_2022H2", 125, 229), ("E2_2023H1", 230, 330), ("E3_2023Q3", 331, 397),
-        ("STUDY_398_427", 398, 427), ("BLIND_428_447", 428, 447))
+        ("STUDY_398_427", 398, 427), ("BLIND_428_447", 428, 447),
+        ("E4_2023Q4", 448, 497), ("E5_2024H1", 498, 623), ("E6_2024H2", 624, 735),
+        ("E7_2025H1", 736, 917))
 
 
 def read_tsv(path: pathlib.Path) -> dict:

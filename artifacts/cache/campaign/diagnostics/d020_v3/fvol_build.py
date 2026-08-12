@@ -1,7 +1,10 @@
 """fvol_build.py — FORWARD-VOL REVIVAL, step 1: the per-session DAILY TABLE.
 
 Rebuilt from scratch (D-010: the archived model is reference only; every number
-here is recomputed from our own substrate).  One row per session in 125..447:
+here is recomputed from our own substrate).  One row per session in 125..917
+(FINAL_PLAN AMENDMENT 2026-08-12-c / D-038 moved the research wall from 447 to
+W = 917; D-042 requires the fvol context on every sheet, so the daily table
+covers the whole lawful scope):
 
   TARGETS (this session's realised outcome, RTH only, from our own 1s grid)
     rng_bps   RTH high-low range, bps of the session's first valid mid
@@ -16,7 +19,7 @@ here is recomputed from our own substrate).  One row per session in 125..447:
     atr14_bps                    packlib session_meta (already a prior-only stat)
 
 No fits, no walls crossed: `packlib.assert_wall` gates every read and the sweep
-range is pinned to 125..447.
+range is pinned to the lawful scope 125..917 (`packlib.DRAW_WALL`).
 """
 from __future__ import annotations
 
@@ -38,7 +41,7 @@ VOL_DIR = pathlib.Path("/workspace/artifacts/reference/vol_indices")
 VOL_INDICES = {"rvx": ("FRED_RVXCLS.csv", "RVXCLS"),
                "vix": ("FRED_VIXCLS.csv", "VIXCLS"),
                "vxd": ("FRED_VXDCLS.csv", "VXDCLS")}
-FIRST, LAST = 125, 447
+FIRST, LAST = P.DRAW_WALL
 
 
 def index_tables() -> dict:

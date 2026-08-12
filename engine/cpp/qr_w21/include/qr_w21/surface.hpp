@@ -176,11 +176,15 @@ struct BucketSecond {
   std::int64_t ask_size_sum = 0;
   /// The size-weighted moments over the TWO-SIDED members (a one-sided quote
   /// has no spread at all), weight = that member's `bid_size + ask_size`.
-  Typed<double> mean_spread_bps{};
-  Typed<double> stdev_spread_bps{};
+  /// Absences by default, for the reason spelled out on `StraddleSecond`: a
+  /// `Typed<double>{}` is a VALID ZERO, and a channel must never start life
+  /// claiming to be a measurement. These four are assigned on every path today;
+  /// the default is what keeps that true when a path is added.
+  Typed<double> mean_spread_bps{0.0, Validity::MISSING};
+  Typed<double> stdev_spread_bps{0.0, Validity::MISSING};
   /// Over EVERY member (an age exists whether or not the quote is two-sided).
-  Typed<double> mean_log1p_age_micros{};
-  Typed<double> two_sided_fraction{};
+  Typed<double> mean_log1p_age_micros{0.0, Validity::MISSING};
+  Typed<double> two_sided_fraction{0.0, Validity::MISSING};
   /// Q4's validity: `2 * two_sided >= contracts`, and never on an empty bucket.
   bool valid = false;
 
@@ -220,12 +224,27 @@ struct StraddleSecond {
   /// A2: "width W_S = S_ask - S_bid".
   std::int64_t width_u6 = 0;
   /// §W21-PIN-2: the CHANNEL image of W_S, in underlying basis points.
-  Typed<std::int64_t> width_bps{};
+  Typed<std::int64_t> width_bps{0, Validity::MISSING};
   /// A2: PROXY_VOL = S/(m*sqrt(T)) — "label PROXY_VOL, never IV". Bid-side and
   /// ask-side are carried SEPARATELY, as A2 requires.
-  Typed<double> proxy_vol_mid{};
-  Typed<double> proxy_vol_bid{};
-  Typed<double> proxy_vol_ask{};
+  ///
+  /// THE DEFAULTS ARE ABSENCES, DELIBERATELY, AND THIS IS WHY. `qr::Typed` is a
+  /// bare aggregate and `Validity` declares `VALID` first, so `Typed<double>{}`
+  /// is `{0.0, VALID}` — a value that was never computed, published as a
+  /// MEASUREMENT OF ZERO. `select_straddle` returns EARLY when the spot is
+  /// absent, when no strike inside 150bp has both legs two-sided, and when two
+  /// strikes are exactly equidistant (the UNDECIDABLE tie), and on all three
+  /// paths these three members are never assigned. The retained
+  /// `StraddleChannels` copy them unconditionally, so `qr_w21_dump` was
+  /// emitting `proxy_vol_bid/ask/mid = 0.0` marked VALID for every second in
+  /// which that expiry plane had no straddle at all. Fixed 2026-08-12 with a
+  /// red-first fixture (`StraddleAbsenceLaw.AbsentStraddleCarriesNoValidZero`).
+  /// The FEATURE path never saw it — it is guarded by `present` — so no emitted
+  /// corpus is affected; the damage was to every census, dump and decision
+  /// sheet built on the retained per-second channels.
+  Typed<double> proxy_vol_mid{0.0, Validity::MISSING};
+  Typed<double> proxy_vol_bid{0.0, Validity::MISSING};
+  Typed<double> proxy_vol_ask{0.0, Validity::MISSING};
   bool present = false;
   Validity absence = Validity::MODALITY_ABSENT;
 };
@@ -240,10 +259,10 @@ struct StraddleChannels {
   /// §W21-PIN-2: W_S and its {5,30,120}s deltas in UNDERLYING basis points —
   /// the deltas are differences OF THE BPS CHANNEL, as the ruling states.
   std::array<Typed<double>, 3> dwidth_bps{};
-  Typed<double> proxy_vol_mid{};
-  Typed<double> proxy_vol_bid{};
-  Typed<double> proxy_vol_ask{};
-  Typed<double> width_bps{};
+  Typed<double> proxy_vol_mid{0.0, Validity::MISSING};
+  Typed<double> proxy_vol_bid{0.0, Validity::MISSING};
+  Typed<double> proxy_vol_ask{0.0, Validity::MISSING};
+  Typed<double> width_bps{0.0, Validity::MISSING};
 };
 
 /// Q3's T in years, or absent when the 300s guard fires. `ts_ms_b` and the
@@ -270,14 +289,14 @@ struct RequoteEventRecord {
 };
 
 struct ThinningSecond {
-  Typed<double> valid_bucket_fraction{};
+  Typed<double> valid_bucket_fraction{0.0, Validity::MISSING};
   /// A2: "valid-bucket fraction now vs 60s ago" — the difference, absent until
   /// 60s of session have elapsed.
-  Typed<double> valid_bucket_fraction_delta_60s{};
-  Typed<double> one_sided_fraction{};
+  Typed<double> valid_bucket_fraction_delta_60s{0.0, Validity::MISSING};
+  Typed<double> one_sided_fraction{0.0, Validity::MISSING};
   /// A2 + Q10: fraction of the VALID buckets whose current size-weighted mean
   /// spread exceeds twice its own 900s trailing median of the 60s samples.
-  Typed<double> wide_vs_trailing_median_fraction{};
+  Typed<double> wide_vs_trailing_median_fraction{0.0, Validity::MISSING};
 };
 
 /// Q9's channels for one bucket at one second, sigma-rho oriented on the

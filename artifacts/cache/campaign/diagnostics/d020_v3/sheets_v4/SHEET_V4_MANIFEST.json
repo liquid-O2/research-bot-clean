@@ -1,0 +1,208 @@
+{
+ "case_wall": [
+  125,
+  917
+ ],
+ "deferred": [
+  {
+   "layer": "continuous per-contract option QUOTE series (section 6)",
+   "needs": "an orchestrator DESIGN decision (D-002): which summary of the series the sheet should carry (quote count / time-at-touch / width path at what stride) before any cache is built.",
+   "status": "EMITTABLE TODAY \u2014 qr_w21_dump gained `--contract <YYYY-MM-DD>:<strike_u6>:<C|P>` and `--top-k N` with the B5 landing. v3's sheets called this NEEDS-TOOL; that statement is now false and the v4 sheet does not repeat it.",
+   "why_not_carried": "cost, measured on ordinal 600: one contract's session series is 566,168 quote rows (~25MB, ~6.4s to dump). The three contracts of each of ~22,000 candidates is a corpus, not a sheet layer."
+  }
+ ],
+ "directive": "D-042 (reader-round sequencing law): no reader round launches until the case views are certified DATA-COMPLETE against the current lawful inventory. This file is that certificate.",
+ "excluded_on_purpose": [
+  {
+   "field": "qr_ivx D7 spike/bleed vol STATE",
+   "reason": "its cut is the session's own 80th percentile of |window-to-window PROXY_VOL change| \u2014 a whole-session statistic, so printing it on a mid-session sheet would leak the rest of the day. The per-window channels it is built from (vol-of-vol, PROXY_VOL relative change) ARE printed."
+  },
+  {
+   "field": "vendor theta / rho",
+   "reason": "CC-013 refused them: the vendor's rate and dividend curves are an unowned model backdoor."
+  }
+ ],
+ "generator": "sheet4.py",
+ "ivx_window_seconds": 1800,
+ "ivx_windows_shown": 2,
+ "landed_since_v3": [
+  "CC-013 third-order option-print projection (vega/vomma/veta/vera/speed/zomma/color/ultima/dual_delta/dual_gamma/iv_error)",
+  "B5 RUTW option-print reader (qr_sources::RutwPrintReader)",
+  "qr_ivx (B1,B2,B3,D1-D9): traded-IV skew/term/richness/dispersion, quote-skew proxy, fluctuation-dissipation ratio, A3 irreversibility",
+  "FRED RVX/VIX/VXD strictly-prior vol-index join table",
+  "the rebuilt walk-forward forward-vol model (implied move / sigma_day / bands)"
+ ],
+ "root": "/workspace/artifacts/cache/campaign/diagnostics/d020_v3/sheets_v4",
+ "sealed_from": 918,
+ "sections": [
+  {
+   "absent_when": null,
+   "cache": [
+    "_cache/ribbon",
+    "_cache/minutes",
+    "_cache/minutes_day"
+   ],
+   "name": "T-MINUS TRAJECTORY",
+   "number": 1,
+   "reads": "packlib minute cache + the raw stock/option ribbon",
+   "tools": [
+    "qr_tape_ribbon (prints,options)",
+    "packlib.minute_aggregates"
+   ]
+  },
+  {
+   "absent_when": null,
+   "cache": [
+    "_cache/ribbon"
+   ],
+   "name": "GREEK EVOLUTION",
+   "number": 2,
+   "reads": "the option prints' own B3 delta/gamma/vanna/charm slots",
+   "tools": [
+    "qr_tape_ribbon (prints,options)"
+   ]
+  },
+  {
+   "absent_when": null,
+   "cache": [
+    "_cache/ribbon"
+   ],
+   "name": "TRADED IV",
+   "number": 3,
+   "reads": "the same prints' vendor implied_vol",
+   "tools": [
+    "qr_tape_ribbon (prints,options)"
+   ]
+  },
+  {
+   "absent_when": "session < 209 (Q12 MODALITY_ABSENT: no option-quote corpus)",
+   "cache": [
+    "_cache/w21norm"
+   ],
+   "name": "DEALER SURFACE",
+   "number": 4,
+   "reads": "qr_w21_dump PROXY_VOL planes, residual, requote/coverage",
+   "tools": [
+    "qr_w21_dump --stride 60"
+   ]
+  },
+  {
+   "absent_when": "the B5 corpus has no file for the civil day (vendor gap), or the decision precedes the first closed 30-minute window (spread only)",
+   "cache": [
+    "_cache/ribbon4",
+    "_cache/ivx"
+   ],
+   "name": "RUTW OPTION TAPE",
+   "number": 5,
+   "reads": "qr_tape_ribbon --streams options,rutw + qr_ivx D6 spread",
+   "tools": [
+    "qr_tape_ribbon --streams options,rutw --greeks full",
+    "qr_ivx_census (D6 cross-tape spread)"
+   ]
+  },
+  {
+   "absent_when": "no option print with an attached quote block in the last 15 minutes",
+   "cache": [
+    "_cache/ribbon"
+   ],
+   "deferred_layer": "the CONTINUOUS per-contract quote series (qr_w21_dump --contract / --top-k) \u2014 see `deferred`",
+   "name": "CONTRACT-LEVEL OPTION QUOTES",
+   "number": 6,
+   "reads": "each print's own attached NBBO block",
+   "tools": [
+    "qr_tape_ribbon (prints,options)"
+   ]
+  },
+  {
+   "absent_when": null,
+   "cache": [
+    "_cache/ribbon"
+   ],
+   "name": "EPISODE DIGEST + FINAL 60s RIBBON",
+   "number": 7,
+   "reads": "the raw stock print tape",
+   "tools": [
+    "qr_tape_ribbon (prints,options)"
+   ]
+  },
+  {
+   "absent_when": null,
+   "cache": [
+    "_cache/w2meta",
+    "tapes features/grid_1s.npy"
+   ],
+   "name": "SWING STRUCTURE / LEVELS / DAY",
+   "number": 8,
+   "reads": "the causal ORCH-6.1 ZigZag + W2.13 meta",
+   "tools": [
+    "qr_wave2_dump values",
+    "render.swings (ORCH-6.1 ZigZag)"
+   ]
+  },
+  {
+   "absent_when": "no ribbon4 dump for the session",
+   "cache": [
+    "_cache/ribbon4"
+   ],
+   "name": "THIRD-ORDER GREEK STATE",
+   "number": 9,
+   "reads": "qr_tape_ribbon --greeks full (CC-013 slots)",
+   "tools": [
+    "qr_tape_ribbon --greeks full"
+   ]
+  },
+  {
+   "absent_when": "the decision is inside the first 30-minute window; richness and the quote-skew proxy additionally need session >= 209",
+   "cache": [
+    "_cache/ivx"
+   ],
+   "name": "SKEW / TERM / RICHNESS",
+   "number": 10,
+   "reads": "qr_ivx_census B1/B2/D1/D3 + qr_ivx_qskew B3",
+   "tools": [
+    "qr_ivx_census (B1,B2,D1,D3)",
+    "qr_ivx_qskew (B3, plane 0)"
+   ]
+  },
+  {
+   "absent_when": "session < 209 (no W2.1 surface), or no closed 30-minute window",
+   "cache": [
+    "_cache/ivx"
+   ],
+   "name": "FD / A3 GAUGES",
+   "number": 11,
+   "reads": "qr_ivx_census D8/D9 surface dynamics",
+   "tools": [
+    "qr_ivx_census (D8,D9)"
+   ]
+  },
+  {
+   "absent_when": "the session has no row in the join table",
+   "cache": [
+    "artifacts/cache/ivx/vol_index_context.tsv"
+   ],
+   "name": "VOL-INDEX CONTEXT",
+   "number": 12,
+   "reads": "FRED RVX/VIX/VXD strictly-prior session join",
+   "tools": [
+    "qr_ivx_volindex (FRED RVX/VIX/VXD)"
+   ]
+  },
+  {
+   "absent_when": "the expanding window had too few strictly-prior rows to forecast",
+   "cache": [
+    "_cache/fvol/sessions.tsv",
+    "_cache/fvol/minutes"
+   ],
+   "name": "FORWARD-VOL CONTEXT",
+   "number": 13,
+   "reads": "the walk-forward implied-move / sigma_day heads",
+   "tools": [
+    "fvol_build.py",
+    "fvol_model.py (walk-forward)",
+    "fvol_emit.py"
+   ]
+  }
+ ],
+ "version": "SHEET-V4"
+}

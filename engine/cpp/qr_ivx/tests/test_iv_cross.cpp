@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "qr_ivx/iv_cross.hpp"
+#include "qr_ivx/quote_skew.hpp"
 #include "qr_sources/normalize.hpp"
 #include "qr_w21/surface.hpp"
 
@@ -477,6 +478,51 @@ TEST(SurfaceDynamics, ZeroFluctuationTypesTheRatioAbsent) {
   EXPECT_NE(dynamics.window[0].fd_ratio.v, qr::Validity::VALID);
   ASSERT_EQ(dynamics.window[0].fd_sigma_vv.v, qr::Validity::VALID);
   EXPECT_NEAR(dynamics.window[0].fd_sigma_vv.value, 0.0, 1e-15);
+}
+
+// THE VALID-ZERO TRAP. `Typed` is a bare aggregate and `Validity::VALID` is 0,
+// so `std::array<Typed<double>, N>{}` value-initialises to `{0.0, VALID}` — an
+// absence published as a MEASUREMENT OF ZERO. Every array of `Typed` in this
+// module must therefore start ABSENT. This fixture proves it on the object the
+// bug was found on (`CrossTapeSpread::ratio` was emitting VALID 0 for every
+// window in which one of the two tapes had no near ATM IV) and on the
+// per-cell smile vectors.
+TEST(TypedAbsence, ArraysOfTypedStartAbsentNotValidZero) {
+  const qr::ivx::CrossTapeSpread fresh{};
+  for (std::size_t window = 0; window < qr::ivx::kWindows; ++window) {
+    EXPECT_NE(fresh.spread[window].v, qr::Validity::VALID) << "spread w" << window;
+    EXPECT_NE(fresh.d_spread[window].v, qr::Validity::VALID) << "d_spread w" << window;
+    EXPECT_NE(fresh.ratio[window].v, qr::Validity::VALID) << "ratio w" << window;
+  }
+  const qr::ivx::SkewCell cell{};
+  for (std::size_t slot = 0; slot < cell.band_iv.size(); ++slot) {
+    EXPECT_NE(cell.band_iv[slot].v, qr::Validity::VALID) << "band_iv " << slot;
+    EXPECT_NE(cell.d_band_iv[slot].v, qr::Validity::VALID) << "d_band_iv " << slot;
+  }
+  const qr::ivx::QuoteSkewSecond second{};
+  const qr::ivx::QuoteSkewWindow window{};
+  for (std::size_t offset = 0; offset < second.tilt.size(); ++offset) {
+    EXPECT_NE(second.tilt[offset].v, qr::Validity::VALID);
+    EXPECT_NE(second.log_ratio[offset].v, qr::Validity::VALID);
+    EXPECT_NE(window.mean_tilt[offset].v, qr::Validity::VALID);
+    EXPECT_NE(window.mean_log_ratio[offset].v, qr::Validity::VALID);
+  }
+}
+
+// The same law on a REAL cross-tape result: a window in which the right-hand
+// tape has no near ATM IV must carry an ABSENT ratio, not a ratio of zero.
+TEST(TypedAbsence, CrossTapeRatioIsAbsentWhereEitherTapeIsAbsent) {
+  qr::ivx::TradedIvTables left;
+  qr::ivx::TradedIvTables right;
+  for (std::size_t window = 0; window < qr::ivx::kWindows; ++window) {
+    left.term[window].near_iv = {0.20, qr::Validity::VALID};
+  }
+  // `right` keeps every near_iv at its declared absence.
+  const qr::ivx::CrossTapeSpread spread = qr::ivx::cross_tape_spread(left, right);
+  for (std::size_t window = 0; window < qr::ivx::kWindows; ++window) {
+    EXPECT_NE(spread.spread[window].v, qr::Validity::VALID) << "w" << window;
+    EXPECT_NE(spread.ratio[window].v, qr::Validity::VALID) << "w" << window;
+  }
 }
 
 // D8, the INNOVATION. `d_fd_ratio` is the window-to-window change of the ratio,

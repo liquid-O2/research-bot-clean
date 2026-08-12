@@ -128,6 +128,28 @@ inline constexpr std::int64_t kMinA3Pairs = 120;
 inline constexpr std::int64_t kVolStateQuantileNumerator = 80;
 inline constexpr std::int64_t kVolStateQuantileDenominator = 100;
 
+/// AN ARRAY OF TYPED ABSENCES, and the reason this helper has to exist.
+///
+/// `qr::Typed` is a bare aggregate (`{T value; Validity v;}`) and `Validity`
+/// declares `VALID` FIRST, so `Validity::VALID == 0` and
+/// `std::array<Typed<double>, N>{}` value-initialises every element to
+/// `{0.0, VALID}` — a VALID ZERO. That is precisely the "an absence filled with
+/// a zero" this program forbids everywhere else: a channel that was never
+/// computed would be published as a measurement of zero, and a consumer reading
+/// the `_v` column would be told to believe it.
+///
+/// Every SCALAR `Typed` member in this header already carries an explicit
+/// `{0.0, Validity::MISSING}` initialiser for that reason. The ARRAY members
+/// could not say the same thing with `{}`, so they say it through this.
+template <std::size_t N>
+[[nodiscard]] constexpr std::array<Typed<double>, N> absent_array() {
+  std::array<Typed<double>, N> out{};
+  for (std::size_t index = 0; index < N; ++index) {
+    out[index] = Typed<double>{0.0, Validity::MISSING};
+  }
+  return out;
+}
+
 /// The right-open band of `x_bps` on `kMoneynessEdgesBps`. Total: every integer
 /// lands in exactly one of the nine bands.
 [[nodiscard]] std::size_t moneyness_band(std::int64_t x_bps) noexcept;
@@ -213,7 +235,7 @@ struct SkewCell {
   std::int64_t same_second_groups = 0;
 
   /// D4: the per-(band, right) size-weighted mean IV of the cell.
-  std::array<Typed<double>, kBands * kRights> band_iv{};
+  std::array<Typed<double>, kBands * kRights> band_iv = absent_array<kBands * kRights>();
   std::array<std::int64_t, kBands * kRights> band_weight{};
 
   /// The window-to-window innovations (this cell minus the SAME expiry's cell
@@ -223,7 +245,7 @@ struct SkewCell {
   Typed<double> d_skew_slope{0.0, Validity::MISSING};
   Typed<double> d_curvature{0.0, Validity::MISSING};
   /// D4's innovation VECTOR: which part of the smile moved.
-  std::array<Typed<double>, kBands * kRights> d_band_iv{};
+  std::array<Typed<double>, kBands * kRights> d_band_iv = absent_array<kBands * kRights>();
 
   /// D1: size-weighted mean of (print IV - concurrent PROXY_VOL), in vol
   /// points. `plain` compares against the ATM PROXY_VOL as-is and is therefore
@@ -469,9 +491,9 @@ void emit(Report& report, const std::string& session_key, const SurfaceDynamics&
 /// IV, per window, with its window-to-window innovation. Both sides must be
 /// VALID in a window or the spread is typed absent there.
 struct CrossTapeSpread {
-  std::array<Typed<double>, kWindows> spread{};
-  std::array<Typed<double>, kWindows> d_spread{};
-  std::array<Typed<double>, kWindows> ratio{};
+  std::array<Typed<double>, kWindows> spread = absent_array<kWindows>();
+  std::array<Typed<double>, kWindows> d_spread = absent_array<kWindows>();
+  std::array<Typed<double>, kWindows> ratio = absent_array<kWindows>();
 };
 [[nodiscard]] CrossTapeSpread cross_tape_spread(const TradedIvTables& left,
                                                 const TradedIvTables& right);

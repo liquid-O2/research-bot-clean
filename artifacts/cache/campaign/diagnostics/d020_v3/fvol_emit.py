@@ -242,12 +242,12 @@ CONTEXT_COLUMNS = ("session", "forecast_arm", "implied_move_bps", "sigma_day_bps
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--from", dest="start", type=int, default=125)
-    parser.add_argument("--to", dest="stop", type=int, default=447)
+    parser.add_argument("--from", dest="start", type=int, default=P.DRAW_WALL[0])
+    parser.add_argument("--to", dest="stop", type=int, default=P.DRAW_WALL[1])
     args = parser.parse_args()
 
     forecast = read_forecast()
-    profile = Profile([o for o in range(125, 448)])
+    profile = Profile([o for o in range(P.DRAW_WALL[0], P.DRAW_WALL[1] + 1)])
     MINUTES.mkdir(parents=True, exist_ok=True)
     contexts = []
     for ordinal in range(args.start, args.stop + 1):

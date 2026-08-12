@@ -29,3 +29,13 @@ case	call	value_class	codes	note
 028	SKIP	C	P-H1-live-sell-elephant-z-neg8,H-fresh-flush-unabsorbed,P-options-diverge-buying-note	−8z sell burst seconds ago at range low; elephant law says wait for absorption evidence
 029	SKIP	C	CONTAM-via-008;H-recovery-HH-HL-against,R-vol-bleeding-risk-on,P-mixed	counter-trend short into an established HL/HH recovery with vol bleeding = bull-flag risk
 030	SKIP	C	P-persistent-supply-800k,H-no-base-fresh-low,E-wall-no-fear-noted,T-knife	prior-low touch but hour-long elephant distribution still in control; no base to stand on
+031	TAKE	B	P-G1-partial-flow-flip-neg2.7,R-vol-vertical-0dte-z3.3,H-grind-top,L-under-VWAP-cluster	blowoff-lite at a grind top: vertical vol + 0DTE frenzy + sell burst at marginal high
+032	TAKE	B	CONTAM-lite-via-005;E-sell-effort-absorbed-at-HL,L-double-HL,P-flow-pressing,H-two-sided-open	defended higher-low: big sell flow moving price barely (absorption); second test holding
+033	TAKE	B	CONTAM-via-012;near-dup-018;P-sponsored-breakdown-z-neg2.9,E-spread-wide	same moment as 018 +8s; consistent call
+034	TAKE	B	P-E1-divergent-grind,L-under-prior-VWAP,H-recovery-into-LH,P-options-flat	price up 75bp on NET-NEGATIVE flow into VWAP resistance = distribution grind; options not confirming
+035	TAKE	B	CONTAM-via-004-015;E-sell-wave-absorbed-147k,P-A2-protection-spike-at-low,P-flow-flip,R-nfp-regime	200k of selling defended at the retrace zone; protection spike + flow flip = reversal fuel
+036	SKIP	C	T-runway-7s-dead,study-002-analog	seven seconds before the close; structurally dead regardless of tape
+037	TAKE	B	P-sponsored-recovery-waves-81k,H-flush-base-recovery,R-vol-bleeding,L-gap-fill-room	post-flush reversal with sponsored buy waves + fear bleeding; mid-leg entry, room to run
+038	SKIP	C	CONTAM-via-016;same-config-knife-continuing,P-F1-still-active	2.5min after case016's moment: knife deeper, dip-buyers still trapped
+039	SKIP	C	E-absorption-collapse-at-low,P-options-refusal-wave-z4,E-depth-wall,H-mature-leg	continuation short into a defended low: options buying +4z against, flow being eaten
+040	TAKE	B	P-join-fresh-elephant-z-neg9.7,H-recovery-HL-broken,R-vol-rising,E-spread-widening,U-mid-burst-risk	joining a −9.7z break of the recovery structure; vol+spread confirm; timing risk noted

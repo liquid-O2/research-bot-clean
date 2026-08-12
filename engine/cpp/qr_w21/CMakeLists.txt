@@ -26,3 +26,9 @@ add_test(NAME qr_w21_tests COMMAND qr_w21_tests)
 add_executable(qr_w21_census tools/qr_w21_census.cpp)
 target_link_libraries(qr_w21_census PRIVATE qr_w21)
 qr_apply_boundary_flags(qr_w21_census)
+
+# The D-020 pack dump: the retained per-second surface/straddle/coverage series
+# over a named window, for the case packs.
+add_executable(qr_w21_dump tools/qr_w21_dump.cpp)
+target_link_libraries(qr_w21_dump PRIVATE qr_w21)
+qr_apply_boundary_flags(qr_w21_dump)

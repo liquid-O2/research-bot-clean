@@ -57,6 +57,13 @@ target_link_libraries(qr_wave2_census PRIVATE qr_wave2)
 target_include_directories(qr_wave2_census PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tools)
 qr_apply_boundary_flags(qr_wave2_census)
 
+# The D-020 pack dump: the same pathway as the census, with the CHANNEL VALUES
+# printed at named decision seconds instead of folded into a presence counter.
+add_executable(qr_wave2_dump tools/qr_wave2_dump.cpp)
+target_link_libraries(qr_wave2_dump PRIVATE qr_wave2)
+target_include_directories(qr_wave2_dump PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tools)
+qr_apply_boundary_flags(qr_wave2_dump)
+
 # The destruction guard's second binary (see qr_wave2_nodestruct above).
 add_executable(qr_wave2_nodestruct_probe tools/qr_wave2_nodestruct_probe.cpp)
 target_link_libraries(qr_wave2_nodestruct_probe PRIVATE qr_wave2_nodestruct)

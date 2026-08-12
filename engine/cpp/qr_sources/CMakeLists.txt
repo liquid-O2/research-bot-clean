@@ -40,3 +40,10 @@ add_test(NAME qr_sources_tests COMMAND qr_sources_tests)
 add_executable(qr_sources_probe tools/qr_sources_probe.cpp)
 target_link_libraries(qr_sources_probe PRIVATE qr_sources)
 qr_apply_boundary_flags(qr_sources_probe)
+
+# The D-020 V3 raw-tape ribbon: named projection slots over a decision
+# neighbourhood, read-only and two-run identical. Nothing is derived here — the
+# classified views come from the published DecisionTape group tables.
+add_executable(qr_tape_ribbon tools/qr_tape_ribbon.cpp)
+target_link_libraries(qr_tape_ribbon PRIVATE qr_sources qr_clock qr_registry)
+qr_apply_boundary_flags(qr_tape_ribbon)

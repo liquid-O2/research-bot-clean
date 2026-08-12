@@ -87,3 +87,9 @@ case	call	value_class	codes	note
 086	SKIP	C	T-first-pullback-unconfirmed,P-sell-burst-z-neg4.6-live-at-HH,H-recovery-ladder-intact	recovery ladder is real but entering INTO the first live sell wave without an HL hold = premature (019-vs-020 law)
 087	SKIP	C	E-recovery-defended-selling-absorbed,H-no-rejection-at-entry,P-options-mild-positive	shorting a defended recovery with the -101k wave already absorbed = fading defense
 088	TAKE	B	H-recovery-ladder-HL-held,E-sell-burst-got-7bp,U-option-volume-z7-direction-ambiguous,T-runway-73m	second HL held on absorbed selling in an intact recovery ladder; option burst noted as ambiguity
+089	SKIP	C	CONTAM-via-088;H-recovery-ladder-intact,P-buyers-active-z5.7-now,E-no-rejection	shorting an intact sponsored recovery ladder mid-bounce = counter-trend guess
+090	TAKE	B	CONTAM-via-077;F23-disagreement-stock-plus-options-z-neg10,L-recovery-HH-zone,H-pullback-starting	loudest option refusal in the set (z-10) against persistent stock buying at the recovery high = distribution short
+091	TAKE	B	H-confirmed-reversal-ladder-HH-HL-HH,R-vol-bleeding-risk-on,P-buyers-present,T-runway-90m	post-trap reversal ladder confirmed with vol bleeding = join the recovery
+092	TAKE	B	P-C1-flavored-base-after-flush,P-persistent-buying-130k,E-base-top-push-sponsored,H-hour-base	hour-long accumulation base after the morning flush; sponsored push at the base top
+093	TAKE	B	H-trend-day-HL-retest-complete,P-buyers-back,P-options-confirm-delta-wave,T-with-trend	steady up-day: confirmed HL pullback with two-stream sponsorship = with-trend join
+094	SKIP	C	H-knife-bounce-no-base,P-sellers-still-pressing-now,E-no-absorption-evidence,L-full-retrace-zone	bounce inside an active heavy fade with sellers still hitting = premature knife-catch

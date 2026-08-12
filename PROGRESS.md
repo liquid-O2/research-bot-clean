@@ -24,3 +24,4 @@
 | M3.R3-R5 | TODO | — | — | — | controls → baselines → ladder |
 | M4 | TODO | — | — | — | W2.0..W2.13 (conditional on M3 reading) |
 | M5 | TODO | — | — | — | entry-stage readiness certificate |
+| SHEETS-V4 | DONE | 2026-08-12 | sheets_v4/STREAM_RECEIPT.tsv | tree sha 5976402af8c28c37… (run1==run2) | D-042 certificate: 22,282 sheets x 2 runs, 14 blocks, 13 sections, 0 failures; SHEET_V4_MANIFEST.json; 3 census-path defects fixed red-first (2x VALID-ZERO, 1x never-computed d_fd_ratio) |

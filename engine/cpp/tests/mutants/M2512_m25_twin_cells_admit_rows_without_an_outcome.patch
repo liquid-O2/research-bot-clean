@@ -2,7 +2,7 @@
 +++ b/qr_m25/src/twins.cpp
 @@ -200,9 +200,7 @@
    const std::int64_t session_start = tape.rows.empty() ? 0 : tape.rows.front().key.decision_ts_ns;
-   std::unordered_map<std::int64_t, std::vector<std::size_t>> cells;
+   std::map<std::int64_t, std::vector<std::size_t>> cells;  // ordered: chronological bucket walk; determinism by construction, not by libstdc++ accident
    for (std::size_t i = 0; i < n; ++i) {
 -    if (tape.rows[i].label.state != LabelState::OK) {
 -      continue;

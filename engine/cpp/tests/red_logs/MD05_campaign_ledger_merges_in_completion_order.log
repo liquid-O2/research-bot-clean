@@ -1,10 +1,45 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MD05_campaign_ledger_merges_in_completion_order
+# patch:       tests/mutants/MD05_campaign_ledger_merges_in_completion_order.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MD05_campaign_ledger_merges_in_completion_order
+#
+# RE-ANCHORED 2026-08-12: the committed CONTEXT lines had drifted, so the patch
+# only applied under `patch`'s default fuzz and read as rotted once the ledger
+# gate began demanding an exact match. The MUTATION is unchanged; the context
+# around it was regenerated and the log re-run.
+
+### qr_campaign_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 11 tests from 7 test suites.
+[==========] Running 17 tests from 9 test suites.
 [----------] Global test environment set-up.
 [----------] 1 test from CampaignSpecGate
 [ RUN      ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses
-[       OK ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses (111 ms)
-[----------] 1 test from CampaignSpecGate (111 ms total)
+[       OK ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses (118 ms)
+[----------] 1 test from CampaignSpecGate (118 ms total)
+
+[----------] 4 tests from CampaignCardLineage
+[ RUN      ] CampaignCardLineage.TheRealLineageCarriesTheFrozenAncestryAndItsHeadIsTheCardOnDisk
+[       OK ] CampaignCardLineage.TheRealLineageCarriesTheFrozenAncestryAndItsHeadIsTheCardOnDisk (7 ms)
+[ RUN      ] CampaignCardLineage.AnAncestorIsValidOnlyWhileEveryLaterAmendmentIsOutsideTheTapeScope
+[       OK ] CampaignCardLineage.AnAncestorIsValidOnlyWhileEveryLaterAmendmentIsOutsideTheTapeScope (67 ms)
+[ RUN      ] CampaignCardLineage.ACardShaOutsideTheLineageIsRefused
+[       OK ] CampaignCardLineage.ACardShaOutsideTheLineageIsRefused (39 ms)
+[ RUN      ] CampaignCardLineage.AMalformedLineageRefusesRatherThanDefaultingOpen
+[       OK ] CampaignCardLineage.AMalformedLineageRefusesRatherThanDefaultingOpen (384 ms)
+[----------] 4 tests from CampaignCardLineage (499 ms total)
+
+[----------] 1 test from CampaignCorpusCard
+[ RUN      ] CampaignCorpusCard.EveryManifestNamesItsCardAndAManifestWithoutOneRefuses
+[       OK ] CampaignCorpusCard.EveryManifestNamesItsCardAndAManifestWithoutOneRefuses (397 ms)
+[----------] 1 test from CampaignCorpusCard (398 ms total)
+
+[----------] 2 tests from CampaignReceipt
+[ RUN      ] CampaignReceipt.AnUnboundCardShaRefusesInsteadOfNamingAnUncheckedCard
+[       OK ] CampaignReceipt.AnUnboundCardShaRefusesInsteadOfNamingAnUncheckedCard (114 ms)
+[ RUN      ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader
+[       OK ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader (61 ms)
+[----------] 2 tests from CampaignReceipt (176 ms total)
 
 [----------] 2 tests from CampaignOrdinalWall
 [ RUN      ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed
@@ -15,29 +50,29 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 2 tests from CampaignPublish
 [ RUN      ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard
-[       OK ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard (172 ms)
+[       OK ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard (199 ms)
 [ RUN      ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard
-[       OK ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard (227 ms)
-[----------] 2 tests from CampaignPublish (400 ms total)
+[       OK ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard (219 ms)
+[----------] 2 tests from CampaignPublish (419 ms total)
 
 [----------] 2 tests from CampaignResume
 [ RUN      ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice
-[       OK ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice (106 ms)
+[       OK ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice (98 ms)
 [ RUN      ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement
-[       OK ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement (130 ms)
-[----------] 2 tests from CampaignResume (236 ms total)
+[       OK ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement (126 ms)
+[----------] 2 tests from CampaignResume (224 ms total)
 
 [----------] 2 tests from CampaignLedger
 [ RUN      ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder
-/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:283: Failure
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:516: Failure
 Expected equality of these values:
   first.value()
-    Which is: "section\tmetric\tvalue\ncampaign\tschema\tqr_campaign_receipt_v1\ncampaign\tcard_sha256\t5c26438b12dd90e15b005375829d976fa46a1710c78041ff20ffc587dc092792\ncampaign\tsessions\t3\nmanifest.s0125\tL\tL125\nmanifest.s0125\tS\tS125\nmanifest.s0500\tL\tL500\nmanifest.s0500\tS\tS500\nmanifest.s0625\tL\tL625\nmanifest.s0625\tS\tS625\ncampaign\tshards\t6\ncampaign\tleaves\t102\ncampaign\tleaf_bytes\t11500\ncampaign\taction_rows\t2500\ncampaign\tlabel_state_ok\t1250\ncampaign\tmanifest_root_sha256\t27482e04a24ba27e094c92580ad4d0477aed7a00ef803fe63d966a44d8d3593d\n"
+    Which is: "section\tmetric\tvalue\ncampaign\tschema\tqr_campaign_receipt_v1\ncampaign\tcard_sha256\taaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ncampaign\tsessions\t3\nmanifest.s0125\tL\tL125\nmanifest.s0125\tS\tS125\nmanifest.s0500\tL\tL500\nmanifest.s0500\tS\tS500\nmanifest.s0625\tL\tL625\nmanifest.s0625\tS\tS625\ncampaign\tshards\t6\ncampaign\tleaves\t102\ncampaign\tleaf_bytes\t11500\ncampaign\taction_rows\t2500\ncampaign\tlabel_state_ok\t1250\ncampaign\tmanifest_root_sha256\t27482e04a24ba27e094c92580ad4d0477aed7a00ef803fe63d966a44d8d3593d\n"
   second.value()
-    Which is: "section\tmetric\tvalue\ncampaign\tschema\tqr_campaign_receipt_v1\ncampaign\tcard_sha256\t5c26438b12dd90e15b005375829d976fa46a1710c78041ff20ffc587dc092792\ncampaign\tsessions\t3\nmanifest.s0625\tL\tL625\nmanifest.s0625\tS\tS625\nmanifest.s0125\tL\tL125\nmanifest.s0125\tS\tS125\nmanifest.s0500\tL\tL500\nmanifest.s0500\tS\tS500\ncampaign\tshards\t6\ncampaign\tleaves\t102\ncampaign\tleaf_bytes\t11500\ncampaign\taction_rows\t2500\ncampaign\tlabel_state_ok\t1250\ncampaign\tmanifest_root_sha256\tf94b1a5233d51ec68da047cec9a8a6519a9a1d664c9b14c704628b0b142c5a91\n"
+    Which is: "section\tmetric\tvalue\ncampaign\tschema\tqr_campaign_receipt_v1\ncampaign\tcard_sha256\taaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ncampaign\tsessions\t3\nmanifest.s0625\tL\tL625\nmanifest.s0625\tS\tS625\nmanifest.s0125\tL\tL125\nmanifest.s0125\tS\tS125\nmanifest.s0500\tL\tL500\nmanifest.s0500\tS\tS500\ncampaign\tshards\t6\ncampaign\tleaves\t102\ncampaign\tleaf_bytes\t11500\ncampaign\taction_rows\t2500\ncampaign\tlabel_state_ok\t1250\ncampaign\tmanifest_root_sha256\tf94b1a5233d51ec68da047cec9a8a6519a9a1d664c9b14c704628b0b142c5a91\n"
 With diff:
 @@ +3,6 @@
- campaign\tcard_sha256\t5c26438b12dd90e15b005375829d976fa46a1710c78041ff20ffc587dc092792
+ campaign\tcard_sha256\taaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
  campaign\tsessions\t3
 +manifest.s0625\tL\tL625
 +manifest.s0625\tS\tS625
@@ -58,24 +93,19 @@ With diff:
 
 the campaign receipt moved with the completion order
 
-[  FAILED  ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder (257 ms)
+[  FAILED  ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder (211 ms)
 [ RUN      ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign
-[       OK ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign (45 ms)
-[----------] 2 tests from CampaignLedger (303 ms total)
+[       OK ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign (74 ms)
+[----------] 2 tests from CampaignLedger (286 ms total)
 
 [----------] 1 test from CampaignHandoff
 [ RUN      ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob
 [       OK ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob (0 ms)
 [----------] 1 test from CampaignHandoff (0 ms total)
 
-[----------] 1 test from CampaignReceipt
-[ RUN      ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader
-[       OK ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader (53 ms)
-[----------] 1 test from CampaignReceipt (53 ms total)
-
 [----------] Global test environment tear-down
-[==========] 11 tests from 7 test suites ran. (1107 ms total)
-[  PASSED  ] 10 tests.
+[==========] 17 tests from 9 test suites ran. (2122 ms total)
+[  PASSED  ] 16 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder
 

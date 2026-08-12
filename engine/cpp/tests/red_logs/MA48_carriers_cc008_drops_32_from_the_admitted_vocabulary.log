@@ -1,5 +1,17 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MA48_carriers_cc008_drops_32_from_the_admitted_vocabulary
+# patch:       tests/mutants/MA48_carriers_cc008_drops_32_from_the_admitted_vocabulary.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MA48_carriers_cc008_drops_32_from_the_admitted_vocabulary
+#
+# RE-ANCHORED 2026-08-12: the committed CONTEXT lines had drifted, so the patch
+# only applied under `patch`'s default fuzz and read as rotted once the ledger
+# gate began demanding an exact match. The MUTATION is unchanged; the context
+# around it was regenerated and the log re-run.
+
+### qr_carriers_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 88 tests from 35 test suites.
+[==========] Running 121 tests from 44 test suites.
 [----------] Global test environment set-up.
 [----------] 10 tests from TransformTable
 [ RUN      ] TransformTable.NonnegativeCountRowIsLog1pAndRefusesItsOwnDomain
@@ -81,14 +93,14 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 4 tests from StockPrintChannels
 [ RUN      ] StockPrintChannels.TheSeventeenChannelsAreTheCardsSeventeenValues
-[       OK ] StockPrintChannels.TheSeventeenChannelsAreTheCardsSeventeenValues (16 ms)
+[       OK ] StockPrintChannels.TheSeventeenChannelsAreTheCardsSeventeenValues (11 ms)
 [ RUN      ] StockPrintChannels.TruncatingIntegerBpsIsVisibleInPrintMinusMid
 [       OK ] StockPrintChannels.TruncatingIntegerBpsIsVisibleInPrintMinusMid (0 ms)
 [ RUN      ] StockPrintChannels.AnUnusableQuoteSkipsTheQuoteBranchAndFallsBackToThePriorTick
 [       OK ] StockPrintChannels.AnUnusableQuoteSkipsTheQuoteBranchAndFallsBackToThePriorTick (0 ms)
 [ RUN      ] StockPrintChannels.DuplicatingAnAttachmentFailureReasonDoesNotDoubleCountThePrint
 [       OK ] StockPrintChannels.DuplicatingAnAttachmentFailureReasonDoesNotDoubleCountThePrint (0 ms)
-[----------] 4 tests from StockPrintChannels (16 ms total)
+[----------] 4 tests from StockPrintChannels (11 ms total)
 
 [----------] 3 tests from EqualMillisecondPermutation
 [ RUN      ] EqualMillisecondPermutation.StockPrintOutputsAndLaterPriorStatesAreBitIdentical
@@ -145,17 +157,17 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 3 tests from Cc008ExtendedVocabulary
 [ RUN      ] Cc008ExtendedVocabulary.ARegularPrintWhoseListSpellsRegularAs32IsELIGIBLE
-/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:889: Failure
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:920: Failure
 Value of: verdict.direction_eligible
   Actual: false
 Expected: true
 
-/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:890: Failure
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:921: Failure
 Value of: verdict.extended_nonzero
   Actual: true
 Expected: false
 
-/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:892: Failure
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:923: Failure
 Expected equality of these values:
   verdict.directional_validity
     Which is: 1-byte object <0B>
@@ -169,53 +181,72 @@ Expected equality of these values:
 [       OK ] Cc008ExtendedVocabulary.ANonRegularPrimaryIsINELIGIBLEWhateverItsExtendedSlotsSay (0 ms)
 [----------] 3 tests from Cc008ExtendedVocabulary (0 ms total)
 
+[----------] 1 test from Cc008FrozenQuote
+[ RUN      ] Cc008FrozenQuote.TheCardsConjunctionSentenceAndTheExecutedVocabularyAreTheSameSet
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:1024: Failure
+Expected equality of these values:
+  quoted
+    Which is: { 0, 32 }
+  executed
+    Which is: { 0, 0 }
+the quoted conjunction is: Thus a direction-eligible stock print requires primary code0, every present extended code in {0,32}, finite positive price, and positive size.
+
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:1031: Failure
+Value of: is_extended_condition_admitted(code)
+  Actual: false
+Expected: true
+32
+
+[  FAILED  ] Cc008FrozenQuote.TheCardsConjunctionSentenceAndTheExecutedVocabularyAreTheSameSet (0 ms)
+[----------] 1 test from Cc008FrozenQuote (0 ms total)
+
 [----------] 2 tests from Cc008CensusPin
 [ RUN      ] Cc008CensusPin.TheBiconditionalThatGroundsTheRulingHoldsOnAllThreePinnedSessions
-/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:990: Failure
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:1075: Failure
 Value of: is_extended_condition_admitted(32)
   Actual: false
 Expected: true
 125
 
-/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:991: Failure
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:1076: Failure
 Value of: classify_stock_print(print_with(0, {32, 255, 255, 255})).direction_eligible
   Actual: false
 Expected: true
 125
 
-/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:990: Failure
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:1075: Failure
 Value of: is_extended_condition_admitted(32)
   Actual: false
 Expected: true
 500
 
-/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:991: Failure
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:1076: Failure
 Value of: classify_stock_print(print_with(0, {32, 255, 255, 255})).direction_eligible
   Actual: false
 Expected: true
 500
 
-/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:990: Failure
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:1075: Failure
 Value of: is_extended_condition_admitted(32)
   Actual: false
 Expected: true
 625
 
-/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:991: Failure
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:1076: Failure
 Value of: classify_stock_print(print_with(0, {32, 255, 255, 255})).direction_eligible
   Actual: false
 Expected: true
 625
 
-[  FAILED  ] Cc008CensusPin.TheBiconditionalThatGroundsTheRulingHoldsOnAllThreePinnedSessions (22 ms)
+[  FAILED  ] Cc008CensusPin.TheBiconditionalThatGroundsTheRulingHoldsOnAllThreePinnedSessions (10 ms)
 [ RUN      ] Cc008CensusPin.TheEligibleCountIsTheOneTheGateReportsForSessionOneTwentyFive
-/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:1020: Failure
+/workspace/engine/cpp/qr_carriers/tests/test_channels.cpp:1105: Failure
 Value of: classify_stock_print(print_with(0, {32, 255, 255, 255})).direction_eligible
   Actual: false
 Expected: true
 
-[  FAILED  ] Cc008CensusPin.TheEligibleCountIsTheOneTheGateReportsForSessionOneTwentyFive (5 ms)
-[----------] 2 tests from Cc008CensusPin (27 ms total)
+[  FAILED  ] Cc008CensusPin.TheEligibleCountIsTheOneTheGateReportsForSessionOneTwentyFive (2 ms)
+[----------] 2 tests from Cc008CensusPin (13 ms total)
 
 [----------] 1 test from DirectRawShape
 [ RUN      ] DirectRawShape.ThereAreExactlySixtyColumnsAndEveryOneIsNamed
@@ -263,26 +294,28 @@ Expected: true
 
 [----------] 3 tests from MidpointGridCarry
 [ RUN      ] MidpointGridCarry.TheCarryHasNoTimeoutTheAgeGrowsAndStaleIsDiagnosticOnly
-[       OK ] MidpointGridCarry.TheCarryHasNoTimeoutTheAgeGrowsAndStaleIsDiagnosticOnly (5 ms)
+[       OK ] MidpointGridCarry.TheCarryHasNoTimeoutTheAgeGrowsAndStaleIsDiagnosticOnly (3 ms)
 [ RUN      ] MidpointGridCarry.AnEndpointCarriesOnlyQuotesSTRICTLYBeforeIt
-[       OK ] MidpointGridCarry.AnEndpointCarriesOnlyQuotesSTRICTLYBeforeIt (5 ms)
+[       OK ] MidpointGridCarry.AnEndpointCarriesOnlyQuotesSTRICTLYBeforeIt (3 ms)
 [ RUN      ] MidpointGridCarry.TheGridCensusCountsEveryEndpointStateInFull
-[       OK ] MidpointGridCarry.TheGridCensusCountsEveryEndpointStateInFull (5 ms)
-[----------] 3 tests from MidpointGridCarry (17 ms total)
+[       OK ] MidpointGridCarry.TheGridCensusCountsEveryEndpointStateInFull (3 ms)
+[----------] 3 tests from MidpointGridCarry (10 ms total)
 
 [----------] 1 test from PrefixRealizedVolatility
 [ RUN      ] PrefixRealizedVolatility.RvNeedsTwoPresentConsecutiveEndpointsAndACarryContributesZero
-[       OK ] PrefixRealizedVolatility.RvNeedsTwoPresentConsecutiveEndpointsAndACarryContributesZero (5 ms)
-[----------] 1 test from PrefixRealizedVolatility (5 ms total)
+[       OK ] PrefixRealizedVolatility.RvNeedsTwoPresentConsecutiveEndpointsAndACarryContributesZero (3 ms)
+[----------] 1 test from PrefixRealizedVolatility (3 ms total)
 
-[----------] 1 test from PrefixEndpoint
+[----------] 2 tests from PrefixEndpoint
 [ RUN      ] PrefixEndpoint.TheCompleteSecondEndingAtTheCutoffIsThePrefixEndpoint
-[       OK ] PrefixEndpoint.TheCompleteSecondEndingAtTheCutoffIsThePrefixEndpoint (4 ms)
-[----------] 1 test from PrefixEndpoint (4 ms total)
+[       OK ] PrefixEndpoint.TheCompleteSecondEndingAtTheCutoffIsThePrefixEndpoint (2 ms)
+[ RUN      ] PrefixEndpoint.ACutoffAtOrPastTheGridEndIsAbsentAndNeverSubstitutesTheClose
+[       OK ] PrefixEndpoint.ACutoffAtOrPastTheGridEndIsAbsentAndNeverSubstitutesTheClose (54 ms)
+[----------] 2 tests from PrefixEndpoint (56 ms total)
 
 [----------] 3 tests from LocationValues
 [ RUN      ] LocationValues.TheSixteenValuesAreTheCardsSixteenValues
-[       OK ] LocationValues.TheSixteenValuesAreTheCardsSixteenValues (3 ms)
+[       OK ] LocationValues.TheSixteenValuesAreTheCardsSixteenValues (4 ms)
 [ RUN      ] LocationValues.TheSessionClockIsACYCLICALEncodingOverTheWholeSession
 [       OK ] LocationValues.TheSessionClockIsACYCLICALEncodingOverTheWholeSession (0 ms)
 [ RUN      ] LocationValues.WithNoPrefixMidpointEveryTapeDependentValueIsMaskedButTheClockIsNot
@@ -340,12 +373,99 @@ Expected: true
 [       OK ] NormalizationHash.TheHashCoversEveryPerFeatureTripleAndMovesWhenAnyOfThemMoves (0 ms)
 [----------] 1 test from NormalizationHash (0 ms total)
 
+[----------] 6 tests from NativeGroupVector
+[ RUN      ] NativeGroupVector.TheThreeWidthsAndBlockOffsetsAreTheCardsOwnArithmetic
+[       OK ] NativeGroupVector.TheThreeWidthsAndBlockOffsetsAreTheCardsOwnArithmetic (0 ms)
+[ RUN      ] NativeGroupVector.EqualTimeMembersReduceByFiniteMeanAndMaxWithLogMultiplicity
+[       OK ] NativeGroupVector.EqualTimeMembersReduceByFiniteMeanAndMaxWithLogMultiplicity (0 ms)
+[ RUN      ] NativeGroupVector.AChannelWithNoFinitePresentMemberEmitsValueZeroAndBothMasksZero
+[       OK ] NativeGroupVector.AChannelWithNoFinitePresentMemberEmitsValueZeroAndBothMasksZero (0 ms)
+[ RUN      ] NativeGroupVector.APartlyPresentChannelKeepsItsPresentFractionAndItsPresentValue
+[       OK ] NativeGroupVector.APartlyPresentChannelKeepsItsPresentFractionAndItsPresentValue (0 ms)
+[ RUN      ] NativeGroupVector.ANbboGroupReducesToItsOwnGroupLevelVector
+[       OK ] NativeGroupVector.ANbboGroupReducesToItsOwnGroupLevelVector (0 ms)
+[ RUN      ] NativeGroupVector.TheTableIsBuiltOnlyWhenTheConstructorControlAsksForIt
+[       OK ] NativeGroupVector.TheTableIsBuiltOnlyWhenTheConstructorControlAsksForIt (0 ms)
+[----------] 6 tests from NativeGroupVector (0 ms total)
+
+[----------] 2 tests from NativeSideNeutralGroupVector
+[ RUN      ] NativeSideNeutralGroupVector.OrientingTheNeutralTableReproducesEverySideByteForByte
+[       OK ] NativeSideNeutralGroupVector.OrientingTheNeutralTableReproducesEverySideByteForByte (0 ms)
+[ RUN      ] NativeSideNeutralGroupVector.TheOrientationLeafIsTheFrozenChannelTableAndNothingElse
+[       OK ] NativeSideNeutralGroupVector.TheOrientationLeafIsTheFrozenChannelTableAndNothingElse (0 ms)
+[----------] 2 tests from NativeSideNeutralGroupVector (0 ms total)
+
+[----------] 6 tests from NativeMicroCarrier
+[ RUN      ] NativeMicroCarrier.ExactlyOneHundredAndTwentyEightGroupsAreRetainedAndTheRestAreTruncated
+[       OK ] NativeMicroCarrier.ExactlyOneHundredAndTwentyEightGroupsAreRetainedAndTheRestAreTruncated (0 ms)
+[ RUN      ] NativeMicroCarrier.FewerThanOneHundredAndTwentyEightGroupsLeaveATypedLeftPad
+[       OK ] NativeMicroCarrier.FewerThanOneHundredAndTwentyEightGroupsLeaveATypedLeftPad (0 ms)
+[ RUN      ] NativeMicroCarrier.AnEqualCutoffGroupIsExcludedAndTheOneBeforeItIsNot
+[       OK ] NativeMicroCarrier.AnEqualCutoffGroupIsExcludedAndTheOneBeforeItIsNot (0 ms)
+[ RUN      ] NativeMicroCarrier.AGroupExactlyAtTheVisibilityIsPhaseEqualUnorderedAndNeitherPhase
+[       OK ] NativeMicroCarrier.AGroupExactlyAtTheVisibilityIsPhaseEqualUnorderedAndNeitherPhase (0 ms)
+[ RUN      ] NativeMicroCarrier.AnAbsentVisibilityReferenceLeavesEveryGroupWithoutAPhase
+[       OK ] NativeMicroCarrier.AnAbsentVisibilityReferenceLeavesEveryGroupWithoutAPhase (0 ms)
+[ RUN      ] NativeMicroCarrier.TheTruncatedSetIsExactlyTheOneDirectDividesItsOmissionsBy
+[       OK ] NativeMicroCarrier.TheTruncatedSetIsExactlyTheOneDirectDividesItsOmissionsBy (0 ms)
+[----------] 6 tests from NativeMicroCarrier (0 ms total)
+
+[----------] 5 tests from NativeBinCarrier
+[ RUN      ] NativeBinCarrier.ThereAreExactlyOneHundredAndTwentyOneSecondBinsAndTheyAreNeverTruncated
+[       OK ] NativeBinCarrier.ThereAreExactlyOneHundredAndTwentyOneSecondBinsAndTheyAreNeverTruncated (0 ms)
+[ RUN      ] NativeBinCarrier.ABinIsLeftClosedAndRightOpenSoABoundaryTokenLandsInTheLaterBin
+[       OK ] NativeBinCarrier.ABinIsLeftClosedAndRightOpenSoABoundaryTokenLandsInTheLaterBin (0 ms)
+[ RUN      ] NativeBinCarrier.TheLastBinEndsBeforeTheCutoffSoAnEqualCutoffGroupIsExcluded
+[       OK ] NativeBinCarrier.TheLastBinEndsBeforeTheCutoffSoAnEqualCutoffGroupIsExcluded (0 ms)
+[ RUN      ] NativeBinCarrier.ARealPrintOnEachBoundaryLandsWhereTheCardPutsIt
+[       OK ] NativeBinCarrier.ARealPrintOnEachBoundaryLandsWhereTheCardPutsIt (0 ms)
+[ RUN      ] NativeBinCarrier.PreOpenBinsAreTypedZeroLeftPadAndAnEmptyInSessionBinIsNot
+[       OK ] NativeBinCarrier.PreOpenBinsAreTypedZeroLeftPadAndAnEmptyInSessionBinIsNot (0 ms)
+[----------] 5 tests from NativeBinCarrier (0 ms total)
+
+[----------] 4 tests from NativeOrderDestructions
+[ RUN      ] NativeOrderDestructions.BinOrderReverseKeepsTheValidMultisetThePadsAndEveryOtherInput
+[       OK ] NativeOrderDestructions.BinOrderReverseKeepsTheValidMultisetThePadsAndEveryOtherInput (0 ms)
+[ RUN      ] NativeOrderDestructions.TheRecentOneHundredAndTwentyEightReverseKeepsTheMultisetAndThePad
+[       OK ] NativeOrderDestructions.TheRecentOneHundredAndTwentyEightReverseKeepsTheMultisetAndThePad (0 ms)
+[ RUN      ] NativeOrderDestructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode
+[       OK ] NativeOrderDestructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode (99 ms)
+[ RUN      ] NativeOrderDestructions.ADestroyedCarrierIsRefusedAtTheEmissionDoor
+[       OK ] NativeOrderDestructions.ADestroyedCarrierIsRefusedAtTheEmissionDoor (0 ms)
+[----------] 4 tests from NativeOrderDestructions (100 ms total)
+
+[----------] 2 tests from ProductionChainControlD
+[ RUN      ] ProductionChainControlD.MutatingEveryTokenAtOrAfterTheCutoffIsBitInvariant
+[       OK ] ProductionChainControlD.MutatingEveryTokenAtOrAfterTheCutoffIsBitInvariant (5 ms)
+[ RUN      ] ProductionChainControlD.MovingOneTokenAcrossTheCutoffChangesOnlyTheLaterRows
+[       OK ] ProductionChainControlD.MovingOneTokenAcrossTheCutoffChangesOnlyTheLaterRows (4 ms)
+[----------] 2 tests from ProductionChainControlD (10 ms total)
+
+[----------] 5 tests from NativeOrderProductionControls
+[ RUN      ] NativeOrderProductionControls.AWithinTimestampPermutationIsBitIdenticalThroughTheChain
+[       OK ] NativeOrderProductionControls.AWithinTimestampPermutationIsBitIdenticalThroughTheChain (8 ms)
+[ RUN      ] NativeOrderProductionControls.ReversingASameGroupRowOrderIsAlsoBitIdentical
+[       OK ] NativeOrderProductionControls.ReversingASameGroupRowOrderIsAlsoBitIdentical (8 ms)
+[ RUN      ] NativeOrderProductionControls.MovingAGroupAcrossTheVisibilityChangesOnlyThePhaseLabels
+[       OK ] NativeOrderProductionControls.MovingAGroupAcrossTheVisibilityChangesOnlyThePhaseLabels (0 ms)
+[ RUN      ] NativeOrderProductionControls.DroppingThePreviousSequenceValidGroupMovesOnlyItsOwnOutputs
+[       OK ] NativeOrderProductionControls.DroppingThePreviousSequenceValidGroupMovesOnlyItsOwnOutputs (0 ms)
+[ RUN      ] NativeOrderProductionControls.DuplicatingOneAttachmentFailureReasonMovesNoReducedCell
+[       OK ] NativeOrderProductionControls.DuplicatingOneAttachmentFailureReasonMovesNoReducedCell (0 ms)
+[----------] 5 tests from NativeOrderProductionControls (16 ms total)
+
+[----------] 1 test from NativeOrderEmission
+[ RUN      ] NativeOrderEmission.TheLeavesCarryTheAppendixC4NamesShapesAndDtypes
+[       OK ] NativeOrderEmission.TheLeavesCarryTheAppendixC4NamesShapesAndDtypes (297 ms)
+[----------] 1 test from NativeOrderEmission (297 ms total)
+
 [----------] Global test environment tear-down
-[==========] 88 tests from 35 test suites ran. (79 ms total)
-[  PASSED  ] 85 tests.
-[  FAILED  ] 3 tests, listed below:
+[==========] 121 tests from 44 test suites ran. (530 ms total)
+[  PASSED  ] 117 tests.
+[  FAILED  ] 4 tests, listed below:
 [  FAILED  ] Cc008ExtendedVocabulary.ARegularPrintWhoseListSpellsRegularAs32IsELIGIBLE
+[  FAILED  ] Cc008FrozenQuote.TheCardsConjunctionSentenceAndTheExecutedVocabularyAreTheSameSet
 [  FAILED  ] Cc008CensusPin.TheBiconditionalThatGroundsTheRulingHoldsOnAllThreePinnedSessions
 [  FAILED  ] Cc008CensusPin.TheEligibleCountIsTheOneTheGateReportsForSessionOneTwentyFive
 
- 3 FAILED TESTS
+ 4 FAILED TESTS

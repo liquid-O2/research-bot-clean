@@ -1,6 +1,6 @@
 --- a/qr_carriers/include/qr_carriers/attach.hpp
 +++ b/qr_carriers/include/qr_carriers/attach.hpp
-@@ -210,7 +210,10 @@
+@@ -234,7 +234,10 @@
  /// it ever does. The census that grounds this ruling is pinned in
  /// `tests/fixtures/carriers_conditions_session{125,500,625}.tsv` and is read by
  /// the `Cc008CensusPin` fixtures.
@@ -10,5 +10,5 @@
 +// every real session.
 +inline constexpr std::array<std::int64_t, 2> kExtendedConditionAdmitted{0, 0};
  
- /// True when a PRESENT (non-sentinel) extended slot carries an admitted code.
- [[nodiscard]] constexpr bool is_extended_condition_admitted(std::int64_t code) noexcept {
+ /// THE CARD'S CONJUNCTION SENTENCE, AS BYTES RATHER THAN AS A COMMENT
+ /// (evidence/claims/native_state/TASK_CARD_V4_DRAFT.md section 4, verbatim).

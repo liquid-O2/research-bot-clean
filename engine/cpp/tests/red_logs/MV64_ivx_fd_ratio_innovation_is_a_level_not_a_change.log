@@ -1,0 +1,194 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MV64_ivx_fd_ratio_innovation_is_a_level_not_a_change
+# patch:       tests/mutants/MV64_ivx_fd_ratio_innovation_is_a_level_not_a_change.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MV64_ivx_fd_ratio_innovation_is_a_level_not_a_change
+#
+### qr_ivx_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 54 tests from 21 test suites.
+[----------] Global test environment set-up.
+[----------] 7 tests from ColumnCensusVerdict
+[ RUN      ] ColumnCensusVerdict.MissingFromSchemaIsAbsentNotAllNull
+[       OK ] ColumnCensusVerdict.MissingFromSchemaIsAbsentNotAllNull (0 ms)
+[ RUN      ] ColumnCensusVerdict.EveryValueNullIsAllNull
+[       OK ] ColumnCensusVerdict.EveryValueNullIsAllNull (0 ms)
+[ RUN      ] ColumnCensusVerdict.PartialNullCountsCannotProveAllNull
+[       OK ] ColumnCensusVerdict.PartialNullCountsCannotProveAllNull (0 ms)
+[ RUN      ] ColumnCensusVerdict.ZeroEverywhereIsConstantZeroNotReal
+[       OK ] ColumnCensusVerdict.ZeroEverywhereIsConstantZeroNotReal (0 ms)
+[ RUN      ] ColumnCensusVerdict.PopulatedWithRangeIsReal
+[       OK ] ColumnCensusVerdict.PopulatedWithRangeIsReal (0 ms)
+[ RUN      ] ColumnCensusVerdict.NonFiniteBoundIsItsOwnVerdict
+[       OK ] ColumnCensusVerdict.NonFiniteBoundIsItsOwnVerdict (0 ms)
+[ RUN      ] ColumnCensusVerdict.PopulatedWithoutAnyStoredRangeSaysSo
+[       OK ] ColumnCensusVerdict.PopulatedWithoutAnyStoredRangeSaysSo (0 ms)
+[----------] 7 tests from ColumnCensusVerdict (0 ms total)
+
+[----------] 3 tests from ColumnCensusPresence
+[ RUN      ] ColumnCensusPresence.UnreportedNullCountsAreUndefinedNotFull
+[       OK ] ColumnCensusPresence.UnreportedNullCountsAreUndefinedNotFull (0 ms)
+[ RUN      ] ColumnCensusPresence.ExactIntegerFraction
+[       OK ] ColumnCensusPresence.ExactIntegerFraction (0 ms)
+[ RUN      ] ColumnCensusPresence.NoRowsIsUndefined
+[       OK ] ColumnCensusPresence.NoRowsIsUndefined (0 ms)
+[----------] 3 tests from ColumnCensusPresence (0 ms total)
+
+[----------] 2 tests from ColumnCensusStanding
+[ RUN      ] ColumnCensusStanding.LabelsMatchAppendixB3
+[       OK ] ColumnCensusStanding.LabelsMatchAppendixB3 (0 ms)
+[ RUN      ] ColumnCensusStanding.CandidateSetCarriesTheControls
+[       OK ] ColumnCensusStanding.CandidateSetCarriesTheControls (0 ms)
+[----------] 2 tests from ColumnCensusStanding (0 ms total)
+
+[----------] 2 tests from TsvFormatting
+[ RUN      ] TsvFormatting.RoundTripsAndNamesNonFinite
+[       OK ] TsvFormatting.RoundTripsAndNamesNonFinite (0 ms)
+[ RUN      ] TsvFormatting.AbsentTypedRealNeverEmitsANumber
+[       OK ] TsvFormatting.AbsentTypedRealNeverEmitsANumber (1 ms)
+[----------] 2 tests from TsvFormatting (1 ms total)
+
+[----------] 3 tests from MoneynessAxis
+[ RUN      ] MoneynessAxis.KeepsTheW21Pin1Edges
+[       OK ] MoneynessAxis.KeepsTheW21Pin1Edges (0 ms)
+[ RUN      ] MoneynessAxis.EdgesAreRightOpen
+[       OK ] MoneynessAxis.EdgesAreRightOpen (0 ms)
+[ RUN      ] MoneynessAxis.EveryIntegerLandsInExactlyOneBand
+[       OK ] MoneynessAxis.EveryIntegerLandsInExactlyOneBand (0 ms)
+[----------] 3 tests from MoneynessAxis (0 ms total)
+
+[----------] 4 tests from SkewOrientation
+[ RUN      ] SkewOrientation.PutRichSmileIsPositive
+[       OK ] SkewOrientation.PutRichSmileIsPositive (2 ms)
+[ RUN      ] SkewOrientation.CallRichSmileIsNegativeAndExactlyMirrored
+[       OK ] SkewOrientation.CallRichSmileIsNegativeAndExactlyMirrored (0 ms)
+[ RUN      ] SkewOrientation.SlopeIsTheRiskReversalPerLnMoneyness
+[       OK ] SkewOrientation.SlopeIsTheRiskReversalPerLnMoneyness (0 ms)
+[ RUN      ] SkewOrientation.PureTiltHasZeroCurvature
+[       OK ] SkewOrientation.PureTiltHasZeroCurvature (0 ms)
+[----------] 4 tests from SkewOrientation (2 ms total)
+
+[----------] 2 tests from Weighting
+[ RUN      ] Weighting.OnePrintOfThreeEqualsThreePrintsOfOne
+[       OK ] Weighting.OnePrintOfThreeEqualsThreePrintsOfOne (0 ms)
+[ RUN      ] Weighting.BandMeanIsPulledByTheHeavierPrint
+[       OK ] Weighting.BandMeanIsPulledByTheHeavierPrint (0 ms)
+[----------] 2 tests from Weighting (0 ms total)
+
+[----------] 3 tests from WindowLaw
+[ RUN      ] WindowLaw.BoundaryIsRightOpenOnTheSecond
+[       OK ] WindowLaw.BoundaryIsRightOpenOnTheSecond (0 ms)
+[ RUN      ] WindowLaw.InnovationsOnlySpanAdjacentWindows
+[       OK ] WindowLaw.InnovationsOnlySpanAdjacentWindows (0 ms)
+[ RUN      ] WindowLaw.PrintsPastTheCloseAreRejectedNotClamped
+[       OK ] WindowLaw.PrintsPastTheCloseAreRejectedNotClamped (0 ms)
+[----------] 3 tests from WindowLaw (0 ms total)
+
+[----------] 4 tests from Admission
+[ RUN      ] Admission.QuoteAttachmentMustBeStrictlyPrior
+[       OK ] Admission.QuoteAttachmentMustBeStrictlyPrior (0 ms)
+[ RUN      ] Admission.UnderlyingStampMustCarryThisSessionsDay
+[       OK ] Admission.UnderlyingStampMustCarryThisSessionsDay (0 ms)
+[ RUN      ] Admission.MultiLegPrintsAreExcludedAndCounted
+[       OK ] Admission.MultiLegPrintsAreExcludedAndCounted (0 ms)
+[ RUN      ] Admission.NonPositiveOrNonFiniteIvIsRejected
+[       OK ] Admission.NonPositiveOrNonFiniteIvIsRejected (0 ms)
+[----------] 4 tests from Admission (0 ms total)
+
+[----------] 3 tests from IvVelocity
+[ RUN      ] IvVelocity.IsThePerSecondChangeOfOneContractsOwnIv
+[       OK ] IvVelocity.IsThePerSecondChangeOfOneContractsOwnIv (0 ms)
+[ RUN      ] IvVelocity.PairsBeyondTheAgeGateAreNotAVelocity
+[       OK ] IvVelocity.PairsBeyondTheAgeGateAreNotAVelocity (0 ms)
+[ RUN      ] IvVelocity.DoesNotPairAcrossContracts
+[       OK ] IvVelocity.DoesNotPairAcrossContracts (0 ms)
+[----------] 3 tests from IvVelocity (0 ms total)
+
+[----------] 1 test from SignedVolDemand
+[ RUN      ] SignedVolDemand.InsideTheSpreadIsUndecidableNotZero
+[       OK ] SignedVolDemand.InsideTheSpreadIsUndecidableNotZero (0 ms)
+[----------] 1 test from SignedVolDemand (0 ms total)
+
+[----------] 2 tests from TermStructure
+[ RUN      ] TermStructure.RisingTermCarriesAPositiveSlopeAndANearFarRatioBelowOne
+[       OK ] TermStructure.RisingTermCarriesAPositiveSlopeAndANearFarRatioBelowOne (0 ms)
+[ RUN      ] TermStructure.FarLegFallbackIsFlagged
+[       OK ] TermStructure.FarLegFallbackIsFlagged (0 ms)
+[----------] 2 tests from TermStructure (0 ms total)
+
+[----------] 6 tests from SurfaceDynamics
+[ RUN      ] SurfaceDynamics.ResponseRecoversTheConstructedGain
+[       OK ] SurfaceDynamics.ResponseRecoversTheConstructedGain (0 ms)
+[ RUN      ] SurfaceDynamics.ZeroFluctuationTypesTheRatioAbsent
+[       OK ] SurfaceDynamics.ZeroFluctuationTypesTheRatioAbsent (0 ms)
+[ RUN      ] SurfaceDynamics.FdRatioInnovationIsTheWindowToWindowChange
+/workspace/engine/cpp/qr_ivx/tests/test_iv_cross.cpp:505: Failure
+The difference between dynamics.window[1].d_fd_ratio.value and dynamics.window[1].fd_ratio.value - dynamics.window[0].fd_ratio.value is 8944.212535269522, which exceeds 1e-12, where
+dynamics.window[1].d_fd_ratio.value evaluates to 9707.4419709098638,
+dynamics.window[1].fd_ratio.value - dynamics.window[0].fd_ratio.value evaluates to 763.22943564034176, and
+1e-12 evaluates to 9.9999999999999998e-13.
+
+[  FAILED  ] SurfaceDynamics.FdRatioInnovationIsTheWindowToWindowChange (1 ms)
+[ RUN      ] SurfaceDynamics.A3FlipsSignUnderTimeReversal
+[       OK ] SurfaceDynamics.A3FlipsSignUnderTimeReversal (1 ms)
+[ RUN      ] SurfaceDynamics.VolOfVolIsZeroForAConstantSurface
+[       OK ] SurfaceDynamics.VolOfVolIsZeroForAConstantSurface (0 ms)
+[ RUN      ] SurfaceDynamics.ThinWindowsAreTypedAbsent
+[       OK ] SurfaceDynamics.ThinWindowsAreTypedAbsent (0 ms)
+[----------] 6 tests from SurfaceDynamics (4 ms total)
+
+[----------] 1 test from Determinism
+[ RUN      ] Determinism.TwoRunsOfTheSameInputEmitTheSameRows
+[       OK ] Determinism.TwoRunsOfTheSameInputEmitTheSameRows (44 ms)
+[----------] 1 test from Determinism (44 ms total)
+
+[----------] 2 tests from QuoteSkewOrientation
+[ RUN      ] QuoteSkewOrientation.PutRichLadderIsPositive
+[       OK ] QuoteSkewOrientation.PutRichLadderIsPositive (6 ms)
+[ RUN      ] QuoteSkewOrientation.CallRichLadderIsNegative
+[       OK ] QuoteSkewOrientation.CallRichLadderIsNegative (5 ms)
+[----------] 2 tests from QuoteSkewOrientation (11 ms total)
+
+[----------] 1 test from QuoteSkewNormalization
+[ RUN      ] QuoteSkewNormalization.ScalingEveryPremiumLeavesTheProxyUnchanged
+[       OK ] QuoteSkewNormalization.ScalingEveryPremiumLeavesTheProxyUnchanged (11 ms)
+[----------] 1 test from QuoteSkewNormalization (11 ms total)
+
+[----------] 2 tests from QuoteSkewCausality
+[ RUN      ] QuoteSkewCausality.QuoteAtTheBoundaryIsNotStateForThatSecond
+[       OK ] QuoteSkewCausality.QuoteAtTheBoundaryIsNotStateForThatSecond (10 ms)
+[ RUN      ] QuoteSkewCausality.StaleQuotesLeaveTheLadderEmpty
+[       OK ] QuoteSkewCausality.StaleQuotesLeaveTheLadderEmpty (6 ms)
+[----------] 2 tests from QuoteSkewCausality (17 ms total)
+
+[----------] 2 tests from QuoteSkewLadder
+[ RUN      ] QuoteSkewLadder.OneSidedRungsAreNotRungs
+[       OK ] QuoteSkewLadder.OneSidedRungsAreNotRungs (3 ms)
+[ RUN      ] QuoteSkewLadder.CrossedQuotesAreNotRungs
+[       OK ] QuoteSkewLadder.CrossedQuotesAreNotRungs (3 ms)
+[----------] 2 tests from QuoteSkewLadder (6 ms total)
+
+[----------] 1 test from QuoteSkewAtm
+[ RUN      ] QuoteSkewAtm.EquidistantCandidatesAreUndecidable
+[       OK ] QuoteSkewAtm.EquidistantCandidatesAreUndecidable (2 ms)
+[----------] 1 test from QuoteSkewAtm (2 ms total)
+
+[----------] 2 tests from QuoteSkewPlane
+[ RUN      ] QuoteSkewPlane.OtherExpiriesAreNotOnThePlane
+[       OK ] QuoteSkewPlane.OtherExpiriesAreNotOnThePlane (50 ms)
+[ RUN      ] QuoteSkewPlane.MissingGridSpotTypesTheSecondAbsent
+[       OK ] QuoteSkewPlane.MissingGridSpotTypesTheSecondAbsent (4 ms)
+[----------] 2 tests from QuoteSkewPlane (54 ms total)
+
+[----------] 1 test from QuoteSkewDeterminism
+[ RUN      ] QuoteSkewDeterminism.TwoRunsAgree
+[       OK ] QuoteSkewDeterminism.TwoRunsAgree (8 ms)
+[----------] 1 test from QuoteSkewDeterminism (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 54 tests from 21 test suites ran. (167 ms total)
+[  PASSED  ] 53 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SurfaceDynamics.FdRatioInnovationIsTheWindowToWindowChange
+
+ 1 FAILED TEST

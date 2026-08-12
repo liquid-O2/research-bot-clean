@@ -1,3 +1,14 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MW11_w20_scope_wall_admits_out_of_scope_ordinals
+# patch:       tests/mutants/MW11_w20_scope_wall_admits_out_of_scope_ordinals.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MW11_w20_scope_wall_admits_out_of_scope_ordinals
+#
+# REFRESHED 2026-08-12: the committed anchors had drifted out from under this
+# mutation, so the proof could no longer be reproduced. Same id, same intent,
+# new anchors, regenerated log.
+
+### qr_w20_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
 [==========] Running 12 tests from 5 test suites.
 [----------] Global test environment set-up.
@@ -14,40 +25,40 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 4 tests from SpotGridLaw
 [ RUN      ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant
-[       OK ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant (29 ms)
+[       OK ] SpotGridLaw.TheReadEndpointIsTheLastCompleteSecondAtOrBeforeTheInstant (43 ms)
 [ RUN      ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot
-[       OK ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot (22 ms)
+[       OK ] SpotGridLaw.ExactlyHalfABasisPointIsAMoveAndOneUnitLessIsNot (26 ms)
 [ RUN      ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero
-[       OK ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero (24 ms)
+[       OK ] SpotGridLaw.AnAbsentEndpointIsAbsentAndIsNeverAMoveAgainstZero (25 ms)
 [ RUN      ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses
-[       OK ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses (32 ms)
-[----------] 4 tests from SpotGridLaw (109 ms total)
+[       OK ] SpotGridLaw.AGridWhoseLengthDisagreesWithTheSessionRefuses (40 ms)
+[----------] 4 tests from SpotGridLaw (136 ms total)
 
 [----------] 2 tests from CoverageLaw
 [ RUN      ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError
-[       OK ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError (12 ms)
+[       OK ] CoverageLaw.AnUncoveredSessionIsModalityAbsentAndNotAnError (18 ms)
 [ RUN      ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder
-[       OK ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder (107 ms)
-[----------] 2 tests from CoverageLaw (120 ms total)
+[       OK ] CoverageLaw.TheFlatAndShardLayoutsAreDistinguishedAndShardsAreCountedInSortedOrder (80 ms)
+[----------] 2 tests from CoverageLaw (98 ms total)
 
 [----------] 1 test from ScopeWallLaw
 [ RUN      ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath
-/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:282: Failure
+/workspace/engine/cpp/qr_w20/tests/test_mechanics.cpp:298: Failure
 Value of: scope.has_value()
   Actual: true
 Expected: false
-ordinal 750 must not admit
+ordinal 918 must not admit
 
 [  FAILED  ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath (0 ms)
 [----------] 1 test from ScopeWallLaw (0 ms total)
 
 [----------] 1 test from CensusReportLaw
 [ RUN      ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical
-[       OK ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical (31 ms)
-[----------] 1 test from CensusReportLaw (31 ms total)
+[       OK ] CensusReportLaw.TwoWritesOfTheSameCensusAreByteIdentical (34 ms)
+[----------] 1 test from CensusReportLaw (34 ms total)
 
 [----------] Global test environment tear-down
-[==========] 12 tests from 5 test suites ran. (260 ms total)
+[==========] 12 tests from 5 test suites ran. (269 ms total)
 [  PASSED  ] 11 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] ScopeWallLaw.ACensusOrdinalOutsideTheScopeNeverProducesAScopeOrAPath

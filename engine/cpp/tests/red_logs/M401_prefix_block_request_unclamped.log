@@ -1,55 +1,59 @@
-== M401_prefix_block_request_unclamped: mutant build + scoped suite (qr_candidates_tests)
-[1/7] Building CXX object qr_candidates/CMakeFiles/qr_candidates.dir/src/signal_root.cpp.o
-[2/7] Building CXX object qr_candidates/CMakeFiles/qr_candidates.dir/src/roster.cpp.o
-[3/7] Building CXX object qr_candidates/CMakeFiles/qr_candidates.dir/src/rowgroup_table.cpp.o
-[4/7] Building CXX object qr_candidates/CMakeFiles/qr_candidates.dir/src/prefix_reader.cpp.o
-[5/7] Linking CXX static library qr_candidates/libqr_candidates.a
-[6/7] Building CXX object qr_candidates/CMakeFiles/qr_candidates_tests.dir/tests/test_signal_root.cpp.o
-[7/7] Linking CXX executable bin/qr_candidates_tests
-Running main() from /workspace/artifacts/cache/cpp/wp6_src/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 99 tests from 13 test suites.
+# RED-LEDGER EVIDENCE
+# mutation_id: M401_prefix_block_request_unclamped
+# patch:       tests/mutants/M401_prefix_block_request_unclamped.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M401_prefix_block_request_unclamped
+#
+# RE-ANCHORED 2026-08-12: the committed CONTEXT lines had drifted, so the patch
+# only applied under `patch`'s default fuzz and read as rotted once the ledger
+# gate began demanding an exact match. The MUTATION is unchanged; the context
+# around it was regenerated and the log re-run.
+
+### qr_candidates_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 107 tests from 15 test suites.
 [----------] Global test environment set-up.
 [----------] 3 tests from SignalRootSha256
 [ RUN      ] SignalRootSha256.ReproducesTheKnownAnswersForEmptyAndAbc
-[       OK ] SignalRootSha256.ReproducesTheKnownAnswersForEmptyAndAbc (8 ms)
+[       OK ] SignalRootSha256.ReproducesTheKnownAnswersForEmptyAndAbc (21 ms)
 [ RUN      ] SignalRootSha256.ResetStartsACleanDigest
-[       OK ] SignalRootSha256.ResetStartsACleanDigest (4 ms)
+[       OK ] SignalRootSha256.ResetStartsACleanDigest (17 ms)
 [ RUN      ] SignalRootSha256.SplitUpdatesHashTheSameAsOne
 [       OK ] SignalRootSha256.SplitUpdatesHashTheSameAsOne (0 ms)
-[----------] 3 tests from SignalRootSha256 (17 ms total)
+[----------] 3 tests from SignalRootSha256 (38 ms total)
 
 [----------] 8 tests from SignalImage
 [ RUN      ] SignalImage.ReproducesTheIndependentlyDerivedRowImage
-[       OK ] SignalImage.ReproducesTheIndependentlyDerivedRowImage (6 ms)
+[       OK ] SignalImage.ReproducesTheIndependentlyDerivedRowImage (8 ms)
 [ RUN      ] SignalImage.AnAbsentOptionalDelayContributesOnePresenceByteAndNoValue
-[       OK ] SignalImage.AnAbsentOptionalDelayContributesOnePresenceByteAndNoValue (4 ms)
+[       OK ] SignalImage.AnAbsentOptionalDelayContributesOnePresenceByteAndNoValue (6 ms)
 [ RUN      ] SignalImage.TheImageIsExactlyTheDocumentedWidthWhenBothDelaysArePresent
-[       OK ] SignalImage.TheImageIsExactlyTheDocumentedWidthWhenBothDelaysArePresent (4 ms)
+[       OK ] SignalImage.TheImageIsExactlyTheDocumentedWidthWhenBothDelaysArePresent (3 ms)
 [ RUN      ] SignalImage.AnUppercaseDigestCellIsRefusedNotFolded
-[       OK ] SignalImage.AnUppercaseDigestCellIsRefusedNotFolded (18 ms)
+[       OK ] SignalImage.AnUppercaseDigestCellIsRefusedNotFolded (3 ms)
 [ RUN      ] SignalImage.AnUnknownExtremeSideIsRefused
-[       OK ] SignalImage.AnUnknownExtremeSideIsRefused (5 ms)
+[       OK ] SignalImage.AnUnknownExtremeSideIsRefused (2 ms)
 [ RUN      ] SignalImage.ARedundantLeadingZeroIsRefused
-[       OK ] SignalImage.ARedundantLeadingZeroIsRefused (4 ms)
+[       OK ] SignalImage.ARedundantLeadingZeroIsRefused (3 ms)
 [ RUN      ] SignalImage.ChangingOneHashedCellChangesTheImage
-[       OK ] SignalImage.ChangingOneHashedCellChangesTheImage (7 ms)
+[       OK ] SignalImage.ChangingOneHashedCellChangesTheImage (6 ms)
 [ RUN      ] SignalImage.AnUnhashedCellDoesNotChangeTheImage
-[       OK ] SignalImage.AnUnhashedCellDoesNotChangeTheImage (8 ms)
-[----------] 8 tests from SignalImage (71 ms total)
+[       OK ] SignalImage.AnUnhashedCellDoesNotChangeTheImage (5 ms)
+[----------] 8 tests from SignalImage (39 ms total)
 
 [----------] 2 tests from SignalRoot
 [ RUN      ] SignalRoot.ReproducesEveryIndependentlyDerivedSessionRoot
-[       OK ] SignalRoot.ReproducesEveryIndependentlyDerivedSessionRoot (10 ms)
+[       OK ] SignalRoot.ReproducesEveryIndependentlyDerivedSessionRoot (7 ms)
 [ RUN      ] SignalRoot.TheDeclaredCountIsPartOfThePrologue
 [       OK ] SignalRoot.TheDeclaredCountIsPartOfThePrologue (0 ms)
-[----------] 2 tests from SignalRoot (13 ms total)
+[----------] 2 tests from SignalRoot (7 ms total)
 
 [----------] 2 tests from PinnedHeaders
 [ RUN      ] PinnedHeaders.MatchTheSealedPublicationHeadersByteForByte
-[       OK ] PinnedHeaders.MatchTheSealedPublicationHeadersByteForByte (8 ms)
+[       OK ] PinnedHeaders.MatchTheSealedPublicationHeadersByteForByte (5 ms)
 [ RUN      ] PinnedHeaders.TheEventHeaderIsTheEightHundredAndFortyEightByteLine
-[       OK ] PinnedHeaders.TheEventHeaderIsTheEightHundredAndFortyEightByteLine (4 ms)
-[----------] 2 tests from PinnedHeaders (14 ms total)
+[       OK ] PinnedHeaders.TheEventHeaderIsTheEightHundredAndFortyEightByteLine (2 ms)
+[----------] 2 tests from PinnedHeaders (8 ms total)
 
 [----------] 4 tests from StrictParsers
 [ RUN      ] StrictParsers.RefuseEmptyRedundantZeroAndNonDigitCells
@@ -60,95 +64,95 @@ Running main() from /workspace/artifacts/cache/cpp/wp6_src/third_party/googletes
 [       OK ] StrictParsers.OptionalCellsSeparateAbsentFromZero (0 ms)
 [ RUN      ] StrictParsers.CanonicalDigestShapeRejectsUppercaseAndWrongLength
 [       OK ] StrictParsers.CanonicalDigestShapeRejectsUppercaseAndWrongLength (0 ms)
-[----------] 4 tests from StrictParsers (5 ms total)
+[----------] 4 tests from StrictParsers (0 ms total)
 
-[----------] 23 tests from PrefixSeal
+[----------] 24 tests from PrefixSeal
 [ RUN      ] PrefixSeal.ReproducesEverySessionRootAndCountThroughTheStop
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:43: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:43: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] PrefixSeal.ReproducesEverySessionRootAndCountThroughTheStop (28 ms)
+[  FAILED  ] PrefixSeal.ReproducesEverySessionRootAndCountThroughTheStop (12 ms)
 [ RUN      ] PrefixSeal.StopsAtExactlyTheDeclaredBoundaryByteAndClosesTheDescriptor
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:58: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:58: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] PrefixSeal.StopsAtExactlyTheDeclaredBoundaryByteAndClosesTheDescriptor (12 ms)
+[  FAILED  ] PrefixSeal.StopsAtExactlyTheDeclaredBoundaryByteAndClosesTheDescriptor (17 ms)
 [ RUN      ] PrefixSeal.NeverAddressesAByteAtOrPastTheWall
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:76: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:76: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 CLOCK_VIOLATION at WalledSource: the reader addressed a byte at or past the wall [context=849]
 
-[  FAILED  ] PrefixSeal.NeverAddressesAByteAtOrPastTheWall (14 ms)
+[  FAILED  ] PrefixSeal.NeverAddressesAByteAtOrPastTheWall (24 ms)
 [ RUN      ] PrefixSeal.TheHeaderIsWalkedOneByteAtATime
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:87: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:87: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] PrefixSeal.TheHeaderIsWalkedOneByteAtATime (14 ms)
+[  FAILED  ] PrefixSeal.TheHeaderIsWalkedOneByteAtATime (10 ms)
 [ RUN      ] PrefixSeal.TheFinalRowIsWalkedOneByteAtATimeThroughItsNewline
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:98: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:98: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] PrefixSeal.TheFinalRowIsWalkedOneByteAtATimeThroughItsNewline (12 ms)
+[  FAILED  ] PrefixSeal.TheFinalRowIsWalkedOneByteAtATimeThroughItsNewline (10 ms)
 [ RUN      ] PrefixSeal.BlockRequestsAreClampedToOneFewerThanTheRemainingRowCount
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:112: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:112: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] PrefixSeal.BlockRequestsAreClampedToOneFewerThanTheRemainingRowCount (10 ms)
+[  FAILED  ] PrefixSeal.BlockRequestsAreClampedToOneFewerThanTheRemainingRowCount (11 ms)
 [ RUN      ] PrefixSeal.TwoIndependentExtractionsAreByteIdentical
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:126: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:126: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] PrefixSeal.TwoIndependentExtractionsAreByteIdentical (23 ms)
+[  FAILED  ] PrefixSeal.TwoIndependentExtractionsAreByteIdentical (6 ms)
 [ RUN      ] PrefixSeal.TheRetainWindowKeepsExactlyTheRequestedSessions
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:144: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:144: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] PrefixSeal.TheRetainWindowKeepsExactlyTheRequestedSessions (9 ms)
+[  FAILED  ] PrefixSeal.TheRetainWindowKeepsExactlyTheRequestedSessions (7 ms)
 [ RUN      ] PrefixSeal.TheSafeLeafCarriesOnlyTheSevenFieldsAndIsSortedBySignalId
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:155: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:155: Failure
 Value of: seal_prefix(source, bounds, fixture_options(2, 2), sink.sink()).has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] PrefixSeal.TheSafeLeafCarriesOnlyTheSevenFieldsAndIsSortedBySignalId (10 ms)
+[  FAILED  ] PrefixSeal.TheSafeLeafCarriesOnlyTheSevenFieldsAndIsSortedBySignalId (7 ms)
 [ RUN      ] PrefixSeal.ARetainedSessionResolvesItsOwnMemberIdsAndOnlyThose
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:172: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:172: Failure
 Value of: seal_prefix(source, bounds, fixture_options(2, 2), sink.sink()).has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] PrefixSeal.ARetainedSessionResolvesItsOwnMemberIdsAndOnlyThose (10 ms)
+[  FAILED  ] PrefixSeal.ARetainedSessionResolvesItsOwnMemberIdsAndOnlyThose (7 ms)
 [ RUN      ] PrefixSeal.ASessionCountThatDisagreesWithTheCensusRefuses
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:187: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:188: Failure
 Expected equality of these values:
   seal.error().code()
     Which is: 1-byte object <04>
   qr::RefusalCode::CONTENT_MISMATCH
     Which is: 1-byte object <08>
 
-[  FAILED  ] PrefixSeal.ASessionCountThatDisagreesWithTheCensusRefuses (9 ms)
+[  FAILED  ] PrefixSeal.ASessionCountThatDisagreesWithTheCensusRefuses (25 ms)
 [ RUN      ] PrefixSeal.ASessionRootThatDisagreesWithTheCensusRefuses
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:196: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:197: Failure
 Expected equality of these values:
   seal.error().code()
     Which is: 1-byte object <04>
@@ -157,7 +161,7 @@ Expected equality of these values:
 
 [  FAILED  ] PrefixSeal.ASessionRootThatDisagreesWithTheCensusRefuses (8 ms)
 [ RUN      ] PrefixSeal.NonMonotoneOrdinalsRefuseEvenWhenTheCensusAgreesWithThem
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:227: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:228: Failure
 Expected equality of these values:
   seal.error().code()
     Which is: 1-byte object <04>
@@ -166,117 +170,130 @@ Expected equality of these values:
 
 [  FAILED  ] PrefixSeal.NonMonotoneOrdinalsRefuseEvenWhenTheCensusAgreesWithThem (11 ms)
 [ RUN      ] PrefixSeal.ACarriageReturnInsideAnAdmittedRowRefuses
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:236: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:237: Failure
 Expected equality of these values:
   seal.error().code()
     Which is: 1-byte object <04>
   qr::RefusalCode::DECODE_FAILED
     Which is: 1-byte object <06>
 
-[  FAILED  ] PrefixSeal.ACarriageReturnInsideAnAdmittedRowRefuses (8 ms)
+[  FAILED  ] PrefixSeal.ACarriageReturnInsideAnAdmittedRowRefuses (7 ms)
 [ RUN      ] PrefixSeal.ADuplicateSignalIdInsideOneSessionRefuses
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:245: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:246: Failure
 Expected equality of these values:
   seal.error().code()
     Which is: 1-byte object <04>
   qr::RefusalCode::CONTENT_MISMATCH
     Which is: 1-byte object <08>
 
-[  FAILED  ] PrefixSeal.ADuplicateSignalIdInsideOneSessionRefuses (26 ms)
+[  FAILED  ] PrefixSeal.ADuplicateSignalIdInsideOneSessionRefuses (8 ms)
 [ RUN      ] PrefixSeal.AHeaderThatIsNotThePinnedHeaderRefuses
-[       OK ] PrefixSeal.AHeaderThatIsNotThePinnedHeaderRefuses (9 ms)
+[       OK ] PrefixSeal.AHeaderThatIsNotThePinnedHeaderRefuses (7 ms)
 [ RUN      ] PrefixSeal.AStopOrdinalPastTheWallIsRefusedBeforeAnyByteIsRead
 [       OK ] PrefixSeal.AStopOrdinalPastTheWallIsRefusedBeforeAnyByteIsRead (3 ms)
 [ RUN      ] PrefixSeal.BoundsThatDoNotCoverTheStopRefuse
-[       OK ] PrefixSeal.BoundsThatDoNotCoverTheStopRefuse (9 ms)
+[       OK ] PrefixSeal.BoundsThatDoNotCoverTheStopRefuse (6 ms)
 [ RUN      ] PrefixSeal.TheProductionByteSizeGateRefusesAFileThatIsNotThePinnedSize
-[       OK ] PrefixSeal.TheProductionByteSizeGateRefusesAFileThatIsNotThePinnedSize (8 ms)
-[ RUN      ] PrefixSeal.TheFullScopeCensusGateRequiresTheDeclaredTenPointSevenMillionRows
-[       OK ] PrefixSeal.TheFullScopeCensusGateRequiresTheDeclaredTenPointSevenMillionRows (8 ms)
+[       OK ] PrefixSeal.TheProductionByteSizeGateRefusesAFileThatIsNotThePinnedSize (6 ms)
+[ RUN      ] PrefixSeal.TheWallIsTheAmendedScopeWallAndItsRowCensusIsTheAmendedOne
+[       OK ] PrefixSeal.TheWallIsTheAmendedScopeWallAndItsRowCensusIsTheAmendedOne (0 ms)
+[ RUN      ] PrefixSeal.TheFullScopeCensusGateRequiresTheDeclaredRowCount
+[       OK ] PrefixSeal.TheFullScopeCensusGateRequiresTheDeclaredRowCount (6 ms)
 [ RUN      ] PrefixSeal.ASinkRefusalStopsTheSealRatherThanBeingIgnored
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:309: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:325: Failure
 Expected equality of these values:
   seal.error().code()
     Which is: 1-byte object <04>
   qr::RefusalCode::CONFIG
     Which is: 1-byte object <13>
 
-[  FAILED  ] PrefixSeal.ASinkRefusalStopsTheSealRatherThanBeingIgnored (8 ms)
+[  FAILED  ] PrefixSeal.ASinkRefusalStopsTheSealRatherThanBeingIgnored (6 ms)
 [ RUN      ] PrefixSeal.TheKernelIsNeverAskedForMoreBytesThanTheLedgerRecords
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_prefix_reader.cpp:360: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_prefix_reader.cpp:376: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at qr_candidates::FileSource::read_at: end of file before the requested bytes [context=21589]
 
-[  FAILED  ] PrefixSeal.TheKernelIsNeverAskedForMoreBytesThanTheLedgerRecords (7 ms)
+[  FAILED  ] PrefixSeal.TheKernelIsNeverAskedForMoreBytesThanTheLedgerRecords (8 ms)
 [ RUN      ] PrefixSeal.TheProductionSourceRefusesAReadAfterClose
-[       OK ] PrefixSeal.TheProductionSourceRefusesAReadAfterClose (2 ms)
-[----------] 23 tests from PrefixSeal (304 ms total)
+[       OK ] PrefixSeal.TheProductionSourceRefusesAReadAfterClose (1 ms)
+[----------] 24 tests from PrefixSeal (224 ms total)
 
 [----------] 3 tests from T14Bounds
 [ RUN      ] T14Bounds.ReadsTheCensusOneByteAtATimeAndClosesAtTheStop
-[       OK ] T14Bounds.ReadsTheCensusOneByteAtATimeAndClosesAtTheStop (28 ms)
+[       OK ] T14Bounds.ReadsTheCensusOneByteAtATimeAndClosesAtTheStop (20 ms)
 [ RUN      ] T14Bounds.ANonDenseOrdinalLadderRefuses
-[       OK ] T14Bounds.ANonDenseOrdinalLadderRefuses (4 ms)
+[       OK ] T14Bounds.ANonDenseOrdinalLadderRefuses (3 ms)
 [ RUN      ] T14Bounds.AHeaderThatIsNotThePinnedHeaderRefuses
-[       OK ] T14Bounds.AHeaderThatIsNotThePinnedHeaderRefuses (4 ms)
-[----------] 3 tests from T14Bounds (40 ms total)
+[       OK ] T14Bounds.AHeaderThatIsNotThePinnedHeaderRefuses (3 ms)
+[----------] 3 tests from T14Bounds (28 ms total)
 
 [----------] 5 tests from SessionIndexWall
-[ RUN      ] SessionIndexWall.ParsesTheDenseLadderAndRefusesPastSevenFortyNine
-[       OK ] SessionIndexWall.ParsesTheDenseLadderAndRefusesPastSevenFortyNine (8 ms)
+[ RUN      ] SessionIndexWall.ParsesTheDenseLadderAndRefusesPastNineSeventeen
+[       OK ] SessionIndexWall.ParsesTheDenseLadderAndRefusesPastNineSeventeen (6 ms)
 [ RUN      ] SessionIndexWall.ARowWhoseOrdinalIsNotItsPositionRefuses
-[       OK ] SessionIndexWall.ARowWhoseOrdinalIsNotItsPositionRefuses (5 ms)
+[       OK ] SessionIndexWall.ARowWhoseOrdinalIsNotItsPositionRefuses (3 ms)
 [ RUN      ] SessionIndexWall.AWrongHeaderRefuses
 [       OK ] SessionIndexWall.AWrongHeaderRefuses (0 ms)
 [ RUN      ] SessionIndexWall.ANonCivilDayRefuses
 [       OK ] SessionIndexWall.ANonCivilDayRefuses (0 ms)
 [ RUN      ] SessionIndexWall.ADigestThatDoesNotMatchRefusesBeforeAnythingIsParsed
-[       OK ] SessionIndexWall.ADigestThatDoesNotMatchRefusesBeforeAnythingIsParsed (8 ms)
-[----------] 5 tests from SessionIndexWall (31 ms total)
+[       OK ] SessionIndexWall.ADigestThatDoesNotMatchRefusesBeforeAnythingIsParsed (6 ms)
+[----------] 5 tests from SessionIndexWall (17 ms total)
 
 [----------] 7 tests from ColumnWall
 [ RUN      ] ColumnWall.TheProjectionAllowlistIsExactlyTheEightNamedColumns
-[       OK ] ColumnWall.TheProjectionAllowlistIsExactlyTheEightNamedColumns (8 ms)
+[       OK ] ColumnWall.TheProjectionAllowlistIsExactlyTheEightNamedColumns (5 ms)
 [ RUN      ] ColumnWall.TheSideColumnIsUnreachableFromADecodedSession
-[       OK ] ColumnWall.TheSideColumnIsUnreachableFromADecodedSession (6 ms)
+[       OK ] ColumnWall.TheSideColumnIsUnreachableFromADecodedSession (5 ms)
 [ RUN      ] ColumnWall.ThePhysicalClusterIdIsUnreachableFromADecodedRegistrySession
-[       OK ] ColumnWall.ThePhysicalClusterIdIsUnreachableFromADecodedRegistrySession (48 ms)
+[       OK ] ColumnWall.ThePhysicalClusterIdIsUnreachableFromADecodedRegistrySession (6 ms)
 [ RUN      ] ColumnWall.AnAllowlistThatNamesAForbiddenColumnRefusesBeforeTheFileIsOpened
-[       OK ] ColumnWall.AnAllowlistThatNamesAForbiddenColumnRefusesBeforeTheFileIsOpened (4 ms)
+[       OK ] ColumnWall.AnAllowlistThatNamesAForbiddenColumnRefusesBeforeTheFileIsOpened (3 ms)
 [ RUN      ] ColumnWall.AForbiddenColumnThatVanishedFromTheSchemaRefuses
-[       OK ] ColumnWall.AForbiddenColumnThatVanishedFromTheSchemaRefuses (6 ms)
+[       OK ] ColumnWall.AForbiddenColumnThatVanishedFromTheSchemaRefuses (4 ms)
 [ RUN      ] ColumnWall.ARepeatedAllowlistEntryRefuses
-[       OK ] ColumnWall.ARepeatedAllowlistEntryRefuses (3 ms)
+[       OK ] ColumnWall.ARepeatedAllowlistEntryRefuses (2 ms)
 [ RUN      ] ColumnWall.AnEmptyAllowlistIsNotAProjection
 [       OK ] ColumnWall.AnEmptyAllowlistIsNotAProjection (3 ms)
-[----------] 7 tests from ColumnWall (94 ms total)
+[----------] 7 tests from ColumnWall (31 ms total)
 
 [----------] 11 tests from RowGroupIdentity
 [ RUN      ] RowGroupIdentity.DecodesPhysicalRowGroupIAsSessionI
-[       OK ] RowGroupIdentity.DecodesPhysicalRowGroupIAsSessionI (29 ms)
+[       OK ] RowGroupIdentity.DecodesPhysicalRowGroupIAsSessionI (28 ms)
 [ RUN      ] RowGroupIdentity.DayStatisticsThatSpanTwoDaysRefuse
-[       OK ] RowGroupIdentity.DayStatisticsThatSpanTwoDaysRefuse (21 ms)
+[       OK ] RowGroupIdentity.DayStatisticsThatSpanTwoDaysRefuse (19 ms)
 [ RUN      ] RowGroupIdentity.DayStatisticsThatNameADifferentDayThanTheIndexRefuse
 [       OK ] RowGroupIdentity.DayStatisticsThatNameADifferentDayThanTheIndexRefuse (6 ms)
 [ RUN      ] RowGroupIdentity.AbsentDayStatisticsRefuseRatherThanFallingBackToTheValues
 [       OK ] RowGroupIdentity.AbsentDayStatisticsRefuseRatherThanFallingBackToTheValues (7 ms)
 [ RUN      ] RowGroupIdentity.ADecodedRowCarryingANeighboursDayRefusesDespiteCleanStatistics
-[       OK ] RowGroupIdentity.ADecodedRowCarryingANeighboursDayRefusesDespiteCleanStatistics (8 ms)
+[       OK ] RowGroupIdentity.ADecodedRowCarryingANeighboursDayRefusesDespiteCleanStatistics (7 ms)
 [ RUN      ] RowGroupIdentity.ADecodedRowCountThatDiffersFromTheIndexRefuses
-[       OK ] RowGroupIdentity.ADecodedRowCountThatDiffersFromTheIndexRefuses (7 ms)
+[       OK ] RowGroupIdentity.ADecodedRowCountThatDiffersFromTheIndexRefuses (5 ms)
 [ RUN      ] RowGroupIdentity.AnOrdinalPastTheWallNeverBecomesARowGroupIndex
-[       OK ] RowGroupIdentity.AnOrdinalPastTheWallNeverBecomesARowGroupIndex (6 ms)
+[       OK ] RowGroupIdentity.AnOrdinalPastTheWallNeverBecomesARowGroupIndex (5 ms)
 [ RUN      ] RowGroupIdentity.AnOrdinalWithNoIndexRowRefuses
-[       OK ] RowGroupIdentity.AnOrdinalWithNoIndexRowRefuses (6 ms)
+[       OK ] RowGroupIdentity.AnOrdinalWithNoIndexRowRefuses (5 ms)
 [ RUN      ] RowGroupIdentity.AFileWithTheWrongRowGroupCountRefuses
-[       OK ] RowGroupIdentity.AFileWithTheWrongRowGroupCountRefuses (6 ms)
+[       OK ] RowGroupIdentity.AFileWithTheWrongRowGroupCountRefuses (5 ms)
 [ RUN      ] RowGroupIdentity.TwoDecodesOfOneSessionAgreeCellForCell
-[       OK ] RowGroupIdentity.TwoDecodesOfOneSessionAgreeCellForCell (34 ms)
-[ RUN      ] RowGroupIdentity.ANullCellIsReportedAsNullNotAsAnEmptyString
-[       OK ] RowGroupIdentity.ANullCellIsReportedAsNullNotAsAnEmptyString (8 ms)
-[----------] 11 tests from RowGroupIdentity (159 ms total)
+[       OK ] RowGroupIdentity.TwoDecodesOfOneSessionAgreeCellForCell (5 ms)
+[ RUN      ] RowGroupIdentity.ARequiredLeafCarriesNoNullsSoAnAbsentCellIsAnEmptyValue
+[       OK ] RowGroupIdentity.ARequiredLeafCarriesNoNullsSoAnAbsentCellIsAnEmptyValue (6 ms)
+[----------] 11 tests from RowGroupIdentity (103 ms total)
+
+[----------] 4 tests from DialectProfiles
+[ RUN      ] DialectProfiles.ThePublicationProfileRefusesAnOptionalLeaf
+[       OK ] DialectProfiles.ThePublicationProfileRefusesAnOptionalLeaf (9 ms)
+[ RUN      ] DialectProfiles.TheCorpusProfileRefusesTheRequiredPublicationShape
+[       OK ] DialectProfiles.TheCorpusProfileRefusesTheRequiredPublicationShape (4 ms)
+[ RUN      ] DialectProfiles.ThePublicationProfileRefusesEveryTupleOutsideItsMeasuredCensus
+[       OK ] DialectProfiles.ThePublicationProfileRefusesEveryTupleOutsideItsMeasuredCensus (44 ms)
+[ RUN      ] DialectProfiles.ThePublicationReaderDeclaresItsFamilyRatherThanInheritingADefault
+[       OK ] DialectProfiles.ThePublicationReaderDeclaresItsFamilyRatherThanInheritingADefault (6 ms)
+[----------] 4 tests from DialectProfiles (64 ms total)
 
 [----------] 8 tests from MemberParse
 [ RUN      ] MemberParse.AcceptsTheCanonicalAscendingUniqueLowercaseList
@@ -295,307 +312,377 @@ IO at qr_candidates::FileSource::read_at: end of file before the requested bytes
 [       OK ] MemberParse.ARepeatedIdRefuses (0 ms)
 [ RUN      ] MemberParse.AWrongLengthTokenRefuses
 [       OK ] MemberParse.AWrongLengthTokenRefuses (0 ms)
-[----------] 8 tests from MemberParse (11 ms total)
+[----------] 8 tests from MemberParse (0 ms total)
 
 [----------] 1 test from PolicyVocabulary
 [ RUN      ] PolicyVocabulary.AdmitsExactlyTheTwelvePrimitivePolicies
 [       OK ] PolicyVocabulary.AdmitsExactlyTheTwelvePrimitivePolicies (0 ms)
-[----------] 1 test from PolicyVocabulary (1 ms total)
+[----------] 1 test from PolicyVocabulary (0 ms total)
 
-[----------] 22 tests from Roster
+[----------] 24 tests from Roster
 [ RUN      ] Roster.AuthenticatesLowAsLongAndHighAsShort
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:201: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:205: Failure
 Value of: roster.has_value()
   Actual: false
 Expected: true
 CONTENT_MISMATCH at qr_candidates::build_session_roster: the three authorities are not the same session [context=2]
 
-[  FAILED  ] Roster.AuthenticatesLowAsLongAndHighAsShort (26 ms)
+[  FAILED  ] Roster.AuthenticatesLowAsLongAndHighAsShort (20 ms)
 [ RUN      ] Roster.TheCensusCountsEveryTypedClassSeparately
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:219: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:223: Failure
 Value of: roster.has_value()
   Actual: false
 Expected: true
 CONTENT_MISMATCH at qr_candidates::build_session_roster: the three authorities are not the same session [context=2]
 
-[  FAILED  ] Roster.TheCensusCountsEveryTypedClassSeparately (20 ms)
+[  FAILED  ] Roster.TheCensusCountsEveryTypedClassSeparately (17 ms)
 [ RUN      ] Roster.EveryAdmittedCandidateStaysInTheDenominatorIncludingTheUnauthenticated
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:243: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:247: Failure
 Value of: roster.has_value()
   Actual: false
 Expected: true
 
 [  FAILED  ] Roster.EveryAdmittedCandidateStaysInTheDenominatorIncludingTheUnauthenticated (36 ms)
 [ RUN      ] Roster.NonprimitiveRowsCreateNoRecordAtAll
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:251: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:255: Failure
 Value of: roster.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] Roster.NonprimitiveRowsCreateNoRecordAtAll (26 ms)
+[  FAILED  ] Roster.NonprimitiveRowsCreateNoRecordAtAll (23 ms)
 [ RUN      ] Roster.APrimitiveRowWithNoVisibilityOrNoScorabilityIsNotAdmitted
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:260: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:264: Failure
 Value of: roster.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] Roster.APrimitiveRowWithNoVisibilityOrNoScorabilityIsNotAdmitted (29 ms)
+[  FAILED  ] Roster.APrimitiveRowWithNoVisibilityOrNoScorabilityIsNotAdmitted (21 ms)
+[ RUN      ] Roster.AnEventScorableCellThatIsNotExactlyTrueOrFalseRefusesInsteadOfNotAdmitting
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
+Value of: seal.has_value()
+  Actual: false
+Expected: true
+IO at MemorySource: read past end [context=849]
+
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:299: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <08>
+  qr::RefusalCode::DECODE_FAILED
+    Which is: 1-byte object <06>
+registry_scorable_upper.parquet
+
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
+Value of: seal.has_value()
+  Actual: false
+Expected: true
+IO at MemorySource: read past end [context=849]
+
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:299: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <08>
+  qr::RefusalCode::DECODE_FAILED
+    Which is: 1-byte object <06>
+registry_scorable_one.parquet
+
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
+Value of: seal.has_value()
+  Actual: false
+Expected: true
+IO at MemorySource: read past end [context=849]
+
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:299: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <08>
+  qr::RefusalCode::DECODE_FAILED
+    Which is: 1-byte object <06>
+registry_scorable_garbage.parquet
+
+[  FAILED  ] Roster.AnEventScorableCellThatIsNotExactlyTrueOrFalseRefusesInsteadOfNotAdmitting (76 ms)
+[ RUN      ] Roster.TheNotAdmittedCensusKeepsUnscorableAndVisibilityLessApart
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
+Value of: seal.has_value()
+  Actual: false
+Expected: true
+IO at MemorySource: read past end [context=849]
+
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:306: Failure
+Value of: roster.has_value()
+  Actual: false
+Expected: true
+CONTENT_MISMATCH at qr_candidates::build_session_roster: the three authorities are not the same session [context=2]
+
+[  FAILED  ] Roster.TheNotAdmittedCensusKeepsUnscorableAndVisibilityLessApart (16 ms)
 [ RUN      ] Roster.RecordsAreOrderedByCandidateIdNotByRowOrder
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:268: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:325: Failure
 Value of: roster.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] Roster.RecordsAreOrderedByCandidateIdNotByRowOrder (37 ms)
+[  FAILED  ] Roster.RecordsAreOrderedByCandidateIdNotByRowOrder (17 ms)
 [ RUN      ] Roster.MixedMemberSidesAreTypedUnavailableAndRetained
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:281: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:338: Failure
 Value of: roster.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] Roster.MixedMemberSidesAreTypedUnavailableAndRetained (29 ms)
+[  FAILED  ] Roster.MixedMemberSidesAreTypedUnavailableAndRetained (22 ms)
 [ RUN      ] Roster.AMemberVisibleAfterTheCandidateIsTypedUnavailable
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:294: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:351: Failure
 Value of: roster.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] Roster.AMemberVisibleAfterTheCandidateIsTypedUnavailable (28 ms)
+[  FAILED  ] Roster.AMemberVisibleAfterTheCandidateIsTypedUnavailable (36 ms)
 [ RUN      ] Roster.AMemberWhosePolicyOrReversalDiffersIsTypedUnavailable
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:306: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:363: Failure
 Value of: roster.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] Roster.AMemberWhosePolicyOrReversalDiffersIsTypedUnavailable (42 ms)
+[  FAILED  ] Roster.AMemberWhosePolicyOrReversalDiffersIsTypedUnavailable (21 ms)
 [ RUN      ] Roster.AMemberThatDoesNotResolveInSessionIsTypedUnavailable
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:317: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:374: Failure
 Value of: roster.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] Roster.AMemberThatDoesNotResolveInSessionIsTypedUnavailable (27 ms)
+[  FAILED  ] Roster.AMemberThatDoesNotResolveInSessionIsTypedUnavailable (23 ms)
 [ RUN      ] Roster.ASingletonCandidateRowKeyFlipRefusesTheCandidateAndSession
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] Roster.ASingletonCandidateRowKeyFlipRefusesTheCandidateAndSession (24 ms)
+[  FAILED  ] Roster.ASingletonCandidateRowKeyFlipRefusesTheCandidateAndSession (19 ms)
 [ RUN      ] Roster.AMultiMemberSplitRefusesTheCandidateAndSession
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] Roster.AMultiMemberSplitRefusesTheCandidateAndSession (38 ms)
+[  FAILED  ] Roster.AMultiMemberSplitRefusesTheCandidateAndSession (32 ms)
 [ RUN      ] Roster.TheMultiMemberSplitFixtureStillPassesThePrefixSeal
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:362: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:419: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] Roster.TheMultiMemberSplitFixtureStillPassesThePrefixSeal (9 ms)
-[ RUN      ] Roster.ANullPhysicalKeyOnTheRawRowRefuses
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+[  FAILED  ] Roster.TheMultiMemberSplitFixtureStillPassesThePrefixSeal (7 ms)
+[ RUN      ] Roster.AnEmptyPhysicalKeyOnTheRawRowRefuses
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] Roster.ANullPhysicalKeyOnTheRawRowRefuses (20 ms)
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:430: Failure
+Expected equality of these values:
+  roster.error().code()
+    Which is: 1-byte object <08>
+  qr::RefusalCode::DECODE_FAILED
+    Which is: 1-byte object <06>
+
+[  FAILED  ] Roster.AnEmptyPhysicalKeyOnTheRawRowRefuses (20 ms)
 [ RUN      ] Roster.ARawRowThatDisagreesOnPolicyReversalVisibilityOrMembersRefuses
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] Roster.ARawRowThatDisagreesOnPolicyReversalVisibilityOrMembersRefuses (154 ms)
+[  FAILED  ] Roster.ARawRowThatDisagreesOnPolicyReversalVisibilityOrMembersRefuses (103 ms)
 [ RUN      ] Roster.AStoredMemberCountThatContradictsTheDerivedCountRefuses
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] Roster.AStoredMemberCountThatContradictsTheDerivedCountRefuses (25 ms)
+[  FAILED  ] Roster.AStoredMemberCountThatContradictsTheDerivedCountRefuses (19 ms)
 [ RUN      ] Roster.ARepeatedCandidateIdInOneSessionRefuses
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] Roster.ARepeatedCandidateIdInOneSessionRefuses (27 ms)
+[  FAILED  ] Roster.ARepeatedCandidateIdInOneSessionRefuses (18 ms)
 [ RUN      ] Roster.EveryMalformedMemberCellShapeIsTypedRefused
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] Roster.EveryMalformedMemberCellShapeIsTypedRefused (146 ms)
+[  FAILED  ] Roster.EveryMalformedMemberCellShapeIsTypedRefused (123 ms)
 [ RUN      ] Roster.TheThreeAuthoritiesMustBeTheSameSession
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] Roster.TheThreeAuthoritiesMustBeTheSameSession (20 ms)
+[  FAILED  ] Roster.TheThreeAuthoritiesMustBeTheSameSession (34 ms)
 [ RUN      ] Roster.AnOrdinalPastTheWallRefusesBeforeAnythingIsJoined
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-[  FAILED  ] Roster.AnOrdinalPastTheWallRefusesBeforeAnythingIsJoined (24 ms)
+[  FAILED  ] Roster.AnOrdinalPastTheWallRefusesBeforeAnythingIsJoined (17 ms)
 [ RUN      ] Roster.DeletingTheLatestVisibleSiblingLeavesEveryEarlierRecordBitUnchanged
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:442: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:504: Failure
 Value of: complete.has_value()
   Actual: false
 Expected: true
 CONTENT_MISMATCH at qr_candidates::build_session_roster: the three authorities are not the same session [context=2]
 
-[  FAILED  ] Roster.DeletingTheLatestVisibleSiblingLeavesEveryEarlierRecordBitUnchanged (38 ms)
+[  FAILED  ] Roster.DeletingTheLatestVisibleSiblingLeavesEveryEarlierRecordBitUnchanged (19 ms)
 [ RUN      ] Roster.TwoBuildsOfOneSessionRenderByteIdenticalOutput
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:101: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:105: Failure
 Value of: seal.has_value()
   Actual: false
 Expected: true
 IO at MemorySource: read past end [context=849]
 
-/workspace/artifacts/cache/cpp/wp6_src/qr_candidates/tests/test_roster.cpp:479: Failure
+/workspace/engine/cpp/qr_candidates/tests/test_roster.cpp:541: Failure
 Value of: a.has_value()
   Actual: false
 Expected: true
 
-[  FAILED  ] Roster.TwoBuildsOfOneSessionRenderByteIdenticalOutput (44 ms)
-[----------] 22 tests from Roster (917 ms total)
+[  FAILED  ] Roster.TwoBuildsOfOneSessionRenderByteIdenticalOutput (64 ms)
+[----------] 24 tests from Roster (814 ms total)
+
+[----------] 1 test from AdmissionClassLaw
+[ RUN      ] AdmissionClassLaw.TheFourClassesAreDecidedInOnePlaceAndPrimitiveNotAdmittedIsOneOfThem
+[       OK ] AdmissionClassLaw.TheFourClassesAreDecidedInOnePlaceAndPrimitiveNotAdmittedIsOneOfThem (0 ms)
+[----------] 1 test from AdmissionClassLaw (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 99 tests from 13 test suites ran. (1705 ms total)
-[  PASSED  ] 60 tests.
-[  FAILED  ] 39 tests, listed below:
+[==========] 107 tests from 15 test suites ran. (1378 ms total)
+[  PASSED  ] 66 tests.
+[  FAILED  ] 41 tests, listed below:
 [  FAILED  ] PrefixSeal.ReproducesEverySessionRootAndCountThroughTheStop
 [  FAILED  ] PrefixSeal.StopsAtExactlyTheDeclaredBoundaryByteAndClosesTheDescriptor
 [  FAILED  ] PrefixSeal.NeverAddressesAByteAtOrPastTheWall
@@ -618,6 +705,8 @@ Expected: true
 [  FAILED  ] Roster.EveryAdmittedCandidateStaysInTheDenominatorIncludingTheUnauthenticated
 [  FAILED  ] Roster.NonprimitiveRowsCreateNoRecordAtAll
 [  FAILED  ] Roster.APrimitiveRowWithNoVisibilityOrNoScorabilityIsNotAdmitted
+[  FAILED  ] Roster.AnEventScorableCellThatIsNotExactlyTrueOrFalseRefusesInsteadOfNotAdmitting
+[  FAILED  ] Roster.TheNotAdmittedCensusKeepsUnscorableAndVisibilityLessApart
 [  FAILED  ] Roster.RecordsAreOrderedByCandidateIdNotByRowOrder
 [  FAILED  ] Roster.MixedMemberSidesAreTypedUnavailableAndRetained
 [  FAILED  ] Roster.AMemberVisibleAfterTheCandidateIsTypedUnavailable
@@ -626,7 +715,7 @@ Expected: true
 [  FAILED  ] Roster.ASingletonCandidateRowKeyFlipRefusesTheCandidateAndSession
 [  FAILED  ] Roster.AMultiMemberSplitRefusesTheCandidateAndSession
 [  FAILED  ] Roster.TheMultiMemberSplitFixtureStillPassesThePrefixSeal
-[  FAILED  ] Roster.ANullPhysicalKeyOnTheRawRowRefuses
+[  FAILED  ] Roster.AnEmptyPhysicalKeyOnTheRawRowRefuses
 [  FAILED  ] Roster.ARawRowThatDisagreesOnPolicyReversalVisibilityOrMembersRefuses
 [  FAILED  ] Roster.AStoredMemberCountThatContradictsTheDerivedCountRefuses
 [  FAILED  ] Roster.ARepeatedCandidateIdInOneSessionRefuses
@@ -636,4 +725,4 @@ Expected: true
 [  FAILED  ] Roster.DeletingTheLatestVisibleSiblingLeavesEveryEarlierRecordBitUnchanged
 [  FAILED  ] Roster.TwoBuildsOfOneSessionRenderByteIdenticalOutput
 
-39 FAILED TESTS
+41 FAILED TESTS

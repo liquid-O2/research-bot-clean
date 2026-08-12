@@ -2,7 +2,7 @@
 +++ b/qr_candidates/src/prefix_reader.cpp
 @@ -514,13 +514,7 @@
      // min(1MiB, R-1) — THE ARITHMETIC THAT IS THE WALL. A request of R-1 bytes
-     // cannot contain R newlines, and row 750 begins only after the R-th, so no
+     // cannot contain R newlines, and row W+1 begins only after the R-th, so no
      // block can reach it. The guard below restates it as code.
 -    const std::size_t request =
 -        static_cast<std::size_t>(std::min<std::uint64_t>(kBlockBytes, remaining - 1U));

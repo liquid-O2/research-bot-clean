@@ -4,6 +4,10 @@
 # build:       cmake --preset mutant && cmake --build --preset mutant
 # reproduce:   engine/cpp/scripts/reproduce_mutant.sh M200_parquet_stub_genesis
 #
+# REFRESHED 2026-08-12: the committed anchors had drifted out from under this
+# mutation, so the proof could no longer be reproduced. Same id, same intent,
+# new anchors, regenerated log.
+
 ### qr_parquet_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
 [==========] Running 43 tests from 10 test suites.
@@ -450,7 +454,7 @@ Value of: opened.has_value()
 Expected: true
 CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
 
-[  FAILED  ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (1 ms)
+[  FAILED  ] RealFileDigests.TwoRunsOverTheRealFileAreByteIdentical (16 ms)
 [ RUN      ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups
 /workspace/engine/cpp/qr_parquet/tests/test_real_file.cpp:273: Failure
 Value of: opened.has_value()
@@ -458,8 +462,8 @@ Value of: opened.has_value()
 Expected: true
 CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
 
-[  FAILED  ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (2 ms)
-[----------] 4 tests from RealFileDigests (10 ms total)
+[  FAILED  ] RealFileDigests.RowGroupTimestampPruningOnTheRealFileKeepsOnlyOverlappingGroups (3 ms)
+[----------] 4 tests from RealFileDigests (26 ms total)
 
 [----------] 1 test from RealFileBudget
 [ RUN      ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor
@@ -469,8 +473,8 @@ Value of: opened.has_value()
 Expected: true
 CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/data/tokens/stock_trades/IWM/2022/2022-07-05.parquet
 
-[  FAILED  ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor (2 ms)
-[----------] 1 test from RealFileBudget (2 ms total)
+[  FAILED  ] RealFileBudget.SingleThreadDecodeMeetsTheValueRateFloor (3 ms)
+[----------] 1 test from RealFileBudget (3 ms total)
 
 [----------] 8 tests from PageVersions/ParquetValues
 [ RUN      ] PageVersions/ParquetValues.SchemaIsTheNinePinnedFlatLeaves/DataPageV1
@@ -540,7 +544,7 @@ CONFIG at qr_parquet::File::open: qr_parquet is a stub path=/workspace/engine/cp
 [----------] 8 tests from PageVersions/ParquetValues (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 43 tests from 10 test suites ran. (14 ms total)
+[==========] 43 tests from 10 test suites ran. (31 ms total)
 [  PASSED  ] 0 tests.
 [  FAILED  ] 43 tests, listed below:
 [  FAILED  ] ThriftCompact.VarintDecodesMultiByteValuesExactly

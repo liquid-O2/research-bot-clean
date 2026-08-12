@@ -2,8 +2,8 @@
 +++ b/qr_replay/src/replay.cpp
 @@ -197,7 +197,7 @@
            admitted.tie = false;
-           best = row.predicted_net;
-         } else if (row.predicted_net == best) {
+           best = row.predicted_net_h_star;
+         } else if (row.predicted_net_h_star == best) {
 -          admitted.tie = true;  // "an exact top tie abstains"
 +          admitted.index = k;  // MUTANT M605: silently take the later of two tied tops
          }

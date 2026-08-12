@@ -34,7 +34,7 @@
 --- a/qr_candidates/src/prefix_reader.cpp
 +++ b/qr_candidates/src/prefix_reader.cpp
 @@ -222,6 +222,11 @@
-                                                  "stop ordinal is past the 749 wall",
+                                                  "stop ordinal is past the 917 wall",
                                                   static_cast<std::int64_t>(stop)));
    }
 +  // M400 STUB: the census loader has not been written yet.
@@ -95,7 +95,7 @@
          Refusal(RefusalCode::CONFIG, kTableSite, "an empty projection allowlist is not a projection"));
 --- a/qr_candidates/src/roster.cpp
 +++ b/qr_candidates/src/roster.cpp
-@@ -91,6 +91,8 @@
+@@ -96,6 +96,8 @@
  }  // namespace
  
  bool is_primitive_policy(std::string_view name) noexcept {
@@ -104,7 +104,7 @@
    for (const std::string_view policy : kPrimitivePolicies) {
      if (policy == name) {
        return true;
-@@ -142,6 +144,8 @@
+@@ -163,6 +165,8 @@
  }
  
  Expected<std::vector<std::string_view>, Refusal> parse_member_signal_ids(std::string_view cell) {
@@ -113,7 +113,7 @@
    constexpr const char* kParseSite = "qr_candidates::parse_member_signal_ids";
    if (cell.empty()) {
      return refuse<std::vector<std::string_view>>(
-@@ -192,6 +196,12 @@
+@@ -213,6 +217,12 @@
                                                        const SessionColumns& registry,
                                                        const SessionColumns& projection,
                                                        const SessionSignals& signals) {
@@ -125,7 +125,7 @@
 +  return refuse<SessionRoster>(Refusal(RefusalCode::CONFIG, kSite, "qr_candidates is a stub"));
    if (ordinal > kMaxSessionOrdinal) {
      return refuse<SessionRoster>(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
-                                          "session ordinal is past the 749 wall",
+                                          "session ordinal is past the 917 wall",
 --- a/qr_candidates/include/qr_candidates/parse.hpp
 +++ b/qr_candidates/include/qr_candidates/parse.hpp
 @@ -39,7 +39,7 @@

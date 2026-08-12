@@ -1,6 +1,6 @@
 --- a/qr_campaign/src/driver.cpp
 +++ b/qr_campaign/src/driver.cpp
-@@ -70,7 +70,9 @@
+@@ -320,7 +320,9 @@
  // ---------------------------------------------------------------------------
  
  Status refuse_unless_in_scope(std::int64_t ordinal) {
@@ -9,5 +9,5 @@
 +  // the fail-open that lets fold-6/7 and the 2025 era boundaries through.
 +  if (ordinal < 0) {
      return Status::refuse(Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
-                                   "card §1: only sessions 125..749 are admissible, and the "
+                                   "card §1 as amended 2026-08-12-c: only sessions 125..917 are admissible, and the "
                                    "wall is applied before any path is formed",

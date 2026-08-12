@@ -1,6 +1,6 @@
 --- a/qr_candidates/src/roster.cpp
 +++ b/qr_candidates/src/roster.cpp
-@@ -96,7 +96,7 @@
+@@ -101,7 +101,7 @@
        return true;
      }
    }
@@ -8,4 +8,4 @@
 +  return name == "UNION";
  }
  
- const char* admission_class_name(AdmissionClass value) noexcept {
+ AdmissionClass classify_admission(std::string_view row_kind, std::string_view policy_name,

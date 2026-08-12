@@ -1,0 +1,14 @@
+--- a/qr_emit/src/shard_writer.cpp
++++ b/qr_emit/src/shard_writer.cpp
+@@ -226,10 +226,7 @@
+     return Result::refuse(
+         config_refusal("qr_emit::ShardWriter::open_leaf", "the shard is already published"));
+   }
+-  if (open_writer_) {
+-    return Result::refuse(config_refusal("qr_emit::ShardWriter::open_leaf",
+-                                         "another leaf is still open; finish it first"));
+-  }
++  // M513: a second leaf may be opened while the first is unfinished.
+   if (!leaf_name_is_clean(name)) {
+     return Result::refuse(
+         config_refusal("qr_emit::ShardWriter::open_leaf", "leaf name is not a plain component"));

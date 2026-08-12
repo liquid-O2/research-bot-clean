@@ -8,4 +8,4 @@
 +            trade.net_cent = row.label.menu_net_cent[h] - kTradeCostCent;  // MUTANT M602: charged twice
              trade.mae_cent = row.label.menu_mae_cent[h];
              trade.stop_hit = row.label.stop_hit[h] != 0;
- 
+             // The label's shared stop_scan reported this; the replay carries it

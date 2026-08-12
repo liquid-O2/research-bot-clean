@@ -4,6 +4,10 @@
 # build:       cmake --preset mutant && cmake --build --preset mutant
 # reproduce:   engine/cpp/scripts/reproduce_mutant.sh M000_stub_genesis
 #
+# REFRESHED 2026-08-12: the committed anchors had drifted out from under this
+# mutation, so the proof could no longer be reproduced. Same id, same intent,
+# new anchors, regenerated log.
+
 ### qr_core_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
 [==========] Running 22 tests from 7 test suites.
@@ -105,6 +109,12 @@ Expected equality of these values:
   "ARITHMETIC_OVERFLOW"
 
 /workspace/engine/cpp/qr_core/tests/test_checked.cpp:108: Failure
+Expected equality of these values:
+  qr::refusal_code_name(qr::RefusalCode::COLUMN_FORBIDDEN)
+    Which is: "STUB"
+  "COLUMN_FORBIDDEN"
+
+/workspace/engine/cpp/qr_core/tests/test_checked.cpp:109: Failure
 Expected equality of these values:
   qr::refusal_code_name(static_cast<qr::RefusalCode>(200))
     Which is: "STUB"
@@ -1208,40 +1218,56 @@ Expected equality of these values:
 
 ### qr_registry_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 15 tests from 4 test suites.
+[==========] Running 21 tests from 5 test suites.
 [----------] Global test environment set-up.
-[----------] 6 tests from ScopeWall
-[ RUN      ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:63: Failure
+[----------] 8 tests from ScopeWall
+[ RUN      ] ScopeWall.AdmitsExactlyTheSevenHundredNinetyThreeScopedOrdinals
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:70: Failure
 Value of: wrong_verdict.empty()
   Actual: false
 Expected: true
-625 ordinals got the wrong admit verdict, first: 125
+793 ordinals got the wrong admit verdict, first: 125
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:66: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:73: Failure
 Value of: wrong_refusal.empty()
   Actual: false
 Expected: true
 1003 refusals were not ORDINAL_OUTSIDE_SCOPE(ordinal), first: 0
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:69: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:76: Failure
 Expected equality of these values:
   admitted
     Which is: 0
   qr::kScopeSessionCount
-    Which is: 625
+    Which is: 793
 
-[  FAILED  ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals (0 ms)
+[  FAILED  ] ScopeWall.AdmitsExactlyTheSevenHundredNinetyThreeScopedOrdinals (0 ms)
 [ RUN      ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:82: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:91: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
   qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
     Which is: 1-byte object <11>
-750
+918
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:82: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:91: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+962
+
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:91: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+1001
+
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:91: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1249,7 +1275,7 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 1002
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:82: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:91: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1257,7 +1283,7 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 1003
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:82: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:91: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1265,7 +1291,7 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 124
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:82: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:91: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1273,7 +1299,7 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 0
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:82: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:91: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1281,7 +1307,7 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 -1
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:82: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:91: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1289,22 +1315,46 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 9999999
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:86: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:95: Failure
 Value of: boundary_low.has_value()
   Actual: false
 Expected: true
 
 [  FAILED  ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals (0 ms)
+[ RUN      ] ScopeWall.TheAmendedWallIsTheLastSessionStrictlyBeforeSeptemberFirstTwentyTwentyFive
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:117: Failure
+Value of: w.has_value()
+  Actual: false
+Expected: true
+W itself must be admitted
+
+[  FAILED  ] ScopeWall.TheAmendedWallIsTheLastSessionStrictlyBeforeSeptemberFirstTwentyTwentyFive (0 ms)
+[ RUN      ] ScopeWall.TheSealedZoneKeepsTheShareEraBoundaryAndTheProfileFlipSessions
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:163: Failure
+Value of: row.has_value()
+  Actual: false
+Expected: true
+NBBO lot->share era boundary
+
+[  FAILED  ] ScopeWall.TheSealedZoneKeepsTheShareEraBoundaryAndTheProfileFlipSessions (0 ms)
 [ RUN      ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:103: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:187: Failure
 Expected equality of these values:
   resolved.error().code()
     Which is: 1-byte object <13>
   qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
     Which is: 1-byte object <11>
-ordinal 750 reached the filesystem before the wall
+ordinal 918 reached the filesystem before the wall
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:103: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:187: Failure
+Expected equality of these values:
+  resolved.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+ordinal 962 reached the filesystem before the wall
+
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:187: Failure
 Expected equality of these values:
   resolved.error().code()
     Which is: 1-byte object <13>
@@ -1312,7 +1362,7 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 ordinal 1002 reached the filesystem before the wall
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:103: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:187: Failure
 Expected equality of these values:
   resolved.error().code()
     Which is: 1-byte object <13>
@@ -1320,14 +1370,14 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 ordinal 124 reached the filesystem before the wall
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:110: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:194: Failure
 Expected equality of these values:
   in_2026.error().code()
     Which is: 1-byte object <13>
   qr::RefusalCode::DAY_OUTSIDE_CALENDAR
     Which is: 1-byte object <0F>
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:115: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:199: Failure
 Expected equality of these values:
   scoped.error().code()
     Which is: 1-byte object <13>
@@ -1335,9 +1385,9 @@ Expected equality of these values:
     Which is: 1-byte object <00>
 the poisoned root must fail once it IS examined
 
-[  FAILED  ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess (20 ms)
+[  FAILED  ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess (14 ms)
 [ RUN      ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:125: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:209: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1345,7 +1395,7 @@ Expected equality of these values:
     Which is: 1-byte object <0F>
 2026-01-02
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:125: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:209: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1353,7 +1403,7 @@ Expected equality of these values:
     Which is: 1-byte object <0F>
 2026-08-10
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:125: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:209: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1361,7 +1411,7 @@ Expected equality of these values:
     Which is: 1-byte object <0F>
 2021-12-31
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:125: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:209: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1369,7 +1419,7 @@ Expected equality of these values:
     Which is: 1-byte object <0F>
 2019-01-02
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:125: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:209: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1377,7 +1427,7 @@ Expected equality of these values:
     Which is: 1-byte object <0F>
 not-a-day
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:131: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:215: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1385,15 +1435,23 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 2022-01-03
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:131: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:215: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
   qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
     Which is: 1-byte object <11>
-2024-12-27
+2025-09-02
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:131: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:215: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+2025-11-03
+
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:215: Failure
 Expected equality of these values:
   scope.error().code()
     Which is: 1-byte object <13>
@@ -1401,32 +1459,942 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 2025-12-31
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:134: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:218: Failure
 Value of: scoped.has_value()
   Actual: false
 Expected: true
 
 [  FAILED  ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions (0 ms)
 [ RUN      ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:142: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:226: Failure
 Value of: scope.has_value()
   Actual: false
 Expected: true
 
 [  FAILED  ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope (0 ms)
 [ RUN      ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:161: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:246: Failure
 Value of: resolved.has_value()
   Actual: false
 Expected: true
 ordinal 125: 
 
-[  FAILED  ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus (3 ms)
-[----------] 6 tests from ScopeWall (24 ms total)
+[  FAILED  ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus (4 ms)
+[----------] 8 tests from ScopeWall (19 ms total)
+
+[----------] 4 tests from WarmupWall
+[ RUN      ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:46: Failure
+Expected equality of these values:
+  admitted
+    Which is: 0
+  qr::kWarmupSessionCount
+    Which is: 125
+
+[  FAILED  ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals (0 ms)
+[ RUN      ] WarmupWall.RefusesTheFirstScopedOrdinalAndEverythingAboveIt
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:55: Failure
+Value of: last_warmup.has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] WarmupWall.RefusesTheFirstScopedOrdinalAndEverythingAboveIt (0 ms)
+[ RUN      ] WarmupWall.TheScopedWallStillRefusesEveryWarmupOrdinal
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:81: Failure
+Expected equality of these values:
+  scope.error().code()
+    Which is: 1-byte object <13>
+  qr::RefusalCode::ORDINAL_OUTSIDE_SCOPE
+    Which is: 1-byte object <11>
+
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:86: Failure
+Value of: qr::DayScope::admit(*reg, 125).has_value()
+  Actual: false
+Expected: true
+
+[  FAILED  ] WarmupWall.TheScopedWallStillRefusesEveryWarmupOrdinal (2 ms)
+[ RUN      ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:103: Failure
+Expected equality of these values:
+  neither
+    Which is: 0
+  static_cast<std::int64_t>(reg->size()) - qr::kWarmupSessionCount - qr::kScopeSessionCount
+    Which is: -918
+
+[  FAILED  ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry (0 ms)
+[----------] 4 tests from WarmupWall (2 ms total)
 
 [----------] 4 tests from RegistryDigestGate
 [ RUN      ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:29: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:30: Failure
 Expected equality of these values:
   text.size()
     Which is: 0
@@ -1434,7 +2402,7 @@ Expected equality of these values:
     Which is: 575296
 embedded blob is not the pinned 575,296-byte TSV
 
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:30: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:31: Failure
 Expected equality of these values:
   qr::sha256_hex(text)
     Which is: ""
@@ -1443,22 +2411,22 @@ Expected equality of these values:
 
 [  FAILED  ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest (0 ms)
 [ RUN      ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:42: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:43: Failure
 Expected equality of these values:
   on_disk.size()
     Which is: 575296
   embedded.size()
     Which is: 0
 
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:44: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:45: Failure
 Value of: on_disk == embedded
   Actual: false
 Expected: true
 configure-time embedding mangled the registry bytes
 
-[  FAILED  ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes (30 ms)
+[  FAILED  ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes (34 ms)
 [ RUN      ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:64: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:65: Failure
 Value of: loaded.has_value()
   Actual: true
 Expected: false
@@ -1466,17 +2434,17 @@ a flipped byte must never authenticate
 
 [  FAILED  ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError (34 ms)
 [ RUN      ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:82: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:83: Failure
 Value of: loaded.has_value()
   Actual: true
 Expected: false
 
 [  FAILED  ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash (0 ms)
-[----------] 4 tests from RegistryDigestGate (64 ms total)
+[----------] 4 tests from RegistryDigestGate (68 ms total)
 
 [----------] 4 tests from RegistryParse
 [ RUN      ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:91: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:92: Failure
 Expected equality of these values:
   registry.size()
     Which is: 0
@@ -1485,34 +2453,34 @@ Expected equality of these values:
 
 [  FAILED  ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions (0 ms)
 [ RUN      ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:134: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:135: Failure
 Expected equality of these values:
   cent
     Which is: 0
   364U
     Which is: 364
 
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:135: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:136: Failure
 Expected equality of these values:
   dollar
     Which is: 0
   639U
     Which is: 639
 
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:136: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:137: Failure
 Expected equality of these values:
   cent + dollar
     Which is: 0
   qr::kRegistrySessionCount
     Which is: 1003
 
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:137: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:138: Failure
 Expected equality of these values:
   qr::source_profile_name(qr::SourceProfile::CentInt32)
     Which is: "stub"
   "cent_int32"
 
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:138: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:139: Failure
 Expected equality of these values:
   qr::source_profile_name(qr::SourceProfile::DollarFloat64)
     Which is: "stub"
@@ -1520,14 +2488,14 @@ Expected equality of these values:
 
 [  FAILED  ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants (0 ms)
 [ RUN      ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:147: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:148: Failure
 Value of: first_scoped.has_value()
   Actual: false
 Expected: true
 
 [  FAILED  ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange (0 ms)
 [ RUN      ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:202: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:207: Failure
 Value of: parsed.has_value()
   Actual: true
 Expected: false
@@ -1538,7 +2506,7 @@ accepted malformed registry: empty
 
 [----------] 1 test from RegistryBudget
 [ RUN      ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds
-/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:214: Failure
+/workspace/engine/cpp/qr_registry/tests/test_registry.cpp:219: Failure
 Expected equality of these values:
   loaded.value().size()
     Which is: 0
@@ -1550,15 +2518,21 @@ Expected equality of these values:
 [----------] 1 test from RegistryBudget (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 15 tests from 4 test suites ran. (90 ms total)
+[==========] 21 tests from 5 test suites ran. (90 ms total)
 [  PASSED  ] 0 tests.
-[  FAILED  ] 15 tests, listed below:
-[  FAILED  ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals
+[  FAILED  ] 21 tests, listed below:
+[  FAILED  ] ScopeWall.AdmitsExactlyTheSevenHundredNinetyThreeScopedOrdinals
 [  FAILED  ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals
+[  FAILED  ] ScopeWall.TheAmendedWallIsTheLastSessionStrictlyBeforeSeptemberFirstTwentyTwentyFive
+[  FAILED  ] ScopeWall.TheSealedZoneKeepsTheShareEraBoundaryAndTheProfileFlipSessions
 [  FAILED  ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess
 [  FAILED  ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions
 [  FAILED  ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope
 [  FAILED  ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus
+[  FAILED  ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals
+[  FAILED  ] WarmupWall.RefusesTheFirstScopedOrdinalAndEverythingAboveIt
+[  FAILED  ] WarmupWall.TheScopedWallStillRefusesEveryWarmupOrdinal
+[  FAILED  ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry
 [  FAILED  ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest
 [  FAILED  ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes
 [  FAILED  ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError
@@ -1569,7 +2543,7 @@ Expected equality of these values:
 [  FAILED  ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError
 [  FAILED  ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds
 
-15 FAILED TESTS
+21 FAILED TESTS
 
 ### qr_tools_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
@@ -1615,7 +2589,7 @@ Expected equality of these values:
   3U
     Which is: 3
 
-[  FAILED  ] DialectCensusTool.UnreadableFileGetsItsOwnRowWithAReasonAndNeverCrashes (246 ms)
+[  FAILED  ] DialectCensusTool.UnreadableFileGetsItsOwnRowWithAReasonAndNeverCrashes (282 ms)
 [ RUN      ] DialectCensusTool.ReadableFileInTheSameRunStillCensusesItsDialect
 /workspace/engine/cpp/tools/tests/test_dialect_census.cpp:116: Failure
 Expected equality of these values:
@@ -1632,22 +2606,22 @@ the broken files vanished from the census
 /workspace/engine/cpp/tools/tests/test_dialect_census.cpp:137: Failure
 Expected equality of these values:
   read_file(out_a / "dialect_census.tsv")
-    Which is: "# generated 1786393332.2269366\ncorpus\tyear\tcodec\tencoding_set\tphysical_type\tconverted_type\thas_timestamp_stats\tn_row_groups_bucket\tn_files\nfixture\t2022\tZSTD\tPLAIN+RLE\tDOUBLE\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT32\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT64\tNONE\tyes\t65-256\t1\n"
+    Which is: "# generated 1786565406.7524981\ncorpus\tyear\tcodec\tencoding_set\tphysical_type\tconverted_type\thas_timestamp_stats\tn_row_groups_bucket\tn_files\nfixture\t2022\tZSTD\tPLAIN+RLE\tDOUBLE\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT32\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT64\tNONE\tyes\t65-256\t1\n"
   read_file(out_b / "dialect_census.tsv")
-    Which is: "# generated 1786393332.477188\ncorpus\tyear\tcodec\tencoding_set\tphysical_type\tconverted_type\thas_timestamp_stats\tn_row_groups_bucket\tn_files\nfixture\t2022\tZSTD\tPLAIN+RLE\tDOUBLE\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT32\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT64\tNONE\tyes\t65-256\t1\n"
+    Which is: "# generated 1786565406.9218018\ncorpus\tyear\tcodec\tencoding_set\tphysical_type\tconverted_type\thas_timestamp_stats\tn_row_groups_bucket\tn_files\nfixture\t2022\tZSTD\tPLAIN+RLE\tDOUBLE\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT32\tNONE\tyes\t65-256\t1\nfixture\t2022\tZSTD\tPLAIN+RLE+RLE_DICTIONARY\tINT64\tNONE\tyes\t65-256\t1\n"
 With diff:
 @@ -1,3 +1,3 @@
--# generated 1786393332.2269366
-+# generated 1786393332.477188
+-# generated 1786565406.7524981
++# generated 1786565406.9218018
  corpus\tyear\tcodec\tencoding_set\tphysical_type\tconverted_type\thas_timestamp_stats\tn_row_groups_bucket\tn_files
  fixture\t2022\tZSTD\tPLAIN+RLE\tDOUBLE\tNONE\tyes\t65-256\t1
 
 
-[  FAILED  ] DialectCensusTool.TwoRunsAreByteIdentical (653 ms)
-[----------] 3 tests from DialectCensusTool (1228 ms total)
+[  FAILED  ] DialectCensusTool.TwoRunsAreByteIdentical (505 ms)
+[----------] 3 tests from DialectCensusTool (1116 ms total)
 
 [----------] Global test environment tear-down
-[==========] 3 tests from 1 test suite ran. (1228 ms total)
+[==========] 3 tests from 1 test suite ran. (1116 ms total)
 [  PASSED  ] 0 tests.
 [  FAILED  ] 3 tests, listed below:
 [  FAILED  ] DialectCensusTool.UnreadableFileGetsItsOwnRowWithAReasonAndNeverCrashes
@@ -1655,4 +2629,3 @@ With diff:
 [  FAILED  ] DialectCensusTool.TwoRunsAreByteIdentical
 
  3 FAILED TESTS
-

@@ -17,6 +17,14 @@
 // It is census-style: read-only, no wall-clock value in the output, so two runs
 // of the same arguments are byte-identical.
 //
+// THE CC-013 GREEK BLOCK IS OPT-IN, for the same reason the RUTW stream is:
+// `--greeks full` APPENDS `vega vomma veta vera speed zomma color ultima
+// dual_delta dual_gamma iv_error` to the END of every option row, after
+// `sequence`, so a consumer that reads the first eighteen fields sees exactly
+// the bytes it saw before and the default invocation is unchanged byte for
+// byte. Every one of the eleven is a NAMED SLOT of `OptionPrintRow` admitted by
+// CC-013; none is derived, combined or interpreted here.
+//
 // THE RUTW STREAM (B5) IS OPT-IN. `--streams` must name `rutw` for it to be
 // emitted, and the `rutw_option` rows carry EXACTLY the `option` columns — B5
 // is the same 62-name profile under the same laws, so the same named slots
@@ -27,6 +35,7 @@
 // usage: qr_tape_ribbon --ordinal N --from-second A --to-second B --out TSV
 //                       [--quotes-root DIR] [--trades-root DIR] [--options-root DIR]
 //                       [--rutw-root DIR] [--streams prints,quotes,options,rutw]
+//                       [--greeks core|full]
 #include <cinttypes>
 #include <cstdio>
 #include <cstdlib>
@@ -51,9 +60,17 @@ int usage() {
   std::fprintf(stderr,
                "usage: qr_tape_ribbon --ordinal N --from-second A --to-second B --out TSV\n"
                "       [--quotes-root DIR] [--trades-root DIR] [--options-root DIR]\n"
-               "       [--rutw-root DIR] [--streams prints,quotes,options,rutw]\n");
+               "       [--rutw-root DIR] [--streams prints,quotes,options,rutw]\n"
+               "       [--greeks core|full]\n");
   return 2;
 }
+
+/// The CC-013 columns, appended in this order when `--greeks full` is asked
+/// for. The names are the reader's own field names and the order is the
+/// projection's own slot order, so the header comment and the row agree by
+/// construction.
+constexpr const char* kFullGreekHeader =
+    "\tvega\tvomma\tveta\tvera\tspeed\tzomma\tcolor\tultima\tdual_delta\tdual_gamma\tiv_error";
 
 /// `NA` for a null projected cell, the exact integer otherwise.
 void put_i64(std::FILE* out, bool null, std::int64_t value) {
@@ -77,7 +94,7 @@ void put_f64(std::FILE* out, bool null, double value) {
 /// printer too — and differ only in the `kind` column, which names the corpus
 /// the row came from.
 void put_option_row(std::FILE* out, const char* kind, std::int64_t ms,
-                    const qr::sources::OptionPrintRow& row) {
+                    const qr::sources::OptionPrintRow& row, bool full_greeks) {
   std::fprintf(out, "%s\t%" PRId64, kind, ms);
   put_i64(out, row.is_null(qr::sources::kPrintSlotSize), row.size);
   put_i64(out, row.is_null(qr::sources::kPrintSlotPrice), row.price_u6);
@@ -97,6 +114,19 @@ void put_option_row(std::FILE* out, const char* kind, std::int64_t ms,
   put_f64(out, row.is_null(qr::sources::kPrintSlotUnderlyingPrice), row.underlying_price);
   put_i64(out, row.is_null(qr::sources::kPrintSlotCondition), row.condition);
   put_i64(out, row.is_null(qr::sources::kPrintSlotSequence), row.sequence);
+  if (full_greeks) {
+    put_f64(out, row.is_null(qr::sources::kPrintSlotVega), row.vega);
+    put_f64(out, row.is_null(qr::sources::kPrintSlotVomma), row.vomma);
+    put_f64(out, row.is_null(qr::sources::kPrintSlotVeta), row.veta);
+    put_f64(out, row.is_null(qr::sources::kPrintSlotVera), row.vera);
+    put_f64(out, row.is_null(qr::sources::kPrintSlotSpeed), row.speed);
+    put_f64(out, row.is_null(qr::sources::kPrintSlotZomma), row.zomma);
+    put_f64(out, row.is_null(qr::sources::kPrintSlotColor), row.color);
+    put_f64(out, row.is_null(qr::sources::kPrintSlotUltima), row.ultima);
+    put_f64(out, row.is_null(qr::sources::kPrintSlotDualDelta), row.dual_delta);
+    put_f64(out, row.is_null(qr::sources::kPrintSlotDualGamma), row.dual_gamma);
+    put_f64(out, row.is_null(qr::sources::kPrintSlotIvError), row.iv_error);
+  }
   std::fputc('\n', out);
 }
 
@@ -109,6 +139,7 @@ int main(int argc, char** argv) {
   std::string rutw_root = "/workspace/data/tokens/RUTW/options_prints";
   std::string out_path;
   std::string streams = "prints,quotes,options";
+  std::string greeks = "core";
   std::int64_t ordinal = -1;
   std::int64_t from_second = -1;
   std::int64_t to_second = -1;
@@ -130,6 +161,8 @@ int main(int argc, char** argv) {
       out_path = value;
     } else if (flag == "--streams") {
       streams = value;
+    } else if (flag == "--greeks") {
+      greeks = value;
     } else if (flag == "--ordinal") {
       ordinal = std::strtoll(value.c_str(), nullptr, 10);
     } else if (flag == "--from-second") {
@@ -143,6 +176,10 @@ int main(int argc, char** argv) {
   if (out_path.empty() || ordinal < 0 || from_second < 0 || to_second < from_second) {
     return usage();
   }
+  if (greeks != "core" && greeks != "full") {
+    return usage();
+  }
+  const bool full_greeks = greeks == "full";
   const bool want_prints = streams.find("prints") != std::string::npos;
   const bool want_quotes = streams.find("quotes") != std::string::npos;
   const bool want_options = streams.find("options") != std::string::npos;
@@ -201,12 +238,14 @@ int main(int argc, char** argv) {
   std::fprintf(out,
                "# option\tms\tsize\tprice_u6\tstrike_u6\tright\texpiration_day\tbid_u6\task_u6"
                "\tbid_size\task_size\tdelta\tgamma\tvanna\tcharm\timplied_vol"
-               "\tunderlying_price\tcondition\tsequence\n");
+               "\tunderlying_price\tcondition\tsequence%s\n",
+               full_greeks ? kFullGreekHeader : "");
   if (want_rutw) {
     std::fprintf(out,
                  "# rutw_option\tms\tsize\tprice_u6\tstrike_u6\tright\texpiration_day\tbid_u6"
                  "\task_u6\tbid_size\task_size\tdelta\tgamma\tvanna\tcharm\timplied_vol"
-                 "\tunderlying_price\tcondition\tsequence\n");
+                 "\tunderlying_price\tcondition\tsequence%s\n",
+                 full_greeks ? kFullGreekHeader : "");
   }
 
   if (want_prints) {
@@ -314,7 +353,7 @@ int main(int argc, char** argv) {
         break;
       }
       for (const qr::sources::OptionPrintRow& row : group.rows) {
-        put_option_row(out, "option", millis_of(row.ts_ms_b), row);
+        put_option_row(out, "option", millis_of(row.ts_ms_b), row, full_greeks);
       }
     }
   }
@@ -346,7 +385,7 @@ int main(int argc, char** argv) {
         break;
       }
       for (const qr::sources::OptionPrintRow& row : group.rows) {
-        put_option_row(out, "rutw_option", millis_of(row.ts_ms_b), row);
+        put_option_row(out, "rutw_option", millis_of(row.ts_ms_b), row, full_greeks);
       }
     }
   }

@@ -1,125 +1,48 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MX02_wave2_scope_wall_lowered_onto_the_warmup_calendar
+# patch:       tests/mutants/MX02_wave2_scope_wall_lowered_onto_the_warmup_calendar.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MX02_wave2_scope_wall_lowered_onto_the_warmup_calendar
+#
+# RE-ANCHORED 2026-08-12: the committed CONTEXT lines had drifted, so the patch
+# only applied under `patch`'s default fuzz and read as rotted once the ledger
+# gate began demanding an exact match. The MUTATION is unchanged; the context
+# around it was regenerated and the log re-run.
+
+### qr_registry_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 36 tests from 5 test suites.
+[==========] Running 21 tests from 5 test suites.
 [----------] Global test environment set-up.
-[----------] 10 tests from PriorHistory
-[ RUN      ] PriorHistory.ASessionNeverSeesItsOwnReduction
-[       OK ] PriorHistory.ASessionNeverSeesItsOwnReduction (0 ms)
-[ RUN      ] PriorHistory.TheWindowsAreExactlyTheirOwnLength
-[       OK ] PriorHistory.TheWindowsAreExactlyTheirOwnLength (0 ms)
-[ RUN      ] PriorHistory.AShortWindowIsAbsentAndNeverAveragedOverFewerSessions
-[       OK ] PriorHistory.AShortWindowIsAbsentAndNeverAveragedOverFewerSessions (0 ms)
-[ RUN      ] PriorHistory.Atr14IsTheMeanTrueRangeOfExactlyFourteenPriorSessions
-[       OK ] PriorHistory.Atr14IsTheMeanTrueRangeOfExactlyFourteenPriorSessions (0 ms)
-[ RUN      ] PriorHistory.TrueRangeUsesThePriorCloseWhenItGapsOutsideTheSessionRange
-[       OK ] PriorHistory.TrueRangeUsesThePriorCloseWhenItGapsOutsideTheSessionRange (0 ms)
-[ RUN      ] PriorHistory.TheEwmaSeedsOnTheFirstObservedSessionAndLagsByOne
-[       OK ] PriorHistory.TheEwmaSeedsOnTheFirstObservedSessionAndLagsByOne (0 ms)
-[ RUN      ] PriorHistory.ASessionWithNoRateCarriesTheEwmaForwardUnchanged
-[       OK ] PriorHistory.ASessionWithNoRateCarriesTheEwmaForwardUnchanged (0 ms)
-[ RUN      ] PriorHistory.ObservingOutOfOrderRefuses
-[       OK ] PriorHistory.ObservingOutOfOrderRefuses (0 ms)
-[ RUN      ] PriorHistory.TheCrossSessionShuffleMovesThePriorsAndTheIdentityMapDoesNot
-[       OK ] PriorHistory.TheCrossSessionShuffleMovesThePriorsAndTheIdentityMapDoesNot (0 ms)
-[ RUN      ] PriorHistory.TheWarmupCensusCountsTheWarmupOrdinalsItWasFed
-[       OK ] PriorHistory.TheWarmupCensusCountsTheWarmupOrdinalsItWasFed (0 ms)
-[----------] 10 tests from PriorHistory (0 ms total)
-
-[----------] 8 tests from PriorStructure
-[ RUN      ] PriorStructure.EveryChannelIsThePinsOwnArithmetic
-[       OK ] PriorStructure.EveryChannelIsThePinsOwnArithmetic (0 ms)
-[ RUN      ] PriorStructure.TheSigmaBandsAreFixturePointsOnTheContinuousZ
-[       OK ] PriorStructure.TheSigmaBandsAreFixturePointsOnTheContinuousZ (0 ms)
-[ RUN      ] PriorStructure.TheSideReflectionFollowsTheFamilysOrientationTable
-[       OK ] PriorStructure.TheSideReflectionFollowsTheFamilysOrientationTable (0 ms)
-[ RUN      ] PriorStructure.ZeroAtrTypesEveryAtrScaledChannelAndClipsNothing
-[       OK ] PriorStructure.ZeroAtrTypesEveryAtrScaledChannelAndClipsNothing (0 ms)
-[ RUN      ] PriorStructure.AZeroWidthRangeIsMissingRatherThanInfinite
-[       OK ] PriorStructure.AZeroWidthRangeIsMissingRatherThanInfinite (0 ms)
-[ RUN      ] PriorStructure.AbsentVwapOrBudgetTypesOnlyTheChannelsThatNeedThem
-[       OK ] PriorStructure.AbsentVwapOrBudgetTypesOnlyTheChannelsThatNeedThem (0 ms)
-[ RUN      ] PriorStructure.AnEmptyHistoryProducesNoLevelsAtAll
-[       OK ] PriorStructure.AnEmptyHistoryProducesNoLevelsAtAll (0 ms)
-[ RUN      ] PriorStructure.ThePhaseOperandIsAFractionOfTheSessionSpan
-[       OK ] PriorStructure.ThePhaseOperandIsAFractionOfTheSessionSpan (0 ms)
-[----------] 8 tests from PriorStructure (0 ms total)
-
-[----------] 12 tests from VarianceBudget
-[ RUN      ] VarianceBudget.BIsTheWeightedSumOfTwoPerSecondRatesAndThePrior
-[       OK ] VarianceBudget.BIsTheWeightedSumOfTwoPerSecondRatesAndThePrior (64 ms)
-[ RUN      ] VarianceBudget.AWindowThatDoesNotFitIsMissingAndNeverZeroFilled
-[       OK ] VarianceBudget.AWindowThatDoesNotFitIsMissingAndNeverZeroFilled (5 ms)
-[ RUN      ] VarianceBudget.AbsentPriorSessionsTypeBAndEveryChannelThatNeedsIt
-[       OK ] VarianceBudget.AbsentPriorSessionsTypeBAndEveryChannelThatNeedsIt (4 ms)
-[ RUN      ] VarianceBudget.TheFiveXsUseTheirOwnAnchorsAndTauMinTypesRatherThanDivides
-[       OK ] VarianceBudget.TheFiveXsUseTheirOwnAnchorsAndTauMinTypesRatherThanDivides (5 ms)
-[ RUN      ] VarianceBudget.TheOrientedChannelsNegateAndTheWidthsDoNot
-[       OK ] VarianceBudget.TheOrientedChannelsNegateAndTheWidthsDoNot (7 ms)
-[ RUN      ] VarianceBudget.TheRunningVwapIsPrintsBasedAndStrictlyPriorAtTheCutoff
-[       OK ] VarianceBudget.TheRunningVwapIsPrintsBasedAndStrictlyPriorAtTheCutoff (4 ms)
-[ RUN      ] VarianceBudget.BudgetConsumedIsTheSessionSumOverThePriorTotal
-[       OK ] VarianceBudget.BudgetConsumedIsTheSessionSumOverThePriorTotal (4 ms)
-[ RUN      ] VarianceBudget.LogBAndItsSixtySecondInnovation
-[       OK ] VarianceBudget.LogBAndItsSixtySecondInnovation (62 ms)
-[ RUN      ] VarianceBudget.TheDestructionTwinIsBitIdenticalOnAConstantBSynthetic
-[       OK ] VarianceBudget.TheDestructionTwinIsBitIdenticalOnAConstantBSynthetic (10 ms)
-[ RUN      ] VarianceBudget.TheDestructionTwinFlattensARealBudgetAndZeroesItsInnovation
-[       OK ] VarianceBudget.TheDestructionTwinFlattensARealBudgetAndZeroesItsInnovation (6 ms)
-[ RUN      ] VarianceBudget.SigmaScaleIsTheHalfHourRootOfTheBudget
-[       OK ] VarianceBudget.SigmaScaleIsTheHalfHourRootOfTheBudget (4 ms)
-[ RUN      ] VarianceBudget.MisalignedVwapPrefixArraysRefuse
-[       OK ] VarianceBudget.MisalignedVwapPrefixArraysRefuse (1 ms)
-[----------] 12 tests from VarianceBudget (181 ms total)
-
-[----------] 5 tests from WarmupLawfulness
-[ RUN      ] WarmupLawfulness.TheDecisionPathCannotTakeAWarmupSession
-[       OK ] WarmupLawfulness.TheDecisionPathCannotTakeAWarmupSession (0 ms)
-[ RUN      ] WarmupLawfulness.TheWarmupCalendarLeavesSession125WithFullyConvergedPriors
-[       OK ] WarmupLawfulness.TheWarmupCalendarLeavesSession125WithFullyConvergedPriors (0 ms)
-[ RUN      ] WarmupLawfulness.WithoutTheWarmupTheFirstScopedSessionsAreTypedAbsent
-[       OK ] WarmupLawfulness.WithoutTheWarmupTheFirstScopedSessionsAreTypedAbsent (0 ms)
-[ RUN      ] WarmupLawfulness.TwoRunsOfTheWarmupProduceAByteIdenticalPriorState
-[       OK ] WarmupLawfulness.TwoRunsOfTheWarmupProduceAByteIdenticalPriorState (0 ms)
-[ RUN      ] WarmupLawfulness.TheSessionReductionReadsTheGridAndThePrintSumsOnly
-[       OK ] WarmupLawfulness.TheSessionReductionReadsTheGridAndThePrintSumsOnly (2 ms)
-[----------] 5 tests from WarmupLawfulness (2 ms total)
-
-[----------] 1 test from Wave2Destructions
-[ RUN      ] Wave2Destructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode
-[       OK ] Wave2Destructions.TheProductionPathIsIdenticalToABuildWithoutTheFlagCode (102 ms)
-[----------] 1 test from Wave2Destructions (102 ms total)
-
-[----------] Global test environment tear-down
-[==========] 36 tests from 5 test suites ran. (287 ms total)
-[  PASSED  ] 36 tests.
-Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 19 tests from 5 test suites.
-[----------] Global test environment set-up.
-[----------] 6 tests from ScopeWall
-[ RUN      ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:63: Failure
+[----------] 8 tests from ScopeWall
+[ RUN      ] ScopeWall.AdmitsExactlyTheSevenHundredNinetyThreeScopedOrdinals
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:70: Failure
 Value of: wrong_verdict.empty()
   Actual: false
 Expected: true
 125 ordinals got the wrong admit verdict, first: 0
 
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:69: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:76: Failure
 Expected equality of these values:
   admitted
-    Which is: 750
+    Which is: 918
   qr::kScopeSessionCount
-    Which is: 625
+    Which is: 793
 
-[  FAILED  ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals (55 ms)
+[  FAILED  ] ScopeWall.AdmitsExactlyTheSevenHundredNinetyThreeScopedOrdinals (7 ms)
 [ RUN      ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:81: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:90: Failure
 Value of: scope.has_value()
   Actual: true
 Expected: false
 ordinal 124 must not be admitted
 
 [  FAILED  ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals (0 ms)
+[ RUN      ] ScopeWall.TheAmendedWallIsTheLastSessionStrictlyBeforeSeptemberFirstTwentyTwentyFive
+[       OK ] ScopeWall.TheAmendedWallIsTheLastSessionStrictlyBeforeSeptemberFirstTwentyTwentyFive (0 ms)
+[ RUN      ] ScopeWall.TheSealedZoneKeepsTheShareEraBoundaryAndTheProfileFlipSessions
+[       OK ] ScopeWall.TheSealedZoneKeepsTheShareEraBoundaryAndTheProfileFlipSessions (0 ms)
 [ RUN      ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:103: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:187: Failure
 Expected equality of these values:
   resolved.error().code()
     Which is: 1-byte object <00>
@@ -127,9 +50,9 @@ Expected equality of these values:
     Which is: 1-byte object <11>
 ordinal 124 reached the filesystem before the wall
 
-[  FAILED  ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess (22 ms)
+[  FAILED  ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess (14 ms)
 [ RUN      ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions
-/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:130: Failure
+/workspace/engine/cpp/qr_registry/tests/test_day_scope.cpp:214: Failure
 Value of: scope.has_value()
   Actual: true
 Expected: false
@@ -139,16 +62,16 @@ Expected: false
 [ RUN      ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope
 [       OK ] ScopeWall.PathsAreComposedOnlyFromAnAdmittedScope (0 ms)
 [ RUN      ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus
-[       OK ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus (7 ms)
-[----------] 6 tests from ScopeWall (85 ms total)
+[       OK ] ScopeWall.ScopedSessionsResolveAgainstTheRealPinnedCorpus (14 ms)
+[----------] 8 tests from ScopeWall (37 ms total)
 
 [----------] 4 tests from WarmupWall
 [ RUN      ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals
-[       OK ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals (2 ms)
+[       OK ] WarmupWall.AdmitsExactlyTheOneHundredTwentyFiveWarmupOrdinals (3 ms)
 [ RUN      ] WarmupWall.RefusesTheFirstScopedOrdinalAndEverythingAboveIt
 [       OK ] WarmupWall.RefusesTheFirstScopedOrdinalAndEverythingAboveIt (0 ms)
 [ RUN      ] WarmupWall.TheScopedWallStillRefusesEveryWarmupOrdinal
-/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:82: Failure
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:83: Failure
 Value of: leaked.empty()
   Actual: false
 Expected: true
@@ -156,26 +79,26 @@ DayScope admitted warmup ordinal 0
 
 [  FAILED  ] WarmupWall.TheScopedWallStillRefusesEveryWarmupOrdinal (0 ms)
 [ RUN      ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry
-/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:101: Failure
+/workspace/engine/cpp/qr_registry/tests/test_warmup_scope.cpp:102: Failure
 Expected equality of these values:
   both
     Which is: 125
   0
 an ordinal was admitted by both walls
 
-[  FAILED  ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry (0 ms)
-[----------] 4 tests from WarmupWall (3 ms total)
+[  FAILED  ] WarmupWall.TheTwoCalendarsAreDisjointAndCoverTheWholeRegistry (1 ms)
+[----------] 4 tests from WarmupWall (4 ms total)
 
 [----------] 4 tests from RegistryDigestGate
 [ RUN      ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest
 [       OK ] RegistryDigestGate.EmbeddedTextHashesToThePinnedDigest (0 ms)
 [ RUN      ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes
-[       OK ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes (82 ms)
+[       OK ] RegistryDigestGate.EmbeddedBytesAreTheOnDiskRegistryBytes (76 ms)
 [ RUN      ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError
-[       OK ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError (208 ms)
+[       OK ] RegistryDigestGate.SingleFlippedByteIsRefusedWithATypedError (171 ms)
 [ RUN      ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash
-[       OK ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash (0 ms)
-[----------] 4 tests from RegistryDigestGate (291 ms total)
+[       OK ] RegistryDigestGate.MissingFileIsAnIoRefusalNotACrash (12 ms)
+[----------] 4 tests from RegistryDigestGate (261 ms total)
 
 [----------] 4 tests from RegistryParse
 [ RUN      ] RegistryParse.EmbeddedRegistryIsTheFrozenOneThousandAndThreeSessions
@@ -183,22 +106,22 @@ an ordinal was admitted by both walls
 [ RUN      ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants
 [       OK ] RegistryParse.EveryRowCarriesTheTenExposedFieldsAndItsInvariants (3 ms)
 [ RUN      ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange
-[       OK ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange (1 ms)
+[       OK ] RegistryParse.LookupByOrdinalAndDayAgreeAndRefuseOutOfRange (3 ms)
 [ RUN      ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError
 [       OK ] RegistryParse.MalformedTextIsRefusedWithATypedRegistryError (0 ms)
-[----------] 4 tests from RegistryParse (7 ms total)
+[----------] 4 tests from RegistryParse (9 ms total)
 
 [----------] 1 test from RegistryBudget
 [ RUN      ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds
-[budget] registry parse+digest-gate: 0.0018 s
-[       OK ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds (1 ms)
-[----------] 1 test from RegistryBudget (1 ms total)
+[budget] registry parse+digest-gate: 0.0032 s
+[       OK ] RegistryBudget.FullParseAndDigestGateUnderFiveSeconds (3 ms)
+[----------] 1 test from RegistryBudget (3 ms total)
 
 [----------] Global test environment tear-down
-[==========] 19 tests from 5 test suites ran. (390 ms total)
-[  PASSED  ] 13 tests.
+[==========] 21 tests from 5 test suites ran. (317 ms total)
+[  PASSED  ] 15 tests.
 [  FAILED  ] 6 tests, listed below:
-[  FAILED  ] ScopeWall.AdmitsExactlyTheSixHundredTwentyFiveScopedOrdinals
+[  FAILED  ] ScopeWall.AdmitsExactlyTheSevenHundredNinetyThreeScopedOrdinals
 [  FAILED  ] ScopeWall.RefusesTheNamedOutOfScopeOrdinals
 [  FAILED  ] ScopeWall.RefusalHappensBeforeAnyFilesystemAccess
 [  FAILED  ] ScopeWall.AdmitByDayRefusesTwoThousandTwentySixAndOutOfScopeSessions

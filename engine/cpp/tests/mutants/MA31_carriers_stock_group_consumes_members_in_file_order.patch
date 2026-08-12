@@ -16,7 +16,7 @@
  
    GroupContext context;
    context.ts_ns_a = group_ts_ns_a;
-@@ -367,8 +363,9 @@
+@@ -375,8 +371,9 @@
        }
      }
  
@@ -27,8 +27,8 @@
        return Expected<std::size_t, Refusal>::refuse(
            Refusal(RefusalCode::ARITHMETIC_OVERFLOW, "qr_carriers::StockPrintStream::push_group",
                    "stock print prior price sum overflowed", row.price_u6));
-@@ -381,7 +378,6 @@
-                          finite_member_mean(sum_short[index], count_short[index]));
+@@ -409,7 +406,6 @@
+     }
    }
  
 -  prior_.commit_group();

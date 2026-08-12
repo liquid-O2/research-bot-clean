@@ -1,14 +1,49 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MD02_campaign_ordinal_wall_admits_everything_nonnegative
+# patch:       tests/mutants/MD02_campaign_ordinal_wall_admits_everything_nonnegative.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MD02_campaign_ordinal_wall_admits_everything_nonnegative
+#
+# RE-ANCHORED 2026-08-12: the committed CONTEXT lines had drifted, so the patch
+# only applied under `patch`'s default fuzz and read as rotted once the ledger
+# gate began demanding an exact match. The MUTATION is unchanged; the context
+# around it was regenerated and the log re-run.
+
+### qr_campaign_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 11 tests from 7 test suites.
+[==========] Running 17 tests from 9 test suites.
 [----------] Global test environment set-up.
 [----------] 1 test from CampaignSpecGate
 [ RUN      ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses
-[       OK ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses (102 ms)
-[----------] 1 test from CampaignSpecGate (102 ms total)
+[       OK ] CampaignSpecGate.TheFrozenCardPassesAndAnyEditedByteRefuses (93 ms)
+[----------] 1 test from CampaignSpecGate (93 ms total)
+
+[----------] 4 tests from CampaignCardLineage
+[ RUN      ] CampaignCardLineage.TheRealLineageCarriesTheFrozenAncestryAndItsHeadIsTheCardOnDisk
+[       OK ] CampaignCardLineage.TheRealLineageCarriesTheFrozenAncestryAndItsHeadIsTheCardOnDisk (6 ms)
+[ RUN      ] CampaignCardLineage.AnAncestorIsValidOnlyWhileEveryLaterAmendmentIsOutsideTheTapeScope
+[       OK ] CampaignCardLineage.AnAncestorIsValidOnlyWhileEveryLaterAmendmentIsOutsideTheTapeScope (83 ms)
+[ RUN      ] CampaignCardLineage.ACardShaOutsideTheLineageIsRefused
+[       OK ] CampaignCardLineage.ACardShaOutsideTheLineageIsRefused (21 ms)
+[ RUN      ] CampaignCardLineage.AMalformedLineageRefusesRatherThanDefaultingOpen
+[       OK ] CampaignCardLineage.AMalformedLineageRefusesRatherThanDefaultingOpen (316 ms)
+[----------] 4 tests from CampaignCardLineage (426 ms total)
+
+[----------] 1 test from CampaignCorpusCard
+[ RUN      ] CampaignCorpusCard.EveryManifestNamesItsCardAndAManifestWithoutOneRefuses
+[       OK ] CampaignCorpusCard.EveryManifestNamesItsCardAndAManifestWithoutOneRefuses (204 ms)
+[----------] 1 test from CampaignCorpusCard (204 ms total)
+
+[----------] 2 tests from CampaignReceipt
+[ RUN      ] CampaignReceipt.AnUnboundCardShaRefusesInsteadOfNamingAnUncheckedCard
+[       OK ] CampaignReceipt.AnUnboundCardShaRefusesInsteadOfNamingAnUncheckedCard (85 ms)
+[ RUN      ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader
+[       OK ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader (47 ms)
+[----------] 2 tests from CampaignReceipt (132 ms total)
 
 [----------] 2 tests from CampaignOrdinalWall
 [ RUN      ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed
-/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:116: Failure
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:340: Failure
 Value of: refused.has_value()
   Actual: true
 Expected: false
@@ -16,25 +51,31 @@ Expected: false
 
 [  FAILED  ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed (0 ms)
 [ RUN      ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement
-/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:142: Failure
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:375: Failure
 Value of: parse_session_list(spec).has_value()
   Actual: true
 Expected: false
 124 must refuse
 
-/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:142: Failure
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:375: Failure
 Value of: parse_session_list(spec).has_value()
   Actual: true
 Expected: false
-750 must refuse
+918 must refuse
 
-/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:142: Failure
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:375: Failure
 Value of: parse_session_list(spec).has_value()
   Actual: true
 Expected: false
-700-800 must refuse
+900-1000 must refuse
 
-/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:142: Failure
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:375: Failure
+Value of: parse_session_list(spec).has_value()
+  Actual: true
+Expected: false
+962 must refuse
+
+/workspace/engine/cpp/qr_campaign/tests/test_campaign_driver.cpp:375: Failure
 Value of: parse_session_list(spec).has_value()
   Actual: true
 Expected: false
@@ -45,38 +86,33 @@ Expected: false
 
 [----------] 2 tests from CampaignPublish
 [ RUN      ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard
-[       OK ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard (123 ms)
+[       OK ] CampaignPublish.AWorkerThatDiesMidSessionLeavesAStageAndNoPublishedShard (153 ms)
 [ RUN      ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard
-[       OK ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard (291 ms)
-[----------] 2 tests from CampaignPublish (415 ms total)
+[       OK ] CampaignPublish.ClearingStagesTouchesOnlyThisSideAndNeverAPublishedShard (148 ms)
+[----------] 2 tests from CampaignPublish (302 ms total)
 
 [----------] 2 tests from CampaignResume
 [ RUN      ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice
-[       OK ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice (194 ms)
+[       OK ] CampaignResume.AnAlreadyPublishedShardIsSkippedAndNeverPublishedTwice (78 ms)
 [ RUN      ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement
-[       OK ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement (114 ms)
-[----------] 2 tests from CampaignResume (308 ms total)
+[       OK ] CampaignResume.WithoutResumeAnExistingShardIsARefusalNotAReplacement (139 ms)
+[----------] 2 tests from CampaignResume (217 ms total)
 
 [----------] 2 tests from CampaignLedger
 [ RUN      ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder
-[       OK ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder (381 ms)
+[       OK ] CampaignLedger.IsOrdinalOrderedWhateverTheCompletionOrder (190 ms)
 [ RUN      ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign
-[       OK ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign (113 ms)
-[----------] 2 tests from CampaignLedger (495 ms total)
+[       OK ] CampaignLedger.AMissingSessionReceiptRefusesRatherThanShorteningTheCampaign (44 ms)
+[----------] 2 tests from CampaignLedger (235 ms total)
 
 [----------] 1 test from CampaignHandoff
 [ RUN      ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob
 [       OK ] CampaignHandoff.RoundTripsEveryDtypeAcrossAForkAndRefusesAnUnfinishedBlob (0 ms)
 [----------] 1 test from CampaignHandoff (0 ms total)
 
-[----------] 1 test from CampaignReceipt
-[ RUN      ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader
-[       OK ] CampaignReceipt.RendersAndParsesItsOwnRowsAndRefusesAForeignHeader (74 ms)
-[----------] 1 test from CampaignReceipt (74 ms total)
-
 [----------] Global test environment tear-down
-[==========] 11 tests from 7 test suites ran. (1397 ms total)
-[  PASSED  ] 9 tests.
+[==========] 17 tests from 9 test suites ran. (1614 ms total)
+[  PASSED  ] 15 tests.
 [  FAILED  ] 2 tests, listed below:
 [  FAILED  ] CampaignOrdinalWall.TheWallRefusesOutsideTheScopeBeforeAnyPathIsFormed
 [  FAILED  ] CampaignOrdinalWall.TheSessionListParserRefusesAnyOutOfScopeElement

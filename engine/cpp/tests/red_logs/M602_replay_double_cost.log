@@ -4,13 +4,18 @@
 # build:       cmake --preset mutant && cmake --build --preset mutant
 # reproduce:   engine/cpp/scripts/reproduce_mutant.sh M602_replay_double_cost
 #
+# RE-ANCHORED 2026-08-12: the committed CONTEXT lines had drifted, so the patch
+# only applied under `patch`'s default fuzz and read as rotted once the ledger
+# gate began demanding an exact match. The MUTATION is unchanged; the context
+# around it was regenerated and the log re-run.
+
 ### qr_replay_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 65 tests from 18 test suites.
+[==========] Running 71 tests from 19 test suites.
 [----------] Global test environment set-up.
 [----------] 8 tests from NumpyParity
 [ RUN      ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase
-[       OK ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase (15 ms)
+[       OK ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase (6 ms)
 [ RUN      ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool
 [       OK ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool (0 ms)
 [ RUN      ] NumpyParity.GenerateStateReproducesBothTheThirtyTwoAndSixtyFourBitViews
@@ -25,7 +30,7 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] NumpyParity.CoinSideMapsTheFirstDrawOfItsOwnSeedStream (0 ms)
 [ RUN      ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath
 [       OK ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath (0 ms)
-[----------] 8 tests from NumpyParity (15 ms total)
+[----------] 8 tests from NumpyParity (6 ms total)
 
 [----------] 1 test from U128Arithmetic
 [ RUN      ] U128Arithmetic.MultiplyAddAndShiftAreExactAcrossTheCarryBoundary
@@ -34,10 +39,10 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 2 tests from RunningQuantile
 [ RUN      ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation
-[       OK ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation (1168 ms)
+[       OK ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation (1147 ms)
 [ RUN      ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic
 [       OK ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic (0 ms)
-[----------] 2 tests from RunningQuantile (1168 ms total)
+[----------] 2 tests from RunningQuantile (1147 ms total)
 
 [----------] 3 tests from GateCausality
 [ RUN      ] GateCausality.AFutureRowsScoreCannotChangeAnEarlierRowsDecision
@@ -77,25 +82,34 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] GateInReplay.OccupancyDoesNotChangeTheRunningPopulation (0 ms)
 [----------] 4 tests from GateInReplay (0 ms total)
 
+[----------] 3 tests from NoAdmissibleGate
+[ RUN      ] NoAdmissibleGate.ZeroSurvivingCellsProduceAGateThatEntersNothingAndSaysWhy
+[       OK ] NoAdmissibleGate.ZeroSurvivingCellsProduceAGateThatEntersNothingAndSaysWhy (0 ms)
+[ RUN      ] NoAdmissibleGate.ASelectedTripleBuildsTheA6GateWithThatTriplesOwnParameters
+[       OK ] NoAdmissibleGate.ASelectedTripleBuildsTheA6GateWithThatTriplesOwnParameters (0 ms)
+[ RUN      ] NoAdmissibleGate.InTheReplayTheArmTradesNothingAndEveryClockIsTypedGateBlocked
+[       OK ] NoAdmissibleGate.InTheReplayTheArmTradesNothingAndEveryClockIsTypedGateBlocked (0 ms)
+[----------] 3 tests from NoAdmissibleGate (0 ms total)
+
 [----------] 6 tests from HandChronology
 [ RUN      ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:145: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:150: Failure
 Expected equality of these values:
   ledger.trades[0].net_cent
     Which is: 24424
   25000
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:149: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:154: Failure
 Expected equality of these values:
   ledger.trades[1].net_cent
-    Which is: -30576
-  -30000
+    Which is: -31076
+  -30500
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:155: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:161: Failure
 Expected equality of these values:
   ledger.net_cent
-    Which is: -6152
-  -5000
+    Which is: -6652
+  -5500
 
 [  FAILED  ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger (0 ms)
 [ RUN      ] HandChronology.AnOccupiedClockAtTheExactPriorExitInstantStillCannotEnter
@@ -107,48 +121,47 @@ Expected equality of these values:
 [ RUN      ] HandChronology.EveryClockIsAccountedForInTheCensus
 [       OK ] HandChronology.EveryClockIsAccountedForInTheCensus (0 ms)
 [ RUN      ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:223: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:229: Failure
 Expected equality of these values:
   card.session_net_cent[0]
-    Which is: -6152
-  -5000
+    Which is: -6652
+  -5500
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:225: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:231: Failure
 Expected equality of these values:
   card.session_net_cent[2]
     Which is: 13848
   15000
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:227: Failure
-Expected equality of these values:
-  card.total_net_cent
-    Which is: 7696
-  10000
-
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:228: Failure
-Expected equality of these values:
-  card.mean_net_dollars
-    Which is: 25.653333333333332
-  100.0 / 3.0
-    Which is: 33.333333333333336
-
 /workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:233: Failure
 Expected equality of these values:
-  card.mdd_cent
-    Which is: 6152
-  5000
+  card.total_net_cent
+    Which is: 7196
+  9500
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:236: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:234: Failure
+Expected equality of these values:
+  card.mean_net_dollars
+    Which is: 23.986666666666665
+  95.0 / 3.0
+    Which is: 31.666666666666668
+
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:239: Failure
+Expected equality of these values:
+  card.mdd_cent
+    Which is: 6652
+  5500
+
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:242: Failure
 Expected equality of these values:
   card.min_year_mean_net_dollars
-    Which is: -30.760000000000002
-  -25.0
-    Which is: -25
+    Which is: -33.259999999999998
+  -27.5
 
 [  FAILED  ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals (0 ms)
 [----------] 6 tests from HandChronology (0 ms total)
 
-[----------] 16 tests from ReplayLaws
+[----------] 17 tests from ReplayLaws
 [ RUN      ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror
 /workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:63: Failure
 Expected equality of these values:
@@ -157,20 +170,22 @@ Expected equality of these values:
   1000
 
 [  FAILED  ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror (0 ms)
+[ RUN      ] ReplayLaws.TheExecutedTradeCarriesItsOwnLabelsGapThroughSoTheBreachPanelSeesTheWall
+[       OK ] ReplayLaws.TheExecutedTradeCarriesItsOwnLabelsGapThroughSoTheBreachPanelSeesTheWall (0 ms)
 [ RUN      ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:85: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:110: Failure
 Expected equality of these values:
   result.value().trades[0].net_cent
     Which is: 24424
   25000
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:86: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:111: Failure
 Expected equality of these values:
   result.value().trades[1].net_cent
     Which is: 24424
   25000
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:87: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:112: Failure
 Expected equality of these values:
   result.value().net_cent
     Which is: 48848
@@ -180,13 +195,13 @@ Expected equality of these values:
 [ RUN      ] ReplayLaws.ALabelThatDidNotChargeTheCostExactlyOnceIsRefused
 [       OK ] ReplayLaws.ALabelThatDidNotChargeTheCostExactlyOnceIsRefused (0 ms)
 [ RUN      ] ReplayLaws.ANewEntryRequiresAClockStrictlyAfterThePriorExit
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:123: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:148: Failure
 Expected equality of these values:
   at_exit.value().net_cent
     Which is: 9424
   10000
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:128: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:153: Failure
 Expected equality of these values:
   after_exit.value().net_cent
     Which is: 78848
@@ -196,7 +211,7 @@ Expected equality of these values:
 [ RUN      ] ReplayLaws.AnExactTopTieAbstainsUnderEitherRowOrder
 [       OK ] ReplayLaws.AnExactTopTieAbstainsUnderEitherRowOrder (0 ms)
 [ RUN      ] ReplayLaws.ATieBelowAUniqueTopDoesNotAbstain
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:183: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:208: Failure
 Expected equality of these values:
   result.value().trades[0].net_cent
     Which is: 32424
@@ -208,7 +223,7 @@ Expected equality of these values:
 [ RUN      ] ReplayLaws.ALabelWhoseSideDoesNotMatchItsRowIsRefused
 [       OK ] ReplayLaws.ALabelWhoseSideDoesNotMatchItsRowIsRefused (0 ms)
 [ RUN      ] ReplayLaws.EntriesAreUncapped
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:226: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:251: Failure
 Expected equality of these values:
   result.value().net_cent
     Which is: -23800
@@ -228,13 +243,13 @@ Expected equality of these values:
 [ RUN      ] ReplayLaws.AHorizonOutsideTheSevenMenuIsARefusal
 [       OK ] ReplayLaws.AHorizonOutsideTheSevenMenuIsARefusal (0 ms)
 [ RUN      ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:316: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:341: Failure
 Expected equality of these values:
   at_two.value().net_cent
     Which is: 24424
   25000
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:320: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:345: Failure
 Expected equality of these values:
   at_zero.value().net_cent
     Which is: -778276
@@ -242,17 +257,17 @@ Expected equality of these values:
     Which is: -777700
 
 [  FAILED  ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther (0 ms)
-[----------] 16 tests from ReplayLaws (0 ms total)
+[----------] 17 tests from ReplayLaws (0 ms total)
 
 [----------] 3 tests from NullControls
 [ RUN      ] NullControls.ForcedSidesTradeTheModelsOwnClocksOnTheForcedSide
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:348: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:373: Failure
 Expected equality of these values:
   as_long.value().net_cent
     Which is: -2856
   600
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:355: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:380: Failure
 Expected equality of these values:
   as_short.value().net_cent
     Which is: -4056
@@ -267,7 +282,7 @@ Expected equality of these values:
 
 [----------] 2 tests from DailyLossLimit
 [ RUN      ] DailyLossLimit.TheSessionHaltsOnceRealizedProfitAndLossReachesTheFrozenLimit
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:429: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:454: Failure
 Expected equality of these values:
   result.value().net_cent
     Which is: -121728
@@ -275,7 +290,7 @@ Expected equality of these values:
 
 [  FAILED  ] DailyLossLimit.TheSessionHaltsOnceRealizedProfitAndLossReachesTheFrozenLimit (0 ms)
 [ RUN      ] DailyLossLimit.TheUnlimitedPanelKeepsTrading
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:439: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:464: Failure
 Expected equality of these values:
   result.value().net_cent
     Which is: -162304
@@ -307,10 +322,14 @@ Expected equality of these values:
 [       OK ] ConcentrationPanels.MinYearIsTheWorstYearsOwnMean (0 ms)
 [----------] 3 tests from ConcentrationPanels (0 ms total)
 
-[----------] 1 test from BreachPanel
-[ RUN      ] BreachPanel.CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop
-[       OK ] BreachPanel.CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop (0 ms)
-[----------] 1 test from BreachPanel (0 ms total)
+[----------] 3 tests from BreachPanel
+[ RUN      ] BreachPanel.ABreachIsAStopThatGappedThroughTheWallNotMerelyAnMaeAboveIt
+[       OK ] BreachPanel.ABreachIsAStopThatGappedThroughTheWallNotMerelyAnMaeAboveIt (0 ms)
+[ RUN      ] BreachPanel.EveryStoppedTradeClearsTheMaeThresholdSoTheMaeTestCannotBeTheBreachTest
+[       OK ] BreachPanel.EveryStoppedTradeClearsTheMaeThresholdSoTheMaeTestCannotBeTheBreachTest (0 ms)
+[ RUN      ] BreachPanel.AGapThroughOnARowThatDidNotStopIsNotABreachEither
+[       OK ] BreachPanel.AGapThroughOnARowThatDidNotStopIsNotABreachEither (0 ms)
+[----------] 3 tests from BreachPanel (0 ms total)
 
 [----------] 3 tests from MaeQuantiles
 [ RUN      ] MaeQuantiles.NearestRankOverTenTradesMatchesTheHandComputedIndices
@@ -330,13 +349,13 @@ Expected equality of these values:
 
 [----------] 1 test from ReplayBudget
 [ RUN      ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall
-[ BUDGET   ] qr_replay: 1000000 actions in 0.3070s (3257126 actions/s, 17500 trades)
-[       OK ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall (1086 ms)
-[----------] 1 test from ReplayBudget (1086 ms total)
+[ BUDGET   ] qr_replay: 1000000 actions in 0.3131s (3194324 actions/s, 17500 trades)
+[       OK ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall (1107 ms)
+[----------] 1 test from ReplayBudget (1107 ms total)
 
 [----------] Global test environment tear-down
-[==========] 65 tests from 18 test suites ran. (2272 ms total)
-[  PASSED  ] 54 tests.
+[==========] 71 tests from 19 test suites ran. (2263 ms total)
+[  PASSED  ] 60 tests.
 [  FAILED  ] 11 tests, listed below:
 [  FAILED  ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger
 [  FAILED  ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals

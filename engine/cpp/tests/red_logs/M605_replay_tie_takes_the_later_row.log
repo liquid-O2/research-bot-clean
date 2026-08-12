@@ -4,13 +4,17 @@
 # build:       cmake --preset mutant && cmake --build --preset mutant
 # reproduce:   engine/cpp/scripts/reproduce_mutant.sh M605_replay_tie_takes_the_later_row
 #
+# REFRESHED 2026-08-12: the committed anchors had drifted out from under this
+# mutation, so the proof could no longer be reproduced. Same id, same intent,
+# new anchors, regenerated log.
+
 ### qr_replay_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 65 tests from 18 test suites.
+[==========] Running 71 tests from 19 test suites.
 [----------] Global test environment set-up.
 [----------] 8 tests from NumpyParity
 [ RUN      ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase
-[       OK ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase (5 ms)
+[       OK ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase (20 ms)
 [ RUN      ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool
 [       OK ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool (0 ms)
 [ RUN      ] NumpyParity.GenerateStateReproducesBothTheThirtyTwoAndSixtyFourBitViews
@@ -25,7 +29,7 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] NumpyParity.CoinSideMapsTheFirstDrawOfItsOwnSeedStream (0 ms)
 [ RUN      ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath
 [       OK ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath (0 ms)
-[----------] 8 tests from NumpyParity (5 ms total)
+[----------] 8 tests from NumpyParity (20 ms total)
 
 [----------] 1 test from U128Arithmetic
 [ RUN      ] U128Arithmetic.MultiplyAddAndShiftAreExactAcrossTheCarryBoundary
@@ -34,10 +38,10 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 2 tests from RunningQuantile
 [ RUN      ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation
-[       OK ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation (1128 ms)
+[       OK ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation (1149 ms)
 [ RUN      ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic
 [       OK ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic (0 ms)
-[----------] 2 tests from RunningQuantile (1128 ms total)
+[----------] 2 tests from RunningQuantile (1149 ms total)
 
 [----------] 3 tests from GateCausality
 [ RUN      ] GateCausality.AFutureRowsScoreCannotChangeAnEarlierRowsDecision
@@ -77,6 +81,15 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] GateInReplay.OccupancyDoesNotChangeTheRunningPopulation (0 ms)
 [----------] 4 tests from GateInReplay (0 ms total)
 
+[----------] 3 tests from NoAdmissibleGate
+[ RUN      ] NoAdmissibleGate.ZeroSurvivingCellsProduceAGateThatEntersNothingAndSaysWhy
+[       OK ] NoAdmissibleGate.ZeroSurvivingCellsProduceAGateThatEntersNothingAndSaysWhy (0 ms)
+[ RUN      ] NoAdmissibleGate.ASelectedTripleBuildsTheA6GateWithThatTriplesOwnParameters
+[       OK ] NoAdmissibleGate.ASelectedTripleBuildsTheA6GateWithThatTriplesOwnParameters (0 ms)
+[ RUN      ] NoAdmissibleGate.InTheReplayTheArmTradesNothingAndEveryClockIsTypedGateBlocked
+[       OK ] NoAdmissibleGate.InTheReplayTheArmTradesNothingAndEveryClockIsTypedGateBlocked (0 ms)
+[----------] 3 tests from NoAdmissibleGate (0 ms total)
+
 [----------] 6 tests from HandChronology
 [ RUN      ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger
 [       OK ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger (0 ms)
@@ -85,30 +98,30 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] HandChronology.SelectionDoesNotFallThroughToARunnerUpWhenTheTopLabelIsUnavailable
 [       OK ] HandChronology.SelectionDoesNotFallThroughToARunnerUpWhenTheTopLabelIsUnavailable (0 ms)
 [ RUN      ] HandChronology.TheZeroTradeSessionIsATypedZeroNotAnAbsence
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:186: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:192: Failure
 Expected equality of these values:
   ledger.trade_count()
     Which is: 1
   0
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:187: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:193: Failure
 Expected equality of these values:
   ledger.net_cent
     Which is: 22222
   0
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:188: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:194: Failure
 Value of: ledger.zero_trade_session()
   Actual: false
 Expected: true
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:190: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:196: Failure
 Expected equality of these values:
   census(ledger, ClockOutcome::ABSTAIN_TIE)
     Which is: 0
   1
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:191: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:197: Failure
 Expected equality of these values:
   census(ledger, ClockOutcome::NO_LEGAL_ROW)
     Which is: 0
@@ -118,57 +131,58 @@ Expected equality of these values:
 [ RUN      ] HandChronology.EveryClockIsAccountedForInTheCensus
 [       OK ] HandChronology.EveryClockIsAccountedForInTheCensus (0 ms)
 [ RUN      ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:220: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:226: Failure
 Expected equality of these values:
   card.zero_trade_session_count
     Which is: 0
   1
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:221: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:227: Failure
 Expected equality of these values:
   card.trade_count
     Which is: 5
   4
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:224: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:230: Failure
 Expected equality of these values:
   card.session_net_cent[1]
     Which is: 22222
   0
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:227: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:233: Failure
 Expected equality of these values:
   card.total_net_cent
-    Which is: 32222
-  10000
+    Which is: 31722
+  9500
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:228: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:234: Failure
 Expected equality of these values:
   card.mean_net_dollars
-    Which is: 107.40666666666668
-  100.0 / 3.0
-    Which is: 33.333333333333336
+    Which is: 105.74000000000001
+  95.0 / 3.0
+    Which is: 31.666666666666668
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:229: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:235: Failure
 Expected equality of these values:
   card.trades_per_session
     Which is: 1.6666666666666667
   4.0 / 3.0
     Which is: 1.3333333333333333
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:236: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_chronology.cpp:242: Failure
 Expected equality of these values:
   card.min_year_mean_net_dollars
-    Which is: 86.109999999999999
-  -25.0
-    Which is: -25
+    Which is: 83.609999999999999
+  -27.5
 
 [  FAILED  ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals (0 ms)
 [----------] 6 tests from HandChronology (0 ms total)
 
-[----------] 16 tests from ReplayLaws
+[----------] 17 tests from ReplayLaws
 [ RUN      ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror
 [       OK ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror (0 ms)
+[ RUN      ] ReplayLaws.TheExecutedTradeCarriesItsOwnLabelsGapThroughSoTheBreachPanelSeesTheWall
+[       OK ] ReplayLaws.TheExecutedTradeCarriesItsOwnLabelsGapThroughSoTheBreachPanelSeesTheWall (0 ms)
 [ RUN      ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce
 [       OK ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce (0 ms)
 [ RUN      ] ReplayLaws.ALabelThatDidNotChargeTheCostExactlyOnceIsRefused
@@ -176,37 +190,37 @@ Expected equality of these values:
 [ RUN      ] ReplayLaws.ANewEntryRequiresAClockStrictlyAfterThePriorExit
 [       OK ] ReplayLaws.ANewEntryRequiresAClockStrictlyAfterThePriorExit (0 ms)
 [ RUN      ] ReplayLaws.AnExactTopTieAbstainsUnderEitherRowOrder
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:159: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:184: Failure
 Expected equality of these values:
   result.value().trade_count()
     Which is: 1
   0
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:160: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:185: Failure
 Expected equality of these values:
   result.value().net_cent
     Which is: 22000
   0
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:161: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:186: Failure
 Expected equality of these values:
   census(result.value(), ClockOutcome::ABSTAIN_TIE)
     Which is: 0
   1
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:159: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:184: Failure
 Expected equality of these values:
   result.value().trade_count()
     Which is: 1
   0
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:160: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:185: Failure
 Expected equality of these values:
   result.value().net_cent
     Which is: 11000
   0
 
-/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:161: Failure
+/workspace/engine/cpp/qr_replay/tests/test_replay_laws.cpp:186: Failure
 Expected equality of these values:
   census(result.value(), ClockOutcome::ABSTAIN_TIE)
     Which is: 0
@@ -235,7 +249,7 @@ Expected equality of these values:
 [       OK ] ReplayLaws.AHorizonOutsideTheSevenMenuIsARefusal (0 ms)
 [ RUN      ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther
 [       OK ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther (0 ms)
-[----------] 16 tests from ReplayLaws (0 ms total)
+[----------] 17 tests from ReplayLaws (0 ms total)
 
 [----------] 3 tests from NullControls
 [ RUN      ] NullControls.ForcedSidesTradeTheModelsOwnClocksOnTheForcedSide
@@ -276,10 +290,14 @@ Expected equality of these values:
 [       OK ] ConcentrationPanels.MinYearIsTheWorstYearsOwnMean (0 ms)
 [----------] 3 tests from ConcentrationPanels (0 ms total)
 
-[----------] 1 test from BreachPanel
-[ RUN      ] BreachPanel.CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop
-[       OK ] BreachPanel.CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop (0 ms)
-[----------] 1 test from BreachPanel (0 ms total)
+[----------] 3 tests from BreachPanel
+[ RUN      ] BreachPanel.ABreachIsAStopThatGappedThroughTheWallNotMerelyAnMaeAboveIt
+[       OK ] BreachPanel.ABreachIsAStopThatGappedThroughTheWallNotMerelyAnMaeAboveIt (0 ms)
+[ RUN      ] BreachPanel.EveryStoppedTradeClearsTheMaeThresholdSoTheMaeTestCannotBeTheBreachTest
+[       OK ] BreachPanel.EveryStoppedTradeClearsTheMaeThresholdSoTheMaeTestCannotBeTheBreachTest (0 ms)
+[ RUN      ] BreachPanel.AGapThroughOnARowThatDidNotStopIsNotABreachEither
+[       OK ] BreachPanel.AGapThroughOnARowThatDidNotStopIsNotABreachEither (0 ms)
+[----------] 3 tests from BreachPanel (0 ms total)
 
 [----------] 3 tests from MaeQuantiles
 [ RUN      ] MaeQuantiles.NearestRankOverTenTradesMatchesTheHandComputedIndices
@@ -299,13 +317,13 @@ Expected equality of these values:
 
 [----------] 1 test from ReplayBudget
 [ RUN      ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall
-[ BUDGET   ] qr_replay: 1000000 actions in 0.3358s (2978308 actions/s, 17500 trades)
-[       OK ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall (1179 ms)
-[----------] 1 test from ReplayBudget (1179 ms total)
+[ BUDGET   ] qr_replay: 1000000 actions in 0.3176s (3148141 actions/s, 17500 trades)
+[       OK ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall (1134 ms)
+[----------] 1 test from ReplayBudget (1134 ms total)
 
 [----------] Global test environment tear-down
-[==========] 65 tests from 18 test suites ran. (2314 ms total)
-[  PASSED  ] 62 tests.
+[==========] 71 tests from 19 test suites ran. (2306 ms total)
+[  PASSED  ] 68 tests.
 [  FAILED  ] 3 tests, listed below:
 [  FAILED  ] HandChronology.TheZeroTradeSessionIsATypedZeroNotAnAbsence
 [  FAILED  ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals

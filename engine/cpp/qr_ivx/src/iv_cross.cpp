@@ -818,6 +818,18 @@ SurfaceDynamics surface_dynamics(const SurfaceSeries& series, std::size_t plane)
       }
     }
 
+    // D8(c): the window-to-window INNOVATION of the ratio, on the same law
+    // every other `d_` channel in this module obeys — absent in window 0,
+    // absent whenever either side is absent, and never a zero standing in for
+    // "no change". (The field was declared and emitted from the start but was
+    // never assigned; every census row therefore read MISSING. Fixed here with
+    // a red-first fixture, `SurfaceDynamics.FdRatioInnovationIsTheWindowToWindowChange`.)
+    if (window > 0 && out_window.fd_ratio.v == Validity::VALID &&
+        out.window[window - 1].fd_ratio.v == Validity::VALID) {
+      out_window.d_fd_ratio =
+          valid(out_window.fd_ratio.value - out.window[window - 1].fd_ratio.value);
+    }
+
     // D9: A3 = (E[r_t r_{t+1}^2] - E[r_t^2 r_{t+1}]) / sigma^3, over ADJACENT
     // seconds only. It is exactly zero for any time-reversible series and
     // changes sign under time reversal, which is the whole point.

@@ -4,13 +4,18 @@
 # build:       cmake --preset mutant && cmake --build --preset mutant
 # reproduce:   engine/cpp/scripts/reproduce_mutant.sh M619_gate_warmup_floor_removed
 #
+# RE-ANCHORED 2026-08-12: the committed CONTEXT lines had drifted, so the patch
+# only applied under `patch`'s default fuzz and read as rotted once the ledger
+# gate began demanding an exact match. The MUTATION is unchanged; the context
+# around it was regenerated and the log re-run.
+
 ### qr_replay_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 65 tests from 18 test suites.
+[==========] Running 71 tests from 19 test suites.
 [----------] Global test environment set-up.
 [----------] 8 tests from NumpyParity
 [ RUN      ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase
-[       OK ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase (4 ms)
+[       OK ] NumpyParity.TheFixtureItselfIsPresentAndCoversEveryCase (64 ms)
 [ RUN      ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool
 [       OK ] NumpyParity.SeedSequenceMixEntropyReproducesTheNumpyPool (0 ms)
 [ RUN      ] NumpyParity.GenerateStateReproducesBothTheThirtyTwoAndSixtyFourBitViews
@@ -25,7 +30,7 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] NumpyParity.CoinSideMapsTheFirstDrawOfItsOwnSeedStream (0 ms)
 [ RUN      ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath
 [       OK ] NumpyParity.TheIntegerEntropyPathAgreesWithTheWordEntropyPath (0 ms)
-[----------] 8 tests from NumpyParity (5 ms total)
+[----------] 8 tests from NumpyParity (64 ms total)
 
 [----------] 1 test from U128Arithmetic
 [ RUN      ] U128Arithmetic.MultiplyAddAndShiftAreExactAcrossTheCarryBoundary
@@ -34,10 +39,10 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 2 tests from RunningQuantile
 [ RUN      ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation
-[       OK ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation (1131 ms)
+[       OK ] RunningQuantile.MatchesASortedReferenceAfterEveryObservation (5735 ms)
 [ RUN      ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic
 [       OK ] RunningQuantile.TheThresholdIsTheHandComputedInterpolatedOrderStatistic (0 ms)
-[----------] 2 tests from RunningQuantile (1131 ms total)
+[----------] 2 tests from RunningQuantile (5735 ms total)
 
 [----------] 3 tests from GateCausality
 [ RUN      ] GateCausality.AFutureRowsScoreCannotChangeAnEarlierRowsDecision
@@ -50,7 +55,7 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 2 tests from GateWarmUp
 [ RUN      ] GateWarmUp.NothingIsAdmittedBelowTheFiftyRowFloorAndTheFiftiethRowOpensIt
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:284: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:285: Failure
 Expected equality of these values:
   gate.evaluate(scored(1, T(0), 5.0)).reason
     Which is: 1-byte object <04>
@@ -58,12 +63,12 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 an empty population is the first warm-up case
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:293: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:294: Failure
 Value of: cold.admitted
   Actual: true
 Expected: false
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:294: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:295: Failure
 Expected equality of these values:
   cold.reason
     Which is: 1-byte object <00>
@@ -72,7 +77,7 @@ Expected equality of these values:
 
 [  FAILED  ] GateWarmUp.NothingIsAdmittedBelowTheFiftyRowFloorAndTheFiftiethRowOpensIt (0 ms)
 [ RUN      ] GateWarmUp.TheFloorIsCountedInStrictlyPriorLegalRowsOnly
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:313: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:314: Failure
 Expected equality of these values:
   gate.evaluate(scored(999, T(999), 1e6)).reason
     Which is: 1-byte object <04>
@@ -99,7 +104,7 @@ Expected equality of these values:
 [ RUN      ] GateInReplay.TheKernelEvaluatesAClockBeforeItObservesAnyOfThatClocksRows
 [       OK ] GateInReplay.TheKernelEvaluatesAClockBeforeItObservesAnyOfThatClocksRows (0 ms)
 [ RUN      ] GateInReplay.NoTradeHappensUntilTheWarmUpFloorIsCleared
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <04>
@@ -107,7 +112,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 0
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <04>
@@ -115,7 +120,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 1
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -123,7 +128,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 2
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -131,7 +136,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 3
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -139,7 +144,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 4
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -147,13 +152,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 5
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 5
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -161,13 +166,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 6
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 6
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -175,13 +180,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 7
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 7
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -189,7 +194,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 8
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -197,7 +202,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 9
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -205,7 +210,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 10
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -213,7 +218,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 11
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -221,13 +226,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 12
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 12
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -235,13 +240,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 13
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 13
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -249,13 +254,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 14
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 14
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -263,7 +268,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 15
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -271,7 +276,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 16
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -279,7 +284,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 17
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -287,7 +292,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 18
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -295,7 +300,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 19
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -303,13 +308,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 20
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 20
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -317,13 +322,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 21
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 21
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -331,7 +336,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 22
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -339,7 +344,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 23
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -347,7 +352,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 24
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -355,7 +360,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 25
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -363,7 +368,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 26
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -371,13 +376,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 27
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 27
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -385,13 +390,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 28
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 28
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -399,7 +404,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 29
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -407,7 +412,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 30
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -415,7 +420,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 31
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -423,7 +428,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 32
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -431,7 +436,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 33
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -439,13 +444,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 34
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 34
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -453,13 +458,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 35
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 35
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -467,7 +472,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 36
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -475,7 +480,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 37
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -483,7 +488,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 38
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -491,7 +496,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 39
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -499,7 +504,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 40
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -507,13 +512,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 41
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 41
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -521,13 +526,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 42
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 42
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -535,7 +540,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 43
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -543,7 +548,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 44
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -551,7 +556,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 45
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -559,7 +564,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 46
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <05>
@@ -567,7 +572,7 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 47
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -575,13 +580,13 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 48
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 48
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:489: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
 Expected equality of these values:
   gate.decisions[i].reason
     Which is: 1-byte object <00>
@@ -589,64 +594,73 @@ Expected equality of these values:
     Which is: 1-byte object <03>
 decision 49
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:490: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:491: Failure
 Value of: gate.decisions[i].admitted
   Actual: true
 Expected: false
 decision 49
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 6000000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 7200000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 8400000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 14400000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 15600000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 16800000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 24000000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 25200000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 32400000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 33600000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 40800000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 42000000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 49200000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 50400000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 57600000000000 vs 60000000000000
 
-/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:494: Failure
+/workspace/engine/cpp/qr_replay/tests/test_policy_gate.cpp:495: Failure
 Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 58800000000000 vs 60000000000000
 
-[  FAILED  ] GateInReplay.NoTradeHappensUntilTheWarmUpFloorIsCleared (1 ms)
+[  FAILED  ] GateInReplay.NoTradeHappensUntilTheWarmUpFloorIsCleared (62 ms)
 [ RUN      ] GateInReplay.OccupancyDoesNotChangeTheRunningPopulation
 [       OK ] GateInReplay.OccupancyDoesNotChangeTheRunningPopulation (0 ms)
-[----------] 4 tests from GateInReplay (1 ms total)
+[----------] 4 tests from GateInReplay (62 ms total)
+
+[----------] 3 tests from NoAdmissibleGate
+[ RUN      ] NoAdmissibleGate.ZeroSurvivingCellsProduceAGateThatEntersNothingAndSaysWhy
+[       OK ] NoAdmissibleGate.ZeroSurvivingCellsProduceAGateThatEntersNothingAndSaysWhy (0 ms)
+[ RUN      ] NoAdmissibleGate.ASelectedTripleBuildsTheA6GateWithThatTriplesOwnParameters
+[       OK ] NoAdmissibleGate.ASelectedTripleBuildsTheA6GateWithThatTriplesOwnParameters (0 ms)
+[ RUN      ] NoAdmissibleGate.InTheReplayTheArmTradesNothingAndEveryClockIsTypedGateBlocked
+[       OK ] NoAdmissibleGate.InTheReplayTheArmTradesNothingAndEveryClockIsTypedGateBlocked (0 ms)
+[----------] 3 tests from NoAdmissibleGate (0 ms total)
 
 [----------] 6 tests from HandChronology
 [ RUN      ] HandChronology.SessionOneTwentyFiveMatchesTheHandComputedLedger
@@ -663,9 +677,11 @@ Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 588000000
 [       OK ] HandChronology.TheThreeSessionScorecardMatchesTheHandComputedLiterals (0 ms)
 [----------] 6 tests from HandChronology (0 ms total)
 
-[----------] 16 tests from ReplayLaws
+[----------] 17 tests from ReplayLaws
 [ RUN      ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror
 [       OK ] ReplayLaws.ExecutesTheSelectedSideAndNeverItsMirror (0 ms)
+[ RUN      ] ReplayLaws.TheExecutedTradeCarriesItsOwnLabelsGapThroughSoTheBreachPanelSeesTheWall
+[       OK ] ReplayLaws.TheExecutedTradeCarriesItsOwnLabelsGapThroughSoTheBreachPanelSeesTheWall (0 ms)
 [ RUN      ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce
 [       OK ] ReplayLaws.TheLabelsNetIsBookedUnchangedBecauseTheCostWasAlreadyChargedOnce (0 ms)
 [ RUN      ] ReplayLaws.ALabelThatDidNotChargeTheCostExactlyOnceIsRefused
@@ -696,7 +712,7 @@ Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 588000000
 [       OK ] ReplayLaws.AHorizonOutsideTheSevenMenuIsARefusal (0 ms)
 [ RUN      ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther
 [       OK ] ReplayLaws.TheKernelReadsTheHorizonItWasAskedForAndNoOther (0 ms)
-[----------] 16 tests from ReplayLaws (0 ms total)
+[----------] 17 tests from ReplayLaws (0 ms total)
 
 [----------] 3 tests from NullControls
 [ RUN      ] NullControls.ForcedSidesTradeTheModelsOwnClocksOnTheForcedSide
@@ -737,10 +753,14 @@ Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 588000000
 [       OK ] ConcentrationPanels.MinYearIsTheWorstYearsOwnMean (0 ms)
 [----------] 3 tests from ConcentrationPanels (0 ms total)
 
-[----------] 1 test from BreachPanel
-[ RUN      ] BreachPanel.CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop
-[       OK ] BreachPanel.CountsRealizedGapThroughsStrictlyAboveTheThreeHundredDollarStop (0 ms)
-[----------] 1 test from BreachPanel (0 ms total)
+[----------] 3 tests from BreachPanel
+[ RUN      ] BreachPanel.ABreachIsAStopThatGappedThroughTheWallNotMerelyAnMaeAboveIt
+[       OK ] BreachPanel.ABreachIsAStopThatGappedThroughTheWallNotMerelyAnMaeAboveIt (0 ms)
+[ RUN      ] BreachPanel.EveryStoppedTradeClearsTheMaeThresholdSoTheMaeTestCannotBeTheBreachTest
+[       OK ] BreachPanel.EveryStoppedTradeClearsTheMaeThresholdSoTheMaeTestCannotBeTheBreachTest (0 ms)
+[ RUN      ] BreachPanel.AGapThroughOnARowThatDidNotStopIsNotABreachEither
+[       OK ] BreachPanel.AGapThroughOnARowThatDidNotStopIsNotABreachEither (0 ms)
+[----------] 3 tests from BreachPanel (0 ms total)
 
 [----------] 3 tests from MaeQuantiles
 [ RUN      ] MaeQuantiles.NearestRankOverTenTradesMatchesTheHandComputedIndices
@@ -760,13 +780,13 @@ Expected: (trade.key.decision_ts_ns) >= (first_admissible_ts), actual: 588000000
 
 [----------] 1 test from ReplayBudget
 [ RUN      ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall
-[ BUDGET   ] qr_replay: 1000000 actions in 0.3073s (3253828 actions/s, 17501 trades)
-[       OK ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall (1081 ms)
-[----------] 1 test from ReplayBudget (1081 ms total)
+[ BUDGET   ] qr_replay: 1000000 actions in 0.6066s (1648517 actions/s, 17501 trades)
+[       OK ] ReplayBudget.OneMillionActionsReplayInsideTheSingleThreadWall (3231 ms)
+[----------] 1 test from ReplayBudget (3231 ms total)
 
 [----------] Global test environment tear-down
-[==========] 65 tests from 18 test suites ran. (2220 ms total)
-[  PASSED  ] 62 tests.
+[==========] 71 tests from 19 test suites ran. (9096 ms total)
+[  PASSED  ] 68 tests.
 [  FAILED  ] 3 tests, listed below:
 [  FAILED  ] GateWarmUp.NothingIsAdmittedBelowTheFiftyRowFloorAndTheFiftiethRowOpensIt
 [  FAILED  ] GateWarmUp.TheFloorIsCountedInStrictlyPriorLegalRowsOnly

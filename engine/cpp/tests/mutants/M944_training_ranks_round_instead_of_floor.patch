@@ -1,6 +1,6 @@
 --- a/python/campaign/train.py
 +++ b/python/campaign/train.py
-@@ -121,7 +121,8 @@
+@@ -549,7 +549,8 @@
      if count < RANK_COUNT:
          return torch.arange(count, dtype=torch.int64)
      j = torch.arange(RANK_COUNT, dtype=torch.float64)
@@ -9,4 +9,4 @@
 +    return torch.round((j + 0.5) * count / RANK_COUNT).to(torch.int64)
  
  
- def load_sessions(root: pathlib.Path, ordinals: list[int],
+ def is_real_corpus(root: pathlib.Path) -> bool:

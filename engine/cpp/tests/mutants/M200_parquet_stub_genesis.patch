@@ -1,10 +1,11 @@
 --- a/qr_parquet/src/reader.cpp
 +++ b/qr_parquet/src/reader.cpp
-@@ -318,6 +318,9 @@
+@@ -320,6 +320,10 @@
  // ---------------------------------------------------------------------------
  
- FileExpected<File> File::open(std::string path) {
+ FileExpected<File> File::open(std::string path, DialectProfile profile) {
 +  // M200 STUB: the reader has not been written yet.
++  (void)profile;
 +  return refuse_file<File>(RefusalCode::CONFIG, "qr_parquet::File::open",
 +                           "qr_parquet is a stub", std::move(path));
    const int fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);

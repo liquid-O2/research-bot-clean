@@ -7,6 +7,12 @@
 #   "tests/red_ledger.tsv maps every test -> committed failing-mutant log; CI
 #    fails any test without proof it ever failed."
 #
+# And the same PATCH-APPLICABILITY rule the C++ gate carries (repo-health
+# finding, 2026-08-12): a committed patch whose anchors have drifted is a proof
+# that cannot be reproduced, so it fails here too. `--fuzz=0` is deliberate —
+# `patch`'s default fuzz silently absorbs a drifted context and makes the check
+# vacuous.
+#
 # Each Python suite's checks are the names in its @check("...") decorators, and
 # each one must have a row in tests/red_ledger_python.tsv whose mutation has a
 # committed patch and whose log actually carries that check's FAIL line.
@@ -30,6 +36,7 @@ SUITES=(
 )
 MUTANT_DIR="${CPP_ROOT}/tests/mutants"
 status=0
+declare -A applies
 
 for required in "${LEDGER}" "${SUITES[@]}"; do
   if [[ ! -f "${required}" ]]; then
@@ -75,6 +82,19 @@ for name in "${CHECKS[@]}"; do
   red_log="${CPP_ROOT}/$(cut -f3 <<<"${row}")"
   if [[ ! -f "${MUTANT_DIR}/${mutation_id}.patch" ]]; then
     echo "FAIL: check '${name}' cites ${mutation_id}, whose patch is missing" >&2
+    status=1
+    continue
+  fi
+  if [[ -z "${applies[${mutation_id}]+set}" ]]; then
+    if (cd "${CPP_ROOT}" && patch -p1 --dry-run --silent --batch --fuzz=0 \
+          < "${MUTANT_DIR}/${mutation_id}.patch") >/dev/null 2>&1; then
+      applies["${mutation_id}"]=1
+    else
+      applies["${mutation_id}"]=0
+    fi
+  fi
+  if [[ "${applies[${mutation_id}]}" != "1" ]]; then
+    echo "FAIL: check '${name}' cites ${mutation_id} whose patch no longer applies — the proof has rotted and cannot be reproduced" >&2
     status=1
     continue
   fi

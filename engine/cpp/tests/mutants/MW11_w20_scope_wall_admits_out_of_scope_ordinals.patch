@@ -1,15 +1,13 @@
---- a/qr_registry/include/qr_registry/day_scope.hpp
-+++ b/qr_registry/include/qr_registry/day_scope.hpp
-@@ -30,8 +30,10 @@
- /// FINAL_PLAN section 1 puts in scope ("1,003 sessions 2022-25 (125..749 = the
- /// 625 in current scope)").
- inline constexpr std::int64_t kScopeFirstOrdinal = 125;
--inline constexpr std::int64_t kScopeLastOrdinal = 749;
--inline constexpr std::int64_t kScopeSessionCount = 625;
-+// MW11: the wall is widened past the scope, so fold-6/7 and 2025 ordinals
-+// admit and a path can be formed for them.
-+inline constexpr std::int64_t kScopeLastOrdinal = 1002;
-+inline constexpr std::int64_t kScopeSessionCount = 878;
- static_assert(kScopeLastOrdinal - kScopeFirstOrdinal + 1 == kScopeSessionCount);
- 
- /// One admitted, in-scope session. The only path-forming object in the module.
+--- a/qr_registry/src/day_scope.cpp
++++ b/qr_registry/src/day_scope.cpp
+@@ -14,7 +14,9 @@
+ Expected<DayScope, Refusal> DayScope::admit(const Registry& registry, std::int64_t ordinal) {
+   // THE WALL, first statement of the function: nothing below runs for an
+   // out-of-scope ordinal, and this function has no filesystem argument at all.
+-  if (ordinal < kScopeFirstOrdinal || ordinal > kScopeLastOrdinal) {
++  // MW11: the wall is widened past the scope, so the sealed 2025 ordinals
++  // admit and a path can be formed for them.
++  if (ordinal < kScopeFirstOrdinal || ordinal > kScopeLastOrdinal + 200) {
+     return Expected<DayScope, Refusal>::refuse(
+         Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
+                 "ordinal outside the scoped calendar 125..917", ordinal));

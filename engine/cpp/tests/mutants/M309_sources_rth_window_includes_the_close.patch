@@ -1,6 +1,6 @@
 --- a/qr_sources/src/stock_quotes.cpp
 +++ b/qr_sources/src/stock_quotes.cpp
-@@ -154,7 +154,7 @@
+@@ -168,7 +168,7 @@
      has_last_ts_ = true;
  
      // 3. THE RTH WINDOW, applied in FRAME B before any conversion.
@@ -11,7 +11,7 @@
      ++rth_rows_;
 --- a/qr_sources/src/stock_trades.cpp
 +++ b/qr_sources/src/stock_trades.cpp
-@@ -138,7 +138,7 @@
+@@ -149,7 +149,7 @@
      }
      last_ts_ms_ = ts_ms;
      has_last_ts_ = true;
@@ -22,15 +22,15 @@
      ++rth_rows_;
 --- a/qr_sources/src/option_prints.cpp
 +++ b/qr_sources/src/option_prints.cpp
-@@ -177,7 +177,7 @@
+@@ -352,7 +352,7 @@
      }
      last_ts_ms_ = ts_ms;
      has_last_ts_ = true;
--    if (ts_ms < source_.open_ms_b() || ts_ms >= source_.close_ms_b()) {
-+    if (ts_ms < source_.open_ms_b() || ts_ms > source_.close_ms_b()) {
+-    if (ts_ms < source.open_ms_b() || ts_ms >= source.close_ms_b()) {
++    if (ts_ms < source.open_ms_b() || ts_ms > source.close_ms_b()) {
        continue;
      }
-     ++rth_rows_;
+     ++census_.rth_rows;
 --- a/qr_sources/src/option_quotes.cpp
 +++ b/qr_sources/src/option_quotes.cpp
 @@ -177,7 +177,7 @@

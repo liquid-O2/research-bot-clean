@@ -7,9 +7,16 @@
 # What this enforces, per test enumerated from the built binaries:
 #   1. tests/red_ledger.tsv carries a row for the test id;
 #   2. the row's mutation_id has a committed patch under tests/mutants/;
-#   3. the row's red_log_path exists AND actually contains a gtest FAILED line
+#   3. that patch STILL APPLIES to the working tree;
+#   4. the row's red_log_path exists AND actually contains a gtest FAILED line
 #      naming THAT test — not merely some failure somewhere.
 # A green test with no proof that it can go red is not evidence of anything.
+#
+# WHY (3) IS HERE (repo-health finding, 2026-08-12). A committed patch whose
+# anchors have drifted out from under it is a proof that can no longer be
+# reproduced: the log still names the test, so checks (2) and (4) pass, and the
+# evidence has silently rotted. Ten mutations had rotted this way before the
+# check existed. A rotted proof is a FAILED gate, exactly like a missing one.
 #
 # Usage: check_red_ledger.sh [build_dir]   (default: the dev build tree)
 set -uo pipefail
@@ -60,6 +67,7 @@ fi
 
 status=0
 checked=0
+declare -A applies
 for id in "${tests[@]}"; do
   row="$(awk -F'\t' -v id="${id}" 'NR > 1 && $1 == id { print; exit }' "${LEDGER}")"
   if [[ -z "${row}" ]]; then
@@ -74,6 +82,25 @@ for id in "${tests[@]}"; do
 
   if [[ ! -f "${patch_file}" ]]; then
     echo "FAIL: ${id} cites mutation ${mutation_id} but ${patch_file} is missing" >&2
+    status=1
+    continue
+  fi
+  # Each patch is dry-run applied ONCE per gate run, not once per citing test:
+  # M000 alone is cited by 35 rows.
+  if [[ -z "${applies[${mutation_id}]+set}" ]]; then
+    # --batch: never prompt. --fuzz=0: every CONTEXT line must match exactly.
+    # Line-number OFFSETS are still tolerated, so a patch does not rot merely
+    # because the file above it grew — only because the code it names changed.
+    # Without --fuzz=0 `patch` silently absorbs a drifted context and the check
+    # is vacuous (measured: a deliberately corrupted anchor still "applied").
+    if (cd "${CPP_ROOT}" && patch -p1 --dry-run --silent --batch --fuzz=0 < "${patch_file}") >/dev/null 2>&1; then
+      applies["${mutation_id}"]=1
+    else
+      applies["${mutation_id}"]=0
+    fi
+  fi
+  if [[ "${applies[${mutation_id}]}" != "1" ]]; then
+    echo "FAIL: ${id} cites mutation ${mutation_id} whose patch no longer applies — the proof has rotted and cannot be reproduced" >&2
     status=1
     continue
   fi
@@ -105,6 +132,6 @@ while IFS=$'\t' read -r id mutation_id red_log_rel; do
 done < "${LEDGER}"
 
 if [[ ${status} -eq 0 ]]; then
-  echo "OK: red ledger proves all ${checked} tests have failed at least once"
+  echo "OK: red ledger proves all ${checked} tests have failed at least once (every cited patch still applies)"
 fi
 exit ${status}

@@ -479,6 +479,36 @@ TEST(SurfaceDynamics, ZeroFluctuationTypesTheRatioAbsent) {
   EXPECT_NEAR(dynamics.window[0].fd_sigma_vv.value, 0.0, 1e-15);
 }
 
+// D8, the INNOVATION. `d_fd_ratio` is the window-to-window change of the ratio,
+// under the same law every other `d_` channel in this module obeys: absent in
+// window 0, absent when either side is absent, and never a zero standing in for
+// "no change". Two windows with DIFFERENT constructed gains must therefore
+// carry their exact difference in window 1 and nothing at all in window 0.
+TEST(SurfaceDynamics, FdRatioInnovationIsTheWindowToWindowChange) {
+  const std::size_t window_seconds = static_cast<std::size_t>(qr::ivx::kWindowSeconds);
+  std::vector<double> returns(2 * window_seconds, 0.0);
+  std::vector<double> proxy_vol(2 * window_seconds, 0.0);
+  double level = 0.20;
+  proxy_vol[0] = level;
+  for (std::size_t index = 1; index < returns.size(); ++index) {
+    const double gain = index < window_seconds ? 3.0 : 7.0;
+    returns[index] = (index % 2 == 0 ? 1.0 : -1.0) * 1e-4 * static_cast<double>(index % 7 + 1);
+    level *= std::exp(gain * std::abs(returns[index]) + 1e-6 * static_cast<double>(index % 5));
+    proxy_vol[index] = level;
+  }
+  const qr::ivx::SurfaceDynamics dynamics =
+      qr::ivx::surface_dynamics(series_from(returns, proxy_vol), 0);
+  ASSERT_EQ(dynamics.window[0].fd_ratio.v, qr::Validity::VALID);
+  ASSERT_EQ(dynamics.window[1].fd_ratio.v, qr::Validity::VALID);
+  EXPECT_NE(dynamics.window[0].d_fd_ratio.v, qr::Validity::VALID);
+  ASSERT_EQ(dynamics.window[1].d_fd_ratio.v, qr::Validity::VALID);
+  EXPECT_NEAR(dynamics.window[1].d_fd_ratio.value,
+              dynamics.window[1].fd_ratio.value - dynamics.window[0].fd_ratio.value, 1e-12);
+  // Window 2 saw no surface at all, so its innovation is absent rather than a
+  // change measured against nothing.
+  EXPECT_NE(dynamics.window[2].d_fd_ratio.v, qr::Validity::VALID);
+}
+
 // D9: A3 is a TIME-ASYMMETRY statistic. Reversing the return sequence must flip
 // its sign; a statistic that survives reversal unchanged is not measuring
 // irreversibility at all.

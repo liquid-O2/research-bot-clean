@@ -1,6 +1,6 @@
 --- a/qr_replay/src/policy_gate.cpp
 +++ b/qr_replay/src/policy_gate.cpp
-@@ -82,9 +82,7 @@
+@@ -92,9 +92,7 @@
  }
  
  void QuantileRiskGate::observe(const ScoredAction& action) {
@@ -8,6 +8,6 @@
 -    return;  // "among legal rows so far that session"
 -  }
 +  // MUTANT M613: illegal rows now join the running population.
-   if (!std::isfinite(action.predicted_net)) {
+   if (!std::isfinite(action.predicted_net_h_star)) {
      return;  // a nonfinite score is not a number the quantile can carry
    }

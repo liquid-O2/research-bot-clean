@@ -1,7 +1,7 @@
 --- a/python/campaign/arms.py
 +++ b/python/campaign/arms.py
-@@ -629,7 +629,9 @@
-                           "JOINT_STREAM_ATTENTION", "JSA_CAPACITY_MATCH")
+@@ -704,7 +704,9 @@
+         native = name in NATIVE_ARMS
  
          self.state_encoder = StateEncoder()
 -        self.market_heads = nn.ModuleList([Head(bias=False) for _ in MODALITIES])

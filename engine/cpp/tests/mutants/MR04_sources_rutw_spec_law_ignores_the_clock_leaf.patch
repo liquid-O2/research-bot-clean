@@ -1,6 +1,6 @@
 --- a/qr_sources/include/qr_sources/stream_spec.hpp
 +++ b/qr_sources/include/qr_sources/stream_spec.hpp
-@@ -629,7 +629,10 @@
+@@ -681,7 +681,10 @@
        return false;
      }
    }
@@ -11,8 +11,8 @@
 +  return true;
  }
  
- inline constexpr StreamSpec<62, 20, 29> kRutwPrintSpec{
-@@ -638,7 +641,10 @@
+ inline constexpr StreamSpec<62, 31, 20> kRutwPrintSpec{
+@@ -690,7 +693,10 @@
      .projection = kOptionPrintSpec.projection,
      .roles = kOptionPrintSpec.roles,
      .forbidden = kOptionPrintSpec.forbidden,

@@ -440,45 +440,10 @@
  }  // namespace qr
 --- a/qr_core/src/refusal.cpp
 +++ b/qr_core/src/refusal.cpp
-@@ -1,65 +1,17 @@
- #include "qr_core/refusal.hpp"
+@@ -35,15 +35,11 @@
  
--#include <array>
--#include <cstddef>
- #include <cstdio>
- #include <cstdlib>
- #include <string>
+ }  // namespace
  
- namespace qr {
--namespace {
- 
--constexpr std::array<const char*, kRefusalCodeCount> kNames = {
--    "INVALID_CORPUS_ROOT",
--    "REGISTRY_DIGEST_MISMATCH",
--    "UNKNOWN_SESSION",
--    "SOURCE_AUTHENTICATION_FAILED",
--    "IO",
--    "SCHEMA_MISMATCH",
--    "DECODE_FAILED",
--    "OUT_OF_ORDER",
--    "CONTENT_MISMATCH",
--    "ARITHMETIC_OVERFLOW",
--    "MALFORMED_CIVIL_DATE",
--    "WRONG_CIVIL_DAY",
--    "INVALID_DIRECT_INSTANT_TIMEZONE",
--    "OUTSIDE_RTH",
--    "CLOCK_VIOLATION",
--    "DAY_OUTSIDE_CALENDAR",
--    "MODALITY_ABSENT",
--    "ORDINAL_OUTSIDE_SCOPE",
--    "REGISTRY_MALFORMED",
--    "CONFIG",
--};
-+// M000 STUB: the refusal taxonomy has not been written yet.
-+const char* refusal_code_name(RefusalCode) noexcept { return "STUB"; }
- 
--}  // namespace
--
 -const char* refusal_code_name(RefusalCode code) noexcept {
 -  const auto index = static_cast<std::size_t>(code);
 -  if (index >= kRefusalCodeCount) {
@@ -486,30 +451,15 @@
 -  }
 -  return kNames[index];
 -}
--
--std::string Refusal::message() const {
--  std::string out = refusal_code_name(code_);
--  out += " at ";
--  out += (site_ != nullptr) ? site_ : "<unnamed site>";
--  if (detail_ != nullptr && detail_[0] != '\0') {
--    out += ": ";
--    out += detail_;
--  }
--  if (context_ != 0) {
--    out += " [context=";
--    out += std::to_string(context_);
--    out += "]";
--  }
--  return out;
--}
-+std::string Refusal::message() const { return std::string(); }
++// M000 STUB: the refusal taxonomy has not been written yet.
++const char* refusal_code_name(RefusalCode) noexcept { return "STUB"; }
  
- namespace detail {
--
- void fail_fast(const char* what) noexcept {
-   std::fputs("qr fail-closed: ", stderr);
-   std::fputs((what != nullptr) ? what : "<unnamed>", stderr);
-@@ -67,6 +19,5 @@
+ std::string Refusal::message() const {
++  return std::string();  // M000 STUB: no message formatting yet.
+   std::string out = refusal_code_name(code_);
+   out += " at ";
+   out += (site_ != nullptr) ? site_ : "<unnamed site>";
+@@ -68,6 +64,5 @@
    std::fflush(stderr);
    std::abort();
  }
@@ -988,20 +938,8 @@
  }  // namespace qr
 --- a/qr_registry/src/day_scope.cpp
 +++ b/qr_registry/src/day_scope.cpp
-@@ -1,24 +1,13 @@
- #include "qr_registry/day_scope.hpp"
- 
- #include <filesystem>
--#include <system_error>
- #include <utility>
- 
- namespace qr {
--namespace {
- 
--constexpr const char* kSite = "qr_registry::DayScope";
--
--}  // namespace
-+// M000 STUB: the 125..749 wall has not been written yet.
+@@ -12,13 +12,7 @@
+ }  // namespace
  
  Expected<DayScope, Refusal> DayScope::admit(const Registry& registry, std::int64_t ordinal) {
 -  // THE WALL, first statement of the function: nothing below runs for an
@@ -1009,12 +947,13 @@
 -  if (ordinal < kScopeFirstOrdinal || ordinal > kScopeLastOrdinal) {
 -    return Expected<DayScope, Refusal>::refuse(
 -        Refusal(RefusalCode::ORDINAL_OUTSIDE_SCOPE, kSite,
--                "ordinal outside the scoped calendar 125..749", ordinal));
+-                "ordinal outside the scoped calendar 125..917", ordinal));
 -  }
++  // M000 STUB: the 125..917 wall has not been written yet.
    auto session = registry.session_at(ordinal);
    if (!session.has_value()) {
      return Expected<DayScope, Refusal>::refuse(session.error());
-@@ -27,22 +16,15 @@
+@@ -27,22 +21,15 @@
  }
  
  Expected<DayScope, Refusal> DayScope::admit_day(const Registry& registry, std::string_view day) {
@@ -1039,7 +978,7 @@
  }
  
  Expected<std::filesystem::path, Refusal> resolve_source_path(
-@@ -51,19 +33,7 @@
+@@ -51,19 +38,7 @@
    if (!scope.has_value()) {
      return Expected<std::filesystem::path, Refusal>::refuse(scope.error());
    }

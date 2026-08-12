@@ -1,0 +1,14 @@
+--- a/qr_emit/src/shard_writer.cpp
++++ b/qr_emit/src/shard_writer.cpp
+@@ -387,10 +387,7 @@
+     return Result::refuse(config_refusal("qr_emit::ShardWriter::publish",
+                                          "a leaf is still open; the shard is incomplete"));
+   }
+-  if (leaves_.empty()) {
+-    return Result::refuse(
+-        config_refusal("qr_emit::ShardWriter::publish", "a shard with no leaves is not a tape"));
+-  }
++  // M514: a shard with no leaves now publishes as a tape.
+ 
+   // THE FEATURE/TRUTH DIGEST-COLLISION REFUSAL (card section 7(p), verbatim:
+   // "feature/truth digest-collision refusal — publishing refuses when any

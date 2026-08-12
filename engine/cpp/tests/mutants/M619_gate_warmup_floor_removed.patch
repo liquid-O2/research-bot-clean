@@ -1,7 +1,7 @@
 --- a/qr_replay/src/policy_gate.cpp
 +++ b/qr_replay/src/policy_gate.cpp
-@@ -111,11 +111,7 @@
-   if (!std::isfinite(action.predicted_net) || !std::isfinite(action.predicted_stop_prob)) {
+@@ -121,11 +121,7 @@
+   if (!std::isfinite(action.predicted_net_h_star) || !std::isfinite(action.predicted_stop_prob_h_ref)) {
      return {false, GateReason::NONFINITE_SCORE};
    }
 -  if (!is_warm()) {

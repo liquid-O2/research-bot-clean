@@ -1,3 +1,15 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M2512_m25_twin_cells_admit_rows_without_an_outcome
+# patch:       tests/mutants/M2512_m25_twin_cells_admit_rows_without_an_outcome.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M2512_m25_twin_cells_admit_rows_without_an_outcome
+#
+# RE-ANCHORED 2026-08-12: the committed CONTEXT lines had drifted, so the patch
+# only applied under `patch`'s default fuzz and read as rotted once the ledger
+# gate began demanding an exact match. The MUTATION is unchanged; the context
+# around it was regenerated and the log re-run.
+
+### qr_m25_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
 [==========] Running 34 tests from 4 test suites.
 [----------] Global test environment set-up.
@@ -7,18 +19,18 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed
 [       OK ] SkillLaw.TheUniformStreamIsNumpyPcg64ForTheDeclaredSeed (0 ms)
 [ RUN      ] SkillLaw.PerfectSkillRanksExactlyByTheTruth
-[       OK ] SkillLaw.PerfectSkillRanksExactlyByTheTruth (1 ms)
+[       OK ] SkillLaw.PerfectSkillRanksExactlyByTheTruth (2 ms)
 [ RUN      ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely
 [       OK ] SkillLaw.ZeroSkillIgnoresTheTruthEntirely (3 ms)
 [ RUN      ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe
-[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (11 ms)
+[       OK ] SkillLaw.TheSkillParameterIsTheRankCorrelationItClaimsToBe (54 ms)
 [ RUN      ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints
 [       OK ] SkillLaw.TheRiskHeadIsCalibratedAtBothEndpoints (1 ms)
 [ RUN      ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific
-[       OK ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific (4 ms)
+[       OK ] SkillLaw.DrawsAreReproducibleAndReplicateSpecific (5 ms)
 [ RUN      ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid
 [       OK ] SkillLaw.TheNoiseIsCommonAcrossTheWholeQGrid (1 ms)
-[----------] 8 tests from SkillLaw (24 ms total)
+[----------] 8 tests from SkillLaw (69 ms total)
 
 [----------] 6 tests from TrainWall
 [ RUN      ] TrainWall.F4AdmitsOnlyItsOwnTrainRange
@@ -26,14 +38,14 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [ RUN      ] TrainWall.F5AdmitsOnlyItsOwnTrainRange
 [       OK ] TrainWall.F5AdmitsOnlyItsOwnTrainRange (0 ms)
 [ RUN      ] TrainWall.ACalibrationSessionOnDiskIsStillRefused
-[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (632 ms)
+[       OK ] TrainWall.ACalibrationSessionOnDiskIsStillRefused (541 ms)
 [ RUN      ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds
-[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (538 ms)
+[       OK ] TrainWall.ATestSessionOnDiskIsRefusedByBothFolds (567 ms)
 [ RUN      ] TrainWall.APublishedShardRoundTripsThroughTheLoader
-[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (648 ms)
+[       OK ] TrainWall.APublishedShardRoundTripsThroughTheLoader (641 ms)
 [ RUN      ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself
-[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (506 ms)
-[----------] 6 tests from TrainWall (2327 ms total)
+[       OK ] TrainWall.TheFrozenCardShaIsReadFromTheShardItself (480 ms)
+[----------] 6 tests from TrainWall (2231 ms total)
 
 [----------] 11 tests from ArmsArithmetic
 [ RUN      ] ArmsArithmetic.ForcedLongTakesTheLongSideOfEveryFreeClock
@@ -62,11 +74,11 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 9 tests from TwinCeiling
 [ RUN      ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne
-[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (33 ms)
+[       OK ] TwinCeiling.APrefixThatDeterminesTheOutcomeGivesACeilingNearOne (72 ms)
 [ RUN      ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero
-[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (22 ms)
+[       OK ] TwinCeiling.APrefixThatSaysNothingCollapsesTheCeilingToZero (26 ms)
 [ RUN      ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound
-[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (219 ms)
+[       OK ] TwinCeiling.TheExtrapolationNeverExceedsTheNearestNeighbourBound (603 ms)
 [ RUN      ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch
 [       OK ] TwinCeiling.ExactPrefixTwinsAreCountedAsSuch (0 ms)
 [ RUN      ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair
@@ -84,17 +96,17 @@ Expected equality of these values:
 
 [  FAILED  ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair (0 ms)
 [ RUN      ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses
-[       OK ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses (58 ms)
+[       OK ] TwinCeiling.OverlappingNeighboursManufactureACeilingTheDisjointLadderRefuses (94 ms)
 [ RUN      ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch
 [       OK ] TwinCeiling.ADisjointPairIsOneWhoseHoldingWindowsDoNotTouch (0 ms)
 [ RUN      ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll
 [       OK ] TwinCeiling.AHoldingWindowLongerThanTheBucketLeavesNoDisjointPairAtAll (3 ms)
 [ RUN      ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride
-[       OK ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride (88 ms)
-[----------] 9 tests from TwinCeiling (427 ms total)
+[       OK ] TwinCeiling.ACellLargerThanTheCapIsThinnedByADeterministicStride (172 ms)
+[----------] 9 tests from TwinCeiling (974 ms total)
 
 [----------] Global test environment tear-down
-[==========] 34 tests from 4 test suites ran. (2780 ms total)
+[==========] 34 tests from 4 test suites ran. (3277 ms total)
 [  PASSED  ] 33 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] TwinCeiling.RowsWithoutAnOutcomeTakeNoPartInAnyPair

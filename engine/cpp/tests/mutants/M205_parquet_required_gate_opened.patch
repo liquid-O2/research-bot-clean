@@ -1,6 +1,6 @@
 --- a/qr_parquet/include/qr_parquet/dialect.hpp
 +++ b/qr_parquet/include/qr_parquet/dialect.hpp
-@@ -110,7 +110,7 @@
+@@ -143,7 +143,7 @@
  /// refused separately (a leaf may not have children, and no schema element
  /// below the root may have children).
  [[nodiscard]] constexpr bool is_pinned_repetition(std::int32_t repetition) noexcept {
@@ -8,4 +8,4 @@
 +  return repetition == kRepetitionOptional || repetition == kRepetitionRequired;
  }
  
- /// Screaming-snake name of a raw enum value, or "UNKNOWN" when unpinned. Used
+ // --- the profile-aware gate ------------------------------------------------

@@ -1,3 +1,14 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: M901_census_equal_time_run_is_not_canonicalised
+# patch:       tests/mutants/M901_census_equal_time_run_is_not_canonicalised.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh M901_census_equal_time_run_is_not_canonicalised
+#
+# REFRESHED 2026-08-12: the committed anchors had drifted out from under this
+# mutation, so the proof could no longer be reproduced. Same id, same intent,
+# new anchors, regenerated log.
+
+### qr_census_tests
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
 [==========] Running 34 tests from 7 test suites.
 [----------] Global test environment set-up.
@@ -26,7 +37,7 @@ Expected equality of these values:
   reference
     Which is: "f3b3517de30b52ab25701610bfd4d7447f9d0d96469b05b6f7d353c20272418c"
 
-[  FAILED  ] CanonicalImage.PermutingAnEqualTimestampRunDoesNotChangeTheDigest (2 ms)
+[  FAILED  ] CanonicalImage.PermutingAnEqualTimestampRunDoesNotChangeTheDigest (1 ms)
 [ RUN      ] CanonicalImage.RowsInDifferentMillisecondsKeepTheirTapeOrder
 [       OK ] CanonicalImage.RowsInDifferentMillisecondsKeepTheirTapeOrder (0 ms)
 [ RUN      ] CanonicalImage.MultiplicityIsPreservedInsideARun
@@ -37,7 +48,7 @@ Expected equality of these values:
 [       OK ] CanonicalImage.ANullFlagIsPartOfTheImageSoAZeroIsNotAnAbsence (0 ms)
 [ RUN      ] CanonicalImage.ByteModeOffLeavesNoDigestRatherThanAnEmptyOne
 [       OK ] CanonicalImage.ByteModeOffLeavesNoDigestRatherThanAnEmptyOne (0 ms)
-[----------] 6 tests from CanonicalImage (3 ms total)
+[----------] 6 tests from CanonicalImage (1 ms total)
 
 [----------] 4 tests from DigestRule
 [ RUN      ] DigestRule.IntegersWrapAndNullsAreCountedNeverFoldedIntoTheSum
@@ -93,19 +104,19 @@ Expected equality of these values:
 
 [----------] 5 tests from Archive
 [ RUN      ] Archive.AnIntactVerdictVerifiesAgainstItsRecordedSha
-[       OK ] Archive.AnIntactVerdictVerifiesAgainstItsRecordedSha (31 ms)
+[       OK ] Archive.AnIntactVerdictVerifiesAgainstItsRecordedSha (26 ms)
 [ RUN      ] Archive.ATruncatedVerdictIsCaughtByTheShaRecheck
-[       OK ] Archive.ATruncatedVerdictIsCaughtByTheShaRecheck (50 ms)
+[       OK ] Archive.ATruncatedVerdictIsCaughtByTheShaRecheck (29 ms)
 [ RUN      ] Archive.AnEditedVerdictHeaderIsARefusal
-[       OK ] Archive.AnEditedVerdictHeaderIsARefusal (30 ms)
+[       OK ] Archive.AnEditedVerdictHeaderIsARefusal (37 ms)
 [ RUN      ] Archive.AWaiverIdOutsideTheClosedSetIsARefusalEvenWithAMatchingSha
-[       OK ] Archive.AWaiverIdOutsideTheClosedSetIsARefusalEvenWithAMatchingSha (29 ms)
+[       OK ] Archive.AWaiverIdOutsideTheClosedSetIsARefusalEvenWithAMatchingSha (22 ms)
 [ RUN      ] Archive.ANonWaivedRowMayNotSmuggleAWaiverId
 [       OK ] Archive.ANonWaivedRowMayNotSmuggleAWaiverId (0 ms)
-[----------] 5 tests from Archive (141 ms total)
+[----------] 5 tests from Archive (116 ms total)
 
 [----------] Global test environment tear-down
-[==========] 34 tests from 7 test suites ran. (145 ms total)
+[==========] 34 tests from 7 test suites ran. (118 ms total)
 [  PASSED  ] 33 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] CanonicalImage.PermutingAnEqualTimestampRunDoesNotChangeTheDigest

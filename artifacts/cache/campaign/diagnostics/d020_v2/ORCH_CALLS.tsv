@@ -23,3 +23,9 @@ case	call	value_class	codes	note
 022	SKIP	C	E-supply-absorbed-at-highs,H-trend-day-up,R-no-fear-low-vol,P-flow-neg-price-flat-bullish	−300k/hr of selling eaten FLAT at day highs = re-accumulation; shorting absorbed supply = bad
 023	SKIP	C	T-runway-9m,P-option-bid-late,H-base-ok	9 minutes to close caps everything
 024	TAKE	B	P-supply-persistent,E-spread-widening-thin,L-fresh-lows,H-early-breakdown	CONTAM: s398 later-clock siblings (009,022) already viewed — day path partially known; call records the uncontaminated read (no absorption signature yet = continuation)
+025	SKIP	C	L-mid-air-no-setup,H-drift-no-event,E-nothing-to-read,PDF-no-reason-no-trade	quiet drift; no setup fires either way; no reason = no trade
+026	SKIP	C	CONTAM-via-001-007-019;E-no-rejection-yet,P-options-buying-bounce-z2,H-downtrend-mature	bounce-fade premature: bounce still sponsored, no rejection evidence at the LH zone yet
+027	TAKE	B	CONTAM-via-001;P-F1-trapped-dip-buyers-z2.2,E-depth-wall-z2.3,P-options-refuse-dip,H-LL-stack	study-007 config live: opposing buyers pressed into wall while options refuse
+028	SKIP	C	P-H1-live-sell-elephant-z-neg8,H-fresh-flush-unabsorbed,P-options-diverge-buying-note	−8z sell burst seconds ago at range low; elephant law says wait for absorption evidence
+029	SKIP	C	CONTAM-via-008;H-recovery-HH-HL-against,R-vol-bleeding-risk-on,P-mixed	counter-trend short into an established HL/HH recovery with vol bleeding = bull-flag risk
+030	SKIP	C	P-persistent-supply-800k,H-no-base-fresh-low,E-wall-no-fear-noted,T-knife	prior-low touch but hour-long elephant distribution still in control; no base to stand on

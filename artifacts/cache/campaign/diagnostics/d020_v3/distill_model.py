@@ -167,18 +167,21 @@ def vol_series(ordinal: int) -> dict:
     """
     out = {name: np.full(packlib.MINUTE_BUCKETS, np.nan) for name in VOL_NAMES}
     path = packlib.CACHE / "w21norm" / f"s{ordinal}.tsv"
-    if not path.exists():
-        return out
-    for line in path.read_text().splitlines():
-        if not line.startswith("straddle\t"):
-            continue
-        _, second, name, value, validity = line.split("\t")
-        if validity != "VALID" or name not in out:
-            continue
-        number = float(value)
-        bucket = int(second) // 60
-        if number > 0.0 and 0 <= bucket < packlib.MINUTE_BUCKETS and np.isnan(out[name][bucket]):
-            out[name][bucket] = number
+    #: Sessions 125..208 are Q12 MODALITY_ABSENT (no option-quote surface at all).
+    #: The derived NEAR/FAR keys must still EXIST there, all-NaN — a typed absence
+    #: — or every caller of a `_near` channel raises instead of reading a gap.
+    if path.exists():
+        for line in path.read_text().splitlines():
+            if not line.startswith("straddle\t"):
+                continue
+            _, second, name, value, validity = line.split("\t")
+            if validity != "VALID" or name not in out:
+                continue
+            number = float(value)
+            bucket = int(second) // 60
+            if (number > 0.0 and 0 <= bucket < packlib.MINUTE_BUCKETS
+                    and np.isnan(out[name][bucket])):
+                out[name][bucket] = number
     # NEAR plane = the first plane carrying a present straddle (the surface's own
     # preference order, as in packlib._proxy_vol_minutes); FAR = the next one, and
     # it exists only where both planes are present.

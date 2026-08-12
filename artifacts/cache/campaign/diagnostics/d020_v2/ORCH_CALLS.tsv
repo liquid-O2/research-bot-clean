@@ -79,3 +79,11 @@ case	call	value_class	codes	note
 078	SKIP	C	P-D1-veto-both-streams-buying,P-buy-burst-z4.9-at-decision,P-options-delta-22k-all-morning	shorting into massive two-stream dip-buying + live burst = agreement veto
 079	TAKE	B	CONTAM-via-070-074;P-both-streams-pressing-down,H-LL-grind,E-weak-bounce-to-LH-failed	midday grind-down continuation: persistent two-stream supply, failed LH bounce
 080	SKIP	C	CONTAM-via-072;H-knife-no-base,U-spread-z4-disorderly,P-options-dip-buying-vs-stock-sellers	fresh-LL long in a blown-out spread with sellers active = no base, no entry
+081	TAKE	B	P-C1-climax-base-HH-break,H-first-HL-retest,P-options-supportive,E-turn-not-yet-confirmed	textbook flush->base->break sequence; HL retest live with sellers pressing = C1 entry, moderate conviction
+082	TAKE	B	CONTAM-via-057-067;E-228k-sell-wave-absorbed-30bp,P-options-buying-z5.6-against-wave,H-HL-above-LL	monster passive sell wave absorbed + aggressive option dissent at an HL = absorption reversal long
+083	SKIP	C	CONTAM-same-moment-as-063-31s;consistency-pair,R-vol-bleeding-refuses,H-LL-drift	same moment as case063 (31s earlier): same read, same skip
+084	TAKE	B	CONTAM-via-057-067-082;E-HH-rejection-500k-sell-avalanche,P-options-sold-z-neg,H-join-fresh-break	recovery high slammed by half-million-share sell wave + option selling; join the fresh rejection short
+085	SKIP	C	R-compression-day-60bp-range,H-HL-in-dead-tape,P-B1-ceiling	HL is real but the day offers nothing; compression regime = C ceiling by construction
+086	SKIP	C	T-first-pullback-unconfirmed,P-sell-burst-z-neg4.6-live-at-HH,H-recovery-ladder-intact	recovery ladder is real but entering INTO the first live sell wave without an HL hold = premature (019-vs-020 law)
+087	SKIP	C	E-recovery-defended-selling-absorbed,H-no-rejection-at-entry,P-options-mild-positive	shorting a defended recovery with the -101k wave already absorbed = fading defense
+088	TAKE	B	H-recovery-ladder-HL-held,E-sell-burst-got-7bp,U-option-volume-z7-direction-ambiguous,T-runway-73m	second HL held on absorbed selling in an intact recovery ladder; option burst noted as ambiguity

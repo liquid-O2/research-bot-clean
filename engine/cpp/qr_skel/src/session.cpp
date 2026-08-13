@@ -9,6 +9,14 @@
 
 namespace qr::skel {
 
+double sane_threshold_usd(double trailing_median_spread_usd) {
+  if (!(trailing_median_spread_usd > 0.0) ||
+      !(trailing_median_spread_usd < std::numeric_limits<double>::infinity())) {
+    return kSaneAbsoluteCapUsd;  // warm-up: no trailing history yet
+  }
+  return std::min(kSaneMedianMultiple * trailing_median_spread_usd, kSaneAbsoluteCapUsd);
+}
+
 double SanityPolicy::threshold_usd(std::int8_t phase) const {
   if (!enabled) {
     return std::numeric_limits<double>::infinity();
@@ -17,7 +25,7 @@ double SanityPolicy::threshold_usd(std::int8_t phase) const {
   if (phase < 0 || p >= kPhaseCount) {
     return 0.0;  // an unknown phase has no sane seconds; never a silent pass
   }
-  return std::min(kSaneMedianMultiple * phase_median_spread_usd[p], kSaneAbsoluteCapUsd);
+  return phase_threshold_usd[p];
 }
 
 Expected<SessionView, Refusal> SessionView::load(const std::string& dir, std::int32_t date8,

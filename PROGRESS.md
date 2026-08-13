@@ -42,3 +42,4 @@
 | P-M1g | TODO | — | — | — | S2 C++ qr_gen, candidate-exact differential vs S1 |
 | P-M1h | TODO | — | — | — | S3 C++ qr_skel tensor engine, parity + structural tests |
 | P-M1i | TODO | — | — | — | S4 atlas screen ledger + report (FIT-only, noncertifying) |
+| P-M1hl | DONE | 2026-08-13 | m1/hl_census/hl_adoption.tsv | commits 1cbd964/06748cb | H/L census: OR_EXT ADOPTED (6 cells, marginal 3.0-6.3pp, lifts to 9.5-35); pivots/Camarilla/overshoot/gap-fill/confluence/conditional-split REJECTED with documented kills; fvol quantiles well-calibrated -> M2 context |

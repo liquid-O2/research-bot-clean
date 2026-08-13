@@ -23,7 +23,7 @@ namespace qr::skel {
 class SanityTable {
  public:
   /// Load a QRSANE1 receipt: date8 (int32, ascending, unique) and
-  /// phase_median_spread_usd (float64, row-major [n][kPhaseCount]).
+  /// phase_threshold_usd (float64, row-major [n][kPhaseCount]).
   [[nodiscard]] static Expected<SanityTable, Refusal> load(const std::string& stem);
 
   [[nodiscard]] bool empty() const { return date8_.empty(); }
@@ -33,7 +33,7 @@ class SanityTable {
 
  private:
   std::vector<std::int32_t> date8_;
-  std::vector<double> med_;  // [n][kPhaseCount]
+  std::vector<double> med_;  // thresholds, [n][kPhaseCount]
 };
 
 struct Candidate {

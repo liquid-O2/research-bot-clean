@@ -476,9 +476,9 @@ TEST(MidSanity, AWideBookSecondIsExcludedFromEveryMidConsumer) {
 
   SanityPolicy pol;
   pol.enabled = true;
-  pol.phase_median_spread_usd[0] = 20.0;  // ceiling = min(10*20, 500) = $200
-  pol.phase_median_spread_usd[1] = 20.0;
-  pol.phase_median_spread_usd[2] = 20.0;
+  for (std::size_t k = 0; k < kPhaseCount; ++k) {
+    pol.phase_threshold_usd[k] = sane_threshold_usd(20.0);  // min(10*20, 500) = $200
+  }
   auto on = SessionView::load(dir, 20240102, pol);
   ASSERT_TRUE(on.has_value());
   EXPECT_EQ(on.value().n_insane(), 30);
@@ -501,7 +501,7 @@ TEST(MidSanity, AnAnchorOnAnInsaneSecondIsUnavailableNotMerelyTwoSided) {
   write_session(dir, 20240102, mid, state, phase, &spread);
   SanityPolicy pol;
   pol.enabled = true;
-  for (std::size_t k = 0; k < kPhaseCount; ++k) pol.phase_median_spread_usd[k] = 20.0;
+  for (std::size_t k = 0; k < kPhaseCount; ++k) pol.phase_threshold_usd[k] = sane_threshold_usd(20.0);
   auto v = SessionView::load(dir, 20240102, pol);
   ASSERT_TRUE(v.has_value());
   EXPECT_EQ(v.value().state()[150], 0);            // still TWO_SIDED ...
@@ -520,12 +520,15 @@ TEST(MidSanity, AnAnchorOnAnInsaneSecondIsUnavailableNotMerelyTwoSided) {
 TEST(MidSanity, TheCeilingIsTenTimesTheMedianCappedAtFiveHundredAndIsInclusive) {
   SanityPolicy pol;
   pol.enabled = true;
-  pol.phase_median_spread_usd[0] = 20.0;   // 10x = 200 < 500 -> the median binds
-  pol.phase_median_spread_usd[1] = 80.0;   // 10x = 800 > 500 -> the CAP binds
-  pol.phase_median_spread_usd[2] = 50.0;   // 10x = 500 == the cap
+  pol.phase_threshold_usd[0] = sane_threshold_usd(20.0);   // 10x = 200 < 500 -> median binds
+  pol.phase_threshold_usd[1] = sane_threshold_usd(80.0);   // 10x = 800 > 500 -> CAP binds
+  pol.phase_threshold_usd[2] = sane_threshold_usd(50.0);   // 10x = 500 == the cap
   EXPECT_DOUBLE_EQ(pol.threshold_usd(0), 200.0);
   EXPECT_DOUBLE_EQ(pol.threshold_usd(1), 500.0);
   EXPECT_DOUBLE_EQ(pol.threshold_usd(2), 500.0);
+  // a warm-up phase with no trailing history falls back to the cap, never to 0
+  EXPECT_DOUBLE_EQ(sane_threshold_usd(std::nan("")), 500.0);
+  EXPECT_DOUBLE_EQ(sane_threshold_usd(0.0), 500.0);
   SanityPolicy off;
   EXPECT_TRUE(std::isinf(off.threshold_usd(0)));
 
@@ -741,7 +744,7 @@ TEST(Params, CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat) {
   EXPECT_EQ(j,
             "{\"anchor_count\":2,\"anchor_d1_delay_secs\":60,\"asset\":\"SI\","
             "\"chunk_candidates\":512,\"horizon_secs\":[1800,3600,7200],\"rung_count\":200,"
-            "\"rung_step\":0.02,\"spec_sha16\":\"2b83f9e70340a413\"}");
+            "\"rung_step\":0.02,\"spec_sha16\":\"d31f48b59877e44d\"}");
   EXPECT_EQ(j.find(' '), std::string::npos);
   EXPECT_EQ(params_hash(Asset::SI, 512).size(), 64u);
   EXPECT_NE(params_hash(Asset::SI, 512), params_hash(Asset::NKD, 512));

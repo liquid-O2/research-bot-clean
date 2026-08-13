@@ -12,37 +12,37 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 11 tests from Skeleton
 [ RUN      ] Skeleton.FirstPassageIsTheFirstSecondTheRunningMaximumReachesTheRung
-[       OK ] Skeleton.FirstPassageIsTheFirstSecondTheRunningMaximumReachesTheRung (47 ms)
+[       OK ] Skeleton.FirstPassageIsTheFirstSecondTheRunningMaximumReachesTheRung (45 ms)
 [ RUN      ] Skeleton.BothSidesAreRetainedEvenWhenOneBarrierWinsFirst
-[       OK ] Skeleton.BothSidesAreRetainedEvenWhenOneBarrierWinsFirst (58 ms)
+[       OK ] Skeleton.BothSidesAreRetainedEvenWhenOneBarrierWinsFirst (54 ms)
 [ RUN      ] Skeleton.ObservedSecsZeroMeansUnavailableAndIsNeverANoHit
-[       OK ] Skeleton.ObservedSecsZeroMeansUnavailableAndIsNeverANoHit (42 ms)
+[       OK ] Skeleton.ObservedSecsZeroMeansUnavailableAndIsNeverANoHit (44 ms)
 [ RUN      ] Skeleton.PrefixMaximaRecordsAreStrictIncreasesAndNeverTheAnchorItself
-[       OK ] Skeleton.PrefixMaximaRecordsAreStrictIncreasesAndNeverTheAnchorItself (52 ms)
+[       OK ] Skeleton.PrefixMaximaRecordsAreStrictIncreasesAndNeverTheAnchorItself (50 ms)
 [ RUN      ] Skeleton.RecordValuesAreStoredFloat32ButEveryComparisonIsFloat64
-[       OK ] Skeleton.RecordValuesAreStoredFloat32ButEveryComparisonIsFloat64 (42 ms)
+[       OK ] Skeleton.RecordValuesAreStoredFloat32ButEveryComparisonIsFloat64 (39 ms)
 [ RUN      ] Skeleton.HorizonMarksNeverCrossTheSessionEndAndTakeTheLastObservation
-[       OK ] Skeleton.HorizonMarksNeverCrossTheSessionEndAndTakeTheLastObservation (53 ms)
+[       OK ] Skeleton.HorizonMarksNeverCrossTheSessionEndAndTakeTheLastObservation (55 ms)
 [ RUN      ] Skeleton.MaeBeforeArgmaxIgnoresAdversityAfterThePeak
-[       OK ] Skeleton.MaeBeforeArgmaxIgnoresAdversityAfterThePeak (39 ms)
+[       OK ] Skeleton.MaeBeforeArgmaxIgnoresAdversityAfterThePeak (40 ms)
 [ RUN      ] Skeleton.GivebackIsThePeakMinusThePostPeakMinimumNotTheTerminalValue
-[       OK ] Skeleton.GivebackIsThePeakMinusThePostPeakMinimumNotTheTerminalValue (52 ms)
+[       OK ] Skeleton.GivebackIsThePeakMinusThePostPeakMinimumNotTheTerminalValue (65 ms)
 [ RUN      ] Skeleton.MonotonicityCountsSTRICTLYFavorableOneMinuteSteps
-[       OK ] Skeleton.MonotonicityCountsSTRICTLYFavorableOneMinuteSteps (42 ms)
+[       OK ] Skeleton.MonotonicityCountsSTRICTLYFavorableOneMinuteSteps (43 ms)
 [ RUN      ] Skeleton.TimeUnderwaterCountsStrictlyNegativeSecondsOnly
-[       OK ] Skeleton.TimeUnderwaterCountsStrictlyNegativeSecondsOnly (55 ms)
+[       OK ] Skeleton.TimeUnderwaterCountsStrictlyNegativeSecondsOnly (51 ms)
 [ RUN      ] Skeleton.ShortSideExcursionIsMeasuredAgainstTheSideAndCarriesNoNegativeZero
-[       OK ] Skeleton.ShortSideExcursionIsMeasuredAgainstTheSideAndCarriesNoNegativeZero (79 ms)
-[----------] 11 tests from Skeleton (567 ms total)
+[       OK ] Skeleton.ShortSideExcursionIsMeasuredAgainstTheSideAndCarriesNoNegativeZero (108 ms)
+[----------] 11 tests from Skeleton (600 ms total)
 
 [----------] 3 tests from MidSanity
 [ RUN      ] MidSanity.AWideBookSecondIsExcludedFromEveryMidConsumer
-[       OK ] MidSanity.AWideBookSecondIsExcludedFromEveryMidConsumer (79 ms)
+[       OK ] MidSanity.AWideBookSecondIsExcludedFromEveryMidConsumer (48 ms)
 [ RUN      ] MidSanity.AnAnchorOnAnInsaneSecondIsUnavailableNotMerelyTwoSided
-[       OK ] MidSanity.AnAnchorOnAnInsaneSecondIsUnavailableNotMerelyTwoSided (52 ms)
+[       OK ] MidSanity.AnAnchorOnAnInsaneSecondIsUnavailableNotMerelyTwoSided (72 ms)
 [ RUN      ] MidSanity.TheCeilingIsTenTimesTheMedianCappedAtFiveHundredAndIsInclusive
-[       OK ] MidSanity.TheCeilingIsTenTimesTheMedianCappedAtFiveHundredAndIsInclusive (39 ms)
-[----------] 3 tests from MidSanity (171 ms total)
+[       OK ] MidSanity.TheCeilingIsTenTimesTheMedianCappedAtFiveHundredAndIsInclusive (41 ms)
+[----------] 3 tests from MidSanity (161 ms total)
 
 [----------] 1 test from Query
 [ RUN      ] Query.SimultaneousTouchResolvesAdverseAndKeepsTheAmbiguityTyping
@@ -51,22 +51,22 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 
 [----------] 3 tests from Structure
 [ RUN      ] Structure.MoreQueriedBarrierCellsDoNotIncreaseStoredRowsOrBytes
-[       OK ] Structure.MoreQueriedBarrierCellsDoNotIncreaseStoredRowsOrBytes (168 ms)
+[       OK ] Structure.MoreQueriedBarrierCellsDoNotIncreaseStoredRowsOrBytes (201 ms)
 [ RUN      ] Structure.BoundedChunkingNeverHoldsMoreThanOneChunkOfAnchorRows
-[       OK ] Structure.BoundedChunkingNeverHoldsMoreThanOneChunkOfAnchorRows (155 ms)
+[       OK ] Structure.BoundedChunkingNeverHoldsMoreThanOneChunkOfAnchorRows (153 ms)
 [ RUN      ] Structure.TwoRunsOfTheSameShardAreByteIdentical
-[       OK ] Structure.TwoRunsOfTheSameShardAreByteIdentical (233 ms)
-[----------] 3 tests from Structure (557 ms total)
+[       OK ] Structure.TwoRunsOfTheSameShardAreByteIdentical (226 ms)
+[----------] 3 tests from Structure (580 ms total)
 
 [----------] 1 test from Candidates
 [ RUN      ] Candidates.RefusesACandidateFileWhoseDateColumnGoesBackwards
-[       OK ] Candidates.RefusesACandidateFileWhoseDateColumnGoesBackwards (115 ms)
-[----------] 1 test from Candidates (115 ms total)
+[       OK ] Candidates.RefusesACandidateFileWhoseDateColumnGoesBackwards (103 ms)
+[----------] 1 test from Candidates (103 ms total)
 
 [----------] 1 test from BinPack
 [ RUN      ] BinPack.RefusesADescriptorThatRunsPastTheEndOfTheBlob
-[       OK ] BinPack.RefusesADescriptorThatRunsPastTheEndOfTheBlob (52 ms)
-[----------] 1 test from BinPack (52 ms total)
+[       OK ] BinPack.RefusesADescriptorThatRunsPastTheEndOfTheBlob (65 ms)
+[----------] 1 test from BinPack (65 ms total)
 
 [----------] 2 tests from Params
 [ RUN      ] Params.CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat
@@ -74,23 +74,23 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 Expected equality of these values:
   j
     Which is: "{\"anchor_count\":2,\"anchor_d1_delay_secs\":60,\"asset\":\"SI\",\"chunk_candidates\":512,\"horizon_secs\":[1800,3600,7200],\"rung_count\":200,\"rung_step\":0.02,\"spec_sha16\":\"a3852e13b75464bd\"}"
-  "{\"anchor_count\":2,\"anchor_d1_delay_secs\":60,\"asset\":\"SI\"," "\"chunk_candidates\":512,\"horizon_secs\":[1800,3600,7200],\"rung_count\":200," "\"rung_step\":0.02,\"spec_sha16\":\"2b83f9e70340a413\"}"
-    Which is: "{\"anchor_count\":2,\"anchor_d1_delay_secs\":60,\"asset\":\"SI\",\"chunk_candidates\":512,\"horizon_secs\":[1800,3600,7200],\"rung_count\":200,\"rung_step\":0.02,\"spec_sha16\":\"2b83f9e70340a413\"}"
+  "{\"anchor_count\":2,\"anchor_d1_delay_secs\":60,\"asset\":\"SI\"," "\"chunk_candidates\":512,\"horizon_secs\":[1800,3600,7200],\"rung_count\":200," "\"rung_step\":0.02,\"spec_sha16\":\"d31f48b59877e44d\"}"
+    Which is: "{\"anchor_count\":2,\"anchor_d1_delay_secs\":60,\"asset\":\"SI\",\"chunk_candidates\":512,\"horizon_secs\":[1800,3600,7200],\"rung_count\":200,\"rung_step\":0.02,\"spec_sha16\":\"d31f48b59877e44d\"}"
 
 [  FAILED  ] Params.CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat (0 ms)
 [ RUN      ] Params.TheFrozenSpecShaIsCheckedAgainstTheFileNotMerelyDeclared
 /workspace/engine/cpp/qr_skel/tests/test_skel.cpp:753: Failure
 Expected equality of these values:
   got.value()
-    Which is: "2b83f9e70340a413"
+    Which is: "d31f48b59877e44d"
   std::string(spec_sha16_pin())
     Which is: "a3852e13b75464bd"
 
-[  FAILED  ] Params.TheFrozenSpecShaIsCheckedAgainstTheFileNotMerelyDeclared (20 ms)
-[----------] 2 tests from Params (20 ms total)
+[  FAILED  ] Params.TheFrozenSpecShaIsCheckedAgainstTheFileNotMerelyDeclared (7 ms)
+[----------] 2 tests from Params (7 ms total)
 
 [----------] Global test environment tear-down
-[==========] 25 tests from 8 test suites ran. (1485 ms total)
+[==========] 25 tests from 8 test suites ran. (1519 ms total)
 [  PASSED  ] 23 tests.
 [  FAILED  ] 2 tests, listed below:
 [  FAILED  ] Params.CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat

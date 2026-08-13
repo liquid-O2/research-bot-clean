@@ -1,0 +1,9 @@
+{
+ "anchors": 4965042,
+ "candidates": 2482521,
+ "examples": [],
+ "shards": 175,
+ "tensor_cells": 1986016800,
+ "verdict": "PASS",
+ "violations": 0
+}

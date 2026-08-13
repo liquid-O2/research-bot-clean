@@ -15,7 +15,7 @@ namespace {
 
 /// The frozen M1.B spec this engine implements (PORT_M1B_SPEC.md sha16). The
 /// test suite recomputes it from the file: a pin nobody checks is decoration.
-constexpr const char* kSpecSha16 = "2b83f9e70340a413";
+constexpr const char* kSpecSha16 = "d31f48b59877e44d";
 
 /// Shortest round-trip decimal, the float convention of the CC-M1-2 addendum.
 std::string fmt_double(double v) {
@@ -123,7 +123,7 @@ Expected<SanityTable, Refusal> SanityTable::load(const std::string& stem) {
     return refuse<SanityTable>(pack.error());
   }
   auto d8 = pack.value().get<std::int32_t>("date8", "int32");
-  auto med = pack.value().get<double>("phase_median_spread_usd", "float64");
+  auto med = pack.value().get<double>("phase_threshold_usd", "float64");
   if (!d8) return refuse<SanityTable>(d8.error());
   if (!med) return refuse<SanityTable>(med.error());
   SanityTable t;
@@ -131,7 +131,7 @@ Expected<SanityTable, Refusal> SanityTable::load(const std::string& stem) {
   t.med_ = std::move(med).value();
   if (t.med_.size() != t.date8_.size() * kPhaseCount) {
     return refuse<SanityTable>(Refusal(RefusalCode::SCHEMA_MISMATCH, "qr_skel::SanityTable::load",
-                                       "median table is not n x kPhaseCount"));
+                                       "threshold table is not n x kPhaseCount"));
   }
   for (std::size_t i = 1; i < t.date8_.size(); ++i) {
     if (t.date8_[i] <= t.date8_[i - 1]) {
@@ -143,7 +143,7 @@ Expected<SanityTable, Refusal> SanityTable::load(const std::string& stem) {
   for (double v : t.med_) {
     if (!(v > 0.0) || !(v < 1e12)) {
       return refuse<SanityTable>(Refusal(RefusalCode::CONTENT_MISMATCH, "qr_skel::SanityTable::load",
-                                         "a phase median spread is not a positive finite dollar value"));
+                                         "a phase sanity threshold is not a positive finite dollar value"));
     }
   }
   return t;
@@ -159,7 +159,7 @@ Expected<SanityPolicy, Refusal> SanityTable::policy_for(std::int32_t date8) cons
   SanityPolicy p;
   p.enabled = true;
   for (std::size_t k = 0; k < kPhaseCount; ++k) {
-    p.phase_median_spread_usd[k] = med_[row * kPhaseCount + k];
+    p.phase_threshold_usd[k] = med_[row * kPhaseCount + k];
   }
   return p;
 }

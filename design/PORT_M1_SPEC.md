@@ -185,6 +185,23 @@ D16: the M1.A decay/tau* study ran on unmasked mids; masked spine moves 107/341/
      the record. Gate P-M1f CLOSED: sane-oracle recall SI .9975 / HG .9970 / NKD .9971; mask impact all
      verdict-relevant medians <=2.5% => NO M0 addendum; unmasked control reproduces M0 exactly.
 
+## CC-M1-6 — H/L census adjudications, 2026-08-13 (BINDING)
+1. ADOPT OR_EXT (opening-range extension levels) per the six pre-registered-rule cells: SI OR30 {TOKYO,LONDON,
+   NY} + OR60 {TOKYO,LONDON}; NKD OR30 {LONDON}; HG none (marginal 2.2-2.8pp < 3pp bar; revisit hook: 2025
+   lifts rose). SEQUENCING (oracle->engine discipline): OR_EXT lands via a small S1.1 prototype pass + D-052
+   relevance/generation census AFTER the current C++ S2 differential closes against the S1-v2 oracle; C++
+   inherits in the S2.1 increment. The running Lane D is NOT churned.
+2. REJECTED with documented kills (no re-litigation without new mechanism): P2 conditional H/L split (loses to
+   the unconditional null on pinball), P4 floor+Camarilla pivots (~null), P5 sweep-overshoot (offsets make it
+   WORSE), P6 gap-fill (fires ~5x/year), P7 confluence (lift 1.13-1.64, capture thin).
+3. The calibrated per-side expected-move quantiles are WELL-CALIBRATED at session grain (|cov-q| <= 3.6pp) —
+   banked as M2 CONTEXT/feature material (coverage/capacity features), not as levels (marginal < 3pp).
+4. STANDING NOTE (the twice-bitten lesson): every CC amendment to a spec MUST bump the code sha pins in the
+   SAME commit (m1_common.py pin updated herewith; H3 resolved).
+5. H-defect dispositions: H1/H4/H5 = lane resolutions blessed; H6 accepted (P5 rejected anyway); H7 = 3-phase
+   table stands (CC-M1-3.6); H8 blessed (D8 receipts excluded); H9 accepted residual — OR_EXT's S1.1 relevance
+   census re-verifies against the CURRENT (D-053) ledger by construction.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

@@ -1,7 +1,9 @@
 # PORT_M1B_S3_CONV — the label-tensor-engine CONVENTION DOC (`qr_skel`)
 
-STATUS: lane-authored derivation record for PORT_M1B_SPEC.md §1 S3 (spec sha16 `2b83f9e70340a413`;
-S3 text byte-identical to the `a3852e13b75464bd` freeze — only the S2/VWAP line moved under D-053).
+STATUS: lane-authored derivation record for PORT_M1B_SPEC.md §1 S3 (spec sha16 `d31f48b59877e44d`;
+the S3 paragraph is byte-identical to the `a3852e13b75464bd` freeze — the later amendments D-053 (VWAP
+bands) and CC-M1-5 D13/D14 (the additive FAST-OPEN family) moved only the S2 line, verified by
+`git diff 57feac3 HEAD -- design/PORT_M1B_SPEC.md`).
 This document pins every micro-convention that the spec leaves to the implementation. It is the
 PARITY CONTRACT: the C++ engine (`engine/cpp/qr_skel`) and the independent Python brute-force oracle
 (`engine/port_m1b/oracle_skel.py`) are each written from THIS document and share no code.

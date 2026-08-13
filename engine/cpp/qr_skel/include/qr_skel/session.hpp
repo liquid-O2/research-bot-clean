@@ -23,22 +23,28 @@ using qr::RefusalCode;
 /// kSaneAbsoluteCapUsd)`. Wide-but-two-sided books produce phantom mid travel,
 /// so every mid consumer -- this engine included -- must walk sane seconds only.
 ///
-/// The two constants are transcribed from D-054. The per-(session, phase)
-/// MEDIAN is an INPUT, not a constant: the law says "trailing-phase-median"
-/// without pinning the trailing window, so the window belongs to whoever owns
-/// that definition and this engine is handed the resulting numbers. With
-/// `enabled == false` the mask is the identity and a second is sane iff it is
-/// two-sided (the pre-D-054 behaviour, kept so earlier receipts reproduce).
+/// The two constants are transcribed from D-054; the trailing window is CC-M1-5
+/// D15 (pooled same-phase trailing 60 sessions), which this engine does NOT
+/// recompute: the per-(session, phase) THRESHOLDS are handed to it by the owner
+/// of that definition (engine/port_m1/b7_sane.py -> m1/sane/sane_thresholds.tsv
+/// -> a QRSANE1 receipt), so a warm-up phase's documented fall back to the cap
+/// arrives as a number rather than as a second opinion. With `enabled == false`
+/// the mask is the identity and a second is sane iff it is two-sided (the
+/// pre-D-054 behaviour, kept so earlier receipts still reproduce).
 inline constexpr double kSaneMedianMultiple = 10.0;
 inline constexpr double kSaneAbsoluteCapUsd = 500.0;
 inline constexpr std::size_t kPhaseCount = 3;
 
+/// D-054's composition, as a pure function: min(10 x median, $500). A
+/// non-finite median has no trailing history and falls back to the cap.
+[[nodiscard]] double sane_threshold_usd(double trailing_median_spread_usd);
+
 struct SanityPolicy {
   bool enabled = false;
-  /// Median spread in DOLLARS per phase index (TOKYO, LONDON, NY).
-  double phase_median_spread_usd[kPhaseCount] = {0.0, 0.0, 0.0};
+  /// The sanity ceiling in DOLLARS per phase index (TOKYO, LONDON, NY).
+  double phase_threshold_usd[kPhaseCount] = {0.0, 0.0, 0.0};
 
-  /// The sanity ceiling for a phase, in dollars.
+  /// The ceiling for a phase; +inf when the mask is off.
   [[nodiscard]] double threshold_usd(std::int8_t phase) const;
 };
 

@@ -41,3 +41,13 @@ Token discipline (D-035/ORCH-7): humans read STRATIFIED SAMPLES + SURPRISE-ROUTE
 3. Sheets: §2 sections minus options/IV, plus book-EVENT families (queue adds/cancels/fills — richer than anything IWM had) + realized-vol constructions + cross-asset context (FRED USDJPY/VIX/RVX banked at artifacts/reference/).
 4. Protocol §3 walk-forward from the earliest era; census-first; frozen-model deployment; the sealed final exam held from day one.
 5. Reuse verbatim: packlib patterns, panel_score, walkforward/era_retest harness shapes, exit keepers (mirror baseline + drawdown overlay + hold-to-close-at-precision), D-021 risk laws, the one-mini/one-position arithmetic (D-046).
+
+## 7. PORT DESIGN RULINGS — EVENT GENERATION FIRST (orchestrator recommendation, 2026-08-13; user direction)
+VERDICT: the port is GO on evidence — IWM's binds (decidable-moment throughput; information ceiling) are exactly what MBP-1 event data + 23h sessions attack; offers confirmed (SI $3,537 / NKD $3,404 full-day per contract, SI census clean). Preconditions: (1) COST CENSUS FIRST — spread/tick vs offer per asset (SI tick $25, wide-spread risk; the 576c lesson); (2) re-census NKD/HG offers dominant-contract-filtered.
+EVENT-GENERATION LAWS for the port (the ceiling is set here, before any model):
+1. OCCUPANCY-FEASIBILITY CENSUS ON DAY ONE: roster -> exit-free certificates -> can ONE position seat >=$2,500/day of cert value? If not, fix GENERATION, never features. (IWM learned this last: entered-cert ceiling $797-1,027/day was set by the roster.)
+2. MULTI-SCALE GENERATION: 2-3 ATR-relative threshold rungs run simultaneously, dedup by decision-second — multi-entry per winning leg is native to generation, not a patch.
+3. EVENT-STATE CONFIRMATION TYPES alongside the price rule: refail-cluster, flow-flip, book-side-collapse confirmations — each separately falsifiable (the event-grain law: minute aggregates killed real signals twice).
+4. LABELS: exit-free value/MAE certificate verbatim; horizon menu redesigned for 23h markets — label to PHASE BOUNDARIES (Tokyo close / London-NY handoff / NY close) plus fixed horizons; $-wall scaled per asset from its measured winner-MAE distribution (the $300 analog, derived not copied).
+5. PRESERVE EVENT GRAIN: 1s mid grid = ZigZag spine only; the MBP-1 order-event stream (adds/cancels/fills at touch) is never aggregated away — it is the port's information edge.
+EXIT POSTURE (proven on IWM, carried): above ~37% winner share hold-to-(phase-)close is the correct exit; the wall cuts duds; post-entry exit intelligence was falsified 4 rungs deep. Exits are entry quality wearing a disguise — solve generation/labels/features and the exit program is wall + hold + phase boundary.

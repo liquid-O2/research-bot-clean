@@ -96,8 +96,15 @@ def read_ledger(path=LEDGER):
 
 def write_ledger(entries, path=LEDGER):
     """Deterministic rewrite: sorted, fixed columns, LF only."""
-    rows = [[e.get(c, "") for c in COLUMNS] for e in entries]
-    rows.sort(key=lambda r: (r[2], r[4], r[6], r[5], r[9], r[10]))
+    # entries arrive both from make_entries (typed) and from read_ledger
+    # (strings); normalise to text first so the sort key is total and the file
+    # is byte-identical whichever way an entry got here.
+    rows = [[("" if e.get(c) is None else str(e.get(c, ""))) for c in COLUMNS]
+            for e in entries]
+
+    def _key(r):
+        return (r[2], int(r[4]), int(r[6]), int(r[5]), r[9], r[10])
+    rows.sort(key=_key)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     MC.write_tsv(path, SECTION, MC.params_hash(PARAMS), list(COLUMNS), rows,
                  extra=["D-035.2 USED-CASE LEDGER — every (session, side, "

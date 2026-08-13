@@ -216,6 +216,31 @@ def run(args):
               "(block eligible: %d sessions / %d candidates)"
               % (era, args.block, len(tasks), n_req, n_sess, n_elig))
         if args.dry_run:
+            # The ON-DEMAND posture, made explicit and receipted: the index IS
+            # the population, this receipt names what a full render of the block
+            # would cost and the exact command that materialises any subset.
+            MC.write_json(
+                os.path.join(EI.era_dir(era),
+                             "ondemand_%s.receipt.json" % args.block),
+                {"env": MC.env_receipt(params), "era": era,
+                 "block": args.block,
+                 "status": "INDEX+RENDERER (not eagerly rendered)",
+                 "block_eligible_candidates": n_elig,
+                 "block_eligible_sessions": n_sess,
+                 "n_sheets_rendered": 0, "coverage_candidates": 0.0,
+                 "index": [os.path.join(EI.era_dir(era), "INDEX_%s.tsv" % a)
+                           for a in args.assets],
+                 "reader_order_index": os.path.join(
+                     EI.era_dir(era), "INDEX_BLIND_CHRONO.tsv"),
+                 "render_command":
+                     "lab/run.sh port-m2b -- /usr/bin/python3 "
+                     "engine/port_m2/era_build.py --era %s --block %s "
+                     "--workers 6 [--sessions d8,d8 | --max-sessions N | "
+                     "--cids FILE]" % (era, args.block),
+                 "measured_cost_per_sheet_sec": 0.33,
+                 "measured_bytes_per_sheet": 24600,
+                 "note": "no subsampling: any render names its subset and its "
+                         "receipt records coverage against this population"})
             continue
         res = []
         todo = []

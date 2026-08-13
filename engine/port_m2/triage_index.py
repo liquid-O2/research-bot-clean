@@ -31,7 +31,7 @@ COLUMNS = (
     "phase_H phase_H_sec phase_L phase_L_sec extreme_age_trade_side "
     "n_pivots n_in_band n_near100 near_fam near_d n_conf_max conf_d "
     "min_tc_near or_state "
-    "trades_min trades_min_z slope5m accel spread_now "
+    "trades_min trades_min_z slope15m slope5m slope1m accel spread_now "
     "l1_bid_sz l1_ask_sz spread_dec cost_rt rev_s_60 c2f_60 c2f_300 "
     "n_ev_60 n_ev_300 n_trades_300 dBsz_min dAsz_min refill_frac "
     "f60_n f60_vol f60_sflow f5m_n f5m_vol f5m_sflow fph_sflow fph_vol "
@@ -184,10 +184,16 @@ def parse_sheet(path):
         t = m.group(1).split()
         if len(t) >= 6:
             r["spread_now"] = _f(t[4])
+    # CC-M2-9.3: S5 prints THREE slopes on one line and sections.py emits them
+    # in the order sl_15, sl_5, sl_1 (see sections.py "slope / accel on the
+    # mid").  The V1 extractor took the LAST column and called it `slope5m`,
+    # which was in fact the ONE-MINUTE slope.  All three are now named.
     m = re.search(r"\n  mid_slope_\$/min\s+(.*?)accel\(1m-5m\)=\s*(\S+)", text)
     if m:
         t = m.group(1).split()
-        r["slope5m"] = _f(t[-1]) if t else None
+        if len(t) >= 3:
+            r["slope15m"], r["slope5m"], r["slope1m"] = (_f(t[0]), _f(t[1]),
+                                                        _f(t[2]))
         r["accel"] = _f(m.group(2))
 
     # ---- S7 -------------------------------------------------------------

@@ -1,6 +1,6 @@
 # STATE — fast cursor (rewritten at every boundary; see PROGRESS.md for per-item status)
 
-LAST_UPDATED: 2026-08-13T14:20Z by Lane D (S3)
+LAST_UPDATED: 2026-08-13T15:10Z by the FAMILY-DISCOVERY lane (D-055 / spec §10; P-M1fd DONE — m1/family_discovery/FAMILY_DISCOVERY_REPORT.md; ADOPT F-D3 NEWS-WINDOW / F-D4 POST-SHOCK / F-D2 MICRO-OPENS, RETIRE F-D1 FAST-CLOSE, F-D6 = feature not family; slice miner: value concentrates in CLOCK x HIGH-vol cells; DEFECT FD-7 = the M1.B spec pin at m1_common.py:42 is STALE at HEAD and verify_spec_m1b() raises)
 STAGE: PORT M1.A RUNNING — Track A (C++ substrate, differential vs m0 receipts) + Track B (decay study, fvol, level ledger, volume profile, G2/G3 prototype censuses). M0 verdict: SI+NKD confirmed, HG deferred (lockstep build continues, D-051).
 BINDING_PLAN: DISCRETIONARY_METHOD.md §7-14 + PORT_M0_VERDICT.md + D-048..D-051; M1 spec to be frozen by orchestrator before lanes (D-002).
 NEXT_ACTION: adjudicate Lane A (C++ differential) + Lane B (§2-§6 measurement) reports; then freeze M1.B (C++ generation + label tensor engine + atlas grid) from their censuses. Spec: design/PORT_M1_SPEC.md (sha in journal).

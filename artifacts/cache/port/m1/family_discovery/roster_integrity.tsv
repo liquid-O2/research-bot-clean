@@ -1,0 +1,7 @@
+# PORT_M1_SPEC.md §10 FAMILY DISCOVERY CENSUS (D-055) (spec_sha16=81ea7f84a085e4bb)
+# params_hash=48d590fc8f22ad4b70be3be0c7152295dcf8e670cba41bb8dd436b5a76560484
+# base_reconstruction_delta MUST be 0: §10 re-runs b8's own emission code path, so its roster keys must reproduce the frozen S1-v2 oracle session for session
+asset	n_base_roster	n_new_candidates	n_base_reconstructed	base_reconstruction_delta	n_orphan_tag_events	n_tag_events
+SI	492203	86088	492203	0	143	292966
+HG	507224	75452	507224	0	241	260816
+NKD	491091	68213	491091	0	470	284393

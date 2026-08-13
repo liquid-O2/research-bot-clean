@@ -1,0 +1,11 @@
+# PORT_M1_SPEC.md §10 FAMILY DISCOVERY CENSUS (D-055) (spec_sha16=81ea7f84a085e4bb)
+# params_hash=48d590fc8f22ad4b70be3be0c7152295dcf8e670cba41bb8dd436b5a76560484
+# §10 ambiguities pinned by this lane (D-002: design questions return to the orchestrator)
+defect	description
+FD-1	F-D1 'the settlement window' is undefined in the spec and no exchange settlement time is pinned anywhere in the repo. PINNED: the last 1800s before the committed m0 RTH close (RTH_HI_SEC = 21:00 UTC, common.py:104). If the orchestrator means the true COMEX/CME settlement periods, they must be pinned as constants.
+FD-2	F-D3's BOJ leg is not buildable: calendar_boj.csv carries 2026+ only (SOURCES_FOR_PORT.md:32) and BOJ decisions have no fixed release minute (day-grain flag). F-D3 ran on FOMC + the fixed 08:30/10:00 ET slots; the BOJ sub-window is DEFERRED with a revisit hook (D-015), not dropped.
+FD-3	F-D2 'London-NY handoff minute' is ambiguous: the frozen phase table already opens NY at the London/NY profile boundary, so the handoff as a MICRO-open (beyond the 3 phases) is pinned to the US cash open 09:30 ET. If the intent was the phase boundary itself, that window is already G1-FAST-OPEN.
+FD-4	F-D4 has no stated episode-size or trigger-latency bound. PINNED: causal detectors (trailing-150s $1000 repricing; >=10s insane run) and the first confirmation strictly after the episode, same session, no latency cap (the latency distribution is reported).
+FD-5	§10B names 'selected 2-way cells' without a selection rule. PINNED: ALL 2-way axis pairs, with the pre-registered n>=500 FIT filter doing the selecting; every tested cell enters the Holm ledger, so the accounting stays honest.
+FD-6	§10B names no significance test. PINNED: one-sided Welch z on the conditional (positive-certificate) values, slice vs complement, normal tail; n>=500 makes the normal approximation safe.
+FD-7	STALE SPEC PIN (returned, not touched by this lane): commit d761a30 amended design/PORT_M1B_SPEC.md to sha16 d31f48b59877e44d but m1_common.py:42 still pins 2b83f9e70340a413, so verify_spec_m1b() raises today — b8_generation_v2.py, b7_sane.py, b7_levels_v2.py and hl_census.py cannot be re-run as committed. This is exactly the CC-M1-6.4 standing note. §10 pins the M1.A spec (its own home) and records the observed M1.B sha in the receipt instead.

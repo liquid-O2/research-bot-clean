@@ -1,0 +1,52 @@
+{
+ "databento_dbn": "0.66.0",
+ "git_sha": "08c3ae97b342fe5fa963795c231fae5287aadbae",
+ "input_sha256": {},
+ "m1_spec_sha": "81ea7f84a085e4bb257c351f787c3354a553423ab0ef7a75262ff3a206d295a1",
+ "m1_spec_sha16": "81ea7f84a085e4bb",
+ "numpy_version": "2.1.2",
+ "params": {
+  "adoption_metric": "CC-M1-3.2: conditional walled value >= G1-$100 OR marginal union recall >= +0.2pp OR DP seat share >= 5%",
+  "baseline": "m1/generation_v2 union roster (the S1-v2 frozen oracle)",
+  "designed_families": [
+   "FD1_CLOSE_15",
+   "FD1_CLOSE_60",
+   "FD2_MICRO_OPEN",
+   "FD3_NEWS_15",
+   "FD3_NEWS_60",
+   "FD4_POST_SHOCK",
+   "FD5_FIRST_TEST",
+   "FD5_FIRST_TEST_VIRGIN",
+   "FD6_EXHAUSTION",
+   "FD6_EXHAUSTION_ANY"
+  ],
+  "era": "FIT 2021-2024 mines and decides; 2025 is an eval-only echo",
+  "fd1": "last 1800s of every phase run + the settlement window [RTH_HI-1800s, RTH_HI); delays [15, 60]",
+  "fd2": "micro-opens ['TOKYO_LUNCH_REOPEN', 'NY_CASH_OPEN']; 300s window, 15s delay",
+  "fd3": "first 600s after FOMC 14:00 ET (meeting last day) and the fixed 08:30/10:00 ET slots; delays [15, 60]; BOJ unavailable pre-2026",
+  "fd4": "first confirmation strictly after a causal shock episode ends: trailing-150s SANE mid range >= $1000, or a run of >= 10s wide-but-two-sided (D-054 insane) seconds; delay tau*",
+  "fd5": "earliest confirming touch per (session, kept level family); touch_count==1 carried as the VIRGIN sub-tag; delay tau*",
+  "fd6": "entry mid beyond an OR_EXT k>=1.5 level (adopted CC-M1-6.1 cells; FD6_ANY = all segment x OR-minute cells); delay tau*",
+  "levels": "m1/levels_v3 (D-053 bands under the D-054 mask)",
+  "m1b_spec_sha16_observed": "d31f48b59877e44d",
+  "slice_axes": [
+   "phase",
+   "clock30",
+   "rung",
+   "family",
+   "virgin",
+   "vol_regime",
+   "spread_state",
+   "dow"
+  ],
+  "slice_cells": "every axis marginal + every 2-way axis pair, cells with n_FIT >= 500 only",
+  "slice_promotion": "Holm-rejected AND value >= G1_asset + $150 AND the per-FIT-year edge keeps its sign in all four years",
+  "slice_statistic": "conditional walled value = mean phase-close walled certificate over candidates with value > 0 (FIT era)",
+  "slice_test": "one-sided Welch z of the slice's positive certificates vs the complement's, normal tail; Holm step-down at alpha=0.05 over EVERY tested cell of that asset",
+  "spec_section": "\u00a710 FAMILY DISCOVERY CENSUS (D-055)",
+  "tau_star_sec": 120,
+  "window_universe": "G1 confirmations only (CC-M1-5 D14 precedent)"
+ },
+ "params_hash": "48d590fc8f22ad4b70be3be0c7152295dcf8e670cba41bb8dd436b5a76560484",
+ "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d"
+}

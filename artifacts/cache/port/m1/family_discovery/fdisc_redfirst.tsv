@@ -1,0 +1,28 @@
+# PORT_M1_SPEC.md §10 FAMILY DISCOVERY CENSUS (D-055) red-first mutant evidence (spec_sha16=81ea7f84a085e4bb)
+# params_hash=3db749cd7ab79561ecc652d2bbd0447888ecf3e90734360194de767392d9dfa3
+# a mutant caught by NO case is a test FAILURE (red-first law); the real implementation is green on every case listed
+algorithm	mutant	n_cases_broken	cases_broken
+fd1_phase_closes	boundary_is_open	1	phase_closes
+fd1_phase_closes	session_end_missing	1	phase_closes
+fd4_insane_episodes	no_min_length	2	episode_and_flicker,outage_is_not_wide_book
+fd4_insane_episodes	outages_count	1	outage_is_not_wide_book
+fd4_shock_episodes	dollars_not_applied	3	episodes,no_shock_before(raised ValueError),release_after_span(raised ValueError)
+fd4_shock_episodes	expanding_window	2	episodes,release_after_span
+fd4_shock_episodes	forward_window	3	episodes,no_shock_before,release_after_span
+fd4_shock_episodes	strict_threshold	3	episodes,no_shock_before,release_after_span
+fd4_trigger	inclusive_end	3	strictly_after,both_sides_same_sec,none_after
+fd4_trigger	last_not_first	3	strictly_after,both_sides_same_sec,earliest_only
+fd4_trigger	single_side	2	strictly_after,both_sides_same_sec
+fd6_extension	ignores_or_validity	1	before_or_closes
+fd6_extension	segment_blind	1	other_segment
+fd6_extension	side_blind	2	inside,above_up_level
+miner_family_size	family_is_marginals_only	2	both_strata,twoway_only
+miner_family_size	family_is_max_stratum	1	both_strata
+miner_family_size	family_is_twoway_only	2	both_strata,marginals_only
+miner_holm	benjamini_hochberg	4	A/reject,C/reject,A/adjusted,B/adjusted_monotone
+miner_holm	bonferroni	3	E/nan,A/adjusted,B/adjusted_monotone
+miner_holm	ignores_family_size	1	A/bigger_family
+miner_holm	nan_p_rejects	1	E/nan
+miner_holm	no_stepdown	2	C/reject,B/adjusted_monotone
+window_membership	exclusive_start	1	first_second
+window_membership	first_window_only	1	second_window

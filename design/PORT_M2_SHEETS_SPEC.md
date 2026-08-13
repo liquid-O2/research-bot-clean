@@ -16,19 +16,33 @@ S3 SESSION PATH + SWING CHAIN: causal ZigZag pivots so far (price/time/rung), ph
    close, gap-vs-prior-settle state.
 S4 LEVEL LEDGER VIEW: every active level within 1.5×ATR of mid — family, price, distance ($ and ATR),
    VIRGIN flag, touch_count, last_test_outcome, created-when; the OR state (OR H/L/range, k-extensions).
+   LEVEL BIRTH (V1.1): levels_v4 is written per SESSION and stores no activation second, so the builder
+   recomputes each level's birth second (OR_EXT = its segment's OR close; phase-scoped dynamic levels = that
+   phase's open) and shows NOTHING born at or after the decision second.  Each OR cell carries an explicit
+   state: TODAY (window closed before the decision, as_of stamped) or NOT_OPEN (REFUSED — a later phase of
+   THIS session, never a prior-day value).
 S5 T-MINUS TRAJECTORY TABLE: key quantities at T-30/15/5/1min/now + slope/accel + z-vs-clock-norm (trailing
    60-session same-half-hour): mid, spread, top sizes both sides, trade rate, signed flow rate, RV nowcast.
+   z = (NOW - median)/(1.4826 x scale), scale = max(MAD, 5% of |median|, half the field's measurement
+   quantum); a z whose scale came from the floor is suffixed '~' and is ORDINAL ONLY, never a threshold.
 S6 RAW EVENT RIBBON (the D-056 core): the final 90s before decision, EVERY event, fixed-width compact
    encoding — quote revisions (side, px, sz deltas), trades (px, sz, aggressor, at-bid/at-ask/through),
    book-state flags — plus the preceding 10min as gap-clustered EPISODE DIGESTS (n, net signed flow, size
    distribution, price travel — lossless summarization, no minimum-size filters).
 S7 BOOK/QUEUE STATE: current L1 both sides, quote lifetimes/churn stats (60s/300s), refill-after-trade
-   behavior, side-resolved depth erosion trend, cancel-to-fill ratios.
+   behavior, side-resolved depth erosion trend, cancel-to-fill ratios.  REFILL (V1.1 definition): a trade
+   EVENT is a maximal run of `T` records sharing a timestamp and an aggressor side; it is MEASURABLE once the
+   book reacts (L1 size at the traded price falls, or L1 leaves that price); it REFILLED if within 5s the
+   traded side is back at that price with at least its pre-trade size.  Denominator = measurable events, so
+   prints the book never reacts to (implied/other-book fills) are excluded, not scored as failures.  MBP-1
+   measures the L1 QUEUE, never orders or depth behind it.
 S8 FLOW STATE: cumulative + windowed signed flow (60s/5m/30m/phase), by-price-band trapped-inventory map
    (volume transacted above/below current mid by phase — the fuel map), through-book prints log.
 S9 VOL STATE: RV nowcast multi-window + bipower/jump split, vol-of-vol, fvol forecast vs realized-so-far
-   (surprise), expected-move ladder position (which q-band mid sits in), event-intensity clock.
+   (surprise), expected-move ladder position (which q-band mid sits in), event-intensity clock.  The ladder
+   position is REFUSED whenever the fvol row carries no move_q* quantiles (the ATR14_RAW_FILL fallback).
 S10 VOLUME PROFILE: developing POC/VA (causal), prior-session/phase finals, HVN/LVN distances, single prints.
+   Every b4_profiles *_tick field is an ABSOLUTE tick index: price = tick x tick_px (V1 added bin0 twice).
 S11 CROSS-ASSET: the other two assets' concurrent state (return since own decision-relevant anchors, their
    S3-style coverage numbers, who-moved-first flags at recent shared timestamps).
 S12 CONTEXT (all D-057 availability-lagged): daily IV indices (Nikkei VI 2023+, GVZ, VIX/RVX), COT
@@ -42,6 +56,17 @@ S14 (STUDY MODE ONLY, appended AFTER the call is committed): outcomes — walled
 ENCODING LAWS: fixed-width columns, no prose padding, integer ticks where possible; a sheet renders
 deterministically from receipts (two-run byte identity); token count logged per sheet; section budget
 enforced (S6 is the largest; episode-digest compression keeps it bounded).
+REFUSED CONSISTENCY (V1.1): any DERIVED field whose inputs are refused is itself refused — it prints the
+typed-missing glyph, states which input was refused at its own site, and is counted and named in the S1
+certificate block (`n_refused_derived`, full {key, reason} list in the certificate/sidecar JSON).  A refusal
+is lawful and does NOT fail certification; a fabricated value would.
+ARTEFACT + MARKER NAMES (the reader protocol and any splitter read these, so they are named here once):
+section headings are BARE LINE-INITIAL `S<k> <TITLE>` text, never markdown headings — an ablation split takes
+the line-initial `S6 ` marker; the per-era artefacts are
+`artifacts/cache/port/m2/era/<ERA>/{STREAM_RECEIPT_<BLOCK>.tsv, SESSIONS_<BLOCK>.tsv, INDEX_<ASSET>.tsv,
+INDEX_BLIND_CHRONO.tsv, ERA_PRIMER_<ERA>.md}` with `<BLOCK>` in {STUDY, BLIND} — there is no `SESSIONS_<ERA>`
+file; sheets live at `era/<ERA>/<BLOCK>/<ASSET>/<d8>/<cid>.<MODE>.sheet.txt` with the S14 appendix beside
+them as `<cid>.S14.appendix.txt`.
 
 ## 2. LEAK FIXTURE (D-057, gate for ANY reader round)
 The builder carries availability_ts for every S12 series (lag table from the manifests → new DATA_INVENTORY
@@ -153,3 +178,28 @@ transcripts on ~10% of deep reads, mined by a separate lane for unnamed cues; (1
 ('how to trade this class' for a novice — what cannot be taught is not yet extracted).
 All outputs land in the committed ledgers/notes (fresh-context law CC-M2-4.2 makes them the only memory).
 Retrieval tool = a named build item for the fix-lane follow-up (feature-distance over existing skeletons).
+
+## SHEETS_VERSION HISTORY
+* PORT-SHEETS-V1 — P-M2a/P-M2b (30-sheet pilot, E1+E2 STUDY corpora, P-M2c warm-up).
+* PORT-SHEETS-V1.1 (2026-08-14, the P-M2c warm-up defect gate) — S9 ladder_position + every derived field
+  REFUSED when its inputs are (D1, counted in the certificate); S7 refill_after_trade rebuilt against the
+  MBP-1 event grain, where the `T` record does not carry the book update, so the V1 form was structurally
+  zero (D2); S5 clock-norm scale floored and '~'-marked (D3); S4 level-birth guard + OR cell state
+  {TODAY|NOT_OPEN} (D4 — the unlabelled rows were same-session FORWARD data, not prior-day values); the
+  protocol/artefact names above aligned to what the builder actually writes (D5); and, found in the same
+  sweep, the S10 double-counted bin0 that put every volume-profile price at ~2x the market (D6).
+  Section budgets recalibrated: S1 720->1000, S5 340->400, S7 240->320; sheet cap unchanged at 8,500.
+
+## CC-M2-6 — THE TEACHER GATE + iteration ladder (D-075; pre-registered BEFORE any E1 blind number is seen)
+E1 BLIND BARS (day-complete, cluster-robust): (a) margin over the BEST mechanical baseline > 0 (paired by day,
+GEE/sandwich significance); (b) lift (mean take cert / mean skip cert, phase-close reading) >= 1.3; (c) one-
+position replay capture >= 25% of the summed day DP ceilings on the round's days. ALL THREE to pass.
+PASS => pattern censuses + distillation program anchor on this reader; the bars RE-CERTIFY each era (D-059
+per-era lift law). FAIL => ITERATION ROUND: diagnose via the instruments already in place (post-mortems,
+section-value ledger, calibration curves, baseline decomposition — WHERE does the reader lose to the rules?),
+apply the response ladder (presentation -> instrument -> formulation), then a FRESH blind sub-block (never
+reused days). Iterations are numbered (E1-blind-v2, v3…), each with its committed diagnosis + change list.
+If three iterations fail the bars, the finding escalates to a D-020-class orchestrator case study before any
+further spend — the approach, not the effort, gets questioned. Downstream gates restated: features must pass
+epsilon_l recoverability + economic alignment BEFORE model training consumes them; the model must pass per-era
+walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its own stage, never papered over.

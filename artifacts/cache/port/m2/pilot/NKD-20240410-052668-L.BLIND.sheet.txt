@@ -3,9 +3,10 @@ S1 HEADER
   asset/session NKD  2024-04-10  era=E6  phase_dec=NY      phase_conf=NY      iid=2917
   decision sec=14:37:48  (52668)  utc=2024-04-10T12:37:48Z  conf_sec=14:37:33  lag=15s
   side LONG    families=NEWS_WINDOW  rungs=0.05xATR  level_families=none  flags=OREXT_BEYOND_ANY
+  CANDIDATE CLASS NEWS-WINDOW             driver_family=NEWS_WINDOW    other_tags=none  cross_class=none  (D-071; CC-M1-11.4 priority)
   anchor 39240.0000  tick_px=5.000000  tick_$=25.00  mult=5  ATR14_prev=$2845.00
-  spec_shas m2=c45371dbd6ad2995  m1b=d31f48b59877e44d  m1=3a793af2f6953e2a  m0=4bdf772927b5f316
-  params_hash 02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799
+  spec_shas m2=44c223198086ac6b  m1b=d31f48b59877e44d  m1=12f0a849107b2d3f  m0=4bdf772927b5f316
+  params_hash 004e9a6db778eb72531cf8077a6047b0d7e032ef5f2b3142f508ecb98c79d755
   D-042 COMPLETENESS CERTIFICATE (owned sections; rows = rendered lines)
     section  title                              status  rows
     S2       ERA PRIMER REF + REGIME TAGS       OK          6
@@ -19,7 +20,7 @@ S1 HEADER
     S10      VOLUME PROFILE                     OK          8
     S11      CROSS-ASSET                        OK          5
     S12      CONTEXT (availability-lagged)      OK         16
-    S13      CANDIDATE MECHANICS                OK          8
+    S13      CANDIDATE MECHANICS                OK         12
     S1       HEADER + COMPLETENESS CERTIFICATE  OK      self
   certified 1  n_sections=13  n_failed=0  n_leak_refusals=0  guard_checks=663
 
@@ -260,6 +261,10 @@ S13 CANDIDATE MECHANICS
   entry mid=39240.0000  side=LONG  spread_at_decision=$50.00  cost_rt=$55.00  tick=$25.00  mult=5
   exit_default phase_close@22:59:59  (30131s)  session_close@22:59:59  wall=$900.00  (min(round25(p99 winner MAE), $900))
   generation families=NEWS_WINDOW  rungs=0.05 xATR  level_families=none  conf_sec=14:37:33  lag=15s
+  CLASS NEWS-WINDOW             driver_family=NEWS_WINDOW  (D-071 census card, era + protocol block)
+    class                  era        n_cand  n_pos  cond_value$  mean_cert$  pos_frac  fires/sess  win_frac
+    NEWS-WINDOW            E6            1135    475       907.74      -70.55    0.4185        8.87    0.1119
+    NEWS-WINDOW            2024          2581    986      1193.96      -53.61    0.3820        9.97    0.1124
   CENSUS CARD (committed censuses, generation_v3)
     family        era              n_cand  n_pos  cond_value$  mean_cert$  pos_frac  cond_peak$
     NEWS_WINDOW   2024                2581    986      1193.96      -53.61    0.3820     1061.69

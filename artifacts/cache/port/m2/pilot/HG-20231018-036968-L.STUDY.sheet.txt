@@ -3,9 +3,10 @@ S1 HEADER
   asset/session HG   2023-10-18  era=E5  phase_dec=LONDON  phase_conf=LONDON  iid=35888
   decision sec=10:16:08  (36968)  utc=2023-10-18T08:16:08Z  conf_sec=10:14:08  lag=120s
   side LONG    families=G2_RECLAIM  rungs=xATR  level_families=PHASE_HL  flags=none
+  CANDIDATE CLASS RECLAIM                 driver_family=G2_RECLAIM     other_tags=none  cross_class=none  (D-071; CC-M1-11.4 priority)
   anchor 3.6080  tick_px=0.000500  tick_$=12.50  mult=25000  ATR14_prev=$1378.81
-  spec_shas m2=c45371dbd6ad2995  m1b=d31f48b59877e44d  m1=3a793af2f6953e2a  m0=4bdf772927b5f316
-  params_hash 02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799
+  spec_shas m2=44c223198086ac6b  m1b=d31f48b59877e44d  m1=12f0a849107b2d3f  m0=4bdf772927b5f316
+  params_hash 004e9a6db778eb72531cf8077a6047b0d7e032ef5f2b3142f508ecb98c79d755
   D-042 COMPLETENESS CERTIFICATE (owned sections; rows = rendered lines)
     section  title                              status  rows
     S2       ERA PRIMER REF + REGIME TAGS       OK          6
@@ -19,7 +20,7 @@ S1 HEADER
     S10      VOLUME PROFILE                     OK          7
     S11      CROSS-ASSET                        OK          5
     S12      CONTEXT (availability-lagged)      OK         16
-    S13      CANDIDATE MECHANICS                OK          8
+    S13      CANDIDATE MECHANICS                OK         12
     S1       HEADER + COMPLETENESS CERTIFICATE  OK      self
   certified 1  n_sections=13  n_failed=0  n_leak_refusals=0  guard_checks=414
 
@@ -257,6 +258,10 @@ S13 CANDIDATE MECHANICS
   entry mid=3.6080  side=LONG  spread_at_decision=$25.00  cost_rt=$17.50  tick=$12.50  mult=25000
   exit_default phase_close@13:00:00  (9832s)  session_close@22:59:59  wall=$900.00  (min(round25(p99 winner MAE), $900))
   generation families=G2_RECLAIM  rungs= xATR  level_families=PHASE_HL  conf_sec=10:14:08  lag=120s
+  CLASS RECLAIM                 driver_family=G2_RECLAIM  (D-071 census card, era + protocol block)
+    class                  era        n_cand  n_pos  cond_value$  mean_cert$  pos_frac  fires/sess  win_frac
+    RECLAIM                E5            2037    935       369.77      -30.42    0.4590       15.79    0.0295
+    RECLAIM                2023          4029   1861       446.48      -31.59    0.4619       15.68    0.0340
   CENSUS CARD (committed censuses, generation_v3)
     family        era              n_cand  n_pos  cond_value$  mean_cert$  pos_frac  cond_peak$
     G2_RECLAIM    2023                4049   1868       446.68      -32.39    0.4613      569.29

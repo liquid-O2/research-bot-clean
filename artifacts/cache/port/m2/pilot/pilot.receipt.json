@@ -1,12 +1,12 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "bb991da5a0f4efd8851c03e4dab935080624b3b0",
+  "git_sha": "c0a99fa60289cd19583ca2a2dbba2bae2dd65606",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
-  "m1_spec_sha16": "3a793af2f6953e2a",
+  "m1_spec_sha16": "12f0a849107b2d3f",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "c45371dbd6ad2995",
+  "m2_spec_sha16": "44c223198086ac6b",
   "numpy_version": "2.1.2",
   "params": {
    "eligible": "era in E1..E8 only (PRE_E1, the 2025H2 holdout and the 2026 seal are excluded); the session must carry level and profile receipts",
@@ -29,9 +29,9 @@
  "prefetch_failures": [],
  "section_tokens": {
   "S1": {
-   "max": 572,
-   "median": 558.5,
-   "min": 554
+   "max": 622,
+   "median": 602.5,
+   "min": 597
   },
   "S10": {
    "max": 298,
@@ -49,9 +49,9 @@
    "min": 494
   },
   "S13": {
-   "max": 348,
-   "median": 273.5,
-   "min": 266
+   "max": 499,
+   "median": 416.5,
+   "min": 411
   },
   "S2": {
    "max": 213,
@@ -95,9 +95,9 @@
   }
  },
  "tokens_proxy": {
-  "max": 7802,
-  "median": 7403.0,
-  "min": 7126
+  "max": 7995,
+  "median": 7597.0,
+  "min": 7318
  },
- "wall_sec": 124.0
+ "wall_sec": 122.5
 }

@@ -327,6 +327,31 @@ def t17_known_traps_registered():
                  mutant, "n_traps=%d" % len(reg))
 
 
+def t18_candidate_class_declared():
+    """MT18 (D-071): every sheet declares its class in S1, the class map mirrors
+    the CC-M1-11.4 family priority, and the classes PARTITION the families."""
+    sys.path.insert(0, "/workspace/engine/port_m1")
+    import episode_census as EC           # noqa: E402  the pre-registered order
+    armed = (MC.FAMILY_PRIORITY == EC.FAM_PRIORITY
+             and set(MC.FAMILY_CLASS) == set(MC.FAMILIES)
+             and set(MC.CLASS_ORDER) == set(MC.FAMILY_CLASS.values()))
+    sh = SH.build(CID, MC.MODE_BLIND)
+    asset, d8, sec, side = MC.parse_cid(CID)
+    r = A.roster(asset)
+    cls, driver, _o = MC.class_of(int(r["fam_mask"][r["_index"][(d8, sec,
+                                                                side)]]))
+    armed = armed and ("CANDIDATE CLASS" in sh.text) and (cls in sh.text)
+    # the declared class must be the HIGHEST-priority family's class
+    both = MC.FAM_BIT["G1"] | MC.FAM_BIT["POST_SHOCK"]
+    armed = armed and MC.class_of(both)[0] == MC.CLASS_SHOCK
+    # MUTANT MT18: declare the LOWEST-priority tag's class instead
+    lowest = sorted(MC.fam_names(both),
+                    key=lambda f: -MC.FAMILY_PRIORITY[f])[0]
+    mutant = (MC.FAMILY_CLASS[lowest] == MC.CLASS_SHOCK)
+    return check("candidate_class_declared", "MT18_lowest_priority_class",
+                 armed, mutant, "class=%s driver=%s" % (cls, driver))
+
+
 TESTS = (t01_two_run_byte_identity, t02_blind_carries_no_outcome,
          t03_study_appendix_is_separate, t04_certificate_fails_on_empty_section,
          t05_section_budget_enforced, t06_seal_refuses_2026, t07_cid_roundtrip,
@@ -335,7 +360,7 @@ TESTS = (t01_two_run_byte_identity, t02_blind_carries_no_outcome,
          t11_fixed_width_and_no_trailing_space, t12_typed_missing_never_zero,
          t13_token_proxy_deterministic, t14_events_cache_deterministic,
          t15_anchor_ticks_are_integers, t16_sidecar_paths_absolute,
-         t17_known_traps_registered)
+         t17_known_traps_registered, t18_candidate_class_declared)
 
 
 def main():

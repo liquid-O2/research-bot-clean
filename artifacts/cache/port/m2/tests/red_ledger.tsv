@@ -1,8 +1,8 @@
-# PORT_M2_SHEETS_SPEC.md §1 encoding laws + §2 certificate (P-M2a tests) (spec_sha16=c45371dbd6ad2995)
-# params_hash=02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799
+# PORT_M2_SHEETS_SPEC.md §1 encoding laws + §2 certificate (P-M2a tests) (spec_sha16=44c223198086ac6b)
+# params_hash=004e9a6db778eb72531cf8077a6047b0d7e032ef5f2b3142f508ecb98c79d755
 # RED-FIRST: armed_pass MUST be 1 and mutant_pass MUST be 0 on every row
 test	mutant	armed_pass	mutant_pass	verdict	detail
-two_run_byte_identity	MT01_wallclock_stamp	1	0	PASS	eb683afed47e80b7
+two_run_byte_identity	MT01_wallclock_stamp	1	0	PASS	ff82aa28efa04d29
 blind_carries_no_outcome	MT02_append_S14_to_blind	1	0	PASS	
 study_appendix_separate	MT03_drop_mode_stamp	1	0	PASS	
 certificate_fails_on_empty_section	MT04_ignore_empty_sections	1	0	PASS	empty S9 -> certified=0
@@ -11,11 +11,12 @@ seal_refuses_2026	MT06_seal_lifted	1	0	PASS	2026 refused, 2025 renders
 cid_roundtrip	MT07_ambiguous_id	1	0	PASS	
 s6_episode_membership_lossless	MT08_drop_small_clusters	1	0	PASS	n_window=1860 n_episodes=12
 s4_touch_state_is_causal	MT09_read_eos_touch_count	1	0	PASS	causal=219 eos=1202
-sidecar_covers_sheet_numbers	MT10_source_free_values	1	0	PASS	n_values=91
-no_trailing_whitespace	MT11_trailing_pad	1	0	PASS	266 lines
+sidecar_covers_sheet_numbers	MT10_source_free_values	1	0	PASS	n_values=93
+no_trailing_whitespace	MT11_trailing_pad	1	0	PASS	271 lines
 typed_missing_never_zero	MT12_nan_as_zero	1	0	PASS	
 token_proxy_deterministic	MT13_nondeterministic_proxy	1	0	PASS	tokens=370
 events_cache_deterministic	MT14_nondeterministic_npz	1	0	PASS	9483f9c2cdf34fc6
 anchor_ticks_are_integers	MT15_float_ticks	1	0	PASS	
-sidecar_paths_absolute	MT16_strip_workspace_root	1	0	PASS	n_paths=88
+sidecar_paths_absolute	MT16_strip_workspace_root	1	0	PASS	n_paths=90
 known_traps_registered	MT17_trap_without_test	1	0	PASS	n_traps=2
+candidate_class_declared	MT18_lowest_priority_class	1	0	PASS	class=REVERSAL-CONFIRMATION driver=G1_FINE

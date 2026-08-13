@@ -22,17 +22,17 @@
   "mode": "STUDY",
   "n_failed_sections": 0,
   "n_leak_refusals": 0,
-  "params_hash": "02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799",
+  "params_hash": "004e9a6db778eb72531cf8077a6047b0d7e032ef5f2b3142f508ecb98c79d755",
   "sections": {
    "S1": {
-    "budget": 640,
-    "bytes": 1617,
-    "chars": 1617,
-    "lines": 24,
+    "budget": 720,
+    "bytes": 1752,
+    "chars": 1752,
+    "lines": 25,
     "over_budget": 0,
-    "rows": 24,
+    "rows": 25,
     "section": "S1",
-    "tokens_proxy": 556
+    "tokens_proxy": 602
    },
    "S10": {
     "budget": 340,
@@ -65,14 +65,14 @@
     "tokens_proxy": 528
    },
    "S13": {
-    "budget": 420,
-    "bytes": 684,
-    "chars": 684,
-    "lines": 8,
+    "budget": 560,
+    "bytes": 1112,
+    "chars": 1112,
+    "lines": 12,
     "over_budget": 0,
-    "rows": 8,
+    "rows": 12,
     "section": "S13",
-    "tokens_proxy": 274
+    "tokens_proxy": 426
    },
    "S14": {
     "budget": 760,
@@ -166,19 +166,19 @@
    }
   },
   "sheet": {
-   "bytes": 18117,
-   "chars": 18117,
-   "lines": 260,
-   "tokens_proxy": 7172
+   "bytes": 18680,
+   "chars": 18680,
+   "lines": 265,
+   "tokens_proxy": 7370
   },
   "sheet_budget": 8500,
-  "sheet_sha256": "416d4ff3d5abd72f8b65d0ac6bef98ce4c808aded11a12f2d18184a5954ee130",
+  "sheet_sha256": "2c5d10471edf5a65559aac44035f9141e5a2359f3a36cd568a6d8e6d7b0b8eaf",
   "sheets_version": "PORT-SHEETS-V1",
   "spec_shas": {
    "m0_spec_sha16": "4bdf772927b5f316",
-   "m1_spec_sha16": "3a793af2f6953e2a",
+   "m1_spec_sha16": "12f0a849107b2d3f",
    "m1b_spec_sha16": "d31f48b59877e44d",
-   "m2_spec_sha16": "c45371dbd6ad2995"
+   "m2_spec_sha16": "44c223198086ac6b"
   },
   "token_proxy": "M2-PROXY-2",
   "trade_date": "2023-04-11"
@@ -716,6 +716,18 @@
    "source": "/workspace/artifacts/cache/port/m0/walls.json",
    "source_key": "walls.HG.wall_usd",
    "value": 900.0
+  },
+  {
+   "key": "S13.class_census.REVERSAL-CONFIRMATION.E4.cond_value",
+   "source": "/workspace/artifacts/cache/port/m2/class_census.tsv",
+   "source_key": "conditional_value_usd",
+   "value": 465.232356
+  },
+  {
+   "key": "S13.class_census.REVERSAL-CONFIRMATION.2023.cond_value",
+   "source": "/workspace/artifacts/cache/port/m2/class_census.tsv",
+   "source_key": "conditional_value_usd",
+   "value": 405.413082
   },
   {
    "key": "S13.census.G2_REJECT.2023.cond_value",

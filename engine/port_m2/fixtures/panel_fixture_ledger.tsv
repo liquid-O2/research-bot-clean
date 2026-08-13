@@ -1,30 +1,34 @@
-# PORT M2 panel_score FIXTURE ledger (spec §3 format).  Calls are a FIXED
-# deterministic pattern over E1/STUDY/SI/20210701 — this is machine test
-# material, never a reader round: the interaction column is deliberately
-# EMPTY on most rows to prove D-068-CORRECTION (single-signal theses are
-# valid and must score).
+# PORT M2 panel_score FIXTURE ledger (spec §3 format).  MACHINE TEST
+# MATERIAL ONLY — the calls are chosen FROM the outcomes (SKIP = the 8
+# smallest POSITIVE certificates) so that every arm of the scorer is
+# exercised by fixed committed numbers: a positive SKIP denominator (the
+# lift path), winners inside the TAKEs (winner precision), and overlapping
+# TAKEs (the one-position forfeit path).  It is not a reader round and
+# claims no skill.  The interaction column is deliberately EMPTY on most
+# rows: D-068-CORRECTION makes it OPTIONAL and single-signal theses must
+# score.
 cid	call	conf	primary	against	interaction	novel
-SI-20210701-000933-S	SKIP	A	S4.level_family=none read: fixture row 0		S6.flow_60s x S4.virgin	fixture
+SI-20210701-000933-S	TAKE	A	S4.level_family=none read: fixture row 0		S6.flow_60s x S4.virgin	fixture
 SI-20210701-012010-L	TAKE	B	S4.level_family=none read: fixture row 1	S9.rv300 elevated		
 SI-20210701-013361-L	TAKE	C	S4.level_family=none read: fixture row 2			
-SI-20210701-018161-L	SKIP	A	S4.level_family=none read: fixture row 3	S9.rv300 elevated		
-SI-20210701-027333-L	TAKE	B	S4.level_family=none read: fixture row 4			
+SI-20210701-018161-L	TAKE	A	S4.level_family=none read: fixture row 3	S9.rv300 elevated		
+SI-20210701-027333-L	SKIP	B	S4.level_family=none read: fixture row 4			
 SI-20210701-030755-L	TAKE	C	S4.level_family=none read: fixture row 5	S9.rv300 elevated		fixture
 SI-20210701-033054-L	SKIP	A	S4.level_family=none read: fixture row 6		S6.flow_60s x S4.virgin	
 SI-20210701-035971-L	TAKE	B	S4.level_family=none read: fixture row 7	S9.rv300 elevated		
-SI-20210701-040473-L	TAKE	C	S4.level_family=none read: fixture row 8			
+SI-20210701-040473-L	SKIP	C	S4.level_family=none read: fixture row 8			
 SI-20210701-045272-L	SKIP	A	S4.level_family=none read: fixture row 9	S9.rv300 elevated		
 SI-20210701-049040-L	TAKE	B	S4.level_family=none read: fixture row 10			fixture
 SI-20210701-051562-S	TAKE	C	S4.level_family=none read: fixture row 11	S9.rv300 elevated		
-SI-20210701-052261-S	SKIP	A	S4.level_family=none read: fixture row 12		S6.flow_60s x S4.virgin	
+SI-20210701-052261-S	TAKE	A	S4.level_family=none read: fixture row 12		S6.flow_60s x S4.virgin	
 SI-20210701-052915-L	TAKE	B	S4.level_family=VWAP read: fixture row 13	S9.rv300 elevated		
 SI-20210701-054129-S	TAKE	C	S4.level_family=none read: fixture row 14			
-SI-20210701-054744-S	SKIP	A	S4.level_family=VWAP read: fixture row 15	S9.rv300 elevated		fixture
+SI-20210701-054744-S	TAKE	A	S4.level_family=VWAP read: fixture row 15	S9.rv300 elevated		fixture
 SI-20210701-055567-L	TAKE	B	S4.level_family=none read: fixture row 16			
 SI-20210701-056276-L	TAKE	C	S4.level_family=VWAP read: fixture row 17	S9.rv300 elevated		
-SI-20210701-057615-L	SKIP	A	S4.level_family=none read: fixture row 18		S6.flow_60s x S4.virgin	
-SI-20210701-057875-S	TAKE	B	S4.level_family=NDAY read: fixture row 19	S9.rv300 elevated		
-SI-20210701-058648-S	TAKE	C	S4.level_family=none read: fixture row 20			fixture
+SI-20210701-057615-L	TAKE	A	S4.level_family=none read: fixture row 18		S6.flow_60s x S4.virgin	
+SI-20210701-057875-S	SKIP	B	S4.level_family=NDAY read: fixture row 19	S9.rv300 elevated		
+SI-20210701-058648-S	SKIP	C	S4.level_family=none read: fixture row 20			fixture
 SI-20210701-059532-S	SKIP	A	S4.level_family=none read: fixture row 21	S9.rv300 elevated		
-SI-20210701-061192-S	TAKE	B	S4.level_family=PHASE_HL read: fixture row 22			
+SI-20210701-061192-S	SKIP	B	S4.level_family=PHASE_HL read: fixture row 22			
 SI-20210701-063620-S	TAKE	C	S4.level_family=none read: fixture row 23	S9.rv300 elevated		

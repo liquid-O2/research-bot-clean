@@ -1,0 +1,5 @@
+# PORT_M2_SHEETS_SPEC.md §3 used-case ledger + one-way taint (D-035.2) (spec_sha16=44c223198086ac6b)
+# params_hash=13e7c25c1140a51e1734859668d99368b361595fbce624cd7632204b7630b6f6
+# D-035.2 USED-CASE LEDGER — every (session, side, decision_sec) ever shown to a reader
+# ONE-WAY TAINT: a STUDY row taints (asset, date8) forever; that session may never enter a BLIND draw
+era	block	asset	trade_date	date8	side	decision_sec	cid	candidate_class	mode	round	reader	sheets_version	spec_sha16	recorded_at

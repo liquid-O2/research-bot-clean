@@ -3,9 +3,10 @@ S1 HEADER
   asset/session HG   2021-09-24  era=E1  phase_dec=NY      phase_conf=NY      iid=225412
   decision sec=14:28:27  (52107)  utc=2021-09-24T12:28:27Z  conf_sec=14:26:27  lag=120s
   side SHORT   families=G1  rungs=0.075xATR  level_families=none  flags=none
+  CANDIDATE CLASS REVERSAL-CONFIRMATION   driver_family=G1             other_tags=none  cross_class=none  (D-071; CC-M1-11.4 priority)
   anchor 4.2278  tick_px=0.000500  tick_$=12.50  mult=25000  ATR14_prev=$2531.67
-  spec_shas m2=c45371dbd6ad2995  m1b=d31f48b59877e44d  m1=3a793af2f6953e2a  m0=4bdf772927b5f316
-  params_hash 02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799
+  spec_shas m2=44c223198086ac6b  m1b=d31f48b59877e44d  m1=12f0a849107b2d3f  m0=4bdf772927b5f316
+  params_hash 004e9a6db778eb72531cf8077a6047b0d7e032ef5f2b3142f508ecb98c79d755
   D-042 COMPLETENESS CERTIFICATE (owned sections; rows = rendered lines)
     section  title                              status  rows
     S2       ERA PRIMER REF + REGIME TAGS       OK          6
@@ -19,7 +20,7 @@ S1 HEADER
     S10      VOLUME PROFILE                     OK          8
     S11      CROSS-ASSET                        OK          5
     S12      CONTEXT (availability-lagged)      OK         16
-    S13      CANDIDATE MECHANICS                OK          8
+    S13      CANDIDATE MECHANICS                OK         12
     S1       HEADER + COMPLETENESS CERTIFICATE  OK      self
   certified 1  n_sections=13  n_failed=0  n_leak_refusals=0  guard_checks=384
 
@@ -258,6 +259,10 @@ S13 CANDIDATE MECHANICS
   entry mid=4.2278  side=SHORT  spread_at_decision=$12.50  cost_rt=$30.00  tick=$12.50  mult=25000
   exit_default phase_close@22:59:59  (30692s)  session_close@22:59:59  wall=$900.00  (min(round25(p99 winner MAE), $900))
   generation families=G1  rungs=0.075 xATR  level_families=none  conf_sec=14:26:27  lag=120s
+  CLASS REVERSAL-CONFIRMATION   driver_family=G1  (D-071 census card, era + protocol block)
+    class                  era        n_cand  n_pos  cond_value$  mean_cert$  pos_frac  fires/sess  win_frac
+    REVERSAL-CONFIRMATION  E1           43387  20067       516.84      -32.65    0.4625      331.20    0.0463
+    REVERSAL-CONFIRMATION  2021         86133  39963       545.97      -19.58    0.4640      348.72    0.0500
   CENSUS CARD (committed censuses, generation_v3)
     family        era              n_cand  n_pos  cond_value$  mean_cert$  pos_frac  cond_peak$
     G1            2021               34660  16060       545.76      -20.04    0.4634      844.92

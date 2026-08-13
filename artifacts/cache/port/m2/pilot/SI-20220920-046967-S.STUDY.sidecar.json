@@ -22,17 +22,17 @@
   "mode": "STUDY",
   "n_failed_sections": 0,
   "n_leak_refusals": 0,
-  "params_hash": "02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799",
+  "params_hash": "004e9a6db778eb72531cf8077a6047b0d7e032ef5f2b3142f508ecb98c79d755",
   "sections": {
    "S1": {
-    "budget": 640,
-    "bytes": 1621,
-    "chars": 1621,
-    "lines": 24,
+    "budget": 720,
+    "bytes": 1756,
+    "chars": 1756,
+    "lines": 25,
     "over_budget": 0,
-    "rows": 24,
+    "rows": 25,
     "section": "S1",
-    "tokens_proxy": 558
+    "tokens_proxy": 603
    },
    "S10": {
     "budget": 340,
@@ -65,14 +65,14 @@
     "tokens_proxy": 600
    },
    "S13": {
-    "budget": 420,
-    "bytes": 686,
-    "chars": 686,
-    "lines": 8,
+    "budget": 560,
+    "bytes": 1117,
+    "chars": 1117,
+    "lines": 12,
     "over_budget": 0,
-    "rows": 8,
+    "rows": 12,
     "section": "S13",
-    "tokens_proxy": 281
+    "tokens_proxy": 428
    },
    "S14": {
     "budget": 760,
@@ -166,19 +166,19 @@
    }
   },
   "sheet": {
-   "bytes": 19027,
-   "chars": 19027,
-   "lines": 271,
-   "tokens_proxy": 7605
+   "bytes": 19593,
+   "chars": 19593,
+   "lines": 276,
+   "tokens_proxy": 7797
   },
   "sheet_budget": 8500,
-  "sheet_sha256": "b19b77a04d22c9cba3919508fc747049bfb4fee2a12275485a40adc190f80d79",
+  "sheet_sha256": "7e209837ee44fe4c04eb6c7a2db39913097b14a0800e317074a721fba57f8684",
   "sheets_version": "PORT-SHEETS-V1",
   "spec_shas": {
    "m0_spec_sha16": "4bdf772927b5f316",
-   "m1_spec_sha16": "3a793af2f6953e2a",
+   "m1_spec_sha16": "12f0a849107b2d3f",
    "m1b_spec_sha16": "d31f48b59877e44d",
-   "m2_spec_sha16": "c45371dbd6ad2995"
+   "m2_spec_sha16": "44c223198086ac6b"
   },
   "token_proxy": "M2-PROXY-2",
   "trade_date": "2022-09-20"
@@ -758,6 +758,18 @@
    "source": "/workspace/artifacts/cache/port/m0/walls.json",
    "source_key": "walls.SI.wall_usd",
    "value": 900.0
+  },
+  {
+   "key": "S13.class_census.OPEN-DYNAMICS.E3.cond_value",
+   "source": "/workspace/artifacts/cache/port/m2/class_census.tsv",
+   "source_key": "conditional_value_usd",
+   "value": 1083.106061
+  },
+  {
+   "key": "S13.class_census.OPEN-DYNAMICS.2022.cond_value",
+   "source": "/workspace/artifacts/cache/port/m2/class_census.tsv",
+   "source_key": "conditional_value_usd",
+   "value": 1122.473834
   },
   {
    "key": "S13.census.G1_FAST_OPEN.2022.cond_value",

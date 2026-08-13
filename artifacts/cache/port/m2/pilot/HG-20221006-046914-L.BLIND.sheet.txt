@@ -3,9 +3,10 @@ S1 HEADER
   asset/session HG   2022-10-06  era=E3  phase_dec=NY      phase_conf=NY      iid=220566
   decision sec=13:01:54  (46914)  utc=2022-10-06T11:01:54Z  conf_sec=13:01:39  lag=15s
   side LONG    families=G1_FAST_OPEN  rungs=0.05xATR  level_families=none  flags=none
+  CANDIDATE CLASS OPEN-DYNAMICS           driver_family=G1_FAST_OPEN   other_tags=none  cross_class=none  (D-071; CC-M1-11.4 priority)
   anchor 3.5255  tick_px=0.000500  tick_$=12.50  mult=25000  ATR14_prev=$2166.50
-  spec_shas m2=c45371dbd6ad2995  m1b=d31f48b59877e44d  m1=3a793af2f6953e2a  m0=4bdf772927b5f316
-  params_hash 02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799
+  spec_shas m2=44c223198086ac6b  m1b=d31f48b59877e44d  m1=12f0a849107b2d3f  m0=4bdf772927b5f316
+  params_hash 004e9a6db778eb72531cf8077a6047b0d7e032ef5f2b3142f508ecb98c79d755
   D-042 COMPLETENESS CERTIFICATE (owned sections; rows = rendered lines)
     section  title                              status  rows
     S2       ERA PRIMER REF + REGIME TAGS       OK          6
@@ -19,7 +20,7 @@ S1 HEADER
     S10      VOLUME PROFILE                     OK          8
     S11      CROSS-ASSET                        OK          5
     S12      CONTEXT (availability-lagged)      OK         16
-    S13      CANDIDATE MECHANICS                OK          8
+    S13      CANDIDATE MECHANICS                OK         12
     S1       HEADER + COMPLETENESS CERTIFICATE  OK      self
   certified 1  n_sections=13  n_failed=0  n_leak_refusals=0  guard_checks=503
 
@@ -256,6 +257,10 @@ S13 CANDIDATE MECHANICS
   entry mid=3.5255  side=LONG  spread_at_decision=$25.00  cost_rt=$30.00  tick=$12.50  mult=25000
   exit_default phase_close@22:59:59  (35885s)  session_close@22:59:59  wall=$900.00  (min(round25(p99 winner MAE), $900))
   generation families=G1_FAST_OPEN  rungs=0.05 xATR  level_families=none  conf_sec=13:01:39  lag=15s
+  CLASS OPEN-DYNAMICS           driver_family=G1_FAST_OPEN  (D-071 census card, era + protocol block)
+    class                  era        n_cand  n_pos  cond_value$  mean_cert$  pos_frac  fires/sess  win_frac
+    OPEN-DYNAMICS          E3            1340    598       688.60      -55.49    0.4463       10.31    0.0515
+    OPEN-DYNAMICS          2022          2564   1162       731.60      -39.98    0.4532        9.94    0.0616
   CENSUS CARD (committed censuses, generation_v3)
     family        era              n_cand  n_pos  cond_value$  mean_cert$  pos_frac  cond_peak$
     G1_FAST_OPEN  2022                1491    690       763.75      -18.12    0.4628     1096.72

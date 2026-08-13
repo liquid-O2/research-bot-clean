@@ -3,9 +3,10 @@ S1 HEADER
   asset/session NKD  2025-04-09  era=E8  phase_dec=LONDON  phase_conf=LONDON  iid=1215
   decision sec=10:05:46  (36346)  utc=2025-04-09T08:05:46Z  conf_sec=10:03:46  lag=120s
   side SHORT   families=G1,POST_SHOCK  rungs=0.11xATR  level_families=none  flags=none
+  CANDIDATE CLASS SHOCK-RESOLUTION        driver_family=POST_SHOCK     other_tags=G1  cross_class=REVERSAL-CONFIRMATION  (D-071; CC-M1-11.4 priority)
   anchor 32377.5000  tick_px=5.000000  tick_$=25.00  mult=5  ATR14_prev=$5273.62
-  spec_shas m2=c45371dbd6ad2995  m1b=d31f48b59877e44d  m1=3a793af2f6953e2a  m0=4bdf772927b5f316
-  params_hash 02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799
+  spec_shas m2=44c223198086ac6b  m1b=d31f48b59877e44d  m1=12f0a849107b2d3f  m0=4bdf772927b5f316
+  params_hash 004e9a6db778eb72531cf8077a6047b0d7e032ef5f2b3142f508ecb98c79d755
   D-042 COMPLETENESS CERTIFICATE (owned sections; rows = rendered lines)
     section  title                              status  rows
     S2       ERA PRIMER REF + REGIME TAGS       OK          6
@@ -19,7 +20,7 @@ S1 HEADER
     S10      VOLUME PROFILE                     OK          7
     S11      CROSS-ASSET                        OK          5
     S12      CONTEXT (availability-lagged)      OK         15
-    S13      CANDIDATE MECHANICS                OK          8
+    S13      CANDIDATE MECHANICS                OK         12
     S1       HEADER + COMPLETENESS CERTIFICATE  OK      self
   certified 1  n_sections=13  n_failed=0  n_leak_refusals=0  guard_checks=1218
 
@@ -259,6 +260,10 @@ S13 CANDIDATE MECHANICS
   entry mid=32377.5000  side=SHORT  spread_at_decision=$75.00  cost_rt=$80.00  tick=$25.00  mult=5
   exit_default phase_close@13:00:00  (10454s)  session_close@22:59:59  wall=$900.00  (min(round25(p99 winner MAE), $900))
   generation families=G1,POST_SHOCK  rungs=0.11 xATR  level_families=none  conf_sec=10:03:46  lag=120s
+  CLASS SHOCK-RESOLUTION        driver_family=POST_SHOCK  (D-071 census card, era + protocol block)
+    class                  era        n_cand  n_pos  cond_value$  mean_cert$  pos_frac  fires/sess  win_frac
+    SHOCK-RESOLUTION       E8             284     79      2189.78      -62.70    0.2782        2.24    0.0775
+    SHOCK-RESOLUTION       2025           477    151      1895.75      -26.41    0.3166        1.85    0.0818
   CENSUS CARD (committed censuses, generation_v3)
     family        era              n_cand  n_pos  cond_value$  mean_cert$  pos_frac  cond_peak$
     G1            GATE_2025          41855  16193      1048.94      -40.61    0.3869     1279.76

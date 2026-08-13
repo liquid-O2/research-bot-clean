@@ -1,4 +1,4 @@
-# PORT_M2_SHEETS_SPEC.md §4 [P-M2a] 30-sheet pilot (spec_sha16=c45371dbd6ad2995)
+# PORT_M2_SHEETS_SPEC.md §4 [P-M2a] 30-sheet pilot (spec_sha16=44c223198086ac6b)
 # params_hash=6d0cd928cd3f06ba5610256aa1362694d2bf621ae524495ba1e8e890eee290e8
 cid	asset	era	phase	family	s6_n_events_90s	s6_n_raw_shown	s6_raw_cover_sec	s6_n_episodes	s4_n_in_band	s12_n_joined	s12_n_refused	s3_n_pivots
 SI-20210920-012788-L	SI	E1	TOKYO	G1	224	82	38.499622	14	211	13	0	35

@@ -1,4 +1,4 @@
-# PORT_M1_SPEC.md §10 FAMILY DISCOVERY CENSUS (D-055) (spec_sha16=81ea7f84a085e4bb)
+# PORT_M1_SPEC.md §10 FAMILY DISCOVERY CENSUS (D-055) (spec_sha16=a7b18471e6eaefe4)
 # params_hash=48d590fc8f22ad4b70be3be0c7152295dcf8e670cba41bb8dd436b5a76560484
 # CC-M1-3.2: survive on ANY of (i) value >= G1 - $100, (ii) marginal union recall >= +0.2pp, (iii) DP seat share >= 5%; ADOPT_UNSTABLE = survives but a FIT year breaks
 asset	family	n_candidates_fit	conditional_value_usd	g1_conditional_value_usd	value_minus_g1_usd	marginal_recall_pp	dp_seat_share	crit_value	crit_recall	crit_seat_share	fit_year_stable	value_2025_echo	peak_exit_value_usd	peak_exit_value_minus_g1_usd	verdict

@@ -1,4 +1,4 @@
-# PORT_M1_SPEC.md §10 FAMILY DISCOVERY CENSUS (D-055) (spec_sha16=81ea7f84a085e4bb)
+# PORT_M1_SPEC.md §10 FAMILY DISCOVERY CENSUS (D-055) (spec_sha16=a7b18471e6eaefe4)
 # params_hash=48d590fc8f22ad4b70be3be0c7152295dcf8e670cba41bb8dd436b5a76560484
 # SANE ANCHORED oracle; BASE = the frozen S1-v2 union roster, every other variant = BASE + that family's candidates, so the marginal union recall is the difference
 asset	variant	era	n_legs	n_gate_legs	n_news_untradeable	recall_gate_1000	recall_gate_1000_screened	recall_all_1000

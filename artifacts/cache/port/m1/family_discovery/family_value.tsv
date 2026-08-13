@@ -1,4 +1,4 @@
-# PORT_M1_SPEC.md §10 FAMILY DISCOVERY CENSUS (D-055) (spec_sha16=81ea7f84a085e4bb)
+# PORT_M1_SPEC.md §10 FAMILY DISCOVERY CENSUS (D-055) (spec_sha16=a7b18471e6eaefe4)
 # params_hash=48d590fc8f22ad4b70be3be0c7152295dcf8e670cba41bb8dd436b5a76560484
 # conditional_value_usd = the CC-M1-3.2 metric (mean walled phase-close certificate over candidates with value > 0)
 # conditional_value_peak_usd = the same statistic on the walled PEAK-exit certificate: the fair comparator for families that fire near a phase close, whose close certificate has almost no horizon left (F-D1)

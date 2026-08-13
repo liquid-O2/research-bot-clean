@@ -1,9 +1,9 @@
 {
  "databento_dbn": "0.66.0",
- "git_sha": "a39e7be20fd6805bf5c61b4beb4cd719f88ba2b4",
+ "git_sha": "ecf7aa74ffab4377c4e7c3044423cf7a2870df73",
  "input_sha256": {},
- "m1_spec_sha": "81ea7f84a085e4bb257c351f787c3354a553423ab0ef7a75262ff3a206d295a1",
- "m1_spec_sha16": "81ea7f84a085e4bb",
+ "m1_spec_sha": "a7b18471e6eaefe4e2db48b4a3c09fc326a830a6d69bfb41d10532781e8a7f61",
+ "m1_spec_sha16": "a7b18471e6eaefe4",
  "numpy_version": "2.1.2",
  "params": {
   "adoption_metric": "CC-M1-3.2: conditional walled value >= G1-$100 OR marginal union recall >= +0.2pp OR DP seat share >= 5%",

@@ -42,7 +42,10 @@ import context as CTX                     # noqa: E402
 import era_index as EI                    # noqa: E402
 
 SECTION = "§4 [P-M2b] era E1/E2 sheet sets"
-WORKERS_MAX = 6                           # brief cap
+WORKERS_MAX = 12                          # orchestrator 2026-08-14: the
+                                          # 6-worker cap is lifted (sole
+                                          # lane on a 13.6-core cgroup;
+                                          # ~1.5 cores left for the harness)
 
 SHEET_COLUMNS = ("cid", "asset", "era", "block", "date8", "dec_sec", "side",
                  "phase", "primary_family", "candidate_class",

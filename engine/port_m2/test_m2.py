@@ -35,6 +35,19 @@ OUT_DIR = MC.out_path("tests", "_")[:-1]
 # A candidate whose event cache the pilot already builds (SI daily files, so a
 # cold run is cheap).
 CID = "SI-20220103-047008-S"
+# P-M2c warm-up cases that exhibit the V1.1 defects, used as the live fixtures:
+# REFUSED_CID's fvol row is an ATR14_RAW_FILL (sigma_hat present, move_q* absent)
+# and it decides in TOKYO while the ledger already holds today's LONDON/NY
+# opening ranges; Z_CID sits in the dead NKD clock cell that produced z=+102.76.
+REFUSED_CID = "SI-20210701-012312-S"
+Z_CID = "NKD-20210818-027352-L"
+
+
+def _NULL_PUT(*a, **k):
+    return None
+
+
+_NULL_PUT.refuse = lambda *a, **k: None
 
 LEDGER = []
 
@@ -198,7 +211,7 @@ def t09_s4_touch_state_is_causal():
         if int(r[0]) < case.dec_sec:
             causal[int(r[1])] = causal.get(int(r[1]), 0) + 1
     eos = {i: int(v) for i, v in enumerate(z["touch_count"].tolist())}
-    lines = SEC.s4_levels(case, lambda *a: None)
+    lines = SEC.s4_levels(case, _NULL_PUT)
     # some level in the table must show a causal count BELOW its end-of-session
     # count — otherwise the test cannot discriminate
     discriminating = any(causal.get(i, 0) < eos.get(i, 0) for i in eos)
@@ -315,7 +328,7 @@ def t17_known_traps_registered():
         and e["test"] in names for e in reg.values())
     # the registered trap must also be live on a real sheet: S4 prints PENDING
     case = A.Case(CID, want_events=False)
-    txt = "\n".join(SEC.s4_levels(case, lambda *a: None))
+    txt = "\n".join(SEC.s4_levels(case, _NULL_PUT))
     armed = armed and "n_pending=" in txt
     # MUTANT MT17: a registry that gains an entry with no proof test
     bad = dict(reg)
@@ -352,6 +365,176 @@ def t18_candidate_class_declared():
                  armed, mutant, "class=%s driver=%s" % (cls, driver))
 
 
+def _synthetic_refill_stream(refill=True, price_moves=False):
+    """A hand-built MBP-1 stream with a KNOWN refill (P-M2c defect D2).
+
+    Records (ts_ms, action, side, bid_sz):
+      0     A   book stands bid 100 x 10
+      1000  T A the sell aggressor prints against the bid — and, exactly as the
+                real tape does, the T record itself carries the UNCHANGED book
+      1001  C   the resting size actually comes off here: 10 -> 4
+      3000  A   the queue is rebuilt to 12 (>= the pre-trade 10)  [refill only]
+      4000  A   filler so the window is never empty
+    `price_moves` walks L1 away instead of rebuilding it: a non-refill.
+    """
+    rows = [(0, "A", "B", 10, 100), (1000, "T", "A", 10, 100)]
+    if price_moves:
+        # the print cleared the level outright: L1 walks to the next price
+        rows += [(1001, "C", "A", 9, 99), (3000, "A", "B", 5, 99),
+                 (4000, "A", "B", 6, 99)]
+        return _pack(rows)
+    rows.append((1001, "C", "A", 4, 100))
+    rows.append((3000, "A", "B", 12 if refill else 4, 100))
+    rows.append((4000, "A", "B", 5, 100))
+    return _pack(rows)
+
+
+def _pack(rows):
+    ev = {"ts_ns": np.array([r[0] * 10 ** 6 for r in rows], dtype=np.int64),
+          "action": np.array([ord(r[1]) for r in rows], dtype=np.uint8),
+          "side": np.array([ord(r[2]) for r in rows], dtype=np.uint8),
+          "bid_sz": np.array([r[3] for r in rows], dtype=np.int64),
+          "bid_px": np.array([r[4] for r in rows], dtype=np.int64),
+          "ask_sz": np.full(len(rows), 7, dtype=np.int64),
+          "ask_px": np.full(len(rows), 101, dtype=np.int64),
+          "size": np.ones(len(rows), dtype=np.int64)}
+    return ev
+
+
+def _v1_refill(ev, lo, hi):
+    """The V1 constructor, verbatim, as the committed mutant."""
+    ts = ev["ts_ns"]
+    n_tr = n_ref = 0
+    for k in range(lo, hi):
+        if ev["action"][k] != ord("T"):
+            continue
+        n_tr += 1
+        col = "bid_sz" if chr(int(ev["side"][k])) == "A" else "ask_sz"
+        if k == lo:
+            continue
+        before, after = int(ev[col][k - 1]), int(ev[col][k])
+        if after >= before:
+            continue
+        lim = int(np.searchsorted(ts, int(ts[k]) + 5 * 10 ** 9, side="left"))
+        w = ev[col][k + 1:min(lim, hi)]
+        if w.size and int(w.max()) >= before:
+            n_ref += 1
+    return n_ref / float(n_tr) if n_tr else float("nan")
+
+
+def t19_s7_refill_measures_a_known_refill():
+    """MT19 (P-M2c D2): the refill constructor must SEE a refill that is in the
+    tape, and must not see one that is not.  The committed mutant is the V1
+    constructor, which compares the book at the trade record with the record
+    before it — on this tape that difference is structurally zero, which is why
+    the field was identically 0 on all 24 warm-up sheets."""
+    good = _synthetic_refill_stream(refill=True)
+    flat = _synthetic_refill_stream(refill=False)
+    moved = _synthetic_refill_stream(refill=False, price_moves=True)
+    a = SEC._refill_after_trade(good, 0, good["ts_ns"].size)
+    b = SEC._refill_after_trade(flat, 0, flat["ts_ns"].size)
+    c = SEC._refill_after_trade(moved, 0, moved["ts_ns"].size)
+    armed = (a["n_measurable"] == 1 and a["n_refilled"] == 1
+             and a["frac"] == 1.0 and abs(a["median_restore_ms"] - 2000) < 1e-6
+             and b["n_measurable"] == 1 and b["frac"] == 0.0
+             and c["n_measurable"] == 1 and c["frac"] == 0.0
+             and c["n_swept"] == 1)
+    # MUTANT MT19: the V1 form cannot see the refill that is demonstrably there
+    mutant = _v1_refill(good, 0, good["ts_ns"].size) == 1.0
+    # and it must be nonzero on the REAL tape too, not just the fixture
+    case = A.Case(CID)
+    ts = case.events["ts_ns"]
+    lo = int(np.searchsorted(ts, (case.decision_ts - SEC.REFILL_LOOKBACK_SEC)
+                             * 10 ** 9, side="left"))
+    hi = int(np.searchsorted(ts, (case.decision_ts + 1) * 10 ** 9, side="left"))
+    live = SEC._refill_after_trade(case.events, lo, hi)
+    armed = armed and live["n_measurable"] > 0 and live["n_refilled"] > 0
+    return check("s7_refill_measures_a_known_refill", "MT19_v1_trade_record_"
+                 "book_delta", armed, mutant,
+                 "fixture frac=%.3f live n_meas=%d n_ref=%d v1_live=%.3f"
+                 % (a["frac"], live["n_measurable"], live["n_refilled"],
+                    _v1_refill(case.events, lo, hi)))
+
+
+def t20_refused_derived_is_refused_and_counted():
+    """MT20 (P-M2c D1): a derived field whose inputs are refused must print the
+    typed-missing glyph and be counted in the certificate.  Driven on the real
+    warm-up case whose fvol row carries sigma_hat but no move_q* ladder."""
+    sh = SH.build(REFUSED_CID, MC.MODE_BLIND)
+    txt = sh.text
+    lad = [ln for ln in txt.split("\n")
+           if ln.startswith("  ladder_position")]
+    keys = {e["key"] for e in sh.certificate["refused_derived"]}
+    armed = (bool(lad) and lad[0].split()[1] == MC.NA
+             and "S9.ladder_position" in keys
+             and "S3.coverage_SESSION" in keys
+             and sh.certificate["n_refused_derived"] >= 3
+             and all(v["value"] is None for v in sh.sidecar["values"]
+                     if v["key"] in keys)
+             and "move_ladder_$ q10=." in txt)
+    # MUTANT MT20: the V1 rule, run on THIS case's actual (refused) ladder —
+    # every comparison against NaN is False, so the seed band survives and the
+    # sheet asserts `below_q10` as a fact.  The mutant satisfies the law only if
+    # it refuses, which it never does.
+    case = A.Case(REFUSED_CID, want_events=False)
+    fs = case.fvol_seg
+    sig = A._f(fs["sigma_hat_usd"])
+    v1_band = "below_q10"
+    for q in ("q10", "q25", "q50", "q75", "q90"):
+        if 0.0 >= A._f(fs.get("move_%s_usd_per_sigma" % q)) * sig:
+            v1_band = "at_or_above_" + q
+    mutant = (v1_band == MC.NA)
+    return check("refused_derived_is_refused_and_counted",
+                 "MT20_band_from_nan_ladder", armed, mutant,
+                 "n_refused=%d" % sh.certificate["n_refused_derived"])
+
+
+def t21_clock_norm_scale_is_floored():
+    """MT21 (P-M2c D3): a near-degenerate clock cell must not manufacture a
+    large z, and a floored z must be MARKED."""
+    z_hi, fl_hi = SEC._z(75.0, 1.0, 0.0, 0.5)      # the warm-up's dead cell
+    z_un, _f = SEC._z(75.0, 1.0, 0.02, 0.0)        # V1: unfloored MAD
+    z_ok, fl_ok = SEC._z(12.0, 9.0, 2.0, 0.5)      # an ordinary cell
+    armed = (fl_hi and not fl_ok and np.isfinite(z_hi)
+             and abs(z_hi) < abs(z_un) and abs(z_ok - (3.0 / (1.4826 * 2.0)))
+             < 1e-9)
+    sh = SH.build(Z_CID, MC.MODE_BLIND)
+    s5 = [ln for ln in sh.text.split("\n") if ln.startswith("  trades/min")]
+    armed = armed and bool(s5) and "~" in s5[0]
+    # MUTANT MT21: no floor at all (the V1 rule) — a 0.02 MAD prints z=2495
+    mutant = abs(z_un) <= abs(z_hi)
+    return check("clock_norm_scale_is_floored", "MT21_unfloored_mad", armed,
+                 mutant, "floored=%.2f unfloored=%.2f" % (z_hi, z_un))
+
+
+def t22_s4_shows_no_unborn_level():
+    """MT22 (P-M2c D4): a level whose source does not exist yet at the decision
+    second is not on the sheet.  The warm-up case decides in TOKYO while the
+    ledger already holds this session's LONDON and NY opening ranges."""
+    case = A.Case(REFUSED_CID, want_events=False)
+    lines = SEC.s4_levels(case, _NULL_PUT)
+    txt = "\n".join(lines)
+    z = case.levels
+    fam, lid = z["level_family"], z["level_id"]
+    unborn = [str(lid[r]) for r in range(int(lid.size))
+              if SEC._level_birth_sec(case, str(fam[r]), str(lid[r]),
+                                      int(z["dynamic"][r])) >= case.dec_sec]
+    shown = [u for u in unborn if u.split("|", 1)[1] in txt]
+    armed = (bool(unborn) and not shown
+             and "NOT_OPEN" in txt and "TODAY" in txt
+             and "n_not_yet_born=%d" % sum(
+                 1 for r in range(int(lid.size))
+                 if SEC._level_birth_sec(case, str(fam[r]), str(lid[r]),
+                                         int(z["dynamic"][r])) >= case.dec_sec
+                 and np.isfinite(z["level_price"][r])
+                 and abs(float(z["level_price"][r]) - case.entry_mid)
+                 <= 1.5 * case.atr / case.mult) in txt)
+    # MUTANT MT22: the V1 selection — every in-band row, birth ignored
+    mutant = not unborn
+    return check("s4_shows_no_unborn_level", "MT22_ignore_level_birth", armed,
+                 mutant, "n_unborn=%d shown=%d" % (len(unborn), len(shown)))
+
+
 TESTS = (t01_two_run_byte_identity, t02_blind_carries_no_outcome,
          t03_study_appendix_is_separate, t04_certificate_fails_on_empty_section,
          t05_section_budget_enforced, t06_seal_refuses_2026, t07_cid_roundtrip,
@@ -360,7 +543,10 @@ TESTS = (t01_two_run_byte_identity, t02_blind_carries_no_outcome,
          t11_fixed_width_and_no_trailing_space, t12_typed_missing_never_zero,
          t13_token_proxy_deterministic, t14_events_cache_deterministic,
          t15_anchor_ticks_are_integers, t16_sidecar_paths_absolute,
-         t17_known_traps_registered, t18_candidate_class_declared)
+         t17_known_traps_registered, t18_candidate_class_declared,
+         t19_s7_refill_measures_a_known_refill,
+         t20_refused_derived_is_refused_and_counted,
+         t21_clock_norm_scale_is_floored, t22_s4_shows_no_unborn_level)
 
 
 def main():

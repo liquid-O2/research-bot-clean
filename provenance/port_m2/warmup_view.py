@@ -7,9 +7,12 @@
                  brief: split the BLIND sheet text at the S6 marker, keep
                  everything before it, then append the S13 block (from its
                  S13 marker up to the next section marker).
-DEFECT NOTE: the brief specifies a '## S6' marker; the rendered sheets use a
-bare line-initial 'S6 RAW EVENT RIBBON' heading (no '##').  The split rule is
-implemented against the actual rendering and is otherwise identical.
+DEFECT NOTE (P-M2c D5, CLOSED 2026-08-14): the round brief specified a '## S6'
+marker and a 'SESSIONS_E1.tsv' file; the rendered sheets use a bare line-initial
+'S6 RAW EVENT RIBBON' heading (no '##') and the rollup is 'SESSIONS_STUDY.tsv'.
+The split rule here was always implemented against the actual rendering; the
+SPEC now names both (PORT_M2_SHEETS_SPEC §1 'ARTEFACT + MARKER NAMES'), so a
+future brief has one place to copy them from.
 Refuses any cid that is not in WARMUP_DRAW.tsv.  Never touches S14.
 """
 import os

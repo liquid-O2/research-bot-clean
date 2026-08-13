@@ -1,12 +1,12 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "c0a99fa60289cd19583ca2a2dbba2bae2dd65606",
+  "git_sha": "965b8506fa9b42170cb6ec62a6b85084048f8bfb",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
-  "m1_spec_sha16": "12f0a849107b2d3f",
+  "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "44c223198086ac6b",
+  "m2_spec_sha16": "1c3a23a60c697c81",
   "numpy_version": "2.1.2",
   "params": {
    "aggregates": "median for per-session distributions (robust to the roll and dying-book outliers the censuses flag), mean only where the census column is already a rate",
@@ -22,7 +22,7 @@
    "spec_section": "\u00a73 ERA PRIMER (P-M2b)"
   },
   "params_hash": "f8b191c77743e6c1c45cc264c6fbabf2670c3fa8c3b81c69e4dbefaf15783b8e",
-  "sheets_version": "PORT-SHEETS-V1",
+  "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },

@@ -1,12 +1,12 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "ce64924b4b1af27765fac993ef027c2ef26645e2",
+  "git_sha": "965b8506fa9b42170cb6ec62a6b85084048f8bfb",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "44c223198086ac6b",
+  "m2_spec_sha16": "1c3a23a60c697c81",
   "numpy_version": "2.1.2",
   "params": {
    "lag_table": "artifacts/reference/port_context/AVAILABILITY_LAGS.tsv",
@@ -15,7 +15,7 @@
    "spec_section": "\u00a72 leak fixture (D-057)"
   },
   "params_hash": "b570190719db61784ad604972cdab7e031071384cf5a374d55addd3f5d8fbbb5",
-  "sheets_version": "PORT-SHEETS-V1",
+  "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },

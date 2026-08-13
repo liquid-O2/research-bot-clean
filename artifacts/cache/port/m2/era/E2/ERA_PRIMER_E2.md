@@ -1,7 +1,7 @@
 # ERA PRIMER — E2 (20220101..20220630)
 
 Auto-generated from COMMITTED CENSUSES by engine/port_m2/era_primer.py (spec §3).
-Every figure carries its source as `file:line`. sheets_version=PORT-SHEETS-V1  spec_sha16=44c223198086ac6b
+Every figure carries its source as `file:line`. sheets_version=PORT-SHEETS-V1.1  spec_sha16=1c3a23a60c697c81
 STUDY/BLIND boundary date (day-complete, D-058/D-036): **20220420** — sessions <= boundary are STUDY.
 
 ## 1. THE ERA'S MATERIAL

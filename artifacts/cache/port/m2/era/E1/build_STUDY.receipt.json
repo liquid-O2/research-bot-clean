@@ -6,12 +6,12 @@
  "coverage_candidates": 1.0,
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "ce64924b4b1af27765fac993ef027c2ef26645e2",
+  "git_sha": "965b8506fa9b42170cb6ec62a6b85084048f8bfb",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "44c223198086ac6b",
+  "m2_spec_sha16": "1c3a23a60c697c81",
   "numpy_version": "2.1.2",
   "params": {
    "assets": [
@@ -21,10 +21,11 @@
    ],
    "block": "STUDY",
    "eras": [
-    "E1"
+    "E1",
+    "E2"
    ],
    "section_budget": {
-    "S1": 720,
+    "S1": 1000,
     "S10": 340,
     "S11": 180,
     "S12": 720,
@@ -33,22 +34,22 @@
     "S2": 260,
     "S3": 780,
     "S4": 1100,
-    "S5": 340,
+    "S5": 400,
     "S6": 3000,
-    "S7": 240,
+    "S7": 320,
     "S8": 600,
     "S9": 300
    },
    "selection": "every ELIGIBLE index row of the requested (era, block, asset, session) set \u2014 day-complete, no sampling",
    "sheet_budget": 8500,
    "sheet_mode": "BLIND sheet (S1..S13) + SEPARATE S14 appendix file",
-   "sheets_version": "PORT-SHEETS-V1",
+   "sheets_version": "PORT-SHEETS-V1.1",
    "sidecars": "none",
    "spec_section": "\u00a74 [P-M2b] era E1/E2 sheet sets",
-   "workers": 6
+   "workers": 12
   },
-  "params_hash": "f4cfe9e9d6ec62db5694ac8d7101e54eb82cb4821e31eef38585b8e35fffb2be",
-  "sheets_version": "PORT-SHEETS-V1",
+  "params_hash": "d959bcd34c5380406cff4ec2dc5196e0f50c901e8da93fe9785781167a1e7fa2",
+  "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
@@ -61,10 +62,10 @@
  "out_root": "/workspace/artifacts/cache/port/m2/era/E1/STUDY",
  "pins_moved_during_run": [],
  "tokens_proxy": {
-  "max": 8318,
-  "median": 7577.0,
-  "min": 4340,
-  "total": 719778333
+  "max": 8498,
+  "median": 7741.0,
+  "min": 4552,
+  "total": 738132986
  },
- "wall_sec": 7.4
+ "wall_sec": 2152.3
 }

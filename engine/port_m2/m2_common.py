@@ -56,7 +56,7 @@ import m1_common as M1                   # noqa: E402  m1 substrate
 
 # --------------------------------------------------------------- spec pins --
 SPEC_PATH = "/workspace/design/PORT_M2_SHEETS_SPEC.md"
-SPEC_SHA16 = "116d3185dcb4a93e"          # FROZEN by orchestrator 2026-08-13
+SPEC_SHA16 = "1c3a23a60c697c81"          # = design/PORT_M2_SHEETS_SPEC.md at HEAD 965b850 (CC-M2-6 + the V1.1 sheet-fix lane's §1 field laws); re-pinned 2026-08-14 by the fix lane, which found the pin one edit behind the spec at HEAD
 
 # V1.1 (P-M2c warm-up defect fixes, 2026-08-14): S9/S3/S10/S11/S2 REFUSED
 # consistency (a derived field whose inputs are refused is refused and COUNTED

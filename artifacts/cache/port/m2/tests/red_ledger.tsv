@@ -1,8 +1,8 @@
-# PORT_M2_SHEETS_SPEC.md §1 encoding laws + §2 certificate (P-M2a tests) (spec_sha16=44c223198086ac6b)
-# params_hash=dcc97115acfe75df4c8c31019afdb0de45c3f75771c43442fc02cb73fabb4e91
+# PORT_M2_SHEETS_SPEC.md §1 encoding laws + §2 certificate (P-M2a tests) (spec_sha16=1c3a23a60c697c81)
+# params_hash=11c7dd155a3411c360825dd4e7097d2a3f5f07ee90abeb3c8b96f95f64c56d68
 # RED-FIRST: armed_pass MUST be 1 and mutant_pass MUST be 0 on every row
 test	mutant	armed_pass	mutant_pass	verdict	detail
-two_run_byte_identity	MT01_wallclock_stamp	1	0	PASS	74a91fd91c1bd3eb
+two_run_byte_identity	MT01_wallclock_stamp	1	0	PASS	15189fe84e5562c3
 blind_carries_no_outcome	MT02_append_S14_to_blind	1	0	PASS	
 study_appendix_separate	MT03_drop_mode_stamp	1	0	PASS	
 certificate_fails_on_empty_section	MT04_ignore_empty_sections	1	0	PASS	empty S9 -> certified=0
@@ -11,8 +11,8 @@ seal_refuses_2026	MT06_seal_lifted	1	0	PASS	2026 refused, 2025 renders
 cid_roundtrip	MT07_ambiguous_id	1	0	PASS	
 s6_episode_membership_lossless	MT08_drop_small_clusters	1	0	PASS	n_window=1860 n_episodes=12
 s4_touch_state_is_causal	MT09_read_eos_touch_count	1	0	PASS	causal=219 eos=1202
-sidecar_covers_sheet_numbers	MT10_source_free_values	1	0	PASS	n_values=93
-no_trailing_whitespace	MT11_trailing_pad	1	0	PASS	271 lines
+sidecar_covers_sheet_numbers	MT10_source_free_values	1	0	PASS	n_values=94
+no_trailing_whitespace	MT11_trailing_pad	1	0	PASS	272 lines
 typed_missing_never_zero	MT12_nan_as_zero	1	0	PASS	
 token_proxy_deterministic	MT13_nondeterministic_proxy	1	0	PASS	tokens=370
 events_cache_deterministic	MT14_nondeterministic_npz	1	0	PASS	129eef91e9c1e03a
@@ -20,3 +20,7 @@ anchor_ticks_are_integers	MT15_float_ticks	1	0	PASS
 sidecar_paths_absolute	MT16_strip_workspace_root	1	0	PASS	n_paths=90
 known_traps_registered	MT17_trap_without_test	1	0	PASS	n_traps=2
 candidate_class_declared	MT18_lowest_priority_class	1	0	PASS	class=REVERSAL-CONFIRMATION driver=G1_FINE
+s7_refill_measures_a_known_refill	MT19_v1_trade_record_book_delta	1	0	PASS	fixture frac=1.000 live n_meas=36 n_ref=14 v1_live=0.000
+refused_derived_is_refused_and_counted	MT20_band_from_nan_ladder	1	0	PASS	n_refused=12
+clock_norm_scale_is_floored	MT21_unfloored_mad	1	0	PASS	floored=99.82 unfloored=998.25
+s4_shows_no_unborn_level	MT22_ignore_level_birth	1	0	PASS	n_unborn=34 shown=0

@@ -1,12 +1,12 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "ce64924b4b1af27765fac993ef027c2ef26645e2",
+  "git_sha": "965b8506fa9b42170cb6ec62a6b85084048f8bfb",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "44c223198086ac6b",
+  "m2_spec_sha16": "1c3a23a60c697c81",
   "numpy_version": "2.1.2",
   "params": {
    "anchor": "entry_mid; every price also printed as a signed integer tick offset from it (\u00a71 'integer ticks where possible')",
@@ -42,7 +42,7 @@
    "s6_raw_window_sec": 90,
    "s6_shrink_step": 8,
    "section_budget_tokens": {
-    "S1": 720,
+    "S1": 1000,
     "S10": 340,
     "S11": 180,
     "S12": 720,
@@ -51,13 +51,13 @@
     "S2": 260,
     "S3": 780,
     "S4": 1100,
-    "S5": 340,
+    "S5": 400,
     "S6": 3000,
-    "S7": 240,
+    "S7": 320,
     "S8": 600,
     "S9": 300
    },
-   "sheets_version": "PORT-SHEETS-V1",
+   "sheets_version": "PORT-SHEETS-V1.1",
    "sidecar_source_paths": "ABSOLUTE (CC-M2-1.4)",
    "spec_section": "\u00a71 sheet + \u00a72 certificate (P-M2a)",
    "study_sections": [
@@ -66,12 +66,12 @@
    "token_proxy": "M2-PROXY-2",
    "token_proxy_rule": "alpha run L -> max(1, ceil(L/5)); digit run L -> ceil(L/3); every other non-space char -> 1; newline -> 1 (no BPE tokenizer exists on this host)"
   },
-  "params_hash": "dcc97115acfe75df4c8c31019afdb0de45c3f75771c43442fc02cb73fabb4e91",
-  "sheets_version": "PORT-SHEETS-V1",
+  "params_hash": "11c7dd155a3411c360825dd4e7097d2a3f5f07ee90abeb3c8b96f95f64c56d68",
+  "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
  "n_failed": 0,
- "n_tests": 18,
+ "n_tests": 22,
  "verdict": "PASS"
 }

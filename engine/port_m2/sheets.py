@@ -87,6 +87,13 @@ class Sheet(object):
                  "sha256", "appendix_sha256", "appendix_sidecar")
 
 
+S1_REFUSED_MAX_KEYS = 30                  # roster cap; the rest live in the JSON
+S1_ESTIMATE_SLACK = 8                     # S1 depends on S6 only through one
+                                          # row count; 8 proxy tokens covers it
+S6_MIN_TOKENS = 900                       # the ribbon never collapses below its
+                                          # digest layer, cap or no cap
+
+
 def _sec_metrics(name, lines):
     text = "\n".join(lines) + "\n"
     m = MC.text_metrics(text)
@@ -165,12 +172,26 @@ def _s1_header(case, order, metrics, mode, phash, refusals, refused_derived):
                     " n_refused_derived=" + str(len(refused_derived)),
                     " guard_checks=" + str(case.guard.checks)))
     if refused_derived:
-        # V1.1: named, not just counted — the reader must know WHICH field is
-        # absent and why, on the face of the sheet.
+        # V1.1: NAMED, not just counted — the reader must be able to see which
+        # derived fields this sheet could not compute without hunting for dots.
+        # Keys only here (each field states its own reason at its own site, and
+        # the full {key, reason} list is in the certificate/sidecar); wrapped so
+        # a pathological sheet cannot blow the S1 budget.
         L.append("  REFUSED DERIVED FIELDS (inputs refused; printed as '"
-                 + MC.NA + "')")
-        for e in refused_derived:
-            L.append(MC.row("   ", MC.fstr(e["key"], 26), e["reason"]))
+                 + MC.NA + "'; reasons at each field and in the sidecar)")
+        keys = [e["key"] for e in refused_derived]
+        line, shown = "", 0
+        for k in keys[:S1_REFUSED_MAX_KEYS]:
+            if line and len(line) + len(k) + 1 > 104:
+                L.append("    " + line)
+                line = ""
+            line = k if not line else line + "," + k
+            shown += 1
+        if line:
+            L.append("    " + line)
+        if len(keys) > shown:
+            L.append("    +%d more (certificate.refused_derived)"
+                     % (len(keys) - shown))
     return L, n_fail
 
 
@@ -225,14 +246,36 @@ def build(cid, mode=MC.MODE_BLIND, with_appendix=False):
     order = [s for s in MC.BLIND_SECTIONS if s != "S1"]
     body = {}
     metrics = {}
+    # WHOLE-SHEET CAP (V1.1).  Every section except S6 is row-bounded by
+    # construction; S6 is the elastic one and is therefore rendered LAST, with
+    # the sheet's remaining allowance in hand.  Output order is unchanged (the
+    # assembly below is driven by `order`), and a sheet with headroom hands S6
+    # its full section budget, so its bytes are identical either way.
     for name in order:
+        if name == "S6":
+            continue
         lines = SEC.RENDERERS[name](case, put)
         text, m = _sec_metrics(name, lines)
         body[name] = text
         metrics[name] = m
+    if "S6" in order:
+        metrics["S6"] = {"rows": 999, "tokens_proxy": 0, "over_budget": 0}
+        prov, _nf = _s1_header(case, order, metrics, mode, phash,
+                               case.guard.refusals, list(refused))
+        s1_est = MC.text_metrics("\n".join(prov) + "\n")["tokens_proxy"]
+        spent = sum(metrics[n]["tokens_proxy"] for n in metrics)
+        case.s6_budget = max(S6_MIN_TOKENS,
+                             MC.SHEET_BUDGET_BLIND - spent - s1_est
+                             - S1_ESTIMATE_SLACK)
+        text, m = _sec_metrics("S6", SEC.RENDERERS["S6"](case, put))
+        body["S6"] = text
+        metrics["S6"] = m
 
+    # snapshot: the certificate reports the BLIND sheet's refusals, and S14
+    # (rendered below) must not be able to move a number S1 already printed
+    refused_blind = list(refused)
     s1_lines, n_fail = _s1_header(case, order, metrics, mode, phash,
-                                  case.guard.refusals, refused)
+                                  case.guard.refusals, refused_blind)
     s1_text, s1_m = _sec_metrics("S1", s1_lines)
     metrics["S1"] = s1_m
     if s1_m["over_budget"]:

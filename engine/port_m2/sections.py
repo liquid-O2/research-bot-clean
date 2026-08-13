@@ -898,7 +898,15 @@ def s6_ribbon(case, put):
     i_end = int(np.searchsorted(ts, dec_ns, side="left"))
     n_raw_window = i_end - i_raw
 
-    budget = MC.SECTION_BUDGET["S6"]
+    # S6 is the elastic section (spec §1: "S6 fits itself to its budget", and
+    # the sheet cap is "binding, not the sum of the parts").  V1.1 lets the
+    # builder hand it the WHOLE-SHEET allowance when that is the tighter of the
+    # two: without it, a sheet whose other sections run long can only fail
+    # certification, which is what the V1.1 field additions did to 8 dense SI
+    # sheets (8502-8538 against the 8500 cap).  A sheet with headroom gets the
+    # full section budget and renders byte-identically.
+    budget = min(MC.SECTION_BUDGET["S6"],
+                 getattr(case, "s6_budget", None) or MC.SECTION_BUDGET["S6"])
     reserve = ((S6_EPISODE_MAX_PRE + S6_EPISODE_MAX_IN) * S6_DIGEST_TOKEN_EST
                + S6_FIXED_TOKEN_EST)
     k = max(0, (budget - reserve) // S6_RAW_TOKEN_EST)
@@ -1414,17 +1422,25 @@ def s10_profile(case, put):
     d = case.dec_sec
     tick = case.tick_px
 
-    def px_of(bin0, t):
-        return (float(bin0) + float(t)) * tick if np.isfinite(t) else float("nan")
+    # TICK CONVENTION (V1.1 bug fix, defect D6 found while sweeping S10 for
+    # REFUSED consistency).  Every *_tick array b4_profiles writes is an
+    # ABSOLUTE tick index — profile_objects returns `bin0 + offset` and the
+    # developing arrays store `b0 + p` — so the price is tick_index x tick_px
+    # and nothing else.  V1 added bin0 a SECOND time, which put every S10 price
+    # at roughly twice the market (SI mid 26.28 rendered POC 52.24) and made
+    # every S10 distance a five-figure absurdity.  b3_levels' PROFILE family has
+    # always used the correct form (`t * tick_px`), so the S4 level rows were
+    # right and only S10's own lines were wrong.
+    def px_of(t):
+        return float(t) * tick if np.isfinite(t) else float("nan")
 
     ds = z["dev_sec"]
     j = int(np.searchsorted(ds, d, side="left")) - 1
     if j >= 0:
         case.guard.sec(int(ds[j]) + 1, "S10 developing profile")
-        b0 = float(z["SESSION_bin0"])
-        poc = (b0 + float(z["dev_poc_tick"][j])) * tick
-        vah = (b0 + float(z["dev_vah_tick"][j])) * tick
-        val = (b0 + float(z["dev_val_tick"][j])) * tick
+        poc = px_of(float(z["dev_poc_tick"][j]))
+        vah = px_of(float(z["dev_vah_tick"][j]))
+        val = px_of(float(z["dev_val_tick"][j]))
         L.append(MC.row("  developing", "as_of=" + MC.fsec(int(ds[j])),
                         " POC=" + MC.fnum(poc, 1, 4).strip(),
                         " VAH=" + MC.fnum(vah, 1, 4).strip(),
@@ -1453,21 +1469,19 @@ def s10_profile(case, put):
         name = X.PHASE_NAMES[code]
         if en > d:
             continue
-        b0 = float(z["%s_bin0" % name])
         L.append(MC.row("  phase_final", MC.fstr(name, 7),
                         "end=" + MC.fsec(en - 1),
-                        " POC=" + MC.fnum(px_of(b0, float(z["%s_poc_tick" % name])), 1, 4).strip(),
-                        " VAH=" + MC.fnum(px_of(b0, float(z["%s_vah_tick" % name])), 1, 4).strip(),
-                        " VAL=" + MC.fnum(px_of(b0, float(z["%s_val_tick" % name])), 1, 4).strip(),
+                        " POC=" + MC.fnum(px_of(float(z["%s_poc_tick" % name])), 1, 4).strip(),
+                        " VAH=" + MC.fnum(px_of(float(z["%s_vah_tick" % name])), 1, 4).strip(),
+                        " VAL=" + MC.fnum(px_of(float(z["%s_val_tick" % name])), 1, 4).strip(),
                         " poor_H=" + str(int(z["%s_poor_high" % name])),
                         " poor_L=" + str(int(z["%s_poor_low" % name]))))
 
     pz = case.prior_profile
     if pz is not None:
-        b0 = float(pz["SESSION_bin0"])
-        poc = px_of(b0, float(pz["SESSION_poc_tick"]))
-        vah = px_of(b0, float(pz["SESSION_vah_tick"]))
-        val = px_of(b0, float(pz["SESSION_val_tick"]))
+        poc = px_of(float(pz["SESSION_poc_tick"]))
+        vah = px_of(float(pz["SESSION_vah_tick"]))
+        val = px_of(float(pz["SESSION_val_tick"]))
         L.append(MC.row("  prior_session", str(case.prior_d8),
                         " POC=" + MC.fnum(poc, 1, 4).strip(),
                         " VAH=" + MC.fnum(vah, 1, 4).strip(),
@@ -1477,10 +1491,9 @@ def s10_profile(case, put):
                         " poor_L=" + str(int(pz["SESSION_poor_low"]))))
         put("S10.prior_session_poc", poc, case.prior_profile_path,
             "SESSION_poc_tick")
-        hv = [(b0 + float(t)) * tick for t in pz["SESSION_hvn_ticks"].tolist()]
-        lv = [(b0 + float(t)) * tick for t in pz["SESSION_lvn_ticks"].tolist()]
-        sp = [(b0 + float(t)) * tick for t in
-              pz["SESSION_single_print_ticks"].tolist()]
+        hv = [px_of(t) for t in pz["SESSION_hvn_ticks"].tolist()]
+        lv = [px_of(t) for t in pz["SESSION_lvn_ticks"].tolist()]
+        sp = [px_of(t) for t in pz["SESSION_single_print_ticks"].tolist()]
         L.append(MC.row("    HVN_d$", *[MC.fnum(usd(case, case.entry_mid - p), 9, 0)
                                         for p in hv[:6]]))
         L.append(MC.row("    LVN_d$", *[MC.fnum(usd(case, case.entry_mid - p), 9, 0)

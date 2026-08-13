@@ -1,0 +1,38 @@
+{
+ "databento_dbn": "0.66.0",
+ "git_sha": "7d3ae7607ee737f33bb3cba9af1426ab8e4e4a21",
+ "hl_spec_sha": "ff35394b9f87b8910eb8486e2c0d060914cfd6fca5edc35961c7c78f285fc7d4",
+ "hl_spec_sha16": "ff35394b9f87b891",
+ "input_sha256": {},
+ "m1_spec_sha": "ed126c64eee71c414d0f5f6bd815af5311c6969457b895a9fe411c8a7faaad3b",
+ "m1_spec_sha16": "ed126c64eee71c41",
+ "numpy_version": "2.1.2",
+ "params": {
+  "adoption": "lift >= 1.5 AND marginal capture >= +3pp on some asset AND per-FIT-year lift sign-stable (>1 every year); P2 also must beat the unconditional split on pinball loss",
+  "degenerate": "a receipt whose SANE session range is $0 (frozen quote; m0 SPEC_DEFECTS D8) is dropped before any target, anchor or prior-session read - the b2/b3 exclusion, unchanged",
+  "era_law": "FIT = FIT_2021_2024 (exploratory census); GATE_2025 echoed separately; 2026 sealed (never opened)",
+  "mid_sane": "D-054/CC-M1-4: TWO_SIDED and spread_$ <= min(10 x trailing-phase-median spread_$, $500); trailing median = same-phase per-session medians over the 20 STRICTLY PRIOR sessions (>= 5 observations, else only the cap binds); insane seconds typed-excluded, never interpolated",
+  "null": "family levels displaced +0.5 x ATR14_prev_$ / mult, sign alternating by level index within the family (D-052 null)",
+  "p1_calibration": "per-side excursion ratio (anchor->extreme)/sigma_hat, trailing 250 sessions strictly prior, >= 30 obs; the ladder machinery of b2_fvol.ladder, one-sided",
+  "p1_side_quantiles": [
+   0.5,
+   0.75,
+   0.9,
+   0.95
+  ],
+  "p2_design": "[1, sign(overnight ret), |gap|/ATR14, prior up_share, RV5/RV66, DOW dummies Tue..Fri]; expanding-window monthly refit, >= 250 training sessions; coefficients FROZEN at the last FIT-era refit for the 2025 echo (b2 era law)",
+  "p2_null": "unconditional split = trailing median up_share (same walk-forward window)",
+  "p3": "OR = first {30,60} min of each segment from its first SANE second; levels OR_H + k x OR_range / OR_L - k x OR_range, k in {0.5,1.0,1.5,2.0}; target = the rest-of-window extreme",
+  "p4": "floor {PP,R1,S1,R2,S2} and Camarilla {H3,L3,H4,L4} from the prior session's SANE H/L/C",
+  "p5": "overshoot = signed distance from the realized extreme to the NEAREST PRIOR EXTREME IT EXCEEDED (prior-session H/L + prior-phase H/L); distribution fitted on the FIT era per asset (in-sample by spec order); delta in {0,p25,p50,p75}, tick-rounded",
+  "p6": "gap session iff |session open - prev settle| > 0.25 x ATR14_prev; prev settle predicts the extreme OPPOSITE the gap direction",
+  "p7": "score(p) = number of distinct (family, tick-rounded price) levels within tol of p over KEPT ledger families + P1..P6; zones = local maxima of the score (plateau-deduplicated, merged within tol); top-k by score then price; null = zone centres displaced +0.5 x ATR14 alternating by rank",
+  "spec": "PORT_HL_CENSUS_SPEC.md",
+  "spec_section": "PORT_HL_CENSUS_SPEC \u00a72-\u00a74 (H/L prediction census)",
+  "spec_sha16": "ff35394b9f87b891",
+  "targets": "session and per-phase HIGH/LOW of the dominant-instrument MID-SANE mids; every predictor strictly causal at its anchor",
+  "tolerance": "max(2 x tick_$, 0.05 x ATR14_prev_$) / mult"
+ },
+ "params_hash": "0bfcf7e30aa61b66f82fe08b1f33b845c9bebe172ff2e266362eaca9d5013750",
+ "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d"
+}

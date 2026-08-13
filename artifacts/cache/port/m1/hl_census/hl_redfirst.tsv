@@ -1,0 +1,16 @@
+# PORT_HL_CENSUS_SPEC.md §4 red-first mutant evidence (hl_spec_sha16=ff35394b9f87b891, m1_spec_sha16=ed126c64eee71c41)
+# params_hash=baebde2366ba50bf2dc07fc86d565cd7267f380ad9fca21382a1386521e94f18
+# a mutant caught by NO case is a test FAILURE (red-first law); the real implementation is green on every case listed
+algorithm	mutant	n_cases_broken	cases_broken
+D054_mid_sane	no_500_cap	1	mask
+D054_mid_sane	strict_inequality	1	mask
+D054_mid_sane	two_sided_dropped	1	mask
+P5_delta_fit	no_min_observations	1	thin
+P5_delta_fit	no_tick_rounding	1	quantiles
+P5_overshoot	nearest_regardless_of_exceedance	2	samples,era_filter
+P5_overshoot	noncausal_same_session	2	samples,era_filter
+P5_overshoot	unsigned_distance	2	samples,era_filter
+P7_confluence	no_family_price_dedupe	1	dedupe
+P7_confluence	no_zone_merge	4	ranking,boundary,dedupe,merge
+P7_confluence	rank_by_price	1	ranking
+P7_confluence	strict_tolerance	2	ranking,boundary

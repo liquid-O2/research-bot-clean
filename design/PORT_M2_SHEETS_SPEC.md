@@ -256,3 +256,24 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
    add -A; standing brief line henceforth.
 6. REFUSED-FVOL hole accepted: 3.01% of FIT (early-2021 forecaster warm-up), 0.00% GATE — documented,
    no action; fallback != refusal noted.
+
+## CC-M2-10 — E1 Day-2 adjudications (orchestrator, 2026-08-14; BINDING)
+1. Day 2 ACCEPTED (clean, taint 0/935). The loss decomposition IS the deliverable: direction (not refusal)
+   is the binding constraint; regime-conditionality proven in-sample-of-two-days. E1 STUDY ROUND FIXED AT
+   8 DAYS (2 done) before the E1 BLIND round; the teacher gate (CC-M2-6) applies to BLIND only.
+2. CENSUS BATCH 2 ORDERED: P020 (NY-phase winner concentration — 86/86 across two days), P021 (EXPANSION
+   regime flag: S2 day_type_so_far=EXPANDED + S9 surprise>=0.99 conditioning/inverting mean-reversion
+   priors — the round's highest-value candidate), P022 (fossil-flow: phase-sflow vs 30m/5m disagreement
+   with S12 last_scheduled age around releases). Same discipline as P001's census.
+3. D12 RULED: replay/scoring seats at PHASE-CLOSE exits (the deployed D-019/CC-M1-8 posture) — the seat
+   frees at each phase boundary (~3 sequential bets/session, never one all-in bet). Session-close thinking
+   is lawful for the reader; SCORING is phase-close. panel_score confirmed/aligned accordingly.
+4. Pre-mortem strengthening (reader proposal) PARTIALLY ADOPTED: every pre-mortem naming a measurable
+   mechanism auto-logs as a ledger hypothesis feeding censuses; it does NOT become a veto without census
+   grade (the P016 lesson is one day old).
+5. A|B|C grades: disqualified as judge-aux until rebuilt on rule-independent evidence (reader's own
+   diagnosis ratified).
+6. Tooling fixes ordered with census batch 2: D9 regime columns in the triage index, D10 event-anchored
+   flow windows, D11 retrieve --exclude-date8.
+7. NKD note: 0 winners/514 candidates over two 2021H2 sessions = era-consistent with its censused thin years
+   (seats $2,135 in 2021); an E1 observation, not a targeting signal. Watch through the era.

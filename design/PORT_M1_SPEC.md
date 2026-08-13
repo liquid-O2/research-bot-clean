@@ -116,6 +116,26 @@ Lane B (Opus): §2→§3→§4→§5→§6 in that order (each stage's outputs f
 concurrently). Python package `engine/port_m1/` (committed), bulk under m1/. Run names `port-m1-b-*`.
 Both lanes: workers ≤ 6 each (shared box), report defects instead of improvising, terse reports with file:line.
 
+## CC-M1-1 — orchestrator amendment 2026-08-13 (user law D-052; BINDING for Track B)
+A. §3/§4(a) fvol LEVEL VARIANTS (levels ≠ forecast): alongside the point-σ̂ bands, build the EXPECTED-MOVE
+   LADDER: causal calibration of forecast errors (trailing-250-session distribution of realized_range/σ̂
+   ratios, expanding, FIT-era-safe) → predictive quantile multipliers q ∈ {0.10, 0.25, 0.50, 0.75, 0.90};
+   levels = anchor ± q×-calibrated range for anchor ∈ {prev settle, phase open} — q10 = MIN-expected-move
+   level, q90 = MAX-expected-move level. REGIME SCALING: vol-regime tag = terciles of RV_5/RV_66 (cut points
+   frozen on FIT era); calibration multipliers computed WITHIN regime bucket (trailing, same window); emit both
+   unscaled and regime-scaled ladders as separate level families (the census decides which earns its place).
+B. NEW §6b LEVEL RELEVANCE CENSUS (runs with stage 5): for every oracle top-2 leg ENDPOINT (extreme price,
+   from the c_d oracle): record all active levels within tol at that price/time. Per level family:
+   (i) capture rate = fraction of oracle extremes with a family level within tol;
+   (ii) MECHANISM-DESTRUCTION NULL: identical statistic with that family's levels displaced ±0.5×ATR14
+        (alternating sign by level index — deterministic); (iii) lift = capture/null;
+   (iv) entry-side contribution: conditional walled cert value + exclusive union-DP $/day of G2 candidates
+        born at that family (from §6 census).
+   PRE-REGISTERED RULES: family RETIRED if lift < 1.5 AND exclusive DP add < $150/day; if the UNION of all
+   level families captures < 60% of oracle extremes (any asset), the level program returns to the drawing
+   board (new sources designed by the orchestrator) BEFORE M1.B freezes. Output: LEVEL_RELEVANCE_REPORT.md
+   + per-family TSV, part of gate B5.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

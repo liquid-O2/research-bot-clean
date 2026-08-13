@@ -20,3 +20,9 @@ The free official ftp (cmegroup.com/ftp/pub/settle/) holds only a ROLLING ~week 
 - 2026-08-12 (asset-port lane): SHFE copper 21y daily + intraday caps, COMEX HG daily 10y, Nikkei/FRED close-only 77y + OSE/SGX futures daily, USDJPY/USDCNY, FRED rates x5 (SOFR/EFFR/DGS*), VIX/RVX/VXD.
 - 2026-08-13 (this batch): DXY broad dollar, 10y real yields, gold-vol index GVZ, SP500, USDJPY/CNY refresh; then Nikkei VI + JGB curve + COT annuals.
 All strictly historical daily publications; every file carries rows to its latest available date; strictly-prior join law applies when used as features.
+
+## SETTLEMENT ALTERNATIVES — RESOLVED 2026-08-13 (second pass):
+- YAHOO CHART API WORKS programmatically (query1.finance.yahoo.com/v8/finance/chart/<SYM>?range=10y&interval=1d, UA header required): banked yahoo_{SI,HG,NKD,GC}_daily.csv — 2,516 rows each, 2016-2026, OHLC+VOLUME of the front contract. This IS the free settlement-history substitute for levels+volume (continuous front; roll jumps are not returns — same caveat as any continuous series). GC banked for the gold/silver ratio.
+- Stooq: JS-challenge blocked from this host. NDL/Quandl CHRIS: defunct free tier — skip.
+- OI remains: weekly = COT (banked); daily-forward = the CME ftp capture cron from port day one; daily-history = paid-only (accepted gap).
+- Verification law for the port: cross-check yahoo dailies vs our own MBP-1-derived daily ranges before ANY feature use (vendor-bar caveat, same as IWM's OHLC law).

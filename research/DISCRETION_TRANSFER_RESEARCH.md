@@ -9,6 +9,18 @@ not a promoted mechanism.
 SWEPT: 2026-08-13. Mandate: D-067 (research + discretion-target label families). Mapping
 target: D-064 (the eight-mechanism transfer playbook). Companion sweep: D-066 (episodes).
 
+**RECONCILED WITH HEAD (D-068 … D-071, which landed while this sweep ran).** Three of them
+intersect the findings and all three intersect *favourably*:
+**D-068(2)** — the structured briefing carrying censused knowledge with evidence grades — is
+precisely the **task information** that the learning literature identifies as the only
+effective form of feedback (§10 **C4**); the sweep supplies its justification and one added
+prescription (task information must come **before** the era's case reads, not alongside).
+**D-068(4)** — the calibration warm-up with the orchestrator adjudicating *"ex-ante telltale
+vs hindsight story"* — is exactly Ericsson's concurrent-vs-retrospective boundary made
+operational (§2 **B1**). **D-071** — class-declared candidates and a class-keyed pattern
+ledger — is D-064(8) mechanism stratification resolved by construction, and it enters the
+label constructions below as a first-class grouping axis (§11 **T1** `group = class`).
+
 **VERIFICATION LAW APPLIED.** Every citation below was fetched. Items whose bibliographic
 record was fetched but whose full text was paywalled are marked `VERIFIED (metadata)`.
 Anything not fetched at all is marked **UNVERIFIED** inline. No DOI or URL in this file was
@@ -265,7 +277,9 @@ schedule**, not a differently-tuned hand relaxation. Separately, every census st
 panel agreement is a **surrogate-label estimate with no rectifier** (M9) and is biased by construction —
 this affects numbers already in the record, not just future ones.
 
-**C4. Our study-block feedback design is the kind the learning literature says does not work.**
+**C4. Our study-block feedback design was the kind the learning literature says does not work —
+and D-068(2), issued after this sweep was commissioned, already fixes it. Keep it, and tighten
+the ordering.**
 Karelaia & Hogarth's meta-analysis of lens-model learning studies concludes, verbatim: *"**Neither
 outcome nor cognitive feedback helps to learn.**"* What does help, verbatim: *"the availability of **task
 information** magnifies the effect of learning"* — and *"the most effective form of feedback is
@@ -274,8 +288,12 @@ information about the task."* Balzer, Doherty & O'Connor 1989 reach the same con
 case) and **cognitive feedback** (thesis vs reality) and supplies **task information only incidentally**.
 **Concrete correction: each era's STUDY block should OPEN with that era's measured census — the
 cue→outcome relationships actually present in this regime — before any case is read.** We generate
-exactly this artefact already (D-052 relevance census, D-055 slice mining, family censuses); we simply
-do not hand it to the reader. This is the cheapest protocol change in the sweep and it is well supported.
+exactly this artefact already (D-052 relevance census, D-055 slice mining, family censuses, and now the
+D-071 per-class census cards). **D-068(2) already mandates handing it to the reader with evidence
+grades; the literature's added requirement is the ORDERING — task information first, cases second, and
+refreshed per era rather than carried over.** This is the cheapest protocol change in the sweep and it
+is well supported. The D-068 *"duty to contradict"* clause is also exactly right under this reading:
+task information is a prior over cue→outcome relationships, and the reader's job is to test it.
 *Scope caveat:* the meta-analysis is dominated by multiple-cue probability learning tasks; the authors
 also note *"positive effects of learning are especially notable in naturalistic environments, such as
 field studies"*, so this is a redesign of the feedback, not an argument against the study block.
@@ -362,7 +380,7 @@ one-position scheduler consumes. The loss is also *"more robust than a quadratic
 | axis | grid |
 |---|---|
 | `comparator` (what defines "better") | `net` (terminal net cents at the mark) · `cert` (certificate dollars) · `mfe` · `retention` (net/mfe) · `mae_pen` (net with the MAE penalty applied) · `gpc` (**prioritized hierarchy**, per atlas I5: bigger barrier → less adverse → faster) |
-| `group` (comparison scope) | `session` · `episode` (D-065) · `phase` · `level_family` · `rung` |
+| `group` (comparison scope) | `session` · `episode` (D-065) · **`class`** (the D-071 candidate class — pairs compared only within {REVERSAL-CONFIRMATION, RECLAIM, SHOCK-RESOLUTION, OPEN-DYNAMICS, NEWS-WINDOW, LEVEL-FIRST-TEST, …}) · `class × episode` · `phase` · `level_family` · `rung` |
 | `margin` (tie band, in comparator units) | `m0` (strict) · `m_q10` · `m_q25` · `m_sd50` — pairs inside the band are labelled `S_ij = 0` |
 | `pair_sampling` | `all` · `topk_vs_rest` (k ∈ {3, 5}) · `stratified_by_clock` · `hard_only` (|Δ| in the lowest decile) |
 | `horizon` | `30m, 60m, 120m, close, best` (as §1B) |

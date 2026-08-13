@@ -86,3 +86,23 @@ and the three census parameters it demands (`K*` gap seconds, `tau*` occupancy o
 where the literature **contradicts or qualifies D-065** — most sharply, that the oracle
 leg cannot serve as the grouping rule, and that grouping must not become the estimation
 sample.
+
+## Discretion-transfer sweep (D-067, 2026-08-13)
+
+Full sweep: [DISCRETION_TRANSFER_RESEARCH.md](DISCRETION_TRANSFER_RESEARCH.md);
+sources `R0301`–`R0363` in [BIBLIOGRAPHY.tsv](BIBLIOGRAPHY.tsv).
+
+Question: how is human/expert discretion encoded into a frozen model, and what
+target design does the evidence support? Mapped onto the D-064 eight-mechanism
+transfer playbook.
+
+| Research family | Information it might preserve | Smallest honest test | Status |
+|---|---|---|---|
+| judgmental bootstrapping / lens models (models OF judges) | the judge's cue set, signs and consistency | `G·R_e − r_a` estimated on our own reader ledger against realized dollars | `CONTRA` — all eight measured moderators point against us (§10 C1) |
+| knowledge elicitation / cognitive task analysis | which elicitation format yields codifiable rules per unit cost | limited-information and constrained-processing reader tasks on already-tainted sessions | `UNTESTED` (M12) |
+| recognition-primed decisions (NDM) | pattern → (goals, cues, expectancies, action); expectancy violation as a halt | expectancy columns computed forward; violation rate vs realized adverse excursion | `UNTESTED` (M11) |
+| imitation learning failure modes | why raw call/action imitation failed here | already measured in-house (HF2, HF3); the literature supplies the diagnosis and the repair | `EXPLAINED` — bars offline action cloning |
+| inverse reinforcement learning | the reader's implied objective rather than its clicks | feature-expectation match from the existing ledger, then MaxEnt under the one-position scheduler | `UNTESTED` (label family T2) |
+| preference / pairwise learning | within-session ordering, free of the session-level offset | LambdaMART pairwise arm vs the pointwise dollar label on the same folds | `UNTESTED` (label family T1) |
+| LLM-teacher distillation + weak supervision | rationale-as-auxiliary-supervision; gold-rectified surrogate estimation | `ε_l` recoverability probe first; then a screened λ auxiliary head | `UNTESTED` (M9, M14, label family T3) |
+| learning to defer / selective prediction | vetoes as a jointly-trained rejector rather than a threshold | consistent-surrogate (scorer, rejector) pair vs the current thresholded veto stack | `UNTESTED` (upgrades D-064(4)) |

@@ -317,6 +317,23 @@ oracle->engine law. Outputs m1/family_discovery/ + FAMILY_DISCOVERY_REPORT.md.
    candidate-emission hardening options (parked).
 Deliverable: EPISODE_V2 lane implements 1-4 (params P1 K*, P2 τ*, P3 ρ_w per the research report).
 
+## 11. GENERATION TRUTH AUDIT (D-069; S1-class, on m0 sessions + v3 roster)
+A. Oracle legs at 0.25xATR ANCHORED (c_d machinery), ALL legs >= $500. Per leg: travel_total, travel_remaining
+   at first/best same-side candidate (mid-to-mid, SANE), candidate count by leg-progress decile (0-100% of the
+   leg's time span), family of first/best candidate. Outputs: leg_capture_profile.tsv + progress-decile matrix.
+B. FORFEIT DECOMPOSITION per (asset, session): CEIL = perfect-knowledge one-position phase-close DP on SANE
+   mids (entries anywhere, wall+cost charged) vs ROSTER = the union-DP. FORFEIT = CEIL - ROSTER, attributed
+   greedily: legs with no candidate (MISSED), legs whose candidates all arrive after X% progress (LATE, with
+   the $ lost to timing), value beyond phase-close (EXIT_FORFEIT — known, priced), scheduler conflicts
+   (OCCUPANCY). Era rollups; the decomposition becomes a STANDING regression metric (baseline frozen here).
+C. VISUAL AUDIT: 20 sessions/asset stratified by (era x offer quartile): plot mid path (SANE), oracle pivots,
+   candidates as family-colored markers at (decision_sec, mid), DP-seated trades shaded, wall/exit annotations.
+   matplotlib if available else SVG. Files under m1/gen_audit/plots/; an INDEX.md with per-plot one-line
+   verdicts written by the lane; ORCHESTRATOR reviews >=6 plots personally (journaled).
+D. Report: GEN_AUDIT_REPORT.md — the forfeit table, timing-loss distributions, leg-middle density verdict
+   (is mid-leg value uncovered? => continuation-family hypothesis goes to family discovery), and the
+   plot-index. All cluster-robust caveats per CC-M1-12.4 where inference is claimed.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

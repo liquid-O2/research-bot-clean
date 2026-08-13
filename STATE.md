@@ -1,10 +1,9 @@
 # STATE — fast cursor (rewritten at every boundary; see PROGRESS.md for per-item status)
 
-LAST_UPDATED: 2026-08-12T07:10Z by orchestrator
-STAGE: M3 Phase B — F4 CAL-PREVIEW read: RANKING TRANSFER FAILURE (all arms ~0 CAL Spearman vs strong train-side; CAL loss DID order by grain => decomposition running). F5 HELD. NIGHT_PLAN null machinery executing.
-BINDING_PLAN: /workspace/FINAL_PLAN.md §9/§12 + NIGHT_PLAN.md + D-020/D-028
-ACTIVE_CARD: V4 FROZEN sha 23b9151095e847f6a9c0f80b2fb39820e5359c0eaeb33f1889cab09772862a9a
-NEXT_ACTION: (A) per-head CAL decomposition (risk vs direction vs horizon) on landed rungs; (B) frozen-config GBT/ridge-on-DIRECT CAL control (architecture vs representation indictment); (C) comparator tool (train+gate_select-only wall); JSA_CM landing + fork JSON; then D-020 v2 blind loop (packs from train+CAL sessions ONLY) + act on verdict per D-028.
+LAST_UPDATED: 2026-08-13T07:08Z by orchestrator
+STAGE: PORT M0 — censuses (SI/HG/NKD on Databento MBP-1). IWM program COMPLETE + PARKED (PROGRAM_RECORD.md); do not resume it.
+BINDING_PLAN: DISCRETIONARY_METHOD.md §7-14 (port charter) + design/PORT_M0_CENSUS_SPEC.md (FROZEN sha16 b921566ef3a28dea) + D-048/D-049
+NEXT_ACTION: Opus lane implements spec §2-5 (s0 inventory → s1 SI-2024 fingerprint gate → s2 decode → s3 sessions; runs via lab/run.sh port-m0-*); orchestrator adjudicates s1 fingerprint; then censuses a-d (spec §6-9) → generated M0_REPORT.md → orchestrator writes PORT_M0_VERDICT.md (P-M0e decision table; may reorder SI+NKD).
 BLOCKERS: none
-KEY FACTS: F4 rungs all landed healthy (no undertraining); CAL-preview NONCERTIFYING: best delta vs DCM = DIRECT_RAW +0.0123 (not native); train-side rho +0.07..+0.13 correctly ordered => metric sound, transfer failed. TEST + gate_cert sealed and untouched. Instrument fully validated (controls 4/4 green on final path).
-RESUME RECIPE: 1) cat STATE.md PROGRESS.md DIRECTIVES.md NIGHT_PLAN.md 2) tail -40 provenance/sessions/JOURNAL.md 3) artifacts/cache/campaign/r4/ receipts + phase_b_fork_F4.json 4) lanes via §15 briefs.
+KEY FACTS: symbology asymmetry VERIFIED (SI=SI.FUT parent w/ spreads → dominance filter = the 5x fix; HG=HG.v.0 volume-continuous; NKD=NKD.c.0 calendar-continuous → roll-basis + dying-book-week handling, nothing to filter); committed SI-2024 census (SILVER_CENSUS_2024.txt: 313d, 232,077,260 updates, FULL $3,537/$3,275/$4,663, RTH $2,162/$1,925/$2,613) = UTC-day convention, dominance rule recoverable only by fingerprint (s1 gate); gates PRE-REGISTERED in spec §1 (cost ≤10/20% of $1k bar; offer & walled-phase-close-DP medians ≥$2,500/day full Globex session; recall ≥95%; wall=min(p99 winner MAE,$900); RT=1×median spread+$5); ALL 2026-dated payload files = SEALED ESCROW; per-asset goal D-048 (> $2,000/session per ONE mini per asset, low DD).
+RESUME RECIPE: 1) cat STATE.md PROGRESS.md DIRECTIVES.md 2) tail -40 provenance/sessions/JOURNAL.md 3) cat design/PORT_M0_CENSUS_SPEC.md 4) ls /workspace/artifacts/cache/port/m0/ + /workspace/lab/run.sh --list (runs port-m0-*) 5) approved plan mirror: plan file "you-are-the-orchestrator-distributed-pony" (content duplicated by spec+journal; repo is authoritative).

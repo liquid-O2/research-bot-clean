@@ -92,3 +92,25 @@ cross-asset lead-lag census. Each = spec-cited lane brief, censused, receipted.
    exact, wall_usd 900.0 exact x3 vs walls.json, GVZ present per lag rule, early-era NKD Nikkei-VI REFUSED
    correctly, 0/30 blind sheets carry outcome-shaped fields, S14 physically separate. GATE P-M2a CLOSED.
 KNOWN_TRAPS: levels_v4.last_test_outcome (forward 15m; PENDING until resolved — t09).
+
+## CC-M2-2 — discretion-transfer sweep adjudications (orchestrator, 2026-08-14; BINDING)
+1. PREMISE CORRECTED ON RECORD: 'models-of-judges beat judges' does NOT transfer here (8/8 measured
+   moderators adverse — the bootstrapping advantage is proportional to judge INCONSISTENCY, which an LLM on
+   fixed sheets lacks; Armstrong: with outcome data available, fit OUTCOMES). Consequence: the architecture
+   stands AS BUILT (outcome labels primary, reader = discovery/evidence/features, judge signals auxiliary-only
+   per D-067.2) — and any temptation to promote judge-imitation is now foreclosed by citation, not taste.
+2. ADOPTED: (a) the ε_l RECOVERABILITY PROBE as an early M3 gate (one GBT fit: can student features predict
+   the reader's graded output at all — the measurable form of presentation-before-architecture);
+   (b) T1 PAIRWISE-PREFERENCE label family into the atlas backlog NOW (buildable from outcomes alone; axes
+   incl. the D-071 class as a group key; LambdaMART-native); (c) DSL/PPI gold-rectification REQUIRED before
+   any panel-conditioned census number is quoted; (d) the learner-aware λ-schedule relaxation as the named
+   repair pattern for any imitation component (the measured HF2 failure's fix); (e) joint scorer-rejector
+   training for the veto stack (upgrades D-064.4); (f) process-supervision thesis columns + expectancy
+   objects; (g) judge-aux heads λ≤0.5, ε_l- and negative-transfer-gated. T2 irl_sched = phase-2 (partly
+   novel, labelled as such).
+3. WARNINGS ON RECORD: Kahneman-Klein zero-validity bucket / Shanteau / BlueCrest ~53% live replication —
+   our defense (short-horizon microstructure validity) is a CLAIM whose only evidence is the per-era blind
+   lift curve: that curve is THE go/no-go instrument for the reader program. 'More information can hurt
+   judges': the warm-up includes a SECTION-ABLATION probe (do reader calls improve with sections removed?).
+4. BRIEFING ORDER: task information BEFORE the era's cases (the only feedback form the literature finds
+   effective); adopted into the P-M2b briefing build.

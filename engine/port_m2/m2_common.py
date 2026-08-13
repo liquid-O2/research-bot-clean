@@ -56,7 +56,7 @@ import m1_common as M1                   # noqa: E402  m1 substrate
 
 # --------------------------------------------------------------- spec pins --
 SPEC_PATH = "/workspace/design/PORT_M2_SHEETS_SPEC.md"
-SPEC_SHA16 = "c45371dbd6ad2995"          # FROZEN by orchestrator 2026-08-13
+SPEC_SHA16 = "44c223198086ac6b"          # FROZEN by orchestrator 2026-08-13
 
 SHEETS_VERSION = "PORT-SHEETS-V1"        # the §1 S1 "sheets-version stamp"
 
@@ -207,10 +207,13 @@ SECTION_TITLES = {
 # exchange rate of 25 proxy-tokens per raw second; the episode-digest mechanism
 # stays the lossless layer for the remainder, and low-density candidates keep
 # carrying the full 90s raw window.
+# D-071 recalibration (same ~1.15x-of-observed-maximum rule, re-measured on the
+# 30-sheet pilot after the class line joined S1 and the class census card joined
+# S13): S1 640 -> 720, S13 420 -> 560.  Every other budget is unchanged.
 SECTION_BUDGET = {
-    "S1": 640, "S2": 260, "S3": 780, "S4": 1100, "S5": 340,
+    "S1": 720, "S2": 260, "S3": 780, "S4": 1100, "S5": 340,
     "S6": 3000, "S7": 240, "S8": 600, "S9": 300, "S10": 340,
-    "S11": 180, "S12": 720, "S13": 420, "S14": 760,
+    "S11": 180, "S12": 720, "S13": 560, "S14": 760,
 }
 # Binding whole-sheet cap, not the sum of the parts: a sheet may not spend every
 # section's headroom at once.  CC-M2-1.1: 7,400 -> 8,500 with the S6 raise.

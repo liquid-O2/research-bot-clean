@@ -106,7 +106,8 @@ def receipts_present(asset, d8):
             and int(d8) in A.session_index(asset))
 
 
-COLUMNS = ("cid", "asset", "era", "block", "date8", "trade_date", "dec_sec",
+COLUMNS = ("cid", "asset", "era", "block", "candidate_class", "driver_family",
+           "cross_class", "date8", "trade_date", "dec_sec",
            "side", "eligible", "phase_dec", "phase_conf", "conf_sec",
            "primary_family", "families", "rungs", "level_families", "flags",
            "entry_mid", "atr14_usd", "spread_at_decision", "dom_share",
@@ -128,9 +129,12 @@ def index_rows(asset, era, bdate):
             ok[d] = receipts_present(asset, d)
         ds = int(r["dec_sec"][i])
         side = int(r["side"][i])
+        cls, driver, _other = MC.class_of(int(r["fam_mask"][i]))
+        cross = MC.classes_of(int(r["fam_mask"][i]))[1:]
         rows.append([
             MC.make_cid(asset, d, ds, side), asset, era,
             BLOCK_STUDY if d <= bdate else BLOCK_BLIND,
+            cls, str(driver), ",".join(cross) or "none",
             d, MC.d8_to_date(d).isoformat(), ds, side, 1 if ok[d] else 0,
             X.PHASE_NAMES[int(r["phase_dec"][i])],
             X.PHASE_NAMES[int(r["phase_conf"][i])],
@@ -152,11 +156,26 @@ def build(eras, assets=MC.ASSET_ORDER):
     phash = MC.params_hash(PARAMS)
     blocks = []
     totals = {}
+    C_BLOCK = COLUMNS.index("block")
+    C_D8 = COLUMNS.index("date8")
+    C_ELIG = COLUMNS.index("eligible")
+    C_CLASS = COLUMNS.index("candidate_class")
+    C_SEC = COLUMNS.index("dec_sec")
+    C_ASSET = COLUMNS.index("asset")
     for era in eras:
         bdate, union = boundary_date(era, assets)
         out = era_dir(era)
+        by_class = {}
+        blind_chrono = []
         for asset in assets:
             rows = index_rows(asset, era, bdate)
+            for r in rows:
+                if r[C_ELIG] != 1:
+                    continue
+                if r[C_BLOCK] == BLOCK_STUDY:
+                    by_class.setdefault(r[C_CLASS], []).append(r)
+                else:
+                    blind_chrono.append(r)
             MC.write_tsv(os.path.join(out, "INDEX_%s.tsv" % asset), SECTION,
                          phash, list(COLUMNS), rows,
                          extra=["era=%s boundary_date=%s (STUDY <= boundary)"
@@ -164,16 +183,33 @@ def build(eras, assets=MC.ASSET_ORDER):
                                 "COMPLETE population of the v3 roster for this "
                                 "era — no sampling, no filtering"])
             for blk in (BLOCK_STUDY, BLOCK_BLIND):
-                sel = [r for r in rows if r[3] == blk]
-                el = [r for r in sel if r[8] == 1]
-                ds = sorted({r[4] for r in sel})
-                dse = sorted({r[4] for r in el})
+                sel = [r for r in rows if r[C_BLOCK] == blk]
+                el = [r for r in sel if r[C_ELIG] == 1]
+                ds = sorted({r[C_D8] for r in sel})
+                dse = sorted({r[C_D8] for r in el})
                 blocks.append([era, asset, blk, len(ds), len(dse), len(sel),
                                len(el),
                                min(ds) if ds else None, max(ds) if ds else None,
                                bdate])
                 totals[(era, blk)] = totals.get((era, blk), 0) + len(el)
             MC.hb("era_index %s %s: %d candidates" % (era, asset, len(rows)))
+        # D-071.3: STUDY groups by CLASS (coherent class playbooks); BLIND stays
+        # day-complete chronological MIXED (deployment order).
+        for cls in sorted(by_class):
+            crows = sorted(by_class[cls], key=lambda r: (r[C_D8], r[C_SEC],
+                                                         r[C_ASSET]))
+            MC.write_tsv(os.path.join(out, "INDEX_STUDY_CLASS_%s.tsv"
+                                      % cls.replace("-", "_")),
+                         SECTION, phash, list(COLUMNS), crows,
+                         extra=["D-071.3 STUDY sub-index: class %s, all assets, "
+                                "chronological within the class" % cls,
+                                "era=%s boundary_date=%s" % (era, bdate)])
+        blind_chrono.sort(key=lambda r: (r[C_D8], r[C_SEC], r[C_ASSET]))
+        MC.write_tsv(os.path.join(out, "INDEX_BLIND_CHRONO.tsv"), SECTION,
+                     phash, list(COLUMNS), blind_chrono,
+                     extra=["D-071.3 BLIND order: day-complete chronological "
+                            "MIXED across classes and assets (deployment "
+                            "order); era=%s boundary_date=%s" % (era, bdate)])
     MC.write_tsv(MC.out_path("era", "BLOCKS.tsv"), SECTION, phash,
                  ["era", "asset", "block", "n_sessions", "n_sessions_eligible",
                   "n_candidates", "n_candidates_eligible", "first_date8",

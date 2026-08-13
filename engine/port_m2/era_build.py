@@ -45,7 +45,8 @@ SECTION = "§4 [P-M2b] era E1/E2 sheet sets"
 WORKERS_MAX = 6                           # brief cap
 
 SHEET_COLUMNS = ("cid", "asset", "era", "block", "date8", "dec_sec", "side",
-                 "phase", "primary_family", "certified", "n_failed_sections",
+                 "phase", "primary_family", "candidate_class",
+                 "certified", "n_failed_sections",
                  "n_leak_refusals", "tokens_proxy", "chars", "lines",
                  "appendix_tokens", "sheet_sha256", "appendix_sha256")
 

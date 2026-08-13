@@ -12,4 +12,5 @@ Why are we doing like features like these now? I'm pretty sure we need some feat
 
 Also, we need forward volatility and the other types of information like macro information, etc., and also the implied volatility and etc. that we downloaded.
 
-Look, we need to use all of the information that we have available and give Opus all of the information that we can give it in its rawest format so that it can identify whatever features to build and whatever interaction between features and different data points will actually give us proper results 
+Look, we need to use all of the information that we have available and give Opus all of the information that we can give it in its rawest format so that it can identify whatever features to build and whatever interaction between features and different data points will actually give us proper results
+- [2026-08-13T11:47:44Z] The data we downloaded and everything needs to be properly cut off so that we don't get future information leaking in

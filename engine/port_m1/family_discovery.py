@@ -1716,6 +1716,14 @@ def write_report():
     A("")
     A("## 7. Adoption recommendation (what this lane would take forward)")
     A("")
+    def vv(a, f, col="conditional_value_usd"):
+        r, _ln = ver.one(asset=a, family=f)
+        return r[ver.i(col)] if r else ""
+    def dg1(a, f):
+        return _f(vv(a, f, "value_minus_g1_usd"))
+    def nn(a, f):
+        return vv(a, f, "n_candidates_fit")
+
     A("The CC-M1-3.2 metric is an OR of three tests, and two of them are "
       "degenerate for this stage — that is a finding, not an excuse:")
     A("")
@@ -1784,13 +1792,6 @@ def write_report():
     A("")
     A("| family | reading | recommendation |")
     A("| --- | --- | --- |")
-    def vv(a, f, col="conditional_value_usd"):
-        r, _ln = ver.one(asset=a, family=f)
-        return r[ver.i(col)] if r else ""
-    def dg1(a, f):
-        return _f(vv(a, f, "value_minus_g1_usd"))
-    def nn(a, f):
-        return vv(a, f, "n_candidates_fit")
     A("| F-D3 NEWS-WINDOW | +$%s SI / +$%s NKD / +$%s HG at n=%s/%s/%s FIT, "
       "sign-stable in all four FIT years, 2025 echo higher — but ~flat on the "
       "horizon-free comparator | **ADOPT** on the operative (close-exit) "

@@ -34,3 +34,4 @@ It can also have single things, like you don't want to force it to do something.
 - [2026-08-13T13:55:50Z] Yeah, I'm fine with catching trends or taking reversals. I'm fine with either. I don't have a preference for either.
 
 I just want us to get the best rates possible. That is the main thing I want us to look at
+- [2026-08-13T16:06:02Z] Also, some of the people I know who initially got me into Quantic, they all just larp about stochastic calculus and like always talk about that. So is that, does that have any merit and did we even use it? Or is that just the basic stepping stone for learning things

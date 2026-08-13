@@ -25,3 +25,10 @@
 | M4 | TODO | — | — | — | W2.0..W2.13 (conditional on M3 reading) |
 | M5 | TODO | — | — | — | entry-stage readiness certificate |
 | SHEETS-V4 | DONE | 2026-08-12 | sheets_v4/STREAM_RECEIPT.tsv | tree sha 5976402af8c28c37… (run1==run2) | D-042 certificate: 22,282 sheets x 2 runs, 14 blocks, 13 sections, 0 failures; SHEET_V4_MANIFEST.json; 3 census-path defects fixed red-first (2x VALID-ZERO, 1x never-computed d_fd_ratio) |
+| P-M0.0 | DONE | 2026-08-13 | — | D-048; design/PORT_M0_CENSUS_SPEC.md; approved plan | PORT program start: housekeeping (STATE/DIRECTIVES/INBOX cleared/spec frozen); IWM parked |
+| P-M0.1 | TODO | — | — | — | substrate: s0 inventory → s1 SI-2024 fingerprint gate → s2 decode → s3 sessions (spec §2-5) |
+| P-M0a | TODO | — | — | — | cost census: spread-to-offer per asset/phase (spec §6) |
+| P-M0b | TODO | — | — | — | offer re-census, symbology-correct, 3 assets × 2021-25 (spec §7) |
+| P-M0c | TODO | — | — | — | occupancy gate: G1 roster + walled certs + one-position DP ≥$2,500/day (spec §8) |
+| P-M0d | TODO | — | — | — | recall gate ≥95% oracle top-2 legs (spec §9) |
+| P-M0e | TODO | — | — | — | targeting verdict: PORT_M0_VERDICT.md (may reorder SI+NKD) |

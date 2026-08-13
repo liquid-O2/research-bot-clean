@@ -153,10 +153,12 @@ def _cot(series_id, years):
     lcol = "%s_Positions_Long_All" % prefix
     scol = "%s_Positions_Short_All" % prefix
     triples = []
+    used = []
     for y in years:
         path = os.path.join(REF, stem % y)
         if not os.path.exists(path):
             continue
+        used.append(path)
         with open(path, newline="") as fh:
             for rec in csv.DictReader(fh):
                 if rec.get("CFTC_Contract_Market_Code", "").strip() != code:
@@ -171,9 +173,11 @@ def _cot(series_id, years):
                     continue
                 triples.append((d, AV.availability_ts(rule, d),
                                 (lo - sh, lo, sh, oi)))
+    # CC-M2-1.4: the lag table names a YYYY TEMPLATE; the sidecar must name the
+    # concrete year files this series was actually built from.
     return AV.AvailSeries(series_id, rule, triples,
                           unit="net,long,short,open_interest",
-                          source=r["file"])
+                          source=" + ".join(used) if used else r["file"])
 
 
 # ------------------------------------------------------------- calendars ----

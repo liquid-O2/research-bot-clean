@@ -84,7 +84,7 @@ def params_hash():
 
 class Sheet(object):
     __slots__ = ("cid", "mode", "text", "appendix", "certificate", "sidecar",
-                 "sha256", "appendix_sha256")
+                 "sha256", "appendix_sha256", "appendix_sidecar")
 
 
 def _sec_metrics(name, lines):
@@ -156,9 +156,17 @@ def _s1_header(case, order, metrics, mode, phash, refusals):
     return L, n_fail
 
 
-def build(cid, mode=MC.MODE_BLIND):
+def build(cid, mode=MC.MODE_BLIND, with_appendix=False):
     """Render one candidate.  Raises LeakRefusal / SealRefusal rather than
-    emitting a sheet that a guard rejected."""
+    emitting a sheet that a guard rejected.
+
+    `with_appendix` renders the S14 appendix BESIDE a BLIND sheet (P-M2b era
+    builds: the reader gets the blind sheet, the protocol releases the appendix
+    only after the call is committed).  The blind sheet's bytes are unchanged by
+    it — S1 reports on the blind sections only — and the appendix's own sidecar
+    values are kept in a SEPARATE list so no outcome number can reach the blind
+    sidecar.
+    """
     if mode not in MC.MODES:
         raise ValueError("mode %r" % mode)
     MC.verify_spec()
@@ -166,6 +174,8 @@ def build(cid, mode=MC.MODE_BLIND):
     phash = params_hash()
 
     sidecar_vals = []
+    appendix_vals = []
+    sink = [sidecar_vals]
 
     def put(key, value, source, source_key):
         if isinstance(value, (np.integer,)):
@@ -174,9 +184,9 @@ def build(cid, mode=MC.MODE_BLIND):
             value = float(value)
         if isinstance(value, float) and not np.isfinite(value):
             value = None
-        sidecar_vals.append({"key": key, "value": value,
-                             "source": _rel(source),
-                             "source_key": source_key})
+        sink[0].append({"key": key, "value": value,
+                        "source": _rel(source),
+                        "source_key": source_key})
 
     order = [s for s in MC.BLIND_SECTIONS if s != "S1"]
     body = {}
@@ -208,12 +218,20 @@ def build(cid, mode=MC.MODE_BLIND):
     sh.appendix = None
     sh.appendix_sha256 = None
     app_m = None
-    if mode == MC.MODE_STUDY:
-        lines = SEC.RENDERERS["S14"](case, put)
+    if mode == MC.MODE_STUDY or with_appendix:
+        sink[0] = appendix_vals
+        try:
+            lines = SEC.RENDERERS["S14"](case, put)
+        finally:
+            sink[0] = sidecar_vals
         atext, app_m = _sec_metrics("S14", lines)
         metrics["S14"] = app_m
         sh.appendix = atext
         sh.appendix_sha256 = hashlib.sha256(atext.encode("utf-8")).hexdigest()
+        if mode == MC.MODE_STUDY:
+            # P-M2a behaviour: a STUDY sidecar is the study artefact and carries
+            # the appendix values inline.  A BLIND sidecar never does.
+            sidecar_vals.extend(appendix_vals)
 
     sh.certificate = {
         "cid": cid,
@@ -265,6 +283,11 @@ def build(cid, mode=MC.MODE_BLIND):
         "known_traps": MC.KNOWN_TRAPS,
         "values": sidecar_vals,
     }
+    sh.appendix_sidecar = (
+        None if (mode == MC.MODE_STUDY or not appendix_vals) else
+        {"cid": cid, "mode": "S14_APPENDIX",
+         "appendix_sha256": sh.appendix_sha256,
+         "certificate_appendix": app_m, "values": appendix_vals})
     return sh
 
 
@@ -276,23 +299,41 @@ def _rel(p):
     sidecar is read from anywhere but /workspace?).  Every source path a sidecar
     names is now an absolute filesystem path.  The name is kept so the call
     sites read the same; the behaviour is inverted.
+
+    A value's source is either a FILE (now always absolute) or an explicitly
+    typed non-file tag `derived...` — a quantity this builder computes from
+    receipts already named elsewhere in the sidecar.  Tags are left alone; a
+    tag is never silently turned into a path.
     """
     if not p:
         return None
-    return os.path.abspath(str(p))
+    p = str(p)
+    if p.startswith("derived"):
+        return p
+    return AV.abs_source(p)
 
 
 # ------------------------------------------------------------------ output --
-def emit(sh, out_dir):
-    """Write sheet / appendix / sidecar under out_dir (D-018: under M2_ROOT)."""
+def emit(sh, out_dir, sidecars=True):
+    """Write sheet / appendix / sidecar under out_dir (D-018: under M2_ROOT).
+
+    `sidecars=False` writes the reader-facing artefacts only (sheet + S14
+    appendix).  Era-scale renders use it: the sidecar is the hand-verification
+    aid, ~2x the sheet's bytes, and is regenerated on demand for any candidate
+    by re-running the builder (the sheet is a pure function of the receipts).
+    """
     os.makedirs(out_dir, exist_ok=True)
     p = os.path.join(out_dir, "%s.%s.sheet.txt" % (sh.cid, sh.mode))
     MC.write_text(p, sh.text)
-    MC.write_json(os.path.join(out_dir, "%s.%s.sidecar.json"
-                               % (sh.cid, sh.mode)), sh.sidecar)
+    if sidecars:
+        MC.write_json(os.path.join(out_dir, "%s.%s.sidecar.json"
+                                   % (sh.cid, sh.mode)), sh.sidecar)
     if sh.appendix is not None:
         MC.write_text(os.path.join(out_dir, "%s.S14.appendix.txt" % sh.cid),
                       sh.appendix)
+        if sidecars and sh.appendix_sidecar is not None:
+            MC.write_json(os.path.join(out_dir, "%s.S14.sidecar.json" % sh.cid),
+                          sh.appendix_sidecar)
     return p
 
 

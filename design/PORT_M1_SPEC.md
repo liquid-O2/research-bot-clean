@@ -298,6 +298,25 @@ oracle->engine law. Outputs m1/family_discovery/ + FAMILY_DISCOVERY_REPORT.md.
    trades/day; entered ceilings 3.6-4.6x IWM's; ~41 decidable objects/day vs IWM's ~1-2. Generation is
    NOT the bind on the port; picking is.
 
+## CC-M1-12 — the D-066 JOINT ADJUDICATION (census + research), 2026-08-13 (BINDING) = EPISODE PROGRAM v2
+1. GROUPING v2: candidate-intrinsic, TWO registered definitions — EPISODE_CAUSAL (features/live-safe: gap
+   fitted by K-gaps MLE w/ adequacy test, cross-checked vs Ferro-Segers intervals + Hawkes 1-n̂; anti-chaining
+   guard; magnitude-scaling of the gap TESTED per leg-travel decile, not assumed) and EPISODE_RETRO
+   (occupancy-Jaccard overlap graph + transitive closure; occupancy_derived => analysis-only, shuffled-twin
+   guarded, NEVER a live selector input). The 900s decree and the leg rule are retired.
+2. GATE FIRST: the Zaliapin-Ben-Zion proximity-bimodality test decides whether episodes are a natural kind
+   here; if unimodal, the program reports it honestly and grouping stays a convention with fitted parameters.
+3. WITHIN-EPISODE: soft weights inside (Soft-NMS-style decay), hard pick ONLY at the scheduler; the SELECTOR
+   is the MIL bag formulation (attention pooling / within-episode softmax; ListNet for soft targets) — labels
+   built on EPISODE_CAUSAL objects only (F-PROX bar).
+4. STATISTICS: cluster-robust everything (GEE/sandwich, cluster bootstrap, n_eff = θ·N); NEVER estimate on
+   episode maxima (Fawcett-Walshaw bias). MANDATED RE-TEST: the family promotion/retirement set re-evaluated
+   under cluster-robust variance (measured θ̂≈0.10, m̄≈10.7 => n_eff possibly 4-7x smaller) — if the set
+   moves, a census addendum issues.
+5. Convergent validity phase 2: ETAS/Hawkes branching probabilities; Poisson-surprise admission + M-of-N as
+   candidate-emission hardening options (parked).
+Deliverable: EPISODE_V2 lane implements 1-4 (params P1 K*, P2 τ*, P3 ρ_w per the research report).
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

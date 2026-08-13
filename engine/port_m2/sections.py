@@ -31,6 +31,7 @@ import b3_levels as B3                    # noqa: E402
 import assemble as A                      # noqa: E402
 import tape as TAPE                       # noqa: E402
 import context as CTX                     # noqa: E402
+import availability as AV                 # noqa: E402
 
 # S6 budget mechanics (spec §1: "section budget enforced (S6 is the largest);
 # episode-digest compression keeps it bounded").
@@ -215,7 +216,8 @@ def s2_regime(case, put):
     L.append(MC.row("  era", MC.fstr(era, 16),
                     "primer=ERA_PRIMER_%s.md (spec S3, auto-generated per era "
                     "from committed censuses)" % era))
-    put("S2.era", era, "engine/port_m2/m2_common.py", "ERAS")
+    put("S2.era", era, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "m2_common.py"), "ERAS")
 
     fs = case.fvol_seg
     seg = X.PHASE_NAMES[case.phase_dec]
@@ -1363,7 +1365,9 @@ def s12_context(case, put):
                         " status=" + nxt["status"],
                         " (SCHEDULE_EXEMPT)"))
         put("S12.next_release_countdown_sec", cd,
-            "port_context/bls_calendar+calendar_fomc", "scheduled, exempt")
+            AV.abs_source(CTX._row("CAL_BLS")["file"] + " + "
+                          + CTX._row("CAL_FOMC")["file"]),
+            "scheduled, exempt")
     rec = CTX.recent_release(g, case.asset)
     if rec:
         L.append(MC.row("  last_scheduled", MC.fstr(rec["name"], 22),
@@ -1372,8 +1376,7 @@ def s12_context(case, put):
                         " status=" + rec["status"]))
     L.append(MC.row("  availability_summary", "n_joined=" + str(n_ok),
                     " n_refused=" + str(n_ref),
-                    " lag_table=artifacts/reference/port_context/"
-                    "AVAILABILITY_LAGS.tsv"))
+                    " lag_table=" + AV.LAG_TABLE))
     put("S12.n_series_joined", n_ok, "derived", "count")
     put("S12.n_series_refused", n_ref, "derived", "count")
     return L

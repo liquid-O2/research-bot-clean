@@ -307,9 +307,16 @@ class Case(object):
             lo = max(0, self.dec_sec - TAPE.RIBBON_DIGEST_SEC
                      - TAPE.RIBBON_RAW_SEC - TAPE.EXTRACT_PAD_SEC)
             hi = self.dec_sec + 1
-            arrays, meta = TAPE.ensure(asset, self.trade_date, int(self.s.iid),
+            cached, meta = TAPE.ensure(asset, self.trade_date, int(self.s.iid),
                                        self.open_utc, self.close_utc,
                                        [(lo, hi)])
+            # The cache is per SESSION and a batch render covers every candidate
+            # of that session, so `cached` routinely spans the whole day.  A
+            # sheet may only ever see its OWN canonical window [lo, dec_sec+1):
+            #   * causality — the cache holds seconds after this decision;
+            #   * determinism — the sheet's bytes must not depend on which
+            #     other candidates happen to share the cache file.
+            arrays, _i0, _i1 = TAPE.window(cached, self.open_utc, lo, hi)
             self.events = arrays
             self.events_meta = meta
             self.trade_tag, self.trade_flow = TAPE.classify_trades(arrays)

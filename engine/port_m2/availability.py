@@ -27,6 +27,22 @@ import m2_common as MC                    # noqa: E402
 REF_ROOT = "/workspace/artifacts/reference"
 LAG_TABLE = os.path.join(REF_ROOT, "port_context", "AVAILABILITY_LAGS.tsv")
 
+
+def abs_source(source):
+    """REF_ROOT-relative source name(s) -> absolute path(s) (CC-M2-1.4).
+
+    A source may name several files joined by ' + ' (the gold/silver ratio is
+    built from two dailies); each part is absolutised independently.  An empty
+    source stays empty and an already-absolute path is returned unchanged.
+    """
+    if not source:
+        return source
+    parts = [p.strip() for p in str(source).split(" + ")]
+    out = [p if p.startswith("/") else os.path.join(REF_ROOT, p)
+           for p in parts]
+    return " + ".join(out)
+
+
 NY = ZoneInfo("America/New_York")
 TOKYO = ZoneInfo("Asia/Tokyo")
 SHANGHAI = ZoneInfo("Asia/Shanghai")
@@ -197,7 +213,10 @@ class AvailSeries(object):
         self.avail = [t[1] for t in triples]
         self.values = [t[2] for t in triples]
         self.unit = unit
-        self.source = source
+        # CC-M2-1.4: a series names its source file as an ABSOLUTE path.  The
+        # lag table stores REF_ROOT-relative file names (its own convention),
+        # so the join happens once, here, rather than in every consumer.
+        self.source = abs_source(source)
 
     def __len__(self):
         return len(self.avail)

@@ -22,7 +22,7 @@
   "mode": "STUDY",
   "n_failed_sections": 0,
   "n_leak_refusals": 0,
-  "params_hash": "31b8fe3997d8325bc07a55b3d7afb86ae308476803086a4eb50fe9d96795bc60",
+  "params_hash": "02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799",
   "sections": {
    "S1": {
     "budget": 640,
@@ -32,7 +32,7 @@
     "over_budget": 0,
     "rows": 24,
     "section": "S1",
-    "tokens_proxy": 547
+    "tokens_proxy": 556
    },
    "S10": {
     "budget": 340,
@@ -56,13 +56,13 @@
    },
    "S12": {
     "budget": 720,
-    "bytes": 1502,
-    "chars": 1502,
+    "bytes": 1513,
+    "chars": 1513,
     "lines": 18,
     "over_budget": 0,
     "rows": 18,
     "section": "S12",
-    "tokens_proxy": 601
+    "tokens_proxy": 605
    },
    "S13": {
     "budget": 420,
@@ -125,14 +125,14 @@
     "tokens_proxy": 294
    },
    "S6": {
-    "budget": 2000,
-    "bytes": 4876,
-    "chars": 4876,
-    "lines": 65,
+    "budget": 3000,
+    "bytes": 7393,
+    "chars": 7393,
+    "lines": 102,
     "over_budget": 0,
-    "rows": 65,
+    "rows": 102,
     "section": "S6",
-    "tokens_proxy": 1957
+    "tokens_proxy": 2934
    },
    "S7": {
     "budget": 240,
@@ -166,77 +166,95 @@
    }
   },
   "sheet": {
-   "bytes": 16472,
-   "chars": 16472,
-   "lines": 235,
-   "tokens_proxy": 6644
+   "bytes": 19000,
+   "chars": 19000,
+   "lines": 272,
+   "tokens_proxy": 7634
   },
-  "sheet_budget": 7400,
-  "sheet_sha256": "e4bff7e4815a7a869c336b8114ad4f37d42f756c8ae8cec2e4348f2a57c295a9",
+  "sheet_budget": 8500,
+  "sheet_sha256": "ef92c00e3b75a704bf11d69d7a4c5b6c3a9e936b24662a964c9f99b514210507",
   "sheets_version": "PORT-SHEETS-V1",
   "spec_shas": {
    "m0_spec_sha16": "4bdf772927b5f316",
-   "m1_spec_sha16": "97bd95a917f7fb67",
+   "m1_spec_sha16": "3a793af2f6953e2a",
    "m1b_spec_sha16": "d31f48b59877e44d",
-   "m2_spec_sha16": "f14b5c773ccec5ba"
+   "m2_spec_sha16": "c45371dbd6ad2995"
   },
   "token_proxy": "M2-PROXY-2",
   "trade_date": "2023-04-03"
  },
  "cid": "SI-20230403-005357-L",
+ "known_traps": {
+  "levels_v4.last_test_outcome": {
+   "builder_rule": "S4 prints PENDING until the outcome's own resolution second (or the whole 15-minute window) has elapsed before decision_sec",
+   "field": "touches[:,5] (outcome) / touches[:,6] (outcome_sec)",
+   "receipt": "artifacts/cache/port/m1/levels_v4/{ASSET}/{d8}.npz",
+   "registered": "2026-08-13 CC-M2-1.3",
+   "test": "t09_s4_touch_state_is_causal",
+   "why": "a touch outcome resolves inside a FORWARD 15-minute window (b3_levels REJECT_WINDOW); the committed column is the end-of-window value"
+  },
+  "levels_v4.touch_count": {
+   "builder_rule": "S4 recounts touches with sec < decision_sec and adds the causal birth snapshot only",
+   "field": "touch_count",
+   "receipt": "artifacts/cache/port/m1/levels_v4/{ASSET}/{d8}.npz",
+   "registered": "2026-08-13 CC-M2-1.3",
+   "test": "t09_s4_touch_state_is_causal",
+   "why": "end-of-session count over the whole session"
+  }
+ },
  "mode": "STUDY",
  "mult": 5000,
  "receipts": {
-  "bars": "artifacts/cache/port/m0/bars_SI.tsv",
-  "cost": "artifacts/cache/port/m0/census_a_cost.tsv",
-  "events": "artifacts/cache/port/m2/events/SI/20230403.npz",
-  "family_census": "artifacts/cache/port/m1/generation_v3/census_family_value.tsv",
-  "fvol": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
-  "lag_table": "artifacts/reference/port_context/AVAILABILITY_LAGS.tsv",
-  "levels": "artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
-  "oracle_legs": "artifacts/cache/port/m1/generation_v3/oracle_legs.tsv",
-  "prior_profile": "artifacts/cache/port/m1/profiles/SI/20230402.npz",
-  "profile": "artifacts/cache/port/m1/profiles/SI/20230403.npz",
-  "roster": "artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
-  "session": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
-  "walls": "artifacts/cache/port/m0/walls.json"
+  "bars": "/workspace/artifacts/cache/port/m0/bars_SI.tsv",
+  "cost": "/workspace/artifacts/cache/port/m0/census_a_cost.tsv",
+  "events": "/workspace/artifacts/cache/port/m2/events/SI/20230403.npz",
+  "family_census": "/workspace/artifacts/cache/port/m1/generation_v3/census_family_value.tsv",
+  "fvol": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+  "lag_table": "/workspace/artifacts/reference/port_context/AVAILABILITY_LAGS.tsv",
+  "levels": "/workspace/artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
+  "oracle_legs": "/workspace/artifacts/cache/port/m1/generation_v3/oracle_legs.tsv",
+  "prior_profile": "/workspace/artifacts/cache/port/m1/profiles/SI/20230402.npz",
+  "profile": "/workspace/artifacts/cache/port/m1/profiles/SI/20230403.npz",
+  "roster": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
+  "session": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
+  "walls": "/workspace/artifacts/cache/port/m0/walls.json"
  },
  "roster_row": 199665,
  "tick_px": 0.005,
  "values": [
   {
    "key": "S2.era",
-   "source": "engine/port_m2/m2_common.py",
+   "source": "/workspace/engine/port_m2/m2_common.py",
    "source_key": "ERAS",
    "value": "E4"
   },
   {
    "key": "S2.regime_tag",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "regime_tag",
    "value": "LOW"
   },
   {
    "key": "S2.rv5_over_rv66",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "rv5_over_rv66",
    "value": 0.09391
   },
   {
    "key": "S2.sigma_hat_usd",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "sigma_hat_usd",
    "value": 846.131198
   },
   {
    "key": "S2.range_hat_usd",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "range_hat_usd",
    "value": 1281.63752
   },
   {
    "key": "S2.range_so_far_usd",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "g0_mid[SANE,<dec]",
    "value": 1374.999999999993
   },
@@ -248,7 +266,7 @@
   },
   {
    "key": "S2.dominant_share",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "meta_json.dominant_share",
    "value": 0.877364388932685
   },
@@ -266,19 +284,19 @@
   },
   {
    "key": "S3.first_sane_mid",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "g0_mid[first SANE]",
    "value": 24.2525
   },
   {
    "key": "S3.entry_mid",
-   "source": "artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
+   "source": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
    "source_key": "entry_mid[199665]",
    "value": 24.040000000000003
   },
   {
    "key": "S3.prior_settle_close",
-   "source": "artifacts/cache/port/m0/bars_SI.tsv",
+   "source": "/workspace/artifacts/cache/port/m0/bars_SI.tsv",
    "source_key": "C[prior]",
    "value": 24.8625
   },
@@ -290,19 +308,19 @@
   },
   {
    "key": "S3.phase_H",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "max g0_mid[SANE, phase, <dec]",
    "value": 24.2525
   },
   {
    "key": "S3.phase_L",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "min g0_mid[SANE, phase, <dec]",
    "value": 23.977500000000003
   },
   {
    "key": "S3.runway_phase_sec",
-   "source": "artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
+   "source": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
    "source_key": "phase_close_sec[199665]-dec_sec",
    "value": 19843
   },
@@ -320,7 +338,7 @@
   },
   {
    "key": "S3.exp_move_q50_session_usd",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "move_q50_usd_per_sigma*sigma_hat_usd [SESSION]",
    "value": 2531.725398638953
   },
@@ -332,85 +350,85 @@
   },
   {
    "key": "S4.n_active_in_band",
-   "source": "artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
    "source_key": "|level_price-mid| <= 1.5*ATR/mult",
    "value": 219
   },
   {
    "key": "S4.n_touches_causal",
-   "source": "artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
    "source_key": "touches[touch_sec < dec_sec]",
    "value": 44
   },
   {
    "key": "S4.n_pending_outcome",
-   "source": "artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
    "source_key": "touches whose 15-min outcome window has not closed by dec_sec",
    "value": 6
   },
   {
    "key": "S4.or_LONDON_OR30_range_usd",
-   "source": "artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
    "source_key": "recovered from the OR_EXT k-ladder level prices",
    "value": 274.9999999999986
   },
   {
    "key": "S4.or_LONDON_OR60_range_usd",
-   "source": "artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
    "source_key": "recovered from the OR_EXT k-ladder level prices",
    "value": 412.4999999999801
   },
   {
    "key": "S4.or_NY_OR30_range_usd",
-   "source": "artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
    "source_key": "recovered from the OR_EXT k-ladder level prices",
    "value": 387.50000000000284
   },
   {
    "key": "S4.or_TOKYO_OR30_range_usd",
-   "source": "artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
    "source_key": "recovered from the OR_EXT k-ladder level prices",
    "value": 1150.00000000002
   },
   {
    "key": "S4.or_TOKYO_OR60_range_usd",
-   "source": "artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/levels_v4/SI/20230403.npz",
    "source_key": "recovered from the OR_EXT k-ladder level prices",
    "value": 1150.00000000002
   },
   {
    "key": "S5.mid_now",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "g0_mid[dec_sec]",
    "value": 24.040000000000003
   },
   {
    "key": "S5.spread_now_usd",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "g0_spread_usd[dec_sec]",
    "value": 50.0
   },
   {
    "key": "S5.bid_sz_now",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "g0_bid_sz[dec_sec]",
    "value": 7.0
   },
   {
    "key": "S5.ask_sz_now",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "g0_ask_sz[dec_sec]",
    "value": 10.0
   },
   {
    "key": "S5.trades_per_min_now",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "trades_sec in [dec-60, dec)",
    "value": 3.0
   },
   {
    "key": "S5.sflow_per_min_now",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "trades_side/size in [dec-60, dec)",
    "value": 1.0
   },
@@ -422,27 +440,27 @@
   },
   {
    "key": "S6.n_events_90s",
-   "source": "artifacts/cache/port/m2/events/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m2/events/SI/20230403.npz",
    "source_key": "ts_ns in [T-90s, T]",
    "value": 170
   },
   {
    "key": "S6.n_events_pre",
-   "source": "artifacts/cache/port/m2/events/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m2/events/SI/20230403.npz",
    "source_key": "ts_ns in [T-690s, T-90s)",
    "value": 1813
   },
   {
    "key": "S6.n_events_raw_shown",
    "source": "derived",
-   "source_key": "budget-filled raw window (S6 budget=2000 tokens)",
-   "value": 45
+   "source_key": "budget-filled raw window (S6 budget=3000 tokens)",
+   "value": 82
   },
   {
    "key": "S6.raw_cover_sec",
    "source": "derived",
    "source_key": "T - ts_event[first raw line]",
-   "value": 11.874674457
+   "value": 48.750307459
   },
   {
    "key": "S6.n_episodes",
@@ -452,7 +470,7 @@
   },
   {
    "key": "S6.events_index_range",
-   "source": "artifacts/cache/port/m2/events/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m2/events/SI/20230403.npz",
    "source_key": "row indices into the cached event arrays covering this sheet's whole S6 window",
    "value": [
     0,
@@ -461,13 +479,13 @@
   },
   {
    "key": "S7.bid_sz_now",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "g0_bid_sz[dec_sec]",
    "value": 7
   },
   {
    "key": "S7.ask_sz_now",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "g0_ask_sz[dec_sec]",
    "value": 10
   },
@@ -491,25 +509,25 @@
   },
   {
    "key": "S8.sflow_60s",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "trades in [dec-60, dec)",
    "value": 1
   },
   {
    "key": "S8.session_signed_flow",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "trades_side/size, sec<dec_sec",
    "value": -292
   },
   {
    "key": "S8.fuel_above_mid",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "trades_px>entry_mid, phase, sec<dec",
    "value": 1372
   },
   {
    "key": "S8.fuel_below_mid",
-   "source": "artifacts/cache/port/m0/sessions/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/SI/20230403.npz",
    "source_key": "trades_px<entry_mid, phase, sec<dec",
    "value": 455
   },
@@ -533,37 +551,37 @@
   },
   {
    "key": "S9.ladder_position",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "move_q*_usd_per_sigma",
    "value": "at_or_above_q50"
   },
   {
    "key": "S9.move_q10_usd",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "move_q10_usd_per_sigma*sigma_hat_usd",
    "value": 421.234571087528
   },
   {
    "key": "S9.move_q25_usd",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "move_q25_usd_per_sigma*sigma_hat_usd",
    "value": 676.474277620218
   },
   {
    "key": "S9.move_q50_usd",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "move_q50_usd_per_sigma*sigma_hat_usd",
    "value": 1045.9154658157702
   },
   {
    "key": "S9.move_q75_usd",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "move_q75_usd_per_sigma*sigma_hat_usd",
    "value": 1570.917028632424
   },
   {
    "key": "S9.move_q90_usd",
-   "source": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
    "source_key": "move_q90_usd_per_sigma*sigma_hat_usd",
    "value": 2083.499077724834
   },
@@ -575,37 +593,37 @@
   },
   {
    "key": "S10.dev_poc",
-   "source": "artifacts/cache/port/m1/profiles/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/profiles/SI/20230403.npz",
    "source_key": "dev_poc_tick[16]",
    "value": 47.785000000000004
   },
   {
    "key": "S10.dev_vah",
-   "source": "artifacts/cache/port/m1/profiles/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/profiles/SI/20230403.npz",
    "source_key": "dev_vah_tick[16]",
    "value": 47.835
   },
   {
    "key": "S10.dev_val",
-   "source": "artifacts/cache/port/m1/profiles/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/profiles/SI/20230403.npz",
    "source_key": "dev_val_tick[16]",
    "value": 47.69
   },
   {
    "key": "S10.dev_sec",
-   "source": "artifacts/cache/port/m1/profiles/SI/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m1/profiles/SI/20230403.npz",
    "source_key": "dev_sec[16]",
    "value": 5100
   },
   {
    "key": "S10.prior_session_poc",
-   "source": "artifacts/cache/port/m1/profiles/SI/20230402.npz",
+   "source": "/workspace/artifacts/cache/port/m1/profiles/SI/20230402.npz",
    "source_key": "SESSION_poc_tick",
    "value": -0.005
   },
   {
    "key": "S11.HG_mid",
-   "source": "artifacts/cache/port/m0/sessions/HG/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/HG/20230403.npz",
    "source_key": "g0_mid[5357]",
    "value": 4.0765
   },
@@ -617,7 +635,7 @@
   },
   {
    "key": "S11.NKD_mid",
-   "source": "artifacts/cache/port/m0/sessions/NKD/20230403.npz",
+   "source": "/workspace/artifacts/cache/port/m0/sessions/NKD/20230403.npz",
    "source_key": "g0_mid[5357]",
    "value": 28300.0
   },
@@ -629,85 +647,85 @@
   },
   {
    "key": "S12.GVZ",
-   "source": "port_context/FRED_GVZCLS.csv",
+   "source": "/workspace/artifacts/reference/port_context/FRED_GVZCLS.csv",
    "source_key": "GVZCLS",
    "value": 18.39
   },
   {
    "key": "S12.VIX",
-   "source": "vol_indices/FRED_VIXCLS.csv",
+   "source": "/workspace/artifacts/reference/vol_indices/FRED_VIXCLS.csv",
    "source_key": "VIXCLS",
    "value": 19.02
   },
   {
    "key": "S12.RVX",
-   "source": "vol_indices/FRED_RVXCLS.csv",
+   "source": "/workspace/artifacts/reference/vol_indices/FRED_RVXCLS.csv",
    "source_key": "RVXCLS",
    "value": 24.93
   },
   {
    "key": "S12.COT_DISAGG_SILVER_net",
-   "source": "port_context/cot/fut_disagg_YYYY.txt",
+   "source": "/workspace/artifacts/reference/port_context/cot/fut_disagg_2021.txt + /workspace/artifacts/reference/port_context/cot/fut_disagg_2022.txt + /workspace/artifacts/reference/port_context/cot/fut_disagg_2023.txt + /workspace/artifacts/reference/port_context/cot/fut_disagg_2024.txt + /workspace/artifacts/reference/port_context/cot/fut_disagg_2025.txt",
    "source_key": "managed/leveraged net",
    "value": 10281.0
   },
   {
    "key": "S12.SLV_FLOW_OZ",
-   "source": "port_context/slv/SLV_ounces_flow_daily.csv",
+   "source": "/workspace/artifacts/reference/port_context/slv/SLV_ounces_flow_daily.csv",
    "source_key": "flow_oz,ounces,oz_per_share",
    "value": 4758632.857829495
   },
   {
    "key": "S12.SHFE_INV_SILVER",
-   "source": "port_context/shfe_inventory/shfe_silver_inventory_weekly_99qihuo.csv",
+   "source": "/workspace/artifacts/reference/port_context/shfe_inventory/shfe_silver_inventory_weekly_99qihuo.csv",
    "source_key": "inventory",
    "value": 1852347.0
   },
   {
    "key": "S12.FRED_DGS10",
-   "source": "port_context/fred_refresh/FRED_DGS10.csv",
+   "source": "/workspace/artifacts/reference/port_context/fred_refresh/FRED_DGS10.csv",
    "source_key": "DGS10",
    "value": 3.55
   },
   {
    "key": "S12.FRED_T10YIE",
-   "source": "port_context/fred_refresh/FRED_T10YIE.csv",
+   "source": "/workspace/artifacts/reference/port_context/fred_refresh/FRED_T10YIE.csv",
    "source_key": "T10YIE",
    "value": 2.34
   },
   {
    "key": "S12.FRED_DFII10",
-   "source": "port_context/FRED_DFII10.csv",
+   "source": "/workspace/artifacts/reference/port_context/FRED_DFII10.csv",
    "source_key": "DFII10",
    "value": 1.21
   },
   {
    "key": "S12.FRED_DTWEXBGS",
-   "source": "port_context/FRED_DTWEXBGS.csv",
+   "source": "/workspace/artifacts/reference/port_context/FRED_DTWEXBGS.csv",
    "source_key": "DTWEXBGS",
    "value": 120.4598
   },
   {
    "key": "S12.FRED_DEXJPUS",
-   "source": "port_context/FRED_DEXJPUS.csv",
+   "source": "/workspace/artifacts/reference/port_context/FRED_DEXJPUS.csv",
    "source_key": "DEXJPUS",
    "value": 130.64
   },
   {
    "key": "S12.JGB_10Y",
-   "source": "port_context/JGB_yields_all.csv",
+   "source": "/workspace/artifacts/reference/port_context/JGB_yields_all.csv",
    "source_key": "pct",
    "value": 0.362
   },
   {
    "key": "S12.gold_silver_ratio",
-   "source": "port_context/yahoo_GC_daily.csv + port_context/yahoo_SI_daily.csv",
+   "source": "/workspace/artifacts/reference/port_context/yahoo_GC_daily.csv + /workspace/artifacts/reference/port_context/yahoo_SI_daily.csv",
    "source_key": "GC close/SI close",
    "value": 82.85080802570667
   },
   {
    "key": "S12.next_release_countdown_sec",
-   "source": "port_context/bls_calendar+calendar_fomc",
+   "source": "/workspace/artifacts/reference/port_context/bls_calendar/bls_release_dates.csv + /workspace/artifacts/reference/port_context/calendar_fomc.csv",
    "source_key": "scheduled, exempt",
    "value": 392443
   },
@@ -725,61 +743,61 @@
   },
   {
    "key": "S13.spread_at_decision",
-   "source": "artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
+   "source": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
    "source_key": "spread_at_decision[199665]",
    "value": 50.0
   },
   {
    "key": "S13.cost_rt",
-   "source": "artifacts/cache/port/m0/census_a_cost.tsv",
+   "source": "/workspace/artifacts/cache/port/m0/census_a_cost.tsv",
    "source_key": "cost_rt[phase=ALL]",
    "value": 30.0
   },
   {
    "key": "S13.wall_usd",
-   "source": "artifacts/cache/port/m0/walls.json",
+   "source": "/workspace/artifacts/cache/port/m0/walls.json",
    "source_key": "walls.SI.wall_usd",
    "value": 900.0
   },
   {
    "key": "S13.census.G2_REJECT.2023.cond_value",
-   "source": "artifacts/cache/port/m1/generation_v3/census_family_value.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/generation_v3/census_family_value.tsv",
    "source_key": "conditional_value_usd",
    "value": 713.45357
   },
   {
    "key": "S13.census.G2_REJECT.FIT_2021_2024.cond_value",
-   "source": "artifacts/cache/port/m1/generation_v3/census_family_value.tsv",
+   "source": "/workspace/artifacts/cache/port/m1/generation_v3/census_family_value.tsv",
    "source_key": "conditional_value_usd",
    "value": 840.421814
   },
   {
    "key": "S14.cert_peak_usd",
-   "source": "artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
+   "source": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
    "source_key": "c_c_roster.certificates(wall=900.00, cost=30.00)",
    "value": 182.5
   },
   {
    "key": "S14.cert_close_usd",
-   "source": "artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
+   "source": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
    "source_key": "c_c_roster.certificates(wall=900.00, cost=30.00)",
    "value": -930.0
   },
   {
    "key": "S14.mfe_unwalled",
-   "source": "artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
+   "source": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
    "source_key": "mfe_unwalled[199665]",
    "value": 1462.500000000002
   },
   {
    "key": "S14.mae_before_argmax",
-   "source": "artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
+   "source": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
    "source_key": "mae_before_argmax[199665]",
    "value": 1562.5
   },
   {
    "key": "S14.dp_seated",
-   "source": "artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
+   "source": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
    "source_key": "c_c_roster.dp_schedule over the session's phase-close certificates",
    "value": 0
   }

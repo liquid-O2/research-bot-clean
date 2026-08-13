@@ -2,7 +2,7 @@
 # params_hash=02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799
 # RED-FIRST: armed_pass MUST be 1 and mutant_pass MUST be 0 on every row
 test	mutant	armed_pass	mutant_pass	verdict	detail
-two_run_byte_identity	MT01_wallclock_stamp	1	0	PASS	d606ad697aebda23
+two_run_byte_identity	MT01_wallclock_stamp	1	0	PASS	eb683afed47e80b7
 blind_carries_no_outcome	MT02_append_S14_to_blind	1	0	PASS	
 study_appendix_separate	MT03_drop_mode_stamp	1	0	PASS	
 certificate_fails_on_empty_section	MT04_ignore_empty_sections	1	0	PASS	empty S9 -> certified=0
@@ -17,5 +17,5 @@ typed_missing_never_zero	MT12_nan_as_zero	1	0	PASS
 token_proxy_deterministic	MT13_nondeterministic_proxy	1	0	PASS	tokens=370
 events_cache_deterministic	MT14_nondeterministic_npz	1	0	PASS	9483f9c2cdf34fc6
 anchor_ticks_are_integers	MT15_float_ticks	1	0	PASS	
-sidecar_paths_absolute	MT16_strip_workspace_root	0	0	FAIL_ARMED	n_paths=104
+sidecar_paths_absolute	MT16_strip_workspace_root	1	0	PASS	n_paths=88
 known_traps_registered	MT17_trap_without_test	1	0	PASS	n_traps=2

@@ -1,10 +1,10 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "0e0cca51d99bcd8478e87947b030539169a4c131",
+  "git_sha": "fa3831a2ed43c0cdb1d9e62ce0b7eaf31544d8b2",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
-  "m1_spec_sha16": "97bd95a917f7fb67",
+  "m1_spec_sha16": "3a793af2f6953e2a",
   "m1b_spec_sha16": "d31f48b59877e44d",
   "m2_spec_sha16": "c45371dbd6ad2995",
   "numpy_version": "2.1.2",
@@ -71,7 +71,7 @@
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
- "n_failed": 1,
+ "n_failed": 0,
  "n_tests": 17,
- "verdict": "FAIL"
+ "verdict": "PASS"
 }

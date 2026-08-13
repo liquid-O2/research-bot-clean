@@ -4,15 +4,15 @@ S1 HEADER
   decision sec=10:05:46  (36346)  utc=2025-04-09T08:05:46Z  conf_sec=10:03:46  lag=120s
   side SHORT   families=G1,POST_SHOCK  rungs=0.11xATR  level_families=none  flags=none
   anchor 32377.5000  tick_px=5.000000  tick_$=25.00  mult=5  ATR14_prev=$5273.62
-  spec_shas m2=f14b5c773ccec5ba  m1b=d31f48b59877e44d  m1=97bd95a917f7fb67  m0=4bdf772927b5f316
-  params_hash 31b8fe3997d8325bc07a55b3d7afb86ae308476803086a4eb50fe9d96795bc60
+  spec_shas m2=c45371dbd6ad2995  m1b=d31f48b59877e44d  m1=3a793af2f6953e2a  m0=4bdf772927b5f316
+  params_hash 02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799
   D-042 COMPLETENESS CERTIFICATE (owned sections; rows = rendered lines)
     section  title                              status  rows
     S2       ERA PRIMER REF + REGIME TAGS       OK          6
     S3       SESSION PATH + SWING CHAIN         OK         19
     S4       LEVEL LEDGER VIEW                  OK         21
     S5       T-MINUS TRAJECTORY                 OK         10
-    S6       RAW EVENT RIBBON                   OK         65
+    S6       RAW EVENT RIBBON                   OK        101
     S7       BOOK/QUEUE STATE                   OK          6
     S8       FLOW STATE                         OK         22
     S9       VOL STATE                          OK          9
@@ -84,7 +84,7 @@ S5 T-MINUS TRAJECTORY (z = vs trailing-60-session same half-hour)
   mid_slope_$/min      -25.0     -137.5      -87.5  accel(1m-5m)=       50.0
 
 S6 RAW EVENT RIBBON (MBP-1, dominant iid=1215, clock=ts_event)
-  window pre=[T-690s,T-90s)  raw_window=[T-90s,T]  n_ev_pre=12279  n_ev_90s=1631  n_raw=45  raw_cover=3.57s  n_digested_in_90s=1586
+  window pre=[T-690s,T-90s)  raw_window=[T-90s,T]  n_ev_pre=12279  n_ev_90s=1631  n_raw=82  raw_cover=6.75s  n_digested_in_90s=1549
   EPISODE DIGESTS (gap>=1.0s clusters; every event belongs to exactly one episode; NO minimum-size filter)
     t0     t1     n  nQ  nT  vol szmd szmx sflow  pxH  pxL trav$ thru
      -690.0  -630.0   818  805   13    16    1    3     -4    20     9    263    0
@@ -99,11 +99,47 @@ S6 RAW EVENT RIBBON (MBP-1, dominant iid=1215, clock=ts_event)
      -245.1   -90.1  3261 3140  121   154    1    5    -12    58    24    863    3
       -89.7   -89.0     8    8    0     0    .    .      0    26    25     13    0
       -87.1   -71.8   369  360    9    10    1    2     -4    25    14    288    0
-      -70.6    -4.4  1197 1171   26    28    1    2     -5    15    -3    463    0
-       -3.4    -2.6    12   12    0     0    .    .      0    -2    -3     25    0
-  RAW EVENTS (EVERY event in [T-3.57s, T]; newest last; prices as signed integer ticks vs anchor 32377.5000; ms = milliseconds before decision_ts, negative = inside the decision second itself, which IS the entry book)
+      -70.6    -5.7  1172 1148   24    26    1    2     -5    15    -2    438    0
+  RAW EVENTS (EVERY event in [T-6.75s, T]; newest last; prices as signed integer ticks vs anchor 32377.5000; ms = milliseconds before decision_ts, negative = inside the decision second itself, which IS the entry book)
         ms a s   pxT    sz  bidT  bsz  askT  asz    dsz st fl tag
-         2572 C A      .     1    -3    1    -1    1 .      TS L  -
+         5747 A B      .     1    -2    2     0    3 .      TS L  -
+         5738 A A      .     1    -2    2    -1    1 A-2    TS L  -
+         5738 C B      .     1    -2    1    -1    1 B-1    TS L  -
+         5735 A A      .     1    -2    1    -1    2 A+1    TS L  -
+         5702 C A      .     1    -2    1    -1    1 A-1    TS L  -
+         5671 A A      .     1    -2    1    -1    2 A+1    TS L  -
+         5664 T A     -2     1    -2    1    -1    2 0      TS -  @B
+         5664 C B      .     1    -3    1    -1    2 0      TS L  -
+         5660 A B      .     1    -3    2    -1    2 B+1    TS L  -
+         5336 A A      .     1    -3    2    -1    3 A+1    TS L  -
+         5336 A A      .     1    -3    2    -2    1 A-2    TS L  -
+         5336 C B      .     1    -3    1    -2    1 B-1    TS L  -
+         5336 C B      .     1    -4    1    -2    1 0      TS L  -
+         5336 A A      .     1    -4    1    -2    2 A+1    TS L  -
+         5333 A B      .     1    -4    2    -2    2 B+1    TS L  -
+         5161 C A      .     1    -4    2    -2    1 A-1    TS L  -
+         4800 A A      .     1    -4    2    -2    2 A+1    TS L  -
+         4730 C A      .     1    -4    2    -2    1 A-1    TS L  -
+         4419 T B     -2     1    -4    2    -2    1 0      TS -  @A
+         4419 C A      .     1    -4    2    -1    2 A+1    TS L  -
+         4419 A B      .     1    -4    3    -1    2 B+1    TS L  -
+         4419 C A      .     1    -4    3    -1    1 A-1    TS L  -
+         4419 A B      .     1    -3    1    -1    1 B-2    TS L  -
+         4418 A B      .     1    -3    2    -1    1 B+1    TS L  -
+         4417 A A      .     1    -3    2    -1    2 A+1    TS L  -
+         3350 C A      .     1    -3    2    -1    1 A-1    TS L  -
+         3350 C A      .     1    -3    2     0    4 A+3    TS L  -
+         3182 C A      .     1    -3    2     0    3 A-1    TS L  -
+         3170 A A      .     1    -3    2    -1    1 A-2    TS L  -
+         3170 A A      .     1    -3    2    -1    2 A+1    TS L  -
+         3096 C B      .     1    -3    1    -1    2 B-1    TS L  -
+         3096 C B      .     1    -4    3    -1    2 B+2    TS L  -
+         2993 A A      .     1    -4    3    -1    3 A+1    TS L  -
+         2993 C B      .     1    -4    2    -1    3 B-1    TS L  -
+         2847 C A      .     1    -4    2    -1    2 A-1    TS L  -
+         2698 A B      .     1    -4    3    -1    2 B+1    TS L  -
+         2572 A B      .     1    -3    1    -1    2 B-2    TS L  -
+         2572 C A      .     1    -3    1    -1    1 A-1    TS L  -
          2572 A B      .     1    -3    2    -1    1 B+1    TS L  -
          2572 C A      .     1    -3    2     0    3 A+2    TS L  -
          2571 A B      .     1    -3    3     0    3 B+1    TS L  -
@@ -217,7 +253,7 @@ S12 CONTEXT (D-057 availability-lagged; strict availability_ts < decision_ts)
     JGB_10Y              2025-04-08   20250409T0600     0.1 1.2680
     GOLD_SILVER_RATIO    2025-04-08   20250409T0400     0.2 ratio=100.311 gc=2968.40 si=29.592
   next_scheduled CPI                    2025-04-10T12:30:00Z  in 1d 04:24:14  status=actual  (SCHEDULE_EXEMPT)
-  availability_summary n_joined=10  n_refused=0  lag_table=artifacts/reference/port_context/AVAILABILITY_LAGS.tsv
+  availability_summary n_joined=10  n_refused=0  lag_table=/workspace/artifacts/reference/port_context/AVAILABILITY_LAGS.tsv
 
 S13 CANDIDATE MECHANICS
   entry mid=32377.5000  side=SHORT  spread_at_decision=$75.00  cost_rt=$80.00  tick=$25.00  mult=5

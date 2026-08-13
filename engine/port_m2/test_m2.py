@@ -283,8 +283,15 @@ def t16_sidecar_paths_absolute():
     """MT16 (CC-M2-1.4): every source path a sidecar names must be ABSOLUTE and
     must exist — a workspace-relative path is ambiguous off /workspace."""
     sh = SH.build(CID, MC.MODE_BLIND)
-    paths = [v["source"] for v in sh.sidecar["values"] if v["source"]]
-    paths += [p for p in sh.sidecar["receipts"].values() if p]
+    srcs = [v["source"] for v in sh.sidecar["values"] if v["source"]]
+    srcs += [p for p in sh.sidecar["receipts"].values() if p]
+    # a source is either a typed non-file tag or a file; every file part must be
+    # absolute and must exist on disk
+    paths = []
+    for s in srcs:
+        if s.startswith("derived"):
+            continue
+        paths.extend(p.strip() for p in s.split(" + "))
     armed = bool(paths) and all(p.startswith("/") for p in paths) and all(
         os.path.exists(p) for p in paths)
     # MUTANT MT16: the P-M2a behaviour — strip the /workspace/ root

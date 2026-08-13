@@ -1,12 +1,12 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "e3dd6008b075063c55482afc3776807df8f5652e",
+  "git_sha": "fa3831a2ed43c0cdb1d9e62ce0b7eaf31544d8b2",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
-  "m1_spec_sha16": "97bd95a917f7fb67",
+  "m1_spec_sha16": "3a793af2f6953e2a",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "f14b5c773ccec5ba",
+  "m2_spec_sha16": "c45371dbd6ad2995",
   "numpy_version": "2.1.2",
   "params": {
    "lag_table": "artifacts/reference/port_context/AVAILABILITY_LAGS.tsv",

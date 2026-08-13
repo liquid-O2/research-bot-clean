@@ -33,7 +33,7 @@
 | P-M0d | DONE | 2026-08-13 | m0/census_d_recall.tsv | M0_REPORT §7 | ANCHORED recall @$1k: SI .996 / HG .994 / NKD .986 — ALL PASS; misses tagged for G2/G3 |
 | P-M0e | DONE | 2026-08-13 | PORT_M0_VERDICT.md | committed this session | SI+NKD CONFIRMED, HG deferred; §14 ruling evidence-backed |
 | P-M1.spec | DONE | 2026-08-13 | — | design/PORT_M1_SPEC.md | M1.A frozen: C++ substrate + decay/fvol/levels/profile/G2-G3 prototype censuses; M1.B sketched §9 |
-| P-M1a | TODO | — | — | — | C++ DBN substrate, field-exact differential vs 3,942 m0 receipts (spec §1) |
+| P-M1a | DONE | 2026-08-13 | m1/diff/differential.receipt.json | GATE A PASS: 4,521/4,521 sessions field-exact, 0 orphans; two-run byte identity clean; 28 fixtures with red-ledger proofs MP01..MP07 | engine/cpp/qr_dbn + qr_futsess; full 3-asset 2021-25 decode+assembly 6.3 min / 1.967B records (budget 15 min); DEFECTS: spec says DBN-v3, corpus is DBN-**v1** (decoder refuses unverified versions by name); spec's "3,942 receipts" contradicts its own SI 1417/HG 1551/NKD 1553 breakdown = 4,521 (differential ran the full 4,521) |
 | P-M1b | TODO | — | — | — | confirmation-decay study, pin τ* per asset (spec §2) |
 | P-M1c | TODO | — | — | — | vol layer V1 + fvol HAR vs benchmarks (spec §3) |
 | P-M1d | TODO | — | — | — | level ledger (D-050) + volume-profile objects (spec §4-5) |

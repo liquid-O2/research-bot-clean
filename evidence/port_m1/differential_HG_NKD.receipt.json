@@ -1,0 +1,15 @@
+{
+ "assets": [
+  "HG",
+  "NKD"
+ ],
+ "generated_utc": "2026-08-13T09:10:35.100127+00:00",
+ "mismatch_rows": "/workspace/artifacts/cache/port/m1/diff_hgnkd/mismatches.tsv",
+ "mismatches_by_field": {},
+ "mismatching_sessions_by_asset": {},
+ "n_orphan_cpp_receipts": 0,
+ "n_sessions_compared": 3104,
+ "n_sessions_mismatching": 0,
+ "spec": "design/PORT_M1_SPEC.md \u00a71.3 (gate A)",
+ "verdict": "PASS"
+}

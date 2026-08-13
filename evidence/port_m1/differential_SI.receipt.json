@@ -1,0 +1,14 @@
+{
+ "assets": [
+  "SI"
+ ],
+ "generated_utc": "2026-08-13T08:56:19.996855Z",
+ "mismatch_rows": "/workspace/artifacts/cache/port/m1/diff/mismatches.tsv",
+ "mismatches_by_field": {},
+ "mismatching_sessions_by_asset": {},
+ "n_orphan_cpp_receipts": 0,
+ "n_sessions_compared": 1417,
+ "n_sessions_mismatching": 0,
+ "spec": "design/PORT_M1_SPEC.md \u00a71.3 (gate A)",
+ "verdict": "PASS"
+}

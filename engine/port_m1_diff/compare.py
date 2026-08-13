@@ -32,7 +32,7 @@ import numpy as np
 
 M0_ROOT = "/workspace/artifacts/cache/port/m0/sessions"
 M1_ROOT = "/workspace/artifacts/cache/port/m1/cpp_sessions"
-OUT_ROOT = "/workspace/artifacts/cache/port/m1/diff"
+OUT_ROOT = os.environ.get("QR_M1_DIFF_OUT", "/workspace/artifacts/cache/port/m1/diff")
 ASSETS = ("SI", "HG", "NKD")
 
 DTYPES = {

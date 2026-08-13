@@ -19,7 +19,20 @@ for _p in (_HERE, "/workspace/engine/port_m0", "/workspace/engine/port_m1"):
 
 import s4_common as S                 # noqa: E402
 import m1_common as M                 # noqa: E402
-from report import Tsv, num, cite, md_table    # noqa: E402
+from report import Tsv, num, cite               # noqa: E402
+
+
+def esc(x):
+    """Label names carry `|` (the compose separator); escape it for tables."""
+    return str(x).replace("|", "\\|")
+
+
+def md_table(head, rows):
+    out = ["| " + " | ".join(esc(h) for h in head) + " |",
+           "|" + "|".join(["---"] * len(head)) + "|"]
+    for r in rows:
+        out.append("| " + " | ".join(esc(x) for x in r) + " |")
+    return "\n".join(out)
 
 OUT = S.out_path("ATLAS_SCREEN_REPORT.md")
 
@@ -134,7 +147,14 @@ def main():
                        "median economic alignment", "corr(rho, alignment)",
                        "most LEARNABLE label", "its alignment",
                        "best ALIGNED label", "its learnability"], rows))
-    L.append("\nSource: `%s`.\n" % sc.rel())
+    L.append("\nSource: `%s`. The recovered atlas's single most transferable "
+             "finding (§2.2/§4.5.4) reproduces on futures: the most LEARNABLE "
+             "labels are path-geometry ones (first passage, time-to-peak, "
+             "giveback: rho 0.40-0.48) and their economic alignment is "
+             "indistinguishable from zero, while the best ALIGNED labels are "
+             "the MOVER-GATED RETENTION cells with learnability an order of "
+             "magnitude lower. Screening on learnability alone would have "
+             "picked exactly the wrong family.\n" % sc.rel())
 
     # ------------------------------------------------------------- top-25 ---
     for a in S.ASSETS:
@@ -174,9 +194,12 @@ def main():
     rows = []
     for f in sorted(fam):
         v = np.array(fam[f], dtype=float)
-        rows.append([f, v.shape[0], "%.4f" % np.nanmedian(v[:, 0]),
-                     "%.4f" % np.nanmedian(v[:, 1]),
-                     "%.4f" % np.nanmedian(v[:, 2])])
+
+        def med(col, v=v):
+            c = v[:, col]
+            c = c[np.isfinite(c)]
+            return ("%.4f" % np.median(c)) if c.size else "n/a"
+        rows.append([f, v.shape[0], med(0), med(1), med(2)])
     L.append(md_table(["family", "members", "median learnability",
                        "median alignment", "median $recall@10"], rows))
     L.append("\nThe `triple_barrier_control` family is the literature CONTROL "

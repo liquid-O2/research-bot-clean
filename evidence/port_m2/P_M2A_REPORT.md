@@ -81,7 +81,54 @@ so a spot-check is a lookup, not an excavation. Suggested passes:
 
 ## 5. WHAT THE NUMBERS SAY
 
-See `artifacts/cache/port/m2/pilot/pilot.receipt.json` for the authoritative distribution.
+Authoritative distribution: `artifacts/cache/port/m2/pilot/pilot.receipt.json`.
+
+**Pilot**: 30 sheets (10 per asset), **30/30 certified**, **0 leak refusals**, 120s wall on 6 workers.
+Strata covered: all 8 eras E1..E8, all 3 phases, 8 generation families (G1, G1_FINE, G1_FAST_OPEN,
+G2_REJECT, G2_RECLAIM, NEWS_WINDOW, MICRO_OPEN, POST_SHOCK on all three assets; FIRST_TEST on NKD).
+
+**Two-run byte identity**: 30/30 sheets, 30/30 S14 appendices, 30/30 on-disk files — 0 diffs.
+
+**Token distribution** (proxy `M2-PROXY-2`), per-section min / median / max against budget:
+
+| sec | min | med | max | budget | | sec | min | med | max | budget |
+|---|---|---|---|---|---|---|---|---|---|---|
+| S1 | 545 | 550 | 563 | 640 | | S8 | 229 | 396 | 522 | 600 |
+| S2 | 209 | 212 | 213 | 260 | | S9 | 235 | 242 | 249 | 300 |
+| S3 | 582 | 647 | 680 | 780 | | S10 | 143 | 208 | 298 | 340 |
+| S4 | 615 | 770 | 963 | 1100 | | S11 | 137 | 140 | 143 | 180 |
+| S5 | 284 | 293 | 297 | 340 | | S12 | 490 | 527 | 629 | 720 |
+| S6 | **1836** | **1922** | **1967** | **2000** | | S13 | 266 | 274 | 348 | 420 |
+| S7 | 200 | 203 | 206 | 240 | | S14 | — | 444 | — | 760 |
+
+Whole sheet: **min 6,156 / median 6,394 / max 6,855** proxy tokens (cap 7,400). That is above the spec's
+"~3-5k" band; S6 alone is 30% of it. The band is reachable only by shrinking S6 — see defect M2-1.
+
+**The S6 ribbon (the number the orchestrator needs to rule on).** Across the 30 pilot sheets:
+
+| quantity | min | median | max |
+|---|---|---|---|
+| events in the 90s raw window | 91 | 593 | 4,421 |
+| raw events rendered | 45 | 45 | 53 |
+| **raw coverage (seconds of the 90)** | **1.1** | **9.3** | **51.8** |
+| episode digests | 10 | 14 | 14 |
+| events in the 10-min pre-window (digested) | — | ~2,600 | — |
+
+At a 2,000-token S6 budget the median candidate gets **9.3 seconds of the specified 90** as literal events;
+the rest is losslessly digested. Rendering the full 90s raw would cost ~14,800 tokens for the median
+candidate and ~110,000 for the loudest. The exchange rate is roughly **25 proxy tokens per raw event**, i.e.
+about 25 tokens per extra second of coverage on a median candidate.
+
+Other per-sheet spreads: S4 in-band levels 126 / 202 / 256 (12 shown in full, the rest rolled up per family);
+S12 series joined 9 / 11 / 13 with 0-1 refused; S3 causal pivots 6 / 60 / 257 (last 8 shown).
+
+**Leak fixture** (`artifacts/cache/port/m2/leakfix/leak_fixture.tsv`): 6/6 cases PASS, each ARMED-refused and
+MUTANT-accepted. Lag-table audit: 21 rows, 0 defects (every rule exists, every file exists, every manifest
+citation resolves).
+
+**Red-first tests** (`artifacts/cache/port/m2/tests/red_ledger.tsv`): 15/15 PASS, 15/15 mutants killed.
+The sharpest is `t09_s4_touch_state_is_causal` — causal touch count 219 vs the ledger's end-of-session 1,202
+on the probe candidate, so the mutant that reads the stored column is caught by a factor of 5.5.
 
 ## 6. DEFECTS AND DECISIONS RETURNED TO THE ORCHESTRATOR
 

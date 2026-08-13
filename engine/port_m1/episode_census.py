@@ -317,6 +317,7 @@ def rule_keys(m, i):
 
 def pick_members(m, members, cert):
     """{rule: member position or None (abstained)} for one episode."""
+    keys = {i: rule_keys(m, i) for i in members}
     out = {}
     for rule in RULES:
         if rule == "BEST_MEMBER":
@@ -328,7 +329,7 @@ def pick_members(m, members, cert):
                                            for i in members):
             out[rule] = None
             continue
-        out[rule] = min(members, key=lambda i: rule_keys(m, i)[rule])
+        out[rule] = min(members, key=lambda i: keys[i][rule])
     return out
 
 
@@ -607,7 +608,7 @@ IWM_ROWS = [
     ["picks/day at that ceiling", "1.2-2.5/day", "PROGRAM_RECORD.md:15",
      "dp_picks_per_day (dp tsv)"],
     ["perfect-exit ceiling $/day", "$987-1,242/day", "PROGRAM_RECORD.md:15",
-     "peak-exit reading of the same DP (companion column)"],
+     "dp_usd_per_day ALL_CANDIDATES, cert_metric=peak (CC-M1-8 companion)"],
 ]
 
 

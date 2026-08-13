@@ -28,3 +28,6 @@ I don't know like how to put it, but yeah, we need to ensure our event generatio
 
 And if there are ways we can reduce false positives and etc., we'll try to do so.
 - [2026-08-13T13:30:45Z] Yeah, but it all depends on Opus actually selecting proper trades or not. Because again, we need to give it all the data it needs and give it all the nudge it needs to understand how to pair things up
+- [2026-08-13T13:31:57Z] No, I don't agree with point number three, because forcing it to add pairs and et cetera might not give it all the thing it needs to like make decisions.
+
+It can also have single things, like you don't want to force it to do something. We just need it to take proper decisions.

@@ -202,6 +202,26 @@ D16: the M1.A decay/tau* study ran on unmasked mids; masked spine moves 107/341/
    table stands (CC-M1-3.6); H8 blessed (D8 receipts excluded); H9 accepted residual — OR_EXT's S1.1 relevance
    census re-verifies against the CURRENT (D-053) ledger by construction.
 
+## 10. FAMILY DISCOVERY CENSUS (D-055; S1-class Python measurement on existing receipts/rosters)
+A. DESIGNED FAMILIES (each = separate tag, censused vs G1 baseline; delay = tau* unless stated):
+  F-D1 FAST-CLOSE: last 30 min before each phase close + the settlement window; delays {15,60}s variants.
+  F-D2 MICRO-OPENS: opens beyond the 3 phases — Tokyo lunch reopen (NKD-relevant), London-NY handoff minute;
+       same construction as FAST-OPEN (300s window, 15s delay).
+  F-D3 NEWS-WINDOW: first 10 min after scheduled releases (FOMC/BOJ banked calendars + fixed 8:30/10:00 ET
+       slots as a calendar-lite proxy); delays {15,60}s; era-stability mandatory (news regimes shift).
+  F-D4 POST-SHOCK: first sane confirmation after a NEWS_UNTRADEABLE repricing or an insane-book episode ends
+       (the D-054 class as an event source — shock resolution trade).
+  F-D5 FIRST-TEST: the session's FIRST touch-confirmation of each kept level family (touch_count==1; virgin
+       flagged separately) — the early-in-sequence law as its own family.
+  F-D6 EXHAUSTION-AT-EXTENSION: confirmation firing beyond an OR_EXT k>=1.5 level (capacity-spent reversal;
+       composes the H/L census winner with generation).
+B. SLICE MINER: partition the union roster by {phase x 30-min clock bucket x rung x family x virgin x
+   vol-regime tercile x spread-state x day-of-week} (marginal + selected 2-way cells only, min n=500 FIT);
+   rank by conditional walled value; Holm-controlled; slices with value >= G1_asset + $150 AND era-stable
+   (per-FIT-year sign) => named hypotheses => full census. Report top-20 slices per asset regardless.
+ADOPTION: the CC-M1-3.2 replacement metric; adopted families enter the S1.x prototype then C++ per the
+oracle->engine law. Outputs m1/family_discovery/ + FAMILY_DISCOVERY_REPORT.md.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

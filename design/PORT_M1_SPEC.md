@@ -136,6 +136,32 @@ B. NEW §6b LEVEL RELEVANCE CENSUS (runs with stage 5): for every oracle top-2 l
    board (new sources designed by the orchestrator) BEFORE M1.B freezes. Output: LEVEL_RELEVANCE_REPORT.md
    + per-family TSV, part of gate B5.
 
+## CC-M1-3 — orchestrator adjudications on the Track-B results, 2026-08-13 (BINDING; supersedes §6 where stated)
+1. τ* = 120s adopted, all assets (pin rule satisfied; D-033 cap binds, not decay).
+2. RETIREMENT METRIC REPLACED (the §6 exclusive-DP clause is saturated — ~600 candidates per 3 DP seats gives
+   $0 exclusive add even to G1). New rule: a candidate family survives if ANY of (i) conditional walled cert
+   value ≥ G1's − $100, (ii) marginal union recall ≥ +0.2pp, (iii) DP seat-share ≥5% when eligible.
+   VERDICTS: G2-REJECT and G2-RECLAIM SURVIVE (cond. value $1,004/$1,017 vs G1 $951); G3-RATE and G3-FLOW
+   RETIRED on value ($675-684), all assets.
+3. LEVEL FAMILIES for generation (relevance census, D-052): KEEP FVOL_LADDER (primary — top lift 2.06-2.45
+   everywhere, beats FVOL_BAND), FVOL_BAND, NDAY, PRIOR_DAY, PHASE_HL, VWAP (borderline 1.47-1.61, kept on
+   capture mass 0.67-0.77). DROP as level sources: FVOL_LADDER_RS (redundant twin, Δlift ≤0.07), PRIOR_WEEK,
+   PROFILE, ROUND, DEV_POC (at/below displaced null). PROFILE/DEV_POC objects stay BANKED for M2 features and
+   exit targets (§9.4 roles beyond generation). D2's round-number constants: moot for generation.
+4. NKD RECALL (0.9860 vs 0.99): miss autopsy (24 legs) = ~10 STRUCTURAL GAP legs (full span < 150s — price
+   travels $2-5k in 10-35s at opens/news; no confirm-then-delay design can enter, including the oracle's own
+   construction) + ~14 fast-open/late-confirmation legs. RULINGS: (a) recall reporting splits legs into
+   CATCHABLE vs STRUCTURAL_GAP (span < 150s); the ≥99% gate applies to CATCHABLE; BOTH numbers always reported
+   (transparency: this is a post-hoc definitional refinement, pre-registered here BEFORE the M1.B re-census).
+   (b) TWO GENERATION ADDITIONS, censused before acceptance: G1-FINE (rung 0.05×ATR14, same floors) and
+   G1-FAST-OPEN (within the first 300s after each phase open, decision delay 15s on all rungs; separate family
+   tag). NKD must clear ≥99% on catchable legs with these; SI/HG re-censused identically (lockstep).
+5. G2-RECLAIM completion bound = 30 min from break to reclaim-confirmation (defect D4).
+6. Defect dispositions: D1 (decay denominator) resolved-independent, blessed; D3 moot (G3 retired); D5: the
+   §4(c) overnight phase folds into the 3-phase frozen table (no 4th phase in M1); D8 (787 weekly stale-book
+   receipts excluded) blessed + documented; D9 Nikkei-VI history = optional user purchase, flagged, not needed
+   for M1.B; D10 already CC-M1-2. Full list m1/SPEC_DEFECTS.md.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

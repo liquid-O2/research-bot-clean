@@ -1,0 +1,7 @@
+# PORT_M1_SPEC.md §3 vol layer V1/V2 + CC-M1-1(A) (m1_spec_sha16=ce0a8ca16e342cd7)
+# params_hash=0afca9ff4e70de361d1f3e896166c413a6bc164c16cd22d8380181ac46434a09
+# §3 names a context series per asset; a series that does not cover the FIT era is a DATA GAP, reported here and excluded from the model rather than fitted on a truncated era
+asset	context_series	coverage	n_sessions	used_in_model	corr_log_ctx_vs_log_range	series_first_date	note
+SI	GVZ	1.000000	1186	1	0.450528	2008-06-03	used
+HG	NONE	0.000000	1290	0			no series
+NKD	NIKKEI_VI	0.598297	1292	0	0.570829	2023-01-04	DROPPED: coverage 0.60 < 0.80

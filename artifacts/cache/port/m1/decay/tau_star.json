@@ -1,0 +1,736 @@
+{
+ "env": {
+  "databento_dbn": "0.66.0",
+  "git_sha": "6b11cefed388978fb27bb2cd5c511da22b9ed1e4",
+  "input_sha256": {},
+  "m1_spec_sha": "ce0a8ca16e342cd750faf3da20bcf9041e69e676c5ceeeb6e7f46f3f1a8bc0c7",
+  "m1_spec_sha16": "ce0a8ca16e342cd7",
+  "numpy_version": "2.1.2",
+  "params": {
+   "cells": "(asset, rung, phase-of-confirmation, era)",
+   "cost_rt": "m0 session-scoped median two-sided spread + $5.00",
+   "decay_statistic": "1 - mean(v(tau))/mean(v(0)) on the pairwise-complete sample (ratio of means, D-033 convention)",
+   "pin_rule": "largest tau <= 120 with pooled-FIT mean value decay < 1.5%% AND mean MAE inflation < 5%%; floored at 30s",
+   "precision": "excursion prefix-maxima quantised to float32, mirroring the m0 skeleton storage, so the tau=60 slice is field-exact vs the frozen m0 certificates",
+   "primary_certificate": "walled phase-close value (\u00a72)",
+   "primary_mae": "MAE-before-peak inside the walled window (m0 \u00a78)",
+   "secondary": [
+    "peak-exit value",
+    "realised hold MAE"
+   ],
+   "spec_section": "\u00a72 confirmation-decay",
+   "taus_sec": [
+    0,
+    15,
+    30,
+    60,
+    90,
+    120,
+    180,
+    300
+   ],
+   "universe": "G1 confirmations (m0 \u00a78 rungs/thresholds/dedup, zigzag_scan reused verbatim); tau=60 slice must equal the m0 roster",
+   "wall_source": "m0 walls.json (wall_usd per asset)"
+  },
+  "params_hash": "7c1b3f49dde6bcd29ca9789a68e941b42e391e44e7f0b9c345a90e08cdf674ae",
+  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d"
+ },
+ "pins": {
+  "HG": {
+   "primary_reading": "PRIMARY_peak_all",
+   "readings": {
+    "PRIMARY_peak_all": {
+     "mae_col": "mae_peak_inflation",
+     "note": "peak-exit certificate, all confirmations: unselected AND well-conditioned (mean v(0) ~ $1.2k, D-033's scale)",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.003715332230282198,
+       "passes": true,
+       "tau": 15,
+       "value_decay": -1.6194056665197465e-05
+      },
+      {
+       "mae_inflation": -0.00460306667242294,
+       "passes": true,
+       "tau": 30,
+       "value_decay": 0.0003276480505787216
+      },
+      {
+       "mae_inflation": -0.004294050443894748,
+       "passes": true,
+       "tau": 60,
+       "value_decay": 0.0021491427447279943
+      },
+      {
+       "mae_inflation": -0.008047012078612914,
+       "passes": true,
+       "tau": 90,
+       "value_decay": 0.0007063981214354698
+      },
+      {
+       "mae_inflation": -0.005423032318192966,
+       "passes": true,
+       "tau": 120,
+       "value_decay": 0.002796785055775408
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 120,
+     "value_col": "value_decay_peakvariant"
+    },
+    "SPEC_LITERAL_close_all": {
+     "mae_col": "mae_peak_inflation",
+     "note": "\u00a72's literal phase-close variant: DEGENERATE denominator (mean v(0) ~ $4) \u2014 the 1.5% test is noise/noise",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.003715332230282198,
+       "passes": true,
+       "tau": 15,
+       "value_decay": 0.0024372970565942342
+      },
+      {
+       "mae_inflation": -0.00460306667242294,
+       "passes": true,
+       "tau": 30,
+       "value_decay": 0.012292300366456899
+      },
+      {
+       "mae_inflation": -0.004294050443894748,
+       "passes": true,
+       "tau": 60,
+       "value_decay": -0.003989573212329844
+      },
+      {
+       "mae_inflation": -0.008047012078612914,
+       "passes": false,
+       "tau": 90,
+       "value_decay": 0.033542005946422426
+      },
+      {
+       "mae_inflation": -0.005423032318192966,
+       "passes": false,
+       "tau": 120,
+       "value_decay": 0.017861244849070257
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 60,
+     "value_col": "value_decay"
+    },
+    "close_1kclass": {
+     "mae_col": "mae_peak_inflation",
+     "note": "phase-close on the $1k-class: SELECTION-BIASED (conditions on the tau=0 outcome), can only overstate decay",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.008916094353062953,
+       "passes": true,
+       "tau": 15,
+       "value_decay": 0.010097006435968114
+      },
+      {
+       "mae_inflation": -0.011073430085532965,
+       "passes": true,
+       "tau": 30,
+       "value_decay": 0.014979222225452227
+      },
+      {
+       "mae_inflation": -0.01570097379770674,
+       "passes": false,
+       "tau": 60,
+       "value_decay": 0.023984740643222535
+      },
+      {
+       "mae_inflation": -0.017574263594826944,
+       "passes": false,
+       "tau": 90,
+       "value_decay": 0.028367395498002046
+      },
+      {
+       "mae_inflation": -0.018199079931861428,
+       "passes": false,
+       "tau": 120,
+       "value_decay": 0.03463135388201988
+      }
+     ],
+     "population": "K1K_AT_TAU0",
+     "tau_star": 30,
+     "value_col": "value_decay"
+    },
+    "close_all_maehold": {
+     "mae_col": "mae_hold_inflation",
+     "note": "phase-close value, realised-hold MAE",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.0016079752052862162,
+       "passes": true,
+       "tau": 15,
+       "value_decay": 0.0024372970565942342
+      },
+      {
+       "mae_inflation": -0.0024444822829743362,
+       "passes": true,
+       "tau": 30,
+       "value_decay": 0.012292300366456899
+      },
+      {
+       "mae_inflation": -0.003335392180384922,
+       "passes": true,
+       "tau": 60,
+       "value_decay": -0.003989573212329844
+      },
+      {
+       "mae_inflation": -0.005175891990977788,
+       "passes": false,
+       "tau": 90,
+       "value_decay": 0.033542005946422426
+      },
+      {
+       "mae_inflation": -0.005736740682293129,
+       "passes": false,
+       "tau": 120,
+       "value_decay": 0.017861244849070257
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 60,
+     "value_col": "value_decay"
+    },
+    "peak_all_maehold": {
+     "mae_col": "mae_hold_inflation",
+     "note": "peak-exit value, realised-hold MAE",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.0016079752052862162,
+       "passes": true,
+       "tau": 15,
+       "value_decay": -1.6194056665197465e-05
+      },
+      {
+       "mae_inflation": -0.0024444822829743362,
+       "passes": true,
+       "tau": 30,
+       "value_decay": 0.0003276480505787216
+      },
+      {
+       "mae_inflation": -0.003335392180384922,
+       "passes": true,
+       "tau": 60,
+       "value_decay": 0.0021491427447279943
+      },
+      {
+       "mae_inflation": -0.005175891990977788,
+       "passes": true,
+       "tau": 90,
+       "value_decay": 0.0007063981214354698
+      },
+      {
+       "mae_inflation": -0.005736740682293129,
+       "passes": true,
+       "tau": 120,
+       "value_decay": 0.002796785055775408
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 120,
+     "value_col": "value_decay_peakvariant"
+    }
+   },
+   "tau_star": 120
+  },
+  "NKD": {
+   "primary_reading": "PRIMARY_peak_all",
+   "readings": {
+    "PRIMARY_peak_all": {
+     "mae_col": "mae_peak_inflation",
+     "note": "peak-exit certificate, all confirmations: unselected AND well-conditioned (mean v(0) ~ $1.2k, D-033's scale)",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.016070777619700993,
+       "passes": true,
+       "tau": 15,
+       "value_decay": -0.0034123364774767406
+      },
+      {
+       "mae_inflation": -0.015992714647974915,
+       "passes": true,
+       "tau": 30,
+       "value_decay": -0.0035570637996540366
+      },
+      {
+       "mae_inflation": -0.01955356320660584,
+       "passes": true,
+       "tau": 60,
+       "value_decay": -0.0033784703368886504
+      },
+      {
+       "mae_inflation": -0.01925323767052267,
+       "passes": true,
+       "tau": 90,
+       "value_decay": -0.0013406793091206293
+      },
+      {
+       "mae_inflation": -0.019114710095831322,
+       "passes": true,
+       "tau": 120,
+       "value_decay": -0.0003824568992347732
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 120,
+     "value_col": "value_decay_peakvariant"
+    },
+    "SPEC_LITERAL_close_all": {
+     "mae_col": "mae_peak_inflation",
+     "note": "\u00a72's literal phase-close variant: DEGENERATE denominator (mean v(0) ~ $4) \u2014 the 1.5% test is noise/noise",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.016070777619700993,
+       "passes": false,
+       "tau": 15,
+       "value_decay": 0.04898092494530337
+      },
+      {
+       "mae_inflation": -0.015992714647974915,
+       "passes": false,
+       "tau": 30,
+       "value_decay": 0.05475899762872771
+      },
+      {
+       "mae_inflation": -0.01955356320660584,
+       "passes": false,
+       "tau": 60,
+       "value_decay": 0.03819211700258873
+      },
+      {
+       "mae_inflation": -0.01925323767052267,
+       "passes": false,
+       "tau": 90,
+       "value_decay": 0.039280708277730225
+      },
+      {
+       "mae_inflation": -0.019114710095831322,
+       "passes": false,
+       "tau": 120,
+       "value_decay": 0.04727847858788403
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 30,
+     "value_col": "value_decay"
+    },
+    "close_1kclass": {
+     "mae_col": "mae_peak_inflation",
+     "note": "phase-close on the $1k-class: SELECTION-BIASED (conditions on the tau=0 outcome), can only overstate decay",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.017487820820708877,
+       "passes": true,
+       "tau": 15,
+       "value_decay": 0.01409850961681125
+      },
+      {
+       "mae_inflation": -0.023297533106783175,
+       "passes": false,
+       "tau": 30,
+       "value_decay": 0.02339206874975397
+      },
+      {
+       "mae_inflation": -0.028710902938531846,
+       "passes": false,
+       "tau": 60,
+       "value_decay": 0.03707662388237698
+      },
+      {
+       "mae_inflation": -0.03480500673511322,
+       "passes": false,
+       "tau": 90,
+       "value_decay": 0.047253522275291004
+      },
+      {
+       "mae_inflation": -0.03717042183837904,
+       "passes": false,
+       "tau": 120,
+       "value_decay": 0.05462286325508803
+      }
+     ],
+     "population": "K1K_AT_TAU0",
+     "tau_star": 30,
+     "value_col": "value_decay"
+    },
+    "close_all_maehold": {
+     "mae_col": "mae_hold_inflation",
+     "note": "phase-close value, realised-hold MAE",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.0051376467807728865,
+       "passes": false,
+       "tau": 15,
+       "value_decay": 0.04898092494530337
+      },
+      {
+       "mae_inflation": -0.006283791065993416,
+       "passes": false,
+       "tau": 30,
+       "value_decay": 0.05475899762872771
+      },
+      {
+       "mae_inflation": -0.007408031495901968,
+       "passes": false,
+       "tau": 60,
+       "value_decay": 0.03819211700258873
+      },
+      {
+       "mae_inflation": -0.009128692701343977,
+       "passes": false,
+       "tau": 90,
+       "value_decay": 0.039280708277730225
+      },
+      {
+       "mae_inflation": -0.009681822073749236,
+       "passes": false,
+       "tau": 120,
+       "value_decay": 0.04727847858788403
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 30,
+     "value_col": "value_decay"
+    },
+    "peak_all_maehold": {
+     "mae_col": "mae_hold_inflation",
+     "note": "peak-exit value, realised-hold MAE",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.0051376467807728865,
+       "passes": true,
+       "tau": 15,
+       "value_decay": -0.0034123364774767406
+      },
+      {
+       "mae_inflation": -0.006283791065993416,
+       "passes": true,
+       "tau": 30,
+       "value_decay": -0.0035570637996540366
+      },
+      {
+       "mae_inflation": -0.007408031495901968,
+       "passes": true,
+       "tau": 60,
+       "value_decay": -0.0033784703368886504
+      },
+      {
+       "mae_inflation": -0.009128692701343977,
+       "passes": true,
+       "tau": 90,
+       "value_decay": -0.0013406793091206293
+      },
+      {
+       "mae_inflation": -0.009681822073749236,
+       "passes": true,
+       "tau": 120,
+       "value_decay": -0.0003824568992347732
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 120,
+     "value_col": "value_decay_peakvariant"
+    }
+   },
+   "tau_star": 120
+  },
+  "SI": {
+   "primary_reading": "PRIMARY_peak_all",
+   "readings": {
+    "PRIMARY_peak_all": {
+     "mae_col": "mae_peak_inflation",
+     "note": "peak-exit certificate, all confirmations: unselected AND well-conditioned (mean v(0) ~ $1.2k, D-033's scale)",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.013904632649861415,
+       "passes": true,
+       "tau": 15,
+       "value_decay": -0.005017234664620229
+      },
+      {
+       "mae_inflation": -0.014495338087462395,
+       "passes": true,
+       "tau": 30,
+       "value_decay": -0.0038307082617738963
+      },
+      {
+       "mae_inflation": -0.009412871497724962,
+       "passes": true,
+       "tau": 60,
+       "value_decay": -0.0011054687410434472
+      },
+      {
+       "mae_inflation": -0.015683594383839483,
+       "passes": true,
+       "tau": 90,
+       "value_decay": -0.0011650691155180581
+      },
+      {
+       "mae_inflation": -0.017014987236188994,
+       "passes": true,
+       "tau": 120,
+       "value_decay": 0.0006509509950801684
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 120,
+     "value_col": "value_decay_peakvariant"
+    },
+    "SPEC_LITERAL_close_all": {
+     "mae_col": "mae_peak_inflation",
+     "note": "\u00a72's literal phase-close variant: DEGENERATE denominator (mean v(0) ~ $4) \u2014 the 1.5% test is noise/noise",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.013904632649861415,
+       "passes": false,
+       "tau": 15,
+       "value_decay": 0.14391280659015648
+      },
+      {
+       "mae_inflation": -0.014495338087462395,
+       "passes": false,
+       "tau": 30,
+       "value_decay": 0.12956517288152947
+      },
+      {
+       "mae_inflation": -0.009412871497724962,
+       "passes": false,
+       "tau": 60,
+       "value_decay": 0.11957139585786514
+      },
+      {
+       "mae_inflation": -0.015683594383839483,
+       "passes": false,
+       "tau": 90,
+       "value_decay": 0.1157387508160842
+      },
+      {
+       "mae_inflation": -0.017014987236188994,
+       "passes": false,
+       "tau": 120,
+       "value_decay": 0.0998434694428163
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 30,
+     "value_col": "value_decay"
+    },
+    "close_1kclass": {
+     "mae_col": "mae_peak_inflation",
+     "note": "phase-close on the $1k-class: SELECTION-BIASED (conditions on the tau=0 outcome), can only overstate decay",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.015223200098580247,
+       "passes": false,
+       "tau": 15,
+       "value_decay": 0.017868435172476715
+      },
+      {
+       "mae_inflation": -0.022511406492702113,
+       "passes": false,
+       "tau": 30,
+       "value_decay": 0.02842311190875013
+      },
+      {
+       "mae_inflation": -0.026139997016648375,
+       "passes": false,
+       "tau": 60,
+       "value_decay": 0.0433510380890062
+      },
+      {
+       "mae_inflation": -0.03549681351546152,
+       "passes": false,
+       "tau": 90,
+       "value_decay": 0.05494164799792278
+      },
+      {
+       "mae_inflation": -0.037611308199677174,
+       "passes": false,
+       "tau": 120,
+       "value_decay": 0.06728197227956756
+      }
+     ],
+     "population": "K1K_AT_TAU0",
+     "tau_star": 30,
+     "value_col": "value_decay"
+    },
+    "close_all_maehold": {
+     "mae_col": "mae_hold_inflation",
+     "note": "phase-close value, realised-hold MAE",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.0032097874546397342,
+       "passes": false,
+       "tau": 15,
+       "value_decay": 0.14391280659015648
+      },
+      {
+       "mae_inflation": -0.003860245477039559,
+       "passes": false,
+       "tau": 30,
+       "value_decay": 0.12956517288152947
+      },
+      {
+       "mae_inflation": -0.0039911732679147605,
+       "passes": false,
+       "tau": 60,
+       "value_decay": 0.11957139585786514
+      },
+      {
+       "mae_inflation": -0.006062129276872774,
+       "passes": false,
+       "tau": 90,
+       "value_decay": 0.1157387508160842
+      },
+      {
+       "mae_inflation": -0.006487451361948504,
+       "passes": false,
+       "tau": 120,
+       "value_decay": 0.0998434694428163
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 30,
+     "value_col": "value_decay"
+    },
+    "peak_all_maehold": {
+     "mae_col": "mae_hold_inflation",
+     "note": "peak-exit value, realised-hold MAE",
+     "per_tau": [
+      {
+       "mae_inflation": 0.0,
+       "passes": true,
+       "tau": 0,
+       "value_decay": 0.0
+      },
+      {
+       "mae_inflation": -0.0032097874546397342,
+       "passes": true,
+       "tau": 15,
+       "value_decay": -0.005017234664620229
+      },
+      {
+       "mae_inflation": -0.003860245477039559,
+       "passes": true,
+       "tau": 30,
+       "value_decay": -0.0038307082617738963
+      },
+      {
+       "mae_inflation": -0.0039911732679147605,
+       "passes": true,
+       "tau": 60,
+       "value_decay": -0.0011054687410434472
+      },
+      {
+       "mae_inflation": -0.006062129276872774,
+       "passes": true,
+       "tau": 90,
+       "value_decay": -0.0011650691155180581
+      },
+      {
+       "mae_inflation": -0.006487451361948504,
+       "passes": true,
+       "tau": 120,
+       "value_decay": 0.0006509509950801684
+      }
+     ],
+     "population": "ALL",
+     "tau_star": 120,
+     "value_col": "value_decay_peakvariant"
+    }
+   },
+   "tau_star": 120
+  }
+ },
+ "primary_reading": "PRIMARY_peak_all",
+ "rule": "largest tau <= 120 with pooled-FIT mean value decay < 1.5%% AND mean MAE inflation < 5%%; floored at 30s",
+ "spec_section": "\u00a72 confirmation-decay"
+}

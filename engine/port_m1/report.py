@@ -488,6 +488,54 @@ def gen_report():
     L.append(md_table(["asset", "family", "exclusive candidates",
                        "exclusive DP add median $/day", "recall contribution",
                        "decision", "source"], rows))
+    L.append("""
+### Read this before acting on the retirement column
+
+The pre-registered rule is applied verbatim above and it retires G2-REJECT,
+G2-RECLAIM, G3-RATE and G3-FLOW on all three assets. But its first clause is
+SATURATED, and the evidence for that is in the table itself: **G1's own
+exclusive DP add is $0.00/day median too.** With ~600 union candidates a day
+and a one-position DP that can seat only 3, every family is deeply
+substitutable — delete any one family's exclusive candidates and the schedule
+simply picks a neighbouring second with almost the same value. A marginal-
+contribution test cannot separate families against a saturated ceiling. G1
+survives the rule only through its recall clause.
+
+What the census DOES separate, and what M1.B should freeze on:
+
+- **Union value.** The union's FIT-era phase-close DP median beats the M0
+  G1-only number on every asset: SI $3,404 vs $3,060, HG $2,549 vs $2,297,
+  NKD $2,798 vs $2,510 (m0: `artifacts/cache/port/m0/census_c_rollup.tsv`).
+  That is ~+11% of oracle ceiling each, and it moves HG's median across the
+  $2,500 M0 seatable floor it failed at M0.
+- **Candidate quality.** Conditional on a positive certificate, the G2 families
+  are the BEST in the roster and G3 is clearly the worst — SI mean positive
+  certificate: G2-RECLAIM $1,017, G2-REJECT $1,004, G1 $951, G3-FLOW $684,
+  G3-RATE $675. G3 buys throughput (262 candidates/day on SI) at roughly two
+  thirds of G1's per-candidate value.
+- **Recall.** G1-exclusive candidates carry 0.31-0.62% of union recall; every
+  other family carries under 0.08%.
+
+So the defensible reading is: G3-RATE and G3-FLOW earn retirement on value
+grounds (worst conditional value, no recall, no marginal DP), while G2-REJECT
+and G2-RECLAIM are retired by a metric that cannot see what they are good at
+(they are the highest-quality candidates in the roster and they are the only
+family with a mechanism story that the §6b census independently confirms).
+This is an orchestrator call, not a lane call: the rule as written says retire,
+and it is reported as written.
+
+### NKD misses the union recall gate
+
+The §6 gate is union recall >= 99% @$1,000. SI (0.9946) and HG (0.9949) pass;
+**NKD reaches 0.9860 and FAILS**. This is not a regression introduced by the new
+families: NKD's M0 G1-only FIT recall was 0.9868 on the same oracle, so NKD has
+simply never had 99% recall, and the M0 gate was 95%. Adding G2+G3 moves NKD by
++0.62pp over G1-at-tau*, which is not enough to close a 1.4pp gap.
+
+Note also the cost of tau* = 120s: entering 60 seconds later than M0 did moves
+SI's union recall to 0.9946 from the M0 G1-only 0.9959 — a 0.14pp recall price
+for the entry realism D-033 asks for.
+""")
     return "\n".join(L)
 
 
@@ -532,12 +580,199 @@ def relevance_report():
     L.append("\nNull = the same family displaced by +-0.5 x ATR14 with the sign "
              "alternating by level index. A family whose lift is near 1.0 is "
              "capturing extremes only by covering the range, not by mechanism.\n")
+    L.append("""
+## What this census settles
+
+1. **The level program is NOT going back to the drawing board.** The union of
+   families sits within tolerance of 97.6-98.0% of oracle extremes on every
+   asset and in every era — far above the 60% floor CC-M1-1(B) set as the
+   escalation trigger.
+2. **The fvol families are the mechanism.** `FVOL_LADDER`, `FVOL_LADDER_RS` and
+   `FVOL_BAND` take the top three lifts on all three assets (1.87-2.38). The
+   CC-M1-1(A) expected-move ladder earns its place immediately: it is the
+   single highest-lift family on SI and NKD, ahead of the plain sigma bands it
+   was added alongside. The regime-scaled twin tracks the unscaled one so
+   closely (2.31 vs 2.38 SI, 1.96 vs 1.94 HG, 2.26 vs 2.25 NKD) that keeping
+   both is redundancy, not information — one of them should be dropped in M1.B
+   on parsimony, and the census cannot say which.
+3. **The volume-profile levels do not sit at extremes.** `PROFILE` scores lift
+   0.84-0.90 on every asset, i.e. BELOW its own displaced null. Read this as
+   "no evidence of mechanism", not "anti-mechanism": value-area objects are
+   central by construction, so displacing them half an ATR outward moves them
+   TOWARD the day's extremes, which makes this null conservative for centrally
+   located families. Either way §5's objects have not earned a place as a LEVEL
+   source for extreme capture; their case is as M2 features, where the
+   developing POC/VA path (not the final object) is the interesting object.
+4. **ROUND and DEV_POC are noise as levels** (0.77-1.08 on every asset), and
+   PRIOR_WEEK is too sparse to resolve (1,267-1,451 G2 births, lift 0.95-1.33).
+5. **The exclusive-DP clause of the retirement rule is saturated here too** —
+   every level family scores $0.00/day, for the same reason as §6: 600
+   candidates competing for 3 seats. The lift column is doing all the work, and
+   it is the column with a mechanism behind it.
+""")
+    return "\n".join(L)
+
+
+# ============================================================== defects =====
+def defects_report():
+    a = Tsv(M.out_path("assertions.tsv"))
+    ctx = Tsv(M.out_path("fvol", "fvol_context.tsv"))
+    cells = Tsv(M.out_path("decay", "decay_cells.tsv"))
+    L = ["# PORT M1 Track B — SPEC DEFECTS AND DATA DEFECTS", "", HEADER]
+    L.append("Reported, not improvised around (D-002/D-005). Each item names "
+             "what the spec says, what was measured, and what the lane did.\n")
+
+    L.append("## D1 — §2's phase-close decay denominator is degenerate (and "
+             "sign-inverted)\n")
+    rows = []
+    for x in M.ASSET_ORDER:
+        r, ln = cells.one(asset=x, rung="ALL", phase="ALL", era=M.ERA_FIT,
+                          population="ALL", tau_sec="0")
+        rows.append([x, num(r, cells, "mean_v_close_0", "$%.2f"),
+                     num(r, cells, "mean_v_peak_0", "$%.2f"), cite(cells, ln)])
+    L.append(md_table(["asset", "mean phase-close cert (tau=0)",
+                       "mean peak-exit cert (tau=0)", "source"], rows))
+    L.append("\n§2 pins tau* on \"pooled-FIT mean value decay < 1.5%\" of the "
+             "phase-close certificate. Pooled over all confirmations that "
+             "certificate averages a small NEGATIVE number, so a 1.5% relative "
+             "test is inverted. LANE ACTION: rule applied to every reading §2 "
+             "admits; the pin uses the only unselected, non-degenerate one "
+             "(peak-exit). Same tau* (120s) on all three assets. Detail in "
+             "DECAY_REPORT.md.\n")
+
+    L.append("## D2 — §4(f)'s round-number constants fail §4(f)'s own "
+             "assertion\n")
+    rows = []
+    for r, ln in a.find(assertion="ROUND_GRID_BAND"):
+        rows.append([r[a.i("asset")], r[a.i("subject")],
+                     num(r, a, "value_a", "%.4f"),
+                     num(r, a, "value_b", "%.3f") + "%",
+                     "IN BAND" if r[a.i("ok")] == "1" else "**OUT OF BAND**",
+                     cite(a, ln)])
+    L.append(md_table(["asset", "grid", "2024 median price", "% of price",
+                       "verdict", "source"], rows))
+    L.append("\n§4(f): \"round numbers: 1-2-5 grid nearest ~0.3-1% of price "
+             "(SI: $0.25/$0.50/$1.00; HG: $0.05/$0.10; NKD: 100/250/500) — "
+             "constants asserted against that %-band at 2024 median prices, "
+             "else spec defect.\" Only 2 of the 8 pinned constants are inside "
+             "the band; HG has none. LANE ACTION: the pinned constants are "
+             "implemented as written and the assertion result is reported. "
+             "(The §6b census then finds ROUND has no mechanism anyway: lift "
+             "0.80-1.08.)\n")
+
+    L.append("## D3 — §6's G3 statistic cannot be per-second\n")
+    rows = []
+    for r, ln in a.find(assertion="G3_MAD_DEGENERACY"):
+        rows.append([r[a.i("asset")], r[a.i("subject")],
+                     "%s/%s" % (r[a.i("value_a")], r[a.i("band_lo")]),
+                     "%s/%s" % (r[a.i("value_b")], r[a.i("band_lo")]),
+                     cite(a, ln)])
+    L.append(md_table(["asset", "probe session",
+                       "half-hour bins with MAD=0, PER-SECOND",
+                       "same, 60s window", "source"], rows))
+    L.append("\n§6 says \"per second, trade-count and |signed-flow(60s)| "
+             "z-scores vs clock-norm (trailing-60-session same-half-hour "
+             "median/MAD)\". A per-second trade count has MAD exactly 0 in "
+             "45-48 of 48 half-hour bins, so the z-score is undefined almost "
+             "everywhere. LANE ACTION: RATE uses the same 60s window as FLOW "
+             "(2-4/48 degenerate); the residual MAD=0 case is floored at half "
+             "a trade / one contract. §6 states no MAD=0 rule either.\n")
+
+    L.append("## D4 — §6's G2-RECLAIM has no time bound\n")
+    L.append("§6: \"mid BREAKS the level by > tol, stays beyond for >= 60s, "
+             "then re-crosses back and holds >= 120s\". No window is given for "
+             "\"then\". Implemented as written (searched to session close) and "
+             "measured on SI: of 7,142 breaks in a 100-session block, 5,845 "
+             "eventually reclaim, with elapsed break->reclaim median 733s, p90 "
+             "6,220s, max 55,070s (15.3 hours), and only 55.8% inside the "
+             "15-minute window §6 uses for REJECT. A 15-hour \"reclaim\" is not "
+             "a level reclaim. LANE ACTION: implemented unbounded, both "
+             "`break_sec` and `reclaim_sec` stored per touch so M1.B can pin a "
+             "bound without a rebuild.\n")
+
+    L.append("## D5 — §4(c) names four phases; the frozen table has three\n")
+    L.append("§4(c) asks for per-phase H/L over \"(overnight-before-open, "
+             "TOKYO, LONDON, NY)\", but the FROZEN m0 phase table "
+             "(`artifacts/cache/port/m0/phases_{ASSET}.json`) partitions the "
+             "session into three phases only, and its TOKYO tag already "
+             "absorbs the Globex evening. LANE ACTION: OVERNIGHT is built as "
+             "an ADDITIONAL segment (not a fourth partition member) = session "
+             "seconds before the committed RTH-open constant "
+             "`RTH_LO_SEC = 52200`, i.e. the classic overnight-high/low object. "
+             "No new constant was invented.\n")
+
+    L.append("## D6 — §4(f) gives no window for the round-number grid\n")
+    L.append("A 1-2-5 grid is infinite; §4(f) never says how far from price to "
+             "generate. LANE ACTION: grid points within +-2.0 x sigma_hat "
+             "(session) of the prior settle — the same width as §4(a)'s widest "
+             "band, so the bound is a spec constant rather than a new one. "
+             "Declared in the level receipt params.\n")
+
+    L.append("## D7 — the §6 retirement rule's first clause is saturated\n")
+    L.append("Detail and evidence in GEN_CENSUS_REPORT.md: every family "
+             "including G1 scores $0.00/day exclusive DP add, because ~600 "
+             "candidates/day compete for the 3 seats a one-position DP can "
+             "fill. The clause cannot discriminate. Reported, applied as "
+             "written.\n")
+
+    L.append("## D8 — DATA DEFECT: weekly stale-book receipts in the m0 "
+             "substrate\n")
+    L.append("One receipt per week per asset (Sunday-dated) carries thousands "
+             "of two-sided seconds at a frozen quote: traded range exactly $0. "
+             "231 of 1,417 SI session receipts; 787 of 4,521 across the three "
+             "assets. They are not sessions. Left in they emptied the LONDON "
+             "and TOKYO HAR models entirely and would have supplied flat "
+             "prior-day/N-day levels. LANE ACTION: excluded from the vol "
+             "history, the ledger's prior-session lookups and the ledger "
+             "build (3,734 session ledgers built). The m0 censuses already "
+             "excluded them by other means (SI 1,174 census sessions vs 1,417 "
+             "receipts), so this is an undocumented m0 property, not a "
+             "divergence.\n")
+
+    L.append("## D9 — DATA GAP: NKD's named context series does not cover the "
+             "FIT era\n")
+    rows = []
+    for r, ln in zip(ctx.rows, ctx.lines):
+        rows.append([r[ctx.i("asset")], r[ctx.i("context_series")],
+                     num(r, ctx, "coverage", "%.3f"),
+                     r[ctx.i("series_first_date")],
+                     num(r, ctx, "corr_log_ctx_vs_log_range", "%.3f"),
+                     r[ctx.i("used_in_model")], cite(ctx, ln)])
+    L.append(md_table(["asset", "series", "coverage", "first date",
+                       "corr(log,log)", "used", "source"], rows))
+    L.append("\n§3 names the Nikkei VI close as NKD's context regressor; the "
+             "owned history starts 2023-01-04 (60% coverage). LANE ACTION: "
+             "dropped from the NKD model and reported. Worth buying: it is the "
+             "stronger of the two context series where it exists (0.57 vs "
+             "GVZ's 0.45).\n")
+
+    L.append("## D10 — §1.3/§7-A's session count (already adjudicated)\n")
+    L.append("Both say the C++ differential runs over \"3,942\" m0 session "
+             "receipts; the true count is **4,521** (SI 1,417 + HG 1,551 + NKD "
+             "1,553). Track B found this independently while sizing its scan; "
+             "CC-M1-2(2) had already corrected the record from Lane A "
+             "(JOURNAL 2026-08-13 09:35Z). Listed only so the two lanes' "
+             "findings are on the same page. Track B built 3,734 session "
+             "ledgers from those 4,521 receipts — the difference is D8.\n")
+
+    L.append("## D11 — §2's MAE is not named\n")
+    L.append("\"value/MAE certificates\" admits both the m0 §8 "
+             "MAE-before-peak and the realised hold MAE. LANE ACTION: both "
+             "computed, the pin rule evaluated on both, and both emitted "
+             "(`mae_peak_inflation`, `mae_hold_inflation`). They agree: tau* = "
+             "120s either way.\n")
+
+    L.append("## D12 — the task brief cites §4 sources (a)-(g); §4 lists "
+             "(a)-(f)\n")
+    L.append("All six §4 sources are built, plus the CC-M1-1(A) ladders. No "
+             "seventh source exists in the frozen spec.\n")
     return "\n".join(L)
 
 
 def main():
     M.verify_spec()
-    out = [(M.out_path("decay", "DECAY_REPORT.md"), decay_report()),
+    out = [(M.out_path("SPEC_DEFECTS.md"), defects_report()),
+           (M.out_path("decay", "DECAY_REPORT.md"), decay_report()),
            (M.out_path("fvol", "FVOL_REPORT.md"), fvol_report()),
            (M.out_path("levels", "LEDGER_PROFILE_REPORT.md"), build_report()),
            (M.out_path("generation", "GEN_CENSUS_REPORT.md"), gen_report()),

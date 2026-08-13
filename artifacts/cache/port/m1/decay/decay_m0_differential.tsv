@@ -1,0 +1,7 @@
+# PORT_M1_SPEC.md §2 confirmation-decay (m1_spec_sha16=ce0a8ca16e342cd7)
+# params_hash=7c1b3f49dde6bcd29ca9789a68e941b42e391e44e7f0b9c345a90e08cdf674ae
+# differential: the tau=60 slice of the §2 universe vs the frozen m0 roster + its §8 phase-close certificates
+asset	n_m1_tau60	n_m0_roster	n_common	only_m1	only_m0	entry_mid_mismatches	phase_close_value_mismatches	max_abs_value_delta	verdict
+SI	189821	189821	189821	0	0	0	0	0.000000	PASS
+HG	192781	192781	192781	0	0	0	0	0.000000	PASS
+NKD	196438	196438	196438	0	0	0	0	0.000000	PASS

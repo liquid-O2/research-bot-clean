@@ -1,0 +1,15 @@
+# PORT_M1_SPEC.md §4(f) / §6 spec self-assertions (m1_spec_sha16=ce0a8ca16e342cd7)
+# params_hash=15d3bf2aaf8db2b4961f0dcf7066dbfa4664b25f5ca12f33e241a3ff8c757116
+# §4(f) asserts its own round-number constants against a 0.3-1%% band at 2024 median prices
+assertion	asset	subject	value_a	value_b	band_lo	band_hi	ok	note
+ROUND_GRID_BAND	SI	0.25	29.357500	0.851571	0.300000	1.000000	1	IN BAND
+ROUND_GRID_BAND	SI	0.5	29.357500	1.703142	0.300000	1.000000	0	SPEC DEFECT: outside the 0.3-1.0% band §4(f) asserts
+ROUND_GRID_BAND	SI	1	29.357500	3.406285	0.300000	1.000000	0	SPEC DEFECT: outside the 0.3-1.0% band §4(f) asserts
+ROUND_GRID_BAND	HG	0.05	4.211500	1.187225	0.300000	1.000000	0	SPEC DEFECT: outside the 0.3-1.0% band §4(f) asserts
+ROUND_GRID_BAND	HG	0.1	4.211500	2.374451	0.300000	1.000000	0	SPEC DEFECT: outside the 0.3-1.0% band §4(f) asserts
+ROUND_GRID_BAND	NKD	100	38575.000000	0.259235	0.300000	1.000000	0	SPEC DEFECT: outside the 0.3-1.0% band §4(f) asserts
+ROUND_GRID_BAND	NKD	250	38575.000000	0.648088	0.300000	1.000000	1	IN BAND
+ROUND_GRID_BAND	NKD	500	38575.000000	1.296176	0.300000	1.000000	0	SPEC DEFECT: outside the 0.3-1.0% band §4(f) asserts
+G3_MAD_DEGENERACY	SI	2024-05-02	45	2	48		0	SPEC DEFECT: 45/48 half-hour bins have MAD == 0 for the PER-SECOND trade count (z-score undefined); the 60s window has 2/48
+G3_MAD_DEGENERACY	HG	2024-05-02	47	2	48		0	SPEC DEFECT: 47/48 half-hour bins have MAD == 0 for the PER-SECOND trade count (z-score undefined); the 60s window has 2/48
+G3_MAD_DEGENERACY	NKD	2024-05-02	48	4	48		0	SPEC DEFECT: 48/48 half-hour bins have MAD == 0 for the PER-SECOND trade count (z-score undefined); the 60s window has 4/48

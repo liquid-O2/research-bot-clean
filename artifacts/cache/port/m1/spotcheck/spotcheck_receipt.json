@@ -1,0 +1,68 @@
+{
+ "env": {
+  "databento_dbn": "0.66.0",
+  "git_sha": "109d6199aeda9b94d9c019b1420a1782f7f40d71",
+  "input_sha256": {},
+  "m1_spec_sha": "ce0a8ca16e342cd750faf3da20bcf9041e69e676c5ceeeb6e7f46f3f1a8bc0c7",
+  "m1_spec_sha16": "ce0a8ca16e342cd7",
+  "numpy_version": "2.1.2",
+  "params": {
+   "method": "independent recomputation from m0 session receipts; profiles vs a brute-force unsmoothed histogram",
+   "n_sessions_per_asset": 10,
+   "selection": "evenly spaced across the built ledgers (deterministic)",
+   "spec_section": "\u00a77-B3/B4 spot verification"
+  },
+  "params_hash": "b6f175a17e7ab9e3a935a01a5f38be4aadb4c7418c0b89765412a4446b6bc9c7",
+  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d"
+ },
+ "levels": {
+  "n_checks": 3193,
+  "n_fail": 0,
+  "n_pass": 3193
+ },
+ "profiles": {
+  "n_checks": 120,
+  "n_fail": 0,
+  "n_pass": 120
+ },
+ "sessions": {
+  "HG": [
+   "2021-01-19",
+   "2021-07-16",
+   "2022-01-12",
+   "2022-07-11",
+   "2023-01-06",
+   "2023-07-05",
+   "2024-01-02",
+   "2024-06-28",
+   "2024-12-24",
+   "2025-06-24"
+  ],
+  "NKD": [
+   "2021-01-19",
+   "2021-07-16",
+   "2022-01-13",
+   "2022-07-13",
+   "2023-01-11",
+   "2023-07-10",
+   "2024-01-08",
+   "2024-07-05",
+   "2025-01-03",
+   "2025-07-03"
+  ],
+  "SI": [
+   "2021-06-16",
+   "2021-11-26",
+   "2022-05-12",
+   "2022-10-24",
+   "2023-04-10",
+   "2023-09-20",
+   "2024-03-05",
+   "2024-08-16",
+   "2025-01-30",
+   "2025-07-15"
+  ]
+ },
+ "spec_section": "\u00a77-B3/B4 spot verification",
+ "verdict": "PASS"
+}

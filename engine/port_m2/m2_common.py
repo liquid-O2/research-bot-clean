@@ -56,7 +56,7 @@ import m1_common as M1                   # noqa: E402  m1 substrate
 
 # --------------------------------------------------------------- spec pins --
 SPEC_PATH = "/workspace/design/PORT_M2_SHEETS_SPEC.md"
-SPEC_SHA16 = "44c223198086ac6b"          # FROZEN by orchestrator 2026-08-13
+SPEC_SHA16 = "8a151687d273b5ca"          # FROZEN by orchestrator 2026-08-13
 
 SHEETS_VERSION = "PORT-SHEETS-V1"        # the §1 S1 "sheets-version stamp"
 

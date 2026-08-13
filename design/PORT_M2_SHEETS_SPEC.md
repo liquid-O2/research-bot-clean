@@ -114,3 +114,12 @@ KNOWN_TRAPS: levels_v4.last_test_outcome (forward 15m; PENDING until resolved �
    judges': the warm-up includes a SECTION-ABLATION probe (do reader calls improve with sections removed?).
 4. BRIEFING ORDER: task information BEFORE the era's cases (the only feedback form the literature finds
    effective); adopted into the P-M2b briefing build.
+
+## CC-M2-3 — D-073 protocol amendment (2026-08-14; BINDING; supersedes §3's draw clauses)
+STUDY rounds: N full study DAYS per era per asset (N budget-set per round, days drawn deterministically from
+the study block), ALL candidates of each drawn day in chronological order; every candidate gets a committed
+thesis row (triage-depth allowed; depth is the reader's choice); outcomes opened per-candidate only after that
+candidate's row is committed; post-mortems obligatory for winners, big losers, and near-misses, discretionary
+elsewhere. BLIND rounds: full days, every candidate a committed row before ANY unblinding, day-complete replay
+scoring (already law). The D-035 stratified/surprise-routed reads survive ONLY as unscored probes. The P-M2c
+warm-up is retro-labeled CALIBRATION PROBE (unscored) — its numbers are never quoted as performance.

@@ -35,3 +35,4 @@ It can also have single things, like you don't want to force it to do something.
 
 I just want us to get the best rates possible. That is the main thing I want us to look at
 - [2026-08-13T16:06:02Z] Also, some of the people I know who initially got me into Quantic, they all just larp about stochastic calculus and like always talk about that. So is that, does that have any merit and did we even use it? Or is that just the basic stepping stone for learning things
+- [2026-08-13T17:44:25Z] also we need to fix our draws and such btw, just selecting samples might not be the best if we are defining the mix ourselves, we need proper days with all candidates, separating those is what proves the model can do it, not a handpicked selection

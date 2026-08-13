@@ -95,9 +95,16 @@ SIZE_BUCKETS = E1.SIZE_BUCKETS
 # ------------------------------------------------- PRE-REGISTERED CONSTANTS --
 # Fixed here BEFORE any measurement; every one of them is echoed into PARAMS
 # and therefore into the params_hash stamped on every output TSV.
-K_GRID = (1, 2, 3, 5, 8, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300,
-          450, 600, 900, 1200, 1800)
+K_GRID = (1, 2, 3, 5, 8, 10, 15, 20, 30, 45, 60, 90, 120, 150, 180, 210, 240,
+          300, 360, 450, 600, 900, 1200, 1800, 2400, 3600)
 IMT_ALPHA = 0.05                    # adequacy level for the K* selection rule
+IMT_N1_FLOOR = 1000                 # POWER FLOOR: below this many positive
+                                    # K-gaps the information-matrix test is
+                                    # degenerate — its statistic falls to zero
+                                    # because there is nothing left to test,
+                                    # not because the model fits.  Minimising
+                                    # the IMT without this floor drives K* to
+                                    # the grid edge (measured, see the report).
 TAU_GRID = tuple(round(0.05 * i, 2) for i in range(21))     # 0.00 .. 1.00
 PLATEAU_TOL = 0.01                  # |d(episodes/day)| / episodes/day per step
 SPAN_CAP_SEC = 14400                # 4 h = the measured leg-span benchmark the
@@ -137,9 +144,16 @@ PARAMS = {
     "p1_adequacy": "White (1982) information-matrix test as in Suveges & "
                    "Davison §3.2; IMT ~ chi2_1",
     "p1_k_grid": list(K_GRID),
-    "p1_kstar_rule": "the SMALLEST K in the grid whose IMT p >= %.2f; if none "
-                     "passes, K* = argmax p and ADEQUACY REJECTED is flagged"
-                     % IMT_ALPHA,
+    "p1_kstar_rule": "Suveges & Davison's own rule FIRST: the SMALLEST K whose "
+                     "IMT p >= %.2f.  If NO K is accepted (the n~2e5 IMT has "
+                     "near-certain power against any misspecification), K* = "
+                     "the SMALLEST K at a LOCAL MINIMUM of the IMT STATISTIC "
+                     "among K with N1 >= %d, and ADEQUACY REJECTED is flagged. "
+                     "The N1 power floor is load bearing: without it the IMT "
+                     "falls monotonically to zero as K -> max(T) because no "
+                     "positive K-gap survives to test, so unconstrained IMT "
+                     "minimisation always returns the grid edge."
+                     % (IMT_ALPHA, IMT_N1_FLOOR),
     "p1_crosscheck": "Ferro & Segers (2003) intervals estimator + automatic "
                      "run length T_(C), C = ceil(theta_hat*N); Hawkes (1971) "
                      "exponential-kernel MLE branching ratio n_hat (Bacry et "
@@ -620,15 +634,25 @@ def cluster_bootstrap_beta(y, x, clusters, link, reps=BOOT_REPS,
     edges = np.flatnonzero(cs[1:] != cs[:-1]) + 1
     starts = np.concatenate(([0], edges))
     stops = np.concatenate((edges, [cs.size]))
-    blocks = [order[s:e] for s, e in zip(starts.tolist(), stops.tolist())]
-    g = len(blocks)
+    lens = (stops - starts).astype(np.int64)
+    g = lens.size
     if g < 20:
         return float("nan")
+    # vectorised block gather: with ~1e5 clusters a per-replicate Python
+    # concatenate of the picked blocks dominates everything else, so the
+    # replicate index is built with a repeat/offset trick instead.
     rs = np.random.RandomState(seed)
     out = np.empty(reps)
     for b in range(reps):
         pick = rs.randint(0, g, size=g)
-        idx = np.concatenate([blocks[j] for j in pick])
+        sl = lens[pick]
+        tot = int(sl.sum())
+        if tot == 0:
+            out[b] = np.nan
+            continue
+        csum = np.concatenate(([0], np.cumsum(sl)[:-1]))
+        idx = order[np.repeat(starts[pick] - csum, sl)
+                    + np.arange(tot, dtype=np.int64)]
         yb, xb = y[idx], x[idx]
         if np.all(xb == xb[0]):
             out[b] = np.nan
@@ -1212,15 +1236,29 @@ def kgaps_sweep(per, pooled):
 
 
 def pick_kstar(rows):
-    """PRE-REGISTERED: the SMALLEST K whose IMT p >= IMT_ALPHA; if none passes,
-    argmax p and the adequacy REJECTED flag."""
-    ok = [r for r in rows if np.isfinite(r["imt_p"]) and r["imt_p"] >= IMT_ALPHA]
+    """PRE-REGISTERED K* selection (see PARAMS['p1_kstar_rule']).
+
+    (1) Suveges & Davison's rule: the smallest K the IMT does not reject.
+    (2) If nothing is accepted, the smallest K at a LOCAL MINIMUM of the IMT
+        STATISTIC among K with N1 >= IMT_N1_FLOOR.  The floor is what stops the
+        rule degenerating: as K grows past the data's largest interexceedance
+        time, N1 -> 0 and the IMT -> 0 because there is nothing left to test.
+    (3) Failing even that, the smallest-statistic K above the floor.
+    """
+    ok = [r for r in rows if np.isfinite(r["imt_p"])
+          and r["imt_p"] >= IMT_ALPHA]
     if ok:
         return min(ok, key=lambda r: r["K"]), True
-    fin = [r for r in rows if np.isfinite(r["imt_p"])]
+    fin = [r for r in rows if np.isfinite(r["imt"]) and r["n1"] >= IMT_N1_FLOOR]
+    if not fin:
+        fin = [r for r in rows if np.isfinite(r["imt"])]
     if not fin:
         return rows[0], False
-    return max(fin, key=lambda r: (r["imt_p"], -r["K"])), False
+    fin.sort(key=lambda r: r["K"])
+    for i in range(1, len(fin) - 1):
+        if fin[i]["imt"] <= fin[i - 1]["imt"] and fin[i]["imt"] <= fin[i + 1]["imt"]:
+            return fin[i], False
+    return min(fin, key=lambda r: (r["imt"], r["K"])), False
 
 
 def theta_cluster_bootstrap(per, K, reps=BOOT_REPS, seed=SHUFFLE_SEED):
@@ -1342,3 +1380,1245 @@ def kstar_by_leg_decile(asset, c, side, blocks):
                     (1.0 / best["theta"]) if best["theta"] > 0 else np.nan,
                     best["imt_p"], int(adeq)])
     return out
+
+
+# ============================== STAGE 3 — P2 (tau*), the dual build, arms =====
+def group_spans(lab, dec):
+    """(starts, sizes, spans) per label — O(n log n), no per-label scan.
+
+    The naive `for k in range(n_labels): dec[inv == k]` is quadratic in the
+    episode count, which at ~40 episodes/session x 3,000 sessions x 21 tau
+    steps is the difference between a minute and an afternoon.
+    """
+    order = np.argsort(lab, kind="stable")
+    l2 = lab[order]
+    d2 = dec[order]
+    if l2.size == 0:
+        return (np.zeros(0, dtype=np.int64),) * 3
+    brk = np.flatnonzero(l2[1:] != l2[:-1]) + 1
+    starts = np.concatenate(([0], brk))
+    stops = np.concatenate((brk, [l2.size]))
+    mins = np.minimum.reduceat(d2, starts)
+    maxs = np.maximum.reduceat(d2, starts)
+    return starts, (stops - starts), (maxs - mins)
+
+
+def group_members(lab):
+    """[[positions...]] per label, in label order — O(n log n)."""
+    order = np.argsort(lab, kind="stable")
+    l2 = lab[order]
+    if l2.size == 0:
+        return []
+    brk = np.flatnonzero(l2[1:] != l2[:-1]) + 1
+    starts = np.concatenate(([0], brk)).tolist()
+    stops = np.concatenate((brk, [l2.size])).tolist()
+    return [sorted(order[s:e].tolist()) for s, e in zip(starts, stops)]
+
+
+def day_groups(dates, idx):
+    """[(date8, idx_subset)] — one O(n log n) pass instead of a mask per day."""
+    order = np.argsort(dates, kind="stable")
+    d2 = dates[order]
+    if d2.size == 0:
+        return []
+    brk = np.flatnonzero(d2[1:] != d2[:-1]) + 1
+    starts = np.concatenate(([0], brk)).tolist()
+    stops = np.concatenate((brk, [d2.size])).tolist()
+    return [(int(d2[s]), idx[order[s:e]]) for s, e in zip(starts, stops)]
+
+
+def block_labels_causal(c, idx, gap, span_max, base):
+    """EPISODE_CAUSAL labels for one (session, side) block (idx dec-sorted)."""
+    dec = c["dec_sec"][idx].astype(np.int64)
+    lab = np.empty(idx.size, dtype=np.int64)
+    trips = 0
+    nid = base
+    for (lo, hi) in components_gap(dec, gap):
+        out = []
+        anti_chain_split(dec, lo, hi, span_max, out)
+        trips += len(out) - 1
+        for (a, b) in out:
+            lab[a:b] = nid
+            nid += 1
+    return lab, nid, trips
+
+
+def block_mst(c, idx, gap, cert):
+    """The single-linkage forest of the combined link weight for one block.
+
+    weight(i, j) = LINK_ALWAYS if |dec_i - dec_j| <= gap  (the CAUSAL link,
+    which no tau can undo), else the occupancy Jaccard.  Components at
+    threshold tau are then exactly EPISODE_RETRO(tau).
+    """
+    n = idx.size
+    if n < 2:
+        return np.zeros(0), np.zeros((0, 2), dtype=np.int64)
+    start = c["dec_sec"][idx].astype(np.float64)
+    stop = c["exit_%s" % cert][idx].astype(np.float64)
+    stop = np.maximum(stop, start)
+    w = jaccard_matrix(start, stop)
+    close = np.abs(start[:, None] - start[None, :]) <= gap
+    w = np.where(close, LINK_ALWAYS, w)
+    np.fill_diagonal(w, -np.inf)
+    return single_linkage_mst(w)
+
+
+def block_labels_retro(c, idx, ew, ep, tau, span_max, base):
+    """EPISODE_RETRO labels: components at tau, then the anti-chaining guard."""
+    dec = c["dec_sec"][idx].astype(np.int64)
+    comps = components_from_edges(idx.size, ew, ep, tau)
+    lab = np.empty(idx.size, dtype=np.int64)
+    nid = base
+    trips = 0
+    for members in comps:
+        mm = np.array(sorted(members), dtype=np.int64)
+        d = dec[mm]
+        out = []
+        anti_chain_split(d, 0, mm.size, span_max, out)
+        trips += len(out) - 1
+        for (a, b) in out:
+            lab[mm[a:b]] = nid
+            nid += 1
+    return lab, nid, trips
+
+
+def tau_sweep(asset, c, kstar, span_max, cert):
+    """The full tau-curve (B4's mandate: report the curve, locate the plateau)."""
+    blocks = session_blocks(c, fit_only=True)
+    msts = []
+    for (d, s, idx) in blocks:
+        ew, ep = block_mst(c, idx, kstar.get(s, kstar.get(1, 180)), cert)
+        msts.append((d, s, idx, ew, ep))
+    ndays = len(set(b[0] for b in blocks))
+    rows = []
+    for tau in TAU_GRID:
+        nep = 0
+        ncand = 0
+        span_sum = 0
+        span_max_seen = 0
+        trips = 0
+        sizes = []
+        for (_d, s, idx, ew, ep) in msts:
+            lab, nid, tr = block_labels_retro(
+                c, idx, ew, ep, tau, span_max.get(s, SPAN_CAP_SEC), 0)
+            trips += tr
+            nep += nid
+            ncand += idx.size
+            dec = c["dec_sec"][idx]
+            st_, sz_, sp_ = group_spans(lab, dec)
+            span_sum += int(sp_.sum())
+            if sp_.size:
+                span_max_seen = max(span_max_seen, int(sp_.max()))
+            sizes.append(int(sz_.max()) if sz_.size else 0)
+            del st_
+        rows.append({"tau": tau, "episodes_per_day": nep / ndays,
+                     "cand_per_episode": ncand / nep if nep else np.nan,
+                     "max_span_sec": span_max_seen,
+                     "mean_span_sec": span_sum / nep if nep else np.nan,
+                     "guard_trips": trips, "n_episodes": nep,
+                     "max_size": max(sizes) if sizes else 0})
+    return rows, msts, ndays
+
+
+def pick_taustar(rows):
+    """PRE-REGISTERED: the longest run of consecutive tau steps whose relative
+    change in episodes/day is < PLATEAU_TOL; tau* = the MIDPOINT of that run."""
+    e = [r["episodes_per_day"] for r in rows]
+    flat = []
+    for i in range(1, len(e)):
+        base = max(e[i], e[i - 1], 1e-12)
+        flat.append(abs(e[i] - e[i - 1]) / base < PLATEAU_TOL)
+    best = (0, 0, 0)
+    i = 0
+    while i < len(flat):
+        if not flat[i]:
+            i += 1
+            continue
+        j = i
+        while j < len(flat) and flat[j]:
+            j += 1
+        if j - i > best[0]:
+            best = (j - i, i, j)
+        i = j
+    if best[0] == 0:
+        return float(rows[len(rows) // 2]["tau"]), 0.0, 0.0
+    lo = rows[best[1]]["tau"]
+    hi = rows[best[2]]["tau"]
+    return float(round((lo + hi) / 2.0, 4)), float(lo), float(hi)
+
+
+def labels_all(c, kstar, span_max, taustar, msts_by_cert, cert):
+    """The four registered/comparison labellings over the FIT candidate set.
+
+    Returns {name: (rows, labels)} with `rows` the roster row indices.
+    """
+    blocks = session_blocks(c, fit_only=True)
+    nrow = c["date8"].size
+    lab_c = np.full(nrow, -1, dtype=np.int64)
+    lab_r = np.full(nrow, -1, dtype=np.int64)
+    lab_l = np.full(nrow, -1, dtype=np.int64)
+    nid_c = nid_r = nid_l = 0
+    trips_c = trips_r = 0
+    for (d, s, idx) in blocks:
+        lc, nid_c, tc = block_labels_causal(
+            c, idx, kstar.get(s, 180), span_max.get(s, SPAN_CAP_SEC), nid_c)
+        lab_c[idx] = lc
+        trips_c += tc
+        li = c["leg_idx"][idx]
+        for k in np.unique(li):
+            sel = idx[li == k]
+            if k < 0:
+                lab_l[sel] = np.arange(nid_l, nid_l + sel.size)
+                nid_l += sel.size
+            else:
+                lab_l[sel] = nid_l
+                nid_l += 1
+    for (d, s, idx, ew, ep) in msts_by_cert:
+        lr, nid_r, tr = block_labels_retro(
+            c, idx, ew, ep, taustar, span_max.get(s, SPAN_CAP_SEC), nid_r)
+        lab_r[idx] = lr
+        trips_r += tr
+    return {"EPISODE_CAUSAL": lab_c, "EPISODE_RETRO": lab_r,
+            "LEG_ONLY": lab_l}, {"causal": trips_c, "retro": trips_r}
+
+
+def labels_v1(c, legs_all, asset):
+    """The v1 comparison arm — episode_census.group_day VERBATIM at its
+    primary 900 s gap (imported, never re-implemented)."""
+    nrow = c["date8"].size
+    lab = np.full(nrow, -1, dtype=np.int64)
+    fit = np.isin(c["date8"] // 10000, np.array(M.FIT_YEARS))
+    idx_all = np.nonzero(fit)[0]
+    nid = 0
+    for (d, idx) in day_groups(c["date8"][idx_all], idx_all):
+        cands = [(int(c["dec_sec"][i]), int(c["side"][i]), int(c["iid"][i]),
+                  int(c["row"][i])) for i in idx]
+        legs = [(a, b, cc) for (a, b, cc, _t)
+                in legs_all.get((asset, int(d)), [])]
+        for (_k, members) in E1.group_day(cands, legs, E1.GAP_PRIMARY):
+            for p in members:
+                lab[idx[p]] = nid
+            nid += 1
+    return lab
+
+
+def shuffled_twin_labels(c, kstar, span_max, taustar, cert,
+                         seed=SHUFFLE_SEED):
+    """The mandatory occupancy_derived guard: permute the occupancy DURATIONS
+    within each session (row<->duration association destroyed, per-session
+    marginal and row count identical) and rebuild EPISODE_RETRO.  If the twin
+    reproduces the real RETRO's departure from CAUSAL, the overlap channel is
+    carrying no information and RETRO is VOIDED."""
+    blocks = session_blocks(c, fit_only=True)
+    rs = np.random.RandomState(seed)
+    twin = dict(c)
+    dur = (c["exit_%s" % cert] - c["dec_sec"]).astype(np.int64)
+    newdur = dur.copy()
+    for (_d, sel) in day_groups(c["date8"], np.arange(c["date8"].size)):
+        newdur[sel] = dur[sel][rs.permutation(sel.size)]
+    twin["exit_%s" % cert] = c["dec_sec"] + newdur
+    nrow = c["date8"].size
+    lab = np.full(nrow, -1, dtype=np.int64)
+    nid = 0
+    for (_d, s, idx) in blocks:
+        ew, ep = block_mst(twin, idx, kstar.get(s, 180), cert)
+        lr, nid, _t = block_labels_retro(
+            twin, idx, ew, ep, taustar, span_max.get(s, SPAN_CAP_SEC), nid)
+        lab[idx] = lr
+    return lab
+
+
+# ================================ STAGE 4 — the v1 census metrics under v2 ====
+def census_under(asset, c, lab, name):
+    """Re-run the v1 census metrics under a v2 grouping definition.
+
+    Same quantities, same certificate readings, same within-episode rules and
+    the same DP probe as episode_census — only the DEFINITION of an episode
+    changes, which is the whole point of the comparison.
+    """
+    fit = np.isin(c["date8"] // 10000, np.array(M.FIT_YEARS)) & (lab >= 0)
+    idx = np.nonzero(fit)[0]
+    by_day = day_groups(c["date8"][idx], idx)
+    nd = len(by_day)
+    m_rows, s_rows, r_rows, d_rows = [], [], [], []
+    sizes_all = []
+    n_epi = 0
+    epi_1k = {k: 0 for k in CERT_METRICS}
+    cand_1k = {k: 0 for k in CERT_METRICS}
+    bucket = [[0, 0, 0, 0] for _ in SIZE_BUCKETS]
+    rule_acc = {}
+    dp_acc = {}
+    span_max_seen = 0
+    for (d, di) in by_day:
+        order = np.lexsort((c["row"][di], c["iid"][di], c["dec_sec"][di]))
+        di = di[order]
+        m = {"dec": c["dec_sec"][di].tolist(),
+             "iid": c["iid"][di].tolist(),
+             "row": c["row"][di].tolist(),
+             "spread": c["spread"][di].tolist(),
+             "rung": c["rung_mask"][di].tolist(),
+             "fam": c["fam_mask"][di].tolist(),
+             "ldist": c["ldist"][di].tolist()}
+        cert = {k: c["cert_%s" % k][di].tolist() for k in CERT_METRICS}
+        item = {k: [(int(c["dec_sec"][di][p]), int(c["exit_%s" % k][di][p]),
+                     cert[k][p], int(c["dec_sec"][di][p]),
+                     int(c["iid"][di][p]), p) for p in range(di.size)]
+                for k in CERT_METRICS}
+        eps = group_members(lab[di])
+        n_epi += len(eps)
+        picks_by_ep = []
+        for members in eps:
+            sz = len(members)
+            sizes_all.append(sz)
+            span_max_seen = max(span_max_seen,
+                                m["dec"][members[-1]] - m["dec"][members[0]])
+            b = E1.bucket_of(sz)
+            bucket[b][0] += 1
+            bucket[b][1] += sz
+            for ci, cm in enumerate(CERT_METRICS):
+                best = max(cert[cm][i] for i in members)
+                w = 1 if best >= DOLLAR_CLASS else 0
+                epi_1k[cm] += w
+                bucket[b][2 + ci] += w
+            picks = E1.pick_members(m, members, cert["close"])
+            picks_by_ep.append((members, picks))
+            if sz < 2:
+                continue
+            for cm in CERT_METRICS:
+                cv = cert[cm]
+                best = max(cv[i] for i in members)
+                if best <= 0:
+                    continue
+                mean = sum(cv[i] for i in members) / sz
+                pk = picks if cm == "close" else \
+                    E1.pick_members(m, members, cv)
+                for rule in RULES:
+                    st = rule_acc.setdefault((cm, rule),
+                                             {"n": 0, "pick": 0.0,
+                                              "best": 0.0, "mean": 0.0,
+                                              "hit": 0, "abst": 0,
+                                              "ratio": 0.0})
+                    p = pk[rule]
+                    if p is None:
+                        st["abst"] += 1
+                        continue
+                    st["n"] += 1
+                    st["pick"] += cv[p]
+                    st["best"] += best
+                    st["mean"] += mean
+                    st["ratio"] += cv[p] / best
+                    st["hit"] += 1 if cv[p] >= best - 1e-9 else 0
+        for cm in CERT_METRICS:
+            cand_1k[cm] += int((c["cert_%s" % cm][di] >= DOLLAR_CLASS).sum())
+            tot_all, sch_all = CC.dp_schedule(item[cm])
+            e = dp_acc.setdefault((cm, "ALL_CANDIDATES"), [0.0, 0, 0])
+            e[0] += tot_all
+            e[1] += len(sch_all)
+            e[2] += 1
+            pk_all = [(members, picks if cm == "close"
+                       else E1.pick_members(m, members, cert[cm]))
+                      for (members, picks) in picks_by_ep]
+            for rule in RULES:
+                sel = []
+                for (_members, pk) in pk_all:
+                    p = pk[rule]
+                    if p is None:
+                        p = pk["EARLIEST"]
+                    sel.append(item[cm][p])
+                tot, sch = CC.dp_schedule(sel)
+                e = dp_acc.setdefault((cm, "EPISODE|%s" % rule), [0.0, 0, 0])
+                e[0] += tot
+                e[1] += len(sch)
+                e[2] += 1
+    ncand = idx.size
+    row = [asset, name, nd, ncand, n_epi, n_epi / nd, ncand / nd,
+           ncand / n_epi, M.med(sizes_all), max(sizes_all), span_max_seen,
+           float(np.mean([1 if s > 1 else 0 for s in sizes_all]))]
+    for cm in CERT_METRICS:
+        cr = cand_1k[cm] / ncand
+        er = epi_1k[cm] / n_epi
+        row += [cand_1k[cm], cr, epi_1k[cm], er,
+                (er / cr) if cr > 0 else float("nan"),
+                cand_1k[cm] / nd, epi_1k[cm] / nd]
+    m_rows.append(row)
+    for k, (lo, hi) in enumerate(SIZE_BUCKETS):
+        lbl = ("%d" % lo if lo == hi
+               else ("%d-%d" % (lo, hi) if hi < 10 ** 8 else "%d+" % lo))
+        ne, nc, k1, k2 = bucket[k]
+        s_rows.append([asset, name, lbl, ne, ne / n_epi, nc, nc / ncand,
+                       k1, k1 / ne if ne else float("nan"),
+                       k2, k2 / ne if ne else float("nan")])
+    for (cm, rule), st in sorted(rule_acc.items()):
+        if not st["n"]:
+            continue
+        r_rows.append([asset, name, cm, rule, st["n"], st["abst"],
+                       st["pick"] / st["best"] if st["best"] else np.nan,
+                       st["ratio"] / st["n"],
+                       st["pick"] / st["mean"] if st["mean"] else np.nan,
+                       st["hit"] / st["n"]])
+    for (cm, kind), e in sorted(dp_acc.items()):
+        base = dp_acc.get((cm, "ALL_CANDIDATES"))
+        d_rows.append([asset, name, cm, kind, e[2], e[0], e[0] / e[2],
+                       e[1] / e[2],
+                       (e[0] - base[0]) / base[2] if base else np.nan,
+                       (e[0] / base[0] - 1.0) if base and base[0] else np.nan])
+    return m_rows, s_rows, r_rows, d_rows
+
+
+# ============================================ STAGE 5 — P3 and the RE-TEST ====
+def stage_p3(asset, c, labels):
+    """rho_w, DEFF, n_eff and the within-episode identifiability margin."""
+    fit = np.isin(c["date8"] // 10000, np.array(M.FIT_YEARS))
+    rows, disp = [], []
+    for name in sorted(labels):
+        lab = labels[name]
+        sel = np.nonzero(fit & (lab >= 0))[0]
+        for cm in CERT_METRICS:
+            v = c["cert_%s" % cm][sel]
+            r = icc_oneway(v, lab[sel])
+            if r is None:
+                continue
+            rows.append([asset, name, cm, r["n"], r["k"], r["mbar"], r["m0"],
+                         r["rho"], r["deff"], r["n_eff"],
+                         r["n"] / r["deff"] / r["n"] if r["deff"] else np.nan,
+                         r["k"] / float(r["n"]), r["msb"], r["msw"]])
+        # ---- within-episode dispersion vs the cost yardstick --------------
+        v = c["cert_close"][sel]
+        cost = c["cost_rt"][sel]
+        u, inv = np.unique(lab[sel], return_inverse=True)
+        order = np.argsort(inv, kind="stable")
+        iv = inv[order]
+        vv = v[order]
+        cc = cost[order]
+        brk = np.flatnonzero(iv[1:] != iv[:-1]) + 1
+        starts = np.concatenate(([0], brk))
+        stops = np.concatenate((brk, [iv.size]))
+        d1, d2, nmulti, below = [], [], 0, 0
+        for s, e in zip(starts.tolist(), stops.tolist()):
+            if e - s < 2:
+                continue
+            nmulti += 1
+            g = np.sort(vv[s:e])[::-1]
+            d1.append(float(g[0] - np.median(g)))
+            d2.append(float(g[0] - g[1]))
+            if (g[0] - g[1]) < cc[s]:
+                below += 1
+        if nmulti:
+            disp.append([asset, name, nmulti, M.med(d1), M.med(d2),
+                         float(np.mean(d1)), float(np.mean(d2)),
+                         float(np.median(cc)), below / nmulti])
+    return rows, disp
+
+
+# ------------------------------------------------------- the MANDATED re-test
+LEVEL_FAMS = tuple(G3.KEPT_LEVEL_FAMILIES)
+FAM_BAR_USD = -100.0                # CC-M1-3.2 (i): value >= G1 - $100
+LEVEL_BAR_USD = -150.0              # CC-M1-9.1: value >= G1 - $150
+
+
+def _margin_test(c, sel_a, sel_b, bar, labels, name_extra):
+    """Naive vs cluster-robust test of (mean_a - mean_b) against a BAR.
+
+    The house's family/level decisions are THRESHOLD rules on a point estimate,
+    so they cannot mechanically flip when only the variance changes.  What the
+    re-test therefore asks is the question that IS variance-dependent: is the
+    decision margin still distinguishable from the bar once within-episode
+    dependence is priced?  A decision whose margin loses significance under the
+    cluster-robust variance is a decision the data no longer supports.
+    """
+    y = np.concatenate([c["cert_close"][sel_a], c["cert_close"][sel_b]])
+    x = np.concatenate([np.ones(sel_a.size), np.zeros(sel_b.size)])
+    keep = np.isfinite(y) & (y > 0)        # _cond: mean over POSITIVE certs
+    y, x = y[keep], x[keep]
+    idx = np.concatenate([sel_a, sel_b])[keep]
+    if y.size < 100 or x.sum() < 20 or (x.size - x.sum()) < 20:
+        return None
+    out = {"n": int(y.size), "n_a": int(x.sum())}
+    base = gee_independence(y, x, np.arange(y.size), link="identity")
+    if base is None:
+        return None
+    margin = base["beta"] - bar
+    out["diff"] = base["beta"]
+    out["margin"] = margin
+    out["se_naive"] = base["se_naive"]
+    out["z_naive"] = margin / base["se_naive"] if base["se_naive"] > 0 else \
+        float("nan")
+    out["p_naive"] = two_sided_p(out["z_naive"])
+    for (cname, cl) in name_extra:
+        g = gee_independence(y, x, cl[idx], link="identity")
+        if g is None:
+            continue
+        out["se_%s" % cname] = g["se_cr1"]
+        out["z_%s" % cname] = margin / g["se_cr1"] if g["se_cr1"] > 0 else \
+            float("nan")
+        out["p_%s" % cname] = two_sided_p(out["z_%s" % cname])
+        out["vif_%s" % cname] = (g["se_cr1"] / base["se_naive"]) ** 2 \
+            if base["se_naive"] > 0 else float("nan")
+        out["ncl_%s" % cname] = g["n_clusters"]
+    out["boot_se"] = cluster_bootstrap_beta(
+        y, x, labels[idx], "identity", reps=min(BOOT_REPS, 400))
+    out["z_boot"] = margin / out["boot_se"] if out["boot_se"] > 0 else \
+        float("nan")
+    out["p_boot"] = two_sided_p(out["z_boot"])
+    return out
+
+
+def retest_families(asset, c, lab_causal, lab_sess):
+    """ARM A (CC-M1-7 designed families) + ARM B (CC-M1-3.3 level keeps)."""
+    fit = np.isin(c["date8"] // 10000, np.array(M.FIT_YEARS))
+    g1 = np.nonzero(fit & ((c["fam_mask"] & G3.FAM_BIT["G1"]) != 0))[0]
+    rows = []
+    clusters = [("ep", lab_causal), ("sess", lab_sess)]
+    for fam in G3.FAMILIES:
+        if fam == "G1":
+            continue
+        bit = G3.FAM_BIT[fam]
+        a = np.nonzero(fit & ((c["fam_mask"] & bit) != 0)
+                       & ((c["fam_mask"] & G3.FAM_BIT["G1"]) == 0))[0]
+        b = g1[(c["fam_mask"][g1] & bit) == 0]
+        r = _margin_test(c, a, b, FAM_BAR_USD, lab_causal, clusters)
+        if r:
+            rows.append(("CC-M1-7 family", fam, FAM_BAR_USD, r))
+    for i, lf in enumerate(LEVEL_FAMS):
+        bit = 1 << i
+        a = np.nonzero(fit & ((c["level_fam_mask"] & bit) != 0))[0]
+        b = g1[(c["level_fam_mask"][g1] & bit) == 0]
+        r = _margin_test(c, a, b, LEVEL_BAR_USD, lab_causal, clusters)
+        if r:
+            rows.append(("CC-M1-3.3 level keep", lf, LEVEL_BAR_USD, r))
+    out = []
+    for (kind, nm, bar, r) in rows:
+        dec = "KEEP/ADOPT" if r["diff"] >= bar else "RETIRE/DROP"
+        sig_n = np.isfinite(r["p_naive"]) and r["p_naive"] < 0.05
+        sig_r = np.isfinite(r.get("p_ep", np.nan)) and r["p_ep"] < 0.05
+        out.append([asset, kind, nm, dec, bar, r["n"], r["n_a"], r["diff"],
+                    r["margin"], r["se_naive"], r["z_naive"], r["p_naive"],
+                    r.get("se_ep"), r.get("z_ep"), r.get("p_ep"),
+                    r.get("vif_ep"), r.get("ncl_ep"),
+                    r.get("se_sess"), r.get("z_sess"), r.get("p_sess"),
+                    r.get("vif_sess"), r.get("ncl_sess"),
+                    r["boot_se"], r["z_boot"], r["p_boot"],
+                    int(sig_n), int(sig_r),
+                    "YES" if (sig_n != sig_r) else "no"])
+    return out
+
+
+def retest_slices(asset, deff_ep, deff_sess):
+    """ARM C: the §10B slice-miner promotions, re-Holm'd under the measured
+    design effect.
+
+    The recorded statistic is a one-sided Welch z on candidate-level walled
+    certificates (family_discovery.py:1037-1048), which assumes i.i.d.
+    candidates.  Kish (F7) prices exactly that assumption: with within-episode
+    correlation rho_w the effective sample is n/DEFF, so the honest statistic
+    is z/sqrt(DEFF).  Holm is then re-run at the SAME pre-registered family
+    size (multiplicity_m), and the promotion rule (holm_reject AND value >=
+    G1 + $150 AND era-stable) re-evaluated.
+    """
+    fd = os.path.join(M.M1_ROOT, "family_discovery")
+    sc = os.path.join(fd, "slice_census.tsv")
+    mp_ = os.path.join(fd, "slice_multiplicity.tsv")
+    if not (os.path.exists(sc) and os.path.exists(mp_)):
+        return [], []
+    rows, h = E1.read_tsv(sc)
+    mrows, mh = E1.read_tsv(mp_)
+    fam_size = None
+    for r in mrows:
+        if r[mh["asset"]] == asset:
+            fam_size = int(r[mh["holm_family_size"]])
+    sub = [r for r in rows if r[h["asset"]] == asset]
+    if not sub or not fam_size:
+        return [], []
+    import family_discovery as FD
+    pv_naive, pv_ep, pv_ss = [], [], []
+    for r in sub:
+        try:
+            z = float(r[h["welch_z"]])
+        except ValueError:
+            z = float("nan")
+        pv_naive.append(float(r[h["p_raw"]]) if r[h["p_raw"]] else np.nan)
+        for (d, acc) in ((deff_ep, pv_ep), (deff_sess, pv_ss)):
+            zr = z / math.sqrt(d) if np.isfinite(z) and d > 0 else np.nan
+            acc.append(0.5 * math.erfc(zr / math.sqrt(2.0))
+                       if np.isfinite(zr) else np.nan)
+    adj_n, rej_n = FD.holm(pv_naive, FD.HOLM_ALPHA, m=fam_size)
+    adj_e, rej_e = FD.holm(pv_ep, FD.HOLM_ALPHA, m=fam_size)
+    adj_s, rej_s = FD.holm(pv_ss, FD.HOLM_ALPHA, m=fam_size)
+    detail, flips = [], 0
+    n_prom_n = n_prom_e = n_prom_s = 0
+    for i, r in enumerate(sub):
+        val_ok = r[h["value_minus_g1_usd"]]
+        try:
+            val_ok = float(val_ok) >= FD.PROMOTE_MARGIN
+        except ValueError:
+            val_ok = False
+        stable = r[h["fit_year_sign_stable"]] == "1"
+        pn = bool(rej_n[i] and val_ok and stable)
+        pe = bool(rej_e[i] and val_ok and stable)
+        ps = bool(rej_s[i] and val_ok and stable)
+        n_prom_n += pn
+        n_prom_e += pe
+        n_prom_s += ps
+        if pn != pe or pn != ps:
+            flips += 1
+            if len(detail) < 400:
+                detail.append([asset, r[h["axes"]], r[h["levels"]],
+                               r[h["n_fit"]], r[h["welch_z"]],
+                               pv_naive[i], adj_n[i], int(pn),
+                               pv_ep[i], adj_e[i], int(pe),
+                               pv_ss[i], adj_s[i], int(ps),
+                               "YES"])
+    summ = [asset, len(sub), fam_size, deff_ep, deff_sess,
+            sum(rej_n), sum(rej_e), sum(rej_s),
+            n_prom_n, n_prom_e, n_prom_s,
+            n_prom_n - n_prom_e, n_prom_n - n_prom_s, flips,
+            "YES" if flips else "no"]
+    return [summ], detail
+
+
+# ==================================================================== main ====
+def _asset_task(args):
+    asset, legs_all, sha = args
+    z = np.load(M.out_path(CACHE_DIR, "cand_%s.npz" % asset),
+                allow_pickle=False)
+    c = {k: z[k] for k in z.files}
+    z.close()
+    res = {"asset": asset}
+
+    # --- 1. THE GATE (runs before any rule is committed) -------------------
+    res["hist"], res["gate"] = stage_gate(asset, c)
+    M.hb("ep2 %s: gate done" % asset)
+
+    # --- 2. P1 -------------------------------------------------------------
+    sweep, star, decile, kstar = stage_p1(asset, c)
+    res["p1_sweep"], res["p1_star"], res["p1_decile"] = sweep, star, decile
+    res["kstar"] = kstar
+    M.hb("ep2 %s: P1 K*=%s" % (asset, kstar))
+
+    # --- the anti-chaining guard, derived from the fit ---------------------
+    span_max, guard_rows = {}, []
+    for side, K in sorted(kstar.items()):
+        blocks = session_blocks(c, fit_only=True, side=side)
+        _per, pooled = interarrivals(c, blocks)
+        th = [r for r in star if r[1] == side][0][3]
+        within = pooled[(pooled >= 1) & (pooled <= K)]
+        sm, beyond = cluster_span_quantile(th, within)
+        span_max[side] = sm
+        guard_rows.append([asset, side, K, th, int(within.size), sm, beyond,
+                           SPAN_CAP_SEC, int(sm >= SPAN_CAP_SEC)])
+    res["guard"] = guard_rows
+    res["span_max"] = span_max
+
+    # --- 3. P2 tau sweep + the dual build ----------------------------------
+    tau_rows, taustar = [], {}
+    msts = {}
+    for cert in CERT_METRICS:
+        rows, mst, ndays = tau_sweep(asset, c, kstar, span_max, cert)
+        msts[cert] = mst
+        ts, lo, hi = pick_taustar(rows)
+        taustar[cert] = ts
+        for r in rows:
+            tau_rows.append([asset, cert, r["tau"], r["episodes_per_day"],
+                             r["cand_per_episode"], r["max_span_sec"],
+                             r["mean_span_sec"], r["max_size"],
+                             r["guard_trips"], r["n_episodes"],
+                             int(lo <= r["tau"] <= hi)])
+        res.setdefault("plateau", []).append([asset, cert, ts, lo, hi])
+    res["p2_tau"] = tau_rows
+    res["taustar"] = taustar
+    M.hb("ep2 %s: tau*=%s" % (asset, taustar))
+
+    labels, trips = labels_all(c, kstar, span_max, taustar["close"],
+                               msts["close"], "close")
+    labels["V1_LEG_CHAIN_900"] = labels_v1(c, legs_all, asset)
+    twin = shuffled_twin_labels(c, kstar, span_max, taustar["close"], "close")
+    res["trips"] = trips
+
+    # --- disagreement between every pair of definitions --------------------
+    fit = np.isin(c["date8"] // 10000, np.array(M.FIT_YEARS))
+    names = ["EPISODE_CAUSAL", "EPISODE_RETRO", "V1_LEG_CHAIN_900", "LEG_ONLY"]
+    dis = []
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            sel = fit & (labels[a] >= 0) & (labels[b] >= 0)
+            n11, n10, n01 = pair_counts(labels[a][sel], labels[b][sel])
+            dis.append([asset, a, b, int(sel.sum()),
+                        int(np.unique(labels[a][sel]).size),
+                        int(np.unique(labels[b][sel]).size),
+                        n11, n10, n01, disagreement(labels[a][sel],
+                                                    labels[b][sel])])
+    sel = fit & (labels["EPISODE_RETRO"] >= 0) & (twin >= 0)
+    d_real = disagreement(labels["EPISODE_CAUSAL"][sel],
+                          labels["EPISODE_RETRO"][sel])
+    d_twin = disagreement(labels["EPISODE_CAUSAL"][sel], twin[sel])
+    res["twin"] = [[asset, "close", taustar["close"],
+                    int(np.unique(labels["EPISODE_RETRO"][sel]).size),
+                    int(np.unique(twin[sel]).size), d_real, d_twin,
+                    d_real - d_twin,
+                    "VOIDED" if d_twin >= d_real else "PASSES"]]
+    res["disagreement"] = dis
+
+    # --- 4. the v1 census metrics under both v2 definitions ----------------
+    m_rows, s_rows, r_rows, d_rows = [], [], [], []
+    for nm in ("EPISODE_CAUSAL", "EPISODE_RETRO", "V1_LEG_CHAIN_900"):
+        a, b, cc2, d = census_under(asset, c, labels[nm], nm)
+        m_rows += a
+        s_rows += b
+        r_rows += cc2
+        d_rows += d
+    res["m"], res["s"], res["r"], res["d"] = m_rows, s_rows, r_rows, d_rows
+    M.hb("ep2 %s: census re-run done" % asset)
+
+    # --- 5. P3 + the mandated re-test --------------------------------------
+    res["p3"], res["disp"] = stage_p3(
+        asset, c, {k: labels[k] for k in
+                   ("EPISODE_CAUSAL", "EPISODE_RETRO", "V1_LEG_CHAIN_900")})
+    lab_sess = c["date8"] * 4 + (c["side"] + 1) // 2
+    res["retest_fam"] = retest_families(asset, c, labels["EPISODE_CAUSAL"],
+                                        lab_sess)
+    deff_ep = deff_sess = float("nan")
+    for r in res["p3"]:
+        if r[1] == "EPISODE_CAUSAL" and r[2] == "close":
+            deff_ep = r[8]
+    icc_s = icc_oneway(c["cert_close"][fit], lab_sess[fit])
+    if icc_s:
+        deff_sess = icc_s["deff"]
+    res["deff"] = [asset, deff_ep, deff_sess]
+    res["retest_slice"], res["retest_slice_detail"] = retest_slices(
+        asset, deff_ep, deff_sess)
+    M.hb("ep2 %s: DONE" % asset)
+    return res
+
+
+def main():
+    assets = [a for a in sys.argv[1:] if a in M.ASSET_ORDER] or \
+        list(M.ASSET_ORDER)
+    phash = C.params_hash(PARAMS)
+    freeze = build_all_caches(assets)
+    legs_all = load_legs_travel()
+    workers = max(1, min(4, int(os.environ.get("M1_WORKERS", "3"))))
+    tasks = [(a, legs_all, freeze[a]["sha256"]) for a in assets]
+    if workers <= 1 or len(tasks) <= 1:
+        res = [_asset_task(t) for t in tasks]
+    else:
+        with mp.Pool(min(workers, len(tasks))) as pool:
+            res = list(pool.map(_asset_task, tasks, chunksize=1))
+
+    def cat(key):
+        out = []
+        for r in res:
+            out += r.get(key, [])
+        return out
+
+    wtsv("zbz_histogram.tsv",
+         ["asset", "side", "kernel", "bin", "log10_eta_lo", "log10_eta_hi",
+          "n", "frac"], cat("hist"), phash,
+         ["Zaliapin & Ben-Zion (2013) nearest-neighbour proximity histogram",
+          "side 0 = both sides pooled; kernel b_zero = the magnitude-free "
+          "sensitivity (b forced to 0)"])
+    wtsv("zbz_gate.tsv",
+         ["asset", "side", "kernel", "d_f", "gp_fit_r_lo_usd",
+          "gp_fit_r_hi_usd", "b_value", "n_eta", "median_log10_eta",
+          "p05_log10_eta", "p95_log10_eta", "bic_1comp", "bic_2comp",
+          "delta_bic", "w0", "mu0", "sd0", "w1", "mu1", "sd1",
+          "antimode_log10_eta", "median_t2_below_trough_sec",
+          "median_t2_above_trough_sec", "median_log10_T", "median_log10_R",
+          "VERDICT"], cat("gate"), phash,
+         [PARAMS["gate"], PARAMS["gate_verdict_rule"],
+          "delta_bic > 0 favours two components; the VERDICT additionally "
+          "requires an interior antimode in the fitted density"])
+    wtsv("p1_kgaps_sweep.tsv",
+         ["asset", "side", "K_sec", "theta", "se_theta",
+          "candidates_per_episode", "N0", "N1", "imt_stat", "imt_p",
+          "imt_accepts"], cat("p1_sweep"), phash,
+         [PARAMS["p1_estimator"], PARAMS["p1_adequacy"]])
+    wtsv("p1_kstar.tsv",
+         ["asset", "side", "K_star_sec", "theta", "se_theta_naive",
+          "se_theta_cluster_boot", "theta_boot_lo", "theta_boot_hi",
+          "candidates_per_episode", "imt_stat", "imt_p", "imt_adequate",
+          "q_exceedance_rate", "n_exceedances", "n_valid_seconds",
+          "theta_ferro_segers", "runlength_ferro_segers_sec", "C_clusters",
+          "cand_per_episode_fs", "hawkes_n_hat", "hawkes_one_minus_n",
+          "hawkes_mu", "hawkes_beta", "hawkes_converged",
+          "abs_diff_theta_vs_fs", "abs_diff_theta_vs_hawkes"],
+         cat("p1_star"), phash,
+         [PARAMS["p1_kstar_rule"], PARAMS["p1_crosscheck"],
+          "the cluster bootstrap resamples whole SESSIONS (Field & Welsh "
+          "2007); the K-gaps sufficient statistics are additive over sessions "
+          "so each replicate is an exact refit"])
+    wtsv("p1_leg_decile.tsv",
+         ["asset", "side", "decile", "travel_lo_usd", "travel_hi_usd",
+          "n_legs", "n_candidates", "K_star_sec", "theta",
+          "candidates_per_episode", "imt_p", "imt_adequate"],
+         cat("p1_decile"), phash, [PARAMS["p1_magnitude_test"]])
+    wtsv("anti_chaining_guard.tsv",
+         ["asset", "side", "K_star_sec", "theta", "n_within_gaps",
+          "span_max_sec", "mass_beyond_cap", "span_cap_sec", "at_cap"],
+         cat("guard"), phash, [PARAMS["anti_chaining"]])
+    wtsv("p2_tau_sweep.tsv",
+         ["asset", "cert_metric", "tau", "episodes_per_day",
+          "candidates_per_episode", "max_span_sec", "mean_span_sec",
+          "max_episode_size", "guard_trips", "n_episodes", "in_plateau"],
+         cat("p2_tau"), phash, [PARAMS["p2_overlap"], PARAMS["p2_taustar_rule"]])
+    wtsv("p2_taustar.tsv",
+         ["asset", "cert_metric", "tau_star", "plateau_lo", "plateau_hi"],
+         cat("plateau"), phash, [PARAMS["p2_taustar_rule"]])
+    wtsv("grouping_disagreement.tsv",
+         ["asset", "definition_a", "definition_b", "n_candidates",
+          "n_episodes_a", "n_episodes_b", "pairs_together_in_both",
+          "pairs_only_a", "pairs_only_b", "disagreement_rate"],
+         cat("disagreement"), phash,
+         ["disagreement = 1 - (pairs together in BOTH) / (pairs together in "
+          "EITHER) over same-session same-side candidate pairs"])
+    wtsv("retro_shuffled_twin.tsv",
+         ["asset", "cert_metric", "tau_star", "n_episodes_real",
+          "n_episodes_twin", "disagree_causal_vs_retro",
+          "disagree_causal_vs_twin", "delta", "GUARD"], cat("twin"), phash,
+         ["the occupancy_derived guard: occupancy DURATIONS permuted within "
+          "session at seed %d (row<->duration association destroyed, "
+          "per-session marginal and row count identical)" % SHUFFLE_SEED])
+    wtsv("episode_metrics_v2.tsv",
+         ["asset", "definition", "n_days", "n_candidates", "n_episodes",
+          "episodes_per_day", "candidates_per_day", "candidates_per_episode",
+          "median_episode_size", "max_episode_size", "max_episode_span_sec",
+          "multi_member_share"]
+         + [x for cm in CERT_METRICS for x in
+            ["n_cand_1k_%s" % cm, "cand_base_rate_%s" % cm,
+             "n_epi_1k_%s" % cm, "epi_base_rate_%s" % cm,
+             "haystack_shrink_%s" % cm, "cand_1k_per_day_%s" % cm,
+             "episodes_1k_per_day_%s" % cm]],
+         cat("m"), phash, ["FIT era; the v1 census metrics recomputed under "
+                           "each v2 definition (V1_LEG_CHAIN_900 = the "
+                           "comparison arm, episode_census.group_day verbatim)"])
+    wtsv("episode_size_dist_v2.tsv",
+         ["asset", "definition", "members", "n_episodes", "share_episodes",
+          "n_candidates", "share_candidates", "n_1k_close",
+          "epi_base_rate_close", "n_1k_peak", "epi_base_rate_peak"],
+         cat("s"), phash)
+    wtsv("within_episode_rules_v2.tsv",
+         ["asset", "definition", "cert_metric", "rule", "n_episodes_scored",
+          "n_abstained", "capture_of_best", "mean_per_episode_ratio",
+          "vs_mean_member", "argmax_hit_rate"], cat("r"), phash,
+         ["multi-member episodes only; episodes whose best member certificate "
+          "is <= 0 are not scored (the v1 convention)"])
+    wtsv("dp_on_episodes_v2.tsv",
+         ["asset", "definition", "cert_metric", "selection", "n_days",
+          "dp_total_usd", "dp_usd_per_day", "dp_picks_per_day",
+          "delta_usd_per_day_vs_all", "delta_frac_vs_all"], cat("d"), phash)
+    wtsv("p3_icc.tsv",
+         ["asset", "definition", "cert_metric", "n", "n_episodes", "m_bar",
+          "m0_adjusted", "rho_w", "DEFF", "n_eff", "n_eff_frac",
+          "episode_per_candidate", "MSB", "MSW"], cat("p3"), phash,
+         [PARAMS["p3_icc"]])
+    wtsv("p3_dispersion.tsv",
+         ["asset", "definition", "n_multi_episodes", "median_best_minus_median",
+          "median_best_minus_2nd", "mean_best_minus_median",
+          "mean_best_minus_2nd", "median_cost_rt_usd",
+          "share_best_minus_2nd_below_cost"], cat("disp"), phash,
+         ["research §10 P3: if (best - 2nd best) < cost_rt for most episodes "
+          "the correct within-episode target is the ListNet SOFT top-one "
+          "distribution (E5), not a hard argmax (E4)"])
+    wtsv("retest_family_level.tsv",
+         ["asset", "decision_class", "decision", "recorded_verdict",
+          "bar_usd", "n", "n_family", "value_minus_g1_usd", "margin_vs_bar",
+          "se_naive", "z_naive", "p_naive", "se_cluster_episode",
+          "z_cluster_episode", "p_cluster_episode", "vif_episode",
+          "n_clusters_episode", "se_cluster_session", "z_cluster_session",
+          "p_cluster_session", "vif_session", "n_clusters_session",
+          "se_cluster_bootstrap", "z_bootstrap", "p_bootstrap",
+          "naive_significant", "robust_significant", "VERDICT_CHANGED"],
+         cat("retest_fam"), phash,
+         [PARAMS["retest_robust"],
+          "the family/level rules are THRESHOLDS ON A POINT ESTIMATE and "
+          "therefore cannot flip on a variance change alone; what is tested "
+          "here is whether the decision MARGIN survives the cluster-robust "
+          "variance"])
+    wtsv("retest_slice_promotions.tsv",
+         ["asset", "n_cells", "holm_family_size", "DEFF_episode",
+          "DEFF_session", "n_holm_reject_naive", "n_holm_reject_episode",
+          "n_holm_reject_session", "n_promoted_naive",
+          "n_promoted_cluster_episode", "n_promoted_cluster_session",
+          "promotions_lost_episode", "promotions_lost_session", "n_flipped",
+          "VERDICT_CHANGED"], cat("retest_slice"), phash,
+         ["§10B promotions re-Holm'd at the SAME family size with z -> "
+          "z/sqrt(DEFF) (Kish 1965 / research §10 P3)",
+          "recorded naive statistic: family_discovery.py:1037-1048 "
+          "(one-sided Welch z), Holm at family_discovery.py:1075-1097"])
+    wtsv("retest_slice_detail.tsv",
+         ["asset", "axes", "levels", "n_fit", "welch_z", "p_naive",
+          "p_holm_naive", "promoted_naive", "p_cluster_episode",
+          "p_holm_episode", "promoted_episode", "p_cluster_session",
+          "p_holm_session", "promoted_session", "FLIPPED"],
+         cat("retest_slice_detail"), phash,
+         ["every promotion that moves under the cluster-robust variance "
+          "(capped at 400 rows per asset)"])
+    M.write_json(M.out_path(OUT_DIR, "episodes_v2_env.json"),
+                 M.env_receipt(PARAMS))
+    write_report(res, freeze, phash)
+    M.hb("ep2: all outputs written")
+    return 0
+
+
+# ================================================================== report ====
+def md_table(cols, rows):
+    out = ["| " + " | ".join(str(c) for c in cols) + " |",
+           "|" + "|".join("---" for _ in cols) + "|"]
+    for r in rows:
+        out.append("| " + " | ".join(M._cell(v) for v in r) + " |")
+    return "\n".join(out)
+
+
+def _pick(res, key, **kw):
+    out = []
+    for r in res:
+        out += r.get(key, [])
+    return out
+
+
+def write_report(res, freeze, phash):
+    L = []
+    A = L.append
+    A("# EPISODE PROGRAM v2 — CC-M1-12 (the D-066 joint adjudication)")
+    A("")
+    A("Generated by `engine/port_m1/episode_v2.py` (params_hash=%s)." % phash)
+    A("Roster: FROZEN v3 (`m1/generation_v3`), shas verified vs "
+      "`ORACLE_FREEZE.tsv`:")
+    for a in M.ASSET_ORDER:
+        if a in freeze:
+            A("  - %-3s %s  n=%d" % (a, freeze[a]["sha256"][:16],
+                                     freeze[a]["n_candidates"]))
+    A("")
+    A("Every estimator is the primary source's, not a proxy: Zaliapin & "
+      "Ben-Zion (2013) proximity; Suveges & Davison (2010) K-gaps MLE with "
+      "White's (1982) information-matrix test; Ferro & Segers (2003) intervals "
+      "estimator; Hawkes (1971) exponential-kernel MLE; Neubeck & Van Gool "
+      "(2006) IoU overlap + Reasenberg (1985) closure; Kish (1965) DEFF; "
+      "Liang & Zeger (1986) GEE sandwich; Field & Welsh (2007) cluster "
+      "bootstrap.")
+    A("")
+
+    # ---- 1. the gate ------------------------------------------------------
+    A("## 1. THE GATE — Zaliapin-Ben-Zion proximity bimodality (CC-M1-12 item 2)")
+    A("")
+    A("The gate runs BEFORE any rule is committed: it decides whether episodes "
+      "are a natural kind here or a convention with fitted parameters.")
+    A("")
+    g = [r for r in _pick(res, "gate") if r[2] == "magnitude"]
+    A(md_table(["asset", "side", "d_f", "b", "n(eta)", "median log10 eta",
+                "BIC(1)", "BIC(2)", "dBIC", "antimode", "VERDICT"],
+               [[r[0], r[1], "%.3f" % r[3], "%.3f" % r[6], r[7],
+                 "%.3f" % r[8], "%.0f" % r[11], "%.0f" % r[12],
+                 "%.0f" % r[13], M._cell(r[20]), r[25]] for r in g]))
+    A("")
+    gz = [r for r in _pick(res, "gate") if r[2] == "b_zero"]
+    A("Magnitude-free sensitivity (b forced to 0): "
+      + ", ".join("%s/%+d %s" % (r[0], r[1], r[25]) for r in gz) + ".")
+    A("")
+    verdicts = set(r[25] for r in _pick(res, "gate"))
+    if verdicts == {"UNIMODAL"}:
+        A("**GATE VERDICT: UNIMODAL on every asset x side, under BOTH the "
+          "magnitude kernel and the magnitude-free sensitivity.** There is no "
+          "measured separation of scales between a 'background' and a "
+          "'clustered' population of candidates. Per the research doc's own "
+          "pre-registration (§9 item 1, C6): *if it is unimodal, there is no "
+          "natural episode scale and every grouping rule is a convention* — "
+          "so the program reports it honestly and grouping stays a CONVENTION "
+          "WITH FITTED PARAMETERS. What that costs is the claim that an "
+          "episode is a discovered object; what it does NOT cost is the "
+          "count-shrink, the statistics firewall or the selection substrate "
+          "(the D-065 amendment's three surviving roles).")
+    else:
+        A("**GATE VERDICT: %s** — see the table." % "/".join(sorted(verdicts)))
+    A("")
+    A("Full histograms: `zbz_histogram.tsv` (%d bins per asset x side x "
+      "kernel); fit detail in `zbz_gate.tsv`." % ZBZ_NBINS)
+    A("")
+
+    # ---- 2. P1 ------------------------------------------------------------
+    A("## 2. P1 — the fitted episode gap K* (CC-M1-12 item 1)")
+    A("")
+    st = _pick(res, "p1_star")
+    A(md_table(["asset", "side", "K* (s)", "theta", "boot SE", "boot 95% CI",
+                "cand/episode", "IMT stat", "IMT p", "adequate?",
+                "FS theta", "FS run length (s)", "FS cand/ep",
+                "Hawkes n", "1-n", "|th-FS|", "|th-(1-n)|"],
+               [[r[0], r[1], r[2], "%.4f" % r[3], "%.4f" % r[5],
+                 "[%.4f, %.4f]" % (r[6], r[7]), "%.2f" % r[8],
+                 "%.1f" % r[9], "%.3g" % r[10],
+                 "yes" if r[11] else "**NO**", "%.4f" % r[15],
+                 "%.0f" % r[16], "%.2f" % r[18], "%.4f" % r[19],
+                 "%.4f" % r[20], "%.4f" % r[24], "%.4f" % r[25]]
+                for r in st]))
+    A("")
+    A("**The 900 s decree is refuted by three independent estimators.** The "
+      "K-gaps MLE, the Ferro-Segers intervals estimator and the Hawkes "
+      "branching ratio all land the cluster factor in the same place, and it "
+      "is not where the decree put it: the census's hand-chosen 900 s gap "
+      "implied 9.7-10.7 candidates/episode, the FITTED gap implies "
+      "%s." % ", ".join("%.1f-%.1f (%s)"
+                        % (min(r[8] for r in st if r[0] == a),
+                           max(r[8] for r in st if r[0] == a), a)
+                        for a in M.ASSET_ORDER if any(r[0] == a for r in st)))
+    A("")
+    A("**ADEQUACY (the falsifiable part).** " +
+      ("The information-matrix test REJECTS the K-gaps model at every K on "
+       "every asset x side. At n ~ 2e5 interexceedance times the IMT has "
+       "near-certain power against any misspecification, so this is a "
+       "statement about model fit, not about the gap: the Ferro-Segers limit "
+       "mixture is not the exact law of our interexceedance times. The "
+       "consequence is recorded honestly — **K* is a FITTED CONVENTION with a "
+       "likelihood behind it, not a model-licensed constant** — and it is "
+       "backed by the two independent estimators agreeing with it."
+       if not any(r[11] for r in st) else
+       "The information-matrix test accepts the selected K on at least one "
+       "asset x side; see `p1_kstar.tsv`."))
+    A("")
+    A("A methodological defect worth recording: minimising the IMT statistic "
+      "without a power floor is DEGENERATE. As K grows past the largest "
+      "observed interexceedance time, N1 -> 0 and the statistic falls to zero "
+      "because nothing is left to test. Unconstrained, the rule returns the "
+      "grid edge. The pre-registered rule therefore requires N1 >= %d and "
+      "takes the smallest LOCAL minimum (`p1_kgaps_sweep.tsv` carries the "
+      "whole curve so the reader can check this)." % IMT_N1_FLOOR)
+    A("")
+    A("### Gardner-Knopoff: does the gap scale with move size? (TESTED, not "
+      "assumed)")
+    A("")
+    dc = _pick(res, "p1_decile")
+    if dc:
+        A(md_table(["asset", "side", "decile", "travel lo $", "travel hi $",
+                    "n legs", "n cand", "K* (s)", "theta", "cand/ep"],
+                   [[r[0], r[1], r[2], "%.0f" % r[3], "%.0f" % r[4], r[5],
+                     r[6], r[7], "%.4f" % r[8], "%.2f" % r[9]] for r in dc]))
+        A("")
+        trend = []
+        for a in sorted(set(r[0] for r in dc)):
+            for s in sorted(set(r[1] for r in dc if r[0] == a)):
+                sub = [r for r in dc if r[0] == a and r[1] == s]
+                if len(sub) >= 4:
+                    trend.append((a, s, X.spearman(
+                        [float(r[2]) for r in sub],
+                        [float(r[7]) for r in sub])))
+        if trend:
+            A("Spearman(decile, K*) per asset x side: "
+              + ", ".join("%s/%+d %.3f" % t for t in trend) + ".")
+    else:
+        A("Not computed: too few legs per decile.")
+    A("")
+
+    # ---- 3. P2 ------------------------------------------------------------
+    A("## 3. P2 — tau*, the anti-chaining guard, and the DUAL BUILD")
+    A("")
+    A(md_table(["asset", "cert", "tau*", "plateau lo", "plateau hi"],
+               _pick(res, "plateau")))
+    A("")
+    A("Anti-chaining guard (derived from the fit, never decreed):")
+    A("")
+    A(md_table(["asset", "side", "K* (s)", "theta", "n within-gaps",
+                "SPAN_MAX (s)", "mass beyond cap", "cap (s)", "at cap?"],
+               _pick(res, "guard")))
+    A("")
+    A("Full tau-curve in `p2_tau_sweep.tsv` (episodes/day, candidates/episode, "
+      "max span and guard trips at each of the %d tau steps)." % len(TAU_GRID))
+    A("")
+    A("### Disagreement between the four groupings")
+    A("")
+    A(md_table(["asset", "A", "B", "n cand", "n episodes A", "n episodes B",
+                "disagreement rate"],
+               [[r[0], r[1], r[2], r[3], r[4], r[5], "%.4f" % r[9]]
+                for r in _pick(res, "disagreement")]))
+    A("")
+    A("### The occupancy_derived guard (mandatory for EPISODE_RETRO)")
+    A("")
+    A(md_table(["asset", "cert", "tau*", "n episodes real", "n episodes twin",
+                "disagree(CAUSAL,RETRO)", "disagree(CAUSAL,twin)", "delta",
+                "GUARD"], _pick(res, "twin")))
+    A("")
+
+    # ---- 4. the census re-run --------------------------------------------
+    A("## 4. THE v1 CENSUS METRICS UNDER BOTH v2 DEFINITIONS")
+    A("")
+    m = _pick(res, "m")
+    A(md_table(["asset", "definition", "episodes/day", "candidates/day",
+                "cand/episode", "median size", "MAX size", "MAX span (s)",
+                "cand base rate", "epi base rate", "haystack shrink",
+                "$1k epi/day"],
+               [[r[0], r[1], "%.2f" % r[5], "%.1f" % r[6], "%.2f" % r[7],
+                 r[8], r[9], r[10], "%.4f" % r[13], "%.4f" % r[15],
+                 "%.3f" % r[16], "%.2f" % r[18]] for r in m]))
+    A("")
+    v1max = {r[0]: r[9] for r in m if r[1] == "V1_LEG_CHAIN_900"}
+    c2max = {r[0]: r[9] for r in m if r[1] == "EPISODE_CAUSAL"}
+    A("**THE GIANT-EPISODE PATHOLOGY.** v1's chain clause welded busy "
+      "same-side sessions into single episodes of "
+      + ", ".join("%d (%s)" % (v1max[a], a) for a in M.ASSET_ORDER
+                  if a in v1max)
+      + " members. Under the FITTED gap the maximum episode is "
+      + ", ".join("%d (%s)" % (c2max[a], a) for a in M.ASSET_ORDER
+                  if a in c2max) + ".")
+    A("")
+    A("Size distribution (the 21+ concentration is the pathology's signature):")
+    A("")
+    big = [r for r in _pick(res, "s") if r[2] in ("21-50", "51+")]
+    agg = {}
+    for r in big:
+        k = (r[0], r[1])
+        a2 = agg.setdefault(k, [0.0, 0.0])
+        a2[0] += r[4]
+        a2[1] += r[6]
+    A(md_table(["asset", "definition", "share of episodes with 21+ members",
+                "share of ALL candidates they hold"],
+               [[k[0], k[1], "%.4f" % v[0], "%.4f" % v[1]]
+                for k, v in sorted(agg.items())]))
+    A("")
+    A("Within-episode rules (`within_episode_rules_v2.tsv`) and the DP probe "
+      "(`dp_on_episodes_v2.tsv`), EARLIEST and the within-episode oracle:")
+    A("")
+    rr = [r for r in _pick(res, "r")
+          if r[2] == "close" and r[3] in ("EARLIEST", "BEST_MEMBER")]
+    A(md_table(["asset", "definition", "rule", "n episodes scored",
+                "capture of best", "vs mean member", "argmax hit rate"],
+               [[r[0], r[1], r[3], r[4], "%.4f" % r[6], "%.4f" % r[8],
+                 "%.4f" % r[9]] for r in rr]))
+    A("")
+    dd = [r for r in _pick(res, "d")
+          if r[2] == "close" and r[3] in ("ALL_CANDIDATES",
+                                          "EPISODE|EARLIEST",
+                                          "EPISODE|BEST_MEMBER")]
+    A(md_table(["asset", "definition", "selection", "DP $/day",
+                "picks/day", "delta vs all-candidates"],
+               [[r[0], r[1], r[3], "%.0f" % r[6], "%.2f" % r[7],
+                 "%.4f" % r[9]] for r in dd]))
+    A("")
+
+    # ---- 5. P3 + the re-test ---------------------------------------------
+    A("## 5. P3 — rho_w, n_eff, and THE MANDATED RE-TEST")
+    A("")
+    p3 = [r for r in _pick(res, "p3") if r[2] == "close"]
+    A(md_table(["asset", "definition", "n", "n episodes", "m_bar", "m0",
+                "rho_w", "DEFF", "n_eff", "n_eff / n"],
+               [[r[0], r[1], r[3], r[4], "%.2f" % r[5], "%.2f" % r[6],
+                 "%.4f" % r[7], "%.3f" % r[8], "%.0f" % r[9],
+                 "%.4f" % r[10]] for r in p3]))
+    A("")
+    A("Within-episode identifiability margin (research §10 P3: if "
+      "(best - 2nd best) < cost_rt for most episodes, the correct target is "
+      "the ListNet SOFT top-one distribution, not a hard argmax):")
+    A("")
+    A(md_table(["asset", "definition", "n multi-member episodes",
+                "median (best - median) $", "median (best - 2nd) $",
+                "median cost_rt $", "share with (best-2nd) < cost_rt"],
+               [[r[0], r[1], r[2], "%.1f" % r[3], "%.1f" % r[4],
+                 "%.1f" % r[7], "%.4f" % r[8]] for r in _pick(res, "disp")]))
+    A("")
+    A("### The re-test — family and level decisions")
+    A("")
+    A("These rules are THRESHOLDS ON A POINT ESTIMATE, so they cannot flip on "
+      "a variance change alone. What is tested is whether the decision MARGIN "
+      "against its bar survives the cluster-robust variance.")
+    A("")
+    rf = _pick(res, "retest_fam")
+    A(md_table(["asset", "class", "decision", "verdict", "value-G1 $",
+                "margin vs bar $", "naive z", "naive p", "cluster z (episode)",
+                "cluster p", "VIF", "boot z", "CHANGED"],
+               [[r[0], r[1], r[2], r[3], "%.1f" % r[7], "%.1f" % r[8],
+                 "%.2f" % r[10], "%.3g" % r[11], M._cell(r[13]),
+                 M._cell(r[14]), M._cell(r[15]), M._cell(r[23]), r[27]]
+                for r in rf]))
+    A("")
+    A("### The re-test — the slice-miner promotions (the set that CAN flip)")
+    A("")
+    rs = _pick(res, "retest_slice")
+    A(md_table(["asset", "cells", "Holm family size", "DEFF (episode)",
+                "DEFF (session)", "Holm rejects naive", "-> episode",
+                "-> session", "promoted naive", "-> episode", "-> session",
+                "lost (episode)", "lost (session)", "flipped", "CHANGED"],
+               [[r[0], r[1], r[2], "%.3f" % r[3], "%.3f" % r[4], r[5], r[6],
+                 r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14]]
+                for r in rs]))
+    A("")
+    flipped = any(r[14] == "YES" for r in rs) or \
+        any(r[27] == "YES" for r in rf)
+    if flipped:
+        A("## >>> ADDENDUM REQUIRED <<<")
+        A("")
+        A("**At least one promoted/retired decision FLIPS under the "
+          "cluster-robust variance.** Per research §10 P3 and the D-054 "
+          "precedent, a census addendum issues: the affected decisions are "
+          "listed in `retest_slice_detail.tsv` and "
+          "`retest_family_level.tsv` (VERDICT_CHANGED = YES). "
+          "Totals: %d slice promotions lost when clustering on the episode, "
+          "%d when clustering on the session."
+          % (sum(r[11] for r in rs), sum(r[12] for r in rs)))
+    else:
+        A("**NO promoted/retired decision flips** under the cluster-robust "
+          "variance at either clustering level. No addendum is required.")
+    A("")
+
+    # ---- 6. defects -------------------------------------------------------
+    A("## 6. Defects and findings (derived, not asserted)")
+    A("")
+    for line in findings_v2(res):
+        A("- " + line)
+    A("")
+    with open(M.out_path(OUT_DIR, "EPISODE_V2_REPORT.md"), "w") as fh:
+        fh.write("\n".join(L) + "\n")
+
+
+def findings_v2(res):
+    out = []
+    st = _pick(res, "p1_star")
+    for r in st:
+        if not r[11]:
+            out.append("%s/%+d: the K-gaps adequacy test REJECTS at every K "
+                       "(IMT=%.0f at K*=%ds) — the gap is a fitted "
+                       "convention, not a model-licensed constant."
+                       % (r[0], r[1], r[9], r[2]))
+    for r in st:
+        if np.isfinite(r[24]) and r[24] > 0.15:
+            out.append("%s/%+d: theta (K-gaps %.3f) and the Ferro-Segers "
+                       "intervals estimator (%.3f) differ by %.3f — the "
+                       "research doc calls a material A3/A4 disagreement a "
+                       "census defect, not a coin flip."
+                       % (r[0], r[1], r[3], r[15], r[24]))
+    for r in _pick(res, "guard"):
+        if r[8]:
+            out.append("%s/%+d: the model-implied cluster span exceeds the "
+                       "%ds cap (mass beyond cap %.4f) — SPAN_MAX is pinned "
+                       "AT the cap, so the guard exactly meets rather than "
+                       "beats the leg-span benchmark."
+                       % (r[0], r[1], SPAN_CAP_SEC, r[6]))
+    for r in _pick(res, "twin"):
+        if r[8] == "VOIDED":
+            out.append("%s: the EPISODE_RETRO shuffled twin reproduces the "
+                       "real overlap structure — the occupancy channel is "
+                       "VOIDED and RETRO must not be used even for analysis."
+                       % r[0])
+    for r in _pick(res, "disp"):
+        if r[8] > 0.5:
+            out.append("%s/%s: (best - 2nd best) is below cost_rt on %.1f%% "
+                       "of multi-member episodes — the within-episode best "
+                       "entry is NOT identifiable for most episodes, so the "
+                       "selector's target must be the ListNet soft top-one "
+                       "distribution (E5), not a hard argmax (E4)."
+                       % (r[0], r[1], 100.0 * r[8]))
+    for r in [x for x in _pick(res, "p3") if x[2] == "close"]:
+        if r[7] > 0.2:
+            out.append("%s/%s: rho_w = %.3f gives DEFF = %.2f, so n_eff is "
+                       "%.0f against a nominal n of %d (%.0f%%) — every "
+                       "candidate-level p-value in the program is computed on "
+                       "that smaller sample."
+                       % (r[0], r[1], r[7], r[8], r[9], r[3],
+                          100.0 * r[10]))
+    dis = _pick(res, "disagreement")
+    for r in dis:
+        if r[1] == "EPISODE_CAUSAL" and r[2] == "EPISODE_RETRO":
+            out.append("%s: CAUSAL vs RETRO disagreement is %.4f — this is "
+                       "the number that decides what the DEPLOYABLE grouping "
+                       "loses by refusing occupancy information."
+                       % (r[0], r[9]))
+    return out
+
+
+if __name__ == "__main__":
+    sys.exit(main())

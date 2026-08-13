@@ -207,13 +207,20 @@ SECTION_TITLES = {
 # exchange rate of 25 proxy-tokens per raw second; the episode-digest mechanism
 # stays the lossless layer for the remainder, and low-density candidates keep
 # carrying the full 90s raw window.
-# D-071 recalibration (same ~1.15x-of-observed-maximum rule, re-measured on the
-# 30-sheet pilot after the class line joined S1 and the class census card joined
-# S13): S1 640 -> 720, S13 420 -> 560.  Every other budget is unchanged.
+# D-071 recalibration: S1 640 -> 720 (the class line) and S13 420 -> 720 (the
+# class census card).  S13 is the one budget that must be set from its WORST
+# CASE rather than from the 30-sheet pilot: its family card prints one row per
+# carried family per era, so a candidate tagged with many families renders a
+# much longer section than any pilot sheet did (measured: a 9-tag FIRST_TEST
+# candidate spends 566 against the pilot maximum of 499).  The bound is
+# 2 class rows + 9 families x 2 eras + 4 fixed lines ~= 620 proxy tokens, so the
+# budget is 1.15x that bound.  Every other budget is unchanged and every other
+# section is row-bounded by construction (S3 last 8 pivots, S4 12 levels, S8
+# last 6 prints, S12 a fixed series list); S6 fits itself to its budget.
 SECTION_BUDGET = {
     "S1": 720, "S2": 260, "S3": 780, "S4": 1100, "S5": 340,
     "S6": 3000, "S7": 240, "S8": 600, "S9": 300, "S10": 340,
-    "S11": 180, "S12": 720, "S13": 560, "S14": 760,
+    "S11": 180, "S12": 720, "S13": 720, "S14": 760,
 }
 # Binding whole-sheet cap, not the sum of the parts: a sheet may not spend every
 # section's headroom at once.  CC-M2-1.1: 7,400 -> 8,500 with the S6 raise.

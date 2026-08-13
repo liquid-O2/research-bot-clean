@@ -280,6 +280,24 @@ oracle->engine law. Outputs m1/family_discovery/ + FAMILY_DISCOVERY_REPORT.md.
 3. Provenance race acknowledged (orchestrator commit 58be313 swept lane-staged bytes; all gates measured on
    those exact bytes; harmless, noted for the record).
 
+## CC-M1-11 — episode-census adjudications, 2026-08-13 (BINDING)
+1. GROUPING v1's chain-link clause is REJECTED as measured (15-min same-side chaining welds busy sessions
+   into ~1,000-member episodes; the episode/candidate base-rate ratio inverts to 0.70-0.85 because $1k
+   members concentrate in giant episodes). The COUNT SHRINK (10x: ~400 candidates/day -> ~41 episodes/day)
+   is the surviving haystack metric; the rate-ratio metric is retired until grouping v2. FINAL grouping law
+   = the D-066 adjudication (declustering research + this census together) — expect branching/adaptive
+   machinery to replace the fixed gap.
+2. EPISODE COLLAPSE IS SAFE: one-member-per-episode DP loses only 2.2-3.1% of seat value at the
+   within-episode oracle — the formulation stands as the selection substrate; ALL the loss is in picking.
+3. THE WITHIN-EPISODE PICK IS A NAMED LEARNABLE SUBPROBLEM: oracle-best is 1.87-2.09x the mean member;
+   best simple rule (EARLIEST, interim standard — also decay-consistent) captures only ~57-62% of best.
+   This is a first-class model target (MIL-flavored: pick-the-instance-in-the-bag) — feeds the M3 model
+   design + the discretion-transfer target families.
+4. Family-priority total order blessed as pre-registered (POST_SHOCK > FIRST_TEST/NEWS/MICRO_OPEN > G2 > G1).
+5. GENERATION VERDICT vs IWM (committed, cited): 2.3-3.6 $1k-class EPISODES/day vs IWM 0.2-1.2 quality
+   trades/day; entered ceilings 3.6-4.6x IWM's; ~41 decidable objects/day vs IWM's ~1-2. Generation is
+   NOT the bind on the port; picking is.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

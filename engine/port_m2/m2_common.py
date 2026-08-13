@@ -144,14 +144,51 @@ SECTION_TITLES = {
 # so the law binds without failing sheets for ordinary content variation.  S6
 # is the exception: its budget is the POLICY knob, and the raw ribbon fills
 # whatever it is given (see sections.py S6 block).
+# CC-M2-1.1 (BINDING, orchestrator 2026-08-13): S6 2,000 -> 3,000 proxy tokens.
+# The raw-ribbon coverage roughly doubles (~20s median raw) at the recorded
+# exchange rate of 25 proxy-tokens per raw second; the episode-digest mechanism
+# stays the lossless layer for the remainder, and low-density candidates keep
+# carrying the full 90s raw window.
 SECTION_BUDGET = {
     "S1": 640, "S2": 260, "S3": 780, "S4": 1100, "S5": 340,
-    "S6": 2000, "S7": 240, "S8": 600, "S9": 300, "S10": 340,
+    "S6": 3000, "S7": 240, "S8": 600, "S9": 300, "S10": 340,
     "S11": 180, "S12": 720, "S13": 420, "S14": 760,
 }
-# Binding whole-sheet cap (~1.08x the pilot maximum), not the sum of the parts:
-# a sheet may not spend every section's headroom at once.
-SHEET_BUDGET_BLIND = 7400
+# Binding whole-sheet cap, not the sum of the parts: a sheet may not spend every
+# section's headroom at once.  CC-M2-1.1: 7,400 -> 8,500 with the S6 raise.
+SHEET_BUDGET_BLIND = 8500
+S6_TOKENS_PER_RAW_SEC = 25               # CC-M2-1.1 exchange rate, on record
+
+
+# ------------------------------------------------------------ KNOWN_TRAPS ---
+# CC-M2-1.3 (BINDING): the registry of receipt fields whose committed value is
+# NOT knowable at decision time.  A consumer that reads one directly leaks.
+# Every entry names the test that proves the builder refuses the trap; the
+# registry test (test_m2.t16) fails if an entry names a test that does not
+# exist, which is the mechanical form of "additions require a test".
+KNOWN_TRAPS = {
+    "levels_v4.last_test_outcome": {
+        "receipt": "artifacts/cache/port/m1/levels_v4/{ASSET}/{d8}.npz",
+        "field": "touches[:,5] (outcome) / touches[:,6] (outcome_sec)",
+        "why": "a touch outcome resolves inside a FORWARD 15-minute window "
+               "(b3_levels REJECT_WINDOW); the committed column is the "
+               "end-of-window value",
+        "builder_rule": "S4 prints PENDING until the outcome's own resolution "
+                        "second (or the whole 15-minute window) has elapsed "
+                        "before decision_sec",
+        "test": "t09_s4_touch_state_is_causal",
+        "registered": "2026-08-13 CC-M2-1.3",
+    },
+    "levels_v4.touch_count": {
+        "receipt": "artifacts/cache/port/m1/levels_v4/{ASSET}/{d8}.npz",
+        "field": "touch_count",
+        "why": "end-of-session count over the whole session",
+        "builder_rule": "S4 recounts touches with sec < decision_sec and adds "
+                        "the causal birth snapshot only",
+        "test": "t09_s4_touch_state_is_causal",
+        "registered": "2026-08-13 CC-M2-1.3",
+    },
+}
 
 
 # ------------------------------------------------------------- spec guard ---

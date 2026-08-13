@@ -40,6 +40,7 @@ import m2_common as MC                    # noqa: E402
 import assemble as A                      # noqa: E402
 import sections as SEC                    # noqa: E402
 import tape as TAPE                       # noqa: E402
+import availability as AV                 # noqa: E402
 
 PARAMS = {
     "spec_section": "§1 sheet + §2 certificate (P-M2a)",
@@ -68,8 +69,10 @@ PARAMS = {
     "clocknorm_sessions": SEC.CLOCKNORM_SESSIONS,
     "clocknorm_bin_sec": SEC.BIN_SECONDS,
     "availability_join": "strict availability_ts < decision_ts (D-057 pinned "
-                         "reading); lag table = artifacts/reference/"
-                         "port_context/AVAILABILITY_LAGS.tsv",
+                         "reading, CC-M2-1.2 blessed); lag table = "
+                         + AV.LAG_TABLE,
+    "sidecar_source_paths": "ABSOLUTE (CC-M2-1.4)",
+    "known_traps": sorted(MC.KNOWN_TRAPS),
     "roster": "m1/generation_v3 union rosters (ORACLE_FREEZE.tsv)",
     "mid_sanity": "D-054 SANE seconds only (b7_sane owns the mask)",
 }
@@ -257,18 +260,26 @@ def build(cid, mode=MC.MODE_BLIND):
             "cost": _rel(os.path.join(MC.M0_ROOT, "census_a_cost.tsv")),
             "family_census": _rel(A.FAM_VALUE),
             "oracle_legs": _rel(A.ORACLE_LEGS),
-            "lag_table": "artifacts/reference/port_context/AVAILABILITY_LAGS.tsv",
+            "lag_table": _rel(AV.LAG_TABLE),
         },
+        "known_traps": MC.KNOWN_TRAPS,
         "values": sidecar_vals,
     }
     return sh
 
 
 def _rel(p):
+    """CC-M2-1.4 (BINDING): sidecar source paths are ABSOLUTE.
+
+    P-M2a emitted workspace-relative paths and the orchestrator's verification
+    hit a relative-root ambiguity (which root does 'artifacts/...' mean when the
+    sidecar is read from anywhere but /workspace?).  Every source path a sidecar
+    names is now an absolute filesystem path.  The name is kept so the call
+    sites read the same; the behaviour is inverted.
+    """
     if not p:
         return None
-    p = str(p)
-    return p[len("/workspace/"):] if p.startswith("/workspace/") else p
+    return os.path.abspath(str(p))
 
 
 # ------------------------------------------------------------------ output --

@@ -1,16 +1,16 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "e3dd6008b075063c55482afc3776807df8f5652e",
+  "git_sha": "0e0cca51d99bcd8478e87947b030539169a4c131",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "97bd95a917f7fb67",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "f14b5c773ccec5ba",
+  "m2_spec_sha16": "c45371dbd6ad2995",
   "numpy_version": "2.1.2",
   "params": {
    "anchor": "entry_mid; every price also printed as a signed integer tick offset from it (\u00a71 'integer ticks where possible')",
-   "availability_join": "strict availability_ts < decision_ts (D-057 pinned reading); lag table = artifacts/reference/port_context/AVAILABILITY_LAGS.tsv",
+   "availability_join": "strict availability_ts < decision_ts (D-057 pinned reading, CC-M2-1.2 blessed); lag table = /workspace/artifacts/reference/port_context/AVAILABILITY_LAGS.tsv",
    "blind_sections": [
     "S1",
     "S2",
@@ -28,6 +28,10 @@
    ],
    "clocknorm_bin_sec": 1800,
    "clocknorm_sessions": 60,
+   "known_traps": [
+    "levels_v4.last_test_outcome",
+    "levels_v4.touch_count"
+   ],
    "mid_sanity": "D-054 SANE seconds only (b7_sane owns the mask)",
    "roster": "m1/generation_v3 union rosters (ORACLE_FREEZE.tsv)",
    "s6_budget_rule": "the raw window is BUDGET-FILLED: as many of the newest events as the S6 token budget allows are rendered event-by-event, and the older remainder of the 90s folds into the same gap-clustered episode digests as the 10-minute pre-window (lossless membership, no minimum-size filter anywhere)",
@@ -48,12 +52,13 @@
     "S3": 780,
     "S4": 1100,
     "S5": 340,
-    "S6": 2000,
+    "S6": 3000,
     "S7": 240,
     "S8": 600,
     "S9": 300
    },
    "sheets_version": "PORT-SHEETS-V1",
+   "sidecar_source_paths": "ABSOLUTE (CC-M2-1.4)",
    "spec_section": "\u00a71 sheet + \u00a72 certificate (P-M2a)",
    "study_sections": [
     "S14"
@@ -61,12 +66,12 @@
    "token_proxy": "M2-PROXY-2",
    "token_proxy_rule": "alpha run L -> max(1, ceil(L/5)); digit run L -> ceil(L/3); every other non-space char -> 1; newline -> 1 (no BPE tokenizer exists on this host)"
   },
-  "params_hash": "31b8fe3997d8325bc07a55b3d7afb86ae308476803086a4eb50fe9d96795bc60",
+  "params_hash": "02fe83c4f18d367f300a36b8d3f3c8bd2ad3d5c2bf37859697f7bf5e82f2b799",
   "sheets_version": "PORT-SHEETS-V1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
- "n_failed": 0,
- "n_tests": 15,
- "verdict": "PASS"
+ "n_failed": 1,
+ "n_tests": 17,
+ "verdict": "FAIL"
 }

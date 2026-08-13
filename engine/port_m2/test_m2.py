@@ -279,6 +279,47 @@ def t15_anchor_ticks_are_integers():
                  mutant)
 
 
+def t16_sidecar_paths_absolute():
+    """MT16 (CC-M2-1.4): every source path a sidecar names must be ABSOLUTE and
+    must exist — a workspace-relative path is ambiguous off /workspace."""
+    sh = SH.build(CID, MC.MODE_BLIND)
+    paths = [v["source"] for v in sh.sidecar["values"] if v["source"]]
+    paths += [p for p in sh.sidecar["receipts"].values() if p]
+    armed = bool(paths) and all(p.startswith("/") for p in paths) and all(
+        os.path.exists(p) for p in paths)
+    # MUTANT MT16: the P-M2a behaviour — strip the /workspace/ root
+    stripped = [p[len("/workspace/"):] if p.startswith("/workspace/") else p
+                for p in paths]
+    mutant = all(p.startswith("/") for p in stripped)
+    return check("sidecar_paths_absolute", "MT16_strip_workspace_root", armed,
+                 mutant, "n_paths=%d" % len(paths))
+
+
+def t17_known_traps_registered():
+    """MT17 (CC-M2-1.3): every KNOWN_TRAPS entry names a test that exists here.
+
+    This is the mechanical form of "additions to the registry require a test":
+    a trap registered without its proof test fails the suite.
+    """
+    names = {t.__name__ for t in TESTS}
+    reg = MC.KNOWN_TRAPS
+    armed = bool(reg) and all(
+        set(e) >= {"receipt", "field", "why", "builder_rule", "test"}
+        and e["test"] in names for e in reg.values())
+    # the registered trap must also be live on a real sheet: S4 prints PENDING
+    case = A.Case(CID, want_events=False)
+    txt = "\n".join(SEC.s4_levels(case, lambda *a: None))
+    armed = armed and "n_pending=" in txt
+    # MUTANT MT17: a registry that gains an entry with no proof test
+    bad = dict(reg)
+    bad["mutant.trap_without_test"] = {
+        "receipt": "-", "field": "-", "why": "-", "builder_rule": "-",
+        "test": "t99_this_test_does_not_exist"}
+    mutant = all(e["test"] in names for e in bad.values())
+    return check("known_traps_registered", "MT17_trap_without_test", armed,
+                 mutant, "n_traps=%d" % len(reg))
+
+
 TESTS = (t01_two_run_byte_identity, t02_blind_carries_no_outcome,
          t03_study_appendix_is_separate, t04_certificate_fails_on_empty_section,
          t05_section_budget_enforced, t06_seal_refuses_2026, t07_cid_roundtrip,
@@ -286,7 +327,8 @@ TESTS = (t01_two_run_byte_identity, t02_blind_carries_no_outcome,
          t10_sidecar_covers_sheet_numbers,
          t11_fixed_width_and_no_trailing_space, t12_typed_missing_never_zero,
          t13_token_proxy_deterministic, t14_events_cache_deterministic,
-         t15_anchor_ticks_are_integers)
+         t15_anchor_ticks_are_integers, t16_sidecar_paths_absolute,
+         t17_known_traps_registered)
 
 
 def main():

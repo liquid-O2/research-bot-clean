@@ -28,7 +28,7 @@ constexpr const char* kSpecM1bSha16 = "d31f48b59877e44d";
 // code sha pins in the SAME commit. CC-M1-6..9 were appended to PORT_M1_SPEC.md
 // without the bump, which left this pin stale and the pin test RED at HEAD;
 // S2.2 bumps it here.
-constexpr const char* kSpecM1Sha16 = "743c8ef3949eddfe";
+constexpr const char* kSpecM1Sha16 = "97bd95a917f7fb67";
 
 std::string fmt_double(double v) {
   char buf[64];

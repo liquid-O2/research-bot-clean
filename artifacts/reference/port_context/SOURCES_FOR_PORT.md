@@ -26,3 +26,11 @@ All strictly historical daily publications; every file carries rows to its lates
 - Stooq: JS-challenge blocked from this host. NDL/Quandl CHRIS: defunct free tier — skip.
 - OI remains: weekly = COT (banked); daily-forward = the CME ftp capture cron from port day one; daily-history = paid-only (accepted gap).
 - Verification law for the port: cross-check yahoo dailies vs our own MBP-1-derived daily ranges before ANY feature use (vendor-bar caveat, same as IWM's OHLC law).
+
+## EVENT-CALENDAR + PHYSICAL-CONTEXT FETCH (2026-08-13; user-authorized free batch):
+- calendar_fomc.csv: 57 FOMC meeting rows 2021-2027 (federalreserve.gov calendars page) — BANKED.
+- calendar_boj.csv: 2026 MPM dates banked from PDF filenames; 2021-2025 BOJ dates NOT yet recovered programmatically (en archive structure) — port session: fetch via BOJ Japanese archive or hand-enter from boj.or.jp 'Monetary Policy Releases' (a few dozen dates, minutes of work). Timestamped BOJ decisions land midday Tokyo (no fixed minute — treat the DAY as the flag).
+- BLS (CPI/NFP/PPI exact dates): bls.gov 403s this host. Free paths: (a) fetch from user's browser once per year-page, (b) FRED/ALFRED release-dates API with a free API key. Release TIME is fixed 8:30 ET. Flag-grade fallback: CPI ~mid-month, NFP first-Friday rule (approximate — mark derived rows as RULE-DERIVED, never exact).
+- COMEX warehouse stocks (SI/HG daily depository stats): CME publishes CURRENT-day XLS only (delivery_reports/) — status code checked this session; if 200, capture-forward cron alongside settlements; deep history = paid/absent. Delivery notices likewise.
+- SLV ETF flows: iShares product-page ajax CSV — untested; port session item.
+FLAG SEMANTICS for all calendars: event flags are DAY-grain regime tags (D-038: news days are signal, never excluded); strictly-prior joins.

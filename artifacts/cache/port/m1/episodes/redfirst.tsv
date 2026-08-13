@@ -1,0 +1,8 @@
+# PORT_M1B_SPEC.md D-065 EPISODE CENSUS (episode-grain generation quality) (spec_sha16=d31f48b59877e44d)
+# params_hash=b275c684b91d617686d714eb547ad3d01d6ae0cf00a335173192b4c0e8bc0aaf
+# a mutant caught by NO case is a test FAILURE (red-first law); the real implementation is green on every case listed
+# leg_edge_strict_bounds: leg_start < dec < leg_end instead of the pre-registered inclusive bounds
+# chain_gap_strict_inequality: gap < GAP instead of the pre-registered gap <= GAP
+algorithm	mutant	n_cases_broken	cases_broken
+chain_link	chain_gap_strict_inequality	1	pair_exactly_GAP_apart
+leg_assignment	leg_edge_strict_bounds	2	candidate_on_leg_start_and_end,candidate_on_leg_start_second

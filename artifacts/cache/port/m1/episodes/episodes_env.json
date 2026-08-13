@@ -1,0 +1,51 @@
+{
+ "databento_dbn": "0.66.0",
+ "git_sha": "414c91fc89c94897c214f2e0ae4750cac3bb6f26",
+ "input_sha256": {},
+ "m1_spec_sha": "97bd95a917f7fb6747241473d15ccd5070ecaaf2843d75ef60ddb645c257c6b9",
+ "m1_spec_sha16": "97bd95a917f7fb67",
+ "numpy_version": "2.1.2",
+ "params": {
+  "certificates": "c_c_roster.certificates, walled; CC-M1-8: ADOPTION = phase-close, MANDATORY companion = peak-exit",
+  "closest_level": "min |entry_mid - level_price| x mult over the G2 confirmations at dec_sec - tau* (m1/levels_v4 touches); the rule abstains when no member has a level; the DP probe falls back to EARLIEST on abstention",
+  "directive": "D-065 EPISODE LAW",
+  "dollar_class_usd": 1000.0,
+  "dp": "c_c_roster.dp_schedule, one position, phase-close certificates, per (asset, trade_date); $/day over the roster's trading days",
+  "episode_class": "an episode is $1k-class iff ANY member is",
+  "family_priority": {
+   "FIRST_TEST": 1,
+   "G1": 7,
+   "G1_FAST_OPEN": 5,
+   "G1_FINE": 6,
+   "G2_RECLAIM": 4,
+   "G2_REJECT": 4,
+   "MICRO_OPEN": 3,
+   "NEWS_WINDOW": 2,
+   "POST_SHOCK": 0
+  },
+  "gap_primary_sec": 900,
+  "gap_sensitivity_sec": [
+   600,
+   900,
+   1800
+  ],
+  "group_chain": "candidates in NO leg: chain-link on consecutive same-side decision_secs with gap <= GAP (INCLUSIVE)",
+  "group_leg": "same session AND same side AND same oracle leg; membership leg_start_sec <= dec_sec <= leg_end_sec (INCLUSIVE); overlapping legs -> the first by (start, end)",
+  "leg_dominates": "a leg episode never merges with a chain episode",
+  "legs": "m1/generation_v3/oracle_legs.tsv (c_d ANCHORED 0.25 x ATR14 legs, >= $1,500, top-2 by travel; the SAME legs the freeze was recalled against)",
+  "roster": "m1/generation_v3 union_roster_*.npz (FROZEN; sha verified vs ORACLE_FREEZE.tsv before use)",
+  "rule_tie_break": "(dec_sec, iid, roster_row)",
+  "rules": [
+   "EARLIEST",
+   "BEST_SPREAD",
+   "HIGHEST_RUNG",
+   "FAMILY_PRIORITY",
+   "CLOSEST_LEVEL",
+   "BEST_MEMBER"
+  ],
+  "seal": "roster rows are asserted < 20260101 (2026 sealed)",
+  "spec_section": "D-065 EPISODE CENSUS (episode-grain generation quality)"
+ },
+ "params_hash": "b275c684b91d617686d714eb547ad3d01d6ae0cf00a335173192b4c0e8bc0aaf",
+ "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d"
+}

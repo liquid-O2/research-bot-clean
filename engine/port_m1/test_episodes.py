@@ -28,6 +28,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import episode_census as E                # noqa: E402
 
 FAILS = []
+MUTANT_HITS = []            # (algorithm, mutant, case) — the red-first receipt
 
 
 def check(name, cond, msg=""):
@@ -36,6 +37,13 @@ def check(name, cond, msg=""):
     else:
         print("FAIL %s %s" % (name, msg))
         FAILS.append(name)
+
+
+def mutant_caught(algorithm, mutant, case, differs):
+    """Record (and assert) that a mutant is DISTINGUISHABLE on this case."""
+    check("%s/%s caught by %s" % (algorithm, mutant, case), differs)
+    if differs:
+        MUTANT_HITS.append((algorithm, mutant, case))
 
 
 def keys_of(eps):
@@ -86,8 +94,9 @@ def t_leg_edge():
     mut = group_with(mutant_leg_edge_strict, cands, legs, E.GAP_PRIMARY)
     check("leg-edge/true: edges are IN the leg episode",
           sets_of(true) == [(0, 1, 2), (3,)], sets_of(true))
-    check("leg-edge/mutant differs (strict bounds exile the edge candidates)",
-          sets_of(mut) != sets_of(true), sets_of(mut))
+    mutant_caught("leg_assignment", "leg_edge_strict_bounds",
+                  "candidate_on_leg_start_and_end",
+                  sets_of(mut) != sets_of(true))
     # and name the damage precisely: the mutant splits the leg cluster
     check("leg-edge/mutant splits the cluster",
           len(mut) > len(true), "%d vs %d" % (len(mut), len(true)))
@@ -101,8 +110,9 @@ def t_leg_edge_start_only():
     mut = group_with(mutant_leg_edge_strict, cands, legs, E.GAP_PRIMARY)
     check("leg-edge-start/true: one episode", sets_of(true) == [(0, 1)],
           sets_of(true))
-    check("leg-edge-start/mutant differs", sets_of(mut) != sets_of(true),
-          sets_of(mut))
+    mutant_caught("leg_assignment", "leg_edge_strict_bounds",
+                  "candidate_on_leg_start_second",
+                  sets_of(mut) != sets_of(true))
 
 
 def t_chain_gap_boundary():
@@ -114,8 +124,9 @@ def t_chain_gap_boundary():
     mut = group_chain_strict(cands, legs, g)
     check("chain-gap/true: the exact-gap pair links, the +1 breaks",
           sets_of(true) == [(0, 1), (2,)], sets_of(true))
-    check("chain-gap/mutant differs (strict gap splits the exact-gap pair)",
-          sets_of(mut) != sets_of(true), sets_of(mut))
+    mutant_caught("chain_link", "chain_gap_strict_inequality",
+                  "pair_exactly_GAP_apart",
+                  sets_of(mut) != sets_of(true))
     check("chain-gap/mutant makes 3 singletons",
           sets_of(mut) == [(0,), (1,), (2,)], sets_of(mut))
 
@@ -241,6 +252,28 @@ def t_freeze_pin():
         E.C.sha256_file = real
 
 
+def write_receipt():
+    """m1/episodes/redfirst.tsv — a mutant caught by NO case is a FAILURE."""
+    import m1_common as M
+    import common as C
+    algos = {}
+    for (alg, mut, case) in MUTANT_HITS:
+        algos.setdefault((alg, mut), []).append(case)
+    rows = [[a, m, len(cs), ",".join(cs)] for (a, m), cs in sorted(algos.items())]
+    M.write_tsv(M.out_path(E.OUT_DIR, "redfirst.tsv"),
+                E.SECTION, C.params_hash(E.PARAMS),
+                ["algorithm", "mutant", "n_cases_broken", "cases_broken"],
+                rows, spec="PORT_M1B",
+                extra=["a mutant caught by NO case is a test FAILURE "
+                       "(red-first law); the real implementation is green on "
+                       "every case listed",
+                       "leg_edge_strict_bounds: leg_start < dec < leg_end "
+                       "instead of the pre-registered inclusive bounds",
+                       "chain_gap_strict_inequality: gap < GAP instead of the "
+                       "pre-registered gap <= GAP"])
+    return rows
+
+
 def main():
     for t in (t_leg_edge, t_leg_edge_start_only, t_chain_gap_boundary,
               t_chain_side_split, t_leg_dominates_chain,
@@ -248,6 +281,11 @@ def main():
               t_gap_monotone, t_family_priority, t_highest_rung, t_rules_and_ties,
               t_bucket_of, t_freeze_pin):
         t()
+    rows = write_receipt()
+    for r in rows:
+        if not r[2]:
+            check("mutant %s/%s is DEAD (caught by nothing)" % (r[0], r[1]),
+                  False)
     print("%d failures" % len(FAILS))
     return 1 if FAILS else 0
 

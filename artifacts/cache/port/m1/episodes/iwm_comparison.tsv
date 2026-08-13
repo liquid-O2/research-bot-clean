@@ -1,0 +1,11 @@
+# PORT_M1B_SPEC.md D-065 EPISODE CENSUS (episode-grain generation quality) (spec_sha16=d31f48b59877e44d)
+# params_hash=b275c684b91d617686d714eb547ad3d01d6ae0cf00a335173192b4c0e8bc0aaf
+# every IWM number is quoted from the committed record with file:line; no IWM number is recomputed here
+# port column = FIT era, primary gap 900s, phase-close (ADOPTION) certificate
+quantity	IWM_value	IWM_citation	port_metric	port_SI_FIT	port_HG_FIT	port_NKD_FIT
+$1k-class candidates/day	~8.5/day	PROGRAM_RECORD.md:15	cand_1k_per_day (metrics tsv)	54.73	26.18	34.03
+decidable quality moments/day	~1-2/day	PROGRAM_RECORD.md:21	episodes_per_day (metrics tsv)	41.20	41.83	40.08
+quality trades/day (precision mode)	0.2-1.2/day	PROGRAM_RECORD.md:16	episodes_1k_per_day (metrics tsv)	3.57	2.27	2.96
+entered-cert ceiling $/day	$797-1,027/day	PROGRAM_RECORD.md:15	dp_usd_per_day ALL_CANDIDATES / EPISODE|rule (dp tsv)	3666	2695	3049
+picks/day at that ceiling	1.2-2.5/day	PROGRAM_RECORD.md:15	dp_picks_per_day (dp tsv)	3.08	3.03	3.00
+perfect-exit ceiling $/day	$987-1,242/day	PROGRAM_RECORD.md:15	dp_usd_per_day ALL_CANDIDATES, cert_metric=peak (CC-M1-8 companion)	8771	5596	6719

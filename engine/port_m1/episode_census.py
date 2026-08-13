@@ -582,7 +582,11 @@ def build_report(rows_metrics, hm, rows_rules, hr, rows_dp, hd, rows_iwm, hi,
     A("")
     A("## 1. Episode metrics (per asset x era x gap)")
     A("")
-    A(md_table(hm, rows_metrics))
+    A("Per-YEAR rows are in `episode_metrics.tsv`; the report shows the three "
+      "era buckets.")
+    A("")
+    A(md_table(hm, [r for r in rows_metrics
+                    if r[1] in (M.ERA_FIT, M.ERA_GATE, M.ERA_ALL)]))
     A("")
     A("## 2. Candidates-per-episode distribution (primary gap %ds)"
       % GAP_PRIMARY)
@@ -597,14 +601,16 @@ def build_report(rows_metrics, hm, rows_rules, hr, rows_dp, hd, rows_iwm, hi,
       "choosing well inside a cluster. BEST_MEMBER is the within-episode "
       "oracle (upper bound), not a rule.")
     A("")
-    A(md_table(hr, rows_rules))
+    A(md_table(hr, [r for r in rows_rules
+                    if r[1] in (M.ERA_FIT, M.ERA_GATE)]))
     A("")
     A("## 4. DP-on-episodes probe (one position, phase-close certificates)")
     A("")
     A("Each episode contributes ONLY its rule-picked member; compared with the "
       "all-candidates DP on the same days.")
     A("")
-    A(md_table(hd, rows_dp))
+    A(md_table(hd, [r for r in rows_dp
+                    if r[1] in (M.ERA_FIT, M.ERA_GATE)]))
     A("")
     A("## 5. IWM comparison (every IWM number cited file:line)")
     A("")

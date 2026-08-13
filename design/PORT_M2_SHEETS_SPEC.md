@@ -203,3 +203,19 @@ If three iterations fail the bars, the finding escalates to a D-020-class orches
 further spend — the approach, not the effort, gets questioned. Downstream gates restated: features must pass
 epsilon_l recoverability + economic alignment BEFORE model training consumes them; the model must pass per-era
 walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its own stage, never papered over.
+
+## CC-M2-7 — V1.1 fix-lane adjudications (orchestrator, 2026-08-14; BINDING)
+1. ALL FIXES RATIFIED incl. the unbriefed D6 (S10 double bin-scaling, ~2x prices — shipping the fix was
+   correct under D-017; it also explains S10's null ablation result, which is hereby voided as evidence).
+2. D4 GRAVITY ON RECORD: the unlabeled OR rows were SAME-SESSION FORWARD DATA (not-yet-open windows shown
+   with real prices; 67.5% of sheets carried >=1) — a leak class the D-057 fixture did not cover (it tested
+   external joins, not level-birth causality). Root fix + MT22 mutant accepted; LEVEL-BIRTH CAUSALITY is now
+   a named fixture class alongside availability joins. The warm-up (unscored probe) is the only consumer of
+   V1 sheets; no quoted number is affected; P001's ladder term was fabricated on its 3 SI sheets — P001
+   remains a HYPOTHESIS and its name->count census (on corrected data) is its test, as designed.
+3. D3 RULING: '~' ordinal markers accepted for V1.1; PERCENTILE-RANK z (vs trailing same-clock distribution)
+   adopted as the V1.2 form, bundled with the NEXT ordered render (no solo re-render).
+4. RENDER FREEZE WINDOW adopted: no spec/pin edits while a corpus renders; CC amendments queue until the
+   render completes (the pin-behind-HEAD incident is the receipt). 12-worker cap ratified (WORKERS_MAX=12).
+5. V1 warm-up/pilot artifacts stay as the historical record of the calibration probe. Renderer port-trigger
+   counter: 1 ordered re-render event consumed; trigger (>2) still armed.

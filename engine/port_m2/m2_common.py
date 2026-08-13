@@ -56,7 +56,7 @@ import m1_common as M1                   # noqa: E402  m1 substrate
 
 # --------------------------------------------------------------- spec pins --
 SPEC_PATH = "/workspace/design/PORT_M2_SHEETS_SPEC.md"
-SPEC_SHA16 = "035a4ecb900cf1a2"          # FROZEN by orchestrator 2026-08-13
+SPEC_SHA16 = "116d3185dcb4a93e"          # FROZEN by orchestrator 2026-08-13
 
 # V1.1 (P-M2c warm-up defect fixes, 2026-08-14): S9/S3/S10/S11/S2 REFUSED
 # consistency (a derived field whose inputs are refused is refused and COUNTED
@@ -223,9 +223,17 @@ SECTION_TITLES = {
 # budget is 1.15x that bound.  Every other budget is unchanged and every other
 # section is row-bounded by construction (S3 last 8 pivots, S4 12 levels, S8
 # last 6 prints, S12 a fixed series list); S6 fits itself to its budget.
+# V1.1 recalibration (P-M2c defect fixes), each against the new worst case:
+#   S1  720 -> 1000  the REFUSED-DERIVED roster (up to 30 keys, wrapped) rides
+#                    in the certificate block; a fully fvol-refused SI sheet
+#                    spends ~870.
+#   S5  340 ->  400  the z-column law is now stated in the section title and
+#                    every z carries the '~' floor marker.
+#   S7  240 ->  320  refill_after_trade grew three audit fields (n_measurable,
+#                    swept, no_book_reaction) plus its one-line definition.
 SECTION_BUDGET = {
-    "S1": 720, "S2": 260, "S3": 780, "S4": 1100, "S5": 340,
-    "S6": 3000, "S7": 240, "S8": 600, "S9": 300, "S10": 340,
+    "S1": 1000, "S2": 260, "S3": 780, "S4": 1100, "S5": 400,
+    "S6": 3000, "S7": 320, "S8": 600, "S9": 300, "S10": 340,
     "S11": 180, "S12": 720, "S13": 720, "S14": 760,
 }
 # Binding whole-sheet cap, not the sum of the parts: a sheet may not spend every

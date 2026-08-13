@@ -138,3 +138,18 @@ warm-up is retro-labeled CALIBRATION PROBE (unscored) — its numbers are never 
 5. COST-OF-INFORMATION LEDGER: per call, sections deep-read are logged; per-round section-value table
    extends the ablation evidence and drives future sheet budgets.
 6. WITHIN-ROUND TREND: per-day scores reported in sequence per round (learning-curve / degradation watch).
+
+## CC-M2-5 — deliberate-practice + elicitation amendments (orchestrator, 2026-08-14; BINDING for E1 onward)
+PRACTICE STRUCTURE: (1) difficulty ladder per era (clearest->hardest, hardness = baseline/outcome disagreement);
+(2) error-class drills (post-mortem-named mistakes get similar-setup reps in subsequent study days, drawn from
+study-eligible sessions only); (3) REFERENCE-CLASS RETRIEVAL TOOL (build item): k-nearest already-studied cases
+by feature/skeleton distance, strictly study-tainted history only, surfaced with outcomes at decision time —
+lawful analog memory; (4) pre-mortem sentence committed with every TAKE; (5) post-era self-compiled pre-trade
+CHECKLIST from validated patterns, run checklist-first on blind days; (6) 5-day portfolio reviews (aggregate
+vs baselines + committed 'what I change').
+ELICITATION: (7) minimal pairs on deep-read TAKEs (nearest non-take + the exact difference); (8) threshold
+elicitation (the field value that flips the call, whenever evidence names a field); (9) think-aloud verbatim
+transcripts on ~10% of deep reads, mined by a separate lane for unnamed cues; (10) periodic teaching test
+('how to trade this class' for a novice — what cannot be taught is not yet extracted).
+All outputs land in the committed ledgers/notes (fresh-context law CC-M2-4.2 makes them the only memory).
+Retrieval tool = a named build item for the fix-lane follow-up (feature-distance over existing skeletons).

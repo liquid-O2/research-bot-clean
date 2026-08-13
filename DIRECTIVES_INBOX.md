@@ -31,3 +31,6 @@ And if there are ways we can reduce false positives and etc., we'll try to do so
 - [2026-08-13T13:31:57Z] No, I don't agree with point number three, because forcing it to add pairs and et cetera might not give it all the thing it needs to like make decisions.
 
 It can also have single things, like you don't want to force it to do something. We just need it to take proper decisions.
+- [2026-08-13T13:55:50Z] Yeah, I'm fine with catching trends or taking reversals. I'm fine with either. I don't have a preference for either.
+
+I just want us to get the best rates possible. That is the main thing I want us to look at

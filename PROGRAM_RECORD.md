@@ -1,5 +1,5 @@
 # PROGRAM RECORD — the complete account (2026-08-10 → 2026-08-13)
-Entry point: INDEX.md. Companion: DISCRETIONARY_METHOD.md (the portable methodology). Binding laws: DIRECTIVES.md (D-001..D-046). Living log: provenance/sessions/JOURNAL.md. Plan of record: FINAL_PLAN.md (+ amendments a/b/c).
+Entry point: INDEX.md. Companion: DISCRETIONARY_METHOD.md (the portable methodology). Binding laws: DIRECTIVES.md (D-001..D-046). Living log: provenance/sessions/JOURNAL.md. Plan of record: FINAL_PLAN.md (+ amendments a/b/c). Data on disk: DATA_INVENTORY.md.
 
 ## 1. WHAT WAS BUILT (all committed, all test-proven)
 - **C++ substrate** (engine/cpp, ~30k LOC): dialect-pinned parquet readers for every stream (IWM stock quotes/trades, IWM option prints incl. FULL Greek complex through third order + iv_error (CC-013), IWM option quotes → 20-bucket dealer surface, RUTW option prints (wide profile, B5 unlocked)); typed 15-state validity; checked arithmetic; byte-proven vs the legacy Rust oracle over 7.88B rows; **856 tests, every one with a committed proof-it-can-fail (mutant + red log); proof-rot gate (fuzz=0 applicability) in CI**.

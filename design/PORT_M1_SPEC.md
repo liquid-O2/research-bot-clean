@@ -162,6 +162,18 @@ B. NEW §6b LEVEL RELEVANCE CENSUS (runs with stage 5): for every oracle top-2 l
    receipts excluded) blessed + documented; D9 Nikkei-VI history = optional user purchase, flagged, not needed
    for M1.B; D10 already CC-M1-2. Full list m1/SPEC_DEFECTS.md.
 
+## CC-M1-4 — MID-SANITY (user catch, 2026-08-13; BINDING everywhere; supersedes CC-M1-3.4a's framing)
+Verified on raw books (NKD 20220908 secs 0-9: 25,650x28,870 = 3,220pt spread; 20240927: flicker between 25pt
+and 900pt widths): the sub-minute "$2-5k legs" were WIDE-BOOK MID ARTIFACTS. Rules (D-054):
+1. MID-SANE second: TWO_SIDED AND spread_$ <= min(10 x trailing-phase-median spread_$, $500).
+2. Every mid consumer uses SANE seconds only: oracle legs, offer range/best_leg, ZigZag spine, candidate entry
+   mids (decision requires SANE, not just TWO_SIDED), certificate forward paths (insane seconds masked out of
+   MFE/MAE), level touches. Insane seconds = typed-excluded; per-session insane_frac reported.
+3. "STRUCTURAL_GAP" class RETIRED. Post-mask legs completing <150s (if any) = NEWS_UNTRADEABLE class, counted
+   beside the recall gate, never inside it. The recall gate runs on the SANE oracle.
+4. IMPACT QUANTIFICATION mandatory: offer census, DP seatable, wall stats, recall — before/after mask deltas
+   per asset (TSV + report section). M0-verdict-relevant medians moving >5% => verdict addendum.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

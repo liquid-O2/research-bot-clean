@@ -75,19 +75,24 @@ CAND_FIELDS = ("date8", "conf_sec", "side", "rung_mask", "phase_conf", "year")
 
 
 # ------------------------------------------------------ confirmation scan ----
-def session_confirmations(s, asset, atr, phase_med, trade_date):
+def session_confirmations(s, asset, atr, phase_med, trade_date, rungs=None):
     """m0 §8 sub-pass 1 confirmations, deduped by (conf_sec, side).
 
     Returns a sorted list of (conf_sec, side, rung_mask).  This is c_c_roster's
     own code path (rung thresholds + zigzag_scan) with no reimplementation.
+
+    `rungs` defaults to the m0 ladder X.RUNGS (bit i = rungs[i], identical to
+    CC.RUNG_BITS).  M1.B passes the CC-M1-3.4b ladder, which prepends the
+    G1-FINE rung 0.05 x ATR14 under the SAME floors.
     """
+    rungs = X.RUNGS if rungs is None else rungs
     spec = C.ASSETS[asset]
     mult, tick_px, tick_usd = spec["mult"], spec["tick_px"], spec["tick_usd"]
     vt_l = s.vt.tolist()
     vm_l = s.vm.tolist()
     vphase = s.phase_tag[s.vt].tolist()
     merged = {}
-    for ri, r in enumerate(X.RUNGS):
+    for ri, r in enumerate(rungs):
         per_phase = []
         for p in range(X.N_PHASES):
             pm = phase_med.get((asset, trade_date.year, X.PHASE_NAMES[p]),
@@ -99,7 +104,7 @@ def session_confirmations(s, asset, atr, phase_med, trade_date):
         thr_l = [per_phase[p] for p in vphase]
         for (_px, _psec, conf_sec, side) in CC.zigzag_scan(vt_l, vm_l, thr_l):
             k = (conf_sec, side)
-            merged[k] = merged.get(k, 0) | CC.RUNG_BITS[ri]
+            merged[k] = merged.get(k, 0) | (1 << ri)
     return [(k[0], k[1], merged[k]) for k in sorted(merged)]
 
 

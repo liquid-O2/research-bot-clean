@@ -33,7 +33,13 @@ import census_common as X               # noqa: E402  (m0 census substrate)
 
 # --------------------------------------------------------------- spec pin ---
 SPEC_PATH = "/workspace/design/PORT_M1_SPEC.md"
-SPEC_SHA16 = "ce0a8ca16e342cd7"         # CC-M1-1 amendment (was 65708676a27deae7)
+# 65708676a27deae7 (freeze) -> ce0a8ca16e342cd7 (CC-M1-1) -> 418755209f3d08cb
+# (CC-M1-3 adjudications + D-053 VWAP bands)
+SPEC_SHA16 = "418755209f3d08cb"
+# M1.B (production generation / label tensor / atlas screen).  a3852e13b75464bd
+# was the freeze; 2b83f9e70340a413 carries the D-053 VWAP amendment.
+SPEC_M1B_PATH = "/workspace/design/PORT_M1B_SPEC.md"
+SPEC_M1B_SHA16 = "2b83f9e70340a413"
 M1_ROOT = "/workspace/artifacts/cache/port/m1"
 M0_ROOT = C.OUT_ROOT
 
@@ -66,6 +72,20 @@ def verify_spec():
     return got
 
 
+def spec_m1b_sha():
+    return C.sha256_file(SPEC_M1B_PATH)
+
+
+def verify_spec_m1b():
+    """M1.B lanes pin BOTH frozen specs (M1.B implements CC-M1-3 of M1.A)."""
+    got = spec_m1b_sha()[:16]
+    if got != SPEC_M1B_SHA16:
+        raise RuntimeError("M1B spec sha16 %s != frozen %s"
+                           % (got, SPEC_M1B_SHA16))
+    verify_spec()
+    return got
+
+
 def out_path(*parts):
     p = os.path.join(M1_ROOT, *parts)
     d = os.path.dirname(p)
@@ -85,10 +105,16 @@ def write_json(path, obj):
     return C.write_json(path, obj)
 
 
-def write_tsv(path, section, phash, columns, rows, extra=()):
-    """Every M1 TSV names its spec section + params_hash + M1 spec sha."""
+def write_tsv(path, section, phash, columns, rows, extra=(), spec="PORT_M1"):
+    """Every M1 TSV names its spec section + params_hash + M1 spec sha.
+
+    `spec` selects which frozen spec the section number belongs to: "PORT_M1"
+    (M1.A) or "PORT_M1B" (the M1.B stage specs, CC-M1-3 work).
+    """
     tmp = path + ".tmp"
-    lines = ["# PORT_M1_SPEC.md %s (m1_spec_sha16=%s)" % (section, SPEC_SHA16),
+    name, sha = (("PORT_M1B_SPEC.md", SPEC_M1B_SHA16) if spec == "PORT_M1B"
+                 else ("PORT_M1_SPEC.md", SPEC_SHA16))
+    lines = ["# %s %s (spec_sha16=%s)" % (name, section, sha),
              "# params_hash=%s" % phash]
     for e in extra:
         lines.append("# %s" % e)

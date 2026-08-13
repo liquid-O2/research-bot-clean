@@ -13,7 +13,8 @@ second it is active for.  Sources (a)-(f) of §4, plus the CC-M1-1(A) ladders:
   NDAY          (b) N-session lookback H / L, N in {2,3,5,10,20}
   PHASE_HL      (c) per-segment H / L, segment in {OVERNIGHT,TOKYO,LONDON,NY},
                     lookback in {1,2,3,5} sessions
-  VWAP          (d) causal session/phase VWAP and +-{1,2} x causal sigma_vwap
+  VWAP          (d) causal session/phase VWAP line and +-{2.0,2.5} x causal
+                    sigma_vwap  (D-053 amendment; was +-{1,2})
   PROFILE       (e) prior-session/phase POC, VAH, VAL, HVN, LVN, single-print
                     zone edges, poor high/low  (from §5)
   DEV_POC       (e) causal developing POC of the live session
@@ -67,11 +68,17 @@ RECLAIM_HOLD = 120               # §6 "holds >= 120s"
 FVOL_K = (0.5, 1.0, 1.5, 2.0)
 NDAY_LOOKBACKS = (2, 3, 5, 10, 20)
 PHASE_LOOKBACKS = (1, 2, 3, 5)
-VWAP_BANDS = (0.0, 1.0, -1.0, 2.0, -2.0)
+# D-053 (user law, spec amendment 2026-08-13): the VWAP family is the VWAP LINE
+# itself plus +-2.0 and +-2.5 sigma_vwap.  Superseded set: (0, +-1, +-2).
+VWAP_BANDS = (0.0, 2.0, -2.0, 2.5, -2.5)
 ROUND_GRIDS = {"SI": (0.25, 0.50, 1.00),      # §4(f) pinned constants
                "HG": (0.05, 0.10),
                "NKD": (100.0, 250.0, 500.0)}
 ROUND_WINDOW_SIGMA = 2.0         # implementation bound (see SPEC GAPS)
+
+# Output subtree under m1/.  The M1.A record is "levels" (VWAP +-1/2 sigma);
+# the M1.B lane rebuilds into "levels_v2" with the D-053 bands (b7_levels_v2).
+OUT_DIR = "levels"
 
 OUTCOME_NONE, OUTCOME_REJECT, OUTCOME_BREAK, OUTCOME_RECLAIM = 0, 1, 2, 3
 OUTCOME_NAMES = ("NONE", "REJECT", "BREAK", "RECLAIM")
@@ -658,7 +665,7 @@ def _shard(args):
                 snap_lto.append(int(touches[0][5]) if False else
                                 _outcome_at(touches, row, done))
 
-        C.savez_det(M.out_path("levels", asset,
+        C.savez_det(M.out_path(OUT_DIR, asset,
                                "%s.npz" % trade_date.strftime("%Y%m%d")),
                     level_id=np.array(lv_id, dtype="<U40"),
                     level_family=np.array(lv_fam, dtype="<U16"),
@@ -726,14 +733,14 @@ def run(assets, workers, months=None):
             fam_counts[(asset,) + k] = fam_counts.get((asset,) + k, 0) + v
     stat_rows.sort(key=lambda r: (r[0], r[1]))
     phash = C.params_hash(PARAMS)
-    M.write_tsv(M.out_path("levels", "ledger_build.tsv"), SECTION, phash,
+    M.write_tsv(M.out_path(OUT_DIR, "ledger_build.tsv"), SECTION, phash,
                 ["asset", "trade_date", "year", "n_levels", "n_virgin",
                  "n_touches", "n_snapshot_rows", "tol_usd", "reject_move_usd",
                  "atr14_prev_usd"], stat_rows,
                 extra=["per-session ledger build statistics; arrays in "
                        "m1/levels/{ASSET}/{YYYYMMDD}.npz"])
     fr = [[k[0], k[1], k[2], v] for k, v in sorted(fam_counts.items())]
-    M.write_tsv(M.out_path("levels", "ledger_family_outcomes.tsv"), SECTION,
+    M.write_tsv(M.out_path(OUT_DIR, "ledger_family_outcomes.tsv"), SECTION,
                 phash, ["asset", "family", "outcome", "n_touches"], fr,
                 extra=["touch outcomes per level family (§4 last_test_outcome)"])
     M.hb("b3 levels: %d session rows" % len(stat_rows))

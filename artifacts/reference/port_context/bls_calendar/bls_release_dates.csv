@@ -1,0 +1,149 @@
+release_name,reference_month,date,time_et,status,wayback_snapshot_date
+Employment Situation,October 2020,2020-11-06,08:30,actual,2021-06-05
+CPI,October 2020,2020-11-12,08:30,actual,2021-06-07
+Employment Situation,November 2020,2020-12-04,08:30,actual,2021-06-05
+CPI,November 2020,2020-12-10,08:30,actual,2021-06-07
+Employment Situation,December 2020,2021-01-08,08:30,actual,2021-06-05
+CPI,December 2020,2021-01-13,08:30,actual,2021-06-07
+Employment Situation,January 2021,2021-02-05,08:30,actual,2021-06-05
+CPI,January 2021,2021-02-10,08:30,actual,2021-06-07
+Employment Situation,February 2021,2021-03-05,08:30,actual,2021-06-05
+CPI,February 2021,2021-03-10,08:30,actual,2021-06-07
+Employment Situation,March 2021,2021-04-02,08:30,actual,2021-06-05
+CPI,March 2021,2021-04-13,08:30,actual,2021-06-07
+Employment Situation,April 2021,2021-05-07,08:30,actual,2021-06-05
+CPI,April 2021,2021-05-12,08:30,actual,2021-06-07
+Employment Situation,May 2021,2021-06-04,08:30,actual,2021-06-05
+CPI,May 2021,2021-06-10,08:30,scheduled_at_capture,2021-06-07
+Employment Situation,June 2021,2021-07-02,08:30,scheduled_at_capture,2021-06-05
+CPI,June 2021,2021-07-13,08:30,scheduled_at_capture,2021-06-07
+Employment Situation,July 2021,2021-08-06,08:30,scheduled_at_capture,2021-06-05
+CPI,July 2021,2021-08-11,08:30,scheduled_at_capture,2021-06-07
+Employment Situation,August 2021,2021-09-03,08:30,scheduled_at_capture,2021-06-05
+CPI,August 2021,2021-09-14,08:30,scheduled_at_capture,2021-06-07
+Employment Situation,September 2021,2021-10-08,08:30,scheduled_at_capture,2021-06-05
+CPI,September 2021,2021-10-13,08:30,scheduled_at_capture,2021-06-07
+Employment Situation,October 2021,2021-11-05,08:30,actual,2022-06-01
+CPI,October 2021,2021-11-10,08:30,actual,2022-06-05
+Employment Situation,November 2021,2021-12-03,08:30,actual,2022-06-01
+CPI,November 2021,2021-12-10,08:30,actual,2022-06-05
+Employment Situation,December 2021,2022-01-07,08:30,actual,2022-06-01
+CPI,December 2021,2022-01-12,08:30,actual,2022-06-05
+Employment Situation,January 2022,2022-02-04,08:30,actual,2022-06-01
+CPI,January 2022,2022-02-10,08:30,actual,2022-06-05
+Employment Situation,February 2022,2022-03-04,08:30,actual,2022-06-01
+CPI,February 2022,2022-03-10,08:30,actual,2022-06-05
+Employment Situation,March 2022,2022-04-01,08:30,actual,2022-06-01
+CPI,March 2022,2022-04-12,08:30,actual,2022-06-05
+Employment Situation,April 2022,2022-05-06,08:30,actual,2022-06-01
+CPI,April 2022,2022-05-11,08:30,actual,2022-06-05
+Employment Situation,May 2022,2022-06-03,08:30,scheduled_at_capture,2022-06-01
+CPI,May 2022,2022-06-10,08:30,scheduled_at_capture,2022-06-05
+Employment Situation,June 2022,2022-07-08,08:30,scheduled_at_capture,2022-06-01
+CPI,June 2022,2022-07-13,08:30,scheduled_at_capture,2022-06-05
+Employment Situation,July 2022,2022-08-05,08:30,scheduled_at_capture,2022-06-01
+CPI,July 2022,2022-08-10,08:30,scheduled_at_capture,2022-06-05
+Employment Situation,August 2022,2022-09-02,08:30,scheduled_at_capture,2022-06-01
+CPI,August 2022,2022-09-13,08:30,scheduled_at_capture,2022-06-05
+Employment Situation,September 2022,2022-10-07,08:30,scheduled_at_capture,2022-06-01
+CPI,September 2022,2022-10-13,08:30,scheduled_at_capture,2022-06-05
+Employment Situation,October 2022,2022-11-04,08:30,actual,2023-01-01
+CPI,October 2022,2022-11-10,08:30,actual,2023-06-07
+Employment Situation,November 2022,2022-12-02,08:30,actual,2023-01-01
+CPI,November 2022,2022-12-13,08:30,actual,2023-06-07
+Employment Situation,December 2022,2023-01-06,08:30,scheduled_at_capture,2023-01-01
+CPI,December 2022,2023-01-12,08:30,actual,2023-06-07
+Employment Situation,January 2023,2023-02-03,08:30,scheduled_at_capture,2023-01-01
+CPI,January 2023,2023-02-14,08:30,actual,2023-06-07
+Employment Situation,February 2023,2023-03-10,08:30,scheduled_at_capture,2023-01-01
+CPI,February 2023,2023-03-14,08:30,actual,2023-06-07
+Employment Situation,March 2023,2023-04-07,08:30,scheduled_at_capture,2023-01-01
+CPI,March 2023,2023-04-12,08:30,actual,2023-06-07
+Employment Situation,April 2023,2023-05-05,08:30,scheduled_at_capture,2023-01-01
+CPI,April 2023,2023-05-10,08:30,actual,2023-06-07
+Employment Situation,May 2023,2023-06-02,08:30,scheduled_at_capture,2023-01-01
+CPI,May 2023,2023-06-13,08:30,scheduled_at_capture,2023-06-07
+Employment Situation,June 2023,2023-07-07,08:30,scheduled_at_capture,2023-01-01
+CPI,June 2023,2023-07-12,08:30,scheduled_at_capture,2023-06-07
+Employment Situation,July 2023,2023-08-04,08:30,scheduled_at_capture,2023-01-01
+CPI,July 2023,2023-08-10,08:30,scheduled_at_capture,2023-06-07
+Employment Situation,August 2023,2023-09-01,08:30,scheduled_at_capture,2023-01-01
+CPI,August 2023,2023-09-13,08:30,scheduled_at_capture,2023-06-07
+Employment Situation,September 2023,2023-10-06,08:30,scheduled_at_capture,2023-01-01
+CPI,September 2023,2023-10-12,08:30,scheduled_at_capture,2023-06-07
+Employment Situation,October 2023,2023-11-03,08:30,actual,2024-06-05
+CPI,October 2023,2023-11-14,08:30,actual,2024-06-04
+Employment Situation,November 2023,2023-12-08,08:30,actual,2024-06-05
+CPI,November 2023,2023-12-12,08:30,actual,2024-06-04
+Employment Situation,December 2023,2024-01-05,08:30,actual,2024-06-05
+CPI,December 2023,2024-01-11,08:30,actual,2024-06-04
+Employment Situation,January 2024,2024-02-02,08:30,actual,2024-06-05
+CPI,January 2024,2024-02-13,08:30,actual,2024-06-04
+Employment Situation,February 2024,2024-03-08,08:30,actual,2024-06-05
+CPI,February 2024,2024-03-12,08:30,actual,2024-06-04
+Employment Situation,March 2024,2024-04-05,08:30,actual,2024-06-05
+CPI,March 2024,2024-04-10,08:30,actual,2024-06-04
+Employment Situation,April 2024,2024-05-03,08:30,actual,2024-06-05
+CPI,April 2024,2024-05-15,08:30,actual,2024-06-04
+Employment Situation,May 2024,2024-06-07,08:30,scheduled_at_capture,2024-06-05
+CPI,May 2024,2024-06-12,08:30,scheduled_at_capture,2024-06-04
+Employment Situation,June 2024,2024-07-05,08:30,scheduled_at_capture,2024-06-05
+CPI,June 2024,2024-07-11,08:30,scheduled_at_capture,2024-06-04
+Employment Situation,July 2024,2024-08-02,08:30,scheduled_at_capture,2024-06-05
+CPI,July 2024,2024-08-14,08:30,scheduled_at_capture,2024-06-04
+Employment Situation,August 2024,2024-09-06,08:30,scheduled_at_capture,2024-06-05
+CPI,August 2024,2024-09-11,08:30,scheduled_at_capture,2024-06-04
+Employment Situation,September 2024,2024-10-04,08:30,scheduled_at_capture,2024-06-05
+CPI,September 2024,2024-10-10,08:30,scheduled_at_capture,2024-06-04
+Employment Situation,October 2024,2024-11-01,08:30,actual,2026-01-04
+CPI,October 2024,2024-11-13,08:30,actual,2026-01-23
+Employment Situation,November 2024,2024-12-06,08:30,actual,2026-01-04
+CPI,November 2024,2024-12-11,08:30,actual,2026-01-23
+Employment Situation,December 2024,2025-01-10,08:30,actual,2026-01-04
+CPI,December 2024,2025-01-15,08:30,actual,2026-01-23
+Employment Situation,January 2025,2025-02-07,08:30,actual,2026-01-04
+CPI,January 2025,2025-02-12,08:30,actual,2026-01-23
+Employment Situation,February 2025,2025-03-07,08:30,actual,2026-01-04
+CPI,February 2025,2025-03-12,08:30,actual,2026-01-23
+Employment Situation,March 2025,2025-04-04,08:30,actual,2026-01-04
+CPI,March 2025,2025-04-10,08:30,actual,2026-01-23
+Employment Situation,April 2025,2025-05-02,08:30,actual,2026-01-04
+CPI,April 2025,2025-05-13,08:30,actual,2026-01-23
+Employment Situation,May 2025,2025-06-06,08:30,actual,2026-01-04
+CPI,May 2025,2025-06-11,08:30,actual,2026-01-23
+Employment Situation,June 2025,2025-07-03,08:30,actual,2026-01-04
+CPI,June 2025,2025-07-15,08:30,actual,2026-01-23
+Employment Situation,July 2025,2025-08-01,08:30,actual,2026-01-04
+CPI,July 2025,2025-08-12,08:30,actual,2026-01-23
+Employment Situation,August 2025,2025-09-05,08:30,actual,2026-01-04
+CPI,August 2025,2025-09-11,08:30,actual,2026-01-23
+CPI,September 2025,2025-10-24,08:30,actual,2026-01-23
+Employment Situation,October 2025,2025-11-07,08:30,scheduled_at_capture,2025-01-04
+CPI,October 2025,2025-11-13,08:30,scheduled_at_capture,2025-06-05
+Employment Situation,September 2025,2025-11-20,08:30,actual,2026-01-04
+Employment Situation,November 2025,2025-12-16,08:30,actual,2026-06-12
+CPI,November 2025,2025-12-18,08:30,actual,2026-07-02
+Employment Situation,December 2025,2026-01-09,08:30,actual,2026-06-12
+CPI,December 2025,2026-01-13,08:30,actual,2026-07-02
+Employment Situation,January 2026,2026-02-11,08:30,actual,2026-06-12
+CPI,January 2026,2026-02-13,08:30,actual,2026-07-02
+Employment Situation,February 2026,2026-03-06,08:30,actual,2026-06-12
+CPI,February 2026,2026-03-11,08:30,actual,2026-07-02
+Employment Situation,March 2026,2026-04-03,08:30,actual,2026-06-12
+CPI,March 2026,2026-04-10,08:30,actual,2026-07-02
+Employment Situation,April 2026,2026-05-08,08:30,actual,2026-06-12
+CPI,April 2026,2026-05-12,08:30,actual,2026-07-02
+Employment Situation,May 2026,2026-06-05,08:30,actual,2026-06-12
+CPI,May 2026,2026-06-10,08:30,actual,2026-07-02
+Employment Situation,June 2026,2026-07-02,08:30,scheduled_at_capture,2026-06-12
+CPI,June 2026,2026-07-14,08:30,scheduled_at_capture,2026-07-02
+Employment Situation,July 2026,2026-08-07,08:30,scheduled_at_capture,2026-06-12
+CPI,July 2026,2026-08-12,08:30,scheduled_at_capture,2026-07-02
+Employment Situation,August 2026,2026-09-04,08:30,scheduled_at_capture,2026-06-12
+CPI,August 2026,2026-09-11,08:30,scheduled_at_capture,2026-07-02
+Employment Situation,September 2026,2026-10-02,08:30,scheduled_at_capture,2026-06-12
+CPI,September 2026,2026-10-14,08:30,scheduled_at_capture,2026-07-02
+Employment Situation,October 2026,2026-11-06,08:30,scheduled_at_capture,2026-06-12
+CPI,October 2026,2026-11-10,08:30,scheduled_at_capture,2026-07-02
+Employment Situation,November 2026,2026-12-04,08:30,scheduled_at_capture,2026-06-12
+CPI,November 2026,2026-12-10,08:30,scheduled_at_capture,2026-07-02

@@ -34,3 +34,11 @@ All strictly historical daily publications; every file carries rows to its lates
 - COMEX warehouse stocks (SI/HG daily depository stats): CME publishes CURRENT-day XLS only (delivery_reports/) — status code checked this session; if 200, capture-forward cron alongside settlements; deep history = paid/absent. Delivery notices likewise.
 - SLV ETF flows: iShares product-page ajax CSV — untested; port session item.
 FLAG SEMANTICS for all calendars: event flags are DAY-grain regime tags (D-038: news days are signal, never excluded); strictly-prior joins.
+
+## DATA-FETCH LANE 2026-08-13 ~12:00 UTC (D-047/D-060 free batch) — see FETCH_REPORT.md + per-subdir MANIFEST.tsv (each records D-057 PUBLICATION LAG):
+- cot/: DISAGGREGATED (managed-money/producer splits, SI 084691 + HG 085692) + TFF (Nikkei + JPY leveraged-funds splits) annuals 2021..2026-08-04 — OI cross-checked exact vs legacy files.
+- slv/: SLV daily NAV + shares-outstanding 2006-04-21..2026-08-12 (5,112 rows; BlackRock product-data API — ounces history not published, shares = the flow series; oz/share ~0.9).
+- bls_calendar/: CPI + Employment Situation actual release dates 2021-2026 (148 rows, 08:30 ET) via Wayback snapshots; 2025 shutdown reschedules resolved; Oct-2025 rows flagged unconfirmed.
+- shfe_inventory/: SHFE copper weekly stocks 2005+ (t) and silver weekly 2012+ (kg) via 99qihuo/akshare (direct SHFE geo-blocked), daily Eastmoney cross-check exact.
+- fred_refresh/: T10YIE + DGS10 + DTWEXAFEGS new; DEXJPUS/GVZCLS re-pull (were already current). DGS10 verified exact vs treasury.gov.
+- NIKKEI_VI_daily.csv extended to 2026-08-13 (884 rows; 882-row overlap identical).

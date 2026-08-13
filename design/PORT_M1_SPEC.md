@@ -334,6 +334,24 @@ D. Report: GEN_AUDIT_REPORT.md — the forfeit table, timing-loss distributions,
    (is mid-leg value uncovered? => continuation-family hypothesis goes to family discovery), and the
    plot-index. All cluster-robust caveats per CC-M1-12.4 where inference is claimed.
 
+## CC-M1-13 — episode-v2 adjudications + THE SLICE ADDENDUM, 2026-08-14 (BINDING)
+1. Episodes are a CONVENTION with fitted parameters, not a natural kind (Zaliapin-Ben-Zion unimodal 18/18) —
+   named honestly everywhere; the convention's parameters are FROZEN per asset: K* = 150/120/150s (SI/HG/NKD;
+   three estimators concordant; the 900s decree retired), SPAN_MAX by exact convolution, magnitude scaling
+   NOT adopted (measured against). Refit only at recalibration boundaries.
+2. EPISODE_CAUSAL = THE deployable grouping (independently argued by the tau*-overmerge finding);
+   EPISODE_RETRO = analysis-only, twin-guarded (thin pass on record).
+3. CC-M1-11.3 REVISED BY MEASUREMENT: the within-episode picking prize was an over-merging artifact — under
+   fitted grouping EARLIEST captures 90-93% of best and DP collapse cost falls to -1.4..-2.2%. Within-episode
+   selection target = ListNet SOFT TOP-ONE (E5; (best-2nd) < cost_rt on 66-81% of multi-member episodes makes
+   hard argmax wrong). THE SELECTION FRONTIER IS ACROSS-EPISODE RANKING (~160-220 episodes/day -> 3 seats).
+4. ADDENDUM ISSUED (CC-M1-12.4 mandate): slice-miner promotions collapse 489 -> 41 under session-clustered
+   variance (DEFF 41-67) — only the 41 session-robust cells (17 SI / 12 HG / 12 NKD) feed M2 features/regime
+   keys; the naive-promotion list is VOID for design purposes. FAMILY (CC-M1-7) and LEVEL (CC-M1-3.3)
+   decisions ALL SURVIVE (41/41 margins robust under GEE/CR1/cluster bootstrap) — no reversals there.
+5. Limitations on record: IMT rejects at every K (K* = fitted convention with likelihood, not model-licensed);
+   retired objects not re-testable on the frozen v3 roster; IMT power floor N1>=1000 pre-registered fix.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

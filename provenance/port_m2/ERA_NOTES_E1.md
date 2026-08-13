@@ -185,3 +185,114 @@ at all. This is a sheet-budget finding the builder should act on.
    grade is not yet calibrated at the top; CC-M2-4.4 needs a round, not a day.
 4. The day-1 draw collides with the P-M2c warm-up sessions (POSTMORTEMS §0, defect D7). Day 2
    must draw from sessions the warm-up never touched.
+
+---
+
+# E1 STUDY DAY 2 UPDATE (2021-07-02, day-complete, n=935 across SI/HG/NKD)
+
+Source: provenance/port_m2/E1_STUDY_LEDGER.tsv (sealed `f8bd5b3`) + E1_POSTMORTEMS.md day-2 section.
+Taint CLEAN on all 935 rows (CC-M2-8.1 exclusion honoured). The reader LOST to both mechanical
+baselines on this day; several §10-§19 claims above are struck, not deleted (D-059.1).
+
+## 20. ~~§10 STRUCK~~ — THE SIDE CONCENTRATION IS A SESSION PROPERTY, THE PHASE ONE IS NOT
+Day 1: all 48 D-021 winners SHORT. Day 2: **all 38 D-021 winners LONG** (and all SI). Day-complete
+sides on 2021-07-02: LONG n=452 mean **+$292.15** with 38 winners; SHORT n=483 mean **-$389.86** with
+**zero**. What survives two independent day-complete counts is the PHASE: **86 of 86 winners over two
+sessions are in the NY phase**, none in TOKYO or LONDON. **Fields:** S14 winner_close by
+(phase_dec, side). The phase term is now the reader's best-supported claim; the side term is dead as
+an era fact and must never be encoded.
+
+## 21. THE DOMINANT NEW FACT: THE CAPACITY ARITHMETIC IS A MEAN-REVERSION PRIOR
+P017 RANGE_EXTENSION_ARITHMETIC (and P014, and every COVERAGE/ladder form of A1) measures the bar
+against room INSIDE the phase range on the trade's side. A trade entered AT a fresh extreme has zero
+such room by construction, so these terms **systematically refuse continuation/breakout entries and
+accept only trades pointed back across the range**. On an INSIDE/AT_RANGE day that is an MAE filter
+(day 1: sole-blocked pool +$1,217, 0 winners). On an EXPANDED day it is an anti-signal: on 2021-07-02
+it appears in the refusal set of **24 of the 38 winners** (SI-051810-L +$1,707.50 at ext_needed
+$512.5; SI-052297-L +$1,682.50 at ext $537.5).
+**The regime flag is on every sheet and is two fields: S2 `day_type_so_far` {INSIDE, AT_RANGE,
+EXPANDED} and `% of range_hat`, corroborated by S9 `surprise`.** RECOMMENDED CENSUS: winner rate and
+mean certificate by (ext_needed band x S2 day_type), whole era. If the interaction is real, the A1
+term must be regime-conditional and the fix is cheap.
+
+## 22. P015 FLOW CONCORDANCE IS HORIZON-FRAGILE: THE PHASE WINDOW BECOMES A FOSSIL
+The NY phase on 2021-07-02 straddled the 12:30Z Employment Situation. Its cumulative sflow stayed
+SELL all afternoon (a pre-release accumulation) while the 5m/30m windows and the price ran UP.
+P015 read the phase window, so it pointed the reader SHORT into a $2,525 up-move: its sole-blocked
+pool was **+$120.81 with 3 winners** (day 1: -$229.48 with 4 winners), and it appears in the refusal
+set of **29 of the 38 winners**. Two days, two opposite verdicts: P015 is 1-1 and is now era-status
+CONTESTED.
+**Fields for the repair, all on the sheet:** S12 `last_scheduled` event age; S8 sflow at 60s/5m/30m
+vs phase — the disagreement BETWEEN horizons is the signal, and it is exactly what the reader wrote
+down in the think-aloud transcript at 14:35:09 and then used only as a veto.
+RECOMMENDED CENSUS: sign agreement between S8 phase sflow and S8 30m sflow, and winner rate
+conditional on their DISAGREEMENT, by (era, class); plus the same split by "phase contains a
+scheduled release" from S12.
+
+## 23. THE n_terms LADDER OF §11 DOES NOT SURVIVE (P016 falsified out of sample)
+2021-07-02: 6 terms -> +$117.19 / 8.4% winners; 7 -> +$8.51 / 5.6%; 8 -> -$317.03 / 4.5%;
+**9 -> -$861.25 / 0.0%**. Day 1's monotone ladder inverts. This agrees with the CC-M2-9.1 census
+verdict (P016 beta -$95, p=.07, CONCENTRATOR(feature) not an entry rule). A conjunction of vetoes has
+no direction of its own: it inherits the direction of whichever term is directional, and adding terms
+makes it more confidently wrong when that term is inverted.
+
+## 24. THE TWO NEW VETOES BOTH WORKED, AND VETOES ARE NOT ENOUGH
+* **P018 TWO-STREAM OPPOSITION (T9, new)** — refuse when S8 60s sflow opposes at >=10% of 60s volume
+  ON >= 20 contracts AND S5 mid_slope(T-1m) opposes. Day 2 sole-blocked 5 candidates, mean -$422.50,
+  0 winners. Validated on day 1 before use (blocks 146, mean -$29.27, 0 of the 10 eight-term takes).
+  Born on SI-20210702-052509-S; transcript committed.
+* **P019 ANTI-CHASE (T6, new)** — refuse when the trade-side phase extreme is STALE (>600s) and the
+  1-minute drift runs against the trade by more than one S9 rv_nowcast w60 unit. Day 2 sole-blocked
+  1 candidate at -$930; day 1 blocks 101, mean -$45.90, winner rate 4.0% vs a 4.62% base.
+* T7 (widened to 3,600s) and T8 sole-blocked 8 each, all at -$930.
+All four are correct refusals costing zero winners across the day — and the day still lost $1,953,
+because the entry criterion was pointed at the wrong side. **Refusal quality is not the binding
+constraint on this program; direction is.**
+
+## 25. THE ONE-POSITION RULE MAKES A SESSION A SINGLE BET (scoring-instrument fact)
+Exit_default is session close on every candidate of both study days, so the FIRST take of a session
+holds the seat until 22:59:59 and every later take is forfeited. The reader's best call of day 2
+(HG-20210702-058378-L, +$620 close, +$1,007.50 peak, unwalled — a deliberate long probe of §10 taken
+against the reader's own flow term) earned nothing because the HG seat had been spent 5.6 hours
+earlier on a -$92.50 short. Both days' entire margin (+$2,380 / -$2,398) is decided by which single
+candidate per session the seat was spent on. Flagged for the orchestrator as an instrument property:
+a per-row rule cannot select the best candidate of a session.
+
+## 26. NKD, TWO DAYS: 514 CANDIDATES, ZERO WINNERS
+Day 2: 204 NKD candidates, 0 D-021 winners, mean -$66.64, **walled fraction 0.000** (day 1: 0.155).
+The reader abstained on both days; the best mechanical baseline lost $460 on NKD today. NKD's
+LEVEL-FIRST-TEST family (briefing D3) finally appeared — 5 cases — and **all five arrive in a dead
+book** (S8 60s n = 0, 0, 1, 2, 13). D3 gets its first answer: NKD first-tests in E1 may be signal-pure
+but they are untradeable at the $1,000 bar. Two sessions is not a census, but this is now the reader's
+most reliable positive finding and it bears on the s14 SI+NKD port target.
+
+## 27. PRE-MORTEMS BECAME THE BEST INSTRUMENT ON THE SHEET (and I ignored them)
+Five of six committed pre-mortems named the exact mechanism that killed their trade, in writing,
+before the seal (the sixth, on the long probe, was wrong and the probe paid). Day 1's eleven all
+failed to fire. The asymmetry is the lesson: **a pre-mortem that names a mechanism measurable on the
+sheet is a veto the reader has already reasoned to and then declined to encode.** Proposed protocol
+strengthening for CC-M2-5.4: a pre-mortem naming a measurable mechanism must either become a term or
+the take is abandoned.
+
+## 28. A|B|C IS ANTI-CALIBRATED (CC-M2-4.4)
+Day 2 TAKEs: A -$930 (n=10) / B -$759.55 (n=22) / C -$930 (n=1). SKIPs: B -$117.66 (n=348) /
+C +$21.00 (n=554). Inverted on both halves. Over two rounds the grade has never been monotone inside
+the TAKEs. As computed it counts how many of the reader's own terms are at their strong setting, i.e.
+it measures the rule's confidence, not the candidate's value. It disqualifies itself as a judge-aux
+target until it is rebuilt on evidence outside the rule.
+
+## 29. SECTIONS: S12 IS PROMOTED, S6/S10/S11 ARE NOW 0-FOR-1,998
+S12 (`last_scheduled` event age) is the field that identifies a fossil phase-flow window (§22) and it
+changed nothing on day 1. S2 (`day_type_so_far`, `% of range_hat`) is the regime flag §21 needs. Both
+are cheap and both are missing from the triage index (defect D9). S6, S10 and S11 have not been opened
+in 1,998 day-complete calls.
+
+## 30. OPEN QUESTIONS CARRIED TO DAY 3
+1. Is the NY-phase concentration (86/86 over two sessions) real, or is it an artefact of where
+   candidates are generated? Census: winner rate by (phase_dec, asset) over the whole era.
+2. Does the (ext_needed x S2 day_type) interaction of §21 hold on the era? This is the highest-value
+   census the round has produced.
+3. Does horizon disagreement (S8 30m vs phase sflow) beat P015's phase reading? §22.
+4. Can a reader with only per-row information ever win a one-position/session-close game (§25), or is
+   the instrument measuring candidate selection the reader cannot perform?
+5. Both new vetoes (P018/P019) need an era census; each has two days of n and zero winners lost.

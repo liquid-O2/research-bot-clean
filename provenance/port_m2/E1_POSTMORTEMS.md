@@ -208,3 +208,269 @@ Two pre-mortems named the right risk on the wrong candidate: the "give-back thro
 mechanism I feared for HG-054648-S is exactly what happened to **HG-20210701-049049-L**, the
 long I refused. Pre-mortems on a day where every take wins carry no discriminating information;
 they must be re-adjudicated on a day with losing takes before their value can be judged.
+
+---
+
+# E1 STUDY POST-MORTEMS — DAY 2 (2021-07-02, SI + HG + NKD, day-complete, n=935)
+
+Reader: opus-discretionary, fresh context (CC-M2-4.2). Sheets PORT-SHEETS-V1.1. Theses sealed in
+commit `f8bd5b3` ("E1D2 theses sealed"); every S14 below was opened after that commit. Committed
+calls are never revised. Draw: the next chronological STUDY session per asset strictly after
+2021-07-01, warm-up sessions excluded (CC-M2-8.1) — SI/HG/NKD 2021-07-02, **taint CLEAN on all 935
+rows**, verified per row.
+
+## 0. SCORE — I LOST TO BOTH BASELINES, DECISIVELY
+
+| ledger | calls | TAKE | mean take $ | mean skip $ | winner precision | replay $ | capture |
+|---|---|---|---|---|---|---|---|
+| **READER** | 935 | 33 | **-816** | -32 | **0.000** | **-1,953** | -0.428 (-0.369 on the full-day ceiling $5,299) |
+| BASE EARLIEST+cv>=516 / >=639 (best arm) | 935 | 21 | -131 | -59 | 0.000 | **+445** | 0.084 |
+| BASE EARLIEST (all episodes) | 935 | 423 | -65 | -56 | 0.000 | -3,436 | -0.649 |
+| BASE EARLIEST+cv>=650 | 935 | 10 | -235 | -58 | 0.000 | -2,758 | -0.520 |
+| **YESTERDAY-POLICY** e1d1_policy, behavioural (CC-M2-8.2) | 935 | 2 | -511 | -59 | 0.000 | -1,023 | -0.224 |
+| YESTERDAY-POLICY, literal (true 5-min slope after the CC-M2-9.3 fix) | 935 | 1 | -930 | -59 | 0.000 | -930 | -0.204 |
+
+* **Margin over the best mechanical baseline: -$2,398** (capture -0.512). Day 1 was +$2,380.
+* **Margin over the frozen yesterday-policy: -$930** (behavioural arm; -$1,023 against the literal arm).
+* Per-asset pairing: **HG** reader -93 vs baseline +190 = **-283**; **SI** reader -1,860 vs +715 =
+  **-2,575**; **NKD** reader 0 vs -460 = **+460** (the abstention is the only thing I beat a rule with).
+* Zero D-021 winners among 33 takes. Twenty-six of the 33 were hard stop-outs at exactly -$930.
+
+Two study days, two opposite results, and the swing is not noise about a mean — it is a swing about a
+SIDE. That is the finding, and everything below is its anatomy.
+
+## 1. THE DAY: EVERY WINNER IS A LONG, AND MY RULE TOOK 32 SHORTS
+
+Day-complete census (2021-07-02):
+
+| asset | n | mean phase-close $ | positive | walled | D-021 winners |
+|---|---|---|---|---|---|
+| HG | 321 | -49.31 | 0.458 | 0.202 | **0** |
+| SI | 410 | -65.43 | 0.454 | 0.473 | **38** |
+| NKD | 204 | -66.64 | 0.324 | **0.000** | **0** |
+
+| side | n | mean $ | D-021 winners |
+|---|---|---|---|
+| LONG | 452 | **+292.15** | **38** |
+| SHORT | 483 | **-389.86** | **0** |
+
+**All 38 winners are SI NY LONGS.** On 2021-07-01 all 48 winners were SHORTS. The one thing both days
+share is the phase: **86 of 86 winners across two sessions are in NY.**
+2021-07-02 was the June Employment Situation (S12: released 12:30Z, i.e. clock 14:30). Silver's NY
+phase opened by falling to 26.1625 at the release second and then ran to 26.6675 — a $2,525 NY range
+on a session whose ATR14 is $2,542. My rule met that impulse and sold it thirty-two times.
+
+## 2. E1D2-F1 — ERA_NOTES §10 IS STRUCK: THE SIDE CONCENTRATION IS A SESSION PROPERTY
+
+Day 1's headline ("all 48 D-021 winners are SHORTS, zero long winners") does not survive one further
+session. The correct era-level statement after two day-complete counts is: **winners concentrate in
+the NY phase (86/86) and their SIDE is a property of the session, not of the port.** Anything built on
+the side term would have been fitted to a single tape. The phase term now has two independent
+sessions behind it and is the strongest candidate the reader has produced.
+
+## 3. E1D2-F2 — THE A1 CAPACITY ARITHMETIC IS A MEAN-REVERSION PRIOR, AND IT INVERTS ON EXPANSION DAYS
+
+This is the most transferable thing I learned today, and it indicts the term I trusted most.
+
+P017 RANGE_EXTENSION_ARITHMETIC (my T3) measures how much of the $1,000 bar already lives INSIDE the
+phase range on the trade's side: for a SHORT, the dollars down to the phase low; for a LONG, the
+dollars up to the phase high. It then refuses anything needing more than $450 of NEW range. Read that
+again with a breakout in mind: **a trade entered AT a fresh phase extreme has, by construction, zero
+room on its own side and needs the whole $1,000 in new range.** T3 therefore refuses every
+continuation entry at an extreme and accepts only trades pointed back across the range. It is a
+mean-reversion filter wearing a capacity filter's clothes.
+
+On 2021-07-01 the tape mean-reverted inside its NY range and T3's sole-blocked pool was +$1,217 with
+0 winners — it looked like an MAE filter. On 2021-07-02 the tape expanded, and T3 appears in the
+refusal set of **24 of the 38 winners**. Proof cases: **SI-20210702-051810-L** (room $487.5,
+ext_needed $512.5) paid **+$1,707.50**; **SI-20210702-052297-L** (room $462.5, ext $537.5) paid
+**+$1,682.50**. Both were longs into new range on a day whose S2 `day_type_so_far` was already
+EXPANDED at 112.1% of `range_hat` by mid-afternoon.
+**The fix is not to loosen the threshold; it is to make the term regime-conditional.** The ex-ante
+fields that say which regime you are in are on every sheet and I read them and did not use them:
+S2 `day_type_so_far` {INSIDE, AT_RANGE, EXPANDED} + `% of range_hat`, and S9 `surprise`. On the two
+seats I deep-read at 15:50 and 16:07 I actually wrote "S2 day_type is EXPANDED at 112.1% of range_hat
+with S9 surprise=0.993" **into my own pre-mortem, as the reason the trade would fail** — and took it
+anyway, because the pre-mortem is prose and T3 is code.
+
+## 4. E1D2-F3 — P015 FLOW CONCORDANCE POINTED THE WRONG WAY, AND IT IS THE TERM THAT CHOSE MY SIDE
+
+My rule is direction-blind by design (I refused to encode §10's side). The term that actually supplied
+the direction was T5 = P015 phase-flow concordance, and on this day it was **inverted**: the NY phase's
+cumulative sell imbalance was accumulated BEFORE the 12:30Z release, in a market the release destroyed,
+while price ran up all afternoon. T5's sole-blocked pool is **+$120.81 with 3 D-021 winners** (day 1:
+-$229.48 with 4 winners), and T5 appears in the refusal set of **29 of the 38 winners**.
+
+I diagnosed this exact mechanism at 14:35:09, in writing, before sealing — the think-aloud transcript
+`provenance/port_m2/thinkaloud/E1D2_SI-20210702-052509-S.md` says: *"the phase's sell imbalance is not
+a live parent order at all — it is a fossil... the phase is two different markets glued together by an
+accident of clock boundaries, and the half that is trading right now is buying."* I then used that
+insight to build a VETO (T9) and left the direction to the fossil. **The correct response was the one
+the transcript itself names as a build item: measure the imbalance accumulated SINCE the last S12
+`last_scheduled` event, not since the phase open.** Had the direction come from the 5m/30m windows
+(both buying) instead of the phase window, the rule would have been long.
+
+## 5. E1D2-F4 — THE VETOES I BUILT ALL WORKED; THE ENTRY SIDE IS WHERE I LOST
+
+Sole-blocking ablation on the 8-term pool (the cleanest the day affords):
+
+| sole-blocking term | n | mean $ of the blocked pool | winners blocked | verdict |
+|---|---|---|---|---|
+| **T6 ANTI-CHASE** (new) | 1 | **-930.00** | 0 | correct, and it is the case it was built on (SI-052340-S) |
+| **T9 TWO-STREAM** (new) | 5 | **-422.50** | 0 | correct; SI-052509-S and SI-054009-S were both -$930 |
+| T7 freshness (widened to 3,600s) | 8 | -930.00 | 0 | correct |
+| T8 rv-collapse | 8 | -930.00 | 0 | correct |
+| T2 spread tax (P005) | 17 | -547.28 | **2** | net right, but it blocked SI-052221-L (+$1,857.50) and SI-052246-L (+**$1,995.00**, the day's best candidate) — the payrolls second is exactly when the spread widens and exactly when the move is |
+| T3 capacity (P017) | 56 | -351.54 | 1 | see §3 |
+| T4 runway | 7 | +143.21 | 0 | mildly negative |
+| T5 flow concordance (P015) | 31 | **+120.81** | **3** | see §4 |
+
+Both terms I invented today are 2-for-2 correct refusals and cost zero winners. That is the only part
+of the rule that survives. It is also the least valuable part: **vetoes cannot make money on a day
+when the entry criterion is pointed at the wrong side.**
+
+## 6. E1D2-F5 — THE n_terms MONOTONICITY IS GONE (P016's day-1 headline falsified out of sample)
+
+| n_terms | n | mean phase-close $ | D-021 win rate |
+|---|---|---|---|
+| 5 | 190 | -30.72 | 0.005 |
+| 6 | 225 | **+117.19** | **0.084** |
+| 7 | 216 | +8.51 | 0.056 |
+| 8 | 133 | -317.03 | 0.045 |
+| **9** | **32** | **-861.25** | **0.000** |
+
+Day 1's monotone ladder (6 -> -$26, 7 -> +$587, 8 -> +$1,529) inverts completely. This is an
+independent confirmation of CC-M2-9.1's census verdict (P016 beta -$95, p=.07): the conjunction was a
+one-session artefact, and adding terms to it makes it *more* confidently wrong, not more selective.
+**A conjunction of vetoes has no direction of its own; it inherits the direction of whichever term is
+directional, and on this day that term (T5) was inverted.**
+
+## 7. E1D2-F6 — THE PROBE WAS THE BEST CALL OF MY DAY, AND D-046 THREW IT AWAY
+
+The one discretionary call override I committed — **HG-20210702-058378-L**, a LONG taken against my own
+T5 as a deliberate, named probe of §10 (transcript committed) — closed **+$620.00 with a peak of
++$1,007.50 and no wall**. It is the best of my 33 takes by $712 and the only positive close among them.
+
+And it earned nothing, because under D-046 the HG seat had been spent at 14:36:05 on
+HG-20210702-052565-S (-$92.50) and the position was still open at 16:12:58: **with a session-close
+exit, the first TAKE of a session is an all-in bet on that session.** The "cluster" rule in both
+policies (earliest of a 900s cluster) is cosmetic — the real rule is one trade per session per asset.
+Two structural consequences, and I think they are for the orchestrator:
+1. A policy that fires early and holds cannot use later, better evidence. My best evidence of the day
+   arrived 5.6 hours after my seat was spent.
+2. Any reader scored on one-position replay should be selecting the BEST candidate of a session, which
+   is not a decision a per-row rule can make. The honest instrument for that is either a shorter exit
+   (phase close where phase != session), or an explicit "hold fire" term with a stated opportunity
+   cost. Day 1's +$2,380 and day 2's -$2,398 both turn almost entirely on which single candidate the
+   seat was spent on.
+
+## 8. PRE-MORTEM ADJUDICATION — 5 OF 6 FIRED, AND THEY NAMED THE RIGHT MECHANISM
+
+Day 1's eleven pre-mortems all failed to fire and I recorded that they carried no information. Today
+they carry a great deal, and it is the worst kind:
+
+| take | pre-mortem said | what happened |
+|---|---|---|
+| SI-052564-S | "loses if the Employment Situation started a trend rather than a spike... if the next minute takes 26.4675 out, the $900 wall is $180 of silver away" | price took 26.4675 out and the wall paid **-$930** |
+| HG-052565-S | "HG is not the asset the news moved... the -425 phase imbalance is inherited" | -$92.50 (the mildest loss of the five; the diagnosis was right and the trade was small) |
+| SI-054267-S | "the session is already 96.4% of range_hat... a day that has kept expanding all session expands through me" | -$317.50, peak +$970 |
+| SI-057049-S | "the asymmetry that carried the first leg has been spent... S2 day_type EXPANDED at 112.1%" | -$930 |
+| SI-058053-S | "the book is leaving... participation decay" | -$930 (graded C by an explicit override — the one honest grade of the day) |
+| HG-058378-L | "loses exactly the way P008 says... proves it at -$930" | **+$620**, unwalled — the pre-mortem was wrong and the probe was right |
+
+**Every losing take carries a pre-mortem that names its actual cause of death, written before the
+seal.** The information existed, in my own prose, at decision time. What it lacked was a term. The
+process lesson is exact and it is the deliberate-practice lesson of the round: *a pre-mortem that
+names a mechanism the rule cannot evaluate is a veto the reader has already reasoned to and then
+declined to apply.* CC-M2-5.4 should be strengthened: a pre-mortem whose mechanism is measurable on
+the sheet must either be encoded as a term or the take must be abandoned.
+
+## 9. MINIMAL PAIRS AND FLIP THRESHOLDS (CC-M2-5.7/5.8)
+
+| take | committed pair + predicted | actual | verdict |
+|---|---|---|---|
+| SI-052564-S | SI-052509-S; "two-stream opposition is the only separating field", pair worse | pair **-930.00**, take **-930.00** | field correct, both die: the separator was real but irrelevant — neither should have been taken |
+| HG-052565-S | HG-052507-S; pair worse (slope not yet turned) | pair -67.50, take -92.50 | **REFUTED** — the pair was $25 BETTER |
+| SI-054267-S | SI-054009-S; pair worse (T9) | pair -930.00, take -317.50 | **CORRECT**, and by $612.50 |
+| SI-057049-S | SI-056625-S; "the only difference is my own 5% flow threshold" | pair -930.00, take -930.00 | the threshold separates nothing: **P015's 5% bar is a line drawn in noise**, as the pair text predicted |
+| SI-058053-S | SI-058695-S (past my 3,600s window); "if it pays, T7 is arbitrary" | pair -930.00, take -930.00 | T7's window neither helps nor hurts here |
+| HG-058378-L | HG-057367-L; "the 30-minute buying had not started at 15:56" | pair +**357.50**, take +620.00 | **CORRECT** — the named field (S8 30m sflow) ordered them correctly, and both longs were positive |
+
+Flip thresholds: SI-052564-S's flip ("SKIP once the 60s imbalance is >= +10% with slope still
+positive") is the T9 threshold and it is **confirmed as a refusal rule** (everything it refused lost) —
+but it was set on the wrong candidate: at 14:36:04 the flow had gone flat, so the flip did not fire,
+and the trade still lost the maximum. A veto calibrated to the previous minute cannot save a trade
+whose side is wrong.
+
+## 10. A|B|C CALIBRATION (CC-M2-4.4) — ANTI-CALIBRATED THIS DAY
+
+| grade | n | mean close $ | mean peak $ |
+|---|---|---|---|
+| TAKE A | 10 | -930.00 | +380.00 |
+| TAKE B | 22 | -759.55 | +383.07 |
+| TAKE C | 1 | -930.00 | +695.00 |
+| SKIP B | 348 | -117.66 | |
+| SKIP C | 554 | **+21.00** | |
+
+Monotone in the wrong direction on both halves: my A-grades were worse than my B-grades, and my
+SKIP-C pool beat my SKIP-B pool. Over two rounds the grade has now been inverted-within-TAKEs (day 1)
+and inverted everywhere (day 2). **The A|B|C scale as I am computing it is a measure of how many of my
+own terms are at their strong setting, which is a measure of how confidently the rule is pointed — in
+whichever direction it happens to point.** It is not yet a value estimate and it disqualifies itself
+as a judge-aux target until it is rebuilt on something outside the rule.
+
+## 11. NKD: THE ABSTENTION IS 2-FOR-2 AND NKD IS NOW 0 WINNERS IN 514 CANDIDATES
+
+Zero takes on 204 NKD candidates (T1 alone blocked most of them). NKD produced **0 D-021 winners**
+again, mean -$66.64, and a **walled fraction of 0.000** — for the second session running NKD does not
+stop trades out, it simply has nothing to offer. Over the two study days: 514 NKD candidates, 0
+winners. The best mechanical baseline lost $460 on NKD today. This is now the reader's most reliable
+positive result and it argues, at two sessions of evidence, against NKD's inclusion in the s14 port
+target (SI+NKD) — a portfolio question, not a reader question, flagged for the orchestrator.
+
+## 12. SECTION-VALUE LEDGER (CC-M2-4.5), 12 deep reads of 935 calls
+
+| section | deep reads that opened it | changed a call |
+|---|---|---|
+| S3 (path/coverage/runway/pivots) | 12 | yes — every capacity and freshness term, and every one of them was pointed the wrong way |
+| S8 (flow windows / fuel / through-book) | 12 | **yes** — birth of T9; the window-nesting read (60s vs 5m vs 30m vs phase) is the single most valuable object on the sheet and I used it as a veto instead of a compass |
+| S4 (level ledger) | 12 | yes — the P006 waiver on SI-054267-S (which lost the least of the SI takes) |
+| S9 (vol state) | 11 | yes — T8, and `surprise` (0.993) which I read and did not encode |
+| S5 (T-minus trajectory) | 7 | yes — T6/T9 slope terms; **and the CC-M2-9.3 field defect lived here** |
+| S7 (book/queue) | 4 | no |
+| S13 (mechanics) | 4 | no (its fields are in the triage index) |
+| **S2 (era primer / regime tags)** | 3 | **should have** — `day_type_so_far EXPANDED = 112.1% of range_hat` is the regime flag §3 needed, and it is two fields |
+| S12 (context) | 1 | **yes, decisively, and I under-used it** — `last_scheduled Employment Situation 364s ago` is the field that says the phase flow is a fossil |
+| **S6, S10, S11** | **0** | not opened once |
+S6/S10/S11 are now 0-for-1,998 across the warm-up and two day-complete study days. S12 has moved off
+that list: it changed nothing on day 1 and it was the key to this whole day.
+
+## 13. RETRIEVAL TOOL (CC-M2-5.3 / CC-M2-9.4)
+
+Consulted once, on SI-20210702-052509-S, through a wrapper that removed every 2021-07-02 row from the
+pool — i.e. prior unblinded rounds only (warm-up + day 1), which is exactly what CC-M2-9.4 later made
+binding. It returned 4 SI/HG NY SHORT analogs from 2021-07-01 paying $1,195-$1,432 (one D-021 winner)
+and 4 NY LONG analogs all walled at -$930. **It did not change the call — and it was wrong**: it is a
+nearest-neighbour over a single prior session, so it reproduced that session's side bias with high
+confidence. Logged as required. The tool's own docstring names the sequencing hazard; the wrapper is
+`scratch`-local, and the honest fix is a `--exclude-date8` flag in `retrieve.py` so the guard is in the
+tool rather than in the reader's discipline.
+
+## 14. DEFECTS AND BUILD ITEMS FOUND TODAY
+
+* **D8 (fixed here) — `triage_index.py` `slope5m` was the 1-minute slope** (CC-M2-9.3, notified
+  mid-round). The extractor now names `slope15m/slope5m/slope1m` explicitly from the three columns
+  `sections.py` emits. Re-tested on day 1's outcomes with corrected fields: the ONE-MINUTE slope is
+  the horizon that carries the sign (winner rate 7.1% signed-with vs 2.9% against, base 4.62%), the
+  5-minute one carries none (4.4% vs 5.9%) and the 15-minute one carries it backwards (3.3% vs 6.5%).
+  Both of my new terms were therefore defined on `slope1m` explicitly before sealing.
+* **D9 — the triage index has no regime column.** S2's `day_type_so_far` and `% of range_hat`, and S9's
+  `surprise`, are not extracted. They are the fields §3 shows are needed to make the capacity term
+  regime-conditional. Two lines of extractor.
+* **D10 — no event-anchored flow window.** S8 offers 60s/5m/30m/phase/session; the phase window
+  straddles scheduled releases and becomes a fossil (§4). Needed: sflow accumulated since S12's
+  `last_scheduled` event, or simply an `sflow_30m` sign column so the reader can see the disagreement
+  between horizons mechanically instead of by deep read.
+* **D11 — retrieval has no session-exclusion flag** (§13).
+* **D12 — the one-position replay makes the day's score a function of one candidate per session** (§7).
+  Recorded as a scoring-instrument property, not a bug, but it dominates both days' margins.

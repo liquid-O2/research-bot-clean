@@ -9,6 +9,8 @@ and generated runs remain outside Git.
 | Question | File |
 |---|---|
 | Where do I start? | this file |
+| **The complete program record (what was done, the numbers, why, next steps)** | [PROGRAM_RECORD.md](PROGRAM_RECORD.md) |
+| **The portable discretionary methodology (for the NKD/HG/SI port — start here in a fresh session)** | [DISCRETIONARY_METHOD.md](DISCRETIONARY_METHOD.md) |
 | Where are we right now? | [STATE.md](STATE.md) |
 | What is done / in progress / blocked, by plan item? | [PROGRESS.md](PROGRESS.md) |
 | What is the binding plan? | [FINAL_PLAN.md](FINAL_PLAN.md) (consult §STATE.STAGE) |

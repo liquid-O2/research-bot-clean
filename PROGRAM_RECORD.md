@@ -1,0 +1,34 @@
+# PROGRAM RECORD — the complete account (2026-08-10 → 2026-08-13)
+Entry point: INDEX.md. Companion: DISCRETIONARY_METHOD.md (the portable methodology). Binding laws: DIRECTIVES.md (D-001..D-046). Living log: provenance/sessions/JOURNAL.md. Plan of record: FINAL_PLAN.md (+ amendments a/b/c).
+
+## 1. WHAT WAS BUILT (all committed, all test-proven)
+- **C++ substrate** (engine/cpp, ~30k LOC): dialect-pinned parquet readers for every stream (IWM stock quotes/trades, IWM option prints incl. FULL Greek complex through third order + iv_error (CC-013), IWM option quotes → 20-bucket dealer surface, RUTW option prints (wide profile, B5 unlocked)); typed 15-state validity; checked arithmetic; byte-proven vs the legacy Rust oracle over 7.88B rows; **856 tests, every one with a committed proof-it-can-fail (mutant + red log); proof-rot gate (fuzz=0 applicability) in CI**.
+- **DecisionTape corpus**: 793 sessions (2022-07-05..2025-08-29 = W=917), 15.4M candidate rows, 604GB, built twice byte-identically under frozen card sha 23b91510…; **SEALED EXAM: sessions ≥918 (Sep 2025+, incl. the share-era/profile-flip complexities) + all 2026 — never touched.**
+- **Feature families**: W2.1 dealer surface (6 blocks incl. Greek-residual repricing in underlying-bps), W2.2 variance-time, W2.13 context (ATR-scaled levels, gap, VWAP z), qr_ivx (traded-IV skew/curvature/term/richness/dispersion, FD-ratio + A3 physics gauges, vol-index context VIX/RVX/VXD), fvol (implied-move forecaster: beats debiased persistence+ATR every era — kept as CONTEXT; retired as model features), CC-013 Greek flows at event grain, RUTW cross-market vol spread.
+- **Decision sheets v4** (sheets_v4/): 22,282 sheets × 2 byte-identical runs, 13 sections, data-complete certificate in every header (D-042), 7 walk-forward eras + sealed blind exams per era.
+- **Models**: v2 (event-grain sniper features), v3 (panel-derived; +CC-013+ivx), the **E/T/I arm** (lean panel-evidence-only arm — best out-of-era everywhere); walk-forward + era-retest harnesses (bit-reproducible, shuffle-controlled); exit rungs 1-4 machinery; precision (threshold-entry) machinery.
+
+## 2. THE HEADLINE NUMBERS (all walk-forward, shuffle-clean, costs charged)
+- **Era offers (oracle top-3/day, $100k object)**: 2022H2 $3,817-5,165 · 2023 trough $2,257-2,666 · 2024-25 middle band $2,614-3,239. RTY-mini factor >1.0 from 2024 (one mini ≈ our dollars ×1.0-1.1).
+- **Edge does NOT decay across years**: frozen models score AUC .62-.65 in 2025, three years past training. What shifts is the OFFER. (The rot fear: disproven at model level.)
+- **Selection**: E/T/I leads all four 2024-25 eras; top-5 PICKS $2.0-2.2k/day of value everywhere; **precision mode (absolute P-bar) reaches 43-55% entered-winner share, certs $636-1,031/trade** — but at 0.2-1.2 trades/day.
+- **Exits (4 rungs)**: post-entry state intelligence FALSIFIED 3 ways at minute grain (barrier/max/attainable — the exit-oracle ceiling is mostly "sell duds at their best minute" = undecidable). **$300 wall VINDICATED (0.0% of winners draw >$300 — never amend).** Keepers: mirror-confirmation exit (modest), cont[lasso,B]@c25 as a pure DRAWDOWN overlay (worst-day −$266..−$517 everywhere; the only D-021-satisfying construct), **hold-to-close becomes the correct exit above ~37% winner share**. Rung 4 (model-mirror + class-conditional exits) in flight at handoff.
+- **Best honest deployable cell (one-position, LOEO)**: +$102/day (precision mode). The chain of binds: exits → precision (solved) → **THROUGHPUT: ~3 quality trades/day × ~$700 realized is the $2,000 arithmetic; quality currently exists 0.2-1.2×/day.**
+- **Reader panel (day-complete blind, identical terms)**: Opus **1.58×** (only positive-lift reader; 5 ultra-selective takes, top take $1,230); Grok 0.89×, DSK 0.87×, GPT 0.85× (~coin). Model v2 1.35×/55% capture. **Conclusion (proven both directions): deployable = frozen model carrying reader-grade judgment via features; live readers don't scale.**
+
+## 3. WHY WIN RATES / DOLLARS WERE LOW (the honest diagnosis, user question)
+1. **Fixed top-k entered noise on thin days** — forced counts dilute the book to 24-34% winners. FIXED by absolute-quality thresholds (43-55%).
+2. **The roster offers few decidable moments** — confirmed extremes at ATR-relative structure yield ~1-2 truly-decidable quality moments/day at current information (AUC ceiling ~.65 OOE). This is now the binding constraint (throughput).
+3. **Winners realize only ~60% of their certificates under close** ($507 of $800-1,000) — winner-capture headroom for rung-4-style exits.
+4. **Era offer variance** — the same skill pays $5k/day eras and $2.2k/day eras; certification must be era-aware (per-era panels ruled into M5).
+5. Information ceiling: everything converges to AUC ~.62-.68 OOE — richer causal info (book events on futures; more decidable rosters) is the escape, not more model.
+
+## 4. NEXT STEPS (in order, as chartered)
+- Rung-4 exits (in flight) → roster-expansion program (re-entries per winning leg; context-widened thresholds) → the $2,000 arithmetic on IWM.
+- **FUTURES PORT (the user's next session)**: NKD + HG (+SI) on Databento MBP-1 (47GB on disk at artifacts/reference/futures_mbp1/; 2026 files = sealed escrow). 2024 offers/contract: NKD RTH $1,718 / full-day $3,404 (its true session = Tokyo hours); HG RTH $1,001 / full-day $1,971; SI: see artifacts/cache/campaign/diagnostics/SILVER_CENSUS_2024.txt. Port advantages: order-EVENT book data (richer than IWM L1), 23h sessions dissolve the runway cliff, three session-opens/day. Port gaps: no options/IV layer → realized-vol constructions + book-event families + cross-asset context (FRED USDJPY/vol indices banked). **The method ports; the edge must be re-measured (census-first).**
+- Deferred: OI export (user-side), sealed-exam certification (M5) after entries+exits close.
+
+## 5. KEY FILE MAP (beyond INDEX.md's)
+- artifacts/cache/campaign/diagnostics/d020_v3/ — the research heart: sheets_v4/, rosters, FEATURES_*.tsv, model_v2/v3/walkforward/era_retest/exit_*/precision code + reports, PANEL_SYNTHESIS.md, reader ledgers (OPUS_*/grok_room/gpt_room/deepseek_room), ERA_NOTES/STUDY_NOTES, panel_score.py, futures_census.py.
+- design/: FEATURE_GENERATION_LAW.md (L·P·E·H·R·U), D020_SCALE_PROTOCOL.md (the protocol + ORCH rulings + exit ladder), FEATURE_FRONTIER.md (F1-F23), DESIGN_FEATURES.md (pins CC-001..013, W21-PIN-1/2, W2.13/W2.2 pins).
+- Sealed things that must NEVER be opened pre-certification: sessions ≥918, 2026 payload, RTY payload (walls in code, mutation-tested).

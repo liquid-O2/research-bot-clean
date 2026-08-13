@@ -234,3 +234,25 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
 4. REFUSED-FVOL CENSUS ORDERED (SI 20210701 had 391/391 refused => P001 structurally cannot fire there):
    per asset/era frequency of refused-fvol sessions, folded into the running census lane's scope.
 5. A|B|C within-TAKE calibration inversion: watch item (n=11; CC-M2-4.4 scoring accumulates).
+
+## CC-M2-9 — P001/P016 census + retrieval adjudications (orchestrator, 2026-08-14; BINDING)
+1. CENSUS VERDICT RATIFIED: P001 is a WINNER CONCENTRATOR, not an entry rule — conditional value 1.57x /
+   winner rate 1.70x (stable, 2025 echo stronger) but NO positive edge on the deployed-exit adoption metric
+   (beta -$17.50, p=.42). DISPOSITION: P001-class objects enter the FEATURE CANDIDATE SET (winner-
+   concentration features for the selection model), never the entry/veto rule set. P016's day-1 headline
+   (+$1,528/take, n=10) did NOT generalize (beta -$95, p=.07) — the day-1 excitement -> census reality
+   pipeline worked as designed; PATTERN_LEDGER statuses updated to CENSUS-GRADED: CONCENTRATOR(feature).
+   The lesson is standing: reader patterns are hypotheses; ONLY censuses grade them; nothing the reader
+   names becomes a rule without surviving the deployed-exit metric.
+2. T4 FIELD AMBIGUITY: post-mortem-literal (causal ZigZag pivot age) is the canonical reading (3/3 support
+   cases); ledger text corrected.
+3. TRIAGE-INDEX DEFECT: `slope5m` was actually the 1-MINUTE slope — day-1's T6 finding was measured on the
+   wrong field and is DOWNGRADED to unresolved (re-test with correct fields); extractor fix ordered; the
+   running day-2 reader notified.
+4. RETRIEVAL LAWFULNESS: the tool may only be consulted for cases from PRIOR unblinded rounds; within-round
+   retrieval is barred (the ledger cannot express mid-round state — sequencing duty documented; round briefs
+   carry it verbatim henceforth).
+5. LANE COMMIT HYGIENE (recurring provenance races): lanes commit with EXPLICIT PATHSPECS only, never
+   add -A; standing brief line henceforth.
+6. REFUSED-FVOL hole accepted: 3.01% of FIT (early-2021 forecaster warm-up), 0.00% GATE — documented,
+   no action; fallback != refusal noted.

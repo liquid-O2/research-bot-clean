@@ -32,3 +32,9 @@
 | P-M0c | DONE | 2026-08-13 | m0/census_c_rollup.tsv | M0_REPORT §5 | walled phase-close DP medians: SI $3,341 PASS / NKD $2,672 PASS / HG $2,385 FAIL; $1k-class 38-81/day; wall binds at $900 cap |
 | P-M0d | DONE | 2026-08-13 | m0/census_d_recall.tsv | M0_REPORT §7 | ANCHORED recall @$1k: SI .996 / HG .994 / NKD .986 — ALL PASS; misses tagged for G2/G3 |
 | P-M0e | DONE | 2026-08-13 | PORT_M0_VERDICT.md | committed this session | SI+NKD CONFIRMED, HG deferred; §14 ruling evidence-backed |
+| P-M1.spec | DONE | 2026-08-13 | — | design/PORT_M1_SPEC.md | M1.A frozen: C++ substrate + decay/fvol/levels/profile/G2-G3 prototype censuses; M1.B sketched §9 |
+| P-M1a | TODO | — | — | — | C++ DBN substrate, field-exact differential vs 3,942 m0 receipts (spec §1) |
+| P-M1b | TODO | — | — | — | confirmation-decay study, pin τ* per asset (spec §2) |
+| P-M1c | TODO | — | — | — | vol layer V1 + fvol HAR vs benchmarks (spec §3) |
+| P-M1d | TODO | — | — | — | level ledger (D-050) + volume-profile objects (spec §4-5) |
+| P-M1e | TODO | — | — | — | G2/G3 prototype union census: recall ≥99%, family retirements (spec §6) |

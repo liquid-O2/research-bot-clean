@@ -145,3 +145,29 @@ and `qr_ivx` is untouched by this lane. Returned, not improvised.
 | candidate receipts (QRCAND1) | `artifacts/cache/port/m1/skel/candidates/{ASSET}.{bin,json}` |
 | skeleton shards (QRSKEL1) | `artifacts/cache/port/m1/skel/shards/{ASSET}_{YYYYMM}.{bin,json}` |
 | run + parity + sweep receipts | `artifacts/cache/port/m1/skel/shards/{ASSET}_run.receipt.json`, `skel/parity/` |
+
+## 7. S2 STATUS — NOT STARTED, and what the follow-up lane inherits
+
+The brief made S2 conditional on the S1 prototype v2 existing when S3 completed. It landed at the
+very end of this lane (`31426a4`, then `d761a30` closing P-M1f), so S2 is handed on rather than
+rushed. `qr_gen` is a second engine of comparable size to this one — a C++ port of
+`b8_generation_v2.py` (712 lines) plus the level ledger it stands on (`b3_levels.py` 770 +
+`b7_levels_v2.py` 166), the frozen fvol coefficients and calibration tables, the four-rung G1 ZigZag
+with floors, the additive FAST-OPEN family (CC-M1-5 D13/D14), G2-REJECT/RECLAIM with the 30-minute
+bound, dedup and union tags — and its acceptance is a candidate-EXACT differential over all sessions
+plus its own red-first suite. Building it properly is a lane, not a coda.
+
+What it inherits, already built, tested and mutant-proofed here:
+
+| piece | where | why S2 wants it |
+|---|---|---|
+| CC-M1-4 mid-sanity mask | `qr_skel/{include,src}/…/session.cpp` | S2 generation consumes SANE seconds; the mask, the anchor rule, the boundary and the cap are done and covered by `MS24`–`MS27` |
+| QRSANE1 threshold receipt + exporter | `engine/port_m1b/export_sanity.py` | the one definition of the ceilings, already handed over from `b7_sane.py` |
+| `BinPack` / `BinPackWriter` | `qr_skel/src/binpack.cpp` | the receipt-pair reader/writer with bound checks (`MS21`) — S2's roster output can use it unchanged |
+| `SessionView` | `qr_skel/src/session.cpp` | the DST clip, the valid grid, `next_phase_boundary` |
+| `params_hash` canonical JSON | `qr_skel/src/engine.cpp` | the CC-M1-2 addendum convention, implemented and tested (`MS22`) |
+| bounded-chunk shard driver + run.sh job shape | `qr_skel/tools/qr_skel_build.cpp` | the worker/sharding/receipt pattern |
+| the differential PATTERN | `engine/port_m1b/compare_skel.py` | byte-exact comparison with a stratified session picker, ready to retarget at candidate rows |
+
+S3 is roster-agnostic by construction (CONV C2), so when S2 produces its own roster the skeleton is
+re-derived by pointing `export_candidates.py` at it — no engine change.

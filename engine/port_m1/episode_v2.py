@@ -830,8 +830,15 @@ def pair_counts(a, b):
         return 0, 0, 0
     _ua, ia = np.unique(a, return_inverse=True)
     _ub, ib = np.unique(b, return_inverse=True)
-    key = ia.astype(np.int64) * (_ub.size) + ib
-    cij = np.bincount(key).astype(np.float64)
+    # The contingency table must be built SPARSELY: a dense bincount over
+    # ia*|B| + ib is |A| x |B| cells, which at ~1.5e5 x ~5.5e4 episodes is a
+    # 66 GB allocation (measured: it OOM-killed the pool).  Sorting the joint
+    # key and counting runs is O(n log n) and allocates O(n).
+    key = np.sort(ia.astype(np.int64) * int(_ub.size) + ib)
+    brk = np.flatnonzero(key[1:] != key[:-1]) + 1
+    starts = np.concatenate(([0], brk))
+    stops = np.concatenate((brk, [key.size]))
+    cij = (stops - starts).astype(np.float64)
     ci = np.bincount(ia).astype(np.float64)
     cj = np.bincount(ib).astype(np.float64)
 
@@ -1072,15 +1079,25 @@ def gate_pair_distances(c, blocks, tick_usd):
     grid = gp_grid()
     counts = np.zeros(grid.size, dtype=np.float64)
     total = 0.0
+    chunk = 800
     for (_d, _s, idx) in blocks:
-        if idx.size < 2:
+        n = idx.size
+        if n < 2:
             continue
         p = c["entry_usd"][idx]
-        dr = np.abs(p[:, None] - p[None, :])
-        iu = np.triu_indices(idx.size, k=1)
-        d = np.maximum(dr[iu], tick_usd)
-        counts += np.searchsorted(np.sort(d), grid, side="left")
-        total += d.size
+        # row-chunked lower triangle: searchsorted counts are additive over
+        # disjoint pair sets, so no full n x n matrix is ever materialised
+        for lo in range(0, n, chunk):
+            hi = min(lo + chunk, n)
+            dr = np.abs(p[lo:hi, None] - p[None, :lo + (hi - lo)])
+            rows = np.arange(lo, hi)[:, None]
+            cols = np.arange(hi)[None, :]
+            keep = cols < rows
+            if not keep.any():
+                continue
+            d = np.maximum(dr[keep], tick_usd)
+            counts += np.searchsorted(np.sort(d), grid, side="left")
+            total += d.size
     return counts, total
 
 
@@ -1378,7 +1395,8 @@ def kstar_by_leg_decile(asset, c, side, blocks):
         out.append([asset, side, dcl + 1, float(lo), float(hi), len(Ts), ne,
                     best["K"], best["theta"],
                     (1.0 / best["theta"]) if best["theta"] > 0 else np.nan,
-                    best["imt_p"], int(adeq)])
+                    best["imt_p"], int(adeq),
+                    int(best["K"] >= max(K_GRID))])
     return out
 
 
@@ -2149,8 +2167,14 @@ def main():
     wtsv("p1_leg_decile.tsv",
          ["asset", "side", "decile", "travel_lo_usd", "travel_hi_usd",
           "n_legs", "n_candidates", "K_star_sec", "theta",
-          "candidates_per_episode", "imt_p", "imt_adequate"],
-         cat("p1_decile"), phash, [PARAMS["p1_magnitude_test"]])
+          "candidates_per_episode", "imt_p", "imt_adequate", "at_grid_edge"],
+         cat("p1_decile"), phash,
+         [PARAMS["p1_magnitude_test"],
+          "at_grid_edge=1 means the decile's IMT curve had no interior local "
+          "minimum above the N1 power floor, so K* pinned to the largest K in "
+          "the grid — an UNSTABLE fit on a small within-leg sample, NOT a "
+          "measurement of a large gap. Edge rows are excluded from the trend "
+          "statistic."])
     wtsv("anti_chaining_guard.tsv",
          ["asset", "side", "K_star_sec", "theta", "n_within_gaps",
           "span_max_sec", "mass_beyond_cap", "span_cap_sec", "at_cap"],
@@ -2219,8 +2243,8 @@ def main():
           "the correct within-episode target is the ListNet SOFT top-one "
           "distribution (E5), not a hard argmax (E4)"])
     wtsv("retest_family_level.tsv",
-         ["asset", "decision_class", "decision", "recorded_verdict",
-          "bar_usd", "n", "n_family", "value_minus_g1_usd", "margin_vs_bar",
+         ["asset", "decision_class", "decision",
+          "recomputed_decision_at_bar", "bar_usd", "n", "n_family", "value_minus_g1_usd", "margin_vs_bar",
           "se_naive", "z_naive", "p_naive", "se_cluster_episode",
           "z_cluster_episode", "p_cluster_episode", "vif_episode",
           "n_clusters_episode", "se_cluster_session", "z_cluster_session",
@@ -2232,7 +2256,18 @@ def main():
           "the family/level rules are THRESHOLDS ON A POINT ESTIMATE and "
           "therefore cannot flip on a variance change alone; what is tested "
           "here is whether the decision MARGIN survives the cluster-robust "
-          "variance"])
+          "variance",
+          "recomputed_decision_at_bar is THIS run's threshold outcome on the "
+          "FROZEN v3 roster (FIT, phase-close), NOT the recorded CC-M1-7 / "
+          "CC-M1-3.3 verdict: the recorded verdicts were taken on the S1-v2 "
+          "discovery roster and, for levels, on LIFT rather than conditional "
+          "value, so they are different statistics and a difference is not a "
+          "flip",
+          "LIMITATION: the RETIRED objects (F-D1 FAST-CLOSE; level families "
+          "FVOL_LADDER_RS / PRIOR_WEEK / PROFILE / ROUND / DEV_POC) carry no "
+          "bit in the frozen v3 roster because generation already dropped "
+          "them, so no RETIREMENT is re-testable on v3 — only the keeps and "
+          "adoptions are"])
     wtsv("retest_slice_promotions.tsv",
          ["asset", "n_cells", "holm_family_size", "DEFF_episode",
           "DEFF_session", "n_holm_reject_naive", "n_holm_reject_episode",
@@ -2387,21 +2422,35 @@ def write_report(res, freeze, phash):
     dc = _pick(res, "p1_decile")
     if dc:
         A(md_table(["asset", "side", "decile", "travel lo $", "travel hi $",
-                    "n legs", "n cand", "K* (s)", "theta", "cand/ep"],
+                    "n legs", "n cand", "K* (s)", "theta", "cand/ep",
+                    "grid edge?"],
                    [[r[0], r[1], r[2], "%.0f" % r[3], "%.0f" % r[4], r[5],
-                     r[6], r[7], "%.4f" % r[8], "%.2f" % r[9]] for r in dc]))
+                     r[6], r[7], "%.4f" % r[8], "%.2f" % r[9],
+                     "**UNSTABLE**" if r[12] else ""] for r in dc]))
+        A("")
+        nedge = sum(1 for r in dc if r[12])
+        if nedge:
+            A("%d of %d decile fits pinned to the K-grid edge (no interior "
+              "IMT local minimum above the N1 power floor on the small "
+              "within-leg samples). Those rows are UNSTABLE fits, not "
+              "measurements of a large gap, and are excluded from the trend "
+              "statistic below." % (nedge, len(dc)))
         A("")
         trend = []
         for a in sorted(set(r[0] for r in dc)):
             for s in sorted(set(r[1] for r in dc if r[0] == a)):
-                sub = [r for r in dc if r[0] == a and r[1] == s]
+                sub = [r for r in dc if r[0] == a and r[1] == s
+                       and not r[12]]
                 if len(sub) >= 4:
-                    trend.append((a, s, X.spearman(
-                        [float(r[2]) for r in sub],
-                        [float(r[7]) for r in sub])))
+                    rho = X.spearman([float(r[2]) for r in sub],
+                                     [float(r[7]) for r in sub])
+                    trend.append((a, s, float(rho[0]), int(rho[1])))
         if trend:
             A("Spearman(decile, K*) per asset x side: "
-              + ", ".join("%s/%+d %.3f" % t for t in trend) + ".")
+              + ", ".join("%s/%+d rho=%.3f (n=%d)" % t for t in trend)
+              + ". A gap that must SCALE with move size would show a strong "
+                "monotone trend here; the Gardner-Knopoff window is adopted "
+                "only if it does.")
     else:
         A("Not computed: too few legs per decile.")
     A("")
@@ -2518,7 +2567,16 @@ def write_report(res, freeze, phash):
       "against its bar survives the cluster-robust variance.")
     A("")
     rf = _pick(res, "retest_fam")
-    A(md_table(["asset", "class", "decision", "verdict", "value-G1 $",
+    A("`decision (recomputed)` is THIS run's threshold outcome on the frozen "
+      "v3 roster, NOT the recorded verdict: the recorded CC-M1-7 / CC-M1-3.3 "
+      "verdicts were taken on the S1-v2 discovery roster and, for levels, on "
+      "LIFT rather than conditional value, so they are different statistics "
+      "and a difference between them is not a flip. The RETIRED objects carry "
+      "no bit in the frozen v3 roster and are therefore not re-testable here "
+      "(recorded limitation).")
+    A("")
+    A(md_table(["asset", "class", "decision", "decision (recomputed)",
+                "value-G1 $",
                 "margin vs bar $", "naive z", "naive p", "cluster z (episode)",
                 "cluster p", "VIF", "boot z", "CHANGED"],
                [[r[0], r[1], r[2], r[3], "%.1f" % r[7], "%.1f" % r[8],

@@ -51,3 +51,35 @@ EVENT-GENERATION LAWS for the port (the ceiling is set here, before any model):
 4. LABELS: exit-free value/MAE certificate verbatim; horizon menu redesigned for 23h markets — label to PHASE BOUNDARIES (Tokyo close / London-NY handoff / NY close) plus fixed horizons; $-wall scaled per asset from its measured winner-MAE distribution (the $300 analog, derived not copied).
 5. PRESERVE EVENT GRAIN: 1s mid grid = ZigZag spine only; the MBP-1 order-event stream (adds/cancels/fills at touch) is never aggregated away — it is the port's information edge.
 EXIT POSTURE (proven on IWM, carried): above ~37% winner share hold-to-(phase-)close is the correct exit; the wall cuts duds; post-entry exit intelligence was falsified 4 rungs deep. Exits are entry quality wearing a disguise — solve generation/labels/features and the exit program is wall + hold + phase boundary.
+
+## 8. PORT BLUEPRINT — event generation / labels / features, designed (orchestrator, 2026-08-13)
+
+### 8.1 EVENT GENERATION — three generator families, one union roster
+G1 EXTREME-CONFIRMED (the proven core): causal ZigZag on 1s mids, 2-3 ATR-relative threshold rungs simultaneously (multi-scale), dedup by decision-second. Confirmation stage per asset re-measured (the <1%/min decay study, redone on SI/NKD/HG).
+G2 LEVEL-INTERACTION (new; the discretion bridge): events fire at TESTS of named structural levels — the 3 phase opens, prior-phase H/L, prior-day H/L/settle, overnight range edges, VWAP +/- sigma bands (from 8.4's vol layer), round numbers. Event = k-th touch within tolerance; the LEVEL LEDGER (level id, provenance, touch count, last-test outcome) is emitted with the event. Why: discretionary entries/exits live at levels; generating AT level interactions makes the sheets speak trader language natively and name->count censuses trivial.
+G3 BURST/ORIGIN (from the PDF patterns + panel evidence): flow/intensity burst events — trade-rate or book-churn z-spike vs clock-norm, signed-flow surge, through-book prints. Catches origin-of-move moments extremes miss.
+LAWS: one cheap total pass over MBP-1 emits ALL events with family tags (tags are features); same-second multi-family collapse to one candidate with union tags; day-complete forever; per-family offer census FIRST (a family that carries no $-class certs is retired before features exist); occupancy-feasibility gate (§7) on the union roster.
+
+### 8.2 LABELS — endpoints, ladders, and (new) path shape
+L1 Exit-free certificate per candidate: (best value before wall, MAE) — verbatim port. WALL DERIVED, not copied: per asset = round(p99 of winner MAE) from the census, the way $300 was IWM-native.
+L2 Horizon menu: {2,5,15,30,60,120min} + PHASE BOUNDARIES (Tokyo close / London-NY handoff / NY close) as first-class horizons — "hold-to-close" pluralizes in a 23h market.
+L3 MAE-BUDGET LADDER (new): cert value at wall ∈ {0.5,1,1.5,2,3}× the derived wall — risk-conditional entry quality; encodes cut-losses knowledge as data; lets the wall be chosen honestly later.
+L4 PATH-SHAPE LABELS (new; the winners-build/duds-bleed law made data): time-to-peak, drawdown-before-peak, monotonicity (fraction of favorable 1-min steps), build-vs-spike-fade class, time-underwater. Purpose: (a) entry model predicts SHAPE, which is what makes hold-to-phase-close work; (b) the future discretionary-exit study gets its objects prebuilt.
+L5 Mirror co-label: both sides labeled at every candidate (asymmetry is signal).
+L6 Regime keys stored WITH labels (phase, vol regime, day-type) — per-regime aggregation native (D-031).
+INTEGRITY: entry = first eligible quote strictly after decision-second, adverse side, measured cost charged; two-run byte identity; red-first fixtures; certificate = selection target + diagnostic ONLY, money claims via replay only.
+
+### 8.3 FEATURES — L·P·E·H·R·U at event grain, futures modalities
+Modalities for the concept×modality matrix here: (1) trade tape, (2) BOOK EVENTS at touch (MBP-1 = top-level: adds/pulls/fills, queue churn, refill cycles, quote flicker/lifetime, cancel-to-fill ratio — the refill-effect PDF family, now with true event data), (3) book STATE (depth, imbalance, spread), (4) CROSS-ASSET (the three assets are each other's context streams at event grain: SI<->HG metal pair, NKD<->USDJPY-daily, lead-lag/divergence z), (5) SESSION STRUCTURE (phase clock-norms, level ledger distances, unspent range, runway to phase boundary).
+Carried IWM keepers: capacity/runway arithmetic, unspent range, early-in-sequence confirmation, refail clustering, two-stream agreement at magnitude, side-resolved book erosion, clock-norms ("loud for this minute"), regime tags raw. Banned: single-stream textbook aggregates as features; minute-grain construction of event phenomena.
+POSITIONING NARRATIVE (new, buildable from tape): cumulative signed flow BY PHASE and by price band relative to current price = trapped-inventory map ("who is underwater from where") — the discretionary "who's wrong" read, computable and falsifiable.
+
+### 8.4 VOL LAYER WITHOUT OPTIONS (the "rich IV" answer)
+V1 Realized-vol done properly (upgrade over IWM's): pre-averaged/bipower RV (microstructure-noise-robust) + JUMP SEPARATION (RV - bipower = jump component as its own channel) + range estimators (Parkinson/GK/RS) per phase bar + vol-of-vol. Multi-window, clock-normed.
+V2 fvol machinery ported: the HAR-family walk-forward forecaster (beat persistence+ATR on IWM) retrained per asset = the IMPLIED-MOVE substitute; its sigma bands feed G2 levels and later exit structure.
+V3 EVENT-INTENSITY vol (new, native to MBP-1): quote/trade arrival-intensity as an activity clock; FD-ratio + A3 irreversibility (qr_ivx physics gauges) recomputed on book events — these need only an event stream, port directly.
+V4 True-IV context at daily grain, free: Nikkei VI (IS implied vol for NKD), GVZ (gold vol = silver-adjacent), VIX; joined strictly-prior as regime context. Copper: none free — V1-V3 carry it.
+HONESTY LAW: none of these are options-grade forward vol; label them REALIZED/FORECAST/CONTEXT, never "IV"; the fvol-vs-realized gap is itself a feature (surprise).
+
+### 8.5 EXIT-STUDY SEEDS (parked for the exit phase, per user direction)
+The discretionary exit repertoire, restated as measurable objects the labels above prebuild: exit-at-level = peak proximity to next G2 level (distance-to-level at MFE); exit-off-feel = flow/intensity deceleration events preceding peaks (V3 + flow-flip at event grain); cut-losses = the MAE ladder + time-underwater labels; structure exits = phase-boundary holds. The SAME study->blind->census protocol (§3) runs on exits AFTER entries are certified — reading sheets at the position's live moments, calling HOLD/EXIT, post-morteming vs the path labels.

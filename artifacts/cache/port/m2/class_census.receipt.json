@@ -1,0 +1,34 @@
+{
+ "classes": [
+  "SHOCK-RESOLUTION",
+  "LEVEL-FIRST-TEST",
+  "NEWS-WINDOW",
+  "OPEN-DYNAMICS",
+  "REVERSAL-CONFIRMATION",
+  "RECLAIM"
+ ],
+ "env": {
+  "databento_dbn": "0.66.0",
+  "git_sha": "0a9a2e831daee1f5d12370fd4607da112cd00cf4",
+  "input_sha256": {},
+  "m0_spec_sha16": "4bdf772927b5f316",
+  "m1_spec_sha16": "12f0a849107b2d3f",
+  "m1b_spec_sha16": "d31f48b59877e44d",
+  "m2_spec_sha16": "c45371dbd6ad2995",
+  "numpy_version": "2.1.2",
+  "params": {
+   "class_rule": "m2_common.class_of \u2014 the CC-M1-11.4 family priority order; the classes PARTITION the roster",
+   "conditional_value_usd": "mean over POSITIVE candidates (CC-M1-7.3)",
+   "eras": "E1..E8 + HOLDOUT_2025H2 + FIT/GATE/ALL + calendar years",
+   "spec_section": "D-071 candidate-class census (P-M2b)",
+   "value": "c_c_roster.certificates(wall_usd, cost_rt) \u2014 walled phase-close (adoption) + walled peak-exit (CC-M1-8 companion)",
+   "winner": "cert_close >= $1000 and mae_before_argmax <= $300 and not walled (D-021)"
+  },
+  "params_hash": "b3094d024004746057b3e69d77f31df634354ef4aef06545baf6e87bc36181d4",
+  "sheets_version": "PORT-SHEETS-V1",
+  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
+  "token_proxy": "M2-PROXY-2"
+ },
+ "n_rows": 342,
+ "out": "/workspace/artifacts/cache/port/m2/class_census.tsv"
+}

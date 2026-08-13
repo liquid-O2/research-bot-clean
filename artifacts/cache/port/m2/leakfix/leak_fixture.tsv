@@ -1,4 +1,4 @@
-# PORT_M2_SHEETS_SPEC.md §2 leak fixture (D-057) (spec_sha16=c45371dbd6ad2995)
+# PORT_M2_SHEETS_SPEC.md §2 leak fixture (D-057) (spec_sha16=44c223198086ac6b)
 # params_hash=b570190719db61784ad604972cdab7e031071384cf5a374d55addd3f5d8fbbb5
 # RED-FIRST: armed_accepted MUST be 0 and mutant_accepted MUST be 1 on every row
 # decision moment = 2022-06-15T02:00:00Z (Tokyo phase, so the same calendar day's US close is genuinely future)

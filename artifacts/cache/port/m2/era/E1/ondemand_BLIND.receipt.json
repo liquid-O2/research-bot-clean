@@ -1,0 +1,68 @@
+{
+ "block": "BLIND",
+ "block_eligible_candidates": 55574,
+ "block_eligible_sessions": 156,
+ "coverage_candidates": 0.0,
+ "env": {
+  "databento_dbn": "0.66.0",
+  "git_sha": "db7a83a77fefae44cebbf4507d9d589995e6c4c2",
+  "input_sha256": {},
+  "m0_spec_sha16": "4bdf772927b5f316",
+  "m1_spec_sha16": "12f0a849107b2d3f",
+  "m1b_spec_sha16": "d31f48b59877e44d",
+  "m2_spec_sha16": "44c223198086ac6b",
+  "numpy_version": "2.1.2",
+  "params": {
+   "assets": [
+    "SI",
+    "HG",
+    "NKD"
+   ],
+   "block": "BLIND",
+   "eras": [
+    "E1",
+    "E2"
+   ],
+   "section_budget": {
+    "S1": 720,
+    "S10": 340,
+    "S11": 180,
+    "S12": 720,
+    "S13": 560,
+    "S14": 760,
+    "S2": 260,
+    "S3": 780,
+    "S4": 1100,
+    "S5": 340,
+    "S6": 3000,
+    "S7": 240,
+    "S8": 600,
+    "S9": 300
+   },
+   "selection": "every ELIGIBLE index row of the requested (era, block, asset, session) set \u2014 day-complete, no sampling",
+   "sheet_budget": 8500,
+   "sheet_mode": "BLIND sheet (S1..S13) + SEPARATE S14 appendix file",
+   "sheets_version": "PORT-SHEETS-V1",
+   "sidecars": "none",
+   "spec_section": "\u00a74 [P-M2b] era E1/E2 sheet sets",
+   "workers": 6
+  },
+  "params_hash": "971c6ff823249b3df2aeefec6fa4832cadc46c9958034d81c6fb19574c4d2fd7",
+  "sheets_version": "PORT-SHEETS-V1",
+  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
+  "token_proxy": "M2-PROXY-2"
+ },
+ "era": "E1",
+ "index": [
+  "/workspace/artifacts/cache/port/m2/era/E1/INDEX_SI.tsv",
+  "/workspace/artifacts/cache/port/m2/era/E1/INDEX_HG.tsv",
+  "/workspace/artifacts/cache/port/m2/era/E1/INDEX_NKD.tsv"
+ ],
+ "measured_bytes_per_sheet": 24600,
+ "measured_cost_per_sheet_sec": 0.33,
+ "n_sheets_rendered": 0,
+ "note": "no subsampling: any render names its subset and its receipt records coverage against this population",
+ "reader_order_index": "/workspace/artifacts/cache/port/m2/era/E1/INDEX_BLIND_CHRONO.tsv",
+ "render_command": "lab/run.sh port-m2b -- /usr/bin/python3 engine/port_m2/era_build.py --era E1 --block BLIND --workers 6 [--sessions d8,d8 | --max-sessions N | --cids FILE]",
+ "status": "INDEX+RENDERER (not eagerly rendered)"
+}

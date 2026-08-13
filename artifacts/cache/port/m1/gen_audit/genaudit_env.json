@@ -1,0 +1,58 @@
+{
+ "assets": [
+  "SI",
+  "HG",
+  "NKD"
+ ],
+ "env": {
+  "databento_dbn": "0.66.0",
+  "git_sha": "eef3bc90f438903510a2428d806a0e54011c5636",
+  "input_sha256": {},
+  "m1_spec_sha": "12f0a849107b2d3f00b90c8c0a708709afff758c911faf4606955bf7cb7bd459",
+  "m1_spec_sha16": "12f0a849107b2d3f",
+  "numpy_version": "2.1.2",
+  "params": {
+   "cc_m1_8": "peak-exit certificate reported beside every phase-close certificate (CC-M1-8.1), on the SEATED entries of both DPs",
+   "ceil": "one-position phase-close DP over entries at ANY SANE second; entry superset = 1-tick ZigZag spine UNION per-phase-block extremum landmarks (argmin/argmax of the block, and of the block minus its first SANE second); proven complete, brute-forced",
+   "ceil_prune": "items grouped by exit second; per group keep the best item for each distinct predecessor-exit constraint (lossless)",
+   "certificate": "m0 \u00a78 phase-close walled certificate; wall from m0 walls.json ($900 cap), session-scoped cost_rt from census_a_cost.tsv phase=ALL",
+   "exit_forfeit": "the best candidate's phase close lands before the leg end; $ = its leg-end-exit value minus its phase-close value",
+   "forfeit": "FORFEIT = max(0, CEIL - ROSTER); greedy attribution order MISSED -> LATE -> EXIT_FORFEIT -> OCCUPANCY(remainder)",
+   "late": "every same-side candidate at leg progress > 0.25; $ = phase-close value entering at the leg start minus the value of the FIRST candidate",
+   "leg_min_usd": 500.0,
+   "leg_top_k": "NONE \u2014 every leg >= $500 (\u00a711.A), not the m0 top-2",
+   "missed": "leg with zero same-side candidate in [leg_start, leg_end]; $ = the leg's CEIL-realisable phase-close value",
+   "oracle": "ZigZag 0.25 x ATR14_{d-1}($) ANCHORED (c_d_recall.oracle_legs) on SANE mids (D-054 b7_sane mask)",
+   "progress": "(dec_sec - leg_start_sec) / (leg_end_sec - leg_start_sec); decile = min(9, floor(10 x progress))",
+   "roster": "m1/generation_v3 union_roster_{ASSET}.npz, sha-pinned to ORACLE_FREEZE.tsv",
+   "seal": "m0 substrate is 2021-2025; 2026 never decoded (\u00a70 seal)",
+   "spec_section": "\u00a711 generation truth audit (D-069)",
+   "strata": "(calendar year x offer quartile) per asset; offer = SANE mid range ($); the cell's MEDIAN-offer session is picked \u2014 deterministic by construction (seed 20260814 declared, unused)",
+   "wall_arithmetic": "float32, matching the m0 path-skeleton records the roster certificates are answered from (defect GA-1)"
+  },
+  "params_hash": "0c87f9b2ed7fd81e9552b75d62fdae069364b96ff083afce46b8e8bfbba46778",
+  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d"
+ },
+ "freeze": {
+  "HG": {
+   "n_candidates": 529492,
+   "path": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_HG.npz",
+   "sha256": "5fb1448cb897c575aaba4f86e724d511feb7582da2c3816c5f25f893bc4d0833"
+  },
+  "NKD": {
+   "n_candidates": 511694,
+   "path": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_NKD.npz",
+   "sha256": "55c8570d8bf446a2fcab8c8b0aebe42c32d2d47bdf31fa4987eb6f5245bb35ab"
+  },
+  "SI": {
+   "n_candidates": 539174,
+   "path": "/workspace/artifacts/cache/port/m1/generation_v3/union_roster_SI.npz",
+   "sha256": "6b0fe94ee59a4f109eee8de7d90d1d8548b141cc90b4f90b14d82461321b5eae"
+  }
+ },
+ "n_legs": 33012,
+ "n_plots": 60,
+ "n_sessions": 3734,
+ "plot_backend": "matplotlib-Agg-150dpi",
+ "spec_section": "\u00a711 generation truth audit (D-069)"
+}

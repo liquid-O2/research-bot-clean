@@ -1,0 +1,13 @@
+# PORT_M1_SPEC.md §11 generation truth audit (D-069) (spec_sha16=12f0a849107b2d3f)
+# params_hash=0c87f9b2ed7fd81e9552b75d62fdae069364b96ff083afce46b8e8bfbba46778
+# run A = lab/run.sh port-m1-genaudit, run B = port-m1-genaudit2 (both rc=0, same HEAD, 4 workers); byte-compared with cmp(1): 8/8 identical
+# PNG plots are excluded (matplotlib stamps its own producer metadata); the audit's NUMBERS are these files
+file	sha256	bytes	verdict
+forfeit_rollup.tsv	a1d96b4af6cc6e9ed15001497d23017e84d1ab84ad8f1c65e5e4ca8aaee37935	5367	IDENTICAL
+forfeit_sessions.tsv	1da683dab30b419a94190047462515bb5218949e85fdec2663d49eafe11f5ba9	1369982	IDENTICAL
+leg_capture_profile.tsv	8f212fed7066bc0ee073ed1b8f50f6c93775d2254ec67bfecb78045ecf3f2b65	13149516	IDENTICAL
+leg_progress_deciles.tsv	2875ae3eff4f703eb0ea32901f5c4bd657bb82bcda8295b41b127117333d2d17	17656	IDENTICAL
+redfirst.tsv	df21c24d6c811dd193b5985c2be759b448a2d7b4462cc1d9aeb2ad87321e83e9	791	IDENTICAL
+strata.tsv	ff3346086922adb21b9745ffe119496168145fa1ebb0340353f85b08c984ce89	4964	IDENTICAL
+timing_loss.tsv	c240927e4287b0a3bc0cf6652f4354ba5971b1a075949f488cc81d45c6b8c9eb	3418	IDENTICAL
+plots/INDEX.md	8f4643d78852ce02405d946d257b7965b86ef593da047e5bba30b19bc9067685	14934	IDENTICAL

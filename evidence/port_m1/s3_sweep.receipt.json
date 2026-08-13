@@ -1,9 +1,9 @@
 {
- "anchors": 4965042,
- "candidates": 2482521,
+ "anchors": 2981036,
+ "candidates": 1490518,
  "examples": [],
  "shards": 175,
- "tensor_cells": 1986016800,
+ "tensor_cells": 1192414400,
  "verdict": "PASS",
  "violations": 0
 }

@@ -30,6 +30,39 @@ HORIZON_SECS = (1800, 3600, 7200)
 ANCHOR_DELAYS = (0, 60)
 ST_TWO_SIDED = 0
 M0_SESSIONS = "/workspace/artifacts/cache/port/m0/sessions"
+SANE_TSV = "/workspace/artifacts/cache/port/m1/sane/sane_thresholds.tsv"
+PHASES = ("TOKYO", "LONDON", "NY")
+
+_SANE = {}
+
+
+def sane_thresholds(asset):
+    """{date8: [thr_TOKYO, thr_LONDON, thr_NY]} (CC-M1-4 / D-054, CC-M1-5 D15).
+
+    Read from b7_sane.py's own TSV, which is the single definition of the mask;
+    the oracle does not recompute the trailing median any more than the engine
+    does. Absent => the mask is off for that run."""
+    if asset in _SANE:
+        return _SANE[asset]
+    out = {}
+    if os.path.exists(SANE_TSV):
+        cols = None
+        with open(SANE_TSV) as fh:
+            for line in fh:
+                if line.startswith("#"):
+                    continue
+                f = line.rstrip("\n").split("\t")
+                if cols is None:
+                    cols = f
+                    continue
+                r = dict(zip(cols, f))
+                if r["asset"] != asset:
+                    continue
+                d8 = int(r["trade_date"].replace("-", ""))
+                out.setdefault(d8, [float("nan")] * 3)[PHASES.index(r["phase"])] = \
+                    float(r["threshold_usd"])
+    _SANE[asset] = out
+    return out
 
 FLOAT_FIELDS = ("entry_mid", "f_h30", "f_h60", "f_h120", "f_phase_close",
                 "f_sess_close", "mfe_usd", "mae_before_argmax_usd",
@@ -56,17 +89,27 @@ def ladder(asset, atr14_usd):
     return out
 
 
-def load_session(asset, date8):
-    """CONV C1, from the m0 Python receipt."""
+def load_session(asset, date8, masked=True):
+    """CONV C1 (+ CC-M1-4 when `masked`), from the m0 Python receipt."""
     p = os.path.join(M0_SESSIONS, asset, "%08d.npz" % date8)
     z = np.load(p, allow_pickle=False)
     mid = z["g0_mid"]
     ph = z["phase_tag"]
     n = int(min(len(mid), len(ph)))
     s = {"n": n, "mid": mid[:n], "state": z["g0_state"][:n], "phase": ph[:n],
+         "spread": z["g0_spread_usd"][:n],
          "meta": json.loads(str(z["meta_json"]))}
     z.close()
-    vsec = np.nonzero(s["state"] == ST_TWO_SIDED)[0].astype(np.int64)
+    sane = s["state"] == ST_TWO_SIDED
+    if masked:
+        thr = sane_thresholds(asset).get(int(date8))
+        if thr is None:
+            raise ValueError("no mid-sanity thresholds for %s %d" % (asset, date8))
+        lim = np.asarray(thr, dtype=np.float64)[s["phase"]]
+        sp = s["spread"]
+        sane = sane & np.isfinite(sp) & (sp <= lim)
+    s["sane"] = sane
+    vsec = np.nonzero(sane)[0].astype(np.int64)
     s["vt"] = vsec
     s["vm"] = s["mid"][vsec]
     return s
@@ -96,7 +139,7 @@ def _empty_anchor(anchor_sec):
 
 def anchor_skeleton(s, asset, side, anchor_sec, rungs):
     n = s["n"]
-    if not (0 <= anchor_sec < n) or s["state"][anchor_sec] != ST_TWO_SIDED:
+    if not (0 <= anchor_sec < n) or not s["sane"][anchor_sec]:
         return _empty_anchor(anchor_sec)
     mult = float(GEOM[asset]["mult"])
     entry = float(s["mid"][anchor_sec])
@@ -185,9 +228,9 @@ def anchor_skeleton(s, asset, side, anchor_sec, rungs):
     return a
 
 
-def oracle_session(asset, date8, dec_sec, side, atr14_usd):
+def oracle_session(asset, date8, dec_sec, side, atr14_usd, masked=True):
     """Per-candidate list of ANCHOR_DELAYS-long anchor dicts; None = refused."""
-    s = load_session(asset, date8)
+    s = load_session(asset, date8, masked=masked)
     out = []
     for i in range(len(dec_sec)):
         rungs = ladder(asset, float(atr14_usd[i]))

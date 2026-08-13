@@ -24,6 +24,9 @@ import oracle_skel as O  # noqa: E402
 
 M0_ROOT = "/workspace/artifacts/cache/port/m0"
 SKEL = "/workspace/artifacts/cache/port/m1/skel"
+# The production arm applies the CC-M1-4 mask; QR_SKEL_MASKED=0 checks the
+# pre-D-054 control arm instead.
+MASKED = os.environ.get("QR_SKEL_MASKED", "1") != "0"
 ASSETS = ("SI", "HG", "NKD")
 
 SCALARS = [("anchor_sec", np.int32), ("observed_secs", np.int32),
@@ -127,7 +130,7 @@ def compare_session(job):
             return asset, d8, tag, int(cid.size), bad
         cid, dec, side, atr = cid[keep], dec[keep], side[keep], atr[keep]
 
-    ora = O.oracle_session(asset, int(d8), dec, side, atr)
+    ora = O.oracle_session(asset, int(d8), dec, side, atr, masked=MASKED)
     ora = [o for o in ora if o is not None]
     n = len(ora)
     if n != rows.size:
@@ -217,6 +220,7 @@ def main():
                "anchors": total_cands * len(O.ANCHOR_DELAYS),
                "fields_per_anchor": len(SCALARS) + 2 * O.RUNG_COUNT,
                "mismatched_sessions": fails,
+               "mid_sanity_masked": MASKED,
                "verdict": "PASS" if fails == 0 else "FAIL",
                "generated_utc": dt.datetime.now(dt.timezone.utc).replace(
                    microsecond=0, tzinfo=None).isoformat() + "Z"}

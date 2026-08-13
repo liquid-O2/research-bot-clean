@@ -1,7 +1,9 @@
 # PORT M1.B S3 — LABEL TENSOR ENGINE (`qr_skel`) — lane report
 
-SPEC: design/PORT_M1B_SPEC.md §1 S3, sha16 `2b83f9e70340a413` (S3 text byte-identical to the
-`a3852e13b75464bd` freeze; D-053 moved only the S2/VWAP line — verified by `git diff 57feac3 c27d3e8`).
+SPEC: design/PORT_M1B_SPEC.md §1 S3, sha16 `d31f48b59877e44d`. The S3 paragraph is byte-identical to
+the `a3852e13b75464bd` freeze — the later amendments D-053 (VWAP bands) and CC-M1-5 D13/D14 (the
+additive FAST-OPEN family) moved only the S2 line (`git diff 57feac3 HEAD -- design/PORT_M1B_SPEC.md`).
+The pin is CHECKED against the file by the test suite, not merely declared.
 CONVENTIONS: design/PORT_M1B_S3_CONV.md (the parity contract; the engine and the oracle are each
 written from it and share no code).
 CODE: `engine/cpp/qr_skel` (C++, D-004/D-051), `engine/port_m1b/` (exporter, oracle, comparator,
@@ -13,13 +15,13 @@ The engine is built, run over the whole corpus, and green on every gate the spec
 
 | gate | result |
 |---|---|
-| **[P-M1h] parity** — independent Python brute-force oracle, byte-exact | **PASS**: 24 stratified sessions, 13,680 candidates, **27,360 anchors**, 421 fields per anchor, **0 mismatches** |
-| **structural: fixed tensor shape** | PASS (unit + corpus sweep: 1,986,016,800 tensor cells all at the fixed 200-per-side shape) |
+| **[P-M1h] parity** — independent Python brute-force oracle, byte-exact | **PASS**: 24 stratified sessions, 11,857 candidates, **23,714 anchors**, 421 fields per anchor, **0 mismatches** |
+| **structural: fixed tensor shape** | PASS (unit + corpus sweep: 1,192,414,400 tensor cells all at the fixed 200-per-side shape) |
 | **structural: more queried cells must not increase stored rows** | PASS (1 cell vs 100 vs 40,000 cells decoded → identical row count and identical `.bin` byte size) |
 | **structural: prefix-max + binary-search kernel** | PASS (kernel agrees with a direct scan on every rung; a mutant that searches the float32 copy goes red) |
 | **structural: bounded chunking** | PASS (`max_live_anchor_rows` = 1,024 = chunk 512 × 2 anchors, corpus-wide; chunk > 1,024 is refused) |
-| **structural: two-run byte identity** | PASS at corpus scale: **350 shard files re-run, 0 differing** |
-| **red-first** | 25 tests, 25 committed mutants (`MS01`–`MS27`), every test proven able to fail |
+| **structural: two-run byte identity** | PASS at corpus scale: **350 shard files re-run, 0 differing** (re-verified on the masked production arm) |
+| **red-first** | 25 tests, 25 committed mutants (`MS01`–`MS27`), every test proven able to fail; `check_red_ledger.sh` clean for `qr_skel` |
 | banned-construct gate | OK over 296 source files |
 
 ## 2. WHAT THE ENGINE EMITS
@@ -37,18 +39,25 @@ One forward pass per (candidate, anchor) → one fixed-shape row. Two anchors: `
   `float64` in every comparison — the m0 quantization;
 * `observed_secs == 0` types an anchor as UNAVAILABLE, which a null `tau` never means.
 
-## 3. CORPUS RUN
+## 3. CORPUS RUN — the masked production arm
 
-| asset | candidates | sessions | shards | d1 unavailable | bytes | wall |
-|---|---|---|---|---|---|---|
-| SI | 749,118 | 1,174 | 55 | 500 | 4.09 GB | 32 s |
-| HG | 784,869 | 1,279 | 60 | 460 | 4.38 GB | 34 s |
-| NKD | 948,534 | 1,281 | 60 | 843 | 5.00 GB | 38 s |
-| **total** | **2,482,521** | 3,734 | 175 | 1,803 | **13.5 GB** | **1 m 44 s** |
+Candidates are the **S1 v2 roster** (`m1/generation_v2/`, commit 31426a4), the CC-M1-4 mid-sanity
+mask is **ON**, and the ceilings come from `b7_sane.py`'s own threshold table (§5.4).
 
-6 workers, release build. 4,965,042 anchors and 1.99 G tensor cells. `n_refused_atr` and
-`n_refused_ladder` are **0** everywhere — the degenerate-ladder guard of CONV C5 never fires on this
-corpus, as predicted, and it is a refusal rather than a substitution when it does.
+| asset | candidates | sessions | shards | d1 unavailable | insane secs / two-sided | bytes | wall |
+|---|---|---|---|---|---|---|---|
+| SI | 492,203 | 1,174 | 55 | 136 | 54,463 / 97,087,952 = 0.056% | 2.67 GB | 22 s |
+| HG | 507,224 | 1,279 | 60 | 188 | 119,791 / 105,657,756 = 0.113% | 2.85 GB | 24 s |
+| NKD | 491,091 | 1,281 | 60 | 225 | 397,477 / 105,899,334 = **0.375%** | 2.66 GB | 24 s |
+| **total** | **1,490,518** | 3,734 | 175 | 549 | — | **8.2 GB** | **1 m 10 s** |
+
+6 workers, release build. 2,981,036 anchors and 1.19 G tensor cells. NKD carries by far the most
+wide-book seconds, which is the asset D-054 was found on. `n_refused_atr` and `n_refused_ladder` are
+**0** everywhere — the degenerate-ladder guard of CONV C5 never fires on this corpus, as predicted,
+and it is a refusal rather than a substitution when it does.
+
+An unmasked arm over the M1.A roster (2,482,521 candidates, 13.5 GB, 1 m 44 s) was built and passed
+the identical gates before the mask landed; it is superseded and was not kept.
 
 ## 4. EVIDENCE THE PARITY IS REAL
 
@@ -64,11 +73,14 @@ Independence is structural, not asserted:
   `mfe_unwalled`, `mae_before_argmax`, `mfe_argmax_sec`, `entry_mid`, `phase_close_sec`,
   `sess_close_sec`, the `f_len`/`a_len` vectors and the sampled record blocks are **byte-identical**.
   The one and only divergence is the documented negative-zero normalization (§5.1).
+* **the mask has one definition** — the oracle reads the SAME `sane_thresholds.tsv` the engine is
+  handed, so a disagreement about which seconds exist would surface as a parity failure rather than
+  as two plausible answers;
 * **stratification** — 24 sessions covering the shortest sessions, roll days, the largest gap opens
   and a plain day per era-year, per asset (`artifacts/cache/port/m1/skel/parity/parity_sessions.tsv`).
 
 Beyond parity, a corpus-wide sweep (`engine/port_m1b/sweep_invariants.py`) checks seven structural
-laws on **all** 2.48 M candidates: **0 violations** over 1.99 G tensor cells.
+laws on **all** 1.49 M candidates: **0 violations** over 1.19 G tensor cells.
 
 ## 5. DEFECTS AND FINDINGS
 
@@ -95,19 +107,25 @@ The union roster carries `atr14_usd` at the 4-decimal precision printed into `ba
 the oracle, so parity is unaffected — but the ladder is a function of the rounded number. Flagged for
 the orchestrator in case the S1 v2 roster should carry full precision.
 
-### 5.4 CC-M1-4 / D-054 mid-sanity — implemented, NOT YET RUN
-D-054 landed after this lane launched and binds every mid consumer, this engine included. The mask is
-implemented (`SanityPolicy`, `SanityTable`, `qr_skel/src/session.cpp`): a second is MID-SANE iff
-TWO_SIDED **and** `spread_$ <= min(10 × phase-median spread_$, $500)`; insane seconds are
-typed-excluded from `vt`/`vm` and from anchor availability — never interpolated — and
-`n_seconds_insane` / `n_seconds_two_sided` are reported per shard. Three tests and four mutants
-(`MS24`–`MS27`) cover it, including the inclusive boundary and the $500 cap.
-It is **OFF by default**, and the delivered shards were verified byte-identical after the change
-(SI 202106 / 202203 / 202411 rebuilt and `cmp`-clean), so the receipts above remain reproducible.
-**The corpus has NOT been re-run under the mask**: the mask needs (a) the pinned trailing window —
-now given as pooled same-phase trailing 60 sessions (CC-M1-5 D15, `engine/port_m1/b7_sane.py`) and
-(b) the S1 v2 masked roster. S3 must be re-run against both; it is one flag (`--sanity <stem>`) and
-~2 minutes of wall clock.
+### 5.4 CC-M1-4 / D-054 mid-sanity — implemented and RUN
+D-054 landed after this lane launched and binds every mid consumer, this engine included. A second is
+MID-SANE iff TWO_SIDED **and** `spread_$ <= min(10 × trailing-phase-median spread_$, $500)`; insane
+seconds are typed-excluded from `vt`/`vm` **and from anchor availability** (an anchor on a wide-book
+second is UNAVAILABLE, not merely two-sided) — never interpolated — and `n_seconds_insane` /
+`n_seconds_two_sided` are reported per shard.
+
+The engine does NOT recompute the trailing window. CC-M1-5 D15 pins it to the pooled same-phase
+trailing 60 sessions and `engine/port_m1/b7_sane.py` already computed the resulting per-(asset, date,
+phase) ceilings; `engine/port_m1b/export_sanity.py` hands them over as a QRSANE1 receipt. There is
+therefore exactly ONE definition of the mask in the program, and the oracle reads the same table.
+A date missing from a non-empty table is a refusal, and a warm-up phase's documented fall back to the
+$500 cap arrives as a number rather than as a second opinion.
+
+Three tests and four mutants (`MS24`–`MS27`) cover it: the wide-book exclusion, the anchor rule, the
+inclusive boundary, the $500 cap, and a mutant that counts insane seconds but still feeds them to the
+mid consumers. The mask is off when no table is supplied, and the pre-mask shards were verified
+byte-identical across that code change (SI 202106 / 202203 / 202411 rebuilt and `cmp`-clean), so the
+control arm stays reproducible.
 
 ### 5.5 Pre-existing red-ledger gaps in `qr_ivx` (NOT this lane)
 `scripts/check_red_ledger.sh` reports three tests with no ledger row:

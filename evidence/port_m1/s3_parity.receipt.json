@@ -1,8 +1,9 @@
 {
- "anchors": 27360,
- "candidates": 13680,
+ "anchors": 23714,
+ "candidates": 11857,
  "fields_per_anchor": 421,
- "generated_utc": "2026-08-13T10:03:48Z",
+ "generated_utc": "2026-08-13T10:27:24Z",
+ "mid_sanity_masked": true,
  "mismatched_sessions": 0,
  "sessions": 24,
  "verdict": "PASS"

@@ -16,8 +16,14 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import binpack  # noqa: E402
 
-ROSTER_DIR = "/workspace/artifacts/cache/port/m1/generation"
-OUT_DIR = "/workspace/artifacts/cache/port/m1/skel/candidates"
+# The S1 v2 (CC-M1-3 + CC-M1-4) roster is the production candidate set; the
+# M1.A roster stays selectable so the pre-mask arm can be rebuilt.
+ROSTER_DIR = os.environ.get(
+    "QR_SKEL_ROSTER_DIR",
+    "/workspace/artifacts/cache/port/m1/generation_v2")
+OUT_DIR = os.environ.get(
+    "QR_SKEL_CANDIDATE_DIR",
+    "/workspace/artifacts/cache/port/m1/skel/candidates")
 ASSETS = ("SI", "HG", "NKD")
 
 

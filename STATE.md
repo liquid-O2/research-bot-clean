@@ -1,6 +1,6 @@
 # STATE — fast cursor (rewritten at every boundary; see PROGRESS.md for per-item status)
 
-LAST_UPDATED: 2026-08-13T08:20Z by orchestrator
+LAST_UPDATED: 2026-08-13T14:20Z by Lane D (S3)
 STAGE: PORT M1.A RUNNING — Track A (C++ substrate, differential vs m0 receipts) + Track B (decay study, fvol, level ledger, volume profile, G2/G3 prototype censuses). M0 verdict: SI+NKD confirmed, HG deferred (lockstep build continues, D-051).
 BINDING_PLAN: DISCRETIONARY_METHOD.md §7-14 + PORT_M0_VERDICT.md + D-048..D-051; M1 spec to be frozen by orchestrator before lanes (D-002).
 NEXT_ACTION: adjudicate Lane A (C++ differential) + Lane B (§2-§6 measurement) reports; then freeze M1.B (C++ generation + label tensor engine + atlas grid) from their censuses. Spec: design/PORT_M1_SPEC.md (sha in journal).

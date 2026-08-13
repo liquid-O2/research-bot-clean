@@ -1,0 +1,27 @@
+{
+ "env": {
+  "databento_dbn": "0.66.0",
+  "git_sha": "e3dd6008b075063c55482afc3776807df8f5652e",
+  "input_sha256": {},
+  "m0_spec_sha16": "4bdf772927b5f316",
+  "m1_spec_sha16": "97bd95a917f7fb67",
+  "m1b_spec_sha16": "d31f48b59877e44d",
+  "m2_spec_sha16": "f14b5c773ccec5ba",
+  "numpy_version": "2.1.2",
+  "params": {
+   "lag_table": "artifacts/reference/port_context/AVAILABILITY_LAGS.tsv",
+   "law": "D-057 availability-time join; strict availability_ts < decision_ts",
+   "mode": "red-first: every case runs ARMED (must refuse) and MUTANT (must accept); a mutant that still refuses is a dead test and fails",
+   "spec_section": "\u00a72 leak fixture (D-057)"
+  },
+  "params_hash": "b570190719db61784ad604972cdab7e031071384cf5a374d55addd3f5d8fbbb5",
+  "sheets_version": "PORT-SHEETS-V1",
+  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
+  "token_proxy": "M2-PROXY-2"
+ },
+ "n_cases": 6,
+ "n_failed": 0,
+ "n_lag_defects": 0,
+ "n_lag_rows": 21,
+ "verdict": "PASS"
+}

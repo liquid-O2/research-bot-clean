@@ -222,3 +222,33 @@
 2026-08-13 22:25Z D-067 (user): discretion-transfer research sweep mandated (bootstrapping/lens models/CTA/NDM/imitation-vs-IRL/preference learning; the Goldberg-Dawes models-of-judges-beat-judges result = independent support for D-040) + discretion-target label families (pairwise preference, IRL reward under scheduler, judge-model auxiliary) to be atlas-screened when panel data exists. Research lane launching.
 2026-08-13 22:50Z D-068 (user): reader enablement — graded briefing w/ duty-to-contradict, mandatory interaction-naming in the ledger schema, calibration warm-up adjudicated by orchestrator, framing-diverse 2-3-lane Opus panel (capacity/flow/level-first) in clean rooms, surprise routing. Folds into the M2 briefing/protocol build (P-M2b/c).
 2026-08-13 23:00Z D-068-CORRECTION (user): mandatory interaction-naming struck — optional field only, single-signal theses valid; reader decisions unconstrained; D-026 stays a feature-construction law. Remaining D-068 clauses stand.
+
+## 2026-08-13 — P-M2a: the sheet builder (implementation lane, D-002/D-005)
+Built `engine/port_m2/` — the M2 sheet builder that turns any candidate id into the 14-section compact-text
+decision view of PORT_M2_SHEETS_SPEC.md §1 (spec sha16 f14b5c773ccec5ba verified at every build).
+
+What is new that did not exist before: the port never persisted a PER-EVENT MBP-1 stream (M0/M1 stop at
+1-second grids plus a per-trade list), and S6 needs one, so `tape.py` extracts it from the raw payload files
+with the m0 seal guard, decode loop and dominance convention reused verbatim, caching under
+artifacts/cache/port/m2/events/. Measured 3.25M records/s on the Python decoder and an early-stop on the
+time-ordered stream, so a session slice costs ~10s even on the 2.4GB yearly files.
+
+Causality is a call, not a convention: every session-clock read goes through `CausalGuard.sec` /
+`.at_decision` and every wall-clock read through `AvailSeries.latest(guard)`, so the leak fixture has exactly
+one thing to attack. That design found a real leak vector in a COMMITTED receipt: `levels_v4`'s
+`last_test_outcome` is resolved inside a FORWARD 15-minute window, so it is not knowable at the touch second
+— the sheet shows PENDING until the resolution second passes, and the mutant that reads the stored column is
+caught by 219 causal touches vs 1,202 end-of-session (test t09).
+
+The honest tension: the spec asks for EVERY event of the final 90 seconds AND ~3-5k tokens per sheet. Measured
+density is 91-4,421 events per 90s window, i.e. ~6x the whole token budget on a median candidate and ~25x on
+the worst. The spec names its own reconciliation (episode-digest compression), so the raw window is
+BUDGET-FILLED: digests always cover [T-690s, T-90s), the newest events stay raw until the S6 budget is spent,
+and the older remainder of the 90s folds into the same gap-clustered digests — nothing dropped, no
+minimum-size filter, `raw_cover_sec` reported per sheet (median 9.3s). The S6 budget is a policy knob and the
+number is now measured, so the orchestrator can price it: ~25 tokens per extra second.
+
+Results: 30/30 pilot sheets certified, 0 leak refusals, two-run byte identity 30/30 sheets + 30/30 appendices
++ 30/30 on-disk files with 0 diffs; leak fixture 6/6 red-first (both spec-named poisons plus four more);
+15/15 tests with 15 mutants killed; new D-057 lag table with 21 series and business-day calendars read from
+the data rather than a hand-maintained holiday list. Ten defects returned in evidence/port_m2/P_M2A_REPORT.md.

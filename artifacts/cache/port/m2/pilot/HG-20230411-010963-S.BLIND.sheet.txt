@@ -1,0 +1,223 @@
+S1 HEADER
+  cid HG-20230411-010963-S        sheets_version=PORT-SHEETS-V1  mode=BLIND
+  asset/session HG   2023-04-11  era=E4  phase_dec=TOKYO   phase_conf=TOKYO   iid=9141
+  decision sec=03:02:43  (10963)  utc=2023-04-11T01:02:43Z  conf_sec=03:00:43  lag=120s
+  side SHORT   families=G2_REJECT  rungs=xATR  level_families=PHASE_HL  flags=none
+  anchor 3.9910  tick_px=0.000500  tick_$=12.50  mult=25000  ATR14_prev=$1791.90
+  spec_shas m2=f14b5c773ccec5ba  m1b=d31f48b59877e44d  m1=97bd95a917f7fb67  m0=4bdf772927b5f316
+  params_hash 31b8fe3997d8325bc07a55b3d7afb86ae308476803086a4eb50fe9d96795bc60
+  D-042 COMPLETENESS CERTIFICATE (owned sections; rows = rendered lines)
+    section  title                              status  rows
+    S2       ERA PRIMER REF + REGIME TAGS       OK          6
+    S3       SESSION PATH + SWING CHAIN         OK         17
+    S4       LEVEL LEDGER VIEW                  OK         19
+    S5       T-MINUS TRAJECTORY                 OK         10
+    S6       RAW EVENT RIBBON                   OK         65
+    S7       BOOK/QUEUE STATE                   OK          6
+    S8       FLOW STATE                         OK         20
+    S9       VOL STATE                          OK          9
+    S10      VOLUME PROFILE                     OK          6
+    S11      CROSS-ASSET                        OK          5
+    S12      CONTEXT (availability-lagged)      OK         16
+    S13      CANDIDATE MECHANICS                OK          8
+    S1       HEADER + COMPLETENESS CERTIFICATE  OK      self
+  certified 1  n_sections=13  n_failed=0  n_leak_refusals=0  guard_checks=445
+
+S2 ERA PRIMER REF + REGIME TAGS
+  era E4               primer=ERA_PRIMER_E4.md (spec S3, auto-generated per era from committed censuses)
+  vol_regime MID        rv5/rv66=0.771  segment=TOKYO  sigma_hat=$618.6  range_hat=$976.4
+  day_type_so_far INSIDE    range_so_far=$262.5  = 26.9% of range_hat
+  dominance dom_share=1.0000  roll_window=0  dying_book_week=0  instrument_change=0  iid=9141
+  insane_book episodes_so_far=0  insane_sec_so_far=0  two_sided_sec_so_far=10963  session_insane_frac=0.000000
+
+S3 SESSION PATH + SWING CHAIN
+  session_open  00:00:00  first_sane_mid=3.9873  now=03:02:43  mid=3.9910  sess_ret=$93.7
+  gap_vs_settle prior_C=3.9880  gap=$-18.7  = -0.010xATR  prior_session=20230410
+  phase TOKYO   open=00:00:00  H=3.9978@02:18:41  L=3.9873@00:00:00  range=$262.5
+  runway to_phase_close=25037s  (10:00:00)  to_sess_close=71836s  (22:59:59)
+  COVERAGE SESSION  range_so_far=$262.5  exp_move_q50=$2056.8  COVERAGE=12.8%  unspent=$1794.3
+  COVERAGE TOKYO    range_so_far=$262.5  exp_move_q50=$953.4  COVERAGE=27.5%  unspent=$690.9
+  fvol_source FVOL             (ATR14_RAW_FILL = forecaster fell back to raw ATR14)
+  ZIGZAG PIVOTS (causal, SANE, rungs 0.05,0.075,0.11,0.15 xATR=$1791.90)
+     #  type  pivot_sec       price   d$_prev   leg_s  conf_sec  rungs
+       1 LOW   00:00:00      3.9873         .       . 00:18:49 0.05,0.075,0.11
+       2 HIGH  01:56:14      3.9933     150.0    6974 02:03:00 0.05,0.075
+       3 LOW   02:07:32      3.9873    -150.0     678 02:10:19 0.05,0.075
+       4 HIGH  02:18:41      3.9978     262.5     669 02:23:12 0.05,0.075,0.11
+       5 LOW   02:50:56      3.9913    -162.5    1935 03:00:08 0.05,0.075
+       6 HIGH  03:00:14      3.9978     162.5     558 03:00:40 0.05,0.075
+    n_pivots_total     6  shown_last   6
+
+S4 LEVEL LEDGER VIEW
+  mid=3.9910  ATR=$1791.90  band=+/-1.5xATR=$2687.86  n_in_band=200  n_levels=213  n_touches=17  n_pending=5  K=kept/r=retired family
+    K family         level_id                        price      d$  V  tc  test_m outcome
+    K FVOL_LADDER    OPEN_LONDON|q25|-1            3.9906    -11.0  1   0      . NONE
+    r PROFILE        SESSION|LVN0                  3.9915     12.5  1   0      . NONE
+    r FVOL_LADDER_RS OPEN_LONDON|q25|-1            3.9900    -24.8  1   0      . NONE
+    K FVOL_BAND      OPEN_LONDON|k1.0|-1           3.9922     30.8  1   0      . NONE
+    r DEV_POC        SESSION                       3.9895    -37.5  1   0      . NONE
+    r FVOL_LADDER_RS OPEN_LONDON|q10|-1            3.9928     45.3  1   0      . NONE
+    r PROFILE        SESSION|HVN6                  3.9890    -50.0  0   0      . NONE
+    K FVOL_LADDER    OPEN_LONDON|q10|-1            3.9934     61.0  1   0      . NONE
+    K VWAP           SESSION|+2.5                  3.9882    -69.5  0   0      . NONE
+    K VWAP           TOKYO|+2.5                    3.9882    -69.5  0   0      . NONE
+    K VWAP           SESSION|+2                    3.9881    -73.1  0   0      . NONE
+    K VWAP           TOKYO|+2                      3.9881    -73.1  0   0      . NONE
+    REMAINDER rolled up by family, n/nearest_d$/n_virgin (counted, never dropped):
+     FVOL_BAND=29/-176/28 FVOL_LADDER=34/-161/34 FVOL_LADDER_RS=34/-202/34 NDAY=7/-700/6 PHASE_HL=32/-213/22 PRIOR_DAY=3/-75/1 PRIOR_WEEK=2/-1600/2 PROFILE=25/-100/22 ROUND=6/225/0 VWAP=16/-87/10
+  OR STATE         none built for this asset/session (CC-M1-6.1 adopted cells: SI 5, NKD 1, HG 0)
+  or_ext_flags none
+
+S5 T-MINUS TRAJECTORY (z = vs trailing-60-session same half-hour)
+  quantity       T-30m      T-15m      T-5m       T-1m       NOW        z        n_re
+  mid                3.9938     3.9918     3.9933     3.9925     3.9910        .    .
+  spread_$            12.50      12.50      12.50      25.00      25.00        .   50
+  bid_sz                  3          2          4          5          7     1.35   50
+  ask_sz                  3          5          2          8          7     1.35   50
+  trades/min           3.00      12.00       6.00     118.00      68.00     2.24   50
+  sflow/min            -3.0      -10.0       -1.0       65.0       17.0        .    .
+  rv300_$              53.0       52.7       41.9      122.0      132.7        .    .
+  mid_slope_$/min       -1.3      -11.3      -37.5  accel(1m-5m)=      -26.3
+
+S6 RAW EVENT RIBBON (MBP-1, dominant iid=9141, clock=ts_event)
+  window pre=[T-690s,T-90s)  raw_window=[T-90s,T]  n_ev_pre=5744  n_ev_90s=1626  n_raw=45  raw_cover=2.52s  n_digested_in_90s=1581
+  EPISODE DIGESTS (gap>=1.0s clusters; every event belongs to exactly one episode; NO minimum-size filter)
+    t0     t1     n  nQ  nT  vol szmd szmx sflow  pxH  pxL trav$ thru
+     -685.2  -656.7    52   47    5     8    1    4      4     2     1     19    0
+     -642.0  -631.0    35   34    1     1    1    1     -1     3     2     13    0
+     -621.3  -516.8   260  255    5     5    1    1      3     3     2     13    0
+     -507.0  -383.0   310  301    9    17    1    6      8     5     1     50    0
+     -374.9  -357.9    73   70    3     8    1    6     -4     5     4     12    0
+     -342.6  -342.6     1    1    0     0    .    .      0     4     4      0    0
+     -332.1  -259.1   184  176    8    12    1    5      2     5     3     25    0
+     -246.5  -232.2    54   50    4     5    1    2      1     4     2     31    0
+     -221.9  -197.6    83   76    7    14    2    4     -6     4     2     25    0
+     -182.4   -90.5  4692 4154  538   988    1   19    183    14     1    169   21
+      -89.8   -60.7   680  620   60    96    1    5     33     7     3     56    0
+      -59.1   -12.3   861  797   64    92    1    5     18     4    -4    100    1
+      -10.7    -7.0    24   22    2     3    1    2     -1     0    -2     13    0
+       -4.5    -1.5    16   15    1     1    1    1     -1     0    -1      6    0
+  RAW EVENTS (EVERY event in [T-2.52s, T]; newest last; prices as signed integer ticks vs anchor 3.9910; ms = milliseconds before decision_ts, negative = inside the decision second itself, which IS the entry book)
+        ms a s   pxT    sz  bidT  bsz  askT  asz    dsz st fl tag
+         1519 C B      .     1    -2    7     0    6 .      TS L  -
+         1519 A A      .     1    -2    7     0    7 A+1    TS L  -
+          326 C A      .     1    -2    7     0    6 A-1    TS L  -
+          326 C A      .     1    -2    7     0    5 A-1    TS L  -
+          323 A A      .     1    -2    7     0    6 A+1    TS L  -
+          323 M B      .     2    -1    2     0    6 B-5    TS L  -
+          321 C A      .     1    -1    2     0    5 A-1    TS L  -
+          321 A B      .     1    -1    3     0    5 B+1    TS L  -
+          321 A B      .     1    -1    4     0    5 B+1    TS L  -
+          321 A B      .     1    -1    5     0    5 B+1    TS L  -
+          321 C A      .     1    -1    5     0    4 A-1    TS L  -
+          321 C A      .     1    -1    5     0    3 A-1    TS L  -
+          321 A B      .     1    -1    6     0    3 B+1    TS L  -
+          321 C A      .     1    -1    6     0    2 A-1    TS L  -
+          321 C A      .     1    -1    6     0    1 A-1    TS L  -
+          320 M B      .     2    -1    4     0    1 B-2    TS L  -
+          320 A A      .     1    -1    4     0    2 A+1    TS L  -
+          320 A A      .     1    -1    4     0    3 A+1    TS L  -
+          319 M B      .     2    -1    6     0    3 B+2    TS L  -
+          319 C A      .     1    -1    6     0    2 A-1    TS L  -
+          319 C A      .     1    -1    6     0    1 A-1    TS L  -
+          318 T B      0     1    -1    6     0    1 0      TS -  @A
+          318 C A      .     1    -1    6     1    8 A+7    TS L  -
+          318 A B      .     1    -1    7     1    8 B+1    TS L  -
+          318 A B      .     1    -1    8     1    8 B+1    TS L  -
+          318 A B      .     1    -1    9     1    8 B+1    TS L  -
+          318 C A      .     1    -1    9     1    7 A-1    TS L  -
+          316 M B      .     2    -1    7     1    7 B-2    TS L  -
+          126 C B      .     1    -1    6     1    7 B-1    TS L  -
+         -407 T A     -1     1    -1    6     1    7 0      TS -  @B
+         -407 C B      .     1    -1    5     1    7 B-1    TS L  -
+         -408 A A      .     1    -1    5     0    1 A-6    TS L  -
+         -408 A A      .     1    -1    5     0    2 A+1    TS L  -
+         -408 A B      .     1    -1    6     0    2 B+1    TS L  -
+         -408 A A      .     1    -1    6     0    3 A+1    TS L  -
+         -408 C B      .     1    -1    5     0    3 B-1    TS L  -
+         -408 A A      .     1    -1    5     0    4 A+1    TS L  -
+         -408 T B      0     2    -1    5     0    4 0      TS -  @A
+         -408 C A      .     1    -1    5     0    2 A-2    TS L  -
+         -408 A B      .     1    -1    6     0    2 B+1    TS L  -
+         -408 C A      .     1    -1    6     0    1 A-1    TS L  -
+         -408 A B      .     1    -1    7     0    1 B+1    TS L  -
+         -408 T B      0     1    -1    7     0    1 0      TS -  @A
+         -408 C A      .     1    -1    7     1    8 A+7    TS L  -
+         -409 C A      .     1    -1    7     1    7 A-1    TS L  -
+
+S7 BOOK/QUEUE STATE
+  L1_now bid=3.9905 x7  ask=3.9915 x7  spread=$25.00  (2.0 ticks)  state=TS  SANE=1
+    window   n_ev   A    C    M    T   rev/s  L1life_ms  c2f   dBsz/min  dAsz/min
+        60    946  410  390   75   71   15.77       68.1   3.86     -3.00      0.00
+       300   6549 2910 2583  373  683   21.83       51.1   2.14      1.20      0.20
+  refill_after_trade n_trades_300s=683  n_refilled_5s=0  frac=0.000  median_restore_ms=.
+
+S8 FLOW STATE
+    window      n     vol   sflow    buy   sell  buy/sell_vol
+    60s          68      97      17     37     23 53/36
+    5m          680    1203     225    386    256 667/442
+    30m         848    1507     282    465    344 847/565
+    phase      1671    3028     445    905    710 1676/1231
+    session    1671    3028     445    905    710 1676/1231
+  FUEL MAP (phase volume by band vs current mid; ATR fractions)
+    band            px_lo     px_hi      vol   share
+    -0.25..-0.05 AT    3.9731    3.9874       11     0.4
+    -0.05..+0.05 AT    3.9874    3.9946     2455    81.1
+    +0.05..+0.25 AT    3.9946    4.0089      562    18.6
+    trapped above_mid=2140  below_mid=722  at_mid=166  phase_total=3028
+  through_book_600s n=22  thru_bid=9  thru_ask=13
+      -146606ms pxT=14  sz=1  >A
+      -135669ms pxT=12  sz=1  >A
+      -131535ms pxT=12  sz=1  >A
+      -100575ms pxT=6  sz=1  >A
+       -93386ms pxT=4  sz=1  >A
+       -28255ms pxT=-1  sz=1  >A
+
+S9 VOL STATE
+  rv_nowcast_$  w60        w300       w900       w1800
+                      56.6      132.7      145.1      174.4
+  bipower_1800s      129.4  jump_frac=  0.450
+  vol_of_vol    0.517  (cv of six 300s rv nowcasts over the last 30m, n=6)
+  fvol segment=TOKYO  sigma_hat=$618.6  range_hat=$976.4  realized_range_so_far=$262.5  surprise=0.269
+  move_ladder_$ q10=611      q25=772      q50=953      q75=1168     q90=1520
+  ladder_position below_q10           (realized segment range vs the calibrated move ladder)
+  event_intensity ev/s_60s=15.77  ev/s_300s=21.83  ratio=0.72
+
+S10 VOLUME PROFILE
+  developing as_of=03:00:00  POC=7.9690  VAH=7.9705  VAL=7.9660  d_POC=$-99450.0  in_VA=0
+  prior_session 20230410  POC=7.9330  VAH=7.9665  VAL=7.9250  d_POC=$-98550.0  poor_H=0  poor_L=0
+    HVN_d$    -98463    -98550    -98688    -98788    -99000    -99575
+    LVN_d$    -98500    -98638    -98738    -98950    -99063    -99675
+    single_prints n=0  nearest_d$=.
+
+S11 CROSS-ASSET (concurrent, same UTC second, each asset's own SANE mid)
+    asset  own_sec       mid   ret_sess%  ret_phase%   range$  coverage%  first_move_sec
+    SI       10963    25.0225      0.030       0.030      400       41.3 03:00:53
+    NKD      10963 27922.5000      0.018       0.018      488       45.6 03:01:06
+    HG       10963     3.9910 (self)                                     03:00:14
+
+S12 CONTEXT (D-057 availability-lagged; strict availability_ts < decision_ts)
+  decision_ts = 2023-04-11T01:02:43Z (1681174963); avail = availability_ts as YYYYMMDDTHHMM UTC; rules in AVAILABILITY_LAGS.tsv
+    series                stamp        avail          age_d  value
+    GVZ                  2023-04-06   20230407T0400     3.9 18.4400
+    VIX                  2023-04-06   20230407T0400     3.9 18.4000
+    RVX                  2023-04-06   20230407T0400     3.9 24.6000
+    COT_DISAGG_COPPER    2023-04-04   20230407T1930     3.2 net=3536 long=45053 short=41517 OI=218687 d_net_wk=-1748
+    SHFE_INV_COPPER      2023-04-07   20230409T1600     1.4 155761.0000
+    FRED_DGS10           2023-04-07   20230410T0400     0.9 3.3900
+    FRED_DTWEXBGS        2023-04-07   20230410T2015     0.2 119.3547
+    FRED_DEXCHUS         2023-04-07   20230410T2015     0.2 6.8750
+    FRED_DEXJPUS         2023-04-07   20230410T2015     0.2 132.1100
+    JGB_10Y              2023-04-07   20230410T0600     0.8 0.4620
+    GOLD_SILVER_RATIO    2023-04-06   20230407T0400     3.9 ratio=80.396 gc=2011.90 si=25.025
+  next_scheduled CPI                    2023-04-12T12:30:00Z  in 1d 11:27:17  status=actual  (SCHEDULE_EXEMPT)
+  availability_summary n_joined=11  n_refused=0  lag_table=artifacts/reference/port_context/AVAILABILITY_LAGS.tsv
+
+S13 CANDIDATE MECHANICS
+  entry mid=3.9910  side=SHORT  spread_at_decision=$25.00  cost_rt=$17.50  tick=$12.50  mult=25000
+  exit_default phase_close@10:00:00  (25037s)  session_close@22:59:59  wall=$900.00  (min(round25(p99 winner MAE), $900))
+  generation families=G2_REJECT  rungs= xATR  level_families=PHASE_HL  conf_sec=03:00:43  lag=120s
+  CENSUS CARD (committed censuses, generation_v3)
+    family        era              n_cand  n_pos  cond_value$  mean_cert$  pos_frac  cond_peak$
+    G2_REJECT     2023               17758   8417       429.63      -20.54    0.4740      604.43
+    G2_REJECT     FIT_2021_2024      67853  31328       523.28      -31.54    0.4617      733.76

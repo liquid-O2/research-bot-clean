@@ -1,0 +1,12 @@
+S14 OUTCOMES (STUDY MODE — released only after the call is committed)
+  certificates peak_exit=$895.00  exit@16:38:41  seated=1  | phase_close=$-455.00  exit@22:59:59
+  wall t_wall=.  mfe_before_wall=$950.00  walled=0
+  unwalled mfe=$950.00  argmax@16:38:41  mae_before_peak=$600.00
+  horizons_$ h30=-375.00  h60=25.00  h120=750.00  phase_close=-400.00  sess_close=-400.00
+  PATH LANDMARKS (prefix-maxima skeleton; f = favourable, a = adverse)
+    f: 16:36:53=788 16:38:02=813 16:38:08=825 16:38:10=838 16:38:20=863 16:38:21=875 16:38:22=913 16:38:30=925 16:38:39=938 16:38:41=950
+    a: 15:12:56=600 19:08:41=613 19:09:00=663 19:10:39=675 19:34:02=688 19:34:04=713 19:34:05=813 19:34:13=838 19:34:17=863 19:36:47=875
+    n_f_records    49  n_a_records    32
+  ORACLE LEGS covering this decision second (ANCHORED variant)
+    05:31:01 -> 14:42:03  dir=-1  travel=$3163  n_cand=107  same_side=54  captured@1k=1  capture_dec_sec=20016  miss=-
+  one_position_DP seated=0  session_dp_total=$3160.00  seated_items=3  (phase-close certificates, c_c_roster.dp_schedule)

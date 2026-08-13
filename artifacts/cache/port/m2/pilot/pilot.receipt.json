@@ -1,0 +1,103 @@
+{
+ "env": {
+  "databento_dbn": "0.66.0",
+  "git_sha": "e3dd6008b075063c55482afc3776807df8f5652e",
+  "input_sha256": {},
+  "m0_spec_sha16": "4bdf772927b5f316",
+  "m1_spec_sha16": "97bd95a917f7fb67",
+  "m1b_spec_sha16": "d31f48b59877e44d",
+  "m2_spec_sha16": "f14b5c773ccec5ba",
+  "numpy_version": "2.1.2",
+  "params": {
+   "eligible": "era in E1..E8 only (PRE_E1, the 2025H2 holdout and the 2026 seal are excluded); the session must carry level and profile receipts",
+   "modes": "BLIND sheet + SEPARATE S14 appendix, per spec \u00a71",
+   "n_per_asset": 10,
+   "selection": "diagonal walk over (eras present, phases present, families present); inside a cell the MEDIAN index of the candidates sorted by (date8, dec_sec, side); no RNG anywhere",
+   "spec_section": "\u00a74 [P-M2a] 30-sheet pilot",
+   "strata": "era x phase_dec x primary_family (primary = lowest set bit of fam_mask in the generation-v3 family order)",
+   "workers": 6
+  },
+  "params_hash": "6d0cd928cd3f06ba5610256aa1362694d2bf621ae524495ba1e8e890eee290e8",
+  "sheets_version": "PORT-SHEETS-V1",
+  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
+  "token_proxy": "M2-PROXY-2"
+ },
+ "n_certified": 30,
+ "n_prefetch_failed": 0,
+ "n_sheets": 30,
+ "out_dir": "/workspace/artifacts/cache/port/m2/pilot/",
+ "prefetch_failures": [],
+ "section_tokens": {
+  "S1": {
+   "max": 563,
+   "median": 549.5,
+   "min": 545
+  },
+  "S10": {
+   "max": 298,
+   "median": 208.0,
+   "min": 143
+  },
+  "S11": {
+   "max": 143,
+   "median": 140.0,
+   "min": 137
+  },
+  "S12": {
+   "max": 629,
+   "median": 527.0,
+   "min": 490
+  },
+  "S13": {
+   "max": 348,
+   "median": 273.5,
+   "min": 266
+  },
+  "S2": {
+   "max": 213,
+   "median": 212.0,
+   "min": 209
+  },
+  "S3": {
+   "max": 680,
+   "median": 646.5,
+   "min": 582
+  },
+  "S4": {
+   "max": 963,
+   "median": 769.5,
+   "min": 615
+  },
+  "S5": {
+   "max": 297,
+   "median": 293.0,
+   "min": 284
+  },
+  "S6": {
+   "max": 1987,
+   "median": 1942.0,
+   "min": 1856
+  },
+  "S7": {
+   "max": 206,
+   "median": 203.0,
+   "min": 200
+  },
+  "S8": {
+   "max": 522,
+   "median": 396.0,
+   "min": 229
+  },
+  "S9": {
+   "max": 249,
+   "median": 242.0,
+   "min": 235
+  }
+ },
+ "tokens_proxy": {
+  "max": 6855,
+  "median": 6393.5,
+  "min": 6156
+ },
+ "wall_sec": 120.4
+}

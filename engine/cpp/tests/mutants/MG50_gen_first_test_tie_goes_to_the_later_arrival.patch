@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -352,7 +352,7 @@
+     const std::uint8_t k = static_cast<std::uint8_t>(c.family);
+     const auto it = first.find(k);
+     // STRICTLY less: a later equal second never displaces the earlier arrival.
+-    if (it == first.end() || c.conf_sec < it->second.conf_sec) {
++    if (it == first.end() || c.conf_sec <= it->second.conf_sec) {  // MG50: STRICTLY less
+       first[k] = FirstTest{c.family, c.conf_sec, c.side};
+     }
+   }

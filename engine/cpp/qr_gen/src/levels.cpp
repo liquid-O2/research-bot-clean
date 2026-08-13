@@ -12,7 +12,8 @@ constexpr double kNaN = std::numeric_limits<double>::quiet_NaN();
 constexpr std::int64_t kSentHi = 1LL << 62;
 
 const char* const kFamilyNames[kLevelFamilyCount] = {"FVOL_LADDER", "FVOL_BAND", "NDAY",
-                                                     "PRIOR_DAY",   "PHASE_HL",  "VWAP"};
+                                                     "PRIOR_DAY",   "PHASE_HL",  "VWAP",
+                                                     "OR_EXT"};
 
 /// The five VWAP band suffixes, spelled exactly as the Python ledger spells
 /// them ("%+g"), so a level keeps ONE identity across the two implementations.
@@ -34,6 +35,24 @@ std::string dynamic_registry_key(const std::string& key, std::int32_t date8) {
   char buf[32];
   std::snprintf(buf, sizeof(buf), "%d", date8);
   return key + "\x1f" "DYN" "\x1f" + buf;
+}
+
+/// A SESSION-SCOPED level is a fresh object every session: its identity carries
+/// the date, so yesterday's touch count and lost virginity can never be
+/// inherited by a construction that happens to land on the same tick today.
+std::string session_registry_key(const std::string& key, std::int32_t date8) {
+  char buf[32];
+  std::snprintf(buf, sizeof(buf), "%d", date8);
+  return key + "\x1f" "SES" "\x1f" + buf;
+}
+
+/// The Python ledger spells an OR_EXT key
+/// "OR_EXT|<SEGMENT>|OR<minutes>|k<%.1f>|<%+d>"; one identity across the two
+/// implementations means spelling it the same way, byte for byte.
+std::string orext_key(const char* seg, int minutes, double k, int sgn) {
+  char buf[64];
+  std::snprintf(buf, sizeof(buf), "OR_EXT|%s|OR%d|k%.1f|%+d", seg, minutes, k, sgn);
+  return buf;
 }
 
 /// First session second of a phase, or -1 when the phase never opens.
@@ -73,10 +92,74 @@ const char* level_family_name(LevelFamily f) {
   return kFamilyNames[static_cast<std::size_t>(f)];
 }
 
+std::vector<std::pair<int, int>> orext_adopted_cells(qr::futsess::Asset asset) {
+  // CC-M1-6.1(1) verbatim. HG adopted NO cell: its 2.2-2.8pp marginals missed
+  // the 3pp bar (revisit hook: the 2025 lifts rose).
+  switch (asset) {
+    case qr::futsess::Asset::SI:
+      return {{0, 30}, {1, 30}, {2, 30}, {0, 60}, {1, 60}};
+    case qr::futsess::Asset::NKD:
+      return {{1, 30}};
+    default:
+      return {};
+  }
+}
+
+// ------------------------------------------- (g) OR_EXT opening-range levels --
+namespace {
+
+const char* const kOrExtSegName[3] = {"TOKYO", "LONDON", "NY"};
+
+/// CC-M1-6.1 OR_EXT levels of one session: one level per
+/// (segment, or_minutes, k, side), priced OR_H + k x OR_range (up) and
+/// OR_L - k x OR_range (down), active from the second the range CLOSES, scoped
+/// to its own segment and to this session. A degenerate (zero-width) opening
+/// range builds NOTHING: every k would collapse onto the range itself.
+std::vector<LevelDef> orext_levels(qr::futsess::Asset asset, const GenSession& s) {
+  std::vector<LevelDef> out;
+  const std::vector<std::pair<int, int>> cells = orext_adopted_cells(asset);
+  if (cells.empty()) {
+    return out;  // HG: the empty set IS the adoption (CC-M1-6.1)
+  }
+  std::vector<std::int8_t> phase_at_vt(s.vt().size());
+  for (std::size_t k = 0; k < s.vt().size(); ++k) {
+    phase_at_vt[k] = s.phase_tag()[static_cast<std::size_t>(s.vt()[k])];
+  }
+  for (const auto& cell : cells) {
+    const OpeningRange r = opening_range(s.vt(), s.vm(), phase_at_vt, cell.first, cell.second);
+    if (!r.valid) {
+      continue;
+    }
+    const double rng = r.hi - r.lo;
+    if (!(std::isfinite(rng) && rng > 0.0)) {
+      continue;
+    }
+    for (std::size_t i = 0; i < kOrExtKCount; ++i) {
+      const double k = kOrExtK[i];
+      const double px[2] = {r.hi + k * rng, r.lo - k * rng};
+      const int sgn[2] = {+1, -1};
+      for (std::size_t j = 0; j < 2; ++j) {
+        LevelDef L;
+        L.key = orext_key(kOrExtSegName[cell.first], cell.second, k, sgn[j]);
+        L.family = LevelFamily::OR_EXT;
+        L.price = px[j];
+        L.active_from = r.t1;
+        L.scope_phase = static_cast<std::int8_t>(cell.first);
+        L.session_scoped = true;
+        out.push_back(std::move(L));
+      }
+    }
+  }
+  return out;
+}
+
+}  // namespace
+
 // ============================================================ level builder ==
-std::vector<LevelDef> build_levels(const qr::skel::AssetGeom& geom, double px_scale,
-                                   const GenSession& s, std::int32_t date8, const V1History& hist,
-                                   std::int64_t hist_index, const FvolForecasts& fvol) {
+std::vector<LevelDef> build_levels(qr::futsess::Asset asset, const qr::skel::AssetGeom& geom,
+                                   double px_scale, const GenSession& s, std::int32_t date8,
+                                   const V1History& hist, std::int64_t hist_index,
+                                   const FvolForecasts& fvol) {
   std::vector<LevelDef> out;
   const double mult = static_cast<double>(geom.mult);
   const std::vector<std::int32_t>& vt = s.vt();
@@ -314,10 +397,29 @@ std::vector<LevelDef> build_levels(const qr::skel::AssetGeom& geom, double px_sc
       out.push_back(std::move(L));
     }
   }
+
+  // ---------------------------------------- (g) CC-M1-6.1 OR_EXT extensions --
+  // APPENDED LAST, exactly where b3_levels.build_levels appends them: the
+  // ledger's row order is the oracle's row order.
+  for (LevelDef& L : orext_levels(asset, s)) {
+    out.push_back(std::move(L));
+  }
   return out;
 }
 
 // ======================================================== the state machine ==
+void scope_diff(std::vector<double>* diff, const std::vector<std::int8_t>& phase_v,
+                std::int8_t scope_phase) {
+  if (scope_phase < 0) {
+    return;
+  }
+  for (std::size_t k = 0; k < diff->size(); ++k) {
+    if (phase_v[k] != scope_phase) {
+      (*diff)[k] = kNaN;
+    }
+  }
+}
+
 TouchScan touch_scan(const std::vector<double>& dist, const std::vector<std::int8_t>& phase_v,
                      std::int64_t active_from, double tol) {
   TouchScan out;
@@ -456,14 +558,20 @@ SessionLedger run_ledger(const qr::skel::AssetGeom& geom, const GenSession& s, s
     }
     for (std::size_t k = 0; k < vt.size(); ++k) {
       diff[k] = vm[k] - (L.dynamic ? L.series[k] : L.price);
+    }
+    // SEGMENT SCOPE first, DISTANCE second: the exclusion has to reach every
+    // consumer, and |NaN| is still NaN.
+    scope_diff(&diff, phase_v, L.scope_phase);
+    for (std::size_t k = 0; k < vt.size(); ++k) {
       dist[k] = std::fabs(diff[k]);
     }
     const std::int64_t af = static_cast<std::int64_t>(s.view().vt_lower_bound(L.active_from));
     if (af >= static_cast<std::int64_t>(vt.size())) {
       continue;
     }
-    const std::string rk = L.dynamic ? dynamic_registry_key(L.key, date8)
-                                     : static_registry_key(L.key, L.price, geom.tick_px);
+    const std::string rk = L.dynamic          ? dynamic_registry_key(L.key, date8)
+                           : L.session_scoped ? session_registry_key(L.key, date8)
+                                              : static_registry_key(L.key, L.price, geom.tick_px);
     auto it = reg->find(rk);
     if (it == reg->end()) {
       LevelState st;

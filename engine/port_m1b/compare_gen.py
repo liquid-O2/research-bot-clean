@@ -1,17 +1,26 @@
 #!/usr/bin/python3
-"""PORT M1.B S2 — the DIFFERENTIAL GATE [P-M1g].
+"""PORT M1.B S2.2 — the DIFFERENTIAL GATE [P-M1s22].
 
 The C++ generation engine `qr_gen` is accepted only if it reproduces the FROZEN
-S1-v2 Python oracle CANDIDATE-EXACT over every session:
+S1-v3 ENRICHED Python oracle CANDIDATE-EXACT over every session:
 
   * the same candidate ID SET, where an id is (trade date, decision second,
     side) — the roster's own dedup key;
-  * the same value in EVERY STORED FIELD of every candidate, including the
-    ragged prefix-maxima skeleton blocks.
+  * the same ROW ORDER;
+  * the same value in EVERY STORED FIELD of every candidate — including the
+    enrichment's own columns (`fam_mask` now carries nine families,
+    `level_fam_mask` seven kept level families including OR_EXT, and `flags`
+    carries the CC-M1-7.2 F-D6 / FIRST_TEST-virgin bits) and the ragged
+    prefix-maxima skeleton blocks.
 
-ORACLE   engine/port_m1/b8_generation_v2.py at commit 31426a4, whose committed
-         output is artifacts/cache/port/m1/generation_v2/union_roster_{ASSET}.npz
-ENGINE   artifacts/cache/port/m1/gen_cpp/roster/{ASSET}_{YYYYMM}.{bin,json}
+ORACLE   engine/port_m1/b10_generation_v3.py at the freeze commit bec58a9,
+         whose committed output is
+         artifacts/cache/port/m1/generation_v3/union_roster_{ASSET}.npz
+FREEZE   .../generation_v3/ORACLE_FREEZE.tsv pins the sha256 of each npz. THE
+         SHA IS VERIFIED BEFORE ANY COMPARISON: a differential against an
+         oracle that has drifted since the freeze proves nothing, and "the
+         receipt said so" is not a check (D-010).
+ENGINE   artifacts/cache/port/m1/gen_cpp/roster_v3/{ASSET}_{YYYYMM}.{bin,json}
 
 Shard offsets (`f_off`, `a_off`) are LOCAL to a month shard, exactly as the
 Python roster's own month shards were before `_merge_shards` rebased them; this
@@ -24,7 +33,7 @@ zero, the m0 emitter does not; every arithmetic comparison in the program calls
 them equal, so a byte comparison here would be measuring the normalisation, not
 the generation).
 
-usage: compare_gen.py [ASSET ...]
+usage: compare_gen.py [--roster SUBDIR] [ASSET ...]
 """
 import glob
 import hashlib
@@ -37,28 +46,53 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import binpack  # noqa: E402
 
 M1 = "/workspace/artifacts/cache/port/m1"
-PY_DIR = os.path.join(M1, "generation_v2")
-CPP_DIR = os.path.join(M1, "gen_cpp", "roster")
+PY_DIR = os.path.join(M1, "generation_v3")
+FREEZE = os.path.join(PY_DIR, "ORACLE_FREEZE.tsv")
+CPP_SUBDIR = "roster_v3"
 ASSETS = ("SI", "HG", "NKD")
 
-# Every field the oracle stores for a candidate (b8_generation_v2 ROSTER_KEYS +
-# the family/level tags), plus the ragged skeleton arrays compared separately.
+# Every field the oracle stores for a candidate (c_c_roster.ROSTER_KEYS + the
+# family/level/flag tags), plus the ragged skeleton arrays compared separately.
 FIELDS = ("date8", "side", "rung_mask", "conf_sec", "dec_sec", "phase_conf",
           "phase_dec", "entry_mid", "spread_at_decision", "atr14_usd",
           "dom_share", "iid", "mfe_unwalled", "mfe_argmax_sec",
           "mae_before_argmax", "f_h30", "f_h60", "f_h120", "f_phase_close",
           "f_sess_close", "phase_close_sec", "sess_close_sec", "f_len",
-          "a_len", "fam_mask", "level_fam_mask")
+          "a_len", "fam_mask", "level_fam_mask", "flags")
 OFFSETS = ("f_off", "a_off")
 RECORDS = ("skel_f_t", "skel_f_v", "skel_a_t", "skel_a_v")
 
 
-def load_cpp(asset):
+def frozen_shas(path=FREEZE):
+    """{asset: sha256} from the freeze receipt."""
+    cols, out = None, {}
+    with open(path) as fh:
+        for line in fh:
+            if line.startswith("#"):
+                continue
+            f = line.rstrip("\n").split("\t")
+            if cols is None:
+                cols = f
+                continue
+            r = dict(zip(cols, f))
+            out[r["asset"]] = r["sha256"]
+    return out
+
+
+def sha256_of(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 22), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def load_cpp(asset, cpp_dir):
     """Concatenate the month shards, rebasing the ragged-array offsets."""
-    stems = sorted(s[:-5] for s in glob.glob(os.path.join(CPP_DIR, "%s_*.json" % asset))
+    stems = sorted(s[:-5] for s in glob.glob(os.path.join(cpp_dir, "%s_*.json" % asset))
                    if not s.endswith("_ledger.json"))
     if not stems:
-        raise SystemExit("no C++ shards for %s under %s" % (asset, CPP_DIR))
+        raise SystemExit("no C++ shards for %s under %s" % (asset, cpp_dir))
     cols, fbase, abase = {}, 0, 0
     parts = {}
     for stem in stems:
@@ -102,15 +136,24 @@ def ids_of(r):
                      r["side"].astype(np.int64)], axis=1)
 
 
-def compare(asset):
-    z = np.load(os.path.join(PY_DIR, "union_roster_%s.npz" % asset),
-                allow_pickle=False)
+def compare(asset, cpp_dir, shas):
+    out = []
+    ok = True
+
+    # ---- THE FREEZE CHECK, before anything is compared ---------------------
+    path = os.path.join(PY_DIR, "union_roster_%s.npz" % asset)
+    want = shas.get(asset)
+    got = sha256_of(path)
+    out.append(["%s oracle_sha256" % asset, want[:16] if want else "MISSING",
+                got[:16], "", "", "PASS" if want == got else "FAIL"])
+    if want != got:
+        return False, out
+
+    z = np.load(path, allow_pickle=False)
     py = {k: z[k] for k in z.files}
     z.close()
-    cpp = load_cpp(asset)
-    out = []
+    cpp = load_cpp(asset, cpp_dir)
     n_py, n_cpp = int(py["date8"].size), int(cpp["date8"].size)
-    ok = True
 
     # ---- the ID SET (the roster's own dedup key) ---------------------------
     a = set(map(tuple, ids_of(py).tolist()))
@@ -169,10 +212,18 @@ def compare(asset):
 
 
 def main():
-    assets = [a for a in sys.argv[1:] if a in ASSETS] or list(ASSETS)
+    argv = list(sys.argv[1:])
+    subdir = CPP_SUBDIR
+    if "--roster" in argv:
+        i = argv.index("--roster")
+        subdir = argv[i + 1]
+        del argv[i:i + 2]
+    cpp_dir = os.path.join(M1, "gen_cpp", subdir)
+    assets = [a for a in argv if a in ASSETS] or list(ASSETS)
+    shas = frozen_shas()
     rows, all_ok = [], True
     for asset in assets:
-        ok, out = compare(asset)
+        ok, out = compare(asset, cpp_dir, shas)
         all_ok = all_ok and ok
         rows.extend(out)
     w = max(len(str(r[0])) for r in rows)

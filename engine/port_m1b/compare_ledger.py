@@ -1,11 +1,11 @@
 #!/usr/bin/python3
-"""PORT M1.B S2 — LEVEL-LEDGER differential (supporting evidence for P-M1g).
+"""PORT M1.B S2.2 — LEVEL-LEDGER differential (supporting evidence for P-M1s22).
 
 The candidate differential (compare_gen.py) is the gate. This one localises:
 it compares the C++ level ledger — the D-050 provenance record `qr_gen` builds
-for the SIX KEPT families — against the Python ledger the S1-v2 oracle consumed
-(`m1/levels_v3/{ASSET}/{YYYYMMDD}.npz`, D-053 bands + the D-054 mid-sanity mask),
-restricted to those same six families.
+for the SEVEN KEPT families — against the Python ledger the S1-v3 oracle
+consumed (`m1/levels_v4/{ASSET}/{YYYYMMDD}.npz`, D-053 bands + the D-054
+mid-sanity mask + the CC-M1-6.1 OR_EXT family), restricted to those same seven.
 
 Everything is compared as a MULTISET of rows keyed by the ledger's own content,
 because the two implementations order levels within a session differently only
@@ -24,10 +24,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import binpack  # noqa: E402
 
 M1 = "/workspace/artifacts/cache/port/m1"
-PY_DIR = os.path.join(M1, "levels_v3")
-CPP_DIR = os.path.join(M1, "gen_cpp", "roster")
+PY_DIR = os.path.join(M1, "levels_v4")
+CPP_DIR = os.path.join(M1, "gen_cpp", "roster_v3")
 ASSETS = ("SI", "HG", "NKD")
-KEPT = ("FVOL_LADDER", "FVOL_BAND", "NDAY", "PRIOR_DAY", "PHASE_HL", "VWAP")
+KEPT = ("FVOL_LADDER", "FVOL_BAND", "NDAY", "PRIOR_DAY", "PHASE_HL", "VWAP",
+        "OR_EXT")
 
 
 def q(x):

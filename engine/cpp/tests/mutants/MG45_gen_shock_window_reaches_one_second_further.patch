@@ -1,0 +1,12 @@
+diff --git a/qr_gen/include/qr_gen/families.hpp b/qr_gen/include/qr_gen/families.hpp
+--- a/qr_gen/include/qr_gen/families.hpp
++++ b/qr_gen/include/qr_gen/families.hpp
+@@ -39,7 +39,7 @@
+ inline constexpr std::int32_t kNewsDelay = 15;     ///< CC-M1-7.1 "single 15s delay"
+ inline constexpr std::int32_t kMicroWindow = 300;  ///< F-D2 = the FAST-OPEN construction
+ inline constexpr std::int32_t kMicroDelay = 15;
+-inline constexpr std::int32_t kShockSpan = 150;    ///< = NEWS_SPAN (CC-M1-4.3)
++inline constexpr std::int32_t kShockSpan = 151;  // MG45: the window is (t-150, t]
+ inline constexpr double kShockUsd = 1000.0;        ///< the $1k leg class
+ inline constexpr std::int32_t kInsaneMinSec = 10;  ///< §6 G3 "sustained >= 10s"
+ inline constexpr double kOrExtKMin = 1.5;          ///< F-D6 "beyond an OR_EXT k >= 1.5"

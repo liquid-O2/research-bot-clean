@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -367,7 +367,7 @@
+ std::vector<std::int32_t> virgin_confirmation_secs(const std::vector<Touch>& touches) {
+   std::vector<std::int32_t> out;
+   for (const Touch& t : touches) {
+-    if (t.virgin_at_touch != 1 || t.family == LevelFamily::OR_EXT) {
++    if (t.virgin_at_touch != 1) {  // MG51: the oracle's set excludes OR_EXT
+       continue;
+     }
+     if (t.reject_sec >= 0) {

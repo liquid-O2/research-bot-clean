@@ -43,12 +43,17 @@ class GenSession {
 
   [[nodiscard]] std::int64_t iid() const { return iid_; }
   [[nodiscard]] double dominant_share() const { return dominant_share_; }
+  /// UTC epoch second of the session open. The S1.2 calendar joins are LOCAL
+  /// wall-clock joins, so they need the session's absolute anchor, not its
+  /// trade date — a Globex session opens the previous evening ET.
+  [[nodiscard]] std::int64_t open_utc() const { return open_utc_; }
 
  private:
   qr::skel::SessionView view_;
   std::vector<std::int64_t> trades_sec_, trades_px_, trades_size_;
   std::int64_t iid_ = 0;
   double dominant_share_ = 0.0;
+  std::int64_t open_utc_ = 0;
 };
 
 }  // namespace qr::gen

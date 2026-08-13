@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/calendar.cpp b/qr_gen/src/calendar.cpp
+--- a/qr_gen/src/calendar.cpp
++++ b/qr_gen/src/calendar.cpp
+@@ -107,7 +107,7 @@
+     // the offset BEFORE the transition, in both the ambiguous and the
+     // nonexistent case. The round trip below is what turns "nonexistent" into a
+     // drop instead of a silent shift.
+-    const seconds off = info.first.offset;
++    const seconds off = seconds{-5 * 3600};  // MG38: DST is not optional
+     const sys_seconds e{lt.time_since_epoch() - off};
+     const local_seconds back = z->to_local(e);
+     const seconds tod = back - std::chrono::floor<days>(back);

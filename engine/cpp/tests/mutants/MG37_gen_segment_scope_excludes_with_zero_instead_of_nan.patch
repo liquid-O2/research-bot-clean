@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/levels.cpp b/qr_gen/src/levels.cpp
+--- a/qr_gen/src/levels.cpp
++++ b/qr_gen/src/levels.cpp
+@@ -415,7 +415,7 @@
+   }
+   for (std::size_t k = 0; k < diff->size(); ++k) {
+     if (phase_v[k] != scope_phase) {
+-      (*diff)[k] = kNaN;
++      (*diff)[k] = 0.0;  // MG37: NaN is the typed exclusion
+     }
+   }
+ }

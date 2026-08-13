@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include "qr_gen/calendar.hpp"
+#include "qr_gen/families.hpp"
 #include "qr_gen/generate.hpp"
 #include "qr_gen/levels.hpp"
 #include "qr_gen/tables.hpp"
@@ -383,16 +385,19 @@ TEST(Outcome, WhenBothResolveTheEARLIEROneIsTheOutcome) {
 }
 
 // ================================================== families / masks / pins ===
-TEST(Families, TheKeptSixAreExactlyTheCCM133SetInTheRostersBitOrder) {
-  ASSERT_EQ(kLevelFamilyCount, 6u);
+TEST(Families, TheKeptSevenAreTheCCM133SetPlusOrExtAppendedAtTheTopBit) {
+  ASSERT_EQ(kLevelFamilyCount, 7u);
   EXPECT_STREQ(level_family_name(LevelFamily::FVOL_LADDER), "FVOL_LADDER");
   EXPECT_STREQ(level_family_name(LevelFamily::FVOL_BAND), "FVOL_BAND");
   EXPECT_STREQ(level_family_name(LevelFamily::NDAY), "NDAY");
   EXPECT_STREQ(level_family_name(LevelFamily::PRIOR_DAY), "PRIOR_DAY");
   EXPECT_STREQ(level_family_name(LevelFamily::PHASE_HL), "PHASE_HL");
   EXPECT_STREQ(level_family_name(LevelFamily::VWAP), "VWAP");
+  EXPECT_STREQ(level_family_name(LevelFamily::OR_EXT), "OR_EXT");
   EXPECT_EQ(static_cast<int>(LevelFamily::FVOL_LADDER), 0);
   EXPECT_EQ(static_cast<int>(LevelFamily::VWAP), 5);
+  // APPENDED, never inserted: every bit the v2 roster wrote keeps its meaning.
+  EXPECT_EQ(static_cast<int>(LevelFamily::OR_EXT), 6);
 }
 
 TEST(Families, TheDO53VwapBandSetIsTheLineAndPlusMinusTwoAndTwoAndAHalfSigma) {
@@ -478,6 +483,416 @@ TEST(Params, TheFrozenSpecShasAreCheckedAgainstTheFilesNotMerelyDeclared) {
   const std::string j = params_canonical_json(Asset::SI);
   EXPECT_NE(j.find("\"spec_m1_sha16\":\"" + m1.value() + "\""), std::string::npos);
   EXPECT_NE(j.find("\"spec_m1b_sha16\":\"" + m1b.value() + "\""), std::string::npos);
+}
+
+// ======================================== S2.2: the CC-M1-6.1 OR_EXT ledger ===
+TEST(OrExt, TheAdoptedCellsAreTheSixOfCCM161AndHGHasNONE) {
+  const auto si = orext_adopted_cells(Asset::SI);
+  ASSERT_EQ(si.size(), 5u);
+  // SI: OR30 {TOKYO, LONDON, NY} + OR60 {TOKYO, LONDON}. Phase indices are
+  // TOKYO=0, LONDON=1, NY=2.
+  EXPECT_EQ(si[0], std::make_pair(0, 30));
+  EXPECT_EQ(si[1], std::make_pair(1, 30));
+  EXPECT_EQ(si[2], std::make_pair(2, 30));
+  EXPECT_EQ(si[3], std::make_pair(0, 60));
+  EXPECT_EQ(si[4], std::make_pair(1, 60));
+  const auto nkd = orext_adopted_cells(Asset::NKD);
+  ASSERT_EQ(nkd.size(), 1u);
+  EXPECT_EQ(nkd[0], std::make_pair(1, 30));
+  // HG's 2.2-2.8pp marginals missed the 3pp bar: the EMPTY set is the adoption,
+  // not an omission. A single HG cell here would silently create a family.
+  EXPECT_TRUE(orext_adopted_cells(Asset::HG).empty());
+}
+
+TEST(OrExt, TheRangeIsTheSANEExtremesInsideTheWindowAndClosesAtOpenPlusWidth) {
+  // Segment 1 opens at second 100 (the first SANE second of that phase); a
+  // 1-minute range therefore spans [100, 160).
+  std::vector<std::int32_t> vt;
+  std::vector<double> vm;
+  std::vector<std::int8_t> ph;
+  for (int t = 100; t < 400; ++t) {
+    vt.push_back(t);
+    vm.push_back(t == 130 ? 12.0 : (t == 150 ? 8.0 : 10.0));
+    ph.push_back(1);
+  }
+  const auto r = opening_range(vt, vm, ph, 1, 1);
+  ASSERT_TRUE(r.valid);
+  EXPECT_EQ(r.t1, 160);
+  EXPECT_DOUBLE_EQ(r.hi, 12.0);
+  EXPECT_DOUBLE_EQ(r.lo, 8.0);
+  // A move AFTER the range closes never widens it.
+  vm[static_cast<std::size_t>(200 - 100)] = 99.0;
+  const auto r2 = opening_range(vt, vm, ph, 1, 1);
+  EXPECT_DOUBLE_EQ(r2.hi, 12.0);
+}
+
+TEST(OrExt, ASegmentWithNothingLeftAfterTheRangeHasNORangeAtAll) {
+  // 30 seconds of segment 2 and a 1-minute range: the range never closes inside
+  // the segment, so the cell is a TYPED EXCLUSION, not a degenerate level.
+  std::vector<std::int32_t> vt;
+  std::vector<double> vm;
+  std::vector<std::int8_t> ph;
+  for (int t = 0; t < 30; ++t) {
+    vt.push_back(t);
+    vm.push_back(10.0);
+    ph.push_back(2);
+  }
+  EXPECT_FALSE(opening_range(vt, vm, ph, 2, 1).valid);
+  // ... and a segment that never appears at all has none either.
+  EXPECT_FALSE(opening_range(vt, vm, ph, 0, 1).valid);
+}
+
+TEST(OrExt, OnlyTheKAtLeastOneAndAHalfRungsCarryTheFD6Flag) {
+  OpeningRange r;
+  r.hi = 110.0;
+  r.lo = 100.0;
+  r.t1 = 500;
+  r.phase = 1;
+  r.valid = true;
+  const auto lv = orext_flag_levels(r);
+  // k in {1.5, 2.0} x both sides == 4 prices. k in {0.5, 1.0} are LEDGER rungs
+  // but never flag rungs (F-D6 is "beyond an OR_EXT k >= 1.5 level").
+  ASSERT_EQ(lv.size(), 4u);
+  EXPECT_DOUBLE_EQ(lv[0].price, 110.0 + 1.5 * 10.0);
+  EXPECT_DOUBLE_EQ(lv[1].price, 100.0 - 1.5 * 10.0);
+  EXPECT_DOUBLE_EQ(lv[2].price, 110.0 + 2.0 * 10.0);
+  EXPECT_DOUBLE_EQ(lv[3].price, 100.0 - 2.0 * 10.0);
+  for (const auto& l : lv) {
+    EXPECT_EQ(l.t1, 500);
+    EXPECT_EQ(l.phase, 1);
+  }
+}
+
+TEST(OrExt, AnExtensionIsBeyondOnlyInsideItsOwnSegmentAndOnlyOnceItsRangeClosed) {
+  OpeningRange r;
+  r.hi = 110.0;
+  r.lo = 100.0;
+  r.t1 = 500;
+  r.phase = 1;
+  r.valid = true;
+  const auto cells = orext_flag_levels(r);
+  // Beyond the k=1.5 up extension (125), in segment 1, after the range closed.
+  EXPECT_TRUE(beyond_extension(125.0, 600, 1, cells));
+  EXPECT_TRUE(beyond_extension(85.0, 600, 1, cells));   // below the down side
+  EXPECT_FALSE(beyond_extension(120.0, 600, 1, cells));  // inside the ladder
+  // A TOKYO opening range says nothing about a NEW YORK price.
+  EXPECT_FALSE(beyond_extension(125.0, 600, 2, cells));
+  // Causality: the level does not exist before its own range has closed.
+  EXPECT_FALSE(beyond_extension(125.0, 499, 1, cells));
+  EXPECT_TRUE(beyond_extension(125.0, 500, 1, cells));
+}
+
+TEST(Levels, ASegmentScopedLevelDoesNotExistOutsideItsOwnPhase) {
+  // Two phases; the level is scoped to phase 1 and the mid sits ON it for the
+  // whole session. Outside phase 1 the distance must be UNOBSERVABLE, so the
+  // level can neither arm nor be touched there.
+  const std::size_t n = 1000;
+  std::vector<double> diff(n, 0.0);
+  std::vector<std::int8_t> ph(n, 0);
+  for (std::size_t i = 600; i < n; ++i) {
+    ph[i] = 1;
+  }
+  scope_diff(&diff, ph, 1);
+  for (std::size_t i = 0; i < 600; ++i) {
+    EXPECT_TRUE(std::isnan(diff[i])) << i;
+  }
+  for (std::size_t i = 600; i < n; ++i) {
+    EXPECT_DOUBLE_EQ(diff[i], 0.0);
+  }
+  // -1 means "no scope": an unscoped level is left completely alone.
+  std::vector<double> plain(n, 0.0);
+  scope_diff(&plain, ph, -1);
+  for (double v : plain) {
+    EXPECT_DOUBLE_EQ(v, 0.0);
+  }
+}
+
+TEST(Levels, AScopedLevelCannotBeTouchedInAForeignSegment) {
+  const double tol = 1.0;
+  const std::size_t n = 2000;
+  std::vector<double> diff(n, 10.0);
+  std::vector<std::int8_t> ph(n, 0);
+  for (std::size_t i = 1500; i < n; ++i) {
+    ph[i] = 1;
+  }
+  diff[900] = 0.0;   // a near second, but in the FOREIGN segment 0
+  diff[1900] = 0.0;  // a near second inside the level's own segment 1
+  scope_diff(&diff, ph, 1);
+  std::vector<double> dist(n);
+  for (std::size_t i = 0; i < n; ++i) {
+    dist[i] = std::fabs(diff[i]);
+  }
+  const auto scan = touch_scan(dist, ph, 0, tol);
+  ASSERT_EQ(scan.touches.size(), 1u);
+  EXPECT_EQ(scan.touches[0], 1900);
+  // VIRGINITY is read from the same scoped series, so the foreign near second
+  // does not spend it either.
+  EXPECT_EQ(scan.first_near, 1900);
+}
+
+// ============================================ S2.2: the CC-M1-7.1 calendars ===
+TEST(Calendar, TheEtSlotsFollowDaylightSavingInsteadOfAFrozenUtcOffset) {
+  // 2024-01-15 08:30 EST = 13:30 UTC; 2024-07-15 08:30 EDT = 12:30 UTC. A
+  // frozen offset gets one of the two wrong for eight months of the year.
+  const std::int64_t jan_open = 1705276800;  // 2024-01-15 00:00 UTC
+  const auto w = local_epoch_offsets(jan_open, 86400, kTzNewYork, 8, 30);
+  ASSERT_EQ(w.size(), 1u);
+  EXPECT_EQ(jan_open + w[0], 1705325400);  // 13:30 UTC
+  const std::int64_t jul_open = 1720915200;  // 2024-07-14 00:00 UTC
+  const auto s = local_epoch_offsets(jul_open, 86400, kTzNewYork, 8, 30);
+  ASSERT_EQ(s.size(), 1u);
+  EXPECT_EQ(jul_open + s[0], 1720960200);  // 12:30 UTC, one hour earlier
+  // Tokyo has no DST at all: 12:30 JST is 03:30 UTC in both halves of the year.
+  const auto t = local_epoch_offsets(jan_open, 86400, kTzTokyo, 12, 30);
+  ASSERT_EQ(t.size(), 1u);
+  EXPECT_EQ((jan_open + t[0]) % 86400, 3 * 3600 + 1800);
+}
+
+TEST(Calendar, TheScanReachesTheNextLocalDayBecauseAGlobexSessionOpensTheEveningBefore) {
+  // A session opening 2024-01-14 18:00 ET (23:00 UTC) contains 2024-01-15's
+  // 08:30 ET slot — a join on the OPEN's own local day would find nothing.
+  const std::int64_t open_utc = 1705273200;  // 2024-01-14 23:00 UTC
+  const auto w = local_epoch_offsets(open_utc, 86400, kTzNewYork, 8, 30);
+  ASSERT_EQ(w.size(), 1u);
+  EXPECT_EQ(open_utc + w[0], 1705325400);  // 2024-01-15 08:30 ET
+  EXPECT_EQ(local_date8(open_utc, kTzNewYork), 20240114);
+  EXPECT_EQ(local_date8(open_utc + w[0], kTzNewYork), 20240115);
+  // A window that ends before the slot contains NOTHING (half-open on n).
+  EXPECT_TRUE(local_epoch_offsets(open_utc, static_cast<std::int32_t>(w[0]), kTzNewYork, 8, 30)
+                  .empty());
+}
+
+TEST(Calendar, TheMeetingsLastDayIsTheReleaseAndASpanIntoJanuaryRollsTheYear) {
+  auto r = fomc_release_dates(QR_FOMC_CSV_PATH);
+  ASSERT_TRUE(r.has_value());
+  const std::vector<std::int32_t>& d = r.value();
+  const auto has = [&d](std::int32_t x) {
+    return std::find(d.begin(), d.end(), x) != d.end();
+  };
+  // "2021,January,26-27" -> the 27th, never the 26th.
+  EXPECT_TRUE(has(20210127));
+  EXPECT_FALSE(has(20210126));
+  // "2023,Jan/Feb,31-1" -> 2023-02-01: the LAST month and the LAST day.
+  EXPECT_TRUE(has(20230201));
+  EXPECT_FALSE(has(20230131));
+  // "2023,Oct/Nov,31-1" -> 2023-11-01, and the year does NOT roll (only a span
+  // whose last month is January belongs to the next year).
+  EXPECT_TRUE(has(20231101));
+  EXPECT_FALSE(has(20241101));
+  // "2025,August,22" -> a single-day row keeps that day.
+  EXPECT_TRUE(has(20250822));
+  // ascending and deduplicated
+  EXPECT_TRUE(std::is_sorted(d.begin(), d.end()));
+  EXPECT_EQ(std::adjacent_find(d.begin(), d.end()), d.end());
+  // A missing calendar is a REFUSAL, never a silently empty news family.
+  EXPECT_FALSE(fomc_release_dates("/nonexistent/calendar_fomc.csv").has_value());
+}
+
+TEST(Calendar, TheFomcSlotIsJoinedOnTheReleaseSecondsEtDayNotTheSessionsOwnDay) {
+  // Session opens 2024-01-14 23:00 UTC = 18:00 ET on the 14th. The FOMC slot it
+  // contains is 2024-01-15 14:00 ET.
+  const std::int64_t open_utc = 1705273200;
+  const std::vector<std::int32_t> fomc_15 = {20240115};
+  const std::vector<std::int32_t> fomc_14 = {20240114};
+  const auto with15 = news_release_offsets(open_utc, 86400, fomc_15);
+  const auto with14 = news_release_offsets(open_utc, 86400, fomc_14);
+  // 08:30 and 10:00 ET fire on EVERY session, so both runs carry two slots;
+  // only the 20240115 join adds the 14:00 ET statement.
+  EXPECT_EQ(with14.size(), 2u);
+  ASSERT_EQ(with15.size(), 3u);
+  EXPECT_EQ(open_utc + with15[2], 1705345200);  // 2024-01-15 14:00 ET
+}
+
+TEST(Calendar, TheMicroOpensAreTheTokyoLunchReopenAndTheUsCashOpen) {
+  const std::int64_t open_utc = 1705273200;  // 2024-01-14 23:00 UTC
+  const auto o = micro_open_offsets(open_utc, 86400);
+  ASSERT_EQ(o.size(), 2u);
+  EXPECT_EQ(open_utc + o[0], 1705289400);  // 2024-01-15 12:30 Asia/Tokyo
+  EXPECT_EQ(open_utc + o[1], 1705329000);  // 2024-01-15 09:30 America/New_York
+}
+
+// ================================================ S2.2: windows and shocks ====
+TEST(Windows, TheWindowIsHalfOpenAndOverlappingTriggersMergeIntoOne) {
+  const auto w = open_windows({100}, 300);
+  ASSERT_EQ(w.size(), 1u);
+  EXPECT_EQ(w[0].a, 100);
+  EXPECT_EQ(w[0].b, 399);       // [100, 100+300) -> inclusive 399
+  EXPECT_TRUE(in_intervals(100, w));
+  EXPECT_TRUE(in_intervals(399, w));
+  EXPECT_FALSE(in_intervals(400, w));  // exactly 300s after: OUTSIDE
+  EXPECT_FALSE(in_intervals(99, w));
+  // Two triggers 60s apart are ONE window, not two that double-count.
+  const auto m = open_windows({100, 160}, 300);
+  ASSERT_EQ(m.size(), 1u);
+  EXPECT_EQ(m[0].a, 100);
+  EXPECT_EQ(m[0].b, 459);
+  // ... and two that do not touch stay separate.
+  const auto sep = open_windows({100, 1000}, 300);
+  EXPECT_EQ(sep.size(), 2u);
+  EXPECT_FALSE(in_intervals(500, sep));
+  EXPECT_TRUE(in_intervals(1000, sep));
+}
+
+TEST(Shock, AnEpisodeStartsWhenTheTRAILINGRangeREACHESTheThresholdNotWhenTheMoveBegins) {
+  // mult 1: the mid IS the dollar. A $1,000 move completed at second 10.
+  std::vector<std::int32_t> vt;
+  std::vector<double> vm;
+  for (int t = 0; t <= 400; ++t) {
+    vt.push_back(t);
+    vm.push_back(t < 10 ? 0.0 : 1000.0);
+  }
+  const auto eps = shock_episodes(vt, vm, 1.0);
+  ASSERT_EQ(eps.size(), 1u);
+  // The range only REACHES $1,000 at second 10 — never at second 0, which would
+  // be the detector reading forward.
+  EXPECT_EQ(eps[0].a, 10);
+  // ... and it ends at the LAST second whose trailing window still reaches back
+  // to the pre-move price: second 9 + 149 = 158, never a second later.
+  EXPECT_EQ(eps[0].b, 158);
+}
+
+TEST(Shock, TheTrailingWindowIsWALLSecondsSoAGapShortensItInsteadOfReachingBack) {
+  // Two observations, 150 wall-seconds apart, with a $1,000 gap between them.
+  // The window at t=150 is (150-150, 150] = [1, 150]: second 0 is OUTSIDE, so
+  // this is NOT a shock. Counting OBSERVATIONS instead of seconds would fire.
+  const std::vector<std::int32_t> vt = {0, 150};
+  const std::vector<double> vm = {0.0, 1000.0};
+  EXPECT_TRUE(shock_episodes(vt, vm, 1.0).empty());
+  // One second closer and the same move IS a shock.
+  const std::vector<std::int32_t> vt2 = {0, 149};
+  EXPECT_EQ(shock_episodes(vt2, vm, 1.0).size(), 1u);
+}
+
+TEST(Shock, AWideBookEpisodeNeedsTenSustainedSecondsAndABookOUTAGEIsNeverOne) {
+  const std::size_t n = 200;
+  std::vector<std::int8_t> state(n, 0);   // 0 == TWO_SIDED
+  std::vector<std::uint8_t> sane(n, 1);
+  for (std::size_t t = 20; t < 29; ++t) {
+    sane[t] = 0;  // 9 wide seconds: too short
+  }
+  EXPECT_TRUE(insane_episodes(state, sane).empty());
+  for (std::size_t t = 20; t < 30; ++t) {
+    sane[t] = 0;  // 10 wide seconds: an episode
+  }
+  const auto e = insane_episodes(state, sane);
+  ASSERT_EQ(e.size(), 1u);
+  EXPECT_EQ(e[0].a, 20);
+  EXPECT_EQ(e[0].b, 29);
+  // A ONE-SIDED / EMPTY book for 50 seconds is an OUTAGE, not a wide book: it
+  // is not sane either, and it must NOT become a shock episode.
+  std::vector<std::int8_t> out_state(n, 0);
+  std::vector<std::uint8_t> out_sane(n, 1);
+  for (std::size_t t = 100; t < 150; ++t) {
+    out_state[t] = 1;  // not TWO_SIDED
+    out_sane[t] = 0;
+  }
+  EXPECT_TRUE(insane_episodes(out_state, out_sane).empty());
+}
+
+TEST(PostShock, OnlyTheEARLIESTConfirmationAfterAnEpisodeFiresAndEverySideAtThatSecondDoes) {
+  //                       idx: 0    1    2    3
+  const std::vector<std::int32_t> conf = {100, 300, 300, 500};
+  const auto w = first_confirmations_after(conf, 200);
+  ASSERT_EQ(w.size(), 2u);      // both sides confirming on second 300
+  EXPECT_EQ(w[0], 1u);
+  EXPECT_EQ(w[1], 2u);
+  // STRICTLY after: a confirmation ON the episode's last second is part of the
+  // shock, not its resolution.
+  const auto onboundary = first_confirmations_after(conf, 300);
+  ASSERT_EQ(onboundary.size(), 1u);
+  EXPECT_EQ(onboundary[0], 3u);
+  EXPECT_TRUE(first_confirmations_after(conf, 500).empty());
+}
+
+// ================================== S2.2: the adopted families and the flags ===
+TEST(NewFamilies, TheNineBitsAppendTheAdoptedFourAfterTheOriginalFive) {
+  ASSERT_EQ(kFamilyCount, 9u);
+  EXPECT_EQ(kFamG1, 1u << 0);
+  EXPECT_EQ(kFamG2Reclaim, 1u << 4);
+  EXPECT_EQ(kFamNewsWindow, 1u << 5);
+  EXPECT_EQ(kFamMicroOpen, 1u << 6);
+  EXPECT_EQ(kFamPostShock, 1u << 7);
+  EXPECT_EQ(kFamFirstTest, 1u << 8);
+  EXPECT_STREQ(family_name(0), "G1");
+  EXPECT_STREQ(family_name(5), "NEWS_WINDOW");
+  EXPECT_STREQ(family_name(6), "MICRO_OPEN");
+  EXPECT_STREQ(family_name(7), "POST_SHOCK");
+  EXPECT_STREQ(family_name(8), "FIRST_TEST");
+  // The delays are NOT interchangeable: NEWS and MICRO are 15s, everything
+  // else is tau*, and FAST-CLOSE does not exist at all.
+  EXPECT_EQ(kNewsDelay, 15);
+  EXPECT_EQ(kMicroDelay, 15);
+  EXPECT_EQ(kNewsWindow, 600);
+  EXPECT_EQ(kMicroWindow, 300);
+}
+
+TEST(NewFamilies, FirstTestIsAFamilyOnNKDOnlyAndAFeatureEverywhereElse) {
+  EXPECT_TRUE(first_test_is_a_family(Asset::NKD));
+  EXPECT_FALSE(first_test_is_a_family(Asset::SI));
+  EXPECT_FALSE(first_test_is_a_family(Asset::HG));
+}
+
+TEST(FirstTest, IsTheEarliestConfirmingTouchPerLEVELFamilyAndTiesKeepTheEarlierArrival) {
+  const std::vector<G2Conf> g2 = {
+      {500, 1, kFamG2Reject, LevelFamily::NDAY},
+      {300, -1, kFamG2Reject, LevelFamily::VWAP},
+      {300, 1, kFamG2Reclaim, LevelFamily::VWAP},   // SAME second, later arrival
+      {200, -1, kFamG2Reject, LevelFamily::NDAY},   // earlier than the NDAY 500
+  };
+  const auto ft = first_test_confirmations(g2);
+  ASSERT_EQ(ft.size(), 2u);
+  EXPECT_EQ(ft[0].family, LevelFamily::NDAY);
+  EXPECT_EQ(ft[0].conf_sec, 200);
+  EXPECT_EQ(ft[0].side, -1);
+  EXPECT_EQ(ft[1].family, LevelFamily::VWAP);
+  EXPECT_EQ(ft[1].conf_sec, 300);
+  // A LATER equal second never displaces the earlier arrival, so the side is
+  // the FIRST one the ledger produced.
+  EXPECT_EQ(ft[1].side, -1);
+}
+
+TEST(FirstTest, TheVirginFlagReadsFirstEverTouchesAndIsBLINDToOrExtByTheOraclesConstruction) {
+  Touch v;
+  v.family = LevelFamily::NDAY;
+  v.virgin_at_touch = 1;
+  v.reject_sec = 400;
+  Touch repeat;
+  repeat.family = LevelFamily::VWAP;
+  repeat.virgin_at_touch = 0;
+  repeat.reject_sec = 500;
+  Touch orext;  // a FIRST-ever touch, but on the OR_EXT family
+  orext.family = LevelFamily::OR_EXT;
+  orext.virgin_at_touch = 1;
+  orext.reject_sec = 600;
+  Touch late_reclaim;  // virgin, but the reclaim is outside the 30-minute bound
+  late_reclaim.family = LevelFamily::PRIOR_DAY;
+  late_reclaim.virgin_at_touch = 1;
+  late_reclaim.break_sec = 1000;
+  late_reclaim.reclaim_sec = 1000 + 1801;
+  const auto s = virgin_confirmation_secs({v, repeat, orext, late_reclaim});
+  ASSERT_EQ(s.size(), 1u);
+  EXPECT_EQ(s[0], 400);
+  // The OR_EXT exclusion is the frozen oracle's own construction
+  // (family_discovery reads the pre-OR_EXT ledger) — reproduced deliberately
+  // and returned as defect S22-D1, not invented here.
+  late_reclaim.reclaim_sec = 1000 + 1800;
+  const auto s2 = virgin_confirmation_secs({v, orext, late_reclaim});
+  ASSERT_EQ(s2.size(), 2u);
+  EXPECT_EQ(s2[1], 2800);
+}
+
+TEST(Dedup, TheFlagBitsAreUnionedLikeEveryOtherTag) {
+  const auto out = dedup({Emission{500, 1, kFamG1, 0, 0b0010, 380, kFlagOrExtBeyond},
+                          Emission{500, 1, kFamFirstTest, 0, 0, 300, kFlagFirstTestVirgin}});
+  ASSERT_EQ(out.size(), 1u);
+  EXPECT_EQ(out[0].flags,
+            static_cast<std::uint8_t>(kFlagOrExtBeyond | kFlagFirstTestVirgin));
+  EXPECT_EQ(out[0].fam_bits, static_cast<std::uint16_t>(kFamG1 | kFamFirstTest));
+  EXPECT_EQ(out[0].conf_sec, 300);
+  // The three flag bits are distinct and F-D6 owns the low two.
+  EXPECT_EQ(kFlagOrExtBeyond, 1u);
+  EXPECT_EQ(kFlagOrExtBeyondAny, 2u);
+  EXPECT_EQ(kFlagFirstTestVirgin, 4u);
 }
 
 // ==================================================================== tables ==

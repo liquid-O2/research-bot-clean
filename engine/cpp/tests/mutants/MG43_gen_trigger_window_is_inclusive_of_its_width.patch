@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/families.cpp b/qr_gen/src/families.cpp
+--- a/qr_gen/src/families.cpp
++++ b/qr_gen/src/families.cpp
+@@ -64,7 +64,7 @@
+   std::vector<Interval> iv;
+   iv.reserve(secs.size());
+   for (std::int32_t t : secs) {
+-    iv.push_back(Interval{t, t + width - 1});
++    iv.push_back(Interval{t, t + width});  // MG43: [t, t+width) is half-open
+   }
+   return merge_intervals(std::move(iv));
+ }

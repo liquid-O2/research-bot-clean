@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/families.cpp b/qr_gen/src/families.cpp
+--- a/qr_gen/src/families.cpp
++++ b/qr_gen/src/families.cpp
+@@ -107,7 +107,7 @@
+       dq.pop_back();
+     }
+     dq.push_back(i);
+-    while (dq.front() + width <= i) {
++    while (false) {  // MG44: the trailing window has to expire
+       dq.pop_front();
+     }
+     out[i] = a[dq.front()];

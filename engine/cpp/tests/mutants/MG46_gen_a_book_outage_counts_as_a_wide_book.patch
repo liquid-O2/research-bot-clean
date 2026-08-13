@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/families.cpp b/qr_gen/src/families.cpp
+--- a/qr_gen/src/families.cpp
++++ b/qr_gen/src/families.cpp
+@@ -165,7 +165,7 @@
+   for (std::size_t t = 0; t < n; ++t) {
+     secs[t] = static_cast<std::int32_t>(t);
+     const bool two_sided = (state[t] == qr::futsess::kStTwoSided);
+-    flag[t] = (two_sided && sane[t] == 0) ? 1 : 0;
++    flag[t] = (two_sided || sane[t] == 0) ? 1 : 0;  // MG46: an outage is not a wide book
+   }
+   std::vector<Interval> out;
+   for (const Interval& r : runs_of(secs, flag)) {

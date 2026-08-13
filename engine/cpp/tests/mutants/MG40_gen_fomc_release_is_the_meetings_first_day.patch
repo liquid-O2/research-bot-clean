@@ -1,0 +1,17 @@
+diff --git a/qr_gen/src/calendar.cpp b/qr_gen/src/calendar.cpp
+--- a/qr_gen/src/calendar.cpp
++++ b/qr_gen/src/calendar.cpp
+@@ -177,11 +177,11 @@
+     if (months.empty() || dd.empty()) {
+       continue;
+     }
+-    const int mon = month_index(months.back());
++    const int mon = month_index(months.front());  // MG40: the statement lands on the LAST day
+     if (mon < 0) {
+       continue;
+     }
+-    const int day = std::atoi(dd.back().c_str());
++    const int day = std::atoi(dd.front().c_str());
+     // A "Dec/Jan" style span whose LAST month is January belongs to the next
+     // calendar year; every other span stays on the row's own year.
+     const int y = (months.size() > 1 && mon == 1) ? year + 1 : year;

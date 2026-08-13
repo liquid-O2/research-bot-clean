@@ -1,0 +1,3776 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 54 tests from 17 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from ZigZag
+[ RUN      ] ZigZag.ConfirmationIsTheFirstSecondTheRetraceREACHESTheThreshold
+[       OK ] ZigZag.ConfirmationIsTheFirstSecondTheRetraceREACHESTheThreshold (0 ms)
+[ RUN      ] ZigZag.TheExtremeKeepsTheFIRSTSecondItWasReached
+[       OK ] ZigZag.TheExtremeKeepsTheFIRSTSecondItWasReached (0 ms)
+[ RUN      ] ZigZag.ThresholdIsReadAtTheCONFIRMATIONSecondsOwnPhase
+[       OK ] ZigZag.ThresholdIsReadAtTheCONFIRMATIONSecondsOwnPhase (0 ms)
+[ RUN      ] ZigZag.RungThresholdTakesTheFLOORSAndRoundsHalfUpToTheTick
+[       OK ] ZigZag.RungThresholdTakesTheFLOORSAndRoundsHalfUpToTheTick (0 ms)
+[----------] 4 tests from ZigZag (1 ms total)
+
+[----------] 3 tests from FastOpen
+[ RUN      ] FastOpen.TheWindowIsHalfOpenAndMeasuredFromTheLastOpenAtOrBeforeIt
+[       OK ] FastOpen.TheWindowIsHalfOpenAndMeasuredFromTheLastOpenAtOrBeforeIt (0 ms)
+[ RUN      ] FastOpen.IsADDITIVEAndNeverReplacesTheTauStarCandidate
+[       OK ] FastOpen.IsADDITIVEAndNeverReplacesTheTauStarCandidate (0 ms)
+[ RUN      ] FastOpen.TheFineRungTagsG1FineAndTheCoarseRungsTagG1
+[       OK ] FastOpen.TheFineRungTagsG1FineAndTheCoarseRungsTagG1 (0 ms)
+[----------] 3 tests from FastOpen (0 ms total)
+
+[----------] 3 tests from Dedup
+[ RUN      ] Dedup.UnionsTheTagsAndKeepsTheEARLIESTConfirmationSecond
+[       OK ] Dedup.UnionsTheTagsAndKeepsTheEARLIESTConfirmationSecond (0 ms)
+[ RUN      ] Dedup.ASideIsPartOfTheIdentitySoOppositeSidesNeverMerge
+[       OK ] Dedup.ASideIsPartOfTheIdentitySoOppositeSidesNeverMerge (0 ms)
+[ RUN      ] Dedup.TheFlagBitsAreUnionedLikeEveryOtherTag
+[       OK ] Dedup.TheFlagBitsAreUnionedLikeEveryOtherTag (0 ms)
+[----------] 3 tests from Dedup (0 ms total)
+
+[----------] 2 tests from Reclaim
+[ RUN      ] Reclaim.TheThirtyMinuteBoundIsMeasuredFromTheBREAKAndIsInclusive
+[       OK ] Reclaim.TheThirtyMinuteBoundIsMeasuredFromTheBREAKAndIsInclusive (0 ms)
+[ RUN      ] Reclaim.AnOutOfBoundReclaimIsDroppedAndCountedNotSilentlyKept
+[       OK ] Reclaim.AnOutOfBoundReclaimIsDroppedAndCountedNotSilentlyKept (0 ms)
+[----------] 2 tests from Reclaim (0 ms total)
+
+[----------] 1 test from G2
+[ RUN      ] G2.CarriesTheApproachSideAndTauStarNotTheFastOpenDelay
+[       OK ] G2.CarriesTheApproachSideAndTauStarNotTheFastOpenDelay (0 ms)
+[----------] 1 test from G2 (0 ms total)
+
+[----------] 7 tests from Levels
+[ RUN      ] Levels.ALevelMustArmForFiveMinutesBeyondTwoTolBeforeItCanBeTouched
+[       OK ] Levels.ALevelMustArmForFiveMinutesBeyondTwoTolBeforeItCanBeTouched (0 ms)
+[ RUN      ] Levels.EveryPhaseBoundaryReArmsALevelImmediately
+[       OK ] Levels.EveryPhaseBoundaryReArmsALevelImmediately (0 ms)
+[ RUN      ] Levels.ATouchDisarmsTheLevelUntilItReArms
+[       OK ] Levels.ATouchDisarmsTheLevelUntilItReArms (0 ms)
+[ RUN      ] Levels.NothingBeforeTheLevelsCreationSecondArmsTouchesOrCountsAsNear
+[       OK ] Levels.NothingBeforeTheLevelsCreationSecondArmsTouchesOrCountsAsNear (0 ms)
+[ RUN      ] Levels.AnUnobservableDistanceIsNeitherNearNorFarAndCannotArm
+[       OK ] Levels.AnUnobservableDistanceIsNeitherNearNorFarAndCannotArm (0 ms)
+[ RUN      ] Levels.ASegmentScopedLevelDoesNotExistOutsideItsOwnPhase
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+0
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+1
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+2
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+3
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+4
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+5
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+6
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+7
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+8
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+9
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+10
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+11
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+12
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+13
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+14
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+15
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+16
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+17
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+18
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+19
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+20
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+21
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+22
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+23
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+24
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+25
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+26
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+27
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+28
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+29
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+30
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+31
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+32
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+33
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+34
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+35
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+36
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+37
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+38
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+39
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+40
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+41
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+42
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+43
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+44
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+45
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+46
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+47
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+48
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+49
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+50
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+51
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+52
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+53
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+54
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+55
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+56
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+57
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+58
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+59
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+60
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+61
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+62
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+63
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+64
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+65
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+66
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+67
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+68
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+69
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+70
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+71
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+72
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+73
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+74
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+75
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+76
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+77
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+78
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+79
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+80
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+81
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+82
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+83
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+84
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+85
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+86
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+87
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+88
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+89
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+90
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+91
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+92
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+93
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+94
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+95
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+96
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+97
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+98
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+99
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+100
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+101
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+102
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+103
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+104
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+105
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+106
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+107
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+108
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+109
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+110
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+111
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+112
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+113
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+114
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+115
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+116
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+117
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+118
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+119
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+120
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+121
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+122
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+123
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+124
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+125
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+126
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+127
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+128
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+129
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+130
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+131
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+132
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+133
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+134
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+135
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+136
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+137
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+138
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+139
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+140
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+141
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+142
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+143
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+144
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+145
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+146
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+147
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+148
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+149
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+150
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+151
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+152
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+153
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+154
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+155
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+156
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+157
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+158
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+159
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+160
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+161
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+162
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+163
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+164
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+165
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+166
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+167
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+168
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+169
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+170
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+171
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+172
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+173
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+174
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+175
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+176
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+177
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+178
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+179
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+180
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+181
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+182
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+183
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+184
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+185
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+186
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+187
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+188
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+189
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+190
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+191
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+192
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+193
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+194
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+195
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+196
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+197
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+198
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+199
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+200
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+201
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+202
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+203
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+204
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+205
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+206
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+207
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+208
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+209
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+210
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+211
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+212
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+213
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+214
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+215
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+216
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+217
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+218
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+219
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+220
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+221
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+222
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+223
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+224
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+225
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+226
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+227
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+228
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+229
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+230
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+231
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+232
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+233
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+234
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+235
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+236
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+237
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+238
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+239
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+240
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+241
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+242
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+243
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+244
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+245
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+246
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+247
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+248
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+249
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+250
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+251
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+252
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+253
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+254
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+255
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+256
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+257
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+258
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+259
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+260
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+261
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+262
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+263
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+264
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+265
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+266
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+267
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+268
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+269
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+270
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+271
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+272
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+273
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+274
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+275
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+276
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+277
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+278
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+279
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+280
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+281
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+282
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+283
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+284
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+285
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+286
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+287
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+288
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+289
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+290
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+291
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+292
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+293
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+294
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+295
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+296
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+297
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+298
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+299
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+300
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+301
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+302
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+303
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+304
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+305
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+306
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+307
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+308
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+309
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+310
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+311
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+312
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+313
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+314
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+315
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+316
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+317
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+318
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+319
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+320
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+321
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+322
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+323
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+324
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+325
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+326
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+327
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+328
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+329
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+330
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+331
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+332
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+333
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+334
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+335
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+336
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+337
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+338
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+339
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+340
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+341
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+342
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+343
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+344
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+345
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+346
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+347
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+348
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+349
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+350
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+351
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+352
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+353
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+354
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+355
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+356
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+357
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+358
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+359
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+360
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+361
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+362
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+363
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+364
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+365
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+366
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+367
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+368
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+369
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+370
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+371
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+372
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+373
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+374
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+375
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+376
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+377
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+378
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+379
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+380
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+381
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+382
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+383
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+384
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+385
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+386
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+387
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+388
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+389
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+390
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+391
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+392
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+393
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+394
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+395
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+396
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+397
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+398
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+399
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+400
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+401
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+402
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+403
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+404
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+405
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+406
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+407
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+408
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+409
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+410
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+411
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+412
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+413
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+414
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+415
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+416
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+417
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+418
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+419
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+420
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+421
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+422
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+423
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+424
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+425
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+426
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+427
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+428
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+429
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+430
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+431
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+432
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+433
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+434
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+435
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+436
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+437
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+438
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+439
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+440
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+441
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+442
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+443
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+444
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+445
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+446
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+447
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+448
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+449
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+450
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+451
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+452
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+453
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+454
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+455
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+456
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+457
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+458
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+459
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+460
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+461
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+462
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+463
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+464
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+465
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+466
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+467
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+468
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+469
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+470
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+471
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+472
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+473
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+474
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+475
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+476
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+477
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+478
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+479
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+480
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+481
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+482
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+483
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+484
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+485
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+486
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+487
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+488
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+489
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+490
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+491
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+492
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+493
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+494
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+495
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+496
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+497
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+498
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+499
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+500
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+501
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+502
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+503
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+504
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+505
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+506
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+507
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+508
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+509
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+510
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+511
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+512
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+513
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+514
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+515
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+516
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+517
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+518
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+519
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+520
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+521
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+522
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+523
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+524
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+525
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+526
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+527
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+528
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+529
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+530
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+531
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+532
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+533
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+534
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+535
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+536
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+537
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+538
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+539
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+540
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+541
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+542
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+543
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+544
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+545
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+546
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+547
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+548
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+549
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+550
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+551
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+552
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+553
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+554
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+555
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+556
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+557
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+558
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+559
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+560
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+561
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+562
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+563
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+564
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+565
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+566
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+567
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+568
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+569
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+570
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+571
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+572
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+573
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+574
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+575
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+576
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+577
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+578
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+579
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+580
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+581
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+582
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+583
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+584
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+585
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+586
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+587
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+588
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+589
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+590
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+591
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+592
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+593
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+594
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+595
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+596
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+597
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+598
+
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:597: Failure
+Value of: std::isnan(diff[i])
+  Actual: false
+Expected: true
+599
+
+[  FAILED  ] Levels.ASegmentScopedLevelDoesNotExistOutsideItsOwnPhase (21 ms)
+[ RUN      ] Levels.AScopedLevelCannotBeTouchedInAForeignSegment
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:630: Failure
+Expected equality of these values:
+  scan.first_near
+    Which is: 0
+  1900
+
+[  FAILED  ] Levels.AScopedLevelCannotBeTouchedInAForeignSegment (0 ms)
+[----------] 7 tests from Levels (22 ms total)
+
+[----------] 6 tests from Outcome
+[ RUN      ] Outcome.RejectIsTheFirstMoveOfTheFullSizeBackToTheApproachSide
+[       OK ] Outcome.RejectIsTheFirstMoveOfTheFullSizeBackToTheApproachSide (0 ms)
+[ RUN      ] Outcome.TheWindowIsFifteenMinutesAndNothingOutsideItResolvesTheTouch
+[       OK ] Outcome.TheWindowIsFifteenMinutesAndNothingOutsideItResolvesTheTouch (0 ms)
+[ RUN      ] Outcome.BreakNeedsSixtySECONDSBeyondTheLevelAndReclaimNeedsOneTwentyBack
+[       OK ] Outcome.BreakNeedsSixtySECONDSBeyondTheLevelAndReclaimNeedsOneTwentyBack (0 ms)
+[ RUN      ] Outcome.ARunOfBeyondSecondsThatBreaksBeforeSixtyNeverBreaksTheLevel
+[       OK ] Outcome.ARunOfBeyondSecondsThatBreaksBeforeSixtyNeverBreaksTheLevel (0 ms)
+[ RUN      ] Outcome.ReclaimIsSearchedFromTheBREAKAndBeyondTheFifteenMinuteWindow
+[       OK ] Outcome.ReclaimIsSearchedFromTheBREAKAndBeyondTheFifteenMinuteWindow (0 ms)
+[ RUN      ] Outcome.WhenBothResolveTheEARLIEROneIsTheOutcome
+[       OK ] Outcome.WhenBothResolveTheEARLIEROneIsTheOutcome (0 ms)
+[----------] 6 tests from Outcome (0 ms total)
+
+[----------] 3 tests from Families
+[ RUN      ] Families.TheKeptSevenAreTheCCM133SetPlusOrExtAppendedAtTheTopBit
+[       OK ] Families.TheKeptSevenAreTheCCM133SetPlusOrExtAppendedAtTheTopBit (0 ms)
+[ RUN      ] Families.TheDO53VwapBandSetIsTheLineAndPlusMinusTwoAndTwoAndAHalfSigma
+[       OK ] Families.TheDO53VwapBandSetIsTheLineAndPlusMinusTwoAndTwoAndAHalfSigma (0 ms)
+[ RUN      ] Families.TheFourRungLadderLeadsWithTheFineRungAtBitZero
+[       OK ] Families.TheFourRungLadderLeadsWithTheFineRungAtBitZero (0 ms)
+[----------] 3 tests from Families (0 ms total)
+
+[----------] 2 tests from Params
+[ RUN      ] Params.TheGeneratorsCanonicalJsonHasSortedKeysAndShortestRoundTripFloats
+[       OK ] Params.TheGeneratorsCanonicalJsonHasSortedKeysAndShortestRoundTripFloats (0 ms)
+[ RUN      ] Params.TheFrozenSpecShasAreCheckedAgainstTheFilesNotMerelyDeclared
+[       OK ] Params.TheFrozenSpecShasAreCheckedAgainstTheFilesNotMerelyDeclared (21 ms)
+[----------] 2 tests from Params (22 ms total)
+
+[----------] 5 tests from OrExt
+[ RUN      ] OrExt.TheAdoptedCellsAreTheSixOfCCM161AndHGHasNONE
+[       OK ] OrExt.TheAdoptedCellsAreTheSixOfCCM161AndHGHasNONE (0 ms)
+[ RUN      ] OrExt.TheRangeIsTheSANEExtremesInsideTheWindowAndClosesAtOpenPlusWidth
+[       OK ] OrExt.TheRangeIsTheSANEExtremesInsideTheWindowAndClosesAtOpenPlusWidth (0 ms)
+[ RUN      ] OrExt.ASegmentWithNothingLeftAfterTheRangeHasNORangeAtAll
+[       OK ] OrExt.ASegmentWithNothingLeftAfterTheRangeHasNORangeAtAll (0 ms)
+[ RUN      ] OrExt.OnlyTheKAtLeastOneAndAHalfRungsCarryTheFD6Flag
+[       OK ] OrExt.OnlyTheKAtLeastOneAndAHalfRungsCarryTheFD6Flag (0 ms)
+[ RUN      ] OrExt.AnExtensionIsBeyondOnlyInsideItsOwnSegmentAndOnlyOnceItsRangeClosed
+[       OK ] OrExt.AnExtensionIsBeyondOnlyInsideItsOwnSegmentAndOnlyOnceItsRangeClosed (0 ms)
+[----------] 5 tests from OrExt (0 ms total)
+
+[----------] 5 tests from Calendar
+[ RUN      ] Calendar.TheEtSlotsFollowDaylightSavingInsteadOfAFrozenUtcOffset
+[       OK ] Calendar.TheEtSlotsFollowDaylightSavingInsteadOfAFrozenUtcOffset (3 ms)
+[ RUN      ] Calendar.TheScanReachesTheNextLocalDayBecauseAGlobexSessionOpensTheEveningBefore
+[       OK ] Calendar.TheScanReachesTheNextLocalDayBecauseAGlobexSessionOpensTheEveningBefore (0 ms)
+[ RUN      ] Calendar.TheMeetingsLastDayIsTheReleaseAndASpanIntoJanuaryRollsTheYear
+[       OK ] Calendar.TheMeetingsLastDayIsTheReleaseAndASpanIntoJanuaryRollsTheYear (5 ms)
+[ RUN      ] Calendar.TheFomcSlotIsJoinedOnTheReleaseSecondsEtDayNotTheSessionsOwnDay
+[       OK ] Calendar.TheFomcSlotIsJoinedOnTheReleaseSecondsEtDayNotTheSessionsOwnDay (0 ms)
+[ RUN      ] Calendar.TheMicroOpensAreTheTokyoLunchReopenAndTheUsCashOpen
+[       OK ] Calendar.TheMicroOpensAreTheTokyoLunchReopenAndTheUsCashOpen (0 ms)
+[----------] 5 tests from Calendar (8 ms total)
+
+[----------] 1 test from Windows
+[ RUN      ] Windows.TheWindowIsHalfOpenAndOverlappingTriggersMergeIntoOne
+[       OK ] Windows.TheWindowIsHalfOpenAndOverlappingTriggersMergeIntoOne (0 ms)
+[----------] 1 test from Windows (0 ms total)
+
+[----------] 3 tests from Shock
+[ RUN      ] Shock.AnEpisodeStartsWhenTheTRAILINGRangeREACHESTheThresholdNotWhenTheMoveBegins
+[       OK ] Shock.AnEpisodeStartsWhenTheTRAILINGRangeREACHESTheThresholdNotWhenTheMoveBegins (0 ms)
+[ RUN      ] Shock.TheTrailingWindowIsWALLSecondsSoAGapShortensItInsteadOfReachingBack
+[       OK ] Shock.TheTrailingWindowIsWALLSecondsSoAGapShortensItInsteadOfReachingBack (0 ms)
+[ RUN      ] Shock.AWideBookEpisodeNeedsTenSustainedSecondsAndABookOUTAGEIsNeverOne
+[       OK ] Shock.AWideBookEpisodeNeedsTenSustainedSecondsAndABookOUTAGEIsNeverOne (0 ms)
+[----------] 3 tests from Shock (0 ms total)
+
+[----------] 1 test from PostShock
+[ RUN      ] PostShock.OnlyTheEARLIESTConfirmationAfterAnEpisodeFiresAndEverySideAtThatSecondDoes
+[       OK ] PostShock.OnlyTheEARLIESTConfirmationAfterAnEpisodeFiresAndEverySideAtThatSecondDoes (0 ms)
+[----------] 1 test from PostShock (0 ms total)
+
+[----------] 2 tests from NewFamilies
+[ RUN      ] NewFamilies.TheNineBitsAppendTheAdoptedFourAfterTheOriginalFive
+[       OK ] NewFamilies.TheNineBitsAppendTheAdoptedFourAfterTheOriginalFive (0 ms)
+[ RUN      ] NewFamilies.FirstTestIsAFamilyOnNKDOnlyAndAFeatureEverywhereElse
+[       OK ] NewFamilies.FirstTestIsAFamilyOnNKDOnlyAndAFeatureEverywhereElse (0 ms)
+[----------] 2 tests from NewFamilies (0 ms total)
+
+[----------] 2 tests from FirstTest
+[ RUN      ] FirstTest.IsTheEarliestConfirmingTouchPerLEVELFamilyAndTiesKeepTheEarlierArrival
+[       OK ] FirstTest.IsTheEarliestConfirmingTouchPerLEVELFamilyAndTiesKeepTheEarlierArrival (0 ms)
+[ RUN      ] FirstTest.TheVirginFlagReadsFirstEverTouchesAndIsBLINDToOrExtByTheOraclesConstruction
+[       OK ] FirstTest.TheVirginFlagReadsFirstEverTouchesAndIsBLINDToOrExtByTheOraclesConstruction (0 ms)
+[----------] 2 tests from FirstTest (0 ms total)
+
+[----------] 4 tests from Tables
+[ RUN      ] Tables.AFrozenQuoteSessionIsDroppedFromTheLevelHistory
+[       OK ] Tables.AFrozenQuoteSessionIsDroppedFromTheLevelHistory (17 ms)
+[ RUN      ] Tables.AMissingCellIsNaNAndNeverZero
+[       OK ] Tables.AMissingCellIsNaNAndNeverZero (15 ms)
+[ RUN      ] Tables.OnlyTheAllSplitAndANumericEraFeedTheRungFloor
+[       OK ] Tables.OnlyTheAllSplitAndANumericEraFeedTheRungFloor (19 ms)
+[ RUN      ] Tables.TheLadderColumnsAreMultipliersOnSigmaHatAndAreReadByQuantile
+[       OK ] Tables.TheLadderColumnsAreMultipliersOnSigmaHatAndAreReadByQuantile (27 ms)
+[----------] 4 tests from Tables (80 ms total)
+
+[----------] Global test environment tear-down
+[==========] 54 tests from 17 test suites ran. (138 ms total)
+[  PASSED  ] 52 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Levels.ASegmentScopedLevelDoesNotExistOutsideItsOwnPhase
+[  FAILED  ] Levels.AScopedLevelCannotBeTouchedInAForeignSegment
+
+ 2 FAILED TESTS

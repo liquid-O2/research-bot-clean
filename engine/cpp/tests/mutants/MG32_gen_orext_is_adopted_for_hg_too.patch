@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/levels.cpp b/qr_gen/src/levels.cpp
+--- a/qr_gen/src/levels.cpp
++++ b/qr_gen/src/levels.cpp
+@@ -101,7 +101,7 @@
+     case qr::futsess::Asset::NKD:
+       return {{1, 30}};
+     default:
+-      return {};
++      return {{1, 30}};  // MG32: HG adopted NO cell
+   }
+ }
+ 

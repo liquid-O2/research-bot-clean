@@ -1,16 +1,16 @@
 Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
-[==========] Running 32 tests from 10 test suites.
+[==========] Running 54 tests from 17 test suites.
 [----------] Global test environment set-up.
 [----------] 4 tests from ZigZag
 [ RUN      ] ZigZag.ConfirmationIsTheFirstSecondTheRetraceREACHESTheThreshold
-[       OK ] ZigZag.ConfirmationIsTheFirstSecondTheRetraceREACHESTheThreshold (0 ms)
+[       OK ] ZigZag.ConfirmationIsTheFirstSecondTheRetraceREACHESTheThreshold (1 ms)
 [ RUN      ] ZigZag.TheExtremeKeepsTheFIRSTSecondItWasReached
 [       OK ] ZigZag.TheExtremeKeepsTheFIRSTSecondItWasReached (0 ms)
 [ RUN      ] ZigZag.ThresholdIsReadAtTheCONFIRMATIONSecondsOwnPhase
 [       OK ] ZigZag.ThresholdIsReadAtTheCONFIRMATIONSecondsOwnPhase (0 ms)
 [ RUN      ] ZigZag.RungThresholdTakesTheFLOORSAndRoundsHalfUpToTheTick
 [       OK ] ZigZag.RungThresholdTakesTheFLOORSAndRoundsHalfUpToTheTick (0 ms)
-[----------] 4 tests from ZigZag (0 ms total)
+[----------] 4 tests from ZigZag (1 ms total)
 
 [----------] 3 tests from FastOpen
 [ RUN      ] FastOpen.TheWindowIsHalfOpenAndMeasuredFromTheLastOpenAtOrBeforeIt
@@ -21,12 +21,14 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] FastOpen.TheFineRungTagsG1FineAndTheCoarseRungsTagG1 (0 ms)
 [----------] 3 tests from FastOpen (0 ms total)
 
-[----------] 2 tests from Dedup
+[----------] 3 tests from Dedup
 [ RUN      ] Dedup.UnionsTheTagsAndKeepsTheEARLIESTConfirmationSecond
 [       OK ] Dedup.UnionsTheTagsAndKeepsTheEARLIESTConfirmationSecond (0 ms)
 [ RUN      ] Dedup.ASideIsPartOfTheIdentitySoOppositeSidesNeverMerge
 [       OK ] Dedup.ASideIsPartOfTheIdentitySoOppositeSidesNeverMerge (0 ms)
-[----------] 2 tests from Dedup (0 ms total)
+[ RUN      ] Dedup.TheFlagBitsAreUnionedLikeEveryOtherTag
+[       OK ] Dedup.TheFlagBitsAreUnionedLikeEveryOtherTag (0 ms)
+[----------] 3 tests from Dedup (0 ms total)
 
 [----------] 2 tests from Reclaim
 [ RUN      ] Reclaim.TheThirtyMinuteBoundIsMeasuredFromTheBREAKAndIsInclusive
@@ -40,9 +42,9 @@ Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googlete
 [       OK ] G2.CarriesTheApproachSideAndTauStarNotTheFastOpenDelay (0 ms)
 [----------] 1 test from G2 (0 ms total)
 
-[----------] 5 tests from Levels
+[----------] 7 tests from Levels
 [ RUN      ] Levels.ALevelMustArmForFiveMinutesBeyondTwoTolBeforeItCanBeTouched
-/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:218: Failure
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:220: Failure
 Expected equality of these values:
   scan.touches.size()
     Which is: 2
@@ -58,7 +60,11 @@ Expected equality of these values:
 [       OK ] Levels.NothingBeforeTheLevelsCreationSecondArmsTouchesOrCountsAsNear (0 ms)
 [ RUN      ] Levels.AnUnobservableDistanceIsNeitherNearNorFarAndCannotArm
 [       OK ] Levels.AnUnobservableDistanceIsNeitherNearNorFarAndCannotArm (0 ms)
-[----------] 5 tests from Levels (0 ms total)
+[ RUN      ] Levels.ASegmentScopedLevelDoesNotExistOutsideItsOwnPhase
+[       OK ] Levels.ASegmentScopedLevelDoesNotExistOutsideItsOwnPhase (0 ms)
+[ RUN      ] Levels.AScopedLevelCannotBeTouchedInAForeignSegment
+[       OK ] Levels.AScopedLevelCannotBeTouchedInAForeignSegment (0 ms)
+[----------] 7 tests from Levels (0 ms total)
 
 [----------] 6 tests from Outcome
 [ RUN      ] Outcome.RejectIsTheFirstMoveOfTheFullSizeBackToTheApproachSide
@@ -76,8 +82,8 @@ Expected equality of these values:
 [----------] 6 tests from Outcome (0 ms total)
 
 [----------] 3 tests from Families
-[ RUN      ] Families.TheKeptSixAreExactlyTheCCM133SetInTheRostersBitOrder
-[       OK ] Families.TheKeptSixAreExactlyTheCCM133SetInTheRostersBitOrder (0 ms)
+[ RUN      ] Families.TheKeptSevenAreTheCCM133SetPlusOrExtAppendedAtTheTopBit
+[       OK ] Families.TheKeptSevenAreTheCCM133SetPlusOrExtAppendedAtTheTopBit (0 ms)
 [ RUN      ] Families.TheDO53VwapBandSetIsTheLineAndPlusMinusTwoAndTwoAndAHalfSigma
 [       OK ] Families.TheDO53VwapBandSetIsTheLineAndPlusMinusTwoAndTwoAndAHalfSigma (0 ms)
 [ RUN      ] Families.TheFourRungLadderLeadsWithTheFineRungAtBitZero
@@ -89,22 +95,81 @@ Expected equality of these values:
 [       OK ] Params.TheGeneratorsCanonicalJsonHasSortedKeysAndShortestRoundTripFloats (0 ms)
 [ RUN      ] Params.TheFrozenSpecShasAreCheckedAgainstTheFilesNotMerelyDeclared
 [       OK ] Params.TheFrozenSpecShasAreCheckedAgainstTheFilesNotMerelyDeclared (8 ms)
-[----------] 2 tests from Params (8 ms total)
+[----------] 2 tests from Params (9 ms total)
+
+[----------] 5 tests from OrExt
+[ RUN      ] OrExt.TheAdoptedCellsAreTheSixOfCCM161AndHGHasNONE
+[       OK ] OrExt.TheAdoptedCellsAreTheSixOfCCM161AndHGHasNONE (0 ms)
+[ RUN      ] OrExt.TheRangeIsTheSANEExtremesInsideTheWindowAndClosesAtOpenPlusWidth
+[       OK ] OrExt.TheRangeIsTheSANEExtremesInsideTheWindowAndClosesAtOpenPlusWidth (0 ms)
+[ RUN      ] OrExt.ASegmentWithNothingLeftAfterTheRangeHasNORangeAtAll
+[       OK ] OrExt.ASegmentWithNothingLeftAfterTheRangeHasNORangeAtAll (0 ms)
+[ RUN      ] OrExt.OnlyTheKAtLeastOneAndAHalfRungsCarryTheFD6Flag
+[       OK ] OrExt.OnlyTheKAtLeastOneAndAHalfRungsCarryTheFD6Flag (0 ms)
+[ RUN      ] OrExt.AnExtensionIsBeyondOnlyInsideItsOwnSegmentAndOnlyOnceItsRangeClosed
+[       OK ] OrExt.AnExtensionIsBeyondOnlyInsideItsOwnSegmentAndOnlyOnceItsRangeClosed (0 ms)
+[----------] 5 tests from OrExt (0 ms total)
+
+[----------] 5 tests from Calendar
+[ RUN      ] Calendar.TheEtSlotsFollowDaylightSavingInsteadOfAFrozenUtcOffset
+[       OK ] Calendar.TheEtSlotsFollowDaylightSavingInsteadOfAFrozenUtcOffset (3 ms)
+[ RUN      ] Calendar.TheScanReachesTheNextLocalDayBecauseAGlobexSessionOpensTheEveningBefore
+[       OK ] Calendar.TheScanReachesTheNextLocalDayBecauseAGlobexSessionOpensTheEveningBefore (0 ms)
+[ RUN      ] Calendar.TheMeetingsLastDayIsTheReleaseAndASpanIntoJanuaryRollsTheYear
+[       OK ] Calendar.TheMeetingsLastDayIsTheReleaseAndASpanIntoJanuaryRollsTheYear (4 ms)
+[ RUN      ] Calendar.TheFomcSlotIsJoinedOnTheReleaseSecondsEtDayNotTheSessionsOwnDay
+[       OK ] Calendar.TheFomcSlotIsJoinedOnTheReleaseSecondsEtDayNotTheSessionsOwnDay (0 ms)
+[ RUN      ] Calendar.TheMicroOpensAreTheTokyoLunchReopenAndTheUsCashOpen
+[       OK ] Calendar.TheMicroOpensAreTheTokyoLunchReopenAndTheUsCashOpen (0 ms)
+[----------] 5 tests from Calendar (7 ms total)
+
+[----------] 1 test from Windows
+[ RUN      ] Windows.TheWindowIsHalfOpenAndOverlappingTriggersMergeIntoOne
+[       OK ] Windows.TheWindowIsHalfOpenAndOverlappingTriggersMergeIntoOne (0 ms)
+[----------] 1 test from Windows (0 ms total)
+
+[----------] 3 tests from Shock
+[ RUN      ] Shock.AnEpisodeStartsWhenTheTRAILINGRangeREACHESTheThresholdNotWhenTheMoveBegins
+[       OK ] Shock.AnEpisodeStartsWhenTheTRAILINGRangeREACHESTheThresholdNotWhenTheMoveBegins (0 ms)
+[ RUN      ] Shock.TheTrailingWindowIsWALLSecondsSoAGapShortensItInsteadOfReachingBack
+[       OK ] Shock.TheTrailingWindowIsWALLSecondsSoAGapShortensItInsteadOfReachingBack (0 ms)
+[ RUN      ] Shock.AWideBookEpisodeNeedsTenSustainedSecondsAndABookOUTAGEIsNeverOne
+[       OK ] Shock.AWideBookEpisodeNeedsTenSustainedSecondsAndABookOUTAGEIsNeverOne (0 ms)
+[----------] 3 tests from Shock (0 ms total)
+
+[----------] 1 test from PostShock
+[ RUN      ] PostShock.OnlyTheEARLIESTConfirmationAfterAnEpisodeFiresAndEverySideAtThatSecondDoes
+[       OK ] PostShock.OnlyTheEARLIESTConfirmationAfterAnEpisodeFiresAndEverySideAtThatSecondDoes (0 ms)
+[----------] 1 test from PostShock (0 ms total)
+
+[----------] 2 tests from NewFamilies
+[ RUN      ] NewFamilies.TheNineBitsAppendTheAdoptedFourAfterTheOriginalFive
+[       OK ] NewFamilies.TheNineBitsAppendTheAdoptedFourAfterTheOriginalFive (0 ms)
+[ RUN      ] NewFamilies.FirstTestIsAFamilyOnNKDOnlyAndAFeatureEverywhereElse
+[       OK ] NewFamilies.FirstTestIsAFamilyOnNKDOnlyAndAFeatureEverywhereElse (0 ms)
+[----------] 2 tests from NewFamilies (0 ms total)
+
+[----------] 2 tests from FirstTest
+[ RUN      ] FirstTest.IsTheEarliestConfirmingTouchPerLEVELFamilyAndTiesKeepTheEarlierArrival
+[       OK ] FirstTest.IsTheEarliestConfirmingTouchPerLEVELFamilyAndTiesKeepTheEarlierArrival (0 ms)
+[ RUN      ] FirstTest.TheVirginFlagReadsFirstEverTouchesAndIsBLINDToOrExtByTheOraclesConstruction
+[       OK ] FirstTest.TheVirginFlagReadsFirstEverTouchesAndIsBLINDToOrExtByTheOraclesConstruction (0 ms)
+[----------] 2 tests from FirstTest (0 ms total)
 
 [----------] 4 tests from Tables
 [ RUN      ] Tables.AFrozenQuoteSessionIsDroppedFromTheLevelHistory
-[       OK ] Tables.AFrozenQuoteSessionIsDroppedFromTheLevelHistory (16 ms)
+[       OK ] Tables.AFrozenQuoteSessionIsDroppedFromTheLevelHistory (31 ms)
 [ RUN      ] Tables.AMissingCellIsNaNAndNeverZero
-[       OK ] Tables.AMissingCellIsNaNAndNeverZero (15 ms)
+[       OK ] Tables.AMissingCellIsNaNAndNeverZero (18 ms)
 [ RUN      ] Tables.OnlyTheAllSplitAndANumericEraFeedTheRungFloor
-[       OK ] Tables.OnlyTheAllSplitAndANumericEraFeedTheRungFloor (16 ms)
+[       OK ] Tables.OnlyTheAllSplitAndANumericEraFeedTheRungFloor (19 ms)
 [ RUN      ] Tables.TheLadderColumnsAreMultipliersOnSigmaHatAndAreReadByQuantile
-[       OK ] Tables.TheLadderColumnsAreMultipliersOnSigmaHatAndAreReadByQuantile (29 ms)
-[----------] 4 tests from Tables (78 ms total)
+[       OK ] Tables.TheLadderColumnsAreMultipliersOnSigmaHatAndAreReadByQuantile (15 ms)
+[----------] 4 tests from Tables (84 ms total)
 
 [----------] Global test environment tear-down
-[==========] 32 tests from 10 test suites ran. (87 ms total)
-[  PASSED  ] 31 tests.
+[==========] 54 tests from 17 test suites ran. (107 ms total)
+[  PASSED  ] 53 tests.
 [  FAILED  ] 1 test, listed below:
 [  FAILED  ] Levels.ALevelMustArmForFiveMinutesBeyondTwoTolBeforeItCanBeTouched
 

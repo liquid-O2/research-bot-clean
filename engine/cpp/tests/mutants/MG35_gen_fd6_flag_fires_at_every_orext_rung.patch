@@ -1,0 +1,14 @@
+diff --git a/qr_gen/src/families.cpp b/qr_gen/src/families.cpp
+--- a/qr_gen/src/families.cpp
++++ b/qr_gen/src/families.cpp
+@@ -262,8 +262,8 @@
+   const double rng = r.hi - r.lo;
+   for (std::size_t i = 0; i < kOrExtKCount; ++i) {
+     const double k = kOrExtK[i];
+-    if (k < kOrExtKMin) {
+-      continue;  // F-D6 is "beyond an OR_EXT k >= 1.5 level", not any level
++    if (false) {  // MG35: F-D6 is k >= 1.5, not every rung
++      continue;
+     }
+     out.push_back(OrExtLevel{r.t1, r.hi + k * rng, 1, r.phase});
+     out.push_back(OrExtLevel{r.t1, r.lo - k * rng, -1, r.phase});

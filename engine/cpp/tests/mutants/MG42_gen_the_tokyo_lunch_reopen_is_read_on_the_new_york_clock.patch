@@ -1,0 +1,12 @@
+diff --git a/qr_gen/include/qr_gen/calendar.hpp b/qr_gen/include/qr_gen/calendar.hpp
+--- a/qr_gen/include/qr_gen/calendar.hpp
++++ b/qr_gen/include/qr_gen/calendar.hpp
+@@ -60,7 +60,7 @@
+ 
+ /// CC-M1-7.1 micro-opens: the Tokyo lunch reopen and the US cash open.
+ inline constexpr std::size_t kMicroOpenCount = 2;
+-inline constexpr LocalSlot kMicroOpens[kMicroOpenCount] = {{kTzTokyo, 12, 30},
++inline constexpr LocalSlot kMicroOpens[kMicroOpenCount] = {{kTzNewYork, 12, 30},  // MG42
+                                                            {kTzNewYork, 9, 30}};
+ 
+ /// Session-second offsets inside [open_utc, open_utc + n) whose LOCAL clock in

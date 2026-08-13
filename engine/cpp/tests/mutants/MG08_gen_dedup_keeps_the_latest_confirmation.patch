@@ -1,11 +1,10 @@
 diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
-index 7d14eda..b6d6775 100644
 --- a/qr_gen/src/generate.cpp
 +++ b/qr_gen/src/generate.cpp
-@@ -338,7 +338,7 @@ std::vector<Emission> dedup(const std::vector<Emission>& in) {
-     cur.fam_bits = static_cast<std::uint8_t>(cur.fam_bits | e.fam_bits);
+@@ -396,7 +396,7 @@
      cur.level_bits = static_cast<std::uint16_t>(cur.level_bits | e.level_bits);
      cur.rung_mask = static_cast<std::uint8_t>(cur.rung_mask | e.rung_mask);
+     cur.flags = static_cast<std::uint8_t>(cur.flags | e.flags);
 -    cur.conf_sec = std::min(cur.conf_sec, e.conf_sec);
 +    cur.conf_sec = std::max(cur.conf_sec, e.conf_sec);  // MG08: latest, not earliest
    }

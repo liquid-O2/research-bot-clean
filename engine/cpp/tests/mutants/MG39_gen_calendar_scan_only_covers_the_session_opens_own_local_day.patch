@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/calendar.cpp b/qr_gen/src/calendar.cpp
+--- a/qr_gen/src/calendar.cpp
++++ b/qr_gen/src/calendar.cpp
+@@ -99,7 +99,7 @@
+   }
+   const local_seconds base = z->to_local(sys_seconds{seconds{open_utc}});
+   const local_days base_day = std::chrono::floor<days>(base);
+-  for (int dd = -1; dd <= 1; ++dd) {
++  for (int dd = 0; dd <= 0; ++dd) {  // MG39: a Globex session opens the evening before
+     const local_seconds lt =
+         local_seconds{(base_day + days{dd}).time_since_epoch()} + hours{hh} + minutes{mm};
+     const local_info info = z->get_info(lt);

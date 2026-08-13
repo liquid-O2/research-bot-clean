@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/families.cpp b/qr_gen/src/families.cpp
+--- a/qr_gen/src/families.cpp
++++ b/qr_gen/src/families.cpp
+@@ -274,7 +274,7 @@
+ bool beyond_extension(double mid, std::int32_t sec, std::int8_t phase,
+                       const std::vector<OrExtLevel>& cells) {
+   for (const OrExtLevel& c : cells) {
+-    if (sec < c.t1 || phase != c.phase) {
++    if (sec < c.t1 && phase != c.phase) {  // MG36: EITHER disqualifies
+       continue;
+     }
+     if (c.side > 0 && mid >= c.price) {

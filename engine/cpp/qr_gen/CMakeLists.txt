@@ -4,6 +4,8 @@
 find_package(OpenSSL REQUIRED)
 
 add_library(qr_gen STATIC
+  src/calendar.cpp
+  src/families.cpp
   src/generate.cpp
   src/gensession.cpp
   src/levels.cpp
@@ -18,7 +20,8 @@ target_link_libraries(qr_gen_tests PRIVATE qr_gen GTest::gtest GTest::gtest_main
 target_compile_definitions(qr_gen_tests PRIVATE
   QR_TEST_SCRATCH_DIR="${QR_TEST_SCRATCH_DIR}"
   QR_M1B_SPEC_PATH="${CMAKE_SOURCE_DIR}/../../design/PORT_M1B_SPEC.md"
-  QR_M1_SPEC_PATH="${CMAKE_SOURCE_DIR}/../../design/PORT_M1_SPEC.md")
+  QR_M1_SPEC_PATH="${CMAKE_SOURCE_DIR}/../../design/PORT_M1_SPEC.md"
+  QR_FOMC_CSV_PATH="${CMAKE_SOURCE_DIR}/../../artifacts/reference/port_context/calendar_fomc.csv")
 qr_apply_flags(qr_gen_tests)
 
 add_test(NAME qr_gen_tests COMMAND qr_gen_tests)

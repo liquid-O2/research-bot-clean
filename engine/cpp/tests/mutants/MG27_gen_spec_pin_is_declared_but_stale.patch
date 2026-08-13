@@ -1,13 +1,12 @@
 diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
-index 7d14eda..9366875 100644
 --- a/qr_gen/src/generate.cpp
 +++ b/qr_gen/src/generate.cpp
-@@ -23,7 +23,7 @@ using qr::skel::BinPackWriter;
+@@ -23,7 +23,7 @@
  
  /// The frozen specs this engine implements. A pin nobody checks is decoration:
  /// the test suite recomputes both from the files.
 -constexpr const char* kSpecM1bSha16 = "d31f48b59877e44d";
 +constexpr const char* kSpecM1bSha16 = "0000000000000000";  // MG27: never checked
- constexpr const char* kSpecM1Sha16 = "81ea7f84a085e4bb";
- 
- std::string fmt_double(double v) {
+ // CC-M1-6.4 (the twice-bitten lesson): a CC amendment to a spec MUST bump the
+ // code sha pins in the SAME commit. CC-M1-6..9 were appended to PORT_M1_SPEC.md
+ // without the bump, which left this pin stale and the pin test RED at HEAD;

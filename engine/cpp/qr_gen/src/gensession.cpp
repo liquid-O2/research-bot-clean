@@ -55,6 +55,12 @@ Expected<GenSession, Refusal> GenSession::load(const std::string& dir, std::int3
                                       "session receipt carries no meta.dominant_share"));
   }
   s.dominant_share_ = dom->number();
+  const qr::futsess::Json* open_utc = (meta == nullptr) ? nullptr : meta->find("open_utc");
+  if (open_utc == nullptr || open_utc->type() != qr::futsess::Json::Type::Number) {
+    return refuse<GenSession>(Refusal(RefusalCode::SCHEMA_MISMATCH, "qr_gen::GenSession::load",
+                                      "session receipt carries no meta.open_utc"));
+  }
+  s.open_utc_ = static_cast<std::int64_t>(open_utc->number());
   return s;
 }
 

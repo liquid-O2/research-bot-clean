@@ -32,6 +32,7 @@ struct Args {
   std::string cost;
   std::string v1;
   std::string fvol;
+  std::string fomc;
 };
 
 bool parse(int argc, char** argv, Args* a) {
@@ -54,13 +55,15 @@ bool parse(int argc, char** argv, Args* a) {
       a->v1 = argv[++i];
     } else if (k == "--fvol" && has_next) {
       a->fvol = argv[++i];
+    } else if (k == "--fomc" && has_next) {
+      a->fomc = argv[++i];
     } else {
       std::fprintf(stderr, "unknown or incomplete argument: %s\n", k.c_str());
       return false;
     }
   }
   return !a->asset.empty() && !a->sessions.empty() && !a->out.empty() && !a->bars.empty() &&
-         !a->cost.empty() && !a->v1.empty() && !a->fvol.empty();
+         !a->cost.empty() && !a->v1.empty() && !a->fvol.empty() && !a->fomc.empty();
 }
 
 }  // namespace
@@ -70,7 +73,8 @@ int main(int argc, char** argv) {
   if (!parse(argc, argv, &a)) {
     std::fprintf(stderr,
                  "usage: qr_gen_build --asset SI --sessions <dir> --out <dir> "
-                 "--bars <p> --cost <p> --v1 <p> --fvol <p> [--sanity <stem>]\n");
+                 "--bars <p> --cost <p> --v1 <p> --fvol <p> --fomc <p> "
+                 "[--sanity <stem>]\n");
     return 2;
   }
   GenConfig cfg;
@@ -85,6 +89,7 @@ int main(int argc, char** argv) {
   cfg.cost_rollup_path = a.cost;
   cfg.v1_path = a.v1;
   cfg.fvol_path = a.fvol;
+  cfg.fomc_csv_path = a.fomc;
 
   const std::clock_t t0 = std::clock();
   auto res = generate_asset(cfg);
@@ -112,6 +117,23 @@ int main(int argc, char** argv) {
                static_cast<long long>(st.n_seconds_insane),
                static_cast<long long>(st.n_seconds_two_sided),
                static_cast<long long>(st.stored_bytes), secs);
+  // The S1.2 families and the S1.1 ledger family, one line, so the run.sh
+  // heartbeat carries the numbers ORACLE_FREEZE.tsv is compared against.
+  std::fprintf(stderr, "%s families:", a.asset.c_str());
+  for (std::size_t b = 0; b < kFamilyCount; ++b) {
+    std::fprintf(stderr, " %s=%lld", family_name(b), static_cast<long long>(st.n_by_family[b]));
+  }
+  std::fprintf(stderr,
+               " | or_ext_levels=%lld or_ext_touches=%lld beyond_flags=%lld "
+               "news_conf=%lld micro_conf=%lld post_shock=%lld first_test=%lld "
+               "shock_eps=%lld insane_eps=%lld\n",
+               static_cast<long long>(st.n_orext_levels),
+               static_cast<long long>(st.n_orext_touches),
+               static_cast<long long>(st.n_orext_beyond_flags),
+               static_cast<long long>(st.n_news_conf), static_cast<long long>(st.n_micro_conf),
+               static_cast<long long>(st.n_post_shock), static_cast<long long>(st.n_first_test),
+               static_cast<long long>(st.n_shock_episodes),
+               static_cast<long long>(st.n_insane_episodes));
   std::printf("%s\t%lld\t%lld\t%lld\n", a.asset.c_str(), static_cast<long long>(st.n_candidates),
               static_cast<long long>(st.n_records_f), static_cast<long long>(st.n_records_a));
   return 0;

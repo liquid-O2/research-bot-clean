@@ -1,0 +1,14 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -413,7 +413,9 @@
+   return (bit_index < kFamilyCount) ? kNames[bit_index] : "?";
+ }
+ 
+-bool first_test_is_a_family(Asset asset) { return asset == Asset::NKD; }
++bool first_test_is_a_family(Asset asset) {  // MG49: NKD ONLY
++  return asset == Asset::SI || asset == Asset::HG || asset == Asset::NKD;
++}
+ 
+ std::vector<std::int32_t> news_release_offsets(std::int64_t open_utc, std::int32_t n,
+                                                const std::vector<std::int32_t>& fomc_dates) {

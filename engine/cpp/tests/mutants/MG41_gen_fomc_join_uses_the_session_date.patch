@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -426,7 +426,7 @@
+   for (std::int32_t off : local_epoch_offsets(open_utc, n, kTzNewYork, kFomcHour, kFomcMin)) {
+     // V3-3: the join is on the ET calendar day the RELEASE SECOND falls on,
+     // never on the session's own trade_date.
+-    const std::int32_t d8 = local_date8(open_utc + off, kTzNewYork);
++    const std::int32_t d8 = local_date8(open_utc, kTzNewYork);  // MG41: join on the release second
+     if (std::binary_search(fomc_dates.begin(), fomc_dates.end(), d8)) {
+       rel.push_back(off);
+     }

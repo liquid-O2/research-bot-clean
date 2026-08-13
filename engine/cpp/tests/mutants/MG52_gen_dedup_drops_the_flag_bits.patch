@@ -1,0 +1,11 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -395,7 +395,6 @@
+     cur.fam_bits = static_cast<std::uint16_t>(cur.fam_bits | e.fam_bits);
+     cur.level_bits = static_cast<std::uint16_t>(cur.level_bits | e.level_bits);
+     cur.rung_mask = static_cast<std::uint8_t>(cur.rung_mask | e.rung_mask);
+-    cur.flags = static_cast<std::uint8_t>(cur.flags | e.flags);
+     cur.conf_sec = std::min(cur.conf_sec, e.conf_sec);
+   }
+   std::vector<Emission> out;

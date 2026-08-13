@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/families.cpp b/qr_gen/src/families.cpp
+--- a/qr_gen/src/families.cpp
++++ b/qr_gen/src/families.cpp
+@@ -244,7 +244,7 @@
+   }
+   // TYPED EXCLUSION: a segment with nothing inside the range, or nothing left
+   // after it, has NO opening range — not a degenerate one.
+-  if (n_in == 0 || n_rest == 0) {
++  if (n_in == 0) {  // MG34: the rest-of-window exclusion is dropped
+     return out;
+   }
+   out.hi = hi;

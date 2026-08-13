@@ -1,5 +1,5 @@
 // qr_gen/levels.hpp — the LEVEL LEDGER (PORT_M1_SPEC §4 / D-050) restricted to
-// the SIX KEPT families of CC-M1-3.3.
+// the SEVEN KEPT families: the six of CC-M1-3.3 plus CC-M1-6.1's OR_EXT.
 //
 //   FVOL_LADDER  anchor +- Q_q(range/sigma_hat) x sigma_hat, q in {10,25,50,75,90}
 //   FVOL_BAND    anchor +- k x sigma_hat, k in {0.5, 1.0, 1.5, 2.0}
@@ -10,6 +10,24 @@
 //                lookback in {1,2,3,5} sessions
 //   VWAP         causal session/phase VWAP line and +- {2.0, 2.5} x sigma_vwap
 //                (D-053; the +-1/+-2 set is superseded)
+//   OR_EXT       CC-M1-6.1 opening-range extensions, OR_H + k x OR_range and
+//                OR_L - k x OR_range over k in {0.5, 1.0, 1.5, 2.0}, in the SIX
+//                ADOPTED CELLS ONLY (SI OR30 TOKYO/LONDON/NY + OR60
+//                TOKYO/LONDON; NKD OR30 LONDON; HG NONE — its 2.2-2.8pp
+//                marginals missed the 3pp bar, and the empty set is the
+//                adoption, not an omission). G2-REJECT / G2-RECLAIM fire at an
+//                OR_EXT level exactly like at any other kept level: no new
+//                confirmation type, no special case.
+//
+// OR_EXT IS DOUBLY SCOPED, and both scopes are laws with mutants:
+//   SEGMENT  outside its own phase the level DOES NOT EXIST — it can neither be
+//            touched nor arm nor resolve there. The census's target is
+//            REST_OF_WINDOW|segment, so a TOKYO opening range says nothing
+//            about a NEW YORK price. The exclusion is NaN (never 0, never
+//            +inf): every consumer downstream treats a NaN second as
+//            unobserved.
+//   SESSION  its identity, virginity and touch count never cross sessions, even
+//            when tomorrow's construction lands on the same tick.
 //
 // The RETIRED sources (FVOL_LADDER_RS, PRIOR_WEEK, PROFILE, DEV_POC, ROUND) are
 // not built: a level's arm/touch state machine runs per level and its ledger
@@ -29,17 +47,21 @@
 #include <cstdint>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "qr_core/refusal.hpp"
+#include "qr_gen/families.hpp"
 #include "qr_gen/gensession.hpp"
 #include "qr_gen/tables.hpp"
 #include "qr_skel/geom.hpp"
 
 namespace qr::gen {
 
-/// CC-M1-3.3 KEPT level families. The enum ORDER is the bit order of the
-/// roster's `level_fam_mask` (b8_generation_v2.KEPT_LEVEL_FAMILIES).
+/// CC-M1-3.3 KEPT level families + CC-M1-6.1's OR_EXT. The enum ORDER is the
+/// bit order of the roster's `level_fam_mask`
+/// (b10_generation_v3.KEPT_LEVEL_FAMILIES = b8's six, then OR_EXT APPENDED —
+/// appended, so every bit the v2 roster ever wrote keeps its meaning).
 enum class LevelFamily : std::uint8_t {
   FVOL_LADDER = 0,
   FVOL_BAND = 1,
@@ -47,9 +69,15 @@ enum class LevelFamily : std::uint8_t {
   PRIOR_DAY = 3,
   PHASE_HL = 4,
   VWAP = 5,
+  OR_EXT = 6,
 };
-inline constexpr std::size_t kLevelFamilyCount = 6;
+inline constexpr std::size_t kLevelFamilyCount = 7;
 [[nodiscard]] const char* level_family_name(LevelFamily f);
+
+/// CC-M1-6.1(1) verbatim: the adopted (phase index, or-minutes) cells of one
+/// asset, in the order b10_levels_v4.OREXT_ADOPTED spells them. HG's empty list
+/// IS the adoption.
+[[nodiscard]] std::vector<std::pair<int, int>> orext_adopted_cells(qr::futsess::Asset asset);
 
 // --- §4 / §6 state-machine constants ---------------------------------------
 inline constexpr std::int32_t kArmSeconds = 300;
@@ -83,6 +111,11 @@ struct LevelDef {
   std::int32_t active_from = 0; ///< session second the level exists from
   bool dynamic = false;
   std::vector<double> series;   ///< price at each MID-SANE second, dynamic only
+  /// SEGMENT SCOPE: the phase index this level only exists inside; -1 = none.
+  std::int8_t scope_phase = -1;
+  /// SESSION SCOPE: an intraday object whose identity must NOT persist across
+  /// sessions even when tomorrow's construction lands on the same tick.
+  bool session_scoped = false;
 };
 
 /// One resolved touch. Seconds are absolute session seconds; -1 = never.
@@ -134,7 +167,11 @@ struct SessionLedger {
 };
 
 /// Every KEPT-family level active in this session, with its creation second.
-[[nodiscard]] std::vector<LevelDef> build_levels(const qr::skel::AssetGeom& geom, double px_scale,
+/// `asset` selects the CC-M1-6.1 OR_EXT cells, which are appended LAST — the
+/// same position b3_levels.build_levels gives them, so the ledger's row order
+/// is the oracle's row order.
+[[nodiscard]] std::vector<LevelDef> build_levels(qr::futsess::Asset asset,
+                                                 const qr::skel::AssetGeom& geom, double px_scale,
                                                  const GenSession& s, std::int32_t date8,
                                                  const V1History& hist, std::int64_t hist_index,
                                                  const FvolForecasts& fvol);
@@ -145,6 +182,14 @@ struct SessionLedger {
                                        const std::vector<LevelDef>& levels, LevelRegistry* reg);
 
 // --- the pieces, exposed so the test suite can drive them directly ----------
+
+/// SEGMENT SCOPE (CC-M1-6.1): overwrite (mid - level) with NaN at every second
+/// outside the level's own phase. NaN is the typed exclusion — never 0, never
+/// +inf — because every consumer (the near/far masks, the approach-side scan,
+/// the outcome comparisons) reads a NaN second as UNOBSERVED. A scope_phase of
+/// -1 leaves the series untouched.
+void scope_diff(std::vector<double>* diff, const std::vector<std::int8_t>& phase_v,
+                std::int8_t scope_phase);
 
 /// §4 arm/touch scan over one level's |mid - L| series at the MID-SANE seconds.
 /// `first_near` is the first position within tol at or after `active_from`.

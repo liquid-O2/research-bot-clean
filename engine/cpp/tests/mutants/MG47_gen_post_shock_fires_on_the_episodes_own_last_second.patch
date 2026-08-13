@@ -1,0 +1,12 @@
+diff --git a/qr_gen/src/families.cpp b/qr_gen/src/families.cpp
+--- a/qr_gen/src/families.cpp
++++ b/qr_gen/src/families.cpp
+@@ -181,7 +181,7 @@
+   std::int32_t first = 0;
+   bool have = false;
+   for (std::int32_t c : conf_secs) {
+-    if (c > end_sec && (!have || c < first)) {
++    if (c >= end_sec && (!have || c < first)) {  // MG47: STRICTLY after
+       first = c;
+       have = true;
+     }

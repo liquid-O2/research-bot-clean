@@ -1,0 +1,475 @@
+#!/usr/bin/python3
+"""PORT M2 — shared substrate for the sheet builder (P-M2a).
+
+Implements design/PORT_M2_SHEETS_SPEC.md §1 encoding laws, §2 certificate
+plumbing and the M2 output root.  This module carries NO section content: it
+holds the frozen-spec pins, the fixed-width formatting primitives, the
+deterministic token estimator, the section-budget table and the receipt
+writers.
+
+LAWS honoured here
+  * D-018   every byte of bulk output goes under artifacts/cache/port/m2/
+  * determinism  no RNG anywhere; every ordering is an explicit sort
+  * seal    2026 payloads are never opened (the m0 guard is reused verbatim)
+  * pins    M2 pins its own spec AND every upstream spec it reads receipts from
+
+TOKEN COUNT (spec §1 "token count logged per sheet").  No BPE tokenizer exists
+on this host (no tiktoken / transformers / anthropic package), so the logged
+figure is a DETERMINISTIC PROXY, documented here and stamped into every
+receipt so the orchestrator can recalibrate:
+
+    alpha run of length L  -> max(1, ceil(L / 5))     (English BPE averages
+                                                       ~4-5 chars per token)
+    digit run of length L  -> ceil(L / 3)             (cl100k/o200k group
+                                                       digits in <=3s)
+    space/tab run of len L -> 0 if L <= 1 else max(1, ceil(L / 16))
+                                                      (a single space merges
+                                                       into the next token; a
+                                                       padding RUN does not)
+    each other char        -> 1
+    each newline           -> 1
+
+Raw chars / bytes / lines are logged beside it so the proxy is auditable and
+replaceable without re-rendering anything.
+"""
+import datetime as dt
+import json
+import math
+import os
+import re
+import sys
+
+import numpy as np
+
+_M0 = "/workspace/engine/port_m0"
+_M1 = "/workspace/engine/port_m1"
+for _p in (_M0, _M1):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+
+import common as C                       # noqa: E402  m0 substrate
+import census_common as X                # noqa: E402  m0 census substrate
+import m1_common as M1                   # noqa: E402  m1 substrate
+
+# --------------------------------------------------------------- spec pins --
+SPEC_PATH = "/workspace/design/PORT_M2_SHEETS_SPEC.md"
+SPEC_SHA16 = "f14b5c773ccec5ba"          # FROZEN by orchestrator 2026-08-13
+
+SHEETS_VERSION = "PORT-SHEETS-V1"        # the §1 S1 "sheets-version stamp"
+
+M2_ROOT = "/workspace/artifacts/cache/port/m2"
+M1_ROOT = M1.M1_ROOT
+M0_ROOT = C.OUT_ROOT
+
+ASSET_ORDER = C.ASSET_ORDER
+PHASE_NAMES = X.PHASE_NAMES
+
+# generation_v3 family/rung vocabulary (the frozen S2.2 oracle, ORACLE_FREEZE)
+FAMILIES = ("G1", "G1_FINE", "G1_FAST_OPEN", "G2_REJECT", "G2_RECLAIM",
+            "NEWS_WINDOW", "MICRO_OPEN", "POST_SHOCK", "FIRST_TEST")
+FAM_BIT = {f: 1 << i for i, f in enumerate(FAMILIES)}
+RUNGS = (0.05, 0.075, 0.11, 0.15)
+KEPT_LEVEL_FAMILIES = ("FVOL_LADDER", "FVOL_BAND", "NDAY", "PRIOR_DAY",
+                       "PHASE_HL", "VWAP", "OR_EXT")
+FLAG_NAMES = (("OREXT_BEYOND", 1 << 0), ("OREXT_BEYOND_ANY", 1 << 1),
+              ("FIRST_TEST_VIRGIN", 1 << 2))
+TOUCH_OUTCOMES = ("NONE", "REJECT", "BREAK", "RECLAIM")
+
+WALL_CAP = X.WALL_CAP                    # $900 (§1 / D-021 lineage)
+TAU_STAR = 120
+
+# ------------------------------------------------------------------ eras ----
+# spec §3 ERAS verbatim.  Sessions before E1 (HG/NKD carry 2021H1 tape that the
+# protocol does not enter) are tagged PRE_E1 and are out of protocol scope.
+ERAS = (("E1", 20210701, 20211231),
+        ("E2", 20220101, 20220630),
+        ("E3", 20220701, 20221231),
+        ("E4", 20230101, 20230630),
+        ("E5", 20230701, 20231231),
+        ("E6", 20240101, 20240630),
+        ("E7", 20240701, 20241231),
+        ("E8", 20250101, 20250630))
+ERA_HOLDOUT = ("HOLDOUT_2025H2", 20250701, 20251231)
+SEAL_CUTOFF = C.SEAL_CUTOFF              # 20260101
+
+
+def era_of(d8):
+    d8 = int(d8)
+    if d8 >= SEAL_CUTOFF:
+        raise C.SealRefusal("SEAL: 2026 session %d is never rendered" % d8)
+    for name, lo, hi in ERAS:
+        if lo <= d8 <= hi:
+            return name
+    if ERA_HOLDOUT[1] <= d8 <= ERA_HOLDOUT[2]:
+        return ERA_HOLDOUT[0]
+    return "PRE_E1"
+
+
+# --------------------------------------------------------------- modes ------
+MODE_BLIND = "BLIND"
+MODE_STUDY = "STUDY"
+MODES = (MODE_BLIND, MODE_STUDY)
+
+# §1: S14 exists ONLY in study mode, and only as a SEPARATE appendix rendered
+# after the call is committed.  The builder therefore owns two artefacts, never
+# one file with a hidden tail.
+BLIND_SECTIONS = tuple("S%d" % i for i in range(1, 14))
+STUDY_SECTIONS = ("S14",)
+
+SECTION_TITLES = {
+    "S1": "HEADER + COMPLETENESS CERTIFICATE",
+    "S2": "ERA PRIMER REF + REGIME TAGS",
+    "S3": "SESSION PATH + SWING CHAIN",
+    "S4": "LEVEL LEDGER VIEW",
+    "S5": "T-MINUS TRAJECTORY",
+    "S6": "RAW EVENT RIBBON",
+    "S7": "BOOK/QUEUE STATE",
+    "S8": "FLOW STATE",
+    "S9": "VOL STATE",
+    "S10": "VOLUME PROFILE",
+    "S11": "CROSS-ASSET",
+    "S12": "CONTEXT (availability-lagged)",
+    "S13": "CANDIDATE MECHANICS",
+    "S14": "OUTCOMES (STUDY MODE)",
+}
+
+# §1 "section budget enforced (S6 is the largest)".  Budgets are in PROXY
+# tokens (see module docstring); they are pinned here, stamped into PARAMS and
+# reported per sheet.  A section over budget is a certificate FAILURE.
+SECTION_BUDGET = {
+    "S1": 620, "S2": 300, "S3": 720, "S4": 1050, "S5": 400,
+    "S6": 2000, "S7": 300, "S8": 380, "S9": 320, "S10": 340,
+    "S11": 260, "S12": 700, "S13": 340, "S14": 760,
+}
+# Sum of the S1..S13 budgets.  The observed sheet lands well under it (S6 is
+# the only section that spends its whole allowance), which is what keeps the
+# rendered sheet inside the spec's "~3-5k tokens" band.
+SHEET_BUDGET_BLIND = sum(SECTION_BUDGET[s] for s in
+                         ("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8",
+                          "S9", "S10", "S11", "S12", "S13"))
+
+
+# ------------------------------------------------------------- spec guard ---
+def spec_sha():
+    return C.sha256_file(SPEC_PATH)
+
+
+def verify_spec():
+    """M2 pins its own spec AND every upstream spec whose receipts it reads."""
+    got = spec_sha()[:16]
+    if got != SPEC_SHA16:
+        raise RuntimeError("M2 spec sha16 %s != frozen %s" % (got, SPEC_SHA16))
+    M1.verify_spec_m1b()                 # pins PORT_M1B + PORT_M1 + PORT_M0
+    return got
+
+
+def spec_shas():
+    return {"m2_spec_sha16": SPEC_SHA16,
+            "m1b_spec_sha16": M1.SPEC_M1B_SHA16,
+            "m1_spec_sha16": M1.SPEC_SHA16,
+            "m0_spec_sha16": C.SPEC_SHA16}
+
+
+def out_path(*parts):
+    p = os.path.join(M2_ROOT, *parts)
+    d = os.path.dirname(p)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    return p
+
+
+# ------------------------------------------------------- candidate identity --
+SIDE_CHAR = {1: "L", -1: "S"}
+CHAR_SIDE = {"L": 1, "S": -1}
+_CID_RE = re.compile(r"^(SI|HG|NKD)-(\d{8})-(\d{6})-([LS])$")
+
+
+def make_cid(asset, d8, dec_sec, side):
+    """The candidate id.  (session, decision_sec, side) is the generation-v3
+    dedup key, so this is unique by construction and needs no counter."""
+    return "%s-%08d-%06d-%s" % (asset, int(d8), int(dec_sec),
+                                SIDE_CHAR[int(side)])
+
+
+def parse_cid(cid):
+    m = _CID_RE.match(cid)
+    if not m:
+        raise ValueError("bad candidate id %r" % cid)
+    return m.group(1), int(m.group(2)), int(m.group(3)), CHAR_SIDE[m.group(4)]
+
+
+# ------------------------------------------------------------- formatting ---
+# §1 ENCODING LAWS: fixed-width columns, no prose padding, integer ticks where
+# possible, deterministic byte-identical rendering.
+NA = "."                                 # the single typed-missing glyph
+
+
+def fnum(v, width, dec):
+    """Fixed-width decimal.  Non-finite -> the typed-missing glyph, never 0."""
+    if v is None:
+        return NA.rjust(width)
+    v = float(v)
+    if not np.isfinite(v):
+        return NA.rjust(width)
+    # round-half-up on the printed grid so two runs cannot differ on a tie
+    q = 10.0 ** dec
+    r = math.floor(abs(v) * q + 0.5) / q
+    s = "%.*f" % (dec, r)
+    if v < 0 and r != 0.0:
+        s = "-" + s
+    return s.rjust(width)
+
+
+def fint(v, width):
+    if v is None:
+        return NA.rjust(width)
+    if isinstance(v, float) and not np.isfinite(v):
+        return NA.rjust(width)
+    return ("%d" % int(v)).rjust(width)
+
+
+def fstr(s, width):
+    s = "" if s is None else str(s)
+    if len(s) > width:
+        s = s[:width]
+    return s.ljust(width)
+
+
+def fsec(sec):
+    """Session second -> HH:MM:SS of the session clock (fixed width 8)."""
+    if sec is None or (isinstance(sec, float) and not np.isfinite(sec)):
+        return NA.rjust(8)
+    sec = int(sec)
+    sign = "-" if sec < 0 else ""
+    a = abs(sec)
+    return "%s%02d:%02d:%02d" % (sign, a // 3600, (a // 60) % 60, a % 60)
+
+
+def futc(epoch):
+    """UTC epoch second -> 'YYYY-MM-DDTHH:MM:SSZ' (fixed width 20)."""
+    return dt.datetime.utcfromtimestamp(int(epoch)).strftime(
+        "%Y-%m-%dT%H:%M:%SZ")
+
+
+def ticks(px, anchor_px, tick_px):
+    """Signed integer tick offset of a price from the sheet anchor (§1 'integer
+    ticks where possible').  Non-finite in -> None out."""
+    if px is None or not np.isfinite(px):
+        return None
+    return int(math.floor((px - anchor_px) / tick_px + 0.5))
+
+
+def row(*cells):
+    """Join fixed-width cells with a single space and strip the trailing run —
+    trailing whitespace is invisible and would make byte identity fragile."""
+    return " ".join(cells).rstrip()
+
+
+def bits_to_names(mask, table):
+    out = []
+    for name, bit in table:
+        if int(mask) & bit:
+            out.append(name)
+    return out
+
+
+def fam_names(fam_mask):
+    return [f for f in FAMILIES if int(fam_mask) & FAM_BIT[f]]
+
+
+def rung_names(rung_mask):
+    return ["%.4g" % RUNGS[i] for i in range(len(RUNGS))
+            if int(rung_mask) & (1 << i)]
+
+
+def level_fam_names(level_mask):
+    return [KEPT_LEVEL_FAMILIES[i] for i in range(len(KEPT_LEVEL_FAMILIES))
+            if int(level_mask) & (1 << i)]
+
+
+# --------------------------------------------------------- token estimator --
+_TOK_RE = re.compile(r"[A-Za-z]+|[0-9]+|\n|[ \t]+|[^\sA-Za-z0-9]")
+TOKEN_PROXY_ID = "M2-PROXY-2"
+
+
+def count_tokens(text):
+    """Deterministic BPE proxy — see the module docstring for the rule.
+
+    PROXY-2 adds the whitespace term.  PROXY-1 charged nothing for padding,
+    which flattered fixed-width tables badly: a single space merges into the
+    following token in every BPE this program will ever face, but a RUN of
+    padding spaces does not, and this builder pads every column.
+    """
+    n = 0
+    for m in _TOK_RE.finditer(text):
+        s = m.group(0)
+        c = s[0]
+        if c == "\n":
+            n += 1
+        elif c in " \t":
+            n += 0 if len(s) <= 1 else max(1, -(-len(s) // 16))
+        elif c.isdigit():
+            n += -(-len(s) // 3)
+        elif c.isalpha():
+            n += max(1, -(-len(s) // 5))
+        else:
+            n += 1
+    return n
+
+
+def text_metrics(text):
+    return {"tokens_proxy": count_tokens(text),
+            "chars": len(text),
+            "bytes": len(text.encode("utf-8")),
+            "lines": text.count("\n") + (0 if text.endswith("\n") else 1)
+            if text else 0}
+
+
+# ---------------------------------------------------------------- receipts --
+def env_receipt(params):
+    e = C.env_receipt(params)
+    e.update(spec_shas())
+    e["sheets_version"] = SHEETS_VERSION
+    e["token_proxy"] = TOKEN_PROXY_ID
+    return e
+
+
+def write_json(path, obj):
+    return C.write_json(path, obj)
+
+
+def write_text(path, text):
+    """Deterministic text write (atomic replace, LF only, no trailing spaces)."""
+    tmp = path + ".tmp"
+    d = os.path.dirname(path)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    with open(tmp, "w", newline="\n") as fh:
+        fh.write(text)
+    os.replace(tmp, path)
+    return path
+
+
+def write_tsv(path, section, phash, columns, rows, extra=()):
+    tmp = path + ".tmp"
+    d = os.path.dirname(path)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    lines = ["# PORT_M2_SHEETS_SPEC.md %s (spec_sha16=%s)" % (section, SPEC_SHA16),
+             "# params_hash=%s" % phash]
+    for e in extra:
+        lines.append("# %s" % e)
+    lines.append("\t".join(columns))
+    with open(tmp, "w", newline="\n") as fh:
+        fh.write("\n".join(lines) + "\n")
+        for r in rows:
+            fh.write("\t".join(_cell(v) for v in r) + "\n")
+    os.replace(tmp, path)
+    return path
+
+
+def _cell(v):
+    if v is None:
+        return ""
+    if isinstance(v, bool):
+        return "1" if v else "0"
+    if isinstance(v, (float, np.floating)):
+        v = float(v)
+        return "" if not np.isfinite(v) else "%.6f" % v
+    if isinstance(v, (np.integer,)):
+        return str(int(v))
+    return str(v)
+
+
+def params_hash(params):
+    return C.params_hash(params)
+
+
+def d8_to_date(n):
+    return M1.d8_to_date(n)
+
+
+def d8(d):
+    return M1.d8(d)
+
+
+def hb(msg):
+    C.hb(msg)
+
+
+# --------------------------------------------------------- leak accounting --
+class LeakRefusal(RuntimeError):
+    """Raised by the D-057 guard.  NEVER caught inside a section renderer: a
+    refusal must reach the builder, which fails the sheet's certificate."""
+
+
+class CausalGuard(object):
+    """The single choke point for "is this datum knowable at decision_ts?".
+
+    Every section that touches a time-stamped datum routes through here, so the
+    leak fixture has exactly one thing to attack and the audit is one grep.
+    """
+
+    __slots__ = ("decision_ts", "decision_sec", "trade_date", "refusals",
+                 "checks")
+
+    def __init__(self, decision_ts, decision_sec, trade_date):
+        self.decision_ts = int(decision_ts)
+        self.decision_sec = int(decision_sec)
+        self.trade_date = trade_date
+        self.refusals = []
+        self.checks = 0
+
+    # --- session-clock data (tape, levels, profiles, skeletons) -------------
+    def sec(self, sec, what):
+        """A session second must be STRICTLY BEFORE the decision second.
+
+        Strict, not <=: the decision second's own book is the LAST thing the
+        sheet may show, and it is shown through `at_decision` below, which is
+        the only sanctioned equal-time reader.
+        """
+        self.checks += 1
+        if sec is None:
+            return False
+        if int(sec) >= self.decision_sec:
+            return False
+        return True
+
+    def at_decision(self, sec, what):
+        """The decision second itself (the entry book).  Anything later is a
+        refusal, not a silent drop — a future session second in a sheet is a
+        builder defect, never data."""
+        self.checks += 1
+        if sec is not None and int(sec) > self.decision_sec:
+            self.refusals.append((what, "session_sec", int(sec),
+                                  self.decision_sec))
+            raise LeakRefusal(
+                "D-057: %s reads session second %d > decision second %d"
+                % (what, int(sec), self.decision_sec))
+        return True
+
+    # --- wall-clock data (every external / context series) ------------------
+    def avail(self, availability_ts, what):
+        """D-057 strict availability join.
+
+        The directive reads "STRICT (availability_ts <= decision_ts, never
+        equal-time)".  Those two clauses cannot both be literal, so the PINNED
+        READING (reported) is the conservative one that satisfies both:
+            availability_ts < decision_ts
+        Availability stamps live on coarse publication clocks (a Friday 15:30
+        ET COT release, a next-business-day 00:00 ET FRED post), so strictness
+        never costs a legitimately-available observation; it only removes the
+        equal-time case the directive names.
+        """
+        self.checks += 1
+        if availability_ts is None:
+            return False
+        return int(availability_ts) < self.decision_ts
+
+    def refuse(self, what, kind, got):
+        self.refusals.append((what, kind, got, self.decision_ts))
+        raise LeakRefusal("D-057: %s (%s) not available at decision_ts %d: %s"
+                          % (what, kind, self.decision_ts, got))

@@ -35,11 +35,12 @@ import census_common as X               # noqa: E402  (m0 census substrate)
 SPEC_PATH = "/workspace/design/PORT_M1_SPEC.md"
 # 65708676a27deae7 (freeze) -> ce0a8ca16e342cd7 (CC-M1-1) -> 418755209f3d08cb
 # (CC-M1-3 + D-053 VWAP bands) -> ed126c64eee71c41 (CC-M1-4 mid-sanity, D-054)
-SPEC_SHA16 = "81ea7f84a085e4bb"
+SPEC_SHA16 = "a7b18471e6eaefe4"
 # M1.B (production generation / label tensor / atlas screen).  a3852e13b75464bd
-# was the freeze; 2b83f9e70340a413 carries the D-053 VWAP amendment.
+# was the freeze; 2b83f9e70340a413 carried the D-053 VWAP amendment;
+# d31f48b59877e44d carries CC-M1-5 (the additive FAST-OPEN family, D13/D14).
 SPEC_M1B_PATH = "/workspace/design/PORT_M1B_SPEC.md"
-SPEC_M1B_SHA16 = "2b83f9e70340a413"
+SPEC_M1B_SHA16 = "d31f48b59877e44d"
 M1_ROOT = "/workspace/artifacts/cache/port/m1"
 M0_ROOT = C.OUT_ROOT
 

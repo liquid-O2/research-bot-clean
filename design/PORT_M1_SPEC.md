@@ -222,6 +222,25 @@ B. SLICE MINER: partition the union roster by {phase x 30-min clock bucket x run
 ADOPTION: the CC-M1-3.2 replacement metric; adopted families enter the S1.x prototype then C++ per the
 oracle->engine law. Outputs m1/family_discovery/ + FAMILY_DISCOVERY_REPORT.md.
 
+## CC-M1-7 — family-discovery adjudications, 2026-08-13 (BINDING)
+1. ADOPTED as generator families (into S1.2 prototype -> C++ S2.2, with OR_EXT from S1.1): F-D3 NEWS-WINDOW
+   (single 15s delay; BOJ leg deferred until a pre-2026 BOJ calendar is banked — revisit hook), F-D2
+   MICRO-OPENS (Tokyo lunch reopen + US cash open), F-D4 POST-SHOCK (low-supply, largest per-candidate edge),
+   F-D5 FIRST-TEST as NKD-ONLY family (feature elsewhere).
+2. RETIRED with receipt: F-D1 FAST-CLOSE (decisively negative all assets). F-D6 EXHAUSTION-AT-EXTENSION =
+   FEATURE FLAG, not a family.
+3. METRIC REFINEMENT (the lane's finding, adopted): at ~99.7% recall the operative adoption test is
+   CONDITIONAL VALUE with the "smaller AND better" bar; recall/seat-share clauses remain for regressions only.
+4. SLICE-MINER DISPOSITION: the clock x vol-regime concentration (London-NY overlap ~2x G1 value on SI/HG;
+   Tokyo open/afternoon on NKD; day-of-week tilts) is CONDITIONING knowledge -> M2 features + regime keys,
+   NOT new generators. WIDE-SPREAD cells: any consideration requires re-measure with PER-CANDIDATE cost
+   = max(session cost_rt, spread_at_decision + fees) on the tradability-screened roster — the census's
+   session-scoped cost understates exactly those cells. No slice family adopted now.
+5. S4 sequencing: the atlas screen proceeds on the S1-v2 roster; the enriched roster (S1.1 OR_EXT + S1.2
+   families) re-screens later — the tensor engine makes re-runs minutes, so no hold.
+6. FD-defect dispositions: FD-1 settlement window = the m0 RTH close constant (blessed); FD-2 BOJ deferred;
+   FD-3 handoff = 09:30 ET cash open (blessed); FD-4/5/6 lane pins blessed; FD-7 M1B pin fixed herewith.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

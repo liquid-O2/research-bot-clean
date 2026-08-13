@@ -213,6 +213,16 @@ DEFECTS = (
              "conditional (positive-certificate) values, slice vs complement, "
              "normal tail; n>=%d makes the normal approximation safe."
      % MIN_N_FIT),
+    ("FD-8", "METRIC DEFECT (found by this lane, returned for adjudication): "
+             "the CC-M1-3.2 conditional value is measured on the walled "
+             "PHASE-CLOSE certificate, whose horizon is a function of the "
+             "clock, while §10's designed families and slice axes are cut ON "
+             "the clock. Value and horizon are therefore confounded in the "
+             "adoption metric itself. This lane reports the walled PEAK-exit "
+             "certificate beside every number as the horizon-free comparator; "
+             "the orchestrator should decide whether adoption uses the "
+             "close-exit metric (the D-019 contract shape), the horizon-free "
+             "one, or a horizon-normalised value."),
     ("FD-7", "STALE SPEC PIN (returned, not touched by this lane): commit "
              "d761a30 amended design/PORT_M1B_SPEC.md to sha16 "
              "d31f48b59877e44d but m1_common.py:42 still pins "
@@ -774,7 +784,7 @@ class Roster(object):
              np.zeros(self.n1, dtype=np.uint16)])
         for k in ("date8", "side", "dec_sec", "conf_sec", "entry_mid",
                   "spread_at_decision", "phase_dec", "rung_mask", "iid",
-                  "atr14_usd"):
+                  "atr14_usd", "phase_close_sec"):
             setattr(self, k, np.concatenate([base[k], new[k]]))
         self.is_base = np.concatenate([np.ones(self.n0, dtype=bool),
                                        np.zeros(self.n1, dtype=bool)])
@@ -821,8 +831,10 @@ def census(asset, R, W, cost_map):
     """Per-candidate values + per-family value/DP/seat-share accumulators."""
     fams = list(DESIGNED) + ["G1", "UNION_BASE", "UNION_ALL"]
     vals = np.full(R.n, np.nan)
-    starts = np.zeros(R.n, np.int64)
-    ends = np.zeros(R.n, np.int64)
+    # The PEAK-exit certificate is carried beside the phase-close one because
+    # a family that fires near a phase close is structurally penalised by an
+    # exit AT that close: F-D1 cannot be judged on the close certificate alone.
+    vals_peak = np.full(R.n, np.nan)
     seats = {f: {} for f in fams}          # era -> [n_seats, n_sessions_elig]
     dp_rows, seat_rows = [], []
     by_date = _by_date(R)
@@ -834,9 +846,9 @@ def census(asset, R, W, cost_map):
         idx = by_date[d]
         items = []
         for i in idx:
-            _pk, cl = R.cert(i, W, cost)
+            pk, cl = R.cert(i, W, cost)
             vals[i] = cl[0]
-            starts[i], ends[i] = cl[1], cl[2]
+            vals_peak[i] = pk[0]
             items.append((cl[1], cl[2], cl[0], int(R.dec_sec[i]),
                           int(R.iid[i]), i))
         base_items = [it for it in items if R.is_base[it[5]]]
@@ -873,7 +885,7 @@ def census(asset, R, W, cost_map):
             n_seat, n_tot, n_sess = seats[f][era]
             seat_rows.append([asset, f, era, n_sess, n_seat, n_tot,
                               (n_seat / n_tot) if n_tot else float("nan")])
-    return vals, starts, ends, dp_rows, seat_rows
+    return vals, vals_peak, dp_rows, seat_rows
 
 
 def _eras_of(year):
@@ -892,7 +904,7 @@ def conditional(vals):
     return ((M.mean(v) if v.size else float("nan")), int(v.size))
 
 
-def family_value_rows(asset, R, vals):
+def family_value_rows(asset, R, vals, vals_peak):
     """Per (family, era) value census incl. the per-FIT-year era stability."""
     year = (R.date8 // 10000).astype(np.int64)
     rows = []
@@ -911,11 +923,12 @@ def family_value_rows(asset, R, vals):
             m = sel & esel
             v = vals[m]
             cv, npos = conditional(v)
+            cvp, npos_p = conditional(vals_peak[m])
             rows.append([asset, f, era, int(m.sum()), npos, cv,
                          M.mean(v[np.isfinite(v)]) if m.any() else
                          float("nan"),
                          (npos / int(m.sum())) if int(m.sum()) else
-                         float("nan")])
+                         float("nan"), npos_p, cvp])
     return rows
 
 
@@ -1167,8 +1180,14 @@ def slice_labels(R, axes, sub):
     return labels
 
 
-def _cell_stats(mask, fit, pos, v, vv, year, tot, g1_value, echo):
-    """One cell's FIT statistics + per-FIT-year panel + the 2025 echo."""
+def _cell_stats(mask, fit, pos, v, vv, year, tot, g1_value, echo,
+                pk=None, pkpos=None, horizon=None):
+    """One cell's FIT statistics + per-FIT-year panel + the 2025 echo.
+
+    `pk`/`pkpos` carry the PEAK-exit certificate and `horizon` the seconds from
+    the decision to the phase close, because the phase-close certificate that
+    defines the metric has a horizon that varies systematically with the clock:
+    a slice cut on the clock is partly measuring how much time it had."""
     mf = mask & fit
     n_fit = int(mf.sum())
     pin = mf & pos
@@ -1191,12 +1210,20 @@ def _cell_stats(mask, fit, pos, v, vv, year, tot, g1_value, echo):
     pe = me & pos
     ne = int(pe.sum())
     ce = (float(v[pe].sum()) / ne) if ne else float("nan")
-    return {"n_fit": n_fit, "n_pos": n1, "value": cv, "value_out": cvo,
-            "z": z, "p": p, "per_year": per_year, "stable": all(signs),
-            "echo_n": int(me.sum()), "echo_pos": ne, "echo_value": ce}
+    out = {"n_fit": n_fit, "n_pos": n1, "value": cv, "value_out": cvo,
+           "z": z, "p": p, "per_year": per_year, "stable": all(signs),
+           "echo_n": int(me.sum()), "echo_pos": ne, "echo_value": ce,
+           "value_peak": float("nan"), "horizon_med_sec": float("nan")}
+    if pk is not None:
+        pp = mf & pkpos
+        npk = int(pp.sum())
+        out["value_peak"] = (float(pk[pp].sum()) / npk) if npk else float("nan")
+    if horizon is not None and n_fit:
+        out["horizon_med_sec"] = M.med(horizon[mf])
+    return out
 
 
-def mine(asset, R, vals, axes, g1_value):
+def mine(asset, R, vals, vals_peak, axes, g1_value, g1_peak):
     """§10B: marginals + all 2-way cells, Holm-controlled, promotion rule.
 
     Mining runs on the FIT era of the S1-v2 UNION ROSTER (the discovery
@@ -1212,6 +1239,9 @@ def mine(asset, R, vals, axes, g1_value):
     vv = v * v
     pfit = pos & fit
     tot = (int(pfit.sum()), float(v[pfit].sum()), float(vv[pfit].sum()))
+    pk = np.nan_to_num(vals_peak[sub], nan=0.0)
+    pkpos = np.isfinite(vals_peak[sub]) & (vals_peak[sub] > 0)
+    horizon = (R.phase_close_sec[sub] - R.dec_sec[sub]).astype(np.float64)
 
     labels = slice_labels(R, axes, sub)
     marg, two = [], []
@@ -1234,7 +1264,9 @@ def mine(asset, R, vals, axes, g1_value):
     m_total = multiplicity_m(marg, two)
     rows, pv = [], []
     for (axs, lvs, mask) in marg + two:
-        st = _cell_stats(mask, fit, pos, v, vv, year, tot, g1_value, echo)
+        st = _cell_stats(mask, fit, pos, v, vv, year, tot, g1_value, echo,
+                         pk, pkpos, horizon)
+        st["value_peak_minus_g1"] = st["value_peak"] - g1_peak
         st["axes"] = "+".join(axs)
         st["levels"] = "|".join(lvs)
         st["is_2way"] = len(axs) == 2
@@ -1337,10 +1369,10 @@ def run(assets, workers):
              "%d)" % (asset, R.n0, R.n1, n_recon - R.n0, n_orphan))
 
         W = float(walls[asset]["wall_usd"])
-        vals, _st, _en, dpr, str_ = census(asset, R, W, cost_map)
+        vals, vals_peak, dpr, str_ = census(asset, R, W, cost_map)
         dp_rows.extend(dpr)
         seat_rows.extend(str_)
-        fam_rows.extend(family_value_rows(asset, R, vals))
+        fam_rows.extend(family_value_rows(asset, R, vals, vals_peak))
         recall_rows.extend(recall(asset, R, workers, sane_thr, phase_med))
 
         reg = load_regimes(asset)
@@ -1352,9 +1384,14 @@ def run(assets, workers):
                   if R.is_base[i] and (int(R.base_fam[i]) & G.FAM_BIT["G1"])
                   and M.is_fit(int(R.date8[i]) // 10000)]
         g1_value, _n = conditional(g1_fit)
+        g1_pk = [vals_peak[i] for i in range(R.n)
+                 if R.is_base[i] and (int(R.base_fam[i]) & G.FAM_BIT["G1"])
+                 and M.is_fit(int(R.date8[i]) // 10000)]
+        g1_peak, _np = conditional(g1_pk)
         axes = axis_values(asset, R, cmap, phase_med)
-        rows, n_marg, n_two, m_total = mine(asset, R, vals, axes, g1_value)
-        mine_meta.append([asset, g1_value, n_marg, n_two, m_total,
+        rows, n_marg, n_two, m_total = mine(asset, R, vals, vals_peak, axes,
+                                            g1_value, g1_peak)
+        mine_meta.append([asset, g1_value, g1_peak, n_marg, n_two, m_total,
                           sum(1 for r in rows if r["holm_reject"]),
                           sum(1 for r in rows if r["promoted"])])
         for rank, r in enumerate(rows, 1):
@@ -1366,7 +1403,9 @@ def run(assets, workers):
                                r["per_year"][0][0], r["per_year"][1][0],
                                r["per_year"][2][0], r["per_year"][3][0],
                                r["echo_n"], r["echo_value"], r["promoted"],
-                               1 if r["is_2way"] else 0])
+                               1 if r["is_2way"] else 0, r["value_peak"],
+                               r["value_peak_minus_g1"],
+                               r["horizon_med_sec"]])
         del R, vals
     return (phash, ctx_rows, fam_rows, dp_rows, seat_rows, recall_rows,
             slice_rows, mine_meta, integ_rows)
@@ -1406,10 +1445,15 @@ def verdicts(fam_rows, seat_rows, recall_rows):
                          and x >= g1v - COND_VALUE_SLACK for x in pyv)
             e = val.get((asset, f, M.ERA_GATE))
             echo = float(e[5]) if e and np.isfinite(e[5]) else float("nan")
+            pk = float(v[9]) if v and np.isfinite(v[9]) else float("nan")
+            g1pk = (float(g1[9]) if g1 and np.isfinite(g1[9])
+                    else float("nan"))
             surv = c1 or c2 or c3
             out.append([asset, f, n, cv, g1v, cv - g1v if np.isfinite(cv)
                         else float("nan"), mr, share, c1, c2, c3, stable,
-                        echo, "ADOPT" if (surv and stable) else
+                        echo, pk, pk - g1pk if np.isfinite(pk)
+                        else float("nan"),
+                        "ADOPT" if (surv and stable) else
                         ("ADOPT_UNSTABLE" if surv else "RETIRE")])
     return out
 
@@ -1430,9 +1474,14 @@ def write_all(bundle):
              "frozen S1-v2 oracle session for session"])
     W(M.out_path(OUT_DIR, "family_value.tsv"), SECTION, phash,
       ["asset", "family", "era", "n_candidates", "n_positive",
-       "conditional_value_usd", "mean_cert_usd", "positive_frac"], fam_rows,
+       "conditional_value_usd", "mean_cert_usd", "positive_frac",
+       "n_positive_peak", "conditional_value_peak_usd"], fam_rows,
       extra=["conditional_value_usd = the CC-M1-3.2 metric (mean walled "
              "phase-close certificate over candidates with value > 0)",
+             "conditional_value_peak_usd = the same statistic on the walled "
+             "PEAK-exit certificate: the fair comparator for families that "
+             "fire near a phase close, whose close certificate has almost no "
+             "horizon left (F-D1)",
              "era rows 2021..2024 are the per-FIT-year stability panel"])
     cols = ["asset", "trade_date", "year", "n_all", "n_base", "dp_base_usd",
             "n_seated_base", "dp_all_usd", "n_seated_all"]
@@ -1461,15 +1510,23 @@ def write_all(bundle):
        "conditional_value_usd", "conditional_value_complement_usd",
        "value_minus_g1_usd", "welch_z", "p_raw", "p_holm", "holm_reject",
        "fit_year_sign_stable", "value_2021", "value_2022", "value_2023",
-       "value_2024", "n_2025_echo", "value_2025_echo", "promoted", "is_2way"],
+       "value_2024", "n_2025_echo", "value_2025_echo", "promoted", "is_2way",
+       "value_peak_exit_usd", "value_peak_minus_g1_peak_usd",
+       "median_horizon_to_phase_close_sec"],
       slice_rows,
       extra=["every tested cell (marginal + 2-way, n_fit >= %d); Holm family "
              "size = every row of that asset" % MIN_N_FIT,
              "promotion = holm_reject AND value >= G1_asset + $%.0f AND "
              "per-FIT-year sign stability; 2025 is an eval-only echo"
-             % PROMOTE_MARGIN])
+             % PROMOTE_MARGIN,
+             "value_peak_exit_usd is the HORIZON-FREE comparator: the walled "
+             "PEAK-exit certificate of the same candidates. A clock slice "
+             "whose phase-close value is high only because its horizon is "
+             "long shows no edge here (median_horizon_to_phase_close_sec is "
+             "the diagnostic)"])
     W(M.out_path(OUT_DIR, "slice_multiplicity.tsv"), SECTION, phash,
-      ["asset", "g1_conditional_value_fit_usd", "n_marginal_cells",
+      ["asset", "g1_conditional_value_fit_usd",
+       "g1_conditional_value_peak_fit_usd", "n_marginal_cells",
        "n_twoway_cells", "holm_family_size", "n_holm_rejected", "n_promoted"],
       mine_meta, extra=["holm_family_size = multiplicity_m() = marginals + "
                         "2-way; the miner tests exactly this many cells"])
@@ -1478,7 +1535,8 @@ def write_all(bundle):
       ["asset", "family", "n_candidates_fit", "conditional_value_usd",
        "g1_conditional_value_usd", "value_minus_g1_usd",
        "marginal_recall_pp", "dp_seat_share", "crit_value", "crit_recall",
-       "crit_seat_share", "fit_year_stable", "value_2025_echo", "verdict"],
+       "crit_seat_share", "fit_year_stable", "value_2025_echo",
+       "peak_exit_value_usd", "peak_exit_value_minus_g1_usd", "verdict"],
       ver, extra=["CC-M1-3.2: survive on ANY of (i) value >= G1 - $%.0f, "
                   "(ii) marginal union recall >= +%.1fpp, (iii) DP seat share "
                   ">= %.0f%%; ADOPT_UNSTABLE = survives but a FIT year breaks"
@@ -1492,6 +1550,14 @@ def write_all(bundle):
 
 
 # =============================================================== report ======
+def _hrs(v):
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return "n/a"
+    return "n/a" if not np.isfinite(x) else "%.1fh" % (x / 3600.0)
+
+
 def _f(v, fmt="%.0f"):
     try:
         x = float(v)
@@ -1582,15 +1648,18 @@ def write_report():
     A("## 4. Designed-family census (FIT era, CC-M1-3.2 metric)")
     A("")
     A("| asset | family | n FIT | cond. value | vs G1 | marginal recall | "
-      "DP seat share | FIT-year stable | 2025 echo | verdict | source |")
-    A("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+      "DP seat share | FIT-year stable | 2025 echo | peak-exit vs G1 | "
+      "verdict | source |")
+    A("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- "
+      "| --- |")
     for r, ln in zip(ver.rows, ver.lines):
-        A("| %s | %s | %s | $%s | %s$%s | %spp | %s | %s | $%s | **%s** | %s |"
+        A("| %s | %s | %s | $%s | %s$%s | %spp | %s | %s | $%s | $%s | "
+          "**%s** | %s |"
           % (r[0], r[1], r[2], _f(r[3]),
              "+" if (r[5] and float(r[5]) >= 0) else "", _f(r[5]),
              _f(r[6], "%+.2f"), _f(r[7], "%.3f"),
-             "yes" if r[11] == "1" else "no", _f(r[12]), r[13],
-             cite(ver, ln)))
+             "yes" if r[11] == "1" else "no", _f(r[12]), _f(r[14], "%+.0f"),
+             r[15], cite(ver, ln)))
     A("")
     A("Union recall by variant (SANE oracle, gate legs @$1,000) — the "
       "marginal-recall column above is this table's difference vs BASE:")
@@ -1605,24 +1674,29 @@ def write_report():
     A("")
     A("## 5. Slice miner (§10B)")
     A("")
-    A("| asset | G1 FIT value | marginal cells | 2-way cells | Holm family | "
-      "Holm rejected | promoted | source |")
+    A("| asset | G1 FIT value (close / peak) | marginal cells | 2-way cells "
+      "| Holm family | Holm rejected | promoted | source |")
     A("| --- | --- | --- | --- | --- | --- | --- | --- |")
     for r, ln in zip(mul.rows, mul.lines):
-        A("| %s | $%s | %s | %s | %s | %s | %s | %s |"
-          % (r[0], _f(r[1]), r[2], r[3], r[4], r[5], r[6], cite(mul, ln)))
+        A("| %s | $%s / $%s | %s | %s | %s | %s | %s | %s |"
+          % (r[0], _f(r[1]), _f(r[2]), r[3], r[4], r[5], r[6], r[7],
+             cite(mul, ln)))
     A("")
     for a in M.ASSET_ORDER:
         rows = [(r, ln) for r, ln in zip(sli.rows, sli.lines) if r[0] == a]
         A("### %s — top %d slices by FIT conditional value" % (a, TOP_K_REPORT))
         A("")
-        A("| # | axes | condition | n FIT | value | vs G1 | p (Holm) | "
-          "sign-stable | 2025 echo | promoted | source |")
-        A("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+        A("| # | axes | condition | n FIT | value | vs G1 | peak-exit vs G1 "
+          "| median horizon | p (Holm) | sign-stable | 2025 echo | promoted | "
+          "source |")
+        A("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- "
+          "| --- | --- |")
         for r, ln in rows[:TOP_K_REPORT]:
-            A("| %s | %s | %s | %s | $%s | %s$%s | %s | %s | $%s | %s | %s |"
+            A("| %s | %s | %s | %s | $%s | %s$%s | $%s | %s | %s | %s | $%s | "
+              "%s | %s |"
               % (r[1], r[2], r[3], r[4], _f(r[6]),
                  "+" if (r[8] and float(r[8]) >= 0) else "", _f(r[8]),
+                 _f(r[23], "%+.0f"), _hrs(r[24]),
                  _f(r[11], "%.3g"), "yes" if r[13] == "1" else "no",
                  _f(r[19]), "YES" if r[20] == "1" else "no", cite(sli, ln)))
         A("")
@@ -1662,6 +1736,52 @@ def write_report():
       "the family must be SMALLER and BETTER than the baseline, not merely "
       "not-worse.")
     A("")
+    A("**THE HORIZON CONFOUND (this lane's most important caveat).** The "
+      "CC-M1-3.2 value is the walled PHASE-CLOSE certificate, and its horizon "
+      "is the time from the decision to that close — which is a function of "
+      "the clock. Any family or slice defined ON the clock therefore measures "
+      "edge AND horizon together. Both halves of §10 are cut on the clock, so "
+      "every table below carries the walled PEAK-exit certificate beside it "
+      "as the horizon-free comparator (`conditional_value_peak_usd` in "
+      "`%s`, `value_peak_exit_usd` + `median_horizon_to_phase_close_sec` in "
+      "`%s`). Where the two disagree, the disagreement IS the result:"
+      % (fam.rel(), sli.rel()))
+    A("")
+    fd1 = [(a, ver.one(asset=a, family="FD1_CLOSE_15")[0]) for a in
+           M.ASSET_ORDER]
+    A("- F-D1 FAST-CLOSE loses %s / %s / %s (SI/HG/NKD) on the close "
+      "certificate but only %s / %s / %s on the peak-exit one: its deficit is "
+      "an EXIT-HORIZON effect, not a signal-quality effect. The candidates "
+      "move; the certificate just closes the position before they finish."
+      % tuple([_f(r[ver.i("value_minus_g1_usd")], "%+.0f") if r else "n/a"
+               for _a, r in fd1]
+              + [_f(r[ver.i("peak_exit_value_minus_g1_usd")], "%+.0f")
+                 if r else "n/a" for _a, r in fd1]))
+    A("- F-D2 and F-D3 are the mirror image: strong on the close certificate "
+      "(+$%s / +$%s SI) and ~flat on the peak-exit one (%s / %s), i.e. much "
+      "of their measured edge is 'entered with the phase still ahead of it', "
+      "not 'opens and releases are special'."
+      % (dg1("SI", "FD2_MICRO_OPEN"), dg1("SI", "FD3_NEWS_15"),
+         _f(vv("SI", "FD2_MICRO_OPEN", "peak_exit_value_minus_g1_usd"),
+            "%+.0f"),
+         _f(vv("SI", "FD3_NEWS_15", "peak_exit_value_minus_g1_usd"),
+            "%+.0f")))
+    A("- F-D4 POST-SHOCK and F-D5 FIRST-TEST are the two that survive BOTH "
+      "readings (F-D4 %s / %s / %s peak-exit vs G1; F-D5 %s / %s / %s) — "
+      "they are the genuine mechanism finds of this stage."
+      % (_f(vv("SI", "FD4_POST_SHOCK", "peak_exit_value_minus_g1_usd"),
+            "%+.0f"),
+         _f(vv("HG", "FD4_POST_SHOCK", "peak_exit_value_minus_g1_usd"),
+            "%+.0f"),
+         _f(vv("NKD", "FD4_POST_SHOCK", "peak_exit_value_minus_g1_usd"),
+            "%+.0f"),
+         _f(vv("SI", "FD5_FIRST_TEST", "peak_exit_value_minus_g1_usd"),
+            "%+.0f"),
+         _f(vv("HG", "FD5_FIRST_TEST", "peak_exit_value_minus_g1_usd"),
+            "%+.0f"),
+         _f(vv("NKD", "FD5_FIRST_TEST", "peak_exit_value_minus_g1_usd"),
+            "%+.0f")))
+    A("")
     A("| family | reading | recommendation |")
     A("| --- | --- | --- |")
     def vv(a, f, col="conditional_value_usd"):
@@ -1672,8 +1792,10 @@ def write_report():
     def nn(a, f):
         return vv(a, f, "n_candidates_fit")
     A("| F-D3 NEWS-WINDOW | +$%s SI / +$%s NKD / +$%s HG at n=%s/%s/%s FIT, "
-      "sign-stable in all four FIT years, 2025 echo higher | **ADOPT** (15s "
-      "and 60s land within $%s of each other — one delay suffices) |"
+      "sign-stable in all four FIT years, 2025 echo higher — but ~flat on the "
+      "horizon-free comparator | **ADOPT** on the operative (close-exit) "
+      "metric, which is also the contract's hold-to-close shape (D-019); 15s "
+      "and 60s land within $%s of each other, so one delay suffices |"
       % (dg1("SI", "FD3_NEWS_15"), dg1("NKD", "FD3_NEWS_15"),
          dg1("HG", "FD3_NEWS_15"), nn("SI", "FD3_NEWS_15"),
          nn("NKD", "FD3_NEWS_15"), nn("HG", "FD3_NEWS_15"),
@@ -1681,29 +1803,50 @@ def write_report():
                                                          "FD3_NEWS_60"))))))
     A("| F-D4 POST-SHOCK | the largest per-candidate edge of the stage "
       "(+$%s SI / +$%s NKD / +$%s HG) on the smallest supply (n=%s/%s/%s "
-      "FIT), era-concentrated | **ADOPT** with the small-sample caveat |"
+      "FIT), era-concentrated, and it SURVIVES the horizon-free comparator | "
+      "**ADOPT — the strongest find of the stage**, with the small-sample "
+      "caveat |"
       % (dg1("SI", "FD4_POST_SHOCK"), dg1("NKD", "FD4_POST_SHOCK"),
          dg1("HG", "FD4_POST_SHOCK"), nn("SI", "FD4_POST_SHOCK"),
          nn("NKD", "FD4_POST_SHOCK"), nn("HG", "FD4_POST_SHOCK")))
     A("| F-D2 MICRO-OPENS | consistent positive edge (+$%s / +$%s / +$%s) at "
-      "n=%s/%s/%s FIT | **ADOPT** |"
+      "n=%s/%s/%s FIT, ~flat peak-exit | **ADOPT** on the close-exit metric, "
+      "with the horizon caveat |"
       % (dg1("SI", "FD2_MICRO_OPEN"), dg1("NKD", "FD2_MICRO_OPEN"),
          dg1("HG", "FD2_MICRO_OPEN"), nn("SI", "FD2_MICRO_OPEN"),
          nn("NKD", "FD2_MICRO_OPEN"), nn("HG", "FD2_MICRO_OPEN")))
-    A("| F-D5 FIRST-TEST | asset-split: $%s NKD / $%s SI / $%s HG vs G1 | "
-      "**ADOPT on NKD only**; elsewhere keep touch-ordinality as a FEATURE |"
+    A("| F-D5 FIRST-TEST | close-exit is asset-split ($%s NKD / $%s SI / $%s "
+      "HG) but PEAK-exit is positive on all three ($%s / $%s / $%s): the "
+      "first test of a level is a real quality signal that the close "
+      "certificate under-reads | **ADOPT on NKD**; on SI/HG adopt as a "
+      "FEATURE now and re-test as a family once an exit rule exists |"
       % (dg1("NKD", "FD5_FIRST_TEST"), dg1("SI", "FD5_FIRST_TEST"),
-         dg1("HG", "FD5_FIRST_TEST")))
+         dg1("HG", "FD5_FIRST_TEST"),
+         _f(vv("NKD", "FD5_FIRST_TEST", "peak_exit_value_minus_g1_usd"),
+            "%+.0f"),
+         _f(vv("SI", "FD5_FIRST_TEST", "peak_exit_value_minus_g1_usd"),
+            "%+.0f"),
+         _f(vv("HG", "FD5_FIRST_TEST", "peak_exit_value_minus_g1_usd"),
+            "%+.0f")))
     A("| F-D6 EXHAUSTION | passes only on size: %s SI candidates at $%s vs "
       "G1, and HG adopted no OR_EXT cell so the family is empty there | "
       "**DO NOT adopt as a generator family** — it emits no new candidate and "
       "has no value edge; keep the beyond-extension flag as a FEATURE |"
       % (nn("SI", "FD6_EXHAUSTION"), dg1("SI", "FD6_EXHAUSTION")))
-    A("| F-D1 FAST-CLOSE | decisively negative everywhere ($%s SI / $%s NKD "
-      "/ $%s HG vs G1) | **RETIRE** — the last 30 minutes do not pay for the "
-      "shrinking phase-close horizon |"
+    A("| F-D1 FAST-CLOSE | decisively negative on the close certificate "
+      "($%s SI / $%s NKD / $%s HG) but essentially AT baseline on the "
+      "peak-exit one ($%s / $%s / $%s) | **RETIRE as a generator family** "
+      "under the phase-close exit, and HAND THE FINDING TO THE EXIT PROGRAM "
+      "(D-045/D-046): these candidates are not bad, they are cut off — a "
+      "hold-through-the-boundary exit is the experiment |"
       % (dg1("SI", "FD1_CLOSE_15"), dg1("NKD", "FD1_CLOSE_15"),
-         dg1("HG", "FD1_CLOSE_15")))
+         dg1("HG", "FD1_CLOSE_15"),
+         _f(vv("SI", "FD1_CLOSE_15", "peak_exit_value_minus_g1_usd"),
+            "%+.0f"),
+         _f(vv("NKD", "FD1_CLOSE_15", "peak_exit_value_minus_g1_usd"),
+            "%+.0f"),
+         _f(vv("HG", "FD1_CLOSE_15", "peak_exit_value_minus_g1_usd"),
+            "%+.0f")))
     A("")
     shares = sorted(100.0 * float(r[mul.i("n_promoted")])
                     / max(1.0, float(r[mul.i("holm_family_size")]))
@@ -1722,7 +1865,10 @@ def write_report():
       "on SI and NKD, and those are exactly the seconds the m0 tradability "
       "screen (spread <= 2x phase median) rejects — that value may not be "
       "capturable, and the pair should be re-measured on the screened roster "
-      "before any of it becomes a family."
+      "before any of it becomes a family. SECOND CAUTION, from the horizon "
+      "confound above: the winning clock cells also carry the LONGEST median "
+      "horizon to the phase close, so `value_peak_exit_usd` is the column to "
+      "read before any clock slice is promoted to a family."
       % (PROMOTE_MARGIN, shares[0], shares[-1], mul.rel()))
     A("")
     A("## 8. Spec defects returned to the orchestrator")
@@ -1758,7 +1904,7 @@ def main():
                                    float("nan"), r[4], r[6] if np.isfinite(r[6])
                                    else float("nan"),
                                    r[7] if np.isfinite(r[7]) else float("nan"),
-                                   r[13]))
+                                   r[15]))
     bad = [r for r in bundle[8] if int(r[4]) != 0]
     if bad:
         M.hb("fdisc INTEGRITY FAIL: base reconstruction delta %r" % (bad,))

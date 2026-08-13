@@ -14,3 +14,16 @@ Also, we need forward volatility and the other types of information like macro i
 
 Look, we need to use all of the information that we have available and give Opus all of the information that we can give it in its rawest format so that it can identify whatever features to build and whatever interaction between features and different data points will actually give us proper results
 - [2026-08-13T11:47:44Z] The data we downloaded and everything needs to be properly cut off so that we don't get future information leaking in
+- [2026-08-13T13:21:50Z] Yeah, with like three assets together, each with one mini, we can easily get over six k, right? If we have the same two k bar that we need to cross, and the drawdown should also be quite low.
+
+I don't want to separate things out into their own like sessions to trade, because that's just limiting their overall capacity to get proper trades.
+
+But yeah, we need to find out like why did the Opus finding not transfer over for IWM like, and what could we do differently and even more. I know you mentioned two things, but we need even more things to ensure we transfer it over properly  And how can we judge the event generation phase? And like how good is it in comparison to what we had for I W M?
+
+For I W M, I think we had too many candidates, and the majority of those candidates were trash. And like it was like finding a needle in a haystack.
+
+I believe for these we will still have a ton of candidates, but probably an easy way to separate things out. And maybe there is a way we can reduce the clustering or like look at the clusters as like one emission or something.
+
+I don't know like how to put it, but yeah, we need to ensure our event generation is rock solid because the selection etc. depends on it.
+
+And if there are ways we can reduce false positives and etc., we'll try to do so.

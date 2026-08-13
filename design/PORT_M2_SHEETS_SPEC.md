@@ -219,3 +219,18 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
    render completes (the pin-behind-HEAD incident is the receipt). 12-worker cap ratified (WORKERS_MAX=12).
 5. V1 warm-up/pilot artifacts stay as the historical record of the calibration probe. Renderer port-trigger
    counter: 1 ordered re-render event consumed; trigger (>2) still armed.
+
+## CC-M2-8 — E1 Day-1 adjudications (orchestrator, 2026-08-14; BINDING)
+1. D7 RULED: all future study/blind draws EXCLUDE the P-M2c warm-up sessions (SI 20210701/20210831, HG
+   20210701/20210929, NKD 20210701/20210818). Day-1's self-score is marked WINDOW-TAINTED DIAGNOSTIC (study
+   scores are diagnostics regardless — D-073 governs quoted numbers; the per-row taint columns become a
+   standard ledger field). The honest de-tainted reading (9 takes, precision 0.778, all-positive) stands as
+   the calibration signal only.
+2. YESTERDAY-POLICY BASELINE ADOPTED: the reader's own frozen executable triage policy from day N becomes an
+   additional mechanical baseline for day N+1 (self-improvement measured daily; e1d1_policy.py = the first).
+3. The reader's T6 finding (momentum term value-destroying, 17 blocked candidates avg +$1,438) and T7
+   (freshness too tight; mid-leg continuation shorts paid) are ERA_NOTES hypotheses feeding its own policy
+   iteration + the pattern censuses — the machinery working as designed; no orchestrator override.
+4. REFUSED-FVOL CENSUS ORDERED (SI 20210701 had 391/391 refused => P001 structurally cannot fire there):
+   per asset/era frequency of refused-fvol sessions, folded into the running census lane's scope.
+5. A|B|C within-TAKE calibration inversion: watch item (n=11; CC-M2-4.4 scoring accumulates).

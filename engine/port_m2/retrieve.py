@@ -12,10 +12,23 @@ WHAT MAKES IT LAWFUL
   it does not already know.  Any other pool would be an outcome channel into a
   blind decision, so the pool builder REFUSES — it never filters:
 
-    * a pool row whose mode is not STUDY            -> RETRIEVAL REFUSED
-    * a pool row whose (asset, date8) is not in
+    * a pool member the ledger does not carry as a
+      STUDY row                                     -> RETRIEVAL REFUSED
+    * a pool member whose (asset, date8) is not in
       used_cases.tainted_sessions()                 -> RETRIEVAL REFUSED
     * an empty pool                                 -> RETRIEVAL REFUSED
+
+  The guard reads the LEDGER, never the pool it is validating: a taint set
+  derived from the pool would certify its own poison.
+
+  SEQUENCING CAVEAT (operational, not enforceable from the ledger): a STUDY row
+  means "this case belongs to a study block", and the block's outcomes are
+  revealed at ITS unblinding.  A round may register its STUDY rows BEFORE the
+  S14 appendices are opened (E1-STUDY-D1 did exactly that — 1,039 rows
+  registered with the theses sealed and no S14 read).  Until that round
+  unblinds, retrieval must not be consulted for a case still inside it: the
+  ledger cannot distinguish the two states, so the sequencing is the round
+  driver's responsibility, and this note is the record of the hazard.
 
   A filtering guard would turn a protocol violation into a silent subsample,
   which is the exact mistake used_cases.check_blind exists to prevent.  The
@@ -50,8 +63,18 @@ pattern_lib.frame, so retrieval and the censuses read ONE definition)
   value is missing/REFUSED on either side is DROPPED from both the sum and the
   count (never imputed, never silently zeroed); the surviving block count is
   printed as `nb`, so a match on 7 blocks is never mistaken for a match on 11.
+  This is Gower's coefficient with its standard missing-value rule, and it
+  carries Gower's known bias: a neighbour with several REFUSED fields is scored
+  on fewer, easier blocks and can rank artificially close.  Two things hold
+  that honest — `nb` is a printed column, and a case comparable on fewer than
+  MIN_BLOCKS blocks is dropped from the ranking and reported as a count.
 
   TIES are deterministic: the sort key is (distance rounded to 1e-9, cid).
+
+  SIDE is deliberately NOT a block (the pinned vector is the spec's list), so a
+  SHORT query can retrieve LONG analogs; `--same-side` filters the POOL for
+  callers who want same-direction references, which changes what is compared,
+  never how.
 
 OUTCOMES surfaced per neighbour: BOTH CC-M1-8 readings (walled phase-close =
 the adoption metric, walled peak-exit = the mandatory companion), the wall flag
@@ -83,6 +106,7 @@ SECTION = "§CC-M2-5 item 3 — reference-class retrieval"
 DIST_CAP = 4.0                            # robust-scaled units, then / DIST_CAP
 ABS_FLOOR = 1e-6
 REL_FLOOR = 0.01                          # of |median|
+MIN_BLOCKS = 6                            # of 11; below this the case is dropped
 
 # (block id, field in the pattern_lib frame, kind)
 BLOCKS = (
@@ -101,9 +125,10 @@ BLOCKS = (
 
 PARAMS = {
     "spec_section": SECTION,
-    "pool": "STUDY rows of provenance/port_m2/USED_CASE_LEDGER.tsv only; "
-            "REFUSAL (never a filter) on a non-STUDY or untainted member, or "
-            "an empty pool",
+    "pool": "STUDY rows of provenance/port_m2/USED_CASE_LEDGER.tsv by "
+            "default; ANY explicit pool is validated against the ledger. "
+            "REFUSAL (never a filter) on a member the ledger does not carry "
+            "as STUDY, on an untainted session, or on an empty pool",
     "blocks": [b[0] + ":" + b[1] + ":" + b[2] for b in BLOCKS],
     "scaling": "per-field robust scale 1.4826*MAD over pool+query, floored at "
                "max(%g, %g*|median|); |a-b|/scale clipped at %g and divided by "
@@ -112,6 +137,8 @@ PARAMS = {
     "missing": "a block missing/REFUSED on either side is dropped from the "
                "numerator AND the denominator; the count is reported as nb",
     "ties": "sort key (round(distance, 9), cid) — total and deterministic",
+    "min_blocks": "a neighbour comparable on < %d blocks is dropped from the "
+                  "ranking (Gower missing-block bias) and counted" % MIN_BLOCKS,
     "outcomes": "both CC-M1-8 readings (walled phase-close + walled peak-exit)",
     "frame": PL.PARAMS_FRAME,
 }
@@ -122,36 +149,52 @@ class PoolRefusal(RuntimeError):
 
 
 # ------------------------------------------------------------------ pool ----
-def pool_cids(entries=None, _mutant_filter=False):
-    """The lawful retrieval pool: every STUDY case in the used-case ledger.
+def assert_study_tainted(cids, entries=None, _mutant_filter=False):
+    """REFUSE any pool member that is not study-tainted history.
 
-    `_mutant_filter` is the RED-FIRST mutant switch (test_pattern.t05): it
-    turns the refusal into a filter, which the test must catch.  Production
-    callers never pass it.
+    The check is against the LEDGER, not against the pool itself: a member is
+    lawful only if the ledger carries it as a STUDY row AND its (asset, date8)
+    is STUDY-tainted there.  Deriving the taint set from the candidate pool
+    would make the guard vacuous — a poisoned pool would declare its own
+    poison tainted (caught by test_pattern.t05's first arming failure, kept on
+    record here so the shape is not lost again).
+
+    `_mutant_filter` is the RED-FIRST mutant switch: it turns the refusal into
+    a filter, which the test must catch.  Production callers never pass it.
     """
     entries = UC.read_ledger() if entries is None else entries
+    study = {e["cid"] for e in entries if e.get("mode") == UC.MODE_STUDY}
     tainted = UC.tainted_sessions(entries)
     bad, out = [], []
-    for e in entries:
-        cid = e["cid"]
-        if e.get("mode") != UC.MODE_STUDY:
-            continue
+    for cid in cids:
         asset, d8, _s, _sd = MC.parse_cid(cid)
-        if (asset, d8) not in tainted:
+        if cid not in study or (asset, d8) not in tainted:
             bad.append(cid)
             continue
         out.append(cid)
     if bad and not _mutant_filter:
         raise PoolRefusal(
-            "retrieval pool is not study-tainted history: %d case(s) sit in "
-            "sessions the ledger does not mark STUDY-tainted: %s"
-            % (len(bad), ", ".join(sorted(bad)[:5])))
-    if _mutant_filter:
-        out += []                          # the mutant silently drops `bad`
+            "retrieval pool is not study-tainted history: %d case(s) the "
+            "used-case ledger does not carry as STUDY: %s"
+            % (len(bad), ", ".join(sorted(bad)[:5])
+               + (" ..." if len(bad) > 5 else "")))
     if not out:
         raise PoolRefusal("retrieval pool is empty — there is no study-tainted "
                           "history to retrieve from")
     return sorted(set(out))
+
+
+def pool_cids(entries=None, pool=None, _mutant_filter=False):
+    """The lawful retrieval pool.
+
+    Default = every STUDY case in the used-case ledger.  An explicit `pool`
+    (any candidate list a caller wants to retrieve from) goes through the same
+    guard, which is where an untainted case is caught.
+    """
+    entries = UC.read_ledger() if entries is None else entries
+    if pool is None:
+        pool = [e["cid"] for e in entries if e.get("mode") == UC.MODE_STUDY]
+    return assert_study_tainted(pool, entries, _mutant_filter=_mutant_filter)
 
 
 # ---------------------------------------------------------------- vectors ---
@@ -166,6 +209,7 @@ REC_FIELDS = ("klass", "phase_dec", "clock_sec", "coverage_phase",
               "walled", "winner")
 
 POOL_CACHE = MC.out_path("retrieval", "pool_index.npz")
+_POOL_MEM = {}
 
 
 def _frame(asset, d8, with_certs=True):
@@ -195,11 +239,22 @@ def vector(cid, with_certs=True):
 
 # ------------------------------------------------------------- pool cache ---
 def _pool_hash(cids):
+    """Cache key = the pool identity AND the code that computes its features.
+
+    Hashing only the cid list would leave the cache stale after an edit to
+    pattern_lib.frame or to this module's block table, which is exactly the
+    kind of silent drift D-006 exists to prevent.
+    """
     import hashlib
-    return hashlib.sha256("\n".join(cids).encode()).hexdigest()
+    h = hashlib.sha256()
+    h.update("\n".join(cids).encode())
+    for src in (PL.__file__, __file__):
+        h.update(MC.C.sha256_file(src.replace(".pyc", ".py")).encode())
+    return h.hexdigest()
 
 
-def pool_records(entries=None, refresh=False, _mutant_filter=False):
+def pool_records(entries=None, pool=None, refresh=False,
+                 _mutant_filter=False):
     """Feature records for the whole study-tainted pool.
 
     The pool is now era-corpus sized (the E1 STUDY day-1 block alone recorded
@@ -209,21 +264,28 @@ def pool_records(entries=None, refresh=False, _mutant_filter=False):
     automatically, and nothing else can make it stale (every input field is a
     pure function of frozen receipts).
     """
-    cids = [c for c in pool_cids(entries, _mutant_filter=_mutant_filter)]
+    cids = [c for c in pool_cids(entries, pool=pool,
+                                 _mutant_filter=_mutant_filter)]
     h = _pool_hash(cids)
+    if h in _POOL_MEM and not refresh:
+        return _POOL_MEM[h]
     if not refresh and os.path.exists(POOL_CACHE):
         try:
             z = np.load(POOL_CACHE, allow_pickle=False)
             if str(z["pool_sha256"]) == h:
-                recs = []
-                for t in range(int(z["cid"].size)):
-                    r = {"cid": str(z["cid"][t]), "asset": str(z["asset"][t]),
-                         "d8": int(z["d8"][t]),
-                         "phase": str(z["phase"][t])}
-                    for k in REC_FIELDS:
-                        r[k] = z[k][t]
-                    recs.append(r)
+                # materialise every member ONCE: NpzFile decompresses on each
+                # __getitem__, so indexing inside the row loop would decompress
+                # 21 arrays per row (measured: 4.8s for 1,054 rows).
+                cols = {k: z[k] for k in
+                        (("cid", "asset", "d8", "phase") + REC_FIELDS)}
                 z.close()
+                recs = [dict([("cid", str(cols["cid"][t])),
+                              ("asset", str(cols["asset"][t])),
+                              ("d8", int(cols["d8"][t])),
+                              ("phase", str(cols["phase"][t]))]
+                             + [(k, cols[k][t]) for k in REC_FIELDS])
+                        for t in range(int(cols["cid"].size))]
+                _POOL_MEM[h] = recs
                 return recs
             z.close()
         except (OSError, KeyError, ValueError):
@@ -245,6 +307,7 @@ def pool_records(entries=None, refresh=False, _mutant_filter=False):
                   {"env": MC.env_receipt(PARAMS), "pool_sha256": h,
                    "n_pool": len(recs),
                    "ledger": UC.LEDGER, "cache": POOL_CACHE})
+    _POOL_MEM[h] = recs
     return recs
 
 
@@ -325,25 +388,31 @@ def distance(q, c, sc):
     return (tot / n if n else float("nan")), n, per
 
 
-def retrieve(cid, k=8, entries=None, _mutant_filter=False,
-             _mutant_unscaled=False):
+def retrieve(cid, k=8, entries=None, pool=None, same_side=False,
+             _mutant_filter=False, _mutant_unscaled=False):
     """k nearest study-tainted cases to `cid`, nearest first."""
-    recs = [r for r in pool_records(entries, _mutant_filter=_mutant_filter)
-            if r["cid"] != cid]
+    _a, _d, _s, qside = MC.parse_cid(cid)
+    recs = [r for r in pool_records(entries, pool=pool,
+                                    _mutant_filter=_mutant_filter)
+            if r["cid"] != cid
+            and (not same_side or int(r["side"]) == int(qside))]
     # the QUERY never needs its own outcome (it is the thing being decided), so
     # its frame is built without the skeleton arrays.
     q = vector(cid, with_certs=False)
     sc = scales(recs + [q], _mutant_unscaled=_mutant_unscaled)
     scored = []
+    n_thin = 0
     for c in recs:
         d, nb, per = distance(q, c, sc)
+        if nb < MIN_BLOCKS or not np.isfinite(d):
+            n_thin += 1
+            continue
         scored.append({"cid": c["cid"], "dist": d, "n_blocks": nb,
                        "blocks": per, "rec": c,
                        "same_session": (str(c["asset"]) == q["asset"]
                                         and int(c["d8"]) == q["d8"])})
-    scored.sort(key=lambda r: (round(r["dist"], 9)
-                               if np.isfinite(r["dist"]) else 9e9, r["cid"]))
-    return q, scored[:int(k)], sc, len(recs)
+    scored.sort(key=lambda r: (round(r["dist"], 9), r["cid"]))
+    return q, scored[:int(k)], sc, {"n_pool": len(recs), "n_dropped_thin": n_thin}
 
 
 # ----------------------------------------------------------------- render ---
@@ -357,11 +426,13 @@ def _n(v, dec=2):
     return "." if not np.isfinite(v) else ("%%.%df" % dec) % v
 
 
-def table(q, hits, k, n_pool):
+def table(q, hits, k, meta):
     L = []
     A = L.append
     A("REFERENCE-CLASS RETRIEVAL  (%s, k=%d)  pool = %d STUDY-tainted cases "
-      "(used-case ledger, STUDY rows only)" % (SECTION, k, n_pool))
+      "(used-case ledger, STUDY rows only); %d dropped as comparable on < %d "
+      "blocks" % (SECTION, k, meta["n_pool"], meta["n_dropped_thin"],
+                  MIN_BLOCKS))
     A("QUERY %-22s %-22s %-6s %-6s  cov=%s%%  ladder=%-16s  runway=%ss  "
       "age(ph/piv)=%s/%s  slope1=%s  accel=%s  rv1800/60=%s  spread=%sx  "
       "lvl=%sxATR"
@@ -409,21 +480,24 @@ def main():
     p.add_argument("--json", action="store_true")
     p.add_argument("--refresh-pool", action="store_true",
                    help="rebuild the pool cache even if its hash matches")
+    p.add_argument("--same-side", action="store_true",
+                   help="restrict the pool to the query's side (pool filter, "
+                        "not a change to the pinned distance)")
     a = p.parse_args()
     MC.verify_spec(force=True)
     if a.refresh_pool:
         pool_records(refresh=True)
-    q, hits, sc, n_pool = retrieve(a.cid, a.k)
+    q, hits, sc, meta = retrieve(a.cid, a.k, same_side=a.same_side)
     if a.json:
         sys.stdout.write(json.dumps(
-            {"query": a.cid, "k": a.k, "scales": sc, "n_pool": n_pool,
+            {"query": a.cid, "k": a.k, "scales": sc, "meta": meta,
              "hits": [{"cid": h["cid"], "dist": h["dist"],
                        "n_blocks": h["n_blocks"], "blocks": h["blocks"],
                        "cert_close_usd": float(h["rec"]["cert_close_usd"]),
                        "cert_peak_usd": float(h["rec"]["cert_peak_usd"])}
                       for h in hits]}, indent=1, sort_keys=True) + "\n")
     else:
-        sys.stdout.write(table(q, hits, a.k, n_pool))
+        sys.stdout.write(table(q, hits, a.k, meta))
     return 0
 
 

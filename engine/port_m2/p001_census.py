@@ -126,7 +126,11 @@ PARAMS = {
     "population": "frozen v3 roster, FIT years %s; %d = GATE echo, EVAL-ONLY"
                   % (list(FIT_YEARS), GATE_YEAR),
     "destruction": "each term shuffled WITHIN SESSION, %d replicates, "
-                   "RandomState(%d); the other four terms untouched"
+                   "RandomState(%d + term index); the other four terms "
+                   "untouched. The destroyed quantity is the EDGE (mean cert "
+                   "of the firing set minus mean cert of the non-firing rest, "
+                   "both readings), not the level — a level comparison is "
+                   "dominated by the population's negative mean"
                    % (DESTRUCTION_REPS, DESTRUCTION_SEED),
     "inference": "CC-M1-12.4 — GEE independence working correlation with the "
                  "Liang-Zeger sandwich clustered on SESSION (CR0 + "
@@ -374,10 +378,12 @@ def term_rows(D, T, reading):
 
 DESTRUCTION_COLUMNS = ("reading", "asset", "neutralised_term", "n_fires_mean",
                        "n_fires_sd", "mean_close_mean", "mean_close_sd",
-                       "cond_close_mean", "cond_close_sd", "mean_peak_mean",
-                       "cond_peak_mean", "intact_n_fires",
-                       "intact_mean_close", "intact_cond_close",
-                       "value_retention_mean_close", "verdict")
+                       "edge_close_mean", "edge_close_sd", "cond_close_mean",
+                       "mean_peak_mean", "edge_peak_mean", "intact_n_fires",
+                       "intact_mean_close", "intact_edge_close",
+                       "intact_cond_close", "intact_edge_peak",
+                       "edge_retention_close", "edge_retention_peak",
+                       "verdict")
 
 
 def destruction_rows(D, T, reading):
@@ -408,11 +414,23 @@ def destruction_rows(D, T, reading):
     assets += [(a, asset_f == a) for a in MC.ASSET_ORDER]
     intact = np.all(Tf, axis=1)
 
+    def _edge(vals, m):
+        """Mean certificate of the firing set MINUS the non-firing baseline.
+
+        The raw mean of a firing set is not "the value": most candidates lose,
+        so a level comparison is dominated by the population's negative mean.
+        The pattern's claim is an EDGE over the candidates it does not fire on,
+        so that difference is what destruction has to erase.
+        """
+        if not m.any() or m.all():
+            return float("nan")
+        return float(vals[m].mean() - vals[~m].mean())
+
     for k, name in enumerate(TERMS):
         rs = np.random.RandomState(DESTRUCTION_SEED + k)
         others = np.all(np.delete(Tf, k, axis=1), axis=1)
-        acc = {aname: {"n": [], "mc": [], "cd": [], "mp": [], "cdp": []}
-               for aname, _ in assets}
+        acc = {aname: {"n": [], "mc": [], "ed": [], "cd": [], "mp": [],
+                       "edp": []} for aname, _ in assets}
         for _rep in range(DESTRUCTION_REPS):
             perm = Tf[:, k].copy()
             for s, e in zip(starts.tolist(), stops.tolist()):
@@ -423,32 +441,44 @@ def destruction_rows(D, T, reading):
                 m = fired & asel
                 a = acc[aname]
                 a["n"].append(int(m.sum()))
+                sub_c, sub_p = cc[asel], cp[asel]
+                sm = fired[asel]
                 if m.any():
                     v = cc[m]
-                    p = cp[m]
                     a["mc"].append(float(v.mean()))
-                    a["mp"].append(float(p.mean()))
+                    a["mp"].append(float(cp[m].mean()))
                     pv = v[v > 0]
-                    pp = p[p > 0]
                     a["cd"].append(float(pv.mean()) if pv.size else np.nan)
-                    a["cdp"].append(float(pp.mean()) if pp.size else np.nan)
+                    a["ed"].append(_edge(sub_c, sm))
+                    a["edp"].append(_edge(sub_p, sm))
                 else:
-                    a["mc"].append(np.nan)
-                    a["mp"].append(np.nan)
-                    a["cd"].append(np.nan)
-                    a["cdp"].append(np.nan)
+                    for key in ("mc", "mp", "cd", "ed", "edp"):
+                        a[key].append(np.nan)
+
+        def _m(v):
+            return (float(np.nanmean(v)) if np.any(np.isfinite(v))
+                    else float("nan"))
+
         for aname, asel in assets:
             im = intact & asel
             i_st = _stats(cc[im], cp[im], wn[im], nsess) if im.any() else None
             a = acc[aname]
-            nm = float(np.mean(a["n"]))
-            mc = float(np.nanmean(a["mc"])) if np.any(np.isfinite(a["mc"])) else float("nan")
-            cd = float(np.nanmean(a["cd"])) if np.any(np.isfinite(a["cd"])) else float("nan")
             i_mc = i_st["mean_close"] if i_st else float("nan")
             i_cd = i_st["cond_close"] if i_st else float("nan")
-            ret = (mc / i_mc) if (i_st and np.isfinite(i_mc) and i_mc != 0
-                                  and np.isfinite(mc)) else float("nan")
-            if not np.isfinite(ret):
+            i_ed = _edge(cc[asel], intact[asel])
+            i_edp = _edge(cp[asel], intact[asel])
+            ret = (_m(a["ed"]) / i_ed
+                   if np.isfinite(i_ed) and i_ed != 0 else float("nan"))
+            retp = (_m(a["edp"]) / i_edp
+                    if np.isfinite(i_edp) and i_edp != 0 else float("nan"))
+            if not (i_st and i_st["n_candidates"]):
+                verdict = "UNDECIDED_no_intact_fires"
+            elif not np.isfinite(i_ed) or i_ed <= 0:
+                # nothing to destroy: the intact detector has no positive edge
+                # over its own non-firing baseline, so the destruction test is
+                # VOID for this term (the pattern failed one step earlier).
+                verdict = "VOID_no_intact_edge"
+            elif not np.isfinite(ret):
                 verdict = "UNDECIDED_no_intact_fires"
             elif ret >= 0.80:
                 verdict = "TERM_NOT_LOAD_BEARING"
@@ -456,19 +486,20 @@ def destruction_rows(D, T, reading):
                 verdict = "TERM_LOAD_BEARING"
             else:
                 verdict = "PARTIAL"
-            rows.append([reading, aname, name, nm, float(np.std(a["n"])),
-                         mc, float(np.nanstd(a["mc"])), cd,
-                         float(np.nanstd(a["cd"])),
-                         float(np.nanmean(a["mp"])) if np.any(np.isfinite(a["mp"])) else float("nan"),
-                         float(np.nanmean(a["cdp"])) if np.any(np.isfinite(a["cdp"])) else float("nan"),
+            rows.append([reading, aname, name, float(np.mean(a["n"])),
+                         float(np.std(a["n"])), _m(a["mc"]),
+                         float(np.nanstd(a["mc"])), _m(a["ed"]),
+                         float(np.nanstd(a["ed"])), _m(a["cd"]),
+                         _m(a["mp"]), _m(a["edp"]),
                          int(i_st["n_candidates"]) if i_st else 0,
-                         i_mc, i_cd, ret, verdict])
+                         i_mc, i_ed, i_cd, i_edp, ret, retp, verdict])
     return rows
 
 
 ROBUST_COLUMNS = ("reading", "asset", "era", "metric", "n", "n_clusters",
                   "n_fires", "beta_usd", "se_naive", "se_cr0", "se_cr1",
-                  "z_cr1", "p_cr1", "icc_rho", "deff", "n_eff", "verdict")
+                  "z_cr1", "p_cr1", "icc_rho", "deff", "n_eff", "verdict",
+                  "holm_rank", "holm_threshold", "holm_verdict")
 
 
 def _p_two_sided(z):
@@ -476,6 +507,30 @@ def _p_two_sided(z):
     if not np.isfinite(z):
         return float("nan")
     return math.erfc(abs(z) / math.sqrt(2.0))
+
+
+def _holm(rows, alpha=0.05):
+    """Holm-Bonferroni over the family of tests inside ONE reading.
+
+    16 GEE tests are run per reading (4 asset groups x 2 eras x 2 certificate
+    readings).  Reporting each at alpha=0.05 would manufacture roughly one
+    'significant' row by construction, so the family is corrected — the same
+    Holm discipline the M1 atlas screen uses.
+    """
+    idx = [i for i, r in enumerate(rows) if np.isfinite(r[12])]
+    order = sorted(idx, key=lambda i: rows[i][12])
+    m = len(order)
+    still = True
+    for rank, i in enumerate(order, 1):
+        thr = alpha / (m - rank + 1)
+        ok = still and rows[i][12] <= thr
+        still = still and ok
+        rows[i] += [rank, thr,
+                    "HOLM_SIGNIFICANT" if ok else "HOLM_NOT_SIGNIFICANT"]
+    for i, r in enumerate(rows):
+        if len(r) == len(ROBUST_COLUMNS) - 3:
+            rows[i] += [0, float("nan"), "NO_TEST"]
+    return rows
 
 
 def robust_rows(D, fire, reading):
@@ -501,8 +556,8 @@ def robust_rows(D, fire, reading):
                 ic = EV.icc_oneway(y, cl)
                 if g is None:
                     rows.append([reading, aname, ename, metric, int(y.size),
-                                 int(len(set(cl.tolist()))), nf,
-                                 float("nan")] + [float("nan")] * 6
+                                 int(len(set(cl.tolist()))), nf]
+                                + [float("nan")] * 6
                                 + [ic["rho"] if ic else float("nan"),
                                    ic["deff"] if ic else float("nan"),
                                    ic["n_eff"] if ic else float("nan"),
@@ -518,7 +573,7 @@ def robust_rows(D, fire, reading):
                              ic["rho"] if ic else float("nan"),
                              ic["deff"] if ic else float("nan"),
                              ic["n_eff"] if ic else float("nan"), verdict])
-    return rows
+    return _holm(rows)
 
 
 FIRE_COLUMNS = ("reading", "cid", "asset", "d8", "year", "era", "phase",
@@ -574,6 +629,58 @@ def report(D, res, elapsed, pins):
       "(FIT %s + the %d GATE echo), all three assets."
       % (int(D["dec_sec"].size), int(D["n_sessions_total"]),
          "-".join(str(y) for y in (FIT_YEARS[0], FIT_YEARS[-1])), GATE_YEAR))
+    A("")
+
+    A("## HEADLINE")
+    A("")
+    for reading in ("A", "B"):
+        r = res[reading]
+        cen = {(x[1], x[2], x[3], x[4], x[5]): x for x in r["census"]}
+        fF = cen.get(("ALL", "FIT", "ALL", "ALL", "FIRE"))
+        fN = cen.get(("ALL", "FIT", "ALL", "ALL", "NOFIRE"))
+        rb = [x for x in r["robust"]
+              if x[1] == "ALL" and x[2] == "FIT" and x[3] == "cert_close"]
+        rp = [x for x in r["robust"]
+              if x[1] == "ALL" and x[2] == "FIT" and x[3] == "cert_peak"]
+        if fF is None or fN is None or fF[7] == 0:
+            A("* **Reading %s** — the detector never fires on FIT." % reading)
+            continue
+        A("* **Reading %s** — fires %s/session (%d fires, %d sessions). "
+          "ADOPTION METRIC (walled phase-close): mean $%s for the firing set "
+          "vs $%s for everything it does not fire on, a session-clustered "
+          "difference of $%s (CR1 se $%s, p=%s) -> **%s**. "
+          "PEAK-EXIT companion: $%s (p=%s). "
+          "CONDITIONAL value (mean over the winners it does produce): $%s vs "
+          "$%s = %sx. D-021 winner rate %s%% vs %s%% = %sx."
+          % (reading, _fmt(fF[8], 2), fF[7], fF[6],
+             _fmt(fF[9]), _fmt(fN[9]),
+             _fmt(rb[0][7]) if rb else ".", _fmt(rb[0][10]) if rb else ".",
+             _fmt(rb[0][12], 4) if rb else ".",
+             ("NO MEAN-VALUE EDGE" if (rb and rb[0][7] <= 0)
+              else "positive but see the p-value"),
+             _fmt(rp[0][7]) if rp else ".",
+             _fmt(rp[0][12], 4) if rp else ".",
+             _fmt(fF[10]), _fmt(fN[10]),
+             _fmt(fF[10] / fN[10], 2) if fN[10] else ".",
+             _fmt(100.0 * fF[16], 2), _fmt(100.0 * fN[16], 2),
+             _fmt(fF[16] / fN[16], 2) if fN[16] else "."))
+    A("")
+    A("DEFECT D-P001-1 (the T4 ambiguity, found by this census). "
+      "PATTERN_LEDGER names the age term as `age of S3.phase H (SHORT) or L "
+      "(LONG) <= 200s`, but that field does NOT reproduce the post-mortem's "
+      "own table: on HG-20210929-052330-S the phase H is 1,236s old at the "
+      "decision second while the post-mortem quotes 93s. 93s is the age of "
+      "the most recent CAUSAL ZigZag HIGH pivot (14:30:37, confirmed "
+      "14:31:48, decision 14:32:10). The two readings agree on the other two "
+      "support cases. Both are censused here: READING A is the ledger "
+      "literal, READING B the post-mortem literal. The orchestrator rules "
+      "which one P001 means; the ledger's `sheet_fields` text needs the fix "
+      "either way.")
+    A("")
+    A("MULTIPLICITY: 16 GEE tests are run per reading (4 asset groups x 2 "
+      "eras x 2 certificate readings). Every robust table therefore carries "
+      "Holm-Bonferroni columns; an uncorrected p<0.05 row that fails Holm is "
+      "noise, and the tables say which is which.")
     A("")
 
     for reading in ("A", "B"):
@@ -634,30 +741,35 @@ def report(D, res, elapsed, pins):
                  _fmt(b[9]) if b else "."))
         A("")
         A("Mechanism destruction (FIT, ALL assets; each term shuffled within "
-          "its session, %d replicates). `value_retention` = destroyed mean "
-          "close / intact mean close: high retention means the term was not "
-          "carrying the value." % DESTRUCTION_REPS)
+          "its session, %d replicates). EDGE = mean close of the firing set "
+          "minus mean close of the non-firing rest; `retention` = destroyed "
+          "edge / intact edge. High retention means the term was not carrying "
+          "the value. Intact edge = $%s (close), $%s (peak)."
+          % (DESTRUCTION_REPS,
+             _fmt(r["destruction"][0][14]) if r["destruction"] else ".",
+             _fmt(r["destruction"][0][16]) if r["destruction"] else "."))
         A("")
-        A("| neutralised term | fires (mean) | mean close $ | retention | "
-          "verdict |")
-        A("|---|---|---|---|---|")
+        A("| neutralised term | fires (mean) | mean close $ | edge close $ | "
+          "retention close | retention peak | verdict |")
+        A("|---|---|---|---|---|---|---|")
         for x in r["destruction"]:
             if x[1] != "ALL":
                 continue
-            A("| %s | %s | %s | %s | %s |"
-              % (x[2], _fmt(x[3], 1), _fmt(x[5]), _fmt(x[14], 3), x[15]))
+            A("| %s | %s | %s | %s | %s | %s | %s |"
+              % (x[2], _fmt(x[3], 1), _fmt(x[5]), _fmt(x[7]), _fmt(x[17], 3),
+                 _fmt(x[18], 3), x[19]))
         A("")
         A("Cluster-robust inference (CC-M1-12.4; GEE identity link, "
           "Liang-Zeger sandwich clustered on SESSION, CR1 scaling):")
         A("")
         A("| asset | era | metric | beta $ | se naive | se CR1 | z | p | "
-          "DEFF | n_eff | verdict |")
-        A("|---|---|---|---|---|---|---|---|---|---|---|")
+          "DEFF | n_eff | raw verdict | Holm |")
+        A("|---|---|---|---|---|---|---|---|---|---|---|---|")
         for x in r["robust"]:
-            A("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+            A("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
               % (x[1], x[2], x[3], _fmt(x[7]), _fmt(x[8]), _fmt(x[10]),
                  _fmt(x[11], 2), _fmt(x[12], 5), _fmt(x[14], 2),
-                 _fmt(x[15], 1), x[16]))
+                 _fmt(x[15], 1), x[16], x[19]))
         A("")
         A("Term marginals (FIT, ALL assets):")
         A("")

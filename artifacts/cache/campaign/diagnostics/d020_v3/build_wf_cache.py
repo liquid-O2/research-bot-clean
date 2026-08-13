@@ -84,6 +84,13 @@ def stage_w2cand(work: dict) -> None:
     if work:
         ensure_summaries(max(work))
     for ordinal, seconds in work.items():
+        #: a day-complete roster may legitimately contain a session with ZERO
+        #: confirmed extremes (s829 = 2025-03-27).  `qr_wave2_dump values`
+        #: rejects an empty `--seconds` list, so that session is skipped here
+        #: rather than killing the shard and every session behind it.
+        if not seconds:
+            print(f"s{ordinal} w2cand skipped (no candidates)", flush=True)
+            continue
         out = out_dir / f"s{ordinal}.tsv"
         if out.exists():
             have = {int(line.split("\t")[1]) for line in out.read_text().splitlines()
@@ -116,9 +123,19 @@ def stage_quotes(work: dict) -> None:
         print(f"s{ordinal} quotes {arrays['q_n'].sum():,.0f}", flush=True)
 
 
+def stage_greeks(work: dict) -> None:
+    """`_cache/sec4` — the CC-013 full-greek per-second flows model_v3's `T_`
+    tier reads.  Same drop-in contract as the other stages: roster-driven,
+    idempotent, shardable."""
+    import model_v3 as mv3
+    for ordinal in work:
+        mv3.greek_arrays(ordinal)
+        print(f"s{ordinal} greeks ok", flush=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("stage", choices=("w2cand", "sec", "quotes", "list"))
+    parser.add_argument("stage", choices=("w2cand", "sec", "quotes", "greeks", "list"))
     parser.add_argument("--shard", default="")
     args = parser.parse_args()
 
@@ -129,7 +146,8 @@ def main() -> None:
         print(f"{len(wanted)} sessions {min(wanted)}..{max(wanted)}; "
               f"{sum(len(v) for v in wanted.values())} candidate seconds")
         return
-    {"w2cand": stage_w2cand, "sec": stage_sec, "quotes": stage_quotes}[args.stage](work)
+    {"w2cand": stage_w2cand, "sec": stage_sec, "quotes": stage_quotes,
+     "greeks": stage_greeks}[args.stage](work)
 
 
 if __name__ == "__main__":

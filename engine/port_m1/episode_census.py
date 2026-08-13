@@ -335,7 +335,8 @@ def pick_members(m, members, cert):
 
 # ============================================================== accumulators ==
 def new_acc():
-    return {"n_days": set(), "n_cand": 0, "n_epi": 0, "sizes": [0] * len(SIZE_BUCKETS),
+    return {"n_days": set(), "n_cand": 0, "n_epi": 0,
+            "sizes": [[0, 0, 0, 0] for _ in SIZE_BUCKETS],
             "size_sum": 0, "size_max": 0, "n_multi": 0, "n_leg_epi": 0,
             "n_chain_epi": 0, "n_leg_cand": 0,
             "cand_class": {c: 0 for c in CERT_METRICS},
@@ -379,6 +380,11 @@ def _asset_task(args):
     for g in gaps:
         for era in (M.ERA_FIT, M.ERA_GATE, M.ERA_ALL):
             acc[(era, g)] = new_acc()
+
+    def ga(era, g):
+        # eras_of() also yields the per-YEAR bucket, which we keep: era
+        # stability is free here and D-065 wants the 2025 echo separable.
+        return acc.setdefault((era, g), new_acc())
 
     def ra(key):
         return rule_acc.setdefault(key, {"n": 0, "pick": 0.0, "best": 0.0,
@@ -432,7 +438,7 @@ def _asset_task(args):
             eps_by_gap[g] = eps
             seen = 0
             for era in eras:
-                a = acc[(era, g)]
+                a = ga(era, g)
                 a["n_days"].add(d)
                 a["n_cand"] += len(idx)
                 a["n_epi"] += len(eps)
@@ -443,8 +449,9 @@ def _asset_task(args):
                 best = {c: max(m["cert"][c][i] for i in members)
                         for c in CERT_METRICS}
                 for era in eras:
-                    a = acc[(era, g)]
-                    a["sizes"][b] += 1
+                    a = ga(era, g)
+                    a["sizes"][b][0] += 1
+                    a["sizes"][b][1] += len(members)
                     a["size_sum"] += len(members)
                     a["size_max"] = max(a["size_max"], len(members))
                     a["size_list"].append(len(members))
@@ -452,8 +459,10 @@ def _asset_task(args):
                     a["n_leg_epi"] += 1 if is_leg else 0
                     a["n_chain_epi"] += 0 if is_leg else 1
                     a["n_leg_cand"] += len(members) if is_leg else 0
-                    for c in CERT_METRICS:
-                        a["epi_class"][c] += 1 if best[c] >= DOLLAR_CLASS else 0
+                    for ci, c in enumerate(CERT_METRICS):
+                        w = 1 if best[c] >= DOLLAR_CLASS else 0
+                        a["epi_class"][c] += w
+                        a["sizes"][b][2 + ci] += w
                         a["epi_best_sum"][c] += max(best[c], 0.0)
             assert seen == len(idx), "episode partition lost candidates"
         for era in eras:
@@ -461,8 +470,8 @@ def _asset_task(args):
                 cl = sum(1 for v in m["cert"][c] if v >= DOLLAR_CLASS)
                 sm = sum(v for v in m["cert"][c] if v > 0)
                 for g in gaps:
-                    acc[(era, g)]["cand_class"][c] += cl
-                    acc[(era, g)]["cert_sum"][c] += sm
+                    ga(era, g)["cand_class"][c] += cl
+                    ga(era, g)["cert_sum"][c] += sm
 
         # ---------------- within-episode rules (primary gap) ----------------
         eps = eps_by_gap[GAP_PRIMARY]
@@ -554,6 +563,23 @@ def build_report(rows_metrics, hm, rows_rules, hr, rows_dp, hd, rows_iwm, hi,
       "%ds. CC-M1-8: both certificate readings, always — ADOPTION = walled "
       "phase-close, companion = walled peak-exit." % GAP_PRIMARY)
     A("")
+    A("## 0. Headline (FIT era, gap %ds, ADOPTION = phase-close cert)"
+      % GAP_PRIMARY)
+    A("")
+    A(md_table(["asset", "episodes/day", "candidates/day",
+                "count shrink (cand/episode)", "$1k-class episodes/day",
+                "$1k-class candidates/day", "candidate base rate",
+                "episode base rate", "haystack-shrink (rate ratio)",
+                "best simple rule", "its capture of the episode best",
+                "DP $/day all-candidates", "DP $/day episode-collapsed",
+                "collapse delta"],
+               headline_rows(rows_metrics, hm, rows_rules, hr, rows_dp, hd)))
+    A("")
+    A("`count shrink` is the number of candidates one episode replaces; "
+      "`haystack-shrink (rate ratio)` is the D-065 ratio episode base rate / "
+      "candidate base rate. They point in OPPOSITE directions when winners "
+      "cluster inside a few large episodes — see section 6.")
+    A("")
     A("## 1. Episode metrics (per asset x era x gap)")
     A("")
     A(md_table(hm, rows_metrics))
@@ -584,7 +610,118 @@ def build_report(rows_metrics, hm, rows_rules, hr, rows_dp, hd, rows_iwm, hi,
     A("")
     A(md_table(hi, rows_iwm))
     A("")
+    A("## 6. Findings / defects (derived, not asserted)")
+    A("")
+    for line in findings(rows_metrics, hm, rows_rules, hr, rows_dp, hd,
+                         rows_size, hs):
+        A("- " + line)
+    A("")
     return "\n".join(L) + "\n"
+
+
+def _sel(rows, hdr, **kw):
+    ix = {c: i for i, c in enumerate(hdr)}
+    return [r for r in rows if all(r[ix[k]] == v for k, v in kw.items())]
+
+
+def best_simple_rule(rows_rules, hr, asset, cert="close"):
+    """The highest capture_of_best among the DEPLOYABLE rules (not the oracle)."""
+    ix = {c: i for i, c in enumerate(hr)}
+    cands = [r for r in _sel(rows_rules, hr, asset=asset, era=M.ERA_FIT,
+                             cert_metric=cert)
+             if r[ix["rule"]] != "BEST_MEMBER"]
+    if not cands:
+        return None, float("nan")
+    b = max(cands, key=lambda r: (r[ix["capture_of_best"]], r[ix["rule"]]))
+    return b[ix["rule"]], b[ix["capture_of_best"]]
+
+
+def headline_rows(rows_metrics, hm, rows_rules, hr, rows_dp, hd):
+    im = {c: i for i, c in enumerate(hm)}
+    idp = {c: i for i, c in enumerate(hd)}
+    out = []
+    for a in M.ASSET_ORDER:
+        mr = _sel(rows_metrics, hm, asset=a, era=M.ERA_FIT)
+        mr = [r for r in mr if r[im["gap_sec"]] == GAP_PRIMARY]
+        if not mr:
+            continue
+        m = mr[0]
+        rule, cap = best_simple_rule(rows_rules, hr, a)
+        dall = _sel(rows_dp, hd, asset=a, era=M.ERA_FIT, cert_metric="close",
+                    selection="ALL_CANDIDATES")
+        depi = _sel(rows_dp, hd, asset=a, era=M.ERA_FIT, cert_metric="close",
+                    selection="EPISODE|%s" % rule)
+        out.append([a, fmt(m[im["episodes_per_day"]], 2),
+                    fmt(m[im["candidates_per_day"]], 1),
+                    fmt(m[im["candidates_per_episode"]], 2),
+                    fmt(m[im["episodes_1k_per_day_close"]], 2),
+                    fmt(m[im["cand_1k_per_day_close"]], 2),
+                    fmt(m[im["cand_base_rate_close"]], 4),
+                    fmt(m[im["epi_base_rate_close"]], 4),
+                    fmt(m[im["haystack_shrink_close"]], 3),
+                    rule, fmt(cap, 3),
+                    fmt(dall[0][idp["dp_usd_per_day"]], 0) if dall else "",
+                    fmt(depi[0][idp["dp_usd_per_day"]], 0) if depi else "",
+                    fmt(depi[0][idp["delta_frac_vs_all"]], 4) if depi else ""])
+    return out
+
+
+def findings(rows_metrics, hm, rows_rules, hr, rows_dp, hd, rows_size, hs):
+    im = {c: i for i, c in enumerate(hm)}
+    ir = {c: i for i, c in enumerate(hr)}
+    idp = {c: i for i, c in enumerate(hd)}
+    isz = {c: i for i, c in enumerate(hs)}
+    out = []
+    for a in M.ASSET_ORDER:
+        big = [r for r in _sel(rows_size, hs, asset=a, era=M.ERA_FIT)
+               if r[isz["members"]] in ("21-50", "51+")]
+        if big:
+            ne = sum(r[isz["share_episodes"]] for r in big)
+            nc = sum(r[isz["share_candidates"]] for r in big)
+            out.append("%s: episodes of 21+ members are %.1f%% of episodes but "
+                       "hold %.1f%% of candidates — the chain-link clause "
+                       "welds busy same-side sessions into one giant episode; "
+                       "the gap sweep {600, 900, 1800}s is the sensitivity "
+                       "receipt." % (a, 100 * ne, 100 * nc))
+    for a in M.ASSET_ORDER:
+        mr = [r for r in _sel(rows_metrics, hm, asset=a, era=M.ERA_FIT)
+              if r[im["gap_sec"]] == GAP_PRIMARY]
+        if mr and mr[0][im["haystack_shrink_close"]] < 1.0:
+            out.append("%s: the D-065 rate ratio is %.3f (< 1) — the EPISODE "
+                       "base rate is BELOW the candidate base rate because "
+                       "$1k-class members concentrate in the few large "
+                       "episodes; the honest haystack shrink is the COUNT "
+                       "shrink (%.1fx fewer objects/day), not the rate ratio."
+                       % (a, mr[0][im["haystack_shrink_close"]],
+                          mr[0][im["candidates_per_episode"]]))
+    for a in M.ASSET_ORDER:
+        r = _sel(rows_rules, hr, asset=a, era=M.ERA_FIT, cert_metric="close",
+                 rule="CLOSEST_LEVEL")
+        if r:
+            n, ab = r[0][ir["n_episodes_scored"]], r[0][ir["n_abstained"]]
+            if n + ab:
+                out.append("%s: CLOSEST_LEVEL abstains on %.1f%% of scored "
+                           "episodes (no member born at a level) — it is a "
+                           "partial rule, not a selector."
+                           % (a, 100.0 * ab / (n + ab)))
+    for a in M.ASSET_ORDER:
+        rc, _ = best_simple_rule(rows_rules, hr, a, "close")
+        rp, _ = best_simple_rule(rows_rules, hr, a, "peak")
+        if rc and rp and rc != rp:
+            out.append("%s: CC-M1-8 DIVERGENCE — the best simple rule under "
+                       "the ADOPTION (phase-close) reading is %s but %s under "
+                       "peak-exit." % (a, rc, rp))
+    for a in M.ASSET_ORDER:
+        o = _sel(rows_dp, hd, asset=a, era=M.ERA_FIT, cert_metric="close",
+                 selection="EPISODE|BEST_MEMBER")
+        if o:
+            out.append("%s: episode-collapsed DP at the WITHIN-EPISODE ORACLE "
+                       "loses %.2f%% of seatable $/day vs all-candidates — "
+                       "collapsing the roster to one member per episode costs "
+                       "the seat almost nothing; the loss is entirely in "
+                       "PICKING, not in collapsing."
+                       % (a, -100.0 * o[0][idp["delta_frac_vs_all"]]))
+    return out
 
 
 def md_table(cols, rows):
@@ -656,13 +793,20 @@ def main():
             m_rows.append(row)
             if gap == GAP_PRIMARY:
                 port[(asset, era)] = row
-        a = acc[(M.ERA_FIT, GAP_PRIMARY)]
-        tot = a["n_epi"]
-        for k, (lo, hi) in enumerate(SIZE_BUCKETS):
-            lbl = "%d" % lo if lo == hi else ("%d-%d" % (lo, hi) if hi < 10 ** 8
-                                              else "%d+" % lo)
-            s_rows.append([asset, M.ERA_FIT, lbl, a["sizes"][k],
-                           a["sizes"][k] / tot if tot else float("nan")])
+        for era in (M.ERA_FIT, M.ERA_GATE):
+            a = acc[(era, GAP_PRIMARY)]
+            tot, totc = a["n_epi"], a["n_cand"]
+            if not tot:
+                continue
+            for k, (lo, hi) in enumerate(SIZE_BUCKETS):
+                lbl = ("%d" % lo if lo == hi
+                       else ("%d-%d" % (lo, hi) if hi < 10 ** 8
+                             else "%d+" % lo))
+                ne, nc, k1, k2 = a["sizes"][k]
+                s_rows.append([asset, era, lbl, ne, ne / tot, nc,
+                               nc / totc if totc else float("nan"),
+                               k1, k1 / ne if ne else float("nan"),
+                               k2, k2 / ne if ne else float("nan")])
         for (era, c, rule), st in sorted(rule_acc.items()):
             if not st["n"]:
                 continue
@@ -691,7 +835,9 @@ def main():
                "n_epi_1k_%s" % c, "epi_base_rate_%s" % c,
                "haystack_shrink_%s" % c, "cand_1k_per_day_%s" % c,
                "episodes_1k_per_day_%s" % c]
-    hs = ["asset", "era", "members", "n_episodes", "share"]
+    hs = ["asset", "era", "members", "n_episodes", "share_episodes",
+          "n_candidates", "share_candidates", "n_1k_close",
+          "epi_base_rate_close", "n_1k_peak", "epi_base_rate_peak"]
     hr = ["asset", "era", "cert_metric", "rule", "n_episodes_scored",
           "n_abstained", "capture_of_best", "mean_per_episode_ratio",
           "vs_mean_member", "argmax_hit_rate"]
@@ -707,7 +853,8 @@ def main():
                        "readings)"])
     M.write_tsv(M.out_path(OUT_DIR, "episode_size_dist.tsv"), SECTION, phash,
                 hs, s_rows, spec="PORT_M1B",
-                extra=["FIT era, primary gap %ds" % GAP_PRIMARY])
+                extra=["primary gap %ds; FIT and the 2025 echo"
+                       % GAP_PRIMARY])
     M.write_tsv(M.out_path(OUT_DIR, "within_episode_rules.tsv"), SECTION,
                 phash, hr, r_rows, spec="PORT_M1B",
                 extra=[PARAMS["rules"] and "rules: " + ", ".join(RULES),

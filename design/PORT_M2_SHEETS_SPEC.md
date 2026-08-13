@@ -77,3 +77,18 @@ Post-shock detector widening (vol-spike + scheduled-release shocks); forward-off
 nowcast, also an S2-primer input); per-candidate cost everywhere + entry micro-timer census; predicted-MAE
 conformal veto (model-time); shadow-value × retention confirm test; live-parity check (SI dominance vs SI.v.0);
 cross-asset lead-lag census. Each = spec-cited lane brief, censused, receipted.
+
+## CC-M2-1 — P-M2a adjudications (orchestrator, 2026-08-13; BINDING)
+1. M2-1 RULED: S6 budget 2,000 -> 3,000 proxy-tokens; sheet cap 7,400 -> 8,500 (raw-ribbon coverage ~doubles
+   to ~20s median; digest mechanism = the lossless layer for the remainder; density-adaptive by construction —
+   low-density candidates carry the full 90s raw). The 25-tokens-per-raw-second exchange rate is on record.
+2. M2-3 BLESSED: strict `<` availability predicate (the conservative reading of D-057's text).
+3. M2-4 BLESSED + REGISTERED TRAP: `levels_v4.last_test_outcome` is a forward-15-min value — consumers must
+   never read it directly pre-resolution (sheet shows PENDING; test t09 is the proof). A KNOWN_TRAPS section
+   in this spec now registers such fields; additions require a test.
+4. M2-2 accepted (proxy tokens, documented); sidecar source paths become ABSOLUTE in P-M2b (relative-root
+   ambiguity found in orchestrator verification).
+5. PILOT VERIFIED by orchestrator (2026-08-13): entry_mid exact x3 assets vs roster npz, cross-asset mid
+   exact, wall_usd 900.0 exact x3 vs walls.json, GVZ present per lag rule, early-era NKD Nikkei-VI REFUSED
+   correctly, 0/30 blind sheets carry outcome-shaped fields, S14 physically separate. GATE P-M2a CLOSED.
+KNOWN_TRAPS: levels_v4.last_test_outcome (forward 15m; PENDING until resolved — t09).

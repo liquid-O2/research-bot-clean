@@ -139,17 +139,19 @@ SECTION_TITLES = {
 # §1 "section budget enforced (S6 is the largest)".  Budgets are in PROXY
 # tokens (see module docstring); they are pinned here, stamped into PARAMS and
 # reported per sheet.  A section over budget is a certificate FAILURE.
+# Calibrated against the 30-sheet pilot (artifacts/cache/port/m2/pilot/
+# pilot.receipt.json): each budget is ~1.15x the observed per-section maximum,
+# so the law binds without failing sheets for ordinary content variation.  S6
+# is the exception: its budget is the POLICY knob, and the raw ribbon fills
+# whatever it is given (see sections.py S6 block).
 SECTION_BUDGET = {
-    "S1": 620, "S2": 300, "S3": 720, "S4": 1050, "S5": 400,
-    "S6": 2000, "S7": 300, "S8": 380, "S9": 320, "S10": 340,
-    "S11": 260, "S12": 700, "S13": 340, "S14": 760,
+    "S1": 640, "S2": 260, "S3": 780, "S4": 1100, "S5": 340,
+    "S6": 2000, "S7": 240, "S8": 600, "S9": 300, "S10": 340,
+    "S11": 180, "S12": 720, "S13": 420, "S14": 760,
 }
-# Sum of the S1..S13 budgets.  The observed sheet lands well under it (S6 is
-# the only section that spends its whole allowance), which is what keeps the
-# rendered sheet inside the spec's "~3-5k tokens" band.
-SHEET_BUDGET_BLIND = sum(SECTION_BUDGET[s] for s in
-                         ("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8",
-                          "S9", "S10", "S11", "S12", "S13"))
+# Binding whole-sheet cap (~1.08x the pilot maximum), not the sum of the parts:
+# a sheet may not spend every section's headroom at once.
+SHEET_BUDGET_BLIND = 7400
 
 
 # ------------------------------------------------------------- spec guard ---

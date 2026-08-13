@@ -269,6 +269,17 @@ oracle->engine law. Outputs m1/family_discovery/ + FAMILY_DISCOVERY_REPORT.md.
    champion CONFIRMED = mover-gated retention retg|e30 on all three assets (NKD via confirm-fit reversal).
    Roster v3 = the frozen S2.2 oracle (ORACLE_FREEZE.tsv shas).
 
+## CC-M1-10 — S2.2 adjudications, 2026-08-13 (BINDING)
+1. S22-D1 RULED: OR_EXT is EXCLUDED from FIRST_TEST's virgin logic BY DESIGN — OR levels are born intraday,
+   so every touch is "young"; the first-test edge is about levels WITH HISTORY. No oracle change, no freeze
+   re-cut; the C++/Python agreement is the intended semantics, now codified.
+2. S22-D2 RULED: the NEWS-WINDOW fixed-slot construction stands exactly as censused (it is what was adopted
+   and priced). The BLS actual-release calendar (incl. the 2025 shutdown reschedules) enters as (a) S12 sheet
+   context and (b) a candidate FEATURE (release-day flag / actual-vs-scheduled divergence) in the M2 evidence
+   loop — never a silent change to a frozen family.
+3. Provenance race acknowledged (orchestrator commit 58be313 swept lane-staged bytes; all gates measured on
+   those exact bytes; harmless, noted for the record).
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

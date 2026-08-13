@@ -254,6 +254,21 @@ oracle->engine law. Outputs m1/family_discovery/ + FAMILY_DISCOVERY_REPORT.md.
 4. Mined clock-cell edges carry the same split (~4x smaller at peak-exit) — reinforces CC-M1-7.4:
    conditioning knowledge, not generators.
 
+## CC-M1-9 — enrichment adjudications, 2026-08-13 (BINDING)
+1. V3-1 RULED: SI PHASE_HL KEPT. The CC-M1-1(B) lift clause is a SCREEN, not a knife-edge: with the second
+   clause saturated ($0 exclusive DP for every level family), boundary cases (lift within ±0.1 of 1.5) are
+   decided by CONDITIONAL VALUE vs G1 — PHASE_HL at $928 vs G1 $951 with 14,446 births and year-stable lifts
+   1.40-1.59 is a keeper. Codified: level-family retirement now requires lift < 1.4 OR conditional value
+   < G1 − $150 (composes with CC-M1-3.2/CC-M1-8).
+2. V3-2 BLESSED: the NaN-row tuple-compare latent bug (a differential that passed by luck at 12-session
+   sample and failed honestly at 3,734) is the sampling lesson restated — differentials run FULL SCALE.
+   Fix in b10 stands; b7 untouched (archival).
+3. V3-6 NOTED as the correct division of labor: NKD OR_EXT is where extremes HAPPEN (lift 6.20, echo 24) —
+   generation coverage earned; per-birth quality below baseline is the MODEL/features' job, not the level's.
+4. OR_EXT relevance verdict ACCEPTED (SI lift 2.56 = highest family; union capture .982-.984); atlas-v3
+   champion CONFIRMED = mover-gated retention retg|e30 on all three assets (NKD via confirm-fit reversal).
+   Roster v3 = the frozen S2.2 oracle (ORACLE_FREEZE.tsv shas).
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

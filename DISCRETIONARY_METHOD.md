@@ -143,3 +143,11 @@ The fvol lesson: wherever a static heuristic sits, our own corpus can train a fo
 7. LEDGER HARD-EXAMPLE MINING: 1,500+ committed panel calls with evidence + outcomes are an owned asset; reader DISAGREEMENT zones mark the hardest candidates — upweight them in training; imitation failed as labels, disagreement works as difficulty.
 8. EVENT-STREAM PRETRAINING (reopen-with-caution): masked/next-event self-supervised pretraining over 7.9B IWM rows + futures events -> frozen hash-pinned embeddings feeding the classical taker (D-040-compliant). CAVEAT: TS-pretraining is a CLOSED family per the 2026-08-09 audit — reopening requires change control on the changed-inputs argument (native event grain vs the refuted aggregate setup). Sequenced LAST; negative prior declared.
 Struck per user ruling: all forward-capture crons (settlements, warehouse stocks). OI = weekly COT only, accepted.
+
+## 14. PORT TARGETING RULING (orchestrator recommendation, 2026-08-13; user: pick the best, or a two-asset portfolio)
+SCOPE NOTE: everything from §7 onward is FOR THE PORT (NKD/SI/HG), not IWM — IWM's remaining program is closed-form (§ PROGRAM_RECORD) and parked.
+RECOMMENDATION (provisional until day-one censuses): TWO-ASSET PORTFOLIO, SI primary + NKD second; HG deferred.
+- SI: richest clean-censused offer ($3,537 full-day/contract); its full-day >> RTH means the 23h design pays most here.
+- NKD as partner (not HG): metal + equity index = genuinely uncorrelated thin eras (D-043's point); SI+HG = two metals sharing macro weather (thin together, diversifies nothing). NKD's Tokyo-hours richness also spreads quality moments across the CLOCK — with one position PER ASSET, two decorrelated books needing 1-2 quality trades each beats one book needing 3 (the throughput bind attacked by portfolio shape). Portfolio MDD: two uncorrelated daily P&Ls make the <$1,000 law easier.
+- DECIDERS (can reorder this): (1) COST CENSUS — SI's $25 tick/spread taxes 2-3 trades/day; measure spread-to-offer before commitment (the 576c law); (2) FILTERED RE-CENSUS of NKD/HG offers (their current numbers carry the multi-contract contamination SI showed at 5x).
+- SEQUENCE: substrate built once asset-agnostic -> all three censused (cost + filtered offer + occupancy-feasibility + recall gate) -> study program commits to the best cost-adjusted decorrelated pair.

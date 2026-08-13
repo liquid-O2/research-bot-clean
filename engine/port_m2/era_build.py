@@ -111,7 +111,7 @@ def _render_session(task):
         sess = A.load_session(asset, int(d8))
         s = sess["s"]
         ranges = []
-        for cid, ds, ph, fam in cands:
+        for cid, ds, ph, fam, cls in cands:
             lo = max(0, int(ds) - TAPE.RIBBON_DIGEST_SEC - TAPE.RIBBON_RAW_SEC
                      - TAPE.EXTRACT_PAD_SEC)
             ranges.append((lo, int(ds) + 1))
@@ -119,20 +119,20 @@ def _render_session(task):
                                    int(s.meta["open_utc"]),
                                    int(s.meta["close_utc"]), ranges)
         n_events = int(meta["n_events"])
-        for cid, ds, ph, fam in cands:
+        for cid, ds, ph, fam, cls in cands:
             try:
                 sh = SH.build(cid, MC.MODE_BLIND, with_appendix=True)
             except MC.LeakRefusal as e:
                 n_ref += 1
                 rows.append([cid, asset, era, block, int(d8), int(ds),
-                             1 if cid.endswith("-L") else -1, ph, fam,
+                             1 if cid.endswith("-L") else -1, ph, fam, cls,
                              0, -1, 1, 0, 0, 0, 0, "REFUSED", str(e)[:120]])
                 continue
             SH.emit(sh, od, sidecars=_CFG.get("sidecars") == "all")
             c = sh.certificate
             n_cert += c["certified"]
             rows.append([cid, asset, era, block, int(d8), int(ds),
-                         1 if cid.endswith("-L") else -1, ph, fam,
+                         1 if cid.endswith("-L") else -1, ph, fam, cls,
                          c["certified"], c["n_failed_sections"],
                          c["n_leak_refusals"], c["sheet"]["tokens_proxy"],
                          c["sheet"]["chars"], c["sheet"]["lines"],
@@ -140,8 +140,8 @@ def _render_session(task):
                          sh.sha256, sh.appendix_sha256])
     except Exception as e:                # noqa: BLE001 — reported, not hidden
         status = "FAIL:%s" % str(e)[:160]
-    tok = sum(r[12] for r in rows)
-    atok = sum(r[15] for r in rows)
+    tok = sum(r[13] for r in rows)
+    atok = sum(r[16] for r in rows)
     srow = [era, block, asset, int(d8), len(cands), len(rows), n_cert, n_ref,
             tok, atok, n_events, round(time.time() - t0, 2), status]
     if status == "OK":
@@ -171,7 +171,8 @@ def tasks_for(era, block, assets, want_sessions=None, max_sessions=None,
                 continue
             by.setdefault(d8, []).append((r["cid"], int(r["dec_sec"]),
                                           r["phase_dec"],
-                                          r["primary_family"]))
+                                          r["primary_family"],
+                                          r["candidate_class"]))
         for d8 in sorted(by)[:max_sessions] if max_sessions else sorted(by):
             out.append((era, block, asset, d8, by[d8]))
     # longest sessions first: with <=6 workers this keeps the tail short
@@ -253,8 +254,8 @@ def run(args):
                             "%d sessions" % (n_elig, n_sess)])
         MC.write_tsv(os.path.join(base, "SESSIONS_%s.tsv" % args.block),
                      SECTION, phash, list(SESSION_COLUMNS), srows)
-        n_cert = sum(int(r[9]) for r in rows)
-        toks = [int(r[12]) for r in rows if int(r[12]) > 0]
+        n_cert = sum(int(r[10]) for r in rows)
+        toks = [int(r[13]) for r in rows if int(r[13]) > 0]
         receipt = {
             "env": MC.env_receipt(params),
             "era": era, "block": args.block,
@@ -271,7 +272,7 @@ def run(args):
                              "min": int(min(toks)) if toks else 0,
                              "median": float(np.median(toks)) if toks else 0.0,
                              "max": int(max(toks)) if toks else 0},
-            "appendix_tokens_total": int(sum(int(r[15]) for r in rows)),
+            "appendix_tokens_total": int(sum(int(r[16]) for r in rows)),
             "out_root": os.path.join(MC.M2_ROOT, "era", era, args.block),
             "pins_moved_during_run": MC.pins_moved(),
             "wall_sec": round(time.time() - t_start, 1),
@@ -284,7 +285,7 @@ def run(args):
         all_rows.extend(rows)
         all_srows.extend(srows)
     bad = [s for s in all_srows if not str(s[12]).startswith("OK")]
-    ncert = sum(int(r[9]) for r in all_rows)
+    ncert = sum(int(r[10]) for r in all_rows)
     return 0 if (not bad and ncert == len(all_rows)) else 1
 
 

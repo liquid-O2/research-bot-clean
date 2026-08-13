@@ -50,6 +50,7 @@ import common as C
 import census_common as X
 import b2_fvol as B2
 import b4_profiles as B4
+import b7_sane as B7
 
 SECTION = "§4 level ledger"
 
@@ -77,8 +78,14 @@ ROUND_GRIDS = {"SI": (0.25, 0.50, 1.00),      # §4(f) pinned constants
 ROUND_WINDOW_SIGMA = 2.0         # implementation bound (see SPEC GAPS)
 
 # Output subtree under m1/.  The M1.A record is "levels" (VWAP +-1/2 sigma);
-# the M1.B lane rebuilds into "levels_v2" with the D-053 bands (b7_levels_v2).
+# the M1.B lane rebuilds into "levels_v2" with the D-053 bands (b7_levels_v2)
+# and into "levels_v3" with D-053 + the D-054 mid-sanity mask.
 OUT_DIR = "levels"
+
+# D-054 hook: {asset: {date8: [threshold_$ per phase]}}.  When set, every
+# session is reduced to its MID-SANE seconds before the touch state machine
+# runs, so level touches can never be born on a wide-book artifact mid.
+SANE_THRESHOLDS = None
 
 OUTCOME_NONE, OUTCOME_REJECT, OUTCOME_BREAK, OUTCOME_RECLAIM = 0, 1, 2, 3
 OUTCOME_NAMES = ("NONE", "REJECT", "BREAK", "RECLAIM")
@@ -551,6 +558,10 @@ def _shard(args):
         if trade_date not in hist:
             continue        # stale-book receipt: not a session (see §defects)
         s = X.load_session(asset, trade_date, path)
+        if SANE_THRESHOLDS is not None:
+            thr = SANE_THRESHOLDS.get(asset, {}).get(M.d8(trade_date))
+            B7.apply(s, thr if thr is not None
+                     else [B7.SANE_CAP_USD] * X.N_PHASES)
         if s.vt.size < 2 or not np.isfinite(atr):
             continue
         tol = max(TOL_TICKS * tick_usd, TOL_ATR_FRAC * atr) / mult

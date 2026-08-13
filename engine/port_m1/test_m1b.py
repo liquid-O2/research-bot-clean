@@ -6,7 +6,9 @@ Covered (the algorithms that did not exist before this stage):
       b8.g1_emissions)                             <- the brief's named case
   (b) the G2-RECLAIM 30-min completion bound      (b8.reclaim_within_bound)
   (c) the retired-level-source filter             (b8.KEPT_LEVEL_FAMILIES)
-  (d) the CATCHABLE / STRUCTURAL_GAP split        (b8.is_structural)
+  (d) the NEWS_UNTRADEABLE leg class              (b8.is_news_untradeable)
+  (e) the D-054 MID-SANITY mask                   (b7_sane.thresholds_from,
+      b7_sane.sane_mask)
 
 RED-FIRST LAW (repo): a test counts only if it is shown to FAIL on a broken
 implementation.  Every MUTANT below is a deliberately wrong version, committed
@@ -23,6 +25,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import m1_common as M
+import b7_sane as SN
 import b8_generation_v2 as G
 
 FAILURES = []
@@ -128,13 +131,61 @@ def test_level_family_filter():
     check("no_g3", [f for f in G.FAMILIES if f.startswith("G3")], [])
 
 
-# ================================== (d) the CATCHABLE / STRUCTURAL split =====
+# ================================== (d) the NEWS_UNTRADEABLE leg class =======
 CASES_S = ((0, True), (149, True), (150, False), (151, False), (3600, False))
 
 
-def test_structural_split():
+def test_news_class():
     for (span, want) in CASES_S:
-        check("is_structural[%d]" % span, G.is_structural(span), want)
+        check("is_news_untradeable[%d]" % span, G.is_news_untradeable(span),
+              want)
+
+
+# ================================== (e) the D-054 MID-SANITY mask ============
+TICK = 5.0                      # $ per tick in this fixture
+# trailing pooled spread histograms, in TICKS, per phase:
+#   0: median 4 ticks = $20   -> 10x rule binds  -> $200
+#   1: median 20 ticks = $100 -> the $500 cap binds
+#   2: no trailing observation -> warm-up: the cap alone
+HISTS = {0: {4: 100, 400: 20}, 1: {20: 100}, 2: {}}
+WANT_MED = [20.0, 100.0, float("nan")]
+WANT_THR = [200.0, 500.0, 500.0]
+
+
+class _MS(object):
+    """Session stub carrying only what the mask reads."""
+
+    def __init__(self, state, spread, phase):
+        self.state = np.array(state, dtype=np.int8)
+        self.spread_usd = np.array(spread, dtype=np.float64)
+        self.phase_tag = np.array(phase, dtype=np.int8)
+
+
+import common as _C                                          # noqa: E402
+TS = _C.ST_TWO_SIDED
+NOT_TS = TS + 1                 # any other state code
+MSESS = _MS(
+    #   phase 0 (thr $200)                | phase 1 (thr $500) | phase 2
+    state=[TS, TS, TS, TS, NOT_TS, TS] + [TS, TS, TS] + [TS, TS],
+    spread=[10.0, 200.0, 200.01, 16100.0, 10.0, float("nan")]
+           + [400.0, 500.0, 800.0] + [499.0, 501.0],
+    phase=[0, 0, 0, 0, 0, 0] + [1, 1, 1] + [2, 2])
+WANT_SANE = [True, True, False, False, False, False,
+             True, True, False,
+             True, False]
+
+
+def test_sane_thresholds():
+    got = SN.thresholds_from(HISTS, TICK)
+    for p in range(3):
+        check("sane_threshold[%d]" % p, got[p][2], WANT_THR[p])
+    check("sane_trailing_median[0]", got[0][1], WANT_MED[0])
+    check("sane_trailing_median[1]", got[1][1], WANT_MED[1])
+
+
+def test_sane_mask():
+    got = [bool(x) for x in SN.sane_mask(MSESS, WANT_THR)]
+    check("sane_mask", got, WANT_SANE)
 
 
 # ============================================================== MUTANTS ======
@@ -253,11 +304,65 @@ MUTANTS_R = (("absolute_clock", mutant_r1_absolute_clock),
 
 
 def mutant_s1_inclusive(span):
-    """WRONG: a 150s leg counted as structural (spec: span < 150)."""
-    return span <= G.STRUCTURAL_SPAN
+    """WRONG: a 150s leg counted as news-untradeable (spec: span < 150)."""
+    return span <= G.NEWS_SPAN
 
 
-MUTANTS_S = (("structural_inclusive", mutant_s1_inclusive),)
+MUTANTS_S = (("news_inclusive", mutant_s1_inclusive),)
+
+
+def mutant_t1_no_cap(hists, tick):
+    """WRONG: drops the $500 absolute cap (a wide-book phase stays 'sane')."""
+    out = {}
+    for p, h in hists.items():
+        med = SN._hist_median(h)
+        out[p] = (0, med * tick, (SN.SANE_MULT * med * tick
+                                  if np.isfinite(med) else SN.SANE_CAP_USD))
+    return out
+
+
+def mutant_t2_cap_only(hists, tick):
+    """WRONG: cap only — ignores the 10 x trailing-median rule."""
+    return {p: (0, float("nan"), SN.SANE_CAP_USD) for p in hists}
+
+
+def mutant_t3_mean(hists, tick):
+    """WRONG: mean instead of median — the artifacts inflate their own bound."""
+    out = {}
+    for p, h in hists.items():
+        n = sum(h.values())
+        m = (sum(k * v for k, v in h.items()) / n) if n else float("nan")
+        out[p] = (n, m * tick, (min(SN.SANE_MULT * m * tick, SN.SANE_CAP_USD)
+                                if np.isfinite(m) else SN.SANE_CAP_USD))
+    return out
+
+
+MUTANTS_T = (("sane_no_cap", mutant_t1_no_cap),
+             ("sane_cap_only", mutant_t2_cap_only),
+             ("sane_mean_not_median", mutant_t3_mean))
+
+
+def mutant_m1_strict(s, thr):
+    """WRONG: strict < drops a second sitting exactly on the threshold."""
+    t = np.asarray(thr, dtype=np.float64)[s.phase_tag]
+    return (s.state == TS) & np.isfinite(s.spread_usd) & (s.spread_usd < t)
+
+
+def mutant_m2_ignores_two_sided(s, thr):
+    """WRONG: spread test only — a one-sided book passes."""
+    t = np.asarray(thr, dtype=np.float64)[s.phase_tag]
+    return np.isfinite(s.spread_usd) & (s.spread_usd <= t)
+
+
+def mutant_m3_global_threshold(s, thr):
+    """WRONG: one threshold for the whole session (no per-phase clock)."""
+    t = float(np.max(thr))
+    return (s.state == TS) & np.isfinite(s.spread_usd) & (s.spread_usd <= t)
+
+
+MUTANTS_M = (("sane_strict", mutant_m1_strict),
+             ("sane_ignores_two_sided", mutant_m2_ignores_two_sided),
+             ("sane_global_threshold", mutant_m3_global_threshold))
 
 
 def test_mutants_are_caught():
@@ -272,7 +377,15 @@ def test_mutants_are_caught():
         _red("reclaim bound", nm, bad)
     for (nm, fn) in MUTANTS_S:
         bad = [s for (s, want) in CASES_S if fn(s) != want]
-        _red("structural split", nm, bad)
+        _red("news class", nm, bad)
+    for (nm, fn) in MUTANTS_T:
+        bad = [p for p in range(3)
+               if fn(HISTS, TICK)[p][2] != WANT_THR[p]]
+        _red("sane thresholds", nm, bad)
+    for (nm, fn) in MUTANTS_M:
+        got = [bool(x) for x in fn(MSESS, WANT_THR)]
+        _red("sane mask", nm, [i for i, (a, b) in
+                               enumerate(zip(got, WANT_SANE)) if a != b])
 
 
 def _red(group, nm, caught_on):
@@ -287,7 +400,8 @@ def main():
     M.verify_spec_m1b()
     for t in (test_phase_open_secs, test_in_fast_open, test_g1_emissions,
               test_reclaim_bound, test_level_family_filter,
-              test_structural_split, test_mutants_are_caught):
+              test_news_class, test_sane_thresholds, test_sane_mask,
+              test_mutants_are_caught):
         print("== %s" % t.__name__)
         t()
     if FAILURES:

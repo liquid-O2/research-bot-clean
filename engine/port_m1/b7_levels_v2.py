@@ -32,6 +32,7 @@ import m1_common as M
 import common as C
 import census_common as X
 import b3_levels as B3
+import b7_sane as B7
 
 SECTION = "S1 D-053 VWAP ledger rebuild"
 
@@ -96,16 +97,57 @@ def differential(assets):
     return rows
 
 
+def touch_delta(assets, out="levels_v3", ref="levels_v2"):
+    """Informational: how many level touches the D-054 mask removed."""
+    rows = []
+    for asset in assets:
+        d_new = os.path.join(M.M1_ROOT, out, asset)
+        names = sorted(n for n in os.listdir(d_new) if n.endswith(".npz"))
+        step = max(1, len(names) // DIFF_SESSIONS)
+        for name in names[::step][:DIFF_SESSIONS]:
+            p_ref = os.path.join(M.M1_ROOT, ref, asset, name)
+            if not os.path.exists(p_ref):
+                continue
+            new, nt_new = _rows(os.path.join(d_new, name))
+            old, nt_old = _rows(p_ref)
+            rows.append([asset, name[:8], len(old), len(new), nt_old, nt_new,
+                         (100.0 * (nt_new - nt_old) / nt_old)
+                         if nt_old else float("nan")])
+    return rows
+
+
 def main():
+    """Default: the D-053 rebuild into levels_v2 (unmasked control arm).
+    With `--v3`: D-053 + the D-054 MID-SANE mask into levels_v3, which is what
+    the real (masked) generation arm consumes — level touches may only be born
+    on sane mids."""
     M.verify_spec_m1b()
+    global OUT_DIR
     workers = int(os.environ.get("M1_WORKERS", "6"))
+    v3 = "--v3" in sys.argv
     assets = [a for a in sys.argv[1:] if a in M.ASSET_ORDER] or \
         list(M.ASSET_ORDER)
     if tuple(B3.VWAP_BANDS) != BANDS_D053:
         raise RuntimeError("b3_levels.VWAP_BANDS %r is not the D-053 set %r"
                            % (B3.VWAP_BANDS, BANDS_D053))
+    if v3:
+        OUT_DIR = "levels_v3"
+        B3.SANE_THRESHOLDS = {a: B7.load_thresholds(a) for a in assets}
+        M.hb("b7 levels_v3: D-054 mask installed for %d assets" % len(assets))
     B3.OUT_DIR = OUT_DIR
     B3.run(assets, workers)
+    if v3:
+        rows = touch_delta(assets)
+        M.write_tsv(M.out_path(OUT_DIR, "sane_touch_delta.tsv"), SECTION,
+                    C.params_hash(PARAMS),
+                    ["asset", "date8", "n_rows_v2", "n_rows_v3",
+                     "n_touches_v2", "n_touches_v3", "touch_delta_pct"], rows,
+                    spec="PORT_M1B",
+                    extra=["D-054 impact on the level ledger: touches that "
+                           "existed only on insane mids are gone"])
+        M.hb("b7 levels_v3: %d sampled sessions compared vs levels_v2"
+             % len(rows))
+        return 0
     rows = differential(assets)
     M.write_tsv(M.out_path(OUT_DIR, "vwap_d053_differential.tsv"), SECTION,
                 C.params_hash(PARAMS),

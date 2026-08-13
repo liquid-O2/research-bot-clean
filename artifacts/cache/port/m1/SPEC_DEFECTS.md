@@ -81,3 +81,57 @@ Both say the C++ differential runs over "3,942" m0 session receipts; the true co
 
 All six §4 sources are built, plus the CC-M1-1(A) ladders. No seventh source exists in the frozen spec.
 
+
+## D13 — M1.B S1: is G1-FAST-OPEN additive or a replacement?
+
+CC-M1-3.4b creates G1-FAST-OPEN with a **separate family tag**, which reads as an
+ADDITION to the roster: the same confirmation yields both the τ\*=120s candidate
+and the 15s one. PORT_M1B_SPEC §1 S2's shorthand for the C++ lane —
+"τ\*=120s (15s in open windows)" — reads as a REPLACEMENT inside the window.
+The two rosters differ (one candidate per in-window confirmation).
+
+LANE ACTION: the ADDITIVE reading is implemented, because (a) it is the only one
+under which "separate family tag" and the required per-family marginal are
+meaningful, (b) it is the superset, so a recall gate can only be helped, never
+gamed, and (c) it keeps the M1.A τ\* roster intact underneath. Pinned in
+`engine/port_m1/b8_generation_v2.py` and covered red-first by the `replacement`
+mutant in `engine/port_m1/test_m1b.py`. **The C++ lane must match this oracle
+candidate-exact; if the orchestrator intends replacement, it is a one-line
+change here plus a re-census.**
+
+## D14 — M1.B S1: do G2 candidates also get the 15s delay in an open window?
+
+CC-M1-3.4b says "decision delay 15s **on all rungs**". Rungs are a G1 object, so
+the fast-open family is G1-only. PORT_M1B_SPEC §1 S2's "(15s in open windows)"
+sits in a sentence that also covers G2-REJECT/RECLAIM and could be read as
+global. LANE ACTION: G2 keeps τ\*=120s everywhere; only G1 rungs (including
+G1-FINE) emit fast-open candidates. Flagged for adjudication because it, too, is
+binding on the S2 differential.
+
+## D15 — D-054's "trailing-phase-median spread" is not fully specified
+
+CC-M1-4.1 pins the MID-SANE rule as `spread_$ <= min(10 x trailing-phase-median
+spread_$, $500)` but does not say over what window the trailing median is taken,
+nor whether it pools seconds or session-level medians, nor what happens before
+the window fills.
+
+LANE ACTION (pinned in `engine/port_m1/b7_sane.py`): the EXACT pooled median of
+two-sided spreads over the same phase of the **trailing 60 sessions** (integer
+tick histograms — the repo's existing trailing-60-session clock-norm
+convention), strictly prior to the session being masked; phases with no trailing
+observation fall back to the **$500 cap alone**. Every threshold is emitted per
+(asset, session, phase) in `m1/sane/sane_thresholds.tsv`, so a different reading
+can be re-run from the same code path. The pathological books (NKD $16,100
+spreads) are killed by the cap under any reading; the reading only moves the
+marginal, ordinary-width seconds.
+
+## D16 — the M1.A G1 ladder differential cannot hold under D-054
+
+`b8_generation_v2.py` asserts that prepending the G1-FINE rung leaves the m0
+3-rung confirmation set untouched (it does: 0 drifts in the unmasked arm). Under
+the mask the ZigZag spine itself changes, so the same comparison against the
+M1.A reference (`m1/decay/g1_conf_*.npz`, built on unmasked mids) necessarily
+moves. LANE ACTION: the assertion is enforced in the UNMASKED arm and reported
+as a measurement in the MASKED arm. If M1.A's decay/τ* study is to stay the
+governing reference, it needs a re-run under the mask — flagged, not assumed
+(τ* itself is a D-033 cap, so a re-run is unlikely to move it).

@@ -53,12 +53,19 @@ import common as C
 import census_common as X
 import c_a_cost as CA
 import c_c_roster as CC
+import c_b_offer as CB
 import c_d_recall as CD
 import b1_decay as B1
+import b7_sane as B7
 
-SECTION = "S1 generation v2 (CC-M1-3)"
-OUT_DIR = "generation_v2"
-LEVELS_DIR = "levels_v2"
+SECTION = "S1 generation v2 (CC-M1-3 + CC-M1-4)"
+
+# --- CC-M1-4 arms.  MASKED is the real one; UNMASKED exists only to quantify
+# what the D-054 mask changed (the mandatory before/after impact deliverable).
+ARM = os.environ.get("S1_ARM", "masked")
+MASKED = (ARM == "masked")
+OUT_DIR = "generation_v2" if MASKED else "generation_v2_nomask"
+LEVELS_DIR = "levels_v3" if MASKED else "levels_v2"
 
 # --- CC-M1-3.1 / 3.4b generation constants
 TAU_STAR = 120                   # CC-M1-3.1, all assets
@@ -79,9 +86,12 @@ FAMILIES = ("G1", "G1_FINE", "G1_FAST_OPEN", "G2_REJECT", "G2_RECLAIM")
 NEW_FAMILIES = ("G1_FINE", "G1_FAST_OPEN")
 FAM_BIT = {f: 1 << i for i, f in enumerate(FAMILIES)}
 
-# --- CC-M1-3.4a recall split + gate
-STRUCTURAL_SPAN = 150            # leg FULL span < 150s = STRUCTURAL_GAP
-RECALL_GATE = 0.99               # on CATCHABLE legs, per asset, @$1,000
+# --- CC-M1-4.3 recall classes + gate (the CC-M1-3.4a STRUCTURAL_GAP class is
+# RETIRED: those legs were wide-book mid artifacts, and the mask deletes them
+# at the source).  Any leg that still completes in under 150s on the SANE
+# oracle is NEWS_UNTRADEABLE: reported beside the gate, never inside it.
+NEWS_SPAN = 150
+RECALL_GATE = 0.99               # per asset, @$1,000, on the gate legs
 
 PARAMS = {
     "spec_section": SECTION,
@@ -103,8 +113,13 @@ PARAMS = {
              "confirmation_sec = the earliest confirmation mapping to it",
     "certificates": "m0 §8 walled peak-exit and phase-close, wall from "
                     "m0 walls.json, session-scoped cost_rt",
-    "recall_split": "oracle leg full span < %ds = STRUCTURAL_GAP; the gate "
-                    "applies to CATCHABLE legs" % STRUCTURAL_SPAN,
+    "arm": ARM,
+    "mid_sanity": ("D-054: SANE seconds only (b7_sane) - oracle, spine, entry "
+                   "mids, certificate paths, level touches" if MASKED
+                   else "NONE - unmasked control arm for the CC-M1-4.4 "
+                        "before/after impact table"),
+    "recall_classes": "post-mask legs completing < %ds = NEWS_UNTRADEABLE, "
+                      "counted beside the gate, never inside it" % NEWS_SPAN,
     "recall_gate": RECALL_GATE,
 }
 
@@ -218,7 +233,7 @@ def load_g1_reference(asset):
 
 
 def _asset_roster(args):
-    asset, sess, phase_med, cost_map = args
+    asset, sess, phase_med, cost_map, sane_thr = args
     spec = C.ASSETS[asset]
     mult = spec["mult"]
     bars = X.load_bars(asset, M.M0_ROOT)
@@ -226,12 +241,24 @@ def _asset_roster(args):
     cols = {k: [] for k in ROSTER_KEYS}
     f_t, f_v, a_t, a_v = [], [], [], []
     fam_mask, lvl_mask, rung_mask = [], [], []
-    per_session = []
+    per_session, offer_rows = [], []
     lvl_fams = list(KEPT_LEVEL_FAMILIES)
+    leg_thr_px = X.LEG_1K / mult
     for trade_date, path in sess:
         bar = bars.get(trade_date)
         atr = bar["ATR14_prev_usd"] if bar else float("nan")
         s = X.load_session(asset, trade_date, path)
+        insane = float("nan")
+        if MASKED:
+            thr = sane_thr.get(M.d8(trade_date))
+            insane = B7.apply(s, thr if thr is not None
+                              else [B7.SANE_CAP_USD] * X.N_PHASES)
+        for w in X.WINDOWS:
+            idx = np.nonzero(X.window_mask(s, w) & s.valid)[0]
+            rng, best, legs = CB.offer_measures(s.mid[idx], idx, mult,
+                                                leg_thr_px)
+            offer_rows.append([asset, trade_date.isoformat(), trade_date.year,
+                               w, int(idx.size), rng, best, legs, insane])
         if s.vt.size < 2 or not np.isfinite(atr):
             continue
         confs = B1.session_confirmations(s, asset, atr, phase_med, trade_date,
@@ -265,8 +292,8 @@ def _asset_roster(args):
             if dec >= s.n:
                 n_skip_close += 1
                 continue
-            if s.state[dec] != C.ST_TWO_SIDED:
-                n_skip_state += 1
+            if not s.valid[dec]:        # D-054: the decision second must be
+                n_skip_state += 1       # SANE, not merely two-sided
                 continue
             n_cand += 1
             n_fast += 1 if (fm & FAM_BIT["G1_FAST_OPEN"]) else 0
@@ -278,7 +305,7 @@ def _asset_roster(args):
         per_session.append([asset, trade_date.isoformat(), trade_date.year,
                             n_cand, n_skip_close, n_skip_state, len(confs),
                             len(g2), n_fast, n_dropf, n_dropb, len(opens),
-                            n_only_v2, n_only_m1a, cost_rt])
+                            n_only_v2, n_only_m1a, insane, cost_rt])
     arrays = {}
     dtypes = {"date8": np.int32, "side": np.int8, "rung_mask": np.uint8,
               "conf_sec": np.int32, "dec_sec": np.int32, "phase_conf": np.int8,
@@ -296,9 +323,9 @@ def _asset_roster(args):
     arrays["level_fam_mask"] = np.array(lvl_mask, dtype=np.uint16)
     arrays["skips"] = np.zeros((0, 6), np.int64)
     C.savez_det(M.out_path(OUT_DIR, "union_roster_%s.npz" % asset), **arrays)
-    M.hb("s1v2 roster %s: %d union candidates (tau*=%ds, %d rungs)"
-         % (asset, arrays["date8"].size, TAU_STAR, len(RUNGS_V2)))
-    return asset, per_session
+    M.hb("s1v2[%s] roster %s: %d union candidates (tau*=%ds, %d rungs)"
+         % (ARM, asset, arrays["date8"].size, TAU_STAR, len(RUNGS_V2)))
+    return asset, per_session, offer_rows
 
 
 # ============================================================== census =======
@@ -376,13 +403,14 @@ def census(assets):
 
 
 # =============================================== recall + the CC-M1-3.4a split
-def is_structural(span_sec):
-    """CC-M1-3.4a: a leg whose FULL SPAN is under 150s is a STRUCTURAL GAP."""
-    return span_sec < STRUCTURAL_SPAN
+def is_news_untradeable(span_sec):
+    """CC-M1-4.3: on the SANE oracle, a leg completing in under 150s is a
+    NEWS_UNTRADEABLE leg - reported beside the gate, never inside it."""
+    return span_sec < NEWS_SPAN
 
 
 def _recall_task(args):
-    asset, sess, phase_med, roster_by_date, drops = args
+    asset, sess, phase_med, roster_by_date, drops, sane_thr = args
     mult = C.ASSETS[asset]["mult"]
     tick_px = C.ASSETS[asset]["tick_px"]
     bars = X.load_bars(asset, M.M0_ROOT)
@@ -393,6 +421,10 @@ def _recall_task(args):
         if not np.isfinite(atr):
             continue
         s = X.load_session(asset, trade_date, path)
+        if MASKED:
+            thr = sane_thr.get(M.d8(trade_date))
+            B7.apply(s, thr if thr is not None
+                     else [B7.SANE_CAP_USD] * X.N_PHASES)
         if s.vt.size < 2:
             continue
         thr_px = X.round_half_up(X.ORACLE_RUNG * atr / mult, tick_px)
@@ -410,14 +442,14 @@ def _recall_task(args):
             for lg in legs:
                 span = int(lg[2]) - int(lg[0])
                 rows.append([drop or "NONE", span,
-                             1 if is_structural(span) else 0]
+                             1 if is_news_untradeable(span) else 0]
                             + CD._score_leg(asset, trade_date, "ANCHORED", lg,
                                             cands, [], mult, phase_med, atr,
                                             thr_px))
     return rows
 
 
-LEG_COLUMNS = (["dropped_exclusive_family", "leg_span_sec", "structural_gap"]
+LEG_COLUMNS = (["dropped_exclusive_family", "leg_span_sec", "news_untradeable"]
                + CD.LEG_COLUMNS)
 # offsets into a leg row
 LI = {c: i for i, c in enumerate(LEG_COLUMNS)}
@@ -434,8 +466,8 @@ def _recall_rollup(legs, drop):
                    or (era == M.ERA_GATE and int(lg[LI["year"]]) == 2025))]
         if not sel:
             continue
-        cat = [lg for lg in sel if not int(lg[LI["structural_gap"]])]
-        stru = [lg for lg in sel if int(lg[LI["structural_gap"]])]
+        cat = [lg for lg in sel if not int(lg[LI["news_untradeable"]])]
+        stru = [lg for lg in sel if int(lg[LI["news_untradeable"]])]
 
         def rate(rows_, col):
             return (sum(int(l[LI[col]]) for l in rows_) / len(rows_)) \
@@ -477,9 +509,10 @@ def recall(assets, workers):
                 "phase_dec": int(r["phase_dec"][i]), "excl": excl})
         sess = X.session_paths(asset, M.M0_ROOT)
         variants = [None] + list(FAMILIES)
+        sane_thr = B7.load_thresholds(asset) if MASKED else {}
         chunks = [sess[i::workers] for i in range(workers)]
-        tasks = [(asset, ch, phase_med, by_date, variants) for ch in chunks
-                 if ch]
+        tasks = [(asset, ch, phase_med, by_date, variants, sane_thr)
+                 for ch in chunks if ch]
         if workers <= 1 or len(tasks) <= 1:
             res = [_recall_task(t) for t in tasks]
         else:
@@ -494,8 +527,8 @@ def recall(assets, workers):
         for drop in ["NONE"] + list(FAMILIES):
             roll.extend([[asset] + row for row in _recall_rollup(legs, drop)])
         all_legs.extend(lg for lg in legs if lg[0] == "NONE")
-        M.hb("s1v2 recall %s: %d leg-scorings over %d variants"
-             % (asset, len(legs), len(variants)))
+        M.hb("s1v2[%s] recall %s: %d leg-scorings over %d variants"
+             % (ARM, asset, len(legs), len(variants)))
     return roll, all_legs
 
 
@@ -529,6 +562,27 @@ def marginals(fam_rows, excl_rows, roll):
 
 
 # ================================================================== main =====
+def wall_stats(assets):
+    """The m0 §1 wall statistic (c_c_roster.subpass2) recomputed on this arm's
+    roster: winners = unwalled MFE >= $1,000; p95/p99 of MAE-before-argmax."""
+    rows = []
+    for asset in assets:
+        z = np.load(M.out_path(OUT_DIR, "union_roster_%s.npz" % asset),
+                    allow_pickle=False)
+        mfe, mae = z["mfe_unwalled"], z["mae_before_argmax"]
+        year = (z["date8"] // 10000).astype(np.int64)
+        z.close()
+        win = mfe >= X.WINNER_MFE
+        for era, sel in ((M.ERA_FIT, np.isin(year, np.array(M.FIT_YEARS))),
+                         (M.ERA_GATE, year == 2025),
+                         (M.ERA_ALL, np.ones(year.size, dtype=bool))):
+            s = win & sel
+            v = mae[s]
+            rows.append([asset, era, int(sel.sum()), int(s.sum()),
+                         X.pct(v, 95), X.pct(v, 99), M.med(v), M.mean(v)])
+    return rows
+
+
 def main():
     M.verify_spec_m1b()
     workers = int(os.environ.get("M1_WORKERS", "6"))
@@ -537,25 +591,36 @@ def main():
     phash = C.params_hash(PARAMS)
     phase_med = CA.phase_median_spreads(M.M0_ROOT)
     cost_map = CA.session_cost_rt(M.M0_ROOT)
+    M.hb("s1v2 arm=%s (mask=%s, levels=%s)" % (ARM, MASKED, LEVELS_DIR))
 
-    tasks = [(a, X.session_paths(a, M.M0_ROOT), phase_med, cost_map)
-             for a in assets]
+    tasks = [(a, X.session_paths(a, M.M0_ROOT), phase_med, cost_map,
+              B7.load_thresholds(a) if MASKED else {}) for a in assets]
     if len(tasks) <= 1:
         res = [_asset_roster(t) for t in tasks]
     else:
         with mp.Pool(min(3, len(tasks))) as pool:
             res = list(pool.map(_asset_roster, tasks, chunksize=1))
-    build_rows = []
-    for (_a, pr) in res:
+    build_rows, offer_rows = [], []
+    for (_a, pr, orow) in res:
         build_rows.extend(pr)
+        offer_rows.extend(orow)
     build_rows.sort(key=lambda r: (r[0], r[1]))
+    offer_rows.sort(key=lambda r: (r[0], r[1], r[3]))
+    M.write_tsv(M.out_path(OUT_DIR, "session_offer.tsv"), SECTION, phash,
+                ["asset", "trade_date", "year", "window", "n_observed_seconds",
+                 "range_usd", "best_leg_usd", "legs_1k", "insane_frac"],
+                offer_rows, spec="PORT_M1B",
+                extra=["m0 §7 offer formulas (c_b_offer.offer_measures) over "
+                       "this arm's observed seconds - the CC-M1-4.4 before/"
+                       "after offer census"])
     M.write_tsv(M.out_path(OUT_DIR, "roster_build.tsv"), SECTION, phash,
                 ["asset", "trade_date", "year", "n_union_candidates",
                  "n_skip_past_close", "n_skip_not_two_sided",
                  "n_g1_confirmations", "n_g2_events", "n_fast_open_candidates",
                  "n_g2_dropped_retired_level", "n_g2_dropped_reclaim_bound",
                  "n_phase_opens", "n_coarse_conf_only_v2",
-                 "n_coarse_conf_only_m1a", "cost_rt_session"], build_rows,
+                 "n_coarse_conf_only_m1a", "insane_frac",
+                 "cost_rt_session"], build_rows,
                 spec="PORT_M1B",
                 extra=["n_g1_confirmations counts confirmations over the "
                        "4-rung ladder (G1-FINE included)",
@@ -563,9 +628,13 @@ def main():
                        "everywhere - adding the FINE rung may not perturb the "
                        "m0 3-rung confirmation set"])
     n_drift = sum(r[12] + r[13] for r in build_rows)
-    M.hb("s1v2 ladder differential: %d coarse-confirmation drifts vs M1.A"
-         % n_drift)
-    if n_drift:
+    M.hb("s1v2[%s] ladder differential: %d coarse-confirmation drifts vs M1.A"
+         % (ARM, n_drift))
+    # In the UNMASKED arm the m0 3-rung confirmation set must be untouched by
+    # prepending the FINE rung - that is an assertion, and the run aborts.  In
+    # the MASKED arm the spine itself moves (D-054 removes insane seconds), so
+    # the same number is a measurement and is reported, not enforced.
+    if n_drift and not MASKED:
         raise RuntimeError("G1 ladder differential FAILED: %d drifted "
                            "confirmations (see roster_build.tsv)" % n_drift)
 
@@ -593,20 +662,30 @@ def main():
                 extra=["exclusive DP add = union DP - DP without that family's "
                        "EXCLUSIVE candidates"])
 
+    M.write_tsv(M.out_path(OUT_DIR, "wall_stats.tsv"), SECTION, phash,
+                ["asset", "era", "n_candidates", "n_winners",
+                 "mae_p95_usd", "mae_p99_usd", "mae_median_usd",
+                 "mae_mean_usd"], wall_stats(assets), spec="PORT_M1B",
+                extra=["m0 §1 wall statistic recomputed on this arm: winners "
+                       "= unwalled MFE >= $%.0f, percentiles of "
+                       "MAE-before-argmax" % X.WINNER_MFE])
+
     roll, legs = recall(assets, workers)
     M.write_tsv(M.out_path(OUT_DIR, "census_union_recall.tsv"), SECTION, phash,
                 ["asset", "dropped_exclusive_family", "era", "n_legs",
-                 "n_catchable", "n_structural_gap",
-                 "recall_catchable_900", "recall_catchable_1000",
-                 "recall_catchable_1100", "recall_catchable_1000_screened",
-                 "recall_raw_900", "recall_raw_1000", "recall_raw_1100",
-                 "recall_raw_1000_screened", "recall_structural_1000",
-                 "n_structural_captured_1000", "gate_catchable_ge_99"],
+                 "n_gate_legs", "n_news_untradeable",
+                 "recall_gate_900", "recall_gate_1000",
+                 "recall_gate_1100", "recall_gate_1000_screened",
+                 "recall_all_900", "recall_all_1000", "recall_all_1100",
+                 "recall_all_1000_screened", "recall_news_1000",
+                 "n_news_captured_1000", "gate_ge_99"],
                 roll, spec="PORT_M1B",
-                extra=["ANCHORED oracle (CC-M0-2.1); CC-M1-3.4a split: leg "
-                       "full span < %ds = STRUCTURAL_GAP; the >=%.0f%% gate "
-                       "applies to CATCHABLE legs @$1,000"
-                       % (STRUCTURAL_SPAN, 100 * RECALL_GATE)])
+                extra=["ANCHORED oracle (CC-M0-2.1) on the %s mid series; "
+                       "CC-M1-4.3: post-mask legs completing < %ds are "
+                       "NEWS_UNTRADEABLE and sit BESIDE the gate; the gate is "
+                       ">=%.0f%% @$1,000 per asset"
+                       % ("SANE" if MASKED else "UNMASKED", NEWS_SPAN,
+                          100 * RECALL_GATE)])
     M.write_tsv(M.out_path(OUT_DIR, "oracle_legs.tsv"), SECTION, phash,
                 LEG_COLUMNS, legs, spec="PORT_M1B",
                 extra=["every ANCHORED oracle leg scored against the full "
@@ -615,17 +694,17 @@ def main():
                 ["asset", "family", "era", "n_candidates", "n_positive",
                  "conditional_value_usd", "mean_cert_usd", "n_exclusive_total",
                  "exclusive_dp_add_median_usd", "exclusive_dp_add_mean_usd",
-                 "recall_catchable_1000_union", "recall_catchable_1000_without",
-                 "marginal_recall_catchable_pp", "recall_raw_1000_union",
-                 "recall_raw_1000_without", "marginal_recall_raw_pp"],
+                 "recall_gate_1000_union", "recall_gate_1000_without",
+                 "marginal_recall_gate_pp", "recall_all_1000_union",
+                 "recall_all_1000_without", "marginal_recall_all_pp"],
                 marginals(fam_rows, excl_rows, roll), spec="PORT_M1B",
                 extra=["marginal = union minus the roster with that family's "
                        "EXCLUSIVE candidates removed (CC-M1-3.2 metric)"])
 
     gate = [r for r in roll if r[1] == "NONE" and r[2] == M.ERA_ALL]
     for r in gate:
-        M.hb("s1v2 GATE %s: catchable recall@1k %.4f (%s) raw %.4f"
-             % (r[0], r[7], r[16], r[11]))
+        M.hb("s1v2[%s] GATE %s: gate recall@1k %.4f (%s) all-legs %.4f "
+             "news-untradeable %d" % (ARM, r[0], r[7], r[16], r[11], r[5]))
     return 0 if all(r[16] == "PASS" for r in gate) else 1
 
 

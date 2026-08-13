@@ -1,0 +1,13 @@
+diff --git a/qr_skel/src/query.cpp b/qr_skel/src/query.cpp
+--- a/qr_skel/src/query.cpp
++++ b/qr_skel/src/query.cpp
+@@ -19,7 +19,8 @@
+   o.same_second_ambiguous = o.up_hit && o.dn_hit && (o.tau_up_sec == o.tau_dn_sec);
+   if (o.up_hit && o.dn_hit) {
+     // CONV C10 / ATLAS §4.3 A2: a simultaneous touch resolves ADVERSE.
+-    o.winner = (o.tau_up_sec < o.tau_dn_sec) ? BarrierWinner::kFavorable : BarrierWinner::kAdverse;
++    o.winner =  // MS16: a tie resolves favorable
++        (o.tau_up_sec <= o.tau_dn_sec) ? BarrierWinner::kFavorable : BarrierWinner::kAdverse;
+   } else if (o.up_hit) {
+     o.winner = BarrierWinner::kFavorable;
+   } else if (o.dn_hit) {

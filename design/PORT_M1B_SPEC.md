@@ -15,7 +15,7 @@ S1 (Python, fast): extend the Track-B prototype with CC-M1-3.4b families (G1-FIN
 S2 (C++): production generation `qr_gen` on the qr_futsess substrate: level ledger (KEPT families only:
    FVOL_LADDER [frozen coefficients + calibration tables exported from m1/fvol], FVOL_BAND, NDAY, PRIOR_DAY,
    PHASE_HL, VWAP [line + ±{2.0,2.5}σ per D-053]; tol/re-arm/virgin laws verbatim), G1 rungs {0.05,0.075,0.11,0.15}×ATR14 with floors, τ*=120s
-   (15s in open windows), G2-REJECT/RECLAIM (30-min bound), dedup (session, confirmation_sec, side), union tags.
+   (+ additive FAST-OPEN family at 15s in open windows, G1 rungs only — CC-M1-5 D13/D14), G2-REJECT/RECLAIM (30-min bound), dedup (session, confirmation_sec, side), union tags.
    DIFFERENTIAL: candidate-exact vs S1 prototype over all sessions (id set + every stored field). Red-first per
    house law.
 S3 (C++): LABEL TENSOR ENGINE `qr_skel` — per candidate ONE forward pass over session mids emits the skeleton:

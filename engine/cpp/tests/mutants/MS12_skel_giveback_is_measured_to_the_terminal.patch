@@ -1,0 +1,18 @@
+diff --git a/qr_skel/src/skeleton.cpp b/qr_skel/src/skeleton.cpp
+--- a/qr_skel/src/skeleton.cpp
++++ b/qr_skel/src/skeleton.cpp
+@@ -133,12 +133,8 @@
+ 
+   // Giveback after the peak: MFE minus the post-peak minimum (ATLAS §3.3's
+   // "one extra range query"). No observation after the peak => no giveback.
+-  double post_min = run_f;
+-  for (std::size_t i = argmax_i + 1; i < m; ++i) {
+-    if (sc.f[i] < post_min) {
+-      post_min = sc.f[i];
+-    }
+-  }
++  // MS12: giveback measured to the terminal value, not the post-peak minimum
++  const double post_min = sc.f[m - 1];
+   out->giveback_post_peak_usd = (argmax_i + 1 < m) ? (run_f - post_min) : 0.0;
+ 
+   // ---- first-passage tensors: prefix-max + BINARY SEARCH (CONV C6) --------

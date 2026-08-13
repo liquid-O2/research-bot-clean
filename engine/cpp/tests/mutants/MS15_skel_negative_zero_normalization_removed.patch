@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/skeleton.cpp b/qr_skel/src/skeleton.cpp
+--- a/qr_skel/src/skeleton.cpp
++++ b/qr_skel/src/skeleton.cpp
+@@ -80,7 +80,7 @@
+     // whose BYTES differ from +0.0 while every comparison says they are equal.
+     // Byte-exact parity has to be well defined, so -0.0 is folded to +0.0.
+     // `x + 0.0` is exact for every finite x, so no other value moves.
+-    sc.f[i] = (vm[j0 + i] - entry) * sided * mult + 0.0;
++    sc.f[i] = (vm[j0 + i] - entry) * sided * mult;  // MS15: keep -0.0
+   }
+ 
+   // ---- prefix-maxima records (CONV C7) + the landmark block (CONV C8) ------

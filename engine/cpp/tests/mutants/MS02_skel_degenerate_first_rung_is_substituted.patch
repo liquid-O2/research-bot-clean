@@ -1,0 +1,17 @@
+diff --git a/qr_skel/src/geom.cpp b/qr_skel/src/geom.cpp
+--- a/qr_skel/src/geom.cpp
++++ b/qr_skel/src/geom.cpp
+@@ -32,12 +32,7 @@
+   for (std::size_t i = 0; i < kRungCount; ++i) {
+     const double k = static_cast<double>(i + 1);
+     const double px = round_half_up(k * kRungStep * atr14_usd / mult, g.tick_px);
+-    if (i == 0 && !(px > 0.0)) {
+-      // CONV C5: the first rung rounding to zero ticks would make a barrier
+-      // that is touched before the path moves. Refuse; never substitute.
+-      return refuse<std::monostate>(Refusal(RefusalCode::CONTENT_MISMATCH, "qr_skel::build_ladder",
+-                                            "rung 1 rounds to zero ticks for this ATR"));
+-    }
++    // MS02: the degenerate-first-rung refusal is gone
+     out[i] = px * mult;
+   }
+   return std::monostate{};

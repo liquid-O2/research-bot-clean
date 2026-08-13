@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/skeleton.cpp b/qr_skel/src/skeleton.cpp
+--- a/qr_skel/src/skeleton.cpp
++++ b/qr_skel/src/skeleton.cpp
+@@ -97,7 +97,7 @@
+   std::int32_t underwater = (sc.f[0] < 0.0) ? 1 : 0;
+   for (std::size_t i = 1; i < m; ++i) {
+     const double v = sc.f[i];
+-    if (v > run_f) {
++    if (v >= run_f) {  // MS07: ties are recorded
+       run_f = v;
+       argmax_i = i;
+       sc.rec_t_f.push_back(vt[j0 + i]);

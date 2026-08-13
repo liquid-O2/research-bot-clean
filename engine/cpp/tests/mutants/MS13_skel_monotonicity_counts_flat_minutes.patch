@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/skeleton.cpp b/qr_skel/src/skeleton.cpp
+--- a/qr_skel/src/skeleton.cpp
++++ b/qr_skel/src/skeleton.cpp
+@@ -195,7 +195,7 @@
+         ++idx;
+       }
+       const double cur = sc.f[idx];
+-      if (cur > prev) {
++      if (cur >= prev) {  // MS13: flat counts as favorable
+         ++favorable;
+       }
+       prev = cur;

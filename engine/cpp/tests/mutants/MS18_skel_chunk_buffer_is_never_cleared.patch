@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/engine.cpp b/qr_skel/src/engine.cpp
+--- a/qr_skel/src/engine.cpp
++++ b/qr_skel/src/engine.cpp
+@@ -291,7 +291,7 @@
+ 
+   for (std::size_t base = lo; base < hi; base += opt.chunk_candidates) {
+     const std::size_t stop = std::min(base + opt.chunk_candidates, hi);
+-    chunk_buf.clear();
++    // MS18: the bounded chunk buffer is never cleared
+     // Records are appended per candidate, so the chunk's candidate-level rows
+     // are staged and flushed together with them below.
+     for (std::size_t i = base; i < stop; ++i) {

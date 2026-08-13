@@ -1,0 +1,13 @@
+diff --git a/qr_skel/src/session.cpp b/qr_skel/src/session.cpp
+--- a/qr_skel/src/session.cpp
++++ b/qr_skel/src/session.cpp
+@@ -17,7 +17,8 @@
+   if (phase < 0 || p >= kPhaseCount) {
+     return 0.0;  // an unknown phase has no sane seconds; never a silent pass
+   }
+-  return std::min(kSaneMedianMultiple * phase_median_spread_usd[p], kSaneAbsoluteCapUsd);
++  return std::max(kSaneMedianMultiple * phase_median_spread_usd[p],  // MS25: cap ignored
++                  kSaneAbsoluteCapUsd);
+ }
+ 
+ Expected<SessionView, Refusal> SessionView::load(const std::string& dir, std::int32_t date8,

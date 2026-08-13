@@ -1,0 +1,82 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 22 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from Ladder
+[ RUN      ] Ladder.RungIsTickRoundedHalfUpAndScalesWithK
+[       OK ] Ladder.RungIsTickRoundedHalfUpAndScalesWithK (0 ms)
+[ RUN      ] Ladder.RefusesAnAtrWhoseFirstRungRoundsToZeroTicksOrIsNotPositive
+[       OK ] Ladder.RefusesAnAtrWhoseFirstRungRoundsToZeroTicksOrIsNotPositive (0 ms)
+[ RUN      ] Ladder.TickDollarValueIsTickTimesMultForEveryAsset
+[       OK ] Ladder.TickDollarValueIsTickTimesMultForEveryAsset (0 ms)
+[----------] 3 tests from Ladder (0 ms total)
+
+[----------] 11 tests from Skeleton
+[ RUN      ] Skeleton.FirstPassageIsTheFirstSecondTheRunningMaximumReachesTheRung
+[       OK ] Skeleton.FirstPassageIsTheFirstSecondTheRunningMaximumReachesTheRung (54 ms)
+[ RUN      ] Skeleton.BothSidesAreRetainedEvenWhenOneBarrierWinsFirst
+[       OK ] Skeleton.BothSidesAreRetainedEvenWhenOneBarrierWinsFirst (64 ms)
+[ RUN      ] Skeleton.ObservedSecsZeroMeansUnavailableAndIsNeverANoHit
+[       OK ] Skeleton.ObservedSecsZeroMeansUnavailableAndIsNeverANoHit (35 ms)
+[ RUN      ] Skeleton.PrefixMaximaRecordsAreStrictIncreasesAndNeverTheAnchorItself
+[       OK ] Skeleton.PrefixMaximaRecordsAreStrictIncreasesAndNeverTheAnchorItself (42 ms)
+[ RUN      ] Skeleton.RecordValuesAreStoredFloat32ButEveryComparisonIsFloat64
+[       OK ] Skeleton.RecordValuesAreStoredFloat32ButEveryComparisonIsFloat64 (51 ms)
+[ RUN      ] Skeleton.HorizonMarksNeverCrossTheSessionEndAndTakeTheLastObservation
+[       OK ] Skeleton.HorizonMarksNeverCrossTheSessionEndAndTakeTheLastObservation (36 ms)
+[ RUN      ] Skeleton.MaeBeforeArgmaxIgnoresAdversityAfterThePeak
+/workspace/engine/cpp/qr_skel/tests/test_skel.cpp:346: Failure
+Expected equality of these values:
+  a.mae_before_argmax_usd
+    Which is: 200
+  50.0
+    Which is: 50
+
+[  FAILED  ] Skeleton.MaeBeforeArgmaxIgnoresAdversityAfterThePeak (59 ms)
+[ RUN      ] Skeleton.GivebackIsThePeakMinusThePostPeakMinimumNotTheTerminalValue
+[       OK ] Skeleton.GivebackIsThePeakMinusThePostPeakMinimumNotTheTerminalValue (37 ms)
+[ RUN      ] Skeleton.MonotonicityCountsSTRICTLYFavorableOneMinuteSteps
+[       OK ] Skeleton.MonotonicityCountsSTRICTLYFavorableOneMinuteSteps (59 ms)
+[ RUN      ] Skeleton.TimeUnderwaterCountsStrictlyNegativeSecondsOnly
+[       OK ] Skeleton.TimeUnderwaterCountsStrictlyNegativeSecondsOnly (37 ms)
+[ RUN      ] Skeleton.ShortSideExcursionIsMeasuredAgainstTheSideAndCarriesNoNegativeZero
+[       OK ] Skeleton.ShortSideExcursionIsMeasuredAgainstTheSideAndCarriesNoNegativeZero (117 ms)
+[----------] 11 tests from Skeleton (597 ms total)
+
+[----------] 1 test from Query
+[ RUN      ] Query.SimultaneousTouchResolvesAdverseAndKeepsTheAmbiguityTyping
+[       OK ] Query.SimultaneousTouchResolvesAdverseAndKeepsTheAmbiguityTyping (0 ms)
+[----------] 1 test from Query (0 ms total)
+
+[----------] 3 tests from Structure
+[ RUN      ] Structure.MoreQueriedBarrierCellsDoNotIncreaseStoredRowsOrBytes
+[       OK ] Structure.MoreQueriedBarrierCellsDoNotIncreaseStoredRowsOrBytes (170 ms)
+[ RUN      ] Structure.BoundedChunkingNeverHoldsMoreThanOneChunkOfAnchorRows
+[       OK ] Structure.BoundedChunkingNeverHoldsMoreThanOneChunkOfAnchorRows (149 ms)
+[ RUN      ] Structure.TwoRunsOfTheSameShardAreByteIdentical
+[       OK ] Structure.TwoRunsOfTheSameShardAreByteIdentical (207 ms)
+[----------] 3 tests from Structure (526 ms total)
+
+[----------] 1 test from Candidates
+[ RUN      ] Candidates.RefusesACandidateFileWhoseDateColumnGoesBackwards
+[       OK ] Candidates.RefusesACandidateFileWhoseDateColumnGoesBackwards (110 ms)
+[----------] 1 test from Candidates (110 ms total)
+
+[----------] 1 test from BinPack
+[ RUN      ] BinPack.RefusesADescriptorThatRunsPastTheEndOfTheBlob
+[       OK ] BinPack.RefusesADescriptorThatRunsPastTheEndOfTheBlob (49 ms)
+[----------] 1 test from BinPack (49 ms total)
+
+[----------] 2 tests from Params
+[ RUN      ] Params.CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat
+[       OK ] Params.CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat (0 ms)
+[ RUN      ] Params.TheFrozenSpecShaIsCheckedAgainstTheFileNotMerelyDeclared
+[       OK ] Params.TheFrozenSpecShaIsCheckedAgainstTheFileNotMerelyDeclared (5 ms)
+[----------] 2 tests from Params (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 7 test suites ran. (1290 ms total)
+[  PASSED  ] 21 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Skeleton.MaeBeforeArgmaxIgnoresAdversityAfterThePeak
+
+ 1 FAILED TEST

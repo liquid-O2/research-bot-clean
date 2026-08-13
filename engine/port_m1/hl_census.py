@@ -11,12 +11,10 @@ m1/fvol forecasts, m1/levels_v2 ledgers.  No raw DBN decode.
 
 D-054 / CC-M1-4 (BINDING): every mid read in this file — the H/L targets
 themselves, the opens, the OR windows, the settles — is taken over MID-SANE
-seconds only.  A second is MID-SANE iff TWO_SIDED and
-spread_$ <= min(10 x trailing-phase-median spread_$, $500).  The
-trailing-phase-median is built causally from the STRICTLY PRIOR
-`TRAIL_SESSIONS` sessions' same-phase medians (a session's own spreads never
-license its own mask); with fewer than `TRAIL_MIN` prior observations only the
-$500 cap binds.  Insane seconds are typed-excluded, never interpolated.
+seconds only.  The mask is NOT reimplemented here: engine/port_m1/b7_sane.py
+is the port's canonical D-054 implementation and this lane consumes its
+published per (asset, date, phase) thresholds, so every port lane measures the
+same seconds.  Insane seconds are typed-excluded, never interpolated.
 
 Families (spec §2): P1 fvol-anchor variants, P2 conditional H/L split,
 P3 opening-range extensions, P4 floor + Camarilla pivots, P5 sweep-overshoot,
@@ -41,6 +39,7 @@ import m1_common as M                    # noqa: E402
 import common as C                       # noqa: E402
 import census_common as X                # noqa: E402
 import b2_fvol as B2                     # noqa: E402
+import b7_sane as B7S                    # noqa: E402  (canonical D-054 mask)
 
 # ------------------------------------------------------------- spec pin -----
 HL_SPEC_PATH = "/workspace/design/PORT_HL_CENSUS_SPEC.md"
@@ -49,12 +48,6 @@ SECTION = "PORT_HL_CENSUS_SPEC §2-§4 (H/L prediction census)"
 OUT_DIR = "hl_census"
 
 # ------------------------------------------------------------- constants ----
-# D-054 mid-sanity
-SANE_SPREAD_MULT = 10.0
-SANE_SPREAD_CAP_USD = 500.0
-TRAIL_SESSIONS = 20
-TRAIL_MIN = 5
-
 # §3 tolerance / null (the §4 ledger tolerance and the §6b D-052 null, reused)
 TOL_TICKS = 2
 TOL_ATR_FRAC = 0.05
@@ -91,13 +84,16 @@ PARAMS = {
     "spec": "PORT_HL_CENSUS_SPEC.md",
     "spec_sha16": HL_SPEC_SHA16,
     "spec_section": SECTION,
-    "mid_sane": "D-054/CC-M1-4: TWO_SIDED and spread_$ <= min(%.0f x "
-                "trailing-phase-median spread_$, $%.0f); trailing median = "
-                "same-phase per-session medians over the %d STRICTLY PRIOR "
-                "sessions (>= %d observations, else only the cap binds); "
-                "insane seconds typed-excluded, never interpolated"
-                % (SANE_SPREAD_MULT, SANE_SPREAD_CAP_USD, TRAIL_SESSIONS,
-                   TRAIL_MIN),
+    "mid_sane": "D-054/CC-M1-4 via the port's canonical implementation "
+                "engine/port_m1/b7_sane.py: TWO_SIDED and spread_$ <= "
+                "min(%.0f x trailing-phase-median spread_$, $%.0f), the "
+                "trailing median being the EXACT pooled median over the same "
+                "phase of the trailing %d STRICTLY PRIOR sessions; warm-up "
+                "falls back to the cap alone.  Thresholds read from "
+                "m1/sane/sane_thresholds.tsv, so every port lane measures the "
+                "same SANE seconds; insane seconds typed-excluded, never "
+                "interpolated"
+                % (B7S.SANE_MULT, B7S.SANE_CAP_USD, B7S.TRAILING_SESSIONS),
     "targets": "session and per-phase HIGH/LOW of the dominant-instrument "
                "MID-SANE mids; every predictor strictly causal at its anchor",
     "tolerance": "max(%d x tick_$, %.2f x ATR14_prev_$) / mult" % (TOL_TICKS,
@@ -186,59 +182,28 @@ def env_receipt():
 
 
 # ============================================================ D-054 mask =====
-def phase_spread_medians(s):
-    """This session's median TWO_SIDED spread ($) per phase (and overall).
-
-    Returned as a length-(N_PHASES+1) array: [phase0..phaseK, ALL].  NaN where
-    the phase has no two-sided second.
-    """
-    out = np.full(X.N_PHASES + 1, np.nan)
-    v = s.valid
-    if not v.any():
-        return out
-    for p in range(X.N_PHASES):
-        m = v & (s.phase_tag == p)
-        if m.any():
-            out[p] = float(np.median(s.spread_usd[m]))
-    out[X.N_PHASES] = float(np.median(s.spread_usd[v]))
-    return out
+# The mask is NOT reimplemented here.  engine/port_m1/b7_sane.py is the port's
+# canonical CC-M1-4 / D-054 implementation (10 x trailing-phase-median over the
+# trailing 60 sessions, exact pooled tick-histogram median, strictly prior,
+# $500 cap, warm-up falls back to the cap) and it publishes its per
+# (asset, date, phase) thresholds to m1/sane/sane_thresholds.tsv.  This lane
+# CONSUMES that table and that mask function, so every port lane measures the
+# same SANE seconds.  A date missing from the table falls back to the $500 cap
+# alone — the same warm-up rule.
+SANE_CAP_USD = B7S.SANE_CAP_USD
 
 
-def sane_threshold(trail_med):
-    """min(10 x trailing-phase-median, $500) per phase; cap-only when unknown."""
-    thr = np.full(X.N_PHASES + 1, SANE_SPREAD_CAP_USD)
-    for p in range(X.N_PHASES + 1):
-        m = trail_med[p]
-        if np.isfinite(m) and m > 0:
-            thr[p] = min(SANE_SPREAD_MULT * m, SANE_SPREAD_CAP_USD)
-    return thr
+def load_sane_thresholds(asset):
+    """{d8: [threshold_$ per phase]} — the canonical b7_sane table."""
+    return B7S.load_thresholds(asset)
 
 
-def sane_mask(s, thr):
-    """D-054 MID-SANE second mask over the session's seconds."""
-    per_sec = np.where((s.phase_tag >= 0) & (s.phase_tag < X.N_PHASES),
-                       thr[np.clip(s.phase_tag, 0, X.N_PHASES - 1)],
-                       thr[X.N_PHASES])
-    return s.valid & np.isfinite(s.spread_usd) & (s.spread_usd <= per_sec)
-
-
-def trailing_medians(hist_meds):
-    """Median of the last <= TRAIL_SESSIONS prior per-session per-phase medians.
-
-    `hist_meds` is the list of prior sessions' phase_spread_medians rows, in
-    date order.  Fewer than TRAIL_MIN finite observations for a phase -> NaN
-    (only the $500 cap then binds).
-    """
-    out = np.full(X.N_PHASES + 1, np.nan)
-    if not hist_meds:
-        return out
-    w = np.array(hist_meds[-TRAIL_SESSIONS:], dtype=np.float64)
-    for p in range(X.N_PHASES + 1):
-        col = w[:, p]
-        col = col[np.isfinite(col)]
-        if col.size >= TRAIL_MIN:
-            out[p] = float(np.median(col))
-    return out
+def session_thresholds(table, trade_date):
+    """The per-phase threshold array for one session (cap-only when absent)."""
+    v = table.get(M.d8(trade_date))
+    if v is None:
+        return np.full(X.N_PHASES, SANE_CAP_USD)
+    return np.asarray(v, dtype=np.float64)
 
 
 # ==================================================== per-session fact pass ==
@@ -339,15 +304,14 @@ def build_facts(asset):
     paths = X.session_paths(asset, M.M0_ROOT)
     bars = X.load_bars(asset, M.M0_ROOT)
     keep = kept_families().get(asset, ())
-    hist_meds = []
+    thr_table = load_sane_thresholds(asset)
     rows = []
     for k, (trade_date, path) in enumerate(paths):
         if C.is_sealed(path):           # 2026 payload: never opened
             continue
         s = X.load_session(asset, trade_date, path)
-        trail = trailing_medians(hist_meds)
-        thr = sane_threshold(trail)
-        sane = sane_mask(s, thr)
+        thr = session_thresholds(thr_table, trade_date)
+        sane = B7S.sane_mask(s, thr)
         segf = segment_facts(s, sane)
         sfact = segf["SESSION"]
         rng = (sfact["high_px"] - sfact["low_px"]) \
@@ -368,7 +332,7 @@ def build_facts(asset):
              "n_sane": int(sane.sum()),
              "insane_frac": (float((s.valid & ~sane).sum()) /
                              float(max(int(s.valid.sum()), 1))),
-             "thr_all_usd": float(thr[X.N_PHASES]),
+             "thr_all_usd": float(np.median(thr)),
              "seg": segf,
              "atr": float(bars.get(trade_date, {}).get("ATR14_prev_usd",
                                                        float("nan"))),
@@ -378,7 +342,6 @@ def build_facts(asset):
             for mn in P3_OR_MIN:
                 r["orr"][(seg, mn)] = or_facts(s, sane, seg, mn)
         rows.append(r)
-        hist_meds.append(phase_spread_medians(s))
         if (k + 1) % 200 == 0:
             M.hb("hl facts %s %d/%d" % (asset, k + 1, len(paths)))
     return rows

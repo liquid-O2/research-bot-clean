@@ -1,0 +1,13 @@
+diff --git a/qr_skel/include/qr_skel/session.hpp b/qr_skel/include/qr_skel/session.hpp
+--- a/qr_skel/include/qr_skel/session.hpp
++++ b/qr_skel/include/qr_skel/session.hpp
+@@ -71,7 +71,8 @@
+   /// TRUE only for a MID-SANE second: an anchor on a wide-book second is
+   /// UNAVAILABLE, not merely two-sided (CC-M1-4 rule 2).
+   [[nodiscard]] bool is_valid_second(std::int32_t sec) const {
+-    return sec >= 0 && sec < n_ && sane_[static_cast<std::size_t>(sec)] != 0;
++    // MS26: an anchor only has to be TWO_SIDED, not mid-sane
++    return sec >= 0 && sec < n_ && state_[static_cast<std::size_t>(sec)] == 0;
+   }
+ 
+  private:

@@ -1,0 +1,17 @@
+diff --git a/qr_skel/src/binpack.cpp b/qr_skel/src/binpack.cpp
+--- a/qr_skel/src/binpack.cpp
++++ b/qr_skel/src/binpack.cpp
+@@ -98,12 +98,7 @@
+     }
+     // The bound is checked in the widest type available; a receipt whose
+     // descriptor overruns the blob is a refusal, never a truncated read.
+-    if (pa.count > (pack.blob_.size() / w) + 1 ||
+-        pa.offset > pack.blob_.size() ||
+-        pack.blob_.size() - pa.offset < pa.count * w) {
+-      return refuse<BinPack>(Refusal(RefusalCode::CONTENT_MISMATCH, "qr_skel::BinPack::load",
+-                                     "array descriptor runs past the end of the bin blob"));
+-    }
++    // MS21: the descriptor bound is not checked
+     if (!pack.arrays_.emplace(n->str(), pa).second) {
+       return refuse<BinPack>(Refusal(RefusalCode::SCHEMA_MISMATCH, "qr_skel::BinPack::load",
+                                      "duplicate array name in receipt sidecar"));

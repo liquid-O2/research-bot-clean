@@ -174,6 +174,17 @@ and 900pt widths): the sub-minute "$2-5k legs" were WIDE-BOOK MID ARTIFACTS. Rul
 4. IMPACT QUANTIFICATION mandatory: offer census, DP seatable, wall stats, recall — before/after mask deltas
    per asset (TSV + report section). M0-verdict-relevant medians moving >5% => verdict addendum.
 
+## CC-M1-5 — S1 adjudications, 2026-08-13 (defects D13-D16; BINDING)
+D13: G1-FAST-OPEN is ADDITIVE (a separate family emitted alongside the tau*-delayed candidates in open
+     windows — the superset S1 emitted); PORT_M1B_SPEC S2's "(15s in open windows)" is corrected to
+     "(+ additive FAST-OPEN family at 15s in open windows)"; C++ matches candidate-exact.
+D14: the 15s open-window delay applies to G1 rungs only; G2 keeps tau* everywhere. BLESSED as implemented.
+D15: MID-SANE trailing median = pooled same-phase trailing 60 sessions, causal. PINNED as implemented.
+D16: the M1.A decay/tau* study ran on unmasked mids; masked spine moves 107/341/1,134 confirmations of ~500k.
+     ACCEPTED RESIDUAL, no re-run: tau*=120s is the D-033 cap, insensitive at these magnitudes; noted for
+     the record. Gate P-M1f CLOSED: sane-oracle recall SI .9975 / HG .9970 / NKD .9971; mask impact all
+     verdict-relevant medians <=2.5% => NO M0 addendum; unmasked control reproduces M0 exactly.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

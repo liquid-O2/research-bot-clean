@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/skeleton.cpp b/qr_skel/src/skeleton.cpp
+--- a/qr_skel/src/skeleton.cpp
++++ b/qr_skel/src/skeleton.cpp
+@@ -13,7 +13,7 @@
+ /// every tau null, zero records. `observed_secs == 0` is the discriminator.
+ void fill_unavailable(std::int32_t anchor_sec, const RecordArrays& recs, AnchorSkeleton* out) {
+   out->anchor_sec = anchor_sec;
+-  out->observed_secs = 0;
++  out->observed_secs = 1;  // MS06: unavailable becomes an ordinary no-hit
+   out->entry_mid = kNaN;
+   for (std::size_t k = 0; k < kRungCount; ++k) {
+     out->tau_up[k] = -1;

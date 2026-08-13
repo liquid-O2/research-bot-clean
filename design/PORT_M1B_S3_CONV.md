@@ -77,7 +77,15 @@ NEGATIVE-ZERO NORMALIZATION: for a SHORT candidate every second whose mid equals
 produces `-0.0`, whose BYTES differ from `+0.0` although every comparison calls them equal. A
 byte-exact parity gate must therefore be told which one it gets. The trailing `+ 0.0` folds `-0.0`
 to `+0.0` and is exact for every other finite value, so nothing else moves. The running maxima are
-seeded at literal `0.0` for the same reason.
+seeded at literal `0.0` for the same reason, and the ADVERSE series `-f` is normalized identically
+(`-f[i] + 0.0`) — plain negation re-creates `-0.0` wherever `f` is zero, which would make every
+adverse landmark of a never-adverse path a sign-flipped zero. NO EMITTED FIELD MAY CARRY `-0.0`;
+the parity comparator and a corpus-wide sweep both check this.
+
+(Divergence from m0, recorded: `c_c_roster._emit_candidate` does NOT normalize, so its `f_h*` marks
+carry `-0.0` on short candidates whose mark price equals the entry. Verified on SI 2021-06: this is
+the ONLY byte difference between this engine's d0 anchor and the m0 Python roster — 32/16/7 cells of
+`f_h30`/`f_phase_close`/`f_sess_close` out of 2,474 rows, all numerically zero.)
 
 ## C5. The rung ladder  [SPEC §1 S3]
 

@@ -1,0 +1,86 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 22 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from Ladder
+[ RUN      ] Ladder.RungIsTickRoundedHalfUpAndScalesWithK
+[       OK ] Ladder.RungIsTickRoundedHalfUpAndScalesWithK (0 ms)
+[ RUN      ] Ladder.RefusesAnAtrWhoseFirstRungRoundsToZeroTicksOrIsNotPositive
+[       OK ] Ladder.RefusesAnAtrWhoseFirstRungRoundsToZeroTicksOrIsNotPositive (0 ms)
+[ RUN      ] Ladder.TickDollarValueIsTickTimesMultForEveryAsset
+[       OK ] Ladder.TickDollarValueIsTickTimesMultForEveryAsset (0 ms)
+[----------] 3 tests from Ladder (0 ms total)
+
+[----------] 11 tests from Skeleton
+[ RUN      ] Skeleton.FirstPassageIsTheFirstSecondTheRunningMaximumReachesTheRung
+[       OK ] Skeleton.FirstPassageIsTheFirstSecondTheRunningMaximumReachesTheRung (57 ms)
+[ RUN      ] Skeleton.BothSidesAreRetainedEvenWhenOneBarrierWinsFirst
+[       OK ] Skeleton.BothSidesAreRetainedEvenWhenOneBarrierWinsFirst (37 ms)
+[ RUN      ] Skeleton.ObservedSecsZeroMeansUnavailableAndIsNeverANoHit
+/workspace/engine/cpp/qr_skel/tests/test_skel.cpp:227: Failure
+Expected equality of these values:
+  a.observed_secs
+    Which is: 1
+  0
+
+/workspace/engine/cpp/qr_skel/tests/test_skel.cpp:233: Failure
+Value of: decode_barrier_cell(a, 1, 1).available
+  Actual: true
+Expected: false
+
+[  FAILED  ] Skeleton.ObservedSecsZeroMeansUnavailableAndIsNeverANoHit (49 ms)
+[ RUN      ] Skeleton.PrefixMaximaRecordsAreStrictIncreasesAndNeverTheAnchorItself
+[       OK ] Skeleton.PrefixMaximaRecordsAreStrictIncreasesAndNeverTheAnchorItself (38 ms)
+[ RUN      ] Skeleton.RecordValuesAreStoredFloat32ButEveryComparisonIsFloat64
+[       OK ] Skeleton.RecordValuesAreStoredFloat32ButEveryComparisonIsFloat64 (39 ms)
+[ RUN      ] Skeleton.HorizonMarksNeverCrossTheSessionEndAndTakeTheLastObservation
+[       OK ] Skeleton.HorizonMarksNeverCrossTheSessionEndAndTakeTheLastObservation (56 ms)
+[ RUN      ] Skeleton.MaeBeforeArgmaxIgnoresAdversityAfterThePeak
+[       OK ] Skeleton.MaeBeforeArgmaxIgnoresAdversityAfterThePeak (39 ms)
+[ RUN      ] Skeleton.GivebackIsThePeakMinusThePostPeakMinimumNotTheTerminalValue
+[       OK ] Skeleton.GivebackIsThePeakMinusThePostPeakMinimumNotTheTerminalValue (56 ms)
+[ RUN      ] Skeleton.MonotonicityCountsSTRICTLYFavorableOneMinuteSteps
+[       OK ] Skeleton.MonotonicityCountsSTRICTLYFavorableOneMinuteSteps (38 ms)
+[ RUN      ] Skeleton.TimeUnderwaterCountsStrictlyNegativeSecondsOnly
+[       OK ] Skeleton.TimeUnderwaterCountsStrictlyNegativeSecondsOnly (54 ms)
+[ RUN      ] Skeleton.ShortSideExcursionIsMeasuredAgainstTheSideAndCarriesNoNegativeZero
+[       OK ] Skeleton.ShortSideExcursionIsMeasuredAgainstTheSideAndCarriesNoNegativeZero (97 ms)
+[----------] 11 tests from Skeleton (564 ms total)
+
+[----------] 1 test from Query
+[ RUN      ] Query.SimultaneousTouchResolvesAdverseAndKeepsTheAmbiguityTyping
+[       OK ] Query.SimultaneousTouchResolvesAdverseAndKeepsTheAmbiguityTyping (0 ms)
+[----------] 1 test from Query (0 ms total)
+
+[----------] 3 tests from Structure
+[ RUN      ] Structure.MoreQueriedBarrierCellsDoNotIncreaseStoredRowsOrBytes
+[       OK ] Structure.MoreQueriedBarrierCellsDoNotIncreaseStoredRowsOrBytes (187 ms)
+[ RUN      ] Structure.BoundedChunkingNeverHoldsMoreThanOneChunkOfAnchorRows
+[       OK ] Structure.BoundedChunkingNeverHoldsMoreThanOneChunkOfAnchorRows (120 ms)
+[ RUN      ] Structure.TwoRunsOfTheSameShardAreByteIdentical
+[       OK ] Structure.TwoRunsOfTheSameShardAreByteIdentical (226 ms)
+[----------] 3 tests from Structure (534 ms total)
+
+[----------] 1 test from Candidates
+[ RUN      ] Candidates.RefusesACandidateFileWhoseDateColumnGoesBackwards
+[       OK ] Candidates.RefusesACandidateFileWhoseDateColumnGoesBackwards (107 ms)
+[----------] 1 test from Candidates (107 ms total)
+
+[----------] 1 test from BinPack
+[ RUN      ] BinPack.RefusesADescriptorThatRunsPastTheEndOfTheBlob
+[       OK ] BinPack.RefusesADescriptorThatRunsPastTheEndOfTheBlob (72 ms)
+[----------] 1 test from BinPack (72 ms total)
+
+[----------] 2 tests from Params
+[ RUN      ] Params.CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat
+[       OK ] Params.CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat (0 ms)
+[ RUN      ] Params.TheFrozenSpecShaIsCheckedAgainstTheFileNotMerelyDeclared
+[       OK ] Params.TheFrozenSpecShaIsCheckedAgainstTheFileNotMerelyDeclared (5 ms)
+[----------] 2 tests from Params (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 7 test suites ran. (1285 ms total)
+[  PASSED  ] 21 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Skeleton.ObservedSecsZeroMeansUnavailableAndIsNeverANoHit
+
+ 1 FAILED TEST

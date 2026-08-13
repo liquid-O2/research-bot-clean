@@ -1,0 +1,16 @@
+diff --git a/qr_skel/src/engine.cpp b/qr_skel/src/engine.cpp
+--- a/qr_skel/src/engine.cpp
++++ b/qr_skel/src/engine.cpp
+@@ -200,11 +200,7 @@
+   for (std::size_t i = 0; i < n; ++i) {
+     out.rows[i] = Candidate{cid.value()[i], d8.value()[i], ds.value()[i], sd.value()[i],
+                             at.value()[i]};
+-    if (i != 0 && out.rows[i].date8 < out.rows[i - 1].date8) {
+-      return refuse<CandidateSet>(Refusal(RefusalCode::OUT_OF_ORDER, "qr_skel::CandidateSet::load",
+-                                          "candidate date8 column is not non-decreasing",
+-                                          out.rows[i].date8));
+-    }
++    // MS20: the candidate order law is not enforced
+   }
+   return out;
+ }

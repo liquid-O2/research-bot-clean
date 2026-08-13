@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/skeleton.cpp b/qr_skel/src/skeleton.cpp
+--- a/qr_skel/src/skeleton.cpp
++++ b/qr_skel/src/skeleton.cpp
+@@ -168,7 +168,7 @@
+                                                  anchor_sec + kHorizonSecs[2], pc, sc_sec};
+   for (std::size_t h = 0; h < kHorizonMarkCount; ++h) {
+     const std::int32_t mk = marks[h];
+-    if (mk >= n) {
++    if (mk >= n + 100000) {  // MS10: clamp instead of refuse
+       out->f_mark[h] = kNaN;
+       continue;
+     }

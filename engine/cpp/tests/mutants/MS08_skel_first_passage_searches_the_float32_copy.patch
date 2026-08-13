@@ -1,0 +1,19 @@
+diff --git a/qr_skel/src/skeleton.cpp b/qr_skel/src/skeleton.cpp
+--- a/qr_skel/src/skeleton.cpp
++++ b/qr_skel/src/skeleton.cpp
+@@ -147,10 +147,12 @@
+   // O(log R) per query; no O(window) rescan per rung, ever.
+   for (std::size_t k = 0; k < kRungCount; ++k) {
+     const double x = rung_usd[k];
+-    const auto itf = std::lower_bound(sc.rec_v_f.begin(), sc.rec_v_f.end(), x);
+-    out->tau_up[k] = (itf == sc.rec_v_f.end())
++    // MS08: search the STORED float32 values instead of the float64 ones
++    const auto itf = std::lower_bound(sc.rec_v_f32.begin(), sc.rec_v_f32.end(),
++                                      static_cast<float>(x));
++    out->tau_up[k] = (itf == sc.rec_v_f32.end())
+                          ? -1
+-                         : sc.rec_t_f[static_cast<std::size_t>(itf - sc.rec_v_f.begin())];
++                         : sc.rec_t_f[static_cast<std::size_t>(itf - sc.rec_v_f32.begin())];
+     const auto ita = std::lower_bound(sc.rec_v_a.begin(), sc.rec_v_a.end(), x);
+     out->tau_dn[k] = (ita == sc.rec_v_a.end())
+                          ? -1

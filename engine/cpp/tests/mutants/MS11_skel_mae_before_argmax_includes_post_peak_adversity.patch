@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/skeleton.cpp b/qr_skel/src/skeleton.cpp
+--- a/qr_skel/src/skeleton.cpp
++++ b/qr_skel/src/skeleton.cpp
+@@ -124,7 +124,7 @@
+ 
+   // MAE before the argmax: the adverse prefix maximum evaluated at argmax_i.
+   double mae_before = 0.0;
+-  for (std::size_t i = 0; i <= argmax_i; ++i) {
++  for (std::size_t i = 0; i < m; ++i) {  // MS11: the whole window
+     if (-sc.f[i] > mae_before) {
+       mae_before = -sc.f[i];
+     }

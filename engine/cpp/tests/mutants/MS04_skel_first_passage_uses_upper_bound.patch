@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/skeleton.cpp b/qr_skel/src/skeleton.cpp
+--- a/qr_skel/src/skeleton.cpp
++++ b/qr_skel/src/skeleton.cpp
+@@ -147,7 +147,7 @@
+   // O(log R) per query; no O(window) rescan per rung, ever.
+   for (std::size_t k = 0; k < kRungCount; ++k) {
+     const double x = rung_usd[k];
+-    const auto itf = std::lower_bound(sc.rec_v_f.begin(), sc.rec_v_f.end(), x);
++    const auto itf = std::upper_bound(sc.rec_v_f.begin(), sc.rec_v_f.end(), x);  // MS04
+     out->tau_up[k] = (itf == sc.rec_v_f.end())
+                          ? -1
+                          : sc.rec_t_f[static_cast<std::size_t>(itf - sc.rec_v_f.begin())];

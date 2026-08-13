@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/geom.cpp b/qr_skel/src/geom.cpp
+--- a/qr_skel/src/geom.cpp
++++ b/qr_skel/src/geom.cpp
+@@ -10,7 +10,7 @@
+ constexpr AssetGeom kGeom[3] = {
+     {5000, 0.005, 25.00},      // SI
+     {25000, 0.0005, 12.50},    // HG
+-    {5, 5.0, 25.00},           // NKD
++    {5, 1.0, 25.00},           // NKD  (MS03: wrong tick size)
+ };
+ 
+ }  // namespace

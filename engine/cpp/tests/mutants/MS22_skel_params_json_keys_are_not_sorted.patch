@@ -1,0 +1,13 @@
+diff --git a/qr_skel/src/engine.cpp b/qr_skel/src/engine.cpp
+--- a/qr_skel/src/engine.cpp
++++ b/qr_skel/src/engine.cpp
+@@ -240,8 +240,8 @@
+   s += ",\"chunk_candidates\":" + std::to_string(chunk_candidates);
+   s += ",\"horizon_secs\":[" + std::to_string(kHorizonSecs[0]) + "," +
+        std::to_string(kHorizonSecs[1]) + "," + std::to_string(kHorizonSecs[2]) + "]";
++  s += ",\"rung_step\":" + fmt_double(kRungStep);  // MS22: keys out of order
+   s += ",\"rung_count\":" + std::to_string(kRungCount);
+-  s += ",\"rung_step\":" + fmt_double(kRungStep);
+   s += ",\"spec_sha16\":\"" + std::string(kSpecSha16) + "\"";
+   s += "}";
+   return s;

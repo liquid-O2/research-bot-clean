@@ -33,6 +33,7 @@ struct Args {
   std::size_t workers = 4;
   std::size_t chunk = kChunkCandidates;
   std::vector<std::string> months;
+  std::string sanity;  // QRSANE1 stem; empty => the CC-M1-4 mask is off
 };
 
 bool parse(int argc, char** argv, Args* a) {
@@ -49,6 +50,8 @@ bool parse(int argc, char** argv, Args* a) {
       a->out = argv[++i];
     } else if (k == "--workers" && has_next) {
       a->workers = static_cast<std::size_t>(std::atoi(argv[++i]));
+    } else if (k == "--sanity" && has_next) {
+      a->sanity = argv[++i];
     } else if (k == "--chunk" && has_next) {
       a->chunk = static_cast<std::size_t>(std::atoi(argv[++i]));
     } else if (k == "--months" && has_next) {
@@ -81,7 +84,8 @@ int main(int argc, char** argv) {
   if (!parse(argc, argv, &args)) {
     std::fprintf(stderr,
                  "usage: qr_skel_build --asset SI --candidates <stem> --sessions <dir> "
-                 "--out <dir> [--workers 1..6] [--chunk N] [--months YYYYMM,...]\n");
+                 "--out <dir> [--workers 1..6] [--chunk N] [--months YYYYMM,...] "
+                 "[--sanity <QRSANE1 stem>]\n");
     return 2;
   }
   qr::futsess::Asset asset;
@@ -107,7 +111,7 @@ int main(int argc, char** argv) {
   };
   std::vector<Shard> shards;
   for (std::size_t i = 0; i < set.rows.size(); ++i) {
-    char mk[8];
+    char mk[16];
     std::snprintf(mk, sizeof(mk), "%06d", set.rows[i].date8 / 100);
     if (shards.empty() || shards.back().month != mk) {
       shards.push_back(Shard{mk, i, i + 1});
@@ -126,6 +130,17 @@ int main(int argc, char** argv) {
       }
     }
     shards.swap(keep);
+  }
+
+  SanityTable sanity;
+  if (!args.sanity.empty()) {
+    auto t = SanityTable::load(args.sanity);
+    if (!t) {
+      std::fprintf(stderr, "REFUSED loading the mid-sanity table: %s\n",
+                   t.error().message().c_str());
+      return 1;
+    }
+    sanity = std::move(t).value();
   }
 
   const std::time_t t0 = std::time(nullptr);
@@ -152,6 +167,7 @@ int main(int argc, char** argv) {
       opt.out_stem = args.out + "/" + args.asset + "_" + s.month;
       opt.month = s.month;
       opt.chunk_candidates = args.chunk;
+      opt.sanity = sanity;
       auto r = build_shard(set, s.lo, s.hi, opt);
       std::lock_guard<std::mutex> g(mu);
       if (!r) {
@@ -172,6 +188,8 @@ int main(int argc, char** argv) {
       total.n_records_a += st.n_records_a;
       total.stored_rows += st.stored_rows;
       total.stored_bytes += st.stored_bytes;
+      total.n_seconds_insane += st.n_seconds_insane;
+      total.n_seconds_two_sided += st.n_seconds_two_sided;
       if (st.max_live_anchor_rows > total.max_live_anchor_rows) {
         total.max_live_anchor_rows = st.max_live_anchor_rows;
       }
@@ -228,6 +246,12 @@ int main(int argc, char** argv) {
   jw.value_int(total.stored_bytes);
   jw.key("chunk_candidates");
   jw.value_int(static_cast<std::int64_t>(args.chunk));
+  jw.key("mid_sanity_enabled");
+  jw.value_bool(!args.sanity.empty());
+  jw.key("n_seconds_two_sided");
+  jw.value_int(total.n_seconds_two_sided);
+  jw.key("n_seconds_insane");
+  jw.value_int(total.n_seconds_insane);
   jw.key("workers");
   jw.value_int(static_cast<std::int64_t>(nthreads));
   jw.key("params_hash");

@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/geom.cpp b/qr_skel/src/geom.cpp
+--- a/qr_skel/src/geom.cpp
++++ b/qr_skel/src/geom.cpp
+@@ -20,7 +20,7 @@
+ }
+ 
+ double round_half_up(double x, double step) noexcept {
+-  return std::floor(x / step + 0.5) * step;
++  return std::floor(x / step) * step;  // MS01: truncate instead of HALF-UP
+ }
+ 
+ Expected<std::monostate, Refusal> build_ladder(const AssetGeom& g, double atr14_usd, double* out) {

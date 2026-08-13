@@ -117,6 +117,53 @@ struct AnchorColumns {
 
 }  // namespace
 
+Expected<SanityTable, Refusal> SanityTable::load(const std::string& stem) {
+  auto pack = BinPack::load(stem, "QRSANE1");
+  if (!pack) {
+    return refuse<SanityTable>(pack.error());
+  }
+  auto d8 = pack.value().get<std::int32_t>("date8", "int32");
+  auto med = pack.value().get<double>("phase_median_spread_usd", "float64");
+  if (!d8) return refuse<SanityTable>(d8.error());
+  if (!med) return refuse<SanityTable>(med.error());
+  SanityTable t;
+  t.date8_ = std::move(d8).value();
+  t.med_ = std::move(med).value();
+  if (t.med_.size() != t.date8_.size() * kPhaseCount) {
+    return refuse<SanityTable>(Refusal(RefusalCode::SCHEMA_MISMATCH, "qr_skel::SanityTable::load",
+                                       "median table is not n x kPhaseCount"));
+  }
+  for (std::size_t i = 1; i < t.date8_.size(); ++i) {
+    if (t.date8_[i] <= t.date8_[i - 1]) {
+      return refuse<SanityTable>(Refusal(RefusalCode::OUT_OF_ORDER, "qr_skel::SanityTable::load",
+                                         "sanity table dates are not strictly ascending",
+                                         t.date8_[i]));
+    }
+  }
+  for (double v : t.med_) {
+    if (!(v > 0.0) || !(v < 1e12)) {
+      return refuse<SanityTable>(Refusal(RefusalCode::CONTENT_MISMATCH, "qr_skel::SanityTable::load",
+                                         "a phase median spread is not a positive finite dollar value"));
+    }
+  }
+  return t;
+}
+
+Expected<SanityPolicy, Refusal> SanityTable::policy_for(std::int32_t date8) const {
+  const auto it = std::lower_bound(date8_.begin(), date8_.end(), date8);
+  if (it == date8_.end() || *it != date8) {
+    return refuse<SanityPolicy>(Refusal(RefusalCode::UNKNOWN_SESSION, "qr_skel::SanityTable::policy_for",
+                                        "no mid-sanity medians for this trade date", date8));
+  }
+  const std::size_t row = static_cast<std::size_t>(it - date8_.begin());
+  SanityPolicy p;
+  p.enabled = true;
+  for (std::size_t k = 0; k < kPhaseCount; ++k) {
+    p.phase_median_spread_usd[k] = med_[row * kPhaseCount + k];
+  }
+  return p;
+}
+
 Expected<CandidateSet, Refusal> CandidateSet::load(const std::string& stem) {
   auto pack = BinPack::load(stem, "QRCAND1");
   if (!pack) {
@@ -160,6 +207,26 @@ Expected<CandidateSet, Refusal> CandidateSet::load(const std::string& stem) {
     }
   }
   return out;
+}
+
+const char* spec_sha16_pin() noexcept { return kSpecSha16; }
+
+Expected<std::string, Refusal> file_sha16(const std::string& path) {
+  std::FILE* fh = std::fopen(path.c_str(), "rb");
+  if (fh == nullptr) {
+    return refuse<std::string>(Refusal(RefusalCode::IO, "qr_skel::file_sha16", "cannot open file"));
+  }
+  std::string all;
+  char buf[1 << 16];
+  for (;;) {
+    const std::size_t got = std::fread(buf, 1, sizeof(buf), fh);
+    if (got == 0) {
+      break;
+    }
+    all.append(buf, got);
+  }
+  std::fclose(fh);
+  return hex_sha256(all).substr(0, 16);
 }
 
 std::string params_canonical_json(Asset asset, std::size_t chunk_candidates) {
@@ -230,7 +297,15 @@ Expected<ShardStats, Refusal> build_shard(const CandidateSet& set, std::size_t l
     for (std::size_t i = base; i < stop; ++i) {
       const Candidate& c = set.rows[i];
       if (!have_session || c.date8 != loaded_date) {
-        auto s = SessionView::load(opt.session_dir, c.date8);
+        SanityPolicy policy;
+        if (!opt.sanity.empty()) {
+          auto pol = opt.sanity.policy_for(c.date8);
+          if (!pol) {
+            return refuse<ShardStats>(pol.error());
+          }
+          policy = pol.value();
+        }
+        auto s = SessionView::load(opt.session_dir, c.date8, policy);
         if (!s) {
           return refuse<ShardStats>(s.error());
         }
@@ -238,6 +313,8 @@ Expected<ShardStats, Refusal> build_shard(const CandidateSet& set, std::size_t l
         loaded_date = c.date8;
         have_session = true;
         ++st.n_sessions;
+        st.n_seconds_insane += session.n_insane();
+        st.n_seconds_two_sided += session.n_two_sided();
       }
       auto built = build_ladder(geom, c.atr14_usd, ladder);
       if (!built) {
@@ -330,6 +407,12 @@ Expected<ShardStats, Refusal> build_shard(const CandidateSet& set, std::size_t l
     jw.value_int(st.max_live_anchor_rows);
     jw.key("chunk_candidates");
     jw.value_int(static_cast<std::int64_t>(opt.chunk_candidates));
+    jw.key("mid_sanity_enabled");
+    jw.value_bool(!opt.sanity.empty());
+    jw.key("n_seconds_two_sided");
+    jw.value_int(st.n_seconds_two_sided);
+    jw.key("n_seconds_insane");
+    jw.value_int(st.n_seconds_insane);
   });
   if (!wrote) {
     return refuse<ShardStats>(wrote.error());

@@ -1,0 +1,13 @@
+diff --git a/qr_skel/src/session.cpp b/qr_skel/src/session.cpp
+--- a/qr_skel/src/session.cpp
++++ b/qr_skel/src/session.cpp
+@@ -84,8 +84,7 @@
+                                ? thr[static_cast<std::size_t>(ph)]
+                                : 0.0;
+     if (!(s.spread_[t] <= ceiling)) {
+-      ++s.n_insane_;
+-      continue;
++      ++s.n_insane_;  // MS27: counted, but still fed to the mid consumers
+     }
+     s.sane_[t] = 1;
+     s.vt_.push_back(static_cast<std::int32_t>(t));

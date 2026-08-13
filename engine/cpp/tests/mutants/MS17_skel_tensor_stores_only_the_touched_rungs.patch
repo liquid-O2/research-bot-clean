@@ -1,0 +1,22 @@
+diff --git a/qr_skel/src/engine.cpp b/qr_skel/src/engine.cpp
+--- a/qr_skel/src/engine.cpp
++++ b/qr_skel/src/engine.cpp
+@@ -54,8 +54,16 @@
+     anchor_sec.push_back(a.anchor_sec);
+     observed_secs.push_back(a.observed_secs);
+     entry_mid.push_back(a.entry_mid);
+-    tau_up.insert(tau_up.end(), a.tau_up, a.tau_up + kRungCount);
+-    tau_dn.insert(tau_dn.end(), a.tau_dn, a.tau_dn + kRungCount);
++    // MS17: store only the rungs that were touched, so the tensor shape
++    // becomes a function of the data instead of a fixed law.
++    for (std::size_t k = 0; k < kRungCount; ++k) {
++      if (a.tau_up[k] >= 0) {
++        tau_up.push_back(a.tau_up[k]);
++      }
++      if (a.tau_dn[k] >= 0) {
++        tau_dn.push_back(a.tau_dn[k]);
++      }
++    }
+     f_h30.push_back(a.f_mark[0]);
+     f_h60.push_back(a.f_mark[1]);
+     f_h120.push_back(a.f_mark[2]);

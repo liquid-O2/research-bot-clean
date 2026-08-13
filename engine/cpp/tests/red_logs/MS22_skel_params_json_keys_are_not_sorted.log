@@ -1,0 +1,91 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 25 tests from 8 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from Ladder
+[ RUN      ] Ladder.RungIsTickRoundedHalfUpAndScalesWithK
+[       OK ] Ladder.RungIsTickRoundedHalfUpAndScalesWithK (0 ms)
+[ RUN      ] Ladder.RefusesAnAtrWhoseFirstRungRoundsToZeroTicksOrIsNotPositive
+[       OK ] Ladder.RefusesAnAtrWhoseFirstRungRoundsToZeroTicksOrIsNotPositive (0 ms)
+[ RUN      ] Ladder.TickDollarValueIsTickTimesMultForEveryAsset
+[       OK ] Ladder.TickDollarValueIsTickTimesMultForEveryAsset (0 ms)
+[----------] 3 tests from Ladder (0 ms total)
+
+[----------] 11 tests from Skeleton
+[ RUN      ] Skeleton.FirstPassageIsTheFirstSecondTheRunningMaximumReachesTheRung
+[       OK ] Skeleton.FirstPassageIsTheFirstSecondTheRunningMaximumReachesTheRung (48 ms)
+[ RUN      ] Skeleton.BothSidesAreRetainedEvenWhenOneBarrierWinsFirst
+[       OK ] Skeleton.BothSidesAreRetainedEvenWhenOneBarrierWinsFirst (52 ms)
+[ RUN      ] Skeleton.ObservedSecsZeroMeansUnavailableAndIsNeverANoHit
+[       OK ] Skeleton.ObservedSecsZeroMeansUnavailableAndIsNeverANoHit (39 ms)
+[ RUN      ] Skeleton.PrefixMaximaRecordsAreStrictIncreasesAndNeverTheAnchorItself
+[       OK ] Skeleton.PrefixMaximaRecordsAreStrictIncreasesAndNeverTheAnchorItself (41 ms)
+[ RUN      ] Skeleton.RecordValuesAreStoredFloat32ButEveryComparisonIsFloat64
+[       OK ] Skeleton.RecordValuesAreStoredFloat32ButEveryComparisonIsFloat64 (50 ms)
+[ RUN      ] Skeleton.HorizonMarksNeverCrossTheSessionEndAndTakeTheLastObservation
+[       OK ] Skeleton.HorizonMarksNeverCrossTheSessionEndAndTakeTheLastObservation (43 ms)
+[ RUN      ] Skeleton.MaeBeforeArgmaxIgnoresAdversityAfterThePeak
+[       OK ] Skeleton.MaeBeforeArgmaxIgnoresAdversityAfterThePeak (56 ms)
+[ RUN      ] Skeleton.GivebackIsThePeakMinusThePostPeakMinimumNotTheTerminalValue
+[       OK ] Skeleton.GivebackIsThePeakMinusThePostPeakMinimumNotTheTerminalValue (41 ms)
+[ RUN      ] Skeleton.MonotonicityCountsSTRICTLYFavorableOneMinuteSteps
+[       OK ] Skeleton.MonotonicityCountsSTRICTLYFavorableOneMinuteSteps (62 ms)
+[ RUN      ] Skeleton.TimeUnderwaterCountsStrictlyNegativeSecondsOnly
+[       OK ] Skeleton.TimeUnderwaterCountsStrictlyNegativeSecondsOnly (40 ms)
+[ RUN      ] Skeleton.ShortSideExcursionIsMeasuredAgainstTheSideAndCarriesNoNegativeZero
+[       OK ] Skeleton.ShortSideExcursionIsMeasuredAgainstTheSideAndCarriesNoNegativeZero (90 ms)
+[----------] 11 tests from Skeleton (568 ms total)
+
+[----------] 3 tests from MidSanity
+[ RUN      ] MidSanity.AWideBookSecondIsExcludedFromEveryMidConsumer
+[       OK ] MidSanity.AWideBookSecondIsExcludedFromEveryMidConsumer (65 ms)
+[ RUN      ] MidSanity.AnAnchorOnAnInsaneSecondIsUnavailableNotMerelyTwoSided
+[       OK ] MidSanity.AnAnchorOnAnInsaneSecondIsUnavailableNotMerelyTwoSided (42 ms)
+[ RUN      ] MidSanity.TheCeilingIsTenTimesTheMedianCappedAtFiveHundredAndIsInclusive
+[       OK ] MidSanity.TheCeilingIsTenTimesTheMedianCappedAtFiveHundredAndIsInclusive (55 ms)
+[----------] 3 tests from MidSanity (163 ms total)
+
+[----------] 1 test from Query
+[ RUN      ] Query.SimultaneousTouchResolvesAdverseAndKeepsTheAmbiguityTyping
+[       OK ] Query.SimultaneousTouchResolvesAdverseAndKeepsTheAmbiguityTyping (0 ms)
+[----------] 1 test from Query (0 ms total)
+
+[----------] 3 tests from Structure
+[ RUN      ] Structure.MoreQueriedBarrierCellsDoNotIncreaseStoredRowsOrBytes
+[       OK ] Structure.MoreQueriedBarrierCellsDoNotIncreaseStoredRowsOrBytes (184 ms)
+[ RUN      ] Structure.BoundedChunkingNeverHoldsMoreThanOneChunkOfAnchorRows
+[       OK ] Structure.BoundedChunkingNeverHoldsMoreThanOneChunkOfAnchorRows (155 ms)
+[ RUN      ] Structure.TwoRunsOfTheSameShardAreByteIdentical
+[       OK ] Structure.TwoRunsOfTheSameShardAreByteIdentical (211 ms)
+[----------] 3 tests from Structure (551 ms total)
+
+[----------] 1 test from Candidates
+[ RUN      ] Candidates.RefusesACandidateFileWhoseDateColumnGoesBackwards
+[       OK ] Candidates.RefusesACandidateFileWhoseDateColumnGoesBackwards (100 ms)
+[----------] 1 test from Candidates (100 ms total)
+
+[----------] 1 test from BinPack
+[ RUN      ] BinPack.RefusesADescriptorThatRunsPastTheEndOfTheBlob
+[       OK ] BinPack.RefusesADescriptorThatRunsPastTheEndOfTheBlob (72 ms)
+[----------] 1 test from BinPack (72 ms total)
+
+[----------] 2 tests from Params
+[ RUN      ] Params.CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat
+/workspace/engine/cpp/qr_skel/tests/test_skel.cpp:741: Failure
+Expected equality of these values:
+  j
+    Which is: "{\"anchor_count\":2,\"anchor_d1_delay_secs\":60,\"asset\":\"SI\",\"chunk_candidates\":512,\"horizon_secs\":[1800,3600,7200],\"rung_step\":0.02,\"rung_count\":200,\"spec_sha16\":\"2b83f9e70340a413\"}"
+  "{\"anchor_count\":2,\"anchor_d1_delay_secs\":60,\"asset\":\"SI\"," "\"chunk_candidates\":512,\"horizon_secs\":[1800,3600,7200],\"rung_count\":200," "\"rung_step\":0.02,\"spec_sha16\":\"2b83f9e70340a413\"}"
+    Which is: "{\"anchor_count\":2,\"anchor_d1_delay_secs\":60,\"asset\":\"SI\",\"chunk_candidates\":512,\"horizon_secs\":[1800,3600,7200],\"rung_count\":200,\"rung_step\":0.02,\"spec_sha16\":\"2b83f9e70340a413\"}"
+
+[  FAILED  ] Params.CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat (0 ms)
+[ RUN      ] Params.TheFrozenSpecShaIsCheckedAgainstTheFileNotMerelyDeclared
+[       OK ] Params.TheFrozenSpecShaIsCheckedAgainstTheFileNotMerelyDeclared (7 ms)
+[----------] 2 tests from Params (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 25 tests from 8 test suites ran. (1465 ms total)
+[  PASSED  ] 24 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Params.CanonicalJsonHasSortedKeysAndAShortestRoundTripFloat
+
+ 1 FAILED TEST

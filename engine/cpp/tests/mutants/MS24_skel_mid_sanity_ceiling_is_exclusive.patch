@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/session.cpp b/qr_skel/src/session.cpp
+--- a/qr_skel/src/session.cpp
++++ b/qr_skel/src/session.cpp
+@@ -83,7 +83,7 @@
+     const double ceiling = (ph >= 0 && static_cast<std::size_t>(ph) < kPhaseCount)
+                                ? thr[static_cast<std::size_t>(ph)]
+                                : 0.0;
+-    if (!(s.spread_[t] <= ceiling)) {
++    if (!(s.spread_[t] < ceiling)) {  // MS24: the ceiling is exclusive
+       ++s.n_insane_;
+       continue;
+     }

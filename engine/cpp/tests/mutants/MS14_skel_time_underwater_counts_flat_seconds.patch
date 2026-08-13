@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/skeleton.cpp b/qr_skel/src/skeleton.cpp
+--- a/qr_skel/src/skeleton.cpp
++++ b/qr_skel/src/skeleton.cpp
+@@ -110,7 +110,7 @@
+       sc.rec_v_a.push_back(run_a);
+       sc.rec_v_a32.push_back(static_cast<float>(run_a));
+     }
+-    if (v < 0.0) {
++    if (v <= 0.0) {  // MS14: zero counts as underwater
+       ++underwater;
+     }
+   }

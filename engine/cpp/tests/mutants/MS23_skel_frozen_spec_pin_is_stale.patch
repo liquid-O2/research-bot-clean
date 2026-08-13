@@ -1,0 +1,12 @@
+diff --git a/qr_skel/src/engine.cpp b/qr_skel/src/engine.cpp
+--- a/qr_skel/src/engine.cpp
++++ b/qr_skel/src/engine.cpp
+@@ -15,7 +15,7 @@
+ 
+ /// The frozen M1.B spec this engine implements (PORT_M1B_SPEC.md sha16). The
+ /// test suite recomputes it from the file: a pin nobody checks is decoration.
+-constexpr const char* kSpecSha16 = "2b83f9e70340a413";
++constexpr const char* kSpecSha16 = "a3852e13b75464bd";  // MS23: stale pin
+ 
+ /// Shortest round-trip decimal, the float convention of the CC-M1-2 addendum.
+ std::string fmt_double(double v) {

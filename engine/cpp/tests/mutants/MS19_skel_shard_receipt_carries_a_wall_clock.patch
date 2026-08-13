@@ -1,0 +1,21 @@
+diff --git a/qr_skel/src/engine.cpp b/qr_skel/src/engine.cpp
+--- a/qr_skel/src/engine.cpp
++++ b/qr_skel/src/engine.cpp
+@@ -4,6 +4,7 @@
+ 
+ #include <algorithm>
+ #include <charconv>
++#include <chrono>
+ #include <cstdio>
+ 
+ #include "qr_skel/binpack.hpp"
+@@ -407,6 +408,9 @@
+     jw.value_int(st.max_live_anchor_rows);
+     jw.key("chunk_candidates");
+     jw.value_int(static_cast<std::int64_t>(opt.chunk_candidates));
++    jw.key("built_at");  // MS19: a monotonic clock reading in the receipt
++    jw.value_int(static_cast<std::int64_t>(
++        std::chrono::steady_clock::now().time_since_epoch().count()));
+     jw.key("mid_sanity_enabled");
+     jw.value_bool(!opt.sanity.empty());
+     jw.key("n_seconds_two_sided");

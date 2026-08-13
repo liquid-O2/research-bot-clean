@@ -169,3 +169,292 @@ exactly what D-067(2) already rules.
 | G15 | **Bayesian modeling of human–AI complementarity** — Steyvers, Tejeda, Kerrigan & Smyth, *PNAS* 119(11), 2022. DOI 10.1073/pnas.2111547119 · **Is the Most Accurate AI the Best Teammate? Optimizing AI for Teamwork** — Bansal, Nushi, Kamar, Horvitz & Weld, arXiv:2004.13102 (venue AAAI-21 **UNVERIFIED**) | Bayesian framework for hybrid human+machine classifiers accounting for *how* each expresses confidence. Bansal et al.: *"the most accurate AI may not lead to highest team performance"*; *"predictable performance may be worth a slight sacrifice in AI accuracy"* | Relevant only if a human/LLM overlay is ever deployed. D-040 forbids LLMs as live takers, so this is out of scope for the deployed stack — but it is the right frame for the **model-vs-panel comparator** of D-064(5) | **SKIP for the deployed stack; NOTED for the comparator** |
 
 
+
+---
+
+## 8. WHAT THE SWEEP ADDS TO D-064 — mechanisms 9–14
+
+D-064 names eight mandatory transfer mechanisms. The sweep **formalizes four of them** (giving each a
+citation, an estimator and a bound where one exists) and **adds six new ones**. Nothing here replaces
+a D-064 mechanism; the numbering continues it.
+
+**Formalizations of existing D-064 mechanisms** (no new mechanism, but the design changes):
+
+| D-064 item | what the literature turns it into |
+|---|---|
+| (1) reasoning-as-features | **Einhorn 1972 expert-measurement / mechanical-combination** (A7) + **Dawes & Corrigan** (A2): elicit **component ratings and signs**, not a global call. Features must be conditionally monotone or rescaled to be so |
+| (2) reliability-weighted evidence | **Dawid–Skene EM** (E6) with **GLAD item-difficulty** (E7) as the estimator. Grade against outcomes, never against the reader's stated weighting (B2) |
+| (3) two-stage standing-hypotheses + triggers | **Klein's RPD** (C2): stage 1 emits *(plausible goals, relevant cues, **expectancies**, typical action)*; stage 2 mentally simulates a **single** action. The three RPD variations become three logged reader modes |
+| (4) vetoes as separate censused learners | **Learning with rejection / learning to defer** (G4): the veto is a **rejector `r` from a different hypothesis set, trained JOINTLY with the scorer under a consistent surrogate** — *not* a threshold on a model trained everywhere. Sanity bound `c ≥ ½` |
+| (7) surprise-routed reader reads | **DAgger** (D2). This is not an analogy: routing reads to where the *current model* is wrong is literally training on the learner's own state distribution, and it is what buys `T²ε → uTε` |
+
+**NEW mechanisms (9–14):**
+
+| # | mechanism | source | why it is new |
+|---|---|---|---|
+| **M9** | **GOLD-RECTIFIED SURROGATE ESTIMATION.** Every statistic computed over a panel-labelled population carries a rectifier term measured on a known-probability gold (outcome) subsample: `θ̂ = θ̂_surrogate − (measured surrogate-vs-gold discrepancy on the gold draw)`. Validity holds regardless of how biased the panel labels are; label accuracy only buys efficiency | **DSL** (Egami et al. 2023) / **PPI** (Angelopoulos et al. 2023) — §6 F3 | D-064(6) agreement-filtered distillation currently has **no bias correction**. The panel-conditioned subsample is not a random sample of candidates, so any census statistic conditioned on panel agreement is biased by construction. This is the missing estimator |
+| **M10** | **PROCESS SUPERVISION OVER THE THESIS.** Supervise the reader's *intermediate* claims (each expectancy, each named evidence family, each capacity read) against what actually happened, not only the final TAKE/SKIP against the dollar outcome | **Let's Verify Step by Step** (Lightman et al. 2023) — §7 G14 | *"process supervision significantly outperforms outcome supervision."* Our sheets + oracle legs make every intermediate claim mechanically checkable, and D-037 already elicits them. We currently score only the final call |
+| **M11** | **EXPECTANCY OBJECTS AS FIRST-CLASS COLUMNS.** Each committed thesis carries explicit expectancies ("if this is a real low, the next N events show X"); these are computed forward as columns; **violation** is a typed event that feeds the veto stack and the exit trigger | **Klein RPD** (C2/C3), Kahneman & Klein p. 523 | Klein's own model routes a violated expectancy to *"Seek More Information / Reassess Situation"* — it halts the pipeline. This is the untried **model-mirror / event-grain exit** of D-046(a)/(c), given a mechanism. And the veto must be wired to the **expectancy**, never to stated confidence |
+| **M12** | **ELICITATION-INSTRUMENT UPGRADE.** Add two top-tier instruments to reader rounds: **limited-information tasks** (deliberately reduced sheets; measure which fields the reader demands back) and **constrained-processing tasks** (forced call in N seconds, or with only k evidence families). Adopt the **CDM six-step schema** and the **Decision Requirements Table** as the round's output format | **Hoffman et al. 1995** (B4), **CDM** (B3) | Measured efficiency ordering puts structured/contrived tasks at the top and think-aloud+protocol analysis at the **bottom** — and our post-mortem prose is the bottom instrument. Both new instruments can run on **already-tainted** sessions, so they cost almost nothing against the D-035 case budget |
+| **M13** | **LEARNER-AWARE TARGET RELAXATION (the λ schedule).** Never hand-relax an unlearnable expert rule. Construct the target as a coach's **hope action** — `argmax_a λ·score_student(a) − C(a)` — starting at **λ = 0** (pure outcome target) and tightening toward the reader as the student improves; equivalently, generalized distillation's imitation parameter `λ ∈ [0,1]` | **He, Daumé & Eisner 2012** (G10); **Lopez-Paz et al. 2016** (G9) | This is the **direct repair for the measured HF2 failure**: `E_opus_take` fired on 0/466, so the house hand-built `E_opus_soft`, an arbitrary relaxation that then hurt the fit. Two independent literatures — imitation learning and distillation theory — arrive at the same knob |
+| **M14** | **ε_l AS A STANDING DIAGNOSTIC.** Before spending reader budget on a transfer scheme, measure the approximation error of the student class w.r.t. the teacher: fit the GBT to predict the reader's own graded output **from student features only**. If that fit is poor, the judgment is not recoverable from the current feature set and the correct response is **more features**, not a better loss | **Lopez-Paz et al. 2016** ε_l (G9); **Vapnik & Vashist 2009** | Makes D-040's "presentation-before-architecture" law *measurable* and gives it a stopping rule. Also the cheapest possible pre-screen for the whole D-067(2) family |
+
+---
+
+## 9. BINDING SHORTLIST
+
+Ordered by expected value per unit of build cost, all subject to the standard dual-scored atlas screen.
+
+1. **`ε_l` recoverability probe (M14)** — one fit, no new reader data. Gates everything below it. If the reader's graded output is not predictable from student features, stop and fix features (D-040 presentation-before-architecture, now with a number).
+2. **Pairwise within-episode preference targets (G1/G2/G3/D8)** — the label family with the strongest and cleanest argument: session-level dollar level is an arbitrary offset, the difference-based loss makes it free, the loss is **robust to noisy labels by construction**, ties are first-class, and **LambdaMART means it is native to the GBT stack**. See §11 construction **T1**.
+3. **Gold-rectified surrogate estimation (M9, DSL/PPI)** — required before any panel-conditioned census statistic is quoted. Cheap, purely statistical, and it retroactively repairs the interpretation of every panel-derived number.
+4. **Vetoes as a jointly-trained rejector (G4)** — replaces the threshold-a-global-model veto stack with a consistent-surrogate `(scorer, rejector)` pair. Directly upgrades D-064(4); composes with the existing conformal-abstention plan as the guarantee layer.
+5. **Process supervision over the thesis (M10)** + **expectancy objects (M11)** — the two mechanisms that convert reader *prose* into checkable *columns*. M11 additionally attacks the open exit problem (D-046).
+6. **Judge-prediction as an AUXILIARY head with a screened λ (M13, G6/G9/F4)** — never primary (§10 C1). Screened for **negative transfer** per G8 before adoption.
+7. **Feature-expectation matching (D6)** as the low-cost first cut of the IRL family — computable from the existing ledger, no new reader round, no reward fitted, no identifiability problem. See §11 construction **T2** stage 1.
+8. **MaxEnt IRL reward under the one-position scheduler (D5/D7)** — the full construction, with the G12 identifiability caveat recorded and the D9 overoptimization stop-rule attached. See §11 **T2** stage 2.
+9. **Dawid–Skene / GLAD reliability + difficulty estimation (E6/E7)** — the estimator D-064(2) needs; also supplies the difficulty weights DISCRETIONARY_METHOD §13.7 currently sets by heuristic.
+10. **Elicitation-instrument upgrade (M12)** — limited-information and constrained-processing reader tasks; near-zero case-budget cost.
+11. **DAgger-shaped read routing (D2)** — formalizes D-064(7) and is the only mechanism in the sweep with a proof that it fixes distribution shift.
+
+**Explicitly NOT adopted:** raw call/action imitation as a primary target (§10 C1–C3); linear bootstrapping of the reader (§10 C1); any human-in-the-loop assistant overlay (§10 C8); Aiman-Smith policy-capturing procedure (unverified, deferred).
+
+---
+
+## 10. WHERE THE LITERATURE CONTRADICTS OUR CURRENT DESIGN — bluntly
+
+**C1. "Models of judges beat judges" does not apply to us. Every measured moderator points the wrong way.**
+Karelaia & Hogarth define bootstrapping advantage as `G·R_e − r_a`, which with `C = 0` equals
+**`G·R_e·(1 − R_s)`** — *proportional to the judge's inconsistency*. They then regress that advantage on
+task and judge characteristics and find, verbatim, that it *"is larger when: (1) **cues are given (vs.
+achieved)**; (2) **redundancy is lower** (vs. higher); (3) **judges initially have less expertise**; and (4)
+**judges do not have the possibility of acquiring additional expertise through learning**"*, plus
+*"larger in laboratory as opposed to field studies"*, larger when the environment is **more predictable**
+(positive `R_e` coefficient), larger when judges are **less consistent** (negative `R_s` coefficient), and
+larger when the **non-linear component `C` is smaller**. Our case: cues are **achieved** (the reader infers
+them from raw events), redundancy is **high**, the judge is the **expert**, it **does** learn walk-forward
+(D-034/D-058), the setting is **field**, the environment is **low-predictability**, an LLM on a fixed sheet
+is **highly consistent**, and the judgment is **strongly non-linear** (vetoes are non-compensatory).
+**Eight for eight against.** Their own explanation, verbatim: *"bootstrapping may be less advantageous
+than clinical judgment when judges possess more expertise … precisely because expertise may allow
+judges to integrate in their judgments **non-linear elements that cannot be captured otherwise by a
+model of the judge**."* Kaufmann & Wittmann put a number on the expertise moderator: **Δ = .03 for
+experts vs .12 for novices**. Goldberg's own founding result has the same shape — 86% of models beat
+their clinician, but typical judge `r = .28` against typical model `r = .31`, while the actuarial formula
+fitted to **outcomes** scored `.44`.
+*The one honest mitigation:* every one of these moderators was measured for **linear** models of judges.
+A GBT is non-linear, which relieves moderator (8) specifically. That is a real difference and it is the
+only ground on which a judge-target family survives — but it is a hypothesis, not a result, and it must
+be screened, not assumed. **D-067(2)'s "auxiliary only, never primary" is correct and this sweep
+strengthens it.**
+
+**C2. Armstrong's chapter rules our case out of the bootstrapping lane in one sentence.**
+Verbatim: *"Bootstrapping can be useful when historical data on the variable to be forecast are lacking
+or of poor quality; **otherwise, econometric models should be used**."* And: *"When data are available for
+the dependent variable, one would expect that an econometric model would be **more accurate** than a
+bootstrapping model."* We have 625+ sessions of realized dollar outcomes. Also: *"Bootstrapping has been
+used primarily for **cross-sectional** prediction problems. There has been **little study of its use with
+time-series data**."* Our problem is neither cross-sectional nor stationary.
+
+**C3. D-064(6) "agreement-filtered distillation" is under-specified in a way the house has already
+measured as harmful, and it has no bias correction.**
+HF2 is the receipt: agreement-weighting moved segment-e top-3 from **$1,598/day to $1,217/day**. The
+mechanism the literature names is that the *strict* reader rule was outside the model's reachable set
+(0/466 fires) and the *hand-relaxed* proxy was a different object. The fix is **M13's learner-aware λ
+schedule**, not a differently-tuned hand relaxation. Separately, every census statistic conditioned on
+panel agreement is a **surrogate-label estimate with no rectifier** (M9) and is biased by construction —
+this affects numbers already in the record, not just future ones.
+
+**C4. Our study-block feedback design is the kind the learning literature says does not work.**
+Karelaia & Hogarth's meta-analysis of lens-model learning studies concludes, verbatim: *"**Neither
+outcome nor cognitive feedback helps to learn.**"* What does help, verbatim: *"the availability of **task
+information** magnifies the effect of learning"* — and *"the most effective form of feedback is
+information about the task."* Balzer, Doherty & O'Connor 1989 reach the same conclusion independently
+(TI, not CI or FVI, drives improvement). D-037's protocol supplies **outcome feedback** (unblind the
+case) and **cognitive feedback** (thesis vs reality) and supplies **task information only incidentally**.
+**Concrete correction: each era's STUDY block should OPEN with that era's measured census — the
+cue→outcome relationships actually present in this regime — before any case is read.** We generate
+exactly this artefact already (D-052 relevance census, D-055 slice mining, family censuses); we simply
+do not hand it to the reader. This is the cheapest protocol change in the sweep and it is well supported.
+*Scope caveat:* the meta-analysis is dominated by multiple-cue probability learning tasks; the authors
+also note *"positive effects of learning are especially notable in naturalistic environments, such as
+field studies"*, so this is a redesign of the feedback, not an argument against the study block.
+
+**C5. Two independent authorities put our domain in the low/zero-validity bucket.**
+Kahneman & Klein 2009, verbatim: *"To a good approximation, predictions of the future value of
+individual stocks and long-term forecasts of political events are made in a **zero-validity
+environment**."* Shanteau's poor-performance list opens with **stockbrokers**. Our defence — that the
+house object is short-horizon microstructural extreme *confirmation* with rapid, unambiguous,
+dollar-denominated feedback, i.e. Kahneman & Klein's explicitly-allowed *"both highly valid and
+substantially uncertain"* cell — is reasonable but is **a claim**. The per-era blind lift curve
+(D-059 item 6) is its only evidence, and one 1.58× exam is one datapoint.
+
+**C6. The only large-scale live precedent for encoding traders into an algorithm is a failure with
+numbers.** BlueCrest's RMT captured **~53%** of its 70–80% target P&L, underperformed by **~$25M/month**,
+and per the SEC *"generated significantly less profit with greater volatility than the live traders"* it
+copied — with the dominant loss channel being **execution latency**, not modelling error, and acute
+failure at regime breaks. This does not bar our design (we are not cloning actions), but it does mean
+the burden of proof sits on us, and it independently elevates the execution micro-timer
+(DISCRETIONARY_METHOD §13.3) from a nice-to-have to a first-order line item.
+
+**C7. D-056's "ALL owned data goes into the views" is safe for a reader and NOT safe for an imitation
+target.** de Haan et al., verbatim: *"**access to more information can yield worse performance**."* The
+canonical offender is a feature downstream of the demonstrator's own prior action. Our roster has
+several: occupancy state, candidate age since last take, prior-test outcome per level (D-050(d)/§12.3
+test-sequence chaining). Under any judge- or oracle-derived target these are **causal-confusion
+candidates**, they *reduce* training loss while destroying live behaviour, and **the harm is invisible in
+backtest** because backtest samples the demonstrator's own distribution. Required: a **feature-provenance
+check** marking every column that is downstream of a prior decision, and exclusion of those columns from
+judge-derived targets unless an intervention-style test clears them.
+
+**C8. A model-plus-human overlay is not automatically additive, and can be net-negative.** Lehman et al.:
+within-radiologist sensitivity **fell** with the CAD assistant, **OR 0.53 (95% CI 0.29–0.97)**. D-040
+already bars LLMs from live decisions; this is the evidence that the bar is right, and it bars any future
+"reader reviews the model's picks" proposal absent a measured test.
+
+**C9. IRL reward identifiability degrades precisely under our constraint.** Schlaginhaufen &
+Kamgarpour: identifiability up to potential shaping *"may generally no longer hold … **in the presence of
+safety constraints**"*, and generalization to new dynamics/constraints requires the reward be
+*"identified up to a constant"*. Our expert operates under a hard one-position occupancy constraint.
+**Consequence: an IRL-inferred reward fitted under the current scheduler may not transfer to a changed
+scheduler** — a second book, a two-position variant, or a different asset. The IRL family must be
+validated **per scheduler configuration**, never assumed portable.
+
+**C10. Any judge-derived proxy has an interior optimum in optimization pressure.** Gao et al.:
+`R_RL(d) = d(α − β log d)` in `d = √KL`. Optimising the proxy past the turnover **monotonically destroys
+true performance**. Every preference/IRL-trained selector must be scored on **realized dollars across
+increasing optimization pressure**, with the turnover measured.
+
+**C11. Our highest-cost elicitation instrument is the literature's lowest-yield one.** Verbatim:
+think-aloud plus protocol analysis is *"one of the **least** efficient method of eliciting domain
+knowledge"*, at *"seven to ten hours"* of processing per hour of protocol. Our post-mortem prose is that
+instrument. The top-tier instruments — structured tasks, **limited-information** tasks,
+**constrained-processing** tasks, tough cases — are three-quarters unused. Compounding this, Ericsson's
+boundary is explicit: retrospective explanatory reports past **10–30 seconds** are *"inferences or
+confabulat[ions]"*. **The post-mortem is a hypothesis generator and must never become a label, a weight,
+or a feature.** (D-020 already says this for case studies; it now has a citation and should be extended
+to the port's reader rounds verbatim.)
+
+---
+
+## 11. THE NEW LABEL-FAMILY CONSTRUCTIONS FOR THE ATLAS
+
+Three families, in the house composition style of `LABEL_ATLAS_V2` §1B
+(`label = compose(base, horizon, truncation, penalty, transform)`), enumerable as written. All three are
+**D-067(2) families** and all three enter through the standard dual-scored screen — Stage A ranked by the
+ENTRY BAR's rank block, never by a label's own loss. **T1 is buildable today from outcomes alone; T2's
+stage 1 is buildable from the existing ledger; T3 requires panel data and is gated on it.**
+
+### T1 — `pref` : PAIRWISE WITHIN-EPISODE PREFERENCE
+
+**Target definition.** For each comparison group `g` (a session, or an episode per D-065), enumerate
+ordered candidate pairs `(i, j)` with `i, j ∈ g`. The label is
+`S_ij ∈ {+1, 0, −1}` with `P̄_ij = ½(1 + S_ij)`, trained under the Bradley–Terry / RankNet cross-entropy
+`C_ij = −P̄_ij log σ(s_i − s_j) − (1 − P̄_ij) log(1 − σ(s_i − s_j))`, i.e. the native
+`rank:pairwise` / `lambdarank` objective of the existing GBT stack (G2). Ties are **retained**, not
+dropped: `S_ij = 0` gives a symmetric loss minimised at the origin (G1).
+
+**Why this and not pointwise dollars.** The session-level dollar level is an arbitrary additive offset
+that varies by era, vol regime and day-offer; a difference-based loss makes that offset free by
+construction and spends all capacity on the within-group ordering — which is exactly what the
+one-position scheduler consumes. The loss is also *"more robust than a quadratic loss"* for noisy labels.
+
+| axis | grid |
+|---|---|
+| `comparator` (what defines "better") | `net` (terminal net cents at the mark) · `cert` (certificate dollars) · `mfe` · `retention` (net/mfe) · `mae_pen` (net with the MAE penalty applied) · `gpc` (**prioritized hierarchy**, per atlas I5: bigger barrier → less adverse → faster) |
+| `group` (comparison scope) | `session` · `episode` (D-065) · `phase` · `level_family` · `rung` |
+| `margin` (tie band, in comparator units) | `m0` (strict) · `m_q10` · `m_q25` · `m_sd50` — pairs inside the band are labelled `S_ij = 0` |
+| `pair_sampling` | `all` · `topk_vs_rest` (k ∈ {3, 5}) · `stratified_by_clock` · `hard_only` (|Δ| in the lowest decile) |
+| `horizon` | `30m, 60m, 120m, close, best` (as §1B) |
+| `source` | **`outcome`** (comparator from realized dollars — buildable now) · **`panel`** (comparator from reader ordering — gated on panel data) · **`agree`** (pairs where outcome and panel order agree; the D-064(6) object, now as a *pair filter* rather than a sample weight) |
+
+Members ≈ 6 comparators × 5 groups × 4 margins × 4 samplings × 5 horizons × 3 sources, before the
+standard structural prunes (P4-analogue: `margin` and `hard_only` are both difficulty-shaping — at most
+one active; `gpc` is defined only on path-bearing horizons).
+**Ancestor:** the recovered **win-ratio / generalized pairwise comparisons** family, `LABEL_ATLAS_V2`
+§1I item **I5**, whose verdict was already ADD. T1 is I5 given its estimator (Bradley–Terry), its loss
+(RankNet), its GBT implementation (LambdaMART) and an episode-aware grouping axis.
+**Guards:** groups are formed **inside training folds only**; `source = panel` and `source = agree`
+members are subject to the D-009/blind-hygiene rule that no blind-round call enters the fitted path; the
+**effective-n correction for within-cluster correlation** mandated by D-066 applies to all pair-level
+inference.
+
+### T2 — `irl_sched` : SCHEDULER-CONDITIONED INFERRED REWARD
+
+**Target definition, two stages of increasing cost.**
+
+*Stage 1 — feature-expectation matching (buildable now, no reward fitted, no identifiability problem).*
+Per Abbeel & Ng (D6), compute the reader's realized **feature expectations** over its committed TAKE
+set, `μ_reader = mean over taken candidates of φ(s)`, where `φ` is the evidence-family occupancy vector
+(which families were live, at what grade). The label is per-candidate **`w_fe(i) = −‖φ(s_i) −
+μ_reader‖`** in a chosen metric, or equivalently a discrepancy score used as a training weight.
+Matching feature expectations is *sufficient for matching value under any linear reward* — so this
+captures the transferable part of the reader's policy **without ever fitting a reward**.
+
+*Stage 2 — MaxEnt IRL reward under the one-position scheduler.* Fit `θ` by maximum entropy over
+**session trajectories** (`P(ζ|θ) ∝ e^{θᵀ f_ζ}`, D7) where the trajectory space is restricted to
+**occupancy-feasible one-position schedules** (D-046). The label is the recovered per-candidate reward
+`r̂(i) = θᵀφ(s_i)`. MaxEnt is chosen specifically because it is built for *"noisy and imperfect"*
+demonstrations, which our reader demonstrably is (1.58× lift, 4.6% capture).
+**Ancestor:** the recovered **`shadow_value`** label — a candidate's dollar contribution to the optimal
+one-position schedule (DISCRETIONARY_METHOD §13.2, atlas synthesis). T2 is `shadow_value` with the
+*reader's* implied objective substituted for the oracle's dollars, which is precisely the HF3-safe
+version: **the reward is inferred from what the reader valued, not from a future-suffix-dependent action.**
+
+| axis | grid |
+|---|---|
+| `demonstrator` | `reader_takes` · `reader_takes_that_won` · `oracle_schedule` (control arm) · `model_v_current` (control) |
+| `feature_basis φ` | `evidence_families` (D-064(2) grades) · `capacity_gates` · `level_family × virgin × test_count` · `regime_state` (D-031) · `union` |
+| `scheduler` | `one_position` (D-046, the deployed shape) · `unconstrained` (control — measures how much the constraint binds) · `two_position` (**transfer probe for C9**) |
+| `estimator` | `fe_match` (stage 1) · `maxent` (stage 2) · `maxent_regularized` (ℓ2 on θ) |
+| `transform` | `raw, z (session-MAD), rank (within-session percentile), winsor` |
+| `horizon` | `60m, close` (schedule-bearing horizons only) |
+
+**Mandatory guards, both from this sweep:** (a) **C9 identifiability** — the `scheduler` axis exists
+precisely to measure non-transfer; if `one_position` and `two_position` recover materially different
+`θ`, the reward is scheduler-specific and must be refit per configuration, never ported. (b) **C10
+overoptimization** — every `irl_sched` arm is scored on **realized dollars at increasing optimization
+pressure**, and the turnover point is reported beside the headline. (c) Degeneracy check: an arm whose
+recovered `θ ≈ 0` or whose induced ordering is indistinguishable from the unconstrained dollar label is
+pruned as a D7 degenerate solution.
+
+### T3 — `judge_aux` : AUXILIARY JUDGE HEAD WITH A SCREENED λ
+
+**Target definition.** A **secondary** output trained jointly with the primary dollar/preference target
+under generalized distillation's objective
+`(1 − λ)·ℓ(y_i, f(x_i)) + λ·ℓ(s_i, f(x_i))`, with **λ ∈ [0,1] an explicit screened hyper-parameter and
+λ = 0 recovering pure outcome training** (G9). The auxiliary target `s_i` is **never the raw TAKE/SKIP
+call** (D-067(2), HF2). It is one of the reader's **component** outputs — which is exactly what Einhorn
+1972 says to elicit and what Hsieh et al. 2023 show transfers.
+
+| axis | grid |
+|---|---|
+| `aux_target` | `conviction` (graded soft score, not binary — F6) · `mechanism_class` (the D-064(8) mechanism label) · `expectancy_set` (M11: which forward expectancies the thesis asserts) · `evidence_grade` (per-family reliability-weighted grade, E6) · `difficulty` (GLAD item-difficulty / panel disagreement, E7) |
+| `λ` | `0.0 (control), 0.1, 0.25, 0.5` — **λ > 0.5 barred**: past the halfway point the judge dominates a target the literature says is worth ≈.03 (C1) |
+| `teacher` | `opus` · `panel_ds` (Dawid–Skene consensus with per-reader reliability) · `panel_majority` (control) |
+| `head_form` | `multi_output_gbt` · `two_model_shared_features` · `residual` (aux head predicts the primary head's error — the conformal/selective form, G5) |
+| `schedule` | `static_λ` · `coach_ramp` (M13: λ rises with student skill, starting at 0) |
+
+**Mandatory guards:** (a) **`ε_l` pre-screen (M14)** — if the aux target is not predictable from student
+features, no λ value helps and the arm is refused before it is fit. (b) **Negative-transfer screen
+(G8)** — an aux head that degrades the primary target's realized dollars is dropped; multi-task is not
+assumed cooperative. (c) **Never primary** — `judge_aux` may not be the ranked target of any promotion
+decision; that is D-067(2) and this sweep supplies no evidence to relax it. (d) Blind hygiene per HF2's
+own standard: no blind-round call is a label, weight, threshold or column anywhere in the fitted path.
+
+---
+
+## 12. OPEN GAPS AND UNVERIFIED ITEMS
+
+| item | status |
+|---|---|
+| **(learned reward) × (knapsack / one-position scheduler)** jointly | **No primary source found.** Brantley et al. 2020 covers knapsack-constrained RL with a *given* reward; Schlaginhaufen & Kamgarpour covers identifiability under constraints. The joint problem appears to be a genuine literature gap. T2 is therefore partly novel construction, and must be treated as such |
+| **Aiman-Smith, Scullen & Barr 2002** policy-capturing prescriptions | **UNVERIFIED** — every full-text route blocked. Deferred |
+| **Slovic 1969** stockbroker policy-capturing | **UNVERIFIED** — search metadata only |
+| **Camerer 1981** conditions | Bibliographic verified; abstract publisher-elided. The famous phrase is quoted only as Armstrong reports it |
+| **Shanteau 1992** primary text | Metadata verified; text not fetched. The stockbrokers finding is cited **as reported in Kahneman & Klein 2009 p. 522** |
+| **Karelaia & Hogarth** published means | Working-paper values used (259 env / 78 papers); published version is 249 env / 86 articles and carries an APA correction for transposed columns. Second decimal is provisional |
+| **Klein 1993** *Decision Making in Action* ch., p. 141 | Not fetchable; the three RPD variation names verified from a reproduced figure |
+| **Hoffman & Lintern 2006** propositions-per-minute figures | **UNVERIFIED**; only the efficiency *ordering* is verified — which is the load-bearing part |
+| **Cui & Pei 2026** (KD uncertainty propagation) | Unreviewed preprint; not load-bearing. Egami et al. carries the same warning peer-reviewed |
+| **Einhorn 1972**, **Vapnik & Vashist 2009**, **Grove et al. 2000** abstracts | Publisher-elided on metadata services; bibliographic records verified, key content sourced from fetched secondary quotation where noted |

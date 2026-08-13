@@ -26,7 +26,7 @@
 | M5 | TODO | — | — | — | entry-stage readiness certificate |
 | SHEETS-V4 | DONE | 2026-08-12 | sheets_v4/STREAM_RECEIPT.tsv | tree sha 5976402af8c28c37… (run1==run2) | D-042 certificate: 22,282 sheets x 2 runs, 14 blocks, 13 sections, 0 failures; SHEET_V4_MANIFEST.json; 3 census-path defects fixed red-first (2x VALID-ZERO, 1x never-computed d_fd_ratio) |
 | P-M0.0 | DONE | 2026-08-13 | — | D-048; design/PORT_M0_CENSUS_SPEC.md; approved plan | PORT program start: housekeeping (STATE/DIRECTIVES/INBOX cleared/spec frozen); IWM parked |
-| P-M0.1 | TODO | — | — | — | substrate: s0 inventory → s1 SI-2024 fingerprint gate → s2 decode → s3 sessions (spec §2-5) |
+| P-M0.1 | RUNNING | 2026-08-13 | m0/repro_si2024.receipt.json | engine/port_m0 commit 1ae2d256; s1 MATCH (FILEDATE/R1, 8/8 exact) | s0+s1 DONE (0 sha mismatches, 132 sealed refusals correct); s2/s3 driver port-m0-substrate running (~1.5h); CC-M0-1 adjudications blessed |
 | P-M0a | TODO | — | — | — | cost census: spread-to-offer per asset/phase (spec §6) |
 | P-M0b | TODO | — | — | — | offer re-census, symbology-correct, 3 assets × 2021-25 (spec §7) |
 | P-M0c | TODO | — | — | — | occupancy gate: G1 roster + walled certs + one-position DP ≥$2,500/day (spec §8) |

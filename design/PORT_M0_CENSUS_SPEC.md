@@ -45,10 +45,12 @@ Companion charter: DISCRETIONARY_METHOD.md §7–14. Gates and laws: D-019/D-021
 - ZigZag rungs `{0.075, 0.11, 0.15} × ATR14($)` each floored at `max(4 × tick_$, 2 × phase-local median
   spread_$)`; thresholds converted to price units and rounded HALF-UP to the tick grid.
 - ATR14: Wilder (seed = SMA of first 14 TRs) over Globex-session H/L/C of the session-dominant instrument's
-  valid mids; `TR_d = max(H−L, |H−C_prev|, |L−C_prev|)` with the `C_prev` terms DROPPED (TR = H−L) when the
-  instrument changed between sessions OR the prior session is not the immediately preceding calendar trading
-  day (weekend/holiday gap). CAUSAL: session d uses ATR14 through session d−1. Sessions with <100 valid grid
-  seconds contribute no bar (gap-skipped, same drop rule applies to the successor).
+  valid mids; `TR_d = max(H−L, |H−C_prev|, |L−C_prev|)` with the `C_prev` terms DROPPED (TR = H−L) ONLY when
+  (a) the instrument changed between sessions (roll basis is not price movement), or (b) the prior session in
+  the asset's own trading-day calendar is missing/gap-skipped (data gap). Normal weekends and holidays KEEP
+  `C_prev` — the Sunday-open gap is genuine price risk and belongs in TR (CC-M0-1.4). CAUSAL: session d uses
+  ATR14 through session d−1. Sessions with <100 valid grid seconds contribute no bar (gap-skipped, drop rule
+  (b) applies to the successor).
 - Decision-second = confirmation-second + 60 (D-033). DP tie-breaks: earlier decision-second first, then
   higher value, then lower instrument_id. Deterministic everywhere; no RNG anywhere in M0.
 
@@ -207,6 +209,21 @@ UTC-day↔session comparability delta, repro receipt echo, correlations, through
 per-trade vs per-day bind note (seated certs must average ≥~$1,050 gross for D-021+D-048 to co-hold).
 Byte-identity check B: c_a/c_b/c_c/c_d re-run on 2024-06 × one asset → identical output hashes.
 Orchestrator (not the lane) writes `PORT_M0_VERDICT.md` from this report (P-M0e decision table).
+
+## CC-M0-1 — orchestrator adjudications, 2026-08-13 (post s0/s1; all BLESSED, spec amended where noted)
+1. Day receipts gain `upd_count int32[n_instruments, 86400]` (needed by §5 session dominance + phase profiles). BLESSED.
+2. §4 grids are per-side: a side passing the guard keeps its value even when the other side fails (one-sided/
+   crossed books remain observable); `state` governs all census filtering. BLESSED (strictly more informative).
+3. Records whose ts_event UTC day falls outside the source file's declared range ("foreign-day", ~30 stale
+   snapshot records per SI file) are DROPPED and logged `FOREIGN_DAY_RECORDS_DROPPED` in integrity_flags —
+   these rows are explained-by-construction. (Repro mode §3 keeps the committed file-scoped behavior:
+   fingerprint bucketing = FILEDATE, the rule that reproduced all 8 numbers; receipt records the alternatives.)
+4. ATR `C_prev` rule disambiguated in §1: weekends/holidays KEEP C_prev; only rolls and data gaps drop it.
+5. `short_day` = observed two-sided span < 20h (no early-close calendar exists in the repo; observed-only).
+6. NY|Tokyo phase seed = modal observed session-close hour per (asset, year) — deterministic, data-derived.
+S1 VERDICT: MATCH, rule FILEDATE/R1 (update-count winner, all instrument_ids, file-scoped day); all 8
+committed numbers exact; receipt m0/repro_si2024.receipt.json. Program-mode session dominance per §5 remains
+the outrights-only variant of R1.
 
 ## 11. LANE ACCEPTANCE CHECKLIST (all must hold before reporting done)
 1. s1 fingerprint MATCH receipt (or rc=2 stop escalated). 2. Byte-identity A and B receipts. 3. Yahoo

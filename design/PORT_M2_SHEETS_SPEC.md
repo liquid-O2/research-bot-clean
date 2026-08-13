@@ -123,3 +123,18 @@ candidate's row is committed; post-mortems obligatory for winners, big losers, a
 elsewhere. BLIND rounds: full days, every candidate a committed row before ANY unblinding, day-complete replay
 scoring (already law). The D-035 stratified/surprise-routed reads survive ONLY as unscored probes. The P-M2c
 warm-up is retro-labeled CALIBRATION PROBE (unscored) — its numbers are never quoted as performance.
+
+## CC-M2-4 — study/blind instrumentation amendments (orchestrator, 2026-08-14; BINDING for E1 onward)
+1. MECHANICAL BASELINES: every scored day is also replayed under frozen zero-intelligence policies
+   (EARLIEST-per-episode + value threshold; +P001-detector-only once censused). The reader's headline =
+   margin over the best mechanical baseline, day-paired, cluster-robust. Judgment must beat rules.
+2. FRESH-CONTEXT DAYS: each study/blind day runs in a fresh reader context; the ONLY carried knowledge =
+   committed ERA_NOTES + PATTERN_LEDGER (+ briefing). Uncommitted insight does not exist tomorrow — the
+   codification loop made mechanical.
+3. PROSPECTIVE PATTERN REGISTRATION: before each blind block the reader commits the pattern list it intends
+   to trade; blind attribution is prospective-only (post-hoc pattern claims are recorded but marked).
+4. CONVICTION CALIBRATION: A|B|C classes scored for monotone calibration per round; a calibrated grade is
+   the preferred judge-aux target (CC-M2-2.2g), an uncalibrated one disqualifies itself.
+5. COST-OF-INFORMATION LEDGER: per call, sections deep-read are logged; per-round section-value table
+   extends the ablation evidence and drives future sheet budgets.
+6. WITHIN-ROUND TREND: per-day scores reported in sequence per round (learning-curve / degradation watch).

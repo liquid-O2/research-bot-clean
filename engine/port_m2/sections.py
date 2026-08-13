@@ -8,6 +8,17 @@ Causality is not a convention here, it is a call: every session-clock read goes
 through Case.guard.sec / Case.guard.at_decision, every wall-clock read through
 AvailSeries.latest(guard).  A section that needs a datum it cannot lawfully see
 prints the typed-missing glyph and says WHY — it never prints a zero.
+
+REFUSED CONSISTENCY (V1.1, P-M2c defect D1).  The rule above extends down the
+derivation chain: ANY derived field whose inputs are refused is itself REFUSED —
+it prints the typed-missing glyph, it says which input was refused, and it is
+COUNTED in the sheet's certificate through `put.refuse(key, reason)`.  A band, a
+label, a flag or a ratio computed from a missing input is a fabricated number,
+and the warm-up found one live (`S9 ladder_position` asserting `below_q10` while
+every `move_ladder` quantile printed `.`).  Every site that turns numbers into a
+categorical answer is listed in the V1.1 sweep: S2.day_type_so_far,
+S3.COVERAGE(+exp_move_q50), S4.OR STATE, S9.move_ladder/ladder_position,
+S10.in_VA, S11.coverage%.
 """
 import bisect
 import datetime as dt
@@ -60,6 +71,23 @@ S6_MAX_FIT_PASSES = 12
 
 CLOCKNORM_SESSIONS = 60                   # spec §1 S5 "trailing 60-session"
 BIN_SECONDS = 1800                        # same-half-hour clock norm
+
+# S5 CLOCK-NORM SCALE FLOOR (V1.1, P-M2c defect D3).  The z column is
+# median/MAD already, but an unfloored MAD explodes on a near-degenerate clock
+# cell: the warm-up measured `trades/min z=+102.76` where the trailing
+# same-half-hour cell is almost constant.  The scale is therefore floored per
+# field at max(MAD, MAD_FLOOR_FRAC x |median|, field epsilon), where the field
+# epsilon is HALF THE MEASUREMENT QUANTUM of the quantity (sizes and counts are
+# integers; a spread cannot resolve below a tick).  A z whose scale came from
+# the floor carries a '~' suffix and is ORDINAL ONLY — never a threshold.
+MAD_FLOOR_FRAC = 0.05
+MAD_FLOOR_EPS = {"bid_sz": 0.5, "ask_sz": 0.5, "trades_per_min": 0.5,
+                 "abs_sflow_per_min": 0.5}   # spread_usd: half a tick, per case
+MAD_SCALE = 1.4826                        # MAD -> sd-equivalent
+
+# S7 REFILL-AFTER-TRADE (V1.1, P-M2c defect D2).  See _refill_after_trade.
+REFILL_WINDOW_SEC = 5
+REFILL_LOOKBACK_SEC = 300
 
 TMINUS_MARKS = (1800, 900, 300, 60, 0)
 FLOW_WINDOWS = (60, 300, 1800)
@@ -203,11 +231,28 @@ def clock_norm(case, bin_idx, field):
     return med, mad, len(vals)
 
 
-def _z(x, med, mad):
-    if not np.isfinite(x) or not np.isfinite(med) or not np.isfinite(mad) \
-            or mad <= 0:
-        return float("nan")
-    return (x - med) / (1.4826 * mad)
+def _mad_eps(case, field):
+    """Half the measurement quantum of a clock-norm field, in the field's own
+    units — the hard floor under the robust scale."""
+    if field == "spread_usd":
+        return 0.5 * case.tick_usd
+    return MAD_FLOOR_EPS.get(field, 0.0)
+
+
+def _z(x, med, mad, eps=0.0):
+    """Robust z with a FLOORED scale.  Returns (z, floor_binds).
+
+    scale = max(MAD, MAD_FLOOR_FRAC x |median|, eps); a near-degenerate clock
+    cell can drive MAD to zero (or to one tick), which turns an ordinary
+    observation into a z of +100 and invites exactly the threshold reading the
+    quantity cannot support.  `floor_binds` marks the value '~' on the sheet.
+    """
+    if not np.isfinite(x) or not np.isfinite(med) or not np.isfinite(mad):
+        return float("nan"), False
+    scale = max(mad, MAD_FLOOR_FRAC * abs(med), float(eps))
+    if scale <= 0:
+        return float("nan"), False
+    return (x - med) / (MAD_SCALE * scale), bool(scale > mad)
 
 
 # ============================================================ S2 ============
@@ -256,7 +301,12 @@ def s2_regime(case, put):
                     " = " + MC.fnum(100.0 * frac, 1, 1).strip()
                     + "% of range_hat"))
     put("S2.range_so_far_usd", spent, case.session_path, "g0_mid[SANE,<dec]")
-    put("S2.day_type_frac", frac, "derived", "range_so_far/range_hat")
+    if np.isfinite(frac):
+        put("S2.day_type_frac", frac, "derived", "range_so_far/range_hat")
+    else:
+        put.refuse("S2.day_type_frac",
+                   "range_hat REFUSED in the fvol receipt: day_type_so_far "
+                   "cannot be derived")
 
     m = case.s.meta
     L.append(MC.row("  dominance", "dom_share=" + MC.fnum(m.get("dominant_share"), 6, 4).strip(),
@@ -347,20 +397,38 @@ def s3_path(case, put):
     spent_p = usd(case, hl_p[0] - hl_p[2]) if hl_p else float("nan")
     q50_p = _q50(case.fvol_seg)
     src = (case.fvol_sess or {}).get("sigma_source", MC.NA)
+    # REFUSED CONSISTENCY (V1.1 / P-M2c D1): COVERAGE and unspent are DERIVED
+    # from exp_move_q50.  When the fvol row carries no move_q50 the whole line
+    # is refused, counted, and says so — a `.` with no reason is what sent the
+    # warm-up reader looking for a band the receipt never had.
     for nm, sp, q in (("SESSION", spent_s, q50_s),
                       (X.PHASE_NAMES[case.phase_dec], spent_p, q50_p)):
-        cov = sp / q if (np.isfinite(q) and q > 0) else float("nan")
+        ok = np.isfinite(q) and q > 0
+        cov = sp / q if ok else float("nan")
         L.append(MC.row("  COVERAGE", MC.fstr(nm, 8),
                         "range_so_far=$" + MC.fnum(sp, 1, 1).strip(),
                         " exp_move_q50=$" + MC.fnum(q, 1, 1).strip(),
                         " COVERAGE=" + MC.fnum(100.0 * cov, 1, 1).strip() + "%",
-                        " unspent=$" + MC.fnum(q - sp, 1, 1).strip()))
-        put("S3.coverage_%s" % nm, cov, "derived",
-            "SANE range so far / (move_q50_usd_per_sigma * sigma_hat_usd)")
+                        " unspent=$" + MC.fnum(q - sp, 1, 1).strip(),
+                        "" if ok else
+                        "  REFUSED: no move_q50_usd_per_sigma in the fvol "
+                        "receipt (sigma_source=%s)" % src))
+        if ok:
+            put("S3.coverage_%s" % nm, cov, "derived",
+                "SANE range so far / (move_q50_usd_per_sigma * sigma_hat_usd)")
+        else:
+            put.refuse("S3.coverage_%s" % nm,
+                       "exp_move_q50 REFUSED in the fvol receipt "
+                       "(sigma_source=%s)" % src)
     L.append(MC.row("  fvol_source", MC.fstr(src, 16),
                     "(ATR14_RAW_FILL = forecaster fell back to raw ATR14)"))
-    put("S3.exp_move_q50_session_usd", q50_s, case.fvol_path,
-        "move_q50_usd_per_sigma*sigma_hat_usd [SESSION]")
+    if np.isfinite(q50_s):
+        put("S3.exp_move_q50_session_usd", q50_s, case.fvol_path,
+            "move_q50_usd_per_sigma*sigma_hat_usd [SESSION]")
+    else:
+        put.refuse("S3.exp_move_q50_session_usd",
+                   "move_q50_usd_per_sigma REFUSED in the fvol receipt "
+                   "(sigma_source=%s)" % src)
 
     # causal ZigZag pivots, all four rungs, tagged
     piv = _pivots(case)
@@ -427,6 +495,60 @@ def _pivots(case):
 
 
 # ============================================================ S4 ============
+_OR_CACHE = {}
+
+
+def _or_window(case, seg, minutes):
+    """(OR_high, OR_low, close_sec) of one (segment, OR-minutes) cell, rebuilt
+    with b3_levels' OWN construction so the sheet and the ledger cannot drift.
+    close_sec is the second the OR_EXT levels are BORN."""
+    key = (case.asset, int(case.d8), seg, int(minutes))
+    if key not in _OR_CACHE:
+        if len(_OR_CACHE) > 600:
+            for k in list(_OR_CACHE)[:200]:
+                _OR_CACHE.pop(k, None)
+        _OR_CACHE[key] = B3.or_range(case.s, seg, int(minutes))
+    return _OR_CACHE[key]
+
+
+def _phase_open_sec(s, name):
+    w = np.nonzero(s.phase_tag == X.PHASE_NAMES.index(name))[0]
+    return int(w[0]) if w.size else -1
+
+
+def _level_birth_sec(case, fam, lid, dyn):
+    """Session second at which a ledger level BEGINS TO EXIST (-1 = never).
+
+    P-M2c defect D4, root cause.  levels_v4 is written per SESSION and stores
+    no `active_from`, so S4 was rendering EVERY row of the ledger regardless of
+    when its source came into being.  Most families are born at second 0 (they
+    are prior-session objects), but two are not:
+
+      * OR_EXT  — born when its segment's opening range CLOSES.  A TOKYO-phase
+        decision was therefore shown LONDON|OR30 and NY|OR30 prices built from
+        ranges that had not happened yet: not "unlabelled prior-day values" as
+        the warm-up reader charitably assumed, but same-session FORWARD data.
+      * the dynamic families (VWAP, DEV_POC) — the stored price is the series
+        value at the scope's first second, so a phase-scoped VWAP carries that
+        phase's opening VWAP, again forward for an earlier-phase decision.
+
+    The birth second is recomputed here from the session itself and every level
+    goes through case.guard.sec, so the causality audit stays one grep.
+    """
+    parts = str(lid).split("|")
+    if fam == "OR_EXT":
+        if len(parts) == 5 and parts[2].startswith("OR"):
+            return int(_or_window(case, parts[1], int(parts[2][2:]))[2])
+        return -1
+    if int(dyn):
+        if fam == "DEV_POC":
+            ds = None if case.profile is None else case.profile.get("dev_sec")
+            return int(ds[0]) if ds is not None and len(ds) else -1
+        if len(parts) >= 2 and parts[1] in X.PHASE_NAMES:
+            return _phase_open_sec(case.s, parts[1])
+    return 0
+
+
 def s4_levels(case, put):
     L = ["S4 LEVEL LEDGER VIEW"]
     if case.levels is None:
@@ -488,8 +610,19 @@ def s4_levels(case, put):
                 pending[row] = True
                 n_pending += 1
 
+    # LEVEL BIRTH GUARD (V1.1 / P-M2c D4): a level that does not exist yet at
+    # the decision second is not shown at all.
+    dyn = z["dynamic"]
+    born = np.array([_level_birth_sec(case, str(fam[r]), str(lid[r]),
+                                      int(dyn[r])) for r in range(n)],
+                    dtype=np.int64)
+    alive = np.array([bool(born[r] >= 0
+                           and case.guard.sec(int(born[r]), "S4 level birth"))
+                      for r in range(n)], dtype=bool)
     dist = (lpx - mid)
-    sel = np.nonzero(np.isfinite(lpx) & (np.abs(dist) <= band))[0]
+    in_band = np.isfinite(lpx) & (np.abs(dist) <= band)
+    n_unborn = int(np.sum(in_band & ~alive))
+    sel = np.nonzero(in_band & alive)[0]
     order = sorted(sel.tolist(), key=lambda r: (abs(float(dist[r])),
                                                 str(fam[r]), str(lid[r])))
     n_show = 12
@@ -500,6 +633,7 @@ def s4_levels(case, put):
                     " n_levels=" + str(n),
                     " n_touches=" + str(n_touch_causal),
                     " n_pending=" + str(n_pending),
+                    " n_not_yet_born=" + str(n_unborn),
                     " K=kept/r=retired family"))
     L.append("    K family         level_id                        price      d$  V  tc  test_m outcome")
     for r in order[:n_show]:
@@ -561,33 +695,51 @@ def s4_levels(case, put):
         cells.setdefault(p[1] + "|" + p[2], {}).setdefault(
             p[4], {})[float(p[3][1:])] = float(lpx[r])
     if cells:
-        L.append("  OR STATE (opening range per adopted CC-M1-6.1 cell; "
-                 "k-extension ladder in the ledger above)")
-        L.append("    cell            OR_H       OR_L    range$   d$_to_H   d$_to_L  k_ladder")
+        # STATE PER CELL (V1.1 / P-M2c D4).  levels_v4 is SESSION-scoped, so
+        # every OR cell in it belongs to TODAY — including the phases that have
+        # not opened yet at the decision second.  Those cells are REFUSED (not
+        # relabelled): their ranges are same-session forward data.  The state
+        # column exists so no reader ever has to infer this from the clock.
+        L.append("  OR STATE (opening range per adopted CC-M1-6.1 cell, THIS "
+                 "session; state=TODAY once the OR window has closed before "
+                 "the decision second, NOT_OPEN = REFUSED, never prior-day)")
+        L.append("    cell            state     as_of         OR_H       OR_L"
+                 "    range$   d$_to_H   d$_to_L  k_ladder")
         for cname in sorted(cells):
+            seg, orm = cname.split("|")
+            t1 = int(_or_window(case, seg, int(orm[2:]))[2]) \
+                if orm.startswith("OR") else -1
+            known = t1 >= 0 and case.guard.sec(t1, "S4 OR window close")
             up = cells[cname].get("+1", {})
             dn = cells[cname].get("-1", {})
             ks = sorted(set(list(up) + list(dn)))
             orh = orl = rng = float("nan")
-            if len(up) >= 2:
-                k1, k2 = sorted(up)[:2]
-                rng = (up[k2] - up[k1]) / (k2 - k1)
-                orh = up[k1] - k1 * rng
-            if len(dn) >= 2:
-                k1, k2 = sorted(dn)[:2]
-                r2 = (dn[k1] - dn[k2]) / (k2 - k1)
-                orl = dn[k1] + k1 * r2
-                if not np.isfinite(rng):
-                    rng = r2
+            if known:
+                if len(up) >= 2:
+                    k1, k2 = sorted(up)[:2]
+                    rng = (up[k2] - up[k1]) / (k2 - k1)
+                    orh = up[k1] - k1 * rng
+                if len(dn) >= 2:
+                    k1, k2 = sorted(dn)[:2]
+                    r2 = (dn[k1] - dn[k2]) / (k2 - k1)
+                    orl = dn[k1] + k1 * r2
+                    if not np.isfinite(rng):
+                        rng = r2
             L.append(MC.row("   ", MC.fstr(cname, 14),
-                            MC.fnum(orh, 9, 4), MC.fnum(orl, 10, 4),
+                            MC.fstr("TODAY" if known else "NOT_OPEN", 9),
+                            MC.fsec(t1) if t1 >= 0 else MC.fstr(MC.NA, 8),
+                            MC.fnum(orh, 10, 4), MC.fnum(orl, 10, 4),
                             MC.fnum(usd(case, rng), 9, 1),
                             MC.fnum(usd(case, mid - orh), 9, 1),
                             MC.fnum(usd(case, mid - orl), 9, 1),
                             MC.fstr(",".join("%g" % k for k in ks), 20)))
-            put("S4.or_%s_range_usd" % cname.replace("|", "_"),
-                usd(case, rng), case.levels_path,
-                "recovered from the OR_EXT k-ladder level prices")
+            key = "S4.or_%s_range_usd" % cname.replace("|", "_")
+            if known:
+                put(key, usd(case, rng), case.levels_path,
+                    "recovered from the OR_EXT k-ladder level prices")
+            else:
+                put.refuse(key, "the %s opening range closes at %s, after the "
+                                "decision second" % (cname, MC.fsec(t1).strip()))
     else:
         L.append("  OR STATE         none built for this asset/session "
                  "(CC-M1-6.1 adopted cells: SI 5, NKD 1, HG 0)")
@@ -599,8 +751,10 @@ def s4_levels(case, put):
 
 # ============================================================ S5 ============
 def s5_tminus(case, put):
-    L = ["S5 T-MINUS TRAJECTORY (z = vs trailing-%d-session same half-hour)"
-         % CLOCKNORM_SESSIONS]
+    L = ["S5 T-MINUS TRAJECTORY (z = (NOW-med)/(%g*MAD) vs the trailing-%d-"
+         "session same half-hour; MAD floored at max(%d%% of med, half a "
+         "quantum); '~' = floor binds, ORDINAL ONLY)"
+         % (MAD_SCALE, CLOCKNORM_SESSIONS, int(100 * MAD_FLOOR_FRAC))]
     s = case.s
     tr = case.trades
     marks = [case.dec_sec - m for m in TMINUS_MARKS]
@@ -624,11 +778,21 @@ def s5_tminus(case, put):
             cells.append(MC.fnum(v, width, dec))
         zz = float("nan")
         nn = 0
+        floored = False
         if zfield is not None and np.isfinite(vals[-1]):
             med, mad, nn = clock_norm(case, bin_idx, zfield)
-            zz = _z(vals[-1], med, mad)
-        cells.append(MC.fnum(zz, 8, 2))
+            zz, floored = _z(vals[-1], med, mad, _mad_eps(case, zfield))
+            if not np.isfinite(zz) and nn:
+                put.refuse("S5.z_%s" % zfield,
+                           "clock-norm scale REFUSED (median/MAD undefined on "
+                           "%d trailing same-half-hour sessions)" % nn)
+        # 7 digits + the marker column keeps the z cell 8 wide either way
+        cells.append(MC.fnum(zz, 7, 2) + ("~" if floored else " "))
         cells.append(MC.fint(nn, 4) if zfield else MC.NA.rjust(4))
+        if zfield is not None and floored:
+            put("S5.z_floor_binds.%s" % zfield, 1, "derived",
+                "scale = max(MAD, %g*|med|, half-quantum) > MAD"
+                % MAD_FLOOR_FRAC)
         L.append(MC.row(*cells))
 
     L.append(MC.row(MC.fstr("  quantity", 16),
@@ -880,6 +1044,91 @@ def _digest_line(case, ev, tag, flow, a, b):
 
 
 # ============================================================ S7 ============
+def _refill_after_trade(ev, lo, hi, window_ns=REFILL_WINDOW_SEC * 10 ** 9):
+    """L1 REFILL AFTER A TRADE, measured on the MBP-1 event grain.
+
+    WHY THIS IS NOT THE OBVIOUS THING (P-M2c defect D2).  The V1 constructor
+    compared the traded side's L1 size at the trade record against the record
+    before it and required a DROP.  On this tape that condition is never true:
+    a DBN/MDP-3 `T` record is the trade PRINT and does not itself apply the
+    book update — the resting size comes off on the FOLLOWING `C`/`M` record.
+    Measured on SI 20210701: 24,258 of 24,259 trades show an unchanged L1 size
+    at their own record (the one exception is -5), which is exactly why
+    `n_refilled_5s` was identically 0 on all 24 warm-up sheets, at every trade
+    density, on all three assets.
+
+    THE DEFINITION (V1.1).  A trade EVENT is a maximal run of consecutive `T`
+    records sharing one timestamp and one aggressor side (a sweep is one
+    event).  Let P = the traded side's L1 price and pre = its L1 size at the
+    record BEFORE the run.  The event is MEASURABLE once the book actually
+    reacts inside the window: either the L1 size at P falls below pre, or the
+    L1 price leaves P (the queue was consumed).  It REFILLED if, within
+    `window_ns` of the trade and after that reaction, a record shows the traded
+    side back at price P with size >= pre.  Trades that never move the book
+    (implied/other-book fills) are NOT measurable and are excluded from the
+    denominator rather than counted as failures to refill.
+
+    MBP-1 LIMIT, ON RECORD: this measures the L1 QUEUE at a price, not orders.
+    A refill by a new participant and a re-post by the same one are
+    indistinguishable at this depth, and nothing behind the top of book is
+    visible at all.  The quantity is a defense-of-the-level statistic.
+    """
+    out = {"n_events": 0, "n_measurable": 0, "n_refilled": 0, "n_no_react": 0,
+           "n_swept": 0, "restore_ms": [], "frac": float("nan"),
+           "median_restore_ms": float("nan")}
+    if hi <= lo:
+        return out
+    ts = ev["ts_ns"]
+    act = ev["action"]
+    side = ev["side"]
+    k = lo
+    while k < hi:
+        if act[k] != ord("T"):
+            k += 1
+            continue
+        sd = chr(int(side[k]))
+        j = k + 1                          # the run: same ts, same side
+        while j < hi and act[j] == ord("T") and ts[j] == ts[k] \
+                and side[j] == side[k]:
+            j += 1
+        k0, k1 = k, j - 1
+        k = j
+        if sd not in ("A", "B") or k0 == lo:
+            continue                       # no aggressor side / no pre-record
+        out["n_events"] += 1
+        pxcol, szcol = (("bid_px", "bid_sz") if sd == "A"
+                        else ("ask_px", "ask_sz"))   # aggressor A hits the bid
+        P = int(ev[pxcol][k0 - 1])
+        pre = int(ev[szcol][k0 - 1])
+        if pre <= 0:
+            continue
+        end = int(np.searchsorted(ts, int(ts[k1]) + window_ns, side="left"))
+        end = min(end, hi)
+        seg_px = ev[pxcol][k1 + 1:end]
+        seg_sz = ev[szcol][k1 + 1:end]
+        if seg_px.size == 0:
+            continue                       # window empty: nothing observable
+        at_p = seg_px == P
+        react = np.nonzero((at_p & (seg_sz < pre)) | (~at_p))[0]
+        if react.size == 0:
+            out["n_no_react"] += 1         # the book never moved: not a trade
+            continue                       # this constructor can speak about
+        out["n_measurable"] += 1
+        i0 = int(react[0])
+        if not at_p[i0]:
+            out["n_swept"] += 1
+        back = np.nonzero(at_p[i0 + 1:] & (seg_sz[i0 + 1:] >= pre))[0]
+        if back.size:
+            m = k1 + 1 + i0 + 1 + int(back[0])
+            out["n_refilled"] += 1
+            out["restore_ms"].append((int(ts[m]) - int(ts[k1])) / 1e6)
+    if out["n_measurable"]:
+        out["frac"] = out["n_refilled"] / float(out["n_measurable"])
+    if out["restore_ms"]:
+        out["median_restore_ms"] = float(np.median(out["restore_ms"]))
+    return out
+
+
 def s7_book(case, put):
     L = ["S7 BOOK/QUEUE STATE"]
     s = case.s
@@ -940,37 +1189,35 @@ def s7_book(case, put):
             put("S7.n_events_60s", n, "derived(events npz)", "count")
             put("S7.cancel_to_fill_60s", c2f, "derived", "n_cancel/traded_size")
 
-    # refill-after-trade: does the traded side's size recover within 5s?
-    lo = int(np.searchsorted(ts, (case.decision_ts - 300) * 10 ** 9,
-                             side="left"))
+    # refill-after-trade (V1.1 constructor — see _refill_after_trade)
+    lo = int(np.searchsorted(ts, (case.decision_ts - REFILL_LOOKBACK_SEC)
+                             * 10 ** 9, side="left"))
     hi = int(np.searchsorted(ts, dec_ns, side="left"))
-    n_tr = 0
-    n_ref = 0
-    rts = []
-    for k in range(lo, hi):
-        if ev["action"][k] != ord("T"):
-            continue
-        n_tr += 1
-        sd = chr(int(ev["side"][k]))
-        col = "bid_sz" if sd == "A" else "ask_sz"   # aggressor A hits the bid
-        if k == lo:
-            continue
-        before = int(ev[col][k - 1])
-        after = int(ev[col][k])
-        if after >= before:
-            continue
-        lim = int(np.searchsorted(ts, int(ts[k]) + 5 * 10 ** 9, side="left"))
-        w = ev[col][k + 1:min(lim, hi)]
-        if w.size and int(w.max()) >= before:
-            n_ref += 1
-            j = k + 1 + int(np.argmax(w >= before))
-            rts.append((int(ts[j]) - int(ts[k])) / 1e6)
-    L.append(MC.row("  refill_after_trade", "n_trades_300s=" + str(n_tr),
-                    " n_refilled_5s=" + str(n_ref),
-                    " frac=" + MC.fnum(n_ref / float(n_tr) if n_tr else float("nan"), 1, 3).strip(),
-                    " median_restore_ms=" + MC.fnum(float(np.median(rts)) if rts else float("nan"), 1, 1).strip()))
-    put("S7.refill_frac_300s", n_ref / float(n_tr) if n_tr else float("nan"),
-        "derived(events npz)", "size restored within 5s after a touch trade")
+    rf = _refill_after_trade(ev, lo, hi)
+    L.append(MC.row("  refill_after_trade",
+                    "n_trade_events_%ds=" % REFILL_LOOKBACK_SEC
+                    + str(rf["n_events"]),
+                    " n_measurable=" + str(rf["n_measurable"]),
+                    " n_refilled_%ds=" % REFILL_WINDOW_SEC
+                    + str(rf["n_refilled"]),
+                    " frac=" + MC.fnum(rf["frac"], 1, 3).strip(),
+                    " median_restore_ms="
+                    + MC.fnum(rf["median_restore_ms"], 1, 1).strip(),
+                    " (swept=" + str(rf["n_swept"])
+                    + " no_book_reaction=" + str(rf["n_no_react"]) + ")"))
+    L.append("    def: L1 size at the traded price back to its pre-trade level "
+             "within %ds; denominator = trades the book reacted to"
+             % REFILL_WINDOW_SEC)
+    if rf["n_measurable"]:
+        put("S7.refill_frac_%ds" % REFILL_LOOKBACK_SEC, rf["frac"],
+            "derived(events npz)",
+            "L1 size at the traded price restored within %ds / trade events "
+            "the book reacted to" % REFILL_WINDOW_SEC)
+    else:
+        put.refuse("S7.refill_frac_%ds" % REFILL_LOOKBACK_SEC,
+                   "no measurable trade event in the last %ds (n_events=%d, "
+                   "no book reaction at L1)"
+                   % (REFILL_LOOKBACK_SEC, rf["n_events"]))
     return L
 
 
@@ -1111,16 +1358,34 @@ def s9_vol(case, put):
            for q in ("q10", "q25", "q50", "q75", "q90")]
     L.append(MC.row("  move_ladder_$", *[MC.fstr("%s=%s" % (q, MC.fnum(v, 1, 0).strip()), 12)
                                          for q, v in lad]))
-    band = "below_q10"
+    # REFUSED CONSISTENCY (V1.1 / P-M2c D1): ladder_position is DERIVED from
+    # the ladder.  When the forecaster carried no quantiles for this row (the
+    # ATR14_RAW_FILL fallback publishes sigma_hat but no move_q*), the ladder is
+    # refused and so is every band read off it — the warm-up caught this field
+    # printing `below_q10` beside five `.` quantiles, and it is a term of P001.
+    ladder_ok = all(np.isfinite(v) for _q, v in lad) and np.isfinite(realized)
+    why = ("move_q*_usd_per_sigma REFUSED in the fvol receipt "
+           "(sigma_source=%s)" % (fs.get("sigma_source", MC.NA))
+           if not all(np.isfinite(v) for _q, v in lad)
+           else "realized segment range REFUSED (no SANE second in the segment)")
+    if ladder_ok:
+        band = "below_q10"
+        for q, v in lad:
+            if realized >= v:
+                band = "at_or_above_" + q
+        L.append(MC.row("  ladder_position", MC.fstr(band, 18),
+                        " (realized segment range vs the calibrated move ladder)"))
+        put("S9.ladder_position", band, case.fvol_path, "move_q*_usd_per_sigma")
+    else:
+        L.append(MC.row("  ladder_position", MC.fstr(MC.NA, 18),
+                        " REFUSED: " + why))
+        put.refuse("S9.ladder_position", why)
     for q, v in lad:
-        if np.isfinite(realized) and realized >= v:
-            band = "at_or_above_" + q
-    L.append(MC.row("  ladder_position", MC.fstr(band, 18),
-                    " (realized segment range vs the calibrated move ladder)"))
-    put("S9.ladder_position", band, case.fvol_path, "move_q*_usd_per_sigma")
-    for q, v in lad:
-        put("S9.move_%s_usd" % q, v, case.fvol_path,
-            "move_%s_usd_per_sigma*sigma_hat_usd" % q)
+        if np.isfinite(v):
+            put("S9.move_%s_usd" % q, v, case.fvol_path,
+                "move_%s_usd_per_sigma*sigma_hat_usd" % q)
+        else:
+            put.refuse("S9.move_%s_usd" % q, why)
 
     ev = case.events
     if ev is not None and ev["ts_ns"].size:
@@ -1165,7 +1430,15 @@ def s10_profile(case, put):
                         " VAH=" + MC.fnum(vah, 1, 4).strip(),
                         " VAL=" + MC.fnum(val, 1, 4).strip(),
                         " d_POC=$" + MC.fnum(usd(case, case.entry_mid - poc), 1, 1).strip(),
-                        " in_VA=" + ("1" if val <= case.entry_mid <= vah else "0")))
+                        # REFUSED CONSISTENCY (V1.1): in_VA is derived from the
+                        # VA edges — a missing edge is not "outside the area".
+                        " in_VA=" + ("1" if val <= case.entry_mid <= vah
+                                     else "0" if (np.isfinite(val)
+                                                  and np.isfinite(vah))
+                                     else MC.NA)))
+        if not (np.isfinite(val) and np.isfinite(vah)):
+            put.refuse("S10.in_value_area",
+                       "developing VAH/VAL REFUSED in the profile receipt")
         put("S10.dev_poc", poc, case.profile_path, "dev_poc_tick[%d]" % j)
         put("S10.dev_vah", vah, case.profile_path, "dev_vah_tick[%d]" % j)
         put("S10.dev_val", val, case.profile_path, "dev_val_tick[%d]" % j)
@@ -1274,9 +1547,12 @@ def s11_cross(case, put):
                         MC.fnum(100.0 * rng / q50 if (np.isfinite(q50) and q50) else float("nan"), 10, 1),
                         MC.fsec(fm) if fm is not None else MC.NA.rjust(8)))
         put("S11.%s_mid" % a, mid, oth["path"], "g0_mid[%d]" % osec)
-        put("S11.%s_coverage_pct" % a,
-            100.0 * rng / q50 if (np.isfinite(q50) and q50) else float("nan"),
-            "derived", "own range / own move_q50")
+        if np.isfinite(q50) and q50:
+            put("S11.%s_coverage_pct" % a, 100.0 * rng / q50, "derived",
+                "own range / own move_q50")
+        else:
+            put.refuse("S11.%s_coverage_pct" % a,
+                       "%s move_q50 REFUSED in the fvol receipt" % a)
     own = _first_move_sec(case.s, case.dec_sec)
     L.append(MC.row("   ", MC.fstr(case.asset, 5), MC.fint(case.dec_sec, 8),
                     MC.fnum(case.entry_mid, 10, 4),

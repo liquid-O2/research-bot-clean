@@ -97,7 +97,7 @@ def _sec_metrics(name, lines):
     return text, m
 
 
-def _s1_header(case, order, metrics, mode, phash, refusals):
+def _s1_header(case, order, metrics, mode, phash, refusals, refused_derived):
     """S1 renders LAST (it reports on the others) and is placed FIRST."""
     L = ["S1 HEADER"]
     L.append(MC.row("  cid", MC.fstr(case.cid, 26),
@@ -162,7 +162,15 @@ def _s1_header(case, order, metrics, mode, phash, refusals):
                     " n_sections=" + str(len(order) + 1),
                     " n_failed=" + str(n_fail),
                     " n_leak_refusals=" + str(len(refusals)),
+                    " n_refused_derived=" + str(len(refused_derived)),
                     " guard_checks=" + str(case.guard.checks)))
+    if refused_derived:
+        # V1.1: named, not just counted — the reader must know WHICH field is
+        # absent and why, on the face of the sheet.
+        L.append("  REFUSED DERIVED FIELDS (inputs refused; printed as '"
+                 + MC.NA + "')")
+        for e in refused_derived:
+            L.append(MC.row("   ", MC.fstr(e["key"], 26), e["reason"]))
     return L, n_fail
 
 
@@ -185,6 +193,7 @@ def build(cid, mode=MC.MODE_BLIND, with_appendix=False):
 
     sidecar_vals = []
     appendix_vals = []
+    refused = []
     sink = [sidecar_vals]
 
     def put(key, value, source, source_key):
@@ -198,6 +207,21 @@ def build(cid, mode=MC.MODE_BLIND, with_appendix=False):
                         "source": _rel(source),
                         "source_key": source_key})
 
+    def _refuse(key, reason):
+        """REFUSED-CONSISTENCY ACCOUNTING (V1.1, spec §2).
+
+        A derived field whose inputs are refused carries no value, prints the
+        typed-missing glyph, and is COUNTED here.  A refusal is LAWFUL — it does
+        not fail the certificate the way a missing section or a D-057 leak
+        refusal does — but it must be visible, because "how many of this sheet's
+        derived fields could not be computed" is a question the reader protocol
+        has to be able to answer per sheet and per corpus.
+        """
+        refused.append({"key": key, "reason": reason})
+        put(key, None, "derived(refused)", reason)
+
+    put.refuse = _refuse
+
     order = [s for s in MC.BLIND_SECTIONS if s != "S1"]
     body = {}
     metrics = {}
@@ -208,7 +232,7 @@ def build(cid, mode=MC.MODE_BLIND, with_appendix=False):
         metrics[name] = m
 
     s1_lines, n_fail = _s1_header(case, order, metrics, mode, phash,
-                                  case.guard.refusals)
+                                  case.guard.refusals, refused)
     s1_text, s1_m = _sec_metrics("S1", s1_lines)
     metrics["S1"] = s1_m
     if s1_m["over_budget"]:
@@ -250,6 +274,10 @@ def build(cid, mode=MC.MODE_BLIND, with_appendix=False):
         "n_failed_sections": n_fail,
         "n_leak_refusals": len(case.guard.refusals),
         "leak_refusals": [list(map(str, r)) for r in case.guard.refusals],
+        # V1.1: lawful refusals of DERIVED fields (inputs refused).  Counted,
+        # named, and NOT a certification failure — see _refuse.
+        "n_refused_derived": len(refused),
+        "refused_derived": list(refused),
         "guard_checks": case.guard.checks,
         "sections": {k: metrics[k] for k in sorted(metrics)},
         "sheet": total,

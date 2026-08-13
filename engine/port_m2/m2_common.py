@@ -196,13 +196,40 @@ def spec_sha():
     return C.sha256_file(SPEC_PATH)
 
 
-def verify_spec():
-    """M2 pins its own spec AND every upstream spec whose receipts it reads."""
+_VERIFIED = {}
+
+
+def verify_spec(force=False):
+    """M2 pins its own spec AND every upstream spec whose receipts it reads.
+
+    PIN-AT-LAUNCH (P-M2b): the check is performed once per PROCESS and then
+    memoised.  The workspace is shared with other lanes that edit and re-pin the
+    UPSTREAM specs (PORT_M1_SPEC §11 landed in the middle of a P-M2b render and
+    killed it at sheet 95/391).  A run must be verified against the pins it
+    started with, not race a concurrent editor mid-render; `force=True` (the
+    driver's start-of-run call) always performs the real check, and callers that
+    care re-check at the END through `pins_moved()`, which reports rather than
+    hides a mid-run move.
+    """
+    if _VERIFIED and not force:
+        return _VERIFIED["m2_spec_sha16"]
     got = spec_sha()[:16]
     if got != SPEC_SHA16:
         raise RuntimeError("M2 spec sha16 %s != frozen %s" % (got, SPEC_SHA16))
     M1.verify_spec_m1b()                 # pins PORT_M1B + PORT_M1 + PORT_M0
+    _VERIFIED.clear()
+    _VERIFIED.update(spec_shas())
     return got
+
+
+def pins_moved():
+    """Re-read every pinned spec; [] when the pins still hold at HEAD."""
+    out = []
+    try:
+        verify_spec(force=True)
+    except Exception as e:                # noqa: BLE001 — reported, not raised
+        out.append(str(e))
+    return out
 
 
 def spec_shas():

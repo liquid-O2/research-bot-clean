@@ -82,6 +82,7 @@ _CFG = {}
 def _init(cfg):
     global _CFG
     _CFG = cfg
+    MC.verify_spec(force=True)            # pin-at-launch, once per worker
     CTX.preload(MC.ASSET_ORDER)
 
 
@@ -190,7 +191,7 @@ def eligible_counts(era, block, assets):
 
 
 def run(args):
-    MC.verify_spec()
+    MC.verify_spec(force=True)
     t_start = time.time()
     params = _params(args)
     phash = MC.params_hash(params)
@@ -271,6 +272,7 @@ def run(args):
                              "max": int(max(toks)) if toks else 0},
             "appendix_tokens_total": int(sum(int(r[15]) for r in rows)),
             "out_root": os.path.join(MC.M2_ROOT, "era", era, args.block),
+            "pins_moved_during_run": MC.pins_moved(),
             "wall_sec": round(time.time() - t_start, 1),
         }
         MC.write_json(os.path.join(base, "build_%s.receipt.json" % args.block),

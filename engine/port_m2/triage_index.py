@@ -38,7 +38,8 @@ COLUMNS = (
     "trapped_above trapped_below phase_total thru_n thru_bid thru_ask "
     "rv60 rv300 rv900 rv1800 rv_collapse jump_frac vol_of_vol "
     "q10 q50 ladder_pos surprise ev_ratio "
-    "P001 P002 P003 P004 P005 P013 seat_score"
+    "mid mult room_phase ext_needed unspent_bind "
+    "P001 P002 P003 P004 P005 P013 P014 seat_score"
 ).split()
 
 
@@ -128,6 +129,8 @@ def parse_sheet(path):
             r["cov_phase"], r["pct_unspent_phase"] = _f(mm.group(2)), _f(mm.group(3))
     r["fvol_source"] = _search(r"fvol_source (\S+)", text)
     r["n_pivots"] = _search(r"n_pivots_total\s+(\d+)", text, cast=int)
+    r["mult"] = _search(r"mult=(\d+)", text, cast=_f)
+    r["mid"] = _search(r"entry mid=(\S+)", text, cast=_f)
 
     # exit: phase_close == session_close  =>  the hold runs to the session end
     m = re.search(r"exit_default phase_close@(\d\d:\d\d:\d\d)\s+\((\d+)s\)\s+"
@@ -266,6 +269,25 @@ def _derive(r):
     if ext is not None and r["sec"] is not None:
         r["extreme_age_trade_side"] = r["sec"] - ext
 
+    # A1 STRICT FORM (warmup #21): how much of the $1,000 bar lives INSIDE the
+    # phase range already, and how much range EXTENSION the bar therefore needs.
+    if r["mid"] is not None and r["mult"]:
+        ext = r["phase_H"] if side > 0 else r["phase_L"]
+        if ext is not None:
+            room = (ext - r["mid"]) * r["mult"] * side
+            r["room_phase"] = round(room, 1)
+            r["ext_needed"] = round(max(0.0, 1000.0 - room), 1)
+    # binding unspent: the session row also binds when the hold runs to the
+    # session end (P003), so the conservative reading is the smaller of the two
+    cand = [x for x in (r["pct_unspent_phase"],
+                        r["unspent_sess"] if r["exit_is_sess"] == 1 else None)
+            if x is not None]
+    r["unspent_bind"] = min(cand) if cand else None
+    # P014 CAPACITY_TO_BAR: the binding row's remaining expected move cannot
+    # reach the $1,000 bar however good the entry is (sharper than P002's 75%)
+    r["P014"] = int(bool(r["unspent_bind"] is not None
+                         and r["unspent_bind"] < 1000.0))
+
     # P002 A1_EXIT_SECOND_VETO — phase-close exit into a spent phase
     r["P002"] = int(bool(r["exit_is_sess"] == 0 and r["cov_phase"] is not None
                          and (r["cov_phase"] >= 75.0
@@ -324,6 +346,12 @@ def _derive(r):
     s -= 0.5 * (r["P013"] or 0)
     s -= 1.0 * (r["P002"] or 0)
     s -= 1.0 * (r["P003"] or 0)
+    # P014 is REPORTED, never weighted: it fires on 96% of HG/NKD candidates,
+    # and a flag that fires on 96% of the population cannot discriminate.
+    # The range-EXTENSION arithmetic (ext_needed) is the discriminating form
+    # (it is 0 on only ~12% of the day) and carries the weight instead.
+    if r["ext_needed"] is not None:
+        s -= min(1.5, r["ext_needed"] / 1000.0)
     r["seat_score"] = round(s, 3)
 
 

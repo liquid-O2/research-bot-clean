@@ -241,6 +241,19 @@ oracle->engine law. Outputs m1/family_discovery/ + FAMILY_DISCOVERY_REPORT.md.
 6. FD-defect dispositions: FD-1 settlement window = the m0 RTH close constant (blessed); FD-2 BOJ deferred;
    FD-3 handoff = 09:30 ET cash open (blessed); FD-4/5/6 lane pins blessed; FD-7 M1B pin fixed herewith.
 
+## CC-M1-8 — FD-8 horizon-confound ruling, 2026-08-13 (BINDING)
+1. The ADOPTION metric REMAINS the phase-close walled certificate: it matches the deployed exit posture
+   (D-019 hold-to-phase-close), so "entered with the phase still ahead" is REAL deployable edge, not an
+   artifact. The walled PEAK-EXIT certificate becomes a MANDATORY companion column in every family/slice
+   census henceforth — both readings always reported, divergences named.
+2. CC-M1-7.1 adoptions STAND (F-D2/F-D3 close-metric dollars are earned under the deployed exit), with the
+   diagnostic on record that part of their edge is horizon placement. F-D4 POST-SHOCK and F-D5 FIRST-TEST are
+   the signal-pure families (survive both readings) — noted for M2 feature prioritization.
+3. F-D1 FAST-CLOSE: retired as an ENTRY family (stands); its at-baseline peak-exit reading BANKS it as a
+   candidate EXIT-TIMING signal for the exit program (D-043 sequencing) — receipted, not deleted.
+4. Mined clock-cell edges carry the same split (~4x smaller at peak-exit) — reinforces CC-M1-7.4:
+   conditioning knowledge, not generators.
+
 ## 9. M1.B ARCHITECTURE SKETCH (frozen later; for orientation only)
 C++ generation (from §6 oracle) → path-skeleton/label tensor engine (LABEL_ATLAS_V2 §3-§4: ~200 ATR-scaled
 rungs/side first-passage tensors, fixed-shape, both hit times, `observed_bars==0` typing, prefix-max +

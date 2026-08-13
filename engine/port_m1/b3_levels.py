@@ -94,6 +94,15 @@ FAMILIES = ("FVOL_BAND", "FVOL_LADDER", "FVOL_LADDER_RS", "PRIOR_DAY",
             "PRIOR_WEEK", "NDAY", "PHASE_HL", "VWAP", "PROFILE", "DEV_POC",
             "ROUND")
 
+# --- CC-M1-6.1 OR_EXT (opening-range extension), adopted by the H/L census and
+# sequenced into the ledger by S1.1.  OPT-IN: OREXT_CELLS is None for every
+# ledger built before S1.1 (m1/levels, levels_v2, levels_v3 rebuild unchanged);
+# b10_levels_v4.py sets it to the six adopted cells.
+#   {asset: ((segment, or_minutes), ...)}
+OREXT_CELLS = None
+OREXT_K = (0.5, 1.0, 1.5, 2.0)   # = hl_census.P3_K, the censused ladder
+OREXT_FAMILY = "OR_EXT"
+
 PARAMS = {
     "spec_section": SECTION,
     "tolerance": "max(2 x tick_$, %.2f x ATR14_$) / mult" % TOL_ATR_FRAC,
@@ -184,16 +193,25 @@ def _fnum(r, k):
 # ============================================================ level builder ==
 class Level(object):
     __slots__ = ("key", "family", "price", "series", "active_from",
-                 "created_d8", "dynamic")
+                 "created_d8", "dynamic", "scope_phase", "session_scoped")
 
     def __init__(self, key, family, price, active_from=0, series=None,
-                 dynamic=False):
+                 dynamic=False, scope_phase=None, session_scoped=False):
         self.key = key
         self.family = family
         self.price = price
         self.series = series
         self.active_from = active_from
         self.dynamic = dynamic
+        # SEGMENT SCOPE (CC-M1-6.1): a level that only exists inside one phase.
+        # The H/L census's OR_EXT target is REST_OF_WINDOW|segment, so a TOKYO
+        # opening range says nothing about a New York price; carrying the scope
+        # on the level is what keeps the ledger's touch machine honest.
+        self.scope_phase = scope_phase
+        # SESSION SCOPE: an intraday object whose identity (creation date,
+        # virginity, touch count) must NOT persist across sessions even when
+        # tomorrow's construction lands on the same tick.
+        self.session_scoped = session_scoped
         self.created_d8 = 0
 
 
@@ -383,6 +401,57 @@ def build_levels(asset, s, trade_date, hist, fc, prof_prev, prof_cur, atr_usd):
                 for k in range(k0, k1 + 1):
                     out.append(Level("ROUND|%g|%g" % (g, k * g), "ROUND",
                                      k * g, 0))
+
+    # ------------------------------- (g) OR_EXT opening-range extensions -----
+    out.extend(orext_levels(asset, s))
+    return out
+
+
+def or_range(s, seg, minutes):
+    """(or_high, or_low, first_rest_sec) of one segment's opening range.
+
+    Deliberately the SAME construction the H/L census adopted
+    (hl_census.or_facts): the OR spans [first OBSERVED second of the segment,
+    +minutes x 60) and the level only exists once the range has closed AND the
+    segment still has seconds left (typed exclusion otherwise).  `s.valid` is
+    already the D-054 SANE view wherever the mask is installed, so this reads
+    sane mids by construction.  NaN/-1 whenever either side is empty.
+    """
+    p = X.PHASE_NAMES.index(seg)
+    idx = np.nonzero((s.phase_tag == p) & s.valid)[0]
+    nan3 = (float("nan"), float("nan"), -1)
+    if idx.size < 2:
+        return nan3
+    t1 = int(idx[0]) + int(minutes) * 60
+    a = idx[idx < t1]
+    b = idx[idx >= t1]
+    if a.size == 0 or b.size == 0:
+        return nan3
+    m = s.mid[a]
+    return float(m.max()), float(m.min()), t1
+
+
+def orext_levels(asset, s):
+    """CC-M1-6.1 OR_EXT levels for one session (empty unless OREXT_CELLS is on).
+
+    One level per (segment, or_minutes, k, side); price = OR_H + k x OR_range
+    (up) / OR_L - k x OR_range (down); active from the second the opening range
+    closes; SCOPED to its own segment and to this session.
+    """
+    cells = (OREXT_CELLS or {}).get(asset, ())
+    out = []
+    for (seg, minutes) in cells:
+        oh, ol, t1 = or_range(s, seg, minutes)
+        rng = oh - ol
+        if not (np.isfinite(rng) and rng > 0):
+            continue
+        p = X.PHASE_NAMES.index(seg)
+        for k in OREXT_K:
+            for sgn, px in ((+1, oh + k * rng), (-1, ol - k * rng)):
+                out.append(Level("%s|%s|OR%d|k%.1f|%+d"
+                                 % (OREXT_FAMILY, seg, minutes, k, sgn),
+                                 OREXT_FAMILY, px, t1, scope_phase=p,
+                                 session_scoped=True))
     return out
 
 
@@ -446,6 +515,20 @@ def _vwap_levels(asset, s):
 
 
 # ======================================================= the state machine ===
+def scope_diff(diff, phase_v, scope_phase):
+    """SEGMENT SCOPE: (mid - level) typed-excluded outside the level's phase.
+
+    Outside its own segment a scoped level DOES NOT EXIST: it can neither be
+    touched there nor arm there, and it cannot resolve a REJECT/BREAK/RECLAIM
+    there.  NaN is the exclusion (never 0, never +inf), because every consumer
+    downstream — touch_scan's near/far masks, the approach-side scan and
+    classify_touch's comparisons — treats a NaN second as unobserved.
+    """
+    if scope_phase is None:
+        return diff
+    return np.where(np.asarray(phase_v) == scope_phase, diff, np.nan)
+
+
 def touch_scan(dist, phase_v, active_from, tol):
     """§4 arm/touch state machine.  Returns (touch_positions, first_near_pos).
 
@@ -592,11 +675,13 @@ def _shard(args):
                     continue
                 series = None
                 diff = vm - L.price
+            diff = scope_diff(diff, phase_v, L.scope_phase)
             dist = np.abs(diff)
             af = int(np.searchsorted(vt, L.active_from, side="left"))
             if af >= vt.size:
                 continue
             rk = ((L.key, "DYN", d8) if L.dynamic
+                  else (L.key, "SES", d8) if L.session_scoped
                   else (L.key, round(float(L.price) / tick_px)))
             st = reg.get(rk)
             if st is None:
@@ -660,6 +745,9 @@ def _shard(args):
             for row, L in enumerate(kept):
                 if L.active_from > sec:
                     continue
+                if L.scope_phase is not None and \
+                        int(s.phase_tag[sec]) != L.scope_phase:
+                    continue        # out of its segment: not an active level
                 p_ = (float(L.series[j]) if L.dynamic else float(L.price))
                 if not np.isfinite(p_):
                     continue

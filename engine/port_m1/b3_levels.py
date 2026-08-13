@@ -502,6 +502,10 @@ def classify_touch(diff, secs, ti, app, tol, reject_move):
         c = np.nonzero(rl2 >= RECLAIM_HOLD)[0]
         if c.size:
             reclaim_sec = int(secs[j + 1 + int(c[0])])
+    if reclaim_sec >= 0:
+        # a broken level that is reclaimed resolves as RECLAIM: that is the
+        # test's final outcome, and §4's ledger field takes the three §6 names
+        return OUTCOME_RECLAIM, reclaim_sec, reject_sec, break_sec, reclaim_sec
     cands = []
     if reject_sec >= 0:
         cands.append((reject_sec, OUTCOME_REJECT))

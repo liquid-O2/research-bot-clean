@@ -123,13 +123,23 @@ def test_classify_touch():
     check("classify.REJECT.sec", osec, 1005)
     check("classify.REJECT.break", bs, -1)
 
-    # break: holds 60s beyond -tol, then reclaims and holds 120s back inside
+    # break that is later RECLAIMED: holds 60s beyond -tol, then re-crosses and
+    # holds 120s back inside -> the test's final outcome is RECLAIM
     diff = np.concatenate([np.full(1000, 5.0), np.full(1, 0.5),
                            np.full(100, -3.0), np.full(899, 0.0)])
     oc, osec, rs, bs, cs = B3.classify_touch(diff, secs, 1000, 1, TOL, 2.0)
+    check("classify.RECLAIM.outcome", oc, B3.OUTCOME_RECLAIM)
+    check("classify.RECLAIM.break_sec", bs, 1060)
+    check("classify.RECLAIM.sec", cs, 1220)
+    check("classify.RECLAIM.outcome_sec", osec, 1220)
+
+    # break that is NEVER reclaimed (price stays beyond) -> outcome BREAK
+    diff = np.concatenate([np.full(1000, 5.0), np.full(1, 0.5),
+                           np.full(999, -3.0)])
+    oc, osec, rs, bs, cs = B3.classify_touch(diff, secs, 1000, 1, TOL, 2.0)
     check("classify.BREAK.outcome", oc, B3.OUTCOME_BREAK)
     check("classify.BREAK.sec", osec, 1060)
-    check("classify.RECLAIM.sec", cs, 1220)
+    check("classify.BREAK.reclaim", cs, -1)
 
     # a 59s excursion beyond the level is NOT a break
     diff = np.concatenate([np.full(1000, 5.0), np.full(1, 0.5),

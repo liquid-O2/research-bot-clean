@@ -3,3 +3,4 @@ decode	SI	day_receipt	11	PASS
 decode	NKD	day_receipt	311	PASS
 assemble	SI	session_file	2834	PASS
 assemble	HG	session_file	3102	PASS
+assemble	NKD	session_file	3106	PASS

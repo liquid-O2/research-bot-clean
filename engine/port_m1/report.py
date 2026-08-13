@@ -117,7 +117,7 @@ def decay_report():
                        "MAE inflation", "n paired", "source"], rows))
     L.append("\nRule (pre-registered, §2): largest tau <= 120s with pooled-FIT "
              "mean value decay < 1.5% AND mean MAE inflation < 5%, floored at "
-             "30s. Full per-tau evidence: `%s`.\n" % pin.rel())
+             "30s. Full per-tau evidence: `" + pin.rel() + "`.\n")
 
     L.append("## Decay curve (FIT era, all rungs, all phases, all candidates)\n")
     hdr = ["asset", "tau", "mean peak-exit cert $", "decay vs tau=0",
@@ -164,16 +164,18 @@ have nothing to do with which tau they select): the pin population must be
 UNSELECTED, and the tau=0 denominator must not be degenerate. Only the
 peak-exit certificate over all confirmations satisfies both, and its scale
 ($730-$967) is the scale D-033 quotes. Every other reading §2's wording admits
-is still evaluated and emitted in `%s`, including the $1k-class population,
-which is SELECTION-BIASED by construction (it conditions on the tau=0 outcome,
-so regression to the mean can only make later entries look worse) and is the
-one reading that pins tau* at the 30s floor.
+is still evaluated and emitted in the pin-rule TSV, including the $1k-class
+population, which is SELECTION-BIASED by construction (it conditions on the
+tau=0 outcome, so regression to the mean can only make later entries look
+worse) and is the one reading that pins tau* at the 30s floor.
 
 The absolute numbers make the ambiguity moot in practice: over 120 seconds the
 phase-close mean MOVES UP by $0.51-$2.12 per candidate and the peak-exit mean
 moves by -$2.04 to +$0.32 on a $730-$967 base. There is no decay to measure at
 this granularity.
-""" % pin.rel())
+
+Per-tau evidence for every reading: `""" + pin.rel() + """`.
+""")
 
     L.append("## M0 differential (the tau=60 slice must BE the m0 roster)\n")
     rows = []

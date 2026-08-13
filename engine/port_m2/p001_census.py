@@ -79,6 +79,7 @@ if _M1 not in sys.path:
 
 import m2_common as MC                    # noqa: E402
 import pattern_lib as PL                  # noqa: E402
+import assemble as A                      # noqa: E402
 import census_common as X                 # noqa: E402
 import episode_v2 as EV                   # noqa: E402  (GEE sandwich, ICC/DEFF)
 
@@ -94,6 +95,35 @@ LADDER_BANDS_FIRE = (0, 1)                # T2: below_q10, at_or_above_q10
 RUNWAY_MIN_SEC = 26000                    # T3, inclusive
 AGE_MAX_SEC = 200                         # T4, inclusive
 TERMS = ("T1_coverage", "T2_ladder", "T3_runway", "T4_age", "T5_slope")
+
+# ---------------------------------------------------------------- P016 ------
+# P016 NY_SHORT_ROLLOVER_CONCORDANT — "P001's successor" (PATTERN_LEDGER at
+# HEAD, opened by the E1-STUDY-D1 round; orchestrator scope addition).  The
+# ledger's `sheet_fields` names five clauses and one EXCLUSION:
+#   X1  range EXTENSION needed for the $1,000 bar <= ~$450   (+ the phase is
+#       >= 300s old: e1d1_policy T3's own guard, kept because the arithmetic
+#       degenerates at a phase open)
+#   X2  runway to phase close >= 20,000s with phase_close == session_close
+#   X3  S8 60s n >= 5 and vol >= 10                         (a live book)
+#   X4  sign(S8 phase sflow) == side and |sflow|/phase vol >= 0.05, on a phase
+#       that has traded >= 200                              (flow concordance)
+#   X5  S9 rv1800/rv60 < 8                                  (vol not dead)
+#   --  P001's slope/accel term is DROPPED, by name ("NOT S5 mid_slope/accel")
+# The thresholds inside X1/X4 are taken VERBATIM from the committed executable
+# form (engine/port_m2/e1d1_policy.terms T3/T5), not re-invented here.
+# The ledger scopes P016 to "all classes" and its NAME to NY/SHORT, so side and
+# phase are NOT terms — they are reported as strata, which is what breaks the
+# co-occurrence apart rather than baking it in.
+EXT_MAX_USD = 450.0
+PHASE_MIN_AGE_SEC = 300
+RUNWAY_MIN_SEC_P016 = 20000
+F60_MIN_N = 5
+F60_MIN_VOL = 10
+PHASE_MIN_VOL = 200
+SFLOW_MIN_FRAC = 0.05
+RV_RATIO_MAX = 8.0
+TERMS_P016 = ("X1_extension", "X2_runway", "X3_book", "X4_flow_concord",
+              "X5_vol_alive")
 
 FIT_YEARS = (2021, 2022, 2023, 2024)
 GATE_YEAR = 2025
@@ -132,6 +162,20 @@ PARAMS = {
                    "both readings), not the level — a level comparison is "
                    "dominated by the population's negative mean"
                    % (DESTRUCTION_REPS, DESTRUCTION_SEED),
+    "arm_P016": "PATTERN_LEDGER P016 NY_SHORT_ROLLOVER_CONCORDANT: "
+                "ext_needed <= $%.0f and phase_age >= %ds; runway >= %ds with "
+                "phase_close == sess_close; f60_n >= %d and f60_vol >= %d; "
+                "sign(fph_sflow) == side, fph_vol >= %d, |sflow|/vol >= %.2f; "
+                "rv1800/rv60 < %.1f. P001's slope/accel term is DROPPED by "
+                "name. Sub-clause thresholds taken verbatim from "
+                "engine/port_m2/e1d1_policy.terms (T3/T5)."
+                % (EXT_MAX_USD, PHASE_MIN_AGE_SEC, RUNWAY_MIN_SEC_P016,
+                   F60_MIN_N, F60_MIN_VOL, PHASE_MIN_VOL, SFLOW_MIN_FRAC,
+                   RV_RATIO_MAX),
+    "refused_fvol_census": "CC-M2-8.4 — per (asset, era) count/fraction of "
+                           "fvol rows with no move_q* quantiles and of "
+                           "candidates whose S9 ladder / S3 COVERAGE is "
+                           "therefore REFUSED",
     "inference": "CC-M1-12.4 — GEE independence working correlation with the "
                  "Liang-Zeger sandwich clustered on SESSION (CR0 + "
                  "Cameron-Miller CR1); Kish one-way ICC/DEFF for n_eff",
@@ -158,6 +202,38 @@ def terms_of(f, reading="A"):
     return np.column_stack([t1, t2, t3, t4, t5])
 
 
+def terms_p016(f):
+    """The five P016 clauses for every candidate of one session frame."""
+    side = f["side"].astype(np.float64)
+    ext = f["ext_needed_usd"]
+    x1 = (np.isfinite(ext) & (ext <= EXT_MAX_USD)
+          & (f["phase_age_sec"] >= PHASE_MIN_AGE_SEC))
+    x2 = (f["runway_phase_sec"] >= RUNWAY_MIN_SEC_P016) & f["session_close_exit"]
+    x3 = (f["f60_n"] >= F60_MIN_N) & (f["f60_vol"] >= F60_MIN_VOL)
+    vol = f["fph_vol"].astype(np.float64)
+    sfl = f["fph_sflow"].astype(np.float64)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        frac = np.where(vol > 0, np.abs(sfl) / vol, 0.0)
+    x4 = (vol >= PHASE_MIN_VOL) & (sfl * side > 0) & (frac >= SFLOW_MIN_FRAC)
+    rv = f["rv_ratio"]
+    x5 = np.isfinite(rv) & (rv < RV_RATIO_MAX)
+    return np.column_stack([x1, x2, x3, x4, x5])
+
+
+# The censused arms.  A/B differ ONLY in P001's T4 field (defect D-P001-1);
+# P016 is the successor pattern the E1-STUDY-D1 round mutated P001 into.
+ARMS = (("A", "P001 (PATTERN_LEDGER literal: T4 = phase-extreme age)", TERMS),
+        ("B", "P001 (post-mortem literal: T4 = causal ZigZag pivot age)", TERMS),
+        ("P016", "P016 NY_SHORT_ROLLOVER_CONCORDANT (P001's successor)",
+         TERMS_P016))
+
+
+def arm_terms(f, arm):
+    if arm == "P016":
+        return terms_p016(f)
+    return terms_of(f, arm)
+
+
 # --------------------------------------------------------------- the pass ---
 _COLS = ("asset", "d8", "dec_sec", "side", "phase_dec", "klass",
          "cert_close", "cert_peak", "walled", "winner",
@@ -167,14 +243,12 @@ _COLS = ("asset", "d8", "dec_sec", "side", "phase_dec", "klass",
 
 
 def _pack(f):
-    ta = terms_of(f, "A")
-    tb = terms_of(f, "B")
     def bits(t):
         out = np.zeros(t.shape[0], dtype=np.uint8)
         for k in range(t.shape[1]):
             out |= (t[:, k].astype(np.uint8) << k)
         return out
-    return {
+    out = {
         "asset": f["asset"], "d8": f["d8"],
         "dec_sec": f["dec_sec"].astype(np.int32),
         "side": f["side"].astype(np.int8),
@@ -183,7 +257,6 @@ def _pack(f):
         "cert_close": f["cert_close_usd"].astype(np.float64),
         "cert_peak": f["cert_peak_usd"].astype(np.float64),
         "walled": f["walled"], "winner": f["winner"],
-        "termsA": bits(ta), "termsB": bits(tb),
         "coverage_phase": f["coverage_phase"].astype(np.float32),
         "ladder_band": f["ladder_band"].astype(np.int8),
         "runway_phase_sec": f["runway_phase_sec"].astype(np.int32),
@@ -191,7 +264,15 @@ def _pack(f):
         "pivot_age_sec": f["pivot_age_sec"].astype(np.int32),
         "slope_1m_usd": f["slope_1m_usd"].astype(np.float32),
         "accel_usd": f["accel_usd"].astype(np.float32),
+        "ext_needed_usd": f["ext_needed_usd"].astype(np.float32),
+        "fph_sflow": f["fph_sflow"].astype(np.int32),
+        "fph_vol": f["fph_vol"].astype(np.int32),
+        "f60_n": f["f60_n"].astype(np.int32),
+        "rv_ratio": f["rv_ratio"].astype(np.float32),
     }
+    for arm, _label, _names in ARMS:
+        out["terms_" + arm] = bits(arm_terms(f, arm))
+    return out
 
 
 def _one(job):
@@ -238,10 +319,12 @@ def scan(assets=MC.ASSET_ORDER, years=FIT_YEARS + (GATE_YEAR,), workers=4,
                            % (len(errs), errs[0]))
     parts.sort(key=lambda p: (p["asset"], p["d8"]))
     out = {}
-    for k in ("dec_sec", "side", "phase_dec", "cert_close", "cert_peak",
-              "walled", "winner", "termsA", "termsB", "coverage_phase",
-              "ladder_band", "runway_phase_sec", "extreme_age_sec",
-              "pivot_age_sec", "slope_1m_usd", "accel_usd", "klass"):
+    for k in (("dec_sec", "side", "phase_dec", "cert_close", "cert_peak",
+               "walled", "winner", "coverage_phase", "ladder_band",
+               "runway_phase_sec", "extreme_age_sec", "pivot_age_sec",
+               "slope_1m_usd", "accel_usd", "klass", "ext_needed_usd",
+               "fph_sflow", "fph_vol", "f60_n", "rv_ratio")
+              + tuple("terms_" + a for a, _l, _n in ARMS)):
         out[k] = np.concatenate([p[k] for p in parts])
     out["asset"] = np.concatenate([np.full(p["dec_sec"].size, p["asset"])
                                    for p in parts])
@@ -258,9 +341,9 @@ def scan(assets=MC.ASSET_ORDER, years=FIT_YEARS + (GATE_YEAR,), workers=4,
     return out
 
 
-def unbits(b):
+def unbits(b, n_terms=len(TERMS)):
     return np.column_stack([((b >> k) & 1).astype(bool)
-                            for k in range(len(TERMS))])
+                            for k in range(n_terms)])
 
 
 # ------------------------------------------------------------ aggregation ---
@@ -345,7 +428,7 @@ TERM_COLUMNS = ("reading", "asset", "scope", "term", "n_candidates",
                 "mean_peak", "cond_peak", "n_winners", "winner_frac")
 
 
-def term_rows(D, T, reading):
+def term_rows(D, T, reading, names=TERMS):
     """What each term does ALONE, and what the detector does with it DROPPED
     (the leave-one-out near-miss populations the E1 era note asked for)."""
     rows = []
@@ -357,7 +440,7 @@ def term_rows(D, T, reading):
         if not base.any():
             continue
         nsess = len(set(D["cluster"][base].tolist()))
-        for k, name in enumerate(TERMS):
+        for k, name in enumerate(names):
             for scope, m in (("TERM_ALONE", base & T[:, k]),
                              ("DETECTOR_MINUS_TERM",
                               base & np.all(np.delete(T, k, axis=1), axis=1)),
@@ -386,7 +469,7 @@ DESTRUCTION_COLUMNS = ("reading", "asset", "neutralised_term", "n_fires_mean",
                        "verdict")
 
 
-def destruction_rows(D, T, reading):
+def destruction_rows(D, T, reading, names=TERMS):
     """Neutralise each term by SHUFFLING IT WITHIN ITS SESSION.
 
     Within-session shuffling preserves the session's regime, its clock, its
@@ -426,7 +509,7 @@ def destruction_rows(D, T, reading):
             return float("nan")
         return float(vals[m].mean() - vals[~m].mean())
 
-    for k, name in enumerate(TERMS):
+    for k, name in enumerate(names):
         rs = np.random.RandomState(DESTRUCTION_SEED + k)
         others = np.all(np.delete(Tf, k, axis=1), axis=1)
         acc = {aname: {"n": [], "mc": [], "ed": [], "cd": [], "mp": [],
@@ -576,10 +659,11 @@ def robust_rows(D, fire, reading):
     return _holm(rows)
 
 
-FIRE_COLUMNS = ("reading", "cid", "asset", "d8", "year", "era", "phase",
+FIRE_COLUMNS = ("arm", "cid", "asset", "d8", "year", "era", "phase",
                 "side", "class", "coverage_phase", "ladder_band",
                 "runway_phase_sec", "extreme_age_sec", "pivot_age_sec",
-                "slope_1m_usd", "accel_usd", "cert_close_usd",
+                "slope_1m_usd", "accel_usd", "ext_needed_usd", "fph_sflow",
+                "fph_vol", "f60_n", "rv_ratio", "cert_close_usd",
                 "cert_peak_usd", "walled", "winner")
 
 
@@ -601,9 +685,109 @@ def fire_rows(D, fire, reading):
                      int(D["runway_phase_sec"][t]),
                      int(D["extreme_age_sec"][t]), int(D["pivot_age_sec"][t]),
                      float(D["slope_1m_usd"][t]), float(D["accel_usd"][t]),
+                     float(D["ext_needed_usd"][t]), int(D["fph_sflow"][t]),
+                     int(D["fph_vol"][t]), int(D["f60_n"][t]),
+                     float(D["rv_ratio"][t]),
                      float(D["cert_close"][t]), float(D["cert_peak"][t]),
                      bool(D["walled"][t]), bool(D["winner"][t])])
     rows.sort(key=lambda r: (r[0], r[2], r[3], r[1]))
+    return rows
+
+
+REFUSED_COLUMNS = ("asset", "era", "n_fvol_rows", "n_rows_no_quantiles",
+                   "frac_rows_no_quantiles", "n_rows_atr_fallback",
+                   "frac_rows_atr_fallback", "n_sessions",
+                   "n_sessions_any_segment_refused",
+                   "frac_sessions_any_refused", "n_candidates",
+                   "n_candidates_ladder_refused", "frac_ladder_refused",
+                   "n_candidates_coverage_refused", "frac_coverage_refused")
+
+_QS = ("q10", "q25", "q50", "q75", "q90")
+
+
+def refused_rows(D):
+    """CC-M2-8.4 — how big is the ladder-refusal hole, per (asset, era)?
+
+    Two grains, because they answer different questions:
+      * FVOL ROW grain (m1/fvol/fvol_forecasts.tsv): how often the forecaster
+        published no move_q* quantiles for a (session, segment), and how often
+        it fell back to raw ATR14 at all (the fallback can still carry
+        quantiles — 868 of HG's 988 ATR14_RAW_FILL rows do);
+      * CANDIDATE grain (the frame): how many DECISIONS therefore carry a
+        REFUSED S9 ladder / S3 COVERAGE, which is what a ladder-dependent
+        pattern actually loses.  SI 2021-07-01 was 391/391 refused, which is
+        why this census was ordered.
+    """
+    rows = []
+    fv = A.fvol_rows()
+    # the row grain must cover EXACTLY the sessions the candidate grain covers,
+    # or the two halves of the table describe different populations.
+    sess_of = {}
+    for a, d in zip(D["asset"].tolist(), D["d8"].tolist()):
+        sess_of.setdefault(a, set()).add(int(d))
+    era_of = {}
+
+    def _eras(d8):
+        if d8 not in era_of:
+            y = d8 // 10000
+            out = ["ALL"]
+            out.append("FIT" if y in FIT_YEARS else
+                       ("GATE_%d" % GATE_YEAR if y == GATE_YEAR else "OTHER"))
+            out.append(str(y))
+            out.append(MC.era_of(d8))
+            era_of[d8] = out
+        return era_of[d8]
+
+    # --- fvol row grain
+    acc = {}
+    for (asset, iso, _seg), row in fv.items():
+        d8 = int(iso[0:4] + iso[5:7] + iso[8:10])
+        if d8 not in sess_of.get(asset, ()):      # roster sessions only
+            continue
+        no_q = not all(np.isfinite(A._f(row.get("move_%s_usd_per_sigma" % q)))
+                       for q in _QS)
+        fallback = str(row.get("sigma_source", "")) != "FVOL"
+        for era in _eras(d8) + ["ALL"]:
+            for an in (asset, "ALL"):
+                e = acc.setdefault((an, era), [0, 0, 0, set(), set()])
+                e[0] += 1
+                e[1] += int(no_q)
+                e[2] += int(fallback)
+                e[3].add((asset, d8))
+                if no_q:
+                    e[4].add((asset, d8))
+    # --- candidate grain
+    cand = {}
+    for an in list(MC.ASSET_ORDER) + ["ALL"]:
+        asel = (np.ones(D["dec_sec"].size, dtype=bool) if an == "ALL"
+                else (D["asset"] == an))
+        for era, esel in (("FIT", np.isin(D["year"], FIT_YEARS)),
+                          ("GATE_%d" % GATE_YEAR, D["year"] == GATE_YEAR),
+                          ("ALL", np.ones(D["dec_sec"].size, dtype=bool))) + \
+                         tuple((str(y), D["year"] == y) for y in
+                               FIT_YEARS + (GATE_YEAR,)):
+            m = asel & esel
+            if not m.any():
+                continue
+            cand[(an, era)] = (int(m.sum()),
+                               int((D["ladder_band"][m] < 0).sum()),
+                               int((~np.isfinite(D["coverage_phase"][m])).sum()))
+    for key in sorted(set(list(acc) + list(cand))):
+        an, era = key
+        a_e = acc.get(key, [0, 0, 0, set(), set()])
+        c_e = cand.get(key, (0, 0, 0))
+        n_rows = a_e[0]
+        rows.append([an, era, n_rows, a_e[1],
+                     (float(a_e[1]) / n_rows) if n_rows else float("nan"),
+                     a_e[2],
+                     (float(a_e[2]) / n_rows) if n_rows else float("nan"),
+                     len(a_e[3]), len(a_e[4]),
+                     (float(len(a_e[4])) / len(a_e[3])) if a_e[3]
+                     else float("nan"),
+                     c_e[0], c_e[1],
+                     (float(c_e[1]) / c_e[0]) if c_e[0] else float("nan"),
+                     c_e[2],
+                     (float(c_e[2]) / c_e[0]) if c_e[0] else float("nan")])
     return rows
 
 
@@ -616,7 +800,7 @@ def _fmt(v, dec=2):
     return str(v)
 
 
-def report(D, res, elapsed, pins):
+def report(D, res, refused, elapsed, pins):
     L = []
     A = L.append
     A("# P001 PHASE_ROLLOVER_UNDERMOVED — name->count census")
@@ -633,7 +817,7 @@ def report(D, res, elapsed, pins):
 
     A("## HEADLINE")
     A("")
-    for reading in ("A", "B"):
+    for reading, _label, _names in ARMS:
         r = res[reading]
         cen = {(x[1], x[2], x[3], x[4], x[5]): x for x in r["census"]}
         fF = cen.get(("ALL", "FIT", "ALL", "ALL", "FIRE"))
@@ -683,15 +867,12 @@ def report(D, res, elapsed, pins):
       "noise, and the tables say which is which.")
     A("")
 
-    for reading in ("A", "B"):
+    for reading, label, _names in ARMS:
         r = res[reading]
         cen = {(x[1], x[2], x[3], x[4], x[5]): x for x in r["census"]}
         fitF = cen.get(("ALL", "FIT", "ALL", "ALL", "FIRE"))
         fitN = cen.get(("ALL", "FIT", "ALL", "ALL", "NOFIRE"))
-        A("## READING %s — T4 age = %s" % (
-            reading,
-            "the phase extreme (PATTERN_LEDGER literal)" if reading == "A"
-            else "the most recent causal ZigZag pivot (post-mortem literal)"))
+        A("## ARM %s — %s" % (reading, label))
         A("")
         if fitF is None or fitF[7] == 0:
             A("**The detector never fires on FIT.**")
@@ -721,8 +902,10 @@ def report(D, res, elapsed, pins):
             A("| %s baseline | %d | %s | %s | %s | %s |"
               % (y, n[7], _fmt(n[8], 3), _fmt(n[9]), _fmt(n[10]), _fmt(n[12])))
         A("")
-        A("Co-occurrence break-out (FIT, FIRE group) — the E1 note flagged the "
-          "support set as all-HG / all-NY / all-SHORT:")
+        A("Co-occurrence break-out (FIT, FIRE group) — the E1 note flagged "
+          "P001's support set as all-HG / all-NY / all-SHORT, and P016's name "
+          "carries NY/SHORT too; neither is a term here, so these strata are "
+          "what breaks the co-occurrence apart:")
         A("")
         A("| stratum | fires | mean close $ | cond. close $ | baseline mean $ |")
         A("|---|---|---|---|---|")
@@ -776,7 +959,7 @@ def report(D, res, elapsed, pins):
         A("| term | alone: n / mean close $ | detector without it: n / mean "
           "close $ | near-miss (only this fails): n / mean close $ |")
         A("|---|---|---|---|")
-        for k, name in enumerate(TERMS):
+        for k, name in enumerate(r["names"]):
             cells = {}
             for x in r["terms"]:
                 if x[1] == "ALL" and x[3] == name:
@@ -789,23 +972,47 @@ def report(D, res, elapsed, pins):
                  cell("NEAR_MISS_ONLY_THIS_TERM_FAILS")))
         A("")
 
-    A("## Support-set check (the 3 PATTERN_LEDGER cases)")
+    A("## REFUSED-FVOL CENSUS (CC-M2-8.4) — the size of the ladder hole")
     A("")
-    A("| case | reading A fires | reading B fires | cert close $ |")
-    A("|---|---|---|---|")
+    A("A REFUSED S9 ladder is not a missing number, it is a term that cannot "
+      "fire: any pattern with a ladder or COVERAGE clause is structurally "
+      "blind on those candidates. Row grain = fvol forecast rows "
+      "(session x segment); candidate grain = decisions. Note the two are "
+      "different questions — the ATR14 FALLBACK is common (a fifth of rows) "
+      "and mostly still carries quantiles; only the no-move_q* rows refuse.")
+    A("")
+    A("| asset | era | fvol rows | no move_q* | % | ATR fallback % | sessions "
+      "with a refused segment % | candidates | ladder REFUSED % | COVERAGE "
+      "REFUSED % |")
+    A("|---|---|---|---|---|---|---|---|---|---|")
+    keep = ("ALL", "FIT", "GATE_%d" % GATE_YEAR) + tuple(
+        str(y) for y in FIT_YEARS + (GATE_YEAR,))
+    for x in refused:
+        if x[1] not in keep:
+            continue
+        A("| %s | %s | %d | %d | %s | %s | %s | %d | %s | %s |"
+          % (x[0], x[1], x[2], x[3], _fmt(100.0 * x[4], 2),
+             _fmt(100.0 * x[6], 2), _fmt(100.0 * x[9], 2), x[10],
+             _fmt(100.0 * x[12], 2), _fmt(100.0 * x[14], 2)))
+    A("")
+    A("## Support-set check (the 3 P001 PATTERN_LEDGER cases)")
+    A("")
+    A("| case | %s | cert close $ |"
+      % " | ".join("arm %s" % a for a, _l, _n in ARMS))
+    A("|---|" + "---|" * (len(ARMS) + 1))
     for cid in ("HG-20210701-052246-S", "HG-20210701-055858-S",
                 "HG-20210929-052330-S"):
         a, d8, sec, side = MC.parse_cid(cid)
         m = ((D["asset"] == a) & (D["d8"] == d8) & (D["dec_sec"] == sec)
              & (D["side"] == side))
         if not m.any():
-            A("| %s | . | . | . |" % cid)
+            A("| %s |%s . |" % (cid, " . |" * len(ARMS)))
             continue
         t = int(np.nonzero(m)[0][0])
-        A("| %s | %s | %s | %s |"
-          % (cid, bool(np.all(unbits(D["termsA"])[t])),
-             bool(np.all(unbits(D["termsB"])[t])),
-             _fmt(float(D["cert_close"][t]))))
+        cells = [str(bool(np.all(unbits(D["terms_" + arm], len(nm))[t])))
+                 for arm, _l, nm in ARMS]
+        A("| %s | %s | %s |" % (cid, " | ".join(cells),
+                                _fmt(float(D["cert_close"][t]))))
     A("")
     A("## Provenance")
     A("")
@@ -826,22 +1033,23 @@ def build(workers=4, limit_sessions=None):
     D = scan(workers=workers, limit_sessions=limit_sessions)
     res = {}
     fires, census, terms, destr, robust = [], [], [], [], []
-    for reading, key in (("A", "termsA"), ("B", "termsB")):
-        T = unbits(D[key])
+    for arm, _label, names in ARMS:
+        T = unbits(D["terms_" + arm], len(names))
         fire = np.all(T, axis=1)
-        r = {"census": census_rows(D, fire, reading),
-             "terms": term_rows(D, T, reading),
-             "destruction": destruction_rows(D, T, reading),
-             "robust": robust_rows(D, fire, reading),
-             "fires": fire_rows(D, fire, reading),
-             "n_fires": int(fire.sum())}
-        res[reading] = r
+        r = {"census": census_rows(D, fire, arm),
+             "terms": term_rows(D, T, arm, names),
+             "destruction": destruction_rows(D, T, arm, names),
+             "robust": robust_rows(D, fire, arm),
+             "fires": fire_rows(D, fire, arm),
+             "n_fires": int(fire.sum()), "names": names}
+        res[arm] = r
         census += r["census"]
         terms += r["terms"]
         destr += r["destruction"]
         robust += r["robust"]
         fires += r["fires"]
-        MC.hb("p001 reading %s: %d fires" % (reading, r["n_fires"]))
+        MC.hb("p001 arm %s: %d fires" % (arm, r["n_fires"]))
+    refused = refused_rows(D)
     phash = MC.params_hash(PARAMS)
     extra = ["%s %s — five strictly-causal terms; readings A/B differ ONLY in "
              "the T4 age field (see the report)" % (PATTERN_ID, PATTERN_NAME),
@@ -856,19 +1064,26 @@ def build(workers=4, limit_sessions=None):
                  list(DESTRUCTION_COLUMNS), destr, extra=extra)
     MC.write_tsv(os.path.join(OUT_DIR, "P001_ROBUST.tsv"), SECTION, phash,
                  list(ROBUST_COLUMNS), robust, extra=extra)
+    MC.write_tsv(os.path.join(OUT_DIR, "REFUSED_FVOL_CENSUS.tsv"), SECTION,
+                 phash, list(REFUSED_COLUMNS), refused,
+                 extra=["CC-M2-8.4 — the size of the fvol ladder-refusal hole",
+                        "row grain = m1/fvol/fvol_forecasts.tsv (session x "
+                        "segment); candidate grain = the decision views"])
     pins = MC.pins_moved()
     el = time.time() - t0
     MC.write_text(os.path.join(OUT_DIR, "P001_CENSUS_REPORT.md"),
-                  report(D, res, el, pins))
+                  report(D, res, refused, el, pins))
     MC.write_json(os.path.join(OUT_DIR, "p001_census.receipt.json"),
                   {"env": MC.env_receipt(PARAMS),
                    "n_candidates": int(D["dec_sec"].size),
                    "n_sessions": int(D["n_sessions_total"]),
                    "n_fires": {k: res[k]["n_fires"] for k in res},
+                   "arms": [a for a, _l, _n in ARMS],
                    "elapsed_sec": el, "pins_moved": pins,
                    "out_dir": OUT_DIR})
-    MC.hb("p001 census: A=%d B=%d fires, %.1fs"
-          % (res["A"]["n_fires"], res["B"]["n_fires"], el))
+    MC.hb("p001 census: %s, %.1fs"
+          % (", ".join("%s=%d" % (a, res[a]["n_fires"])
+                       for a, _l, _n in ARMS), el))
     return res
 
 

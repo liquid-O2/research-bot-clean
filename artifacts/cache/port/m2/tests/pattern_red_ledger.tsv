@@ -1,0 +1,13 @@
+# PORT_M2_SHEETS_SPEC.md §CC-M2-5 retrieval + §4.2 P001 detector (red-first) (spec_sha16=e6443a43e898dd86)
+# params_hash=f8d2e2eef007828e5d81c51f4c82166ffb88932cf6c0edb03aeefc970874056e
+# RED-FIRST: armed_pass MUST be 1 and mutant_pass MUST be 0 on every row
+test	mutant	armed_pass	mutant_pass	verdict	detail
+frame_matches_the_renderer	MT_P01_coverage_from_session	1	0	PASS	cov=True lad=True slope=True
+pivot_chain_is_causal	MT_P02_filter_on_pivot_sec	1	0	PASS	n_candidates_where_rules_differ=129 checked=8
+coverage_boundary_is_inclusive	MT_P03_strict_less_than	1	0	PASS	fire=[True, False, True] mutant_fire=[False, False, True]
+extreme_age_is_causal	MT_P04_extreme_from_full_phase	1	0	PASS	n_fire_causal=2 n_fire_forward=1 n_age_differs=181
+retrieval_refuses_untainted_pool	MT_P05_filter_not_refuse	1	0	PASS	poison=SI-20211101-000076-S n_pool_mutant=1989 silently_dropped=True
+retrieval_scaling_binds	MT_P06_unscaled_distance	1	0	PASS	top1=SI-20210702-052788-L top1_unscaled=SI-20210702-052788-L
+retrieval_is_deterministic	MT_P07_distance_only_sort	1	0	PASS	n_ties=0
+frame_matches_the_day1_triage_index	MT_P08_session_window_for_phase_flow	1	0	PASS	n=1039 mismatches={'f60_n': 0, 'f60_vol': 0, 'f60_sflow': 0, 'fph_sflow': 0, 'fph_vol': 0, 'ext_needed': 0, 'runway_phase': 0, 'extreme_age_trade_side': 0, 'slope5m': 0, 'accel': 0, 'rv_collapse': 1} mutant_agrees=279
+p016_boundaries_are_inclusive	MT_P09_strict_inequalities	1	0	PASS	fire=[True, False, True, False] mutant=[False, False, False, False]

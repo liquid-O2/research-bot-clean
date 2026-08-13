@@ -116,6 +116,17 @@ FRAME_FIELDS = {
     "level_dist_atr": "|nearest KEPT-family level price - entry_mid| / ATR, "
                       "over levels alive at dec_sec (V1.1 birth guard) and "
                       "within +/-1.5xATR; NaN when there is none",
+    "phase_age_sec": "dec_sec - phase_seg_start (the running phase's age)",
+    "ext_needed_usd": "NEW range beyond the phase extreme the $1,000 bar still "
+                      "needs: max(0, 1000 - (entry_mid - phase_lo)*mult) for a "
+                      "SHORT, max(0, 1000 - (phase_hi - entry_mid)*mult) for a "
+                      "LONG (e1d1_policy T3 / P016 clause 1)",
+    "f60_n": "S8 60s window trade COUNT, sec in [dec-60, dec)",
+    "f60_vol": "S8 60s window traded volume",
+    "f60_sflow": "S8 60s signed flow (buy_vol - sell_vol)",
+    "fph_n": "S8 phase window trade count, sec in [phase_seg_start, dec)",
+    "fph_vol": "S8 phase window traded volume",
+    "fph_sflow": "S8 phase cumulative signed flow (buy_vol - sell_vol)",
     "cert_close_usd": "c_c_roster.certificates(...)[1][0] — the walled "
                       "PHASE-CLOSE certificate (the CC-M1-8 adoption metric)",
     "cert_peak_usd": "c_c_roster.certificates(...)[0][0] — the walled "
@@ -457,6 +468,28 @@ def frame(asset, d8, with_levels=False, with_certs=True):
     with np.errstate(invalid="ignore", divide="ignore"):
         rv_ratio = np.where(rv60 > 0, rv1800 / rv60, np.nan)
 
+    # --- S8 flow windows (vectorised sections.s8_flow) ---------------------
+    # prefix sums over the session's trade tape: every window is a difference,
+    # and every window is [lo, dec_sec) exactly as s8_flow reads it.
+    tr = sess["trades"]
+    t_sec = tr["sec"]
+    t_sz = tr["size"].astype(np.int64)
+    t_sd = tr["side"]
+    signed = np.where(t_sd == ord("B"), t_sz,
+                      np.where(t_sd == ord("A"), -t_sz, 0))
+    c_n = np.concatenate(([0], np.cumsum(np.ones(t_sz.size, dtype=np.int64))))
+    c_v = np.concatenate(([0], np.cumsum(t_sz)))
+    c_s = np.concatenate(([0], np.cumsum(signed)))
+    b_hi = np.searchsorted(t_sec, dec_s, side="left")
+    b_60 = np.searchsorted(t_sec, np.maximum(dec_s - 60, 0), side="left")
+    b_ph = np.searchsorted(t_sec, ph_start, side="left")
+    f60_n = c_n[b_hi] - c_n[b_60]
+    f60_v = c_v[b_hi] - c_v[b_60]
+    f60_s = c_s[b_hi] - c_s[b_60]
+    fph_n = c_n[b_hi] - c_n[b_ph]
+    fph_v = c_v[b_hi] - c_v[b_ph]
+    fph_s = c_s[b_hi] - c_s[b_ph]
+
     # --- pivots ------------------------------------------------------------
     atr = float(r["atr14_usd"][sel[0]])
     psec, pside, pconf = _pivot_chain(asset, s, trade_date, atr,
@@ -513,6 +546,11 @@ def frame(asset, d8, with_levels=False, with_certs=True):
                            np.where(phase_hi_sec >= 0, dec_s - phase_hi_sec, -1),
                            np.where(phase_lo_sec >= 0, dec_s - phase_lo_sec, -1))
     mae = r["mae_before_argmax"][sel].astype(np.float64)
+    # the $1,000 bar's remaining range requirement, side-aware
+    reach = np.where(side[order] < 0, (entry_mid - phase_lo) * mult,
+                     (phase_hi - entry_mid) * mult)
+    ext_needed = np.where(np.isfinite(reach), np.maximum(1000.0 - reach, 0.0),
+                          np.nan)
 
     f = {
         "asset": asset, "d8": d8, "n": int(sel.size),
@@ -536,6 +574,10 @@ def frame(asset, d8, with_levels=False, with_certs=True):
         "phase_lo": un(phase_lo), "phase_lo_sec": un(phase_lo_sec),
         "extreme_age_sec": un(extreme_age), "pivot_age_sec": un(pivot_age),
         "mid_now": un(m_now),
+        "phase_age_sec": un(dec_s - ph_start),
+        "ext_needed_usd": un(ext_needed),
+        "f60_n": un(f60_n), "f60_vol": un(f60_v), "f60_sflow": un(f60_s),
+        "fph_n": un(fph_n), "fph_vol": un(fph_v), "fph_sflow": un(fph_s),
         "slope_1m_usd": un(slope_1), "slope_5m_usd": un(slope_5),
         "accel_usd": un(accel),
         "rv60_usd": un(rv60), "rv1800_usd": un(rv1800),

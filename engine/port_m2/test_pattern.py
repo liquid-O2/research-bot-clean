@@ -345,10 +345,122 @@ def t07_retrieval_is_deterministic():
                  "n_ties=%d" % ties)
 
 
+# ---------------------------------------------------------------- t08 ------
+TRIAGE = "/workspace/artifacts/cache/port/m2/triage/E1D1_TRIAGE_INDEX.tsv"
+
+# triage_index.py parses the RENDERED sheets; pattern_lib recomputes from the
+# receipts.  Two independent implementations of the same 12 quantities, over
+# the 1,039 day-complete E1-STUDY-D1 candidates.  NOTE the column-name defect
+# on record: triage_index's `slope5m` is parsed as the LAST printed column of
+# the S5 mid_slope row, which is the ONE-MINUTE slope, not the 5-minute one.
+_XCHECK = (("f60_n", "f60_n", 1e-6), ("f60_vol", "f60_vol", 1e-6),
+           ("f60_sflow", "f60_sflow", 1e-6),
+           ("fph_sflow", "fph_sflow", 1e-6), ("fph_vol", "fph_vol", 1e-6),
+           ("ext_needed", "ext_needed_usd", 3.0),
+           ("runway_phase", "runway_phase_sec", 1e-6),
+           ("extreme_age_trade_side", "extreme_age_sec", 1e-6),
+           ("slope5m", "slope_1m_usd", 0.06), ("accel", "accel_usd", 0.06),
+           ("rv_collapse", "rv_ratio", 0.10))
+
+
+def _triage_rows():
+    with open(TRIAGE) as fh:
+        lines = [ln for ln in fh if not ln.startswith("#")]
+    cols = lines[0].rstrip("\n").split("\t")
+    return [dict(zip(cols, ln.rstrip("\n").split("\t"))) for ln in lines[1:]]
+
+
+def t08_frame_matches_the_day1_triage_index():
+    """MT_P08: the S8 phase window measured from second 0 instead of the phase.
+
+    LAW (D-006): the frame's flow/capacity fields must equal what the day-1
+    lane independently parsed off the rendered sheets, candidate by candidate.
+    """
+    if not os.path.exists(TRIAGE):
+        return check("frame_matches_the_day1_triage_index", "MT_P08_session_"
+                     "window_for_phase_flow", False, False, "no triage index")
+    rows = _triage_rows()
+    frames = {}
+    bad = {k: 0 for k, _f, _t in _XCHECK}
+    mut_hits = 0
+    n = 0
+    for r in rows:
+        a, d8, _s, _sd = MC.parse_cid(r["cid"])
+        if (a, d8) not in frames:
+            frames[(a, d8)] = PL.frame(a, d8, with_certs=False)
+        f = frames[(a, d8)]
+        t = _at(f, r["cid"])
+        n += 1
+        for key, field, tol in _XCHECK:
+            try:
+                want = float(r[key])
+            except (KeyError, ValueError):
+                continue
+            got = float(f[field][t])
+            if not np.isfinite(got) or abs(want - got) > tol:
+                bad[key] += 1
+        # MUTANT MT_P08: read the phase flow window from session second 0
+        sess = A.load_session(a, d8)
+        tr = sess["trades"]
+        hi = int(np.searchsorted(tr["sec"], int(f["dec_sec"][t]), side="left"))
+        sess_vol = int(tr["size"][:hi].astype(np.int64).sum())
+        if sess_vol == int(f["fph_vol"][t]):
+            mut_hits += 1
+    armed = all(v <= 1 for v in bad.values())     # <=1 = print-rounding only
+    mutant = (mut_hits == n)
+    return check("frame_matches_the_day1_triage_index",
+                 "MT_P08_session_window_for_phase_flow", armed, mutant,
+                 "n=%d mismatches=%s mutant_agrees=%d" % (n, bad, mut_hits))
+
+
+# ---------------------------------------------------------------- t09 ------
+def _synth_p016(ext, frac):
+    n = len(ext)
+    return {"ext_needed_usd": np.array(ext, dtype=np.float64),
+            "phase_age_sec": np.full(n, 1000, dtype=np.int64),
+            "runway_phase_sec": np.full(n, 25000, dtype=np.int64),
+            "session_close_exit": np.ones(n, dtype=bool),
+            "f60_n": np.full(n, 10, dtype=np.int64),
+            "f60_vol": np.full(n, 40, dtype=np.int64),
+            "fph_vol": np.full(n, 1000, dtype=np.int64),
+            "fph_sflow": np.array([-1000.0 * x for x in frac]),
+            "side": np.full(n, -1, dtype=np.int64),
+            "rv_ratio": np.full(n, 3.0)}
+
+
+def t09_p016_boundaries_are_inclusive():
+    """MT_P09: strict inequalities on P016's extension and flow-fraction terms.
+
+    LAW (PATTERN_LEDGER P016 / e1d1_policy T3+T5): `ext <= $450` and
+    `|sflow|/vol >= 0.05` are INCLUSIVE at their stated edges.
+    """
+    f = _synth_p016([P1.EXT_MAX_USD, P1.EXT_MAX_USD + 0.01, 100.0,
+                     P1.EXT_MAX_USD],
+                    [0.20, 0.20, P1.SFLOW_MIN_FRAC, P1.SFLOW_MIN_FRAC - 1e-6])
+    fire = np.all(P1.terms_p016(f), axis=1)
+    armed = (bool(fire[0]) and not bool(fire[1]) and bool(fire[2])
+             and not bool(fire[3]))
+    T = P1.terms_p016(f)
+    T[:, 0] = (np.isfinite(f["ext_needed_usd"])
+               & (f["ext_needed_usd"] < P1.EXT_MAX_USD)
+               & (f["phase_age_sec"] >= P1.PHASE_MIN_AGE_SEC))
+    frac = np.abs(f["fph_sflow"]) / f["fph_vol"]
+    T[:, 3] = ((f["fph_vol"] >= P1.PHASE_MIN_VOL)
+               & (f["fph_sflow"] * f["side"] > 0)
+               & (frac > P1.SFLOW_MIN_FRAC))
+    mut = np.all(T, axis=1)
+    mutant = bool(mut[0]) and bool(mut[2])
+    return check("p016_boundaries_are_inclusive", "MT_P09_strict_inequalities",
+                 armed, mutant,
+                 "fire=%s mutant=%s" % (fire.tolist(), mut.tolist()))
+
+
 TESTS = (t01_frame_matches_the_renderer, t02_pivot_chain_is_causal,
          t03_coverage_boundary_is_inclusive, t04_extreme_age_is_causal,
          t05_retrieval_refuses_untainted_pool, t06_retrieval_scaling_binds,
-         t07_retrieval_is_deterministic)
+         t07_retrieval_is_deterministic,
+         t08_frame_matches_the_day1_triage_index,
+         t09_p016_boundaries_are_inclusive)
 
 
 def main():

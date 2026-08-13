@@ -1,8 +1,8 @@
-# PORT_M2_SHEETS_SPEC.md §1 encoding laws + §2 certificate (P-M2a tests) (spec_sha16=1c3a23a60c697c81)
+# PORT_M2_SHEETS_SPEC.md §1 encoding laws + §2 certificate (P-M2a tests) (spec_sha16=92a3007304b014cc)
 # params_hash=11c7dd155a3411c360825dd4e7097d2a3f5f07ee90abeb3c8b96f95f64c56d68
 # RED-FIRST: armed_pass MUST be 1 and mutant_pass MUST be 0 on every row
 test	mutant	armed_pass	mutant_pass	verdict	detail
-two_run_byte_identity	MT01_wallclock_stamp	1	0	PASS	15189fe84e5562c3
+two_run_byte_identity	MT01_wallclock_stamp	1	0	PASS	6219513bf34c0d03
 blind_carries_no_outcome	MT02_append_S14_to_blind	1	0	PASS	
 study_appendix_separate	MT03_drop_mode_stamp	1	0	PASS	
 certificate_fails_on_empty_section	MT04_ignore_empty_sections	1	0	PASS	empty S9 -> certified=0

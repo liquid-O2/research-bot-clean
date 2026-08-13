@@ -1,12 +1,12 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "965b8506fa9b42170cb6ec62a6b85084048f8bfb",
+  "git_sha": "360ad8dbee649b7f4abec6d463c3f007805c759d",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "1c3a23a60c697c81",
+  "m2_spec_sha16": "92a3007304b014cc",
   "numpy_version": "2.1.2",
   "params": {
    "anchor": "entry_mid; every price also printed as a signed integer tick offset from it (\u00a71 'integer ticks where possible')",

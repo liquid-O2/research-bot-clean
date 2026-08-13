@@ -78,6 +78,64 @@ FLAG_NAMES = (("OREXT_BEYOND", 1 << 0), ("OREXT_BEYOND_ANY", 1 << 1),
               ("FIRST_TEST_VIRGIN", 1 << 2))
 TOUCH_OUTCOMES = ("NONE", "REJECT", "BREAK", "RECLAIM")
 
+# ------------------------------------------------------- candidate class ----
+# D-071 (2026-08-14, BINDING): the candidate CLASS is observable at generation —
+# the emitting family IS the mechanism, so no router and no inference.  A
+# candidate carrying several family tags declares the class of its
+# HIGHEST-PRIORITY family under the CC-M1-11.4 pre-registered total order
+# (POST_SHOCK > FIRST_TEST > NEWS_WINDOW > MICRO_OPEN > G2 > G1_FAST_OPEN >
+# G1_FINE > G1); the remaining tags are listed beside it, never dropped.
+CLASS_REVERSAL = "REVERSAL-CONFIRMATION"
+CLASS_RECLAIM = "RECLAIM"
+CLASS_SHOCK = "SHOCK-RESOLUTION"
+CLASS_OPEN = "OPEN-DYNAMICS"
+CLASS_NEWS = "NEWS-WINDOW"
+CLASS_FIRST_TEST = "LEVEL-FIRST-TEST"
+
+FAMILY_CLASS = {"G1": CLASS_REVERSAL,
+                "G1_FINE": CLASS_REVERSAL,
+                "G2_REJECT": CLASS_REVERSAL,
+                "G2_RECLAIM": CLASS_RECLAIM,
+                "POST_SHOCK": CLASS_SHOCK,
+                "G1_FAST_OPEN": CLASS_OPEN,
+                "MICRO_OPEN": CLASS_OPEN,
+                "NEWS_WINDOW": CLASS_NEWS,
+                "FIRST_TEST": CLASS_FIRST_TEST}
+
+# mirrors engine/port_m1/episode_census.FAM_PRIORITY (CC-M1-11.4).  The mirror
+# is guarded by test_m2.t18 — a divergence from the pre-registered order is a
+# defect, not a local choice.
+FAMILY_PRIORITY = {"POST_SHOCK": 0, "FIRST_TEST": 1, "NEWS_WINDOW": 2,
+                   "MICRO_OPEN": 3, "G2_REJECT": 4, "G2_RECLAIM": 4,
+                   "G1_FAST_OPEN": 5, "G1_FINE": 6, "G1": 7}
+
+# class declaration order = the priority of each class's best family, then the
+# FAMILIES declaration order (the G2_REJECT / G2_RECLAIM tie at priority 4)
+CLASS_ORDER = tuple(sorted(
+    {FAMILY_CLASS[f] for f in FAMILIES},
+    key=lambda c: min((FAMILY_PRIORITY[f], FAMILIES.index(f))
+                      for f in FAMILIES if FAMILY_CLASS[f] == c)))
+CLASS_UNKNOWN = "UNCLASSED"
+
+
+def class_of(fam_mask):
+    """(class, driver_family, [other family tags]) for a candidate's fam_mask."""
+    fams = fam_names(fam_mask)
+    if not fams:
+        return CLASS_UNKNOWN, None, []
+    fams = sorted(fams, key=lambda f: (FAMILY_PRIORITY[f], FAMILIES.index(f)))
+    return FAMILY_CLASS[fams[0]], fams[0], fams[1:]
+
+
+def classes_of(fam_mask):
+    """Every class the candidate's tags touch, in declaration order (the
+    declared class first).  Cross-class tags are tracked, never dropped."""
+    cls, driver, others = class_of(fam_mask)
+    rest = [c for c in CLASS_ORDER
+            if c != cls and any(FAMILY_CLASS[f] == c for f in others)]
+    return [cls] + rest
+
+
 WALL_CAP = X.WALL_CAP                    # $900 (§1 / D-021 lineage)
 TAU_STAR = 120
 

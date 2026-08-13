@@ -119,6 +119,16 @@ def _s1_header(case, order, metrics, mode, phash, refusals):
                     " rungs=" + ",".join(MC.rung_names(case.rung_mask)) + "xATR",
                     " level_families=" + (",".join(MC.level_fam_names(case.level_mask)) or "none"),
                     " flags=" + (",".join(MC.bits_to_names(case.flags, MC.FLAG_NAMES)) or "none")))
+    # D-071: the candidate DECLARES its class — "Opus needs to know exactly
+    # what it is".  The class is observable at generation (the emitting family
+    # IS the mechanism); the driver family and every other tag are named too.
+    cls, driver, others = MC.class_of(case.fam_mask)
+    L.append(MC.row("  CANDIDATE CLASS", MC.fstr(cls, 22),
+                    " driver_family=" + MC.fstr(str(driver), 13),
+                    " other_tags=" + (",".join(others) or "none"),
+                    " cross_class=" + (",".join(MC.classes_of(case.fam_mask)[1:])
+                                       or "none"),
+                    " (D-071; CC-M1-11.4 priority)"))
     L.append(MC.row("  anchor", MC.fnum(case.anchor, 1, 4).strip(),
                     " tick_px=" + MC.fnum(case.tick_px, 1, 6).strip(),
                     " tick_$=" + MC.fnum(case.tick_usd, 1, 2).strip(),

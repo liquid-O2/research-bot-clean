@@ -32,6 +32,7 @@ import assemble as A                      # noqa: E402
 import tape as TAPE                       # noqa: E402
 import context as CTX                     # noqa: E402
 import availability as AV                 # noqa: E402
+import class_census as CLS                # noqa: E402
 
 # S6 budget mechanics (spec §1: "section budget enforced (S6 is the largest);
 # episode-digest compression keeps it bounded").
@@ -1407,6 +1408,30 @@ def s13_mechanics(case, put):
                     " level_families=" + (",".join(MC.level_fam_names(case.level_mask)) or "none"),
                     " conf_sec=" + MC.fsec(case.conf_sec),
                     " lag=" + str(case.dec_sec - case.conf_sec) + "s"))
+    # D-071: the CLASS card comes first — the class is what the candidate IS;
+    # the family rows below it are the mechanism detail.
+    cls, driver, others = MC.class_of(case.fam_mask)
+    L.append(MC.row("  CLASS", MC.fstr(cls, 22),
+                    " driver_family=" + str(driver),
+                    " (D-071 census card, era + protocol block)"))
+    L.append("    class                  era        n_cand  n_pos  cond_value$"
+             "  mean_cert$  pos_frac  fires/sess  win_frac")
+    cc = CLS.cards()
+    for era in (case.era, str(case.trade_date.year)):
+        card = cc.get((case.asset, cls, era))
+        if card is None:
+            continue
+        L.append(MC.row("   ", MC.fstr(cls, 22), MC.fstr(era, 10),
+                        MC.fint(card["n_candidates"], 7),
+                        MC.fint(card["n_positive"], 6),
+                        MC.fnum(A._f(card["conditional_value_usd"]), 12, 2),
+                        MC.fnum(A._f(card["mean_cert_usd"]), 11, 2),
+                        MC.fnum(A._f(card["positive_frac"]), 9, 4),
+                        MC.fnum(A._f(card["fires_per_session"]), 11, 2),
+                        MC.fnum(A._f(card["winner_frac"]), 9, 4)))
+        put("S13.class_census.%s.%s.cond_value" % (cls, era),
+            A._f(card["conditional_value_usd"]), CLS.OUT,
+            "conditional_value_usd")
     fc = A.family_census()
     L.append("  CENSUS CARD (committed censuses, generation_v3)")
     L.append("    family        era              n_cand  n_pos  cond_value$  mean_cert$  pos_frac  cond_peak$")

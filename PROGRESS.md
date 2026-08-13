@@ -26,9 +26,9 @@
 | M5 | TODO | — | — | — | entry-stage readiness certificate |
 | SHEETS-V4 | DONE | 2026-08-12 | sheets_v4/STREAM_RECEIPT.tsv | tree sha 5976402af8c28c37… (run1==run2) | D-042 certificate: 22,282 sheets x 2 runs, 14 blocks, 13 sections, 0 failures; SHEET_V4_MANIFEST.json; 3 census-path defects fixed red-first (2x VALID-ZERO, 1x never-computed d_fd_ratio) |
 | P-M0.0 | DONE | 2026-08-13 | — | D-048; design/PORT_M0_CENSUS_SPEC.md; approved plan | PORT program start: housekeeping (STATE/DIRECTIVES/INBOX cleared/spec frozen); IWM parked |
-| P-M0.1 | RUNNING | 2026-08-13 | m0/repro_si2024.receipt.json | engine/port_m0 commit 1ae2d256; s1 MATCH (FILEDATE/R1, 8/8 exact) | s0+s1 DONE (0 sha mismatches, 132 sealed refusals correct); s2/s3 driver port-m0-substrate running (~1.5h); CC-M0-1 adjudications blessed |
-| P-M0a | TODO | — | — | — | cost census: spread-to-offer per asset/phase (spec §6) |
-| P-M0b | TODO | — | — | — | offer re-census, symbology-correct, 3 assets × 2021-25 (spec §7) |
-| P-M0c | TODO | — | — | — | occupancy gate: G1 roster + walled certs + one-position DP ≥$2,500/day (spec §8) |
-| P-M0d | TODO | — | — | — | recall gate ≥95% oracle top-2 legs (spec §9) |
-| P-M0e | TODO | — | — | — | targeting verdict: PORT_M0_VERDICT.md (may reorder SI+NKD) |
+| P-M0.1 | DONE | 2026-08-13 | m0/repro_si2024.receipt.json | s1 MATCH FILEDATE/R1 8/8; byte-id A 167/167; substrate 2152s | 3,942 session receipts (SI 1417/HG 1551/NKD 1553 incl. warmup); integrity flags all explained; yahoo deltas ≤1% explained |
+| P-M0a | DONE | 2026-08-13 | m0/census_a_cost_rollup.tsv | M0_REPORT §2 | ALL GREEN: SI $30 RT (1 tick), HG $30, NKD $55 — cost fear dead |
+| P-M0b | DONE | 2026-08-13 | m0/census_b_rollup.tsv | M0_REPORT §3 | filtered medians (era ALL): SI $2,850 / NKD $2,325 (2024-25 ~$2,975) / HG $2,025; best_leg≡range identity documented; SI-NKD ret corr 0.18 |
+| P-M0c | DONE | 2026-08-13 | m0/census_c_rollup.tsv | M0_REPORT §5 | walled phase-close DP medians: SI $3,341 PASS / NKD $2,672 PASS / HG $2,385 FAIL; $1k-class 38-81/day; wall binds at $900 cap |
+| P-M0d | DONE | 2026-08-13 | m0/census_d_recall.tsv | M0_REPORT §7 | ANCHORED recall @$1k: SI .996 / HG .994 / NKD .986 — ALL PASS; misses tagged for G2/G3 |
+| P-M0e | DONE | 2026-08-13 | PORT_M0_VERDICT.md | committed this session | SI+NKD CONFIRMED, HG deferred; §14 ruling evidence-backed |

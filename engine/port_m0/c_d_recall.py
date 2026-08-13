@@ -259,7 +259,7 @@ def _rollup(legs):
         n = a["n"]
         r10 = a["c10"] / n if n else float("nan")
         gate = ""
-        if k[2] == "PIVOT_TO_PIVOT":
+        if k[2] == "ANCHORED":  # gate variant per CC-M0-2.1
             gate = "PASS" if (n and r10 >= X.GATE_RECALL) else "FAIL"
         out.append([k[0], k[1], k[2], n,
                     a["c9"] / n if n else float("nan"), r10,

@@ -90,7 +90,7 @@ sample.
 ## Discretion-transfer sweep (D-067, 2026-08-13)
 
 Full sweep: [DISCRETION_TRANSFER_RESEARCH.md](DISCRETION_TRANSFER_RESEARCH.md);
-sources `R0301`–`R0363` in [BIBLIOGRAPHY.tsv](BIBLIOGRAPHY.tsv).
+sources `R0401`–`R0463` in [BIBLIOGRAPHY.tsv](BIBLIOGRAPHY.tsv).
 
 Question: how is human/expert discretion encoded into a frozen model, and what
 target design does the evidence support? Mapped onto the D-064 eight-mechanism

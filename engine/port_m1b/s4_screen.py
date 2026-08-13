@@ -47,6 +47,13 @@ N_FOLDS = 4
 RECALL_K = (3, 10)
 DEFAULT_UNIT = "session"             # scoring unit for unit-free labels
 
+# TOP-TIER re-screen (S1.1/S1.2 atlas v3): the grid is still ENUMERATED in full
+# — so the P9/P10 measured prunes and the byte-identical dedup see exactly the
+# members a full run sees — but only the named families are FITTED.  Unset =
+# the full screen, i.e. the committed m1/atlas run is reproduced verbatim.
+CLASS_FILTER = tuple(f for f in
+                     os.environ.get("S4_CLASSES", "").split(",") if f)
+
 PARAMS = {
     "spec_section": SECTION,
     "gbt": dict(GBT, num_boost_round=ROUNDS),
@@ -62,6 +69,7 @@ PARAMS = {
     "guard": "occupancy/oracle-derived labels are VOIDED when their "
              "within-session-shuffled twin matches them",
     "status": "EXPLORATORY_NONCERTIFYING",
+    "class_filter": list(CLASS_FILTER) or "none (full grid)",
 }
 
 SCORE_COLUMNS = [
@@ -310,13 +318,17 @@ def screen_asset(asset, workers):
             prunes = item[1]
             break
         m, v = item
+        if CLASS_FILTER and m.family not in CLASS_FILTER:
+            continue
         metas.append(m)
         cols.append(np.asarray(v, dtype=np.float32))
     Y = np.column_stack(cols) if cols else np.zeros((rows.size, 0), np.float32)
     del cols
     L.assert_no_fprox([m.name for m in metas])
-    M.hb("s4 screen %s: %d labels kept, prunes %s" % (asset, len(metas),
-                                                      prunes))
+    M.hb("s4 screen %s: %d labels kept%s, prunes %s"
+         % (asset, len(metas),
+            (" (class filter %s)" % ",".join(CLASS_FILTER))
+            if CLASS_FILTER else "", prunes))
 
     net_pc = atoms.net("phase_close")
     cert = atoms.cert[(1.0, "phase_close")][0]

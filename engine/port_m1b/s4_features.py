@@ -48,8 +48,12 @@ import b3_levels as B3               # noqa: E402
 import b7_sane as B7                 # noqa: E402
 
 SECTION = "S4 pinned probe features"
-LEVELS_DIR = "levels_v3"
+# S1.1: the enriched arm reads the OR_EXT ledger and carries OR_EXT in the
+# distance-to-nearest-kept-level ladder.  Unset environment = the v2 probe set.
+LEVELS_DIR = os.environ.get("S4_LEVELS_DIR", "levels_v3")
 KEPT = ("FVOL_LADDER", "FVOL_BAND", "NDAY", "PRIOR_DAY", "PHASE_HL", "VWAP")
+if os.environ.get("S4_FAMILY_SET") == "v3":
+    KEPT = KEPT + ("OR_EXT",)
 RUNGS_V2 = (0.05, 0.075, 0.11, 0.15)
 HALFHOUR = 1800
 RATE_WINDOW = 60
@@ -58,6 +62,11 @@ MAD_SCALE = 1.4826
 RATE_FLOOR = 0.5
 
 S1_FAMILIES = ("G1", "G1_FINE", "G1_FAST_OPEN", "G2_REJECT", "G2_RECLAIM")
+if os.environ.get("S4_FAMILY_SET") == "v3":
+    # S1.2: the four adopted discovery families get their own one-hots, else a
+    # NEWS_WINDOW-only candidate would be indistinguishable from an untagged one
+    S1_FAMILIES = S1_FAMILIES + ("NEWS_WINDOW", "MICRO_OPEN", "POST_SHOCK",
+                                 "FIRST_TEST")
 
 FEATURE_NAMES = (
     tuple("rung_%g" % r for r in RUNGS_V2)
@@ -170,6 +179,7 @@ def load_ledger(asset, trade_date):
     fam = z["level_family"]
     px = z["level_price"]
     first_near = z["first_near_sec"]
+    ids = z["level_id"]
     z.close()
     out = {}
     for f in KEPT:
@@ -178,6 +188,21 @@ def load_ledger(asset, trade_date):
         sel = (fam == f) & np.isfinite(px)
         if not sel.any():
             continue
+        if f == "OR_EXT":
+            # SEGMENT SCOPE (CC-M1-6.1): an OR_EXT level exists only inside its
+            # own phase, so the distance feature must not measure a TOKYO
+            # extension from a NEW YORK decision.  The segment is the second
+            # field of the level id.
+            for ph, nm in enumerate(X.PHASE_NAMES):
+                s2 = sel & np.array([str(v).split("|")[1:2] == [nm]
+                                     for v in ids], dtype=bool)
+                if not s2.any():
+                    continue
+                pp = px[s2]
+                fn = first_near[s2].astype(np.int64)
+                o = np.argsort(pp, kind="stable")
+                out[("OR_EXT", ph)] = (pp[o], fn[o])
+            continue
         pp = px[sel]
         fn = first_near[sel].astype(np.int64)
         o = np.argsort(pp, kind="stable")
@@ -185,7 +210,7 @@ def load_ledger(asset, trade_date):
     return out
 
 
-def level_distances(ledger, mid, dec_sec, mult, vwap_line):
+def level_distances(ledger, mid, dec_sec, mult, vwap_line, phase=-1):
     """(6 $-distances to the nearest kept-family level, causal virgin flag).
 
     Static kept families come from the D-053+D-054 ledger; VWAP comes from the
@@ -200,7 +225,7 @@ def level_distances(ledger, mid, dec_sec, mult, vwap_line):
             if np.isfinite(vwap_line):
                 dist[i] = abs(mid - vwap_line) * mult
             continue
-        e = ledger.get(f)
+        e = ledger.get(("OR_EXT", int(phase)) if f == "OR_EXT" else f)
         if e is None:
             continue
         pp, fn = e
@@ -289,7 +314,9 @@ def _asset(args):
                     vs = vwap_sd[dec] if dec < vwap_sd.size else np.nan
                     if np.isfinite(vl) and np.isfinite(vs) and vs > 0:
                         F[i, fi["vwap_z"]] = (mid - vl) / vs
-                    d, vg = level_distances(ledger, mid, dec, mult, vl)
+                    d, vg = level_distances(
+                        ledger, mid, dec, mult, vl,
+                        int(roster["phase_dec"][cid[r]]))
                     a = float(roster["atr14_usd"][cid[r]])
                     for b2, f2 in enumerate(KEPT):
                         F[i, fi["dist_" + f2]] = (d[b2] / a) if (a > 0) else \

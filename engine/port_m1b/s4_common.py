@@ -42,10 +42,16 @@ SPEC_SHA16 = "d31f48b59877e44d"
 ATLAS_PATH = "/workspace/design/LABEL_ATLAS_V2.md"
 
 M1_ROOT = M.M1_ROOT
-SKEL_DIR = os.path.join(M1_ROOT, "skel", "shards")
-CAND_DIR = os.path.join(M1_ROOT, "skel", "candidates")
-ROSTER_DIR = os.path.join(M1_ROOT, "generation_v2")
-OUT_DIR = "atlas"
+# S1.1/S1.2 (atlas v3): the same machinery re-pointed at the ENRICHED roster and
+# its own skeleton/candidate/output trees.  Defaults are the S1-v2 atlas run, so
+# an unset environment reproduces the committed m1/atlas/ exactly.
+SKEL_DIR = os.environ.get("QR_SKEL_SHARD_DIR",
+                          os.path.join(M1_ROOT, "skel", "shards"))
+CAND_DIR = os.environ.get("QR_SKEL_CANDIDATE_DIR",
+                          os.path.join(M1_ROOT, "skel", "candidates"))
+ROSTER_DIR = os.environ.get("QR_SKEL_ROSTER_DIR",
+                            os.path.join(M1_ROOT, "generation_v2"))
+OUT_DIR = os.environ.get("S4_OUT_DIR", "atlas")
 
 ASSETS = ("SI", "HG", "NKD")
 ANCHORS = ("a0", "a1")

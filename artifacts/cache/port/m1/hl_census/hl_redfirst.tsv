@@ -1,4 +1,4 @@
-# PORT_HL_CENSUS_SPEC.md §4 red-first mutant evidence (hl_spec_sha16=ff35394b9f87b891, m1_spec_sha16=62ce5c5edb7857cc)
+# PORT_HL_CENSUS_SPEC.md §4 red-first mutant evidence (hl_spec_sha16=ff35394b9f87b891, m1_spec_sha16=767bc16e1f11bb4f)
 # params_hash=baebde2366ba50bf2dc07fc86d565cd7267f380ad9fca21382a1386521e94f18
 # a mutant caught by NO case is a test FAILURE (red-first law); the real implementation is green on every case listed
 algorithm	mutant	n_cases_broken	cases_broken

@@ -5,7 +5,8 @@ underlying opportunity; generation is judged at episode grain; selection operate
 best-entry-within-episode). D-066 requires that the episode design be **grounded in the
 cross-domain literature that already solved the clustered-emissions problem**, with
 adopt/skip verdicts recorded per technique, and adjudicated jointly with the empirical
-episode census.
+episode census. **The census (CC-M1-11) landed while this was being written** — §8B is the
+joint adjudication D-066 asks for, and the §9 shortlist is ordered after it, not before.
 
 **Format.** House cross-domain-sweep format (`design/LABEL_ATLAS_V2.md` §1I): verbatim
 technique name, mechanism, primary citation, the exact mapping to our problem, verdict
@@ -57,9 +58,16 @@ Five facts from the codebase change which techniques are on-point:
   16,278 s (HG) / 18,717 s (NKD)** — i.e. 4–5 **hours**. Grouping by leg would declare
   ~2 episodes/session of ~4h each, and would leave the *majority* of candidates in no leg
   at all. See §8 item 2.
-- **There is a live numeric conflict already on the books.** D-035 assumes
-  "~5-10 distinct episodes/session" (`DIRECTIVES.md:37`) as the data-budget unit. Leg-based
-  grouping gives ~2; the scheduler seats 3. **Nothing has ever measured it.**
+- **The empirical census landed while this sweep was being written** (`0e0cca5`,
+  `fa3831a`; `artifacts/cache/port/m1/episodes/EPISODE_CENSUS_REPORT.md`). Its
+  pre-registered rule was *same session + same side + same oracle leg, else chain-link at
+  gap ≤ 900 s*, swept over {600, 900, 1800} s. **Measured (FIT, gap 900 s, phase-close):
+  ~41 episodes/day, 9.7–10.7 candidates/episode, `leg_candidate_share` 0.23–0.35.** This
+  sweep is written against those numbers; §8B reconciles the two halves of the D-066
+  adjudication. Note that the measured 41 episodes/day **refutes D-035's assumed "~5-10
+  distinct episodes/session"** (`DIRECTIVES.md:37`) by roughly 5×, and the measured
+  `leg_candidate_share` confirms that **two-thirds to three-quarters of candidates fall in
+  no oracle leg at all**.
 - **No clustered-data statistics exist anywhere in the repo.** Holm step-down over tested
   cells exists (`engine/port_m1/family_discovery.py:1066-1090`), as do within-session
   Spearman and within-session shuffled twins. There is **no** block/cluster bootstrap, **no**
@@ -304,39 +312,104 @@ which the sweep says it is under-specified or wrong.
 
 ---
 
+## 8B. RECONCILIATION WITH THE EMPIRICAL CENSUS (CC-M1-11)
+
+D-066 requires the design to be adjudicated from the census **and** the sweep together.
+The census (`artifacts/cache/port/m1/episodes/EPISODE_CENSUS_REPORT.md`, commits `0e0cca5`
+/ `fa3831a`) landed independently of this sweep. They agree on four things and the census
+settles three of the sweep's open questions.
+
+**Where the census independently reproduced a literature failure mode:**
+
+| census finding (measured) | the literature's name for it | consequence |
+|---|---|---|
+| "the chain-link clause **welds busy same-side sessions into one giant episode**" — 21+-member episodes are 12–14% of episodes but hold **62–69% of all candidates**; max episode size **890 (SI) / 526 (HG) / 1268 (NKD)** members | **Reasenberg chaining (C2)**. Transitive closure over a proximity link has no mechanism to stop, and a dense stream chains. | The **anti-chaining guard is empirically mandatory**, not a precaution. Adopt shortlist item 3's max-span split. The census's own verdict — chain clause rejected — is the literature's expected result. |
+| gap {600, 900, 1800} s ⇒ SI **57.3 / 40.8 / 20.2** episodes/day and **8.0 / 11.3 / 22.7** candidates/episode | **Runs-declustering run-length sensitivity (A1)**, the exact defect Ferro & Segers built the intervals estimator to remove. | The 900 s gap is a *decree*. **A3/A4 must replace it**, or every episode-grain number inherits an untested tuning choice. This is shortlist item 2. |
+| `leg_candidate_share` **0.23–0.35** — most candidates lie in no oracle leg | the auxiliary-parameter objection (§8 item 2), now measured | Confirms the leg cannot be the grouping rule; the gap clause is already doing 65–77% of the work. |
+| `CLOSEST_LEVEL` **abstains on 37–40%** of episodes ("a partial rule, not a selector") | — | A selector must be **total** over episodes; abstention is a separate, explicitly-priced decision. |
+
+**Where the census OVERTURNS D-065's stated benefit — and the sweep predicted it:**
+
+The census measures the D-065 haystack-shrink rate ratio (episode base rate ÷ candidate
+base rate) at **0.701 (SI) / 0.846 (HG) / 0.848 (NKD) — all BELOW 1**, because $1k-class
+members concentrate inside the few large episodes. Its verdict: *"the honest haystack
+shrink is the COUNT shrink (≈10× fewer objects/day), not the rate ratio."*
+
+This is precisely §10's `ρ_w` warning arriving early: **when within-episode correlation is
+high, the count shrinks but the information does not, and the base rate can move the wrong
+way.** D-065's claim that episode grouping is "the primary false-positive reduction
+mechanism" is therefore **not supported as written** — grouping reduces the *object count*
+~10×, it does not raise the hit rate. The false-positive reduction must come from the
+*selector*, which is the next row.
+
+**Where the census settles what the real subproblem is — and it re-ranks this sweep:**
+
+The census's decisive measurement: episode-collapsed DP **at the within-episode oracle**
+loses only **2.50% / 2.22% / 3.13%** of seatable $/day versus all-candidates, while the
+best *simple* rule (`EARLIEST`) captures only **0.573 / 0.621 / 0.609** of the episode best
+and the full collapse costs **−16.8% / −19.2% / −18.3%**. The within-episode oracle is
+worth **2.09× the mean member** (SI, phase-close). Its verdict: *"collapsing the roster to
+one member per episode costs the seat almost nothing; the loss is entirely in **PICKING**,
+not in collapsing."*
+
+**Consequence for this sweep's adoption order:** grouping is safe and nearly free; the
+value — a ~2× multiple, of which hand rules capture ~60% — is **entirely in
+best-entry-within-episode**. Lane E is therefore not the sixth priority, it is joint-first.
+The shortlist below is ordered accordingly, with the pre-census literature ordering noted
+where it differed. Concretely: the six rules the census tried (`EARLIEST`, `BEST_SPREAD`,
+`CLOSEST_LEVEL`, `FAMILY_PRIORITY`, `HIGHEST_RUNG`, plus the `BEST_MEMBER` oracle) are all
+**hand-crafted single-attribute** rules — exactly the class Hosang et al. (B3) showed a
+learned, context-aware selector beats, and exactly the gap that attention-MIL (E3) plus a
+within-episode softmax (E4/E5) is built to close. The ~40 percentage points between
+`EARLIEST` (0.57–0.62) and `BEST_MEMBER` (1.00) is the measured size of the prize.
+
+---
+
 ## 9. BINDING SHORTLIST — ORDERED ADOPTION
 
 Ordered as an adoption sequence, in the style of LABEL_ATLAS_V2 §1I's architect shortlist.
 Everything here is subject to the house's primary-source-exact implementation law: *a
 proxy that "captures the idea" is an invalidated implementation.*
 
+**Ordering note.** Items 1–10 are ordered as adjudicated **after** the census. The
+pre-census, literature-only ordering put the within-episode selector sixth; the census's
+"the loss is entirely in PICKING, not in collapsing" moved it to second (§8B).
+
 1. **Nearest-neighbour proximity bimodality test (C6)** — *the gate*. One histogram per
    asset × side. Decides whether episodes are a measured object or a convention, and
    therefore what the rest of the design may claim. Runs before any rule is committed.
-2. **Extremal index `θ` + K-gaps MLE + Ferro–Segers intervals estimator (A2/A4/A3)** —
+2. **The within-episode selector: MIL bag formulation + attention pooling + within-episode
+   softmax (E1/E3/E4, with E5 for soft targets)** — *the subproblem the census identified*.
+   Bag = episode, instance = candidate; attention weights = best-entry weighting; loss =
+   conditional logit normalised **within the episode**. The measured prize is the gap
+   between the best hand rule (`EARLIEST`, 0.57–0.62 of episode best) and the within-episode
+   oracle (1.00, worth 2.09× the mean member). Every rule the census tried was a
+   hand-crafted single-attribute rule — the class B3 showed a learned context-aware
+   selector beats. **Promoted from 6th by the census.**
+3. **Extremal index `θ` + K-gaps MLE + Ferro–Segers intervals estimator (A2/A4/A3)** —
    *the calibrated grouping rule*. `θ̂` = the cluster factor; `K*` = the episode gap in
    seconds, chosen by likelihood with an information-matrix adequacy test, cross-checked
-   against the automatic run length `T_(C)`. This replaces "same oracle leg" as the
-   **definition**; the leg becomes a covariate and a validation target, not the rule.
-3. **Overlap graph with transitive closure + anti-chaining guard (B1/C2), built TWICE** —
+   against the automatic run length `T_(C)`. This replaces both "same oracle leg" **and**
+   the decreed 900 s chain gap as the **definition**; the leg becomes a covariate and a
+   validation target, not the rule. Mandated by the measured 600/900/1800 s instability.
+4. **Overlap graph with transitive closure + anti-chaining guard (B1/C2), built TWICE** —
    *the data structure*. Link candidates when gap ≤ `K*` (→ `EPISODE_CAUSAL`, deployable)
    and, separately, when gap ≤ `K*` **or** occupancy Jaccard ≥ `τ*` (→ `EPISODE_RETRO`,
    census-only, carrying the existing `occupancy_derived` flag and its mandatory
    within-session shuffled-twin null). Episodes are connected components; a max-span guard
-   forces splits so a session cannot chain into one episode — the failure mode the oracle
-   leg already exhibits at 4–5 h/leg. Report the two definitions' disagreement rate.
-4. **Soft weights inside the episode: Soft-NMS score decay (B2)** — *the anti-destruction
+   forces splits so a session cannot chain into one episode — the failure the census
+   measured on the rejected chain clause (max episode **890 / 526 / 1268** members; 21+
+   member episodes hold **62–69%** of all candidates). Report the two definitions'
+   disagreement rate.
+5. **Soft weights inside the episode: Soft-NMS score decay (B2)** — *the anti-destruction
    rule*. Nothing inside an episode is deleted; runner-ups carry decayed weight into
-   training, statistics and the scheduler's fallback list.
-5. **Cluster-robust everything: GEE/sandwich + cluster bootstrap + `n_eff` (F5/F8/F7)** —
+   training, statistics and the scheduler's fallback list. Cheap and directly indicated:
+   the census's collapse loss is ~2–3% at the oracle, so the runner-ups are worth keeping
+   as weighted fallbacks rather than deleting.
+6. **Cluster-robust everything: GEE/sandwich + cluster bootstrap + `n_eff` (F5/F8/F7)** —
    *the statistics firewall*. Cluster on episode (inner) and session (outer); resample
    whole clusters; report `n_eff = n/DEFF` beside every candidate count; fit on **all**
    candidates per A6, never on maxima alone.
-6. **MIL bag formulation with attention pooling, trained by a within-episode softmax
-   (E1/E3/E4)** — *the learning formulation*. Bag = episode, instance = candidate, bag
-   label = episode contained a tradeable opportunity; attention weights = best-entry
-   weighting; loss = conditional-logit within the episode (ListNet top-one, E5, where the
-   best entry is not uniquely identifiable).
 7. **Poisson/renewal acceptance test on episode onsets, with a powerful test (C8/D3)** —
    *the acceptance gate on the grouping rule itself*. Plus a **synthetic ground-truth
    harness by Ogata thinning (D3)** as the positive control: simulate a stream with known
@@ -375,10 +448,17 @@ ties — using the information-matrix misspecification test to accept or reject 
 `T_(C)` with `C = ⌈θ̂N⌉` (A3) and against the Hawkes `1 − n̂` (D2).
 **Report:** `K*` in seconds with its SE; `θ̂` with a cluster-bootstrap CI; the mean and
 full distribution of candidates-per-episode `1/θ̂`; the three estimators' agreement.
-**Anchors to check against:** ~400 candidates/session and D-035's assumed 5–10
-episodes/session imply `θ̂ ≈ 0.0125–0.025` and 40–80 candidates/episode; the oracle leg
-implies ~45 same-side candidates per group; the scheduler seats 3. If measured `1/θ̂` lands
-far from 40–80, **D-035's data-budget unit changes with it** and must be re-issued.
+**Anchors now measured (CC-M1-11 census, FIT era, phase-close):** at the hand-chosen
+900 s gap, `1/θ̂` = 10.74 (SI) / 9.77 (HG) / 9.75 (NKD) and ~41 episodes/day, so
+`θ̂ ≈ 0.093–0.102`. But the same census shows the estimate is **not stable in the
+hand-chosen parameter**: sweeping the gap over {600, 900, 1800} s moves SI from
+57.3 → 40.8 → 20.2 episodes/day and `1/θ̂` from 8.0 → 11.3 → 22.7. **That instability is
+the whole reason P1 must be fit rather than decreed** — it is Davison & Smith's documented
+run-length sensitivity (A1) reproduced exactly on our data, and A3/A4 are the published
+fix. `K*` must land inside the swept range with a likelihood justification, or the
+episode grain is a tuning choice. Cross-check the fitted `1/θ̂` against the measured 9.7–10.7
+and re-issue **D-035**, whose "~5-10 distinct episodes/session" the census already
+contradicts by ~5×.
 **Also report** `K*` fitted separately by **leg-travel decile** — the Gardner–Knopoff test
 (C1) of whether the gap must scale with move size rather than being constant.
 
@@ -403,12 +483,16 @@ beat.
 `ρ_w` is the intraclass correlation of the per-candidate certificate value within
 episodes; it drives `DEFF = 1 + (m̄ − 1)ρ_w` and `n_eff = n/DEFF` (F7), which must then be
 reported beside **every** candidate count in the census and reconciled with `θ·N` (A2).
-This is the number that retro-prices the existing census: with `m̄ ≈ 45` (the leg-grain
-figure) even a modest `ρ_w = 0.3` gives `DEFF ≈ 14`, so today's candidate-level p-values
-and the Holm family sizes built on them (`family_discovery.py:1066-1090`) are computed on
-an effective sample **an order of magnitude smaller** than assumed. **If `n_eff` moves the
-promoted/retired family set, a verdict addendum issues** (the D-054 precedent for
-quantifying impact on prior census numbers applies).
+This is the number that retro-prices every existing census: at the **measured** `m̄ ≈ 10.7`
+(SI, FIT, 900 s) even a modest `ρ_w = 0.3` gives `DEFF ≈ 3.9`, and `ρ_w = 0.6` gives
+`DEFF ≈ 6.8` — so today's candidate-level p-values and the Holm family sizes built on them
+(`family_discovery.py:1066-1090`) are computed on an effective sample **4–7× smaller** than
+assumed, and the 21+-member episodes (62–69% of candidates) carry `m̄` far above 10, so the
+inflation is worse where the winners live. **If `n_eff` moves the promoted/retired family
+set, a verdict addendum issues** (the D-054 precedent for quantifying impact on prior
+census numbers applies). The census already supplies indirect evidence that `ρ_w` is
+**high**: the sub-1 rate ratio arises precisely because $1k-class members concentrate
+inside a few large episodes rather than spreading independently.
 **Report** alongside it the **within-episode dispersion** — `(best − median)` and
 `(best − 2nd best)` certificate value per episode, in dollars, against the `cost_rt`
 (session median two-sided spread + $5) as the noise yardstick — because that gap decides
@@ -422,6 +506,6 @@ the "primary false-positive reduction mechanism" claim needs restating in `n_eff
 
 ## 11. BIBLIOGRAPHY
 
-Rows `R0301`–`R0334` appended to `research/BIBLIOGRAPHY.tsv`. No copyrighted payloads are
+Rows `R0301`–`R0343` appended to `research/BIBLIOGRAPHY.tsv`. No copyrighted payloads are
 retained in Git; `sha256` is recorded only for artefacts actually fetched during
 verification, and those artefacts live outside the repo.

@@ -68,3 +68,21 @@ volatility transforms, exposure dynamics, and mixture-of-experts. A mention
 or implementation sketch is not a result. At clean-room creation no lawful
 native-order causal fit had adjudicated these families. The evidence ledger,
 not source-file existence, controls status.
+
+## Episode declustering (D-065 / D-066)
+
+`EPISODE_DECLUSTERING_RESEARCH.md` is the mandated cross-domain sweep for the EPISODE
+LAW: 41 techniques from EVT/hydrology declustering, computer-vision non-maximum
+suppression, seismology catalog declustering, Hawkes point processes, multiple-instance
+learning, recurrent-event/clustered-data biostatistics, plus radar track-before-detect
+and spike-train burst detection — each with a primary citation, an exact mapping to our
+candidate stream, and an ADD/COVERED/SKIP verdict. Sources are `R0301`–`R0343` in
+`BIBLIOGRAPHY.tsv`.
+
+Per D-066 the sweep is **half** of the adjudication: the final episode design is settled
+only when the empirical episode census is run against it. The sweep's binding shortlist
+and the three census parameters it demands (`K*` gap seconds, `tau*` occupancy overlap,
+`rho_w` intra-episode correlation) are the census's specification. §8 of that file records
+where the literature **contradicts or qualifies D-065** — most sharply, that the oracle
+leg cannot serve as the grouping rule, and that grouping must not become the estimation
+sample.

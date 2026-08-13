@@ -1,0 +1,13 @@
+# PORT_M1B_SPEC.md S1.1 D-052 relevance re-verification (CC-M1-1 B on levels_v4) (spec_sha16=d31f48b59877e44d)
+# params_hash=0b5cbf7cb836908fbdf8eeefc73b7a70e7d6be52c3ef3fd44eb80f150b165f7a
+# union capture < 60% on any asset => the level program returns to the drawing board (CC-M1-1 B)
+asset	era	n_oracle_extremes	n_captured	union_capture	gate_ge_60pct
+SI	FIT_2021_2024	2940	2893	0.984014	PASS
+SI	GATE_2025	1006	994	0.988072	PASS
+SI	ALL	3946	3887	0.985048	PASS
+HG	FIT_2021_2024	1944	1909	0.981996	PASS
+HG	GATE_2025	720	700	0.972222	PASS
+HG	ALL	2664	2609	0.979354	PASS
+NKD	FIT_2021_2024	2550	2503	0.981569	PASS
+NKD	GATE_2025	936	924	0.987179	PASS
+NKD	ALL	3486	3427	0.983075	PASS

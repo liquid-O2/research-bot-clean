@@ -1,0 +1,7 @@
+# PORT_M1B_SPEC.md S1.1+S1.2 enriched generation v3 (CC-M1-6.1 + CC-M1-7.1) (spec_sha16=d31f48b59877e44d)
+# params_hash=e5e8d8aed7cf4e0fab91f11b0726a76ab8195a74284c2ef6eeed37daa33b42f2
+# candidate keys (date8, dec_sec, side); n_only_v2 must be 0 - the enrichment is ADDITIVE by construction
+asset	n_v2	n_v3	n_delta	n_only_v3	n_only_v2	n_shared
+SI	492203	539174	46971	46971	0	492203
+HG	507224	529492	22268	22268	0	507224
+NKD	491091	511694	20603	20603	0	491091

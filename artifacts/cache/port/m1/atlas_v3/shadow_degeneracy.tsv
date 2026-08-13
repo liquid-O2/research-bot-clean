@@ -1,0 +1,10 @@
+# PORT_M1B_SPEC.md S4 atlas screen (spec_sha16=d31f48b59877e44d)
+# params_hash=c50dfd164e2fc778844a6f8f6681f8050964cec3ff1e017904a18798e50957c3
+# LABEL_ATLAS_V2 4.2b degeneracy check, run per MARK (the ratio is a property of the mark, not the label)
+asset	mark	occupancy_ratio_median	spearman_shadow_vs_net	p_value	n_scored	n_shadow_finite	verdict
+SI	h60	0.044725	0.393052	0.000000	100483	100618	
+SI	phase_close	0.274913	0.576311	0.000000	101192	101192	
+HG	h60	0.044614	0.400475	0.000000	103557	103684	
+HG	phase_close	0.240060	0.577152	0.000000	104168	104168	
+NKD	h60	0.043691	0.394183	0.000000	98271	98611	
+NKD	phase_close	0.221476	0.544722	0.000000	99691	99691	

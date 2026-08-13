@@ -1,0 +1,8 @@
+# PORT_M1B_SPEC.md S1.1+S1.2 oracle freeze (spec_sha16=d31f48b59877e44d)
+# params_hash=e5e8d8aed7cf4e0fab91f11b0726a76ab8195a74284c2ef6eeed37daa33b42f2
+# THE FROZEN S2.2 DIFFERENTIAL ORACLE: engine/port_m1/b10_generation_v3.py params_hash=e5e8d8aed7cf4e0fab91f11b0726a76ab8195a74284c2ef6eeed37daa33b42f2 over the m1/levels_v4 ledger
+# bulk npz stays under artifacts/cache (D-018); this receipt is the freeze
+asset	path	sha256	n_candidates	n_favorable_records	n_adverse_records	n_or_ext_born	n_flagged	n_G1	n_G1_FINE	n_G1_FAST_OPEN	n_G2_REJECT	n_G2_RECLAIM	n_NEWS_WINDOW	n_MICRO_OPEN	n_POST_SHOCK	n_FIRST_TEST
+SI	artifacts/cache/port/m1/generation_v3/union_roster_SI.npz	6b0fe94ee59a4f109eee8de7d90d1d8548b141cc90b4f90b14d82461321b5eae	539174	31279860	31312985	22735	219167	189679	215049	4762	100175	24053	25849	7831	3102	0
+HG	artifacts/cache/port/m1/generation_v3/union_roster_HG.npz	5fb1448cb897c575aaba4f86e724d511feb7582da2c3816c5f25f893bc4d0833	529492	33821911	33922533	0	189323	192123	226498	6770	85312	19583	16983	5480	355	0
+NKD	artifacts/cache/port/m1/generation_v3/union_roster_NKD.npz	55c8570d8bf446a2fcab8c8b0aebe42c32d2d47bdf31fa4987eb6f5245bb35ab	511694	29741649	29816038	2543	221744	194886	228832	5256	72502	15762	12039	7179	1388	7120

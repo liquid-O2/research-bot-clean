@@ -1,0 +1,49 @@
+{
+ "assets": [
+  "SI",
+  "HG",
+  "NKD"
+ ],
+ "env": {
+  "databento_dbn": "0.66.0",
+  "git_sha": "bf7c1cadb313d1ef06850620a70d303eda60a57d",
+  "input_sha256": {},
+  "m1_spec_sha": "767bc16e1f11bb4f1bc7c23f42531f0417a9852ec0d695dc4cc4763c50512f13",
+  "m1_spec_sha16": "767bc16e1f11bb4f",
+  "numpy_version": "2.1.2",
+  "params": {
+   "class_filter": [
+    "ratio",
+    "certificate",
+    "mae_budget",
+    "path_shape"
+   ],
+   "economic_alignment": "within-ranking-unit Spearman(pred, net_phase_close) + dollar_recall@{3,10} vs the walled certificate",
+   "era_stability": "per-FIT-year alignment sign and magnitude",
+   "features": "pinned probe set (m1/atlas/features_*.npz)",
+   "folds": "expanding 4-fold walk-forward over FIT sessions",
+   "gbt": {
+    "colsample_bytree": 0.6,
+    "eta": 0.08,
+    "max_depth": 6,
+    "min_child_weight": 50,
+    "nthread": 1,
+    "num_boost_round": 50,
+    "objective": "reg:squarederror",
+    "seed": 20260813,
+    "subsample": 0.8,
+    "tree_method": "hist"
+   },
+   "guard": "occupancy/oracle-derived labels are VOIDED when their within-session-shuffled twin matches them",
+   "holm": "Holm step-down over the full enumerated grid, per asset, on the economic-alignment Spearman p-value",
+   "learnability": "Spearman(pred, own truth) on each validation fold, median",
+   "spec_section": "S4 atlas screen",
+   "status": "EXPLORATORY_NONCERTIFYING",
+   "subsample": 0.25
+  },
+  "params_hash": "c50dfd164e2fc778844a6f8f6681f8050964cec3ff1e017904a18798e50957c3",
+  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d"
+ },
+ "params_hash": "c50dfd164e2fc778844a6f8f6681f8050964cec3ff1e017904a18798e50957c3",
+ "spec_section": "S4 atlas screen"
+}

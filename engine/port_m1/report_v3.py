@@ -266,6 +266,65 @@ def sec_redfirst(out):
                "the NEWS-WINDOW CALENDAR JOIN (off-by-one day / timezone).\n")
 
 
+DEFECTS = (
+    ("V3-1", "PRE-REGISTERED RULE TRIPS ON SI PHASE_HL (returned, NOT acted "
+             "on). On the current (D-053 + D-054 + OR_EXT) ledger the SI "
+             "PHASE_HL FIT lift is 1.4977 — a hair under the CC-M1-1(B) 1.5 "
+             "bar — while its per-year lifts are 1.40/1.45/1.40/1.59 and its "
+             "GATE-2025 and ALL-era lifts are 1.51/1.50. The rule's second "
+             "clause (exclusive union-DP add >= $150/day) cannot rescue it "
+             "because that clause is SATURATED AT $0 FOR EVERY LEVEL FAMILY — "
+             "the same saturation CC-M1-3.2 already replaced for candidate "
+             "families. Retiring a source that supplies 14,446 G2 candidates "
+             "at $928 conditional value on a 0.0023 lift margin is an "
+             "orchestrator call, not a lane call; the KEPT set is unchanged "
+             "here (CC-M1-3.3 stands) and the number is on the record."),
+    ("V3-2", "LATENT COMPARATOR HOLE FOUND AND FIXED. b7_levels_v2._rows "
+             "compares ledger rows with a plain tuple compare, so a DYNAMIC "
+             "level whose creation-second price is NaN (VWAP before the "
+             "scope's first trade) is never equal to itself. Its 12-session "
+             "sample never hit one, so the D-053 differential passed by luck; "
+             "this lane's differential over all 3,734 sessions hit it "
+             "immediately (2,838 false FAILs). Fixed in b10_levels_v4._same "
+             "(NaN == NaN); b7_levels_v2 is another lane's committed artifact "
+             "and was left untouched."),
+    ("V3-3", "CALENDAR-JOIN EQUIVALENCE MEASURED, not assumed. This lane "
+             "joins the FOMC calendar on the ET calendar day of the RELEASE "
+             "SECOND (a Globex session opens the previous evening ET, so up to "
+             "three calendar days' slots can fall inside one session); the "
+             "discovery census joined on the session's own trade_date. The two "
+             "were compared over every SI session: 0 differing sessions, "
+             "2,872 releases either way — the S1.2 NEWS supply therefore "
+             "reproduces the census that adopted it. The weaker join is kept "
+             "as a committed mutant (test_m1c.py `session_date_join`), which "
+             "the calendar cases still catch."),
+    ("V3-4", "F-D6 remains SIZE-DRIVEN, as at discovery: the "
+             "beyond-extension flag fires on 219,167 / 539,174 SI candidates "
+             "(41%), 189,323 / 529,492 HG (36%) and 218,576 / 511,694 NKD "
+             "(43%). It is carried as a FLAG per CC-M1-7.2 and must not be "
+             "read as a family."),
+    ("V3-5", "DP IS SATURATED, AS EXPECTED. The enriched roster moves the "
+             "one-position phase-close DP median by +0.00% to +0.63% "
+             "(see the DP section): ~350-470 candidates already compete for "
+             "~3 seats, so extra supply cannot raise the ceiling. The "
+             "enrichment buys per-candidate QUALITY (the marginals table), "
+             "which is what CC-M1-7.3 measures, not DP headroom."),
+    ("V3-6", "OR_EXT NKD conditional value is BELOW its own G1 baseline "
+             "($389 vs $650) even though its relevance lift is the highest of "
+             "any family (6.20 FIT, 24.0 on the 2025 echo). Only the LONDON "
+             "OR30 cell was adopted for NKD, and it supplies 2,543 G2 "
+             "candidates; the level is where NKD's extremes happen, but the "
+             "entry born at it is not (yet) better than the G1 average. "
+             "Reported, not acted on — the adoption was CC-M1-6.1's."),
+)
+
+
+def sec_defects(out):
+    out.append("## Defects and returned items\n")
+    out.append(md_table(["id", "finding"],
+                        [[k, v] for (k, v) in DEFECTS]))
+
+
 def main():
     out = ["# PORT M1.B S1.1 + S1.2 — THE ENRICHED UNION ROSTER (v3)\n",
            HEADER + "\n"]
@@ -276,6 +335,7 @@ def main():
     sec_marginals(out)
     sec_dp(out)
     sec_redfirst(out)
+    sec_defects(out)
     with open(OUT, "w") as fh:
         fh.write("\n".join(out) + "\n")
     print(OUT)

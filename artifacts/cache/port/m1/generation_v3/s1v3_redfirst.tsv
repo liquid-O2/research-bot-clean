@@ -1,0 +1,18 @@
+# PORT_M1B_SPEC.md S1.1/S1.2 red-first mutant evidence (spec_sha16=d31f48b59877e44d)
+# params_hash=ab85e6e21652c2756b2eb54338f2aab00d6eedeb32397353a9413e0b241a5c64
+# a mutant caught by NO case is a test FAILURE (red-first law); the real implementation is green on every case listed
+algorithm	mutant	n_cases_broken	cases_broken
+ledger_segment_scope	out_of_scope_arms	1	out_of_scope_is_nan
+ledger_segment_scope	out_of_scope_is_a_touch	4	out_of_scope_no_touch,out_of_scope_not_virgin_break,in_scope_touches,out_of_scope_is_nan
+ledger_segment_scope	scope_dropped	4	out_of_scope_no_touch,out_of_scope_not_virgin_break,other_scope_blind,out_of_scope_is_nan
+ledger_segment_scope	scope_inverted	7	out_of_scope_no_touch,out_of_scope_not_virgin_break,in_scope_touches,in_scope_first_near,other_scope_blind,out_of_scope_is_nan,in_scope_value_preserved
+news_calendar_join	et_slots_read_as_utc	4	est_labels,edt_labels,no_fomc_labels,wall_clock_invariant
+news_calendar_join	frozen_utc_minus_5	2	edt_labels,wall_clock_invariant
+news_calendar_join	release_day_plus_one	2	est_labels,edt_labels
+news_calendar_join	same_calendar_day_only	4	est_labels,edt_labels,no_fomc_labels,wall_clock_invariant
+news_calendar_join	session_date_join	2	est_labels,edt_labels
+orext_or_range	or_from_session_open	1	london_flat
+orext_or_range	or_ignores_empty_rest	1	no_rest_of_window
+orext_or_range	or_over_whole_segment	1	no_rest_of_window
+relevance_scope	relevance_lookahead	1	before_activation
+relevance_scope	relevance_phase_blind	2	phase0_after_activation,phase1_after_activation

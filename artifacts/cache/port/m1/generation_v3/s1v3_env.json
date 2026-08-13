@@ -1,0 +1,79 @@
+{
+ "assets": [
+  "SI",
+  "HG",
+  "NKD"
+ ],
+ "env": {
+  "databento_dbn": "0.66.0",
+  "git_sha": "bf7c1cadb313d1ef06850620a70d303eda60a57d",
+  "input_sha256": {},
+  "m1_spec_sha": "767bc16e1f11bb4f1bc7c23f42531f0417a9852ec0d695dc4cc4763c50512f13",
+  "m1_spec_sha16": "767bc16e1f11bb4f",
+  "numpy_version": "2.1.2",
+  "params": {
+   "adoption_metric": "CC-M1-7.3 conditional walled value (smaller AND better); peak-exit comparator reported beside it (defect FD-8); recall/seat-share = regression guards",
+   "certificates": "m0 \u00a78 walled peak-exit and phase-close, wall from m0 walls.json, session-scoped cost_rt",
+   "dedup": "(session, decision_sec, side); family/rung/level/flag tags unioned; confirmation_sec = the earliest confirmation mapping to it",
+   "f_d6": "FLAG ONLY (CC-M1-7.2): entry mid beyond a live same-segment OR_EXT k >= 1.5 level",
+   "families": [
+    "G1",
+    "G1_FINE",
+    "G1_FAST_OPEN",
+    "G2_REJECT",
+    "G2_RECLAIM",
+    "NEWS_WINDOW",
+    "MICRO_OPEN",
+    "POST_SHOCK",
+    "FIRST_TEST"
+   ],
+   "fast_close": "RETIRED (CC-M1-7.2), never generated",
+   "first_test": "NKD only: earliest confirming touch per (session, kept level family), delay tau*; VIRGIN carried as a flag",
+   "first_test_assets": [
+    "NKD"
+   ],
+   "kept_level_families": [
+    "FVOL_LADDER",
+    "FVOL_BAND",
+    "NDAY",
+    "PRIOR_DAY",
+    "PHASE_HL",
+    "VWAP",
+    "OR_EXT"
+   ],
+   "levels_source": "m1/levels_v4 (D-053 bands, D-054 mask, CC-M1-6.1 OR_EXT)",
+   "micro_open": "first 300s after the Tokyo lunch reopen (12:30 Asia/Tokyo) and the US cash open (09:30 America/New_York, DST-correct); 15s delay; G1 confirmations only",
+   "mid_sanity": "D-054: SANE seconds only (b7_sane) everywhere",
+   "new_families": [
+    "NEWS_WINDOW",
+    "MICRO_OPEN",
+    "POST_SHOCK",
+    "FIRST_TEST"
+   ],
+   "news_window": "first 600s after FOMC 14:00 ET (meeting last day) and the fixed 08:30/10:00 ET slots; SINGLE 15s delay; G1 confirmations only (CC-M1-5 D14 precedent); BOJ deferred (calendar starts 2026)",
+   "post_shock": "first confirmation (G1 or G2) strictly after a causal shock episode ends: trailing-150s SANE mid range >= $1000, or a run of >= 10s wide-but-two-sided (D-054 insane) seconds; delay tau*",
+   "recall_classes": "post-mask legs completing < 150s = NEWS_UNTRADEABLE, counted beside the gate, never inside it",
+   "recall_gate": 0.99,
+   "retired_level_families": [
+    "FVOL_LADDER_RS",
+    "PRIOR_WEEK",
+    "PROFILE",
+    "DEV_POC",
+    "ROUND"
+   ],
+   "rungs": [
+    0.05,
+    0.075,
+    0.11,
+    0.15
+   ],
+   "spec_section": "S1.1+S1.2 enriched generation v3 (CC-M1-6.1 + CC-M1-7.1)",
+   "tau_star_sec": 120
+  },
+  "params_hash": "e5e8d8aed7cf4e0fab91f11b0726a76ab8195a74284c2ef6eeed37daa33b42f2",
+  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d"
+ },
+ "levels_dir": "levels_v4",
+ "params_hash": "e5e8d8aed7cf4e0fab91f11b0726a76ab8195a74284c2ef6eeed37daa33b42f2",
+ "spec_section": "S1.1+S1.2 enriched generation v3 (CC-M1-6.1 + CC-M1-7.1)"
+}

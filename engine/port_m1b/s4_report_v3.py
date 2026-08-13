@@ -98,6 +98,13 @@ def main():
                          "v2 full-grid top cell", "v2 align",
                          "best retg|e30 cell", "its v3 rank", "its v3 align",
                          "retg|e30 holds?", "source"], rows))
+    out.append("\nThe CLASS verdict is unanimous: every asset's top-aligned "
+               "cell is a MOVER-GATED RETENTION cell (`retg|...`), as in the "
+               "v2 full-grid screen. Read the `retg|e30 holds?` column as the "
+               "narrow question (that exact epsilon and horizon), and read it "
+               "together with the confirm-fit table below, where the per-fold "
+               "HP search is the tie-breaker between neighbouring cells of the "
+               "same family.\n")
 
     out.append("\n## Top %d by economic alignment, v3 vs v2\n" % TOP_N)
     rows = []
@@ -116,8 +123,16 @@ def main():
                          "v2 align", "delta", "learnability rho",
                          "$recall@10", "era sign", "Holm sig", "source"], rows))
 
-    out.append("\n## The reproduced §2.2 finding: learnability is NOT "
-               "alignment\n")
+    out.append("\n## Learnability vs alignment WITHIN the champion class\n")
+    out.append("CAVEAT, load-bearing: this correlation is computed over the "
+               "CHAMPION CLASS ONLY (the `labels scored` column), not the full "
+               "1,081-member grid. It is NOT comparable to the v2 full-grid "
+               "number (-0.010 / +0.075 / -0.029) — a restricted, "
+               "economically-selected slice of the grid has no reason to "
+               "reproduce a grid-wide independence statistic. What DOES carry "
+               "over is the qualitative finding, visible in the last two "
+               "columns: the most LEARNABLE label of the class (rho ~0.47-0.50, "
+               "a path-shape cell) still orders ~zero money.\n")
     rows = []
     for a in ASSETS:
         r3 = _ranked(v3, a)

@@ -56,6 +56,8 @@ include(cmake/VendorGoogleTest.cmake)
 # --- modules ---------------------------------------------------------------
 enable_testing()
 add_subdirectory(qr_core)
+add_subdirectory(qr_dbn)
+add_subdirectory(qr_futsess)
 add_subdirectory(qr_registry)
 add_subdirectory(qr_clock)
 add_subdirectory(qr_parquet)

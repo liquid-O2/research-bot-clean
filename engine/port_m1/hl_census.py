@@ -145,12 +145,24 @@ PARAMS = {
 
 
 def verify_hl_spec():
+    """Pin THIS lane's frozen spec.
+
+    PORT_M1_SPEC.md is NOT asserted here: it is amended by the lanes that own
+    it while this census runs, and this census implements PORT_HL_CENSUS_SPEC
+    against m1 OUTPUTS (receipts, forecasts, ledgers, the b7_sane threshold
+    table), not against m1's spec text.  The m1 spec sha actually present at
+    run time is RECORDED in every TSV header and in the receipt.
+    """
     got = C.sha256_file(HL_SPEC_PATH)[:16]
     if got != HL_SPEC_SHA16:
         raise RuntimeError("HL census spec sha16 %s != frozen %s"
                            % (got, HL_SPEC_SHA16))
-    M.verify_spec()
+    X.verify_spec()                    # the m0 substrate spec IS frozen
     return got
+
+
+def m1_spec_sha16_now():
+    return C.sha256_file(M.SPEC_PATH)[:16]
 
 
 def out_path(*parts):
@@ -161,7 +173,7 @@ def write_tsv(path, section, phash, columns, rows, extra=()):
     """M.write_tsv, but stamping THIS lane's frozen spec (not PORT_M1's)."""
     tmp = path + ".tmp"
     lines = ["# PORT_HL_CENSUS_SPEC.md %s (hl_spec_sha16=%s, m1_spec_sha16=%s)"
-             % (section, HL_SPEC_SHA16, M.SPEC_SHA16),
+             % (section, HL_SPEC_SHA16, m1_spec_sha16_now()),
              "# params_hash=%s" % phash]
     for e in extra:
         lines.append("# %s" % e)
@@ -178,6 +190,8 @@ def env_receipt():
     e = M.env_receipt(PARAMS)
     e["hl_spec_sha"] = C.sha256_file(HL_SPEC_PATH)
     e["hl_spec_sha16"] = HL_SPEC_SHA16
+    e["m1_spec_sha"] = C.sha256_file(M.SPEC_PATH)      # as present at run time
+    e["m1_spec_sha16"] = m1_spec_sha16_now()
     return e
 
 
@@ -1352,11 +1366,22 @@ DEFECTS = (
      "(anchor - L)/sigma_hat; the existing symmetric ladder is carried "
      "unchanged as the P1_BASE / P1_BASE_RS baselines the spec calls for."),
     ("D-054 does not define the window of 'trailing-phase-median spread'",
-     "LANE ACTION: the median of the same phase's per-session median "
-     "two-sided spread over the 20 STRICTLY PRIOR sessions, requiring >= 5 "
-     "observations; with fewer, only the $500 cap binds.  Strictly prior by "
-     "construction, so a session never licenses its own mask, and the mask is "
-     "computable live.  Declared in the receipt params."),
+     "This lane first pinned its own reading (20 prior sessions, median of "
+     "per-session medians); the M1.B lane then landed "
+     "engine/port_m1/b7_sane.py as the port's CANONICAL D-054 implementation "
+     "(60 prior sessions, exact pooled tick-histogram median) with a "
+     "published threshold table.  TWO masks across lanes is a defect in "
+     "itself.  LANE ACTION: this lane's mask was DELETED and the census now "
+     "consumes b7_sane's thresholds and mask function, so every port lane "
+     "measures the same SANE seconds.  The mask is still mutant-tested here "
+     "from an independent case set (hl_redfirst.tsv)."),
+    ("PORT_M1_SPEC.md is being amended by other lanes while this census runs",
+     "engine/port_m1/m1_common.py pins an M1 spec sha that went stale "
+     "mid-run.  LANE ACTION: this lane asserts only ITS OWN frozen spec "
+     "(PORT_HL_CENSUS_SPEC.md) and the frozen m0 spec, and RECORDS the M1 "
+     "spec sha actually present at run time in every TSV header and in the "
+     "receipt.  It implements against m1 OUTPUTS, not against m1's spec "
+     "text."),
     ("§2 P7 leaves k unspecified in 'top-k confluence zones'",
      "LANE ACTION: k in {1,3,5} are all reported; no verdict rests on a "
      "chosen k."),

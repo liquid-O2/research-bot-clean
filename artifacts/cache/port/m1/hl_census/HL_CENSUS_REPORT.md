@@ -1,9 +1,9 @@
 # HL_CENSUS_REPORT — day-high/low prediction census
 
 Spec: design/PORT_HL_CENSUS_SPEC.md (sha16 ff35394b9f87b891), FROZEN. Census type: EXPLORATORY, non-certifying. FIT era = FIT_2021_2024; GATE_2025 echoed separately; 2026 sealed and never opened.
-params_hash=0bfcf7e30aa61b66f82fe08b1f33b845c9bebe172ff2e266362eaca9d5013750
+params_hash=d11a0a8c9f71645d7ffaa741b2d96bf1e1b8df2dd2f7caf234f01cea3bcd3d36
 
-All targets and all mid reads apply the D-054 / CC-M1-4 MID-SANE mask (D-054/CC-M1-4: TWO_SIDED and spread_$ <= min(10 x trailing-phase-median spread_$, $500); trailing median = same-phase per-session medians over the 20 STRICTLY PRIOR sessions (>= 5 observations, else only the cap binds); insane seconds typed-excluded, never interpolated).
+All targets and all mid reads apply the D-054 / CC-M1-4 MID-SANE mask (D-054/CC-M1-4 via the port's canonical implementation engine/port_m1/b7_sane.py: TWO_SIDED and spread_$ <= min(10 x trailing-phase-median spread_$, $500), the trailing median being the EXACT pooled median over the same phase of the trailing 60 STRICTLY PRIOR sessions; warm-up falls back to the cap alone.  Thresholds read from m1/sane/sane_thresholds.tsv, so every port lane measures the same SANE seconds; insane seconds typed-excluded, never interpolated).
 
 ## 0. Outcome
 
@@ -33,16 +33,16 @@ Rule: lift >= 1.5 AND marginal capture >= +3pp AND per-FIT-year lift sign-stable
 
 | asset | family | target | capture | null | lift | marginal_pp | year-stable | decision | file:line |
 |---|---|---|---|---|---|---|---|---|---|
-| HG | P1_BASE | PHASE_HL | 0.638 | 0.193 | 3.300 | 0.000 | 1 | REJECT | hl_adoption.tsv:5 |
+| HG | P1_BASE | PHASE_HL | 0.638 | 0.193 | 3.301 | 0.000 | 1 | REJECT | hl_adoption.tsv:5 |
 | HG | P1_BASE | SESSION_HL | 0.179 | 0.060 | 3.000 | 0.000 | 1 | REJECT | hl_adoption.tsv:6 |
 | HG | P1_BASE_RS | PHASE_HL | 0.632 | 0.188 | 3.362 | 0.000 | 1 | REJECT | hl_adoption.tsv:7 |
 | HG | P1_BASE_RS | SESSION_HL | 0.167 | 0.058 | 2.904 | 0.000 | 1 | REJECT | hl_adoption.tsv:8 |
-| HG | P1_SIDE_POPEN | PHASE_HL | 0.644 | 0.210 | 3.069 | 0.021 | 1 | REJECT | hl_adoption.tsv:9 |
-| HG | P1_SIDE_SETTLE | SESSION_HL | 0.182 | 0.076 | 2.391 | 0.006 | 1 | REJECT | hl_adoption.tsv:10 |
+| HG | P1_SIDE_POPEN | PHASE_HL | 0.644 | 0.210 | 3.068 | 0.021 | 1 | REJECT | hl_adoption.tsv:9 |
+| HG | P1_SIDE_SETTLE | SESSION_HL | 0.182 | 0.076 | 2.384 | 0.006 | 1 | REJECT | hl_adoption.tsv:10 |
 | HG | P1_SIDE_SOPEN | SESSION_HL | 0.170 | 0.073 | 2.324 | 0.004 | 1 | REJECT | hl_adoption.tsv:11 |
 | HG | P2_LOGIT | SESSION_HL | 0.074 | 0.032 | 2.333 | 0.000 | 1 | REJECT | hl_adoption.tsv:12 |
 | HG | P2_OLS | SESSION_HL | 0.080 | 0.031 | 2.574 | 0.000 | 1 | REJECT | hl_adoption.tsv:13 |
-| HG | P2_UNCOND | SESSION_HL | 0.080 | 0.031 | 2.630 | 0.001 | 1 | REJECT | hl_adoption.tsv:14 |
+| HG | P2_UNCOND | SESSION_HL | 0.083 | 0.031 | 2.717 | 0.001 | 1 | REJECT | hl_adoption.tsv:14 |
 | HG | P3_OR30 | REST_OF_WINDOW\|LONDON | 0.419 | 0.047 | 8.917 | 0.028 | 1 | REJECT | hl_adoption.tsv:15 |
 | HG | P3_OR30 | REST_OF_WINDOW\|NY | 0.397 | 0.157 | 2.523 | 0.022 | 1 | REJECT | hl_adoption.tsv:16 |
 | HG | P3_OR30 | REST_OF_WINDOW\|SESSION | 0.231 | 0.166 | 1.393 | 0.012 | 1 | REJECT | hl_adoption.tsv:17 |
@@ -51,7 +51,7 @@ Rule: lift >= 1.5 AND marginal capture >= +3pp AND per-FIT-year lift sign-stable
 | HG | P3_OR60 | REST_OF_WINDOW\|NY | 0.404 | 0.128 | 3.157 | 0.021 | 1 | REJECT | hl_adoption.tsv:20 |
 | HG | P3_OR60 | REST_OF_WINDOW\|SESSION | 0.263 | 0.169 | 1.557 | 0.014 | 1 | REJECT | hl_adoption.tsv:21 |
 | HG | P3_OR60 | REST_OF_WINDOW\|TOKYO | 0.433 | 0.100 | 4.312 | 0.024 | 1 | REJECT | hl_adoption.tsv:22 |
-| HG | P4_CAMARILLA | SESSION_HL | 0.173 | 0.090 | 1.929 | 0.007 | 1 | REJECT | hl_adoption.tsv:23 |
+| HG | P4_CAMARILLA | SESSION_HL | 0.173 | 0.090 | 1.934 | 0.007 | 1 | REJECT | hl_adoption.tsv:23 |
 | HG | P4_FLOOR | SESSION_HL | 0.167 | 0.149 | 1.122 | 0.005 | 0 | REJECT | hl_adoption.tsv:24 |
 | HG | P5_D00 | PHASE_HL | 0.159 | 0.173 | 0.915 | 0.000 | 0 | REJECT | hl_adoption.tsv:25 |
 | HG | P5_D00 | SESSION_HL | 0.151 | 0.171 | 0.883 | 0.000 | 0 | REJECT | hl_adoption.tsv:26 |
@@ -62,35 +62,35 @@ Rule: lift >= 1.5 AND marginal capture >= +3pp AND per-FIT-year lift sign-stable
 | HG | P5_D75 | PHASE_HL | 0.100 | 0.124 | 0.806 | 0.005 | 0 | REJECT | hl_adoption.tsv:31 |
 | HG | P5_D75 | SESSION_HL | 0.125 | 0.151 | 0.828 | 0.004 | 0 | REJECT | hl_adoption.tsv:32 |
 | HG | P6_GAPFILL | SESSION_HL | 0.045 | 0.045 | 1.000 | 0.000 | 0 | REJECT | hl_adoption.tsv:33 |
-| NKD | P1_BASE | PHASE_HL | 0.683 | 0.196 | 3.486 | 0.000 | 1 | REJECT | hl_adoption.tsv:34 |
-| NKD | P1_BASE | SESSION_HL | 0.185 | 0.072 | 2.573 | 0.000 | 1 | REJECT | hl_adoption.tsv:35 |
-| NKD | P1_BASE_RS | PHASE_HL | 0.677 | 0.191 | 3.539 | 0.000 | 1 | REJECT | hl_adoption.tsv:36 |
-| NKD | P1_BASE_RS | SESSION_HL | 0.200 | 0.069 | 2.877 | 0.000 | 1 | REJECT | hl_adoption.tsv:37 |
-| NKD | P1_SIDE_POPEN | PHASE_HL | 0.709 | 0.208 | 3.399 | 0.013 | 1 | REJECT | hl_adoption.tsv:38 |
-| NKD | P1_SIDE_SETTLE | SESSION_HL | 0.208 | 0.079 | 2.647 | 0.003 | 1 | REJECT | hl_adoption.tsv:39 |
-| NKD | P1_SIDE_SOPEN | SESSION_HL | 0.191 | 0.078 | 2.461 | 0.004 | 1 | REJECT | hl_adoption.tsv:40 |
-| NKD | P2_LOGIT | SESSION_HL | 0.072 | 0.034 | 2.118 | 0.000 | 1 | REJECT | hl_adoption.tsv:41 |
-| NKD | P2_OLS | SESSION_HL | 0.080 | 0.032 | 2.500 | 0.000 | 1 | REJECT | hl_adoption.tsv:42 |
-| NKD | P2_UNCOND | SESSION_HL | 0.082 | 0.034 | 2.385 | 0.000 | 1 | REJECT | hl_adoption.tsv:43 |
+| NKD | P1_BASE | PHASE_HL | 0.683 | 0.196 | 3.482 | 0.000 | 1 | REJECT | hl_adoption.tsv:34 |
+| NKD | P1_BASE | SESSION_HL | 0.184 | 0.072 | 2.559 | 0.000 | 1 | REJECT | hl_adoption.tsv:35 |
+| NKD | P1_BASE_RS | PHASE_HL | 0.677 | 0.192 | 3.527 | 0.000 | 1 | REJECT | hl_adoption.tsv:36 |
+| NKD | P1_BASE_RS | SESSION_HL | 0.201 | 0.069 | 2.912 | 0.000 | 1 | REJECT | hl_adoption.tsv:37 |
+| NKD | P1_SIDE_POPEN | PHASE_HL | 0.708 | 0.209 | 3.392 | 0.013 | 1 | REJECT | hl_adoption.tsv:38 |
+| NKD | P1_SIDE_SETTLE | SESSION_HL | 0.208 | 0.077 | 2.699 | 0.003 | 1 | REJECT | hl_adoption.tsv:39 |
+| NKD | P1_SIDE_SOPEN | SESSION_HL | 0.190 | 0.078 | 2.432 | 0.004 | 1 | REJECT | hl_adoption.tsv:40 |
+| NKD | P2_LOGIT | SESSION_HL | 0.072 | 0.032 | 2.204 | 0.000 | 1 | REJECT | hl_adoption.tsv:41 |
+| NKD | P2_OLS | SESSION_HL | 0.080 | 0.031 | 2.609 | 0.000 | 1 | REJECT | hl_adoption.tsv:42 |
+| NKD | P2_UNCOND | SESSION_HL | 0.084 | 0.035 | 2.396 | 0.000 | 1 | REJECT | hl_adoption.tsv:43 |
 | NKD | P3_OR30 | REST_OF_WINDOW\|LONDON | 0.585 | 0.023 | 25.447 | 0.032 | 1 | ADOPT | hl_adoption.tsv:44 |
-| NKD | P3_OR30 | REST_OF_WINDOW\|NY | 0.431 | 0.117 | 3.675 | 0.028 | 1 | REJECT | hl_adoption.tsv:45 |
-| NKD | P3_OR30 | REST_OF_WINDOW\|SESSION | 0.296 | 0.163 | 1.811 | 0.011 | 1 | REJECT | hl_adoption.tsv:46 |
-| NKD | P3_OR30 | REST_OF_WINDOW\|TOKYO | 0.383 | 0.119 | 3.209 | 0.019 | 1 | REJECT | hl_adoption.tsv:47 |
+| NKD | P3_OR30 | REST_OF_WINDOW\|NY | 0.431 | 0.118 | 3.660 | 0.028 | 1 | REJECT | hl_adoption.tsv:45 |
+| NKD | P3_OR30 | REST_OF_WINDOW\|SESSION | 0.295 | 0.163 | 1.808 | 0.011 | 1 | REJECT | hl_adoption.tsv:46 |
+| NKD | P3_OR30 | REST_OF_WINDOW\|TOKYO | 0.383 | 0.120 | 3.183 | 0.019 | 1 | REJECT | hl_adoption.tsv:47 |
 | NKD | P3_OR60 | REST_OF_WINDOW\|LONDON | 0.525 | 0.015 | 34.677 | 0.025 | 1 | REJECT | hl_adoption.tsv:48 |
-| NKD | P3_OR60 | REST_OF_WINDOW\|NY | 0.449 | 0.111 | 4.031 | 0.024 | 1 | REJECT | hl_adoption.tsv:49 |
+| NKD | P3_OR60 | REST_OF_WINDOW\|NY | 0.449 | 0.112 | 4.013 | 0.024 | 1 | REJECT | hl_adoption.tsv:49 |
 | NKD | P3_OR60 | REST_OF_WINDOW\|SESSION | 0.316 | 0.163 | 1.943 | 0.011 | 1 | REJECT | hl_adoption.tsv:50 |
-| NKD | P3_OR60 | REST_OF_WINDOW\|TOKYO | 0.384 | 0.110 | 3.493 | 0.017 | 1 | REJECT | hl_adoption.tsv:51 |
-| NKD | P4_CAMARILLA | SESSION_HL | 0.180 | 0.081 | 2.236 | 0.004 | 1 | REJECT | hl_adoption.tsv:52 |
-| NKD | P4_FLOOR | SESSION_HL | 0.168 | 0.166 | 1.009 | 0.007 | 0 | REJECT | hl_adoption.tsv:53 |
-| NKD | P5_D00 | PHASE_HL | 0.164 | 0.162 | 1.014 | 0.000 | 0 | REJECT | hl_adoption.tsv:54 |
+| NKD | P3_OR60 | REST_OF_WINDOW\|TOKYO | 0.386 | 0.110 | 3.491 | 0.017 | 1 | REJECT | hl_adoption.tsv:51 |
+| NKD | P4_CAMARILLA | SESSION_HL | 0.179 | 0.081 | 2.224 | 0.004 | 1 | REJECT | hl_adoption.tsv:52 |
+| NKD | P4_FLOOR | SESSION_HL | 0.168 | 0.166 | 1.012 | 0.007 | 0 | REJECT | hl_adoption.tsv:53 |
+| NKD | P5_D00 | PHASE_HL | 0.164 | 0.162 | 1.012 | 0.000 | 0 | REJECT | hl_adoption.tsv:54 |
 | NKD | P5_D00 | SESSION_HL | 0.166 | 0.151 | 1.097 | 0.000 | 0 | REJECT | hl_adoption.tsv:55 |
 | NKD | P5_D25 | PHASE_HL | 0.164 | 0.157 | 1.041 | 0.010 | 1 | REJECT | hl_adoption.tsv:56 |
 | NKD | P5_D25 | SESSION_HL | 0.188 | 0.147 | 1.279 | 0.007 | 1 | REJECT | hl_adoption.tsv:57 |
-| NKD | P5_D50 | PHASE_HL | 0.148 | 0.162 | 0.913 | 0.006 | 0 | REJECT | hl_adoption.tsv:58 |
-| NKD | P5_D50 | SESSION_HL | 0.168 | 0.172 | 0.977 | 0.004 | 0 | REJECT | hl_adoption.tsv:59 |
-| NKD | P5_D75 | PHASE_HL | 0.103 | 0.144 | 0.715 | 0.004 | 0 | REJECT | hl_adoption.tsv:60 |
+| NKD | P5_D50 | PHASE_HL | 0.148 | 0.163 | 0.912 | 0.006 | 0 | REJECT | hl_adoption.tsv:58 |
+| NKD | P5_D50 | SESSION_HL | 0.169 | 0.173 | 0.977 | 0.004 | 0 | REJECT | hl_adoption.tsv:59 |
+| NKD | P5_D75 | PHASE_HL | 0.103 | 0.144 | 0.714 | 0.004 | 0 | REJECT | hl_adoption.tsv:60 |
 | NKD | P5_D75 | SESSION_HL | 0.135 | 0.184 | 0.732 | 0.004 | 0 | REJECT | hl_adoption.tsv:61 |
-| NKD | P6_GAPFILL | SESSION_HL | 0.043 | 0.000 | nan | 0.000 | 0 | REJECT | hl_adoption.tsv:62 |
+| NKD | P6_GAPFILL | SESSION_HL | 0.045 | 0.000 | nan | 0.000 | 0 | REJECT | hl_adoption.tsv:62 |
 | SI | P1_BASE | PHASE_HL | 0.654 | 0.175 | 3.748 | 0.000 | 1 | REJECT | hl_adoption.tsv:63 |
 | SI | P1_BASE | SESSION_HL | 0.177 | 0.062 | 2.881 | 0.000 | 1 | REJECT | hl_adoption.tsv:64 |
 | SI | P1_BASE_RS | PHASE_HL | 0.646 | 0.173 | 3.727 | 0.000 | 1 | REJECT | hl_adoption.tsv:65 |
@@ -156,16 +156,16 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | SI | P5_D75 | PHASE_HL | 5496 | 5496 | 0.076 | 0.126 | 0.601 | 1369 | 0.506 | 0.004 | 0.906 | hl_families.tsv:165 |
 | SI | P5_D75 | SESSION_HL | 1832 | 1832 | 0.105 | 0.135 | 0.781 | 950 | 0.371 | 0.007 | 0.919 | hl_families.tsv:171 |
 | SI | P6_GAPFILL | SESSION_HL | 21 | 1832 | 0.095 | 0.000 | nan | 788 | 0.296 | 0.000 | 0.919 | hl_families.tsv:176 |
-| HG | P1_BASE | PHASE_HL | 5946 | 6126 | 0.638 | 0.193 | 3.300 | 63 | 0.033 | 0.000 | 0.945 | hl_families.tsv:182 |
+| HG | P1_BASE | PHASE_HL | 5946 | 6126 | 0.638 | 0.193 | 3.301 | 63 | 0.033 | 0.000 | 0.945 | hl_families.tsv:182 |
 | HG | P1_BASE | SESSION_HL | 1982 | 2042 | 0.179 | 0.060 | 3.000 | 464 | 0.241 | 0.000 | 0.945 | hl_families.tsv:188 |
 | HG | P1_BASE_RS | PHASE_HL | 5946 | 6126 | 0.632 | 0.188 | 3.362 | 64 | 0.034 | 0.000 | 0.945 | hl_families.tsv:194 |
 | HG | P1_BASE_RS | SESSION_HL | 1982 | 2042 | 0.167 | 0.058 | 2.904 | 477 | 0.246 | 0.000 | 0.945 | hl_families.tsv:200 |
-| HG | P1_SIDE_POPEN | PHASE_HL | 5946 | 6126 | 0.644 | 0.210 | 3.069 | 64 | 0.034 | 0.021 | 0.945 | hl_families.tsv:206 |
-| HG | P1_SIDE_SETTLE | SESSION_HL | 1982 | 2042 | 0.182 | 0.076 | 2.391 | 255 | 0.132 | 0.006 | 0.945 | hl_families.tsv:212 |
+| HG | P1_SIDE_POPEN | PHASE_HL | 5946 | 6126 | 0.644 | 0.210 | 3.068 | 64 | 0.034 | 0.021 | 0.945 | hl_families.tsv:206 |
+| HG | P1_SIDE_SETTLE | SESSION_HL | 1982 | 2042 | 0.182 | 0.076 | 2.384 | 255 | 0.132 | 0.006 | 0.945 | hl_families.tsv:212 |
 | HG | P1_SIDE_SOPEN | SESSION_HL | 1982 | 2042 | 0.170 | 0.073 | 2.324 | 253 | 0.134 | 0.004 | 0.945 | hl_families.tsv:218 |
-| HG | P2_LOGIT | SESSION_HL | 1506 | 2042 | 0.074 | 0.032 | 2.333 | 578 | 0.318 | 0.000 | 0.945 | hl_families.tsv:223 |
-| HG | P2_OLS | SESSION_HL | 1506 | 2042 | 0.080 | 0.031 | 2.574 | 578 | 0.315 | 0.000 | 0.945 | hl_families.tsv:228 |
-| HG | P2_UNCOND | SESSION_HL | 1506 | 2042 | 0.080 | 0.031 | 2.630 | 579 | 0.319 | 0.001 | 0.945 | hl_families.tsv:233 |
+| HG | P2_LOGIT | SESSION_HL | 1506 | 2042 | 0.074 | 0.032 | 2.333 | 578 | 0.319 | 0.000 | 0.945 | hl_families.tsv:223 |
+| HG | P2_OLS | SESSION_HL | 1506 | 2042 | 0.080 | 0.031 | 2.574 | 578 | 0.314 | 0.000 | 0.945 | hl_families.tsv:228 |
+| HG | P2_UNCOND | SESSION_HL | 1506 | 2042 | 0.083 | 0.031 | 2.717 | 579 | 0.317 | 0.001 | 0.945 | hl_families.tsv:233 |
 | HG | P3_OR30 | REST_OF_WINDOW\|LONDON | 2042 | 2042 | 0.419 | 0.047 | 8.917 | 138 | 0.073 | 0.028 | 0.944 | hl_families.tsv:239 |
 | HG | P3_OR30 | REST_OF_WINDOW\|NY | 2042 | 2042 | 0.397 | 0.157 | 2.523 | 164 | 0.088 | 0.022 | 0.939 | hl_families.tsv:245 |
 | HG | P3_OR30 | REST_OF_WINDOW\|SESSION | 2042 | 2042 | 0.231 | 0.166 | 1.393 | 481 | 0.259 | 0.012 | 0.944 | hl_families.tsv:251 |
@@ -174,7 +174,7 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | HG | P3_OR60 | REST_OF_WINDOW\|NY | 2042 | 2042 | 0.404 | 0.128 | 3.157 | 147 | 0.077 | 0.021 | 0.938 | hl_families.tsv:269 |
 | HG | P3_OR60 | REST_OF_WINDOW\|SESSION | 2042 | 2042 | 0.263 | 0.169 | 1.557 | 425 | 0.233 | 0.014 | 0.945 | hl_families.tsv:275 |
 | HG | P3_OR60 | REST_OF_WINDOW\|TOKYO | 2042 | 2042 | 0.433 | 0.100 | 4.312 | 142 | 0.072 | 0.024 | 0.958 | hl_families.tsv:281 |
-| HG | P4_CAMARILLA | SESSION_HL | 2042 | 2042 | 0.173 | 0.090 | 1.929 | 291 | 0.152 | 0.007 | 0.945 | hl_families.tsv:287 |
+| HG | P4_CAMARILLA | SESSION_HL | 2042 | 2042 | 0.173 | 0.090 | 1.934 | 291 | 0.152 | 0.007 | 0.945 | hl_families.tsv:287 |
 | HG | P4_FLOOR | SESSION_HL | 2042 | 2042 | 0.167 | 0.149 | 1.122 | 290 | 0.153 | 0.005 | 0.945 | hl_families.tsv:293 |
 | HG | P5_D00 | PHASE_HL | 6126 | 6126 | 0.159 | 0.173 | 0.915 | 425 | 0.218 | 0.000 | 0.945 | hl_families.tsv:299 |
 | HG | P5_D00 | SESSION_HL | 2042 | 2042 | 0.151 | 0.171 | 0.883 | 422 | 0.218 | 0.000 | 0.945 | hl_families.tsv:305 |
@@ -185,35 +185,35 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | HG | P5_D75 | PHASE_HL | 6126 | 6126 | 0.100 | 0.124 | 0.806 | 862 | 0.453 | 0.005 | 0.945 | hl_families.tsv:335 |
 | HG | P5_D75 | SESSION_HL | 2042 | 2042 | 0.125 | 0.151 | 0.828 | 628 | 0.328 | 0.004 | 0.945 | hl_families.tsv:341 |
 | HG | P6_GAPFILL | SESSION_HL | 22 | 2042 | 0.045 | 0.045 | 1.000 | 888 | 0.435 | 0.000 | 0.945 | hl_families.tsv:347 |
-| NKD | P1_BASE | PHASE_HL | 5958 | 6138 | 0.683 | 0.196 | 3.486 | 66 | 0.029 | 0.000 | 0.951 | hl_families.tsv:353 |
-| NKD | P1_BASE | SESSION_HL | 1986 | 2046 | 0.185 | 0.072 | 2.573 | 437 | 0.198 | 0.000 | 0.953 | hl_families.tsv:359 |
-| NKD | P1_BASE_RS | PHASE_HL | 5958 | 6138 | 0.677 | 0.191 | 3.539 | 67 | 0.029 | 0.000 | 0.951 | hl_families.tsv:365 |
-| NKD | P1_BASE_RS | SESSION_HL | 1986 | 2046 | 0.200 | 0.069 | 2.877 | 447 | 0.201 | 0.000 | 0.953 | hl_families.tsv:371 |
-| NKD | P1_SIDE_POPEN | PHASE_HL | 5958 | 6138 | 0.709 | 0.208 | 3.399 | 67 | 0.030 | 0.013 | 0.951 | hl_families.tsv:377 |
-| NKD | P1_SIDE_SETTLE | SESSION_HL | 1986 | 2046 | 0.208 | 0.079 | 2.647 | 293 | 0.131 | 0.003 | 0.953 | hl_families.tsv:383 |
-| NKD | P1_SIDE_SOPEN | SESSION_HL | 1986 | 2046 | 0.191 | 0.078 | 2.461 | 297 | 0.133 | 0.004 | 0.953 | hl_families.tsv:389 |
-| NKD | P2_LOGIT | SESSION_HL | 1508 | 2046 | 0.072 | 0.034 | 2.118 | 687 | 0.293 | 0.000 | 0.953 | hl_families.tsv:394 |
-| NKD | P2_OLS | SESSION_HL | 1508 | 2046 | 0.080 | 0.032 | 2.500 | 678 | 0.297 | 0.000 | 0.953 | hl_families.tsv:399 |
-| NKD | P2_UNCOND | SESSION_HL | 1508 | 2046 | 0.082 | 0.034 | 2.385 | 674 | 0.292 | 0.000 | 0.953 | hl_families.tsv:404 |
+| NKD | P1_BASE | PHASE_HL | 5958 | 6138 | 0.683 | 0.196 | 3.482 | 66 | 0.029 | 0.000 | 0.951 | hl_families.tsv:353 |
+| NKD | P1_BASE | SESSION_HL | 1986 | 2046 | 0.184 | 0.072 | 2.559 | 436 | 0.198 | 0.000 | 0.953 | hl_families.tsv:359 |
+| NKD | P1_BASE_RS | PHASE_HL | 5958 | 6138 | 0.677 | 0.192 | 3.527 | 67 | 0.029 | 0.000 | 0.951 | hl_families.tsv:365 |
+| NKD | P1_BASE_RS | SESSION_HL | 1986 | 2046 | 0.201 | 0.069 | 2.912 | 445 | 0.201 | 0.000 | 0.953 | hl_families.tsv:371 |
+| NKD | P1_SIDE_POPEN | PHASE_HL | 5958 | 6138 | 0.708 | 0.209 | 3.392 | 67 | 0.030 | 0.013 | 0.951 | hl_families.tsv:377 |
+| NKD | P1_SIDE_SETTLE | SESSION_HL | 1986 | 2046 | 0.208 | 0.077 | 2.699 | 293 | 0.131 | 0.003 | 0.953 | hl_families.tsv:383 |
+| NKD | P1_SIDE_SOPEN | SESSION_HL | 1986 | 2046 | 0.190 | 0.078 | 2.432 | 297 | 0.133 | 0.004 | 0.953 | hl_families.tsv:389 |
+| NKD | P2_LOGIT | SESSION_HL | 1508 | 2046 | 0.072 | 0.032 | 2.204 | 687 | 0.294 | 0.000 | 0.953 | hl_families.tsv:394 |
+| NKD | P2_OLS | SESSION_HL | 1508 | 2046 | 0.080 | 0.031 | 2.609 | 682 | 0.295 | 0.000 | 0.953 | hl_families.tsv:399 |
+| NKD | P2_UNCOND | SESSION_HL | 1508 | 2046 | 0.084 | 0.035 | 2.396 | 672 | 0.292 | 0.000 | 0.953 | hl_families.tsv:404 |
 | NKD | P3_OR30 | REST_OF_WINDOW\|LONDON | 2046 | 2046 | 0.585 | 0.023 | 25.447 | 81 | 0.034 | 0.032 | 0.947 | hl_families.tsv:410 |
-| NKD | P3_OR30 | REST_OF_WINDOW\|NY | 2046 | 2046 | 0.431 | 0.117 | 3.675 | 175 | 0.075 | 0.028 | 0.941 | hl_families.tsv:416 |
-| NKD | P3_OR30 | REST_OF_WINDOW\|SESSION | 2046 | 2046 | 0.296 | 0.163 | 1.811 | 388 | 0.175 | 0.011 | 0.957 | hl_families.tsv:422 |
-| NKD | P3_OR30 | REST_OF_WINDOW\|TOKYO | 2046 | 2046 | 0.383 | 0.119 | 3.209 | 212 | 0.094 | 0.019 | 0.963 | hl_families.tsv:428 |
+| NKD | P3_OR30 | REST_OF_WINDOW\|NY | 2046 | 2046 | 0.431 | 0.118 | 3.660 | 175 | 0.075 | 0.028 | 0.941 | hl_families.tsv:416 |
+| NKD | P3_OR30 | REST_OF_WINDOW\|SESSION | 2046 | 2046 | 0.295 | 0.163 | 1.808 | 388 | 0.173 | 0.011 | 0.957 | hl_families.tsv:422 |
+| NKD | P3_OR30 | REST_OF_WINDOW\|TOKYO | 2046 | 2046 | 0.383 | 0.120 | 3.183 | 212 | 0.094 | 0.019 | 0.963 | hl_families.tsv:428 |
 | NKD | P3_OR60 | REST_OF_WINDOW\|LONDON | 2046 | 2046 | 0.525 | 0.015 | 34.677 | 103 | 0.045 | 0.025 | 0.944 | hl_families.tsv:434 |
-| NKD | P3_OR60 | REST_OF_WINDOW\|NY | 2046 | 2046 | 0.449 | 0.111 | 4.031 | 144 | 0.062 | 0.024 | 0.943 | hl_families.tsv:440 |
-| NKD | P3_OR60 | REST_OF_WINDOW\|SESSION | 2046 | 2046 | 0.316 | 0.163 | 1.943 | 319 | 0.138 | 0.011 | 0.958 | hl_families.tsv:446 |
-| NKD | P3_OR60 | REST_OF_WINDOW\|TOKYO | 2046 | 2046 | 0.384 | 0.110 | 3.493 | 200 | 0.088 | 0.017 | 0.965 | hl_families.tsv:452 |
-| NKD | P4_CAMARILLA | SESSION_HL | 2046 | 2046 | 0.180 | 0.081 | 2.236 | 337 | 0.148 | 0.004 | 0.953 | hl_families.tsv:458 |
-| NKD | P4_FLOOR | SESSION_HL | 2046 | 2046 | 0.168 | 0.166 | 1.009 | 329 | 0.148 | 0.007 | 0.953 | hl_families.tsv:464 |
-| NKD | P5_D00 | PHASE_HL | 6138 | 6138 | 0.164 | 0.162 | 1.014 | 525 | 0.230 | 0.000 | 0.951 | hl_families.tsv:470 |
+| NKD | P3_OR60 | REST_OF_WINDOW\|NY | 2046 | 2046 | 0.449 | 0.112 | 4.013 | 144 | 0.062 | 0.024 | 0.943 | hl_families.tsv:440 |
+| NKD | P3_OR60 | REST_OF_WINDOW\|SESSION | 2046 | 2046 | 0.316 | 0.163 | 1.943 | 316 | 0.139 | 0.011 | 0.958 | hl_families.tsv:446 |
+| NKD | P3_OR60 | REST_OF_WINDOW\|TOKYO | 2046 | 2046 | 0.386 | 0.110 | 3.491 | 200 | 0.088 | 0.017 | 0.966 | hl_families.tsv:452 |
+| NKD | P4_CAMARILLA | SESSION_HL | 2046 | 2046 | 0.179 | 0.081 | 2.224 | 335 | 0.148 | 0.004 | 0.953 | hl_families.tsv:458 |
+| NKD | P4_FLOOR | SESSION_HL | 2046 | 2046 | 0.168 | 0.166 | 1.012 | 329 | 0.148 | 0.007 | 0.953 | hl_families.tsv:464 |
+| NKD | P5_D00 | PHASE_HL | 6138 | 6138 | 0.164 | 0.162 | 1.012 | 525 | 0.231 | 0.000 | 0.951 | hl_families.tsv:470 |
 | NKD | P5_D00 | SESSION_HL | 2046 | 2046 | 0.166 | 0.151 | 1.097 | 475 | 0.210 | 0.000 | 0.953 | hl_families.tsv:476 |
 | NKD | P5_D25 | PHASE_HL | 6138 | 6138 | 0.164 | 0.157 | 1.041 | 562 | 0.243 | 0.010 | 0.951 | hl_families.tsv:482 |
 | NKD | P5_D25 | SESSION_HL | 2046 | 2046 | 0.188 | 0.147 | 1.279 | 475 | 0.200 | 0.007 | 0.953 | hl_families.tsv:488 |
-| NKD | P5_D50 | PHASE_HL | 6138 | 6138 | 0.148 | 0.162 | 0.913 | 662 | 0.285 | 0.006 | 0.951 | hl_families.tsv:494 |
-| NKD | P5_D50 | SESSION_HL | 2046 | 2046 | 0.168 | 0.172 | 0.977 | 500 | 0.219 | 0.004 | 0.953 | hl_families.tsv:500 |
-| NKD | P5_D75 | PHASE_HL | 6138 | 6138 | 0.103 | 0.144 | 0.715 | 1038 | 0.458 | 0.004 | 0.951 | hl_families.tsv:506 |
+| NKD | P5_D50 | PHASE_HL | 6138 | 6138 | 0.148 | 0.163 | 0.912 | 662 | 0.285 | 0.006 | 0.951 | hl_families.tsv:494 |
+| NKD | P5_D50 | SESSION_HL | 2046 | 2046 | 0.169 | 0.173 | 0.977 | 500 | 0.219 | 0.004 | 0.953 | hl_families.tsv:500 |
+| NKD | P5_D75 | PHASE_HL | 6138 | 6138 | 0.103 | 0.144 | 0.714 | 1038 | 0.458 | 0.004 | 0.951 | hl_families.tsv:506 |
 | NKD | P5_D75 | SESSION_HL | 2046 | 2046 | 0.135 | 0.184 | 0.732 | 750 | 0.322 | 0.004 | 0.953 | hl_families.tsv:512 |
-| NKD | P6_GAPFILL | SESSION_HL | 23 | 2046 | 0.043 | 0.000 | nan | 738 | 0.291 | 0.000 | 0.953 | hl_families.tsv:518 |
+| NKD | P6_GAPFILL | SESSION_HL | 22 | 2046 | 0.045 | 0.000 | nan | 756 | 0.322 | 0.000 | 0.953 | hl_families.tsv:518 |
 
 ### 2025 GATE echo (evaluation only, never a selection input)
 
@@ -224,7 +224,7 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | SI | P1_BASE_RS | PHASE_HL | 0.599 | 0.181 | 3.314 | hl_families.tsv:25 |
 | SI | P1_BASE_RS | SESSION_HL | 0.165 | 0.085 | 1.932 | hl_families.tsv:31 |
 | SI | P1_SIDE_POPEN | PHASE_HL | 0.636 | 0.191 | 3.324 | hl_families.tsv:37 |
-| SI | P1_SIDE_SETTLE | SESSION_HL | 0.169 | 0.064 | 2.636 | hl_families.tsv:43 |
+| SI | P1_SIDE_SETTLE | SESSION_HL | 0.169 | 0.066 | 2.559 | hl_families.tsv:43 |
 | SI | P1_SIDE_SOPEN | SESSION_HL | 0.155 | 0.072 | 2.162 | hl_families.tsv:49 |
 | SI | P2_LOGIT | SESSION_HL | 0.093 | 0.050 | 1.846 | hl_families.tsv:54 |
 | SI | P2_OLS | SESSION_HL | 0.091 | 0.045 | 2.043 | hl_families.tsv:59 |
@@ -252,7 +252,7 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | HG | P1_BASE | SESSION_HL | 0.171 | 0.060 | 2.839 | hl_families.tsv:189 |
 | HG | P1_BASE_RS | PHASE_HL | 0.610 | 0.138 | 4.416 | hl_families.tsv:195 |
 | HG | P1_BASE_RS | SESSION_HL | 0.176 | 0.064 | 2.758 | hl_families.tsv:201 |
-| HG | P1_SIDE_POPEN | PHASE_HL | 0.627 | 0.155 | 4.046 | hl_families.tsv:207 |
+| HG | P1_SIDE_POPEN | PHASE_HL | 0.628 | 0.155 | 4.050 | hl_families.tsv:207 |
 | HG | P1_SIDE_SETTLE | SESSION_HL | 0.190 | 0.079 | 2.390 | hl_families.tsv:213 |
 | HG | P1_SIDE_SOPEN | SESSION_HL | 0.211 | 0.066 | 3.206 | hl_families.tsv:219 |
 | HG | P2_LOGIT | SESSION_HL | 0.078 | 0.029 | 2.667 | hl_families.tsv:224 |
@@ -282,11 +282,11 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | NKD | P1_BASE_RS | PHASE_HL | 0.641 | 0.164 | 3.902 | hl_families.tsv:366 |
 | NKD | P1_BASE_RS | SESSION_HL | 0.149 | 0.078 | 1.925 | hl_families.tsv:372 |
 | NKD | P1_SIDE_POPEN | PHASE_HL | 0.699 | 0.193 | 3.615 | hl_families.tsv:378 |
-| NKD | P1_SIDE_SETTLE | SESSION_HL | 0.149 | 0.089 | 1.674 | hl_families.tsv:384 |
+| NKD | P1_SIDE_SETTLE | SESSION_HL | 0.155 | 0.089 | 1.739 | hl_families.tsv:384 |
 | NKD | P1_SIDE_SOPEN | SESSION_HL | 0.165 | 0.058 | 2.833 | hl_families.tsv:390 |
 | NKD | P2_LOGIT | SESSION_HL | 0.074 | 0.047 | 1.583 | hl_families.tsv:395 |
 | NKD | P2_OLS | SESSION_HL | 0.076 | 0.047 | 1.625 | hl_families.tsv:400 |
-| NKD | P2_UNCOND | SESSION_HL | 0.072 | 0.048 | 1.480 | hl_families.tsv:405 |
+| NKD | P2_UNCOND | SESSION_HL | 0.070 | 0.050 | 1.385 | hl_families.tsv:405 |
 | NKD | P3_OR30 | REST_OF_WINDOW\|LONDON | 0.615 | 0.018 | 35.111 | hl_families.tsv:411 |
 | NKD | P3_OR30 | REST_OF_WINDOW\|NY | 0.413 | 0.101 | 4.096 | hl_families.tsv:417 |
 | NKD | P3_OR30 | REST_OF_WINDOW\|SESSION | 0.266 | 0.145 | 1.827 | hl_families.tsv:423 |
@@ -295,7 +295,7 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | NKD | P3_OR60 | REST_OF_WINDOW\|NY | 0.461 | 0.081 | 5.667 | hl_families.tsv:441 |
 | NKD | P3_OR60 | REST_OF_WINDOW\|SESSION | 0.295 | 0.149 | 1.974 | hl_families.tsv:447 |
 | NKD | P3_OR60 | REST_OF_WINDOW\|TOKYO | 0.343 | 0.114 | 3.000 | hl_families.tsv:453 |
-| NKD | P4_CAMARILLA | SESSION_HL | 0.180 | 0.079 | 2.268 | hl_families.tsv:459 |
+| NKD | P4_CAMARILLA | SESSION_HL | 0.180 | 0.078 | 2.325 | hl_families.tsv:459 |
 | NKD | P4_FLOOR | SESSION_HL | 0.207 | 0.147 | 1.408 | hl_families.tsv:465 |
 | NKD | P5_D00 | PHASE_HL | 0.181 | 0.159 | 1.138 | hl_families.tsv:471 |
 | NKD | P5_D00 | SESSION_HL | 0.174 | 0.149 | 1.169 | hl_families.tsv:477 |
@@ -311,16 +311,16 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 
 | asset | family | target | 2021 | 2022 | 2023 | 2024 | file:line |
 |---|---|---|---|---|---|---|---|
-| HG | P1_BASE | PHASE_HL | 3.53 | 2.79 | 3.74 | 3.48 | hl_families.tsv:178,179,180,181 |
+| HG | P1_BASE | PHASE_HL | 3.54 | 2.79 | 3.74 | 3.48 | hl_families.tsv:178,179,180,181 |
 | HG | P1_BASE | SESSION_HL | 2.96 | 2.92 | 2.62 | 3.73 | hl_families.tsv:184,185,186,187 |
 | HG | P1_BASE_RS | PHASE_HL | 3.56 | 2.95 | 3.76 | 3.43 | hl_families.tsv:190,191,192,193 |
 | HG | P1_BASE_RS | SESSION_HL | 2.77 | 2.78 | 2.92 | 3.20 | hl_families.tsv:196,197,198,199 |
 | HG | P1_SIDE_POPEN | PHASE_HL | 3.32 | 2.74 | 3.22 | 3.16 | hl_families.tsv:202,203,204,205 |
-| HG | P1_SIDE_SETTLE | SESSION_HL | 2.86 | 2.49 | 2.00 | 2.35 | hl_families.tsv:208,209,210,211 |
+| HG | P1_SIDE_SETTLE | SESSION_HL | 2.82 | 2.49 | 2.00 | 2.35 | hl_families.tsv:208,209,210,211 |
 | HG | P1_SIDE_SOPEN | SESSION_HL | 2.89 | 2.33 | 1.83 | 2.47 | hl_families.tsv:214,215,216,217 |
 | HG | P2_LOGIT | SESSION_HL | - | 2.43 | 2.80 | 1.89 | hl_families.tsv:220,221,222 |
 | HG | P2_OLS | SESSION_HL | - | 3.15 | 2.94 | 1.83 | hl_families.tsv:225,226,227 |
-| HG | P2_UNCOND | SESSION_HL | - | 2.43 | 3.62 | 2.11 | hl_families.tsv:230,231,232 |
+| HG | P2_UNCOND | SESSION_HL | - | 2.50 | 3.92 | 2.05 | hl_families.tsv:230,231,232 |
 | HG | P3_OR30 | REST_OF_WINDOW\|LONDON | 4.85 | 9.09 | 23.12 | 12.58 | hl_families.tsv:235,236,237,238 |
 | HG | P3_OR30 | REST_OF_WINDOW\|NY | 2.24 | 2.74 | 2.85 | 2.33 | hl_families.tsv:241,242,243,244 |
 | HG | P3_OR30 | REST_OF_WINDOW\|SESSION | 1.81 | 1.40 | 1.10 | 1.38 | hl_families.tsv:247,248,249,250 |
@@ -329,7 +329,7 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | HG | P3_OR60 | REST_OF_WINDOW\|NY | 3.06 | 3.31 | 3.15 | 3.13 | hl_families.tsv:265,266,267,268 |
 | HG | P3_OR60 | REST_OF_WINDOW\|SESSION | 2.15 | 1.52 | 1.20 | 1.55 | hl_families.tsv:271,272,273,274 |
 | HG | P3_OR60 | REST_OF_WINDOW\|TOKYO | 7.55 | 5.13 | 3.00 | 3.49 | hl_families.tsv:277,278,279,280 |
-| HG | P4_CAMARILLA | SESSION_HL | 2.70 | 1.62 | 1.89 | 1.69 | hl_families.tsv:283,284,285,286 |
+| HG | P4_CAMARILLA | SESSION_HL | 2.73 | 1.62 | 1.89 | 1.69 | hl_families.tsv:283,284,285,286 |
 | HG | P4_FLOOR | SESSION_HL | 1.04 | 1.38 | 1.07 | 0.99 | hl_families.tsv:289,290,291,292 |
 | HG | P5_D00 | PHASE_HL | 0.84 | 0.81 | 0.89 | 1.15 | hl_families.tsv:295,296,297,298 |
 | HG | P5_D00 | SESSION_HL | 0.76 | 0.71 | 0.95 | 1.12 | hl_families.tsv:301,302,303,304 |
@@ -340,27 +340,27 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | HG | P5_D75 | PHASE_HL | 0.79 | 0.83 | 0.76 | 0.83 | hl_families.tsv:331,332,333,334 |
 | HG | P5_D75 | SESSION_HL | 0.87 | 0.83 | 0.85 | 0.78 | hl_families.tsv:337,338,339,340 |
 | HG | P6_GAPFILL | SESSION_HL | nan | 1.00 | nan | nan | hl_families.tsv:343,344,345,346 |
-| NKD | P1_BASE | PHASE_HL | 3.94 | 3.11 | 3.47 | 3.66 | hl_families.tsv:349,350,351,352 |
-| NKD | P1_BASE | SESSION_HL | 2.46 | 2.58 | 2.59 | 2.64 | hl_families.tsv:355,356,357,358 |
-| NKD | P1_BASE_RS | PHASE_HL | 3.97 | 3.16 | 3.40 | 3.90 | hl_families.tsv:361,362,363,364 |
-| NKD | P1_BASE_RS | SESSION_HL | 3.35 | 2.62 | 2.91 | 2.90 | hl_families.tsv:367,368,369,370 |
-| NKD | P1_SIDE_POPEN | PHASE_HL | 3.89 | 3.03 | 3.31 | 3.58 | hl_families.tsv:373,374,375,376 |
-| NKD | P1_SIDE_SETTLE | SESSION_HL | 2.96 | 2.80 | 2.75 | 2.17 | hl_families.tsv:379,380,381,382 |
-| NKD | P1_SIDE_SOPEN | SESSION_HL | 2.59 | 2.80 | 2.24 | 2.24 | hl_families.tsv:385,386,387,388 |
-| NKD | P2_LOGIT | SESSION_HL | - | 2.53 | 1.81 | 2.05 | hl_families.tsv:391,392,393 |
-| NKD | P2_OLS | SESSION_HL | - | 4.60 | 2.38 | 1.64 | hl_families.tsv:396,397,398 |
-| NKD | P2_UNCOND | SESSION_HL | - | 3.31 | 2.41 | 1.82 | hl_families.tsv:401,402,403 |
+| NKD | P1_BASE | PHASE_HL | 3.94 | 3.12 | 3.44 | 3.66 | hl_families.tsv:349,350,351,352 |
+| NKD | P1_BASE | SESSION_HL | 2.50 | 2.54 | 2.59 | 2.61 | hl_families.tsv:355,356,357,358 |
+| NKD | P1_BASE_RS | PHASE_HL | 3.96 | 3.16 | 3.37 | 3.90 | hl_families.tsv:361,362,363,364 |
+| NKD | P1_BASE_RS | SESSION_HL | 3.59 | 2.65 | 2.91 | 2.84 | hl_families.tsv:367,368,369,370 |
+| NKD | P1_SIDE_POPEN | PHASE_HL | 3.91 | 3.03 | 3.28 | 3.57 | hl_families.tsv:373,374,375,376 |
+| NKD | P1_SIDE_SETTLE | SESSION_HL | 3.00 | 3.00 | 2.73 | 2.19 | hl_families.tsv:379,380,381,382 |
+| NKD | P1_SIDE_SOPEN | SESSION_HL | 2.56 | 2.81 | 2.19 | 2.21 | hl_families.tsv:385,386,387,388 |
+| NKD | P2_LOGIT | SESSION_HL | - | 2.64 | 2.00 | 2.05 | hl_families.tsv:391,392,393 |
+| NKD | P2_OLS | SESSION_HL | - | 5.22 | 2.40 | 1.68 | hl_families.tsv:396,397,398 |
+| NKD | P2_UNCOND | SESSION_HL | - | 3.29 | 2.50 | 1.78 | hl_families.tsv:401,402,403 |
 | NKD | P3_OR30 | REST_OF_WINDOW\|LONDON | 23.54 | 26.50 | 42.00 | 18.53 | hl_families.tsv:406,407,408,409 |
-| NKD | P3_OR30 | REST_OF_WINDOW\|NY | 4.56 | 3.54 | 3.23 | 3.55 | hl_families.tsv:412,413,414,415 |
-| NKD | P3_OR30 | REST_OF_WINDOW\|SESSION | 1.75 | 1.85 | 1.77 | 1.87 | hl_families.tsv:418,419,420,421 |
-| NKD | P3_OR30 | REST_OF_WINDOW\|TOKYO | 2.63 | 3.70 | 2.69 | 4.30 | hl_families.tsv:424,425,426,427 |
+| NKD | P3_OR30 | REST_OF_WINDOW\|NY | 4.47 | 3.54 | 3.23 | 3.55 | hl_families.tsv:412,413,414,415 |
+| NKD | P3_OR30 | REST_OF_WINDOW\|SESSION | 1.75 | 1.83 | 1.78 | 1.87 | hl_families.tsv:418,419,420,421 |
+| NKD | P3_OR30 | REST_OF_WINDOW\|TOKYO | 2.63 | 3.68 | 2.63 | 4.30 | hl_families.tsv:424,425,426,427 |
 | NKD | P3_OR60 | REST_OF_WINDOW\|LONDON | 40.33 | 28.70 | 26.90 | 55.40 | hl_families.tsv:430,431,432,433 |
-| NKD | P3_OR60 | REST_OF_WINDOW\|NY | 5.65 | 3.78 | 3.50 | 3.69 | hl_families.tsv:436,437,438,439 |
-| NKD | P3_OR60 | REST_OF_WINDOW\|SESSION | 2.16 | 1.74 | 1.85 | 2.06 | hl_families.tsv:442,443,444,445 |
-| NKD | P3_OR60 | REST_OF_WINDOW\|TOKYO | 2.60 | 4.08 | 3.22 | 4.60 | hl_families.tsv:448,449,450,451 |
-| NKD | P4_CAMARILLA | SESSION_HL | 2.58 | 1.54 | 3.20 | 2.21 | hl_families.tsv:454,455,456,457 |
-| NKD | P4_FLOOR | SESSION_HL | 0.94 | 1.00 | 0.99 | 1.11 | hl_families.tsv:460,461,462,463 |
-| NKD | P5_D00 | PHASE_HL | 1.07 | 1.00 | 1.02 | 0.98 | hl_families.tsv:466,467,468,469 |
+| NKD | P3_OR60 | REST_OF_WINDOW\|NY | 5.52 | 3.78 | 3.50 | 3.69 | hl_families.tsv:436,437,438,439 |
+| NKD | P3_OR60 | REST_OF_WINDOW\|SESSION | 2.19 | 1.73 | 1.84 | 2.06 | hl_families.tsv:442,443,444,445 |
+| NKD | P3_OR60 | REST_OF_WINDOW\|TOKYO | 2.60 | 4.17 | 3.15 | 4.60 | hl_families.tsv:448,449,450,451 |
+| NKD | P4_CAMARILLA | SESSION_HL | 2.49 | 1.53 | 3.20 | 2.24 | hl_families.tsv:454,455,456,457 |
+| NKD | P4_FLOOR | SESSION_HL | 0.92 | 1.04 | 0.99 | 1.11 | hl_families.tsv:460,461,462,463 |
+| NKD | P5_D00 | PHASE_HL | 1.07 | 0.99 | 1.02 | 0.98 | hl_families.tsv:466,467,468,469 |
 | NKD | P5_D00 | SESSION_HL | 1.11 | 1.00 | 1.05 | 1.22 | hl_families.tsv:472,473,474,475 |
 | NKD | P5_D25 | PHASE_HL | 1.04 | 1.09 | 1.01 | 1.03 | hl_families.tsv:478,479,480,481 |
 | NKD | P5_D25 | SESSION_HL | 1.43 | 1.18 | 1.05 | 1.50 | hl_families.tsv:484,485,486,487 |
@@ -465,8 +465,8 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | HG | P1_SIDE_SOPEN | SESSION_HL | DN | 0.90 | FIT_2021_2024 | 991 | 0.890 | 0.010 | hl_calibration.tsv:416 |
 | HG | P1_SIDE_SOPEN | SESSION_HL | UP | 0.95 | FIT_2021_2024 | 991 | 0.937 | 0.013 | hl_calibration.tsv:423 |
 | HG | P1_SIDE_SOPEN | SESSION_HL | DN | 0.95 | FIT_2021_2024 | 991 | 0.933 | 0.017 | hl_calibration.tsv:430 |
-| HG | P1_SIDE_POPEN | PHASE_HL\|TOKYO | UP | 0.50 | FIT_2021_2024 | 991 | 0.471 | 0.029 | hl_calibration.tsv:437 |
-| HG | P1_SIDE_POPEN | PHASE_HL\|TOKYO | DN | 0.50 | FIT_2021_2024 | 991 | 0.460 | 0.040 | hl_calibration.tsv:444 |
+| HG | P1_SIDE_POPEN | PHASE_HL\|TOKYO | UP | 0.50 | FIT_2021_2024 | 991 | 0.472 | 0.028 | hl_calibration.tsv:437 |
+| HG | P1_SIDE_POPEN | PHASE_HL\|TOKYO | DN | 0.50 | FIT_2021_2024 | 991 | 0.461 | 0.039 | hl_calibration.tsv:444 |
 | HG | P1_SIDE_POPEN | PHASE_HL\|TOKYO | UP | 0.75 | FIT_2021_2024 | 991 | 0.704 | 0.046 | hl_calibration.tsv:451 |
 | HG | P1_SIDE_POPEN | PHASE_HL\|TOKYO | DN | 0.75 | FIT_2021_2024 | 991 | 0.697 | 0.053 | hl_calibration.tsv:458 |
 | HG | P1_SIDE_POPEN | PHASE_HL\|TOKYO | UP | 0.90 | FIT_2021_2024 | 991 | 0.875 | 0.025 | hl_calibration.tsv:465 |
@@ -493,31 +493,31 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | HG | P2_OLS | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 753 | 0.509 | 0.009 | hl_calibration.tsv:610 |
 | HG | P2_LOGIT | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 753 | 0.502 | 0.002 | hl_calibration.tsv:616 |
 | HG | P2_LOGIT | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 753 | 0.498 | 0.002 | hl_calibration.tsv:622 |
-| HG | P2_UNCOND | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 753 | 0.485 | 0.015 | hl_calibration.tsv:628 |
-| HG | P2_UNCOND | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 753 | 0.515 | 0.015 | hl_calibration.tsv:634 |
-| NKD | P1_SIDE_SETTLE | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 993 | 0.478 | 0.022 | hl_calibration.tsv:641 |
+| HG | P2_UNCOND | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 753 | 0.483 | 0.017 | hl_calibration.tsv:628 |
+| HG | P2_UNCOND | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 753 | 0.517 | 0.017 | hl_calibration.tsv:634 |
+| NKD | P1_SIDE_SETTLE | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 993 | 0.477 | 0.023 | hl_calibration.tsv:641 |
 | NKD | P1_SIDE_SETTLE | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 993 | 0.476 | 0.024 | hl_calibration.tsv:648 |
-| NKD | P1_SIDE_SETTLE | SESSION_HL | UP | 0.75 | FIT_2021_2024 | 993 | 0.718 | 0.032 | hl_calibration.tsv:655 |
-| NKD | P1_SIDE_SETTLE | SESSION_HL | DN | 0.75 | FIT_2021_2024 | 993 | 0.724 | 0.026 | hl_calibration.tsv:662 |
+| NKD | P1_SIDE_SETTLE | SESSION_HL | UP | 0.75 | FIT_2021_2024 | 993 | 0.717 | 0.033 | hl_calibration.tsv:655 |
+| NKD | P1_SIDE_SETTLE | SESSION_HL | DN | 0.75 | FIT_2021_2024 | 993 | 0.726 | 0.024 | hl_calibration.tsv:662 |
 | NKD | P1_SIDE_SETTLE | SESSION_HL | UP | 0.90 | FIT_2021_2024 | 993 | 0.881 | 0.019 | hl_calibration.tsv:669 |
 | NKD | P1_SIDE_SETTLE | SESSION_HL | DN | 0.90 | FIT_2021_2024 | 993 | 0.884 | 0.016 | hl_calibration.tsv:676 |
-| NKD | P1_SIDE_SETTLE | SESSION_HL | UP | 0.95 | FIT_2021_2024 | 993 | 0.934 | 0.016 | hl_calibration.tsv:683 |
+| NKD | P1_SIDE_SETTLE | SESSION_HL | UP | 0.95 | FIT_2021_2024 | 993 | 0.935 | 0.015 | hl_calibration.tsv:683 |
 | NKD | P1_SIDE_SETTLE | SESSION_HL | DN | 0.95 | FIT_2021_2024 | 993 | 0.933 | 0.017 | hl_calibration.tsv:690 |
-| NKD | P1_SIDE_SOPEN | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 993 | 0.483 | 0.017 | hl_calibration.tsv:697 |
-| NKD | P1_SIDE_SOPEN | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 993 | 0.476 | 0.024 | hl_calibration.tsv:704 |
-| NKD | P1_SIDE_SOPEN | SESSION_HL | UP | 0.75 | FIT_2021_2024 | 993 | 0.717 | 0.033 | hl_calibration.tsv:711 |
+| NKD | P1_SIDE_SOPEN | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 993 | 0.481 | 0.019 | hl_calibration.tsv:697 |
+| NKD | P1_SIDE_SOPEN | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 993 | 0.474 | 0.026 | hl_calibration.tsv:704 |
+| NKD | P1_SIDE_SOPEN | SESSION_HL | UP | 0.75 | FIT_2021_2024 | 993 | 0.716 | 0.034 | hl_calibration.tsv:711 |
 | NKD | P1_SIDE_SOPEN | SESSION_HL | DN | 0.75 | FIT_2021_2024 | 993 | 0.733 | 0.017 | hl_calibration.tsv:718 |
-| NKD | P1_SIDE_SOPEN | SESSION_HL | UP | 0.90 | FIT_2021_2024 | 993 | 0.881 | 0.019 | hl_calibration.tsv:725 |
+| NKD | P1_SIDE_SOPEN | SESSION_HL | UP | 0.90 | FIT_2021_2024 | 993 | 0.882 | 0.018 | hl_calibration.tsv:725 |
 | NKD | P1_SIDE_SOPEN | SESSION_HL | DN | 0.90 | FIT_2021_2024 | 993 | 0.884 | 0.016 | hl_calibration.tsv:732 |
 | NKD | P1_SIDE_SOPEN | SESSION_HL | UP | 0.95 | FIT_2021_2024 | 993 | 0.932 | 0.018 | hl_calibration.tsv:739 |
 | NKD | P1_SIDE_SOPEN | SESSION_HL | DN | 0.95 | FIT_2021_2024 | 993 | 0.936 | 0.014 | hl_calibration.tsv:746 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | UP | 0.50 | FIT_2021_2024 | 993 | 0.463 | 0.037 | hl_calibration.tsv:753 |
-| NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | DN | 0.50 | FIT_2021_2024 | 993 | 0.463 | 0.037 | hl_calibration.tsv:760 |
-| NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | UP | 0.75 | FIT_2021_2024 | 993 | 0.703 | 0.047 | hl_calibration.tsv:767 |
-| NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | DN | 0.75 | FIT_2021_2024 | 993 | 0.715 | 0.035 | hl_calibration.tsv:774 |
+| NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | DN | 0.50 | FIT_2021_2024 | 993 | 0.462 | 0.038 | hl_calibration.tsv:760 |
+| NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | UP | 0.75 | FIT_2021_2024 | 993 | 0.704 | 0.046 | hl_calibration.tsv:767 |
+| NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | DN | 0.75 | FIT_2021_2024 | 993 | 0.716 | 0.034 | hl_calibration.tsv:774 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | UP | 0.90 | FIT_2021_2024 | 993 | 0.867 | 0.033 | hl_calibration.tsv:781 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | DN | 0.90 | FIT_2021_2024 | 993 | 0.879 | 0.021 | hl_calibration.tsv:788 |
-| NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | UP | 0.95 | FIT_2021_2024 | 993 | 0.923 | 0.027 | hl_calibration.tsv:795 |
+| NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | UP | 0.95 | FIT_2021_2024 | 993 | 0.922 | 0.028 | hl_calibration.tsv:795 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|TOKYO | DN | 0.95 | FIT_2021_2024 | 993 | 0.931 | 0.019 | hl_calibration.tsv:802 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|LONDON | UP | 0.50 | FIT_2021_2024 | 993 | 0.436 | 0.064 | hl_calibration.tsv:809 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|LONDON | DN | 0.50 | FIT_2021_2024 | 993 | 0.443 | 0.057 | hl_calibration.tsv:816 |
@@ -529,7 +529,7 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | NKD | P1_SIDE_POPEN | PHASE_HL\|LONDON | DN | 0.95 | FIT_2021_2024 | 993 | 0.912 | 0.038 | hl_calibration.tsv:858 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|NY | UP | 0.50 | FIT_2021_2024 | 993 | 0.461 | 0.039 | hl_calibration.tsv:865 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|NY | DN | 0.50 | FIT_2021_2024 | 993 | 0.456 | 0.044 | hl_calibration.tsv:872 |
-| NKD | P1_SIDE_POPEN | PHASE_HL\|NY | UP | 0.75 | FIT_2021_2024 | 993 | 0.691 | 0.059 | hl_calibration.tsv:879 |
+| NKD | P1_SIDE_POPEN | PHASE_HL\|NY | UP | 0.75 | FIT_2021_2024 | 993 | 0.692 | 0.058 | hl_calibration.tsv:879 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|NY | DN | 0.75 | FIT_2021_2024 | 993 | 0.688 | 0.062 | hl_calibration.tsv:886 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|NY | UP | 0.90 | FIT_2021_2024 | 993 | 0.854 | 0.046 | hl_calibration.tsv:893 |
 | NKD | P1_SIDE_POPEN | PHASE_HL\|NY | DN | 0.90 | FIT_2021_2024 | 993 | 0.869 | 0.031 | hl_calibration.tsv:900 |
@@ -537,10 +537,10 @@ ADOPTED: 6 of 87 (family, target, asset) rows.
 | NKD | P1_SIDE_POPEN | PHASE_HL\|NY | DN | 0.95 | FIT_2021_2024 | 993 | 0.922 | 0.028 | hl_calibration.tsv:914 |
 | NKD | P2_OLS | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 754 | 0.493 | 0.007 | hl_calibration.tsv:920 |
 | NKD | P2_OLS | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 754 | 0.507 | 0.007 | hl_calibration.tsv:926 |
-| NKD | P2_LOGIT | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 754 | 0.488 | 0.012 | hl_calibration.tsv:932 |
-| NKD | P2_LOGIT | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 754 | 0.512 | 0.012 | hl_calibration.tsv:938 |
-| NKD | P2_UNCOND | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 754 | 0.495 | 0.005 | hl_calibration.tsv:944 |
-| NKD | P2_UNCOND | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 754 | 0.505 | 0.005 | hl_calibration.tsv:950 |
+| NKD | P2_LOGIT | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 754 | 0.491 | 0.009 | hl_calibration.tsv:932 |
+| NKD | P2_LOGIT | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 754 | 0.509 | 0.009 | hl_calibration.tsv:938 |
+| NKD | P2_UNCOND | SESSION_HL | UP | 0.50 | FIT_2021_2024 | 754 | 0.496 | 0.004 | hl_calibration.tsv:944 |
+| NKD | P2_UNCOND | SESSION_HL | DN | 0.50 | FIT_2021_2024 | 754 | 0.504 | 0.004 | hl_calibration.tsv:950 |
 
 ## 5. P2 conditional split vs the unconditional null (spec §2/§3)
 
@@ -551,15 +551,15 @@ Pinball loss at q=0.5 on up_share = (H-open)/(H-L); lower is better. The uncondi
 | SI | FIT_2021_2024 | OLS | 646 | 0.13445 | 0.13478 | +0.00033 | 1 | hl_p2_pinball.tsv:14 |
 | SI | FIT_2021_2024 | LOGIT | 646 | 0.13569 | 0.13478 | -0.00092 | 0 | hl_p2_pinball.tsv:15 |
 | SI | GATE_2025 | OLS | 258 | 0.14184 | 0.14269 | +0.00085 | 1 | hl_p2_pinball.tsv:16 |
-| SI | GATE_2025 | LOGIT | 258 | 0.14261 | 0.14269 | +0.00009 | 1 | hl_p2_pinball.tsv:17 |
-| HG | FIT_2021_2024 | OLS | 753 | 0.13497 | 0.13441 | -0.00056 | 0 | hl_p2_pinball.tsv:26 |
-| HG | FIT_2021_2024 | LOGIT | 753 | 0.13641 | 0.13441 | -0.00201 | 0 | hl_p2_pinball.tsv:27 |
-| HG | GATE_2025 | OLS | 258 | 0.13823 | 0.13652 | -0.00171 | 0 | hl_p2_pinball.tsv:28 |
-| HG | GATE_2025 | LOGIT | 258 | 0.13871 | 0.13652 | -0.00219 | 0 | hl_p2_pinball.tsv:29 |
-| NKD | FIT_2021_2024 | OLS | 754 | 0.13829 | 0.13581 | -0.00248 | 0 | hl_p2_pinball.tsv:38 |
-| NKD | FIT_2021_2024 | LOGIT | 754 | 0.13978 | 0.13581 | -0.00396 | 0 | hl_p2_pinball.tsv:39 |
-| NKD | GATE_2025 | OLS | 258 | 0.13954 | 0.14090 | +0.00136 | 1 | hl_p2_pinball.tsv:40 |
-| NKD | GATE_2025 | LOGIT | 258 | 0.13881 | 0.14090 | +0.00209 | 1 | hl_p2_pinball.tsv:41 |
+| SI | GATE_2025 | LOGIT | 258 | 0.14262 | 0.14269 | +0.00007 | 1 | hl_p2_pinball.tsv:17 |
+| HG | FIT_2021_2024 | OLS | 753 | 0.13498 | 0.13439 | -0.00059 | 0 | hl_p2_pinball.tsv:26 |
+| HG | FIT_2021_2024 | LOGIT | 753 | 0.13642 | 0.13439 | -0.00203 | 0 | hl_p2_pinball.tsv:27 |
+| HG | GATE_2025 | OLS | 258 | 0.13826 | 0.13655 | -0.00171 | 0 | hl_p2_pinball.tsv:28 |
+| HG | GATE_2025 | LOGIT | 258 | 0.13874 | 0.13655 | -0.00219 | 0 | hl_p2_pinball.tsv:29 |
+| NKD | FIT_2021_2024 | OLS | 754 | 0.13836 | 0.13587 | -0.00248 | 0 | hl_p2_pinball.tsv:38 |
+| NKD | FIT_2021_2024 | LOGIT | 754 | 0.13964 | 0.13587 | -0.00377 | 0 | hl_p2_pinball.tsv:39 |
+| NKD | GATE_2025 | OLS | 258 | 0.13937 | 0.14086 | +0.00149 | 1 | hl_p2_pinball.tsv:40 |
+| NKD | GATE_2025 | LOGIT | 258 | 0.13868 | 0.14086 | +0.00218 | 1 | hl_p2_pinball.tsv:41 |
 
 ## 6. P7 confluence (spec §2 P7)
 
@@ -571,18 +571,18 @@ Pinball loss at q=0.5 on up_share = (H-open)/(H-L); lower is better. The uncondi
 | SI | GATE_2025 | 1 | 516 | 0.043 | 0.014 | 3.143 | 14.48 | hl_confluence.tsv:20 |
 | SI | GATE_2025 | 3 | 516 | 0.103 | 0.072 | 1.432 | 14.48 | hl_confluence.tsv:21 |
 | SI | GATE_2025 | 5 | 516 | 0.165 | 0.138 | 1.197 | 14.48 | hl_confluence.tsv:22 |
-| HG | FIT_2021_2024 | 1 | 2042 | 0.036 | 0.031 | 1.141 | 14.89 | hl_confluence.tsv:35 |
-| HG | FIT_2021_2024 | 3 | 2042 | 0.118 | 0.090 | 1.304 | 14.89 | hl_confluence.tsv:36 |
-| HG | FIT_2021_2024 | 5 | 2042 | 0.187 | 0.147 | 1.269 | 14.89 | hl_confluence.tsv:37 |
+| HG | FIT_2021_2024 | 1 | 2042 | 0.035 | 0.031 | 1.125 | 14.90 | hl_confluence.tsv:35 |
+| HG | FIT_2021_2024 | 3 | 2042 | 0.116 | 0.090 | 1.295 | 14.90 | hl_confluence.tsv:36 |
+| HG | FIT_2021_2024 | 5 | 2042 | 0.187 | 0.146 | 1.274 | 14.90 | hl_confluence.tsv:37 |
 | HG | GATE_2025 | 1 | 516 | 0.050 | 0.029 | 1.733 | 15.99 | hl_confluence.tsv:38 |
 | HG | GATE_2025 | 3 | 516 | 0.126 | 0.089 | 1.413 | 15.99 | hl_confluence.tsv:39 |
-| HG | GATE_2025 | 5 | 516 | 0.207 | 0.136 | 1.529 | 15.99 | hl_confluence.tsv:40 |
-| NKD | FIT_2021_2024 | 1 | 2046 | 0.053 | 0.033 | 1.612 | 15.18 | hl_confluence.tsv:53 |
-| NKD | FIT_2021_2024 | 3 | 2046 | 0.140 | 0.097 | 1.442 | 15.18 | hl_confluence.tsv:54 |
-| NKD | FIT_2021_2024 | 5 | 2046 | 0.228 | 0.154 | 1.475 | 15.18 | hl_confluence.tsv:55 |
-| NKD | GATE_2025 | 1 | 516 | 0.052 | 0.041 | 1.286 | 15.96 | hl_confluence.tsv:56 |
-| NKD | GATE_2025 | 3 | 516 | 0.157 | 0.107 | 1.473 | 15.96 | hl_confluence.tsv:57 |
-| NKD | GATE_2025 | 5 | 516 | 0.219 | 0.169 | 1.299 | 15.96 | hl_confluence.tsv:58 |
+| HG | GATE_2025 | 5 | 516 | 0.205 | 0.136 | 1.514 | 15.99 | hl_confluence.tsv:40 |
+| NKD | FIT_2021_2024 | 1 | 2046 | 0.054 | 0.033 | 1.642 | 15.17 | hl_confluence.tsv:53 |
+| NKD | FIT_2021_2024 | 3 | 2046 | 0.140 | 0.097 | 1.444 | 15.17 | hl_confluence.tsv:54 |
+| NKD | FIT_2021_2024 | 5 | 2046 | 0.228 | 0.155 | 1.465 | 15.17 | hl_confluence.tsv:55 |
+| NKD | GATE_2025 | 1 | 516 | 0.052 | 0.037 | 1.421 | 15.98 | hl_confluence.tsv:56 |
+| NKD | GATE_2025 | 3 | 516 | 0.153 | 0.101 | 1.519 | 15.98 | hl_confluence.tsv:57 |
+| NKD | GATE_2025 | 5 | 516 | 0.217 | 0.167 | 1.302 | 15.98 | hl_confluence.tsv:58 |
 
 ## 7. P5 overshoot distribution (FIT era, per asset)
 
@@ -593,7 +593,7 @@ Pinball loss at q=0.5 on up_share = (H-open)/(H-L); lower is better. The uncondi
 | HG | UP | 775 | 544 | 225 | 538 | 1125 | hl_overshoot.tsv:7 |
 | HG | DN | 770 | 562 | 225 | 562 | 1100 | hl_overshoot.tsv:8 |
 | NKD | UP | 817 | 625 | 275 | 625 | 1250 | hl_overshoot.tsv:9 |
-| NKD | DN | 743 | 612 | 275 | 625 | 1350 | hl_overshoot.tsv:10 |
+| NKD | DN | 742 | 612 | 275 | 625 | 1350 | hl_overshoot.tsv:10 |
 
 ## 8. D-054 MID-SANE mask accounting
 
@@ -605,18 +605,18 @@ Pinball loss at q=0.5 on up_share = (H-open)/(H-L); lower is better. The uncondi
 | SI | 2024 | 311 | 0.0648 | 0.0000 | 20 | 52 | 250 | hl_midsane.tsv:8 |
 | SI | FIT_2021_2024 | 1107 | 0.0907 | 0.0000 | 100 | 179 | 250 | hl_midsane.tsv:9 |
 | SI | GATE_2025 | 310 | 0.0944 | 0.0000 | 29 | 52 | 250 | hl_midsane.tsv:10 |
-| HG | 2021 | 310 | 0.0527 | 0.0000 | 16 | 52 | 250 | hl_midsane.tsv:11 |
+| HG | 2021 | 310 | 0.0495 | 0.0000 | 15 | 52 | 250 | hl_midsane.tsv:11 |
 | HG | 2022 | 310 | 0.0335 | 0.0000 | 10 | 52 | 250 | hl_midsane.tsv:12 |
-| HG | 2023 | 310 | 0.0100 | 0.0000 | 3 | 53 | 125 | hl_midsane.tsv:13 |
-| HG | 2024 | 311 | 0.0133 | 0.0000 | 4 | 52 | 250 | hl_midsane.tsv:14 |
+| HG | 2023 | 310 | 0.0100 | 0.0000 | 3 | 53 | 250 | hl_midsane.tsv:13 |
+| HG | 2024 | 311 | 0.0166 | 0.0000 | 5 | 52 | 250 | hl_midsane.tsv:14 |
 | HG | FIT_2021_2024 | 1241 | 0.0274 | 0.0000 | 33 | 209 | 250 | hl_midsane.tsv:15 |
-| HG | GATE_2025 | 310 | 0.0631 | 0.0000 | 19 | 52 | 250 | hl_midsane.tsv:16 |
-| NKD | 2021 | 311 | 0.1710 | 0.0000 | 52 | 52 | 500 | hl_midsane.tsv:17 |
-| NKD | 2022 | 310 | 0.1718 | 0.0006 | 52 | 52 | 500 | hl_midsane.tsv:18 |
+| HG | GATE_2025 | 310 | 0.0596 | 0.0000 | 18 | 52 | 250 | hl_midsane.tsv:16 |
+| NKD | 2021 | 311 | 0.1698 | 0.0000 | 52 | 52 | 500 | hl_midsane.tsv:17 |
+| NKD | 2022 | 310 | 0.1684 | 0.0005 | 51 | 52 | 500 | hl_midsane.tsv:18 |
 | NKD | 2023 | 311 | 0.1748 | 0.0002 | 53 | 53 | 250 | hl_midsane.tsv:19 |
-| NKD | 2024 | 311 | 0.1713 | 0.0004 | 52 | 52 | 500 | hl_midsane.tsv:20 |
-| NKD | FIT_2021_2024 | 1243 | 0.1722 | 0.0002 | 209 | 209 | 500 | hl_midsane.tsv:21 |
-| NKD | GATE_2025 | 310 | 0.0799 | 0.0000 | 24 | 52 | 500 | hl_midsane.tsv:22 |
+| NKD | 2024 | 311 | 0.1664 | 0.0004 | 51 | 52 | 500 | hl_midsane.tsv:20 |
+| NKD | FIT_2021_2024 | 1243 | 0.1698 | 0.0002 | 207 | 209 | 500 | hl_midsane.tsv:21 |
+| NKD | GATE_2025 | 310 | 0.0798 | 0.0000 | 24 | 52 | 500 | hl_midsane.tsv:22 |
 
 ## 8b. Red-first evidence (spec §4)
 
@@ -627,34 +627,38 @@ Every mutant below is a committed broken implementation in engine/port_m1/test_h
 | D054_mid_sane | no_500_cap | mask | hl_redfirst.tsv:5 |
 | D054_mid_sane | strict_inequality | mask | hl_redfirst.tsv:6 |
 | D054_mid_sane | two_sided_dropped | mask | hl_redfirst.tsv:7 |
-| P5_delta_fit | no_min_observations | thin | hl_redfirst.tsv:8 |
-| P5_delta_fit | no_tick_rounding | quantiles | hl_redfirst.tsv:9 |
-| P5_overshoot | nearest_regardless_of_exceedance | samples,era_filter | hl_redfirst.tsv:10 |
-| P5_overshoot | noncausal_same_session | samples,era_filter | hl_redfirst.tsv:11 |
-| P5_overshoot | unsigned_distance | samples,era_filter | hl_redfirst.tsv:12 |
-| P7_confluence | no_family_price_dedupe | dedupe | hl_redfirst.tsv:13 |
-| P7_confluence | no_zone_merge | ranking,boundary,dedupe,merge | hl_redfirst.tsv:14 |
-| P7_confluence | rank_by_price | ranking | hl_redfirst.tsv:15 |
-| P7_confluence | strict_tolerance | ranking,boundary | hl_redfirst.tsv:16 |
+| D054_threshold_adapter | missing_date_defaults_to_unbounded | warmup_fallback | hl_redfirst.tsv:8 |
+| D054_threshold_adapter | missing_date_defaults_to_zero | warmup_fallback | hl_redfirst.tsv:9 |
+| P5_delta_fit | no_min_observations | thin | hl_redfirst.tsv:10 |
+| P5_delta_fit | no_tick_rounding | quantiles | hl_redfirst.tsv:11 |
+| P5_overshoot | nearest_regardless_of_exceedance | samples,era_filter | hl_redfirst.tsv:12 |
+| P5_overshoot | noncausal_same_session | samples,era_filter | hl_redfirst.tsv:13 |
+| P5_overshoot | unsigned_distance | samples,era_filter | hl_redfirst.tsv:14 |
+| P7_confluence | no_family_price_dedupe | dedupe | hl_redfirst.tsv:15 |
+| P7_confluence | no_zone_merge | ranking,boundary,dedupe,merge | hl_redfirst.tsv:16 |
+| P7_confluence | rank_by_price | ranking | hl_redfirst.tsv:17 |
+| P7_confluence | strict_tolerance | ranking,boundary | hl_redfirst.tsv:18 |
 
 ## 9. Spec defects and data defects (reported, not improvised around)
 
 **H1 — §2 P1 names per-side quantiles but no per-side calibration target.** The frozen fvol ladder calibrates ONE ratio, realized RANGE / sigma_hat (symmetric about the anchor), while P1 asks for q in {0.5,0.75,0.9,0.95} PER SIDE.  LANE ACTION: the same trailing-250 machinery (b2_fvol.ladder semantics, strictly prior, >= 30 observations) is applied to the ONE-SIDED excursion ratios (H - anchor)/sigma_hat and (anchor - L)/sigma_hat; the existing symmetric ladder is carried unchanged as the P1_BASE / P1_BASE_RS baselines the spec calls for.
 
-**H2 — D-054 does not define the window of 'trailing-phase-median spread'.** LANE ACTION: the median of the same phase's per-session median two-sided spread over the 20 STRICTLY PRIOR sessions, requiring >= 5 observations; with fewer, only the $500 cap binds.  Strictly prior by construction, so a session never licenses its own mask, and the mask is computable live.  Declared in the receipt params.
+**H2 — D-054 does not define the window of 'trailing-phase-median spread'.** This lane first pinned its own reading (20 prior sessions, median of per-session medians); the M1.B lane then landed engine/port_m1/b7_sane.py as the port's CANONICAL D-054 implementation (60 prior sessions, exact pooled tick-histogram median) with a published threshold table.  TWO masks across lanes is a defect in itself.  LANE ACTION: this lane's mask was DELETED and the census now consumes b7_sane's thresholds and mask function, so every port lane measures the same SANE seconds.  The mask is still mutant-tested here from an independent case set (hl_redfirst.tsv).
 
-**H3 — §2 P7 leaves k unspecified in 'top-k confluence zones'.** LANE ACTION: k in {1,3,5} are all reported; no verdict rests on a chosen k.
+**H3 — PORT_M1_SPEC.md is being amended by other lanes while this census runs.** engine/port_m1/m1_common.py pins an M1 spec sha that went stale mid-run.  LANE ACTION: this lane asserts only ITS OWN frozen spec (PORT_HL_CENSUS_SPEC.md) and the frozen m0 spec, and RECORDS the M1 spec sha actually present at run time in every TSV header and in the receipt.  It implements against m1 OUTPUTS, not against m1's spec text.
 
-**H4 — §3 gives no denominator rule for families that do not fire every session.** P6 fires only on gap sessions, P1 only after its calibration warms up, and one-sided families declare nothing for the opposite extreme.  LANE ACTION: capture and its displaced null share a denominator of the extremes where the family DECLARES a compatible-side level (`n_scored`, with `applicable_frac` reported beside it), so the lift is honest; the additivity number (§3f) uses ALL realized extremes of the target (`n_extremes`), which is what generation would actually gain.
+**H4 — §2 P7 leaves k unspecified in 'top-k confluence zones'.** LANE ACTION: k in {1,3,5} are all reported; no verdict rests on a chosen k.
 
-**H5 — §2 P2 says 'OLS/logistic' without choosing.** LANE ACTION: both are fitted and reported (P2_OLS, P2_LOGIT), each against the same unconditional-split null.
+**H5 — §3 gives no denominator rule for families that do not fire every session.** P6 fires only on gap sessions, P1 only after its calibration warms up, and one-sided families declare nothing for the opposite extreme.  LANE ACTION: capture and its displaced null share a denominator of the extremes where the family DECLARES a compatible-side level (`n_scored`, with `applicable_frac` reported beside it), so the lift is honest; the additivity number (§3f) uses ALL realized extremes of the target (`n_extremes`), which is what generation would actually gain.
 
-**H6 — §2 P5 fits the overshoot distribution on FIT and is then tested on FIT.** The spec orders exactly that sequence.  The P5 deltas are therefore IN-SAMPLE on the FIT era; the 2025 echo (deltas frozen from FIT) is the only out-of-sample reading of P5 in this census.
+**H6 — §2 P2 says 'OLS/logistic' without choosing.** LANE ACTION: both are fitted and reported (P2_OLS, P2_LOGIT), each against the same unconditional-split null.
 
-**H7 — §1 asks for phase H/L 'from the frozen phase tables', which carry three phases.** The frozen m0 table partitions the session into TOKYO/LONDON/NY only (m0 SPEC_DEFECTS D5).  LANE ACTION: the phase targets are those three; no fourth phase was invented.
+**H7 — §2 P5 fits the overshoot distribution on FIT and is then tested on FIT.** The spec orders exactly that sequence.  The P5 deltas are therefore IN-SAMPLE on the FIT era; the 2025 echo (deltas frozen from FIT) is the only out-of-sample reading of P5 in this census.
 
-**H8 — DATA DEFECT: frozen-quote receipts (m0 SPEC_DEFECTS D8).** Receipts whose SANE session range is exactly $0 are frozen quotes, not sessions.  LANE ACTION: dropped before any target, anchor or prior-session read - the same exclusion b2_fvol and b3_levels already apply.  Counts per asset and era in hl_midsane.tsv.
+**H8 — §1 asks for phase H/L 'from the frozen phase tables', which carry three phases.** The frozen m0 table partitions the session into TOKYO/LONDON/NY only (m0 SPEC_DEFECTS D5).  LANE ACTION: the phase targets are those three; no fourth phase was invented.
 
-**H9 — The KEPT-family list predates the D-053 ledger.** §2 P7 and §3(f) need the KEPT families of the §6b relevance census, which was computed on m1/levels (the superseded VWAP bands), while the level prices are read from the D-053 ledger m1/levels_v2.  LANE ACTION: KEEP/RETIRE decisions taken from generation/level_relevance.tsv (FIT rows), prices from levels_v2.  Only the VWAP family's band set differs between the two, and VWAP is KEPT on HG only.
+**H9 — DATA DEFECT: frozen-quote receipts (m0 SPEC_DEFECTS D8).** Receipts whose SANE session range is exactly $0 are frozen quotes, not sessions.  LANE ACTION: dropped before any target, anchor or prior-session read - the same exclusion b2_fvol and b3_levels already apply.  Counts per asset and era in hl_midsane.tsv.
+
+**H10 — The KEPT-family list predates the D-053 ledger.** §2 P7 and §3(f) need the KEPT families of the §6b relevance census, which was computed on m1/levels (the superseded VWAP bands), while the level prices are read from the D-053 ledger m1/levels_v2.  LANE ACTION: KEEP/RETIRE decisions taken from generation/level_relevance.tsv (FIT rows), prices from levels_v2.  Only the VWAP family's band set differs between the two, and VWAP is KEPT on HG only.
 
 Generated by engine/port_m1/hl_census.py.

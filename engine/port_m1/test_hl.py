@@ -22,6 +22,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import hl_census as H                     # noqa: E402
 import census_common as X                 # noqa: E402
+import b7_sane as B7S                     # noqa: E402
 import common as C                        # noqa: E402
 
 FAILURES = []
@@ -336,6 +337,12 @@ DELTA_MUTANTS = (("no_tick_rounding", MUT_DELTA_notick),
 
 
 # ================================================================ D-054 ======
+# The mask itself belongs to engine/port_m1/b7_sane.py (the port's canonical
+# D-054 implementation).  This lane does not reimplement it — but every number
+# in the census is measured through it, so it is mutant-tested HERE too, from
+# an independent set of cases.  What this lane DOES own is the threshold
+# adapter (`H.session_thresholds`): the per-session lookup and the warm-up
+# fallback to the $500 cap.
 class _Sess(object):
     """Minimal session stub carrying only what the mask reads."""
 
@@ -350,51 +357,43 @@ class _Sess(object):
         self.state = st
 
 
-# phase 0 trailing median $10 -> threshold min(100, 500) = $100
-# phase 1 trailing median $80 -> threshold min(800, 500) = $500 (cap binds)
-# phase 2 has no trailing data -> threshold = $500 (cap only)
+# phase 0 threshold $100 (10 x a $10 trailing median)
+# phase 1 threshold $500 (the cap, which an $80 trailing median would exceed)
+# phase 2 threshold $500 (warm-up: no trailing observation)
 SANE_SESS = _Sess(spreads=[10.0, 99.0, 100.0, 101.0,
                            80.0, 499.0, 500.0, 501.0,
                            10.0, 400.0, 600.0, 20.0],
                   phases=[0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2],
                   states=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
-SANE_TRAIL = np.array([10.0, 80.0, np.nan, 30.0])
+SANE_THR = np.array([100.0, 500.0, 500.0])
 
 
 def case_sane(fn):
-    thr = H.sane_threshold(SANE_TRAIL)
-    return [int(v) for v in fn(SANE_SESS, thr)]
+    return [int(v) for v in fn(SANE_SESS, SANE_THR)]
 
 
 SANE_CASES = (("mask", case_sane,
                [1, 1, 1, 0,      # <= $100 sane, $101 insane
-                1, 1, 1, 0,      # cap at $500 inclusive
+                1, 1, 1, 0,      # the cap is inclusive
                 1, 1, 0, 0]),)   # $600 insane; last second not TWO_SIDED
 
 
 def MUT_SANE_nocap(s, thr):
-    """MUTANT: 10x the trailing median with NO $500 cap."""
-    t = np.where(np.isfinite(SANE_TRAIL[:X.N_PHASES]),
-                 H.SANE_SPREAD_MULT * SANE_TRAIL[:X.N_PHASES], 1e18)
-    per = np.where((s.phase_tag >= 0) & (s.phase_tag < X.N_PHASES),
-                   t[np.clip(s.phase_tag, 0, X.N_PHASES - 1)], 1e18)
-    return s.valid & (s.spread_usd <= per)
+    """MUTANT: 10x the trailing median with NO $500 cap (phase 1 = $800)."""
+    t = np.array([100.0, 800.0, 1e18])
+    return (s.state == 0) & (s.spread_usd <= t[s.phase_tag])
 
 
 def MUT_SANE_notwosided(s, thr):
     """MUTANT: spread test only — a one-sided book slips through."""
-    per = np.where((s.phase_tag >= 0) & (s.phase_tag < X.N_PHASES),
-                   thr[np.clip(s.phase_tag, 0, X.N_PHASES - 1)],
-                   thr[X.N_PHASES])
-    return np.isfinite(s.spread_usd) & (s.spread_usd <= per)
+    t = np.asarray(thr, dtype=np.float64)[s.phase_tag]
+    return np.isfinite(s.spread_usd) & (s.spread_usd <= t)
 
 
 def MUT_SANE_strict(s, thr):
     """MUTANT: strict < instead of <= (drops the exact-threshold second)."""
-    per = np.where((s.phase_tag >= 0) & (s.phase_tag < X.N_PHASES),
-                   thr[np.clip(s.phase_tag, 0, X.N_PHASES - 1)],
-                   thr[X.N_PHASES])
-    return s.valid & np.isfinite(s.spread_usd) & (s.spread_usd < per)
+    t = np.asarray(thr, dtype=np.float64)[s.phase_tag]
+    return (s.state == 0) & np.isfinite(s.spread_usd) & (s.spread_usd < t)
 
 
 SANE_MUTANTS = (("no_500_cap", MUT_SANE_nocap),
@@ -402,22 +401,44 @@ SANE_MUTANTS = (("no_500_cap", MUT_SANE_nocap),
                 ("strict_inequality", MUT_SANE_strict))
 
 
+# ---- the threshold adapter this lane owns ---------------------------------
+THR_TABLE = {20230601: [250.0, 300.0, 125.0]}
+
+
+def case_thr_known(fn):
+    return [float(v) for v in fn(THR_TABLE, dt.date(2023, 6, 1))]
+
+
+def case_thr_missing(fn):
+    """A date absent from the canonical table falls back to the cap alone."""
+    return [float(v) for v in fn(THR_TABLE, dt.date(1999, 1, 1))]
+
+
+THR_CASES = (("known_date", case_thr_known, [250.0, 300.0, 125.0]),
+             ("warmup_fallback", case_thr_missing, [500.0, 500.0, 500.0]))
+
+
+def MUT_THR_zero_default(table, trade_date):
+    """MUTANT: missing date defaults to 0 — masks the whole session away."""
+    v = table.get(M_d8(trade_date))
+    return np.zeros(X.N_PHASES) if v is None else np.asarray(v, float)
+
+
+def MUT_THR_inf_default(table, trade_date):
+    """MUTANT: missing date defaults to no limit — the mask stops masking."""
+    v = table.get(M_d8(trade_date))
+    return np.full(X.N_PHASES, 1e18) if v is None else np.asarray(v, float)
+
+
+def M_d8(d):
+    return d.year * 10000 + d.month * 100 + d.day
+
+
+THR_MUTANTS = (("missing_date_defaults_to_zero", MUT_THR_zero_default),
+               ("missing_date_defaults_to_unbounded", MUT_THR_inf_default))
+
+
 # ============================================================ trailing =======
-def test_trailing_medians():
-    """Strictly-prior: the current session never licenses its own mask."""
-    hist = [np.array([10.0, 20.0, 30.0, 20.0]) for _ in range(4)]
-    got = H.trailing_medians(hist)
-    check("trailing/thin_below_min", bool(np.isnan(got[0])), True)
-    hist = [np.array([10.0, 20.0, 30.0, 20.0]) for _ in range(6)]
-    got = H.trailing_medians(hist)
-    check("trailing/phase0", approx(got[0], 10.0), True)
-    check("trailing/empty", bool(np.isnan(H.trailing_medians([])[0])), True)
-    # only the last TRAIL_SESSIONS rows count
-    hist = ([np.array([1000.0, 1.0, 1.0, 1.0])] * 50
-            + [np.array([10.0, 1.0, 1.0, 1.0])] * H.TRAIL_SESSIONS)
-    check("trailing/window", approx(H.trailing_medians(hist)[0], 10.0), True)
-
-
 def test_quantiles_are_strictly_prior():
     r = np.arange(1.0, 61.0)
     q = H.trailing_quantiles(r, (0.5,), window=1000, minobs=30)
@@ -483,7 +504,6 @@ def run_group(title, cases, impl, mutants):
 
 def main():
     test_spec_pin()
-    test_trailing_medians()
     test_quantiles_are_strictly_prior()
     test_displaced_null()
     test_hit_sides()
@@ -496,8 +516,11 @@ def main():
                                     P5_MUTANTS)
     red["P5_delta_fit"] = run_group("P5delta", DELTA_CASES,
                                     H.overshoot_deltas, DELTA_MUTANTS)
-    red["D054_mid_sane"] = run_group("D054", SANE_CASES, H.sane_mask,
+    red["D054_mid_sane"] = run_group("D054", SANE_CASES, B7S.sane_mask,
                                      SANE_MUTANTS)
+    red["D054_threshold_adapter"] = run_group("THR", THR_CASES,
+                                              H.session_thresholds,
+                                              THR_MUTANTS)
 
     print("RED-FIRST EVIDENCE (mutant -> cases it breaks):")
     rows = []

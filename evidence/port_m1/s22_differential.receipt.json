@@ -1,0 +1,103 @@
+{
+  "comparator": "engine/port_m1b/compare_gen.py",
+  "engine": "artifacts/cache/port/m1/gen_cpp/roster_v3/{ASSET}_{YYYYMM}.{bin,json}",
+  "fields_compared": [
+    "date8",
+    "side",
+    "rung_mask",
+    "conf_sec",
+    "dec_sec",
+    "phase_conf",
+    "phase_dec",
+    "entry_mid",
+    "spread_at_decision",
+    "atr14_usd",
+    "dom_share",
+    "iid",
+    "mfe_unwalled",
+    "mfe_argmax_sec",
+    "mae_before_argmax",
+    "f_h30",
+    "f_h60",
+    "f_h120",
+    "f_phase_close",
+    "f_sess_close",
+    "phase_close_sec",
+    "sess_close_sec",
+    "f_len",
+    "a_len",
+    "fam_mask",
+    "level_fam_mask",
+    "flags",
+    "f_off",
+    "a_off",
+    "skel_f_t",
+    "skel_f_v",
+    "skel_a_t",
+    "skel_a_v"
+  ],
+  "freeze_receipt": "artifacts/cache/port/m1/generation_v3/ORACLE_FREEZE.tsv",
+  "gate": "P-M1s22 differential (candidate-exact vs the frozen S1-v3 oracle)",
+  "log": "artifacts/workflow_memory/runs/port-m1b-s22-diff.log",
+  "n_fail_rows": 0,
+  "n_rows_reported": 106,
+  "oracle": "engine/port_m1/b10_generation_v3.py @ bec58a9; artifacts/cache/port/m1/generation_v3/union_roster_{ASSET}.npz",
+  "oracle_sha256_verified": {
+    "HG": "5fb1448cb897c575aaba4f86e724d511feb7582da2c3816c5f25f893bc4d0833",
+    "NKD": "55c8570d8bf446a2fcab8c8b0aebe42c32d2d47bdf31fa4987eb6f5245bb35ab",
+    "SI": "6b0fe94ee59a4f109eee8de7d90d1d8548b141cc90b4f90b14d82461321b5eae"
+  },
+  "per_asset": {
+    "HG": {
+      "a_records": 33922533,
+      "candidates": 529492,
+      "f_records": 33821911,
+      "field_mismatches": 0,
+      "only_in_engine": 0,
+      "only_in_oracle": 0
+    },
+    "NKD": {
+      "a_records": 29816038,
+      "candidates": 511694,
+      "f_records": 29741649,
+      "field_mismatches": 0,
+      "only_in_engine": 0,
+      "only_in_oracle": 0
+    },
+    "SI": {
+      "a_records": 31312985,
+      "candidates": 539174,
+      "f_records": 31279860,
+      "field_mismatches": 0,
+      "only_in_engine": 0,
+      "only_in_oracle": 0
+    }
+  },
+  "run_names": [
+    "port-m1b-s22",
+    "port-m1b-s22-diff",
+    "port-m1b-s22-ledger",
+    "port-m1b-s22-identity"
+  ],
+  "supporting": {
+    "banned_constructs": "OK over 310 source files",
+    "ctest": "23/23 passed",
+    "level_ledger_differential": {
+      "levels": 565011,
+      "missing_python_ledger": 0,
+      "python": "artifacts/cache/port/m1/levels_v4",
+      "sessions": 3734,
+      "sessions_with_level_mismatch": 0,
+      "sessions_with_touch_mismatch": 0,
+      "touches": 886479,
+      "verdict": "PASS"
+    },
+    "two_run_byte_identity": {
+      "n_differing": 0,
+      "n_files": 704,
+      "n_missing": 0,
+      "verdict": "PASS"
+    }
+  },
+  "verdict": "PASS"
+}

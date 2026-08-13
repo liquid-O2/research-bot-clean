@@ -1,0 +1,4 @@
+# PORT M1.B S2.2 two-run byte identity: run port-m1b-s22 (roster_v3) vs port-m1b-s22-identity (roster_v3_b)
+# every QRGEN1/QRGENL1 shard re-generated from scratch and compared by sha256
+n_files_run_a	n_files_run_b	n_differing	n_missing	verdict
+704	704	0	0	PASS

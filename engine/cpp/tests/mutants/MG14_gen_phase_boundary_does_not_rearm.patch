@@ -1,0 +1,17 @@
+diff --git a/qr_gen/src/levels.cpp b/qr_gen/src/levels.cpp
+index bd37857..0d81509 100644
+--- a/qr_gen/src/levels.cpp
++++ b/qr_gen/src/levels.cpp
+@@ -338,10 +338,8 @@ TouchScan touch_scan(const std::vector<double>& dist, const std::vector<std::int
+     bool armable = (run_far >= kArmSeconds);
+     // A phase boundary re-arms every level (§4). Positions before the level's
+     // creation second are never armable.
+-    if (n > 1 && k >= 1 && k >= active_from &&
+-        phase_v[static_cast<std::size_t>(k)] != phase_v[static_cast<std::size_t>(k - 1)]) {
+-      armable = true;
+-    }
++    // MG14: the phase boundary no longer re-arms the level
++    (void)phase_v;
+     if (armable) {
+       arm_pos.push_back(k);
+     }

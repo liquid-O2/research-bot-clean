@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..72b12eb 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -278,7 +278,7 @@ bool reclaim_within_bound(std::int32_t break_sec, std::int32_t reclaim_sec) {
+   if (reclaim_sec < 0 || break_sec < 0) {
+     return false;
+   }
+-  return (reclaim_sec - break_sec) <= kReclaimBoundSec;
++  return (reclaim_sec - break_sec) < kReclaimBoundSec;  // MG10: exclusive bound
+ }
+ 
+ std::vector<Emission> g1_emissions(const std::vector<Confirmation>& confs,

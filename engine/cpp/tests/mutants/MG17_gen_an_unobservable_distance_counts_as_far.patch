@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/levels.cpp b/qr_gen/src/levels.cpp
+index bd37857..8d737ff 100644
+--- a/qr_gen/src/levels.cpp
++++ b/qr_gen/src/levels.cpp
+@@ -333,7 +333,7 @@ TouchScan touch_scan(const std::vector<double>& dist, const std::vector<std::int
+     const double d = dist[static_cast<std::size_t>(k)];
+     const bool finite = std::isfinite(d);
+     const bool is_near = (k >= active_from) && finite && (d <= tol);
+-    const bool is_far = (k >= active_from) && finite && (d > far_tol);
++    const bool is_far = (k >= active_from) && (!finite || (d > far_tol));  // MG17
+     run_far = is_far ? run_far + 1 : 0;
+     bool armable = (run_far >= kArmSeconds);
+     // A phase boundary re-arms every level (§4). Positions before the level's

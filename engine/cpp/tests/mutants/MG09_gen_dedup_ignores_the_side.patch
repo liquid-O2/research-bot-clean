@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..14c950e 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -328,7 +328,7 @@ std::vector<Emission> g2_emissions(const std::vector<Touch>& touches,
+ std::vector<Emission> dedup(const std::vector<Emission>& in) {
+   std::map<std::pair<std::int32_t, std::int8_t>, Emission> merged;
+   for (const Emission& e : in) {
+-    const auto key = std::make_pair(e.dec_sec, e.side);
++    const auto key = std::make_pair(e.dec_sec, static_cast<std::int8_t>(0));  // MG09
+     const auto it = merged.find(key);
+     if (it == merged.end()) {
+       merged.emplace(key, e);

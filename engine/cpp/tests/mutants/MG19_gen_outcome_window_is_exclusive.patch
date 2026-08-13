@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/levels.cpp b/qr_gen/src/levels.cpp
+index bd37857..6a94de1 100644
+--- a/qr_gen/src/levels.cpp
++++ b/qr_gen/src/levels.cpp
+@@ -382,7 +382,7 @@ TouchOutcome classify_touch(const std::vector<double>& diff, const std::vector<s
+   // The §6 window is the observations with sec <= t_sec + 900 (searchsorted
+   // 'right'), starting at the observation AFTER the touch.
+   std::int64_t hi = static_cast<std::int64_t>(
+-      std::upper_bound(secs.begin(), secs.end(), t_sec + kRejectWindow) - secs.begin());
++      std::lower_bound(secs.begin(), secs.end(), t_sec + kRejectWindow) - secs.begin());  // MG19
+   const double a = static_cast<double>(app);
+   std::int64_t run_beyond = 0;
+   for (std::int64_t k = ti + 1; k < hi; ++k) {

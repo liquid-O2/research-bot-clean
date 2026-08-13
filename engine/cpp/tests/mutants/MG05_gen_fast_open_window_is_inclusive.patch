@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..062a211 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -271,7 +271,7 @@ bool in_fast_open(std::int32_t conf_sec, const std::vector<std::int32_t>& opens)
+   if (it == opens.begin()) {
+     return false;
+   }
+-  return (conf_sec - *(it - 1)) < kFastOpenWindow;
++  return (conf_sec - *(it - 1)) <= kFastOpenWindow;  // MG05: not half-open
+ }
+ 
+ bool reclaim_within_bound(std::int32_t break_sec, std::int32_t reclaim_sec) {

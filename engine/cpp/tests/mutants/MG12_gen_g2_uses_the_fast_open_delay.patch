@@ -1,0 +1,15 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..7e88d75 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -310,8 +310,8 @@ std::vector<Emission> g2_emissions(const std::vector<Touch>& touches,
+     const std::uint16_t lvl =
+         static_cast<std::uint16_t>(1u << static_cast<unsigned>(t.family));
+     if (t.reject_sec >= 0) {
+-      out.push_back(Emission{t.reject_sec + kTauStar, t.approach_side, kFamG2Reject, lvl, 0,
+-                             t.reject_sec});
++      out.push_back(Emission{t.reject_sec + kFastOpenDelay, t.approach_side, kFamG2Reject, lvl,
++                             0, t.reject_sec});  // MG12: G2 must keep tau*
+     }
+     if (t.reclaim_sec >= 0) {
+       if (reclaim_within_bound(t.break_sec, t.reclaim_sec)) {

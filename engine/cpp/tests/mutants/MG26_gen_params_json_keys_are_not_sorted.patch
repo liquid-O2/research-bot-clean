@@ -1,0 +1,15 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..9d67443 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -381,8 +381,8 @@ Expected<std::vector<std::int32_t>, Refusal> session_dates(const std::string& di
+ 
+ std::string params_canonical_json(Asset asset) {
+   std::string s = "{";
+-  s += "\"arm_seconds\":" + std::to_string(kArmSeconds);
+-  s += ",\"asset\":\"" + std::string(qr::futsess::asset_spec(asset).name) + "\"";
++  s += "\"asset\":\"" + std::string(qr::futsess::asset_spec(asset).name) + "\"";  // MG26
++  s += ",\"arm_seconds\":" + std::to_string(kArmSeconds);
+   s += ",\"break_hold_sec\":" + std::to_string(kBreakHold);
+   s += ",\"dedup\":\"(session,decision_sec,side); family/rung/level tags unioned;"
+        " confirmation_sec = the earliest confirmation mapping to it\"";

@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/levels.cpp b/qr_gen/src/levels.cpp
+index bd37857..124879e 100644
+--- a/qr_gen/src/levels.cpp
++++ b/qr_gen/src/levels.cpp
+@@ -402,7 +402,7 @@ TouchOutcome classify_touch(const std::vector<double>& diff, const std::vector<s
+     const std::int64_t j = static_cast<std::int64_t>(
+         std::lower_bound(secs.begin(), secs.end(), out.break_sec) - secs.begin());
+     std::int64_t run_back = 0;
+-    for (std::int64_t k = j + 1; k < n; ++k) {
++    for (std::int64_t k = j + 1; k < std::min(hi, n); ++k) {  // MG21: bounded by the window
+       const double w = diff[static_cast<std::size_t>(k)] * a;
+       run_back = (w >= -tol) ? run_back + 1 : 0;
+       if (run_back >= kReclaimHold) {

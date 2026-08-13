@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/levels.cpp b/qr_gen/src/levels.cpp
+index bd37857..a9973ff 100644
+--- a/qr_gen/src/levels.cpp
++++ b/qr_gen/src/levels.cpp
+@@ -418,7 +418,7 @@ TouchOutcome classify_touch(const std::vector<double>& diff, const std::vector<s
+     out.outcome_sec = out.reclaim_sec;
+     return out;
+   }
+-  if (out.reject_sec >= 0 && (out.break_sec < 0 || out.reject_sec <= out.break_sec)) {
++  if (out.reject_sec >= 0) {  // MG22: ignores which one landed first
+     // Ties go to REJECT: the Python `cands.sort()` orders (sec, outcome) and
+     // REJECT (1) precedes BREAK (2) at an equal second.
+     out.outcome = Outcome::REJECT;

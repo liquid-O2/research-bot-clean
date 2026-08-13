@@ -1,0 +1,13 @@
+diff --git a/qr_gen/include/qr_gen/levels.hpp b/qr_gen/include/qr_gen/levels.hpp
+index a1f1292..8302144 100644
+--- a/qr_gen/include/qr_gen/levels.hpp
++++ b/qr_gen/include/qr_gen/levels.hpp
+@@ -59,7 +59,7 @@ inline constexpr double kTolAtrFrac = 0.05;
+ inline constexpr double kRejectAtrFrac = 0.11;
+ inline constexpr double kRejectTicks = 6.0;
+ inline constexpr std::int32_t kRejectWindow = 900;
+-inline constexpr std::int32_t kBreakHold = 60;
++inline constexpr std::int32_t kBreakHold = 30;  // MG20
+ inline constexpr std::int32_t kReclaimHold = 120;
+ 
+ // --- §4 source parameters ---------------------------------------------------

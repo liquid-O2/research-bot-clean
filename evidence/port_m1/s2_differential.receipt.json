@@ -1,0 +1,96 @@
+{
+  "assets": {
+    "HG": {
+      "candidates": 507224,
+      "params_hash": "e4ca8a1f585fc4396ad614cc5342f3ea260ba0ac7a4e1c5b09d07236c94d1dfd",
+      "records_a": 32650466,
+      "records_f": 32568940,
+      "shards": 60
+    },
+    "NKD": {
+      "candidates": 491091,
+      "params_hash": "81cb899b3ddd07cfb9ca479111e02b2e861f828b41a2f420e3063bf0164ff8ec",
+      "records_a": 28679434,
+      "records_f": 28606146,
+      "shards": 60
+    },
+    "SI": {
+      "candidates": 492203,
+      "params_hash": "4da9efdc290f97aa2609f135b1255b89e9cba18498f508ba8253e02b0e2f3093",
+      "records_a": 28699590,
+      "records_f": 28638309,
+      "shards": 56
+    }
+  },
+  "candidates_total": 1490518,
+  "differential": {
+    "field_mismatches": 0,
+    "fields_compared": [
+      "date8",
+      "side",
+      "rung_mask",
+      "conf_sec",
+      "dec_sec",
+      "phase_conf",
+      "phase_dec",
+      "entry_mid",
+      "spread_at_decision",
+      "atr14_usd",
+      "dom_share",
+      "iid",
+      "mfe_unwalled",
+      "mfe_argmax_sec",
+      "mae_before_argmax",
+      "f_h30",
+      "f_h60",
+      "f_h120",
+      "f_phase_close",
+      "f_sess_close",
+      "phase_close_sec",
+      "sess_close_sec",
+      "f_len",
+      "a_len",
+      "fam_mask",
+      "level_fam_mask",
+      "f_off",
+      "a_off",
+      "skel_f_t",
+      "skel_f_v",
+      "skel_a_t",
+      "skel_a_v"
+    ],
+    "id_mismatches": 0,
+    "row_order_asserted": true,
+    "verdict": "PASS"
+  },
+  "engine": "engine/cpp/qr_gen (qr_gen_build)",
+  "gate": "P-M1g",
+  "git_sha": "8195e957bb0619d6e775e49a80e72d5a6dcf62d4",
+  "ledger_differential": {
+    "level_rows": 507835,
+    "mismatched_sessions": 0,
+    "reference": "artifacts/cache/port/m1/levels_v3",
+    "sessions": 3734,
+    "touches": 828720,
+    "verdict": "PASS"
+  },
+  "mid_sanity_mask": "ON (QRSANE1 from engine/port_m1/b7_sane.py)",
+  "oracle": "engine/port_m1/b8_generation_v2.py@31426a4 -> artifacts/cache/port/m1/generation_v2/union_roster_{ASSET}.npz",
+  "red_first": {
+    "mutants": 31,
+    "prefix": "MG",
+    "tests": 32
+  },
+  "runs": [
+    "port-m1b-s2",
+    "port-m1b-s2-identity",
+    "port-m1b-s2-mutants2"
+  ],
+  "spec": "design/PORT_M1B_SPEC.md#1-S2",
+  "spec_m1_sha16": "81ea7f84a085e4bb",
+  "spec_m1b_sha16": "d31f48b59877e44d",
+  "two_run_byte_identity": {
+    "differing": 0,
+    "files": 704
+  }
+}

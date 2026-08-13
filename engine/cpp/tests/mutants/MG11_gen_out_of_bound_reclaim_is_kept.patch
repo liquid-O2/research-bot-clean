@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..b9e002b 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -314,7 +314,7 @@ std::vector<Emission> g2_emissions(const std::vector<Touch>& touches,
+                              t.reject_sec});
+     }
+     if (t.reclaim_sec >= 0) {
+-      if (reclaim_within_bound(t.break_sec, t.reclaim_sec)) {
++      if (true) {  // MG11: the 30-minute bound is not applied
+         out.push_back(Emission{t.reclaim_sec + kTauStar, t.approach_side, kFamG2Reclaim, lvl, 0,
+                                t.reclaim_sec});
+       } else if (n_dropped_reclaim_bound != nullptr) {

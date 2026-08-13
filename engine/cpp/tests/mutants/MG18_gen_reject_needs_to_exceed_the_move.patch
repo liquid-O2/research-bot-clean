@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/levels.cpp b/qr_gen/src/levels.cpp
+index bd37857..dcae85d 100644
+--- a/qr_gen/src/levels.cpp
++++ b/qr_gen/src/levels.cpp
+@@ -387,7 +387,7 @@ TouchOutcome classify_touch(const std::vector<double>& diff, const std::vector<s
+   std::int64_t run_beyond = 0;
+   for (std::int64_t k = ti + 1; k < hi; ++k) {
+     const double w = diff[static_cast<std::size_t>(k)] * a;
+-    if (out.reject_sec < 0 && w >= reject_move) {
++    if (out.reject_sec < 0 && w > reject_move) {  // MG18: exceed, not reach
+       out.reject_sec = secs[static_cast<std::size_t>(k)];
+     }
+     run_beyond = (w < -tol) ? run_beyond + 1 : 0;

@@ -1,0 +1,13 @@
+diff --git a/qr_gen/include/qr_gen/levels.hpp b/qr_gen/include/qr_gen/levels.hpp
+index a1f1292..359af43 100644
+--- a/qr_gen/include/qr_gen/levels.hpp
++++ b/qr_gen/include/qr_gen/levels.hpp
+@@ -71,7 +71,7 @@ inline constexpr std::size_t kPhaseLbCount = 4;
+ inline constexpr int kPhaseLookbacks[kPhaseLbCount] = {1, 2, 3, 5};
+ /// D-053: the VWAP family is the line itself plus +-2.0 and +-2.5 sigma_vwap.
+ inline constexpr std::size_t kVwapBandCount = 5;
+-inline constexpr double kVwapBands[kVwapBandCount] = {0.0, 2.0, -2.0, 2.5, -2.5};
++inline constexpr double kVwapBands[kVwapBandCount] = {0.0, 1.0, -1.0, 2.0, -2.0};  // MG24
+ 
+ enum class Outcome : std::int8_t { NONE = 0, REJECT = 1, BREAK = 2, RECLAIM = 3 };
+ 

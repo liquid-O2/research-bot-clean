@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..1af8541 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -198,7 +198,7 @@ std::vector<Pivot> zigzag_scan(const std::vector<std::int32_t>& secs,
+   for (std::size_t i = 1; i < n; ++i) {
+     const double m = mids[i];
+     const std::int32_t s = secs[i];
+-    const double t = thr[i];
++    const double t = thr[0];  // MG03: not the confirmation second's own phase
+     if (d == 1) {
+       if (m > hi) {
+         hi = m;

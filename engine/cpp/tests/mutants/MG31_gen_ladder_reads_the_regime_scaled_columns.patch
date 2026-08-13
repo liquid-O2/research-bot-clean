@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/tables.cpp b/qr_gen/src/tables.cpp
+index 88bea22..14c3f5d 100644
+--- a/qr_gen/src/tables.cpp
++++ b/qr_gen/src/tables.cpp
+@@ -209,7 +209,7 @@ Expected<FvolForecasts, Refusal> FvolForecasts::load(const std::string& path,
+   std::int64_t c_q[kLadderQCount];
+   for (std::size_t i = 0; i < kLadderQCount; ++i) {
+     char nm[64];
+-    std::snprintf(nm, sizeof(nm), "move_q%02d_usd_per_sigma", kLadderQ[i]);
++    std::snprintf(nm, sizeof(nm), "move_rs_q%02d_usd_per_sigma", kLadderQ[i]);  // MG31
+     c_q[i] = t.column(nm);
+     if (c_q[i] < 0) {
+       return refuse<FvolForecasts>(Refusal(RefusalCode::SCHEMA_MISMATCH,

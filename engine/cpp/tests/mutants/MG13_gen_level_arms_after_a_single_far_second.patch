@@ -1,0 +1,13 @@
+diff --git a/qr_gen/include/qr_gen/levels.hpp b/qr_gen/include/qr_gen/levels.hpp
+index a1f1292..7ffedaa 100644
+--- a/qr_gen/include/qr_gen/levels.hpp
++++ b/qr_gen/include/qr_gen/levels.hpp
+@@ -52,7 +52,7 @@ inline constexpr std::size_t kLevelFamilyCount = 6;
+ [[nodiscard]] const char* level_family_name(LevelFamily f);
+ 
+ // --- §4 / §6 state-machine constants ---------------------------------------
+-inline constexpr std::int32_t kArmSeconds = 300;
++inline constexpr std::int32_t kArmSeconds = 1;  // MG13
+ inline constexpr double kArmDistanceMult = 2.0;
+ inline constexpr double kTolTicks = 2.0;
+ inline constexpr double kTolAtrFrac = 0.05;

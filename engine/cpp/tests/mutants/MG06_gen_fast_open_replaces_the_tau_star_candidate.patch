@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..cd89fdc 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -292,7 +292,7 @@ std::vector<Emission> g1_emissions(const std::vector<Confirmation>& confs,
+     if ((c.rung_mask & kFineBit) != 0) {
+       fam = static_cast<std::uint8_t>(fam | kFamG1Fine);
+     }
+-    if (fam != 0) {
++    if (fam != 0 && !in_fast_open(c.conf_sec, opens)) {  // MG06: replaces, not additive
+       out.push_back(Emission{c.conf_sec + kTauStar, c.side, fam, 0, c.rung_mask, c.conf_sec});
+     }
+     if (in_fast_open(c.conf_sec, opens)) {

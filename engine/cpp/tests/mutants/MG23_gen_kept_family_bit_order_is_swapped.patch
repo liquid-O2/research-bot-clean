@@ -1,0 +1,15 @@
+diff --git a/qr_gen/include/qr_gen/levels.hpp b/qr_gen/include/qr_gen/levels.hpp
+index a1f1292..484712e 100644
+--- a/qr_gen/include/qr_gen/levels.hpp
++++ b/qr_gen/include/qr_gen/levels.hpp
+@@ -41,8 +41,8 @@ namespace qr::gen {
+ /// CC-M1-3.3 KEPT level families. The enum ORDER is the bit order of the
+ /// roster's `level_fam_mask` (b8_generation_v2.KEPT_LEVEL_FAMILIES).
+ enum class LevelFamily : std::uint8_t {
+-  FVOL_LADDER = 0,
+-  FVOL_BAND = 1,
++  FVOL_LADDER = 1,  // MG23: the roster's bit order is not this
++  FVOL_BAND = 0,
+   NDAY = 2,
+   PRIOR_DAY = 3,
+   PHASE_HL = 4,

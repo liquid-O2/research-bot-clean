@@ -1,0 +1,14 @@
+diff --git a/qr_gen/src/levels.cpp b/qr_gen/src/levels.cpp
+index bd37857..d8be62e 100644
+--- a/qr_gen/src/levels.cpp
++++ b/qr_gen/src/levels.cpp
+@@ -360,7 +360,8 @@ TouchScan touch_scan(const std::vector<double>& dist, const std::vector<std::int
+     if (ai >= arm_pos.size()) {
+       break;
+     }
+-    const std::int64_t a = arm_pos[ai];
++    // MG15: after the first touch the level stays armed instead of disarming
++    const std::int64_t a = out.touches.empty() ? arm_pos[ai] : cur;
+     while (ni < near_pos.size() && near_pos[ni] < a) {
+       ++ni;
+     }

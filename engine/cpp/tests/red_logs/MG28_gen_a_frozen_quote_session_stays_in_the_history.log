@@ -1,0 +1,111 @@
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 32 tests from 10 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from ZigZag
+[ RUN      ] ZigZag.ConfirmationIsTheFirstSecondTheRetraceREACHESTheThreshold
+[       OK ] ZigZag.ConfirmationIsTheFirstSecondTheRetraceREACHESTheThreshold (0 ms)
+[ RUN      ] ZigZag.TheExtremeKeepsTheFIRSTSecondItWasReached
+[       OK ] ZigZag.TheExtremeKeepsTheFIRSTSecondItWasReached (0 ms)
+[ RUN      ] ZigZag.ThresholdIsReadAtTheCONFIRMATIONSecondsOwnPhase
+[       OK ] ZigZag.ThresholdIsReadAtTheCONFIRMATIONSecondsOwnPhase (0 ms)
+[ RUN      ] ZigZag.RungThresholdTakesTheFLOORSAndRoundsHalfUpToTheTick
+[       OK ] ZigZag.RungThresholdTakesTheFLOORSAndRoundsHalfUpToTheTick (0 ms)
+[----------] 4 tests from ZigZag (0 ms total)
+
+[----------] 3 tests from FastOpen
+[ RUN      ] FastOpen.TheWindowIsHalfOpenAndMeasuredFromTheLastOpenAtOrBeforeIt
+[       OK ] FastOpen.TheWindowIsHalfOpenAndMeasuredFromTheLastOpenAtOrBeforeIt (0 ms)
+[ RUN      ] FastOpen.IsADDITIVEAndNeverReplacesTheTauStarCandidate
+[       OK ] FastOpen.IsADDITIVEAndNeverReplacesTheTauStarCandidate (0 ms)
+[ RUN      ] FastOpen.TheFineRungTagsG1FineAndTheCoarseRungsTagG1
+[       OK ] FastOpen.TheFineRungTagsG1FineAndTheCoarseRungsTagG1 (0 ms)
+[----------] 3 tests from FastOpen (0 ms total)
+
+[----------] 2 tests from Dedup
+[ RUN      ] Dedup.UnionsTheTagsAndKeepsTheEARLIESTConfirmationSecond
+[       OK ] Dedup.UnionsTheTagsAndKeepsTheEARLIESTConfirmationSecond (0 ms)
+[ RUN      ] Dedup.ASideIsPartOfTheIdentitySoOppositeSidesNeverMerge
+[       OK ] Dedup.ASideIsPartOfTheIdentitySoOppositeSidesNeverMerge (0 ms)
+[----------] 2 tests from Dedup (0 ms total)
+
+[----------] 2 tests from Reclaim
+[ RUN      ] Reclaim.TheThirtyMinuteBoundIsMeasuredFromTheBREAKAndIsInclusive
+[       OK ] Reclaim.TheThirtyMinuteBoundIsMeasuredFromTheBREAKAndIsInclusive (0 ms)
+[ RUN      ] Reclaim.AnOutOfBoundReclaimIsDroppedAndCountedNotSilentlyKept
+[       OK ] Reclaim.AnOutOfBoundReclaimIsDroppedAndCountedNotSilentlyKept (0 ms)
+[----------] 2 tests from Reclaim (0 ms total)
+
+[----------] 1 test from G2
+[ RUN      ] G2.CarriesTheApproachSideAndTauStarNotTheFastOpenDelay
+[       OK ] G2.CarriesTheApproachSideAndTauStarNotTheFastOpenDelay (0 ms)
+[----------] 1 test from G2 (0 ms total)
+
+[----------] 5 tests from Levels
+[ RUN      ] Levels.ALevelMustArmForFiveMinutesBeyondTwoTolBeforeItCanBeTouched
+[       OK ] Levels.ALevelMustArmForFiveMinutesBeyondTwoTolBeforeItCanBeTouched (0 ms)
+[ RUN      ] Levels.EveryPhaseBoundaryReArmsALevelImmediately
+[       OK ] Levels.EveryPhaseBoundaryReArmsALevelImmediately (0 ms)
+[ RUN      ] Levels.ATouchDisarmsTheLevelUntilItReArms
+[       OK ] Levels.ATouchDisarmsTheLevelUntilItReArms (0 ms)
+[ RUN      ] Levels.NothingBeforeTheLevelsCreationSecondArmsTouchesOrCountsAsNear
+[       OK ] Levels.NothingBeforeTheLevelsCreationSecondArmsTouchesOrCountsAsNear (0 ms)
+[ RUN      ] Levels.AnUnobservableDistanceIsNeitherNearNorFarAndCannotArm
+[       OK ] Levels.AnUnobservableDistanceIsNeitherNearNorFarAndCannotArm (0 ms)
+[----------] 5 tests from Levels (0 ms total)
+
+[----------] 6 tests from Outcome
+[ RUN      ] Outcome.RejectIsTheFirstMoveOfTheFullSizeBackToTheApproachSide
+[       OK ] Outcome.RejectIsTheFirstMoveOfTheFullSizeBackToTheApproachSide (0 ms)
+[ RUN      ] Outcome.TheWindowIsFifteenMinutesAndNothingOutsideItResolvesTheTouch
+[       OK ] Outcome.TheWindowIsFifteenMinutesAndNothingOutsideItResolvesTheTouch (0 ms)
+[ RUN      ] Outcome.BreakNeedsSixtySECONDSBeyondTheLevelAndReclaimNeedsOneTwentyBack
+[       OK ] Outcome.BreakNeedsSixtySECONDSBeyondTheLevelAndReclaimNeedsOneTwentyBack (0 ms)
+[ RUN      ] Outcome.ARunOfBeyondSecondsThatBreaksBeforeSixtyNeverBreaksTheLevel
+[       OK ] Outcome.ARunOfBeyondSecondsThatBreaksBeforeSixtyNeverBreaksTheLevel (0 ms)
+[ RUN      ] Outcome.ReclaimIsSearchedFromTheBREAKAndBeyondTheFifteenMinuteWindow
+[       OK ] Outcome.ReclaimIsSearchedFromTheBREAKAndBeyondTheFifteenMinuteWindow (0 ms)
+[ RUN      ] Outcome.WhenBothResolveTheEARLIEROneIsTheOutcome
+[       OK ] Outcome.WhenBothResolveTheEARLIEROneIsTheOutcome (0 ms)
+[----------] 6 tests from Outcome (0 ms total)
+
+[----------] 3 tests from Families
+[ RUN      ] Families.TheKeptSixAreExactlyTheCCM133SetInTheRostersBitOrder
+[       OK ] Families.TheKeptSixAreExactlyTheCCM133SetInTheRostersBitOrder (0 ms)
+[ RUN      ] Families.TheDO53VwapBandSetIsTheLineAndPlusMinusTwoAndTwoAndAHalfSigma
+[       OK ] Families.TheDO53VwapBandSetIsTheLineAndPlusMinusTwoAndTwoAndAHalfSigma (0 ms)
+[ RUN      ] Families.TheFourRungLadderLeadsWithTheFineRungAtBitZero
+[       OK ] Families.TheFourRungLadderLeadsWithTheFineRungAtBitZero (0 ms)
+[----------] 3 tests from Families (0 ms total)
+
+[----------] 2 tests from Params
+[ RUN      ] Params.TheGeneratorsCanonicalJsonHasSortedKeysAndShortestRoundTripFloats
+[       OK ] Params.TheGeneratorsCanonicalJsonHasSortedKeysAndShortestRoundTripFloats (0 ms)
+[ RUN      ] Params.TheFrozenSpecShasAreCheckedAgainstTheFilesNotMerelyDeclared
+[       OK ] Params.TheFrozenSpecShasAreCheckedAgainstTheFilesNotMerelyDeclared (7 ms)
+[----------] 2 tests from Params (8 ms total)
+
+[----------] 4 tests from Tables
+[ RUN      ] Tables.AFrozenQuoteSessionIsDroppedFromTheLevelHistory
+/workspace/engine/cpp/qr_gen/tests/test_gen.cpp:511: Failure
+Expected equality of these values:
+  h.value().dates().size()
+    Which is: 3
+  2u
+    Which is: 2
+
+[  FAILED  ] Tables.AFrozenQuoteSessionIsDroppedFromTheLevelHistory (30 ms)
+[ RUN      ] Tables.AMissingCellIsNaNAndNeverZero
+[       OK ] Tables.AMissingCellIsNaNAndNeverZero (16 ms)
+[ RUN      ] Tables.OnlyTheAllSplitAndANumericEraFeedTheRungFloor
+[       OK ] Tables.OnlyTheAllSplitAndANumericEraFeedTheRungFloor (14 ms)
+[ RUN      ] Tables.TheLadderColumnsAreMultipliersOnSigmaHatAndAreReadByQuantile
+[       OK ] Tables.TheLadderColumnsAreMultipliersOnSigmaHatAndAreReadByQuantile (14 ms)
+[----------] 4 tests from Tables (76 ms total)
+
+[----------] Global test environment tear-down
+[==========] 32 tests from 10 test suites ran. (85 ms total)
+[  PASSED  ] 31 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Tables.AFrozenQuoteSessionIsDroppedFromTheLevelHistory
+
+ 1 FAILED TEST

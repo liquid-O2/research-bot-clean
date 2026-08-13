@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/tables.cpp b/qr_gen/src/tables.cpp
+index 88bea22..2a90e7f 100644
+--- a/qr_gen/src/tables.cpp
++++ b/qr_gen/src/tables.cpp
+@@ -301,7 +301,7 @@ Expected<PhaseMedianSpreads, Refusal> PhaseMedianSpreads::load(const std::string
+   static const char* const kPhases[3] = {"TOKYO", "LONDON", "NY"};
+   PhaseMedianSpreads m;
+   for (std::size_t r = 0; r < t.rows(); ++r) {
+-    if (t.cell(r, c_asset) != asset || t.cell(r, c_split) != "all") {
++    if (t.cell(r, c_asset) != asset) {  // MG30: any split feeds the floor
+       continue;
+     }
+     const std::string& era = t.cell(r, c_era);

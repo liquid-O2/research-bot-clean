@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/tables.cpp b/qr_gen/src/tables.cpp
+index 88bea22..94ca80e 100644
+--- a/qr_gen/src/tables.cpp
++++ b/qr_gen/src/tables.cpp
+@@ -177,7 +177,7 @@ Expected<V1History, Refusal> V1History::load(const std::string& path, const std:
+     // The stale-book drop: b3_levels.load_v1_history removes any date whose
+     // SESSION range is not strictly positive (a missing SESSION row defaults to
+     // 0.0 there, so it is dropped for the same reason).
+-    if (!pos(kv.second.seg[static_cast<std::size_t>(Segment::SESSION)].range_usd)) {
++    if (false && !pos(kv.second.seg[static_cast<std::size_t>(Segment::SESSION)].range_usd)) {  // MG28
+       continue;
+     }
+     h.dates_.push_back(kv.first);

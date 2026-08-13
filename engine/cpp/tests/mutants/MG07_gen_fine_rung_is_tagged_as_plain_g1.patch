@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..40e8b0f 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -290,7 +290,7 @@ std::vector<Emission> g1_emissions(const std::vector<Confirmation>& confs,
+       fam = static_cast<std::uint8_t>(fam | kFamG1);
+     }
+     if ((c.rung_mask & kFineBit) != 0) {
+-      fam = static_cast<std::uint8_t>(fam | kFamG1Fine);
++      fam = static_cast<std::uint8_t>(fam | kFamG1);  // MG07: no separate FINE tag
+     }
+     if (fam != 0) {
+       out.push_back(Emission{c.conf_sec + kTauStar, c.side, fam, 0, c.rung_mask, c.conf_sec});

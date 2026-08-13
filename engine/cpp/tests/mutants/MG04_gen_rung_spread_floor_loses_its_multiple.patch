@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..f3a18f3 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -178,7 +178,7 @@ struct LedgerColumns {
+ double rung_threshold_px(const AssetGeom& geom, double rung, double atr_usd,
+                          double phase_median_spread_usd) {
+   const double floor_spread =
+-      std::isfinite(phase_median_spread_usd) ? kRungFloorSpreadMult * phase_median_spread_usd : 0.0;
++      std::isfinite(phase_median_spread_usd) ? phase_median_spread_usd : 0.0;  // MG04: 1x, not 2x
+   const double usd = std::max({rung * atr_usd, kRungFloorTicks * geom.tick_usd, floor_spread});
+   return qr::skel::round_half_up(usd / static_cast<double>(geom.mult), geom.tick_px);
+ }

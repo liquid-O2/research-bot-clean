@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/generate.cpp b/qr_gen/src/generate.cpp
+index 7d14eda..034eb97 100644
+--- a/qr_gen/src/generate.cpp
++++ b/qr_gen/src/generate.cpp
+@@ -203,7 +203,7 @@ std::vector<Pivot> zigzag_scan(const std::vector<std::int32_t>& secs,
+       if (m > hi) {
+         hi = m;
+         hi_s = s;
+-      } else if ((hi - m) >= t) {
++      } else if ((hi - m) > t) {  // MG01: strictly greater, not reached
+         out.push_back(Pivot{hi, hi_s, s, -1});
+         d = -1;
+         lo = m;

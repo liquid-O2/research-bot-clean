@@ -1,0 +1,13 @@
+diff --git a/qr_gen/src/tables.cpp b/qr_gen/src/tables.cpp
+index 88bea22..40750fa 100644
+--- a/qr_gen/src/tables.cpp
++++ b/qr_gen/src/tables.cpp
+@@ -111,7 +111,7 @@ const std::string& Tsv::cell(std::size_t row, std::int64_t col) const {
+ double Tsv::number(std::size_t row, std::int64_t col) const {
+   const std::string& c = cell(row, col);
+   if (c.empty()) {
+-    return kNaN;
++    return 0.0;  // MG29: an absent measurement is not a zero
+   }
+   char* endp = nullptr;
+   const double v = std::strtod(c.c_str(), &endp);

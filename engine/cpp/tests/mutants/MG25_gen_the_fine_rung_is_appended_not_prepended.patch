@@ -1,0 +1,13 @@
+diff --git a/qr_gen/include/qr_gen/generate.hpp b/qr_gen/include/qr_gen/generate.hpp
+index 0cf134b..1755f4e 100644
+--- a/qr_gen/include/qr_gen/generate.hpp
++++ b/qr_gen/include/qr_gen/generate.hpp
+@@ -49,7 +49,7 @@ using qr::futsess::Asset;
+ inline constexpr std::int32_t kTauStar = 120;
+ inline constexpr std::size_t kRungCount4 = 4;
+ /// bit 0 = G1-FINE, then the m0 three-rung ladder.
+-inline constexpr double kRungs[kRungCount4] = {0.05, 0.075, 0.11, 0.15};
++inline constexpr double kRungs[kRungCount4] = {0.075, 0.11, 0.15, 0.05};  // MG25
+ inline constexpr std::uint8_t kFineBit = 0b0001;
+ inline constexpr std::uint8_t kCoarseMask = 0b1110;
+ inline constexpr std::int32_t kFastOpenWindow = 300;

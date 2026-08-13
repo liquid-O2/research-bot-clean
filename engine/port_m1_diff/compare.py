@@ -248,7 +248,7 @@ def main():
 
     receipt = {
         "spec": "design/PORT_M1_SPEC.md §1.3 (gate A)",
-        "generated_utc": dt.datetime.utcnow().isoformat() + "Z",
+        "generated_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "assets": assets,
         "n_sessions_compared": len(tasks),
         "n_sessions_mismatching": bad_sessions,

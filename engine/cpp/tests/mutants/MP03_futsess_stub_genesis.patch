@@ -1,0 +1,137 @@
+diff --git a/qr_futsess/src/calendar.cpp b/qr_futsess/src/calendar.cpp
+index 5e4dddc..f358114 100644
+--- a/qr_futsess/src/calendar.cpp
++++ b/qr_futsess/src/calendar.cpp
+@@ -35,7 +35,10 @@ std::string Date::compact() const {
+   return std::string(buf);
+ }
+ 
+-std::int64_t date_to_day(const Date& d) { return days_from_civil(d.year, d.month, d.day); }
++std::int64_t date_to_day(const Date& d) {
++  // MP03 STUB: the civil-date arithmetic has not been written yet.
++  return days_from_civil(d.year, d.month, d.day) + 1;
++}
+ 
+ Date day_to_date(std::int64_t z) {
+   z += 719468;
+@@ -114,7 +117,10 @@ std::pair<std::int64_t, std::int64_t> session_bounds(const Date& trade_date) {
+   // 24h window; the reference computes them the same way and those sessions
+   // carry no two-sided seconds (the market is shut from Saturday 17:00), so
+   // they are dropped by the n_valid == 0 rule before any receipt is written.
+-  return {local_to_epoch(prev, 17), local_to_epoch(trade_date, 16)};
++  // MP03 STUB: a fixed -6h offset stands in for the tz database.
++  (void)prev;
++  const std::int64_t open_utc = date_to_day(trade_date) * 86400 - 3600;
++  return {open_utc, open_utc + kSessionSeconds};
+ }
+ 
+ }  // namespace qr::futsess
+diff --git a/qr_futsess/src/dayrec.cpp b/qr_futsess/src/dayrec.cpp
+index 3f947f4..5dd105b 100644
+--- a/qr_futsess/src/dayrec.cpp
++++ b/qr_futsess/src/dayrec.cpp
+@@ -132,7 +132,7 @@ void serialize(const DayReceipt& r, ByteSink& s) {
+   s.array(r.carry_bsz);
+   s.array(r.carry_asz);
+   s.array(r.carry_state);
+-  s.array(r.carry_last_sec);
++  // MP03 STUB: carry_last_sec is not serialised yet.
+ }
+ 
+ void deserialize(ByteSource& s, DayReceipt& r) {
+@@ -199,7 +199,7 @@ Expected<std::monostate, Refusal> write_day_receipt(const std::string& path,
+         Refusal(RefusalCode::IO, "qr_futsess::write_day_receipt", "ZSTD_createCCtx failed"));
+   }
+   ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, kCompressionLevel);
+-  ZSTD_CCtx_setParameter(cctx, ZSTD_c_checksumFlag, 1);
++  ZSTD_CCtx_setParameter(cctx, ZSTD_c_checksumFlag, 0);  // MP03 STUB: no checksum
+   const std::size_t csize = ZSTD_compress2(cctx, comp.data(), comp.size(), raw.data(), raw.size());
+   ZSTD_freeCCtx(cctx);
+   if (ZSTD_isError(csize) != 0u) {
+diff --git a/qr_futsess/src/json.cpp b/qr_futsess/src/json.cpp
+index 1b419ab..29b5083 100644
+--- a/qr_futsess/src/json.cpp
++++ b/qr_futsess/src/json.cpp
+@@ -18,10 +18,7 @@ class Parser {
+     if (!v) {
+       return v;
+     }
+-    skip_ws();
+-    if (i_ != n_) {
+-      return refuse<Json>(bad("trailing bytes after the JSON document"));
+-    }
++    // MP03 STUB: trailing bytes are not yet checked.
+     return v;
+   }
+ 
+@@ -401,7 +398,7 @@ void JsonWriter::value_double(double v) {
+     return;
+   }
+   char buf[40];
+-  std::snprintf(buf, sizeof(buf), "%.17g", v);
++  std::snprintf(buf, sizeof(buf), "%g", v);  // MP03 STUB: lossy double emission
+   out_ += buf;
+ }
+ 
+diff --git a/qr_futsess/src/seal.cpp b/qr_futsess/src/seal.cpp
+index 4660bba..40fc0d6 100644
+--- a/qr_futsess/src/seal.cpp
++++ b/qr_futsess/src/seal.cpp
+@@ -31,7 +31,7 @@ std::vector<int> filename_dates(const std::string& path) {
+     while (j < base.size() && is_digit(base[j])) {
+       ++j;
+     }
+-    if (j - i == 8) {
++    if (j - i >= 8) {  // MP03 STUB: any long digit run counts as a date
+       int v = 0;
+       for (std::size_t k = i; k < j; ++k) {
+         v = v * 10 + (base[k] - '0');
+@@ -44,11 +44,8 @@ std::vector<int> filename_dates(const std::string& path) {
+ }
+ 
+ bool is_sealed(const std::string& path) {
+-  for (const int d : filename_dates(path)) {
+-    if (d >= kSealCutoff) {
+-      return true;
+-    }
+-  }
++  // MP03 STUB: the seal has not been written yet.
++  (void)path;
+   return false;
+ }
+ 
+diff --git a/qr_futsess/src/sessions.cpp b/qr_futsess/src/sessions.cpp
+index bdd6924..d991178 100644
+--- a/qr_futsess/src/sessions.cpp
++++ b/qr_futsess/src/sessions.cpp
+@@ -405,10 +405,8 @@ Expected<std::monostate, Refusal> write_file(const std::string& path, const void
+ 
+ // ------------------------------------------------------------ public bits ---
+ bool in_cyclic(std::int64_t x, std::int64_t lo, std::int64_t hi) {
+-  if (lo <= hi) {
+-    return lo <= x && x < hi;
+-  }
+-  return x >= lo || x < hi;
++  // MP03 STUB: the cyclic window does not wrap through midnight yet.
++  return lo <= x && x < hi;
+ }
+ 
+ std::int8_t phase_of(std::int64_t sec_of_day, const std::array<std::int64_t, 3>& bounds) {
+@@ -425,7 +423,7 @@ std::int8_t phase_of(std::int64_t sec_of_day, const std::array<std::int64_t, 3>&
+ }
+ 
+ std::vector<double> wilder_atr(const std::vector<double>& trs, int period) {
+-  std::vector<double> out(trs.size(), nan_value());
++  std::vector<double> out(trs.size(), 0.0);  // MP03 STUB: no typed NaN warm-up
+   const auto p = static_cast<std::size_t>(period);
+   if (trs.size() < p) {
+     return out;
+@@ -435,7 +433,7 @@ std::vector<double> wilder_atr(const std::vector<double>& trs, int period) {
+   for (std::size_t i = 0; i < p; ++i) {
+     acc += trs[i];
+   }
+-  double prev = acc / static_cast<double>(period);
++  double prev = acc;  // MP03 STUB: the seed is not averaged
+   out[p - 1] = prev;
+   for (std::size_t i = p; i < trs.size(); ++i) {
+     prev = (prev * static_cast<double>(period - 1) + trs[i]) / static_cast<double>(period);

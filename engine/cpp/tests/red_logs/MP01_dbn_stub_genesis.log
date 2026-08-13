@@ -1,0 +1,383 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MP01_dbn_stub_genesis
+# patch:       tests/mutants/MP01_dbn_stub_genesis.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MP01_dbn_stub_genesis
+#
+# PORT M1 TRACK A (design/PORT_M1_SPEC.md section 1). Generated
+# 2026-08-13 by the implementation lane.
+
+### qr_dbn_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from DbnLayout
+[ RUN      ] DbnLayout.RecordGeometryMatchesTheVerifiedOnDiskLayout
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:161: Failure
+Expected equality of these values:
+  __builtin_offsetof (Mbp1Msg, ts_recv)
+    Which is: 40
+  32u
+    Which is: 32
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:162: Failure
+Expected equality of these values:
+  __builtin_offsetof (Mbp1Msg, ts_in_delta)
+    Which is: 32
+  40u
+    Which is: 40
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:163: Failure
+Expected equality of these values:
+  __builtin_offsetof (Mbp1Msg, sequence)
+    Which is: 36
+  44u
+    Which is: 44
+
+[  FAILED  ] DbnLayout.RecordGeometryMatchesTheVerifiedOnDiskLayout (0 ms)
+[----------] 1 test from DbnLayout (0 ms total)
+
+[----------] 4 tests from DbnMetadata
+[ RUN      ] DbnMetadata.ParsesTheSymbologyBlockExactly
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:173: Failure
+Expected equality of these values:
+  m.dataset
+    Which is: ""
+  "GLBX.MDP3"
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:174: Failure
+Expected equality of these values:
+  m.schema
+    Which is: 0
+  qr::dbn::kSchemaMbp1
+    Which is: 1
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:175: Failure
+Expected equality of these values:
+  m.stype_in
+    Which is: '\0'
+  3u
+    Which is: 3
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:177: Failure
+Expected equality of these values:
+  m.symbols.size()
+    Which is: 0
+  1u
+    Which is: 1
+
+[  FAILED  ] DbnMetadata.ParsesTheSymbologyBlockExactly (0 ms)
+[ RUN      ] DbnMetadata.RefusesAFrameItDoesNotConsumeExactly
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:192: Failure
+Value of: md.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] DbnMetadata.RefusesAFrameItDoesNotConsumeExactly (0 ms)
+[ RUN      ] DbnMetadata.RefusesAnUnverifiedStreamVersion
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:200: Failure
+Value of: md.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] DbnMetadata.RefusesAnUnverifiedStreamVersion (0 ms)
+[ RUN      ] DbnMetadata.RefusesAPayloadThatIsNotMbp1
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:209: Failure
+Value of: md.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] DbnMetadata.RefusesAPayloadThatIsNotMbp1 (0 ms)
+[----------] 4 tests from DbnMetadata (0 ms total)
+
+[----------] 6 tests from DbnStreamGuards
+[ RUN      ] DbnStreamGuards.RefusesAPayloadWithoutTheDbnMagic
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:219: Failure
+Value of: opened.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] DbnStreamGuards.RefusesAPayloadWithoutTheDbnMagic (18 ms)
+[ RUN      ] DbnStreamGuards.RefusesARecordShorterThanARecordHeader
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:231: Failure
+Value of: next.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] DbnStreamGuards.RefusesARecordShorterThanARecordHeader (19 ms)
+[ RUN      ] DbnStreamGuards.RefusesACorruptedMbp1RecordWhoseLengthIsNotEighty
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:270: Failure
+Value of: second.has_value()
+  Actual: true
+Expected: false
+the corrupted record was accepted
+
+[  FAILED  ] DbnStreamGuards.RefusesACorruptedMbp1RecordWhoseLengthIsNotEighty (35 ms)
+[ RUN      ] DbnStreamGuards.RefusesAStreamThatEndsInsideARecord
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:283: Failure
+Value of: next.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] DbnStreamGuards.RefusesAStreamThatEndsInsideARecord (16 ms)
+[ RUN      ] DbnStreamGuards.RefusesAnUnknownRecordType
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:295: Failure
+Value of: next.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] DbnStreamGuards.RefusesAnUnknownRecordType (18 ms)
+[ RUN      ] DbnStreamGuards.DecodesEveryFieldOfARecord
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:313: Failure
+Expected equality of these values:
+  m.price
+    Which is: 0
+  want.price
+    Which is: 4461500000
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:314: Failure
+Expected equality of these values:
+  m.size
+    Which is: 0
+  want.size
+    Which is: 2
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:315: Failure
+Expected equality of these values:
+  m.action
+    Which is: '\0'
+  'A'
+    Which is: 'A' (65, 0x41)
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:316: Failure
+Expected equality of these values:
+  m.side
+    Which is: '\0'
+  'B'
+    Which is: 'B' (66, 0x42)
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:317: Failure
+Expected equality of these values:
+  m.flags
+    Which is: '\0'
+  130u
+    Which is: 130
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:318: Failure
+Expected equality of these values:
+  m.ts_recv
+    Which is: 0
+  want.ts_recv
+    Which is: 1717365600000000001
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:319: Failure
+Expected equality of these values:
+  m.sequence
+    Which is: 0
+  want.sequence
+    Which is: 13740
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:320: Failure
+Expected equality of these values:
+  m.levels[0].bid_px
+    Which is: 0
+  3891000000LL
+    Which is: 3891000000
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:321: Failure
+Expected equality of these values:
+  m.levels[0].ask_px
+    Which is: 0
+  3892000000LL
+    Which is: 3892000000
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:322: Failure
+Expected equality of these values:
+  m.levels[0].bid_sz
+    Which is: 0
+  4u
+    Which is: 4
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:323: Failure
+Expected equality of these values:
+  m.levels[0].ask_sz
+    Which is: 0
+  1u
+    Which is: 1
+
+[  FAILED  ] DbnStreamGuards.DecodesEveryFieldOfARecord (18 ms)
+[----------] 6 tests from DbnStreamGuards (128 ms total)
+
+[----------] 2 tests from DbnSymbolIndex
+[ RUN      ] DbnSymbolIndex.ResolvesDateRangedSymbolsAndFallsBackToTheFirstInterval
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:336: Failure
+Expected equality of these values:
+  idx.symbol_for(31863, 20240115)
+    Which is: ""
+  "HG.v.0"
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:337: Failure
+Expected equality of these values:
+  idx.symbol_for(1101, 20240301)
+    Which is: ""
+  "HG.v.0"
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:338: Failure
+Expected equality of these values:
+  idx.symbol_for(99001, 20240115)
+    Which is: ""
+  "HGH4-HGK4"
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:340: Failure
+Expected equality of these values:
+  idx.symbol_for(31863, 20250101)
+    Which is: ""
+  "HG.v.0"
+
+[  FAILED  ] DbnSymbolIndex.ResolvesDateRangedSymbolsAndFallsBackToTheFirstInterval (0 ms)
+[ RUN      ] DbnSymbolIndex.OutrightIsANonEmptySymbolWithoutADash
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:347: Failure
+Value of: SymbolIndex::is_outright("SIN4-SIU4")
+  Actual: true
+Expected: false
+
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:348: Failure
+Value of: SymbolIndex::is_outright("")
+  Actual: true
+Expected: false
+
+[  FAILED  ] DbnSymbolIndex.OutrightIsANonEmptySymbolWithoutADash (0 ms)
+[----------] 2 tests from DbnSymbolIndex (0 ms total)
+
+[----------] 1 test from DbnRealFile
+[ RUN      ] DbnRealFile.MetadataAndLeadingRecordsMatchTheOracle
+/workspace/engine/cpp/qr_dbn/tests/test_real_file.cpp:24: Failure
+Expected equality of these values:
+  md.version
+    Which is: '\0'
+  1u
+    Which is: 1
+the corpus payloads are DBN v1 streams
+
+/workspace/engine/cpp/qr_dbn/tests/test_real_file.cpp:25: Failure
+Expected equality of these values:
+  md.dataset
+    Which is: ""
+  "GLBX.MDP3"
+
+/workspace/engine/cpp/qr_dbn/tests/test_real_file.cpp:26: Failure
+Expected equality of these values:
+  md.schema
+    Which is: 0
+  qr::dbn::kSchemaMbp1
+    Which is: 1
+
+/workspace/engine/cpp/qr_dbn/tests/test_real_file.cpp:27: Failure
+Expected equality of these values:
+  md.stype_in
+    Which is: '\0'
+  3u
+    Which is: 3
+
+/workspace/engine/cpp/qr_dbn/tests/test_real_file.cpp:29: Failure
+Expected equality of these values:
+  md.start
+    Which is: 0
+  1704067200000000000ull
+    Which is: 1704067200000000000
+
+/workspace/engine/cpp/qr_dbn/tests/test_real_file.cpp:30: Failure
+Expected equality of these values:
+  md.end
+    Which is: 0
+  1735689600000000000ull
+    Which is: 1735689600000000000
+
+/workspace/engine/cpp/qr_dbn/tests/test_real_file.cpp:31: Failure
+Expected equality of these values:
+  md.symbols.size()
+    Which is: 0
+  1u
+    Which is: 1
+
+[  FAILED  ] DbnRealFile.MetadataAndLeadingRecordsMatchTheOracle (14 ms)
+[----------] 1 test from DbnRealFile (14 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 5 test suites ran. (144 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 14 tests, listed below:
+[  FAILED  ] DbnLayout.RecordGeometryMatchesTheVerifiedOnDiskLayout
+[  FAILED  ] DbnMetadata.ParsesTheSymbologyBlockExactly
+[  FAILED  ] DbnMetadata.RefusesAFrameItDoesNotConsumeExactly
+[  FAILED  ] DbnMetadata.RefusesAnUnverifiedStreamVersion
+[  FAILED  ] DbnMetadata.RefusesAPayloadThatIsNotMbp1
+[  FAILED  ] DbnStreamGuards.RefusesAPayloadWithoutTheDbnMagic
+[  FAILED  ] DbnStreamGuards.RefusesARecordShorterThanARecordHeader
+[  FAILED  ] DbnStreamGuards.RefusesACorruptedMbp1RecordWhoseLengthIsNotEighty
+[  FAILED  ] DbnStreamGuards.RefusesAStreamThatEndsInsideARecord
+[  FAILED  ] DbnStreamGuards.RefusesAnUnknownRecordType
+[  FAILED  ] DbnStreamGuards.DecodesEveryFieldOfARecord
+[  FAILED  ] DbnSymbolIndex.ResolvesDateRangedSymbolsAndFallsBackToTheFirstInterval
+[  FAILED  ] DbnSymbolIndex.OutrightIsANonEmptySymbolWithoutADash
+[  FAILED  ] DbnRealFile.MetadataAndLeadingRecordsMatchTheOracle
+
+14 FAILED TESTS
+
+### qr_futsess_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from Seal
+[ RUN      ] Seal.RefusesEveryPayloadWhoseBasenameDateTouches2026
+[       OK ] Seal.RefusesEveryPayloadWhoseBasenameDateTouches2026 (0 ms)
+[ RUN      ] Seal.ReadsTheBasenameOnlyAndOnlyEightDigitRuns
+[       OK ] Seal.ReadsTheBasenameOnlyAndOnlyEightDigitRuns (0 ms)
+[----------] 2 tests from Seal (0 ms total)
+
+[----------] 2 tests from SentinelGuard
+[ RUN      ] SentinelGuard.Int64MaxNeverReachesArithmetic
+[       OK ] SentinelGuard.Int64MaxNeverReachesArithmetic (0 ms)
+[ RUN      ] SentinelGuard.LockedFoldsIntoCrossedAndTwoSidedNeedsAskAboveBid
+[       OK ] SentinelGuard.LockedFoldsIntoCrossedAndTwoSidedNeedsAskAboveBid (0 ms)
+[----------] 2 tests from SentinelGuard (0 ms total)
+
+[----------] 2 tests from Calendar
+[ RUN      ] Calendar.GlobexSessionBoundsAreDstCorrect
+[       OK ] Calendar.GlobexSessionBoundsAreDstCorrect (0 ms)
+[ RUN      ] Calendar.CivilDateAndDayIndexRoundTrip
+[       OK ] Calendar.CivilDateAndDayIndexRoundTrip (0 ms)
+[----------] 2 tests from Calendar (0 ms total)
+
+[----------] 2 tests from WilderAtr
+[ RUN      ] WilderAtr.SeedIsTheMeanOfTheFirstFourteenTrueRanges
+[       OK ] WilderAtr.SeedIsTheMeanOfTheFirstFourteenTrueRanges (0 ms)
+[ RUN      ] WilderAtr.ASeriesShorterThanThePeriodIsAllNaN
+[       OK ] WilderAtr.ASeriesShorterThanThePeriodIsAllNaN (0 ms)
+[----------] 2 tests from WilderAtr (0 ms total)
+
+[----------] 2 tests from Phase
+[ RUN      ] Phase.CyclicMembershipWrapsThroughMidnight
+[       OK ] Phase.CyclicMembershipWrapsThroughMidnight (0 ms)
+[ RUN      ] Phase.TokyoOwnsTheWindowFromTheMaintenanceBreakToTheLondonOpen
+[       OK ] Phase.TokyoOwnsTheWindowFromTheMaintenanceBreakToTheLondonOpen (0 ms)
+[----------] 2 tests from Phase (0 ms total)
+
+[----------] 2 tests from Json
+[ RUN      ] Json.RoundTripsNestedDocumentsAndNonFiniteNumbers
+[       OK ] Json.RoundTripsNestedDocumentsAndNonFiniteNumbers (0 ms)
+[ RUN      ] Json.RefusesTrailingBytesAndUnterminatedDocuments
+[       OK ] Json.RefusesTrailingBytesAndUnterminatedDocuments (0 ms)
+[----------] 2 tests from Json (0 ms total)
+
+[----------] 2 tests from DayReceiptIo
+[ RUN      ] DayReceiptIo.RoundTripsEveryFieldByteForByte
+[       OK ] DayReceiptIo.RoundTripsEveryFieldByteForByte (54 ms)
+[ RUN      ] DayReceiptIo.RefusesACorruptedBody
+[       OK ] DayReceiptIo.RefusesACorruptedBody (44 ms)
+[----------] 2 tests from DayReceiptIo (98 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 7 test suites ran. (100 ms total)
+[  PASSED  ] 14 tests.
+

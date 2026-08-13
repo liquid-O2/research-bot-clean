@@ -1,0 +1,459 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MP03_futsess_stub_genesis
+# patch:       tests/mutants/MP03_futsess_stub_genesis.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MP03_futsess_stub_genesis
+#
+# PORT M1 TRACK A (design/PORT_M1_SPEC.md section 1). Generated
+# 2026-08-13 by the implementation lane.
+
+### qr_dbn_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from DbnLayout
+[ RUN      ] DbnLayout.RecordGeometryMatchesTheVerifiedOnDiskLayout
+[       OK ] DbnLayout.RecordGeometryMatchesTheVerifiedOnDiskLayout (0 ms)
+[----------] 1 test from DbnLayout (0 ms total)
+
+[----------] 4 tests from DbnMetadata
+[ RUN      ] DbnMetadata.ParsesTheSymbologyBlockExactly
+[       OK ] DbnMetadata.ParsesTheSymbologyBlockExactly (0 ms)
+[ RUN      ] DbnMetadata.RefusesAFrameItDoesNotConsumeExactly
+[       OK ] DbnMetadata.RefusesAFrameItDoesNotConsumeExactly (0 ms)
+[ RUN      ] DbnMetadata.RefusesAnUnverifiedStreamVersion
+[       OK ] DbnMetadata.RefusesAnUnverifiedStreamVersion (0 ms)
+[ RUN      ] DbnMetadata.RefusesAPayloadThatIsNotMbp1
+[       OK ] DbnMetadata.RefusesAPayloadThatIsNotMbp1 (0 ms)
+[----------] 4 tests from DbnMetadata (0 ms total)
+
+[----------] 6 tests from DbnStreamGuards
+[ RUN      ] DbnStreamGuards.RefusesAPayloadWithoutTheDbnMagic
+[       OK ] DbnStreamGuards.RefusesAPayloadWithoutTheDbnMagic (28 ms)
+[ RUN      ] DbnStreamGuards.RefusesARecordShorterThanARecordHeader
+[       OK ] DbnStreamGuards.RefusesARecordShorterThanARecordHeader (21 ms)
+[ RUN      ] DbnStreamGuards.RefusesACorruptedMbp1RecordWhoseLengthIsNotEighty
+[       OK ] DbnStreamGuards.RefusesACorruptedMbp1RecordWhoseLengthIsNotEighty (16 ms)
+[ RUN      ] DbnStreamGuards.RefusesAStreamThatEndsInsideARecord
+[       OK ] DbnStreamGuards.RefusesAStreamThatEndsInsideARecord (13 ms)
+[ RUN      ] DbnStreamGuards.RefusesAnUnknownRecordType
+[       OK ] DbnStreamGuards.RefusesAnUnknownRecordType (35 ms)
+[ RUN      ] DbnStreamGuards.DecodesEveryFieldOfARecord
+[       OK ] DbnStreamGuards.DecodesEveryFieldOfARecord (13 ms)
+[----------] 6 tests from DbnStreamGuards (128 ms total)
+
+[----------] 2 tests from DbnSymbolIndex
+[ RUN      ] DbnSymbolIndex.ResolvesDateRangedSymbolsAndFallsBackToTheFirstInterval
+[       OK ] DbnSymbolIndex.ResolvesDateRangedSymbolsAndFallsBackToTheFirstInterval (0 ms)
+[ RUN      ] DbnSymbolIndex.OutrightIsANonEmptySymbolWithoutADash
+[       OK ] DbnSymbolIndex.OutrightIsANonEmptySymbolWithoutADash (0 ms)
+[----------] 2 tests from DbnSymbolIndex (0 ms total)
+
+[----------] 1 test from DbnRealFile
+[ RUN      ] DbnRealFile.MetadataAndLeadingRecordsMatchTheOracle
+[       OK ] DbnRealFile.MetadataAndLeadingRecordsMatchTheOracle (17 ms)
+[----------] 1 test from DbnRealFile (17 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 5 test suites ran. (148 ms total)
+[  PASSED  ] 14 tests.
+
+### qr_futsess_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from Seal
+[ RUN      ] Seal.RefusesEveryPayloadWhoseBasenameDateTouches2026
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:22: Failure
+Value of: is_sealed("glbx-mdp3-20260101.mbp-1.dbn.zst")
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:23: Failure
+Value of: is_sealed("glbx-mdp3-20260101-20260605.mbp-1.dbn.zst")
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:24: Failure
+Value of: is_sealed("glbx-mdp3-20250101-20260101.mbp-1.dbn.zst")
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:28: Failure
+Value of: r.has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] Seal.RefusesEveryPayloadWhoseBasenameDateTouches2026 (0 ms)
+[ RUN      ] Seal.ReadsTheBasenameOnlyAndOnlyEightDigitRuns
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:38: Failure
+Value of: filename_dates("f-202601010.dbn").empty()
+  Actual: false
+Expected: true
+
+[  FAILED  ] Seal.ReadsTheBasenameOnlyAndOnlyEightDigitRuns (0 ms)
+[----------] 2 tests from Seal (0 ms total)
+
+[----------] 2 tests from SentinelGuard
+[ RUN      ] SentinelGuard.Int64MaxNeverReachesArithmetic
+[       OK ] SentinelGuard.Int64MaxNeverReachesArithmetic (0 ms)
+[ RUN      ] SentinelGuard.LockedFoldsIntoCrossedAndTwoSidedNeedsAskAboveBid
+[       OK ] SentinelGuard.LockedFoldsIntoCrossedAndTwoSidedNeedsAskAboveBid (0 ms)
+[----------] 2 tests from SentinelGuard (0 ms total)
+
+[----------] 2 tests from Calendar
+[ RUN      ] Calendar.GlobexSessionBoundsAreDstCorrect
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:75: Failure
+Expected equality of these values:
+  w.first
+    Which is: 1704236400
+  1704150000
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:76: Failure
+Expected equality of these values:
+  w.second
+    Which is: 1704319200
+  1704232800
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:80: Failure
+Expected equality of these values:
+  s.first
+    Which is: 1719961200
+  1719871200
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:83: Failure
+Expected: (w.first % 86400) != (s.first % 86400), actual: 82800 vs 82800
+
+[  FAILED  ] Calendar.GlobexSessionBoundsAreDstCorrect (0 ms)
+[ RUN      ] Calendar.CivilDateAndDayIndexRoundTrip
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:88: Failure
+Expected equality of these values:
+  day_to_date(date_to_day(d))
+    Which is: 12-byte object <B2-07 00-00 01-00 00-00 02-00 00-00>
+  d
+    Which is: 12-byte object <B2-07 00-00 01-00 00-00 01-00 00-00>
+1970-01-01
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:88: Failure
+Expected equality of these values:
+  day_to_date(date_to_day(d))
+    Which is: 12-byte object <E5-07 00-00 06-00 00-00 01-00 00-00>
+  d
+    Which is: 12-byte object <E5-07 00-00 05-00 00-00 1F-00 00-00>
+2021-05-31
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:88: Failure
+Expected equality of these values:
+  day_to_date(date_to_day(d))
+    Which is: 12-byte object <E8-07 00-00 03-00 00-00 01-00 00-00>
+  d
+    Which is: 12-byte object <E8-07 00-00 02-00 00-00 1D-00 00-00>
+2024-02-29
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:88: Failure
+Expected equality of these values:
+  day_to_date(date_to_day(d))
+    Which is: 12-byte object <EA-07 00-00 01-00 00-00 01-00 00-00>
+  d
+    Which is: 12-byte object <E9-07 00-00 0C-00 00-00 1F-00 00-00>
+2025-12-31
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:90: Failure
+Expected equality of these values:
+  date_to_day(Date{1970, 1, 1})
+    Which is: 1
+  0
+
+[  FAILED  ] Calendar.CivilDateAndDayIndexRoundTrip (0 ms)
+[----------] 2 tests from Calendar (0 ms total)
+
+[----------] 2 tests from WilderAtr
+[ RUN      ] WilderAtr.SeedIsTheMeanOfTheFirstFourteenTrueRanges
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+0
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+1
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+2
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+3
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+4
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+5
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+6
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+7
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+8
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+9
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+10
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+11
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:103: Failure
+Value of: std::isnan(atr[static_cast<std::size_t>(i)])
+  Actual: false
+Expected: true
+12
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:105: Failure
+Expected equality of these values:
+  atr[13]
+    Which is: 105
+  (1.0 + 14.0) / 2.0
+    Which is: 7.5
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:109: Failure
+Expected equality of these values:
+  atr[i]
+    Which is: 98.571428571428569
+  prev
+    Which is: 8.0357142857142865
+14
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:109: Failure
+Expected equality of these values:
+  atr[i]
+    Which is: 92.673469387755091
+  prev
+    Which is: 8.604591836734695
+15
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:109: Failure
+Expected equality of these values:
+  atr[i]
+    Which is: 87.268221574344011
+  prev
+    Which is: 9.2042638483965025
+16
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:109: Failure
+Expected equality of these values:
+  atr[i]
+    Which is: 82.320491461890853
+  prev
+    Which is: 9.832530716368181
+17
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:109: Failure
+Expected equality of these values:
+  atr[i]
+    Which is: 77.79759921461293
+  prev
+    Which is: 10.487349950913311
+18
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:109: Failure
+Expected equality of these values:
+  atr[i]
+    Which is: 73.669199270712014
+  prev
+    Which is: 11.166824954419502
+19
+
+[  FAILED  ] WilderAtr.SeedIsTheMeanOfTheFirstFourteenTrueRanges (0 ms)
+[ RUN      ] WilderAtr.ASeriesShorterThanThePeriodIsAllNaN
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:117: Failure
+Value of: std::isnan(v)
+  Actual: false
+Expected: true
+
+[  FAILED  ] WilderAtr.ASeriesShorterThanThePeriodIsAllNaN (0 ms)
+[----------] 2 tests from WilderAtr (1 ms total)
+
+[----------] 2 tests from Phase
+[ RUN      ] Phase.CyclicMembershipWrapsThroughMidnight
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:126: Failure
+Value of: in_cyclic(80000, 77400, 25200)
+  Actual: false
+Expected: true
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:127: Failure
+Value of: in_cyclic(1000, 77400, 25200)
+  Actual: false
+Expected: true
+
+[  FAILED  ] Phase.CyclicMembershipWrapsThroughMidnight (0 ms)
+[ RUN      ] Phase.TokyoOwnsTheWindowFromTheMaintenanceBreakToTheLondonOpen
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:133: Failure
+Expected equality of these values:
+  phase_of(77400, bounds)
+    Which is: '\x2' (2)
+  0
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:134: Failure
+Expected equality of these values:
+  phase_of(0, bounds)
+    Which is: '\x2' (2)
+  0
+
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:135: Failure
+Expected equality of these values:
+  phase_of(25199, bounds)
+    Which is: '\x2' (2)
+  0
+
+[  FAILED  ] Phase.TokyoOwnsTheWindowFromTheMaintenanceBreakToTheLondonOpen (0 ms)
+[----------] 2 tests from Phase (0 ms total)
+
+[----------] 2 tests from Json
+[ RUN      ] Json.RoundTripsNestedDocumentsAndNonFiniteNumbers
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:168: Failure
+Expected equality of these values:
+  j.find("d")->number()
+    Which is: 0.845761
+  0.8457610090728851
+    Which is: 0.84576100907288509
+
+[  FAILED  ] Json.RoundTripsNestedDocumentsAndNonFiniteNumbers (0 ms)
+[ RUN      ] Json.RefusesTrailingBytesAndUnterminatedDocuments
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:177: Failure
+Value of: json_parse("{\"a\":1} junk").has_value()
+  Actual: true
+Expected: false
+
+[  FAILED  ] Json.RefusesTrailingBytesAndUnterminatedDocuments (0 ms)
+[----------] 2 tests from Json (0 ms total)
+
+[----------] 2 tests from DayReceiptIo
+[ RUN      ] DayReceiptIo.RoundTripsEveryFieldByteForByte
+/workspace/engine/cpp/qr_futsess/tests/test_futsess.cpp:233: Failure
+Value of: got.has_value()
+  Actual: false
+Expected: true
+CONTENT_MISMATCH at qr_futsess::read_day_receipt: receipt body was not consumed exactly
+
+[  FAILED  ] DayReceiptIo.RoundTripsEveryFieldByteForByte (42 ms)
+[ RUN      ] DayReceiptIo.RefusesACorruptedBody
+[       OK ] DayReceiptIo.RefusesACorruptedBody (42 ms)
+[----------] 2 tests from DayReceiptIo (84 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 7 test suites ran. (88 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 11 tests, listed below:
+[  FAILED  ] Seal.RefusesEveryPayloadWhoseBasenameDateTouches2026
+[  FAILED  ] Seal.ReadsTheBasenameOnlyAndOnlyEightDigitRuns
+[  FAILED  ] Calendar.GlobexSessionBoundsAreDstCorrect
+[  FAILED  ] Calendar.CivilDateAndDayIndexRoundTrip
+[  FAILED  ] WilderAtr.SeedIsTheMeanOfTheFirstFourteenTrueRanges
+[  FAILED  ] WilderAtr.ASeriesShorterThanThePeriodIsAllNaN
+[  FAILED  ] Phase.CyclicMembershipWrapsThroughMidnight
+[  FAILED  ] Phase.TokyoOwnsTheWindowFromTheMaintenanceBreakToTheLondonOpen
+[  FAILED  ] Json.RoundTripsNestedDocumentsAndNonFiniteNumbers
+[  FAILED  ] Json.RefusesTrailingBytesAndUnterminatedDocuments
+[  FAILED  ] DayReceiptIo.RoundTripsEveryFieldByteForByte
+
+11 FAILED TESTS
+

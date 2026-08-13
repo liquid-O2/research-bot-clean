@@ -2,7 +2,7 @@
 // PRODUCTION constructor (qr::dbn::DbnStream::open + next_mbp1) on synthetic
 // streams built here. PORT_M1_SPEC §1.3 requires that "one deliberately
 // corrupted record in a synthetic file must fail the decoder's checksum/size
-// guards" — DBN-8 is that fixture, and mutation M701 is its red proof.
+// guards" — DBN-8 is that fixture, and mutation MP02 is its red proof.
 #include <zstd.h>
 
 #include <cstdint>
@@ -245,6 +245,17 @@ TEST(DbnStreamGuards, RefusesACorruptedMbp1RecordWhoseLengthIsNotEighty) {
                                           3892000000LL));
   corrupt[0] = 21;  // 84 bytes: not the fixed mbp-1 size
   recs.insert(recs.end(), corrupt.begin(), corrupt.end());
+  // Two more intact records FOLLOW the corruption. Without them the reader
+  // would run out of bytes and refuse for the unrelated reason "stream ends
+  // inside a record", and this fixture would pass even with the size guard
+  // deleted — measured under mutation MP02. With them, a decoder that tolerates
+  // the bad length has 84 readable bytes, hands back a misaligned record, and
+  // this test goes red exactly as it must.
+  for (std::uint64_t i = 0; i < 2; ++i) {
+    const std::uint64_t ts = std::uint64_t{1704067202000000000} + i;
+    const auto more = record_bytes(make_record(31863, ts, 3891000000LL, 3892000000LL));
+    recs.insert(recs.end(), more.begin(), more.end());
+  }
 
   const auto raw = make_stream(1, metadata_body(qr::dbn::kSchemaMbp1, {"X"}, {}), recs);
   DbnStream s;

@@ -1,0 +1,13 @@
+diff --git a/qr_futsess/src/calendar.cpp b/qr_futsess/src/calendar.cpp
+index 5e4dddc..fad21e3 100644
+--- a/qr_futsess/src/calendar.cpp
++++ b/qr_futsess/src/calendar.cpp
+@@ -72,7 +72,7 @@ std::int64_t local_to_epoch(const Date& d, int hour) {
+   tmv.tm_hour = hour;
+   tmv.tm_min = 0;
+   tmv.tm_sec = 0;
+-  tmv.tm_isdst = -1;  // let the tz database decide the offset for this instant
++  tmv.tm_isdst = 0;  // MP05: pin standard time, ignoring the DST rules
+   return static_cast<std::int64_t>(std::mktime(&tmv));
+ }
+ 

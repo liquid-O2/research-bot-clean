@@ -1,0 +1,15 @@
+diff --git a/qr_futsess/src/dayrec.cpp b/qr_futsess/src/dayrec.cpp
+index 3f947f4..cbe4030 100644
+--- a/qr_futsess/src/dayrec.cpp
++++ b/qr_futsess/src/dayrec.cpp
+@@ -199,7 +199,9 @@ Expected<std::monostate, Refusal> write_day_receipt(const std::string& path,
+         Refusal(RefusalCode::IO, "qr_futsess::write_day_receipt", "ZSTD_createCCtx failed"));
+   }
+   ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, kCompressionLevel);
+-  ZSTD_CCtx_setParameter(cctx, ZSTD_c_checksumFlag, 1);
++  // MP07: the frame content checksum is switched off, so a flipped byte in a
++  // day intermediate decompresses to the declared size and becomes silent data.
++  ZSTD_CCtx_setParameter(cctx, ZSTD_c_checksumFlag, 0);
+   const std::size_t csize = ZSTD_compress2(cctx, comp.data(), comp.size(), raw.data(), raw.size());
+   ZSTD_freeCCtx(cctx);
+   if (ZSTD_isError(csize) != 0u) {

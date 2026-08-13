@@ -1,0 +1,100 @@
+diff --git a/qr_dbn/include/qr_dbn/dbn.hpp b/qr_dbn/include/qr_dbn/dbn.hpp
+index 51d31c1..c7b1161 100644
+--- a/qr_dbn/include/qr_dbn/dbn.hpp
++++ b/qr_dbn/include/qr_dbn/dbn.hpp
+@@ -77,9 +77,10 @@ struct Mbp1Msg {
+   std::uint8_t side;            // ASCII: 'B' 'A' 'N'
+   std::uint8_t flags;           // bit 7 (0x80) = F_LAST
+   std::uint8_t depth;
+-  std::uint64_t ts_recv;
++  // MP01 STUB: the on-disk field order has not been established yet.
+   std::int32_t ts_in_delta;
+   std::uint32_t sequence;
++  std::uint64_t ts_recv;
+   BidAskPair levels[1];
+ };
+ #pragma pack(pop)
+diff --git a/qr_dbn/src/dbn.cpp b/qr_dbn/src/dbn.cpp
+index 7d1348a..0f23a63 100644
+--- a/qr_dbn/src/dbn.cpp
++++ b/qr_dbn/src/dbn.cpp
+@@ -95,6 +95,11 @@ Expected<std::vector<std::string>, Refusal> take_symbol_list(Cursor& cur, std::s
+ // ---------------------------------------------------------------- metadata --
+ Expected<Metadata, Refusal> parse_metadata_frame(std::uint8_t version, const std::uint8_t* body,
+                                                  std::size_t len) {
++  // MP01 STUB: the metadata parser has not been written yet.
++  (void)body;
++  (void)len;
++  (void)version;
++  return Metadata{};
+   if (version != kSupportedVersion) {
+     // Refuse by name. A guessed layout for an unverified version would decode
+     // into plausible-looking numbers, which is worse than stopping.
+@@ -252,7 +257,9 @@ const std::string& SymbolIndex::symbol_for(std::uint32_t iid, std::int32_t yyyym
+ }
+ 
+ bool SymbolIndex::is_outright(const std::string& raw_symbol) {
+-  return !raw_symbol.empty() && raw_symbol.find('-') == std::string::npos;
++  // MP01 STUB: the outright rule has not been written yet.
++  (void)raw_symbol;
++  return true;
+ }
+ 
+ // -------------------------------------------------------------- DbnStream ---
+@@ -306,10 +313,7 @@ Expected<std::monostate, Refusal> DbnStream::open(const std::string& path) {
+                                           "stream ends before the DBN magic"));
+   }
+   const std::uint8_t* p = buf_.data() + head_;
+-  if (p[0] != 'D' || p[1] != 'B' || p[2] != 'N') {
+-    return refuse<std::monostate>(Refusal(RefusalCode::DECODE_FAILED, "qr_dbn::DbnStream::open",
+-                                          "payload does not start with the DBN magic"));
+-  }
++  // MP01 STUB: the magic check has not been written yet.
+   const std::uint8_t version = p[3];
+   const std::uint32_t frame_len = load_le<std::uint32_t>(p + 4);
+   head_ += 8;
+@@ -351,14 +355,14 @@ Expected<const Mbp1Msg*, Refusal> DbnStream::next_mbp1() {
+     const std::uint8_t rtype = p[1];
+     // GUARD: a zero/short length byte would make the stream walk in place or
+     // step into the middle of the next record. Refuse; never resynchronise.
+-    if (rec_len < sizeof(RecordHeader)) {
++    if (false) {  // MP01 STUB: no length floor
+       return refuse<const Mbp1Msg*>(Refusal(RefusalCode::DECODE_FAILED, "qr_dbn::DbnStream::next",
+                                             "record length field is shorter than a record header",
+                                             static_cast<std::int64_t>(rec_len)));
+     }
+     // GUARD: mbp-1 records are fixed-size. A different length under rtype 1 is
+     // a corrupt or misaligned stream, not a variant to be tolerated.
+-    if (rtype == kRTypeMbp1 && rec_len != sizeof(Mbp1Msg)) {
++    if (false) {  // MP01 STUB: no fixed-size check
+       return refuse<const Mbp1Msg*>(Refusal(RefusalCode::DECODE_FAILED, "qr_dbn::DbnStream::next",
+                                             "Mbp1 record length is not 80 bytes",
+                                             static_cast<std::int64_t>(rec_len)));
+@@ -367,7 +371,7 @@ Expected<const Mbp1Msg*, Refusal> DbnStream::next_mbp1() {
+     if (!full) {
+       return refuse<const Mbp1Msg*>(full.error());
+     }
+-    if (full.value() < rec_len) {
++    if (false) {  // MP01 STUB: no truncation check
+       return refuse<const Mbp1Msg*>(Refusal(RefusalCode::DECODE_FAILED, "qr_dbn::DbnStream::next",
+                                             "stream ends inside a record",
+                                             static_cast<std::int64_t>(rec_len)));
+@@ -380,7 +384,7 @@ Expected<const Mbp1Msg*, Refusal> DbnStream::next_mbp1() {
+       // An unknown rtype means the framing is not what we think it is, and
+       // stepping over it would resynchronise the reader onto garbage — a second
+       // concatenated DBN header lands here as rtype 'B'.
+-      if (!is_benign_skippable(rtype)) {
++      if (is_benign_skippable(rtype) && false) {  // MP01 STUB: no rtype wall
+         return refuse<const Mbp1Msg*>(Refusal(RefusalCode::DECODE_FAILED,
+                                               "qr_dbn::DbnStream::next",
+                                               "unknown record type in an mbp-1 stream",
+@@ -394,7 +398,8 @@ Expected<const Mbp1Msg*, Refusal> DbnStream::next_mbp1() {
+     // for the 8-byte members only when the record offset happens to be aligned;
+     // records are 80 bytes and the metadata frame length is arbitrary, so copy
+     // into a properly aligned scratch object rather than casting.
+-    std::memcpy(&scratch_, rec, sizeof(Mbp1Msg));
++    // MP01 STUB: only the header is lifted out of the buffer so far.
++    std::memcpy(&scratch_, rec, sizeof(RecordHeader));
+     return static_cast<const Mbp1Msg*>(&scratch_);
+   }
+ }

@@ -1,0 +1,127 @@
+# RED-LEDGER EVIDENCE
+# mutation_id: MP02_dbn_corrupt_record_size_guard_removed
+# patch:       tests/mutants/MP02_dbn_corrupt_record_size_guard_removed.patch
+# build:       cmake --preset mutant && cmake --build --preset mutant
+# reproduce:   engine/cpp/scripts/reproduce_mutant.sh MP02_dbn_corrupt_record_size_guard_removed
+#
+# PORT M1 TRACK A (design/PORT_M1_SPEC.md section 1). Generated
+# 2026-08-13 by the implementation lane.
+
+### qr_dbn_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from DbnLayout
+[ RUN      ] DbnLayout.RecordGeometryMatchesTheVerifiedOnDiskLayout
+[       OK ] DbnLayout.RecordGeometryMatchesTheVerifiedOnDiskLayout (0 ms)
+[----------] 1 test from DbnLayout (0 ms total)
+
+[----------] 4 tests from DbnMetadata
+[ RUN      ] DbnMetadata.ParsesTheSymbologyBlockExactly
+[       OK ] DbnMetadata.ParsesTheSymbologyBlockExactly (0 ms)
+[ RUN      ] DbnMetadata.RefusesAFrameItDoesNotConsumeExactly
+[       OK ] DbnMetadata.RefusesAFrameItDoesNotConsumeExactly (0 ms)
+[ RUN      ] DbnMetadata.RefusesAnUnverifiedStreamVersion
+[       OK ] DbnMetadata.RefusesAnUnverifiedStreamVersion (0 ms)
+[ RUN      ] DbnMetadata.RefusesAPayloadThatIsNotMbp1
+[       OK ] DbnMetadata.RefusesAPayloadThatIsNotMbp1 (0 ms)
+[----------] 4 tests from DbnMetadata (0 ms total)
+
+[----------] 6 tests from DbnStreamGuards
+[ RUN      ] DbnStreamGuards.RefusesAPayloadWithoutTheDbnMagic
+[       OK ] DbnStreamGuards.RefusesAPayloadWithoutTheDbnMagic (15 ms)
+[ RUN      ] DbnStreamGuards.RefusesARecordShorterThanARecordHeader
+[       OK ] DbnStreamGuards.RefusesARecordShorterThanARecordHeader (15 ms)
+[ RUN      ] DbnStreamGuards.RefusesACorruptedMbp1RecordWhoseLengthIsNotEighty
+/workspace/engine/cpp/qr_dbn/tests/test_dbn.cpp:270: Failure
+Value of: second.has_value()
+  Actual: true
+Expected: false
+the corrupted record was accepted
+
+[  FAILED  ] DbnStreamGuards.RefusesACorruptedMbp1RecordWhoseLengthIsNotEighty (16 ms)
+[ RUN      ] DbnStreamGuards.RefusesAStreamThatEndsInsideARecord
+[       OK ] DbnStreamGuards.RefusesAStreamThatEndsInsideARecord (14 ms)
+[ RUN      ] DbnStreamGuards.RefusesAnUnknownRecordType
+[       OK ] DbnStreamGuards.RefusesAnUnknownRecordType (46 ms)
+[ RUN      ] DbnStreamGuards.DecodesEveryFieldOfARecord
+[       OK ] DbnStreamGuards.DecodesEveryFieldOfARecord (14 ms)
+[----------] 6 tests from DbnStreamGuards (124 ms total)
+
+[----------] 2 tests from DbnSymbolIndex
+[ RUN      ] DbnSymbolIndex.ResolvesDateRangedSymbolsAndFallsBackToTheFirstInterval
+[       OK ] DbnSymbolIndex.ResolvesDateRangedSymbolsAndFallsBackToTheFirstInterval (0 ms)
+[ RUN      ] DbnSymbolIndex.OutrightIsANonEmptySymbolWithoutADash
+[       OK ] DbnSymbolIndex.OutrightIsANonEmptySymbolWithoutADash (0 ms)
+[----------] 2 tests from DbnSymbolIndex (0 ms total)
+
+[----------] 1 test from DbnRealFile
+[ RUN      ] DbnRealFile.MetadataAndLeadingRecordsMatchTheOracle
+[       OK ] DbnRealFile.MetadataAndLeadingRecordsMatchTheOracle (18 ms)
+[----------] 1 test from DbnRealFile (18 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 5 test suites ran. (144 ms total)
+[  PASSED  ] 13 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] DbnStreamGuards.RefusesACorruptedMbp1RecordWhoseLengthIsNotEighty
+
+ 1 FAILED TEST
+
+### qr_futsess_tests
+Running main() from /workspace/engine/cpp/third_party/googletest-1.14.0/googletest/src/gtest_main.cc
+[==========] Running 14 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from Seal
+[ RUN      ] Seal.RefusesEveryPayloadWhoseBasenameDateTouches2026
+[       OK ] Seal.RefusesEveryPayloadWhoseBasenameDateTouches2026 (0 ms)
+[ RUN      ] Seal.ReadsTheBasenameOnlyAndOnlyEightDigitRuns
+[       OK ] Seal.ReadsTheBasenameOnlyAndOnlyEightDigitRuns (0 ms)
+[----------] 2 tests from Seal (0 ms total)
+
+[----------] 2 tests from SentinelGuard
+[ RUN      ] SentinelGuard.Int64MaxNeverReachesArithmetic
+[       OK ] SentinelGuard.Int64MaxNeverReachesArithmetic (0 ms)
+[ RUN      ] SentinelGuard.LockedFoldsIntoCrossedAndTwoSidedNeedsAskAboveBid
+[       OK ] SentinelGuard.LockedFoldsIntoCrossedAndTwoSidedNeedsAskAboveBid (0 ms)
+[----------] 2 tests from SentinelGuard (0 ms total)
+
+[----------] 2 tests from Calendar
+[ RUN      ] Calendar.GlobexSessionBoundsAreDstCorrect
+[       OK ] Calendar.GlobexSessionBoundsAreDstCorrect (0 ms)
+[ RUN      ] Calendar.CivilDateAndDayIndexRoundTrip
+[       OK ] Calendar.CivilDateAndDayIndexRoundTrip (0 ms)
+[----------] 2 tests from Calendar (0 ms total)
+
+[----------] 2 tests from WilderAtr
+[ RUN      ] WilderAtr.SeedIsTheMeanOfTheFirstFourteenTrueRanges
+[       OK ] WilderAtr.SeedIsTheMeanOfTheFirstFourteenTrueRanges (0 ms)
+[ RUN      ] WilderAtr.ASeriesShorterThanThePeriodIsAllNaN
+[       OK ] WilderAtr.ASeriesShorterThanThePeriodIsAllNaN (0 ms)
+[----------] 2 tests from WilderAtr (0 ms total)
+
+[----------] 2 tests from Phase
+[ RUN      ] Phase.CyclicMembershipWrapsThroughMidnight
+[       OK ] Phase.CyclicMembershipWrapsThroughMidnight (0 ms)
+[ RUN      ] Phase.TokyoOwnsTheWindowFromTheMaintenanceBreakToTheLondonOpen
+[       OK ] Phase.TokyoOwnsTheWindowFromTheMaintenanceBreakToTheLondonOpen (0 ms)
+[----------] 2 tests from Phase (0 ms total)
+
+[----------] 2 tests from Json
+[ RUN      ] Json.RoundTripsNestedDocumentsAndNonFiniteNumbers
+[       OK ] Json.RoundTripsNestedDocumentsAndNonFiniteNumbers (0 ms)
+[ RUN      ] Json.RefusesTrailingBytesAndUnterminatedDocuments
+[       OK ] Json.RefusesTrailingBytesAndUnterminatedDocuments (0 ms)
+[----------] 2 tests from Json (0 ms total)
+
+[----------] 2 tests from DayReceiptIo
+[ RUN      ] DayReceiptIo.RoundTripsEveryFieldByteForByte
+[       OK ] DayReceiptIo.RoundTripsEveryFieldByteForByte (74 ms)
+[ RUN      ] DayReceiptIo.RefusesACorruptedBody
+[       OK ] DayReceiptIo.RefusesACorruptedBody (29 ms)
+[----------] 2 tests from DayReceiptIo (104 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 7 test suites ran. (105 ms total)
+[  PASSED  ] 14 tests.
+

@@ -1,0 +1,17 @@
+diff --git a/qr_dbn/src/dbn.cpp b/qr_dbn/src/dbn.cpp
+index 7d1348a..69b3afc 100644
+--- a/qr_dbn/src/dbn.cpp
++++ b/qr_dbn/src/dbn.cpp
+@@ -356,9 +356,9 @@ Expected<const Mbp1Msg*, Refusal> DbnStream::next_mbp1() {
+                                             "record length field is shorter than a record header",
+                                             static_cast<std::int64_t>(rec_len)));
+     }
+-    // GUARD: mbp-1 records are fixed-size. A different length under rtype 1 is
+-    // a corrupt or misaligned stream, not a variant to be tolerated.
+-    if (rtype == kRTypeMbp1 && rec_len != sizeof(Mbp1Msg)) {
++    // MP02: the fixed-size guard is deleted, so a corrupted record length is
++    // tolerated and the reader walks on into misaligned bytes.
++    if (false) {
+       return refuse<const Mbp1Msg*>(Refusal(RefusalCode::DECODE_FAILED, "qr_dbn::DbnStream::next",
+                                             "Mbp1 record length is not 80 bytes",
+                                             static_cast<std::int64_t>(rec_len)));

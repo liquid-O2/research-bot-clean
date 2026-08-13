@@ -1,0 +1,13 @@
+diff --git a/qr_futsess/include/qr_futsess/constants.hpp b/qr_futsess/include/qr_futsess/constants.hpp
+index 827e1a9..681c7dc 100644
+--- a/qr_futsess/include/qr_futsess/constants.hpp
++++ b/qr_futsess/include/qr_futsess/constants.hpp
+@@ -84,7 +84,7 @@ struct BookState {
+   if (!ask_ok) {
+     return BookState{kStNoAsk, bid, kUndefPrice};
+   }
+-  if (bid >= ask) {
++  if (bid > ask) {  // MP06: locked (bid == ask) escapes into TWO_SIDED
+     return BookState{kStCrossed, bid, ask};
+   }
+   return BookState{kStTwoSided, bid, ask};

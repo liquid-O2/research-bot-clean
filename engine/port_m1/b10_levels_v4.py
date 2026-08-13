@@ -92,6 +92,28 @@ def _rows(path):
     return out, n_touch, n_or, n_or_touch
 
 
+def _same(a, b):
+    """Row equality with NaN == NaN.
+
+    DYNAMIC levels (VWAP, developing POC) store the series value AT their
+    creation second, which is legitimately NaN before the first trade of the
+    scope; plain tuple comparison calls those rows different from themselves.
+    (b7_levels_v2._rows has the same latent hole — its 12-session sample never
+    hit a NaN-priced VWAP row.  Returned as a defect, fixed here.)
+    """
+    if a is None or b is None:
+        return a is b
+    if len(a) != len(b):
+        return False
+    for x, y in zip(a, b):
+        if isinstance(x, float) and isinstance(y, float):
+            if np.isnan(x) and np.isnan(y):
+                continue
+        if x != y:
+            return False
+    return True
+
+
 def expected_orext_keys(asset):
     out = set()
     for (seg, mn) in OREXT_ADOPTED[asset]:
@@ -118,7 +140,7 @@ def differential(assets):
             nv_new = {k: v for k, v in new.items()
                       if v[0] != B3.OREXT_FAMILY}
             mism = sum(1 for k in set(nv_new) | set(old)
-                       if nv_new.get(k) != old.get(k))
+                       if not _same(nv_new.get(k), old.get(k)))
             ork = set(k for k, v in new.items() if v[0] == B3.OREXT_FAMILY)
             unexpected = len(ork - exp)
             ok = (mism == 0 and unexpected == 0
@@ -137,6 +159,7 @@ def main():
     if tuple(B3.VWAP_BANDS) != (0.0, 2.0, -2.0, 2.5, -2.5):
         raise RuntimeError("b3_levels.VWAP_BANDS %r is not the D-053 set"
                            % (B3.VWAP_BANDS,))
+    diff_only = "--diff-only" in sys.argv
     B3.OREXT_CELLS = {a: OREXT_ADOPTED[a] for a in assets}
     B3.SANE_THRESHOLDS = {a: B7.load_thresholds(a) for a in assets}
     B3.OUT_DIR = OUT_DIR
@@ -145,9 +168,10 @@ def main():
                      orext=PARAMS["adopted_cells"],
                      orext_construction=PARAMS["construction"],
                      orext_scope=PARAMS["scope"])
-    M.hb("b10 levels_v4: OR_EXT cells %r, D-054 mask installed"
-         % (PARAMS["adopted_cells"],))
-    B3.run(assets, workers)
+    M.hb("b10 levels_v4: OR_EXT cells %r, D-054 mask installed%s"
+         % (PARAMS["adopted_cells"], " (DIFF-ONLY)" if diff_only else ""))
+    if not diff_only:
+        B3.run(assets, workers)
 
     rows = differential(assets)
     M.write_tsv(M.out_path(OUT_DIR, "orext_differential.tsv"), SECTION,

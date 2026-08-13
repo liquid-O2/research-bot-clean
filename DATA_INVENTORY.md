@@ -22,6 +22,16 @@ Referenced from INDEX.md and PROGRAM_RECORD.md. All paths under `/workspace/arti
 ## 4. ASSET-PORT CENSUS-PREP (fetched 2026-08-12, akshare/sina + FRED)
 `asset_port_data/` — copper: SHFE cu main-continuous daily (21y) + 1/5/15/30/60-min recent bars + COMEX HG daily (sina) + FRED copper PPI + USDCNY + SHFE-official-vs-sina verification file; nikkei: N225 index daily, OSE/SGX and CME NKD daily (sina), FRED NIKKEI225 (77y close-only) + USDJPY; rates: SOFR/EFFR/DFF/DGS1MO/DGS3MO. Each subdir has MANIFEST.tsv with fetch provenance.
 
+## 4b. PORT CONTEXT ADDITIONS (fetched 2026-08-13 under D-060; per-subdir MANIFEST.tsv carries D-057 publication_lag; FETCH_REPORT.md at port_context/)
+| Series | File | Coverage | Lag |
+|---|---|---|---|
+| CFTC DISAGGREGATED + TFF COT (managed-money/producer splits; Nikkei+JPY in TFF) | `port_context/cot/fut_{disagg,fin}_2021..2026.txt` | 2021-01-05..2026-08-04, verified vs legacy OI exactly | Tue-stamped, pub Fri ~15:30 ET |
+| SLV NAV + shares outstanding daily (ounces ≈ shares × ~0.9) | `port_context/slv/SLV_nav_shares_daily.csv` | 5,112 rows 2006..2026-08-12 | next business day |
+| BLS CPI + Employment Situation release dates/times (incl. 2025 shutdown reschedules) | `port_context/bls_calendar/bls_release_dates.csv` | 148 rows 2021-2026, all 08:30 ET | schedule (known in advance) |
+| SHFE copper (t) + silver (kg) warehouse inventories weekly (+ Eastmoney daily tail) | `port_context/shfe_inventory/` | Cu 2005.., Ag 2012.., cross-verified exact | Fri ~15:30 CST |
+| FRED T10YIE, DGS10 (verified vs treasury.gov), DTWEXAFEGS | `port_context/FRED_*.csv` | full histories..2026-08 | 1-day (DGS10), weekly Mon (DTWEXAFEGS) |
+| Nikkei VI refresh | `port_context/NIKKEI_VI_daily.csv` | 884 rows ..2026-08-13 (2023+ only, D-060 accepted) | next JST day |
+
 ## 5. KNOWN GAPS (documented, accepted or deferred)
 - **Daily historical open interest**: paid-only. Mitigations: weekly OI via COT (banked); free CME settlement ftp = rolling ~week only → START A DAILY CAPTURE CRON on port day one; daily volume history reconstructible from our own MBP-1 tapes. Calibration: OI is a slow regime/context variable — weekly captures most of its value for us; not worth paying for (see SOURCES_FOR_PORT.md).
 - True bid/ask-IV inversion inputs (FRED deterministic rates export): user-side; PROXY_VOL carries the role meanwhile.

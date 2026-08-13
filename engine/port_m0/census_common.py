@@ -41,7 +41,7 @@ import common as C
 # --------------------------------------------------------------- spec pin ---
 # The frozen spec identity for the census lane (§6-§10 + CC-M0-1).  common.py
 # still pins the PRE-CC-M0-1 sha (b921566ef3a28dea); see the lane report.
-SPEC_SHA16 = "8b0a000ab822c726"
+SPEC_SHA16 = "4bdf772927b5f316"
 
 PHASE_NAMES = ("TOKYO", "LONDON", "NY")
 N_PHASES = 3
@@ -62,7 +62,7 @@ WALL_FIT_YEARS = (2021, 2022, 2023, 2024)   # §8 sub-pass 2: 2025 excluded
 RUNGS = (0.075, 0.11, 0.15)     # §1 ZigZag rungs x ATR14($)
 RUNG_FLOOR_TICKS = 4            # §1 floor: max(4 x tick_$, 2 x phase median spread_$)
 RUNG_FLOOR_SPREAD_MULT = 2
-ORACLE_RUNG = 1.0               # §9 oracle ZigZag threshold x ATR14($)
+ORACLE_RUNG = 0.25              # CC-M0-2.1: segmentation rung; size selection = leg floor + top-2
 ORACLE_LEG_MIN = 1500.0         # §9 legs >= $1,500
 ORACLE_TOP_K = 2                # §9 top-2 by |$ travel| per session
 RECALL_THRESHOLDS = (900.0, 1000.0, 1100.0)   # §9 primary 1000 + sensitivity

@@ -225,6 +225,26 @@ S1 VERDICT: MATCH, rule FILEDATE/R1 (update-count winner, all instrument_ids, fi
 committed numbers exact; receipt m0/repro_si2024.receipt.json. Program-mode session dominance per §5 remains
 the outrights-only variant of R1.
 
+## CC-M0-2 — orchestrator adjudications, 2026-08-13 (post census-lane implementation; BINDING)
+1. §9 ORACLE REDEFINED (spec defect, measured: 1.0×ATR retrace-confirmation → 0.57 pivots/session, 0.12
+   qualifying legs/session — a recall gate over ~nothing). Ruling: oracle segmentation threshold =
+   **0.25×ATR14** (tick-rounded, no spread floor) — segmentation only; the ≥$1,500 leg floor and
+   top-2-by-travel do ALL size selection. Gate variant = **ANCHORED** (session-open anchor + final
+   unconfirmed extreme included as leg endpoints — the day's dominant legs often start at the open or run
+   into the close); PIVOT_TO_PIVOT demoted to diagnostic rows.
+2. "Era" = {each year, FIT_2021_2024, GATE_2025, ALL} — exactly the two readings the spec makes; BLESSED.
+3. ZigZag threshold/phase circularity resolved self-consistently (retrace test at second t uses phase(t)); BLESSED.
+4. Roster dedup key = (session, confirmation_sec, SIDE) — opposite sides never merge; BLESSED (spec errata).
+5. `top_size_p10` = p10 of min(bid_sz, ask_sz); per-side p10s emitted beside it; BLESSED.
+6. DP adjacency: next position starts strictly AFTER the previous exit second; BLESSED.
+7. §7's $2,500 offer-gate measure = **best_leg** (directional, one-position-capturable); `range` reported as
+   companion (and remains the comparability measure vs the committed SI numbers, which are range-based); BLESSED.
+8. Phase-median spreads = exact pooled-seconds median (tick histogram); median-of-session-medians beside; BLESSED.
+9. SHA PINS: engine/port_m0/common.py + census_common.py pin THIS file's sha16; both updated to the
+   post-CC-M0-2 sha in the same commit as this section (pre-CC-M0-1 pin b921566e was a live landmine for
+   substrate re-runs). The running substrate job (imported pre-amendment) is unaffected; its TSV headers
+   carrying the older sha are documented here as expected.
+
 ## 11. LANE ACCEPTANCE CHECKLIST (all must hold before reporting done)
 1. s1 fingerprint MATCH receipt (or rc=2 stop escalated). 2. Byte-identity A and B receipts. 3. Yahoo
 spot-check: 3 sessions/asset daily H/L within max(0.5%, 2 ticks) of `port_context/yahoo_*_daily.csv` H/L

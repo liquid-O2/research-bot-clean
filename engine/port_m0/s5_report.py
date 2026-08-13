@@ -151,13 +151,13 @@ def build(out_root=None):
         bo = pick(b_roll, asset=a, convention="SESSION", window="FULL",
                   era=X.ERA_ALL, split="all", measure="best_leg")
         cs = pick(c_roll, asset=a, era=X.ERA_ALL, split="all")
-        dr = pick(d_rec, asset=a, era=X.ERA_ALL, variant="PIVOT_TO_PIVOT")
-        da = pick(d_rec, asset=a, era=X.ERA_ALL, variant="ANCHORED")
+        dr = pick(d_rec, asset=a, era=X.ERA_ALL, variant="ANCHORED")
+        da = pick(d_rec, asset=a, era=X.ERA_ALL, variant="PIVOT_TO_PIVOT")
         recall_cell = "%s / %s (n=%s)" % (fnum(dr.get("recall_1000"), "%.3f"),
                                           dr.get("gate_recall_ge_0.95", "-"),
                                           dr.get("n_legs", "0"))
         if not dr or int(dr.get("n_legs", 0) or 0) == 0:
-            recall_cell = ("NO STRICT LEGS — anchored diag %s (n=%s)"
+            recall_cell = ("NO ANCHORED LEGS — strict diag %s (n=%s)"
                            % (fnum(da.get("recall_1000"), "%.3f"),
                               da.get("n_legs", "0")))
         w = walls.get(a, {})
@@ -337,11 +337,9 @@ def build(out_root=None):
                 "miss: no candidate", "miss: wrong side", "miss: too late",
                 "miss: stale book", "miss: untradeable spread"], rows)
     L.append("")
-    L.append("PIVOT_TO_PIVOT is the spec-primary variant (§9 'legs = consecutive "
-             "pivot-to-pivot moves'); ANCHORED is a diagnostic that adds the "
-             "session-open anchor and the final unconfirmed extreme, because a "
-             "1.0 x ATR14 confirmation threshold rarely completes two confirmed "
-             "pivots inside one session.")
+    L.append("ANCHORED is the GATE variant (CC-M0-2.1: session-open anchor + final "
+             "unconfirmed extreme included; 0.25 x ATR14 segmentation rung); "
+             "PIVOT_TO_PIVOT (strict confirmed pivots only) is the diagnostic.")
     L.append("")
 
     # ------------------------------------------------------- NKD ex-roll ----

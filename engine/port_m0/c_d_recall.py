@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """PORT M0 c_d_recall — spec §9.  Needs c_c sub-pass 1 only.
 
-Oracle: ZigZag at threshold 1.0 x ATR14_{d-1}($) (same algorithm as §8,
+Oracle: ZigZag at threshold 0.25 x ATR14_{d-1}($) (CC-M0-2.1; same algorithm as §8,
 tick-rounded HALF-UP, NO spread floor) on session mids, within-instrument only.
 Legs = consecutive pivot-to-pivot moves; keep the top-2 by |$ travel| per session
 among legs >= $1,500.
@@ -11,12 +11,12 @@ decision_sec in [leg_start_sec, leg_end_sec] and
 (leg_end_price - mid(decision_sec)) x side x mult >= threshold (mid-to-mid,
 gross; $1,000 primary, $900/$1,100 sensitivity rows).
 
-A second leg variant is emitted as a DIAGNOSTIC (never as the gate number):
-ANCHORED adds the session-open anchor and the final unconfirmed extreme as leg
-endpoints.  At a 1.0 x ATR threshold, confirmed pivot-to-pivot legs inside one
-session are rare by construction, so the strict reading can leave most sessions
-with no oracle leg at all; the anchored variant shows what the strict reading
-excludes.  PIVOT_TO_PIVOT is the spec-primary variant everywhere.
+Two leg variants are emitted (CC-M0-2.1): ANCHORED (adds the session-open
+anchor and the final unconfirmed extreme as leg endpoints) is the GATE variant
+-- the day's dominant legs often start at the open or run into the close;
+PIVOT_TO_PIVOT (strict confirmed-pivot-to-pivot) is the diagnostic. The 0.25
+rung is segmentation only; the >=$1,500 leg floor and top-2-by-travel do all
+size selection.
 """
 import multiprocessing as mp
 import os
@@ -34,7 +34,7 @@ SECTION = "§9 c_d_recall"
 
 PARAMS = {
     "spec_section": SECTION,
-    "oracle": "ZigZag at 1.0 x ATR14_{d-1}($), tick-rounded HALF-UP, no spread "
+    "oracle": "ZigZag at 0.25 x ATR14_{d-1}($) [CC-M0-2.1], tick-rounded HALF-UP, no spread "
               "floor, within-instrument (session slot 0), legs reset at "
               "session open",
     "leg_min_usd": X.ORACLE_LEG_MIN,
@@ -45,7 +45,7 @@ PARAMS = {
     "primary": X.RECALL_PRIMARY,
     "tradability_screen": "spread_at_decision <= %.1f x phase median spread "
                           "(phase of the decision second)" % X.TRADABLE_SPREAD_MULT,
-    "variants": ["PIVOT_TO_PIVOT (spec-primary)", "ANCHORED (diagnostic)"],
+    "variants": ["ANCHORED (gate, CC-M0-2.1)", "PIVOT_TO_PIVOT (diagnostic)"],
     "miss_tags": ["NO_CANDIDATE_IN_LEG", "WRONG_SIDE", "TOO_LATE",
                   "UNTRADEABLE_SPREAD", "STALE_BOOK"],
 }
@@ -230,7 +230,7 @@ def run(assets=C.ASSET_ORDER, root=None, out_root=None, months=None, workers=10)
                  "miss_NO_CANDIDATE_IN_LEG", "miss_WRONG_SIDE", "miss_TOO_LATE",
                  "miss_STALE_BOOK", "miss_UNTRADEABLE_SPREAD_screened"],
                 rollup,
-                extra=["recall gate (§1) = >= %.2f, PIVOT_TO_PIVOT variant at "
+                extra=["recall gate (§1) = >= %.2f, ANCHORED variant (CC-M0-2.1) at "
                        "$%.0f" % (X.GATE_RECALL, X.RECALL_PRIMARY)])
     C.hb("c_d: %d oracle legs, %d recall rows" % (len(legs), len(rollup)))
     return legs, rollup

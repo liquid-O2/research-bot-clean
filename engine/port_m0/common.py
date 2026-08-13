@@ -22,7 +22,7 @@ import databento_dbn
 
 # ---------------------------------------------------------------- spec: §0 ---
 SPEC_PATH = "/workspace/design/PORT_M0_CENSUS_SPEC.md"
-SPEC_SHA16 = "b921566ef3a28dea"
+SPEC_SHA16 = "4bdf772927b5f316"
 REPO = "/workspace"
 DATA_ROOT = "/workspace/artifacts/reference/futures_mbp1"
 OUT_ROOT = "/workspace/artifacts/cache/port/m0"

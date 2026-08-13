@@ -773,9 +773,11 @@ def _s6_render(case, ev, tag, flow, i_dig, i_raw, i_end, k, n_raw_window,
     for (a, b) in eps_pre + eps_in:
         L.append(_digest_line(case, ev, tag, flow, a, b))
     L.append("  RAW EVENTS (EVERY event in [T-%ss, T]; newest last; prices as "
-             "signed integer ticks vs anchor %s; ms = milliseconds BEFORE the "
-             "decision)" % (MC.fnum(raw_cover, 1, 2).strip(),
-                            MC.fnum(case.anchor, 1, 4).strip()))
+             "signed integer ticks vs anchor %s; ms = milliseconds before "
+             "decision_ts, negative = inside the decision second itself, which "
+             "IS the entry book)"
+             % (MC.fnum(raw_cover, 1, 2).strip(),
+                MC.fnum(case.anchor, 1, 4).strip()))
     L.append("        ms a s   pxT    sz  bidT  bsz  askT  asz    dsz st fl tag")
     pbsz = pasz = None
     for j in range(i_rawstart, i_end):

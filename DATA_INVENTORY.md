@@ -32,6 +32,11 @@ Referenced from INDEX.md and PROGRAM_RECORD.md. All paths under `/workspace/arti
 | FRED T10YIE, DGS10 (verified vs treasury.gov), DTWEXAFEGS | `port_context/FRED_*.csv` | full histories..2026-08 | 1-day (DGS10), weekly Mon (DTWEXAFEGS) |
 | Nikkei VI refresh | `port_context/NIKKEI_VI_daily.csv` | 884 rows ..2026-08-13 (2023+ only, D-060 accepted) | next JST day |
 
+## 4c. D-057 AVAILABILITY-TIME JOIN TABLE (the lag table — binding)
+`artifacts/reference/port_context/AVAILABILITY_LAGS.tsv` — one row per context series carrying its stamp grain, the documented publication fact, and the `avail_rule` that turns a stamp date into an `availability_ts`. Built 2026-08-13 (P-M2a) from the per-subdir `MANIFEST.tsv` `publication_lag` fields (each row cites its `manifest_source`), DATA_INVENTORY §3/§4b and D-057 itself.
+LAW: every external/context series joins on `availability_ts`, never on its stamp date, and the join is STRICT (`availability_ts < decision_ts` — the pinned reading of D-057's "<= ... never equal-time"). Rules: `NEXT_US_BD`, `H10_NEXT_MONDAY`, `COT_FRI_1530ET`, `NEXT_JST_BD_1500`, `NEXT_JST_BD_0000`, `NEXT_CN_BD_0000`, `SCHEDULE_EXEMPT`. Business-day calendars are read from the data itself (US = FRED_DGS10 observation dates carrying a value; JST = JGB_yields_all observation dates), so no hand-maintained holiday list exists anywhere in the program.
+Implementation: `engine/port_m2/availability.py` (the only place an `availability_ts` is computed) + `engine/port_m2/context.py` (loaders; a loader may never hard-code a lag). Red-first proof + a per-row audit of the table: `engine/port_m2/leakfix.py` -> `artifacts/cache/port/m2/leakfix/`.
+
 ## 5. KNOWN GAPS (documented, accepted or deferred)
 - **Daily historical open interest**: paid-only. Mitigations: weekly OI via COT (banked); free CME settlement ftp = rolling ~week only → START A DAILY CAPTURE CRON on port day one; daily volume history reconstructible from our own MBP-1 tapes. Calibration: OI is a slow regime/context variable — weekly captures most of its value for us; not worth paying for (see SOURCES_FOR_PORT.md).
 - True bid/ask-IV inversion inputs (FRED deterministic rates export): user-side; PROXY_VOL carries the role meanwhile.

@@ -62,7 +62,7 @@ For every session second, the ACTIVE LEVEL SET known strictly prior:
 (a) fvol bands: prev-session settle (and each phase open) ± {0.5, 1.0, 1.5, 2.0} × σ̂ (V2, next-session/phase);
 (b) prior-day H/L/settle; prior-week H/L; N-day lookback H/L, N ∈ {2,3,5,10,20};
 (c) per-phase H/L (overnight-before-open, TOKYO, LONDON, NY) lookback {1,2,3,5} sessions;
-(d) VWAP (session + phase, causal) ± {1,2} × σ_vwap (causal running std);
+(d) VWAP (session + phase, causal): the line itself (±0) and ± {2.0, 2.5} × σ_vwap (causal running std) — D-053;
 (e) volume-profile objects (§5) from PRIOR completed sessions/phases + causal developing POC;
 (f) round numbers: 1-2-5 grid nearest ~0.3-1% of price (SI: $0.25/$0.50/$1.00; HG: $0.05/$0.10; NKD: 100/250/500) —
     constants asserted against that %-band at 2024 median prices, else spec defect.

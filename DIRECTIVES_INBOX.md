@@ -27,3 +27,4 @@ I believe for these we will still have a ton of candidates, but probably an easy
 I don't know like how to put it, but yeah, we need to ensure our event generation is rock solid because the selection etc. depends on it.
 
 And if there are ways we can reduce false positives and etc., we'll try to do so.
+- [2026-08-13T13:30:45Z] Yeah, but it all depends on Opus actually selecting proper trades or not. Because again, we need to give it all the data it needs and give it all the nudge it needs to understand how to pair things up

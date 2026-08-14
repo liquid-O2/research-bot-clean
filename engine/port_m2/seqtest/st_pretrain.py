@@ -827,8 +827,6 @@ def main():
         ap.print_help()
 
 
-if __name__ == "__main__":
-    main()
 
 
 # ============================================== the FROZEN-TRUNK PROBE =======
@@ -1068,3 +1066,7 @@ def probe(trunk_tag, mode="fused", test_eras=SC.TEST_ERAS, tag=None,
           % (name, pool["capture_oracle"] or float("nan"),
              pool["co_lo"] or float("nan"), pool["co_hi"] or float("nan")))
     return pool
+
+
+if __name__ == "__main__":
+    main()

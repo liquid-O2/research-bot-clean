@@ -1,0 +1,15 @@
+# PORT_M2_SHEETS_SPEC.md port m2 deficit ledger — orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars (spec_sha16=f6ef73a41dbf8588)
+# params_hash=9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da
+# THE-FIX-LIST: components ranked by recoverable $/session, with the named improvement type
+# block A = fixed-contract ladder (additive); B = contract change, D-029 reserved; D = diagnostic
+# standalone = the same repair applied ALONE from the judge's own takes (order-free)
+rank	judge	component	improvement_type	block	usd_per_session	usd_total	share_of_block_A	standalone_usd_per_session	n_repairs	top_cell	top_cell_usd_per_session
+1	RANK_FUSED_MULTI	RANKING_RESIDUAL	scoring/foresight	A	928.490000	2154106.860000	0.454000	3323.100000	0	E5|SI|rg1|ph2	12.590000
+2	RANK_FUSED_MULTI	SEL_WRONG_MEMBER	ranking	A	856.520000	1987126.510000	0.418800	1869.210000	6430	E8|SI|rg2|ph2	20.040000
+3	RANK_FUSED_MULTI	SEL_WRONG_SIDE	validity	A	283.390000	657461.720000	0.138600	457.140000	1571	E5|NKD|rg2|ph0	11.270000
+4	RANK_FUSED_MULTI	RISK	stop-structure (D-029)	B	217.460000	504518.750000	0.106300			E8|SI|rg0|ph2	7.960000
+5	RANK_FUSED_MULTI	EXIT	exit-contract (D-029)	B	175.140000	406326.250000	0.085600			E5|SI|rg1|ph2	10.020000
+6	RANK_FUSED_MULTI	OPPORTUNITY	generation/coverage	A	89.240000	207047.500000	0.043600			E5|HG|ALL	15.590000
+7	RANK_FUSED_MULTI	SEL_WRONG_MOMENT	moment	A	36.990000	85814.060000	0.018100	50.600000	1833	E5|SI|rg1|ph2	2.620000
+8	RANK_FUSED_MULTI	CALIBRATION	threshold	D	0.000000	0.000000	0.000000				
+9	RANK_FUSED_MULTI	PARTICIPATION	throughput/abstention	A	-149.560000	-346980.400000	-0.073100	-143.600000	794914	E6|HG|rg2|ph1	1.860000

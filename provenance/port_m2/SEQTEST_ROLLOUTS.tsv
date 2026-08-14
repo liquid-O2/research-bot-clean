@@ -1,0 +1,13 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# GENERATIVE ROLLOUTS: 1000 synthetic windows of 256 events sampled from the AR head against real continuations of the same prompts.
+# `total_variation` is on the marginal of each factored field of the composite token.
+field	statistic	value	real	generated
+act	total_variation	0.00359	[0.4344, 0.4308, 0.0894, 0.0454]	[0.433, 0.4344, 0.0878, 0.0449]
+side	total_variation	0.00016	[0.4972, 0.5002, 0.0026]	[0.497, 0.5002, 0.0027]
+dmid	total_variation	0.0004	[0.0, 0.0001, 0.0614, 0.9376, 0.0008, 0.0, 0.0]	[0.0, 0.0002, 0.0616, 0.9372, 0.0009, 0.0, 0.0]
+size	total_variation	0.00201	[0.8622, 0.1159, 0.0207, 0.0012, 0.0]	[0.864, 0.1147, 0.0199, 0.0013, 0.0]
+gap	total_variation	0.01755	[0.2301, 0.369, 0.0873, 0.1035, 0.2101]	[0.2234, 0.3637, 0.0901, 0.098, 0.2248]
+cancel_trade_ratio	real	9.4839		
+cancel_trade_ratio	gen	9.6802		
+vol_clustering_lag1_absmove	real	0.0021		
+vol_clustering_lag1_absmove	gen	-0.00601		

@@ -609,7 +609,9 @@ def load_results():
     out = []
     for p in sorted(glob.glob(os.path.join(RES_DIR, "*.json"))):
         with open(p) as fh:
-            out.append(json.load(fh))
+            o = json.load(fh)
+        o["_name"] = os.path.basename(p)[:-5]
+        out.append(o)
     return out
 
 
@@ -925,7 +927,7 @@ def stage_export(src, L=None):
         ev = np.nonzero((D["era_idx"] == SC.ERA_IDX[era])
                         & np.isfinite(champ))[0]
         if ev.size:
-            comp[ev] = composed(D, champ, win, ev)
+            comp[ev] = composed(D, champ, win, ev)[ev]
     rows = [[str(D["cid"][i]), str(D["asset"][i]), int(D["d8"][i]),
              int(D["dec_sec"][i]), int(D["side"][i]),
              M3.ERA_NAMES[int(D["era_idx"][i])],

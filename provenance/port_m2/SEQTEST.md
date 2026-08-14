@@ -248,3 +248,201 @@ it does or not.
 * **Not run in this pass:** the 50 M rungs (capacity rule), the transformer at L=4096 (budget,
   declared), the PRE-B full-corpus trunk (the causal boundary is the honest one), and GRPO
   stage 3 (by design, it follows the SFT comparison).
+
+
+---
+
+## 10. THE PRETRAINED STACK — the centrepiece, and what it actually bought
+
+### 10.1 The trunks and their quality gates — `SEQTEST_PRETRAIN.tsv`, `SEQTEST_PRETRAIN_CURVE.tsv`
+
+Autoregressive next-event modelling over the composite token vocabulary; 40 M-parameter
+decoder-only transformer (512d / 12L / 8H, context 1 024 events, tied embeddings, asset
+embedding, asset-balanced batches); corpus **PRE-A, `d8 < 20240101`, 881 M events** — strictly
+older than E6/E7/E8, so the fine-tuned numbers on those eras are honest walk-forward.
+
+| trunk | objective | steps | wall | **next-head VAL** | val ppl | bigram floor | unigram floor | overfit gate |
+|---|---|--:|--:|--:|--:|--:|--:|---|
+| `PRE_V_shared_NEXT` | next-event only | 4 913 | 1 700 s | **2.7913** | 16.30 | 3.4842 (32.60) | 3.8903 | not fired |
+| `PRE_V_shared_MULTI` | + h60 / h300 / CPC | 4 525 | 1 700 s | **2.8770** | 17.76 | 3.4843 | 3.8903 | not fired |
+| `PRE_V_si_MULTI` | + heads, SI only | 2 400 | 901 s | **3.2171** | 24.95 | 3.3960 | 3.8903 | not fired |
+| `PRE_A_shared` | next-only, full single pass, **pre-dates the gate amendment** | 6 503 | 2 191 s | — | — | — | 3.8903 | n/a |
+
+**The learned-structure floor is cleared.** Held-out-day next-event loss 2.791 against a
+Laplace bigram fitted on the training chunks at 3.484 and a unigram at 3.890.
+
+**The comparison that must NOT be made, stated because it is the easy mistake:** the
+multi-horizon run's *total* loss (6.96) is a weighted sum of five heads and is not on the
+unigram/bigram scale. Only the `next` head is, and that is the column above. Per head:
+
+| head | first 200 steps | last 200 steps | chance reference |
+|---|--:|--:|---|
+| `next` | 38.68 | **2.890** | unigram 3.890 |
+| `h60` (Huber, 4 targets) | 1.147 | **0.898** | — |
+| `h300` | 2.868 | **2.138** | — |
+| `cpc64` (InfoNCE) | 8.381 | **7.893** | ln(4096) = **8.318** |
+| `cpc256` | 8.382 | **7.911** | 8.318 |
+
+The CPC heads sit barely below chance — the contrastive objective learned very little. That is
+its own signal (**R3**).
+
+**Gate 1 — overfit:** val tracks train to within 0.002 at the end (band 0.35), never rises on
+two consecutive evals, gate never fires. Single pass over 881 M unique events cannot memorise,
+and the curve confirms it. **Gate 2 — per-asset:** SI 2.806 / HG 2.787 / NKD 2.768 on 70
+held-out days — the shared backbone is *not* an SI model with accents, so **R5 is clear** and
+the shared-arm reading is legitimate.
+
+### 10.2 THE "LEARNED PROPERLY" CERTIFICATE — it PASSES
+
+**Linear probes** (`SEQTEST_LINEAR_PROBES.tsv`), frozen embedding vs a linear readout of the
+raw window, train E2–E5 → test E6:
+
+| target | AUC(embedding) | AUC(raw input) | verdict |
+|---|--:|--:|---|
+| `phase_is_2` | **0.9992** | 0.8498 | embedding adds |
+| `vol_regime_high` | **0.9672** | 0.9142 | embedding adds |
+| **`mech_TAPE_SPIKE`** (M-07) | **0.9093** | 0.8541 | embedding adds |
+| **`mech_PASSIVE_MOVE`** (M-29, the trap) | **0.8808** | 0.7650 | embedding adds |
+| **`mech_ONX_UNTOUCHED_AHEAD`** (M-70) | **0.8621** | 0.6996 | embedding adds |
+| **`mech_TWO_STAGE`** (M-29) | **0.8596** | 0.8288 | embedding adds |
+| **`mech_OFM`** (M-23/24) | **0.8505** | 0.8087 | embedding adds |
+| **`mech_AGG_OPP_SIDE_60`** (M-01) | **0.8454** | 0.8168 | embedding adds |
+| `aggression_up` | **0.7997** | 0.7209 | embedding adds |
+| **`mech_ABSORPTION`** (M-02/03) | **0.7377** | 0.6822 | embedding adds |
+| `near_level` | **0.6661** | 0.5981 | embedding adds |
+| `imbalance_sign` | 0.7859 | **0.9908** | raw better |
+| `spread_wide` | 0.9502 | **0.9998** | raw better |
+
+**All seven destruction-surviving creator mechanics from `CREATOR_MECHANICS_CENSUS.md` §1.1 are
+linearly recoverable from the frozen embedding, and on all seven the embedding beats the raw
+window.** It loses only on the two quantities that are literally the last event's own channels
+(L1 imbalance, spread) — it compressed them away.
+
+**Generative rollouts** (`SEQTEST_ROLLOUTS.tsv`), 1 000 synthetic 256-event windows against the
+real continuations of the same prompts. Total-variation distance on each factored field:
+side **0.0002**, dmid **0.0004**, size **0.0020**, action **0.0036**, gap **0.0176**. Cancel/trade
+ratio 9.48 real vs **9.68** generated. The simulator reproduces the marginals closely; the
+lag-1 |move| autocorrelation is ≈ 0 in the real tape at event grain (0.0021) so that particular
+stylized fact does not discriminate and is reported as uninformative rather than as a pass.
+
+**Surprise localization** (`SEQTEST_SURPRISE.tsv`) — the profile is **not flat, and it points the
+other way from the hypothesis**: news windows −0.090, `REVERSAL_CONFIRMATION` −0.325,
+`RECLAIM` −0.196, phase-2 −0.224 nats *below* their out-of-context comparison. Busy,
+"informative" moments are **more** predictable per event, not less; the tail lives elsewhere
+(p99 = 10.91 against a median of 3.03).
+
+**Neighbour retrieval** (`SEQTEST_NEIGHBOURS.tsv`) — for all 20 probe moments, **5/5 nearest
+neighbours come from different days**, so it is not memorising sessions; **0/5 come from a
+different asset**, so retrieval is asset-clustered (the asset embedding dominates the geometry);
+and neighbour dollars are uncorrelated with probe dollars, so the geometry is microstructural,
+not outcome-shaped.
+
+### 10.3 THE FUSION ABLATION (Amendment 2) — the interaction is NOT there
+
+Identical folds, identical scoring, three head inputs:
+
+| row | head input | capture_oracle | 95% CI |
+|---|---|--:|--:|
+| `SEQ_ONLY` | pooled pretrained embedding | 0.0015 | −0.0142 … 0.0171 |
+| **`CTX_ONLY`** | the 202 context features | **0.0234** | 0.0128 … 0.0341 |
+| `FUSED` | both | 0.0190 | 0.0078 … 0.0303 |
+
+**Interaction gain = capture(FUSED) − max(halves) = 0.0190 − 0.0234 = −0.0044.** Negative.
+Concatenating the tape embedding to the context vector does not find a tape × context
+interaction on this task; it costs a little.
+
+### 10.4 THE TIMESCALE ABLATION (Amendment 3) — and the pretraining marginal
+
+| trunk behind the fused head | capture_oracle | 95% CI |
+|---|--:|--:|
+| `PRE_V_shared_NEXT` (next-event only) | 0.0195 | 0.0086 … 0.0304 |
+| `PRE_V_shared_MULTI` (+ h60 / h300 / CPC) | 0.0190 | 0.0078 … 0.0303 |
+| **`RANDOM` (untrained trunk, identical shape)** | **0.0171** | 0.0060 … 0.0283 |
+
+**Multi-horizon buys nothing over next-only (−0.0005).** And the whole pretraining stage buys
+**+0.002 capture over a randomly-initialised trunk of the same shape**, well inside every
+interval. On the dollars, an 881 M-event pretraining run is worth approximately a random
+projection.
+
+### 10.5 SHARED vs PER-ASSET (Amendment 1) — decided on SI
+
+| trunk | capture on **SI** | 95% CI |
+|---|--:|--:|
+| `PRE_V_shared_MULTI` (3-asset backbone) | 0.0046 | −0.0118 … 0.0210 |
+| **`PRE_V_si_MULTI` (SI-only backbone)** | **0.0099** | −0.0062 … 0.0261 |
+
+**The SI-only trunk wins on SI by +0.005, with heavily overlapping intervals — an undecided
+result, not a verdict.** The shared trunk's transfer to the thinner books, reported regardless:
+**HG 0.0128** [−0.0171, 0.0427], **NKD 0.0015** [−0.0192, 0.0221]. Note the SI-only trunk saw
+356 M tokens against the shared trunk's 881 M and still matched it on SI, which is the one
+piece of evidence in favour of the per-asset direction.
+
+### 10.6 THE DEEP LISTWISE RANKERS — `SEQTEST_RANKING.tsv`
+
+| run | head input | NDCG@3 (range over E3–E8) | capture_oracle | `SEL_WRONG_MEMBER` |
+|---|---|--:|--:|--:|
+| `RANK_CTXONLY` | context only | 0.365 – 0.393 | **0.0264** [0.0095, 0.0433] | $868.05 |
+| `RANK_FUSED_NEXT` | context + next-only trunk | 0.362 – 0.402 | 0.0178 [0.0011, 0.0344] | $838.90 |
+| `RANK_FUSED_MULTI` | context + multi-horizon trunk | 0.355 – 0.398 | 0.0113 [−0.0065, 0.0290] | $856.52 |
+| `RANK_SEQONLY` | trunk only | 0.315 – 0.333 | 0.0051 [−0.0129, 0.0231] | $867.56 |
+| `LMART_M3FEATURES` | context only, xgboost `rank:ndcg` | 0.371 – 0.401 | −0.0063 [−0.0233, 0.0108] | $847.95 |
+| *reference: pointwise GBT* | context only | — | *0.0271 [0.0129, 0.0413]* | ***$747.64*** |
+
+Random reference NDCG@3 ≈ 0.303–0.318; earliest-member ≈ 0.328–0.354.
+
+**Every listwise arm raises `SEL_WRONG_MEMBER` above the pointwise GBT's $747.64, and none
+beats its capture.** The sequence-only ranker is the only arm that fails to clear the
+earliest-member NDCG reference at all.
+
+---
+
+## 11. THE MATRIX-TAGGED VERDICT — what the next single change should be
+
+Per the reporting rule, every certificate is tagged with its `SEQ_STACK_BACKLOG.md` repair
+signature.
+
+| certificate | result | tag |
+|---|---|---|
+| shuffled-label control | **PASS** (−0.0374, at chance) | — |
+| duplicate-day / non-causal / tensor-causality probes | **PASS** (all refuse / 0 violations) | — |
+| pretrain val vs train (overfit gate) | **PASS** — gap 0.002, gate never fired | — |
+| pretrain per-asset val | **PASS** — SI/HG/NKD within 0.04 nats | **R5 clear** |
+| val perplexity vs bigram floor | **PASS** — 16.30 vs 32.60 | — |
+| linear probes incl. the 7 creator mechanics | **PASS** — embedding beats raw on 11 of 13 | — |
+| generative rollouts vs stylized facts | **PASS** on marginals (TV 0.0002–0.018) | — |
+| surprise localization | **INVERTED** — informative contexts are *more* predictable | **R6** |
+| CPC contrastive head | **WEAK** — 7.89 against a chance level of 8.32 | **R3** |
+| downstream capture / member ranking | **FLAT** — pretrained ≈ random trunk, fused < context-only | **R4** |
+| listwise objective vs dollars | **NDCG up, dollars down** | **R7** |
+| tokenizer occupancy | 93.3 % of events in one dmid bucket, 85.9 % in one size bucket | **R1/R6** |
+
+**The dominant signature is R4 — PROBES GOOD, RANKING FLAT: a transfer failure, not a
+representation failure.** The trunk demonstrably encodes the microstructure (all seven
+destruction-surviving creator mechanics recover linearly, and better than from the raw window),
+and none of it reaches the dollars. R4's prescribed treatments — unfreeze with layer-wise LR
+decay instead of a frozen probe, attention pooling over the window instead of last-token +
+mean, a longer fine-tune, day-memory tokens — are the indicated pass, and this run used the
+**frozen** probe throughout precisely because the end-to-end fine-tune of a 40 M trunk over
+1 024-token windows did not fit the ceiling. That is the honest confound on the R4 reading and
+it is named here, not buried: **the transfer failure was measured through a frozen trunk, which
+is the weakest transfer mechanism available.**
+
+Second signature **R7** (listwise trained inside `(asset, day, class)` groups, deployed by
+selecting *across* groups) and third **R1/R6** (a near-degenerate price-delta axis in the
+tokenizer, and a surprise profile pointing the wrong way).
+
+---
+
+## 12. WHAT THIS PASS DID NOT RUN
+
+* the 50 M rungs — the preregistered capacity rule forbade the climb;
+* the transformer at L = 4096 — budget, declared;
+* the PRE-B full-corpus trunk — the causal boundary is the honest one and the ceiling was spent
+  on it;
+* an END-TO-END fine-tune of the trunk (frozen-probe only) — the named confound on the R4 tag;
+* GRPO stage 3 — by design, it follows the SFT comparison, and its environment spec is already
+  frozen in the design receipt.
+
+**Deliverable to the frontier lane:** `SEQTEST_SCORES_RANK_FUSED_MULTI.tsv` — 947,320
+out-of-sample rows keyed by `cid`, every one scored by a model trained only on strictly earlier
+eras.

@@ -1,0 +1,17 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# LINEAR readouts on the FROZEN embedding vs a linear readout on the raw window (channel means + last event).
+# The embedding must BEAT the raw inputs or it added nothing accessible.
+trunk	target	n_test	auc_embedding	auc_raw_input	delta	verdict
+PRE_V_shared_MULTI	aggression_up	30000	0.7997	0.7209	0.0788	EMBEDDING_ADDS
+PRE_V_shared_MULTI	imbalance_sign	30000	0.7859	0.9908	-0.2049	RAW_BETTER
+PRE_V_shared_MULTI	mech_ABSORPTION	30000	0.7377	0.6822	0.0554	EMBEDDING_ADDS
+PRE_V_shared_MULTI	mech_AGG_OPP_SIDE_60	30000	0.8454	0.8168	0.0285	EMBEDDING_ADDS
+PRE_V_shared_MULTI	mech_OFM	30000	0.8505	0.8087	0.0418	EMBEDDING_ADDS
+PRE_V_shared_MULTI	mech_ONX_UNTOUCHED_AHEAD	30000	0.8621	0.6996	0.1626	EMBEDDING_ADDS
+PRE_V_shared_MULTI	mech_PASSIVE_MOVE	30000	0.8808	0.765	0.1157	EMBEDDING_ADDS
+PRE_V_shared_MULTI	mech_TAPE_SPIKE	30000	0.9093	0.8541	0.0553	EMBEDDING_ADDS
+PRE_V_shared_MULTI	mech_TWO_STAGE	30000	0.8596	0.8288	0.0308	EMBEDDING_ADDS
+PRE_V_shared_MULTI	near_level	30000	0.6661	0.5981	0.068	EMBEDDING_ADDS
+PRE_V_shared_MULTI	phase_is_2	30000	0.9992	0.8498	0.1494	EMBEDDING_ADDS
+PRE_V_shared_MULTI	spread_wide	30000	0.9502	0.9998	-0.0495	RAW_BETTER
+PRE_V_shared_MULTI	vol_regime_high	30000	0.9672	0.9142	0.0531	EMBEDDING_ADDS

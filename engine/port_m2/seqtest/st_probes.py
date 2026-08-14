@@ -46,6 +46,48 @@ import m2_common as MC                     # noqa: E402
 
 DEV = R.DEV
 N_PROBE_ROWS = 60_000
+# THE SEVEN CREATOR MECHANICS that survived the destruction null in
+# provenance/port_m2/CREATOR_MECHANICS_CENSUS.md S1.1, top-7 by `vs-null` lift.
+# They are causal tape detectors, so "can a linear readout of the embedding
+# recover them" is exactly the accessibility question.
+CREATOR_DETECT = "/workspace/artifacts/cache/port/m2/creator/detect.npz"
+CREATOR_SEVEN = ("PASSIVE_MOVE", "TAPE_SPIKE", "ONX_UNTOUCHED_AHEAD", "OFM",
+                 "ABSORPTION", "AGG_OPP_SIDE_60", "TWO_STAGE")
+_DET = {}
+
+
+def creator_flags(D):
+    """The 7 census-surviving detectors, joined to matrix rows BY CID."""
+    if _DET:
+        return _DET
+    if not os.path.exists(CREATOR_DETECT):
+        return {}
+    z = np.load(CREATOR_DETECT, allow_pickle=False)
+    cids = [str(x) for x in z["cid"].tolist()]
+    names = [str(x) for x in z["det_names"].tolist()]
+    Dm = z["D"]
+    z.close()
+    ix = {c: i for i, c in enumerate(cids)}
+    row_of = np.full(D["d8"].size, -1, dtype=np.int64)
+    for k, c in enumerate(D["cid"].tolist()):
+        j = ix.get(str(c))
+        if j is not None:
+            row_of[k] = j
+    if int((row_of >= 0).sum()) == 0:
+        return {}
+    for nm in CREATOR_SEVEN:
+        if nm not in names:
+            continue
+        col = Dm[:, names.index(nm)].astype(np.float64)
+        v = np.full(D["d8"].size, np.nan)
+        m = row_of >= 0
+        v[m] = col[row_of[m]]
+        _DET["mech_" + nm] = v
+    SC.hb("creator detectors joined by cid: %d/%d matrix rows matched"
+          % (int((row_of >= 0).sum()), row_of.size))
+    return _DET
+
+
 ROLLOUT_N = 1000
 ROLLOUT_LEN = 256
 
@@ -134,6 +176,10 @@ def probe_targets(D, rows, ft):
         out["capacity_state"] = (np.where(fin, cap, 0.0)
                                  > np.nanmedian(cap[fin])).astype(np.float64) \
             if fin.any() else None
+    for k, v in creator_flags(D).items():
+        sub = v[rows]
+        if np.isfinite(sub).mean() > 0.9 and 0.001 < np.nanmean(sub) < 0.999:
+            out[k] = np.nan_to_num(sub)
     return {k: v for k, v in out.items() if v is not None}
 
 
@@ -179,7 +225,9 @@ def run_linear_probes(trunk, ft, E, rows_tr, rows_te):
     m2, s2 = Rtr.mean(0), np.maximum(Rtr.std(0), 1e-3)
     Rtr, Rte = (Rtr - m2) / s2, (Rte - m2) / s2
     rows = []
-    for k in sorted(tg_tr):
+    # a target the base-rate guard dropped on ONE side is dropped on BOTH: the
+    # two dicts are joined by KEY, never by position
+    for k in sorted(set(tg_tr) & set(tg_te)):
         y1, y2 = tg_tr[k], tg_te[k]
         if len(np.unique(y2)) < 2:
             continue
@@ -367,7 +415,10 @@ def main():
     tr_rows = np.nonzero((D["era_idx"] >= SC.ERA_IDX["E2"])
                          & (D["era_idx"] <= SC.ERA_IDX["E5"])
                          & (ft["pos"] >= 0) & (pos_w >= 0))[0]
-    te_rows = np.nonzero((D["era_idx"] >= SC.ERA_IDX["E6"])
+    # the creator detectors are cached over E2..E6 only, so the probe TEST
+    # block is E6 — the first evaluation era, inside their coverage — and every
+    # target is then defined on the same rows
+    te_rows = np.nonzero((D["era_idx"] == SC.ERA_IDX["E6"])
                          & (ft["pos"] >= 0) & (pos_w >= 0))[0]
     tr_rows = rs.choice(tr_rows, size=min(N_PROBE_ROWS, tr_rows.size),
                         replace=False)

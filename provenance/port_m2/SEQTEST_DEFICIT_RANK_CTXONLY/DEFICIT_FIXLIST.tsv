@@ -1,0 +1,15 @@
+# PORT_M2_SHEETS_SPEC.md port m2 deficit ledger — orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars (spec_sha16=f6ef73a41dbf8588)
+# params_hash=9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da
+# THE-FIX-LIST: components ranked by recoverable $/session, with the named improvement type
+# block A = fixed-contract ladder (additive); B = contract change, D-029 reserved; D = diagnostic
+# standalone = the same repair applied ALONE from the judge's own takes (order-free)
+rank	judge	component	improvement_type	block	usd_per_session	usd_total	share_of_block_A	standalone_usd_per_session	n_repairs	top_cell	top_cell_usd_per_session
+1	RANK_CTXONLY	RANKING_RESIDUAL	scoring/foresight	A	911.390000	2114426.180000	0.456700	3278.360000	0	E6|SI|rg2|ph2	12.730000
+2	RANK_CTXONLY	SEL_WRONG_MEMBER	ranking	A	868.050000	2013880.230000	0.435000	1848.910000	6462	E6|SI|rg2|ph2	23.060000
+3	RANK_CTXONLY	SEL_WRONG_SIDE	validity	A	243.110000	564010.150000	0.121800	395.120000	1322	E5|NKD|rg2|ph0	10.410000
+4	RANK_CTXONLY	EXIT	exit-contract (D-029)	B	188.810000	438048.750000	0.094600			E6|SI|rg2|ph2	12.770000
+5	RANK_CTXONLY	RISK	stop-structure (D-029)	B	184.750000	428623.750000	0.092600			E6|SI|rg2|ph2	7.820000
+6	RANK_CTXONLY	OPPORTUNITY	generation/coverage	A	89.240000	207047.500000	0.044700			E5|HG|ALL	15.590000
+7	RANK_CTXONLY	SEL_WRONG_MOMENT	moment	A	26.970000	62575.960000	0.013500	43.210000	1715	E5|SI|rg1|ph2	1.790000
+8	RANK_CTXONLY	CALIBRATION	threshold	D	0.000000	0.000000	0.000000				
+9	RANK_CTXONLY	PARTICIPATION	throughput/abstention	A	-143.080000	-331956.260000	-0.071700	-180.030000	862110	E6|HG|rg2|ph1	1.840000

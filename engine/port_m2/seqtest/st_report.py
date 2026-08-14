@@ -40,7 +40,7 @@ def capacity_rows(res):
             ("SHUFFLED_CONTROL" if o.get("shuffled") else
              {"pretrain": "PRETRAINED", "probe": "PROBE", "rank": "LISTWISE"}
              .get(o.get("kind"), "SUPERVISED")),
-            o["arch"], o["rung"], o["L"], pars,
+            o.get("_name", ""), o["arch"], o["rung"], o["L"], pars,
             _r(p.get("capture_oracle"), 4), _r(p.get("co_lo"), 4),
             _r(p.get("co_hi"), 4), _r(p.get("capture_day"), 4),
             _r(p.get("usd_per_session")), _r(p.get("ps_lo")),
@@ -50,8 +50,8 @@ def capacity_rows(res):
             _r(np.mean([x.get("inner_rho", np.nan) for x in led]), 5)
             if led else "",
             _r(np.sum(secs) / 60.0, 1), _r(o.get("wall_secs", 0) / 60.0, 1)])
-    rows.sort(key=lambda r: (r[0], r[1], SC.RUNGS.index(r[2])
-                             if r[2] in SC.RUNGS else 9, r[3]))
+    rows.sort(key=lambda r: (r[0], r[2], SC.RUNGS.index(r[3])
+                             if r[3] in SC.RUNGS else 9, r[4]))
     return rows
 
 
@@ -138,7 +138,8 @@ def rank_rows(res):
         if o.get("kind") != "rank":
             continue
         for x in o.get("ledger", []):
-            rows.append([o["arch"], o.get("trunk"), x["era"], x["loss"],
+            rows.append([o.get("_name", o["arch"]), o.get("trunk"), x["era"],
+                         x["loss"],
                          _r(x.get("inner_ndcg3"), 5),
                          _r(x.get("eval_ndcg3"), 5),
                          _r(x.get("eval_ndcg3_random"), 5),
@@ -150,8 +151,74 @@ def rank_rows(res):
     return rows
 
 
+def pretrain_rows():
+    """The pretraining quality-gate curves, straight off the trunk receipts."""
+    import st_pretrain as P
+    curve, summ = [], []
+    d = P.TRUNK_DIR
+    if not os.path.isdir(d):
+        return curve, summ
+    for f in sorted(os.listdir(d)):
+        if not f.endswith(".json"):
+            continue
+        with open(os.path.join(d, f)) as fh:
+            o = json.load(fh)
+        tag = o.get("tag", f[:-5])
+        for row in o.get("val_curve", []):
+            step, tr, va, per, secs = row
+            curve.append([tag, step, _r(tr, 5), _r(va, 5),
+                          _r(va - tr, 5)] +
+                         [_r(per.get(a), 5) for a in ("SI", "HG", "NKD")]
+                         + [_r(secs, 1)])
+        hl = o.get("head_loss_last200", {}) or {}
+        hf = o.get("head_loss_first200", {}) or {}
+        summ.append([tag, o.get("multi_horizon"), o.get("scope"),
+                     o.get("params"), o.get("steps_run"),
+                     o.get("truncated"), _r(o.get("wall_sec"), 1),
+                     _r(o.get("measured_tokens_per_sec"), 0),
+                     _r(o.get("implied_tflops"), 1),
+                     _r(o.get("loss_first200"), 4), _r(o.get("loss_last200"), 4),
+                     _r(o.get("best_val_next"), 4), _r(o.get("best_val_ppl"), 3),
+                     o.get("best_val_step"),
+                     _r(o.get("bigram_val_loss"), 4),
+                     _r(o.get("bigram_val_ppl"), 3),
+                     _r(o.get("unigram_entropy_nats"), 4),
+                     o.get("beats_bigram"), o.get("overfit_gate_fired"),
+                     json.dumps({k: round(float(v), 5) for k, v in hf.items()}),
+                     json.dumps({k: round(float(v), 5) for k, v in hl.items()})])
+    return curve, summ
+
+
 def main():
     res = R.load_results()
+    pc, ps = pretrain_rows()
+    R.write_tsv("SEQTEST_PRETRAIN_CURVE.tsv",
+                ["trunk", "step", "train_next", "val_next", "val_minus_train",
+                 "val_SI", "val_HG", "val_NKD", "secs"], pc,
+                extra=["THE PRETRAIN QUALITY GATE: a HELD-OUT-DAY split of the "
+                       "pretraining objective itself (whole days, all assets, "
+                       "never trained on).",
+                       "The overfit gate stops the run and reverts to the "
+                       "best-val checkpoint if val rises on two consecutive "
+                       "evaluations; checkpoint selection is by VAL, never by "
+                       "train loss.",
+                       "Per-asset columns exist because a backbone that only "
+                       "learned SI fails the shared-arm reading (matrix "
+                       "signature R5)."])
+    R.write_tsv("SEQTEST_PRETRAIN.tsv",
+                ["trunk", "multi_horizon", "scope", "params", "steps_run",
+                 "truncated", "wall_sec", "tokens_per_sec", "tflops",
+                 "loss_first200", "loss_last200", "best_val_next",
+                 "best_val_ppl", "best_val_step", "bigram_val_loss",
+                 "bigram_val_ppl", "unigram_entropy", "beats_bigram",
+                 "overfit_gate_fired", "head_loss_first200",
+                 "head_loss_last200"], ps,
+                extra=["One row per pretrained trunk.  `bigram_val_ppl` is the "
+                       "'did it actually learn structure' floor: a "
+                       "Laplace-smoothed bigram fitted on the training chunks "
+                       "and scored on the held-out days.",
+                       "`head_loss_*` carries every head of the multi-horizon "
+                       "objective (next / h60 / h300 / cpc64 / cpc256)."])
     R.write_tsv("SEQTEST_RANKING.tsv",
                 ["arch", "trunk", "era", "loss_selected", "inner_ndcg3",
                  "eval_ndcg3", "eval_ndcg3_random", "eval_ndcg3_earliest",
@@ -167,7 +234,7 @@ def main():
                        "earliest-member columns are the two references the "
                        "ranker has to beat to be worth anything."])
     R.write_tsv("SEQTEST_CAPACITY.tsv",
-                ["mode", "arch", "rung", "seq_len", "params",
+                ["mode", "run", "arch", "rung", "seq_len", "params",
                  "capture_oracle", "co_lo", "co_hi", "capture_day",
                  "usd_per_session", "ps_lo", "ps_hi", "mean_auc_winner",
                  "mean_inner_rho", "train_minutes", "wall_minutes"],

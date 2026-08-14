@@ -1,0 +1,10 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# SURPRISE LOCALIZATION: mean next-event loss of the candidate windows inside vs outside each context.
+# A FLAT profile is shallow learning (matrix signature R6).
+context	n	loss_in_context	loss_out	delta
+in_news_window	261	3.15158	3.24169	-0.0901
+phase_2	4422	3.13845	3.3627	-0.22425
+cls_NEWS_WINDOW	298	3.12956	3.24297	-0.11341
+cls_REVERSAL_CONFIRMATION	7202	3.20637	3.53095	-0.32458
+cls_RECLAIM	321	3.05048	3.24662	-0.19614
+_distribution_p1_p5_p25_p50_p75_p95_p99	8000	3.23875	2.10875	[2.5734, 2.7014, 2.8964, 3.029, 3.1507, 3.3785, 10.9145]

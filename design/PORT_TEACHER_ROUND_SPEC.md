@@ -80,3 +80,9 @@ R2-6-CORRECTION (user): the ribbon renders EVERY event in the window — no samp
      book-after, and the INTER-EVENT GAP (ns) so speed/bursts are directly visible. The R2-2 3-point columns
      are demoted to SHORTLIST TRIAGE HINTS ONLY — every decision on a shortlisted episode reads the true
      event sequence (R2-1 mandate). Aggregates never substitute for the sequence anywhere a take is decided.
+R2-7 RIBBON LEGEND (user): the round briefing carries a RAW-STREAM DATA DICTIONARY compiled from the
+     Databento documentation (via the schema audit's verified findings): every action code and what event it
+     is, side semantics incl. AGGRESSOR side on trades, every flags bit and its meaning, the three clocks
+     (ts_event/ts_recv/ts_in_delta) and which is authoritative, price scaling, size/depth semantics, sequence
+     and gap interpretation, null sentinels. Read once per session (session-constant, cache-friendly); every
+     ribbon read is interpreted against it. No raw view ships without its dictionary.

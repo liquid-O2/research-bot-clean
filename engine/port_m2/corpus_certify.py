@@ -62,8 +62,14 @@ _ROLL_RE = re.compile(r"roll_window=([^\s]+)")
 _DYING_RE = re.compile(r"dying_book_week=([^\s]+)")
 _ICH_RE = re.compile(r"instrument_change=([^\s]+)")
 _SIF_RE = re.compile(r"session_insane_frac=([^\s]+)")
-_CARD_ERA_RE = re.compile(r"^\s{4}\S+\s+(E[1-8]|\d{4}|FIT_\d+_\d+|GATE_\d+|"
-                          r"HOLDOUT_\S+)\s+\d")
+# A card row lives INSIDE S13 and its era token comes from a CLOSED vocabulary.
+# The first version anchored on "4 spaces, a token, a label" and matched S10's
+# `HVN_d$ 1013 ...` profile rows on the \d{4} branch — 40,731 false positives.
+_CARD_ERA_RE = re.compile(r"^\s{4}\S+\s+(PRE_E1|E[1-8]|HOLDOUT_2025H2|"
+                          r"FIT_\d{4}_\d{4}|GATE_\d{4}|(?:19|20)\d{2})\s+"
+                          r"\d+\s+\d+\s")
+_S13_RE = re.compile(r"^S13\b")
+_SEC_RE = re.compile(r"^S\d+\b")
 
 # phase order on the m0 session clock, earliest first
 PHASE_ORDER = list(X.PHASE_NAMES)
@@ -85,21 +91,28 @@ def _era_hi(name):
     return None
 
 
-def scan_sheet(text, d8):
-    """(l1_rows, l3_hit, l4_hit) for one sheet's text."""
-    m = _PHASE_RE.search(text)
-    dec_phase = m.group(1) if m else None
-    dp = _phase_rank(dec_phase) if dec_phase else -1
+def scan_sheet(text, d8, phase_open=None, dec_sec=None):
+    """(l1_rows, l3_hit, l4_hit) for one sheet's text.
+
+    `phase_open` maps a phase NAME to the session second it opens on, taken
+    from the session itself.  Phase RANK is not a substitute: an m0 session
+    spans 23h beginning at the prior close, so its tail seconds carry the
+    TOKYO tag again, LATER than that session's LONDON and NY.  Comparing ranks
+    flagged 79 sheets whose OPEN_LONDON levels are genuinely prior.
+    """
+    if dec_sec is None:
+        m = _DEC_RE.search(text)
+        dec_sec = int(m.group(2)) if m else -1
     l1 = 0
     for line in text.splitlines():
         mm = _LEVEL_RE.match(line)
         if not mm:
             continue
         anchor = mm.group(2)[5:]
-        ar = _phase_rank(anchor)
-        # a level anchored at a phase that opens AFTER the decision's own phase
-        # is priced off a mid that had not happened yet
-        if ar >= 0 and dp >= 0 and ar > dp:
+        o = (phase_open or {}).get(anchor)
+        # a level whose anchor second is not STRICTLY BEFORE the decision is
+        # priced off a mid that had not happened yet
+        if o is None or o >= int(dec_sec):
             l1 += 1
     l3 = 0
     for rx in (_DOM_RE, _ROLL_RE, _DYING_RE, _ICH_RE, _SIF_RE):
@@ -110,9 +123,18 @@ def scan_sheet(text, d8):
     # L4: a card row whose era label is NOT strictly prior to this decision
     yr = int(d8) // 10000
     l4 = 0
+    in_s13 = False
     for line in text.splitlines():
+        if _SEC_RE.match(line):
+            in_s13 = bool(_S13_RE.match(line))
+        if not in_s13:
+            continue
         mm = _CARD_ERA_RE.match(line)
         if not mm:
+            continue
+        if mm.group(1) == "PRE_E1":
+            if int(d8) < MC.ERAS[0][1]:
+                l4 = 1
             continue
         lab = mm.group(1)
         if lab.isdigit():
@@ -133,10 +155,25 @@ def scan_sheet(text, d8):
     return l1, l3, l4
 
 
+def phase_open_secs(asset, d8):
+    """{phase name: first session second carrying that tag} from the session."""
+    try:
+        s = A.load_session(asset, int(d8))["s"]
+    except Exception:                     # noqa: BLE001 — reported as refusal
+        return None
+    out = {}
+    for i, name in enumerate(X.PHASE_NAMES):
+        w = np.nonzero(s.phase_tag == i)[0]
+        if w.size:
+            out[name] = int(w[0])
+    return out
+
+
 def scan_dir(era, block, asset, d8):
     base = MC.out_path("era", era, block, asset, "%08d" % int(d8), "_")[:-1]
     if not os.path.isdir(base):
         return None
+    popen = phase_open_secs(asset, d8)
     names = sorted(os.listdir(base))
     sheets = [n for n in names if n.endswith(".%s.sheet.txt" % block)]
     s14 = [n for n in names if ".S14." in n]
@@ -155,7 +192,7 @@ def scan_dir(era, block, asset, d8):
             n_fail += int(mm.group(3))
             n_ref += int(mm.group(5))
         n_over += t.count("  OVER ")
-        a, b, c = scan_sheet(t, d8)
+        a, b, c = scan_sheet(t, d8, popen)
         if a:
             l1_sheets += 1
             l1_rows += a

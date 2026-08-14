@@ -92,6 +92,8 @@ S1_ESTIMATE_SLACK = 8                     # S1 depends on S6 only through one
                                           # row count; 8 proxy tokens covers it
 S6_MIN_TOKENS = 900                       # the ribbon never collapses below its
                                           # digest layer, cap or no cap
+S6_REFIT_PASSES = 3                       # deficit-closing re-fits of the
+                                          # elastic section against the CAP
 
 
 def _sec_metrics(name, lines):
@@ -282,6 +284,28 @@ def build(cid, mode=MC.MODE_BLIND, with_appendix=False):
         text, m = _sec_metrics("S6", SEC.RENDERERS["S6"](case, put))
         body["S6"] = text
         metrics["S6"] = m
+        # THE CAP IS A CAP, not an estimate.  `s1_est` is S1 rendered with a
+        # PLACEHOLDER S6 row count, so it can be a few tokens light — and a
+        # sheet that misses by 3 tokens is uncertified exactly as one that
+        # misses by 300 (R97 made that visible: 15 of 55,574 E1 blind sheets
+        # busted 8,500 by 3-30 tokens).  The elastic section closes its own
+        # deficit here: measure the assembled sheet, and if it is over, hand S6
+        # the exact overage back and re-fit.  Deterministic (a pure function of
+        # the measured deficit), bounded, and it never grows a sheet.
+        for _ in range(S6_REFIT_PASSES):
+            _probe = _s1_header(case, order, metrics, mode, phash,
+                                case.guard.refusals, list(refused))[0]
+            _tot = MC.text_metrics(
+                "\n".join(["\n".join(_probe) + "\n"]
+                          + [body[n] for n in order]))["tokens_proxy"]
+            over = _tot - MC.SHEET_BUDGET_BLIND
+            if over <= 0 or case.s6_budget <= S6_MIN_TOKENS:
+                break
+            case.s6_budget = max(S6_MIN_TOKENS,
+                                 case.s6_budget - over - S1_ESTIMATE_SLACK)
+            text, m = _sec_metrics("S6", SEC.RENDERERS["S6"](case, put))
+            body["S6"] = text
+            metrics["S6"] = m
 
     # snapshot: the certificate reports the BLIND sheet's refusals, and S14
     # (rendered below) must not be able to move a number S1 already printed

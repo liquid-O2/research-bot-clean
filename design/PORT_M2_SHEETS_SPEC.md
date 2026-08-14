@@ -458,3 +458,25 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
 6. CENSUS BATCH 5 SCOPE (launching): S10 d_POC/in_VA side geometry (mirror law); P032 (vs CC-M2-18.1's
    opposite sign — settle it); P033; ROLLING seat-model refit (+unspent_sess, row anchors); V2/V3 pooled
    re-grade; the S7/S8 event-statistic censuses (c2f, erosion, through-book) on the full event cache.
+
+## CC-M2-20 — E1 STUDY ROUND CLOSURE + BLIND CONFIGURATION (orchestrator, 2026-08-14; BINDING)
+1. ROUND CLOSED (8 days, 9,026 committed rows, 100% day-complete, taint-clean from day 4). THE CONVERGENCE
+   ON RECORD: the reader's synthesis independently arrived at the discovery census's oldest result — the
+   CREATION CLASSES (NEWS-WINDOW 15.5%/+$90, OPEN-DYNAMICS 12.0%/+$153 pooled) carry the round's edge;
+   REVERSAL-CONFIRMATION (91% of candidates) is 5.4%/negative. Hand side-calling is TERMINALLY DEAD (pooled
+   5/14 vs mirror 9/14). P034 (concentrators invert at the seat) = the round's structural law, pre-registered
+   and confirmed out-of-sample.
+2. THE E1 BLIND ROUND (the CC-M2-6 teacher gate instrument), configured: the FIRST 12 blind days
+   chronologically (~36 session-assets), day-complete, BLIND sheets via the receipted on-demand renderer,
+   as-of stepper everywhere, NO S14 access exists in the round; ALL 12 DAYS SEALED BEFORE ANY UNBLINDING
+   (round-level unblind — the strongest instrument); the remaining blind days stay fresh for D-075
+   iterations. TWO ARMS: (a) THE READER (fresh context + briefing + E1_ROUND_SYNTHESIS as its knowledge),
+   scored against the gate bars; (b) the frozen e1_blind_declared_policy.py as a mechanical arm beside it —
+   if the frozen policy alone clears bars, that is a distillation-ready result in its own right. Mechanical
+   baselines + panel_score as law. LAUNCH: after batch 5 lands (its V3/seat verdicts finalize the record;
+   the declared policy uses neither).
+3. RULINGS: D22 -> REFUSED-CLAUSE LAW: any term must REFUSE (never pass) on refused inputs, or its pass
+   behavior must be declared as an explicit selector — sweep ordered with the next tooling pass. D23 (SI
+   fvol refused 5/8 E1 study sessions — the 3% FIT hole concentrates here) noted as era-structure. D24
+   reaffirms the censused-constants law (no constant widened on n=3 again). V3 kill: pending batch-5 pooled
+   verdict, expected confirmed. P018/P036/P037 statuses per ledger.

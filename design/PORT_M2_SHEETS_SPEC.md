@@ -503,3 +503,20 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
    SEAL windows henceforth (the blind round runs solo regardless); run.sh stale-pid echo = cosmetic fix
    queued with the next tooling pass.
 7. WITH BATCH 5 ADJUDICATED, THE BLIND ROUND LAUNCHES NOW per CC-M2-20.2.
+
+## CC-M2-22 — news-compliance adjudications (orchestrator, 2026-08-14; BINDING)
+1. D-N1 RULED: NEWS_WINDOW is RENAMED US_CLOCK (a fixed-slot time-of-day family; only 19% of fires sit on
+   dated releases — D-006 honesty: names must say what things are). Its census cards/class labels update;
+   its edge is clock structure and 80.8% of it survives the ±10 rule (compliance verdict: the family's BULK
+   is deployable; the dated-release sliver is struck).
+2. POST_NEWS ADOPTED as a new COMPLIANT family: entries [+10,+20)min after dated high-impact releases —
+   2.24x winner rate (Holm-significant, destruction-surviving, GATE 0.157 stronger), 99.6% compliant.
+   Queued as the S1.3 prototype increment -> C++ later; winner-rate-concentrator framing on record.
+3. OPENS CLEAN: zero release collisions for MICRO_OPEN/FAST_OPEN; the ~2% held-into-window exposure is a
+   DEPLOYMENT-POSTURE item (exit before the pad or accept) — flagged for the user's rulebook detail on
+   holding through releases; not a generation change.
+4. D-N3 to the scoring pass: compliance is read from the NEWS_DISTANCE FLAGS (incl. pre-window and
+   held-into), never inferred from a blank minutes field; the blind DEPLOYABLE reading uses flags, and the
+   'news-class' takes are re-labeled by ACTUAL release proximity, not family name.
+5. D-N2: the seal-sweep collision class recurred (reader seal swept census drafts) — already in the
+   consolidated review's scope; no seal content affected.

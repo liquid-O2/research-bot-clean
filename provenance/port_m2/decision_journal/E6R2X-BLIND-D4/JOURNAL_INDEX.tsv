@@ -1,0 +1,8 @@
+# PORT_M2_SHEETS_SPEC.md §3 R2-8 WRITTEN DECISION JOURNAL (the reasoning, kept) (spec_sha16=f6ef73a41dbf8588)
+# params_hash=3796093a852bd9bca19a65a6eb37a267acda6aea516f29002c1748840c0e10fc
+# R2-8 index: one row per journal entry; sha16 = sha256(entry body)[:16]
+# seq = row index (deterministic, no wall clock)
+seq	round	era	date8	mode	episode_id	call	p	reads	sha16	n_chars	path
+0	E6R2X-BLIND-D4	E6	20240502	BLIND	SI-20240502-L-E53	TAKE	0.19	ribbon:SI-20240502-054126-L T-5..T action grain, 235 events; digest pass over all 590 episodes; brief:SI	b3f46a63bad368d7	3594	/workspace/provenance/port_m2/decision_journal/E6R2X-BLIND-D4/JOURNAL_20240502.md
+1	E6R2X-BLIND-D4	E6	20240502	BLIND	SI-20240502-S-E62	SKIP	0.05	ribbon:SI-20240502-055994-S T-2..T action grain, 76 events; digest pass; brief:SI	609be6e7c2e9bd30	1394	/workspace/provenance/port_m2/decision_journal/E6R2X-BLIND-D4/JOURNAL_20240502.md
+2	E6R2X-BLIND-D4	E6	20240502	BLIND	HG-20240502-L-E82	SKIP	0.06	ribbon:HG-20240502-065132-L T-2..T action grain, 115 events; digest pass; brief:HG	e65e9d7db4b94776	1292	/workspace/provenance/port_m2/decision_journal/E6R2X-BLIND-D4/JOURNAL_20240502.md

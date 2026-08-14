@@ -277,3 +277,22 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
    flow windows, D11 retrieve --exclude-date8.
 7. NKD note: 0 winners/514 candidates over two 2021H2 sessions = era-consistent with its censused thin years
    (seats $2,135 in 2021); an E1 observation, not a targeting signal. Watch through the era.
+
+## CC-M2-11 — census batch 2 adjudications (orchestrator, 2026-08-14; BINDING)
+1. VERDICTS RATIFIED: P020 = real winner CONCENTRATOR (1.83x winner rate, era-stable, GATE echo 1.218) but
+   the NY label itself is not load-bearing under destruction => feature-set candidate as a CLOCK/LIQUIDITY
+   proxy, never a rule. P022 = concentrator (1.78x), veto value NULL, compass falsified. P021 = NULL with the
+   mechanism on record: the day_type/surprise flag is LAGGING — it fires ~1-2h after the winners' decision
+   seconds (median flagged second 56,120 vs winners 52,780; the named proof cases were INSIDE days at their
+   own decision seconds). The reader's ex-ante story was false as implemented.
+2. CONSEQUENCE — THE REGIME-SEPARATOR QUESTION IS REASSIGNED TO LEADING OBJECTS: intra-day accumulations
+   (coverage, day_type_so_far) cannot separate day-1-like from day-2-like days in time to act. The chartered
+   FORWARD-OFFER/REGIME FORECASTER (DISCRETIONARY_METHOD §13.1, improvement set §5) is now evidence-mandated
+   and ordered built: strictly-prior prediction of (day-type class, realized range/offer, per-phase split)
+   from overnight/context features; its outputs become sheet/index fields (leading regime state) and the
+   participation regulator. Lane launched herewith.
+3. Scoreboard honesty: after two census batches, ZERO reader-named patterns have survived as RULES; the
+   validated objects are all CONCENTRATORS (features). This is the expected shape (selection intelligence
+   lives in the model; the reader's job is evidence), and it is on record.
+4. Provenance: the E1D3 lane swept another lane's in-flight edits again (pathspec rule not held) — brief
+   language hardened; the TRIAGE-INDEX-V2 version stamp now prevents the silent-column-drift class.

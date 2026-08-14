@@ -69,3 +69,20 @@ No S14 appendix, no outcome, no oracle object, no contrast set of ANY of these f
 point. The fence is mechanical: `e6_round.oracle()` refuses every date `>= 20240419`.
 No new study block is opened either — per the ruling, the preparation is the existing library, the
 committed journals, and the unsealed round-2 adjudication.
+
+## 5. SEAL RECEIPT (written at the final seal; no outcome knowledge)
+
+| day | date | episodes | shortlist | TAKE | p | compliance (VETO/HELD) |
+|---|---|--:|--:|---|--:|---|
+| D1 | 2024-04-29 | 624 | 5 | SI-20240429-L-E51 (NY 14:02 LONG) | 0.16 | 0 / 0 |
+| D2 | 2024-04-30 | 598 | 4 | SI-20240430-L-E44 (NY 14:26 LONG) | 0.17 | 0 / 0 |
+| D3 | 2024-05-01 | 611 | 3 | HG-20240501-S-E85 (NY 17:33 SHORT) | 0.15 | 14 / 81 |
+| D4 | 2024-05-02 | 590 | 3 | SI-20240502-L-E53 (NY 15:02 LONG) | 0.19 | 16 / 29 |
+| D5 | 2024-05-03 | 487 | 3 | HG-20240503-L-E70 (NY 16:23 LONG) | 0.13 | 18 / 108 |
+| **total** | | **2,910** | **18** | **5** | mean 0.16 | **48 / 218** |
+
+Every one of the 18 shortlisted episodes carries a RIBBON_ACCESS row (C1, no exceptions — round 2's two
+paying skips were unread). Every one of the 2,910 episodes carries an EPISODE_ACCESS digest-pass row under
+round `e6r2x-blind`. Takes: 4 LONG / 1 SHORT (round 2 was 0/3). Probabilities span 0.04–0.19 against round
+2's 0.05–0.14. Compliance flagged **266 of 2,910 episodes (9.1%)** across three release days and refused,
+untouched, the largest capacity rows of two of them.

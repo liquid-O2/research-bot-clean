@@ -165,7 +165,14 @@ def check_new(cids, mode, entries=None):
 def make_entries(cids, era, block, mode, rnd, reader, recorded_at=None):
     if mode not in MODES:
         raise ValueError("mode %r" % mode)
-    at = recorded_at or dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    # R37: `dt.datetime.utcnow()` here made two runs of the same seal produce
+    # byte-DIFFERENT ledgers, against the two-run byte-identity law, and a
+    # `recorded_at` parameter was threaded through for exactly this while no
+    # seal passed it.  The default is now derived from the ROUND, which is what
+    # the field is actually for (when was this case burned, in protocol time),
+    # and is a pure function of the seal's arguments.  A caller that wants wall
+    # clock still passes it explicitly.
+    at = recorded_at or ("round:%s" % rnd)
     out = []
     for cid in cids:
         asset, d8, sec, side = MC.parse_cid(cid)
@@ -220,12 +227,18 @@ def record(cids, era, block, mode, rnd, reader, recorded_at=None,
 # the BLIND one-way-door check still runs on the new ones, and a taint refusal
 # still raises.
 def record_seal(cids, era, block, mode, rnd, reader, recorded_at=None,
-                path=LEDGER):
+                path=LEDGER, reseal=False):
     """Idempotent used-case record for a seal.  -> (new_entries, n_already).
 
     Raises TaintRefusal exactly as `record` does — a seal that would put a
     study-tainted session into a BLIND block is a protocol violation and stops
     the seal.
+
+    R33: the idempotency exemption is for a RE-RUN OF A SEAL, and it was
+    indistinguishable from a genuine re-draw of an already-read session — the
+    exact "silent subsample" shape `check_blind` exists to prevent.  A caller
+    that means "re-run" now says so with `reseal=True`; anything else refuses
+    when cids are already on the ledger under this mode.
     """
     if mode not in MODES:
         raise ValueError("mode %r" % mode)
@@ -237,6 +250,16 @@ def record_seal(cids, era, block, mode, rnd, reader, recorded_at=None,
     burned = shown(entries)
     fresh = [c for c in seen if (c, mode) not in burned]
     n_already = len(seen) - len(fresh)
+    if n_already and not reseal:
+        _seen = set(seen)
+        prior = sorted({e.get("round", "?") for e in entries
+                        if e.get("cid") in _seen and e.get("mode") == mode})
+        raise TaintRefusal(
+            "R33: %d of %d cids are already on the used-case ledger under "
+            "mode=%s (rounds: %s). If this is a re-run of that seal pass "
+            "reseal=True; if it is a new showing of an already-read case it "
+            "is a burn and must not proceed."
+            % (n_already, len(seen), mode, ",".join(prior[:6])))
     if not fresh:
         return [], n_already
     if mode == MODE_BLIND:

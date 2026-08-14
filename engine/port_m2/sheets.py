@@ -395,6 +395,27 @@ def _rel(p):
 
 
 # ------------------------------------------------------------------ output --
+def s14_dir(out_dir):
+    """R02: the SIBLING TREE a blind block's S14 appendices live in.
+
+    `era/<ERA>/BLIND/<ASSET>/<D8>` -> `era/<ERA>/BLIND_S14/<ASSET>/<D8>`.
+
+    The 12,418 E1 blind appendices were written into the SAME directory as the
+    blind sheets, under a name derivable from the cid, 3-9 minutes before each
+    day's own calls were sealed.  The round's integrity claim ("NO S14 ACCESS
+    EXISTS IN THE ROUND") was a literal in the seal script and a naming
+    convention in a shared directory — not an enforced state.  Splitting the
+    tree makes the claim checkable: `assert_no_s14_access` walks the blind
+    directory and refuses if an appendix is reachable from it.
+    """
+    parts = out_dir.rstrip(os.sep).split(os.sep)
+    for i in range(len(parts) - 1, -1, -1):
+        if parts[i] == MC.MODE_BLIND:
+            parts[i] = MC.MODE_BLIND + "_S14"
+            return os.sep.join(parts)
+    return os.path.join(out_dir, "_S14")
+
+
 def emit(sh, out_dir, sidecars=True):
     """Write sheet / appendix / sidecar under out_dir (D-018: under M2_ROOT).
 
@@ -402,6 +423,9 @@ def emit(sh, out_dir, sidecars=True):
     appendix).  Era-scale renders use it: the sidecar is the hand-verification
     aid, ~2x the sheet's bytes, and is regenerated on demand for any candidate
     by re-running the builder (the sheet is a pure function of the receipts).
+
+    R02: in BLIND mode the S14 appendix goes to the SIBLING tree, never beside
+    the sheet the reader reads.
     """
     os.makedirs(out_dir, exist_ok=True)
     p = os.path.join(out_dir, "%s.%s.sheet.txt" % (sh.cid, sh.mode))
@@ -410,12 +434,51 @@ def emit(sh, out_dir, sidecars=True):
         MC.write_json(os.path.join(out_dir, "%s.%s.sidecar.json"
                                    % (sh.cid, sh.mode)), sh.sidecar)
     if sh.appendix is not None:
-        MC.write_text(os.path.join(out_dir, "%s.S14.appendix.txt" % sh.cid),
+        ad = s14_dir(out_dir) if sh.mode == MC.MODE_BLIND else out_dir
+        os.makedirs(ad, exist_ok=True)
+        MC.write_text(os.path.join(ad, "%s.S14.appendix.txt" % sh.cid),
                       sh.appendix)
         if sidecars and sh.appendix_sidecar is not None:
-            MC.write_json(os.path.join(out_dir, "%s.S14.sidecar.json" % sh.cid),
+            MC.write_json(os.path.join(ad, "%s.S14.sidecar.json" % sh.cid),
                           sh.appendix_sidecar)
     return p
+
+
+class S14AccessRefusal(RuntimeError):
+    """R02: raised when an S14 outcome artefact is reachable from a directory
+    a blind round reads.  A checked state, not a stamped literal."""
+
+
+def assert_no_s14_access(dirs, cids=None):
+    """THE `NO-S14` TOKEN, as a computed assertion (R02).
+
+    `e1blind_seal.py` stamped `TAINT = "CLEAN;AS-OF-PREFIX;NO-S14"` onto all
+    12,418 committed rows.  That was a statement about one script's code paths.
+    This walks the directories the round actually reads and refuses if any S14
+    appendix (or S14 sidecar) is present, optionally also checking the exact
+    per-cid paths.  Returns the number of paths checked.
+    """
+    n = 0
+    for d in dirs:
+        if not os.path.isdir(d):
+            continue
+        for name in sorted(os.listdir(d)):
+            n += 1
+            if ".S14." in name:
+                raise S14AccessRefusal(
+                    "R02: S14 outcome artefact %s is reachable from the blind "
+                    "directory %s — the round's NO-S14 claim is false"
+                    % (name, d))
+    if cids:
+        for d in dirs:
+            for cid in cids:
+                for suf in (".S14.appendix.txt", ".S14.sidecar.json"):
+                    n += 1
+                    if os.path.exists(os.path.join(d, cid + suf)):
+                        raise S14AccessRefusal(
+                            "R02: %s%s exists beside the blind sheets in %s"
+                            % (cid, suf, d))
+    return n
 
 
 def main():

@@ -308,27 +308,62 @@ def s2_regime(case, put):
                    "range_hat REFUSED in the fvol receipt: day_type_so_far "
                    "cannot be derived")
 
-    m = case.s.meta
-    L.append(MC.row("  dominance", "dom_share=" + MC.fnum(m.get("dominant_share"), 6, 4).strip(),
-                    " roll_window=" + ("1" if m.get("roll_window") else "0"),
-                    " dying_book_week=" + ("1" if m.get("dying_book_week") else "0"),
-                    " instrument_change=" + ("1" if m.get("instrument_change") else "0"),
-                    " iid=" + str(case.s.iid)))
-    put("S2.dominant_share", m.get("dominant_share"), case.session_path,
-        "meta_json.dominant_share")
+    # R94.  Four session-meta fields printed here were NOT knowable at the
+    # decision and none was in KNOWN_TRAPS:
+    #   dom_share            s3_sessions.py:335 — the dominant instrument's
+    #                        share of the WHOLE session's two-sided seconds
+    #   roll_window          s3_sessions.py:365 — an instrument change in the
+    #                        NEXT 5 sessions
+    #   dying_book_week      s3_sessions.py:366 — same, a pure FORWARD flag and
+    #                        the sheet's one NKD-specific regime tag
+    #   instrument_change    s3_sessions.py:361 — end-of-session
+    # They sat immediately beside S2's correctly-causal insane-episode counters,
+    # which made them read as causal too.  They are REFUSED here — declared and
+    # counted in the S1 certificate, never silently dropped.  `iid` stays: the
+    # dominant instrument's IDENTITY is known when the session opens.
+    L.append(MC.row("  dominance", "iid=" + str(case.s.iid),
+                    "  dom_share=" + MC.NA,
+                    " roll_window=" + MC.NA,
+                    " dying_book_week=" + MC.NA,
+                    " instrument_change=" + MC.NA,
+                    "  (whole-session/forward facts: REFUSED, D-057)"))
+    for _k, _why in (
+            ("S2.dominant_share",
+             "dominant_share is the WHOLE session's two-sided share "
+             "(s3_sessions.py:335) — not knowable at the decision second"),
+            ("S2.roll_window",
+             "roll_window looks 5 sessions FORWARD (s3_sessions.py:365)"),
+            ("S2.dying_book_week",
+             "dying_book_week looks 5 sessions FORWARD (s3_sessions.py:366)"),
+            ("S2.instrument_change",
+             "instrument_change is an end-of-session fact "
+             "(s3_sessions.py:361)")):
+        put.refuse(_k, _why)
 
     # insane-book episodes SO FAR (causal): runs of two-sided-but-insane seconds
     ts = (case.s.state[:case.dec_sec] == C.ST_TWO_SIDED)
     ins = ts & (~case.s.valid[:case.dec_sec])
     n_ins = int(ins.sum())
     eps = int(np.sum(ins[1:] & ~ins[:-1])) + (1 if ins.size and ins[0] else 0)
+    # R94 (fourth field): `session_insane_frac` is b7_sane's END-OF-SESSION
+    # fraction over the full session.  The three counters beside it are causal
+    # (they slice [:dec_sec]); this one was not.  The causal analogue — the
+    # insane fraction SO FAR — is printed in its place.
+    frac_sf = (float(n_ins) / float(ts.sum())) if int(ts.sum()) > 0 \
+        else float("nan")
     L.append(MC.row("  insane_book", "episodes_so_far=" + str(eps),
                     " insane_sec_so_far=" + str(n_ins),
                     " two_sided_sec_so_far=" + str(int(ts.sum())),
-                    " session_insane_frac=" + MC.fnum(case.insane_frac, 8, 6).strip()))
+                    " insane_frac_so_far=" + MC.fnum(frac_sf, 8, 6).strip()))
     put("S2.insane_episodes_so_far", eps, "derived(b7_sane mask)",
         "state==TWO_SIDED & ~valid, sec<dec")
     put("S2.insane_sec_so_far", n_ins, "derived(b7_sane mask)", "count")
+    if np.isfinite(frac_sf):
+        put("S2.insane_frac_so_far", frac_sf, "derived(b7_sane mask)",
+            "insane_sec_so_far / two_sided_sec_so_far")
+    else:
+        put.refuse("S2.insane_frac_so_far",
+                   "no two-sided second before the decision second")
     return L
 
 
@@ -516,6 +551,33 @@ def _phase_open_sec(s, name):
     return int(w[0]) if w.size else -1
 
 
+def _anchor_birth_sec(s, aname):
+    """Session second at which an fvol ANCHOR becomes knowable (-1 = never).
+
+    R93.  `b3_levels.build_levels` anchors every FVOL_BAND / FVOL_LADDER /
+    FVOL_LADDER_RS level at one of FOUR points — the prior settle and each of
+    TOKYO / LONDON / NY's OPENING MID (`b3_levels.py:239-273`, the anchor
+    second is `int(s.vt[j])` at `:248`) — and `levels_v4` persists no
+    `active_from`.  These families are STATIC (`dynamic == 0`) and are not
+    OR_EXT, so before this clause they fell through to `return 0` and printed
+    as live rows on decisions HOURS BEFORE their anchor existed.
+
+    The birth second is rebuilt with b3's own construction so sheet and ledger
+    cannot drift.  `case.s` is B7-masked (D-054) while b3 read raw ticks, so
+    where the two differ this returns a LATER second — the refusing direction.
+    """
+    if not str(aname).startswith("OPEN_"):
+        return 0                       # SETTLE: a prior-session object
+    seg = str(aname)[5:]
+    o = _phase_open_sec(s, seg) if seg in X.PHASE_NAMES else -1
+    if o < 0:
+        return -1
+    j = int(np.searchsorted(s.vt, o, side="left"))
+    if j >= s.vt.size:
+        return -1
+    return int(s.vt[j])
+
+
 def _level_birth_sec(case, fam, lid, dyn):
     """Session second at which a ledger level BEGINS TO EXIST (-1 = never).
 
@@ -546,6 +608,12 @@ def _level_birth_sec(case, fam, lid, dyn):
             return int(ds[0]) if ds is not None and len(ds) else -1
         if len(parts) >= 2 and parts[1] in X.PHASE_NAMES:
             return _phase_open_sec(case.s, parts[1])
+    # R93: the STATIC fvol families are anchored at a phase OPENING MID.  This
+    # clause is the D4 fall-through the original fix missed.
+    if fam in ("FVOL_BAND", "FVOL_LADDER", "FVOL_LADDER_RS"):
+        if len(parts) >= 2:
+            return _anchor_birth_sec(case.s, parts[1])
+        return -1
     return 0
 
 
@@ -1673,6 +1741,33 @@ def s12_context(case, put):
 
 
 # ============================================================ S13 ===========
+def _prior_card_eras(case):
+    """R01: the era labels a BLIND sheet's census cards may be computed over.
+
+    S13 rendered its class card over `case.era` and the decision's own calendar
+    year, and its family card over the year plus `FIT_2021_2024`.  Every one of
+    those spans contains sessions AFTER the decision, and every number in the
+    cards is a mean of REALISED walled certificates — so each blind sheet
+    carried the era-wide realised win-rate and conditional value of its own
+    class, including the block being scored.  A card is admissible only if its
+    whole span ENDED strictly before the decision date.
+
+    Returns (prior_eras, prior_years, prior_blocks), each newest-first.
+    """
+    d8 = int(case.d8)
+    yr = d8 // 10000
+    eras = [n for (n, _lo, hi) in MC.ERAS if hi < d8]
+    if MC.ERA_HOLDOUT[2] < d8:
+        eras.append(MC.ERA_HOLDOUT[0])
+    years = [str(y) for y in range(yr - 1, yr - 4, -1)]
+    blocks = []
+    if yr > max(X.WALL_FIT_YEARS):
+        blocks.append(X.ERA_FIT)
+    if yr > 2025:
+        blocks.append(X.ERA_GATE)          # unreachable under the 2026 seal
+    return list(reversed(eras)), years, blocks
+
+
 def s13_mechanics(case, put):
     L = ["S13 CANDIDATE MECHANICS"]
     L.append(MC.row("  entry", "mid=" + MC.fnum(case.entry_mid, 1, 4).strip(),
@@ -1700,16 +1795,19 @@ def s13_mechanics(case, put):
     # D-071: the CLASS card comes first — the class is what the candidate IS;
     # the family rows below it are the mechanism detail.
     cls, driver, others = MC.class_of(case.fam_mask)
+    p_eras, p_years, p_blocks = _prior_card_eras(case)
     L.append(MC.row("  CLASS", MC.fstr(cls, 22),
                     " driver_family=" + str(driver),
-                    " (D-071 census card, era + protocol block)"))
+                    " (D-071 census card, STRICTLY-PRIOR eras only — R01)"))
     L.append("    class                  era        n_cand  n_pos  cond_value$"
              "  mean_cert$  pos_frac  fires/sess  win_frac")
     cc = CLS.cards()
-    for era in (case.era, str(case.trade_date.year)):
+    n_class_cards = 0
+    for era in (p_eras[:1] + p_years[:1]):
         card = cc.get((case.asset, cls, era))
         if card is None:
             continue
+        n_class_cards += 1
         L.append(MC.row("   ", MC.fstr(cls, 22), MC.fstr(era, 10),
                         MC.fint(card["n_candidates"], 7),
                         MC.fint(card["n_positive"], 6),
@@ -1721,16 +1819,25 @@ def s13_mechanics(case, put):
         put("S13.class_census.%s.%s.cond_value" % (cls, era),
             A._f(card["conditional_value_usd"]), CLS.OUT,
             "conditional_value_usd")
+    if n_class_cards == 0:
+        L.append("    " + MC.NA + "  no census era ENDED before this decision "
+                 "(R01: a card over the decision's own era/year/block is a "
+                 "mean of realised outcomes over its own future)")
+        put.refuse("S13.class_census.%s" % cls,
+                   "no strictly-prior era exists for a %s decision: the class "
+                   "card would be computed over the decision's own future"
+                   % case.era)
     fc = A.family_census()
-    L.append("  CENSUS CARD (committed censuses, generation_v3)")
+    L.append("  CENSUS CARD (committed censuses, generation_v3; "
+             "STRICTLY-PRIOR eras only — R01)")
     L.append("    family        era              n_cand  n_pos  cond_value$  mean_cert$  pos_frac  cond_peak$")
-    yr = str(case.trade_date.year)
-    blk = X.ERA_FIT if case.trade_date.year in X.WALL_FIT_YEARS else X.ERA_GATE
+    n_fam_cards = 0
     for fam in MC.fam_names(case.fam_mask):
-        for era in (yr, blk):
+        for era in (p_years[:1] + p_blocks[:1]):
             r = fc.get((case.asset, fam, era))
             if r is None:
                 continue
+            n_fam_cards += 1
             L.append(MC.row("   ", MC.fstr(fam, 13), MC.fstr(era, 16),
                             MC.fint(r["n_candidates"], 7),
                             MC.fint(r["n_positive"], 6),
@@ -1741,6 +1848,12 @@ def s13_mechanics(case, put):
             put("S13.census.%s.%s.cond_value" % (fam, era),
                 A._f(r["conditional_value_usd"]), A.FAM_VALUE,
                 "conditional_value_usd")
+    if n_fam_cards == 0:
+        L.append("    " + MC.NA + "  no committed census block ENDED before "
+                 "this decision (R01)")
+        put.refuse("S13.census.family_cards",
+                   "no strictly-prior calendar year or protocol block exists "
+                   "for a %s decision" % case.era)
     return L
 
 

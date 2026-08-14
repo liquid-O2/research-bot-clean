@@ -286,10 +286,19 @@ def p10_seal_auto_records_used_cases():
                                     "TEST", "test",
                                     recorded_at="2026-08-14T00:00:00Z",
                                     path=path)
+        # R33: a re-run of a seal must SAY it is a re-run.  Without the flag
+        # the call is indistinguishable from a genuine re-draw of an
+        # already-read session and must refuse.
+        reshow_refused = False
+        try:
+            UC.record_seal(cids, "E1", "STUDY", UC.MODE_STUDY, "TEST", "test",
+                           recorded_at="2026-08-14T00:00:00Z", path=path)
+        except UC.TaintRefusal:
+            reshow_refused = True
         new2, dup2 = UC.record_seal(cids, "E1", "STUDY", UC.MODE_STUDY,
                                     "TEST", "test",
                                     recorded_at="2026-08-14T00:00:00Z",
-                                    path=path)
+                                    path=path, reseal=True)
         entries = UC.read_ledger(path)
         tainted = UC.tainted_sessions(entries)
         sealed = {(MC.parse_cid(c)[0], MC.parse_cid(c)[1]) for c in cids}
@@ -301,6 +310,7 @@ def p10_seal_auto_records_used_cases():
             refused = True
         armed = (len(new1) == len(set(cids)) and dup1 == 0
                  and new2 == [] and dup2 == len(set(cids))
+                 and reshow_refused
                  and sealed <= tainted and refused
                  and len(entries) == len(set(cids)))
         # MUTANT MP10: the pre-fix seal — append the day ledger and record

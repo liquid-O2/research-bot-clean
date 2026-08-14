@@ -172,8 +172,11 @@ def brief_cell(first, cellrows, assetrows, cut, fn, k):
     mids = [f(r, "mid") for r in assetrows if f(r, "mid") is not None]
     secs = [int(float(r["sec"])) for r in assetrows]
     if mids:
-        print("  ASSET SO FAR (prefix, sec <= %d): %d rows %ds-%ds, mid %.4g "
-              "-> %.4g (net %.4g), lo/hi %.4g/%.4g"
+        # R03's twin: %.4g quantises NKD prices onto a 10-point grid
+        # (2 ticks = $50/mini) and prints three genuinely different mids
+        # identically.  Prices are printed at full resolution.
+        print("  ASSET SO FAR (prefix, sec <= %d): %d rows %ds-%ds, mid %.10g "
+              "-> %.10g (net %.10g), lo/hi %.10g/%.10g"
               % (cut, len(assetrows), secs[0], secs[-1], mids[0], mids[-1],
                  mids[-1] - mids[0], min(mids), max(mids)))
     cl = {}

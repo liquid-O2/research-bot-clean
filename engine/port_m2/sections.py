@@ -1978,6 +1978,18 @@ def s12_context(case, put):
 
 
 # ============================================================ S13 ===========
+def _era_hi_or_none(name):
+    """Last d8 of a named era block (None when the name has no fixed span)."""
+    for n, _lo, hi in MC.ERAS:
+        if n == name:
+            return hi
+    if name == MC.ERA_HOLDOUT[0]:
+        return MC.ERA_HOLDOUT[2]
+    if name == "PRE_E1":
+        return MC.ERAS[0][1] - 1
+    return None
+
+
 def _prior_card_eras(case):
     """R01: the era labels a BLIND sheet's census cards may be computed over.
 
@@ -1996,6 +2008,13 @@ def _prior_card_eras(case):
     eras = [n for (n, _lo, hi) in MC.ERAS if hi < d8]
     if MC.ERA_HOLDOUT[2] < d8:
         eras.append(MC.ERA_HOLDOUT[0])
+    # PRE_E1 is a real, strictly-prior era: `m2_common.era_of` labels every
+    # session before 2021-07-01 with it and `class_census` carries ~116
+    # sessions per asset under it.  Without this clause an E1 decision has NO
+    # admissible card at all — which is over-refusal, not causality: the block
+    # ENDED 2021-06-30, before every E1 decision.
+    if d8 >= MC.ERAS[0][1]:
+        eras.insert(0, "PRE_E1")        # oldest, so it sorts last newest-first
     years = [str(y) for y in range(yr - 1, yr - 4, -1)]
     blocks = []
     if yr > max(X.WALL_FIT_YEARS):

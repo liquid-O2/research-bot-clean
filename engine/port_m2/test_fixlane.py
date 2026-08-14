@@ -151,7 +151,12 @@ def f03_cards_are_strictly_prior():
     case = A.Case(E1_CID, mode=MC.MODE_BLIND)
     yr = int(case.d8) // 10000
     text = SH.build(E1_CID, MC.MODE_BLIND).text
-    armed = ("no census era ENDED before this decision" in text
+    # every era the card is computed over must have ENDED before this decision,
+    # and PRE_E1 (which ends 2021-06-30) is a lawful one for an E1 decision
+    eras, years, blocks = SEC._prior_card_eras(case)
+    armed = (all(SEC._era_hi_or_none(e) is None
+                 or SEC._era_hi_or_none(e) < int(case.d8) for e in eras)
+             and all(int(y) < yr for y in years) and not blocks
              and not re.search(r"^\s{4}\S+\s+(%s|%d)\s+\d" % (case.era, yr),
                                text, re.M))
     orig = SEC._prior_card_eras

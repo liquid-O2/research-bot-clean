@@ -167,8 +167,11 @@ Run:
                   --sessions HG:20210701,SI:20210701 \
                   --out artifacts/cache/port/m2/triage/E1D1_TRIAGE_INDEX.tsv
   triage_index.py ... --out IDX.tsv --as-of 43200          # prefix view
-  triage_index.py ... --out IDX.tsv --drive-step 1800 \
-                  --drive-out artifacts/cache/port/m2/triage/E1D4_DRIVE
+  triage_index.py ... --out IDX.tsv --drive-per-row \
+                  --drive-out artifacts/cache/port/m2/triage/E1BLIND_D1_DRIVE
+  (a stepped drive is still available — `--drive-step 60`; anything coarser
+   than 60s is REFUSED unless `--allow-coarse-step` declares it, because each
+   prefix then carries up to step-1 seconds of post-decision rows.)
 """
 import argparse
 import hashlib
@@ -1191,11 +1194,16 @@ def write_compat(path, rows, as_of=None):
     """
     cols = list(COLUMNS) + [legacy for _cur, legacy in ALIASES
                             if legacy not in COLUMNS]
+    # R22 (cross-lane): `e1_blind_declared_policy.assert_columns` refuses any
+    # index with no `columns_sha16` stamp, and the ONE comment line carried
+    # none — so every COMPAT view failed the frozen policy's schema gate at day
+    # one.  The stamp rides on the same single line, which keeps the D16
+    # one-comment-line contract intact.
     lines = ["# TRIAGE INDEX COMPAT VIEW (D16 pinned reader: ONE comment line; "
              "the CURRENT %s column list plus every legacy alias, so a "
              "consumer pinned to either spelling keeps working; data identical "
-             "to the versioned index)%s"
-             % (VERSION,
+             "to the versioned index)  columns_sha16=%s%s"
+             % (VERSION, columns_sha16(),
                 ("  AS_OF %d  (D14 prefix view: rows with sec > as_of are "
                  "ABSENT; fields knowable only later are masked to '%s')"
                  % (as_of, NA)) if as_of is not None else "")]

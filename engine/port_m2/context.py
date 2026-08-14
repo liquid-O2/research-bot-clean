@@ -521,6 +521,43 @@ def calendar_coverage(asset):
     }
 
 
+# THE D-077 VETO FLOOR.  D-077 says "scheduled HIGH-IMPACT releases" and
+# D-077-UPDATE adds "AVOIDANCE IS PREFERRED regardless", so the compliance
+# surface takes the WIDER of the two readings: a veto that is too wide costs
+# takes, a veto that is too narrow breaks the firm's rule.  R127's finding was
+# that the DEPLOYABLE reading ran against three event types containing ONE
+# event in the whole 12-day blind block; at this floor it is six.  The floor is
+# a named constant so the user's rulebook can move it in one place.
+VETO_IMPACT_FLOOR = IMPACT_MEDIUM
+
+
+def high_impact_calendar(asset=None, min_impact=None):
+    """[(event_ts, name, impact, date_source)] — THE dated release universe the
+    D-077 veto and the gate's DEPLOYABLE reading are scored against.
+
+    The scoring lane (R127) looks for exactly this entry point; before it
+    existed the gate fell back to `pattern_lib.release_calendar` — Employment
+    Situation / CPI / FOMC statement only, ONE event across the whole 12-day E1
+    blind block.  Sorted and deduplicated on (ts, name) so two runs agree.
+    Every row carries its impact tier and its date source, so a consumer can
+    re-read the universe at a stricter floor without re-deriving it.
+    """
+    min_impact = VETO_IMPACT_FLOOR if min_impact is None else min_impact
+    assets = [asset] if asset else sorted(ASSET_CALENDARS)
+    seen, out = set(), []
+    for a in assets:
+        for c in calendar_for(a):
+            if not impact_at_least(c[4], min_impact):
+                continue
+            key = (int(c[0]), str(c[1]))
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append((int(c[0]), str(c[1]), str(c[4]), str(c[5])))
+    out.sort()
+    return out
+
+
 def _row_dict(c, guard, kind):
     d = {"event_ts": c[0], "name": c[1], "status": c[2],
          "snapshot_date": c[3], "impact": c[4], "date_source": c[5],

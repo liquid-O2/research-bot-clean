@@ -107,8 +107,18 @@ def session_payload_files(asset, trade_date, open_utc, close_utc):
 
 # ------------------------------------------------------------- extraction ---
 def _merge(ranges):
+    """Merge session-second ranges.  An INVERTED or EMPTY range is dropped.
+
+    Found by the builds lane: a caller that clamped a window at the session
+    open handed `_merge` a `hi < lo` pair and it was written straight into the
+    cache's `cover` metadata as `[0, -685]` — a cover entry that can never be
+    satisfied and silently poisons every later `_covers` test for that session.
+    A range that covers nothing is not a cover.
+    """
     out = []
-    for lo, hi in sorted(ranges):
+    for lo, hi in sorted((int(a), int(b)) for a, b in ranges):
+        if hi <= lo:
+            continue
         if out and lo <= out[-1][1]:
             out[-1] = (out[-1][0], max(out[-1][1], hi))
         else:

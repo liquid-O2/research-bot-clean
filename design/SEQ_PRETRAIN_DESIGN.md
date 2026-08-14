@@ -325,3 +325,88 @@ Context features are standardised with means and standard deviations fitted on t
 **training** rows of each fold only, exactly like the sequence channels; non-finite entries
 are typed-missing and imputed to the training mean with a companion missingness indicator, so
 the fold's normalisation still touches no evaluation row.
+
+---
+
+# AMENDMENT 3 (coordinator, 2026-08-16) — MULTI-HORIZON OBJECTIVE
+
+**The objection this answers, stated plainly:** next-event prediction is a *microsecond*
+objective and our trade is a *tens-of-minutes* object. A representation optimised only to
+guess the next message may spend all of its capacity on queue mechanics that decay long before
+a seat is worth anything. The fix is not to abandon the dense objective — it is the only one
+with a billion supervised targets — but to bias the representation toward slow features by
+adding heads at our own timescale.
+
+**The objective becomes a weighted sum.** Weights are stated here, before the run, and are not
+tuned:
+
+| head | target | weight |
+|---|---|--:|
+| `next` | the next composite event token (cross-entropy over the 3 152-token vocabulary) | **1.00** |
+| `h60` | the next **60 s**, from the position's own timestamp: net mid move in ticks, mid range in ticks, signed aggression balance, book-imbalance change — 4 numbers, Huber | **0.30** |
+| `h300` | the same four at **300 s** | **0.30** |
+| `cpc` | a CPC-style contrastive head: from the representation at position *t*, predict the model's own representation at *t+N* for **N ∈ {64, 256}** events, InfoNCE over the in-batch negatives | **0.20** |
+
+All four targets are computed **causally** from the corpus itself — the h60/h300 summaries look
+only forward *of the position being encoded*, which is legitimate as a training target and is
+never an input; a position whose horizon runs past the end of its contiguous `cover` block is
+**masked out**, never imputed.
+
+**The ablation that answers the timescale question by measurement, not assertion:** the
+already-trained `next`-only trunk is kept and the multi-horizon trunk is trained beside it on
+the identical corpus and boundary. Both are carried through the identical frozen-trunk probe
+and the identical listwise ranker, and the reported row is `NEXT_ONLY` vs `+MULTI_HORIZON` on
+the downstream **member-ranking NDCG@3** and on capture. Each head's loss curve is reported.
+
+---
+
+# AMENDMENT 4 (coordinator, 2026-08-16) — FINAL, then the receipt is FROZEN
+
+1. **Per-event SESSION + PHASE CLOCK channels.** `sin`/`cos` of the session fraction at the
+   first and second harmonic, the phase fraction, and a 3-way phase one-hot. The phase of an
+   event is the phase of the **last candidate at or before it** in the committed m3 matrix —
+   causal by construction, and it reuses the program's own phase determination rather than
+   inventing a second one.
+2. **LEVEL-RELATIVE channels.** Signed tick distance from the event's mid to the nearest two
+   **active kept-family** levels of `artifacts/cache/port/m1/levels_v4/{ASSET}/{d8}.npz`,
+   restricted to `dynamic == 0` rows — the static kept families (FVOL ladder/band anchored at
+   the settle or the opening mid, prior-day, N-day). Those exist from the session open, so
+   their use at any second is causal without needing an intra-day birth time; **dynamic levels
+   are excluded precisely because their birth second would have to be respected and is not
+   carried per event.**
+3. **ASSET-BALANCED batch sampling.** SI is ~44 % of the cached events and NKD ~20 %; batches
+   are drawn with equal probability per asset so the shared trunk is not silently an SI model
+   with two accents.
+4. **STANDING BENCHMARKS during pretraining.** At fixed checkpoints the trunk is frozen, a
+   fixed train subset and a **held-out day set** are embedded, and the member-ranking
+   **NDCG@3** is measured and logged, so learning is visible while it happens instead of only
+   at the end.
+5. **LABELS — no new label derivation.** The ranking head's target is the certificate dollars
+   `cert_close_usd`, ordered on the atlas champion's rank-within-unit transform
+   (`y_retg_rank_phase`), reusing the LABEL_ATLAS_V2 verdict rather than deriving a new label.
+   The GRPO reward stays replayed net P&L (AMENDMENT 1 §A1.3).
+6. **DEPLOYMENT PATH, noted now so it constrains nothing later:** if the results warrant it,
+   the route to production is **embedding → GBT distillation into the frozen classical taker
+   (D-040)** — the sequence model becomes a feature source for the committed model, not a
+   replacement for it.
+
+**THE RECEIPT IS FROZEN AS OF THIS LINE.**
+
+---
+
+# IMPLEMENTATION STATUS OF THIS PASS (written at execution time, not at design time)
+
+A receipt that claims what was not run is worse than no receipt. What this pass executed:
+
+| item | status |
+|---|---|
+| tokenizer, vocabulary 3 152, 1.43 B events | RUN |
+| PRE-A causal corpus (`d8 < 20240101`, 881 M events, 832 423 chunks) | RUN |
+| `next`-only shared trunk, single pass, measured 394 k tok/s / 94 TFLOP/s | RUN |
+| SI-only trunk (A1.1) | RUN |
+| frozen-trunk probe, three-row fusion ablation (A2) | RUN |
+| listwise member-ranking head over (asset, day, class) | RUN |
+| deficit-ledger decomposition of every score | RUN |
+| multi-horizon `h60` / `h300` / `cpc` heads (A3) + clock and level channels (A4.1/2) + asset-balanced sampling (A4.3) + standing NDCG@3 benchmark (A4.4) | see the report's status table |
+| PRE-B full-corpus trunk | NOT RUN — the causal boundary is the honest one and the ceiling was spent on it |
+| GRPO stage 3 (A1.3) | NOT RUN — it begins after the SFT comparison, by design |

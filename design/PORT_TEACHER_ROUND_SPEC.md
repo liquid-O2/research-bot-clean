@@ -103,3 +103,13 @@ R2-11 STANDING EXTRACTION, DURABLE (user): post-round extraction is a standing s
      never a fresh one-off report; TEACHER_FEATURES_V* versioned from it; each next round's curriculum
      facts (R2-10) DERIVE from the ledger's current state automatically — so every round provably inherits
      everything every prior round learned. The E6 extraction seeds the ledger as round-1 columns.
+## 3. ROUND-2 SHAPE RULING (orchestrator, D-092.2 collision resolved by the standing default; user away — flagged for review)
+The measured arithmetic (R2_PERFECTION_AUDIT.md): fixed 107k/day; ribbon-take 58.5k @2min window; 1.3M round.
+RULING: 3 STUDY + 3 BLIND days (vol-matched study per R2-3), 2-MINUTE default ribbon windows (the last-2-min
+carry 51% of approach events on the sample; the reader may consciously widen any window — it spends its own
+measured budget), R2-2 trajectory columns DROPPED (18.5k/day saved; triage uses the base digest). Capacity
+~5.5 ribbon-decided takes/blind-day vs oracle ~9 seats/day — the deepest shape that keeps oracle capture
+reachable. 6-day/1.8-takes and 2-day/9.2-takes shapes documented and rejected (too shallow per day / too few
+days for cluster stats). BLOCKERS ordered closed before launch: S11 one-line fix (future renders; prior
+corpus uniformly refused = no asymmetry), R2-1 tightened (ribbon REQUIRED for takes — chart never suffices),
+contrast sets implemented, brief reads access-ledgered, R2-8 journal tooling built, full R2 stack committed.

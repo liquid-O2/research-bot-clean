@@ -164,18 +164,97 @@ CELL_EVIDENCE = {
 
 
 def F(r, k):
+    """The typed read.  None = REFUSED, never a zero and never a NaN.
+
+    R73: this returned `float(r[k])` unguarded, so a value that was ALREADY a
+    NaN float came back as NaN rather than None — and every comparison against
+    a NaN is False, so a veto's `frac < 0.90` guard passed the row through a
+    SECOND branch that also evaluated False.  "Does not fire" is the pass
+    direction for a veto, so a NaN input silently turned the veto off twice
+    over.  The consumers that feed this module dicts of floats (the batch-5
+    re-grade, `batch5_census._row_dict`) are exactly where NaN arrives.
+    """
     try:
-        return float(r[k])
+        v = float(r[k])
     except Exception:
         return None
+    return None if (v != v or v in (float("inf"), float("-inf"))) else v
+
+
+# R72: `-1` is the EVENT-CACHE REFUSAL SENTINEL for the through-book triple
+# (`batch5_census._pack:409-411` writes it when the event cache is absent or
+# `--no-events` is set; `batch5_census.event_rows:1691-1693` correctly maps
+# `-1 -> NaN` for the same fields).  `_row_dict:1526-1527` passes it RAW, and
+# `v2` then evaluated `tn >= 10` on `-1.0` as if it were data — so under
+# `--no-events` V2's book clause can never fire and the pooled re-grade
+# silently measures a different veto than the one being graded.  A count is
+# never negative: the sentinel (and any negative) is a REFUSAL here.
+THRU_FIELDS = ("thru_n", "thru_bid", "thru_ask")
+THRU_REFUSAL_SENTINEL = -1.0
+
+
+def FT(r, k):
+    """`F` for the through-book triple, with the -1 refusal sentinel refused."""
+    v = F(r, k)
+    if v is None or v <= THRU_REFUSAL_SENTINEL or v < 0:
+        return None
+    return v
 
 
 def sgn(v):
     return 0 if v is None else (1 if v > 0 else (-1 if v < 0 else 0))
 
 
+SIDES = {"LONG": 1, "SHORT": -1}
+
+
 def side_of(r):
-    return 1 if r["side"] == "LONG" else -1
+    """+1 LONG / -1 SHORT / None REFUSED.
+
+    R45: `1 if r["side"] == "LONG" else -1` mapped EVERY unrecognised token to
+    SHORT, which INVERTS the fuel-overhang veto rather than refusing it.
+    Verified on the bytes: every `side` cell of every committed E1 triage index
+    is LONG or SHORT, so no call changes — but the failure mode was silent
+    inversion, not an error.
+    """
+    return SIDES.get(str(r.get("side")))
+
+
+# ------------------------------------------- the declared veto semantics ----
+REFUSED = "R"            # = m2_common.REFUSED_TOKEN
+
+PARAMS = {
+    "spec_section": "CC-M2-17.1 three-stage decomposition (E1 STUDY day 7)",
+    "core_terms": "T1..T5, all REFUSING on a missing input (missing -> the "
+                  "term is False -> SKIP): the conservative direction",
+    "veto_refusal_law": "R73 — for a VETO, 'does not fire' is the PASS "
+                        "direction, so a refused input must not be spelled the "
+                        "same way as a measured absence of overhang. `v2`/`v3` "
+                        "keep their frozen BOOLEAN fire set exactly "
+                        "(CC-M2-8.2: this file is a mechanical baseline); "
+                        "`v2_state`/`v3_state` are three-valued (True / False "
+                        "/ 'R') and every call row carries "
+                        "`v2_state`/`v3_state`/`veto_inputs_refused` so the "
+                        "population split is recoverable",
+    "veto_pass_on_refused_selector": "DECLARED: a veto whose inputs are "
+                                     "refused makes NO STATEMENT about that "
+                                     "row; the row is then decided by CORE + "
+                                     "the stage gates alone. V2 selects the "
+                                     "sub-population whose S8 fuel map AND "
+                                     "through-book are readable; V3 selects "
+                                     "the sub-population whose 60s flow and "
+                                     "1m slope are readable",
+    "thru_refusal_sentinel": "R72 — `thru_n`/`thru_bid`/`thru_ask` == -1 is "
+                             "the event-cache REFUSAL SENTINEL, not a count. "
+                             "It is refused here rather than compared against "
+                             "the >= 10 threshold as a number, so a "
+                             "`--no-events` re-grade is now visibly a "
+                             "different (refused) population instead of a "
+                             "silently never-firing book clause",
+    "nan_is_refused": "R73 — `F()` returns None on a non-finite value; a NaN "
+                      "used to survive `frac < 0.90` and pass through a second "
+                      "branch that also evaluated False",
+}
 
 
 def cell(r):
@@ -205,44 +284,89 @@ def terms(r):
 
 
 # ------------------------------------------------------- (b) V2/V3 vetoes ---
-def v2(r):
-    """FUEL-MAP OVERHANG with the adverse stream still running.  Net-positive
+def v2_state(r):
+    """THREE-VALUED V2 (R72/R73).  True = the veto FIRES, False = it does not
+    fire on READABLE inputs, "R" = its inputs are refused and V2 makes no
+    statement about this row.
+
+    The FIRE set is bit-identical to the frozen boolean rule: every branch that
+    returned True still returns True and every branch that returned False on
+    readable inputs still returns False.  What changes is that the branches
+    which returned False because an input was ABSENT (or was the `-1` sentinel,
+    or was a NaN) now say REFUSED instead of pretending the fuel map was
+    measured and found flat.
+
+    FUEL-MAP OVERHANG with the adverse stream still running.  Net-positive
     refusal on all five study sessions (sole-block 52 rows at -$131.32 with 3
-    winners); RETAINED by CC-M2-16.2."""
+    winners); RETAINED by CC-M2-16.2.
+    """
     side = side_of(r)
+    if side is None:                                   # R45
+        return REFUSED
     ta, tb, pt = F(r, "trapped_above"), F(r, "trapped_below"), F(r, "phase_total")
     if ta is None or tb is None or not pt:
-        return False
+        return REFUSED
     frac = (ta / pt) if side > 0 else (tb / pt)
     if frac < 0.90:
-        return False
+        return False                                   # a measured pass
     s5, v5 = F(r, "f5m_sflow"), F(r, "f5m_vol")
     flow = bool(s5 is not None and v5 and abs(s5) / v5 >= 0.10
                 and ((s5 < 0) == (side > 0)))
-    tn, tbid, task = F(r, "thru_n"), F(r, "thru_bid"), F(r, "thru_ask")
-    book = bool(tn is not None and tn >= 10 and tbid is not None
-                and task is not None
-                and ((tbid >= 2 * task) if side > 0 else (task >= 2 * tbid)))
-    return flow or book
+    if flow:
+        return True
+    tn, tbid, task = FT(r, "thru_n"), FT(r, "thru_bid"), FT(r, "thru_ask")
+    if tn is None or tbid is None or task is None:
+        return REFUSED            # R72: the book clause could not be read
+    if tn >= 10 and ((tbid >= 2 * task) if side > 0 else (task >= 2 * tbid)):
+        return True
+    return False if (s5 is not None and v5) else REFUSED
 
 
-def v3(r):
-    """P018 TWO-STREAM OPPOSITION.  Sole-blocks 27 rows at -$447.36 over five
-    sessions with ONE winner refused; RETAINED by CC-M2-16.2."""
+def v3_state(r):
+    """THREE-VALUED V3, same law as `v2_state`.
+
+    P018 TWO-STREAM OPPOSITION.  Sole-blocks 27 rows at -$447.36 over five
+    sessions with ONE winner refused; RETAINED by CC-M2-16.2.
+    """
     side = side_of(r)
+    if side is None:                                   # R45
+        return REFUSED
     s60, v60 = F(r, "f60_sflow"), F(r, "f60_vol")
     sl = F(r, "slope1m")
-    if s60 is None or not v60 or v60 < 20 or sl is None:
-        return False
+    if s60 is None or v60 is None or sl is None:
+        return REFUSED                                 # R73: refused, not pass
+    if not v60 or v60 < 20:
+        return False                                   # a measured pass
     return bool(abs(s60) / v60 >= 0.10 and ((s60 < 0) == (side > 0))
                 and ((sl < 0) == (side > 0)))
 
 
+def v2(r):
+    """The frozen boolean: the veto FIRES.  CC-M2-8.2 — unchanged behaviour."""
+    return v2_state(r) is True
+
+
+def v3(r):
+    """The frozen boolean: the veto FIRES.  CC-M2-8.2 — unchanged behaviour."""
+    return v3_state(r) is True
+
+
 VETOES = (("V2", v2), ("V3", v3))
+VETO_STATES = (("V2", v2_state), ("V3", v3_state))
 
 
 def veto_list(r):
     return [n for n, f in VETOES if f(r)]
+
+
+def veto_refusals(r):
+    """The vetoes that made NO STATEMENT about this row because their inputs
+    were refused — the counted half of the declared pass-on-refused selector."""
+    return [n for n, f in VETO_STATES if f(r) == REFUSED]
+
+
+def _tok(state):
+    return REFUSED if state == REFUSED else ("1" if state is True else "0")
 
 
 # ------------------------------------------------------------- the gate ----
@@ -408,10 +532,18 @@ def call_day(rows, arm="CORE+READER", vetoes_on=True):
         core_ok = all(t[k] for k in TERMS)
         seat_ok, seat_why = seat_gate(r, arm)
         gate_ok, gate_why = side_gate(r, arm)
-        vl = (veto_list(r) if (vetoes_on and core_ok and seat_ok and gate_ok)
-              else [])
+        asked = bool(vetoes_on and core_ok and seat_ok and gate_ok)
+        vl = veto_list(r) if asked else []
+        vrf = veto_refusals(r) if asked else []
         fire = core_ok and seat_ok and gate_ok and not vl
         out.append({
+            # R72/R73: the declared pass-on-refused selector, made countable.
+            # "-" = the veto was never asked (CORE or a stage gate already
+            # refused the row), which is not a veto refusal.
+            "v2_state": ("-" if not asked else _tok(v2_state(r))),
+            "v3_state": ("-" if not asked else _tok(v3_state(r))),
+            "veto_inputs_refused": "+".join(vrf),
+            "n_veto_inputs_refused": len(vrf),
             "cid": r["cid"], "call": "TAKE" if fire else "SKIP",
             "conf": grade(r), "n_terms": sum(1 for k in TERMS if t[k]),
             "seat_gate": int(bool(seat_ok)),
@@ -450,7 +582,9 @@ def main():
     rows = list(csv.DictReader(lines, delimiter="\t"))
     out = call_day(rows, arm=a.arm, vetoes_on=not a.no_vetoes)
     cols = (["cid", "call", "conf", "n_terms"] + list(TERMS)
-            + ["seat_gate", "side_gate", "vetoes", "sigma_to_exit",
+            + ["seat_gate", "side_gate", "vetoes", "v2_state", "v3_state",
+               "veto_inputs_refused", "n_veto_inputs_refused",
+               "sigma_to_exit",
                "event_in_session", "asset", "phase_dec", "clock", "sec",
                "side", "cls", "cell_call", "cell_seat", "primary", "against"])
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
@@ -464,6 +598,12 @@ def main():
     print("e1d7_policy [%s%s]: %d rows, %d TAKE, %d SKIP -> %s"
           % (a.arm, "" if not a.no_vetoes else " NO-VETO", len(out), n_take,
              len(out) - n_take, a.out))
+    asked = [o for o in out if o["v2_state"] != "-"]
+    print("  VETO REFUSAL ACCOUNTING (R72/R73, declared in PARAMS): vetoes "
+          "asked on %d rows; V2 inputs refused on %d, V3 on %d"
+          % (len(asked),
+             sum(1 for o in asked if o["v2_state"] == REFUSED),
+             sum(1 for o in asked if o["v3_state"] == REFUSED)))
     for cellk, cids in sorted(seat_cells(out).items()):
         print("   SEAT CELL %-12s %3d takes, first = %s"
               % ("/".join(cellk), len(cids), cids[0]))

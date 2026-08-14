@@ -32,6 +32,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import used_cases as UC                                        # noqa: E402
+import warmup_draw as WD                                       # noqa: E402
 
 READER = "opus-discretionary"   # the E1 study reader (ledger header)
 
@@ -232,8 +233,20 @@ def main():
                     help="D-035.2 used-case ledger the seal records into "
                          "(CC-M2-17.4); tests point it elsewhere")
     a = ap.parse_args()
-    idx = {r["cid"]: r for r in
-           csv.DictReader(open(a.index).readlines()[1:], delimiter="\t")}
+    # R26: the CANONICAL reader, never `readlines()[1:]`.  This file skipped
+    # exactly ONE comment line; the V1 index it ran against has 1, every
+    # current-format index has 2 and an as-of prefix view has 3, so a re-run
+    # against a HEAD-format index consumed the version stamp as the header row
+    # and died at `r["cid"]`.  That is why the committed E1 study rows this
+    # seal produced were not mechanically re-runnable from HEAD.
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import triage_index as TI                                     # noqa: E402
+    _irows, _stamps = TI.read_index(a.index)
+    if not _irows or "cid" not in _irows[0]:
+        raise SystemExit("index %s: no `cid` column after the canonical read — "
+                         "refusing rather than parsing a stamp as a header "
+                         "(R26)" % a.index)
+    idx = {r["cid"]: r for r in _irows}
     rows = list(csv.DictReader(open(a.policy), delimiter="\t"))
     rows.sort(key=lambda r: (int(idx[r["cid"]]["sec"]), r["cid"]))
 
@@ -276,6 +289,15 @@ def main():
             "n_terms": r["n_terms"], "terms": r["terms"], "asset": i["asset"],
             "phase_dec": i["phase_dec"], "clock": i["clock"],
             "candidate_class": i["cls"]})
+
+    # ---- R34: THE CC-M2-8.1 WARM-UP EXCLUSION, ON THE DRAW SIDE ----------
+    # Guards run BEFORE any write.  The law ("warm-ups excluded from every
+    # future draw") was stated in this file's own docstring and enforced
+    # nowhere on the draw side — the only enforcement was `used_cases.
+    # check_blind`, which is a ledger-side rule that happens to hold because
+    # all six warm-up sessions are on the ledger as STUDY.
+    WD.assert_draw_lawful([r["cid"] for r in out], mode=WD.MODE_STUDY,
+                          declared=False, who="E1D2")
 
     os.makedirs(os.path.dirname(a.out), exist_ok=True)
     new = not os.path.exists(a.out)

@@ -84,8 +84,30 @@ import csv
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import triage_index as TI                                         # noqa: E402
+
 IDX = ("/workspace/artifacts/cache/port/m2/triage/E1D7_TRIAGE_INDEX.tsv")
 PHASES = ("TOKYO", "LONDON", "NY")
+
+
+def O(r, k):
+    """R18 — THE OBSERVED-COLUMN REFUSAL.
+
+    `short_day`, `observed_close` and `runway_observed` are END-OF-SESSION
+    FACTS: `triage_index` declares them OBSERVED_COLS and masks them under
+    `--as-of` for exactly that reason (`triage_index.py:165-166,638-640`).
+    This brief reads the DAY-COMPLETE index and never a masked prefix, so the
+    mask never applied and the cell panel printed them at cell open — on a
+    short session that tells the reader at 03:00 when the tape will stop,
+    which is directly relevant to the runway and binding-exit terms this day
+    trades.  Every field of the panel now goes through this function, so an
+    observed column can only be printed by editing `triage_index.OBSERVED_COLS`
+    itself.
+    """
+    if k in TI.OBSERVED_COLS:
+        return "REFUSED(end-of-session fact, OBSERVED_COL, R18)"
+    return r.get(k)
 
 
 def F(r, k):
@@ -303,8 +325,8 @@ def seat_panel(rows, asset, phase, open_sec, prior_state):
                     r["near_d"], r["or_state"]))
         o.append("  S12 sched_last_age=%s sched_next_in=%s (release inside "
                  "this session?)   short_day=%s observed_close=%s"
-                 % (r["sched_last_age"], r["sched_next_in"], r["short_day"],
-                    r["observed_close"]))
+                 % (O(r, "sched_last_age"), O(r, "sched_next_in"),
+                    O(r, "short_day"), O(r, "observed_close")))
     else:
         o.append("  (no row at the cell open second — should not happen)")
     if prior_state is not None:

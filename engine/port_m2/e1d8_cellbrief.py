@@ -37,6 +37,26 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import triage_index as TI                                         # noqa: E402
+
+
+def O(r, k):
+    """R18 — THE OBSERVED-COLUMN REFUSAL.
+
+    `short_day`, `observed_close` and `runway_observed` are END-OF-SESSION
+    FACTS: `triage_index` declares them OBSERVED_COLS and masks them under
+    `--as-of` for exactly that reason (`triage_index.py:165-166,638-640`).
+    This panel reads the DAY-COMPLETE index (`:42`) and never a masked prefix,
+    so the mask never applied and the cell panel printed them AT CELL OPEN —
+    on a short session that tells the reader at 03:00 when the tape will stop,
+    which is directly relevant to the runway and binding-exit terms this day
+    trades.  Fields go through this function so an observed column can only be
+    printed by editing `triage_index.OBSERVED_COLS` itself.
+    """
+    if k in TI.OBSERVED_COLS:
+        return "REFUSED(end-of-session fact, OBSERVED_COL, R18)"
+    return r.get(k)
+
 
 TRIAGE = "/workspace/artifacts/cache/port/m2/triage"
 IDX = os.path.join(TRIAGE, "E1D8_TRIAGE_INDEX.tsv")
@@ -258,9 +278,9 @@ def main():
              r0.get("spread_dec"), r0.get("cost_rt")))
     print("  S12 sched_last_age=%s sched_next_in=%s (release inside session?) "
           "| short_day=%s observed_close=%s | fvol_source=%s"
-          % (r0.get("sched_last_age"), r0.get("sched_next_in"),
-             r0.get("short_day"), r0.get("observed_close"),
-             r0.get("fvol_source")))
+          % (O(r0, "sched_last_age"), O(r0, "sched_next_in"),
+             O(r0, "short_day"), O(r0, "observed_close"),
+             O(r0, "fvol_source")))
     print("  FORECASTER: predicted_day_type_prob=%s range_hat_vs_trailing=%s "
           "menu_hat=%s  (CC-M2-17.2: VOID in E1)"
           % (r0.get("predicted_day_type_prob"),

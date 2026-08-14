@@ -54,6 +54,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import used_cases as UC                                        # noqa: E402
+import warmup_draw as WD                                       # noqa: E402
 
 READER = "opus-discretionary"   # the E1 study reader (ledger header)
 import e1d5_policy as POLICY                                   # noqa: E402
@@ -371,6 +372,15 @@ def main():
     cols = ("cid call conf primary against interaction novel premortem "
             "minimal_pair flip_threshold sections_read depth taint n_terms "
             "terms asset phase_dec clock candidate_class").split()
+    # ---- R34: THE CC-M2-8.1 WARM-UP EXCLUSION, ON THE DRAW SIDE ----------
+    # Guards run BEFORE any write.  The law ("warm-ups excluded from every
+    # future draw") was stated in this file's own docstring and enforced
+    # nowhere on the draw side — the only enforcement was `used_cases.
+    # check_blind`, which is a ledger-side rule that happens to hold because
+    # all six warm-up sessions are on the ledger as STUDY.
+    WD.assert_draw_lawful([r["cid"] for r in out], mode=WD.MODE_STUDY,
+                          declared=False, who="E1D5")
+
     with open(a.ledger, "a", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols, delimiter="\t",
                            extrasaction="ignore", lineterminator="\n")

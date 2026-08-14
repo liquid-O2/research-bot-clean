@@ -41,10 +41,21 @@ P009 own-asset fuel is dead twice over; P029 is dead as a rule (era-period
 trend).  What remains uncensused is S10's developing-profile GEOMETRY:
  S2c  `d_POC` with `in_VA` at the cell open — price OUTSIDE developing value
       by >= T dollars calls the side BACK TOWARD VALUE.
- S2e  the ROLLING form of the same field (day 7's lesson applied to stage 2):
-      the profile read at the cell's own first row is the same stale-anchor
-      hazard that broke P030 — so the geometry is ALSO scored at the cell's
-      MEDIAN row, and the difference between the two anchors is reported.
+ S2e  STRUCK — UNIMPLEMENTABLE (R19).  S2e was "the same field read at the
+      cell's MEDIAN row", offered as day 7's stale-anchor lesson applied to
+      stage 2.  It is not an estimator at all: the median row sits HOURS after
+      the cell open, and at the cell open you cannot know which row will turn
+      out to be the median.  It was nevertheless scored in the same
+      pre-registration table, on the same truth, as the causal `@open`
+      variants — one verdict away from adoption on the strength of a number no
+      instrument could ever have produced.  It is now EXCLUDED FROM THE TABLE
+      and reported as a refusal; the row that used to carry it prints the
+      reason.  (Harmless in outcome — CC-M2-21.2 ruled S10 side DEAD at all
+      grains — and a defect in the instrument regardless.)
+      THE CAUSAL FORM, if the stale-anchor question is ever re-opened: read the
+      SAME field at a fixed OFFSET after the open (e.g. open+1800s) and score
+      only cells whose phase still has that much runway, which is knowable at
+      the moment it is read.  Not run here; registered, not implemented.
 Every side estimator is reported WITH ITS MIRROR on the winner-bearing cells
 (CC-M2-13.1) and with the count of SESSIONS LOST.
 
@@ -224,6 +235,30 @@ def cell_rows(rows, asset, phase):
     return [r for r in rows if r["asset"] == asset and r["phase_dec"] == phase]
 
 
+# -------------------------------------------------- R19: causal anchors -----
+# The ROW of a cell a side estimator is allowed to read.  An anchor is legal
+# only if the row it selects can be IDENTIFIED AT THE CELL OPEN.  `open` can;
+# the struck S2e anchor (`cr[len(cr) // 2]`, the cell's MEDIAN row) cannot —
+# it sits hours later and you cannot know at the open which row will turn out
+# to be the median.  Estimators iterate this registry, so an unimplementable
+# anchor cannot be scored beside a causal one without being registered here
+# and failing `assert_anchor_causal`.
+ANCHORS = (("open", "0", lambda cr: cr[0]),)
+
+
+def assert_anchor_causal(cr, name, row):
+    """REFUSE an anchor whose row is not identifiable at the cell open."""
+    if int(float(row["_sec"])) != int(float(cr[0]["_sec"])):
+        raise SystemExit(
+            "R19 ANCHOR REFUSAL: estimator anchor %r selects a row at sec=%s "
+            "in a cell that opens at sec=%s. At the cell open you cannot know "
+            "which row that will be, so this is not an estimator — it is a "
+            "post-hoc reading, and it must not be scored in the same "
+            "pre-registration table as the @open variants."
+            % (name, row["_sec"], cr[0]["_sec"]))
+    return True
+
+
 def s10_side(d_poc, in_va, t):
     if d_poc is None or in_va is None or in_va != 0 or abs(d_poc) < t:
         return None
@@ -245,13 +280,22 @@ def stage2_backtest():
             if not t:
                 continue
             cr = cell_rows(rows, asset, phase)
-            r0 = cr[0]
-            rm = cr[len(cr) // 2]
-            rec.append(dict(
-                day=tag, asset=asset, phase=phase,
-                truth="LONG" if t[0] > t[1] else "SHORT", n_win=t[0] + t[1],
-                d0=F(r0, "d_POC"), v0=F(r0, "in_VA"),
-                dm=F(rm, "d_POC"), vm=F(rm, "in_VA")))
+            # R19: the cell's MEDIAN row (`cr[len(cr) // 2]`) used to be read
+            # here and scored as estimator S2e.  It sits hours after the cell
+            # open and cannot be identified AT the open, so it is not computed
+            # at all any more — an unimplementable estimator must not be in a
+            # pre-registration table beside the causal ones.  Every anchor now
+            # comes from the registry and is checked.
+            e = dict(day=tag, asset=asset, phase=phase,
+                     truth="LONG" if t[0] > t[1] else "SHORT",
+                     n_win=t[0] + t[1], n_rows=len(cr),
+                     open_sec=int(float(cr[0]["_sec"])))
+            for _nm, _key, _pick in ANCHORS:
+                _r = _pick(cr)
+                assert_anchor_causal(cr, _nm, _r)
+                e["d" + _key] = F(_r, "d_POC")
+                e["v" + _key] = F(_r, "in_VA")
+            rec.append(e)
     print("\nSTAGE 2 — S10 GEOMETRY (the only hand side-instrument CC-M2-18.3 "
           "leaves standing), %d winner-bearing cells over %d sessions"
           % (len(rec), len(DAYS)))
@@ -260,10 +304,7 @@ def stage2_backtest():
         "sess.lost"))
     for label, key, t in [("S2c d_POC@open   |d|>=$250", "0", 250.0),
                           ("S2c d_POC@open   |d|>=$500", "0", 500.0),
-                          ("S2c d_POC@open   |d|>=$1000", "0", 1000.0),
-                          ("S2e d_POC@median |d|>=$250", "m", 250.0),
-                          ("S2e d_POC@median |d|>=$500", "m", 500.0),
-                          ("S2e d_POC@median |d|>=$1000", "m", 1000.0)]:
+                          ("S2c d_POC@open   |d|>=$1000", "0", 1000.0)]:
         ri = wr = si = 0
         per = {}
         for c in rec:
@@ -282,6 +323,15 @@ def stage2_backtest():
               % (label, ri, wr, si,
                  "%.3f" % (ri / dec) if dec else "-",
                  "%.3f" % (wr / dec) if dec else "-", lost))
+    print("%-34s %5s %5s %6s %8s %7s %8s   <- R19"
+          % ("S2e d_POC@median |d|>=any", "R", "R", "R", "REFUSED", "R", "R"))
+    print("  S2e IS STRUCK FROM THIS TABLE AND NOT COMPUTED: the cell's median "
+          "row sits hours after the cell open and cannot be identified AT the "
+          "open, so no instrument could ever produce this column. It was "
+          "scored here beside the causal @open variants on the same truth. "
+          "The causal replacement, if the stale-anchor question is re-opened, "
+          "is the SAME field at a FIXED OFFSET after the open on cells with "
+          "that much runway left — registered, not implemented.")
     return rec
 
 

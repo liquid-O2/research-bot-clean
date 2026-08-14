@@ -59,6 +59,25 @@ POLICY EVOLUTION (CC-M2-20.2 allows evolution BETWEEN days via committed
 notes only).  `VERSIONS` below is the whole history: every entry names the
 blind day it takes effect from and the BLIND_NOTES.md section that argued it.
 A day is always sealed with the version pinned by `--day`.
+
+DECLARED BEHAVIOUR ON REFUSED INPUTS.  The CORE terms and V2 come from
+`e1_blind_declared_policy` unchanged, and its declaration block governs them
+(CORE refuses -> SKIP; V2 passes on refused inputs, declared as an explicit
+selector, counted in `v2_inputs_refused`).  Two more, on this module's own
+increments:
+  * `grade()` R24: a refused M_hat cannot be graded.  The WIRE token stays "C"
+    because `panel_score` validates the ledger's `conf` column against
+    {A,B,C} and an "R" there would refuse the whole ledger — so the refusal is
+    carried in its own COUNTED column, `conf_refused`, plus the existing
+    `grade_why` text.  The CC-M2-4.4 calibration pass drops
+    `conf_refused == 1` rows rather than scoring them as genuine Cs.
+  * `minimal_pair()` R20: the SKIP pool is constrained to rows with
+    `sec <= the seat's sec`.  It used to be the DAY-COMPLETE call list, so the
+    "nearest non-take" could sit AFTER the seat and its `f60_n` / `f60_vol` /
+    `runway_phase` / `extreme_age_trade_side` / `f5m_sflow` / `f5m_vol` — post-
+    decision values — were written into the committed blind row.  The call was
+    never affected (`call_day` is a pure per-row function); the sealed
+    ARTEFACT was.
 """
 import argparse
 import csv
@@ -114,11 +133,21 @@ def m_hat(r):
 
 
 def grade(r):
+    """-> (wire_token, why).  R24: the refusal is NOT hidden inside the "C"
+    band — `grade_refused` is emitted as its own counted column and the
+    calibration pass drops those rows.  The wire token stays inside {A,B,C}
+    because `panel_score` refuses any other value in the ledger's conf column
+    (`panel_score.py:69,164`), which would make the whole day unscoreable."""
     m, src = m_hat(r)
     if m is None:
-        return "C", "M_hat unavailable"
+        return "C", "M_hat REFUSED (no q50 and no rv1800) — graded C on the "\
+                    "wire, counted as a refusal in conf_refused (R24)"
     g = "A" if m >= GRADE_A else ("B" if m >= GRADE_B else "C")
     return g, "M_hat=$%.0f via %s" % (m, src)
+
+
+def grade_refused(r):
+    return int(m_hat(r)[0] is None)
 
 
 def klass(r, params):
@@ -127,15 +156,17 @@ def klass(r, params):
     return r.get("cls") in params["classes"]
 
 
-def call_day(rows, day=1):
+def call_day(rows, day=1, path=""):
     """The reader's day-complete calls, chronological."""
+    D.assert_columns(rows, path=path)         # R22: the D16 schema assertion
     _dfrom, ver, params, _note = version_for(day)
     out = []
     for r in sorted(rows, key=lambda x: (int(float(x["sec"])), x["cid"])):
         t = D.terms(r)
         cls_ok = klass(r, params)
         core_ok = all(t[k] for k in D.TERMS)
-        vetoed = D.v2(r) if (cls_ok and core_ok) else False
+        vst = D.v2_state(r) if (cls_ok and core_ok) else "-"
+        vetoed = vst is True
         fire = cls_ok and core_ok and not vetoed
         g, gwhy = grade(r)
         prim = D.evidence(r, t, cls_ok, vetoed)
@@ -148,10 +179,21 @@ def call_day(rows, day=1):
                     % r.get("cls"))
         out.append({
             "cid": r["cid"], "call": "TAKE" if fire else "SKIP",
-            "conf": g, "grade_why": gwhy,
+            "conf": g, "grade_why": gwhy, "conf_refused": grade_refused(r),
             "n_terms": sum(1 for k in D.TERMS if t[k]),
             "cls_gate": int(cls_ok), "core": int(core_ok),
             "vetoes": "V2" if vetoed else "",
+            # R21: V2's declared pass-on-refused selector, counted per row.
+            "v2_state": ("-" if vst == "-" else
+                         (D.REFUSED if vst == D.REFUSED
+                          else ("1" if vst is True else "0"))),
+            "v2_inputs_refused": int(vst == D.REFUSED),
+            # R51: T2 reads the NOMINAL runway; the flag is what lets the
+            # scoring pass report short-session seats separately.
+            "short_day": D.short_day_flag(r),
+            "runway_observed": (r.get("runway_observed")
+                                if r.get("runway_observed") not in
+                                (None, "", ".") else D.REFUSED),
             "primary": prim, "against": D.against(r),
             "asset": r["asset"], "phase_dec": r["phase_dec"],
             "clock": r["clock"], "sec": int(float(r["sec"])),
@@ -173,14 +215,27 @@ def seats(calls):
 
 
 def minimal_pair(cid, calls, rows):
-    """Nearest non-TAKE in the same cell + the exact fields that differ."""
+    """Nearest non-TAKE in the same cell + the exact fields that differ.
+
+    R20 (CAUSALITY): the pool is STRICTLY `sec <= the seat's sec`.  It was the
+    day-complete call list, so the nearest SKIP could sit hours after the seat
+    and this function then wrote that later row's `f60_n`, `f60_vol`,
+    `runway_phase`, `extreme_age_trade_side`, `f5m_sflow` and `f5m_vol` — the
+    post-decision price/flow path — into the committed blind artefact.  It is
+    the one place post-decision VALUES entered the sealed blind row
+    automatically, and it is CC-M2-5.7's elicitation instrument, so the pair
+    has to be one the reader could actually have held up at the decision.
+    """
     by = {r["cid"]: r for r in rows}
     me = next(c for c in calls if c["cid"] == cid)
     pool = [c for c in calls
             if c["asset"] == me["asset"] and c["phase_dec"] == me["phase_dec"]
-            and c["call"] == "SKIP"]
+            and c["call"] == "SKIP" and c["sec"] <= me["sec"]]
     if not pool:
-        return ""
+        return ("MINIMAL PAIR: REFUSED — no non-TAKE of this cell exists at or "
+                "before the seat's own decision second, and a pair drawn from "
+                "later in the session would put post-decision field values "
+                "into this row (R20).")
     near = min(pool, key=lambda c: (abs(c["sec"] - me["sec"]), c["cid"]))
     a, b = by[cid], by[near["cid"]]
     diffs = []
@@ -271,12 +326,14 @@ def main():
     p.add_argument("--day", type=int, required=True)
     p.add_argument("--out", required=True)
     a = p.parse_args()
-    with open(a.index) as fh:
-        rows = list(csv.DictReader([ln for ln in fh if not ln.startswith("#")],
-                                   delimiter="\t"))
-    calls = call_day(rows, a.day)
-    cols = (["cid", "call", "conf", "grade_why", "n_terms"] + list(D.TERMS)
-            + ["cls_gate", "core", "vetoes", "asset", "phase_dec", "clock",
+    import triage_index as TI                                     # noqa: E402
+    rows, stamps = TI.read_index(a.index)        # R26: the CANONICAL reader
+    D.assert_columns(rows, stamps=stamps, path=a.index)
+    calls = call_day(rows, a.day, path=a.index)
+    cols = (["cid", "call", "conf", "conf_refused", "grade_why", "n_terms"]
+            + list(D.TERMS)
+            + ["cls_gate", "core", "vetoes", "v2_state", "v2_inputs_refused",
+               "short_day", "runway_observed", "asset", "phase_dec", "clock",
                "sec", "side", "cls", "version", "primary", "against"])
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "w", newline="") as fh:
@@ -288,6 +345,13 @@ def main():
     n = sum(1 for c in calls if c["call"] == "TAKE")
     print("e1blind_policy day %d (%s): %d rows, %d TAKE -> %s"
           % (a.day, version_for(a.day)[1], len(calls), n, a.out))
+    print("  REFUSAL ACCOUNTING: conf refused %d; V2 asked %d, inputs refused "
+          "%d; short-session rows %d  [index columns_sha16=%s]"
+          % (sum(c["conf_refused"] for c in calls),
+             sum(1 for c in calls if c["v2_state"] != "-"),
+             sum(c["v2_inputs_refused"] for c in calls),
+             sum(1 for c in calls if c["short_day"] == "1"),
+             stamps.get("columns_sha16", "-")))
     for k, cid in sorted(seats(calls).items()):
         print("   SEAT %-12s %s" % ("/".join(k), cid))
 

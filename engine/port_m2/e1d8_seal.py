@@ -44,6 +44,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import e1d8_policy as POLICY                                   # noqa: E402
 import used_cases as UC                                        # noqa: E402
+import warmup_draw as WD                                       # noqa: E402
 
 LEDGER = "/workspace/provenance/port_m2/E1_STUDY_LEDGER.tsv"
 READER = "opus-discretionary"
@@ -238,6 +239,37 @@ V3_NOTE = ("ADVISORY V3 (P018 TWO_STREAM_OPPOSITION) fires on this row and is "
            "logged on every row so the re-grade gets this session's count.")
 
 
+# The write loop indexes no per-cell table bare (`SEATS` is read through
+# `.get(cell, "-")`, R49's original fix), so only the veto vocabulary is
+# checked here.
+TABLES = ()
+
+
+def assert_cell_tables(calls):
+    """R49: REFUSE BEFORE THE WRITE, never KeyError mid-write.
+
+    The per-cell tables in this file and in the policy are hand-written.  A
+    cell they do not list used to kill the seal with a `KeyError` in the middle
+    of the row loop, after every row had been buffered — a half-built seal with
+    a traceback instead of a refusal.  Every table the write loop indexes is
+    checked here, once, against the cells the day actually produced.
+    """
+    cells = sorted({(c["asset"], c["phase_dec"]) for c in calls})
+    missing = []
+    for name, table in TABLES:
+        for k in cells:
+            if k not in table:
+                missing.append("%s missing %s/%s" % (name, k[0], k[1]))
+    vets = sorted({v for c in calls for v in c["vetoes"].split("+") if v})
+    for v in vets:
+        if v not in VETO_SHORT:
+            missing.append("VETO_SHORT missing %s" % v)
+    if missing:
+        raise SystemExit("seal REFUSED before writing anything (R49): %s"
+                         % "; ".join(missing))
+    return True
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--index", required=True)
@@ -250,6 +282,7 @@ def main():
         rows = list(csv.DictReader([ln for ln in fh if not ln.startswith("#")],
                                    delimiter="\t"))
     calls = POLICY.call_day(rows, arm="CORE+SEAT")
+    assert_cell_tables(calls)
     by_cid = {r["cid"]: r for r in rows}
     for cid in list(DEEP) + list(MINIMAL_PAIR) + list(FLIP) + list(PM):
         if cid not in by_cid:
@@ -306,6 +339,15 @@ def main():
     cols = ("cid call conf primary against interaction novel premortem "
             "minimal_pair flip_threshold sections_read depth taint n_terms "
             "terms asset phase_dec clock candidate_class").split()
+    # ---- R34: THE CC-M2-8.1 WARM-UP EXCLUSION, ON THE DRAW SIDE ----------
+    # Guards run BEFORE any write.  The law ("warm-ups excluded from every
+    # future draw") was stated in this file's own docstring and enforced
+    # nowhere on the draw side — the only enforcement was `used_cases.
+    # check_blind`, which is a ledger-side rule that happens to hold because
+    # all six warm-up sessions are on the ledger as STUDY.
+    WD.assert_draw_lawful([r["cid"] for r in out], mode=WD.MODE_STUDY,
+                          declared=False, who="E1D8")
+
     with open(a.ledger, "a", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols, delimiter="\t",
                            extrasaction="ignore", lineterminator="\n")

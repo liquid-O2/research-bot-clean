@@ -369,7 +369,22 @@ def main():
     ap.add_argument("--index", required=True)
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
-    rows = list(csv.DictReader(open(a.index).readlines()[1:], delimiter="\t"))
+    # R26: the CANONICAL reader, never `readlines()[1:]`.
+    # This file skipped exactly ONE comment line.  The V1 indices it was
+    # written against carry 1; every current-format index carries 2
+    # (`triage_index.py:788-790`) and an as-of prefix view carries 3
+    # (`:792-794`), so re-running it against a HEAD-format index consumed the
+    # version stamp as the header row and died at `r["cid"]` — which is why
+    # the committed E1 study rows were not re-runnable from HEAD.
+    # `read_index` skips every `#` line however many there are, returns the
+    # header stamps, and fills BOTH spellings of every renamed column.
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import triage_index as TI                                     # noqa: E402
+    rows, _stamps = TI.read_index(a.index)
+    if not rows or "cid" not in rows[0]:
+        raise SystemExit("index %s: no `cid` column after the canonical read — "
+                         "refusing rather than parsing a stamp as a header "
+                         "(R26)" % a.index)
     rows.sort(key=lambda r: (int(r["sec"]), r["asset"], r["cid"]))
 
     held, out = {}, []

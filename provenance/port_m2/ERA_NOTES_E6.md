@@ -104,3 +104,18 @@ reset, price ON a level that has already been tested, and signed flow one-sided 
 5-minute and phase windows. Where that structure was absent the reader took nothing, including all three
 NKD books (NKD never presented it on any of the three days) and every phase that had already spent its
 expected move without a level or flow to go with it.
+
+## E6 BLIND ADJUDICATION (orchestrator, unsealed + scored via episode_round.score, receipts artifacts/cache/port/m2/e6_round/blind_score/)
+- TAKE POOL (the sealed ledgers are authoritative — 22 TAKEs, not the report's "8"): total +$6,284 over 3 days
+  (+$1,978 / +$4,016 / +$290 — ALL THREE DAYS POSITIVE, the program's first positive sealed blind block),
+  mean +$286/trade, 4 winners >= $1k bar, precision 0.182 vs pooled base ~0.077 = 2.4x.
+- BAR (b) PASS: take-pool mean > 0 AND precision 2.4x >= 1.3x base. BAR (a) NULL at n=9 clusters (no
+  significant margin vs any mechanical arm either direction; CLASS_CARD points better at k=5-10, Holm p=1.0).
+  BAR (c) capture 14.8% of DP ceilings ($6,284/$42,533) — short of the seat-capture aspiration.
+- CALIBRATION: stated p mean 0.185 vs realized winner rate 0.182 — near-perfect on day one of Brier scoring;
+  the confidence signal is REAL and distillable (replaces the disqualified A|B|C).
+- CONTEXT: era-structural handicap (study 58% LOW-vol; blind 86% HIGH-vol); NKD 0 takes on 2 of 3 days by
+  its own structure test; token economics measured ~110k/3-asset day marginal.
+- D-079 STATUS: teacher NOT yet at "amazing grades" (oracle capture ~15%, target-class 90% unmet) but the
+  first calibrated positive blind exists; branch = ITERATE (more eras/days under D-087/D-088 as budget
+  allows) + EXTRACT NOW (the 6-day transcript+outcome corpus is teaching material regardless).

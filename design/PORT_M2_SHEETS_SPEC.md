@@ -439,3 +439,22 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
    seat-spender split live). ERA_NOTES §67 mechanism corrected per the lane's finding (the $0.00 delta came
    from identical successor replay, not from no-seat-spender-vetoed). Autostash-clears-index process note
    circulated to future briefs.
+
+## CC-M2-19 — E1 Day-7 adjudications (orchestrator, 2026-08-14; BINDING)
+1. STAGE-1 FORM CORRECTED: seat state is a ROLLING PER-ROW object (row-level rv1800 >= 250 holds 92.8% of
+   7-session winners vs 1.76% below), not a per-cell call — cell-open anchors go stale on long phases. The
+   batch-4 seat model stands (its AUC is real) but refits on rolling anchors in batch 5; P030's
+   feature-not-gate ruling is day-complete-receipted (the gate use discarded 85% of a day's winners).
+2. COMPOSITION ORDER MEASURED: side first (+$2,030 oracle), feasibility second (-$268 oracle-seat alone),
+   moment not free (40% capture on right-cell-right-side). M3 composes in that order.
+3. P025 BROKEN at 361/361 (54/123 winners below the floor on day 7) -> P033 = runway x rv1800, census-first,
+   never traded raw. The streak-then-break is the standing sample-size sermon, preserved.
+4. `unspent_sess` RESURRECTED into the seat-model feature set (dropped as non-signal; would have scored
+   0.667/0.911 on day-7 seats). V2/V3 veto families: pooled RE-GRADE ordered including days 6-7 (V3 is
+   net-negative two straight sessions with $0 replay delta thrice — the pooled law decides, not me).
+5. D21 (seal boundary swept into an unrelated commit — my own): the seal CONTENT was committed before any
+   unblinding, so protocol integrity holds; the marker commit is the honest record. Orchestrator commit
+   discipline tightened: no --autostash pulls while reader lanes are sealing; status-check before add.
+6. CENSUS BATCH 5 SCOPE (launching): S10 d_POC/in_VA side geometry (mirror law); P032 (vs CC-M2-18.1's
+   opposite sign — settle it); P033; ROLLING seat-model refit (+unspent_sess, row anchors); V2/V3 pooled
+   re-grade; the S7/S8 event-statistic censuses (c2f, erosion, through-book) on the full event cache.

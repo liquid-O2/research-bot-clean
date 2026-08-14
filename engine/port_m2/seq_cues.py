@@ -89,6 +89,18 @@ def for_window(asset, trade_date, iid, open_utc, close_utc, lo_sec, hi_sec):
     arrays, _meta = TAPE.ensure(asset, trade_date, iid, open_utc, close_utc,
                                 [(int(lo_sec) - 2, int(hi_sec) + 1)])
     w, _i, _j = TAPE.window(arrays, open_utc, lo_sec, hi_sec + 1)
+    return cues_from_window(w)
+
+
+def cues_from_window(w):
+    """THE cue arithmetic, on an already-sliced `TAPE.window` dict.
+
+    `for_window` is (cache load + slice + this).  The split exists so a census
+    over tens of thousands of episodes can `TAPE.ensure` a session ONCE and
+    slice it per episode, instead of re-opening the same npz per episode
+    (measured: 0.37 s/episode re-opening vs ~6 ms sliced).  There is exactly
+    ONE copy of the arithmetic and it is the one below (D-006).
+    """
     n = int(w["ts_ns"].size)
     out = {"n_ev": n, "ask_reload": 0, "bid_reload": 0, "stack_asym": 0.0,
            "hit_ask": 0, "hit_bid": 0,

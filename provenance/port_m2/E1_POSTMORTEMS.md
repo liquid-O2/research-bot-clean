@@ -1449,3 +1449,9 @@ first side-use was the day's best call.
   statistics; §7 shows a family can be strongly net-positive on the pool and worth exactly $0 in
   replay because it never fires on a seat-spender. **Veto censuses must report the seat-spender
   sub-population separately.**
+* **USED-CASE LEDGER GAP FOUND AND BACKFILLED.** `USED_CASE_LEDGER.tsv` carried days 1-4 and the
+  warm-up but **not 2021-07-07 (day 5)** — the day-5 lane never ran `used_cases record`, so a
+  day-complete STUDY session was un-tainted in the one-way taint register and could have entered a
+  BLIND draw. Backfilled here for both 2021-07-07 and 2021-07-08 (2,803 entries, round
+  `E1D5-E1D6-backfill`). **The seal step must call `used_cases record` — it is currently a manual
+  step outside every day's tooling.**

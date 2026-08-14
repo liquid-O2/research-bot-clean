@@ -1,7 +1,7 @@
 # STATE — fast cursor (rewritten at every boundary)
 
 LAST_UPDATED: 2026-08-16T14:40Z by orchestrator
-STAGE: THE MEASUREMENT CAMPAIGN IS COMPLETE — every entry-side, information-side, and management-side branch measured with receipts; the closing decision brief below awaits the user (returns this evening). No lanes running; budget conserved (~90% weekly used).
+STAGE: THE FIRST REAL JUMP LANDED (cell-grouped LambdaMART+history: $936/session pooled, E8/GATE-echo $1,774 = 89% of bar; seating defect fixed — foresight $3,344 = 1.67x bar, the goal is inside the trade shape). Fixpass2 re-seats + reports; then: SEL_WRONG_SIDE front, exits (parked, user's call), 2025-H2 one-shot when ready. Prior campaign text below stands as history. — every entry-side, information-side, and management-side branch measured with receipts; the closing decision brief below awaits the user (returns this evening). No lanes running; budget conserved (~90% weekly used).
 BINDING: DIRECTIVES D-001..D-093 + PORT_TEACHER_ROUND_SPEC (all R2) + cue-ledger discipline.
 WHAT IS NOW KNOWN (all committed, all instruments receipt-clean):
 1. The pre-entry tape AT confirmation does not separate winner from loser — proven by THREE independent extractors (features 57.5%, GBT, Opus-on-pure-raw 40% on 30 blind pairs). Not a data problem, not a judgment problem: the decision point itself.

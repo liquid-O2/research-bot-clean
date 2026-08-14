@@ -296,3 +296,25 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
    lives in the model; the reader's job is evidence), and it is on record.
 4. Provenance: the E1D3 lane swept another lane's in-flight edits again (pathspec rule not held) — brief
    language hardened; the TRIAGE-INDEX-V2 version stamp now prevents the silent-column-drift class.
+
+## CC-M2-12 — E1 Day-3 adjudications (orchestrator, 2026-08-14; BINDING)
+1. D14 SCAN-EXPOSED = a real protocol leak, BLIND-GATING: the day-complete triage index reveals later rows'
+   mids (post-decision price paths) to earlier decisions. RULINGS: (a) the AS-OF PREFIX VIEW mechanic is
+   MANDATORY before any BLIND round — candidates processed chronologically with the index revealed
+   incrementally; (b) study days 1-3 retro-marked SCAN-EXPOSED in the record (day-3 rows carry it; days 1-2
+   noted); study diagnostics unaffected in status (already non-quotable), but the exposure is named.
+2. D15 holiday/early-close: index gains short_day + observed_close columns NOW (receipt-derived, no
+   re-render); the S3 runway fix (use observed close) queues for the V1.2 render bundle.
+3. THE SEPARATOR FINDING RATIFIED AS LEADING STATE: release-inside-session (S12 next_scheduled vs runway) is
+   strictly ex-ante, splits day-1/day-2 perfectly, and flips flow-pattern signs — it feeds the regime
+   forecaster (already in its feature set) and becomes an index column. Its limit is on record too: it is a
+   FACT about which patterns apply, not a direction compass (the repair attempts all failed).
+4. NY-INVARIANT STRUCK -> P025 RUNWAY_TO_BINDING_EXIT: the 86/86 'NY' concentration was proxying runway to
+   the phase-close seat (day-3's 8 winners = TOKYO longs exiting the 07:00 boundary). CENSUS BATCH 3
+   ORDERED: P025 (the structural candidate), P023 ABSORPTION_TWO_STREAM_ENTRY (68-10 day-3), P024
+   REFAIL_REVERSION, P007-as-entry. Same discipline; concentrator-vs-rule vocabulary.
+5. Convergences on record: momentum/waiting terms 3-for-3 value-destroying across three disguises (anti-chase
+   -> feature program); only 3-day-positive terms = live book (P004) + fresh trade-side extreme.
+6. D13 (V2 docstring vs code) folded into the batch-3 lane. Reader protocol note ratified: declared
+   discretionary overrides with the rule's backtest on record pre-seal = lawful and encouraged (day 3's
+   override beat every mechanical arm).

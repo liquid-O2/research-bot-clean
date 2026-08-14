@@ -44,6 +44,17 @@ WHAT MAKES IT LAWFUL
   the guard by naming its date, i.e. turn D11 into a hole in D-035.2.  The
   red-first mutant (test_pattern.t12) ignores the flag and must be caught.
 
+  THE QUERY'S OWN SESSION IS EXCLUDED UNCONDITIONALLY (R17; CC-M2-9.4 is
+  BINDING: "within-round retrieval is barred").  D11 gave the tool the
+  mechanism and then DEFAULTED IT TO EMPTY, so the only protection against
+  retrieving same-session neighbours — whose S14 outcomes belong to the round
+  in flight — was the docstring's "sequencing is the round driver's
+  responsibility".  A caller who forgot the flag got the leak.  The default is
+  now the safe one: `retrieve()` drops every pool member sharing the query's
+  (asset, date8), and `--include-own-date8` is the explicit, counted opt-out
+  for post-round analysis.  `--exclude-date8` still exists and still narrows
+  further; the two compose.
+
 THE DISTANCE (pinned; every field comes from the committed receipts through
 pattern_lib.frame, so retrieval and the censuses read ONE definition)
 
@@ -153,6 +164,9 @@ PARAMS = {
                      "pool AFTER the taint guard has passed on the full pool; "
                      "the exclusion narrows a lawful pool and can never widen "
                      "one",
+    "own_session": "R17/CC-M2-9.4 — the query's own (asset, date8) is excluded "
+                   "UNCONDITIONALLY; --include-own-date8 is the explicit "
+                   "opt-out and is reported in the meta as own_date8_included",
     "frame": PL.PARAMS_FRAME,
 }
 
@@ -257,12 +271,23 @@ def _pool_hash(cids):
     Hashing only the cid list would leave the cache stale after an edit to
     pattern_lib.frame or to this module's block table, which is exactly the
     kind of silent drift D-006 exists to prevent.
+
+    R44: the V1 key hashed `pattern_lib.py` and this file and NOTHING ELSE, so
+    a change to `m2_common.class_of` (which decides `klass`, block B01), to
+    `census_common.PHASE_NAMES` (B02), or to the FROZEN SPEC ITSELF left the
+    cached pool vectors in place under a matching key.  Every module whose
+    source can move a cached feature is hashed, and the spec pin goes in too,
+    so a re-pin invalidates the cache rather than silently outliving it.
     """
     import hashlib
     h = hashlib.sha256()
     h.update("\n".join(cids).encode())
-    for src in (PL.__file__, __file__):
+    for src in (PL.__file__, MC.__file__, X.__file__, __file__):
         h.update(MC.C.sha256_file(src.replace(".pyc", ".py")).encode())
+    for k, v in sorted(MC.spec_shas().items()):
+        h.update(("%s=%s" % (k, v)).encode())
+    h.update(("blocks=" + "|".join(b[0] + ":" + b[1] + ":" + b[2]
+                                   for b in BLOCKS)).encode())
     return h.hexdigest()
 
 
@@ -332,10 +357,22 @@ def _finite(v):
 
 
 def _present(field, kind, v):
+    """Is this block comparable on this side?
+
+    R46: `kind == "bits"` returned True UNCONDITIONALLY, and `_bit_jaccard(0,0)`
+    is 0.0, so two candidates carrying NO family tags at all scored a PERFECT
+    match on B11 rather than being incomparable on it.  An empty family mask is
+    the UNCLASSED state — the same state B01 already treats as missing — so it
+    is missing here too, the block drops out of both the numerator and `nb`,
+    and the Gower rule that governs every other refused field governs this one.
+    """
     if kind == "cat":
         return str(v) not in ("", "UNCLASSED")
     if kind == "bits":
-        return True
+        try:
+            return int(v) != 0
+        except (TypeError, ValueError):
+            return False
     if kind == "ord":
         return int(v) >= 0                 # -1 = REFUSED / missing
     return _finite(v)
@@ -415,29 +452,49 @@ def parse_exclude_date8(spec):
 
 
 def retrieve(cid, k=8, entries=None, pool=None, same_side=False,
-             exclude_date8=(), _mutant_filter=False, _mutant_unscaled=False,
-             _mutant_ignore_exclude=False):
+             exclude_date8=(), include_own_date8=False, _mutant_filter=False,
+             _mutant_unscaled=False, _mutant_ignore_exclude=False,
+             _mutant_keep_own_session=False):
     """k nearest study-tainted cases to `cid`, nearest first.
 
     `exclude_date8` (D11) drops whole SESSIONS from the pool — the round-driver
     duty documented above, made mechanical.  It is applied AFTER pool_records
     has run the taint guard on the undiminished pool, so it can only ever
     narrow a pool the ledger already certified.
+
+    R17: THE QUERY'S OWN (asset, date8) IS DROPPED UNCONDITIONALLY unless
+    `include_own_date8` is passed.  CC-M2-9.4 bars within-round retrieval, and
+    a same-session neighbour surfaces S14 outcomes that belong to the round in
+    flight.  `_mutant_keep_own_session` is the RED-FIRST mutant switch.
     """
-    _a, _d, _s, qside = MC.parse_cid(cid)
+    qasset, qd8, _s, qside = MC.parse_cid(cid)
     ex = set(int(d) for d in exclude_date8)
     if _mutant_ignore_exclude:             # MUTANT MT_P12 (test_pattern.t12)
         ex = set()
-    recs = [r for r in pool_records(entries, pool=pool,
-                                    _mutant_filter=_mutant_filter)
-            if r["cid"] != cid
-            and int(r["d8"]) not in ex
-            and (not same_side or int(r["side"]) == int(qside))]
+    own_dropped = bool(not include_own_date8 and not _mutant_keep_own_session)
+    recs = []
+    n_own = 0
+    for r in pool_records(entries, pool=pool, _mutant_filter=_mutant_filter):
+        if r["cid"] == cid:
+            continue
+        same_session = (str(r["asset"]) == str(qasset)
+                        and int(r["d8"]) == int(qd8))
+        if same_session:
+            n_own += 1
+            if own_dropped:
+                continue
+        if int(r["d8"]) in ex:
+            continue
+        if same_side and int(r["side"]) != int(qside):
+            continue
+        recs.append(r)
     if not recs:
         raise PoolRefusal(
-            "retrieval pool is empty after --exclude-date8 %s: there is no "
+            "retrieval pool is empty after the CC-M2-9.4 own-session exclusion "
+            "(%s %s, %d dropped) and --exclude-date8 %s: there is no "
             "study-tainted history left to retrieve from"
-            % ",".join(str(d) for d in sorted(ex)))
+            % (qasset, qd8, n_own if own_dropped else 0,
+               ",".join(str(d) for d in sorted(ex))))
     # the QUERY never needs its own outcome (it is the thing being decided), so
     # its frame is built without the skeleton arrays.
     q = vector(cid, with_certs=False)
@@ -454,8 +511,13 @@ def retrieve(cid, k=8, entries=None, pool=None, same_side=False,
                        "same_session": (str(c["asset"]) == q["asset"]
                                         and int(c["d8"]) == q["d8"])})
     scored.sort(key=lambda r: (round(r["dist"], 9), r["cid"]))
-    return q, scored[:int(k)], sc, {"n_pool": len(recs), "n_dropped_thin": n_thin,
-                                    "excluded_date8": sorted(ex)}
+    return q, scored[:int(k)], sc, {"n_pool": len(recs),
+                                    "n_dropped_thin": n_thin,
+                                    "excluded_date8": sorted(ex),
+                                    "own_session": "%s-%s" % (qasset, qd8),
+                                    "own_date8_included": not own_dropped,
+                                    "n_own_session_dropped":
+                                        n_own if own_dropped else 0}
 
 
 # ----------------------------------------------------------------- render ---
@@ -474,11 +536,17 @@ def table(q, hits, k, meta):
     A = L.append
     A("REFERENCE-CLASS RETRIEVAL  (%s, k=%d)  pool = %d STUDY-tainted cases "
       "(used-case ledger, STUDY rows only); %d dropped as comparable on < %d "
-      "blocks%s" % (SECTION, k, meta["n_pool"], meta["n_dropped_thin"],
-                    MIN_BLOCKS,
-                    ("; EXCLUDED sessions " + ",".join(
-                        str(d) for d in meta.get("excluded_date8") or []))
-                    if meta.get("excluded_date8") else ""))
+      "blocks%s%s" % (SECTION, k, meta["n_pool"], meta["n_dropped_thin"],
+                      MIN_BLOCKS,
+                      ("; EXCLUDED sessions " + ",".join(
+                          str(d) for d in meta.get("excluded_date8") or []))
+                      if meta.get("excluded_date8") else "",
+                      ("; OWN SESSION %s KEPT (--include-own-date8, "
+                       "CC-M2-9.4 opt-out)" % meta.get("own_session")
+                       if meta.get("own_date8_included") else
+                       "; own session %s excluded (CC-M2-9.4), %d case(s)"
+                       % (meta.get("own_session"),
+                          meta.get("n_own_session_dropped", 0)))))
     A("QUERY %-22s %-22s %-6s %-6s  cov=%s%%  ladder=%-16s  runway=%ss  "
       "age(ph/piv)=%s/%s  slope1=%s  accel=%s  rv1800/60=%s  spread=%sx  "
       "lvl=%sxATR"
@@ -533,11 +601,17 @@ def main():
                    help="comma-separated YYYYMMDD sessions to drop from the "
                         "pool (D11: the CC-M2-9.4 sequencing duty, in the "
                         "tool). Applied AFTER the taint guard, never before.")
+    p.add_argument("--include-own-date8", action="store_true",
+                   help="R17 OPT-OUT: keep the query's own (asset, date8) in "
+                        "the pool. CC-M2-9.4 bars within-round retrieval, so "
+                        "this is for POST-ROUND analysis only and is stamped "
+                        "into the rendered header and the --json meta.")
     a = p.parse_args()
     MC.verify_spec(force=True)
     if a.refresh_pool:
         pool_records(refresh=True)
     q, hits, sc, meta = retrieve(a.cid, a.k, same_side=a.same_side,
+                                 include_own_date8=a.include_own_date8,
                                  exclude_date8=parse_exclude_date8(
                                      a.exclude_date8))
     if a.json:

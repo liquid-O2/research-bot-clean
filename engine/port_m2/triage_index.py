@@ -96,6 +96,71 @@ only because someone re-derived a column by hand):
       second is a same-second read and is refused — test t16 drives that
       mutant.  CAVEAT CARRIED FROM CC-M2-14.1: `menu_hat` is RANK-VALID
       everywhere but LEVEL-INVALID on SI — rank it, never read its level.
+  TRIAGE-INDEX-V4  the D-001 fix pass (M2_CONSOLIDATED_REVIEW R03/R06/R07/R08/
+    R09/R16/R27/R28/R45/R47/R48).  Every item below was queued for the V1.2
+    render bundle that never landed, so it lands here, where the table the
+    consumers actually read is built:
+    * R03 PRINT PRECISION.  `_fmt` emitted `%.4g`, which renders every NKD
+      price as `2.935e+04` — three consecutive rows with genuinely different
+      decision mids print identically, and a consumer recomputing a distance
+      from index prices is wrong by up to $25/mini.  Floats now print at
+      `%.10g` (round-trip on every quantity this table carries: prices,
+      ratios, dollars, derived roundings).  Mechanical; no re-render.
+    * R06 THE REFUSED-CLAUSE LAW (CC-M2-20.3), swept.  Every derived flag was
+      `int(bool(x is not None and cond))`, which emits 0 — the SAME TOKEN as a
+      genuine negative — when the input is refused.  Measured consequence on
+      the record: `unspent_bind` present on 304/304 HG and 0/327 SI rows, i.e.
+      the capacity family was an ASSET SELECTOR in disguise and no consumer
+      could tell.  Flags are now THREE-VALUED (1 / 0 / `R` = MC.REFUSED_TOKEN)
+      and combine under KLEENE logic (`_kand`/`_kor`), so a decidable clause
+      still decides and an undecidable one refuses.  `seat_score` — a RANKING,
+      where a skipped penalty scores the row HIGHER — is REFUSED outright
+      below a DECLARED minimum of present terms (SEAT_MIN_TERMS, and no
+      penalty term may be refused at all), never partially summed.  The
+      per-row `n_refused_inputs` and `seat_terms_present` counts are columns.
+    * R07 `pct_unspent_phase` HELD DOLLARS.  Renamed `unspent_phase_usd`; the
+      old spelling is a compat ALIAS (D16), so every frozen consumer keeps
+      reading it.  The arithmetic was always coherent (P002 compares it to
+      450.0 DOLLARS); the NAME was the defect, which is the D8 class.
+    * R08 THE `~` ORDINAL MARKER IS NO LONGER DISCARDED.  Spec §1 S5: "a z
+      whose scale came from the floor is suffixed '~' and is ORDINAL ONLY,
+      never a threshold."  `_f()` stripped the suffix and `P004` then applied
+      a hard threshold to exactly those values.  `_fmark()` returns
+      (value, floored); the index carries `trades_min_z_floored` and
+      `trades_min_n_ref`; P004's z term REFUSES on a floored z.  The V1.2
+      PERCENTILE-Z form CC-M2-7.3 deferred also lands, as
+      `trades_min_z_pctile`: the percentile rank of NOW within the SAME
+      trailing same-half-hour reference sample the sheet's z is taken over
+      (sections.clock_norm's sample, strictly prior sessions), mid-rank
+      convention, REFUSED below the same 10-session floor.  An ordinal
+      quantity, expressed ordinally.
+    * R16 `field_asof_sec` IS A REAL PER-COLUMN TABLE.  It used to return the
+      row's own `sec` for every column but three, making `verify_as_of`
+      tautological for a row's own fields.  `ASOF_RULES` now partitions EVERY
+      column into a named knowability rule, the partition is ASSERTED total at
+      import (a new column with no declared rule is a refusal, not a silent
+      "knowable now"), the forecast-anchor block resolves to its ANCHOR
+      second, and an observed-close column with no observed close is MASKED
+      rather than blessed.
+    * R09 `--drive-per-row`: one prefix per DISTINCT DECISION SECOND, the
+      `--next` semantics `e1d4_asof.py:120-132` already drives.  The blind
+      round ran at `--drive-step 1800`, so a prefix carried up to 1,799
+      seconds of LATER rows whose `mid` is the post-decision price path — the
+      D14 SCAN-EXPOSED leak CC-M2-12.1 made blocking before any blind round.
+    * R28 ROSTER COUNT GUARD (D30's root cause).  `main()` indexed whatever
+      `.BLIND.sheet.txt` files happened to be on disk; blind day 7 sealed
+      1,109 of 1,117 rows because of it, and the shell-level patch was skipped
+      whenever the background render's pid file was missing.  The sheet count
+      is now compared against `assemble.roster(asset)` for that date8 and
+      REFUSES on any mismatch (`--allow-roster-mismatch` is the explicit,
+      stamped opt-out).
+    * R27 the compat view carries `AS_OF` when its source was a prefix, and
+      R47 its header no longer claims "V1 column spellings" while emitting the
+      current column list plus the aliases.
+    * R48 `day_driver` REFUSES an empty cut range instead of raising
+      IndexError off `cuts[-1]`.
+    * R45 `side` is an EXACT token cross-checked against the cid; an unknown
+      token REFUSES instead of silently mapping to SHORT.
 
 Run:
   triage_index.py --era E1 --block STUDY \
@@ -114,24 +179,32 @@ import sys
 
 import numpy as np
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+
+import m2_common as MC                    # noqa: E402
+
 ROOT = "/workspace/artifacts/cache/port/m2/era"
 # PORT_M0_CENSUS_SPEC §5 session receipts — the ONLY thing read from outside
 # the BLIND sheet tree, and only for its calendar meta (short_day, observed
 # close).  Never the tape, never a certificate.
 M0_SESSIONS = "/workspace/artifacts/cache/port/m0/sessions"
 NA = "."
-VERSION = "TRIAGE-INDEX-V3"
+VERSION = "TRIAGE-INDEX-V4"
+REFUSED = MC.REFUSED_TOKEN               # "R" — CC-M2-20.3, a VALUE not a gap
 
 COLUMNS = (
     "cid asset date8 side sec clock phase_dec cls driver_family "
     "vol_regime rv5_rv66 day_type_so_far range_so_far range_vs_hat_pct "
-    "cov_phase pct_unspent_phase cov_sess unspent_sess "
+    "cov_phase unspent_phase_usd cov_sess unspent_sess "
     "runway_phase runway_sess exit_is_sess short_day observed_close "
     "runway_observed fvol_source "
     "phase_H phase_H_sec phase_L phase_L_sec extreme_age_trade_side "
     "n_pivots n_in_band n_near100 near_fam near_d n_conf_max conf_d "
     "min_tc_near or_state "
-    "trades_min trades_min_z slope15m slope5m slope1m accel spread_now "
+    "trades_min trades_min_z trades_min_z_floored trades_min_n_ref "
+    "trades_min_z_pctile slope15m slope5m slope1m accel spread_now "
     "l1_bid_sz l1_ask_sz spread_dec cost_rt rev_s_60 c2f_60 c2f_300 "
     "n_ev_60 n_ev_300 n_trades_300 dBsz_min dAsz_min refill_frac "
     "f60_n f60_vol f60_sflow f5m_n f5m_vol f5m_sflow "
@@ -144,7 +217,8 @@ COLUMNS = (
     "dec_ts rf_anchor rf_anchor_ts predicted_day_type_prob "
     "range_hat_vs_trailing menu_hat "
     "mid mult room_phase ext_needed unspent_bind "
-    "P001 P002 P003 P004 P005 P013 P014 seat_score"
+    "P001 P002 P003 P004 P005 P013 P014 seat_score "
+    "n_refused_inputs seat_terms_present"
 ).split()
 
 
@@ -168,6 +242,30 @@ OBSERVED_COLS = ("short_day", "observed_close", "runway_observed")
 # D-057 SCHEDULE_EXEMPT: release DATES are published months ahead, so the
 # forward offset to the next scheduled release is lawful at any as-of.
 ASOF_EXEMPT = ("sched_next_in",)
+
+# CC-M2-14.2a: the leading regime block is knowable at its ANCHOR second, which
+# is STRICTLY EARLIER than the row's own decision second (regime_at enforces
+# that).  Under `--as-of` these are the only columns whose knowability second is
+# not the row's own, in the EARLIER direction.
+FORECAST_COLS = ("rf_anchor", "rf_anchor_ts", "predicted_day_type_prob",
+                 "range_hat_vs_trailing", "menu_hat")
+
+# R16 — THE PER-COLUMN KNOWABILITY TABLE.  `field_asof_sec` used to answer
+# "the row's own decision second" for every column but three, which made
+# `verify_as_of`'s per-field loop a tautology for every row that had already
+# survived the `sec <= as_of` filter.  Every column now carries a NAMED rule
+# and the partition is asserted TOTAL at import, so a column added without a
+# declared knowability rule is a refusal rather than a silent "knowable now".
+ASOF_RULE_DECISION = "decision_second"    # computed at the row's own second
+ASOF_RULE_CLOSE = "session_close"         # D15 end-of-session facts
+ASOF_RULE_EXEMPT = "schedule_exempt"      # D-057 SCHEDULE_EXEMPT
+ASOF_RULE_ANCHOR = "forecast_anchor"      # CC-M2-14.2a leading regime state
+
+# A knowability second that no as-of can reach: used when a column's own
+# knowability second cannot be established (e.g. an observed-close column on a
+# session with no m0 receipt).  Masking is the refusing direction; the previous
+# `return None` blessed the value at every as-of.
+KNOW_NEVER = 1 << 62
 
 _META = {}
 
@@ -221,6 +319,62 @@ def regime_at(asset, date8, dec_ts):
     return best
 
 
+# ------------------------------------------ R08 / CC-M2-7.3 the PERCENTILE-Z
+# CC-M2-7.3 accepted the `~` marker for V1.1 and deferred the PERCENTILE-RANK
+# form to V1.2 with the render bundle that never landed.  It lands here.  The
+# reference sample is EXACTLY the one the sheet's own z is taken over —
+# sections.clock_norm's trailing-CLOCKNORM_SESSIONS same-half-hour cell, over
+# STRICTLY PRIOR sessions (bisect_left on the session's own d8), so the column
+# is causal by construction and needs no as-of exception.  Mid-rank convention,
+# so ties do not manufacture an extreme.  Below the same 10-session floor
+# clock_norm uses, the percentile is REFUSED and the refusal is counted.
+CLOCK_PCTILE_FIELD = "trades_per_min"
+CLOCK_MIN_REF = 10
+PCTILE_REFUSALS = {}
+_CLOCK_REF = {}
+
+
+def clock_reference(asset, date8, bin_idx):
+    """The trailing same-half-hour sample for (asset, session, bin), or []."""
+    key = (str(asset), int(date8), int(bin_idx))
+    if key in _CLOCK_REF:
+        return _CLOCK_REF[key]
+    import bisect
+    import assemble as A                  # noqa: E402 — lazy: tape-side deps
+    import sections as SEC                # noqa: E402
+    vals = []
+    try:
+        ds = sorted(A.session_index(asset))
+        i = bisect.bisect_left(ds, int(date8))
+        for p in ds[max(0, i - SEC.CLOCKNORM_SESSIONS):i]:
+            st = SEC._session_bin_stats(asset, p)
+            if st and int(bin_idx) in st:
+                vals.append(float(st[int(bin_idx)][CLOCK_PCTILE_FIELD]))
+    except (OSError, RuntimeError, KeyError, ValueError) as e:
+        PCTILE_REFUSALS[type(e).__name__] = (
+            PCTILE_REFUSALS.get(type(e).__name__, 0) + 1)
+        vals = []
+    _CLOCK_REF[key] = vals
+    return vals
+
+
+def clock_pctile(asset, date8, dec_ts, x):
+    """Percentile rank (0..100) of `x` in the trailing same-half-hour cell."""
+    if x is None or dec_ts is None:
+        PCTILE_REFUSALS["no_value"] = PCTILE_REFUSALS.get("no_value", 0) + 1
+        return None
+    import sections as SEC                # noqa: E402
+    vals = clock_reference(asset, date8,
+                           (int(dec_ts) % 86400) // SEC.BIN_SECONDS)
+    if len(vals) < CLOCK_MIN_REF:
+        PCTILE_REFUSALS["thin_reference"] = (
+            PCTILE_REFUSALS.get("thin_reference", 0) + 1)
+        return None
+    lo = sum(1 for v in vals if v < x)
+    eq = sum(1 for v in vals if v == x)
+    return round(100.0 * (lo + 0.5 * eq) / len(vals), 3)
+
+
 def session_meta(asset, date8):
     """(short_day, observed_close_sec) from the m0 session receipt; (None,
     None) when the receipt is absent."""
@@ -241,11 +395,26 @@ def session_meta(asset, date8):
     return out
 
 
-def _f(x):
+def _fmark(x):
+    """(value, floored) — the `~` ORDINAL MARKER, kept.
+
+    Spec §1 S5, verbatim: "a z whose scale came from the floor is suffixed '~'
+    and is ORDINAL ONLY, never a threshold."  R08: `_f` discarded the suffix
+    one layer below the rule, so the index could not express which z values
+    were floor-scaled and `P004` — the E1 round's only unbroken refusal, frozen
+    into the blind policy as T1 — applied a hard threshold to exactly those.
+    """
+    s = str(x)
+    floored = s.rstrip().endswith("~")
     try:
-        return float(str(x).replace("$", "").replace(",", "").rstrip("~"))
+        return (float(s.replace("$", "").replace(",", "").rstrip("~")),
+                1 if floored else 0)
     except Exception:
-        return None
+        return (None, None)
+
+
+def _f(x):
+    return _fmark(x)[0]
 
 
 def _hms(s):
@@ -257,10 +426,17 @@ def _hms(s):
 
 
 def _fmt(v):
+    """R03 (D18).  `%.4g` destroyed NKD price resolution: every NKD mid, phase
+    extreme and developing-value price rendered as `2.935e+04`, so three
+    consecutive rows with genuinely different decision mids printed identically
+    (NKD's 10-point grid = 2 ticks = $50/mini) and any consumer recomputing a
+    distance from index prices was wrong by up to $25/mini.  `%.10g` round-trips
+    every quantity this table carries and is byte-identical run to run.
+    """
     if v is None:
         return NA
     if isinstance(v, float):
-        return ("%.4g" % v)
+        return ("%.10g" % v)
     return str(v)
 
 
@@ -330,7 +506,12 @@ def parse_sheet(path):
                           r"exp_move_q50=\S+\s+COVERAGE=(\S+)%\s+"
                           r"unspent=\$(\S+)", text):
         if mm.group(1) != "SESSION":
-            r["cov_phase"], r["pct_unspent_phase"] = _f(mm.group(2)), _f(mm.group(3))
+            # R07: group 3 is the `unspent=$` cell — DOLLARS, which is what the
+            # sibling SESSION parse calls `unspent_sess`.  The V1 spelling
+            # `pct_unspent_phase` said percent and was read as percent for 20
+            # reader-days; it survives as a compat ALIAS, never as the name.
+            r["cov_phase"] = _f(mm.group(2))
+            r["unspent_phase_usd"] = _f(mm.group(3))
     r["fvol_source"] = _search(r"fvol_source (\S+)", text)
     r["n_pivots"] = _search(r"n_pivots_total\s+(\d+)", text, cast=int)
     r["mult"] = _search(r"mult=(\d+)", text, cast=_f)
@@ -382,7 +563,9 @@ def parse_sheet(path):
     if m:
         t = m.group(1).split()
         if len(t) >= 7:
-            r["trades_min"], r["trades_min_z"] = _f(t[4]), _f(t[5])
+            r["trades_min"] = _f(t[4])
+            r["trades_min_z"], r["trades_min_z_floored"] = _fmark(t[5])
+            r["trades_min_n_ref"] = _search(r"^(\d+)$", t[6], cast=int)
     m = re.search(r"\n  spread_\$\s+(.*)", text)
     if m:
         t = m.group(1).split()
@@ -495,11 +678,83 @@ def parse_sheet(path):
 
 SPREAD_MED = {"SI": 25.0, "HG": 25.0, "NKD": 50.0}
 
+# ------------------------------------------------ R06 the REFUSED-CLAUSE LAW
+# CC-M2-20.3 ruled it and ordered the sweep "with the next tooling pass"; this
+# is that pass.  A derived flag has THREE states — fired (1), did not fire (0),
+# could not be computed (`R`) — and clauses combine under KLEENE logic so a
+# clause that is decidable on the inputs present still decides.  `_kor` is
+# true if any disjunct is true even when another is refused; `_kand` is false
+# if any conjunct is false even when another is refused.  Anything else that
+# touches a refused input is refused, never quietly zero.
+SIDE_TOKENS = {"LONG": 1, "SHORT": -1}
+
+# The inputs every derived flag and the seat score read.  `n_refused_inputs`
+# counts, per row, how many of these the sheet could not supply — the column
+# CC-M2-20 D22 needed to tell "the capacity family did not fire" apart from
+# "the capacity family could not be evaluated on this asset at all".
+DERIVED_INPUTS = ("side", "exit_is_sess", "cov_phase", "unspent_phase_usd",
+                  "cov_sess", "unspent_sess", "f60_n", "f60_vol",
+                  "n_trades_300", "c2f_300", "trades_min_z", "spread_dec",
+                  "rv_collapse", "ladder_pos", "runway_phase",
+                  "extreme_age_trade_side", "slope5m", "accel", "ext_needed")
+
+# seat_score is a RANKING, and the V1 form added each term only when its input
+# was present — so a row with refused fvol skipped three of the five penalties
+# and scored systematically HIGHER than an otherwise identical row with values.
+# On the record (CC-M2-20.3 D23) SI's fvol is refused on 5 of 8 E1 study
+# sessions, so the scan-ordering instrument was an asset selector.  The score
+# is therefore REFUSED, never partially summed, unless BOTH hold:
+#   * every PENALTY term is computable (a missing penalty can only inflate), and
+#   * at least SEAT_MIN_TERMS of the SEAT_N_TERMS terms are present.
+SEAT_POS_TERMS = ("exit_is_sess", "cov_phase", "ladder_pos", "runway_phase",
+                  "extreme_age_trade_side", "slope5m", "accel")
+SEAT_PEN_TERMS = ("P004", "P005", "P013", "P002", "P003", "ext_needed")
+SEAT_N_TERMS = len(SEAT_POS_TERMS) + len(SEAT_PEN_TERMS)          # 13
+SEAT_MIN_TERMS = 11                       # = all 6 penalties + 5 of 7 positives
+
+
+def _t(inputs_ok, condition):
+    """One leaf term of a flag: 1 / 0 / R (m2_common.flag3)."""
+    return MC.flag3(inputs_ok, condition)
+
+
+def _kor(*ts):
+    if any(t == 1 for t in ts):
+        return 1
+    if any(MC.is_refused(t) for t in ts):
+        return REFUSED
+    return 0
+
+
+def _kand(*ts):
+    if any(t == 0 for t in ts):
+        return 0
+    if any(MC.is_refused(t) for t in ts):
+        return REFUSED
+    return 1
+
+
+def _side_of(r):
+    """+1 / -1 from the sheet's own token, CROSS-CHECKED against the cid.
+
+    R45: the V1 form was `1 if side.upper().startswith("L") else -1`, which
+    maps every unknown or missing token to SHORT — inverting every side-signed
+    term rather than refusing.  The cid's own side character is the identity,
+    so a disagreement is a defect and refuses.
+    """
+    tok = SIDE_TOKENS.get(str(r.get("side") or "").strip().upper())
+    cid = str(r.get("cid") or "")
+    cid_side = MC.CHAR_SIDE.get(cid[-1]) if len(cid) > 2 and cid[-2] == "-" \
+        else None
+    if tok is None or (cid_side is not None and cid_side != tok):
+        return None
+    return tok
+
 
 def _derive(r):
     """The E1 pattern ledger, made mechanical.  Flags are TRIAGE PRIORS, not
     calls: the reader decides, these only route attention."""
-    side = 1 if (r["side"] or "").upper().startswith("L") else -1
+    side = _side_of(r)
 
     # D15: the session's OBSERVED close, and the runway that actually binds.
     # A nominal runway on a holiday session is wrong by hours (2021-07-05: the
@@ -532,14 +787,21 @@ def _derive(r):
             if px is not None:
                 r[key] = round((r["mid"] - px) * r["mult"], 1)
 
+    # R08 / CC-M2-7.3: the ORDINAL form of the S5 clock-norm comparison, over
+    # the same trailing same-half-hour reference the sheet's z is taken over.
+    if r["asset"] and r["date8"]:
+        r["trades_min_z_pctile"] = clock_pctile(r["asset"], r["date8"],
+                                                r["dec_ts"], r["trades_min"])
+
     # phase-extreme age on the side the trade needs (SHORT -> H, LONG -> L)
-    ext = r["phase_H_sec"] if side < 0 else r["phase_L_sec"]
-    if ext is not None and r["sec"] is not None:
-        r["extreme_age_trade_side"] = r["sec"] - ext
+    if side is not None:
+        ext = r["phase_H_sec"] if side < 0 else r["phase_L_sec"]
+        if ext is not None and r["sec"] is not None:
+            r["extreme_age_trade_side"] = r["sec"] - ext
 
     # A1 STRICT FORM (warmup #21): how much of the $1,000 bar lives INSIDE the
     # phase range already, and how much range EXTENSION the bar therefore needs.
-    if r["mid"] is not None and r["mult"]:
+    if side is not None and r["mid"] is not None and r["mult"]:
         ext = r["phase_H"] if side > 0 else r["phase_L"]
         if ext is not None:
             room = (ext - r["mid"]) * r["mult"] * side
@@ -547,98 +809,203 @@ def _derive(r):
             r["ext_needed"] = round(max(0.0, 1000.0 - room), 1)
     # binding unspent: the session row also binds when the hold runs to the
     # session end (P003), so the conservative reading is the smaller of the two
-    cand = [x for x in (r["pct_unspent_phase"],
+    cand = [x for x in (r["unspent_phase_usd"],
                         r["unspent_sess"] if r["exit_is_sess"] == 1 else None)
             if x is not None]
     r["unspent_bind"] = min(cand) if cand else None
     # P014 CAPACITY_TO_BAR: the binding row's remaining expected move cannot
     # reach the $1,000 bar however good the entry is (sharper than P002's 75%)
-    r["P014"] = int(bool(r["unspent_bind"] is not None
-                         and r["unspent_bind"] < 1000.0))
+    r["P014"] = _t(r["unspent_bind"] is not None,
+                   r["unspent_bind"] is not None and r["unspent_bind"] < 1000.0)
 
     # P002 A1_EXIT_SECOND_VETO — phase-close exit into a spent phase
-    r["P002"] = int(bool(r["exit_is_sess"] == 0 and r["cov_phase"] is not None
-                         and (r["cov_phase"] >= 75.0
-                              or (r["pct_unspent_phase"] is not None
-                                  and r["pct_unspent_phase"] <= 450.0))))
+    r["P002"] = _kand(
+        _t(r["exit_is_sess"] is not None, r["exit_is_sess"] == 0),
+        _kor(_t(r["cov_phase"] is not None,
+                r["cov_phase"] is not None and r["cov_phase"] >= 75.0),
+             _t(r["unspent_phase_usd"] is not None,
+                r["unspent_phase_usd"] is not None
+                and r["unspent_phase_usd"] <= 450.0)))
     # P003 A1_SESSION_BINDING — session-close exit: the SESSION row binds
-    r["P003"] = int(bool(r["exit_is_sess"] == 1 and r["cov_sess"] is not None
-                         and (r["cov_sess"] >= 95.0
-                              or (r["unspent_sess"] is not None
-                                  and r["unspent_sess"] <= 450.0))))
-    # P004 DEAD_BOOK_VETO
-    r["P004"] = int(bool((r["f60_n"] is not None and r["f60_n"] <= 1)
-                         or (r["f60_vol"] is not None and r["f60_vol"] <= 1)
-                         or (r["n_trades_300"] is not None
-                             and r["n_trades_300"] <= 15
-                             and r["c2f_300"] is not None
-                             and r["c2f_300"] >= 20.0)
-                         or (r["trades_min_z"] is not None
-                             and r["trades_min_z"] <= -1.3)))
+    r["P003"] = _kand(
+        _t(r["exit_is_sess"] is not None, r["exit_is_sess"] == 1),
+        _kor(_t(r["cov_sess"] is not None,
+                r["cov_sess"] is not None and r["cov_sess"] >= 95.0),
+             _t(r["unspent_sess"] is not None,
+                r["unspent_sess"] is not None
+                and r["unspent_sess"] <= 450.0)))
+    # P004 DEAD_BOOK_VETO.  R08: the z term REFUSES on a FLOOR-SCALED z rather
+    # than thresholding it — spec §1 S5 says a `~` z is ORDINAL ONLY, and P004
+    # is the E1 round's only unbroken refusal, frozen into the blind policy.
+    r["P004"] = _kor(
+        _t(r["f60_n"] is not None, r["f60_n"] is not None and r["f60_n"] <= 1),
+        _t(r["f60_vol"] is not None,
+           r["f60_vol"] is not None and r["f60_vol"] <= 1),
+        _kand(_t(r["n_trades_300"] is not None,
+                 r["n_trades_300"] is not None and r["n_trades_300"] <= 15),
+              _t(r["c2f_300"] is not None,
+                 r["c2f_300"] is not None and r["c2f_300"] >= 20.0)),
+        _t(r["trades_min_z"] is not None and not r["trades_min_z_floored"],
+           r["trades_min_z"] is not None and r["trades_min_z"] <= -1.3))
     # P005 ENTRY_SPREAD_TAX
     med = SPREAD_MED.get(r["asset"] or "", 25.0)
-    r["P005"] = int(bool(r["spread_dec"] is not None
-                         and r["spread_dec"] >= 1.5 * med))
+    r["P005"] = _t(r["spread_dec"] is not None,
+                   r["spread_dec"] is not None and r["spread_dec"] >= 1.5 * med)
     # P013 WALL_BINDS — collapsed rv ratio marks a leg that is ENDING
-    r["P013"] = int(bool(r["rv_collapse"] is not None and r["rv_collapse"] >= 8.0))
+    r["P013"] = _t(r["rv_collapse"] is not None,
+                   r["rv_collapse"] is not None and r["rv_collapse"] >= 8.0)
     # P001 PHASE_ROLLOVER_UNDERMOVED (the era's only bar-clearing seat)
-    p1 = (r["exit_is_sess"] == 1
-          and r["cov_phase"] is not None and r["cov_phase"] <= 70.0
-          and (r["ladder_pos"] or "") in ("below_q10", "at_or_above_q10")
-          and r["runway_phase"] is not None and r["runway_phase"] >= 26000
-          and r["extreme_age_trade_side"] is not None
-          and 0 <= r["extreme_age_trade_side"] <= 200
-          and r["slope5m"] is not None and r["accel"] is not None
-          and r["slope5m"] * side > 0 and r["accel"] * side > 0)
-    r["P001"] = int(bool(p1))
+    r["P001"] = _kand(
+        _t(r["exit_is_sess"] is not None, r["exit_is_sess"] == 1),
+        _t(r["cov_phase"] is not None,
+           r["cov_phase"] is not None and r["cov_phase"] <= 70.0),
+        _t(r["ladder_pos"] is not None,
+           (r["ladder_pos"] or "") in ("below_q10", "at_or_above_q10")),
+        _t(r["runway_phase"] is not None,
+           r["runway_phase"] is not None and r["runway_phase"] >= 26000),
+        _t(r["extreme_age_trade_side"] is not None,
+           r["extreme_age_trade_side"] is not None
+           and 0 <= r["extreme_age_trade_side"] <= 200),
+        _t(side is not None and r["slope5m"] is not None,
+           side is not None and r["slope5m"] is not None
+           and r["slope5m"] * side > 0),
+        _t(side is not None and r["accel"] is not None,
+           side is not None and r["accel"] is not None
+           and r["accel"] * side > 0))
 
-    # seat_score: a scan-ordering number ONLY (P001 terms scored partially so
-    # near-misses surface for the reader rather than being filtered away).
+    # ---- the refused-input census, per row (R06) -------------------------
+    n_ref = sum(1 for c in DERIVED_INPUTS
+                if (side is None if c == "side" else r.get(c) is None))
+    # a FLOOR-SCALED z is an ordinal, i.e. refused as a threshold input
+    if r["trades_min_z"] is not None and r["trades_min_z_floored"]:
+        n_ref += 1
+    r["n_refused_inputs"] = n_ref
+
+    # ---- seat_score: REFUSED, never partially summed (R06) ---------------
     s = 0.0
-    if r["exit_is_sess"] == 1:
-        s += 1.0
+    present = 0
+    if r["exit_is_sess"] is not None:
+        present += 1
+        if r["exit_is_sess"] == 1:
+            s += 1.0
     if r["cov_phase"] is not None:
+        present += 1
         s += max(0.0, (80.0 - r["cov_phase"]) / 40.0)
-    if (r["ladder_pos"] or "") in ("below_q10", "at_or_above_q10"):
-        s += 1.0
+    if r["ladder_pos"] is not None:
+        present += 1
+        if r["ladder_pos"] in ("below_q10", "at_or_above_q10"):
+            s += 1.0
     if r["runway_phase"] is not None:
+        present += 1
         s += min(1.0, r["runway_phase"] / 30000.0)
-    if r["extreme_age_trade_side"] is not None and 0 <= r["extreme_age_trade_side"] <= 300:
-        s += 1.0 - r["extreme_age_trade_side"] / 300.0
-    if r["slope5m"] is not None and r["slope5m"] * side > 0:
-        s += 0.75
-    if r["accel"] is not None and r["accel"] * side > 0:
-        s += 0.75
-    s -= 1.5 * (r["P004"] or 0)
-    s -= 1.0 * (r["P005"] or 0)
-    s -= 0.5 * (r["P013"] or 0)
-    s -= 1.0 * (r["P002"] or 0)
-    s -= 1.0 * (r["P003"] or 0)
+    if r["extreme_age_trade_side"] is not None:
+        present += 1
+        if 0 <= r["extreme_age_trade_side"] <= 300:
+            s += 1.0 - r["extreme_age_trade_side"] / 300.0
+    if side is not None and r["slope5m"] is not None:
+        present += 1
+        if r["slope5m"] * side > 0:
+            s += 0.75
+    if side is not None and r["accel"] is not None:
+        present += 1
+        if r["accel"] * side > 0:
+            s += 0.75
+    pen_refused = 0
+    for col, w in (("P004", 1.5), ("P005", 1.0), ("P013", 0.5),
+                   ("P002", 1.0), ("P003", 1.0)):
+        if MC.is_refused(r[col]):
+            pen_refused += 1
+            continue
+        present += 1
+        s -= w * int(r[col])
     # P014 is REPORTED, never weighted: it fires on 96% of HG/NKD candidates,
     # and a flag that fires on 96% of the population cannot discriminate.
     # The range-EXTENSION arithmetic (ext_needed) is the discriminating form
     # (it is 0 on only ~12% of the day) and carries the weight instead.
-    if r["ext_needed"] is not None:
+    if r["ext_needed"] is None:
+        pen_refused += 1
+    else:
+        present += 1
         s -= min(1.5, r["ext_needed"] / 1000.0)
-    r["seat_score"] = round(s, 3)
+    r["seat_terms_present"] = present
+    r["seat_score"] = (REFUSED if (pen_refused or present < SEAT_MIN_TERMS)
+                       else round(s, 3))
 
 
 # ------------------------------------------------------ D14 as-of prefix view
-def field_asof_sec(row, col):
-    """The second at which `col` of `row` becomes KNOWABLE.
+def _asint(v):
+    """int(v) for a native OR a read_index string cell; None on the typed
+    missing glyph and on anything that is not an integer."""
+    if v is None or v == "" or v == NA:
+        return None
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
 
-    Everything on a triage row is computed at that row's own decision second
-    (that is what the sheet is), with two exceptions, and the exceptions are
-    the whole reason this function exists rather than a bare row filter:
-      * the D15 observed-close block is an end-of-session fact;
-      * `sched_next_in` is D-057 SCHEDULE_EXEMPT (published months ahead).
+
+def _asof_rules():
+    """col -> knowability rule.  A TOTAL partition of COLUMNS, asserted.
+
+    R16.  The V3 form answered "the row's own decision second" for every column
+    but three, so `verify_as_of`'s per-field loop compared each field's
+    knowability second against the row's own decision second — a condition
+    guaranteed true for every row that survived the `sec <= as_of` filter, i.e.
+    a tautology presented as the D14 leak guard.  The fix is the shape the
+    OBSERVED_COLS exception already had, EXTENDED to a real table: every column
+    names its rule, and the assertion below means a column added without one is
+    a refusal rather than a silent inheritance of "knowable now".
     """
-    if col in ASOF_EXEMPT:
-        return None                        # lawful at any as-of
-    if col in OBSERVED_COLS:
-        oc = row.get("observed_close")
-        return None if oc is None else int(oc)
-    return None if row.get("sec") is None else int(row["sec"])
+    out = {}
+    for c in COLUMNS:
+        out[c] = ASOF_RULE_DECISION
+    for c in OBSERVED_COLS:
+        out[c] = ASOF_RULE_CLOSE
+    for c in ASOF_EXEMPT:
+        out[c] = ASOF_RULE_EXEMPT
+    for c in FORECAST_COLS:
+        out[c] = ASOF_RULE_ANCHOR
+    missing = [c for c in COLUMNS if c not in out]
+    extra = [c for c in out if c not in COLUMNS]
+    if missing or extra:
+        raise RuntimeError("AS-OF RULE TABLE is not total: missing=%s extra=%s"
+                           % (missing, extra))
+    return out
+
+
+ASOF_RULES = _asof_rules()
+
+
+def field_asof_sec(row, col):
+    """The session second at which `col` of `row` becomes KNOWABLE.
+
+    None = lawful at ANY as-of (the D-057 SCHEDULE_EXEMPT case only).
+    KNOW_NEVER = the knowability second cannot be established, so the value is
+    masked at every as-of — the refusing direction, where the V3 form returned
+    None (i.e. blessed the value) for an observed-close column on a session
+    with no m0 receipt.
+    """
+    rule = ASOF_RULES.get(col)
+    if rule is None:
+        raise RuntimeError("AS-OF REFUSAL: column %r declares no knowability "
+                           "rule (add it to ASOF_RULES)" % col)
+    if rule == ASOF_RULE_EXEMPT:
+        return None
+    if rule == ASOF_RULE_CLOSE:
+        oc = _asint(row.get("observed_close"))
+        return KNOW_NEVER if oc is None else oc
+    sec = _asint(row.get("sec"))
+    if sec is None:
+        return KNOW_NEVER
+    if rule == ASOF_RULE_ANCHOR:
+        # CC-M2-14.2a: the leading regime state is knowable at its ANCHOR, and
+        # the anchor is strictly prior to the decision (regime_at enforces it).
+        # The anchor's own session second is dec_sec - (dec_ts - anchor_ts).
+        ats, dts = _asint(row.get("rf_anchor_ts")), _asint(row.get("dec_ts"))
+        if ats is None or dts is None:
+            return sec
+        return sec - (dts - ats)
+    return sec
 
 
 def as_of_row(row, as_of):
@@ -689,21 +1056,69 @@ def prefix_view(rows, as_of):
     return out
 
 
-def day_driver(rows, step_sec, first=None, last=None):
-    """The chronological reveal: [(as_of, prefix_rows)], cut every `step_sec`.
+DRIVE_STEP_MAX = 60
+"""R09.  A prefix emits every row with `sec <= cut`, so a cut of STEP seconds
+carries up to STEP-1 seconds of LATER rows whose `mid` is the post-decision
+price path — the D14 SCAN-EXPOSED leak CC-M2-12.1 made blocking before any
+blind round.  The study rounds ran at 300s (275/277 cuts); the BLIND round the
+teacher gate scores ran at 1800s (47 cuts), six times coarser on the one
+instrument that had to be tighter.  A stepped drive is capped here, and
+`per_row=True` is the exact form: one prefix per DISTINCT DECISION SECOND."""
+
+
+def day_driver(rows, step_sec=None, first=None, last=None, per_row=False,
+               allow_coarse_step=True):
+    """The chronological reveal: [(as_of, prefix_rows)].
 
     The driver is the mechanic CC-M2-12.1(a) makes mandatory — candidates are
     processed in decision order and the index is revealed incrementally, so
     the table can never show a row the clock has not reached.  The final cut is
     always the last decision second (the day-complete view, which is only
     lawful once the day is over).
+
+    `per_row=True` cuts at every distinct decision second (R09, the `--next`
+    semantics `e1d4_asof.py:120-132` drives); otherwise the cut is every
+    `step_sec`.
+
+    THE COARSE-STEP CAP IS ENFORCED AT THE CLI, not here: `main()` passes
+    `allow_coarse_step=False` unless `--allow-coarse-step` is given, so no
+    ROUND can be driven at a leaky step, while a library caller that wants a
+    deliberately coarse reveal (a monotonicity check over a handful of cuts,
+    say) still gets one.  The refusals below that are UNCONDITIONAL are the
+    R48 class: an empty cut range is a defect at any step.
     """
     secs = sorted(int(r["sec"]) for r in rows if r.get("sec") is not None)
     if not secs:
-        return []
+        # R48: an empty day is a refusal, not an empty list a caller can
+        # mistake for "the driver ran and revealed nothing".
+        raise RuntimeError("DRIVER REFUSAL: no row carries a decision second, "
+                           "so there is no chronological reveal to build")
     lo = int(first if first is not None else secs[0])
     hi = int(last if last is not None else secs[-1])
-    cuts = list(range(lo, hi + 1, int(step_sec)))
+    if lo > hi:
+        raise RuntimeError("DRIVER REFUSAL: empty cut range first=%d > last=%d"
+                           % (lo, hi))
+    if per_row:
+        cuts = sorted({s for s in secs if lo <= s <= hi})
+        if not cuts:
+            raise RuntimeError("DRIVER REFUSAL: no decision second inside "
+                               "[%d, %d]" % (lo, hi))
+    else:
+        if step_sec is None or int(step_sec) <= 0:
+            raise RuntimeError("DRIVER REFUSAL: step_sec=%r is not a positive "
+                               "number of seconds" % (step_sec,))
+        if int(step_sec) > DRIVE_STEP_MAX and not allow_coarse_step:
+            raise RuntimeError(
+                "DRIVER REFUSAL (R09/D14): --drive-step %d > %ds exposes up to "
+                "%d seconds of post-decision rows in every prefix; use "
+                "--drive-per-row, or a step <= %d, or declare "
+                "--allow-coarse-step"
+                % (int(step_sec), DRIVE_STEP_MAX, int(step_sec) - 1,
+                   DRIVE_STEP_MAX))
+        cuts = list(range(lo, hi + 1, int(step_sec)))
+        if not cuts:
+            raise RuntimeError("DRIVER REFUSAL: empty cut range [%d, %d] "
+                               "step=%d" % (lo, hi, int(step_sec)))
     if cuts[-1] != hi:
         cuts.append(hi)
     return [(c, prefix_view(rows, c)) for c in cuts]
@@ -714,7 +1129,11 @@ def day_driver(rows, step_sec, first=None, last=None):
 # view carries both spellings and `read_index` populates both, so a consumer
 # pinned to either name keeps working.
 ALIASES = (("day_type_so_far", "day_type"),
-           ("range_vs_hat_pct", "pct_range_hat"))
+           ("range_vs_hat_pct", "pct_range_hat"),
+           # R07: the column holds DOLLARS and always did; the V1/V2/V3 name
+           # said percent.  The name is corrected and the old spelling is
+           # pinned here for e1d1_policy / e1d1_seal, which read it by name.
+           ("unspent_phase_usd", "pct_unspent_phase"))
 
 
 def read_index(path):
@@ -755,18 +1174,31 @@ def compat_path(path):
     return stem + "_COMPAT" + (ext or ".tsv")
 
 
-def write_compat(path, rows):
+def write_compat(path, rows, as_of=None):
     """The PINNED V1 API: ONE comment line, both column spellings.
 
     `e1d1_policy.py` / `e1d2_policy.py` / `baseline_replay.py` are FROZEN
     scoreboard code and parse with `readlines()[1:]`; this file is the view
     they can read for ever, whatever the versioned index grows into.
+
+    R47: the header used to claim "V1 column spellings retained" while the
+    emitted list is the CURRENT column set plus every legacy alias — the file's
+    own description of its contract was not what it emitted, which is how the
+    D8/D13 class recurs.  It now says what it does.
+    R27: a compat view built from an `--as-of` prefix carries the AS_OF stamp
+    in its one comment line, so neither a consumer nor a later audit can
+    mistake a masked prefix for a day-complete table.
     """
     cols = list(COLUMNS) + [legacy for _cur, legacy in ALIASES
                             if legacy not in COLUMNS]
-    lines = ["# TRIAGE INDEX COMPAT VIEW (D16 pinned reader: ONE comment line, "
-             "V1 column spellings retained; data identical to the versioned "
-             "index)"]
+    lines = ["# TRIAGE INDEX COMPAT VIEW (D16 pinned reader: ONE comment line; "
+             "the CURRENT %s column list plus every legacy alias, so a "
+             "consumer pinned to either spelling keeps working; data identical "
+             "to the versioned index)%s"
+             % (VERSION,
+                ("  AS_OF %d  (D14 prefix view: rows with sec > as_of are "
+                 "ABSENT; fields knowable only later are masked to '%s')"
+                 % (as_of, NA)) if as_of is not None else "")]
     lines.append("\t".join(cols))
     src = {legacy: cur for cur, legacy in ALIASES}
     for r in rows:
@@ -801,6 +1233,37 @@ def write_index(path, rows, as_of=None):
     return hashlib.sha256(text.encode()).hexdigest()[:16]
 
 
+def roster_count(asset, date8):
+    """How many candidates generation-v3's union roster carries for that
+    (asset, date8) — i.e. how many sheets a COMPLETE render must have left."""
+    import assemble as A                  # noqa: E402 — lazy: roster-side dep
+    r = A.roster(asset)
+    return int(np.sum(r["date8"] == int(date8)))
+
+
+def assert_day_complete(asset, date8, n_sheets, allow_mismatch=False):
+    """R28 (D30's root cause).  REFUSE to index a partially rendered day.
+
+    `main()` indexed whatever `.BLIND.sheet.txt` files happened to be in the
+    directory.  Blind day 7 sealed 1,109 of 1,117 rows because of exactly that,
+    and the patch lived in `lab/e1blind_day.sh` — conditional on a `.pid` file
+    whose creator was wrapped in `|| true`, so a failed render launch skipped
+    the guard entirely.  The roster is the count of record, so the guard
+    belongs here, where the table is built.
+    """
+    exp = roster_count(asset, date8)
+    if n_sheets == exp:
+        return exp
+    msg = ("ROSTER REFUSAL (R28/D30): %s %s has %d rendered sheets but the "
+           "generation-v3 union roster carries %d candidates (%+d). The index "
+           "would silently be built on a partial render."
+           % (asset, date8, n_sheets, exp, n_sheets - exp))
+    if not allow_mismatch:
+        raise RuntimeError(msg)
+    sys.stderr.write("DECLARED ROSTER MISMATCH: %s\n" % msg)
+    return exp
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--era", default="E1")
@@ -811,11 +1274,23 @@ def main():
     ap.add_argument("--as-of", type=int, default=None,
                     help="emit the D14 PREFIX VIEW at this decision second")
     ap.add_argument("--drive-step", type=int, default=None,
-                    help="chronological day driver: one prefix per STEP sec")
+                    help="chronological day driver: one prefix per STEP sec "
+                         "(R09: > %ds is refused unless --allow-coarse-step)"
+                         % DRIVE_STEP_MAX)
+    ap.add_argument("--drive-per-row", action="store_true",
+                    help="chronological day driver: one prefix per DISTINCT "
+                         "DECISION SECOND (R09, the exact as-of stepper)")
+    ap.add_argument("--allow-coarse-step", action="store_true",
+                    help="declare a --drive-step coarser than %ds (each prefix "
+                         "then carries up to step-1 seconds of LATER rows)"
+                         % DRIVE_STEP_MAX)
     ap.add_argument("--drive-out", default=None,
                     help="directory for the driver's prefixes + manifest")
     ap.add_argument("--no-compat", action="store_true",
                     help="do NOT write the D16 pinned-reader compat view")
+    ap.add_argument("--allow-roster-mismatch", action="store_true",
+                    help="declare (never hide) a sheet count that disagrees "
+                         "with the roster for that session — R28/D30")
     a = ap.parse_args()
 
     rows = []
@@ -823,10 +1298,16 @@ def main():
         asset, date8 = tok.split(":")
         d = os.path.join(ROOT, a.era, a.block, asset, date8)
         files = sorted(f for f in os.listdir(d) if f.endswith(".BLIND.sheet.txt"))
+        exp = assert_day_complete(asset, date8, len(files),
+                                  allow_mismatch=a.allow_roster_mismatch)
         for f in files:
             rows.append(parse_sheet(os.path.join(d, f)))
-        sys.stderr.write("%s %s: %d sheets\n" % (asset, date8, len(files)))
+        sys.stderr.write("%s %s: %d sheets (roster %d)\n"
+                         % (asset, date8, len(files), exp))
     rows.sort(key=lambda r: (r["sec"] or 0, r["asset"] or "", r["cid"] or ""))
+    if PCTILE_REFUSALS:
+        sys.stderr.write("clock-percentile refusals: %s\n"
+                         % sorted(PCTILE_REFUSALS.items()))
 
     if a.as_of is not None:
         rows_out = prefix_view(rows, a.as_of)
@@ -840,16 +1321,18 @@ def main():
                          % (a.out, len(rows), sha))
     if not a.no_compat:
         cp = compat_path(a.out)
-        csha = write_compat(cp, rows_out)
+        csha = write_compat(cp, rows_out, as_of=a.as_of)
         sys.stderr.write("wrote %s (D16 pinned view, sha16 %s)\n" % (cp, csha))
 
-    if a.drive_step:
+    if a.drive_step or a.drive_per_row:
         if not a.drive_out:
-            raise SystemExit("--drive-step requires --drive-out")
+            raise SystemExit("--drive-step/--drive-per-row requires --drive-out")
         os.makedirs(a.drive_out, exist_ok=True)
         man = [["as_of_sec", "clock", "n_rows", "n_new_rows", "sha16", "path"]]
         prev = 0
-        for cut, sub in day_driver(rows, a.drive_step):
+        for cut, sub in day_driver(rows, a.drive_step,
+                                   per_row=bool(a.drive_per_row),
+                                   allow_coarse_step=a.allow_coarse_step):
             p = os.path.join(a.drive_out, "ASOF_%06d.tsv" % cut)
             s = write_index(p, sub, as_of=cut)
             man.append([cut, "%02d:%02d:%02d" % (cut // 3600, cut // 60 % 60,
@@ -859,7 +1342,10 @@ def main():
         mp = os.path.join(a.drive_out, "DRIVE_MANIFEST.tsv")
         with open(mp, "w") as fh:
             fh.write("# TRIAGE DAY DRIVER (CC-M2-12.1a) — %s  columns_sha16 "
-                     "%s\n" % (VERSION, columns_sha16()))
+                     "%s  cut_rule=%s\n"
+                     % (VERSION, columns_sha16(),
+                        "per_row" if a.drive_per_row
+                        else "step_%ds" % int(a.drive_step)))
             fh.write("# every ASOF_*.tsv is a verified prefix view; the reader "
                      "opens them IN ORDER and never the day-complete table\n")
             for row in man:

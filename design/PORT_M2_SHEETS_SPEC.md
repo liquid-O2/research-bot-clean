@@ -480,3 +480,26 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
    fvol refused 5/8 E1 study sessions — the 3% FIT hole concentrates here) noted as era-structure. D24
    reaffirms the censused-constants law (no constant widened on n=3 again). V3 kill: pending batch-5 pooled
    verdict, expected confirmed. P018/P036/P037 statuses per ledger.
+
+## CC-M2-21 — census batch 5 adjudications (orchestrator, 2026-08-14; BINDING)
+1. ROLLING SEAT CONFIRMED AND SIZED (anchor carries it: row-grain AUC 0.758/0.736-GATE; monitor 0.790).
+   Per-asset heterogeneity RULED: SI keeps cell-open+unspent (rolling@open worse there — SI/NY is near-
+   always-seated), HG/NKD use rolling anchors; a per-asset anchor choice inside the M3 seat model, recorded.
+2. S10 side DEAD at all grains/thresholds — stage 2 formally has ZERO hand instruments (final); the
+   destruction nuance is on record (the geometry field carries information; the side reading wastes it —
+   d_POC/in_VA enter the FEATURE set, never a side rule). P037/P028 ledger rows MERGED (one object,
+   P028 canonical, P037 tombstoned with a pointer).
+3. P032 settled (marginal-positive/partial-negative — live-tape vs spent-energy; both forms to features,
+   day-7 clause dead). P033 concentrator accepted + its anti-signal (top product decile inside the runway
+   band = 0/906 — 'the move already happened') as a named feature.
+4. VETO READING RULED: the POOLED LAW is the GREEDY REPLAY reading (deployment-shaped — what actually
+   happens trading chronologically), with the DP seat-split as mandatory companion diagnostic (CC-M1-8
+   logic extended). VERDICTS: V2 RETAINED (+$937.50 replay). V3 KILLED (replay +$287.50 at p=1.00, 39
+   winners refused, higher vetoed-pool certs — no deployment value, real destruction).
+5. EVENT STATISTICS: through-book prints = the one paying event concentrator (1.50x, GATE-replicating,
+   destruction-surviving) -> feature set; c2f INVERTED (a negative-sign feature, so labeled); side-resolved
+   erosion carries NO side (mirror dead) — field kept as state, side reading barred.
+6. Process: lane-to-lane commit collision class — census lanes are not scheduled concurrent with reader
+   SEAL windows henceforth (the blind round runs solo regardless); run.sh stale-pid echo = cosmetic fix
+   queued with the next tooling pass.
+7. WITH BATCH 5 ADJUDICATED, THE BLIND ROUND LAUNCHES NOW per CC-M2-20.2.

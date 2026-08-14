@@ -396,3 +396,25 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
 4. T5 repair (absolute-volume clause misfiring on NKD) approved for day-6 policy. D18b: the veto walk MUST
    run through the as-of stepper (SCAN-EXPOSED on day-5's two seats noted honestly); day 6 uses HEAD V3
    tooling end-to-end.
+
+## CC-M2-17 — E1 Day-6 adjudications: THE THREE-STAGE DECOMPOSITION (orchestrator, 2026-08-14; BINDING)
+1. THE SELECTION ARCHITECTURE CRYSTALLIZED (day-6's reconciliation is the proof): the decision decomposes as
+   (1) SEAT EXISTENCE — does this (asset,phase) cell offer a D-021 seat today? (2) CELL SIDE — which side?
+   (3) MOMENT — which candidate? (refusal core + concentrators + runway floor). Measured: core+oracle-cell-
+   side = +$5,494/session capture 0.506 at phase grain (~8x the day-grain +$664); the reader's 0.600 side
+   accuracy still lost because it spent seats in empty cells. Each stage gets its own estimand, census, and
+   model; M3 = the three stages composed.
+2. D20 RULED (blocking item): the regime forecaster legitimately has NO 2021 output (expanding-window warm-
+   up); E1 is the pre-instrument era. The E1 blind/teacher gate evaluates the reader WITHOUT forecaster
+   columns; the composition hypothesis (CC-M2-14.3) tests from E2 onward — this mirrors deployment reality
+   (instruments come online as history accrues; D-058 walk-forward). NOT a gate-blocker; recorded as scope.
+3. D19 FIX ORDERED: forecast_*.tsv drops the realized y_* columns (they live in truth_*.tsv); the day-6
+   FORECAST-TRUTH-EXPOSED stamps stand as the honest record.
+4. TOOLING FIXES ORDERED: seal tooling auto-calls used_cases record (the day-5 gap class dies); veto censuses
+   report the seat-spender sub-population separately (day-6's $0.00 replay-delta lesson).
+5. CENSUS BATCH 4 ORDERED: P030 CELL_VOL_CONCENTRATION (threshold sweep — the 150-vs-250 floor question),
+   P031 CROSS_ASSET_FUEL_OVERHANG (the day-6 winner evidence), and the CELL-SEAT EXISTENCE census (fraction
+   of cells offering D-021 seats; predictability from rv1800-at-cell-open, menu-hat class where available,
+   prior-cell outcomes — stage-1 of the decomposition, mirror+Holm discipline).
+6. P029 dead as a rule (era-period trend, not clock mechanism); P009 re-killed (own-asset fuel);
+   A-grade sigma_to_exit 0-for-3-days noted for the calibration record.

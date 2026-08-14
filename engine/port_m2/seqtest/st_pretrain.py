@@ -42,11 +42,38 @@ import torch.nn.functional as F            # noqa: E402
 
 import st_common as SC                     # noqa: E402
 import st_tok as TK                        # noqa: E402
+import st_tok2 as TK2                      # noqa: E402
 import st_run as R                         # noqa: E402
 import m2_common as MC                     # noqa: E402
 import m3_common as M3                     # noqa: E402
 
 DEV = R.DEV
+
+# ---- FIXPASS2 (F1): the tokenizer is now a SWITCH, defaulting to the V1
+# vocabulary so every committed number of the first pass reproduces byte for
+# byte.  `use_tokenizer("v2")` selects the repaired 3 962-cell vocabulary of
+# `st_tok2` (matrix tags R1/R6); everything downstream reads it through
+# `TKMOD()` / `VOCAB()` rather than a module-level binding.
+_TOK = {"mod": TK, "ver": "v1"}
+
+
+def use_tokenizer(ver):
+    _TOK["ver"] = "v2" if str(ver).lower() in ("2", "v2") else "v1"
+    _TOK["mod"] = TK2 if _TOK["ver"] == "v2" else TK
+    SC.hb("tokenizer := %s (vocab %d)" % (_TOK["ver"], _TOK["mod"].VOCAB))
+    return _TOK["mod"]
+
+
+def TKMOD():
+    return _TOK["mod"]
+
+
+def VOCAB():
+    return int(_TOK["mod"].VOCAB)
+
+
+def TOKVER():
+    return _TOK["ver"]
 
 # ---- the frozen model card (design receipt §4) -----------------------------
 D_MODEL = 512
@@ -197,7 +224,7 @@ def n_params(m):
 def _corpus(corpus, scope, multi=False, split=False):
     max_d8 = 20240101 if corpus == "A" else 20250701
     assets = MC.ASSET_ORDER if scope == "shared" else ("SI",)
-    T, S, A = TK.load_pretrain_corpus(max_d8, assets=assets)
+    T, S, A = TKMOD().load_pretrain_corpus(max_d8, assets=assets)
     IN = TG = None
     if multi:
         import st_aux as AX
@@ -214,7 +241,7 @@ def split_chunks(max_d8, assets, S, A):
     bounds, day_of = [], []
     at = 0
     for a_i, asset in enumerate(assets):
-        d = os.path.join(TK.TOK_DIR, asset)
+        d = os.path.join(TKMOD().TOK_DIR, asset)
         for f in sorted(os.listdir(d)):
             if not f.endswith(".npz") or int(f[:-4]) >= int(max_d8):
                 continue
@@ -251,6 +278,21 @@ def balanced_sampler(A, n_assets, seed=SC.SEED):
 
 W_NEXT, W_H60, W_H300, W_CPC = 1.0, 0.30, 0.30, 0.20
 
+# FIXPASS2 (F4): the CPC weight is a TOGGLE.  The first pass measured the two
+# contrastive heads at 7.89/7.91 against a chance level of ln(4096)=8.318 —
+# barely below chance (matrix tag R3).  The ruling authorises exactly two
+# treatments, decided by the ablation: reweight x3, or drop.
+_CPCW = {"w": W_CPC}
+
+
+def set_cpc_weight(w):
+    _CPCW["w"] = float(w)
+    return _CPCW["w"]
+
+
+def cpc_weight():
+    return float(_CPCW["w"])
+
 # ---- THE PRETRAIN QUALITY GATES (coordinator amendment, 2026-08-16) --------
 # A held-out-DAY validation split of the pretraining objective itself: whole
 # days, all assets, never trained on.  Selection is by VAL (and the downstream
@@ -267,7 +309,7 @@ def val_day_set(max_d8, assets=MC.ASSET_ORDER):
     """Every VAL_DAY_STRIDE-th cached trade date, ALL assets — whole days."""
     days = set()
     for asset in assets:
-        d = os.path.join(TK.TOK_DIR, asset)
+        d = os.path.join(TKMOD().TOK_DIR, asset)
         for f in sorted(os.listdir(d)):
             if f.endswith(".npz") and int(f[:-4]) < int(max_d8):
                 days.add(int(f[:-4]))
@@ -275,7 +317,8 @@ def val_day_set(max_d8, assets=MC.ASSET_ORDER):
     return set(ds[::VAL_DAY_STRIDE])
 
 
-def bigram_val_loss(T, S_tr, S_va, vocab=TK.VOCAB, chunk=40_000_000):
+def bigram_val_loss(T, S_tr, S_va, vocab=None, chunk=40_000_000):
+    vocab = int(vocab or VOCAB())
     """The 'did it actually learn structure' floor: a Laplace-smoothed bigram
     fitted on the TRAINING chunks, scored on the held-out ones."""
     cnt = np.zeros(vocab * vocab, dtype=np.int32)
@@ -334,7 +377,7 @@ def _step(model, opt, T, S, A, idx, IN=None, TG=None):
     with torch.autocast("cuda", dtype=torch.bfloat16, enabled=(DEV == "cuda")):
         h = model.trunk(x[:, :-1], a, None if sd is None else sd[:, :-1])
         logits = model.lm(h)
-    loss = F.cross_entropy(logits.float().reshape(-1, TK.VOCAB),
+    loss = F.cross_entropy(logits.float().reshape(-1, VOCAB()),
                            x[:, 1:].reshape(-1))
     parts["next"] = float(loss.item())
     if getattr(model, "multi", False) and tg is not None:
@@ -352,7 +395,7 @@ def _step(model, opt, T, S, A, idx, IN=None, TG=None):
                 parts[nm] = float(l.item())
         # CPC: predict the model's OWN representation N events ahead
         z = F.normalize(h.float(), dim=-1)
-        for k, off in enumerate(CPC_OFFSETS):
+        for k, off in enumerate(CPC_OFFSETS if cpc_weight() > 0 else ()):
             if h.shape[1] <= off + 8:
                 continue
             q = F.normalize(model.cpc[k](h[:, :-off, :].float()), dim=-1)
@@ -363,7 +406,7 @@ def _step(model, opt, T, S, A, idx, IN=None, TG=None):
             sim = qs @ ts_.t() / 0.1
             lab = torch.arange(qs.shape[0], device=qs.device)
             l = F.cross_entropy(sim, lab)
-            loss = loss + W_CPC * l
+            loss = loss + cpc_weight() * l
             parts["cpc%d" % off] = float(l.item())
     opt.zero_grad(set_to_none=True)
     loss.backward()
@@ -386,7 +429,7 @@ def eval_val(model, T, S, A, IN, TG, idx, n_assets, bs=64):
                             enabled=(DEV == "cuda")):
             h = model.trunk(x[:, :-1], av, None if sd is None else sd[:, :-1])
             lg = model.lm(h)
-        ce = F.cross_entropy(lg.float().reshape(-1, TK.VOCAB),
+        ce = F.cross_entropy(lg.float().reshape(-1, VOCAB()),
                              x[:, 1:].reshape(-1), reduction="none")
         ce = ce.view(x.shape[0], -1).mean(1).cpu().numpy()
         for j, k in enumerate(A[sel].tolist()):
@@ -406,7 +449,8 @@ def smoke(corpus="A", scope="shared", secs=SMOKE_SEC, multi=False,
     arithmetic the design receipt says must exist before the real run."""
     T, S, A, max_d8, assets, IN, TG = preloaded or _corpus(corpus, scope, multi)
     torch.manual_seed(SC.SEED)
-    model = EventLM(n_assets=len(assets), side=multi, multi=multi).to(DEV)
+    model = EventLM(vocab=VOCAB(), n_assets=len(assets), side=multi,
+                    multi=multi).to(DEV)
     npar = n_params(model)
     opt = torch.optim.AdamW(model.parameters(), lr=PT_LR, weight_decay=0.01)
     rng = np.random.RandomState(SC.SEED)
@@ -449,10 +493,14 @@ def smoke(corpus="A", scope="shared", secs=SMOKE_SEC, multi=False,
 
 
 def pretrain(corpus="A", scope="shared", budget_sec=None, epochs=1,
-             multi=False):
+             multi=False, preloaded=None):
     os.makedirs(TRUNK_DIR, exist_ok=True)
-    tag = "PRE_V_%s%s" % (scope, "_MULTI" if multi else "_NEXT")
-    pre = _corpus(corpus, scope, multi)
+    tag = "PRE_%s_%s%s%s" % (TOKVER().upper(), scope,
+                             "_MULTI" if multi else "_NEXT",
+                             ("_CPC%g" % cpc_weight()) if multi else "")
+    if TOKVER() == "v1":
+        tag = "PRE_V_%s%s" % (scope, "_MULTI" if multi else "_NEXT")
+    pre = preloaded or _corpus(corpus, scope, multi)
     sm = smoke(corpus, scope, multi=multi, preloaded=pre)
     T, S, A, max_d8, assets, IN, TG = pre
     tr_m, va_m, n_val_days = split_chunks(max_d8, assets, S, A)
@@ -466,7 +514,8 @@ def pretrain(corpus="A", scope="shared", budget_sec=None, epochs=1,
           % (n_val_days, S_va.size, S_all.size))
     draw = balanced_sampler(A, len(assets))
     torch.manual_seed(SC.SEED)
-    model = EventLM(n_assets=len(assets), side=multi, multi=multi).to(DEV)
+    model = EventLM(vocab=VOCAB(), n_assets=len(assets), side=multi,
+                    multi=multi).to(DEV)
     opt = torch.optim.AdamW(model.parameters(), lr=PT_LR, weight_decay=0.01)
     total_steps = int(min(int(epochs), PT_EPOCHS_MAX) * S.size / PT_BATCH)
     budget = budget_sec or WALL_CEILING_SEC
@@ -570,16 +619,19 @@ def pretrain(corpus="A", scope="shared", budget_sec=None, epochs=1,
                  "loss_last200": float(np.mean(losses[-200:])),
                  "ppl_last200": float(math.exp(np.mean(losses[-200:]))),
                  "curve": curve})
-    with open(os.path.join(SC.CACHE_ROOT, "token_counts.npy"), "rb") as fh:
-        pass
-    cnt = np.load(os.path.join(SC.CACHE_ROOT, "token_counts.npy"))
+    cnt = np.load(TKMOD().COUNTS_PATH if hasattr(TKMOD(), "COUNTS_PATH")
+                  else os.path.join(SC.CACHE_ROOT, "token_counts.npy"))
     p = cnt.astype(np.float64) / max(cnt.sum(), 1)
     nz = p[p > 0]
     info["unigram_entropy_nats"] = float(-(nz * np.log(nz)).sum())
     info["beats_unigram"] = bool(info["loss_last200"]
                                  < info["unigram_entropy_nats"])
+    info["tokenizer"] = TOKVER()
+    info["vocab"] = VOCAB()
+    info["cpc_weight"] = cpc_weight()
     torch.save({"state": model.state_dict(), "n_assets": len(assets),
-                "side": bool(multi), "multi": bool(multi), "info": info},
+                "side": bool(multi), "multi": bool(multi),
+                "vocab": VOCAB(), "tokenizer": TOKVER(), "info": info},
                os.path.join(TRUNK_DIR, "%s.pt" % tag))
     with open(os.path.join(TRUNK_DIR, "%s.json" % tag), "w") as fh:
         json.dump(info, fh, indent=1, default=str)
@@ -597,14 +649,15 @@ _FT = {}
 
 
 def load_ft():
-    if "X" in _FT:
+    if _FT.get("tokver") == TOKVER():
         return _FT
+    _FT.clear()
     import m3_walk as W
     D, _p = W.load_matrix()
-    X, rows = TK.load_cand_tokens()
+    X, rows = TKMOD().load_cand_tokens()
     pos = np.full(D["d8"].size, -1, dtype=np.int64)
     pos[rows] = np.arange(rows.size, dtype=np.int64)
-    _FT.update({"D": D, "X": X, "pos": pos,
+    _FT.update({"tokver": TOKVER(), "vocab": VOCAB(), "D": D, "X": X, "pos": pos,
                 "asset": D["asset_idx"].astype(np.int64),
                 "C": D["X"], "ctx_names": list(D["names"])})
     SC.hb("finetune corpus: %d candidate token windows (%.2f GB) + %d context "
@@ -655,12 +708,13 @@ def _ft_predict(model, X, pos, asset, rows, C=None, mu=None, sd=None, bs=512):
 
 def _make_ft(trunk_tag, scratch, n_assets, n_ctx, mode):
     torch.manual_seed(SC.SEED)
-    lm = EventLM(n_assets=n_assets)
+    lm = EventLM(vocab=VOCAB(), n_assets=n_assets)
     loaded = None
     if not scratch and mode != "ctx":
         ck = torch.load(os.path.join(TRUNK_DIR, "%s.pt" % trunk_tag),
                         map_location="cpu")
-        lm = EventLM(n_assets=ck["n_assets"])
+        lm = EventLM(vocab=int(ck.get("vocab", TK.VOCAB)),
+                     n_assets=ck["n_assets"])
         lm.load_state_dict(ck["state"])
         loaded = ck["info"]
     return EventHead(lm, n_ctx=n_ctx, mode=mode).to(DEV), loaded
@@ -805,7 +859,11 @@ def main():
     ap.add_argument("--mode", default="fused")
     ap.add_argument("--assets", default="")
     ap.add_argument("--tag", default=None)
+    ap.add_argument("--tokver", default="v1",
+                    help="v1 = the first pass's 3152-cell vocabulary; "
+                         "v2 = the F1-repaired 3962-cell vocabulary")
     a = ap.parse_args()
+    use_tokenizer(a.tokver)
     if a.embed:
         embed_all(a.trunk)
     elif a.probe:
@@ -854,15 +912,17 @@ def embed_all(trunk_tag, bs=256):
     order = np.argsort(ft["pos"][rows_all])
     rows_all = rows_all[order]
     side = False
-    if trunk_tag == "RANDOM":
+    if trunk_tag.startswith("RANDOM"):
         torch.manual_seed(SC.SEED)
-        lm = EventLM(n_assets=3)
-        info = {"tag": "RANDOM", "note": "untrained trunk, identical shape"}
+        lm = EventLM(vocab=VOCAB(), n_assets=3)
+        info = {"tag": "RANDOM", "note": "untrained trunk, identical shape",
+                "tokenizer": TOKVER(), "vocab": VOCAB()}
     else:
         ck = torch.load(os.path.join(TRUNK_DIR, "%s.pt" % trunk_tag),
                         map_location="cpu")
         side = bool(ck.get("side", False))
-        lm = EventLM(n_assets=ck["n_assets"], side=side,
+        lm = EventLM(vocab=int(ck.get("vocab", TK.VOCAB)),
+                     n_assets=ck["n_assets"], side=side,
                      multi=bool(ck.get("multi", False)))
         lm.load_state_dict(ck["state"])
         info = ck["info"]
@@ -1058,7 +1118,7 @@ def probe(trunk_tag, mode="fused", test_eras=SC.TEST_ERAS, tag=None,
                          "rung": "40M-frozen", "L": TK.CTX, "trunk": trunk_tag,
                          "mode": mode, "assets": (list(assets) if assets
                                                   else "ALL"),
-                         "pretrained": (trunk_tag != "RANDOM"),
+                         "pretrained": (not trunk_tag.startswith("RANDOM")),
                          "per_era": [R._strip(a) for a in per], "pooled": pool,
                          "ledger": ledger, "gpu": R.gpu_note()})
     np.savez(os.path.join(R._sdir(), "%s.npz" % name), champ=champ, win=win)

@@ -98,3 +98,21 @@
 **A PURE RELEASE DAY:** both seats sit inside the same 14:31-14:32 release window, 23 seconds apart, in the two metals. Days 1, 3, 5 have now each produced a two-seat day where the seats are one bet.
 
 **THE EVOLUTION IS WRITTEN FOR DAY 6, NOT TODAY:** dropping SHOCK-RESOLUTION and NKD/OPEN-DYNAMICS is argued in BLIND_NOTES from the card table above; neither cell appears in today's 17 takes, so today's seal is unaffected either way.
+
+## BLIND DAY 6 — 20211027 (sealed before any unblinding; policy RV2)
+
+**BLIND DAY 6 — 2021-10-27, 1,056 candidates (SI 367, HG 394, NKD 295), 62 creation-class rows, 9 cells, 23 TAKEs, 4 seats. FIRST DAY UNDER POLICY RV2 (the card rule).** The evolution bites exactly once and visibly: RV1 would have taken 24 rows and seated NKD/NY with an OPEN-DYNAMICS long at 13:01:21; RV2 drops that one row (NKD/OPEN-DYNAMICS fails its own asset's bulk on the era card, -$58.49 vs -$44.97) and the NKD/NY seat moves to a NEWS-WINDOW short at 16:03:35 — the class that DOES beat the NKD bulk (0.0800 vs 0.0467). One row changed, one seat changed, and the arms file records both arms on every row so the increment can be priced exactly.
+
+| cell | rows | creation-class rows | V2 fires | TAKEs | seat | side read (NOT traded) | conf | would-abstain | rolling R1/R2b at cell open | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| HG/LONDON | 125 | 0 | 0 | 0 | - | SHORT | LOW | no | CLOSED/OPEN | S8 phase -42 on 161 with 140 of 161 above the mid, but f30m -17 on 236 is nearly flat. Thin conviction. |
+| HG/NY | 201 | 16 | 0 | 7 | HG-20211027-052667-L | LONG | LOW | no | OPEN/CLOSED | S8 fuel 205 below / 19 above but f30m -123 on 1,152 the other way; AT_RANGE 93.6% with unspent $429. Mixed and nearly out of statistical room. |
+| HG/TOKYO | 68 | 0 | 0 | 0 | - | SHORT | LOW | YES | CLOSED/OPEN | S8 fph +1 on 337 (a dead-flat phase) with 268 of 337 above the mid; rv_collapse 10.65. WOULD-ABSTAIN (0.14). |
+| NKD/LONDON | 51 | 0 | 0 | 0 | - | LONG | LOW | no | CLOSED/CLOSED | S8 fph +15 on 31 with all 31 contracts below the mid; a 31-contract phase is not evidence. |
+| NKD/NY | 117 | 7 | 0 | 1 | NKD-20211027-057815-S | SHORT | LOW | no | CLOSED/CLOSED | S2 AT_RANGE 85.7% with unspent $447 (below the bar); S8 f30m -25 on 209 into an empty phase. The RV2 seat here (16:03 NEWS short) agrees with the read; the RV1 seat (13:01 OPEN long) would not have. |
+| NKD/TOKYO | 127 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | 3 contracts at the open; every flow window identical (D28). |
+| SI/LONDON | 84 | 1 | 0 | 1 | SI-20211027-025480-S | SHORT | MED | no | CLOSED/OPEN | S8 phase -30 on 34, f60 -26 on 26, f5m -28 on 36 — every window selling at the open with 30 of 34 contracts above the mid and the mid on a 15-second-old phase L. The policy's seat here agrees with the read for once. |
+| SI/NY | 244 | 31 | 0 | 14 | SI-20211027-046949-L | LONG | MED | no | CLOSED/CLOSED | S8 phase +9 on 143 with **143 of 143 contracts BELOW the mid** and 60s +10 on 20; S10 d_POC -$12.50 with in_VA=1 — price is AT developing value; S7 book 11x11 with c2f 6.70 (the highest quote-to-fill of the round: a heavily quoted, orderly open). |
+| SI/TOKYO | 39 | 0 | 0 | 0 | - | SHORT | LOW | YES | CLOSED/CLOSED | S8 fph 0 on 114 with 91 of 114 above the mid and f5m -8 on 24; the phase read is flat and the mid sits at a 2-second-old phase H. WOULD-ABSTAIN (0-for-7); TOKYO q50 $890 below the bar. |
+
+**RV2's FIRST BITE, measured:** 24 takes -> 23, and the NKD/NY seat moves from a 13:01:21 OPEN-DYNAMICS long to a 16:03:35 NEWS-WINDOW short. That is the whole footprint of the card rule on this day.

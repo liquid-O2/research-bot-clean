@@ -135,3 +135,17 @@ increment exactly.
 declaration was built on 493 study rows when a 100,000-row committed census of the same object was
 one section away. If the creation-class finding survives this round, its provenance should be the
 CARD, not my eight sessions.
+
+## AFTER DAY 6 (20211027, sealed; 1,056 rows, 23 TAKEs, 4 seats — first day under RV2)
+
+1. **RV2's footprint is exactly one row and one seat today:** the NKD/OPEN-DYNAMICS long at 13:01:21
+   is dropped and the NKD/NY seat becomes a NEWS-WINDOW short at 16:03:35. Small, visible, priceable.
+2. **A stage-3 (MOMENT) hypothesis, n=3, no outcome:** the best-agreeing seats of days 4, 5 and 6 all
+   carry `in_VA = 1` with |d_POC| < $100 — the entry is AT developing value rather than extended from
+   it — while day 1's two seats and most release shorts sit outside value. CC-M2-21.2 killed
+   d_POC/in_VA as a SIDE reading and kept the field as a FEATURE; this is the feature form and the
+   moment stage has never had a candidate. Recorded as a hypothesis, traded by nothing.
+3. **T1's threshold has never been censused at its VALUE** (5 trades / 10 contracts). Today's SI/NY
+   seat passes on 11 trades / 20 contracts; double the floor and it disappears. Add it to the D24
+   uncensused-constant list beside T3's 3,600s and T4's 5%.
+4. Policy RV2 unchanged for day 7.

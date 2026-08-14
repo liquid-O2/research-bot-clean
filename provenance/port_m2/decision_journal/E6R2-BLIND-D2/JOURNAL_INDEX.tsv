@@ -1,0 +1,9 @@
+# PORT_M2_SHEETS_SPEC.md §3 R2-8 WRITTEN DECISION JOURNAL (the reasoning, kept) (spec_sha16=f6ef73a41dbf8588)
+# params_hash=3796093a852bd9bca19a65a6eb37a267acda6aea516f29002c1748840c0e10fc
+# R2-8 index: one row per journal entry; sha16 = sha256(entry body)[:16]
+# seq = row index (deterministic, no wall clock)
+seq	round	era	date8	mode	episode_id	call	p	reads	sha16	n_chars	path
+0	E6R2-BLIND-D2	E6	20240425	BLIND	HG-20240425-S-E03	TAKE	0.11	ribbon:HG-20240425-011468-S T-40..T action grain, 404 events; seq_cues w=120; delta row; brief:HG	6dec9fa985e138a5	2179	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D2/JOURNAL_20240425.md
+1	E6R2-BLIND-D2	E6	20240425	BLIND	SI-20240425-L-E41	SKIP	0.07	chart:SI-20240425-052965-L approach panel (45min into 14:42:45); seq_cues w=120; delta row; brief:SI	97ab09aeeb934703	1859	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D2/JOURNAL_20240425.md
+2	E6R2-BLIND-D2	E6	20240425	BLIND	SI-20240425-S-E06	SKIP	0.06	seq_cues w=120; delta row; brief:SI	631e3317d7164ae2	1106	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D2/JOURNAL_20240425.md
+3	E6R2-BLIND-D2	E6	20240425	BLIND	NKD-20240425-S-E09	SKIP	0.06	seq_cues w=120; delta row; brief:NKD	18d1f71020602bbb	945	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D2/JOURNAL_20240425.md

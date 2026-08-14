@@ -20,10 +20,10 @@ the training set), `DIRECTIVES.md` D-054 / D-057 / D-073 / D-077 + D-077-UPDATE.
 
 | severity | numbered findings |
 |---|---|
-| BLOCKER-for-E2 | 35 (+1 discharged mid-review: R04) |
-| MAJOR | 89 |
+| BLOCKER-for-E2 | 36 (+1 discharged mid-review: R04) |
+| MAJOR | 94 |
 | MINOR (individually numbered) | 1 |
-| **numbered total** | **126** (R01-R126) |
+| **numbered total** | **132** (R01-R132) |
 
 Roughly 60 further MINOR findings are described inline, grouped by module at the end of each lens block, each
 with its file:line. They are grouped rather than numbered because the fix lane will take them per-module, not
@@ -34,13 +34,13 @@ by lens (a finding can sit in more than one):
 | lens | ids |
 |---|---|
 | 1. CAUSALITY / LEAKAGE | R01 R02 R09 R10 R14 R15 R16 R17 R18 R19 R20 R42 R43 R56 R57 R58 R70 R79 R80 R88 R93 R94 R95 R100 R105 R108 R118 R119 R120 R121 |
-| 2. REFUSAL SEMANTICS (D1/D22) | R06 R21 R22 R23 R24 R25 R45 R46 R71 R72 R73 R74 R89 R96 R109 R110 R122 |
+| 2. REFUSAL SEMANTICS (D1/D22) | R06 R21 R22 R23 R24 R25 R45 R46 R71 R72 R73 R74 R89 R96 R109 R110 R122 R132 |
 | 3. API / CONSUMER CONTRACTS (D16/D25) | R07 R08 R26 R27 R28 R29 R47 R50 R91 R92 R98 R102 |
-| 4. PROTOCOL MECHANICS (D18b/D30) | R02 R09 R10 R11 R30 R31 R32 R33 R34 R101 |
-| 5. D-077 COMPLIANCE SURFACES (D31) | R12 R13 R35 R36 R77 R123 |
+| 4. PROTOCOL MECHANICS (D18b/D30) | R02 R09 R10 R11 R30 R31 R32 R33 R34 R101 R129 |
+| 5. D-077 COMPLIANCE SURFACES (D31) | R12 R13 R35 R36 R77 R123 R127 R128 |
 | 6. DETERMINISM / PINS (D18) | R03 R37 R38 R44 R48 R103 R116 |
 | 7. SPEC-CONFORMANCE (D24) | R39 R40 R41 R49 R51 R69 R75 R78 R87 R99 R100 R102 R114 R125 |
-| 8. STATISTICAL HONESTY (CC-M1-12.4) | R04 R05 R52 R126 R59 R60 R61 R62 R63 R64 R65 R66 R67 R68 R81 R90 R104 R106 R107 R111 R112 R113 R115 R117 R124 |
+| 8. STATISTICAL HONESTY (CC-M1-12.4) | R04 R05 R52 R126 R130 R131 R59 R60 R61 R62 R63 R64 R65 R66 R67 R68 R81 R90 R104 R106 R107 R111 R112 R113 R115 R117 R124 |
 
 THE TOP FIVE BLOCKERS, in the order the fix lane should take them. The first three are all in the E1 BLIND
 corpus, which is the CC-M2-6 teacher-gate instrument — no gate number should be quoted until they are closed.
@@ -64,6 +64,15 @@ corpus, which is the CC-M2-6 teacher-gate instrument — no gate number should b
    publication on days the CFTC was closed (6 computed release dates in 2021-2025 are not US business days),
    and the fvol layer feeding S3 COVERAGE, S9's ladder and `regime_forecast` was built two spec revisions
    before D-054 and never rebuilt on sane mids.
+
+ONE FINDING THAT CHANGES HOW AN ADJUDICATED RESULT READS, flagged separately because it is not a fix but a
+re-reading: **R126** — the E1 teacher gate's bar (a) takes the margin over the single best-performing
+mechanical arm *selected on the 12 blind days themselves*, out of 13. Against the MEDIAN arm the reader is
+**+$906 (SCIENCE)** and **+$3,965 (NAME-STRUCK)**, and it beats 9 and 10 of the 13 arms respectively. The
+verdict's direction still holds — bars (b) and (c) fail independently and widely — but "the reader loses to
+the rules" and "the reader loses to the best rule chosen after the fact" are different claims, and the
+committed number is the second. This matters for D-078/D-079: the verification round must not reuse an
+in-sample max-of-13 reference arm.
 
 Also structural, and the reason several of the above survived: **R59** — `mirror_law_holds` is
 `lost == 0 and won > 0` over thousands of sessions, an unpassable criterion that gates every directional
@@ -1746,9 +1755,121 @@ order (deterministic under CPython, implicit in contract); and `best["per_day"].
 day the arm has no entry for as exactly $0.00, which is right when the arm took no seat and silently wrong if
 the arm was simply not run for that day — the two cases are indistinguishable in the output.
 
-*(The dedicated lens on this module was still running when this report was committed; its findings land as an
-addendum. What is recorded here — R101, R104, R126 — was verified directly in this lane against the frozen
-bytes and the committed artifacts.)*
+**R126 QUANTIFIED — the reader beats 9 of 13 mechanical arms and the median arm, and the gate reports only
+the gap to the max.** Re-derived in this lane from `evidence/port_m2/E1_BLIND_SCORE_ARMS.tsv`:
+
+| reading | reader replay | best of 13 (the bar) | MEDIAN of 13 | mean of 13 | arms the reader beats |
+|---|---|---|---|---|---|
+| SCIENCE | -$738.75 | **+$11,076.25** | -$1,645.00 | -$1,105.48 | **9 of 13** |
+| DEPLOYABLE | -$2,767.50 | +$7,540.00 | -$2,286.25 | -$781.06 | 5 of 13 |
+| NAME-STRUCK-SUPERSEDED | +$3,083.75 | +$6,823.75 | -$881.25 | -$1,213.75 | **10 of 13** |
+
+Against the MEDIAN mechanical arm the reader is **+$906 in SCIENCE and +$3,965 in the NAME-STRUCK reading**.
+The verdict's headline -$11,815 is the gap to a max-of-13 in-sample order statistic over correlated arms.
+The verdict's *direction* survives — bars (b) and (c) fail independently and by wide margins — but "the
+reader loses to the rules" and "the reader loses to the single best-performing rule chosen after the fact"
+are different claims, and only the second is what the number shows.
+Two aggravating sub-findings at the same site: `is_mechanical` (`:554-555`) matches only `BASE_EARLIEST*` /
+`E1D*`, so the frozen `DECLARED` arm is **excluded from the mechanical set** although CC-M2-20.2 calls it "a
+mechanical arm beside it" (MINOR — it does not flip any reading); and a **degenerate zero-take arm is
+eligible to be "best"** — `BASE_EARLIEST_CV650` has `n_takes=0`, `replay=0` in the NAME-STRUCK reading, so
+had every real arm gone negative the bar would have been set by doing nothing (MINOR).
+
+**R127 (BLOCKER) — the DEPLOYABLE reading runs against a three-event calendar containing ONE event in the
+whole blind block.** `pattern_lib.py:518-527` -> `context.py:184-225`. The "dated scheduled high-impact
+release" universe is exactly `Employment Situation` (74), `CPI` (74) and `FOMC statement` (54). Across the 12
+blind days (2021-10-20..2021-11-04) it contains **one** event: FOMC 2021-11-03. Absent: initial claims (3
+Thursdays in the block), ISM Manufacturing (Nov 1), ISM Services + ADP (Nov 3), advance Q3 GDP (Oct 28),
+PCE/Personal Income (Oct 29), durable goods (Oct 27), and — for the NKD book — the BOJ meeting (Oct 28).
+D-077-UPDATE(3) calls DEPLOYABLE "the reading that counts for the goal"; as built it is not a prop-firm
+compliance reading, it is an NFP/CPI/FOMC reading. Same machinery will score the D-079 verification round.
+(This is R36 — no impact classification in the calendar layer — reaching the gate.)
+
+**R128 (MAJOR) — the hold-crossing exclusion silently resolves a spec conflict in the direction that lowers
+the reader, and it is the ENTIRE SCIENCE->DEPLOYABLE difference.** `e1blind_score.py:329`; docstring `:251`.
+CC-M2-22.3 rules the held-into-window exposure "a DEPLOYMENT-POSTURE item ... not a generation change"; the
+pass strikes on it anyway. Since Addendum 2 confirms the reader **entered nothing inside a dated window**,
+this clause alone removes 622 candidates including the reader's 7 best takes (mean +$142.32 against -$159.54
+for the compliant remainder; 3 replay seats worth +$2,028.75), driving capture from -0.0074 to -0.0285.
+Separately, the docstring at `:251` quotes CC-M2-22.4 as containing the phrase "or its seat's hold crosses a
+flagged window" — **that phrase is not in the spec** (CC-M2-22.4 says only "read from the NEWS_DISTANCE FLAGS
+(incl. pre-window and held-into)"). The substance is authorised; the verbatim quote is fabricated.
+
+**R129 (MAJOR) — the seal/leak audit is case-sensitive against an UPPERCASE artifact tree, and three of its
+published verification claims are hardcoded strings the code never computes.**
+* `e1blind_score.py:187-189` — `touch = [f for f in files if ("blind_score" in f or "unblind" in f.lower()
+  or "S14" in f or "PANEL_" in f or "truth" in f.lower())]`. Three of five predicates are case-sensitive.
+  Re-running the audit range shows `99ae1d5..7378a2b` contains `evidence/port_m2/E1_BLIND_SCORE_{ARMS,BARS,
+  MARGINS}.tsv` and `E1_BLIND_SCORE_REPORT.md` — **four outcome artefacts the matcher misses**
+  (`"blind_score" != "BLIND_SCORE"`). Same hole for any `s14_*` / `panel_*` path.
+* `:567` + `:1005-1012` — `ord_bad` is computed and never refuses, and the report's bold headline "No outcome
+  artefact exists anywhere in `99ae1d5..HEAD`" is a fixed string contradicted by the `%d` in its own sentence
+  ("28 commits, **1 carrying such a path**").
+* `:1013-1015` — "the frozen arm re-run as committed reproduces the sealed `DECLARED` column exactly" is a
+  string literal; `run_policy` (`:204-213`) writes to a tempdir and **the comparison is never performed**.
+  `:1001-1004`'s "twelve seal commits ADDED rows and DELETED none (git numstat …)" is likewise hardcoded and
+  no numstat is run. Both are D-010 violations inside the gate's own evidence document.
+* `:197-201` — `read_index` applies **no seal check**; only the ledger is hash-verified (`:566`). The 12
+  triage COMPAT indices are untracked cache files that drive every mechanical arm, every compliance flag and
+  `open_utc`, and `input_sha256` is `{}` in the committed receipt.
+
+**R130 (MAJOR) — the committed TEACHER GATE VERDICT quotes numbers that no committed evidence file
+contains.** `provenance/port_m2/E1_TEACHER_GATE_VERDICT.md:9,12` cite "deployable-strict -$4,670" and
+"(+$3,521/12d strict)". Verified: `DEPLOYABLE-STRICT` appears **0 times** in the committed
+`E1_BLIND_SCORE_BARS.tsv` and **11 times** in the superseded `4fff1bc` version. The verdict body carries
+numbers from a run that was replaced; its nearest committed analogue (`NAME-STRUCK-SUPERSEDED`) reads -$3,740
+with a DECLARED replay of +$4,451.25. Addendum 2 superseded the rule and the body's numbers were never
+updated — a reproducibility break in the document two directives were written from.
+
+**R131 (MAJOR) — `params_hash` cannot distinguish two materially different scoring rules.**
+`e1blind_score.py:113-134`: `PARAMS["news_rule"]` was not edited when the compliance rule changed at
+`6310e71`. Verified: the header of `E1_BLIND_SCORE_BARS.tsv` reads
+`# params_hash=ddeb8601c5658bb136e642da38b8df24c70f821f0c528dfac2a08bf6c31ac335` **byte-identically in both
+commits**, despite `DEPLOYABLE-STRICT`/`DEPLOYABLE-DATED` becoming `DEPLOYABLE`/`NAME-STRUCK-SUPERSEDED` under
+a different exclusion predicate. Only `spec_sha16` moved. The provenance hash is the mechanism that is
+supposed to make exactly this undetectable-change class detectable.
+
+**R132 (MAJOR) — five D22 silent passes in the scorer.** `:227-229` an unrecognised `cls` scores
+`COND_VALUE.get(cls, 0.0)` and is therefore silently TAKEN at the `CV0` threshold (`0.0 >= 0.0`) and skipped
+elsewhere — R05 reaching the gate; `:368` `callmap.get(c, "SKIP")` silently scores a policy arm that emitted
+fewer rows than the index as skipping the remainder, with **no `set(callmap) == set(index)` assertion** after
+`run_policy`, feeding bar (a) directly; `:258` the missing-`NEWS_DISTANCE` path (R129's sibling — the file is
+under `/artifacts/`, which `.gitignore:2` ignores, so on a fresh clone `census_flags` returns `{}`, the red
+check at `:576-585` trivially passes with 0 disagreements, and the report still prints "matches the census
+file on every one of the 0 rows"); `:326-327` string equality on `"1"`; `:509` `conf.get(cid, "C")`.
+Plus a predicate GAP: nothing checks `np.isfinite(cert_close_usd)`, and a non-finite certificate is DROPPED
+from the ceiling (`c_c_roster.py:519`) but ADDED to the replay (`panel_score.py:264`) — producing a NaN
+margin, undefined `max()` at `:696`, and an empty cell (`m2_common.py:529`) indistinguishable from the
+legitimately-refused `lift_close`. No evidence it fired in this run.
+
+MINORS from this lens: `:283` `d_entry` is an UNSIGNED distance, so D-077.1's ordered "value profiled BY
+MINUTES-SINCE-RELEASE" is not produced by this pass; `:310-316` `slot_age` hardcodes `((8,30),(10,0),(14,0))`
+on EVERY day while generation gates the 14:00 ET slot on actual FOMC dates only
+(`b10_generation_v3.py:157-164`), so the report's "133 of 135 sit in the first 10 minutes after a generation
+SLOT" (`:1275`) invents a 14:00 anchor on 11 of 12 days, and `lo <= slots[c]//60 < hi` silently swallows the
+`-1` sentinel; D-077-UPDATE(4)'s OPEN-DYNAMICS confound check is answered with a frequency ("3 of 69 flagged",
+`:1254-1260`), not a value-conditional split; `:1412-1414` "all eight frozen predecessor policies ran AS
+COMMITTED" is hardcoded while `:540-544` silently drops a failed arm; `:1052,1198,1296` carry hardcoded counts
+(40, 49, 49) beside `%d` values that could disagree; `ceiling()` (`:359-360`) builds DP items with a different
+tie-break slot than `panel_score.dp_ceiling:232`, so the two can select different optimal schedules on value
+ties (benign — only totals are used and only totals are self-checked); `:598,366-370` iterate `set`s so
+`np.mean`/`sum` accumulation order is hash-seed dependent (safe here: all magnitudes are exact quarter-dollar
+multiples and every downstream sort key is total).
+
+VERIFIED SOUND in this lens — recorded because it is the part the verdict rests on: **the arithmetic
+reproduces end to end.** All three bar-(a) margins re-derive exactly from `E1_BLIND_SCORE_PERDAY.tsv` to
+`E1_BLIND_SCORE_BARS.tsv` (SCIENCE -$11,815.00, DEPLOYABLE -$10,307.50, NAME-STRUCK -$3,740.00), as do the
+lift ratio, both capture figures and the verdict's precision numbers (6/204 = 0.029412 vs
+(6+495)/12,418 = 0.040345, ratio 0.729). `cluster_mean` (`:430-450`) is algebraically the paired-t mean/SEM
+with the correct CR1 factor and `df=11`; `sign_test` and `gee_row` are correct with zeros properly excluded.
+Bar (c) is correct and its ceiling is proven equal to `panel_score.dp_ceiling` on all 36 SCIENCE
+session-assets by the self-check at `:588-594`. Outcomes are READ from the frozen roster via `PS.outcome`,
+never re-derived; the winner definition, replay seating and ledger parsing all delegate to `panel_score`
+rather than being reimplemented; the cid-set equality refusal at `:496-500` is a real guard; `seal_check`
+(`:142-168`) constructs git blob sha1 correctly and its `--mutant` mode (`:929-976`) genuinely proves both
+the refusal and the score movement; `news_flags`' hold-crossing (`:280-290`) is definitionally identical to
+`news_census.py:400-408` and `entry_in_window` is contained in `hold_crosses`, so nothing inside the +/-10min
+entry veto escapes the exclusion; there is no RNG anywhere.
 
 ---
 
@@ -1782,10 +1903,19 @@ D-001 gives one fix pass, so the ordering matters. Six of these are structural �
    (underpowered or coupled destruction nulls), R116 (one shared permutation draw across every detector).
    None of these requires new data — only correct scoping and honest labels on numbers already computed.
 
-Two items need a ruling rather than a fix: **R102** (the CC-M2-22.1 rename cannot be executed as a
-substitution without editing a frozen artifact — it has to be a display alias) and **R101/R126** (the gate
-verdict rests on `e1blind_score.py`, whose reference-arm selection is biased against the reader; the full
-review of that module lands as an addendum).
+7. **Before the D-079 verification round runs, fix the gate itself.** R126 (pre-register the reference arm
+   instead of taking a max-of-13 in-sample), R127 (the DEPLOYABLE calendar is three event types and contains
+   one event in the whole blind block), R128 (the hold-crossing exclusion contradicts CC-M2-22.3 and removes
+   the reader's 7 best takes), R129 (the leak audit's case-sensitive matcher plus three hardcoded claims the
+   code never computes), R131 (`params_hash` blind to the scoring-rule change). The verification round is the
+   instrument D-079 makes the prerequisite for the whole distillation program; it should not run on a scorer
+   with a known bias against the party being judged.
+
+Three items need a ruling rather than a fix: **R102** (the CC-M2-22.1 rename cannot be executed as a
+substitution without editing a frozen artifact — it has to be a display alias); **R130** (the committed
+TEACHER GATE VERDICT quotes superseded numbers that no committed evidence file contains — the document needs
+correcting, and D-010 says a load-bearing number must be reproducible); and **R126**'s re-reading of the E1
+result, which is an adjudication question, not a code change.
 
 ---
 

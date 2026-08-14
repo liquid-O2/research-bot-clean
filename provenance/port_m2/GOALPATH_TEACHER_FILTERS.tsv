@@ -1,0 +1,6 @@
+# the veto / day-side filters applied to the teacher's 15 takes (PORT-M2-GOALPATH-V1)
+arm	n	total_usd	usd_per_trade	n_walls	n_d021_winners
+ALL_15	15	4506.25	300.42	7	4
+VETO_K	8	822.5	102.81	4	2
+VETO_2K	3	1760	586.67	1	1
+DAYSIDE	6	-2198.75	-366.46	4	0

@@ -1,0 +1,5 @@
+# census 1 — two-sidedness of the DP-scheduled ORACLE seats (opposite-side candidate within 2K* and 0.5 ATR) (PORT-M2-GOALPATH-V1)
+asset	n_oracle_seats	n_one_sided_2K	one_sided_frac_n	oracle_usd	one_sided_usd	one_sided_frac_usd
+SI	906	275	0.3035	2.21216e+06	664825	0.3005
+HG	519	253	0.4875	1.11199e+06	534925	0.4811
+NKD	715	242	0.3385	1.5605e+06	509075	0.3262

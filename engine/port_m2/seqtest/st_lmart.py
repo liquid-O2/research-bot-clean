@@ -35,6 +35,21 @@ ROUNDS = 300
 EARLY = 25
 
 
+def _pct_within(v, key):
+    """Within-group percentile, so two heads on different scales can be summed
+    (the same device m3_walk._unit_pct uses for its composition)."""
+    out = np.zeros(v.size)
+    order = np.argsort(key, kind="stable")
+    k = key[order]
+    starts = [0] + (np.flatnonzero(k[1:] != k[:-1]) + 1).tolist()
+    stops = starts[1:] + [k.size]
+    for a, b in zip(starts, stops):
+        idx = order[a:b]
+        r = np.argsort(np.argsort(v[idx], kind="stable"), kind="stable")
+        out[idx] = (r + 0.5) / max(idx.size, 1)
+    return out
+
+
 def grades(v):
     g = np.zeros(v.size, dtype=np.int32)
     for e in GRADE_EDGES:
@@ -54,7 +69,7 @@ def _group_arrays(D, rows, klass, unit="class"):
 
 
 def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
-        shuffle=False, drop_tf=False, from_era="E2"):
+        shuffle=False, drop_tf=False, from_era="E2", compose=False):
     import xgboost as xgb
     import m3_walk as W
     D, _p = W.load_matrix()
@@ -117,6 +132,23 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
         dall.set_group(g_tr)
         b2 = xgb.train(cfg, dall, best_rounds)
         s = b2.predict(xgb.DMatrix(XF[ev_r], feature_names=FN))
+        if compose:
+            # THE FEASIBILITY GATE, m3_walk's COMPOSED construction verbatim:
+            # the ranking head ORDERS, the walled-winner head says whether a
+            # seat exists here at all.  Both are put on a common monotone scale
+            # (within-CELL percentile) and summed.  This attacks SEL_WRONG_SIDE,
+            # which the pure ranker made worse.
+            yw = D["y_winner"]
+            fw = tr[np.isfinite(yw[tr])]
+            cfgw = {"objective": "reg:squarederror", "tree_method": "hist",
+                    "subsample": 0.8, "seed": SC.SEED, "nthread": 8,
+                    "max_depth": 4, "eta": 0.08, "min_child_weight": 20,
+                    "colsample_bytree": 0.6}
+            bw = xgb.train(cfgw, xgb.DMatrix(XF[fw], label=yw[fw],
+                                             feature_names=FN), 60)
+            w = bw.predict(xgb.DMatrix(XF[ev_r], feature_names=FN))
+            key = RK.group_key(D, ev_r, klass, unit)
+            s = _pct_within(s, key) + _pct_within(w, key)
         score[ev_r] = s
         g_ev = RK.build_groups(D, ev_r, klass, unit)
         nd, ng = RK.ndcg_at_k(score, value, g_ev, 3)
@@ -164,10 +196,11 @@ def main():
     ap.add_argument("--shuffle", action="store_true")
     ap.add_argument("--drop-tf", action="store_true")
     ap.add_argument("--from-era", default="E2")
+    ap.add_argument("--compose", action="store_true")
     a = ap.parse_args()
     if a.run:
         run(test_eras=tuple(a.eras.split(",")), unit=a.unit, shuffle=a.shuffle,
-            drop_tf=a.drop_tf, from_era=a.from_era,
+            drop_tf=a.drop_tf, from_era=a.from_era, compose=a.compose,
             tag=a.tag or ("LMART_%s%s" % (a.unit.upper(),
                                           "_SHUFFLED" if a.shuffle else "")))
     else:

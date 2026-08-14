@@ -546,3 +546,22 @@ gain is concentrated in the later eras, which is what a learning curve looks lik
 a regime-lucky run looks like — E8 is one era. `SEL_WRONG_SIDE` moved the wrong way. And the
 `tf_*` columns arrived from another lane mid-session; the result survives without them
 ($673.74) but the headline figure uses them.
+
+## 17. ITERATION 3 — a change that FAILED, recorded as such
+
+The §15 ledger named `SEL_WRONG_SIDE` (+$181/session, the wrong way) as the next target. The
+indicated single change was m3_walk's own **COMPOSED** construction: let the ranking head order
+and let the walled-winner head gate feasibility, both as within-CELL percentiles, summed.
+
+| arm | $/session | capture |
+|---|--:|--:|
+| `LMART_CELL_ALLDATA` (iteration 2) | **$935.97** | 0.3164 |
+| `LMART_CELL_COMPOSED` (+ feasibility gate) | **−$23.85** | 0.0467 |
+
+**It destroys the arm.** Selection here is top-1 *within* a cell, so the percentile transform
+preserves the ranker's own ordering exactly — which means the entire loss is caused by the
+winner head's ordering disagreeing with the dollar ordering inside the cell. The walled-winner
+head is not a usable gate at this grain.
+
+**Reverted. `LMART_CELL_ALLDATA` stands as the iteration-2 arm.** `SEL_WRONG_SIDE` remains open
+and now has one ruled-out treatment against it.

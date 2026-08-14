@@ -2,7 +2,7 @@
  "availability_layer_findings": "n_lag_value_too_short and n_vintage_undeclared are REPORTED, not folded into this fixture's exit code: both are defects of AVAILABILITY_LAGS.tsv and availability.py, which the \u00a72 gate does not own, and the gate must stay runnable while they are open (R40/R14/R79-R86).",
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "9938936fcf26b8f0a6f1f92e3d1d41af22f9b0ae",
+  "git_sha": "8687da5f2084447c4bf7c9f4926138503b05db30",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",

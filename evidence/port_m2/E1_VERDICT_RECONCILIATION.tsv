@@ -1,0 +1,16 @@
+# PORT_M2_SHEETS_SPEC.md §CC-M2-6 (E1 BLIND SCORING PASS — teacher-gate inputs) (spec_sha16=19fedc9231ba9f0e)
+# params_hash=5739716b33c263089b0c85ff9514c4379f36ef5d69cf0917e30cb2736dbe43f7
+# every number and reading-token the committed provenance/port_m2/E1_TEACHER_GATE_VERDICT.md quotes, checked against the tables THIS pass wrote (R130). NOT_FOUND_IN_CURRENT_SOURCE = the document quotes a number no current committed evidence file contains — D-010 says a load-bearing number must be reproducible
+# 6 of 11 quoted items do not resolve
+verdict_line	kind	quoted	resolved_to	context	verdict
+9	number	−$11,815		(a) Margin vs best mechanical: NEGATIVE in all readings (science −$11,815/12d; deployable-	NOT_FOUND_IN_CURRENT_SOURCE
+9	number	−$4,670		(a) Margin vs best mechanical: NEGATIVE in all readings (science −$11,815/12d; deployable-	NOT_FOUND_IN_CURRENT_SOURCE
+10	number	−$149		(b) Lift: take-pool mean NEGATIVE (−$149 science); winner precision 0.0294 vs 0.0403 base 	NOT_FOUND_IN_CURRENT_SOURCE
+10	number	0.0294	E1_BLIND_SCORE_ARMS.tsv:winner_precision_close	(b) Lift: take-pool mean NEGATIVE (−$149 science); winner precision 0.0294 vs 0.0403 base 	FOUND
+10	number	0.0403	E1_BLIND_SCORE_ARMS.tsv:winner_precision_close	(b) Lift: take-pool mean NEGATIVE (−$149 science); winner precision 0.0294 vs 0.0403 base 	FOUND
+12	number	+$3,521		(+$3,521/12d strict) — still nowhere near bars. The study-block +$736/session did not surv	NOT_FOUND_IN_CURRENT_SOURCE
+12	number	+$736		(+$3,521/12d strict) — still nowhere near bars. The study-block +$736/session did not surv	NOT_FOUND_IN_CURRENT_SOURCE
+18	number	$0	E1_BLIND_SCORE_BARS.tsv:bar_value	a WINNER-RATE CONCENTRATOR with ~$0 mean certificate per candidate (the compliance census 	FOUND
+28	token	READER		2. THE READER'S ROLE IS REDEFINED to what D-056/CC-M2-2 always held durable: the EVIDENCE 	FOUND
+51	token	DEPLOYABLE		## ADDENDUM 2 (2026-08-14): FLAG-BASED DEPLOYABLE RECOMPUTE (CC-M2-22.4, commit 6310e71)	NOT_FOUND_IN_CURRENT_SOURCE
+54	number	0.0285	E1_BLIND_SCORE_ARMS.tsv:winner_precision_close	had flattered capture (+0.032) by removing 135 mostly-losing takes; the honest deployable 	FOUND

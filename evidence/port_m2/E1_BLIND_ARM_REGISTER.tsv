@@ -1,0 +1,17 @@
+# PORT_M2_SHEETS_SPEC.md §CC-M2-6 (E1 BLIND SCORING PASS — teacher-gate inputs) (spec_sha16=19fedc9231ba9f0e)
+# params_hash=5739716b33c263089b0c85ff9514c4379f36ef5d69cf0917e30cb2736dbe43f7
+# the report's 'all eight frozen predecessor policies ran AS COMMITTED' sentence is written FROM this table, never asserted
+arm	status	detail
+READER	SEALED_LEDGER	/workspace/provenance/port_m2/E1_BLIND_LEDGER.tsv
+DECLARED	RAN_AS_COMMITTED	e1_blind_declared_policy.py CLI on all 12 days
+BASE_EARLIEST	RAN	baseline_replay arm
+BASE_EARLIEST_CV*	REFUSED	no strictly-prior class card exists for ANY (asset, class) in this universe (14 triples, 934 of 934 rows) — R01/R05: an E1 decision has no admissible prior era
+__baseline_card_refusals__	COUNT	12418 candidate-rows carry no strictly-prior class card (R01/R05)
+E1D1	RAN_AS_COMMITTED	e1d1_policy.py CLI on all 12 days
+E1D2	RAN_AS_COMMITTED	e1d2_policy.py CLI on all 12 days
+E1D3	RAN_AS_COMMITTED	e1d3_policy.py CLI on all 12 days
+E1D4	RAN_AS_COMMITTED	e1d4_policy.py CLI on all 12 days
+E1D5	RAN_AS_COMMITTED	e1d5_policy.py CLI on all 12 days
+E1D6	RAN_AS_COMMITTED	e1d6_policy.py CLI on all 12 days
+E1D7	RAN_AS_COMMITTED	e1d7_policy.py CLI on all 12 days
+E1D8	RAN_AS_COMMITTED	e1d8_policy.py CLI on all 12 days

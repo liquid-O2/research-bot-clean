@@ -147,3 +147,29 @@ the one policy evolution and its argument), `blind_notes/D*.json` (the day input
 and `USED_CASE_LEDGER.tsv` (+12,418 BLIND entries, taint-clean).
 
 **I have not scored anything, and I do not know what any of it earned.**
+
+---
+
+## 7. POST-SEAL ANNOTATION — D-077 COMPLIANCE READING (no call changed, no outcome opened)
+
+D-077/D-077-UPDATE landed on the trunk while this round was running (between my day-7 and day-8
+seals) and states that the sealed round is not churned but its verdict is read in two readings:
+DEPLOYABLE (news-window takes excluded) and SCIENCE (all takes). What my sealed record says about
+that split, computed from ex-ante fields only:
+
+* **Takes:** 135 NEWS-WINDOW / 69 OPEN-DYNAMICS. **Seats: 14 NEWS-WINDOW / 26 OPEN-DYNAMICS.**
+  Under the DEPLOYABLE reading **26 of 40 seats survive**, spread over SI/NY, HG/NY, SI/TOKYO,
+  HG/TOKYO, SI/LONDON, HG/LONDON and NKD/NY.
+* **13 of the 14 news seats are stamped 14:30:39-14:37:47 sheet clock (12:30-12:37 UTC = 08:30 ET),
+  i.e. 0-8 minutes after the standard US data release**, and the fourteenth is 16:03:35. **Under the
+  [-10,+10] minute rule every one of them is inside the restricted window and struck for
+  deployment.** The OPEN-DYNAMICS seats cluster at 00:00-00:02, 07:00-07:05 and 13:00-13:03 — phase
+  opens, not releases — so the confound check D-077-UPDATE.4 asks for looks clean on the clock.
+* **AND A DEFECT FOR THE COMPLIANCE LANE (D31):** the sheets cannot support the rule as instrumented.
+  `S12 next_scheduled` carries only FOMC-class events (its countdown ran 8-14 days on every metals
+  sheet of this block) and `sched_last_age` is REFUSED on 186 of my 204 takes, so **minutes-since-
+  release is not derivable from the sheet or the index for the 08:30 ET releases that generate the
+  entire NEWS-WINDOW family.** The class is identified by its driver family, not by a timestamped
+  release, so a [-10,+10] veto cannot currently be evaluated ex ante on the data the reader sees.
+  The compliance census will have to join an external release calendar before D-077 can be enforced
+  as a hard veto anywhere in the stack.

@@ -40,16 +40,19 @@ WHAT IT DOES
      generation anchor are two different sets (news_census PARAMS
      "two_release_sets"), and defect D31 says so out loud:
        SCIENCE            every call (learning reading).
-       DEPLOYABLE-DATED   the literal [-10,+10]min rule against the DATED
-                          calendar: a candidate is struck if its ENTRY is
-                          within 600s of a dated release, or if its
-                          [entry, phase-close exit] hold CROSSES a restricted
-                          window (the held-into-window flag).
-       DEPLOYABLE-STRICT  DEPLOYABLE-DATED plus the whole NEWS-WINDOW family,
-                          which D-077-UPDATE.2 strikes for deployment AS
-                          CONSTRUCTED (0-10min post-release by generation).
-                          This is the reading the reader's own 26-of-40 seat
-                          count speaks about.
+       DEPLOYABLE         CC-M2-22.4, BINDING: compliance is read from the
+                          NEWS_DISTANCE.tsv FLAGS — inside_default_window,
+                          pre_release_window, held_into_window — never
+                          inferred from a blank minutes field (D-N3), plus
+                          the hold-crossing clause for rows outside the
+                          file's +/-15min reach.
+       NAME-STRUCK-       SUPERSEDED by CC-M2-22.1 and retained ONLY to
+       SUPERSEDED         reconcile the sealed summary's name-based 26-of-40
+                          count: DEPLOYABLE minus every row carrying the
+                          family label formerly spelled NEWS-WINDOW (now
+                          US_CLOCK — a fixed-clock family; only ~19% of its
+                          fires sit near a dated release, so the NAME IS NOT
+                          A COMPLIANCE FACT).
      A struck candidate leaves the UNIVERSE for every arm and for the DP
      ceiling alike: a policy that may not enter there must not be charged for
      the ceiling there either.  Capture against the FULL-universe ceiling is
@@ -229,6 +232,38 @@ def earliest_baselines(idx_rows):
 
 
 # --------------------------------------------------------------- readings ---
+NEWS_DISTANCE = os.path.join(REPO, "artifacts/cache/port/m2/news_compliance",
+                             "NEWS_DISTANCE.tsv")
+
+
+def census_flags(meta):
+    """CC-M2-22.4 (BINDING): compliance is READ FROM THE CENSUS FLAGS.
+
+    `NEWS_DISTANCE.tsv` carries one row per roster candidate within +/-15min
+    of a dated release, with `inside_default_window` ([-10,+10] — the binding
+    rule), `pre_release_window` and `held_into_window`.  D-N3: a BLANK
+    `minutes_since_release` means a release is AHEAD of the row, never that
+    the row is compliant — so nothing here is inferred from that field.
+
+    THE ONE GAP THE FILE CANNOT COVER, and how it is closed: the file's reach
+    is +/-15min, so a candidate that decides HOURS before a release and holds
+    its phase-close seat THROUGH the restricted window is not in the file at
+    all.  CC-M2-22.4's clause "or its seat's hold crosses a flagged window"
+    covers exactly that case, and it is computed here with the census's OWN
+    definition (news_census.py:400-408: any release's [-600,+600] window
+    intersecting [decision, phase close]), then VERIFIED to agree with the
+    file's `held_into_window` on every row the file does carry.
+    """
+    rows = {}
+    if os.path.exists(NEWS_DISTANCE):
+        with open(NEWS_DISTANCE) as fh:
+            for r in csv.DictReader([l for l in fh if not l.startswith("#")],
+                                    delimiter="\t"):
+                if r["cid"] in meta:
+                    rows[r["cid"]] = r
+    return rows
+
+
 def news_flags(meta):
     """Per-cid D-077 flags from the DATED calendar.
 
@@ -240,14 +275,15 @@ def news_flags(meta):
     flags = {}
     for cid, m in meta.items():
         dec_ts = m["dec_ts"]
-        exit_ts = m["open_utc"] + m["exit_close_sec"]
+        # the census's holding horizon: [decision, PHASE CLOSE] (never the
+        # wall) — news_census.py:400-403
+        exit_ts = m["open_utc"] + max(m["phase_close_sec"], m["dec_sec"])
         j = np.searchsorted(ts, dec_ts)
         near = ts[max(j - 2, 0):min(j + 2, ts.size)]
         d_entry = (np.abs(near - dec_ts).min() if near.size
                    else 10 ** 9)
-        lo, hi = dec_ts, max(exit_ts, dec_ts)
-        k0 = np.searchsorted(ts, lo - NEWS_WINDOW_SEC)
-        k1 = np.searchsorted(ts, hi + NEWS_WINDOW_SEC, side="right")
+        k0 = np.searchsorted(ts, dec_ts - NEWS_WINDOW_SEC, side="left")
+        k1 = np.searchsorted(ts, exit_ts + NEWS_WINDOW_SEC, side="right")
         cross = bool(k1 > k0)
         flags[cid] = {"dist_entry_sec": int(d_entry),
                       "entry_in_window": int(d_entry <= NEWS_WINDOW_SEC),
@@ -282,14 +318,28 @@ def slot_age(meta):
     return out
 
 
-def universes(meta, flags):
+def excluded_by_flags(cid, meta, flags, cflags):
+    """CC-M2-22.4: excluded iff ANY census flag is true for the cid, or the
+    seat's hold crosses a flagged window."""
+    r = cflags.get(cid)
+    if r is not None and (r["inside_default_window"] == "1"
+                          or r["pre_release_window"] == "1"
+                          or r["held_into_window"] == "1"):
+        return True
+    return bool(flags[cid]["hold_crosses"])
+
+
+def universes(meta, flags, cflags):
     allc = set(meta)
-    dated = {c for c in allc
-             if not (flags[c]["entry_in_window"] or flags[c]["hold_crosses"])}
-    strict = {c for c in dated if meta[c]["cls"] != NEWS_FAMILY}
+    deploy = {c for c in allc
+              if not excluded_by_flags(c, meta, flags, cflags)}
+    # SUPERSEDED by CC-M2-22.1 (the family is a fixed-clock family, renamed
+    # US_CLOCK; only ~19% of its fires sit near dated releases).  Kept ONLY to
+    # reconcile the sealed summary's name-based 26-of-40 count.
+    name = {c for c in deploy if meta[c]["cls"] != NEWS_FAMILY}
     return OrderedDict((("SCIENCE", allc),
-                        ("DEPLOYABLE-DATED", dated),
-                        ("DEPLOYABLE-STRICT", strict)))
+                        ("DEPLOYABLE", deploy),
+                        ("NAME-STRUCK-SUPERSEDED", name)))
 
 
 # ---------------------------------------------------------------- scoring ---
@@ -457,6 +507,8 @@ def build(days):
         o["dec_ts"] = int(float(ir["dec_ts"]))
         o["open_utc"] = o["dec_ts"] - int(float(ir["sec"]))
         o["conf"] = conf.get(cid, "C")
+        o["phase_close_sec"] = int(PS.A.roster(o["asset"])["phase_close_sec"]
+                                   [o["row"]])
         meta[cid] = o
 
     arms = OrderedDict()
@@ -518,7 +570,20 @@ def main():
     meta, arms, idx_by_cid, holders = build(days)
     flags = news_flags(meta)
     slots = slot_age(meta)
-    unis = universes(meta, flags)
+    cflags = census_flags(meta)
+    # RED CHECK: our held-into recomputation must agree with the census file
+    # on every row the file carries (the file's reach is only +/-15min).
+    disagree = [c for c, r in cflags.items()
+                if int(r["held_into_window"]) != flags[c]["hold_crosses"]]
+    dis_inside = [c for c, r in cflags.items()
+                  if int(r["inside_default_window"])
+                  != flags[c]["entry_in_window"]]
+    if disagree or dis_inside:
+        raise SealRefusal(
+            "census-flag agreement check failed: %d held_into and %d "
+            "inside_window disagreements against NEWS_DISTANCE.tsv"
+            % (len(disagree), len(dis_inside)))
+    unis = universes(meta, flags, cflags)
 
     # self-check: the SCIENCE ceiling must equal panel_score.dp_ceiling
     ceil_sci = ceiling(meta, unis["SCIENCE"])
@@ -710,20 +775,37 @@ def main():
                           m["side"], int(c in reader_seats), f["dist_entry_sec"],
                           f["entry_in_window"], f["hold_crosses"],
                           slots[c], slots[c] // 60,
-                          int(c in unis["DEPLOYABLE-DATED"]),
-                          int(c in unis["DEPLOYABLE-STRICT"]),
+                          int(c in cflags),
+                          (cflags[c]["inside_default_window"] if c in cflags
+                           else "0"),
+                          (cflags[c]["pre_release_window"] if c in cflags
+                           else "0"),
+                          (cflags[c]["held_into_window"] if c in cflags
+                           else str(flags[c]["hold_crosses"])),
+                          (cflags[c]["release_name"] if c in cflags else ""),
+                          int(c in unis["DEPLOYABLE"]),
+                          int(c in unis["NAME-STRUCK-SUPERSEDED"]),
                           m["cert_close_usd"], m["winner_close"]])
+    news_extra = [
+        "CC-M2-22.4: flag_* columns are READ FROM "
+        "artifacts/cache/port/m2/news_compliance/NEWS_DISTANCE.tsv where the "
+        "cid is present (in_census_NEWS_DISTANCE=1); nothing is inferred from "
+        "a blank minutes field (D-N3)",
+        "the file's reach is +/-15min, so flag_held_into_window for a cid "
+        "OUTSIDE it is recomputed with the census's own definition "
+        "(news_census.py:400-408) — verified equal on every row the file "
+        "carries",
+        "cls US_CLOCK (spelled NEWS-WINDOW in the sealed ledger) is a FIXED-"
+        "CLOCK family name, NOT a compliance fact (CC-M2-22.1 / D-N1)"]
     W("E1_BLIND_NEWS_DISTANCE.tsv",
       ("cid", "asset", "date8", "clock", "cls", "side", "is_replay_seat",
        "dist_to_dated_release_sec", "entry_in_window_10min",
        "hold_crosses_window", "slot_age_sec", "minutes_since_slot",
-       "in_DEPLOYABLE_DATED", "in_DEPLOYABLE_STRICT",
+       "in_census_NEWS_DISTANCE", "flag_inside_default_window",
+       "flag_pre_release_window", "flag_held_into_window", "release_name",
+       "in_DEPLOYABLE", "in_NAME_STRUCK_SUPERSEDED",
        "cert_close_usd", "winner_close"), news_rows,
-      extra=["m2/news_compliance/NEWS_DISTANCE.tsv has not landed; distances "
-             "computed here from pattern_lib.release_calendar() (BLS+FOMC "
-             "dated calendar, D-057 SCHEDULE_EXEMPT)",
-             "defect D31: the DATED calendar is not the family's generation "
-             "anchor set — see the report"])
+      extra=news_extra)
 
     # 5. ancillaries — class value split, RV1/RV2, grade calibration
     anc = []
@@ -838,7 +920,7 @@ def main():
 
     write_report(meta, arms, unis, ceils, scored, flags, d8s, marg_rows, bars,
                  anc, gee_rows, ord_rows, ord_bad, sealed_sha, receipt, mut,
-                 idx_by_cid, holders, slots)
+                 idx_by_cid, holders, slots, cflags)
     MC.hb("e1blind_score: %d calls, %d arms, %d readings -> %s"
           % (len(meta), len(arms), len(unis), OUT))
     return 0
@@ -901,7 +983,7 @@ def _f(v, fmt="%.3f"):
 
 def write_report(meta, arms, unis, ceils, scored, flags, d8s, marg_rows, bars,
                  anc, gee_rows, ord_rows, ord_bad, sealed_sha, receipt, mut,
-                 idx_by_cid, holders, slots):
+                 idx_by_cid, holders, slots, cflags):
     L = []
     A = L.append
     A("# E1 BLIND ROUND — SCORING PASS (CC-M2-6 TEACHER-GATE INPUTS)")
@@ -1080,85 +1162,167 @@ def write_report(meta, arms, unis, ceils, scored, flags, d8s, marg_rows, bars,
       % (rho, prho, int((seq > 0).sum()), len(seq), float(seq[:5].sum()),
          float(seq[5:].sum())))
     A("")
-    A("## 6. D-077 READINGS — WHAT THE RULE ACTUALLY STRIKES")
+    A("## 6. D-077 / CC-M2-22 COMPLIANCE — READ FROM THE CENSUS FLAGS")
     A("")
-    n_entry = sum(1 for c in unis["SCIENCE"] if flags[c]["entry_in_window"])
-    n_hold = sum(1 for c in unis["SCIENCE"] if flags[c]["hold_crosses"])
     takes = {c for c in unis["SCIENCE"] if arms["READER"][c] == "TAKE"}
     seats = scored["SCIENCE"]["READER"]["seat_cids"]
-    A("* `m2/news_compliance/NEWS_DISTANCE.tsv` **has not landed** (the census "
-      "lane is unrun); distances are computed here from "
-      "`pattern_lib.release_calendar()` — the DATED BLS+FOMC calendar, "
-      "D-057 SCHEDULE_EXEMPT.")
-    A("* Over 2021-10-20..2021-11-04 that calendar contains **exactly one** "
-      "dated high-impact release: the FOMC statement, 2021-11-03 18:00 UTC "
-      "(day 11). Employment Situation 2021-11-05 and CPI 2021-11-10 fall "
-      "after the block.")
-    A("* Candidates struck by the literal rule: %d by entry-in-window, %d by "
-      "hold-crossing; reader TAKEs struck %d of %d; reader replay seats "
-      "struck %d of %d."
-      % (n_entry, n_hold,
-         len(takes - unis["DEPLOYABLE-DATED"]), len(takes),
-         len(seats - unis["DEPLOYABLE-DATED"]), len(seats)))
-    A("* **This is defect D31 in the reader's own summary, quantified:** the "
-      "NEWS-WINDOW family is cut against the FIXED 08:30 / 10:00 ET wall-clock "
-      "GENERATION anchors (`engine/port_m1/family_discovery.py:104` "
-      "`NEWS_SLOTS`, consumed by "
-      "`engine/port_m1/b10_generation_v3.py:143 news_release_offsets`), not "
-      "against the dated BLS/FOMC calendar the prop rule names. The literal "
-      "dated rule therefore strikes almost nothing here, which is why "
-      "DEPLOYABLE-STRICT — the family struck as D-077-UPDATE.2 orders — is "
-      "carried as the second deployable reading.")
+    n_entry = sum(1 for c in unis["SCIENCE"] if flags[c]["entry_in_window"])
+    n_hold = sum(1 for c in unis["SCIENCE"] if flags[c]["hold_crosses"])
+    A("**CC-M2-22.4 is binding here and supersedes the name-based reading.** "
+      "Compliance is taken from the FLAGS in "
+      "`artifacts/cache/port/m2/news_compliance/NEWS_DISTANCE.tsv` "
+      "(`inside_default_window`, `pre_release_window`, `held_into_window`); "
+      "nothing is inferred from a blank `minutes_since_release` (D-N3 — a "
+      "blank means a release is AHEAD of the row).")
     A("")
-    A("### D-077.2 — news-window takes by MINUTES SINCE the generation anchor")
+    A("* The census file carries **%d of the round's %d candidates** (its "
+      "reach is ±15min of a dated release); **all %d are on day 11, "
+      "2021-11-03** — the block's only dated high-impact release (FOMC "
+      "statement 18:00 UTC; the CPI-named rows are pre-window rows whose "
+      "LAST release was October CPI and whose NEXT is that FOMC)."
+      % (len(cflags), len(meta), len(cflags)))
+    A("* Flag agreement RED CHECK: this pass's own recomputation of "
+      "`inside_default_window` and `held_into_window` matches the census file "
+      "on **every one of the %d rows** the file carries (0 disagreements), so "
+      "the hold-crossing clause applied to rows OUTSIDE the file's ±15min "
+      "reach is the census's own definition (news_census.py:400-408), not a "
+      "substitute. Without that clause a seat entered hours before the FOMC "
+      "and held through it would be scored compliant." % len(cflags))
+    A("* Flag census over the whole round: %d candidates "
+      "inside_default_window, %d whose phase-close hold crosses a restricted "
+      "window." % (n_entry, n_hold))
+    A("")
+    A("### THE FLAG-BASED EXCLUSION (the number that counts)")
+    A("")
+    A("| basis | takes excluded | seats excluded (reader's own 40) | "
+      "seats excluded (CC-M2-10.3 replay, 49) |")
+    A("|---|---|---|---|")
+    A("| **CC-M2-22.4 FLAGS (binding)** | **%d of %d** | **%d of %d** | "
+      "**%d of %d** |"
+      % (len(takes - unis["DEPLOYABLE"]), len(takes),
+         len(holders - unis["DEPLOYABLE"]), len(holders),
+         len(seats - unis["DEPLOYABLE"]), len(seats)))
+    A("| name-based `NEWS-WINDOW` label (SUPERSEDED, D-N1) | %d of %d | "
+      "%d of %d | %d of %d |"
+      % (sum(1 for c in takes if meta[c]["cls"] == NEWS_FAMILY), len(takes),
+         sum(1 for c in holders if meta[c]["cls"] == NEWS_FAMILY),
+         len(holders),
+         sum(1 for c in seats if meta[c]["cls"] == NEWS_FAMILY), len(seats)))
+    A("")
+    nw = [c for c in takes if meta[c]["cls"] == NEWS_FAMILY]
+    nw_flagged = [c for c in nw if c not in unis["DEPLOYABLE"]]
+    A("**D-N1 confirmed on the round's own calls.** The sealed ledger's "
+      "`NEWS-WINDOW` label (CC-M2-22.1 renames it **US_CLOCK**) is a "
+      "fixed-clock family name, not a release fact: of the reader's %d "
+      "US_CLOCK takes only **%d (%.1f%%)** carry any compliance flag. The "
+      "summary's **26-of-40 was a name-based guess and is superseded** — on "
+      "the flags **%d of the reader's 40 cell-seats survive** (%d excluded), "
+      "and %d of the scorer's 49 replay seats survive (%d excluded)."
+      % (len(nw), len(nw_flagged), 100.0 * len(nw_flagged) / max(len(nw), 1),
+         len(holders & unis["DEPLOYABLE"]), len(holders - unis["DEPLOYABLE"]),
+         len(seats & unis["DEPLOYABLE"]), len(seats - unis["DEPLOYABLE"])))
+    A("")
+    A("### Takes RE-LABELLED BY ACTUAL FLAG STATE (not by family name)")
+    A("")
+    A("| actual proximity state | takes | mean cert $ | winners | "
+      "replay seats | seat value $ |")
+    A("|---|---|---|---|---|---|")
+
+    def _lab(c):
+        r = cflags.get(c)
+        if r is not None and r["inside_default_window"] == "1":
+            return "INSIDE ±10min of a dated release"
+        if r is not None and r["pre_release_window"] == "1":
+            return "PRE-release window (≤10min ahead)"
+        if flags[c]["hold_crosses"]:
+            return "HOLD crosses a restricted window"
+        return "COMPLIANT (no flag)"
+
+    for lab in ("INSIDE ±10min of a dated release",
+                "PRE-release window (≤10min ahead)",
+                "HOLD crosses a restricted window", "COMPLIANT (no flag)"):
+        sub = [c for c in takes if _lab(c) == lab]
+        if not sub:
+            continue
+        ss = set(sub) & seats
+        A("| %s | %d | %+.2f | %d | %d | %+.2f |"
+          % (lab, len(sub),
+             float(np.mean([meta[c]["cert_close_usd"] for c in sub])),
+             sum(meta[c]["winner_close"] for c in sub), len(ss),
+             float(sum(meta[c]["cert_close_usd"] for c in ss))))
+    A("")
+    A("Flagged share by family label — the D-N1 point in one line: "
+      + ", ".join("%s %d of %d flagged"
+                  % (k, sum(1 for c in takes
+                            if meta[c]["cls"] == k
+                            and c not in unis["DEPLOYABLE"]),
+                     sum(1 for c in takes if meta[c]["cls"] == k))
+                  for k in sorted({meta[c]["cls"] for c in takes})) + ".")
+    A("")
+    A("### D-077.2 — US_CLOCK takes by MINUTES SINCE the GENERATION anchor")
+    A("")
+    A("The family's own anchor is the fixed 08:30 / 10:00 / 14:00 ET slot set "
+      "(`engine/port_m1/family_discovery.py:104 NEWS_SLOTS`, consumed by "
+      "`engine/port_m1/b10_generation_v3.py:143 news_release_offsets`). This "
+      "is a CLOCK profile and — D-N1 — it is NOT the compliance rule.")
     A("")
     A("| minutes since 08:30/10:00/14:00 ET slot | takes | mean cert $ | "
-      "winners | replay seats |")
-    A("|---|---|---|---|---|")
-    nw = [c for c in takes if meta[c]["cls"] == "NEWS-WINDOW"]
+      "winners | replay seats | of which flagged |")
+    A("|---|---|---|---|---|---|")
     buckets = [(0, 1), (1, 2), (2, 3), (3, 5), (5, 8), (8, 10), (10, 15),
                (15, 10 ** 6)]
     for lo, hi in buckets:
         sub = [c for c in nw if lo <= slots[c] // 60 < hi]
         if not sub:
             continue
-        A("| [%d,%s) | %d | %+.2f | %d | %d |"
+        A("| [%d,%s) | %d | %+.2f | %d | %d | %d |"
           % (lo, hi if hi < 10 ** 6 else "inf", len(sub),
              float(np.mean([meta[c]["cert_close_usd"] for c in sub])),
              sum(meta[c]["winner_close"] for c in sub),
-             len(set(sub) & seats)))
+             len(set(sub) & seats),
+             sum(1 for c in sub if c not in unis["DEPLOYABLE"])))
     A("")
-    A("Of the %d NEWS-WINDOW takes, %d are inside the first 10 minutes after a "
-      "generation anchor — the window D-077-UPDATE forbids outright. The "
-      "OPEN-DYNAMICS takes' slot ages are not a release fact (their anchors "
-      "are phase opens), and none of the round's OPEN-DYNAMICS seats sits "
-      "inside a DATED release window."
-      % (len(nw), sum(1 for c in nw if slots[c] // 60 < 10)))
+    A("Of the %d US_CLOCK takes, %d sit in the first 10 minutes after a "
+      "generation SLOT, but only %d carry a compliance flag — the slot was a "
+      "DATED release on only one day of the twelve. That gap IS D-N1."
+      % (len(nw), sum(1 for c in nw if slots[c] // 60 < 10), len(nw_flagged)))
     A("")
-    A("### 26-of-40 reconciliation")
-    nw_takes = sum(1 for c in takes if meta[c]["cls"] == "NEWS-WINDOW")
-    nw_hold = sum(1 for c in holders if meta[c]["cls"] == "NEWS-WINDOW")
-    nw_seats = sum(1 for c in seats if meta[c]["cls"] == "NEWS-WINDOW")
+    A("### 26-of-40 reconciliation (both numbers, as ordered)")
+    nw_takes = sum(1 for c in takes if meta[c]["cls"] == NEWS_FAMILY)
+    nw_hold = sum(1 for c in holders if meta[c]["cls"] == NEWS_FAMILY)
+    nw_seats = sum(1 for c in seats if meta[c]["cls"] == NEWS_FAMILY)
     A("")
     A("The summary's 40 seats are the reader's OWN cell-seats; the scoring "
-      "law's replay seats 49 (D33 below). Both bases are reconciled:")
+      "law's replay seats 49 (D33 below). Both bases, both rules:")
     A("")
-    A("| quantity | summary claim | recomputed (reader's own 40) | "
-      "recomputed (CC-M2-10.3 replay) |")
+    A("| quantity | summary claim | reader's own 40 | CC-M2-10.3 replay (49) |")
     A("|---|---|---|---|")
-    A("| TAKEs NEWS-WINDOW / OPEN-DYNAMICS | 135 / 69 | %d / %d | %d / %d |"
+    A("| TAKEs US_CLOCK / OPEN-DYNAMICS | 135 / 69 | %d / %d | %d / %d |"
       % (nw_takes, len(takes) - nw_takes, nw_takes, len(takes) - nw_takes))
     A("| seats | 40 | %d | %d |" % (len(holders), len(seats)))
-    A("| seats NEWS-WINDOW / OPEN-DYNAMICS | 14 / 26 | %d / %d | %d / %d |"
+    A("| seats US_CLOCK / OPEN-DYNAMICS | 14 / 26 | %d / %d | %d / %d |"
       % (nw_hold, len(holders) - nw_hold, nw_seats, len(seats) - nw_seats))
-    A("| deployable seats (family struck, D-077-UPDATE.2) | 26 | %d | %d |"
-      % (len(holders & unis["DEPLOYABLE-STRICT"]),
-         len(seats & unis["DEPLOYABLE-STRICT"])))
-    A("| deployable seats (literal dated ±10min rule) | — | %d | %d |"
-      % (len(holders & unis["DEPLOYABLE-DATED"]),
-         len(seats & unis["DEPLOYABLE-DATED"])))
+    A("| deployable seats — PURE NAME strike (the summary's rule) | 26 | %d | "
+      "%d |" % (len(holders) - nw_hold, len(seats) - nw_seats))
+    A("| deployable seats — NAME strike AND flags "
+      "(NAME-STRUCK-SUPERSEDED universe) | — | %d | %d |"
+      % (len(holders & unis["NAME-STRUCK-SUPERSEDED"]),
+         len(seats & unis["NAME-STRUCK-SUPERSEDED"])))
+    A("| **deployable seats — CC-M2-22.4 FLAGS (binding)** | — | **%d** | "
+      "**%d** |"
+      % (len(holders & unis["DEPLOYABLE"]),
+         len(seats & unis["DEPLOYABLE"])))
     A("")
-    A("**The summary's 26-of-40 is confirmed exactly on its own basis.**")
+    A("**The summary's 26-of-40 reproduces exactly on its own (pure "
+      "name-strike) basis — %d of %d — and is superseded.** Under the binding "
+      "flag rule **%d of the 40 stand, %d excluded** (%d of 49 on the replay "
+      "basis): the name-based rule threw away %d seats that carry no "
+      "compliance flag at all."
+      % (len(holders) - nw_hold, len(holders),
+         len(holders & unis["DEPLOYABLE"]), len(holders - unis["DEPLOYABLE"]),
+         len(seats - unis["DEPLOYABLE"]),
+         len({c for c in holders if meta[c]["cls"] == NEWS_FAMILY
+              and c in unis["DEPLOYABLE"]})))
     A("")
     A("## 7. ANCILLARIES")
     A("")
@@ -1215,24 +1379,29 @@ def write_report(meta, arms, unis, ceils, scored, flags, d8s, marg_rows, bars,
          scored["SCIENCE"]["READER"]["mean_skip_close"],
          scored["SCIENCE"]["READER"]["take_minus_skip_close"],
          _f(scored["SCIENCE"]["READER"]["lift_peak"])))
-    A("* **D31 quantified (the reader's own defect).** The dated BLS+FOMC "
-      "calendar the prop rule speaks about contains ONE release inside the "
-      "block; the NEWS-WINDOW family is cut against the fixed 08:30/10:00 ET "
-      "GENERATION anchors. A literal [-10,+10] dated-calendar veto therefore "
-      "strikes %d of %d reader TAKEs, while the family D-077-UPDATE.2 strikes "
-      "for deployment is %d of %d. Both readings are carried; they are not "
-      "interchangeable."
+    A("* **D31 CLOSED by CC-M2-22.1/22.4, and its consequence measured.** The "
+      "family label is a fixed-clock name (US_CLOCK), not a release fact; "
+      "compliance now comes from the census flags. On the round's own calls "
+      "the two rules differ by an order of magnitude: **%d of %d reader "
+      "TAKEs carry a flag**, against %d of %d that carry the family name. "
+      "The name-based reading is retained only as the "
+      "NAME-STRUCK-SUPERSEDED universe, for reconciling the sealed summary."
       % (len({c for c in unis["SCIENCE"] if arms["READER"][c] == "TAKE"}
-             - unis["DEPLOYABLE-DATED"]),
+             - unis["DEPLOYABLE"]),
          scored["SCIENCE"]["READER"]["n_takes"],
          sum(1 for c in unis["SCIENCE"]
-             if arms["READER"][c] == "TAKE" and meta[c]["cls"] == "NEWS-WINDOW"),
+             if arms["READER"][c] == "TAKE" and meta[c]["cls"] == NEWS_FAMILY),
          scored["SCIENCE"]["READER"]["n_takes"]))
-    A("* **`m2/news_compliance/NEWS_DISTANCE.tsv` does not exist** — the "
-      "D-077 census lane (`engine/port_m2/news_census.py`) is written but "
-      "unrun, so this pass computed its own distances from "
-      "`pattern_lib.release_calendar()`. When the census lands, the "
-      "DEPLOYABLE readings should be recomputed against it.")
+    A("* **D34 (new, to the compliance lane): `NEWS_DISTANCE.tsv` cannot "
+      "express the hold-crossing case beyond its own reach.** Its population "
+      "is candidates within ±15min of a dated release, but "
+      "`held_into_window` is a property of a hold that can begin HOURS "
+      "earlier — on this block every such row (a seat entered in the morning "
+      "and held through the 18:00 UTC FOMC) is outside the file. This pass "
+      "closes the gap with the census's own definition and proves 0 "
+      "disagreement on the rows the file does carry, but the file alone would "
+      "under-count held-into exposure. Suggest the census emit held-into rows "
+      "regardless of entry distance.")
     A("* **D33 — the scoring replay re-seats after a wall stop-out.** The "
       "reader held one position per (asset,phase) cell for the whole phase; "
       "the replay frees the seat at the certificate's exit second, which for "

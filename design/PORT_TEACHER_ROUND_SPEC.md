@@ -49,3 +49,21 @@ N/A: IWM-specific (D-003/011/022/024/025), data-fetch (D-047/060), episode-group
 consumed via tooling), D-064 mechanisms (M3-stage), D-063 (portfolio-level). EVIDENCE HALF: every design
 element above cites its evidence grade or law; no element contradicts a committed finding (checked against
 the journal record 2026-08-13..15).
+
+## 2. ROUND-1 DIAGNOSIS + ROUND-2 REVISIONS (2026-08-15; conformance: D-080/D-082/D-085/D-089 both halves)
+ROUND-1 VERIFIED DEFECT (D-080 VIOLATION, orchestrator's): blind decisions were digest-only — the ribbon was
+invoked 0 times in 158 tool calls; per-episode flow/book information was single-scalar-at-decision-second.
+The reader's calibrated 18% precision = the information ceiling OF THE DIGEST (its cues were all path/level/
+capacity; all 5 max-loss takes were wrong-side confirmations whose live-side markers — flow flip, erosion
+sequence — are sequence-visible only). The view was the ceiling, not the judgment.
+ROUND-2 (same laws + these revisions):
+R2-1 RIBBON-MANDATORY TAKES: digest pass -> shortlist -> raw ribbon window read REQUIRED before any TAKE;
+     enforced: episode_round.score refuses TAKEs whose access rows carry n_ribbon_cmds=0. (~+40k tok/day.)
+R2-2 SEQUENCE DELTAS: f_sflow/dBsz/dAsz/refill/spread columns become 3-point trajectories (t-10m/t-5m/now);
+     flips and erosion trends visible per episode. (~+25 tok/episode.)
+R2-3 VOL-CLASS-MATCHED STUDY: study days may draw HIGH-vol days from the walk-forward past (E5 2023H2,
+     era-tagged per D-059) so taught vol class matches tested class; blind stays era-matched (D-034/D-088).
+R2-4 LOSER-SIGNATURE VETO: the extraction cue census's wrong-side signature enters the curriculum as a named
+     veto pattern (tested, not assumed, in round-2 blind).
+SEQUENCING: round 2 launches after (a) the extraction lane's cue census lands and (b) the view upgrades
+R2-1/R2-2 are built+verified; budget per D-086 (~150k tok/day envelope measured).

@@ -1,0 +1,50 @@
+# PORT_M2_SHEETS_SPEC.md design/CREATOR_MECHANICS.md — creator-PDF mechanics census (spec_sha16=f6ef73a41dbf8588)
+# params_hash=ea420c1fb1e2c4c03569cad8e0455c9de94c69195f7bc32d7b5ed5669c9ade12
+# fidelity EXACT = MBP-1 gives the creator's own quantity; APPROX-L1 = top-of-book only, blind to the depth his DOM shows; APPROX-VP = profile from our own prints, not the exchange composite
+detector	mechanic_ids	fidelity	computable_statement
+AGG_PRINT_60	M-01	EXACT	at least one aggression print (size >= session q99, floor 3) in [t-60, t)
+AGG_WITH_SIDE_60	M-01/M-03	EXACT	at least one aggression print on the CANDIDATE'S side in [t-60, t)
+AGG_OPP_SIDE_60	M-01	EXACT	at least one aggression print on the OPPOSING side in [t-60, t)
+ABSORPTION	M-02/M-03	EXACT	opposing aggressive volume in [t-120,t) >= session q80 AND |dmid| over the window <= 0.05*ATR14 — effort with no result, against the candidate
+BODY_REWARDED_WITH	M-04	EXACT	the last aggression print on the candidate's side got its result: mid moved with it by >= 1 tick within 30s (inside the body)
+WICK_ABSORBED_OPP	M-04	EXACT	the last aggression print on the opposing side got NO result: |dmid| < 1 tick within 30s (on the wick)
+SQUEEZE	M-20/M-21	EXACT	>= 3 absorbed opposing-side aggression bursts inside one zone band within [t-1800, t) — repeated effort that got no reward
+SQUEEZE_CATALYST_NEAR	M-21	EXACT	SQUEEZE fired AND the entry mid is within the zone band of the catalyst anchor (the extreme FIRST aggression of the absorbed cluster)
+REFILL_CLOCK	M-22	EXACT	a later aggression attempt in the same zone prints at WORSE prices for the aggressor than the first attempt — 'more aggression joins them at worse prices, which is itself proof of intent'
+OFM	M-23/M-24	EXACT	SQUEEZE, then failure (mid rolls back through the catalyst by >= 4 ticks), then the drive: the prior swing extreme is taken out in the candidate's direction within [t-900, t) and the candidate is on the RETEST of it
+OFM_FAILURE_ENTRY	M-24 (the error)	EXACT	SQUEEZE + failure but NO drive/wick-takeout — the creator's named mistake, 'entering on the failure of the squeeze. No, that's not true'
+RETEST_NOT_BREAK	M-25	EXACT	the candidate sits at a level broken within [t-900, t) and price has returned to it, rather than at the break itself
+REFILL_AREA_HELD	M-26	APPROX-L1	the nearest zone below (long) / above (short) took opposing aggression in [t-600,t) and did not give way by more than 1 tick
+IMB_350	M-27	EXACT	session-to-date aggressive volume at the entry price bucket is >= 3.5x one-sided (min 10 lots), against the candidate's side
+IMB_350_AT_AGG	M-27	EXACT	IMB_350 AND an aggression print at the same price bucket — 'an imbalance only interests me where it sits at the same price as aggression'
+DIV_BOX_350	M-28	EXACT	in [t-300,t): one side's aggressive volume >= 3.5x the other AND |dmid| <= 0.05*ATR14 — passive absorption on one side, aggressive pressure on the other, at the same price
+PASSIVE_MOVE	M-29 (the trap)	EXACT	mid moved >= 0.25*ATR14 in the candidate's direction over [t-300,t) with ZERO aggression prints on the candidate's side — 'no effort on your side at all, just an absence of sellers'
+TWO_STAGE	M-29 (what he wants)	EXACT	ORDERED: opposing aggression absorbed in [t-600,t-120), THEN own-side aggression arrives in [t-120,t)
+BOTH_ABSORBED	M-30	EXACT	both sides show absorbed aggression in [t-600,t) — 'nobody is in control yet and I am waiting for the break'
+CVD_WITH	M-08	EXACT	session CVD at t is on the candidate's side of its own session-to-date median
+CVD_AGAINST	M-08 (the veto)	EXACT	session CVD at t is AGAINST the candidate's side of its own median — the creator's checklist veto
+EXTREME_ABSORPTION	M-41	EXACT	over [t-1800,t) mid drifted with the candidate by >= 0.15*ATR14 while CVD moved AGAINST it — 'price refusing to drop while the delta record shows no real selling pressure behind the level'
+TAPE_SPIKE	M-07	EXACT	prints/sec in [t-60,t) >= 3x the session-to-date median rate
+TAPE_DEAD	M-07	EXACT	prints/sec in [t-60,t) <= 0.34x the session-to-date median rate — 'the speed of tape just dies', the passive failure
+TOUCH_1_VIRGIN	M-86/M-81	EXACT	the candidate is at the FIRST touch of its zone — 'the first touch of a fresh zone is the weakest version of this trade'
+TOUCH_2	M-86/M-36	EXACT	the candidate is at the SECOND touch — 'wait for the second test'
+TOUCH_GE3	M-38	EXACT	the candidate is at the third or later touch — the creator's own published LOSS (ny-am-session.pdf p.6)
+PRIOR_TOUCH_HELD	M-06/M-17	EXACT	the zone's most recent RESOLVED touch (resolved strictly before t) HELD — the memory family
+PRIOR_2_HELD	M-06	EXACT	the zone's two most recent resolved touches both HELD
+ZONE_BUILT_BY_SIZE	M-13/M-81	EXACT	the zone was built by >= 3 aggression prints totalling >= 3x the session's median aggression print — the construction family
+LOSING_STEAM	M-39	EXACT	aggressive volume into the level is DECREASING across the last three 120s approach windows — 'losing aggression candle by candle, not gaining it'
+REPEATED_FAIL_RECLAIM	M-42	EXACT	>= 2 failed attempts to reclaim the prior range boundary against the candidate's side within [t-3600, t)
+MICROBALANCE_BREAK	M-40	EXACT	a <= 0.2*ATR14 range lasting >= 180s ended in the candidate's direction within [t-300, t)
+ONX_UNTOUCHED_AHEAD	M-70 (the veto)	APPROX-VP	the overnight extreme on the far side of the entry is still untouched this phase and lies between entry and the candidate's direction of travel — 'the level isn't wrong, the timing is'
+IB_BROKEN_WITH	M-73	EXACT	the initial balance (first 3600s of the NY phase) has been broken in the candidate's direction before t
+OPEN_IN_PRIOR_VALUE	M-71	APPROX-VP	the session open sits inside the prior session's value area
+IN_VALUE_AREA	M-57	APPROX-VP	the entry mid sits inside the session-to-date 70% value area
+AT_VA_EDGE	M-57/M-81	APPROX-VP	the entry mid is within 2 ticks of VAH or VAL — the location family
+DAY_P	M-58	APPROX-VP	session-to-date POC sits in the TOP third of the session-to-date range
+DAY_B	M-58	APPROX-VP	session-to-date POC sits in the BOTTOM third of the range
+DAY_D	M-58	APPROX-VP	session-to-date POC sits in the MIDDLE third — compression, no resolution
+THIN_BEHIND	M-11	APPROX-VP	traded volume in the 1-ATR band BEHIND the entry (the stop side) is in the bottom session quartile — 'below it there is nothing'
+MUT_ABS_LOOKAHEAD_2H	RED-FIRST (leak probe)	MUTANT	ABSORPTION evaluated at t+7200s in the SAME session — i.e. two hours into the candidate's FUTURE.  Shipped as a ~1.0 null in the first draft; the census returned lift 1.404 (> the causal detector's 1.248) and the audit showed why: (t+7200) mod n is future data for almost every row.  It is retained as a POSITIVE leak control — PREDICTION: lift > 1 and > ABSORPTION.  If this one ever lands at 1.0 the harness has gone blind
+MUT_ABS_INVERTED	RED-FIRST	MUTANT	ABSORPTION with both inequalities flipped (large |dmid|, small opposing volume) — a nonsense condition.  PREDICTION lift ~= 1.00
+MUT_ABS_SHUFFLED	RED-FIRST	MUTANT	ABSORPTION's own flags permuted WITHIN each session (seeded).  Exactly frequency-matched per session, row alignment destroyed, fully causal.  This is the real null the lookahead mutant failed to be.  PREDICTION: lift ~= 1.00
+MUT_RANDOM_IID	RED-FIRST	MUTANT	an i.i.d. Bernoulli flag at ABSORPTION's marginal rate, independent of everything including the session.  PREDICTION: lift ~= 1.00

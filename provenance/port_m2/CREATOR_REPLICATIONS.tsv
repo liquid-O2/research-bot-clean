@@ -1,0 +1,16 @@
+# PORT_M2_SHEETS_SPEC.md design/CREATOR_MECHANICS.md — creator-PDF mechanics census (spec_sha16=f6ef73a41dbf8588)
+# params_hash=ea420c1fb1e2c4c03569cad8e0455c9de94c69195f7bc32d7b5ed5669c9ade12
+# direct replications of the creator's OWN published numbers on OUR five years / three assets
+# a miss is reported as a miss
+statistic	creator_claim	creator_source	ours	ci_lo95	ci_hi95	n	verdict	note
+touches that HOLD	42%	refill-effect.pdf p.8/p.23	0.610814	0.643257	0.654776	399436	MISS	our zones/levels hold materially more often than his NQ zones; different instruments and a price-based (not trade-based) hold/break resolution
+median WINNER's adverse dip before it works (D-021 winners)	18 ticks	refill-effect.pdf p.10/p.23	5.000000	5.000000	5.000000	45953	MISS — STRUCTURALLY CENSORED	NOT A FAIR TEST OF HIS CLAIM: D-021 DEFINES a winner as mae_before_argmax <= $300, so the label has already thrown away every winner that dipped far.  The uncapped row below is the honest replication
+median WINNER's adverse dip, UNCAPPED (cert_close>=$1,000, no MAE filter)	18 ticks	refill-effect.pdf p.10/p.23	9.000000	9.000000	9.500000	72851	REPLICATES IN SHAPE, HALF THE MAGNITUDE	his 18 ticks sits at OUR 75th percentile (q75 = 18 ticks). The mechanism is real on our data — winners routinely go against you first — at about half his median
+RTH touches the overnight HIGH or LOW	94%	mastering-amt-vp.pdf p.15/p.21 (ES 92.5-95.4%)	0.856477	0.840415	0.872021	1930	MISS	his number is measured on ES; ours on SI/HG/NKD with 'overnight' = everything before the NY phase opens
+RTH touches BOTH overnight extremes	20-24%	mastering-amt-vp.pdf p.21	0.139896			1930	MISS	the creator's own 'either, not both' caveat
+AUC, memory+location (best single detector)	0.63 (memory+location) / 0.54 (flow alone)	refill-effect.pdf p.9/p.23	0.547265			816967	SEE_NOTE	sign taken in-sample, so this is an optimistic CEILING for one feature, not a walk-forward AUC.  The creator's 0.63 is a fitted multi-feature model on his own instrument
+AUC, flow alone (best single detector)	0.63 (memory+location) / 0.54 (flow alone)	refill-effect.pdf p.9/p.23	0.565101			816967	SEE_NOTE	sign taken in-sample, so this is an optimistic CEILING for one feature, not a walk-forward AUC.  The creator's 0.63 is a fitted multi-feature model on his own instrument
+AUC, construction alone (best single detector)	0.63 (memory+location) / 0.54 (flow alone)	refill-effect.pdf p.9/p.23	0.543545			816967	SEE_NOTE	sign taken in-sample, so this is an optimistic CEILING for one feature, not a walk-forward AUC.  The creator's 0.63 is a fitted multi-feature model on his own instrument
+D-021 winner base rate, E2-E6	n/a (his R-based)	our contract	0.056248			816967	CONTEXT	cert_close >= $1,000 AND MAE <= $300 AND not walled
+mean cert_PEAK_usd, E2-E6 all candidates	n/a	CC-M1-8 companion reading	803.149633			816967	CONTEXT	published beside every close reading so no detector's conditional value is quoted on one certificate alone
+mean cert_close_usd, E2-E6 all candidates	-0.285R (fade every touch)	refill-effect.pdf p.8	-29.607481			816967	DIRECTIONALLY REPLICATES	his 'trade every touch loses' and our 'the unselected roster is negative' are the same statement in different units

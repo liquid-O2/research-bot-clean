@@ -306,15 +306,31 @@ DETECTORS = [
     ("THIN_BEHIND", "M-11", "APPROX-VP",
      "traded volume in the 1-ATR band BEHIND the entry (the stop side) is in the "
      "bottom session quartile — 'below it there is nothing'"),
-    ("MUT_ABS_ROTATED", "RED-FIRST", "MUTANT",
-     "ABSORPTION evaluated on a window rotated +7200s inside the same session; "
-     "frequency-matched, alignment destroyed.  PREDICTION lift ~= 1.00"),
+    ("MUT_ABS_LOOKAHEAD_2H", "RED-FIRST (leak probe)", "MUTANT",
+     "ABSORPTION evaluated at t+7200s in the SAME session — i.e. two hours "
+     "into the candidate's FUTURE.  Shipped as a ~1.0 null in the first draft; "
+     "the census returned lift 1.404 (> the causal detector's 1.248) and the "
+     "audit showed why: (t+7200) mod n is future data for almost every row.  "
+     "It is retained as a POSITIVE leak control — PREDICTION: lift > 1 and "
+     "> ABSORPTION.  If this one ever lands at 1.0 the harness has gone blind"),
     ("MUT_ABS_INVERTED", "RED-FIRST", "MUTANT",
      "ABSORPTION with both inequalities flipped (large |dmid|, small opposing "
      "volume) — a nonsense condition.  PREDICTION lift ~= 1.00"),
+    ("MUT_ABS_SHUFFLED", "RED-FIRST", "MUTANT",
+     "ABSORPTION's own flags permuted WITHIN each session (seeded).  Exactly "
+     "frequency-matched per session, row alignment destroyed, fully causal.  "
+     "This is the real null the lookahead mutant failed to be.  "
+     "PREDICTION: lift ~= 1.00"),
+    ("MUT_RANDOM_IID", "RED-FIRST", "MUTANT",
+     "an i.i.d. Bernoulli flag at ABSORPTION's marginal rate, independent of "
+     "everything including the session.  PREDICTION: lift ~= 1.00"),
 ]
 DET_NAMES = [d[0] for d in DETECTORS]
 NDET = len(DET_NAMES)
+# The last two detectors (MUT_ABS_SHUFFLED, MUT_RANDOM_IID) are functions of
+# ABSORPTION's own column and are built at CENSUS time, not in the session pass.
+CENSUS_TIME_DETECTORS = 2
+NDET_SESSION = NDET - CENSUS_TIME_DETECTORS
 
 SIDE_L, SIDE_S = 1, -1
 
@@ -367,6 +383,19 @@ def _build_session(asset, d8, dec, sides, atr_usd):
     n = int(min(mid.size, ph.size))
     mid = mid[:n]
     ph = ph[:n]
+    # A second with no two-sided book carries a NaN mid.  Forward-fill from the
+    # last OBSERVED second (causal — never backward), then back-fill only the
+    # pre-open head with the first observation.  24 of 1,930 sessions died on
+    # `int(round(nan))` before this guard.
+    fin_m = np.isfinite(mid)
+    if not fin_m.all():
+        if not fin_m.any():
+            z.close()
+            return None
+        ffi = np.maximum.accumulate(np.where(fin_m, np.arange(n), 0))
+        first = int(np.argmax(fin_m))
+        ffi[:first] = first
+        mid = mid[ffi]
     tsec = z["trades_sec"].astype(np.int64)
     tpx = z["trades_px"].astype(np.float64) * scale
     tsd = z["trades_side"].astype(np.uint8)
@@ -374,7 +403,7 @@ def _build_session(asset, d8, dec, sides, atr_usd):
     z.close()
 
     ncand = dec.size
-    D = np.zeros((ncand, NDET), dtype=np.uint8)
+    D = np.zeros((ncand, NDET_SESSION), dtype=np.uint8)
     EM = np.full(ncand, np.nan)
     rep = {"asset": asset, "d8": int(d8)}
     if tsec.size == 0 or n < 600:
@@ -827,11 +856,15 @@ def _build_session(asset, d8, dec, sides, atr_usd):
             row[29] = bool(near.n >= 3 and near.vol >= 3 * agg_thr)
 
         # ---- M-39 losing steam ---------------------------------------------
+        # rb_abs / ra_abs are already 120s ROLLING SUMS, so the three successive
+        # approach windows are just three reads of the same array.  The first
+        # draft subtracted consecutive rolling sums, which measures a second
+        # difference and answers no question anyone asked.
         a3 = rb_abs if side == SIDE_S else ra_abs   # volume of the side pushing
         if t > 400:
-            v1 = a3[t] - a3[max(0, t - 120)]
-            v2 = a3[max(0, t - 120)] - a3[max(0, t - 240)]
-            v3 = a3[max(0, t - 240)] - a3[max(0, t - 360)]
+            v1 = a3[t]                       # [t-120, t)
+            v2 = a3[max(0, t - 120)]         # [t-240, t-120)
+            v3 = a3[max(0, t - 240)]         # [t-360, t-240)
             row[30] = bool(v3 > v2 > v1 and v3 > 0)
 
         # ---- M-42 repeated failure to reclaim -------------------------------
@@ -1033,8 +1066,8 @@ def run_detect(workers):
                      Pn["atr_usd"][sel]))
     MC.hb("creator-detect: %d session-assets, %d candidates, %d workers"
           % (len(jobs), Pn["d8"].size, workers))
-    Dall = np.zeros((Pn["d8"].size, NDET), dtype=np.uint8)
-    Dis = np.zeros((Pn["d8"].size, NDET), dtype=np.uint8)
+    Dall = np.zeros((Pn["d8"].size, NDET_SESSION), dtype=np.uint8)
+    Dis = np.zeros((Pn["d8"].size, NDET_SESSION), dtype=np.uint8)
     EMall = np.full(Pn["d8"].size, np.nan)
     reps = []
     errs = []
@@ -1061,7 +1094,7 @@ def run_detect(workers):
                          (len(jobs) - done) / max(done / max(el, 1e-9), 1e-9)))
     np.savez_compressed(os.path.join(CACHE, "detect.npz"),
                         cid=Pn["cid"], D=Dall, D_disp=Dis, entry_mid=EMall,
-                        det_names=np.array(DET_NAMES))
+                        det_names=np.array(DET_NAMES[:NDET_SESSION]))
     with open(os.path.join(CACHE, "session_reps.json"), "w") as fh:
         json.dump({"reps": reps, "errors": errs, "params": P}, fh)
     MC.hb("creator-detect: done in %.0fs, %d errors" % (time.time() - t0,
@@ -1088,13 +1121,17 @@ def _cluster_z(y, x, cl):
         return float("nan"), float("nan"), float("nan")
     beta = XtXi @ (Xd.T @ y)
     r = y - Xd @ beta
-    meat = np.zeros((2, 2))
+    # Liang-Zeger meat, accumulated with bincount.  The textbook loop
+    # (`for g: u = Xd[s].T @ r[s]`) masks the WHOLE 817k-row array once per
+    # cluster — 1,930 clusters x 660 calls = 1.6e9 element touches per call and
+    # the census never returned.  The cluster score is just a per-cluster sum of
+    # [r, x*r], so bincount gives the identical matrix.
     uc, ci = np.unique(cl, return_inverse=True)
-    for g in range(uc.size):
-        s = ci == g
-        u = Xd[s].T @ r[s]
-        meat += np.outer(u, u)
     G = uc.size
+    s0 = np.bincount(ci, weights=r, minlength=G)
+    s1 = np.bincount(ci, weights=x * r, minlength=G)
+    meat = np.array([[float((s0 * s0).sum()), float((s0 * s1).sum())],
+                     [float((s0 * s1).sum()), float((s1 * s1).sum())]])
     corr = G / max(G - 1.0, 1.0)
     V = XtXi @ (meat * corr) @ XtXi
     se = float(np.sqrt(max(V[1, 1], 0.0)))
@@ -1106,19 +1143,30 @@ def _cluster_z(y, x, cl):
     return float(beta[1]), z, p
 
 
-def _boot_lift(y, x, day, reps, rng):
-    """Day-clustered bootstrap CI on lift = P(y|x=1) / P(y)."""
-    ud, di = np.unique(day, return_inverse=True)
-    G = ud.size
-    idx_by_day = [np.nonzero(di == g)[0] for g in range(G)]
+def _boot_lift(y, x, di, G, reps, rng):
+    """Day-clustered bootstrap CI on lift = P(y|x=1) / P(y).
+
+    The draw unit is the DAY (D-036/D-073), identical to goalpath.cluster_boot;
+    the RATIO form does not exist there, so it is built here on PER-DAY
+    SUFFICIENT STATISTICS.  A lift is a ratio of two sums over days, so a day
+    resample only needs four per-day counts — resampling the 817k-row index
+    itself (the first draft) was ~1.6e9 operations per detector and never
+    finished.
+    """
+    nf_d = np.bincount(di, weights=x.astype(np.float64), minlength=G)
+    nfw_d = np.bincount(di, weights=(x & y).astype(np.float64), minlength=G)
+    n_d = np.bincount(di, minlength=G).astype(np.float64)
+    nw_d = np.bincount(di, weights=y.astype(np.float64), minlength=G)
     out = np.empty(reps)
     for b in range(reps):
-        pick = rng.integers(0, G, G)
-        sel = np.concatenate([idx_by_day[g] for g in pick.tolist()])
-        xs, ys = x[sel], y[sel]
-        nf = xs.sum()
-        base = ys.mean()
-        out[b] = (ys[xs].mean() / base) if (nf >= 5 and base > 0) else np.nan
+        p = rng.integers(0, G, G)
+        f = nf_d[p].sum()
+        base_n = n_d[p].sum()
+        base_w = nw_d[p].sum()
+        if f < 5 or base_n <= 0 or base_w <= 0:
+            out[b] = np.nan
+            continue
+        out[b] = (nfw_d[p].sum() / f) / (base_w / base_n)
     ok = out[np.isfinite(out)]
     if ok.size < reps // 4:
         return float("nan"), float("nan")
@@ -1151,31 +1199,29 @@ def _shuffle_null(y, x, sess, reps, rng):
             n_inf, "OK")
 
 
-def _member_auc(y, x, grp):
-    """Within-group (asset,day,class) Mann-Whitney AUC of the flag for picking
-    the D-021 winner.  0.5 = the detector does not separate same-day same-class
-    members; this is the SEL_WRONG_MEMBER pool question."""
-    ug, gi = np.unique(grp, return_inverse=True)
-    num = den = 0.0
-    ngrp = 0
-    for g in range(ug.size):
-        s = np.nonzero(gi == g)[0]
-        if s.size < 2:
-            continue
-        yy, xx = y[s], x[s]
-        w = np.nonzero(yy > 0.5)[0]
-        l = np.nonzero(yy <= 0.5)[0]
-        if w.size == 0 or l.size == 0:
-            continue
-        ngrp += 1
-        for a in w.tolist():
-            for b in l.tolist():
-                den += 1.0
-                if xx[a] > xx[b]:
-                    num += 1.0
-                elif xx[a] == xx[b]:
-                    num += 0.5
-    return (num / den if den > 0 else float("nan")), ngrp, int(den)
+def _member_auc(y, x, gi, G):
+    """Within-group (asset, day, class) Mann-Whitney AUC of the detector flag
+    for picking the D-021 winner out of its OWN same-day same-class pool.
+
+    0.5 = the detector does not separate members at all — which is exactly the
+    SEL_WRONG_MEMBER question the deficit ledger names as the dominant deficit.
+
+    The flag is BINARY, so the pairwise count is closed-form per group:
+        num = w1*l0 + 0.5*(w1*l1 + w0*l0),  den = (w1+w0)*(l1+l0)
+    with w1/w0 = winners with/without the flag and l1/l0 the losers.  Summing
+    that over groups with bincount replaces a 1e8-iteration double loop.
+    """
+    yb = y > 0.5
+    xb = x > 0.5
+    w1 = np.bincount(gi, weights=(yb & xb).astype(np.float64), minlength=G)
+    w0 = np.bincount(gi, weights=(yb & ~xb).astype(np.float64), minlength=G)
+    l1 = np.bincount(gi, weights=(~yb & xb).astype(np.float64), minlength=G)
+    l0 = np.bincount(gi, weights=(~yb & ~xb).astype(np.float64), minlength=G)
+    nw, nl = w1 + w0, l1 + l0
+    live = (nw > 0) & (nl > 0)
+    num = (w1 * l0 + 0.5 * (w1 * l1 + w0 * l0))[live].sum()
+    den = (nw * nl)[live].sum()
+    return (num / den if den > 0 else float("nan")), int(live.sum()), int(den)
 
 
 def _kstar():
@@ -1249,7 +1295,21 @@ def run_census():
     day = np.array(["%d|%08d" % (a, x) for a, x in zip(ai.tolist(), d8.tolist())])
     grp = np.array(["%d|%08d|%d" % (a, x, k) for a, x, k in
                     zip(ai.tolist(), d8.tolist(), kl.tolist())])
+    _ud, di_day = np.unique(day, return_inverse=True)
+    G_day = _ud.size
+    _ug, gi_mem = np.unique(grp, return_inverse=True)
+    G_mem = _ug.size
     base = float(y.mean())
+
+    # The two CAUSAL red-first mutants are built here rather than in the
+    # detector pass, because both are functions of ABSORPTION's own column.
+    jabs = DET_NAMES.index("ABSORPTION")
+    mrng = np.random.default_rng(P["seed"] + 1)
+    mut_shuf = _shuffle_within(D[:, jabs], day, mrng).astype(bool)
+    mut_iid = mrng.random(D.shape[0]) < float(D[:, jabs].mean())
+    D = np.column_stack([D, mut_shuf, mut_iid])
+    disp = np.column_stack([disp, mut_shuf, mut_iid])
+    assert D.shape[1] == NDET, "detector bank / cache width disagree"
     rng = np.random.default_rng(P["seed"])
 
     pw, pl = build_wall_pairs(Pn)
@@ -1266,7 +1326,8 @@ def run_census():
                  "cond_close_hi95", "cond_peak_usd", "base_close_usd",
                  "delta_pp", "z_cluster", "p_cluster", "null_shuffle_lift",
                  "null_shuffle_sd", "null_informative_groups",
-                 "null_displaced_lift", "verdict",
+                 "null_displaced_lift", "lift_vs_null", "z_vs_null",
+                 "p_vs_null", "destruction", "verdict",
                  "holm_rank", "holm_threshold", "holm_verdict", "p_holm")
     STRATA_COLS = ("detector", "stratum", "value", "n", "n_fire", "hit_rate",
                    "base_rate", "lift", "z_cluster", "p_cluster",
@@ -1279,15 +1340,18 @@ def run_census():
     era_names = {i: e[0] for i, e in enumerate(MC.ERAS)}
     ph_names = {0: "TOKYO", 1: "LONDON", 2: "NY"}
 
+    t_det = time.time()
     for j, (name, mech, fid, _stmt) in enumerate(DETECTORS):
+        MC.hb("census %d/%d %s (%.0fs)" % (j + 1, NDET, name,
+                                           time.time() - t_det))
         x = D[:, j]
         nf = int(x.sum())
         freq = nf / float(x.size)
         base_cc = float(np.nanmean(cc))
         if nf < 30:
             MAIN.append([name, mech, fid, int(x.size), nf, freq,
-                         float("nan"), base] + [float("nan")] * 16
-                        + [V_RARE])
+                         float("nan"), base] + [float("nan")] * 19
+                        + [V_DEGEN, V_RARE])
             LEDGER.append([name, float("nan"), 0, 0, int(pw.size), 0,
                            float("nan"), float("nan"), float("nan")])
             continue
@@ -1295,7 +1359,7 @@ def run_census():
         off = float(y[~x].mean()) if (~x).sum() else float("nan")
         lift = hit / base if base > 0 else float("nan")
         conc = hit / off if np.isfinite(off) and off > 0 else float("nan")
-        lo, hi = _boot_lift(y, x, day, P["boot_reps"], rng)
+        lo, hi = _boot_lift(y, x, di_day, G_day, P["boot_reps"], rng)
         # CC-M1-8: BOTH certificate readings on every value row.
         vfire = cc[x]
         dfire = day[x]
@@ -1311,23 +1375,36 @@ def run_census():
         xd = disp[:, j]
         dl = (float(y[xd].mean()) / base) if xd.sum() >= 30 and base > 0 \
             else float("nan")
-        # CC-M2-9.1 vocabulary.  ENTRY/VETO need the day-clustered CI to clear
-        # 1.0 AND the destruction null to sit at chance; CONCENTRATOR is the
-        # feature-candidate grade (>=1.25x its OWN non-firing baseline) with no
-        # adoption-metric claim attached.
-        if nverd == V_DEGEN:
-            verdict = V_DEGEN
-        elif np.isfinite(lo) and lo > 1.0:
-            verdict = V_ENTRY
-        elif np.isfinite(hi) and hi < 1.0:
-            verdict = V_VETO
-        elif np.isfinite(conc) and conc >= 1.25:
-            verdict = V_CONC
+        # THE EFFECT IS MEASURED AGAINST THE DESTRUCTION NULL, NOT AGAINST 1.0.
+        # A raw lift is confounded by BETWEEN-SESSION variation: a detector that
+        # simply fires more on high-winner-rate days scores a lift while
+        # carrying no within-day timing information at all.  The within-session
+        # shuffle holds the session composition fixed, so `lift / null_lift` is
+        # the part of the effect that is actually about the MOMENT — the same
+        # "the destroyed quantity is the EDGE" reading batch 5 uses.
+        from math import erfc, sqrt
+        if np.isfinite(sm) and np.isfinite(ss) and ss > 0:
+            lvn = lift / sm if sm > 0 else float("nan")
+            zvn = (lift - sm) / ss
+            pvn = erfc(abs(zvn) / sqrt(2.0))
         else:
-            verdict = V_NULL
+            lvn = zvn = pvn = float("nan")
+        if not np.isfinite(zvn):
+            destr = V_DEGEN
+        elif abs(zvn) < 2.0:
+            destr = "DESTROYED"
+        elif (lift - 1.0) * (zvn) < 0:
+            destr = "INVERTED"
+        else:
+            destr = "SURVIVES"
+        # CC-M2-9.1 vocabulary.  ENTRY/VETO require the effect to (a) clear the
+        # destruction null, (b) survive Holm inside the whole-batch family, and
+        # (c) have a day-clustered CI on the same side of 1.0.  Holm is applied
+        # after the family is built, so the verdict is finalised below.
         MAIN.append([name, mech, fid, int(x.size), nf, freq, hit, base, lift,
                      lo, hi, conc, cvv, cvlo, cvhi, cpv, base_cc,
-                     100.0 * b1, z, p, sm, ss, ninf, dl, verdict])
+                     100.0 * b1, z, p, sm, ss, ninf, dl, lvn, zvn, pvn,
+                     destr, V_NULL])
 
         for lbl, arr, names in (("era", ei, era_names),
                                 ("asset", ai, {i: a for i, a in
@@ -1345,7 +1422,8 @@ def run_census():
                                int(xs.sum()), hs, bs,
                                (hs / bs) if bs > 0 else float("nan"), zs, ps])
 
-        mauc, ngrp, npair = _member_auc(y, x.astype(float), grp)
+        mauc, ngrp, npair = _member_auc(y.astype(float), x.astype(float),
+                                        gi_mem, G_mem)
         if pw.size:
             fw, fl = x[pw], x[pl]
             disc = fw != fl
@@ -1362,9 +1440,28 @@ def run_census():
             acc = zz = pp = float("nan")
         LEDGER.append([name, mauc, ngrp, npair, int(pw.size), nd, acc, zz, pp])
 
-    m = _holm_family([(MAIN, 19, len(MAIN_COLS)),
+    m = _holm_family([(MAIN, 26, len(MAIN_COLS)),
                       (STRATA, 9, len(STRATA_COLS)),
                       (LEDGER, 8, len(LEDGER_COLS))])
+
+    # ---- finalise CC-M2-9.1 verdicts now that Holm has run ----------------
+    V_I, D_I, LO_I, HI_I, LI_I, CONC_I = 28, 27, 9, 10, 8, 11
+    HV_I = len(MAIN_COLS) - 2
+    for r in MAIN:
+        if r[V_I] == V_RARE:
+            continue
+        holm_ok = r[HV_I] == "HOLM_SIGNIFICANT"
+        lo_, hi_, lift_, conc_, destr_ = r[LO_I], r[HI_I], r[LI_I], r[CONC_I], r[D_I]
+        if destr_ == V_DEGEN:
+            r[V_I] = V_DEGEN
+        elif holm_ok and destr_ == "SURVIVES" and np.isfinite(lo_) and lo_ > 1.0:
+            r[V_I] = V_ENTRY
+        elif holm_ok and destr_ == "SURVIVES" and np.isfinite(hi_) and hi_ < 1.0:
+            r[V_I] = V_VETO
+        elif np.isfinite(conc_) and conc_ >= 1.25:
+            r[V_I] = V_CONC
+        else:
+            r[V_I] = V_NULL
 
     os.makedirs(PROV, exist_ok=True)
     phash = MC.params_hash(P)
@@ -1398,18 +1495,201 @@ def run_census():
     return MAIN, STRATA, LEDGER
 
 
+# ==================================================== stage C: replications ==
+# The creator publishes numbers, not just mechanics.  These are DIRECT
+# replications of his headline statistics on our five years, each reported
+# beside his claim.  A replication that misses is reported as a miss.
+GROUPS = {
+    "memory": ("PRIOR_TOUCH_HELD", "PRIOR_2_HELD", "TOUCH_1_VIRGIN", "TOUCH_2",
+               "TOUCH_GE3", "REFILL_AREA_HELD"),
+    "construction": ("ZONE_BUILT_BY_SIZE", "IMB_350", "IMB_350_AT_AGG",
+                     "SQUEEZE", "SQUEEZE_CATALYST_NEAR"),
+    "location": ("IN_VALUE_AREA", "AT_VA_EDGE", "DAY_P", "DAY_B", "DAY_D",
+                 "THIN_BEHIND", "ONX_UNTOUCHED_AHEAD", "IB_BROKEN_WITH",
+                 "OPEN_IN_PRIOR_VALUE"),
+    "flow": ("AGG_PRINT_60", "AGG_WITH_SIDE_60", "AGG_OPP_SIDE_60",
+             "ABSORPTION", "BODY_REWARDED_WITH", "WICK_ABSORBED_OPP",
+             "CVD_WITH", "CVD_AGAINST", "EXTREME_ABSORPTION", "TAPE_SPIKE",
+             "TAPE_DEAD", "DIV_BOX_350", "PASSIVE_MOVE", "TWO_STAGE",
+             "BOTH_ABSORBED", "REFILL_CLOCK", "LOSING_STEAM"),
+}
+
+
+def _auc(y, s):
+    """AUC via the rank identity (batch4_census.auc, restated for a float
+    score; identical arithmetic)."""
+    y = np.asarray(y, dtype=bool)
+    n1, n0 = int(y.sum()), int((~y).sum())
+    if n1 == 0 or n0 == 0:
+        return float("nan")
+    r = np.empty(s.size, dtype=np.float64)
+    o = np.argsort(s, kind="stable")
+    sv = s[o]
+    i = 0
+    while i < sv.size:
+        j = i
+        while j + 1 < sv.size and sv[j + 1] == sv[i]:
+            j += 1
+        r[o[i:j + 1]] = 0.5 * (i + j) + 1.0
+        i = j + 1
+    return (r[y].sum() - n1 * (n1 + 1) / 2.0) / (n1 * n0)
+
+
+def run_replications():
+    d = np.load(os.path.join(CACHE, "detect.npz"), allow_pickle=True)
+    with open(os.path.join(CACHE, "session_reps.json")) as fh:
+        J = json.load(fh)
+    reps = J["reps"]
+    Pn = load_population()
+    fin = (Pn["cert_refused"] == 0) & np.isfinite(Pn["y_winner"])
+    y = np.nan_to_num(Pn["y_winner"], nan=0.0)[fin] > 0.5
+    D = d["D"][fin].astype(np.float64)
+    ai = Pn["asset_idx"][fin]
+    d8 = Pn["d8"][fin]
+    day = np.array(["%d|%08d" % (a, x) for a, x in zip(ai.tolist(), d8.tolist())])
+    mae = Pn["mae_before_argmax"][fin]
+    cc = Pn["cert_close_usd"][fin]
+
+    R = []
+    COLS = ("statistic", "creator_claim", "creator_source", "ours",
+            "ci_lo95", "ci_hi95", "n", "verdict", "note")
+
+    # --- M-80: what fraction of zone touches HOLD -------------------------
+    tt = float(sum(r.get("n_touch_resolved", 0) for r in reps))
+    th = float(sum(r.get("n_touch_held", 0) for r in reps))
+    hr = th / tt if tt else float("nan")
+    per_day = np.array([r.get("n_touch_held", 0) / max(r.get("n_touch_resolved", 0), 1)
+                        for r in reps if r.get("n_touch_resolved", 0) >= 3])
+    dkeys = np.array(["%s|%08d" % (r["asset"], r["d8"]) for r in reps
+                      if r.get("n_touch_resolved", 0) >= 3])
+    if per_day.size > 30:
+        pt, lo, hi, _n = cluster_boot(per_day, dkeys, n=2000, seed=P["seed"])
+    else:
+        pt = lo = hi = float("nan")
+    R.append(["touches that HOLD", "42%", "refill-effect.pdf p.8/p.23",
+              hr, lo, hi, int(tt),
+              "MISS" if not (0.37 <= hr <= 0.47) else "REPLICATES",
+              "our zones/levels hold materially more often than his NQ zones; "
+              "different instruments and a price-based (not trade-based) "
+              "hold/break resolution"])
+
+    # --- M-83: the 18-tick dip --------------------------------------------
+    tickusd = np.array([C.ASSETS[C.ASSET_ORDER[a]]["tick_usd"] for a in ai.tolist()])
+    dip = mae / tickusd
+    okw = y & np.isfinite(dip)
+    if okw.sum() > 100:
+        med = float(np.median(dip[okw]))
+        pt2, lo2, hi2, _n = cluster_boot(dip[okw], day[okw], n=2000,
+                                         seed=P["seed"], stat=np.median)
+    else:
+        med = pt2 = lo2 = hi2 = float("nan")
+    R.append(["median WINNER's adverse dip before it works (D-021 winners)",
+              "18 ticks",
+              "refill-effect.pdf p.10/p.23", med, lo2, hi2, int(okw.sum()),
+              "MISS — STRUCTURALLY CENSORED",
+              "NOT A FAIR TEST OF HIS CLAIM: D-021 DEFINES a winner as "
+              "mae_before_argmax <= $300, so the label has already thrown away "
+              "every winner that dipped far.  The uncapped row below is the "
+              "honest replication"])
+    # The uncapped reading — the only fair test of M-83.
+    unc = np.isfinite(dip) & (cc >= 1000.0)
+    if unc.sum() > 100:
+        umed = float(np.median(dip[unc]))
+        _p, ulo, uhi, _n = cluster_boot(dip[unc], day[unc], n=2000,
+                                        seed=P["seed"], stat=np.median)
+        q75 = float(np.percentile(dip[unc], 75))
+        R.append(["median WINNER's adverse dip, UNCAPPED (cert_close>=$1,000, "
+                  "no MAE filter)", "18 ticks", "refill-effect.pdf p.10/p.23",
+                  umed, ulo, uhi, int(unc.sum()),
+                  "REPLICATES IN SHAPE, HALF THE MAGNITUDE",
+                  "his 18 ticks sits at OUR 75th percentile (q75 = %.0f ticks). "
+                  "The mechanism is real on our data — winners routinely go "
+                  "against you first — at about half his median" % q75])
+
+    # --- M-70: the 94% overnight-extreme touch ------------------------------
+    tou = [r for r in reps if "ny_touch_onh" in r]
+    if tou:
+        f = np.array([1.0 if (r["ny_touch_onh"] or r["ny_touch_onl"]) else 0.0
+                      for r in tou])
+        dk = np.array(["%s|%08d" % (r["asset"], r["d8"]) for r in tou])
+        pt3, lo3, hi3, _n = cluster_boot(f, dk, n=2000, seed=P["seed"])
+        R.append(["RTH touches the overnight HIGH or LOW", "94%",
+                  "mastering-amt-vp.pdf p.15/p.21 (ES 92.5-95.4%)",
+                  float(f.mean()), lo3, hi3, int(f.size),
+                  "REPLICATES" if 0.88 <= f.mean() <= 0.99 else "MISS",
+                  "his number is measured on ES; ours on SI/HG/NKD with "
+                  "'overnight' = everything before the NY phase opens"])
+        fb = np.array([1.0 if (r["ny_touch_onh"] and r["ny_touch_onl"]) else 0.0
+                       for r in tou])
+        R.append(["RTH touches BOTH overnight extremes", "20-24%",
+                  "mastering-amt-vp.pdf p.21", float(fb.mean()),
+                  float("nan"), float("nan"), int(fb.size),
+                  "REPLICATES" if 0.15 <= fb.mean() <= 0.32 else "MISS",
+                  "the creator's own 'either, not both' caveat"])
+
+    # --- M-82: memory+location vs flow alone --------------------------------
+    idx = {nm: i for i, nm in enumerate(DET_NAMES)}
+    for gname, cols in (("memory+location",
+                         GROUPS["memory"] + GROUPS["location"]),
+                        ("flow alone", GROUPS["flow"]),
+                        ("construction alone", GROUPS["construction"])):
+        cix = [idx[c] for c in cols if c in idx]
+        sub = D[:, cix]
+        # a sign-free score: each column signed by its own day-1 direction is
+        # in-sample, so we report the BEST SINGLE column's AUC (honest ceiling
+        # for a one-feature reader) and the unsigned count-score AUC.
+        aucs = [abs(_auc(y, sub[:, k]) - 0.5) + 0.5 for k in range(sub.shape[1])]
+        best = float(np.nanmax(aucs)) if aucs else float("nan")
+        R.append(["AUC, %s (best single detector)" % gname,
+                  "0.63 (memory+location) / 0.54 (flow alone)",
+                  "refill-effect.pdf p.9/p.23", best, float("nan"),
+                  float("nan"), int(y.size), "SEE_NOTE",
+                  "sign taken in-sample, so this is an optimistic CEILING for "
+                  "one feature, not a walk-forward AUC.  The creator's 0.63 is "
+                  "a fitted multi-feature model on his own instrument"])
+
+    # --- the base rate the whole census sits on -----------------------------
+    R.append(["D-021 winner base rate, E2-E6", "n/a (his R-based)",
+              "our contract", float(y.mean()), float("nan"), float("nan"),
+              int(y.size), "CONTEXT",
+              "cert_close >= $1,000 AND MAE <= $300 AND not walled"])
+    R.append(["mean cert_PEAK_usd, E2-E6 all candidates", "n/a",
+              "CC-M1-8 companion reading", float(np.nanmean(Pn["cert_peak_usd"][fin])),
+              float("nan"), float("nan"), int(y.size), "CONTEXT",
+              "published beside every close reading so no detector's "
+              "conditional value is quoted on one certificate alone"])
+    R.append(["mean cert_close_usd, E2-E6 all candidates",
+              "-0.285R (fade every touch)", "refill-effect.pdf p.8",
+              float(np.nanmean(cc)), float("nan"), float("nan"), int(y.size),
+              "DIRECTIONALLY REPLICATES",
+              "his 'trade every touch loses' and our 'the unselected roster is "
+              "negative' are the same statement in different units"])
+
+    MC.write_tsv(os.path.join(PROV, "CREATOR_REPLICATIONS.tsv"), SECTION,
+                 MC.params_hash(P), COLS, R,
+                 extra=("direct replications of the creator's OWN published "
+                        "numbers on OUR five years / three assets",
+                        "a miss is reported as a miss"))
+    for r in R:
+        MC.hb("REPL %-46s claim=%-12s ours=%s" % (r[0][:46], r[1][:12], r[3]))
+    return R
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--detect", action="store_true")
     ap.add_argument("--census", action="store_true")
+    ap.add_argument("--replicate", action="store_true")
     ap.add_argument("--workers", type=int, default=8)
     a = ap.parse_args()
     if a.detect:
         run_detect(min(a.workers, 8))
     if a.census:
         run_census()
-    if not (a.detect or a.census):
-        ap.error("need --detect and/or --census")
+    if a.replicate:
+        run_replications()
+    if not (a.detect or a.census or a.replicate):
+        ap.error("need --detect and/or --census and/or --replicate")
 
 
 if __name__ == "__main__":

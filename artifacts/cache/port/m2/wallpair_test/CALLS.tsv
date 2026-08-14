@@ -18,3 +18,13 @@ WP1183	A	0.58	At A the 40455 offer is cancelled away and the bid steps up 40445-
 WP1338	A	0.65	Same price at both legs, but A longs as the 38015 offer is cancelled away order by order and the 38010 bid rebuilds, and B shorts exactly as two buy prints consume the fresh 38015 offer.
 WP0888	A	0.68	B shorts as the 37940 offer is cancelled away and the bid rebuilds; 99s later price is two ticks higher and A longs a bid stacking to 6 lots/5 orders after a buyer cleared the 37950 offer.
 WP1120	B	0.55	Near-identical dead books; B shorts the higher quote and price is already two ticks lower when A longs the same structure, with no aggression on either side to override that drift.
+WP2224	A	0.60	The 24.685 offer that capped Bs long has grown from ~11 to 23 lots in 17 orders by A, with price stepping 24.69->24.675 on heavy bid cancels, so the short is the side the stack supports.
+WP2699	A	0.80	B shorts into a V reversal (B6/15 buys vs S2/2 in the entry second, bid re-adds 42) and price is 14 ticks higher 48s later where A longs the continuation.
+WP2002	B	0.68	A longs directly under a 24-29 lot/14-16 order offer wall at 22.175 with its own bid cancelling down, while B shorts from above that wall as it keeps reloading; price is 3 ticks lower at A already.
+WP2832	B	0.62	B longs the flush low (a 6-lot bid repriced away to 30.855 marks the last seller) and price is 6 ticks higher 143s later, where A shorts a dead book with no prints in its last 4s.
+WP2939	B	0.72	Both windows show bid orders being cancelled or repriced away (one 3-lot bid moved to 29.86) with the offer reloading a tick above; B shorts 8 ticks higher into that same one-way slide that A tries to buy.
+WP2520	A	0.70	A shorts as the 28.575 bid is cancelled to 1 lot and a 4-lot bid flees to 27.84 with the 28.58 offer stacking; 3s later B buys at 28.565 with a 1-lot/1-order bid under a 9-lot/8-order offer that keeps reloading.
+WP2442	A	0.56	B longs a 12-lot/11-order but one-lot-per-order bid after 26 lots were sold into it versus 6 bought, and price is 4 ticks lower 92s later where A shorts.
+WP3219	B	0.63	The 25-lot/13-order offer at 30.215 caps the whole 45-tick rally B shorts into and price is unchanged 120s later, where A buys the stall with zero prints in 8s and the 30.21 bid decayed from 21 lots to 7.
+WP2100	B	0.72	B shorts with 15 lots sold vs 3 bought and the 24.2 offer reloading order by order, while A longs 3 ticks lower with the 24.18 bid cancelled to 1 order under a growing 15-lot/11-order offer.
+WP2536	A	0.78	B shorts a book with 13 buy prints vs 5 sells and a bid ratcheting up, and price is 12 ticks higher 90s later where A longs a bid that rebuilds to 12 lots/11 orders.

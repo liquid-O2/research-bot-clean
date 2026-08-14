@@ -1,0 +1,40 @@
+# TEACHER_CUE_LEDGER v1 (R2-11)
+# ONE cumulative ledger: every named cue, every round, forever (R2-11).
+# Each round appends a column block rN_*; NOTHING is ever deleted, a cue that dies stays with its verdict.
+# round 1 = E6 TEACHER ROUND (2024-H1, 6 days: 3 study + 3 sealed blind; 4,227 episodes; blind base 0.0715, all-days base 0.0660).
+# source: provenance/port_m2/E6_CUE_CENSUS.tsv (+ E6_EXTRACTION.md, design/TEACHER_FEATURES_V1.md); target = winner_close (D-021).
+# verdicts: PROVEN/SUPPORTED/FALSIFIED/INVERTED/CONFOUNDED/NULL/HYPOTHESIS, graded by TEACHER_FEATURES_V1 §0 applied mechanically here.
+cue	predicate	first_named	reader_polarity	r1_blind_n	r1_blind_lift	r1_blind_p	r1_all_n	r1_all_lift	r1_perday_dir	r1_verdict	r1_note
+COV_SWEET_20_60	20<=cov_phase<60	R1_E6	DERIVED	512	1.995	2.4e-08	1207	1.582	5/6	PROVEN	blind p<0.01, direction 5/6 days
+LEVEL_VIRGIN	min_tc_near==0	R1_E6	DERIVED	234	1.674	0.0072	492	1.663	5/6	PROVEN	blind p<0.01, direction 5/6 days
+NAMED_TRIAD	phase_open_reset AND level_near AND one_sided_flow	R1_E6	POSITIVE	98	1.428	0.24	197	1.769	6/6	SUPPORTED	pooled p<0.05, direction 6/6 days
+NAMED_TRIAD_soft	capacity_room AND level_near AND flow_agree_5m	R1_E6	POSITIVE	256	1.640	0.0073	637	1.617	5/6	PROVEN	blind p<0.01, direction 5/6 days
+PHASE_SPENT	cov_phase>=80	R1_E6	DERIVED	1207	0.545	2.5e-06	1741	0.609	5/6	PROVEN	blind p<0.01, direction 5/6 days
+SEAT_DEAD_TIME	runway_phase<4800	R1_E6	DERIVED	313	0.045	3.9e-09	583	0.104	6/6	PROVEN	blind p<0.01, direction 6/6 days
+SEAT_LIVE	unspent_phase_usd>=700 AND runway_phase>=18000	R1_E6	DERIVED	524	2.617	2.9e-18	1026	2.304	6/6	PROVEN	blind p<0.01, direction 6/6 days
+capacity_big	unspent_phase_usd>=1000	R1_E6	POSITIVE	401	2.233	2.3e-09	740	1.925	5/6	PROVEN	blind p<0.01, direction 5/6 days
+capacity_room	unspent_phase_usd>=400	R1_E6	POSITIVE	921	1.702	6e-08	2243	1.378	5/6	PROVEN	blind p<0.01, direction 5/6 days
+capacity_spent	unspent_phase_usd<400	R1_E6	NEGATIVE	1304	0.504	8.6e-08	1984	0.573	5/6	PROVEN	blind p<0.01, direction 5/6 days
+cov_low	cov_phase<=40	R1_E6	DERIVED	357	1.686	0.0009	802	1.473	4/6	UNSTABLE	blind p<0.01 but direction only 4/6 days — pooled edge, not a per-day fact
+event_burst	n_ev_60>=400 AND rv60>0.4*rv1800	R1_E6	POSITIVE	16	1.749	0.32	36	1.683	3/6	HYPOTHESIS	underpowered (blind n=16)
+expanding	ladder_pos>=q5* OR rv60>0.9*rv1800	R1_E6	POSITIVE	839	0.650	0.0039	1066	0.739	4/6	FALSIFIED	named as positive evidence, measured at/below base
+flow_against_5m	f5m_sflow*side<0	R1_E6	DERIVED	457	0.919	0.72	833	0.928	4/6	NULL	at base rate, not significant
+flow_agree_5m	f5m_sflow*side>0	R1_E6	POSITIVE	1209	1.019	0.82	2316	1.027	4/6	NULL	at base rate, not significant
+flow_flip	f60_sflow*side>0 AND f5m_sflow*side<=0 (2-window proxy)	R1_E6	POSITIVE	322	0.956	0.91	614	0.987	4/6	FALSIFIED	named as positive evidence, measured at/below base
+flow_strong	one_sided_flow AND abs(f5m_sflow)>=50	R1_E6	POSITIVE	169	0.911	0.88	342	1.019	2/6	FALSIFIED	named as positive evidence, measured at/below base
+fresh_extreme	extreme_age<=900	R1_E6	POSITIVE	536	1.201	0.21	958	1.044	4/6	NULL	not significant (p=0.21)
+fuel_trapped	trapped share on squeeze side >=0.65	R1_E6	POSITIVE	805	0.852	0.27	1458	0.800	4/6	FALSIFIED	named as positive evidence, measured at/below base
+level_at_price	abs(near_d)<=10	R1_E6	POSITIVE	636	0.836	0.28	1367	0.853	4/6	FALSIFIED	named as positive evidence, measured at/below base
+level_near	abs(near_d)<=60	R1_E6	POSITIVE	1843	0.972	0.79	3650	1.000	3/6	FALSIFIED	named as positive evidence, measured at/below base
+level_tested_held	level_near AND min_tc_near>=1	R1_E6	POSITIVE	1589	0.881	0.21	3119	0.913	3/6	INVERTED	complement LEVEL_VIRGIN is the live cue
+one_sided_flow	f5m_sflow*side>0 AND fph_sflow*side>0	R1_E6	POSITIVE	674	0.997	1	1311	1.167	1/6	FALSIFIED	named as positive evidence, measured at/below base
+phase_open	(sec-phase_open_sec)/(phase_close_sec-phase_open_sec)<=0.15	R1_E6	DERIVED	299	1.591	0.0069	597	1.396	3/6	UNSTABLE	blind p<0.01 but direction only 3/6 days — pooled edge, not a per-day fact
+phase_open_reset	phase_open AND unspent_phase_usd>=400	R1_E6	POSITIVE	288	1.652	0.004	578	1.442	3/6	UNSTABLE	blind p<0.01 but direction only 3/6 days — pooled edge, not a per-day fact
+poc_magnet	d_POC*side>0 AND abs(d_POC)>=200	R1_E6	POSITIVE	788	0.870	0.33	1429	1.071	3/6	FALSIFIED	named as positive evidence, measured at/below base
+refill_book	refill_frac>=0.60	R1_E6	POSITIVE	913	1.104	0.37	1753	1.141	4/6	NULL	at base rate, not significant
+runway_ok	runway_phase>=2400	R1_E6	POSITIVE	2085	1.067	0.4	3980	1.058	6/6	NULL	at base rate, not significant
+stale_extreme	extreme_age>6000	R1_E6	NEGATIVE	914	0.781	0.072	1785	0.959	3/6	NULL	not significant (p=0.072)
+tmz_burst	trades_min_z>=3	R1_E6	POSITIVE	467	0.899	0.65	846	1.057	3/6	FALSIFIED	named as positive evidence, measured at/below base
+wide_spread	spread_dec>=50	R1_E6	NEGATIVE	764	1.337	0.014	1366	1.220	5/6	CONFOUNDED	direction real, mechanism is asset identity
+REFAIL_CHAIN	pivot-chain refail on the adverse side (NOT COMPUTABLE r1)	R1_E6	POSITIVE	0	-	-	0	-	0/6	HYPOTHESIS	E6-H1; no pivot chain in the reading surface — build order in TEACHER_FEATURES_V1 TF-H2
+FLOW_FLIP_SEQ	ordered S6 digest-cluster sign sequence (NOT COMPUTABLE r1)	R1_E6	POSITIVE	0	-	-	0	-	0/6	HYPOTHESIS	E6-H2; only 2-window proxy existed (0.96x); true ordered form not built (TF-H3)

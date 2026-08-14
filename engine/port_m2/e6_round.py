@@ -74,8 +74,21 @@ import sections as SEC                    # noqa: E402
 import tape as TAPE                       # noqa: E402
 
 ROUND_ROOT = "/workspace/artifacts/cache/port/m2/episode_round/E6"
-STUDY_DATES = (20240118, 20240320, 20240416)
-BLIND_DATES = (20240419, 20240422, 20240423)
+# Round 1 (2026-08-15) and round 2 (2026-08-16, spec §3 shape ruling) draws.
+STUDY_DATES = (20240118, 20240320, 20240416,          # R1
+               20240415, 20240417, 20240418)          # R2 (vol-matched HIGH)
+BLIND_DATES = (20240419, 20240422, 20240423,          # R1
+               20240424, 20240425, 20240426)          # R2
+# THE FENCE THAT DOES NOT NEED MAINTAINING (round-2 hardening).  A date list
+# has to be edited every round, and the round it is not edited is the round a
+# sealed day is unblinded by a --contrast typo.  E6's walk-forward boundary is
+# 20240418 (artifacts/.../era/BLOCKS.tsv): EVERY session after it is BLIND-block
+# by construction, drawn or not.  The refusal is therefore on the BLOCK, with
+# the drawn list kept only as documentation.  A blind day later promoted to
+# study (the D-035 one-way door) must be named here explicitly and committed —
+# a refusal that has to be argued with is the point.
+BLIND_BLOCK_FROM = 20240419               # first date of the E6 BLIND block
+BLIND_PROMOTED_TO_STUDY = ()              # one-way-door exceptions, named
 
 # The delta vocabulary: every triage V4 field whose value is a decision-second
 # fact that MOVES between episodes.  Session-constant material is not repeated
@@ -567,9 +580,11 @@ def traj_cost(d8, assets=None):
 
 def oracle(d8, assets=None):
     """STUDY ONLY.  The DP one-position oracle schedule + episode outcomes."""
-    if int(d8) in BLIND_DATES:
-        raise SystemExit("REFUSED: %d is a drawn BLIND day — no outcome access"
-                         % d8)
+    if int(d8) >= BLIND_BLOCK_FROM and int(d8) not in BLIND_PROMOTED_TO_STUDY:
+        raise SystemExit(
+            "REFUSED: %d is in the E6 BLIND block (>= %d) — no outcome access. "
+            "Drawn blind days: %s" % (d8, BLIND_BLOCK_FROM,
+                                      ",".join(str(x) for x in BLIND_DATES)))
     import numpy as np
     import panel_score as PS               # the only outcome import in this file
     import c_c_roster as CC

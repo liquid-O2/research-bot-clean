@@ -75,3 +75,8 @@ R2-6 ACTION-TYPED RAW RIBBON (user): the ribbon prints the DECODED DBN event str
      (Add/Cancel/Modify/Trade/clear per Databento MBP-1 semantics), side, price, size, flags, seq, book state
      after — verified against the qr_dbn decoder's field semantics; the reader sees the true order-book story
      (who adds, who pulls, who hits), not derived summaries.
+R2-6-CORRECTION (user): the ribbon renders EVERY event in the window — no sampling, no aggregation, no
+     rounding: full NANOSECOND ts_event (DBN native), sequence number, action, side, price, size, flags,
+     book-after, and the INTER-EVENT GAP (ns) so speed/bursts are directly visible. The R2-2 3-point columns
+     are demoted to SHORTLIST TRIAGE HINTS ONLY — every decision on a shortlisted episode reads the true
+     event sequence (R2-1 mandate). Aggregates never substitute for the sequence anywhere a take is decided.

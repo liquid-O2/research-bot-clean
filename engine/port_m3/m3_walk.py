@@ -546,13 +546,25 @@ def run_era(D, k, nthread, ceilings, mirror, maj):
             out["targets"][target] = {"status": "NO_MODEL",
                                       "why": "every HP cell refused"}
             continue
-        # the policy knob, chosen on the INNER validation block only
+        # THE POLICY KNOB, chosen on the INNER VALIDATION BLOCK only — and on
+        # its FULL candidate population, not on the label-defined subset.
+        # DEFECT FOUND AND FIXED (2026-08-14): selecting over `iva` alone meant
+        # the knob was tuned on a universe pre-filtered by the mover gate
+        # (mfe >= 30x cost), which is a FORWARD fact.  It never touched the
+        # eval numbers — those always score the whole era — but it made the
+        # inner curve read ~$1,900/session where the same period scored as a
+        # real era reads ~$370.  The policy is now chosen on exactly the
+        # population it will face in deployment: every candidate of the inner
+        # validation SESSIONS.
         b_in = xgb.train(sel["cfg"],
                          xgb.DMatrix(X[itr], label=y[itr], feature_names=fn),
                          sel["rounds"])
+        iva_sess = np.unique(D["session"][iva])
+        iva_all = tr[np.isin(D["session"][tr], iva_sess)]
         s_in = np.full(D["d8"].size, np.nan)
-        s_in[iva] = b_in.predict(xgb.DMatrix(X[iva], feature_names=fn))
-        (punit, topn), curve = select_policy(D, s_in, iva, ceilings)
+        s_in[iva_all] = b_in.predict(xgb.DMatrix(X[iva_all],
+                                                 feature_names=fn))
+        (punit, topn), curve = select_policy(D, s_in, iva_all, ceilings)
         # the era model: refit on the WHOLE training block at that config
         booster = xgb.train(sel["cfg"],
                             xgb.DMatrix(X[fin_tr], label=y[fin_tr],
@@ -1057,7 +1069,10 @@ PARAMS = {
               "DEPLOYABLE reading (|mins to nearest scheduled release| <= %g, "
               "plus the held-into-window flag).  THE ONE DESIGN CHOICE THE "
               "BRIEF LEFT OPEN — declared here with its own FIT-side selection "
-              "and its full sensitivity curve in the receipt."
+              "and its full sensitivity curve in the receipt.  The selection "
+              "runs over EVERY candidate of the inner-validation sessions, not "
+              "the label-defined subset: the atlas champion's mover gate is a "
+              "forward fact and must not shape the deployment universe."
               % (list(UNIT_GRID), list(TOPN_GRID), M3.NEWS_WINDOW_MIN),
     "replay": "one position per asset per session, chronological, walled "
               "PHASE-CLOSE certificate (CC-M2-10.3; CC-M2-21.4 makes the "

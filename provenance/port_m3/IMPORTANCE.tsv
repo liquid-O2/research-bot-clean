@@ -1,5 +1,5 @@
 # PORT M3 M3.2 walk-forward evaluation (expanding-window era ladder) (harness=PORT-M3-HARNESS-V1; m2_spec_sha16=f6ef73a41dbf8588)
-# params_hash=cdd29ac63e95ba9dfb2e8f6197481e8cbd6b0f03077bbcf8fa51b5d5424a927c
+# params_hash=7d9e087ca94617114b0f66b904020cb3d6ff6c4a7441e539b5adf7ba30e51961
 era	rank	feature	group	gain_share
 E1	1	fuel_share_with	fuel_poc	0.074008
 E1	2	room_against_usd	geometry	0.042920

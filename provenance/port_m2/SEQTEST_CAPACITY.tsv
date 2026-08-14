@@ -3,10 +3,14 @@
 # Pooled over E3..E8 (E8 = the GATE-2025H1 echo), scored through the identical top-3/asset-day schedule, CIs CR1 clustered by DAY.
 # A rung is climbed only while honest capture improves; the whole curve is printed so a weak model and an absent signal are told apart by the shape.
 mode	run	arch	rung	seq_len	params	capture_oracle	co_lo	co_hi	capture_day	usd_per_session	ps_lo	ps_hi	mean_auc_winner	mean_inner_rho	train_minutes	wall_minutes
+LISTWISE	LMART_CELL	lambdamart-cell	gbt	0		0.0589	0.0395	0.0783	0.0519	174.16	115.82	232.5			0.9	0.0
+LISTWISE	LMART_DAY	lambdamart-day	gbt	0		0.0081	-0.0081	0.0243	0.0072	24.01	-23.86	71.88			0.5	0.0
 LISTWISE	LMART_M3FEATURES	lambdamart-m3features	gbt	0		-0.0063	-0.0233	0.0108	-0.0055	-18.57	-68.91	31.78			0.5	0.0
 LISTWISE	RANK_CTXONLY	listwise-ctx	ctx-only	1024		0.0264	0.0095	0.0433	0.0233	78.09	27.92	128.25			2.7	0.0
+LISTWISE	RANK_CELL_CTX	listwise-ctx-cell	ctx-only	1024		0.0084	-0.0071	0.024	0.0074	24.89	-21.08	70.86			2.9	0.0
 LISTWISE	RANK_FUSED_MULTI	listwise-fused	40M-frozen	1024		0.0113	-0.0065	0.029	0.0099	33.34	-19.14	85.81			11.5	0.0
 LISTWISE	RANK_FUSED_NEXT	listwise-fused	40M-frozen	1024		0.0178	0.0011	0.0344	0.0156	52.51	3.22	101.8			11.7	0.0
+LISTWISE	RANK_CELL_FUSED	listwise-fused-cell	40M-frozen	1024		0.0169	0.0004	0.0334	0.0149	50.09	1.26	98.92			8.7	0.0
 LISTWISE	RANK_SEQONLY	listwise-seq	40M-frozen	1024		0.0051	-0.0129	0.0231	0.0045	15.15	-38.18	68.49			9.3	0.0
 PROBE	PROBE_PRE_V_shared_MULTI_CTX	eventlm-probe-ctx	40M-frozen	1024	404994	0.0234	0.0128	0.0341	0.0207	69.35	38.22	100.48	0.6014	0.44308	0.7	0.0
 PROBE	PROBE_NEXTONLY_FUSED	eventlm-probe-fused	40M-frozen	1024	1126658	0.0195	0.0086	0.0304	0.0172	57.67	25.7	89.64	0.6087	0.44285	0.8	0.0

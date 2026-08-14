@@ -49,6 +49,18 @@ SUP_trf_1M_L256	E5	1078066	174406	139959	34447	159055	386	129	0.03174	5	0.611	47
 SUP_trf_1M_L256	E6	1078066	230351	184075	46276	169326	515	128	0.01492	7	0.5937	80.5
 SUP_trf_1M_L256	E7	1078066	299540	229992	69548	163374	643	131	0.00748	5	0.5741	78.7
 SUP_trf_1M_L256	E8	1078066	365852	288428	77424	177106	774	127	0.01656	2	0.5504	52.0
+RANK_lambdamart-cell_gbt_L0	E3					151884				32		2.4
+RANK_lambdamart-cell_gbt_L0	E4					148474				21		3.4
+RANK_lambdamart-cell_gbt_L0	E5					153013				16		4.4
+RANK_lambdamart-cell_gbt_L0	E6					163182				8		5.1
+RANK_lambdamart-cell_gbt_L0	E7					158329				69		12.3
+RANK_lambdamart-cell_gbt_L0	E8					172438				197		26.5
+RANK_lambdamart-day_gbt_L0	E3					151884				54		2.9
+RANK_lambdamart-day_gbt_L0	E4					148474				9		2.9
+RANK_lambdamart-day_gbt_L0	E5					153013				7		3.9
+RANK_lambdamart-day_gbt_L0	E6					163182				5		4.9
+RANK_lambdamart-day_gbt_L0	E7					158329				5		6.0
+RANK_lambdamart-day_gbt_L0	E8					172438				25		9.2
 RANK_lambdamart-m3features_gbt_L0	E3					151884				9		2.0
 RANK_lambdamart-m3features_gbt_L0	E4					148474				4		2.7
 RANK_lambdamart-m3features_gbt_L0	E5					153013				15		4.4
@@ -109,6 +121,18 @@ PROBE_eventlm-probe-fused_40M-frozen_L1024	E5	1126658	77540	62245	15295	57580	38
 PROBE_eventlm-probe-fused_40M-frozen_L1024	E6	1126658	99900	81200	18700	61581	513	128	0.44696	2	0.6043	3.9
 PROBE_eventlm-probe-fused_40M-frozen_L1024	E7	1126658	131278	99900	31378	58148	641	131	0.35454	2	0.5642	5.0
 PROBE_eventlm-probe-fused_40M-frozen_L1024	E8	1126658	161818	125865	35953	60319	772	127	0.35323	1	0.5746	4.8
+RANK_listwise-ctx-cell_ctx-only_L1024	E3					151884				2		7.4
+RANK_listwise-ctx-cell_ctx-only_L1024	E4					148474				6		16.0
+RANK_listwise-ctx-cell_ctx-only_L1024	E5					153013				14		38.9
+RANK_listwise-ctx-cell_ctx-only_L1024	E6					163182				3		23.6
+RANK_listwise-ctx-cell_ctx-only_L1024	E7					158329				9		48.6
+RANK_listwise-ctx-cell_ctx-only_L1024	E8					172438				1		40.5
+RANK_listwise-fused-cell_40M-frozen_L1024	E3					151884				3		25.4
+RANK_listwise-fused-cell_40M-frozen_L1024	E4					148474				1		27.0
+RANK_listwise-fused-cell_40M-frozen_L1024	E5					153013				14		137.1
+RANK_listwise-fused-cell_40M-frozen_L1024	E6					163182				3		100.9
+RANK_listwise-fused-cell_40M-frozen_L1024	E7					158329				2		88.1
+RANK_listwise-fused-cell_40M-frozen_L1024	E8					172438				1		145.4
 RANK_listwise-ctx_ctx-only_L1024	E3					151884				4		9.6
 RANK_listwise-ctx_ctx-only_L1024	E4					148474				13		28.1
 RANK_listwise-ctx_ctx-only_L1024	E5					153013				1		11.7

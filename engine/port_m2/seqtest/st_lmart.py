@@ -43,18 +43,18 @@ def grades(v):
     return np.clip(g, 0, 4)
 
 
-def _group_arrays(D, rows, klass):
+def _group_arrays(D, rows, klass, unit="class"):
     """Rows sorted by group + the xgboost group-size vector."""
     r = np.asarray(rows, dtype=np.int64)
-    key = (D["asset_idx"][r].astype(np.int64) * 100000000
-           + D["d8"][r].astype(np.int64)) * 100 + klass[r]
+    key = RK.group_key(D, r, klass, unit)
     order = np.lexsort((D["dec_sec"][r], key))
     ro, ko = r[order], key[order]
     _u, cnt = np.unique(ko, return_counts=True)
     return ro, cnt
 
 
-def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES"):
+def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
+        shuffle=False, drop_tf=False, from_era="E2"):
     import xgboost as xgb
     import m3_walk as W
     D, _p = W.load_matrix()
@@ -66,21 +66,39 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES"):
     pos = np.zeros(n, dtype=np.int64)      # every matrix row is scoreable here
     ledger = []
     j = D["names"].index("in_news_window")
+    cols = list(range(len(D["names"])))
+    if drop_tf:
+        # THE ABLATION: the 18 teacher-evidence columns the matrix gained
+        # mid-session, struck out, so the arm runs on the ORIGINAL 184.
+        cols = [i for i, n in enumerate(D["names"])
+                if not str(n).startswith("tf_")]
+        SC.hb("drop_tf: %d -> %d feature columns" % (len(D["names"]),
+                                                     len(cols)))
+    XF = D["X"][:, cols]
+    FN = [str(D["names"][i]) for i in cols]
     for era in test_eras:
         t0 = time.time()
-        tr, ev = R.fold_rows(D, era)
+        tr, ev = R.fold_rows(D, era, from_era=from_era)
         tr = tr[D["X"][tr, j] < 0.5]
         ev_r = ev[D["X"][ev, j] < 0.5]
         cut = SC.inner_split_days(D["d8"][tr])
         itr, iva = tr[D["d8"][tr] <= cut], tr[D["d8"][tr] > cut]
         SC.assert_disjoint_days(itr, iva, D["d8"], tag="%s inner" % era)
-        r_itr, g_itr = _group_arrays(D, itr, klass)
-        r_iva, g_iva = _group_arrays(D, iva, klass)
-        dtr = xgb.DMatrix(D["X"][r_itr], label=grades(value[r_itr]),
-                          feature_names=list(D["names"]))
+        yv = value
+        if shuffle:
+            # THE RED-FIRST CONTROL FOR THIS ARM: the grades are permuted
+            # WITHIN the training block only.  A ranker that still scores must
+            # be reading something other than the label.
+            rs = np.random.RandomState(SC.SEED + SC.ERA_IDX[era])
+            yv = value.copy()
+            yv[tr] = value[tr][rs.permutation(tr.size)]
+        r_itr, g_itr = _group_arrays(D, itr, klass, unit)
+        r_iva, g_iva = _group_arrays(D, iva, klass, unit)
+        dtr = xgb.DMatrix(XF[r_itr], label=grades(yv[r_itr]),
+                          feature_names=FN)
         dtr.set_group(g_itr)
-        dva = xgb.DMatrix(D["X"][r_iva], label=grades(value[r_iva]),
-                          feature_names=list(D["names"]))
+        dva = xgb.DMatrix(XF[r_iva], label=grades(yv[r_iva]),
+                          feature_names=FN)
         dva.set_group(g_iva)
         cfg = {"objective": "rank:ndcg", "eval_metric": "ndcg@3",
                "tree_method": "hist", "eta": 0.05, "max_depth": 6,
@@ -93,14 +111,14 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES"):
         best_rounds = int(b.best_iteration) + 1
         inner = float(b.best_score)
         # refit on the WHOLE training block at the selected round count
-        r_tr, g_tr = _group_arrays(D, tr, klass)
-        dall = xgb.DMatrix(D["X"][r_tr], label=grades(value[r_tr]),
-                           feature_names=list(D["names"]))
+        r_tr, g_tr = _group_arrays(D, tr, klass, unit)
+        dall = xgb.DMatrix(XF[r_tr], label=grades(yv[r_tr]),
+                           feature_names=FN)
         dall.set_group(g_tr)
         b2 = xgb.train(cfg, dall, best_rounds)
-        s = b2.predict(xgb.DMatrix(D["X"][ev_r], feature_names=list(D["names"])))
+        s = b2.predict(xgb.DMatrix(XF[ev_r], feature_names=FN))
         score[ev_r] = s
-        g_ev = RK.build_groups(D, ev_r, klass)
+        g_ev = RK.build_groups(D, ev_r, klass, unit)
         nd, ng = RK.ndcg_at_k(score, value, g_ev, 3)
         rnd = np.random.RandomState(SC.SEED).rand(n)
         nd_rand, _ = RK.ndcg_at_k(rnd, value, g_ev, 3)
@@ -109,7 +127,7 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES"):
         ledger.append({"era": era, "loss": "rank:ndcg", "inner_ndcg3": inner,
                        "best_epoch": best_rounds,
                        "loss_curve": [["rank:ndcg", round(inner, 5)]],
-                       "n_groups_train": len(RK.build_groups(D, tr, klass)),
+                       "n_groups_train": len(RK.build_groups(D, tr, klass, unit)),
                        "n_groups_eval": len(g_ev),
                        "median_group": int(np.median([g.size for g in g_ev]))
                        if g_ev else 0,
@@ -122,7 +140,8 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES"):
               % (era, best_rounds, inner, nd, nd_rand, nd_earl, ng,
                  time.time() - t0))
     per, pool = R.eval_scores(D, score, score, ceil, pos, test_eras=test_eras)
-    R.save_result(tag, {"kind": "rank", "arch": "lambdamart-m3features",
+    R.save_result(tag, {"kind": "rank", "group_unit": unit,
+                        "arch": "lambdamart-%s" % unit,
                         "rung": "gbt", "L": 0, "trunk": "NONE",
                         "mode": "ctx", "classes": cls_names,
                         "pretrained": False,
@@ -139,9 +158,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", action="store_true")
     ap.add_argument("--eras", default=",".join(SC.TEST_ERAS))
+    ap.add_argument("--unit", default="class",
+                    choices=("class", "cell", "day"))
+    ap.add_argument("--tag", default=None)
+    ap.add_argument("--shuffle", action="store_true")
+    ap.add_argument("--drop-tf", action="store_true")
+    ap.add_argument("--from-era", default="E2")
     a = ap.parse_args()
     if a.run:
-        run(test_eras=tuple(a.eras.split(",")))
+        run(test_eras=tuple(a.eras.split(",")), unit=a.unit, shuffle=a.shuffle,
+            drop_tf=a.drop_tf, from_era=a.from_era,
+            tag=a.tag or ("LMART_%s%s" % (a.unit.upper(),
+                                          "_SHUFFLED" if a.shuffle else "")))
     else:
         ap.print_help()
 

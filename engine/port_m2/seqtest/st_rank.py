@@ -75,11 +75,30 @@ def class_index(D):
     return k.astype(np.int64), names
 
 
-def build_groups(D, rows, klass):
-    """(asset, day, class) member sets, in a deterministic order."""
+def group_key(D, r, klass, unit="class"):
+    """THE GROUPING AXIS.
+
+    `class` (asset, day, CLASS)  — the first pass's choice.
+    `cell`  (asset, day, PHASE)  — **the schedule's OWN selection unit**.  The
+            deployable policy is top-1 per (asset, phase) CELL, so this is the
+            only grouping whose ordering is the ordering that gets seated.  The
+            first pass ranked inside class groups and was then seated across
+            them, which is exactly the R7 objective/task misalignment it found.
+    `day`   (asset, day)         — the coarser alternative.
+    """
+    base = (D["asset_idx"][r].astype(np.int64) * 100000000
+            + D["d8"][r].astype(np.int64))
+    if unit == "cell":
+        return base * 100 + D["phase_dec"][r].astype(np.int64)
+    if unit == "day":
+        return base
+    return base * 100 + klass[r]
+
+
+def build_groups(D, rows, klass, unit="class"):
+    """Member sets on the chosen grouping axis, in a deterministic order."""
     r = np.asarray(rows, dtype=np.int64)
-    key = (D["asset_idx"][r].astype(np.int64) * 100000000
-           + D["d8"][r].astype(np.int64)) * 100 + klass[r]
+    key = group_key(D, r, klass, unit)
     order = np.lexsort((D["dec_sec"][r], key))
     ro = r[order]
     ko = key[order]
@@ -231,7 +250,8 @@ def predict_rows(m, E, C, pos, emu, esd, cmu, csd, mode, rows, bs=16384):
     return rows, out
 
 
-def run(trunk="PRE_A_shared", mode="fused", test_eras=SC.TEST_ERAS, tag=None):
+def run(trunk="PRE_A_shared", mode="fused", test_eras=SC.TEST_ERAS, tag=None,
+        unit="class"):
     ft = P.load_ft()
     D, pos, C = ft["D"], ft["pos"], ft["C"]
     E = (np.asarray(P.embed_all(trunk))
@@ -258,10 +278,10 @@ def run(trunk="PRE_A_shared", mode="fused", test_eras=SC.TEST_ERAS, tag=None):
         cut = SC.inner_split_days(D["d8"][tr])
         itr, iva = tr[D["d8"][tr] <= cut], tr[D["d8"][tr] > cut]
         SC.assert_disjoint_days(itr, iva, D["d8"], tag="%s inner" % era)
-        g_itr = build_groups(D, itr, klass)
-        g_iva = build_groups(D, iva, klass)
-        g_tr = build_groups(D, tr, klass)
-        g_ev = build_groups(D, ev_r, klass)
+        g_itr = build_groups(D, itr, klass, unit)
+        g_iva = build_groups(D, iva, klass, unit)
+        g_tr = build_groups(D, tr, klass, unit)
+        g_ev = build_groups(D, ev_r, klass, unit)
         emu = esd = None
         if E is not None:
             sub = E[pos[itr]].astype(np.float32)
@@ -309,7 +329,8 @@ def run(trunk="PRE_A_shared", mode="fused", test_eras=SC.TEST_ERAS, tag=None):
         if DEV == "cuda":
             torch.cuda.empty_cache()
     per, pool = R.eval_scores(D, score, score, ceil, pos, test_eras=test_eras)
-    R.save_result(name, {"kind": "rank", "arch": "listwise-%s" % mode,
+    R.save_result(name, {"kind": "rank", "group_unit": unit,
+                         "arch": "listwise-%s-%s" % (mode, unit),
                          "rung": "40M-frozen" if E is not None else "ctx-only",
                          "L": P.CTX, "trunk": trunk, "mode": mode,
                          "classes": cls_names,
@@ -330,10 +351,12 @@ def main():
     ap.add_argument("--mode", default="fused")
     ap.add_argument("--eras", default=",".join(SC.TEST_ERAS))
     ap.add_argument("--tag", default=None)
+    ap.add_argument("--unit", default="class",
+                    choices=("class", "cell", "day"))
     a = ap.parse_args()
     if a.run:
         run(a.trunk, mode=a.mode, test_eras=tuple(a.eras.split(",")),
-            tag=a.tag)
+            tag=a.tag, unit=a.unit)
     else:
         ap.print_help()
 

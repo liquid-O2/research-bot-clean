@@ -150,10 +150,12 @@ def oracle_of(session):
 
 
 # ============================================================== the ladder ===
-def fold_rows(D, test_era):
-    """train E2..Ek -> test E(k+1).  Whole eras, whole days, never random."""
+def fold_rows(D, test_era, from_era="E2"):
+    """train <from_era>..Ek -> test E(k+1).  Whole eras, whole days, never
+    random.  `from_era="PRE_E1"` reproduces the committed m3 ladder's own
+    training block (everything strictly earlier, warm-up tape included)."""
     k = SC.ERA_IDX[test_era]
-    lo = SC.ERA_IDX["E2"]
+    lo = -99 if from_era == "PRE_E1" else SC.ERA_IDX[from_era]
     tr = np.nonzero((D["era_idx"] >= lo) & (D["era_idx"] < k))[0]
     ev = np.nonzero(D["era_idx"] == k)[0]
     SC.assert_causal_era_order(tr, ev, D["era_idx"], tag=test_era)

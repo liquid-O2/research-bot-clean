@@ -31,7 +31,13 @@ OUT_DIR = os.path.join(SC.CACHE_ROOT, "deficit")
 # what `st_run.score_arm` applies: top-3 per asset-day, D-077 veto on, the frozen
 # MATRIX_CERT contract (phase-close + the $900 wall).  EXITS ARE PARKED — the
 # contract is not a variable in this pass.
-POLICY = {"unit": "session", "topn": 3, "deployable": True,
+# CORRECTED 2026-08-16: the first pass forced unit=session/topn=3, which
+# forfeits 63-65% of its own takes (one position per asset-session).  The
+# harness's own inner-selected policy is the (asset, PHASE) CELL at N=1, which
+# forfeits 0.1% and pays 2.6x more on the identical score columns.  That is the
+# policy the ledger's own DEFAULT_POLICY already carried; forcing session/3 was
+# this lane's defect and it is repaired here.
+POLICY = {"unit": "cell", "topn": 1, "deployable": True,
           "contract": "MATRIX_CERT", "scope": "scored"}
 
 

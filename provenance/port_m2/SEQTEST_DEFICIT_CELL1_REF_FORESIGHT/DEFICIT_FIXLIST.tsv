@@ -1,0 +1,14 @@
+# PORT_M2_SHEETS_SPEC.md port m2 deficit ledger — orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars (spec_sha16=f6ef73a41dbf8588)
+# params_hash=9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da
+# THE-FIX-LIST: components ranked by recoverable $/session, with the named improvement type
+# block A = fixed-contract ladder (additive); B = contract change, D-029 reserved; D = diagnostic
+# standalone = the same repair applied ALONE from the judge's own takes (order-free)
+rank	judge	component	improvement_type	block	usd_per_session	usd_total	share_of_block_A	standalone_usd_per_session	n_repairs	top_cell	top_cell_usd_per_session
+1	CELL1_REF_FORESIGHT	OPPORTUNITY	generation/coverage	A	89.240000	207047.500000	0.987100			E5|HG|ALL	15.590000
+2	CELL1_REF_FORESIGHT	EXIT	exit-contract (D-029)	B	11.830000	27452.500000	0.130900			E6|HG|rg2|ph0	1.720000
+3	CELL1_REF_FORESIGHT	RANKING_RESIDUAL	scoring/foresight	A	1.120000	2588.750000	0.012300	12.070000	0	E6|HG|rg1|ph1	0.070000
+4	CELL1_REF_FORESIGHT	SEL_WRONG_MOMENT	moment	A	0.050000	125.000000	0.000600	1.850000	17	E4|NKD|rg0|ph2	0.050000
+5	CELL1_REF_FORESIGHT	SEL_WRONG_MEMBER	ranking	A	0.000000	0.000000	0.000000	0.170000	4224	E6|NKD|rg1|ph1	0.000000
+6	CELL1_REF_FORESIGHT	PARTICIPATION	throughput/abstention	A	0.000000	0.000000	0.000000	0.000000	418547	E6|NKD|rg1|ph1	0.000000
+7	CELL1_REF_FORESIGHT	RISK	stop-structure (D-029)	B	0.000000	0.000000	0.000000			E3|HG|rg2|ph0	0.000000
+8	CELL1_REF_FORESIGHT	CALIBRATION	threshold	D	0.000000	0.000000	0.000000				

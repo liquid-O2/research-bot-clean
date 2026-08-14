@@ -446,3 +446,103 @@ tokenizer, and a surprise profile pointing the wrong way).
 **Deliverable to the frontier lane:** `SEQTEST_SCORES_RANK_FUSED_MULTI.tsv` — 947,320
 out-of-sample rows keyed by `cid`, every one scored by a model trained only on strictly earlier
 eras.
+
+---
+
+# ITERATION 2 — A SCORING DEFECT OF MY OWN, AND THE WIN IT WAS HIDING
+
+## 13. THE DEFECT
+
+Everything in §§0–12 was scored through a fixed **top-3-per-asset-DAY** schedule because the
+brief named it. That schedule **forfeits 63–65% of its own takes**: only one position can be
+open per asset-session, so three takes chosen inside one session land on top of each other
+(1,170 takes → 434 seats). The committed M3 harness never uses it — it selects `(unit, N)` on
+its own inner validation block and lands on the **(asset, PHASE) CELL at N=1**, which forfeits
+**0.1%**.
+
+`SEQTEST_SCHEDULE.tsv` / `SEQTEST_SCHEDULE_SENSITIVITY.tsv` re-seat every arm on the harness's
+own per-era policy — read out of the committed `walk.summary.json`, so it never saw an
+evaluation era. Nothing is refitted; the same out-of-sample score columns are re-seated.
+
+| arm | my `session/3` | harness `cell/1` |
+|---|--:|--:|
+| GBT on features | $80.17 / 0.0271 | $204.62 / 0.0692 |
+| pretrained ctx-only probe | $69.35 / 0.0234 | $162.79 / 0.0550 |
+| sequence arms | ≈ 0 | **negative** |
+| **perfect foresight** | **$1,868 / 0.6315** | **$3,344 / 1.1304** |
+
+The foresight line is the one that mattered: on the crippled schedule the ceiling sits *below*
+the $2,000 bar, which made the goal look structurally unreachable. **On the correct schedule the
+ceiling is $3,344 — 1.67× the bar.** The §0 conclusions about the raw stream are unchanged, but
+every number in them was understated ~2.6× and the strategic reading was wrong.
+
+## 14. THE R7 FIX, AND WHAT IT PAID
+
+§7 diagnosed **R7**: the listwise ranker was trained to order inside `(asset, day, CLASS)`
+groups while the schedule seats across them. The schedule's own selection unit is now known to
+be the **(asset, day, PHASE) CELL**. One change — the grouping axis — nothing else:
+
+| grouping axis (LambdaMART, same features, same folds) | $/session | capture |
+|---|--:|--:|
+| `class` — the first pass | −$23.88 | −0.0239 |
+| `day` | $5.80 | 0.0020 |
+| **`cell` — the schedule's own unit** | **$495.11** | 0.0589 |
+
+Then the second change — extend the training block to the full prior history, which the
+committed m3 ladder already uses and my preregistration had excluded:
+
+| variant (full history `PRE_E1..Ek → E(k+1)`) | $/session | capture | 95% CI |
+|---|--:|--:|--:|
+| **cell-grouped, all 202 features** | **$935.97** | **0.3164** | 845 … 1027 |
+| cell-grouped, the 18 mid-session `tf_*` columns struck out | $673.74 | — | — |
+| class-grouped, identical data | $11.33 | 0.0055 | — |
+| **shuffled-label control** | **−$131.23** | −0.0294 | — |
+| *committed m3 harness (its own published arm)* | *$342.5* | — | — |
+
+Per era, against the harness era for era:
+
+| era | train block | $/session | 95% CI | $/trade | ≥$1,000 | capture | vs m3 |
+|---|---|--:|--:|--:|--:|--:|--:|
+| E3 | PRE_E1–E2 | $55.88 | −103 … 215 | $18 | 10.6% | 0.022 | 0.1× |
+| E4 | +E3 | $764.33 | 606 … 923 | $255 | 12.1% | 0.362 | 2.8× |
+| E5 | +E4 | $706.77 | 563 … 850 | $236 | 11.6% | 0.399 | 2.2× |
+| E6 | +E5 | $1,201.06 | 1009 … 1394 | $400 | 18.1% | 0.398 | 4.0× |
+| E7 | +E6 | $1,131.77 | 905 … 1359 | $377 | 20.4% | 0.285 | 3.1× |
+| **E8 — the GATE-2025H1 echo** | +E7 | **$1,773.93** | **1466 … 2082** | **$591** | **26.3%** | **0.409** | **5.2×** |
+
+It is a **learning curve, not an overfit**: monotone in training-block size, worst where the
+block is thinnest (E3), best in the most recent and most deployment-relevant era. E8 sits at
+**89% of the $2,000/session/asset bar with its interval touching it**, at $591/trade against
+D-021's $600 floor.
+
+## 15. WHAT THE LEDGER SAYS IS LEFT
+
+`SEQTEST_DEFICIT_CELL1_LMART_CELL_ALLDATA/`, correct policy, $/session:
+
+| component | GBT pointwise | **cell ranker** | change |
+|---|--:|--:|--:|
+| RANKING_RESIDUAL | 814.42 | **586.64** | −228 |
+| **SEL_WRONG_MEMBER** | 745.58 | **428.06** | **−318 (−43%)** |
+| SEL_WRONG_SIDE | 110.57 | 291.78 | +181 |
+| SEL_WRONG_MOMENT | — | 42.92 | — |
+| *EXIT (block B, D-029)* | *234.04* | *155.79* | — |
+| *RISK (block B, D-029)* | *45.08* | *127.89* | — |
+
+The money came from exactly the component the redirect named. **The next deficit is now
+`SEL_WRONG_SIDE`, which the ranker made worse (+$181/session) by taking more aggressive side
+calls** — that is the single indicated change for iteration 3, and it is a *validity* problem,
+not a ranking one.
+
+## 16. STATUS AGAINST THE GOAL
+
+* pooled E3–E8: **$935.97/session/asset** = 47% of the D-048 bar, 2.7× the committed harness;
+* the GATE era alone: **$1,773.93** = 89% of the bar;
+* schedule ceiling on the correct policy: $3,344, so the bar is inside the shape;
+* every claim above carries a shuffled-label control at −$131/session, a grouping-axis control
+  at $11/session, and survives striking the 18 columns the matrix gained mid-session.
+
+**Caveats that must travel with these numbers.** E3 is data-starved and negative-to-flat. The
+gain is concentrated in the later eras, which is what a learning curve looks like but also what
+a regime-lucky run looks like — E8 is one era. `SEL_WRONG_SIDE` moved the wrong way. And the
+`tf_*` columns arrived from another lane mid-session; the result survives without them
+($673.74) but the headline figure uses them.

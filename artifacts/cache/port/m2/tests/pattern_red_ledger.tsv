@@ -1,21 +1,25 @@
-# PORT_M2_SHEETS_SPEC.md §CC-M2-5 retrieval + §4.2 P001 detector (red-first) (spec_sha16=18d12ab86a4ee6b0)
-# params_hash=607f5d785af34391ea5f7ad488bf69ad516d95bd17e8ba22f5bb66ae0b39f20a
+# PORT_M2_SHEETS_SPEC.md §CC-M2-5 retrieval + §4.2 P001 detector (red-first) (spec_sha16=19fedc9231ba9f0e)
+# params_hash=87d5e81aaecd5180aeefb276edfa6a248ad464d71b1bfc8edb0fa1b801dfd365
 # RED-FIRST: armed_pass MUST be 1 and mutant_pass MUST be 0 on every row
 test	mutant	armed_pass	mutant_pass	verdict	detail
 frame_matches_the_renderer	MT_P01_coverage_from_session	1	0	PASS	cov=True lad=True slope=True
 pivot_chain_is_causal	MT_P02_filter_on_pivot_sec	1	0	PASS	n_candidates_where_rules_differ=129 checked=8
 coverage_boundary_is_inclusive	MT_P03_strict_less_than	1	0	PASS	fire=[True, False, True] mutant_fire=[False, False, True]
 extreme_age_is_causal	MT_P04_extreme_from_full_phase	1	0	PASS	n_fire_causal=2 n_fire_forward=1 n_age_differs=181
-retrieval_refuses_untainted_pool	MT_P05_filter_not_refuse	1	0	PASS	poison=SI-20211101-000076-S n_pool_mutant=3901 silently_dropped=True
-retrieval_scaling_binds	MT_P06_unscaled_distance	1	0	PASS	top1=SI-20210702-052788-L top1_unscaled=SI-20210702-052788-L
+retrieval_refuses_untainted_pool	MT_P05_filter_not_refuse	1	0	PASS	poison=SI-20211101-000076-S n_pool_mutant=9041 silently_dropped=True
+retrieval_scaling_binds	MT_P06_unscaled_distance	1	0	PASS	top1=SI-20210701-052590-L top1_unscaled=SI-20210706-052775-S
 retrieval_is_deterministic	MT_P07_distance_only_sort	1	0	PASS	n_ties=0
 frame_matches_the_day1_triage_index	MT_P08_session_window_for_phase_flow	1	0	PASS	n=1039 mismatches={'f60_n': 0, 'f60_vol': 0, 'f60_sflow': 0, 'fph_sflow': 0, 'fph_vol': 0, 'ext_needed': 0, 'runway_phase': 0, 'extreme_age_trade_side': 0, 'slope5m': 0, 'accel': 0, 'rv_collapse': 1} mutant_agrees=279
 p016_boundaries_are_inclusive	MT_P09_strict_inequalities	1	0	PASS	fire=[True, False, True, False] mutant=[False, False, False, False]
-triage_regime_columns_match_the_frame	MT_P10_regime_misparse	1	0	PASS	n=40 mismatches={} mutant_agrees=0 version=TRIAGE-INDEX-V3/eef4f158f4910ca9
+triage_regime_columns_match_the_frame	MT_P10_regime_misparse	0	0	FAIL_ARMED	n=40 mismatches={'sched_last_age': 27} mutant_agrees=0 version=TRIAGE-INDEX-V4/35840d5abf496fa2
 event_window_starts_at_the_release	MT_P11_window_spans_the_release	1	0	PASS	n_event_candidates=287 sign_disagreements_vs_phase=4 refused=123
-retrieval_exclude_date8_binds	MT_P12_exclude_ignored	1	0	PASS	pool 3900->2966 same_day_hits 2->0 guard_still_refuses=True
+retrieval_exclude_date8_binds	MT_P12_exclude_ignored + MT_P12b_keep_own_session	1	0	PASS	own_session default=0 mutant=3; pool 8631->7682; d8=20210712 hits 1->0; guard_still_refuses=True
 as_of_prefix_hides_later_rows	MT_P13_no_prefix_filter	1	0	PASS	n=80 as_of=36911 visible=41 later_leaked=0 driver_cuts=11 monotone=True
 as_of_masks_the_observed_close	MT_P14_observed_close_unmasked	1	0	PASS	as_of=36911 observed_close=71354 masked=True last_row runway 15039->3594
 compat_view_keeps_frozen_consumers_alive	MT_P15_frozen_idiom_on_versioned_index	1	0	PASS	n=25 compat_ok=True versioned_parses_as_data=False
-regime_join_is_strictly_prior	MT_P16_join_at_or_before	1	0	PASS	anchor_ts=1650438000 joined=OPEN rows_checked=30
+regime_join_is_strictly_prior	MT_P16_join_at_or_before	1	0	PASS	anchor_ts=1704186000 joined=OPEN (mutant joins LONDON_OPEN); +1s joins LONDON_OPEN
 s10_developing_row_is_the_one_parsed	MT_P17_last_POC_on_the_sheet	1	0	PASS	sheets_checked=19
+spread_ratio_is_normalised_by_a_prior_year	MT_R119_normalise_B08_by_the_decisions_own_calendar_year	1	0	PASS	discriminating fixture=HG 20230202 row 0 prior_med=25.0000 own_med=12.5000 own_year_mutant=2.0000; 2021 refuses=True
+phase_open_mid_refuses_on_a_blind_phase	MT_R120_emit_vm[j_ph]_without_the_have_ph_guard	1	0	PASS	blind rows found=2; unguarded mutant emits a finite post-decision mid=True
+uncomputable_certificate_is_a_refusal_not_a_loser	MT_R122_winner_without_the_isfinite_guard_and_no_flag	1	0	PASS	refused=[False, False, True, True] winner=[True, False, False, False] mutant_winner=[True, False, False, False]
+runway_binding_degeneration_is_flagged	MT_R110_silent_fallback_to_the_nominal_runway	1	0	PASS	observed_close=82799 flagged=0/239

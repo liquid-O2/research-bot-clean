@@ -9,26 +9,32 @@
  ],
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "0a9a2e831daee1f5d12370fd4607da112cd00cf4",
+  "git_sha": "58d792805efc88f2115a2551c58246141a4a8acf",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
-  "m1_spec_sha16": "12f0a849107b2d3f",
+  "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "c45371dbd6ad2995",
+  "m2_spec_sha16": "19fedc9231ba9f0e",
   "numpy_version": "2.1.2",
   "params": {
    "class_rule": "m2_common.class_of \u2014 the CC-M1-11.4 family priority order; the classes PARTITION the roster",
    "conditional_value_usd": "mean over POSITIVE candidates (CC-M1-7.3)",
-   "eras": "E1..E8 + HOLDOUT_2025H2 + FIT/GATE/ALL + calendar years",
+   "eras": "E1..E8 + FIT/GATE/ALL + calendar years, with the D-058 PRE-EXAM HOLDOUT (d8 >= 20250701) EXCLUDED from every one of them and carried ONLY under its own HOLDOUT_2025H2 label (R58)",
+   "fires_per_session": "n_candidates / n_sessions over the era's sessions in which the ASSET traded, WITH its session-level dispersion (sd, median, p10, p90, zero-fire sessions) \u2014 a pooled mean with no spread is not a decision input (R55)",
    "spec_section": "D-071 candidate-class census (P-M2b)",
    "value": "c_c_roster.certificates(wall_usd, cost_rt) \u2014 walled phase-close (adoption) + walled peak-exit (CC-M1-8 companion)",
    "winner": "cert_close >= $1000 and mae_before_argmax <= $300 and not walled (D-021)"
   },
-  "params_hash": "b3094d024004746057b3e69d77f31df634354ef4aef06545baf6e87bc36181d4",
-  "sheets_version": "PORT-SHEETS-V1",
+  "params_hash": "b06bf2bc959dd30a995294063c92148aeaa9739e41db382805954746fbaee30d",
+  "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
+ "holdout_era_label": "HOLDOUT_2025H2",
+ "holdout_from_d8": 20250701,
+ "n_holdout_rows": 19,
+ "n_holdout_sessions_quarantined_from_gate": 131,
  "n_rows": 342,
+ "n_sealed_rows": 0,
  "out": "/workspace/artifacts/cache/port/m2/class_census.tsv"
 }

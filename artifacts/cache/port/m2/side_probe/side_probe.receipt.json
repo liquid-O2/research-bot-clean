@@ -14,15 +14,15 @@
   "ORACLE_ONLY",
   "ORACLE_ONLY_MIRROR"
  ],
- "elapsed_sec": 147.52379989624023,
+ "elapsed_sec": 139.61279153823853,
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "398f3e7173e55d09c5bea43be00dbbb966ca646f",
+  "git_sha": "df0c55de5922088c52e5dbb7ad8d98ef1d2416dc",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "18d12ab86a4ee6b0",
+  "m2_spec_sha16": "19fedc9231ba9f0e",
   "numpy_version": "2.1.2",
   "params": {
    "capture": "realised / c_c_roster.dp_schedule ceiling over EVERY candidate of the session (panel_score.dp_ceiling)",
@@ -45,6 +45,7 @@
      "atr_usd": "roster atr14_usd (ATR14_prev)",
      "cert_close_usd": "c_c_roster.certificates(...)[1][0] \u2014 the walled PHASE-CLOSE certificate (the CC-M1-8 adoption metric)",
      "cert_peak_usd": "c_c_roster.certificates(...)[0][0] \u2014 the walled PEAK-EXIT companion (CC-M1-8 mandatory column)",
+     "cert_refused": "the walled certificate or the MAE could not be computed for this candidate.  R122: `NaN >= 1000` is False, so such a row used to be scored a MEASURED LOSER and counted in every winner-rate denominator.  `winner` is now False AND this flag is True, so a consumer can drop the row from BOTH halves of a rate instead of biasing it low.",
      "cid": "{ASSET}-{d8}-{dec_sec:06d}-{L|S}",
      "clock_sec": "(open_utc + dec_sec) % 86400 \u2014 clock-of-day, UTC",
      "coverage_phase": "sections.s3_path COVERAGE for the running phase = SANE range so far in the phase / (move_q50_usd_per_sigma * sigma_hat_usd) of that phase's fvol row; NaN when the fvol row carries no q50 (REFUSED, V1.1 D1)",
@@ -84,6 +85,7 @@
      "phase_lo": "min SANE mid in [phase_seg_start, dec_sec)",
      "phase_lo_sec": "FIRST second at which phase_lo was reached",
      "phase_seg_end": "one past the last second of that segment",
+     "phase_seg_end_is_session_end": "the running phase SEGMENT's end is the session's realised end (s.n), so any quantity divided by the segment length (runway_frac, retrieval axis B05) or defined over the whole segment (sched_release_in_phase) inherits an END-OF-SESSION fact on this row.  Declared, not silent.",
      "phase_seg_start": "first second of the phase SEGMENT containing dec_sec",
      "pivot_age_sec": "dec_sec - pivot_sec of the most recent CAUSAL ZigZag pivot of the faded type (HIGH for a SHORT, LOW for a LONG), conf_sec < dec_sec; -1 = none yet",
      "range_hat_usd": "S2/S9 `range_hat_usd` of the DECISION PHASE's fvol row (both sections read case.fvol_seg); NaN = REFUSED",
@@ -103,11 +105,13 @@
      "slope_1m_usd": "sections.s5_tminus mid_slope last-minute column = (mid(dec) - mid(dec-60)) * mult",
      "slope_5m_usd": "(mid(dec) - mid(dec-300)) * mult / 5 \u2014 $ per minute",
      "spread_dec_usd": "roster spread_at_decision",
-     "spread_ratio": "spread_dec_usd / phase-median spread (c_a_cost, per asset x year x phase) \u2014 the P005 'spread tax' state",
+     "spread_ratio": "spread_dec_usd / phase-median spread (c_a_cost, per asset x phase) of the STRICTLY PRIOR calendar year \u2014 the P005 'spread tax' state.  R119: the normaliser used to be the decision's OWN calendar-year pooled median, which includes the decision day and every day after it; that is a forward statistic on a reader-facing retrieval axis (B08).  NaN = REFUSED (no prior year on this asset's tape); see spread_ratio_basis_year.",
+     "spread_ratio_basis_year": "the calendar year whose pooled phase-median spread normalised spread_ratio (always the year BEFORE the decision); -1 = REFUSED",
      "surprise": "S9 realized_range_so_far / range_hat, where the realized range is the PHASE segment's [seg_start, dec) SANE range (S9's own numerator, not S2's); NaN = REFUSED",
      "walled": "the $-wall was hit on the adverse skeleton",
      "winner": "cert_close >= $1000 and mae <= $300 and not walled (D-021)"
     },
+    "fix_pass_D001": "R119 spread_ratio is normalised by the STRICTLY PRIOR calendar year (was: the decision's own year, a forward statistic on live retrieval axis B08); R120 phase_open_mid carries the have_ph guard so it can no longer emit a post-decision mid; R122 cert_refused makes an uncomputable certificate a REFUSAL rather than a measured loser, and the per-session cost fallback is counted (cost_fallback); R110 runway_binding_refused names the silent degeneration of reading B into reading A; the ATR broadcast refuses instead of propagating a sentinel.  These change the DEFINITION of committed fields, so PARAMS_FRAME moves and every consumer's params_hash moves with it \u2014 which is the point.",
     "flow_windows_sec": [
      60,
      300,
@@ -143,7 +147,8 @@
      "refail_dist_usd": "|price difference| between those two pivots, in dollars (x mult); NaN = fewer than two",
      "refail_gap_sec": "seconds between the last TWO causal ZigZag pivots of the FADED type (HIGH for a SHORT, LOW for a LONG), both conf_sec < dec_sec; -1 = fewer than two",
      "refail_px": "price of the MORE RECENT of the two pivots (the refail price); NaN = fewer than two",
-     "runway_binding_sec": "min(runway_phase_sec, max(0, observed_close_sec - dec_sec)) \u2014 the D15-corrected runway to the BINDING exit (P025 reading B).  On a full session it equals runway_phase_sec.",
+     "runway_binding_refused": "the m0 receipt carried no last_two_sided_sec, so runway_binding_sec DEGENERATED to the nominal runway.  R110: this used to be a silent pass-on-refused selector \u2014 reading B_observed quietly became reading A_nominal on those sessions with no flag and no counter.",
+     "runway_binding_sec": "min(runway_phase_sec, max(0, observed_close_sec - dec_sec)) \u2014 the D15-corrected runway to the BINDING exit (P025 reading B).  On a full session it equals runway_phase_sec.  NOT CAUSAL: it is built from an end-of-session fact and is therefore a DIAGNOSTIC ONLY \u2014 R108 makes it ineligible for promotion to an entry rule.",
      "sess_open_mid": "first SANE mid of the session",
      "short_day": "m0 session receipt meta `short_day` (PORT_M0_CENSUS_SPEC \u00a75: observed two-sided span < 20h) \u2014 the D15 holiday flag",
      "tick_usd": "the asset's tick in dollars (common.ASSETS[asset]) \u2014 the '1 tick' unit P007's no-response term and P024's refail tolerance are both written in"
@@ -162,13 +167,52 @@
    "replay": "one position, chronological; a take whose decision second is not strictly after the open position's exit second is FORFEITED (panel_score.replay)",
    "spec_section": "CC-M2-13.3 SESSION-SIDE STATE probe (ceiling census + causal day-side estimators, mirror-law tested)"
   },
-  "params_hash": "432a395322b7915a4d95cb3349754cf5b66c84e4587366d2464b253ea51bcfd9",
+  "params_hash": "cd234e93d01ac530b9a0c5f752af2cb19fee3411ae5058c67315dface142bedc",
   "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
- "n_candidates": 1580360,
- "n_sessions": 3734,
+ "estimator_verdicts": {
+  "E1_FIRST_OUTCOME": {
+   "holds": 0,
+   "mde_80_usd": 148.2942016198187,
+   "mean_delta_usd": -37.8175519630491,
+   "n_sessions_active": 2165,
+   "p": 0.474959391449539,
+   "p_holm": 1.0,
+   "sweep_clean_diagnostic": 0,
+   "verdict": "TESTED",
+   "why": "paired mean delta $-38 over 2165 sessions, Holm p=1.00000 (mde80 $148)"
+  },
+  "E2_SESSION_RETURN": {
+   "holds": 0,
+   "mde_80_usd": 148.1770712554926,
+   "mean_delta_usd": -32.53150751333005,
+   "n_sessions_active": 2063,
+   "p": 0.5385139266419182,
+   "p_holm": 1.0,
+   "sweep_clean_diagnostic": 0,
+   "verdict": "TESTED",
+   "why": "paired mean delta $-33 over 2063 sessions, Holm p=1.00000 (mde80 $148)"
+  },
+  "E3_OVERNIGHT": {
+   "holds": 0,
+   "mde_80_usd": 157.41626505905566,
+   "mean_delta_usd": -45.13672824501694,
+   "n_sessions_active": 2057,
+   "p": 0.42181851704736495,
+   "p_holm": 1.0,
+   "sweep_clean_diagnostic": 0,
+   "verdict": "TESTED",
+   "why": "paired mean delta $-45 over 2057 sessions, Holm p=1.00000 (mde80 $157)"
+  }
+ },
+ "gate_era": "GATE_2025H1",
+ "holdout_from_d8": 20250701,
+ "mirror_min_sessions": 30,
+ "n_candidates": 1399374,
+ "n_holdout_sessions_quarantined": 393,
+ "n_sessions": 3341,
  "out_dir": "/workspace/artifacts/cache/port/m2/side_probe/",
  "pins_moved": []
 }

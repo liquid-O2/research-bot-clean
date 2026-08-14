@@ -1,11 +1,14 @@
-# PORT_M2_SHEETS_SPEC.md §2 leak fixture (D-057) (spec_sha16=1c3a23a60c697c81)
+# PORT_M2_SHEETS_SPEC.md §2 leak fixture (D-057) (spec_sha16=19fedc9231ba9f0e)
 # params_hash=b570190719db61784ad604972cdab7e031071384cf5a374d55addd3f5d8fbbb5
 # RED-FIRST: armed_accepted MUST be 0 and mutant_accepted MUST be 1 on every row
 # decision moment = 2022-06-15T02:00:00Z (Tokyo phase, so the same calendar day's US close is genuinely future)
 case	poison	mutant	armed_accepted	mutant_accepted	verdict	detail
 L01	future-joined COT row (spec §2 named poison)	M-L01	0	1	PASS	stamp=2022-06-14 availability=2022-06-17T19:30:00Z decision=2022-06-15T02:00:00Z
-L02	same-day-later US close (spec §2 named poison)	M-L02	0	1	PASS	stamp=2022-06-15 availability=2022-06-16T04:00:00Z decision=2022-06-15T02:00:00Z
-L03	future session second	M-L03	0	1	PASS	session_sec=40001 decision_sec=40000
-L04	unresolved level-touch outcome	M-L04	0	1	PASS	touch_sec=39940 outcome_sec=40300 decision_sec=40000 window=900s
+L02	same-day-later US close (spec §2 named poison)	M-L02	0	1	PASS	stamp=2022-06-15 availability=2022-06-16T21:00:00Z decision=2022-06-15T02:00:00Z
+L03	future session second, through the S4 renderer	M-L03	0	1	PASS	S4 n_touches=29 (causal=29, later=241) decision_sec=12312
+L04	unresolved level-touch outcome, through the S4 renderer	M-L04	0	1	PASS	S4 n_pending=5 touch_sec=12252 outcome_sec=12612 decision_sec=12312 window=900s
 L05	equal-time availability join	M-L05	0	1	PASS	availability_ts == decision_ts == 1655258400
 L06	unknown lag rule defaulted	M-L06	0	1	PASS	avail_rule='NO_SUCH_RULE'
+L07	revised VINTAGE joined on its first print (R14)	M-L07	0	1	PASS	stamp=2022-06-07 first_print=2022-06-10T19:30:00Z vintage=2022-06-24T19:30:00Z decision=2022-06-15T02:00:00Z
+L08	same-second forecaster anchor (CC-M2-14.2a)	M-L08	0	1	PASS	joined_anchor=PRIOR (1655257800) prior=1655257800 decision_ts=1655258400
+L09	unborn fvol-anchored level on the sheet (R93)	M-L09	0	1	PASS	S4 n_not_yet_born=39, truly unborn in band=39 of which fvol-anchored=10 (FVOL_BAND|OPEN_LONDON|k0.5|+1) decision_sec=12312

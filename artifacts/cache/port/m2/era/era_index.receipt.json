@@ -6,12 +6,12 @@
  ],
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "4715c0def879412457089987cc2acaa5b7a5dbbd",
+  "git_sha": "df0c55de5922088c52e5dbb7ad8d98ef1d2416dc",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
-  "m1_spec_sha16": "12f0a849107b2d3f",
+  "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "c45371dbd6ad2995",
+  "m2_spec_sha16": "19fedc9231ba9f0e",
   "numpy_version": "2.1.2",
   "params": {
    "block_rule": "boundary = the ceil(0.60 * n_union_sessions)-th session DATE of the era over the UNION of asset session dates; STUDY = date <= boundary, BLIND = date > boundary (day-complete)",
@@ -21,19 +21,16 @@
    "study_fraction": 0.6
   },
   "params_hash": "ea59e5c1469337eac4bc18b0295ac4035ebc347c6440cb304c903e9ea6c82bdc",
-  "sheets_version": "PORT-SHEETS-V1",
+  "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
  "eras": [
-  "E1",
-  "E2"
+  "E6"
  ],
  "out_root": "/workspace/artifacts/cache/port/m2/era/",
  "totals_eligible_by_block": {
-  "E1/BLIND": 55574,
-  "E1/STUDY": 95102,
-  "E2/BLIND": 66861,
-  "E2/STUDY": 108701
+  "E6/BLIND": 63997,
+  "E6/STUDY": 105329
  }
 }

@@ -1,12 +1,12 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "d3e5784f17b00d304e847d0a8383c54adfa07f07",
+  "git_sha": "97435701f18a398c820cd4f76b1f6d78b2e62fd6",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "18d12ab86a4ee6b0",
+  "m2_spec_sha16": "19fedc9231ba9f0e",
   "numpy_version": "2.1.2",
   "params": {
    "T1_coverage": "pattern_lib coverage_phase <= 0.70; REFUSED => FALSE",
@@ -32,6 +32,7 @@
      "atr_usd": "roster atr14_usd (ATR14_prev)",
      "cert_close_usd": "c_c_roster.certificates(...)[1][0] \u2014 the walled PHASE-CLOSE certificate (the CC-M1-8 adoption metric)",
      "cert_peak_usd": "c_c_roster.certificates(...)[0][0] \u2014 the walled PEAK-EXIT companion (CC-M1-8 mandatory column)",
+     "cert_refused": "the walled certificate or the MAE could not be computed for this candidate.  R122: `NaN >= 1000` is False, so such a row used to be scored a MEASURED LOSER and counted in every winner-rate denominator.  `winner` is now False AND this flag is True, so a consumer can drop the row from BOTH halves of a rate instead of biasing it low.",
      "cid": "{ASSET}-{d8}-{dec_sec:06d}-{L|S}",
      "clock_sec": "(open_utc + dec_sec) % 86400 \u2014 clock-of-day, UTC",
      "coverage_phase": "sections.s3_path COVERAGE for the running phase = SANE range so far in the phase / (move_q50_usd_per_sigma * sigma_hat_usd) of that phase's fvol row; NaN when the fvol row carries no q50 (REFUSED, V1.1 D1)",
@@ -71,6 +72,7 @@
      "phase_lo": "min SANE mid in [phase_seg_start, dec_sec)",
      "phase_lo_sec": "FIRST second at which phase_lo was reached",
      "phase_seg_end": "one past the last second of that segment",
+     "phase_seg_end_is_session_end": "the running phase SEGMENT's end is the session's realised end (s.n), so any quantity divided by the segment length (runway_frac, retrieval axis B05) or defined over the whole segment (sched_release_in_phase) inherits an END-OF-SESSION fact on this row.  Declared, not silent.",
      "phase_seg_start": "first second of the phase SEGMENT containing dec_sec",
      "pivot_age_sec": "dec_sec - pivot_sec of the most recent CAUSAL ZigZag pivot of the faded type (HIGH for a SHORT, LOW for a LONG), conf_sec < dec_sec; -1 = none yet",
      "range_hat_usd": "S2/S9 `range_hat_usd` of the DECISION PHASE's fvol row (both sections read case.fvol_seg); NaN = REFUSED",
@@ -90,11 +92,13 @@
      "slope_1m_usd": "sections.s5_tminus mid_slope last-minute column = (mid(dec) - mid(dec-60)) * mult",
      "slope_5m_usd": "(mid(dec) - mid(dec-300)) * mult / 5 \u2014 $ per minute",
      "spread_dec_usd": "roster spread_at_decision",
-     "spread_ratio": "spread_dec_usd / phase-median spread (c_a_cost, per asset x year x phase) \u2014 the P005 'spread tax' state",
+     "spread_ratio": "spread_dec_usd / phase-median spread (c_a_cost, per asset x phase) of the STRICTLY PRIOR calendar year \u2014 the P005 'spread tax' state.  R119: the normaliser used to be the decision's OWN calendar-year pooled median, which includes the decision day and every day after it; that is a forward statistic on a reader-facing retrieval axis (B08).  NaN = REFUSED (no prior year on this asset's tape); see spread_ratio_basis_year.",
+     "spread_ratio_basis_year": "the calendar year whose pooled phase-median spread normalised spread_ratio (always the year BEFORE the decision); -1 = REFUSED",
      "surprise": "S9 realized_range_so_far / range_hat, where the realized range is the PHASE segment's [seg_start, dec) SANE range (S9's own numerator, not S2's); NaN = REFUSED",
      "walled": "the $-wall was hit on the adverse skeleton",
      "winner": "cert_close >= $1000 and mae <= $300 and not walled (D-021)"
     },
+    "fix_pass_D001": "R119 spread_ratio is normalised by the STRICTLY PRIOR calendar year (was: the decision's own year, a forward statistic on live retrieval axis B08); R120 phase_open_mid carries the have_ph guard so it can no longer emit a post-decision mid; R122 cert_refused makes an uncomputable certificate a REFUSAL rather than a measured loser, and the per-session cost fallback is counted (cost_fallback); R110 runway_binding_refused names the silent degeneration of reading B into reading A; the ATR broadcast refuses instead of propagating a sentinel.  These change the DEFINITION of committed fields, so PARAMS_FRAME moves and every consumer's params_hash moves with it \u2014 which is the point.",
     "flow_windows_sec": [
      60,
      300,
@@ -117,20 +121,26 @@
     ],
     "sane_mask": "b7_sane (D-054) \u2014 installed by assemble.load_session"
    },
-   "inference": "CC-M1-12.4 \u2014 GEE independence working correlation with the Liang-Zeger sandwich clustered on SESSION (CR0 + Cameron-Miller CR1); Kish one-way ICC/DEFF for n_eff",
+   "holdout": "D-058 \u2014 the population comes from pattern_lib.sessions_fit, which EXCLUDES every session >= 20250701 and returns the excluded count for the receipt (R105). The GATE echo is a HALF year and is named GATE_2025H1 so no reader mistakes it for the whole year.",
+   "holm_families": "R107 \u2014 THREE declared families, corrected separately and named on their own tables: (1) GEE, every robust row of EVERY arm (it used to be one family PER ARM, screening 48 tests as three families of 16, although arms A and B are two readings of the same T4 term and P016 is a third mutation of the same pattern); (2) MIRROR (P001_MIRROR.tsv); (3) PROMOTION (P001_PROMOTION.tsv)",
+   "in_sample": "R114 \u2014 every threshold here was fitted on E1 study sessions inside FIT, so every table carries a FIT_EX_FITTING era dropping the 10 threshold-fitting sessions; the difference between FIT and FIT_EX_FITTING is the optimism. The support-set table is a REPRODUCTION CHECK, not evidence.",
+   "inference": "CC-M1-12.4 \u2014 GEE independence working correlation with the Liang-Zeger sandwich clustered on SESSION (CR0 + Cameron-Miller CR1); Kish one-way ICC/DEFF for n_eff. R113: no GEE below 30 clusters, and the reference is t(G-1) not the standard normal.",
+   "mirror_law": "R112 \u2014 the T5 direction claim is compared with its SIGN-FLIPPED twin WITHIN each session and decided by m2_common.mirror_paired (session-clustered paired t, t(n-1), NO_TEST below 30 sessions)",
    "pattern": "P001 PHASE_ROLLOVER_UNDERMOVED",
    "population": "frozen v3 roster, FIT years [2021, 2022, 2023, 2024]; 2025 = GATE echo, EVAL-ONLY",
+   "promotion": "R106 \u2014 a promotion ratio carries a 2000-replicate SESSION-CLUSTERED bootstrap interval, a floor of 30 fires spanning 20 sessions, and Holm membership. seed 20260901.",
    "refused_fvol_census": "CC-M2-8.4 \u2014 per (asset, era) count/fraction of fvol rows with no move_q* quantiles and of candidates whose S9 ladder / S3 COVERAGE is therefore REFUSED",
    "spec_section": "DISCRETIONARY_METHOD \u00a74.2 name->count census \u2014 P001",
+   "un_censused_constants": "declared basis, one line each (3.2b MINORS). COVERAGE_MAX 0.70 / LADDER_BANDS_FIRE (0,1) / RUNWAY_MIN_SEC 26000 / AGE_MAX_SEC 200 are the PATTERN_LEDGER P001 `sheet_fields` literals, read off the E1 warm-up post-mortem and NOT swept; EXT_MAX_USD 450 / PHASE_MIN_AGE_SEC 300 / RUNWAY_MIN_SEC_P016 20000 / F60_MIN_N 5 / F60_MIN_VOL 10 / PHASE_MIN_VOL 200 / SFLOW_MIN_FRAC 0.05 / RV_RATIO_MAX 8.0 are taken VERBATIM from the committed executable form (e1d1_policy.terms T3/T5) and are pinned to it rather than re-fitted here; the destruction retention bands (0.80/0.50) are now GATED by a permutation p and an n floor rather than deciding alone (R106); alpha 0.05 is the program-wide Holm level. NONE carries a sensitivity sweep \u2014 the sweep is a build item, and saying so is the point of this entry.",
    "value": "c_c_roster.certificates \u2014 walled PHASE-CLOSE (adoption) and walled PEAK-EXIT (CC-M1-8 companion), both always reported",
    "winner": "cert_close >= $1000 and mae_before_argmax <= $300 and not walled (D-021)"
   },
-  "params_hash": "607f5d785af34391ea5f7ad488bf69ad516d95bd17e8ba22f5bb66ae0b39f20a",
+  "params_hash": "87d5e81aaecd5180aeefb276edfa6a248ad464d71b1bfc8edb0fa1b801dfd365",
   "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
- "n_failed": 0,
- "n_tests": 17,
- "verdict": "PASS"
+ "n_failed": 1,
+ "n_tests": 21,
+ "verdict": "FAIL"
 }

@@ -1,12 +1,13 @@
 {
+ "availability_layer_findings": "n_lag_value_too_short and n_vintage_undeclared are REPORTED, not folded into this fixture's exit code: both are defects of AVAILABILITY_LAGS.tsv and availability.py, which the \u00a72 gate does not own, and the gate must stay runnable while they are open (R40/R14/R79-R86).",
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "965b8506fa9b42170cb6ec62a6b85084048f8bfb",
+  "git_sha": "9938936fcf26b8f0a6f1f92e3d1d41af22f9b0ae",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "1c3a23a60c697c81",
+  "m2_spec_sha16": "19fedc9231ba9f0e",
   "numpy_version": "2.1.2",
   "params": {
    "lag_table": "artifacts/reference/port_context/AVAILABILITY_LAGS.tsv",
@@ -19,9 +20,15 @@
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
- "n_cases": 6,
+ "lag_value_findings": [],
+ "n_cases": 9,
  "n_failed": 0,
  "n_lag_defects": 0,
  "n_lag_rows": 21,
- "verdict": "PASS"
+ "n_lag_value_rows": 21,
+ "n_lag_value_too_short": 0,
+ "n_lag_value_uncheckable": 6,
+ "n_vintage_undeclared": 0,
+ "verdict": "PASS",
+ "vintage_undeclared": []
 }

@@ -81,3 +81,21 @@ file, no unblinding until the whole 12-day block is sealed — so nothing here c
    doing exactly what it says, and it means the round's variance is clock-concentrated.
 4. Watch item for the remaining days: the give-back on release seats (HG 14:30 today) — the channel
    my library says is the largest and least understood.
+
+## AFTER DAY 4 (20211025, sealed; 928 rows, 25 TAKEs, 6 seats — the widest day yet)
+
+1. **DEFECT D28, THE WINDOW COLLAPSE, and it is about my own core.** Twenty-one seconds into a
+   session the sheet prints 60s = 5m = 30m = phase = session (same n, same volume, same sflow). T4's
+   ratio and T5's relative clause are then a window compared with ITSELF — tautologies. Both TOKYO
+   seats of day 4 were minted at seconds 19 and 21 in that hole, one of them paying a $75 spread
+   (8.6% of its phase's $876 expected move, against B6's 3-5.5% cost band). **The OPEN-DYNAMICS
+   class fires exactly where its evidence fields are degenerate.** A session-age guard (>= 60s) and
+   a spread ceiling are one line each and neither is in the frozen policy — for the fix lane, and a
+   requirement for any M3 feature built on window nesting.
+2. **D29 (small):** SI 20211025's S10 prior_session row is degenerate — POC/VAH/VAL = -0.0050,
+   d_POC = $121,937.50 for the Sunday half-session.
+3. **Five of six seats are opens.** Twelve of the round's eighteen seats now sit within five minutes
+   of a phase open. My round is a bet on the open, and the give-back is the mechanism that decides it.
+4. **T4's 5% floor decided the best-agreeing seat of the round** (SI/NY at 5.45%). D24's uncensused
+   constants are not decoration; they are choosing the seats.
+5. Policy UNCHANGED (RV1). Everything above is structure and defect, not outcome.

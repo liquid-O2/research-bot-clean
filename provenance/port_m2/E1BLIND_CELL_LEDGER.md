@@ -58,3 +58,23 @@
 **DEFECT D27 (new, day 3):** T5's relative clause `f5m_vol >= 0.08 * fph_vol` is unbounded below — on a phase whose total volume is 48 contracts it admits a 49-contract 5-minute window as 'magnitude'. Two of the round's nine seats so far exist only through that clause (SI/TOKYO day 2 at 112 contracts, HG/LONDON day 3 at 49). The CC-M2-16.4 repair fixed an NKD misfire and created a thin-phase hole. Not patched mid-round (the policy is frozen); logged for the fix lane.
 
 **THE SEAT CLOCK IS COLLAPSING ONTO PHASE OPENS AND RELEASES:** of nine seats in three days, seven are within 5 minutes of a phase open and two are within a minute of a scheduled release. That is what the creation-class filter DOES, and it means my round is a bet on two clock windows, not on 12,418 candidates.
+
+## BLIND DAY 4 — 20211025 (sealed before any unblinding; policy RV1)
+
+**BLIND DAY 4 — 2021-10-25 (Monday), 928 candidates (SI 384, HG 293, NKD 251), 57 creation-class rows, 9 cells, 25 TAKEs, 6 SEATS — the widest day of the round so far.** Policy RV1, 47 cuts. **THE DAY'S STRUCTURAL FINDING (defect D28, and it is about my own core): AT A SESSION OPEN THE NESTED FLOW WINDOWS COLLAPSE.** On SI-20211025-000021-S the sheet prints 60s = 5m = 30m = phase = session = 30 events / 67 contracts / sflow -31, because the session is 21 seconds old. T4 (`|f5m_sflow|/f5m_vol >= 5%`) and T5 (`f5m_vol >= 8% of fph_vol`) are then TAUTOLOGIES — a window compared with itself — and both TOKYO seats of this day were minted in that hole, at seconds 19 and 21, with 75-cent spreads and phase expected moves of $876 (SI) and $1,431 (HG). The core's magnitude terms measure NOTHING in the first five minutes of a session, which is exactly where the OPEN-DYNAMICS class fires. Logged, not patched: the policy is frozen.
+
+| cell | rows | creation-class rows | V2 fires | TAKEs | seat | side read (NOT traded) | conf | would-abstain | rolling R1/R2b at cell open | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| HG/LONDON | 65 | 1 | 0 | 0 | - | SHORT | LOW | no | CLOSED/OPEN | S8 phase -25 on 57, all 57 contracts above the mid, 5 of 5 through-book prints clearing the BID — but f30m is +41 on 265 the other way. Horizon disagreement (P022, compass falsified) so the read stays LOW. |
+| HG/NY | 131 | 8 | 0 | 5 | HG-20211025-052547-S | SHORT | LOW | no | CLOSED/OPEN | S8 fuel 259 above / 74 below, f5m -52 on 148, against f30m +10 on 508. Same disagreement as HG/LONDON, same LOW. |
+| HG/TOKYO | 97 | 3 | 0 | 2 | HG-20211025-000019-L | LONG | LOW | YES | CLOSED/OPEN | S8 +61 on 132 with 90 of 132 below the mid at second 19 — but every window is the same window (D28), so this is one 19-second reading wearing four names. WOULD-ABSTAIN (P035 0.14). |
+| NKD/LONDON | 21 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/CLOSED | AT_RANGE at 71.8%; S8 essentially empty. No read. |
+| NKD/NY | 53 | 4 | 0 | 1 | NKD-20211025-056023-S | NONE | - | no | CLOSED/CLOSED | 1 contract in the phase at the open. The seat the policy spends here comes 2.5h later. |
+| NKD/TOKYO | 177 | 7 | 0 | 0 | - | NONE | - | no | OPEN/OPEN | 3 contracts at the cell open; rv1800 307 is the highest overnight state of the round so far but there is no tape to read it against. |
+| SI/LONDON | 86 | 2 | 0 | 2 | SI-20211025-025237-S | SHORT | MED | no | CLOSED/OPEN | S8 f5m -57 on 158 and f60 -35 on 42 with 41 of 42 phase contracts above the mid; mid on the phase L 12s old; S10 d_POC +$687.50 with in_VA=0 (price below the whole value area). |
+| SI/NY | 220 | 26 | 2 | 10 | SI-20211025-046924-L | LONG | MED | no | CLOSED/OPEN | S8 60s +47 on 69, phase +41 on 109 with 107 of 109 contracts BELOW the mid (the fuel sits under the trade), S5 trades/min z=4.36 with slope +$112.50/min; S10 in_VA=1, d_POC +$87.50 — price is at value, not extended. The cleanest LONG read of the round. |
+| SI/TOKYO | 78 | 6 | 0 | 5 | SI-20211025-000021-S | SHORT | LOW | YES | CLOSED/CLOSED | S8 -31 on 67 with 63 of 67 contracts above the mid; S3 gap_vs_settle -$537.50 (-0.209xATR) — a real weekend gap down. WOULD-ABSTAIN (0-for-7) and TOKYO q50 = $876 against the bar. Both refusals recorded, neither traded. |
+
+**SIX SEATS, AND FIVE OF THEM ARE OPENS:** TOKYO 00:00:19 and 00:00:21, LONDON 07:00:37, NY 13:02:04, plus two release-window seats at 14:35 and 15:33. The clock concentration noted on day 3 is now the round's defining shape.
+
+**THE TWO TOKYO SEATS ARE THE D28 HOLE MADE VISIBLE** and they are graded B by my own rule-independent grade (q50 $876 and $1,431 against the $1,500 A band) — the grade is doing the one job the core is not.

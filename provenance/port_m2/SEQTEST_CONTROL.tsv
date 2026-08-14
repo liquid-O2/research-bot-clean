@@ -1,0 +1,11 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# RED-FIRST shuffled-label control: the training block's labels are permuted; every number must be indistinguishable from chance.
+# Identical schedule: top-3/asset-day, D-077 veto, phase-close replay, CIs clustered by DAY.
+arm	era	n_takes	n_seated	usd_per_session	usd_per_trade	capture_day	capture_oracle	co_lo	co_hi	auc_winner
+SEQ_SHUFFLED_cnn_1M_L256	E3	1170	667	-61.77	-36.12	-0.0205	-0.0243	-0.065	0.0164	0.5135
+SEQ_SHUFFLED_cnn_1M_L256	E4	1155	599	-123.61	-79.45	-0.0449	-0.0585	-0.1046	-0.0125	0.54
+SEQ_SHUFFLED_cnn_1M_L256	E5	1161	588	-75.67	-49.8	-0.0292	-0.0427	-0.099	0.0135	0.5366
+SEQ_SHUFFLED_cnn_1M_L256	E6	1152	617	-94.92	-59.07	-0.0281	-0.0314	-0.0677	0.0049	0.5226
+SEQ_SHUFFLED_cnn_1M_L256	E7	1179	674	-116.61	-67.99	-0.0284	-0.0293	-0.0624	0.0037	0.5029
+SEQ_SHUFFLED_cnn_1M_L256	E8	1143	598	-192.26	-122.5	-0.0448	-0.0443	-0.0692	-0.0194	0.4966
+SEQ_SHUFFLED_POOLED	E3-E8			-110.56		-0.0329	-0.0374	-0.0522	-0.0225	

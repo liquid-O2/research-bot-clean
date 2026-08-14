@@ -1,0 +1,7 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# Leak probes fired BEFORE the real run (red-first).
+probe	outcome	verdict	message
+duplicate_day	REFUSED	PASS	DUPLICATE-DAY LEAK [PROBE]: 1 day(s) appear in BOTH the training and the evaluation block (first 5: [20220103])
+duplicate_day_clean_fold	ACCEPTED	PASS	
+non_causal_era	REFUSED	PASS	NON-CAUSAL FOLD [PROBE]: max train era 5 >= min eval era 5
+tensor_causality	0/1278601 valid cells at or after the decision second	PASS	channel 19 = log1p(seconds to decision) > 0 on every valid cell

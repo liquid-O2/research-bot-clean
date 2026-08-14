@@ -326,9 +326,14 @@ def _asset_roster(args):
         bar = bars.get(trade_date)
         atr = bar["ATR14_prev_usd"] if bar else float("nan")
         s = X.load_session(asset, trade_date, path)
-        thr = sane_thr.get(M.d8(trade_date))
-        insane = B7.apply(s, thr if thr is not None
-                          else [B7.SANE_CAP_USD] * X.N_PHASES)
+        # R89 (the D-001 fix pass): `thr if thr is not None else
+        # [SANE_CAP_USD]*N` silently handed a session with no committed
+        # threshold a mask 2-4x TOO PERMISSIVE (the committed SI/HG thresholds
+        # are $125-$250 against the $500 cap).  D-054's typed-exclusion
+        # doctrine makes a missing threshold a REFUSAL; `b7_sane.apply_for`
+        # raises SaneThresholdRefusal, which is the same guard assemble and
+        # b2_fvol now use.
+        insane = B7.apply_for(s, sane_thr, asset, M.d8(trade_date))
         if s.vt.size < 2 or not np.isfinite(atr):
             continue
         open_utc = int(s.meta["open_utc"])
@@ -507,9 +512,7 @@ def _recall_task(args):
         if not np.isfinite(atr):
             continue
         s = X.load_session(asset, trade_date, path)
-        thr = sane_thr.get(M.d8(trade_date))
-        B7.apply(s, thr if thr is not None
-                 else [B7.SANE_CAP_USD] * X.N_PHASES)
+        B7.apply_for(s, sane_thr, asset, M.d8(trade_date))   # R89, as above
         if s.vt.size < 2:
             continue
         thr_px = X.round_half_up(X.ORACLE_RUNG * atr / mult, tick_px)

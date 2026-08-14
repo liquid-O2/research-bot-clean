@@ -1,0 +1,10 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# THE MARGINAL VALUE OF THE SEQUENCE MODEL ON THE FROZEN MATRIX: the same GBT, the same fold, the same committed hyper-parameters, plus TWO columns — the sequence model's out-of-sample champion and winner logits.
+# E3's training block is E2 alone, which has no out-of-sample sequence score, so its seq columns are entirely typed-missing in training — flagged, not hidden.
+era	n_train_rows_with_seq_score	capture_oracle_GBT	capture_oracle_HYBRID	delta_capture	usd_per_trade_GBT	usd_per_trade_HYBRID	delta_usd_per_trade	seq_cols_gain_share
+E3	0	0.0436	0.0366	-0.0069	99.41	86.78	-12.63	0.0
+E4	158282	0.038	0.0203	-0.0177	76.07	40.99	-35.08	0.0071
+E5	313024	0.0486	0.0152	-0.0334	80.95	24.9	-56.04	0.0
+E6	472079	0.0045	0.0113	0.0068	12.11	30.82	18.71	0.0
+E7	641405	0.0065	0.0052	-0.0013	24.09	18.74	-5.35	0.0021
+E8	804779	0.0383	0.0329	-0.0054	148.37	125.34	-23.02	0.0

@@ -478,8 +478,8 @@ def moment_gain(D, score, ev, tag, era):
         pick = idx[int(np.nanargmax(s))]
         d_close.append(float(D["cert_close_usd"][pick]
                              - D["cert_close_usd"][earl]))
-        d_win.append(float((D["cert_close_usd"][pick] >= 1000.0)
-                           - (D["cert_close_usd"][earl] >= 1000.0)))
+        d_win.append(float(D["cert_close_usd"][pick] >= 1000.0)
+                     - float(D["cert_close_usd"][earl] >= 1000.0))
         v_e.append(float(D["cert_close_usd"][earl]))
         v_m.append(float(D["cert_close_usd"][pick]))
         cl.append(int(D["d8"][earl]))
@@ -896,11 +896,44 @@ def random3(D, ev, ceilings, draws=SC.N_RANDOM_DRAWS):
             "n_takes": None, "n_seated": None}
 
 
+def stage_export(src, L=None):
+    """Hand the model's out-of-sample score column to the frontier lane's plane:
+    one TSV keyed by `cid`, the m3 matrix's candidate id."""
+    import m3_walk as W
+    D, _p = W.load_matrix()
+    z = np.load(os.path.join(SCORE_DIR, "%s.npz" % src))
+    champ, win = z["champ"], z["win"]
+    ok = np.nonzero(np.isfinite(champ))[0]
+    comp = np.full(D["d8"].size, np.nan)
+    for era in SC.TEST_ERAS:
+        ev = np.nonzero((D["era_idx"] == SC.ERA_IDX[era])
+                        & np.isfinite(champ))[0]
+        if ev.size:
+            comp[ev] = composed(D, champ, win, ev)
+    rows = [[str(D["cid"][i]), str(D["asset"][i]), int(D["d8"][i]),
+             int(D["dec_sec"][i]), int(D["side"][i]),
+             M3.ERA_NAMES[int(D["era_idx"][i])],
+             _r(champ[i], 6), _r(win[i], 6), _r(comp[i], 6)]
+            for i in ok.tolist()]
+    write_tsv("SEQTEST_SCORES_%s.tsv" % src,
+              ["cid", "asset", "d8", "dec_sec", "side", "era",
+               "seq_champ_hat", "seq_winner_logit", "seq_composed_pct"], rows,
+              extra=["OUT-OF-SAMPLE sequence-model scores for the frontier "
+                     "lane's plane, keyed by the m3 matrix `cid`.",
+                     "Every row was scored by a model trained ONLY on strictly "
+                     "earlier eras (train E2..Ek -> test E(k+1)); no row here "
+                     "was seen in its own model's training block.",
+                     "seq_composed_pct = the m3 COMPOSED construction: "
+                     "within-(asset,session) percentile of each head, summed.",
+                     "source config: %s" % src])
+    return len(rows)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--stage", required=True,
                     choices=("control", "ladder", "pretrain", "arms",
-                             "report"))
+                             "export", "report"))
     ap.add_argument("--len", type=int, default=256)
     ap.add_argument("--arch", default="cnn")
     ap.add_argument("--rung", default="1M")
@@ -920,6 +953,8 @@ def main():
         stage_pretrain(a.len, a.rung)
     elif a.stage == "arms":
         stage_arms(a.len, a.arch, a.rung, tag=a.tag)
+    elif a.stage == "export":
+        stage_export(a.tag or ("LADDER_%s_%s_L%d" % (a.arch, a.rung, a.len)))
     elif a.stage == "report":
         import st_report
         st_report.main()

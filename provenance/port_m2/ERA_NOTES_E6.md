@@ -1,0 +1,66 @@
+# ERA NOTES — E6 (2024 H1), the teacher round's era-tagged hypotheses (D-059)
+
+These are ERA-TAGGED HYPOTHESES formed on E6 study days. They owe nothing to E1's notes and are
+rewritten (shorter and sharper, D-091.11) at the end of every study day.
+
+## §1 THE STRUCTURAL FACT THIS ERA'S INSTRUMENT IMPOSES — read this first
+The exit is a **hold to phase close** behind a $900 wall. So the day is not 584 independent bets: it is
+**~3 seats per asset**, one per phase (TOKYO→07:30/08:00, LONDON→12:00, NY→22:30/22:59, per asset). The
+oracle's own schedule on study day 1 was exactly 3 seats per asset on all three assets. Consequences:
+
+1. **A TAKE spends the asset's whole phase.** The first qualifying entry forfeits every later one. A
+   chronological greedy rule is therefore structurally wrong — measured on day 1: greedy took a mediocre
+   02:13 HG seat and was still holding it when the 04:03 seat (the oracle's) arrived.
+   RULE FORMED: hold out for a conviction-grade entry while >40% of the phase is ahead; drop to the
+   ordinary bar only once the phase is >60% gone (use it or lose it).
+2. **Capacity is a PHASE quantity, not a session quantity.** `unspent_phase_usd` is the live number.
+   Day 1 measured it going NEGATIVE on HG's London (-$10 to -$122 by 10:12): the phase had already spent
+   more than its whole expected move, and HG produced **zero** winners in 198 episodes that day.
+3. **The phase-open reset is the single richest moment.** At 12:01 (NY open) SI's unspent jumped
+   190→1,918 and NKD's 917→1,598; NKD's biggest seat of the day ($2,095) is exactly there, and SI's NY-open
+   entry paid $808. Same at the London open (HG's FAST_OPEN 08:00 seat, +$633).
+
+## §2 CONFIRMATION VALIDITY (the framing that replaced "direction", journal 2026-08-15 04:05Z)
+The side is given by the candidate. The question is whether THIS exhaustion holds. What day 1 showed:
+
+- **The wrong-side confirmation costs the wall.** Within minutes of each other on the same tape:
+  HG 04:03 LONG +$532 vs 04:06 SHORT −$580; NKD 00:56 LONG +$895 vs 00:51/00:57 SHORTs −$955 each;
+  SI 15:39 LONG +$1,495 vs 15:37/15:41 SHORTs −$930 each. Losses cluster hard at −$918..−$955.
+- **Therefore side-validity dominates entry-timing.** On the paying side almost everything pays: SI 15:39
+  +$1,495, 15:47 +$1,145; NKD 00:56 +$895, 01:01 +$758; HG 04:03 +$532, 04:17 +$458. Picking the exact best
+  entry is second-order; picking the phase's live side is the whole game.
+- **What marked the live side ex ante on day 1** (hypotheses, E6-tagged):
+  E6-H1 **REFAIL STRUCTURE IN THE PIVOT CHAIN** — S3's zigzag showed four lows at the same price (22.5725 ×3,
+  then a marginal 22.5675 undercut) while the highs stepped up 22.6075→22.6175→22.6225. The side whose
+  pushes keep failing at one price is the spent side; the marginal new extreme that immediately reclaims is
+  the entry. This is A2 (refail clustering) read on the PIVOT CHAIN rather than on price alone.
+  E6-H2 **FLOW FLIP INSIDE THE S6 DIGESTS** — the SI 15:39 seat's last five digest clusters ran sflow
+  +44/+42/+9/+15 after a −18 cluster; the flip is visible ~5 minutes before the decision second.
+  E6-H3 **LEVEL CONFLUENCE AT THE ENTRY PRICE** — the same seat sat exactly ON an OR_EXT level (d$ = 0.0)
+  with two fvol-ladder levels below it that had already REJECTED price twice. Levels that have been TESTED
+  AND HELD are the evidence; a virgin level nearby is weaker.
+  E6-H4 **EVENT BURST** — the paying entries sat inside an intensity burst (1,590-3,981 events/60s, rv60
+  running at 0.4-0.5× rv1800). Quiet entries in the same phase, same side, did not pay.
+
+## §3 WHAT DID NOT WORK (day 1, measured against my own calls)
+- The four-term generic rubric (fresh + level-held + flow-agree + fuel) fires often and **does not
+  discriminate at the seat level**: its unaided picks scored −$211, −$55, −$955, +$883. My hand-read picks,
+  which additionally required the §2 structure (confluence at the price, phase-open reset, refail chain,
+  burst), scored +$895, +$1,495, +$2,095, +$808. **Generic condition-counting is not the signal; the named
+  structure is.**
+- Calibration: Brier 0.03970 over 584 episodes vs 0.03941 for a constant base-rate forecast — my
+  probabilities are, so far, worth nothing beyond the base rate even though the TAKE set has 3.5x
+  precision. Diagnosis: too many mid-band 0.18s. Day-2 correction: 0.18+ is reserved for episodes carrying
+  §2 structure, and everything else is capped at 0.08.
+
+## §4 COMPLIANCE (D-077, ±10min, and the held-into question)
+Day 1 (no US release inside the drawn phases except Initial Jobless Claims 13:30Z):
+entry-window VETO fired on 10/584 episodes; HELD-INTO (a hold-to-phase-close that spans a release window)
+on 43/584 (7.4%). **The held-into reading is decision-relevant, not cosmetic**: NKD's best seat of the day
+($2,095, the NY-open reset) is HELD-flagged, and vetoing it costs $900 of the day's replay
+($2,685 strict vs $3,585 with held-into allowed). Both readings are reported for every day of this round.
+
+## §5 SCOREBOARD (study days, oracle-overlap = D-090.4)
+| day | regime | episodes | takes | replay | DP ceiling | capture | oracle seats hit | oracle $ hit | Brier | note |
+|---|---|---|---|---|---|---|---|---|---|---|
+| D1 2024-01-18 | LOW | 584 | 7 | $2,685 / $3,585 | $7,830 | 0.343 / 0.458 | 3/9 | 0.397 / 0.464 | 0.03970 | overlap CONTAMINATED — the oracle schedule was shown first (D-090.1) |

@@ -280,6 +280,8 @@ def main(argv=None):
     ap.add_argument("--assets", default=None)
     ap.add_argument("--oracle", action="store_true")
     ap.add_argument("--ep-outcomes", dest="ep_outcomes", action="store_true")
+    ap.add_argument("--show", default=None, help="comma list of episode ids")
+    ap.add_argument("--with-outcomes", dest="with_outcomes", action="store_true")
     a = ap.parse_args(argv)
     assets = a.assets.split(",") if a.assets else None
     if a.deltas:
@@ -304,6 +306,21 @@ def main(argv=None):
                   "winner=%d  oracle_episodes=%d" %
                   (len(eo), nwin, 100.0 * nwin / max(len(eo), 1), nbest,
                    sum(v["oracle"] for v in eo.values())))
+    if a.show:
+        want = set(a.show.split(","))
+        res = oracle(a.day, assets) if a.with_outcomes else None
+        rows = {epid: line for _as, epid, line in deltas(a.day, assets)}
+        for epid in [e for e in rows if e in want] if want != {"ALL"} else rows:
+            suffix = ""
+            if res is not None:
+                for _as2, r in res.items():
+                    v = r["ep_out"].get(epid)
+                    if v:
+                        suffix = ("\t|| rep$=%.0f mae=%.0f win=%d best$=%.0f "
+                                  "nwin=%d ORACLE=%d" % (
+                                      v["rep_close"], v["rep_mae"], v["rep_win"],
+                                      v["best_close"], v["n_win"], v["oracle"]))
+            print(rows[epid] + suffix)
     if a.ep_outcomes:
         res = oracle(a.day, assets)
         print("ep\tasset\trep_close\trep_mae\trep_win\tbest_close\tn_win\toracle")

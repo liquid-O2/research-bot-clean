@@ -236,3 +236,23 @@
 **SEVEN TAKES ON THE BIGGEST CREATION-CLASS DAY OF THE BLOCK (128 rows).** The core refused 121 of them — mostly T1 (dead book in the pre-FOMC hours) and T4/T5 (no magnitude while the market waits). The filter behaves exactly as designed and the day's opportunity is untouched by it.
 
 **THE ROUND'S SEAT CLOCK, ELEVEN DAYS IN:** every seat sits either within ~5 minutes of a phase open or inside the 14:30/16:00 release windows. No seat has ever been spent between 08:00 and 13:00 or after 16:10.
+
+## BLIND DAY 12 — 20211104 (sealed before any unblinding; policy RV2)
+
+**BLIND DAY 12 — 2021-11-04 (the round's last day), 934 candidates (SI 364, HG 355, NKD 215), 59 creation-class rows, 9 cells, 18 TAKEs, 4 seats: HG/TOKYO 00:00:30 LONG, SI/TOKYO 00:01:49 LONG, SI/NY 13:03:05 LONG, HG/NY 14:30:59 LONG — every seat of the final day is a LONG.** Policy RV2, 47 cuts, coverage 934/934. Two of the four are minted inside the first 109 seconds of the session (the D28 window-collapse hole, both graded B, SI/TOKYO's phase q50 $870 again below the $1,000 bar); the other two are the usual open/release pair. **NKD is seatless for the third day running under the card rule.** The round ends exactly as it began: the creation-class filter fires at opens and releases, the core admits or refuses on five uncensused constants, and no term of the policy has ever expressed a direction.
+
+| cell | rows | creation-class rows | V2 fires | TAKEs | seat | side read (NOT traded) | conf | would-abstain | rolling R1/R2b at cell open | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| HG/LONDON | 75 | 0 | 0 | 0 | - | SHORT | LOW | no | CLOSED/OPEN | S8 fph -26 on 102 with all 102 contracts above the mid; f60 +4 on 18 disagrees. |
+| HG/NY | 214 | 12 | 0 | 4 | HG-20211104-052259-L | LONG | LOW | no | OPEN/CLOSED | S8 f30m +67 on 1,763 into a 13-contract phase — the horizon disagreement is total; AT_RANGE 73.8%. |
+| HG/TOKYO | 66 | 4 | 0 | 4 | HG-20211104-000030-L | LONG | LOW | YES | CLOSED/OPEN | S8 +10 on 52 with ALL 52 contracts below the mid and 5 of 8 through-book prints clearing the ASK, at second 30 (D28: one window wearing four names). WOULD-ABSTAIN (0.14) — and the policy seats it. |
+| NKD/LONDON | 14 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/CLOSED | 12 contracts. |
+| NKD/NY | 65 | 5 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | No creation-class row cleared the core; the card rule removed NKD/OPEN-DYNAMICS and no NKD NEWS row qualified. Third seatless NKD day. |
+| NKD/TOKYO | 136 | 0 | 0 | 0 | - | NONE | - | no | OPEN/OPEN | 16 contracts, fuel 8/8 — the most balanced and least informative map possible. |
+| SI/LONDON | 70 | 0 | 0 | 0 | - | SHORT | MED | no | CLOSED/CLOSED | S8 phase -23 on 53, f5m -24 on 28, 44 of 53 contracts above the mid — every window selling into the open. |
+| SI/NY | 237 | 28 | 0 | 9 | SI-20211104-046985-L | LONG | MED | no | CLOSED/OPEN | S8 phase +17 on 101 with ALL 101 contracts below the mid and f60 +2 on 32; INSIDE day at 54.5% with $1,160 unspent. The seat agrees. |
+| SI/TOKYO | 57 | 1 | 0 | 1 | SI-20211104-000109-L | LONG | LOW | YES | CLOSED/CLOSED | S8 +5 on 45, all 45 contracts below the mid. WOULD-ABSTAIN (0-for-7 across the study round, seated four times in this blind round). TOKYO q50 $870. |
+
+**THE ROUND CLOSES WITH 12 DAYS SEALED, 0 UNBLINDINGS, 0 S14 FILES OPENED.**
+
+**FINAL SEAT CLOCK:** every one of the round's seats sits within ~5 minutes of a phase open or inside the 14:30-16:10 release band. The creation-class filter is, operationally, a clock filter with a flow floor.

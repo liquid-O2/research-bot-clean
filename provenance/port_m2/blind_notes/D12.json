@@ -1,0 +1,32 @@
+{
+  "day_note": "**BLIND DAY 12 — 2021-11-04 (the round's last day), 934 candidates (SI 364, HG 355, NKD 215), 59 creation-class rows, 9 cells, 18 TAKEs, 4 seats: HG/TOKYO 00:00:30 LONG, SI/TOKYO 00:01:49 LONG, SI/NY 13:03:05 LONG, HG/NY 14:30:59 LONG — every seat of the final day is a LONG.** Policy RV2, 47 cuts, coverage 934/934. Two of the four are minted inside the first 109 seconds of the session (the D28 window-collapse hole, both graded B, SI/TOKYO's phase q50 $870 again below the $1,000 bar); the other two are the usual open/release pair. **NKD is seatless for the third day running under the card rule.** The round ends exactly as it began: the creation-class filter fires at opens and releases, the core admits or refuses on five uncensused constants, and no term of the policy has ever expressed a direction.",
+  "cell_side": {
+    "HG/TOKYO": {"side": "LONG", "conf": "LOW", "abstain": true, "why": "S8 +10 on 52 with ALL 52 contracts below the mid and 5 of 8 through-book prints clearing the ASK, at second 30 (D28: one window wearing four names). WOULD-ABSTAIN (0.14) — and the policy seats it."},
+    "SI/TOKYO": {"side": "LONG", "conf": "LOW", "abstain": true, "why": "S8 +5 on 45, all 45 contracts below the mid. WOULD-ABSTAIN (0-for-7 across the study round, seated four times in this blind round). TOKYO q50 $870."},
+    "NKD/TOKYO": {"side": "NONE", "conf": "-", "abstain": false, "why": "16 contracts, fuel 8/8 — the most balanced and least informative map possible."},
+    "HG/LONDON": {"side": "SHORT", "conf": "LOW", "abstain": false, "why": "S8 fph -26 on 102 with all 102 contracts above the mid; f60 +4 on 18 disagrees."},
+    "SI/LONDON": {"side": "SHORT", "conf": "MED", "abstain": false, "why": "S8 phase -23 on 53, f5m -24 on 28, 44 of 53 contracts above the mid — every window selling into the open."},
+    "NKD/LONDON": {"side": "NONE", "conf": "-", "abstain": false, "why": "12 contracts."},
+    "HG/NY": {"side": "LONG", "conf": "LOW", "abstain": false, "why": "S8 f30m +67 on 1,763 into a 13-contract phase — the horizon disagreement is total; AT_RANGE 73.8%."},
+    "SI/NY": {"side": "LONG", "conf": "MED", "abstain": false, "why": "S8 phase +17 on 101 with ALL 101 contracts below the mid and f60 +2 on 32; INSIDE day at 54.5% with $1,160 unspent. The seat agrees."},
+    "NKD/NY": {"side": "NONE", "conf": "-", "abstain": false, "why": "No creation-class row cleared the core; the card rule removed NKD/OPEN-DYNAMICS and no NKD NEWS row qualified. Third seatless NKD day."}
+  },
+  "deep": {"SI-20211104-046985-L": "S1,S3,S8,S9,S10,S13"},
+  "seat_pm": {
+    "SI-20211104-046985-L": "PRE-MORTEM (before the call): a LONG at the NY open with S8's phase flow +17 on 101 contracts, **all 101 of them below the mid** — the cleanest 'no supply overhead' fuel map a long can have — and S10 at d_POC +$337.50 with in_VA=0, i.e. price is ABOVE the developing value area. Those two facts are the same fact seen twice: nothing is trapped above because price has left the area where volume was built. THE DEATH MECHANISM: an extended long with no overhead supply is also a long with no one to sell to; the 5-minute stream is +17 on 109 contracts, which is not magnitude, it is a trickle, and the seat is held to a 22:59:59 close 35,814 seconds away behind a $900 wall. If the NY open's push is one participant, the give-back takes the whole day. THE TRIGGER: a return inside the developing value area (below the VAH) within the hour says the extension failed.",
+    "HG-20211104-000030-L": "PRE-MORTEM (auto, triage): a LONG at second 30 of the session in the D28 hole — every flow window is the same 52 contracts — with all 52 below the mid and 5 of 8 through-book prints clearing the ASK. Grade B (TOKYO q50 $1,335). DEATH MECHANISM: a 30-second-old sample deciding a 25,170-second hold. TRIGGER: a print below the session's first sane mid.",
+    "SI-20211104-000109-L": "PRE-MORTEM (auto, triage): the SI twin at second 109 with 45 contracts, q50 $870 — **the fourth time this round SI/TOKYO has been seated into a phase whose median move cannot reach the $1,000 bar**, and the fourth time I have written that down before the fact while declining to gate on it. TRIGGER: failure to hold the open's low.",
+    "HG-20211104-052259-L": "PRE-MORTEM (auto, triage): a release LONG at 14:30:59 with f5m +43 on 353, 3,003 of 4,210 contracts below the mid, in_VA=1 and d_POC +$175 — the at-value geometry the round's better-looking seats have shared. DEATH MECHANISM: the release fade. TRIGGER: loss of the developing VAL."
+  },
+  "flip": {
+    "SI-20211104-046985-L": "FLIP THRESHOLD: **T4 at 17/109 = 15.6% and T5 at 109 contracts against the 200 absolute floor — T5 passes only through the relative clause (109 >= 8% of 101... the phase total is 101, so the clause is again self-referential, D27).** A magnitude floor with an absolute minimum of 200 contracts deletes this seat and the SI/NY cell stays empty. Three of the round's twelve days have their seat decided by that one clause.",
+    "SI-20211104-000109-L": "FLIP THRESHOLD: `q50 >= $1,000` for the phase deletes this seat, as it would have deleted every SI/TOKYO seat of the round. That is the round's most repeated single number and it is the one I most want censused: **is a phase whose median move is below the bar ever worth a seat?**"
+  },
+  "novel": {
+    "SI-20211104-046985-L": "novel (day 12, and the round's closing observation): **THE FUEL MAP'S ZERO-OVERHEAD STATE AND `in_VA=0` ARE THE SAME FACT.** Today's SI/NY seat has 101 of 101 phase contracts below the mid AND price above the developing value area; day 11's had 63 of 70 below with d_POC +$812.50; day 2's SI/NY short had 177 of 183 ABOVE with in_VA=0 below value. In every case the 'clean fuel map' is a restatement of 'price has left the value area', which is why V2 (a fuel-map veto) almost never fires on my seats and why S10's geometry keeps reappearing in my flip thresholds. If the scoring pass wants one composite feature out of this round, it is **(fuel-map one-sidedness) x (in_VA) x (sign of d_POC)** — three fields, one geometry, all census-graded as features and none as a rule."
+  },
+  "cell_notes": [
+    "**THE ROUND CLOSES WITH 12 DAYS SEALED, 0 UNBLINDINGS, 0 S14 FILES OPENED.**",
+    "**FINAL SEAT CLOCK:** every one of the round's seats sits within ~5 minutes of a phase open or inside the 14:30-16:10 release band. The creation-class filter is, operationally, a clock filter with a flow floor."
+  ]
+}

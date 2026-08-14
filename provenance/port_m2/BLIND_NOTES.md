@@ -225,3 +225,16 @@ CARD, not my eight sessions.
 3. **The round's seat clock is now final in shape:** every seat sits within ~5 minutes of a phase
    open or inside the 14:30/16:00 release windows. None between 08:00 and 13:00, none after 16:10.
 4. Policy RV2 unchanged for the last day.
+
+## AFTER DAY 12 (20211104, sealed) — **ROUND CLOSED**
+
+12 days, 12,418 rows (100% day-complete), 204 TAKEs, 40 seats, 0 unblindings, 0 S14 files opened.
+The closing record is `E1_BLIND_ROUND_SUMMARY.md`. One policy evolution (RV2, the card rule, day 6),
+whose entire footprint is 12 refused NKD/OPEN-DYNAMICS rows and two changed seats. Six defects
+raised (D25-D30), three of them about my own core's constants and one about my own process.
+
+**The sentence I would leave for whoever reads this next:** the creation-class finding this round was
+built to test is measurable EX ANTE on every sheet, in the S13 census card, at a fraction of the size
+my study round claimed — and the biggest single thing standing between this policy and the money is
+not selection at all, it is that a one-position-per-phase rule spends its seat at the open of a
+ten-hour phase and is therefore structurally absent from the events it was built to trade.

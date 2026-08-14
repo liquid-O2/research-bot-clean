@@ -126,11 +126,45 @@ EPISODE_COLUMNS = ("episode_id", "era", "asset", "date8", "side", "side_int",
 
 ACCESS_COLUMNS = ("seq", "episode_id", "era", "asset", "date8", "rep_cid",
                   "n_members", "mode", "sheet_source", "sheet_sha16",
-                  "sheet_tokens", "n_ribbon_cmds", "s14_guard_paths_checked",
-                  "round", "caller")
+                  "sheet_tokens", "n_ribbon_cmds", "n_chart_reads",
+                  "n_brief_reads", "s14_guard_paths_checked", "round",
+                  "caller")
+# R2-1 added `n_chart_reads` mid-row.  Rows already on disk were written
+# without it and are MIGRATED on read by inserting this NAMED DEFAULT at that
+# position — never by re-labelling the columns a legacy row does have.
+ACCESS_DEFAULT = {"n_chart_reads": "0", "n_brief_reads": "0"}
+
+# R2-1 / D-092.3.  `n_ribbon_cmds` USED TO COUNT COMMANDS OFFERED, and it was
+# therefore identically 1 on every row of round 1 — a round in which the ribbon
+# was invoked ZERO times.  A counter that cannot be zero cannot enforce
+# anything.  It now counts RIBBON READS LEDGERED FOR THIS EPISODE at the moment
+# the view was taken, and the authority at score time is the mechanical ledger
+# itself (RIBBON_ACCESS.tsv / CHART_RECEIPT.tsv), not this snapshot.
+CHART_RECEIPT = os.path.join(MC.M2_ROOT, "e6_round", "charts",
+                             "CHART_RECEIPT.tsv")
+CHART_RECEIPT_COLUMNS = ("seq", "cid", "asset", "date8", "dec_sec", "panel",
+                         "episode_id", "path", "sha16", "bytes", "px_w",
+                         "px_h", "n_mid_points", "n_levels",
+                         "n_episode_markers", "approach_sec", "round",
+                         "caller")
+# D-093.2: the session brief is a MANDATORY DAILY READ and its consumption is
+# MEASURED, never assumed — round 1 designed the context layer in and measured
+# 2-3 actual context views per day across three assets.  `e6_round.brief()`
+# writes one row per read; the path is duplicated here (rather than importing
+# e6_round, which would put its lazy panel_score import one hop from the blind
+# path) and `test_r2views_fixlane.t09` pins the two constants together.
+BRIEF_LEDGER = os.path.join(MC.M2_ROOT, "e6_round", "BRIEF_ACCESS.tsv")
+
+CALL_TAKE = "TAKE"
+PROTOCOL_OK = "OK"
+PROTOCOL_INVALID = "PROTOCOL_INVALID"
+TAKE_COLUMNS = ("era", "date8", "episode_id", "asset", "rank", "call",
+                "n_ribbon_reads_ledgered", "n_chart_reads_ledgered",
+                "n_brief_reads_day", "n_ribbon_rows_access",
+                "n_chart_rows_access", "protocol", "why")
 
 SCORE_COLUMNS = ("era", "date8", "grain", "cluster_key", "arm", "metric", "k",
-                 "value", "n_scored", "n_refused", "note")
+                 "value", "n_scored", "n_refused", "protocol", "note")
 PAIRED_COLUMNS = ("era", "grain", "metric", "k", "baseline", "n_units",
                   "mean_delta", "se_clustered", "t", "p_raw", "p_holm",
                   "n_won", "n_lost", "verdict", "power_floor_units")
@@ -238,11 +272,20 @@ def index_path(era, date8):
 
 
 def _ribbon_cmd(rep_cid):
-    """The episode's causal window, as the exact command line a reader runs."""
-    return ("/usr/bin/python3 engine/port_m2/ribbon.py --cid %s --from T-%d "
-            "--to T --grain %s"
-            % (rep_cid, TAPE.RIBBON_DIGEST_SEC + TAPE.RIBBON_RAW_SEC,
-               RIB.GRAIN_BOTH))
+    """The episode's causal window, as the exact command line a reader runs.
+
+    R2-1: the ACTION grain is the one that satisfies the take mandate — it is
+    the true event sequence, decoded by the official library, every record.
+    The digest grain is offered beside it for orientation only (D-092.1: the
+    summary navigates, the sequence decides), and a shorter default window than
+    the digest's, because the perfection audit measured ~49 tokens per event
+    row and the reader narrows rather than the tool thinning.
+    """
+    return ("/usr/bin/python3 engine/port_m2/ribbon.py --cid %s --from T-120 "
+            "--to T --grain %s   # R2-1 TAKE mandate; widen/narrow at will. "
+            "Orientation only: --from T-%d --grain %s"
+            % (rep_cid, RIB.GRAIN_ACTION,
+               TAPE.RIBBON_DIGEST_SEC + TAPE.RIBBON_RAW_SEC, RIB.GRAIN_BOTH))
 
 
 def _sheet_path(era, block, asset, d8, cid, mode=MC.MODE_BLIND):
@@ -408,13 +451,18 @@ def validate_ranking(episodes, rows):
     known = set(ids)
     refus = []
     seen = {}
-    ranked, abstain = [], []
+    ranked, abstain, takes = [], [], []
     for r in rows:
         eid = r["episode_id"].strip()
         seen[eid] = seen.get(eid, 0) + 1
         if eid not in known:
             refus.append("episode_id %s is not in the day's index" % eid)
             continue
+        # R2-1: the TAKE set is what the enforcement rule acts on.  A ranking
+        # with no `call` column declares NO takes; that is a named state, and
+        # `n_takes=0` shows it, never an empty check that silently passes.
+        if str(r.get("call", "")).strip().upper() == CALL_TAKE:
+            takes.append(eid)
         rk = str(r["rank"]).strip().upper()
         if rk == ABSTAIN:
             abstain.append(eid)
@@ -446,7 +494,9 @@ def validate_ranking(episodes, rows):
     order = [eid for _r, eid in ranked] + sorted(abstain)
     return {"order": order, "ranked": [eid for _r, eid in ranked],
             "abstain": sorted(abstain), "n_ranked": len(ranked),
-            "n_abstain": len(abstain)}
+            "n_abstain": len(abstain), "takes": takes,
+            "n_takes": len(takes),
+            "has_call_column": any("call" in r for r in rows)}
 
 
 def emit_ranking(era, date8, arm, path):
@@ -479,6 +529,8 @@ def emit_ranking(era, date8, arm, path):
 
 # --------------------------------------------------------- the deep view -----
 def _read_access(path=None):
+    """Rows on the CURRENT schema.  A column the file predates is filled from
+    `ACCESS_DEFAULT` — named, so a migration can never be mistaken for data."""
     p = path or ACCESS_LEDGER
     rows = []
     if not os.path.exists(p):
@@ -492,17 +544,26 @@ def _read_access(path=None):
             if cols is None:
                 cols = f
                 continue
-            rows.append(dict(zip(cols, f)))
+            d = dict(zip(cols, f))
+            for c in ACCESS_COLUMNS:
+                if c not in d:
+                    d[c] = ACCESS_DEFAULT.get(c, MC.NA)
+            rows.append(d)
     return rows
 
 
 def _append_access(rec, path=None):
     p = path or ACCESS_LEDGER
     rows = _read_access(p)
-    out = [[r[c] for c in ACCESS_COLUMNS] for r in rows]
+    out = [[r.get(c, ACCESS_DEFAULT.get(c, MC.NA)) for c in ACCESS_COLUMNS]
+           for r in rows]
     rec = dict(rec)
     rec["seq"] = len(out)
-    out.append([str(rec[c]) for c in ACCESS_COLUMNS])
+    # A caller that predates a column supplies the column's NAMED default, the
+    # same one `_read_access` migrates a legacy FILE with.  A default nobody
+    # named would still be a KeyError.
+    out.append([str(rec.get(c, ACCESS_DEFAULT[c])) if c not in rec
+                else str(rec[c]) for c in ACCESS_COLUMNS])
     MC.write_tsv(p, SECTION, MC.params_hash(PARAMS), list(ACCESS_COLUMNS), out,
                  extra=["D-080.2 deep-read ledger: one row per episode view; "
                         "a day is not scoreable until every episode of its "
@@ -523,6 +584,141 @@ def missing_access(era, date8, round_name=None, path=None):
         have.add(r["episode_id"])
     return sorted(e["episode_id"] for e in eps
                   if e["episode_id"] not in have)
+
+
+# ------------------------------------------------- R2-1 take enforcement ----
+def _read_tsv_rows(path):
+    rows, cols = [], None
+    if not path or not os.path.exists(path):
+        return rows
+    with open(path) as fh:
+        for line in fh:
+            if line.startswith("#"):
+                continue
+            f = line.rstrip("\n").split("\t")
+            if cols is None:
+                cols = f
+                continue
+            rows.append(dict(zip(cols, f)))
+    return rows
+
+
+def ribbon_reads_by_cid(path=None, round_name=None):
+    """cid -> number of RIBBON_ACCESS rows.  The mechanical evidence that a
+    window of the raw event stream was actually opened (D-092.3)."""
+    out = {}
+    for r in _read_tsv_rows(path or RIB.ACCESS_LEDGER):
+        if round_name is not None and r.get("round") != round_name:
+            continue
+        out[r.get("cid", "")] = out.get(r.get("cid", ""), 0) + 1
+    return out
+
+
+def chart_reads_by_key(path=None, round_name=None):
+    """(episode_id, cid) -> rendered-panel counts, from the R2-5 chart
+    receipt.  A panel that was never rendered cannot have been read."""
+    by_ep, by_cid = {}, {}
+    for r in _read_tsv_rows(path or CHART_RECEIPT):
+        if round_name is not None and r.get("round") != round_name:
+            continue
+        eid, cid = r.get("episode_id", "-"), r.get("cid", "")
+        if eid and eid != "-":
+            by_ep[eid] = by_ep.get(eid, 0) + 1
+        by_cid[cid] = by_cid.get(cid, 0) + 1
+    return by_ep, by_cid
+
+
+def brief_reads_by_key(path=None, round_name=None):
+    """(date8, asset) -> ledgered SESSION-BRIEF reads (D-093.2)."""
+    out = {}
+    for r in _read_tsv_rows(path or BRIEF_LEDGER):
+        if round_name is not None and r.get("round") != round_name:
+            continue
+        try:
+            k = (int(r["date8"]), r["asset"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        out[k] = out.get(k, 0) + 1
+    return out
+
+
+def _zero_evidence(n_ribbon, n_chart):
+    """THE R2-1 RULE, in one place so the fixture has one thing to attack.
+
+    A TAKE is PROTOCOL_INVALID unless the round can prove THE RAW EVENT
+    SEQUENCE WAS OPENED FOR IT.  The chart is recorded beside it and is never a
+    substitute: D-092.1 says the image RENDERS the data and the sequence
+    DECIDES, and `chart_panel.py` law 3 says the same on the panel's own face.
+
+    G-12 (R2 perfection audit): the first form of this rule flagged only when
+    ribbon AND chart evidence were both zero, so a chart-only take passed —
+    exactly the substitution the law forbids.  `n_chart` is still taken so the
+    take table can report it; it cannot license a take.
+    """
+    del n_chart                            # recorded, never accepted as proof
+    return int(n_ribbon) == 0
+
+
+def take_protocol(episodes, rank, round_name=None, ledger=None,
+                  ribbon_ledger=None, chart_receipt=None, brief_ledger=None):
+    """Per-TAKE protocol status for one day's validated ranking.
+
+    Evidence is taken from BOTH sides and summed, so neither source can be a
+    single point of failure:
+      * the episode ACCESS row's own `n_ribbon_cmds` / `n_chart_reads`, and
+      * the mechanical ledgers — RIBBON_ACCESS.tsv rows for any MEMBER cid of
+        the episode, CHART_RECEIPT.tsv rows for the episode or its rep.
+    The day is still SCORED; the take is NAMED.  (R2-1: "the day is scored but
+    that take is flagged".)
+    """
+    by_ep = {e["episode_id"]: e for e in episodes}
+    acc = {}
+    for r in _read_access(ledger):
+        if round_name is not None and r.get("round") != round_name:
+            continue
+        eid = r.get("episode_id")
+        cur = acc.setdefault(eid, {"rib": 0, "chart": 0, "n": 0})
+        cur["n"] += 1
+        for key, col in (("rib", "n_ribbon_cmds"), ("chart", "n_chart_reads")):
+            try:
+                cur[key] = max(cur[key], int(float(r.get(col) or 0)))
+            except (TypeError, ValueError):
+                pass
+    rib_by_cid = ribbon_reads_by_cid(ribbon_ledger, round_name)
+    ch_by_ep, ch_by_cid = chart_reads_by_key(chart_receipt, round_name)
+    br_by_key = brief_reads_by_key(brief_ledger, round_name)
+
+    order = {eid: i + 1 for i, eid in enumerate(rank["ranked"])}
+    rows, n_invalid = [], 0
+    for eid in rank.get("takes", ()):
+        e = by_ep.get(eid, {})
+        members = [m for m in str(e.get("members", "")).split(",") if m]
+        n_rib_mech = sum(rib_by_cid.get(m, 0) for m in members)
+        n_ch_mech = ch_by_ep.get(eid, 0) + ch_by_cid.get(e.get("rep_cid"), 0)
+        a = acc.get(eid, {"rib": 0, "chart": 0, "n": 0})
+        n_rib = a["rib"] + n_rib_mech
+        n_ch = a["chart"] + n_ch_mech
+        bad = _zero_evidence(n_rib, n_ch)
+        n_invalid += int(bad)
+        rows.append({
+            "era": e.get("era", "-"), "date8": e.get("date8", "-"),
+            "episode_id": eid, "asset": e.get("asset", "-"),
+            "rank": order.get(eid, MC.NA), "call": CALL_TAKE,
+            "n_ribbon_reads_ledgered": n_rib_mech,
+            "n_chart_reads_ledgered": n_ch_mech,
+            "n_brief_reads_day": br_by_key.get(
+                (int(e.get("date8", 0) or 0), e.get("asset", "-")), 0),
+            "n_ribbon_rows_access": a["rib"],
+            "n_chart_rows_access": a["chart"],
+            "protocol": PROTOCOL_INVALID if bad else PROTOCOL_OK,
+            "why": ("no RIBBON window is ledgered for this TAKE (R2-1/"
+                    "D-092.1: the raw event sequence decides; %d chart panel(s)"
+                    " are recorded and a chart is never a substitute)" % n_ch
+                    if bad
+                    else "ribbon_reads=%d chart_reads=%d" % (n_rib, n_ch)),
+        })
+    return {"rows": rows, "n_takes": len(rows), "n_invalid": n_invalid,
+            "n_ok": len(rows) - n_invalid}
 
 
 def view(episode_id, mode=MC.MODE_BLIND, sheet_source="render",
@@ -582,13 +778,26 @@ def view(episode_id, mode=MC.MODE_BLIND, sheet_source="render",
     L.append(sheet.rstrip("\n"))
     text = "\n".join(L) + "\n"
 
+    # R2-1: the two counters are EVIDENCE, not intentions.  `n_ribbon_cmds`
+    # counts ribbon windows ALREADY LEDGERED for a member of this episode and
+    # `n_chart_reads` counts panels already rendered for it, both at the moment
+    # this view was taken.  The pre-R2-1 code wrote `len(ribbon_cmds)` here —
+    # the number of commands the view OFFERED — which was 1 on every row of a
+    # round in which the ribbon was opened zero times.
+    rib_by_cid = ribbon_reads_by_cid()
+    ch_by_ep, ch_by_cid = chart_reads_by_key()
+    br_by_key = brief_reads_by_key()
+    n_rib = sum(rib_by_cid.get(m, 0) for m in members)
+    n_chart = ch_by_ep.get(episode_id, 0) + ch_by_cid.get(e["rep_cid"], 0)
+    n_brief = br_by_key.get((int(d8), a), 0)
+
     sha = hashlib.sha256(sheet.encode("utf-8")).hexdigest()
     rec = {"seq": 0, "episode_id": episode_id, "era": era, "asset": a,
            "date8": d8, "rep_cid": e["rep_cid"], "n_members": e["n_members"],
            "mode": mode, "sheet_source": sheet_source, "sheet_sha16": sha[:16],
            "sheet_tokens": MC.count_tokens(sheet),
-           "n_ribbon_cmds": len(ribbon_cmds),
-           "s14_guard_paths_checked": n_guard,
+           "n_ribbon_cmds": n_rib, "n_chart_reads": n_chart,
+           "n_brief_reads": n_brief, "s14_guard_paths_checked": n_guard,
            "round": round_name, "caller": caller}
     if record:
         _append_access(rec, ledger)
@@ -810,14 +1019,15 @@ def holm(pvals):
 
 # ------------------------------------------------------------------ score ----
 def score(era, rankings, outdir=None, round_name=None, ledger=None,
-          require_access=True, metric_grain="CELL"):
+          require_access=True, metric_grain="CELL", ribbon_ledger=None,
+          chart_receipt=None, brief_ledger=None):
     """rankings = {date8: path}.  THE ONLY PLACE panel_score is imported."""
     import panel_score as PS                # noqa: E402 — blind-safety fence
 
     MC.verify_spec()
     out = outdir or os.path.join(OUT_DIR, era)
     floor = power_floor_units()
-    score_rows, refused_rows = [], []
+    score_rows, refused_rows, take_rows = [], [], []
     cell_vals = {}                     # (arm, metric, k) -> {cluster: value}
     day_receipts = []
 
@@ -834,6 +1044,18 @@ def score(era, rankings, outdir=None, round_name=None, ledger=None,
                        ",".join(miss[:20])
                        + ("..." if len(miss) > 20 else "")))
         rank = validate_ranking(eps, read_ranking(rankings[d8]))
+
+        # --- R2-1 TAKE ENFORCEMENT (the day is SCORED; the take is NAMED) ---
+        prot = take_protocol(eps, rank, round_name=round_name, ledger=ledger,
+                             ribbon_ledger=ribbon_ledger,
+                             chart_receipt=chart_receipt,
+                             brief_ledger=brief_ledger)
+        for r in prot["rows"]:
+            take_rows.append([r[c] for c in TAKE_COLUMNS])
+        day_protocol = (PROTOCOL_INVALID if prot["n_invalid"] else PROTOCOL_OK)
+        prot_cell = ("%s(%d/%d takes)" % (day_protocol, prot["n_invalid"],
+                                          prot["n_takes"])
+                     if prot["n_takes"] else "NO_TAKES_DECLARED")
 
         real, payer, refused = {}, {}, []
         for e in eps:
@@ -876,17 +1098,18 @@ def score(era, rankings, outdir=None, round_name=None, ledger=None,
             if arms[arm] is None:
                 score_rows.append([era, d8, "DAY", str(d8), arm, "-", 0,
                                    MC.REFUSED_TOKEN, len(scored),
-                                   len(refused), notes[arm]])
+                                   len(refused), prot_cell, notes[arm]])
                 continue
             m = metrics_for_order(arms[arm], real, payer, ceiling)
             for (met, k) in sorted(m, key=lambda t: (t[0], t[1])):
                 score_rows.append([era, d8, "DAY", str(d8), arm, met, k,
                                    m[(met, k)], len(scored), len(refused),
-                                   notes.get(arm, "")])
+                                   prot_cell, notes.get(arm, "")])
         rex = random_exact(sorted(scored_ids), real, payer, ceiling)
         for (met, k) in sorted(rex, key=lambda t: (t[0], t[1])):
             score_rows.append([era, d8, "DAY", str(d8), ARM_RANDOM, met, k,
                                rex[(met, k)], len(scored), len(refused),
+                               prot_cell,
                                "exact expectation, uniform random permutation"])
         rpd = random_permutation_dist(sorted(scored_ids), real, payer, ceiling)
         for (met, k) in sorted(rpd, key=lambda t: (t[0], t[1])):
@@ -895,7 +1118,7 @@ def score(era, rankings, outdir=None, round_name=None, ledger=None,
                            ("_PERM_HI", hi)):
                 score_rows.append([era, d8, "DAY", str(d8),
                                    ARM_RANDOM + tag, met, k, v, len(scored),
-                                   len(refused),
+                                   len(refused), prot_cell,
                                    "seed=%d n_perm=%d" % (PERM_SEED, N_PERM)])
 
         # --- CELL grain (asset, date8) = the inference unit ----------------
@@ -916,14 +1139,15 @@ def score(era, rankings, outdir=None, round_name=None, ledger=None,
                 elif cell_arms[arm] is None:
                     score_rows.append([era, d8, "CELL", cluster, arm, "-", 0,
                                        MC.REFUSED_TOKEN, len(cs),
-                                       len(refused), notes.get(arm, "")])
+                                       len(refused), prot_cell,
+                                       notes.get(arm, "")])
                     continue
                 else:
                     m = metrics_for_order(cell_arms[arm], real, payer, ceil_a)
                 for (met, k) in sorted(m, key=lambda t: (t[0], t[1])):
                     v = m[(met, k)]
                     score_rows.append([era, d8, "CELL", cluster, arm, met, k,
-                                       v, len(cs), len(refused),
+                                       v, len(cs), len(refused), prot_cell,
                                        notes.get(arm, "")])
                     if not MC.is_refused(v):
                         cell_vals.setdefault((arm, met, k), {})[cluster] = \
@@ -934,6 +1158,9 @@ def score(era, rankings, outdir=None, round_name=None, ledger=None,
             "n_refused": len(refused), "n_ranked": rank["n_ranked"],
             "n_abstain": rank["n_abstain"], "assets": assets,
             "dp_ceiling_usd": ceiling,
+            "n_takes": prot["n_takes"],
+            "n_takes_protocol_invalid": prot["n_invalid"],
+            "protocol": day_protocol,
             "ranking": os.path.abspath(rankings[d8])})
 
     # ------------------------------------------------------- paired tests ---
@@ -974,6 +1201,16 @@ def score(era, rankings, outdir=None, round_name=None, ledger=None,
                         "p_holm = Holm over the %d baselines within each "
                         "(metric, k); verdict NO_TEST below %d units"
                         % (len(BASELINES), floor)])
+    p_take = os.path.join(out, "EPISODE_ROUND_TAKES_%s.tsv" % era)
+    MC.write_tsv(p_take, SECTION, phash, list(TAKE_COLUMNS), take_rows,
+                 extra=["R2-1: one row per declared TAKE. protocol=%s means "
+                        "the round cannot prove a RIBBON window for that take "
+                        "(D-092.1: the sequence decides; a chart panel is "
+                        "recorded but never a substitute) — the day is still "
+                        "scored, the take is named" % PROTOCOL_INVALID,
+                        "evidence = the episode ACCESS row's own counters PLUS "
+                        "the mechanical ledgers (%s, %s)"
+                        % (RIB.ACCESS_LEDGER, CHART_RECEIPT)])
     p_ref = os.path.join(out, "EPISODE_ROUND_REFUSED.tsv")
     MC.write_tsv(p_ref, SECTION, phash,
                  ["era", "date8", "episode_id", "reason"], refused_rows,
@@ -985,14 +1222,18 @@ def score(era, rankings, outdir=None, round_name=None, ledger=None,
                "n_refused_episodes": len(refused_rows),
                "headline": {"metric": METRIC_TOPK, "k": HEADLINE_K,
                             "grain": "DAY"},
+               "n_takes": sum(int(d["n_takes"]) for d in day_receipts),
+               "n_takes_protocol_invalid":
+                   sum(int(d["n_takes_protocol_invalid"])
+                       for d in day_receipts),
                "outputs": {"score": p_score, "paired": p_paired,
-                           "refused": p_ref}}
+                           "refused": p_ref, "takes": p_take}}
     MC.write_json(os.path.join(out, "episode_round_score.receipt.json"),
                   receipt)
     _write_report(os.path.join(out, "EPISODE_ROUND_REPORT_%s.md" % era), era,
                   score_rows, paired_rows, receipt)
     return {"score_rows": score_rows, "paired_rows": paired_rows,
-            "receipt": receipt}
+            "take_rows": take_rows, "receipt": receipt}
 
 
 def _fmt(v):

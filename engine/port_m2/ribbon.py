@@ -32,9 +32,21 @@ THE FOUR LAWS IT OBEYS
      of rows it withheld; a window clamped at the session open says so; a
      refusal is a value, named and counted.
 
+THE ACTION GRAIN (R2-6 + R2-6-CORRECTION + D-092, 2026-08-15).  `--grain action`
+is a FIFTH law on top of the four: the reader-facing raw stream is decoded by
+the OFFICIAL `databento-dbn` Python library STRAIGHT OFF THE PAYLOAD FILE — no
+cache, no npz, none of our own parsing between the file and the view — and it
+renders EVERY record of the requested causal window with full NANOSECOND
+`ts_event`, the inter-event gap in nanoseconds, `sequence`, `action`, `side`,
+`price` (documented 1e-9 scaling), `size`, `flags` (every documented bit), the
+book AFTER the event, and `ts_in_delta`.  There is no sampling, no aggregation,
+no rounding and NO ROW BOUND: a window too big to read is narrowed BY THE
+READER; the tool never thins (D-092.1).  Column terms are the terms of
+design/RIBBON_LEGEND.md and must not drift from it.
+
 CLI
   /usr/bin/python3 engine/port_m2/ribbon.py --cid CID --from FROM --to TO
-      [--grain raw|digest|both] [--max-rows N] [--ledger PATH]
+      [--grain raw|digest|both|action] [--max-rows N] [--ledger PATH]
       [--mode BLIND|STUDY] [--round R] [--caller NAME]
   FROM/TO accept an absolute session second (`7324`) or a decision-relative
   offset (`T-600`, `T-90`, `T`).  Both endpoints are INCLUSIVE session seconds;
@@ -51,13 +63,16 @@ import sys
 import numpy as np
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-if _HERE not in sys.path:
-    sys.path.insert(0, _HERE)
+for _p in (_HERE, os.path.join(os.path.dirname(_HERE), "port_m0")):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 import m2_common as MC                    # noqa: E402
 import assemble as A                      # noqa: E402
 import sections as SEC                    # noqa: E402
 import tape as TAPE                       # noqa: E402
+import common as C                        # noqa: E402  m0 substrate (iter_dbn)
+import databento_dbn as DBN               # noqa: E402  THE official decoder
 
 SECTION = "§1 S6 RAW EVENT RIBBON — on-demand reader tool (D-080.4)"
 
@@ -65,10 +80,59 @@ RIBBON_DIR = MC.out_path("ribbon", "_")[:-1]
 ACCESS_LEDGER = os.path.join(RIBBON_DIR, "RIBBON_ACCESS.tsv")
 ACCESS_COLUMNS = ("seq", "cid", "asset", "date8", "dec_sec", "from_sec",
                   "to_sec", "grain", "n_events", "n_rows_printed",
-                  "tokens_proxy", "round", "caller")
+                  "tokens_proxy", "decoder", "round", "caller")
+# R2-6 added `decoder` in the middle of the row.  Rows already on disk were
+# written without it; they are MIGRATED on the next append by inserting the
+# named default below at that position, never by silently re-labelling the
+# columns they do have.
+ACCESS_LEGACY_COLUMNS = ("seq", "cid", "asset", "date8", "dec_sec", "from_sec",
+                         "to_sec", "grain", "n_events", "n_rows_printed",
+                         "tokens_proxy", "round", "caller")
+ACCESS_DEFAULT = {"decoder": "tape-cache(pre-R2-6)"}
 
 GRAIN_RAW, GRAIN_DIGEST, GRAIN_BOTH = "raw", "digest", "both"
-GRAINS = (GRAIN_RAW, GRAIN_DIGEST, GRAIN_BOTH)
+GRAIN_ACTION = "action"
+GRAINS = (GRAIN_RAW, GRAIN_DIGEST, GRAIN_BOTH, GRAIN_ACTION)
+
+# ------------------------------------------------- the official decoder ------
+# Every symbol below is READ OFF THE INSTALLED OFFICIAL LIBRARY, never retyped
+# from memory: if databento changes a constant, this module changes with it and
+# design/RIBBON_LEGEND.md's generated half changes with it too.
+DBN_LIB_VERSION = "unknown"
+try:                                       # importlib is the library's own stamp
+    import importlib.metadata as _IM       # noqa: E402
+    DBN_LIB_VERSION = _IM.version("databento_dbn")
+except Exception:                          # noqa: BLE001 — a stamp, never data
+    pass
+
+PRICE_SCALE = int(DBN.FIXED_PRICE_SCALE)   # 1e9 fixed-point (documented)
+UNDEF_PRICE = int(DBN.UNDEF_PRICE)
+UNDEF_ORDER_SIZE = int(DBN.UNDEF_ORDER_SIZE)
+
+# action letter -> the library's own variant name
+ACTION_NAME = {str(v): v.name for v in DBN.Action.variants()}
+SIDE_NAME = {str(v): v.name for v in DBN.Side.variants()}
+
+# every documented flag bit, with the one-letter tag the ribbon prints.  Bit 1
+# is not named by the library; a set unnamed bit prints as `?1` rather than
+# being dropped (a bit nobody names is still a bit that was set).
+FLAG_BITS = ((int(DBN.F_LAST), "L", "F_LAST"),
+             (int(DBN.F_TOB), "T", "F_TOB"),
+             (int(DBN.F_SNAPSHOT), "S", "F_SNAPSHOT"),
+             (int(DBN.F_MBP), "M", "F_MBP"),
+             (int(DBN.F_BAD_TS_RECV), "B", "F_BAD_TS_RECV"),
+             (int(DBN.F_MAYBE_BAD_BOOK), "K", "F_MAYBE_BAD_BOOK"),
+             (int(DBN.F_PUBLISHER_SPECIFIC), "P", "F_PUBLISHER_SPECIFIC"))
+
+# The action-grain header.  These strings are the COLUMN TERMS of
+# design/RIBBON_LEGEND.md; `test_r2views_fixlane.t05` compares the two files so
+# the legend and the view cannot drift apart.
+ACTION_COLUMNS = ("ts_event", "gap_ns", "sequence", "action", "side", "price",
+                  "size", "flags", "bid_px", "bid_sz", "bid_ct", "ask_px",
+                  "ask_sz", "ask_ct", "ts_in_delta")
+ACTION_WIDTH = (19, 12, 10, 6, 4, 12, 7, 11, 11, 6, 5, 11, 6, 5, 11)
+ACTION_HEADER = "  " + " ".join(
+    c.rjust(w) for c, w in zip(ACTION_COLUMNS, ACTION_WIDTH))
 
 # The default print bound.  Chosen as the number of raw event lines whose token
 # cost equals one blind sheet's whole budget at the S6 exchange rate on record
@@ -100,6 +164,15 @@ PARAMS = {
                   "prevailing-quote rule is broken by classifying a slice)",
     "token_proxy": MC.TOKEN_PROXY_ID,
     "ledger": "one row per invocation; no wall-clock column",
+    "action_grain": "R2-6 + R2-6-CORRECTION + D-092: --grain action decodes "
+                    "the payload file with the OFFICIAL databento-dbn library "
+                    "(%s) and prints EVERY record — full ns ts_event, gap_ns, "
+                    "sequence, action, side, price (1e-9), size, flags, book "
+                    "after, ts_in_delta. No sampling/aggregation/rounding and "
+                    "no row bound." % DBN_LIB_VERSION,
+    "action_columns": list(ACTION_COLUMNS),
+    "legend": "design/RIBBON_LEGEND.md (R2-7) — the action grain's column "
+              "terms are that dictionary's terms",
 }
 
 
@@ -126,6 +199,271 @@ def parse_endpoint(text, dec_sec):
                              "T+5)" % text)
         return int(dec_sec) + int(rest)
     return int(s)
+
+
+# ----------------------------------------------- the official decode path ----
+def _letter(v):
+    """The enum's own ASCII character (`Action.CLEAR` -> 'R'), never `name[0]`."""
+    return str(getattr(v, "value", v))
+
+
+def flag_terms(f):
+    """`130=LP` — the raw byte AND every documented bit it carries."""
+    f = int(f)
+    tags = [t for bit, t, _n in FLAG_BITS if f & bit]
+    unnamed = f & ~sum(bit for bit, _t, _n in FLAG_BITS)
+    if unnamed:
+        tags.append("?%d" % unnamed)
+    return "%d=%s" % (f, "".join(tags) if tags else "-")
+
+
+def px_terms(raw):
+    """The documented 1e-9 fixed-point scaling, EXACTLY — no rounding.
+
+    `FIXED_PRICE_SCALE` is read off the library.  Trailing zeros of the 9-digit
+    fraction are dropped, which is lossless; `UNDEF_PRICE` is printed by its
+    library name, never as a number that arithmetic could touch.
+    """
+    v = int(raw)
+    if v == UNDEF_PRICE or v == -UNDEF_PRICE:
+        return "UNDEF"
+    sign = "-" if v < 0 else ""
+    whole, frac = divmod(abs(v), PRICE_SCALE)
+    s = "%s%d.%09d" % (sign, whole, frac)
+    s = s.rstrip("0").rstrip(".")
+    return s if s not in ("", "-") else "0"
+
+
+def sz_terms(v):
+    v = int(v)
+    return "UNDEF" if v == UNDEF_ORDER_SIZE else str(v)
+
+
+def decode_window(asset, trade_date, iid, open_utc, close_utc, lo_sec, hi_sec):
+    """EVERY MBP-1 record of `iid` with ts_event in [open+lo, open+hi+1).
+
+    THE DECODE IS THE OFFICIAL LIBRARY'S (user order, 2026-08-15): the payload
+    file is streamed through `common.iter_dbn`, which is `zstandard` ->
+    `databento_dbn.DBNDecoder`, and the record objects handed to the renderer
+    are the LIBRARY'S OWN.  No cache, no npz, no field of ours in between.
+
+    Returns (rows, prev_ts_ns, files) where `prev_ts_ns` is the ts_event of the
+    last record of this instrument STRICTLY BEFORE the window — the predecessor
+    the first row's `gap_ns` is measured against (strictly earlier, so causal),
+    or None when the window opens on the instrument's first record of the day.
+    """
+    lo_ns = (int(open_utc) + int(lo_sec)) * 10 ** 9
+    hi_ns = (int(open_utc) + int(hi_sec) + 1) * 10 ** 9
+    # Records are time-ordered within a payload file; an hour of slack absorbs
+    # the stale-ts SNAPSHOT prologue exactly as tape.extract documents.
+    stop_ns = hi_ns + 3600 * 10 ** 9
+    rows = []
+    prev_ts = None
+    files = TAPE.session_payload_files(asset, trade_date, open_utc, close_utc)
+    iid = int(iid)
+    for p in files:
+        stopped = False
+        for rec in C.iter_dbn(p):
+            if isinstance(rec, DBN.Metadata):
+                continue
+            t = int(rec.ts_event)
+            if t >= stop_ns:
+                stopped = True
+                break
+            if int(rec.instrument_id) != iid:
+                continue
+            if t < lo_ns:
+                prev_ts = t
+                continue
+            if t >= hi_ns:
+                continue
+            rows.append({
+                "ts_event": t,
+                "sequence": int(rec.sequence),
+                "action": _letter(rec.action),
+                "side": _letter(rec.side),
+                "price": int(rec.price),
+                "size": int(rec.size),
+                "flags": int(rec.flags),
+                "depth": int(rec.depth),
+                "ts_recv": int(rec.ts_recv),
+                "ts_in_delta": int(rec.ts_in_delta),
+                "bid_px": int(rec.bid_px_00), "bid_sz": int(rec.bid_sz_00),
+                "bid_ct": int(rec.bid_ct_00), "ask_px": int(rec.ask_px_00),
+                "ask_sz": int(rec.ask_sz_00), "ask_ct": int(rec.ask_ct_00),
+            })
+        if stopped:
+            break
+    return rows, prev_ts, files
+
+
+def action_lines(rows, prev_ts):
+    """One line per record, in stream order.  Nothing is omitted or merged.
+
+    BACKWARD ts_event STEPS (schema audit D3, 2026-08-15): 57 records on the
+    NKD yearly files carry a ts_event EARLIER than their predecessor's, and
+    every one of them is an F_SNAPSHOT record — a book-state replay folded into
+    the stream, not a later event.  A bare negative "gap" there would read as a
+    measurement of speed, which it is not: the gap prints `N/A` and the row's
+    own `flags` column carries the `S` that explains it.  The count is reported
+    to the caller so the header can name it.
+    """
+    L = [ACTION_HEADER]
+    last = prev_ts
+    n_back = 0
+    for r in rows:
+        if last is None:
+            gap = "."
+        else:
+            d = int(r["ts_event"]) - int(last)
+            if d < 0:
+                n_back += 1
+                gap = "N/A"                # see the docstring: F_SNAPSHOT replay
+            else:
+                gap = str(d)
+        last = r["ts_event"]
+        cells = (str(r["ts_event"]), gap, str(r["sequence"]), r["action"],
+                 r["side"], px_terms(r["price"]), sz_terms(r["size"]),
+                 flag_terms(r["flags"]), px_terms(r["bid_px"]),
+                 sz_terms(r["bid_sz"]), str(r["bid_ct"]),
+                 px_terms(r["ask_px"]), sz_terms(r["ask_sz"]),
+                 str(r["ask_ct"]), str(r["ts_in_delta"]))
+        L.append("  " + " ".join(c.rjust(w)
+                                 for c, w in zip(cells, ACTION_WIDTH)))
+    return L, n_back
+
+
+def _fetch_action(case, lo_req, hi_req, lo_use, clamped):
+    rows, prev_ts, files = decode_window(
+        case.asset, case.trade_date, int(case.s.iid), case.open_utc,
+        case.close_utc, lo_use, hi_req)
+    dec_ns = (case.decision_ts + 1) * 10 ** 9
+    if rows and int(rows[-1]["ts_event"]) >= dec_ns:
+        case.guard.refuse("ribbon action window", "ts_event",
+                          int(rows[-1]["ts_event"]))
+    L = ["RIBBON ACTION-TYPED RAW EVENT STREAM (MBP-1, dominant iid=%d, "
+         "clock=ts_event) cid=%s" % (case.s.iid, case.cid)]
+    L.append(MC.row("  decoder",
+                    "databento-dbn %s (THE official Databento Python library) "
+                    "-> DBNDecoder over the payload file; no cache and no "
+                    "parsing of ours between the file and this view"
+                    % DBN_LIB_VERSION))
+    for p in files:
+        L.append("  source    " + p)
+    L.append(MC.row("  window",
+                    "from=T%+d" % (lo_req - case.dec_sec),
+                    " to=T%+d" % (hi_req - case.dec_sec),
+                    " sec=[%d,%d]" % (lo_req, hi_req),
+                    " dec_sec=" + str(case.dec_sec),
+                    " n_events=" + str(len(rows))))
+    L.append(MC.row("  bound",
+                    "permitted_end_ns=%d" % dec_ns,
+                    " (= (decision_ts+1)*1e9, the END of the decision second;"
+                    " CausalGuard, D-057/D-080.4)"))
+    L.append("  fidelity  EVERY record in the window is printed: no sampling, "
+             "no aggregation, no rounding, NO ROW BOUND (D-092.1). A window "
+             "too large to read is NARROWED BY THE READER; this tool never "
+             "thins.")
+    L.append("  legend    design/RIBBON_LEGEND.md — the column terms below are "
+             "that dictionary's terms; read it once per session")
+    L.append("  scaling   price/bid_px/ask_px = raw int64 / %d "
+             "(databento_dbn.FIXED_PRICE_SCALE), printed exactly; UNDEF = the "
+             "library's null sentinel" % PRICE_SCALE)
+    L.append("  gap_ns    ts_event minus the ts_event of the PREVIOUS record "
+             "of this instrument%s"
+             % (" (the first row's predecessor is the last record BEFORE the "
+                "window, ts_event=%d)" % prev_ts if prev_ts is not None
+                else "; the first row has no predecessor in this session and "
+                     "prints '.'"))
+    if clamped:
+        L.append("  CLAMPED from=%d is %ds before the session open; the window "
+                 "starts at session second 0 (no event exists before it)"
+                 % (lo_req, clamped))
+    if not rows:
+        L.append("  " + MC.NA + "  no record of this instrument in the window")
+    body_lines, n_back = action_lines(rows, prev_ts)
+    if n_back:
+        L.append("  ts_order  %d record(s) in this window carry a ts_event "
+                 "EARLIER than their predecessor's (schema audit D3: every "
+                 "observed case is an F_SNAPSHOT book replay, flagged `S` in "
+                 "the flags column). Their gap_ns prints N/A — a backward step "
+                 "is not a speed measurement." % n_back)
+    L.extend(body_lines)
+    body = "\n".join(L) + "\n"
+    tokens = MC.count_tokens(body)
+    L.append("  TOKEN BUDGET tokens_proxy=%d (%s) rows_printed=%d "
+             "(count excludes this line)" % (tokens, MC.TOKEN_PROXY_ID,
+                                             len(rows)))
+    text = "\n".join(L) + "\n"
+    return {"cid": case.cid, "asset": case.asset, "date8": int(case.d8),
+            "dec_sec": int(case.dec_sec), "from_sec": lo_req,
+            "to_sec": hi_req, "from_sec_used": lo_use, "clamped_sec": clamped,
+            "grain": GRAIN_ACTION, "n_events": len(rows),
+            "n_digests": 0, "n_digests_printed": 0, "n_digests_withheld": 0,
+            "n_raw": len(rows), "n_raw_printed": len(rows),
+            "n_raw_withheld": 0, "n_rows_printed": len(rows),
+            "max_rows": None, "tokens_proxy": tokens,
+            "decoder": "databento-dbn %s" % DBN_LIB_VERSION,
+            "n_backward_ts": n_back,
+            "source_files": files, "action_rows": rows, "prev_ts": prev_ts,
+            "digest_rows": [], "raw_rows": list(range(len(rows))),
+            "cache_cover": [], "lines": L, "text": text}
+
+
+# ------------------------------------------------- the differential check ----
+DIFF_FIELDS = ("ts_event", "sequence", "action", "side", "price", "size",
+               "flags", "bid_px", "ask_px", "bid_sz", "ask_sz", "bid_ct",
+               "ask_ct")
+
+
+def differential_vs_cache(cid, lo, hi, mode=MC.MODE_BLIND, case=None):
+    """Field-by-field: the OFFICIAL live decode vs the decoded event cache.
+
+    The cache (`tape.ensure` -> events/<asset>/<d8>.npz) is what every derived
+    M2 number is built on, and the action grain deliberately does not read it.
+    Two decoders of the same bytes must agree on every field of every record —
+    INCLUDING `ts_event` to the nanosecond, which is the field the R2-6
+    correction is about.  A disagreement is returned as a NAMED row, never a
+    boolean.
+    """
+    if case is None:
+        case = A.Case(cid, mode=mode, want_events=False)
+    lo_req = parse_endpoint(lo, case.dec_sec)
+    hi_req = parse_endpoint(hi, case.dec_sec)
+    case.guard.at_decision(hi_req, "differential window end")
+    lo_use = max(0, lo_req)
+    rows, _prev, files = decode_window(case.asset, case.trade_date,
+                                       int(case.s.iid), case.open_utc,
+                                       case.close_utc, lo_use, hi_req)
+    want_lo = max(0, lo_use - TAPE.EXTRACT_PAD_SEC)
+    cached, meta = TAPE.ensure(case.asset, case.trade_date, int(case.s.iid),
+                               case.open_utc, case.close_utc,
+                               [(want_lo, hi_req + 1)])
+    ev, _i0, _i1 = TAPE.window(cached, case.open_utc, lo_use, hi_req + 1)
+    n_live, n_cache = len(rows), int(ev["ts_ns"].size)
+    mism = []
+    if n_live != n_cache:
+        mism.append(("n_events", "-", str(n_live), str(n_cache)))
+    for k in range(min(n_live, n_cache)):
+        r = rows[k]
+        for f in DIFF_FIELDS:
+            col = "ts_ns" if f == "ts_event" else f
+            got = int(ev[col][k])
+            if f in ("action", "side"):
+                got = chr(got)
+                mine = r[f]
+            else:
+                mine = int(r[f])
+            if mine != got:
+                mism.append(("%s[%d]" % (f, k), r["sequence"], str(mine),
+                             str(got)))
+    return {"cid": case.cid, "asset": case.asset, "date8": int(case.d8),
+            "from_sec": lo_req, "to_sec": hi_req, "n_live": n_live,
+            "n_cache": n_cache, "n_fields": len(DIFF_FIELDS),
+            "n_compared": min(n_live, n_cache) * len(DIFF_FIELDS),
+            "n_mismatch": len(mism), "mismatches": mism[:50],
+            "decoder": "databento-dbn %s" % DBN_LIB_VERSION,
+            "cache": meta.get("def_sha16"), "files": files}
 
 
 # ------------------------------------------------------------------ fetch ---
@@ -160,6 +498,10 @@ def fetch(cid, lo, hi, grain=GRAIN_BOTH, mode=MC.MODE_BLIND,
     # clamp never reaches the cache (an inverted range would corrupt its cover)
     clamped = max(0, -lo_req)
     lo_use = max(0, lo_req)
+
+    # --- the ACTION grain does not touch the cache at all -----------------
+    if grain == GRAIN_ACTION:
+        return _fetch_action(case, lo_req, hi_req, lo_use, clamped)
 
     if hi_req < lo_use:
         # the whole request lies before session second 0 — an empty ribbon, a
@@ -302,17 +644,25 @@ def _render(case, ev, tag, flow, lo_req, hi_req, lo_use, grain, dig_show,
 
 # ----------------------------------------------------------------- ledger ---
 def _read_ledger(path):
+    """Rows as dicts on the file's OWN header, then re-keyed onto the current
+    schema with named defaults for any column the file predates."""
     rows = []
     if not os.path.exists(path):
         return rows
+    cols = None
     with open(path) as fh:
         for line in fh:
             if line.startswith("#"):
                 continue
             f = line.rstrip("\n").split("\t")
-            if f and f[0] == ACCESS_COLUMNS[0]:
+            if cols is None and f and f[0] == ACCESS_COLUMNS[0]:
+                cols = f
                 continue
-            rows.append(f)
+            if cols is None:               # a header-less legacy file
+                cols = list(ACCESS_LEGACY_COLUMNS)
+            d = dict(zip(cols, f))
+            rows.append([d.get(c, ACCESS_DEFAULT.get(c, MC.NA))
+                         for c in ACCESS_COLUMNS])
     return rows
 
 
@@ -325,6 +675,7 @@ def log_access(rec, round_name="-", caller="-", path=None):
                  str(rec["dec_sec"]), str(rec["from_sec"]), str(rec["to_sec"]),
                  rec["grain"], str(rec["n_events"]),
                  str(rec["n_rows_printed"]), str(rec["tokens_proxy"]),
+                 str(rec.get("decoder", "tape-cache")),
                  str(round_name), str(caller)])
     MC.write_tsv(p, SECTION, MC.params_hash(PARAMS), list(ACCESS_COLUMNS), rows,
                  extra=["D-080.4 access ledger: one row per ribbon request; "
@@ -345,9 +696,22 @@ def main(argv=None):
     ap.add_argument("--mode", default=MC.MODE_BLIND, choices=list(MC.MODES))
     ap.add_argument("--round", dest="round_name", default="-")
     ap.add_argument("--caller", default="-")
+    ap.add_argument("--diff-cache", dest="diff_cache", action="store_true",
+                    help="differential: official live decode vs the event "
+                         "cache, field by field (no ribbon printed)")
     a = ap.parse_args(argv)
 
     MC.verify_spec()
+    if a.diff_cache:
+        d = differential_vs_cache(a.cid, a.frm, a.to, mode=a.mode)
+        print("DIFFERENTIAL %s [%s,%s] decoder=%s: n_live=%d n_cache=%d "
+              "n_fields=%d n_compared=%d n_mismatch=%d"
+              % (d["cid"], a.frm, a.to, d["decoder"], d["n_live"],
+                 d["n_cache"], d["n_fields"], d["n_compared"],
+                 d["n_mismatch"]))
+        for m in d["mismatches"]:
+            print("  MISMATCH %s seq=%s live=%s cache=%s" % m)
+        return 0 if d["n_mismatch"] == 0 else 4
     case = A.Case(a.cid, mode=a.mode, want_events=False)
     lo = parse_endpoint(a.frm, case.dec_sec)
     hi = parse_endpoint(a.to, case.dec_sec)

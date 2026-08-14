@@ -8,8 +8,8 @@ mutant survives is a dead test and fails (`FAIL_DEAD_MUTANT`) — the shape
 
 COVERED
   t01  R2-1  a TAKE with 0 ribbon reads and 0 chart reads is PROTOCOL_INVALID
-  t02  R2-1  a TAKE with a ribbon read is NOT flagged (the rule is not a
-             blanket refusal)
+  t02  R2-1  a CHART-ONLY take is still PROTOCOL_INVALID (G-12: the image
+             never substitutes for the sequence); a ribbon-only take is OK
   t03  R2-1  the access ledger carries n_chart_reads, and a pre-R2-1 ledger
              migrates onto the new schema without corrupting a row
   t04  R2-6  the action grain prints EVERY event, full-ns ts_event, gap_ns and
@@ -20,6 +20,9 @@ COVERED
              sheet's own value (definition identity, not a second opinion)
   t08  R2-5  chart rendering is deterministic (same bytes twice) and refuses a
              non-causal series
+  t09  R2-1  the duplicated chart-receipt / brief-ledger constants are pinned
+  t10  R2-8  a BLIND journal entry naming an outcome is refused, nothing written
+  t11  G-2   S11 cross-asset renders VALUES, not a refusal on every row
 
 Run: /usr/bin/python3 engine/port_m2/test_r2views_fixlane.py
 """
@@ -42,7 +45,8 @@ LEGEND = "/workspace/design/RIBBON_LEGEND.md"
 
 PARAMS = {
     "lane": "port-r2-views",
-    "revisions": "R2-1 R2-2 R2-5 R2-6 R2-6-CORRECTION R2-7",
+    "revisions": "R2-1 R2-2 R2-5 R2-6 R2-6-CORRECTION R2-7 R2-8 + audit "
+                 "gaps G-2/G-3/G-4/G-12",
     "law": "armed_pass MUST be 1 and mutant_pass MUST be 0 on every row",
 }
 
@@ -78,8 +82,8 @@ def _write_access(path, rows):
                "mode": MC.MODE_BLIND, "sheet_source": "render",
                "sheet_sha16": "0" * 16, "sheet_tokens": 100,
                "n_ribbon_cmds": n_rib, "n_chart_reads": n_ch,
-               "s14_guard_paths_checked": 1, "round": "R2TEST",
-               "caller": "fixture"}
+               "n_brief_reads": 1, "s14_guard_paths_checked": 1,
+               "round": "R2TEST", "caller": "fixture"}
         out.append([str(rec[c]) for c in ER.ACCESS_COLUMNS])
     MC.write_tsv(path, SECTION, MC.params_hash(PARAMS),
                  list(ER.ACCESS_COLUMNS), out)
@@ -109,9 +113,12 @@ def _protocol(tmp, access_rows, ranking_rows):
                      RIB.ACCESS_COLUMNS)
     cha = _empty_tsv(os.path.join(tmp, "CHART_RECEIPT.tsv"),
                      ER.CHART_RECEIPT_COLUMNS)
+    bri = _empty_tsv(os.path.join(tmp, "BRIEF_ACCESS.tsv"),
+                     ("seq", "era", "date8", "asset", "round"))
     rank = ER.validate_ranking(EPS, ER.read_ranking(rnk))
     return ER.take_protocol(EPS, rank, round_name="R2TEST", ledger=acc,
-                            ribbon_ledger=rib, chart_receipt=cha)
+                            ribbon_ledger=rib, chart_receipt=cha,
+                            brief_ledger=bri)
 
 
 # ------------------------------------------------------------- the tests ----
@@ -144,29 +151,33 @@ def t01_take_without_ribbon_or_chart_is_protocol_invalid():
                  "flagged=%s n_invalid=%d" % (sorted(bad), got["n_invalid"]))
 
 
-def t02_take_with_a_ribbon_read_is_not_flagged():
-    """The rule refuses UNEVIDENCED takes, not takes."""
+def t02_a_chart_only_take_is_still_invalid():
+    """G-12: the rule requires the RIBBON.  A take backed only by a rendered
+    chart panel is exactly the substitution D-092.1 forbids, so it is flagged;
+    a take with a ribbon read and no chart is fine."""
     with tempfile.TemporaryDirectory() as tmp:
-        got = _protocol(tmp, [("SI-20240118-L-E01", 2, 0),
-                              ("SI-20240118-L-E02", 0, 4)],
-                        [(1, "SI-20240118-L-E01", "TAKE"),
-                         (2, "SI-20240118-L-E02", "TAKE")])
-        armed = got["n_invalid"] == 0 and len(got["rows"]) == 2
+        rows = [("SI-20240118-L-E01", 2, 0),    # ribbon only -> OK
+                ("SI-20240118-L-E02", 0, 4)]    # chart only  -> INVALID
+        rank = [(1, "SI-20240118-L-E01", "TAKE"),
+                (2, "SI-20240118-L-E02", "TAKE")]
+        got = _protocol(tmp, rows, rank)
+        bad = {r["episode_id"] for r in got["rows"]
+               if r["protocol"] == ER.PROTOCOL_INVALID}
+        armed = (bad == {"SI-20240118-L-E02"} and got["n_invalid"] == 1
+                 and len(got["rows"]) == 2)
 
-        # MUTANT: the chart-evidence term dropped, so a chart-only take flags.
+        # MUTANT: the pre-G-12 rule — charts accepted as a substitute.
         real = ER._zero_evidence
         try:
-            ER._zero_evidence = lambda n_rib, n_ch: n_rib == 0
-            got_m = _protocol(tmp, [("SI-20240118-L-E01", 2, 0),
-                                    ("SI-20240118-L-E02", 0, 4)],
-                              [(1, "SI-20240118-L-E01", "TAKE"),
-                               (2, "SI-20240118-L-E02", "TAKE")])
-            mut = got_m["n_invalid"] == 0
+            ER._zero_evidence = lambda n_rib, n_ch: (int(n_rib) == 0
+                                                     and int(n_ch) == 0)
+            got_m = _protocol(tmp, rows, rank)
+            mut = got_m["n_invalid"] == 1
         finally:
             ER._zero_evidence = real
-    return check("t02_take_with_a_ribbon_read_is_not_flagged",
-                 "episode_round._zero_evidence drops the chart term",
-                 armed, mut, "n_invalid=%d" % got["n_invalid"])
+    return check("t02_a_chart_only_take_is_still_invalid",
+                 "episode_round._zero_evidence accepts a chart as proof",
+                 armed, mut, "flagged=%s" % sorted(bad))
 
 
 def t03_access_ledger_migrates_onto_n_chart_reads():
@@ -174,7 +185,8 @@ def t03_access_ledger_migrates_onto_n_chart_reads():
     KeyError and must not shift a single field of a legacy row."""
     with tempfile.TemporaryDirectory() as tmp:
         p = os.path.join(tmp, "EPISODE_ACCESS.tsv")
-        legacy_cols = [c for c in ER.ACCESS_COLUMNS if c != "n_chart_reads"]
+        legacy_cols = [c for c in ER.ACCESS_COLUMNS
+                       if c not in ("n_chart_reads", "n_brief_reads")]
         row = ["0", "SI-20240118-L-E01", "E6", "SI", "20240118",
                "SI-20240118-001402-L", "1", "BLIND", "render", "a" * 16,
                "100", "7", "1", "R2TEST", "fixture"]
@@ -184,27 +196,44 @@ def t03_access_ledger_migrates_onto_n_chart_reads():
                  and rows[0]["n_ribbon_cmds"] == "7"        # not shifted
                  and rows[0]["caller"] == "fixture"
                  and rows[0]["n_chart_reads"] == ER.ACCESS_DEFAULT[
-                     "n_chart_reads"])
+                     "n_chart_reads"]
+                 and rows[0]["n_brief_reads"] == ER.ACCESS_DEFAULT[
+                     "n_brief_reads"])
         # append must round-trip the migrated row onto the new schema
         ER._append_access({c: "x" for c in ER.ACCESS_COLUMNS}, p)
         again = ER._read_access(p)
         armed = armed and len(again) == 2 and again[0]["n_ribbon_cmds"] == "7"
 
-        # MUTANT: the named default removed, so a legacy row loses the column.
-        real = dict(ER.ACCESS_DEFAULT)
+        # MUTANT: the reader keys legacy rows on the CURRENT schema instead of
+        # the FILE'S OWN header — the exact shape that shifts every field after
+        # an inserted column and calls the shifted value data.
+        real = ER._read_access
+
+        def _shifted(path=None):
+            out = []
+            with open(path) as fh:
+                for line in fh:
+                    if line.startswith("#"):
+                        continue
+                    f = line.rstrip("\n").split("\t")
+                    if f and f[0] == "seq":
+                        continue
+                    out.append(dict(zip(ER.ACCESS_COLUMNS, f)))
+            return out
+        # ...on a FRESH legacy file: `p` has already been migrated in place by
+        # the append above, so re-reading it would not exercise the shift.
+        p2 = os.path.join(tmp, "EPISODE_ACCESS_LEGACY.tsv")
+        MC.write_tsv(p2, SECTION, MC.params_hash(PARAMS), legacy_cols, [row])
         try:
-            ER.ACCESS_DEFAULT.clear()
-            try:
-                r2 = ER._read_access(p)
-                mut = "n_chart_reads" in r2[0] and r2[0]["n_chart_reads"] != ""
-            except Exception:                     # noqa: BLE001
-                mut = False
+            ER._read_access = _shifted
+            r2 = _shifted(p2)
+            mut = (r2[0].get("n_ribbon_cmds") == "7"
+                   and r2[0].get("caller") == "fixture")
         finally:
-            ER.ACCESS_DEFAULT.clear()
-            ER.ACCESS_DEFAULT.update(real)
+            ER._read_access = real
     return check("t03_access_ledger_migrates_onto_n_chart_reads",
-                 "episode_round.ACCESS_DEFAULT emptied", armed, mut,
-                 "cols=%d" % len(ER.ACCESS_COLUMNS))
+                 "episode_round._read_access keys on ACCESS_COLUMNS not the "
+                 "file header", armed, mut, "cols=%d" % len(ER.ACCESS_COLUMNS))
 
 
 def t04_action_grain_prints_every_event_and_never_thins():
@@ -376,14 +405,129 @@ def t08_chart_render_is_deterministic():
                  % (v["sha_a"], v["bytes"], int(refused)))
 
 
+def t09_duplicated_ledger_constants_are_pinned():
+    """`episode_round` duplicates the chart-receipt and brief-ledger paths so
+    the blind path never imports the modules that own them.  A duplicate that
+    nothing compares is a future silent divergence."""
+    import chart_panel as CP
+    armed = (ER.CHART_RECEIPT == CP.RECEIPT
+             and ER.BRIEF_LEDGER == E6.BRIEF_LEDGER
+             and tuple(ER.CHART_RECEIPT_COLUMNS) == tuple(CP.RECEIPT_COLUMNS))
+    # MUTANT: one constant drifts by a directory, as a refactor would do it.
+    real = ER.CHART_RECEIPT
+    try:
+        ER.CHART_RECEIPT = real.replace("e6_round", "e6round")
+        mut = (ER.CHART_RECEIPT == CP.RECEIPT)
+    finally:
+        ER.CHART_RECEIPT = real
+    return check("t09_duplicated_ledger_constants_are_pinned",
+                 "episode_round.CHART_RECEIPT drifts one directory",
+                 armed, mut, "chart=%s brief=%s" % (ER.CHART_RECEIPT,
+                                                    ER.BRIEF_LEDGER))
+
+
+def t10_journal_refuses_outcome_vocabulary_on_a_blind_day():
+    """R2-8 fence 2: a BLIND entry that names an outcome is REFUSED and
+    NOTHING is written — a half-written blind-unsafe journal is worse than
+    none."""
+    import decision_journal as DJ
+    with tempfile.TemporaryDirectory() as tmp:
+        p = os.path.join(tmp, "J.md")
+        idx = os.path.join(tmp, "J.tsv")
+        try:
+            DJ.write("T", 20240419, "SI-20240419-L-E01", "TAKE", 0.2,
+                     mode=MC.MODE_BLIND,
+                     reasoning="the oracle seated it and it paid",
+                     path=p, index=idx)
+            refused = False
+        except DJ.JournalRefusal:
+            refused = True
+        wrote_nothing = not os.path.exists(p) and not os.path.exists(idx)
+        ok = DJ.write("T", 20240419, "SI-20240419-L-E01", "TAKE", 0.2,
+                      mode=MC.MODE_BLIND,
+                      reasoning="bid queue rebuilt twice into the retest",
+                      path=p, index=idx)
+        armed = refused and wrote_nothing and os.path.exists(p) and ok["sha16"]
+
+        # MUTANT: the vocabulary list emptied — the scan becomes a no-op.
+        real = DJ._TERM_RE
+        try:
+            DJ._TERM_RE = __import__("re").compile(r"(?!x)x")
+            try:
+                DJ.write("T", 20240419, "SI-20240419-L-E02", "TAKE", 0.2,
+                         mode=MC.MODE_BLIND,
+                         reasoning="the oracle seated it and it paid",
+                         path=p, index=idx)
+                mut = False                   # the leak got through: test FAILS
+            except DJ.JournalRefusal:
+                mut = True                    # still refused: DEAD mutant
+        finally:
+            DJ._TERM_RE = real
+    return check("t10_journal_refuses_outcome_vocabulary_on_a_blind_day",
+                 "decision_journal._TERM_RE matches nothing", armed, mut,
+                 "refused=%d wrote_nothing=%d" % (int(refused),
+                                                  int(wrote_nothing)))
+
+
+def t11_s11_cross_asset_renders_values_not_refusals():
+    """G-2: all three assets share one session clock, so the other asset's
+    second EQUALS the decision second and a strictly-`<` guard on it refused
+    every cross-asset row ever rendered.  The guard must test the second that
+    is actually read."""
+    import sections as SEC
+    import assemble as A
+    case = A.Case("SI-20240118-003151-L", want_events=False)
+    seen = []
+    lines = SEC.s11_cross(case, _NullPut(seen))
+    body = [l for l in lines[2:] if l.strip()]
+    populated = [l for l in body if "not strictly prior" not in l]
+    armed = (len(body) >= 2 and len(populated) == len(body)
+             and any(k.startswith("S11.") and k.endswith("_mid")
+                     for k, _v in seen))
+    # MUTANT: the guard goes back to testing `osec` itself.
+    real = SEC.MC.CausalGuard.sec
+
+    def _strict(self, sec, what):
+        if "S11" in what:
+            return False
+        return real(self, sec, what)
+    try:
+        SEC.MC.CausalGuard.sec = _strict
+        case2 = A.Case("SI-20240118-003151-L", want_events=False)
+        lines_m = SEC.s11_cross(case2, _NullPut([]))
+        mut = all("not strictly prior" not in l for l in lines_m[2:])
+    finally:
+        SEC.MC.CausalGuard.sec = real
+    return check("t11_s11_cross_asset_renders_values_not_refusals",
+                 "m2_common.CausalGuard.sec refuses every S11 read",
+                 armed, mut, "rows=%d populated=%d" % (len(body),
+                                                       len(populated)))
+
+
+class _NullPut(object):
+    """The sidecar sink the section renderers expect, reduced to a recorder."""
+
+    def __init__(self, sink):
+        self._sink = sink
+
+    def __call__(self, key, value, *a, **k):
+        self._sink.append((key, value))
+
+    def refuse(self, *a, **k):
+        return None
+
+
 TESTS = (t01_take_without_ribbon_or_chart_is_protocol_invalid,
-         t02_take_with_a_ribbon_read_is_not_flagged,
+         t02_a_chart_only_take_is_still_invalid,
          t03_access_ledger_migrates_onto_n_chart_reads,
          t04_action_grain_prints_every_event_and_never_thins,
          t05_legend_terms_are_the_printed_header_terms,
          t06_backward_ts_event_gap_prints_na,
          t07_trajectory_now_point_reproduces_the_sheet,
-         t08_chart_render_is_deterministic)
+         t08_chart_render_is_deterministic,
+         t09_duplicated_ledger_constants_are_pinned,
+         t10_journal_refuses_outcome_vocabulary_on_a_blind_day,
+         t11_s11_cross_asset_renders_values_not_refusals)
 
 
 def main():

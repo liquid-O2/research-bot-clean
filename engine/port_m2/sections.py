@@ -1821,7 +1821,18 @@ def s11_cross(case, put):
         # side="right" while `range$` below used side="left" on the SAME
         # second.  Both are routed through the guard now and both use the
         # strictly-prior convention ("left"), so the two cannot disagree.
-        if not case.guard.sec(int(osec), "S11 cross-asset read"):
+        #
+        # G-2 (R2 perfection audit, 2026-08-15): the guard was applied to
+        # `osec` — the other asset's session second — while EVERY read below it
+        # is `searchsorted(..., side="left") - 1`, i.e. the last SANE second
+        # STRICTLY BEFORE `osec`.  All three assets are co-located on one
+        # session clock (`open_utc` identical), so `osec == case.dec_sec`
+        # always, and a strictly-`<` guard on `osec` refused EVERY row of EVERY
+        # sheet ever rendered: 800 refusals in 800 rows over a 400-sheet
+        # sample, zero populated cross-asset rows in the whole corpus.  The
+        # guard now tests the second that is actually READ.  Nothing about the
+        # data read changes — only which second the guard is asked about.
+        if not case.guard.sec(int(osec) - 1, "S11 cross-asset read"):
             L.append(MC.row("   ", MC.fstr(a, 5), MC.fint(osec, 8),
                             " cross-asset second is not strictly prior"))
             continue

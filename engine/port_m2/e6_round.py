@@ -27,6 +27,25 @@ BLIND SAFETY.  `--oracle` is the ONLY entry point that imports panel_score and
 it REFUSES any date in the E6 BLIND block outright (the drawn blind dates are
 named in BLIND_DATES).  Nothing on the reading path can reach an outcome.
 
+R2-2 SEQUENCE DELTAS (2026-08-15, OFF BY DEFAULT).  Six delta columns can be
+rendered as THREE-POINT CAUSAL TRAJECTORIES
+`t-10m > t-5m > now`, so a flow FLIP or a book EROSION TREND is visible on the
+triage row instead of being invisible until the tape is opened.  The two earlier
+points are recomputed here by DEFINITION-IDENTICAL code (the S5/S7/S8
+constructors, cited per column in `TRAJ_SPEC`); the NOW point is the sheet's own
+printed number, taken straight from the triage row, so the trajectory cannot
+drift from the sheet at the only point where both exist.  `--traj-check` is the
+differential that proves it.
+
+R2-6-CORRECTION / D-092 STATUS: these trajectories are SHORTLIST TRIAGE HINTS
+ONLY.  They navigate; they never decide.  Every TAKE reads the true event
+sequence through `ribbon.py --grain action` (R2-1, enforced in
+episode_round.score).  The R2 perfection audit then measured their price —
+18,513 tokens/day, ~2 full-fidelity takes' worth — and they were RULED OUT of
+the round-2 digest.  `--traj` re-enables them; the constructor and its
+differential (`--traj-check`) stay, because the measurement that priced them
+has to remain reproducible.
+
 CLI
   --day D8 --deltas          -> the day's episode delta table (stdout)
   --day D8 --brief ASSET     -> the (asset, day) session-brief sheet path
@@ -34,10 +53,15 @@ CLI
                                 outcome labels for that day
   --day D8 --contrast        -> STUDY ONLY: oracle picks beside their nearest
                                 non-picked neighbours (D-090.2 contrast sets)
+  --day D8 --traj-check      -> R2-2 differential: the recomputed NOW point of
+                                every trajectory column vs the triage row's own
+                                value, per episode, with the token cost
 """
 import argparse
 import os
 import sys
+
+import numpy as np
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 for _p in (_HERE, os.path.join(os.path.dirname(_HERE), "port_m1")):
@@ -45,6 +69,9 @@ for _p in (_HERE, os.path.join(os.path.dirname(_HERE), "port_m1")):
         sys.path.insert(0, _p)
 
 import m2_common as MC                    # noqa: E402
+import assemble as A                      # noqa: E402
+import sections as SEC                    # noqa: E402
+import tape as TAPE                       # noqa: E402
 
 ROUND_ROOT = "/workspace/artifacts/cache/port/m2/episode_round/E6"
 STUDY_DATES = (20240118, 20240320, 20240416)
@@ -94,6 +121,133 @@ ABBR_FAM = {"G1_FINE": "g1f", "G1_COARSE": "g1c", "G1_FAST_OPEN": "fop",
             "MICRO_OPEN": "mop", "POST_SHOCK": "psh", "FIRST_TEST": "ft"}
 
 NEWS_VETO_MIN = 10.0                      # D-077-UPDATE: +/-10 minutes
+
+# ------------------------------------------------- R2-2 sequence deltas ------
+# The three causal anchors, as offsets in seconds BEFORE the decision second.
+TRAJ_MARKS = (600, 300, 0)                # t-10m, t-5m, now
+TRAJ_SEP = ">"
+
+# column -> (printed decimals, the constructor it is definition-identical to)
+TRAJ_SPEC = {
+    "f60_sflow":   (0, "sections.s8_flow window '60s': buy-sell traded size, "
+                       "trades_sec in [t-60, t)"),
+    "f5m_sflow":   (0, "sections.s8_flow window '5m': buy-sell traded size, "
+                       "trades_sec in [t-300, t)"),
+    "dBsz_min":    (2, "sections.s7_book w=60: (bid_sz[last]-bid_sz[first])*"
+                       "60/60 over MBP-1 records in [t-60, t]"),
+    "dAsz_min":    (2, "sections.s7_book w=60: (ask_sz[last]-ask_sz[first])*"
+                       "60/60 over MBP-1 records in [t-60, t]"),
+    "refill_frac": (3, "sections._refill_after_trade over MBP-1 records in "
+                       "[t-300, t] (REFILL_LOOKBACK_SEC/REFILL_WINDOW_SEC)"),
+    "spread_now":  (2, "sections.s5_tminus row 'spread_$': g0_spread_usd[t], "
+                       "SANE seconds only"),
+}
+TRAJ_COLS = tuple(sorted(TRAJ_SPEC))
+# print tolerance for the --traj-check differential: the sheet prints these
+# columns at the decimals above, so agreement is agreement ON THAT GRID.
+TRAJ_TOL = {c: (0.0 if d == 0 else 0.51 * 10.0 ** -d)
+            for c, (d, _w) in TRAJ_SPEC.items()}
+
+_PACK = {}
+
+
+def _traj_pack(asset, d8):
+    """Session receipt + the COMMITTED event cache for one (asset, day).
+
+    The cache is read STRAIGHT OFF DISK and never extended: `tape.ensure` on a
+    wider window would re-extract the whole session from the payload files, and
+    a triage hint is not worth a 12 GB corpus re-extraction.  A window the
+    committed cover does not contain is REFUSED (typed-missing), never
+    fabricated from whatever records happen to sit either side of the gap.
+    """
+    key = (asset, int(d8))
+    if key in _PACK:
+        return _PACK[key]
+    sess = A.load_session(asset, int(d8))
+    npz_p, json_p = TAPE._paths(asset, int(d8))
+    ev = cover = None
+    if os.path.exists(npz_p) and os.path.exists(json_p):
+        import json
+        with open(json_p) as fh:
+            meta = json.load(fh)
+        z = np.load(npz_p, allow_pickle=False)
+        ev = {k: z[k] for k in TAPE.ARRAYS}
+        z.close()
+        cover = [(int(a), int(b)) for a, b in meta["cover"]]
+    pack = {"s": sess["s"], "trades": sess["trades"],
+            "open_utc": int(sess["s"].meta["open_utc"]), "ev": ev,
+            "cover": cover or [], "npz": npz_p}
+    if len(_PACK) > 12:
+        _PACK.pop(next(iter(_PACK)))
+    _PACK[key] = pack
+    return pack
+
+
+def _sflow(trades, lo, hi):
+    """Signed traded size over [lo, hi) session seconds — s8_flow's own sum."""
+    a = int(np.searchsorted(trades["sec"], max(0, lo), side="left"))
+    b = int(np.searchsorted(trades["sec"], hi, side="left"))
+    sz = trades["size"][a:b].astype(np.int64)
+    sd = trades["side"][a:b]
+    buy = int(sz[sd == ord("B")].sum())
+    sell = int(sz[sd == ord("A")].sum())
+    return buy - sell
+
+
+def traj_at(pack, anchor_sec):
+    """The six trajectory quantities AT `anchor_sec`, by the sheet's own rules.
+
+    Every value is a function of data strictly at or before `anchor_sec`; the
+    caller only ever passes anchors <= the decision second, so the whole family
+    is causal by construction.
+    """
+    s, tr = pack["s"], pack["trades"]
+    t = int(anchor_sec)
+    out = {c: float("nan") for c in TRAJ_COLS}
+    if t < 0:
+        return out
+    if 0 <= t < s.n and bool(s.valid[t]):
+        out["spread_now"] = float(s.spread_usd[t])
+    out["f60_sflow"] = float(_sflow(tr, t - 60, t))
+    out["f5m_sflow"] = float(_sflow(tr, t - 300, t))
+    ev, cover = pack["ev"], pack["cover"]
+    if ev is None:
+        return out
+    open_utc = pack["open_utc"]
+    ts = ev["ts_ns"]
+    end_ns = (open_utc + t + 1) * 10 ** 9
+
+    def _idx(lo_sec):
+        return (int(np.searchsorted(ts, (open_utc + lo_sec) * 10 ** 9,
+                                    side="left")),
+                int(np.searchsorted(ts, end_ns, side="left")))
+
+    if TAPE._covers(cover, max(0, t - 60 - TAPE.EXTRACT_PAD_SEC), t + 1):
+        lo, hi = _idx(t - 60)
+        if hi - lo > 1:
+            bs, asz = ev["bid_sz"][lo:hi], ev["ask_sz"][lo:hi]
+            out["dBsz_min"] = (float(bs[-1]) - float(bs[0])) * 60.0 / 60.0
+            out["dAsz_min"] = (float(asz[-1]) - float(asz[0])) * 60.0 / 60.0
+    if TAPE._covers(cover, max(0, t - SEC.REFILL_LOOKBACK_SEC
+                               - TAPE.EXTRACT_PAD_SEC), t + 1):
+        lo, hi = _idx(t - SEC.REFILL_LOOKBACK_SEC)
+        out["refill_frac"] = float(SEC._refill_after_trade(ev, lo, hi)["frac"])
+    return out
+
+
+def _traj_cell(col, vals, now_text):
+    """`-120>-80>+45` — the two recomputed anchors then the SHEET'S own NOW."""
+    dec = TRAJ_SPEC[col][0]
+    parts = []
+    for v in vals:
+        if v is None or v != v:
+            parts.append(MC.NA)
+        elif dec == 0:
+            parts.append("%d" % round(v))
+        else:
+            parts.append(_fmt(round(v, dec)))
+    parts.append(now_text)
+    return TRAJ_SEP.join(parts)
 
 
 def _read(path):
@@ -158,7 +312,7 @@ def compliance(t):
     return "-"
 
 
-def deltas(d8, assets=None):
+def deltas(d8, assets=None, traj=False):
     eps, tri = load_day(d8)
     out = []
     for e in eps:
@@ -168,6 +322,12 @@ def deltas(d8, assets=None):
         if t is None:
             out.append((e["asset"], e["episode_id"], "MISSING_TRIAGE_ROW"))
             continue
+        tj = {}
+        if traj:
+            pack = _traj_pack(e["asset"], d8)
+            dec = int(e["first_dec_sec"])
+            pts = [traj_at(pack, dec - m) for m in TRAJ_MARKS[:-1]]
+            tj = {c: [p[c] for p in pts] for c in TRAJ_COLS}
         row = []
         for c in DELTA_COLS:
             if c == "as":
@@ -198,10 +358,211 @@ def deltas(d8, assets=None):
             elif c == "news_next_m":
                 row.append(_fmt(float(t["sched_next_in"]) / 60.0)
                            if t.get("sched_next_in") not in ("", None) else ".")
+            elif traj and c in TRAJ_COLS:
+                row.append(_traj_cell(c, tj[c],
+                                      _fmt(t.get(RENAME.get(c, c), ""))))
             else:
                 row.append(_fmt(t.get(RENAME.get(c, c), "")))
         out.append((e["asset"], e["episode_id"], "\t".join(str(x) for x in row)))
     return out
+
+
+# --------------------------------------------------- D-093.2 SESSION BRIEF ---
+BRIEF_LEDGER = os.path.join(MC.M2_ROOT, "e6_round", "BRIEF_ACCESS.tsv")
+BRIEF_COLUMNS = ("seq", "era", "date8", "asset", "brief_cid", "n_episodes",
+                 "sheet_sha16", "tokens_proxy", "round", "caller")
+
+
+def brief_cid(d8, asset):
+    """The (asset, day) SESSION BRIEF is the FULL sheet of that asset's
+    EARLIEST episode: the one place the session-constant state (S4 ledger, S10
+    profile, S12 context, S13 cards, the era frame) is stated in full, once,
+    exactly as the sheet states it.  Every later delta row is read against it.
+    """
+    eps, _tri = load_day(d8)
+    mine = sorted([e for e in eps if e["asset"] == asset],
+                  key=lambda e: (int(e["first_dec_sec"]), e["episode_id"]))
+    if not mine:
+        raise SystemExit("no %s episode on %d" % (asset, d8))
+    return mine[0]["rep_cid"], len(mine)
+
+
+def _read_brief_ledger(path=None):
+    p = path or BRIEF_LEDGER
+    rows, cols = [], None
+    if not os.path.exists(p):
+        return rows
+    with open(p) as fh:
+        for line in fh:
+            if line.startswith("#"):
+                continue
+            f = line.rstrip("\n").split("\t")
+            if cols is None:
+                cols = f
+                continue
+            rows.append(dict(zip(cols, f)))
+    return rows
+
+
+def brief_reads_by_key(path=None, round_name=None):
+    """(date8, asset) -> number of ledgered brief reads.  D-093.2 makes the
+    brief a MEASURED daily read, not an assumed one: round 1 designed context
+    in and measured 2-3 actual context views per day across three assets."""
+    out = {}
+    for r in _read_brief_ledger(path):
+        if round_name is not None and r.get("round") != round_name:
+            continue
+        try:
+            k = (int(r["date8"]), r["asset"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        out[k] = out.get(k, 0) + 1
+    return out
+
+
+def brief(d8, asset, mode=MC.MODE_BLIND, round_name="-", caller="-",
+          path=None, record=True):
+    """Render the (asset, day) session brief AND ledger the read."""
+    import hashlib
+    import sheets as SH
+    cid, n_eps = brief_cid(d8, asset)
+    sheet = SH.build(cid, mode).text
+    sha = hashlib.sha256(sheet.encode("utf-8")).hexdigest()[:16]
+    tok = MC.count_tokens(sheet)
+    head = ("SESSION BRIEF %s %d (mode=%s) — the session stated ONCE, in full;\n"
+            "  brief_cid=%s  n_episodes_this_asset=%d  sheet_sha16=%s  "
+            "tokens_proxy=%d\n"
+            "  every delta row of this asset is read AGAINST this brief "
+            "(D-085); D-093.2 makes this read MANDATORY and MEASURED.\n"
+            % (asset, int(d8), mode, cid, n_eps, sha, tok))
+    if record:
+        p = path or BRIEF_LEDGER
+        rows = _read_brief_ledger(p)
+        out = [[r.get(c, MC.NA) for c in BRIEF_COLUMNS] for r in rows]
+        out.append([str(len(out)), MC.era_of(int(d8)), str(int(d8)), asset,
+                    cid, str(n_eps), sha, str(tok), str(round_name),
+                    str(caller)])
+        MC.write_tsv(p, "§1 D-093.2 SESSION-BRIEF ACCESS LEDGER",
+                     MC.params_hash({"brief": "earliest episode's full sheet"}),
+                     list(BRIEF_COLUMNS), out,
+                     extra=["one row per BRIEF read; briefs are mandatory "
+                            "daily reads (D-093.2) and consumption is measured, "
+                            "never assumed",
+                            "seq = row index (deterministic, no wall clock)"])
+    return {"cid": cid, "asset": asset, "date8": int(d8), "sha16": sha,
+            "tokens_proxy": tok, "n_episodes": n_eps,
+            "text": head + sheet}
+
+
+# ------------------------------------------------- D-090.2 CONTRAST SETS -----
+def contrast(d8, assets=None, n_neighbours=2, traj=False):
+    """STUDY ONLY.  Every ORACLE SEAT beside its nearest NON-PICKED neighbours.
+
+    D-090.2: "each oracle pick beside its nearest non-picked candidates (the
+    discrimination boundary, shown from the oracle's side)".  The neighbours are
+    the nearest episodes of the SAME ASSET in decision-second distance that the
+    DP schedule did not seat — the cases the reader must tell apart, not a
+    random contrast.  Both sides carry their outcome facts, because the whole
+    point of a contrast set is that the boundary is shown, not guessed.
+    """
+    res = oracle(d8, assets)               # REFUSES a drawn blind day
+    eps, _tri = load_day(d8)
+    rows = {epid: line for _a, epid, line in deltas(d8, assets, traj=traj)}
+    by_id = {e["episode_id"]: e for e in eps}
+    out = []
+    for asset, r in sorted(res.items()):
+        mine = sorted([e for e in eps if e["asset"] == asset],
+                      key=lambda e: (int(e["first_dec_sec"]), e["episode_id"]))
+        seated = []
+        for s in r["seats"]:
+            eid = r["cid2ep"].get(s["cid"])
+            if eid and eid not in seated:
+                seated.append(eid)
+        seat_set = set(seated)
+        for eid in seated:
+            e = by_id.get(eid)
+            if e is None:
+                continue
+            sec = int(e["first_dec_sec"])
+            cand = sorted([x for x in mine
+                           if x["episode_id"] not in seat_set],
+                          key=lambda x: (abs(int(x["first_dec_sec"]) - sec),
+                                         x["episode_id"]))
+            out.append({"asset": asset, "pick": eid, "pick_sec": sec,
+                        "pick_row": rows.get(eid, "MISSING"),
+                        "pick_out": r["ep_out"].get(eid),
+                        "neighbours": [
+                            {"episode_id": x["episode_id"],
+                             "d_sec": int(x["first_dec_sec"]) - sec,
+                             "row": rows.get(x["episode_id"], "MISSING"),
+                             "out": r["ep_out"].get(x["episode_id"])}
+                            for x in cand[:int(n_neighbours) * 2]]})
+    return out
+
+
+def _out_str(v):
+    if not v:
+        return "outcome=."
+    return ("rep$=%.0f mae=%.0f win=%d best$=%.0f nwin=%d ORACLE=%d"
+            % (v["rep_close"], v["rep_mae"], v["rep_win"], v["best_close"],
+               v["n_win"], v["oracle"]))
+
+
+def traj_check(d8, assets=None):
+    """R2-2 DIFFERENTIAL: the recomputed NOW point vs the triage row's own.
+
+    The trajectory's two earlier points cannot be checked against anything —
+    nothing else computes them — so the check is on the ONE point where an
+    independent number exists.  Agreement there is what licenses the claim that
+    the earlier points are the same constructor at an earlier anchor.
+    """
+    eps, tri = load_day(d8)
+    n_cmp = n_ok = n_bad = n_ref_now = n_ref_tri = 0
+    bad, ref_by_col = [], {c: 0 for c in TRAJ_COLS}
+    for e in eps:
+        if assets and e["asset"] not in assets:
+            continue
+        t = tri.get(e["rep_cid"])
+        if t is None:
+            continue
+        pack = _traj_pack(e["asset"], d8)
+        dec = int(e["first_dec_sec"])
+        now = traj_at(pack, dec)
+        for c in TRAJ_COLS:
+            raw = t.get(RENAME.get(c, c), "")
+            try:
+                want = float(raw)
+            except (TypeError, ValueError):
+                n_ref_tri += 1
+                continue
+            got = now[c]
+            if got != got:
+                n_ref_now += 1
+                ref_by_col[c] += 1
+                continue
+            n_cmp += 1
+            if abs(got - want) <= TRAJ_TOL[c]:
+                n_ok += 1
+            else:
+                n_bad += 1
+                if len(bad) < 40:
+                    bad.append((e["episode_id"], c, want, got))
+    return {"date8": int(d8), "n_compared": n_cmp, "n_agree": n_ok,
+            "n_disagree": n_bad, "n_refused_recompute": n_ref_now,
+            "n_absent_in_triage": n_ref_tri, "refused_by_col": ref_by_col,
+            "disagreements": bad, "tolerance": dict(TRAJ_TOL)}
+
+
+def traj_cost(d8, assets=None):
+    """Measured token cost of R2-2: the day's delta table WITH the trajectory
+    columns minus the same table with the pre-R2-2 scalar columns."""
+    with_t = "\n".join(l for _a, _e, l in deltas(d8, assets, traj=True))
+    without = "\n".join(l for _a, _e, l in deltas(d8, assets, traj=False))
+    n = max(1, len(without.split("\n")))
+    tw, tn = MC.count_tokens(with_t + "\n"), MC.count_tokens(without + "\n")
+    return {"date8": int(d8), "n_episodes": n, "tokens_with_traj": tw,
+            "tokens_scalar_only": tn, "delta_tokens": tw - tn,
+            "delta_tokens_per_episode": (tw - tn) / float(n)}
 
 
 def oracle(d8, assets=None):
@@ -282,13 +643,75 @@ def main(argv=None):
     ap.add_argument("--ep-outcomes", dest="ep_outcomes", action="store_true")
     ap.add_argument("--show", default=None, help="comma list of episode ids")
     ap.add_argument("--with-outcomes", dest="with_outcomes", action="store_true")
+    ap.add_argument("--traj-check", dest="traj_check", action="store_true")
+    ap.add_argument("--traj-cost", dest="traj_cost", action="store_true")
+    ap.add_argument("--traj", dest="traj", action="store_true",
+                    help="R2-2 3-point trajectory columns (OFF by default — "
+                         "ruled out of the round-2 digest, 18.5k tok/day)")
+    ap.add_argument("--brief", default=None, metavar="ASSET",
+                    help="render the (asset, day) SESSION BRIEF and ledger the "
+                         "read (D-093.2 mandatory measured daily read)")
+    ap.add_argument("--contrast", action="store_true",
+                    help="STUDY ONLY: every oracle seat beside its nearest "
+                         "non-picked neighbours (D-090.2)")
+    ap.add_argument("--n-neighbours", dest="n_neighbours", type=int, default=2)
+    ap.add_argument("--mode", default=MC.MODE_BLIND, choices=list(MC.MODES))
+    ap.add_argument("--round", dest="round_name", default="-")
+    ap.add_argument("--caller", default="-")
     a = ap.parse_args(argv)
     assets = a.assets.split(",") if a.assets else None
+    if a.brief:
+        b = brief(a.day, a.brief, mode=a.mode, round_name=a.round_name,
+                  caller=a.caller)
+        sys.stdout.write(b["text"])
+        sys.stderr.write("brief %s %d cid=%s tokens=%d -> %s\n"
+                         % (b["asset"], b["date8"], b["cid"],
+                            b["tokens_proxy"], BRIEF_LEDGER))
+    if a.contrast:
+        cs = contrast(a.day, assets, a.n_neighbours, traj=a.traj)
+        print("# D-090.2 CONTRAST SETS %d — every ORACLE SEAT beside its "
+              "nearest NON-PICKED neighbours (STUDY ONLY)" % a.day)
+        print("# cols: " + " ".join(DELTA_COLS))
+        for c in cs:
+            print("== %s ORACLE SEAT %s @%s  %s"
+                  % (c["asset"], c["pick"], _clock(c["pick_sec"]),
+                     _out_str(c["pick_out"])))
+            print("  PICK      " + c["pick_row"])
+            for nb in c["neighbours"]:
+                print("  near%+5ds %s\t|| %s"
+                      % (nb["d_sec"], nb["row"], _out_str(nb["out"])))
+    if a.traj_check:
+        r = traj_check(a.day, assets)
+        print("R2-2 TRAJECTORY DIFFERENTIAL %d: compared=%d agree=%d "
+              "disagree=%d refused_recompute=%d absent_in_triage=%d"
+              % (r["date8"], r["n_compared"], r["n_agree"], r["n_disagree"],
+                 r["n_refused_recompute"], r["n_absent_in_triage"]))
+        print("  refused_by_col: " + " ".join(
+            "%s=%d" % (c, r["refused_by_col"][c]) for c in TRAJ_COLS))
+        for eid, c, want, got in r["disagreements"]:
+            print("  DISAGREE %s %s triage=%r recomputed=%r" % (eid, c, want,
+                                                                got))
+    if a.traj_cost:
+        r = traj_cost(a.day, assets)
+        print("R2-2 TOKEN COST %d: n_episodes=%d with_traj=%d scalar_only=%d "
+              "delta=%d per_episode=%.1f"
+              % (r["date8"], r["n_episodes"], r["tokens_with_traj"],
+                 r["tokens_scalar_only"], r["delta_tokens"],
+                 r["delta_tokens_per_episode"]))
     if a.deltas:
         print("# E6 %d EPISODE DELTAS (D-085 session-brief+deltas; session-"
               "constant state is in the per-asset brief sheet)" % a.day)
         print("# cols: " + " ".join(DELTA_COLS))
-        for asset, epid, line in deltas(a.day, assets):
+        print("# R2-2: %s are 3-point causal trajectories t-10m%st-5m%snow "
+              "(SHORTLIST TRIAGE HINTS ONLY — every TAKE reads the true event "
+              "sequence: ribbon.py --grain action; D-092)"
+              % (",".join(TRAJ_COLS), TRAJ_SEP, TRAJ_SEP)
+              if a.traj else
+              "# R2-2 trajectory columns OFF (ruled out of the round-2 digest "
+              "on the perfection audit's arithmetic: 18,513 tok/day for a "
+              "triage hint = ~2 more full-fidelity takes). --traj re-enables; "
+              "the constructor and its differential (--traj-check) stay.")
+        for asset, epid, line in deltas(a.day, assets, traj=a.traj):
             print(line)
     if a.oracle:
         res = oracle(a.day, assets)

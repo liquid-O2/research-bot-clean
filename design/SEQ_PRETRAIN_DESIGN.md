@@ -279,3 +279,49 @@ step(action)               -> action in {ENTER, SKIP}; HOLD is implicit while a 
   scores at chance. Both are red-first.
 * **NO RL in the SFT pass.** Stage 3 begins only after the SFT pretrained-vs-scratch comparison
   is committed.
+
+---
+
+# AMENDMENT 2 (coordinator, 2026-08-16, binding) — FUSION IS MANDATORY
+
+The head is no longer a sequence-only head. At **both** the SFT stage and the GRPO stage the
+observation is the concatenation
+
+```
+obs = [ pretrained sequence embedding ]                       (2 x d_model, pooled)
+    ⊕ [ the full CONTEXT feature vector at the decision second ]
+    ⊕ [ position / portfolio state ]                          (GRPO stage only)
+```
+
+**The context block is the committed m3 matrix row** — all 184 features of
+`engine/port_m3/m3_matrix.py`: the forecaster card (`p_expansion`, range quantiles, the fvol
+ladder and its surprise terms), the S12 context stack including the Nikkei VI, the level-map
+distances and refail geometry, capacity / runway / coverage, the P020 clock structure, the
+phase / session / regime state, news distances, and the flow-and-price geometry. Stated
+honestly: the matrix's `teacher_evidence` group is **declared and EMPTY**
+(`walk.receipt.json: no_teacher = true`), so "the 184 + teacher features" is, on today's
+matrix, 184 features and a group reserved for a teacher channel that has not yet been written
+into it. When it is, the same concatenation picks it up with no code change.
+
+**Why this is mandatory and not optional:** the whole open question is the interaction —
+whether the tape *at this second* means something different depending on where the session,
+the level map and the volatility forecast already are. A sequence-only head cannot express
+that, and a context-only model (which is what the GBT arm already is) cannot either. Only the
+fused head can.
+
+**The declared ablation — three rows, identical folds, identical scoring:**
+
+| row | head input |
+|---|---|
+| `SEQ_ONLY` | the pooled sequence embedding alone |
+| `CTX_ONLY` | the 184 context features alone, through the same MLP head |
+| `FUSED` | both, concatenated |
+
+**The interaction gain is its own reported number:** `capture(FUSED) − max(capture(SEQ_ONLY),
+capture(CTX_ONLY))`, per era and pooled, with day-clustered CIs. A fused model that merely
+matches the better of its two halves has found no interaction, and the row will say so.
+
+Context features are standardised with means and standard deviations fitted on the
+**training** rows of each fold only, exactly like the sequence channels; non-finite entries
+are typed-missing and imputed to the training mean with a companion missingness indicator, so
+the fold's normalisation still touches no evaluation row.

@@ -176,3 +176,23 @@
 **MONTH-END, and both seats are in the same release minute again.** Eight days in, the seat clock is: phase opens (12 seats) and the 14:30/16:00 release windows (10 seats). Nothing else has ever been seated.
 
 **COVERAGE:** 1,197 of 1,197 sheets indexed and sealed (the D30 guard held); day-complete.
+
+## BLIND DAY 9 — 20211101 (sealed before any unblinding; policy RV2)
+
+**BLIND DAY 9 — 2021-11-01 (Monday), 842 candidates (SI 321, HG 250, NKD 271), 49 creation-class rows, 9 cells, 14 TAKEs, 6 SEATS** — the second six-seat day, and the widest spread of cells in the round (HG/TOKYO, SI/TOKYO, SI/LONDON, HG/NY, NKD/NY, SI/NY). Policy RV2, 47 cuts, coverage 842/842 verified. Three of the six seats are minted inside the first 76 seconds of the session, in the D28 window-collapse hole, and all three are graded B by the rule-independent grade (TOKYO q50 $845-$1,301). The other three are release-window shorts. **NKD gets a seat again under the card rule — a NEWS-WINDOW short, the class that beats the NKD bulk (0.0800 vs 0.0467) — while the OPEN-DYNAMICS rows that RV1 would have taken are refused.**
+
+| cell | rows | creation-class rows | V2 fires | TAKEs | seat | side read (NOT traded) | conf | would-abstain | rolling R1/R2b at cell open | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| HG/LONDON | 66 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | S8 fuel 147 below / 133 above — the most balanced fuel map of the round; f30m +33 on 286. No read. |
+| HG/NY | 100 | 8 | 0 | 1 | HG-20211101-052357-S | SHORT | LOW | no | CLOSED/CLOSED | S8 f5m -17 on 158 into a 27-contract phase; AT_RANGE 71.2%. |
+| HG/TOKYO | 84 | 2 | 0 | 2 | HG-20211101-000055-S | SHORT | LOW | YES | CLOSED/OPEN | S8 -17 on 53 with 48 of 53 above the mid and 5 of 6 through-book prints clearing the BID — a genuine one-sided open, on 53 contracts. WOULD-ABSTAIN (0.14). |
+| NKD/LONDON | 27 | 0 | 0 | 0 | - | NONE | - | no | OPEN/CLOSED | EXPANDED 105.4% with unspent -$30; rv_collapse 28.74 (the highest of the round — the move is long over). 6 contracts. |
+| NKD/NY | 74 | 2 | 0 | 2 | NKD-20211101-052423-S | SHORT | LOW | no | CLOSED/CLOSED | S8 fuel 50 above / 0 below on 114; EXPANDED session with negative unspent. The RV2 seat here is a 14:33 NEWS short and agrees. |
+| NKD/TOKYO | 170 | 0 | 0 | 0 | - | SHORT | LOW | no | OPEN/OPEN | S8 -57 on 151 and f60 -59 on 132 with 148 of 151 contracts BELOW the mid — flow and fuel disagree hard; rv1800 299.5 with surprise 0.176, the most volatile NKD open of the round. |
+| SI/LONDON | 84 | 1 | 0 | 1 | SI-20211101-025343-L | LONG | LOW | no | CLOSED/CLOSED | S8 phase +16 on 38 with all 38 contracts below the mid and f60 +16 on 28, against f30m -7 on 143. A 38-contract phase. |
+| SI/NY | 189 | 20 | 1 | 7 | SI-20211101-055869-S | SHORT | MED | no | CLOSED/OPEN | S8 phase -37 on 191, f5m -36 on 70, f60 -30 on 32 with 157 of 191 contracts above the mid; rv_collapse 14.56 — every window selling into a collapsing vol state. The read and the 15:31 seat agree. |
+| SI/TOKYO | 48 | 2 | 0 | 1 | SI-20211101-000076-S | SHORT | LOW | YES | CLOSED/CLOSED | S8 -13 on 59, 46 of 59 above the mid, mid on the 61-second-old phase L. WOULD-ABSTAIN (0-for-7); q50 $845. |
+
+**SIX SEATS, THREE OF THEM IN THE FIRST 76 SECONDS.** The D28 window-collapse hole is not an edge case: on Mondays and after weekends the generator fires OPEN-DYNAMICS at the very top of the session and the core's magnitude terms cannot see anything there.
+
+**THE CARD RULE IS NOW VISIBLY REDIRECTING NKD:** RV1's NKD seats were OPEN-DYNAMICS rows; RV2's are NEWS-WINDOW rows, which is the only NKD class that beats the NKD bulk on both axes of the era card.

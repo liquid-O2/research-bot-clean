@@ -182,3 +182,17 @@ CARD, not my eight sessions.
 3. **`in_VA` gets its contrast case:** both of today's seats are `in_VA = 0` with |d_POC| > $600,
    against the at-value seats of days 4-6. The hypothesis is now testable within the round.
 4. Policy RV2 unchanged.
+
+## AFTER DAY 9 (20211101, sealed; 842 rows, 14 TAKEs, 6 seats)
+
+1. **c2f IS THE SEAT-QUALITY NUMBER I CAN NAME AND MUST NOT TRADE.** The round's seats now span
+   c2f 0.86 to 7.56; today's SI/LONDON seat was entered on a 7.56 quote-to-fill book with a 2-lot
+   bid against a 12-lot offer and 25 trades in 300 seconds. CC-M2-21.5 graded c2f an INVERTED
+   feature at era scale; if the round's losers concentrate at high c2f, that census is confirmed on
+   the SEAT sub-population (CC-M2-17.4) using seats I did not select on it.
+2. **The D28 hole is systematic, not incidental:** on Monday opens the generator fires OPEN-DYNAMICS
+   in the first 76 seconds and three of today's six seats were minted there, all graded B.
+3. **The card rule is visibly redirecting NKD** from OPEN-DYNAMICS rows (refused) to NEWS-WINDOW
+   rows (taken) — the only NKD class that beats the NKD bulk on both axes.
+4. Policy RV2 unchanged. Three days left; no further evolution is planned — the round should end
+   with one change, argued once, so the scorer can price it.

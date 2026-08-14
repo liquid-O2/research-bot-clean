@@ -33,10 +33,12 @@
 #        the driver script itself.  Every consumer below now reads the DRIVE's
 #        final prefix, which carries the same rows with the D15 end-of-session
 #        columns still masked, and never the day-complete table.
-#        REMAINING HALF, not fixable here: e1blind_cellbrief computes its
-#        per-cell class histogram over every row of whatever table it is handed
-#        (R10), so passing it a prefix bounds the fields but not the
-#        cross-row aggregate.  That fix lives in e1blind_cellbrief.py.
+#        The other half of R10 landed in e1blind_cellbrief.py in the same fix
+#        pass: `--full` is now ACCEPTED AND NEVER OPENED, and every aggregate
+#        comes from the cell's own driver prefix.  It is still passed below so
+#        the round driver's command line is unchanged, and it is now a prefix
+#        rather than the day-complete table, so neither end of the pipe can
+#        route around the mask.
 set -eu
 N="$1"; D="$2"; NEXT="${3:-}"
 T=/workspace/artifacts/cache/port/m2/triage

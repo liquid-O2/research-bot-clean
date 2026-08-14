@@ -1,0 +1,7 @@
+# PORT_M2_SHEETS_SPEC.md §3 R2-8 WRITTEN DECISION JOURNAL (the reasoning, kept) (spec_sha16=f6ef73a41dbf8588)
+# params_hash=3796093a852bd9bca19a65a6eb37a267acda6aea516f29002c1748840c0e10fc
+# R2-8 index: one row per journal entry; sha16 = sha256(entry body)[:16]
+# seq = row index (deterministic, no wall clock)
+seq	round	era	date8	mode	episode_id	call	p	reads	sha16	n_chars	path
+0	E6R2-STUDY-D3	E6	20240418	STUDY	HG-20240418-S-E02	TAKE	0.10	ribbon:HG-20240418-007829-S T-60..T action grain (234 events); seq_cues w=120; delta row; brief:HG	5ad090fa62a2f6d6	1991	/workspace/provenance/port_m2/decision_journal/E6R2-STUDY-D3/JOURNAL_20240418.md
+1	E6R2-STUDY-D3	E6	20240418	STUDY	HG-20240418-L-E01	SKIP	0.07	seq_cues w=120 (no ribbon read); delta row; brief:HG	3a6da5ca2e56ccdd	1177	/workspace/provenance/port_m2/decision_journal/E6R2-STUDY-D3/JOURNAL_20240418.md

@@ -730,3 +730,242 @@ only section that priced the move.
 * **VERIFIED, NOT A DEFECT:** `S4 last_test_outcome` showing REJECT at `test_m=8` (inside the
   15-minute REJECT_WINDOW) is causal — `sections.py` releases the outcome at its own resolution
   second, so an early-resolved test is lawfully shown. The KNOWN_TRAPS entry is doing its job.
+
+# E1 STUDY POST-MORTEMS — DAY 4 (2021-07-06, SI + HG + NKD, day-complete, n=1,268)
+
+Reader: opus-discretionary, fresh context (CC-M2-4.2). Sheets PORT-SHEETS-V1.1. Theses sealed in
+commit `613fc6f` ("E1D4 theses sealed"); every S14 below was opened after that commit. Committed
+calls are never revised. Draw: the next chronological STUDY session per asset strictly after
+2021-07-05, warm-up sessions excluded (CC-M2-8.1) — SI/HG/NKD 2021-07-06, 1,268 candidates
+(SI 541, HG 415, NKD 312), the round's largest study day.
+
+**TAINT: CLEAN on all 1,268 rows, and the day-3 SCAN-EXPOSED hazard was closed by tool.**
+`triage_index.py --as-of` (build item D14) has not landed at HEAD, so the reader built the mechanic
+in its own lane — `engine/port_m2/e1d4_asof.py` — and ran the day through it: every discretionary
+view prints only rows whose decision second is `<=` the candidate being called, and `--next` prints
+exactly ONE candidate, so the take list was never visible as a list. The reader walked the session
+forward in time and never revised an earlier call. The 44 TAKE rows carry `CLEAN;AS-OF-PREFIX`.
+
+## 0. THE DAY, AND THE SCORE — THE WORST OF THE ROUND, AND THE MOST INFORMATIVE
+
+| ledger | calls | TAKE | mean take $ | mean skip $ | winner precision | replay $ | capture |
+|---|---|---|---|---|---|---|---|
+| **READER** | 1,268 | 44 | **-754.01** | +133.08 | **0.000** | **-2,953.75** | -0.346 |
+| EARLIEST, all episodes (**BEST mechanical**) | 1,268 | 558 | +59.53 | +135.92 | 0.068 | **+5,170.00** | 0.490 |
+| EARLIEST + cv >= 516 / 639 | 1,268 | 25/23 | +500.25/+551.25 | +94 | 0.320/0.348 | +3,192.50 | 0.303 |
+| EARLIEST + cv >= 650 | 1,268 | 11 | +793.30 | +96.25 | 0.455 | +2,723.75 | 0.258 |
+| YESTERDAY-POLICY e1d1_policy (frozen) | 1,268 | **0** | — | +102.30 | — | 0.00 | 0.000 |
+| YESTERDAY-POLICY e1d2_policy (frozen) | 1,268 | 11 | -722.61 | +109.52 | 0.000 | -5,158.75 | -0.489 |
+| YESTERDAY-POLICY e1d3_policy (frozen) | 1,268 | **1** | **+1,807.50** | +100.95 | **1.000** | +1,807.50 | 0.424 |
+
+* **Margin over the best mechanical baseline: -$8,123.75** (day 1 +$2,380, day 2 -$2,398, day 3 +$928.75).
+* Margin over frozen e1d1_policy: **-$2,953.75** (it abstained on all 1,268 rows).
+  Margin over frozen e1d2_policy: **+$2,205.00**. Margin over frozen e1d3_policy: **-$4,761.25**.
+* Lift is NA by the scorer's honest convention (mean take is negative); the meaningful statistic is
+  mean(take) - mean(skip) = **-$887.09**. 36 of 44 takes walled (0.818). Median take MAE $81.25,
+  median take peak +$220.00 — the entries were not wild, they were on the wrong side.
+* Day-complete census: SI n=541 mean +$150.06 (76 winners), HG n=415 +$162.73 (52), NKD n=312
+  -$60.89 (**8**). **LONG n=650 mean -$378.87 with ZERO winners; SHORT n=618 mean +$608.38 with
+  136.** Day DP ceiling $10,542.50 (SI $4,272.50, HG $4,260.00, NKD $2,010.00).
+* The sharpest single fact in the table: **e1d3_policy took exactly one candidate all day,
+  HG-20210706-055211-S at 15:33:31, and it paid +$1,807.50** — 45 seconds after, and $0 away from,
+  the HG NY LONG my rule took at 15:32:46 for -$930. Same book, same minute, opposite side.
+
+## 1. E1D4-F1 — THE DIRECTION TERM FLIPPED AGAIN, AND THE DEFECT IS THE SELECTION CRITERION, NOT THE TERM
+
+All 136 D-021 winners are NY **SHORTS** (SI 76, HG 52, NKD 8). My rule's 44 takes are 43 NY longs
+and one TOKYO short. Four day-complete sessions, four different winner configurations: NY shorts,
+NY longs, TOKYO longs, NY shorts.
+
+I pre-registered T4 (5-minute aggression OPPOSED to the trade) as *"the only direction object in the
+round with three same-signed day-complete readings"*. That description was true and the test behind
+it was too weak. Inside the same 5-term family, per session:
+
+| session | opposed (what I took) | mirror (flow WITH the trade) |
+|---|---|---|
+| 2021-07-01 | +$223 | **+$427** |
+| 2021-07-02 | **+$157** | -$587 |
+| 2021-07-05 | +$251 | +$232 (tie) |
+| 2021-07-06 | +$89.54 / 31 winners | **+$132.51 / 57 winners** |
+
+The mirror was BETTER on day 1, tied on day 3 and better today; the term I chose beat its own mirror
+on exactly one of four sessions. I never ran that comparison — I ran "is it positive on every day",
+which the mirror also passes on three of four. **METHOD LAW, and it is the transferable output of
+this day: a direction term must beat its own mirror on every session, not merely be positive on
+every session. "Positive on all three days" is a property of the days, not of the term.** It sits
+next to day 3's law ("settle a threshold on the pooled pool statistic, never on the replay") and it
+is the same failure one level up: I tested the arm I liked instead of testing it against the arm I
+did not.
+
+## 2. E1D4-F2 — P026 CONTINUOUS_TAPE IS FALSIFIED ON ITS FIRST OUTING, AND THE PRE-REGISTRATION IS WHAT MADE IT CHEAP
+
+T7 (S9 bipower `jump_frac_1800s` < 0.45) was the day's new object, registered prospectively
+(CC-M2-4.3) with its own flip-threshold note on a SKIP row: *"eleven rows of this session are
+sole-blocked by T7. If they are the day's winners, P026 is a value-destroying term on its first
+outing and the ledger says so."*
+
+**They are the day's winners.** The 11 rows T7 sole-blocked closed at **mean +$2,148.98 with 5 D-021
+winners and a 9% walled fraction** — the best sole-blocked pool any term of this round has produced,
+in the wrong direction. Sole-block ablation for the whole rule on this day:
+
+| term | rows sole-blocked | mean close $ | winners |
+|---|---|---|---|
+| T4 absorbed aggression | 154 | -639.58 | 0 |
+| T5 magnitude | 8 | -930.00 | 0 |
+| T6 in-range bar | 9 | **+1,075.56** | 3 |
+| **T7 continuous tape** | 11 | **+2,148.98** | **5** |
+
+And the mechanism itself did not reproduce. Day-4 bands (against the 3-day table in the policy
+docstring: keep 0.41-0.50 below 0.45 vs 0.20-0.27 above 0.55, 0 of 1,464 winners above 0.55):
+
+| jump_frac | n | mean close $ | winners | keep |
+|---|---|---|---|---|
+| < 0.30 | 21 | **-309.76** | 3 | -0.50 |
+| 0.30-0.45 | 459 | +100.31 | 87 | 0.12 |
+| 0.45-0.55 | 315 | +126.39 | 22 | 0.12 |
+| 0.55-0.70 | 320 | +124.08 | 16 | 0.10 |
+| >= 0.70 | 153 | +69.67 | 8 | 0.06 |
+
+46 of today's 136 winners sit above 0.45 and the keep ratio is flat at 0.06-0.12 everywhere. The
+three-day relationship was a three-day relationship. P026 goes into the ledger DEAD ON BIRTH, in the
+same class as P014 — and the reason it cost one day rather than a round is that it was named, its
+threshold was written down, and its counterfactual was pre-registered.
+
+## 3. E1D4-F3 — THE TWO TERMS I ADDED THIS ROUND COST $7,231 OF REPLAY; THE FIVE I INHERITED DID NOT
+
+| rule variant | TAKE | mean take $ | winners | replay $ | capture |
+|---|---|---|---|---|---|
+| as committed (7 terms) | 44 | -754.01 | 0 | **-2,953.75** | -0.346 |
+| minus T7 | 55 | -173.41 | 5 | +1,056.25 | 0.124 |
+| minus T6 | 53 | -443.33 | 3 | -667.50 | -0.078 |
+| **minus T6 and T7 (the five inherited terms)** | 80 | +11.17 | 8 | **+4,277.50** | **0.501** |
+| with T4 mirrored (flow WITH the trade) | 72 | -593.02 | 0 | -4,078.75 | -0.478 |
+
+The five terms that came from prior days — live book, runway, freshness, opposed aggression,
+magnitude — would have produced a +$4,277.50 day at capture 0.501, second only to the saturated
+EARLIEST arm. **Both of the terms I fitted on this round's own three-day pool (T6's ext_needed <=
+$450 and T7's jump cut) were selected by the same weak criterion as F1: the threshold that made all
+three prior days positive.** Note also the last row: mirroring T4 does NOT rescue the day either
+(-$4,078.75) — the direction is not a sign flip on one field, which is exactly what ERA_NOTES §38
+has been saying for two days.
+
+## 4. E1D4-F4 — P025 RUNWAY_TO_BINDING_EXIT IS NOW 230-FOR-230
+
+T2 (runway to the binding phase-close exit >= 12,000s) passes on **136 of 136 winners today**
+(minimum winner runway 21,903s) after 94 of 94 on days 1-3 (minimum 13,146s). Four day-complete
+sessions, 230 D-021 winners, zero exceptions, on a term that reads two roster fields and no
+judgement. Term retention on today's winners, for contrast:
+
+| term | winners passing | rows passing |
+|---|---|---|
+| T2 runway | **136/136** | 1,016/1,268 |
+| T1 live book | 128/136 | 926/1,268 |
+| T5 magnitude | 107/136 | 551/1,268 |
+| T7 continuous tape | 90/136 | 480/1,268 |
+| T3 fresh extreme | 74/136 | 729/1,268 |
+| T4 absorbed aggression | 31/136 | 332/1,268 |
+| T6 in-range bar | 21/136 | 474/1,268 |
+
+P025 is the round's best-supported object and it is a SCHEDULING fact: the bar needs hours between
+the decision second and the binding exit. It is also the one that most deserves its census now
+(winner rate by (asset, runway band) with phase_dec as a control — CENSUS BATCH 3, already ordered).
+
+## 5. E1D4-F5 — WHAT THE WINNERS WERE: STALE-EXTREME, NEW-RANGE, FLOW-CONCORDANT NY SHORTS
+
+Winner medians (min/median/max): trade-side extreme age 8 / **3,320** / 8,174 s; `ext_needed` $0 /
+**$750** / $1,008; 5m volume 7 / 653 / 2,417; `range_vs_hat_pct` 71.3 / 83.4 / 137.9; `cov_phase`
+11.2 / 88.4 / 155.7. 105 of 136 had their 5-minute aggression WITH the trade.
+
+So the day's seats were continuation shorts entered up to two hours after the phase high, needing
+three quarters of the bar in brand-new range, on a session that had already spent 83% of its
+forecast range. Every "quality" term of my rule is a minority property of them. This is the third
+distinct winner morphology in four sessions (day 1: rollover shorts inside the NY range; day 2:
+release-driven expansion longs; day 3: TOKYO reversal longs on a dead tape; day 4: mature-trend
+continuation shorts) and it is the strongest evidence yet for CC-M2-11.2's conclusion that the
+selection intelligence has to live in a model with a leading regime input, not in a per-row rule.
+
+## 6. E1D4-F6 — THE THREE SEATS, AND THE PRE-MORTEMS FIRED AGAIN
+
+| seat | call | close $ | peak $ | MAE $ | walled | pre-mortem verdict |
+|---|---|---|---|---|---|---|
+| HG/TOKYO 03:15:31 SHORT | TAKE | **+182.50** | **+3,313.75** | 843.75 | no | FIRED and was right about the mechanism: "the buyers are a parent order still working" — HG went on to ~4.40 in LONDON. The trade survived an $843.75 adverse excursion, **$56.25 under the wall**, and the 07:00 phase-close exit is what banked it. |
+| SI/NY 15:02:08 LONG | TAKE | -930.00 | +245.00 | 300.00 | **yes** | FIRED verbatim: "if S8's 60s sflow stays SELL at >= 10% for another five minutes with price below 26.6875, the shelf is broken and the trapped mass above becomes the whole afternoon's supply." It did, and it was. |
+| HG/NY 15:32:46 LONG | TAKE | -930.00 | +182.50 | 43.75 | **yes** | FIRED verbatim: "if S8's 60s sflow turns sell at >= 10% while price is below 4.3168, the staircase has another rung." It had several. |
+
+Three of three pre-mortems named the mechanism that decided the trade, and the two that named a
+measurable trigger were both correct within minutes. Across four days the instrument has gone 0/11,
+5/6, 2/5, 3/3. **The pre-mortem is now the best-calibrated object the reader produces, and it has
+been ignored as a veto on every day it fired.** CC-M2-10.4 auto-logs them as hypotheses; on this
+evidence the stronger form the reader proposed on day 2 (a pre-mortem naming a measurable mechanism
+must become a term or the take is abandoned) deserves re-opening — it would have saved $1,860 today.
+
+Also on record: the S10 reservation written into the against/pre-mortem fields before the seal
+priced both losing seats correctly. SI's developing POC was $362.50 above the entry and the developing
+VAH $750 above with the bar needing 26.8975 "outside the developing value area entirely"; HG's
+developing POC was $931 above. Neither trade reached its POC. **S10 has now called the magnitude
+correctly on both days it was read (day 3 §11, day 4), and it is still not in the triage index.**
+
+## 7. E1D4-F7 — THE GRADE IS CALIBRATED ON THE POPULATION AND INERT INSIDE THE TAKES
+
+`sigma_to_exit = S9 rv1800 * sqrt(runway/1800)` (CC-M2-10.5 form, unchanged from day 3 so the
+calibration accumulates):
+
+| grade | all rows n | mean close $ | winners | TAKE rows | TAKE mean $ |
+|---|---|---|---|---|---|
+| A | 60 | **+287.71** | 22 | 4 | -930.00 |
+| B | 512 | +180.94 | 89 | 39 | -759.97 |
+| C | 696 | +28.47 | 25 | 1 | +182.50 |
+
+Monotone on the population for the second day running (A > B > C in both mean and winner rate), and
+inverted inside the takes — because it is a magnitude-feasibility scale and this day's takes were
+wrong about direction, so it ranked the losses by how far they could travel. Keep it as an ordering
+statistic; it still must not gate anything (CC-M2-10.5 stands).
+
+## 8. NKD PRODUCED EIGHT WINNERS — THE "NOTHING TO OFFER" CLAIM IS FALSIFIED, THE ABSTENTION WAS STILL RIGHT
+
+Three sessions, 711 candidates, zero D-021 winners. Today: 312 candidates, **8 winners**, all NY
+shorts between 15:07:05 and 15:33:58, on a session where NKD's mean candidate still lost $60.89 and
+263 of 312 rows fail the live-book floor outright. The reader abstained (NKD replay $0) and every
+mechanical arm that traded NKD lost money on it (-$955 to -$1,745). **What is falsified is the era
+claim, not the abstention: NKD in E1 is a thin book with occasional real seats, and a rule that can
+only see the book will keep missing them.** ERA_NOTES §26's "untradeable at the $1,000 bar" is
+struck and replaced with the count.
+
+## 9. SECTION-VALUE LEDGER (CC-M2-4.5), 10 deep reads of 1,268 calls
+
+| section | deep reads that opened it | changed a call |
+|---|---|---|
+| S3 (path / swing chain / coverage / runway) | 10 | yes — the ZigZag chain is what told me the SI seat was a BREAK of a twice-held shelf and not a refail, and the HG seat a descending staircase; I wrote both down and took both anyway |
+| S8 (flow windows / fuel map / through-book) | 9 | yes — every term of the rule that matters, and the fuel map's trapped mass (7,805 of 7,902 above the SI mid) was the correct warning |
+| S4 (level ledger) | 5 | yes — the five-family shelf at 26.685-26.6975 is why the SI long looked like a floor, and the REJECTed levels above the HG entry are why that one was buying inside broken support |
+| S9 (vol state) | 6 | **yes, and wrongly** — `jump_frac` is E1D4-F2 |
+| S10 (volume profile) | 3 | **yes as a warning, ignored again** — it priced both losing seats before they were taken |
+| S7 (book/queue) | 3 | yes — dBsz/min +3.00 vs dAsz/min -15.00 was the A4 read that made the SI long look right, and it was wrong within the minute |
+| S5 (T-minus trajectory) | 3 | no — read for the record only; no term of this rule touches it (E1D4 pre-registration) |
+| S13 (mechanics / class card) | 3 | no |
+| S2, S12 | 2, 1 | no — S12 confirmed `event_in_session=0` on all 1,268 rows |
+| S1, S6, S11 | 1, 1, 1 | no (opened once inside the single whole-sheet read) |
+
+S6 and S11 are now 0-for-3,266. S10 is 2-for-2 on the days it has been opened and is the strongest
+candidate for promotion into the triage index (defect D17).
+
+## 10. DEFECTS AND BUILD ITEMS FOUND TODAY
+
+* **D16 — the TRIAGE-INDEX-V2 header and D9 renames silently break three FROZEN consumers.** The V2
+  extractor writes TWO comment lines (the version stamp) where V1 wrote one, and `e1d1_policy.py`,
+  `e1d2_policy.py` and `baseline_replay.py` all parse with `open(index).readlines()[1:]`; V2 also
+  renames `day_type`/`pct_range_hat` to `day_type_so_far`/`range_vs_hat_pct`, which the frozen
+  day-1/day-2 policies read by name. Run as-is, `baseline_replay.py` raises `KeyError: 'cid'` and
+  the frozen policies raise or silently lose terms. The frozen arms are the reader's scoreboard, so
+  this is a reproducibility hazard, not a cosmetic one. **Fix ordered on the tooling lane, not here
+  (frozen code must not be edited by the reader):** the extractor should emit a COMPAT view, or
+  every consumer should switch to `startswith('#')` + alias columns. Today's baselines were run
+  against `E1D4_TRIAGE_INDEX_COMPAT.tsv` (one comment line + both column spellings, identical data).
+* **D17 — S10's developing POC/VAH/VAL are not in the triage index.** Two days, two correct
+  magnitude calls, no way to triage on it. `d_POC`, `d_VAH`, `d_VAL`, `in_VA` are four numbers.
+* **D14 remains open upstream.** The reader implemented the as-of prefix view in its own lane
+  (`e1d4_asof.py`); `triage_index.py --as-of` is still the thing that has to exist before the BLIND
+  round, because a blind reader should not have to build its own guard.
+* **D13 status:** the renames ARE emitted by the current extractor; the VERSION stamp is emitted as
+  a second header comment — which is exactly what breaks D16's consumers. The docstring is no longer
+  wrong; the change was shipped without a consumer sweep.

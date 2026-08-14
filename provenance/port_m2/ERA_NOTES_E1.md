@@ -408,3 +408,107 @@ least once. The reader's per-era lift curve (D-059.6) must be read with that in 
 4. Should the reader stop building momentum/confirmation terms entirely (§34, 3-for-3 against)?
 5. The give-back (§35): is there an ex-ante field that separates a certificate that holds its peak
    from one that gives back two thirds? This is now the round's largest unexplained loss channel.
+
+---
+
+# E1 STUDY DAY 4 UPDATE (2021-07-06, day-complete, n=1,268 across SI/HG/NKD)
+
+Source: provenance/port_m2/E1_STUDY_LEDGER.tsv (sealed `613fc6f`) + E1_POSTMORTEMS.md day-4 section.
+Taint CLEAN on all 1,268 rows; the day-3 SCAN-EXPOSED hazard was closed by tool in-lane
+(`engine/port_m2/e1d4_asof.py`, the D14 mechanic), and the TAKE rows carry `CLEAN;AS-OF-PREFIX`.
+The reader LOST to the best mechanical baseline by **$8,123.75** — the worst day of the round — and
+the loss decomposes cleanly onto two terms it added this round. Several §31-§39 claims are struck.
+
+## 40. THE DAY: 136 WINNERS, ALL NY SHORTS — FOUR SESSIONS, FOUR MORPHOLOGIES
+LONG n=650 mean **-$378.87 with ZERO winners**; SHORT n=618 mean +$608.38 with **136** (SI 76,
+HG 52, NKD 8). Per asset: SI +$150.06, HG +$162.73, NKD -$60.89. Day DP ceiling $10,542.50.
+The four unblinded sessions now read: NY shorts (07-01), NY longs (07-02), TOKYO longs (07-05),
+NY shorts (07-06). **The winner morphology has been different every single session:** rollover
+shorts inside the range; release-driven expansion longs; reversal longs on a dead holiday tape; and
+now mature-trend CONTINUATION shorts entered a median 3,320s after the phase high, needing a median
+$750 of brand-new range, with the 5-minute aggression WITH the trade in 105 of 136 cases.
+
+## 41. THE ROUND'S REAL DEFECT IS THE SELECTION CRITERION (this supersedes §38's reading)
+§38 said only two terms were positive on all three days. This day says that test is too weak. The
+direction term I built the day-4 rule on — 5m aggression OPPOSED at magnitude — is positive on all
+four sessions inside its family (+$223 / +$157 / +$251 / +$90) and **beats its own mirror on exactly
+one of them** (mirror: +$427 / -$587 / +$232 / +$133). A term can be positive every day and still be
+the worse of the two arms on most days, because "positive" is inherited from the day.
+**METHOD LAW (adopted for the rest of the round, alongside day 3's pooled-pool law): a direction
+term must beat its own MIRROR on every session, not merely be positive on every session; and a
+threshold must be settled on the pooled pool, not on the set of days it makes positive.**
+Both terms this round's rule added (T6 ext_needed <= $450, T7 jump_frac < 0.45) were chosen by the
+weak criterion, and both are what lost the day (§43).
+
+## 42. P026 CONTINUOUS_TAPE: BORN AND KILLED IN ONE DAY, ON A PRE-REGISTERED TEST
+S9's bipower jump fraction `(RV-BV)/RV` over 1,800s looked like the round's first ex-ante handle on
+the GIVE-BACK (§35/§39.5): over days 1-3, rows with a peak above $600 kept 0.41-0.50 of it below
+jump_frac 0.45 and 0.20-0.27 above 0.55, with 87 of 94 winners below 0.45 and **0 of 94 above 0.55
+in 1,464 rows**. On 2021-07-06 the relationship is gone: keep is flat at 0.06-0.12 across every band,
+46 of 136 winners sit above 0.45, and the *lowest* band (<0.30) is the day's worst pool (-$310).
+As a term it sole-blocked 11 rows worth **+$2,148.98 mean with 5 D-021 winners** — the most
+expensive refusal any term of this round has made. **P026 is DEAD, in the P014 class (killed in the
+round that birthed it), and the give-back question of §39.5 is re-opened unanswered.**
+
+## 43. THE LOSS DECOMPOSES ONTO THE TWO TERMS THE READER ADDED THIS ROUND
+Committed rule (7 terms): 44 takes, replay **-$2,953.75**. Same rule minus T7: +$1,056.25. Minus T6:
+-$667.50. **Minus both — i.e. the five terms inherited from days 1-3 (live book, runway, freshness,
+opposed aggression, magnitude) — 80 takes, 8 winners, replay +$4,277.50, capture 0.501**, second
+only to the saturated EARLIEST arm (+$5,170.00) and ahead of every threshold arm. Mirroring the
+direction term instead does NOT rescue the day (-$4,078.75): the day's seats are not the sign flip
+of the reader's seats, which is the same thing §38 has said for two days.
+
+## 44. P025 RUNWAY_TO_BINDING_EXIT IS 230-FOR-230 AND IS NOW THE ROUND'S BEST-SUPPORTED OBJECT
+Runway to the binding (phase-close) exit >= 12,000s passes on **136 of 136 winners today** (minimum
+21,903s) after 94 of 94 across days 1-3 (minimum 13,146s). Four day-complete sessions, 230 winners,
+zero exceptions, two roster fields, no judgement. Winner retention of the other terms today: live
+book 128/136, magnitude 107/136, jump 90/136, freshness 74/136, absorbed aggression 31/136, in-range
+bar 21/136. **Fields:** S13 exit_default, S3 runway to it, S1 phase_dec as a CONTROL. The census
+ordered in CC-M2-12.4 is the one to run first.
+
+## 45. ~~§26 STRUCK~~ — NKD HAS SEATS; IT IS THIN, NOT EMPTY
+Three sessions, 711 candidates, 0 winners; this session, 312 candidates, **8 D-021 winners** (NY
+shorts, 15:07:05-15:33:58). NKD's mean candidate still lost $60.89, 263 of 312 rows fail the
+live-book floor, and every mechanical arm that traded NKD lost on it, so the reader's fourth
+abstention still scored $0 against -$955 to -$1,745. What is struck is the ERA claim ("untradeable
+at the $1,000 bar"), not the abstention. **A rule that can only see the 60-second book will keep
+missing NKD's seats; NKD is a leading-regime problem, not a book problem.**
+
+## 46. THE EXIT RULE, AGAIN — AND THIS TIME PHASE-CLOSE SEATING SAVED A TRADE
+The day's one correctly-sided take (HG TOKYO short, 03:15:31) closed **+$182.50 at its 07:00 phase
+close with a peak of +$3,313.75** later in the session, having survived an $843.75 adverse excursion
+— **$56.25 under the $900 wall**. Under session-close scoring it is a huge winner; under phase-close
+seating it is a small one; under a $56 tighter wall it is a stop-out. Three of the four sessions have
+now produced a headline number that is an EXIT-RULE artefact rather than an entry-quality fact
+(§4, §25, §35, and this). **The exit rule is the largest single lever on this program's measured
+performance and it is not a reader decision** (D12/CC-M2-10.3 fixed the seat; the wall and the
+horizon remain orchestrator parameters).
+
+## 47. THE PRE-MORTEM IS NOW THE READER'S BEST-CALIBRATED INSTRUMENT (3 for 3 today)
+All three seat pre-mortems named the mechanism that decided the trade, and the two that named a
+measurable trigger were correct within minutes (the SI shelf broke exactly as written; the HG
+staircase added rungs exactly as written). Four-day record: 0/11, 5/6, 2/5, 3/3. On every day it
+has fired it was ignored as a veto. **The day-2 proposal (a pre-mortem naming a measurable mechanism
+must become a term or the take is abandoned) would have saved $1,860 today and cost nothing on day
+3.** Re-opened for the orchestrator with four days of evidence instead of one.
+Related: S10's developing POC/VAH priced BOTH losing seats before they were taken (2-for-2 on the
+days S10 has been read) and it is still not in the triage index (defect D17).
+
+## 48. OPEN QUESTIONS CARRIED TO DAY 5
+1. The mirror test (§41) applied backwards: which of the round's surviving objects beat their own
+   mirror on all four sessions? P025 has no mirror (it is a scheduling fact); P004 does not either.
+   Every DIRECTION object in the ledger now fails the test on at least one session.
+2. If no per-row direction term survives the mirror test, the honest day-5 experiment is a rule with
+   NO direction term at all — take the seat the runway/participation terms admit, on the side the
+   *session* is already on — and measure whether trend-following beats fading on the pooled four
+   sessions. Four sessions: 2 short-winner days, 2 long-winner days, and on every one of them the
+   winners' 5-minute flow was mostly WITH the trade (105/136 today, and the day-2 winners' flow was
+   opposed only on the phase horizon).
+3. Does the give-back have ANY ex-ante handle now that P026 is dead (§42)? The one field with a
+   two-for-two record is S10's developing POC distance, and it needs to be in the index to be tested.
+4. Should the reader's rule keep the two terms that survived four sessions (P004 live book, P025
+   runway) and let the MODEL supply direction — i.e. is the reader's remaining job to certify
+   feasibility rather than to pick sides? CC-M2-11.3 already says the validated objects are all
+   concentrators; four sessions of direction failure is the strongest version of that argument.
+5. D16: the frozen baselines could not be run against the current extractor's output without a
+   compatibility view. Every future day inherits that hazard until the tooling lane fixes it.

@@ -1,0 +1,191 @@
+# SEQ_PRETRAIN_DESIGN — the self-supervised event-stream model, designed before it is trained
+
+**Status: DESIGN RECEIPT. Committed BEFORE any pretraining run.** Everything below is a
+commitment: the tokenizer, the vocabulary, the objective, the corpus boundaries, the
+parameter budget, the throughput arithmetic and the causality rule. A number produced by a
+design that was edited after seeing its own result is not a measurement, so the edit history
+of this file is the audit trail.
+
+Lane: `port-m2-seqtest` (the raw-event extraction lane). Coordinator instruction of
+2026-08-16: *"if the supervised ladder shows any signal at all, add the PRETRAINING stage …
+autoregressive next-event objective (doubles as a simulator), event tokenization, ONE shared
+backbone across SI+HG+NKD with asset embeddings, 30–60M params, full 1.4B-event corpus,
+≤3h wall, NO RL in this pass."*
+
+---
+
+## 0. WHAT THIS STAGE IS FOR
+
+The program's entire information verdict has been argued on **featurisations** of the tape —
+225 hand-chosen view fields, ~40 sequence cues, a GBT on a frozen matrix. The addendum to
+`INFO_CEILING.md` retracted the "information shortage" reading precisely because no one had
+ever put the *unsummarised* stream in front of an extractor. This lane is that attempt, and
+this stage is its strongest version: instead of learning the tape from 60k labelled
+candidates per era, learn the tape from **~1.4 billion unlabelled events** and then spend the
+labels only on a small head.
+
+The autoregressive objective is chosen over a masked one deliberately: it is the only one of
+the two that produces a **simulator** (a next-event distribution can be sampled forward), and
+it is the only one whose context direction matches the deployment geometry — at the decision
+second the model has strictly the past and nothing else.
+
+---
+
+## 1. THE RESEARCH PASS — what is adopted, what is rejected, and why
+
+Conducted 2026-08-16, ~45 min, before any design was frozen.
+
+| source | what it does | our decision |
+|---|---|---|
+| **LOBERT** — *Generative AI Foundation Model for Limit Order Book Messages*, [arXiv:2511.12563](https://arxiv.org/html/2511.12563) | one **composite token per message** (side × type × quantised price-difference × quantised volume × roundness), vocabulary **293**; masked-message-modelling (BERT-style) pretraining; 1.1M params over 470M messages / 80 days; multi-modal embedding merging discrete tokens with continuous price/volume/time. | **ADOPT the one-token-per-message composite scheme.** It is what keeps 1.4B events at 1.4B tokens instead of 4–6B, which is the whole reason a 3-hour budget is credible. **REJECT the masked objective** as primary — see §2. **DEFER the continuous side-channel embedding**: our supervised ladder already consumes the continuous channels directly, so between the two arms both representations are measured, and keeping the pretrained model tokens-only makes "pretrained vs scratch" an exactly matched architecture comparison. |
+| **Nagy et al.** — *Generative AI for End-to-End LOB Modelling: a token-level autoregressive generative model of message flow* ([arXiv:2309.00638](https://arxiv.org/abs/2309.00638), ACM ICAIF'23) | token-level **autoregressive** message generation over LOBSTER NASDAQ data, S5 state-space backbone, digit-group tokenizer, feeds a LOB simulator; reports low perplexity and generated mid-price returns correlated with real data; framed as a world model for HF RL. | **ADOPT the autoregressive next-event objective and the "pretraining doubles as a simulator" framing.** **REJECT the digit-group tokenizer** — it spends several tokens per message on digits we would immediately bucket anyway. **REJECT the S5 backbone** — no tuned implementation here, and a decoder-only transformer with SDPA/flash attention is the throughput-known option on this GPU. |
+| **ByteGen** — *A Tokenizer-Free Generative Model for Orderbook Events in Byte Space* ([arXiv:2508.02247](https://arxiv.org/html/2508.02247v1)) | next-**byte** prediction over a 32-byte packed message format, vocabulary 256, H-Net dynamic chunking; 8M/124M/1.5B params over 34.2M messages (5 days of CME Bitcoin futures). | **REJECT for this pass.** 32 tokens per event against our 1 is a 32× compute multiplier on a corpus 40× larger than theirs, on one GPU with a 3-hour budget. Their own limitation list (byte-level "inherently requires more computation") is the reason. Recorded as the alternative if the tokenised run shows the bucketing is what is binding. |
+| **DeepLOB** ([arXiv:1808.03668](https://arxiv.org/pdf/1808.03668)) / **TransLOB** ([arXiv:2003.00130](https://arxiv.org/pdf/2003.00130)) / **LiT** | the CNN-LSTM and dilated-causal-conv + transformer lineage for LOB mid-price direction, benchmarked on FI-2010. | **ADOPT the causal-convolution stem idea** (already in this lane's CNN arm and in the transformer's patch embed). **REJECT the FI-2010 evaluation culture outright**: the benchmark is 10 downsampled days from a less liquid market and the literature's own commentary is that it is far too short to test generalisation and that overfitting to it is severe. Our folds are whole calendar DAYS in a walk-forward era ladder over 4.5 years, and the label is dollars through the program's own replay, not a 10-tick mid-price move. |
+| **OF-MATNet** — attention-based **multi-asset** order-flow networks (ACM ICAIF'25) | order-flow imbalance from *peer* assets improves mid-price prediction. | **ADOPT the single shared backbone across SI + HG + NKD with an asset embedding** — the coordinator's instruction and this result agree. Noted honestly: this program has already measured cross-asset *features* and found nothing (`XASSET_MARGINAL.md`, marginal capture −0.0097); joint pretraining is a different mechanism (shared microstructure representation, not a cross-asset predictor) and is measured as such. |
+| **LOBERT's leakage precaution** — masking 90% of book-snapshot positions so the snapshot cannot give away the masked message. | | **ADOPT the concern, not the mechanism.** Our records carry the L1 book *after* the record is applied, which is legitimately in the past of the next event, so the AR objective has no analogous leak. The leak we do guard is calendar leak, §5. |
+
+---
+
+## 2. THE OBJECTIVE
+
+**Autoregressive next-event prediction.** Given events `e_1 … e_k` of one contiguous stretch
+of one session's tape, predict the token of `e_{k+1}`. Cross-entropy over the composite
+vocabulary, teacher forcing, causal mask.
+
+Rejected alternative — **masked event modelling** (LOBERT's MMM). Two reasons, both stated
+before the run: (i) it does not yield a forward sampler, and the coordinator's brief names
+the simulator property explicitly; (ii) its bidirectional context is unusable at the point
+where this program actually decides — the last event before the decision second has no right
+context, ever. A masked-pretrained trunk would be trained on a context shape the downstream
+task can never supply.
+
+---
+
+## 3. THE TOKENIZER — the vocabulary, stated
+
+One token per event. The composite index is
+
+```
+tok = ((act_side * 7 + dmid_bucket) * 5 + size_bucket) * 5 + gap_bucket
+```
+
+| field | levels | definition |
+|---|--:|---|
+| `act_side` | **18** | action byte ∈ {A, C, M, T, F, R} × side byte ∈ {B, A, N}. Unknown bytes map to the (R, N) cell and are counted in the build receipt. |
+| `dmid_bucket` | **7** | change in the L1 mid against the previous record, in ticks: `≤−3, −2, −1, 0, +1, +2, ≥+3`. Ticks are the frozen `common.ASSETS[asset]["tick_raw"]`. |
+| `size_bucket` | **5** | record size: `1, 2–3, 4–9, 10–49, ≥50`. |
+| `gap_bucket` | **5** | inter-event gap: `<50 µs, <500 µs, <5 ms, <50 ms, ≥50 ms`. |
+
+**Vocabulary = 18 × 7 × 5 × 5 = 3 150 event tokens, plus `BOS = 3150` and `PAD = 3151`
+→ 3 152.** Every boundary above is fixed a priori in tick / power-of-two / decade space; none
+is fitted to data, so there is no quantile-fitting leak to argue about.
+
+Asset identity is NOT in the vocabulary. It is a separate learned **asset embedding**
+(3 rows: SI, HG, NKD) added to the token embedding — one shared backbone, per the brief.
+
+Positions are a learned absolute embedding over the 1 024-event context.
+
+**What the tokenizer throws away**, stated so it can be held against the result: exact prices
+and sizes beyond the buckets, order counts at the touch (`bid_ct`/`ask_ct` — which this
+program's own ribbon work called the queue-composition discriminator), the spread, and the
+absolute clock. The continuous-channel arms of this lane (CNN / transformer over the 21 raw
+channels) *do* see all of those, so the pair of arms brackets the representation question
+rather than betting on one side of it.
+
+---
+
+## 4. THE MODEL AND THE THROUGHPUT ARITHMETIC
+
+Decoder-only transformer, pre-norm, GELU, SDPA (flash) attention, bf16 autocast, TF32 matmul,
+tied input/output embeddings, fixed seed 20260813.
+
+| | |
+|---|--:|
+| context | 1 024 events |
+| `d_model` | 512 |
+| depth | 12 |
+| heads | 8 |
+| FFN | 2 048 |
+| parameters | **≈ 40 M** (37.7 M blocks + 1.6 M tied embedding + 0.5 M positions) — inside the briefed 30–60 M band |
+
+**The budget arithmetic, to be checked against a measured 5-minute smoke before the real run
+and recorded in `pretrain.receipt.json`:**
+
+training FLOPs ≈ `6 · N · T` = `6 × 40e6 × 1.41e9` ≈ **3.4 × 10^17** for one pass over the
+full corpus. The RTX PRO 6000 (Blackwell, 97 GB) must therefore sustain ≈ **31 TFLOP/s** to
+finish a full pass in 3 hours and ≈ 94 TFLOP/s to finish in 1 hour. **The smoke measures
+tokens/s directly and the receipt states the implied wall time; if the measured rate does not
+put a full pass inside 3 h, the corpus is TRUNCATED (oldest-first) rather than the budget
+being overrun, and the truncation is reported.**
+
+---
+
+## 5. THE CORPUS AND THE CAUSALITY RULE — the part that is easy to get wrong
+
+Source: `artifacts/cache/port/m2/events/{ASSET}/{d8}.npz`, the corpus-wide MBP-1 event cache
+(≈ 1.41 B events: SI 625 M, HG 505 M, NKD 285 M over 3 341 asset-sessions), decoded by the
+official `databento_dbn` library and already differentially audited three ways.
+
+**Hard boundaries.**
+* `d8 ≥ 20250701` — the D-058 pre-exam holdout — is not in the cache at all and is asserted
+  again at build time.
+* `d8 ≥ 20260101` — the m0 seal — has never been opened.
+
+**The walk-forward problem, named rather than finessed.** Pretraining on *everything before
+the holdout* means the trunk used to score era E3 has read the tape of E4…E8. That is
+unlabelled, but it is still future tape, and a walk-forward claim built on it is not a
+walk-forward claim. So two pretraining runs are declared here, before either exists:
+
+| run | corpus | what may be claimed from it |
+|---|---|---|
+| **PRE-A (causal)** | `d8 < 20240101` — PRE_E1…E5, ≈ **881 M** events | the **headline**. The trunk is strictly older than eras **E6, E7 and E8 (the GATE echo)**, so fine-tuned results on those three folds are honest walk-forward numbers. Its E3/E4/E5 folds are flagged CONTAMINATED and excluded from the headline. |
+| **PRE-B (full)** | `d8 < 20250701` — everything the cache holds, ≈ **1.41 B** events | the brief's full-corpus run, reported as its own row **with a NON-CAUSAL flag on every fold**. It answers "how much does more tape buy?", never "what would this have earned?". |
+
+If wall time forces one, PRE-A is the one that runs: a contaminated number is worth less than
+no number.
+
+**Sequence construction.** Tokens are chunked into contiguous 1 024-event windows **inside a
+single `cover` block** of a session. The cache is a concatenation of per-candidate windows, so
+a chunk that crossed a block boundary would splice two unrelated stretches of tape — the same
+hazard `st_common.cover_start_sec` exists to stop in the supervised arm. Chunks are never
+padded across blocks; a block's tail shorter than 1 024 events is dropped and counted.
+
+---
+
+## 6. FINE-TUNING AND WHAT IS REPORTED
+
+The trunk is fine-tuned on the labelled candidate windows — the **last 1 024 events strictly
+before the decision second**, tokenized by exactly the same tokenizer — under the lane's
+existing, unchanged anti-overfit stack:
+
+* whole-**DAY** folds; walk-forward era ladder `train E2..Ek → test E(k+1)`;
+* early stopping on the training block's last 20 % of **days**, never on the test era;
+* the m3_walk **deployable** arm VERBATIM for scoring (top-3 per asset-day, D-077 news veto,
+  one-position chronological walled phase-close replay), CR1 CIs clustered by DAY;
+* the same shuffled-label control and the same duplicate-day / non-causal-era / tensor-
+  causality probes.
+
+**The comparison that is the point:** `PRETRAINED` vs `SCRATCH` — the identical architecture,
+identical folds, identical scoring, differing only in whether the trunk was initialised from
+the self-supervised run. Both rows go in `SEQTEST_CAPACITY.tsv` beside the supervised ladder.
+
+**Deliverable to the frontier lane:** the model's out-of-sample score column, committed as a
+TSV keyed by `cid` (the m3 matrix's candidate id), so the plane can consume it without
+re-running anything.
+
+**No RL in this pass.** Supervised only; policy work is a separate decision.
+
+---
+
+## 7. THE FALSIFIERS, DECLARED IN ADVANCE
+
+1. If the shuffled-label control at any rung scores materially above zero capture, the whole
+   lane is instrument-broken and nothing else in it may be read.
+2. If PRE-A's fine-tuned capture on E6/E7/E8 does not exceed its own SCRATCH row's, the
+   claim "pretraining on the raw stream buys extraction" is refused for this corpus at this
+   scale — and the ladder's capacity curve is then the evidence about whether that is a
+   size problem or a signal problem.
+3. If the pretraining loss curve does not fall materially below the unigram entropy of the
+   token distribution, the trunk has learned nothing about sequence and no downstream
+   comparison from it may be quoted. The unigram entropy is computed and recorded in the
+   build receipt before training.

@@ -66,8 +66,20 @@ DISCIPLINE (restated so this file reads alone)
     sign-aware (SURVIVES / DESTROYED / INVERTED).
   * INFERENCE: GEE, independence working correlation, Liang-Zeger sandwich
     clustered on SESSION (CR0 + Cameron-Miller CR1) + Kish ICC/DEFF/n_eff.
-  * HOLM-BONFERRONI over THE WHOLE BATCH — every GEE test of all six objects
-    is one family.
+  * HOLM-BONFERRONI over THE WHOLE BATCH — R61: ONE family across EVERY table
+    that publishes a test (the GEEs, the model coefficients, the paired mirror
+    tests, the paired dAUC bootstrap, P032's per-asset betas, the concentrator
+    max-decile nulls and the V2/V3 replay test), via
+    batch4_census._holm_family, which writes holm_rank / holm_threshold /
+    holm_verdict / p_holm onto every row it corrects.  A p outside the family
+    is labelled a DIAGNOSTIC and is read by no grader.
+  * THE MIRROR LAW AT ERA SCALE (R59) is m2_common.mirror_paired — a
+    session-clustered PAIRED test on the per-session mirror delta, graded on
+    its HOLM-ADJUSTED p, with n_sessions and the 80%-power MDE beside it.  The
+    study-round sweep bit (`lost == 0 and won > 0`) survives only as the
+    `sweep_clean` diagnostic column and gates nothing.
+  * D-077-UPDATE(3): every number here is a SCIENCE reading; rows and receipts
+    that carry a DEPLOYABLE split say so (R77).
   * REUSE: the batch-4 estimators (gee_multi, the logit fitter, the AUC and
     cluster bootstrap, the within-session shuffle, Holm, the sign test) are
     IMPORTED from batch4_census, not re-typed; panel_score owns the veto
@@ -95,7 +107,6 @@ OUTPUT (D-018: bulk under artifacts/cache/)
 Run:  lab/run.sh port-m2-batch5 -- /usr/bin/python3 engine/port_m2/batch5_census.py
 """
 import argparse
-import math
 import os
 import sys
 import time
@@ -162,6 +173,9 @@ P025_BAND_NAMES = ("lt1h", "1h-12000s", "12000-21600s", "21600-36000s",
 # ---- item 5: the seven E1 study sessions (CC-M2-8.1 draw, in order) ---------
 STUDY_D8 = (20210701, 20210702, 20210705, 20210706, 20210707, 20210708,
             20210709)
+# R65: V2 and V3 were FITTED on study sessions 1-5 and are re-graded on 1-7, so
+# five sevenths of the pooled statistic is in-sample.  Named, not implied.
+_V2V3_FIT_D8 = STUDY_D8[:5]
 
 # ---- item 6: the event statistics ------------------------------------------
 EVENT_STATS = ("c2f_60", "c2f_300", "dbsz_min", "dasz_min", "thru_n")
@@ -170,6 +184,13 @@ EROSION_THR = 20.0
 
 BOOT_REPS = 400
 BOOT_SEED = 20260818
+# R64: a CONCENTRATOR grade is a MAX-OVER-DECILES statistic and the max of ten
+# noisy ratios clears a fixed 1.25x bar under the null far more often than 5%
+# of the time.  Every max-lift grade now carries a session-clustered null for
+# THE MAXIMUM, a bootstrap CI, and Holm membership.
+MAXLIFT_REPS = 200
+NEWS_WINDOW_MIN = B4.NEWS_WINDOW_MIN      # +/- minutes, D-077-UPDATE (R77)
+READINGS = B4.READINGS                    # ("SCIENCE", "DEPLOYABLE")
 
 PARAMS = {
     "spec_section": SECTION,
@@ -216,6 +237,35 @@ PARAMS = {
             "already computes.  Deciles cut on the FIT pool and APPLIED to the "
             "GATE echo; the raw runway band is the control.  A magnitude "
             "object: no mirror, so CONCENTRATOR is its ceiling.",
+    "mirror_law": "R59 — the ERA-SCALE form is m2_common.mirror_paired (a "
+                  "session-clustered PAIRED t-test on the per-session mirror "
+                  "delta), graded on the Holm-adjusted p, NO_TEST below %d "
+                  "sessions.  `sweep_clean` (lost == 0 and won > 0) is the "
+                  "STUDY-ROUND diagnostic and gates nothing."
+                  % MC.MIRROR_MIN_SESSIONS,
+    "row_grain_mirror": "R68 — the ROW-grain mirror is a TRUE SIGN FLIP: the "
+                        "payoff of a call on a row is +cert when the row's own "
+                        "side agrees with it and -cert when it opposes it, so "
+                        "value(-k) == -value(k) on the SAME rows.  The old "
+                        "form summed cert over the AGREEING rows and compared "
+                        "it to the sum over the DISAGREEING rows — two "
+                        "disjoint populations, and the difference was "
+                        "confounded by the session's generation-side "
+                        "asymmetry.  `agreement_null` (the agreement that "
+                        "asymmetry alone produces, computed by reassigning the "
+                        "call at random inside the session) is published on "
+                        "every row so the raw agreement is read against its "
+                        "own null and not against 0.5.",
+    "abstention": "R69 — a NO-CALL is SCORED AS A MISS as declared: it sits in "
+                  "the agreement denominator, contributes $0 to both arms, and "
+                  "its session stays in the mirror's session list.  "
+                  "`agreement_called_only` keeps the old number beside it.",
+    "deployable_reading": "D-077-UPDATE(3) / R77 — the census carries signed "
+                          "minutes to the nearest scheduled release at every "
+                          "ROW, and the concentrator/AUC/veto readings are "
+                          "reported with the +/-%.0f min restricted window "
+                          "both IN (SCIENCE) and OUT (DEPLOYABLE)."
+                          % NEWS_WINDOW_MIN,
     "veto_regrade": "V2/V3 exactly as engine/port_m2/e1d7_policy.py defines "
                     "them, over ALL SEVEN E1 study sessions.  Pre-veto pool = "
                     "the frozen five-term CORE (e1d7_policy.terms) on every "
@@ -266,7 +316,7 @@ PARAMS = {
 _F64 = ("cert_close", "cert_peak", "mae", "rv1800", "rv60", "atr",
         "unspent_sess", "prev_range", "prev_ret", "pre_cell_range",
         "entry_mid", "d_poc", "slope_1m", "range_so_far",
-        "c2f_60", "c2f_300", "dbsz_min", "dasz_min")
+        "c2f_60", "c2f_300", "dbsz_min", "dasz_min", "mins_to_release")
 _I32 = ("dec_sec", "runway_phase", "runway_binding", "phase_age",
         "extreme_age", "f60_n", "f60_vol", "f60_sflow", "f5m_vol", "f5m_sflow",
         "fph_vol", "fuel_above", "fuel_below", "fuel_total", "cell_first_dec",
@@ -419,6 +469,9 @@ def _pack(f, asset, d8):
         "pre_cell_range": f["pre_cell_range_usd"], "entry_mid": entry_mid,
         "d_poc": d_poc, "slope_1m": f["slope_1m_usd"],
         "range_so_far": f["range_so_far_usd"],
+        # R77 / D-077-UPDATE: signed minutes to the nearest scheduled release,
+        # so the DEPLOYABLE reading is computable from this census's own rows.
+        "mins_to_release": B4._mins_to_release(open_utc + dec),
         "c2f_60": ev["c2f_60"], "c2f_300": ev["c2f_300"],
         "dbsz_min": ev["dbsz_min"], "dasz_min": ev["dasz_min"],
         "dec_sec": dec, "runway_phase": f["runway_phase_sec"],
@@ -599,6 +652,17 @@ def cells_of(D):
     return cells
 
 
+def deployable_mask(D):
+    """D-077-UPDATE(1) / R77 — the rows a COMPLIANT policy may enter at all.
+
+    A row inside +/-%.0f minutes of a scheduled release is not deployable.  A
+    row whose minutes are REFUSED (no calendar coverage) is left in and the
+    count is declared in the receipt — a refusal is not silently a veto.
+    """ % NEWS_WINDOW_MIN
+    mm = D["mins_to_release"]
+    return ~(np.isfinite(mm) & (np.abs(mm) <= NEWS_WINDOW_MIN))
+
+
 def era_of_cell(c):
     return B4.era_of_cell(c)
 
@@ -656,7 +720,13 @@ def row_design(D, idx, names):
 AUC_COLUMNS = ("asset", "scope", "grain", "model", "n_train", "n_test",
                "base_rate_test", "auc", "auc_lo_boot", "auc_hi_boot", "brier",
                "brier_base", "delta_vs_open", "delta_lo_boot", "delta_hi_boot",
-               "delta_p_boot", "verdict")
+               "delta_p_boot", "verdict", "reading",
+               "holm_rank", "holm_threshold", "holm_verdict", "p_holm")
+AUC_P_COL = AUC_COLUMNS.index("delta_p_boot")
+# R62: `delta_p_boot` (4 models x 6 scopes x 4 asset groups) was published with
+# no correction at all, and CC-M2-21.1's per-asset anchor ruling was read off
+# exactly those paired CIs.  The column is in the ONE batch family now.
+# R77: `reading` names the D-077 reading these AUCs are computed under.
 
 
 def _paired_boot(y, scores, cl, reps=BOOT_REPS, seed=BOOT_SEED):
@@ -762,7 +832,9 @@ def auc_rows(D, cells, rows, robust):
             yte = has_seat(te)
             cl = np.array(["%s-%08d" % (c["asset"], c["d8"]) for c in te])
             sc = _cell_scores(D, te, m_open, m_uns, m_roll)
-            aucs, deltas = _paired_boot(yte, sc, cl)
+            aucs, deltas = _paired_boot(
+                yte, sc, cl, seed=B4._seed_for("B5AUC|%s|%s" % (aname, name),
+                                               BOOT_SEED))
             base = float(yte.mean())
             for mname in ("OPEN", "OPEN+UNS", "ROLL@open", "ROLL_MAX"):
                 a = B4.auc(yte, sc[mname])
@@ -777,18 +849,20 @@ def auc_rows(D, cells, rows, robust):
                              (None if mname == "OPEN" else dl),
                              (None if mname == "OPEN" else dh),
                              (None if mname == "OPEN" else dp),
-                             _auc_verdict(mname, d, dl, dh)])
+                             _auc_verdict(mname, d, dl, dh), "SCIENCE"])
             # ---- the rolling model's own fully-causal reading (ROW grain) ---
             yr_te = y_row_all[te_rows]
             pr = B4.predict_logit(m_roll, row_design(D, te_rows, ROW_FEATURES))
             clr = D["session_key"][te_rows]
             a = B4.auc(yr_te, pr)
-            lo, hi = B4._cluster_boot_auc(yr_te, pr, clr)
+            lo, hi = B4._cluster_boot_auc(
+                yr_te, pr, clr,
+                seed=B4._seed_for("B5ROW|%s|%s" % (aname, name), BOOT_SEED))
             rows.append([aname, name, "ROW", "ROLL", tr_rows.size,
                          te_rows.size, float(yr_te.mean()), a, lo, hi,
                          float(np.mean((pr - yr_te) ** 2)),
                          float(np.mean((yr_te.mean() - yr_te) ** 2)),
-                         None, None, None, None, "-"])
+                         None, None, None, None, "-", "SCIENCE"])
             if name.startswith("WF_"):
                 pooled["y"].append(yte)
                 pooled["cl"].append(cl)
@@ -805,7 +879,9 @@ def auc_rows(D, cells, rows, robust):
         yte = np.concatenate(pooled["y"])
         cl = np.concatenate(pooled["cl"])
         sc = {k: np.concatenate(v) for k, v in pooled["s"].items()}
-        aucs, deltas = _paired_boot(yte, sc, cl)
+        aucs, deltas = _paired_boot(
+            yte, sc, cl, seed=B4._seed_for("B5AUC|%s|WF_POOLED" % aname,
+                                           BOOT_SEED))
         base = float(yte.mean())
         for mname in ("OPEN", "OPEN+UNS", "ROLL@open", "ROLL_MAX"):
             a = B4.auc(yte, sc[mname])
@@ -820,18 +896,38 @@ def auc_rows(D, cells, rows, robust):
                          (None if mname == "OPEN" else dl),
                          (None if mname == "OPEN" else dh),
                          (None if mname == "OPEN" else dp),
-                         _auc_verdict(mname, d, dl, dh)])
+                         _auc_verdict(mname, d, dl, dh), "SCIENCE"])
         yr = np.concatenate(pooled["yrow"])
         pr = np.concatenate(pooled["srow"])
         clr = np.concatenate(pooled["clrow"])
-        lo, hi = B4._cluster_boot_auc(yr, pr, clr)
+        lo, hi = B4._cluster_boot_auc(
+            yr, pr, clr,
+            seed=B4._seed_for("B5ROW|%s|WF_POOLED" % aname, BOOT_SEED))
         rows.append([aname, "WF_POOLED", "ROW", "ROLL", pooled["n_tr"],
                      yr.size, float(yr.mean()), B4.auc(yr, pr), lo, hi,
                      float(np.mean((pr - yr) ** 2)),
                      float(np.mean((yr.mean() - yr) ** 2)),
-                     None, None, None, None, "-"])
+                     None, None, None, None, "-", "SCIENCE"])
         if aname == "ALL":
             _seat_gee(yte, sc, cl, "FIT", robust)
+    return rows
+
+
+def apply_auc_verdicts(rows):
+    """R62 — the AUC verdicts read the HOLM-ADJUSTED delta p, not a bare CI.
+
+    CC-M2-21.1's per-asset anchor ruling (4 models x 6 scopes x 4 asset groups)
+    was read off these paired CIs with no multiplicity control at all."""
+    for r in rows:
+        p = r[15]
+        if r[3] == "OPEN" or p is None or not np.isfinite(p):
+            continue
+        ph = r[21] if len(r) > 21 else float("nan")
+        ok = bool(np.isfinite(ph) and ph < 0.05)
+        r[16] = "%s [Holm p=%s -> %s]" % (
+            r[16], B4._fmt(ph, 4),
+            "SIGNIFICANT IN THE BATCH FAMILY" if ok
+            else "NOT significant after Holm")
     return rows
 
 
@@ -873,11 +969,19 @@ def _sig(p):
 
 MODEL_COLUMNS = ("model", "grain", "asset", "era", "term", "beta", "se_naive",
                  "se_cr0", "se_cr1", "z_cr1", "p_cr1", "odds_ratio_per_sd",
-                 "n", "n_clusters", "n_seats", "seat_rate")
+                 "n", "n_clusters", "n_seats", "seat_rate", "n_imputed_term",
+                 "holm_rank", "holm_threshold", "holm_verdict", "p_holm")
+MODEL_P_COL = MODEL_COLUMNS.index("p_cr1")
 
 
 def model_rows(D, cells, rows, robust):
-    """The two models' Holm-corrected coefficients (per SD, session-clustered)."""
+    """The two models' coefficients (per SD, session-clustered).
+
+    R60: the docstring said "Holm-corrected" and the p column had never been
+    corrected by anything — `robust` was taken as an argument and never
+    written to.  These rows are IN the batch family now (`_holm_family` in
+    build fills their holm_* / p_holm columns), and the imputation count per
+    term is published beside each coefficient (R71)."""
     for aname in ("ALL",) + tuple(MC.ASSET_ORDER):
         for ename in ERAS:
             sub = [c for c in cells
@@ -890,29 +994,31 @@ def model_rows(D, cells, rows, robust):
             if 0 < y.sum() < y.size:
                 cl = np.array(["%s-%08d" % (c["asset"], c["d8"]) for c in sub])
                 Xm = cell_design(sub, CELL_FEATURES_UNS)
+                nimp = B4.imputed_counts(Xm, CELL_FEATURES_UNS)[0]
                 mu, sd = B4._standardise(Xm)
                 Z = (B4._impute(Xm, mu) - mu) / sd
                 g = B4.gee_multi(y, Z, cl, link="logit")
                 if g is not None:
                     _emit_model(rows, "CELL_OPEN+UNS", "CELL", aname, ename,
-                                ("intercept",) + CELL_FEATURES_UNS, g, y)
+                                ("intercept",) + CELL_FEATURES_UNS, g, y, nimp)
             # ---- ROW grain (the rolling state) ----
             idx = np.concatenate([c["rows"] for c in sub])
             yr = D["roll_seat"][idx]
             if not (0 < yr.sum() < yr.size):
                 continue
             Xm = row_design(D, idx, ROW_FEATURES)
+            nimp = B4.imputed_counts(Xm, ROW_FEATURES)[0]
             mu, sd = B4._standardise(Xm)
             Z = (B4._impute(Xm, mu) - mu) / sd
             g = B4.gee_multi(yr, Z, D["session_key"][idx], link="logit")
             if g is None:
                 continue
             _emit_model(rows, "ROLLING", "ROW", aname, ename,
-                        ("intercept",) + ROW_FEATURES, g, yr)
+                        ("intercept",) + ROW_FEATURES, g, yr, nimp)
     return rows
 
 
-def _emit_model(rows, model, grain, aname, ename, terms, g, y):
+def _emit_model(rows, model, grain, aname, ename, terms, g, y, nimp=None):
     for j, tn in enumerate(terms):
         z = (g["beta"][j] / g["se_cr1"][j] if g["se_cr1"][j] > 0
              else float("nan"))
@@ -920,7 +1026,8 @@ def _emit_model(rows, model, grain, aname, ename, terms, g, y):
                      float(g["se_naive"][j]), float(g["se_cr0"][j]),
                      float(g["se_cr1"][j]), z, P1._p_two_sided(z),
                      float(np.exp(g["beta"][j])), g["n"], g["n_clusters"],
-                     int(y.sum()), float(y.mean())])
+                     int(y.sum()), float(y.mean()),
+                     0 if (j == 0 or nimp is None) else int(nimp[j - 1])])
 
 
 BAND_COLUMNS = ("grain", "asset", "era", "band", "lo", "hi", "n", "n_share",
@@ -986,12 +1093,18 @@ SIDE_COLUMNS = ("object", "grain", "threshold", "asset", "era", "n", "n_called",
                 "mirror_agreement", "beats_mirror", "winner_rate_agree",
                 "winner_rate_disagree", "conc_ratio", "mean_close_agree",
                 "mean_close_disagree", "est_value_usd", "mirror_value_usd",
-                "delta_value_usd", "n_sessions", "sign_test_p", "verdict")
+                "delta_value_usd", "n_sessions", "sign_test_p_diagnostic",
+                "verdict", "agreement_null", "agreement_called_only",
+                "n_rows_side_long", "n_rows_side_short", "mirror_p_holm")
 
 MIRROR_COLUMNS = ("object", "grain", "threshold", "asset", "era", "n_sessions",
                   "sessions_won", "sessions_tied", "sessions_lost",
-                  "mirror_law_holds", "mean_delta_usd", "se_session", "z", "p",
-                  "holm_rank", "holm_threshold", "holm_verdict")
+                  "sweep_clean", "mean_delta_usd", "sd_usd", "se_session", "t",
+                  "p", "p_sign", "mde_80_usd", "n_sessions_min", "verdict",
+                  "holds_pre_holm", "holm_rank", "holm_threshold",
+                  "holm_verdict", "p_holm")
+MIRROR_P_COL = MIRROR_COLUMNS.index("p")
+SIDE_KEY = (0, 1, 2, 3, 4)                 # object, grain, threshold, asset, era
 
 
 def s10_call_rows(d_poc, in_va, thr):
@@ -1007,9 +1120,36 @@ def s10_call_rows(d_poc, in_va, thr):
     return call
 
 
+def _agreement_null(sess, call, side):
+    """E[agreement] when the call is REASSIGNED AT RANDOM inside its session.
+
+    R68: the call is derived from side-INDEPENDENT geometry, so its agreeing
+    and disagreeing rows are two different populations and the raw agreement
+    is confounded by the session's own generation-side asymmetry.  This is the
+    agreement that asymmetry ALONE produces — the number the raw agreement has
+    to be read against, instead of 0.5."""
+    n_all = int(np.asarray(call).size)
+    if n_all == 0:
+        return float("nan")
+    u, gid = np.unique(sess, return_inverse=True)
+    n = np.bincount(gid, minlength=u.size).astype(np.float64)
+    out = 0.0
+    for s in (1, -1):
+        c = np.bincount(gid, weights=(call == s).astype(np.float64),
+                        minlength=u.size)
+        ns = np.bincount(gid, weights=(side == s).astype(np.float64),
+                         minlength=u.size)
+        out += float(np.sum(c * ns / np.maximum(n, 1.0)))
+    return out / float(n_all)
+
+
 def _row_side_tables(D, call, obj, grain, thr, rows, mrows, robust, destr,
                      do_gee=True):
-    """Score a ROW-grain signed call: agreement, concentration, mirror, GEE."""
+    """Score a ROW-grain signed call: agreement, concentration, mirror, GEE.
+
+    R68 (the mirror is a TRUE SIGN FLIP) and R69 (a NO-CALL is a MISS) both
+    live here; the verdict column is filled from the mirror's HOLM-ADJUSTED p
+    by `apply_side_verdicts` after the batch family is corrected."""
     for aname in ("ALL",) + tuple(MC.ASSET_ORDER):
         for ename in ERAS:
             m = (D["era"] == ename) & ((D["asset"] == aname) if aname != "ALL"
@@ -1027,27 +1167,34 @@ def _row_side_tables(D, call, obj, grain, thr, rows, mrows, robust, destr,
             agree_m = fired & (k == sd)
             dis_m = fired & (k == -sd)
             n_ag = int(agree_m.sum())
-            n_sc = int(agree_m.sum() + dis_m.sum())
+            # R69: EVERY row of the population is scoreable — the call either
+            # agrees, opposes, or abstains, and abstention is a miss.
+            n_sc = int(m.sum())
+            n_sc_called = int(agree_m.sum() + dis_m.sum())
             ag = (n_ag / n_sc) if n_sc else None
+            ag_called = (n_ag / n_sc_called) if n_sc_called else None
+            mir = (int(dis_m.sum()) / n_sc) if n_sc else None
             wr_a = float(win[agree_m].mean()) if agree_m.any() else None
             wr_d = float(win[dis_m].mean()) if dis_m.any() else None
-            ev = float(cc[agree_m].sum())
-            mv = float(cc[dis_m].sum())
-            # per-SESSION value delta (estimator minus its mirror), vectorised:
-            # the sessions a directional claim wins and loses are what the
-            # mirror law is written on, and at row grain there are ~10^6 rows.
-            _u, gid = np.unique(sess[fired], return_inverse=True)
-            signed = np.where(agree_m[fired], cc[fired],
-                              np.where(dis_m[fired], -cc[fired], 0.0))
-            dd = np.bincount(gid, weights=signed, minlength=_u.size)
+            # R68 — THE TRUE SIGN FLIP.  pay(row, k) = +cert when the row's own
+            # side agrees with the call and -cert when it opposes it, so the
+            # mirror's value is exactly -value on the SAME rows and the delta
+            # is not a comparison of two disjoint populations.
+            signed = np.where(agree_m, cc, np.where(dis_m, -cc, 0.0))
+            ev = float(signed.sum())
+            mv = -ev
+            # per-SESSION value delta (estimator minus its mirror), vectorised
+            # over EVERY session of the population — a session the call never
+            # fires in contributes an honest 0 (R69).
+            _u, gid = np.unique(sess, return_inverse=True)
+            dd = 2.0 * np.bincount(gid, weights=signed, minlength=_u.size)
             won = int((dd > 0).sum())
             lost = int((dd < 0).sum())
-            tie = int((dd == 0).sum())
             rows.append([obj, grain, thr, aname, ename, int(m.sum()),
                          int(fired.sum()),
-                         float(fired.mean()), n_sc, n_ag, ag,
-                         (1.0 - ag) if ag is not None else None,
-                         int(ag > 0.5) if ag is not None else None,
+                         float(fired.mean()), n_sc, n_ag, ag, mir,
+                         (int(ag > mir) if (ag is not None and mir is not None)
+                          else None),
                          wr_a, wr_d,
                          (wr_a / wr_d) if (wr_a is not None and wr_d)
                          else None,
@@ -1055,9 +1202,10 @@ def _row_side_tables(D, call, obj, grain, thr, rows, mrows, robust, destr,
                          float(cc[dis_m].mean()) if dis_m.any() else None,
                          ev, mv, ev - mv, int(_u.size),
                          B4._sign_test(won, lost),
-                         _side_verdict(ag, lost, won)])
-            _mirror_row(mrows, obj, grain, thr, aname, ename, dd, won, tie,
-                        lost)
+                         "PENDING_HOLM",
+                         _agreement_null(sess, k, sd), ag_called,
+                         int((sd > 0).sum()), int((sd < 0).sum()), None])
+            _mirror_row(mrows, obj, grain, thr, aname, ename, dd)
             if not (do_gee and aname == "ALL" and n_sc >= 100):
                 continue
             y = (win[fired]).astype(np.float64)
@@ -1080,7 +1228,12 @@ def _row_side_tables(D, call, obj, grain, thr, rows, mrows, robust, destr,
             if destr is not None and ename == "FIT":
                 real = (float(np.mean(cc[agree_m])) - float(np.mean(cc[dis_m]))
                         if (agree_m.any() and dis_m.any()) else float("nan"))
-                rs = np.random.RandomState(DESTRUCTION_SEED + 3)
+                # MINOR: `RandomState(DESTRUCTION_SEED + 3)` was re-created
+                # inside a per-asset loop, so every stratum sharing the offset
+                # drew the SAME permutation stream.  One seed per stratum.
+                rs = np.random.RandomState(B4._seed_for(
+                    "SIDE|%s|%s|%.0f|%s|%s" % (obj, grain, thr, aname, ename),
+                    DESTRUCTION_SEED))
                 kk = k[fired]
                 ss = sess[fired]
                 sdf = sd[fired]
@@ -1094,28 +1247,44 @@ def _row_side_tables(D, call, obj, grain, thr, rows, mrows, robust, destr,
                         null.append(float(ccf[a2].mean() - ccf[d2].mean()))
                 destr.append(B4._destr_row(
                     "%s_%s_thr%.0f" % (obj, grain, thr), ename,
-                    "the signed call (within session)", real, null))
+                    "the signed call (within session)", real, null,
+                    # what a permutation can move here is the CALL'S SIGN, so
+                    # that is the indicator the block's support is measured on
+                    # (a block whose calls are all one way is uninformative).
+                    block="SESSION", groups=ss, fire=(kk > 0), thr=thr))
     return rows
 
 
-def _side_verdict(ag, lost, won):
-    if ag is None:
-        return "NO_CALL"
-    if lost == 0 and won > 0 and ag > 0.5:
-        return "DIRECTION_CANDIDATE (beats its mirror on every session)"
-    if ag > 0.5:
-        return ("FAILS_MIRROR_LAW (agreement > 0.5 but it loses %d session(s) "
-                "— CC-M2-13.1)" % lost)
-    return "DEAD_AS_A_RULE (does not beat its own mirror)"
+def _mirror_row(mrows, obj, grain, thr, aname, ename, dd):
+    """R59 — one MIRROR_COLUMNS row from the per-session deltas, via the
+    session-clustered PAIRED test.  No verdict bit is minted here."""
+    mrows.append(B4.mirror_row([obj, grain, thr, aname, ename], dd))
 
 
-def _mirror_row(mrows, obj, grain, thr, aname, ename, dd, won, tie, lost):
-    mu = float(dd.mean()) if dd.size else float("nan")
-    se = (float(dd.std(ddof=1) / math.sqrt(dd.size)) if dd.size > 1
-          else float("nan"))
-    z = mu / se if (np.isfinite(se) and se > 0) else float("nan")
-    mrows.append([obj, grain, thr, aname, ename, int(dd.size), won, tie, lost,
-                  int(lost == 0 and won > 0), mu, se, z, P1._p_two_sided(z)])
+def apply_side_verdicts(rows, mrows):
+    """Fill every side row's VERDICT from its mirror row's HOLM-adjusted p.
+
+    R59/R78: no grader reads a sweep bit, and every side verdict in this file
+    is read off the same corrected test as the mirror table's."""
+    by = {tuple(m[i] for i in SIDE_KEY): m for m in mrows}
+    for r in rows:
+        m = by.get(tuple(r[i] for i in SIDE_KEY))
+        holds, why = B4.mirror_verdict(m)
+        ag, mir = r[10], r[11]
+        r[28] = m[23] if m is not None else None
+        if ag is None:
+            r[23] = "NO_CALL"
+        elif holds and ag > (mir if mir is not None else 0.0):
+            r[23] = ("DIRECTION_CANDIDATE (%s; agreement %.4f vs mirror %s, "
+                     "null %s)" % (why, ag, B4._fmt(mir, 4),
+                                   B4._fmt(r[24], 4)))
+        elif m is not None and m[18] != "TESTED":
+            r[23] = ("NO_TEST (%s) — an unpowered mirror is not a negative"
+                     % why)
+        else:
+            r[23] = ("DEAD_AS_A_RULE (%s; agreement %.4f vs mirror %s, null "
+                     "%s)" % (why, ag, B4._fmt(mir, 4), B4._fmt(r[24], 4)))
+    return rows
 
 
 def _cell_side_tables(cells, call, obj, thr, rows, mrows, robust):
@@ -1128,35 +1297,52 @@ def _cell_side_tables(cells, call, obj, thr, rows, mrows, robust):
                    and era_of_cell(c) == ename]
             if len(sel) < 50:
                 continue
-            called = [(cells[i], int(call[i])) for i in sel if call[i] != 0]
+            recs = [(cells[i], int(call[i])) for i in sel]
+            called = [(c, k) for c, k in recs if k != 0]
             if len(called) < 20:
                 continue
-            scor = [(c, k) for c, k in called if B4.winner_side(c) != 0]
-            n_ag = sum(1 for c, k in scor if k == B4.winner_side(c))
+            # R69: every cell with a realised winner majority is scoreable —
+            # a NO-CALL on one is a MISS, not an absence.
+            scor = [(c, k) for c, k in recs if B4.winner_side(c) != 0]
             n_sc = len(scor)
+            n_ag = sum(1 for c, k in scor if k != 0 and k == B4.winner_side(c))
+            n_mir = sum(1 for c, k in scor
+                        if k != 0 and -k == B4.winner_side(c))
+            n_sc_called = sum(1 for c, k in called if B4.winner_side(c) != 0)
             ag = (n_ag / n_sc) if n_sc else None
-            ev = sum(B4._cell_side_value(c, k) for c, k in called)
-            mv = sum(B4._cell_side_value(c, -k) for c, k in called)
+            ag_called = (n_ag / n_sc_called) if n_sc_called else None
+            mir = (n_mir / n_sc) if n_sc else None
+            ev = sum(B4._cell_side_value(c, k) for c, k in recs)
+            mv = sum(B4._cell_side_value(c, -k) for c, k in recs)
             by = {}
-            for c, k in called:
+            for c, k in recs:
                 by.setdefault((c["asset"], c["d8"]), []).append((c, k))
-            dd = np.array([sum(B4._cell_side_value(c, k) for c, k in g)
-                           - sum(B4._cell_side_value(c, -k) for c, k in g)
-                           for g in by.values()])
+            keys = sorted(by)
+            dd = np.array([sum(B4._cell_side_value(c, k)
+                               - B4._cell_side_value(c, -k) for c, k in by[s])
+                           for s in keys], dtype=np.float64)
             won = int((dd > 0).sum())
             lost = int((dd < 0).sum())
-            tie = int((dd == 0).sum())
-            wr_a = (float(np.mean([1.0 if k == B4.winner_side(c) else 0.0
-                                   for c, k in scor])) if scor else None)
+            wr_a = ((n_ag / n_sc_called) if n_sc_called else None)
+            a_null = _agreement_null(
+                np.array(["%s-%08d" % (c["asset"], c["d8"]) for c, _k in recs]),
+                np.array([k for _c, k in recs]),
+                np.array([B4.winner_side(c) for c, _k in recs]))
             rows.append([obj, "CELL", thr, aname, ename, len(sel),
                          len(called), len(called) / len(sel), n_sc, n_ag, ag,
-                         (1.0 - ag) if ag is not None else None,
-                         int(ag > 0.5) if ag is not None else None,
+                         mir,
+                         (int(ag > mir) if (ag is not None and mir is not None)
+                          else None),
                          wr_a, (1.0 - wr_a) if wr_a is not None else None,
-                         None, None, None, ev, mv, ev - mv, len(by),
-                         B4._sign_test(won, lost), _side_verdict(ag, lost, won)])
-            _mirror_row(mrows, obj, "CELL", thr, aname, ename, dd, won, tie,
-                        lost)
+                         None, None, None, ev, mv, ev - mv, len(keys),
+                         B4._sign_test(won, lost), "PENDING_HOLM", a_null,
+                         ag_called,
+                         sum(1 for c, _k in recs if B4.winner_side(c) > 0),
+                         sum(1 for c, _k in recs if B4.winner_side(c) < 0),
+                         None])
+            _mirror_row(mrows, obj, "CELL", thr, aname, ename, dd)
+            scor = [(c, k) for c, k in scor if k != 0]
+            n_sc = len(scor)
             if aname == "ALL" and n_sc >= 30:
                 y = np.array([1.0 if B4.winner_side(c) > 0 else 0.0
                               for c, _k in scor])
@@ -1192,33 +1378,58 @@ def s10_rows(D, cells, rows, mrows, robust, destr):
 
 
 def grade_s10(rows, mrows):
-    r = [x for x in rows if x[0] == "S10_SIDE" and x[1] == "ROW"
-         and x[2] == S10_THR and x[3] == "ALL" and x[4] == "FIT"]
-    c = [x for x in rows if x[0] == "S10_SIDE" and x[1] == "CELL"
-         and x[2] == S10_THR and x[3] == "ALL" and x[4] == "FIT"]
+    """R59/R68/R78 — the grade is the CELL-grain paired mirror test, read on
+    its Holm-adjusted p, with the row-grain test beside it.
+
+    R78: the mirror selector now filters on the OBJECT.  It did not, so an
+    S7_EROSION_SIDE row was eligible to decide S10's verdict — it only failed
+    to collide because S10_THR is absent from EROSION_THR_GRID and the S10
+    rows happened to be appended first.
+    R68: the CELL-grain mirror is a true sign flip on the same cell and the
+    ROW-grain one is now built as one too; both are reported."""
+    def _pick(rws, grain, thr, obj="S10_SIDE"):
+        return [x for x in rws if x[0] == obj and x[1] == grain
+                and x[2] == thr and x[3] == "ALL" and x[4] == "FIT"]
+    r = _pick(rows, "ROW", S10_THR)
+    c = _pick(rows, "CELL", S10_THR)
     if not r or not c:
         return "NULL", "no S10 rows at the declared threshold"
-    ml = [m for m in mrows if m[1] == "ROW" and m[2] == S10_THR
-          and m[3] == "ALL" and m[4] == "FIT"]
-    holds = bool(ml and ml[0][9])
+    mc = _pick(mrows, "CELL", S10_THR)
+    mr = _pick(mrows, "ROW", S10_THR)
+    holds_c, why_c = B4.mirror_verdict(mc[0] if mc else None)
+    holds_r, why_r = B4.mirror_verdict(mr[0] if mr else None)
     ar, ac = r[0][10], c[0][10]
-    if holds and ar is not None and ar > 0.5:
+    mir_c = c[0][11]
+    if holds_c and ac is not None and ac > (mir_c if mir_c is not None else 0.0):
         return ("DIRECTION_CANDIDATE",
-                "row agreement %.3f, cell agreement %s, and the mirror law "
-                "holds at $%.0f" % (ar, B4._fmt(ac, 3), S10_THR))
+                "CELL grain at $%.0f: agreement %.4f vs mirror %s (null %s); "
+                "%s. ROW grain: %s"
+                % (S10_THR, ac, B4._fmt(mir_c, 4), B4._fmt(c[0][24], 4),
+                   why_c, why_r))
+    if mc and mc[0][18] != "TESTED":
+        return ("NO_TEST",
+                "CELL grain at $%.0f is UNPOWERED: %s — this is not evidence "
+                "against S10, it is an absence of evidence. ROW grain: %s"
+                % (S10_THR, why_c, why_r))
     return ("DEAD_AS_A_RULE",
-            "row agreement %s (mirror %s) / cell agreement %s at $%.0f; "
-            "mirror law holds = %s — a directional claim that does not beat "
-            "its own mirror on every session does not exist (CC-M2-13.1)"
-            % (B4._fmt(ar, 3), B4._fmt(1 - ar if ar is not None else None, 3),
-               B4._fmt(ac, 3), S10_THR, holds))
+            "CELL agreement %s (mirror %s, null %s) / ROW agreement %s at "
+            "$%.0f; the paired session-clustered mirror test does not hold — "
+            "CELL: %s; ROW: %s"
+            % (B4._fmt(ac, 4), B4._fmt(mir_c, 4), B4._fmt(c[0][24], 4),
+               B4._fmt(ar, 4), S10_THR, why_c, why_r))
 
 
 # ================================================ item 3: P032 both grains
 P032_COLUMNS = ("field", "grain", "reading", "asset", "era", "n", "n_clusters",
                 "beta_per_sd", "se_cr1", "z_cr1", "p_cr1", "sign", "icc_rho",
                 "deff", "n_eff", "clause_n_fire", "clause_precision",
-                "clause_base_rate", "clause_recall", "verdict")
+                "clause_base_rate", "clause_recall", "verdict",
+                "holm_rank", "holm_threshold", "holm_verdict", "p_holm")
+P032_P_COL = P032_COLUMNS.index("p_cr1")
+# NOTE: `reading` here is P032's own MARGINAL-vs-PARTIAL reading, not the
+# D-077 SCIENCE/DEPLOYABLE reading — the name predates D-077-UPDATE and the
+# committed column spelling is not churned for it (D16).  Every P032 row is a
+# D-077 SCIENCE number.
 
 P032_FIELDS = (("prev_range", "prev_phase_range_usd (the day-7 S1b field)"),
                ("prev_ret_mag", "|prev_phase_ret_usd| (batch-4 prev_ret_mag)"),
@@ -1311,37 +1522,36 @@ def p032_rows(D, cells, rows, robust, destr):
                                      ic["n_eff"] if ic else float("nan"),
                                      cn, cp, cb, cr,
                                      _p032_verdict(b, p, reading)])
-                        if aname == "ALL":
-                            robust.append(["P032_%s_%s_%s" % (field, grain,
-                                                              reading), ename,
-                                           ("has_seat" if grain == "CELL"
-                                            else "winner"), "SESSION", g["n"],
-                                           g["n_clusters"], int(yv.sum()), b,
-                                           float(g["se_naive"][1]),
-                                           float(g["se_cr0"][1]), se, z, p,
-                                           ic["rho"] if ic else float("nan"),
-                                           ic["deff"] if ic else float("nan"),
-                                           ic["n_eff"] if ic else float("nan"),
-                                           _sig(p)])
-    # destruction on the day-7 clause itself, at cell grain
-    sub = [c for c in cells if era_of_cell(c) == "FIT"]
-    v = np.array([c["prev_range_usd"] for c in sub])
+    # ---- destruction on the day-7 clause itself, at cell grain -------------
+    # R67: the real edge and the null MUST be the same estimand.  The real
+    # edge's non-firing group used to EXCLUDE refused rows while the null's
+    # included them imputed to 0.0 (permanently non-firing), so the two were
+    # computed on different populations and the z meant nothing.  Both are
+    # restricted to the cells whose prior-cell range is PRESENT, and the
+    # refused cells are counted and declared instead of being folded in.
+    sub_all = [c for c in cells if era_of_cell(c) == "FIT"]
+    v_all = np.array([c["prev_range_usd"] for c in sub_all])
+    ok = np.isfinite(v_all)
+    n_refused = int((~ok).sum())
+    sub = [c for c, k in zip(sub_all, ok.tolist()) if k]
+    v = v_all[ok]
     y = has_seat(sub)
     sess = np.array(["%s-%08d" % (c["asset"], c["d8"]) for c in sub])
-    ok = np.isfinite(v)
     fire = v >= P032_CLAUSE_USD
-    real = (float(y[ok & fire].mean() - y[ok & ~fire].mean())
-            if (ok & fire).any() and (ok & ~fire).any() else float("nan"))
-    rs = np.random.RandomState(DESTRUCTION_SEED + 2)
+    real = (float(y[fire].mean() - y[~fire].mean())
+            if fire.any() and (~fire).any() else float("nan"))
+    rs = np.random.RandomState(B4._seed_for("P032|FIT|clause",
+                                            DESTRUCTION_SEED))
     null = []
-    vv = np.where(ok, v, 0.0)
     for _ in range(DESTRUCTION_REPS):
-        f2 = B4._shuffle_within(vv, sess, rs) >= P032_CLAUSE_USD
+        f2 = B4._shuffle_within(v, sess, rs) >= P032_CLAUSE_USD
         if f2.any() and (~f2).any():
             null.append(float(y[f2].mean() - y[~f2].mean()))
-    destr.append(B4._destr_row("P032_prior_cell_range>=1000", "FIT",
-                               "prev_phase_range_usd (within session)", real,
-                               null))
+    destr.append(B4._destr_row(
+        "P032_prior_cell_range>=1000", "FIT",
+        "prev_phase_range_usd (within session; %d REFUSED cells excluded from "
+        "BOTH the real edge and the null)" % n_refused, real, null,
+        block="SESSION", groups=sess, fire=fire, thr=P032_CLAUSE_USD))
     return rows
 
 
@@ -1354,12 +1564,126 @@ def _p032_verdict(b, p, reading):
     return "%s beta, %s (pre-Holm p=%.2g)" % (d.upper(), reading, p)
 
 
+# ================================================ R64: the max-over-deciles
+def _within_group_perm(gid, rng):
+    """A within-group permutation as an index array (vectorised).
+
+    The Python-loop form (`B4._shuffle_within`) costs one numpy call per
+    session; the max-lift null needs hundreds of replicates over ~10^6 rows,
+    so the same permutation is built with two lexsorts instead."""
+    n = int(gid.size)
+    base = np.lexsort((np.arange(n), gid))
+    shuf = np.lexsort((rng.random_sample(n), gid))
+    perm = np.empty(n, dtype=np.int64)
+    perm[base] = shuf
+    return perm
+
+
+def _decile_lifts(v, win, edges, base, min_n):
+    out = []
+    for k in range(edges.size - 1):
+        lo = edges[k]
+        hi = edges[k + 1] if k < edges.size - 2 else np.inf
+        b = (v >= lo) & (v < hi)
+        n = int(b.sum())
+        if n < min_n or base <= 0:
+            continue
+        out.append(float(win[b].mean()) / base)
+    return out
+
+
+def max_lift_test(v, win, sess, edges, min_n=20, reps=MAXLIFT_REPS,
+                  seed=BOOT_SEED, label=""):
+    """R64 — a CONCENTRATOR grade is the MAXIMUM of ten decile lifts, and the
+    max of ten noisy ratios clears a fixed 1.25x bar under the null far more
+    often than 5% of the time.  This is that grade's missing test:
+
+      * a NULL DISTRIBUTION FOR THE MAXIMUM, session-clustered (the carrying
+        value is permuted WITHIN the session, the same exchangeable block the
+        destruction uses, so the null keeps every session-level effect and
+        destroys only the within-session ordering);
+      * a session-cluster BOOTSTRAP CI for the observed maximum;
+      * a p that enters the batch's ONE Holm family.
+    """
+    v = np.asarray(v, dtype=np.float64)
+    win = np.asarray(win, dtype=np.float64)
+    ok = np.isfinite(v)
+    v, win, sess = v[ok], win[ok], np.asarray(sess)[ok]
+    out = {"max_lift": float("nan"), "p_null": float("nan"),
+           "null_mean": float("nan"), "null_p95": float("nan"),
+           "lo": float("nan"), "hi": float("nan"), "n_reps": 0,
+           "n": int(v.size), "n_sessions": 0, "label": label}
+    if v.size < 200 or edges.size < 3:
+        return out
+    base = float(win.mean())
+    obs = _decile_lifts(v, win, edges, base, min_n)
+    if not obs:
+        return out
+    out["max_lift"] = float(max(obs))
+    uniq, gid = np.unique(sess, return_inverse=True)
+    out["n_sessions"] = int(uniq.size)
+    rng = np.random.RandomState(seed)
+    null = []
+    for _ in range(int(reps)):
+        l = _decile_lifts(v[_within_group_perm(gid, rng)], win, edges, base,
+                          min_n)
+        if l:
+            null.append(max(l))
+    if null:
+        n = np.array(null, dtype=np.float64)
+        out["n_reps"] = int(n.size)
+        out["null_mean"] = float(n.mean())
+        out["null_p95"] = float(np.percentile(n, 95))
+        # the +1 form: a permutation p is never zero
+        out["p_null"] = float((1.0 + float((n >= out["max_lift"]).sum()))
+                              / (1.0 + n.size))
+    # session-cluster bootstrap CI of the observed maximum
+    idx_by = [np.nonzero(gid == g)[0] for g in range(uniq.size)]
+    if uniq.size >= 20:
+        rng2 = np.random.RandomState(seed + 1)
+        bs = []
+        for _ in range(100):
+            take = np.concatenate([idx_by[g] for g in
+                                   rng2.randint(0, uniq.size, uniq.size)])
+            l = _decile_lifts(v[take], win[take], edges,
+                              float(win[take].mean()), min_n)
+            if l:
+                bs.append(max(l))
+        if len(bs) >= 20:
+            out["lo"] = float(np.percentile(bs, 2.5))
+            out["hi"] = float(np.percentile(bs, 97.5))
+    return out
+
+
+_MAXLIFT = {}                              # (object, era) -> the test dict
+
+
+def _maxlift_robust(robust, obj, era, t, n_fire):
+    """The max-lift test as a row of the batch's one Holm family.
+
+    The SE columns are REFUSED (nan) rather than filled with something else:
+    this row is a permutation test, it has no sandwich SE, and a column is
+    never given a value that is not what its name says."""
+    _MAXLIFT[(obj, era)] = t
+    robust.append([obj, era, "max_decile_winner_rate_lift", "SESSION",
+                   t["n"], t["n_sessions"], int(n_fire), t["max_lift"],
+                   float("nan"), float("nan"), float("nan"), float("nan"),
+                   t["p_null"], float("nan"), float("nan"), float("nan"),
+                   ("max lift %s [95%% CI %s, %s]; null mean %s, null p95 %s, "
+                    "permutation p %s over %d replicates"
+                    % (B4._fmt(t["max_lift"], 2), B4._fmt(t["lo"], 2),
+                       B4._fmt(t["hi"], 2), B4._fmt(t["null_mean"], 2),
+                       B4._fmt(t["null_p95"], 2), B4._fmt(t["p_null"], 4),
+                       t["n_reps"]))])
+    return robust
+
+
 # ============================================== item 4: P033 runway x rv
 P033_COLUMNS = ("form", "control_band", "asset", "era", "decile", "lo", "hi",
                 "n", "n_share", "n_winners", "winner_share", "winner_rate",
                 "base_winner_rate", "winner_rate_lift", "conc_ratio",
                 "mean_close_usd", "cond_close_usd", "mean_peak_usd",
-                "frac_ge_1000_close", "n_sessions")
+                "frac_ge_1000_close", "n_sessions", "reading")
 
 
 def _p033_forms(D):
@@ -1390,9 +1714,12 @@ def p033_rows(D, rows, robust, destr):
                                 & (D["runway_binding"] < hi))
                                for k, (lo, hi) in enumerate(P025_BANDS)]):
             for aname in ("ALL",) + tuple(MC.ASSET_ORDER):
+              for reading in (READINGS if aname == "ALL" else ("SCIENCE",)):
                 for ename in ERAS:
                     m = (cmask & (D["era"] == ename) & np.isfinite(v)
                          & ((D["asset"] == aname) if aname != "ALL"
+                            else np.ones(v.size, bool))
+                         & (deployable_mask(D) if reading == "DEPLOYABLE"
                             else np.ones(v.size, bool)))
                     if m.sum() < 200:
                         continue
@@ -1423,7 +1750,8 @@ def p033_rows(D, rows, robust, destr):
                                      float(pos.mean()) if pos.size else None,
                                      float(np.nanmean(cp[b])),
                                      float((cc[b] >= 1000.0).mean()),
-                                     len(set(D["session_key"][m][b].tolist()))])
+                                     len(set(D["session_key"][m][b].tolist())),
+                                     reading])
         # ---- GEE + destruction on the continuous form -----------------------
         for ename in ERAS:
             m = (D["era"] == ename) & np.isfinite(v)
@@ -1459,7 +1787,8 @@ def p033_rows(D, rows, robust, destr):
             fire = v[m] >= thr
             real = (float(win[fire].mean() - win[~fire].mean())
                     if fire.any() and (~fire).any() else float("nan"))
-            rs = np.random.RandomState(DESTRUCTION_SEED + 4)
+            rs = np.random.RandomState(B4._seed_for("P033|%s|%s" % (form, ename),
+                                                    DESTRUCTION_SEED))
             null = []
             for _ in range(DESTRUCTION_REPS):
                 f2 = B4._shuffle_within(v[m], cl, rs) >= thr
@@ -1467,17 +1796,47 @@ def p033_rows(D, rows, robust, destr):
                     null.append(float(win[f2].mean() - win[~f2].mean()))
             destr.append(B4._destr_row("P033_%s_top_decile" % form, ename,
                                        "the product (within session)", real,
-                                       null))
+                                       null, block="SESSION", groups=cl,
+                                       fire=fire, thr=thr))
+            # ---- R64: the null for the MAX decile lift, and its CI ---------
+            t = max_lift_test(v[m], win, cl, edges,
+                              seed=B4._seed_for("MAXLIFT|P033|%s|%s"
+                                                % (form, ename), BOOT_SEED),
+                              label="P033_%s" % form)
+            _maxlift_robust(robust, "P033_%s_max_decile" % form, ename, t,
+                            int(fire.sum()))
     return rows
 
 
 def grade_p033(rows, robust):
-    """P033 is a magnitude object: CONCENTRATOR is its ceiling (no mirror)."""
+    """P033 is a magnitude object: CONCENTRATOR is its ceiling (no mirror).
+
+    R64: the grade is a MAX-OVER-TEN-DECILES statistic, so the fixed 1.25x bar
+    is not a test on its own — the max of ten noisy ratios clears it routinely
+    under the null.  The grade now REQUIRES the session-clustered max-lift null
+    to reject at the Holm-adjusted level as well, and quotes the null's own
+    mean and 95th percentile so the bar is visible.  (`robust` used to be taken
+    and never read; it carries the test.)"""
     top = [r for r in rows if r[0] == "PRODUCT_runway_x_rv1800"
-           and r[1] == "ALL" and r[2] == "ALL" and r[3] == "FIT"]
+           and r[1] == "ALL" and r[2] == "ALL" and r[3] == "FIT"
+           and r[20] == "SCIENCE"]
     if not top:
         return "NULL", "no decile table"
     lift = max((r[13] for r in top if r[13] is not None), default=None)
+    obj = "P033_PRODUCT_runway_x_rv1800_max_decile"
+    mx = [r for r in robust if r[0] == obj and r[1] == "FIT"]
+    mxr = mx[0] if mx else None
+    t = _MAXLIFT.get((obj, "FIT"))
+    p_holm = (mxr[20] if (mxr is not None and len(mxr) > 20) else float("nan"))
+    null_txt = (("max lift %s [95%% CI %s, %s] vs a session-clustered null "
+                 "whose own mean is %s and 95th percentile %s; permutation "
+                 "p=%s, Holm p=%s"
+                 % (B4._fmt(t["max_lift"], 2), B4._fmt(t["lo"], 2),
+                    B4._fmt(t["hi"], 2), B4._fmt(t["null_mean"], 2),
+                    B4._fmt(t["null_p95"], 2), B4._fmt(t["p_null"], 4),
+                    B4._fmt(p_holm, 4)))
+                if t is not None else "no max-lift null computed")
+    sig = bool(np.isfinite(p_holm) and p_holm < 0.05)
     # the within-band control is only readable where the band's decile has
     # enough rows to mean anything: a 30-row decile inside a narrow runway band
     # can post any lift at all, and quoting it would be the artefact P020's
@@ -1488,17 +1847,24 @@ def grade_p033(rows, robust):
     within = max(ctrl, key=lambda r: r[13]) if ctrl else None
     if lift is None:
         return "NULL", "no winner-rate lift"
-    if lift >= CONCENTRATOR_MIN:
+    if lift >= CONCENTRATOR_MIN and sig:
         return ("CONCENTRATOR",
                 "top-decile winner-rate lift %.2fx pooled; best WITHIN-runway-"
                 "band decile lift %s (band %s, decile %s, n>=500) — the "
-                "product is not the runway wearing a new hat. FEATURE "
+                "product is not the runway wearing a new hat. %s. FEATURE "
                 "CANDIDATE ONLY: a feasibility object with no mirror can never "
                 "be an entry rule"
                 % (lift, B4._fmt(within[13], 2) if within else ".",
                    within[1] if within else "-",
-                   within[4] if within else "-"))
-    return "NULL", "winner-rate lift %.2fx < %.2f" % (lift, CONCENTRATOR_MIN)
+                   within[4] if within else "-", null_txt))
+    if lift >= CONCENTRATOR_MIN:
+        return ("NULL_MAX_NOT_SIGNIFICANT",
+                "the max decile lift %.2fx clears the %.2fx bar but NOT its "
+                "own null: %s — a max over ten deciles clears a fixed bar "
+                "routinely under the null (R64)"
+                % (lift, CONCENTRATOR_MIN, null_txt))
+    return "NULL", ("winner-rate lift %.2fx < %.2f (%s)"
+                    % (lift, CONCENTRATOR_MIN, null_txt))
 
 
 # ======================================== item 5: the V2/V3 pooled re-grade
@@ -1528,7 +1894,7 @@ def _row_dict(D, t):
     }
 
 
-def veto_regrade(D, rows, srows):
+def veto_regrade(D, rows, srows, robust=None):
     """V2/V3 over ALL SEVEN study sessions, with the seat-spender split.
 
     The pre-veto pool is the frozen five-term CORE on every candidate of the
@@ -1543,9 +1909,13 @@ def veto_regrade(D, rows, srows):
     recs, fires = [], {"V2": set(), "V3": set(), "V2_OR_V3": set(),
                        "V2_SOLE": set(), "V3_SOLE": set()}
     n_core = 0
+    dm = deployable_mask(D)                # R77: the D-077 exposure of this pool
+    n_news_takes = 0
     for t in idx.tolist():
         r = _row_dict(D, t)
         core_ok = all(P7.terms(r).values())
+        if core_ok and not dm[t]:
+            n_news_takes += 1
         cid = r["cid"]
         recs.append({"cid": cid, "call": (PS.CALL_TAKE if core_ok
                                           else PS.CALL_SKIP),
@@ -1604,6 +1974,15 @@ def veto_regrade(D, rows, srows):
         dd = np.array(deltas)
         won = int((dd > 0).sum())
         lost = int((dd < 0).sum())
+        # R65: the pooled verdict had NO significance requirement at all —
+        # `RETAIN` was returned on d > 0.  The per-session replay deltas are a
+        # PAIRED, session-clustered sample (the same session is replayed with
+        # and without the veto), so they get the same test the mirror law uses,
+        # with its power floor: below it the answer is NO_TEST, not RETAIN.
+        pt = MC.mirror_paired(dd)
+        # R65 again: five of the seven sessions V2/V3 were FITTED on are in
+        # this population, so the pooled statistic is 5/7 IN-SAMPLE.
+        n_sess_here = len({(o["asset"], o["date8"]) for o in vt + st})
         out = {
             "n_study_sessions": len({(o["outcome"]["asset"],
                                       o["outcome"]["date8"]) for o in takes}),
@@ -1630,7 +2009,25 @@ def veto_regrade(D, rows, srows):
             "capture_pre": pre_tot["capture"], "capture_post": post_tot["capture"],
             "sessions_improved": won, "sessions_hurt": lost,
             "sessions_unchanged": int((dd == 0).sum()),
-            "sign_test_p": B4._sign_test(won, lost),
+            "sign_test_p_diagnostic": B4._sign_test(won, lost),
+            # the test of record for the replay delta (R65)
+            "replay_delta_n_clusters": pt["n_sessions"],
+            "replay_delta_mean_usd": pt["mean_delta"],
+            "replay_delta_se_usd": pt["se"],
+            "replay_delta_t": pt["t"],
+            "replay_delta_p": pt["p"],
+            "replay_delta_mde80_usd": pt["mde_80"],
+            "replay_delta_test_verdict": pt["verdict"],
+            "min_clusters_for_a_test": MC.MIRROR_MIN_SESSIONS,
+            "in_sample_sessions": len([d for d in STUDY_D8
+                                       if d in _V2V3_FIT_D8]),
+            "in_sample_session_frac": (float(len([d for d in STUDY_D8
+                                                  if d in _V2V3_FIT_D8]))
+                                       / max(len(STUDY_D8), 1)),
+            "n_session_asset_clusters": n_sess_here,
+            "reading": "SCIENCE (D-077-UPDATE(3)) — see "
+                       "n_core_takes_in_news_window",
+            "n_core_takes_in_news_window": int(n_news_takes),
             "DP_vetoed_seat_spenders": summ.get("DP_vetoed_seat_spenders", 0),
             "REPLAY_vetoed_seat_spenders":
                 summ.get("REPLAY_vetoed_seat_spenders", 0),
@@ -1639,6 +2036,13 @@ def veto_regrade(D, rows, srows):
             "replay_inert": summ.get("replay_inert", 0),
         }
         out["verdict"] = _veto_verdict(out)
+        if robust is not None:
+            robust.append(["VETO_%s_replay_delta" % fam, "STUDY_7",
+                           "replay_delta_usd", "SESSION_ASSET",
+                           int(idx.size), pt["n_sessions"], len(vt),
+                           pt["mean_delta"], float("nan"), float("nan"),
+                           pt["se"], pt["t"], pt["p"], float("nan"),
+                           float("nan"), float("nan"), out["verdict"][:120]])
         for k in sorted(out):
             rows.append([fam, "POOLED_7_SESSIONS", k, out[k]])
         for vr in vrows:
@@ -1654,21 +2058,41 @@ def veto_regrade(D, rows, srows):
 
 
 def _veto_verdict(o):
+    """R65 — a verdict with an inference in it, and its in-sample fraction.
+
+    `RETAIN on d > 0` was not a criterion: it had no p, no CI and no power
+    statement, and 5 of the 7 sessions it is computed on are the sessions V2
+    and V3 were FITTED on.  Both facts are now in the verdict string."""
+    tail = (" [%d/%d sessions IN-SAMPLE (V2/V3 were fitted on study sessions "
+            "1-5); %d session-asset clusters; paired replay-delta test: %s, "
+            "mean %+.2f, se %s, p %s, mde80 %s]"
+            % (o["in_sample_sessions"], len(STUDY_D8),
+               o["n_session_asset_clusters"], o["replay_delta_test_verdict"],
+               o["replay_delta_mean_usd"], B4._fmt(o["replay_delta_se_usd"], 2),
+               B4._fmt(o["replay_delta_p"], 4),
+               B4._fmt(o["replay_delta_mde80_usd"], 2)))
     if o["replay_inert"]:
         return ("REPLAY-INERT — the family touches no seat-spender in either "
                 "reading, so it cannot move the money whatever its pooled row "
-                "statistic says (ERA_NOTES §67)")
+                "statistic says (ERA_NOTES §67)" + tail)
     d = o["replay_delta_usd"]
-    if d > 0 and o["sessions_hurt"] == 0:
-        return ("RETAIN — pooled replay delta %+.2f with %d session(s) "
-                "improved and none hurt" % (d, o["sessions_improved"]))
+    sig = bool(np.isfinite(o["replay_delta_p"]) and o["replay_delta_p"] < 0.05
+               and o["replay_delta_test_verdict"] == "TESTED")
+    if d > 0 and sig:
+        return ("RETAIN — pooled replay delta %+.2f, significant as a paired "
+                "session-clustered test" % d + tail)
     if d > 0:
-        return ("RETAIN (CONTESTED) — pooled replay delta %+.2f but it loses "
-                "%d session(s)" % (d, o["sessions_hurt"]))
-    return ("DROP — pooled replay delta %+.2f over seven sessions (%d "
-            "improved / %d hurt), %d D-021 winners refused"
+        return ("RETAIN_UNPROVEN — pooled replay delta %+.2f with NO "
+                "significant paired test behind it (%d improved / %d hurt)"
+                % (d, o["sessions_improved"], o["sessions_hurt"]) + tail)
+    if d < 0 and sig:
+        return ("DROP — pooled replay delta %+.2f, significant against it"
+                % d + tail)
+    return ("DROP_UNPROVEN — pooled replay delta %+.2f over seven sessions "
+            "(%d improved / %d hurt), %d D-021 winners refused, no "
+            "significant test either way"
             % (d, o["sessions_improved"], o["sessions_hurt"],
-               o["n_winners_vetoed"]))
+               o["n_winners_vetoed"]) + tail)
 
 
 # ================================= item 6: the S7/S8 event-statistic censuses
@@ -1676,7 +2100,7 @@ EVENT_COLUMNS = ("stat", "asset", "era", "decile", "lo", "hi", "n", "n_share",
                  "n_winners", "winner_share", "winner_rate",
                  "base_winner_rate", "winner_rate_lift", "conc_ratio",
                  "mean_close_usd", "cond_close_usd", "mean_peak_usd",
-                 "n_sessions", "verdict")
+                 "n_sessions", "verdict", "reading")
 
 
 def event_rows(D, rows, robust, destr):
@@ -1696,9 +2120,12 @@ def event_rows(D, rows, robust, destr):
         edges = np.unique(np.percentile(v[fitm],
                                         np.linspace(0, 100, P033_DECILES + 1)))
         for aname in ("ALL",) + tuple(MC.ASSET_ORDER):
+          for reading in (READINGS if aname == "ALL" else ("SCIENCE",)):
             for ename in ERAS:
                 m = ((D["era"] == ename) & np.isfinite(v)
                      & ((D["asset"] == aname) if aname != "ALL"
+                        else np.ones(v.size, bool))
+                     & (deployable_mask(D) if reading == "DEPLOYABLE"
                         else np.ones(v.size, bool)))
                 if m.sum() < 200:
                     continue
@@ -1730,19 +2157,43 @@ def event_rows(D, rows, robust, destr):
                                  float(pos.mean()) if pos.size else None,
                                  float(np.nanmean(cp[b])),
                                  len(set(D["session_key"][m][b].tolist())),
-                                 "-"])
+                                 "-", reading])
                 if aname == "ALL":
+                    # R64: the verdict is the MAXIMUM of ten decile lifts, so
+                    # it is graded against a session-clustered null for the
+                    # MAXIMUM (with a CI and Holm membership), never against a
+                    # bare 1.25x bar.
+                    t = max_lift_test(
+                        vv, win, D["session_key"][m], edges,
+                        seed=B4._seed_for("MAXLIFT|%s|%s|%s"
+                                          % (stat, ename, reading), BOOT_SEED),
+                        label="EVENT_%s" % stat)
+                    if reading == "SCIENCE":
+                        _maxlift_robust(robust, "EVENT_%s_max_decile" % stat,
+                                        ename, t, int(m.sum()))
+                    ok_bar = (best is not None and best >= CONCENTRATOR_MIN)
+                    ok_null = bool(np.isfinite(t["p_null"])
+                                   and t["p_null"] < 0.05)
+                    txt = ("CONCENTRATOR_CANDIDATE (best decile lift %s; %s)"
+                           if (ok_bar and ok_null) else
+                           ("NULL_MAX_NOT_SIGNIFICANT (best decile lift %s "
+                            "clears the bar but not its own null; %s)"
+                            if ok_bar else "NULL (best decile lift %s; %s)"))
+                    txt = txt % (B4._fmt(best, 2),
+                                 "null mean %s, null p95 %s, permutation p %s"
+                                 % (B4._fmt(t["null_mean"], 2),
+                                    B4._fmt(t["null_p95"], 2),
+                                    B4._fmt(t["p_null"], 4)))
                     for i in range(len(rows) - 1, -1, -1):
-                        if rows[i][0] != stat or rows[i][1] != aname \
-                                or rows[i][2] != ename:
+                        if (rows[i][0] != stat or rows[i][1] != aname
+                                or rows[i][2] != ename
+                                or rows[i][19] != reading):
                             break
-                        rows[i][18] = ("CONCENTRATOR (best decile lift %.2fx)"
-                                       % best if (best is not None
-                                                  and best >= CONCENTRATOR_MIN)
-                                       else "NULL (best decile lift %s)"
-                                       % B4._fmt(best, 2))
+                        rows[i][18] = txt
                 # ---- GEE on the continuous statistic ------------------------
-                if aname != "ALL":
+                # (SCIENCE only: the DEPLOYABLE pass re-reads the same tests on
+                # a subset and must not double-count in the Holm family.)
+                if aname != "ALL" or reading != "SCIENCE":
                     continue
                 z0 = (vv - vv.mean()) / max(vv.std(), 1e-9)
                 cl = D["session_key"][m]
@@ -1769,7 +2220,9 @@ def event_rows(D, rows, robust, destr):
                 fire = vv >= thr
                 real = (float(win[fire].mean() - win[~fire].mean())
                         if fire.any() and (~fire).any() else float("nan"))
-                rs = np.random.RandomState(DESTRUCTION_SEED + 5)
+                rs = np.random.RandomState(B4._seed_for(
+                    "EVENT|%s|%s|%s" % (stat, ename, reading),
+                    DESTRUCTION_SEED))
                 null = []
                 for _ in range(DESTRUCTION_REPS):
                     f2 = B4._shuffle_within(vv, cl, rs) >= thr
@@ -1777,7 +2230,8 @@ def event_rows(D, rows, robust, destr):
                         null.append(float(win[f2].mean() - win[~f2].mean()))
                 destr.append(B4._destr_row("EVENT_%s_top_decile" % stat, ename,
                                            "%s (within session)" % stat, real,
-                                           null))
+                                           null, block="SESSION", groups=cl,
+                                           fire=fire, thr=thr))
     return rows
 
 
@@ -1816,6 +2270,16 @@ def report(D, cells, res, elapsed, pins):
           FIT_YEARS[-1], GATE_YEAR))
     A_("* HOLDOUT: %d sessions with d8 >= %d were NEVER LOADED (CC-M2-15.3)."
        % (D["n_quarantined"], HOLDOUT_FROM_D8))
+    A_("* D-077-UPDATE(3): every number below is a **SCIENCE** reading unless "
+       "its row says DEPLOYABLE. %d of %d rows sit inside the +/-%.0f-minute "
+       "restricted window around a scheduled release and cannot be entered by "
+       "a compliant policy (R77)."
+       % (int((~deployable_mask(D)).sum()), int(D["dec_sec"].size),
+          NEWS_WINDOW_MIN))
+    A_("* R59: no verdict in this file reads a sweep bit. Every directional "
+       "verdict is the session-clustered PAIRED mirror test on its "
+       "Holm-adjusted p, with NO_TEST below %d sessions."
+       % MC.MIRROR_MIN_SESSIONS)
     A_("* runtime %.1fs; pins %s"
        % (elapsed, "HELD" if not pins else "MOVED: " + "; ".join(pins)))
     A_("")
@@ -1826,16 +2290,16 @@ def report(D, cells, res, elapsed, pins):
        "winner), the same test cells, PAIRED session-cluster bootstrap:")
     A_("")
     A_("| asset | scope | grain | model | n_test | base | AUC | 95% CI | "
-       "dAUC vs cell-open | paired 95% CI | p | verdict |")
-    A_("|---|---|---|---|---|---|---|---|---|---|---|---|")
+       "dAUC vs cell-open | paired 95% CI | p | p_Holm | verdict |")
+    A_("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for r in res["auc"]:
         if r[0] != "ALL":
             continue
         A_("| %s | %s | %s | %s | %d | %s | **%s** | [%s, %s] | %s | [%s, %s] "
-           "| %s | %s |"
+           "| %s | %s | %s |"
            % (r[0], r[1], r[2], r[3], r[5], _fmt(r[6], 3), _fmt(r[7], 4),
               _fmt(r[8], 3), _fmt(r[9], 3), _fmt(r[12], 4), _fmt(r[13], 4),
-              _fmt(r[14], 4), _fmt(r[15], 4), r[16]))
+              _fmt(r[14], 4), _fmt(r[15], 4), _fmt(r[21], 4), r[16]))
     A_("")
     A_("Per asset (pooled walk-forward + the GATE echo):")
     A_("")
@@ -1862,56 +2326,72 @@ def report(D, cells, res, elapsed, pins):
     A_("")
     A_("### the models' coefficients (FIT, ALL assets, per SD, CR1)")
     A_("")
-    A_("| model | grain | term | beta | se_CR1 | z | p |")
-    A_("|---|---|---|---|---|---|---|")
+    A_("R60: these p-values are IN the batch's one Holm family — the "
+       "docstring asserted a correction the numbers had never had.")
+    A_("")
+    A_("| model | grain | term | beta | se_CR1 | z | p | p_Holm | Holm | "
+       "imputed |")
+    A_("|---|---|---|---|---|---|---|---|---|---|")
     for r in res["model"]:
         if r[2] != "ALL" or r[3] != "FIT":
             continue
-        A_("| %s | %s | %s | %s | %s | %s | %s |"
+        A_("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %d |"
            % (r[0], r[1], r[4], _fmt(r[5], 4), _fmt(r[8], 4), _fmt(r[9], 2),
-              _fmt(r[10], 5)))
+              _fmt(r[10], 5), _fmt(r[20], 5), r[19], r[16]))
     A_("")
 
     A_("## 2. S10 SIDE GEOMETRY (d_POC sign + in_VA) UNDER THE MIRROR LAW")
     A_("")
+    A_("R68: the ROW-grain mirror is a TRUE SIGN FLIP (+cert when the row's "
+       "own side agrees with the call, -cert when it opposes), so the two arms "
+       "are the same rows and not two disjoint populations. R69: a NO-CALL is "
+       "a MISS, so `agreement` is over EVERY row of the population — read it "
+       "against `null` (the agreement the session's own generation-side "
+       "asymmetry produces), never against 0.5.")
+    A_("")
     A_("| grain | thr $ | era | n | called | scoreable | agreement | mirror | "
-       "winner rate agree | disagree | delta value $ | sign-test p | verdict |")
-    A_("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+       "null | agree(called) | delta value $ | sign p (diag) | p_Holm | "
+       "verdict |")
+    A_("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for r in res["s10"]:
         if r[3] != "ALL" or r[0] != "S10_SIDE":
             continue
-        A_("| %s | %s | %s | %d | %d | %d | %s | %s | %s | %s | %s | %s | %s |"
-           % (r[1], _fmt(r[2], 0), r[4], r[5], r[6], r[8], _fmt(r[10], 3),
-              _fmt(r[11], 3), _fmt(r[13], 4), _fmt(r[14], 4), _fmt(r[20], 0),
-              _fmt(r[22], 4), r[23]))
+        A_("| %s | %s | %s | %d | %d | %d | %s | %s | %s | %s | %s | %s | %s | "
+           "%s |"
+           % (r[1], _fmt(r[2], 0), r[4], r[5], r[6], r[8], _fmt(r[10], 4),
+              _fmt(r[11], 4), _fmt(r[24], 4), _fmt(r[25], 4), _fmt(r[20], 0),
+              _fmt(r[22], 4), _fmt(r[28], 5), r[23]))
     A_("")
-    A_("### the mirror law, per session (CC-M2-13.1)")
+    A_("### the mirror law at era scale — the PAIRED session-clustered test")
     A_("")
-    A_("| object | grain | thr | era | sessions | won | tied | lost | "
-       "mirror law holds | mean delta $ | Holm |")
-    A_("|---|---|---|---|---|---|---|---|---|---|---|")
+    A_("| object | grain | thr | era | sessions | won | tied | lost | sweep | "
+       "mean delta $ | se | t | p | p_Holm | mde80 $ | verdict | Holm |")
+    A_("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for r in res["mirror"]:
         if r[3] != "ALL" or r[0] != "S10_SIDE":
             continue
-        A_("| %s | %s | %s | %s | %d | %d | %d | %d | **%d** | %s | %s |"
+        A_("| %s | %s | %s | %s | %d | %d | %d | %d | %d | %s | %s | %s | %s | "
+           "%s | %s | **%s** | %s |"
            % (r[0], r[1], _fmt(r[2], 0), r[4], r[5], r[6], r[7], r[8], r[9],
-              _fmt(r[10], 0), r[16]))
+              _fmt(r[10], 0), _fmt(r[12], 1), _fmt(r[13], 2), _fmt(r[14], 5),
+              _fmt(r[23], 5), _fmt(r[16], 0), r[18], r[22]))
     A_("")
     A_("VERDICT S10 SIDE: **%s** — %s" % res["grade_s10"])
     A_("")
 
     A_("## 3. P032 PRIOR_CELL_TRAVEL — THE SIGN CONTRADICTION")
     A_("")
-    A_("| field | grain | reading | era | n | beta/SD | z | p | sign | "
-       "clause fires | clause precision | base rate | clause recall |")
-    A_("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+    A_("| field | grain | reading | era | n | beta/SD | z | p | p_Holm | Holm "
+       "| sign | clause fires | clause precision | base rate | clause recall |")
+    A_("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for r in res["p032"]:
         if r[3] != "ALL":
             continue
-        A_("| %s | %s | %s | %s | %d | %s | %s | %s | **%s** | %s | %s | %s | "
-           "%s |"
+        A_("| %s | %s | %s | %s | %d | %s | %s | %s | %s | %s | **%s** | %s | "
+           "%s | %s | %s |"
            % (r[0], r[1], r[2], r[4], r[5], _fmt(r[7], 4), _fmt(r[9], 2),
-              _fmt(r[10], 5), r[11], (r[15] if r[15] is not None else "-"),
+              _fmt(r[10], 5), _fmt(r[23], 5), r[22], r[11],
+              (r[15] if r[15] is not None else "-"),
               _fmt(r[16], 3), _fmt(r[17], 3), _fmt(r[18], 3)))
     A_("")
 
@@ -1921,7 +2401,8 @@ def report(D, cells, res, elapsed, pins):
        "mean close $ | cond close $ |")
     A_("|---|---|---|---|---|---|---|---|---|")
     for r in res["p033"]:
-        if r[2] != "ALL" or r[3] != "FIT" or r[1] != "ALL":
+        if (r[2] != "ALL" or r[3] != "FIT" or r[1] != "ALL"
+                or r[20] != "SCIENCE"):
             continue
         A_("| %s | %s | %d | %d | %s | %s | %s | %s | %s |"
            % (r[0], r[1], r[4], r[7], _fmt(r[11], 4), _fmt(r[13], 2),
@@ -1933,7 +2414,8 @@ def report(D, cells, res, elapsed, pins):
     A_("|---|---|---|---|---|")
     for r in res["p033"]:
         if (r[0] != "PRODUCT_runway_x_rv1800" or r[1] == "ALL"
-                or r[2] != "ALL" or r[3] != "FIT" or r[4] not in (0, 4, 8, 9)):
+                or r[2] != "ALL" or r[3] != "FIT" or r[4] not in (0, 4, 8, 9)
+                or r[20] != "SCIENCE"):
             continue
         A_("| %s | %d | %d | %s | %s |"
            % (r[1], r[4], r[7], _fmt(r[11], 4), _fmt(r[13], 2)))
@@ -1969,10 +2451,15 @@ def report(D, cells, res, elapsed, pins):
     A_("| stat | era | top decile n | winner rate | base | lift | "
        "mean close $ | verdict |")
     A_("|---|---|---|---|---|---|---|---|")
+    A_("R64: the verdict is the MAX of ten decile lifts and it is graded "
+       "against a session-clustered null for THAT MAXIMUM, not against a bare "
+       "1.25x bar.")
+    A_("")
     for r in res["events"]:
-        if r[1] != "ALL" or r[3] != max(
+        if r[1] != "ALL" or r[19] != "SCIENCE" or r[3] != max(
                 (x[3] for x in res["events"]
-                 if x[0] == r[0] and x[1] == "ALL" and x[2] == r[2]),
+                 if x[0] == r[0] and x[1] == "ALL" and x[2] == r[2]
+                 and x[19] == "SCIENCE"),
                 default=-1):
             continue
         A_("| %s | %s | %d | %s | %s | %s | %s | %s |"
@@ -1982,15 +2469,19 @@ def report(D, cells, res, elapsed, pins):
     A_("### the erosion SIDE claim under the mirror law")
     A_("")
     A_("| thr | era | called | agreement | mirror | delta value $ | won/lost | "
-       "verdict |")
+       "verdict |")  # noqa: E501
     A_("|---|---|---|---|---|---|---|---|")
+    A_("R68 applies here too: this is the ROW form and it is a true sign flip "
+       "now. CC-M2-21.5's erosion-side verdict was read off the OLD row form.")
+    A_("")
     for r in res["s10"]:
         if r[0] != "S7_EROSION_SIDE" or r[3] != "ALL":
             continue
         mm = [m for m in res["mirror"] if m[0] == "S7_EROSION_SIDE"
-              and m[2] == r[2] and m[3] == "ALL" and m[4] == r[4]]
+              and m[1] == r[1] and m[2] == r[2] and m[3] == "ALL"
+              and m[4] == r[4]]
         A_("| %s | %s | %d | %s | %s | %s | %s | %s |"
-           % (_fmt(r[2], 0), r[4], r[6], _fmt(r[10], 3), _fmt(r[11], 3),
+           % (_fmt(r[2], 0), r[4], r[6], _fmt(r[10], 4), _fmt(r[11], 4),
               _fmt(r[20], 0),
               ("%d/%d" % (mm[0][6], mm[0][8])) if mm else "-", r[23]))
     A_("")
@@ -2007,24 +2498,35 @@ def report(D, cells, res, elapsed, pins):
     A_("")
     A_("SURVIVES = the real edge clears its own within-session shuffle by >= 2 "
        "sd; DESTROYED = it sits inside the null; **INVERTED = it sits BELOW "
-       "the null**, i.e. the field carries information against the claim.")
+       "the null**, i.e. the field carries information against the claim; "
+       "**DEGENERATE_NULL = the permutation block cannot produce a null and "
+       "no z is emitted** (R66).")
     A_("")
 
-    A_("## 8. EVERY GEE TEST, ONE HOLM FAMILY (%d tests)"
-       % len([r for r in res["robust"] if np.isfinite(r[12])]))
+    A_("## 8. ONE HOLM FAMILY OVER THE WHOLE BATCH (%d tests)"
+       % res.get("n_family", 0))
+    A_("")
+    A_("R61: the family spans every table that publishes a test — the GEEs, "
+       "the model coefficients, the paired mirror tests, the paired dAUC "
+       "bootstrap, P032's betas, the max-decile-lift nulls and the V2/V3 "
+       "replay test. It used to be two disjoint families with four more "
+       "tables of p-values outside both.")
     A_("")
     A_("| object | era | metric | n | clusters | beta | se_CR1 | z | p | "
-       "n_eff | Holm |")
-    A_("|---|---|---|---|---|---|---|---|---|---|---|")
+       "p_Holm | n_eff | Holm |")
+    A_("|---|---|---|---|---|---|---|---|---|---|---|---|")
     for r in res["robust"]:
         if r[19] != "HOLM_SIGNIFICANT":
             continue
-        A_("| %s | %s | %s | %d | %d | %s | %s | %s | %s | %s | %s |"
+        A_("| %s | %s | %s | %d | %d | %s | %s | %s | %s | %s | %s | %s |"
            % (r[0], r[1], r[2], r[4], r[5], _fmt(r[7], 4), _fmt(r[10], 4),
-              _fmt(r[11], 2), _fmt(r[12], 6), _fmt(r[15], 0), r[19]))
+              _fmt(r[11], 2), _fmt(r[12], 6), _fmt(r[20], 6), _fmt(r[15], 0),
+              r[19]))
     A_("")
-    A_("(only the Holm-significant rows are rendered; BATCH5_ROBUST.tsv "
-       "carries every test.)")
+    A_("(only the Holm-significant GEE rows are rendered; BATCH5_ROBUST.tsv "
+       "carries every test, and S10_MIRROR / SEAT_ROLLING_MODEL / "
+       "SEAT_ROLLING_AUC / P032_GRAINS carry their own Holm columns from the "
+       "same family.)")
     return "\n".join(L) + "\n"
 
 
@@ -2032,6 +2534,7 @@ def report(D, cells, res, elapsed, pins):
 def build(workers=6, limit_sessions=None, want_events=True):
     t0 = time.time()
     MC.verify_spec(force=True)
+    _MAXLIFT.clear()                       # no stale test across two builds
     D = scan(workers=workers, limit_sessions=limit_sessions,
              want_events=want_events)
     D["roll_seat"] = rolling_seat_state(D)
@@ -2054,14 +2557,23 @@ def build(workers=6, limit_sessions=None, want_events=True):
     res["p032"] = p032_rows(D, cells, [], robust, destr)
     res["p033"] = p033_rows(D, [], robust, destr)
     MC.hb("batch5: P032/P033 done")
-    res["veto"], res["veto_sessions"] = veto_regrade(D, [], [])
+    res["veto"], res["veto_sessions"] = veto_regrade(D, [], [], robust)
     MC.hb("batch5: V2/V3 pooled re-grade done")
     res["events"] = (event_rows(D, [], robust, destr) if want_events else [])
     if want_events:
         erosion_side_rows(D, side_rows, mir_rows, robust, destr)
     res["s10"] = side_rows
-    res["mirror"] = B4._holm(mir_rows, 13, len(MIRROR_COLUMNS))
-    B4._holm(robust, 12, len(B4.ROBUST_COLUMNS))
+    res["mirror"] = mir_rows
+    # R61 — ONE family across every table of this batch that publishes a test.
+    res["n_family"] = B4._holm_family(
+        [(robust, B4.ROBUST_P_COL, len(B4.ROBUST_COLUMNS)),
+         (mir_rows, MIRROR_P_COL, len(MIRROR_COLUMNS)),
+         (res["model"], MODEL_P_COL, len(MODEL_COLUMNS)),
+         (res["auc"], AUC_P_COL, len(AUC_COLUMNS)),
+         (res["p032"], P032_P_COL, len(P032_COLUMNS))])
+    # every side verdict is read off the CORRECTED mirror p (R59/R78)
+    apply_side_verdicts(side_rows, mir_rows)
+    apply_auc_verdicts(res["auc"])
     res["robust"] = robust
     res["destr"] = destr
     res["grade_s10"] = grade_s10(res["s10"], res["mirror"])
@@ -2113,38 +2625,76 @@ def build(workers=6, limit_sessions=None, want_events=True):
                      "the causal-at-open control and the ROW rows are the "
                      "rolling model's own fully-causal reading",
                      "delta_* are PAIRED: the same bootstrap sessions score "
-                     "every model"])
+                     "every model; delta_p_boot is IN the batch's one Holm "
+                     "family and p_holm is its adjusted value (R62)",
+                     "reading = SCIENCE (D-077-UPDATE(3)): these AUCs do not "
+                     "exclude the restricted news window; batch 4's "
+                     "SEAT_AUC.tsv carries the DEPLOYABLE split of the same "
+                     "seat object (R77)"])
     W(os.path.join(OUT_DIR, "SEAT_ROLLING_MODEL.tsv"), SECTION, phash,
       list(MODEL_COLUMNS), res["model"],
-      extra=extra + ["betas are per STANDARD DEVIATION of the feature"])
+      extra=extra + ["betas are per STANDARD DEVIATION of the feature",
+                     "n_imputed_term = REFUSED values this fit passed off as "
+                     "the column mean (R71); p_holm is the adjusted p over the "
+                     "ONE batch family (R60)"])
     W(os.path.join(OUT_DIR, "SEAT_ROLLING_BANDS.tsv"), SECTION, phash,
       list(BAND_COLUMNS), res["bands"], extra=extra)
     W(os.path.join(OUT_DIR, "S10_SIDE.tsv"), SECTION, phash,
       list(SIDE_COLUMNS), res["s10"],
       extra=extra + ["in_VA = -1 is REFUSED (a missing VA edge) and never "
-                     "calls — sections.s10_profile's V1.1 ruling, obeyed"])
+                     "calls — sections.s10_profile's V1.1 ruling, obeyed",
+                     "R69: agreement counts a NO-CALL as a MISS (the whole "
+                     "population is the denominator); agreement_called_only is "
+                     "the old number and agreement_null is the agreement the "
+                     "session's generation-side asymmetry produces on its own",
+                     "R68: est/mirror/delta_value_usd are a TRUE SIGN FLIP on "
+                     "the same rows, not two disjoint row sets",
+                     "sign_test_p_diagnostic is a DIAGNOSTIC; the test of "
+                     "record is the paired mirror test, carried here as "
+                     "mirror_p_holm and used by the verdict (R62)"])
     W(os.path.join(OUT_DIR, "S10_MIRROR.tsv"), SECTION, phash,
       list(MIRROR_COLUMNS), res["mirror"],
-      extra=extra + ["CC-M2-13.1: mirror_law_holds = the estimator beat its "
-                     "mirror on EVERY session and lost on none"])
+      extra=extra + ["R59: the ERA-SCALE mirror law is the session-clustered "
+                     "PAIRED test (m2_common.mirror_paired) graded on p_holm; "
+                     "sweep_clean (lost == 0 and won > 0) is the STUDY-ROUND "
+                     "diagnostic and gates nothing",
+                     "verdict = NO_TEST below %d sessions — an unpowered cell "
+                     "is not a negative; mde_80_usd is what it could have "
+                     "detected" % MC.MIRROR_MIN_SESSIONS])
     W(os.path.join(OUT_DIR, "P032_GRAINS.tsv"), SECTION, phash,
       list(P032_COLUMNS), res["p032"],
       extra=extra + ["MARGINAL vs PARTIAL_GIVEN_RV1800 is the whole point: "
                      "CC-M2-18.1's negative sign was read inside a model that "
-                     "already carried rv1800"])
+                     "already carried rv1800",
+                     "every p_cr1 here is IN the batch's one Holm family and "
+                     "p_holm is its adjusted value (R61/R62)"])
     W(os.path.join(OUT_DIR, "P033_DECILES.tsv"), SECTION, phash,
       list(P033_COLUMNS), res["p033"],
       extra=extra + ["decile cuts are computed on the FIT pool and APPLIED to "
-                     "the GATE echo; control_band = the raw P025 runway band"])
+                     "the GATE echo; control_band = the raw P025 runway band",
+                     "reading = the D-077 split (SCIENCE = all rows, "
+                     "DEPLOYABLE = the +/-%.0f min restricted window removed); "
+                     "the CONCENTRATOR grade additionally requires the "
+                     "max-decile-lift null in BATCH5_ROBUST.tsv (R64/R77)"
+                     % NEWS_WINDOW_MIN])
     W(os.path.join(OUT_DIR, "VETO_POOLED.tsv"), SECTION, phash,
       list(VETO_COLUMNS), res["veto"],
       extra=extra + ["the pre-veto pool is the frozen five-term CORE "
                      "(e1d7_policy.terms) on every candidate of the seven E1 "
-                     "study sessions"])
+                     "study sessions",
+                     "R65: the verdict carries the PAIRED session-clustered "
+                     "replay-delta test (NO_TEST below %d clusters) and the "
+                     "IN-SAMPLE fraction — V2/V3 were fitted on study sessions "
+                     "1-5 and re-graded on 1-7" % MC.MIRROR_MIN_SESSIONS])
     W(os.path.join(OUT_DIR, "VETO_SESSIONS.tsv"), SECTION, phash,
       list(VSESS_COLUMNS), res["veto_sessions"], extra=extra)
     W(os.path.join(OUT_DIR, "EVENT_STATS.tsv"), SECTION, phash,
-      list(EVENT_COLUMNS), res["events"], extra=extra)
+      list(EVENT_COLUMNS), res["events"],
+      extra=extra + ["the verdict is a MAX-OVER-DECILES statistic graded "
+                     "against a session-clustered null for the MAXIMUM "
+                     "(BATCH5_ROBUST.tsv, metric max_decile_winner_rate_lift), "
+                     "never against a bare %.2fx bar (R64)" % CONCENTRATOR_MIN,
+                     "reading = the D-077 split (R77)"])
     W(os.path.join(OUT_DIR, "EVENT_MIRROR.tsv"), SECTION, phash,
       list(MIRROR_COLUMNS),
       [r for r in res["mirror"] if r[0] == "S7_EROSION_SIDE"], extra=extra)
@@ -2169,7 +2719,18 @@ def build(workers=6, limit_sessions=None, want_events=True):
                    "auc_wf_pooled": {r[3]: r[7] for r in head},
                    "dauc_wf_pooled_vs_cell_open": {r[3]: r[12] for r in head},
                    "grade_S10_SIDE": res["grade_s10"][0],
+                   "grade_S10_SIDE_why": res["grade_s10"][1],
                    "grade_P033": res["grade_p033"][0],
+                   "grade_P033_why": res["grade_p033"][1],
+                   "n_holm_family_tests": res["n_family"],
+                   # R77: the D-077 exposure of this population
+                   "news_window_min": NEWS_WINDOW_MIN,
+                   "n_rows_in_news_window":
+                       int((~deployable_mask(D)).sum()),
+                   "n_rows_release_minutes_refused":
+                       int((~np.isfinite(D["mins_to_release"])).sum()),
+                   "reading": "SCIENCE unless a row says DEPLOYABLE "
+                              "(D-077-UPDATE(3))",
                    "n_gee_tests": int(len([r for r in res["robust"]
                                            if np.isfinite(r[12])])),
                    "n_holm_significant":

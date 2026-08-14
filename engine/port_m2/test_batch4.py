@@ -20,6 +20,26 @@ dead test and FAILS.
   B06  AUC is orientation-honest and the walk-forward never trains on its own
        test year
 
+THE D-001 FIX PASS (the review's §3.1 findings, each with its own mutant)
+  B07  R59  the era-scale MIRROR LAW is a criterion that can PASS and FAIL:
+       a paired session-clustered test with a stated power floor, graded on
+       the Holm-adjusted p.  The mutant restores `lost == 0 and won > 0` as
+       the grading criterion and must die.
+  B08  R60/R61  ONE Holm family over every table that publishes a test, with
+       the adjusted p emitted; the mutant runs two disjoint families.
+  B09  R69/R74  a NO-CALL is scored as a MISS and refused rv1800 cells are a
+       named band; the mutant scores agreement on called cells only and drops
+       the refused band, so the shares stop summing to 1.
+  B10  R75/R76  the cross-asset freshness window is CALENDAR arithmetic and
+       the OWN-asset control survives a one-row cell; the mutant subtracts
+       YYYYMMDD integers and rejects a month boundary.
+  B11  R66  a permutation block with three items has no null to divide by:
+       the degenerate case is DETECTED and the z REFUSED; the mutant divides
+       by the sd of a near-constant null anyway.
+  B12  R70/R71/R77  imputations are counted, the D-077 DEPLOYABLE reading is
+       computed and labelled, and the cell-open claim is measured not asserted.
+  B13  R57/R58  the D-058 holdout enumerator REFUSES; the mutant loads them.
+
 Run: /usr/bin/python3 engine/port_m2/test_batch4.py
 """
 import os
@@ -272,12 +292,282 @@ def b06_walk_forward_never_trains_on_its_test_year():
                  % (len(B4.FIT_YEARS), leaks, mleaks))
 
 
+# ======================================================= the D-001 fix pass ==
+def _cell(asset="SI", d8=20210701, phase=0, wl=0.0, ws=0.0, rv=200.0,
+          n_cand=4, mins=None):
+    """A minimal CELL for the estimator tests (the fields the graders read)."""
+    n_wl = 1 if wl > 0 else 0
+    n_ws = 1 if ws > 0 else 0
+    return {"asset": asset, "d8": d8, "year": d8 // 10000, "phase": phase,
+            "n_cand": n_cand, "n_win": n_wl + n_ws,
+            "n_win_long": n_wl, "n_win_short": n_ws,
+            "win_close_sum_long": wl, "win_close_sum_short": ws,
+            "win_close_sum": wl + ws, "win_close_sum_deploy": wl + ws,
+            "n_win_deploy": n_wl + n_ws, "n_cand_news": 0, "n_win_news": 0,
+            "seat_on_first_row": 0, "rv1800_open": rv,
+            "mean_close": (wl + ws) / max(n_cand, 1), "mean_peak": 0.0,
+            "cond_close": float("nan"),
+            "mins_to_release_open": (float("nan") if mins is None
+                                     else float(mins)),
+            "close_fuel_above": 900, "close_fuel_below": 100,
+            "close_fuel_total": 1000, "open_ts": 0, "close_ts": 0}
+
+
+def b07_the_mirror_law_is_a_criterion_that_can_pass_and_fail():
+    """R59 — the era-scale mirror law is a PAIRED TEST, not a clean sweep.
+
+    `lost == 0 and won > 0` over thousands of sessions is unpassable, and it
+    was the only bit `grade_p031` read.  A real, strong, session-clustered
+    directional edge with a handful of losing sessions MUST be able to reach
+    DIRECTION_CANDIDATE; the old criterion cannot let it."""
+    rs = np.random.RandomState(3)
+    n = 200
+    d = rs.normal(loc=900.0, scale=600.0, size=n)      # a real +$900 edge
+    r = MC.mirror_paired(d)
+    null = MC.mirror_paired(rs.normal(loc=0.0, scale=600.0, size=n))
+    powered = (r["verdict"] == "TESTED" and r["p"] < 0.05 and r["holds"] == 1
+               and r["n_lost"] > 0 and r["sweep_clean"] == 0
+               and null["holds"] == 0 and null["verdict"] == "TESTED"
+               and np.isfinite(r["mde_80"]))
+    # and the GRADER itself: build one mirror row + one pairs row and grade
+    mrow = B4.mirror_row([B4.P031_THR, "ANY_OTHER", "ALL", "CROSS_BEST",
+                          "FIT"], d)
+    B4._holm_family([([mrow], B4.MIRROR_P_COL, len(B4.MIRROR_COLUMNS))])
+    prow = [B4.P031_THR, "ANY_OTHER", "ALL", "CROSS_BEST", "FIT", 100, 80, 0.8,
+            80, 60, 0.75, 0.20, 1, n, 0.01, 1.0, -1.0, 2.0, "-"] \
+        + [None] * 7 + ["-", 5, 0.75, None]
+    grade, why = B4.grade_p031([prow], [mrow])
+    armed = bool(powered and grade == "DIRECTION_CANDIDATE")
+    # and it must still be able to FAIL: the same grader on the null
+    mnull = B4.mirror_row([B4.P031_THR, "ANY_OTHER", "ALL", "CROSS_BEST",
+                           "FIT"], rs.normal(0.0, 600.0, n))
+    B4._holm_family([([mnull], B4.MIRROR_P_COL, len(B4.MIRROR_COLUMNS))])
+    armed = armed and B4.grade_p031([prow], [mnull])[0] != "DIRECTION_CANDIDATE"
+    # and an UNPOWERED cell is NO_TEST, never a negative
+    mfew = B4.mirror_row([B4.P031_THR, "ANY_OTHER", "ALL", "CROSS_BEST",
+                          "FIT"], d[:5])
+    B4._holm_family([([mfew], B4.MIRROR_P_COL, len(B4.MIRROR_COLUMNS))])
+    armed = armed and B4.grade_p031([prow], [mfew])[0] == "NO_TEST"
+    # MUTANT MB07: restore `lost == 0 and won > 0` as the GRADING criterion.
+    # On a genuine +$900/session edge it is still 0, so DIRECTION_CANDIDATE
+    # becomes unreachable — the defect R59 names.
+    mutant = bool(MC.mirror_sweep_clean(r["n_won"], r["n_lost"]))
+    return check("mirror_law_is_a_criterion_that_can_pass_and_fail",
+                 "MB07_sweep_clean_restored_as_the_grading_criterion",
+                 armed, mutant,
+                 "n=%d won=%d lost=%d mean=%.1f p=%.2g mde80=%.1f -> %s; "
+                 "sweep_clean=%d" % (r["n_sessions"], r["n_won"], r["n_lost"],
+                                     r["mean_delta"], r["p"], r["mde_80"],
+                                     grade, r["sweep_clean"]))
+
+
+def b08_one_holm_family_and_the_label_matches():
+    """R60/R61 — ONE family over every table that publishes a test."""
+    # two tables, the shapes the census actually corrects
+    # the model p's are never significant; the mirror family carries ONE p
+    # that survives its own table alone (0.0040 <= 0.05/10) and dies in the
+    # pooled family (0.0040 > 0.05/20) — the exact difference R61 is about.
+    model = [["BASE", "ALL", "FIT", "t%d" % i] + [0.0] * 5
+             + [0.30 + 0.01 * i] + [0.0] * 5 + [0]
+             for i in range(10)]
+    mirror = [[0.65, "SI", "SI", "OWN", "FIT", 100, 50, 0, 50, 0, 10.0, 1.0,
+               1.0, 2.0, 0.0040 + 0.05 * i, 0.5, 5.0, 30, "TESTED", 1]
+              for i in range(10)]
+    m = B4._holm_family([(model, B4.MODEL_P_COL, len(B4.MODEL_COLUMNS)),
+                         (mirror, B4.MIRROR_P_COL, len(B4.MIRROR_COLUMNS))])
+    pooled_sig = sum(1 for r in model + mirror
+                     if r[-2] == "HOLM_SIGNIFICANT")
+    every_row_has_a_verdict = all(len(r) == len(B4.MODEL_COLUMNS)
+                                  for r in model) and \
+        all(len(r) == len(B4.MIRROR_COLUMNS) for r in mirror)
+    adjusted_present = all(np.isfinite(r[-1]) for r in model + mirror)
+    armed = (m == 20 and every_row_has_a_verdict and adjusted_present)
+    # MUTANT MB08: two DISJOINT families, one per table — the state R61 found.
+    model2 = [r[:len(B4.MODEL_COLUMNS) - B4.HOLM_TAIL] for r in model]
+    mirror2 = [r[:len(B4.MIRROR_COLUMNS) - B4.HOLM_TAIL] for r in mirror]
+    m1 = B4._holm_family([(model2, B4.MODEL_P_COL, len(B4.MODEL_COLUMNS))])
+    m2 = B4._holm_family([(mirror2, B4.MIRROR_P_COL, len(B4.MIRROR_COLUMNS))])
+    split_sig = sum(1 for r in model2 + mirror2 if r[-2] == "HOLM_SIGNIFICANT")
+    mutant = (m1 + m2 == m and split_sig == pooled_sig)
+    return check("one_holm_family_and_the_label_matches",
+                 "MB08_two_disjoint_families_one_per_table", armed, mutant,
+                 "pooled m=%d (%d significant); split m=%d+%d (%d significant)"
+                 % (m, pooled_sig, m1, m2, split_sig))
+
+
+def b09_abstention_is_a_miss_and_refusals_are_counted():
+    """R69 (abstention is not free) + R74 (refused rv1800 is a named band)."""
+    # 40 cells, all with a realised winner majority; the source calls on only
+    # half of them, and the calls it does make are RIGHT.
+    cells, src = [], {}
+    for i in range(40):
+        c = _cell(d8=20210700 + i + 1, phase=i % 3, wl=1000.0,
+                  rv=(float("nan") if i < 8 else 200.0))
+        cells.append(c)
+        key = (c["asset"], c["d8"], c["phase"])
+        # a LONG call is +1: trapped BELOW -> shorts must cover
+        src[key] = ({"SI": {"close_fuel_above": 0, "close_fuel_below": 1000,
+                            "close_fuel_total": 1000}} if i % 2 == 0 else {})
+    rows = B4.pair_rows(cells, src, [], [], full=False)
+    r = [x for x in rows if x[1] == "SI" and x[2] == "SI" and x[4] == "FIT"]
+    armed = bool(r)
+    if armed:
+        r = r[0]
+        # agreement counts the 20 NO-CALL cells as misses; the old number is
+        # kept beside it and is 1.0
+        armed = (abs(r[10] - 0.5) < 1e-9 and abs(r[28] - 1.0) < 1e-9
+                 and r[27] == 20 and r[8] == 40)
+    bands = B4.band_rows(cells, [])
+    ball = [b for b in bands if b[0] == "ALL" and b[1] == "FIT"]
+    share = sum(b[6] for b in ball)
+    refused = [b for b in ball if b[2] == B4.BAND_REFUSED]
+    armed = bool(armed and abs(share - 1.0) < 1e-9 and refused
+                 and refused[0][5] == 8 and ball[0][21] == 8)
+    # MUTANT MB09: score agreement on the CALLED cells only and drop the
+    # refused band — the two states R69 and R74 describe.  Then abstention is
+    # free (agreement 1.000) and the band shares no longer sum to 1.
+    mutant = (abs(r[28] - 0.5) < 1e-9
+              or abs(sum(b[6] for b in ball if b[2] != B4.BAND_REFUSED)
+                     - 1.0) < 1e-9)
+    return check("abstention_is_a_miss_and_refusals_are_counted",
+                 "MB09_called_only_denominator_and_dropped_refused_band",
+                 armed, mutant,
+                 "agreement %.3f over %d scoreable (%d no-call); called-only "
+                 "%.3f; band shares sum %.6f with %d refused cells"
+                 % (r[10], r[8], r[27], r[28], share,
+                    refused[0][5] if refused else -1))
+
+
+def b10_freshness_is_calendar_arithmetic_and_the_own_leg_survives():
+    """R75 (YYYYMMDD subtraction) + R76 (the one-row cell's OWN leg)."""
+    # SI closes on 2021-07-30, HG opens on 2021-08-02: two calendar days.
+    a = B4._cell(asset="SI", d8=20210730) if hasattr(B4, "_cell") else None
+    gap = B4._day_gap(20210730, 20210801)
+    armed = (gap == 2 and gap <= B4.P031_SRC_MAX_AGE_DAYS
+             and B4._day_gap(20210701, 20210706) == 5)
+    # the OWN leg on a ONE-ROW cell: close_ts == open_ts, so the searchsorted
+    # lands on the target itself and must step BACK, not abandon the leg.
+    c1 = _cell(asset="SI", d8=20210701, phase=0)
+    c2 = _cell(asset="SI", d8=20210701, phase=1)
+    c1["open_ts"], c1["close_ts"] = 100, 100          # one-row cell
+    c2["open_ts"], c2["close_ts"] = 200, 300
+    src = B4.attach_cross_asset([c1, c2])
+    own = src[("SI", 20210701, 1)].get("SI")
+    armed = armed and (own is not None and own is c1)
+    # MUTANT MB10: the old YYYYMMDD subtraction rejects the month boundary.
+    mutant = (abs(20210801 - 20210730) <= B4.P031_SRC_MAX_AGE_DAYS)
+    return check("freshness_is_calendar_arithmetic_and_own_leg_survives",
+                 "MB10_yyyymmdd_subtraction_as_a_day_gap", armed, mutant,
+                 "calendar gap 20210730->20210801 = %d day(s); the YYYYMMDD "
+                 "difference is %d; own-leg source on the one-row cell = %s"
+                 % (gap, abs(20210801 - 20210730),
+                    "kept" if own is not None else "DROPPED"))
+
+
+def b11_the_destruction_null_refuses_a_degenerate_block():
+    """R66 — a 3-item permutation block cannot produce a null to divide by."""
+    rs = np.random.RandomState(5)
+    # 300 sessions x 3 cells: the within-session block holds three values
+    groups = np.repeat(np.array(["S%03d" % i for i in range(300)]), 3)
+    fire = np.tile(np.array([True, False, False]), 300)
+    ng, med, ninfo = B4.perm_support(groups, fire)
+    # a null that barely moves: 40 reps of a near-constant statistic
+    null = [0.10 + 1e-9 * (i % 3) for i in range(40)]
+    row = B4._destr_row("P030_test", "FIT", "rv (within session)", 0.30, null,
+                        block="SESSION", groups=groups, fire=fire, thr=150.0)
+    armed = (med == 3.0 and row[10].startswith("DEGENERATE_NULL")
+             and not np.isfinite(row[9]))
+    # a null WITH support must still produce a z and a real verdict
+    good = list(rs.normal(0.0, 0.05, 40))
+    g_groups = np.repeat(np.array(["W%02d" % i for i in range(30)]), 30)
+    g_fire = rs.uniform(size=g_groups.size) < 0.4
+    grow = B4._destr_row("P030_test", "FIT", "rv (within week)", 0.30, good,
+                         block="ASSET_WEEK", groups=g_groups, fire=g_fire,
+                         thr=150.0)
+    armed = armed and np.isfinite(grow[9]) and grow[10] in (
+        "SURVIVES", "DESTROYED", "INVERTED")
+    # MUTANT MB11: divide by the sd of the near-constant null anyway.
+    n = np.array(null)
+    z_naive = (0.30 - n.mean()) / n.std(ddof=1)
+    mutant = bool(not np.isfinite(z_naive))
+    return check("destruction_null_refuses_a_degenerate_block",
+                 "MB11_emit_a_z_over_a_near_constant_null", armed, mutant,
+                 "%d blocks, median size %.1f, %d informative -> %s; the naive "
+                 "z would have been %.1f" % (ng, med, ninfo, row[10][:24],
+                                             z_naive))
+
+
+def b12_imputation_and_the_deployable_reading_are_declared():
+    """R71 (imputation counted) + R77 (the D-077 split) + R70 (the honest
+    cell-open claim is MEASURED, not asserted)."""
+    Xm = np.array([[1.0, np.nan], [2.0, 2.0], [np.nan, 3.0], [4.0, 4.0]])
+    cnt, by = B4.imputed_counts(Xm, ("a", "b"))
+    armed = (by == {"a": 1, "b": 1} and int(cnt.sum()) == 2)
+    # the DEPLOYABLE reading: a cell whose only winner sits inside the
+    # restricted window carries NO deployable seat
+    c = _cell(wl=1200.0)
+    c["n_win_news"], c["n_win_deploy"], c["win_close_sum_deploy"] = 1, 0, 0.0
+    armed = armed and (B4.has_seat_of(c, "SCIENCE") == 1
+                       and B4.has_seat_of(c, "DEPLOYABLE") == 0)
+    base = B4.base_rate_rows([c, _cell(d8=20210702, wl=1500.0)], [])
+    readings = {r[17] for r in base}
+    armed = armed and readings == set(B4.READINGS)
+    # R70: the claim is now a measured count, and PARAMS says so
+    armed = armed and ("CONTEMPORANEOUS" in B4.PARAMS["cell_open"].upper())
+    # MUTANT MB12: the docstring's old claim — imputation "recorded" with
+    # nothing recorded, and one unlabelled reading.
+    mutant = (int(cnt.sum()) == 0 or len(readings) == 1
+              or B4.has_seat_of(c, "DEPLOYABLE") == 1)
+    return check("imputation_and_deployable_reading_are_declared",
+                 "MB12_undeclared_imputation_and_one_unlabelled_reading",
+                 armed, mutant,
+                 "imputed %s; seat SCIENCE=%d DEPLOYABLE=%d; readings %s"
+                 % (by, B4.has_seat_of(c, "SCIENCE"),
+                    B4.has_seat_of(c, "DEPLOYABLE"), sorted(readings)))
+
+
+def b13_the_holdout_enumerator_refuses():
+    """R57/R58 — the D-058 boundary is a REFUSAL in the enumerator itself."""
+    raised = 0
+    have = 0
+    for a in MC.ASSET_ORDER:
+        try:
+            PL.sessions(a, years={B4.GATE_YEAR})
+        except MC.HoldoutRefusal:
+            raised += 1
+        keep, nq = PL.sessions_fit(a, years={B4.GATE_YEAR})
+        have += nq
+        if any(MC.in_holdout(d) for d in keep):
+            raised = -99
+    armed = (raised == len(MC.ASSET_ORDER) and have > 0)
+    # MUTANT MB13: load them anyway (allow_holdout=True) — the population then
+    # CONTAINS holdout sessions, which is the exposure D-058 forbids.
+    leaked = 0
+    for a in MC.ASSET_ORDER:
+        leaked += sum(1 for d in PL.sessions(a, years={B4.GATE_YEAR},
+                                             allow_holdout=True)
+                      if MC.in_holdout(d))
+    mutant = (leaked == 0)
+    return check("holdout_enumerator_refuses", "MB13_allow_holdout_enumeration",
+                 armed, mutant,
+                 "%d/%d assets refuse a holdout-bearing year; %d sessions "
+                 "quarantined; the unguarded enumerator would admit %d"
+                 % (raised, len(MC.ASSET_ORDER), have, leaked))
+
+
 TESTS = (b01_gee_multi_matches_the_committed_estimator,
          b02_fuel_map_reproduces_the_sheet,
          b03_cell_open_features_are_strictly_prior,
          b04_cross_asset_source_is_prior_and_foreign,
          b05_holdout_is_never_loaded,
-         b06_walk_forward_never_trains_on_its_test_year)
+         b06_walk_forward_never_trains_on_its_test_year,
+         b07_the_mirror_law_is_a_criterion_that_can_pass_and_fail,
+         b08_one_holm_family_and_the_label_matches,
+         b09_abstention_is_a_miss_and_refusals_are_counted,
+         b10_freshness_is_calendar_arithmetic_and_the_own_leg_survives,
+         b11_the_destruction_null_refuses_a_degenerate_block,
+         b12_imputation_and_the_deployable_reading_are_declared,
+         b13_the_holdout_enumerator_refuses)
 
 
 def main():

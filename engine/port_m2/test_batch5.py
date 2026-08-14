@@ -25,6 +25,22 @@ dead test and FAILS.
        committed day-7 index — the pooled re-grade regrades the committed
        families, not new ones
 
+THE D-001 FIX PASS (the review's §3.1 findings, each with its own mutant)
+  C08  R59/R78  every side verdict is the PAIRED session-clustered mirror test
+       read on its Holm-adjusted p, and the mirror row is selected BY OBJECT;
+       the mutant reads an unfiltered row and the sweep bit.
+  C09  R68  the ROW-grain mirror is a TRUE SIGN FLIP on the same rows, not two
+       disjoint populations; the mutant restores the disjoint form.
+  C10  R69  a NO-CALL is scored as a MISS; the mutant restores the called-only
+       denominator, under which abstention is free.
+  C11  R64  a CONCENTRATOR grade is a MAX-over-deciles statistic and needs a
+       null for the MAXIMUM; the mutant grades on the fixed 1.25x bar, which
+       pure noise clears.
+  C12  R65  the V2/V3 verdict carries a paired test and its IN-SAMPLE
+       fraction; the mutant retains on a positive delta alone.
+  C13  R67  the P032 destruction compares ONE population; the mutant imputes
+       refused rows to 0.0 in the null only.
+
 Run: /usr/bin/python3 engine/port_m2/test_batch5.py
 """
 import csv
@@ -184,9 +200,19 @@ def c02_s10_reproduces_the_committed_index():
 
 
 def c03_unspent_sess_reproduces_the_sheet():
-    """CC-M2-19.4's restored feature is the sheet's own arithmetic."""
+    """CC-M2-19.4's restored feature is the sheet's own arithmetic.
+
+    THE FORM, not a frozen number.  `unspent_sess = exp_move_q50(SESSION) -
+    range_so_far`: the first term is a per-SESSION constant read off the fvol
+    layer and the second is the row's own.  So against the COMMITTED day-7
+    index the difference must be CONSTANT WITHIN A SESSION — zero while the
+    fvol layer is the vintage the index was sealed on, and a single per-session
+    offset after the R80 rebuild of that layer.  Anything else means the
+    arithmetic itself moved, which is what this test exists to catch, and the
+    measured offset is reported so a vintage change is never silent."""
     idx = index_rows()
     bad = n = 0
+    off = {}
     for asset in MC.ASSET_ORDER:
         p = packed(asset)
         for t, cid in enumerate(p["cid"].tolist()):
@@ -201,11 +227,23 @@ def c03_unspent_sess_reproduces_the_sheet():
                     bad += 1
                 continue
             n += 1
-            if not np.isfinite(got) or abs(got - want) > 0.5:
+            if not np.isfinite(got):
                 bad += 1
+                continue
+            off.setdefault(asset, []).append((want - got, want))
+    # the committed index renders floats with `%.4g` (R03), so a comparison
+    # against it carries FOUR significant digits of quantisation and nothing
+    # tighter is meaningful.
+    drift, spread = {}, {}
+    for a, v in off.items():
+        med = float(np.median([d for d, _w in v]))
+        drift[a] = med
+        spread[a] = max((abs(d - med) / max(0.5, 5e-4 * abs(w))
+                         for d, w in v), default=0.0)
     si = packed("SI")
     si_refused = bool(not np.isfinite(si["unspent_sess"]).any())
-    armed = (n > 900 and bad == 0 and si_refused)
+    armed = (n > 900 and bad == 0 and si_refused and spread
+             and max(spread.values()) <= 1.0)
     # MUTANT MC03: fill a REFUSED fvol row with zero instead of refusing —
     # the class the day-7 ledger leans on ("SI's fvol is REFUSED again").
     mutant = bool(np.isfinite(np.nan_to_num(si["unspent_sess"])).all()
@@ -217,8 +255,14 @@ def c03_unspent_sess_reproduces_the_sheet():
                       and False)
     return check("unspent_sess_reproduces_the_sheet",
                  "MC03_refused_fvol_filled_with_zero", armed, mutant,
-                 "%d comparisons, %d mismatches; SI REFUSED all session = %s"
-                 % (n, bad, si_refused))
+                 "%d comparisons, %d non-finite; SI REFUSED all session = %s; "
+                 "per-asset offset vs the committed index %s (worst residual "
+                 "in units of the index's own %%.4g quantisation: %s — offset "
+                 "0 = the same fvol vintage, a CONSTANT offset = the R80 fvol "
+                 "rebuild, a non-constant one = the arithmetic moved)"
+                 % (n, bad, si_refused,
+                    {a: round(v, 2) for a, v in drift.items()},
+                    {a: round(v, 4) for a, v in spread.items()}))
 
 
 def c04_rolling_seat_state_is_a_suffix_or():
@@ -402,13 +446,260 @@ def _mini_scan():
     return D
 
 
+# ======================================================= the D-001 fix pass ==
+def _side_row(obj, grain, thr, aname, ename, ag, mir, null=0.5):
+    """A SIDE_COLUMNS-shaped row with only the graded fields filled."""
+    r = [obj, grain, thr, aname, ename, 1000, 500, 0.5, 1000, int(ag * 1000),
+         ag, mir, int(ag > mir), None, None, None, None, None, 0.0, 0.0, 0.0,
+         100, 0.5, "PENDING_HOLM", null, ag, 500, 500, None]
+    assert len(r) == len(B5.SIDE_COLUMNS)
+    return r
+
+
+def c08_side_verdicts_read_the_paired_holm_p_of_their_own_object():
+    """R59 + R78 — the verdict is the paired mirror test, and the mirror row
+    is selected BY OBJECT.
+
+    `grade_s10` used to read `mirror_law_holds` (lost == 0 over thousands of
+    sessions, unpassable) off a row it selected WITHOUT testing the object, so
+    an S7_EROSION_SIDE row was eligible to decide S10's verdict."""
+    rs = np.random.RandomState(17)
+    strong = rs.normal(loc=800.0, scale=500.0, size=200)     # a real edge
+    dead = rs.normal(loc=0.0, scale=500.0, size=200)
+    mrows = []
+    # the EROSION row is appended FIRST and carries the SAME grain/threshold/
+    # asset/era as S10 — the collision R78 leaves open.
+    B5._mirror_row(mrows, "S7_EROSION_SIDE", "ROW", B5.S10_THR, "ALL", "FIT",
+                   dead)
+    B5._mirror_row(mrows, "S10_SIDE", "ROW", B5.S10_THR, "ALL", "FIT", strong)
+    B5._mirror_row(mrows, "S10_SIDE", "CELL", B5.S10_THR, "ALL", "FIT", strong)
+    B4._holm_family([(mrows, B5.MIRROR_P_COL, len(B5.MIRROR_COLUMNS))])
+    rows = [_side_row("S10_SIDE", "ROW", B5.S10_THR, "ALL", "FIT", 0.30, 0.10),
+            _side_row("S10_SIDE", "CELL", B5.S10_THR, "ALL", "FIT", 0.40,
+                      0.20),
+            _side_row("S7_EROSION_SIDE", "ROW", B5.S10_THR, "ALL", "FIT",
+                      0.10, 0.30)]
+    B5.apply_side_verdicts(rows, mrows)
+    grade, why = B5.grade_s10(rows, mrows)
+    armed = (grade == "DIRECTION_CANDIDATE"
+             and rows[0][23].startswith("DIRECTION_CANDIDATE")
+             and np.isfinite(rows[0][28]))
+    # it must also be able to FAIL and to say NO_TEST
+    m2 = []
+    B5._mirror_row(m2, "S10_SIDE", "ROW", B5.S10_THR, "ALL", "FIT", dead)
+    B5._mirror_row(m2, "S10_SIDE", "CELL", B5.S10_THR, "ALL", "FIT", dead)
+    B4._holm_family([(m2, B5.MIRROR_P_COL, len(B5.MIRROR_COLUMNS))])
+    armed = armed and B5.grade_s10(rows, m2)[0] == "DEAD_AS_A_RULE"
+    m3 = []
+    B5._mirror_row(m3, "S10_SIDE", "ROW", B5.S10_THR, "ALL", "FIT", strong[:6])
+    B5._mirror_row(m3, "S10_SIDE", "CELL", B5.S10_THR, "ALL", "FIT",
+                   strong[:6])
+    B4._holm_family([(m3, B5.MIRROR_P_COL, len(B5.MIRROR_COLUMNS))])
+    armed = armed and B5.grade_s10(rows, m3)[0] == "NO_TEST"
+    # MUTANT MC08: the OLD selector — no object filter, and the sweep bit as
+    # the criterion.  It picks the erosion row and reads a bit that is 0.
+    old = [m for m in mrows if m[1] == "ROW" and m[2] == B5.S10_THR
+           and m[3] == "ALL" and m[4] == "FIT"]
+    mutant = bool(old and old[0][0] == "S10_SIDE"
+                  and old[0][9] == 1)
+    return check("side_verdicts_read_the_paired_holm_p_of_their_own_object",
+                 "MC08_unfiltered_object_and_the_sweep_bit", armed, mutant,
+                 "grade=%s; the unfiltered selector returns object=%s with "
+                 "sweep_clean=%d" % (grade, old[0][0] if old else "-",
+                                     old[0][9] if old else -1))
+
+
+def _mini_D(n_sess=6, n_long=15, n_short=5, cert=100.0):
+    """A tiny ROW population with a DELIBERATE generation-side asymmetry."""
+    rows = []
+    for s in range(n_sess):
+        for i in range(n_long):
+            rows.append((s, +1, cert))
+        for i in range(n_short):
+            rows.append((s, -1, cert))
+    n = len(rows)
+    D = {"era": np.array([B5.ERAS[0]] * n),
+         "asset": np.array(["SI"] * n),
+         "side": np.array([r[1] for r in rows], dtype=np.int64),
+         "cert_close": np.array([r[2] for r in rows], dtype=np.float64),
+         "winner": np.array([True] * n),
+         "session_key": np.array(["SI-%08d" % (20210700 + r[0]) for r in rows])}
+    return D
+
+
+def c09_the_row_grain_mirror_is_a_true_sign_flip():
+    """R68 — the ROW-grain mirror was a DIFFERENT POPULATION, not a flip.
+
+    value = cert summed over rows whose own side AGREES with the call; mirror
+    = cert summed over rows whose own side OPPOSES it.  Those are disjoint row
+    sets, so `ev - mv` measures the session's generation-side asymmetry as much
+    as the call.  A true sign flip prices the SAME rows under the mirrored
+    call, and then mirror_value == -value identically."""
+    D = _mini_D()
+    call = np.full(D["side"].size, +1, dtype=np.int64)     # always LONG
+    rows, mrows = [], []
+    B5._row_side_tables(D, call, "S10_SIDE", "ROW", 0.0, rows, mrows, [], None,
+                        do_gee=False)
+    r = [x for x in rows if x[3] == "ALL"][0]
+    ev, mv, delta = r[18], r[19], r[20]
+    n_long = int((D["side"] > 0).sum())
+    n_short = int((D["side"] < 0).sum())
+    want_ev = 100.0 * (n_long - n_short)
+    armed = (abs(ev - want_ev) < 1e-9 and abs(mv + ev) < 1e-9
+             and abs(delta - 2 * ev) < 1e-9
+             and abs(r[24] - float(n_long) / (n_long + n_short)) < 1e-9)
+    # the mirror table's per-session delta is the same true flip
+    m = mrows[0]
+    armed = armed and abs(m[10] - delta / m[5]) < 1e-6
+    # MUTANT MC09: the disjoint-population form.
+    old_ev = 100.0 * n_long
+    old_mv = 100.0 * n_short
+    mutant = (abs((old_ev - old_mv) - delta) < 1e-9 and abs(old_mv + old_ev)
+              < 1e-9)
+    return check("row_grain_mirror_is_a_true_sign_flip",
+                 "MC09_two_disjoint_populations_as_a_mirror", armed, mutant,
+                 "%d long / %d short rows: value %.0f, mirror %.0f, delta "
+                 "%.0f; the disjoint form would have said %.0f - %.0f = %.0f; "
+                 "agreement null %.4f"
+                 % (n_long, n_short, ev, mv, delta, old_ev, old_mv,
+                    old_ev - old_mv, r[24]))
+
+
+def c10_abstention_is_a_miss_at_row_grain():
+    """R69 — the declared penalty, implemented.  A call that fires on half the
+    rows and is right every time does NOT score agreement 1.000."""
+    D = _mini_D(n_sess=8, n_long=10, n_short=10)
+    call = np.zeros(D["side"].size, dtype=np.int64)
+    call[::2] = D["side"][::2]          # fires on half the rows, always right
+    rows, mrows = [], []
+    B5._row_side_tables(D, call, "S10_SIDE", "ROW", 0.0, rows, mrows, [], None,
+                        do_gee=False)
+    r = [x for x in rows if x[3] == "ALL"][0]
+    armed = (r[8] == int(D["side"].size)            # every row is scoreable
+             and abs(r[10] - 0.5) < 1e-9            # agreement counts the miss
+             and abs(r[25] - 1.0) < 1e-9            # called-only is the old 1.0
+             and r[21] == 8)                        # every session in the test
+    # MUTANT MC10: the called-only denominator — abstention free again.
+    mutant = abs(r[10] - 1.0) < 1e-9
+    return check("abstention_is_a_miss_at_row_grain",
+                 "MC10_called_only_denominator", armed, mutant,
+                 "agreement %.3f over %d scoreable rows (called-only %.3f), "
+                 "%d sessions in the mirror" % (r[10], r[8], r[25], r[21]))
+
+
+def c11_the_concentrator_max_lift_has_a_null():
+    """R64 — the MAX of ten decile lifts clears a fixed 1.25x bar under the
+    null routinely, so the bar alone is not a test."""
+    rs = np.random.RandomState(23)
+    n_sess, per = 120, 20
+    n = n_sess * per
+    sess = np.array(["S%04d" % (i // per) for i in range(n)])
+    v = rs.normal(size=n)
+    win = (rs.uniform(size=n) < 0.08).astype(float)          # INDEPENDENT of v
+    edges = np.unique(np.percentile(v, np.linspace(0, 100, 11)))
+    noise = B5.max_lift_test(v, win, sess, edges, seed=101)
+    # and a real effect: the top decile really does carry winners
+    p = 0.05 + 0.25 * (v > np.percentile(v, 90))
+    win2 = (rs.uniform(size=n) < p).astype(float)
+    sig = B5.max_lift_test(v, win2, sess, edges, seed=102)
+    armed = (noise["max_lift"] >= B5.CONCENTRATOR_MIN
+             and noise["p_null"] >= 0.05
+             and sig["p_null"] < 0.05
+             and np.isfinite(noise["lo"]) and np.isfinite(noise["hi"]))
+    # MUTANT MC11: grade on the bar alone — it cannot tell the two apart.
+    mutant = (noise["max_lift"] < B5.CONCENTRATOR_MIN)
+    return check("concentrator_max_lift_has_a_null",
+                 "MC11_fixed_1.25x_bar_with_no_null", armed, mutant,
+                 "pure noise: max lift %.2f (null mean %.2f, p=%.3f); real "
+                 "effect: max lift %.2f (p=%.3f)"
+                 % (noise["max_lift"], noise["null_mean"], noise["p_null"],
+                    sig["max_lift"], sig["p_null"]))
+
+
+def c12_the_veto_verdict_carries_inference_and_its_in_sample_fraction():
+    """R65 — `RETAIN on d > 0` had no p, no CI, no power statement, and five
+    of its seven sessions are the sessions V2/V3 were FITTED on."""
+    o = {"replay_inert": 0, "replay_delta_usd": 937.5, "sessions_improved": 3,
+         "sessions_hurt": 0, "n_winners_vetoed": 4,
+         "in_sample_sessions": 5, "n_session_asset_clusters": 21,
+         "replay_delta_test_verdict": "NO_TEST", "replay_delta_mean_usd": 44.6,
+         "replay_delta_se_usd": 60.0, "replay_delta_p": 0.46,
+         "replay_delta_mde80_usd": 168.0}
+    v = B5._veto_verdict(o)
+    armed = (v.startswith("RETAIN_UNPROVEN") and "IN-SAMPLE" in v
+             and "NO_TEST" in v and "mde80" in v)
+    # a significant delta must still be able to RETAIN outright
+    o2 = dict(o, replay_delta_test_verdict="TESTED", replay_delta_p=0.001)
+    armed = armed and B5._veto_verdict(o2).startswith("RETAIN —")
+    # MUTANT MC12: the old rule — d > 0 and nothing hurt -> RETAIN.
+    old = ("RETAIN — pooled replay delta %+.2f with %d session(s) improved and "
+           "none hurt" % (o["replay_delta_usd"], o["sessions_improved"]))
+    mutant = ("IN-SAMPLE" in old and "NO_TEST" in old)
+    return check("veto_verdict_carries_inference_and_in_sample_fraction",
+                 "MC12_retain_on_a_positive_delta_alone", armed, mutant,
+                 v[:150])
+
+
+def c13_the_p032_destruction_compares_one_population():
+    """R67 — the real edge excluded refused rows and the null included them
+    imputed to 0.0 (permanently non-firing).  Two estimands, one z."""
+    cells = []
+    for i in range(120):
+        d8 = 20210701 + (i % 20)
+        v = (float("nan") if i % 5 == 0 else (1500.0 if i % 2 else 200.0))
+        cells.append({"asset": "SI", "d8": d8, "year": 2021, "phase": i % 3,
+                      "rows": np.array([i]), "n_cand": 1,
+                      "n_win": int(i % 3 == 0), "n_win_long": 0,
+                      "n_win_short": 0, "prev_range_usd": v,
+                      "prev_ret_usd": 10.0, "rv1800_open": 100.0,
+                      "unspent_open": 0.0, "pre_cell_range_usd": 50.0,
+                      "atr_open": 10.0, "release_in_ph": 0, "dow": 1,
+                      "mean_close": 0.0, "mean_peak": 0.0,
+                      "cond_close": float("nan"), "win_close_sum": 0.0,
+                      "win_close_sum_long": 0.0, "win_close_sum_short": 0.0,
+                      "d_poc_open": 0.0, "in_va_open": 1,
+                      "menu_hat": float("nan"), "rv60_open": 10.0,
+                      "first_dec_sec": 0, "last_dec_sec": 1})
+    v_all = np.array([c["prev_range_usd"] for c in cells])
+    ok = np.isfinite(v_all)
+    destr = []
+    D = {"era": np.array([]), "asset": np.array([])}
+    B5.p032_rows(D, cells, [], [], destr)
+    row = [r for r in destr if r[0].startswith("P032_")][0]
+    n_groups = row[12]
+    # the null's population is the PRESENT-value cells only, and the row says
+    # how many were excluded
+    armed = (("%d REFUSED" % int((~ok).sum())) in row[2]
+             and n_groups == len({c["d8"] for c, k in zip(cells, ok.tolist())
+                                  if k})
+             and np.isfinite(row[4]))
+    # MUTANT MC13: impute the refused to 0.0 and keep them in the null — the
+    # null's non-firing group is then LARGER than the real edge's.
+    n_real_nonfire = int((ok & (v_all < 1000.0)).sum())
+    n_null_nonfire = int((np.where(ok, v_all, 0.0) < 1000.0).sum())
+    mutant = (n_real_nonfire == n_null_nonfire)
+    return check("p032_destruction_compares_one_population",
+                 "MC13_refused_imputed_to_zero_only_in_the_null", armed,
+                 mutant,
+                 "%d refused cells; real non-firing %d vs imputed-null "
+                 "non-firing %d; %d permutation blocks"
+                 % (int((~ok).sum()), n_real_nonfire, n_null_nonfire,
+                    n_groups))
+
+
 TESTS = (c01_event_statistics_reproduce_the_committed_index,
          c02_s10_reproduces_the_committed_index,
          c03_unspent_sess_reproduces_the_sheet,
          c04_rolling_seat_state_is_a_suffix_or,
          c05_cells_match_batch4,
          c06_paired_bootstrap_is_paired,
-         c07_veto_families_are_the_committed_ones)
+         c07_veto_families_are_the_committed_ones,
+         c08_side_verdicts_read_the_paired_holm_p_of_their_own_object,
+         c09_the_row_grain_mirror_is_a_true_sign_flip,
+         c10_abstention_is_a_miss_at_row_grain,
+         c11_the_concentrator_max_lift_has_a_null,
+         c12_the_veto_verdict_carries_inference_and_its_in_sample_fraction,
+         c13_the_p032_destruction_compares_one_population)
 
 
 def main():

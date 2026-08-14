@@ -81,7 +81,6 @@ Run:  lab/run.sh port-m2-sideprobe -- /usr/bin/python3 engine/port_m2/side_probe
 """
 import argparse
 import json
-import math
 import os
 import sys
 import time
@@ -373,8 +372,9 @@ def scan(years, workers=4, limit_sessions=None):
         raise RuntimeError("side probe: %d session(s) failed, first=%s"
                            % (len(errs), errs[0]))
     out.sort(key=lambda s: (s["asset"], s["d8"]))
-    MC.hb("side probe: %d sessions, %.1fs" % (len(out), time.time() - t0))
-    return out
+    MC.hb("side probe: %d sessions (%d holdout sessions quarantined, never "
+          "loaded), %.1fs" % (len(out), quarantined, time.time() - t0))
+    return out, quarantined
 
 
 def _init_prior(pr):
@@ -394,8 +394,17 @@ ARM_COLUMNS = ("arm", "asset", "era", "release_day", "n_sessions", "n_takes",
                "takes_per_session")
 
 
+GATE_ERA = "GATE_%dH1" % GATE_YEAR
+
+
 def _era_of(y):
-    return "FIT" if y in FIT_YEARS else ("GATE_%d" % GATE_YEAR if y == GATE_YEAR
+    """R57 — the GATE echo is 2025 **H1 ONLY**.
+
+    The probe used to load the whole 2025 calendar year and label it
+    `GATE_2025`; the D-058 pre-exam holdout (2025-07-01 onward) is excluded by
+    `pattern_lib.sessions_fit` now, so what is left is H1 and the label has to
+    say so or every consumer reads the old, wider block."""
+    return "FIT" if y in FIT_YEARS else (GATE_ERA if y == GATE_YEAR
                                          else "OTHER")
 
 
@@ -404,7 +413,7 @@ def arm_rows(S, arm_names):
     assets = [("ALL", None)] + [(a, a) for a in MC.ASSET_ORDER]
     for arm in arm_names:
         for aname, asel in assets:
-            for ename in ("FIT", "GATE_%d" % GATE_YEAR):
+            for ename in ("FIT", GATE_ERA):
                 for rname, rsel in (("ALL", None), ("RELEASE", 1),
                                     ("NO_RELEASE", 0)):
                     sub = [s for s in S
@@ -432,10 +441,19 @@ def arm_rows(S, arm_names):
 
 MIRROR_COLUMNS = ("estimator", "asset", "era", "release_day", "n_sessions",
                   "n_sessions_active", "sessions_won", "sessions_tied",
-                  "sessions_lost", "mirror_law_holds", "mean_delta_usd",
-                  "se_session", "z", "p", "est_usd", "mirror_usd",
-                  "agree_with_oracle", "n_oracle_sessions",
-                  "holm_rank", "holm_threshold", "holm_verdict")
+                  "sessions_lost", "sweep_clean", "mean_delta_usd",
+                  "sd_usd", "se_session", "t", "p", "p_sign", "mde_80_usd",
+                  "n_sessions_min", "verdict", "holds_pre_holm",
+                  "est_usd", "mirror_usd", "agree_with_oracle",
+                  "n_oracle_sessions",
+                  "holm_rank", "holm_threshold", "holm_verdict", "p_holm")
+MIRROR_P_COL = MIRROR_COLUMNS.index("p")
+# R59.  `mirror_law_holds = (lost == 0 and won > 0)` was the criterion behind
+# CC-M2-13.3's "hand side-calling is TERMINALLY DEAD".  Over ~3,000 FIT
+# asset-sessions no estimator can clear it, so the verdict was a property of
+# the criterion.  The era-scale form is m2_common.mirror_paired — a
+# session-clustered PAIRED test, graded on the Holm-adjusted p, NO_TEST below
+# the power floor — and the sweep bit survives as a named DIAGNOSTIC.
 
 
 def mirror_rows(S):
@@ -444,7 +462,7 @@ def mirror_rows(S):
     for est in ESTIMATORS:
         a_arm, m_arm = "CORE_%s" % est, "CORE_%s_MIRROR" % est
         for aname, asel in assets:
-            for ename in ("FIT", "GATE_%d" % GATE_YEAR):
+            for ename in ("FIT", GATE_ERA):
                 for rname, rsel in (("ALL", None), ("RELEASE", 1),
                                     ("NO_RELEASE", 0)):
                     sub = [s for s in S
@@ -457,22 +475,24 @@ def mirror_rows(S):
                                   for s in sub])
                     act = np.array([(s["arms"][a_arm][0]
                                      + s["arms"][m_arm][0]) > 0 for s in sub])
-                    won = int((d > 0).sum())
                     tie = int((d == 0).sum())
-                    lost = int((d < 0).sum())
+                    # R59: the ERA-SCALE mirror law is the session-clustered
+                    # PAIRED test on the per-session delta.  The population is
+                    # the ACTIVE sessions (both arms silent = no evidence
+                    # either way), and n/mde_80 are published so an unpowered
+                    # cell reads NO_TEST rather than as a negative.
                     da = d[act] if act.any() else d
-                    mu = float(da.mean()) if da.size else float("nan")
-                    se = (float(da.std(ddof=1) / math.sqrt(da.size))
-                          if da.size > 1 else float("nan"))
-                    z = mu / se if (np.isfinite(se) and se > 0) else float("nan")
-                    p = P1._p_two_sided(z)
+                    r = MC.mirror_paired(da)
                     ors = [s for s in sub if s["oracle_side"]]
                     agree = (float(np.mean([s["est_sess"][est]
                                             == s["oracle_side"] for s in ors]))
                              if ors else float("nan"))
                     rows.append([est, aname, ename, rname, len(sub),
-                                 int(act.sum()), won, tie, lost,
-                                 int(lost == 0 and won > 0), mu, se, z, p,
+                                 int(act.sum()), r["n_won"], tie, r["n_lost"],
+                                 r["sweep_clean"], r["mean_delta"], r["sd"],
+                                 r["se"], r["t"], r["p"], r["p_sign"],
+                                 r["mde_80"], MC.MIRROR_MIN_SESSIONS,
+                                 r["verdict"], r["holds"],
                                  float(sum(s["arms"][a_arm][2] for s in sub)),
                                  float(sum(s["arms"][m_arm][2] for s in sub)),
                                  agree, len(ors)])
@@ -480,20 +500,26 @@ def mirror_rows(S):
 
 
 def _holm(rows, pcol, alpha=0.05):
-    idx = [i for i, r in enumerate(rows) if np.isfinite(r[pcol])]
-    order = sorted(idx, key=lambda i: rows[i][pcol])
-    m = len(order)
-    still = True
-    for rank, i in enumerate(order, 1):
-        thr = alpha / (m - rank + 1)
-        ok = still and rows[i][pcol] <= thr
-        still = still and ok
-        rows[i] += [rank, thr,
-                    "HOLM_SIGNIFICANT" if ok else "HOLM_NOT_SIGNIFICANT"]
-    for i, r in enumerate(rows):
-        if len(r) == len(MIRROR_COLUMNS) - 3:
-            rows[i] += [0, float("nan"), "NO_TEST"]
+    """ONE Holm family over the estimator table, with the ADJUSTED p emitted.
+
+    Delegates to the batch-4 implementation so there is one Holm in the
+    program, not one per file (D-006: one definition per object)."""
+    import batch4_census as B4          # local: heavy import, one use
+    B4._holm_family([(rows, pcol, len(MIRROR_COLUMNS))], alpha=alpha)
     return rows
+
+
+MIRROR_READ = (MIRROR_COLUMNS.index("n_sessions_active"),
+               MIRROR_COLUMNS.index("mean_delta_usd"),
+               MIRROR_COLUMNS.index("mde_80_usd"),
+               MIRROR_COLUMNS.index("verdict"),
+               MIRROR_COLUMNS.index("p_holm"))
+
+
+def mirror_verdict(row):
+    """The GRADER'S read of a side-probe mirror row: the PAIRED test, Holm."""
+    import batch4_census as B4          # local: heavy import, one use
+    return B4.mirror_verdict(row, MIRROR_READ)
 
 
 SESSION_COLUMNS = ("asset", "d8", "era", "n_candidates", "n_winners",
@@ -532,7 +558,7 @@ def _pick(rows, cols, **kw):
     return None
 
 
-def report(S, arms, mirror, elapsed, pins):
+def report(S, arms, mirror, elapsed, pins, n_quar=0):
     L = []
     A = L.append
     fit = [s for s in S if _era_of(s["year"]) == "FIT"]
@@ -548,6 +574,13 @@ def report(S, arms, mirror, elapsed, pins):
     A("Oracle day-side exists on %d of %d FIT sessions (%.1f%%); the rest have "
       "no D-021 winner or a tied count and carry no side."
       % (n_or, len(fit), 100.0 * n_or / max(len(fit), 1)))
+    A("")
+    A("**HOLDOUT (R57):** %d sessions with d8 >= %d were NEVER LOADED "
+      "(D-058 pre-exam holdout, boundary corrected by CC-M2-15.3). The GATE "
+      "echo below is therefore **%s** — 2025 H1 only. Every GATE row this "
+      "probe published before this fix was computed over the full 2025 "
+      "calendar year and labelled GATE_2025."
+      % (n_quar, MC.HOLDOUT_FROM_D8, GATE_ERA))
     A("")
 
     A("## (a) THE CEILING CENSUS — who chooses the side (ALL assets, FIT)")
@@ -589,7 +622,7 @@ def report(S, arms, mirror, elapsed, pins):
     A("|---|---|---|---|---|---|")
     for arm in ("CORE", "CORE_ORACLE"):
         r = _pick(arms, ARM_COLUMNS, arm=arm, asset="ALL",
-                  era="GATE_%d" % GATE_YEAR, release_day="ALL")
+                  era=GATE_ERA, release_day="ALL")
         if r is None:
             continue
         A("| %s | %d | %s | %s | %s | %s |"
@@ -599,26 +632,44 @@ def report(S, arms, mirror, elapsed, pins):
 
     A("## (b) THE CAUSAL ESTIMATORS UNDER THE MIRROR LAW (CC-M2-13.1)")
     A("")
-    A("An estimator PASSES only if it beats its own mirror on EVERY session "
-      "(`sessions_lost` = 0). `agree` is the fraction of oracle-bearing "
-      "sessions where the estimator's session-level side equals the oracle's.")
+    A("R59: an estimator is graded on the SESSION-CLUSTERED PAIRED TEST of "
+      "its per-session mirror delta, on the Holm-adjusted p over this family, "
+      "with the 80%-power MDE beside it — NOT on `lost == 0`, which over "
+      "thousands of sessions is a criterion nothing can pass and which is "
+      "what CC-M2-13.3's TERMINALLY DEAD verdict was actually read off. "
+      "`sweep` is that old bit, kept as a diagnostic. `agree` is the fraction "
+      "of oracle-bearing sessions where the estimator's session-level side "
+      "equals the oracle's.")
     A("")
     A("| estimator | era | split | sessions active | won | tied | LOST | "
-      "mirror law | mean delta $ | z | p | Holm | agree |")
-    A("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+      "sweep | mean delta $ | se | t | p | p_Holm | mde80 $ | verdict | Holm | "
+      "agree |")
+    A("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for est in ESTIMATORS:
-        for ename in ("FIT", "GATE_%d" % GATE_YEAR):
+        for ename in ("FIT", GATE_ERA):
             for rname in ("ALL", "RELEASE", "NO_RELEASE"):
                 r = _pick(mirror, MIRROR_COLUMNS, estimator=est, asset="ALL",
                           era=ename, release_day=rname)
                 if r is None:
                     continue
-                A("| %s | %s | %s | %d | %d | %d | %d | %s | %s | %s | %s | "
-                  "%s | %s |"
-                  % (est, ename, rname, r[5], r[6], r[7], r[8],
-                     "PASS" if r[9] else "**FAIL**", _fmt(r[10], 1),
-                     _fmt(r[12], 2), _fmt(r[13], 6),
-                     r[20] if len(r) > 20 else ".", _fmt(r[16], 3)))
+                A("| %s | %s | %s | %d | %d | %d | %d | %d | %s | %s | %s | "
+                  "%s | %s | %s | **%s** | %s | %s |"
+                  % (est, ename, rname, r[5], r[6], r[7], r[8], r[9],
+                     _fmt(r[10], 1), _fmt(r[12], 1), _fmt(r[13], 2),
+                     _fmt(r[14], 6), _fmt(r[27], 6) if len(r) > 27 else ".",
+                     _fmt(r[16], 1), r[18],
+                     r[26] if len(r) > 26 else ".", _fmt(r[22], 3)))
+    A("")
+    A("### THE VERDICT EACH ESTIMATOR EARNS (FIT, ALL assets, ALL days)")
+    A("")
+    for est in ESTIMATORS:
+        r = _pick(mirror, MIRROR_COLUMNS, estimator=est, asset="ALL",
+                  era="FIT", release_day="ALL")
+        holds, why = mirror_verdict(r)
+        A("* **%s**: %s — %s"
+          % (est, "DIRECTION_CANDIDATE" if holds else
+             ("NO_TEST" if (r is not None and r[18] != "TESTED")
+              else "DEAD_AS_A_RULE"), why))
     A("")
 
     A("## PROVENANCE")
@@ -633,11 +684,11 @@ def report(S, arms, mirror, elapsed, pins):
 def build(workers=4, limit_sessions=None):
     t0 = time.time()
     MC.verify_spec(force=True)
-    S = scan(FIT_YEARS + (GATE_YEAR,), workers=workers,
-             limit_sessions=limit_sessions)
+    S, n_quar = scan(FIT_YEARS + (GATE_YEAR,), workers=workers,
+                     limit_sessions=limit_sessions)
     arm_names = sorted({a for s in S for a in s["arms"]})
     arms = arm_rows(S, arm_names)
-    mirror = _holm(mirror_rows(S), MIRROR_COLUMNS.index("p"))
+    mirror = _holm(mirror_rows(S), MIRROR_P_COL)
     sess = session_rows(S)
     phash = MC.params_hash(PARAMS)
     extra = ["CC-M2-13.3 session-side state probe",
@@ -649,17 +700,47 @@ def build(workers=4, limit_sessions=None):
                  list(ARM_COLUMNS), arms, extra=extra)
     MC.write_tsv(os.path.join(OUT_DIR, "MIRROR.tsv"), SECTION, phash,
                  list(MIRROR_COLUMNS), mirror,
-                 extra=extra + ["mirror_law_holds = 1 iff the estimator loses "
-                                "to its mirror on ZERO sessions"])
+                 extra=extra + ["R59: the verdict of record is the "
+                                "session-clustered PAIRED test "
+                                "(m2_common.mirror_paired) read on p_holm; "
+                                "sweep_clean (lost == 0 and won > 0) is the "
+                                "STUDY-ROUND diagnostic and gates nothing",
+                                "verdict = NO_TEST below %d active sessions — "
+                                "an unpowered cell is not a negative; "
+                                "mde_80_usd is what it could have detected"
+                                % MC.MIRROR_MIN_SESSIONS,
+                                "era %s = 2025 H1 ONLY; the D-058 holdout is "
+                                "never loaded (R57)" % GATE_ERA])
     MC.write_tsv(os.path.join(OUT_DIR, "SESSIONS.tsv"), SECTION, phash,
                  list(SESSION_COLUMNS), sess, extra=extra)
     pins = MC.pins_moved()
     el = time.time() - t0
     MC.write_text(os.path.join(OUT_DIR, "SIDE_PROBE_REPORT.md"),
-                  report(S, arms, mirror, el, pins))
+                  report(S, arms, mirror, el, pins, n_quar))
+    verdicts = {}
+    for est in ESTIMATORS:
+        r = _pick(mirror, MIRROR_COLUMNS, estimator=est, asset="ALL",
+                  era="FIT", release_day="ALL")
+        holds, why = mirror_verdict(r)
+        verdicts[est] = {"holds": int(bool(holds)), "why": why,
+                         "verdict": (r[18] if r is not None else "NO_ROW"),
+                         "n_sessions_active": (r[5] if r is not None else 0),
+                         "mean_delta_usd": (r[10] if r is not None else None),
+                         "mde_80_usd": (r[16] if r is not None else None),
+                         "p": (r[14] if r is not None else None),
+                         "p_holm": (r[27] if (r is not None and len(r) > 27)
+                                    else None),
+                         "sweep_clean_diagnostic": (r[9] if r is not None
+                                                    else None)}
     MC.write_json(os.path.join(OUT_DIR, "side_probe.receipt.json"),
                   {"env": MC.env_receipt(PARAMS), "n_sessions": len(S),
                    "n_candidates": int(sum(s["n_cand"] for s in S)),
+                   # R57: the quarantine is DECLARED, not silent.
+                   "n_holdout_sessions_quarantined": int(n_quar),
+                   "holdout_from_d8": MC.HOLDOUT_FROM_D8,
+                   "gate_era": GATE_ERA,
+                   "mirror_min_sessions": MC.MIRROR_MIN_SESSIONS,
+                   "estimator_verdicts": verdicts,
                    "arms": arm_names, "elapsed_sec": el, "pins_moved": pins,
                    "out_dir": OUT_DIR})
     MC.hb("side probe done: %d sessions, %.1fs" % (len(S), el))

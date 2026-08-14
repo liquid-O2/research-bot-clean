@@ -1969,6 +1969,20 @@ def s12_context(case, put):
                         MC.futc(rec["event_ts"]),
                         " " + str(rec["since_sec"]) + "s ago",
                         " status=" + rec["status"]))
+    # R14 VINTAGE, DECLARED.  The banked files hold the LATEST vintage of every
+    # series while the availability rule is a FIRST-PRINT rule, so a decision on
+    # 2021-10-20 joins the 2026-vintage value of a 2021-10-19 observation: D-057
+    # is satisfied in form and violated in substance.  No vintage archive
+    # exists for these sources, so the limitation is DECLARED on the sheet
+    # rather than left silent — the reader is told which of the numbers above
+    # may be a later correction of what was published at the time.
+    _rev = sorted(set(AV.revised_series()) & set(CTX.ASSET_SERIES[case.asset]))
+    L.append(MC.row("  vintage", "REVISED-VALUE series (no point-in-time "
+                    "archive; the value shown may be a later correction of the "
+                    "first print — R14): "
+                    + (",".join(_rev) if _rev else "none")))
+    put("S12.n_series_revised_value", len(_rev), AV.LAG_TABLE,
+        "vintage_class == REVISED_VALUE")
     L.append(MC.row("  availability_summary", "n_joined=" + str(n_ok),
                     " n_refused=" + str(n_ref),
                     " lag_table=" + AV.LAG_TABLE))

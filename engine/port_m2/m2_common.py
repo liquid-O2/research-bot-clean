@@ -296,6 +296,9 @@ SECTION_TITLES = {
 #                    z-scored quantities and the code emitted z for none of the
 #                    three (R99), with abs_sflow_per_min computed into the
 #                    clock-norm digest and never consumed.
+#   S12 720 ->  800  the R14 VINTAGE declaration (which of the joined series
+#                    carry no point-in-time archive) is a line the reader has to
+#                    have; a fully-joined SI sheet spent 720 of 720 without it.
 #   S3  780 ->  860  the OBSERVED-close runway rides beside the scheduled one
 #                    (D15/V1.2: the nominal runway is wrong by HOURS on
 #                    early-close sessions and runway_to_seat is the program's
@@ -305,7 +308,7 @@ SECTION_TITLES = {
 SECTION_BUDGET = {
     "S1": 1000, "S2": 260, "S3": 860, "S4": 1240, "S5": 520,
     "S6": 3000, "S7": 320, "S8": 600, "S9": 300, "S10": 340,
-    "S11": 180, "S12": 720, "S13": 720, "S14": 760,
+    "S11": 180, "S12": 800, "S13": 720, "S14": 760,
 }
 # Binding whole-sheet cap, not the sum of the parts: a sheet may not spend every
 # section's headroom at once.  CC-M2-1.1: 7,400 -> 8,500 with the S6 raise.

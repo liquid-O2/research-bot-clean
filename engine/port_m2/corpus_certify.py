@@ -175,8 +175,14 @@ def scan_dir(era, block, asset, d8):
         return None
     popen = phase_open_secs(asset, d8)
     names = sorted(os.listdir(base))
-    sheets = [n for n in names if n.endswith(".%s.sheet.txt" % block)]
-    s14 = [n for n in names if ".S14." in n]
+    # era_build renders BLIND-MODE sheets for BOTH blocks (the P-M2b pattern:
+    # a blind sheet plus a separately-released S14 appendix), so the file name
+    # carries the MODE, not the block.
+    sheets = [n for n in names if n.endswith(".%s.sheet.txt" % MC.MODE_BLIND)]
+    # L2 is a BLIND-BLOCK law.  In the STUDY block the appendix beside the
+    # sheet is the intended artefact — the protocol releases it after the call.
+    s14 = ([n for n in names if ".S14." in n]
+           if block == MC.MODE_BLIND else [])
     n_cert = n_fail = n_over = n_ref = 0
     l1_sheets = l1_rows = l3 = l4 = 0
     h = hashlib.sha256()

@@ -545,12 +545,14 @@ def t10_triage_regime_columns_match_the_frame():
             "f5m_vol": int(f["f5m_vol"][t]),
             "f30m_sflow": int(f["f30m_sflow"][t]),
             "f30m_vol": int(f["f30m_vol"][t]),
-            # S12 shows `last_scheduled` only inside context.recent_release's
-            # 24h display window; the FRAME field is deliberately unwindowed
-            # (P022's clause is `< 90min`, and a windowed field would refuse
-            # rather than answer), so the expectation is windowed here.
+            # R56 removed context.recent_release's 24h display window (an age
+            # that silently VANISHED at 24h+1s where a consumer needed a large
+            # number), and pattern_lib.release_calendar now reads the SAME
+            # impact-classified universe the sheet reads — so the frame field
+            # and the sheet field are the same quantity, unwindowed, and the
+            # expectation is no longer windowed.
             "sched_last_age": (float(f["release_age_sec"][t])
-                               if 0 <= int(f["release_age_sec"][t]) <= 86400
+                               if int(f["release_age_sec"][t]) >= 0
                                else None),
         }
         for key, w in want.items():

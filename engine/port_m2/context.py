@@ -587,6 +587,22 @@ def _joinable_future(c, guard):
     return _iso(c[3]) < guard.trade_date
 
 
+# R15.  THE DISRUPTED RELEASES, named and sourced.  `AVAILABILITY_LAGS.tsv`'s
+# CAL_BLS caveat reads verbatim: "the two October-2025-reference rows are
+# scheduled_at_capture and were disrupted in the shutdown — flagged, never
+# asserted as events."  Those are the November-2025 prints of the October
+# reference month; both sit inside the D-058 holdout, so no protocol decision
+# reads them either way, and naming them is what keeps the rule from deleting
+# the 58 ordinary forward-captured rows with them.
+DISRUPTED_RELEASES = (("2025-11-07", "Employment Situation"),
+                      ("2025-11-13", "CPI"))
+
+
+def _disrupted(c):
+    d = dt.datetime.fromtimestamp(int(c[0]), AV.NY).date().isoformat()
+    return (d, str(c[1])) in DISRUPTED_RELEASES
+
+
 def next_release(guard, asset, min_impact=None, include_rule_derived=True):
     """The next SCHEDULED release strictly after decision_ts, with countdown.
 
@@ -618,10 +634,19 @@ def recent_release(guard, asset, window_sec=None, min_impact=None,
     got a large number.  It now defaults to UNBOUNDED; a caller that wants the
     "a number just printed" framing passes its own window explicitly.
 
-    R15: a PAST release must be `actual`.  A `scheduled_at_capture` row is a
-    date that had not happened when the page was captured — the two
-    October-2025 reference rows are exactly that and both were disrupted in the
-    shutdown — so it is never asserted as an event that fired.
+    R15: a PAST release must not be one the manifest flags as DISRUPTED, and
+    its schedule provenance must predate the decision.
+
+    The first cut of this rule required `status == "actual"`, which was too
+    strong by a wide margin: 58 of the 148 banked BLS rows are
+    `scheduled_at_capture` simply because the wayback page was captured BEFORE
+    the release (that is what a forward-looking schedule page looks like), and
+    excluding them deleted real events — the 2021-07-02 Employment Situation
+    among them, which made the sheet report ISM Manufacturing from the previous
+    day as "the last scheduled release" 46 seconds after NFP printed.  The lag
+    table's caveat names TWO rows, not 58: "the two October-2025-reference rows
+    are scheduled_at_capture and were disrupted in the shutdown".  Those two are
+    named in DISRUPTED_RELEASES and only those two are refused.
     """
     best = None
     for c in calendar_for(asset):
@@ -629,8 +654,10 @@ def recent_release(guard, asset, window_sec=None, min_impact=None,
             break
         if window_sec is not None and guard.decision_ts - c[0] > window_sec:
             continue
-        if c[2] != "actual":
+        if _disrupted(c):
             continue
+        if not _joinable_future(c, guard):
+            continue                       # the schedule page must predate it
         if not include_rule_derived and c[5] == DATE_RULE:
             continue
         if min_impact is not None and not impact_at_least(c[4], min_impact):

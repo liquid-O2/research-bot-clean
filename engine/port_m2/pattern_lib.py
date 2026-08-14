@@ -561,12 +561,22 @@ _CAL = None
 
 
 def release_calendar():
-    """(sorted epoch-second array, names) of every scheduled BLS/FOMC release."""
+    """(sorted epoch-second array, names) of THE dated scheduled-release universe.
+
+    ONE CALENDAR (the D8 rule).  This used to be the banked BLS+FOMC set while
+    the SHEET's S12 read `context.next_release` / `recent_release` — and once
+    R36/R127 widened the sheet's calendar with the rule-derived releases, the
+    two disagreed by 15 DAYS on the same quantity under the same name
+    (`sched_last_age` on the index vs `release_age_sec` on the frame: 30,854s
+    against 1,312,454s on SI 2021-07-02).  A column that is not what its name
+    says is exactly the defect the version stamp exists to prevent, so both
+    sides now read `context.high_impact_calendar`, which carries the impact
+    tier and the date source on every row.
+    """
     global _CAL
     if _CAL is None:
         import context as CTX             # local: context pulls the ref tables
-        cal = sorted(CTX._get("CAL_BLS", CTX._bls_calendar)
-                     + CTX._get("CAL_FOMC", CTX._fomc_calendar))
+        cal = CTX.high_impact_calendar()
         _CAL = (np.array([int(c[0]) for c in cal], dtype=np.int64),
                 [str(c[1]) for c in cal])
     return _CAL

@@ -1202,8 +1202,9 @@ def write_compat(path, rows, as_of=None):
     lines = ["# TRIAGE INDEX COMPAT VIEW (D16 pinned reader: ONE comment line; "
              "the CURRENT %s column list plus every legacy alias, so a "
              "consumer pinned to either spelling keeps working; data identical "
-             "to the versioned index)  columns_sha16=%s%s"
-             % (VERSION, columns_sha16(),
+             "to the versioned index)  extractor_version %s  "
+             "columns_sha16 %s%s"
+             % (VERSION, VERSION, columns_sha16(),
                 ("  AS_OF %d  (D14 prefix view: rows with sec > as_of are "
                  "ABSENT; fields knowable only later are masked to '%s')"
                  % (as_of, NA)) if as_of is not None else "")]

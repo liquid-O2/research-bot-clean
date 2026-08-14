@@ -355,3 +355,29 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
 4. Defects D2-D8 dispositions: D3 accepted (value is the phase-open update, documented); D4 trade-tape flow
    deferred-not-hidden (named build item); D5 consistent with the known VI gap; D6/D7 accepted with hooks;
    D8 noted (GATE = the honest read).
+
+## CC-M2-15 — batch-3 + side-probe adjudications: THE SIDE CRUX (orchestrator, 2026-08-14; BINDING)
+1. VERDICTS RATIFIED: P025 = the structural conditioning object (phase does NOT survive conditioning on
+   runway-to-seat; monotone 9-band concentration, 3.70x; not an entry rule) — 'NY' is retired as a concept,
+   runway_to_seat replaces it everywhere. P023 concentrator (repair confirmed at case level); P024 core-form
+   concentrator, confluence-form null; P007-as-entry null-negative. FOUR censuses, zero entry rules — final
+   confirmation of the division of labor.
+2. THE SIDE CRUX DECLARED: the probe quantifies the whole program — refusal core alone -$42/session; core
+   + oracle day-side +$664; day-side alone +$1,268/session (capture 0.353), GATE echo consistent. All three
+   naive causal estimators FAIL the mirror law (best: session-return-at-phase-open, 0.64 agreement, p=.063).
+   THE PROGRAM'S REMAINING SCIENTIFIC PROBLEM IS THE CAUSAL SESSION-SIDE ESTIMATOR. M3's FIRST MODEL is
+   hereby defined: the DAY-SIDE CLASSIFIER — day-level target (oracle winner-majority side), full feature
+   arsenal (regime forecaster outputs, overnight/context, event-grain flows, concentrator states, cross-
+   asset), walk-forward FIT, mirror-law + Holm discipline, evaluated on GATE-2025H1 ONLY.
+3. HOLDOUT BOUNDARY CORRECTED: the D-058 port pre-exam holdout = 2025-07-01 onward (the lane split at 09-01
+   — the IWM boundary — by error). All GATE echoes henceforth = 2025-H1 (through 06-30) only; H2 rows
+   quarantined. Exposure to date = eval-only aggregate echoes (no fit touched holdout); journaled honestly,
+   echoing stops now.
+4. EVENT-CACHE FULL EXTRACTION ORDERED (a build item now justified twice over): the per-session MBP-1 event
+   extractor runs corpus-wide (3,734 sessions, ~10s each, 12 workers) so S7/S8 event statistics (c2f,
+   erosion, through-book) become era-censusable AND feed the day-side classifier's flow features. Background
+   run + watcher.
+5. STUDY REDIRECT for days 6-8: the reader's primary object becomes SIDE EVIDENCE — what ex-ante/early-
+   session fields predicted each day's side (its post-mortems feed the classifier's feature set directly).
+6. D18 (%.4g mid formatting) queued for V1.2; tooling V3 (as-of live, versioned-API compat, S10 + forecaster
+   columns) ACCEPTED — 17/17 mutants.

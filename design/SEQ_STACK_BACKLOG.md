@@ -6,8 +6,10 @@ B2 DEEP-ENSEMBLE DISAGREEMENT ABSTENTION: 3-5 seeds; disagreement replaces softm
 B3 HARD-NEGATIVE RANKING CURRICULUM: wall-pairs weighted into the listwise loss as hard negatives.
 B4 MULTI-TASK LABEL HEADS: joint atlas-family targets (retention/walled/fp-race) as regularization.
 B5 SEED ENSEMBLES: averaged final scores (variance reduction on NDCG/SEL_WRONG_MEMBER).
-Selection rule: after the first stack report + ledger decomposition, apply the backlog item aimed at the
-largest surviving deficit; one change per iteration; controls unchanged.
+Selection rule (D-001, user-corrected): ONE comprehensive evaluation (certificates + probes + benchmarks +
+ledger decomposition) -> ONE CONSOLIDATED FIX PASS applying ALL evidence-indicated repairs and backlog items
+together, each behind a toggle, with the internal ablation grid run inside the same pass (GPU fits are cheap
+— joint fix + component attribution in one loop) -> ONE re-evaluation. Never serial fix-review-fix.
 
 ## REPAIR MATRIX (failure signature -> treatment; one change per iteration)
 R1 VAL LOSS PLATEAUS HIGH (underfit): ladder up capacity; extend steps (single-pass is a floor not a cap);

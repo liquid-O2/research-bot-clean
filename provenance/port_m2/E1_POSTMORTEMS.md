@@ -969,3 +969,228 @@ candidate for promotion into the triage index (defect D17).
 * **D13 status:** the renames ARE emitted by the current extractor; the VERSION stamp is emitted as
   a second header comment — which is exactly what breaks D16's consumers. The docstring is no longer
   wrong; the change was shipped without a consumer sweep.
+
+---
+
+# E1 STUDY POST-MORTEMS — DAY 5 (2021-07-07, SI + HG + NKD, day-complete, n=1,185)
+
+Reader: opus-discretionary, fresh context (CC-M2-4.2). Sheets PORT-SHEETS-V1.1. Theses sealed in
+commit `398f3e7` ("E1D5 theses sealed"); every S14/outcome below was opened after that commit.
+Committed calls are never revised. Draw: the next chronological STUDY session per asset strictly
+after 2021-07-06, warm-up sessions excluded (CC-M2-8.1) — SI/HG/NKD 2021-07-07, 1,185 candidates
+(SI 391, HG 413, NKD 381). USED_CASE_LEDGER carries 0 prior hits on 20210707.
+
+**THE WHOLE DAY WAS DECLARED BEFORE IT WAS SEEN.** CC-M2-13.4 fixed all three arms; `e1d5_policy.py`
+declares each of them in full — the five inherited refusal terms, the exact side estimator, the
+veto protocol — together with the estimator's pre-registered 5-right/2-wrong record on days 1-4 and
+its pre-registered FAILURE of the mirror law. Nothing below can be re-read as a discovery.
+
+**TAINT: CLEAN, with `AS-OF-PREFIX` on every TAKE and `VETO-TABLE-SCANNED` on the two seats (new
+defect D18, §10).**
+
+## 0. THE DAY, AND THE SCORE — THE FIRST POSITIVE-MEAN TAKE SET OF THE ROUND, AND STILL A LOSS
+
+| ledger | calls | TAKE | mean take $ | mean skip $ | winner precision | replay $ | capture |
+|---|---|---|---|---|---|---|---|
+| **READER** | 1,185 | **15** | **+160.83** | -45.36 | **0.000** | **+115.00** | 0.014 |
+| EARLIEST, all episodes (**BEST mechanical**) | 1,185 | 545 | -40.40 | -44.75 | 0.029 | **+4,412.50** | 0.545 |
+| EARLIEST + cv >= 516 / 639 | 1,185 | 26/24 | +5.58/-53.96 | -44 | 0.038/0.042 | +3,380.00/+2,685.00 | 0.417/0.332 |
+| YESTERDAY e1d1 (frozen) | 1,185 | **0** | — | -42.75 | — | 0.00 | 0.000 |
+| YESTERDAY e1d2 (frozen) | 1,185 | 5 | +502.50 | -45.06 | 0.000 | +1,530.00 | 0.189 |
+| YESTERDAY e1d3 (frozen) | 1,185 | 3 | -930.00 | -40.50 | 0.000 | -1,860.00 | -0.230 |
+| YESTERDAY e1d4 (frozen) | 1,185 | 20 | -383.12 | -36.90 | 0.000 | -615.00 | -0.076 |
+
+* **Margin over the best mechanical baseline: -$4,297.50** (round: +$2,380 / -$2,398 / +$928.75 /
+  -$8,123.75 / -$4,297.50). Over frozen e1d1 **+$115.00**, e1d2 **-$1,415.00**, e1d3 **+$1,975.00**,
+  e1d4 **+$730.00** — the reader beat three of its four frozen selves and lost to the fourth.
+* Lift NA (SKIP mean negative). mean(take) - mean(skip) = **+$206.19**, positive for the first time
+  since day 1. **0 of 15 takes walled** (day 4: 36 of 44); median take MAE $237.50.
+* Day-complete census: SI n=391 mean +$0.08 (28 winners), HG n=413 -$76.81 (14), NKD n=381 -$49.78
+  (4). LONG n=600 mean -$130.80 with **9** winners; SHORT n=585 +$47.56 with **37**. Day DP ceiling
+  **$8,098.75**.
+
+## 1. E1D5-F1 — THE FOUR-DAY META-FINDING BREAKS: THE SIDE IS A **PHASE** PROPERTY, NOT A SESSION PROPERTY
+
+CC-M2-13.3 was built on "winners concentrate on ONE side per session (4/4 days)". This session has
+winners **on both sides of the same asset**:
+
+| asset | winners | where |
+|---|---|---|
+| SI | 28 | **2 LONDON LONGS** (07:04:28, 07:32:27) + **26 NY SHORTS** (13:03-15:52) |
+| HG | 14 | **3 LONDON LONGS** (07:02:36-07:13:14) + **11 NY SHORTS** (14:07-14:28) |
+| NKD | 4 | **4 TOKYO LONGS** (02:01:14-02:02:07) |
+
+Five sessions, and the unit that has never once been split is the **(asset, PHASE)** cell: day 1 NY
+shorts, day 2 NY longs, day 3 TOKYO longs, day 4 NY shorts, day 5 TOKYO longs + LONDON longs + NY
+shorts. **The session-side state variable ordered in CC-M2-13.3 is measuring the wrong unit; the
+phase-side state variable is the object that has 5/5 support.** That is also why the day-3 TOKYO
+winners and the day-4 NY winners never coexisted in one rule: they are different cells, not
+different days.
+
+## 2. E1D5-F2 — THE SIDE ESTIMATOR IS 0 FOR 46, AND ITS FAILURE MODE IS EXACT AND MECHANICAL
+
+The declared first-confirmed-outcome-sign estimator called **LONG on SI (08:50:56), LONG on HG
+(09:01:35), SHORT on NKD (02:01:14)**. The day's winners are 26+11 NY SHORTS and 4 NKD TOKYO LONGS.
+**The side gate passes 0 of the 46 winners.** Across all five sessions, on the ten asset-sessions
+that produced winners:
+
+* SIGN: 7 right, 3 wrong (2021-07-01 HG and SI, 2021-07-07 NKD).
+* TIMING: **7 of 7 sign-correct confirmations arrived AFTER that asset-session's first winner.**
+  Not one confirmation in five sessions has ever preceded the winner window it was meant to open.
+
+And the mechanism of the failure is visible in one row. **NKD's confirmation at 02:01:14 was set by
+`NKD-20210707-002147-S`, a 00:35:47 SHORT whose `f60_n=0, f60_vol=0, f5m_vol=0` — a DEAD-BOOK row
+that P004 refuses outright.** NKD fell $1,000 into 02:01:14, the estimator stamped the session
+SHORT at that second, and the four D-021 winners of the session are LONGS whose decision seconds are
+02:01:14, 02:01:59, 02:02:05 and 02:02:07. **The first confirmed $1,000 move IS the move; its
+confirmation second is its end.** That is the same object as the 2021-07-01 failure, now with the
+mechanism named rather than inferred.
+
+Two repairs are implied and neither is a new direction term: (i) the founder must itself be a
+tradeable candidate (P004's live-book floor at minimum) — a dead-book row must never set session
+state; (ii) the estimator must be PHASE-scoped (F1) and must expire, because a 09:01 LONDON
+confirmation governing a 16:19 NY decision is what this day actually traded.
+
+**MIRROR-LAW TABLE, five sessions (the side gate vs the opposite side gate, replay $):**
+-3,568.75/+2,815.00 (**NO**) | +1,295.00/-822.50 | +808.75/-1,133.75 | +4,171.25/-4,347.50 |
+-2,362.50/+1,828.75 (**NO**). Beats its mirror on **3 of 5** => fails CC-M2-13.1, exactly as
+pre-registered.
+
+## 3. E1D5-F3 — THE PRE-MORTEM VETOES WON THE DAY AND LOSE THE ROUND, AND BOTH HALVES ARE THE FINDING
+
+**On this session, obeying the pre-mortems is worth +$2,477.50 of replay at a cost of zero winners.**
+
+| pool | n | mean close $ | winners | walled |
+|---|---|---|---|---|
+| the 97 VETOED takes | 97 | **-679.42** | **0** | 0.732 |
+| the 15 that STOOD | 15 | **+160.83** | 0 | **0.000** |
+
+Both would-be seats were hard stop-outs: `HG-20210707-048882-L` -$930 (walled) and
+`SI-20210707-050720-L` -$930 (walled), both refused by trigger V1 before the seal. Sole-block on the
+day: V1 57 rows at -$830.99, V2 18 at -$190.07, V3 3 at +$111.67; **zero winners in any of them.**
+Four days of "the pre-mortem named the death mechanism and I took the trade anyway" (0/11, 5/6, 2/5,
+3/3) get their first day of obedience and the instrument pays.
+
+**And the same three triggers applied mechanically to the CORE arm on all five sessions are
+-$12,592.50 and cost 91 of 99 winners:**
+
+| session | CORE takes/win/replay | CORE+VETOES takes/win/replay | delta | winners lost |
+|---|---|---|---|---|
+| 2021-07-01 | 146 / 22 / +3,570.00 | 16 / 0 / -771.25 | **-4,341.25** | 22 |
+| 2021-07-02 | 196 / 26 / -2,471.25 | 46 / 0 / -1,752.50 | +718.75 | 26 |
+| 2021-07-05 | 45 / 3 / +2,282.50 | 6 / 0 / -371.25 | **-2,653.75** | 3 |
+| 2021-07-06 | 223 / 39 / +3,335.00 | 71 / 0 / -3,766.25 | **-7,101.25** | 39 |
+| 2021-07-07 | 157 / 9 / -278.75 | 33 / 8 / +506.25 | +785.00 | 1 |
+| **pooled** | 767 / 99 / +6,437.50 | 172 / 8 / -6,155.00 | **-12,592.50** | 91 |
+
+The damage is **entirely V1** (§4). Sole-block over five sessions: **V1 403 rows at +$261.30 mean
+with 71 winners refused**; V2 52 rows at -$131.32 with 3; V3 27 rows at -$447.36 with 1. So the
+honest verdict on arm (b) is split and both halves matter: *a pre-mortem is an excellent detector of
+what will kill THIS trade, and converting it into a standing rule inherits every weakness of the
+object it names.* V2 and V3 (the fuel-map overhang and P018 two-stream opposition) survive as
+refusals on all five sessions; V1 does not.
+
+## 4. E1D5-F4 — P028 BAR_OUTSIDE_DEVELOPING_VALUE: BORN, MEASURED ON FIVE SESSIONS, AND DEAD IN ONE DAY
+
+S10's developing value area was the round's best-behaved magnitude object (2-for-2 on the days it
+was read, ignored both times). Registered prospectively as P028 and made mechanical for the first
+time (`e1d5_s10.py`, the in-lane fix for defect D17), it is the day's veto trigger V1 — and the
+five-session count kills it:
+
+| session | bar INSIDE the developing VA (n / mean $ / winners / rate) | bar OUTSIDE (n / mean $ / winners / rate) | lift |
+|---|---|---|---|
+| 2021-07-01 | 93 / -31.21 / 0 / 0.000 | 939 / -2.02 / 48 / 0.051 | 0.00x |
+| 2021-07-02 | 141 / -595.69 / 4 / 0.028 | 792 / +35.21 / 34 / 0.043 | 0.66x |
+| 2021-07-05 | 41 / +61.31 / 0 / 0.000 | 588 / -43.27 / 8 / 0.014 | 0.00x |
+| 2021-07-06 | 290 / -376.03 / 3 / 0.010 | 973 / +245.15 / 133 / 0.137 | 0.08x |
+| **2021-07-07** | **227 / +102.79 / 29 / 0.128** | 952 / -76.92 / 17 / 0.018 | **7.15x** |
+| **POOLED** | 792 / -214.77 / 36 / 0.0455 | 4,244 / +39.08 / 240 / 0.0566 | **0.80x** |
+
+It beats its mirror on **one of five** sessions. **P028 is DEAD ON BIRTH, in the P014/P026 class**,
+and it is the third time this round that a magnitude object has been minted on the sessions that
+made it look right. The give-back question (§39.5, §42) is still open and now has three corpses.
+What survives is the *measurement*: `d_POC/d_VAH/d_VAL/in_VA/bar_outside_va` are now extracted for
+all five study days (`artifacts/cache/port/m2/triage/E1D{1..5}_S10.tsv`) and the census can use them
+without re-reading 5,000 sheets.
+
+## 5. E1D5-F5 — P025 IS 276-FOR-276, AND IT IS NOW THE ONLY OBJECT WITH FIVE CLEAN SESSIONS
+
+Runway to the binding (phase-close) exit >= 12,000s passes **46 of 46 winners today** (minimum
+winner runway **19,653s**) after 230 of 230 on days 1-4. Five day-complete sessions, **276 D-021
+winners, zero exceptions**, and **0 winners in the 304 rows below 12,000s**. Term retention on
+today's winners for contrast: T2 runway 46/46, T1 live book 44/46, T3 freshness 41/46, T4
+aggression-at-magnitude 33/46, T5 magnitude floor **23/46**.
+
+## 6. E1D5-F6 — THE MAGNITUDE FLOOR IS THE TERM THAT COST NKD, AND IT IS THE DAY-3 ERROR REPEATING
+
+NKD produced 4 D-021 winners (TOKYO longs, 02:01:14-02:02:07, certs $1,045-$1,157.50, MAEs
+$37.50-$150). All four carry `terms=11110`: **they pass the live book, the runway, the freshness and
+the aggression test, and they fail T5's ABSOLUTE 200-contract floor** with 5-minute volumes of
+118-140 contracts. Their RELATIVE volumes are **41.5%-45.0% of the phase's total** — five times the
+8% relative clause. The floor reads `v5 >= 200 AND (v5 >= 500 OR v5 >= 8% of phase vol)`, so the
+absolute 200 gate fires before the relative clause can rescue them. ERA_NOTES §33 wrote the law
+after day 3 ("settle a threshold on the pooled pool, never on the replay") and the *form* of the
+term still carries an absolute contract count across three assets whose multipliers differ 5x and
+whose thin phases trade in tens. **The repair is one line: make the floor relative-OR-absolute at
+the FLOOR too (`v5 >= 200 OR v5 >= 8% of phase vol`), not relative-OR-absolute only above it.**
+The reader's fifth consecutive NKD abstention scored $0 against -$607.50 for the best mechanical
+arm, so the abstention was again not punished — but for the second session running the claim that
+NKD has nothing to offer is false, and it is now this rule's own floor that hides it.
+
+## 7. E1D5-F7 — THE TWO SEATS, AND WHAT THE VETO CHAIN ACTUALLY BOUGHT
+
+| seat | call | close $ | peak $ | MAE $ | walled | pre-mortem verdict |
+|---|---|---|---|---|---|---|
+| HG/NY 16:19:25 LONG | TAKE | **-205.00** | +463.75 | 525.00 | no | The conditional FIRED as written: the 5m flow turned sell and price went back under the developing VAL 4.3090. Wrong trade, right mechanism, and the flip threshold named it. |
+| SI/NY 16:38:54 LONG | TAKE | **+320.00** | +732.50 | 237.50 | no | The bounce held; the "16:37 high was the whole bounce" mechanism did not fire within the phase. Best call of the day and still $680 under the bar. |
+
+The veto chain moved HG/NY from 13:34:42 (-$930, walled) to 16:19:25 (-$205) and SI/NY from
+14:05:20 (-$930, walled) to 16:38:54 (+$320): **+$1,975.00 of seat value from four vetoes**, of
+which the two V1 vetoes contributed $1,860 and the V2/V3 chain the rest. The intermediate vetoed
+candidates were -$30 (HG 16:07:41), -$930 walled (SI 16:12:52) and **+$307.50 (SI 16:29:29, the V3
+veto — the one veto that cost money)**.
+
+## 8. E1D5-F8 — THE GRADE BROKE ITS MONOTONE RUN
+
+`sigma_to_exit` (CC-M2-10.5 form, unchanged since day 3): A n=42 mean **-$88.63 with 0 winners**;
+B n=468 -$44.29 with **34**; C n=675 -$38.82 with 12. Two days of population monotonicity end here,
+and they end at the top: the A cell is the worst mean AND has no winners. Inside the takes the
+ordering is right for once (A n=8 +$257.50, B n=7 +$50.36) on n=15. The grade remains disqualified
+as a judge-aux target (CC-M2-10.5); this is its third distinct behaviour in three days.
+
+## 9. SECTION-VALUE LEDGER (CC-M2-4.5), 10 deep reads of 1,185 calls
+
+| section | deep reads that opened it | changed a call |
+|---|---|---|
+| S3 (path / ZigZag / coverage / runway) | 10 | **no** — it argued for two more vetoes (session COVERAGE 110.5% and 126.4%) and I declined, because the capacity family is 0-for-2 as a refusal. Declining was right: those rows are not where the winners were either. |
+| S8 (flow windows / fuel map / through-book) | 9 | **yes** — minted V2 (fuel-map overhang) and half of V3; 21 vetoes, all correct on the day and 4-of-5 sessions in the census |
+| S4 (level ledger) | 8 | no — the virgin OR_EXT cluster under the SI seat is why that take stood, but no term reads it |
+| S5 (T-minus trajectory) | 8 | **yes, via V3** — `mid_slope_$/min(T-1m)` is half of P018, the only veto with a five-session positive record |
+| S7 (book/queue) | 8 | no — read for the NKD abstention (c2f 23.05 on 19 trades in 300s) |
+| S10 (volume profile) | 7 | **yes, and it is the day's whole ambiguity** — V1 saved $1,860 of seats today and refuses 71 winners over five sessions (§4) |
+| S9 (vol state) | 6 | no — `jump_frac` is dead since E1D4 and was read only for the record |
+| S2 | 4 | no | 
+| S11, S12, S13, S1 | 3, 2, 2, 2 | no |
+| S6 | 1 | no |
+
+S6 and S11 are now **0-for-4,451**. S10 has changed calls on the two days it was read and is
+value-destroying over five; S8 is the only section with a five-session positive record.
+
+## 10. DEFECTS AND BUILD ITEMS FOUND TODAY
+
+* **D18 — THE VETO WALK RE-OPENS SCAN-EXPOSED (new, named by the reader).** CC-M2-13.4(b) asks for
+  a pre-mortem per TAKE; making that measurable over 112 takes rather than 2 required grading the
+  whole take list against the three triggers, and that table was read as a table. Every trigger is
+  a pure function of one row (`e1d5_veto.py`), so a prefix-driven walk returns the identical seat
+  chain and the CALLS are mechanically unexposed — but the reader's choice of which rows to
+  deep-read was made with a day-complete table in front of it, and the table's `bar_px` column is
+  `mid`-derived. Row taint `VETO-TABLE-SCANNED` on the two seats. **Fix: the veto walk must be
+  driven by the same as-of stepper as the index (D14), which is still not at HEAD.**
+* **D14 STILL NOT LANDED.** `triage_index.py --as-of` exists in the tooling lane's WORKING TREE and
+  is in no commit; the reader used its own `e1d5_asof.py` for the third day running. A blind reader
+  must not have to build its own leak guard.
+* **D17 ANSWERED IN-LANE, STILL OWED UPSTREAM.** `e1d5_s10.py` extracts S10's developing
+  POC/VAH/VAL/in_VA for a whole day in ~10s and has now been run over all five study days. The four
+  columns belong in the triage index; the ledger's verdict on the object (§4) does not change that.
+* **T5's ABSOLUTE FLOOR (§6)** is a one-line correctness bug in the reader's own inherited rule, not
+  a sheet defect, and it is recorded as such.

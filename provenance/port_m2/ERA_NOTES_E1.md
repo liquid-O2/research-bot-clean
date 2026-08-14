@@ -512,3 +512,117 @@ days S10 has been read) and it is still not in the triage index (defect D17).
    concentrators; four sessions of direction failure is the strongest version of that argument.
 5. D16: the frozen baselines could not be run against the current extractor's output without a
    compatibility view. Every future day inherits that hazard until the tooling lane fixes it.
+
+---
+
+# E1 STUDY DAY 5 UPDATE (2021-07-07, day-complete, n=1,185 across SI/HG/NKD)
+
+Source: provenance/port_m2/E1_STUDY_LEDGER.tsv (sealed `398f3e7`) + E1_POSTMORTEMS.md day-5 section
++ baselines/E1D5_BASELINE_SCORES.md. Taint CLEAN on all 1,185 rows; the two seat TAKEs carry the new
+row value `VETO-TABLE-SCANNED` (§57/D18). The day was the DECLARED EXPERIMENT of CC-M2-13.4, all
+three arms fixed before the session was seen. The reader LOST to the best mechanical baseline by
+**$4,297.50**, BEAT three of its four frozen predecessors, and produced the round's first
+positive-mean take set (+$160.83 vs a -$45.36 skip pool) with **zero D-021 winners in it**.
+Several §40-§48 claims are struck.
+
+## 49. ~~§40/CC-M2-13.3 STRUCK~~ — THE SIDE IS A **PHASE** VARIABLE, NOT A SESSION VARIABLE
+Four sessions said "winners concentrate on ONE side per session". 2021-07-07 has winners on BOTH
+sides of BOTH metals: SI 2 LONDON LONGS (07:04, 07:32) + 26 NY SHORTS (13:03-15:52); HG 3 LONDON
+LONGS (07:02-07:13) + 11 NY SHORTS (14:07-14:28); NKD 4 TOKYO LONGS (02:01). **What has never been
+split in five day-complete sessions is the (asset, PHASE) cell** — day 1 NY shorts, day 2 NY longs,
+day 3 TOKYO longs, day 4 NY shorts, day 5 TOKYO longs + LONDON longs + NY shorts. The session-side
+state variable ordered in CC-M2-13.3 is measuring the wrong unit. **Fields:** S14 winner_close by
+(asset, phase_dec, side). RECOMMENDED CENSUS: side purity within (asset, phase_dec) cells over the
+whole era — if the cell is pure at population scale, the leading-regime forecaster's target is a
+PER-PHASE side, not a per-day side.
+
+## 50. THE FIRST-CONFIRMED-OUTCOME-SIGN ESTIMATOR (P027) IS A LAGGING INDICATOR BY CONSTRUCTION
+Declared before the day, traded as ordered, and it passed **0 of the day's 46 winners**. Five
+sessions, ten asset-sessions with winners: sign 7 right / 3 wrong, and **7 of the 7 correct
+confirmations arrived after their asset-session's first winner. Not one confirmation in five
+sessions has ever preceded the winner window it was meant to open.** The mechanism is exact: the
+first completed $1,000 move IS the move, so its confirmation second is its end. NKD is the clean
+proof — the estimator stamped the session SHORT at 02:01:14 and the four winners are LONGS at
+02:01:14-02:02:07, i.e. the reversal off the very low that confirmed it.
+**Two defects in the estimator's own form, both cheap:** (i) its NKD founder
+`NKD-20210707-002147-S` has `f60_n=0, f60_vol=0, f5m_vol=0` — a DEAD-BOOK row P004 refuses; a
+candidate that cannot be traded must never set session state; (ii) it is session-scoped and never
+expires, so a 09:01 LONDON confirmation governed a 16:19 NY decision. Per §49 it should be
+PHASE-scoped. **Mirror-law status: it beats its mirror on 3 of 5 sessions => FAILS CC-M2-13.1**
+(pre-registered as failing before the day). See PATTERN_LEDGER P027.
+
+## 51. PRE-MORTEMS AS VETOES: +$2,477.50 ON THE DAY, -$12,592.50 OVER THE ROUND, AND BOTH ARE TRUE
+Day 5 obeyed the four-day-old proposal for the first time. On this session: 97 of 112 policy TAKEs
+vetoed, vetoed pool mean **-$679.42 with 0 winners and 0.732 walled**, standing pool **+$160.83 with
+0.000 walled**, both would-be seats -$930 hard stop-outs, **replay delta +$2,477.50 at a cost of
+zero winners**. Applied mechanically to the refusal core on all five sessions the same three
+triggers are **-$12,592.50 and cost 91 of 99 winners**, and the damage is entirely V1/P028 (§52);
+V2 (fuel-map overhang) and V3 (P018 two-stream opposition) are net-positive refusals on all five.
+**THE TRANSFERABLE STATEMENT: a pre-mortem is an excellent detector of what will kill THIS trade and
+a bad rule, because promoting it to a standing term inherits every weakness of the object it names.
+CC-M2-10.4's original ruling — auto-log as a hypothesis, do not promote without a census — is
+vindicated by the round-level number and contradicted by the day-level one, and the honest reading
+is that the veto should bind the SEAT decision (where it is a judgement about one book) and never
+the population.**
+
+## 52. P028 BAR_OUTSIDE_DEVELOPING_VALUE — MINTED, CENSUSED ON FIVE SESSIONS, DEAD IN ONE DAY
+S10's developing value area vs the price a $1,000 certificate requires. Winner-rate lift of "bar
+INSIDE the VA" over "bar OUTSIDE": 0.00x / 0.66x / 0.00x / 0.08x / **7.15x** — spectacular on the
+session that minted it, anti-predictive on the four before it, pooled **0.80x** with the inside-VA
+pool at -$214.77 mean against +$39.08. **DEAD ON BIRTH, in the P014/P026 class**, and the third
+magnitude object this round to be minted on the sessions that made it look right. S10's two-for-two
+reputation (§47) came from two hand-read cases and does not survive a count.
+What survives is the instrument: `e1d5_s10.py` now writes `d_POC/d_VAH/d_VAL/in_VA/bar_px/
+bar_outside_va` for every candidate of all five study days (defect D17 answered in-lane).
+
+## 53. P025 RUNWAY_TO_BINDING_EXIT IS 276-FOR-276 AND IS THE ONLY FIVE-SESSION OBJECT IN THE LEDGER
+46 of 46 winners today (minimum winner runway 19,653s) after 230 of 230 on days 1-4; **0 winners in
+the 304 rows below 12,000s.** Five day-complete sessions, 276 winners, zero exceptions, two roster
+fields, no judgement, no mirror to fail. Every other term of the inherited core leaks winners today:
+live book 44/46, freshness 41/46, aggression-at-magnitude 33/46, magnitude floor **23/46**.
+
+## 54. THE INHERITED REFUSAL CORE IS NOT A STANDING WINNER EITHER (§43 qualified)
+Day 4's "five inherited terms would have made +$4,277.50" becomes -$278.75 on day 5 (157 takes, 9 of
+46 winners retained). Over five sessions the core arm is +$6,437.50 in replay — real, but carried by
+two sessions. The core is a FEASIBILITY filter, not an edge: it says a seat is possible, never that
+it is on the right side, and the two days it lost are the two days the side went against it.
+
+## 55. THE MAGNITUDE FLOOR'S ABSOLUTE CLAUSE IS A LATENT BUG AND IT COST NKD ITS SEAT
+NKD's 4 winners carry `terms=11110`: live book, runway, freshness and aggression all pass; T5 fails
+on 5-minute volumes of 118-140 contracts against the ABSOLUTE 200 floor — while their RELATIVE
+volumes are **41.5%-45.0% of phase volume**, five times the 8% clause. The term is written
+`v5 >= 200 AND (v5 >= 500 OR v5 >= 8% phase)`, so the absolute gate fires before the relative clause
+can rescue anything. **Repair (one line): `v5 >= 200 OR v5 >= 8% of phase volume`.** This is day 3's
+lesson (§33) surviving in the shape of the term after being fixed in its threshold. Two sessions
+running, NKD's seats are invisible to this rule for a reason that has nothing to do with NKD.
+
+## 56. ~~§45 CONFIRMED, §26 STAYS STRUCK~~ — NKD IN E1 IS THIN AND REAL
+Five sessions, 1,404 NKD candidates, 12 D-021 winners (8 on 07-06 NY shorts, 4 on 07-07 TOKYO
+longs), mean candidate -$50 to -$67 every session, and the reader has abstained on all five. The
+abstention has never been punished (best mechanical arm on NKD today: -$607.50) and has now missed
+two real seats. NKD's winners arrive in tight clusters of 4-8 candidates inside 30 seconds to 30
+minutes; a rule that reads only the 60-second book, or an absolute contract floor, will keep missing
+them (§55).
+
+## 57. NEW TAINT VALUE: VETO-TABLE-SCANNED (defect D18)
+Making the pre-mortem veto measurable across 112 takes rather than 2 required grading the day's take
+list against the triggers as a TABLE, which is the SCAN-EXPOSED hazard the as-of view was built to
+close. The calls are mechanically unexposed (every trigger is a pure function of one row), but the
+choice of which rows to deep-read was not. **The veto walk must be driven by the same as-of stepper
+as the index — and `triage_index.py --as-of` (D14) is STILL not at HEAD after three days of the
+reader building its own.**
+
+## 58. OPEN QUESTIONS CARRIED TO DAY 6
+1. Is the (asset, phase_dec) cell side-pure at population scale (§49)? This replaces the
+   session-side probe of CC-M2-13.3 as specified and is the round's highest-value census.
+2. Can ANY causal estimator of a cell's side confirm BEFORE the cell's first winner (§50)? Five
+   sessions say the outcome-based family cannot, by construction. If nothing leads, the honest
+   conclusion is that side selection belongs to the leading-regime forecaster (CC-M2-11.2) and the
+   reader's job is feasibility certification (§48.4 answered YES).
+3. Should the veto bind the SEAT and never the population (§51)? Day 5 is one session of evidence
+   on each side of that line.
+4. Does the phase-scoped, live-book-gated version of P027 beat its mirror on all five sessions? It
+   is two guarded lines and the ledger already has the data.
+5. The give-back (§39.5) is now three objects dead (P026, P028, and P017's in-range form). Is there
+   ANY ex-ante field that separates a certificate that holds its peak from one that gives back two
+   thirds — or is the give-back an EXIT-RULE artefact (§46) that no entry field can address?

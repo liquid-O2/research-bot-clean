@@ -1,8 +1,8 @@
 {
- "cache": "/workspace/artifacts/cache/port/m2/retrieval/pool_index.npz",
+ "elapsed_sec": 175.02782583236694,
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "054d2bea6af71e7f69582ea68f216fdec6c40734",
+  "git_sha": "481b963b2a152213bc07483da72e0f816ac4aa09",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
@@ -10,20 +10,14 @@
   "m2_spec_sha16": "552d21d7a848efe2",
   "numpy_version": "2.1.2",
   "params": {
-   "blocks": [
-    "B01_class:klass:cat",
-    "B02_phase:phase_dec:cat",
-    "B03_clock:clock_sec:clock",
-    "B04_coverage:coverage_phase:num",
-    "B05_runway_frac:runway_frac:num",
-    "B06_ladder:ladder_band:ord",
-    "B07_vol_regime:regime_tercile:ord",
-    "B08_spread:spread_ratio:num",
-    "B09_level_dist:level_dist_atr:num",
-    "B10_rv_ratio:rv_ratio:num",
-    "B11_family_tags:fam_mask:bits"
-   ],
-   "exclude_date8": "D11 \u2014 an optional set of session dates removed from the pool AFTER the taint guard has passed on the full pool; the exclusion narrows a lawful pool and can never widen one",
+   "P020": "fire = phase_dec == NY; reported as a base-rate census (concentration ratio = winner share / candidate share, per asset x era x phase, broken out by side and by D-071 class)",
+   "P021": "fire = day_type == EXPANDED AND surprise >= 0.99, both read from the DECISION PHASE's fvol row exactly as sections.s2_regime and sections.s9_vol read them",
+   "P021_interaction": "BREAKOUT vs REVERSION direction x the EXPANSION flag, difference-in-differences, session-clustered CR1. Reading A: side == range-extension side (the more recent phase extreme). Reading B: ext_needed > $450 (P017's own threshold)",
+   "P022": "fire = sign(phase sflow) disagrees with BOTH sign(30m sflow) and sign(5m sflow) (all three non-zero) AND 0 <= last_scheduled release age < 5400s",
+   "P022_direction": "among flagged candidates: side aligned with the LIVE short windows vs with the PHASE fossil vs with the D10 EVENT-ANCHORED window (flow since the release)",
+   "conditional_value": "mean over POSITIVE candidates (CC-M1-7.3)",
+   "definition_source": "provenance/port_m2/PATTERN_LEDGER.tsv (sheet_fields) + provenance/port_m2/E1_POSTMORTEMS.md \u00a72/\u00a73/\u00a74",
+   "destruction": "each term shuffled WITHIN SESSION, 40 replicates, RandomState(20260815 + term index); the other terms untouched. The destroyed quantity is the EDGE (mean cert of the firing set minus mean cert of the non-firing rest)",
    "frame": {
     "causality": "every window is searchsorted on the SANE second grid and bounded at dec_sec; ZigZag pivots kept only when conf_sec < dec_sec",
     "day_type_cuts": {
@@ -122,21 +116,27 @@
     ],
     "sane_mask": "b7_sane (D-054) \u2014 installed by assemble.load_session"
    },
-   "min_blocks": "a neighbour comparable on < 6 blocks is dropped from the ranking (Gower missing-block bias) and counted",
-   "missing": "a block missing/REFUSED on either side is dropped from the numerator AND the denominator; the count is reported as nb",
-   "outcomes": "both CC-M1-8 readings (walled phase-close + walled peak-exit)",
-   "pool": "STUDY rows of provenance/port_m2/USED_CASE_LEDGER.tsv by default; ANY explicit pool is validated against the ledger. REFUSAL (never a filter) on a member the ledger does not carry as STUDY, on an untainted session, or on an empty pool",
-   "scaling": "per-field robust scale 1.4826*MAD over pool+query, floored at max(1e-06, 0.01*|median|); |a-b|/scale clipped at 4 and divided by 4",
-   "spec_section": "\u00a7CC-M2-5 item 3 \u2014 reference-class retrieval",
-   "ties": "sort key (round(distance, 9), cid) \u2014 total and deterministic",
-   "weights": "UNIFORM over the blocks that are comparable on both sides"
+   "grading": "CC-M2-9.1 \u2014 ENTRY RULE / VETO RULE (Holm-significant beta on the adoption metric) vs WINNER CONCENTRATOR (>= 1.25x winner rate or conditional value with no adoption edge -> feature candidate set only) vs NULL",
+   "inference": "CC-M1-12.4 \u2014 GEE independence working correlation with the Liang-Zeger sandwich clustered on SESSION (CR0 + Cameron-Miller CR1); Kish one-way ICC/DEFF for n_eff; Holm-Bonferroni over THE WHOLE BATCH (every GEE test of all three patterns and both interaction readings is one family)",
+   "order": "CC-M2-10.2 \u2014 census batch 2 (P020, P021, P022)",
+   "population": "frozen v3 roster, FIT years [2021, 2022, 2023, 2024]; 2025 = GATE echo, EVAL-ONLY",
+   "spec_section": "DISCRETIONARY_METHOD \u00a74.2 name->count census \u2014 batch 2 (CC-M2-10.2)",
+   "value": "c_c_roster.certificates \u2014 walled PHASE-CLOSE (adoption) and walled PEAK-EXIT (CC-M1-8 companion), both always reported",
+   "winner": "cert_close >= $1000 and mae_before_argmax <= $300 and not walled (D-021)"
   },
-  "params_hash": "cf465b26ca03946cf58c5147c898b5785b39c0af41737615582edb662341b54d",
+  "params_hash": "00c21776223b82281297cb2b32ca2d3a786d1f1abda99aeb43d935f37bf8819a",
   "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
- "ledger": "/workspace/provenance/port_m2/USED_CASE_LEDGER.tsv",
- "n_pool": 2633,
- "pool_sha256": "2cd777082d3d0f5d854c9d1f125d8ef6572787c606787d318070f4c013abe13f"
+ "n_candidates": 1580360,
+ "n_fires": {
+  "P020": 863746,
+  "P021": 395178,
+  "P022": 10942
+ },
+ "n_gee_tests": 64,
+ "n_sessions": 3734,
+ "out_dir": "/workspace/artifacts/cache/port/m2/pattern_census/",
+ "pins_moved": []
 }

@@ -68,6 +68,16 @@ REGIME_TERCILE = {"LOW": 0, "MID": 1, "HIGH": 2}
 RV_SHORT_SEC = 60
 RV_LONG_SEC = 1800
 
+# the S8 flow windows P022 reads, in seconds (s8_flow prints 60s/5m/30m/phase)
+FLOW_5M_SEC = 300
+FLOW_30M_SEC = 1800
+
+# S2 day_type_so_far, as sections.s2_regime cuts it, in ASCENDING order.
+DAY_TYPES = ("INSIDE", "AT_RANGE", "EXPANDED")
+DAY_TYPE_REFUSED = -1
+DAY_TYPE_CUT_INSIDE = 0.60
+DAY_TYPE_CUT_AT_RANGE = 1.00
+
 FRAME_FIELDS = {
     "i": "roster row index (union_roster_{ASSET}.npz)",
     "cid": "{ASSET}-{d8}-{dec_sec:06d}-{L|S}",
@@ -124,9 +134,41 @@ FRAME_FIELDS = {
     "f60_n": "S8 60s window trade COUNT, sec in [dec-60, dec)",
     "f60_vol": "S8 60s window traded volume",
     "f60_sflow": "S8 60s signed flow (buy_vol - sell_vol)",
+    "f5m_n": "S8 5m window trade count, sec in [dec-300, dec)",
+    "f5m_vol": "S8 5m window traded volume",
+    "f5m_sflow": "S8 5m signed flow (buy_vol - sell_vol)",
+    "f30m_n": "S8 30m window trade count, sec in [dec-1800, dec)",
+    "f30m_vol": "S8 30m window traded volume",
+    "f30m_sflow": "S8 30m signed flow (buy_vol - sell_vol)",
     "fph_n": "S8 phase window trade count, sec in [phase_seg_start, dec)",
     "fph_vol": "S8 phase window traded volume",
     "fph_sflow": "S8 phase cumulative signed flow (buy_vol - sell_vol)",
+    "range_hat_usd": "S2/S9 `range_hat_usd` of the DECISION PHASE's fvol row "
+                     "(both sections read case.fvol_seg); NaN = REFUSED",
+    "range_so_far_usd": "S2 range_so_far = SANE session range over [0, dec) "
+                        "in dollars (= range_sess_usd)",
+    "day_type_frac": "S2 range_so_far / range_hat — the '% of range_hat' the "
+                     "sheet prints; NaN when range_hat is REFUSED",
+    "day_type": "S2 day_type_so_far as an ordinal: 0 INSIDE (<0.60), "
+                "1 AT_RANGE (<1.00), 2 EXPANDED (>=1.00); -1 = REFUSED",
+    "surprise": "S9 realized_range_so_far / range_hat, where the realized "
+                "range is the PHASE segment's [seg_start, dec) SANE range "
+                "(S9's own numerator, not S2's); NaN = REFUSED",
+    "release_ts": "epoch second of the most recent SCHEDULED release strictly "
+                  "BEFORE decision_ts (BLS + FOMC calendars, SCHEDULE_EXEMPT "
+                  "per D-057 — the dates are known months ahead); -1 = none",
+    "release_age_sec": "decision_ts - release_ts, the S12 `last_scheduled` "
+                       "age; -1 = no prior scheduled release",
+    "release_sec": "release_ts on the SESSION clock (release_ts - open_utc); "
+                   "-1 = none",
+    "event_in_phase": "the release landed INSIDE the running phase and before "
+                      "the decision: phase_seg_start <= release_sec < dec_sec",
+    "fev_n": "EVENT-ANCHORED window (D10) trade count over [release_sec, dec); "
+             "-1 = REFUSED (no release inside the phase)",
+    "fev_vol": "event-anchored traded volume; -1 = REFUSED",
+    "fev_sflow": "event-anchored signed flow (buy_vol - sell_vol) — the flow "
+                 "accumulated SINCE the release, never across it; "
+                 "0 with fev_n = -1 = REFUSED",
     "cert_close_usd": "c_c_roster.certificates(...)[1][0] — the walled "
                       "PHASE-CLOSE certificate (the CC-M1-8 adoption metric)",
     "cert_peak_usd": "c_c_roster.certificates(...)[0][0] — the walled "
@@ -145,6 +187,18 @@ PARAMS_FRAME = {
     "fields": FRAME_FIELDS,
     "ladder_bands": list(LADDER_BANDS),
     "rv_windows_sec": [RV_SHORT_SEC, RV_LONG_SEC],
+    "flow_windows_sec": [60, FLOW_5M_SEC, FLOW_30M_SEC, "phase", "event"],
+    "day_type_cuts": {"INSIDE": "<0.60", "AT_RANGE": "<1.00",
+                      "EXPANDED": ">=1.00"},
+    "event_window": "D10 — sflow over [release_sec, dec_sec) when a SCHEDULED "
+                    "release (BLS + FOMC calendars, context._bls_calendar / "
+                    "context._fomc_calendar) landed inside the running phase. "
+                    "The release is availability-lagged the same way S12's "
+                    "`last_scheduled` is: only events with event_ts STRICTLY "
+                    "< decision_ts are visible (CC-M2-1.2), and the calendar "
+                    "itself is SCHEDULE_EXEMPT under D-057 because the dates "
+                    "are published months ahead. The window NEVER spans the "
+                    "release second: it starts AT it.",
 }
 
 
@@ -259,6 +313,45 @@ def _rv_window(vt, prefix, lo_sec, hi_sec, mult):
 
 def _f(v):
     return A._f(v)
+
+
+# ------------------------------------------------------- scheduled releases -
+# D10: the event-anchored flow window needs the SAME calendar S12 shows as
+# `last_scheduled`, so it is read from context.py rather than re-parsed here
+# (D-006: one definition of the release set).  The calendar is SCHEDULE_EXEMPT
+# under D-057 — the release DATES are published months ahead — and the
+# availability rule is the one CC-M2-1.2 blessed: an event is visible only when
+# its event_ts is STRICTLY before decision_ts.
+_CAL = None
+
+
+def release_calendar():
+    """(sorted epoch-second array, names) of every scheduled BLS/FOMC release."""
+    global _CAL
+    if _CAL is None:
+        import context as CTX             # local: context pulls the ref tables
+        cal = sorted(CTX._get("CAL_BLS", CTX._bls_calendar)
+                     + CTX._get("CAL_FOMC", CTX._fomc_calendar))
+        _CAL = (np.array([int(c[0]) for c in cal], dtype=np.int64),
+                [str(c[1]) for c in cal])
+    return _CAL
+
+
+def last_release_ts(decision_ts):
+    """Epoch second of the last release STRICTLY before each decision_ts.
+
+    Vectorised form of context.recent_release's `ts < guard.decision_ts` scan
+    (without its 24h display window — the age is returned and the caller cuts
+    it, which is what the P022 `< 90min` clause needs).  -1 = none.
+    """
+    ts, _names = release_calendar()
+    d = np.asarray(decision_ts, dtype=np.int64)
+    j = np.searchsorted(ts, d, side="left") - 1
+    out = np.full(d.size, -1, dtype=np.int64)
+    ok = j >= 0
+    if ok.any():
+        out[ok] = ts[j[ok]]
+    return out
 
 
 # ------------------------------------------------------------ roster (lazy) -
@@ -410,6 +503,7 @@ def frame(asset, d8, with_levels=False, with_certs=True):
     iso = trade_date.isoformat()
     phase_dec = r["phase_dec"][sel][order].astype(np.int64)
     q50_p = np.full(dec_s.size, np.nan)
+    rng_hat = np.full(dec_s.size, np.nan)
     lad = np.full((dec_s.size, len(LADDER_BANDS) - 1), np.nan)
     terc = np.full(dec_s.size, -1, dtype=np.int64)
     seg_cache = {}
@@ -419,10 +513,12 @@ def frame(asset, d8, with_levels=False, with_certs=True):
         qs = ([_f(row.get("move_%s_usd_per_sigma" % q)) * sig
                for q in ("q10", "q25", "q50", "q75", "q90")] if row
               else [float("nan")] * 5)
-        seg_cache[p] = (qs, (row or {}).get("regime_tag", ""))
-    for p, (qs, tag) in seg_cache.items():
+        seg_cache[p] = (qs, (row or {}).get("regime_tag", ""),
+                        _f(row["range_hat_usd"]) if row else float("nan"))
+    for p, (qs, tag, rh) in seg_cache.items():
         m = phase_dec == p
         q50_p[m] = qs[2]
+        rng_hat[m] = rh
         lad[m, :] = np.array(qs)
         terc[m] = REGIME_TERCILE.get(str(tag), -1)
     row_s = fv.get((asset, iso, "SESSION"))
@@ -437,6 +533,23 @@ def frame(asset, d8, with_levels=False, with_certs=True):
                          range_phase / q50_p, np.nan)
         cov_s = (range_sess / q50_s if np.isfinite(q50_s) and q50_s > 0
                  else np.full(dec_s.size, np.nan))
+
+    # --- S2 day_type_so_far / S9 surprise ---------------------------------
+    # Both sections read case.fvol_seg — the DECISION PHASE's fvol row — and
+    # divide by ITS range_hat; they differ only in the numerator (S2 the
+    # SESSION range so far, S9 the PHASE segment's).  Reproduced exactly:
+    # sections.s2_regime `frac = spent / rng_hat` and sections.s9_vol
+    # `surprise = realized / range_hat`, both REFUSED when range_hat is.
+    with np.errstate(invalid="ignore", divide="ignore"):
+        day_frac = np.where(np.isfinite(rng_hat) & (rng_hat > 0),
+                            range_sess / rng_hat, np.nan)
+        surprise = np.where(np.isfinite(rng_hat) & (rng_hat > 0),
+                            range_phase / rng_hat, np.nan)
+    day_type = np.where(
+        ~np.isfinite(day_frac), DAY_TYPE_REFUSED,
+        np.where(day_frac < DAY_TYPE_CUT_INSIDE, 0,
+                 np.where(day_frac < DAY_TYPE_CUT_AT_RANGE, 1, 2))
+    ).astype(np.int64)
 
     # ladder_position: the HIGHEST band the realized segment range reaches.
     # REFUSED (-1) whenever any quantile is missing or the range is undefined.
@@ -482,13 +595,40 @@ def frame(asset, d8, with_levels=False, with_certs=True):
     c_s = np.concatenate(([0], np.cumsum(signed)))
     b_hi = np.searchsorted(t_sec, dec_s, side="left")
     b_60 = np.searchsorted(t_sec, np.maximum(dec_s - 60, 0), side="left")
+    b_5m = np.searchsorted(t_sec, np.maximum(dec_s - FLOW_5M_SEC, 0),
+                           side="left")
+    b_30m = np.searchsorted(t_sec, np.maximum(dec_s - FLOW_30M_SEC, 0),
+                            side="left")
     b_ph = np.searchsorted(t_sec, ph_start, side="left")
     f60_n = c_n[b_hi] - c_n[b_60]
     f60_v = c_v[b_hi] - c_v[b_60]
     f60_s = c_s[b_hi] - c_s[b_60]
+    f5m_n = c_n[b_hi] - c_n[b_5m]
+    f5m_v = c_v[b_hi] - c_v[b_5m]
+    f5m_s = c_s[b_hi] - c_s[b_5m]
+    f30m_n = c_n[b_hi] - c_n[b_30m]
+    f30m_v = c_v[b_hi] - c_v[b_30m]
+    f30m_s = c_s[b_hi] - c_s[b_30m]
     fph_n = c_n[b_hi] - c_n[b_ph]
     fph_v = c_v[b_hi] - c_v[b_ph]
     fph_s = c_s[b_hi] - c_s[b_ph]
+
+    # --- D10: the EVENT-ANCHORED flow window -------------------------------
+    # E1D2-F3: "measure the imbalance accumulated SINCE the last S12
+    # last_scheduled event, not since the phase open".  The window is
+    # [release_sec, dec_sec) and exists ONLY when the release landed inside the
+    # running phase and strictly before the decision; otherwise every field is
+    # REFUSED (-1), never silently equal to the phase window — a window that
+    # started before the release would be the fossil the pattern is about.
+    open_utc = int(s.meta["open_utc"])
+    rel_ts = last_release_ts(open_utc + dec_s)
+    rel_sec = np.where(rel_ts >= 0, rel_ts - open_utc, -1).astype(np.int64)
+    rel_age = np.where(rel_ts >= 0, (open_utc + dec_s) - rel_ts, -1)
+    in_phase = (rel_ts >= 0) & (rel_sec >= ph_start) & (rel_sec < dec_s)
+    b_ev = np.searchsorted(t_sec, np.maximum(rel_sec, 0), side="left")
+    fev_n = np.where(in_phase, c_n[b_hi] - c_n[b_ev], -1)
+    fev_v = np.where(in_phase, c_v[b_hi] - c_v[b_ev], -1)
+    fev_s = np.where(in_phase, c_s[b_hi] - c_s[b_ev], 0)
 
     # --- pivots ------------------------------------------------------------
     atr = float(r["atr14_usd"][sel[0]])
@@ -541,7 +681,6 @@ def frame(asset, d8, with_levels=False, with_certs=True):
     phase_close = r["phase_close_sec"][sel].astype(np.int64)
     sess_close = r["sess_close_sec"][sel].astype(np.int64)
     fam_mask = r["fam_mask"][sel].astype(np.int64)
-    open_utc = int(s.meta["open_utc"])
     extreme_age = np.where(side[order] < 0,
                            np.where(phase_hi_sec >= 0, dec_s - phase_hi_sec, -1),
                            np.where(phase_lo_sec >= 0, dec_s - phase_lo_sec, -1))
@@ -577,7 +716,16 @@ def frame(asset, d8, with_levels=False, with_certs=True):
         "phase_age_sec": un(dec_s - ph_start),
         "ext_needed_usd": un(ext_needed),
         "f60_n": un(f60_n), "f60_vol": un(f60_v), "f60_sflow": un(f60_s),
+        "f5m_n": un(f5m_n), "f5m_vol": un(f5m_v), "f5m_sflow": un(f5m_s),
+        "f30m_n": un(f30m_n), "f30m_vol": un(f30m_v),
+        "f30m_sflow": un(f30m_s),
         "fph_n": un(fph_n), "fph_vol": un(fph_v), "fph_sflow": un(fph_s),
+        "fev_n": un(fev_n), "fev_vol": un(fev_v), "fev_sflow": un(fev_s),
+        "release_ts": un(rel_ts), "release_sec": un(rel_sec),
+        "release_age_sec": un(rel_age), "event_in_phase": un(in_phase),
+        "range_hat_usd": un(rng_hat), "range_so_far_usd": un(range_sess),
+        "day_type_frac": un(day_frac), "day_type": un(day_type),
+        "surprise": un(surprise),
         "slope_1m_usd": un(slope_1), "slope_5m_usd": un(slope_5),
         "accel_usd": un(accel),
         "rv60_usd": un(rv60), "rv1800_usd": un(rv1800),

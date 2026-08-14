@@ -327,7 +327,13 @@ def t07_retrieval_is_deterministic():
     # MUTANT MT_P07: order by distance alone (Python's sort is stable, so the
     # tie order would follow the pool's file order rather than the cid) —
     # detected by comparing against a deliberately reversed input order.
-    recs = list(reversed(R.pool_records()))
+    # DEFECT D13 (found by this round): the reconstruction below must drop the
+    # QUERY from the pool BEFORE computing the scales, exactly as retrieve()
+    # does — the query is itself a study-tainted pool member, and counting it
+    # twice in the reference set shifts every robust scale slightly.  With the
+    # E1D2 pool that shift flipped one near-tie and the test failed at HEAD
+    # against a production path that was never wrong.
+    recs = [r for r in reversed(R.pool_records()) if r["cid"] != cid]
     sc = R.scales(recs + [R.vector(cid, with_certs=False)])
     q = R.vector(cid, with_certs=False)
     scored = []
@@ -455,12 +461,239 @@ def t09_p016_boundaries_are_inclusive():
                  "fire=%s mutant=%s" % (fire.tolist(), mut.tolist()))
 
 
+# ---------------------------------------------------------------- t10 ------
+# The D9/D10 triage columns are cross-checked against pattern_lib on the
+# committed E1-STUDY-D2 sheets: triage_index PARSES the rendered text and the
+# frame RECOMPUTES from the receipts, so agreement is two independent
+# implementations of one quantity (D-006).  20210702 is the session the whole
+# batch-2 census is about (12:30Z Employment Situation inside the NY phase).
+REGIME_SESSION = ("SI", 20210702)
+ERA_SHEETS = "/workspace/artifacts/cache/port/m2/era/E1/STUDY"
+
+
+def _sheet_paths(asset, d8, limit=40):
+    d = os.path.join(ERA_SHEETS, asset, str(d8))
+    if not os.path.isdir(d):
+        return []
+    fs = sorted(f for f in os.listdir(d) if f.endswith(".BLIND.sheet.txt"))
+    step = max(1, len(fs) // limit)
+    return [os.path.join(d, f) for f in fs[::step]][:limit]
+
+
+def _mut_regime(text):
+    """MUTANT MT_P10: the regime cells parsed WITHOUT their own column names.
+
+    The D8 defect in its D9 clothes: an extractor that anchors the regime
+    percentage on the `range_hat` label alone lands on the vol_regime row's
+    `range_hat=$2542.7` — the DENOMINATOR — instead of the `% of range_hat`
+    ratio, and a bare `surprise=` search takes whatever prints first.  Both
+    produce a plausible-looking number in the right column.
+    """
+    import re as _re
+    out = {}
+    m = _re.search(r"day_type_so_far\s+(\S+)", text)
+    out["day_type_so_far"] = m.group(1) if m else None
+    m = _re.search(r"range_hat=\$(\S+)", text)
+    out["range_vs_hat_pct"] = float(m.group(1)) if m else None
+    m = _re.search(r"surprise=(\S+)", text)
+    try:
+        out["surprise"] = float(m.group(1)) if m else None
+    except ValueError:
+        out["surprise"] = None
+    return out
+
+
+def t10_triage_regime_columns_match_the_frame():
+    """MT_P10: regime columns parsed off unnamed neighbours (a misparse).
+
+    LAW (CC-M2-10.6 D9): `day_type_so_far`, `range_vs_hat_pct` and `surprise`
+    are read by EXPLICIT COLUMN NAME and must equal the frame's causal
+    recomputation candidate by candidate; the D10 flow/schedule columns
+    (f5m/f30m/sflow, last-release age) must too.
+    """
+    import triage_index as TI
+    asset, d8 = REGIME_SESSION
+    paths = _sheet_paths(asset, d8)
+    if not paths:
+        return check("triage_regime_columns_match_the_frame",
+                     "MT_P10_regime_misparse", False, False, "no sheets")
+    f = PL.frame(asset, d8, with_certs=False)
+    bad = {}
+    mut_agrees = 0
+    n = 0
+    for p in paths:
+        r = TI.parse_sheet(p)
+        t = _at(f, r["cid"])
+        n += 1
+        want = {
+            "day_type_so_far": (PL.DAY_TYPES[int(f["day_type"][t])]
+                                if int(f["day_type"][t]) >= 0 else None),
+            "range_vs_hat_pct": (100.0 * float(f["day_type_frac"][t])
+                                 if np.isfinite(f["day_type_frac"][t])
+                                 else None),
+            "surprise": (float(f["surprise"][t])
+                         if np.isfinite(f["surprise"][t]) else None),
+            "f5m_sflow": int(f["f5m_sflow"][t]),
+            "f5m_vol": int(f["f5m_vol"][t]),
+            "f30m_sflow": int(f["f30m_sflow"][t]),
+            "f30m_vol": int(f["f30m_vol"][t]),
+            # S12 shows `last_scheduled` only inside context.recent_release's
+            # 24h display window; the FRAME field is deliberately unwindowed
+            # (P022's clause is `< 90min`, and a windowed field would refuse
+            # rather than answer), so the expectation is windowed here.
+            "sched_last_age": (float(f["release_age_sec"][t])
+                               if 0 <= int(f["release_age_sec"][t]) <= 86400
+                               else None),
+        }
+        for key, w in want.items():
+            g = r.get(key)
+            if w is None:
+                ok = g is None
+            elif g is None:
+                ok = False
+            elif key in ("day_type_so_far",):
+                ok = str(g) == w
+            else:
+                # the sheet prints 1 decimal for the percentage and 3 for
+                # surprise; the tolerance is the print quantum, nothing more.
+                tol = 0.06 if key == "range_vs_hat_pct" else (
+                    0.0006 if key == "surprise" else 1e-9)
+                ok = abs(float(g) - float(w)) <= tol
+            if not ok:
+                bad[key] = bad.get(key, 0) + 1
+        with open(p) as fh:
+            mut = _mut_regime(fh.read())
+        same = True
+        for key in ("day_type_so_far", "range_vs_hat_pct", "surprise"):
+            w = want[key]
+            g = mut[key]
+            if w is None or g is None:
+                same &= (w is None and g is None)
+            elif key == "day_type_so_far":
+                same &= str(g) == w
+            else:
+                same &= abs(float(g) - float(w)) <= 0.06
+        mut_agrees += int(same)
+    armed = (not bad) and n > 0
+    mutant = (mut_agrees == n)             # the misparse must NOT satisfy it
+    return check("triage_regime_columns_match_the_frame",
+                 "MT_P10_regime_misparse", armed, bool(mutant),
+                 "n=%d mismatches=%s mutant_agrees=%d version=%s/%s"
+                 % (n, bad or "{}", mut_agrees, TI.VERSION,
+                    TI.columns_sha16()))
+
+
+# ---------------------------------------------------------------- t11 ------
+def _event_window_bruteforce(asset, d8, back_sec=0):
+    """(n, vol, sflow) over [release_sec - back_sec, dec) per candidate.
+
+    back_sec = 0 is the law; back_sec > 0 is the mutant that SPANS the release
+    boundary and therefore mixes the pre-release market into the post-release
+    window — the exact fossil P022 exists to name.
+    """
+    f = PL.frame(asset, d8, with_certs=False)
+    sess = A.load_session(asset, d8)
+    tr = sess["trades"]
+    sec = tr["sec"]
+    sz = tr["size"].astype(np.int64)
+    sd = tr["side"]
+    n = np.full(f["n"], -1, dtype=np.int64)
+    vol = np.full(f["n"], -1, dtype=np.int64)
+    sfl = np.zeros(f["n"], dtype=np.int64)
+    for t in range(f["n"]):
+        if not bool(f["event_in_phase"][t]):
+            continue
+        lo = max(0, int(f["release_sec"][t]) - back_sec)
+        m = (sec >= lo) & (sec < int(f["dec_sec"][t]))
+        n[t] = int(m.sum())
+        vol[t] = int(sz[m].sum())
+        sfl[t] = int(sz[m & (sd == ord("B"))].sum()
+                     - sz[m & (sd == ord("A"))].sum())
+    return f, n, vol, sfl
+
+
+def t11_event_window_starts_at_the_release():
+    """MT_P11: an event window that SPANS the release second.
+
+    LAW (D10 / E1D2-F3): the event-anchored flow window is [release_sec,
+    dec_sec) — flow accumulated SINCE the release.  A window that starts before
+    it carries the pre-release market, which is the fossil the whole repair is
+    about; and on 2021-07-02 the two answers disagree in SIGN.
+    """
+    asset, d8 = REGIME_SESSION
+    f, n, vol, sfl = _event_window_bruteforce(asset, d8, back_sec=0)
+    have = np.nonzero(f["event_in_phase"])[0]
+    ok = bool(have.size) and bool(
+        np.array_equal(f["fev_n"][have], n[have])
+        and np.array_equal(f["fev_vol"][have], vol[have])
+        and np.array_equal(f["fev_sflow"][have], sfl[have]))
+    # the window has to be a DIFFERENT object from the phase window, or D10
+    # bought nothing: on this session the signs must actually disagree.
+    disagree = int(np.sum(np.sign(f["fev_sflow"][have])
+                          != np.sign(f["fph_sflow"][have])))
+    refused = np.nonzero(~f["event_in_phase"])[0]
+    refused_ok = bool(np.all(f["fev_n"][refused] == -1)
+                      and np.all(f["fev_vol"][refused] == -1))
+    armed = ok and refused_ok and disagree > 0
+    # MUTANT MT_P11: start the window 60s BEFORE the release
+    _f2, _n2, _v2, sfl2 = _event_window_bruteforce(asset, d8, back_sec=60)
+    mutant = bool(np.array_equal(f["fev_sflow"][have], sfl2[have]))
+    return check("event_window_starts_at_the_release",
+                 "MT_P11_window_spans_the_release", armed, mutant,
+                 "n_event_candidates=%d sign_disagreements_vs_phase=%d "
+                 "refused=%d" % (int(have.size), disagree, int(refused.size)))
+
+
+# ---------------------------------------------------------------- t12 ------
+def t12_retrieval_exclude_date8_binds():
+    """MT_P12: the --exclude-date8 flag ignored.
+
+    LAW (CC-M2-10.6 D11 + CC-M2-9.4): the flag must actually remove the named
+    sessions from the pool, AND it must run AFTER the taint guard — excluding a
+    date may never launder an untainted case into a lawful pool.
+    """
+    entries = UC.read_ledger()
+    cid = "SI-20210702-052509-S"           # the case the day-2 wrapper queried
+    _q, base, _s, m0 = R.retrieve(cid, k=12, entries=entries)
+    _q, cut, _s, m1 = R.retrieve(cid, k=12, entries=entries,
+                                 exclude_date8={20210702})
+    same_day_base = sum(1 for h in base if int(h["rec"]["d8"]) == 20210702)
+    same_day_cut = sum(1 for h in cut if int(h["rec"]["d8"]) == 20210702)
+    # the guard still binds when the poisoned case's own date is excluded
+    d8 = [d for d in PL.sessions("SI", years={2021}) if d >= 20211101][0]
+    fr = PL.frame("SI", d8, with_certs=False)
+    bad_cid = str(fr["cid"][0])
+    study = [e["cid"] for e in entries if e.get("mode") == UC.MODE_STUDY]
+    laundered = False
+    try:
+        R.retrieve(cid, k=4, entries=entries, pool=study + [bad_cid],
+                   exclude_date8={d8})
+    except R.PoolRefusal:
+        laundered = True
+    armed = (same_day_base > 0 and same_day_cut == 0
+             and m1["n_pool"] < m0["n_pool"] and laundered
+             and m1["excluded_date8"] == [20210702])
+    # MUTANT MT_P12: the flag is accepted and ignored
+    _q, ign, _s, _m = R.retrieve(cid, k=12, entries=entries,
+                                 exclude_date8={20210702},
+                                 _mutant_ignore_exclude=True)
+    mutant = (sum(1 for h in ign if int(h["rec"]["d8"]) == 20210702) == 0)
+    return check("retrieval_exclude_date8_binds", "MT_P12_exclude_ignored",
+                 armed, mutant,
+                 "pool %d->%d same_day_hits %d->%d guard_still_refuses=%s"
+                 % (m0["n_pool"], m1["n_pool"], same_day_base, same_day_cut,
+                    laundered))
+
+
 TESTS = (t01_frame_matches_the_renderer, t02_pivot_chain_is_causal,
          t03_coverage_boundary_is_inclusive, t04_extreme_age_is_causal,
          t05_retrieval_refuses_untainted_pool, t06_retrieval_scaling_binds,
          t07_retrieval_is_deterministic,
          t08_frame_matches_the_day1_triage_index,
-         t09_p016_boundaries_are_inclusive)
+         t09_p016_boundaries_are_inclusive,
+         t10_triage_regime_columns_match_the_frame,
+         t11_event_window_starts_at_the_release,
+         t12_retrieval_exclude_date8_binds)
 
 
 def main():

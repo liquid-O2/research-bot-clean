@@ -35,6 +35,15 @@ WHAT MAKES IT LAWFUL
   red-first mutant (test_pattern.t05) injects an untainted case and fails if it
   is not caught.
 
+  --exclude-date8 (D11, CC-M2-10.6) puts the sequencing caveat above IN THE
+  TOOL.  E1-STUDY-D2 consulted retrieval through a `scratch`-local wrapper that
+  removed every 2021-07-02 row by hand; the honest form is a flag.  ORDER OF
+  OPERATIONS IS THE WHOLE POINT: the taint guard runs FIRST on the unexcluded
+  pool and REFUSES, and only the surviving lawful pool is then narrowed by the
+  exclusion.  Excluding first would let a caller launder an untainted case past
+  the guard by naming its date, i.e. turn D11 into a hole in D-035.2.  The
+  red-first mutant (test_pattern.t12) ignores the flag and must be caught.
+
 THE DISTANCE (pinned; every field comes from the committed receipts through
 pattern_lib.frame, so retrieval and the censuses read ONE definition)
 
@@ -140,6 +149,10 @@ PARAMS = {
     "min_blocks": "a neighbour comparable on < %d blocks is dropped from the "
                   "ranking (Gower missing-block bias) and counted" % MIN_BLOCKS,
     "outcomes": "both CC-M1-8 readings (walled phase-close + walled peak-exit)",
+    "exclude_date8": "D11 — an optional set of session dates removed from the "
+                     "pool AFTER the taint guard has passed on the full pool; "
+                     "the exclusion narrows a lawful pool and can never widen "
+                     "one",
     "frame": PL.PARAMS_FRAME,
 }
 
@@ -388,14 +401,43 @@ def distance(q, c, sc):
     return (tot / n if n else float("nan")), n, per
 
 
+def parse_exclude_date8(spec):
+    """`--exclude-date8 20210702,20210705` -> a set of int date8s."""
+    out = set()
+    for tok in (spec or "").replace(" ", "").split(","):
+        if not tok:
+            continue
+        if not (tok.isdigit() and len(tok) == 8):
+            raise SystemExit("--exclude-date8: %r is not a YYYYMMDD date8"
+                             % tok)
+        out.add(int(tok))
+    return out
+
+
 def retrieve(cid, k=8, entries=None, pool=None, same_side=False,
-             _mutant_filter=False, _mutant_unscaled=False):
-    """k nearest study-tainted cases to `cid`, nearest first."""
+             exclude_date8=(), _mutant_filter=False, _mutant_unscaled=False,
+             _mutant_ignore_exclude=False):
+    """k nearest study-tainted cases to `cid`, nearest first.
+
+    `exclude_date8` (D11) drops whole SESSIONS from the pool — the round-driver
+    duty documented above, made mechanical.  It is applied AFTER pool_records
+    has run the taint guard on the undiminished pool, so it can only ever
+    narrow a pool the ledger already certified.
+    """
     _a, _d, _s, qside = MC.parse_cid(cid)
+    ex = set(int(d) for d in exclude_date8)
+    if _mutant_ignore_exclude:             # MUTANT MT_P12 (test_pattern.t12)
+        ex = set()
     recs = [r for r in pool_records(entries, pool=pool,
                                     _mutant_filter=_mutant_filter)
             if r["cid"] != cid
+            and int(r["d8"]) not in ex
             and (not same_side or int(r["side"]) == int(qside))]
+    if not recs:
+        raise PoolRefusal(
+            "retrieval pool is empty after --exclude-date8 %s: there is no "
+            "study-tainted history left to retrieve from"
+            % ",".join(str(d) for d in sorted(ex)))
     # the QUERY never needs its own outcome (it is the thing being decided), so
     # its frame is built without the skeleton arrays.
     q = vector(cid, with_certs=False)
@@ -412,7 +454,8 @@ def retrieve(cid, k=8, entries=None, pool=None, same_side=False,
                        "same_session": (str(c["asset"]) == q["asset"]
                                         and int(c["d8"]) == q["d8"])})
     scored.sort(key=lambda r: (round(r["dist"], 9), r["cid"]))
-    return q, scored[:int(k)], sc, {"n_pool": len(recs), "n_dropped_thin": n_thin}
+    return q, scored[:int(k)], sc, {"n_pool": len(recs), "n_dropped_thin": n_thin,
+                                    "excluded_date8": sorted(ex)}
 
 
 # ----------------------------------------------------------------- render ---
@@ -431,8 +474,11 @@ def table(q, hits, k, meta):
     A = L.append
     A("REFERENCE-CLASS RETRIEVAL  (%s, k=%d)  pool = %d STUDY-tainted cases "
       "(used-case ledger, STUDY rows only); %d dropped as comparable on < %d "
-      "blocks" % (SECTION, k, meta["n_pool"], meta["n_dropped_thin"],
-                  MIN_BLOCKS))
+      "blocks%s" % (SECTION, k, meta["n_pool"], meta["n_dropped_thin"],
+                    MIN_BLOCKS,
+                    ("; EXCLUDED sessions " + ",".join(
+                        str(d) for d in meta.get("excluded_date8") or []))
+                    if meta.get("excluded_date8") else ""))
     A("QUERY %-22s %-22s %-6s %-6s  cov=%s%%  ladder=%-16s  runway=%ss  "
       "age(ph/piv)=%s/%s  slope1=%s  accel=%s  rv1800/60=%s  spread=%sx  "
       "lvl=%sxATR"
@@ -483,11 +529,17 @@ def main():
     p.add_argument("--same-side", action="store_true",
                    help="restrict the pool to the query's side (pool filter, "
                         "not a change to the pinned distance)")
+    p.add_argument("--exclude-date8", default="",
+                   help="comma-separated YYYYMMDD sessions to drop from the "
+                        "pool (D11: the CC-M2-9.4 sequencing duty, in the "
+                        "tool). Applied AFTER the taint guard, never before.")
     a = p.parse_args()
     MC.verify_spec(force=True)
     if a.refresh_pool:
         pool_records(refresh=True)
-    q, hits, sc, meta = retrieve(a.cid, a.k, same_side=a.same_side)
+    q, hits, sc, meta = retrieve(a.cid, a.k, same_side=a.same_side,
+                                 exclude_date8=parse_exclude_date8(
+                                     a.exclude_date8))
     if a.json:
         sys.stdout.write(json.dumps(
             {"query": a.cid, "k": a.k, "scales": sc, "meta": meta,

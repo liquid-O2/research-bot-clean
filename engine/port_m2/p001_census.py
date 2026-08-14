@@ -616,9 +616,15 @@ def _holm(rows, alpha=0.05):
     return rows
 
 
-def robust_rows(D, fire, reading):
+def robust_rows(D, fire, reading, holm=True):
     """CC-M1-12.4: GEE (identity link) of the certificate on the fire flag,
-    Liang-Zeger sandwich clustered on SESSION, + Kish DEFF / n_eff."""
+    Liang-Zeger sandwich clustered on SESSION, + Kish DEFF / n_eff.
+
+    `holm=False` returns the rows WITHOUT the three Holm columns, so a caller
+    running several patterns in one batch can correct over the whole batch
+    family instead of once per pattern (CC-M2-10.2's census batch 2 does this;
+    P001's own call keeps the default and is unchanged).
+    """
     rows = []
     era_sel = [("FIT", np.isin(D["year"], FIT_YEARS)),
                ("GATE_%d" % GATE_YEAR, D["year"] == GATE_YEAR)]
@@ -656,7 +662,7 @@ def robust_rows(D, fire, reading):
                              ic["rho"] if ic else float("nan"),
                              ic["deff"] if ic else float("nan"),
                              ic["n_eff"] if ic else float("nan"), verdict])
-    return _holm(rows)
+    return _holm(rows) if holm else rows
 
 
 FIRE_COLUMNS = ("arm", "cid", "asset", "d8", "year", "era", "phase",

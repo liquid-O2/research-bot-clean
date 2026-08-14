@@ -1,12 +1,12 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "0932304ff18dc3455ccc8b878d32dabe97556899",
+  "git_sha": "481b963b2a152213bc07483da72e0f816ac4aa09",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "e6443a43e898dd86",
+  "m2_spec_sha16": "552d21d7a848efe2",
   "numpy_version": "2.1.2",
   "params": {
    "T1_coverage": "pattern_lib coverage_phase <= 0.70; REFUSED => FALSE",
@@ -21,6 +21,12 @@
    "destruction": "each term shuffled WITHIN SESSION, 40 replicates, RandomState(20260814 + term index); the other four terms untouched. The destroyed quantity is the EDGE (mean cert of the firing set minus mean cert of the non-firing rest, both readings), not the level \u2014 a level comparison is dominated by the population's negative mean",
    "frame": {
     "causality": "every window is searchsorted on the SANE second grid and bounded at dec_sec; ZigZag pivots kept only when conf_sec < dec_sec",
+    "day_type_cuts": {
+     "AT_RANGE": "<1.00",
+     "EXPANDED": ">=1.00",
+     "INSIDE": "<0.60"
+    },
+    "event_window": "D10 \u2014 sflow over [release_sec, dec_sec) when a SCHEDULED release (BLS + FOMC calendars, context._bls_calendar / context._fomc_calendar) landed inside the running phase. The release is availability-lagged the same way S12's `last_scheduled` is: only events with event_ts STRICTLY < decision_ts are visible (CC-M2-1.2), and the calendar itself is SCHEDULE_EXEMPT under D-057 because the dates are published months ahead. The window NEVER spans the release second: it starts AT it.",
     "fields": {
      "accel_usd": "slope_1m_usd - slope_5m_usd  = S5 accel(1m-5m)",
      "atr_usd": "roster atr14_usd (ATR14_prev)",
@@ -30,13 +36,25 @@
      "clock_sec": "(open_utc + dec_sec) % 86400 \u2014 clock-of-day, UTC",
      "coverage_phase": "sections.s3_path COVERAGE for the running phase = SANE range so far in the phase / (move_q50_usd_per_sigma * sigma_hat_usd) of that phase's fvol row; NaN when the fvol row carries no q50 (REFUSED, V1.1 D1)",
      "coverage_session": "the same number on the SESSION clock/forecast",
+     "day_type": "S2 day_type_so_far as an ordinal: 0 INSIDE (<0.60), 1 AT_RANGE (<1.00), 2 EXPANDED (>=1.00); -1 = REFUSED",
+     "day_type_frac": "S2 range_so_far / range_hat \u2014 the '% of range_hat' the sheet prints; NaN when range_hat is REFUSED",
      "dec_sec": "decision second (session clock)",
+     "event_in_phase": "the release landed INSIDE the running phase and before the decision: phase_seg_start <= release_sec < dec_sec",
      "ext_needed_usd": "NEW range beyond the phase extreme the $1,000 bar still needs: max(0, 1000 - (entry_mid - phase_lo)*mult) for a SHORT, max(0, 1000 - (phase_hi - entry_mid)*mult) for a LONG (e1d1_policy T3 / P016 clause 1)",
      "extreme_age_sec": "dec_sec - phase_hi_sec (SHORT) or - phase_lo_sec (LONG): the age of the phase extreme the trade fades",
+     "f30m_n": "S8 30m window trade count, sec in [dec-1800, dec)",
+     "f30m_sflow": "S8 30m signed flow (buy_vol - sell_vol)",
+     "f30m_vol": "S8 30m window traded volume",
+     "f5m_n": "S8 5m window trade count, sec in [dec-300, dec)",
+     "f5m_sflow": "S8 5m signed flow (buy_vol - sell_vol)",
+     "f5m_vol": "S8 5m window traded volume",
      "f60_n": "S8 60s window trade COUNT, sec in [dec-60, dec)",
      "f60_sflow": "S8 60s signed flow (buy_vol - sell_vol)",
      "f60_vol": "S8 60s window traded volume",
      "fam_mask": "generation-v3 family bitmask",
+     "fev_n": "EVENT-ANCHORED window (D10) trade count over [release_sec, dec); -1 = REFUSED (no release inside the phase)",
+     "fev_sflow": "event-anchored signed flow (buy_vol - sell_vol) \u2014 the flow accumulated SINCE the release, never across it; 0 with fev_n = -1 = REFUSED",
+     "fev_vol": "event-anchored traded volume; -1 = REFUSED",
      "fph_n": "S8 phase window trade count, sec in [phase_seg_start, dec)",
      "fph_sflow": "S8 phase cumulative signed flow (buy_vol - sell_vol)",
      "fph_vol": "S8 phase window traded volume",
@@ -55,7 +73,12 @@
      "phase_seg_end": "one past the last second of that segment",
      "phase_seg_start": "first second of the phase SEGMENT containing dec_sec",
      "pivot_age_sec": "dec_sec - pivot_sec of the most recent CAUSAL ZigZag pivot of the faded type (HIGH for a SHORT, LOW for a LONG), conf_sec < dec_sec; -1 = none yet",
+     "range_hat_usd": "S2/S9 `range_hat_usd` of the DECISION PHASE's fvol row (both sections read case.fvol_seg); NaN = REFUSED",
+     "range_so_far_usd": "S2 range_so_far = SANE session range over [0, dec) in dollars (= range_sess_usd)",
      "regime_tercile": "S2 regime_tag LOW/MID/HIGH -> 0/1/2; -1 = missing",
+     "release_age_sec": "decision_ts - release_ts, the S12 `last_scheduled` age; -1 = no prior scheduled release",
+     "release_sec": "release_ts on the SESSION clock (release_ts - open_utc); -1 = none",
+     "release_ts": "epoch second of the most recent SCHEDULED release strictly BEFORE decision_ts (BLS + FOMC calendars, SCHEDULE_EXEMPT per D-057 \u2014 the dates are known months ahead); -1 = none",
      "runway_frac": "runway_phase_sec / (phase_seg_end - phase_seg_start)",
      "runway_phase_sec": "phase_close_sec - dec_sec (roster)",
      "runway_sess_sec": "sess_close_sec - dec_sec (roster)",
@@ -68,9 +91,17 @@
      "slope_5m_usd": "(mid(dec) - mid(dec-300)) * mult / 5 \u2014 $ per minute",
      "spread_dec_usd": "roster spread_at_decision",
      "spread_ratio": "spread_dec_usd / phase-median spread (c_a_cost, per asset x year x phase) \u2014 the P005 'spread tax' state",
+     "surprise": "S9 realized_range_so_far / range_hat, where the realized range is the PHASE segment's [seg_start, dec) SANE range (S9's own numerator, not S2's); NaN = REFUSED",
      "walled": "the $-wall was hit on the adverse skeleton",
      "winner": "cert_close >= $1000 and mae <= $300 and not walled (D-021)"
     },
+    "flow_windows_sec": [
+     60,
+     300,
+     1800,
+     "phase",
+     "event"
+    ],
     "ladder_bands": [
      "below_q10",
      "at_or_above_q10",
@@ -94,12 +125,12 @@
    "value": "c_c_roster.certificates \u2014 walled PHASE-CLOSE (adoption) and walled PEAK-EXIT (CC-M1-8 companion), both always reported",
    "winner": "cert_close >= $1000 and mae_before_argmax <= $300 and not walled (D-021)"
   },
-  "params_hash": "f8d2e2eef007828e5d81c51f4c82166ffb88932cf6c0edb03aeefc970874056e",
+  "params_hash": "607f5d785af34391ea5f7ad488bf69ad516d95bd17e8ba22f5bb66ae0b39f20a",
   "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
  "n_failed": 0,
- "n_tests": 9,
+ "n_tests": 12,
  "verdict": "PASS"
 }

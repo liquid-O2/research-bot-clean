@@ -1,0 +1,12 @@
+# PORT_M2_SHEETS_SPEC.md §3 R2-8 WRITTEN DECISION JOURNAL (the reasoning, kept) (spec_sha16=f6ef73a41dbf8588)
+# params_hash=3796093a852bd9bca19a65a6eb37a267acda6aea516f29002c1748840c0e10fc
+# R2-8 index: one row per journal entry; sha16 = sha256(entry body)[:16]
+# seq = row index (deterministic, no wall clock)
+seq	round	era	date8	mode	episode_id	call	p	reads	sha16	n_chars	path
+0	E6R2-BLIND-D1	E6	20240424	BLIND	SI-20240424-S-E02	TAKE	0.14	ribbon:SI-20240424-007365-S T-25..T action grain, 544 events (window narrowed from 90s: SI was printing ~1,300 ev/min here and a 90s read is 2,000 rows); seq_cues w=120; delta row; brief:SI	b7fff7450b4a0a1a	2487	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D1/JOURNAL_20240424.md
+1	E6R2-BLIND-D1	E6	20240424	BLIND	HG-20240424-L-E57	SKIP	0.07	ribbon:HG-20240424-046834-L T-30..T action grain, 420 events; seq_cues w=120; delta row; brief:HG	0c5f1dfdd33ae519	1786	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D1/JOURNAL_20240424.md
+2	E6R2-BLIND-D1	E6	20240424	BLIND	SI-20240424-S-E40	SKIP	0.06	seq_cues w=120; delta row; brief:SI (no ribbon read — the sequence statistics already point against the side, so the seat cannot be taken and the expensive read is not spent)	c0fa2f141e63c0a1	1342	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D1/JOURNAL_20240424.md
+3	E6R2-BLIND-D1	E6	20240424	BLIND	NKD-20240424-S-E49	SKIP	0.05	seq_cues w=120; delta row; brief:NKD	da46cd0014051e0f	974	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D1/JOURNAL_20240424.md
+4	E6R2-BLIND-D1	E6	20240424	BLIND	SI-20240424-L-E42	SKIP	0.08	seq_cues w=90; delta row; brief:SI	a13e09653cee2051	1150	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D1/JOURNAL_20240424.md
+5	E6R2-BLIND-D1	E6	20240424	BLIND	SI-20240424-L-E34	SKIP	0.09	ribbon:SI-20240424-047573-L T-60..T action grain, 231 events (widened from 15s: the book was too quiet for a short window to say anything); seq_cues w=120; delta row; brief:SI	48b103c42f2ef815	1677	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D1/JOURNAL_20240424.md
+6	E6R2-BLIND-D1	E6	20240424	BLIND	SI-20240424-S-E02	TAKE	0.14	chart:SI-20240424-007365-S approach panel (45min into 02:02:45) + session panel — read AFTER the ribbon and after the call was already written	20875cb2fdf2f572	1553	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D1/JOURNAL_20240424.md

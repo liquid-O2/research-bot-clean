@@ -1,0 +1,10 @@
+WP0361	A	0.68	B longs into a steady ask-stack/bid-withdraw slide and is ~17 ticks underwater by A; A shorts just after sellers swept the bid and the offer reset lower.
+WP0081	A	0.63	B is a long entered as the 12-lot bid is cancelled down to 2 while the offer stacks to 13 lots/10 orders after a seller burst; A shorts a quiet drifting-lower book.
+WP0020	B	0.64	B is a long in a sustained lift: buyers repeatedly take the offer, bid ratchets 3.7885->3.7915 with 15 lots/5 orders behind it, while A shorts a book whose bid adds outnumber cancels and whose offer is being pulled.
+WP0443	B	0.62	At A the offer at 5.1615 is a reloading 8-12 lot wall in 2-3 orders that absorbs every buy while the bid runs 1 lot and price grinds down, so the long is capped and B short from 5 ticks higher is the one working.
+WP0566	B	0.65	A is a long into a fading bid (cancels only, offer stacking) and price is 13 ticks lower by B; B shorts the bounce inside that decline.
+WP0537	B	0.72	B longs as the 9-11 lot offer at 4.9265 is repeatedly cancelled away with buyers lifting, and price is 21 ticks higher by the time A shorts it.
+WP0181	B	0.58	A longs into the last aggression being a seller hitting the bid with the 10-lot/8-order offer intact and price stepping down; B shorts a dead but slightly heavier-offer book that then drifts lower.
+WP0110	A	0.68	A shorts with continuous sell aggression (S11/18 then S3/9, 39 then 16 bid cancels, zero buy prints in the last 4s) and a withdrawing bid; B longs immediately after a 26-lot seller hit the bid.
+WP0498	B	0.66	A shorts into a steady up-grind where the offer is pulled every second (14-19 ask cancels/s) and buyers keep printing; B longs with that trend on a 1-lot offer.
+WP0277	B	0.62	B longs a bid that reloads at 4.6165 (11-13 orders, repeated re-adds) while 24 ask cancels clear the offer and buyers take 15 lots; price is 6 ticks higher when A shorts a chopping book.

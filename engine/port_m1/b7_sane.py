@@ -171,10 +171,28 @@ def _asset(args):
     return rows
 
 
+class SaneThresholdRefusal(RuntimeError):
+    """D-054 TYPED EXCLUSION applied to the threshold itself (R89).
+
+    The pre-fix reader filled a missing (asset, session) with `[SANE_CAP_USD] *
+    N_PHASES`, i.e. the $500 cap alone.  The committed table shows SI/HG
+    thresholds run $125-$250 (the 10x clause binds), so that default is a mask
+    2-4x TOO PERMISSIVE and it fired silently.  D-054's doctrine is typed
+    exclusion, so a session the mask cannot be computed for is a REFUSAL that is
+    named and counted, never a permissive default.
+    """
+
+
 def load_thresholds(asset):
-    """{date8: [thr_$ per phase]} from the committed table."""
+    """{date8: [thr_$ per phase]} from the committed table.
+
+    A session is present ONLY when the table carries all N_PHASES rows for it
+    (R89): a partially written session is dropped from the map so that
+    `thresholds_for` refuses on it rather than silently completing it with the
+    cap.  Return type is unchanged for existing consumers.
+    """
     path = M.out_path(OUT_DIR, "sane_thresholds.tsv")
-    out, cols = {}, None
+    partial, cols = {}, None
     with open(path) as fh:
         for line in fh:
             if line.startswith("#"):
@@ -187,9 +205,25 @@ def load_thresholds(asset):
                 continue
             d = f[1]
             d8 = int(d[0:4]) * 10000 + int(d[5:7]) * 100 + int(d[8:10])
-            v = out.setdefault(d8, [SANE_CAP_USD] * X.N_PHASES)
-            v[X.PHASE_NAMES.index(f[3])] = float(f[6])
-    return out
+            partial.setdefault(d8, {})[X.PHASE_NAMES.index(f[3])] = float(f[6])
+    return {d8: [m[p] for p in range(X.N_PHASES)]
+            for d8, m in partial.items() if len(m) == X.N_PHASES}
+
+
+def thresholds_for(thr_map, asset, d8):
+    """The D-054 threshold vector for one session, or a REFUSAL (R89)."""
+    v = thr_map.get(int(d8))
+    if v is None:
+        raise SaneThresholdRefusal(
+            "D-054/R89: %s %08d has no complete sane_thresholds.tsv row; the "
+            "$%.0f cap-only default is 2-4x too permissive and is refused"
+            % (asset, int(d8), SANE_CAP_USD))
+    return v
+
+
+def apply_for(s, thr_map, asset, d8):
+    """load_session -> D-054 SANE view, refusing (never defaulting) on a gap."""
+    return apply(s, thresholds_for(thr_map, asset, d8))
 
 
 def main():

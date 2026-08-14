@@ -212,9 +212,15 @@ def build(args):
             import json as _json
             with open(json_p) as fh:
                 meta = _json.load(fh)
-            cover = [(int(a), int(b)) for a, b in meta["cover"]]
-            if all(TAPE._covers(cover, a, b)
-                   for a, b in TAPE._merge(canonical_ranges(asset, d8))):
+            # R91/R92: the driver's own HIT test must be the SAME five tests
+            # `tape.ensure` applies, or the driver reports a hit for a session
+            # the renderer will re-extract.  It reads the meta's own open/close
+            # because the driver has not loaded the session receipt yet.
+            ok, _why = TAPE.cache_hit(meta, meta.get("iid"),
+                                      meta.get("open_utc", -1),
+                                      meta.get("close_utc", -1),
+                                      TAPE._merge(canonical_ranges(asset, d8)))
+            if ok:
                 hits.append((asset, d8))
                 continue
         todo.append((asset, d8))
@@ -258,13 +264,25 @@ def build(args):
                    "n_cache_hits_at_start": len(hits),
                    "n_extracted": len(todo) - n_fail,
                    "n_failures": n_fail,
-                   "failures": [[t[0], t[1], s]
-                                for _r, s, _w, t in results if s != "OK"][:50],
-                   "extract_wall_sec": round(wall, 1),
-                   "extract_sec_mean": round(
-                       float(np.mean([w for _r, _s, w, _t in results])), 2)
-                   if results else 0.0,
+                   # MINOR (review 3.2): the failures list was built from
+                   # `pool.imap_unordered` and never sorted, so two identical
+                   # runs wrote different bytes.  Sorted on (asset, date8).
+                   "failures": sorted([[t[0], t[1], s]
+                                       for _r, s, _w, t in results
+                                       if s != "OK"])[:50],
+                   # MINOR (review 3.2): `extract_wall_sec` / `extract_sec_mean`
+                   # were WALL CLOCK stamped into a committed receipt, which the
+                   # lane's own EC05 two-run identity guard exists to forbid.
+                   # The timing is a run property, not corpus data; it goes to
+                   # the heartbeat and stays out of the artefact.
+                   "timing": "not recorded: wall clock in a committed receipt "
+                             "breaks the two-run byte-identity law (D-018); "
+                             "see the run heartbeat for elapsed time",
+                   "def_sha16": TAPE.DEF_SHA16,
                    "pins_moved_during_run": MC.pins_moved()})
+    MC.hb("event_cache: extract wall %.0fs, mean %.2fs/session-asset"
+          % (wall, float(np.mean([w for _r, _s, w, _t in results]))
+             if results else 0.0))
     return 1 if n_fail else 0
 
 
@@ -441,7 +459,12 @@ def verify(args):
                         "artifacts/cache/port/m2/events/, D-018)",
                         "holdout date8 >= %d is EXCLUDED by construction "
                         "(CC-M2-15.3): %d such rows" % (HOLDOUT_START,
-                                                        len(leaked))])
+                                                        len(leaked)),
+                        "n_seen == n_events BY CONSTRUCTION (tape.extract "
+                        "increments the counter on kept records only); the two "
+                        "columns are one measurement, not two",
+                        "extraction definition key (R91) = %s"
+                        % TAPE.DEF_SHA16])
     n_ev = sum(r[4] for r in rows)
     by_asset = {}
     by_era = {}
@@ -480,7 +503,9 @@ def verify(args):
         "by_era": {k: {"sessions": v[0], "events": v[1]}
                    for k, v in sorted(by_era.items())},
         "manifest": MANIFEST_PATH,
-        "verify_wall_sec": round(time.time() - t0, 1),
+        # MINOR (review 3.2): `verify_wall_sec` was wall clock in a committed
+        # receipt.  Removed for the same reason as `extract_wall_sec` above.
+        "def_sha16": TAPE.DEF_SHA16,
         "pins_moved_during_run": MC.pins_moved(),
     }
     MC.write_json(os.path.join(TAPE.EVENTS_DIR, "coverage.receipt.json"),
@@ -546,11 +571,13 @@ def _write_report(rc, rows, by_asset, by_era, ident, args):
                  % br.get("n_cache_hits_at_start", 0))
         L.append("| extracted by this lane | %d |" % br.get("n_extracted", 0))
         L.append("| extraction failures | %d |" % br.get("n_failures", 0))
-        L.append("| wall (12 workers) | %.0fs (%.1f min) |"
-                 % (br.get("extract_wall_sec", 0.0),
-                    br.get("extract_wall_sec", 0.0) / 60.0))
-        L.append("| mean per session-asset | %.2fs |"
-                 % br.get("extract_sec_mean", 0.0))
+        L.append("| extraction definition key | `%s` |"
+                 % br.get("def_sha16", TAPE.DEF_SHA16))
+        L.append("")
+        L.append("Wall-clock timings are deliberately NOT in the committed "
+                 "receipt: they are a property of the run, not of the corpus, "
+                 "and they broke the two-run byte-identity law this lane's own "
+                 "EC05 guard enforces.  Elapsed time is on the run heartbeat.")
         L.append("")
         if br.get("pins_moved_during_run"):
             L.append("NOTE — the M2 spec pin MOVED during the run "
@@ -671,6 +698,65 @@ def _write_report(rc, rows, by_asset, by_era, ident, args):
     MC.write_text(REPORT_PATH, "\n".join(L))
 
 
+# ------------------------------------------------- R91 definition migration --
+STAMP_RECEIPT = os.path.join(TAPE.EVENTS_DIR, "def_stamp.receipt.json")
+
+
+def stamp_definition(args):
+    """One-time migration for R91: write `def_sha16` into pre-fix cache metas.
+
+    R91 keys the cache on `tape.DEF_PARAMS`.  Every meta written before the fix
+    lacks the key, so without this migration the whole 12 GB corpus becomes a
+    MISS and re-decodes.  Stamping is CORRECT, not a shortcut: this lane changed
+    the HIT TEST, not the extraction definition — `tape.extract`'s instrument
+    filter, record predicate, ARRAYS, dtypes, clock, sort and pad are byte-for-
+    byte what they were when the corpus was written — so the caches on disk ARE
+    the product of DEF_PARAMS version 1.  Any FUTURE change to the definition
+    bumps the sha and re-extracts, which is the whole point.
+
+    A meta that already carries a DIFFERENT def_sha16 is never overwritten: that
+    is a genuine definition change and its session must re-extract.
+    """
+    import json as _json
+    stamped = skipped = mismatch = 0
+    rows = []
+    for asset in sorted(MC.ASSET_ORDER):
+        base = os.path.join(TAPE.EVENTS_DIR, asset)
+        if not os.path.isdir(base):
+            continue
+        for fn in sorted(os.listdir(base)):
+            if not fn.endswith(".json"):
+                continue
+            p = os.path.join(base, fn)
+            with open(p) as fh:
+                meta = _json.load(fh)
+            got = meta.get("def_sha16")
+            if got == TAPE.DEF_SHA16:
+                skipped += 1
+                continue
+            if got:
+                mismatch += 1
+                rows.append([asset, fn, "MISMATCH:%s" % got])
+                continue
+            meta["def_sha16"] = TAPE.DEF_SHA16
+            if not args.dry_run:
+                MC.write_json(p, meta)
+            stamped += 1
+    MC.write_json(STAMP_RECEIPT,
+                  {"env": MC.env_receipt(PARAMS),
+                   "def_sha16": TAPE.DEF_SHA16,
+                   "def_params": TAPE.DEF_PARAMS,
+                   "n_stamped": stamped, "n_already": skipped,
+                   "n_mismatch": mismatch, "mismatches": rows[:50],
+                   "dry_run": bool(args.dry_run),
+                   "rationale": "R91 migration: the HIT TEST changed, the "
+                                "extraction definition did not, so pre-fix "
+                                "metas are stamped rather than re-extracted"})
+    MC.hb("event_cache stamp-definition: %d stamped, %d already, %d mismatch"
+          % (stamped, skipped, mismatch))
+    return 1 if mismatch else 0
+
+
 # -------------------------------------------------------------------- cli ---
 def main():
     p = argparse.ArgumentParser()
@@ -682,7 +768,12 @@ def main():
     p.add_argument("--verify", action="store_true",
                    help="coverage + holdout exclusion + two-run identity")
     p.add_argument("--identity-pct", type=float, default=2.0)
+    p.add_argument("--stamp-definition", action="store_true",
+                   help="R91 one-time migration: write tape.DEF_SHA16 into "
+                        "pre-fix cache metas (see stamp_definition)")
     args = p.parse_args()
+    if args.stamp_definition:
+        return stamp_definition(args)
     if args.verify:
         return verify(args)
     return build(args)

@@ -167,7 +167,17 @@ def oracle_freeze():
 
 
 def load_session(asset, d8):
-    """Session receipt with the D-054 SANE mask installed (b7_sane owns it)."""
+    """Session receipt with the D-054 SANE mask installed (b7_sane owns it).
+
+    R89: the mask used to fall back to `[SANE_CAP_USD] * N_PHASES` when the
+    session was missing from `sane_thresholds.tsv` — a SILENT, CAP-ONLY default.
+    The committed table's SI/HG thresholds are $125-$250 (the D-054 10x clause
+    binds), so that default installed a mask 2-4x too permissive on exactly the
+    sessions whose threshold could not be computed.  D-054's doctrine is typed
+    exclusion, so it is now a REFUSAL: `b7_sane.apply_for` raises, the era
+    renderer counts it as a refused candidate, and no sheet is built on a mask
+    nobody computed.
+    """
     key = ("sess", asset, int(d8))
     if key in _MEM:
         return _MEM[key]
@@ -176,9 +186,12 @@ def load_session(asset, d8):
         raise RuntimeError("no %s session receipt for %d" % (asset, d8))
     d, path = si[int(d8)]
     s = X.load_session(asset, d, path)
-    thr = sane_thresholds(asset).get(int(d8))
-    insane_frac = B7.apply(s, thr if thr is not None
-                           else [B7.SANE_CAP_USD] * X.N_PHASES)
+    try:
+        insane_frac = B7.apply_for(s, sane_thresholds(asset), asset, int(d8))
+    except B7.SaneThresholdRefusal as e:
+        # A named, counted refusal in M2's own vocabulary (the era renderer and
+        # the sheet builder both catch LeakRefusal and record it).
+        raise MC.LeakRefusal(str(e))
     s_trades = np.load(path, allow_pickle=False)
     tr = {"sec": s_trades["trades_sec"], "px": s_trades["trades_px"],
           "size": s_trades["trades_size"], "side": s_trades["trades_side"]}
@@ -316,10 +329,22 @@ class Case(object):
             #   * causality — the cache holds seconds after this decision;
             #   * determinism — the sheet's bytes must not depend on which
             #     other candidates happen to share the cache file.
-            arrays, _i0, _i1 = TAPE.window(cached, self.open_utc, lo, hi)
+            # R98: `classify_trades` states in its own contract (tape.py:206)
+            # that it "MUST be called on the FULL cached arrays, never on a
+            # slice ... Callers slice the RETURNED VECTORS, not the input",
+            # because a trade's prevailing quote is the L1 of the record BEFORE
+            # it.  This call site sliced first, so index 0 of the window — the
+            # record at dec_sec-692 — classified against its own post-trade
+            # book.  EXTRACT_PAD_SEC=2 normally keeps that record outside every
+            # consumed window, but when the book is quiet enough that no event
+            # falls in [T-692s, T-690s) the mis-tagged record IS consumed, in
+            # the first episode digest and in S8.n_through_book_600s.
+            # Classify the FULL cache, then take the same [i0, i1) slice.
+            arrays, i0, i1 = TAPE.window(cached, self.open_utc, lo, hi)
             self.events = arrays
             self.events_meta = meta
-            self.trade_tag, self.trade_flow = TAPE.classify_trades(arrays)
+            full_tag, full_flow = TAPE.classify_trades(cached)
+            self.trade_tag, self.trade_flow = full_tag[i0:i1], full_flow[i0:i1]
             # HARD causality assertion on the tape itself: no cached event may
             # carry a ts_event at or after the decision second's END.  (The
             # decision second's own events ARE lawful — that is the book the

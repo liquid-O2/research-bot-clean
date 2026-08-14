@@ -28,6 +28,14 @@ CC-M1-1(A): the expected-move ladder.  ratio_t = realized_range_t / sigma_hat_t;
     q10 = MIN-expected-move, q90 = MAX-expected-move.  The REGIME-SCALED ladder
     takes the same quantiles inside the session's vol-regime bucket (terciles of
     RV_5/RV_66, cut points frozen on the FIT era).
+
+D-054 (R80): every session is loaded through the CC-M1-4 MID-SANITY mask before
+    a single estimator touches it.  The V1 block reads `s.valid`, so until this
+    was wired the whole vol layer — sigma_hat, range_hat, rv/bv/jump, the move_q*
+    ladder and the vol-regime terciles — was computed over the spread-collapse
+    seconds b7_sane exists to delete, and the committed artifact stayed pinned
+    two spec revisions before D-054 landed.  A session with no committed
+    threshold is a REFUSAL (b7_sane.SaneThresholdRefusal), never the $500 cap.
 """
 import datetime as dt
 import math
@@ -41,8 +49,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import m1_common as M
 import common as C
 import census_common as X
+import b7_sane as B7
 
-SECTION = "§3 vol layer V1/V2 + CC-M1-1(A)"
+SECTION = "§3 vol layer V1/V2 + CC-M1-1(A) + D-054 SANE mids"
 
 SUBSAMPLE_SEC = 300             # §3 "5-min-subsampled RV"
 VOLOFVOL_WINDOW = 20            # §3 "20-session rolling std of session RV"
@@ -84,6 +93,9 @@ PARAMS = {
     "ladder_ratio": "realized_range / sigma_hat, trailing %d sessions, "
                     "strictly prior" % LADDER_WINDOW,
     "regime": "terciles of RV_5/RV_66, cut points frozen on FIT era",
+    "mid_sanity": "D-054 / CC-M1-4: every session is masked by b7_sane.apply "
+                  "before any estimator reads it; a session with no committed "
+                  "threshold is REFUSED, never given the $500 cap alone (R89)",
 }
 
 
@@ -161,11 +173,16 @@ V1_METRICS = ("n_valid", "first_sec", "last_sec", "open_px", "high_px",
 
 
 def _v1_shard(args):
-    asset, month, sess = args
+    asset, month, sess, thr_map = args
     mult = C.ASSETS[asset]["mult"]
     rows = []
     for trade_date, path in sess:
         s = X.load_session(asset, trade_date, path)
+        # D-054 (R80): the SANE view is installed BEFORE any estimator reads
+        # s.valid / s.vt / s.vm.  Refuses (never defaults) on a missing row.
+        B7.apply_for(s, thr_map, asset,
+                     trade_date.year * 10000 + trade_date.month * 100
+                     + trade_date.day)
         masks = segment_masks(s)
         for seg in ("SESSION",) + M.SEG_NAMES:
             r = realized(s, mult, masks[seg])
@@ -182,13 +199,14 @@ V1_DERIVED = ["volofvol_20_usd", "sigma_clocknorm", "rv_clocknorm",
 def build_v1(assets, workers, months=None):
     tasks = []
     for asset in assets:
+        thr_map = B7.load_thresholds(asset)      # D-054, once per asset
         by_month = {}
         for d, p in X.session_paths(asset, M.M0_ROOT):
             if months and X.month_key(d) not in months:
                 continue
             by_month.setdefault(X.month_key(d), []).append((d, p))
         for mk in sorted(by_month):
-            tasks.append((asset, mk, by_month[mk]))
+            tasks.append((asset, mk, by_month[mk], thr_map))
     M.hb("b2 V1: %d (asset,month) tasks" % len(tasks))
     if workers <= 1 or len(tasks) <= 1:
         res = [_v1_shard(t) for t in tasks]
@@ -577,7 +595,9 @@ def main():
     v1 = build_v1(assets, workers)
     M.write_tsv(M.out_path("fvol", "v1_realized.tsv"), SECTION, phash,
                 V1_COLUMNS + V1_DERIVED, v1,
-                extra=["dollar space; OVERNIGHT = session seconds before the "
+                extra=["D-054 (R80): every session masked by b7_sane.apply "
+                       "before any estimator; n_valid = SANE seconds",
+                       "dollar space; OVERNIGHT = session seconds before the "
                        "committed RTH open (m0 §3 RTH_LO_SEC=52200)",
                        "clocknorm = value / trailing-%d-session same-segment "
                        "median (strictly prior)" % CLOCKNORM_WINDOW])
@@ -684,7 +704,9 @@ def main():
                  "rv5_over_rv66", "ratio_range_over_sigmahat", "ladder_source"]
                 + ["move_%s_usd_per_sigma" % q for q in qn]
                 + ["move_rs_%s_usd_per_sigma" % q for q in qn], fc_rows,
-                extra=["ladder columns are MULTIPLIERS on sigma_hat_usd "
+                extra=["D-054 (R80): built on SANE mids (b7_sane / CC-M1-4); "
+                       "supersedes the m1_spec_sha16=ce0a8ca16e342cd7 build",
+                       "ladder columns are MULTIPLIERS on sigma_hat_usd "
                        "(CC-M1-1 A): move_q($) = column x sigma_hat_usd",
                        "2025 rows carry coefficients frozen at 2024-12-31 "
                        "(era law)"])

@@ -107,6 +107,22 @@ def _med(vals):
     return st.median(vals) if vals else float("nan")
 
 
+def _n(v, dec=2):
+    """MINOR (review 3.1): every numeric cell on this page was formatted with a
+    bare `%.2f` / `%.0f`, so a census slice with no rows (or a typed-missing
+    column) wrote the literal string `nan` into a COMMITTED markdown table — a
+    reader-facing artefact whose whole contract is "every figure carries its
+    source".  A missing figure is now the program's single typed-missing glyph
+    (`m2_common.NA`), which is what the sheets themselves print."""
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        return MC.NA
+    if v != v or v in (float("inf"), float("-inf")):
+        return MC.NA
+    return "%.*f" % (int(dec), v)
+
+
 def in_era(sel, era, date_key="trade_date"):
     lo, hi = EI.era_bounds(era)
     out = []
@@ -160,11 +176,11 @@ def primer(era, assets=MC.ASSET_ORDER):
         if not sel:
             sel = [(n, d) for n, d in in_era(rows(COST), era)
                    if d["asset"] == asset]
-        L.append("| %s | %.2f | %.2f | %.2f | %.4f | %s |"
-                 % (asset, _med([_f(d["cost_rt"]) for _, d in sel]),
-                    _med([_f(d["spread_med_usd"]) for _, d in sel]),
-                    _med([_f(d["spread_p90_usd"]) for _, d in sel]),
-                    _med([_f(d["dominant_share"]) for _, d in sel]),
+        L.append("| %s | %s | %s | %s | %s | %s |"
+                 % (asset, _n(_med([_f(d["cost_rt"]) for _, d in sel]), 2),
+                    _n(_med([_f(d["spread_med_usd"]) for _, d in sel]), 2),
+                    _n(_med([_f(d["spread_p90_usd"]) for _, d in sel]), 2),
+                    _n(_med([_f(d["dominant_share"]) for _, d in sel]), 4),
                     cite(COST, sel)))
     L.append("")
 
@@ -177,10 +193,10 @@ def primer(era, assets=MC.ASSET_ORDER):
                if d["asset"] == asset and d.get("convention") == "SESSION"
                and d.get("window") == "FULL"]
         legs = [_f(d["legs_1k"]) for _, d in sel]
-        L.append("| %s | %.0f | %.0f | %.2f | %d | %s |"
-                 % (asset, _med([_f(d["range_usd"]) for _, d in sel]),
-                    _med([_f(d["best_leg_usd"]) for _, d in sel]),
-                    (sum(legs) / len(legs)) if legs else float("nan"),
+        L.append("| %s | %s | %s | %s | %d | %s |"
+                 % (asset, _n(_med([_f(d["range_usd"]) for _, d in sel]), 0),
+                    _n(_med([_f(d["best_leg_usd"]) for _, d in sel]), 0),
+                    _n((sum(legs) / len(legs)) if legs else float("nan"), 2),
                     len(sel), cite(OFFER, sel)))
     L.append("")
 
@@ -196,11 +212,12 @@ def primer(era, assets=MC.ASSET_ORDER):
         for _, d in sel:
             mix[d.get("regime_tag", ".")] = mix.get(d.get("regime_tag", "."),
                                                     0) + 1
-        L.append("| %s | %s | %.3f | %.1f | %s |"
+        L.append("| %s | %s | %s | %s | %s |"
                  % (asset,
-                    " ".join("%s=%d" % kv for kv in sorted(mix.items())),
-                    _med([_f(d.get("rv5_over_rv66")) for _, d in sel]),
-                    _med([_f(d.get("sigma_hat_usd")) for _, d in sel]),
+                    " ".join("%s=%d" % kv for kv in sorted(mix.items()))
+                    or MC.NA,
+                    _n(_med([_f(d.get("rv5_over_rv66")) for _, d in sel]), 3),
+                    _n(_med([_f(d.get("sigma_hat_usd")) for _, d in sel]), 1),
                     cite(FVOL, sel)))
     L.append("")
 
@@ -220,12 +237,12 @@ def primer(era, assets=MC.ASSET_ORDER):
                   if d["asset"] == asset and d["phase"] == ph]
             if not pv and not ca:
                 continue
-            L.append("| %s | %s | %s | %.2f | %.0f | %s ; %s |"
+            L.append("| %s | %s | %s | %s | %s | %s ; %s |"
                      % (asset, ph,
-                        " ".join("%s=%.3f" % (d["era"], _f(d["share"]))
-                                 for _, d in pv) or ".",
-                        _med([_f(d["cost_rt"]) for _, d in ca]),
-                        _med([_f(d["two_sided_seconds"]) for _, d in ca]),
+                        " ".join("%s=%s" % (d["era"], _n(d["share"], 3))
+                                 for _, d in pv) or MC.NA,
+                        _n(_med([_f(d["cost_rt"]) for _, d in ca]), 2),
+                        _n(_med([_f(d["two_sided_seconds"]) for _, d in ca]), 0),
                         cite(PHASE_VALUE, pv), cite(COST, ca)))
     L.append("")
 
@@ -248,12 +265,13 @@ def primer(era, assets=MC.ASSET_ORDER):
             if not sel:
                 continue
             n, d = sel[0]
-            L.append("| %s | %s | %s | %.2f | %.2f | %.4f | %.4f | %.2f | %s |"
+            L.append("| %s | %s | %s | %s | %s | %s | %s | %s | %s |"
                      % (asset, cls, d["n_candidates"],
-                        _f(d["fires_per_session"]),
-                        _f(d["conditional_value_usd"]), _f(d["positive_frac"]),
-                        _f(d["winner_frac"]),
-                        _f(d["conditional_value_peak_usd"]),
+                        _n(d["fires_per_session"], 2),
+                        _n(d["conditional_value_usd"], 2),
+                        _n(d["positive_frac"], 4),
+                        _n(d["winner_frac"], 4),
+                        _n(d["conditional_value_peak_usd"], 2),
                         cite(CLS.OUT, sel)))
     L.append("")
 
@@ -268,11 +286,11 @@ def primer(era, assets=MC.ASSET_ORDER):
                    if d["asset"] == asset and d["family"] == f
                    and d["era"] in years]
             for n, d in sel:
-                L.append("| %s | %s | %s | %s | %.2f | %.4f | %.2f | %s |"
+                L.append("| %s | %s | %s | %s | %s | %s | %s | %s |"
                          % (asset, f, d["era"], d["n_candidates"],
-                            _f(d["conditional_value_usd"]),
-                            _f(d["positive_frac"]),
-                            _f(d["conditional_value_peak_usd"]),
+                            _n(d["conditional_value_usd"], 2),
+                            _n(d["positive_frac"], 4),
+                            _n(d["conditional_value_peak_usd"], 2),
                             cite(FAM, [(n, d)])))
     L.append("")
     L += ["## 8. HOW TO READ THIS PAGE", "",

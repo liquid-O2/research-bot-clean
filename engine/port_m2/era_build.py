@@ -53,9 +53,13 @@ SHEET_COLUMNS = ("cid", "asset", "era", "block", "date8", "dec_sec", "side",
                  "n_leak_refusals", "tokens_proxy", "chars", "lines",
                  "appendix_tokens", "sheet_sha256", "appendix_sha256")
 
+# MINOR (review 3.1): `wall_sec` stamped WALL CLOCK into a committed TSV, so two
+# runs of the same block produced byte-different receipts against the two-run
+# identity law.  Elapsed time is a property of the run, not of the corpus; it
+# goes to the heartbeat and is out of the artefact.
 SESSION_COLUMNS = ("era", "block", "asset", "date8", "n_candidates",
                    "n_rendered", "n_certified", "n_refused", "tokens_proxy",
-                   "appendix_tokens", "n_events_cached", "wall_sec", "status")
+                   "appendix_tokens", "n_events_cached", "status")
 
 
 def out_dir(era, block, asset, d8):
@@ -143,10 +147,19 @@ def _render_session(task):
                          sh.sha256, sh.appendix_sha256])
     except Exception as e:                # noqa: BLE001 — reported, not hidden
         status = "FAIL:%s" % str(e)[:160]
+        # MINOR (review 3.1): the partially-built rows of a FAILed session were
+        # returned and folded into STREAM_RECEIPT_<BLOCK>.tsv, so a resume
+        # without --force wrote them a SECOND time when the session succeeded.
+        # A FAILed session contributes NO sheet rows — only its status row, so
+        # the failure is counted and named rather than half-recorded.
+        n_partial = len(rows)
+        rows = []
+        n_cert = 0
+        status = "%s (dropped %d partial rows)" % (status, n_partial)
     tok = sum(r[13] for r in rows)
     atok = sum(r[16] for r in rows)
     srow = [era, block, asset, int(d8), len(cands), len(rows), n_cert, n_ref,
-            tok, atok, n_events, round(time.time() - t0, 2), status]
+            tok, atok, n_events, status]
     if status == "OK":
         MC.write_json(session_receipt_path(era, block, asset, d8),
                       {"srow": srow, "rows": rows,
@@ -181,6 +194,19 @@ def tasks_for(era, block, assets, want_sessions=None, max_sessions=None,
     # longest sessions first: with <=6 workers this keeps the tail short
     out.sort(key=lambda t: (-len(t[4]), t[2], t[3]))
     return out
+
+
+def _srow_compat(srow):
+    """Session receipts written before `wall_sec` was struck carry 13 fields.
+
+    A resumed render reads them back and folds them into the same TSV as fresh
+    12-field rows, so the old shape is normalised here rather than being allowed
+    to shift every later column of that row.
+    """
+    srow = list(srow)
+    if len(srow) == len(SESSION_COLUMNS) + 1:
+        del srow[11]                      # the old wall_sec slot
+    return srow
 
 
 def eligible_counts(era, block, assets):
@@ -253,7 +279,7 @@ def run(args):
                 import json as _json
                 with open(p) as fh:
                     d = _json.load(fh)
-                res.append((d["rows"], d["srow"]))
+                res.append((d["rows"], _srow_compat(d["srow"])))
             else:
                 todo.append(t)
         MC.hb("era_build %s/%s: %d sessions already receipted, %d to render"
@@ -294,7 +320,7 @@ def run(args):
             "n_certified": n_cert,
             "n_refused": sum(int(s[7]) for s in srows),
             "n_session_failures": sum(1 for s in srows
-                                      if not str(s[12]).startswith("OK")),
+                                      if not str(s[11]).startswith("OK")),
             "coverage_candidates": (len(rows) / n_elig) if n_elig else 0.0,
             "tokens_proxy": {"total": int(sum(toks)),
                              "min": int(min(toks)) if toks else 0,
@@ -302,8 +328,18 @@ def run(args):
                              "max": int(max(toks)) if toks else 0},
             "appendix_tokens_total": int(sum(int(r[16]) for r in rows)),
             "out_root": os.path.join(MC.M2_ROOT, "era", era, args.block),
+            # R02 (lead lane): a BLIND render no longer writes the S14 appendix
+            # beside the sheet the reader reads — `sheets.emit` derives a
+            # SIBLING tree.  The rollup names both roots so nobody has to infer
+            # from the sheet path where the appendices went, and the blind root
+            # can be asserted appendix-free (sheets.assert_no_s14_access).
+            "s14_out_root": (SH.s14_dir(os.path.join(MC.M2_ROOT, "era", era,
+                                                     args.block))
+                             if args.block == EI.BLOCK_BLIND else
+                             os.path.join(MC.M2_ROOT, "era", era, args.block)),
+            "s14_colocated_with_sheets": args.block != EI.BLOCK_BLIND,
             "pins_moved_during_run": MC.pins_moved(),
-            "wall_sec": round(time.time() - t_start, 1),
+            # wall clock is NOT recorded here (see SESSION_COLUMNS).
         }
         MC.write_json(os.path.join(base, "build_%s.receipt.json" % args.block),
                       receipt)
@@ -312,7 +348,7 @@ def run(args):
                  receipt["coverage_candidates"], time.time() - t_start))
         all_rows.extend(rows)
         all_srows.extend(srows)
-    bad = [s for s in all_srows if not str(s[12]).startswith("OK")]
+    bad = [s for s in all_srows if not str(s[11]).startswith("OK")]
     ncert = sum(int(r[10]) for r in all_rows)
     return 0 if (not bad and ncert == len(all_rows)) else 1
 

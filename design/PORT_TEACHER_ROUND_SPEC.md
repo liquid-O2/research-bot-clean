@@ -67,3 +67,11 @@ R2-4 LOSER-SIGNATURE VETO: the extraction cue census's wrong-side signature ente
      veto pattern (tested, not assumed, in round-2 blind).
 SEQUENCING: round 2 launches after (a) the extraction lane's cue census lands and (b) the view upgrades
 R2-1/R2-2 are built+verified; budget per D-086 (~150k tok/day envelope measured).
+R2-5 CHART IMAGES (user): every deep view includes RENDERED CHART PNGs — (a) session-so-far panel (causal
+     mids, kept-family levels, phase boundaries, episode markers, VWAP/bands) and (b) episode approach panel
+     (final ~30-45min zoom to the decision second, level lines + confirmation geometry). Strictly causal
+     (nothing past decision_ts), deterministic rendering, committed receipts; the reader Reads them as images.
+R2-6 ACTION-TYPED RAW RIBBON (user): the ribbon prints the DECODED DBN event stream — ts, ACTION
+     (Add/Cancel/Modify/Trade/clear per Databento MBP-1 semantics), side, price, size, flags, seq, book state
+     after — verified against the qr_dbn decoder's field semantics; the reader sees the true order-book story
+     (who adds, who pulls, who hits), not derived summaries.

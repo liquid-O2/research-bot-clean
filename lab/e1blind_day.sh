@@ -13,6 +13,12 @@ if [ -n "$NEXT" ]; then
     engine/port_m2/era_build.py --era E1 --block BLIND --sessions "$NEXT" \
     --workers 12 >/dev/null 2>&1 || true
 fi
+# D30 GUARD: never index a day whose on-demand render has not finished.
+R=/workspace/artifacts/workflow_memory/runs/e1blind_render_d${N}.rc
+if [ -f "/workspace/artifacts/workflow_memory/runs/e1blind_render_d${N}.pid" ]; then
+  for _ in $(seq 1 120); do [ -f "$R" ] && break; sleep 10; done
+  [ -f "$R" ] && [ "$(cat "$R")" = "0" ] || { echo "D30 GUARD: render d$N not complete (rc=$(cat "$R" 2>/dev/null))" >&2; exit 3; }
+fi
 /usr/bin/python3 engine/port_m2/triage_index.py --era E1 --block BLIND \
   --sessions "SI:$D,HG:$D,NKD:$D" --out "$T/E1BLIND_D${N}_TRIAGE_INDEX.tsv" \
   --drive-step 1800 --drive-out "$T/E1BLIND_D${N}_DRIVE" 2>&1 | tail -1

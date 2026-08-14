@@ -71,6 +71,12 @@ def main():
     ap.add_argument("--ledger", default=LEDGER)
     ap.add_argument("--cell-ledger", default=CELL_LEDGER)
     ap.add_argument("--arms", default="")
+    ap.add_argument("--only-cids", default="",
+                    help="SUPPLEMENTARY SEAL (defect D30): append only these "
+                         "cids, whose sheets existed but were missing from the "
+                         "index the day was first sealed against. Calls are "
+                         "still computed on the FULL day so the seat chain is "
+                         "the day-complete one.")
     a = ap.parse_args()
 
     rows = read_tsv(a.index)
@@ -136,6 +142,10 @@ def main():
             "clock": c["clock"], "side": c["side"],
             "candidate_class": c["cls"], "day": a.day, "version": c["version"],
         })
+
+    if a.only_cids:
+        keep = {l.strip() for l in open(a.only_cids) if l.strip()}
+        out = [o for o in out if o["cid"] in keep]
 
     new = not os.path.exists(a.ledger)
     with open(a.ledger, "a", newline="") as fh:

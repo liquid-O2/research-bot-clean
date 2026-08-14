@@ -1652,3 +1652,228 @@ today, so third is not zero).
    sessions?** The pooled 7-session numbers (0.688 cross vs 0.500 own) are inside noise for n=16.
 5. **Is the MOMENT stage worth more than day 6 thought?** SI/NY: right cell, right side, earliest
    admitted row, and 40% of the achievable certificate. §63's rule is falsified; nothing replaces it.
+
+---
+
+# E1 STUDY POST-MORTEMS — DAY 8 (2021-07-12, SI + HG + NKD, day-complete, n=949)
+# THE FINAL STUDY DAY OF THE E1 ROUND
+
+Draw: the next chronological STUDY session per asset strictly after 2021-07-09, warm-ups excluded
+(CC-M2-8.1) — SI 327 / HG 304 / NKD 318 on a Monday, `short_day=0`, `observed_close=82799`,
+USED_CASE_LEDGER 0 prior hits. Taint `CLEAN;AS-OF-PREFIX` on all 949 rows; no forecast/truth TSV was
+opened. Seal commit `cf2400a`; S14 opened only after it. Sources: `E1D8_CELL_LEDGER.md`,
+`baselines/E1D8_BASELINE_SCORES.md`, `e1d8_stage12.py --backtest`, `e1d8_prereg.py`,
+`e1d8_unblind.py`.
+
+## 0. THE DAY, AND THE SCORE
+
+47 D-021 winners in 949 candidates (4.95%); **44 of the 47 are LONGS**. SI 36, HG 9, NKD 2. Day DP
+ceiling $7,480.00. The reader banked **+$422.50** against a best mechanical baseline of **+$3,458.75**
+(EARLIEST + cond_value >= 516): **margin -$3,036.25**, the round's fourth-worst day and its sixth
+loss in eight. It **beat SIX of its SEVEN frozen predecessors** (its best such record) and lost only
+to e1d7. CORE alone would have banked +$1,172.50, so **every gate the reader added cost money.**
+
+**THE ONE-LINE VERDICT OF THE DAY, AND OF THE ROUND: the reader's side calls went 0-for-4 and their
+mirror went 4-for-4; the reader's declared refusal to gate on them is the only reason the day is
+positive at all; and the one term it did add cost $750 by refusing every non-SI winner on the board.**
+
+## 1. E1D8-F1 — THE SIDE: 0 OF 4, AND THE STRUCTURE OF THE ERROR IS THE SAME BOTH TIMES
+
+| cell | truth | winners | call | conf | right? |
+|---|---|---|---|---|---|
+| HG/TOKYO | NONE | 0 | LONG | LOW | — |
+| NKD/TOKYO | NONE | 0 | LONG | LOW-MED | — |
+| **SI/TOKYO** | **SHORT** | 3 | LONG | LOW | **NO** |
+| HG/LONDON | NONE | 0 | SHORT | MED-HIGH | — |
+| SI/LONDON | NONE | 0 | SHORT | MED | — |
+| NKD/LONDON | NONE | 0 | LONG | LOW | — |
+| **HG/NY** | **LONG** | 9 | SHORT | MED | **NO** |
+| **SI/NY** | **LONG** | 33 | SHORT | MED-HIGH | **NO** |
+| **NKD/NY** | **LONG** | 2 | SHORT | MED | **NO** |
+
+**0 of 4 = 0.000; the mirror scores 1.000.** Three-session record of committed cell-side calls:
+3/5, 2/5, 0/4 = **5 of 14 (0.357), mirror 9 of 14 (0.643).**
+
+The error has one shape and I named it in the ledger before the outcome: **the five SHORT calls were
+"one bet taken five times"** — X2, the session's own one-way selling, read once per cell — and
+**the four LONG calls were one bet taken four times** (Friday's close near the highs). Both bets
+were wrong, in opposite halves of the day, and the tape refuted the first one at 07:19 while I was
+still calling cells. The committed ledger says this in its own summary paragraph, which is the
+value of writing the correlation down before the fact rather than discovering it after.
+
+**THE DEEPER FACT, AND IT IS THE ROUND'S:** X2 (session net continuation) was the load-bearing term
+in every one of the four wrong calls. It scored 10/8 over seven sessions. On this session the tape
+sold from the Asian open to the NY open on all three assets — HG -$1,150 at pos 0.04, SI -$1,050 at
+pos 0.10, NKD -$400 at pos 0.06 — and then **every NY cell reversed and paid LONGS**. A session-net
+continuation term is a momentum term at cell grain, and ERA_NOTES §34 has it 3-for-3
+value-destroying at candidate grain. **It is now 0-for-4 at cell grain and the count is 4-for-4
+against its mirror.**
+
+## 2. E1D8-F2 — THE PRE-REGISTRATION HELD OUT OF SAMPLE, AND SO DID THE REFUSAL TO TRADE ITS INVERSION
+
+The day-8 pre-registration made two claims about `rv1800 >= 250` at the row before any day-8 row was
+called, and the session tested both:
+
+* **CLAIM: as a gate it destroys value** (-$7,562.50 over seven sessions). **RESULT: -$1,658.75
+  today against CORE's +$1,172.50, i.e. -$2,831.25.** Confirmed out of sample, and confirmed on a
+  session where the term is *more* right than usual about the pool: it holds **45 of the day's 47
+  winners (95.7%)**.
+* **CLAIM: the INVERTED form (+$8,923.75 over seven sessions, the best arm on that board) must NOT
+  be traded, because an inversion minted on its own sample is the P009 error.** **RESULT: +$207.50
+  today — worse than CORE.** The refusal was worth $965.
+
+This is the round's cleanest pair of pre-registered predictions and both landed. It is also the
+strongest evidence the round has that **the concentrator/gate distinction is a law and not a
+one-session accident**: the object concentrates winners at 1.23x over 8,077 rows and 95.7% today,
+and gating on it loses money every time.
+
+**MECHANISM, MEASURED AT THE SEAT (the new instrument of this day):** over the seven training
+sessions, of the 64 seats CORE actually spends, the **41 whose rolling state is CLOSED average
++$201.86 and the 23 that are OPEN average -$111.52**. `rv1800` is high *after* a move; the
+seat-spending row is the *earliest* admitted row of a seating window. CC-M2-17.4 ordered this split
+for vetoes; generalised to concentrators it inverts the round's best-supported object.
+
+## 3. E1D8-F3 — R2b: THE TERM I DID TRADE, AND IT REFUSED EVERY NON-SI WINNER ON THE BOARD
+
+`unspent_bind >= $1,000` — the ERA_NOTES §77 BINDING-ROW field, P014's complement, a pattern the
+ledger has carried DEAD at n=0/0 since the warm-up and which this day counted for the first time.
+Pooled over seven sessions it looked like the best object in the stage-1 sweep: 8.74% win rate
+(1.46x), the **only** arm with a positive mean certificate (+$9.17/row), +$2,471.25 of replay over
+CORE and capture 0.096 -> 0.199.
+
+**It cost $750 today and its mechanism is falsified on the day's own evidence.**
+
+| what it refused | n | `unspent_bind` | certificates |
+|---|---|---|---|
+| HG/NY winners | 9 | 180.7-224.4 | $1,001-$1,120 |
+| NKD/NY winners | 2 | 903.2 | $1,008-$1,020 |
+| **total winners refused** | **11 of 47** | | |
+
+HG had spent 72% of its expected session range before the NY open; the capacity arithmetic priced
+the remainder at $180-$224 against a $1,000 bar; **HG then paid $1,000+ nine times.** This is
+ERA_NOTES §21 restated at row grain and for the fourth distinct object: **the capacity arithmetic is
+a MEAN-REVERSION PRIOR, and on a session whose range expands it is an anti-signal.** P017, P014,
+P021 and now R2b are the same term wearing four hats.
+
+**AND THE CELL IT DID ADMIT, IT ADMITTED BY ACCIDENT.** SI/NY held 33 of the day's 47 winners, and
+`unspent_bind` is `.` on all 327 SI rows because SI's fvol is REFUSED for the fifth study session
+(ERA_NOTES §16). **R2b passed SI/NY only because the field does not exist.** That is defect D22,
+named in the seal before unblinding: a capacity term with a pass-on-REFUSED clause is silently an
+ASSET SELECTOR. Today it selected the only asset it could not measure, and that asset held 77% of
+the day's winners. The counterfactual matters: an R2b that REFUSED on `.` would have deleted SI
+entirely and scored **$0.00**.
+
+## 4. E1D8-F4 — SEAT-BY-SEAT, WITH THE PRE-MORTEMS ADJUDICATED
+
+**SEAT 1 — SI-20210712-010922-L, 03:02:02 TOKYO LONG, close -$542.50, peak +$670, MAE $50, WALLED.**
+Pre-mortem named the clock and the arithmetic (`room_phase $50`, `ext_needed $950`, the 07:00 exit,
+SI/TOKYO 0-for-7). **The cell was NOT empty — it held 3 SHORT winners at 03:11:43-03:19:02, nine
+minutes after my seat.** So the pre-mortem's *conclusion* (this cell will not pay a long) was right
+and its *mechanism* was wrong: the phase did produce $1,000 moves, on the other side, immediately.
+The flip threshold was T3's freshness ceiling — `extreme_age_trade_side = 3,580s` against 3,600, a
+**twenty-second** margin — and any ceiling in [148s, 3,579s] hands the seat to
+`SI-20210712-011129-S`, the minimal pair, which is on the winning side. **The day-2 widening of the
+freshness window from 900s to 3,600s, adopted on n=3, is what put the reader on the wrong side of
+this cell.**
+
+**SEAT 2 — SI-20210712-027269-L, 07:34:29 LONDON LONG, close -$505.00, peak +$1,295, MAE $775.**
+The cell held ZERO winners on either side. My committed side call was SHORT and the policy took the
+LONG, and **my own elicited flip threshold from cell #4 fired at this row** (`f5m_sflow +33 on 297 =
+11.1%` against the >= 10% I had written before the cell's first candidate existed). The pre-mortem's
+trigger — "a print below 26.06 says the absorption failed" — is exactly the $775 MAE. And then the
+trade rallied to **+$1,295** and closed at **-$505**: **$1,800 of round-trip on one seat, given back
+to the 13:00 LONDON phase close.** The give-back channel (§35/§39.5) remains the round's largest
+unexplained loss and is now four objects dead (P026, P028, P017's in-range form, and the
+rv_collapse marker at seat 3).
+
+**SEAT 3 — SI-20210712-046931-L, 13:02:11 NY LONG, close +$1,470.00, peak +$1,745, MAE $325.**
+**The day's only winning seat, taken against the reader's own committed SHORT call for this cell,
+because the declared override runs no side gate.** The pre-mortem named `rv_collapse = 7.41` as a
+wall marker (ERA_NOTES §3's >= 8 band) and it was wrong on the one row that tested it. The minimal
+pair `SI-20210712-047528-S` (+597s, all terms passing, the side I called) is what the reader's own
+side gate would have taken instead.
+
+**THE THREE MINIMAL PAIRS HAVE ONE SHAPE AND IT IS THE ROUND'S CENTRAL MECHANIC:** on every one of
+the three seats an equally-admitted candidate on the opposite side existed within ten minutes, and
+the seat went to the earliest row regardless of anything the reader knew. That is why the mechanical
+EARLIEST baseline has beaten the reader on six of eight days.
+
+## 5. E1D8-F5 — ABSTENTION IS SCORED FOR THE FIRST TIME, AND IT IS POSITIVE
+
+ERA_NOTES §70.4 asked whether the reader should abstain from a cell rather than always spend its
+seat, and recorded that the ledger had never scored it. Four cells were marked `would-abstain` at
+commit time (HG/TOKYO, SI/TOKYO, NKD/LONDON, NKD/NY), each with a named reason. Removing them:
+**+$422.50 -> +$965.00, capture 0.130 -> 0.296.** The one that mattered is SI/TOKYO — the 0-for-7
+cell whose seat walled at -$542.50 — and its abstention reason was the structural base rate, not a
+read of the tape. **A cell-level base rate the reader can compute from its own committed history
+was worth more than every direction instrument it ran today.**
+
+## 6. E1D8-F6 — THE VETOES: A FOURTH CONSECUTIVE $0.00, AND V3 IS FINISHED
+
+V2 refused 6 admitted rows at **+$467.92** with 1 winner; V3 (advisory, not applied) refused 12 at
+**+$431.46** with **5 winners**. Replay delta for both: **exactly $0.00** — `replay_inert=1` for the
+fourth session running. Over its last three sessions V3 has refused 10, 5 and 5 winners at a
+positive mean and moved nothing. **The decision to run V3 as ADVISORY was worth $0.00 in replay and
+5 winners in the pool, and the pooled re-grade now has an unambiguous answer: V3 should be killed.**
+V2's six-session sole-block record is equally hollow at the seat and belongs in the same review.
+
+## 7. E1D8-F7 — WHAT THE PRE-REGISTRATION SAID ABOUT S10, AND WHAT THE DAY SAID BACK
+
+CC-M2-18.3 left S10 geometry as the only hand side-instrument standing. Measured on the 22
+winner-bearing cells of seven sessions: **the literal back-to-value reading is 2 right / 6 wrong
+(0.250) at $250, 2/3 at $500, and 2/1 at $1,000 (n=3); the same field read at the cell's MEDIAN row
+is 1/11.** It fired on three cells today (HG/LONDON, SI/LONDON, NKD/NY), and the two LONDON cells it
+called were EMPTY while NKD/NY went LONG against its continuation form. **S10 geometry is not an
+instrument. Stage 2 has zero validated hand instruments and the census can close the question.**
+
+## 8. E1D8-F8 — THE GRADE'S A BAND IS NOW EMPTY OF ROWS
+
+`sigma_to_exit`: no row of 949 reaches $2,500. TAKE B -$301.88 (n=56, w=8) vs C -$271.41 (n=16, w=0);
+SKIP B **+$122.34 (n=219, w=32)** vs C -$37.42. Five consecutive sessions with no A-band winner, and
+32 of the day's 47 winners sit in the SKIP-B cell. §79's rebuild direction is confirmed a second
+time: the product is right as FEASIBILITY and wrong as CONFIDENCE.
+
+## 9. SECTION-VALUE LEDGER (CC-M2-4.5), 3 sheet deep reads + 9 cell panels of 949 calls
+
+| section | consulted | changed a call |
+|---|---|---|
+| triage index (S1-S5/S7-S9/S13 fields) | 949 | 949 |
+| S3 `unspent_bind` / `cov_*` (the day's traded term) | 949 | 72 (and it was wrong 11 times) |
+| S9 `rv1800` rolling | 949 | 0 (pre-registered, not traded) |
+| S10 `d_POC`/`in_VA` (cell panels) | 9 | 3 side calls, all wrong or in empty cells |
+| S8 fuel map / flows (cell panels) | 9 | 0 (P031 dead, P009 dead — printed as scored references only) |
+| S5 `slope15m` (X8) | 9 | 2 (it was the overruled vote at #6/#7, and it was RIGHT both times) |
+| S6, S11, S12 | 0 | 0 |
+
+**S6/S11 are now 0-for-8,026 day-complete calls.** And the day's most painful section entry:
+**`slope15m` — the vote I overruled at cells #6 and #7 on a magnitude standard — was correct on
+both**, and would have made the SI/NY and HG/NY calls right.
+
+## 10. DEFECTS AND BUILD ITEMS FOUND TODAY
+
+* **D22 (named pre-seal): a capacity term with a PASS-ON-REFUSED clause is an ASSET SELECTOR.**
+  `unspent_bind` is 304/304 HG, 318/318 NKD, 0/327 SI on this session. Any capacity feature shipped
+  to M3 must carry an explicit refused-policy and an fvol-availability feature beside it.
+* **D23: SI's fvol has now been REFUSED on five of the eight study sessions.** The coverage/ladder
+  arithmetic — briefing item A1, "the single best-performing method on IWM" — is structurally
+  unavailable on the port's primary target asset most of the time. This is a data-side item for the
+  builder, not a reader finding, and it has been visible since ERA_NOTES §16 on day 1.
+* **D24: the freshness ceiling (T3 = 3,600s) is a live threshold with a 20-second margin on a seat
+  that cost -$542.50**, and it was widened from 900s on day 2 on n=3. It has never been censused.
+* Build item: the section-value ledger should record OVERRULED votes and their outcomes, not only
+  consulted sections — today's most valuable line is a field the reader read and dismissed.
+
+## 11. OPEN QUESTIONS CARRIED TO THE BLIND ROUND
+
+1. **Is there any object the reader can compute that beats EARLIEST-admitted under one-position
+   seating?** Eight days say: the mechanical baseline wins on six of them, and every gate the reader
+   has added — side, vol, capacity, veto — has cost money at the seat while concentrating winners in
+   the pool.
+2. **Is the cell-level SEAT BASE RATE (this asset/phase's historical winner-bearing fraction) the
+   reader's best instrument?** It is the only thing that paid today (+$542.50 via abstention) and it
+   is a pure count of committed history.
+3. **What closes the GIVE-BACK?** Seat 2 gave back $1,800 of round-trip. Five objects have now died
+   on this question.
+4. **Does the census confirm that concentrator-as-gate is a LAW?** Three objects, three sessions,
+   same result. The seat-spender split is the instrument; it should be run on every concentrator in
+   the ledger at era scale.

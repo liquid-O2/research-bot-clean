@@ -322,3 +322,53 @@ such. Four cells carry would-abstain.
 near the highs) and by 07:19 that fact was already refuted by the tape — HG -$700, SI -$400. The
 day's own evidence overturned the day's own first three calls within seven hours, and the calls
 stand as committed (CC-M2-3: never revise the committed thesis — the miss IS the data).
+
+---
+
+## UNBLINDED RESULT (opened only after the seal commit `cf2400a`)
+
+**THE DAY: 47 D-021 winners in 949 candidates (4.95%), and 44 of the 47 are LONGS.** Four of the
+nine cells carry winners. Per asset: SI 36 (mean -$4.04, walled 0.407), HG 9 (+$1.72, 0.230),
+NKD 2 (-$57.48, 0.236). Day DP ceiling **$7,480.00** (SI 3,260 / HG 2,322.50 / NKD 1,897.50).
+
+| # | cell | truth | winners | SIDE call | right? | would-abstain | seat spent | seat close $ |
+|---|---|---|---|---|---|---|---|---|
+| 0 | HG/TOKYO | NONE | 0 | LONG | — | YES | — | — |
+| 1 | NKD/TOKYO | NONE | 0 | LONG | — | no | — | — |
+| 2 | SI/TOKYO | **SHORT** | 3 | LONG | **✗** | **YES** | 03:02:02 L | **-542.50** (walled) |
+| 3 | HG/LONDON | NONE | 0 | SHORT | — | no | — | — |
+| 4 | SI/LONDON | NONE | 0 | SHORT | — | no | 07:34:29 L | **-505.00** |
+| 5 | NKD/LONDON | NONE | 0 | LONG | — | YES | — | — |
+| 6 | HG/NY | **LONG** | 9 | SHORT | **✗** | no | — | — |
+| 7 | SI/NY | **LONG** | **33** | SHORT | **✗** | no | 13:02:11 L | **+1,470.00** |
+| 8 | NKD/NY | **LONG** | 2 | SHORT | **✗** | YES | — | — |
+
+**SIDE-CALL ACCURACY: 0 of 4 = 0.000. The MIRROR of my calls scores 1.000.** Three-session record
+of committed cell-side calls: 3/5, 2/5, 0/4 = **5 of 14 (0.357); mirror 9 of 14 (0.643)**.
+
+**THE FOUR WRONG CALLS ARE TWO BETS, AND THE LEDGER SAID SO BEFORE THE OUTCOME.** The summary
+paragraph above committed that the five SHORTs "rest on X2 — the session's own one-way selling" and
+were "ONE BET TAKEN FIVE TIMES", and that the three TOKYO LONGs "rest on ONE fact (Friday's close
+near the highs)" which "was already refuted by the tape" by 07:19. Both bets lost. Writing the
+correlation down before the fact is what makes the loss diagnosable instead of merely painful.
+
+**THE SEAT THAT PAID WAS TAKEN AGAINST MY OWN SIDE CALL.** SI/NY was called SHORT at MED-HIGH
+confidence — the day's highest — and it held 33 LONG winners paying $1,020-$1,670. The committed
+policy runs no side gate (the declared CC-M2-12.6 override, backtested pre-seal), so it took the
+cell's earliest admitted row, a LONG, for **+$1,470.00**. Gating on the committed side calls scores
+**-$4,000.00**; the mirror of them scores **+$1,460.00**.
+
+**THE STAGE-1 TERM I DID TRADE REFUSED EVERY NON-SI WINNER.** R2b (`unspent_bind >= $1,000`) refused
+all 9 HG/NY winners (`unspent_bind` 180.7-224.4, certificates $1,001-$1,120) and both NKD/NY winners
+(903.2, $1,008-$1,020) — 11 of the day's 47. And SI/NY, holding 33 more, passed only because SI's
+fvol is REFUSED and the field is `.` (defect D22, named in the seal before unblinding). **The one
+cell the term let me into, it let me into by accident.**
+
+**THE PRE-REGISTRATION'S TWO PREDICTIONS BOTH LANDED.** R1 (`rv1800 >= 250`) as a gate: predicted to
+destroy value, scored **-$1,658.75** against CORE's +$1,172.50 on a day it holds 45 of 47 winners.
+Its INVERTED form, the best arm of the seven-session board (+$8,923.75) and pre-registered as NOT
+TRADED: scored **+$207.50**, worse than CORE. The discipline was worth $965.
+
+**ABSTENTION SCORED, AND IT IS THE ONLY THING THAT PAID.** Removing the four would-abstain cells:
++$422.50 -> **+$965.00**, capture 0.130 -> 0.296. The cell that mattered is SI/TOKYO — 0-for-7 over
+the round — whose seat walled.

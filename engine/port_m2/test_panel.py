@@ -264,6 +264,126 @@ def p09_blind_to_study_promotion_is_lawful():
                  % len(entries))
 
 
+def p10_seal_auto_records_used_cases():
+    """CC-M2-17.4: sealing a day REGISTERS that day in the used-case ledger.
+
+    The day-5 gap class: the seal appended a day-complete STUDY session to the
+    day ledger and the taint register never heard about it, so a session that
+    had been read stayed drawable BLIND.
+
+    ARMED   record_seal on a scratch ledger writes the entries, taints the
+            sessions, and is IDEMPOTENT (a second seal adds nothing and does
+            not raise, because a seal is a re-emission, not a re-showing).
+    MUTANT  MP10: the pre-fix seal — append the day ledger and never record.
+            Under the mutant the sealed sessions are NOT tainted, and a blind
+            draw over them is accepted.
+    """
+    import tempfile
+    cids = [r["cid"] for r in PS.parse_ledger(FIXTURE)]
+    with tempfile.TemporaryDirectory() as td:
+        path = os.path.join(td, "UC.tsv")
+        new1, dup1 = UC.record_seal(cids, "E1", "STUDY", UC.MODE_STUDY,
+                                    "TEST", "test",
+                                    recorded_at="2026-08-14T00:00:00Z",
+                                    path=path)
+        new2, dup2 = UC.record_seal(cids, "E1", "STUDY", UC.MODE_STUDY,
+                                    "TEST", "test",
+                                    recorded_at="2026-08-14T00:00:00Z",
+                                    path=path)
+        entries = UC.read_ledger(path)
+        tainted = UC.tainted_sessions(entries)
+        sealed = {(MC.parse_cid(c)[0], MC.parse_cid(c)[1]) for c in cids}
+        # the guard now has teeth on those sessions
+        refused = False
+        try:
+            UC.check_blind(cids[:1], entries)
+        except UC.TaintRefusal:
+            refused = True
+        armed = (len(new1) == len(set(cids)) and dup1 == 0
+                 and new2 == [] and dup2 == len(set(cids))
+                 and sealed <= tainted and refused
+                 and len(entries) == len(set(cids)))
+        # MUTANT MP10: the pre-fix seal — append the day ledger and record
+        # NOTHING.  The armed property ("the sealed sessions are tainted") is
+        # re-evaluated against that empty register and must come back FALSE.
+        mutant_entries = UC.read_ledger(os.path.join(td, "NEVER_WRITTEN.tsv"))
+        mutant_ok = bool(sealed) and sealed <= UC.tainted_sessions(
+            mutant_entries)
+    # every seal module must actually CALL it — a helper nobody calls is the
+    # same gap wearing a function name.
+    import glob
+    seals = sorted(glob.glob(os.path.join(_HERE, "e1d?_seal.py")))
+    uncalled = [os.path.basename(s) for s in seals
+                if "UC.record_seal(" not in open(s).read()]
+    armed = armed and bool(seals) and not uncalled
+    return check("seal_auto_records_used_cases", "MP10_seal_without_record",
+                 armed, mutant_ok,
+                 "%d entries, %d sessions tainted, %d seal module(s), "
+                 "uncalled=%s" % (len(cids), len(sealed), len(seals),
+                                  ",".join(uncalled) or "-"))
+
+
+def p11_veto_census_splits_seat_spenders():
+    """CC-M2-17.4: a veto census must separate the seat-spenders.
+
+    ERA_NOTES_E1 §67: on E1 day 6 the vetoed pool looked $149/row better than
+    the pool that stood and the replay delta was EXACTLY $0.00, because no veto
+    fired on a row that would ever have held the one position.
+
+    ARMED   veto_census reports (VETOED, WOULD_SEAT) as its own row; when the
+            vetoed set contains NO seat-spender the arm is flagged
+            replay_inert=1 AND the measured replay is unchanged by the veto;
+            when it contains one, replay_inert=0 and the replay DOES move.
+    MUTANT  MP11: the pooled-only census — judge the arm on the mean of the
+            whole vetoed pool.  On the constructed inert arm the pooled mean
+            says the veto helped while the money says it did nothing.
+    """
+    records = PS.parse_ledger(FIXTURE)
+    for rec in records:                    # score() attaches these; do it here
+        rec["outcome"] = PS.outcome(rec["cid"])
+    takes = [r for r in records if r["call"] == PS.CALL_TAKE]
+    if len(takes) < 3:
+        return check("veto_census_splits_seat_spenders", "-", False, False,
+                     "fixture has %d TAKEs" % len(takes))
+    seats = PS.replay_seat_cids(takes)
+    dpseats = PS.dp_seat_cids(takes)
+    inert = [r["outcome"]["cid"] for r in takes
+             if r["outcome"]["cid"] not in seats
+             and r["outcome"]["cid"] not in dpseats]
+    live = [c for c in (dpseats | seats)]
+    if not inert or not live:
+        return check("veto_census_splits_seat_spenders", "-", False, False,
+                     "fixture has no inert/live split (%d/%d)"
+                     % (len(inert), len(live)))
+    rows_i, s_i = PS.veto_census(records, set(inert))
+    rows_l, s_l = PS.veto_census(records, {live[0]})
+    base = PS.replay(takes)[1]["realised_usd"]
+    kept_i = PS.replay([r for r in takes
+                        if r["outcome"]["cid"] not in set(inert)])[1][
+        "realised_usd"]
+    kept_l = PS.replay([r for r in takes
+                        if r["outcome"]["cid"] != live[0]])[1]["realised_usd"]
+    has_row = any(r[2] == "VETOED" and r[3] == "WOULD_SEAT"
+                  for r in rows_i)
+    armed = (has_row and s_i["replay_inert"] == 1 and kept_i == base
+             and s_l["replay_inert"] == 0 and kept_l != base)
+    # MUTANT MP11: pooled-mean-only reading, blind to the seat question
+    def pooled_only(vetoed):
+        sel = [r["outcome"]["cert_close_usd"] for r in takes
+               if r["outcome"]["cid"] in vetoed]
+        rest = [r["outcome"]["cert_close_usd"] for r in takes
+                if r["outcome"]["cid"] not in vetoed]
+        return (sum(rest) / len(rest) if rest else 0.0) - \
+               (sum(sel) / len(sel) if sel else 0.0)
+    mutant_ok = pooled_only(set(inert)) == 0.0     # it would have to say "$0"
+    return check("veto_census_splits_seat_spenders", "MP11_pooled_mean_only",
+                 armed, mutant_ok,
+                 "inert veto: %d rows, replay %.2f -> %.2f; live veto: "
+                 "replay %.2f -> %.2f; pooled-only would score the inert arm "
+                 "at %+.2f/row" % (len(inert), base, kept_i, base, kept_l,
+                                   pooled_only(set(inert))))
+
+
 TESTS = (p01_fixture_scores_to_committed_numbers,
          p02_skip_counted_as_take_breaks_the_score,
          p03_interaction_field_is_optional,
@@ -272,7 +392,9 @@ TESTS = (p01_fixture_scores_to_committed_numbers,
          p06_study_taint_refuses_blind_draw,
          p07_filtering_guard_is_a_mutant,
          p08_reshow_is_refused,
-         p09_blind_to_study_promotion_is_lawful)
+         p09_blind_to_study_promotion_is_lawful,
+         p10_seal_auto_records_used_cases,
+         p11_veto_census_splits_seat_spenders)
 
 
 def main():

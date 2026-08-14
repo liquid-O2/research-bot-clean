@@ -364,6 +364,49 @@ def t09_gate_2025_uses_frozen_coefficients():
                  % (n_diff, len(g)))
 
 
+def t10_forecast_file_carries_no_realised_target():
+    """DEFECT D19 (CC-M2-17.3): forecast_*.tsv is PREDICTIONS ONLY.
+
+    The realised targets live in truth_*.tsv.  A y_* column in a forecast file
+    puts the session's realised range / day type / phase shares in front of any
+    reader who opens it — the exposure that stamped every E1 day-6 TAKE row
+    FORECAST-TRUTH-EXPOSED.
+
+    ARMED   no name in RF.Y_COLUMNS appears in FORECAST_COLUMNS, and none
+            appears in the header of any forecast_*.tsv on disk.
+    MUTANT  a header that re-admits one y_* column must be caught.
+    """
+    leaked = [c for c in RF.Y_COLUMNS if c in RF.FORECAST_COLUMNS]
+    on_disk = []
+    n_files = 0
+    for asset in MC.ASSET_ORDER:
+        path = RF.out_path("forecast_%s.tsv" % asset)
+        if not os.path.exists(path):
+            continue
+        n_files += 1
+        with open(path) as fh:
+            hdr = None
+            for line in fh:
+                if line.startswith("#"):
+                    continue
+                hdr = line.rstrip("\n").split("\t")
+                break
+        on_disk += ["%s:%s" % (asset, c) for c in (hdr or [])
+                    if c in RF.Y_COLUMNS or c.startswith("y_")]
+    armed_ok = (not leaked) and (not on_disk) and n_files > 0
+    # the mutant is the header this defect actually shipped
+    mutant_hdr = list(RF.FORECAST_COLUMNS) + ["y_range_usd"]
+    mutant_ok = not any(c in RF.Y_COLUMNS or c.startswith("y_")
+                        for c in mutant_hdr)
+    return check("forecast_file_carries_no_realised_target",
+                 "a forecast header that re-admits y_range_usd",
+                 armed_ok, mutant_ok,
+                 "%d forecast file(s) scanned; leaked_in_columns=%s; "
+                 "leaked_on_disk=%s"
+                 % (n_files, ",".join(leaked) or "-",
+                    ",".join(on_disk) or "-"))
+
+
 TESTS = (t01_availability_test_catches_a_post_anchor_feature,
          t02_every_feature_carries_an_availability_stamp,
          t03_trailing_benchmark_window_is_strictly_prior,
@@ -372,7 +415,8 @@ TESTS = (t01_availability_test_catches_a_post_anchor_feature,
          t06_menu_target_matches_the_committed_winner_rule,
          t07_anchor_state_uses_only_seconds_before_the_anchor,
          t08_models_are_deterministic,
-         t09_gate_2025_uses_frozen_coefficients)
+         t09_gate_2025_uses_frozen_coefficients,
+         t10_forecast_file_carries_no_realised_target)
 
 
 def main():

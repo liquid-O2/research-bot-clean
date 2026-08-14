@@ -238,6 +238,61 @@ FRAME_FIELDS_V2 = {
                                "point of carrying both.",
 }
 
+# The V3 block (CC-M2-17.5 census batch 4: P030 / P031 / CELL-SEAT EXISTENCE).
+# Kept OUT of FRAME_FIELDS and FRAME_FIELDS_V2 for the same reason those two
+# are separate: both are hashed into already-committed params_hashes and must
+# not move.  Computed ONLY when frame(..., with_v3=True) — the fuel map costs a
+# per-phase price-bucket pass and no earlier census needs it.
+FRAME_FIELDS_V3 = {
+    "fuel_above": "S8 FUEL MAP `trapped above_mid`: traded volume at a price "
+                  "STRICTLY ABOVE entry_mid over [phase_seg_start, dec_sec) — "
+                  "sections.s8_flow's own `above` integer, vectorised",
+    "fuel_below": "S8 FUEL MAP `trapped below_mid` (px strictly below "
+                  "entry_mid), same window",
+    "fuel_total": "S8 FUEL MAP `phase_total` — all phase volume in the window "
+                  "(fuel_above + fuel_below + volume AT the mid)",
+    "cell_open": "this row is the FIRST candidate (lowest dec_sec; ties broken "
+                 "to the LONG side, the roster's own order) of its "
+                 "(asset, d8, phase_dec) CELL.  The cell key of CC-M2-17.1.",
+    "cell_first_dec_sec": "dec_sec of that first candidate — the CELL OPEN as "
+                          "the census defines it (the first second at which a "
+                          "seat in this cell could be spent)",
+    "prev_phase_ret_usd": "net SANE move of the PREVIOUS phase segment "
+                          "(last mid - first mid) x mult; NaN when the running "
+                          "phase is the session's first segment.  A "
+                          "cell-open fact: the previous segment is closed.",
+    "prev_phase_range_usd": "SANE range of that previous phase segment x mult; "
+                            "NaN when there is none",
+    "pre_cell_range_usd": "SANE range of the session over [0, phase_seg_start) "
+                          "in dollars — everything the session had printed "
+                          "before this cell opened.  For the session's FIRST "
+                          "phase this is the OVERNIGHT/pre-open window, which "
+                          "is why the census's `overnight range ratio` is "
+                          "pre_cell_range_usd / atr_usd.",
+    "sched_release_in_phase": "a SCHEDULED release (BLS + FOMC, "
+                              "SCHEDULE_EXEMPT under D-057 — the dates are "
+                              "published months ahead) falls inside "
+                              "[phase_seg_start, phase_seg_end).  Unlike "
+                              "`event_in_phase` this is knowable AT THE CELL "
+                              "OPEN, which is what a seat-existence model may "
+                              "read; it says nothing about the tape.",
+    "dow": "day-of-week of the trade date, Monday=0 (calendar, not tape)",
+}
+
+PARAMS_FRAME_V3 = {
+    "module": "engine/port_m2/pattern_lib.py (V3 block)",
+    "order": "CC-M2-17.5 census batch 4",
+    "fields_v3": FRAME_FIELDS_V3,
+    "fuel_map": "sections.s8_flow's fuel map, verbatim: above = sum(size) "
+                "over phase trades with px > entry_mid and sec < dec_sec; "
+                "below = px < entry_mid; total = every phase trade in the "
+                "window.  Computed as an offline price-bucket prefix over "
+                "each phase SEGMENT (exact, not binned).",
+    "cell": "(asset, d8, phase_dec) — CC-M2-17.1's seat-existence unit",
+    "availability": "every V3 field is a CELL-OPEN fact or earlier; "
+                    "sched_release_in_phase is calendar-only (D-057)",
+}
+
 PARAMS_FRAME_V2 = {
     "module": "engine/port_m2/pattern_lib.py (V2 block)",
     "order": "CC-M2-12 census batch 3",
@@ -593,7 +648,59 @@ def _confluence_at(px, bn, fam, dec_sec, target_px, tol_px):
 
 
 # ------------------------------------------------------------------ frame ---
-def frame(asset, d8, with_levels=False, with_certs=True):
+def _fuel_map(t_sec, t_px, t_sz, seg_lo, seg_hi, dec_c, mid_c):
+    """sections.s8_flow's FUEL MAP for every candidate of ONE phase segment.
+
+    -> (above, below, total) int64 arrays, one entry per candidate: traded
+    volume strictly above / strictly below that candidate's entry_mid, over
+    [seg_lo, dec_sec).  `dec_c` MUST be ascending.
+
+    Exact (not binned): the phase's distinct trade prices are the buckets, so
+    the answer equals the naive `sz[(sec < dec) & (px > mid)].sum()` scan the
+    sheet does per candidate — at O((T + C) x L) instead of O(C x T).
+    """
+    n_c = dec_c.size
+    zero = np.zeros(n_c, dtype=np.int64)
+    if n_c == 0:
+        return zero, zero, zero
+    hi = int(np.searchsorted(t_sec, int(dec_c[-1]), side="left"))
+    lo = int(np.searchsorted(t_sec, int(seg_lo), side="left"))
+    if hi <= lo:
+        return zero, zero, zero
+    px = t_px[lo:hi]
+    sz = t_sz[lo:hi]
+    sec = t_sec[lo:hi]
+    levels, rank = np.unique(px, return_inverse=True)
+    n_l = levels.size
+    # bucket b: the trade is visible to candidates j >= b (sec < dec_c[j])
+    bucket = np.searchsorted(dec_c, sec, side="right")
+    above = np.empty(n_c, dtype=np.int64)
+    below = np.empty(n_c, dtype=np.int64)
+    total = np.empty(n_c, dtype=np.int64)
+    step = max(1, int(4_000_000 // max(n_l, 1)))
+    carry = np.zeros(n_l, dtype=np.int64)
+    for c0 in range(0, n_c, step):
+        c1 = min(c0 + step, n_c)
+        m = (bucket >= c0) & (bucket < c1)
+        M = np.zeros((c1 - c0, n_l), dtype=np.int64)
+        if m.any():
+            np.add.at(M, (bucket[m] - c0, rank[m]), sz[m])
+        C = np.cumsum(M, axis=0) + carry[None, :]
+        carry = C[-1].copy()
+        P = np.cumsum(C, axis=1)
+        tot = P[:, -1]
+        r_lo = np.searchsorted(levels, mid_c[c0:c1], side="left")
+        r_hi = np.searchsorted(levels, mid_c[c0:c1], side="right")
+        rows = np.arange(c1 - c0)
+        blw = np.where(r_lo > 0, P[rows, np.maximum(r_lo - 1, 0)], 0)
+        ble = np.where(r_hi > 0, P[rows, np.maximum(r_hi - 1, 0)], 0)
+        below[c0:c1] = blw
+        above[c0:c1] = tot - ble
+        total[c0:c1] = tot
+    return above, below, total
+
+
+def frame(asset, d8, with_levels=False, with_certs=True, with_v3=False):
     """Causal per-candidate state for every roster row of (asset, d8)."""
     d8 = int(d8)
     r = roster(asset, with_certs=with_certs)
@@ -941,6 +1048,69 @@ def frame(asset, d8, with_levels=False, with_certs=True):
     f["phase_open_mid"] = un(np.where(j_ph < vm.size,
                                       vm[np.minimum(j_ph, max(vm.size - 1, 0))],
                                       np.nan))
+    if not with_v3:
+        return f
+
+    # --- the V3 block (CC-M2-17.5 batch 4), documented in FRAME_FIELDS_V3 ---
+    # (a) the S8 FUEL MAP, per phase SEGMENT, exact.
+    fuel_a = np.zeros(dec_s.size, dtype=np.int64)
+    fuel_b = np.zeros(dec_s.size, dtype=np.int64)
+    fuel_t = np.zeros(dec_s.size, dtype=np.int64)
+    t_px = tr["px_f"].astype(np.float64)
+    for kk in sorted(set(k.tolist())):
+        sel_k = np.nonzero(k == kk)[0]           # dec-ascending by construction
+        a, b, t = _fuel_map(t_sec, t_px, t_sz, int(seg_start[kk]),
+                            int(seg_end[kk]), dec_s[sel_k], entry_mid[sel_k])
+        fuel_a[sel_k], fuel_b[sel_k], fuel_t[sel_k] = a, b, t
+    f["fuel_above"] = un(fuel_a)
+    f["fuel_below"] = un(fuel_b)
+    f["fuel_total"] = un(fuel_t)
+
+    # (b) the PREVIOUS phase segment's net move and range, per segment.
+    n_seg = seg_start.size
+    seg_ret = np.full(n_seg, np.nan)
+    seg_rng = np.full(n_seg, np.nan)
+    for kk in range(n_seg):
+        a0 = int(np.searchsorted(vt, seg_start[kk], side="left"))
+        a1 = int(np.searchsorted(vt, seg_end[kk], side="left"))
+        if a1 > a0:
+            w = vm[a0:a1]
+            seg_ret[kk] = (float(w[-1]) - float(w[0])) * mult
+            seg_rng[kk] = (float(w.max()) - float(w.min())) * mult
+    prev_ret = np.where(k > 0, seg_ret[np.maximum(k - 1, 0)], np.nan)
+    prev_rng = np.where(k > 0, seg_rng[np.maximum(k - 1, 0)], np.nan)
+    f["prev_phase_ret_usd"] = un(prev_ret)
+    f["prev_phase_range_usd"] = un(prev_rng)
+
+    # (c) everything the session printed BEFORE this cell opened.
+    j_pre = np.searchsorted(vt, ph_start, side="left")
+    pre_rng = np.where(j_pre > 0,
+                       (rmax[np.maximum(j_pre - 1, 0)]
+                        - rmin[np.maximum(j_pre - 1, 0)]) * mult, np.nan)
+    f["pre_cell_range_usd"] = un(pre_rng)
+
+    # (d) a SCHEDULED release inside the running phase — calendar-only, so it
+    #     is knowable AT THE CELL OPEN (D-057), unlike `event_in_phase`.
+    cal_ts, _cal_names = release_calendar()
+    seg_rel = np.zeros(n_seg, dtype=bool)
+    for kk in range(n_seg):
+        i0 = int(np.searchsorted(cal_ts, open_utc + int(seg_start[kk]),
+                                 side="left"))
+        i1 = int(np.searchsorted(cal_ts, open_utc + int(seg_end[kk]),
+                                 side="left"))
+        seg_rel[kk] = i1 > i0
+    f["sched_release_in_phase"] = un(seg_rel[k])
+    f["dow"] = np.full(sel.size, int(trade_date.weekday()), dtype=np.int64)
+
+    # (e) the CELL key: the first candidate of each (asset, d8, phase_dec).
+    cell_open = np.zeros(dec_s.size, dtype=bool)
+    first_dec = np.zeros(dec_s.size, dtype=np.int64)
+    for p in sorted(set(phase_dec.tolist())):
+        m = np.nonzero(phase_dec == p)[0]        # dec-ascending
+        cell_open[m[0]] = True
+        first_dec[m] = int(dec_s[m[0]])
+    f["cell_open"] = un(cell_open)
+    f["cell_first_dec_sec"] = un(first_dec)
     return f
 
 

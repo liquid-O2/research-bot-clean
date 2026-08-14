@@ -30,6 +30,11 @@ import csv
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import used_cases as UC                                        # noqa: E402
+
+READER = "opus-discretionary"   # the E1 study reader (ledger header)
+
 # ---- the reader's deep reads: cid -> sections actually opened on the sheet --
 DEEP = {
     "SI-20210702-052340-S":  "S3,S4,S5,S8,S9",
@@ -223,6 +228,9 @@ def main():
     ap.add_argument("--policy", required=True)
     ap.add_argument("--index", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--used-case-ledger", default=UC.LEDGER,
+                    help="D-035.2 used-case ledger the seal records into "
+                         "(CC-M2-17.4); tests point it elsewhere")
     a = ap.parse_args()
     idx = {r["cid"]: r for r in
            csv.DictReader(open(a.index).readlines()[1:], delimiter="\t")}
@@ -281,6 +289,19 @@ def main():
         for r in out:
             fh.write("\t".join(str(r[c]).replace("\t", " ") for c in cols)
                      + "\n")
+
+    # ---- CC-M2-17.4: THE SEAL AUTO-RECORDS ITS OWN USED CASES -------------
+    # The day-5 gap class: a seal appended a day-complete STUDY session to the
+    # day ledger and the USED-CASE LEDGER never heard about it, so a session
+    # that HAD been read stayed untainted and could have been drawn BLIND.
+    # Recording is no longer a step a lane can forget — it is part of sealing.
+    _new, _dup = UC.record_seal([r["cid"] for r in out], era="E1",
+                                block="STUDY", mode=UC.MODE_STUDY,
+                                rnd="E1D2", reader=READER,
+                                path=a.used_case_ledger)
+    sys.stderr.write("used-case ledger: +%d new, %d already recorded -> %s\n"
+                     % (len(_new), _dup, a.used_case_ledger))
+
     n = sum(1 for r in out if r["call"] == "TAKE")
     sys.stderr.write("sealed %d rows (%d TAKE) -> %s\n" % (len(out), n, a.out))
 

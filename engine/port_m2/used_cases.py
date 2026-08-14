@@ -196,6 +196,58 @@ def record(cids, era, block, mode, rnd, reader, recorded_at=None,
     return new
 
 
+# --------------------------------------------------- the seal-path hook -----
+# CC-M2-17.4 (BINDING): "seal tooling auto-calls used_cases record (the day-5
+# gap class dies)".
+#
+# THE GAP CLASS.  Every E1 study day is sealed by an `e1dN_seal.py` that
+# APPENDS the day's calls to provenance/port_m2/E1_STUDY_LEDGER.tsv.  Recording
+# those same cids in the USED-CASE LEDGER was a SEPARATE manual step, so the
+# day-5 lane sealed 2021-07-07 and never recorded it: a day-complete STUDY
+# session sat outside the taint register and could have been drawn BLIND.  It
+# was found on day 6 and backfilled by hand (commit 7b822f1).  A step that has
+# to be remembered is a step that will be forgotten, so the seal now performs
+# it: `record_seal` is called by every seal's main() with the exact cid list it
+# just wrote.
+#
+# WHY THIS ONE IS IDEMPOTENT AND `record` IS NOT.  `record` refuses a repeated
+# (cid, mode) because a reader being shown the same case twice is a burn.  A
+# SEAL is not a showing — it is a deterministic re-emission of a day that has
+# already been read, and re-running it (to regenerate the arms file, to fix a
+# column) must not explode and must not double-write.  So `record_seal` splits
+# the cids into the already-registered and the new, records only the new, and
+# RETURNS BOTH COUNTS so the seal can print them.  It never filters silently:
+# the BLIND one-way-door check still runs on the new ones, and a taint refusal
+# still raises.
+def record_seal(cids, era, block, mode, rnd, reader, recorded_at=None,
+                path=LEDGER):
+    """Idempotent used-case record for a seal.  -> (new_entries, n_already).
+
+    Raises TaintRefusal exactly as `record` does — a seal that would put a
+    study-tainted session into a BLIND block is a protocol violation and stops
+    the seal.
+    """
+    if mode not in MODES:
+        raise ValueError("mode %r" % mode)
+    seen = []
+    for c in cids:                        # order-preserving dedup within call
+        if c not in seen:
+            seen.append(c)
+    entries = read_ledger(path)
+    burned = shown(entries)
+    fresh = [c for c in seen if (c, mode) not in burned]
+    n_already = len(seen) - len(fresh)
+    if not fresh:
+        return [], n_already
+    if mode == MODE_BLIND:
+        check_blind(fresh, entries)       # the one-way door, unchanged
+    new = make_entries(fresh, era, block, mode, rnd, reader, recorded_at)
+    write_ledger(entries + new, path)
+    MC.hb("used_cases record_seal: +%d entries (%s/%s/%s), %d already on the "
+          "ledger -> %s" % (len(new), era, mode, rnd, n_already, path))
+    return new, n_already
+
+
 # ------------------------------------------------------------------ cli -----
 def _cids_from(args):
     if args.cids:

@@ -282,6 +282,147 @@ def replay(records, metric="close"):
     return rows, totals
 
 
+# ------------------------------------------------------- the veto census ----
+# CC-M2-17.4 (BINDING): "veto censuses report the seat-spender sub-population
+# separately (day-6's $0.00 replay-delta lesson)."
+#
+# THE LESSON.  E1 day 6: 41 of 120 core+side TAKEs carried a V2/V3 veto.  The
+# vetoed pool averaged -$221.01 with 3 winners, the pool that stood averaged
+# -$71.77 with 16 — a $149/row improvement, and the strongest-looking veto
+# statistic of the round.  THE REPLAY DELTA WAS EXACTLY $0.00, because the
+# scorer holds ONE POSITION per session and not a single veto fired on a row
+# that would ever have held it.  A veto that cannot move a seat cannot move the
+# money, however good its pooled row statistic looks (ERA_NOTES_E1 §67).
+#
+# So the census reports the vetoed and standing pools SPLIT BY WHETHER THE ROW
+# WOULD HAVE SPENT A SEAT, in both readings the program uses for seating:
+#
+#   DP        the row is in the one-position DP schedule computed over the
+#             PRE-VETO TAKE SET of its session — "would have WON a DP seat",
+#             the value-optimal reading, and the one CC-M2-17.4 names.
+#   REPLAY    the row is SEATED by the chronological one-position replay of the
+#             same pre-veto TAKE set — the reading the scorer actually banks.
+#
+# Both are reported because they disagree exactly when a veto removes a row the
+# greedy clock would have seated but the optimal schedule would not (or the
+# reverse), and that disagreement is itself the interesting case.  The
+# sub-population is computed on the PRE-VETO set on purpose: the question is
+# what the veto TOOK, so the counterfactual seat must be the one the row would
+# have held had the veto not fired.
+def dp_seat_cids(records, metric="close"):
+    """{cid} the one-position DP would seat, over the TAKEs of `records`.
+
+    The DP runs per session over exactly the rows handed in — this is the
+    counterfactual seat set of a candidate POOL, not the session ceiling
+    (`dp_ceiling` is the ceiling over every candidate and answers a different
+    question)."""
+    by = {}
+    for rec in records:
+        if rec["call"] != CALL_TAKE:
+            continue
+        o = rec["outcome"]
+        by.setdefault((o["asset"], o["date8"]), []).append(o)
+    seats = set()
+    for key in sorted(by):
+        items = []
+        for o in by[key]:
+            val = o["cert_close_usd"] if metric == "close" else o["cert_peak_usd"]
+            end = o["exit_close_sec"] if metric == "close" else o["exit_peak_sec"]
+            items.append((o["dec_sec"], end, val, o["dec_sec"], o["row"],
+                          o["cid"]))
+        _total, chosen = CC.dp_schedule(items)
+        seats.update(chosen)
+    return seats
+
+
+def replay_seat_cids(records, metric="close"):
+    """{cid} the CHRONOLOGICAL one-position replay seats (the banked reading).
+
+    Same rule as `replay`, returning WHICH rows held the position rather than
+    what they were worth."""
+    by = {}
+    for rec in records:
+        if rec["call"] != CALL_TAKE:
+            continue
+        o = rec["outcome"]
+        by.setdefault((o["asset"], o["date8"]), []).append(o)
+    seats = set()
+    for key in sorted(by):
+        seq = sorted(by[key], key=lambda o: (o["dec_sec"], -o["side"]))
+        open_until = -1
+        for o in seq:
+            if o["dec_sec"] <= open_until:
+                continue
+            seats.add(o["cid"])
+            open_until = (o["exit_close_sec"] if metric == "close"
+                          else o["exit_peak_sec"])
+    return seats
+
+
+VETO_CENSUS_COLUMNS = ("metric", "seat_reading", "pool", "seat_class", "n",
+                       "n_sessions", "mean_close_usd", "mean_peak_usd",
+                       "sum_close_usd", "n_winners", "winner_rate",
+                       "walled_rate", "n_would_seat")
+
+
+def veto_census(records, vetoed, metric="close"):
+    """The seat-spender split of a veto arm.  -> (rows, summary).
+
+    `records`  every PRE-VETO TAKE (plus SKIPs, ignored) of the arm.
+    `vetoed`   the set of cids the veto arm removed.
+
+    Rows are (pool x seat_class) for each seat reading, where pool is VETOED /
+    STOOD / ALL and seat_class is WOULD_SEAT / NO_SEAT / ALL.  The row that
+    matters is (VETOED, WOULD_SEAT): a veto arm whose vetoed pool is entirely
+    NO_SEAT cannot move the replay by a cent, and its pooled mean is a
+    statistic about rows that were never going to be traded.
+    """
+    takes = [r for r in records if r["call"] == CALL_TAKE]
+    vetoed = set(vetoed)
+    seats = {"DP": dp_seat_cids(takes, metric),
+             "REPLAY": replay_seat_cids(takes, metric)}
+    rows = []
+    summary = {}
+    for reading, seat in sorted(seats.items()):
+        for pool, sub in (("VETOED", [r for r in takes
+                                      if r["outcome"]["cid"] in vetoed]),
+                          ("STOOD", [r for r in takes
+                                     if r["outcome"]["cid"] not in vetoed]),
+                          ("ALL", takes)):
+            for scls, pred in (("WOULD_SEAT", lambda o: o["cid"] in seat),
+                               ("NO_SEAT", lambda o: o["cid"] not in seat),
+                               ("ALL", lambda o: True)):
+                sel = [r["outcome"] for r in sub if pred(r["outcome"])]
+                n = len(sel)
+                cl = np.array([o["cert_close_usd"] for o in sel]) if n else \
+                    np.zeros(0)
+                pk = np.array([o["cert_peak_usd"] for o in sel]) if n else \
+                    np.zeros(0)
+                nw = sum(o["winner_" + metric] for o in sel)
+                nwall = sum(o["walled"] for o in sel)
+                ns = len({(o["asset"], o["date8"]) for o in sel})
+                rows.append([metric, reading, pool, scls, n, ns,
+                             _mean(cl), _mean(pk),
+                             float(cl.sum()) if n else 0.0, int(nw),
+                             (nw / n) if n else None,
+                             (nwall / n) if n else None,
+                             sum(1 for o in sel if o["cid"] in seat)])
+                if scls == "ALL":
+                    summary["%s_%s_n" % (reading, pool)] = n
+                if pool == "VETOED" and scls == "WOULD_SEAT":
+                    summary["%s_vetoed_seat_spenders" % reading] = n
+                    summary["%s_vetoed_seat_value_usd" % reading] = (
+                        float(cl.sum()) if n else 0.0)
+    # the headline the lesson is about: a veto arm that touches no seat-spender
+    # in EITHER reading is replay-inert by construction.
+    summary["replay_inert"] = int(
+        summary.get("DP_vetoed_seat_spenders", 0) == 0
+        and summary.get("REPLAY_vetoed_seat_spenders", 0) == 0)
+    summary["n_vetoed"] = len([r for r in takes
+                               if r["outcome"]["cid"] in vetoed])
+    return rows, summary
+
+
 def _mean(v):
     return float(np.mean(v)) if len(v) else None
 
@@ -405,11 +546,36 @@ def render_table(groups):
     return "\n".join(L)
 
 
+def _read_vetoed(path):
+    """{cid} from a seal ARMS file (cid ... veto ...) or a bare cid list."""
+    out = set()
+    with open(path) as fh:
+        hdr = None
+        for line in fh:
+            if line.startswith("#") or not line.strip():
+                continue
+            f = line.rstrip("\n").split("\t")
+            if hdr is None and ("cid" in f or "veto" in f):
+                hdr = f
+                continue
+            if hdr and "veto" in hdr:
+                d = dict(zip(hdr, f))
+                if d.get("veto", "-") not in ("-", "", "none"):
+                    out.add(d["cid"])
+            else:
+                out.add(f[0].strip())
+    return out
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("ledger")
     p.add_argument("--out", default=MC.out_path("panel", "_")[:-1])
     p.add_argument("--label", default=None)
+    p.add_argument("--veto-arms", default=None,
+                   help="a seal ARMS tsv (cid/veto columns) or a cid list; "
+                        "emits PANEL_VETO_CENSUS_<label>.tsv with the "
+                        "CC-M2-17.4 seat-spender split")
     a = p.parse_args()
     MC.verify_spec(force=True)
     label = a.label or os.path.basename(a.ledger).split(".")[0]
@@ -417,6 +583,33 @@ def main():
     groups = score(records)
     write_report(records, groups, a.out, label)
     sys.stdout.write(render_table(groups) + "\n")
+    if a.veto_arms:
+        vetoed = _read_vetoed(a.veto_arms)
+        rows, summ = [], {}
+        for metric in ("close", "peak"):
+            rr, ss = veto_census(records, vetoed, metric)
+            rows += rr
+            summ[metric] = ss
+        MC.write_tsv(os.path.join(a.out, "PANEL_VETO_CENSUS_%s.tsv" % label),
+                     SECTION, MC.params_hash(PARAMS),
+                     list(VETO_CENSUS_COLUMNS), rows,
+                     extra=["CC-M2-17.4 seat-spender split: the (VETOED, "
+                            "WOULD_SEAT) row is the only one that can move a "
+                            "replay; a veto arm with n=0 there is REPLAY-INERT "
+                            "whatever its pooled mean says (ERA_NOTES_E1 §67)",
+                            "seat_reading DP = the one-position DP schedule "
+                            "over the PRE-VETO take set; REPLAY = the "
+                            "chronological one-position seating of the same "
+                            "set"])
+        for metric in ("close", "peak"):
+            s = summ[metric]
+            sys.stdout.write(
+                "veto census [%s]: %d vetoed; seat-spenders DP=%d ($%.2f) "
+                "REPLAY=%d ($%.2f); replay_inert=%d\n"
+                % (metric, s["n_vetoed"], s["DP_vetoed_seat_spenders"],
+                   s["DP_vetoed_seat_value_usd"],
+                   s["REPLAY_vetoed_seat_spenders"],
+                   s["REPLAY_vetoed_seat_value_usd"], s["replay_inert"]))
     MC.hb("panel_score %s: %d calls scored -> %s" % (label, len(records), a.out))
     return 0
 

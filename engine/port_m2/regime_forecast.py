@@ -1407,19 +1407,34 @@ def date_clustered_ci(day_groups, y, p, q, stat, n=BOOT_N):
 # ===================================================================
 # STAGE 7 — DRIVER
 # ===================================================================
+# DEFECT D19 (CC-M2-17.3, BINDING): forecast_*.tsv carries PREDICTIONS ONLY.
+# It used to print the realised targets (y_day_type, y_range_usd, y_share_*,
+# y_menu) beside the predictions, so any reader who opened this file to
+# diagnose an empty prediction column — which is exactly what E1 day 6 did —
+# read the session's REALISED range, day type and phase shares and had to be
+# stamped FORECAST-TRUTH-EXPOSED.  The truth lives in truth_*.tsv, which is a
+# post-hoc artefact and is never joined into a sheet or a triage index.
+#
+# `Y_COLUMNS` is kept as a NAMED REGISTER rather than deleted: the guard test
+# (test_regime.t10) asserts that not one of these names appears in the header
+# of any forecast_*.tsv, and the red-first mutant re-adds one.
+Y_COLUMNS = ("y_day_type", "y_range_usd", "y_share_TOKYO", "y_share_LONDON",
+             "y_share_NY", "y_menu")
+
 FORECAST_COLUMNS = (
     "asset", "trade_date", "year", "era", "anchor", "anchor_sec", "anchor_ts",
     "model_class", "model_range", "model_share", "model_menu", "n_train",
     "p_expansion", "p_expansion_wfcont", "bench_base_rate",
-    "bench_persistence", "y_day_type",
+    "bench_persistence",
     "range_hat_usd", "range_hat_wfcont", "range_hat_q10", "range_hat_q90",
     "bench_range_trailmed", "bench_range_persist", "bench_range_fvol",
-    "bench_range_q10", "bench_range_q90", "y_range_usd",
+    "bench_range_q10", "bench_range_q90",
     "share_hat_TOKYO", "share_hat_LONDON", "share_hat_NY",
     "bench_share_TOKYO", "bench_share_LONDON", "bench_share_NY",
-    "y_share_TOKYO", "y_share_LONDON", "y_share_NY",
-    "menu_hat", "menu_hat_wfcont", "bench_menu_trailmed", "y_menu",
+    "menu_hat", "menu_hat_wfcont", "bench_menu_trailmed",
     "range_hat_vs_trailing", "n_feature_missing")
+
+assert not (set(Y_COLUMNS) & set(FORECAST_COLUMNS)), "D19: y_* column leaked"
 
 
 def _era_pick(pred, pred_frozen, years):
@@ -2045,25 +2060,20 @@ def main():
                     pred["wf_day_type"][i] if gate else float("nan"),
                     bench["day_type"]["BASE_RATE"][i],
                     bench["day_type"]["PERSISTENCE"][i],
-                    panel.daytype_arr[i],
                     pred["range"][i],
                     pred["wf_range"][i] if gate else float("nan"),
                     pred["range_q10"][i], pred["range_q90"][i], tmed[i],
                     bench["range"]["PERSISTENCE"][i],
                     bench["range"]["FVOL_RANGE_HAT"][i],
                     bench["range_q"]["q10"][i], bench["range_q"]["q90"][i],
-                    panel.range_arr[i],
                     pred["share_TOKYO"][i], pred["share_LONDON"][i],
                     pred["share_NY"][i],
                     bench["share_TOKYO"]["TRAILING_MEAN"][i],
                     bench["share_LONDON"]["TRAILING_MEAN"][i],
                     bench["share_NY"]["TRAILING_MEAN"][i],
-                    panel.share_arr["TOKYO"][i], panel.share_arr["LONDON"][i],
-                    panel.share_arr["NY"][i],
                     pred["menu"][i],
                     pred["wf_menu"][i] if gate else float("nan"),
                     bench["menu"]["TRAILING_MEDIAN"][i],
-                    panel.menu_arr[anchor][i],
                     pred["range"][i] / tmed[i]
                     if (np.isfinite(pred["range"][i]) and np.isfinite(tmed[i])
                         and tmed[i] > 0) else float("nan"),
@@ -2114,7 +2124,13 @@ def main():
                             "is strictly prior to anchor_ts",
                             "*_wfcont columns are the CONTINUING walk-forward "
                             "in 2025 (diagnostic only); the primary columns "
-                            "carry the era-law frozen fit"])
+                            "carry the era-law frozen fit",
+                            "D19 (CC-M2-17.3): PREDICTIONS ONLY — the "
+                            "realised targets (%s) are NOT in this file; they "
+                            "live in truth_%s.tsv, which is a post-hoc "
+                            "artefact and is never joined into a sheet or a "
+                            "triage index"
+                            % (", ".join(Y_COLUMNS), asset)])
     # pooled, date-clustered
     pool_rows = []
     for (anchor, era), recs in sorted(pooled.items()):

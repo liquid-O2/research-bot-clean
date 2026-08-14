@@ -782,6 +782,22 @@ def stage_pretrain(L, rung):
     SC.hb("%s pooled capture_oracle=%.4f" % (tag, pool["capture_oracle"] or 0))
 
 
+def stage_gbt_scores():
+    """Save the GBT arm's own out-of-sample scores so the SAME deficit-ledger
+    command can decompose it beside the sequence arms."""
+    D, _p = W.load_matrix()
+    n = D["d8"].size
+    champ = np.full(n, np.nan)
+    win = np.full(n, np.nan)
+    for era in SC.TEST_ERAS:
+        g, ev = gbt_scores(D, era, extra=None, tag="GBTSCORES")
+        champ[ev] = g["y_retg_rank_phase"][ev]
+        win[ev] = g["y_winner"][ev]
+    np.savez(os.path.join(_sdir(), "GBT_M3FEATURES.npz"), champ=champ, win=win)
+    SC.hb("saved GBT_M3FEATURES scores (%d rows)"
+          % int(np.isfinite(champ).sum()))
+
+
 def stage_arms(L, arch, rung, tag=None):
     """THE DELIVERABLE: every arm on the identical schedule, the moment gain,
     and the hybrid marginal."""
@@ -933,7 +949,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--stage", required=True,
                     choices=("control", "ladder", "pretrain", "arms",
-                             "export", "report"))
+                             "gbtscores", "export", "report"))
     ap.add_argument("--len", type=int, default=256)
     ap.add_argument("--arch", default="cnn")
     ap.add_argument("--rung", default="1M")
@@ -953,6 +969,8 @@ def main():
         stage_pretrain(a.len, a.rung)
     elif a.stage == "arms":
         stage_arms(a.len, a.arch, a.rung, tag=a.tag)
+    elif a.stage == "gbtscores":
+        stage_gbt_scores()
     elif a.stage == "export":
         stage_export(a.tag or ("LADDER_%s_%s_L%d" % (a.arch, a.rung, a.len)))
     elif a.stage == "report":

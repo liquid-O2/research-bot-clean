@@ -11,7 +11,7 @@ retrieval_scaling_binds	MT_P06_unscaled_distance	1	0	PASS	top1=SI-20210701-05259
 retrieval_is_deterministic	MT_P07_distance_only_sort	1	0	PASS	n_ties=0
 frame_matches_the_day1_triage_index	MT_P08_session_window_for_phase_flow	1	0	PASS	n=1039 mismatches={'f60_n': 0, 'f60_vol': 0, 'f60_sflow': 0, 'fph_sflow': 0, 'fph_vol': 0, 'ext_needed': 0, 'runway_phase': 0, 'extreme_age_trade_side': 0, 'slope5m': 0, 'accel': 0, 'rv_collapse': 1} mutant_agrees=279
 p016_boundaries_are_inclusive	MT_P09_strict_inequalities	1	0	PASS	fire=[True, False, True, False] mutant=[False, False, False, False]
-triage_regime_columns_match_the_frame	MT_P10_regime_misparse	0	0	FAIL_ARMED	n=40 mismatches={'sched_last_age': 27} mutant_agrees=0 version=TRIAGE-INDEX-V4/35840d5abf496fa2
+triage_regime_columns_match_the_frame	MT_P10_regime_misparse	1	0	PASS	n=40 mismatches={} mutant_agrees=0 version=TRIAGE-INDEX-V4/35840d5abf496fa2
 event_window_starts_at_the_release	MT_P11_window_spans_the_release	1	0	PASS	n_event_candidates=287 sign_disagreements_vs_phase=4 refused=123
 retrieval_exclude_date8_binds	MT_P12_exclude_ignored + MT_P12b_keep_own_session	1	0	PASS	own_session default=0 mutant=3; pool 8631->7682; d8=20210712 hits 1->0; guard_still_refuses=True
 as_of_prefix_hides_later_rows	MT_P13_no_prefix_filter	1	0	PASS	n=80 as_of=36911 visible=41 later_leaked=0 driver_cuts=11 monotone=True

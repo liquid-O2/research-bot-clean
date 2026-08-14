@@ -6,12 +6,12 @@
  "coverage_candidates": 1.0,
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "965b8506fa9b42170cb6ec62a6b85084048f8bfb",
+  "git_sha": "8687da5f2084447c4bf7c9f4926138503b05db30",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "1c3a23a60c697c81",
+  "m2_spec_sha16": "19fedc9231ba9f0e",
   "numpy_version": "2.1.2",
   "params": {
    "assets": [
@@ -21,20 +21,19 @@
    ],
    "block": "STUDY",
    "eras": [
-    "E1",
-    "E2"
+    "E1"
    ],
    "section_budget": {
     "S1": 1000,
     "S10": 340,
     "S11": 180,
-    "S12": 720,
+    "S12": 800,
     "S13": 720,
     "S14": 760,
     "S2": 260,
-    "S3": 780,
-    "S4": 1100,
-    "S5": 400,
+    "S3": 860,
+    "S4": 1240,
+    "S5": 520,
     "S6": 3000,
     "S7": 320,
     "S8": 600,
@@ -48,7 +47,7 @@
    "spec_section": "\u00a74 [P-M2b] era E1/E2 sheet sets",
    "workers": 12
   },
-  "params_hash": "d959bcd34c5380406cff4ec2dc5196e0f50c901e8da93fe9785781167a1e7fa2",
+  "params_hash": "85a9078709554021e04f36c99d523736f5c69e213a9bcbd7742320277a73e28f",
   "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
@@ -61,11 +60,12 @@
  "n_sheets_rendered": 95102,
  "out_root": "/workspace/artifacts/cache/port/m2/era/E1/STUDY",
  "pins_moved_during_run": [],
+ "s14_colocated_with_sheets": true,
+ "s14_out_root": "/workspace/artifacts/cache/port/m2/era/E1/STUDY",
  "tokens_proxy": {
-  "max": 8498,
-  "median": 7741.0,
-  "min": 4552,
-  "total": 738132986
- },
- "wall_sec": 2152.3
+  "max": 8500,
+  "median": 7993.0,
+  "min": 4799,
+  "total": 761356932
+ }
 }

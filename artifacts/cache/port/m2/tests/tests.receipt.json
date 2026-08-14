@@ -1,7 +1,7 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "97435701f18a398c820cd4f76b1f6d78b2e62fd6",
+  "git_sha": "8687da5f2084447c4bf7c9f4926138503b05db30",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
@@ -48,7 +48,7 @@
     "S1": 1000,
     "S10": 340,
     "S11": 180,
-    "S12": 720,
+    "S12": 800,
     "S13": 720,
     "S14": 760,
     "S2": 260,
@@ -69,7 +69,7 @@
    "token_proxy": "M2-PROXY-2",
    "token_proxy_rule": "alpha run L -> max(1, ceil(L/5)); digit run L -> ceil(L/3); every other non-space char -> 1; newline -> 1 (no BPE tokenizer exists on this host)"
   },
-  "params_hash": "eca60d30ac7308e6d2354b947cc56dd08f1147fbad2e8b8b22ed539433b6e270",
+  "params_hash": "cc4c0fcfcd074b751bb161f94755c1b068fd61b32fab51f139d9b3234454e144",
   "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"

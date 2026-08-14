@@ -383,19 +383,20 @@ _CONCAT = (("cert_close", "cert_peak", "mae", "day_type_frac",
 
 def scan(assets=MC.ASSET_ORDER, years=FIT_YEARS + (GATE_YEAR,), workers=4,
          limit_sessions=None):
-    jobs = []
+    jobs, quarantined = [], 0
     for a in assets:
-        ds = PL.sessions(a, years=set(years))
+        # R105: this census pooled the D-058 pre-exam holdout into every GATE
+        # row AND flagged it at the WRONG boundary (20250901, understating the
+        # contamination by July+August 2025).  The boundary is now ONE constant
+        # (MC.HOLDOUT_FROM_D8 = 20250701) and the guarded enumerator EXCLUDES
+        # rather than flags — CC-M2-15.3's correction, finally applied here.
+        ds, nq = PL.sessions_fit(a, years=set(years))
+        quarantined += nq
         if limit_sessions:
             ds = ds[:limit_sessions]
         jobs += [(a, d) for d in ds]
     jobs.sort()
-    # D-038/D-058 HOLDOUT ACCOUNTING (a flag, not a filter).  The roster
-    # carries 2025-H2 sessions and batches 1-2 pooled the whole GATE year, so
-    # this census keeps the pooled row for comparability AND splits the echo
-    # H1/H2 on every table — the H1 row is the holdout-free reading.  The count
-    # is stamped into the receipt and named in the report for adjudication.
-    holdout = [j for j in jobs if int(j[1]) >= 20250901]
+    holdout = [j for j in jobs if MC.in_holdout(int(j[1]))]   # now always []
     parts, errs = [], []
     t0 = time.time()
     if workers and workers > 1:

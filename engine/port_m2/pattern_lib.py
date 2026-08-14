@@ -1115,13 +1115,40 @@ def frame(asset, d8, with_levels=False, with_certs=True, with_v3=False):
 
 
 # --------------------------------------------------------------- sessions ---
-def sessions(asset, years=None):
-    """Sorted [d8] of every roster session for `asset`, optionally year-filtered."""
+def sessions(asset, years=None, allow_holdout=False):
+    """Sorted [d8] of every roster session for `asset`, optionally year-filtered.
+
+    D-058 GUARD (R57/R58/R105/R118).  This is the entry point five M2 censuses
+    used to enumerate their populations, and the D-058 pre-exam holdout entered
+    every one of them because the boundary lived as a private constant in one
+    other file.  The boundary lives in `m2_common` now and this function
+    REFUSES past it — a refusal, never a silent filter, so the caller has to
+    say what it means.  Censuses call `sessions_fit`, which excludes the
+    holdout and RETURNS the excluded count for the receipt.
+    """
     r = roster(asset, with_certs=False)
     ds = sorted({int(x) for x in r["date8"].tolist()})
     if years is not None:
         ds = [d for d in ds if (d // 10000) in years]
+    if not allow_holdout:
+        bad = [d for d in ds if MC.in_holdout(d)]
+        if bad:
+            raise MC.HoldoutRefusal(
+                "D-058: %s enumerates %d pre-exam holdout sessions "
+                "(>= %d, first %d). Call sessions_fit() for the guarded "
+                "population, or pass allow_holdout=True and say why."
+                % (asset, len(bad), MC.HOLDOUT_FROM_D8, bad[0]))
     return ds
+
+
+def sessions_fit(asset, years=None):
+    """THE guarded census enumerator: (sessions, n_quarantined).
+
+    Every M2 census population comes from here.  The holdout is excluded and
+    the excluded count is returned so the receipt can DECLARE it."""
+    ds = sessions(asset, years=years, allow_holdout=True)
+    keep = [d for d in ds if not MC.in_holdout(d)]
+    return keep, len(ds) - len(keep)
 
 
 def main():

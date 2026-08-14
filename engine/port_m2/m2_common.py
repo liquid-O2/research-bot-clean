@@ -56,7 +56,7 @@ import m1_common as M1                   # noqa: E402  m1 substrate
 
 # --------------------------------------------------------------- spec pins --
 SPEC_PATH = "/workspace/design/PORT_M2_SHEETS_SPEC.md"
-SPEC_SHA16 = "19fedc9231ba9f0e"          # = design/PORT_M2_SHEETS_SPEC.md at HEAD 965b850 (CC-M2-6 + the V1.1 sheet-fix lane's §1 field laws); re-pinned 2026-08-14 by the fix lane, which found the pin one edit behind the spec at HEAD
+SPEC_SHA16 = "19fedc9231ba9f0e"          # = design/PORT_M2_SHEETS_SPEC.md through CC-M2-22 (news-compliance adjudications); re-pinned 2026-08-14 by the D-001 fix lane (R103: the previous provenance sentence named a different, earlier document than the sha it sat beside)
 
 # V1.1 (P-M2c warm-up defect fixes, 2026-08-14): S9/S3/S10/S11/S2 REFUSED
 # consistency (a derived field whose inputs are refused is refused and COUNTED
@@ -158,6 +158,37 @@ ERAS = (("E1", 20210701, 20211231),
         ("E8", 20250101, 20250630))
 ERA_HOLDOUT = ("HOLDOUT_2025H2", 20250701, 20251231)
 SEAL_CUTOFF = C.SEAL_CUTOFF              # 20260101
+
+# D-058 PRE-EXAM HOLDOUT — the ONE boundary (CC-M2-15.3 corrected it to
+# 2025-07-01).  It lived as a private constant in batch4_census and five
+# modules simply never imported it (R57/R58/R105/R118).  It lives HERE now and
+# the session enumerators refuse past it unless a caller opts in explicitly.
+HOLDOUT_FROM_D8 = ERA_HOLDOUT[1]         # 20250701
+
+
+class HoldoutRefusal(RuntimeError):
+    """Raised when a lane enumerates D-058 pre-exam holdout sessions without
+    an explicit allow_holdout=True.  A refusal, never a silent filter."""
+
+
+def in_holdout(d8):
+    return int(d8) >= HOLDOUT_FROM_D8
+
+
+def guarded_session_paths(asset, root=None, allow_holdout=False):
+    """THE M2 session enumerator.  Returns (paths, n_quarantined).
+
+    R118's structural fix: `census_common.session_paths` is the substrate's
+    enumerator and has no modelling boundary in it, so every M2 lane that
+    walked it directly (regime_forecast) silently trained on the D-058 holdout.
+    Every M2 consumer goes through here instead; the quarantine count is
+    RETURNED so it is declared in a receipt rather than being invisible.
+    """
+    out = X.session_paths(asset, root if root is not None else M0_ROOT)
+    if allow_holdout:
+        return out, 0
+    keep = [(d, p) for d, p in out if not in_holdout(d8(d))]
+    return keep, len(out) - len(keep)
 
 
 def era_of(d8):
@@ -529,7 +560,203 @@ def _cell(v):
         return "" if not np.isfinite(v) else "%.6f" % v
     if isinstance(v, (np.integer,)):
         return str(int(v))
-    return str(v)
+    return _escape_cell(str(v))
+
+
+# R38: free text written verbatim into a TSV silently shifted every later
+# column of its row.  Tabs/newlines/CR are escaped on the way out; nothing in
+# the corpus legitimately contains them, so this is loss-free in practice and
+# the escape is reversible.
+_ESCAPES = (("\\", "\\\\"), ("\t", "\\t"), ("\r", "\\r"), ("\n", "\\n"))
+
+
+def _escape_cell(s):
+    if not any(c in s for c in ("\\", "\t", "\r", "\n")):
+        return s
+    for a, b in _ESCAPES:
+        s = s.replace(a, b)
+    return s
+
+
+def unescape_cell(s):
+    """Inverse of `_escape_cell` for consumers that need the original text."""
+    out, i, n = [], 0, len(s)
+    while i < n:
+        c = s[i]
+        if c == "\\" and i + 1 < n:
+            nx = s[i + 1]
+            if nx == "\\":
+                out.append("\\")
+            elif nx == "t":
+                out.append("\t")
+            elif nx == "r":
+                out.append("\r")
+            elif nx == "n":
+                out.append("\n")
+            else:
+                out.append(c)
+                out.append(nx)
+            i += 2
+            continue
+        out.append(c)
+        i += 1
+    return "".join(out)
+
+
+# ------------------------------------------------------- refusal vocabulary --
+# CC-M2-20.3 REFUSED-CLAUSE LAW, implemented as a VALUE (R06/R21/R71..R74/
+# R89/R96/R109/R110/R122).  A derived flag has three states, not two: fired,
+# did-not-fire, and could-not-be-computed.  `R` is the third; every consumer
+# that treats it as a number must refuse instead.
+REFUSED_TOKEN = "R"
+
+
+def flag3(inputs_ok, condition):
+    """Three-valued derived flag: 1 / 0 / 'R'.
+
+    inputs_ok  — every input the predicate reads was present
+    condition  — the predicate's truth value (evaluated only when inputs_ok)
+    """
+    if not inputs_ok:
+        return REFUSED_TOKEN
+    return 1 if bool(condition) else 0
+
+
+def is_refused(v):
+    return isinstance(v, str) and v == REFUSED_TOKEN
+
+
+# ------------------------------------------------------------- mirror law ----
+# R59.  `mirror_law_holds = (lost == 0 and won > 0)` was minted (CC-M2-13.1) on
+# STUDY ROUNDS of 4-14 sessions, where a clean sweep is attainable, and then
+# transplanted verbatim to eras of 3,000+ asset-sessions, where it is an
+# unpassable criterion with zero power that no real signal can clear.  It gated
+# EVERY directional verdict the program ratified (P031, S10 side, erosion side,
+# hand side-calling).  The two forms are different tests and both live here,
+# under different names, with the era-scale form being a proper paired test.
+MIRROR_MIN_SESSIONS = 30                 # power floor for the era-scale form
+
+
+def mirror_sweep_clean(won, lost):
+    """The STUDY-ROUND diagnostic, under its own name: a clean sweep.
+
+    Honest only where a sweep is attainable (n <= ~20 sessions).  Never a
+    verdict criterion at era scale — see `mirror_paired`."""
+    return int(int(lost) == 0 and int(won) > 0)
+
+
+def mirror_paired(deltas, min_sessions=None):
+    """The ERA-SCALE mirror law: a session-clustered PAIRED test.
+
+    `deltas` is one value per SESSION (or per cluster): the estimator's value
+    on that session MINUS its sign-flipped mirror's value on the same session.
+    The pairing is the cluster, so the session-clustered SE is the ordinary SEM
+    over the paired differences (Cameron-Miller CR1 with one observation per
+    cluster reduces to exactly this) and a t(n-1) reference is used, not the
+    normal, per Cameron-Miller.
+
+    Returns a dict; the caller applies Holm over its own family and reads
+    `holds` only after adjusting `p`.  `verdict` is NO_TEST below the power
+    floor — an unpowered cell is never scored as a negative.
+    """
+    a = np.asarray([float(x) for x in deltas], dtype=np.float64)
+    a = a[np.isfinite(a)]
+    n = int(a.size)
+    lo = int(MIRROR_MIN_SESSIONS if min_sessions is None else min_sessions)
+    out = {"n_sessions": n, "mean_delta": float("nan"), "sd": float("nan"),
+           "se": float("nan"), "t": float("nan"), "p": float("nan"),
+           "df": max(n - 1, 0), "n_won": int((a > 0).sum()),
+           "n_lost": int((a < 0).sum()), "n_tied": int((a == 0).sum()),
+           "p_sign": float("nan"), "mde_80": float("nan"),
+           "sweep_clean": mirror_sweep_clean(int((a > 0).sum()),
+                                             int((a < 0).sum())),
+           "verdict": "NO_TEST", "holds": 0}
+    if n == 0:
+        return out
+    out["mean_delta"] = float(a.mean())
+    if n < 2:
+        return out
+    sd = float(a.std(ddof=1))
+    out["sd"] = sd
+    se = sd / np.sqrt(n) if sd > 0 else 0.0
+    out["se"] = float(se)
+    # 80% power, two-sided 5%: |mean| detectable = 2.802 * sd / sqrt(n)
+    out["mde_80"] = float(2.802 * sd / np.sqrt(n)) if sd > 0 else 0.0
+    out["p_sign"] = float(_sign_test_p(out["n_won"], out["n_lost"]))
+    if se > 0:
+        t = float(a.mean() / se)
+        out["t"] = t
+        out["p"] = float(_t_two_sided(t, n - 1))
+    elif a.mean() != 0.0:
+        out["t"] = float("inf") if a.mean() > 0 else float("-inf")
+        out["p"] = 0.0
+    else:
+        out["t"] = 0.0
+        out["p"] = 1.0
+    if n < lo:
+        out["verdict"] = "NO_TEST"        # underpowered: not a negative
+        return out
+    out["verdict"] = "TESTED"
+    out["holds"] = int(out["mean_delta"] > 0.0 and out["p"] < 0.05)
+    return out
+
+
+def _sign_test_p(won, lost):
+    """Exact two-sided binomial sign test (ties excluded)."""
+    n = int(won) + int(lost)
+    if n == 0:
+        return 1.0
+    k = min(int(won), int(lost))
+    # exact tail, computed in log space so large n does not overflow
+    from math import lgamma, exp, log
+    tot = 0.0
+    for i in range(0, k + 1):
+        lp = (lgamma(n + 1) - lgamma(i + 1) - lgamma(n - i + 1)
+              + n * log(0.5))
+        tot += exp(lp)
+    return float(min(1.0, 2.0 * tot))
+
+
+def _t_two_sided(t, df):
+    """Two-sided p from Student-t via the regularised incomplete beta."""
+    if df <= 0:
+        return float("nan")
+    x = float(df) / (float(df) + float(t) * float(t))
+    return float(min(1.0, _betainc(0.5 * df, 0.5, x)))
+
+
+def _betainc(a, b, x):
+    """Regularised incomplete beta I_x(a,b) — Lentz continued fraction."""
+    from math import lgamma, exp, log
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    lbeta = lgamma(a + b) - lgamma(a) - lgamma(b)
+    front = exp(log(x) * a + log(1.0 - x) * b + lbeta) / a
+    if x > (a + 1.0) / (a + b + 2.0):
+        return 1.0 - _betainc(b, a, 1.0 - x)
+    f, c, d = 1.0, 1.0, 0.0
+    for i in range(0, 300):
+        m = i // 2
+        if i == 0:
+            num = 1.0
+        elif i % 2 == 0:
+            num = (m * (b - m) * x) / ((a + 2.0 * m - 1.0) * (a + 2.0 * m))
+        else:
+            num = (-(a + m) * (a + b + m) * x
+                   / ((a + 2.0 * m) * (a + 2.0 * m + 1.0)))
+        d = 1.0 + num * d
+        if abs(d) < 1e-30:
+            d = 1e-30
+        d = 1.0 / d
+        c = 1.0 + num / c
+        if abs(c) < 1e-30:
+            c = 1e-30
+        f *= c * d
+        if abs(1.0 - c * d) < 1e-12:
+            break
+    return front * (f - 1.0)
 
 
 def params_hash(params):

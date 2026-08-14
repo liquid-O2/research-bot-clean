@@ -268,9 +268,12 @@ _CONCAT = (("cert_close", "cert_peak", "day_type_frac", "surprise",
 
 def scan(assets=MC.ASSET_ORDER, years=FIT_YEARS + (GATE_YEAR,), workers=4,
          limit_sessions=None):
-    jobs = []
+    jobs, quarantined = [], 0
     for a in assets:
-        ds = PL.sessions(a, years=set(years))
+        # R105: this census pooled the D-058 pre-exam holdout into every GATE
+        # row.  The guarded enumerator excludes it and declares the count.
+        ds, nq = PL.sessions_fit(a, years=set(years))
+        quarantined += nq
         if limit_sessions:
             ds = ds[:limit_sessions]
         jobs += [(a, d) for d in ds]

@@ -226,7 +226,8 @@ def b05_holdout_is_never_loaded():
     # the quarantine must be real, not vacuous: the roster HAS such sessions
     have = 0
     for a in MC.ASSET_ORDER:
-        have += sum(1 for d in PL.sessions(a, years={B4.GATE_YEAR})
+        have += sum(1 for d in PL.sessions(a, years={B4.GATE_YEAR},
+                                           allow_holdout=True)
                     if int(d) >= B4.HOLDOUT_FROM_D8)
     armed = (not leaked) and n_quar > 0 and have > 0
     # MUTANT MB05: quarantine as a REPORTING FLAG — load them and mark the era.

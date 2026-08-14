@@ -165,8 +165,9 @@ PARAMS = {
 # ------------------------------------------------------------ prior closes --
 def prior_close_map(asset):
     """{d8: previous roster session's m0 close price} for one asset."""
-    ds = PL.sessions(asset)
-    out = {}
+    ds = PL.sessions(asset, allow_holdout=True)   # prior-close chain only:
+    out = {}                                       # no statistic is computed
+                                                   # on a holdout session here
     prev = None
     for d in ds:
         if prev is not None:
@@ -336,10 +337,14 @@ def _one(job):
 
 # ------------------------------------------------------------------- scan ---
 def scan(years, workers=4, limit_sessions=None):
-    jobs = []
+    jobs, quarantined = [], 0
     for a in MC.ASSET_ORDER:
         _PRIOR[a] = prior_close_map(a)
-        ds = PL.sessions(a, years=set(years))
+        # R57: this probe was the ONE census with no holdout filter at all, so
+        # every GATE-echo row in ARMS/MIRROR was computed over the full 2025
+        # calendar year.  Guarded enumerator + declared quarantine count.
+        ds, nq = PL.sessions_fit(a, years=set(years))
+        quarantined += nq
         if limit_sessions:
             ds = ds[:limit_sessions]
         jobs += [(a, d) for d in ds]

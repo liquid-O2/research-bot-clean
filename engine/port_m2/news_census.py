@@ -458,9 +458,8 @@ def _one(job):
 def scan(assets=MC.ASSET_ORDER, workers=4, limit_sessions=None):
     jobs, quarantined = [], 0
     for a in assets:
-        ds = PL.sessions(a, years=set(FIT_YEARS) | {GATE_YEAR})
-        keep = [d for d in ds if int(d) < HOLDOUT_FROM_D8]
-        quarantined += len(ds) - len(keep)
+        keep, nq = PL.sessions_fit(a, years=set(FIT_YEARS) | {GATE_YEAR})
+        quarantined += nq
         if limit_sessions:
             keep = keep[:limit_sessions]
         jobs += [(a, d) for d in keep]

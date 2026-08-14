@@ -1455,3 +1455,200 @@ first side-use was the day's best call.
   BLIND draw. Backfilled here for both 2021-07-07 and 2021-07-08 (2,803 entries, round
   `E1D5-E1D6-backfill`). **The seal step must call `used_cases record` — it is currently a manual
   step outside every day's tooling.**
+
+---
+
+# E1 STUDY POST-MORTEMS — DAY 7 (2021-07-09, SI + HG + NKD, day-complete, n=1,388)
+
+Reader: opus-discretionary, fresh context (CC-M2-4.2). Sheets PORT-SHEETS-V1.1, tooling HEAD V3.
+Theses sealed in `da74ecc` (content) with marker commit `02304f6` — **every S14 below was opened
+after that commit**. Committed calls are never revised (READER_BRIEFING §1).
+Draw: the next chronological STUDY session per asset after 2021-07-08, warm-ups excluded — all three
+assets on **2021-07-09** (SI 315, HG 407, NKD 666). USED_CASE_LEDGER: 0 prior hits, +1,388 recorded
+by the seal itself (CC-M2-17.4 auto-record verified).
+Primary deliverable: `provenance/port_m2/E1D7_CELL_LEDGER.md` — the CC-M2-17.1 THREE-STAGE per-cell
+ledger (SEAT + SIDE, committed before each cell's first candidate row).
+
+## 0. THE DAY, AND THE SCORE
+
+**123 D-021 winners in 1,388 candidates (8.9%, the round's highest base rate) AND ALL 123 ARE
+LONGS.** Five of nine cells carry winners: NKD/TOKYO 68, HG/LONDON 22, SI/LONDON 15, NKD/LONDON 11,
+SI/NY 7. Empty: HG/TOKYO, SI/TOKYO, HG/NY, NKD/NY.
+
+| ledger | calls | TAKE | mean take $ | mean skip $ | winner precision | replay $ | capture (DP $11,636) |
+|---|---|---|---|---|---|---|---|
+| **READER** | 1,388 | 55 | **+282.27** | -29 | 0.109 | **-432.50** | -0.037 |
+| BEST mechanical (EARLIEST + cv>=516) | 1,388 | 26 | -224 | -13 | 0.000 | **+535.00** | 0.046 |
+| best frozen predecessor (e1d5) | 1,388 | 26 | +192 | -20 | 0.077 | +310.00 | 0.027 |
+| worst frozen predecessor (e1d6) | 1,388 | 81 | -407 | +8 | 0.000 | -5,136.25 | -0.441 |
+
+**Margin over the best mechanical baseline: -$967.50** (round: +2,380 / -2,398 / +928.75 / -8,123.75
+/ -4,297.50 / -2,217.50 / **-967.50**). Beat 1 of 6 frozen selves. Full table + the three-stage
+decomposition + the veto split: `provenance/port_m2/baselines/E1D7_BASELINE_SCORES.md`.
+
+**SEAT-CALL ACCURACY 4/9 = 0.444** (against 0.556 for seating every cell), **YES-precision 0.500**
+against a pre-registered 0.688, **winner recall 0.146 against a pre-registered 0.884.**
+**SIDE-CALL ACCURACY 2/5 = 0.400**, its own mirror 0.600. On the same five cells **P029 scored
+0.800** and the day's declared primary instrument **S2a/P031 scored 0.250** while the twice-dead
+**P009 own-asset reading scored 0.750**.
+
+## 1. THE HEADLINE: P025 IS BROKEN, AND THE OBJECT THAT BREAKS IT IS VOLATILITY
+
+Six day-complete sessions, 361 D-021 winners, zero exceptions: every winner had **>= 12,000s of
+runway to its binding exit**, minimum 12,324s, and no row below the floor had ever won. It was the
+round's only unbroken object and the reader's T2.
+
+**2021-07-09: 54 of the day's 123 winners sit BELOW the 12,000s floor. The minimum winner runway is
+2,058 seconds — 34 minutes.** They are NKD/TOKYO longs entered 04:09-07:55 and exiting at the 08:30
+TOKYO phase close, and they close at **+$1,282 to +$3,845**, the largest certificates of the round.
+
+**THE MECHANISM IS NOT SUBTLE AND IT REPAIRS THE OBJECT RATHER THAN KILLING IT: runway buys the bar
+only at the prevailing volatility.** NKD's TOKYO phase ran `rv1800` 278-602 at those winners' own
+decision seconds against a $1,344 `q50` — the tape was travelling $1,000 in half an hour, so 34
+minutes of runway was enough. On the six prior sessions the winners lived at `rv1800` 150-370 where
+$1,000 takes hours, and the 12,000s floor was the shadow of that. **P025's true form is
+`runway x rv1800 >= the bar`, i.e. the `sigma_to_exit` product the round has been computing as a
+GRADE and disqualifying as a judge-aux since day 3 (ERA_NOTES §69).** The two objects are the same
+object and one of them has been on every sheet all along.
+**Cost to the reader today: T2 refused 54 winners; its retention on the day's winners is 69/123.**
+
+## 2. WHY STAGE 1 INVERTED: THE CELL-OPEN ANCHOR GOES STALE (P030's real defect)
+
+S1\* was pre-registered at precision 0.688 / winner recall 0.884 on 54 cells and scored 0.500 /
+**0.146** on nine. The whole gap is one cell: **NKD/TOKYO, 68 winners (55% of the day), median
+certificate +$3,020 — and `rv1800` at its cell open (00:02:15) was 53.0, P030's BOTTOM band.** Its
+winners arrive at 04:09-07:55, **four to eight hours later**, when `rv1800` is 278-602 (top band).
+The TOKYO phase is 8.5 hours long. A 30-minute volatility nowcast taken at its first second is not a
+statement about it, and P030's day-6 measurement did not notice because five of its six winner cells
+were LONDON/NY cells whose winners arrive within an hour of the open.
+
+**MEASURED REPAIR, on all seven day-complete sessions (8,077 rows, 484 winners), reading `rv1800` at
+the CANDIDATE'S OWN ROW instead of the cell open:**
+
+| rv1800 at the row | rows | winners | winner rate | mean cert $ |
+|---|---|---|---|---|
+| < 100 | 80 | 0 | 0.0000 | -127.58 |
+| 100-150 | 232 | 8 | 0.0345 | -28.71 |
+| 150-250 | 1,673 | 27 | 0.0161 | -31.01 |
+| **>= 250** | **6,092** | **449** | **0.0737** | -10.77 |
+
+**449 of 484 winners (92.8%) are in the top band and the band below holds 35 winners in 1,985 rows
+(1.76%).** As a CONCENTRATOR it is weak (1.23x on a 5.99% base); as a REFUSAL it is strong (0.29x
+below 250, refusing 25% of rows for 7% of winners) — the same shape as P004 and P025.
+**Stage 1 is therefore not a per-cell constant. It is a ROLLING feasibility state**, and the
+day-6 formulation (one call per cell, fixed at the open) is a mis-specification of the estimand that
+CC-M2-17.1 named. This is the day's most transferable finding.
+
+## 3. THE PRE-REGISTERED COST CAME DUE — TWICE — AND ONE OF THEM WAS THE SAME CELL AS YESTERDAY
+
+* **HG/LONDON: 22 winners ($1,045-$1,782), refused at `rv1800 112.7` with a prior cell of $975.**
+  The pre-registration named this exact configuration as S1\*'s known cost, on this exact cell, on
+  2021-07-08 (rv 142.5 / prior $975, 17 winners, the day-6 best seat). **The rule was followed as
+  written and it cost the day's entire margin: the frozen EARLIEST+cv>=516 baseline banked
+  +$1,423.75 out of HG/LONDON, and the reader's HG margin is -$1,553.75.**
+* **SI/LONDON: 15 winners, refused at `rv1800 218.7` with a prior cell of $450 — and its SIDE call
+  was LONG and CORRECT.** The reader read the cell right and refused to sit in it.
+* **The term I dropped would have saved the day.** S1c (`unspent_sess >= $500`, or `.` when SI's
+  fvol is refused) seats 6 cells, 4 with winners, **winner recall 0.911**: it refuses HG/NY and
+  NKD/NY (two of my three empty seats, both `cov_sess` 112-283% with negative `unspent_sess`) and
+  keeps NKD/TOKYO, HG/LONDON and SI/LONDON. I excluded it because it scored precision 0.293 over the
+  six prior sessions — on a pool where it almost never fired. **A term measured on a sample that
+  never exercised it is not measured.**
+
+## 4. THE SIDE: MY PRIMARY INSTRUMENT INVERTED AND ITS DEAD TWIN WAS RIGHT
+
+| estimator | day-7 (5 winner cells) | 7-session pooled | sessions LOST to its mirror |
+|---|---|---|---|
+| READER | 2 / 5 = 0.400 | — | — |
+| **S2a P031 cross-asset fuel >= 0.75 (the declared primary)** | **1 right / 3 wrong / 1 silent = 0.250** | 11 / 5 = 0.688 | **2 of 7** (E1D2, E1D7) |
+| **S2b P009 OWN-asset fuel (DEAD twice)** | **3 right / 1 wrong = 0.750** | 8 / 8 = 0.500 | 3 of 7 |
+| S2c S10 outside-VA >= $500 | 0 / 1 | 2 / 3 | 3 of 7 |
+| S2d P029 phase prior (dead as a rule) | **4 / 5 = 0.800** | 17 / 5 = 0.773 | 2 of 7 |
+
+**P031's central claim — an overhang is supply to the OTHER assets and fuel to the one that carries
+it — did not survive its first out-of-sample session.** On 2021-07-09 the cross-asset reading was
+wrong on three of four decided cells and the own-asset reading was right on three of four. The sign
+inversion that P031 was minted on is not a standing property; **what both readings share is that
+they fire on the LAST COMPLETED PHASE, and on a trend day the trapped side keeps losing rather than
+forcing the reversal it is supposed to force.** P031 goes to CONTESTED with two live readings and no
+mirror-law standing, exactly where P015 went on day 2.
+**And for the fourth time this round, the object the ledger has killed scored best**: P029, struck as
+an era-period trend on day 6, called 4 of 5 cells here. Its content is "TOKYO/LONDON long, NY short"
+and today was an all-long day with a NY cell that... was also long (SI/NY), which is the one it
+missed. The honest reading is that P029 is a LONG bias in a rising-metals fortnight, and this session
+was long. It stays dead as a rule.
+
+## 5. SEAT-BY-SEAT (4 seats, each with its pre-mortem adjudicated)
+
+**(a) NKD/LONDON 08:53:38 SHORT — `-955.00`, WALLED (peak +$257.50, MAE $200 before the wall).**
+Truth: NKD/LONDON was a **LONG** cell with 11 winners. Pre-mortem verdict: **named the wrong death.**
+It said the EXIT CLOCK would kill it (a $1,000 bar out of a phase the forecaster priced at $516.50);
+what actually killed it was the SIDE — price went up and the $900 wall took it at 10:45:17. The
+pre-mortem's feasibility argument was nonetheless CORRECT AS ARITHMETIC and it should have vetoed the
+seat: **`unspent` on the BINDING PHASE row was $291.50, and the flip threshold I elicited before the
+call ("a stage-1 clause of the form unspent-on-the-BINDING-PHASE-row >= $1,000 refuses this seat")
+is the term the day wants.** Note it is NOT the same as S1c (which reads the session row).
+**(b) HG/NY 13:00:18 LONG — `-130.00`** (peak +$557.50, MAE $718.75, unwalled). Truth: **empty
+cell**, zero winners either side. The pre-mortem named the side mechanism ("if HG re-enters value the
+trapped-shorts reading is dead"); the cell's real defect was that it had nothing for anybody. HG/NY
+opened at `cov_sess 111.9%` with `unspent_sess -$274.60` — S1c refuses it.
+**(c) SI/NY 13:09:22 LONG — `+470.00`** (peak +$1,020.00, MAE $837.50, $62.50 under the wall).
+Truth: **SI/NY was a LONG cell with 7 winners — right cell, right side, WRONG MOMENT.** The cell's
+winners are at 14:50:59-15:05:05 paying $1,020-$1,182; my seat was spent 101 minutes early on a row
+that peaked at $1,020 and gave back 54% of it. **This falsifies day 6's §63 ("right cell side +
+EARLIEST is a complete entry rule") on its first out-of-sample test**, and it does so on the one cell
+the reader got fully right. Under one-position seating the moment stage is worth the difference
+between +$470 and +$1,182 here.
+**(d) NKD/NY 13:51:19 LONG — `+182.50`** (peak +$670, MAE $450). Truth: **empty cell.** The
+pre-mortem called it "one bet taken three times" with the other two NY cells and that is exactly what
+it was; two of the three cells were empty and the third was right.
+
+## 6. THE MINIMAL PAIRS, RESOLVED
+
+* `SI-20210709-047362-L` (TAKE, +$470) vs `SI-20210709-047052-S` (SKIP, 310s earlier, the cell's
+  first row, refused by the SIDE call alone): the short closed **-$1,020** — **the side call was
+  worth +$1,490 on this pair** and it is the day's single vindication of the stage-2 override.
+* `HG-20210709-046818-L` (TAKE, -$130) vs `HG-20210709-046923-L` (SKIP 105s later, same side,
+  refused by V2+V3): the vetoed row closed **-$80**, i.e. **$50 BETTER than the seat**. The veto
+  families separated two rows that were the same trade.
+* `NKD-20210709-032018-S` (TAKE, -$955) vs `NKD-20210709-032097-S` (SKIP 79s later on T1 alone):
+  the skipped row closed **-$955** too. On NKD's LONDON tape the 79 seconds of book that separate a
+  take from a skip separate nothing at all.
+
+## 7. THE VETOES MOVED $0.00 FOR THE THIRD CONSECUTIVE SESSION, AND V3 IS NOW NET-NEGATIVE
+
+15 rows carried V2/V3 with the core and both cell gates admitting them. **Vetoed pool mean
++$41.67 with one D-021 winner refused (`SI-20210709-054305-L`, +$1,020); standing pool +$282.27.
+Replay delta exactly $0.00** — no veto fired on a seat-spender (day 6: also $0.00; day 5: +$2,477.50
+when they did). **V3 (P018) is 14 of the 15 and refuses money on a second consecutive session**
+(2021-07-08: 170 sole-blocks at -$104.15 with ten winners refused). Under CC-M2-16.2's pooled grading
+V3 survives; on the two most recent sessions it is the most expensive term the reader runs.
+
+## 8. WHAT THE THREE-STAGE COMPOSITION ACTUALLY BOUGHT (CC-M2-17.1's own question, answered)
+
+Stage 1 alone: **-$1,600**. Stage 2 alone: **-$1,846**. Both composed: **-$432.50**. No gate at all:
+-$512.50. **Two individually value-destroying filters composed into the least-bad arm of the family**
+— the composition is worth +$1,168 / +$1,414 over its parts and +$80 over nothing, on a day when both
+stages were wrong more often than right. The mechanism is visible in the arm table: stage 1 alone
+concentrates the seats into three cells whose sides I then get wrong; stage 2 alone spreads the wrong
+side across nine cells; together they cancel each other's worst placements. **This is the weakest
+possible form of a positive result and it is a positive result.**
+The ordering is unchanged and confirmed a third time: **oracle SIDE alone +$2,542 over core, oracle
+SEAT alone +$244** — side first, feasibility second, moment third (and the moment cost $712 on SI/NY
+today, so third is not zero).
+
+## 9. OPEN QUESTIONS CARRIED TO DAY 8
+
+1. **Is `runway x rv1800 >= the bar` the repaired P025?** Seven sessions, 484 winners, and the
+   product is computable on every row of every sheet. This is the cheapest and highest-value census
+   the round has produced since P025 itself, and it re-opens the disqualified `sigma_to_exit` grade
+   as a FEASIBILITY object rather than a confidence one.
+2. **Should stage 1 be re-specified as a ROLLING state (rv1800 at the row) rather than a cell call?**
+   §2's table says yes; day 8 should trade it that way and score the difference.
+3. **Which unspent/coverage row binds — session or BINDING PHASE?** Today's S1c (session row) would
+   have saved the day and the seat that lost the most was refused only by the PHASE row. Both are
+   one field; neither has been censused.
+4. **Is P031 anything at all, now that its two readings have split 3-1 and 1-3 on consecutive
+   sessions?** The pooled 7-session numbers (0.688 cross vs 0.500 own) are inside noise for n=16.
+5. **Is the MOMENT stage worth more than day 6 thought?** SI/NY: right cell, right side, earliest
+   admitted row, and 40% of the achievable certificate. §63's rule is falsified; nothing replaces it.

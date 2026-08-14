@@ -785,3 +785,150 @@ rebuild direction.
    cells had nothing to give. Abstention is a cell-level decision the ledger has never scored.
 5. **How is a veto family to be censused (§67)** now that pooled sole-block value and replay value
    have been shown to disagree completely?
+
+---
+
+# E1 STUDY DAY 7 UPDATE (2021-07-09, day-complete, n=1,388 across SI/HG/NKD)
+
+Source: provenance/port_m2/E1_STUDY_LEDGER.tsv (sealed `da74ecc`, marker `02304f6`) +
+E1_POSTMORTEMS.md day-7 section + E1D7_CELL_LEDGER.md + baselines/E1D7_BASELINE_SCORES.md.
+Taint `CLEAN;AS-OF-PREFIX` on all 1,388 rows; **no forecast/truth TSV was opened, so day 6's
+FORECAST-TRUTH-EXPOSED class does not recur.** The day was the CC-M2-17.1 THREE-STAGE experiment.
+The reader LOST to the best mechanical baseline by **$967.50** (its smallest loss of the four losing
+days), beat ONE of its six frozen predecessors, and posted a POSITIVE take-set mean (+$282.27) for
+the second session running. Several §60-§70 claims are struck.
+
+## 71. ~~§53/§65 STRUCK — P025 IS BROKEN, AND THE BREAK REPAIRS IT~~
+Six sessions, 361 winners, zero exceptions above a 12,000s runway floor. **2021-07-09: 54 of 123
+winners are BELOW it, minimum winner runway 2,058s (34 minutes), certificates +$1,282 to +$3,845.**
+They are NKD/TOKYO longs exiting at the 08:30 phase close on a tape running `rv1800` 278-602 against
+a `q50` of $1,344 — **$1,000 in half an hour.** The floor was never a scheduling fact; it was the
+shadow of the volatility the prior six sessions happened to carry. **The repaired object is
+`runway_to_binding_exit x rv1800 >= the bar` — which is exactly `sigma_to_exit`, the GRADE this round
+has been computing since day 3 and disqualifying as a judge-aux (§69).** Feasibility and confidence
+were the same field wearing two hats. **Fields:** S3 runway to `S13 exit_default`; S9 `rv_nowcast
+w1800`. RECOMMENDED CENSUS, and it is the round's cheapest high-value one: winner rate and mean
+certificate by (runway x rv1800) decile over the era, with the raw runway band as the control.
+
+## 72. P030's DEFECT IS ITS ANCHOR, NOT ITS CONTENT — STAGE 1 IS A ROLLING STATE, NOT A CELL CALL
+S1\* (`rv1800 >= 250 OR (rv1800 >= 150 AND prior-cell range >= $1,000)`), pre-registered at precision
+0.688 / winner recall 0.884 on the 54 cells of days 1-6, scored **0.500 / 0.146** on nine cells here.
+The entire gap is **NKD/TOKYO: 68 winners (55% of the day), `rv1800` at the cell open = 53.0 (P030's
+bottom band), winners at 04:09-07:55 where `rv1800` is 278-602 (top band).** The TOKYO phase is 8.5
+hours long and the anchor was 4-8 hours stale. Measured at the CANDIDATE'S OWN ROW over all seven
+day-complete sessions (8,077 rows, 484 winners): **>=250 holds 449 of 484 winners (92.8%) at a 7.37%
+win rate; below 250 holds 35 winners in 1,985 rows (1.76%).** A weak concentrator (1.23x) and a
+strong REFUSAL (0.29x) — the P004/P025 shape. **Stage 1 of CC-M2-17.1 should be re-specified as a
+rolling feasibility state evaluated per row, not as one call per cell fixed at its open.**
+
+## 73. THE DECLARED PRIMARY SIDE INSTRUMENT INVERTED ON ITS FIRST OUT-OF-SAMPLE SESSION
+P031 CROSS_ASSET_FUEL_OVERHANG, pre-registered on six sessions at 10 right / 2 wrong (0.833) with its
+mirror-law failure on 2021-07-02 declared, scored **1 right / 3 wrong / 1 silent = 0.250** here —
+its second lost session of seven. **P009's OWN-asset reading of the same field, dead twice over and
+measured at 0.417 on 54 cells, scored 3 right / 1 wrong = 0.750 on the same five cells.** The
+day-6 sign inversion did not reproduce; it reversed. Seven-session pooled: cross 11/5 = 0.688, own
+8/8 = 0.500 — n=16 decided calls, inside noise. **What both readings share is that they describe the
+LAST COMPLETED PHASE: on a trend day the trapped side keeps losing instead of forcing the reversal
+the object assumes.** P031 -> CONTESTED, the P015 disposition, on its second session.
+And for the fourth time this round the ledger's own corpse scored best: **P029 4/5 = 0.800** (pooled
+17/5). Its content on an all-long session is a long bias; it stays DEAD as a rule.
+
+## 74. THE DAY IS ALL-LONG: 123 OF 123 WINNERS, AND THE CELL STAYS PURE
+Seven sessions, **22 winner-bearing (asset, phase) cells, and not one has ever contained D-021
+winners on both sides.** Today five cells, all LONG. Session-side purity returns too (days 1, 2, 4, 7
+are one-sided; days 5, 6 split across cells). The invariant unit is unchanged and now has 22 clean
+observations; the CC-M2-16.1 phase-side classifier target is confirmed a third time.
+
+## 75. THE THREE-STAGE COMPOSITION BEATS ITS PARTS WHILE BOTH PARTS DESTROY VALUE
+| arm | replay $ |
+|---|---|
+| CORE alone | -512.50 |
+| CORE + stage 1 only (SEAT calls) | **-1,600.00** |
+| CORE + stage 2 only (SIDE calls, all nine cells = day 6's arm) | **-1,846.25** |
+| **CORE + both (the committed calls)** | **-432.50** |
+| CORE + ORACLE side | +2,030.00 |
+| CORE + ORACLE seat | -268.75 |
+| CORE + ORACLE both | **+2,687.50** (capture 0.231) |
+Composing two individually value-destroying filters produced the least-bad arm of the reader's family
+(+$1,168 over stage 1 alone, +$1,414 over stage 2 alone, +$80 over no gate). **The ordering is
+confirmed for a third session: the SIDE is the binding stage (oracle side +$2,542 over core) and
+feasibility is second (+$244).** This is the weakest possible form of a positive result for
+CC-M2-17.1 and it is a positive result.
+
+## 76. ~~§63 STRUCK~~ — "RIGHT CELL SIDE + EARLIEST" IS NOT A COMPLETE ENTRY RULE
+Day 6: in all three correctly-called cells the first core-admitted row paid $1,120-$1,339. Today the
+reader got SI/NY fully right — right cell, right side — spent the seat on the earliest admitted row
+at 13:09:22 for **+$470 (peak +$1,020, MAE $837.50)**, and **the cell's seven D-021 winners are at
+14:50:59-15:05:05 paying $1,020-$1,182.** The earliest-admitted rule captured 40% of the achievable
+certificate on the one cell that was fully understood. Across all five winner cells the rule pays
+-$955 / +$1,308 / +$870 / +$995 / +$470. **The MOMENT stage is not free, and nothing in the ledger
+currently selects inside a correctly-called cell.**
+
+## 77. THE STAGE-1 TERM DROPPED FOR BEING A NON-SIGNAL WOULD HAVE SAVED THE DAY
+S1c (`unspent_sess >= $500`, or `.` when SI's fvol is refused) was excluded from S1\* because it
+scored precision 0.293 over days 1-6. On day 7 it seats 6 cells, 4 with winners (0.667) at **winner
+recall 0.911**, refusing exactly the two grossly over-extended empty cells the reader sat in
+(HG/NY `cov_sess 111.9%` / `unspent -$274.60`; NKD/NY `283%` / `-$3,209`). **A term measured on a
+sample that never exercised it is not measured** — the six prior sessions rarely produced
+EXPANDED-at-250% cells, and this one produced three. Separately, the NKD/LONDON seat (-$955) was
+refused by NEITHER form: its SESSION row was -$2,497 (S1c refuses) but the reader's elicited
+flip-threshold names the **BINDING PHASE row** (`unspent_LONDON = $291.50` against a $1,000 bar),
+which is a different and untested field. Both are one column; both need the census.
+
+## 78. THE VETOES ARE INERT FOR A THIRD SESSION AND V3 IS NOW COSTING MONEY
+15 rows carried V2/V3 with the core and both cell gates admitting them: vetoed pool **+$41.67 with
+one D-021 winner refused** (`SI-20210709-054305-L`, +$1,020), standing pool +$282.27, **replay delta
+exactly $0.00** (days 6 and 7 both; day 5's +$2,477.50 remains the only session where a veto changed
+a seat's money). On THIS day the mechanism is the literal one — every vetoed row is later than its
+own cell's seat-spender — which is NOT the day-6 mechanism: CC-M2-18.5 corrects §67 to identical
+successor replay (the veto moved the seat and the next admitted row paid the same). V3/P018 is 14 of the 15 and this is its second consecutive money-losing session.
+CC-M2-16.2's pooled grading keeps it alive; the two most recent sessions say it is the most expensive
+term the reader runs. **The veto-census form ordered in CC-M2-17.4 landed and reports the
+seat-spender split (`panel_score --veto-arms`); it reports `replay_inert=1` for this day.**
+
+## 79. THE GRADE IS MONOTONE INSIDE THE TAKES FOR THE FIRST TIME — AND THE A BAND IS STILL EMPTY
+TAKE B +$355.57 (n=42) > TAKE C +$45.48 (n=13). SKIP A -$955.00 (n=18, all NKD walls) < SKIP B
+-$427.41 < SKIP C +$129.03. **Four consecutive sessions in which the A band contains no winner.**
+§69's rebuild direction is now backed by §71: `sigma_to_exit` is the right PRODUCT and the wrong
+READING — as a feasibility floor it is the repaired P025; as a confidence grade it selects rows whose
+rv is high because the move already happened.
+
+## 80. OPEN QUESTIONS CARRIED TO DAY 8
+1. **Census `runway x rv1800` (§71).** It is two columns already on every row, it explains both P025
+   and the dead grade, and it is the first thing day 8 should trade.
+2. **Re-specify stage 1 as a rolling per-row state (§72)** and score the difference against today's
+   cell-fixed form on the same sessions.
+3. **Which coverage row binds — session or binding phase (§77)?** Two candidate one-field terms, both
+   uncensused, and the day's two worst seats were each refused by exactly one of them.
+4. **Is P031 anything (§73)?** Its two readings have now split 3-1 and 1-3 on consecutive sessions.
+   The census ordered in CC-M2-17.5 is the only thing that can settle it.
+5. **What selects inside a correctly-called cell (§76)?** The reader has never had an answer and now
+   has a $712 receipt for the question on a single cell.
+
+## 81. RECONCILIATION WITH CC-M2-18, WHICH LANDED WHILE THIS DAY WAS RUNNING (commits 795cb00/d63a471)
+Census batch 4 and its adjudication landed AFTER the day-7 seal and BEFORE these notes were written.
+The two lanes did not see each other and they agree on three of four points:
+1. **CC-M2-18.2 rules P030 a CONTINUOUS FEATURE and never a gate ("floors discard 19-59% of
+   winners"). Day 7 is that ruling's day-complete receipt**, arrived at independently: the reader
+   ran P030 as a gate and it discarded 105 of 123 winners (85.4%) on one session.
+2. **CC-M2-18.3 kills P031 FINAL (mirror fails all 16 legs; destruction inverted). Day 7 agrees
+   from the other direction**: traded as the declared primary, it scored 0.250 while its dead
+   own-asset twin scored 0.750 (§73). Two independent instruments, same verdict.
+3. **CC-M2-18.1 accepts the seat model (AUC 0.637 pooled / 0.660 GATE-H1, rv1800-at-cell-open
+   carrying it). Day 7 adds the anchor caveat that census could not see** (§72): the cell-open
+   reading is 4-8 hours stale on an 8.5-hour TOKYO phase, and the ROW-level reading holds 92.8% of
+   seven sessions' winners. **The seat model should carry BOTH — they are different features.**
+4. **THEY DISAGREE ON ONE SIGN, and the census wins**: CC-M2-18.1 finds prior-cell MAGNITUDE
+   NEGATIVE (spent energy — a big prior cell predicts an EMPTY next cell), while the day-7 stage-1
+   rule assumed the opposite (P032 PRIOR_CELL_TRAVEL, "a cell whose predecessor could not pay the
+   bar is in a tape that is not paying"). On the day's own nine cells the census's sign is the right
+   one: NKD/TOKYO (no predecessor at all) held 68 winners, and the two biggest prior cells
+   (NKD/LONDON $4,150 and NKD/NY $1,400 predecessors) were the seats that lost. **P032 is recorded
+   as born-and-qualified with its sign already contradicted at era scale.**
+5. Also landed: the D19 fix (regenerated + guarded) and the used-case auto-record wired into all six
+   seal paths — the day-7 seal exercised the auto-record and it worked (+1,388, 0 duplicates).
+**CC-M2-18.3 states plainly that STAGE 2 HAS ZERO VALIDATED INSTRUMENTS. Day 7 is the seventh
+consecutive session that agrees**: the reader's side call scored 0.400 against its own mirror's
+0.600, and the oracle side was worth +$2,542 of the day's $11,636 ceiling. Batch 5's bundle of this
+day's cell evidence has exactly one object worth its time — S10 d_POC/in_VA under the mirror law —
+and on day 7 that object scored 0 for 1.

@@ -400,3 +400,53 @@ the London rally), declared as one bet taken three times.
 this day), P025 (S1d + T2), P031 (S2a, primary), P028's field as a SIDE reading (S2c, secondary),
 P004 (T1), P023's de-signed magnitude floor (T4/T5-repaired), P018 (V3), the V2 fuel-overhang family.
 P029 and P009 are run only as scored REFERENCE estimators. Anything not in this list is post-hoc.
+
+---
+
+## UNBLINDED RESULT (opened only after the seal commit `02304f6` / content `da74ecc`)
+
+**THE DAY: 123 D-021 winners in 1,388 candidates (8.9%), AND ALL 123 ARE LONGS.** Five of the nine
+cells carry winners. Per asset: NKD 79 (mean +$9.45, walled 0.578), SI 22 (-$38.33, 0.419), HG 22
+(-$41.93, 0.337). Day DP ceiling **$11,636** (SI 3,010 / HG 3,066 / NKD 5,560).
+
+| # | cell | truth | winners | SEAT call | SEAT right? | SIDE call | SIDE right? | seat spent | seat close $ |
+|---|---|---|---|---|---|---|---|---|---|
+| 0 | HG/TOKYO | **NONE** | 0 | NO | **✓** | SHORT | — | — | — |
+| 1 | NKD/TOKYO | **LONG** | **68** | NO | **✗** | SHORT | **✗** | — | — |
+| 2 | SI/TOKYO | **NONE** | 0 | NO | **✓** | SHORT | — | — | — |
+| 3 | HG/LONDON | **LONG** | 22 | NO | **✗** | SHORT | **✗** | — | — |
+| 4 | SI/LONDON | **LONG** | 15 | NO | **✗** | **LONG ✓** | ✓ | — | — |
+| 5 | NKD/LONDON | **LONG** | 11 | YES **✓** | ✓ | SHORT | **✗** | 08:53:38 S | **-955.00** (walled) |
+| 6 | HG/NY | **NONE** | 0 | YES | **✗** | LONG | — | 13:00:18 L | -130.00 |
+| 7 | NKD/NY | **NONE** | 0 | YES | **✗** | LONG | — | 13:51:19 L | +182.50 |
+| 8 | SI/NY | **LONG** | 7 | YES **✓** | ✓ | **LONG ✓** | ✓ | 13:09:22 L | **+470.00** |
+
+**SEAT-CALL ACCURACY: 4 of 9 = 0.444, against 0.556 for "seat every cell" (day 6's behaviour).**
+Precision of the four YES calls: **0.500** (pre-registered 0.688). **Winner recall: 18 of 123 =
+0.146, against a pre-registered 0.884.** The stage-1 rule did not merely underperform — it inverted.
+**SIDE-CALL ACCURACY: 2 of 5 = 0.400; the MIRROR of my calls scores 0.600.** Estimator scoreboard on
+the same five cells: **P029 4/5 = 0.800** (the object CC-M2-17.6 killed as a rule); **S2a/P031, the
+day's declared primary, 1 right / 3 wrong / 1 silent = 0.250**; **P009's OWN-asset reading, DEAD
+twice over, 3 right / 1 wrong = 0.750**; S2c 0/1.
+
+**WHAT KILLED STAGE 1, PRECISELY: THE CELL-OPEN ANCHOR GOES STALE.** NKD/TOKYO holds 68 of the day's
+123 winners (median certificate **+$3,020**, max +$3,845) and its `rv1800` AT THE CELL OPEN (00:02:15)
+was **53.0 — P030's bottom band.** Its winners run 04:09:13-07:55:42, **four to eight hours after
+that reading**, and at their own decision seconds `rv1800` is **278-602, the top band.** The TOKYO
+phase is 8.5 hours long; a volatility nowcast taken at its first second is not a statement about it.
+P030's day-6 measurement worked because five of its six winner cells were LONDON/NY cells whose
+winners arrive soon after the open. **The object is right and the ANCHOR is wrong.**
+
+**AND THE PRE-REGISTERED COST CAME DUE, TWICE.** HG/LONDON (22 winners, certificates $1,045-$1,782)
+was refused at `rv1800 112.7 / prior-cell $975` — the same configuration, on the same cell, that the
+pre-registration named as S1\*'s known cost on 2021-07-08. SI/LONDON (15 winners) was refused at
+`rv1800 218.7 / prior-cell $450` — **and its SIDE call was LONG and CORRECT.** The reader called the
+side right and refused the seat.
+
+**THE ONE STAGE-1 TERM I DECLARED A NON-SIGNAL AND DROPPED WOULD HAVE BEEN THE BEST OF THEM:**
+S1c (`unspent_sess >= $500`, or `.` when SI's fvol is refused) seats 6 cells, 4 with winners
+(precision 0.667) at **winner recall 0.911** — it refuses HG/NY and NKD/NY, two of my three empty
+seats, and keeps NKD/TOKYO, HG/LONDON and SI/LONDON. Its 0.293 precision over the six prior sessions
+was measured on a pool where it almost never fired; today it fired on the exact cells that were
+grossly over-extended (`cov_sess` 242-283%, `unspent_sess` -$2,497/-$3,209) and it was right about
+all of them.

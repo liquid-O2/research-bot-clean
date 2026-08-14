@@ -1,0 +1,12 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# THE PAIRED TEST.  Both arms are seated on the SAME sessions under the same schedule, so the difference is measured per session and bootstrapped with clusters = DAY (CR1) — not read off two overlapping marginal intervals.
+# verdict=BEATS means the 95% interval of the paired difference is entirely above zero.
+arm_a	arm_b	n_sessions	delta_usd_per_session	lo	hi	p	verdict
+PROBE_NEXTONLY_FUSED/primary	GBT_CRE26/primary	2320	8.44	-21.24	38.13	0.577	INDISTINGUISHABLE
+PROBE_PRE_V_shared_MULTI_FUSED/primary	GBT_CRE26/primary	2320	-2.89	-33.93	28.15	0.855	INDISTINGUISHABLE
+PROBE_RANDOM_FUSED/primary	GBT_CRE26/primary	2320	-2.53	-31.54	26.49	0.864	INDISTINGUISHABLE
+PROBE_PRE_V_shared_MULTI_CTX/primary	GBT_CRE26/primary	2320	-8.54	-36.78	19.7	0.553	INDISTINGUISHABLE
+GBT/primary	GBT_CRE26/primary	2320	-1.78	-23.96	20.4	0.875	INDISTINGUISHABLE
+GBT_MAECAP/composed	GBT_CRE26/primary	2320	-2.74	-49.79	44.31	0.909	INDISTINGUISHABLE
+LMART2_DAY_MEM_CRE26/primary	GBT_CRE26/primary	2320	-68.15	-125.34	-10.96	0.0196	LOSES
+GBT_SHUFFLED/primary	GBT_CRE26/primary	2320	-180.33	-233.59	-127.08	5.63e-11	LOSES

@@ -97,7 +97,28 @@ the schedule's own selection unit: **GROUP = (asset, trade day)**, the whole day
 
 ### 4.2 LambdaMART, both group definitions — `SEQTEST2_RANKING.tsv`
 
-*(filled)*
+xgboost `rank:ndcg`, the same fixed D-021 grade ladder (0, >0, ≥$600, ≥$1,000, ≥$2,000), the same
+folds, the same scoring. The only change is the group key.
+
+| arm | group | day memory | +26 creator | capture_oracle | 95% CI | $/session |
+|---|---|---|---|--:|--:|--:|
+| `LMART2_CLASS` (= the first pass's `LMART_M3FEATURES`, reproduced) | (asset, day, class) | — | — | **−0.0063** | −0.0233 … 0.0108 | −18.57 |
+| `LMART2_CLASS_MEM_CRE26` | (asset, day, class) | yes | yes | +0.0022 | −0.0149 … 0.0193 | +6.47 |
+| **`LMART2_DAY`** | **(asset, day)** | — | — | **+0.0081** | −0.0081 … 0.0243 | +24.01 |
+| `LMART2_DAY_MEM` | (asset, day) | yes | — | +0.0049 | −0.0119 … 0.0217 | +14.49 |
+| `LMART2_DAY_CRE26` | (asset, day) | — | yes | +0.0005 | −0.0172 … 0.0181 | +1.45 |
+| **`LMART2_DAY_MEM_CRE26`** | **(asset, day)** | **yes** | **yes** | **+0.0098** | −0.0067 … 0.0263 | **+29.04** |
+
+**R7 was correctly named, and repairing it works — in the predicted direction and by the predicted
+mechanism.** Moving the ranker's groups from `(asset, day, class)` to the schedule's own
+`(asset, day)` selection unit moves pooled capture from **−0.0063 to +0.0081**, a swing of
++$42.58/session, with no change to features, folds, loss family or scoring. Adding the day memory
+and the creator columns on top reaches +0.0098 / +$29.04.
+
+**And it is still not close to the champion.** +0.0098 against the upgraded GBT's +0.0328. The
+listwise family was mis-specified *and* it is weaker than pointwise on this task; fixing the first
+does not fix the second. The first pass's second signature is resolved: **R7 CLEARED — the
+misalignment was real, its repair is worth ~+0.014 capture, and it does not change the ordering.**
 
 ---
 
@@ -109,7 +130,60 @@ the schedule's own selection unit: **GROUP = (asset, trade day)**, the whole day
 
 ## 6. F5 — THE CHAMPION UPGRADES
 
-*(filled)*
+Both upgrades are independent of the deep stack, so this section answers "what is the best
+honest number the program has" whatever the transformer does.
+
+### 6.1 The two upgrades
+
+**(a) The 26 creator features.** `CREATOR_MECHANICS_CENSUS.md` §1.1 (21 entry survivors) and §1.2
+(5 veto survivors) — every detector that cleared Holm over the m = 594 family, survived the
+within-session destruction null and carried a day-clustered CI on one side of 1.0. The committed
+census cache covers E2..E6 only; the detector bank (`creator_census._worker`, **imported, never
+re-typed**) was re-run over the whole E2..E8 ladder — 2 704 session-assets, 1 157 447 candidate
+rows, **0 errors** — and `test_fixpass2.py` asserts the new cache reproduces the committed one
+**exactly** on 20 000 sampled shared rows for all 26 columns.
+
+**(b) The D-021 MAE-cap label variant.** §5(a) of the census: the creator's central execution
+claim — winners go against you first — replicates, and *D-021's own MAE ≤ $300 cap is selecting
+those winners away*. Re-measured here on the full matrix: uncapped (`cert_close ≥ $1,000`, not
+walled, n = 126 792) the adverse dip is **median 9.5 ticks, q75 19.0, q90 29.0** — the census's
+9 / 18 / 28 reproduced independently. The variant caps at 18 ticks in dollars instead of a flat
+$300: **SI $450, HG $225, NKD $450**.
+
+| label | winner set size | rate | vs D-021 |
+|---|--:|--:|---|
+| D-021 (`MAE ≤ $300`) | **81 346** | 0.05813 | — |
+| MAE-cap (`MAE ≤ 18 ticks`) | **93 401** | 0.06675 | **+15 272 new winners** (the ones D-021 was discarding), **−3 217** lost where HG's cap tightened, 78 129 in common |
+
+### 6.2 What they bank — `SEQTEST2_CHAMPION.tsv`
+
+| arm | features | label | capture (PRIMARY) | capture (COMPOSED) | $/session (primary) |
+|---|--:|---|--:|--:|--:|
+| `GBT` — the reigning champion, reproduced | 202 | D-021 | **0.0322** [0.0229, 0.0416] | 0.0271 [0.0129, 0.0413] | 95.41 |
+| **`GBT_CRE26`** | **228** | D-021 | **0.0328** [0.0235, 0.0422] | 0.0308 [0.0160, 0.0456] | **97.19** |
+| `GBT_MAECAP` | 202 | MAE-cap | 0.0322 [0.0229, 0.0416] | **0.0319** [0.0174, 0.0464] | 95.41 |
+| `GBT_CRE26_MAECAP` | 228 | MAE-cap | 0.0328 [0.0235, 0.0422] | 0.0271 [0.0125, 0.0418] | 97.19 |
+
+**An instrument check first:** the `GBT` row reproduces the committed champion to the last digit
+(0.0322 [0.0229, 0.0416], $95.41/session — SEQTEST.md §4). The scale is the same scale.
+
+**(a) The creator features add +0.0006 capture on the primary form and +0.0037 on the composed
+form — both inside the interval.** The booster spends **0.0–3.1 % of its gain** on the 26 columns
+(mean 1.3 %), concentrated in `ONX_UNTOUCHED_AHEAD` and `IB_BROKEN_WITH`. This is what a census of
+*winner concentrators with negative conditional expectancy* is supposed to buy, and it is what it
+bought: a real but small improvement, exactly the size the census's own member-AUC ceiling (best
+of 44 detectors = 0.550) predicted.
+
+**(b) The MAE-cap label does not move the primary head at all — by construction, it is a different
+column — and it lifts the COMPOSED form by +0.0048**, closing most of the gap between the composed
+and primary readings. Its `y_winner` head is a **better winner detector on its own
+label** (era-mean out-of-sample AUC **0.7037** against the D-021 head's 0.6774 on D-021) and it
+loses essentially nothing against the *old* label (0.6769 vs 0.6774) — the wider cap admits
+15 272 winners without diluting the ones D-021 already had. Note the two upgrades **do not compose**: `GBT_CRE26_MAECAP`'s
+composed capture falls back to 0.0271.
+
+**THE UPGRADED CHAMPION IS `GBT_CRE26` AT capture_oracle 0.0328 [0.0235, 0.0422], $97.19/session.**
+That is the bar every other arm in this report has to clear.
 
 ---
 

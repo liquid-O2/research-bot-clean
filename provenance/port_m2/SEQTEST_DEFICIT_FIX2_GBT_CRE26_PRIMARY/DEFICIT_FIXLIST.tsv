@@ -1,0 +1,15 @@
+# PORT_M2_SHEETS_SPEC.md port m2 deficit ledger — orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars (spec_sha16=f6ef73a41dbf8588)
+# params_hash=9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da
+# THE-FIX-LIST: components ranked by recoverable $/session, with the named improvement type
+# block A = fixed-contract ladder (additive); B = contract change, D-029 reserved; D = diagnostic
+# standalone = the same repair applied ALONE from the judge's own takes (order-free)
+rank	judge	component	improvement_type	block	usd_per_session	usd_total	share_of_block_A	standalone_usd_per_session	n_repairs	top_cell	top_cell_usd_per_session
+1	FIX2_GBT_CRE26_PRIMARY	SEL_WRONG_MEMBER	ranking	A	929.930000	2157447.190000	0.486500	1841.580000	6798	E6|SI|rg2|ph2	20.430000
+2	FIX2_GBT_CRE26_PRIMARY	RANKING_RESIDUAL	scoring/foresight	A	780.430000	1810592.230000	0.408300	3259.260000	0	E6|SI|rg2|ph2	11.040000
+3	FIX2_GBT_CRE26_PRIMARY	OPPORTUNITY	generation/coverage	A	89.240000	207047.500000	0.046700			E5|HG|ALL	15.590000
+4	FIX2_GBT_CRE26_PRIMARY	SEL_WRONG_SIDE	validity	A	79.390000	184188.100000	0.041500	152.120000	784	E4|SI|rg0|ph2	3.390000
+5	FIX2_GBT_CRE26_PRIMARY	EXIT	exit-contract (D-029)	B	78.090000	181177.500000	0.040900			E4|HG|rg2|ph0	4.910000
+6	FIX2_GBT_CRE26_PRIMARY	RISK	stop-structure (D-029)	B	24.930000	57845.000000	0.013000			E7|SI|rg0|ph2	2.620000
+7	FIX2_GBT_CRE26_PRIMARY	PARTICIPATION	throughput/abstention	A	20.670000	47944.990000	0.010800	-103.530000	190836	E3|HG|rg1|ph0	1.920000
+8	FIX2_GBT_CRE26_PRIMARY	SEL_WRONG_MOMENT	moment	A	11.880000	27562.490000	0.006200	19.650000	1504	E6|SI|rg2|ph2	0.670000
+9	FIX2_GBT_CRE26_PRIMARY	CALIBRATION	threshold	D	0.000000	0.000000	0.000000				

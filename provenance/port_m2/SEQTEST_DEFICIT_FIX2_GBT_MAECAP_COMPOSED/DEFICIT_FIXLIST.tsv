@@ -1,0 +1,15 @@
+# PORT_M2_SHEETS_SPEC.md port m2 deficit ledger — orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars (spec_sha16=f6ef73a41dbf8588)
+# params_hash=9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da
+# THE-FIX-LIST: components ranked by recoverable $/session, with the named improvement type
+# block A = fixed-contract ladder (additive); B = contract change, D-029 reserved; D = diagnostic
+# standalone = the same repair applied ALONE from the judge's own takes (order-free)
+rank	judge	component	improvement_type	block	usd_per_session	usd_total	share_of_block_A	standalone_usd_per_session	n_repairs	top_cell	top_cell_usd_per_session
+1	FIX2_GBT_MAECAP_COMPOSED	RANKING_RESIDUAL	scoring/foresight	A	907.980000	2106508.480000	0.467200	3262.980000	0	E6|SI|rg2|ph2	13.200000
+2	FIX2_GBT_MAECAP_COMPOSED	SEL_WRONG_MEMBER	ranking	A	744.300000	1726764.500000	0.383000	1841.300000	6385	E7|SI|rg0|ph2	17.740000
+3	FIX2_GBT_MAECAP_COMPOSED	SEL_WRONG_SIDE	validity	A	288.880000	670195.020000	0.148600	472.260000	1981	E6|SI|rg2|ph2	11.420000
+4	FIX2_GBT_MAECAP_COMPOSED	EXIT	exit-contract (D-029)	B	199.280000	462318.750000	0.102500			E7|SI|rg0|ph2	15.950000
+5	FIX2_GBT_MAECAP_COMPOSED	RISK	stop-structure (D-029)	B	119.790000	277912.500000	0.061600			E7|SI|rg0|ph2	11.170000
+6	FIX2_GBT_MAECAP_COMPOSED	OPPORTUNITY	generation/coverage	A	89.240000	207047.500000	0.045900			E5|HG|ALL	15.590000
+7	FIX2_GBT_MAECAP_COMPOSED	SEL_WRONG_MOMENT	moment	A	35.330000	81960.750000	0.018200	45.660000	2117	E7|SI|rg0|ph2	2.780000
+8	FIX2_GBT_MAECAP_COMPOSED	CALIBRATION	threshold	D	0.000000	0.000000	0.000000				
+9	FIX2_GBT_MAECAP_COMPOSED	PARTICIPATION	throughput/abstention	A	-122.250000	-283612.490000	-0.062900	-280.750000	161395	E6|NKD|rg2|ph2	0.880000

@@ -59,6 +59,67 @@ def score_form(D, champ, win, ceil, pos, form, test_eras=SC.TEST_ERAS):
     return per, (R.pooled(parts) if parts else None)
 
 
+def arm_sessions(D, champ, win, ceil, form, test_eras=SC.TEST_ERAS):
+    """{session -> realised $} for one arm on the identical schedule."""
+    import m3_walk as W
+    out = {}
+    for era in test_eras:
+        ev = np.nonzero(D["era_idx"] == SC.ERA_IDX[era])[0]
+        ev = ev[np.isfinite(champ[ev])]
+        if ev.size == 0:
+            continue
+        s = R.composed(D, champ, win, ev) if form == "composed" else champ
+        take = W.topn_takes(D, s, ev, SC.SCHEDULE_N, deployable=True,
+                            unit=SC.SCHEDULE_UNIT)
+        for r in W.replay_rows(D, take):
+            out[r["session"]] = float(r["realised"])
+    return out
+
+
+def paired_delta(D, ceil, a_tag, a_form, b_tag, b_form):
+    """THE TEST THE VERDICT NEEDS.  Two arms are scored on the SAME sessions, so
+    the honest question is not whether their two intervals overlap but whether
+    their PAIRED per-session difference is distinguishable from zero.  CR1,
+    clustered by DAY, on the same bootstrap the rest of the lane uses."""
+    import panel_score as PS
+    A = arm_sessions(D, *_load(D, a_tag), ceil, a_form)
+    B = arm_sessions(D, *_load(D, b_tag), ceil, b_form)
+    keys = sorted(set(A) & set(B))
+    d = [A[k] - B[k] for k in keys]
+    cl = [int(k.split("|")[1]) for k in keys]
+    cm = PS.cluster_mean(d, cl) if d else None
+    return {"a": "%s/%s" % (a_tag, a_form), "b": "%s/%s" % (b_tag, b_form),
+            "n_sessions": len(keys),
+            "delta_usd_per_session": cm["mean"] if cm else None,
+            "lo": cm["ci_lo"] if cm else None, "hi": cm["ci_hi"] if cm else None,
+            "p": cm.get("p") if cm else None}
+
+
+def write_paired(D, ceil, pairs, name="SEQTEST2_PAIRED.tsv"):
+    rows = []
+    for a_tag, a_form, b_tag, b_form in pairs:
+        r = paired_delta(D, ceil, a_tag, a_form, b_tag, b_form)
+        rows.append([r["a"], r["b"], r["n_sessions"],
+                     R._r(r["delta_usd_per_session"]), R._r(r["lo"]),
+                     R._r(r["hi"]),
+                     ("%.3g" % r["p"]) if r["p"] is not None else "",
+                     "BEATS" if (r["lo"] or 0) > 0 else
+                     ("LOSES" if (r["hi"] or 0) < 0 else "INDISTINGUISHABLE")])
+        SC.hb("paired %s - %s = %+.2f/session [%+.2f, %+.2f] p=%s"
+              % (r["a"], r["b"], r["delta_usd_per_session"] or 0.0,
+                 r["lo"] or 0.0, r["hi"] or 0.0, r["p"]))
+    return R.write_tsv(name, ["arm_a", "arm_b", "n_sessions",
+                              "delta_usd_per_session", "lo", "hi", "p",
+                              "verdict"], rows,
+                       extra=["THE PAIRED TEST.  Both arms are seated on the "
+                              "SAME sessions under the same schedule, so the "
+                              "difference is measured per session and "
+                              "bootstrapped with clusters = DAY (CR1) — not "
+                              "read off two overlapping marginal intervals.",
+                              "verdict=BEATS means the 95% interval of the "
+                              "paired difference is entirely above zero."])
+
+
 def result_meta():
     meta = {}
     for p in sorted(glob.glob(os.path.join(R.RES_DIR, "*.json"))):
@@ -116,10 +177,12 @@ def reference_rows(D, ceil):
     parts = {k: [] for k in REFERENCE}
     for era in SC.TEST_ERAS:
         ev = np.nonzero(D["era_idx"] == SC.ERA_IDX[era])[0]
-        parts["FORESIGHT3_NONCAUSAL"].append(
-            R.score_arm(D, D["cert_close_usd"], ev, ceil))
-        parts["BASE_EARLIEST"].append(R.base_earliest(D, ev, ceil))
-        parts["RANDOM3"].append(R.random3(D, ev, ceil))
+        for k, v in (("FORESIGHT3_NONCAUSAL",
+                      R.score_arm(D, D["cert_close_usd"], ev, ceil)),
+                     ("BASE_EARLIEST", R.base_earliest(D, ev, ceil)),
+                     ("RANDOM3", R.random3(D, ev, ceil))):
+            v["era"] = era
+            parts[k].append(v)
     for k in ("FORESIGHT3_NONCAUSAL", "BASE_EARLIEST"):
         pool = R.pooled(parts[k])
         upt = [a["usd_per_trade"] for a in parts[k]
@@ -147,9 +210,8 @@ def reference_rows(D, ceil):
                 "capture_oracle": float(np.mean(c)),
                 "co_lo": float(np.min(c)), "co_hi": float(np.max(c)),
                 "capture_day": None,
-                "per_era": {a["era"] if "era" in a else SC.TEST_ERAS[i]:
-                            a["capture_oracle"]
-                            for i, a in enumerate(parts["RANDOM3"])}, "secs": 0})
+                "per_era": {a["era"]: a["capture_oracle"]
+                            for a in parts["RANDOM3"]}, "secs": 0})
     return out
 
 
@@ -384,6 +446,7 @@ def main():
     ap.add_argument("--arms", action="store_true")
     ap.add_argument("--tables", action="store_true")
     ap.add_argument("--moment", default="")
+    ap.add_argument("--paired", default="")
     a = ap.parse_args()
     import m3_walk as W
     if a.all or a.tables:
@@ -400,6 +463,14 @@ def main():
         with open(os.path.join(SC.CACHE_ROOT, "fixpass2_arms.json"), "w") as fh:
             json.dump(rows, fh, indent=1, default=str)
         write_arms(rows)
+    if a.paired:
+        D, _p = W.load_matrix()
+        ceil = R.ceilings_of(D)
+        base = a.paired.split("|")[0]
+        bt, bf = base.split(":")
+        pairs = [tuple(x.split(":")) + (bt, bf)
+                 for x in a.paired.split("|")[1].split(",") if x]
+        write_paired(D, ceil, pairs)
     if a.moment:
         D, _p = W.load_matrix()
         tags = [tuple(x.split(":")) if ":" in x else (x, "composed")

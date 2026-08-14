@@ -1,0 +1,15 @@
+# PORT_M2_SHEETS_SPEC.md port m2 deficit ledger — orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars (spec_sha16=f6ef73a41dbf8588)
+# params_hash=9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da
+# THE-FIX-LIST: components ranked by recoverable $/session, with the named improvement type
+# block A = fixed-contract ladder (additive); B = contract change, D-029 reserved; D = diagnostic
+# standalone = the same repair applied ALONE from the judge's own takes (order-free)
+rank	judge	component	improvement_type	block	usd_per_session	usd_total	share_of_block_A	standalone_usd_per_session	n_repairs	top_cell	top_cell_usd_per_session
+1	FIX2_LMART_DAY	RANKING_RESIDUAL	scoring/foresight	A	964.290000	2237161.500000	0.474700	3327.400000	0	E7|SI|rg0|ph2	13.510000
+2	FIX2_LMART_DAY	SEL_WRONG_MEMBER	ranking	A	825.180000	1914416.640000	0.406200	1874.740000	6280	E7|SI|rg0|ph2	22.550000
+3	FIX2_LMART_DAY	SEL_WRONG_SIDE	validity	A	272.240000	631595.000000	0.134000	437.710000	1438	E6|SI|rg2|ph2	11.220000
+4	FIX2_LMART_DAY	EXIT	exit-contract (D-029)	B	244.450000	567121.250000	0.120300			E8|SI|rg2|ph2	11.430000
+5	FIX2_LMART_DAY	RISK	stop-structure (D-029)	B	218.940000	507950.000000	0.107800			E6|SI|rg2|ph2	7.940000
+6	FIX2_LMART_DAY	OPPORTUNITY	generation/coverage	A	89.240000	207047.500000	0.043900			E5|HG|ALL	15.590000
+7	FIX2_LMART_DAY	SEL_WRONG_MOMENT	moment	A	39.140000	90802.120000	0.019300	59.020000	1868	E5|SI|rg1|ph2	2.420000
+8	FIX2_LMART_DAY	CALIBRATION	threshold	D	0.000000	0.000000	0.000000				
+9	FIX2_LMART_DAY	PARTICIPATION	throughput/abstention	A	-158.550000	-367831.510000	-0.078000	-159.910000	247768	E6|HG|rg2|ph1	1.370000

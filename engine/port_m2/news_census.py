@@ -126,8 +126,10 @@ FAR_BASELINE_SEC = 7200                   # "far from news" = >= 120min either
                                           # side of every scheduled release
 MIN_N_GEE = 40                            # no inference claimed below this
 
-BASELINES = ("SAME_DAY_FAR", "G1_UNIVERSE_FAR", "ALL_FAR")
+BASELINES = ("SAME_DAY_FAR", "G1_UNIVERSE_FAR", "ALL_FAR",
+             "SAME_DAY_SLOT_FAR")
 PRIMARY_BASELINE = "SAME_DAY_FAR"
+SLOT_BASELINE = "SAME_DAY_SLOT_FAR"
 
 NEWS_BIT = MC.FAM_BIT["NEWS_WINDOW"]
 MICRO_BIT = MC.FAM_BIT["MICRO_OPEN"]
@@ -199,9 +201,25 @@ PARAMS = {
                     "G1_FAST_OPEN -> the running phase segment open "
                     "(pattern_lib phase_seg_start)",
     "generation_source": "engine/port_m1/b10_generation_v3.py — NEWS_WINDOW = "
-                         "G1 confirmations inside [release, release+600s), "
+                         "G1 confirmations inside [anchor, anchor+600s), "
                          "single 15s delay; MICRO_OPEN = first 300s after a "
                          "micro-open, 15s delay",
+    "two_release_sets": "MEASURED DIVERGENCE (D-006). The family's GENERATION "
+                        "anchor set is the FIXED 08:30/10:00 ET slots on EVERY "
+                        "session plus FOMC 14:00 ET on meeting days "
+                        "(family_discovery.NEWS_SLOTS + "
+                        "b10_generation_v3.news_release_offsets). The DATED "
+                        "calendar S12/D10 and the prop-firm rule speak about "
+                        "is context._bls_calendar + _fomc_calendar — 202 "
+                        "actual high-impact releases (Employment Situation, "
+                        "CPI, FOMC statement) at 08:30/14:00 ET. The dated set "
+                        "is a SUBSET of the anchor set. Both are carried on "
+                        "every row: `slot_age` against the family's own "
+                        "anchor (where the edge lives) and `rel_age` against "
+                        "the dated release (what the rule bites on).",
+    "slot_anchor": "GEN_NEWS_SLOT — the most recent generation news anchor at "
+                   "or before the decision second; slot_real = that anchor "
+                   "second IS a dated high-impact release",
 }
 
 
@@ -256,6 +274,39 @@ def _assert_causal(rel_ts, nxt_ts, dec_ts, where):
     return True
 
 
+_FOMC = None
+
+
+def fomc_dates():
+    """The FOMC statement DATES b10_generation_v3 joins its 14:00 ET slot on."""
+    global _FOMC
+    if _FOMC is None:
+        _FOMC = set(FD.fomc_release_dates())
+    return _FOMC
+
+
+def slot_anchor_offsets(open_utc, n_sec):
+    """Session-second offsets of the family's OWN generation anchors.
+
+    b10_generation_v3.news_release_offsets, verbatim in intent: the fixed
+    08:30/10:00 ET slots on every session (DST-correct through the tz database,
+    scanning the day before / of / after because Globex opens the previous
+    evening ET) plus the FOMC 14:00 ET slot on a meeting's last day.  This is
+    the set the NEWS_WINDOW family was CUT on, and it is NOT the dated
+    high-impact calendar the prop-firm rule speaks about — see PARAMS
+    two_release_sets."""
+    rel = []
+    for (_nm, tz, hh, mm) in FD.NEWS_SLOTS:
+        rel.extend(FD.local_epochs(open_utc, n_sec, tz, hh, mm))
+    fom = fomc_dates()
+    for off in FD.local_epochs(open_utc, n_sec, FD.TZ_NY, FD.FOMC_HOUR,
+                               FD.FOMC_MIN, days=(-1, 0, 1)):
+        if FD.dt.datetime.fromtimestamp(int(open_utc) + off,
+                                        FD.TZ_NY).date() in fom:
+            rel.append(off)
+    return sorted(set(int(x) for x in rel))
+
+
 def bucket_of(age_sec):
     """The 1-minute bucket index of an age in seconds, half-open on the right.
 
@@ -271,14 +322,42 @@ def bucket_of(age_sec):
 # ======================================================================= scan
 _F64 = ("cert_close", "cert_peak", "mae")
 _I64 = ("dec_sec", "rel_age", "rel_ts", "next_ts", "to_next", "min_dist",
-        "phase_close_sec", "phase_age", "micro_age", "open_utc", "fam_mask")
+        "phase_close_sec", "phase_age", "micro_age", "open_utc", "fam_mask",
+        "slot_age", "slot_ts")
 _I8 = ("side", "phase")
-_BOOL = ("winner", "walled", "held_into")
+_BOOL = ("winner", "walled", "held_into", "slot_real")
 _CONCAT = _F64 + _I64 + _I8 + _BOOL
 
 
 def _init():
     MC.verify_spec(force=True)
+
+
+def _age_since(anchors, dec_sec):
+    """Seconds since the most recent anchor AT OR BEFORE each decision second.
+
+    AT OR BEFORE, not strictly before: the family's own construction opens its
+    window AT the anchor second (b10_generation_v3 `open_windows`), and the
+    anchor is a SCHEDULE fact (D-057), so a decision standing on the anchor
+    second has age 0, not "no anchor".  -1 = none yet in this session."""
+    if not len(anchors):
+        return np.full(dec_sec.size, -1, dtype=np.int64)
+    o = np.asarray(anchors, dtype=np.int64)
+    j = np.searchsorted(o, dec_sec, side="right") - 1
+    out = np.full(dec_sec.size, -1, dtype=np.int64)
+    ok = j >= 0
+    if ok.any():
+        out[ok] = dec_sec[ok] - o[j[ok]]
+    return out
+
+
+def _anchor_sec(anchors, dec_sec):
+    """The anchor second itself (session clock); -1 when none has happened."""
+    if not len(anchors):
+        return np.full(dec_sec.size, -1, dtype=np.int64)
+    o = np.asarray(anchors, dtype=np.int64)
+    j = np.searchsorted(o, dec_sec, side="right") - 1
+    return np.where(j >= 0, o[np.maximum(j, 0)], -1).astype(np.int64)
 
 
 def _micro_age(asset, d8, open_utc, n_sec, dec_sec):
@@ -293,13 +372,7 @@ def _micro_age(asset, d8, open_utc, n_sec, dec_sec):
         offs.extend(FD.local_epochs(open_utc, n_sec, tz, hh, mm))
     if not offs:
         return np.full(dec_sec.size, -1, dtype=np.int64)
-    o = np.array(sorted(set(int(x) for x in offs)), dtype=np.int64)
-    j = np.searchsorted(o, dec_sec, side="right") - 1
-    out = np.full(dec_sec.size, -1, dtype=np.int64)
-    ok = j >= 0
-    if ok.any():
-        out[ok] = dec_sec[ok] - o[j[ok]]
-    return out
+    return _age_since(sorted(set(int(x) for x in offs)), dec_sec)
 
 
 def _pack(f, asset, d8):
@@ -334,6 +407,14 @@ def _pack(f, asset, d8):
     hi = np.searchsorted(cal, exit_ts + VETO_PRE_SEC, side="right")
     held = (hi - lo) > 0
 
+    # the family's OWN anchor (generation's fixed ET slots + FOMC), and whether
+    # that anchor second is a DATED high-impact release
+    slots = slot_anchor_offsets(open_utc, n_sec)
+    slot_age = _age_since(slots, dec)
+    slot_off = _anchor_sec(slots, dec)
+    slot_ts = np.where(slot_off >= 0, open_utc + slot_off, -1).astype(np.int64)
+    slot_real = np.isin(slot_ts, cal) & (slot_ts >= 0)
+
     out = {"asset": asset, "d8": int(d8), "cid": f["cid"],
            "klass": f["klass"]}
     src = {
@@ -345,8 +426,10 @@ def _pack(f, asset, d8):
         "micro_age": _micro_age(asset, d8, open_utc, n_sec, dec),
         "open_utc": np.full(dec.size, open_utc, dtype=np.int64),
         "fam_mask": f["fam_mask"],
+        "slot_age": slot_age, "slot_ts": slot_ts,
         "side": f["side"], "phase": f["phase_dec"],
         "winner": f["winner"], "walled": f["walled"], "held_into": held,
+        "slot_real": slot_real,
     }
     for k in _F64:
         out[k] = np.asarray(src[k], dtype=np.float64)
@@ -406,6 +489,20 @@ def scan(assets=MC.ASSET_ORDER, workers=4, limit_sessions=None):
         raise RuntimeError("news scan: %d session(s) failed, first=%s"
                            % (len(errs), errs[0]))
     parts.sort(key=lambda p: (p["asset"], p["d8"]))
+    D = concat(parts)
+    D["n_quarantined"] = quarantined
+    D["n_jobs"] = len(jobs)
+    MC.hb("news scan: %d rows over %d sessions (%d holdout quarantined), "
+          "%.1fs" % (D["dec_sec"].size, D["n_sessions"], quarantined,
+                     time.time() - t0))
+    return D
+
+
+def concat(parts):
+    """Concatenate packed sessions and derive every rule-shaped field.
+
+    Factored out of `scan` so the red-first tests build the SAME object from a
+    single session that the census builds from the population."""
     D = {}
     for k in _CONCAT:
         D[k] = np.concatenate([p[k] for p in parts])
@@ -423,8 +520,6 @@ def scan(assets=MC.ASSET_ORDER, workers=4, limit_sessions=None):
     D["era"] = np.where(np.isin(D["year"], FIT_YEARS), ERAS[0],
                         np.where(D["year"] == GATE_YEAR, ERAS[1], "OTHER"))
     D["n_sessions"] = int(_uniq.size)
-    D["n_quarantined"] = quarantined
-    D["n_jobs"] = len(jobs)
     # the whole-population causality re-assert (a per-session guard can only
     # see its own session; this one sees the concatenation)
     _assert_causal(D["rel_ts"], D["next_ts"], D["open_utc"] + D["dec_sec"],
@@ -440,10 +535,9 @@ def scan(assets=MC.ASSET_ORDER, workers=4, limit_sessions=None):
                              & (D["to_next"] <= -VETO_LEGACY[0])))
     D["pre_window"] = (D["to_next"] >= 0) & (D["to_next"] <= VETO_PRE_SEC)
     D["far"] = (D["min_dist"] < 0) | (D["min_dist"] >= FAR_BASELINE_SEC)
+    D["slot_far"] = (D["slot_age"] < 0) | (D["slot_age"] >= FAR_BASELINE_SEC)
     D["bucket"] = bucket_of(D["rel_age"])
-    MC.hb("news scan: %d rows over %d sessions (%d holdout quarantined), "
-          "%.1fs" % (D["dec_sec"].size, D["n_sessions"], quarantined,
-                     time.time() - t0))
+    D["slot_bucket"] = bucket_of(D["slot_age"])
     return D
 
 
@@ -491,17 +585,22 @@ def _sel(D, aname, ename):
 
 
 def _baseline_mask(D, kind, scope, band_mask):
-    """The named non-news baseline, evaluated inside `scope`."""
-    m = scope & D["far"]
+    """The named non-news baseline, evaluated inside `scope`.
+
+    ALWAYS DISJOINT from the band it is compared against: an unbounded band
+    ("ALL", every entry at or after the anchor) otherwise readmits far-from-
+    news rows that are ALSO in the far baseline, and the contrast would be
+    partly a row against itself."""
+    m = scope & (D["slot_far"] if kind == SLOT_BASELINE else D["far"])
     if kind == "G1_UNIVERSE_FAR":
         m &= D["is_g1univ"]
-    elif kind == "SAME_DAY_FAR":
+    if kind in ("SAME_DAY_FAR", SLOT_BASELINE):
         if not band_mask.any():
             return np.zeros(D["dec_sec"].size, dtype=bool)
         sel = np.zeros(D["n_sess_unique"], dtype=bool)
         sel[np.unique(D["sess_id"][band_mask])] = True
         m &= sel[D["sess_id"]]
-    return m
+    return m & ~band_mask
 
 
 # =============================================================== the profile
@@ -516,30 +615,44 @@ PROFILE_COLUMNS = ("family", "anchor", "asset", "era", "band", "lo_min",
                    "compliant")
 
 
+GRID_TOP_SEC = BUCKET_MIN * BUCKET_SEC     # the profile's own horizon, 20min
+
+
 def _bands():
     """(band label, lo_sec, hi_sec) — the minute grid, then the cumulative-from
-    bands, then ALL.  Order is the render order and is fixed."""
+    bands, then the whole grid, then ALL.  Order is the render order and fixed.
+
+    THE CUMULATIVE BANDS ARE CAPPED AT THE GRID TOP.  "cumulative-from >=k" is
+    read inside the 20-minute profile; uncapped it would swallow every
+    candidate of every session that ever had a release, which is a statement
+    about the roster and not about news proximity.  For a family whose own
+    anchor bounds it (NEWS_WINDOW tops out at 10.23min) the cap changes
+    nothing; for the redefined post-news family it is the difference between a
+    band and the population."""
     out = [("B%02d" % k, k * BUCKET_SEC, (k + 1) * BUCKET_SEC)
            for k in range(BUCKET_MIN)]
-    out += [("CUM>=%d" % k, k * BUCKET_SEC, None) for k in CUM_FROM_MIN]
+    out += [("CUM>=%d" % k, k * BUCKET_SEC, GRID_TOP_SEC)
+            for k in CUM_FROM_MIN]
+    out.append(("GRID[0,%d)" % BUCKET_MIN, 0, GRID_TOP_SEC))
     out.append(("ALL", 0, None))
     return out
 
 
-def _band_mask(D, lo, hi):
-    m = D["rel_age"] >= lo
+def _band_mask(D, lo, hi, agekey="rel_age"):
+    m = D[agekey] >= lo
     if hi is not None:
-        m &= D["rel_age"] < hi
+        m = m & (D[agekey] < hi)
     return m
 
 
 def _n_anchor_days(D, m):
     """Distinct (asset, session) that carry at least one row of the band —
     the denominator a class card's n/day is quoted against."""
-    return int(np.unique(D["session_key"][m]).size) if m.any() else 0
+    return int(np.unique(D["sess_id"][m]).size) if m.any() else 0
 
 
-def profile_rows(D, rows, family, fam_mask_sel, anchor="RELEASE"):
+def profile_rows(D, rows, family, fam_mask_sel, anchor="RELEASE",
+                 agekey="rel_age", base_kind=PRIMARY_BASELINE):
     for aname in ("ALL",) + tuple(MC.ASSET_ORDER):
         for ename in ("ALL",) + ERAS:
             scope = _sel(D, aname, ename)
@@ -547,12 +660,12 @@ def profile_rows(D, rows, family, fam_mask_sel, anchor="RELEASE"):
             if not fam.any():
                 continue
             for (label, lo, hi) in _bands():
-                m = fam & _band_mask(D, lo, hi)
+                m = fam & _band_mask(D, lo, hi, agekey)
                 st = _stats(D, m)
                 if st["n"] == 0:
                     continue
                 nd = _n_anchor_days(D, m)
-                b = _baseline_mask(D, PRIMARY_BASELINE, scope, m)
+                b = _baseline_mask(D, base_kind, scope, m)
                 bs = _stats(D, b)
                 dw = (st["winner_rate"] - bs["winner_rate"]
                       if (st["winner_rate"] is not None
@@ -571,7 +684,7 @@ def profile_rows(D, rows, family, fam_mask_sel, anchor="RELEASE"):
                              st["mean_close"], st["median_close"],
                              st["mean_peak"], st["median_peak"],
                              st["cond_close"], st["cond_peak"],
-                             st["walled_rate"], PRIMARY_BASELINE, bs["n"],
+                             st["walled_rate"], base_kind, bs["n"],
                              bs["winner_rate"], bs["mean_close"],
                              bs["cond_close"], dw, rw, dm,
                              int(lo >= DEPLOY_MIN_SEC)])
@@ -613,7 +726,7 @@ DEPLOY_COLUMNS = ("family", "asset", "era", "reading", "rule", "n",
 
 def _era_sessions(D, aname, ename):
     m = _sel(D, aname, ename)
-    return int(np.unique(D["session_key"][m]).size) if m.any() else 0
+    return int(np.unique(D["sess_id"][m]).size) if m.any() else 0
 
 
 def _deploy_verdict(st, base):
@@ -642,9 +755,16 @@ def deployability_rows(D, rows):
          lambda D: ~D["inside_window"]),
     )
     fams = (("NEWS_WINDOW", lambda D: D["is_news"]),
+            ("NEWS_WINDOW@DATED_RELEASE",
+             lambda D: D["is_news"] & D["slot_real"]),
+            ("NEWS_WINDOW@FIXED_SLOT_ONLY",
+             lambda D: D["is_news"] & ~D["slot_real"]),
             ("POST_NEWS_REDEFINED",
              lambda D: (D["rel_age"] >= POST_NEWS_BAND[0])
              & (D["rel_age"] < POST_NEWS_BAND[1])),
+            ("POST_NEWS_REDEFINED@SLOT",
+             lambda D: (D["slot_age"] >= POST_NEWS_BAND[0])
+             & (D["slot_age"] < POST_NEWS_BAND[1])),
             ("MICRO_OPEN", lambda D: D["is_micro"]),
             ("G1_FAST_OPEN", lambda D: D["is_fastopen"]))
     for (fname, fsel) in fams:
@@ -708,7 +828,7 @@ def confound_rows(D, rows):
                 nf = int(D["far"][m].sum())
                 frac = ni / float(n)
                 rows.append([fname, aname, ename, n,
-                             int(np.unique(D["session_key"][m]).size),
+                             int(np.unique(D["sess_id"][m]).size),
                              ni, frac, nl, nl / float(n), npo, npo / float(n),
                              npr, npr / float(n), nh, nh / float(n),
                              nf, nf / float(n),
@@ -719,57 +839,37 @@ def confound_rows(D, rows):
 
 
 def opens_profile_rows(D, rows):
-    """MICRO_OPEN and G1_FAST_OPEN profiled against THEIR OWN opens."""
-    for (fname, fsel, agekey, anchor) in (
-            ("MICRO_OPEN", D["is_micro"], "micro_age", "MICRO_OPEN_SECOND"),
-            ("G1_FAST_OPEN", D["is_fastopen"], "phase_age", "PHASE_OPEN")):
-        age = D[agekey]
-        for aname in ("ALL",) + tuple(MC.ASSET_ORDER):
-            for ename in ("ALL",) + ERAS:
-                scope = _sel(D, aname, ename)
-                fam = scope & fsel
-                if not fam.any():
-                    continue
-                for (label, lo, hi) in _bands():
-                    m = fam & (age >= lo)
-                    if hi is not None:
-                        m = m & (age < hi)
-                    st = _stats(D, m)
-                    if st["n"] == 0:
-                        continue
-                    nd = _n_anchor_days(D, m)
-                    b = _baseline_mask(D, PRIMARY_BASELINE, scope, m)
-                    bs = _stats(D, b)
-                    dw = (st["winner_rate"] - bs["winner_rate"]
-                          if (st["winner_rate"] is not None
-                              and bs["winner_rate"] is not None) else None)
-                    rw = (st["winner_rate"] / bs["winner_rate"]
-                          if (st["winner_rate"] is not None
-                              and bs["winner_rate"]) else None)
-                    dm = (st["mean_close"] - bs["mean_close"]
-                          if (st["mean_close"] is not None
-                              and bs["mean_close"] is not None) else None)
-                    rows.append([fname, anchor, aname, ename, label,
-                                 lo / 60.0,
-                                 (hi / 60.0) if hi is not None else None,
-                                 st["n"], st["n_sessions"], nd,
-                                 (st["n"] / nd) if nd else None,
-                                 st["n_winners"], st["winner_rate"],
-                                 st["mean_close"], st["median_close"],
-                                 st["mean_peak"], st["median_peak"],
-                                 st["cond_close"], st["cond_peak"],
-                                 st["walled_rate"], PRIMARY_BASELINE, bs["n"],
-                                 bs["winner_rate"], bs["mean_close"],
-                                 bs["cond_close"], dw, rw, dm, ""])
+    """MICRO_OPEN and G1_FAST_OPEN profiled against THEIR OWN opens — the same
+    estimator as the release profile, re-anchored (D-006: one profile)."""
+    profile_rows(D, rows, "MICRO_OPEN", D["is_micro"],
+                 anchor="MICRO_OPEN_SECOND", agekey="micro_age")
+    profile_rows(D, rows, "G1_FAST_OPEN", D["is_fastopen"],
+                 anchor="PHASE_OPEN", agekey="phase_age")
     return rows
 
 
 # ================================================================= inference
-GEE_BANDS = ([("ALL", 0, None)]
-             + [("CUM>=%d" % k, k * BUCKET_SEC, None) for k in (1, 2, 3, 4, 5,
-                                                                6, 7, 8)]
-             + [("CUM>=%d" % k, k * BUCKET_SEC, None) for k in (10, 12, 15)]
-             + [("POST_NEWS[10,20)", POST_NEWS_BAND[0], POST_NEWS_BAND[1])])
+# (branch, band label, lo_sec, hi_sec).  BRANCH says which population the band
+# is cut out of and against which anchor:
+#   NEWS_SLOT   the family as built, against ITS OWN generation anchor — the
+#               D-077 "where does the edge live" sweep
+#   NEWS_WINDOW the family, against the DATED high-impact release — what the
+#               prop-firm rule actually bites on
+#   POST_NEWS   EVERY roster candidate at that distance from a DATED release,
+#               the only shape a redefined post-news family could take
+GEE_BRANCH = {"NEWS_SLOT": ("family", "slot_age", SLOT_BASELINE),
+              "NEWS_WINDOW": ("family", "rel_age", PRIMARY_BASELINE),
+              "POST_NEWS": ("all", "rel_age", PRIMARY_BASELINE)}
+GEE_BANDS = ([("NEWS_SLOT", "ALL", 0, None)]
+             + [("NEWS_SLOT", "CUM>=%d" % k, k * BUCKET_SEC, GRID_TOP_SEC)
+                for k in (1, 2, 3, 4, 5, 6, 7, 8, 10)]
+             + [("NEWS_WINDOW", "GRID[0,20)", 0, GRID_TOP_SEC)]
+             + [("NEWS_WINDOW", "CUM>=%d" % k, k * BUCKET_SEC, GRID_TOP_SEC)
+                for k in (5, 10)]
+             + [("POST_NEWS", "CUM>=%d" % k, k * BUCKET_SEC, GRID_TOP_SEC)
+                for k in (10, 12, 15)]
+             + [("POST_NEWS", "[10,20)", POST_NEWS_BAND[0],
+                 POST_NEWS_BAND[1])])
 
 
 def _gee_row(D, robust, obj, ename, metric, band_mask, base_mask):
@@ -785,7 +885,7 @@ def _gee_row(D, robust, obj, ename, metric, band_mask, base_mask):
         return
     y = y_all[m]
     x = band_mask[m].astype(np.float64)
-    cl = D["session_key"][m]
+    cl = D["sess_id"][m]
     gi = np.unique(cl, return_inverse=True)[1]
     g = EV.gee_independence(y, x, cl, link=link)
     if g is None:
@@ -807,19 +907,18 @@ def robust_rows(D, robust):
     """One Holm family over the whole sweep: every band, every asset, both
     eras, both value metrics + the winner indicator."""
     news = D["is_news"]
-    for (label, lo, hi) in GEE_BANDS:
+    for (branch, label, lo, hi) in GEE_BANDS:
+        pop, agekey, bkind = GEE_BRANCH[branch]
         for aname in ("ALL",) + tuple(MC.ASSET_ORDER):
             for ename in ERAS:
                 scope = _sel(D, aname, ename)
-                if label.startswith("POST_NEWS"):
-                    band = scope & _band_mask(D, lo, hi)
-                    obj = "POST_NEWS_%s_%s" % (label, aname)
-                else:
-                    band = scope & news & _band_mask(D, lo, hi)
-                    obj = "NEWS_WINDOW_%s_%s" % (label, aname)
+                band = scope & _band_mask(D, lo, hi, agekey)
+                if pop == "family":
+                    band = band & news
+                obj = "%s_%s_%s" % (branch, label, aname)
                 if not band.any():
                     continue
-                base = _baseline_mask(D, PRIMARY_BASELINE, scope, band)
+                base = _baseline_mask(D, bkind, scope, band)
                 for metric in ("winner", "cert_close"):
                     _gee_row(D, robust, obj, ename, metric, band, base)
     # the opens confound, tested rather than eyeballed: is a family's
@@ -840,20 +939,24 @@ def destruction_rows(D, rows):
     winner-rate difference the band claims; a shuffle that reproduces it means
     the claim was a session-stratum artefact."""
     news = D["is_news"]
-    objs = (("NEWS_WINDOW_ALL", news),
-            ("NEWS_WINDOW_CUM>=5", news & (D["rel_age"] >= 5 * BUCKET_SEC)),
-            ("POST_NEWS[10,20)", _band_mask(D, *POST_NEWS_BAND)))
-    for i, (oname, sel) in enumerate(objs):
+    objs = (("NEWS_SLOT_ALL", news, SLOT_BASELINE),
+            ("NEWS_SLOT_CUM>=5", news & (D["slot_age"] >= 5 * BUCKET_SEC),
+             SLOT_BASELINE),
+            ("NEWS_WINDOW_dated_ALL", news & (D["rel_age"] >= 0)
+             & (D["rel_age"] < POST_NEWS_BAND[0]), PRIMARY_BASELINE),
+            ("POST_NEWS[10,20)", _band_mask(D, *POST_NEWS_BAND),
+             PRIMARY_BASELINE))
+    for i, (oname, sel, bkind) in enumerate(objs):
         for ename in ERAS:
             scope = _sel(D, "ALL", ename)
             band = scope & sel
-            base = _baseline_mask(D, PRIMARY_BASELINE, scope, band)
+            base = _baseline_mask(D, bkind, scope, band)
             pool = band | base
             if int(band.sum()) < MIN_N_GEE or int(base.sum()) < MIN_N_GEE:
                 continue
             call = band[pool].astype(np.float64)
             y = D["winner"][pool].astype(np.float64)
-            sess = D["session_key"][pool]
+            sess = D["sess_id"][pool]
             real = float(y[call > 0].mean() - y[call <= 0].mean())
             rs = np.random.RandomState(DESTRUCTION_SEED + i)
             null = []
@@ -874,7 +977,9 @@ DIST_COLUMNS = ("cid", "family", "minutes_since_release",
                 "minutes_to_nearest_release", "release_ts", "release_name",
                 "next_release_ts", "next_release_name", "pre_release_window",
                 "held_into_window", "inside_superseded_window",
-                "phase_close_sec")
+                "phase_close_sec", "minutes_since_gen_anchor",
+                "gen_anchor_is_dated_release",
+                "minutes_since_last_release_any")
 
 
 def distance_rows(D):
@@ -892,7 +997,7 @@ def distance_rows(D):
         ra = int(D["rel_age"][i])
         tn = int(D["to_next"][i])
         rows.append([D["cid"][i], "|".join(fam),
-                     (ra / 60.0) if ra >= 0 else None,
+                     (ra / 60.0) if (0 <= ra <= DIST_RADIUS_SEC) else None,
                      int(bool(D["inside_window"][i])),
                      D["asset"][i], int(D["d8"][i]), int(D["dec_sec"][i]),
                      int(D["side"][i]), D["era"][i], cls, driver or "",
@@ -903,7 +1008,11 @@ def distance_rows(D):
                      int(bool(D["pre_window"][i])),
                      int(bool(D["held_into"][i])),
                      int(bool(D["inside_legacy"][i])),
-                     int(D["phase_close_sec"][i])])
+                     int(D["phase_close_sec"][i]),
+                     (int(D["slot_age"][i]) / 60.0
+                      if int(D["slot_age"][i]) >= 0 else None),
+                     int(bool(D["slot_real"][i])),
+                     (ra / 60.0) if ra >= 0 else None])
     return rows
 
 
@@ -942,45 +1051,66 @@ def report(D, res, elapsed, pins):
        % (VETO_PRE_SEC // 60, VETO_POST_SEC // 60))
     A_("")
 
-    # --- 1. the arithmetic fact --------------------------------------------
+    # --- 1. the two release sets -------------------------------------------
     news = D["is_news"]
     n_news = int(news.sum())
-    ages = D["rel_age"][news]
+    sages = D["slot_age"][news]
+    rages = D["rel_age"][news]
     inside = int(D["inside_window"][news].sum())
-    A_("## 1. THE FAMILY IS INSIDE THE WINDOW BY CONSTRUCTION")
+    n_real = int((news & D["slot_real"]).sum())
+    A_("## 1. TWO RELEASE SETS — THE FAMILY IS NOT CUT ON THE RULE'S CALENDAR")
     A_("")
-    A_("NEWS_WINDOW rows: %d. minutes-since-release range [%.2f, %.2f]. "
-       "Inside the restricted +/-%dmin window: %d (%.4f%%)."
-       % (n_news, float(ages.min()) / 60.0, float(ages.max()) / 60.0,
-          VETO_POST_SEC // 60, inside, 100.0 * inside / max(n_news, 1)))
+    A_("NEWS_WINDOW rows: %d." % n_news)
     A_("")
-    A_("b10_generation_v3 emits the family from G1 confirmations inside "
-       "[release, release+600s) at a single 15s delay, so its entries can only "
-       "land in [15s, 615s] after the release. The measured range above is the "
-       "join's own confirmation of that: this census's release match "
-       "(pattern_lib.last_release_ts) and generation's window agree.")
+    A_("* against the family's OWN generation anchor (fixed 08:30/10:00 ET "
+       "slots on EVERY session + FOMC 14:00 ET on meeting days): age range "
+       "[%.2f, %.2f] min — the [15s, 615s] window b10_generation_v3 cut, "
+       "confirmed."
+       % (float(sages.min()) / 60.0, float(sages.max()) / 60.0))
+    A_("* against the DATED high-impact calendar the prop-firm rule speaks "
+       "about (context BLS + FOMC, %d releases): only %d of %d rows (%.2f%%) "
+       "sit on an anchor that IS a dated release; the family's age-since-dated-"
+       "release ranges [%.2f, %.2f] min."
+       % (PL.release_calendar()[0].size, n_real, n_news,
+          100.0 * n_real / max(n_news, 1), float(rages.min()) / 60.0,
+          float(rages.max()) / 60.0))
+    A_("* inside the binding +/-%dmin restricted window: %d of %d rows "
+       "(%.2f%%)."
+       % (VETO_POST_SEC // 60, inside, n_news, 100.0 * inside / max(n_news, 1)))
+    A_("")
+    A_("This is a D-006 divergence and it is the whole shape of the answer: "
+       "the family is a FIXED-CLOCK family wearing a news name. The rule "
+       "strikes the part of it that really does sit on a release; the rest is "
+       "an 08:30/10:00 ET clock effect and is unaffected by the news rule.")
     A_("")
 
     # --- 2. the minute profile ---------------------------------------------
     A_("## 2. THE MINUTE PROFILE — WHERE THE EDGE LIVES")
     A_("")
-    A_("NEWS_WINDOW, pooled assets, era %s, primary baseline %s "
-       "(same-session rows >= %dmin from every release)."
-       % (ERAS[0], PRIMARY_BASELINE, FAR_BASELINE_SEC // 60))
-    A_("")
-    A_("| band | n | n/day | winners | win rate | base win rate | ratio | "
-       "mean close $ | median close $ | mean peak $ | cond close $ |")
-    A_("|---|---|---|---|---|---|---|---|---|---|---|")
     P = res["profile"]
-    for r in _pick(P, PROFILE_COLUMNS, family="NEWS_WINDOW", asset="ALL",
-                   era=ERAS[0]):
-        A_("| %s | %d | %s | %d | %s | %s | %s | %s | %s | %s | %s |"
-           % (r[4], r[7], _fmt(r[10], 2), r[11], _fmt(r[12], 4), _fmt(r[22], 4),
-              _fmt(r[26], 2), _fmt(r[13], 1), _fmt(r[14], 1), _fmt(r[15], 1),
-              _fmt(r[17], 1)))
-    A_("")
-    A_("The same table for the GATE echo and per asset is in "
-       "NEWS_MINUTE_PROFILE.tsv; the three baselines are in "
+    for (fam, anch, base) in (
+            ("NEWS_WINDOW", "GEN_NEWS_SLOT", SLOT_BASELINE),
+            ("NEWS_WINDOW@DATED_RELEASE", "GEN_NEWS_SLOT", SLOT_BASELINE),
+            ("NEWS_WINDOW", "DATED_RELEASE", PRIMARY_BASELINE),
+            ("POST_NEWS_REDEFINED", "DATED_RELEASE", PRIMARY_BASELINE)):
+        sub = _pick(P, PROFILE_COLUMNS, family=fam, anchor=anch, asset="ALL",
+                    era=ERAS[0])
+        if not sub:
+            continue
+        A_("### %s vs %s (pooled assets, era %s, baseline %s)"
+           % (fam, anch, ERAS[0], base))
+        A_("")
+        A_("| band | n | n/day | winners | win rate | base win rate | ratio | "
+           "mean close $ | median close $ | mean peak $ | cond close $ |")
+        A_("|---|---|---|---|---|---|---|---|---|---|---|")
+        for r in sub:
+            A_("| %s | %d | %s | %d | %s | %s | %s | %s | %s | %s | %s |"
+               % (r[4], r[7], _fmt(r[10], 2), r[11], _fmt(r[12], 4),
+                  _fmt(r[22], 4), _fmt(r[26], 2), _fmt(r[13], 1),
+                  _fmt(r[14], 1), _fmt(r[15], 1), _fmt(r[17], 1)))
+        A_("")
+    A_("The same tables for the GATE echo and per asset are in "
+       "NEWS_MINUTE_PROFILE.tsv; the four baselines are in "
        "NEWS_BASELINES.tsv.")
     A_("")
 
@@ -1024,7 +1154,7 @@ def report(D, res, elapsed, pins):
         for r in sorted([r for r in rb if r[19] == "HOLM_SIGNIFICANT"],
                         key=lambda r: r[12])[:40]:
             A_("| %s | %s | %s | %d | %d | %s | %s | %s | %s |"
-               % (r[0], r[1], r[2], r[4], r[5], _fmt(r[7], 4), _fmt(r[8 + 3], 4),
+               % (r[0], r[1], r[2], r[4], r[5], _fmt(r[7], 4), _fmt(r[10], 4),
                   _fmt(r[12], 6), r[19]))
     else:
         A_("No test survives Holm over the sweep.")
@@ -1059,9 +1189,22 @@ def build(workers=4, limit_sessions=None):
 
     res = {}
     prof = []
-    profile_rows(D, prof, "NEWS_WINDOW", D["is_news"])
+    # (a) the family against ITS OWN generation anchor — where the edge lives
+    profile_rows(D, prof, "NEWS_WINDOW", D["is_news"], anchor="GEN_NEWS_SLOT",
+                 agekey="slot_age", base_kind=SLOT_BASELINE)
+    profile_rows(D, prof, "NEWS_WINDOW@DATED_RELEASE",
+                 D["is_news"] & D["slot_real"], anchor="GEN_NEWS_SLOT",
+                 agekey="slot_age", base_kind=SLOT_BASELINE)
+    profile_rows(D, prof, "NEWS_WINDOW@FIXED_SLOT_ONLY",
+                 D["is_news"] & ~D["slot_real"], anchor="GEN_NEWS_SLOT",
+                 agekey="slot_age", base_kind=SLOT_BASELINE)
+    # (b) the family against the DATED release — what the rule bites on
+    profile_rows(D, prof, "NEWS_WINDOW", D["is_news"], anchor="DATED_RELEASE")
+    # (c) every candidate against the DATED release — the redefined family's
+    #     population
     profile_rows(D, prof, "POST_NEWS_REDEFINED",
-                 np.ones(D["dec_sec"].size, dtype=bool))
+                 np.ones(D["dec_sec"].size, dtype=bool),
+                 anchor="DATED_RELEASE")
     res["profile"] = prof
     MC.hb("news: minute profile done (%d rows)" % len(prof))
     res["baselines"] = baseline_rows(D, [])
@@ -1124,8 +1267,10 @@ def build(workers=4, limit_sessions=None):
                      "scheduled release; join on cid"
                      % (DIST_RADIUS_SEC // 60),
                      "minutes_since_release is EMPTY when no release precedes "
-                     "the decision inside the reach — read "
-                     "minutes_to_next_release instead",
+                     "the decision INSIDE THE REACH (the row is then in the "
+                     "table because a release is AHEAD) — read "
+                     "minutes_to_next_release, or "
+                     "minutes_since_last_release_any for the unbounded age",
                      "held_into_window = the walled phase-close holding "
                      "horizon [decision, phase close] intersects some "
                      "release's [-%dmin, +%dmin] window"
@@ -1151,12 +1296,17 @@ def build(workers=4, limit_sessions=None):
                    "holdout_from_d8": HOLDOUT_FROM_D8,
                    "restricted_window_sec": [-VETO_PRE_SEC, VETO_POST_SEC],
                    "n_news_window": n_news,
+                   "news_slot_min_age_sec": int(D["slot_age"][news].min()),
+                   "news_slot_max_age_sec": int(D["slot_age"][news].max()),
+                   "n_news_window_on_dated_release":
+                       int((news & D["slot_real"]).sum()),
+                   "n_dated_releases": int(PL.release_calendar()[0].size),
                    "news_min_age_sec": int(D["rel_age"][news].min()),
                    "news_max_age_sec": int(D["rel_age"][news].max()),
                    "n_news_window_compliant": comp,
                    "frac_news_window_inside_restricted":
-                       float((news & D["inside_window"]).mean()
-                             * D["dec_sec"].size / max(n_news, 1)),
+                       float(int((news & D["inside_window"]).sum())
+                             / max(n_news, 1)),
                    "n_post_news_redefined":
                        int(_band_mask(D, *POST_NEWS_BAND).sum()),
                    "n_distance_rows": len(res["dist"]),

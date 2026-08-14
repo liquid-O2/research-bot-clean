@@ -1,0 +1,9 @@
+# PORT_M2_SHEETS_SPEC.md §3 R2-8 WRITTEN DECISION JOURNAL (the reasoning, kept) (spec_sha16=f6ef73a41dbf8588)
+# params_hash=3796093a852bd9bca19a65a6eb37a267acda6aea516f29002c1748840c0e10fc
+# R2-8 index: one row per journal entry; sha16 = sha256(entry body)[:16]
+# seq = row index (deterministic, no wall clock)
+seq	round	era	date8	mode	episode_id	call	p	reads	sha16	n_chars	path
+0	E6R2-BLIND-D3	E6	20240426	BLIND	SI-20240426-S-E56	TAKE	0.13	ribbon:SI-20240426-056468-S T-6..T action grain, 705 events (window NARROWED to 6s: SI is printing 118 events/second here and a 60s read is 7,000 rows); seq_cues w=60; delta row; brief:SI	6e38a2973e24aee9	2753	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D3/JOURNAL_20240426.md
+1	E6R2-BLIND-D3	E6	20240426	BLIND	HG-20240426-L-E62	SKIP	0.07	ribbon:HG-20240426-056032-L T-30..T action grain, 367 events; seq_cues w=120; delta row; brief:HG	e8e87dfeb38dbe92	1525	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D3/JOURNAL_20240426.md
+2	E6R2-BLIND-D3	E6	20240426	BLIND	SI-20240426-S-E42	SKIP	0.06	delta row; brief:SI (no ribbon — refused on arithmetic before the read was spent)	b751d7140fb2a4de	1170	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D3/JOURNAL_20240426.md
+3	E6R2-BLIND-D3	E6	20240426	BLIND	SI-20240426-S-E56	TAKE	0.13	chart:SI-20240426-056468-S approach + session panels — read AFTER the ribbon and after the call was written	a882beb5755931f1	1707	/workspace/provenance/port_m2/decision_journal/E6R2-BLIND-D3/JOURNAL_20240426.md

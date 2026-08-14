@@ -1043,6 +1043,50 @@ def _pair_acc(d, sign):
     return float(((v > 0).sum() + 0.5 * (v == 0).sum()) / v.size), int(v.size)
 
 
+COMBO_CFG = {"max_depth": 3, "eta": 0.1, "min_child_weight": 20,
+             "subsample": 0.9, "colsample_bytree": 0.9,
+             "objective": "binary:logistic", "tree_method": "hist",
+             "seed": SEED, "nthread": 8}
+COMBO_ROUNDS = 200
+
+
+def combo_forced_choice(Dd, folds, sel, day=None):
+    """THE boosted two-alternative forced choice on a set of paired-difference
+    columns.  Extracted from `run_walls` so the delay census (`m2_delay`) runs
+    the IDENTICAL arithmetic instead of a second copy (D-006); `run_walls` is
+    its first caller and its output is unchanged.
+
+    Each pair enters TWICE — (w-l) labelled 1 and (l-w) labelled 0 — so the
+    fit cannot learn a constant.  Returns
+    (in-sample accuracy, k-fold accuracy, hits by day, pairs by day); the two
+    per-day dicts are `{}` when `day` is None.
+    """
+    Z = Dd[:, sel]
+    Z = np.where(np.isfinite(Z), Z, 0.0)
+    XX = np.vstack([Z, -Z])
+    yy = np.concatenate([np.ones(Z.shape[0]), np.zeros(Z.shape[0])])
+    ff = np.concatenate([folds, folds])
+    b = xgb.train(COMBO_CFG, xgb.DMatrix(XX, label=yy), COMBO_ROUNDS)
+    pin = b.predict(xgb.DMatrix(Z))
+    acc_in = float(((pin > 0.5).sum() + 0.5 * (pin == 0.5).sum()) / pin.size)
+    hits, tot = 0.0, 0
+    hd, td = {}, {}
+    for f in range(KFOLDS):
+        tr = ff != f
+        te = folds == f
+        bb = xgb.train(COMBO_CFG, xgb.DMatrix(XX[tr], label=yy[tr]),
+                       COMBO_ROUNDS)
+        p = bb.predict(xgb.DMatrix(Z[te]))
+        h = (p > 0.5).astype(np.float64) + 0.5 * (p == 0.5)
+        hits += float(h.sum())
+        tot += int(p.size)
+        if day is not None:
+            for x, v in zip(np.asarray(day)[te].tolist(), h.tolist()):
+                hd[str(x)] = hd.get(str(x), 0.0) + v
+                td[str(x)] = td.get(str(x), 0.0) + 1.0
+    return acc_in, ((hits / tot) if tot else float("nan")), hd, td
+
+
 def run_walls(out_dir=None, E=None, prefix="", extra_combos=None):
     """`E` and `prefix` are ADDITIVE: called with neither, this is the committed
     census on the 225-column matrix writing WALL_*.tsv.  `xasset.run_walls`
@@ -1123,36 +1167,14 @@ def run_walls(out_dir=None, E=None, prefix="", extra_combos=None):
     for kk, src, tag in combo_specs:
         sel = ([cols.index(f) for f in src[:kk]] if src is not None
                else list(range(len(cols))))
-        Z = Dd[:, sel]
-        Z = np.where(np.isfinite(Z), Z, 0.0)
-        # ANTISYMMETRIC two-alternative forced choice: each pair enters twice,
-        # (w-l) labelled 1 and (l-w) labelled 0, so the fit cannot learn a
-        # constant.
-        XX = np.vstack([Z, -Z])
-        yy = np.concatenate([np.ones(Z.shape[0]), np.zeros(Z.shape[0])])
-        ff = np.concatenate([folds, folds])
-        cfg = {"max_depth": 3, "eta": 0.1, "min_child_weight": 20,
-               "subsample": 0.9, "colsample_bytree": 0.9,
-               "objective": "binary:logistic", "tree_method": "hist",
-               "seed": SEED, "nthread": 8}
-        b = xgb.train(cfg, xgb.DMatrix(XX, label=yy), 200)
-        pin = b.predict(xgb.DMatrix(Z))
-        acc_in = float(((pin > 0.5).sum() + 0.5 * (pin == 0.5).sum())
-                       / pin.size)
-        hits, tot = 0.0, 0
-        for f in range(KFOLDS):
-            tr = ff != f
-            te = folds == f
-            bb = xgb.train(cfg, xgb.DMatrix(XX[tr], label=yy[tr]), 200)
-            p = bb.predict(xgb.DMatrix(Z[te]))
-            hits += float((p > 0.5).sum() + 0.5 * (p == 0.5).sum())
-            tot += int(p.size)
+        # ANTISYMMETRIC two-alternative forced choice (combo_forced_choice).
+        acc_in, acc_kf, _hd, _td = combo_forced_choice(Dd, folds, sel)
         combo.append({"combination": (tag % kk) if "%d" in tag else tag,
-                      "n_fields": len(sel), "n_pairs": int(Z.shape[0]),
+                      "n_fields": len(sel), "n_pairs": int(Dd.shape[0]),
                       "fields": (",".join(src[:kk]) if src is not None
                                  and kk <= 10 else "(all)"),
                       "pair_acc_in_sample": acc_in,
-                      "pair_acc_kfold": (hits / tot) if tot else float("nan")})
+                      "pair_acc_kfold": acc_kf})
 
     # --------------------------------------------------------- the outputs --
     pc = ("pair_id", "asset", "d8", "cell", "dt_sec", "kstar_sec",

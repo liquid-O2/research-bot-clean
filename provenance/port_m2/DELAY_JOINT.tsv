@@ -1,0 +1,18 @@
+# PORT M2 D-090.6 information ceiling (E6, hindsight-fit, NON-CAUSAL-BY-DESIGN) (PORT-M2-INFO-CEILING-V1)
+# NON-CAUSAL-BY-DESIGN: hindsight-fit upper bound over ALL E6 sessions (study + sealed blind). NOT a deployable result.
+# port m2 entry-delay decidability + post-entry divergence (E6, hindsight-fit, NON-CAUSAL-BY-DESIGN)
+# THE CROSSING: at each delay the BEST measured pair accuracy is multiplied into the dollars still on the table at that delay.
+# ev = acc x mean(winner leg cert at t+D) + (1-acc) x mean(loser leg cert at t+D).  A leg whose phase closed before t+D is excluded from its mean (see DELAY_REMAINING_MOVE frac_feasible) — the EV is therefore GENEROUS to the delay.
+# ev_at_0p40 = the teacher's MEASURED sealed take-precision; ev_at_0p73 = the accuracy $1,000/trade requires at D=0
+# acc_required_1000 = THE FLOOR at this delay: the pair accuracy that would be needed to earn $1,000/trade on the DELAYED payoffs = (1000 - lose_leg_mean) / (win_leg_mean - lose_leg_mean).  The curve CROSSES when best_acc_kfold >= acc_required_1000 (acc_surplus_vs_1000 >= 0).
+# NOT DEPLOYABLE: the forced choice presupposes the pair, which is an outcome-defined object.
+delay_sec	best_acc_kfold	best_field_set	acc_lo	acc_hi	win_leg_mean_usd	lose_leg_mean_usd	win_leg_frac_ge_1000	n_win_feasible	n_lose_feasible	ev_at_best_acc_usd	ev_lo_usd	ev_hi_usd	ev_at_0p40_usd	ev_at_0p50_usd	ev_at_0p73_usd	ev_per_day_3trades_usd	acc_required_1000	acc_required_299	acc_required_breakeven	acc_surplus_vs_1000	note
+0	0.574592	COMBO_TOP3	0.524854	0.624331	1806.92	-937.682	1	2857	2880	639.347	502.836	775.861	160.16	434.621	1065.88	1918.04	0.705996	0.450586	0.341645	-0.131404	forced choice between the two legs of a wall pair, entered at t+D
+30	0.572132	BEST_SINGLE_ANY	0.496357	0.647906	1786.99	-937.682	0.967448	2857	2880	621.191	414.728	827.65	152.187	424.654	1051.33	1863.57	0.711161	0.453883	0.344145	-0.139029	forced choice between the two legs of a wall pair, entered at t+D
+60	0.57367	COMBO_TOP2	0.521433	0.625906	1752.21	-937.643	0.942597	2857	2880	605.446	464.936	745.954	138.299	407.285	1025.95	1816.34	0.720352	0.459743	0.348585	-0.146682	forced choice between the two legs of a wall pair, entered at t+D
+120	0.588742	COMBO_TOP10	0.544987	0.632496	1732.07	-937.444	0.921596	2857	2880	634.211	517.406	751.012	130.361	397.313	1011.3	1902.63	0.725767	0.463172	0.351167	-0.137025	forced choice between the two legs of a wall pair, entered at t+D
+180	0.598585	COMBO_TOP10	0.556959	0.640211	1728.99	-937.287	0.913546	2857	2880	658.704	547.718	769.691	129.222	395.85	1009.09	1976.11	0.72659	0.463676	0.351535	-0.128005	forced choice between the two legs of a wall pair, entered at t+D
+300	0.634266	COMBO_TOP10	0.604328	0.664205	1680.24	-935.573	0.872594	2857	2880	723.551	645.239	801.866	110.754	372.336	973.974	2170.65	0.73995	0.471964	0.35766	-0.105684	forced choice between the two legs of a wall pair, entered at t+D
+600	0.674562	COMBO_TOP10	0.645	0.704123	1597.74	-931.398	0.821141	2857	2880	774.663	699.897	849.427	80.2579	333.172	914.874	2323.99	0.763658	0.486489	0.368267	-0.0890962	forced choice between the two legs of a wall pair, entered at t+D
+1200	0.742848	BEST_SINGLE_ANY	0.720051	0.765646	1432.94	-913.277	0.732937	2857	2880	829.605	776.119	883.094	25.2097	259.831	799.461	2488.82	0.815473	0.516694	0.389255	-0.0726253	forced choice between the two legs of a wall pair, entered at t+D
+1800	0.78745	COMBO_TOP10	0.759058	0.815842	1322.06	-892.318	0.661883	2856	2879	851.392	788.521	914.262	-6.56776	214.87	724.176	2554.18	0.854561	0.537993	0.402966	-0.0671107	forced choice between the two legs of a wall pair, entered at t+D

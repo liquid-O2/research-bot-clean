@@ -1,0 +1,115 @@
+# PORT M2 D-090.6 information ceiling (E6, hindsight-fit, NON-CAUSAL-BY-DESIGN) (PORT-M2-INFO-CEILING-V1)
+# NON-CAUSAL-BY-DESIGN: hindsight-fit upper bound over ALL E6 sessions (study + sealed blind). NOT a deployable result.
+# port m2 entry-delay decidability + post-entry divergence (E6, hindsight-fit, NON-CAUSAL-BY-DESIGN)
+# the wall-pair paired census re-run at each delay D: PRE = the 225 fields at t (185 views + 40 pre-window seq cues), POST = the [t, t+D] block (18 path cues + 20 seq_cues on the forward window)
+# pair_acc_kfold: 5 folds of whole DAYS; single-field signs and GBT fits are trained on 4/5 of the days and scored on the fifth
+# the GBT arm is the ANTISYMMETRISED two-alternative forced choice (each pair entered twice, (w-l)->1 and (l-w)->0) — info_ceiling.combo_forced_choice, the same function the committed WALL_COMBOS census calls
+# 0.73 = the pair accuracy $1,000/trade requires at these payoffs (ERA_NOTES/STATE arithmetic); intervals CR1 clustered BY DAY
+delay_sec	field_set	n_fields	n_pairs	metric	pair_acc_kfold	pair_acc_in_sample	ci_lo	ci_hi	gap_to_073	best_field	fields
+0	BEST_SINGLE_ANY	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+0	BEST_SINGLE_PRE	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+0	COMBO_TOP2	2	3251	gbt_forced_choice	0.561058	0.60566	0.50289	0.619227	0.168942	.	side,ret_sess_open_with
+0	COMBO_TOP3	3	3251	gbt_forced_choice	0.574592	0.641341	0.524854	0.624331	0.155408	.	side,ret_sess_open_with,abs_mins_to_release
+0	COMBO_TOP5	5	3251	gbt_forced_choice	0.560443	0.701323	0.509007	0.611879	0.169557	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+0	COMBO_TOP10	10	3251	gbt_forced_choice	0.557982	0.735466	0.511653	0.604311	0.172018	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with,slope_1m_usd,p033_product,p033_sqrt,slope_5m_with,ret_phase_open_with
+0	COMBO_TOP5_PRE_ONLY	5	3251	gbt_forced_choice	0.560443	0.701323	0.509007	0.611879	0.169557	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+0	COMBO_ALL_PRE	221	3251	gbt_forced_choice	0.505691	0.79514	0.452193	0.559188	0.224309	.	(221 fields)
+0	COMBO_ALL_FIELDS	221	3251	gbt_forced_choice	0.505691	0.79514	0.452193	0.559188	0.224309	.	(221 fields)
+30	BEST_SINGLE_ANY	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+30	BEST_SINGLE_PRE	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+30	BEST_SINGLE_POST	1	3251	single_field	0.541064	0.541064	0.521202	0.560926	0.188936	pp_tmfe_frac_D30	pp_tmfe_frac_D30
+30	COMBO_TOP2	2	3251	gbt_forced_choice	0.572132	0.575823	0.511584	0.632679	0.157868	.	side,pp_tmfe_frac_D30
+30	COMBO_TOP3	3	3251	gbt_forced_choice	0.565672	0.601661	0.510578	0.620766	0.164328	.	side,pp_tmfe_frac_D30,pp_mfe_D30
+30	COMBO_TOP5	5	3251	gbt_forced_choice	0.566287	0.655491	0.519513	0.613061	0.163713	.	side,pp_tmfe_frac_D30,pp_mfe_D30,pp_eff_D30,ret_sess_open_with
+30	COMBO_TOP10	10	3251	gbt_forced_choice	0.571516	0.684097	0.52602	0.617013	0.158484	.	side,pp_tmfe_frac_D30,pp_mfe_D30,pp_eff_D30,ret_sess_open_with,pp_net_D30,pp_slope30_D30,pp_upfrac_D30,abs_mins_to_release,accel_usd
+30	COMBO_TOP5_PRE_ONLY	5	3251	gbt_forced_choice	0.560443	0.701323	0.509007	0.611879	0.169557	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+30	COMBO_ALL_PRE	221	3251	gbt_forced_choice	0.505691	0.79514	0.452193	0.559188	0.224309	.	(221 fields)
+30	COMBO_ALL_FIELDS	259	3251	gbt_forced_choice	0.502615	0.796678	0.454473	0.550756	0.227385	.	(259 fields)
+30	COMBO_TOP5_POST_ONLY	5	3251	gbt_forced_choice	0.522301	0.596432	0.506724	0.537877	0.207699	.	pp_tmfe_frac_D30,pp_mfe_D30,pp_eff_D30,pp_net_D30,pp_slope30_D30
+30	COMBO_ALL_POST	38	3251	gbt_forced_choice	0.503845	0.707167	0.487641	0.520049	0.226155	.	(38 fields)
+60	BEST_SINGLE_ANY	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+60	BEST_SINGLE_PRE	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+60	BEST_SINGLE_POST	1	3251	single_field	0.561827	0.561827	0.541415	0.582239	0.168173	pp_net_D60	pp_net_D60
+60	COMBO_TOP2	2	3251	gbt_forced_choice	0.57367	0.587512	0.521433	0.625906	0.15633	.	side,pp_net_D60
+60	COMBO_TOP3	3	3251	gbt_forced_choice	0.571824	0.617349	0.521481	0.622168	0.158176	.	side,pp_net_D60,pp_eff_D60
+60	COMBO_TOP5	5	3251	gbt_forced_choice	0.566287	0.625654	0.518162	0.614413	0.163713	.	side,pp_net_D60,pp_eff_D60,pp_giveback_D60,pp_tmfe_frac_D60
+60	COMBO_TOP10	10	3251	gbt_forced_choice	0.557367	0.650569	0.512813	0.601921	0.172633	.	side,pp_net_D60,pp_eff_D60,pp_giveback_D60,pp_tmfe_frac_D60,pp_slope30_D60,pp_mfe_D60,pp_mae_D60,pp_tmae_frac_D60,pp_upfrac_D60
+60	COMBO_TOP5_PRE_ONLY	5	3251	gbt_forced_choice	0.560443	0.701323	0.509007	0.611879	0.169557	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+60	COMBO_ALL_PRE	221	3251	gbt_forced_choice	0.505691	0.79514	0.452193	0.559188	0.224309	.	(221 fields)
+60	COMBO_ALL_FIELDS	259	3251	gbt_forced_choice	0.515841	0.792679	0.467576	0.564107	0.214159	.	(259 fields)
+60	COMBO_TOP5_POST_ONLY	5	3251	gbt_forced_choice	0.534605	0.623808	0.518206	0.551004	0.195395	.	pp_net_D60,pp_eff_D60,pp_giveback_D60,pp_tmfe_frac_D60,pp_slope30_D60
+60	COMBO_ALL_POST	38	3251	gbt_forced_choice	0.532144	0.689019	0.512785	0.551503	0.197856	.	(38 fields)
+120	BEST_SINGLE_ANY	1	3251	single_field	0.574439	0.574439	0.553967	0.59491	0.155561	pp_mae_D120	pp_mae_D120
+120	BEST_SINGLE_PRE	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+120	BEST_SINGLE_POST	1	3251	single_field	0.574439	0.574439	0.553967	0.59491	0.155561	pp_mae_D120	pp_mae_D120
+120	COMBO_TOP2	2	3251	gbt_forced_choice	0.559213	0.587819	0.541628	0.576797	0.170787	.	pp_mae_D120,pp_net_D120
+120	COMBO_TOP3	3	3251	gbt_forced_choice	0.583205	0.616733	0.534631	0.63178	0.146795	.	pp_mae_D120,pp_net_D120,side
+120	COMBO_TOP5	5	3251	gbt_forced_choice	0.585358	0.642572	0.538034	0.632683	0.144642	.	pp_mae_D120,pp_net_D120,side,pp_giveback_D120,pp_eff_D120
+120	COMBO_TOP10	10	3251	gbt_forced_choice	0.588742	0.66072	0.544987	0.632496	0.141258	.	pp_mae_D120,pp_net_D120,side,pp_giveback_D120,pp_eff_D120,pp_tmae_frac_D120,pp_tmfe_frac_D120,pp_mfe_D120,pp_upfrac_D120,pp_slope30_D120
+120	COMBO_TOP5_PRE_ONLY	5	3251	gbt_forced_choice	0.560443	0.701323	0.509007	0.611879	0.169557	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+120	COMBO_ALL_PRE	221	3251	gbt_forced_choice	0.505691	0.79514	0.452193	0.559188	0.224309	.	(221 fields)
+120	COMBO_ALL_FIELDS	259	3251	gbt_forced_choice	0.530606	0.804983	0.483455	0.577757	0.199394	.	(259 fields)
+120	COMBO_TOP5_POST_ONLY	5	3251	gbt_forced_choice	0.559828	0.638265	0.541794	0.577862	0.170172	.	pp_mae_D120,pp_net_D120,pp_giveback_D120,pp_eff_D120,pp_tmae_frac_D120
+120	COMBO_ALL_POST	38	3251	gbt_forced_choice	0.556137	0.711473	0.537128	0.575145	0.173863	.	(38 fields)
+120	SHUFFLED_LABEL_CONTROL_TOP10	10	3251	gbt_forced_choice	0.505383	0.643802	0.489474	0.521292	0.224617	.	winner/loser assignment randomised
+180	BEST_SINGLE_ANY	1	3251	single_field	0.593663	0.593663	0.572929	0.614398	0.136337	pp_net_D180	pp_net_D180
+180	BEST_SINGLE_PRE	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+180	BEST_SINGLE_POST	1	3251	single_field	0.593663	0.593663	0.572929	0.614398	0.136337	pp_net_D180	pp_net_D180
+180	COMBO_TOP2	2	3251	gbt_forced_choice	0.586589	0.629037	0.568973	0.604204	0.143411	.	pp_net_D180,pp_eff_D180
+180	COMBO_TOP3	3	3251	gbt_forced_choice	0.578899	0.640418	0.56211	0.595688	0.151101	.	pp_net_D180,pp_eff_D180,pp_giveback_D180
+180	COMBO_TOP5	5	3251	gbt_forced_choice	0.57613	0.646878	0.559658	0.592603	0.15387	.	pp_net_D180,pp_eff_D180,pp_giveback_D180,pp_tmfe_frac_D180,pp_tmae_frac_D180
+180	COMBO_TOP10	10	3251	gbt_forced_choice	0.598585	0.668102	0.556959	0.640211	0.131415	.	pp_net_D180,pp_eff_D180,pp_giveback_D180,pp_tmfe_frac_D180,pp_tmae_frac_D180,pp_mae_D180,pp_mfe_D180,side,pp_upfrac_D180,pp_slope30_D180
+180	COMBO_TOP5_PRE_ONLY	5	3251	gbt_forced_choice	0.560443	0.701323	0.509007	0.611879	0.169557	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+180	COMBO_ALL_PRE	221	3251	gbt_forced_choice	0.505691	0.79514	0.452193	0.559188	0.224309	.	(221 fields)
+180	COMBO_ALL_FIELDS	259	3251	gbt_forced_choice	0.549985	0.803445	0.50624	0.593729	0.180015	.	(259 fields)
+180	COMBO_TOP5_POST_ONLY	5	3251	gbt_forced_choice	0.57613	0.646878	0.559658	0.592603	0.15387	.	pp_net_D180,pp_eff_D180,pp_giveback_D180,pp_tmfe_frac_D180,pp_tmae_frac_D180
+180	COMBO_ALL_POST	38	3251	gbt_forced_choice	0.575208	0.706859	0.557499	0.592916	0.154792	.	(38 fields)
+300	BEST_SINGLE_ANY	1	3251	single_field	0.625192	0.625192	0.60551	0.644875	0.104808	pp_net_D300	pp_net_D300
+300	BEST_SINGLE_PRE	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+300	BEST_SINGLE_POST	1	3251	single_field	0.625192	0.625192	0.60551	0.644875	0.104808	pp_net_D300	pp_net_D300
+300	COMBO_TOP2	2	3251	gbt_forced_choice	0.617349	0.634882	0.59613	0.638567	0.112651	.	pp_net_D300,pp_eff_D300
+300	COMBO_TOP3	3	3251	gbt_forced_choice	0.623193	0.646878	0.601775	0.64461	0.106807	.	pp_net_D300,pp_eff_D300,pp_tmae_frac_D300
+300	COMBO_TOP5	5	3251	gbt_forced_choice	0.615811	0.657029	0.594234	0.637387	0.114189	.	pp_net_D300,pp_eff_D300,pp_tmae_frac_D300,pp_giveback_D300,pp_mae_D300
+300	COMBO_TOP10	10	3251	gbt_forced_choice	0.634266	0.693018	0.604328	0.664205	0.0957336	.	pp_net_D300,pp_eff_D300,pp_tmae_frac_D300,pp_giveback_D300,pp_mae_D300,pp_tmfe_frac_D300,pp_mfe_D300,pp_upfrac_D300,side,pp_slope30_D300
+300	COMBO_TOP5_PRE_ONLY	5	3251	gbt_forced_choice	0.560443	0.701323	0.509007	0.611879	0.169557	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+300	COMBO_ALL_PRE	221	3251	gbt_forced_choice	0.505691	0.79514	0.452193	0.559188	0.224309	.	(221 fields)
+300	COMBO_ALL_FIELDS	259	3251	gbt_forced_choice	0.589972	0.806521	0.550654	0.62929	0.140028	.	(259 fields)
+300	COMBO_TOP5_POST_ONLY	5	3251	gbt_forced_choice	0.615811	0.657029	0.594234	0.637387	0.114189	.	pp_net_D300,pp_eff_D300,pp_tmae_frac_D300,pp_giveback_D300,pp_mae_D300
+300	COMBO_ALL_POST	38	3251	gbt_forced_choice	0.615811	0.709013	0.59844	0.633181	0.114189	.	(38 fields)
+600	BEST_SINGLE_ANY	1	3251	single_field	0.671793	0.671793	0.649814	0.693773	0.0582067	pp_net_D600	pp_net_D600
+600	BEST_SINGLE_PRE	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+600	BEST_SINGLE_POST	1	3251	single_field	0.671793	0.671793	0.649814	0.693773	0.0582067	pp_net_D600	pp_net_D600
+600	COMBO_TOP2	2	3251	gbt_forced_choice	0.663796	0.6761	0.642774	0.684818	0.0662042	.	pp_net_D600,pp_eff_D600
+600	COMBO_TOP3	3	3251	gbt_forced_choice	0.657951	0.692402	0.638638	0.677264	0.0720486	.	pp_net_D600,pp_eff_D600,pp_tmae_frac_D600
+600	COMBO_TOP5	5	3251	gbt_forced_choice	0.654875	0.703783	0.634382	0.675369	0.0751246	.	pp_net_D600,pp_eff_D600,pp_tmae_frac_D600,pp_giveback_D600,pp_mae_D600
+600	COMBO_TOP10	10	3251	gbt_forced_choice	0.674562	0.72347	0.645	0.704123	0.0554383	.	pp_net_D600,pp_eff_D600,pp_tmae_frac_D600,pp_giveback_D600,pp_mae_D600,pp_mfe_D600,pp_tmfe_frac_D600,pp_upfrac_D600,side,pp_slope30_D600
+600	COMBO_TOP5_PRE_ONLY	5	3251	gbt_forced_choice	0.560443	0.701323	0.509007	0.611879	0.169557	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+600	COMBO_ALL_PRE	221	3251	gbt_forced_choice	0.505691	0.79514	0.452193	0.559188	0.224309	.	(221 fields)
+600	COMBO_ALL_FIELDS	259	3251	gbt_forced_choice	0.626576	0.812365	0.589675	0.663478	0.103424	.	(259 fields)
+600	COMBO_TOP5_POST_ONLY	5	3251	gbt_forced_choice	0.654875	0.703783	0.634382	0.675369	0.0751246	.	pp_net_D600,pp_eff_D600,pp_tmae_frac_D600,pp_giveback_D600,pp_mae_D600
+600	COMBO_ALL_POST	38	3251	gbt_forced_choice	0.652722	0.737619	0.632419	0.673025	0.0772778	.	(38 fields)
+600	SHUFFLED_LABEL_CONTROL_TOP10	10	3251	gbt_forced_choice	0.485697	0.664411	0.468922	0.502472	0.244303	.	winner/loser assignment randomised
+1200	BEST_SINGLE_ANY	1	3251	single_field	0.742848	0.742848	0.720051	0.765646	-0.0128484	pp_net_D1200	pp_net_D1200
+1200	BEST_SINGLE_PRE	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+1200	BEST_SINGLE_POST	1	3251	single_field	0.742848	0.742848	0.720051	0.765646	-0.0128484	pp_net_D1200	pp_net_D1200
+1200	COMBO_TOP2	2	3251	gbt_forced_choice	0.735158	0.744386	0.711531	0.758786	-0.00515841	.	pp_net_D1200,pp_eff_D1200
+1200	COMBO_TOP3	3	3251	gbt_forced_choice	0.731775	0.745617	0.707616	0.755933	-0.00177484	.	pp_net_D1200,pp_eff_D1200,pp_giveback_D1200
+1200	COMBO_TOP5	5	3251	gbt_forced_choice	0.738542	0.754229	0.715458	0.761626	-0.00854199	.	pp_net_D1200,pp_eff_D1200,pp_giveback_D1200,pp_tmfe_frac_D1200,pp_tmae_frac_D1200
+1200	COMBO_TOP10	10	3251	gbt_forced_choice	0.729006	0.774531	0.699777	0.758236	0.00099354	.	pp_net_D1200,pp_eff_D1200,pp_giveback_D1200,pp_tmfe_frac_D1200,pp_tmae_frac_D1200,pp_mae_D1200,pp_mfe_D1200,pp_upfrac_D1200,side,pp_slope30_D1200
+1200	COMBO_TOP5_PRE_ONLY	5	3251	gbt_forced_choice	0.560443	0.701323	0.509007	0.611879	0.169557	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+1200	COMBO_ALL_PRE	221	3251	gbt_forced_choice	0.505691	0.79514	0.452193	0.559188	0.224309	.	(221 fields)
+1200	COMBO_ALL_FIELDS	239	3251	gbt_forced_choice	0.718241	0.839434	0.685832	0.750649	0.0117595	.	(239 fields)
+1200	COMBO_TOP5_POST_ONLY	5	3251	gbt_forced_choice	0.738542	0.754229	0.715458	0.761626	-0.00854199	.	pp_net_D1200,pp_eff_D1200,pp_giveback_D1200,pp_tmfe_frac_D1200,pp_tmae_frac_D1200
+1200	COMBO_ALL_POST	18	3251	gbt_forced_choice	0.73116	0.768994	0.709217	0.753102	-0.00115964	.	(18 fields)
+1800	BEST_SINGLE_ANY	1	3251	single_field	0.780837	0.780837	0.757738	0.803935	-0.0508367	pp_eff_D1800	pp_eff_D1800
+1800	BEST_SINGLE_PRE	1	3251	single_field	0.572132	0.572132	0.496357	0.647906	0.157868	side	side
+1800	BEST_SINGLE_POST	1	3251	single_field	0.780837	0.780837	0.757738	0.803935	-0.0508367	pp_eff_D1800	pp_eff_D1800
+1800	COMBO_TOP2	2	3251	gbt_forced_choice	0.782221	0.792987	0.759104	0.805338	-0.0522209	.	pp_eff_D1800,pp_net_D1800
+1800	COMBO_TOP3	3	3251	gbt_forced_choice	0.780068	0.78868	0.758233	0.801903	-0.0500677	.	pp_eff_D1800,pp_net_D1800,pp_mae_D1800
+1800	COMBO_TOP5	5	3251	gbt_forced_choice	0.776069	0.796986	0.753871	0.798267	-0.0460689	.	pp_eff_D1800,pp_net_D1800,pp_mae_D1800,pp_mfe_D1800,pp_tmae_frac_D1800
+1800	COMBO_TOP10	10	3251	gbt_forced_choice	0.78745	0.818825	0.759058	0.815842	-0.05745	.	pp_eff_D1800,pp_net_D1800,pp_mae_D1800,pp_mfe_D1800,pp_tmae_frac_D1800,pp_tmfe_frac_D1800,pp_giveback_D1800,pp_upfrac_D1800,side,pp_imb_mean_D1800
+1800	COMBO_TOP5_PRE_ONLY	5	3251	gbt_forced_choice	0.560443	0.701323	0.509007	0.611879	0.169557	.	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+1800	COMBO_ALL_PRE	221	3251	gbt_forced_choice	0.505691	0.79514	0.452193	0.559188	0.224309	.	(221 fields)
+1800	COMBO_ALL_FIELDS	239	3251	gbt_forced_choice	0.775454	0.877884	0.744163	0.806744	-0.0454537	.	(239 fields)
+1800	COMBO_TOP5_POST_ONLY	5	3251	gbt_forced_choice	0.776069	0.796986	0.753871	0.798267	-0.0460689	.	pp_eff_D1800,pp_net_D1800,pp_mae_D1800,pp_mfe_D1800,pp_tmae_frac_D1800
+1800	COMBO_ALL_POST	18	3251	gbt_forced_choice	0.777299	0.814211	0.75499	0.799608	-0.0472993	.	(18 fields)

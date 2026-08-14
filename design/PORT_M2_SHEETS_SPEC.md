@@ -338,3 +338,20 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
 5. D16 (index header broke frozen consumers): compat-view accepted for day 4; permanent fix on the tooling
    lane (frozen consumers get a pinned-reader shim; index headers are versioned APIs henceforth). D17: S10
    developing POC/VAH/VAL/in_VA added to the index. D14 upstream landing confirmed required before blind.
+
+## CC-M2-14 — regime-forecaster adjudications (orchestrator, 2026-08-14; BINDING)
+1. FORECASTER ACCEPTED (commit a182f22): day-type class beats both benchmarks 9/9 FIT cells (8/9 GATE, GATE
+   generally STRONGER — regime predictability is rising into the modern era), range 18/18, menu-hat rank
+   everywhere (SI level-invalid: rank-only caveat carried). The CC-M2-11.2 leading-regime mandate is met.
+2. INTEGRATION RULINGS: (a) forecast columns (predicted_day_type_prob at the newest anchor < decision,
+   range_hat_vs_trailing, menu_hat[rank-caveat]) join the TRIAGE INDEX immediately (index is per-day tooling
+   — no sheet render needed; ordered on the tooling lane) so study days 6-8 read them; (b) the proposed S2
+   sheet fields land in the V1.2 RENDER BUNDLE (with percentile-z + observed-close runway) BEFORE THE BLIND
+   ROUND — the scored instrument gets the best views; (c) D1 calibration-drift fix hook approved as an
+   era-advance recalibration (D-031 bounded adaptation), not a mid-era patch.
+3. COMPOSITION HYPOTHESIS on record for day 6+: the forecaster tells the reader ex ante WHICH DAY it faces
+   (its refusal core loses on EXPANSION days); predicted day-type x session-side estimator x refusal core is
+   the crystallizing selection architecture — the E1 blind round tests it as a whole.
+4. Defects D2-D8 dispositions: D3 accepted (value is the phase-open update, documented); D4 trade-tape flow
+   deferred-not-hidden (named build item); D5 consistent with the known VI gap; D6/D7 accepted with hooks;
+   D8 noted (GATE = the honest read).

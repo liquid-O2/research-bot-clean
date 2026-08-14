@@ -44,6 +44,7 @@ import tape as TAPE                       # noqa: E402
 import context as CTX                     # noqa: E402
 import availability as AV                 # noqa: E402
 import class_census as CLS                # noqa: E402
+import session_close as SC                # noqa: E402
 
 # S6 budget mechanics (spec §1: "section budget enforced (S6 is the largest);
 # episode-digest compression keeps it bounded").
@@ -90,7 +91,10 @@ REFILL_WINDOW_SEC = 5
 REFILL_LOOKBACK_SEC = 300
 
 TMINUS_MARKS = (1800, 900, 300, 60, 0)
-FLOW_WINDOWS = (60, 300, 1800)
+FLOW_WINDOWS = (60, 300, 1800)          # THE flow windows; s8_flow
+                                        # hardcoded the same tuple
+                                        # inline (the D24 shape) and
+                                        # now reads this one
 RV_WINDOWS = (60, 300, 900, 1800)
 
 
@@ -178,6 +182,7 @@ def _session_bin_stats(asset, d8):
         _CN_CACHE[key] = None
         return None
     s = sess["s"]
+    mult = float(C.ASSETS[asset]["mult"])
     open_utc = int(s.meta["open_utc"])
     sod = (open_utc + np.arange(s.n, dtype=np.int64)) % 86400
     b = (sod // BIN_SECONDS).astype(np.int64)
@@ -198,12 +203,25 @@ def _session_bin_stats(asset, d8):
         sz = tr["size"][t0:t1].astype(np.int64)
         sf = int(np.sum(np.where(sd == ord("B"), sz,
                                  np.where(sd == ord("A"), -sz, 0))))
+        # R99: spec §1 S5 names "RV nowcast" among the z-scored quantities and
+        # the clock-norm digest carried no RV entry at all, so `rv300_$` could
+        # never be z-scored.  The bin's realised volatility is computed on the
+        # SANE mids of the bin, in dollars, on the same 300s scale the sheet
+        # prints, so the two are comparable.
+        mv = np.nonzero(m)[0]
+        if mv.size >= 2:
+            dm = np.diff(s.mid[mv].astype(np.float64))
+            rvb = float(np.sqrt(np.sum(dm * dm)) * mult
+                        * np.sqrt(300.0 / max(1.0, float(mv.size))))
+        else:
+            rvb = float("nan")
         out[bi] = {
             "spread_usd": float(np.median(s.spread_usd[m])),
             "bid_sz": float(np.median(s.bid_sz[m])),
             "ask_sz": float(np.median(s.ask_sz[m])),
             "trades_per_min": (t1 - t0) / span_min,
             "abs_sflow_per_min": abs(sf) / span_min,
+            "rv300_usd": rvb,
         }
     _CN_CACHE[key] = out
     if len(_CN_CACHE) > 900:
@@ -229,6 +247,34 @@ def clock_norm(case, bin_idx, field):
     med = float(np.median(a))
     mad = float(np.median(np.abs(a - med)))
     return med, mad, len(vals)
+
+
+def clock_pct(case, bin_idx, field, x):
+    """PERCENTILE RANK of `x` among the trailing same-half-hour sessions.
+
+    V1.2, queued at CC-M2-7.3 with the render bundle and never landed.  It is
+    the reading a '~'-marked z is ORDINAL-ONLY for: well defined whether or not
+    the MAD floor binds, and never a threshold on a degenerate scale.  Returns
+    NaN below the same 10-session floor `clock_norm` uses.
+    """
+    if not np.isfinite(x):
+        return float("nan")
+    ds = sorted(A.session_index(case.asset))
+    i = bisect.bisect_left(ds, case.d8)
+    prev = ds[max(0, i - CLOCKNORM_SESSIONS):i]
+    vals = []
+    for p in prev:
+        st = _session_bin_stats(case.asset, p)
+        if st and bin_idx in st:
+            v = st[bin_idx].get(field)
+            if v is not None and np.isfinite(v):
+                vals.append(float(v))
+    if len(vals) < 10:
+        return float("nan")
+    a = np.asarray(vals, dtype=np.float64)
+    # mid-rank convention: ties contribute half, so the statistic is the
+    # standard empirical CDF at x and is deterministic.
+    return float(100.0 * ((a < x).sum() + 0.5 * (a == x).sum()) / a.size)
 
 
 def _mad_eps(case, field):
@@ -407,12 +453,40 @@ def s3_path(case, put):
         if hl:
             put("S3.phase_H", hl[0], case.session_path, "max g0_mid[SANE, phase, <dec]")
             put("S3.phase_L", hl[2], case.session_path, "min g0_mid[SANE, phase, <dec]")
+    # D15 / V1.2 (queued at CC-M2-12.2, never landed).  The runway printed here
+    # is the SCHEDULED one (c_c_roster.py:294 `sc_sec = s.n - 1`), and on an
+    # early-close session it is wrong by HOURS — HG 2021-07-05's tape stops at
+    # 71,354s while the sheet computes to 82,799s, so a 12,000s floor admits
+    # seats that cannot reach their exit.  THIS session's observed close is an
+    # end-of-session fact and may never be printed; the trailing shortfall over
+    # this asset's STRICTLY PRIOR sessions is knowable, and is what the reader
+    # gets.  `runway_to_seat` is the program's central conditioning object
+    # (CC-M2-15.1), so the nominal number is now labelled as nominal.
+    sf_med, sf_n = SC.trailing_shortfall(case.asset, case.d8)
     L.append(MC.row("  runway", "to_phase_close=" + str(case.phase_close_sec - case.dec_sec) + "s",
-                    " (" + MC.fsec(case.phase_close_sec) + ")",
+                    " (" + MC.fsec(case.phase_close_sec) + ", SCHEDULED)",
                     " to_sess_close=" + str(case.sess_close_sec - case.dec_sec) + "s",
-                    " (" + MC.fsec(case.sess_close_sec) + ")"))
+                    " (" + MC.fsec(case.sess_close_sec) + ", SCHEDULED)"))
+    L.append(MC.row("  runway_prior", "trailing_close_shortfall_med="
+                    + (MC.fnum(sf_med, 1, 0).strip() if np.isfinite(sf_med)
+                       else MC.NA) + "s",
+                    " over n=" + str(sf_n) + " strictly-prior sessions",
+                    " => expected_to_sess_close="
+                    + (str(int(case.sess_close_sec - case.dec_sec
+                               - round(sf_med))) + "s"
+                       if np.isfinite(sf_med) else MC.NA)))
     put("S3.runway_phase_sec", case.phase_close_sec - case.dec_sec,
-        case.roster_path, "phase_close_sec[%d]-dec_sec" % case.i)
+        case.roster_path, "phase_close_sec[%d]-dec_sec (SCHEDULED)" % case.i)
+    if np.isfinite(sf_med):
+        put("S3.trailing_close_shortfall_sec", sf_med, SC.path_for(case.asset),
+            "median(scheduled-observed close) over the %d strictly-prior "
+            "sessions" % sf_n)
+    else:
+        put.refuse("S3.trailing_close_shortfall_sec",
+                   "fewer than %d strictly-prior sessions carry an observed "
+                   "close for %s (n=%d): the scheduled runway stands "
+                   "UNADJUSTED and is labelled SCHEDULED"
+                   % (SC.MIN_TRAILING, case.asset, sf_n))
 
     # CAPACITY (the §1 S3 "COVERAGE" number), reported on BOTH clocks: the
     # session against the SESSION forecast, the running phase against its own.
@@ -636,17 +710,41 @@ def s4_levels(case, put):
     n = int(lpx.size)
     tc = np.zeros(n, dtype=np.int64)
     lts = np.full(n, -1, dtype=np.int64)
-    lto = np.zeros(n, dtype=np.int64)
+    # MINOR (R100 list): initialised to zeros, so an UNTOUCHED level
+    # printed the outcome NONE rather than the typed-missing glyph —
+    # 'never tested' read as 'tested, no reaction'.
+    lto = np.full(n, -1, dtype=np.int64)
     pending = np.zeros(n, dtype=bool)
     virgin0 = np.ones(n, dtype=bool)
     tc0 = np.zeros(n, dtype=np.int64)
+    # R96.  `open_rows = np.nonzero(ss == 0)[0]` read ONLY the session-open
+    # snapshot, and `virgin0` / `tc0` were initialised to True / 0 — so every
+    # level with no sec-0 snapshot had its PRIOR STATE FABRICATED rather than
+    # refused.  Measured on levels_v4/SI/20210811.npz: 107 of 255 levels have
+    # no sec-0 snapshot (all OR_EXT, all OPEN_*-anchored FVOL_*, phase-scoped
+    # VWAP, DEV_POC), and five of them carry a NON-ZERO prior-session touch
+    # count at their first real snapshot — so `V=1` was printed for a level
+    # with four prior touches.  A fabricated flag is the one thing spec §1 says
+    # a refusal must never become.
+    #
+    # The state is now taken from the LATEST snapshot STRICTLY BEFORE the
+    # decision second (more causal information than sec-0 alone, and never
+    # forward), and a level with no such snapshot is REFUSED and COUNTED.
     ss = z["snap_sec"]
     sr = z["snap_row"]
-    open_rows = np.nonzero(ss == 0)[0]
-    for k in open_rows.tolist():
+    have_snap = np.zeros(n, dtype=bool)
+    best_snap = np.full(n, -1, dtype=np.int64)
+    prior_ok = np.nonzero(np.asarray(ss) < case.dec_sec)[0]
+    for k in prior_ok[np.argsort(np.asarray(ss)[prior_ok],
+                                 kind="stable")].tolist():
         r = int(sr[k])
-        virgin0[r] = bool(z["snap_virgin"][k])
-        tc0[r] = int(z["snap_touch_count"][k])
+        sec_k = int(ss[k])
+        if sec_k >= best_snap[r]:
+            best_snap[r] = sec_k
+            have_snap[r] = True
+            virgin0[r] = bool(z["snap_virgin"][k])
+            tc0[r] = int(z["snap_touch_count"][k])
+    n_no_prior = 0
     n_touch_causal = n_pending = 0
     if tch.size:
         for rrow in tch:
@@ -703,23 +801,39 @@ def s4_levels(case, put):
                     " n_pending=" + str(n_pending),
                     " n_not_yet_born=" + str(n_unborn),
                     " K=kept/r=retired family"))
-    L.append("    K family         level_id                        price      d$  V  tc  test_m outcome")
+    # R100: spec §1 S4 names "distance ($ AND ATR)" and "CREATED-WHEN"; the
+    # table carried neither, and `created = z["created_d8"]` was read at :564
+    # and never used.  Both columns are added here.
+    L.append("   K family         level_id                price      d$ dxATR created  V  tc test_m outcome")
     for r in order[:n_show]:
         oc = ("PENDING" if pending[r] else
               MC.TOUCH_OUTCOMES[int(lto[r])] if lto[r] >= 0 else MC.NA)
-        v = 1 if (virgin0[r] and tc[r] == 0) else 0
+        if have_snap[r]:
+            v = MC.fint(1 if (virgin0[r] and tc[r] == 0) else 0, 2)
+            tcs = MC.fint(int(tc0[r] + tc[r]), 3)
+        else:
+            n_no_prior += 1
+            v = MC.fstr(MC.NA, 2)          # R96: REFUSED, never fabricated
+            tcs = MC.fstr(MC.NA, 3)
         fname = str(fam[r])
         lidt = str(lid[r])
         if lidt.startswith(fname + "|"):
             lidt = lidt[len(fname) + 1:]
-        L.append(MC.row("   ",
+        cd8 = int(created[r])
+        cstr = ("TODAY" if cd8 == int(case.d8)
+                else (MC.NA if cd8 <= 0 else str(cd8)))
+        datr = (usd(case, float(dist[r])) / case.atr
+                if np.isfinite(case.atr) and case.atr > 0 else float("nan"))
+        L.append(MC.row("  ",
                         "K" if fname in MC.KEPT_LEVEL_FAMILIES else "r",
                         MC.fstr(fname, 14),
-                        MC.fstr(lidt, 26),
+                        MC.fstr(lidt, 22),
                         MC.fnum(float(lpx[r]), 9, 4),
                         MC.fnum(usd(case, float(dist[r])), 8, 1),
-                        MC.fint(v, 2),
-                        MC.fint(int(tc0[r] + tc[r]), 3),
+                        MC.fnum(datr, 5, 2),
+                        MC.fstr(cstr, 8),
+                        v,
+                        tcs,
                         MC.fint((case.dec_sec - int(lts[r])) // 60
                                 if lts[r] >= 0 else None, 6),
                         MC.fstr(oc, 7)))
@@ -734,10 +848,13 @@ def s4_levels(case, put):
             dd = usd(case, float(dist[r]))
             if e[1] is None or abs(dd) < abs(e[1]):
                 e[1] = dd
-            if virgin0[r] and tc[r] == 0:
+            if have_snap[r] and virgin0[r] and tc[r] == 0:
                 e[2] += 1
+            if not have_snap[r]:
+                n_no_prior += 1
         L.append("    REMAINDER rolled up by family, n/nearest_d$/n_virgin "
-                 "(counted, never dropped):")
+                 "(counted, never dropped; n_virgin excludes levels whose "
+                 "prior state is REFUSED):")
         keys = sorted(by)
         L.append("     " + " ".join(
             "%s=%d/%s/%d" % (f, by[f][0], MC.fnum(by[f][1], 1, 0).strip(),
@@ -748,6 +865,14 @@ def s4_levels(case, put):
         "touches[touch_sec < dec_sec]")
     put("S4.n_pending_outcome", n_pending, case.levels_path,
         "touches whose 15-min outcome window has not closed by dec_sec")
+    if n_no_prior:
+        put.refuse("S4.prior_state",
+                   "%d in-band level(s) carry no ledger snapshot strictly "
+                   "before the decision second: VIRGIN and touch_count are "
+                   "REFUSED for them, never defaulted to virgin/0 (R96)"
+                   % n_no_prior)
+    put("S4.n_levels_prior_state_refused", n_no_prior, case.levels_path,
+        "in-band levels with no snapshot at sec < dec_sec")
 
     # OR state (the CC-M1-6.1 opening-range object)
     # OR STATE (spec S4): OR H/L/range per adopted cell, recovered exactly from
@@ -802,9 +927,17 @@ def s4_levels(case, put):
                             MC.fnum(usd(case, mid - orl), 9, 1),
                             MC.fstr(",".join("%g" % k for k in ks), 20)))
             key = "S4.or_%s_range_usd" % cname.replace("|", "_")
-            if known:
+            if known and np.isfinite(rng):
                 put(key, usd(case, rng), case.levels_path,
                     "recovered from the OR_EXT k-ladder level prices")
+            elif known:
+                # R96: with fewer than two k entries a side the range cannot be
+                # recovered.  This recorded `value: null` with NO put.refuse,
+                # so the typed-missing glyph never reached the S1 roster.
+                put.refuse(key,
+                           "the %s k-ladder carries fewer than two entries on "
+                           "either side (%d up / %d down): OR_H/OR_L/range are "
+                           "not recoverable from it" % (cname, len(up), len(dn)))
             else:
                 put.refuse(key, "the %s opening range closes at %s, after the "
                                 "decision second" % (cname, MC.fsec(t1).strip()))
@@ -840,22 +973,48 @@ def s5_tminus(case, put):
     js = [at(m) for m in marks]
     bin_idx = ((case.open_utc + case.dec_sec) % 86400) // BIN_SECONDS
 
-    def emit(name, vals, zfield=None, dec=4, width=10):
+    def emit(name, vals, zfield=None, dec=4, width=10, zval=None):
         cells = [MC.fstr(name, 16)]
         for v in vals:
             cells.append(MC.fnum(v, width, dec))
         zz = float("nan")
         nn = 0
         floored = False
-        if zfield is not None and np.isfinite(vals[-1]):
-            med, mad, nn = clock_norm(case, bin_idx, zfield)
-            zz, floored = _z(vals[-1], med, mad, _mad_eps(case, zfield))
-            if not np.isfinite(zz) and nn:
+        pct = float("nan")
+        # R96: a NON-FINITE now-value skipped clock_norm entirely so NO refusal
+        # was recorded, and when clock_norm found ZERO trailing sessions in the
+        # bin the refusal branch was skipped too.  Both are refusals now.  And
+        # the z VALUE was never put() on success, so S5.z_* existed in the
+        # sidecar only as a refusal — a key with no positive counterpart.
+        x = vals[-1] if zval is None else zval
+        if zfield is not None:
+            if not np.isfinite(x):
                 put.refuse("S5.z_%s" % zfield,
-                           "clock-norm scale REFUSED (median/MAD undefined on "
-                           "%d trailing same-half-hour sessions)" % nn)
+                           "the NOW value of %s is refused, so its clock-norm "
+                           "z cannot be computed" % zfield)
+            else:
+                med, mad, nn = clock_norm(case, bin_idx, zfield)
+                zz, floored = _z(x, med, mad, _mad_eps(case, zfield))
+                pct = clock_pct(case, bin_idx, zfield, x)
+                if not np.isfinite(zz):
+                    put.refuse("S5.z_%s" % zfield,
+                               "clock-norm scale REFUSED (median/MAD undefined "
+                               "on %d trailing same-half-hour sessions)" % nn)
+                else:
+                    put("S5.z_%s" % zfield, zz, "derived(clock_norm)",
+                        "(NOW-med)/(%g*floored_MAD) over %d trailing "
+                        "same-half-hour sessions" % (MAD_SCALE, nn))
+                if np.isfinite(pct):
+                    # V1.2 (CC-M2-7.3, queued and never landed): the
+                    # PERCENTILE-RANK form, which is well defined whether or
+                    # not the MAD floor binds and is the reading a '~'-marked
+                    # z is only allowed to be used as.
+                    put("S5.pct_%s" % zfield, pct, "derived(clock_norm)",
+                        "percentile rank of NOW among %d trailing "
+                        "same-half-hour sessions" % nn)
         # 7 digits + the marker column keeps the z cell 8 wide either way
         cells.append(MC.fnum(zz, 7, 2) + ("~" if floored else " "))
+        cells.append(MC.fnum(pct, 6, 2))
         cells.append(MC.fint(nn, 4) if zfield else MC.NA.rjust(4))
         if zfield is not None and floored:
             put("S5.z_floor_binds.%s" % zfield, 1, "derived",
@@ -865,9 +1024,20 @@ def s5_tminus(case, put):
 
     L.append(MC.row(MC.fstr("  quantity", 16),
                     *([MC.fstr(h, 10) for h in hdr]
-                      + [MC.fstr("z", 8), MC.fstr("n_ref", 4)])))
+                      + [MC.fstr("z", 8), MC.fstr("pct", 6),
+                         MC.fstr("n_ref", 4)])))
     mids = [float(s.vm[j]) if j is not None else float("nan") for j in js]
     emit("  mid", mids, None, 4, 10)
+    # R99 / spec §1 S5 names `mid` among the z-scored quantities.  A price
+    # LEVEL has no session-comparable clock norm — the trailing-60-session
+    # same-half-hour distribution of the mid is a distribution of PRICE LEVELS,
+    # so a z over it measures drift, not the current tape.  Declared as a
+    # refusal rather than left as a silent blank.
+    put.refuse("S5.z_mid",
+               "a price LEVEL has no session-comparable clock norm: the "
+               "trailing same-half-hour distribution of `mid` is a "
+               "distribution of price levels, so its z measures drift. The "
+               "mid's tape reading is the slope/accel row below.")
     spr = [float(s.spread_usd[m]) if (m >= 0 and s.valid[m]) else float("nan")
            for m in marks]
     emit("  spread_$", spr, "spread_usd", 2, 10)
@@ -891,10 +1061,16 @@ def s5_tminus(case, put):
     tpm = [rate(m, 60)[0] for m in marks]
     spm = [rate(m, 60)[1] for m in marks]
     emit("  trades/min", tpm, "trades_per_min", 2, 10)
-    emit("  sflow/min", spm, None, 1, 10)
+    # R99: `abs_sflow_per_min` IS computed into the clock-norm digest and given
+    # a MAD floor, and was then never consumed by any emit call.  The digest is
+    # the ABSOLUTE flow rate (a magnitude has a session-comparable norm; a
+    # signed one does not), so the z is taken on |sflow| and the printed row
+    # keeps the signed value.
+    emit("  sflow/min", spm, "abs_sflow_per_min", 1, 10,
+         zval=abs(spm[-1]) if np.isfinite(spm[-1]) else float("nan"))
     rv = [_rv_usd(case, max(0, m - 300), m) if m >= 0 else float("nan")
           for m in marks]
-    emit("  rv300_$", rv, None, 1, 10)
+    emit("  rv300_$", rv, "rv300_usd", 1, 10)
 
     # slope / accel on the mid, in $ per minute
     def d_usd(a, b):
@@ -973,8 +1149,7 @@ def s6_ribbon(case, put):
     # certification, which is what the V1.1 field additions did to 8 dense SI
     # sheets (8502-8538 against the 8500 cap).  A sheet with headroom gets the
     # full section budget and renders byte-identically.
-    budget = min(MC.SECTION_BUDGET["S6"],
-                 getattr(case, "s6_budget", None) or MC.SECTION_BUDGET["S6"])
+    budget = s6_binding_budget(case)
     reserve = ((S6_EPISODE_MAX_PRE + S6_EPISODE_MAX_IN) * S6_DIGEST_TOKEN_EST
                + S6_FIXED_TOKEN_EST)
     k = max(0, (budget - reserve) // S6_RAW_TOKEN_EST)
@@ -989,6 +1164,13 @@ def s6_ribbon(case, put):
     # re-render once with the sidecar sink on the accepted configuration
     return _s6_render(case, ev, tag, flow, i_dig, i_raw, i_end, int(k),
                       n_raw_window, put_sink=put)
+
+
+def s6_binding_budget(case):
+    """The budget S6 actually renders against — the section constant OR the
+    whole-sheet allowance the builder handed it, whichever is tighter."""
+    return min(MC.SECTION_BUDGET["S6"],
+               getattr(case, "s6_budget", None) or MC.SECTION_BUDGET["S6"])
 
 
 def _s6_render(case, ev, tag, flow, i_dig, i_raw, i_end, k, n_raw_window,
@@ -1031,9 +1213,12 @@ def _s6_render(case, ev, tag, flow, i_dig, i_raw, i_end, k, n_raw_window,
         put_sink("S6.n_events_90s", n_raw_window, src, "ts_ns in [T-90s, T]")
         put_sink("S6.n_events_pre", i_raw - i_dig, src,
                  "ts_ns in [T-690s, T-90s)")
+        # MINOR (R100 list): this stamped SECTION_BUDGET["S6"] (always 3000)
+        # even when the BINDING budget was `case.s6_budget`, so the sidecar
+        # asserted a budget the render did not use.
         put_sink("S6.n_events_raw_shown", i_end - i_rawstart, "derived",
-                 "budget-filled raw window (S6 budget=%d tokens)"
-                 % MC.SECTION_BUDGET["S6"])
+                 "budget-filled raw window (S6 binding budget=%d tokens)"
+                 % s6_binding_budget(case))
         put_sink("S6.raw_cover_sec", raw_cover, "derived",
                  "T - ts_event[first raw line]")
         put_sink("S6.n_episodes", len(eps_pre) + len(eps_in), "derived",
@@ -1306,8 +1491,9 @@ def s8_flow(case, put):
     cur = [p for p in pb if p[1] <= d < p[2]]
     ph_start = cur[0][1] if cur else 0
     L.append("    window      n     vol   sflow    buy   sell  buy/sell_vol")
-    for name, lo in (("60s", d - 60), ("5m", d - 300), ("30m", d - 1800),
-                     ("phase", ph_start), ("session", 0)):
+    _wins = [("%ds" % w if w < 300 else "%dm" % (w // 60), d - w)
+             for w in FLOW_WINDOWS]
+    for name, lo in (_wins + [("phase", ph_start), ("session", 0)]):
         lo = max(0, lo)
         a = int(np.searchsorted(tr["sec"], lo, side="left"))
         b = int(np.searchsorted(tr["sec"], d, side="left"))
@@ -1424,12 +1610,26 @@ def s9_vol(case, put):
             seg_start = st
     hl = _hi_lo(case, seg_start, d)
     realized = usd(case, hl[0] - hl[2]) if hl else float("nan")
+    # R96: `if A._f(fs["range_hat_usd"])` — A._f returns NaN when the forecaster
+    # carried no range_hat, and a NaN is TRUTHY in Python, so the guard never
+    # fired, the division produced NaN, and `surprise` was never put() at all.
+    rh = A._f(fs["range_hat_usd"])
+    rh_ok = bool(np.isfinite(rh)) and float(rh) > 0.0
+    surprise = (realized / float(rh)) if (rh_ok and np.isfinite(realized)) \
+        else float("nan")
     L.append(MC.row("  fvol", "segment=" + X.PHASE_NAMES[case.phase_dec],
                     " sigma_hat=$" + MC.fnum(sig, 1, 1).strip(),
-                    " range_hat=$" + MC.fnum(A._f(fs["range_hat_usd"]), 1, 1).strip(),
+                    " range_hat=$" + MC.fnum(rh, 1, 1).strip(),
                     " realized_range_so_far=$" + MC.fnum(realized, 1, 1).strip(),
-                    " surprise=" + MC.fnum(realized / A._f(fs["range_hat_usd"])
-                                           if A._f(fs["range_hat_usd"]) else float("nan"), 1, 3).strip()))
+                    " surprise=" + MC.fnum(surprise, 1, 3).strip()))
+    if np.isfinite(surprise):
+        put("S9.surprise", surprise, "derived",
+            "realized_range_so_far / range_hat_usd")
+    else:
+        put.refuse("S9.surprise",
+                   "range_hat_usd is refused or non-positive in the fvol "
+                   "receipt (or no sane range so far): the surprise ratio "
+                   "cannot be derived")
     lad = [(q, A._f(fs.get("move_%s_usd_per_sigma" % q)) * sig)
            for q in ("q10", "q25", "q50", "q75", "q90")]
     L.append(MC.row("  move_ladder_$", *[MC.fstr("%s=%s" % (q, MC.fnum(v, 1, 0).strip()), 12)
@@ -1504,8 +1704,10 @@ def s10_profile(case, put):
 
     ds = z["dev_sec"]
     j = int(np.searchsorted(ds, d, side="left")) - 1
-    if j >= 0:
-        case.guard.sec(int(ds[j]) + 1, "S10 developing profile")
+    # MINOR (R100 list): this guard call's return was DISCARDED — S10's only
+    # guard call was a no-op that inflated `guard.checks` and could not refuse
+    # anything.  It is checked now.
+    if j >= 0 and case.guard.sec(int(ds[j]) + 1, "S10 developing profile"):
         poc = px_of(float(z["dev_poc_tick"][j]))
         vah = px_of(float(z["dev_vah_tick"][j]))
         val = px_of(float(z["dev_val_tick"][j]))
@@ -1595,7 +1797,15 @@ def s11_cross(case, put):
             L.append(MC.row("   ", MC.fstr(a, 5), MC.fint(osec, 8),
                             " decision_ts outside %s's session span" % a))
             continue
-        jj = int(np.searchsorted(os_.vt, osec, side="right")) - 1
+        # MINOR (R100 list): S11 made ZERO guard calls, and read `mid` with
+        # side="right" while `range$` below used side="left" on the SAME
+        # second.  Both are routed through the guard now and both use the
+        # strictly-prior convention ("left"), so the two cannot disagree.
+        if not case.guard.sec(int(osec), "S11 cross-asset read"):
+            L.append(MC.row("   ", MC.fstr(a, 5), MC.fint(osec, 8),
+                            " cross-asset second is not strictly prior"))
+            continue
+        jj = int(np.searchsorted(os_.vt, osec, side="left")) - 1
         if jj < 0:
             L.append(MC.row("   ", MC.fstr(a, 5), MC.fint(osec, 8),
                             " no SANE second yet"))
@@ -1678,6 +1888,13 @@ def s12_context(case, put):
         rec = ser.latest(g)
         if rec is None:
             n_ref += 1
+            # R96: S12 refusals were counted ONLY in S12.n_series_refused and
+            # never reached put.refuse, so the S1 "REFUSED DERIVED FIELDS"
+            # roster was NOT the complete list of the sheet's typed-missing
+            # glyphs — which is exactly what the reader protocol treats it as.
+            put.refuse("S12.%s" % sid,
+                       "no observation available at decision_ts under rule %s "
+                       "(n_future=%d)" % (ser.rule, ser.n_future(g)))
             L.append(MC.row("   ", MC.fstr(sid, 20), MC.fstr(MC.NA, 12),
                             MC.fstr("REFUSED", 14), MC.fstr(MC.NA, 6),
                             "no observation available at decision_ts under "
@@ -1768,18 +1985,48 @@ def _prior_card_eras(case):
     return list(reversed(eras)), years, blocks
 
 
+def _cost_rt_so_far(case):
+    """R95: the CAUSAL round-trip cost estimate.
+
+    `case.cost_rt` is `c_a_cost`'s per-(asset, session) `cost_rt` at
+    `phase=ALL` — the median two-sided spread over the WHOLE session plus
+    FEES_RT — so the number every "is this a $1,000 trade after cost"
+    judgement divides by embedded the POST-decision spread distribution, on a
+    BLIND section, registered in no trap list.  The same statistic computed
+    over the sane two-sided seconds STRICTLY BEFORE the decision is knowable
+    and is what the sheet prints now.
+    """
+    d = int(case.dec_sec)
+    if d <= 0:
+        return float("nan")
+    sel = (case.s.state[:d] == C.ST_TWO_SIDED) & case.s.valid[:d]
+    sp = np.asarray(case.s.spread_usd[:d])[sel]
+    sp = sp[np.isfinite(sp)]
+    if sp.size == 0:
+        return float("nan")
+    return float(np.median(sp)) + float(C.FEES_RT)
+
+
 def s13_mechanics(case, put):
     L = ["S13 CANDIDATE MECHANICS"]
+    cost_sf = _cost_rt_so_far(case)
     L.append(MC.row("  entry", "mid=" + MC.fnum(case.entry_mid, 1, 4).strip(),
                     " side=" + ("LONG" if case.side > 0 else "SHORT"),
                     " spread_at_decision=$" + MC.fnum(case.spread_dec, 1, 2).strip(),
-                    " cost_rt=$" + MC.fnum(case.cost_rt, 1, 2).strip(),
+                    " cost_rt=$" + MC.fnum(cost_sf, 1, 2).strip(),
+                    " (median sane two-sided spread SO FAR + fees; R95)",
                     " tick=$" + MC.fnum(case.tick_usd, 1, 2).strip(),
                     " mult=" + str(case.mult)))
     put("S13.spread_at_decision", case.spread_dec, case.roster_path,
         "spread_at_decision[%d]" % case.i)
-    put("S13.cost_rt", case.cost_rt,
-        os.path.join(MC.M0_ROOT, "census_a_cost.tsv"), "cost_rt[phase=ALL]")
+    if np.isfinite(cost_sf):
+        put("S13.cost_rt", cost_sf, case.session_path,
+            "median(spread_usd[SANE TWO_SIDED, sec < dec]) + FEES_RT")
+    else:
+        put.refuse("S13.cost_rt",
+                   "no sane two-sided second before the decision second: the "
+                   "causal round-trip cost cannot be estimated (the "
+                   "whole-session c_a_cost value is NOT substituted — R95)")
     L.append(MC.row("  exit_default", "phase_close@" + MC.fsec(case.phase_close_sec),
                     " (" + str(case.phase_close_sec - case.dec_sec) + "s)",
                     " session_close@" + MC.fsec(case.sess_close_sec),

@@ -104,7 +104,8 @@ def _sec_metrics(name, lines):
     return text, m
 
 
-def _s1_header(case, order, metrics, mode, phash, refusals, refused_derived):
+def _s1_header(case, order, metrics, mode, phash, refusals,
+               refused_derived, certified=None):
     """S1 renders LAST (it reports on the others) and is placed FIRST."""
     L = ["S1 HEADER"]
     L.append(MC.row("  cid", MC.fstr(case.cid, 26),
@@ -165,7 +166,18 @@ def _s1_header(case, order, metrics, mode, phash, refusals, refused_derived):
     L.append(MC.row("   ", MC.fstr("S1", 8),
                     MC.fstr(MC.SECTION_TITLES["S1"], 34),
                     MC.fstr("OK", 7), MC.fstr("self", 5)))
-    L.append(MC.row("  certified", "1" if (n_fail == 0 and not refusals) else "0",
+    # R97: the PRINTED flag used to be `n_fail == 0 and not refusals`, computed
+    # BEFORE S1's own over-budget check and without the whole-sheet cap, while
+    # the JSON certificate ALSO required `tokens_proxy <= SHEET_BUDGET_BLIND`.
+    # A sheet that busts the 8,500 cap, or whose S1 busts its own budget,
+    # therefore printed `certified 1 n_failed=0` on the artefact the reader
+    # reads while its receipt said `certified: 0` — and this is the gate
+    # mechanism itself.  `certified` is now passed IN by the builder, which is
+    # the only place that can know both, and the builder re-renders S1 with the
+    # settled value.
+    _cert = (1 if (n_fail == 0 and not refusals) else 0) \
+        if certified is None else int(certified)
+    L.append(MC.row("  certified", str(_cert),
                     " n_sections=" + str(len(order) + 1),
                     " n_failed=" + str(n_fail),
                     " n_leak_refusals=" + str(len(refusals)),
@@ -286,6 +298,25 @@ def build(cid, mode=MC.MODE_BLIND, with_appendix=False):
     total = MC.text_metrics(text)
     certified = 1 if (n_fail == 0 and not case.guard.refusals
                       and total["tokens_proxy"] <= MC.SHEET_BUDGET_BLIND) else 0
+    # R97: re-render S1 with the SETTLED flag so the printed certificate and
+    # the JSON certificate cannot disagree.  The flag is one character wide in
+    # both states, so the section's metrics are invariant — asserted, not
+    # assumed, because a drift here would silently move the sheet's bytes.
+    s1_lines, _nf2 = _s1_header(case, order, metrics, mode, phash,
+                                case.guard.refusals, refused_blind,
+                                certified=certified)
+    s1_text2, s1_m2 = _sec_metrics("S1", s1_lines)
+    if (s1_m2["tokens_proxy"], s1_m2["rows"]) != (s1_m["tokens_proxy"],
+                                                  s1_m["rows"]):
+        raise RuntimeError(
+            "S1 metrics moved when the settled certified flag was printed "
+            "(%r -> %r): the fixed point is not stable"
+            % (s1_m, s1_m2))
+    metrics["S1"] = s1_m2
+    s1_text = s1_text2
+    parts = [s1_text] + [body[n] for n in order]
+    text = "\n".join(parts)
+    total = MC.text_metrics(text)
 
     sh = Sheet()
     sh.cid = cid

@@ -123,6 +123,31 @@ CLASS_ORDER = tuple(sorted(
                       for f in FAMILIES if FAMILY_CLASS[f] == c)))
 CLASS_UNKNOWN = "UNCLASSED"
 
+# ------------------------------------------------- CC-M2-22.1 display names --
+# R102.  CC-M2-22.1 (BINDING) renames NEWS_WINDOW to US_CLOCK because only 19%
+# of its fires sit on dated releases — the family's edge is clock structure, so
+# the name must say so (D-006 honesty).  Executing that as a SUBSTITUTION would
+# break five consumers at once: FAMILY_CLASS, the `cls` string in all 204,737
+# rendered sheets, the `cls` column of every committed triage index,
+# baseline_replay.COND_VALUE, and e1_blind_declared_policy.HI_CLASSES — which
+# CC-M2-4.3 forbids editing.  So the rename is a DISPLAY-LAYER ALIAS and the
+# WIRE VALUE stays pinned: every sealed artefact keeps its sealed spelling and
+# every report renders the adjudicated name.
+WIRE_TO_DISPLAY = {"NEWS_WINDOW": "US_CLOCK",
+                   CLASS_NEWS: "US-CLOCK"}
+DISPLAY_TO_WIRE = {v: k for k, v in WIRE_TO_DISPLAY.items()}
+
+
+def display_name(wire):
+    """The adjudicated display name for a sealed family/class spelling."""
+    return WIRE_TO_DISPLAY.get(str(wire), str(wire))
+
+
+def wire_name(display):
+    """The sealed spelling for an adjudicated display name.  Every join, every
+    lookup and every committed column uses THIS, never the display name."""
+    return DISPLAY_TO_WIRE.get(str(display), str(display))
+
 
 def class_of(fam_mask):
     """(class, driver_family, [other family tags]) for a candidate's fam_mask."""
@@ -262,15 +287,38 @@ SECTION_TITLES = {
 #                    every z carries the '~' floor marker.
 #   S7  240 ->  320  refill_after_trade grew three audit fields (n_measurable,
 #                    swept, no_book_reaction) plus its one-line definition.
+# V1.2 (the D-001 fix pass, 2026-08-14):
+#   S4 1100 -> 1240  spec §1 S4 names "distance ($ AND ATR)" and "CREATED-WHEN"
+#                    and the table carried NEITHER (R100; `created_d8` was read
+#                    and never used).  Two columns on 12 rows plus the refused
+#                    prior-state accounting (R96).
+#   S5  400 ->  520  spec §1 S5 names sflow/min, RV nowcast and mid among the
+#                    z-scored quantities and the code emitted z for none of the
+#                    three (R99), with abs_sflow_per_min computed into the
+#                    clock-norm digest and never consumed.
+#   S3  780 ->  860  the OBSERVED-close runway rides beside the scheduled one
+#                    (D15/V1.2: the nominal runway is wrong by HOURS on
+#                    early-close sessions and runway_to_seat is the program's
+#                    central conditioning object).
+# S6 is the elastic section and is rendered last with the sheet's remaining
+# allowance, so these raises spend S6's headroom, not the sheet cap.
 SECTION_BUDGET = {
-    "S1": 1000, "S2": 260, "S3": 780, "S4": 1100, "S5": 400,
+    "S1": 1000, "S2": 260, "S3": 860, "S4": 1240, "S5": 520,
     "S6": 3000, "S7": 320, "S8": 600, "S9": 300, "S10": 340,
     "S11": 180, "S12": 720, "S13": 720, "S14": 760,
 }
 # Binding whole-sheet cap, not the sum of the parts: a sheet may not spend every
 # section's headroom at once.  CC-M2-1.1: 7,400 -> 8,500 with the S6 raise.
 SHEET_BUDGET_BLIND = 8500
-S6_TOKENS_PER_RAW_SEC = 25               # CC-M2-1.1 exchange rate, on record
+# MINOR (R100 list): `S6_TOKENS_PER_RAW_SEC = 25` was the CC-M2-1.1 exchange
+# rate ON RECORD and was referenced NOWHERE, while the actual fit uses
+# `sections.S6_RAW_TOKEN_EST = 27` PER LINE — different units, so a budget
+# re-derivation from the recorded rate could not reproduce the code.  The rate
+# is kept for the record with its units named and its live counterpart cited.
+S6_TOKENS_PER_RAW_SEC = 25               # CC-M2-1.1, tokens per raw SECOND
+                                         # (the record); the BINDING constant
+                                         # is sections.S6_RAW_TOKEN_EST = 27
+                                         # tokens per raw LINE
 
 
 # ------------------------------------------------------------ KNOWN_TRAPS ---
@@ -300,6 +348,50 @@ KNOWN_TRAPS = {
                         "the causal birth snapshot only",
         "test": "t09_s4_touch_state_is_causal",
         "registered": "2026-08-13 CC-M2-1.3",
+    },
+    "levels_v4.fvol_open_anchor": {
+        "receipt": "artifacts/cache/port/m1/levels_v4/{ASSET}/{d8}.npz",
+        "field": "level_price for FVOL_BAND / FVOL_LADDER / FVOL_LADDER_RS "
+                 "rows whose level_id carries an OPEN_<PHASE> anchor",
+        "why": "b3_levels anchors these families at each of TOKYO/LONDON/NY's "
+               "OPENING MID (b3_levels.py:239-273) and levels_v4 persists no "
+               "`active_from`, so the committed price of an OPEN_NY level is "
+               "computed from a mid HOURS AFTER a Tokyo-phase decision (R93: "
+               "1,998 of 12,418 E1 BLIND sheets, 6,892 rows)",
+        "builder_rule": "sections._level_birth_sec routes the static fvol "
+                        "families through _anchor_birth_sec, which is the "
+                        "phase's first SANE second; the guard then excludes "
+                        "any level not yet born at decision_sec",
+        "test": "t22_s4_shows_no_unborn_level",
+        "registered": "2026-08-14 R93 (the D-001 fix pass)",
+    },
+    "fvol_forecasts.ratio_range_over_sigmahat": {
+        "receipt": "artifacts/cache/port/m1/fvol/fvol_forecasts.tsv",
+        "field": "ratio_range_over_sigmahat",
+        "why": "b2_fvol.py:673 computes it as the row's OWN SESSION realized "
+               "range divided by sigma_hat — an end-of-session outcome sitting "
+               "in the same dict S2/S3/S9 index by name, one .get() away from "
+               "a live leak",
+        "builder_rule": "no section reads it; the registry makes a future "
+                        "reader's .get() a registered trap rather than a "
+                        "silent one",
+        "test": "t17_known_traps_registered",
+        "registered": "2026-08-14 R100-list (the D-001 fix pass)",
+    },
+    "m0_session_meta.dominant_share": {
+        "receipt": "artifacts/cache/port/m0/sessions/{ASSET}/{d8}.npz",
+        "field": "meta_json.dominant_share / roll_window / dying_book_week / "
+                 "instrument_change / last_two_sided_sec",
+        "why": "whole-session or strictly FORWARD facts (s3_sessions.py:335, "
+               ":361, :365-366, :340) — dying_book_week and roll_window look "
+               "FIVE SESSIONS AHEAD (R94)",
+        "builder_rule": "S2 REFUSES all four and prints the causal "
+                        "insane_frac_so_far in place of session_insane_frac; "
+                        "last_two_sided_sec reaches the sheet only through "
+                        "session_close.trailing_shortfall, a strictly-prior "
+                        "trailing window",
+        "test": "t20_refused_derived_is_refused_and_counted",
+        "registered": "2026-08-14 R94 (the D-001 fix pass)",
     },
 }
 

@@ -2,12 +2,12 @@
  "cache": "/workspace/artifacts/cache/port/m2/retrieval/pool_index.npz",
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "054d2bea6af71e7f69582ea68f216fdec6c40734",
+  "git_sha": "f5a47dd589027fdc6a95667558cd00ae15cd2b5d",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "552d21d7a848efe2",
+  "m2_spec_sha16": "47a298c4440fa0a0",
   "numpy_version": "2.1.2",
   "params": {
    "blocks": [
@@ -137,6 +137,6 @@
   "token_proxy": "M2-PROXY-2"
  },
  "ledger": "/workspace/provenance/port_m2/USED_CASE_LEDGER.tsv",
- "n_pool": 2633,
- "pool_sha256": "2cd777082d3d0f5d854c9d1f125d8ef6572787c606787d318070f4c013abe13f"
+ "n_pool": 3901,
+ "pool_sha256": "d656645e88ccd6883de702119776868ce8b8802b481d8d537b14be81496b08df"
 }

@@ -1,0 +1,20 @@
+# PORT M2 D-090.6 information ceiling (E6, hindsight-fit, NON-CAUSAL-BY-DESIGN) (PORT-M2-INFO-CEILING-V1)
+# NON-CAUSAL-BY-DESIGN: hindsight-fit upper bound over ALL E6 sessions (study + sealed blind). NOT a deployable result.
+# a boosted two-alternative forced choice on the ANTISYMMETRISED difference vector (each pair entered twice, (w-l)->1 and (l-w)->0)
+# k-fold = 5 folds of whole DAYS
+combination	n_fields	n_pairs	pair_acc_in_sample	pair_acc_kfold	fields
+top1 fields	1	3251	0.572132	0.572132	side
+top2 fields	2	3251	0.60566	0.561058	side,ret_sess_open_with
+top3 fields	3	3251	0.641341	0.574592	side,ret_sess_open_with,abs_mins_to_release
+top5 fields	5	3251	0.701323	0.560443	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with
+top10 fields	10	3251	0.725008	0.563519	side,ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with,xs_o2_ret1800_with,slope_1m_usd,p033_product,p033_sqrt,slope_5m_with
+top1 fields NO-SIDE	1	3251	0.55952	0.494617	ret_sess_open_with
+top2 fields NO-SIDE	2	3251	0.599508	0.491849	ret_sess_open_with,abs_mins_to_release
+top3 fields NO-SIDE	3	3251	0.632728	0.502615	ret_sess_open_with,abs_mins_to_release,accel_usd
+top5 fields NO-SIDE	5	3251	0.692095	0.520148	ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with,xs_o2_ret1800_with
+top10 fields NO-SIDE	10	3251	0.724085	0.520455	ret_sess_open_with,abs_mins_to_release,accel_usd,fph_sflow_with,xs_o2_ret1800_with,slope_1m_usd,p033_product,p033_sqrt,slope_5m_with,ret_phase_open_with
+ALL view fields	255	3251	0.799446	0.508459	(all)
+ALL view fields NO-SIDE	250	3251	0.824362	0.468779	(all)
+XASSET-ONLY all 30 fields	30	3251	0.744079	0.508151	(all)
+XASSET-ONLY top5 fields	5	3251	0.639496	0.499846	xs_o2_ret1800_with,xs_o1_leadlag30m_peak,xs_o1_sflow1800_with,xs_o2_sflow1800_with,xs_o1_rv60
+XASSET-ONLY top1 field	1	3251	0.538296	0.505998	xs_o2_ret1800_with

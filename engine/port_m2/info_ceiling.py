@@ -751,6 +751,11 @@ def _arm(E, X, name, arm, orc, d8, results):
               "note": "; ".join("%s %s r=%s" % (h, meta[h]["cfg"],
                                                 meta[h]["rounds"])
                                 for h in HEADS)})
+    # The take index is carried on the result so a CALLER can difference two
+    # arms' per-session dollars (the paired marginal interval `xasset._marginal`
+    # needs).  `_w` writes declared columns only, so nothing about the emitted
+    # tables changes.
+    r["_take_idx"] = tk
     results.append(r)
     return r
 
@@ -1038,11 +1043,16 @@ def _pair_acc(d, sign):
     return float(((v > 0).sum() + 0.5 * (v == 0).sum()) / v.size), int(v.size)
 
 
-def run_walls(out_dir=None):
+def run_walls(out_dir=None, E=None, prefix="", extra_combos=None):
+    """`E` and `prefix` are ADDITIVE: called with neither, this is the committed
+    census on the 225-column matrix writing WALL_*.tsv.  `xasset.run_walls`
+    passes the 255-column matrix and prefix="XASSET_" so the same arithmetic
+    runs on the extended field set into its own files — one definition of the
+    wall-pair census, two field sets (D-006)."""
     out_dir = out_dir or OUT_ROOT
     os.makedirs(out_dir, exist_ok=True)
     t0 = time.time()
-    E = load()
+    E = load() if E is None else E
     pairs, mids, atrs = build_pairs(E)
     n_all = len(pairs)
     tight = [p for p in pairs
@@ -1107,7 +1117,9 @@ def run_walls(out_dir=None):
                    + [(kk, ranked_ns, "top%d fields NO-SIDE")
                       for kk in (1, 2, 3, 5, 10)]
                    + [(len(cols), None, "ALL view fields"),
-                      (len(cols) - 1, ranked_ns, "ALL view fields NO-SIDE")])
+                      (len(cols) - 1, ranked_ns, "ALL view fields NO-SIDE")]
+                   + list(extra_combos(ranked) if callable(extra_combos)
+                          else (extra_combos or ())))
     for kk, src, tag in combo_specs:
         sel = ([cols.index(f) for f in src[:kk]] if src is not None
                else list(range(len(cols))))
@@ -1152,7 +1164,7 @@ def run_walls(out_dir=None):
         q["pair_id"] = "WP%04d" % n
         q["spread_usd"] = p["win_usd"] - p["lose_usd"]
         prows.append(q)
-    _w(os.path.join(PROV, "WALL_PAIRS.tsv"), pc, prows,
+    _w(os.path.join(PROV, prefix + "WALL_PAIRS.tsv"), pc, prows,
        ["A PAIR = same asset/day/phase-cell, OPPOSITE sides, decision seconds "
         "within K* (the frozen EPISODE_CAUSAL link constant: SI 180s / HG 120s "
         "/ NKD 150s), entry mids within %.2f x ATR14, one leg's phase-close "
@@ -1162,7 +1174,7 @@ def run_walls(out_dir=None):
         "the per-episode view fields of both legs are in "
         "WALL_DISCRIM.tsv (aggregated); episode indices are into "
         "artifacts/cache/port/m2/info_ceiling/episodes.npz"])
-    _w(os.path.join(PROV, "WALL_DISCRIM.tsv"),
+    _w(os.path.join(PROV, prefix + "WALL_DISCRIM.tsv"),
        ("rank", "field", "layer", "group", "n_pairs", "sign_for_winner",
         "mean_diff", "ci_lo", "ci_hi", "p_clustered_by_day",
         "pair_acc_in_sample", "pair_acc_kfold"),
@@ -1174,7 +1186,7 @@ def run_walls(out_dir=None):
         "NON-CAUSAL-BY-DESIGN: the pair set is defined by outcomes, so this "
         "table says what information EXISTS in the views, never what a live "
         "reader could have selected on"])
-    _w(os.path.join(PROV, "WALL_COMBOS.tsv"),
+    _w(os.path.join(PROV, prefix + "WALL_COMBOS.tsv"),
        ("combination", "n_fields", "n_pairs", "pair_acc_in_sample",
         "pair_acc_kfold", "fields"), combo,
        ["a boosted two-alternative forced choice on the ANTISYMMETRISED "
@@ -1190,7 +1202,8 @@ def run_walls(out_dir=None):
            "n_pairs_all": n_all, "n_pairs_tight": len(P),
            "win_usd": WIN_USD, "wall_usd": WALL_USD,
            "vicinity_atr": VICINITY_ATR, "secs": round(time.time() - t0, 1)}
-    with open(os.path.join(out_dir, "walls.receipt.json"), "w") as fh:
+    with open(os.path.join(out_dir, prefix.lower() + "walls.receipt.json"),
+              "w") as fh:
         json.dump(rec, fh, indent=1, sort_keys=True)
     return prows, rows, combo
 

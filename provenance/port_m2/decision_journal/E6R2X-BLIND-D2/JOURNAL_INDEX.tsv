@@ -1,0 +1,9 @@
+# PORT_M2_SHEETS_SPEC.md §3 R2-8 WRITTEN DECISION JOURNAL (the reasoning, kept) (spec_sha16=f6ef73a41dbf8588)
+# params_hash=3796093a852bd9bca19a65a6eb37a267acda6aea516f29002c1748840c0e10fc
+# R2-8 index: one row per journal entry; sha16 = sha256(entry body)[:16]
+# seq = row index (deterministic, no wall clock)
+seq	round	era	date8	mode	episode_id	call	p	reads	sha16	n_chars	path
+0	E6R2X-BLIND-D2	E6	20240430	BLIND	SI-20240430-L-E44	TAKE	0.17	ribbon:SI-20240430-051995-L T-10..T action grain, 176 events (10s is the tail that stays legible at 28 events/second); digest pass over all 598 episodes; brief:SI	2ab3d5e95e50df78	3409	/workspace/provenance/port_m2/decision_journal/E6R2X-BLIND-D2/JOURNAL_20240430.md
+1	E6R2X-BLIND-D2	E6	20240430	BLIND	SI-20240430-L-E51	SKIP	0.08	ribbon:SI-20240430-055830-L T-2..T action grain, 443 events (2s: this book prints 103 events/second and anything longer cannot be read row by row); digest pass; brief:SI	a030c878b4ca0aff	2211	/workspace/provenance/port_m2/decision_journal/E6R2X-BLIND-D2/JOURNAL_20240430.md
+2	E6R2X-BLIND-D2	E6	20240430	BLIND	SI-20240430-S-E64	SKIP	0.04	ribbon:SI-20240430-055817-S T-3..T then T-1..T action grain, 491 events in the final second; digest pass; brief:SI	bfda5d06a00197f3	1584	/workspace/provenance/port_m2/decision_journal/E6R2X-BLIND-D2/JOURNAL_20240430.md
+3	E6R2X-BLIND-D2	E6	20240430	BLIND	HG-20240430-L-E71	SKIP	0.05	ribbon:HG-20240430-051911-L T-8..T action grain, 169 events; digest pass; brief:HG	1f41970bd45e1453	1715	/workspace/provenance/port_m2/decision_journal/E6R2X-BLIND-D2/JOURNAL_20240430.md

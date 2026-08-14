@@ -520,3 +520,24 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
    'news-class' takes are re-labeled by ACTUAL release proximity, not family name.
 5. D-N2: the seal-sweep collision class recurred (reader seal swept census drafts) — already in the
    consolidated review's scope; no seal content affected.
+
+## CC-M2-24 — fix-pass adjudication (orchestrator, 2026-08-15; BINDING)
+1. THE PASS IS ACCEPTED in full (25 commits; corpus certified 0 leaks on 150,676 re-rendered sheets with a
+   non-vacuous certifier; holdout scrubbed from every walk incl. the forecaster's 131 trained-on rows;
+   corrected mirror/statistics live; ribbon + episode-round tooling built; E6 instrument verified).
+2. THE E1 GATE RE-RULED: on the fixed scoring, the reader BEAT the pre-registered baseline (+$10,972/round)
+   and 6 of 10 arms, with ~flat replay — the 'catastrophic fail' is retracted; but capture still missed its
+   bar, and decisive either way is impossible: THE SEALED CALLS WERE MADE ON CONTAMINATED SHEETS. Final
+   status: INSTRUMENT-INVALID / INCONCLUSIVE — superseded by the corrected walk-forward round. (R130: the
+   verdict file's stale numbers are marked superseded per the reconciliation TSV, final addendum.)
+3. GRAVEYARD RE-RULED: the four directional kills survive but their true grade is NO-DETECTED-EDGE-AT-LOW-
+   POWER (MDEs $1.6k-8.3k/session; P031's point estimate is POSITIVE +$3,647): 'dead as a RULE' stands,
+   'dead as INFORMATION' does not — all four enter the model feature set uncensored. P033 -> NULL;
+   V2/V3 -> RETAIN_UNPROVEN (advisory only until powered).
+4. RULINGS: (a) E1 carries NO compliance reading (5/12-day calendar coverage is era structure; per-era
+   compliance coverage reported in the walk-forward round); (b) bar (a) reference henceforth = the
+   PRE-REGISTERED arm (max-of-N is retired; median reported beside); (c) episode-grain cost measured at
+   ~478 deep reads per 3-asset day => the corrected round starts as ONE ERA INCREMENT (E6: stratified study
+   days then sealed blind days per D-088) with TOKEN BURN MEASURED on day one and scale set from it (D-081/
+   D-086 budget law) — eras advance as budget allows; (d) the round design freezes next THROUGH THE D-089
+   CONFORMANCE GATE (directives + evidence halves) as one document.

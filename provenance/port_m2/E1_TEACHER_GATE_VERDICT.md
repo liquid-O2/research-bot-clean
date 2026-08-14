@@ -61,3 +61,9 @@ forward aggregates; R02 S14 co-location) and bar (a) mis-constructed (R126: max-
 the MEDIAN arm the reader was POSITIVE and beat 9/13). Bars (b)/(c) failures stand as computed but on a
 contaminated instrument. THIS VERDICT IS SUPERSEDED: the gate re-derives on the fixed corpus, and the
 teacher's one clean test runs on the corrected episode-grain protocol per D-080/D-081.
+
+## FINAL ADDENDUM (CC-M2-24): numbers in this file predating the fix pass are SUPERSEDED — see
+E1_VERDICT_RECONCILIATION.tsv for each. Final status: INSTRUMENT-INVALID / INCONCLUSIVE. On corrected
+scoring the reader beat the pre-registered baseline (+$10,972/round, p=0.36) and 6 of 10 arms; capture
+missed its bar; the sealed calls were made on contaminated sheets, so only the corrected walk-forward
+round answers the teacher question. This file closes.

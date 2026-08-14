@@ -219,6 +219,25 @@ OVERRIDES = {
                                     "the post-FOMC trend leg with 2,760 events/60s and "
                                     "flow +10/+18 with the long. If capacity-exhaustion "
                                     "is a mean-reversion prior in disguise, this pays."),
+    # ================= SEALED BLIND BLOCK — E6-BLIND-D1, 2024-04-19 =========
+    # Natural decisions only (D-082). No outcome, oracle or S14 access of any
+    # kind was made for this date. Every one of the day's 861 episodes was read.
+    (20240419, "HG", "L65"): (0.20, "London/NY phase-open reset at 09:00 — the "
+                                    "capacity resets to $970 unspent with 4h of "
+                                    "phase, price is 6c off the session VWAP, "
+                                    "trades/min z +5.2, and both the 5-minute and "
+                                    "phase signed flow (+47/+47) run with the long. "
+                                    "This is the one structure that paid on all "
+                                    "three study days"),
+    (20240419, "HG", "S88"): (0.20, "NY phase, 13:14: the day's strongest one-sided "
+                                    "flow — 5-min -396 and phase -431 with the "
+                                    "short — into 1,320 of trapped volume above vs "
+                                    "39 below, a level 37c away, and $1,282 of "
+                                    "unspent phase move to travel into"),
+    (20240419, "SI", "S79"): (0.18, "NY-open capacity: $2,487 unspent and ~9h of "
+                                    "runway, price 6c from a level, 5-min flow -85 "
+                                    "and phase -102 both with the short, and the "
+                                    "trapped map is 1,063 above vs 0 below"),
     (20240118, "SI", "L47"): (0.12, "OR_EXT at 0, +200 slope5m, flow +127 — momentum "
                                     "but the phase is 60% spent"),
 }

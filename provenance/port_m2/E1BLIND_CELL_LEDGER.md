@@ -216,3 +216,23 @@
 **FIRST DAY THE CARD RULE REMOVED AN ASSET:** no NKD seat at all — its OPEN-DYNAMICS rows are refused by RV2 and no NKD NEWS-WINDOW row cleared the core.
 
 **FOMC EVE:** S12 shows the FOMC statement 1 day out. Tomorrow (day 11) is the largest creation-class day of the block (128 rows) and the round's biggest single test of the NEWS-WINDOW half of the declaration.
+
+## BLIND DAY 11 — 20211103 (sealed before any unblinding; policy RV2)
+
+**BLIND DAY 11 — 2021-11-03, FOMC DAY, 1,189 candidates (SI 549, HG 447, NKD 193), 128 creation-class rows (the largest of the block), 9 cells — and only 7 TAKEs and 2 seats.** Policy RV2, 47 cuts, coverage 1,189/1,189. **THE HEADLINE IS A STRUCTURAL ONE AND IT IS ABOUT SEATING, NOT SELECTION: on the day with the biggest scheduled event of the block, my policy spends the SI/NY seat at 13:02:50 — six hours and fifty-seven minutes BEFORE the FOMC statement (S12 prints the countdown on the row) — and the HG/NY seat at 14:31:17, five and a half hours before it.** Under CC-M2-10.3 phase-close seating with one position per (asset, phase) cell, the NY phase runs 13:00-22:59 and contains the entire FOMC; the earliest admitted row takes it. **Every FOMC candidate in this block is forfeited by construction.** That is not a judgement I made; it is the interaction of the seating rule with a filter that fires at opens.
+
+| cell | rows | creation-class rows | V2 fires | TAKEs | seat | side read (NOT traded) | conf | would-abstain | rolling R1/R2b at cell open | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| HG/LONDON | 96 | 0 | 0 | 0 | - | LONG | LOW | no | CLOSED/OPEN | S8 f30m +33 on 322 but all 152 phase contracts sit ABOVE the mid. Contradictory; LOW. |
+| HG/NY | 280 | 26 | 0 | 4 | HG-20211103-052277-S | LONG | LOW | no | CLOSED/CLOSED | S8 f5m +42 on 183 with the fuel map 152 below / 104 above, but the session is AT_RANGE 99% with **unspent $259** — a quarter of the bar — on FOMC day, which is precisely the day a range forecast should not be trusted. |
+| HG/TOKYO | 71 | 0 | 0 | 0 | - | SHORT | LOW | YES | CLOSED/OPEN | S8 f5m -29 on 83 with 75 of 109 above the mid and 8 of 13 through-book prints clearing the BID — the busiest TOKYO book of the round. WOULD-ABSTAIN (0.14). |
+| NKD/LONDON | 20 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/CLOSED | Empty. |
+| NKD/NY | 115 | 15 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | 7 contracts. |
+| NKD/TOKYO | 58 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | Zero contracts in every window at the open. |
+| SI/LONDON | 55 | 1 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | 8-contract phase on FOMC morning — the market is waiting. |
+| SI/NY | 451 | 79 | 5 | 3 | SI-20211103-046970-L | LONG | MED | no | CLOSED/OPEN | S8 every window buying into the open (60s +16 on 30, 5m +43 on 95, 30m +57 on 378, phase +26 on 70) with 63 of 70 contracts below the mid and 3 of 3 through-book prints clearing the ASK; S3 sess_ret +$325. The seat agrees with the read. |
+| SI/TOKYO | 43 | 0 | 0 | 0 | - | SHORT | LOW | YES | CLOSED/CLOSED | S8 fph -15 on 206 with 194 of 206 above the mid. WOULD-ABSTAIN (0-for-7). |
+
+**SEVEN TAKES ON THE BIGGEST CREATION-CLASS DAY OF THE BLOCK (128 rows).** The core refused 121 of them — mostly T1 (dead book in the pre-FOMC hours) and T4/T5 (no magnitude while the market waits). The filter behaves exactly as designed and the day's opportunity is untouched by it.
+
+**THE ROUND'S SEAT CLOCK, ELEVEN DAYS IN:** every seat sits either within ~5 minutes of a phase open or inside the 14:30/16:00 release windows. No seat has ever been spent between 08:00 and 13:00 or after 16:10.

@@ -209,3 +209,19 @@ CARD, not my eight sessions.
    opposite polarity V2 refuses it, and under the current one it is 0.09% from the floor.
 3. **First day the card rule removed an asset entirely** (no NKD seat) rather than redirecting it.
 4. Policy RV2 unchanged into the FOMC day.
+
+## AFTER DAY 11 (20211103 FOMC, sealed; 1,189 rows, 7 TAKEs, 2 seats)
+
+1. **THE EVENT-BLINDNESS OF EARLIEST-ROW SEATING, quantified.** On the block's biggest event day my
+   two seats were spent 6h57m and 5h29m BEFORE the FOMC statement — S12 prints the countdown on the
+   row — because the NY phase runs 13:00-22:59 and the seating rule takes the earliest admitted row.
+   The day's 128 creation-class candidates are forfeited by construction. **This is an architecture
+   finding, not a reader error:** a one-position-per-phase policy on a ten-hour phase must choose
+   between spending early and waiting for a KNOWN scheduled event, and the program's three-stage
+   decomposition (seat existence -> side -> moment) has no place to express that choice. Recorded,
+   not traded — an event-aware seating rule changes the replay contract (CC-M2-10.3), not my policy.
+2. **The core refused 121 of 128 creation-class rows today** — T1 on the dead pre-FOMC book, T4/T5
+   on absent magnitude. The filter behaved exactly as designed on the day it mattered most.
+3. **The round's seat clock is now final in shape:** every seat sits within ~5 minutes of a phase
+   open or inside the 14:30/16:00 release windows. None between 08:00 and 13:00, none after 16:10.
+4. Policy RV2 unchanged for the last day.

@@ -8,3 +8,13 @@ WP0181	B	0.58	A longs into the last aggression being a seller hitting the bid wi
 WP0110	A	0.68	A shorts with continuous sell aggression (S11/18 then S3/9, 39 then 16 bid cancels, zero buy prints in the last 4s) and a withdrawing bid; B longs immediately after a 26-lot seller hit the bid.
 WP0498	B	0.66	A shorts into a steady up-grind where the offer is pulled every second (14-19 ask cancels/s) and buyers keep printing; B longs with that trend on a 1-lot offer.
 WP0277	B	0.62	B longs a bid that reloads at 4.6165 (11-13 orders, repeated re-adds) while 24 ask cancels clear the offer and buyers take 15 lots; price is 6 ticks higher when A shorts a chopping book.
+WP1680	A	0.60	Both books are near-dead; B longs after the offer stack thins but price is 4 ticks lower 83s later, while A shorts into a bid that keeps cancelling down (38195->38190).
+WP0672	A	0.58	No trades in either window; B longs under a 7-13 lot offer wall at 32845 with a 2-lot bid, and the bid then cancels down step by step into A, which shorts with that drift.
+WP1381	A	0.68	A shorts as the bid is cancelled to 1 lot and the offer resets lower each second in a one-way 30-point slide; B buys the knife 30 seconds later at the lows with zero prints and a 4x1-lot bid.
+WP1790	A	0.62	Same price at both legs; B longs on a flickering 1-lot bid with four sell prints and no buy prints in the last 10s, while A shorts a book whose bid quietly cancels away.
+WP1248	A	0.60	B shorts right after a buyer lifted the 39125 offer, the offer above was cancelled down and the bid stepped up; A longs the same dead book one tick lower with a 5-order bid.
+WP1287	A	0.62	Opening quote-only book: the lone offer is modified steadily downward (39070->39050) against B long, and 16s later the whole quote is 20-30 points lower where A shorts.
+WP1183	A	0.58	At A the 40455 offer is cancelled away and the bid steps up 40445->40450 on new adds; at B the lone 40450 offer is again pulled, so both books show sellers withdrawing and the long is the side working.
+WP1338	A	0.65	Same price at both legs, but A longs as the 38015 offer is cancelled away order by order and the 38010 bid rebuilds, and B shorts exactly as two buy prints consume the fresh 38015 offer.
+WP0888	A	0.68	B shorts as the 37940 offer is cancelled away and the bid rebuilds; 99s later price is two ticks higher and A longs a bid stacking to 6 lots/5 orders after a buyer cleared the 37950 offer.
+WP1120	B	0.55	Near-identical dead books; B shorts the higher quote and price is already two ticks lower when A longs the same structure, with no aggression on either side to override that drift.

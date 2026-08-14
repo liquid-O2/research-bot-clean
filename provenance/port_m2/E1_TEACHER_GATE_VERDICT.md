@@ -39,3 +39,11 @@ readers teach; they do not scale as callers (PROGRAM_RECORD:17).
    re-seats after stop-outs = deployment-correct, stands; both seatings reported); the deployable readings
    recompute on NEWS_DISTANCE flags (CC-M2-22.4) for the record — direction unaffected; the E1 blind days
    are now SPENT for gate purposes (one-way door) and become study material per D-035.
+
+## ADDENDUM (2026-08-14, D-078): EFFORT CONFOUND + TEACHER-EVIDENCE PRIMACY
+The user reports the session was not at max effort during later rounds; reader lanes relied on session-level
+inheritance (D-072), so the blind reader may have run below mandate. The reader-capability conclusion is
+therefore CONFOUNDED; the census-based diagnosis stands independently. A confirmed-max VERIFICATION BLIND
+ROUND on fresh days is authorized once the session effort is pinned. Restated for the record: this verdict
+closed CALL-IMITATION only — teacher-EVIDENCE distillation is the core of M3's feature program (D-078.1),
+exactly as IWM proved it.

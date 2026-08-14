@@ -99,3 +99,39 @@ file, no unblinding until the whole 12-day block is sealed — so nothing here c
 4. **T4's 5% floor decided the best-agreeing seat of the round** (SI/NY at 5.45%). D24's uncensused
    constants are not decoration; they are choosing the seats.
 5. Policy UNCHANGED (RV1). Everything above is structure and defect, not outcome.
+
+## AFTER DAY 5 (20211026, sealed; 858 rows, 17 TAKEs, 2 seats) — **THE ROUND'S ONE POLICY EVOLUTION**
+
+**THE EVIDENCE (ex ante, read off the blind sheets' own S13 committed census cards, era E1 — there
+is no outcome anywhere in this table):**
+
+| asset | class | n | cond_value | mean_cert | win_frac |
+|---|---|---|---|---|---|
+| SI | **NEWS-WINDOW** | 2,696 | $1,042.88 | **+$26.63** | **0.1187** |
+| SI | OPEN-DYNAMICS | 1,283 | $848.32 | -$1.91 | 0.0826 |
+| SI | REVERSAL (bulk) | 44,823 | $654.86 | -$29.54 | 0.0590 |
+| HG | OPEN-DYNAMICS | 946 | $650.35 | -$21.29 | 0.0772 |
+| HG | NEWS-WINDOW | 1,609 | $704.60 | -$23.35 | 0.0653 |
+| HG | REVERSAL (bulk) | 43,387 | $516.84 | -$32.65 | 0.0463 |
+| HG | **SHOCK-RESOLUTION** | **13** | $184.06 | **-$456.44** | **0.0000** |
+| NKD | NEWS-WINDOW | 1,013 | $719.92 | -$34.66 | 0.0800 |
+| NKD | **OPEN-DYNAMICS** | 1,237 | $728.08 | **-$58.49** | 0.0582 |
+| NKD | REVERSAL (bulk) | 47,797 | $587.82 | -$44.97 | 0.0467 |
+
+**THE RULE I ADOPT FROM DAY 6 (policy RV2): trade a creation class only where its own asset's era
+card beats that asset's REVERSAL bulk on BOTH win_frac and mean_cert.** That drops exactly two
+cells: **NKD/OPEN-DYNAMICS** (worse than the bulk it is supposed to beat) and **SHOCK-RESOLUTION**
+(13 candidates, zero winners, -$456 mean — **my own day-0 registered increment, killed by the port's
+own committed census before it ever traded**). Everything else is unchanged: same five core terms,
+same V2, no side, no vol, no capacity, no abstention.
+
+**WHY THIS IS LAWFUL AND WHY IT IS NOT FITTING:** the card is a committed census printed on every
+sheet, strictly prior, with no outcome content; CC-M2-20.2 permits evolution between days via
+committed notes; and the change is stated as a RULE over the card, not as a list of cells I like.
+The arms file records DECLARED vs READER on every row of every day, so the scorer can price this
+increment exactly.
+
+**AND THE HONEST SELF-CRITICISM:** this table was on every sheet of the study round too. My
+declaration was built on 493 study rows when a 100,000-row committed census of the same object was
+one section away. If the creation-class finding survives this round, its provenance should be the
+CARD, not my eight sessions.

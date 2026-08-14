@@ -78,3 +78,23 @@
 **SIX SEATS, AND FIVE OF THEM ARE OPENS:** TOKYO 00:00:19 and 00:00:21, LONDON 07:00:37, NY 13:02:04, plus two release-window seats at 14:35 and 15:33. The clock concentration noted on day 3 is now the round's defining shape.
 
 **THE TWO TOKYO SEATS ARE THE D28 HOLE MADE VISIBLE** and they are graded B by my own rule-independent grade (q50 $876 and $1,431 against the $1,500 A band) — the grade is doing the one job the core is not.
+
+## BLIND DAY 5 — 20211026 (sealed before any unblinding; policy RV1)
+
+**BLIND DAY 5 — 2021-10-26, 858 candidates (SI 398, HG 274, NKD 186), 45 creation-class rows, 9 cells, 17 TAKEs, 2 seats (SI/NY and HG/NY, both LONG, 23 seconds apart at the 14:31 release).** Policy RV1, 47 cuts. No open fired today — every phase-open row failed the core or the class — so the day is a pure release bet. **THE DAY'S FINDING IS THE FULL EX-ANTE CARD TABLE**, assembled from the blind sheets themselves (S13, era E1, no outcome anywhere in it): SI NEWS-WINDOW n=2,696 cond_value $1,042.88 mean_cert **+$26.63** win_frac **0.1187** — the ONLY positive cell on the board; SI OPEN-DYNAMICS 1,283 / $848 / -$1.91 / 0.0826; HG OPEN-DYNAMICS 946 / $650 / -$21.29 / 0.0772; HG NEWS-WINDOW 1,609 / $705 / -$23.35 / 0.0653; NKD NEWS-WINDOW 1,013 / $720 / -$34.66 / 0.0800; NKD OPEN-DYNAMICS 1,237 / $728 / **-$58.49** / 0.0582; **HG SHOCK-RESOLUTION 13 / $184 / -$456.44 / 0.0000**; against the REVERSAL bulks SI 44,823 / -$29.54 / 0.0590, HG 43,387 / -$32.65 / 0.0463, NKD 47,797 / -$44.97 / 0.0467. Two cells of my class set FAIL their own asset's bulk on mean certificate: **NKD/OPEN-DYNAMICS and SHOCK-RESOLUTION** — the latter being my one registered increment, contradicted by the port's own committed census before it ever traded. The evolution note is written for day 6; today is sealed under RV1 and today's takes contain neither cell.
+
+| cell | rows | creation-class rows | V2 fires | TAKEs | seat | side read (NOT traded) | conf | would-abstain | rolling R1/R2b at cell open | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| HG/LONDON | 68 | 0 | 0 | 0 | - | SHORT | MED | no | CLOSED/OPEN | S8 phase -50 on 176 and f30m -54 on 194 with 115 of 176 above the mid and 7 of 8 through-book prints clearing the BID; rv_collapse 11.99 is the highest of the round — the move is over and the tape is thin. |
+| HG/NY | 141 | 8 | 0 | 4 | HG-20211026-052324-L | SHORT | LOW | no | CLOSED/OPEN | S8 f30m -130 on 687 with a 42-contract phase; 5 of 6 through-book prints clearing the BID. Thin. |
+| HG/TOKYO | 65 | 1 | 0 | 0 | - | SHORT | LOW | YES | CLOSED/OPEN | S8 fph -14 on 226, 224 of 226 above the mid, but f5m is -2 on 4 contracts — the phase read is 40 minutes stale relative to the decision (the CC-M2-19.1 anchor law in miniature). WOULD-ABSTAIN (0.14). |
+| NKD/LONDON | 19 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/CLOSED | AT_RANGE 77.2%, empty phase. |
+| NKD/NY | 59 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/CLOSED | 7 contracts in the phase; AT_RANGE 85.9% with unspent $444 — nothing to trade and nothing to read. |
+| NKD/TOKYO | 108 | 1 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | S8 0 contracts in every window at the cell open. Nothing. |
+| SI/LONDON | 61 | 0 | 0 | 0 | - | SHORT | LOW | no | CLOSED/OPEN | S8 f30m -22 on 172 into a 19-contract phase; mid on the phase L 16s old; rv_collapse 6.82 (the vol that made the level has already gone). |
+| SI/NY | 302 | 35 | 2 | 13 | SI-20211026-052301-L | SHORT | LOW | no | CLOSED/CLOSED | S8 phase -36 on 213 and f30m -29 on 609 against f60 +28 on 118 — horizon disagreement into the open; 184 of 213 contracts BELOW the mid, which is fuel for a bounce. Genuinely mixed, and the policy's seat here is a LONG 90 minutes later at the release. |
+| SI/TOKYO | 35 | 0 | 0 | 0 | - | SHORT | LOW | YES | CLOSED/CLOSED | S8 fph -29 on 255 with 231 of 255 above the mid; mid at the phase L. WOULD-ABSTAIN (0-for-7), TOKYO q50 $859 below the bar. |
+
+**A PURE RELEASE DAY:** both seats sit inside the same 14:31-14:32 release window, 23 seconds apart, in the two metals. Days 1, 3, 5 have now each produced a two-seat day where the seats are one bet.
+
+**THE EVOLUTION IS WRITTEN FOR DAY 6, NOT TODAY:** dropping SHOCK-RESOLUTION and NKD/OPEN-DYNAMICS is argued in BLIND_NOTES from the card table above; neither cell appears in today's 17 takes, so today's seal is unaffected either way.

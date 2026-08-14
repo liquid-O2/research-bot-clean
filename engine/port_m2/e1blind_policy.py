@@ -74,9 +74,20 @@ READER = "opus-discretionary"
 # day_from -> (version, {params}, note)
 VERSIONS = [
     (1, "RV1", {"classes": ("NEWS-WINDOW", "OPEN-DYNAMICS",
-                            "SHOCK-RESOLUTION")},
+                            "SHOCK-RESOLUTION"), "drop_cells": ()},
      "registered before blind day 1: the declaration + SHOCK-RESOLUTION as the "
      "third CREATION class (B1; zero such rows existed in the study pool)"),
+    (6, "RV2", {"classes": ("NEWS-WINDOW", "OPEN-DYNAMICS"),
+                "drop_cells": (("NKD", "OPEN-DYNAMICS"),)},
+     "BLIND_NOTES 'AFTER DAY 5': THE CARD RULE. A creation class is traded only "
+     "where the sheet's own committed era-E1 census card beats that asset's "
+     "REVERSAL-CONFIRMATION bulk on BOTH win_frac and mean_cert. Ex ante, no "
+     "outcome: SI NEWS +$26.63/0.1187, SI OPEN -$1.91/0.0826, HG NEWS "
+     "-$23.35/0.0653, HG OPEN -$21.29/0.0772, NKD NEWS -$34.66/0.0800 all pass "
+     "their bulks (SI -$29.54/0.0590, HG -$32.65/0.0463, NKD -$44.97/0.0467); "
+     "**NKD/OPEN-DYNAMICS (-$58.49) and SHOCK-RESOLUTION (HG n=13, 0 winners, "
+     "-$456.44) FAIL and are dropped.** The dropped increment is my own day-0 "
+     "registration, contradicted by the port's own census before it traded"),
 ]
 
 K_FALLBACK = {"NKD": 2.90, "HG": 4.70, "SI": 3.95}
@@ -111,6 +122,8 @@ def grade(r):
 
 
 def klass(r, params):
+    if (r.get("asset"), r.get("cls")) in params.get("drop_cells", ()):
+        return False
     return r.get("cls") in params["classes"]
 
 

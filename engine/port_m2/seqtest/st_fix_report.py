@@ -320,6 +320,47 @@ def write_transfer(name="SEQTEST2_TRANSFER.tsv"):
                               "tokenizer repair."])
 
 
+def write_moment(D, tags, name="SEQTEST2_MOMENT.tsv"):
+    """THE MOMENT LAYER, re-isolated for the fix pass's arms: the episode is
+    held FIXED and the only choice is which second inside it — the arm's argmax
+    against the EARLIEST actable member, which is what the reader takes."""
+    rows = []
+    for tag, form in tags:
+        champ, win = _load(D, tag)
+        for era in SC.TEST_ERAS:
+            ev = np.nonzero(D["era_idx"] == SC.ERA_IDX[era])[0]
+            ev = ev[np.isfinite(champ[ev])]
+            if ev.size == 0:
+                continue
+            s = R.composed(D, champ, win, ev) if form == "composed" else champ
+            m = R.moment_gain(D, s, ev, tag, era)
+            rows.append([tag, form, era, m["n_episodes"],
+                         R._r(m["earliest_usd_per_ep"]),
+                         R._r(m["model_usd_per_ep"]),
+                         R._r(m["gain_usd_per_ep"]), R._r(m["gain_lo"]),
+                         R._r(m["gain_hi"]),
+                         ("%.3g" % m["gain_p"]) if m["gain_p"] is not None
+                         else ""])
+            SC.hb("moment %s %s %s: %+.2f/ep" % (tag, form, era,
+                                                 m["gain_usd_per_ep"] or 0.0))
+    # the non-causal ceiling, on the same episodes
+    for era in SC.TEST_ERAS:
+        ev = np.nonzero(D["era_idx"] == SC.ERA_IDX[era])[0]
+        m = R.moment_gain(D, D["cert_close_usd"], ev, "FORESIGHT", era)
+        rows.append(["FORESIGHT_NONCAUSAL", "ceiling", era, m["n_episodes"],
+                     R._r(m["earliest_usd_per_ep"]),
+                     R._r(m["model_usd_per_ep"]), R._r(m["gain_usd_per_ep"]),
+                     R._r(m["gain_lo"]), R._r(m["gain_hi"]), ""])
+    return R.write_tsv(name, ["arm", "form", "era", "n_episodes",
+                              "earliest_usd_per_ep", "model_usd_per_ep",
+                              "gain_usd_per_ep", "gain_lo", "gain_hi",
+                              "gain_p"], rows,
+                       extra=["The episode is FIXED (the frozen `ep`); the only "
+                              "choice is which second inside it.  "
+                              "Multi-member episodes only, D-077 veto applied, "
+                              "CIs clustered by DAY."])
+
+
 def write_occupancy(name="SEQTEST2_TOKEN_OCCUPANCY.tsv"):
     with open(TK2.CUTS_PATH) as fh:
         cuts = json.load(fh)
@@ -342,6 +383,7 @@ def main():
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--arms", action="store_true")
     ap.add_argument("--tables", action="store_true")
+    ap.add_argument("--moment", default="")
     a = ap.parse_args()
     import m3_walk as W
     if a.all or a.tables:
@@ -358,7 +400,12 @@ def main():
         with open(os.path.join(SC.CACHE_ROOT, "fixpass2_arms.json"), "w") as fh:
             json.dump(rows, fh, indent=1, default=str)
         write_arms(rows)
-    if not (a.all or a.arms or a.tables):
+    if a.moment:
+        D, _p = W.load_matrix()
+        tags = [tuple(x.split(":")) if ":" in x else (x, "composed")
+                for x in a.moment.split(",") if x]
+        write_moment(D, tags)
+    if not (a.all or a.arms or a.tables or a.moment):
         ap.print_help()
 
 

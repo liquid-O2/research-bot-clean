@@ -212,18 +212,39 @@ def context_block(D, daymem):
             list(D["names"]) + list(A2.MEM_COLS))
 
 
+def trunk_tokenizer(trunk, default="v1"):
+    """A trunk's own vocabulary, read from its receipt — a fused ranker that
+    embedded V2 windows with a V1 trunk (or the reverse) would be reading a
+    different alphabet from the one the trunk was trained on."""
+    if trunk in (None, "NONE"):
+        return default
+    if trunk.endswith("_V2") or trunk.startswith("PRE_V2"):
+        default = "v2"
+    p = os.path.join(P.TRUNK_DIR, "%s.json" % trunk)
+    if os.path.exists(p):
+        with open(p) as fh:
+            return str(json.load(fh).get("tokenizer", default))
+    return default
+
+
 def run(trunk="NONE", mode="ctx", group="day", losses=("listnet", "listmle"),
         hardneg=0.0, daymem=False, test_eras=SC.TEST_ERAS, tag=None,
-        shuffle=False):
-    ft = P.load_ft()
-    D, pos = ft["D"], ft["pos"]
+        shuffle=False, tokver=None):
+    P.use_tokenizer(tokver or trunk_tokenizer(trunk))
+    if mode == "ctx":
+        # a context-only ranker never touches a tensor: skip the 2.4 GB token
+        # load entirely
+        import m3_walk as W
+        D, _p = W.load_matrix()
+        pos = np.zeros(D["d8"].size, dtype=np.int64)
+    else:
+        ft = P.load_ft()
+        D, pos = ft["D"], ft["pos"]
     C, cnames = context_block(D, daymem)
     E = (np.asarray(P.embed_all(trunk))
          if (mode in ("seq", "fused") and trunk != "NONE") else None)
     if mode in ("seq", "fused") and E is None:
         raise SC.SeqTestRefusal("mode %r needs a trunk; got %r" % (mode, trunk))
-    if mode == "ctx":
-        pos = np.zeros(D["d8"].size, dtype=np.int64)   # no tensor needed
     klass, cls_names = RK.class_index(D)
     ceil = R.ceilings_of(D)
     value = D["cert_close_usd"].astype(np.float64)
@@ -329,6 +350,7 @@ def run(trunk="NONE", mode="ctx", group="day", losses=("listnet", "listmle"),
                          "L": P.CTX, "classes": cls_names,
                          "pretrained": (E is not None
                                         and not trunk.startswith("RANDOM")),
+                         "tokenizer": P.TOKVER(), "vocab": P.VOCAB(),
                          "per_era": [R._strip(a) for a in per], "pooled": pool,
                          "ledger": ledger, "gpu": R.gpu_note()})
     np.savez(os.path.join(R._sdir(), "%s.npz" % name), champ=score, win=score)
@@ -455,6 +477,7 @@ def main():
     ap.add_argument("--eras", default=",".join(SC.TEST_ERAS))
     ap.add_argument("--tag", default=None)
     ap.add_argument("--shuffle", action="store_true")
+    ap.add_argument("--tokver", default=None)
     a = ap.parse_args()
     eras = tuple(x for x in a.eras.split(",") if x)
     if a.lmart:
@@ -464,7 +487,7 @@ def main():
         run(a.trunk, mode=a.mode, group=a.group,
             losses=tuple(x for x in a.losses.split(",") if x),
             hardneg=a.hardneg, daymem=a.daymem, test_eras=eras, tag=a.tag,
-            shuffle=a.shuffle)
+            shuffle=a.shuffle, tokver=a.tokver)
     else:
         ap.print_help()
 

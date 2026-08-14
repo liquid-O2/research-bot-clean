@@ -75,10 +75,12 @@ def stage_ft(steps=1500, trunk=None):
     trunk = trunk or t
     cells = [
         # (trunk, unfreeze, lora, pool, daymem, scratch, tag)
+        # ORDER MATTERS: the headline arm and its RANDOM-TRUNK control first,
+        # so a wall-clock stop can never leave a treatment without its control.
         (trunk, 4, 0, "attn", False, False, "FT2_TOP4_ATTN"),
+        ("RANDOM_V2", 4, 0, "attn", False, True, "FT2_RANDOM_TOP4_ATTN"),
         (trunk, 4, 0, "attn", True, False, "FT2_TOP4_ATTN_MEM"),
         (trunk, 0, 16, "attn", False, False, "FT2_LORA16_ATTN"),
-        ("RANDOM_V2", 4, 0, "attn", False, True, "FT2_RANDOM_TOP4_ATTN"),
     ]
     for tr, unf, lora, pool, mem, scr, tag in cells:
         if os.path.exists(os.path.join(R.RES_DIR, "%s.json" % tag)):

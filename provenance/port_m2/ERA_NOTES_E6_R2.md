@@ -115,3 +115,18 @@ The side is given; the question is whether the exhaustion is genuine. Three HIGH
 6. **Asset allocation is a decision, not an accident.** Round 1 spent 9 of 22 seats on the 0.36x asset and 7
    on the 0.07x phase. HG produced 0 winners in 267 episodes on one study day and is the weakest asset on
    2 of 3; NKD is >= 1.0x on 3/3. I will not spend a seat on HG without a sequence read that is unambiguous.
+
+## R2 BLIND ADJUDICATION (orchestrator; scored via episode_round + panel_score, receipts r2_blind_score/)
+- TAKES (3, one/day, all ribbon-decided, all protocol-valid): SI 0424 S -$930 | HG 0425 S -$930 | SI 0426 S +$1,157.
+  POOL -$703. n=3 — no bar is decidable at this n; the wall variance ($930) dominates.
+- SHORTLIST QUALITY (13 eps): 3 paid >=$1k (23% vs ~7% base = 3.3x enrichment) — the SHORTLIST is enriched;
+  the final take/skip WITHIN it added nothing measurable this round (takes 1/3 vs skipped 2/10 winners).
+  Two skipped winners sat at p=0.06 (NKD +$1,620, SI +$1,945).
+- POOLED HAND CHANNEL (rounds 1+2): 10 takes, +$3,119 total, +$312/trade — positive, CI wide, undecided.
+- PROTOCOL: PERFECT for the first time (enforcement live, journals written, ribbon-decided, compliance vetoes
+  honored incl. the round's largest capacity refused on the release day).
+- STUDY FINDING (library re-test, mechanical): round 1's PROVEN cues decay/invert day-to-day WITHIN era+vol
+  class (SEAT_LIVE 2.62x -> 1.79/1.57/0.97) — cue lifts are day-regime-dependent at a granularity below eras;
+  falsifications replicate better than proofs. Fed to the cue ledger (2 round blocks).
+- RULING: EXTEND, don't redesign — the instrument is right, n is not. 5 more sealed blind days, same frozen
+  protocol, no new study, target pooled hand n~15; then the two-round+extension verdict.

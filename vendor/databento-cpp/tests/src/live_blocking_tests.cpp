@@ -1,0 +1,1013 @@
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+#include <openssl/sha.h>  //  SHA256_DIGEST_LENGTH
+
+#include <atomic>
+#include <chrono>  // milliseconds
+#include <condition_variable>
+#include <memory>
+#include <mutex>   // lock_guard, mutex, unique_lock
+#include <thread>  // this_thread
+#include <utility>
+#include <variant>
+#include <vector>
+
+#include "databento/constants.hpp"  // dataset
+#include "databento/datetime.hpp"
+#include "databento/enums.hpp"  // Schema, SType
+#include "databento/exceptions.hpp"
+#include "databento/ireadable.hpp"
+#include "databento/live.hpp"
+#include "databento/live_blocking.hpp"
+#include "databento/live_subscription.hpp"
+#include "databento/log.hpp"
+#include "databento/record.hpp"
+#include "databento/symbology.hpp"
+#include "databento/with_ts_out.hpp"
+#include "mock/mock_log_receiver.hpp"
+#include "mock/mock_lsg_server.hpp"  // MockLsgServer
+#include "mock/mock_tcp_server.hpp"  // MockTcpServer
+
+namespace databento::tests {
+class LiveBlockingTests : public testing::Test {
+ protected:
+  template <typename T>
+  static constexpr RecordHeader DummyHeader(RType rtype) {
+    return {sizeof(T) / RecordHeader::kLengthMultiplier, rtype, 1, 1, UnixNanos{}};
+  }
+
+  static constexpr auto kKey = "32-character-with-lots-of-filler";
+  static constexpr auto kLocalhost = "127.0.0.1";
+
+  mock::MockLogReceiver logger_ =
+      mock::MockLogReceiver::AssertNoLogs(LogLevel::Warning);
+  LiveBuilder builder_{LiveBuilder{}.SetLogReceiver(&logger_).SetKey(kKey)};
+};
+
+TEST_F(LiveBlockingTests, TestAuthentication) {
+  constexpr auto kTsOut = false;
+  constexpr auto kHeartbeatInterval = std::chrono::seconds{10};
+  const mock::MockLsgServer mock_server{dataset::kXnasItch, kTsOut, kHeartbeatInterval,
+                                        [](mock::MockLsgServer& self) {
+                                          self.Accept();
+                                          self.Authenticate();
+                                        }};
+
+  const LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                                  .SetHeartbeatInterval(kHeartbeatInterval)
+                                  .SetAddress(kLocalhost, mock_server.Port())
+                                  .BuildBlocking();
+}
+
+TEST_F(LiveBlockingTests, TestAuthenticationWithSlowReaderBehavior) {
+  constexpr auto kTsOut = false;
+  constexpr auto kSlowReaderBehavior = SlowReaderBehavior::Warn;
+  const mock::MockLsgServer mock_server{dataset::kXnasItch, kTsOut, kSlowReaderBehavior,
+                                        [](mock::MockLsgServer& self) {
+                                          self.Accept();
+                                          self.Authenticate();
+                                        }};
+
+  const LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                                  .SetSlowReaderBehavior(kSlowReaderBehavior)
+                                  .SetAddress(kLocalhost, mock_server.Port())
+                                  .BuildBlocking();
+}
+
+TEST_F(LiveBlockingTests, TestStartAndUpgrade) {
+  constexpr auto kTsOut = true;
+  for (const auto [upgrade_policy, exp_version] :
+       {std::make_pair(VersionUpgradePolicy::AsIs, 1),
+        std::make_pair(VersionUpgradePolicy::UpgradeToV2, 2),
+        std::make_pair(VersionUpgradePolicy::UpgradeToV3, 3)}) {
+    const mock::MockLsgServer mock_server{dataset::kGlbxMdp3, kTsOut,
+                                          [](mock::MockLsgServer& self) {
+                                            self.Accept();
+                                            self.Authenticate();
+                                            self.Start();
+                                          }};
+
+    LiveBlocking target = builder_.SetAddress(kLocalhost, mock_server.Port())
+                              .SetSendTsOut(kTsOut)
+                              .SetDataset(dataset::kGlbxMdp3)
+                              .SetUpgradePolicy(upgrade_policy)
+                              .BuildBlocking();
+    const auto metadata = target.Start();
+    EXPECT_EQ(metadata.version, exp_version);
+    EXPECT_FALSE(metadata.schema.has_value());
+    EXPECT_EQ(metadata.dataset, dataset::kGlbxMdp3);
+  }
+}
+
+TEST_F(LiveBlockingTests, TestSubscribe) {
+  constexpr auto kTsOut = false;
+  constexpr auto kDataset = dataset::kXnasItch;
+  const std::vector<std::string> kSymbols{"MSFT", "TSLA", "QQQ"};
+  const auto kSchema = Schema::Ohlcv1M;
+  const auto kSType = SType::RawSymbol;
+
+  const mock::MockLsgServer mock_server{
+      kDataset, kTsOut, [&kSymbols, kSchema, kSType](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        self.Subscribe(kSymbols, kSchema, kSType, true);
+      }};
+
+  LiveBlocking target = builder_.SetDataset(kDataset)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  target.Subscribe(kSymbols, kSchema, kSType);
+}
+
+TEST_F(LiveBlockingTests, TestSubscriptionChunkingUnixNanos) {
+  constexpr auto kTsOut = false;
+  constexpr auto kDataset = dataset::kXnasItch;
+  const auto kSymbol = "TEST";
+  const std::size_t kSymbolCount = 1001;
+  const auto kSchema = Schema::Ohlcv1M;
+  const auto kSType = SType::RawSymbol;
+
+  const mock::MockLsgServer mock_server{
+      kDataset, kTsOut,
+      [kSymbol, kSymbolCount, kSchema, kSType](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        std::size_t i{};
+        while (i < kSymbolCount) {
+          const auto chunk_size =
+              std::min(static_cast<std::size_t>(500), kSymbolCount - i);
+          const std::vector<std::string> symbols_chunk(chunk_size, kSymbol);
+          self.Subscribe(symbols_chunk, kSchema, kSType,
+                         i + chunk_size == kSymbolCount);
+          i += chunk_size;
+        }
+      }};
+
+  LiveBlocking target = builder_.SetDataset(kDataset)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  const std::vector<std::string> kSymbols(kSymbolCount, kSymbol);
+  target.Subscribe(kSymbols, kSchema, kSType);
+}
+
+TEST_F(LiveBlockingTests, TestSubscriptionUnixNanos0) {
+  constexpr auto kTsOut = false;
+  constexpr auto kDataset = dataset::kXnasItch;
+  const std::vector<std::string> kSymbols = {"TEST1", "TEST2"};
+  const auto kSchema = Schema::Ohlcv1M;
+  const auto kSType = SType::RawSymbol;
+  const auto kStart = UnixNanos{};
+
+  const mock::MockLsgServer mock_server{
+      kDataset, kTsOut,
+      [&kSymbols, kSchema, kSType, kStart](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        std::size_t i{};
+        self.Subscribe(kSymbols, kSchema, kSType, "0", true);
+      }};
+
+  LiveBlocking target = builder_.SetDataset(kDataset)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  target.Subscribe(kSymbols, kSchema, kSType, kStart);
+}
+
+TEST_F(LiveBlockingTests, TestSubscriptionChunkingStringStart) {
+  constexpr auto kTsOut = false;
+  constexpr auto kDataset = dataset::kXnasItch;
+  const auto kSymbol = "TEST";
+  const std::size_t kSymbolCount = 1001;
+  const auto kSchema = Schema::Ohlcv1M;
+  const auto kSType = SType::RawSymbol;
+  const auto kStart = "2020-01-01T00:00:00";
+
+  const mock::MockLsgServer mock_server{
+      kDataset, kTsOut,
+      [kSymbol, kSymbolCount, kSchema, kSType, kStart](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        std::size_t i{};
+        while (i < kSymbolCount) {
+          const auto chunk_size =
+              std::min(static_cast<std::size_t>(500), kSymbolCount - i);
+          const std::vector<std::string> symbols_chunk(chunk_size, kSymbol);
+          self.Subscribe(symbols_chunk, kSchema, kSType, kStart,
+                         i + chunk_size == kSymbolCount);
+          i += chunk_size;
+        }
+      }};
+
+  LiveBlocking target = builder_.SetDataset(kDataset)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  const std::vector<std::string> kSymbols(kSymbolCount, kSymbol);
+  target.Subscribe(kSymbols, kSchema, kSType, kStart);
+}
+
+TEST_F(LiveBlockingTests, TestSubscribeSnapshot) {
+  constexpr auto kTsOut = false;
+  constexpr auto kDataset = dataset::kXnasItch;
+  const auto kSymbol = "TEST";
+  const std::size_t kSymbolCount = 1001;
+  const auto kSchema = Schema::Ohlcv1M;
+  const auto kSType = SType::RawSymbol;
+  const auto kUseSnapshot = true;
+
+  const mock::MockLsgServer mock_server{
+      kDataset, kTsOut,
+      [kSymbol, kSymbolCount, kSchema, kSType,
+       kUseSnapshot](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        std::size_t i{};
+        while (i < kSymbolCount) {
+          const auto chunk_size =
+              std::min(static_cast<std::size_t>(500), kSymbolCount - i);
+          const std::vector<std::string> symbols_chunk(chunk_size, kSymbol);
+          self.SubscribeWithSnapshot(symbols_chunk, kSchema, kSType,
+                                     i + chunk_size == kSymbolCount);
+          i += chunk_size;
+        }
+      }};
+
+  LiveBlocking target = builder_.SetDataset(kDataset)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  const std::vector<std::string> kSymbols(kSymbolCount, kSymbol);
+  target.SubscribeWithSnapshot(kSymbols, kSchema, kSType);
+}
+
+TEST_F(LiveBlockingTests, TestInvalidSubscription) {
+  constexpr auto kTsOut = false;
+  constexpr auto kDataset = dataset::kXnasItch;
+  const std::vector<std::string> kNoSymbols{};
+  const auto kSchema = Schema::Ohlcv1M;
+  const auto kSType = SType::RawSymbol;
+
+  const mock::MockLsgServer mock_server{kDataset, kTsOut,
+                                        [](mock::MockLsgServer& self) {
+                                          self.Accept();
+                                          self.Authenticate();
+                                        }};
+
+  LiveBlocking target = builder_.SetDataset(kDataset)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+
+  ASSERT_THROW(target.Subscribe(kNoSymbols, kSchema, kSType),
+               databento::InvalidArgumentError);
+}
+
+TEST_F(LiveBlockingTests, TestNextRecord) {
+  constexpr auto kTsOut = false;
+  const auto kRecCount = 12;
+  constexpr OhlcvMsg kRec{DummyHeader<OhlcvMsg>(RType::Ohlcv1M), 1, 2, 3, 4, 5};
+  const mock::MockLsgServer mock_server{dataset::kXnasItch, kTsOut,
+                                        [kRec, kRecCount](mock::MockLsgServer& self) {
+                                          self.Accept();
+                                          self.Authenticate();
+                                          for (size_t i = 0; i < kRecCount; ++i) {
+                                            self.SendRecord(kRec);
+                                          }
+                                        }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  for (size_t i = 0; i < kRecCount; ++i) {
+    const auto rec = target.NextRecord();
+    ASSERT_TRUE(rec.Holds<OhlcvMsg>()) << "Failed on call " << i;
+    EXPECT_EQ(rec.Get<OhlcvMsg>(), kRec);
+  }
+}
+
+TEST_F(LiveBlockingTests, TestNextRecordWithZstdCompression) {
+  constexpr auto kTsOut = false;
+  const auto kRecCount = 12;
+  constexpr OhlcvMsg kRec{DummyHeader<OhlcvMsg>(RType::Ohlcv1M), 1, 2, 3, 4, 5};
+  const mock::MockLsgServer mock_server{dataset::kXnasItch, kTsOut, Compression::Zstd,
+                                        [kRec, kRecCount](mock::MockLsgServer& self) {
+                                          self.Accept();
+                                          self.Authenticate();
+                                          self.StartCompressed();
+                                          for (size_t i = 0; i < kRecCount; ++i) {
+                                            self.SendCompressedRecord(kRec);
+                                          }
+                                          self.FlushCompression();
+                                        }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetCompression(Compression::Zstd)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  const auto metadata = target.Start();
+  EXPECT_EQ(metadata.dataset, dataset::kXnasItch);
+  for (size_t i = 0; i < kRecCount; ++i) {
+    const auto rec = target.NextRecord();
+    ASSERT_TRUE(rec.Holds<OhlcvMsg>()) << "Failed on call " << i;
+    EXPECT_EQ(rec.Get<OhlcvMsg>(), kRec);
+  }
+}
+
+TEST_F(LiveBlockingTests, TestNextRecordTimeout) {
+  constexpr std::chrono::milliseconds kTimeout{50};
+  constexpr auto kTsOut = false;
+  constexpr Mbp1Msg kRec{DummyHeader<Mbp1Msg>(RType::Mbp1),
+                         1,
+                         2,
+                         Action::Add,
+                         Side::Bid,
+                         {},
+                         1,
+                         UnixNanos{},
+                         TimeDeltaNanos{},
+                         10,
+                         {BidAskPair{1, 2, 3, 4, 5, 6}}};
+
+  bool sent_first_msg = false;
+  std::mutex send_mutex;
+  std::condition_variable send_cv;
+  bool received_first_msg = false;
+  std::mutex receive_mutex;
+  std::condition_variable receive_cv;
+  const mock::MockLsgServer mock_server{
+      dataset::kXnasItch, kTsOut,
+      [kRec, &sent_first_msg, &send_mutex, &send_cv, &received_first_msg,
+       &receive_mutex, &receive_cv](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        self.SendRecord(kRec);
+        {
+          // notify client the first record's been sent
+          const std::lock_guard<std::mutex> lock{send_mutex};
+          sent_first_msg = true;
+          send_cv.notify_one();
+        }
+        {
+          // wait for client to read first record
+          std::unique_lock<std::mutex> lock{receive_mutex};
+          receive_cv.wait(lock, [&received_first_msg] { return received_first_msg; });
+        }
+        self.SendRecord(kRec);
+      }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  {
+    // wait for server to send first record to avoid flaky timeouts
+    std::unique_lock<std::mutex> lock{send_mutex};
+    send_cv.wait(lock, [&sent_first_msg] { return sent_first_msg; });
+  }
+  auto* rec = target.NextRecord(kTimeout);
+  ASSERT_NE(rec, nullptr);
+  EXPECT_TRUE(rec->Holds<Mbp1Msg>());
+  EXPECT_EQ(rec->Get<Mbp1Msg>(), kRec);
+  rec = target.NextRecord(kTimeout);
+  EXPECT_EQ(rec, nullptr) << "Did not timeout when expected";
+  {
+    // notify server the timeout occurred
+    const std::lock_guard<std::mutex> lock{receive_mutex};
+    received_first_msg = true;
+    receive_cv.notify_one();
+  }
+  rec = target.NextRecord(kTimeout);
+  ASSERT_NE(rec, nullptr);
+  EXPECT_TRUE(rec->Holds<Mbp1Msg>());
+  EXPECT_EQ(rec->Get<Mbp1Msg>(), kRec);
+}
+
+TEST_F(LiveBlockingTests, TestNextRecordTimeoutWithZstdCompression) {
+  constexpr std::chrono::milliseconds kTimeout{50};
+  constexpr auto kTsOut = false;
+  constexpr OhlcvMsg kRec{DummyHeader<OhlcvMsg>(RType::Ohlcv1M), 1, 2, 3, 4, 5};
+
+  bool sent_first_msg = false;
+  std::mutex send_mutex;
+  std::condition_variable send_cv;
+  bool received_first_msg = false;
+  std::mutex receive_mutex;
+  std::condition_variable receive_cv;
+  const mock::MockLsgServer mock_server{
+      dataset::kXnasItch, kTsOut, Compression::Zstd,
+      [kRec, &sent_first_msg, &send_mutex, &send_cv, &received_first_msg,
+       &receive_mutex, &receive_cv](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        self.StartCompressed();
+        self.SendCompressedRecord(kRec);
+        {
+          // notify client the first record's been sent
+          const std::lock_guard<std::mutex> lock{send_mutex};
+          sent_first_msg = true;
+          send_cv.notify_one();
+        }
+        {
+          // wait for client to read first record
+          std::unique_lock<std::mutex> lock{receive_mutex};
+          receive_cv.wait(lock, [&received_first_msg] { return received_first_msg; });
+        }
+        self.SendCompressedRecord(kRec);
+        self.FlushCompression();
+      }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetCompression(Compression::Zstd)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  const auto metadata = target.Start();
+  EXPECT_EQ(metadata.dataset, dataset::kXnasItch);
+  {
+    // wait for server to send first record to avoid flaky timeouts
+    std::unique_lock<std::mutex> lock{send_mutex};
+    send_cv.wait(lock, [&sent_first_msg] { return sent_first_msg; });
+  }
+  auto* rec = target.NextRecord(kTimeout);
+  ASSERT_NE(rec, nullptr);
+  EXPECT_TRUE(rec->Holds<OhlcvMsg>());
+  EXPECT_EQ(rec->Get<OhlcvMsg>(), kRec);
+  rec = target.NextRecord(kTimeout);
+  EXPECT_EQ(rec, nullptr) << "Did not timeout with compression when expected";
+  {
+    // notify server the timeout occurred
+    const std::lock_guard<std::mutex> lock{receive_mutex};
+    received_first_msg = true;
+    receive_cv.notify_one();
+  }
+  rec = target.NextRecord(kTimeout);
+  ASSERT_NE(rec, nullptr);
+  EXPECT_TRUE(rec->Holds<OhlcvMsg>());
+  EXPECT_EQ(rec->Get<OhlcvMsg>(), kRec);
+}
+
+TEST_F(LiveBlockingTests, TestNextRecordPartialRead) {
+  constexpr auto kTsOut = false;
+  constexpr MboMsg kRec{DummyHeader<MboMsg>(RType::Mbo),
+                        1,
+                        2,
+                        3,
+                        {},
+                        4,
+                        Action::Add,
+                        Side::Bid,
+                        UnixNanos{},
+                        TimeDeltaNanos{},
+                        100};
+
+  bool send_remaining{};
+  std::mutex send_remaining_mutex;
+  std::condition_variable send_remaining_cv;
+  const mock::MockLsgServer mock_server{
+      dataset::kGlbxMdp3, kTsOut,
+      [kRec, &send_remaining, &send_remaining_mutex,
+       &send_remaining_cv](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        self.SendRecord(kRec);
+        // should cause partial read
+        self.SplitSendRecord(kRec, send_remaining, send_remaining_mutex,
+                             send_remaining_cv);
+      }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kGlbxMdp3)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  auto rec = target.NextRecord();
+  ASSERT_TRUE(rec.Holds<MboMsg>());
+  EXPECT_EQ(rec.Get<MboMsg>(), kRec);
+  // partial read and timeout occurs here
+  ASSERT_EQ(target.NextRecord(std::chrono::milliseconds{10}), nullptr);
+  {
+    const std::lock_guard<std::mutex> lock{send_remaining_mutex};
+    send_remaining = true;
+    // notify server to send remaining part of record
+    send_remaining_cv.notify_one();
+  }
+  // recovers from partial read
+  rec = target.NextRecord();
+  ASSERT_TRUE(rec.Holds<MboMsg>());
+  EXPECT_EQ(rec.Get<MboMsg>(), kRec);
+}
+
+TEST_F(LiveBlockingTests, TestNextRecordWithTsOut) {
+  const auto kRecCount = 5;
+  constexpr auto kTsOut = true;
+  const WithTsOut<TradeMsg> send_rec{
+      {DummyHeader<TradeMsg>(RType::Mbp0),
+       1,
+       2,
+       Action::Add,
+       Side::Ask,
+       {},
+       1,
+       {},
+       {},
+       2},
+      UnixNanos{std::chrono::seconds{1678910279000000000}}};
+  const mock::MockLsgServer mock_server{
+      dataset::kXnasItch, kTsOut, [send_rec, kRecCount](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        for (size_t i = 0; i < kRecCount; ++i) {
+          self.SendRecord(send_rec);
+        }
+      }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  for (size_t i = 0; i < kRecCount; ++i) {
+    const auto rec = target.NextRecord();
+    ASSERT_TRUE(rec.Holds<WithTsOut<TradeMsg>>()) << "Failed on call " << i;
+    EXPECT_EQ(rec.Get<WithTsOut<TradeMsg>>(), send_rec);
+    // Extracting the plain record (without ts_out) should also work
+    ASSERT_TRUE(rec.Holds<TradeMsg>()) << "Failed on call " << i;
+    EXPECT_EQ(rec.Get<TradeMsg>(), send_rec.rec);
+  }
+}
+
+TEST_F(LiveBlockingTests, TestStop) {
+  constexpr auto kTsOut = true;
+  const WithTsOut<TradeMsg> send_rec{
+      {DummyHeader<WithTsOut<TradeMsg>>(RType::Mbp0),
+       1,
+       2,
+       Action::Add,
+       Side::Ask,
+       {},
+       1,
+       {},
+       {},
+       2},
+      UnixNanos{std::chrono::seconds{1678910279000000000}}};
+  std::atomic<bool> has_stopped{false};
+  auto mock_server = std::make_unique<mock::MockLsgServer>(
+      dataset::kXnasItch, kTsOut, [send_rec, &has_stopped](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        self.SendRecord(send_rec);
+        while (!has_stopped) {
+          std::this_thread::yield();
+        }
+        const std::string rec_str{reinterpret_cast<const char*>(&send_rec),
+                                  sizeof(send_rec)};
+        while (self.UncheckedSend(rec_str) == static_cast<::ssize_t>(rec_str.size())) {
+        }
+      });
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server->Port())
+                            .BuildBlocking();
+  ASSERT_EQ(target.NextRecord().Get<WithTsOut<TradeMsg>>(), send_rec);
+  target.Stop();
+  has_stopped = true;
+  // kill mock server and join thread before client goes out of scope
+  // to ensure Stop is killing the connection, not the client's destructor
+  mock_server.reset();
+}
+
+TEST_F(LiveBlockingTests, TestConnectWhenGatewayNotUp) {
+  builder_.SetDataset(dataset::kXnasItch).SetAddress(kLocalhost, 80);
+  ASSERT_THROW(builder_.BuildBlocking(), databento::TcpError);
+}
+
+TEST_F(LiveBlockingTests, TestNextRecordThrowsOnGatewayClose) {
+  constexpr auto kTsOut = false;
+  constexpr OhlcvMsg kRec{DummyHeader<OhlcvMsg>(RType::Ohlcv1M), 1, 2, 3, 4, 5};
+
+  bool should_close{};
+  std::mutex should_close_mutex;
+  std::condition_variable should_close_cv;
+  bool has_closed{};
+  std::mutex has_closed_mutex;
+  std::condition_variable has_closed_cv;
+  const mock::MockLsgServer mock_server{
+      dataset::kXnasItch, kTsOut,
+      [kRec, &should_close, &should_close_cv, &should_close_mutex, &has_closed,
+       &has_closed_cv, &has_closed_mutex](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        self.SendRecord(kRec);
+        {
+          std::unique_lock<std::mutex> lock{should_close_mutex};
+          should_close_cv.wait(lock, [&should_close] { return should_close; });
+        }
+        self.Close();
+        {
+          const std::lock_guard<std::mutex> lock{has_closed_mutex};
+          has_closed = true;
+          has_closed_cv.notify_one();
+        }
+      }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  const auto rec = target.NextRecord();
+  ASSERT_TRUE(rec.Holds<OhlcvMsg>());
+  EXPECT_EQ(rec.Get<OhlcvMsg>(), kRec);
+  // Signal server to close connection
+  {
+    const std::lock_guard<std::mutex> lock{should_close_mutex};
+    should_close = true;
+    should_close_cv.notify_one();
+  }
+  // Wait for server to close
+  {
+    std::unique_lock<std::mutex> lock{has_closed_mutex};
+    has_closed_cv.wait(lock, [&has_closed] { return has_closed; });
+  }
+  ASSERT_THROW(target.NextRecord(), databento::LiveApiError);
+}
+
+TEST_F(LiveBlockingTests, TestReconnectAndResubscribe) {
+  constexpr auto kTsOut = false;
+  constexpr TradeMsg kRec{DummyHeader<TradeMsg>(RType::Mbp0),
+                          1,
+                          2,
+                          Action::Add,
+                          Side::Ask,
+                          {},
+                          1,
+                          {},
+                          {},
+                          2};
+
+  bool should_close{};
+  std::mutex should_close_mutex;
+  std::condition_variable should_close_cv;
+  bool has_closed{};
+  std::mutex has_closed_mutex;
+  std::condition_variable has_closed_cv;
+  auto mock_server = std::make_unique<mock::MockLsgServer>(
+      dataset::kXnasItch, kTsOut,
+      [kRec, &has_closed, &has_closed_cv, &has_closed_mutex, &should_close,
+       &should_close_cv, &should_close_mutex](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        self.Subscribe(kAllSymbols, Schema::Trades, SType::RawSymbol, "0", true);
+        self.Start();
+        self.SendRecord(kRec);
+        {
+          std::unique_lock<std::mutex> lock{should_close_mutex};
+          should_close_cv.wait(lock, [&should_close] { return should_close; });
+        }
+        // Close connection
+        self.Close();
+        {
+          const std::lock_guard<std::mutex> _lock{has_closed_mutex};
+          has_closed = true;
+          has_closed_cv.notify_one();
+        }
+        // Wait for reconnect
+        self.Accept();
+        self.Authenticate();
+        self.Subscribe(kAllSymbols, Schema::Trades, SType::RawSymbol, true);
+        self.Start();
+        self.SendRecord(kRec);
+      });
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server->Port())
+                            .BuildBlocking();
+  ASSERT_TRUE(target.Subscriptions().empty());
+  target.Subscribe(kAllSymbols, Schema::Trades, SType::RawSymbol, "0");
+  ASSERT_EQ(target.Subscriptions().size(), 1);
+  target.Start();
+  const auto rec1 = target.NextRecord();
+  ASSERT_TRUE(rec1.Holds<TradeMsg>());
+  ASSERT_EQ(rec1.Get<TradeMsg>(), kRec);
+  ASSERT_EQ(target.Subscriptions().size(), 1);
+
+  // Tell server to close connection
+  {
+    const std::lock_guard<std::mutex> _lock{should_close_mutex};
+    should_close = true;
+    should_close_cv.notify_one();
+  }
+  // Wait for server to close connection
+  {
+    std::unique_lock<std::mutex> lock{has_closed_mutex};
+    has_closed_cv.wait(lock, [&has_closed] { return has_closed; });
+  }
+  ASSERT_THROW(target.NextRecord(), databento::LiveApiError);
+  target.Reconnect();
+  target.Resubscribe();
+  ASSERT_EQ(target.Subscriptions().size(), 1);
+  ASSERT_TRUE(std::holds_alternative<LiveSubscription::NoStart>(
+      target.Subscriptions()[0].start));
+  const auto metadata = target.Start();
+  EXPECT_FALSE(metadata.schema.has_value());
+  const auto rec2 = target.NextRecord();
+  ASSERT_TRUE(rec2.Holds<TradeMsg>());
+  ASSERT_EQ(rec2.Get<TradeMsg>(), kRec);
+}
+
+TEST_F(LiveBlockingTests, TestHeartbeatTimeoutOnNextRecord) {
+  constexpr auto kTsOut = false;
+  constexpr auto kHeartbeatInterval = std::chrono::seconds{1};
+  const mock::MockLsgServer mock_server{
+      dataset::kXnasItch, kTsOut, kHeartbeatInterval, [](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        // Let the heartbeat timeout trigger
+        std::this_thread::sleep_for(std::chrono::seconds{8});
+      }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetHeartbeatInterval(kHeartbeatInterval)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  ASSERT_THROW(target.NextRecord(), databento::HeartbeatTimeoutError);
+}
+
+TEST_F(LiveBlockingTests, TestHeartbeatTimeoutOnNextRecordWithTimeout) {
+  constexpr auto kTsOut = false;
+  constexpr auto kHeartbeatInterval = std::chrono::seconds{1};
+  constexpr std::chrono::milliseconds kTimeout{50};
+  const mock::MockLsgServer mock_server{
+      dataset::kXnasItch, kTsOut, kHeartbeatInterval, [](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        // Let the heartbeat timeout trigger
+        std::this_thread::sleep_for(std::chrono::seconds{8});
+      }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetHeartbeatInterval(kHeartbeatInterval)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  // With 50ms timeout and 1s+10s heartbeat interval, we should get nullptr
+  // returns initially, then eventually a heartbeat timeout exception
+  bool got_timeout_exception = false;
+  for (int i = 0; i < 500; ++i) {
+    try {
+      const auto* rec = target.NextRecord(kTimeout);
+      if (rec != nullptr) {
+        FAIL() << "Expected nullptr or exception, got a record";
+      }
+    } catch (const databento::HeartbeatTimeoutError& e) {
+      EXPECT_NE(std::string{e.what()}.find("Heartbeat timeout"), std::string::npos);
+      got_timeout_exception = true;
+      break;
+    }
+  }
+  EXPECT_TRUE(got_timeout_exception) << "Expected heartbeat timeout exception";
+}
+
+TEST_F(LiveBlockingTests, TestTryNextRecordEmptyBuffer) {
+  constexpr auto kTsOut = false;
+  const mock::MockLsgServer mock_server{
+      dataset::kXnasItch, kTsOut, [](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        std::this_thread::sleep_for(std::chrono::milliseconds{200});
+      }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  // Buffer is empty, no I/O should be performed
+  const auto* rec = target.TryNextRecord();
+  EXPECT_EQ(rec, nullptr);
+}
+
+TEST_F(LiveBlockingTests, TestTryNextRecordAfterFillBuffer) {
+  constexpr auto kTsOut = false;
+  constexpr OhlcvMsg kRec{DummyHeader<OhlcvMsg>(RType::Ohlcv1M), 1, 2, 3, 4, 5};
+  bool client_ready{};
+  std::mutex client_ready_mutex;
+  std::condition_variable client_ready_cv;
+  bool sent{};
+  std::mutex sent_mutex;
+  std::condition_variable sent_cv;
+  const mock::MockLsgServer mock_server{
+      dataset::kXnasItch, kTsOut,
+      [kRec, &client_ready, &client_ready_mutex, &client_ready_cv, &sent, &sent_mutex,
+       &sent_cv](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        {
+          // wait for client to finish auth to prevent TCP coalescing
+          std::unique_lock<std::mutex> lock{client_ready_mutex};
+          client_ready_cv.wait(lock, [&client_ready] { return client_ready; });
+        }
+        self.SendRecord(kRec);
+        {
+          const std::lock_guard<std::mutex> lock{sent_mutex};
+          sent = true;
+          sent_cv.notify_one();
+        }
+      }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  {
+    const std::lock_guard<std::mutex> lock{client_ready_mutex};
+    client_ready = true;
+    client_ready_cv.notify_one();
+  }
+  {
+    std::unique_lock<std::mutex> lock{sent_mutex};
+    sent_cv.wait(lock, [&sent] { return sent; });
+  }
+  const auto fill_res = target.FillBuffer(std::chrono::milliseconds{1000});
+  ASSERT_EQ(fill_res.status, IReadable::Status::Ok);
+  ASSERT_GT(fill_res.read_size, 0);
+  const auto* rec = target.TryNextRecord();
+  ASSERT_NE(rec, nullptr);
+  ASSERT_TRUE(rec->Holds<OhlcvMsg>());
+  EXPECT_EQ(rec->Get<OhlcvMsg>(), kRec);
+  // Buffer drained
+  EXPECT_EQ(target.TryNextRecord(), nullptr);
+}
+
+TEST_F(LiveBlockingTests, TestFillBufferReturnsClosed) {
+  constexpr auto kTsOut = false;
+  const mock::MockLsgServer mock_server{dataset::kXnasItch, kTsOut,
+                                        [](mock::MockLsgServer& self) {
+                                          self.Accept();
+                                          self.Authenticate();
+                                          self.Close();
+                                        }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  const auto fill_res = target.FillBuffer(std::chrono::milliseconds{1000});
+  EXPECT_EQ(fill_res.status, IReadable::Status::Closed);
+  EXPECT_EQ(fill_res.read_size, 0);
+}
+
+TEST_F(LiveBlockingTests, TestTryNextRecordPollLoop) {
+  constexpr auto kTsOut = false;
+  constexpr auto kRecCount = 5;
+  constexpr OhlcvMsg kRec{DummyHeader<OhlcvMsg>(RType::Ohlcv1M), 1, 2, 3, 4, 5};
+  const mock::MockLsgServer mock_server{dataset::kXnasItch, kTsOut,
+                                        [kRec, kRecCount](mock::MockLsgServer& self) {
+                                          self.Accept();
+                                          self.Authenticate();
+                                          for (size_t i = 0; i < kRecCount; ++i) {
+                                            self.SendRecord(kRec);
+                                          }
+                                          self.Close();
+                                        }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kXnasItch)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  int record_count = 0;
+  while (true) {
+    while (const auto* rec = target.TryNextRecord()) {
+      ASSERT_TRUE(rec->Holds<OhlcvMsg>());
+      EXPECT_EQ(rec->Get<OhlcvMsg>(), kRec);
+      ++record_count;
+    }
+    const auto fill_res = target.FillBuffer(std::chrono::milliseconds{1000});
+    if (fill_res.status == IReadable::Status::Closed) {
+      break;
+    }
+  }
+  EXPECT_EQ(record_count, kRecCount);
+}
+
+TEST_F(LiveBlockingTests, TestTryNextRecordPartialRecord) {
+  constexpr auto kTsOut = false;
+  constexpr MboMsg kRec{DummyHeader<MboMsg>(RType::Mbo),
+                        1,
+                        2,
+                        3,
+                        {},
+                        4,
+                        Action::Add,
+                        Side::Bid,
+                        UnixNanos{},
+                        TimeDeltaNanos{},
+                        100};
+
+  bool client_ready{};
+  std::mutex client_ready_mutex;
+  std::condition_variable client_ready_cv;
+  bool send_remaining{};
+  std::mutex send_remaining_mutex;
+  std::condition_variable send_remaining_cv;
+  const mock::MockLsgServer mock_server{
+      dataset::kGlbxMdp3, kTsOut,
+      [kRec, &client_ready, &client_ready_mutex, &client_ready_cv, &send_remaining,
+       &send_remaining_mutex, &send_remaining_cv](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Authenticate();
+        {
+          // wait for client to finish auth to prevent TCP coalescing
+          std::unique_lock<std::mutex> lock{client_ready_mutex};
+          client_ready_cv.wait(lock, [&client_ready] { return client_ready; });
+        }
+        self.SplitSendRecord(kRec, send_remaining, send_remaining_mutex,
+                             send_remaining_cv);
+      }};
+
+  LiveBlocking target = builder_.SetDataset(dataset::kGlbxMdp3)
+                            .SetSendTsOut(kTsOut)
+                            .SetAddress(kLocalhost, mock_server.Port())
+                            .BuildBlocking();
+  {
+    const std::lock_guard<std::mutex> lock{client_ready_mutex};
+    client_ready = true;
+    client_ready_cv.notify_one();
+  }
+  // Read partial record (just header)
+  auto fill_res = target.FillBuffer(std::chrono::milliseconds{1000});
+  ASSERT_EQ(fill_res.status, IReadable::Status::Ok);
+  // Record is incomplete
+  EXPECT_EQ(target.TryNextRecord(), nullptr);
+  // Signal server to send remaining bytes
+  {
+    const std::lock_guard<std::mutex> lock{send_remaining_mutex};
+    send_remaining = true;
+    send_remaining_cv.notify_one();
+  }
+  // Read the rest
+  fill_res = target.FillBuffer(std::chrono::milliseconds{1000});
+  ASSERT_EQ(fill_res.status, IReadable::Status::Ok);
+  const auto* rec = target.TryNextRecord();
+  ASSERT_NE(rec, nullptr);
+  ASSERT_TRUE(rec->Holds<MboMsg>());
+  EXPECT_EQ(rec->Get<MboMsg>(), kRec);
+}
+
+TEST_F(LiveBlockingTests, TestConnectTimeout) {
+  const auto connect = [this] {
+    builder_.SetDataset(dataset::kGlbxMdp3)
+        .SetAddress("192.0.2.1", 13000)
+        .SetTimeoutConf({std::chrono::seconds{1}, std::chrono::seconds{30}})
+        .BuildBlocking();
+  };
+  // The `errno` description varies by platform, so only check the rest of the message
+  const auto matcher = testing::ThrowsMessage<TcpError>(testing::AllOf(
+      testing::HasSubstr("failed to connect to 192.0.2.1:13000 after 1 second(s)"),
+      testing::Not(testing::HasSubstr("Operation now in progress"))));
+  EXPECT_THAT(connect, matcher);
+}
+
+TEST_F(LiveBlockingTests, TestAuthTimeout) {
+  const mock::MockTcpServer mock_server{[](mock::MockTcpServer& self) {
+    self.Accept();
+    std::this_thread::sleep_for(std::chrono::seconds{3});
+  }};
+  const auto connect = [this, &mock_server] {
+    builder_.SetDataset(dataset::kGlbxMdp3)
+        .SetAddress(kLocalhost, mock_server.Port())
+        .SetTimeoutConf({std::chrono::seconds{10}, std::chrono::seconds{1}})
+        .BuildBlocking();
+  };
+  const auto matcher =
+      testing::ThrowsMessage<TcpError>(testing::HasSubstr("Authentication timed out"));
+  EXPECT_THAT(connect, matcher);
+}
+
+TEST_F(LiveBlockingTests, TestAuthRejected) {
+  constexpr auto kGatewayError = "heartbeat_interval_s must be between 5 and 1800";
+  const mock::MockLsgServer mock_server{
+      dataset::kXnasItch, false, [kGatewayError](mock::MockLsgServer& self) {
+        self.Accept();
+        self.Send("lsg-test\n");
+        self.Send("cram=t7kNhwj4xqR0QYjzFKtBEG2ec2pXJ4FK\n");
+        self.Receive();
+        self.Send(std::string{"success=0|error="} + kGatewayError + '\n');
+      }};
+  // Not `ThrowsMessage`: the mock serves a single connection, so the retry gtest makes
+  // when that matcher fails would report a connection timeout instead of the real type
+  try {
+    builder_.SetDataset(dataset::kXnasItch)
+        .SetAddress(kLocalhost, mock_server.Port())
+        .BuildBlocking();
+    FAIL() << "Expected the gateway's rejection to throw";
+  } catch (const LiveApiError& exc) {
+    EXPECT_THAT(exc.what(), testing::HasSubstr(kGatewayError));
+    EXPECT_THAT(exc.what(), testing::Not(testing::HasSubstr("Invalid argument")));
+  }
+}
+
+}  // namespace databento::tests

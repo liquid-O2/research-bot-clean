@@ -1,0 +1,98 @@
+name: build
+
+# Build and test databento-cpp
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  ubuntu:
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [clang++, g++]
+    name: build - ubuntu-latest - ${{ matrix.compiler}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install dependencies
+        # pcre is a dependency of cppcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install libpcre3 libpcre3-dev libzstd-dev ninja-build
+      - name: Install cppcheck
+        run: |
+          git clone https://github.com/danmar/cppcheck.git --branch 2.17.1
+          cd cppcheck
+          cmake -S. -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DUSE_MATCHCOMPILER=ON \
+            -DHAVE_RULES=ON
+          cmake --build build --config Release --parallel
+          sudo cmake --install build --prefix /usr
+      - name: CMake configure
+        run: |
+          cmake -S . -B build \
+            -GNinja \
+            -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} \
+            -DDATABENTO_USE_EXTERNAL_GTEST=0 \
+            -DDATABENTO_ENABLE_UNIT_TESTING=1 \
+            -DDATABENTO_ENABLE_EXAMPLES=1 \
+            -DDATABENTO_ENABLE_CLANG_TIDY=1 \
+            -DDATABENTO_ENABLE_CPPCHECK=1 \
+            -DDATABENTO_ENABLE_UBSAN=1
+      - name: CMake build
+        run: cmake --build build
+      - name: Unit tests
+        run: cd build && ctest --verbose --timeout 300
+
+  macos:
+    name: build - macos-latest - clang++
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install dependencies
+        run: brew install cmake cppcheck googletest openssl@3 ninja zstd
+      # Don't enable clang-tidy on macOS because it's incredibly slow
+      - name: CMake configure
+        run: |
+          cmake -S . -B build \
+            -GNinja \
+            -DDATABENTO_ENABLE_UNIT_TESTING=1 \
+            -DDATABENTO_ENABLE_EXAMPLES=1 \
+            -DDATABENTO_ENABLE_CPPCHECK=1 \
+            -DDATABENTO_ENABLE_TSAN=1 \
+            -DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)
+      - name: CMake build
+        run: cmake --build build
+      - name: Unit tests
+        run: cd build && ctest --verbose --timeout 300
+
+  windows:
+    name: build - windows-latest - msvc
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-vcpkg
+        with:
+          path: build/vcpkg_installed
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./vcpkg.json') }}
+      - name: CMake configure
+        run: |
+          cmake -S . -B build `
+            -DDATABENTO_ENABLE_UNIT_TESTING=1 `
+            -DDATABENTO_ENABLE_EXAMPLES=1 `
+            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
+            -DVCPKG_BUILD_TYPE=debug `
+            -DDATABENTO_USE_EXTERNAL_GTEST=0
+      - name: CMake build
+        run: cmake --build build --parallel
+      - name: Unit tests
+        run: cd build && ctest --verbose --exclude-regex cmake --timeout 300

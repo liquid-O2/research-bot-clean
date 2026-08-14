@@ -1,0 +1,20 @@
+---
+Checks: >
+    -*,
+    bugprone-*,
+    -bugprone-easily-swappable-parameters,
+    -bugprone-invalid-enum-default-initialization,
+    clang-analyzer-*,
+    -clang-analyzer-optin.cplusplus.VirtualCall,
+    clang-diagnostic-*,
+    cppcore-guidelines-*,
+    google-*,
+    -google-readability-avoid-underscore-in-googletest-name,
+    -google-readability-casting,
+    -google-runtime-references,
+    modernize-deprecated-headers,
+    performance-*,
+    portability-*'
+WarningsAsErrors: '*'
+HeaderFilterRegex: ''
+FormatStyle: file

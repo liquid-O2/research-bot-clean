@@ -318,3 +318,23 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
 6. D13 (V2 docstring vs code) folded into the batch-3 lane. Reader protocol note ratified: declared
    discretionary overrides with the rule's backtest on record pre-seal = lawful and encouraged (day 3's
    override beat every mechanical arm).
+
+## CC-M2-13 — E1 Day-4 adjudications (orchestrator, 2026-08-14; BINDING)
+1. THE MIRROR LAW ADOPTED PROGRAM-WIDE: a direction term/claim must beat its MIRROR on every session, not
+   merely be positive on every session (the reader's own minting, ratified — it explains all four days of
+   direction failures at once). Applies to reader policies, censuses, and future model features alike.
+2. P025 STRENGTHENED (230/230 winners across 4 days; two roster fields, no judgement, no mirror to fail) —
+   awaiting its batch-3 census verdict as the structural conditioning object.
+3. THE 4-DAY META-FINDING RATIFIED AND ACTED ON: winners concentrate on ONE side per session (4/4 days);
+   candidate-level direction has failed every test => SIDE IS A SESSION-STATE VARIABLE. Ordered: the
+   SESSION-SIDE STATE probe — (a) ceiling census: given the oracle day-side, what capture does the reader's
+   refusal core + P025 achieve? (b) causal estimators of day-side (first-k-outcomes sign, cumulative session
+   return, overnight drift, release-day interaction), mirror-law-tested. This is §12.1.2 standing-hypotheses
+   architecture at day scale and the D-031 adaptation law made concrete.
+4. DAY-5 READER EXPERIMENT ORDERED: (a) trade the inherited refusal core + P025 WITHOUT new direction terms;
+   (b) HONOR PRE-MORTEMS AS VETOES (4-day record: pre-mortems named the death mechanism 5/6, 3/3 and were
+   ignored every time — measure the delta of obeying them); (c) side selection: defer to the session-side
+   probe's simplest causal estimator (first-confirmed-outcome sign) as a declared experiment.
+5. D16 (index header broke frozen consumers): compat-view accepted for day 4; permanent fix on the tooling
+   lane (frozen consumers get a pinned-reader shim; index headers are versioned APIs henceforth). D17: S10
+   developing POC/VAH/VAL/in_VA added to the index. D14 upstream landing confirmed required before blind.

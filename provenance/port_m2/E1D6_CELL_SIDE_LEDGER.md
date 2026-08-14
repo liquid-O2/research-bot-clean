@@ -334,3 +334,37 @@ and 2 separate reader from the composite, so all three get a real test.
 silver and copper fell through July 2021. No call above uses it; every call names sheet/index fields
 and the calls that follow the metals down were made from the fuel map, the phase close position and
 the cross-asset state. It is declared because an undeclared prior is indistinguishable from a leak.
+
+---
+
+## UNBLINDED RESULT (opened only after commit `10b255b`)
+
+| # | cell | truth | winners | READER | P029 | E1D6-CS | reader seat | seat close $ |
+|---|---|---|---|---|---|---|---|---|
+| 0 | HG/TOKYO | **NONE** | 0 | LONG | LONG | LONG | 00:11:21 L | -242.50 (walled) |
+| 1 | NKD/TOKYO | **NONE** | 0 | LONG | LONG | LONG | 02:02:00 L | -955.00 (walled) |
+| 2 | SI/TOKYO | **NONE** | 0 | LONG | LONG | LONG | 03:02:17 L | -930.00 (walled) |
+| 3 | HG/LONDON | SHORT | 17 | **SHORT ✓** | LONG ✗ | NOCALL | 07:00:26 S | **+1,338.75** |
+| 4 | SI/LONDON | LONG | 14 | SHORT ✗ | **LONG ✓** | SHORT ✗ | 07:00:34 S | -930.00 (MAE $1,775) |
+| 5 | NKD/LONDON | SHORT | 24 | **SHORT ✓** | LONG ✗ | **SHORT ✓** | 09:15:33 S | **+1,282.50** |
+| 6 | NKD/NY | LONG (n=1) | 1 | SHORT ✗ | SHORT ✗ | SHORT ✗ | 13:32:17 S | -955.00 (walled) |
+| 7 | HG/NY | **NONE** | 0 | SHORT | SHORT | SHORT | 13:02:33 S | -717.50 |
+| 8 | SI/NY | SHORT | 29 | **SHORT ✓** | **SHORT ✓** | LONG ✗ | 13:00:43 S | **+1,120.00** |
+
+**CELL-SIDE CALL ACCURACY (the day's headline): READER 3/5 = 0.600, P029 2/5 = 0.400, E1D6-CS 1/4 =
+0.250.** The reader beat both of its own pre-registered mechanical estimators, and all three correct
+calls were disagreements with at least one of them.
+
+**WHAT WORKED:** the CROSS-ASSET fuel map (SI's TOKYO 86%-trapped-above called HG/LONDON and
+NKD/LONDON, both correct, both winning seats) and **S10 `d_POC +$1,362 / in_VA=0`** (called SI/NY
+SHORT into 29 SHORT winners — the round's first successful SIDE use of the volume profile).
+
+**WHAT FAILED:** the OWN-ASSET fuel map (the same 86% called SI/LONDON SHORT and SI rallied +$1,450
+with 14 LONG winners; seat -$930, MAE $1,775, the round's largest); the cross-asset coherence
+component C5 (the metals diverged by $2,875 inside LONDON); and the mean-reversion override on
+NKD/NY, where the reader's own pre-mortem named the exhaustion and traded against it.
+
+**AND THE RESULT THAT MATTERS MOST:** four of the nine cells contained NO D-021 winner on either
+side, the reader spent a seat in all nine, and its 0.600-accurate cell side replayed **-$988.75**
+against its own mirror's **+$1,295.00** and an ORACLE cell side's **+$5,493.75**. See
+E1_POSTMORTEMS §E1D6-F3/F4 and ERA_NOTES §62-§64 (P030 CELL_VOL_CONCENTRATION).

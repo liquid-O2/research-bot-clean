@@ -1194,3 +1194,258 @@ value-destroying over five; S8 is the only section with a five-session positive 
   columns belong in the triage index; the ledger's verdict on the object (§4) does not change that.
 * **T5's ABSOLUTE FLOOR (§6)** is a one-line correctness bug in the reader's own inherited rule, not
   a sheet defect, and it is recorded as such.
+
+---
+
+# E1 STUDY POST-MORTEMS — DAY 6 (2021-07-08, SI + HG + NKD, day-complete, n=1,618)
+
+Reader: opus-discretionary, fresh context (CC-M2-4.2). Sheets PORT-SHEETS-V1.1. Theses sealed in
+commit `10b255b` ("E1D6 theses sealed"); every S14/outcome below was opened after that commit.
+Committed calls are never revised. Draw: the next chronological STUDY session per asset strictly
+after 2021-07-07, warm-ups excluded (CC-M2-8.1) — SI/HG/NKD 2021-07-08, 1,618 candidates
+(SI 515, HG 389, NKD 714). USED_CASE_LEDGER carries 0 prior hits on 20210708.
+
+**THE DAY WAS THE CC-M2-15.5/16.1 SIDE-EVIDENCE STUDY, DECLARED BEFORE IT WAS SEEN.** The primary
+object is `provenance/port_m2/E1D6_CELL_SIDE_LEDGER.md`: nine ex-ante (asset, phase) side calls with
+named evidence, each committed BEFORE its cell's first candidate row, from as-of stepper briefs, and
+two competing declared estimators (P029 PHASE_SIDE_PRIOR, E1D6-CS) each registered WITH its
+mirror-law failure before any cell was called.
+
+**TAINT: `CLEAN;AS-OF-PREFIX` on all 1,618 rows; `FORECAST-TRUTH-EXPOSED` on the 79 TAKEs
+(defect D19, §10).** HEAD V3 tooling end-to-end: `triage_index.py --drive-step 300` (275 verified
+prefixes) drove the cell briefs AND the veto walk, and `e1d6_asofwalk.py` proves prefix-identity on
+all 1,618 rows with 0 mismatches — **defect D18b is closed.**
+
+## 0. THE DAY, AND THE SCORE — THE ROUND'S BEST TAKE PRECISION AND A LOST REPLAY
+
+| ledger | calls | TAKE | mean take $ | mean skip $ | winner precision | replay $ | capture |
+|---|---|---|---|---|---|---|---|
+| **READER** | 1,618 | **79** | -71.77 | -59.78 | **0.203** | **-988.75** | -0.091 |
+| EARLIEST, all episodes (**BEST mechanical**) | 1,618 | 675 | -50.19 | -67.65 | 0.043 | **+1,228.75** | 0.113 |
+| YESTERDAY e1d1..e1d5 (frozen) | — | 0/3/4/31/46 | — | — | — | 0 / -1,885 / -447.50 / -2,195 / -527.50 | — |
+
+* **Margin over the best mechanical baseline: -$2,217.50** (round: +$2,380 / -$2,398 / +$928.75 /
+  -$8,123.75 / -$4,297.50 / **-$2,217.50**). Beat two of five frozen selves (+$896.25 vs e1d2,
+  +$1,206.25 vs e1d4).
+* **Winner precision 0.203 — 16 D-021 winners in 79 takes against a 5.25% base rate (3.9x), the
+  round's best day-complete take set** — and the replay is negative anyway. That contradiction is
+  the day's whole lesson (§3).
+* Day-complete census: SI n=515 mean -$13.33 (43 winners), HG n=389 -$24.62 (17), NKD n=714 -$113.77
+  (25). **85 winners**, base rate 5.25%. Day DP ceiling **$10,855.00**.
+
+## 1. E1D6-F1 — THE CELL-SIDE CALLS: 3 OF 5, AND THE READER BEAT BOTH OF ITS OWN ESTIMATORS
+
+| cell | truth | winners | READER | P029 | E1D6-CS |
+|---|---|---|---|---|---|
+| HG/LONDON | SHORT | 17 | **SHORT ✓** | LONG ✗ | NOCALL |
+| SI/LONDON | LONG | 14 | SHORT ✗ | LONG ✓ | SHORT ✗ |
+| NKD/LONDON | SHORT | 24 | **SHORT ✓** | LONG ✗ | SHORT ✓ |
+| NKD/NY | LONG (n=1) | 1 | SHORT ✗ | SHORT ✗ | SHORT ✗ |
+| SI/NY | SHORT | 29 | **SHORT ✓** | SHORT ✓ | LONG ✗ |
+| HG/TOKYO, SI/TOKYO, NKD/TOKYO, HG/NY | **NONE** | 0 | — | — | — |
+
+**READER 0.600, P029 0.400, E1D6-CS 0.250.** The evidence that WORKED, named:
+* **HG/LONDON and NKD/LONDON (both correct, both discretionary overrides of P029)** were called on
+  ONE object: SI's TOKYO fuel map, `7,424 above / 1,211 below / 8,635` = **86% of Asian silver
+  volume trapped ABOVE the mid with phase sflow -665**, plus NKD's own `956/280/1,312` = 73%. A
+  cross-asset supply overhang at the phase boundary called the direction of two other cells for the
+  next six hours. Those two cells produced 41 of the day's 85 winners and both of the reader's
+  winning seats (+$1,338.75 and +$1,282.50).
+* **SI/NY (correct, and taken AGAINST the reader's own composite)** was called on
+  `S10 d_POC = +$1,362 with in_VA = 0` — SI's mid stood above the developing VAH after a $1,450
+  London rally, i.e. the session's volume had been built $1,300 lower. The NY cell then produced 29
+  SHORT winners. **This is the first time an S10 field has predicted a SIDE rather than a
+  magnitude** (P028 died as a magnitude veto on day 5) and it is the day's most transferable object.
+
+The evidence that FAILED, named:
+* **SI/LONDON, the worst call of the day.** The reader read SI's OWN 86%-trapped-above fuel map as a
+  reason to short SI, and SI rallied **+$1,450 in London** and produced 14 LONG winners. The seat
+  cost -$930 with an MAE of **$1,775**, the largest adverse excursion of the round.
+  **The identical field called two other cells correctly and its own cell exactly wrong.** The
+  mechanism is now stated: an overhang is SUPPLY to the assets that must follow it and FUEL to the
+  asset that carries it — 86% trapped above IS the short-covering bid when the sellers are done.
+  This is P009 FUEL_POLARITY, dead since the warm-up, resurrected as component C4 and killed again.
+* **NKD/NY (n=1 winner).** The reader called SHORT on a session at `cov_sess 254%` and named the
+  exhaustion in the pre-mortem in writing; the single winner is a LONG. The mean-reversion family
+  was right and the reader traded against it, as pre-registered.
+* **The cross-asset coherence component C5 is falsified on this session**: SI's LONDON was +$1,450
+  while HG's was -$1,425. The metals are NOT one trade, and the reader wrote that down at the NY
+  cell open before any NY call was made.
+
+## 2. E1D6-F2 — P029 PHASE_SIDE_PRIOR: MINTED WITH ITS MIRROR FAILURE ON RECORD, AND BROKEN IN ONE SESSION
+
+P029 (TOKYO/LONDON -> LONG, NY -> SHORT) was 11 of 12 winner-bearing cells over five sessions and
+was registered before the day as FAILING the mirror law (4 of 5 sessions). On 2021-07-08 it scores
+**2 right / 3 wrong**, and the break is not marginal: **both metals' LONDON cells and NKD's LONDON
+cell went the way P029 forbids, and NKD's NY cell went LONG.** Six-session pooled: **13 right / 4
+wrong on 17 winner-bearing cells; sessions won 4, lost 2.** Replay as a gate: **-$3,320.00**, the
+worst arm of the day bar the composite.
+
+**The finding is not that P029 is dead — it is that its content was an ERA-PERIOD TREND, not a clock
+mechanism.** Days 1-5 were sessions in which metals were bid in Asia/Europe and sold in NY;
+2021-07-08 is the session on which the Asian bid failed, and every cell that followed inverted. A
+one-field phase label cannot carry that, and the honest disposition is a FEATURE (the cell's phase,
+interacted with the leading state) and never a rule — the fifth consecutive object of this round to
+reach that verdict.
+
+## 3. E1D6-F3 — THE CONTRADICTION OF THE DAY: 0.203 PRECISION, 0.600 CELL-SIDE ACCURACY, AND A LOST REPLAY
+
+| arm | takes | mean take $ | precision | replay $ | capture |
+|---|---|---|---|---|---|
+| CORE alone | 200 | -215.28 | 0.105 | +148.75 | 0.014 |
+| **CORE + ORACLE cell side** | 50 | **+1,111.87** | **0.540** | **+5,493.75** | **0.506** |
+| CORE + READER cell side (the day's calls) | 120 | -122.76 | 0.158 | **-988.75** | -0.091 |
+| CORE + READER MIRROR | 160 | -341.60 | 0.050 | **+1,295.00** | 0.119 |
+
+**The oracle cell side is worth +$5,345 of replay over CORE on ONE session (capture 0.506) — the
+phase-grain version of CC-M2-15.2's day-grain "$700 a session", and it is far bigger here. The
+reader was 3-for-5 on that object and captured NONE of it, and its own MIRROR beat it by $2,283.**
+
+The reconciliation is arithmetic and it is the round's most important instrument finding:
+
+| cell | reader's seat | close $ | cell winners |
+|---|---|---|---|
+| HG/TOKYO 00:11:21 LONG | HG-20210708-000681-L | -242.50 (walled) | **0** |
+| NKD/TOKYO 02:02:00 LONG | NKD-20210708-007320-L | -955.00 (walled) | **0** |
+| SI/TOKYO 03:02:17 LONG | SI-20210708-010937-L | -930.00 (walled, MAE $1,087) | **0** |
+| HG/LONDON 07:00:26 SHORT | HG-20210708-025226-S | **+1,338.75** | 17 |
+| SI/LONDON 07:00:34 SHORT | SI-20210708-025234-S | -930.00 (walled, MAE $1,775) | 14 (LONG) |
+| NKD/LONDON 09:15:33 SHORT | NKD-20210708-033333-S | **+1,282.50** | 24 |
+| SI/NY 13:00:43 SHORT | SI-20210708-046843-S | **+1,120.00** | 29 |
+| HG/NY 13:02:33 SHORT | HG-20210708-046953-S | -717.50 | **0** |
+| NKD/NY 13:32:17 SHORT | NKD-20210708-048737-S | -955.00 (walled) | 1 (LONG) |
+
+**FOUR OF THE NINE CELLS CONTAINED NO D-021 WINNER ON EITHER SIDE, AND THE READER SPENT A SEAT IN
+ALL NINE.** The three cells it called correctly returned +$3,741.25 between them; the six others
+returned -$4,730.00. **A cell-side call answers WHICH SIDE and never WHETHER THE CELL HAS A SEAT,
+and under one-position-per-cell seating the second question is worth more than the first.**
+Corollary, and it is the good news: **in all three correctly-called cells the FIRST core-admitted
+candidate was an excellent seat** (+$1,338.75, +$1,282.50, +$1,120.00 — two of them D-021 winners
+with MAEs of $106.25 and $25.00). Right cell side + EARLIEST is a complete entry rule; the missing
+term is a cell-level feasibility gate.
+
+## 4. E1D6-F4 — P030 CELL_VOL_CONCENTRATION: THE MISSING TERM, MEASURED ON ALL 54 CELLS OF THE ROUND
+
+The obvious ex-ante candidate for "does this cell have a seat" is the volatility state at the cell's
+own open. `S9 rv_nowcast w1800` on the cell's FIRST candidate row, over **all 54 (asset, phase)
+cells of the six day-complete study sessions, 361 D-021 winners**:
+
+| rv1800 at cell open | cells | cells with >=1 winner | winners | share of all winners |
+|---|---|---|---|---|
+| < 100 | 13 | 2 | 12 | 3.3% |
+| 100-150 | 13 | 2 | 20 | 5.5% |
+| 150-250 | 19 | 6 | 111 | 30.7% |
+| **>= 250** | **9** | **7** | **218** | **60.4%** |
+
+Monotone in all four bands. **The 9 highest-vol cells (17% of cells) hold 60% of the round's
+winners; the 26 lowest-vol cells (48%) hold 9%.** On this day the three TOKYO cells the reader
+seated for -$2,127.50 open at rv1800 **97.8 / 50.0 / 100.0** — all in the bottom band, all with
+zero winners.
+
+**IT IS REGISTERED AS A CONCENTRATOR AND NOT AS A RULE, AND THE THRESHOLD IS NOT SETTLED — a floor
+at 150 would have refused HG/LONDON (rv 142.5), the day's BEST SEAT (+$1,338.75) and 17 winners.**
+That is stated first because this round has three corpses (P014, P026, P028) from objects minted on
+the sessions that made them look right, and because ERA_NOTES §41's method law demands the pooled
+statistic. Pooled at a 150 floor: 329 of 361 winners retained on 28 of 54 cells, but 0 of 8 on day 3
+and 17 of 85 lost today. **It has no mirror to fail** (it is a magnitude/feasibility object like
+P025), which is exactly why it belongs in the classifier's feature set beside P025 and not in an
+entry rule.
+
+## 5. E1D6-F5 — P025 IS 361-FOR-361
+
+Runway to the binding (phase-close) exit >= 12,000s passes **85 of 85 winners today, minimum winner
+runway 12,324s**, after 276 of 276 on days 1-5. **Six day-complete sessions, 361 D-021 winners, zero
+exceptions, and 0 winners in the 540 rows below 12,000s.** Term retention on today's 85 winners for
+contrast: T2 runway 85/85, T5 magnitude (repaired) 74/85, T1 live book 72/85, T4 aggression 62/85,
+T3 freshness 59/85. The census verdict stands (CONCENTRATOR, 3.70x, not an edge) and the count keeps
+growing under it.
+
+## 6. E1D6-F6 — THE T5 REPAIR RESTORES 46 OF THE DAY'S 85 WINNERS AND DOES NOT MAKE MONEY
+
+CC-M2-16.4 approved the one-line repair (`v5 >= 200 OR v5 >= 8% of phase volume`). Measured on the
+day: **545 rows the day-5 form refused are admitted, and they contain 46 of the day's 85 D-021
+winners** — the defect was far larger than the four NKD rows that exposed it. But their mean
+certificate is **-$21.54** and inside the reader's take set the repaired rows are 39 takes at
+**-$58.21** with 10 winners; the repair is what created the NKD/NY seat, which closed **-$955.00**.
+**A magnitude floor that recovers winners AND their losing neighbours is a concentrator, not an
+edge** — the same verdict every censused object of this round has received, arrived at here in one
+session by the reader's own count.
+
+## 7. E1D6-F7 — THE VETOES REMOVED A WORSE POOL AND MOVED NOTHING
+
+41 of the 120 core+side TAKEs carried a V2 or V3 veto. Vetoed pool **-$221.01 with 3 winners**;
+standing pool **-$71.77 with 16**. **Replay delta: exactly $0.00** — no veto touched a seat-spender,
+because under CC-M2-10.3 the seat is the FIRST admitted row of a cell and the vetoes fired later.
+Sole-block over the day: **V2 99 rows at -$218.83 with 1 winner** (sixth session net-positive);
+**V3 170 rows at -$104.15 with 10 winners — V3's worst session by far** (its five-session record was
+27 rows, -$447.36, 1 winner). CC-M2-16.2's family-level grading is what keeps V3 alive; one more
+session like this and it is a P028-class object.
+
+**THE PROTOCOL LESSON: a veto that cannot move a seat cannot move the replay.** Day 5's +$2,477.50
+veto delta came entirely from vetoes that fired ON the seat-spender. The veto's value is not in the
+pool statistics the round has been quoting; it is in whether it fires on the first admitted row of a
+cell. That is a one-line change to how veto families are censused.
+
+## 8. E1D6-F8 — THE GRADE, AND THE THREE-DAY A-CELL PROBLEM
+
+`sigma_to_exit` (CC-M2-10.5 form, unchanged since day 3): population A n=34 mean -$48.01 with
+**0 winners**; B n=632 -$100.77 with 30; C n=952 -$33.99 with 55. Inside the takes: B n=33 -$40.80
+with 5, C n=46 -$93.99 with 11. **The A cell has now had zero winners on three consecutive days**
+(day 5: 0 of 42; day 6: 0 of 34) while holding the highest volatility×runway product. That is not
+noise any more: the grade's top band is selecting rows whose runway is long BECAUSE the phase just
+opened and whose rv is high BECAUSE the move already happened. It stays disqualified as a judge-aux
+target (CC-M2-10.5) and the diagnosis is now specific enough to rebuild it.
+
+## 9. SECTION-VALUE LEDGER (CC-M2-4.5), 5 sheet deep reads + 9 cell-open briefs of 1,618 calls
+
+| section | reads that opened it | changed a call |
+|---|---|---|
+| S8 (flow windows / FUEL MAP / through-book) | 9 briefs + 5 sheets | **yes — it is the day's primary evidence in 3 of the 5 scorable cells, and it went 2 right / 1 wrong** (HG/LONDON ✓, NKD/LONDON ✓, SI/LONDON ✗ — the same field, the same session) |
+| S10 (volume profile, developing POC/VAH/VAL/in_VA) | 9 briefs + 4 sheets | **yes — `d_POC +$1,362 / in_VA=0` is the whole SI/NY call and SI/NY produced 29 winners.** First SIDE use of S10 in the round |
+| S3 (path / coverage / runway) | 9 briefs + 5 sheets | **no as direction, yes as the round's standing refusal** (P025 85/85) — and its capacity row correctly warned on NKD/NY, where the reader traded against it and lost |
+| S4 (level ledger) | 3 | no — the OR_EXT/PRIOR_DAY shelf under the SI/NY entry was the named flip threshold and the short worked anyway |
+| S9 (vol state) | 9 briefs | **yes, retrospectively — rv1800 at the cell open is P030** (§4) |
+| S7 (book/queue) | 3 | no — read for the NKD pre-mortems (c2f_300 14.71) |
+| S2, S12 | 9 briefs | no — S12 confirmed `event_in_session=0` (the P029 regime check) and was right that the class applied; the class still broke |
+| S11 | 2 | no — the cross-asset read was taken from the index's own prefix, not from S11 |
+| S5 | 9 briefs | no — corroboration only, never primary (momentum is 3-for-3 value-destroying) |
+| S6 | 0 | — |
+
+**S6 is now 0-for-6,069.** S8 and S10 are the only sections that carried a call today, and S10's
+first side-use was the day's best call.
+
+## 10. DEFECTS AND BUILD ITEMS FOUND TODAY
+
+* **D19 — THE REGIME-FORECAST FILE CARRIES TRUTH BESIDE ITS PREDICTIONS (a leak class, self-reported).**
+  `artifacts/cache/port/m2/regime_forecast/forecast_{SI,HG,NKD}.tsv` carry `y_day_type`,
+  `y_range_usd`, `y_share_{TOKYO,LONDON,NY}` and `y_menu` — the REALISED session outcomes —
+  populated for 2021-07-08, in the same rows as the (empty) predictions, in the file the day-6 brief
+  directs the reader to use. Diagnosing D20 therefore exposed each asset's realised session range,
+  day-type class and per-phase range share BEFORE the day was called. They are unsigned magnitude
+  facts carrying no side and no candidate outcome, so the nine cell-side calls (pure side calls) are
+  not informed by them; the day's TAKE rows nonetheless carry `FORECAST-TRUTH-EXPOSED` and the
+  take-set economics are quotable only with that stamp. **The `y_*` columns are already duplicated
+  in `truth_{SI,HG,NKD}.tsv`; the fix is to drop them from the forecast file.** The index join is
+  clean (it reads only the three `*_hat` fields).
+* **D20 — THE REGIME FORECASTER HAS NO 2021 PREDICTIONS AT ALL, SO CC-M2-14.3 IS UNTESTABLE IN E1.**
+  `predicted_day_type_prob`, `range_hat_vs_trailing` and `menu_hat` are `.` on all 1,618 rows of this
+  day because `p_expansion` and `range_hat_usd` are EMPTY on every 2021 row of all three forecast
+  files (SI 462/462, HG 774/774, NKD 777/777; first populated predictions 2022, SI's in 2022 H2).
+  The accepted forecaster's walk-forward has no training window inside E1. **CC-M2-14.2(a)'s
+  integration delivers nothing to study days 6-8 or to the E1 BLIND round, and the composition
+  hypothesis (predicted day-type x side estimator x refusal core) cannot be tested until E2.** This
+  is the day's headline defect and it bears directly on the CC-M2-6 teacher gate, which is scored on
+  E1 BLIND.
+* **D18b CLOSED.** The veto walk and the triage walk both ran through HEAD's stepper
+  (`triage_index.py --drive-step 300 --drive-out E1D6_DRIVE`, 275 verified prefixes);
+  `e1d6_asofwalk.py` proves PREFIX-IDENTITY (1,618 rows, 0 mismatches between the call at a row's
+  own reveal cut and the day-complete call) and re-derives the nine-cell seat chain chronologically.
+  No day-complete table was scanned to choose a deep read.
+* **DECLARED ACCEPTED EXPOSURE (new, named rather than assumed):** the ordered list of
+  (asset, phase, first-candidate second) was known before the calls. It carries no price and no
+  outcome and is the same class as the per-asset candidate counts every prior day declared, but it
+  is now on the record as a named exposure rather than an unexamined convenience.
+* **THE VETO CENSUS FORM IS WRONG (build item).** Veto families are graded on pooled sole-block
+  statistics; §7 shows a family can be strongly net-positive on the pool and worth exactly $0 in
+  replay because it never fires on a seat-spender. **Veto censuses must report the seat-spender
+  sub-population separately.**

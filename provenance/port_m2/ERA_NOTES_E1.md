@@ -296,3 +296,115 @@ in 1,998 day-complete calls.
 4. Can a reader with only per-row information ever win a one-position/session-close game (§25), or is
    the instrument measuring candidate selection the reader cannot perform?
 5. Both new vetoes (P018/P019) need an era census; each has two days of n and zero winners lost.
+
+---
+
+# E1 STUDY DAY 3 UPDATE (2021-07-05, day-complete, n=644 across SI/HG/NKD)
+
+Source: provenance/port_m2/E1_STUDY_LEDGER.tsv (sealed `481b963`) + E1_POSTMORTEMS.md day-3 section.
+Taint CLEAN on all 644 rows in the prior-round sense; the 5 TAKE rows carry the new row-level value
+SCAN-EXPOSED (§37). The reader BEAT every mechanical baseline and its own day-2 policy, TIED its
+frozen day-1 policy, and MISSED the day's only seat entirely. Several §20-§30 claims above are
+struck, not deleted (D-059.1).
+
+## 31. THE DAY-1-vs-DAY-2 SEPARATOR (the round's primary object): FOUND, MEASURED, AND NOT A COMPASS
+The ex-ante field that separates the two disagreeing days is **S12 `next_scheduled` countdown vs S3
+`runway to_sess_close`** (plus `last_scheduled` once it has fired): does a scheduled release fall
+INSIDE this session? It separates them perfectly — 0 of 1,039 rows on 2021-07-01, 935 of 935 on
+2021-07-02 — and P015 PHASE_FLOW_CONCORDANCE flips sign exactly with it:
+
+| session contains a scheduled release | phase flow WITH the trade | phase flow AGAINST |
+|---|---|---|
+| NO (2021-07-01) | n=327 mean **+$262** win 8.9% | n=331 mean -$262 win 0.0% |
+| YES (2021-07-02) | n=232 mean **-$552** win 0.0% | n=239 mean +$542 win 15.9% |
+
+**But it cannot be used as a compass, and this is the important half.** The natural repair — "on
+event days take the direction from the post-event 30m window" — fails: on 2021-07-02 EVERY flow
+horizon was anti-predictive (30m WITH the trade: mean -$387, 0 winners), and a rule built on it fires
+31 times at -$737 a trade. 2021-07-05 is a NO-release session, so the flag predicted a day-1-like
+regime; the day then produced its winners on the day-2 side of every flow term. **The flag is a real
+one-bit fact about two sessions and it is perfectly collinear with the session, which is exactly the
+shape of §10's side term that §20 struck.** Recorded as a censusable object (P022's parent), never as
+a term. **Fields:** S12 next_scheduled countdown, last_scheduled age; S3 runway_to_sess_close.
+
+## 32. ~~§20 STRUCK~~ — THE WINNERS ARE NOT ALWAYS IN NY, AND THE PHASE TERM WAS AN EXIT TERM
+86 of 86 winners over two sessions were NY, which I hardened into "take only rows whose exit_default
+phase close equals the session close" (0 winners in 863 rows without it). **All 8 winners of
+2021-07-05 are HG TOKYO longs (03:02:59-03:20:54) exiting at the 07:00 TOKYO phase close**, certs
+$1,001-$1,139. Three-session count: **86 NY / 8 TOKYO of 94.** The surviving statement is weaker and
+mechanical: *the bar needs hours of runway to the binding exit, and NY is usually — not always — the
+phase that has them.* A 03:03 TOKYO entry has 3h57m. **CC-M2-10.3's phase-close seating is what makes
+such a seat exist**; under session-close-only scoring the day's entire winner set is unpriceable.
+RECOMMENDED CENSUS (supersedes P020's): winner rate by (phase_dec, asset, **runway-to-binding-exit
+band**) over the era — the runway band is the candidate mechanism, the phase is the proxy.
+
+## 33. THE ABSORPTION FAMILY IS REAL, AND BOTH OF MY MAGNITUDE TERMS WERE WRONG
+The conjunction that survived days 1 and 2 — 5m aggression OPPOSED at magnitude with S8
+`through_book_600s` on the trade's side — was measured at n=23 mean +$621 (day 1) and n=45 mean +$615
+(day 2), 56-58% winners against a 4.4% base. On day 3 it fires ZERO times and the day's 8 winners sit
+just outside it on two fields:
+* **the absolute 5m volume floor (>= 500).** The winners' 5m volumes are 196-544 on a US-holiday tape;
+  their `5m vol / phase volume` ratios are **8.1-9.9%**, which a relative floor at 0.08 admits. The
+  floor was pre-registered after testing the relative form — and the test was scored on *replay
+  dollars from one seat per session* (n=2 sessions) instead of on the pooled candidate pool. **Method
+  law for the rest of the round: settle a threshold on the pooled pool statistic, never on the replay.**
+* **the through-book side term, whose sign was backwards.** The winners' through-book prints are
+  10/4, 11/3, 3/1 through the BID — i.e. sellers clearing levels — while price refused to extend the
+  phase low. That is P007 ABSORPTION_NO_RESPONSE exactly as P007 states it; requiring the prints to
+  be on MY side contradicts the very term it sits next to. The confirmation absorption needs is a
+  **price-failure** test (the aggression does not extend the trade-side extreme), not a side test.
+
+## 34. THE MOMENTUM TERM IS NOW 3-FOR-3 VALUE-DESTROYING, IN THREE DISGUISES
+Day 1 killed "slope signed with the trade"; day 2 rebuilt it as ANTI-CHASE; day 3 rebuilt it as
+MOMENT OF TURN ("the opposed aggression has stopped AND the price stream has turned"). All three of
+day 3's committed minimal pairs were built on that field, all three predicted the pair would pay
+less, and **all three are refuted in the same direction**: HG-055036-S +$432.50 vs my +$382.50,
+HG-055228-S +$351.25 vs my +$220.00, HG-056201-S +$163.75 vs my +$145.00. Waiting for the turn means
+entering worse; inside a correct thesis it is a pure tax. **Fields:** S5 mid_slope_$/min(T-1m) — and
+the field that DID order those entries was entry price relative to the level, monotonically.
+
+## 35. THE GIVE-BACK IS THE BINDING CONSTRAINT ON THIS PORT'S EXIT, NOT THE ENTRY
+Every one of the day's 5 takes was directionally right, unwalled, and inside the D-021 MAE
+acceptance — peaks $538.75-$776.25 — and every one closed at a third to a half of its peak
+(+$382.50, +$220, +$207.50, +$163.75, +$145). Two of five pre-mortems fired and both named the
+give-back. Across three days the reader's correctly-diagnosed loss mechanism has been: the wall
+(day 2), the side (day 2), and now the give-back (day 3) — and **the give-back is not something an
+entry rule can fix.** Flagged for the orchestrator alongside §25: on a holiday session whose tape
+ends 6 hours before the nominal close, a session-close exit prices the trade at whatever a dying book
+last printed.
+
+## 36. THE HOLIDAY SESSION IS INVISIBLE ON THE SHEET (defect D15)
+2021-07-05 is the US Independence Day observed holiday: the last candidate is at 18:59 clock (16:59Z)
+against a nominal 22:59:59 session close, and every `runway` and `exit_default` field on all 644
+sheets is computed to 22:59:59. SI's NY 60-second median volume is 21 contracts against 79/135 on the
+two prior days. The reader can infer the session type only from S8/S5 participation. A
+`session_expected_close` field (exchange-calendar join) belongs next to `exit_default`.
+
+## 37. NEW TAINT VALUE: SCAN-EXPOSED (a structural hazard, named at row level for the first time)
+The triage index is day-complete, so scanning it shows later rows' `mid` — the price path after the
+second being called. On a session whose tape ends early the LAST row's mid is effectively the session
+close the exit rule uses. The committed policy is a pure function of one row and is mechanically
+unexposed; the 5 discretionary TAKEs are not and are marked. Days 1 and 2 shared the exposure and did
+not record it. Build item **D14: `triage_index.py --as-of SEC`**.
+
+## 38. THREE DAYS, THREE REGIMES: NO PER-ROW RULE IS YET POSITIVE ON ALL THREE
+Day 1 all-short mean-reversion inside the NY range; day 2 all-long release-driven expansion; day 3
+all-long TOKYO reversal on a dead holiday tape with an NY give-back. A systematic search over
+direction fields (slope 1m/5m/15m, flow at 60s/5m/30m/phase, through-book, fuel-map polarity, phase
+price direction) found 94 two-day-positive conjunctions and the best of them (§33) is negative on the
+third day. **What is positive on all three days is only this: a live book (S8 60s n>=5, vol>=10) and
+a fresh trade-side extreme (S3 phase H/L age minutes, not hours).** Everything else has flipped at
+least once. The reader's per-era lift curve (D-059.6) must be read with that in front of it.
+
+## 39. OPEN QUESTIONS CARRIED TO DAY 4
+1. Does the runway-to-binding-exit band (§32) beat `phase_dec` as the winner-concentration variable
+   over the era? This replaces the P020 census as specified.
+2. Does the absorption family with the two day-3 repairs — relative-OR-absolute volume floor, and a
+   price-failure confirmation in place of the through-book side term — survive all three days?
+   (§33; it is the round's best candidate object and it now has a specified repair.)
+3. Is `ext_needed` measuring capacity at all, or is it a proxy for "which side of the session's own
+   trend the trade points"? Day 3: new-range LONGS won, new-range SHORTS walled, in-range shorts
+   made small money — on the same session (§7 of the post-mortems). P021 is 1-1.
+4. Should the reader stop building momentum/confirmation terms entirely (§34, 3-for-3 against)?
+5. The give-back (§35): is there an ex-ante field that separates a certificate that holds its peak
+   from one that gives back two thirds? This is now the round's largest unexplained loss channel.

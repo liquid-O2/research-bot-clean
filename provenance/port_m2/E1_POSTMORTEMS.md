@@ -474,3 +474,259 @@ tool rather than in the reader's discipline.
 * **D11 — retrieval has no session-exclusion flag** (§13).
 * **D12 — the one-position replay makes the day's score a function of one candidate per session** (§7).
   Recorded as a scoring-instrument property, not a bug, but it dominates both days' margins.
+
+---
+
+# E1 STUDY POST-MORTEMS — DAY 3 (2021-07-05, SI + HG + NKD, day-complete, n=644)
+
+Reader: opus-discretionary, fresh context (CC-M2-4.2). Sheets PORT-SHEETS-V1.1. Theses sealed in
+commit `481b963` ("E1D3 theses sealed"); every S14 below was opened after that commit. Committed
+calls are never revised. Draw: the next chronological STUDY session per asset strictly after
+2021-07-02, warm-up sessions excluded (CC-M2-8.1) — SI/HG/NKD 2021-07-05, **taint CLEAN on all 644
+rows** in the prior-round sense, with a new row-level qualification (§10) on the 5 TAKEs.
+
+## 0. THE DAY, AND THE SCORE
+
+**2021-07-05 is the US Independence Day observed holiday.** The sheet has no holiday field; the
+session is identifiable only from participation and from where the tape stops. Last candidate of the
+session: 18:59 clock (16:59Z) against a nominal 22:59:59 session close. SI's NY 60-second median
+volume is **21 contracts** against 79 (day 1) and 135 (day 2); HG's is 44 against 81/95.
+
+| ledger | calls | TAKE | mean take $ | mean skip $ | winner precision | replay $ | capture |
+|---|---|---|---|---|---|---|---|
+| **READER** | 644 | 5 | **+223.75** | -46.12 | **0.000** | **+382.50** | 0.170 (HG session) / 0.077 of the day ceiling $4,980 |
+| **e1d3_policy alone** (the committed rule) | 644 | **0** | — | -44.02 | — | 0 | 0 |
+| YESTERDAY-POLICY e1d1_policy (frozen) | 644 | 6 | +210.63 | -46.42 | 0.000 | **+382.50** | 0.170 |
+| YESTERDAY-POLICY e1d2_policy (frozen) | 644 | 21 | +100.36 | -48.89 | 0.000 | +85.00 | 0.017 |
+| BASE EARLIEST+cv>=650 (best mechanical arm) | 644 | 7 | -65.71 | -43.79 | 0.000 | **-546.25** | -0.110 |
+| BASE EARLIEST+cv>=516 / >=639 | 644 | 18/16 | -76.9/-110.1 | -43.1/-42.3 | 0.000 | -686.25 | -0.138 |
+| BASE EARLIEST (all episodes) | 644 | 355 | -53.01 | -32.96 | 0.011 | -1,456.25 | -0.292 |
+
+* **Margin over the best mechanical baseline: +$928.75** (day 1 +$2,380, day 2 -$2,398).
+* **Margin over the frozen day-1 policy: $0.00** — e1d1_policy spent the HG seat on the *same*
+  candidate I did (HG-20210705-055113-S). This is the second time the frozen rule has matched the
+  reader exactly on HG (day 1, §1: "on HG the frozen rule matched me exactly").
+* **Margin over the frozen day-2 policy: +$297.50.** **Margin over my own committed rule: +$382.50** —
+  the discretionary override is the entire day.
+* Zero D-021 winners among 5 takes; **zero wall-outs**, and the five MAEs are $0.0, $87.5, $100.0,
+  $143.7, $125.0 — every one inside the D-021 $300 acceptance. The entries were good; the moves were
+  small.
+
+Day-complete census (2021-07-05):
+
+| asset | n | mean phase-close $ | positive | walled | D-021 winners |
+|---|---|---|---|---|---|
+| HG | 240 | -30.55 | 0.517 | 0.196 | **8** |
+| SI | 207 | -42.02 | 0.353 | 0.164 | 0 |
+| NKD | 197 | -62.55 | 0.386 | **0.051** | 0 |
+
+| side | n | mean $ | winners |
+|---|---|---|---|
+| LONG | 324 | **+33.00** | **8** |
+| SHORT | 320 | -122.01 | 0 |
+
+## 1. E1D3-F1 — ERA_NOTES §20 IS STRUCK: THE WINNERS ARE IN **TOKYO**, AND THE "NY PHASE" FACT WAS AN EXIT FACT THAT DOES NOT HOLD
+
+Two day-complete sessions said 86 of 86 D-021 winners were in the NY phase, and I hardened that into
+the strongest term of my rule — T1 SEAT SCOPE: take only rows whose `exit_default` phase close EQUALS
+the session close (0 winners in 863 rows without it). It is the single most confident thing I wrote
+down, and this day breaks it completely:
+
+**All 8 D-021 winners of 2021-07-05 are HG TOKYO LONGS between 03:02:59 and 03:20:54, exiting at the
+TOKYO phase close 07:00:00.** Certificates $1,001.25 - $1,138.75, MAEs $0 - $231.
+
+| cid | clock | mid | cert $ | mae $ |
+|---|---|---|---|---|
+| HG-20210705-010979-L | 03:02:59 | 4.2650 | 1,020.00 | 212.5 |
+| HG-20210705-011008-L | 03:03:28 | 4.2650 | 1,026.25 | 206.3 |
+| HG-20210705-011023-L | 03:03:43 | 4.2655 | 1,001.25 | 231.2 |
+| HG-20210705-011297-L | 03:08:17 | 4.2630 | 1,076.25 | 156.2 |
+| HG-20210705-011622-L | 03:13:42 | 4.2620 | 1,101.25 | 131.3 |
+| HG-20210705-012045-L | 03:20:45 | 4.2610 | **1,138.75** | **0.0** |
+| HG-20210705-012049-L | 03:20:49 | 4.2610 | 1,132.50 | 0.0 |
+| HG-20210705-012054-L | 03:20:54 | 4.2610 | 1,126.25 | 0.0 |
+
+Phase census this day: TOKYO n=264 mean -$65.39 **8 winners**; LONDON n=174 mean -$50.37 0; NY n=206
+mean -$11.28 **0**. Across three day-complete sessions the count is now **86 NY / 8 TOKYO of 94**, and
+the honest statement is the weaker one: *winners concentrate where the hold has hours of runway to its
+binding exit, and NY is usually — not always — that phase.* A 03:03 TOKYO entry has 3h57m to its
+07:00 phase close, which is exactly the kind of runway the bar needs. **CC-M2-10.3's phase-close
+seating is what made this day's seat exist at all**: under a session-close-only reading the TOKYO
+longs are not even a seat the instrument can price.
+
+## 2. E1D3-F2 — MY FIVE TERMS ALL POINTED AWAY FROM THE DAY'S ONLY SEAT
+
+The 8 winners fail **five of my nine terms**, and each failure is a lesson with a different sign:
+
+| term | what it demanded | what the winners showed | verdict |
+|---|---|---|---|
+| **T1 SEAT SCOPE** | exit_default == session close | TOKYO, exit 07:00 | **struck** (§1) |
+| **T3 RANGE MATURITY** | S2 %range_hat >= 45 (0/401 winners below on days 1-2) | **31.7 - 34.1%** | **struck** — 8 of 8 winners in the 30-45% band on this day |
+| **T4 ABSORPTION FUEL** | 5m flow opposed at >= 5% **on >= 500 contracts** | opposed at 2.3-31.6% but on **196-544** contracts | **the volume floor is what cost the day** (§3) |
+| **T5 THROUGH-BOOK SIDE** | through-book majority WITH the trade | 10/4, 11/3, 3/1 — majority **through the BID**, i.e. against the longs | **sign inverted** (§4) |
+| **T6 MOMENT OF TURN** | S5 mid_slope(T-1m) signed with the trade | -25, -37.5, -43.7, -56.3 — against | **value-destroying again** (§5) |
+
+Only T2 (live book), T7 (fresh trade-side extreme: 165-808s — the phase LOW was minutes old on every
+winner), T8 and T9 were on the right side. **The two terms that survived all three days are the two
+cheapest ones on the sheet: a live book, and a fresh trade-side extreme.**
+
+## 3. E1D3-F3 — THE ABSOLUTE VOLUME FLOOR WAS TESTED BEFORE THE DAY AND IT WAS STILL WRONG
+
+Before calling the day I tested exactly this: replace `5m vol >= 500` with a scale-free
+`5m vol / phase volume >= k`. The relative form reproduced day 1 but destroyed day 2's replay
+(+$1,477 -> -$28), so I kept the absolute floor and wrote the reasoning into the policy docstring.
+The tape then produced 8 winners at 5m volumes of **196-544** contracts, i.e. underneath the floor —
+and their `5m vol / phase volume` ratios are **8.1-9.9%**, which the k=0.08 relative form admits.
+The pre-registered test chose the wrong arm because it was scored on **replay dollars from one seat
+per session**, a statistic with a sample size of two, rather than on the pooled candidate evidence.
+**Method lesson, and it is the transferable one: never settle a threshold on the replay statistic;
+settle it on the pooled pool statistic and let the replay be the consequence.**
+
+## 4. E1D3-F4 — THE THROUGH-BOOK TERM HAD ITS SIGN BACKWARDS, AND IT CONTRADICTED THE TERM NEXT TO IT
+
+T4 says "the aggression against me is being absorbed" and T5 says "the prints that cleared levels are
+mine". Read together they are incoherent: if my side were clearing levels there would be nothing to
+absorb. On days 1-2 the conjunction measured +$621/+$615 and I took the number instead of the
+mechanism. This day's winners are the coherent form — sellers hitting at 10-12% of phase volume,
+sellers clearing the book (through_book 10/4, 11/3), and price refusing to extend the phase low —
+which is **P007 ABSORPTION_NO_RESPONSE exactly as P007 states it**, and my T5 refused it.
+The repair to census: absorption's confirmation is a **price-failure** test (the aggression does not
+extend the trade-side extreme), not a through-book side test.
+
+## 5. E1D3-F5 — THE MOMENTUM TERM DESTROYED VALUE FOR THE THIRD TIME, IN ITS THIRD DISGUISE, AND MY OWN MINIMAL PAIRS PROVED IT
+
+Day 1 killed "slope signed with the trade" (T6, 17 sole-blocked candidates at +$1,438). I rebuilt it
+on day 2 as ANTI-CHASE and on day 3 as **T6 MOMENT OF TURN** ("the opposed aggression has stopped and
+the price stream has turned"). All three committed minimal pairs were built on that field, all three
+predicted the pair would pay LESS, and **all three are refuted in the same direction**:
+
+| take | cert $ | committed pair (SKIP) | pair cert $ | verdict |
+|---|---|---|---|---|
+| HG-055113-S | +382.50 | HG-055036-S (77s earlier, slope +6.2, 60s flow BUYING) | **+432.50** | **REFUTED** — pair better by $50 |
+| HG-055482-S | +220.00 | HG-055228-S (4m earlier, slope +12.5, 60s flow buying) | **+351.25** | **REFUTED** — pair better by $131 |
+| HG-056096-S | +145.00 | HG-056201-S (105s later, slope 0.0) | +163.75 | **REFUTED** — pair better by $19 |
+
+Waiting for the price stream to turn means selling **lower**, and inside a correct thesis that is a
+pure cost. The generalisation across three days: **a momentum/confirmation term is a tax on a thesis
+that is already right and no protection for one that is wrong.** The field that ordered these entries
+was not the slope; it was the entry price relative to the level (the earliest, highest short paid the
+most, monotonically).
+
+## 6. E1D3-F6 — THE OVERRIDE: RIGHT DIRECTION, WRONG MAGNITUDE, AND THE HONEST ACCOUNTING
+
+The five TAKEs were a named probe of P024 REFAIL_REVERSION, committed with a backtest I recorded as
+BAD (0 fires on day 1; 6 fires on day 2, 5 of them -$930). Outcome: **all five closed positive
+(+$382.50, +$220, +$207.50, +$163.75, +$145), none walled, peaks $538.75-$776.25, every MAE inside
+$300.** The direction was right — HG fell from 4.3548 to ~4.3395 into the close — and the reference-
+class retrieval that stopped me abandoning the trade (7 HG/NY/RECLAIM short analogs, mean +$769) was
+directionally right too. What the probe did NOT do is clear the bar: a $1,000 short needed 4.3148 and
+the session's low after the entry was around 4.325 (peak +$776 on the first entry).
+**P024's verdict: a real object with the wrong exit.** Its peak-exit certificates would have made the
+first entry a near-$800 trade; its phase-close (= session-close) certificate is a third of the bar.
+It goes into the ledger as a HYPOTHESIS with the exit as its named problem, not as a rule.
+
+Also worth its own line: **HG-20210705-055094-L**, the T4-passing LONG 19 seconds before my first
+short, closed **-$473.75**. The absorption reading of that moment was the wrong side; the refail
+reading was the right one.
+
+## 7. E1D3-F7 — THE CAPACITY ARITHMETIC (P017/P021) SPLIT THE DAY CLEANLY, AND P021'S PROPOSED REPAIR IS FALSIFIED HERE
+
+Inside HG's NY phase, the 13 candidates that passed 8 of my 9 terms divide exactly on `ext_needed`:
+
+* **ext_needed ~ $990 (the 13:36-14:03 shorts into the phase low)**: -$380.00, **-$930.00, -$930.00,
+  -$930.00** — three wall-outs.
+* **ext_needed $0-350 (the 15:18-16:04 shorts after the refail)**: +$382.50, +$220.00, +$207.50,
+  +$163.75, +$145.00, -$23.75, -$36.25, -$48.75, -$48.75 — no wall-outs.
+
+So on an EXPANDED day (S2 133.6% of range_hat) the **in-range** trades were safe and the **new-range**
+trades were the wall-outs. P021 REGIME_CONDITIONAL_CAPACITY, proposed on day 2, says the opposite:
+"permit new-range targets on EXPANDED days". Day 2's winners needed $512-537 of new range; day 3's
+new-range shorts lost the maximum. **P021 is now 1-1 and the discriminating variable is not the
+day_type flag at all** — on day 2 the expansion was still in progress behind a scheduled release; on
+day 3 it had completed and reverted. What the day-3 winners themselves needed, however, was
+`ext_needed` $450-612 — i.e. the winners were NEW-RANGE longs in TOKYO while the losers were
+NEW-RANGE shorts in NY. The term is not measuring capacity; it is measuring **which side of the
+session's own trend the trade points**, and it will keep flipping until something else supplies the
+direction.
+
+## 8. PRE-MORTEM ADJUDICATION — 2 OF 5 FIRED, AND THEY NAMED THE GIVE-BACK
+
+| take | pre-mortem said | what happened |
+|---|---|---|
+| HG-055113-S | "loses if the buyer who absorbed 512 contracts is still working; flips if S8 30m turns buy >= 5%" | did NOT fire — the 30m window never turned buy (still -218/3,868 at 15:34); +$382.50 |
+| HG-055482-S | "the thin holiday tape... if participation keeps halving, the certificate is decided by wherever the last print of a dying book leaves the mid" | **FIRED**: peak +$613.75 -> close +$220.00, 64% given back into a holiday close |
+| HG-055488-S | (duplicate seat) | same, +$207.50 from a +$601.25 peak |
+| HG-056096-S | "S7 dBsz/min has turned POSITIVE (+5.00) — the bid is restocking under a falling price... a session-close hold gives it all back" | **FIRED**: peak +$538.75 -> close +$145.00, 73% given back |
+| HG-056106-S | (duplicate seat) | same, +$163.75 from +$557.50 |
+
+Across three days the pre-mortem instrument has now gone 0/11 (day 1, every take won), 5/6 (day 2,
+every take lost) and 2/5 (day 3). **The mechanism they keep naming correctly is the GIVE-BACK, not
+the direction** — and the give-back is an exit-rule property, not an entry property. That is the
+third day in a row on which the reader's best-diagnosed loss mechanism is something the entry
+decision cannot fix.
+
+## 9. A|B|C CALIBRATION (CC-M2-4.4) — MONOTONE ON MEANS FOR THE FIRST TIME, AND STILL WRONG WHERE IT MATTERS
+
+| grade | n | mean close $ | mean peak $ | winners |
+|---|---|---|---|---|
+| TAKE B | 5 | **+223.75** | +617.50 | 0 |
+| SKIP B | 110 | -26.36 | +335.17 | 0 |
+| SKIP C | 529 | -50.23 | +477.83 | **8** |
+
+The rebuilt grade (`sigma_to_exit = S9 rv1800 * sqrt(runway/1800)`, two fields the decision rule never
+reads — CC-M2-10.5) is **monotone in mean for the first time in the round**: TAKE B > SKIP B > SKIP C.
+But all 8 D-021 winners sit in SKIP C, because a 03:03 TOKYO entry has a short runway to its 07:00
+exit and a LOW vol nowcast, so the formula scores it small — and it paid $1,100 anyway. The scale is
+measuring *typical* travel, not the *tail* the bar lives in. Keep it as an ordering statistic; do not
+let it gate anything.
+
+## 10. TAINT AND A PROTOCOL HAZARD I AM NAMING AT ROW LEVEL FOR THE FIRST TIME
+
+No warm-up, day-1 or day-2 round touched 2021-07-05, so no row carries prior-round outcome knowledge
+(taint CLEAN in the CC-M2-8.1 sense, verified per row). The five TAKE rows additionally carry
+**SCAN-EXPOSED**, and the reason is structural rather than personal: the triage index is DAY-COMPLETE,
+so finding candidates in it necessarily shows rows from later decision seconds, and those rows'
+`mid` column is the price path after the second being called. On THIS session the exposure is sharp,
+because the tape ends early: the last row's mid (4.337 at 18:59) is effectively the session close the
+exit rule uses, and I had seen it before I chose the HG seat. The policy itself is a pure function of
+one row and is mechanically unexposed; the override is not, and it is marked so the orchestrator can
+discount it. Days 1 and 2 shared the same exposure and did not record it.
+**Build item D14: `triage_index.py --as-of SEC` (a prefix view), which puts the discipline in the tool
+exactly as D11 did for retrieval.**
+
+## 11. SECTION-VALUE LEDGER (CC-M2-4.5), 10 deep reads of 644 calls
+
+| section | deep reads that opened it | changed a call |
+|---|---|---|
+| S3 (path / swing chain / coverage / runway) | 8 | **yes, decisively** — the ZigZag chain is what made the refail visible (HIGH 4.3575@15:14:01, LOW 4.3520@15:15:21, HIGH 4.3578@15:16:21); the same section's COVERAGE row argued against and was ignored |
+| S8 (flow windows / fuel map / through-book) | 9 | yes — every direction term, and its through-book sub-field is the one that was inverted (§4) |
+| S4 (level ledger) | 5 | **yes** — the three-family fvol confluence at 4.3569/4.3584 that the double top was made into |
+| S7 (book/queue) | 4 | **yes** — `dBsz/min` vs `dAsz/min` (bid thinning, ask restocking) was the A4 read that carried the entry, and its reversal (+5.00) is the field that graded the 15:34 entries down |
+| S5 (T-minus trajectory) | 3 | yes, and **wrongly again** — the slope term is E1D3-F5 |
+| S9 (vol state) | 3 | no (fed the grade, which gated nothing) |
+| S2 (regime tags) | 2 | yes — `day_type_so_far EXPANDED 133.6%` framed the give-back thesis |
+| S10 (volume profile) | 1 | **yes, as a warning I under-weighted** — developing POC 4.3420 was $318.75 away and the certificate came in at +$382.50, i.e. the profile called the magnitude and my thesis did not |
+| S12 (context) | 1 | yes — "no scheduled release in this session" is the separator this day was built to test |
+| S11 (cross-asset) | 1 | no |
+| **S6 (raw ribbon)** | **1** | no — opened once for the whole-sheet read; the digests said nothing the S7/S8 integers did not |
+
+S6/S10/S11 were 0-for-1,998 after two days; S10 and S11 have now been opened and **S10 earned its
+place**: on a day whose problem was magnitude rather than direction, the developing value area was the
+only section that priced the move.
+
+## 12. DEFECTS AND BUILD ITEMS FOUND TODAY
+
+* **D13 — TRIAGE-INDEX-V2's docstring promises what the code does not do.** It states that
+  `day_type`/`pct_range_hat` are renamed to `day_type_so_far`/`range_vs_hat_pct` and that a VERSION
+  stamp is written into every index; `COLUMNS` still emits the old names and the header line carries
+  no version. Harmless today (the parse anchors are unchanged and this round's index was rebuilt and
+  diffed byte-for-byte against the current extractor) but it is a provenance claim that is not true.
+* **D14 — no prefix view of the day-complete triage index** (§10). `--as-of SEC`.
+* **D15 — the session calendar has no holiday/early-close field.** 2021-07-05's tape ends at 16:59Z
+  while every runway and exit field on every sheet is computed to 22:59:59. The reader can infer it
+  only from participation. A `session_expected_close` (or an exchange-calendar join) belongs in S1/S13
+  next to `exit_default`, and until it exists every runway number on a holiday session is wrong by
+  hours.
+* **VERIFIED, NOT A DEFECT:** `S4 last_test_outcome` showing REJECT at `test_m=8` (inside the
+  15-minute REJECT_WINDOW) is causal — `sections.py` releases the outcome at its own resolution
+  second, so an early-resolved test is lawfully shown. The KNOWN_TRAPS entry is doing its job.

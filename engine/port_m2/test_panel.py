@@ -360,7 +360,16 @@ def p11_veto_census_splits_seat_spenders():
     inert = [r["outcome"]["cid"] for r in takes
              if r["outcome"]["cid"] not in seats
              and r["outcome"]["cid"] not in dpseats]
-    live = [c for c in (dpseats | seats)]
+    # DETERMINISM: `dpseats | seats` is a SET, so `live[0]` used to be picked
+    # in hash order and the chosen cid was sometimes a DP seat that the greedy
+    # replay never held — the "live veto moves the replay" assertion then
+    # failed at random.  The live veto is now the first REPLAY seat (sorted)
+    # whose removal actually moves the banked replay.
+    base0 = PS.replay(takes)[1]["realised_usd"]
+    live = [c for c in sorted(seats)
+            if PS.replay([r for r in takes
+                          if r["outcome"]["cid"] != c])[1]["realised_usd"]
+            != base0]
     if not inert or not live:
         return check("veto_census_splits_seat_spenders", "-", False, False,
                      "fixture has no inert/live split (%d/%d)"
@@ -394,6 +403,90 @@ def p11_veto_census_splits_seat_spenders():
                                    pooled_only(set(inert))))
 
 
+def p12_score_tables_carry_intervals_and_the_new_groups():
+    """R35/R52: the EMITTED tables, not just the in-memory dicts.
+
+    ARMED   PANEL_SCORE_*.tsv carries the CR1 interval columns and the class /
+            confidence / BY-DAY groups; PANEL_CALLS_*.tsv carries the class.
+    MUTANT  MP12: the pre-fix writer — point estimates and four groups
+            (POOLED / era / asset / block), no class column.  Under it the
+            D-077 DEPLOYABLE reading and the CC-M2-4.4 A|B|C calibration table
+            are not derivable from the scorer's own outputs, and CC-M2-6 bars
+            (b) and (c) are read off numbers with no quoted uncertainty.
+    """
+    recs = PS.parse_ledger(FIXTURE)
+    groups = PS.score(recs)
+    PS.write_report(recs, groups, OUT_DIR, "REDTEST")
+    sc = os.path.join(OUT_DIR, "PANEL_SCORE_REDTEST.tsv")
+    cl = os.path.join(OUT_DIR, "PANEL_CALLS_REDTEST.tsv")
+    hdr = [l for l in open(sc) if not l.startswith("#")][0].rstrip("\n")
+    cols = hdr.split("\t")
+    need = ("lift_close_ci_lo", "lift_close_ci_hi",
+            "winner_precision_close_ci_lo", "replay_capture_ci_lo",
+            "n_cost_fallback", "n_nonfinite_cert")
+    body = [l.split("\t")[0] for l in open(sc)
+            if not l.startswith("#")][1:]
+    chdr = [l for l in open(cl) if not l.startswith("#")][0].split("\t")
+    armed = (all(c in cols for c in need)
+             and any(g.startswith("cls=") for g in body)
+             and any(g.startswith("conf=") for g in body)
+             and any(g.startswith("date8=") for g in body)
+             and "cls" in [c.strip() for c in chdr])
+    # MUTANT MP12: the pre-fix column list / group set
+    old_cols = ["group", "n_calls", "n_takes", "n_skips", "n_with_interaction",
+                "mean_take_close_usd", "mean_skip_close_usd", "lift_close",
+                "winner_precision_close"]
+    mutant_ok = all(c in old_cols for c in need)
+    return check("score_tables_carry_intervals_and_groups",
+                 "MP12_point_estimates_and_four_groups", armed, mutant_ok,
+                 "%d columns, %d groups" % (len(cols), len(body)))
+
+
+def p13_baselines_mode_answers_bar_a():
+    """R04/R126: CC-M2-6 bar (a), off ONE table, from the only judge.
+
+    ARMED   `--baselines` emits per-(asset, day) dollars for the reader and
+            every arm, the day-paired margin with a cluster-robust SE and a
+            Holm-adjusted p, and a verdict whose reference arm is the
+            PRE-REGISTERED one — with the max-of-arms margin carried beside it
+            LABELLED as the in-sample order statistic.
+    MUTANT  MP13: the pre-fix state — `baseline_replay.main()` writes TAKE/SKIP
+            call files and computes NO margin at all, so bar (a) is not
+            computable anywhere in the stack.
+    """
+    recs = PS.parse_ledger(FIXTURE)
+    for r in recs:
+        r["outcome"] = PS.outcome(r["cid"])
+    half = len(recs) // 2
+    arm_a = [dict(r, call=PS.CALL_TAKE if i < half else PS.CALL_SKIP)
+             for i, r in enumerate(recs)]
+    arm_b = [dict(r, call=PS.CALL_SKIP) for r in recs]
+    arms = {PS.PREREGISTERED_ARM: arm_a, "ARM_FLAT": arm_b}
+    day_rows, marg_rows, verdict = PS.baseline_margins(recs, arms)
+    day_grain = [r for r in marg_rows if r[2] == "day"]
+    # the fixture is ONE session, so the day-clustered p is legitimately
+    # REFUSED (G=1) — that is the correct behaviour and is asserted as such;
+    # the Holm adjustment itself is exercised directly.
+    hol = PS.holm([0.01, 0.04, 0.03])
+    armed = (bool(day_rows) and len(day_grain) == 2
+             and all(r[9] is None for r in day_grain)      # G=1 -> refused SE
+             and all(r[7] is not None for r in day_grain)  # the margin stands
+             and hol[0] >= 0.03 - 1e-12 and hol == sorted(hol, key=lambda x: x)
+             and verdict["preregistered_arm"] == PS.PREREGISTERED_ARM
+             and "max_arm_IN_SAMPLE_ORDER_STATISTIC" in verdict
+             and verdict["margin_vs_median_arm_usd"] is not None)
+    # MUTANT MP13: call files only, no margin computed
+    mutant = {n: sum(1 for r in v if r["call"] == PS.CALL_TAKE)
+              for n, v in arms.items()}
+    mutant_ok = ("margin" in " ".join(str(k) for k in mutant))
+    return check("baselines_mode_answers_bar_a", "MP13_call_files_no_margin",
+                 armed, mutant_ok,
+                 "%d day rows, %d margin rows, reference=%s, "
+                 "max-of-arms labelled in-sample"
+                 % (len(day_rows), len(marg_rows),
+                    verdict["preregistered_arm"]))
+
+
 TESTS = (p01_fixture_scores_to_committed_numbers,
          p02_skip_counted_as_take_breaks_the_score,
          p03_interaction_field_is_optional,
@@ -404,7 +497,9 @@ TESTS = (p01_fixture_scores_to_committed_numbers,
          p08_reshow_is_refused,
          p09_blind_to_study_promotion_is_lawful,
          p10_seal_auto_records_used_cases,
-         p11_veto_census_splits_seat_spenders)
+         p11_veto_census_splits_seat_spenders,
+         p12_score_tables_carry_intervals_and_the_new_groups,
+         p13_baselines_mode_answers_bar_a)
 
 
 def main():

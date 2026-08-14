@@ -47,3 +47,10 @@ therefore CONFOUNDED; the census-based diagnosis stands independently. A confirm
 ROUND on fresh days is authorized once the session effort is pinned. Restated for the record: this verdict
 closed CALL-IMITATION only — teacher-EVIDENCE distillation is the core of M3's feature program (D-078.1),
 exactly as IWM proved it.
+
+## ADDENDUM 2 (2026-08-14): FLAG-BASED DEPLOYABLE RECOMPUTE (CC-M2-22.4, commit 6310e71)
+Compliance re-read from NEWS_DISTANCE flags: only 7/204 takes affected (all hold-crossers; the reader entered
+NOTHING inside a dated ±10min window — its live compliance behavior was clean). The earlier name-based strike
+had flattered capture (+0.032) by removing 135 mostly-losing takes; the honest deployable capture is −0.0285.
+ALL BARS REMAIN FAILED IN EVERY READING — the verdict's direction is unchanged on the corrected rule.
+D34 raised: the compliance census should emit held-into rows regardless of entry distance (queued).

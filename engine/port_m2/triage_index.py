@@ -10,22 +10,42 @@ something is there.
 STRICTLY BLIND: this module reads `*.BLIND.sheet.txt` and REFUSES to open any
 `*.S14.appendix.txt` (the refusal is an exception, not a filter).
 
+VERSIONS (the stamp is written into every index it produces, so a table can
+always be attributed to the extractor that built it — the D8 defect was found
+only because someone re-derived a column by hand):
+  TRIAGE-INDEX-V1  E1-STUDY-D1/D2 as built.
+  TRIAGE-INDEX-V2  CC-M2-10.6 defects D9 + D10:
+    * D9 REGIME COLUMNS.  S2's `day_type_so_far` and its `% of range_hat`, and
+      S9's `surprise`, are the fields E1_POSTMORTEMS §3 shows are needed to
+      make the capacity term regime-conditional.  They are parsed by EXPLICIT
+      COLUMN NAME — every regime regex anchors on the printed label AND on the
+      label of the neighbouring cell, so a sheet whose S2/S9 row gains or loses
+      a column yields NOTHING rather than the wrong number (the D8 lesson: the
+      V1 extractor took a POSITIONAL column and called it `slope5m` when it was
+      the 1-minute slope).  The V1 names `day_type`/`pct_range_hat` are renamed
+      to `day_type_so_far`/`range_vs_hat_pct` to match the sheet's own labels.
+    * D10 `sflow_30m` (+ n/vol): the S8 window-nesting read (60s vs 5m vs 30m
+      vs phase) made mechanical, so the horizon DISAGREEMENT that P022 names is
+      visible in the table instead of only in a deep read.
+
 Run:
   triage_index.py --era E1 --block STUDY --asset HG --date8 20210701 \
                   [--out artifacts/cache/port/m2/triage/E1D1_TRIAGE_INDEX.tsv]
   (repeat --asset/--date8 pairs via --sessions ASSET:DATE8,ASSET:DATE8)
 """
 import argparse
+import hashlib
 import os
 import re
 import sys
 
 ROOT = "/workspace/artifacts/cache/port/m2/era"
 NA = "."
+VERSION = "TRIAGE-INDEX-V2"
 
 COLUMNS = (
     "cid asset date8 side sec clock phase_dec cls driver_family "
-    "vol_regime rv5_rv66 day_type range_so_far pct_range_hat "
+    "vol_regime rv5_rv66 day_type_so_far range_so_far range_vs_hat_pct "
     "cov_phase pct_unspent_phase cov_sess unspent_sess "
     "runway_phase runway_sess exit_is_sess fvol_source "
     "phase_H phase_H_sec phase_L phase_L_sec extreme_age_trade_side "
@@ -34,13 +54,26 @@ COLUMNS = (
     "trades_min trades_min_z slope15m slope5m slope1m accel spread_now "
     "l1_bid_sz l1_ask_sz spread_dec cost_rt rev_s_60 c2f_60 c2f_300 "
     "n_ev_60 n_ev_300 n_trades_300 dBsz_min dAsz_min refill_frac "
-    "f60_n f60_vol f60_sflow f5m_n f5m_vol f5m_sflow fph_sflow fph_vol "
+    "f60_n f60_vol f60_sflow f5m_n f5m_vol f5m_sflow "
+    "f30m_n f30m_vol f30m_sflow fph_sflow fph_vol "
+    "sched_last_age sched_next_in "
     "trapped_above trapped_below phase_total thru_n thru_bid thru_ask "
     "rv60 rv300 rv900 rv1800 rv_collapse jump_frac vol_of_vol "
     "q10 q50 ladder_pos surprise ev_ratio "
     "mid mult room_phase ext_needed unspent_bind "
     "P001 P002 P003 P004 P005 P013 P014 seat_score"
 ).split()
+
+
+def columns_sha16():
+    """The VERSION STAMP's second half: the exact column list this build emits.
+
+    A table's header can be read back and checked against the extractor that
+    claims to have produced it — the D8 defect (a column that was not what its
+    name said) survived a whole round because nothing pinned the schema.
+    """
+    h = hashlib.sha256(("%s\n%s" % (VERSION, "\t".join(COLUMNS))).encode())
+    return h.hexdigest()[:16]
 
 
 def _f(x):
@@ -103,11 +136,17 @@ def parse_sheet(path):
     m = re.search(r"vol_regime (\S+)\s+rv5/rv66=(\S+)", text)
     if m:
         r["vol_regime"], r["rv5_rv66"] = m.group(1), _f(m.group(2))
-    m = re.search(r"day_type_so_far (\S+)\s+range_so_far=\$(\S+)\s+= (\S+)% of",
-                  text)
+    # D9 REGIME COLUMNS, parsed by EXPLICIT COLUMN NAME: the pattern names
+    # `day_type_so_far`, `range_so_far=$` AND the trailing `% of range_hat`
+    # label, so it cannot slide onto a neighbouring cell the way the D8
+    # positional slope read did.  A REFUSED day_type prints the typed-missing
+    # glyph on the sheet, which _f() turns into None — never 0.
+    m = re.search(r"day_type_so_far\s+(\S+)\s+range_so_far=\$(\S+)\s+"
+                  r"=\s*(\S+)% of range_hat", text)
     if m:
-        r["day_type"], r["range_so_far"] = m.group(1), _f(m.group(2))
-        r["pct_range_hat"] = _f(m.group(3))
+        r["day_type_so_far"] = m.group(1)
+        r["range_so_far"] = _f(m.group(2))
+        r["range_vs_hat_pct"] = _f(m.group(3))
 
     # ---- S3 -------------------------------------------------------------
     m = re.search(r"\n  phase (\S+)\s+open=\S+\s+H=(\S+)@(\d\d:\d\d:\d\d)\s+"
@@ -215,7 +254,7 @@ def parse_sheet(path):
     r["refill_frac"] = _search(r"refill_after_trade.*?frac=(\S+)", text, cast=_f)
 
     # ---- S8 -------------------------------------------------------------
-    for lbl, pre in (("60s", "f60"), ("5m", "f5m")):
+    for lbl, pre in (("60s", "f60"), ("5m", "f5m"), ("30m", "f30m")):
         mm = re.search(r"\n\s+%s\s+(\d+)\s+(\d+)\s+(-?\d+)\s+" % re.escape(lbl),
                        text)
         if mm:
@@ -245,12 +284,27 @@ def parse_sheet(path):
         r["rv_collapse"] = round(r["rv1800"] / r["rv60"], 2) if r["rv60"] else None
     r["jump_frac"] = _search(r"jump_frac=\s*(\S+)", text, cast=_f)
     r["vol_of_vol"] = _search(r"vol_of_vol\s+(\S+)", text, cast=_f)
-    r["surprise"] = _search(r"surprise=(\S+)", text, cast=_f)
+    # D9: `surprise` is read from the S9 fvol row by EXPLICIT COLUMN NAME —
+    # anchored on its own label AND on the label of the cell to its left, so a
+    # bare `surprise=` printed anywhere else on the sheet can never supply it.
+    r["surprise"] = _search(r"realized_range_so_far=\$\S+\s+surprise=(\S+)",
+                            text, cast=_f)
     m = re.search(r"move_ladder_\$ q10=(\S+)\s+q25=\S+\s+q50=(\S+)", text)
     if m:
         r["q10"], r["q50"] = _f(m.group(1)), _f(m.group(2))
     r["ladder_pos"] = _search(r"ladder_position (\S+)", text)
     r["ev_ratio"] = _search(r"event_intensity .*?ratio=(\S+)", text, cast=_f)
+
+    # ---- S12 (D10) -------------------------------------------------------
+    # The scheduled-release clock.  ERA_NOTES §22: a phase-length flow window
+    # that CONTAINS a scheduled release is a fossil, so the age of the last
+    # release is the field that says whether the phase window can be trusted.
+    r["sched_last_age"] = _search(r"last_scheduled\s+.*?\s(\d+)s ago", text,
+                                  cast=_f)
+    m = re.search(r"next_scheduled\s+.*?\sin (\d+)d (\d+):(\d+):(\d+)", text)
+    if m:
+        r["sched_next_in"] = (int(m.group(1)) * 86400 + int(m.group(2)) * 3600
+                              + int(m.group(3)) * 60 + int(m.group(4)))
 
     # ---- S13 ------------------------------------------------------------
     m = re.search(r"entry mid=\S+\s+side=\S+\s+spread_at_decision=\$(\S+)\s+"
@@ -382,6 +436,8 @@ def main():
     os.makedirs(os.path.dirname(a.out), exist_ok=True)
     with open(a.out, "w") as fh:
         fh.write("# TRIAGE INDEX (CC-M2-3) — BLIND sheets only, S14 never opened\n")
+        fh.write("# extractor_version %s  columns_sha16 %s  n_columns %d\n"
+                 % (VERSION, columns_sha16(), len(COLUMNS)))
         fh.write("\t".join(COLUMNS) + "\n")
         for r in rows:
             fh.write("\t".join(_fmt(r[c]) for c in COLUMNS) + "\n")

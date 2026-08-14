@@ -1,0 +1,10 @@
+# PORT M3 M3.2 walk-forward evaluation (expanding-window era ladder) (harness=PORT-M3-HARNESS-V1; m2_spec_sha16=f6ef73a41dbf8588)
+# params_hash=6cde2ea3933876895c7b6e569626de8ceea99035edf20f86416489f253cea8c1
+era_a	era_b	n_features	spearman_gain_share
+E1	E2	129	0.509600
+E2	E3	108	0.333300
+E3	E4	162	0.594300
+E4	E5	162	0.605900
+E5	E6	129	0.489500
+E6	E7	134	0.515800
+E7	E8	132	0.543800

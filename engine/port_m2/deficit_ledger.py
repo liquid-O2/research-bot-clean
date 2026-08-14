@@ -151,6 +151,13 @@ RISK_WALLS = (300.0, 450.0, 600.0, 1200.0, 1500.0, 1800.0, 2400.0)
 # the exit menu priced for the EXIT component: the peak-exit certificate and
 # the fixed horizon marks the roster already carries, each guarded by the wall.
 EXIT_MARKS = ("CLOSE", "H30", "H60", "H120", "SESS_CLOSE")
+# THE CANONICAL MENU ORDERS.  Block B's rule is picked by a strict maximum over
+# these, incumbent FIRST, so a tie always resolves to "keep the contract you
+# have" — and, just as important, resolves the SAME WAY on every run.  Picking
+# over a set instead let PYTHONHASHSEED choose between two exactly-tied stops
+# and made the committed TSV differ run to run (caught by a cold re-run diff).
+RISK_ORDER = (("W900",) + tuple("W%d" % int(w) for w in sorted(RISK_WALLS))
+              + ("NO_WALL",))
 
 CAL_TIERS = (0.005, 0.01, 0.02, 0.05, 0.10, 0.20, 0.50, 1.0)
 
@@ -879,20 +886,24 @@ def contract_rules(rows):
     by = {}
     for r in rows:
         by.setdefault((r["era"], r["asset"]), []).append(r)
-    for _k, rr in by.items():
-        for menu_key, rule_key, gain_key, default in (
-                ("exit_menu", "exit_rule", "exit_gain_usd", "CLOSE"),
-                ("risk_menu", "risk_rule", "risk_gain_usd", "W900")):
+    for _k, rr in sorted(by.items()):
+        for menu_key, rule_key, gain_key, default, order in (
+                ("exit_menu", "exit_rule", "exit_gain_usd", "CLOSE",
+                 EXIT_MARKS),
+                ("risk_menu", "risk_rule", "risk_gain_usd", "W900",
+                 RISK_ORDER)):
             sub = [r for r in rr if r[menu_key]]
             if not sub:
                 continue
-            keys = set.intersection(*[set(r[menu_key]) for r in sub])
-            if not keys:
-                keys = {default}
+            have = set.intersection(*[set(r[menu_key]) for r in sub])
+            keys = [m for m in order if m in have] or [default]
             tot = {m: sum(r[menu_key].get(m, r["realised_usd"]) for r in sub)
                    for m in keys}
             base = sum(r["realised_usd"] for r in sub)
-            best = max(tot, key=lambda m: tot[m])
+            best = keys[0]
+            for m in keys[1:]:
+                if tot[m] > tot[best]:
+                    best = m
             gain = tot[best] - base
             for r in sub:
                 r[rule_key] = best if gain > 0 else default
@@ -980,9 +991,11 @@ def run_judge(D, J):
         asset = s.split("|")[0]
 
         cc = L["ceiling_cells"].get(s, {})
-        keys = set(cc)
+        seen = set(cc)
         for a in lev_cells:
-            keys |= set(a.get(s, {}))
+            seen |= set(a.get(s, {}))
+        keys = sorted(seen)          # sorted, not a set: float accumulation
+        #                              order must not depend on PYTHONHASHSEED
 
         # ---- the ladder increments, per regime cell -------------------------
         for li in range(1, len(lev_cells)):

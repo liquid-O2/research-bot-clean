@@ -411,16 +411,112 @@ _reg(
        "how many candidates of this session already fired"),
 )
 
+# ---- THE TEACHER-EVIDENCE GROUP (D-078, injected 2026-08-16) ---------------
+# design/TEACHER_FEATURES_V1.md, §2 PROVEN-IN-ROUND and §3 SUPPORTED, in the
+# form that document itself orders: the continuous carriers FIRST, the binary
+# gates beside them as interpretable checkpoints, the reader's own composites
+# as explicit interaction terms, and NOTHING from §4 (FALSIFIED) shipped as a
+# standalone evidence column.
+#
+# THREE RULINGS, made here and recorded because they are the places where the
+# design document does not decide itself:
+#  (a) §3 TF-06 asks for "the three legs as separate inputs AND the
+#      conjunction"; §4 forbids shipping `one_sided_flow` / `flow_agree_5m`,
+#      which ARE two of those legs (both measured at or below base).  The two
+#      §4 legs are therefore NOT shipped as columns — their raw carriers
+#      (`f5m_sflow_with`, `fph_sflow_with`) are already in the `flow` group and
+#      the model sets the sign itself, which is exactly §7.3's instruction.
+#      The conjunctions themselves (SUPPORTED / PROVEN) are shipped.
+#  (b) §2's `range_so_far` and `unspent_phase_usd` are the two arms of the same
+#      identity as the already-present `coverage_phase` and
+#      `exp_move_q50_phase_usd`, so they are computed FROM those two columns —
+#      the identical arithmetic info_ceiling.py:184 already uses for the
+#      digest's `unspent_phase_usd`.  No new source, no second definition.
+#  (c) §6 HYPOTHESIS cues are NOT shipped: TF-H1 EVENT_BURST is graded DEAD by
+#      round 2 (0 winners in 27 episodes, TEACHER_CUE_LEDGER), and TF-H2 /
+#      TF-H3 need a pivot chain and an S6 cluster vector that no committed
+#      field carries.  §5 CONFOUNDED `spread_dec` stays where it is (the
+#      `regime` group), never re-badged as evidence.
+_reg(
+    _F("tf_unspent_phase_usd", "teacher_evidence",
+       "exp_move_q50_phase_usd coverage_phase",
+       "TF-01/TF-04 THE headline capacity carrier: the phase's expected move "
+       "minus what the phase has already spent = q50_phase * (1 - cov_phase)"),
+    _F("tf_range_phase_usd", "teacher_evidence",
+       "exp_move_q50_phase_usd coverage_phase",
+       "TF-04 the level beside the ratio: the phase's range so far in dollars"),
+    _F("tf_cov_phase_pct", "teacher_evidence", "coverage_phase",
+       "TF-03/TF-04 coverage on the round's own 0-100 scale (its bin edges "
+       "are quoted in percent)"),
+    _F("tf_seat_live", "teacher_evidence",
+       "exp_move_q50_phase_usd coverage_phase runway_phase_sec",
+       "TF-01 SEAT_LIVE gate: unspent_phase >= $700 AND runway_phase >= "
+       "18,000s (blind 2.62x on n=524, 6/6 days)"),
+    _F("tf_seat_dead_time", "teacher_evidence", "runway_phase_sec",
+       "TF-02 SEAT_DEAD_TIME: runway_phase < 4,800s (blind 0.04x, 1 winner "
+       "in 313) — the round's strongest single statement"),
+    _F("tf_phase_spent", "teacher_evidence", "coverage_phase",
+       "TF-03 PHASE_SPENT: cov_phase >= 80% (blind 0.54x)"),
+    _F("tf_cov_sweet_20_60", "teacher_evidence", "coverage_phase",
+       "TF-03 the complementary positive band 20% <= cov_phase < 60% "
+       "(blind 2.00x) — the correction to the reader's 'phase-open reset is "
+       "the richest moment'"),
+    _F("tf_capacity_room", "teacher_evidence",
+       "exp_move_q50_phase_usd coverage_phase",
+       "capacity_room: unspent_phase >= $400 (blind 1.70x) — also the second "
+       "leg of PHASE_OPEN_RESET"),
+    _F("tf_capacity_big", "teacher_evidence",
+       "exp_move_q50_phase_usd coverage_phase",
+       "capacity_big: unspent_phase >= $1,000 (blind 2.23x)"),
+    _F("tf_near_d_usd", "teacher_evidence", "tf_near_d_usd",
+       "TF-06 leg / §1 `near_d`: dollars to the NEAREST ledger level alive at "
+       "the decision second (the S4 LEVEL LEDGER's own d$ column)"),
+    _F("tf_n_near100", "teacher_evidence", "tf_n_near100",
+       "§1 `n_near100`: how many alive ledger levels sit within $100"),
+    _F("tf_min_tc_near", "teacher_evidence", "tf_min_tc_near",
+       "TF-05 §1 `min_tc_near` as a RAW ORDINAL (the document's own "
+       "instruction: the reader's `level_held` boolean had the sign backwards, "
+       "so the model recovers the sign itself); NaN = every near level's prior "
+       "state is REFUSED (R96) or there is no near level"),
+    _F("tf_level_virgin", "teacher_evidence", "tf_min_tc_near",
+       "TF-05 LEVEL_VIRGIN: min_tc_near == 0 (blind 1.67x) — the INVERSION of "
+       "the reader's own E6-H3 hypothesis"),
+    _F("tf_level_near", "teacher_evidence", "tf_near_d_usd",
+       "TF-06 leg LEVEL_NEAR: |near_d| <= $60 (0.97x alone — shipped because "
+       "TF-06 asks for the legs beside the conjunction)"),
+    _F("tf_phase_open_frac", "teacher_evidence",
+       "phase_age_sec runway_phase_sec",
+       "TF-06 leg carrier: elapsed share of the phase segment = "
+       "phase_age / (phase_age + runway_phase)"),
+    _F("tf_phase_open_reset", "teacher_evidence",
+       "phase_age_sec runway_phase_sec exp_move_q50_phase_usd coverage_phase",
+       "TF-06 leg PHASE_OPEN_RESET: phase_open_frac <= 0.15 AND unspent >= "
+       "$400 (blind 1.65x, direction only 3/6 days — UNSTABLE in the ledger)"),
+    _F("tf_named_triad", "teacher_evidence",
+       "phase_age_sec runway_phase_sec exp_move_q50_phase_usd coverage_phase "
+       "tf_near_d_usd f5m_sflow fph_sflow side",
+       "TF-06 NAMED_TRIAD as the reader stated it: PHASE_OPEN_RESET AND "
+       "LEVEL_NEAR AND ONE_SIDED_FLOW (pooled 1.77x, 6/6 days; blind p=0.24)"),
+    _F("tf_named_triad_soft", "teacher_evidence",
+       "exp_move_q50_phase_usd coverage_phase tf_near_d_usd f5m_sflow side",
+       "NAMED_TRIAD_soft: capacity_room AND level_near AND flow_agree_5m "
+       "(blind 1.64x on n=256, p=0.0073 — the PROVEN member of the pair)"),
+)
+
 FEATURE_NAMES = tuple(f.name for f in FEATURES)
 assert len(set(FEATURE_NAMES)) == len(FEATURE_NAMES), "duplicate feature name"
 FEATURE_GROUP = {f.name: f.group for f in FEATURES}
 for _f in FEATURES:
     assert _f.group in GROUPS, "undeclared group %s" % _f.group
 
-# THE D-078 INSTRUMENT.  Zero features carry teacher evidence today; the flag is
-# stamped into every receipt so the teacher round's marginal value is a
-# difference against THIS matrix, measured on THIS harness.
+# THE D-078 INSTRUMENT, NOW FIRED.  The flag is computed, never asserted: it
+# reads False from the moment the teacher round's features land in the registry,
+# and every receipt carries it, so "the marginal value of the teacher round" is
+# the difference between this matrix WITH the group and the same matrix with the
+# group dropped (m3_walk --drop-groups teacher_evidence), measured on the one
+# harness, one matrix, one policy.
 NO_TEACHER = not any(f.group == "teacher_evidence" for f in FEATURES)
+N_TEACHER = sum(1 for f in FEATURES if f.group == "teacher_evidence")
 
 TARGETS = ("y_retg_rank_phase", "y_retg_raw", "y_winner",
            "y_t1_episode", "y_t1_cell")
@@ -447,7 +543,8 @@ _RAW_F64 = ("rv1800_usd", "rv60_usd", "rv_ratio", "unspent_sess",
             "sess_open_mid", "phase_open_mid", "prev_phase_ret_usd",
             "prev_phase_range_usd", "pre_cell_range_usd",
             "cert_close_usd", "cert_peak_usd", "mae_before_argmax",
-            "mfe_unwalled", "f_sess_close", "cost_rt")
+            "mfe_unwalled", "f_sess_close", "cost_rt",
+            "tf_near_d_usd", "tf_n_near100", "tf_min_tc_near")
 _RAW_I64 = ("dec_sec", "conf_sec", "runway_phase_sec", "runway_sess_sec",
             "phase_age_sec", "clock_sec", "release_age_sec", "extreme_age_sec",
             "pivot_age_sec", "refail_gap_sec", "refail_age_sec",
@@ -464,6 +561,98 @@ _RAW_I8 = ("side", "phase_dec", "day_type", "ladder_band", "regime_tercile",
            "cost_fallback")
 _RAW_STR = ("cid", "klass")
 RAW_KEYS = _RAW_F64 + _RAW_I64 + _RAW_I8
+
+
+# ------------------------------------------- THE S4 LEVEL LEDGER, at grain ---
+TF_NEAR_USD = 100.0        # the round's own "within $100" band (§1 `n_near100`)
+
+
+def _teacher_level_state(asset, d8, sess, dec, entry_mid, mult):
+    """`near_d` / `n_near100` / `min_tc_near` at EVERY decision second.
+
+    THE POPULATION is every level of the session's ledger — KEPT and retired
+    families alike — because that is what the S4 LEVEL LEDGER the E6 reader
+    actually read prints (`sections.py:849`: the K column is a TAG, not a
+    filter).  This is deliberately a different population from
+    `pattern_lib._nearest_kept_level_atr`, which the matrix already carries as
+    `level_dist_atr` over the KEPT families only; the two columns are different
+    objects and both are shipped.
+
+    THE CAUSALITY is `sections.s4_levels`' own arithmetic, imported rather than
+    re-derived where it is importable (D-006):
+      * a level exists only from `sections._level_birth_sec` onward, STRICTLY
+        before the decision second (the R93/D4 birth guard);
+      * its touch count is `tc0 + tc`, where `tc0` is the touch count in the
+        LATEST ledger snapshot strictly before the decision second (R96's
+        prior-snapshot rule) and `tc` counts touches with `touch_sec <
+        dec_sec`.  A level with NO prior snapshot has its prior state REFUSED,
+        exactly as the sheet refuses it — it never enters `min_tc_near` as a
+        fabricated zero, which is the very error R96 was filed for.
+    Nothing here reads a touch OUTCOME (`touches[:,5]`), the registered trap.
+    """
+    n_d = int(dec.size)
+    nanv = np.full(n_d, np.nan)
+    out = {"tf_near_d_usd": nanv.copy(), "tf_n_near100": nanv.copy(),
+           "tf_min_tc_near": nanv.copy()}
+    z, _p = A.load_levels(asset, int(d8))
+    if z is None or not int(np.asarray(z["level_price"]).size):
+        return out
+    import sections as SEC                 # local: sections imports are heavy
+
+    class _Shim(object):                   # what _level_birth_sec reads
+        pass
+
+    shim = _Shim()
+    shim.asset = asset
+    shim.d8 = int(d8)
+    shim.s = sess["s"]
+    shim.trade_date = sess["trade_date"]
+    shim.profile = A.load_profile(asset, int(d8))[0]
+
+    fam = z["level_family"]
+    lid = z["level_id"]
+    lpx = np.asarray(z["level_price"], dtype=np.float64)
+    dyn = z["dynamic"]
+    n_l = int(lpx.size)
+    born = np.array([SEC._level_birth_sec(shim, str(fam[r]), str(lid[r]),
+                                          int(dyn[r])) for r in range(n_l)],
+                    dtype=np.int64)
+    live = np.isfinite(lpx) & (born >= 0)
+    if not live.any():
+        return out
+
+    # --- causal touch state, per (level, decision second) -------------------
+    ss = np.asarray(z["snap_sec"], dtype=np.int64)
+    sr = np.asarray(z["snap_row"], dtype=np.int64)
+    stc = np.asarray(z["snap_touch_count"], dtype=np.int64)
+    tc = np.full((n_l, n_d), -1, dtype=np.int64)      # -1 = prior state REFUSED
+    for r in np.unique(sr[(sr >= 0) & (sr < n_l)]).tolist():
+        k = np.nonzero(sr == r)[0]
+        o = np.argsort(ss[k], kind="stable")
+        sk, vk = ss[k][o], stc[k][o]
+        j = np.searchsorted(sk, dec, side="left") - 1
+        tc[r] = np.where(j >= 0, vk[np.clip(j, 0, vk.size - 1)], -1)
+    tch = np.asarray(z["touches"])
+    if tch.size:
+        tsec = tch[:, 0].astype(np.int64)
+        trow = tch[:, 1].astype(np.int64)
+        for r in np.unique(trow[(trow >= 0) & (trow < n_l)]).tolist():
+            v = np.sort(tsec[trow == r])
+            tc[r] = np.where(tc[r] >= 0,
+                             tc[r] + np.searchsorted(v, dec, side="left"),
+                             -1)
+
+    alive = live[:, None] & (born[:, None] < dec[None, :])
+    dist = np.abs(lpx[:, None] - entry_mid[None, :]) * float(mult)
+    far = np.where(alive, dist, np.inf)
+    near = far.min(axis=0)
+    out["tf_near_d_usd"] = np.where(np.isfinite(near), near, np.nan)
+    in100 = alive & (dist <= TF_NEAR_USD)
+    out["tf_n_near100"] = in100.sum(axis=0).astype(np.float64)
+    BIG = np.iinfo(np.int64).max
+    tcm = np.where(in100 & (tc >= 0), tc, BIG).min(axis=0)
+    out["tf_min_tc_near"] = np.where(tcm < BIG, tcm.astype(np.float64), np.nan)
+    return out
 
 
 def _pack_session(asset, d8):
@@ -508,6 +697,9 @@ def _pack_session(asset, d8):
     src["f_sess_close"] = r["f_sess_close"][i].astype(np.float64)
     src["cost_rt"] = np.full(n, cost)
     src["cost_fallback"] = np.full(n, cost_fb)
+    src.update(_teacher_level_state(asset, int(d8), sess, dec,
+                                    r["entry_mid"][i].astype(np.float64),
+                                    C.ASSETS[asset]["mult"]))
 
     out = {"asset": asset, "d8": int(d8), "open_utc": open_utc, "n": n}
     for k in _RAW_F64:
@@ -1132,7 +1324,62 @@ def build_columns(R, fc, nd, xa, ep, ep_rank, ep_first):
     col["cell_age_sec"] = (R["dec_sec"] - R["cell_first_dec_sec"]).astype(np.float64)
     col["cell_rank_so_far"] = _rank_so_far(R, phase=True)
     col["sess_rank_so_far"] = _rank_so_far(R, phase=False)
+
+    # ---- teacher evidence (D-078; design/TEACHER_FEATURES_V1.md) ----------
+    # `coverage_phase` is a RATIO on the frame (pattern_lib.py:852) and a
+    # PERCENT in the round's tables; the identity `unspent = q50 * (1 - cov)`
+    # is info_ceiling.py:184's, unchanged.
+    q50 = R["exp_move_q50_phase_usd"].astype(np.float64)
+    cov = R["coverage_phase"].astype(np.float64)
+    unspent = q50 * (1.0 - cov)
+    col["tf_unspent_phase_usd"] = unspent
+    col["tf_range_phase_usd"] = q50 * cov
+    col["tf_cov_phase_pct"] = 100.0 * cov
+    rwp = R["runway_phase_sec"].astype(np.float64)
+    col["tf_seat_live"] = _tf_bool((unspent >= 700.0) & (rwp >= 18000.0),
+                                   unspent)
+    col["tf_seat_dead_time"] = (rwp < 4800.0).astype(np.float64)
+    col["tf_phase_spent"] = _tf_bool(cov >= 0.80, cov)
+    col["tf_cov_sweet_20_60"] = _tf_bool((cov >= 0.20) & (cov < 0.60), cov)
+    room = _tf_bool(unspent >= 400.0, unspent)
+    col["tf_capacity_room"] = room
+    col["tf_capacity_big"] = _tf_bool(unspent >= 1000.0, unspent)
+    near_d = R["tf_near_d_usd"]
+    min_tc = R["tf_min_tc_near"]
+    col["tf_near_d_usd"] = near_d
+    col["tf_n_near100"] = R["tf_n_near100"]
+    col["tf_min_tc_near"] = min_tc
+    col["tf_level_virgin"] = _tf_bool(min_tc == 0.0, min_tc)
+    lvl_near = _tf_bool(np.abs(near_d) <= 60.0, near_d)
+    col["tf_level_near"] = lvl_near
+    age = R["phase_age_sec"].astype(np.float64)
+    seg = age + rwp
+    with np.errstate(invalid="ignore", divide="ignore"):
+        pof = np.where(seg > 0, age / np.where(seg > 0, seg, 1.0), np.nan)
+    col["tf_phase_open_frac"] = pof
+    reset = _tf_bool((pof <= 0.15) & (unspent >= 400.0), pof + unspent)
+    col["tf_phase_open_reset"] = reset
+    f5m = R["f5m_sflow"].astype(np.float64) * side
+    fph = R["fph_sflow"].astype(np.float64) * side
+    one_sided = (f5m > 0) & (fph > 0)
+    col["tf_named_triad"] = _tf_bool(
+        (reset > 0.5) & (lvl_near > 0.5) & one_sided, pof + unspent + near_d)
+    col["tf_named_triad_soft"] = _tf_bool(
+        (room > 0.5) & (lvl_near > 0.5) & (f5m > 0), unspent + near_d)
     return col
+
+
+def _tf_bool(pred, carrier):
+    """A gate is a REFUSAL wherever the field it reads is missing.
+
+    `False` and `unknown` are different answers and D-022 forbids collapsing
+    them: a `NaN` coverage must not print as "the phase is not spent".  Every
+    teacher gate is therefore NaN wherever its carrier is NaN — XGBoost's
+    default direction handles the missing branch, which is the whole reason the
+    matrix stores typed-missing rather than imputing.
+    """
+    return np.where(np.isfinite(np.asarray(carrier, dtype=np.float64)),
+                    np.asarray(pred, dtype=np.float64), np.nan)
 
 
 def _cell_open_value(R, v):
@@ -1206,7 +1453,12 @@ PARAMS = {
                       "frozen EPISODE_CAUSAL group (primary) and the "
                       "(asset,phase) CELL (variant)"},
     "no_teacher": bool(NO_TEACHER),
-    "teacher_evidence_features": 0,
+    "teacher_evidence_features": int(N_TEACHER),
+    "teacher_features_spec": "design/TEACHER_FEATURES_V1.md §2 (PROVEN) + §3 "
+                             "(SUPPORTED); §4 FALSIFIED cues are NOT shipped "
+                             "as standalone columns and §6 HYPOTHESIS cues are "
+                             "not shipped at all (TF-H1 is graded DEAD by "
+                             "round 2; TF-H2/TF-H3 have no committed field)",
     "n_features": len(FEATURES),
     "feature_groups": {g: sum(1 for f in FEATURES if f.group == g)
                        for g in GROUPS},

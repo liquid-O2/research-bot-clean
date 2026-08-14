@@ -1,0 +1,13 @@
+# PORT M3 M3.2 walk-forward evaluation (expanding-window era ladder) (harness=PORT-M3-HARNESS-V1; m2_spec_sha16=f6ef73a41dbf8588)
+# params_hash=6cde2ea3933876895c7b6e569626de8ceea99035edf20f86416489f253cea8c1
+# R59 era-scale mirror law (m2_common.mirror_paired): the model's own takes vs the SAME takes side-flipped, paired per session
+# WHAT THIS DOES AND DOES NOT SHOW.  The corpus has no exact-second opposite-side twin (2,508 rows of 1,399,374), so the flip substitutes the nearest opposite-side candidate of the same CELL within K*.  The substitute therefore differs from the take in BOTH side and (by up to K* seconds) moment, and it is by construction a candidate the model did NOT rank first.  A positive delta says the model's chosen (side, moment) beats the nearest opposite-side alternative — it is NOT a clean side-only contrast, and must not be quoted as one.
+era	n_sessions	mean_delta_usd	mde_80_usd	verdict	p	p_sign	n_mirrorable_takes
+E1	393	216.860000	154.400000	TESTED	0.000098	0.000036	399
+E2	384	706.110000	208.010000	TESTED	0.000000	0.000000	1212
+E3	390	409.340000	152.280000	TESTED	0.000000	0.000000	363
+E4	385	317.910000	125.910000	TESTED	0.000000	0.000000	343
+E5	387	328.490000	138.570000	TESTED	0.000000	0.000000	375
+E6	384	403.370000	168.470000	TESTED	0.000000	0.000000	371
+E7	393	379.130000	190.080000	TESTED	0.000000	0.000000	346
+E8	381	355.710000	193.380000	TESTED	0.000000	0.000000	372

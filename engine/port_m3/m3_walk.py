@@ -688,10 +688,37 @@ def session_frame(D, rows, ceilings):
     return out
 
 
-def run(matrix_dir=None, nthread=8, out_dir=None):
+def drop_groups(D, groups):
+    """Drop whole FEATURE GROUPS from a loaded matrix — THE D-078 CONTROL ARM.
+
+    The teacher-evidence columns are APPENDED at the end of the registry, so
+    dropping the group reproduces the pre-teacher feature set exactly, column
+    for column and in the same order: the marginal value of the teacher round
+    is then a difference between two runs of ONE harness over ONE matrix, not
+    a comparison across two matrix builds.
+    """
+    g = [str(x) for x in D["feature_groups"].tolist()]
+    keep = np.array([x not in groups for x in g])
+    if keep.all():
+        raise M3.HarnessRefusal("--drop-groups %s dropped nothing: the matrix "
+                                "carries no such group" % (list(groups),))
+    D["X"] = np.ascontiguousarray(D["X"][:, keep])
+    D["feature_names"] = D["feature_names"][keep]
+    D["feature_groups"] = D["feature_groups"][keep]
+    D["names"] = [str(x) for x in D["feature_names"].tolist()]
+    return int((~keep).sum())
+
+
+def run(matrix_dir=None, nthread=8, out_dir=None, drop=()):
     t0 = time.time()
     MC.verify_spec(force=True)
     D, mpath = load_matrix(matrix_dir)
+    PARAMS["dropped_feature_groups"] = sorted(drop)
+    if drop:
+        n_dropped = drop_groups(D, set(drop))
+        PARAMS["n_dropped_features"] = n_dropped
+        M3.hb("m3 walk: DROPPED %d feature(s) of group(s) %s — the D-078 "
+              "control arm" % (n_dropped, sorted(drop)))
     M3.hb("m3 walk: matrix %d rows x %d features" % D["X"].shape)
     ceilings = dp_ceilings(D)
     M3.hb("m3 walk: %d session ceilings" % len(ceilings))
@@ -1096,10 +1123,14 @@ PARAMS = {
     "breaks": [list(b) for b in M3.BREAKS],
     "latency_window_sessions": M3.LATENCY_WINDOW_SESSIONS,
     "no_teacher": bool(MX.NO_TEACHER),
-    "d078_instrument": "every feature of this matrix is census/generic-derived; "
-                       "the teacher_evidence group is declared and EMPTY, so "
-                       "the coming teacher round's marginal value is a "
-                       "difference measured on THIS harness",
+    "n_teacher_features": int(MX.N_TEACHER),
+    "d078_instrument": "the teacher_evidence group now carries %d columns "
+                       "(design/TEACHER_FEATURES_V1.md §2 PROVEN + §3 "
+                       "SUPPORTED).  Its marginal value is READ, never "
+                       "asserted: `--drop-groups teacher_evidence` reruns this "
+                       "identical harness on this identical matrix with the "
+                       "group removed, and the era curve of the two runs is "
+                       "the D-078 diff" % MX.N_TEACHER,
 }
 
 
@@ -1109,11 +1140,16 @@ def main():
     ap.add_argument("--matrix", default=None)
     ap.add_argument("--outdir", default=None)
     ap.add_argument("--nthread", type=int, default=8)
+    ap.add_argument("--drop-groups", nargs="*", default=[],
+                    help="feature GROUPS to drop before the ladder runs "
+                         "(the D-078 control arm: --drop-groups "
+                         "teacher_evidence)")
     a = ap.parse_args()
     if not a.run:
         ap.print_help()
         return 2
-    run(matrix_dir=a.matrix, nthread=a.nthread, out_dir=a.outdir)
+    run(matrix_dir=a.matrix, nthread=a.nthread, out_dir=a.outdir,
+        drop=tuple(a.drop_groups))
     return 0
 
 

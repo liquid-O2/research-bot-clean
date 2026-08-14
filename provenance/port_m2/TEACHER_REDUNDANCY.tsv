@@ -1,0 +1,24 @@
+# PORT M2 D-078 — IS THE TEACHER'S EVIDENCE NEW INFORMATION?
+# r2_from_pre_teacher_block = out-of-sample R^2 of a GBT that predicts the TEACHER column
+# from the 184 PRE-TEACHER matrix columns alone (80/20 chronological split of a
+# deterministic 80k-row stride subsample; depth 6, 100 rounds, pinned seed).
+# R^2 near 1 = the column is a RE-EXPRESSION of information the matrix already had.
+feature	r2_from_pre_teacher_block	n_eval_rows
+tf_unspent_phase_usd	0.9914	16464
+tf_range_phase_usd	0.9889	16464
+tf_cov_phase_pct	0.999	16464
+tf_seat_live	0.9688	16464
+tf_seat_dead_time	0.9941	16464
+tf_phase_spent	0.9972	16464
+tf_cov_sweet_20_60	0.9921	16464
+tf_capacity_room	0.9775	16464
+tf_capacity_big	0.958	16464
+tf_near_d_usd	0.6339	16464
+tf_n_near100	0.5705	16464
+tf_min_tc_near	-0.3636	15406
+tf_level_virgin	0.5016	15406
+tf_level_near	0.5324	16464
+tf_phase_open_frac	0.9999	16464
+tf_phase_open_reset	0.9908	16464
+tf_named_triad	0.911	16464
+tf_named_triad_soft	0.9127	16464

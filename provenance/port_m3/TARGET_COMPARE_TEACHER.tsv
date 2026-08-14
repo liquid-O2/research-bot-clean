@@ -1,0 +1,36 @@
+# PORT M3 M3.2 walk-forward evaluation (expanding-window era ladder) (harness=PORT-M3-HARNESS-V1; m2_spec_sha16=f6ef73a41dbf8588)
+# params_hash=6cde2ea3933876895c7b6e569626de8ceea99035edf20f86416489f253cea8c1
+# the atlas champion is the PRIMARY; the walled winner indicator and the CC-M2-2 T1 pairwise preference are fitted on the same harness so the target choice is measured, not asserted
+era	target	status	policy	inner_rho	usd_per_session	n_trades	expectancy_usd	role
+E1	y_retg_rank_phase	OK	cell/1	0.424660	119.750000	1179	39.920000	primary
+E1	y_winner	OK	session/8	0.142860	-52.440000	512	-40.250000	secondary
+E1	y_t1_episode	OK	cell/3	0.422240	-128.770000	1336	-37.880000	secondary
+E1	COMPOSED_rank_sum	OK	cell/1		207.280000	1179	69.090000	composition (CC-M2-17.1)
+E2	y_retg_rank_phase	OK	cell/3	0.559870	507.430000	1169	166.690000	primary
+E2	y_winner	OK	session/5	0.130590	24.290000	458	20.370000	secondary
+E2	y_t1_episode	OK	cell/8	0.417500	-253.750000	1549	-62.900000	secondary
+E2	COMPOSED_rank_sum	OK	cell/3		110.840000	1206	35.290000	composition (CC-M2-17.1)
+E3	y_retg_rank_phase	OK	cell/1	0.479870	386.750000	1170	128.920000	primary
+E3	y_winner	OK	session/1	0.159950	-61.540000	390	-61.540000	secondary
+E3	y_t1_episode	OK	session/1	0.406170	-52.580000	390	-52.580000	secondary
+E3	COMPOSED_rank_sum	OK	cell/1		198.070000	1168	66.140000	composition (CC-M2-17.1)
+E4	y_retg_rank_phase	OK	cell/1	0.463280	227.060000	1155	75.690000	primary
+E4	y_winner	OK	session/1	0.156150	53.020000	385	53.020000	secondary
+E4	y_t1_episode	OK	session/8	0.416420	-161.160000	1139	-54.470000	secondary
+E4	COMPOSED_rank_sum	OK	cell/1		234.680000	1155	78.230000	composition (CC-M2-17.1)
+E5	y_retg_rank_phase	OK	cell/1	0.463230	289.120000	1161	96.370000	primary
+E5	y_winner	OK	session/8	0.151230	23.580000	436	20.930000	secondary
+E5	y_t1_episode	OK	session/5	0.431750	-62.750000	974	-24.930000	secondary
+E5	COMPOSED_rank_sum	OK	cell/1		70.340000	1161	23.450000	composition (CC-M2-17.1)
+E6	y_retg_rank_phase	OK	cell/1	0.512320	322.960000	1152	107.650000	primary
+E6	y_winner	OK	session/1	0.175620	-59.170000	384	-59.170000	secondary
+E6	y_t1_episode	OK	session/5	0.441720	-59.590000	994	-23.020000	secondary
+E6	COMPOSED_rank_sum	OK	cell/1		119.630000	1151	39.910000	composition (CC-M2-17.1)
+E7	y_retg_rank_phase	OK	cell/1	0.465440	327.030000	1179	109.010000	primary
+E7	y_winner	OK	session/5	0.162050	-77.880000	433	-70.690000	secondary
+E7	y_t1_episode	OK	session/1	0.420870	-9.770000	393	-9.770000	secondary
+E7	COMPOSED_rank_sum	OK	cell/1		216.470000	1177	72.280000	composition (CC-M2-17.1)
+E8	y_retg_rank_phase	OK	cell/1	0.444910	340.910000	1143	113.640000	primary
+E8	y_winner	OK	session/3	0.130670	11.990000	399	11.450000	secondary
+E8	y_t1_episode	OK	session/1	0.395350	-36.550000	381	-36.550000	secondary
+E8	COMPOSED_rank_sum	OK	cell/1		196.610000	1143	65.540000	composition (CC-M2-17.1)

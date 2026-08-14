@@ -1,7 +1,7 @@
 {
  "brief": "D-078/D-084/D-085 + PORT_M2_SHEETS_SPEC CC-M2-15..24 + LABEL_ATLAS_V2 \u00a72.2/\u00a72.5 (the atlas champion)",
  "databento_dbn": "0.66.0",
- "git_sha": "a9f9be776d48c0c54bd8d9ec062203382adbad41",
+ "git_sha": "f19170b6216708d258031a53476c61452e1ae73a",
  "harness_version": "PORT-M3-HARNESS-V1",
  "input_sha256": {},
  "m0_spec_sha16": "4bdf772927b5f316",

@@ -1,7 +1,7 @@
 {
  "brief": "D-078/D-084/D-085 + PORT_M2_SHEETS_SPEC CC-M2-15..24 + LABEL_ATLAS_V2 \u00a72.2/\u00a72.5 (the atlas champion)",
  "databento_dbn": "0.66.0",
- "git_sha": "827391eb256b7cedf2c2527ba9f21c9c1f5a4c8e",
+ "git_sha": "769729f9b15a71a4ea3047790a37fd6ae18e0642",
  "harness_version": "PORT-M3-HARNESS-V1",
  "input_sha256": {},
  "m0_spec_sha16": "4bdf772927b5f316",
@@ -12,7 +12,7 @@
  "params": {
   "brief": "D-078/D-084/D-085 + PORT_M2_SHEETS_SPEC CC-M2-15..24 + LABEL_ATLAS_V2 \u00a72.2/\u00a72.5 (the atlas champion)",
   "determinism": "no RNG; every grouping is an explicit lexsort; the forward-value probe walks a fixed stride",
-  "elapsed_sec": 167.6,
+  "elapsed_sec": 180.7,
   "era_counts": {
    "E1": {
     "asset_sessions": 393,
@@ -95,7 +95,7 @@
    "regime": 11,
    "runway": 5,
    "seat": 7,
-   "teacher_evidence": 0,
+   "teacher_evidence": 18,
    "xasset": 18
   },
   "grain": "one row per generation-v3 roster candidate",
@@ -111,10 +111,10 @@
    "news": "NEWS_DISTANCE.tsv on cid; absence = no release within +/-15min"
   },
   "n_episodes": 635644,
-  "n_features": 184,
+  "n_features": 202,
   "n_news_joined": 25753,
   "n_rows": 1399374,
-  "no_teacher": true,
+  "no_teacher": false,
   "population": "every FIT + GATE session of SI/HG/NKD; the D-058 pre-exam holdout is EXCLUDED BY THE GUARDED ENUMERATOR (pattern_lib.sessions_fit) and REFUSED by m3_common.check_holdout if it ever reaches the matrix",
   "scan": {
    "n_empty": 0,
@@ -129,8 +129,9 @@
    "t1": "CC-M2-2.2(b) pairwise preference in Borda form, at the frozen EPISODE_CAUSAL group (primary) and the (asset,phase) CELL (variant)",
    "winner": "D-021 walled winner indicator, refusals excluded from both halves (R122)"
   },
-  "teacher_evidence_features": 0
+  "teacher_evidence_features": 18,
+  "teacher_features_spec": "design/TEACHER_FEATURES_V1.md \u00a72 (PROVEN) + \u00a73 (SUPPORTED); \u00a74 FALSIFIED cues are NOT shipped as standalone columns and \u00a76 HYPOTHESIS cues are not shipped at all (TF-H1 is graded DEAD by round 2; TF-H2/TF-H3 have no committed field)"
  },
- "params_hash": "067b335ae4e2bb030c5fe7e37a367b32d7d68619b6621caf6db3873d21609731",
+ "params_hash": "22306a8b0dba7919b169b2957e3cd7d1dfe010bf7966507f35c3512d60838de6",
  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d"
 }

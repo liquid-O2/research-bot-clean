@@ -308,11 +308,28 @@ def t17_determinism_two_builds_agree():
 
 
 def t18_no_teacher_flag_is_true_and_measurable():
+    """The D-078 INSTRUMENT, in both of its states.
+
+    Before the teacher round landed this asserted an EMPTY group.  The group is
+    now populated, so what the test protects is the property that actually
+    makes the instrument work and that a mutant would break: the flag is
+    COMPUTED from the registry (never a hand-set constant), the group is
+    declared, and every shipped teacher column is (a) named `tf_*`, (b) in the
+    group, and (c) reads no §4-FALSIFIED cue as a standalone evidence column.
+    """
     n_teacher = sum(1 for f in MX.FEATURES if f.group == "teacher_evidence")
-    return check("t18_no_teacher_flag_is_true_and_measurable",
-                 MX.NO_TEACHER and n_teacher == 0
-                 and "teacher_evidence" in MX.GROUPS,
-                 "D-078 instrument: the group exists and is empty")
+    names = {f.name for f in MX.FEATURES if f.group == "teacher_evidence"}
+    banned = {"tf_one_sided_flow", "tf_flow_agree_5m", "tf_fuel_trapped",
+              "tf_expanding", "tf_level_tested_held", "tf_fresh_extreme",
+              "tf_event_burst"}
+    ok = ("teacher_evidence" in MX.GROUPS
+          and MX.NO_TEACHER == (n_teacher == 0)
+          and n_teacher == MX.N_TEACHER
+          and all(n.startswith("tf_") for n in names)
+          and not (names & banned))
+    return check("t18_no_teacher_flag_is_true_and_measurable", ok,
+                 "D-078 instrument: %d teacher column(s), NO_TEACHER=%s"
+                 % (n_teacher, MX.NO_TEACHER))
 
 
 def t19_news_veto_uses_census_flags():

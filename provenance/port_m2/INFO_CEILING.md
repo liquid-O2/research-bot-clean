@@ -285,3 +285,10 @@ throughout; folds, HP search and every ordering are deterministic. `engine/port_
 gained exactly one refactor for this lane — `for_window` split into cache-load and
 `cues_from_window` — verified byte-identical on a live episode before use; there is still
 one copy of the cue arithmetic.
+
+## ADDENDUM (orchestrator, 2026-08-16): SCOPE + DIRECTION CORRECTED
+The numbers above are EXTRACTION LOWER BOUNDS of one model class on hand-chosen features — NOT information
+upper bounds. Observed captures (reader blind 0.153, M3 walk-forward 0.098) exceed the headline figure,
+which refutes any ceiling reading. 'INFORMATION SHORTAGE' is retracted; the correct statement: OUR
+FEATURIZATIONS extract little. The raw-sequence model program is the first direct extraction attempt on
+the unsummarized stream.

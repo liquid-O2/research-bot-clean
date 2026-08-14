@@ -73,9 +73,30 @@ def rubric(row, cols):
     side = 1.0 if d.get("side") == "L" else -1.0
     unspent = f("unspent_phase_usd")
     runway = f("runway_phase")
-    room_ok = unspent == unspent and unspent >= 400.0
     time_ok = runway == runway and runway >= 2400.0
-    if not (room_ok and time_ok):
+    if not time_ok:
+        return 0.01, "no_time"
+    # DAY-2 CORRECTION (declared before study day 3 was read).  The day-1 rule
+    # refused every episode whose phase had spent its expected move.  Day 2
+    # falsified it at cost: SI-20240320-L-E71 sat at unspent = -$778 (the phase
+    # had spent 138% of its expected move) and paid +$2,245 — the best single
+    # seat my strict schedule took all day.  Capacity-exhaustion is a
+    # MEAN-REVERSION PRIOR IN DISGUISE (the same thing E1's post-mortems found
+    # and the reason it blocked 24/38 winners on an expansion day).
+    # Corrected reading: a spent phase is only dead if it is spent AND QUIET.
+    # If the phase is EXPANDING — realised range at or above the calibrated
+    # move ladder's median, or short-window vol running above the 30-minute
+    # window — a low or negative `unspent` means TRENDING, not finished, and
+    # the episode is priced at base rather than refused.
+    ladder = str(d.get("ladder_pos", ""))
+    rv60_, rv1800_ = f("rv60"), f("rv1800")
+    expanding = (ladder.startswith("at_or_above_q5")
+                 or ladder.startswith("at_or_above_q7")
+                 or ladder.startswith("at_or_above_q9")
+                 or (rv60_ == rv60_ and rv1800_ == rv1800_ and rv1800_ > 0
+                     and rv60_ > 0.9 * rv1800_))
+    room_ok = unspent == unspent and unspent >= 400.0
+    if not room_ok and not expanding:
         return 0.01, "no_room"
 
     n_pos, n_neg = 0, 0
@@ -170,6 +191,34 @@ OVERRIDES = {
                                     "(3,981 events/60s, trades/min 187)"),
     (20240118, "HG", "L57"): (0.15, "fvol ladder level 1c away, 5-min flow +88, "
                                     "$456 unspent against a $1,017 range_hat"),
+    # --- E6 STUDY D2, 2024-03-20 (FOMC day; declared after reading every row,
+    #     BEFORE this day's oracle or outcomes were opened — the clean
+    #     predict-the-oracle rep) ---
+    (20240320, "NK", "L10"): (0.15, "Tokyo, $1,668 unspent and 6.4h runway, sitting on "
+                                    "an fvol band 2.6 away, event count 477/60s with "
+                                    "trades z +2.1 — the first real push of the session"),
+    (20240320, "NK", "L12"): (0.16, "same phase, fuel map now 927 below vs 12 above and "
+                                    "1-min slope +100: the squeeze fuel is under price "
+                                    "and the phase still has $968"),
+    (20240320, "HG", "L06"): (0.20, "the Tokyo seat: 5-min flow +199 and phase flow +183 "
+                                    "with 2,954 trapped below vs 151 above, 737 events/60s, "
+                                    "trades z +5.4, VWAP 2.9 away, $690 unspent"),
+    (20240320, "HG", "L08"): (0.17, "continuation of the same push, flow +160/+373, "
+                                    "trapped-below 3,709"),
+    (20240320, "SI", "L18"): (0.18, "London-open reset: fresh phase, $820 unspent, 4h "
+                                    "runway, prior-day level exactly at price, flow "
+                                    "+30/+35 with the long"),
+    (20240320, "SI", "L32"): (0.20, "NY-open reset: $1,922 unspent, 9.9h runway, OR_EXT "
+                                    "6.3 away, FAST_OPEN class — the biggest capacity of "
+                                    "the day (HELD-flagged: FOMC sits inside the horizon)"),
+    (20240320, "HG", "L56"): (0.17, "NY-open reset on HG: $1,092 unspent, trades z +15.3, "
+                                    "1,025 events/60s (HELD-flagged)"),
+    (20240320, "SI", "L71"): (0.12, "DELIBERATE PROBE of the expansion question: the phase "
+                                    "has spent 138% of its expected move (unspent "
+                                    "-$777) so my capacity rule refuses it, but this is "
+                                    "the post-FOMC trend leg with 2,760 events/60s and "
+                                    "flow +10/+18 with the long. If capacity-exhaustion "
+                                    "is a mean-reversion prior in disguise, this pays."),
     (20240118, "SI", "L47"): (0.12, "OR_EXT at 0, +200 slope5m, flow +127 — momentum "
                                     "but the phase is 60% spent"),
 }
@@ -198,7 +247,8 @@ def calls(d8, assets=None):
     return out
 
 
-def schedule(cl, take_p=0.12, allow_held=False, conviction=0.18):
+def schedule(cl, take_p=0.12, allow_held=False, conviction=0.18,
+             overrides_only=False):
     """One position per ASSET, held to phase close: the deployment constraint.
 
     THE LESSON DAY 1 TAUGHT (and the reason this is not a greedy scan): the exit
@@ -227,6 +277,13 @@ def schedule(cl, take_p=0.12, allow_held=False, conviction=0.18):
         opens.setdefault(c["_phase"], c["_sec"])
     busy, takes = {}, []
     for c in sorted(rows, key=lambda r: (r["_sec"], r["ep"])):
+        # STUDY-DAY-3 LESSON, applied to every later day: the generic rubric,
+        # taking seats on its own, LOST money — 7 takes, -$1,835, three of them
+        # into the $900 wall, zero oracle overlap, on the day where no hand
+        # override was registered.  The rubric is a background probability, not
+        # a trader.  A seat is only spent on an episode the reader named.
+        if overrides_only and c["src"] != "OVERRIDE":
+            continue
         if c["compl"] == "VETO":
             continue
         if c["compl"] == "HELD" and not allow_held:
@@ -250,10 +307,12 @@ def main(argv=None):
     ap.add_argument("--take-p", type=float, default=0.12)
     ap.add_argument("--allow-held", action="store_true")
     ap.add_argument("--dump", action="store_true")
+    ap.add_argument("--overrides-only", dest="overrides_only",
+                    action="store_true")
     a = ap.parse_args(argv)
     assets = a.assets.split(",") if a.assets else None
     cl = calls(a.day, assets)
-    tk = schedule(cl, a.take_p, a.allow_held)
+    tk = schedule(cl, a.take_p, a.allow_held, overrides_only=a.overrides_only)
     tkset = {t["ep"] for t in tk}
     if a.dump:
         print("ep\tasset\tsec\tside\tp\tcall\tsrc\tcompl\twhy")

@@ -64,3 +64,29 @@ on 43/584 (7.4%). **The held-into reading is decision-relevant, not cosmetic**: 
 | day | regime | episodes | takes | replay | DP ceiling | capture | oracle seats hit | oracle $ hit | Brier | note |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 2024-01-18 | LOW | 584 | 7 | $2,685 / $3,585 | $7,830 | 0.343 / 0.458 | 3/9 | 0.397 / 0.464 | 0.03970 | overlap CONTAMINATED — the oracle schedule was shown first (D-090.1) |
+| D2 2024-03-20 (FOMC) | MID | 573 | 4 / 5 | $992 / $3,899 | $9,861 | 0.101 / 0.395 | 0/9 | 0.000 | 0.08721 | CLEAN predict-the-oracle; feedback at half-session |
+| D3 2024-04-16 | HIGH | 845 | 7 | -$1,835 | $11,029 | -0.166 | 0/9 | 0.000 | 0.04823 | CLEAN; end-of-day feedback only; NO hand overrides — the rubric traded alone |
+
+### §5.1 WHAT THE THREE DAYS ACTUALLY SAY (the consolidation, D-091.11)
+**The reader's value is in the named structure, not in the rule.** Day 1's schedule was 5 hand-read
+overrides + 2 rubric picks and returned +$2,685; day 2's money came entirely from hand-read seats (the
+NY-open reset +$3,645, the expansion probe +$2,245) while the rubric's own picks lost; day 3 registered NO
+hand override, let the rubric trade alone, and it lost **-$1,835 with three entries into the $900 wall and
+zero oracle overlap**. Condition-counting (fresh + level-held + flow-agree + fuel) is not an edge. The
+things that paid were all NAMED SITUATIONS: the phase-open capacity reset, a level confluence AT the entry
+price with prior rejections under it, a refail chain in the pivot sequence with the highs stepping the other
+way, a flow flip inside the last five minutes of S6 digests, and an event burst at the decision second.
+CONSEQUENCE, BINDING FROM HERE: a seat is only ever spent on an episode the reader has named and priced by
+hand. The rubric survives as a background probability for calibration scoring, never as a trader
+(`--overrides-only`).
+
+**The capacity term is two-sided and both sides bite.** Day 2 falsified the day-1 rule at cost (the
+-$778-unspent expansion probe paid +$2,245); day 3 falsified the correction just as hard (the expansion
+branch let the rubric into three walled losses). Correct statement: *a spent phase is not dead, but
+"expanding" is not by itself a reason to enter.* Capacity tells you whether the target is REACHABLE; it
+never tells you the confirmation is real.
+
+**Oracle overlap on clean days is 0/9 twice.** The reader does not find the oracle's exact seats. It does
+sometimes find money in the same phase (day 2 science: 0/9 overlap and still $3,899 = 40% of the ceiling).
+Overlap as scored — the reader taking the oracle's own episode — is a demanding metric at episode grain
+because the oracle's seat is one of ~200 episodes in a phase; the dollar-capture reading is the honest one.

@@ -1,7 +1,23 @@
 {
+ "arms": [
+  "CORE",
+  "CORE_E1_FIRST_OUTCOME",
+  "CORE_E1_FIRST_OUTCOME_MIRROR",
+  "CORE_E2_SESSION_RETURN",
+  "CORE_E2_SESSION_RETURN_MIRROR",
+  "CORE_E3_OVERNIGHT",
+  "CORE_E3_OVERNIGHT_MIRROR",
+  "CORE_ORACLE",
+  "CORE_ORACLE_MIRROR",
+  "CORE_ORACLE_PEAK",
+  "CORE_PEAK",
+  "ORACLE_ONLY",
+  "ORACLE_ONLY_MIRROR"
+ ],
+ "elapsed_sec": 147.52379989624023,
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "d3e5784f17b00d304e847d0a8383c54adfa07f07",
+  "git_sha": "398f3e7173e55d09c5bea43be00dbbb966ca646f",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
@@ -9,16 +25,13 @@
   "m2_spec_sha16": "18d12ab86a4ee6b0",
   "numpy_version": "2.1.2",
   "params": {
-   "T1_coverage": "pattern_lib coverage_phase <= 0.70; REFUSED => FALSE",
-   "T2_ladder": "pattern_lib ladder_band in (0, 1) (below_q10, at_or_above_q10); REFUSED (-1) => FALSE (V1.1 D1)",
-   "T3_runway": "runway_phase_sec >= 26000 AND phase_close_sec == sess_close_sec",
-   "T4_age_A": "extreme_age_sec (phase H for SHORT / L for LONG) in [0, 200]",
-   "T4_age_B": "pivot_age_sec (most recent causal ZigZag pivot of the faded type) in [0, 200]",
-   "T5_slope": "sign(slope_1m_usd) == side and sign(accel_usd) == side, both non-zero",
-   "arm_P016": "PATTERN_LEDGER P016 NY_SHORT_ROLLOVER_CONCORDANT: ext_needed <= $450 and phase_age >= 300s; runway >= 20000s with phase_close == sess_close; f60_n >= 5 and f60_vol >= 10; sign(fph_sflow) == side, fph_vol >= 200, |sflow|/vol >= 0.05; rv1800/rv60 < 8.0. P001's slope/accel term is DROPPED by name. Sub-clause thresholds taken verbatim from engine/port_m2/e1d1_policy.terms (T3/T5).",
-   "conditional_value": "mean over POSITIVE candidates (CC-M1-7.3)",
-   "definition_source": "provenance/port_m2/PATTERN_LEDGER.tsv (sheet_fields) + provenance/port_m2/WARMUP_POSTMORTEMS.md F1",
-   "destruction": "each term shuffled WITHIN SESSION, 40 replicates, RandomState(20260814 + term index); the other four terms untouched. The destroyed quantity is the EDGE (mean cert of the firing set minus mean cert of the non-firing rest, both readings), not the level \u2014 a level comparison is dominated by the population's negative mean",
+   "capture": "realised / c_c_roster.dp_schedule ceiling over EVERY candidate of the session (panel_score.dp_ceiling)",
+   "core": "the five INHERITED terms of E1D4-F3: T1 60s n>=5 and vol>=10; T2 runway to the binding phase-close exit >= 12000s; T3 trade-side phase extreme <= 3600s old; T4 5m sflow OPPOSED at >= 0.05 of 5m volume; T5 5m vol >= 200 AND (>= 500 OR >= 0.08 x phase volume)",
+   "estimators": {
+    "E1_FIRST_OUTCOME": "side * sign(cert_close) of the candidate that RESOLVED earliest strictly before this decision second (exit_close_sec < dec_sec)",
+    "E2_SESSION_RETURN": "sign(phase_open_mid - sess_open_mid)",
+    "E3_OVERNIGHT": "sign(sess_open_mid - previous session's m0 receipt close price)"
+   },
    "frame": {
     "causality": "every window is searchsorted on the SANE second grid and bounded at dec_sec; ZigZag pivots kept only when conf_sec < dec_sec",
     "day_type_cuts": {
@@ -117,20 +130,45 @@
     ],
     "sane_mask": "b7_sane (D-054) \u2014 installed by assemble.load_session"
    },
-   "inference": "CC-M1-12.4 \u2014 GEE independence working correlation with the Liang-Zeger sandwich clustered on SESSION (CR0 + Cameron-Miller CR1); Kish one-way ICC/DEFF for n_eff",
-   "pattern": "P001 PHASE_ROLLOVER_UNDERMOVED",
-   "population": "frozen v3 roster, FIT years [2021, 2022, 2023, 2024]; 2025 = GATE echo, EVAL-ONLY",
-   "refused_fvol_census": "CC-M2-8.4 \u2014 per (asset, era) count/fraction of fvol rows with no move_q* quantiles and of candidates whose S9 ladder / S3 COVERAGE is therefore REFUSED",
-   "spec_section": "DISCRETIONARY_METHOD \u00a74.2 name->count census \u2014 P001",
-   "value": "c_c_roster.certificates \u2014 walled PHASE-CLOSE (adoption) and walled PEAK-EXIT (CC-M1-8 companion), both always reported",
-   "winner": "cert_close >= $1000 and mae_before_argmax <= $300 and not walled (D-021)"
+   "frame_v2": {
+    "confluence_tolerance": "1 tick",
+    "fields_v2": {
+     "exit_close_sec": "c_c_roster.certificates(...)[1][2] \u2014 the second the walled PHASE-CLOSE certificate exits (the one-position scheduler's occupancy end)",
+     "exit_peak_sec": "the same for the PEAK-EXIT companion",
+     "n_conf_fam_at_refail": "with_levels only: number of DISTINCT KEPT level families whose level price is within 1 tick of refail_px and whose level was BORN strictly before dec_sec (sections._level_birth_sec, the V1.1 D4 guard); -1 = not computed / no refail",
+     "n_conf_fam_at_refail_2t": "the same count at a TWO-tick tolerance.  Both are reported because the day-3 birth case's own confluence (4.3569 / 4.3584 around a 4.35775 double top) sits 1.3-1.7 ticks away: the strict reading excludes the case the pattern was born on, and saying so is the point of carrying both.",
+     "observed_close_sec": "m0 session receipt meta `last_two_sided_sec`: the last second at which the book was two-sided, on the session clock.  This is an END-OF-SESSION FACT and is used ONLY to correct a runway after the fact in a CENSUS; it is never a sheet field and never available to a reader at decision time.",
+     "phase_open_mid": "first SANE mid at/after the running phase's start",
+     "refail_age_sec": "dec_sec - pivot_sec of that more recent pivot; -1 = none (identical to pivot_age_sec by construction, recomputed here from the same chain as a cross-check)",
+     "refail_dist_usd": "|price difference| between those two pivots, in dollars (x mult); NaN = fewer than two",
+     "refail_gap_sec": "seconds between the last TWO causal ZigZag pivots of the FADED type (HIGH for a SHORT, LOW for a LONG), both conf_sec < dec_sec; -1 = fewer than two",
+     "refail_px": "price of the MORE RECENT of the two pivots (the refail price); NaN = fewer than two",
+     "runway_binding_sec": "min(runway_phase_sec, max(0, observed_close_sec - dec_sec)) \u2014 the D15-corrected runway to the BINDING exit (P025 reading B).  On a full session it equals runway_phase_sec.",
+     "sess_open_mid": "first SANE mid of the session",
+     "short_day": "m0 session receipt meta `short_day` (PORT_M0_CENSUS_SPEC \u00a75: observed two-sided span < 20h) \u2014 the D15 holiday flag",
+     "tick_usd": "the asset's tick in dollars (common.ASSETS[asset]) \u2014 the '1 tick' unit P007's no-response term and P024's refail tolerance are both written in"
+    },
+    "module": "engine/port_m2/pattern_lib.py (V2 block)",
+    "observed_close": "artifacts/cache/port/m0/sessions/{ASSET}/{d8}.npz meta_json {short_day, last_two_sided_sec} \u2014 the PORT_M0_CENSUS_SPEC \u00a75 session receipt, read through assemble.load_session (no second decode)",
+    "order": "CC-M2-12 census batch 3",
+    "refail": "the two most recent pivots of the faded type CONFIRMED before dec_sec, taken from the SAME one-scan causal chain test_pattern.t02 pins against sections._pivots"
+   },
+   "mirror_law": "CC-M2-13.1 \u2014 an estimator must beat the arm that takes the OPPOSITE side on the same rows on EVERY session; sessions won/tied/lost are counted and the per-session mean delta carries a session-clustered SE with Holm over the family",
+   "oracle_day_side": "the side of the session's D-021 winner majority; 0 when there are no winners or the count ties",
+   "order": "CC-M2-13.3 \u2014 session-side state probe",
+   "population": "frozen v3 roster, FIT [2021, 2022, 2023, 2024] (primary) + 2025 GATE echo",
+   "precision": "D-021 winners among SEATED takes",
+   "release_day": "a SCHEDULED release (BLS + FOMC, D-057 SCHEDULE_EXEMPT) lands inside the session before some decision second",
+   "replay": "one position, chronological; a take whose decision second is not strictly after the open position's exit second is FORFEITED (panel_score.replay)",
+   "spec_section": "CC-M2-13.3 SESSION-SIDE STATE probe (ceiling census + causal day-side estimators, mirror-law tested)"
   },
-  "params_hash": "607f5d785af34391ea5f7ad488bf69ad516d95bd17e8ba22f5bb66ae0b39f20a",
+  "params_hash": "432a395322b7915a4d95cb3349754cf5b66c84e4587366d2464b253ea51bcfd9",
   "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
- "n_failed": 0,
- "n_tests": 17,
- "verdict": "PASS"
+ "n_candidates": 1580360,
+ "n_sessions": 3734,
+ "out_dir": "/workspace/artifacts/cache/port/m2/side_probe/",
+ "pins_moved": []
 }

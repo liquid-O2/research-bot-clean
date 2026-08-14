@@ -27,27 +27,107 @@ only because someone re-derived a column by hand):
     * D10 `sflow_30m` (+ n/vol): the S8 window-nesting read (60s vs 5m vs 30m
       vs phase) made mechanical, so the horizon DISAGREEMENT that P022 names is
       visible in the table instead of only in a deep read.
+  TRIAGE-INDEX-V3  CC-M2-12 items 1-2 + defects D13/D14/D15:
+    * D13 (docstring/code/stamp agreement).  The V2 renames and the version
+      header ARE in this file and this docstring no longer claims anything the
+      code does not do; what the D13 note actually caught is that the indices
+      the E1 D1-D3 rounds READ (E1D{1,2,3}_TRIAGE_INDEX.tsv) were built by the
+      V1 extractor, carry the V1 column names and NO stamp, and sit in the same
+      directory as the stamped V2 rebuilds (`*_V2R.tsv`).  Every index this
+      build writes carries `extractor_version` + `columns_sha16`, and an index
+      without that second header line is by definition pre-V2 and must not be
+      attributed to this extractor.
+    * D14 AS-OF PREFIX VIEW (`--as-of SEC`), the BLIND-GATING mechanic.  A
+      day-complete index shows every row of the day, and a row's `mid` is the
+      price at ITS decision second — so scanning the table at 03:00 shows the
+      price path of 19:00.  CC-M2-12.1(a) makes the prefix view MANDATORY
+      before any blind round: `--as-of SEC` emits ONLY rows with `sec <= SEC`
+      and MASKS every field that is not knowable at SEC, and refuses to write
+      a view that violates either law (`verify_as_of`, which the red-first
+      test drives with a leaked later row).
+      `--drive-step` / `--drive-out` are the chronological DAY DRIVER: the
+      index revealed incrementally, one stamped prefix per cut, with a
+      manifest — the mechanic every future round uses instead of one
+      day-complete table.
+    * D15 SHORT DAY (`short_day`, `observed_close`, `runway_observed`), read
+      from the m0 session receipt (PORT_M0_CENSUS_SPEC §5 meta: `short_day`,
+      `last_two_sided_sec`).  On 2021-07-05 the HG tape ends at 71,354s while
+      every runway on every sheet is computed to the nominal 82,799s, so the
+      index-level fix is `runway_observed = min(runway_phase, observed_close -
+      sec)`.  These three columns are an END-OF-SESSION FACT (the repo has no
+      early-close calendar; M0 §5 derives the flag from the observed span), so
+      under `--as-of` they are MASKED until the observed close has passed —
+      a reader at 03:00 cannot know when the tape will stop.  The S3 runway
+      fix inside the rendered sheets is a separate V1.2 render-bundle item.
+    * D16 THE INDEX HEADER IS A VERSIONED API, and frozen consumers get a
+      PINNED READER.  The V2 stamp added a SECOND comment line and renamed two
+      columns; `e1d1_policy.py`, `e1d2_policy.py` and `baseline_replay.py` all
+      parse with `readlines()[1:]` and read the V1 names, so they broke (day 4
+      ran them against a hand-built COMPAT file).  Frozen code must not be
+      edited, so the FIX LIVES HERE, in two halves:
+        - `read_index(path)` is the canonical reader for NEW consumers: it
+          skips EVERY `#` line however many there are, returns the header
+          stamps separately, and populates BOTH spellings of every renamed
+          column, so no future header or rename can break a caller.
+        - the COMPAT VIEW is written automatically beside every index (
+          `<stem>_COMPAT.tsv`, suppress with `--no-compat`): exactly ONE
+          comment line and both column spellings, i.e. the V1 API pinned
+          forever.  A frozen consumer points at the compat file and never
+          changes again.
+      THE CONTRACT, stated so it can be checked: line 1 = the human title;
+      lines 2..k = `#` machine stamps (version, columns_sha16, AS_OF); the
+      first non-`#` line is the header row; column names are ADDITIVE and any
+      rename keeps its old spelling in the compat view.
+    * D17 S10 DEVELOPING VALUE AREA (`dev_poc`, `dev_vah`, `dev_val`,
+      `d_POC`, `d_VAH`, `d_VAL`, `in_VA`).  S10 priced the magnitude on two
+      separate days (day 3's give-back, day 4's seats) and there was no way to
+      triage on it.  `d_POC` is parsed from the sheet; `d_VAH`/`d_VAL` are
+      derived from the printed prices and `mult` in the sheet's OWN signed
+      convention, (mid - level) x mult, positive when the level is BELOW the
+      entry mid.
+    * CC-M2-14.2a THE LEADING REGIME STATE joins the index (`rf_anchor`,
+      `rf_anchor_ts`, `predicted_day_type_prob`, `range_hat_vs_trailing`,
+      `menu_hat`), read from the accepted forecaster's
+      artifacts/cache/port/m2/regime_forecast/forecast_{ASSET}.tsv keyed
+      (asset, trade_date, anchor).  THE JOIN IS STRICTLY PRIOR: the anchor
+      selected is the NEWEST one whose `anchor_ts` is strictly LESS than the
+      row's `decision_ts` (the sheet's own S12 epoch second, also emitted as
+      `dec_ts` so the join can be audited).  An anchor stamped AT the decision
+      second is a same-second read and is refused — test t16 drives that
+      mutant.  CAVEAT CARRIED FROM CC-M2-14.1: `menu_hat` is RANK-VALID
+      everywhere but LEVEL-INVALID on SI — rank it, never read its level.
 
 Run:
-  triage_index.py --era E1 --block STUDY --asset HG --date8 20210701 \
-                  [--out artifacts/cache/port/m2/triage/E1D1_TRIAGE_INDEX.tsv]
-  (repeat --asset/--date8 pairs via --sessions ASSET:DATE8,ASSET:DATE8)
+  triage_index.py --era E1 --block STUDY \
+                  --sessions HG:20210701,SI:20210701 \
+                  --out artifacts/cache/port/m2/triage/E1D1_TRIAGE_INDEX.tsv
+  triage_index.py ... --out IDX.tsv --as-of 43200          # prefix view
+  triage_index.py ... --out IDX.tsv --drive-step 1800 \
+                  --drive-out artifacts/cache/port/m2/triage/E1D4_DRIVE
 """
 import argparse
 import hashlib
+import json
 import os
 import re
 import sys
 
+import numpy as np
+
 ROOT = "/workspace/artifacts/cache/port/m2/era"
+# PORT_M0_CENSUS_SPEC §5 session receipts — the ONLY thing read from outside
+# the BLIND sheet tree, and only for its calendar meta (short_day, observed
+# close).  Never the tape, never a certificate.
+M0_SESSIONS = "/workspace/artifacts/cache/port/m0/sessions"
 NA = "."
-VERSION = "TRIAGE-INDEX-V2"
+VERSION = "TRIAGE-INDEX-V3"
 
 COLUMNS = (
     "cid asset date8 side sec clock phase_dec cls driver_family "
     "vol_regime rv5_rv66 day_type_so_far range_so_far range_vs_hat_pct "
     "cov_phase pct_unspent_phase cov_sess unspent_sess "
-    "runway_phase runway_sess exit_is_sess fvol_source "
+    "runway_phase runway_sess exit_is_sess short_day observed_close "
+    "runway_observed fvol_source "
     "phase_H phase_H_sec phase_L phase_L_sec extreme_age_trade_side "
     "n_pivots n_in_band n_near100 near_fam near_d n_conf_max conf_d "
     "min_tc_near or_state "
@@ -60,6 +140,9 @@ COLUMNS = (
     "trapped_above trapped_below phase_total thru_n thru_bid thru_ask "
     "rv60 rv300 rv900 rv1800 rv_collapse jump_frac vol_of_vol "
     "q10 q50 ladder_pos surprise ev_ratio "
+    "dev_poc dev_vah dev_val d_POC d_VAH d_VAL in_VA "
+    "dec_ts rf_anchor rf_anchor_ts predicted_day_type_prob "
+    "range_hat_vs_trailing menu_hat "
     "mid mult room_phase ext_needed unspent_bind "
     "P001 P002 P003 P004 P005 P013 P014 seat_score"
 ).split()
@@ -74,6 +157,88 @@ def columns_sha16():
     """
     h = hashlib.sha256(("%s\n%s" % (VERSION, "\t".join(COLUMNS))).encode())
     return h.hexdigest()[:16]
+
+
+# ------------------------------------------------------- D15 session calendar
+# Columns whose value is an END-OF-SESSION fact rather than a decision-second
+# fact.  They are emitted in the day-complete index (CC-M2-12.2 orders them
+# NOW) and MASKED by the as-of view until the observed close has passed.
+OBSERVED_COLS = ("short_day", "observed_close", "runway_observed")
+
+# D-057 SCHEDULE_EXEMPT: release DATES are published months ahead, so the
+# forward offset to the next scheduled release is lawful at any as-of.
+ASOF_EXEMPT = ("sched_next_in",)
+
+_META = {}
+
+# ------------------------------------------- CC-M2-14.2a leading regime state
+# The accepted forward-offer / regime forecaster (CC-M2-14.1).  One row per
+# (session, anchor); every prediction is strictly prior to its own anchor_ts,
+# and the JOIN below is strictly prior to the DECISION second on top of that.
+REGIME_DIR = "/workspace/artifacts/cache/port/m2/regime_forecast"
+REGIME_FIELDS = (("predicted_day_type_prob", "p_expansion"),
+                 ("range_hat_vs_trailing", "range_hat_vs_trailing"),
+                 ("menu_hat", "menu_hat"))
+_FCAST = {}
+
+
+def forecast_rows(asset):
+    """[(anchor_ts, anchor, {field: value})] for one asset, ascending."""
+    if asset in _FCAST:
+        return _FCAST[asset]
+    import csv
+    p = os.path.join(REGIME_DIR, "forecast_%s.tsv" % asset)
+    out = {}
+    if os.path.exists(p):
+        with open(p) as fh:
+            rd = csv.DictReader((ln for ln in fh if not ln.startswith("#")),
+                                delimiter="\t")
+            for r in rd:
+                key = r["trade_date"].replace("-", "")
+                out.setdefault(key, []).append(
+                    (int(r["anchor_ts"]), r["anchor"],
+                     {c: _f(r.get(src)) for c, src in REGIME_FIELDS}))
+        for k in out:
+            out[k].sort(key=lambda x: x[0])
+    _FCAST[asset] = out
+    return out
+
+
+def regime_at(asset, date8, dec_ts):
+    """The NEWEST forecast anchor STRICTLY BEFORE `dec_ts`.
+
+    Strictly: an anchor stamped AT the decision second is a same-second read
+    and must not be joined (CC-M2-1.2's availability law, restated for this
+    join by CC-M2-14.2a).
+    """
+    rows = forecast_rows(asset).get(str(date8), [])
+    best = None
+    for ats, anchor, vals in rows:
+        if ats < dec_ts:
+            best = (ats, anchor, vals)
+        else:
+            break
+    return best
+
+
+def session_meta(asset, date8):
+    """(short_day, observed_close_sec) from the m0 session receipt; (None,
+    None) when the receipt is absent."""
+    key = (asset, str(date8))
+    if key in _META:
+        return _META[key]
+    p = os.path.join(M0_SESSIONS, str(asset), "%s.npz" % date8)
+    out = (None, None)
+    if os.path.exists(p):
+        z = np.load(p, allow_pickle=False)
+        try:
+            m = json.loads(str(z["meta_json"]))
+            out = (int(bool(m.get("short_day", False))),
+                   int(m.get("last_two_sided_sec", -1)))
+        finally:
+            z.close()
+    _META[key] = out
+    return out
 
 
 def _f(x):
@@ -295,10 +460,22 @@ def parse_sheet(path):
     r["ladder_pos"] = _search(r"ladder_position (\S+)", text)
     r["ev_ratio"] = _search(r"event_intensity .*?ratio=(\S+)", text, cast=_f)
 
+    # ---- S10 (D17) -------------------------------------------------------
+    # The DEVELOPING value area, parsed by explicit label (the D9 lesson): the
+    # section also prints phase_final and prior_session rows carrying the same
+    # POC/VAH/VAL labels, so the anchor is the `developing as_of=` prefix.
+    m = re.search(r"developing as_of=\d\d:\d\d:\d\d\s+POC=(\S+)\s+VAH=(\S+)\s+"
+                  r"VAL=(\S+)\s+d_POC=\$(\S+)\s+in_VA=(\d)", text)
+    if m:
+        r["dev_poc"], r["dev_vah"] = _f(m.group(1)), _f(m.group(2))
+        r["dev_val"], r["d_POC"] = _f(m.group(3)), _f(m.group(4))
+        r["in_VA"] = int(m.group(5))
+
     # ---- S12 (D10) -------------------------------------------------------
     # The scheduled-release clock.  ERA_NOTES §22: a phase-length flow window
     # that CONTAINS a scheduled release is a fossil, so the age of the last
     # release is the field that says whether the phase window can be trusted.
+    r["dec_ts"] = _search(r"decision_ts = \S+ \((\d+)\)", text, cast=int)
     r["sched_last_age"] = _search(r"last_scheduled\s+.*?\s(\d+)s ago", text,
                                   cast=_f)
     m = re.search(r"next_scheduled\s+.*?\sin (\d+)d (\d+):(\d+):(\d+)", text)
@@ -323,6 +500,37 @@ def _derive(r):
     """The E1 pattern ledger, made mechanical.  Flags are TRIAGE PRIORS, not
     calls: the reader decides, these only route attention."""
     side = 1 if (r["side"] or "").upper().startswith("L") else -1
+
+    # D15: the session's OBSERVED close, and the runway that actually binds.
+    # A nominal runway on a holiday session is wrong by hours (2021-07-05: the
+    # HG tape stops at 71,354s while every sheet computes to 82,799s).
+    if r["asset"] and r["date8"]:
+        sd, oc = session_meta(r["asset"], r["date8"])
+        r["short_day"], r["observed_close"] = sd, (oc if (oc or -1) >= 0
+                                                   else None)
+    if r["runway_phase"] is not None:
+        if r["observed_close"] is not None and r["sec"] is not None:
+            r["runway_observed"] = min(r["runway_phase"],
+                                       max(0, r["observed_close"] - r["sec"]))
+        else:
+            r["runway_observed"] = r["runway_phase"]
+
+    # CC-M2-14.2a: the leading regime state, joined STRICTLY BEFORE the
+    # decision second (the sheet's own S12 epoch).  No dec_ts -> no join.
+    if r["asset"] and r["date8"] and r["dec_ts"] is not None:
+        hit = regime_at(r["asset"], r["date8"], int(r["dec_ts"]))
+        if hit is not None:
+            r["rf_anchor_ts"], r["rf_anchor"] = hit[0], hit[1]
+            for c, _src in REGIME_FIELDS:
+                r[c] = hit[2].get(c)
+
+    # D17: the VAH/VAL distances the sheet does not print, in the SAME UNITS
+    # AND SIGN CONVENTION as the printed d_POC, which is (mid - level) x mult
+    # — POSITIVE when the level sits BELOW the entry mid.
+    if r["mid"] is not None and r["mult"]:
+        for px, key in ((r["dev_vah"], "d_VAH"), (r["dev_val"], "d_VAL")):
+            if px is not None:
+                r[key] = round((r["mid"] - px) * r["mult"], 1)
 
     # phase-extreme age on the side the trade needs (SHORT -> H, LONG -> L)
     ext = r["phase_H_sec"] if side < 0 else r["phase_L_sec"]
@@ -415,6 +623,184 @@ def _derive(r):
     r["seat_score"] = round(s, 3)
 
 
+# ------------------------------------------------------ D14 as-of prefix view
+def field_asof_sec(row, col):
+    """The second at which `col` of `row` becomes KNOWABLE.
+
+    Everything on a triage row is computed at that row's own decision second
+    (that is what the sheet is), with two exceptions, and the exceptions are
+    the whole reason this function exists rather than a bare row filter:
+      * the D15 observed-close block is an end-of-session fact;
+      * `sched_next_in` is D-057 SCHEDULE_EXEMPT (published months ahead).
+    """
+    if col in ASOF_EXEMPT:
+        return None                        # lawful at any as-of
+    if col in OBSERVED_COLS:
+        oc = row.get("observed_close")
+        return None if oc is None else int(oc)
+    return None if row.get("sec") is None else int(row["sec"])
+
+
+def as_of_row(row, as_of):
+    """A copy of `row` with every field not knowable at `as_of` set to None."""
+    out = dict(row)
+    for c in COLUMNS:
+        if out.get(c) is None:
+            continue
+        k = field_asof_sec(row, c)
+        if k is not None and k > as_of:
+            out[c] = None
+    return out
+
+
+def verify_as_of(rows, as_of):
+    """REFUSE to emit a leaky prefix view.  Raises on the first violation.
+
+    Two laws, and the first one is the D14 leak verbatim: a row whose decision
+    second is after the as-of second must not be in the table at all, because
+    its `mid` IS the price path after the second being called.
+    """
+    for r in rows:
+        sec = r.get("sec")
+        if sec is None:
+            raise RuntimeError("AS-OF REFUSAL: row %s carries no decision "
+                               "second" % r.get("cid"))
+        if int(sec) > as_of:
+            raise RuntimeError("AS-OF REFUSAL: row %s at sec=%d is LATER than "
+                               "as_of=%d (D14 scan exposure: its mid is the "
+                               "price path after the decision)"
+                               % (r.get("cid"), int(sec), as_of))
+        for c in COLUMNS:
+            if r.get(c) is None:
+                continue
+            k = field_asof_sec(r, c)
+            if k is not None and k > as_of:
+                raise RuntimeError("AS-OF REFUSAL: row %s field %s is knowable "
+                                   "only at %d > as_of=%d"
+                                   % (r.get("cid"), c, k, as_of))
+    return True
+
+
+def prefix_view(rows, as_of):
+    """The rows of `rows` visible at `as_of`, masked and verified."""
+    out = [as_of_row(r, as_of) for r in rows
+           if r.get("sec") is not None and int(r["sec"]) <= as_of]
+    verify_as_of(out, as_of)
+    return out
+
+
+def day_driver(rows, step_sec, first=None, last=None):
+    """The chronological reveal: [(as_of, prefix_rows)], cut every `step_sec`.
+
+    The driver is the mechanic CC-M2-12.1(a) makes mandatory — candidates are
+    processed in decision order and the index is revealed incrementally, so
+    the table can never show a row the clock has not reached.  The final cut is
+    always the last decision second (the day-complete view, which is only
+    lawful once the day is over).
+    """
+    secs = sorted(int(r["sec"]) for r in rows if r.get("sec") is not None)
+    if not secs:
+        return []
+    lo = int(first if first is not None else secs[0])
+    hi = int(last if last is not None else secs[-1])
+    cuts = list(range(lo, hi + 1, int(step_sec)))
+    if cuts[-1] != hi:
+        cuts.append(hi)
+    return [(c, prefix_view(rows, c)) for c in cuts]
+
+
+# --------------------------------------------------- D16 the versioned API --
+# Every rename this extractor has ever made, CURRENT -> LEGACY.  The compat
+# view carries both spellings and `read_index` populates both, so a consumer
+# pinned to either name keeps working.
+ALIASES = (("day_type_so_far", "day_type"),
+           ("range_vs_hat_pct", "pct_range_hat"))
+
+
+def read_index(path):
+    """(rows, stamps) — the CANONICAL reader.  Use this, never readlines()[1:].
+
+    Skips every `#` line (there have been 1, then 2, and an as-of view has 3),
+    returns the machine stamps it found, and fills in both spellings of every
+    renamed column.
+    """
+    import csv
+    stamps, body = {}, []
+    with open(path) as fh:
+        for ln in fh:
+            if ln.startswith("#"):
+                m = re.search(r"extractor_version (\S+)", ln)
+                if m:
+                    stamps["extractor_version"] = m.group(1)
+                m = re.search(r"columns_sha16 (\S+)", ln)
+                if m:
+                    stamps["columns_sha16"] = m.group(1)
+                m = re.search(r"AS_OF (\d+)", ln)
+                if m:
+                    stamps["as_of"] = int(m.group(1))
+                continue
+            body.append(ln)
+    rows = list(csv.DictReader(body, delimiter="\t"))
+    for r in rows:
+        for cur, legacy in ALIASES:
+            if cur in r and legacy not in r:
+                r[legacy] = r[cur]
+            elif legacy in r and cur not in r:
+                r[cur] = r[legacy]
+    return rows, stamps
+
+
+def compat_path(path):
+    stem, ext = os.path.splitext(path)
+    return stem + "_COMPAT" + (ext or ".tsv")
+
+
+def write_compat(path, rows):
+    """The PINNED V1 API: ONE comment line, both column spellings.
+
+    `e1d1_policy.py` / `e1d2_policy.py` / `baseline_replay.py` are FROZEN
+    scoreboard code and parse with `readlines()[1:]`; this file is the view
+    they can read for ever, whatever the versioned index grows into.
+    """
+    cols = list(COLUMNS) + [legacy for _cur, legacy in ALIASES
+                            if legacy not in COLUMNS]
+    lines = ["# TRIAGE INDEX COMPAT VIEW (D16 pinned reader: ONE comment line, "
+             "V1 column spellings retained; data identical to the versioned "
+             "index)"]
+    lines.append("\t".join(cols))
+    src = {legacy: cur for cur, legacy in ALIASES}
+    for r in rows:
+        lines.append("\t".join(_fmt(r[src[c]] if c in src else r[c])
+                               for c in cols))
+    text = "\n".join(lines) + "\n"
+    with open(path, "w") as fh:
+        fh.write(text)
+    return hashlib.sha256(text.encode()).hexdigest()[:16]
+
+
+# ------------------------------------------------------------------ output --
+def write_index(path, rows, as_of=None):
+    d = os.path.dirname(path)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    if as_of is not None:
+        verify_as_of(rows, as_of)
+    body = ["# TRIAGE INDEX (CC-M2-3) — BLIND sheets only, S14 never opened",
+            "# extractor_version %s  columns_sha16 %s  n_columns %d"
+            % (VERSION, columns_sha16(), len(COLUMNS))]
+    if as_of is not None:
+        body.append("# AS_OF %d  (D14 prefix view: rows with sec > as_of are "
+                    "ABSENT; fields knowable only later are masked to '%s')"
+                    % (as_of, NA))
+    body.append("\t".join(COLUMNS))
+    for r in rows:
+        body.append("\t".join(_fmt(r[c]) for c in COLUMNS))
+    text = "\n".join(body) + "\n"
+    with open(path, "w") as fh:
+        fh.write(text)
+    return hashlib.sha256(text.encode()).hexdigest()[:16]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--era", default="E1")
@@ -422,6 +808,14 @@ def main():
     ap.add_argument("--sessions", required=True,
                     help="ASSET:DATE8[,ASSET:DATE8...]")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--as-of", type=int, default=None,
+                    help="emit the D14 PREFIX VIEW at this decision second")
+    ap.add_argument("--drive-step", type=int, default=None,
+                    help="chronological day driver: one prefix per STEP sec")
+    ap.add_argument("--drive-out", default=None,
+                    help="directory for the driver's prefixes + manifest")
+    ap.add_argument("--no-compat", action="store_true",
+                    help="do NOT write the D16 pinned-reader compat view")
     a = ap.parse_args()
 
     rows = []
@@ -433,15 +827,44 @@ def main():
             rows.append(parse_sheet(os.path.join(d, f)))
         sys.stderr.write("%s %s: %d sheets\n" % (asset, date8, len(files)))
     rows.sort(key=lambda r: (r["sec"] or 0, r["asset"] or "", r["cid"] or ""))
-    os.makedirs(os.path.dirname(a.out), exist_ok=True)
-    with open(a.out, "w") as fh:
-        fh.write("# TRIAGE INDEX (CC-M2-3) — BLIND sheets only, S14 never opened\n")
-        fh.write("# extractor_version %s  columns_sha16 %s  n_columns %d\n"
-                 % (VERSION, columns_sha16(), len(COLUMNS)))
-        fh.write("\t".join(COLUMNS) + "\n")
-        for r in rows:
-            fh.write("\t".join(_fmt(r[c]) for c in COLUMNS) + "\n")
-    sys.stderr.write("wrote %s (%d rows)\n" % (a.out, len(rows)))
+
+    if a.as_of is not None:
+        rows_out = prefix_view(rows, a.as_of)
+        sha = write_index(a.out, rows_out, as_of=a.as_of)
+        sys.stderr.write("wrote %s (%d/%d rows, as_of=%d, sha16 %s)\n"
+                         % (a.out, len(rows_out), len(rows), a.as_of, sha))
+    else:
+        rows_out = rows
+        sha = write_index(a.out, rows)
+        sys.stderr.write("wrote %s (%d rows, sha16 %s)\n"
+                         % (a.out, len(rows), sha))
+    if not a.no_compat:
+        cp = compat_path(a.out)
+        csha = write_compat(cp, rows_out)
+        sys.stderr.write("wrote %s (D16 pinned view, sha16 %s)\n" % (cp, csha))
+
+    if a.drive_step:
+        if not a.drive_out:
+            raise SystemExit("--drive-step requires --drive-out")
+        os.makedirs(a.drive_out, exist_ok=True)
+        man = [["as_of_sec", "clock", "n_rows", "n_new_rows", "sha16", "path"]]
+        prev = 0
+        for cut, sub in day_driver(rows, a.drive_step):
+            p = os.path.join(a.drive_out, "ASOF_%06d.tsv" % cut)
+            s = write_index(p, sub, as_of=cut)
+            man.append([cut, "%02d:%02d:%02d" % (cut // 3600, cut // 60 % 60,
+                                                 cut % 60),
+                        len(sub), len(sub) - prev, s, os.path.basename(p)])
+            prev = len(sub)
+        mp = os.path.join(a.drive_out, "DRIVE_MANIFEST.tsv")
+        with open(mp, "w") as fh:
+            fh.write("# TRIAGE DAY DRIVER (CC-M2-12.1a) — %s  columns_sha16 "
+                     "%s\n" % (VERSION, columns_sha16()))
+            fh.write("# every ASOF_*.tsv is a verified prefix view; the reader "
+                     "opens them IN ORDER and never the day-complete table\n")
+            for row in man:
+                fh.write("\t".join(str(x) for x in row) + "\n")
+        sys.stderr.write("driver: %d cuts -> %s\n" % (len(man) - 1, a.drive_out))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,233 @@
+{
+ "elapsed_sec": 237.7322428226471,
+ "env": {
+  "databento_dbn": "0.66.0",
+  "git_sha": "398f3e7173e55d09c5bea43be00dbbb966ca646f",
+  "input_sha256": {},
+  "m0_spec_sha16": "4bdf772927b5f316",
+  "m1_spec_sha16": "b84832556267e703",
+  "m1b_spec_sha16": "d31f48b59877e44d",
+  "m2_spec_sha16": "18d12ab86a4ee6b0",
+  "numpy_version": "2.1.2",
+  "params": {
+   "P007": "reading A (ledger-literal): opposed 60s aggression at >= 0.40 of 60s volume AND |slope_1m_usd| <= 1 tick. reading B (day-3 form): opposed PHASE aggression at >= 0.10 of phase volume AND the faded extreme is >= 60s old. The S7 c2f term is not censusable at era scale.",
+   "P023": "fire = opposed 5m aggression (sign(f5m_sflow) == -side and |f5m_sflow|/f5m_vol >= 0.05) AND volume floor (ABS f5m_vol >= 500 / REL f5m_vol >= 0.08 x fph_vol / OR either) AND live book (f60_n >= 2 and f60_vol >= 2) AND price failure (extreme_age_sec >= 60s). The through-book SIDE term is struck (E1D3-F4) and is not censusable at era scale.",
+   "P024": "fire = refail (two causal pivots of the faded type <= 300s apart and <= 1 tick apart) AND day_type == EXPANDED AND ext_needed <= $450 AND phase+5m sflow concordant at >= 0.05; reading B adds >= 2 KEPT level families within 2 ticks of the refail price. The S7 erosion term is not censusable at era scale.",
+   "P025": "conditioning object = runway to the BINDING exit (the CC-M2-10.3 phase-close seat). Reading A = runway_phase_sec (nominal); reading B = runway_binding_sec = min(nominal, observed_close - dec_sec) (D15). Detector form for grading: runway >= 3h",
+   "P025_phase_test": "phase_dec is a CONTROL: `is_NY` is tested unadjusted and ADJUSTED for runway (GEE identity on both certificates, GEE logit on the D-021 winner indicator), plus the same tests stratified WITHIN each runway band, plus the symmetric runway-adjusted-for-phase test",
+   "conditional_value": "mean over POSITIVE candidates (CC-M1-7.3)",
+   "definition_source": "provenance/port_m2/PATTERN_LEDGER.tsv (sheet_fields P007/P023/P024/P025) + provenance/port_m2/E1_POSTMORTEMS.md day-3 \u00a71/\u00a73/\u00a74/\u00a76",
+   "destruction": "each term shuffled WITHIN SESSION, 40 replicates, RandomState(20260816 + term index); the other terms untouched. The destroyed quantity is the EDGE (mean cert of the firing set minus mean cert of the non-firing rest)",
+   "frame": {
+    "causality": "every window is searchsorted on the SANE second grid and bounded at dec_sec; ZigZag pivots kept only when conf_sec < dec_sec",
+    "day_type_cuts": {
+     "AT_RANGE": "<1.00",
+     "EXPANDED": ">=1.00",
+     "INSIDE": "<0.60"
+    },
+    "event_window": "D10 \u2014 sflow over [release_sec, dec_sec) when a SCHEDULED release (BLS + FOMC calendars, context._bls_calendar / context._fomc_calendar) landed inside the running phase. The release is availability-lagged the same way S12's `last_scheduled` is: only events with event_ts STRICTLY < decision_ts are visible (CC-M2-1.2), and the calendar itself is SCHEDULE_EXEMPT under D-057 because the dates are published months ahead. The window NEVER spans the release second: it starts AT it.",
+    "fields": {
+     "accel_usd": "slope_1m_usd - slope_5m_usd  = S5 accel(1m-5m)",
+     "atr_usd": "roster atr14_usd (ATR14_prev)",
+     "cert_close_usd": "c_c_roster.certificates(...)[1][0] \u2014 the walled PHASE-CLOSE certificate (the CC-M1-8 adoption metric)",
+     "cert_peak_usd": "c_c_roster.certificates(...)[0][0] \u2014 the walled PEAK-EXIT companion (CC-M1-8 mandatory column)",
+     "cid": "{ASSET}-{d8}-{dec_sec:06d}-{L|S}",
+     "clock_sec": "(open_utc + dec_sec) % 86400 \u2014 clock-of-day, UTC",
+     "coverage_phase": "sections.s3_path COVERAGE for the running phase = SANE range so far in the phase / (move_q50_usd_per_sigma * sigma_hat_usd) of that phase's fvol row; NaN when the fvol row carries no q50 (REFUSED, V1.1 D1)",
+     "coverage_session": "the same number on the SESSION clock/forecast",
+     "day_type": "S2 day_type_so_far as an ordinal: 0 INSIDE (<0.60), 1 AT_RANGE (<1.00), 2 EXPANDED (>=1.00); -1 = REFUSED",
+     "day_type_frac": "S2 range_so_far / range_hat \u2014 the '% of range_hat' the sheet prints; NaN when range_hat is REFUSED",
+     "dec_sec": "decision second (session clock)",
+     "event_in_phase": "the release landed INSIDE the running phase and before the decision: phase_seg_start <= release_sec < dec_sec",
+     "ext_needed_usd": "NEW range beyond the phase extreme the $1,000 bar still needs: max(0, 1000 - (entry_mid - phase_lo)*mult) for a SHORT, max(0, 1000 - (phase_hi - entry_mid)*mult) for a LONG (e1d1_policy T3 / P016 clause 1)",
+     "extreme_age_sec": "dec_sec - phase_hi_sec (SHORT) or - phase_lo_sec (LONG): the age of the phase extreme the trade fades",
+     "f30m_n": "S8 30m window trade count, sec in [dec-1800, dec)",
+     "f30m_sflow": "S8 30m signed flow (buy_vol - sell_vol)",
+     "f30m_vol": "S8 30m window traded volume",
+     "f5m_n": "S8 5m window trade count, sec in [dec-300, dec)",
+     "f5m_sflow": "S8 5m signed flow (buy_vol - sell_vol)",
+     "f5m_vol": "S8 5m window traded volume",
+     "f60_n": "S8 60s window trade COUNT, sec in [dec-60, dec)",
+     "f60_sflow": "S8 60s signed flow (buy_vol - sell_vol)",
+     "f60_vol": "S8 60s window traded volume",
+     "fam_mask": "generation-v3 family bitmask",
+     "fev_n": "EVENT-ANCHORED window (D10) trade count over [release_sec, dec); -1 = REFUSED (no release inside the phase)",
+     "fev_sflow": "event-anchored signed flow (buy_vol - sell_vol) \u2014 the flow accumulated SINCE the release, never across it; 0 with fev_n = -1 = REFUSED",
+     "fev_vol": "event-anchored traded volume; -1 = REFUSED",
+     "fph_n": "S8 phase window trade count, sec in [phase_seg_start, dec)",
+     "fph_sflow": "S8 phase cumulative signed flow (buy_vol - sell_vol)",
+     "fph_vol": "S8 phase window traded volume",
+     "i": "roster row index (union_roster_{ASSET}.npz)",
+     "klass": "m2_common.class_of(fam_mask)[0] (D-071, a partition)",
+     "ladder_band": "sections.s9_vol ladder_position as an ordinal (see LADDER_BANDS); -1 = REFUSED (no move_q* in the fvol row)",
+     "level_dist_atr": "|nearest KEPT-family level price - entry_mid| / ATR, over levels alive at dec_sec (V1.1 birth guard) and within +/-1.5xATR; NaN when there is none",
+     "mae_before_argmax": "roster mae_before_argmax (D-021 winner test)",
+     "mid_now": "SANE mid at dec_sec (last SANE second <= dec_sec)",
+     "phase_age_sec": "dec_sec - phase_seg_start (the running phase's age)",
+     "phase_dec": "roster phase_dec (the fvol segment key)",
+     "phase_hi": "max SANE mid in [phase_seg_start, dec_sec)",
+     "phase_hi_sec": "FIRST second at which phase_hi was reached",
+     "phase_lo": "min SANE mid in [phase_seg_start, dec_sec)",
+     "phase_lo_sec": "FIRST second at which phase_lo was reached",
+     "phase_seg_end": "one past the last second of that segment",
+     "phase_seg_start": "first second of the phase SEGMENT containing dec_sec",
+     "pivot_age_sec": "dec_sec - pivot_sec of the most recent CAUSAL ZigZag pivot of the faded type (HIGH for a SHORT, LOW for a LONG), conf_sec < dec_sec; -1 = none yet",
+     "range_hat_usd": "S2/S9 `range_hat_usd` of the DECISION PHASE's fvol row (both sections read case.fvol_seg); NaN = REFUSED",
+     "range_so_far_usd": "S2 range_so_far = SANE session range over [0, dec) in dollars (= range_sess_usd)",
+     "regime_tercile": "S2 regime_tag LOW/MID/HIGH -> 0/1/2; -1 = missing",
+     "release_age_sec": "decision_ts - release_ts, the S12 `last_scheduled` age; -1 = no prior scheduled release",
+     "release_sec": "release_ts on the SESSION clock (release_ts - open_utc); -1 = none",
+     "release_ts": "epoch second of the most recent SCHEDULED release strictly BEFORE decision_ts (BLS + FOMC calendars, SCHEDULE_EXEMPT per D-057 \u2014 the dates are known months ahead); -1 = none",
+     "runway_frac": "runway_phase_sec / (phase_seg_end - phase_seg_start)",
+     "runway_phase_sec": "phase_close_sec - dec_sec (roster)",
+     "runway_sess_sec": "sess_close_sec - dec_sec (roster)",
+     "rv1800_usd": "S9 rv nowcast, 1800s window",
+     "rv60_usd": "S9 rv nowcast, 60s window",
+     "rv_ratio": "rv1800_usd / rv60_usd (the P013 candidate marker)",
+     "session_close_exit": "phase_close_sec == sess_close_sec \u2014 the S13 exit_default IS the session close",
+     "side": "+1 LONG / -1 SHORT",
+     "slope_1m_usd": "sections.s5_tminus mid_slope last-minute column = (mid(dec) - mid(dec-60)) * mult",
+     "slope_5m_usd": "(mid(dec) - mid(dec-300)) * mult / 5 \u2014 $ per minute",
+     "spread_dec_usd": "roster spread_at_decision",
+     "spread_ratio": "spread_dec_usd / phase-median spread (c_a_cost, per asset x year x phase) \u2014 the P005 'spread tax' state",
+     "surprise": "S9 realized_range_so_far / range_hat, where the realized range is the PHASE segment's [seg_start, dec) SANE range (S9's own numerator, not S2's); NaN = REFUSED",
+     "walled": "the $-wall was hit on the adverse skeleton",
+     "winner": "cert_close >= $1000 and mae <= $300 and not walled (D-021)"
+    },
+    "flow_windows_sec": [
+     60,
+     300,
+     1800,
+     "phase",
+     "event"
+    ],
+    "ladder_bands": [
+     "below_q10",
+     "at_or_above_q10",
+     "at_or_above_q25",
+     "at_or_above_q50",
+     "at_or_above_q75",
+     "at_or_above_q90"
+    ],
+    "module": "engine/port_m2/pattern_lib.py",
+    "rv_windows_sec": [
+     60,
+     1800
+    ],
+    "sane_mask": "b7_sane (D-054) \u2014 installed by assemble.load_session"
+   },
+   "frame_v2": {
+    "confluence_tolerance": "1 tick",
+    "fields_v2": {
+     "exit_close_sec": "c_c_roster.certificates(...)[1][2] \u2014 the second the walled PHASE-CLOSE certificate exits (the one-position scheduler's occupancy end)",
+     "exit_peak_sec": "the same for the PEAK-EXIT companion",
+     "n_conf_fam_at_refail": "with_levels only: number of DISTINCT KEPT level families whose level price is within 1 tick of refail_px and whose level was BORN strictly before dec_sec (sections._level_birth_sec, the V1.1 D4 guard); -1 = not computed / no refail",
+     "n_conf_fam_at_refail_2t": "the same count at a TWO-tick tolerance.  Both are reported because the day-3 birth case's own confluence (4.3569 / 4.3584 around a 4.35775 double top) sits 1.3-1.7 ticks away: the strict reading excludes the case the pattern was born on, and saying so is the point of carrying both.",
+     "observed_close_sec": "m0 session receipt meta `last_two_sided_sec`: the last second at which the book was two-sided, on the session clock.  This is an END-OF-SESSION FACT and is used ONLY to correct a runway after the fact in a CENSUS; it is never a sheet field and never available to a reader at decision time.",
+     "phase_open_mid": "first SANE mid at/after the running phase's start",
+     "refail_age_sec": "dec_sec - pivot_sec of that more recent pivot; -1 = none (identical to pivot_age_sec by construction, recomputed here from the same chain as a cross-check)",
+     "refail_dist_usd": "|price difference| between those two pivots, in dollars (x mult); NaN = fewer than two",
+     "refail_gap_sec": "seconds between the last TWO causal ZigZag pivots of the FADED type (HIGH for a SHORT, LOW for a LONG), both conf_sec < dec_sec; -1 = fewer than two",
+     "refail_px": "price of the MORE RECENT of the two pivots (the refail price); NaN = fewer than two",
+     "runway_binding_sec": "min(runway_phase_sec, max(0, observed_close_sec - dec_sec)) \u2014 the D15-corrected runway to the BINDING exit (P025 reading B).  On a full session it equals runway_phase_sec.",
+     "sess_open_mid": "first SANE mid of the session",
+     "short_day": "m0 session receipt meta `short_day` (PORT_M0_CENSUS_SPEC \u00a75: observed two-sided span < 20h) \u2014 the D15 holiday flag",
+     "tick_usd": "the asset's tick in dollars (common.ASSETS[asset]) \u2014 the '1 tick' unit P007's no-response term and P024's refail tolerance are both written in"
+    },
+    "module": "engine/port_m2/pattern_lib.py (V2 block)",
+    "observed_close": "artifacts/cache/port/m0/sessions/{ASSET}/{d8}.npz meta_json {short_day, last_two_sided_sec} \u2014 the PORT_M0_CENSUS_SPEC \u00a75 session receipt, read through assemble.load_session (no second decode)",
+    "order": "CC-M2-12 census batch 3",
+    "refail": "the two most recent pivots of the faded type CONFIRMED before dec_sec, taken from the SAME one-scan causal chain test_pattern.t02 pins against sections._pivots"
+   },
+   "grading": "CC-M2-9.1 \u2014 ENTRY RULE / VETO RULE (Holm-significant beta on the adoption metric) vs WINNER CONCENTRATOR (>= 1.25x winner rate or conditional value with no adoption edge -> feature candidate set only) vs NULL",
+   "inference": "CC-M1-12.4 \u2014 GEE independence working correlation with the Liang-Zeger sandwich clustered on SESSION (CR0 + Cameron-Miller CR1); Kish one-way ICC/DEFF for n_eff; Holm-Bonferroni over THE WHOLE BATCH (every GEE test of all four patterns and every reading is one family)",
+   "not_censusable": "S7 c2f (P007), S7 dBsz/dAsz erosion (P024) and the S8 through-book side (P023, sign struck) are MBP-1 book-event statistics; the event cache covers 488 of 3,734 roster sessions and the era-scale extraction is a build item, not a census",
+   "order": "CC-M2-12.4 \u2014 census batch 3 (P025, P023, P024, P007-as-entry)",
+   "population": "frozen v3 roster, FIT years [2021, 2022, 2023, 2024]; 2025 = GATE echo, EVAL-ONLY, additionally split H1/H2 (D-058 pre-exam holdout)",
+   "runway_bands_sec": [
+    [
+     0,
+     900
+    ],
+    [
+     900,
+     1800
+    ],
+    [
+     1800,
+     3600
+    ],
+    [
+     3600,
+     7200
+    ],
+    [
+     7200,
+     10800
+    ],
+    [
+     10800,
+     14400
+    ],
+    [
+     14400,
+     21600
+    ],
+    [
+     21600,
+     28800
+    ],
+    [
+     28800,
+     1000000000
+    ]
+   ],
+   "spec_section": "DISCRETIONARY_METHOD \u00a74.2 name->count census \u2014 batch 3 (CC-M2-12.4)",
+   "value": "c_c_roster.certificates \u2014 walled PHASE-CLOSE (adoption) and walled PEAK-EXIT (CC-M1-8 companion), both always reported",
+   "winner": "cert_close >= $1000 and mae_before_argmax <= $300 and not walled (D-021)"
+  },
+  "params_hash": "4a425ed1c08530a32b70ca198ac70719f94dcc3a706dee8eb1caeaaad81b811b",
+  "sheets_version": "PORT-SHEETS-V1.1",
+  "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
+  "token_proxy": "M2-PROXY-2"
+ },
+ "n_candidates": 1580360,
+ "n_fires": {
+  "P007_A_60s_ledger": 82559,
+  "P007_B_phase_day3": 110897,
+  "P023_ABS": 97239,
+  "P023_OR": 165034,
+  "P023_REL": 103900,
+  "P024_A_core": 2449,
+  "P024_B_confluence": 739,
+  "P025_A_nominal": 1166425,
+  "P025_B_observed": 1166172
+ },
+ "n_fires_fit": {
+  "P007_A_60s_ledger": 68852,
+  "P007_B_phase_day3": 86685,
+  "P023_ABS": 77796,
+  "P023_OR": 129237,
+  "P023_REL": 80113,
+  "P024_A_core": 1823,
+  "P024_B_confluence": 594,
+  "P025_A_nominal": 901997,
+  "P025_B_observed": 901810
+ },
+ "n_gee_tests": 372,
+ "n_holdout_sessions_in_gate": 261,
+ "n_sessions": 3734,
+ "out_dir": "/workspace/artifacts/cache/port/m2/pattern_census/",
+ "pins_moved": [],
+ "verdicts": {
+  "P007_A_60s_ledger": "NULL (no adoption edge, no concentration)",
+  "P007_B_phase_day3": "NULL (no adoption edge, no concentration)",
+  "P023_ABS": "WINNER CONCENTRATOR (feature candidate set only \u2014 CC-M2-9.1 disposition)",
+  "P023_OR": "WINNER CONCENTRATOR (feature candidate set only \u2014 CC-M2-9.1 disposition)",
+  "P023_REL": "WINNER CONCENTRATOR (feature candidate set only \u2014 CC-M2-9.1 disposition)",
+  "P024_A_core": "WINNER CONCENTRATOR (feature candidate set only \u2014 CC-M2-9.1 disposition)",
+  "P024_B_confluence": "NULL (no adoption edge, no concentration)",
+  "P025_A_nominal": "WINNER CONCENTRATOR (feature candidate set only \u2014 CC-M2-9.1 disposition)",
+  "P025_B_observed": "WINNER CONCENTRATOR (feature candidate set only \u2014 CC-M2-9.1 disposition)"
+ }
+}

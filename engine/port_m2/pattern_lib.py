@@ -33,6 +33,18 @@ THE FRAME
   per roster candidate of that (asset, session), in roster order.  Columns are
   documented in FRAME_FIELDS below and stamped into every consumer's receipt.
 
+THE V2 FIELD BLOCK (CC-M2-12 census batch 3)
+  Batch 3 needs four things the V1 frame did not carry: the REFAIL geometry
+  (P024 — two same-type causal pivots at one price within minutes), the
+  session's OBSERVED close (D15 — a holiday tape ends hours before the nominal
+  close and every nominal runway on such a session is wrong), the BINDING
+  runway that follows from it (P025), and the level-family CONFLUENCE at the
+  refail price (P024's S4 term).  They are additive: `FRAME_FIELDS` and
+  `PARAMS_FRAME` are LEFT BYTE-IDENTICAL so that p001_census / p020_census
+  re-run to the same params_hash they already have on record, and the new
+  fields are documented in `FRAME_FIELDS_V2` / `PARAMS_FRAME_V2`, which only
+  the batch-3 census stamps into its receipt.
+
 Run (self-check on one session):
   /usr/bin/python3 engine/port_m2/pattern_lib.py SI 20210701
 """
@@ -178,6 +190,68 @@ FRAME_FIELDS = {
     "winner": "cert_close >= $1000 and mae <= $300 and not walled (D-021)",
 }
 
+# The V2 block (CC-M2-12 batch 3).  Kept OUT of FRAME_FIELDS on purpose: that
+# dict is hashed into p001/p020's committed params_hash and must not move.
+FRAME_FIELDS_V2 = {
+    "tick_usd": "the asset's tick in dollars (common.ASSETS[asset]) — the "
+                "'1 tick' unit P007's no-response term and P024's refail "
+                "tolerance are both written in",
+    "refail_gap_sec": "seconds between the last TWO causal ZigZag pivots of "
+                      "the FADED type (HIGH for a SHORT, LOW for a LONG), both "
+                      "conf_sec < dec_sec; -1 = fewer than two",
+    "refail_dist_usd": "|price difference| between those two pivots, in "
+                       "dollars (x mult); NaN = fewer than two",
+    "refail_px": "price of the MORE RECENT of the two pivots (the refail "
+                 "price); NaN = fewer than two",
+    "refail_age_sec": "dec_sec - pivot_sec of that more recent pivot; -1 = "
+                      "none (identical to pivot_age_sec by construction, "
+                      "recomputed here from the same chain as a cross-check)",
+    "short_day": "m0 session receipt meta `short_day` (PORT_M0_CENSUS_SPEC "
+                 "§5: observed two-sided span < 20h) — the D15 holiday flag",
+    "observed_close_sec": "m0 session receipt meta `last_two_sided_sec`: the "
+                          "last second at which the book was two-sided, on "
+                          "the session clock.  This is an END-OF-SESSION FACT "
+                          "and is used ONLY to correct a runway after the "
+                          "fact in a CENSUS; it is never a sheet field and "
+                          "never available to a reader at decision time.",
+    "runway_binding_sec": "min(runway_phase_sec, max(0, observed_close_sec - "
+                          "dec_sec)) — the D15-corrected runway to the "
+                          "BINDING exit (P025 reading B).  On a full session "
+                          "it equals runway_phase_sec.",
+    "n_conf_fam_at_refail": "with_levels only: number of DISTINCT KEPT level "
+                            "families whose level price is within 1 tick of "
+                            "refail_px and whose level was BORN strictly "
+                            "before dec_sec (sections._level_birth_sec, the "
+                            "V1.1 D4 guard); -1 = not computed / no refail",
+    "exit_close_sec": "c_c_roster.certificates(...)[1][2] — the second the "
+                      "walled PHASE-CLOSE certificate exits (the one-position "
+                      "scheduler's occupancy end)",
+    "exit_peak_sec": "the same for the PEAK-EXIT companion",
+    "sess_open_mid": "first SANE mid of the session",
+    "phase_open_mid": "first SANE mid at/after the running phase's start",
+    "n_conf_fam_at_refail_2t": "the same count at a TWO-tick tolerance.  Both "
+                               "are reported because the day-3 birth case's "
+                               "own confluence (4.3569 / 4.3584 around a "
+                               "4.35775 double top) sits 1.3-1.7 ticks away: "
+                               "the strict reading excludes the case the "
+                               "pattern was born on, and saying so is the "
+                               "point of carrying both.",
+}
+
+PARAMS_FRAME_V2 = {
+    "module": "engine/port_m2/pattern_lib.py (V2 block)",
+    "order": "CC-M2-12 census batch 3",
+    "fields_v2": FRAME_FIELDS_V2,
+    "refail": "the two most recent pivots of the faded type CONFIRMED before "
+              "dec_sec, taken from the SAME one-scan causal chain "
+              "test_pattern.t02 pins against sections._pivots",
+    "observed_close": "artifacts/cache/port/m0/sessions/{ASSET}/{d8}.npz "
+                      "meta_json {short_day, last_two_sided_sec} — the "
+                      "PORT_M0_CENSUS_SPEC §5 session receipt, read through "
+                      "assemble.load_session (no second decode)",
+    "confluence_tolerance": "1 tick",
+}
+
 PARAMS_FRAME = {
     "module": "engine/port_m2/pattern_lib.py",
     "sane_mask": "b7_sane (D-054) — installed by assemble.load_session",
@@ -238,11 +312,18 @@ def _phase_segments(s):
 
 def _pivot_chain(asset, s, trade_date, atr, tick_px, tick_usd, mult):
     """The causal ZigZag chain over the WHOLE session (sections._pivots, run
-    once): [(pivot_sec, side, conf_sec)] sorted by pivot_sec."""
+    once): (pivot_sec, pivot_px, side, conf_sec) sorted by pivot_sec.
+
+    The PRICE column is the V2 addition (P024's refail geometry needs it).  A
+    pivot second identifies a mid on the SANE grid, so every rung that finds
+    the same (pivot_sec, side) finds the same price; the merge keeps the
+    EARLIEST confirmation second, exactly as before.
+    """
     vt_l = s.vt.tolist()
     vm_l = s.vm.tolist()
     if len(vt_l) < 2:
-        return np.zeros(0, np.int64), np.zeros(0, np.int64), np.zeros(0, np.int64)
+        return (np.zeros(0, np.int64), np.zeros(0, np.float64),
+                np.zeros(0, np.int64), np.zeros(0, np.int64))
     vphase = s.phase_tag[s.vt].tolist()
     phase_med = CA.phase_median_spreads(MC.M0_ROOT)
     merged = {}
@@ -255,18 +336,19 @@ def _pivot_chain(asset, s, trade_date, atr, tick_px, tick_usd, mult):
             u = max(r * atr, X.RUNG_FLOOR_TICKS * tick_usd, fl)
             per_phase.append(X.round_half_up(u / mult, tick_px))
         thr_l = [per_phase[p] for p in vphase]
-        for (_px, psec, csec, side) in CC.zigzag_scan(vt_l, vm_l, thr_l):
+        for (px, psec, csec, side) in CC.zigzag_scan(vt_l, vm_l, thr_l):
             k = (int(psec), int(side))
             e = merged.get(k)
             if e is None:
-                merged[k] = int(csec)
+                merged[k] = (int(csec), float(px))
             else:
-                merged[k] = min(e, int(csec))
+                merged[k] = (min(e[0], int(csec)), e[1])
     keys = sorted(merged)
     psec = np.array([k[0] for k in keys], dtype=np.int64)
+    ppx = np.array([merged[k][1] for k in keys], dtype=np.float64)
     pside = np.array([k[1] for k in keys], dtype=np.int64)
-    pconf = np.array([merged[k] for k in keys], dtype=np.int64)
-    return psec, pside, pconf
+    pconf = np.array([merged[k][0] for k in keys], dtype=np.int64)
+    return psec, ppx, pside, pconf
 
 
 def _last_pivot_age(psec, pside, pconf, dec_sec, want_side):
@@ -289,6 +371,59 @@ def _last_pivot_age(psec, pside, pconf, dec_sec, want_side):
     ok = j >= 0
     out[ok] = dec_sec[ok] - best[j[ok]]
     return out
+
+
+def _last_two_pivots(psec, ppx, pside, pconf, dec_sec, want_side):
+    """The REFAIL geometry: the two most recent pivots of `want_side` that are
+    CONFIRMED before dec_sec.
+
+    Returns (gap_sec, dist_px, last_px, last_sec), each -1/NaN where fewer than
+    two such pivots exist.  The causal filter is on conf_sec (t02's law), so
+    "most recent" is resolved over the chain sorted by CONFIRMATION second and
+    the running top-2 PIVOT seconds are carried forward — a pivot may be
+    confirmed after a later pivot of the same side, and the top-2 must be the
+    two latest pivot seconds among those already confirmed.
+    """
+    n = dec_sec.size
+    gap = np.full(n, -1, dtype=np.int64)
+    dist = np.full(n, np.nan)
+    lpx = np.full(n, np.nan)
+    lsec = np.full(n, -1, dtype=np.int64)
+    m = (pside == want_side)
+    if int(m.sum()) < 2:
+        return gap, dist, lpx, lsec
+    ps, px, pc = psec[m], ppx[m], pconf[m]
+    o = np.argsort(pc, kind="stable")
+    ps, px, pc = ps[o], px[o], pc[o]
+    # running top-2 pivot seconds (and their prices) over the confirmation order
+    b1s = np.full(ps.size, -1, dtype=np.int64)
+    b2s = np.full(ps.size, -1, dtype=np.int64)
+    b1p = np.full(ps.size, np.nan)
+    b2p = np.full(ps.size, np.nan)
+    t1s = t2s = -1
+    t1p = t2p = float("nan")
+    for k in range(ps.size):
+        s_k, p_k = int(ps[k]), float(px[k])
+        if s_k > t1s:
+            t2s, t2p = t1s, t1p
+            t1s, t1p = s_k, p_k
+        elif s_k > t2s:
+            t2s, t2p = s_k, p_k
+        b1s[k], b1p[k], b2s[k], b2p[k] = t1s, t1p, t2s, t2p
+    j = np.searchsorted(pc, dec_sec, side="left") - 1
+    ok = (j >= 0)
+    if not ok.any():
+        return gap, dist, lpx, lsec
+    jj = j[ok]
+    have2 = b2s[jj] >= 0
+    idx = np.nonzero(ok)[0][have2]
+    jj = jj[have2]
+    if idx.size:
+        gap[idx] = b1s[jj] - b2s[jj]
+        dist[idx] = np.abs(b1p[jj] - b2p[jj])
+        lpx[idx] = b1p[jj]
+        lsec[idx] = b1s[jj]
+    return gap, dist, lpx, lsec
 
 
 def _prefix_sq(vm):
@@ -384,19 +519,19 @@ def roster(asset, with_certs=True):
 
 
 # ------------------------------------------------------------- level state --
-def _nearest_kept_level_atr(asset, d8, s, trade_date, profile, dec_sec,
-                            entry_mid, atr, mult):
-    """|nearest KEPT-family level - mid| / ATR at each decision second.
+def _kept_levels(asset, d8, s, trade_date, profile):
+    """(price, birth_sec, family) of every KEPT-family level of the session.
 
-    Reuses sections._level_birth_sec verbatim (the V1.1 D4 guard) through a
-    duck-typed shim, so there is exactly one birth rule in the codebase.
+    Split out of _nearest_kept_level_atr so the level ledger is loaded and the
+    birth rule evaluated EXACTLY ONCE per session even though two V2 consumers
+    read it (nearest-level distance and P024's family confluence).
     """
     import sections as SEC                # local: sections imports are heavy
 
     z, _p = A.load_levels(asset, d8)
-    out = np.full(dec_sec.size, np.nan)
     if z is None or not int(z["level_price"].size):
-        return out
+        return (np.zeros(0, np.float64), np.zeros(0, np.int64),
+                np.zeros(0, dtype="<U1"))
     fam = z["level_family"]
     lid = z["level_id"]
     lpx = z["level_price"].astype(np.float64)
@@ -418,10 +553,14 @@ def _nearest_kept_level_atr(asset, d8, s, trade_date, profile, dec_sec,
                                           int(dyn[r]))
                      for r in range(int(lpx.size))], dtype=np.int64)
     ok = keep & np.isfinite(lpx) & (born >= 0)
-    if not ok.any():
+    return lpx[ok], born[ok], fam[ok]
+
+
+def _nearest_kept_level_atr(px, bn, dec_sec, entry_mid, atr, mult):
+    """|nearest KEPT-family level - mid| / ATR at each decision second."""
+    out = np.full(dec_sec.size, np.nan)
+    if not px.size:
         return out
-    px = lpx[ok]
-    bn = born[ok]
     band_px = 1.5 * atr / mult
     for k in range(dec_sec.size):
         alive = bn < dec_sec[k]            # STRICTLY before (CausalGuard.sec)
@@ -431,6 +570,25 @@ def _nearest_kept_level_atr(asset, d8, s, trade_date, profile, dec_sec,
         d = d[d <= band_px]
         if d.size:
             out[k] = float(d.min()) * mult / atr
+    return out
+
+
+def _confluence_at(px, bn, fam, dec_sec, target_px, tol_px):
+    """P024's S4 term: DISTINCT kept level families within `tol_px` of the
+    refail price, counted over levels BORN strictly before dec_sec.
+
+    -1 wherever the target price is undefined (no refail) — never 0, which
+    would read as "checked and empty".
+    """
+    out = np.full(dec_sec.size, -1, dtype=np.int64)
+    if not px.size:
+        return out
+    for k in range(dec_sec.size):
+        t = target_px[k]
+        if not np.isfinite(t):
+            continue
+        m = (bn < dec_sec[k]) & (np.abs(px - t) <= tol_px)
+        out[k] = int(np.unique(fam[m]).size) if m.any() else 0
     return out
 
 
@@ -632,15 +790,26 @@ def frame(asset, d8, with_levels=False, with_certs=True):
 
     # --- pivots ------------------------------------------------------------
     atr = float(r["atr14_usd"][sel[0]])
-    psec, pside, pconf = _pivot_chain(asset, s, trade_date, atr,
-                                      float(spec["tick_px"]),
-                                      float(spec["tick_usd"]), mult)
+    psec, ppx, pside, pconf = _pivot_chain(asset, s, trade_date, atr,
+                                           float(spec["tick_px"]),
+                                           float(spec["tick_usd"]), mult)
     want = np.where(side[order] < 0, -1, 1)
     pivot_age = np.full(dec_s.size, -1, dtype=np.int64)
+    # V2: the refail geometry (P024) — two pivots of the faded type
+    rf_gap = np.full(dec_s.size, -1, dtype=np.int64)
+    rf_dist = np.full(dec_s.size, np.nan)
+    rf_px = np.full(dec_s.size, np.nan)
+    rf_age = np.full(dec_s.size, -1, dtype=np.int64)
     for w in (-1, 1):
         m = want == w
         if m.any():
             pivot_age[m] = _last_pivot_age(psec, pside, pconf, dec_s[m], w)
+            g, d, p, ls = _last_two_pivots(psec, ppx, pside, pconf,
+                                           dec_s[m], w)
+            rf_gap[m] = g
+            rf_dist[m] = d * mult
+            rf_px[m] = p
+            rf_age[m] = np.where(ls >= 0, dec_s[m] - ls, -1)
 
     # --- certificates (c_c_roster, verbatim) -------------------------------
     wall = float(A.walls()[asset]["wall_usd"])
@@ -649,6 +818,8 @@ def frame(asset, d8, with_levels=False, with_certs=True):
         cost = C.FEES_RT
     cert_close = np.full(sel.size, np.nan)
     cert_peak = np.full(sel.size, np.nan)
+    exit_close = np.full(sel.size, -1, dtype=np.int64)
+    exit_peak = np.full(sel.size, -1, dtype=np.int64)
     walled = np.zeros(sel.size, dtype=bool)
     if with_certs:
         for t in range(sel.size):
@@ -656,6 +827,8 @@ def frame(asset, d8, with_levels=False, with_certs=True):
             pk, cl = CC.certificates(r, i, wall, cost)
             cert_peak[t] = pk[0]
             cert_close[t] = cl[0]
+            exit_peak[t] = int(pk[2])
+            exit_close[t] = int(cl[2])
             walled[t] = CC._skel_query(r, i, wall)[3]
 
     # --- spread state ------------------------------------------------------
@@ -669,10 +842,17 @@ def frame(asset, d8, with_levels=False, with_certs=True):
 
     entry_mid = r["entry_mid"][sel][order].astype(np.float64)
     lvl = np.full(dec_s.size, np.nan)
+    conf_fam = np.full(dec_s.size, -1, dtype=np.int64)
+    conf_fam2 = np.full(dec_s.size, -1, dtype=np.int64)
     if with_levels:
-        lvl = _nearest_kept_level_atr(asset, d8, s, trade_date,
-                                      A.load_profile(asset, d8)[0],
-                                      dec_s, entry_mid, atr, mult)
+        lpx_k, lbn_k, lfam_k = _kept_levels(asset, d8, s, trade_date,
+                                            A.load_profile(asset, d8)[0])
+        lvl = _nearest_kept_level_atr(lpx_k, lbn_k, dec_s, entry_mid, atr,
+                                      mult)
+        conf_fam = _confluence_at(lpx_k, lbn_k, lfam_k, dec_s, rf_px,
+                                  float(spec["tick_px"]))
+        conf_fam2 = _confluence_at(lpx_k, lbn_k, lfam_k, dec_s, rf_px,
+                                   2.0 * float(spec["tick_px"]))
 
     # --- assemble (back in roster order) -----------------------------------
     def un(a):
@@ -740,6 +920,27 @@ def frame(asset, d8, with_levels=False, with_certs=True):
         "range_phase_usd": un(range_phase), "range_sess_usd": un(range_sess),
         "exp_move_q50_phase_usd": un(q50_p),
     }
+    # --- the V2 block (CC-M2-12 batch 3), documented in FRAME_FIELDS_V2 -----
+    obs_close = int(s.meta.get("last_two_sided_sec", -1))
+    f["tick_usd"] = np.full(sel.size, float(spec["tick_usd"]))
+    f["refail_gap_sec"] = un(rf_gap)
+    f["refail_dist_usd"] = un(rf_dist)
+    f["refail_px"] = un(rf_px)
+    f["refail_age_sec"] = un(rf_age)
+    f["short_day"] = np.full(sel.size, bool(s.meta.get("short_day", False)))
+    f["observed_close_sec"] = np.full(sel.size, obs_close, dtype=np.int64)
+    obs_runway = (np.maximum(obs_close - dec, 0) if obs_close >= 0
+                  else (phase_close - dec))
+    f["runway_binding_sec"] = np.minimum(phase_close - dec, obs_runway)
+    f["n_conf_fam_at_refail"] = un(conf_fam)
+    f["n_conf_fam_at_refail_2t"] = un(conf_fam2)
+    # --- the V2b block (CC-M2-13.3 session-side probe) ----------------------
+    f["exit_close_sec"] = exit_close
+    f["exit_peak_sec"] = exit_peak
+    f["sess_open_mid"] = np.full(sel.size, float(vm[0]) if vm.size else np.nan)
+    f["phase_open_mid"] = un(np.where(j_ph < vm.size,
+                                      vm[np.minimum(j_ph, max(vm.size - 1, 0))],
+                                      np.nan))
     return f
 
 

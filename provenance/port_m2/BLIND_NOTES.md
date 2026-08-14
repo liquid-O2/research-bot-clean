@@ -41,3 +41,26 @@ file, no unblinding until the whole 12-day block is sealed — so nothing here c
    the signed-vs-de-signed question is where to look first.
 5. Cell reads written on 9 cells, traded on 0 (stage 2 dead). Would-abstain marked on SI/TOKYO and
    HG/TOKYO (P035 base rates 0.00 / 0.14) and traded on neither.
+
+## AFTER DAY 2 (20211021, sealed; 1,291 rows, 28 TAKEs, 4 seats)
+
+1. **A NEW EX-ANTE FEASIBILITY OBJECT, and it is not the capacity family: `S3 COVERAGE <phase>
+   exp_move_q50` vs the $1,000 bar.** The SI/TOKYO seat carries `exp_move_q50 = $937` for its whole
+   phase — the median TOKYO session does not contain the target move, printed on the row before any
+   outcome exists. This is a MAGNITUDE expectation, not room-inside-a-range, so P017's inversion
+   argument does not apply to it. My rebuilt A|B|C grade already encodes it (that seat grades B; all
+   NY seats grade A). **Candidate stage-1 feature for M3. Not traded as a gate in this round** — no
+   blind threshold can be settled without outcomes (the pooled-pool law).
+2. **The metals are ONE bet at phase opens.** Day 1: two LONGs 13 seconds apart. Day 2: three SHORTs
+   inside 75 seconds at the NY open. The creation classes fire at opens and S11 shows SI and HG
+   moving together; a day of "four seats" can be one or two independent bets. Report this in the
+   round summary — it matters for how the panel scores variance.
+3. **The SI/TOKYO seat is the abstention test**: flagged would-abstain (P035 0-for-7) AND below the
+   bar on its own phase expectation, taken anyway because both refusals are unproven. The arms file
+   carries the counterfactual.
+4. **T5's relative clause (CC-M2-16.4) created a seat today** (f5m_vol 112 against the 200 absolute
+   floor, admitted at 8% of phase volume) and **T4's 5% floor was the binding term on NKD/NY**
+   (7.1%). The core's thresholds are doing real work on thin cells — the exact place D24 says they
+   were never censused.
+5. Policy UNCHANGED (RV1). Nothing seen in two days is an outcome, and no evolution is warranted by
+   structure alone.

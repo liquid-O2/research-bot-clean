@@ -64,3 +64,20 @@ file, no unblinding until the whole 12-day block is sealed — so nothing here c
    were never censused.
 5. Policy UNCHANGED (RV1). Nothing seen in two days is an outcome, and no evolution is warranted by
    structure alone.
+
+## AFTER DAY 3 (20211022, sealed; 1,258 rows, 16 TAKEs, 3 seats)
+
+1. **THE ERA-SCALE CLASS CARD IS THE ROUND'S MOST IMPORTANT EX-ANTE READING AND IT HALVES MY
+   DECLARATION.** From the sheets themselves (S13, era E1): SI OPEN-DYNAMICS 8.26% vs REVERSAL 5.90%
+   vs RECLAIM 6.20%; HG OPEN-DYNAMICS 7.72% / NEWS-WINDOW 6.53% vs REVERSAL 4.63% / RECLAIM 3.84%;
+   NKD REVERSAL 4.67%. **Sign confirmed, magnitude cut: a 1.3-1.7x class effect at era scale against
+   the 2.6x I measured on 493 study rows.** Every class carries a negative pooled mean certificate —
+   the core is what has to turn a class into a call. POLICY UNCHANGED: there is no better class to
+   stand in, and CC-M2-4.3 freezes the terms once the block is open.
+2. **DEFECT D27:** T5's relative clause is unbounded below — `f5m_vol >= 8% of fph_vol` admits a
+   49-contract window on a 48-contract phase. Two of nine seats so far exist only through it.
+3. **My seats are a bet on two clock windows.** Seven of nine seats are within five minutes of a
+   phase open; two are within a minute of a scheduled release. That is the creation-class filter
+   doing exactly what it says, and it means the round's variance is clock-concentrated.
+4. Watch item for the remaining days: the give-back on release seats (HG 14:30 today) — the channel
+   my library says is the largest and least understood.

@@ -38,3 +38,23 @@
 **THE DAY'S STRUCTURAL FACT:** two of three assets entered NY already EXPANDED (HG 135.5% of range_hat, NKD 171.1%). CC-M2-11.1 ruled the day_type flag LAGGING (it fires ~1-2h after the winners' decision seconds), so this is a description, not an instrument — and my policy reads neither.
 
 **THE SI/TOKYO SEAT IS THE ROUND'S ABSTENTION TEST:** flagged would-abstain at the cell open on P035 (0-for-7) AND carrying a phase expected move below the bar ($937), and taken anyway because both refusals are unproven. Whatever it scores, the counterfactual is in the arms file.
+
+## BLIND DAY 3 — 20211022 (sealed before any unblinding; policy RV1)
+
+**BLIND DAY 3 — 2021-10-22, 1,258 candidates (SI 459, HG 445, NKD 354), 45 creation-class rows + 1 SHOCK-RESOLUTION, 9 cells, 16 TAKEs, 3 seats.** Policy RV1, 47 as-of cuts. **THE DAY'S FINDING IS THE S13 CARD TABLE, READ OFF THE SHEETS THEMSELVES (ex ante, no outcome):** per asset, era E1 — SI REVERSAL 5.90% win / -$29.54, RECLAIM 6.20% / -$67.81, OPEN-DYNAMICS **8.26%** / -$1.91; HG REVERSAL 4.63% / -$32.65, RECLAIM 3.84% / -$65.74, NEWS-WINDOW **6.53%** / -$23.35, OPEN-DYNAMICS **7.72%** / -$21.29; NKD REVERSAL 4.67% / -$44.97. **The direction of my declaration survives — the creation classes beat their own asset's bulk by 1.3-1.7x on win rate and are the least negative on mean certificate — but the MAGNITUDE does not: this is a 1.4x class effect at era scale, not the 2.6x my eight study sessions measured.** Policy unchanged; there is no better class to be in and the core is what turns a class into a call.
+
+| cell | rows | creation-class rows | V2 fires | TAKEs | seat | side read (NOT traded) | conf | would-abstain | rolling R1/R2b at cell open | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| HG/LONDON | 115 | 2 | 0 | 2 | HG-20211022-025468-L | LONG | MED | no | CLOSED/OPEN | S8 f30m +40 on 237, f5m +31 on 49, f60 +15 on 19, through_book 5 of 7 clearing the ASK, mid on the phase H 7 seconds old; S10 in_VA=1 with d_POC -$193.75. Flow, book and price agree at the open (A3). |
+| HG/NY | 256 | 13 | 0 | 7 | HG-20211022-052246-L | SHORT | LOW | no | CLOSED/OPEN | S8 fuel 89 above / 32 below with f30m +10 on 529 — flow and fuel disagree, which is why this is LOW. The policy's actual seat here is a LONG 84 minutes later at the 14:30 release, against this read. |
+| HG/TOKYO | 74 | 0 | 0 | 0 | - | LONG | LOW | YES | CLOSED/OPEN | S8 fph +69 on 494, 440 of 494 below the mid, f5m +37 on 65; the mirror image of day 2's HG/TOKYO. WOULD-ABSTAIN (0.14 base rate). |
+| NKD/LONDON | 34 | 1 | 0 | 0 | - | NONE | - | no | OPEN/CLOSED | S2 EXPANDED at 112% of range_hat with unspent_sess -$224; S8 phase_total 3 contracts. The regime flag is lagging (CC-M2-11.1) and the tape is empty — nothing here is actionable. |
+| NKD/NY | 102 | 3 | 0 | 0 | - | NONE | - | no | CLOSED/CLOSED | S8 phase_total 7 contracts, fuel 0 above / 5 below, thru_n 0. No readable tape; NKD/NY is CC-M2-18.1's 0.29 cell. |
+| NKD/TOKYO | 218 | 3 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | S8 15 contracts at the cell open (11 above / 4 below), thru_n 0, rv60 0. No tape. |
+| SI/LONDON | 67 | 0 | 0 | 0 | - | LONG | LOW | no | CLOSED/OPEN | S8 f30m +53 on 151 and f5m +22 on 38 into a 55-contract phase; INSIDE day at 22.3% of range_hat. Thin agreement, low conviction. |
+| SI/NY | 342 | 23 | 1 | 7 | SI-20211022-046855-S | SHORT | MED | no | CLOSED/OPEN | S8 f30m -139 on 760, phase -52 on 156 with **156 of 156 phase contracts ABOVE the mid**, f60 -53 on 159; mid on the NY L 13 seconds old. The single most one-sided fuel map of the round so far. |
+| SI/TOKYO | 50 | 1 | 0 | 0 | - | LONG | LOW | YES | CLOSED/CLOSED | S8 fph +28 on 242 with 213 of 242 contracts BELOW the mid and f5m +26 on 46; mid within a tick of the phase H (66s). WOULD-ABSTAIN (P035 0-for-7) — recorded, not traded. TOKYO exp_move_q50 = $924, below the bar again. |
+
+**DEFECT D27 (new, day 3):** T5's relative clause `f5m_vol >= 0.08 * fph_vol` is unbounded below — on a phase whose total volume is 48 contracts it admits a 49-contract 5-minute window as 'magnitude'. Two of the round's nine seats so far exist only through that clause (SI/TOKYO day 2 at 112 contracts, HG/LONDON day 3 at 49). The CC-M2-16.4 repair fixed an NKD misfire and created a thin-phase hole. Not patched mid-round (the policy is frozen); logged for the fix lane.
+
+**THE SEAT CLOCK IS COLLAPSING ONTO PHASE OPENS AND RELEASES:** of nine seats in three days, seven are within 5 minutes of a phase open and two are within a minute of a scheduled release. That is what the creation-class filter DOES, and it means my round is a bet on two clock windows, not on 12,418 candidates.

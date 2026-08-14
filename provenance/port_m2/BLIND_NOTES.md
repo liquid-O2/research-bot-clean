@@ -166,3 +166,19 @@ CARD, not my eight sessions.
    so they are forfeited by construction — they cost nothing and earn nothing. The panel scores
    seats; the takes are the thesis record.
 4. Policy RV2 unchanged.
+
+## AFTER DAY 8 (20211029, sealed; 1,197 rows day-complete, 18 TAKEs, 2 seats)
+
+1. **DEFECT D30 FOUND AND FIXED (day 7):** its triage index was built while the on-demand render was
+   still in flight — 1,109 of 1,117 rows. The mandatory coverage check (sheets vs the chronological
+   index) caught it; the 8 missing rows were late-session SI SKIPs and the day-complete seat chain
+   was identical, so no call changed. Rows appended by a supplementary seal, and the day tool now
+   REFUSES to index a day whose render rc is not 0. Coverage is verified per day from here on.
+2. **THE ROUND HAS BUILT A NATURAL EXPERIMENT ON T4's DE-SIGNING**, and I am handing it over without
+   having traded either answer: two seats 72 seconds apart, same side, same release, opposite
+   5-minute flow signs (SI -195 on 1,434; HG +56 on 524). Splitting the round's seats by
+   `sign(f5m_sflow) x side` decides whether P023's direction deserved to be de-signed on one E1D4
+   case — with no new census.
+3. **`in_VA` gets its contrast case:** both of today's seats are `in_VA = 0` with |d_POC| > $600,
+   against the at-value seats of days 4-6. The hypothesis is now testable within the round.
+4. Policy RV2 unchanged.

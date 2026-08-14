@@ -156,3 +156,23 @@
 **FIFTEEN TAKES, ELEVEN OF THEM IN THE 14:30 SI RELEASE WINDOW** (six longs and three shorts inside 43 seconds, at 14:30:16-14:30:59) — the generator fires both sides through a release and my policy takes every admitted row on both sides, spending the seat on the first. Under CC-M2-10.3 the SI/NY seat was already spent at 13:01:55, so all eleven release rows are forfeited by construction: they cost nothing and they earn nothing.
 
 **THIS IS THE ROUND'S CLEAREST SEAT-ACCOUNTING LESSON:** 15 committed TAKEs, 2 spendable seats. The panel scores the seats; the takes are the thesis record.
+
+## BLIND DAY 8 — 20211029 (sealed before any unblinding; policy RV2)
+
+**BLIND DAY 8 — 2021-10-29 (month end), 1,197 candidates (SI 510, HG 334, NKD 353), 77 creation-class rows, 8 cells, 18 TAKEs, 2 seats — both LONG inside the 14:30 release window (SI 14:30:39, HG 14:31:51).** Policy RV2, 47 cuts, render verified complete before indexing (the D30 guard is now in the tool). **THE CONTRAST CASE FOR THE `in_VA` HYPOTHESIS ARRIVES TODAY:** the SI seat is a LONG with `d_POC = -$612.50, in_VA = 0` — price extended BELOW the developing value area, the opposite of the days 4/5/6 seats — and it is also the row where the aggressive stream most strongly opposes the trade in the whole round (`f5m -195 on 1,434`, `f60 -170 on 1,017`, 43 of 54 through-book prints clearing the BID) while the fuel map holds 4,354 of 5,071 contracts above it. T4's de-signing is doing more work on this seat than on any other of the twelve days.
+
+| cell | rows | creation-class rows | V2 fires | TAKEs | seat | side read (NOT traded) | conf | would-abstain | rolling R1/R2b at cell open | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| HG/LONDON | 72 | 0 | 0 | 0 | - | LONG | MED | no | CLOSED/OPEN | S8 f5m +29 on 61 and f30m +26 on 469 with 357 of 371 contracts below the mid. Same shape as SI, same minute — the metals agree again. |
+| HG/NY | 202 | 15 | 0 | 7 | HG-20211029-052311-L | SHORT | LOW | no | CLOSED/OPEN | S8 f30m -99 on 804 and f5m -39 on 177 with 6 of 6 through-book prints clearing the BID, but the phase holds 33 contracts. Thin. |
+| HG/TOKYO | 60 | 1 | 0 | 0 | - | SHORT | LOW | YES | CLOSED/OPEN | S8 fph -18 on 134, f5m -13 on 53, but the fuel map is 70 below / 48 above — flow and fuel disagree. WOULD-ABSTAIN (0.14). |
+| NKD/LONDON | 52 | 0 | 0 | 0 | - | NONE | - | no | OPEN/CLOSED | EXPANDED at 117.4% with unspent -$316; S8 phase empty. The regime flag is lagging and the tape is not there. |
+| NKD/NY | 90 | 4 | 0 | 0 | - | NONE | - | no | CLOSED/CLOSED | 4 contracts. EXPANDED session with negative unspent. |
+| NKD/TOKYO | 211 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | 4 contracts at the open. |
+| SI/LONDON | 106 | 0 | 0 | 0 | - | LONG | MED | no | CLOSED/OPEN | S8 f30m +102 on 719, f5m +62 on 173, f60 +17 on 74 with 319 of 402 contracts BELOW the mid — every window buying with the fuel underneath. The best LONDON agreement of the round. |
+| SI/NY | 365 | 41 | 2 | 11 | SI-20211029-052239-L | LONG | LOW | no | CLOSED/CLOSED | S8 f30m +44 on 525 and f60 +15 on 53 with 131 of 138 contracts below the mid, but f5m is +3 on 217 — flat at the moment that matters. |
+| SI/TOKYO | 39 | 1 | 0 | 0 | - | NONE | - | YES | CLOSED/CLOSED | Nothing readable at the open; WOULD-ABSTAIN (0-for-7) and TOKYO q50 is below the bar as on every day of this round. |
+
+**MONTH-END, and both seats are in the same release minute again.** Eight days in, the seat clock is: phase opens (12 seats) and the 14:30/16:00 release windows (10 seats). Nothing else has ever been seated.
+
+**COVERAGE:** 1,197 of 1,197 sheets indexed and sealed (the D30 guard held); day-complete.

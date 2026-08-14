@@ -96,3 +96,10 @@ R2-10 CURRICULUM FACTS FROM ROUND 1 (evidence-graded, D-089-EXT): SEAT_LIVE 2.62
      taught as measured facts; the four FALSIFIED cues taught as falsified (esp. level_tested_held INVERTED —
      virgin 1.67x); the SI-0422-TOKYO missed block is a worked example (29 winners suppressed by two dead
      cues). Natural decisions in blind remain absolute (D-082).
+R2-11 STANDING EXTRACTION, DURABLE (user): post-round extraction is a standing step of every teacher
+     iteration (cheap now: the R2-8 written journal IS the substrate — no transcript mining). Durability
+     mechanism: ONE cumulative, versioned CUE LEDGER (provenance/port_m2/TEACHER_CUE_LEDGER.tsv) — every
+     named cue with per-round columns (n, lift, p, verdict PROVEN/SUPPORTED/FALSIFIED/INVERTED/CONFOUNDED),
+     never a fresh one-off report; TEACHER_FEATURES_V* versioned from it; each next round's curriculum
+     facts (R2-10) DERIVE from the ledger's current state automatically — so every round provably inherits
+     everything every prior round learned. The E6 extraction seeds the ledger as round-1 columns.

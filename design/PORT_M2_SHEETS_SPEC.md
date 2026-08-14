@@ -418,3 +418,24 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
    prior-cell outcomes — stage-1 of the decomposition, mirror+Holm discipline).
 6. P029 dead as a rule (era-period trend, not clock mechanism); P009 re-killed (own-asset fuel);
    A-grade sigma_to_exit 0-for-3-days noted for the calibration record.
+
+## CC-M2-18 — census batch 4 adjudications (orchestrator, 2026-08-14; BINDING)
+1. STAGE 1 (SEAT EXISTENCE) HAS A WORKING LEADING INSTRUMENT — ACCEPTED: walk-forward AUC 0.637 pooled /
+   0.660 GATE-H1 (holds out-of-era), SI 0.735; rv1800-at-cell-open carries it (ΔAUC +0.077); base rates
+   structural (SI/NY 0.801 vs NKD/LONDON 0.123 — two thirds of non-NY cells are empty; day-6's loss was
+   structure, not luck). Prior-cell MAGNITUDE is negative (spent energy — a finding worth features). The
+   seat model is the stage-1 component of M3.
+2. P030 = CONTINUOUS FEATURE in the seat model, never a gate (floors discard 19-59% of winners); confirmed,
+   destruction-surviving, GATE-replicating.
+3. P031 DEAD FINAL (mirror fails all 16 legs; destruction INVERTED — below its own shuffle; the day-6
+   'working' cross-asset evidence was two lucky seats) and P009 stays dead with it. STAGE 2 (SIDE) NOW HAS
+   ZERO VALIDATED INSTRUMENTS — stated plainly. The remaining candidates: S10 POC geometry (day-6, uncensused
+   -> batch 5), day-7's cell-side evidence (in flight), and the M3 PHASE-SIDE CLASSIFIER with event-grain
+   flow features (cache now era-wide) — the side question is formally the classifier's burden.
+4. CENSUS BATCH 5 (queued, launches when day-7 lands so its evidence bundles in): S10 d_POC/in_VA side
+   geometry under the mirror law; day-7 cell-evidence objects; the S7/S8 event-statistic censuses now
+   unblocked by the cache (c2f, erosion, through-book at era scale).
+5. Fixes accepted (D19 regenerated+guarded; used-case auto-record wired into all six seal paths; veto
+   seat-spender split live). ERA_NOTES §67 mechanism corrected per the lane's finding (the $0.00 delta came
+   from identical successor replay, not from no-seat-spender-vetoed). Autostash-clears-index process note
+   circulated to future briefs.

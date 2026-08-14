@@ -38,19 +38,30 @@ The extension block walks off the end of April into the first week of May, which
 compliance week in the era. From `context.calendar_for` (the instrument's own banked calendar), not
 from the world's:
 
-* **2024-05-01 — FOMC decision.** The largest scheduled-release object the D-077 ±10min veto has ever
-  had to handle in a sealed block, and it lands mid-NY.
-* **2024-05-02 — Initial Jobless Claims 12:30Z.**
-* **2024-05-03 — Employment Situation (NFP) 12:30Z.**
-* 04-29 / 04-30 carry no banked row (month-end on 04-30).
+Read mechanically from `context.high_impact_calendar()` at the D-077 floor (`VETO_IMPACT_FLOOR = MEDIUM`),
+the exact universe the veto is scored against:
 
-This is stated as a *fact of the draw*, not a preference: three of five days are release days versus
-1 of 3 in round 2 and 0 of 3 in round 1. Compliance coverage will be the best this program has had, and
-the avoidance posture will cost capacity again — that cost is the measurement, not a defect.
+| date | rows the instrument raises |
+|---|---|
+| 2024-04-29 | — none — |
+| 2024-04-30 | — none — |
+| 2024-05-01 | ISM Manufacturing PMI 14:00Z MEDIUM (RULE_DERIVED) |
+| 2024-05-02 | Initial Jobless Claims 12:30Z MEDIUM (RULE_DERIVED) |
+| 2024-05-03 | **Employment Situation (NFP) 12:30Z HIGH (BANKED)** + ISM Services PMI 14:00Z MEDIUM |
 
-**Calendar limit, restated (unchanged from the round-2 draw §5):** the banked calendar carries BLS/FOMC/BOJ
-plus rule-derived weeklies. Anything in `RELEASE_IMPACT` without a banked row does not raise a flag; the
-compliance report states coverage as *the instrument's calendar*.
+Three of five days raise a flag, versus 1 of 3 in round 2 and 0 of 3 in round 1, and 05-03 is the first
+**HIGH BANKED** release ever to land inside a sealed blind block in this program. The avoidance posture
+will cost capacity again — that cost is the measurement, not a defect.
+
+**CALENDAR LIMIT, NAMED SHARPLY AND CORRECTED.** I expected the 2024-05-01 **FOMC decision** to be the
+headline of this block. It is **not in the instrument's calendar** — `high_impact_calendar()` raises only
+ISM Manufacturing for that date. The same holds for 04-30's Employment Cost Index / Chicago PMI. So the
+compliance coverage of this extension is *the instrument's calendar*, not *the world's*, exactly as the
+round-2 draw §5 stated — and on 2024-05-01 that gap is large and known in advance. I record it here,
+before opening the day, rather than discovering it in a post-mortem: my ±10min vetoes on 05-01 will fire
+around 14:00Z and **not** around the FOMC hours, and any 05-01 seat I take late in the NY session is taken
+on a day whose largest scheduled event the instrument cannot see. I will apply the avoidance posture by
+hand there (D-077-UPDATE: "avoidance is preferred regardless") and say so in the journal.
 
 ## 4. WHAT IS SEALED
 

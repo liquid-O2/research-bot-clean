@@ -90,3 +90,17 @@ never tells you the confirmation is real.
 sometimes find money in the same phase (day 2 science: 0/9 overlap and still $3,899 = 40% of the ceiling).
 Overlap as scored — the reader taking the oracle's own episode — is a demanding metric at episode grain
 because the oracle's seat is one of ~200 episodes in a phase; the dollar-capture reading is the honest one.
+
+## §6 THE SEALED BLIND BLOCK (E6-BLIND-D1..D3) — reader's record, no outcome access
+| day | dow | episodes | TAKEs | probabilities | compliance |
+|---|---|---|---|---|---|
+| 2024-04-19 | Fri | 860 | 3 (HG L65 09:00 L, SI S79 13:12 S, HG S88 13:14 S) | 0.20 / 0.18 / 0.20 | no scheduled release in the drawn window; 0 VETO, 0 HELD |
+| 2024-04-22 | Mon | 739 | 2 (HG L59 09:00 L, SI S67 13:01 S) | 0.20 / 0.18 | 0 VETO, 0 HELD |
+| 2024-04-23 | Tue | 626 | 3 (HG L10 03:30 L, HG L78 13:08 L, SI L52 13:28 L) | 0.18 / 0.20 / 0.18 | 0 VETO, 0 HELD |
+
+TAKE rate 8 / 2,225 episodes = 0.36%. That is deliberate and it is what study day 3 bought: the reader's
+generic rule loses money, so a seat is spent only where the named structure is present — phase-open capacity
+reset, price ON a level that has already been tested, and signed flow one-sided with the trade at both the
+5-minute and phase windows. Where that structure was absent the reader took nothing, including all three
+NKD books (NKD never presented it on any of the three days) and every phase that had already spent its
+expected move without a level or flow to go with it.

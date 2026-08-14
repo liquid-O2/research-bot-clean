@@ -238,6 +238,31 @@ OVERRIDES = {
                                     "runway, price 6c from a level, 5-min flow -85 "
                                     "and phase -102 both with the short, and the "
                                     "trapped map is 1,063 above vs 0 below"),
+    # ================= SEALED BLIND BLOCK — E6-BLIND-D2, 2024-04-22 =========
+    (20240422, "HG", "L59"): (0.20, "09:00 phase-open reset: capacity resets to $836 "
+                                    "unspent, price sits ON the level (6c), and the "
+                                    "5-minute flow +149 with the phase +81 both run "
+                                    "with the long — the same three-part structure "
+                                    "that paid on study days 1 and 2"),
+    (20240422, "SI", "S67"): (0.18, "13:01 NY-open reset on SI: $2,034 unspent and the "
+                                    "full phase ahead, 5-minute flow -98 with the "
+                                    "short. Level distance (68c) is the weak leg; "
+                                    "capacity + one-sided flow at a phase open is the "
+                                    "part that has paid"),
+    # ================= SEALED BLIND BLOCK — E6-BLIND-D3, 2024-04-23 =========
+    (20240423, "HG", "L10"): (0.18, "03:30 Tokyo: price on a level that has already "
+                                    "been tested (12c, 1 touch), 5-minute flow +57 and "
+                                    "phase +34 with the long, $820 unspent with 5h of "
+                                    "phase left"),
+    (20240423, "HG", "L78"): (0.20, "13:08 NY-open reset: $1,357 unspent, price 2c off "
+                                    "a level, and the flow is one-sided with the long "
+                                    "at both windows (+71 5-min, +117 phase) right at "
+                                    "the phase open — capacity, level and flow all "
+                                    "pointing the same way"),
+    (20240423, "SI", "L52"): (0.18, "13:28 NY: price exactly ON a level (0c), $2,080 "
+                                    "unspent, phase flow +119 with the long; the "
+                                    "5-minute window is flat (-9), which is why this is "
+                                    "0.18 and not 0.20"),
     (20240118, "SI", "L47"): (0.12, "OR_EXT at 0, +200 slope5m, flow +127 — momentum "
                                     "but the phase is 60% spent"),
 }

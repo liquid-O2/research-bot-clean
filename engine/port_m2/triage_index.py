@@ -194,7 +194,7 @@ ROOT = "/workspace/artifacts/cache/port/m2/era"
 # close).  Never the tape, never a certificate.
 M0_SESSIONS = "/workspace/artifacts/cache/port/m0/sessions"
 NA = "."
-VERSION = "TRIAGE-INDEX-V4"
+VERSION = "TRIAGE-INDEX-V5"
 REFUSED = MC.REFUSED_TOKEN               # "R" — CC-M2-20.3, a VALUE not a gap
 
 COLUMNS = (
@@ -528,11 +528,31 @@ def parse_sheet(path):
 
     # ---- S4 -------------------------------------------------------------
     r["n_in_band"] = _search(r"n_in_band=(\d+)", text, cast=int)
+    # V5 (E6 round): the V4 pattern hard-coded FOUR leading spaces and EIGHT
+    # cells, and the V1.1 sheet prints THREE leading spaces and ELEVEN — so it
+    # matched nothing at all and `near_fam/near_d/n_conf_max/conf_d/
+    # min_tc_near` came back empty on every row of every E6 sheet (0/1235
+    # measured).  A silent zero, not a wrong number, but the whole B2 level
+    # family was missing from the delta view.  The parse is now anchored on
+    # S4's OWN PRINTED HEADER: the column order is read from the header line
+    # and the cells are addressed BY NAME, so a sheet that adds or reorders a
+    # column yields nothing for the columns it moved rather than the wrong
+    # number (the D8 lesson, applied where V4 re-broke it).
     lvls = []
-    for line in re.findall(r"\n    [Kr] (\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)"
-                           r"\s+(\S+)\s+(\S+)\s+(\S+)", text):
-        fam, lid, px, dd, V, tc, tm, out = line
-        lvls.append((fam, lid, _f(px), _f(dd), tc, tm))
+    hm = re.search(r"\n   [Kr]? ?family\s+level_id\s+(.*)", text)
+    if hm is None:
+        hm = re.search(r"\n\s+K=?\S* family\s+level_id\s+(.*)", text)
+    if hm is not None:
+        names = ["kept", "family", "level_id"] + hm.group(1).split()
+        for raw in re.findall(r"\n   ([Kr]) (\S+.*)", text):
+            cells = [raw[0]] + raw[1].split()
+            if len(cells) != len(names):
+                continue                          # not a level row
+            d = dict(zip(names, cells))
+            # `outcome` is DELIBERATELY not read: levels_v4's last_test_outcome
+            # is a forward-15-minute value (defect M2-4 / KNOWN_TRAPS).
+            lvls.append((d.get("family"), d.get("level_id"), _f(d.get("price")),
+                         _f(d.get("d$")), d.get("tc", ""), d.get("test_m", "")))
     near = [l for l in lvls if l[3] is not None and abs(l[3]) <= 100.0]
     r["n_near100"] = len(near)
     if lvls:

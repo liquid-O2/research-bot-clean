@@ -54,3 +54,10 @@ NOTHING inside a dated ±10min window — its live compliance behavior was clean
 had flattered capture (+0.032) by removing 135 mostly-losing takes; the honest deployable capture is −0.0285.
 ALL BARS REMAIN FAILED IN EVERY READING — the verdict's direction is unchanged on the corrected rule.
 D34 raised: the compliance census should emit held-into rows regardless of entry distance (queued).
+
+## ADDENDUM 3 (2026-08-14, CC-M2-23): INSTRUMENT-INVALIDATED — SUPERSEDED PENDING RE-DERIVATION
+The consolidated review found the blind instrument defective (R93 forward prices on 16.1% of sheets; R01/R94
+forward aggregates; R02 S14 co-location) and bar (a) mis-constructed (R126: max-of-13 selected in-sample; vs
+the MEDIAN arm the reader was POSITIVE and beat 9/13). Bars (b)/(c) failures stand as computed but on a
+contaminated instrument. THIS VERDICT IS SUPERSEDED: the gate re-derives on the fixed corpus, and the
+teacher's one clean test runs on the corrected episode-grain protocol per D-080/D-081.

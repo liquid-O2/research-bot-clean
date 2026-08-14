@@ -1,0 +1,21 @@
+# PORT M3 M3.2 walk-forward evaluation (expanding-window era ladder) (harness=PORT-M3-HARNESS-V1; m2_spec_sha16=f6ef73a41dbf8588)
+# params_hash=cdd29ac63e95ba9dfb2e8f6197481e8cbd6b0f03077bbcf8fa51b5d5424a927c
+# D-084(b): the era's model is FROZEN at the break (it was fitted on pre-break eras only), so this measures the ADAPTATION DEBT — how many sessions of the post-break era pass before the pre-break model's trailing capture reaches the level it eventually sustains there
+# sessions_to_recover uses a trailing window of min(t, 20) sessions; sessions_to_recover_full_window requires the full 20-session window, so its floor is 20 by construction
+break	era	scope	n_sessions	era_achievable_capture	sessions_to_recover	sessions_to_recover_full_window
+2021_metal_fade	E1	POOLED	393	-0.004700	23	23
+2021_metal_fade	E1	SI	131	-0.007800	27	27
+2021_metal_fade	E1	HG	131	0.011300	3	20
+2021_metal_fade	E1	NKD	131	-0.018800	7	20
+2022_rate_shock	E2	POOLED	384	0.053000	1	20
+2022_rate_shock	E2	SI	128	0.073100	1	20
+2022_rate_shock	E2	HG	128	0.077600	1	20
+2022_rate_shock	E2	NKD	128	0.007400	1	33
+2023_chop_onset	E4	POOLED	385	0.075700	1	20
+2023_chop_onset	E4	SI	128	0.093700	15	20
+2023_chop_onset	E4	HG	128	0.054200	1	20
+2023_chop_onset	E4	NKD	129	0.072200	1	20
+2024_trend_onset	E6	POOLED	384	0.074900	1	21
+2024_trend_onset	E6	SI	128	0.047800	2	20
+2024_trend_onset	E6	HG	128	0.062500	1	39
+2024_trend_onset	E6	NKD	128	0.117600	4	20

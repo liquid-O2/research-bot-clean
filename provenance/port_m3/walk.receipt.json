@@ -1,0 +1,59 @@
+{
+ "brief": "D-078/D-084/D-085 + PORT_M2_SHEETS_SPEC CC-M2-15..24 + LABEL_ATLAS_V2 \u00a72.2/\u00a72.5 (the atlas champion)",
+ "databento_dbn": "0.66.0",
+ "git_sha": "4cc1517c73901d64a5a9227c8807a0361e47bc6b",
+ "harness_version": "PORT-M3-HARNESS-V1",
+ "input_sha256": {},
+ "m0_spec_sha16": "4bdf772927b5f316",
+ "m1_spec_sha16": "b84832556267e703",
+ "m1b_spec_sha16": "d31f48b59877e44d",
+ "m2_spec_sha16": "f6ef73a41dbf8588",
+ "numpy_version": "2.1.2",
+ "params": {
+  "bars": {
+   "daily_dd_usd": 1000.0,
+   "per_session_usd": 2000.0,
+   "thin_floor_usd": 1500.0,
+   "trade_min_usd": 600.0,
+   "trade_target_usd": 1000.0
+  },
+  "breaks": [
+   [
+    "2021_metal_fade",
+    "E1"
+   ],
+   [
+    "2022_rate_shock",
+    "E2"
+   ],
+   [
+    "2023_chop_onset",
+    "E4"
+   ],
+   [
+    "2024_trend_onset",
+    "E6"
+   ]
+  ],
+  "ceilings": "day = one-position DP over EVERY candidate (c_c_roster.dp_schedule); oracle = one-position DP over the day's ANCHORED oracle legs",
+  "d078_instrument": "every feature of this matrix is census/generic-derived; the teacher_evidence group is declared and EMPTY, so the coming teacher round's marginal value is a difference measured on THIS harness",
+  "harness": "PORT-M3-HARNESS-V1",
+  "hp_discipline": "s4_confirm.HP_GRID, searched on the depth x eta face (32 cells) at the S4 modal mcw/colsample, inner split = the training block's last 20% of sessions (s4_confirm._inner_split), early stopping 20, rounds_max 200, seed 20260813 \u2014 FIT ONLY",
+  "inference": "session-clustered CR1 (panel_score.cluster_mean / cluster_ratio); directional claims under m2_common.mirror_paired (R59); ONE Holm family",
+  "ladder": "expanding window; model_k is fitted on every era strictly before era k and scored on era k; E1's block is the PRE_E1 warm-up tape and is FLAGGED; E8 = the GATE-2025H1 echo",
+  "latency_window_sessions": 20,
+  "mirror_caveat": "the sign-flip substitutes the NEAREST opposite-side candidate of the same cell within K* (no exact-second twin exists in this corpus), so the contrast carries a moment component and a not-top-ranked component beside the side component; it is not a clean side-only test",
+  "no_teacher": true,
+  "objective": "reg:squarederror on the RANK-transformed label \u2014 LABEL_ATLAS_V2 \u00a72.5: the rank TRANSFORM wins, the ranking OBJECTIVE lost every matched cell",
+  "policy": "TOP-N per SELECTION UNIT by model score; unit in ['session', 'cell'] and N in [1, 2, 3, 5, 8], the pair selected on the training block's inner validation ONLY; D-077-UPDATE restricted-window veto applied in the DEPLOYABLE reading (|mins to nearest scheduled release| <= 10, plus the held-into-window flag).  THE ONE DESIGN CHOICE THE BRIEF LEFT OPEN \u2014 declared here with its own FIT-side selection and its full sensitivity curve in the receipt.",
+  "primary_target": "y_retg_rank_phase",
+  "replay": "one position per asset per session, chronological, walled PHASE-CLOSE certificate (CC-M2-10.3; CC-M2-21.4 makes the greedy reading THE LAW)",
+  "section": "M3.2 walk-forward evaluation (expanding-window era ladder)",
+  "summary_counts": {
+   "n_eras_scored": 8,
+   "n_pvalues": 24
+  }
+ },
+ "params_hash": "cdd29ac63e95ba9dfb2e8f6197481e8cbd6b0f03077bbcf8fa51b5d5424a927c",
+ "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d"
+}

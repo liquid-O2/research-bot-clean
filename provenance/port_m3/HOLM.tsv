@@ -1,0 +1,28 @@
+# PORT M3 M3.2 walk-forward evaluation (expanding-window era ladder) (harness=PORT-M3-HARNESS-V1; m2_spec_sha16=f6ef73a41dbf8588)
+# params_hash=cdd29ac63e95ba9dfb2e8f6197481e8cbd6b0f03077bbcf8fa51b5d5424a927c
+# ONE Holm family over every p-value this round reports
+test	p_raw	p_holm	significant_05
+E1 vs_D048_bar	0.000000	0.000000	1
+E1 vs_BASE_EARLIEST	0.230398	0.230398	0
+E2 vs_D048_bar	0.000000	0.000000	1
+E2 vs_BASE_EARLIEST	0.002116	0.012332	1
+E3 vs_D048_bar	0.000000	0.000000	1
+E3 vs_BASE_EARLIEST	0.000000	0.000000	1
+E4 vs_D048_bar	0.000000	0.000000	1
+E4 vs_BASE_EARLIEST	0.000128	0.000898	1
+E5 vs_D048_bar	0.000000	0.000000	1
+E5 vs_BASE_EARLIEST	0.000041	0.000328	1
+E6 vs_D048_bar	0.000000	0.000000	1
+E6 vs_BASE_EARLIEST	0.018470	0.055409	0
+E7 vs_D048_bar	0.000000	0.000000	1
+E7 vs_BASE_EARLIEST	0.000007	0.000071	1
+E8 vs_D048_bar	0.000000	0.000000	1
+E8 vs_BASE_EARLIEST	0.009780	0.039121	1
+E1 mirror_paired	0.093041	0.186082	0
+E2 mirror_paired	0.000007	0.000071	1
+E3 mirror_paired	0.000000	0.000000	1
+E4 mirror_paired	0.000000	0.000000	1
+E5 mirror_paired	0.000000	0.000000	1
+E6 mirror_paired	0.000000	0.000000	1
+E7 mirror_paired	0.000006	0.000061	1
+E8 mirror_paired	0.002055	0.012332	1

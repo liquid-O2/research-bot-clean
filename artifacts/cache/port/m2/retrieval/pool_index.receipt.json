@@ -2,12 +2,12 @@
  "cache": "/workspace/artifacts/cache/port/m2/retrieval/pool_index.npz",
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "f5a47dd589027fdc6a95667558cd00ae15cd2b5d",
+  "git_sha": "8687da5f2084447c4bf7c9f4926138503b05db30",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "47a298c4440fa0a0",
+  "m2_spec_sha16": "19fedc9231ba9f0e",
   "numpy_version": "2.1.2",
   "params": {
    "blocks": [
@@ -37,6 +37,7 @@
      "atr_usd": "roster atr14_usd (ATR14_prev)",
      "cert_close_usd": "c_c_roster.certificates(...)[1][0] \u2014 the walled PHASE-CLOSE certificate (the CC-M1-8 adoption metric)",
      "cert_peak_usd": "c_c_roster.certificates(...)[0][0] \u2014 the walled PEAK-EXIT companion (CC-M1-8 mandatory column)",
+     "cert_refused": "the walled certificate or the MAE could not be computed for this candidate.  R122: `NaN >= 1000` is False, so such a row used to be scored a MEASURED LOSER and counted in every winner-rate denominator.  `winner` is now False AND this flag is True, so a consumer can drop the row from BOTH halves of a rate instead of biasing it low.",
      "cid": "{ASSET}-{d8}-{dec_sec:06d}-{L|S}",
      "clock_sec": "(open_utc + dec_sec) % 86400 \u2014 clock-of-day, UTC",
      "coverage_phase": "sections.s3_path COVERAGE for the running phase = SANE range so far in the phase / (move_q50_usd_per_sigma * sigma_hat_usd) of that phase's fvol row; NaN when the fvol row carries no q50 (REFUSED, V1.1 D1)",
@@ -76,6 +77,7 @@
      "phase_lo": "min SANE mid in [phase_seg_start, dec_sec)",
      "phase_lo_sec": "FIRST second at which phase_lo was reached",
      "phase_seg_end": "one past the last second of that segment",
+     "phase_seg_end_is_session_end": "the running phase SEGMENT's end is the session's realised end (s.n), so any quantity divided by the segment length (runway_frac, retrieval axis B05) or defined over the whole segment (sched_release_in_phase) inherits an END-OF-SESSION fact on this row.  Declared, not silent.",
      "phase_seg_start": "first second of the phase SEGMENT containing dec_sec",
      "pivot_age_sec": "dec_sec - pivot_sec of the most recent CAUSAL ZigZag pivot of the faded type (HIGH for a SHORT, LOW for a LONG), conf_sec < dec_sec; -1 = none yet",
      "range_hat_usd": "S2/S9 `range_hat_usd` of the DECISION PHASE's fvol row (both sections read case.fvol_seg); NaN = REFUSED",
@@ -95,11 +97,13 @@
      "slope_1m_usd": "sections.s5_tminus mid_slope last-minute column = (mid(dec) - mid(dec-60)) * mult",
      "slope_5m_usd": "(mid(dec) - mid(dec-300)) * mult / 5 \u2014 $ per minute",
      "spread_dec_usd": "roster spread_at_decision",
-     "spread_ratio": "spread_dec_usd / phase-median spread (c_a_cost, per asset x year x phase) \u2014 the P005 'spread tax' state",
+     "spread_ratio": "spread_dec_usd / phase-median spread (c_a_cost, per asset x phase) of the STRICTLY PRIOR calendar year \u2014 the P005 'spread tax' state.  R119: the normaliser used to be the decision's OWN calendar-year pooled median, which includes the decision day and every day after it; that is a forward statistic on a reader-facing retrieval axis (B08).  NaN = REFUSED (no prior year on this asset's tape); see spread_ratio_basis_year.",
+     "spread_ratio_basis_year": "the calendar year whose pooled phase-median spread normalised spread_ratio (always the year BEFORE the decision); -1 = REFUSED",
      "surprise": "S9 realized_range_so_far / range_hat, where the realized range is the PHASE segment's [seg_start, dec) SANE range (S9's own numerator, not S2's); NaN = REFUSED",
      "walled": "the $-wall was hit on the adverse skeleton",
      "winner": "cert_close >= $1000 and mae <= $300 and not walled (D-021)"
     },
+    "fix_pass_D001": "R119 spread_ratio is normalised by the STRICTLY PRIOR calendar year (was: the decision's own year, a forward statistic on live retrieval axis B08); R120 phase_open_mid carries the have_ph guard so it can no longer emit a post-decision mid; R122 cert_refused makes an uncomputable certificate a REFUSAL rather than a measured loser, and the per-session cost fallback is counted (cost_fallback); R110 runway_binding_refused names the silent degeneration of reading B into reading A; the ATR broadcast refuses instead of propagating a sentinel.  These change the DEFINITION of committed fields, so PARAMS_FRAME moves and every consumer's params_hash moves with it \u2014 which is the point.",
     "flow_windows_sec": [
      60,
      300,
@@ -125,18 +129,19 @@
    "min_blocks": "a neighbour comparable on < 6 blocks is dropped from the ranking (Gower missing-block bias) and counted",
    "missing": "a block missing/REFUSED on either side is dropped from the numerator AND the denominator; the count is reported as nb",
    "outcomes": "both CC-M1-8 readings (walled phase-close + walled peak-exit)",
+   "own_session": "R17/CC-M2-9.4 \u2014 the query's own (asset, date8) is excluded UNCONDITIONALLY; --include-own-date8 is the explicit opt-out and is reported in the meta as own_date8_included",
    "pool": "STUDY rows of provenance/port_m2/USED_CASE_LEDGER.tsv by default; ANY explicit pool is validated against the ledger. REFUSAL (never a filter) on a member the ledger does not carry as STUDY, on an untainted session, or on an empty pool",
    "scaling": "per-field robust scale 1.4826*MAD over pool+query, floored at max(1e-06, 0.01*|median|); |a-b|/scale clipped at 4 and divided by 4",
    "spec_section": "\u00a7CC-M2-5 item 3 \u2014 reference-class retrieval",
    "ties": "sort key (round(distance, 9), cid) \u2014 total and deterministic",
    "weights": "UNIFORM over the blocks that are comparable on both sides"
   },
-  "params_hash": "cf465b26ca03946cf58c5147c898b5785b39c0af41737615582edb662341b54d",
+  "params_hash": "f28bdebca3bf152eb79c3058e10b972380b29601a2b892768643f2ed2ceea59a",
   "sheets_version": "PORT-SHEETS-V1.1",
   "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
   "token_proxy": "M2-PROXY-2"
  },
  "ledger": "/workspace/provenance/port_m2/USED_CASE_LEDGER.tsv",
- "n_pool": 3901,
- "pool_sha256": "d656645e88ccd6883de702119776868ce8b8802b481d8d537b14be81496b08df"
+ "n_pool": 9041,
+ "pool_sha256": "d5a04355983cc89f1c2fb6148b0614fa543f639c60b6d1559e2425a047ca182e"
 }

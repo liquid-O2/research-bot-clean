@@ -1,7 +1,7 @@
 # ERA PRIMER — E1 (20210701..20211231)
 
 Auto-generated from COMMITTED CENSUSES by engine/port_m2/era_primer.py (spec §3).
-Every figure carries its source as `file:line`. sheets_version=PORT-SHEETS-V1.1  spec_sha16=1c3a23a60c697c81
+Every figure carries its source as `file:line`. sheets_version=PORT-SHEETS-V1.1  spec_sha16=19fedc9231ba9f0e
 STUDY/BLIND boundary date (day-complete, D-058/D-036): **20211019** — sessions <= boundary are STUDY.
 
 ## 1. THE ERA'S MATERIAL
@@ -36,9 +36,9 @@ The regime tag every sheet's S2 shows, counted over the era.
 
 | asset | regime mix (n sessions) | rv5/rv66 median | sigma_hat median $ | source |
 |---|---|---|---|---|
-| SI | HIGH=28 LOW=56 MID=47 | 0.856 | 2402.0 | artifacts/cache/port/m1/fvol/fvol_forecasts.tsv:L29-L159 n=131 |
-| HG | HIGH=45 LOW=49 MID=37 | 0.876 | 2192.1 | artifacts/cache/port/m1/fvol/fvol_forecasts.tsv:L4876-L5006 n=131 |
-| NKD | HIGH=47 LOW=44 MID=40 | 0.855 | 2019.0 | artifacts/cache/port/m1/fvol/fvol_forecasts.tsv:L10036-L10166 n=131 |
+| SI | HIGH=26 LOW=47 MID=58 | 0.882 | 2402.0 | artifacts/cache/port/m1/fvol/fvol_forecasts.tsv:L30-L160 n=131 |
+| HG | HIGH=44 LOW=52 MID=35 | 0.877 | 2192.1 | artifacts/cache/port/m1/fvol/fvol_forecasts.tsv:L4877-L5007 n=131 |
+| NKD | HIGH=49 LOW=44 MID=38 | 0.911 | 2019.0 | artifacts/cache/port/m1/fvol/fvol_forecasts.tsv:L10037-L10167 n=131 |
 
 ## 5. PHASE MAP
 
@@ -94,7 +94,7 @@ The class every sheet declares in S1, with its census card FOR THIS ERA.  `fires
 | SI | NEWS_WINDOW | 2021 | 2925 | 1104.56 | 0.4424 | 1007.38 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L43 |
 | SI | MICRO_OPEN | 2021 | 1003 | 896.31 | 0.4297 | 898.31 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L50 |
 | SI | POST_SHOCK | 2021 | 37 | 1042.12 | 0.3514 | 1112.50 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L57 |
-| SI | FIRST_TEST | 2021 | 0 | nan | nan | nan | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L64 |
+| SI | FIRST_TEST | 2021 | 0 | . | . | . | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L64 |
 | HG | G1 | 2021 | 34660 | 545.76 | 0.4634 | 844.92 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L78 |
 | HG | G1_FINE | 2021 | 41767 | 537.45 | 0.4630 | 840.91 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L85 |
 | HG | G1_FAST_OPEN | 2021 | 744 | 762.26 | 0.4624 | 1046.00 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L92 |
@@ -103,7 +103,7 @@ The class every sheet declares in S1, with its census card FOR THIS ERA.  `fires
 | HG | NEWS_WINDOW | 2021 | 2985 | 745.48 | 0.4670 | 730.84 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L113 |
 | HG | MICRO_OPEN | 2021 | 1144 | 640.45 | 0.4668 | 741.81 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L120 |
 | HG | POST_SHOCK | 2021 | 41 | 772.50 | 0.3659 | 926.25 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L127 |
-| HG | FIRST_TEST | 2021 | 0 | nan | nan | nan | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L134 |
+| HG | FIRST_TEST | 2021 | 0 | . | . | . | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L134 |
 | NKD | G1 | 2021 | 36836 | 591.25 | 0.4275 | 865.43 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L148 |
 | NKD | G1_FINE | 2021 | 42387 | 569.42 | 0.4323 | 843.90 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L155 |
 | NKD | G1_FAST_OPEN | 2021 | 847 | 935.78 | 0.4227 | 1059.36 | artifacts/cache/port/m1/generation_v3/census_family_value.tsv:L162 |

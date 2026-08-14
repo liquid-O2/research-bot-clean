@@ -1,4 +1,4 @@
-# PORT_M1_SPEC.md §11 generation truth audit (D-069) (spec_sha16=12f0a849107b2d3f)
+# PORT_M1_SPEC.md §11 generation truth audit (D-069) (spec_sha16=b84832556267e703)
 # params_hash=0c87f9b2ed7fd81e9552b75d62fdae069364b96ff083afce46b8e8bfbba46778
 # a mutant caught by NO case is a test FAILURE (red-first law); the real implementation is green on every case listed
 # superset_spine_only: the fine-grain ZigZag spine WITHOUT the per-phase-block extremum landmarks

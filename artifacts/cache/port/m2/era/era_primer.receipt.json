@@ -1,12 +1,12 @@
 {
  "env": {
   "databento_dbn": "0.66.0",
-  "git_sha": "965b8506fa9b42170cb6ec62a6b85084048f8bfb",
+  "git_sha": "e95dbff5baa6c5a7774fc4c34e9adeb6062548ec",
   "input_sha256": {},
   "m0_spec_sha16": "4bdf772927b5f316",
   "m1_spec_sha16": "b84832556267e703",
   "m1b_spec_sha16": "d31f48b59877e44d",
-  "m2_spec_sha16": "1c3a23a60c697c81",
+  "m2_spec_sha16": "19fedc9231ba9f0e",
   "numpy_version": "2.1.2",
   "params": {
    "aggregates": "median for per-session distributions (robust to the roll and dying-book outliers the censuses flag), mean only where the census column is already a rate",

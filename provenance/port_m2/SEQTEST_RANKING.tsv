@@ -1,0 +1,11 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# THE MEMBER-RANKING HEAD: listwise over GROUPS = (asset, day, CLASS), target = the certificate dollars.
+# `loss_selected` is chosen on the training block's inner-validation days by NDCG@3 and nowhere else; `loss_curve` carries both candidates' inner scores.
+# NDCG@3 gain = max(cert_close_usd, 0); the random and earliest-member columns are the two references the ranker has to beat to be worth anything.
+arch	trunk	era	loss_selected	inner_ndcg3	eval_ndcg3	eval_ndcg3_random	eval_ndcg3_earliest	n_groups_train	n_groups_eval	median_group_size	n_scored_groups	fit_secs	loss_curve
+lambdamart-m3features	NONE	E3	rank:ndcg	0.49757	0.38102	0.30732	0.33658	3863	3613	64	3513	2.0	[["rank:ndcg", 0.49757]]
+lambdamart-m3features	NONE	E4	rank:ndcg	0.52748	0.37275	0.31273	0.33673	7476	3512	64	3433	2.7	[["rank:ndcg", 0.52748]]
+lambdamart-m3features	NONE	E5	rank:ndcg	0.52206	0.4009	0.31849	0.35374	10988	3601	64	3512	4.4	[["rank:ndcg", 0.52206]]
+lambdamart-m3features	NONE	E6	rank:ndcg	0.51647	0.37319	0.30661	0.33821	14589	3764	64	3642	5.8	[["rank:ndcg", 0.51647]]
+lambdamart-m3features	NONE	E7	rank:ndcg	0.50138	0.39221	0.30606	0.34376	18353	3766	64	3616	8.5	[["rank:ndcg", 0.50138]]
+lambdamart-m3features	NONE	E8	rank:ndcg	0.50039	0.37124	0.30319	0.3279	22119	3913	64	3746	9.1	[["rank:ndcg", 0.50039]]

@@ -1,0 +1,15 @@
+# PORT_M2_SHEETS_SPEC.md port m2 deficit ledger — orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars (spec_sha16=f6ef73a41dbf8588)
+# params_hash=9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da
+# THE-FIX-LIST: components ranked by recoverable $/session, with the named improvement type
+# block A = fixed-contract ladder (additive); B = contract change, D-029 reserved; D = diagnostic
+# standalone = the same repair applied ALONE from the judge's own takes (order-free)
+rank	judge	component	improvement_type	block	usd_per_session	usd_total	share_of_block_A	standalone_usd_per_session	n_repairs	top_cell	top_cell_usd_per_session
+1	LMART_M3FEATURES	RANKING_RESIDUAL	scoring/foresight	A	984.250000	2283470.030000	0.475000	3375.010000	0	E6|SI|rg2|ph2	14.760000
+2	LMART_M3FEATURES	SEL_WRONG_MEMBER	ranking	A	847.950000	1967251.570000	0.409200	1929.390000	6594	E7|SI|rg0|ph2	19.000000
+3	LMART_M3FEATURES	SEL_WRONG_SIDE	validity	A	301.880000	700354.750000	0.145700	506.620000	1637	E7|SI|rg0|ph2	12.350000
+4	LMART_M3FEATURES	EXIT	exit-contract (D-029)	B	256.740000	595626.250000	0.123900			E6|SI|rg2|ph2	16.970000
+5	LMART_M3FEATURES	RISK	stop-structure (D-029)	B	178.360000	413806.250000	0.086100			E7|SI|rg0|ph2	11.920000
+6	LMART_M3FEATURES	OPPORTUNITY	generation/coverage	A	89.240000	207047.500000	0.043100			E5|HG|ALL	15.590000
+7	LMART_M3FEATURES	SEL_WRONG_MOMENT	moment	A	40.220000	93308.730000	0.019400	58.750000	1779	E6|SI|rg2|ph2	2.330000
+8	LMART_M3FEATURES	CALIBRATION	threshold	D	20.960000	48626.250000	0.010100				
+9	LMART_M3FEATURES	PARTICIPATION	throughput/abstention	A	-191.420000	-444101.330000	-0.092400	-233.540000	179086	E3|SI|rg1|ph1	0.830000

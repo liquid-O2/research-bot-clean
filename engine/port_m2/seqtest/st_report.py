@@ -14,6 +14,8 @@ config, control, pretrain stage and arms table) and writes:
 """
 import os
 
+import json
+
 import numpy as np
 
 import st_common as SC
@@ -27,7 +29,8 @@ def _r(v, nd=2):
 def capacity_rows(res):
     rows = []
     for o in res:
-        if o.get("kind") not in ("ladder", "control", "pretrain"):
+        if o.get("kind") not in ("ladder", "control", "pretrain", "probe",
+                                 "rank"):
             continue
         p = o["pooled"]
         led = o.get("ledger") or []
@@ -35,7 +38,8 @@ def capacity_rows(res):
         pars = led[0].get("params") if led else None
         rows.append([
             ("SHUFFLED_CONTROL" if o.get("shuffled") else
-             ("PRETRAINED" if o.get("kind") == "pretrain" else "SUPERVISED")),
+             {"pretrain": "PRETRAINED", "probe": "PROBE", "rank": "LISTWISE"}
+             .get(o.get("kind"), "SUPERVISED")),
             o["arch"], o["rung"], o["L"], pars,
             _r(p.get("capture_oracle"), 4), _r(p.get("co_lo"), 4),
             _r(p.get("co_hi"), 4), _r(p.get("capture_day"), 4),
@@ -54,10 +58,12 @@ def capacity_rows(res):
 def ladder_rows(res):
     rows = []
     for o in res:
-        if o.get("kind") not in ("ladder", "control", "pretrain"):
+        if o.get("kind") not in ("ladder", "control", "pretrain", "probe",
+                                 "rank"):
             continue
         tag = "%s_%s_%s_L%d" % ("SHUF" if o.get("shuffled") else
-                                ("PRE" if o["kind"] == "pretrain" else "SUP"),
+                                {"pretrain": "PRE", "probe": "PROBE",
+                                 "rank": "RANK"}.get(o["kind"], "SUP"),
                                 o["arch"], o["rung"], o["L"])
         for x in o.get("ledger", []):
             rows.append([tag, x.get("era"), x.get("params"), x.get("n_train"),
@@ -126,8 +132,40 @@ def hybrid_rows(res):
     return rows
 
 
+def rank_rows(res):
+    rows = []
+    for o in res:
+        if o.get("kind") != "rank":
+            continue
+        for x in o.get("ledger", []):
+            rows.append([o["arch"], o.get("trunk"), x["era"], x["loss"],
+                         _r(x.get("inner_ndcg3"), 5),
+                         _r(x.get("eval_ndcg3"), 5),
+                         _r(x.get("eval_ndcg3_random"), 5),
+                         _r(x.get("eval_ndcg3_earliest"), 5),
+                         x.get("n_groups_train"), x.get("n_groups_eval"),
+                         x.get("median_group"), x.get("n_scored_groups"),
+                         _r(x.get("fit_secs"), 1),
+                         json.dumps(x.get("loss_curve"))])
+    return rows
+
+
 def main():
     res = R.load_results()
+    R.write_tsv("SEQTEST_RANKING.tsv",
+                ["arch", "trunk", "era", "loss_selected", "inner_ndcg3",
+                 "eval_ndcg3", "eval_ndcg3_random", "eval_ndcg3_earliest",
+                 "n_groups_train", "n_groups_eval", "median_group_size",
+                 "n_scored_groups", "fit_secs", "loss_curve"],
+                rank_rows(res),
+                extra=["THE MEMBER-RANKING HEAD: listwise over GROUPS = "
+                       "(asset, day, CLASS), target = the certificate dollars.",
+                       "`loss_selected` is chosen on the training block's "
+                       "inner-validation days by NDCG@3 and nowhere else; "
+                       "`loss_curve` carries both candidates' inner scores.",
+                       "NDCG@3 gain = max(cert_close_usd, 0); the random and "
+                       "earliest-member columns are the two references the "
+                       "ranker has to beat to be worth anything."])
     R.write_tsv("SEQTEST_CAPACITY.tsv",
                 ["mode", "arch", "rung", "seq_len", "params",
                  "capture_oracle", "co_lo", "co_hi", "capture_day",

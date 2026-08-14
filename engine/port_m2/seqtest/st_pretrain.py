@@ -98,31 +98,55 @@ class Block(nn.Module):
         return x
 
 
+N_SIDE = 10                                # st_aux.N_IN (clock + level channels)
+N_HORIZON_TGT = 8                          # st_aux.N_TGT (h60 then h300)
+CPC_OFFSETS = (64, 256)
+
+
 class EventLM(nn.Module):
-    """The shared backbone.  `n_assets=1` is the SI-ONLY trunk of A1.1."""
+    """The shared backbone.  `n_assets=1` is the SI-ONLY trunk of A1.1.
+
+    `side=True` adds the AMENDMENT 4 per-event input channels (session/phase
+    clock + level-relative distances) through a ZERO-INITIALISED projection, so
+    a side-enabled model is function-identical to a token-only one at
+    initialisation and the two trunks stay comparable.
+    """
 
     def __init__(self, vocab=TK.VOCAB, d=D_MODEL, depth=DEPTH, h=HEADS,
-                 ffn=FFN, ctx=CTX, n_assets=3):
+                 ffn=FFN, ctx=CTX, n_assets=3, side=False, multi=False):
         super(EventLM, self).__init__()
         self.tok = nn.Embedding(vocab, d)
         self.pos = nn.Parameter(torch.zeros(1, ctx, d))
         nn.init.trunc_normal_(self.pos, std=0.02)
         self.asset = nn.Embedding(max(n_assets, 1), d)
         nn.init.zeros_(self.asset.weight)
+        self.side = side
+        if side:
+            self.side_proj = nn.Linear(N_SIDE, d)
+            nn.init.zeros_(self.side_proj.weight)
+            nn.init.zeros_(self.side_proj.bias)
         self.blocks = nn.ModuleList([Block(d, h, ffn) for _ in range(depth)])
         self.nf = nn.LayerNorm(d)
         self.lm = nn.Linear(d, vocab, bias=False)
         self.lm.weight = self.tok.weight          # tied
+        self.multi = multi
+        if multi:
+            self.h_head = nn.Sequential(nn.Linear(d, d), nn.GELU(),
+                                        nn.Linear(d, N_HORIZON_TGT))
+            self.cpc = nn.ModuleList([nn.Linear(d, d, bias=False)
+                                      for _ in CPC_OFFSETS])
         self.ctx = ctx
 
-    def trunk(self, x, a):
+    def trunk(self, x, a, sd=None):
         h = self.tok(x) + self.pos[:, :x.shape[1], :] + self.asset(a)[:, None, :]
+        if self.side and sd is not None:
+            h = h + self.side_proj(sd)
         for b in self.blocks:
             h = b(h)
         return self.nf(h)
 
-    def forward(self, x, a):
-        return self.lm(self.trunk(x, a))
+    def forward(self, x, a, sd=None):
+        return self.lm(self.trunk(x, a, sd))
 
 
 class EventHead(nn.Module):
@@ -170,41 +194,219 @@ def n_params(m):
 
 
 # =============================================================== pretrain ====
-def _corpus(corpus, scope):
+def _corpus(corpus, scope, multi=False, split=False):
     max_d8 = 20240101 if corpus == "A" else 20250701
     assets = MC.ASSET_ORDER if scope == "shared" else ("SI",)
     T, S, A = TK.load_pretrain_corpus(max_d8, assets=assets)
-    return T, S, A, max_d8, assets
+    IN = TG = None
+    if multi:
+        import st_aux as AX
+        IN, TG = AX.load_aux(max_d8, assets=assets)
+        if IN.shape[0] != T.size:
+            raise SC.SeqTestRefusal(
+                "aux stream %d != token stream %d" % (IN.shape[0], T.size))
+    return T, S, A, max_d8, assets, IN, TG
 
 
-def _batch(T, S, A, idx):
+def split_chunks(max_d8, assets, S, A):
+    """Whole-DAY held-out split of the pretraining corpus itself."""
+    vd = val_day_set(max_d8, assets)
+    bounds, day_of = [], []
+    at = 0
+    for a_i, asset in enumerate(assets):
+        d = os.path.join(TK.TOK_DIR, asset)
+        for f in sorted(os.listdir(d)):
+            if not f.endswith(".npz") or int(f[:-4]) >= int(max_d8):
+                continue
+            z = np.load(os.path.join(d, f))
+            n = int(z["tok"].size)
+            z.close()
+            bounds.append((at, at + n, int(f[:-4])))
+            at += n
+    lo = np.array([b[0] for b in bounds], dtype=np.int64)
+    day = np.array([b[2] for b in bounds], dtype=np.int64)
+    k = np.searchsorted(lo, S, side="right") - 1
+    is_val = np.isin(day[np.clip(k, 0, day.size - 1)],
+                     np.array(sorted(vd), dtype=np.int64))
+    return (~is_val), is_val, len(vd)
+
+
+def balanced_sampler(A, n_assets, seed=SC.SEED):
+    """ASSET-BALANCED batch sampling (A4.3): SI is ~44% of the cached events,
+    so a uniform draw would make the shared trunk an SI model with accents."""
+    pools = [np.nonzero(A == k)[0] for k in range(n_assets)]
+    pools = [p for p in pools if p.size]
+    rng = np.random.RandomState(int(seed))
+
+    def draw(bs):
+        per = max(1, bs // len(pools))
+        out = np.concatenate([rng.choice(p, size=per, replace=False)
+                              for p in pools])
+        if out.size < bs:
+            out = np.concatenate([out, rng.choice(pools[0],
+                                                  size=bs - out.size)])
+        return out[:bs]
+    return draw
+
+
+W_NEXT, W_H60, W_H300, W_CPC = 1.0, 0.30, 0.30, 0.20
+
+# ---- THE PRETRAIN QUALITY GATES (coordinator amendment, 2026-08-16) --------
+# A held-out-DAY validation split of the pretraining objective itself: whole
+# days, all assets, never trained on.  Selection is by VAL (and the downstream
+# benchmark), never by train loss; two consecutive rises in val stop the run and
+# the best-val checkpoint is restored.
+VAL_EVERY = 400                            # steps between evaluations
+VAL_CHUNKS = 3000                          # held-out chunks scored per eval
+VAL_DAY_STRIDE = 11                        # every 11th trade date is held out
+VAL_PATIENCE = 2
+VAL_BAND = 0.35                            # |val - train| must stay inside this
+
+
+def val_day_set(max_d8, assets=MC.ASSET_ORDER):
+    """Every VAL_DAY_STRIDE-th cached trade date, ALL assets — whole days."""
+    days = set()
+    for asset in assets:
+        d = os.path.join(TK.TOK_DIR, asset)
+        for f in sorted(os.listdir(d)):
+            if f.endswith(".npz") and int(f[:-4]) < int(max_d8):
+                days.add(int(f[:-4]))
+    ds = sorted(days)
+    return set(ds[::VAL_DAY_STRIDE])
+
+
+def bigram_val_loss(T, S_tr, S_va, vocab=TK.VOCAB, chunk=40_000_000):
+    """The 'did it actually learn structure' floor: a Laplace-smoothed bigram
+    fitted on the TRAINING chunks, scored on the held-out ones."""
+    cnt = np.zeros(vocab * vocab, dtype=np.int32)
+    def stream(S):
+        for a in range(0, S.size, 4096):
+            st = S[a:a + 4096]
+            for s0 in st.tolist():
+                yield T[s0:s0 + CTX].astype(np.int64)
+    buf = []
+    tot = 0
+    for w in stream(S_tr):
+        buf.append(w[:-1] * vocab + w[1:])
+        tot += w.size
+        if tot > chunk:
+            cnt += np.bincount(np.concatenate(buf),
+                               minlength=vocab * vocab).astype(np.int32)
+            buf, tot = [], 0
+    if buf:
+        cnt += np.bincount(np.concatenate(buf),
+                           minlength=vocab * vocab).astype(np.int32)
+    M = cnt.reshape(vocab, vocab).astype(np.float64) + 1.0
+    logp = np.log(M) - np.log(M.sum(1, keepdims=True))
+    ll, n = 0.0, 0
+    for w in stream(S_va):
+        ll += float(logp[w[:-1], w[1:]].sum())
+        n += w.size - 1
+    return float(-ll / max(n, 1))
+
+
+def _batch(T, S, A, idx, IN=None, TG=None):
+    if IN is not None and IN.shape[0] != T.size:
+        raise SC.SeqTestRefusal("aux rows %d != token rows %d"
+                                % (IN.shape[0], T.size))
     st = S[idx]
     x = np.empty((idx.size, CTX), dtype=np.int64)
+    sd = tg = None
+    if IN is not None:
+        sd = np.empty((idx.size, CTX, IN.shape[1]), dtype=np.float32)
+        tg = np.empty((idx.size, CTX, TG.shape[1]), dtype=np.float32)
     for i, s in enumerate(st.tolist()):
         x[i] = T[s:s + CTX]
-    return (torch.from_numpy(x).to(DEV, non_blocking=True),
-            torch.from_numpy(A[idx].astype(np.int64)).to(DEV))
+        if IN is not None:
+            sd[i] = IN[s:s + CTX]
+            tg[i] = TG[s:s + CTX]
+    out = [torch.from_numpy(x).to(DEV, non_blocking=True),
+           torch.from_numpy(A[idx].astype(np.int64)).to(DEV)]
+    out.append(None if sd is None else torch.from_numpy(sd).to(DEV))
+    out.append(None if tg is None else torch.from_numpy(tg).to(DEV))
+    return out
 
 
-def _step(model, opt, T, S, A, idx, scaler=None):
-    x, a = _batch(T, S, A, idx)
+def _step(model, opt, T, S, A, idx, IN=None, TG=None):
+    """The weighted objective of design receipt AMENDMENT 3."""
+    x, a, sd, tg = _batch(T, S, A, idx, IN, TG)
+    parts = {}
     with torch.autocast("cuda", dtype=torch.bfloat16, enabled=(DEV == "cuda")):
-        logits = model(x[:, :-1], a)
+        h = model.trunk(x[:, :-1], a, None if sd is None else sd[:, :-1])
+        logits = model.lm(h)
     loss = F.cross_entropy(logits.float().reshape(-1, TK.VOCAB),
                            x[:, 1:].reshape(-1))
+    parts["next"] = float(loss.item())
+    if getattr(model, "multi", False) and tg is not None:
+        p = model.h_head(h.float())
+        t = tg[:, :-1, :]
+        m = torch.isfinite(t)
+        for k, (lo, w, nm) in enumerate(((0, W_H60, "h60"),
+                                         (4, W_H300, "h300"))):
+            pk = p[:, :, lo:lo + 4]
+            tk = t[:, :, lo:lo + 4]
+            mk = m[:, :, lo:lo + 4]
+            if mk.any():
+                l = F.smooth_l1_loss(pk[mk], torch.nan_to_num(tk)[mk])
+                loss = loss + w * l
+                parts[nm] = float(l.item())
+        # CPC: predict the model's OWN representation N events ahead
+        z = F.normalize(h.float(), dim=-1)
+        for k, off in enumerate(CPC_OFFSETS):
+            if h.shape[1] <= off + 8:
+                continue
+            q = F.normalize(model.cpc[k](h[:, :-off, :].float()), dim=-1)
+            tgt = z[:, off:, :].detach()
+            step = max(1, q.shape[1] // 32)
+            qs = q[:, ::step, :].reshape(-1, q.shape[-1])
+            ts_ = tgt[:, ::step, :].reshape(-1, tgt.shape[-1])
+            sim = qs @ ts_.t() / 0.1
+            lab = torch.arange(qs.shape[0], device=qs.device)
+            l = F.cross_entropy(sim, lab)
+            loss = loss + W_CPC * l
+            parts["cpc%d" % off] = float(l.item())
     opt.zero_grad(set_to_none=True)
     loss.backward()
     torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
     opt.step()
-    return float(loss.item())
+    parts["total"] = float(loss.item())
+    return parts
 
 
-def smoke(corpus="A", scope="shared", secs=SMOKE_SEC):
+@torch.no_grad()
+def eval_val(model, T, S, A, IN, TG, idx, n_assets, bs=64):
+    """Held-out-day loss of the pretraining objective, overall and PER ASSET."""
+    model.eval()
+    tot = {"n": 0, "ll": 0.0}
+    per = {k: {"n": 0, "ll": 0.0} for k in range(n_assets)}
+    for a in range(0, idx.size, bs):
+        sel = np.sort(idx[a:a + bs])
+        x, av, sd, _tg = _batch(T, S, A, sel, IN, TG)
+        with torch.autocast("cuda", dtype=torch.bfloat16,
+                            enabled=(DEV == "cuda")):
+            h = model.trunk(x[:, :-1], av, None if sd is None else sd[:, :-1])
+            lg = model.lm(h)
+        ce = F.cross_entropy(lg.float().reshape(-1, TK.VOCAB),
+                             x[:, 1:].reshape(-1), reduction="none")
+        ce = ce.view(x.shape[0], -1).mean(1).cpu().numpy()
+        for j, k in enumerate(A[sel].tolist()):
+            per[int(k)]["n"] += 1
+            per[int(k)]["ll"] += float(ce[j])
+        tot["n"] += ce.size
+        tot["ll"] += float(ce.sum())
+    model.train()
+    return (tot["ll"] / max(tot["n"], 1),
+            {MC.ASSET_ORDER[k]: (v["ll"] / v["n"]) for k, v in per.items()
+             if v["n"]})
+
+
+def smoke(corpus="A", scope="shared", secs=SMOKE_SEC, multi=False,
+          preloaded=None):
     """THE MANDATORY MEASUREMENT.  Tokens/s on this GPU, and the wall-time
     arithmetic the design receipt says must exist before the real run."""
-    T, S, A, max_d8, assets = _corpus(corpus, scope)
+    T, S, A, max_d8, assets, IN, TG = preloaded or _corpus(corpus, scope, multi)
     torch.manual_seed(SC.SEED)
-    model = EventLM(n_assets=len(assets)).to(DEV)
+    model = EventLM(n_assets=len(assets), side=multi, multi=multi).to(DEV)
     npar = n_params(model)
     opt = torch.optim.AdamW(model.parameters(), lr=PT_LR, weight_decay=0.01)
     rng = np.random.RandomState(SC.SEED)
@@ -212,7 +414,7 @@ def smoke(corpus="A", scope="shared", secs=SMOKE_SEC):
     n_tok, steps, losses = 0, 0, []
     while time.time() - t0 < secs:
         idx = rng.randint(0, S.size, size=PT_BATCH)
-        losses.append(_step(model, opt, T, S, A, idx))
+        losses.append(_step(model, opt, T, S, A, idx, IN, TG)["total"])
         n_tok += PT_BATCH * (CTX - 1)
         steps += 1
         if steps % 50 == 0:
@@ -223,6 +425,7 @@ def smoke(corpus="A", scope="shared", secs=SMOKE_SEC):
     tps = n_tok / dt
     total = int(S.size) * (CTX - 1)
     out = {"corpus": corpus, "scope": scope, "max_d8": max_d8,
+           "multi_horizon": bool(multi),
            "assets": list(assets), "params": npar,
            "n_chunks": int(S.size), "corpus_tokens": total,
            "measured_tokens_per_sec": round(tps, 1),
@@ -245,13 +448,25 @@ def smoke(corpus="A", scope="shared", secs=SMOKE_SEC):
     return out
 
 
-def pretrain(corpus="A", scope="shared", budget_sec=None, epochs=1):
+def pretrain(corpus="A", scope="shared", budget_sec=None, epochs=1,
+             multi=False):
     os.makedirs(TRUNK_DIR, exist_ok=True)
-    tag = "PRE_%s_%s" % (corpus, scope)
-    sm = smoke(corpus, scope)
-    T, S, A, max_d8, assets = _corpus(corpus, scope)
+    tag = "PRE_V_%s%s" % (scope, "_MULTI" if multi else "_NEXT")
+    pre = _corpus(corpus, scope, multi)
+    sm = smoke(corpus, scope, multi=multi, preloaded=pre)
+    T, S, A, max_d8, assets, IN, TG = pre
+    tr_m, va_m, n_val_days = split_chunks(max_d8, assets, S, A)
+    S_all, A_all = S, A
+    S_va, A_va = S[va_m], A[va_m]
+    S, A = S[tr_m], A[tr_m]
+    rs = np.random.RandomState(SC.SEED)
+    va_idx = np.sort(rs.choice(S_va.size, size=min(VAL_CHUNKS, S_va.size),
+                               replace=False))
+    SC.hb("val split: %d held-out DAYS, %d/%d chunks held out"
+          % (n_val_days, S_va.size, S_all.size))
+    draw = balanced_sampler(A, len(assets))
     torch.manual_seed(SC.SEED)
-    model = EventLM(n_assets=len(assets)).to(DEV)
+    model = EventLM(n_assets=len(assets), side=multi, multi=multi).to(DEV)
     opt = torch.optim.AdamW(model.parameters(), lr=PT_LR, weight_decay=0.01)
     total_steps = int(min(int(epochs), PT_EPOCHS_MAX) * S.size / PT_BATCH)
     budget = budget_sec or WALL_CEILING_SEC
@@ -265,6 +480,10 @@ def pretrain(corpus="A", scope="shared", budget_sec=None, epochs=1):
         order = np.argsort(S, kind="stable")   # chunk order == calendar order
         S = S[order][-keep:]
         A = A[order][-keep:]
+        # THE SAMPLER IS REBUILT ON THE TRUNCATED ARRAYS.  It indexes S/A
+        # POSITIONALLY, so a sampler built before the cut would hand back
+        # out-of-range positions (observed: IndexError 653401 vs size 651059).
+        draw = balanced_sampler(A, len(assets))
         total_steps = int(S.size / PT_BATCH)
         truncated = True
         SC.hb("TRUNCATED oldest-first to %d chunks (%d steps) to hold the "
@@ -272,21 +491,50 @@ def pretrain(corpus="A", scope="shared", budget_sec=None, epochs=1):
     sched = torch.optim.lr_scheduler.OneCycleLR(
         opt, max_lr=PT_LR, total_steps=max(total_steps, 2),
         pct_start=min(0.05, PT_WARMUP / max(total_steps, 1)), anneal_strategy="cos")
-    rng = np.random.RandomState(SC.SEED)
-    perm = rng.permutation(S.size)
     t0 = time.time()
-    losses, curve = [], []
+    losses, curve, heads, vcurve = [], [], {}, []
+    best_val, best_step, val_bad, best_state = np.inf, 0, 0, None
+    if S.size != A.size:
+        raise SC.SeqTestRefusal("chunk/asset length mismatch %d != %d"
+                                % (S.size, A.size))
     for step in range(total_steps):
-        a = (step * PT_BATCH) % S.size
-        idx = perm[a:a + PT_BATCH]
-        if idx.size < PT_BATCH:
-            perm = rng.permutation(S.size)
-            idx = perm[:PT_BATCH]
-        losses.append(_step(model, opt, T, S, A, idx))
+        idx = np.sort(draw(PT_BATCH))
+        if idx.max() >= S.size:
+            raise SC.SeqTestRefusal(
+                "sampler index %d out of range for %d chunks — the sampler and "
+                "the corpus disagree" % (int(idx.max()), int(S.size)))
+        parts = _step(model, opt, T, S, A, idx, IN, TG)
+        losses.append(parts["total"])
+        for k2, v2 in parts.items():
+            heads.setdefault(k2, []).append(v2)
         sched.step()
+        if (step + 1) % VAL_EVERY == 0 or step + 1 == total_steps:
+            vl, vper = eval_val(model, T, S_va, A_va, IN, TG, va_idx,
+                                len(assets))
+            trl = float(np.mean(heads["next"][-VAL_EVERY:]))
+            vcurve.append([step + 1, round(trl, 5), round(vl, 5),
+                           {k2: round(v2, 5) for k2, v2 in vper.items()},
+                           round(time.time() - t0, 1)])
+            SC.hb("VAL %s step %d train_next=%.4f val_next=%.4f per_asset=%s"
+                  % (tag, step + 1, trl, vl,
+                     {k2: round(v2, 4) for k2, v2 in vper.items()}))
+            if vl < best_val:
+                best_val, best_step, val_bad = vl, step + 1, 0
+                best_state = {k2: v2.detach().cpu().clone()
+                              for k2, v2 in model.state_dict().items()}
+            else:
+                val_bad += 1
+                if val_bad >= VAL_PATIENCE:
+                    SC.hb("OVERFIT GATE FIRED at step %d: val rose on %d "
+                          "consecutive evals; reverting to the best-val "
+                          "checkpoint at step %d" % (step + 1, val_bad,
+                                                     best_step))
+                    break
         if (step + 1) % 200 == 0:
             m = float(np.mean(losses[-200:]))
             curve.append([step + 1, round(m, 5),
+                          {k2: round(float(np.mean(v2[-200:])), 5)
+                           for k2, v2 in heads.items()},
                           round(time.time() - t0, 1)])
             SC.hb("pretrain %s step %d/%d loss=%.4f ppl=%.1f %.0f tok/s "
                   "(%.0fs)" % (tag, step + 1, total_steps, m, math.exp(m),
@@ -296,7 +544,26 @@ def pretrain(corpus="A", scope="shared", budget_sec=None, epochs=1):
             SC.hb("pretrain %s: wall ceiling hit at step %d" % (tag, step + 1))
             break
     info = dict(sm)
-    info.update({"tag": tag, "steps_run": len(losses),
+    if best_state is not None:
+        model.load_state_dict({k2: v2.to(DEV) for k2, v2 in best_state.items()})
+    bg = bigram_val_loss(T, S[::max(1, S.size // 6000)], S_va[va_idx])
+    info.update({"tag": tag, "multi_horizon": bool(multi),
+                 "val_curve": vcurve, "n_val_days": n_val_days,
+                 "n_val_chunks": int(S_va.size),
+                 "best_val_next": (None if not np.isfinite(best_val)
+                                   else float(best_val)),
+                 "best_val_step": int(best_step),
+                 "best_val_ppl": (None if not np.isfinite(best_val)
+                                  else float(math.exp(best_val))),
+                 "bigram_val_loss": bg, "bigram_val_ppl": float(math.exp(bg)),
+                 "beats_bigram": bool(np.isfinite(best_val) and best_val < bg),
+                 "overfit_gate_fired": bool(val_bad >= VAL_PATIENCE),
+                 "val_band": VAL_BAND,
+                 "head_loss_last200": {k2: float(np.mean(v2[-200:]))
+                                       for k2, v2 in heads.items()},
+                 "head_loss_first200": {k2: float(np.mean(v2[:200]))
+                                        for k2, v2 in heads.items()},
+                 "steps_run": len(losses),
                  "epochs_requested": int(epochs), "truncated": truncated,
                  "wall_sec": round(time.time() - t0, 1),
                  "loss_first200": float(np.mean(losses[:200])),
@@ -312,7 +579,8 @@ def pretrain(corpus="A", scope="shared", budget_sec=None, epochs=1):
     info["beats_unigram"] = bool(info["loss_last200"]
                                  < info["unigram_entropy_nats"])
     torch.save({"state": model.state_dict(), "n_assets": len(assets),
-                "info": info}, os.path.join(TRUNK_DIR, "%s.pt" % tag))
+                "side": bool(multi), "multi": bool(multi), "info": info},
+               os.path.join(TRUNK_DIR, "%s.pt" % tag))
     with open(os.path.join(TRUNK_DIR, "%s.json" % tag), "w") as fh:
         json.dump(info, fh, indent=1, default=str)
     SC.hb("PRETRAIN %s done: loss %.4f -> %.4f (unigram %.4f), %.0fs"
@@ -530,6 +798,7 @@ def main():
     ap.add_argument("--scope", default="shared", choices=("shared", "si"))
     ap.add_argument("--budget", type=float, default=WALL_CEILING_SEC)
     ap.add_argument("--epochs", type=int, default=1)
+    ap.add_argument("--multi", action="store_true")
     ap.add_argument("--trunk", default="PRE_A_shared")
     ap.add_argument("--scratch", action="store_true")
     ap.add_argument("--eras", default=",".join(SC.TEST_ERAS))
@@ -545,10 +814,11 @@ def main():
                   assets=(tuple(a.assets.split(",")) if a.assets else None),
                   tag=a.tag)
     elif a.smoke:
-        out = smoke(a.corpus, a.scope)
+        out = smoke(a.corpus, a.scope, multi=a.multi)
         print(json.dumps(out, indent=1))
     elif a.pretrain:
-        pretrain(a.corpus, a.scope, budget_sec=a.budget, epochs=a.epochs)
+        pretrain(a.corpus, a.scope, budget_sec=a.budget, epochs=a.epochs,
+                 multi=a.multi)
     elif a.finetune:
         finetune(a.trunk, scratch=a.scratch,
                  test_eras=tuple(a.eras.split(",")), tag=a.tag, mode=a.mode,
@@ -585,6 +855,7 @@ def embed_all(trunk_tag, bs=256):
     rows_all = np.nonzero(ft["pos"] >= 0)[0]
     order = np.argsort(ft["pos"][rows_all])
     rows_all = rows_all[order]
+    side = False
     if trunk_tag == "RANDOM":
         torch.manual_seed(SC.SEED)
         lm = EventLM(n_assets=3)
@@ -592,9 +863,19 @@ def embed_all(trunk_tag, bs=256):
     else:
         ck = torch.load(os.path.join(TRUNK_DIR, "%s.pt" % trunk_tag),
                         map_location="cpu")
-        lm = EventLM(n_assets=ck["n_assets"])
+        side = bool(ck.get("side", False))
+        lm = EventLM(n_assets=ck["n_assets"], side=side,
+                     multi=bool(ck.get("multi", False)))
         lm.load_state_dict(ck["state"])
         info = ck["info"]
+    SIDE = None
+    if side:
+        import st_aux as AX
+        sw, srows = AX.load_cand_aux()
+        spos = np.full(ft["pos"].size, -1, dtype=np.int64)
+        spos[srows] = np.arange(srows.size, dtype=np.int64)
+        SIDE = (sw, spos)
+        SC.hb("embed %s: side channels %s" % (trunk_tag, (sw.shape,)))
     lm = lm.to(DEV).eval()
     out = np.zeros((X.shape[0], 2 * D_MODEL), dtype=np.float16)
     t0 = time.time()
@@ -602,9 +883,15 @@ def embed_all(trunk_tag, bs=256):
         for i in range(0, rows_all.size, bs):
             r = rows_all[i:i + bs]
             x, a = _ft_batch(X, ft["pos"], asset, r)
+            if lm.asset.num_embeddings == 1:
+                a = torch.zeros_like(a)      # the SI-ONLY trunk has one row
+            sd = None
+            if SIDE is not None:
+                sd = torch.from_numpy(
+                    SIDE[0][SIDE[1][r]].astype(np.float32)).to(DEV)
             with torch.autocast("cuda", dtype=torch.bfloat16,
                                 enabled=(DEV == "cuda")):
-                h = lm.trunk(x, a)
+                h = lm.trunk(x, a, sd)
                 z = torch.cat([h[:, -1, :], h.mean(1)], -1)
             out[ft["pos"][r]] = z.float().cpu().numpy().astype(np.float16)
             if (i // bs) % 400 == 0:

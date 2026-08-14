@@ -234,7 +234,10 @@ def predict_rows(m, E, C, pos, emu, esd, cmu, csd, mode, rows, bs=16384):
 def run(trunk="PRE_A_shared", mode="fused", test_eras=SC.TEST_ERAS, tag=None):
     ft = P.load_ft()
     D, pos, C = ft["D"], ft["pos"], ft["C"]
-    E = np.asarray(P.embed_all(trunk)) if mode in ("seq", "fused") else None
+    E = (np.asarray(P.embed_all(trunk))
+         if (mode in ("seq", "fused") and trunk != "NONE") else None)
+    if mode in ("seq", "fused") and E is None:
+        raise SC.SeqTestRefusal("mode %r needs a trunk; got %r" % (mode, trunk))
     klass, cls_names = class_index(D)
     ceil = R.ceilings_of(D)
     value = D["cert_close_usd"].astype(np.float64)

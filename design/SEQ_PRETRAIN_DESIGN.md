@@ -410,3 +410,30 @@ A receipt that claims what was not run is worse than no receipt. What this pass 
 | multi-horizon `h60` / `h300` / `cpc` heads (A3) + clock and level channels (A4.1/2) + asset-balanced sampling (A4.3) + standing NDCG@3 benchmark (A4.4) | see the report's status table |
 | PRE-B full-corpus trunk | NOT RUN — the causal boundary is the honest one and the ceiling was spent on it |
 | GRPO stage 3 (A1.3) | NOT RUN — it begins after the SFT comparison, by design |
+
+---
+
+# ADDENDUM (coordinator, 2026-08-16) — RECEIPT POSTURE AND THE IR-FIELD FLOOR
+
+## The literature is cited as CONTEXT and TRUSTED AT ZERO
+
+The DeepLOB / TransLOB / LiT / LOBERT lineage in §1 is cited for *design vocabulary* —
+tokenisation shape, objective family, embedding structure — and for nothing else. **None of
+its reported results is treated as evidence about this program.** Those papers are scored on
+next-tick or few-tick mid-price benchmarks (FI-2010 and its descendants) over days-to-weeks of
+tape; our object is a walled, phase-closed position held for tens of minutes and measured in
+dollars against a $2,000/session bar. A model that wins a next-tick F1 contest has demonstrated
+nothing about that. **The pretrained stack stands or falls only on the certificates, probes and
+benchmarks in this receipt and in `provenance/port_m2/SEQTEST.md`.**
+
+## The IR-field baseline is the floor the deep stack has to beat
+
+`engine/port_m2/seqtest/st_lmart.py`. LambdaMART — xgboost `rank:ndcg` — on the committed m3
+feature matrix, groups `(asset, day, class)`, the same walk-forward whole-day folds, the same
+`m3_walk` deployable scoring, relevance grades from fixed dollar thresholds (0, >0, ≥$600,
+≥$1,000, ≥$2,000 — the D-021 ladder, not fitted). It is minutes of CPU and it is aimed at
+exactly the deficit the redirect names.
+
+The reading rule is stated before the numbers: **if listwise-on-features already moves
+`SEL_WRONG_MEMBER`, that result is deployable today with no transformer in it. If it does not,
+it is the honest floor the deep stack must clear before any of this is worth its compute.**

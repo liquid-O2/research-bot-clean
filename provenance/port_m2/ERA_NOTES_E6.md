@@ -119,3 +119,19 @@ expected move without a level or flow to go with it.
 - D-079 STATUS: teacher NOT yet at "amazing grades" (oracle capture ~15%, target-class 90% unmet) but the
   first calibrated positive blind exists; branch = ITERATE (more eras/days under D-087/D-088 as budget
   allows) + EXTRACT NOW (the 6-day transcript+outcome corpus is teaching material regardless).
+
+## ADJUDICATION CORRECTION (post-extraction, orchestrator — supersedes the first reading above)
+- SPLIT (X-2): the 22-take pool = 7 HAND seats (+$546/trade, 3.8x base) + 15 rubric seats (-$74/trade, 1.0x).
+  The +$6,284 stands but is 60% hand / 40% coin-flip. THE HAND CHANNEL IS THE TEACHER; the rubric is retired.
+- CALIBRATION RETRACTED: Brier worse than constant base pooled; the 0.20 grade INVERTED (0/7 vs 0.18's 2/7).
+  Distillable = the hand-vs-mechanical split, not probability magnitudes.
+- SEAT_LIVE (unspent>=$700 AND runway>=18000s): 2.62x on 524 episodes, p=2.9e-18, positive 6/6 days — a
+  two-field predicate matching the teacher's whole measured edge at 24x coverage. Capacity arithmetic (A1)
+  dominates again. runway<4800s = 0.04x (death). Both -> M3 features + round-2 curriculum as MEASURED FACTS.
+- FALSIFIED CUES (must not ship, and were SUPPRESSING): level_tested_held 0.88x AND INVERTED (virgin 1.67x),
+  fuel_trapped 0.85x, expanding 0.65x, one_sided_flow 1.00x. Together they suppressed the round's biggest
+  block: SI 2024-04-22 TOKYO shorts — 29 winners in 45 episodes incl. the round's 10 largest payers, ALL
+  skipped at max p=0.129 (SEAT_LIVE true on every one).
+- X-1: transcript thinking is content-stripped — D-082.2's free-reasoning premise is operationally FALSE;
+  round 2 requires WRITTEN per-episode reasoning (see spec R2-8).
+- X-6 confirms the view diagnosis: refail-chain + flow-flip were absent from DELTA_COLS.

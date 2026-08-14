@@ -86,3 +86,13 @@ R2-7 RIBBON LEGEND (user): the round briefing carries a RAW-STREAM DATA DICTIONA
      (ts_event/ts_recv/ts_in_delta) and which is authoritative, price scaling, size/depth semantics, sequence
      and gap interpretation, null sentinels. Read once per session (session-constant, cache-friendly); every
      ribbon read is interpreted against it. No raw view ships without its dictionary.
+R2-8 WRITTEN REASONING (X-1): transcripts strip thinking — the reader WRITES its reasoning per shortlisted
+     episode to a committed decision journal (thesis, what the ribbon/chart showed, the against-case) BEFORE
+     the call; blind-safe (no outcomes); this is the extraction substrate, not optional.
+R2-9 LEDGER DISCIPLINE (X-2/X-3/X-4): hand channel ONLY — the rubric is retired from takes (background
+     p for calibration study may continue but never seats); every study AND blind day commits its call ledger
+     same-day; any mid-round rubric/briefing amendment is itself committed before further calls.
+R2-10 CURRICULUM FACTS FROM ROUND 1 (evidence-graded, D-089-EXT): SEAT_LIVE 2.62x + runway-death 0.04x
+     taught as measured facts; the four FALSIFIED cues taught as falsified (esp. level_tested_held INVERTED —
+     virgin 1.67x); the SI-0422-TOKYO missed block is a worked example (29 winners suppressed by two dead
+     cues). Natural decisions in blind remain absolute (D-082).

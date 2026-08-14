@@ -333,7 +333,14 @@ def t07_retrieval_is_deterministic():
     # twice in the reference set shifts every robust scale slightly.  With the
     # E1D2 pool that shift flipped one near-tie and the test failed at HEAD
     # against a production path that was never wrong.
-    recs = [r for r in reversed(R.pool_records()) if r["cid"] != cid]
+    # R17 (closed by the fix pass): retrieve() now drops the query's own
+    # (asset, date8) UNCONDITIONALLY — CC-M2-9.4 bars within-round retrieval.
+    # The reconstruction has to reproduce THAT pool, not the older one, or it
+    # is comparing two different populations.
+    _qa, _qd8, _qs, _qsd = MC.parse_cid(cid)
+    recs = [r for r in reversed(R.pool_records())
+            if r["cid"] != cid
+            and not (str(r["asset"]) == str(_qa) and int(r["d8"]) == int(_qd8))]
     sc = R.scales(recs + [R.vector(cid, with_certs=False)])
     q = R.vector(cid, with_certs=False)
     scored = []
@@ -647,20 +654,43 @@ def t11_event_window_starts_at_the_release():
 
 # ---------------------------------------------------------------- t12 ------
 def t12_retrieval_exclude_date8_binds():
-    """MT_P12: the --exclude-date8 flag ignored.
+    """MT_P12 / MT_P12b: the two session-exclusion laws of the retrieval tool.
 
-    LAW (CC-M2-10.6 D11 + CC-M2-9.4): the flag must actually remove the named
-    sessions from the pool, AND it must run AFTER the taint guard — excluding a
-    date may never launder an untainted case into a lawful pool.
+    LAW (CC-M2-10.6 D11 + CC-M2-9.4): `--exclude-date8` must actually remove
+    the named sessions from the pool AND run AFTER the taint guard — excluding
+    a date may never launder an untainted case into a lawful pool.
+
+    LAW (R17, closed by the D-001 fix pass): the QUERY'S OWN (asset, date8) is
+    dropped UNCONDITIONALLY. `--exclude-date8` used to be the only protection
+    and it defaulted to empty, so a caller who forgot the flag retrieved
+    same-session neighbours whose S14 outcomes belong to the round in flight.
+    That default is the second mutant here.
     """
     entries = UC.read_ledger()
     cid = "SI-20210702-052509-S"           # the case the day-2 wrapper queried
+    qa, qd8, _s0, _sd0 = MC.parse_cid(cid)
     _q, base, _s, m0 = R.retrieve(cid, k=12, entries=entries)
+    # --- law 1: the query's own session is gone by default -----------------
+    own_default = sum(1 for h in base
+                      if str(h["rec"]["asset"]) == qa
+                      and int(h["rec"]["d8"]) == qd8)
+    # MUTANT MT_P12b: the pre-R17 behaviour, own session kept
+    _q, keep, _s, mk = R.retrieve(cid, k=12, entries=entries,
+                                  _mutant_keep_own_session=True)
+    own_kept = sum(1 for h in keep
+                   if str(h["rec"]["asset"]) == qa
+                   and int(h["rec"]["d8"]) == qd8)
+    # --- law 2: --exclude-date8 removes OTHER sessions ---------------------
+    other = None
+    for h in base:
+        if int(h["rec"]["d8"]) != qd8:
+            other = int(h["rec"]["d8"])
+            break
     _q, cut, _s, m1 = R.retrieve(cid, k=12, entries=entries,
-                                 exclude_date8={20210702})
-    same_day_base = sum(1 for h in base if int(h["rec"]["d8"]) == 20210702)
-    same_day_cut = sum(1 for h in cut if int(h["rec"]["d8"]) == 20210702)
-    # the guard still binds when the poisoned case's own date is excluded
+                                 exclude_date8={other})
+    hit_base = sum(1 for h in base if int(h["rec"]["d8"]) == other)
+    hit_cut = sum(1 for h in cut if int(h["rec"]["d8"]) == other)
+    # the taint guard still binds when the poisoned case's own date is excluded
     d8 = [d for d in PL.sessions("SI", years={2021}) if d >= 20211101][0]
     fr = PL.frame("SI", d8, with_certs=False)
     bad_cid = str(fr["cid"][0])
@@ -671,19 +701,23 @@ def t12_retrieval_exclude_date8_binds():
                    exclude_date8={d8})
     except R.PoolRefusal:
         laundered = True
-    armed = (same_day_base > 0 and same_day_cut == 0
+    armed = (own_default == 0 and own_kept > 0
+             and other is not None and hit_base > 0 and hit_cut == 0
              and m1["n_pool"] < m0["n_pool"] and laundered
-             and m1["excluded_date8"] == [20210702])
+             and m1["excluded_date8"] == [other])
     # MUTANT MT_P12: the flag is accepted and ignored
     _q, ign, _s, _m = R.retrieve(cid, k=12, entries=entries,
-                                 exclude_date8={20210702},
+                                 exclude_date8={other},
                                  _mutant_ignore_exclude=True)
-    mutant = (sum(1 for h in ign if int(h["rec"]["d8"]) == 20210702) == 0)
-    return check("retrieval_exclude_date8_binds", "MT_P12_exclude_ignored",
+    mutant = ((sum(1 for h in ign if int(h["rec"]["d8"]) == other) == 0)
+              or (own_kept == 0))
+    return check("retrieval_exclude_date8_binds",
+                 "MT_P12_exclude_ignored + MT_P12b_keep_own_session",
                  armed, mutant,
-                 "pool %d->%d same_day_hits %d->%d guard_still_refuses=%s"
-                 % (m0["n_pool"], m1["n_pool"], same_day_base, same_day_cut,
-                    laundered))
+                 "own_session default=%d mutant=%d; pool %d->%d; d8=%s "
+                 "hits %d->%d; guard_still_refuses=%s"
+                 % (own_default, own_kept, m0["n_pool"], m1["n_pool"], other,
+                    hit_base, hit_cut, laundered))
 
 
 # ---------------------------------------------------------------- t13/t14 --
@@ -831,39 +865,54 @@ def t16_regime_join_is_strictly_prior():
     LAW (CC-M2-14.2a + CC-M2-1.2): the leading-regime columns may only carry
     an anchor STRICTLY BEFORE the decision second.  An anchor stamped AT the
     decision second is a same-second read.
+
+    R118 note: this test used to read `forecast_{ASSET}.tsv` off disk.  That
+    artifact is QUARANTINED (it trained on the D-058 pre-exam holdout) and the
+    rebuild is blocked on R80, so the join law is exercised against a SYNTHETIC
+    anchor table injected into triage_index's own cache.  This makes the test
+    independent of the rebuild AND strictly stronger: the fixture now contains
+    an anchor stamped EXACTLY at the decision second, which no committed
+    artifact was guaranteed to contain.
     """
     import triage_index as TI
-    fc = TI.forecast_rows(RF_ASSET).get(str(RF_D8), [])
-    if len(fc) < 2:
-        return check("regime_join_is_strictly_prior",
-                     "MT_P16_join_at_or_before", False, False,
-                     "no forecast rows for %s %d" % (RF_ASSET, RF_D8))
-    ats = int(fc[1][0])                    # the second anchor's stamp
+    asset, d8 = "__FIXTURE__", 20240102
+    ats = 1_704_186_000
+    fields = {c: 0.0 for c, _src in TI.REGIME_FIELDS}
+    fixture = {str(d8): [(ats - 3600, "OPEN", dict(fields)),
+                         (ats, "LONDON_OPEN", dict(fields)),
+                         (ats + 3600, "NY_OPEN", dict(fields))]}
+    saved = TI._FCAST.get(asset)
+    TI._FCAST[asset] = fixture
+    try:
+        got = TI.regime_at(asset, d8, ats)
 
-    def mutant_join(ts):
-        best = None
-        for a, anchor, _v in fc:
-            if a <= ts:                    # MUTANT: same-second admitted
-                best = (a, anchor)
-        return best
+        def mutant_join(ts):
+            best = None
+            for a, anchor, _v in fixture[str(d8)]:
+                if a <= ts:                # MUTANT: same-second admitted
+                    best = (a, anchor)
+            return best
 
-    # THE LAW, applied to both: the joined anchor must be STRICTLY earlier.
-    def law(hit):
-        return (hit is None) or (int(hit[0]) < ats)
+        def law(hit):
+            return (hit is None) or (int(hit[0]) < ats)
 
-    got = TI.regime_at(RF_ASSET, RF_D8, ats)
-    armed = law(got)
-    mutant = law(mutant_join(ats))
-    # and every row of a real index must obey it
-    rows = [TI.parse_sheet(p) for p in
-            _sheet_paths(RF_ASSET, RF_D8, limit=30, root=E2_SHEETS)]
-    rows = [r for r in rows if r["rf_anchor_ts"] is not None]
-    armed = armed and bool(rows) and all(int(r["rf_anchor_ts"])
-                                         < int(r["dec_ts"]) for r in rows)
+        armed = law(got) and got is not None and got[1] == "OPEN"
+        mutant = law(mutant_join(ats))
+        # a decision one second later must admit the LONDON_OPEN anchor, so
+        # the guard is strictness and not blanket refusal
+        later = TI.regime_at(asset, d8, ats + 1)
+        armed = armed and later is not None and later[1] == "LONDON_OPEN"
+    finally:
+        if saved is None:
+            TI._FCAST.pop(asset, None)
+        else:
+            TI._FCAST[asset] = saved
     return check("regime_join_is_strictly_prior", "MT_P16_join_at_or_before",
                  bool(armed), bool(mutant),
-                 "anchor_ts=%d joined=%s rows_checked=%d"
-                 % (ats, got[1] if got else "none", len(rows)))
+                 "anchor_ts=%d joined=%s (mutant joins %s); +1s joins %s"
+                 % (ats, got[1] if got else "none",
+                    mutant_join(ats)[1] if mutant_join(ats) else "none",
+                    later[1] if later else "none"))
 
 
 def t17_s10_developing_row_is_the_one_parsed():
@@ -905,6 +954,199 @@ def t17_s10_developing_row_is_the_one_parsed():
                  "sheets_checked=%d" % checked)
 
 
+
+
+# =================================== THE D-001 FIX-PASS MUTANTS =============
+def t18_spread_ratio_is_normalised_by_a_prior_year():
+    """R119 — retrieval axis B08 must not be divided by its OWN year's median.
+
+    `CA.phase_median_spreads` returns (asset, YEAR, phase) -> the pooled median
+    over ALL sessions of that year with split == "all" — including the decision
+    day and every day after it.  A decision on 2021-01-05 was divided by the
+    median spread of all of 2021.  This is a V1 FRAME_FIELDS entry hashed into
+    the committed PARAMS_FRAME AND it is LIVE retrieval axis B08, rendered to
+    the reader.
+    """
+    import c_a_cost as CA                 # noqa: E402
+    import census_common as X             # noqa: E402
+    ds, _nq = PL.sessions_fit("HG", years={2022})
+    d8 = ds[10]
+    f = PL.frame("HG", int(d8), with_certs=False, with_levels=False)
+    med = CA.phase_median_spreads(MC.M2_ROOT.replace("m2", "m0")
+                                  if False else PL.MC.M0_ROOT)
+    yr = int(d8) // 10000
+    armed = True
+    n = min(40, int(f["n"]))
+    for t in range(n):
+        ph = X.PHASE_NAMES[int(f["phase_dec"][t])]
+        basis = int(f["spread_ratio_basis_year"][t])
+        prior = med.get(("HG", yr - 1, ph), float("nan"))
+        own = med.get(("HG", yr, ph), float("nan"))
+        if basis < 0:
+            armed &= not np.isfinite(float(f["spread_ratio"][t]))
+            continue
+        armed &= (basis == yr - 1)
+        want = float(f["spread_dec_usd"][t]) / prior
+        armed &= abs(float(f["spread_ratio"][t]) - want) < 1e-9
+    # MUTANT: the OWN-YEAR normaliser this file used to carry.  The fixture
+    # must be DISCRIMINATING — a (asset, year, phase) whose own-year median
+    # actually differs from the prior year's — or the mutant would survive for
+    # arithmetic reasons rather than because the guard is dead.
+    t0, own0, prior0 = None, float("nan"), float("nan")
+    for aa in ("HG", "SI", "NKD"):
+        dsa, _nqa = PL.sessions_fit(aa, years={2022, 2023, 2024})
+        for dd in dsa[::40]:
+            ff = PL.frame(aa, int(dd), with_certs=False, with_levels=False)
+            yy = int(dd) // 10000
+            for tt in range(int(ff["n"])):
+                pp = X.PHASE_NAMES[int(ff["phase_dec"][tt])]
+                o = med.get((aa, yy, pp), float("nan"))
+                q = med.get((aa, yy - 1, pp), float("nan"))
+                if (np.isfinite(o) and np.isfinite(q) and o > 0 and q > 0
+                        and abs(o - q) > 1e-9):
+                    t0, own0, prior0 = (aa, int(dd), tt, ff), o, q
+                    break
+            if t0 is not None:
+                break
+        if t0 is not None:
+            break
+    armed &= t0 is not None
+    mutant_ok = True
+    if t0 is not None:
+        _aa, _dd, tt, ff = t0
+        sd = float(ff["spread_dec_usd"][tt])
+        mut = sd / own0
+        shipped = float(ff["spread_ratio"][tt])
+        armed &= abs(shipped - sd / prior0) < 1e-9
+        mutant_ok = abs(mut - shipped) < 1e-9
+    else:
+        mut = float("nan")
+    # and the FIRST year of the tape must REFUSE rather than back-fill
+    ds21, _n21 = PL.sessions_fit("HG", years={2021})
+    f21 = PL.frame("HG", int(ds21[0]), with_certs=False, with_levels=False)
+    armed &= bool(np.all(f21["spread_ratio_basis_year"] < 0))
+    armed &= bool(np.all(~np.isfinite(f21["spread_ratio"])))
+    return check("spread_ratio_is_normalised_by_a_prior_year",
+                 "MT_R119_normalise_B08_by_the_decisions_own_calendar_year",
+                 armed, mutant_ok,
+                 "discriminating fixture=%s prior_med=%.4f own_med=%.4f "
+                 "own_year_mutant=%.4f; 2021 refuses=%s"
+                 % ("%s %d row %d" % (t0[0], t0[1], t0[2]) if t0 else "NONE",
+                    prior0, own0, mut,
+                    bool(np.all(f21["spread_ratio_basis_year"] < 0))))
+
+
+def t19_phase_open_mid_refuses_on_a_blind_phase():
+    """R120 — phase_open_mid must carry the `have_ph` guard.
+
+    `j_ph` is the first SANE second AT OR AFTER the phase start, so on any
+    candidate whose phase has no SANE tick BEFORE dec_sec the emitted mid is a
+    mid FROM THE FUTURE.  The guard exists three lines of logic away (`:745`
+    already NaNs phase_hi/phase_lo with it) and was simply not applied.
+    """
+    import census_common as X             # noqa: E402
+    import assemble as AS                 # noqa: E402
+    hits = 0
+    armed = True
+    mut_leaks = False
+    for asset in ("NKD", "HG", "SI"):
+        ds, _nq = PL.sessions_fit(asset, years={2021, 2022})
+        for d8 in ds[:60]:
+            f = PL.frame(asset, int(d8), with_certs=False, with_levels=False)
+            blind = ~np.isfinite(f["phase_hi"])     # have_ph is False here
+            if not blind.any():
+                continue
+            hits += int(blind.sum())
+            # the LAW: a blind row's phase_open_mid REFUSES
+            armed &= bool(np.all(~np.isfinite(f["phase_open_mid"][blind])))
+            # the MUTANT: the unguarded emit.  It produces a FINITE mid on at
+            # least one blind row — that is the leak, and it must differ.
+            s = AS.load_session(asset, int(d8))["s"]
+            vt, vm = s.vt, s.vm.astype(np.float64)
+            segs = PL._phase_segments(s)
+            seg_start = np.array([g[1] for g in segs], dtype=np.int64)
+            dec = f["dec_sec"].astype(np.int64)
+            k = np.clip(np.searchsorted(seg_start, dec, side="right") - 1,
+                        0, seg_start.size - 1)
+            j_ph = np.searchsorted(vt, seg_start[k], side="left")
+            mut = np.where(j_ph < vm.size,
+                           vm[np.minimum(j_ph, max(vm.size - 1, 0))], np.nan)
+            if np.isfinite(mut[blind]).any():
+                # the unguarded emit produces a POST-DECISION mid on a row the
+                # code already knows is blind -> the mutant FAILS the law,
+                # which is what a live test looks like
+                mut_leaks = True
+            if hits > 200:
+                break
+        if hits > 200:
+            break
+    armed &= (hits > 0)
+    # a mutant that PASSES the law is a dead mutant; this one leaks, so it
+    # fails the law and the test is live
+    mutant_ok = not mut_leaks
+    return check("phase_open_mid_refuses_on_a_blind_phase",
+                 "MT_R120_emit_vm[j_ph]_without_the_have_ph_guard",
+                 armed, mutant_ok,
+                 "blind rows found=%d; unguarded mutant emits a finite "
+                 "post-decision mid=%s" % (hits, mut_leaks))
+
+
+def t20_uncomputable_certificate_is_a_refusal_not_a_loser():
+    """R122 — `NaN >= 1000.0` is False, so a candidate whose certificate could
+    not be computed was scored a MEASURED LOSER.  It must be a REFUSAL."""
+    nan = float("nan")
+    cert = np.array([2000.0, 500.0, nan, 1200.0])
+    mae = np.array([10.0, 20.0, 30.0, nan])
+    walled = np.array([False, False, False, False])
+    refused = ~(np.isfinite(cert) & np.isfinite(mae))
+    winner = (np.isfinite(cert) & np.isfinite(mae)
+              & (cert >= 1000.0) & (mae <= 300.0) & (~walled))
+    # MUTANT: the predicate this file used to carry
+    mut_winner = (cert >= 1000.0) & (mae <= 300.0) & (~walled)
+    armed = (refused.tolist() == [False, False, True, True]
+             and winner.tolist() == [True, False, False, False])
+    # the two agree on the VALUES; the defect is that the mutant cannot tell a
+    # refusal from a measured loss, so the refusal flag has to exist
+    mutant_ok = np.array_equal(winner, mut_winner) and not refused.any()
+    # and the shipped frame must publish it
+    ds, _nq = PL.sessions_fit("HG", years={2021})
+    f = PL.frame("HG", int(ds[0]), with_levels=False)
+    armed &= ("cert_refused" in f) and ("n_cert_refused" in f)
+    armed &= bool(np.all(f["winner"][f["cert_refused"]] == False))
+    return check("uncomputable_certificate_is_a_refusal_not_a_loser",
+                 "MT_R122_winner_without_the_isfinite_guard_and_no_flag",
+                 armed, bool(mutant_ok),
+                 "refused=%s winner=%s mutant_winner=%s"
+                 % (refused.tolist(), winner.tolist(), mut_winner.tolist()))
+
+
+def t21_runway_binding_degeneration_is_flagged():
+    """R110 (related) — when the m0 receipt carries no `last_two_sided_sec`,
+    `runway_binding_sec` falls back to the NOMINAL runway.  That degenerates
+    P025's reading B into reading A, and it used to happen with no flag, no
+    counter and no receipt field: an undeclared pass-on-refused selector."""
+    import assemble as AS                 # noqa: E402
+    ds, _nq = PL.sessions_fit("HG", years={2021})
+    f = PL.frame("HG", int(ds[0]), with_certs=False, with_levels=False)
+    armed = "runway_binding_refused" in f
+    s = AS.load_session("HG", int(ds[0]))["s"]
+    obs = int(s.meta.get("last_two_sided_sec", -1))
+    armed &= bool(np.all(f["runway_binding_refused"] == (obs < 0)))
+    # where the flag is TRUE, reading B is IDENTICAL to reading A — which is
+    # exactly the silent degeneration, now visible
+    deg = f["runway_binding_refused"]
+    if deg.any():
+        armed &= bool(np.all(f["runway_binding_sec"][deg]
+                             == f["runway_phase_sec"][deg]))
+    # MUTANT: no flag at all -> the two readings are indistinguishable
+    mutant_ok = "runway_binding_refused" not in PL.FRAME_FIELDS_V2
+    return check("runway_binding_degeneration_is_flagged",
+                 "MT_R110_silent_fallback_to_the_nominal_runway",
+                 armed, mutant_ok,
+                 "observed_close=%d flagged=%d/%d"
+                 % (obs, int(deg.sum()), int(deg.size)))
+
+
 TESTS = (t01_frame_matches_the_renderer, t02_pivot_chain_is_causal,
          t03_coverage_boundary_is_inclusive, t04_extreme_age_is_causal,
          t05_retrieval_refuses_untainted_pool, t06_retrieval_scaling_binds,
@@ -918,7 +1160,11 @@ TESTS = (t01_frame_matches_the_renderer, t02_pivot_chain_is_causal,
          t14_as_of_masks_the_observed_close,
          t15_compat_view_keeps_frozen_consumers_alive,
          t16_regime_join_is_strictly_prior,
-         t17_s10_developing_row_is_the_one_parsed)
+         t17_s10_developing_row_is_the_one_parsed,
+         t18_spread_ratio_is_normalised_by_a_prior_year,
+         t19_phase_open_mid_refuses_on_a_blind_phase,
+         t20_uncomputable_certificate_is_a_refusal_not_a_loser,
+         t21_runway_binding_degeneration_is_flagged)
 
 
 def main():

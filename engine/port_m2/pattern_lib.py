@@ -133,7 +133,30 @@ FRAME_FIELDS = {
     "rv_ratio": "rv1800_usd / rv60_usd (the P013 candidate marker)",
     "spread_dec_usd": "roster spread_at_decision",
     "spread_ratio": "spread_dec_usd / phase-median spread (c_a_cost, per "
-                    "asset x year x phase) — the P005 'spread tax' state",
+                    "asset x phase) of the STRICTLY PRIOR calendar year — the "
+                    "P005 'spread tax' state.  R119: the normaliser used to be "
+                    "the decision's OWN calendar-year pooled median, which "
+                    "includes the decision day and every day after it; that is "
+                    "a forward statistic on a reader-facing retrieval axis "
+                    "(B08).  NaN = REFUSED (no prior year on this asset's "
+                    "tape); see spread_ratio_basis_year.",
+    "spread_ratio_basis_year": "the calendar year whose pooled phase-median "
+                               "spread normalised spread_ratio (always the "
+                               "year BEFORE the decision); -1 = REFUSED",
+    "cert_refused": "the walled certificate or the MAE could not be computed "
+                    "for this candidate.  R122: `NaN >= 1000` is False, so "
+                    "such a row used to be scored a MEASURED LOSER and counted "
+                    "in every winner-rate denominator.  `winner` is now False "
+                    "AND this flag is True, so a consumer can drop the row "
+                    "from BOTH halves of a rate instead of biasing it low.",
+    "phase_seg_end_is_session_end": "the running phase SEGMENT's end is the "
+                                    "session's realised end (s.n), so any "
+                                    "quantity divided by the segment length "
+                                    "(runway_frac, retrieval axis B05) or "
+                                    "defined over the whole segment "
+                                    "(sched_release_in_phase) inherits an "
+                                    "END-OF-SESSION fact on this row.  "
+                                    "Declared, not silent.",
     "atr_usd": "roster atr14_usd (ATR14_prev)",
     "level_dist_atr": "|nearest KEPT-family level price - entry_mid| / ATR, "
                       "over levels alive at dec_sec (V1.1 birth guard) and "
@@ -217,7 +240,16 @@ FRAME_FIELDS_V2 = {
     "runway_binding_sec": "min(runway_phase_sec, max(0, observed_close_sec - "
                           "dec_sec)) — the D15-corrected runway to the "
                           "BINDING exit (P025 reading B).  On a full session "
-                          "it equals runway_phase_sec.",
+                          "it equals runway_phase_sec.  NOT CAUSAL: it is "
+                          "built from an end-of-session fact and is therefore "
+                          "a DIAGNOSTIC ONLY — R108 makes it ineligible for "
+                          "promotion to an entry rule.",
+    "runway_binding_refused": "the m0 receipt carried no last_two_sided_sec, "
+                              "so runway_binding_sec DEGENERATED to the "
+                              "nominal runway.  R110: this used to be a silent "
+                              "pass-on-refused selector — reading B_observed "
+                              "quietly became reading A_nominal on those "
+                              "sessions with no flag and no counter.",
     "n_conf_fam_at_refail": "with_levels only: number of DISTINCT KEPT level "
                             "families whose level price is within 1 tick of "
                             "refail_px and whose level was BORN strictly "
@@ -328,6 +360,19 @@ PARAMS_FRAME = {
                     "itself is SCHEDULE_EXEMPT under D-057 because the dates "
                     "are published months ahead. The window NEVER spans the "
                     "release second: it starts AT it.",
+    "fix_pass_D001": "R119 spread_ratio is normalised by the STRICTLY PRIOR "
+                     "calendar year (was: the decision's own year, a forward "
+                     "statistic on live retrieval axis B08); R120 "
+                     "phase_open_mid carries the have_ph guard so it can no "
+                     "longer emit a post-decision mid; R122 cert_refused makes "
+                     "an uncomputable certificate a REFUSAL rather than a "
+                     "measured loser, and the per-session cost fallback is "
+                     "counted (cost_fallback); R110 runway_binding_refused "
+                     "names the silent degeneration of reading B into reading "
+                     "A; the ATR broadcast refuses instead of propagating a "
+                     "sentinel.  These change the DEFINITION of committed "
+                     "fields, so PARAMS_FRAME moves and every consumer's "
+                     "params_hash moves with it — which is the point.",
 }
 
 
@@ -896,7 +941,18 @@ def frame(asset, d8, with_levels=False, with_certs=True, with_v3=False):
     fev_s = np.where(in_phase, c_s[b_hi] - c_s[b_ev], 0)
 
     # --- pivots ------------------------------------------------------------
-    atr = float(r["atr14_usd"][sel[0]])
+    # MINOR (3.2c): `atr` was taken from ONE arbitrary roster row with no
+    # finite/positive guard and broadcast to every candidate, so a zero or NaN
+    # ATR propagated silently into band_px and the /atr level distance as
+    # inf/NaN.  Take the median over the session's rows and REFUSE loudly.
+    _atr_col = r["atr14_usd"][sel].astype(np.float64)
+    _atr_ok = np.isfinite(_atr_col) & (_atr_col > 0)
+    if not _atr_ok.any():
+        raise RuntimeError("pattern_lib: %s %d has no finite positive ATR14 on "
+                           "any of its %d roster rows — refusing rather than "
+                           "broadcasting a sentinel" % (asset, d8, sel.size))
+    atr = float(np.median(_atr_col[_atr_ok]))
+    n_atr_refused = int((~_atr_ok).sum())
     psec, ppx, pside, pconf = _pivot_chain(asset, s, trade_date, atr,
                                            float(spec["tick_px"]),
                                            float(spec["tick_usd"]), mult)
@@ -921,6 +977,10 @@ def frame(asset, d8, with_levels=False, with_certs=True, with_v3=False):
     # --- certificates (c_c_roster, verbatim) -------------------------------
     wall = float(A.walls()[asset]["wall_usd"])
     cost = A.cost_map().get((asset, iso), float("nan"))
+    # R122/R23: the per-session cost fallback was silent.  It feeds cert_close
+    # -> winner -> the D-021 menu target, so it is COUNTED and carried on the
+    # frame; every consumer stamps it into its receipt.
+    cost_fallback = int(not np.isfinite(cost))
     if not np.isfinite(cost):
         cost = C.FEES_RT
     cert_close = np.full(sel.size, np.nan)
@@ -939,13 +999,25 @@ def frame(asset, d8, with_levels=False, with_certs=True, with_v3=False):
             walled[t] = CC._skel_query(r, i, wall)[3]
 
     # --- spread state ------------------------------------------------------
+    # R119: this normaliser used to be the PRIOR-FREE `trade_date.year` pooled
+    # median — the median over ALL sessions of the decision's OWN calendar year,
+    # including the decision day and every day after it.  spread_ratio is a V1
+    # FRAME_FIELDS entry and LIVE retrieval axis B08, rendered to the reader, so
+    # that was a forward statistic on a reader-facing distance axis.  The basis
+    # is now the STRICTLY PRIOR calendar year.  Where no prior year exists (the
+    # first year of an asset's tape) the axis REFUSES — a named refusal with a
+    # basis-year column, never a silent back-fill from the future.
     phase_med = CA.phase_median_spreads(MC.M0_ROOT)
-    med = np.array([phase_med.get((asset, trade_date.year,
+    basis_year = int(trade_date.year) - 1
+    med = np.array([phase_med.get((asset, basis_year,
                                    X.PHASE_NAMES[int(p)]), float("nan"))
                     for p in phase_dec])
     spread = r["spread_at_decision"][sel][order].astype(np.float64)
     with np.errstate(invalid="ignore", divide="ignore"):
-        spread_ratio = np.where(med > 0, spread / med, np.nan)
+        spread_ratio = np.where(np.isfinite(med) & (med > 0),
+                                spread / med, np.nan)
+    spread_basis_year = np.where(np.isfinite(med) & (med > 0),
+                                 basis_year, -1).astype(np.int64)
 
     entry_mid = r["entry_mid"][sel][order].astype(np.float64)
     lvl = np.full(dec_s.size, np.nan)
@@ -1019,14 +1091,36 @@ def frame(asset, d8, with_levels=False, with_certs=True, with_v3=False):
         "rv_ratio": un(rv_ratio),
         "spread_dec_usd": r["spread_at_decision"][sel].astype(np.float64),
         "spread_ratio": un(spread_ratio),
+        "spread_ratio_basis_year": un(spread_basis_year),
         "atr_usd": np.full(sel.size, atr),
         "level_dist_atr": un(lvl),
         "cert_close_usd": cert_close, "cert_peak_usd": cert_peak,
         "walled": walled, "mae_before_argmax": mae,
-        "winner": (cert_close >= 1000.0) & (mae <= 300.0) & (~walled),
+        # R122: `NaN >= 1000.0` is False, so a candidate whose certificate could
+        # not be computed used to be scored a MEASURED LOSER and counted in
+        # every winner-rate DENOMINATOR.  The refusal is now a VALUE:
+        # `cert_refused` names it and every consumer excludes those rows from
+        # both halves of a rate rather than silently biasing it low.
+        "cert_refused": ~(np.isfinite(cert_close) & np.isfinite(mae)),
+        "winner": (np.isfinite(cert_close) & np.isfinite(mae)
+                   & (cert_close >= 1000.0) & (mae <= 300.0) & (~walled)),
         "range_phase_usd": un(range_phase), "range_sess_usd": un(range_sess),
         "exp_move_q50_phase_usd": un(q50_p),
     }
+    # Declared session-level refusal counters (D-006/D22): a refusal is a value
+    # that is COUNTED and NAMED, so every census can stamp these into a receipt
+    # instead of publishing a rate whose denominator hides them.
+    f["cost_fallback"] = int(cost_fallback)
+    f["n_atr_refused"] = int(n_atr_refused)
+    f["n_cert_refused"] = int(f["cert_refused"].sum())
+    f["n_spread_ratio_refused"] = int((spread_basis_year < 0).sum())
+    # MINOR (3.2c): the LAST phase segment's end is `s.n` — the session's
+    # realised length — so `runway_frac` and `sched_release_in_phase` inherit an
+    # end-of-session fact on exactly those rows.  Declared per row rather than
+    # left silent; consumers that need a strictly-causal denominator refuse on
+    # this flag.
+    f["phase_seg_end_is_session_end"] = un(ph_end >= int(s.n))
+
     # --- the V2 block (CC-M2-12 batch 3), documented in FRAME_FIELDS_V2 -----
     obs_close = int(s.meta.get("last_two_sided_sec", -1))
     f["tick_usd"] = np.full(sel.size, float(spec["tick_usd"]))
@@ -1039,13 +1133,23 @@ def frame(asset, d8, with_levels=False, with_certs=True, with_v3=False):
     obs_runway = (np.maximum(obs_close - dec, 0) if obs_close >= 0
                   else (phase_close - dec))
     f["runway_binding_sec"] = np.minimum(phase_close - dec, obs_runway)
+    # R110 (related): when the m0 receipt carries no `last_two_sided_sec` this
+    # used to fall back SILENTLY to the nominal runway, so reading B_observed
+    # degenerated into reading A_nominal with no flag, no counter and no receipt
+    # field.  The degeneracy is now a VALUE on every row.
+    f["runway_binding_refused"] = np.full(sel.size, obs_close < 0, dtype=bool)
     f["n_conf_fam_at_refail"] = un(conf_fam)
     f["n_conf_fam_at_refail_2t"] = un(conf_fam2)
     # --- the V2b block (CC-M2-13.3 session-side probe) ----------------------
     f["exit_close_sec"] = exit_close
     f["exit_peak_sec"] = exit_peak
     f["sess_open_mid"] = np.full(sel.size, float(vm[0]) if vm.size else np.nan)
-    f["phase_open_mid"] = un(np.where(j_ph < vm.size,
+    # R120: `j_ph` is the first SANE second AT OR AFTER the phase start, so on a
+    # candidate whose phase has no SANE tick BEFORE dec_sec this emitted a mid
+    # from the FUTURE.  `have_ph` is the guard the code already computes three
+    # lines of logic away (:745) and correctly applies to phase_hi/phase_lo; it
+    # is applied here too.  A blind row REFUSES (NaN), never back-fills.
+    f["phase_open_mid"] = un(np.where(have_ph & (j_ph < vm.size),
                                       vm[np.minimum(j_ph, max(vm.size - 1, 0))],
                                       np.nan))
     if not with_v3:

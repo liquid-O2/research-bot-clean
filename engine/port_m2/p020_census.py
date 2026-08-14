@@ -171,6 +171,44 @@ PARAMS = {
                "the adoption metric) vs WINNER CONCENTRATOR (>= %.2fx winner "
                "rate or conditional value with no adoption edge -> feature "
                "candidate set only) vs NULL" % CONCENTRATOR_MIN,
+    "holdout": "D-058 — the population comes from pattern_lib.sessions_fit, "
+               "which EXCLUDES every session >= %d and returns the excluded "
+               "count for the receipt (R105). The GATE echo is a HALF year and "
+               "is named GATE_%dH1." % (MC.HOLDOUT_FROM_D8, GATE_YEAR),
+    "promotion": "R106 — WINNER CONCENTRATOR requires the ratio to clear "
+                 "%.2fx AND a session-clustered bootstrap interval excluding "
+                 "1.0 AND Holm significance in the PROMOTION family AND the "
+                 "n floors (%d fires over %d sessions). The bare ratio it "
+                 "replaces was the only route into the feature-candidate set."
+                 % (CONCENTRATOR_MIN, P1.PROMOTE_MIN_FIRES,
+                    P1.PROMOTE_MIN_CLUSTERS),
+    "mirror_law": "R112 — P021's BREAKOUT-vs-REVERSION claim (both readings, "
+                  "flagged and unflagged) and P022's ALIGNED-vs-OPPOSED pair "
+                  "are compared WITHIN each session against their sign-flipped "
+                  "twins and decided by m2_common.mirror_paired "
+                  "(BATCH2_MIRROR.tsv)",
+    "ext_saturation": "R111 — pattern_lib clips ext_needed at zero, so every "
+                      "candidate whose extreme already offers >= $1,000 of "
+                      "reach collapsed to ext == 0 and was classified "
+                      "REVERSION. Those rows now sit in their own "
+                      "EXT_SATURATED bucket, are EXCLUDED from the DiD "
+                      "contrast, and their fraction is in the receipt.",
+    "destruction_seed_use": "R116 — DESTRUCTION_SEED %d is PASSED to "
+                            "P1.destruction_rows and is the seed actually "
+                            "used; the stream is additionally keyed on the "
+                            "READING, so p020's three patterns no longer draw "
+                            "byte-identical permutations from each other, from "
+                            "p001's arms, or from p025's nine readings"
+                            % DESTRUCTION_SEED,
+    "in_sample": "R114 — SURPRISE_MIN 0.99, DAY_TYPE_EXPANDED and "
+                 "RELEASE_MAX_AGE_SEC come from the PATTERN_LEDGER "
+                 "sheet_fields written off E1 study days 1/2/3, all inside "
+                 "FIT; EXT_BREAKOUT_MIN_USD is e1d1_policy T3's own $450. "
+                 "Every table carries FIT_EX_FITTING beside FIT and the "
+                 "named-case table is a REPRODUCTION CHECK, not evidence. "
+                 "None of these constants carries a sensitivity sweep.",
+    "inference_floors": "R113 — no GEE below %d clusters; t(G-1) reference"
+                        % P1.MIN_CLUSTERS_GEE,
     "frame": PL.PARAMS_FRAME,
 }
 
@@ -291,12 +329,15 @@ def scan(assets=MC.ASSET_ORDER, years=FIT_YEARS + (GATE_YEAR,), workers=4,
                     MC.hb("batch2 scan %d/%d  %.1fs" % (n, len(jobs),
                                                         time.time() - t0))
     else:
-        for j in jobs:
+        for n, j in enumerate(jobs, 1):
             res = _one(j)
             if res[0] == "OK":
                 parts.append(res[1])
             elif res[0] == "ERROR":
                 errs.append((res[1], res[2], res[3]))
+            if n % 250 == 0:               # MINOR: the serial path had none
+                MC.hb("batch2 scan %d/%d  %.1fs" % (n, len(jobs),
+                                                    time.time() - t0))
     if errs:
         raise RuntimeError("batch2 scan: %d session(s) failed, first=%s"
                            % (len(errs), errs[0]))
@@ -313,6 +354,8 @@ def scan(assets=MC.ASSET_ORDER, years=FIT_YEARS + (GATE_YEAR,), workers=4,
                      zip(out["asset"].tolist(), out["d8"].tolist())])
     uniq, out["cluster"] = np.unique(keys, return_inverse=True)
     out["n_sessions_total"] = int(uniq.size)
+    # R105: the D-058 quarantine, declared as a COUNT rather than an absence.
+    out["n_quarantined_holdout"] = int(quarantined)
     MC.hb("batch2 scan: %d candidates over %d sessions, %.1fs"
           % (out["dec_sec"].size, uniq.size, time.time() - t0))
     return out
@@ -336,9 +379,7 @@ def concentration_rows(D):
     demanded, written as one number.
     """
     rows = []
-    era_sel = [("FIT", np.isin(D["year"], FIT_YEARS)),
-               ("GATE_%d" % GATE_YEAR, D["year"] == GATE_YEAR)]
-    era_sel += [(str(y), D["year"] == y) for y in FIT_YEARS]
+    era_sel = P1.era_selectors(D)
     assets = [("ALL", np.ones(D["winner"].size, dtype=bool))]
     assets += [(a, D["asset"] == a) for a in MC.ASSET_ORDER]
     strata = [("ALL", [("ALL", np.ones(D["winner"].size, dtype=bool))]),
@@ -361,6 +402,10 @@ def concentration_rows(D):
                         n = int(m.sum())
                         if not n:
                             continue
+                        # MINOR (3.2b): n_sessions used to be computed on the
+                        # STRATUM and reported on every cell inside it, so the
+                        # column did not describe its own row.
+                        nsess = len(set(D["cluster"][m].tolist()))
                         w = int(D["winner"][m].sum())
                         cs = float(n) / nb
                         ws = (float(w) / wb) if wb else float("nan")
@@ -386,24 +431,83 @@ INTER_COLUMNS = ("reading", "asset", "era", "flag", "direction", "n",
 DIRECTION_READINGS = ("A_extension_side", "B_ext_needed")
 
 
+def reach_usd(D):
+    """Dollars of reach the phase extreme already offers, recovered from
+    `ext_needed_usd` — and `ext_saturated`, the rows where the recovery FAILS.
+
+    R111: `pattern_lib` clips `ext_needed = max(0, 1000 - reach)` at zero
+    (`:977-978`).  On every candidate whose extreme ALREADY offers >= $1,000 of
+    reach the clip BINDS, ext collapses to exactly 0.0, and the true reach is
+    unrecoverable — it could be $1,000 or $10,000.  Reading B then classified
+    all of them REVERSION (`ext <= $450`) and `np.isfinite` waved them through,
+    so the DiD tested its breakout claim with the most extended candidates in
+    the population sitting in the opposite arm, indistinguishable from
+    candidates whose extreme offers $600.
+
+    The clip is upstream and load-bearing for other consumers, so it is not
+    unclipped here.  Instead the saturated rows are IDENTIFIED and given their
+    own bucket: they carry no usable reading-B contrast and are excluded from
+    the DiD rather than folded into REVERSION.  The count is published.
+    """
+    ext = D["ext_needed_usd"].astype(np.float64)
+    fin = np.isfinite(ext)
+    saturated = fin & (ext <= 0.0)
+    return np.where(fin, 1000.0 - ext, np.nan), saturated
+
+
+REACH_BREAKOUT_MAX_USD = 1000.0 - EXT_BREAKOUT_MIN_USD   # $550 of reach
+
+
 def breakout_masks(D, reading):
-    """(breakout, reversion) boolean masks for one direction reading."""
+    """(breakout, reversion) boolean masks for one direction reading.
+
+    Reading B's third state — EXT_SATURATED — is neither, so it falls into the
+    `~(brk | rev)` bucket that `did_rows` already drops from the contrast and
+    `interaction_rows` already reports separately (R111).
+    """
     if reading == "A_extension_side":
         es = D["ext_side"]
         return (es != 0) & (D["side"] == es), (es != 0) & (D["side"] == -es)
-    ext = D["ext_needed_usd"]
-    ok = np.isfinite(ext)
-    return ok & (ext > EXT_BREAKOUT_MIN_USD), ok & (ext <= EXT_BREAKOUT_MIN_USD)
+    reach, sat = reach_usd(D)
+    ok = np.isfinite(reach) & ~sat
+    return (ok & (reach < REACH_BREAKOUT_MAX_USD),
+            ok & (reach >= REACH_BREAKOUT_MAX_USD))
+
+
+def ext_saturated(D):
+    _reach, sat = reach_usd(D)
+    return sat
+
+
+def clip_binding_frac(D):
+    """(fraction of finite-ext candidates on which the zero-clip BINDS, n).
+
+    R111's blast radius as a number in the receipt rather than an assertion in
+    a comment."""
+    ext = D["ext_needed_usd"].astype(np.float64)
+    fin = np.isfinite(ext)
+    return (float((ext[fin] <= 0.0).mean()) if fin.any() else float("nan"),
+            int(fin.sum()))
 
 
 def interaction_rows(D, flag):
     rows = []
-    era_sel = [("FIT", np.isin(D["year"], FIT_YEARS)),
-               ("GATE_%d" % GATE_YEAR, D["year"] == GATE_YEAR)]
+    era_sel = [(n, e) for n, e in P1.era_selectors(D)
+               if n in ("FIT", "FIT_EX_FITTING", "GATE_%dH1" % GATE_YEAR)]
     assets = [("ALL", np.ones(flag.size, dtype=bool))]
     assets += [(a, D["asset"] == a) for a in MC.ASSET_ORDER]
+    sat = ext_saturated(D)
     for reading in DIRECTION_READINGS:
         brk, rev = breakout_masks(D, reading)
+        # R111: the reading-B rows on which pattern_lib's zero-clip BINDS get
+        # their own bucket instead of being folded into REVERSION.
+        if reading == "B_ext_needed":
+            buckets = (("BREAKOUT", brk), ("REVERSION", rev),
+                       ("EXT_SATURATED", sat),
+                       ("NO_DIRECTION", ~(brk | rev | sat)))
+        else:
+            buckets = (("BREAKOUT", brk), ("REVERSION", rev),
+                       ("NO_DIRECTION", ~(brk | rev)))
         for aname, asel in assets:
             for ename, esel in era_sel:
                 base = asel & esel
@@ -411,11 +515,11 @@ def interaction_rows(D, flag):
                     continue
                 nsess = len(set(D["cluster"][base].tolist()))
                 for fname, fsel in (("FLAGGED", flag), ("UNFLAGGED", ~flag)):
-                    for dname, dsel in (("BREAKOUT", brk), ("REVERSION", rev),
-                                        ("NO_DIRECTION", ~(brk | rev))):
+                    for dname, dsel in buckets:
                         m = base & fsel & dsel
                         if not m.any():
                             continue
+                        nsess = len(set(D["cluster"][m].tolist()))
                         st = P1._stats(D["cert_close"][m], D["cert_peak"][m],
                                        D["winner"][m], nsess)
                         rows.append([reading, aname, ename, fname, dname,
@@ -503,8 +607,8 @@ def p022_direction_rows(D, flag):
     accumulated since the release rather than since the phase open.
     """
     rows = []
-    era_sel = [("FIT", np.isin(D["year"], FIT_YEARS)),
-               ("GATE_%d" % GATE_YEAR, D["year"] == GATE_YEAR)]
+    era_sel = [(n, e) for n, e in P1.era_selectors(D)
+               if n in ("FIT", "FIT_EX_FITTING", "GATE_%dH1" % GATE_YEAR)]
     assets = [("ALL", np.ones(flag.size, dtype=bool))]
     assets += [(a, D["asset"] == a) for a in MC.ASSET_ORDER]
     side = D["side"].astype(np.float64)
@@ -530,6 +634,7 @@ def p022_direction_rows(D, flag):
                         m = base & amask & ssel
                         if not m.any():
                             continue
+                        nsess = len(set(D["cluster"][m].tolist()))
                         st = P1._stats(D["cert_close"][m], D["cert_peak"][m],
                                        D["winner"][m], nsess)
                         rows.append([wname, aname, ename, alab, sname,
@@ -540,9 +645,65 @@ def p022_direction_rows(D, flag):
     return rows
 
 
+# ------------------------------------------------------------ mirror law ----
+RATIO_BOOT_SEED = 20260902                # distinct from p001's and p025's
+
+
+def mirror_rows_batch2(D, flag21, flag22, rows):
+    """R112 — the two DIRECTION claims in this batch, each against its own
+    SIGN-FLIPPED twin, compared WITHIN each session.
+
+    Neither had a mirror arm.  P021's claim ("on EXPANSION-flagged candidates
+    BREAKOUT beats REVERSION; on unflagged candidates the ordering reverses")
+    was tested by a POOLED difference-in-differences with no per-session
+    component and no sign test.  P022's `p022_direction_rows` compares ALIGNED
+    against OPPOSED — a mirror pair BY CONSTRUCTION — on pooled means only, so
+    the one table in the file that already held a mirror never ran the test.
+
+    Both are now paired on the session and decided by `m2_common.mirror_paired`,
+    which refuses (NO_TEST) below its power floor instead of scoring an
+    unpowered cell as a negative.
+    """
+    for reading in DIRECTION_READINGS:
+        brk, rev = breakout_masks(D, reading)
+        # the claim INSIDE the flagged pool: breakout beats reversion
+        P1.mirror_rows(D, flag21 & brk, flag21 & rev,
+                       "P021_%s" % reading, "FLAGGED_BREAKOUT",
+                       "FLAGGED_REVERSION", rows)
+        # and the asserted REVERSAL outside it
+        P1.mirror_rows(D, (~flag21) & rev, (~flag21) & brk,
+                       "P021_%s" % reading, "UNFLAGGED_REVERSION",
+                       "UNFLAGGED_BREAKOUT", rows)
+    side = D["side"].astype(np.float64)
+    for wname, sgn in (("5m", np.sign(D["f5m_sflow"].astype(np.float64))),
+                       ("30m", np.sign(D["f30m_sflow"].astype(np.float64))),
+                       ("phase", np.sign(D["fph_sflow"].astype(np.float64))),
+                       ("event_anchored",
+                        np.where(D["event_in_phase"],
+                                 np.sign(D["fev_sflow"].astype(np.float64)),
+                                 0.0))):
+        al = flag22 & (sgn != 0) & (side == sgn)
+        op = flag22 & (sgn != 0) & (side == -sgn)
+        P1.mirror_rows(D, al, op, "P022_%s" % wname, "ALIGNED", "OPPOSED",
+                       rows)
+    return rows
+
+
 # ----------------------------------------------------------------- grading --
-def grade(res, cen):
-    """(verdict, evidence) in the CC-M2-9.1 vocabulary."""
+def grade(res, cen, promo, era="FIT_EX_FITTING"):
+    """(verdict, evidence) in the CC-M2-9.1 vocabulary.
+
+    R106: WINNER CONCENTRATOR used to be a BARE RATIO — `fF[16]/fN[16] >= 1.25`
+    with no SE, no CI, no cluster adjustment and NO MINIMUM-N GUARD on the
+    numerator — and it was the ONLY route by which P020/P021/P022 reached the
+    feature-candidate set.  It now requires, all four: the ratio clears the
+    declared bar; its SESSION-CLUSTERED bootstrap interval EXCLUDES 1.0; it
+    survives Holm over the declared PROMOTION family; and the firing set
+    cleared the n floors.  Anything short of that is NO_TEST, not a promotion.
+
+    R114: the ratios are read on FIT_EX_FITTING — FIT is in-sample with respect
+    to the thresholds this file declares.
+    """
     fF = cen.get(("ALL", "FIT", "ALL", "ALL", "FIRE"))
     fN = cen.get(("ALL", "FIT", "ALL", "ALL", "NOFIRE"))
     rb = [x for x in res["robust"]
@@ -551,20 +712,32 @@ def grade(res, cen):
         return "NULL_never_fires", {}
     beta = rb[0][7] if rb else float("nan")
     holm = rb[0][19] if rb and len(rb[0]) > 19 else "NO_TEST"
-    wr = (fF[16] / fN[16]) if fN[16] else float("nan")
-    cv = (fF[10] / fN[10]) if fN[10] else float("nan")
-    ev = {"beta_close": beta, "holm": holm, "winner_rate_ratio": wr,
-          "cond_value_ratio": cv}
+    mine = [r for r in promo if r[0] == res["pid"] and r[1] == era]
+    ev = {"beta_close": beta, "holm": holm, "promotion_era": era}
+    for r in mine:
+        ev[r[2]] = r[3]
+        ev[r[2] + "_ci"] = (r[4], r[5])
+        ev[r[2] + "_verdict"] = r[9]
+        ev[r[2] + "_holm"] = r[10]
     sig = (holm == "HOLM_SIGNIFICANT")
     if sig and np.isfinite(beta) and beta > 0:
         return "ENTRY RULE (adoption-metric edge, Holm-significant)", ev
     if sig and np.isfinite(beta) and beta < 0:
         return "VETO RULE (flagged pool is worth refusing, Holm-significant)", ev
-    if ((np.isfinite(wr) and wr >= CONCENTRATOR_MIN)
-            or (np.isfinite(cv) and cv >= CONCENTRATOR_MIN)):
+    hits = P1.promotion_verdict(promo, res["pid"], era=era,
+                                minimum=CONCENTRATOR_MIN)
+    if hits:
         return ("WINNER CONCENTRATOR (feature candidate set only — CC-M2-9.1 "
-                "disposition)"), ev
-    return "NULL (no adoption edge, no concentration)", ev
+                "disposition; ratio >= %.2f with a session-clustered interval "
+                "excluding 1.0, Holm-significant in the promotion family, "
+                "above the n floor)" % CONCENTRATOR_MIN), ev
+    untested = [r for r in mine if r[9] != "TESTED"]
+    if untested and not [r for r in mine if r[9] == "TESTED"]:
+        return ("NO_TEST (promotion ratios below the n floor: %d fires over %d "
+                "sessions, floors %d/%d)"
+                % (untested[0][6], untested[0][7], P1.PROMOTE_MIN_FIRES,
+                   P1.PROMOTE_MIN_CLUSTERS)), ev
+    return "NULL (no adoption edge, no inferentially supported concentration)", ev
 
 
 # ------------------------------------------------------------------ report --
@@ -592,11 +765,38 @@ def report(D, res, elapsed, pins):
       % (int(D["dec_sec"].size), int(D["n_sessions_total"]), FIT_YEARS[0],
          FIT_YEARS[-1], GATE_YEAR))
     A("")
-    A("MULTIPLICITY: every GEE test of all three patterns AND both P021 "
-      "interaction readings is corrected Holm-Bonferroni as ONE family (%d "
-      "tests). A raw p<0.05 that fails Holm is noise and the tables say which "
-      "is which." % len([r for r in res["robust_all"]
-                         if np.isfinite(r[12])]))
+    A("MULTIPLICITY: THREE DECLARED FAMILIES, corrected separately and named "
+      "on their own tables (R107). (1) GEE — every GEE test of all three "
+      "patterns AND both P021 interaction readings, %d tests. (2) MIRROR — "
+      "BATCH2_MIRROR.tsv, %d tested rows. (3) PROMOTION — "
+      "BATCH2_PROMOTION.tsv, %d tested rows. A raw p<0.05 that fails Holm is "
+      "noise and the tables say which is which."
+      % (len([r for r in res["robust_all"] if np.isfinite(r[12])]),
+         len([r for r in res["mirror"] if r[20] == "TESTED"]),
+         len([r for r in res["promotion"] if r[9] == "TESTED"])))
+    A("")
+    A("D-058 PRE-EXAM HOLDOUT (R105, closed). **%d holdout sessions (>= %d) "
+      "were QUARANTINED out of this census.** The previous run pooled 2025-H2 "
+      "with H1 through `concentration_rows`, `interaction_rows` and "
+      "`p022_direction_rows`. The GATE echo is named `GATE_%dH1` here because "
+      "it is a half-year."
+      % (int(D.get("n_quarantined_holdout", 0)), MC.HOLDOUT_FROM_D8,
+         GATE_YEAR))
+    A("")
+    A("IN-SAMPLE OPTIMISM (R114). Every threshold here was fitted on E1 study "
+      "sessions inside FIT. Every table carries a `FIT_EX_FITTING` era that "
+      "drops the %d threshold-fitting sessions, and the named-case table at "
+      "the end is a REPRODUCTION CHECK, not corroboration."
+      % len(P1.THRESHOLD_FITTING_SESSIONS))
+    A("")
+    A("READING B's CLIP (R111, closed). `ext_needed_usd` is clipped at zero "
+      "upstream, so every candidate whose extreme already offers >= $1,000 of "
+      "reach collapses to exactly 0.0 and used to be classified REVERSION — "
+      "the DiD tested its breakout claim with the most extended candidates in "
+      "the population sitting in the opposite arm. The clip BINDS on %s%% of "
+      "the %d candidates with a finite ext_needed; those rows now sit in an "
+      "EXT_SATURATED bucket and are EXCLUDED from the DiD contrast."
+      % (_fmt(100.0 * clip_binding_frac(D)[0], 2), clip_binding_frac(D)[1]))
     A("")
 
     A("## HEADLINE VERDICTS (CC-M2-9.1 vocabulary)")
@@ -606,7 +806,7 @@ def report(D, res, elapsed, pins):
         cen = r["cen"]
         fF = cen.get(("ALL", "FIT", "ALL", "ALL", "FIRE"))
         fN = cen.get(("ALL", "FIT", "ALL", "ALL", "NOFIRE"))
-        verdict, ev = grade(r, cen)
+        verdict, ev = grade(r, cen, res["promotion"])
         rb = [x for x in r["robust"]
               if x[1] == "ALL" and x[2] == "FIT" and x[3] == "cert_close"]
         rp = [x for x in r["robust"]
@@ -645,7 +845,7 @@ def report(D, res, elapsed, pins):
       "share | conc_ratio | winner rate % | mean close $ | cond close $ |")
     A("|---|---|---|---|---|---|---|---|---|---|---|")
     for x in res["conc"]:
-        if x[2] != "ALL" or x[1] not in ("FIT", "GATE_%d" % GATE_YEAR):
+        if x[2] != "ALL" or x[1] not in ("FIT", "GATE_%dH1" % GATE_YEAR):
             continue
         A("| %s | %s | %s | %d | %s | %d | %s | %s | %s | %s | %s |"
           % (x[0], x[1], x[4], x[6], _fmt(x[7], 4), x[8], _fmt(x[9], 4),
@@ -656,7 +856,7 @@ def report(D, res, elapsed, pins):
     A("| year | NY candidates | NY cand share | NY winners | NY winner share "
       "| conc_ratio | NY winner rate % |")
     A("|---|---|---|---|---|---|---|")
-    for y in [str(v) for v in FIT_YEARS] + ["GATE_%d" % GATE_YEAR]:
+    for y in [str(v) for v in FIT_YEARS] + ["GATE_%dH1" % GATE_YEAR]:
         for x in res["conc"]:
             if (x[0] == "ALL" and x[1] == y and x[2] == "ALL"
                     and x[4] == "NY"):
@@ -795,7 +995,7 @@ def report(D, res, elapsed, pins):
         A("| year | fires | mean close $ | cond close $ | winner rate % | "
           "baseline mean $ | baseline winner rate % |")
         A("|---|---|---|---|---|---|---|")
-        for y in [str(v) for v in FIT_YEARS] + ["GATE_%d" % GATE_YEAR]:
+        for y in [str(v) for v in FIT_YEARS] + ["GATE_%dH1" % GATE_YEAR]:
             x = cen.get(("ALL", y, "ALL", "ALL", "FIRE"))
             n = cen.get(("ALL", y, "ALL", "ALL", "NOFIRE"))
             if x is None or n is None:
@@ -871,7 +1071,13 @@ def report(D, res, elapsed, pins):
                  x[16], x[19] if len(x) > 19 else "NO_TEST"))
         A("")
 
-    A("## Named-case check (the E1D2 cases these patterns were written from)")
+    A("## Named-case REPRODUCTION CHECK (the E1D2 cases these patterns were "
+      "written from)")
+    A("")
+    A("R114: these sessions are inside FIT and are among the sessions the "
+      "thresholds were fitted on. This is a reproduction check — 'do the "
+      "detectors still fire on the cases they were written from?' — and is "
+      "NOT evidence. Read the FIT_EX_FITTING era rows for that.")
     A("")
     A("| case | note | P020 | P021 | P022 | day_type | surprise | ext_needed $ "
       "| release age s | cert close $ |")
@@ -896,6 +1102,44 @@ def report(D, res, elapsed, pins):
              _fmt(float(D["ext_needed_usd"][t]), 1),
              int(D["release_age_sec"][t]), _fmt(float(D["cert_close"][t]))))
     A("")
+    A("## MIRROR LAW (R112) — direction claims against their sign-flipped twins")
+    A("")
+    A("P021's claim and P022's ALIGNED-vs-OPPOSED pair are DIRECTION claims. "
+      "P021 was tested by a pooled difference-in-differences with no "
+      "per-session component and no sign test; P022's own direction table "
+      "compares a mirror pair BY CONSTRUCTION and reported pooled means only. "
+      "Both are now paired WITHIN the session and decided by "
+      "`m2_common.mirror_paired`.")
+    A("")
+    A("| claim | detector | mirror | era | metric | sessions | mean delta $ | "
+      "t | p | sign p | MDE(80%) | verdict | Holm |")
+    A("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+    for x in res["mirror"]:
+        if x[3] != "ALL" or x[4] != "FIT" or x[5] != "cert_close":
+            continue
+        A("| %s | %s | %s | %s | %s | %d | %s | %s | %s | %s | %s | %s | %s |"
+          % (x[0], x[1], x[2], x[4], x[5], x[6], _fmt(x[9]), _fmt(x[12], 2),
+             _fmt(x[13], 5), _fmt(x[17], 5), _fmt(x[18]), x[20], x[24]))
+    A("")
+    A("## PROMOTION INTERVALS (R106) — no bare ratios")
+    A("")
+    A("`CONCENTRATOR_MIN = %.2f` used to be graded off a bare ratio of two "
+      "noisy means with no SE, no CI, no cluster adjustment and no minimum-n "
+      "guard on the numerator — the only route by which these patterns reached "
+      "the feature-candidate set. Each ratio now carries a %d-replicate "
+      "session-clustered bootstrap interval and refuses below %d fires "
+      "spanning %d sessions."
+      % (CONCENTRATOR_MIN, P1.RATIO_BOOT_REPS, P1.PROMOTE_MIN_FIRES,
+         P1.PROMOTE_MIN_CLUSTERS))
+    A("")
+    A("| pattern | era | statistic | ratio | 95% CI | fires | sessions | "
+      "excludes 1.0 | verdict | Holm |")
+    A("|---|---|---|---|---|---|---|---|---|---|")
+    for x in res["promotion"]:
+        A("| %s | %s | %s | %s | [%s, %s] | %d | %d | %s | %s | %s |"
+          % (x[0], x[1], x[2], _fmt(x[3], 3), _fmt(x[4], 3), _fmt(x[5], 3),
+             x[6], x[7], "YES" if x[8] else "no", x[9], x[10]))
+    A("")
     A("## Provenance")
     A("")
     A("* engine: `engine/port_m2/p020_census.py` (census machinery reused from "
@@ -910,13 +1154,17 @@ def report(D, res, elapsed, pins):
 
 
 # ------------------------------------------------------------------ main ----
-def build(workers=4, limit_sessions=None):
+def build(workers=4, limit_sessions=None, out_dir=None):
     t0 = time.time()
     MC.verify_spec(force=True)
+    OUT = out_dir or OUT_DIR
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     D = scan(workers=workers, limit_sessions=limit_sessions)
     res = {}
     census, terms, destr = [], [], []
     robust_nc = []                        # un-Holmed; one family for the batch
+    promo, mirror = [], []                # two FURTHER declared families
     for pid, _name, tnames, _fn in PATTERNS:
         T = P1.unbits(D["terms_" + pid], len(tnames))
         fire = np.all(T, axis=1)
@@ -926,9 +1174,19 @@ def build(workers=4, limit_sessions=None):
         # are the whole population; they are still emitted (cheap, and the
         # TERM_ALONE row is the census row) but the destruction test is the
         # informative one.
-        rows_d = P1.destruction_rows(D, T, pid, tnames)
+        # R116: the DECLARED seed is the seed actually USED.  This file
+        # declared DESTRUCTION_SEED = 20260815, interpolated it into PARAMS and
+        # hashed it into params_hash, while P1.destruction_rows hardcoded
+        # P1.DESTRUCTION_SEED — so the receipt asserted a provenance that did
+        # not match the computation and re-running with the declared seed
+        # reproduced different numbers under the same hash.  The seed is passed
+        # in, and P1.destruction_seed additionally keys the stream on the
+        # READING so p020's three patterns no longer share one draw with each
+        # other, with p001's arms, or with p025's nine readings.
+        rows_d = P1.destruction_rows(D, T, pid, tnames, seed=DESTRUCTION_SEED)
         rows_r = P1.robust_rows(D, fire, pid, holm=False)
-        res[pid] = {"fire": fire, "terms": rows_t, "destr": rows_d,
+        P1.promotion_rows(D, fire, pid, promo, seed=RATIO_BOOT_SEED)
+        res[pid] = {"pid": pid, "fire": fire, "terms": rows_t, "destr": rows_d,
                     "robust": rows_r, "n_fires": int(fire.sum()),
                     "cen": {(x[1], x[2], x[3], x[4], x[5]): x for x in rows_c}}
         census += rows_c
@@ -943,9 +1201,14 @@ def build(workers=4, limit_sessions=None):
     did = did_rows(D, flag21)
     robust_nc += did
     res["dir22"] = p022_direction_rows(D, res["P022"]["fire"])
+    mirror_rows_batch2(D, flag21, res["P022"]["fire"], mirror)
     # ONE Holm family over the whole batch (CC-M2-10.2's "Holm over the batch")
     P1._holm(robust_nc)
+    P1.holm_mirror(mirror)
+    P1.holm_promotion(promo)
     res["robust_all"] = robust_nc
+    res["mirror"] = mirror
+    res["promotion"] = promo
     res["did"] = [r for r in robust_nc if str(r[0]).startswith("P021_DID_")]
     for pid, _n, _t, _f in PATTERNS:
         res[pid]["robust"] = [r for r in robust_nc if r[0] == pid]
@@ -955,40 +1218,73 @@ def build(workers=4, limit_sessions=None):
              "detectors over the frozen v3 roster",
              "BOTH CC-M1-8 certificate readings are reported on every row",
              "Holm-Bonferroni is applied over the WHOLE batch, not per pattern"]
-    MC.write_tsv(os.path.join(OUT_DIR, "BATCH2_CENSUS.tsv"), SECTION, phash,
+    MC.write_tsv(os.path.join(OUT, "BATCH2_CENSUS.tsv"), SECTION, phash,
                  list(P1.CENSUS_COLUMNS), census, extra=extra)
-    MC.write_tsv(os.path.join(OUT_DIR, "BATCH2_TERMS.tsv"), SECTION, phash,
+    MC.write_tsv(os.path.join(OUT, "BATCH2_TERMS.tsv"), SECTION, phash,
                  list(P1.TERM_COLUMNS), terms, extra=extra)
-    MC.write_tsv(os.path.join(OUT_DIR, "BATCH2_DESTRUCTION.tsv"), SECTION,
+    MC.write_tsv(os.path.join(OUT, "BATCH2_DESTRUCTION.tsv"), SECTION,
                  phash, list(P1.DESTRUCTION_COLUMNS), destr, extra=extra)
-    MC.write_tsv(os.path.join(OUT_DIR, "BATCH2_ROBUST.tsv"), SECTION, phash,
+    MC.write_tsv(os.path.join(OUT, "BATCH2_ROBUST.tsv"), SECTION, phash,
                  list(P1.ROBUST_COLUMNS), robust_nc, extra=extra)
-    MC.write_tsv(os.path.join(OUT_DIR, "P020_CONCENTRATION.tsv"), SECTION,
+    MC.write_tsv(os.path.join(OUT, "P020_CONCENTRATION.tsv"), SECTION,
                  phash, list(CONC_COLUMNS), res["conc"],
                  extra=["conc_ratio = winner share / candidate share; 1.00 "
                         "means the phase holds winners in proportion to the "
                         "candidates generated inside it"])
-    MC.write_tsv(os.path.join(OUT_DIR, "P021_INTERACTION.tsv"), SECTION, phash,
+    MC.write_tsv(os.path.join(OUT, "P021_INTERACTION.tsv"), SECTION, phash,
                  list(INTER_COLUMNS), res["inter"],
                  extra=["the load-bearing 2x2: EXPANSION flag x trade "
                         "direction, two readings of direction"])
-    MC.write_tsv(os.path.join(OUT_DIR, "P022_DIRECTION.tsv"), SECTION, phash,
+    MC.write_tsv(os.path.join(OUT, "P022_DIRECTION.tsv"), SECTION, phash,
                  list(DIR_COLUMNS), res["dir22"],
                  extra=["FLAGGED candidates only: is the flag a veto or a "
                         "compass? ALIGNED = the trade side agrees with that "
-                        "window's flow sign"])
+                        "window's flow sign",
+                        "these are POOLED means and decide nothing on their "
+                        "own — ALIGNED vs OPPOSED is a mirror pair by "
+                        "construction and the TEST is in BATCH2_MIRROR.tsv "
+                        "(R112)"])
+    MC.write_tsv(os.path.join(OUT, "BATCH2_MIRROR.tsv"), SECTION, phash,
+                 list(P1.MIRROR_COLUMNS), res["mirror"],
+                 extra=["R112 MIRROR LAW: every direction claim in this batch "
+                        "against its own SIGN-FLIPPED twin, paired WITHIN the "
+                        "session and decided by m2_common.mirror_paired",
+                        "verdict=NO_TEST below the power floor — an unpowered "
+                        "cell is never scored as a negative",
+                        "this table is its OWN declared Holm family"])
+    MC.write_tsv(os.path.join(OUT, "BATCH2_PROMOTION.tsv"), SECTION, phash,
+                 list(P1.PROMOTION_COLUMNS), res["promotion"],
+                 extra=["R106: WINNER CONCENTRATOR is no longer a bare ratio. "
+                        "Each ratio carries a session-clustered bootstrap "
+                        "interval, an n floor on the NUMERATOR and Holm "
+                        "membership in this table's own declared family",
+                        "read FIT_EX_FITTING — FIT is in-sample with respect "
+                        "to the thresholds this file declares (R114)"])
     pins = MC.pins_moved()
     el = time.time() - t0
-    MC.write_text(os.path.join(OUT_DIR, "P020_P022_CENSUS_REPORT.md"),
+    MC.write_text(os.path.join(OUT, "P020_P022_CENSUS_REPORT.md"),
                   report(D, res, el, pins))
-    MC.write_json(os.path.join(OUT_DIR, "p020_census.receipt.json"),
+    MC.write_json(os.path.join(OUT, "p020_census.receipt.json"),
                   {"env": MC.env_receipt(PARAMS),
                    "n_candidates": int(D["dec_sec"].size),
                    "n_sessions": int(D["n_sessions_total"]),
+                   "holdout_from_d8": int(MC.HOLDOUT_FROM_D8),
+                   "n_holdout_sessions_quarantined":
+                       int(D.get("n_quarantined_holdout", 0)),
+                   "ext_clip_binding_frac": clip_binding_frac(D)[0],
+                   "n_ext_finite": clip_binding_frac(D)[1],
+                   "holm_families": {
+                       "GEE": int(len([r for r in robust_nc
+                                       if np.isfinite(r[12])])),
+                       "MIRROR": int(len([r for r in mirror
+                                          if r[20] == "TESTED"])),
+                       "PROMOTION": int(len([r for r in promo
+                                             if r[9] == "TESTED"]))},
+                   "destruction_seed_declared": DESTRUCTION_SEED,
                    "n_fires": {p[0]: res[p[0]]["n_fires"] for p in PATTERNS},
                    "n_gee_tests": int(len([r for r in robust_nc
                                            if np.isfinite(r[12])])),
-                   "elapsed_sec": el, "pins_moved": pins, "out_dir": OUT_DIR})
+                   "elapsed_sec": el, "pins_moved": pins, "out_dir": OUT})
     MC.hb("batch2 census: %s, %.1fs"
           % (", ".join("%s=%d" % (p[0], res[p[0]]["n_fires"])
                        for p in PATTERNS), el))
@@ -999,10 +1295,19 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--limit-sessions", type=int, default=None)
+    # A --limit-sessions SMOKE RUN must never overwrite the committed census.
+    # The default out dir is refused whenever the population is truncated;
+    # --out-dir is how a development run says where its scratch goes.
+    p.add_argument("--out-dir", default=None)
     a = p.parse_args()
     if a.workers > 4:
         raise SystemExit("workers capped at 4 (a reader lane is live)")
-    build(workers=a.workers, limit_sessions=a.limit_sessions)
+    if a.limit_sessions and not a.out_dir:
+        raise SystemExit("--limit-sessions is a SMOKE RUN and must be given "
+                         "--out-dir: it would otherwise overwrite the "
+                         "committed census with a truncated population")
+    build(workers=a.workers, limit_sessions=a.limit_sessions,
+          out_dir=a.out_dir)
     return 0
 
 

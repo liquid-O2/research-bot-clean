@@ -136,7 +136,11 @@ MICRO_BIT = MC.FAM_BIT["MICRO_OPEN"]
 FASTOPEN_BIT = MC.FAM_BIT["G1_FAST_OPEN"]
 G1UNIV_BITS = MC.FAM_BIT["G1"] | MC.FAM_BIT["G1_FINE"] | FASTOPEN_BIT
 
-DESTRUCTION_REPS = 40
+# R124: 40 replicates cannot support a SURVIVES/DESTROYED verdict — the null SD
+# is estimated from 40 draws (~11% relative error) and the finest resolvable p
+# is 1/41 ~ 0.024, so every verdict in NEWS_DESTRUCTION.tsv was a coin-flip at
+# the margin.  500 puts the resolution at ~0.002 and the null-SD error near 3%.
+DESTRUCTION_REPS = 500
 DESTRUCTION_SEED = 20260814
 
 PARAMS = {
@@ -179,7 +183,20 @@ PARAMS = {
                            ">= %dmin from every release"
                            % (FAR_BASELINE_SEC // 60),
         "ALL_FAR": "every roster row >= %dmin from every release"
-                   % (FAR_BASELINE_SEC // 60)},
+                   % (FAR_BASELINE_SEC // 60),
+        # R125: this one was MISSING from PARAMS while being the baseline for
+        # EVERY NEWS_SLOT profile and GEE branch — i.e. the provenance hash did
+        # not cover the definition of the baseline most of the inference runs
+        # against.  Confirmed absent from the on-disk receipt.
+        "SAME_DAY_SLOT_FAR": "rows of the SAME (asset, session) as the band's "
+                             "own sessions, >= %dmin from every SLOT anchor "
+                             "(the generation anchor the family's own rows "
+                             "were minted at) — THE PRIMARY BASELINE for every "
+                             "NEWS_SLOT profile and GEE branch"
+                             % (FAR_BASELINE_SEC // 60)},
+    "baseline_kinds": list(BASELINES),
+    "primary_baseline": PRIMARY_BASELINE,
+    "slot_baseline": SLOT_BASELINE,
     "value": "c_c_roster.certificates — walled PHASE-CLOSE (adoption) and "
              "walled PEAK-EXIT (companion), BOTH on every value row; "
              "winner = D-021 (cert_close >= $1000, MAE <= $300, unwalled)",
@@ -191,10 +208,48 @@ PARAMS = {
                  "ICC/DEFF/n_eff; ONE Holm-Bonferroni family over the whole "
                  "sweep; no inference claimed below n=%d" % MIN_N_GEE,
     "destruction": "the band indicator shuffled WITHIN ITS OWN SESSION, %d "
-                   "replicates, RandomState(%d + index); the destroyed "
+                   "replicates, RandomState keyed on (object, ERA, index) via "
+                   "p001_census.destruction_seed(base=%d); the destroyed "
                    "quantity is the EDGE; verdicts sign-aware "
-                   "(SURVIVES/DESTROYED/INVERTED)"
+                   "(SURVIVES/DESTROYED/INVERTED). R124: 40 replicates could "
+                   "not support a SURVIVES/DESTROYED verdict (finest "
+                   "resolvable p ~ 0.024, null SD from 40 draws ~11%% "
+                   "relative error), and the seed sat INSIDE the era loop so "
+                   "FIT and GATE_2025H1 drew the IDENTICAL permutation stream."
                    % (DESTRUCTION_REPS, DESTRUCTION_SEED),
+    "refused_certificates": "R122 — `NaN >= 1000` is False, so a row whose "
+                            "walled certificate could not be computed used to "
+                            "be scored a MEASURED LOSER and counted in the "
+                            "winner_rate DENOMINATOR while mean_close used a "
+                            "different (nanmean) denominator, biasing every "
+                            "winner rate low by an unreported refused "
+                            "fraction. Refused rows now leave BOTH halves and "
+                            "`n_refused_cert` / `frac_refused_cert` are "
+                            "published on every stats block.",
+    "restricted_window_sides": "R123 — the PRE side of the restricted window "
+                               "is tested against VETO_PRE_SEC and the POST "
+                               "side against VETO_POST_SEC. `min_dist` is the "
+                               "SYMMETRIC nearest distance, so the previous "
+                               "predicate tested the pre side with the POST "
+                               "constant — numerically right only while both "
+                               "are 600, and BOTH are advertised as "
+                               "user-updatable.",
+    "no_test_rows": "MINOR — a GEE cell below MIN_N_GEE or below the "
+                    "%d-cluster floor now EMITS a row with a named NO_TEST "
+                    "verdict and a NaN p instead of returning silently, so a "
+                    "reader can tell 'tested and null' from 'never tested' and "
+                    "the Holm family size no longer depends on which cells "
+                    "happened to be large enough." % P1.MIN_CLUSTERS_GEE,
+    "un_censused_constants": "declared basis (3.2c MINORS): CONFOUND_THR 0.05 "
+                             "and the 0.999 FULLY_INSIDE cut are reporting "
+                             "thresholds on a fraction, not inference; "
+                             "DIST_RADIUS_SEC 900 is the +/-15min reach the "
+                             "blind-scoring join needs (a superset of the "
+                             "+/-10min rule); FAR_BASELINE_SEC 7200 is 2h, "
+                             "chosen as 12x the restricted window so the "
+                             "baseline cannot touch it; MIN_N_GEE 40 is the "
+                             "smallest arm at which a CR1 sandwich is not "
+                             "degenerate. None carries a sensitivity sweep.",
     "opens_anchor": "MICRO_OPEN -> the Tokyo lunch reopen (12:30 Asia/Tokyo) / "
                     "US cash open (09:30 America/New_York) second that emitted "
                     "it (family_discovery.MICRO_OPENS, DST-correct); "
@@ -325,7 +380,8 @@ _I64 = ("dec_sec", "rel_age", "rel_ts", "next_ts", "to_next", "min_dist",
         "phase_close_sec", "phase_age", "micro_age", "open_utc", "fam_mask",
         "slot_age", "slot_ts")
 _I8 = ("side", "phase")
-_BOOL = ("winner", "walled", "held_into", "slot_real")
+_BOOL = ("winner", "walled", "held_into", "slot_real",
+         "cert_refused")
 _CONCAT = _F64 + _I64 + _I8 + _BOOL
 
 
@@ -420,6 +476,9 @@ def _pack(f, asset, d8):
     src = {
         "cert_close": f["cert_close_usd"], "cert_peak": f["cert_peak_usd"],
         "mae": f["mae_before_argmax"],
+        # R122: the refusal flag pattern_lib now publishes, carried through so
+        # every rate here can drop refused rows from BOTH halves
+        "cert_refused": f["cert_refused"],
         "dec_sec": dec, "rel_age": rel_age, "rel_ts": rel_ts,
         "next_ts": nxt_ts, "to_next": to_next, "min_dist": min_dist,
         "phase_close_sec": pcs, "phase_age": f["phase_age_sec"],
@@ -527,7 +586,18 @@ def concat(parts):
     D["is_micro"] = (D["fam_mask"] & MICRO_BIT) > 0
     D["is_fastopen"] = (D["fam_mask"] & FASTOPEN_BIT) > 0
     D["is_g1univ"] = (D["fam_mask"] & G1UNIV_BITS) > 0
-    D["inside_window"] = (D["min_dist"] >= 0) & (D["min_dist"] <= VETO_POST_SEC)
+    # R123: `min_dist` is the SYMMETRIC nearest distance, so testing it against
+    # VETO_POST_SEC tested the PRE-release side of the restricted window with
+    # the POST constant.  Numerically right today only because both are 600 —
+    # and the header advertises both as USER-UPDATABLE, so this is the D-077
+    # rule the user is expected to change.  The two sides are now tested with
+    # their own constants: a candidate is inside the restricted window if it
+    # sits within VETO_POST_SEC AFTER a release or VETO_PRE_SEC BEFORE the
+    # next one.
+    D["inside_window"] = (((D["rel_age"] >= 0)
+                           & (D["rel_age"] <= VETO_POST_SEC))
+                          | ((D["to_next"] >= 0)
+                             & (D["to_next"] <= VETO_PRE_SEC)))
     D["inside_legacy"] = (((D["rel_age"] >= 0)
                            & (D["rel_age"] <= VETO_LEGACY[1]))
                           | ((D["to_next"] >= 0)
@@ -541,13 +611,35 @@ def concat(parts):
 
 
 # ================================================================ row stats ==
+def _cert_refused(D):
+    """Rows whose walled certificate could not be computed (R122).
+
+    `pattern_lib` now carries this as a frame field; news_census builds its own
+    D, so the same predicate is recomputed here from the same inputs."""
+    if "cert_refused" in D:
+        return np.asarray(D["cert_refused"], dtype=bool)
+    return ~(np.isfinite(D["cert_close"]) & np.isfinite(D["mae"]))
+
+
 def _stats(D, m):
     """The value block every table repeats, on BOTH CC-M1-8 readings."""
+    # R122: `winner` is `(cert_close >= 1000) & ...`, and `NaN >= 1000` is
+    # False — so a candidate whose certificate could not be COMPUTED was scored
+    # a MEASURED LOSER and counted in the winner_rate DENOMINATOR, while
+    # mean_close used `nanmean` over a DIFFERENT denominator.  Every winner
+    # rate in NEWS_DEPLOYABILITY.tsv / NEWS_MINUTE_PROFILE.tsv was therefore
+    # biased low by an unreported refused fraction.  The refusal is a VALUE:
+    # refused rows leave BOTH halves of the rate and the count is published.
+    n_all = int(m.sum())
+    ref = m & _cert_refused(D)
+    m = m & ~ref
     n = int(m.sum())
     out = dict(n=n, n_sessions=0, n_winners=0, winner_rate=None,
                mean_close=None, median_close=None, mean_peak=None,
                median_peak=None, cond_close=None, cond_peak=None,
-               walled_rate=None, total_close=0.0)
+               walled_rate=None, total_close=0.0,
+               n_refused_cert=int(ref.sum()), n_before_refusal=n_all,
+               frac_refused_cert=(float(ref.sum()) / n_all) if n_all else None)
     if n == 0:
         return out
     out["n_sessions"] = int(np.unique(D["sess_id"][m]).size)
@@ -880,18 +972,40 @@ def _gee_row(D, robust, obj, ename, metric, band_mask, base_mask):
     if metric != "winner":
         m = m & np.isfinite(y_all)
     n_band = int((band_mask & m).sum())
-    if n_band < MIN_N_GEE or int((base_mask & m).sum()) < MIN_N_GEE:
+    n_base = int((base_mask & m).sum())
+    cl = D["sess_id"][m]
+    n_cl = int(np.unique(cl).size) if cl.size else 0
+
+    def _no_test(why):
+        # MINOR (3.2c): this used to `return` SILENTLY below MIN_N_GEE — no
+        # row, no NO_TEST marker, no count — so a reader could not tell
+        # "tested and null" from "never tested" and `_holm`'s family size m
+        # silently depended on which cells happened to be large enough.  A
+        # refusal is a VALUE: the row is emitted with a named verdict and a NaN
+        # p, and `_holm` skips NaN p's, so m is stable and auditable.
+        robust.append([obj, ename, metric, "SESSION", int(m.sum()), n_cl,
+                       n_band] + [float("nan")] * 6
+                      + [float("nan"), float("nan"), float("nan"), why])
+
+    if n_band < MIN_N_GEE or n_base < MIN_N_GEE:
+        _no_test("NO_TEST_below_MIN_N_GEE(band=%d,base=%d,floor=%d)"
+                 % (n_band, n_base, MIN_N_GEE))
+        return
+    if n_cl < P1.MIN_CLUSTERS_GEE:
+        _no_test("NO_TEST_below_cluster_floor(%d<%d)"
+                 % (n_cl, P1.MIN_CLUSTERS_GEE))
         return
     y = y_all[m]
     x = band_mask[m].astype(np.float64)
-    cl = D["sess_id"][m]
     gi = np.unique(cl, return_inverse=True)[1]
     g = EV.gee_independence(y, x, cl, link=link)
     if g is None:
+        _no_test("NO_VARIATION")
         return
     ic = EV.icc_oneway(y, gi)
     z = (g["beta"] / g["se_cr1"]) if g["se_cr1"] > 0 else float("nan")
-    p = P1._p_two_sided(z)
+    # R113-equivalent: t(G-1), not the standard normal, with a CR1 sandwich
+    p = P1._p_two_sided(z, df=g["n_clusters"] - 1)
     robust.append([obj, ename, metric, "SESSION", g["n"], g["n_clusters"],
                    n_band, g["beta"], g["se_naive"], g["se_cr0"], g["se_cr1"],
                    z, p,
@@ -957,7 +1071,12 @@ def destruction_rows(D, rows):
             y = D["winner"][pool].astype(np.float64)
             sess = D["sess_id"][pool]
             real = float(y[call > 0].mean() - y[call <= 0].mean())
-            rs = np.random.RandomState(DESTRUCTION_SEED + i)
+            # R124: `RandomState(DESTRUCTION_SEED + i)` sat INSIDE the era
+            # loop, so FIT and GATE_2025H1 drew the IDENTICAL permutation
+            # stream and their nulls were not independent.  The era is mixed
+            # into the seed — deterministically, no wall-clock.
+            rs = np.random.RandomState(P1.destruction_seed(
+                "%s|%s" % (oname, ename), i, base=DESTRUCTION_SEED))
             null = []
             for _ in range(DESTRUCTION_REPS):
                 c2 = B4._shuffle_within(call, sess, rs)
@@ -1181,7 +1300,10 @@ def report(D, res, elapsed, pins):
 
 
 # ====================================================================== build
-def build(workers=4, limit_sessions=None):
+def build(workers=4, limit_sessions=None, out_dir=None):
+    OUT = out_dir or OUT_DIR
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     t0 = time.time()
     MC.verify_spec(force=True)
     D = scan(workers=workers, limit_sessions=limit_sessions)
@@ -1231,7 +1353,7 @@ def build(workers=4, limit_sessions=None):
              "HOLDOUT: no session with d8 >= %d was loaded (CC-M2-15.3)"
              % HOLDOUT_FROM_D8]
     W = MC.write_tsv
-    W(os.path.join(OUT_DIR, "NEWS_MINUTE_PROFILE.tsv"), SECTION, phash,
+    W(os.path.join(OUT, "NEWS_MINUTE_PROFILE.tsv"), SECTION, phash,
       list(PROFILE_COLUMNS), res["profile"],
       extra=extra + ["bands B00..B%02d are 1-minute buckets half-open on the "
                      "right; CUM>=k is every entry at or after k minutes; "
@@ -1241,26 +1363,26 @@ def build(workers=4, limit_sessions=None):
                      "candidate by minutes-since-release, whatever family tag "
                      "it carries — the population a redefined post-news family "
                      "would be drawn from"])
-    W(os.path.join(OUT_DIR, "NEWS_BASELINES.tsv"), SECTION, phash,
+    W(os.path.join(OUT, "NEWS_BASELINES.tsv"), SECTION, phash,
       list(BASELINE_COLUMNS), res["baselines"],
       extra=extra + ["SAME_DAY_FAR is the primary baseline: same sessions, "
                      ">= %dmin from every release, so day type is controlled"
                      % (FAR_BASELINE_SEC // 60)])
-    W(os.path.join(OUT_DIR, "NEWS_DEPLOYABILITY.tsv"), SECTION, phash,
+    W(os.path.join(OUT, "NEWS_DEPLOYABILITY.tsv"), SECTION, phash,
       list(DEPLOY_COLUMNS), res["deploy"],
       extra=extra + ["n_per_day divides by EVERY session of the era (the class "
                      "card's rate); n_per_anchor_day divides by the sessions "
                      "that actually carry a row of the reading"])
-    W(os.path.join(OUT_DIR, "OPENS_PROFILE.tsv"), SECTION, phash,
+    W(os.path.join(OUT, "OPENS_PROFILE.tsv"), SECTION, phash,
       list(PROFILE_COLUMNS), res["opens"],
       extra=extra + ["the anchor here is the family's OWN open, not a "
                      "release: MICRO_OPEN_SECOND or PHASE_OPEN"])
-    W(os.path.join(OUT_DIR, "OPENS_CONFOUND.tsv"), SECTION, phash,
+    W(os.path.join(OUT, "OPENS_CONFOUND.tsv"), SECTION, phash,
       list(CONFOUND_COLUMNS), res["confound"],
       extra=extra + ["frac_inside_window is the D-077-UPDATE item-4 check: an "
                      "open family with a material share inside the window is "
                      "partly a news family"])
-    W(os.path.join(OUT_DIR, "NEWS_DISTANCE.tsv"), SECTION, phash,
+    W(os.path.join(OUT, "NEWS_DISTANCE.tsv"), SECTION, phash,
       list(DIST_COLUMNS), res["dist"],
       extra=extra + ["one row per roster candidate within +/-%dmin of a "
                      "scheduled release; join on cid"
@@ -1274,26 +1396,39 @@ def build(workers=4, limit_sessions=None):
                      "horizon [decision, phase close] intersects some "
                      "release's [-%dmin, +%dmin] window"
                      % (VETO_PRE_SEC // 60, VETO_POST_SEC // 60)])
-    W(os.path.join(OUT_DIR, "NEWS_ROBUST.tsv"), SECTION, phash,
+    W(os.path.join(OUT, "NEWS_ROBUST.tsv"), SECTION, phash,
       list(B4.ROBUST_COLUMNS), res["robust"],
       extra=extra + ["ONE Holm-Bonferroni family over the WHOLE sweep"])
-    W(os.path.join(OUT_DIR, "NEWS_DESTRUCTION.tsv"), SECTION, phash,
+    W(os.path.join(OUT, "NEWS_DESTRUCTION.tsv"), SECTION, phash,
       list(B4.DESTR_COLUMNS), res["destr"], extra=extra)
 
     pins = MC.pins_moved()
     el = time.time() - t0
-    MC.write_text(os.path.join(OUT_DIR, "NEWS_COMPLIANCE_REPORT.md"),
+    MC.write_text(os.path.join(OUT, "NEWS_COMPLIANCE_REPORT.md"),
                   report(D, res, el, pins))
     news = D["is_news"]
     n_news = int(news.sum())
     comp = int((news & ~D["inside_window"]).sum())
-    MC.write_json(os.path.join(OUT_DIR, "news_census.receipt.json"),
+    MC.write_json(os.path.join(OUT, "news_census.receipt.json"),
                   {"env": MC.env_receipt(PARAMS),
                    "n_rows": int(D["dec_sec"].size),
                    "n_sessions": D["n_sessions"],
                    "n_holdout_sessions_quarantined": D["n_quarantined"],
                    "holdout_from_d8": HOLDOUT_FROM_D8,
                    "restricted_window_sec": [-VETO_PRE_SEC, VETO_POST_SEC],
+                   # R122: the refused fraction every winner rate used to hide
+                   "n_cert_refused": int(_cert_refused(D).sum()),
+                   "frac_cert_refused":
+                       float(_cert_refused(D).sum())
+                       / max(int(D["dec_sec"].size), 1),
+                   # MINOR: the Holm family size is now stable — a cell that
+                   # could not be tested emits a NAMED NO_TEST row
+                   "n_gee_no_test_rows":
+                       int(len([r for r in res["robust"]
+                                if str(r[16]).startswith("NO_TEST")])),
+                   # R124: independent per-(object, era) permutation streams
+                   "destruction_reps": DESTRUCTION_REPS,
+                   "destruction_finest_p": 1.0 / (DESTRUCTION_REPS + 1.0),
                    "n_news_window": n_news,
                    "news_slot_min_age_sec": int(D["slot_age"][news].min()),
                    "news_slot_max_age_sec": int(D["slot_age"][news].max()),
@@ -1325,11 +1460,18 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--limit-sessions", type=int, default=None)
+    # A --limit-sessions SMOKE RUN must never overwrite the committed census.
+    p.add_argument("--out-dir", default=None)
     a = p.parse_args()
     if a.workers > 4:
         raise SystemExit("workers capped at 4 (the E1 BLIND reader lane is "
                          "live — D-002 lane discipline)")
-    build(workers=a.workers, limit_sessions=a.limit_sessions)
+    if a.limit_sessions and not a.out_dir:
+        raise SystemExit("--limit-sessions is a SMOKE RUN and must be given "
+                         "--out-dir: it would otherwise overwrite the "
+                         "committed census with a truncated population")
+    build(workers=a.workers, limit_sessions=a.limit_sessions,
+          out_dir=a.out_dir)
     return 0
 
 

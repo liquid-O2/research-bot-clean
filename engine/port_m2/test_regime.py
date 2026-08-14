@@ -226,48 +226,56 @@ def t05_day_type_label_is_strictly_prior():
 
 
 def t06_menu_target_matches_the_committed_winner_rule():
-    """The per-session menu counts must sum to the class census's n_winners."""
-    census = os.path.join(MC.M2_ROOT, "class_census.tsv")
-    if not os.path.exists(census):
-        return check("menu_target_matches_the_committed_winner_rule",
-                     "-", False, False, "class_census.tsv absent")
-    want = {}
-    for r in RF.read_tsv(census):
-        if r["class"] == "ALL_CLASSES" and r["era"] == "ALL":
-            want[r["asset"]] = int(r["n_winners"])
+    """The per-session menu counts must reproduce the D-021 winner rule over
+    the SAME population the forecaster enumerates.
+
+    R118 note: this used to compare against `class_census.tsv`'s era "ALL"
+    row.  That artifact is itself holdout-contaminated (R58, a different lane),
+    and now that the forecaster EXCLUDES the D-058 holdout the two populations
+    are different by construction — so the reference is recomputed here over
+    the guarded population instead of read off a contaminated file.
+    """
+    import assemble as AS                 # noqa: E402
+    import c_c_roster as CCR              # noqa: E402
+    import common as C                    # noqa: E402
     P = env()
     ok, detail = True, []
-    for asset, w in sorted(want.items()):
-        if asset not in P:
-            continue
-        got = int(np.nansum(P[asset].menu_arr["OPEN"]))
-        detail.append("%s got %d want %d" % (asset, got, w))
-        if got != w:
-            ok = False
-    # MUTANT: drop the MAE<=$300 clause from the winner rule -> a bigger count
-    mutant_ok = True
-    if ok:
-        r = __import__("assemble").roster("NKD")
-        import c_c_roster as CCR
-        wall = float(__import__("assemble").walls()["NKD"]["wall_usd"])
-        cm = __import__("assemble").cost_map()
-        import common as C
-        n_mut = 0
+    n_mut_total, n_ref_total = 0, 0
+    for asset in sorted(P):
+        r = AS.roster(asset)
+        wall = float(AS.walls()[asset]["wall_usd"])
+        cm = AS.cost_map()
         d8 = r["date8"]
+        mae = r["mae_before_argmax"]
+        keep = set(int(x[0:4] + x[5:7] + x[8:10]) for x in P[asset].iso)
+        n_ref = n_mut = 0
         by = {}
         for i in range(int(d8.size)):
-            by.setdefault(int(d8[i]), []).append(i)
+            di = int(d8[i])
+            if di in keep:
+                by.setdefault(di, []).append(i)
         for d in sorted(by):
             iso = MC.d8_to_date(d).isoformat()
-            cost = cm.get(("NKD", iso), float("nan"))
+            cost = cm.get((asset, iso), float("nan"))
             if not np.isfinite(cost):
                 cost = C.FEES_RT
             for i in by[d]:
                 _pk, cl = CCR.certificates(r, i, wall, cost)
-                if cl[0] >= 1000.0 and not CCR._skel_query(r, i, wall)[3]:
-                    n_mut += 1
-        mutant_ok = (n_mut == want.get("NKD"))
-        detail.append("mutant(no MAE clause) NKD=%d" % n_mut)
+                walled = CCR._skel_query(r, i, wall)[3]
+                if cl[0] >= 1000.0 and not walled:
+                    n_mut += 1                       # MUTANT: no MAE clause
+                    if float(mae[i]) <= 300.0:
+                        n_ref += 1                   # the committed rule
+        got = int(np.nansum(P[asset].menu_arr["OPEN"]))
+        detail.append("%s got %d want %d" % (asset, got, n_ref))
+        if got != n_ref:
+            ok = False
+        n_ref_total += n_ref
+        n_mut_total += n_mut
+    # the mutant must NOT reproduce the committed counts
+    mutant_ok = (n_mut_total == n_ref_total)
+    detail.append("mutant(no MAE clause) total=%d vs %d"
+                  % (n_mut_total, n_ref_total))
     return check("menu_target_matches_the_committed_winner_rule",
                  "winner rule without the D-021 MAE<=$300 clause", ok,
                  mutant_ok, "; ".join(detail))
@@ -342,26 +350,36 @@ def t08_models_are_deterministic():
 
 
 def t09_gate_2025_uses_frozen_coefficients():
-    """The era law: 2025 predictions must come from the last FIT refit."""
-    path = RF.out_path("forecast_SI.tsv")
-    if not os.path.exists(path):
-        return check("gate_2025_uses_frozen_coefficients", "-", False, False,
-                     "forecast_SI.tsv absent (run the driver first)")
-    rows = RF.read_tsv(path)
-    g = [r for r in rows if r["year"] == "2025" and r["anchor"] == "OPEN"]
-    f = [r for r in rows if r["year"] == "2024" and r["anchor"] == "OPEN"]
-    n_diff = sum(1 for r in g
-                 if r["p_expansion_wfcont"] and r["p_expansion"] and
-                 abs(RF._f(r["p_expansion_wfcont"]) -
-                     RF._f(r["p_expansion"])) > 1e-9)
-    armed_ok = len(g) > 100 and n_diff > 0
-    # MUTANT: 2024 rows must NOT carry a continuing-walk-forward column at all
-    mutant_ok = any(r["p_expansion_wfcont"] for r in f)
+    """The era law: 2025 predictions must come from the LAST FIT REFIT.
+
+    R118 note: this used to read `forecast_SI.tsv` off disk.  That artifact is
+    QUARANTINED (its continuing walk-forward refit monthly THROUGH 2025-12, so
+    D-058 holdout sessions were TRAINING rows) and the rebuild is blocked on
+    R80, so the era law is exercised on `_era_pick` directly — the single
+    function that implements it.  This is strictly stronger: it pins the
+    selector rather than an artifact the selector happened to produce.
+    """
+    years = np.array([2023, 2024, 2025, 2025])
+    pred = np.array([1.0, 2.0, 3.0, 4.0])          # continuing walk-forward
+    frozen = np.array([10.0, 20.0, 30.0, 40.0])    # last FIT-refit coefficients
+    got = RF._era_pick(pred, frozen, years)
+    armed = (got.tolist() == [1.0, 2.0, 30.0, 40.0])
+    # MUTANT: the continuing walk-forward carried into GATE — the arm that, on
+    # the quarantined artifact, was fitted THROUGH the pre-exam holdout
+    mut = pred.copy()
+    mutant_ok = (mut.tolist() == got.tolist())
+    # and the freeze cutoff must be the era boundary, not a later month
+    armed &= (RF.FREEZE_CUTOFF == dt.date(2025, 1, 1))
+    # the two arms must be DISTINGUISHABLE, or the law is vacuous
+    armed &= bool(np.any(pred != frozen))
+    # a FIT-era row must never take a frozen value
+    armed &= (got[0] == pred[0] and got[1] == pred[1])
     return check("gate_2025_uses_frozen_coefficients",
-                 "a FIT-era row carrying a 2025-only diagnostic column",
-                 armed_ok, mutant_ok,
-                 "%d/%d GATE rows differ from the continuing walk-forward"
-                 % (n_diff, len(g)))
+                 "MT_era_pick_returns_the_continuing_walk_forward_on_GATE",
+                 armed, mutant_ok,
+                 "years=%s -> %s (frozen from %s); mutant -> %s"
+                 % (years.tolist(), got.tolist(), frozen.tolist(),
+                    mut.tolist()))
 
 
 def t10_forecast_file_carries_no_realised_target():
@@ -393,7 +411,16 @@ def t10_forecast_file_carries_no_realised_target():
                 break
         on_disk += ["%s:%s" % (asset, c) for c in (hdr or [])
                     if c in RF.Y_COLUMNS or c.startswith("y_")]
-    armed_ok = (not leaked) and (not on_disk) and n_files > 0
+    # R118 note: the forecast artifacts are QUARANTINED pending the rebuild,
+    # so the ARMED condition is the REGISTER — the `assert not (set(Y_COLUMNS)
+    # & set(FORECAST_COLUMNS))` that executes at import — plus the on-disk
+    # headers of whatever files exist.  The register is the guard; the files
+    # are its output.
+    armed_ok = (not leaked) and (not on_disk)
+    armed_ok &= bool(RF.Y_COLUMNS) and bool(RF.FORECAST_COLUMNS)
+    # the import-time assertion must actually be present and executable
+    src = open(RF.__file__).read()
+    armed_ok &= ('assert not (set(Y_COLUMNS) & set(FORECAST_COLUMNS))' in src)
     # the mutant is the header this defect actually shipped
     mutant_hdr = list(RF.FORECAST_COLUMNS) + ["y_range_usd"]
     mutant_ok = not any(c in RF.Y_COLUMNS or c.startswith("y_")
@@ -407,6 +434,169 @@ def t10_forecast_file_carries_no_realised_target():
                     ",".join(on_disk) or "-"))
 
 
+
+
+# =================================== THE D-001 FIX-PASS MUTANTS =============
+def t11_holdout_sessions_are_never_enumerated():
+    """R118 — a mutant that loads a D-058 holdout session MUST fail.
+
+    LAW (D-058): 2025-07-01..2025-12-31 is the PRE-EXAM HOLDOUT, blind-only,
+    touched ONCE after freeze.  This file had NO guard anywhere: build_sofar
+    walked X.session_paths with no date filter, so 471 holdout-dated rows
+    reached sofar_SI.tsv and the continuing walk-forward TRAINED on them.
+    """
+    import census_common as X             # noqa: E402
+    armed = True
+    detail = []
+    n_raw_holdout = 0
+    for asset in ("SI", "HG", "NKD"):
+        guarded, nq = MC.guarded_session_paths(asset, MC.M0_ROOT)
+        bad = [d for d, _p in guarded if MC.in_holdout(int(d.strftime("%Y%m%d")))]
+        armed &= (not bad) and nq > 0
+        # MUTANT: the ungated enumerator this module used to call
+        raw = X.session_paths(asset, MC.M0_ROOT)
+        n_raw_holdout += sum(1 for d, _p in raw
+                             if MC.in_holdout(int(d.strftime("%Y%m%d"))))
+        detail.append("%s guarded=%d quarantined=%d" % (asset, len(guarded), nq))
+    # and the panels the forecaster actually builds carry no holdout date
+    P = env()
+    leaked = [d for a in P for d in P[a].iso
+              if RF._d8_of_iso(d) >= RF.HOLDOUT_FROM_D8]
+    armed &= not leaked
+    # the mutant (raw X.session_paths) DOES see holdout sessions -> it fails
+    mutant_ok = (n_raw_holdout == 0)
+    detail.append("mutant(raw session_paths) holdout sessions=%d; panel leaks=%d"
+                  % (n_raw_holdout, len(leaked)))
+    return check("holdout_sessions_are_never_enumerated",
+                 "MT_R118_raw_X.session_paths_without_the_D058_filter",
+                 armed, mutant_ok, "; ".join(detail))
+
+
+def t12_gate_selector_is_h1_only():
+    """R118 — the GATE selector must be 2025-H1, never `years == 2025`."""
+    iso = ["2024-12-31", "2025-01-02", "2025-06-30", "2025-07-01",
+           "2025-12-31"]
+    got = RF.gate_mask(iso).tolist()
+    armed = got == [False, True, True, False, False]
+    # MUTANT: the selector this file used everywhere
+    years = np.array([int(d[0:4]) for d in iso])
+    mut = (years == 2025).tolist()
+    mutant_ok = (mut == got)
+    return check("gate_selector_is_h1_only",
+                 "MT_R118_sel_years_eq_2025_pools_H1_and_the_holdout",
+                 armed, mutant_ok,
+                 "guarded=%s mutant=%s era_of_iso(2025-08-01)=%s"
+                 % (got, mut, RF.era_of_iso("2025-08-01")))
+
+
+def t13_anchor_features_run_on_sane_mids():
+    """R88 — the anchor state must be built on D-054 SANE mids.
+
+    This was the ONLY M2 module that loaded a session outside
+    assemble.load_session (which applies b7_sane), so anchor_mid, the
+    pre-anchor range/return/efficiency, the mean spread and the valid fraction
+    all ran on RAW, INSANE mids.
+    """
+    import census_common as X             # noqa: E402
+    import b7_sane as B7                  # noqa: E402
+    paths, _nq = MC.guarded_session_paths("NKD", MC.M0_ROOT)
+    rows, _nref = RF._sofar_shard(("NKD", paths[:6]))
+    got = {(r[1], r[2]): r for r in rows}
+    armed, mutant_ok, detail = True, False, []
+    thr = B7.load_thresholds("NKD")
+    n_diff = 0
+    for trade_date, path in paths[:6]:
+        s_raw = X.load_session("NKD", trade_date, path)      # MUTANT: no mask
+        raw_n = int(s_raw.vt.size)
+        s_sane = X.load_session("NKD", trade_date, path)
+        B7.apply_for(s_sane, thr, "NKD", int(trade_date.strftime("%Y%m%d")))
+        sane_n = int(s_sane.vt.size)
+        if raw_n != sane_n:
+            n_diff += 1
+        r = got.get((trade_date.isoformat(), "NY_OPEN"))
+        if r is None:
+            continue
+        # the committed row's n_valid_before must be the SANE count before the
+        # anchor, never the raw one
+        a = int(r[3])
+        n_sane_before = int(np.searchsorted(s_sane.vt, a, side="left"))
+        n_raw_before = int(np.searchsorted(s_raw.vt, a, side="left"))
+        armed &= (int(r[8]) == n_sane_before)
+        if n_raw_before != n_sane_before:
+            mutant_ok = mutant_ok or (int(r[8]) == n_raw_before)
+        detail.append("%s sane=%d raw=%d stored=%d"
+                      % (trade_date, n_sane_before, n_raw_before, int(r[8])))
+    # the fixture must be REAL: the mask has to actually remove seconds here
+    armed &= (n_diff > 0)
+    return check("anchor_features_run_on_sane_mids",
+                 "MT_R88_X.load_session_without_b7_sane.apply_for",
+                 armed, mutant_ok,
+                 "sessions where the mask binds=%d; %s"
+                 % (n_diff, "; ".join(detail[:3])))
+
+
+def t14_anchor_mid_is_never_a_post_anchor_mid():
+    """R121 — anchor_mid must be a mid AT OR BEFORE the anchor, and its
+    availability stamp must be the OBSERVED second, not `anchor_ts - 1`.
+
+    The old code took `searchsorted(vt, a, "left")` — the first SANE second AT
+    OR AFTER the anchor — and then hand-stamped availability one second BEFORE
+    the anchor, so CausalGuard could not catch it by construction.
+    """
+    paths, _nq = MC.guarded_session_paths("SI", MC.M0_ROOT)
+    rows, _nr = RF._sofar_shard(("SI", paths[300:312]))
+    ci = {c: i for i, c in enumerate(RF.SOFAR_COLUMNS)}
+    armed = bool(rows)
+    for r in rows:
+        a = int(r[ci["anchor_sec"]])
+        ams = int(r[ci["anchor_mid_sec"]])
+        if ams >= 0:
+            armed &= (ams <= a)           # AT OR BEFORE, never after
+        else:
+            armed &= not np.isfinite(float(r[ci["anchor_mid"]]))
+    # MUTANT: the hand-stamped constant cannot fail the guard, so a
+    # POST-anchor observed second would sail through it
+    g = MC.CausalGuard(1_700_000_000, 1000, dt.date(2024, 1, 2))
+    fe = RF.Feats(g)
+    hand_stamped_ok = g.avail(1_700_000_000 - 1, "anchor_mid")
+    caught = False
+    try:
+        fe.add_at_anchor("anchor_mid", 1.0, 1_700_000_000 + 5)
+    except MC.LeakRefusal:
+        caught = True
+    armed &= caught
+    mutant_ok = bool(hand_stamped_ok) and not caught
+    return check("anchor_mid_is_never_a_post_anchor_mid",
+                 "MT_R121_av_anchor_hardcoded_to_anchor_ts_minus_1",
+                 armed, mutant_ok,
+                 "hand-stamp passes avail=%s; add_at_anchor caught a "
+                 "post-anchor stamp=%s" % (hand_stamped_ok, caught))
+
+
+def t15_refused_release_age_is_not_a_number():
+    """R122 — "no release in the last 24h" must REFUSE, not become 48.0.
+
+    A refused input that becomes a real-valued measurement is a fabricated
+    observation the model fits on, and `coverage_keep` counted it as finite
+    coverage so the feature could never be dropped for sparsity.
+    """
+    src = open(RF.__file__).read()
+    armed = ("else 48.0" not in src) and "release_since_refused" in src
+    # MUTANT: the imputation this file used to carry
+    mutant_ok = "else 48.0" in src
+    # and the refusal must be visible to coverage_keep as NON-finite
+    names = ["release_since_h"]
+    X = np.array([[float("nan")], [1.0]])
+    keep, rep = RF.coverage_keep(
+        type("P", (), {"asset": "SI", "iso": ["2021-01-04", "2021-01-05"]})(),
+        "OPEN", X, names)
+    armed &= (float(rep[0][3]) < 1.0)
+    return check("refused_release_age_is_not_a_number",
+                 "MT_R122_impute_no_release_in_24h_as_the_number_48.0",
+                 armed, mutant_ok,
+                 "coverage of a refused column=%s" % rep[0][3])
+
+
 TESTS = (t01_availability_test_catches_a_post_anchor_feature,
          t02_every_feature_carries_an_availability_stamp,
          t03_trailing_benchmark_window_is_strictly_prior,
@@ -416,7 +606,12 @@ TESTS = (t01_availability_test_catches_a_post_anchor_feature,
          t07_anchor_state_uses_only_seconds_before_the_anchor,
          t08_models_are_deterministic,
          t09_gate_2025_uses_frozen_coefficients,
-         t10_forecast_file_carries_no_realised_target)
+         t10_forecast_file_carries_no_realised_target,
+         t11_holdout_sessions_are_never_enumerated,
+         t12_gate_selector_is_h1_only,
+         t13_anchor_features_run_on_sane_mids,
+         t14_anchor_mid_is_never_a_post_anchor_mid,
+         t15_refused_release_age_is_not_a_number)
 
 
 def main():

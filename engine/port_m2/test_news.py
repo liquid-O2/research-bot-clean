@@ -317,12 +317,163 @@ def _fomc_probe():
     return out
 
 
+
+
+# =================================== THE D-001 FIX-PASS MUTANTS =============
+def n07_restricted_window_uses_both_side_constants():
+    """R123 — the PRE side of the restricted window must use VETO_PRE_SEC.
+
+    `min_dist` is the SYMMETRIC nearest distance, so
+    `min_dist <= VETO_POST_SEC` tested the PRE-release side with the POST
+    constant.  Numerically right only while both are 600 — and the header
+    advertises BOTH as user-updatable, which makes this the D-077 rule the USER
+    is expected to change.
+    """
+    n = 6
+    D = {"rel_age": np.array([100, 700, -1, -1, 100, -1], dtype=np.int64),
+         "to_next": np.array([-1, -1, 100, 700, 5000, 400], dtype=np.int64)}
+    D["min_dist"] = np.array([100, 700, 100, 700, 100, 400], dtype=np.int64)
+    armed_pre, armed_post = NC.VETO_PRE_SEC, NC.VETO_POST_SEC
+    try:
+        # DIVERGE the two constants, as the header invites the user to
+        NC.VETO_PRE_SEC, NC.VETO_POST_SEC = 120, 900
+        want = (((D["rel_age"] >= 0) & (D["rel_age"] <= NC.VETO_POST_SEC))
+                | ((D["to_next"] >= 0) & (D["to_next"] <= NC.VETO_PRE_SEC)))
+        got = (((D["rel_age"] >= 0) & (D["rel_age"] <= NC.VETO_POST_SEC))
+               | ((D["to_next"] >= 0) & (D["to_next"] <= NC.VETO_PRE_SEC)))
+        # MUTANT: the symmetric predicate this file used to carry
+        mut = (D["min_dist"] >= 0) & (D["min_dist"] <= NC.VETO_POST_SEC)
+        armed = bool(np.array_equal(got, want))
+        mutant_ok = bool(np.array_equal(mut, want))
+        detail = ("pre=%d post=%d  correct=%s  symmetric_mutant=%s"
+                  % (NC.VETO_PRE_SEC, NC.VETO_POST_SEC,
+                     got.astype(int).tolist(), mut.astype(int).tolist()))
+    finally:
+        NC.VETO_PRE_SEC, NC.VETO_POST_SEC = armed_pre, armed_post
+    # and the SHIPPED predicate must be the two-sided one
+    src = open(NC.__file__).read()
+    armed &= ('D["inside_window"] = (((D["rel_age"] >= 0)' in src)
+    armed &= ("VETO_PRE_SEC" in src.split('D["inside_window"]')[1][:400])
+    return check("restricted_window_uses_both_side_constants",
+                 "MT_R123_min_dist_symmetric_tested_against_VETO_POST_SEC",
+                 armed, mutant_ok, detail)
+
+
+def n08_refused_certificate_leaves_the_winner_denominator():
+    """R122 — a candidate whose certificate could not be COMPUTED must not be
+    counted as a MEASURED LOSER in the winner-rate denominator.
+
+    `NaN >= 1000.0` is False, so those rows used to sit in `n` and in the
+    winner_rate denominator while `mean_close` used `nanmean` over a DIFFERENT
+    denominator — biasing every winner rate in NEWS_DEPLOYABILITY.tsv /
+    NEWS_MINUTE_PROFILE.tsv low by an unreported refused fraction.
+    """
+    nan = float("nan")
+    D = {"cert_close": np.array([2000.0, -500.0, nan, 1500.0]),
+         "cert_peak": np.array([2100.0, -400.0, nan, 1600.0]),
+         "mae": np.array([10.0, 20.0, nan, 30.0]),
+         "winner": np.array([True, False, False, True]),
+         "walled": np.array([False, False, False, False]),
+         "sess_id": np.array([1, 1, 1, 1])}
+    m = np.ones(4, dtype=bool)
+    st = NC._stats(D, m)
+    armed = (st["n"] == 3 and st["n_refused_cert"] == 1
+             and abs(st["winner_rate"] - 2.0 / 3.0) < 1e-12)
+    # MUTANT: keep the refused row in the denominator
+    mut_rate = float(D["winner"][m].mean())          # 2/4
+    mutant_ok = abs(mut_rate - st["winner_rate"]) < 1e-12
+    return check("refused_certificate_leaves_the_winner_denominator",
+                 "MT_R122_count_an_uncomputable_certificate_as_a_loser",
+                 armed, mutant_ok,
+                 "guarded rate=%.4f n=%d refused=%d; mutant rate=%.4f"
+                 % (st["winner_rate"], st["n"], st["n_refused_cert"],
+                    mut_rate))
+
+
+def n09_destruction_eras_draw_independent_streams():
+    """R124 — FIT and GATE_2025H1 must not draw the IDENTICAL permutation
+    stream, and 40 replicates cannot support a SURVIVES/DESTROYED verdict."""
+    import p001_census as P1              # noqa: E402
+    a = P1.destruction_seed("OBJ|FIT", 0, base=NC.DESTRUCTION_SEED)
+    b = P1.destruction_seed("OBJ|GATE_2025H1", 0, base=NC.DESTRUCTION_SEED)
+    armed = (a != b) and NC.DESTRUCTION_REPS >= 200
+    # MUTANT: the seed this file used, which ignored the era entirely
+    mut_a = NC.DESTRUCTION_SEED + 0
+    mut_b = NC.DESTRUCTION_SEED + 0
+    mutant_ok = (mut_a == mut_b) and (a == b)
+    # the resolution claim has to be true, not asserted
+    res = 1.0 / (NC.DESTRUCTION_REPS + 1.0)
+    armed &= (res < 0.01)
+    return check("destruction_eras_draw_independent_streams",
+                 "MT_R124_RandomState(SEED+i)_inside_the_era_loop",
+                 armed, mutant_ok,
+                 "FIT seed=%d GATE seed=%d reps=%d finest_p=%.4f"
+                 % (a, b, NC.DESTRUCTION_REPS, res))
+
+
+def n10_slot_baseline_is_in_the_params_hash():
+    """R125 — the PRIMARY baseline for half the sweep must be hashed.
+
+    `SAME_DAY_SLOT_FAR` is the baseline for EVERY NEWS_SLOT profile and GEE
+    branch, and `PARAMS["baselines"]` documented only three — so the provenance
+    hash did not cover the definition of the baseline most of the inference
+    runs against.
+    """
+    bl = NC.PARAMS.get("baselines", {})
+    armed = (NC.SLOT_BASELINE in bl
+             and set(NC.BASELINES) <= set(bl)
+             and NC.PARAMS.get("slot_baseline") == NC.SLOT_BASELINE)
+    # MUTANT: the three-key dict this file used to hash
+    mut = {k: bl[k] for k in ("SAME_DAY_FAR", "G1_UNIVERSE_FAR", "ALL_FAR")
+           if k in bl}
+    h_full = MC.params_hash({"baselines": bl})
+    h_mut = MC.params_hash({"baselines": mut})
+    mutant_ok = (h_full == h_mut)
+    return check("slot_baseline_is_in_the_params_hash",
+                 "MT_R125_PARAMS_baselines_omits_SAME_DAY_SLOT_FAR",
+                 armed, mutant_ok,
+                 "keys=%s; hash(full)=%s hash(3-key)=%s"
+                 % (sorted(bl), h_full[:12], h_mut[:12]))
+
+
+def n11_undersized_gee_cells_emit_a_named_no_test():
+    """MINOR (3.2c) — a cell below MIN_N_GEE must EMIT a NO_TEST row.
+
+    It used to `return` silently: no row, no marker, no count, so a reader
+    could not distinguish "tested and null" from "never tested" and `_holm`'s
+    family size m depended on which cells happened to be large enough.
+    """
+    n = 10
+    D = {"winner": np.zeros(n, dtype=bool),
+         "cert_close": np.zeros(n), "cert_peak": np.zeros(n),
+         "sess_id": np.arange(n)}
+    band = np.zeros(n, dtype=bool)
+    band[:3] = True
+    robust = []
+    NC._gee_row(D, robust, "TINY", "FIT", "winner", band, ~band)
+    armed = (len(robust) == 1
+             and str(robust[0][-1]).startswith("NO_TEST_below_MIN_N_GEE")
+             and not np.isfinite(robust[0][12]))
+    # MUTANT: the silent return
+    mutant_ok = (len(robust) == 0)
+    return check("undersized_gee_cells_emit_a_named_no_test",
+                 "MT_MINOR_gee_row_returns_silently_below_MIN_N_GEE",
+                 armed, mutant_ok,
+                 "rows=%d verdict=%s" % (len(robust),
+                                         robust[0][-1] if robust else "-"))
+
+
 TESTS = (n01_release_join_is_strictly_causal,
          n02_bucket_boundaries_are_half_open,
          n03_slot_anchor_agrees_with_generation,
          n04_held_into_window_is_padded,
          n05_distance_helper_is_complete,
-         n06_dated_calendar_is_inside_the_anchor_set)
+         n06_dated_calendar_is_inside_the_anchor_set,
+         n07_restricted_window_uses_both_side_constants,
+         n08_refused_certificate_leaves_the_winner_denominator,
+         n09_destruction_eras_draw_independent_streams,
+         n10_slot_baseline_is_in_the_params_hash,
+         n11_undersized_gee_cells_emit_a_named_no_test)
 
 
 def main():

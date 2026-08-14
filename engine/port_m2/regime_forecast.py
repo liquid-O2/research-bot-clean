@@ -86,6 +86,7 @@ import context as CTX                     # noqa: E402
 import common as C                        # noqa: E402
 import census_common as X                 # noqa: E402
 import c_c_roster as CCR                  # noqa: E402
+import b7_sane as B7                     # noqa: E402  (D-054 mid-sanity mask)
 
 SECTION = "CC-M2-11.2 forward-offer / regime forecaster (method §13.1)"
 OUT_SUB = "regime_forecast"
@@ -105,6 +106,16 @@ TRAIL = 60                   # benchmark trailing window (sessions)
 TRAIL_MIN = 20               # min observations for a trailing benchmark
 MIN_TRAIN = 250              # fvol's own gate, reused
 FREEZE_CUTOFF = dt.date(2025, 1, 1)      # era law: FIT ends 2024-12-31
+# R118: this file had NO HOLDOUT GUARD ANYWHERE — `grep -c "20250701|HOLDOUT"`
+# returned 0.  `build_sofar` walked X.session_paths with no date filter,
+# `era_of_year` mapped ALL of 2025 to GATE, every GATE metric selected
+# `years == 2025` (H1+H2), and — worst — the CONTINUING walk-forward refits
+# MONTHLY THROUGH 2025-12, so D-058 PRE-EXAM HOLDOUT sessions were TRAINING
+# ROWS for the *_wfcont columns the forecast tables publish.  The boundary is
+# ONE constant now and every enumeration goes through MC.guarded_session_paths.
+HOLDOUT_FROM_D8 = MC.HOLDOUT_FROM_D8      # 20250701
+HOLDOUT_FROM_DATE = dt.date(2025, 7, 1)
+GATE_ERA = "GATE_2025H1"                  # a HALF year, and the name says so
 COVERAGE_MIN = 0.80          # fvol's context rule, applied to every feature
 PINBALL_Q = (0.10, 0.90)
 RIDGE_LAM = 1.0
@@ -133,8 +144,39 @@ PARAMS = {
                    "not walled (D-021; class_census.py:57 rule) — TARGET ONLY",
     "walk_forward": "expanding window, monthly refit, min_train %d sessions"
                     % MIN_TRAIN,
-    "era_law": "every choice on FIT 2021-2024; 2025 carries coefficients frozen "
-               "at the last FIT refit; GATE 2025 is an ECHO, eval-only",
+    "era_law": "every choice on FIT 2021-2024; 2025-H1 carries coefficients "
+               "frozen at the last FIT refit; GATE_2025H1 is an ECHO, "
+               "eval-only",
+    "holdout": "D-058 — sessions >= %d (2025-07-01) are NEVER ENUMERATED. "
+               "R118: this file previously had NO holdout guard anywhere; "
+               "build_sofar walked X.session_paths with no date filter, "
+               "era_of_year mapped ALL of 2025 to GATE, every GATE metric "
+               "selected years == 2025 (H1+H2), and the CONTINUING "
+               "walk-forward refits MONTHLY THROUGH 2025-12 — so holdout "
+               "sessions were TRAINING ROWS for the *_wfcont columns. Every "
+               "enumeration now goes through m2_common.guarded_session_paths "
+               "and every GATE selector through gate_mask()."
+               % HOLDOUT_FROM_D8,
+    "sane_mids": "R88/D-054 — b7_sane is applied to every session here. This "
+                 "was the ONLY M2 module that loaded a session outside "
+                 "assemble.load_session, so anchor_mid, the pre-anchor "
+                 "range/return/efficiency, the mean spread and the valid "
+                 "fraction all ran on RAW, INSANE mids.",
+    "anchor_mid_causality": "R121 — anchor_mid REFUSES unless a SANE tick "
+                            "exists AT the anchor second (searchsorted 'left' "
+                            "returns the first tick AT OR AFTER it), and its "
+                            "availability stamp is the OBSERVED second, not "
+                            "the hardcoded anchor_ts - 1 that made CausalGuard "
+                            "unable to catch a post-anchor mid by "
+                            "construction. gap_usd and abs_gap_over_sigma "
+                            "inherit both.",
+    "refused_inputs": "R122 — 'no release in the last 24h' is a REFUSAL "
+                      "(NaN) plus its own `release_since_refused` indicator, "
+                      "not the number 48.0 (a fabricated measurement, "
+                      "inconsistent with the lookup's own 86400s window, that "
+                      "coverage_keep counted as finite coverage so the feature "
+                      "could never be dropped for sparsity). The per-session "
+                      "cost fallback is counted in the receipt.",
     "models": ["LINEAR (ridge, standardised, lam=%.1f / logistic-ridge IRLS, "
                "lam=%.1f)" % (RIDGE_LAM, LOGIT_LAM),
                "GBT-small (histogram, %d trees, depth %d, lr %.2f, min_leaf %d,"
@@ -142,7 +184,26 @@ PARAMS = {
                % (GBT["n_trees"], GBT["depth"], GBT["lr"], GBT["min_leaf"],
                   GBT["l2"], GBT["n_bins"])],
     "model_choice": "per (asset, anchor, target) by FIT walk-forward score "
-                    "(Brier for the class, MAE for the regressions)",
+                    "(Brier for the class, MAE for the regressions); TIES "
+                    "BREAK TO LINEAR (MINOR: the code broke ties to GBT via "
+                    "the `f` tie-key while model_choice.tsv's own note told "
+                    "the reader ties break to LINEAR — the note is now the "
+                    "truth and the key implements it)",
+    "coverage_keep_caveat": "MINOR — coverage_keep is computed over the WHOLE "
+                            "FIT era and the one `keep` mask is applied to "
+                            "every walk-forward refit, so the walk-forward is "
+                            "not strictly prior AT THE FEATURE-SET LAYER, "
+                            "contrary to the module docstring. The rule is "
+                            "TARGET-FREE (finite coverage and variance only), "
+                            "so the bias is mild; it is DECLARED here rather "
+                            "than left as a docstring claim the code does not "
+                            "keep.",
+    "un_censused_constants": "declared basis (3.2c MINORS): "
+                             "min(72.0, countdown_h) caps an unbounded "
+                             "countdown at 3 days so a distant release cannot "
+                             "dominate a ridge; np.clip(share_pred, 0.01, "
+                             "0.98) keeps the simplex projection well defined "
+                             "at the corners. Neither carries a sweep.",
     "benchmarks_class": ["BASE_RATE (trailing strictly-prior P(EXPANSION))",
                          "PERSISTENCE (trailing P(EXP | yesterday's day-type))"],
     "benchmarks_range": ["TRAILING_MEDIAN (%d sessions)" % TRAIL,
@@ -170,6 +231,11 @@ PARAMS = {
                    "(4,521 sessions) is out of budget under the <=4-worker "
                    "constraint; recorded as a deferred enhancement, not hidden",
 }
+
+
+# Declared refusal / quarantine counters, stamped into the receipt.  A refusal
+# is a VALUE that is counted and named (D-006/D22), never an absence.
+QUARANTINE = {}
 
 
 def out_path(*parts):
@@ -206,7 +272,7 @@ SOFAR_COLUMNS = ("asset", "trade_date", "anchor", "anchor_sec", "anchor_ts",
                  "sofar_range_usd", "sofar_ret_usd", "sofar_eff",
                  "sofar_imbalance", "sofar_spread_usd", "sofar_valid_frac",
                  "sofar_up_frac", "phase_sec_TOKYO", "phase_sec_LONDON",
-                 "phase_sec_NY", "degenerate")
+                 "phase_sec_NY", "degenerate", "anchor_mid_sec")
 
 
 def _anchor_secs(s):
@@ -223,9 +289,27 @@ def _anchor_secs(s):
 def _sofar_shard(args):
     asset, sess = args
     mult = C.ASSETS[asset]["mult"]
+    thr = B7.load_thresholds(asset)
     rows = []
+    n_refused = 0
     for trade_date, path in sess:
         s = X.load_session(asset, trade_date, path)
+        # R88: this was the ONLY M2 module that loaded a session OUTSIDE
+        # assemble.load_session, which applies the D-054 mid-sanity mask at
+        # :180 — so every anchor feature below (anchor_mid, the pre-anchor
+        # range / return / efficiency, the mean spread, the valid fraction)
+        # ran on RAW, INSANE mids: wide-but-two-sided books whose phantom legs
+        # are spread-collapse artifacts, not price travel.  D-054 says ALL mid
+        # consumers use SANE seconds only, typed-excluded, never interpolated.
+        try:
+            B7.apply_for(s, thr, asset, int(X.d8_of(trade_date))
+                         if hasattr(X, "d8_of")
+                         else int(trade_date.strftime("%Y%m%d")))
+        except B7.SaneThresholdRefusal:
+            # a REFUSAL, counted and named — never a session silently kept on
+            # an uncomputed mask (assemble.load_session takes the same line)
+            n_refused += 1
+            continue
         o = int(s.meta["open_utc"])
         close_utc = int(s.meta.get("close_utc", o + s.n))
         secs = _anchor_secs(s)
@@ -240,7 +324,23 @@ def _sofar_shard(args):
             # everything else is strictly before it.
             j0 = int(np.searchsorted(vt, a, side="left"))
             j1 = int(np.searchsorted(vt, a, side="right"))
-            anchor_mid = float(vm[j0]) if j0 < vm.size else float("nan")
+            # R121: `searchsorted(..., "left")` is the first SANE second AT OR
+            # AFTER the anchor, so `vm[j0]` could be a POST-ANCHOR mid — and
+            # `build_features` then hand-stamped its availability as
+            # `anchor_ts - 1`, a HARDCODED CONSTANT rather than the observed
+            # second, so CausalGuard could not catch it by construction.
+            # `at_decision` semantics permit only `<= anchor`.  The mid is the
+            # LAST SANE mid AT OR BEFORE the anchor (pattern_lib's own
+            # `mid_now` rule), it REFUSES where no SANE tick exists yet, and
+            # the OBSERVED second is carried out so the availability guard gets
+            # a real stamp instead of a hand-stamped assertion.
+            ja = int(np.searchsorted(vt, a, side="right")) - 1
+            if ja >= 0:
+                anchor_mid = float(vm[ja])    # last SANE mid AT OR BEFORE the
+                anchor_mid_sec = int(vt[ja])  # anchor — knowable at the anchor
+            else:
+                anchor_mid = float("nan")     # REFUSED: no SANE tick yet
+                anchor_mid_sec = -1
             pre = vm[:j0]
             if pre.size >= 2:
                 rng = (float(pre.max()) - float(pre.min())) * mult
@@ -264,29 +364,43 @@ def _sofar_shard(args):
             rows.append([asset, trade_date.isoformat(), anchor, a, o + a, o,
                          close_utc, anchor_mid, int(sel.size), rng, ret, eff,
                          imb, spr, vf, up, counts["TOKYO"], counts["LONDON"],
-                         counts["NY"], degen])
+                         counts["NY"], degen, anchor_mid_sec])
         _ = j1
-    return rows
+    return rows, n_refused
 
 
 def build_sofar(assets, workers):
     tasks = []
+    n_quarantined = 0
     for asset in assets:
         by_month = {}
-        for d, p in X.session_paths(asset, MC.M0_ROOT):
+        # R118: THE structural fix — the ONE guarded M2 enumerator.  This used
+        # to be a bare X.session_paths walk with no date filter, which is how
+        # 471 holdout-dated rows reached sofar_SI.tsv and how the continuing
+        # walk-forward came to TRAIN on them.
+        paths, nq = MC.guarded_session_paths(asset, MC.M0_ROOT)
+        n_quarantined += nq
+        for d, p in paths:
             by_month.setdefault(X.month_key(d), []).append((d, p))
         for mk in sorted(by_month):
             tasks.append((asset, by_month[mk]))
-    MC.hb("sofar: %d (asset,month) tasks" % len(tasks))
+    MC.hb("sofar: %d (asset,month) tasks, %d holdout sessions quarantined"
+          % (len(tasks), n_quarantined))
+    QUARANTINE["sofar_sessions"] = int(n_quarantined)
     if workers <= 1 or len(tasks) <= 1:
         res = [_sofar_shard(t) for t in tasks]
     else:
         with mp.Pool(min(workers, len(tasks))) as pool:
             res = list(pool.map(_sofar_shard, tasks, chunksize=1))
     rows = []
-    for r in res:
+    n_sane_refused = 0
+    for r, nr in res:
         rows.extend(r)
+        n_sane_refused += int(nr)
+    QUARANTINE["sane_threshold_refused_sessions"] = int(n_sane_refused)
     rows.sort(key=lambda r: (r[0], r[1], ANCHORS.index(r[2])))
+    n_anchor_refused = sum(1 for r in rows if int(r[20]) < 0)
+    QUARANTINE["anchor_mid_refused_rows"] = int(n_anchor_refused)
     for asset in assets:
         sel = [r for r in rows if r[0] == asset]
         MC.write_tsv(out_path("sofar_%s.tsv" % asset), SECTION,
@@ -294,6 +408,18 @@ def build_sofar(assets, workers):
                      extra=["anchor state built from seconds STRICTLY BEFORE "
                             "anchor_sec; anchor_mid is the anchor's own book "
                             "(CausalGuard.at_decision)",
+                            "R88: mids are D-054 SANE seconds — b7_sane is "
+                            "applied here, as assemble.load_session does; this "
+                            "module used to be the ONLY M2 consumer running "
+                            "anchor features on raw, insane mids",
+                            "R121: anchor_mid REFUSES (NaN) unless a SANE tick "
+                            "exists AT the anchor second; anchor_mid_sec "
+                            "carries the OBSERVED second (-1 = refused) so the "
+                            "availability guard gets a real stamp instead of "
+                            "the hardcoded anchor_ts - 1 it used to be handed",
+                            "D-058: sessions >= %d are NEVER ENUMERATED "
+                            "(m2_common.guarded_session_paths); %d were "
+                            "quarantined" % (HOLDOUT_FROM_D8, n_quarantined),
                             "degenerate=1 marks the stale-book receipts (frozen "
                             "quote, zero range) excluded everywhere downstream"])
     return rows
@@ -310,7 +436,38 @@ TRUTH_COLUMNS = ("asset", "trade_date", "year", "era", "range_usd",
 
 
 def era_of_year(y):
-    return "FIT" if 2021 <= y <= 2024 else ("GATE" if y == 2025 else "OTHER")
+    """Era of a calendar YEAR.  Kept for callers that only have a year.
+
+    R118: this used to map ALL of 2025 to "GATE".  The holdout is excluded at
+    enumeration now, so every 2025 row that reaches this function is H1 — but
+    the name is corrected anyway, because the old name asserted a whole year.
+    """
+    return "FIT" if 2021 <= y <= 2024 else (GATE_ERA if y == 2025 else "OTHER")
+
+
+def era_of_iso(iso):
+    """Era of an ISO date — the form that can actually see the boundary."""
+    y = int(str(iso)[0:4])
+    if 2021 <= y <= 2024:
+        return "FIT"
+    if y == 2025:
+        return "HOLDOUT_2025H2" if _d8_of_iso(iso) >= HOLDOUT_FROM_D8 \
+            else GATE_ERA
+    return "OTHER"
+
+
+def _d8_of_iso(iso):
+    t = str(iso)
+    return int(t[0:4] + t[5:7] + t[8:10])
+
+
+def gate_mask(iso_list):
+    """The GATE selector: 2025 H1 ONLY.
+
+    R118: every GATE metric used to select `years == 2025`, which is H1 AND the
+    D-058 pre-exam holdout together."""
+    return np.array([(int(d[0:4]) == 2025 and _d8_of_iso(d) < HOLDOUT_FROM_D8)
+                     for d in iso_list], dtype=bool)
 
 
 def menu_counts(asset, sofar_by_key):
@@ -325,13 +482,25 @@ def menu_counts(asset, sofar_by_key):
     mae = r["mae_before_argmax"]
     dec = r["dec_sec"]
     by = {}
+    n_holdout = 0
     for i in range(int(d8.size)):
+        # R118: the roster walk was a SECOND unguarded enumeration.  The menu
+        # TARGET is outcome-side, so a holdout row here is a holdout label.
+        if MC.in_holdout(int(d8[i])):
+            n_holdout += 1
+            continue
         by.setdefault(int(d8[i]), []).append(i)
+    QUARANTINE["menu_rows_quarantined"] = \
+        QUARANTINE.get("menu_rows_quarantined", 0) + int(n_holdout)
     out = {}
     for d in sorted(by):
         iso = MC.d8_to_date(d).isoformat()
         cost = cm.get((asset, iso), float("nan"))
         if not np.isfinite(cost):
+            # R122/R23: an uncounted, unnamed fallback inside every certificate
+            # that decides the D-021 menu target.  Counted now.
+            QUARANTINE["cost_fallback_sessions"] = \
+                QUARANTINE.get("cost_fallback_sessions", 0) + 1
             cost = C.FEES_RT
         wins = []
         for i in by[d]:
@@ -364,8 +533,12 @@ def build_truth(assets, sofar_rows):
     for asset in assets:
         MC.hb("truth %s: menu counts from the roster" % asset)
         menus = menu_counts(asset, sofar_by_key)
+        # R118: `v1_realized.tsv` is a THIRD unguarded enumeration — this is
+        # where the 393 holdout-dated truth rows came from, and truth rows are
+        # what the walk-forward trains on.
         dates = sorted({k[1] for k in seg if k[0] == asset
-                        and k[2] == "SESSION"})
+                        and k[2] == "SESSION"
+                        and not MC.in_holdout(_d8_of_iso(k[1]))})
         hist = []                              # strictly prior real ranges
         for iso in dates:
             s = seg[(asset, iso, "SESSION")]
@@ -388,7 +561,7 @@ def build_truth(assets, sofar_rows):
                 q75, dtype = float("nan"), None
             m = menus.get(iso, {})
             y = int(iso[0:4])
-            rows.append([asset, iso, y, era_of_year(y), rng,
+            rows.append([asset, iso, y, era_of_iso(iso), rng,
                          ph["TOKYO"], ph["LONDON"], ph["NY"],
                          shares["TOKYO"], shares["LONDON"], shares["NY"],
                          q75, dtype,
@@ -429,6 +602,32 @@ class Feats(object):
         self.names = []
         self.vals = []
         self.n_missing = 0
+
+    def add_at_anchor(self, name, value, observed_ts):
+        """The ANCHOR'S OWN BOOK — `at_decision` semantics, not `avail`.
+
+        R121: the anchor-state features used to be stamped `anchor_ts - 1`, a
+        HARDCODED CONSTANT chosen so `avail`'s strict `< decision_ts` would
+        pass.  That made the availability guard incapable of catching a
+        post-anchor mid by construction, which is exactly what `anchor_mid`
+        was.  The stamp here is the OBSERVED second, and the rule is the
+        guard's own `at_decision`: at or before the anchor is fine, AFTER it
+        RAISES.  Now the guard can fail, which is the whole point of having it.
+        """
+        if observed_ts is None:
+            self.n_missing += 1
+            self.names.append(name)
+            self.vals.append(float("nan"))
+            return
+        self.guard.checks += 1
+        if int(observed_ts) > self.guard.decision_ts:
+            self.guard.refuse(name, "anchor_observed_ts", int(observed_ts))
+        v = _f(value)
+        if not np.isfinite(v):
+            self.n_missing += 1
+            v = float("nan")
+        self.names.append(name)
+        self.vals.append(v)
 
     def add(self, name, value, availability_ts):
         if availability_ts is None:
@@ -685,7 +884,18 @@ def build_features(panel, i, anchor, guard, panels):
 
     # ---- C. anchor state -------------------------------------------------
     sf = panel.sofar.get((iso, anchor))
-    av_anchor = int(_f(sf["anchor_ts"])) - 1 if sf else None
+    # R121: this used to be `anchor_ts - 1` — a HARDCODED CONSTANT, not the
+    # observed second — so CausalGuard could never catch a post-anchor
+    # anchor_mid.  The stamp is the OBSERVED second of the anchor mid now
+    # (sofar carries anchor_mid_sec, and anchor_mid itself is the last SANE
+    # mid AT OR BEFORE the anchor, REFUSING when there is none), and the
+    # anchor block goes through `add_at_anchor`, which applies the guard's
+    # `at_decision` rule and RAISES on a post-anchor stamp.
+    av_anchor = None
+    if sf:
+        _ams = int(_f(sf.get("anchor_mid_sec", -1), -1))
+        _open = int(_f(sf["anchor_ts"])) - int(_f(sf["anchor_sec"]))
+        av_anchor = (_open + _ams) if _ams >= 0 else None
     if sf:
         gap = float("nan")
         if prev_iso:
@@ -693,30 +903,30 @@ def build_features(panel, i, anchor, guard, panels):
             am = _f(sf["anchor_mid"])
             if np.isfinite(pc) and np.isfinite(am):
                 gap = (am - pc) * panel.mult
-        fe.add("gap_usd", gap, av_anchor)
-        fe.add("abs_gap_over_sigma",
+        fe.add_at_anchor("gap_usd", gap, av_anchor)
+        fe.add_at_anchor("abs_gap_over_sigma",
                abs(gap) / sigma_hat if (np.isfinite(gap) and
                                         np.isfinite(sigma_hat) and
                                         sigma_hat > 0) else float("nan"),
                av_anchor)
         sr = _f(sf["sofar_range_usd"])
-        fe.add("sofar_range_usd", sr, av_anchor)
-        fe.add("sofar_range_over_hat",
+        fe.add_at_anchor("sofar_range_usd", sr, av_anchor)
+        fe.add_at_anchor("sofar_range_over_hat",
                sr / range_hat if (np.isfinite(sr) and np.isfinite(range_hat)
                                   and range_hat > 0) else float("nan"),
                av_anchor)
-        fe.add("sofar_range_over_trailmed",
+        fe.add_at_anchor("sofar_range_over_trailmed",
                sr / tm if (np.isfinite(sr) and np.isfinite(tm) and tm > 0)
                else float("nan"), av_anchor)
         for nm in ("sofar_ret_usd", "sofar_eff", "sofar_imbalance",
                    "sofar_valid_frac", "sofar_up_frac"):
-            fe.add(nm, _f(sf[nm]), av_anchor)
+            fe.add_at_anchor(nm, _f(sf[nm]), av_anchor)
         psp = _f(sf["sofar_spread_usd"])
         pm = _trail_stat(panel.spread_arr[anchor], i, TRAIL, "median")
-        fe.add("sofar_spread_rel",
+        fe.add_at_anchor("sofar_spread_rel",
                psp / pm if (np.isfinite(psp) and np.isfinite(pm) and pm > 0)
                else float("nan"), av_anchor)
-        fe.add("anchor_frac_of_session",
+        fe.add_at_anchor("anchor_frac_of_session",
                float(_f(sf["anchor_sec"])) /
                max(1.0, float(_f(sf["close_utc"]) - _f(sf["open_utc"]))),
                av_anchor)
@@ -726,36 +936,52 @@ def build_features(panel, i, anchor, guard, panels):
                    "sofar_ret_usd", "sofar_eff", "sofar_imbalance",
                    "sofar_valid_frac", "sofar_up_frac", "sofar_spread_rel",
                    "anchor_frac_of_session"):
-            fe.add(nm, float("nan"), None)
+            fe.add_at_anchor(nm, float("nan"), None)
 
     # ---- D. calendar / clock (schedule-exempt, known months ahead) --------
+    # R121 knock-on: the calendar block used to be stamped `av_anchor` — which
+    # WAS `anchor_ts - 1`, i.e. the same hand-stamped constant.  The schedule
+    # is SCHEDULE_EXEMPT under D-057 (release DATES publish months ahead), so
+    # its honest availability stamp is any strictly-prior epoch: the previous
+    # session's close.  Where there is none (an asset's first session) the
+    # features REFUSE rather than borrow the anchor's own second.
+    av_sched = av_prev
     wd = dt.date.fromisoformat(iso).weekday()
     for k, nm in ((1, "dow_TUE"), (2, "dow_WED"), (3, "dow_THU"),
                   (4, "dow_FRI")):
-        fe.add(nm, 1.0 if wd == k else 0.0, av_anchor or av_prev)
+        fe.add(nm, 1.0 if wd == k else 0.0, av_sched)
     nxt = CTX.next_release(guard, asset)
     close_ts = panel.close_utc.get(iso)
     if nxt and close_ts:
         today = 1.0 if nxt["event_ts"] <= close_ts else 0.0
         name = nxt["name"].upper()
-        fe.add("release_today", today, av_anchor or av_prev)
+        fe.add("release_today", today, av_sched)
         fe.add("release_today_FOMC", today if "FOMC" in name else 0.0,
-               av_anchor or av_prev)
+               av_sched)
         fe.add("release_today_CPI",
                today if ("CONSUMER PRICE" in name or "CPI" in name) else 0.0,
-               av_anchor or av_prev)
+               av_sched)
         fe.add("release_today_JOBS",
                today if ("EMPLOYMENT SITUATION" in name or "JOB" in name)
-               else 0.0, av_anchor or av_prev)
+               else 0.0, av_sched)
         fe.add("release_countdown_h",
-               min(72.0, nxt["countdown_sec"] / 3600.0), av_anchor or av_prev)
+               min(72.0, nxt["countdown_sec"] / 3600.0), av_sched)
     else:
         for nm in ("release_today", "release_today_FOMC", "release_today_CPI",
                    "release_today_JOBS", "release_countdown_h"):
             fe.add(nm, float("nan"), None)
     rec = CTX.recent_release(guard, asset, window_sec=86400)
-    fe.add("release_since_h", (rec["since_sec"] / 3600.0) if rec else 48.0,
-           av_anchor or av_prev)
+    # R122: "no release in the last 24h" used to be imputed as the NUMBER 48.0
+    # — a refused input becoming a real-valued measurement the model fits on,
+    # inconsistent with the lookup's own window_sec=86400, and counted by
+    # coverage_keep as FINITE coverage so the feature could never be dropped
+    # for sparsity.  Every other missing branch in this function returns None.
+    # It refuses, and the REFUSAL is its own indicator feature so the model can
+    # still use the fact rather than a fabricated 48 hours.
+    fe.add("release_since_h", (rec["since_sec"] / 3600.0) if rec
+           else float("nan"), av_sched)
+    fe.add("release_since_refused", 0.0 if rec else 1.0,
+           av_sched)
 
     # ---- E. external context (availability-lagged, D-057) ----------------
     _series_feat(fe, "log_GVZ", guard, "GVZ", lambda v: _log(v[0]))
@@ -1525,8 +1751,12 @@ def choose_families(panel, anchor, res, fit):
                     [mae(panel.share_arr[p][fit],
                          res["share_%s" % p][fam]["pred"][fit])
                      for p in PHASES]))
+        # MINOR (3.2c): `f` as the tie-key broke ties to GBT ("GBT" < "LINEAR")
+        # while model_choice.tsv's `extra` note told the reader ties break to
+        # LINEAR.  LINEAR is the simpler model and the note is the contract.
         best = min(("LINEAR", "GBT"),
-                   key=lambda f: (not np.isfinite(sc[f]), sc[f], f))
+                   key=lambda f: (not np.isfinite(sc[f]), sc[f],
+                                  0 if f == "LINEAR" else 1))
         picks[grp] = best
         rows.append([panel.asset, anchor, grp, best, sc["LINEAR"], sc["GBT"],
                      "Brier" if grp == "day_type" else "MAE"])
@@ -1563,7 +1793,11 @@ def score(panel, anchor, pred, bench, picks, era):
     """Metrics rows for one (asset, anchor, era) — scored on exactly the series
     the forecast TSV carries."""
     years = np.array([int(d[0:4]) for d in panel.iso])
-    sel = (years >= 2021) & (years <= 2024) if era == "FIT" else (years == 2025)
+    # R118: the GATE selector was `years == 2025` — H1 AND the D-058 pre-exam
+    # holdout together.  The holdout is excluded at enumeration now, and this
+    # selector says so explicitly so a re-enabled holdout cannot leak back in.
+    sel = ((years >= 2021) & (years <= 2024) if era == "FIT"
+           else gate_mask(panel.iso))
     out = []
     y = panel.daytype_arr
     p = pred["day_type"]
@@ -1693,10 +1927,11 @@ def report(assets=None):
           "(the probabilistic form of \"always RANGE\"); PERSISTENCE = the "
           "trailing P(EXPANSION today | yesterday's day-type)."
           % (int(DAYTYPE_Q), DAYTYPE_WINDOW, DAYTYPE_MIN_OBS), ""]
-    for era in ("FIT", "GATE"):
-        L += ["### %s era%s" % (era, " (2025 ECHO — eval-only, frozen "
-                                "coefficients)" if era == "GATE" else
-                                " 2021-2024"), "",
+    for era in ("FIT", GATE_ERA):
+        L += ["### %s era%s" % (era, " (2025-H1 ECHO — eval-only, frozen "
+                                "coefficients; the D-058 pre-exam holdout "
+                                "2025-07..12 is NEVER LOADED, R118)"
+                                if era == GATE_ERA else " 2021-2024"), "",
               "| asset | anchor | n | model AUC | base AUC | persist AUC | "
               "model Brier | base Brier | persist Brier | verdict | source |",
               "|---|---|---|---|---|---|---|---|---|---|---|"]
@@ -1759,7 +1994,7 @@ def report(assets=None):
           "|---|---|---|---|---|---|---|---|---|---|---|"]
     for a in assets:
         for anc in ANCHORS:
-            for era in ("FIT", "GATE"):
+            for era in ("FIT", GATE_ERA):
                 rt, src = M(a, anc, era, "range", "TRAILING_MEDIAN")
                 rq, _ = M(a, anc, era, "range", "PERSISTENCE")
                 rf, _ = M(a, anc, era, "range", "FVOL_RANGE_HAT")
@@ -1782,7 +2017,7 @@ def report(assets=None):
           "q90 bench | source |", "|---|---|---|---|---|---|---|---|"]
     for a in assets:
         for anc in ANCHORS:
-            for era in ("FIT", "GATE"):
+            for era in ("FIT", GATE_ERA):
                 r1, src = M(a, anc, era, "range_pinball_q10",
                             "TRAILING_QUANTILE")
                 r9, _ = M(a, anc, era, "range_pinball_q90",
@@ -1828,7 +2063,7 @@ def report(assets=None):
           "|---|---|---|---|---|---|---|---|---|---|"]
     for a in assets:
         for anc in ANCHORS:
-            for era in ("FIT", "GATE"):
+            for era in ("FIT", GATE_ERA):
                 r, src = M(a, anc, era, "menu", "TRAILING_MEDIAN")
                 if not r:
                     continue
@@ -2033,10 +2268,10 @@ def main():
             picks, crows = choose_families(panel, anchor, res, fit)
             choice_rows.extend(crows)
             pred = final_predictions(panel, anchor, res, picks, years)
-            for era in ("FIT", "GATE"):
+            for era in ("FIT", GATE_ERA):
                 metric_rows.extend(score(panel, anchor, pred, bench, picks,
                                          era))
-                sel = fit if era == "FIT" else (years == 2025)
+                sel = fit if era == "FIT" else gate_mask(panel.iso)
                 for bn, bv in bench["day_type"].items():
                     la, ha = block_bootstrap_ci(panel.daytype_arr,
                                                 pred["day_type"], bv, auc, sel)
@@ -2052,7 +2287,7 @@ def main():
                 y_ = int(iso[0:4])
                 gate = y_ >= 2025
                 fc_rows.append([
-                    asset, iso, y_, era_of_year(y_), anchor,
+                    asset, iso, y_, era_of_iso(iso), anchor,
                     int(_f(sf["anchor_sec"])), int(_f(sf["anchor_ts"])),
                     picks["day_type"], picks["range"], picks["share"],
                     picks["menu"], pred["n_train"][i],
@@ -2078,8 +2313,8 @@ def main():
                     if (np.isfinite(pred["range"][i]) and np.isfinite(tmed[i])
                         and tmed[i] > 0) else float("nan"),
                     miss[i]])
-                if era_of_year(y_) in ("FIT", "GATE"):
-                    key = (anchor, era_of_year(y_))
+                if era_of_iso(iso) in ("FIT", GATE_ERA):
+                    key = (anchor, era_of_iso(iso))
                     pooled.setdefault(key, []).append(
                         (iso, panel.daytype_arr[i], pred["day_type"][i],
                          bench["day_type"]["BASE_RATE"][i],
@@ -2165,7 +2400,22 @@ def main():
                   {"env": MC.env_receipt(PARAMS), "assets": assets,
                    "n_forecast_rows": len(fc_rows),
                    "n_metric_rows": len(metric_rows),
+                   # R118/R88/R121/R122: every refusal is a DECLARED COUNT
+                   "holdout_from_d8": int(HOLDOUT_FROM_D8),
+                   "gate_era": GATE_ERA,
+                   "max_forecast_date": (max(r[1] for r in fc_rows)
+                                         if fc_rows else None),
+                   "n_rows_dated_in_holdout":
+                       int(sum(1 for r in fc_rows
+                               if _d8_of_iso(r[1]) >= HOLDOUT_FROM_D8)),
+                   "quarantine": dict(sorted(QUARANTINE.items())),
                    "pins_moved": MC.pins_moved()})
+    # a hard, mechanical assertion that the R118 fix held on the OUTPUT, not
+    # just in the enumerator: no committed row may be dated inside the holdout
+    if any(_d8_of_iso(r[1]) >= HOLDOUT_FROM_D8 for r in fc_rows):
+        raise MC.HoldoutRefusal(
+            "D-058: forecast rows dated >= %d reached the output"
+            % HOLDOUT_FROM_D8)
     MC.hb("regime_forecast: %d forecast rows, %d metric rows"
           % (len(fc_rows), len(metric_rows)))
     return 0

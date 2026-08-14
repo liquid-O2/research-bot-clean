@@ -56,7 +56,7 @@ import m1_common as M1                   # noqa: E402  m1 substrate
 
 # --------------------------------------------------------------- spec pins --
 SPEC_PATH = "/workspace/design/PORT_M2_SHEETS_SPEC.md"
-SPEC_SHA16 = "19fedc9231ba9f0e"          # = design/PORT_M2_SHEETS_SPEC.md through CC-M2-22 (news-compliance adjudications); re-pinned 2026-08-14 by the D-001 fix lane (R103: the previous provenance sentence named a different, earlier document than the sha it sat beside)
+SPEC_SHA16 = "f6ef73a41dbf8588"          # = design/PORT_M2_SHEETS_SPEC.md through CC-M2-24 (fix-pass adjudication, commit f6d46b5 — APPENDED adjudication prose only, no builder-behaviour clause); re-pinned 2026-08-15 by the E6 teacher round (the CC-M2-24 append moved the sha and the bump was missed, so every m2 tool refused at HEAD — the FD-8/qr_gen stale-pin defect class again). Previous: 19fedc9231ba9f0e (through CC-M2-22).
 
 # V1.1 (P-M2c warm-up defect fixes, 2026-08-14): S9/S3/S10/S11/S2 REFUSED
 # consistency (a derived field whose inputs are refused is refused and COUNTED

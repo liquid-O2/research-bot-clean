@@ -381,3 +381,18 @@ walk-forward vs D-021/D-048 bars BEFORE eras advance; every failure iterates its
    session fields predicted each day's side (its post-mortems feed the classifier's feature set directly).
 6. D18 (%.4g mid formatting) queued for V1.2; tooling V3 (as-of live, versioned-API compat, S10 + forecaster
    columns) ACCEPTED — 17/17 mutants.
+
+## CC-M2-16 — E1 Day-5 adjudications (orchestrator, 2026-08-14; BINDING)
+1. THE CRUX REFINED: the invariant unit is the (ASSET, PHASE) CELL (5/5 sessions; day-level struck by the
+   reader's own count). M3 MODEL #1 REDEFINED: the PHASE-SIDE CLASSIFIER — target = the cell's winner-
+   majority side, anchored at each phase open (where the regime forecaster already updates), full arsenal,
+   mirror+Holm, GATE-H1 eval. Finer target, 3x the training cells, leading anchors built in.
+2. VETO GRANULARITY LAW: pre-mortem veto families are graded on POOLED multi-session counts, never one day —
+   V2 (fuel-overhang) and V3 (P018) positive all five sessions => RETAINED as obeyed vetoes; V1 (P028-class
+   magnitude) killed (-$12,592 pooled, 91/99 winners lost). The day-5 arm proved obedience works ONLY with
+   family-level grading.
+3. First-outcome side estimator: dead as pre-registered (confirmation never leads). P025 276/276 w/ min
+   winner runway 19,653s — the ~5.5h runway floor noted for the selection architecture.
+4. T5 repair (absolute-volume clause misfiring on NKD) approved for day-6 policy. D18b: the veto walk MUST
+   run through the as-of stepper (SCAN-EXPOSED on day-5's two seats noted honestly); day 6 uses HEAD V3
+   tooling end-to-end.

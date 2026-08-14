@@ -367,24 +367,7 @@ def s2_regime(case, put):
     # which made them read as causal too.  They are REFUSED here — declared and
     # counted in the S1 certificate, never silently dropped.  `iid` stays: the
     # dominant instrument's IDENTITY is known when the session opens.
-    L.append(MC.row("  dominance", "iid=" + str(case.s.iid),
-                    "  dom_share=" + MC.NA,
-                    " roll_window=" + MC.NA,
-                    " dying_book_week=" + MC.NA,
-                    " instrument_change=" + MC.NA,
-                    "  (whole-session/forward facts: REFUSED, D-057)"))
-    for _k, _why in (
-            ("S2.dominant_share",
-             "dominant_share is the WHOLE session's two-sided share "
-             "(s3_sessions.py:335) — not knowable at the decision second"),
-            ("S2.roll_window",
-             "roll_window looks 5 sessions FORWARD (s3_sessions.py:365)"),
-            ("S2.dying_book_week",
-             "dying_book_week looks 5 sessions FORWARD (s3_sessions.py:366)"),
-            ("S2.instrument_change",
-             "instrument_change is an end-of-session fact "
-             "(s3_sessions.py:361)")):
-        put.refuse(_k, _why)
+    L.extend(_s2_forward_meta(case, put))
 
     # insane-book episodes SO FAR (causal): runs of two-sided-but-insane seconds
     ts = (case.s.state[:case.dec_sec] == C.ST_TWO_SIDED)
@@ -414,6 +397,31 @@ def s2_regime(case, put):
 
 
 # ============================================================ S3 ============
+S2_FORWARD_META = (
+    ("S2.dominant_share", "dom_share",
+     "dominant_share is the WHOLE session's two-sided share "
+     "(s3_sessions.py:335) — not knowable at the decision second"),
+    ("S2.roll_window", "roll_window",
+     "roll_window looks 5 sessions FORWARD (s3_sessions.py:365)"),
+    ("S2.dying_book_week", "dying_book_week",
+     "dying_book_week looks 5 sessions FORWARD (s3_sessions.py:366)"),
+    ("S2.instrument_change", "instrument_change",
+     "instrument_change is an end-of-session fact (s3_sessions.py:361)"),
+)
+
+
+def _s2_forward_meta(case, put):
+    """R94, extracted so the fixture can drive it: the four whole-session /
+    strictly-forward session-meta fields are REFUSED, and only `iid` — the
+    dominant instrument's IDENTITY, known when the session opens — prints."""
+    cells = ["  dominance", "iid=" + str(case.s.iid)]
+    for key, label, why in S2_FORWARD_META:
+        cells.append("  " + label + "=" + MC.NA)
+        put.refuse(key, why)
+    cells.append("  (whole-session/forward facts: REFUSED, D-057)")
+    return [MC.row(*cells)]
+
+
 def s3_path(case, put):
     L = ["S3 SESSION PATH + SWING CHAIN"]
     s = case.s
@@ -691,6 +699,33 @@ def _level_birth_sec(case, fam, lid, dyn):
     return 0
 
 
+def _prior_snapshot_state(z, n, dec_sec):
+    """(have_snap, virgin0, tc0) from the LATEST snapshot STRICTLY BEFORE
+    `dec_sec` — R96's fix, extracted so the fixture can drive it directly.
+
+    `have_snap[r]` False means the level's PRIOR STATE IS UNKNOWN.  It is a
+    refusal at the print site; it is never a virgin level with zero touches,
+    which is what the pre-fix `open_rows = np.nonzero(ss == 0)[0]` plus
+    `np.ones/np.zeros` initialisation silently asserted.
+    """
+    virgin0 = np.ones(n, dtype=bool)
+    tc0 = np.zeros(n, dtype=np.int64)
+    have_snap = np.zeros(n, dtype=bool)
+    best_snap = np.full(n, -1, dtype=np.int64)
+    ss = np.asarray(z["snap_sec"])
+    sr = np.asarray(z["snap_row"])
+    prior_ok = np.nonzero(ss < int(dec_sec))[0]
+    for k in prior_ok[np.argsort(ss[prior_ok], kind="stable")].tolist():
+        r = int(sr[k])
+        sec_k = int(ss[k])
+        if sec_k >= best_snap[r]:
+            best_snap[r] = sec_k
+            have_snap[r] = True
+            virgin0[r] = bool(z["snap_virgin"][k])
+            tc0[r] = int(z["snap_touch_count"][k])
+    return have_snap, virgin0, tc0
+
+
 def s4_levels(case, put):
     L = ["S4 LEVEL LEDGER VIEW"]
     if case.levels is None:
@@ -715,8 +750,6 @@ def s4_levels(case, put):
     # 'never tested' read as 'tested, no reaction'.
     lto = np.full(n, -1, dtype=np.int64)
     pending = np.zeros(n, dtype=bool)
-    virgin0 = np.ones(n, dtype=bool)
-    tc0 = np.zeros(n, dtype=np.int64)
     # R96.  `open_rows = np.nonzero(ss == 0)[0]` read ONLY the session-open
     # snapshot, and `virgin0` / `tc0` were initialised to True / 0 — so every
     # level with no sec-0 snapshot had its PRIOR STATE FABRICATED rather than
@@ -730,20 +763,7 @@ def s4_levels(case, put):
     # The state is now taken from the LATEST snapshot STRICTLY BEFORE the
     # decision second (more causal information than sec-0 alone, and never
     # forward), and a level with no such snapshot is REFUSED and COUNTED.
-    ss = z["snap_sec"]
-    sr = z["snap_row"]
-    have_snap = np.zeros(n, dtype=bool)
-    best_snap = np.full(n, -1, dtype=np.int64)
-    prior_ok = np.nonzero(np.asarray(ss) < case.dec_sec)[0]
-    for k in prior_ok[np.argsort(np.asarray(ss)[prior_ok],
-                                 kind="stable")].tolist():
-        r = int(sr[k])
-        sec_k = int(ss[k])
-        if sec_k >= best_snap[r]:
-            best_snap[r] = sec_k
-            have_snap[r] = True
-            virgin0[r] = bool(z["snap_virgin"][k])
-            tc0[r] = int(z["snap_touch_count"][k])
+    have_snap, virgin0, tc0 = _prior_snapshot_state(z, n, case.dec_sec)
     n_no_prior = 0
     n_touch_causal = n_pending = 0
     if tch.size:

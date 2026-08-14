@@ -116,3 +116,23 @@
 | SI/TOKYO | 39 | 0 | 0 | 0 | - | SHORT | LOW | YES | CLOSED/CLOSED | S8 fph 0 on 114 with 91 of 114 above the mid and f5m -8 on 24; the phase read is flat and the mid sits at a 2-second-old phase H. WOULD-ABSTAIN (0-for-7); TOKYO q50 $890 below the bar. |
 
 **RV2's FIRST BITE, measured:** 24 takes -> 23, and the NKD/NY seat moves from a 13:01:21 OPEN-DYNAMICS long to a 16:03:35 NEWS-WINDOW short. That is the whole footprint of the card rule on this day.
+
+## BLIND DAY 7 — 20211028 (sealed before any unblinding; policy RV2)
+
+**BLIND DAY 7 — 2021-10-28, 1,109 candidates in the rendered set (SI 478, HG 399, NKD 240 eligible; the index carries 1,109 sheets), 78 creation-class rows, 9 cells, 15 TAKEs, 2 seats — and for the first time the two metals seat OPPOSITE SIDES in the same minute:** HG/NY SHORT at 13:01:25 and SI/NY LONG at 13:01:55. Day 1 seated both long, day 2 both short, day 5 both long; today the same generator, the same clock second, opposite directions. That is the cleanest available statement that the policy carries NO side term at all — and it is also the first day whose two seats are genuinely independent bets. HG enters NY at 89.5% of its expected session move with **$315.80 of statistical room left against a $1,000 bar**; SI enters at 38.3% with $1,589. Both are traded, because capacity is not in the policy.
+
+| cell | rows | creation-class rows | V2 fires | TAKEs | seat | side read (NOT traded) | conf | would-abstain | rolling R1/R2b at cell open | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| HG/LONDON | 124 | 0 | 0 | 0 | - | LONG | LOW | no | CLOSED/OPEN | S8 f30m +73 on 501 with 260 of 303 contracts ABOVE the mid — flow and fuel point opposite ways, which is the ambiguity the fuel map is worst at resolving. |
+| HG/NY | 190 | 15 | 0 | 3 | HG-20211028-046885-S | SHORT | MED | no | CLOSED/CLOSED | S8 60s -21 on 85 and phase -11 on 109 with 75 of 109 contracts above the mid, 4 of 4 through-book prints clearing the BID, S5 slope -$81/min with accel -61 and trades/min z=4.85; S10 in_VA=1 with d_POC -$62.50. AGAINST: the session has spent 89.5% of its expected move. |
+| HG/TOKYO | 85 | 0 | 0 | 0 | - | LONG | LOW | YES | CLOSED/OPEN | S8 fph +75 on 233 with 221 of 233 BELOW the mid and f5m +52 on 106; 3 of 3 through-book prints clearing the ASK. The strongest TOKYO agreement of the round — and the cell my base-rate table (0.14) says almost never pays. WOULD-ABSTAIN, recorded, not traded. |
+| NKD/LONDON | 23 | 0 | 0 | 0 | - | SHORT | LOW | no | OPEN/CLOSED | S8 f30m -8 on 118 into a 7-contract phase; rv_collapse 7.80 with vol_regime LOW. |
+| NKD/NY | 84 | 5 | 0 | 0 | - | SHORT | LOW | no | CLOSED/OPEN | S8 41 contracts, all above the mid, f5m -1 on 2. No tape. No seat fired here today. |
+| NKD/TOKYO | 133 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | 5 contracts, all windows identical (D28). |
+| SI/LONDON | 60 | 0 | 0 | 0 | - | LONG | LOW | no | CLOSED/OPEN | S8 f30m +49 on 234 and phase +17 on 75 against f5m -4 on 36 — horizon disagreement at the open (P022, compass falsified). |
+| SI/NY | 355 | 50 | 0 | 12 | SI-20211028-046915-L | LONG | MED | no | CLOSED/OPEN | S8 every window buying (60s +36 on 64, 5m +29 on 117, 30m +56 on 356, phase +26 on 80) with 77 of 80 contracts BELOW the mid; S10 in_VA=1, d_POC +$87.50. The mirror image of HG at the same minute, and both reads are MED. |
+| SI/TOKYO | 55 | 0 | 0 | 0 | - | SHORT | LOW | YES | CLOSED/CLOSED | S8 fph +3 on 188 (flat) with 167 of 188 above the mid; f5m 0 on 12. Nothing is happening. WOULD-ABSTAIN (0-for-7); q50 $879 below the bar. |
+
+**FIFTEEN TAKES, ELEVEN OF THEM IN THE 14:30 SI RELEASE WINDOW** (six longs and three shorts inside 43 seconds, at 14:30:16-14:30:59) — the generator fires both sides through a release and my policy takes every admitted row on both sides, spending the seat on the first. Under CC-M2-10.3 the SI/NY seat was already spent at 13:01:55, so all eleven release rows are forfeited by construction: they cost nothing and they earn nothing.
+
+**THIS IS THE ROUND'S CLEAREST SEAT-ACCOUNTING LESSON:** 15 committed TAKEs, 2 spendable seats. The panel scores the seats; the takes are the thesis record.

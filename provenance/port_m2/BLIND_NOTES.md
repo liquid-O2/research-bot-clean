@@ -149,3 +149,20 @@ CARD, not my eight sessions.
    seat passes on 11 trades / 20 contracts; double the floor and it disappears. Add it to the D24
    uncensused-constant list beside T3's 3,600s and T4's 5%.
 4. Policy RV2 unchanged for day 7.
+
+## AFTER DAY 7 (20211028, sealed; 1,109 rows, 15 TAKEs, 2 seats)
+
+1. **THE OPPOSITE-SIDE SAME-MINUTE PAIR:** HG/NY SHORT 13:01:25 and SI/NY LONG 13:01:55 — same
+   generator family, same clock, same `in_VA=1` geometry, opposite sides, both admitted by the same
+   five terms. The core has NO directional content; this pair is the demonstration.
+2. **AND IT IS A NATURAL CAPACITY EXPERIMENT:** HG entered NY with $315.80 of unspent expected
+   session move (89.5% spent) against SI's $1,589.30 (38.3% spent) — thirty seconds apart, same
+   policy, both taken, bar $1,000. If the round's losses concentrate on low-`unspent_sess` seats,
+   that is the capacity family's rehabilitation and today is its cleanest evidence. **Still not
+   traded** — P017 inverts on expansion, D22 makes it an asset selector, and no threshold can be
+   settled blind.
+3. **SEAT ACCOUNTING, stated once for the record:** 15 committed TAKEs, 2 spendable seats. Eleven of
+   the takes are inside a 43-second SI release window whose cell seat was already spent at 13:01:55,
+   so they are forfeited by construction — they cost nothing and earn nothing. The panel scores
+   seats; the takes are the thesis record.
+4. Policy RV2 unchanged.

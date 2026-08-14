@@ -626,3 +626,17 @@ reader building its own.**
 5. The give-back (§39.5) is now three objects dead (P026, P028, and P017's in-range form). Is there
    ANY ex-ante field that separates a certificate that holds its peak from one that gives back two
    thirds — or is the give-back an EXIT-RULE artefact (§46) that no entry field can address?
+
+## 59. TWO INDEPENDENT CONFIRMATIONS LANDED THE SAME DAY (commit 0fa2738, after the E1D5 seal)
+* **CENSUS BATCH 3 grades P025 a WINNER CONCENTRATOR** (3.70x winner rate, 2.13x conditional value,
+  901,997 candidates, HOLM_NOT_SIGNIFICANT on the deployed-exit metric) — the same disposition as
+  P001 and P020. Five sessions of 276/276 is a concentration, not an edge, and §53 must be read with
+  that in front of it: P025 belongs in the FEATURE set, and the reader's use of it as a refusal term
+  is lawful only because a refusal is not an entry.
+* **THE CC-M2-13.3 SIDE PROBE reaches §50's conclusion on 2,960 FIT sessions**: CORE with the ORACLE
+  day-side is +$664.3/session at capture 0.185 while CORE alone is -$42.4, so **the side is worth
+  about $700 a session** — and the causal first-outcome estimator scores -$39.5/session against its
+  own mirror at -$11.9. The day-complete 0-of-46 and the population -$39.5 are the same fact.
+* `triage_index.py --as-of` LANDED AT HEAD in that commit, i.e. AFTER this day's seal. Day 5 was
+  correctly run on the in-lane `e1d5_asof.py`; day 6 must use HEAD's stepper, and D18 (§57) says the
+  VETO walk has to be driven by it too.

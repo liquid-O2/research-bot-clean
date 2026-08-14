@@ -189,3 +189,93 @@ re-running anything.
    token distribution, the trunk has learned nothing about sequence and no downstream
    comparison from it may be quoted. The unigram entropy is computed and recorded in the
    build receipt before training.
+
+---
+
+# AMENDMENT 1 (coordinator, 2026-08-16, binding) — folded in BEFORE any pretraining run
+
+## A1.1 SHARED-VS-PER-ASSET ABLATION
+
+The shared backbone is now a **measured claim, not an assumption**. Two trunks are pretrained
+and fine-tuned on identical folds with identical scoring:
+
+| trunk | pretraining corpus | asset conditioning |
+|---|---|---|
+| **SHARED-3** | SI + HG + NKD, `d8 < 20240101` (PRE-A boundary), ≈ 881 M events | learned asset embedding (3 rows) added to the token embedding; the tokenizer's tick bucketing is already per-asset, which is the per-asset normalisation |
+| **SI-ONLY** | SI alone, same date boundary, ≈ 390 M events | none needed |
+
+**The decision rule, stated before the numbers exist:** the two are compared **on SI**, on the
+identical walk-forward folds and the identical schedule. Whichever wins on SI decides the
+architecture for the program. The SHARED-3 trunk's **HG and NKD** fine-tuned numbers are
+reported regardless of who wins on SI — a shared trunk that transfers to the thinner books is
+worth knowing about even if SI prefers its own.
+
+Budget: at the measured tok/s (recorded in `pretrain.receipt.json` from the mandatory 5-minute
+smoke), SHARED-3 ≈ 881 M tokens and SI-ONLY ≈ 390 M tokens. Both must fit, together, inside
+the 3-hour ceiling; if they do not, the corpora are truncated oldest-first and the truncation
+is reported — the ceiling is never overrun.
+
+## A1.2 HOW MANY EPOCHS — and why one
+
+**Design default: a SINGLE pass over the corpus (1 epoch), with 2 as the hard cap.** The user
+asked for this to be explained rather than assumed, so:
+
+* The single-pass convention in large-corpus pretraining is a *compute-allocation* result, not
+  a superstition. When the corpus is large relative to the compute budget, the optimum is to
+  spend each unit of compute on a token the model has not seen; repetition only becomes the
+  right call once you are **data-constrained**, i.e. you have compute left over after one pass.
+* The reference result on the repetition side is Muennighoff et al., *Scaling Data-Constrained
+  Language Models* (NeurIPS 2023) — repeating data up to ~4 epochs costs almost nothing versus
+  fresh data, gains persist to roughly 16 epochs, and the marginal value of a repeated token
+  decays to nothing by ~40. Later work (e.g. *Larger datasets can be repeated more*,
+  [arXiv:2511.13421](https://arxiv.org/pdf/2511.13421)) pushes the tolerable reuse rate up with
+  dataset size. Both are permissions to repeat when you must — neither says repetition beats
+  fresh tokens.
+* **Our position on that curve:** 881 M–1.41 B fresh tokens against a 3-hour single-GPU ceiling
+  that a single pass very nearly fills. We are compute-constrained, not data-constrained, so
+  the first pass is where every FLOP belongs. Epoch 2 is authorised only if the measured tok/s
+  leaves the ceiling underspent, and it is reported as such.
+* This also protects the falsifier in §7.3: a single pass over 881 M unique events cannot
+  memorise its way to a low loss, so a loss well below the unigram entropy is evidence about
+  sequence structure rather than about revisiting.
+
+## A1.3 STAGE 3 — GRPO POLICY POST-TRAINING (committed; runs AFTER the SFT comparison lands)
+
+Designed now, per instruction, so the environment cannot be shaped by the SFT result.
+
+**Why a policy stage at all.** The delay-decidability lane found the **AUC-value identity**:
+the model learns which trade is working by watching it work, and what it watched is what it no
+longer gets paid. Supervised scoring cannot express the trade-off that identity implies —
+enter *earlier*, at *less certainty*, because the dollars are still there. A policy objective
+can, because it is scored on realised dollars rather than on rank correlation with a label.
+
+**Environment interface** (`engine/port_m2/seqtest/st_env.py`, to be written to this spec):
+
+```
+reset(asset, d8)           -> the session's candidate seconds in chronological order
+observe(t)                 -> the pretrained trunk's representation of the last 1024 events
+                              strictly before candidate second t, plus seat state
+                              (position open? seconds until it frees? takes used today?)
+step(action)               -> action in {ENTER, SKIP}; HOLD is implicit while a seat is open
+```
+
+* **Semantics are m3_walk's, verbatim, not a re-implementation**: one position per asset per
+  session, chronological occupancy (`replay_rows`), the walled **phase-close** certificate
+  (`cert_close_usd`, `exit_close_sec`), the real per-session round-trip cost (`cost_rt`), the
+  **$900 wall**, and the D-077-UPDATE news veto applied as a veto on the action space (an
+  `ENTER` inside the restricted window is refused, never rewarded).
+* **Reward**: realised net P&L for the session, minus an MDD penalty
+  `lambda * max_intrasession_drawdown` with `lambda` fixed a priori against the D-030 bar
+  ($1,000/day), credited at session end. Per-episode, one episode = one (asset, session).
+* **Episode sampling**: walk-forward — a policy scored on era `E(k+1)` may only sample
+  episodes from `E2..Ek`. Whole days, same guard functions
+  (`assert_disjoint_days`, `assert_causal_era_order`).
+* **Algorithm**: GRPO — G sampled trajectories per session, advantage = each trajectory's
+  reward minus the group mean, no learned value head. KL-regularised to the SFT policy so the
+  post-training cannot wander off the pretrained representation.
+* **Controls, mandatory, same discipline as the rest of the lane**: (i) a **random-policy**
+  baseline seated under the identical environment, and (ii) a **shuffled-reward** control —
+  rewards permuted across episodes within the training block, which must produce a policy that
+  scores at chance. Both are red-first.
+* **NO RL in the SFT pass.** Stage 3 begins only after the SFT pretrained-vs-scratch comparison
+  is committed.

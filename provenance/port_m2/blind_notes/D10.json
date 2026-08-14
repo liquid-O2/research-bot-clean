@@ -1,0 +1,31 @@
+{
+  "day_note": "**BLIND DAY 10 — 2021-11-02 (FOMC eve), 800 candidates (SI 352, HG 294, NKD 154), 41 creation-class rows, 8 cells, 13 TAKEs, 3 seats.** Policy RV2, 47 cuts, coverage 800/800. Seats: HG/LONDON 07:02:53 SHORT (the round's first A-graded LONDON seat), SI/NY 14:31:57 LONG and HG/NY 14:32:15 LONG at the release. **NKD produced no seat at all today under the card rule** — its OPEN-DYNAMICS rows are refused and no NEWS-WINDOW row cleared the core, which is the first day the rule has removed an asset entirely rather than redirected it.",
+  "cell_side": {
+    "SI/TOKYO": {"side": "SHORT", "conf": "LOW", "abstain": true, "why": "S8 fph -3 on 63 with 59 of 63 above the mid; f5m +2 on 10. Dead. WOULD-ABSTAIN (0-for-7)."},
+    "HG/TOKYO": {"side": "LONG", "conf": "LOW", "abstain": true, "why": "S8 fph +16 on 149 with 89 of 149 below the mid and 5 of 6 through-book prints clearing the BID — flow and book disagree. WOULD-ABSTAIN (0.14)."},
+    "NKD/TOKYO": {"side": "NONE", "conf": "-", "abstain": false, "why": "3 contracts."},
+    "HG/LONDON": {"side": "SHORT", "conf": "MED", "abstain": false, "why": "S8 f5m -25 on 72 and 60s -22 on 28 into a session already -$981 and AT_RANGE 83.4%; S10 d_POC -$981 with in_VA=0 — price is far below the value area built overnight. The seat agrees with the read."},
+    "SI/LONDON": {"side": "NONE", "conf": "-", "abstain": false, "why": "10-contract phase; f30m +33 on 225 against f5m -6 on 34. No read."},
+    "NKD/LONDON": {"side": "NONE", "conf": "-", "abstain": false, "why": "6 contracts, zero flow."},
+    "HG/NY": {"side": "SHORT", "conf": "MED", "abstain": false, "why": "S8 phase -72 on 198 and f30m -140 on 768 at the open, with the session AT_RANGE 98.6% and **unspent $271.10 — a quarter of the bar**. The read is SHORT and the policy's seat 25 minutes later is a LONG; they disagree and the policy wins, as declared."},
+    "SI/NY": {"side": "LONG", "conf": "LOW", "abstain": false, "why": "S8 fph +64 on 675 with 543 of 675 contracts below the mid, but f5m -2 on 114 — flat at the moment. Cell opened late (13:34)."},
+    "NKD/NY": {"side": "NONE", "conf": "-", "abstain": false, "why": "Opens 15:06 with 137 contracts, 130 of them above the mid; f5m -4 on 6. No seat, no read."}
+  },
+  "deep": {"HG-20211102-025373-S": "S1,S3,S7,S8,S9,S10,S13"},
+  "seat_pm": {
+    "HG-20211102-025373-S": "PRE-MORTEM (before the call, from the sheet): a SHORT at 4.3508 — the LONDON phase L, printed ONE SECOND ago — 173 seconds into the phase, on a session already -$981.25 with 76.2% of its expected move spent. THE CONTENT: S8 60s -22 on 28 (buy/sell 3/25) and 5m -25 on 114; S10 d_POC -$981.25 with in_VA=0, so price is a full ATR-fraction below the value area TOKYO built. **THE DEATH MECHANISM IS THE BOOK: S7's refill_after_trade is 0.214 with 39 of 70 trades sweeping the level — the thinnest restocking of the round** — and a book that does not refill after a sweep is a book that gaps BOTH ways; briefing C(i) reads it as the maker refusing to be run over, and my library's give-back channel is what happens when the flush ends in a book like this. The arithmetic is the second problem: $652.30 of session expected move remains against a $1,000 bar, so this seat needs the day to break its own range forecast. THE TRIGGER: a reclaim of 4.3573 (the 07:01:49 phase H, 64 seconds old) says the low was a liquidity event, not a trend.",
+    "SI-20211102-052317-L": "PRE-MORTEM (auto, triage): a release LONG at 14:31:57 with f5m +44 on 523 and 1,970 of 3,949 contracts below the mid, in_VA=0 with d_POC -$525 (extended below value). DEATH MECHANISM: the release reclaim stalls under value — the same shape as day 8's seats. TRIGGER: failure to regain the developing VAL.",
+    "HG-20211102-052335-L": "PRE-MORTEM (auto, triage): the HG twin 18 seconds later, and it is the FUEL-MAP EXTREME OF THE ROUND — 3,271 of 3,294 phase contracts BELOW the mid (99.3%) with only 3 above. Every position built in this phase is long and in profit; there is no trapped seller to squeeze and the only fuel for further upside is new buyers. in_VA=1, d_POC +$800. DEATH MECHANISM: a long into a phase whose entire volume is already long. TRIGGER: a print back into the developing value area."
+  },
+  "flip": {
+    "HG-20211102-025373-S": "FLIP THRESHOLD: **refill_frac.** At 0.214 with 39 of 70 trades sweeping, this is the least-restocking book any seat of the round has been entered on; a refill floor anywhere at or above 0.25 refuses it. `refill_after_trade` was REBUILT in V1.1 (defect D2 — the V1 form was structurally zero on MBP-1) and has never been censused since; the round's seats now span 0.21 to 0.74 and that range is a free census for the scoring pass. Core margins: T4 25/114 = 21.9%, T1 16 trades / 28 contracts, T3 64s.",
+    "HG-20211102-052335-L": "FLIP THRESHOLD: V2 is 3 of 3,294 contracts away from irrelevance in the opposite direction — for this LONG the against-side fraction is 3/3,294 = 0.09%, the lowest of the round. If V2's polarity were reversed (trapped_below as the against-side for a long, i.e. the fuel-map read as 'everyone is already positioned my way'), it would refuse at 99.3% >= 90%. **Every V2 non-fire in this round rests on that polarity choice and it is one line in the census.**"
+  },
+  "novel": {
+    "HG-20211102-025373-S": "novel (day 10): **THE ROUND IS ACCUMULATING A FREE CENSUS OF THREE UNCENSUSED BOOK FIELDS.** Across 30-plus seats the round now spans refill_frac 0.21-0.74, c2f 0.86-7.56, and spread_at_decision $12.50-$75.00, none of which any term of my policy reads, all of which are printed on every sheet, and all of which are plausible SEAT-QUALITY (stage-3 / MOMENT) features. The M3 moment stage has never had a candidate; these three are the round's contribution to it, and the seats were selected without reference to any of them, so the split is clean."
+  },
+  "cell_notes": [
+    "**FIRST DAY THE CARD RULE REMOVED AN ASSET:** no NKD seat at all — its OPEN-DYNAMICS rows are refused by RV2 and no NKD NEWS-WINDOW row cleared the core.",
+    "**FOMC EVE:** S12 shows the FOMC statement 1 day out. Tomorrow (day 11) is the largest creation-class day of the block (128 rows) and the round's biggest single test of the NEWS-WINDOW half of the declaration."
+  ]
+}

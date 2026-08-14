@@ -196,3 +196,16 @@ CARD, not my eight sessions.
    rows (taken) — the only NKD class that beats the NKD bulk on both axes.
 4. Policy RV2 unchanged. Three days left; no further evolution is planned — the round should end
    with one change, argued once, so the scorer can price it.
+
+## AFTER DAY 10 (20211102, sealed; 800 rows, 13 TAKEs, 3 seats)
+
+1. **THE ROUND IS ACCUMULATING A FREE CENSUS OF THREE UNCENSUSED BOOK FIELDS.** Over 30-plus seats it
+   now spans `refill_frac` 0.21-0.74, `c2f` 0.86-7.56, `spread_at_decision` $12.50-$75.00 — none read
+   by any term of my policy, all printed on every sheet, all plausible MOMENT-stage (stage 3)
+   features, and the seats were selected without reference to any of them, so the split is clean.
+   The M3 moment stage has never had a candidate; this is the round's contribution to it.
+2. **V2's polarity is one line in a census and it decides every non-fire in this round.** Today's HG
+   release long sits on a fuel map that is 3,271-of-3,294 contracts BELOW the mid (99.3%); under the
+   opposite polarity V2 refuses it, and under the current one it is 0.09% from the floor.
+3. **First day the card rule removed an asset entirely** (no NKD seat) rather than redirecting it.
+4. Policy RV2 unchanged into the FOMC day.

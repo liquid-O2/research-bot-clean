@@ -196,3 +196,23 @@
 **SIX SEATS, THREE OF THEM IN THE FIRST 76 SECONDS.** The D28 window-collapse hole is not an edge case: on Mondays and after weekends the generator fires OPEN-DYNAMICS at the very top of the session and the core's magnitude terms cannot see anything there.
 
 **THE CARD RULE IS NOW VISIBLY REDIRECTING NKD:** RV1's NKD seats were OPEN-DYNAMICS rows; RV2's are NEWS-WINDOW rows, which is the only NKD class that beats the NKD bulk on both axes of the era card.
+
+## BLIND DAY 10 — 20211102 (sealed before any unblinding; policy RV2)
+
+**BLIND DAY 10 — 2021-11-02 (FOMC eve), 800 candidates (SI 352, HG 294, NKD 154), 41 creation-class rows, 8 cells, 13 TAKEs, 3 seats.** Policy RV2, 47 cuts, coverage 800/800. Seats: HG/LONDON 07:02:53 SHORT (the round's first A-graded LONDON seat), SI/NY 14:31:57 LONG and HG/NY 14:32:15 LONG at the release. **NKD produced no seat at all today under the card rule** — its OPEN-DYNAMICS rows are refused and no NEWS-WINDOW row cleared the core, which is the first day the rule has removed an asset entirely rather than redirected it.
+
+| cell | rows | creation-class rows | V2 fires | TAKEs | seat | side read (NOT traded) | conf | would-abstain | rolling R1/R2b at cell open | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| HG/LONDON | 113 | 3 | 0 | 2 | HG-20211102-025373-S | SHORT | MED | no | CLOSED/OPEN | S8 f5m -25 on 72 and 60s -22 on 28 into a session already -$981 and AT_RANGE 83.4%; S10 d_POC -$981 with in_VA=0 — price is far below the value area built overnight. The seat agrees with the read. |
+| HG/NY | 117 | 8 | 0 | 6 | HG-20211102-052335-L | SHORT | MED | no | CLOSED/CLOSED | S8 phase -72 on 198 and f30m -140 on 768 at the open, with the session AT_RANGE 98.6% and **unspent $271.10 — a quarter of the bar**. The read is SHORT and the policy's seat 25 minutes later is a LONG; they disagree and the policy wins, as declared. |
+| HG/TOKYO | 64 | 0 | 0 | 0 | - | LONG | LOW | YES | CLOSED/OPEN | S8 fph +16 on 149 with 89 of 149 below the mid and 5 of 6 through-book prints clearing the BID — flow and book disagree. WOULD-ABSTAIN (0.14). |
+| NKD/LONDON | 19 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/CLOSED | 6 contracts, zero flow. |
+| NKD/NY | 27 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | Opens 15:06 with 137 contracts, 130 of them above the mid; f5m -4 on 6. No seat, no read. |
+| NKD/TOKYO | 108 | 0 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | 3 contracts. |
+| SI/LONDON | 69 | 1 | 0 | 0 | - | NONE | - | no | CLOSED/OPEN | 10-contract phase; f30m +33 on 225 against f5m -6 on 34. No read. |
+| SI/NY | 250 | 26 | 3 | 5 | SI-20211102-052317-L | LONG | LOW | no | OPEN/OPEN | S8 fph +64 on 675 with 543 of 675 contracts below the mid, but f5m -2 on 114 — flat at the moment. Cell opened late (13:34). |
+| SI/TOKYO | 33 | 1 | 0 | 0 | - | SHORT | LOW | YES | CLOSED/CLOSED | S8 fph -3 on 63 with 59 of 63 above the mid; f5m +2 on 10. Dead. WOULD-ABSTAIN (0-for-7). |
+
+**FIRST DAY THE CARD RULE REMOVED AN ASSET:** no NKD seat at all — its OPEN-DYNAMICS rows are refused by RV2 and no NKD NEWS-WINDOW row cleared the core.
+
+**FOMC EVE:** S12 shows the FOMC statement 1 day out. Tomorrow (day 11) is the largest creation-class day of the block (128 rows) and the round's biggest single test of the NEWS-WINDOW half of the declaration.

@@ -7,7 +7,41 @@ tracing the chain does.
 
 Verdicts are CLEAN / LEAK / AMBIGUOUS with severity and blast radius.
 Companion tables: `LEAK_SEATING.tsv`, `LEAK_SEATING_CENSUS.tsv`,
-`LEAK_VERDICTS.tsv`. Code: `engine/port_m2/leak_seating.py`.
+`LEAK_SEATING_MECHANISM.tsv`, `LEAK_VERDICTS.tsv`, `FILL_ENTRY.tsv`,
+`FILL_WALL.tsv`, `FILL_LATENCY.tsv`.
+Code: `engine/port_m2/leak_seating.py`, `engine/port_m2/fill_realism.py`.
+
+## THE BOARD
+
+| # | item | verdict | severity | size |
+|---|------|---------|----------|------|
+| **P1** | **replay seating implementability** | **LEAK** | **CRITICAL** | **$618-$1,641/session — the entire committed number** |
+| P2 | ZigZag confirmation causality | CLEAN | — | — |
+| P2 | ATR14 window | CLEAN | — | (fidelity note: TR=0 stale rows bias ATR low) |
+| P2 | level-ledger anchors (fvol/VWAP/OR/virgin) | CLEAN | — | (one unconsumed end-of-session `virgin` array) |
+| P2 | dominance selection | LEAK | moderate | roll days (`instrument_change`) |
+| P2 | phase-boundary tables | LEAK | moderate | all eras + **the sealed holdout** |
+| P2 | year-pooled spread floor in the rung | AMBIGUOUS | inert | binds in 0 of 13,437 cells |
+| P3 | `f_sess_close` / label containment | CLEAN | — | max \|ρ\| = 0.326 |
+| P3 | day-so-far / cell-so-far family | CLEAN | — | recompute-exact |
+| P3 | cross-asset `xa_*` | AMBIGUOUS | low | 78,333 legs (1.87 %) |
+| P3 | COT / VIX / FRED as-of lags | CLEAN | — | (2 clock inconsistencies) |
+| P3 | **forecaster anchor join** | **LEAK** | moderate | **44,373 rows (3.17 %), up to 7,200 s of future** |
+| P3 | `dom_share` | LEAK | low | 100 % of sessions; 3 guards defeated by a rename |
+| P3 | whole-era frozen constants | LEAK | low | `regime_tercile`, ladder/fvol columns |
+| P4 | session-constancy scan (202 cols) | CLEAN | — | only `dom_share` |
+| P4 | as-of recompute diff | CLEAN | — | 0 mismatches on 3 of 6, ties on the rest |
+| P4 | feature-shift / label-shuffle refits | DEFERRED | — | uninterpretable through a leaked policy |
+| P5a | entry slippage | CLEAN | low | −$9.23/trade, −$27.76/session |
+| P5a | latency & depth | CLEAN | — | drift **favourable**; 0 thin touches in 5,831 |
+| P5b | wall gap-through | LEAK | low | −$5.78/session; 17.4 % gap >1 tick, max $725 |
+
+**The one-line summary:** the chain is in good shape — the generator, the
+labels, the day-so-far features, the external-data clock and the fill
+assumptions all hold up. The failure is not in the data. It is that the
+**deployed policy cannot be executed**, and the campaign's entire dollar
+history was measured through it. The signal underneath is real, and a strictly
+causal policy can still clear the goal (see *the causal ceiling*, below).
 
 ---
 

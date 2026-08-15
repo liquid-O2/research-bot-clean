@@ -1,12 +1,15 @@
 # PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
-# THE PAIRED TEST.  Both arms are seated on the SAME sessions under the same schedule, so the difference is measured per session and bootstrapped with clusters = DAY (CR1) — not read off two overlapping marginal intervals.
+# THE PAIRED TEST.  Both arms are seated on the SAME sessions under the HARNESS'S OWN per-era policy, so the difference is measured per session and bootstrapped with clusters = DAY (CR1) — not read off two overlapping marginal intervals.
 # verdict=BEATS means the 95% interval of the paired difference is entirely above zero.
+# The reference arm is the committed champion LMART_CELL_ALLDATA (cell-grouped LambdaMART on the full prior history, $935.97/session pooled, SEQTEST.md §14).
 arm_a	arm_b	n_sessions	delta_usd_per_session	lo	hi	p	verdict
-PROBE_NEXTONLY_FUSED/primary	GBT_CRE26/primary	2320	8.44	-21.24	38.13	0.577	INDISTINGUISHABLE
-PROBE_PRE_V_shared_MULTI_FUSED/primary	GBT_CRE26/primary	2320	-2.89	-33.93	28.15	0.855	INDISTINGUISHABLE
-PROBE_RANDOM_FUSED/primary	GBT_CRE26/primary	2320	-2.53	-31.54	26.49	0.864	INDISTINGUISHABLE
-PROBE_PRE_V_shared_MULTI_CTX/primary	GBT_CRE26/primary	2320	-8.54	-36.78	19.7	0.553	INDISTINGUISHABLE
-GBT/primary	GBT_CRE26/primary	2320	-1.78	-23.96	20.4	0.875	INDISTINGUISHABLE
-GBT_MAECAP/composed	GBT_CRE26/primary	2320	-2.74	-49.79	44.31	0.909	INDISTINGUISHABLE
-LMART2_DAY_MEM_CRE26/primary	GBT_CRE26/primary	2320	-68.15	-125.34	-10.96	0.0196	LOSES
-GBT_SHUFFLED/primary	GBT_CRE26/primary	2320	-180.33	-233.59	-127.08	5.63e-11	LOSES
+LMART2_CELL_ALLDATA_MEM/primary	LMART_CELL_ALLDATA/primary	2320	-222.96	-291.72	-154.2	3.34e-10	LOSES
+LMART2_CELL_ALLDATA_CRE26/primary	LMART_CELL_ALLDATA/primary	2320	-261.94	-340.09	-183.78	8.71e-11	LOSES
+LMART2_CELL_ALLDATA_MEM_CRE26/primary	LMART_CELL_ALLDATA/primary	2320	-149.03	-237.59	-60.46	0.001	LOSES
+GBT_ALLDATA/primary	LMART_CELL_ALLDATA/primary	2320	-603.51	-701.57	-505.45	6.64e-31	LOSES
+GBT_CRE26_ALLDATA/primary	LMART_CELL_ALLDATA/primary	2320	-620.76	-719.43	-522.09	4.16e-32	LOSES
+GBT_MAECAP_ALLDATA/composed	LMART_CELL_ALLDATA/primary	2320	-797.33	-901.94	-692.72	1.22e-44	LOSES
+LMART_ALLDATA_NOTF/primary	LMART_CELL_ALLDATA/primary	2320	-262.22	-342.8	-181.65	2.89e-10	LOSES
+LMART2_CLASS_ALLDATA/primary	LMART_CELL_ALLDATA/primary	2320	-924.64	-1026.57	-822.7	1.06e-59	LOSES
+PROBE_NEXTONLY_FUSED/primary	LMART_CELL_ALLDATA/primary	2320	-653.76	-751.27	-556.24	7.75e-36	LOSES
+LMART_ALLDATA_SHUFFLED/primary	LMART_CELL_ALLDATA/primary	2320	-1067.19	-1171.33	-963.06	1.04e-72	LOSES

@@ -374,11 +374,11 @@ def run(trunk="NONE", mode="ctx", group="cell", losses=("listnet", "listmle"),
 
 # =========================================== F3(b): LambdaMART, day groups ===
 def _group_arrays(D, rows, klass, group):
+    """Rows sorted by group + the xgboost group-size vector.  The KEY is
+    `st_rank.group_key` — the lane's committed definition — so `cell` here is
+    the same (asset, day, PHASE) unit the schedule seats on."""
     r = np.asarray(rows, dtype=np.int64)
-    key = (D["asset_idx"][r].astype(np.int64) * 100000000
-           + D["d8"][r].astype(np.int64))
-    if group == "class":
-        key = key * 100 + klass[r]
+    key = RK.group_key(D, r, klass, group)
     order = np.lexsort((D["dec_sec"][r], key))
     ro, ko = r[order], key[order]
     _u, cnt = np.unique(ko, return_counts=True)

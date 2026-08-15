@@ -1,0 +1,27 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# TREATMENT 2: the two arbitrary numbers inside the winning arm, swept.
+# Screen budget, cell grouping, dollar-weighted pairs, CELLREL features, seated at D=0. E3-E7 family; E8 spent.
+# RECOVERED FROM THE RUN HEARTBEAT: the sweep's 6 spawn workers were OOM-killed on the inflate=10x jobs (12M rows x 248 cols per worker x 6 workers, plus ~3GB of fixtures per spawned child, against a 282GB container) and the parent then hung in imap_unordered with the results still in memory. 58 of 63 jobs had already been heartbeat-logged and are reproduced here verbatim; the 5 missing cells are marked blank. LESSON RECORDED: a sweep must write incrementally, and inflation x workers is a MEMORY product.
+# shuffled control at the reference setting (5x/16): E3=-157.69, E5=-168.43, E7=-290.27
+inflate_x	pairs_per_sample	n_eras	mean_usd	usd_E3	usd_E5	usd_E7
+3	32	3	858.53	921.66	657.53	996.4
+1	8	3	760.36	451.9	692.95	1136.24
+3	16	3	757.7	634.27	562.71	1076.11
+1	4	3	740.75	523.61	711.36	987.27
+1	16	3	659.64	741.55	528.3	709.08
+5	16	3	653.73	391.66	636.42	933.11
+3	8	3	642.55	360.08	579.86	987.72
+10	32	3	638.57	481.09	666.86	767.76
+5	32	3	607.46	531.66	409.42	881.31
+8	32	2	469.06	279.94	658.18	
+8	16	3	432.33	291.67	554.44	450.89
+10	16	2	361.46	451.76		271.16
+1	32	3	301.2	132.71	158.95	611.94
+5	8	3	259.53	-163.36	481.22	460.72
+3	4	3	120.07	-110.85	310.36	160.69
+8	4	3	113.75	54.43	159.4	127.43
+5	4	3	45.02	-70.11	201.3	3.87
+10	4	2	10.13	-151.76	172.02	
+8	8	3	-7.42	-254.53	121.06	111.21
+10	8	1	-195.75	-195.75		

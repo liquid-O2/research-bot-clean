@@ -1308,9 +1308,6 @@ def main():
         ap.print_help()
 
 
-if __name__ == "__main__":
-    main()
-
 
 # ========================================================== THE BLIND READ ====
 def stage_blind(era=N.BLIND_ERA):
@@ -1331,13 +1328,25 @@ def stage_blind(era=N.BLIND_ERA):
     if conf is None:
         raise N.NewObjRefusal("no confirm results — run --confirm first")
     cells = {spec_id(c): c for c in screen_grid()}
+    # The confirm JSON deliberately strips the "_"-prefixed per-session vectors,
+    # so the pooled reading is reconstructed here as the SESSION-WEIGHTED mean of
+    # the per-era figures.  This choice only decides WHICH arm is opened on E8;
+    # the arm's own blind number is computed from scratch below.
     best, best_v = None, -np.inf
     for k, parts in conf.items():
         if "@@" in k or k not in cells:
             continue
-        q = N.pool_reads([p for p in parts if p.get("era") in CONFIRM_ERAS])
-        if q.get("usd_per_session") is not None and q["usd_per_session"] > best_v:
-            best, best_v = k, q["usd_per_session"]
+        sel = [p for p in parts if p.get("era") in CONFIRM_ERAS
+               and p.get("usd_per_session") is not None]
+        if not sel:
+            continue
+        w = float(sum(p.get("n_sessions", 0) for p in sel))
+        if w <= 0:
+            continue
+        v = sum(float(p["usd_per_session"]) * p.get("n_sessions", 0)
+                for p in sel) / w
+        if v > best_v:
+            best, best_v = k, v
     N.hb("BLIND READ: single best confirmed arm = %s ($%s/session on E3-E7); "
          "opening %s once" % (best, N._r(best_v), era))
     rows = []
@@ -1371,3 +1380,6 @@ def stage_blind(era=N.BLIND_ERA):
                        "The 2025-H2 holdout (d8 >= 20250701) is untouched and "
                        "is not this lane's to open."])
     return rows
+
+if __name__ == "__main__":
+    main()

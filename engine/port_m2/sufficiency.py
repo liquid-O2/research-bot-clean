@@ -264,11 +264,17 @@ def stage_split(eras=ERAS, feats=FEATS, workers=RA.N_WORKERS):
     N.hb("red-first: %s" % json.dumps(probes))
     if any(p["verdict"] == "FAIL" for p in probes):
         raise N.NewObjRefusal("SUFFICIENCY RED-FIRST FAILED: %s" % probes)
-    _boot()
     jobs = [(f, e) for f in feats for e in eras]
     res, errs = {}, []
     t0 = time.time()
-    with mp.Pool(processes=workers) as pool:
+    # SPAWN, not fork.  The red-first probes above call xgboost, which brings up
+    # an OpenMP thread pool in THIS process; forking after that deadlocks every
+    # child (observed: 6 workers alive at 0% CPU, wedged right after their boot
+    # line).  A spawned child starts a clean interpreter and boots its own copy
+    # of the fixtures, which costs ~3 GB each and is affordable inside the
+    # container's 282 GB.
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
         for i, (feat, era, out, err) in enumerate(
                 pool.imap_unordered(_split_one, jobs), start=1):
             if err:

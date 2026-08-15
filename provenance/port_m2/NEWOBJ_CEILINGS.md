@@ -199,3 +199,46 @@ the ranking atlas.
 | `engine/port_m2/newobj.py` | the lane: the delayed tensor, `verify_d0`, `replay_delayed`, `verify_replay`, the ceilings |
 | `engine/port_m2/newobj_arms.py` | the honest reads: the joint ranker, the OBJ-2 gate, the OBJ-3 stopping rule |
 | `artifacts/cache/port/m2/newobj/paths_all.npz` | 1,399,374 × 34 fields × 5 delays, + `paths_all.receipt.json`, `verify_d0.receipt.json` |
+
+---
+
+## 7. LOOSE-END RETRY (b) — TabPFN AT E3's FULL POOL: CLOSED NEGATIVE
+
+The final pass flagged it honestly: *"TabPFN never pushed to E3's full 417k pool (its actual
+home turf)"* — the small-sample tabular champion had only ever been given 4 × 32,768 = 131k
+rows of a 406,468-row training pool, so "the context was too small" was still an available
+excuse. It is not any more.
+
+`st_fm.py --model tabpfn --target winner --eras E3 --n-context 32768 --n-ens 13` —
+**13 chunked contexts × 32,768 = 425,984 draws over the whole 406,468-row pool**, GPU peak
+2.45 GB, 565s. Scored through the champion's own schedule (`st_sched`, cell/2 for E3):
+
+| arm on E3 | context | **global AUC(`y_winner`)** | **seated $/session** | $/trade | capture |
+|---|---|--:|--:|--:|--:|
+| `FM_TABPFN_WINNER` | 4 × 32,768 (131k) | 0.6603 | **−113.76** [−261, +33] | −37.53 | −0.045 |
+| **`FM_TABPFN_E3FULL`** | **13 × 32,768 (426k = the full pool)** | **0.6716** | **−140.69** [−282, +1] | −46.46 | −0.055 |
+| champion `LMART_HP_NOTF` | — | **0.4959** | **+837.83** [651, 1025] | +276.21 | +0.330 |
+
+**3.25× more of its own home turf made TabPFN a better global classifier and a worse earner.**
+AUC 0.6603 → 0.6716; seated dollars −$113.76 → −$140.69.
+
+This is the same shape as the fix pass's tokenizer repair — a named handicap removed, and the
+dollars did not move (here they moved the wrong way) — so "the context was too small" joins
+"the test was handicapped" on the list of readings no longer available.
+
+**And it upgrades a known result into a dose-response one.** The final pass measured that
+TabPFN is the program's best *global* winner classifier (AUC 0.687) while *damaging* within-cell
+ordering at every blend weight (ρ = −0.107), and called global discrimination and seated
+ordering "near-orthogonal". With the full pool the relationship is visible as a **gradient**:
+the increment of context that bought +0.011 of global AUC cost −$27/session of seated money,
+while the champion sits at **chance-level global AUC (0.4959) and banks +$838**. On this
+evidence the two quantities are not orthogonal — **they trade off against each other.**
+
+That is exactly the atlas's §0 framing arriving as a measurement rather than a citation: the
+identified variation in this problem is **within-cell**, a model optimised for the global level
+ordering is solving a different problem, and its improvements transfer *negatively*. The
+champion's near-chance global AUC is not a defect of the champion — it is what a within
+estimator looks like when it has correctly thrown the between-cell variation away.
+
+Files: `NEWOBJ_TABPFN_E3FULL.tsv`, `NEWOBJ_TABPFN_E3FULL_SENSITIVITY.tsv`,
+`artifacts/cache/port/m2/seqtest/results/FM_TABPFN_E3FULL.json`.

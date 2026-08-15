@@ -1,0 +1,15 @@
+# PORT_M2_SHEETS_SPEC.md port m2 deficit ledger — orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars (spec_sha16=f6ef73a41dbf8588)
+# params_hash=9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da
+# THE-FIX-LIST: components ranked by recoverable $/session, with the named improvement type
+# block A = fixed-contract ladder (additive); B = contract change, D-029 reserved; D = diagnostic
+# standalone = the same repair applied ALONE from the judge's own takes (order-free)
+rank	judge	component	improvement_type	block	usd_per_session	usd_total	share_of_block_A	standalone_usd_per_session	n_repairs	top_cell	top_cell_usd_per_session
+1	E3E7_LMART_SIDEVETO	RANKING_RESIDUAL	scoring/foresight	A	803.410000	1557820.750000	0.389500	3128.060000	0	E7|NKD|rg0|ph0	15.840000
+2	E3E7_LMART_SIDEVETO	SEL_WRONG_MEMBER	ranking	A	790.010000	1531825.320000	0.383000	1891.550000	5461	E5|SI|rg1|ph2	22.140000
+3	E3E7_LMART_SIDEVETO	SEL_WRONG_SIDE	validity	A	455.860000	883917.130000	0.221000	706.990000	1015	E4|SI|rg0|ph2	11.560000
+4	E3E7_LMART_SIDEVETO	RISK	stop-structure (D-029)	B	315.730000	612205.000000	0.153100			E3|SI|rg2|ph2	8.170000
+5	E3E7_LMART_SIDEVETO	EXIT	exit-contract (D-029)	B	315.010000	610797.500000	0.152700			E7|HG|rg0|ph0	10.230000
+6	E3E7_LMART_SIDEVETO	OPPORTUNITY	generation/coverage	A	102.770000	199262.500000	0.049800			E5|HG|ALL	18.650000
+7	E3E7_LMART_SIDEVETO	SEL_WRONG_MOMENT	moment	A	50.440000	97797.250000	0.024500	87.780000	1258	E3|SI|rg2|ph2	1.730000
+8	E3E7_LMART_SIDEVETO	CALIBRATION	threshold	D	0.000000	0.000000	0.000000				
+9	E3E7_LMART_SIDEVETO	PARTICIPATION	throughput/abstention	A	-139.750000	-270974.190000	-0.067700	0.370000	257048	E4|HG|rg1|ph0	1.050000

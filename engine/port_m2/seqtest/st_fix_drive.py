@@ -32,19 +32,35 @@ V2_TRUNKS = ("PRE_V2_shared_NEXT", "PRE_V2_shared_MULTI_CPC0.6",
 
 
 def best_trunk(default="PRE_V2_shared_NEXT"):
-    """The V2 trunk with the highest FROZEN-PROBE pooled capture — the
-    ablation's own answer to F4 (CPC x3 vs dropped) and to F1's objective."""
+    """The V2 trunk with the highest FROZEN-PROBE capture — the ablation's own
+    answer to F4 (CPC x3 vs dropped) and to F1's objective.
+
+    Read on the HARNESS'S OWN SEATING (the coordinator correction of
+    2026-08-15), not on the session/3 figure the result JSON was written with:
+    picking a trunk on a schedule the program does not deploy would be the same
+    defect one level down.
+    """
+    import st_fix_report as FR
+    import m3_walk as W
+    D, _p = W.load_matrix()
+    ceil = R.ceilings_of(D)
     best, bt = -np.inf, default
     for t in V2_TRUNKS:
-        p = os.path.join(R.RES_DIR, "PROBE2_%s_FUSED.json" % t)
-        if not os.path.exists(p):
+        tag = "PROBE2_%s_FUSED" % t
+        if not os.path.exists(os.path.join(R.RES_DIR, "%s.json" % tag)):
             continue
-        with open(p) as fh:
-            o = json.load(fh)
-        c = (o.get("pooled") or {}).get("capture_oracle")
+        champ, win = FR._load(D, tag)
+        _per, pool = FR.score_form(D, champ, win, ceil,
+                                   np.zeros(D["d8"].size, dtype=np.int64),
+                                   "primary")
+        c = (pool or {}).get("capture_oracle")
+        SC.hb("  trunk %-32s re-seated capture %.4f ($%.2f/session)"
+              % (t, c or float("nan"), (pool or {}).get("usd_per_session")
+                 or float("nan")))
         if c is not None and c > best:
             best, bt = float(c), t
-    SC.hb("ablation picks trunk %s (frozen-probe capture %.4f)" % (bt, best))
+    SC.hb("ablation picks trunk %s (re-seated frozen-probe capture %.4f)"
+          % (bt, best))
     return bt, best
 
 

@@ -242,7 +242,23 @@ are the same replayed certificate dollars either way.**
 
 ## 7. THE CONTROLS
 
-*(filled)*
+Every control is on the same corrected seating as every arm.
+
+| control | what it must show | result |
+|---|---|---|
+| **shuffled-label, the champion's own arm** (`LMART_ALLDATA_SHUFFLED`) | chance | **−$131.23/session**; paired vs champion **−$1,067.19** [−1171, −963], p = 1e−72 |
+| shuffled-label, cell ranker without history | chance | −$159.85/session |
+| shuffled-label, the GBT family | chance | −$132.65 (primary) / −$131.06 (composed) |
+| shuffled-label, the sequence ladder (V1) | chance | −$108.59 (primary) / −$137.75 (composed) |
+| **random-trunk** (`PROBE_RANDOM_FUSED`, identical shape, untrained) | isolates what pretraining bought | $275.62/session against the pretrained trunk's $282.21 — **+$6.59** |
+| seeded random selection (200 draws) | the floor | −$100.59/session |
+| `BASE_EARLIEST` (the frozen zero-intelligence arm) | the floor | −$168.18/session |
+| duplicate-day / non-causal-era / tensor-causality probes | must REFUSE | inherited unchanged from the first pass, all PASS |
+| **12 new red-first checks** (`test_fixpass2.py`) | must all pass before any number is read | tokenizer identity bit-for-bit; no price bucket > 40 %; cuts fitted on PRE-A only; the E2..E8 creator cache reproduces the committed census exactly; coverage exactly E2..E8; **day-memory equals a brute-force recomputation with no unresolved episode**; memory empty at the session open; wall pairs satisfy the committed definition; day/cell groups are the schedule's seating unit; the MAE-cap label; LoRA/freeze/layer-wise-LR — **12/12 green**, plus the lane's own 10/10 |
+
+The instrument's power is now visible and large: a genuinely broken arm (shuffled labels) is
+separated from the champion at p = 1e−72 on 2,320 paired sessions, and differences of
+**$150/session are detected at p ≈ 0.001**. Nothing in this report is a null for want of power.
 
 ---
 

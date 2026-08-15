@@ -386,7 +386,7 @@ def _group_arrays(D, rows, klass, group):
 
 
 def lmart(group="cell", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
-          use_creator=False, from_era="E2"):
+          use_creator=False, from_era="E2", hardneg=0.0):
     import xgboost as xgb
     import st_lmart as LM
     import st_creator as CR
@@ -406,8 +406,33 @@ def lmart(group="cell", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
     name = tag or ("LMART2_%s%s%s%s"
                    % (group.upper(), "_MEM" if daymem else "",
                       "_CRE26" if use_creator else "",
-                      "_ALLDATA" if from_era == "PRE_E1" else ""))
+                      "_ALLDATA" if from_era == "PRE_E1" else "")
+                   + ("_HN%g" % hardneg if hardneg else ""))
     j = D["names"].index("in_news_window")
+    # F6/B3 for a LambdaMART: the objective has no place for an auxiliary
+    # pairwise term, so the hard negatives enter as INSTANCE WEIGHTS — every row
+    # that is a leg of a committed wall pair is upweighted by `hardneg`, which
+    # makes the +$1,000 / -$900 minute-apart decisions the ones the trees are
+    # most penalised for getting wrong.
+    is_leg = np.zeros(n, dtype=bool)
+    if hardneg > 0:
+        pw, pl = A2.wall_pairs(D)
+        is_leg[np.unique(np.concatenate([pw, pl]))] = True
+        SC.hb("B3: %d wall-pair legs -> the CELLS holding them are upweighted "
+              "x%.2f" % (int(is_leg.sum()), 1.0 + float(hardneg)))
+
+    def gweights(ro, cnt):
+        """xgboost's ranking objective weights QUERY GROUPS, not rows, so B3
+        upweights every CELL that holds a committed wall pair."""
+        if hardneg <= 0:
+            return None
+        w = np.ones(cnt.size, dtype=np.float32)
+        at = 0
+        for i, c in enumerate(cnt.tolist()):
+            if is_leg[ro[at:at + c]].any():
+                w[i] = 1.0 + float(hardneg)
+            at += c
+        return w
     ledger = []
     for era in test_eras:
         t0 = time.time()
@@ -422,9 +447,13 @@ def lmart(group="cell", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
         dtr = xgb.DMatrix(C[r_itr], label=LM.grades(value[r_itr]),
                           feature_names=cnames)
         dtr.set_group(g_itr)
+        if hardneg > 0:
+            dtr.set_weight(gweights(r_itr, g_itr))
         dva = xgb.DMatrix(C[r_iva], label=LM.grades(value[r_iva]),
                           feature_names=cnames)
         dva.set_group(g_iva)
+        if hardneg > 0:
+            dva.set_weight(gweights(r_iva, g_iva))
         cfg = {"objective": "rank:ndcg", "eval_metric": "ndcg@3",
                "tree_method": "hist", "eta": 0.05, "max_depth": 6,
                "min_child_weight": 20, "subsample": 0.8,
@@ -439,6 +468,8 @@ def lmart(group="cell", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
         dall = xgb.DMatrix(C[r_tr], label=LM.grades(value[r_tr]),
                            feature_names=cnames)
         dall.set_group(g_tr)
+        if hardneg > 0:
+            dall.set_weight(gweights(r_tr, g_tr))
         b2 = xgb.train(cfg, dall, best_rounds)
         score[ev_r] = b2.predict(xgb.DMatrix(C[ev_r], feature_names=cnames))
         g_ev = build_groups(D, ev_r, klass, group)
@@ -468,6 +499,7 @@ def lmart(group="cell", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
                          "group": group, "mode": "ctx", "trunk": "NONE",
                          "daymem": bool(daymem), "use_creator": bool(use_creator),
                          "group_unit": group, "from_era": from_era,
+                         "hardneg": hardneg,
                          "n_ctx": int(C.shape[1]), "rung": "gbt", "L": 0,
                          "classes": cls_names, "pretrained": False,
                          "per_era": [R._strip(a) for a in per], "pooled": pool,
@@ -501,7 +533,7 @@ def main():
     eras = tuple(x for x in a.eras.split(",") if x)
     if a.lmart:
         lmart(group=a.group, daymem=a.daymem, test_eras=eras, tag=a.tag,
-              use_creator=a.creator, from_era=a.from_era)
+              use_creator=a.creator, from_era=a.from_era, hardneg=a.hardneg)
     elif a.run:
         run(a.trunk, mode=a.mode, group=a.group,
             losses=tuple(x for x in a.losses.split(",") if x),

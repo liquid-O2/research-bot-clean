@@ -1,3 +1,15 @@
+> # VOID — DO NOT DEPLOY, DO NOT CITE AS A RESULT
+> **Adjudicated 2026-08-21 (leak audit P1, `provenance/port_m2/LEAK_VERDICTS.tsv`).**
+> Every $/session figure in this document is produced by `newobj.top_per_cell_score`,
+> the cell's **eventual argmax** — a rule that needs, on average, ~5.5 hours of future
+> arrivals before it can name the seat it claims to take at the arrival second.
+> The argmax is the cell's first arrival only 5.9–14.4% of the time
+> (`LEAK_SEATING_CENSUS.tsv`), so none of these numbers is earnable at arrival time.
+> The configuration is not refuted — it was never measured against an implementable
+> decision. The replacement object is the **arrival-time policy**
+> (`engine/port_m2/arrival.py`, `ARRIVAL_ZOO.tsv`). The oracle CEILINGS this document
+> cites survive; every realised figure does not.
+
 # CHAMPION_FREEZE_CANDIDATE **v2** — `LMART_HP_NOTF`, with its fit variance measured
 
 **Status: FREEZE CANDIDATE, HELD.** The configuration is **unchanged from v1**. What is new is

@@ -159,8 +159,10 @@ def _detect_one(job):
         mult = float(C.ASSETS[asset]["mult"])
         if not prior or not np.isfinite(atr):
             return (asset, int(d8), [], None)
-        (e_poc, e_vah, e_val) = prior[0]
-        pocs = np.asarray([p for (p, _v, _l) in prior[1:]], dtype=np.float64)
+        # prior rows are (trade_date, poc, vah, val), most recent first
+        (_e_d, e_poc, e_vah, e_val) = prior[0]
+        pocs = np.asarray([p for (_d, p, _v, _l) in prior[1:]],
+                          dtype=np.float64)
         if pocs.size == 0:
             return (asset, int(d8), [], None)
         tol = TOL_ATR * atr / mult          # ATR is in dollars; work in price

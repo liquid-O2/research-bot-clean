@@ -5,3 +5,4 @@ P1 CONFIRMED on E7: deployed $1644 -> causal-oracle $3.37. Running E3-E6.
 P1 COMMITTED+PUSHED (476b9a8). CRITICAL LEAK. Starting P2 generator/assembly.
 P2: dominance = same-session upd_count argmax (suspect). Running feature constancy scan.
 P5: fill-realism census launching (entry slippage + wall gap-through)
+P4 as-of recompute: so-far family CLEAN. Awaiting P3 sub-audit.

@@ -359,7 +359,133 @@ regime shift from binding.
 
 ## P3 — FEATURES
 
-*(sub-audit running; `dom_share` already carried above)*
+### Label containment (`f_sess_close` and every outcome) — **CLEAN**
+
+The outcome arrays are packed into `R` (`m3_matrix.py:546, 559-561, 696-697`)
+but dereferenced in exactly two label-side places: `build_targets`
+(`:1077-1106`) and the sidecar at `:1511`. `build_columns` (`:1138-1369`),
+`join_cross_asset`, `join_news`, `join_forecaster`, `episode_keys` and
+`_teacher_level_state` read no OUTCOMES key. Empirically, over a 233k-row
+subsample, the largest |Spearman| between any feature and any outcome is
+**0.326** (`runway_sess_sec` vs `mfe_unwalled` — more runway, more excursion;
+mechanically legitimate). **`f_sess_close` appears in no feature.**
+
+*Guard weakness to fix:* `check_forbidden_names` (`m3_common.py:168-179`)
+matches the hand-typed `Feat.sources` string rather than the upstream receipt
+field, so a rename defeats it — which is exactly how `dom_share` shipped.
+
+### Day-so-far / cell-so-far — **CLEAN** (independently confirmed twice)
+
+`m3_matrix.py:1412-1419` ranks by `np.lexsort((dec_sec, key))` and assigns
+`np.arange`, so "already fired" really is the count of strictly-prior rows.
+`cell_is_open_row`/`cell_first_dec_sec` (`pattern_lib.py:1222-1227`) take the
+dec-ascending minimum; `pre_cell_range_usd` (`:1200-1203`) and
+`range_so_far_usd` (`:798, 818-819`) both index the last SANE second
+**strictly before** `dec`. Verified 100 % on the shipped matrix by the
+sub-audit, and independently by my own as-of recompute (P4 above).
+
+### Cross-asset `xa_*` — **AMBIGUOUS (second-order, information-losing)**
+
+Values are clean: reproduced to 99.75-99.79 %, **0 rows** read a source with
+`ts > row ts`, **0 rows** read inside the row's own cell (the R76 step-back at
+`:970-974` fires), age never negative, 3-day freshness cap applied. The
+ambiguity is in *which* cell is selected: "closed cell" is defined at `:956` as
+the cell's last candidate over the whole cell, so a cell still running is
+skipped **because a candidate fires after `ts`** — a future fact deciding the
+source, even though the value read is past. Exposure: **78,333 legs (1.87 %)**
+select a source cell co-temporal with the row. Direction is
+information-*losing*, never future-value-reading, but an observer at `dec_sec`
+could not reproduce the column. Low severity; worth fixing for reproducibility.
+
+### COT / VIX / FRED as-of lags — **CLEAN in port_m2**, two clock inconsistencies
+
+None are matrix columns; they enter transitively via `regime_forecast` → `fc_*`
+and via `b2_fvol` → the `tf_*`/`range_hat` group. Lags are real and enforced
+against the **release** timestamp, not the observation date
+(`availability.py:462-466`, re-asserted strictly at `m2_common.py:940`):
+COT Friday 15:30 ET with federal-closure roll → **3.81-7.85 d** (54/261 stamps
+delayed past a naive +3 d); VIX/GVZ/RVX/FRED dailies next US business day
+17:00 ET → 1.875 d; FRED H.10 next Monday 16:15 ET → 3.84 d; NIKKEI_VI/JGB
+next JST business day; SHFE next CN business day.
+
+Two findings, neither a forward read:
+* **`port_m1` bypasses the mechanism.** `b2_fvol.py:390` uses
+  `PriorSeries.value_before`, a bisect on **observation dates** with no release
+  rule (`port_m1` never imports `availability.py`). Live for SI/GVZ only,
+  1,252/1,257 sessions, ~24 h ahead of the repo's own D-057 stamp. Still
+  causal in real time (GVZ's 16:15 ET close precedes the 17:00 CT open), but it
+  violates the declared clock and `regime_forecast.py:821,866` then re-stamps
+  the derived features so the M2 guard cannot see the dependency.
+* **`vintage_class` is declared and never enforced.** `availability.py:395-418`
+  reads the column; nothing consumes it. All 6 FRED and 3 COT series are
+  flagged `REVISED_VALUE` and are read at the **2026 vintage for 2021
+  observations**. Small for daily rate series, real and unmitigated.
+
+### FORECASTER `fc_*` — guard HELD upstream, **but the MATRIX-SIDE JOIN LEAKS**
+
+Upstream `regime_forecast.py` is clean and well defended: expanding window,
+monthly refit, strict `<` (`:1405`), `include_cutoff=True` **raises**
+(`:1398-1401`); imputation medians, standardiser, GBT bin edges, clip bounds
+and residual quantiles all fit on the training slice only; holdout enforced at
+three enumerators plus an output assertion, 0 rows ≥ 2025-07-01 on disk;
+`fc_bench_*` are genuine trailing statistics whose window helper raises if
+`hi > i`; 15/15 red-first mutation tests pass. **The guard held.**
+
+The leak is the join. The forecaster emits a per-session
+`anchor_sec`/`anchor_ts` and builds its own causal guard from it
+(`regime_forecast.py:1690-1693`), reading intraday data over `[0, anchor_sec)`.
+`m3_matrix.py` **discards that column** and substitutes a hardcoded constant
+keyed on the anchor *name*:
+
+```python
+m3_matrix.py:86    FC_ANCHOR_SEC = {"OPEN": 0, "LONDON_OPEN": 28800, "NY_OPEN": 43200}
+m3_matrix.py:853   asec = FC_ANCHOR_SEC.get(row["anchor"])
+```
+
+The true anchor moves with the per-asset/per-year phase table **and with US
+DST** (the session opens 22:00 UTC in summer, 23:00 in winter). Measured
+against the receipt's own `anchor_sec`:
+
+> **44,373 rows — 3.171 % of the matrix, 4.005 % of `fc_available` rows — read a
+> forecast whose true anchor lies in the FUTURE of their own `dec_sec`**,
+> median **1,876 s**, max **7,200 s**. LONDON_OPEN 25,785 / NY_OPEN 18,588;
+> HG 24,851 / SI 10,680 / NKD 8,842; eras **E2-E8, i.e. all evaluation eras**;
+> Mar-Oct heavy (4,454-6,400/month) vs Nov-Feb light (306-776/month) — the DST
+> signature. The other 1,063,544 rows are admitted conservatively late.
+
+Those forecaster rows carry `sofar_range_usd`, `sofar_ret_usd`, `gap_usd`,
+`sofar_imbalance` computed over `[0, anchor_sec)`, so the affected rows receive
+intraday statistics covering **up to two hours past their own decision second**,
+through `fc_p_expansion`, `fc_range_hat_*`, `fc_share_*`, `fc_menu_hat`.
+**LEAK. The fix is one line:** use `int(row["anchor_sec"])` instead of the
+constant.
+
+### `dom_share` — **LEAK, and the repo had already adjudicated it three times**
+
+Chain: `s3_sessions.py:221-235` sums `upd_count` over the **entire session
+grid** → `:335 dominant_share` → `census_common.py:258-260` →
+`c_c_roster.py:314` stamps it on every candidate → `m3_matrix.py:695` → `:1272`
+ships it in the `regime` feature group. Constant within **3,341/3,341 (100 %)**
+asset-sessions.
+
+The repo already refuses this field in three places —
+`m2_common.py:384-392 KNOWN_TRAPS["m0_session_meta.dominant_share"]`,
+`sections.py:401-403 S2_FORWARD_META` (the sheet builder **refuses** it), and
+`m3_common.py:137 FORBIDDEN_SOURCES["dominant_share"] = "TRAP"`. It ships
+anyway because `m3_matrix.py:332` declares the source as the literal
+`"dom_share"`, which is not a key in `FORBIDDEN_SOURCES`, so the name guard
+passes. The value-side guard cannot catch it either — it correlates with
+outcomes at ≈ 0, not ≈ 1. **A rename defeated three independent guards.**
+
+### Whole-era frozen constants — **LEAK (weak, same class as the phase tables)**
+
+`b2_fvol._regime_cuts` fits the RV5/RV66 tercile cut points on the pooled FIT
+era 2021-2024 and applies them back across 2021-2024, and `_select` picks
+fvol-vs-benchmark per (asset, segment, target) on FIT-era MAE likewise applied
+back over the fit era. So a 2021 row's `regime_tercile` bucket was cut using
+2022-2024 data. The forecaster carries the same shape in its undeclared
+model-family pick over all of 2021-2024 (`regime_forecast.py:1731-1763`).
+Target-free and coarse, but hindsight by construction.
 
 ## P4 — MECHANICAL DETECTORS
 
@@ -369,6 +495,29 @@ session-start knowables (`month`, `dow`, `is_monday`, `is_friday`, `era_ord`,
 `asset_*`, `cls_UNCLASSED`, `atr_usd`, `fc_available`, `fc_bench_*`). The
 fifteenth is **`dom_share`** — see P2. No other whole-session aggregate is
 consumed mid-session.
+
+**As-of recompute diff — the "so-far" family — CLEAN.** Every column
+recomputed strictly as-of from `(cell | session | episode, dec_sec)` alone and
+diffed against the committed matrix, all 1,399,374 rows:
+
+| column | recomputed as | max abs diff | mismatched |
+|--------|---------------|--------------|------------|
+| `cell_age_sec` | `dec_sec` − cell's first `dec_sec` | **0** | **0** |
+| `ep_rank` | # episode candidates strictly earlier | **0** | **0** |
+| `ep_is_earliest` | is the episode's first arrival | **0** | **0** |
+| `cell_is_open_row` | is the cell's first arrival | 1 | 5 (0.0004 %) |
+| `cell_rank_so_far` | # cell candidates strictly earlier | 1 | 1,254 (0.09 %) |
+| `sess_rank_so_far` | # session candidates strictly earlier | 1 | 1,254 (0.09 %) |
+
+The three non-zero rows differ by at most 1 and only on same-second ties — a
+tie-breaking convention, not future information. **These features are genuinely
+as-of.**
+
+*Probe recorded so it is not mistaken for a finding later:*
+`corr(cell_rank_so_far, cell's final size) = +0.72`. That is mechanical and
+legitimate — being the 80th arrival really does tell you, at the time, that at
+least 80 have arrived. It is a lower bound on the final size, which is past
+information, not future.
 
 **Score-side controls** — see the P1 mechanism block: random-score argmax and
 within-cell-shuffled argmax both read ≈ $0, so the deployed dollars are not an
@@ -382,6 +531,46 @@ shuffled-label model would still be argmax'd over the cell and would still be
 compared through the same broken channel. Run them against the causal policy,
 where a dollar is a dollar; running them now would produce a green light that
 means nothing. Recorded as an open item, not as a pass.
+
+---
+
+## THE NUMBER THE RE-ANCHORED CAMPAIGN NEEDS: THE CAUSAL CEILING
+
+P1 voids the seated dollars. The immediate question it raises is whether the
+goal is reachable *at all* under a rule that decides at arrival. It is.
+
+**The causal oracle**: at each arrival you know that arrival's own realised
+certificate value exactly, and **nothing whatever** about arrivals still to
+come; take the first that clears V; V swept, best kept. Denominator held fixed
+at every (asset, session) the era's deployable rows cover, so abstention cannot
+inflate it.
+
+| era | DEPLOYED (retrospective, VOID) | **CAUSAL ORACLE** | $/trade | retrospective oracle |
+|-----|-------------------------------|-------------------|---------|----------------------|
+| E3 | $684.52 | **$2,348.15** | $852.68 | $2,969.10 |
+| E4 | $1,009.30 | **$2,133.24** | $795.06 | $2,744.17 |
+| E5 | $1,121.37 | **$2,020.97** | $760.81 | $2,582.61 |
+| E6 | $1,066.87 | **$2,674.90** | $992.43 | $3,366.93 |
+| E7 | $1,644.26 | **$3,360.24** | $1,244.65 | $4,085.25 |
+
+**The causal oracle clears the $2,000 floor in every era, including E3.** And
+it sits within 12-28 % of the retrospective oracle — so *removing the lookahead
+costs the ceiling very little*. The seating leak was never what made the goal
+look reachable; it was what made a **badly-calibrated score** look reachable.
+
+Two consequences:
+
+1. **The goal survives the audit.** A strictly arrival-time policy with a good
+   enough per-arrival predictor reaches $2,021-$3,360/session/asset on the
+   existing candidate stream, existing exit contract, existing costs.
+2. **The whole remaining problem is calibration.** The gap between the causal
+   oracle ($2,021-$3,360) and every measured causal arm (−$248 to +$209) is the
+   distance between "knows each arrival's value" and "knows each arrival's
+   within-cell rank but not its level". The campaign has been optimising rank
+   for months. It needs to optimise level.
+
+The causal oracle also reproduces the user's rare-few profile without being
+asked to: ~1,030-1,060 seats (vs 1,150-1,180 deployed) at **$761-$1,245/trade**.
 
 ---
 

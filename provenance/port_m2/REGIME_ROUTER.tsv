@@ -1,0 +1,12 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# PER-DAY-TYPE SPECIALISTS routed by the forecaster's day-start predicted-range tercile (causal).  SHARED is the identical configuration trained on all days.
+# A class with under 2,000 training rows falls back to the full training block rather than fitting on a starved sample; the fallback is in the code, not assumed away.
+# Read WITH REGIME_ROUTER_ACCURACY.tsv: a specialist stack that needs perfect routing is not deployable.
+# PROMOTION: delta_minus_sd > 0 on the BINDING eras.
+era	criterion	n_shared	shared_mean	shared_sd	n_routed	routed_mean	routed_sd	delta	delta_minus_sd	routed_capture
+E5	BINDING	5	1201.44	15.35	5	774.42	148.54	-427.03	-575.56	0.2999
+E6	BINDING	5	1281.06	194.1	5	503.78	58.17	-777.28	-835.44	0.1496
+E7	BINDING	5	1517.13	119.88	5	754.69	122.76	-762.45	-885.21	0.1847
+E3	context	5	1007.58	141.83	5	91.38	269.82	-916.19	-1186.02	0.0308
+E4	context	5	1275.81	39.29	5	762.32	160.71	-513.49	-674.19	0.2778

@@ -1,0 +1,12 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# AUDIT FINDING: CELLREL is NOT in the deployed stack -- every member family uses the BASE 184 columns.  It was the marquee screen axis and died with the RETRACTED atlas arm, but the retraction was of that arm's DOLLARS, not of the feature family.
+# Both arms are the CURRENT deployed configuration (W_VOLMATCH x TOP50 constraints, cell grouping, champion per-era HP); only the feature set differs.
+# The 64 CELLREL columns are left UNCONSTRAINED -- no stability receipt exists for them yet, and inventing one here would be fitting the prior to the arm.
+# PROMOTION: delta_minus_sd > 0 on the BINDING eras (E5/E6/E7).  E3/E4 are context only.
+era	criterion	n_base	base_mean	base_sd	n_cellrel	cellrel_mean	cellrel_sd	delta	delta_minus_sd	cellrel_capture
+E5	BINDING	5	1201.44	15.35	5	1153.95	36.04	-47.49	-83.53	0.4468
+E6	BINDING	5	1281.06	194.1	5	703.39	370.81	-577.67	-948.48	0.2089
+E7	BINDING	5	1517.13	119.88	5	1530.57	95.07	13.44	-81.63	0.3747
+E3	context	5	1007.58	141.83	5	683.03	235.64	-324.54	-560.18	0.23
+E4	context	5	1275.81	39.29	5	1094.6	171.74	-181.21	-352.95	0.3989

@@ -49,7 +49,11 @@ CHAMP_REF = {"E3": 448.85, "E4": 887.37, "E5": 755.94, "E6": 625.91,
 def _load(era):
     """Every already-fitted member for this era, by family."""
     fam = {}
-    for tag, rng in (("CONTOP50", SEEDS), ("W_VOLMATCH", SEEDS),
+    # FOLD/FOLDCELLREL are the per-era-strictness members and supersede
+    # CONTOP50 when present; the pooled-k members stay in the pool as the
+    # diversity floor rather than being deleted.
+    for tag, rng in (("FOLD", SEEDS), ("FOLDCELLREL", SEEDS),
+                     ("CONTOP50", SEEDS), ("W_VOLMATCH", SEEDS),
                      ("BAG", BAGS), ("REG", SEEDS)):
         got = []
         for i in rng:

@@ -1,0 +1,6 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# RIDER (a): the HP grid re-searched ON the TOP50-constrained configuration.  The champion's per-era HP were tuned for UNCONSTRAINED trees, and constraints change the optimal capacity.
+# Selected on INNER NDCG@3 -- never on inner dollars, which was the winner's-curse defect this campaign already had to correct once.
+# Incumbent = the same constrained config at the champion's inherited HP.  PROMOTION: delta_minus_sd > 0 on the BINDING eras.
+era	criterion	chosen_hp	n_seeds	mean_usd	sd_usd	incumbent_champHP_mean	delta	delta_minus_sd	capture

@@ -1,0 +1,10 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# Router = tercile of the FORECASTER's day-start predicted range; truth = tercile of the day's realised range.  Cuts fitted on TRAINING days only.
+# A specialist stack is only as good as this number; it is reported BEFORE the dollars for that reason.
+era	router_accuracy	mean_abs_class_error	n_rows
+E5	0.4943	0.6347	152947
+E6	0.4435	0.6295	163062
+E7	0.5482	0.5296	158276
+E3	0.3468	0.9854	151822
+E4	0.3579	0.8771	148418

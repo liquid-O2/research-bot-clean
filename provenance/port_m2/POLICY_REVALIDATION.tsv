@@ -1,0 +1,37 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE SEAT POLICY RE-ASKED UNDER THE 5-SEED LAW.  It was chosen on a SINGLE FIT by m3_walk.select_policy and inherited unquestioned; a single-fit choice against a $150-378 seed sd is a coin toss dressed as a selection.
+# REPLAY ONLY on the five constrained member scores.
+# armed_* is the PRIMARY reading (the first-wall stop is adopted); raw is reference.
+# PROMOTION: a policy displaces the current one only if its 5-seed armed mean clears the current policy's by more than its own sd, on the BINDING eras.
+era	criterion	policy	is_current	n_seeds	raw_mean	raw_sd	armed_mean	armed_sd	armed_capture
+E5	BINDING	cell/1	CURRENT	5	1195.35	11.85	1101.05	14.36	0.4263
+E5	BINDING	cell/2		5	1049.79	15.14	959.4	13.21	0.3715
+E5	BINDING	cell/3		5	941.22	19.06	837.36	14.65	0.3242
+E5	BINDING	session/1		5	289.94	12.11	289.94	12.11	0.1123
+E5	BINDING	session/2		5	287.71	12.62	286.44	9.91	0.1109
+E5	BINDING	session/3		5	292.24	13.69	285.33	14.83	0.1105
+E6	BINDING	cell/1	CURRENT	5	994.65	263.87	805.07	265.28	0.2391
+E6	BINDING	cell/2		5	795.38	288.88	635.43	270.15	0.1887
+E6	BINDING	cell/3		5	660.58	280.84	504.0	254.15	0.1497
+E6	BINDING	session/1		5	337.63	62.21	337.63	62.21	0.1003
+E6	BINDING	session/2		5	340.72	71.83	310.24	74.36	0.0921
+E6	BINDING	session/3		5	327.75	76.83	284.04	71.1	0.0844
+E7	BINDING	cell/1	CURRENT	5	1758.35	29.54	1512.81	39.37	0.3703
+E7	BINDING	cell/2		5	1544.99	20.44	1289.65	24.63	0.3157
+E7	BINDING	cell/3		5	1344.11	23.91	1074.43	36.66	0.263
+E7	BINDING	session/1		5	473.79	24.1	473.79	24.1	0.116
+E7	BINDING	session/2		5	521.84	9.57	474.95	10.58	0.1163
+E7	BINDING	session/3		5	524.4	21.32	449.99	16.78	0.1101
+E3	context	cell/1		5	1106.71	139.6	949.97	121.79	0.32
+E3	context	cell/2	CURRENT	5	934.33	144.62	776.68	136.01	0.2616
+E3	context	cell/3		5	781.57	147.18	626.44	109.65	0.211
+E3	context	session/1		5	358.51	17.06	358.51	17.06	0.1207
+E3	context	session/2		5	359.15	31.76	347.62	30.52	0.1171
+E3	context	session/3		5	361.06	36.07	344.92	33.98	0.1162
+E4	context	cell/1	CURRENT	5	1202.76	59.42	1015.2	67.98	0.3699
+E4	context	cell/2		5	1042.25	51.72	849.36	55.89	0.3095
+E4	context	cell/3		5	909.62	54.25	720.93	48.82	0.2627
+E4	context	session/1		5	457.24	31.28	457.24	31.28	0.1666
+E4	context	session/2		5	456.54	34.56	432.75	35.56	0.1577
+E4	context	session/3		5	449.63	28.71	412.98	29.1	0.1505

@@ -1,0 +1,16 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE PER-ERA STRICTNESS WINNERS FOLDED IN: E3 k=65, E4 k=80, E5 k=80, E6 k=65, E7 k=65 -- chosen by the promotion rule (delta_minus_sd), not the raw mean.  TOP50 was a POOLED compromise and every binding era wants more constraint than it; the optimum is still INTERIOR (65-80 of ~112 stable signs).
+# CELLREL is REBASED here -- it was queued against the old TOP50 base and that read is superseded.  Its extra columns stay unconstrained (no stability receipt).
+# ARMED rows are primary (first-wall stop adopted); raw is reference.  Incumbent = the TOP50 members replaced.
+era	criterion	feature_set	k	n_seeds	raw_mean	armed_mean	armed_sd	incumbent_top50_armed	delta	delta_minus_sd	armed_capture
+E5	BINDING	BASE	80	5	1225.64	1126.45	26.59	1101.05	25.4	-1.2	0.4362
+E5	BINDING	CELLREL	80	5	1139.06	1055.96	86.81	1101.05	-45.09	-131.91	0.4089
+E6	BINDING	BASE	65	5	1612.76	1435.25	57.06	805.07	630.17	573.11	0.4263
+E6	BINDING	CELLREL	65	5	760.12	588.99	359.19	805.07	-216.08	-575.27	0.1749
+E7	BINDING	BASE	65	5	1842.58	1633.52	16.29	1512.81	120.71	104.42	0.3999
+E7	BINDING	CELLREL	65	5	1754.69	1540.46	26.28	1512.81	27.65	1.37	0.3771
+E3	context	BASE	65	5	1067.53	866.04	63.77	776.68	89.36	25.59	0.2917
+E3	context	CELLREL	65	5	638.39	455.38	277.5	776.68	-321.3	-598.8	0.1534
+E4	context	BASE	80	5	1339.94	1152.75	91.55	1015.2	137.56	46.0	0.4201
+E4	context	CELLREL	80	5	973.79	750.27	44.02	1015.2	-264.93	-308.95	0.2734

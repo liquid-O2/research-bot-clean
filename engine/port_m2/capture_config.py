@@ -85,20 +85,26 @@ def run(eras=ERAS):
                 u = a.get("usd_per_session")
                 c = ceil.get("%s|%s" % (era, scope))
                 cap = (u / c) if (u is not None and c) else None
+                aim = 0.80 * c if c else None
+                gap = (aim - u) if (aim is not None and u is not None) else None
+                capped = bool(c and c < FLOOR / 0.80)
                 rows.append([era, scope, label, a.get("n_seated"),
                              N._r(g["takes_per_day_mean"]), g["win_rate"],
                              N._r(a.get("usd_per_trade")), N._r(u), N._r(c),
-                             N._r(cap, 4), g["frac_sessions_dd_over_1000"],
+                             N._r(cap, 4), N._r(aim), N._r(gap),
+                             g["frac_sessions_dd_over_1000"],
                              g["weekly_pnl_p10"],
                              "FLOOR_OK" if (u or 0) >= FLOOR else "",
-                             "AIM_OK" if (u or 0) >= AIM_LO else ""])
+                             "AIM08_OK" if (aim and (u or 0) >= aim) else "",
+                             "CEILING_CAPPED" if capped else ""])
         N.hb("capture config %s done" % era)
     N.write_tsv("CAPTURE_CONFIGURATION.tsv",
                 ["era", "asset", "arm", "n_seated", "takes_per_session",
                  "win_rate", "usd_per_trade", "usd_per_session",
                  "entry_foresight_ceiling", "capture_of_ceiling",
+                 "aim_08ceiling", "gap_to_aim",
                  "frac_sessions_dd_over_1000", "weekly_pnl_p10",
-                 "floor_2000", "aim_2500"], rows,
+                 "floor_2000", "aim_08_met", "ceiling_capped"], rows,
                 extra=["THE CAPTURE CONFIGURATION -- the full book with armour. "
                        "3 takes/asset/day (9 of the <=10/day cap), ordered by "
                        "the stacked ensemble, compliance via the FIRST-WALL "
@@ -116,9 +122,16 @@ def run(eras=ERAS):
                        "EXITS ARE NOT PRICED HERE and are flagged as an open "
                        "lane; the selective-book exit kill does not transfer to "
                        "a 3/day book carrying ~35-40% losers.",
-                       "FLOOR $%d/session/asset; AIM $%d-%d; capture is against "
-                       "the entry foresight ceiling."
-                       % (int(FLOOR), int(AIM_LO), int(AIM_HI))])
+                       "THE AIM IS 0.80 x THE CELL'S OWN ENTRY-FORESIGHT "
+                       "CEILING (aim_08ceiling), and gap_to_aim is the distance "
+                       "left.  Success is capture CLIMBING TOWARD 0.80 per "
+                       "cell, not a flat dollar number.",
+                       "The $%d floor is the MINIMUM, and only where the "
+                       "ceiling supports it: a cell whose ceiling is below "
+                       "$%d/0.8 = $%d is CEILING_CAPPED and cannot reach the "
+                       "floor at the aim ratio -- flagged, not silently "
+                       "counted as a miss." % (int(FLOOR), int(FLOOR),
+                                               int(FLOOR / 0.8))])
     return rows
 
 

@@ -1,0 +1,36 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# PER-ERA constraint strictness swept (k = 30/40/50/65/80 stable signs) on the W_VOLMATCH base, plus the MAE-CAP label at k=50.  Every cell a 5-SEED distribution.
+# TOP50 was chosen POOLED; the optimum was already known to be interior (50 beat both 6 and 112), so there is no reason E3's recipe is E5's.
+# PROMOTION: a per-era k counts only if its 5-seed mean clears the k=50 mean by more than its own seed sd.
+era	label	n_constraints	n_seeds	mean_usd	sd_usd	min_usd	max_usd	entry_foresight_ceiling	capture_of_ceiling
+E3	dollars	30	5	731.2	363.28	272.68	1167.68	2969.1	0.2463
+E3	dollars	40	5	760.6	220.86	532.04	1047.18	2969.1	0.2562
+E3	dollars	50	5	1007.58	141.83	742.51	1164.23	2969.1	0.3394
+E3	dollars	65	5	1067.53	79.53	1010.54	1222.04	2969.1	0.3595
+E3	dollars	80	5	728.76	351.64	218.4	1191.82	2969.1	0.2454
+E3	maecap	50	5	-47.38	101.9	-201.71	81.51	2969.1	-0.016
+E4	dollars	30	5	1027.78	154.01	860.94	1251.66	2744.17	0.3745
+E4	dollars	40	5	1000.94	186.47	773.15	1325.97	2744.17	0.3647
+E4	dollars	50	5	1275.81	39.29	1207.44	1326.67	2744.17	0.4649
+E4	dollars	65	5	1275.81	56.53	1201.38	1340.84	2744.17	0.4649
+E4	dollars	80	5	1339.94	84.81	1241.09	1442.48	2744.17	0.4883
+E4	maecap	50	5	9.31	49.16	-77.53	67.94	2744.17	0.0034
+E5	dollars	30	5	1197.47	16.32	1177.8	1227.04	2582.61	0.4637
+E5	dollars	40	5	1073.22	72.07	947.89	1172.86	2582.61	0.4156
+E5	dollars	50	5	1201.44	15.35	1176.91	1220.95	2582.61	0.4652
+E5	dollars	65	5	1197.36	10.54	1181.61	1213.31	2582.61	0.4636
+E5	dollars	80	5	1225.64	21.42	1187.12	1246.72	2582.61	0.4746
+E5	maecap	50	5	-106.59	11.57	-116.81	-86.03	2582.61	-0.0413
+E6	dollars	30	5	906.1	318.05	615.05	1454.5	3366.93	0.2691
+E6	dollars	40	5	907.08	217.63	477.24	1041.33	3366.93	0.2694
+E6	dollars	50	5	1281.06	194.1	968.63	1531.96	3366.93	0.3805
+E6	dollars	65	5	1612.76	48.42	1538.01	1669.02	3366.93	0.479
+E6	dollars	80	5	1192.72	521.05	396.52	1676.8	3366.93	0.3542
+E6	maecap	50	5	-1.67	54.29	-84.17	69.46	3366.93	-0.0005
+E7	dollars	30	5	1582.61	126.34	1422.83	1760.59	4085.25	0.3874
+E7	dollars	40	5	1496.68	74.43	1359.13	1583.51	4085.25	0.3664
+E7	dollars	50	5	1517.13	119.88	1301.11	1669.46	4085.25	0.3714
+E7	dollars	65	5	1842.58	11.03	1822.5	1853.88	4085.25	0.451
+E7	dollars	80	5	1823.01	10.8	1811.4	1842.47	4085.25	0.4462
+E7	maecap	50	5	-9.14	29.52	-45.39	35.51	4085.25	-0.0022

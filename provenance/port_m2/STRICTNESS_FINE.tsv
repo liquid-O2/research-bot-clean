@@ -1,0 +1,16 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# FINE STRICTNESS, k in {55,60,65,70,75,80}, SELECTED ON INNER BLOCKS ONLY.  `inner_selected_k` is the recipe; `era_argmax_k_CONTEXT_ONLY` is the k that paid most on the era itself and is NOT a recipe -- it carries era-outcome selection premium and is shown only so the premium is visible.
+# The incumbent is the folded per-era-argmax stack, so a positive delta here means inner selection BEAT a recipe that had already seen the answer.
+# STOPPING RULE (pre-registered): if inner selection cannot separate the k values, the axis CLOSES and shape constraints close with it -- inner selection already failed once on the weighting axis, which is the precedent for believing a null here.
+era	criterion	selection	inner_selected_k	era_argmax_k_CONTEXT_ONLY	n_seeds	armed_mean	armed_sd	incumbent_armed	delta	delta_minus_sd	armed_capture
+E5	BINDING	per_era	70	80	5	1112.72	10.94	1126.45	-13.73	-24.67	0.4309
+E5	BINDING	per_asset	{'SI': 70, 'HG': 60, 'NKD': 60}	80	5	1105.16	17.22	1126.45	-21.29	-38.51	0.4279
+E6	BINDING	per_era	60	65	5	1408.57	45.36	1435.25	-26.67	-72.03	0.4184
+E6	BINDING	per_asset	{'SI': 60, 'HG': 75, 'NKD': 75}	65	5	1159.17	333.28	1435.25	-276.08	-609.36	0.3443
+E7	BINDING	per_era	60	65	5	1599.42	43.58	1633.52	-34.11	-77.69	0.3915
+E7	BINDING	per_asset	{'SI': 60, 'HG': 60, 'NKD': 60}	65	5	1599.42	43.58	1633.52	-34.11	-77.69	0.3915
+E3	context	per_era	80	65	5	540.9	334.98	866.04	-325.15	-660.13	0.1822
+E3	context	per_asset	{'SI': 70, 'HG': 70, 'NKD': 80}	65	5	748.08	129.81	866.04	-117.97	-247.77	0.252
+E4	context	per_era	80	80	5	1152.75	91.55	1152.75	0.0	-91.55	0.4201
+E4	context	per_asset	{'SI': 80, 'HG': 80, 'NKD': 80}	80	5	1152.75	91.55	1152.75	0.0	-91.55	0.4201

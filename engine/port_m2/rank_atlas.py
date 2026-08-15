@@ -100,6 +100,24 @@ SCREEN = {"rounds": 120, "depth": 6, "eta": 0.08, "group_frac": 0.60,
           "seed": N.SEED}
 CONFIRM = {"rounds": 300, "early": 25, "seed": N.SEED}
 
+# GPU: REFUSED, ON A MEASURED RECEIPT.
+# The plan was to buy the full-coverage HP search from the idle RTX PRO 6000 on
+# the argument that `hist` on GPU is the same algorithm as `hist` on CPU.  The
+# parity check on the reference cell (E5, same spec, same fold, same HP, only
+# the device changing) says otherwise:
+#     CPU  $959.40/session, 1161 seats, 69s   <- reproduces the committed
+#                                                champion's E5 figure EXACTLY
+#     GPU  $665.77/session, 1161 seats, 16s   <- 31% LOWER on the same fit
+# Same seat count, same schedule, a $293.63/session gap.  xgboost's CPU and GPU
+# `hist` draw their subsample/colsample streams differently and sketch the
+# quantiles differently, so at `subsample 0.8` / `colsample_bytree 0.8` they are
+# NOT the same model.  4x the speed is worth nothing if it silently moves every
+# number in the atlas, and the reference cell would have stopped reproducing the
+# champion -- the one property the grid is anchored on.
+# The compute is therefore taken from the EXPERIMENT DESIGN (see confirm_arm),
+# not from the hardware.  This is why the parity was measured instead of assumed.
+USE_GPU = os.environ.get("ATLAS_GPU", "0") == "1"
+
 
 # =========================================================== the prune law ====
 PRUNES = [
@@ -552,6 +570,8 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
                 "subsample": 0.8, "colsample_bytree": 0.8,
                 "seed": budget.get("seed", N.SEED), "nthread": 8,
                 "max_depth": depth, "eta": eta}
+        if USE_GPU:
+            base["device"] = "cuda"
         if memorize:
             base.update({"min_child_weight": 1, "subsample": 1.0,
                          "colsample_bytree": 1.0, "lambda": 0.0})
@@ -569,6 +589,7 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
                              (hp or {}).get("lambdarank_num_pair_per_sample", 8)})
         elif obj == "dpairs":
             base.update({"objective": "rank:pairwise",
+                         "eval_metric": "ndcg@3",
                          "lambdarank_pair_method": "topk",
                          "lambdarank_num_pair_per_sample":
                              (hp or {}).get("lambdarank_num_pair_per_sample", 16)})
@@ -598,6 +619,7 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
                            early_stopping_rounds=25, verbose_eval=False,
                            obj=custom)
             n_used = int(bb.best_iteration) + 1
+            inner_metric = float(bb.best_score)
             b = bb
         else:
             b = xgb.train(base, d, rounds, obj=custom)
@@ -681,7 +703,9 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
     return out, {"train_p1": train_dollar_p1(tr_pred, y_f, g_f),
                  "n_fit": int(r_f.size), "n_groups": int(g_f.size),
                  "median_group": float(np.median(g_f)),
-                 "rounds": int(locals().get("n_used", rounds))}
+                 "rounds": int(locals().get("n_used", rounds)),
+                 "inner_metric": float(locals().get("inner_metric",
+                                                    float("-inf")))}
 
 
 # ============================================================== the seating ===
@@ -845,7 +869,8 @@ def stage_screen(workers=8, limit=None):
 
 
 # ================================================================ STAGE B =====
-def confirm_arm(D, spec, era, P, V, budget=None):
+def confirm_arm(D, spec, era, P, V, budget=None, search=False,
+                policies=True):
     """One survivor, on the full walk-forward with the champion's HP discipline.
 
     Returns the eval-era score column, the booster (so the POLICIES can score
@@ -863,23 +888,49 @@ def confirm_arm(D, spec, era, P, V, budget=None):
                                         XF, FN, V, P)
         extra["fit_secs"] = round(time.time() - t0, 1)
         return a, sc, extra, (tr, itr, iva, ev_r), (None, None), XF, FN, val
-    # inner-block HP search, champion discipline: 12 cells for xgboost, the
-    # engine-equivalent depth/lr pair for the others (P6 keeps those narrow)
-    grid = (NA.HP_GRID if spec["engine"] == "xgb"
-            else tuple({"max_depth": d, "eta": e} for d in (4, 6)
-                       for e in (0.05, 0.10)))
-    best, best_v, sc_iva, best_rounds = None, -np.inf, None, CONFIRM["rounds"]
+    # HYPER-PARAMETERS: A TWO-TIER DESIGN, STATED.
+    #
+    # (1) DEFECT FIXED (user caught it): the first version selected the config on
+    #     the inner block's REALISED DOLLARS.  That is a winner's curse -- dollars
+    #     are far noisier than NDCG and "take the max of 12" biases the selected
+    #     config's inner number upward every time.  The champion's own spec
+    #     selects on inner-validation NDCG@3 ONLY.  Selection is now NDCG.
+    #
+    # (2) TIER A -- every arm is fitted at the CHAMPION'S OWN per-era
+    #     hyper-parameters (CHAMPION_FREEZE_CANDIDATE.md 2.5; themselves chosen
+    #     on an inner block, never having seen an evaluation era).  Holding HP
+    #     fixed is what makes each cell a genuine ONE-CHANGE-AT-A-TIME contrast
+    #     against the reference: the axis under test is the only thing that
+    #     moves, and HP noise cannot masquerade as an axis effect.
+    #     TIER B -- the reference and the arms that lead Tier A additionally get
+    #     the FULL 12-cell search (`--search-top`), so a genuine contender is
+    #     never held back by hyper-parameters it inherited from another arm.
+    #
+    # The round count always comes from early stopping on this fold's inner
+    # block, which is the champion's own recipe.
+    grid = ({k: NA.CHAMP_HP[era][k] for k in
+             ("max_depth", "eta", "lambdarank_num_pair_per_sample")},)
+    if search:
+        grid = (NA.HP_GRID if spec["engine"] == "xgb"
+                else tuple({"max_depth": d, "eta": e} for d in (4, 6)
+                           for e in (0.05, 0.10)))
+    if spec["engine"] != "xgb":
+        grid = tuple({k: v for k, v in g.items() if k !=
+                      "lambdarank_num_pair_per_sample"} for g in grid)
+    best, best_ndcg, sc_iva, best_rounds = None, -np.inf, None, CONFIRM["rounds"]
     for hp in grid:
         s_i, info_i = fit_cell(D, spec, ifit, iva, XF, FN, val,
                                dict(CONFIRM, depth=hp["max_depth"],
                                     eta=hp["eta"], rounds=CONFIRM["rounds"]),
                                wgroup=None, hp=hp, early_va=iva)
-        u_, n_ = N.committed_policy().get(era, ("cell", 1))
-        tk = N.top_per_cell_score(D, N.deployable(D, iva), s_i, n_)
-        v_ = N.read_rows(D, N.replay_delayed(D, tk, P)).get("usd_per_session")
-        if v_ is not None and v_ > best_v:
-            best, best_v, sc_iva = hp, v_, s_i
+        nd = float(info_i.get("inner_metric", -np.inf))
+        if nd > best_ndcg or best is None:
+            best, best_ndcg, sc_iva = hp, nd, s_i
             best_rounds = int(info_i.get("rounds", CONFIRM["rounds"]))
+    u_, n_ = N.committed_policy().get(era, ("cell", 1))
+    best_v = N.read_rows(D, N.replay_delayed(
+        D, N.top_per_cell_score(D, N.deployable(D, iva), sc_iva, n_), P)).get(
+        "usd_per_session")
     # refit on the WHOLE training block at the inner-selected round count —
     # the champion's §2.5 recipe, verbatim
     sc, info = fit_cell(D, spec, fit_rows, ev_r, XF, FN, val,
@@ -894,6 +945,7 @@ def confirm_arm(D, spec, era, P, V, budget=None):
     tk = N.top_per_cell_score(D, ev_r, sc, n_)
     a = read_arm(D, tk, P)
     info.update({"hp": best, "inner_usd": best_v, "sel_rounds": best_rounds,
+                 "hp_tier": ("B_searched" if search else "A_champion_hp"),
                  "fit_secs": round(time.time() - t0, 1)})
     # `sc_iva` is OUT OF SAMPLE inside the training block (fitted on inner-train,
     # scored on inner-validation): every threshold this lane sweeps is swept on
@@ -1024,10 +1076,14 @@ def _confirm_one(job):
     D, P, V = _D["D"], _D["P"], _D["V"]
     k = spec_id(spec)
     try:
-        a, sc, info, folds, sc_tr, XF, FN, val = confirm_arm(D, spec, era, P, V)
+        a, sc, info, folds, sc_tr, XF, FN, val = confirm_arm(
+            D, spec, era, P, V, search=spec.get("_search", False),
+            policies=spec.get("_policies", True))
     except Exception as exc:                            # noqa: BLE001
         return (k, era, spec.get("_block", ""), None, None, None,
                 "%s: %s" % (type(exc).__name__, exc))
+    if not spec.get("_policies", True):
+        return (k, era, spec.get("_block", ""), a, info, {}, None)
     try:
         pols = apply_policies(D, spec, era, sc, sc_tr, folds, XF, FN, P, V, val)
     except Exception as exc:                            # noqa: BLE001
@@ -1091,7 +1147,22 @@ def stage_confirm(top_n=15, eras=CONFIRM_ERAS):
     import multiprocessing as mp
     _D["P"] = P
     _D["V"] = V
-    jobs = [(cells[k], era) for k in keep for era in eras]
+    # TIER B (full 12-cell search + the five POLICY reads) goes to the
+    # reference, the three arms the screen ranked highest, and the one joint arm.
+    # Tier A (every arm at the champion's own per-era HP) is what makes the axis
+    # contrasts one-change-at-a-time; Tier B makes sure a genuine contender is
+    # never held back by hyper-parameters it inherited from another arm.
+    tierB = set([spec_id(REF)] + keep[:3]
+                + ([ranked_joint[0][1]] if ranked_joint else []))
+    jobs = []
+    for k in keep:
+        c = dict(cells[k])
+        c["_search"] = k in tierB
+        c["_policies"] = k in tierB
+        for era in eras:
+            jobs.append((c, era))
+    N.hb("confirm: %d arms x %d eras = %d jobs; tier B (searched + policies): %s"
+         % (len(keep), len(eras), len(jobs), ", ".join(sorted(tierB))))
     rows, pol_rows, per_arm, reps = [], [], {}, {}
     t0 = time.time()
     with mp.Pool(processes=8) as pool:

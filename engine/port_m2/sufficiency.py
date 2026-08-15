@@ -182,96 +182,128 @@ def _twin_fraction(X, v, cells, thr=None, sd=None):
 
 
 # ================================================================ THE SPLIT ===
-def stage_split(eras=ERAS, feats=FEATS):
-    import xgboost as xgb
+_ST = {}
+
+
+def _boot():
     import st_rank as RK
-    D = N.matrix()
-    RA._D["D"] = D
-    RA._D["klass"] = RK.class_index(D)[0]
-    P = N.load_paths()
-    V = {int(d): N.delayed_value(P, d, D) for d in N.DELAYS}
+    if "D" not in _ST:
+        D = N.matrix()
+        RA._D["D"] = D
+        RA._D["klass"] = RK.class_index(D)[0]
+        _ST["D"] = D
+        _ST["P"] = N.load_paths()
+        _ST["V"] = {int(d): N.delayed_value(_ST["P"], d, D) for d in N.DELAYS}
+    return _ST["D"], _ST["P"], _ST["V"]
+
+
+def _split_one(job):
+    """One (feature set, era) cell of the three-way split, in a worker."""
+    import xgboost as xgb
+    feat, era = job
+    try:
+        D, P, V = _boot()
+        spec = _ref_spec(feat)
+        t0 = time.time()
+        tr, itr, iva, ev_r = NA.fold(D, era)
+        XF, FN = RA.build_features(D, spec, tr, np.concatenate([tr, ev_r]))
+        val = RA.target_value(D, spec)
+        orc = N.read_rows(D, N.replay_delayed(
+            D, N.top_per_cell_joint(D, ev_r, V,
+                                    N.committed_policy()[era][1], (0,)), P))
+        pm = {"objective": "rank:ndcg", "eval_metric": "ndcg@1",
+              "tree_method": "hist", "seed": N.SEED, "nthread": 8,
+              "lambdarank_pair_method": "topk",
+              "lambdarank_num_pair_per_sample": 16}
+        pm.update({k: MEMO[k] for k in
+                   ("max_depth", "eta", "min_child_weight", "subsample",
+                    "colsample_bytree", "reg_lambda")})
+        sm, _b = _fit_rank(D, XF, FN, ev_r, ev_r, val, spec, pm, MEMO["rounds"])
+        mem = _seat_read(D, ev_r, sm, era, P)
+        ph = {"objective": "rank:ndcg", "eval_metric": "ndcg@3",
+              "tree_method": "hist", "min_child_weight": 20, "subsample": 0.8,
+              "colsample_bytree": 0.8, "lambdarank_pair_method": "topk",
+              "lambdarank_normalization": True, "seed": N.SEED, "nthread": 8}
+        hp = NA.CHAMP_HP[era]
+        ph.update({k: hp[k] for k in ("max_depth", "eta",
+                                      "lambdarank_num_pair_per_sample")})
+        sh, _b2 = _fit_rank(D, XF, FN, tr, ev_r, val, spec, ph, hp["rounds"])
+        hon = _seat_read(D, ev_r, sh, era, P)
+        cells = ((D["asset_idx"][ev_r].astype(np.int64) * 100000000
+                  + D["d8"][ev_r].astype(np.int64)) * 100
+                 + D["phase_dec"][ev_r])
+        sd = np.nanstd(XF[tr], axis=0)
+        fr, thr = _twin_fraction(XF[ev_r], val[ev_r], cells, sd=sd)
+        ph_rows = []
+        for ph_id in sorted(set(D["phase_dec"][ev_r].tolist())):
+            sel = ev_r[D["phase_dec"][ev_r] == ph_id]
+            if sel.size < 50:
+                continue
+            oo = N.read_rows(D, N.replay_delayed(
+                D, N.top_per_cell_joint(D, sel, V, 1, (0,)), P))
+            mm = _seat_read(D, sel, sm, era, P)
+            hh = _seat_read(D, sel, sh, era, P)
+            ph_rows.append([int(ph_id), int(sel.size),
+                            oo["usd_per_session"], mm["usd_per_session"],
+                            hh["usd_per_session"]])
+        return (feat, era, {"oracle": orc["usd_per_session"],
+                            "memorizer": mem["usd_per_session"],
+                            "honest": hon["usd_per_session"],
+                            "n_cols": int(XF.shape[1]),
+                            "twin_frac": float(fr), "twin_thr": float(thr),
+                            "phase": ph_rows,
+                            "secs": round(time.time() - t0, 1)}, None)
+    except Exception as exc:                            # noqa: BLE001
+        return (feat, era, None, "%s: %s" % (type(exc).__name__, exc))
+
+
+def stage_split(eras=ERAS, feats=FEATS, workers=8):
+    import multiprocessing as mp
     probes = [fixture_memorizer(), fixture_twins()]
     N.hb("red-first: %s" % json.dumps(probes))
     if any(p["verdict"] == "FAIL" for p in probes):
         raise N.NewObjRefusal("SUFFICIENCY RED-FIRST FAILED: %s" % probes)
-    rows, twin_rows, phase_rows = [], [], []
-    for feat in feats:
-        spec = _ref_spec(feat)
-        for era in eras:
-            t0 = time.time()
-            tr, itr, iva, ev_r = NA.fold(D, era)
-            XF, FN = RA.build_features(D, spec, tr, np.concatenate([tr, ev_r]))
-            val = RA.target_value(D, spec)
-            # --- ORACLE (per-cell argmax with the answer in hand)
-            orc = N.read_rows(D, N.replay_delayed(
-                D, N.top_per_cell_joint(D, ev_r, V,
-                                        N.committed_policy()[era][1], (0,)), P))
-            # --- MEMORISER: fitted ON the evaluation rows, scored in sample.
-            #     NON-CAUSAL BY DESIGN.  The representation ceiling.
-            pm = {"objective": "rank:ndcg", "eval_metric": "ndcg@1",
-                  "tree_method": "hist", "seed": N.SEED, "nthread": 8,
-                  "lambdarank_pair_method": "topk",
-                  "lambdarank_num_pair_per_sample": 16}
-            pm.update({k: MEMO[k] for k in
-                       ("max_depth", "eta", "min_child_weight", "subsample",
-                        "colsample_bytree", "reg_lambda")})
-            sm, _b = _fit_rank(D, XF, FN, ev_r, ev_r, val, spec, pm,
-                               MEMO["rounds"])
-            mem = _seat_read(D, ev_r, sm, era, P)
-            # --- HONEST walk-forward, champion HP for this era, no search
-            ph = {"objective": "rank:ndcg", "eval_metric": "ndcg@3",
-                  "tree_method": "hist", "min_child_weight": 20,
-                  "subsample": 0.8, "colsample_bytree": 0.8,
-                  "lambdarank_pair_method": "topk",
-                  "lambdarank_normalization": True, "seed": N.SEED,
-                  "nthread": 8}
-            hp = NA.CHAMP_HP[era]
-            ph.update({k: hp[k] for k in ("max_depth", "eta",
-                                          "lambdarank_num_pair_per_sample")})
-            sh, _b2 = _fit_rank(D, XF, FN, tr, ev_r, val, spec, ph,
-                                hp["rounds"])
-            hon = _seat_read(D, ev_r, sh, era, P)
-            o, m_, h = (orc["usd_per_session"], mem["usd_per_session"],
-                        hon["usd_per_session"])
-            rows.append([feat, era, N._r(o), N._r(m_), N._r(h),
-                         N._r(o - m_), N._r(m_ - h),
-                         N._r((o - m_) / max(o, 1e-9), 4),
-                         N._r((m_ - h) / max(o, 1e-9), 4),
-                         XF.shape[1], round(time.time() - t0, 1)])
-            # per PHASE (the cell type)
-            for ph_id in sorted(set(D["phase_dec"][ev_r].tolist())):
-                sel = ev_r[D["phase_dec"][ev_r] == ph_id]
-                if sel.size < 50:
-                    continue
-                oo = N.read_rows(D, N.replay_delayed(
-                    D, N.top_per_cell_joint(D, sel, V, 1, (0,)), P))
-                mm = _seat_read(D, sel, sm, era, P)
-                hh = _seat_read(D, sel, sh, era, P)
-                phase_rows.append([feat, era, int(ph_id), int(sel.size),
-                                   N._r(oo["usd_per_session"]),
-                                   N._r(mm["usd_per_session"]),
-                                   N._r(hh["usd_per_session"]),
-                                   N._r((oo["usd_per_session"] or 0)
-                                        - (mm["usd_per_session"] or 0)),
-                                   N._r((mm["usd_per_session"] or 0)
-                                        - (hh["usd_per_session"] or 0))])
-            N.hb("split %s %s: oracle %s memoriser %s honest %s "
+    _boot()
+    jobs = [(f, e) for f in feats for e in eras]
+    res, errs = {}, []
+    t0 = time.time()
+    with mp.Pool(processes=workers) as pool:
+        for i, (feat, era, out, err) in enumerate(
+                pool.imap_unordered(_split_one, jobs), start=1):
+            if err:
+                errs.append([feat, era, err])
+                N.hb("split FAIL %s %s: %s" % (feat, era, err))
+                continue
+            res[(feat, era)] = out
+            N.hb("split %d/%d %s %s: oracle %s memoriser %s honest %s "
                  "(ABSENT %s / NOT-LEARNABLE %s) %.0fs"
-                 % (feat, era, N._r(o), N._r(m_), N._r(h), N._r(o - m_),
-                    N._r(m_ - h), time.time() - t0))
-            # --- TWINS on this feature set (evaluation rows of this era)
-            cells = ((D["asset_idx"][ev_r].astype(np.int64) * 100000000
-                      + D["d8"][ev_r].astype(np.int64)) * 100
-                     + D["phase_dec"][ev_r])
-            sd = np.nanstd(XF[tr], axis=0)
-            if feat == "BASE":
-                fr, thr = _twin_fraction(XF[ev_r], val[ev_r], cells, sd=sd)
-                _TW[era] = thr
-            else:
-                fr, thr = _twin_fraction(XF[ev_r], val[ev_r], cells,
-                                         thr=_TW.get(era), sd=sd)
-            twin_rows.append([feat, era, XF.shape[1], N._r(fr, 4),
-                              N._r(thr, 5)])
+                 % (i, len(jobs), feat, era, N._r(out["oracle"]),
+                    N._r(out["memorizer"]), N._r(out["honest"]),
+                    N._r((out["oracle"] or 0) - (out["memorizer"] or 0)),
+                    N._r((out["memorizer"] or 0) - (out["honest"] or 0)),
+                    time.time() - t0))
+    rows, twin_rows, phase_rows = [], [], []
+    base_thr = {e: res[("BASE", e)]["twin_thr"] for e in eras
+                if ("BASE", e) in res}
+    for feat in feats:
+        for era in eras:
+            o = res.get((feat, era))
+            if o is None:
+                continue
+            orc_, m_, h = o["oracle"], o["memorizer"], o["honest"]
+            rows.append([feat, era, N._r(orc_), N._r(m_), N._r(h),
+                         N._r((orc_ or 0) - (m_ or 0)),
+                         N._r((m_ or 0) - (h or 0)),
+                         N._r(((orc_ or 0) - (m_ or 0)) / max(orc_ or 1, 1e-9), 4),
+                         N._r(((m_ or 0) - (h or 0)) / max(orc_ or 1, 1e-9), 4),
+                         o["n_cols"], o["secs"]])
+            twin_rows.append([feat, era, o["n_cols"], N._r(o["twin_frac"], 4),
+                              N._r(o["twin_thr"], 5)])
+            for pr in o["phase"]:
+                phase_rows.append([feat, era, pr[0], pr[1], N._r(pr[2]),
+                                   N._r(pr[3]), N._r(pr[4]),
+                                   N._r((pr[2] or 0) - (pr[3] or 0)),
+                                   N._r((pr[3] or 0) - (pr[4] or 0))])
     N.write_tsv("SUFFICIENCY_SPLIT.tsv",
                 ["feature_set", "era", "oracle_usd", "memorizer_usd",
                  "honest_usd", "information_absent_usd",
@@ -305,7 +337,8 @@ def stage_split(eras=ERAS, feats=FEATS):
                        "a dollar number."])
     N.save_json("sufficiency.json", {"probes": probes, "memo": MEMO,
                                      "twin_q": TWIN_Q,
-                                     "twin_dollars": TWIN_DOLLARS})
+                                     "twin_dollars": TWIN_DOLLARS,
+                                     "errors": errs})
     return rows
 
 

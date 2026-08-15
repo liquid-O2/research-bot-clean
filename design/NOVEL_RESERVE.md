@@ -68,3 +68,79 @@ objective directly, which is exactly how this program has manufactured phantoms 
 
 All under the full law: 5-seed distributions, promotion at `delta_minus_sd > 0`, binding eras first,
 `aim_08ceiling` / `gap_to_aim` columns, red-first controls, and no arm quoted from a single fit.
+
+---
+
+# RESERVE EXTENSION — N6–N9
+
+Same law, same ceilings-first discipline. **N6 runs first among these** — it is the only idea in the
+whole reserve that attacks the undecidability core rather than working around it.
+
+## N6 — STOP-AND-REVERSE AT THE WALL *(first; tensor-priced)*
+
+**The conceptual lead of the campaign.** At a wall-stop, enter the **opposite-side twin** — which
+already exists in the pair machinery — for the remainder of the phase.
+
+*Why this is different from everything that failed:* six extractors confirmed the tape **at the
+confirmation second** does not separate winner from loser. But a wall-stop is not the confirmation
+second — it is a **later, two-sided moment at which the loser has already declared itself.** The
+wall-pair census measured the separation between the two legs at **$2,752 mean**, and the losing
+leg's death is the single strongest directional statement available anywhere in this data. Every
+prior arm tried to predict the winner *before* the market spoke; this one acts *after* it has.
+
+*Ceiling first:* over all wall-stopped takes in the tensors, price the opposite-side twin's
+remaining-phase certificate. That is a hindsight bound and is labelled so; if it is not large, the
+idea dies cheaply.
+
+*Prop-check, to report on the face of the table:*
+* the reversal is a **NEW trade, not a scalp** — it opens after a completed losing trade;
+* **hold-time distributions must be reported** for both legs, because the whole point is that the
+  reversal is a normal-length hold, not a microscalp;
+* it stays inside ≤10 trades/day — wall-stops are a minority of seats.
+
+*Live tension to test, not assume:* the **first-wall stop is adopted** and halts the day. N6 would
+re-enter after that same event. N6 and the adopted stop are in direct conflict, exactly as N3 is,
+and the ceiling comparison is how the conflict gets settled rather than argued.
+
+## N7 — DEFER-ON-DISAGREEMENT *(replay; member dynamics)*
+
+Where members **disagree**, wait {60, 120}s, re-score, and only then seat. Agreement is already
+measured as this program's one working confidence mechanism (win 0.71→0.91, $/trade 509→956); this
+spends a little time to convert a disagreement into an agreement.
+
+*Priced against the known cost:* delay costs ~1.5%/min of the winner's value (DELAY census), so the
+two-step rule must beat that toll. The delayed-certificate tensor holds both halves already.
+
+## N8 — DAY-TYPE-CONDITIONAL EXIT HORIZON *(tensor-priced)*
+
+Session-close marks exist in the tensors. Ride to **session close on forecast-trend days only**,
+phase-close otherwise, with the day-type from the forecaster's **causal day-start** call.
+
+*Standing:* exits closed negative on 19 real trailing rules — but every one of those was
+**path-triggered**. This is a **horizon** change chosen at day start, which is a different object and
+is not covered by that null. Price per day-type; report the router accuracy beside it, since a
+horizon rule routed by a bad forecaster is a bad rule.
+
+## N9 — DYNAMIC SOFT BLENDING *(replay on existing members)*
+
+A daily, similarity-weighted blend of the **full-data** variant models (flat / volmatch / erabal
+members), with weights from **causal day-start regime features**.
+
+*The point:* it is the router idea **without the starvation** — no data is split, every member still
+trains on everything, and the conditioning happens at blend time. The regime-router specialist test
+is the natural comparison, and the volmatch promotion (+$148, and the only weighting to promote) is
+the standing evidence that regime similarity is a real axis.
+
+---
+
+## FULL EXECUTION ORDER
+
+1. **N1, N2, N3** ceilings — replay/DP, cheapest.
+2. **N6** ceiling — first of the extension, and the highest-conceptual-value item in the reserve.
+3. **N7, N8, N9** ceilings.
+4. **N4** as a row in the label-rescreen block.
+5. **N5** last.
+
+Every item: ceiling before model, 5-seed distributions, `delta_minus_sd > 0` to promote, binding
+eras first, `aim_08ceiling` / `gap_to_aim` columns, red-first controls, nothing quoted from a single
+fit.

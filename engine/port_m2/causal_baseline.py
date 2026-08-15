@@ -132,6 +132,12 @@ def sweep(D, P, era, keys=None, with_null=True):
                 out[(sname, pname)] = float(np.mean(vals))
             if nvals:
                 null[(sname, pname)] = float(np.mean(nvals))
+            # PER-CELL heartbeat: an era of this sweep legitimately runs >20
+            # min, and a stage that only beats once per era makes the >15min
+            # stale-hb rule fire on healthy work (measured tonight: two lanes
+            # read "stale" at 20min while both sat at 100% CPU).
+            hb("%s %s|%s $%s" % (era, sname, pname,
+                                 N._r(out.get((sname, pname)))))
     out["__LUCK__"] = max(null.values()) if null else None
     return out
 

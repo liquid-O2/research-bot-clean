@@ -346,6 +346,9 @@ def run_policy(eras=ERAS):
                 best_real[(tgt, pname)] = a.mean()
                 if nl.size:
                     best_null[(tgt, pname)] = nl.mean()
+                hb("%s %s %s: $%s (null $%s)"
+                   % (era, tgt, pname, N._r(a.mean()),
+                      N._r(nl.mean()) if nl.size else "-"))
                 rows.append([era, crit, tgt, pname,
                              "" if knob is None else N._r(knob, 4),
                              int(a.size), N._r(a.mean()), N._r(a.std()),

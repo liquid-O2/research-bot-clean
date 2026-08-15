@@ -900,13 +900,26 @@ def apply_policies(D, spec, era, sc, sc_pair, folds, XF, FN, P, V, val):
                    "gate_rounds": rounds})
         out["gate%d" % dl] = (read_arm(D, tk, P), st)
         # RED-FIRST: the DISPLACED gate — the same readings, attached to the
-        # wrong candidates.  Anything the real gate earns that this also earns
-        # is not verification, it is abstention rate.
+        # WRONG candidates, and RATE-MATCHED so it abstains exactly as often as
+        # the real gate does.  Without the rate match the control would differ
+        # from the real arm in participation as well as in information, and any
+        # gap could be read as either; with it, the ONLY difference left is
+        # whether the reading belongs to the candidate it is judging.
         rs = np.random.RandomState(N.SEED + 4242)
         gd = g_ev.copy()
         fin = np.nonzero(np.isfinite(gd))[0]
         gd[fin] = gd[fin][rs.permutation(fin.size)]
-        tkd, std = NA.gate_takes(top2_ev, gd, best_tau, dl, V)
+        want = st["pass_1"] + st["fall_to_2"]
+        tau_d, best_gap = best_tau, None
+        if fin.size:
+            for cand in np.unique(np.nanpercentile(gd[fin],
+                                                   np.arange(0, 100, 2))):
+                tkc, stc = NA.gate_takes(top2_ev, gd, cand, dl, V)
+                gap = abs((stc["pass_1"] + stc["fall_to_2"]) - want)
+                if best_gap is None or gap < best_gap:
+                    tau_d, best_gap = cand, gap
+        tkd, std = NA.gate_takes(top2_ev, gd, tau_d, dl, V)
+        std.update({"tau": float(tau_d), "rate_matched_to": int(want)})
         out["gate%d_DISPLACED" % dl] = (read_arm(D, tkd, P), std)
     # --- stop: OBJ-3, optimal stopping on the historical arrival process
     if sc_tr is not None and sc_iva is not None:
@@ -917,8 +930,18 @@ def apply_policies(D, spec, era, sc, sc_pair, folds, XF, FN, P, V, val):
         fit["cdf"] = np.sort(sc_tr[np.isfinite(sc_tr)])
         tk, st = NA.stopping_takes(D, P, ev_r, sc, fit, n_per_cell=n_)
         out["stop"] = (read_arm(D, tk, P), st)
+        # FORCED PARTICIPATION: a cell that never clears its continuation value
+        # takes its LAST arrival anyway.  Without this the stopping arm differs
+        # from static top-1 in BOTH sequencing and participation, and the two
+        # cannot be told apart; with it the seat count matches and the delta is
+        # the sequencing cost alone.
+        tkf, stf = NA.stopping_takes(D, P, ev_r, sc, fit, n_per_cell=n_,
+                                     forced=True)
+        out["stop_forced"] = (read_arm(D, tkf, P), stf)
+        # the CEILING of the sequencing object: clairvoyant about the arriving
+        # member's realised value, ignorant of every member still to come.
         tko, sto = NA.stopping_takes(D, P, ev_r, sc, fit, n_per_cell=n_,
-                                     oracle_val=val)
+                                     oracle_val=val, forced=True)
         out["stop_ORACLE"] = (read_arm(D, tko, P), sto)
     return out
 

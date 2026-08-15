@@ -527,7 +527,8 @@ def fit_stopping(D, P, rows, score, val):
             "p_b": p_b}
 
 
-def stopping_takes(D, P, rows, score, fit, n_per_cell=1, oracle_val=None):
+def stopping_takes(D, P, rows, score, fit, n_per_cell=1, oracle_val=None,
+                   forced=False):
     """Apply the fitted stopping rule forward: inside each cell take the first
     arrival whose value beats the continuation value of the time remaining."""
     ro, blocks = N.cell_blocks(D, rows)
@@ -540,12 +541,14 @@ def stopping_takes(D, P, rows, score, fit, n_per_cell=1, oracle_val=None):
     q = np.searchsorted(cdf, s, side="right") / max(cdf.size, 1)
     ib = np.clip(np.digitize(q, edges[1:-1]), 0, STOP_BINS - 1)
     u = u_tab[ib] if oracle_val is None else np.asarray(oracle_val)[ro]
-    out, n_take, n_pass = [], 0, 0
+    out, n_take, n_pass, n_forced = [], 0, 0, 0
     for a, b in blocks:
         taken = 0
+        last = None
         for j in range(a, b):
             if not np.isfinite(s[j]):
                 continue
+            last = j
             thr = W[max(bidx[j] - 1, 0)]
             if u[j] >= thr:
                 out.append((int(ro[j]), 0))
@@ -555,7 +558,11 @@ def stopping_takes(D, P, rows, score, fit, n_per_cell=1, oracle_val=None):
                     break
             else:
                 n_pass += 1
-    return out, {"n_take": n_take, "n_declined": n_pass}
+        if forced and taken == 0 and last is not None:
+            out.append((int(ro[last]), 0))
+            n_forced += 1
+    return out, {"n_take": n_take, "n_declined": n_pass,
+                 "n_forced_last": n_forced}
 
 
 def joint_confirm(D, spec, era, ifit, iva, fit_rows, ev_r, XF, FN, V, P):

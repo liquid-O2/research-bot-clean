@@ -1,0 +1,18 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# M-33 FAILED AUCTION — DETECTOR + CENSUS + CEILING.  NOTHING IS FITTED HERE and no model is built: the brief's rule is ceiling before build, and this is the ceiling.
+# THE DECIDING COLUMN IS marginal_ceiling_usd: the one-position DP over the UNION of the existing roster and the M-33 events, minus the roster's own DP ceiling.  A setup that only re-finds money the roster already generates has a marginal ceiling near zero and dies here regardless of how good its own win rate looks.
+# target_hit_rate is the source's OWN claim ('four times out of five') measured against the tape; it is reported whether or not it survives.
+# EVERY DETECTOR CONSTANT IS PRE-REGISTERED AND UNSWEPT (K_PRIOR 20, TOL 0.10 ATR, REJ 0.25 ATR in 900s, ACCEPT_MAX 300s, COOLDOWN 1800s).  A detector tuned on its own census measures the tuner.
+# The two exit contracts are the house contract (ride to the phase close, $900 wall) and the setup's own (exit at the established balance's boundary), so the setup is never judged only under a contract its source never proposed.
+era	criterion	exit_contract	n_sessions	n_events	events_per_session	mean_usd	median_usd	win_rate	target_hit_rate	wall_rate	pool_dp_ceiling	m33_alone_dp_ceiling	union_dp_ceiling	marginal_ceiling_usd	marginal_ceiling_frac
+E5	BINDING	PHASE_CLOSE	387	493	1.274	-40.52	-73.75	0.43	0.499	0.2373	2591.35	243.56	2591.35	0.0	0.0
+E5	BINDING	SETUP_TARGET	387	493	1.274	-56.75	32.5	0.572	0.499	0.2373	2591.35	160.72	2620.0	28.65	0.0111
+E6	BINDING	PHASE_CLOSE	384	373	0.971	-47.06	-105.0	0.437	0.5952	0.2574	3380.87	210.51	3380.87	0.0	0.0
+E6	BINDING	SETUP_TARGET	384	373	0.971	-5.5	82.5	0.6193	0.5952	0.2574	3380.87	154.04	3422.17	41.31	0.0122
+E7	BINDING	PHASE_CLOSE	393	379	0.964	-76.47	-248.75	0.3905	0.5277	0.3826	4101.56	301.07	4101.61	0.05	0.0
+E7	BINDING	SETUP_TARGET	393	379	0.964	-80.86	45.0	0.5462	0.5277	0.3826	4101.56	193.26	4151.86	50.3	0.0123
+E3	context	PHASE_CLOSE	390	407	1.044	-30.11	-142.5	0.4373	0.5258	0.2654	3019.38	258.3	3019.38	0.0	0.0
+E3	context	SETUP_TARGET	390	407	1.044	-37.94	38.75	0.5799	0.5258	0.2654	3019.38	143.37	3051.58	32.21	0.0107
+E4	context	PHASE_CLOSE	385	378	0.982	19.39	-67.5	0.4603	0.5291	0.2381	2755.81	223.66	2755.81	0.0	0.0
+E4	context	SETUP_TARGET	385	378	0.982	-29.65	45.0	0.5926	0.5291	0.2381	2755.81	145.25	2780.58	24.77	0.009

@@ -125,6 +125,7 @@ def clean_feature_cols(D):
 TAU_Q = (0.50, 0.70, 0.80, 0.90, 0.95, 0.975, 0.99)
 DAY_Q = (0.50, 0.70, 0.90)
 DAY_WARM = 10                  # arrivals observed before the intraday tau arms
+CELL_Q = (0.80, 0.90, 0.95, 0.99)   # the within-cell running quantile family
 SEC_F = (0.10, 0.25, 0.50)     # fraction of the phase spent observing
 
 
@@ -245,6 +246,30 @@ def seats_daysofar(D, rows, score, q, warm=DAY_WARM):
     return out
 
 
+def seats_cellsofar(D, rows, score, q, warm=5):
+    """tau recalibrated from the CELL's own arrivals so far.
+
+    WHY THIS SHAPE EXISTS.  The leak audit's finding is that the score is
+    informative in RANK and not in LEVEL — and the rank it is trained on is the
+    WITHIN-CELL rank.  DAYSOFAR asks the score to be comparable across the
+    whole asset-day, which is more than it was ever trained to be; SECRETARY is
+    the running-MAX special case and can only ever fire on a new record.  This
+    is the family that matches exactly what the score does know: at arrival j,
+    is this candidate in the top (1-q) of THIS CELL so far?  Strictly causal —
+    arrivals 0..j-1 of the same cell and nothing else.
+    """
+    ro, blocks = _arrivals(D, rows, score)
+    s = np.asarray(score)[ro]
+    out = []
+    for a, b in blocks:
+        seen = []
+        for j in range(a, b):
+            if len(seen) >= warm and s[j] >= np.quantile(seen, q):
+                out.append((int(ro[j]), 0))
+            seen.append(float(s[j]))
+    return out
+
+
 def seats_secretary(D, rows, score, frac, reentry=False):
     """Observe the first `frac` of the CELL's arrival sequence, then take the
     first arrival beating everything seen so far.  With `reentry`, the rule
@@ -285,6 +310,7 @@ def cap_seats(D, rows, k=DAY_CAP):
 POLICIES = ([("FIRST_%d" % DAY_CAP, "first", None)]
             + [("TAU_%g" % q, "tau", q) for q in TAU_Q]
             + [("DAYSOFAR_%g" % q, "day", q) for q in DAY_Q]
+            + [("CELLSOFAR_%g" % q, "cell", q) for q in CELL_Q]
             + [("SECRETARY_%g" % f, "sec", f) for f in SEC_F]
             + [("SECRETARY_RE_%g" % f, "secre", f) for f in SEC_F])
 
@@ -300,6 +326,8 @@ def build_seats(D, rows, score, kind, knob, train_rows):
         return seats_tau(D, rows, score, float(np.quantile(ref, knob)))
     if kind == "day":
         return seats_daysofar(D, rows, score, knob)
+    if kind == "cell":
+        return seats_cellsofar(D, rows, score, knob)
     if kind == "sec":
         return seats_secretary(D, rows, score, knob, False)
     if kind == "secre":

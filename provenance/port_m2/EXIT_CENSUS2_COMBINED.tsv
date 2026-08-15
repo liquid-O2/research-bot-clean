@@ -1,0 +1,53 @@
+# PORT M2 port m2 EXIT CENSUS 2 — exit rules priced on the agreement-selected books (E3-E7 develop; prop constraints enforced in code) (lane=port-m2-exits2; version=PORT-M2-EXITCENSUS2-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# PROP LAW, ENFORCED IN CODE: no exit before 1800 seconds (30 minutes) of hold.  `_check_holds` REFUSES the stage if any priced seat holds less than that with the phase close still open, so a hold shorter than 30 minutes can only be the phase close itself arriving.  Every rule is POSITION MANAGEMENT on an open trade; no microscalp is expressible.
+# The $900 wall and the phase-close contract stay in force.  A rule may only move the exit EARLIER than the phase close; the wall always wins if it reaches the position first.
+# THE SEAT SET IS HELD FIXED across every rule.  Earlier exits free occupancy, so re-seating could only ADD trades; not counting them is the conservative choice and is declared, not hidden.
+# d_* columns are deltas against the PHASE-CLOSE baseline on the SAME book and the SAME seats.  d_usd_per_session_displaced is the same rule's hold-time distribution randomly re-assigned across seats (same timing, no path information); d_minus_displaced is the information the rule actually adds.  A rule whose d_minus_displaced is ~0 is a hold-length artefact.
+# capture_of_ceiling = usd_per_session / the ENTRY FORESIGHT ceiling (the per-session one-position DP over every candidate, phase-close contract) -- what perfect ENTRY selection is worth.  capture_of_full_ceiling uses the anchored ORACLE legs, i.e. perfect entries AND perfect exits (clairvoyant; an outer bound nobody can trade).
+# TARGETS ON THE TABLE FACE: floor $2000/session/asset (floor_2000); aim $2500-3000 (aim_2500_3000).
+# FAMILY 3 (PARTIAL BANK) IS NOT DEPLOYABLE AT ONE CONTRACT -- you cannot sell half a contract.  Its rows are the two-contract-equivalent (each half carries half the gross, the round-trip cost charged once, the second exit's own slippage NOT charged) and are a SIZING QUESTION FOR THE USER, never a drop-in rule.
+# entries_only_usd_per_session is the agreement book riding to phase close under the $900 wall -- the entries lane's own number, reproduced here off the same paths.
+# The exit rule is the POOLED winner of the ranked table for that book, applied to every era.  It is NOT re-chosen per era; a per-era pick would be hindsight.
+# capture_of_entry_ceiling divides by perfect ENTRY selection under the same phase-close contract; capture_of_full_ceiling divides by the anchored ORACLE legs -- perfect entries AND perfect exits, clairvoyant, an outer bound nobody can trade.  EXIT DELTAS ARE THE LAYER THAT REACHES BEYOND ENTRY-PERFECT PLAY: only they can move capture_of_entry_ceiling above 1.0.
+era	asset	book_tau	n_sessions	entries_only_usd_per_session	exit_rule	exit_delta_usd_per_session	combined_usd_per_session	gap_to_floor_2000	gap_to_aim_2500	perfect_exit_headroom_usd_per_session	entries_plus_perfect_exit	gap_to_floor_at_perfect_exit	entry_foresight_ceiling	capture_of_entry_ceiling	full_ceiling	capture_of_full_ceiling	floor_2000	aim_2500_3000	thin_book
+E3	ALL	0.70	47	598.43	MHD_STRUCT_0.20ATR	-37.77	560.66	1439.34	1939.34	421.28	1019.71	980.29	2811.86	0.1994	2095.21	0.2676			
+E3	SI	0.70	17	596.91	MHD_STRUCT_0.20ATR	-24.26	572.65	1427.35	1927.35				3553.38	0.1612	3300.74	0.1735			THIN(<30 SEATS)
+E3	HG	0.70	12	773.85	MHD_STRUCT_0.20ATR	-102.08	671.77	1328.23	1828.23				2994.37	0.2243	2105.21	0.3191			THIN(<30 SEATS)
+E3	NKD	0.70	18	482.92	MHD_STRUCT_0.20ATR	-7.64	475.28	1524.72	2024.72				1989.86	0.2389	950.0	0.5003			THIN(<30 SEATS)
+E4	ALL	0.70	186	646.94	MHD_STRUCT_0.20ATR	-4.57	642.37	1357.63	1857.63	395.13	1042.07	957.93	2711.23	0.2369	1959.91	0.3278			
+E4	SI	0.70	70	817.0	MHD_STRUCT_0.20ATR	-7.14	809.86	1190.14	1690.14				3254.0	0.2489	2894.82	0.2798			
+E4	HG	0.70	60	594.0	MHD_STRUCT_0.20ATR	-8.12	585.88	1414.12	1914.12				2426.56	0.2414	1373.44	0.4266			
+E4	NKD	0.70	56	491.07	MHD_STRUCT_0.20ATR	2.46	493.53	1506.47	2006.47				2337.77	0.2111	1419.64	0.3476			
+E5	ALL	0.70	275	728.74	MHD_STRUCT_0.20ATR	-3.34	725.4	1274.6	1774.6	397.07	1125.81	874.19	2509.57	0.2891	1712.77	0.4235			
+E5	SI	0.70	98	631.56	MHD_STRUCT_0.20ATR	-5.49	626.07	1373.93	1873.93				2803.06	0.2234	2418.75	0.2588			
+E5	HG	0.70	86	589.83	MHD_STRUCT_0.20ATR	-4.44	585.39	1414.61	1914.61				1906.51	0.307	435.61	1.3438			
+E5	NKD	0.70	91	964.67	MHD_STRUCT_0.20ATR	0.0	964.67	1035.33	1535.33				2763.43	0.3491	2159.48	0.4467			
+E6	ALL	0.70	46	549.43	MHD_STRUCT_0.20ATR	5.16	554.59	1445.41	1945.41	337.77	887.2	1112.8	3636.39	0.1525	3158.29	0.1756			
+E6	SI	0.70	21	687.74	MHD_STRUCT_0.20ATR	-14.88	672.86	1327.14	1827.14				3620.48	0.1858	3337.5	0.2016			THIN(<30 SEATS)
+E6	HG	0.70	9	247.08	MHD_STRUCT_0.20ATR	30.56	277.64	1722.36	2222.36				2394.03	0.116	1220.14	0.2275			THIN(<30 SEATS)
+E6	NKD	0.70	16	537.97	MHD_STRUCT_0.20ATR	17.19	555.16	1444.84	1944.84				4356.09	0.1274	4013.28	0.1383			THIN(<30 SEATS)
+E7	ALL	0.70	256	1249.91	MHD_STRUCT_0.20ATR	-0.85	1249.06	750.94	1250.94	567.43	1817.34	182.66	3916.93	0.3189	3851.22	0.3243			
+E7	SI	0.70	94	1423.54	MHD_STRUCT_0.20ATR	0.0	1423.54	576.46	1076.46				4571.12	0.3114	4985.64	0.2855			
+E7	HG	0.70	79	818.01	MHD_STRUCT_0.20ATR	5.93	823.94	1176.06	1676.06				2462.74	0.3346	1617.25	0.5095			
+E7	NKD	0.70	83	1464.37	MHD_STRUCT_0.20ATR	-8.29	1456.08	543.92	1043.92				4560.15	0.3193	4692.77	0.3103			
+E3	ALL	0.80	27	554.81	MHD_STRUCT_0.20ATR	0.0	554.81	1445.19	1945.19	328.01	882.82	1117.18	2877.82	0.1928	2366.9	0.2344			THIN(<30 SEATS)
+E3	SI	0.80	12	447.08	MHD_STRUCT_0.20ATR	0.0	447.08	1552.92	2052.92				3713.13	0.1204	3462.5	0.1291			THIN(<30 SEATS)
+E3	HG	0.80	4	1012.5	MHD_STRUCT_0.20ATR	0.0	1012.5	987.5	1487.5				3045.94	0.3324	2367.19	0.4277			THIN(<30 SEATS)
+E3	NKD	0.80	11	505.91	MHD_STRUCT_0.20ATR	0.0	505.91	1494.09	1994.09				1905.45	0.2655	1171.59	0.4318			THIN(<30 SEATS)
+E4	ALL	0.80	134	624.84	MHD_STRUCT_0.20ATR	-7.46	617.38	1382.62	1882.62	382.46	1007.3	992.7	2705.59	0.2282	1973.37	0.3129			
+E4	SI	0.80	50	751.25	MHD_STRUCT_0.20ATR	-10.25	741.0	1259.0	1759.0				3215.45	0.2304	2837.0	0.2612			
+E4	HG	0.80	40	629.47	MHD_STRUCT_0.20ATR	-12.19	617.28	1382.72	1882.72				2504.22	0.2465	1446.72	0.4267			
+E4	NKD	0.80	44	476.99	MHD_STRUCT_0.20ATR	0.0	476.99	1523.01	2023.01				2309.26	0.2066	1470.74	0.3243			
+E5	ALL	0.80	181	702.73	MHD_STRUCT_0.20ATR	1.18	703.91	1296.09	1796.09	352.62	1055.35	944.65	2495.93	0.282	1747.82	0.4027			
+E5	SI	0.80	63	595.0	MHD_STRUCT_0.20ATR	3.37	598.37	1401.63	1901.63				2715.99	0.2203	2472.42	0.242			
+E5	HG	0.80	56	624.11	MHD_STRUCT_0.20ATR	0.0	624.11	1375.89	1875.89				1946.61	0.3206	422.66	1.4766			
+E5	NKD	0.80	62	883.23	MHD_STRUCT_0.20ATR	0.0	883.23	1116.77	1616.77				2768.47	0.319	2208.47	0.3999			
+E6	ALL	0.80	24	602.81	MHD_STRUCT_0.20ATR	-13.02	589.79	1410.21	1910.21	251.04	853.85	1146.15	4217.03	0.1399	4188.8	0.1408			THIN(<30 SEATS)
+E6	SI	0.80	12	563.75	MHD_STRUCT_0.20ATR	-26.04	537.71	1462.29	1962.29				4404.79	0.1221	4516.67	0.1191			THIN(<30 SEATS)
+E6	HG	0.80	1	70.0	MHD_STRUCT_0.20ATR	0.0	70.0	1930.0	2430.0				2128.75	0.0329	2093.75	0.0334			THIN(<30 SEATS)
+E6	NKD	0.80	11	693.86	MHD_STRUCT_0.20ATR	0.0	693.86	1306.14	1806.14				4202.05	0.1651	4021.59	0.1725			THIN(<30 SEATS)
+E7	ALL	0.80	206	1174.53	MHD_STRUCT_0.20ATR	-3.33	1171.2	828.8	1328.8	512.92	1687.45	312.55	3926.39	0.2983	3774.36	0.3103			
+E7	SI	0.80	73	1327.74	MHD_STRUCT_0.20ATR	0.0	1327.74	672.26	1172.26				4466.92	0.2972	4793.49	0.277			
+E7	HG	0.80	63	793.31	MHD_STRUCT_0.20ATR	0.0	793.31	1206.69	1706.69				2480.97	0.3198	1555.65	0.51			
+E7	NKD	0.80	70	1357.86	MHD_STRUCT_0.20ATR	-9.82	1348.04	651.96	1151.96				4663.57	0.2891	4708.39	0.2863			

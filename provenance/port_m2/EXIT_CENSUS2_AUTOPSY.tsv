@@ -1,0 +1,240 @@
+# PORT M2 port m2 EXIT CENSUS 2 — exit rules priced on the agreement-selected books (E3-E7 develop; prop constraints enforced in code) (lane=port-m2-exits2; version=PORT-M2-EXITCENSUS2-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# PROP LAW, ENFORCED IN CODE: no exit before 1800 seconds (30 minutes) of hold.  `_check_holds` REFUSES the stage if any priced seat holds less than that with the phase close still open, so a hold shorter than 30 minutes can only be the phase close itself arriving.  Every rule is POSITION MANAGEMENT on an open trade; no microscalp is expressible.
+# The $900 wall and the phase-close contract stay in force.  A rule may only move the exit EARLIER than the phase close; the wall always wins if it reaches the position first.
+# THE SEAT SET IS HELD FIXED across every rule.  Earlier exits free occupancy, so re-seating could only ADD trades; not counting them is the conservative choice and is declared, not hidden.
+# d_* columns are deltas against the PHASE-CLOSE baseline on the SAME book and the SAME seats.  d_usd_per_session_displaced is the same rule's hold-time distribution randomly re-assigned across seats (same timing, no path information); d_minus_displaced is the information the rule actually adds.  A rule whose d_minus_displaced is ~0 is a hold-length artefact.
+# capture_of_ceiling = usd_per_session / the ENTRY FORESIGHT ceiling (the per-session one-position DP over every candidate, phase-close contract) -- what perfect ENTRY selection is worth.  capture_of_full_ceiling uses the anchored ORACLE legs, i.e. perfect entries AND perfect exits (clairvoyant; an outer bound nobody can trade).
+# TARGETS ON THE TABLE FACE: floor $2000/session/asset (floor_2000); aim $2500-3000 (aim_2500_3000).
+# FAMILY 3 (PARTIAL BANK) IS NOT DEPLOYABLE AT ONE CONTRACT -- you cannot sell half a contract.  Its rows are the two-contract-equivalent (each half carries half the gross, the round-trip cost charged once, the second exit's own slippage NOT charged) and are a SIZING QUESTION FOR THE USER, never a drop-in rule.
+# DISCRIMINATION: precision_on_losers is the share of TRIGGERED trades that were going to lose anyway; lift_over_base divides it by the book's own loser rate.  A lift of 1.0 means the condition fires on winners and losers alike and cannot pay at any threshold.
+# The CLAIRVOYANT BOUND rows are not rules and are not tradeable: they use the answer.  They exist to say what the entire exit layer could be worth at most under the 30-minute law, which is the number that decides whether more exit work is justified.
+book_tau	era	condition	n_seats	n_sessions	n_losers	base_loser_rate	n_triggered	trig_rate_on_winners	trig_rate_on_losers	precision_on_losers	lift_over_base	mean_delta_if_cut_winner	mean_delta_if_cut_loser	delta_usd_per_session	note
+0.70	E3	sits below -$400 after 30 min	51	47	6	0.1176	4	0.0222	0.5	0.75	6.375	-1006.25	-112.5	-28.59	
+0.70	E3	sits below -$600 after 30 min	51	47	6	0.1176	1	0.0	0.1667	1.0	8.5		-387.5	-8.24	
+0.70	E3	reclaim level lost by 0.10 ATR	51	47	6	0.1176	6	0.0444	0.6667	0.6667	5.667	-703.12	-35.94	-32.98	
+0.70	E3	reclaim level lost by 0.20 ATR	51	47	6	0.1176	4	0.0222	0.5	0.75	6.375	-1125.0	-216.67	-37.77	
+0.70	E3	15 min of adverse flow, >=0.05 ATR	51	47	6	0.1176	51	1.0	1.0	0.1176	1.0	-333.47	102.08	-306.25	
+0.70	E3	15 min of adverse flow, >=0.25 ATR	51	47	6	0.1176	7	0.1556	0.0	0.0	0.0	-531.25		-79.12	
+0.70	E3	trail armed +$900, 60min extreme	51	47	6	0.1176	24	0.5333	0.0	0.0	0.0	-107.81		-55.05	
+0.70	E3	ORACLE cut every eventual loser at 30 min	51	47	6	0.1176	6			1.0				30.05	CLAIRVOYANT BOUND
+0.70	E3	ORACLE cut every eventual loser at its best post-30min second	51	47	6	0.1176	6			1.0				70.61	CLAIRVOYANT BOUND
+0.70	E3	ORACLE take EVERY trade out at its best post-30min second	51	47	6	0.1176	6			1.0				421.28	CLAIRVOYANT BOUND
+0.70	E4	sits below -$400 after 30 min	214	186	36	0.1682	12	0.0225	0.2222	0.6667	3.963	-990.62	100.0	-17.0	
+0.70	E4	sits below -$600 after 30 min	214	186	36	0.1682	6	0.0056	0.1389	0.8333	4.954	-1462.5	-43.75	-9.04	
+0.70	E4	reclaim level lost by 0.10 ATR	214	186	36	0.1682	28	0.0674	0.4444	0.5714	3.397	-960.94	72.27	-55.78	
+0.70	E4	reclaim level lost by 0.20 ATR	214	186	36	0.1682	9	0.0056	0.2222	0.8889	5.284	-600.0	-31.25	-4.57	
+0.70	E4	15 min of adverse flow, >=0.05 ATR	214	186	36	0.1682	197	0.9157	0.9444	0.1726	1.026	-368.02	243.38	-278.02	
+0.70	E4	15 min of adverse flow, >=0.25 ATR	214	186	36	0.1682	29	0.1292	0.1667	0.2069	1.23	-551.9	372.92	-56.22	
+0.70	E4	trail armed +$900, 60min extreme	214	186	36	0.1682	61	0.3371	0.0278	0.0164	0.097	-357.08	1125.0	-109.14	
+0.70	E4	ORACLE cut every eventual loser at 30 min	214	186	36	0.1682	36			1.0				53.09	CLAIRVOYANT BOUND
+0.70	E4	ORACLE cut every eventual loser at its best post-30min second	214	186	36	0.1682	36			1.0				102.12	CLAIRVOYANT BOUND
+0.70	E4	ORACLE take EVERY trade out at its best post-30min second	214	186	36	0.1682	36			1.0				395.13	CLAIRVOYANT BOUND
+0.70	E5	sits below -$400 after 30 min	362	275	36	0.0994	9	0.0092	0.1667	0.6667	6.704	-1679.17	81.25	-16.55	
+0.70	E5	sits below -$600 after 30 min	362	275	36	0.0994	3	0.0	0.0833	1.0	10.056		89.58	0.98	
+0.70	E5	reclaim level lost by 0.10 ATR	362	275	36	0.0994	25	0.0399	0.3333	0.48	4.827	-1003.37	103.12	-42.93	
+0.70	E5	reclaim level lost by 0.20 ATR	362	275	36	0.0994	7	0.0061	0.1389	0.7143	7.183	-721.88	105.0	-3.34	
+0.70	E5	15 min of adverse flow, >=0.05 ATR	362	275	36	0.0994	338	0.9417	0.8611	0.0917	0.922	-319.46	252.62	-328.16	
+0.70	E5	15 min of adverse flow, >=0.25 ATR	362	275	36	0.0994	48	0.1258	0.1944	0.1458	1.466	-280.64	233.04	-35.91	
+0.70	E5	trail armed +$900, 60min extreme	362	275	36	0.0994	108	0.319	0.1111	0.037	0.372	-71.81	731.25	-16.52	
+0.70	E5	ORACLE cut every eventual loser at 30 min	362	275	36	0.0994	36			1.0				33.36	CLAIRVOYANT BOUND
+0.70	E5	ORACLE cut every eventual loser at its best post-30min second	362	275	36	0.0994	36			1.0				68.41	CLAIRVOYANT BOUND
+0.70	E5	ORACLE take EVERY trade out at its best post-30min second	362	275	36	0.0994	36			1.0				397.07	CLAIRVOYANT BOUND
+0.70	E6	sits below -$400 after 30 min	49	46	7	0.1429	6	0.0238	0.7143	0.8333	5.833	-662.5	45.0	-9.51	
+0.70	E6	sits below -$600 after 30 min	49	46	7	0.1429	5	0.0	0.7143	1.0	7.0		-118.75	-12.91	
+0.70	E6	reclaim level lost by 0.10 ATR	49	46	7	0.1429	6	0.0238	0.7143	0.8333	5.833	-500.0	78.75	-2.31	
+0.70	E6	reclaim level lost by 0.20 ATR	49	46	7	0.1429	3	0.0	0.4286	1.0	7.0		79.17	5.16	
+0.70	E6	15 min of adverse flow, >=0.05 ATR	49	46	7	0.1429	47	0.9524	1.0	0.1489	1.043	-305.31	121.43	-247.01	
+0.70	E6	15 min of adverse flow, >=0.25 ATR	49	46	7	0.1429	5	0.0952	0.1429	0.2	1.4	-690.62	0.0	-60.05	
+0.70	E6	trail armed +$900, 60min extreme	49	46	7	0.1429	13	0.2857	0.1429	0.0769	0.538	-28.12	0.0	-7.34	
+0.70	E6	ORACLE cut every eventual loser at 30 min	49	46	7	0.1429	7			1.0				26.22	CLAIRVOYANT BOUND
+0.70	E6	ORACLE cut every eventual loser at its best post-30min second	49	46	7	0.1429	7			1.0				67.12	CLAIRVOYANT BOUND
+0.70	E6	ORACLE take EVERY trade out at its best post-30min second	49	46	7	0.1429	7			1.0				337.77	CLAIRVOYANT BOUND
+0.70	E7	sits below -$400 after 30 min	352	256	38	0.108	31	0.0382	0.5	0.6129	5.677	-1392.71	-56.25	-69.46	
+0.70	E7	sits below -$600 after 30 min	352	256	38	0.108	12	0.0064	0.2632	0.8333	7.719	-1106.25	-169.38	-15.26	
+0.70	E7	reclaim level lost by 0.10 ATR	352	256	38	0.108	29	0.0287	0.5263	0.6897	6.388	-1291.67	-76.88	-51.42	
+0.70	E7	reclaim level lost by 0.20 ATR	352	256	38	0.108	3	0.0032	0.0526	0.6667	6.175	-687.5	234.38	-0.85	
+0.70	E7	15 min of adverse flow, >=0.05 ATR	352	256	38	0.108	328	0.9299	0.9474	0.1098	1.017	-599.32	211.81	-653.81	
+0.70	E7	15 min of adverse flow, >=0.25 ATR	352	256	38	0.108	29	0.0764	0.1316	0.1724	1.597	-915.62	-153.75	-88.84	
+0.70	E7	trail armed +$900, 60min extreme	352	256	38	0.108	168	0.5159	0.1579	0.0357	0.331	-408.87	610.42	-244.43	
+0.70	E7	ORACLE cut every eventual loser at 30 min	352	256	38	0.108	38			1.0				41.72	CLAIRVOYANT BOUND
+0.70	E7	ORACLE cut every eventual loser at its best post-30min second	352	256	38	0.108	38			1.0				92.53	CLAIRVOYANT BOUND
+0.70	E7	ORACLE take EVERY trade out at its best post-30min second	352	256	38	0.108	38			1.0				567.43	CLAIRVOYANT BOUND
+0.70	POOLED	sits below -$400 after 30 min	1028	810	123	0.1196	62	0.0232	0.3333	0.6613	5.527			-33.67	
+0.70	POOLED	sits below -$600 after 30 min	1028	810	123	0.1196	27	0.0033	0.1951	0.8889	7.429			-7.78	
+0.70	POOLED	reclaim level lost by 0.10 ATR	1028	810	123	0.1196	94	0.0409	0.4634	0.6064	5.068			-45.68	
+0.70	POOLED	reclaim level lost by 0.20 ATR	1028	810	123	0.1196	26	0.0055	0.1707	0.8077	6.75			-4.35	
+0.70	POOLED	15 min of adverse flow, >=0.05 ATR	1028	810	123	0.1196	961	0.9359	0.9268	0.1186	0.991			-413.69	
+0.70	POOLED	15 min of adverse flow, >=0.25 ATR	1028	810	123	0.1196	118	0.1094	0.1545	0.161	1.346			-61.18	
+0.70	POOLED	trail armed +$900, 60min extreme	1028	810	123	0.1196	374	0.4	0.0976	0.0321	0.268			-111.54	
+0.80	E3	sits below -$400 after 30 min	29	27	2	0.069	1	0.0	0.5	1.0	14.5		-137.5	-5.09	
+0.80	E3	sits below -$600 after 30 min	29	27	2	0.069	0	0.0	0.0					0.0	
+0.80	E3	reclaim level lost by 0.10 ATR	29	27	2	0.069	2	0.037	0.5	0.5	7.25	-500.0	-125.0	-23.15	
+0.80	E3	reclaim level lost by 0.20 ATR	29	27	2	0.069	0	0.0	0.0					0.0	
+0.80	E3	15 min of adverse flow, >=0.05 ATR	29	27	2	0.069	29	1.0	1.0	0.069	1.0	-301.16	12.5	-300.23	
+0.80	E3	15 min of adverse flow, >=0.25 ATR	29	27	2	0.069	2	0.0741	0.0	0.0	0.0	-446.88		-33.1	
+0.80	E3	trail armed +$900, 60min extreme	29	27	2	0.069	13	0.4815	0.0	0.0	0.0	-67.79		-32.64	
+0.80	E3	ORACLE cut every eventual loser at 30 min	29	27	2	0.069	2			1.0				2.31	CLAIRVOYANT BOUND
+0.80	E3	ORACLE cut every eventual loser at its best post-30min second	29	27	2	0.069	2			1.0				20.37	CLAIRVOYANT BOUND
+0.80	E3	ORACLE take EVERY trade out at its best post-30min second	29	27	2	0.069	2			1.0				328.01	CLAIRVOYANT BOUND
+0.80	E4	sits below -$400 after 30 min	148	134	27	0.1824	9	0.0248	0.2222	0.6667	3.654	-900.0	75.0	-16.79	
+0.80	E4	sits below -$600 after 30 min	148	134	27	0.1824	4	0.0	0.1481	1.0	5.481		-57.81	-1.73	
+0.80	E4	reclaim level lost by 0.10 ATR	148	134	27	0.1824	20	0.0744	0.4074	0.55	3.015	-970.83	39.77	-61.94	
+0.80	E4	reclaim level lost by 0.20 ATR	148	134	27	0.1824	6	0.0083	0.1852	0.8333	4.568	-600.0	-80.0	-7.46	
+0.80	E4	15 min of adverse flow, >=0.05 ATR	148	134	27	0.1824	137	0.9256	0.9259	0.1825	1.0	-417.75	242.5	-303.92	
+0.80	E4	15 min of adverse flow, >=0.25 ATR	148	134	27	0.1824	20	0.124	0.1852	0.25	1.37	-612.08	426.25	-52.61	
+0.80	E4	trail armed +$900, 60min extreme	148	134	27	0.1824	39	0.314	0.037	0.0256	0.141	-392.27	1125.0	-102.85	
+0.80	E4	ORACLE cut every eventual loser at 30 min	148	134	27	0.1824	27			1.0				57.56	CLAIRVOYANT BOUND
+0.80	E4	ORACLE cut every eventual loser at its best post-30min second	148	134	27	0.1824	27			1.0				108.86	CLAIRVOYANT BOUND
+0.80	E4	ORACLE take EVERY trade out at its best post-30min second	148	134	27	0.1824	27			1.0				382.46	CLAIRVOYANT BOUND
+0.80	E5	sits below -$400 after 30 min	216	181	19	0.088	3	0.0	0.1579	1.0	11.368		141.67	2.35	
+0.80	E5	sits below -$600 after 30 min	216	181	19	0.088	2	0.0	0.1053	1.0	11.368		112.5	1.24	
+0.80	E5	reclaim level lost by 0.10 ATR	216	181	19	0.088	13	0.0254	0.4211	0.6154	6.996	-832.5	85.94	-19.2	
+0.80	E5	reclaim level lost by 0.20 ATR	216	181	19	0.088	3	0.0	0.1579	1.0	11.368		70.83	1.17	
+0.80	E5	15 min of adverse flow, >=0.05 ATR	216	181	19	0.088	204	0.9492	0.8947	0.0833	0.947	-316.71	267.65	-302.07	
+0.80	E5	15 min of adverse flow, >=0.25 ATR	216	181	19	0.088	28	0.1218	0.2105	0.1429	1.624	-352.86	287.5	-40.44	
+0.80	E5	trail armed +$900, 60min extreme	216	181	19	0.088	69	0.3401	0.1053	0.029	0.33	-129.38	956.25	-37.33	
+0.80	E5	ORACLE cut every eventual loser at 30 min	216	181	19	0.088	19			1.0				26.48	CLAIRVOYANT BOUND
+0.80	E5	ORACLE cut every eventual loser at its best post-30min second	216	181	19	0.088	19			1.0				62.22	CLAIRVOYANT BOUND
+0.80	E5	ORACLE take EVERY trade out at its best post-30min second	216	181	19	0.088	19			1.0				352.62	CLAIRVOYANT BOUND
+0.80	E6	sits below -$400 after 30 min	24	24	4	0.1667	3	0.0	0.75	1.0	6.0		-245.83	-30.73	
+0.80	E6	sits below -$600 after 30 min	24	24	4	0.1667	3	0.0	0.75	1.0	6.0		-412.5	-51.56	
+0.80	E6	reclaim level lost by 0.10 ATR	24	24	4	0.1667	3	0.0	0.75	1.0	6.0		-204.17	-25.52	
+0.80	E6	reclaim level lost by 0.20 ATR	24	24	4	0.1667	1	0.0	0.25	1.0	6.0		-312.5	-13.02	
+0.80	E6	15 min of adverse flow, >=0.05 ATR	24	24	4	0.1667	22	0.9	1.0	0.1818	1.091	-451.39	37.5	-332.29	
+0.80	E6	15 min of adverse flow, >=0.25 ATR	24	24	4	0.1667	2	0.1	0.0	0.0	0.0	-518.75		-43.23	
+0.80	E6	trail armed +$900, 60min extreme	24	24	4	0.1667	5	0.25	0.0	0.0	0.0	-77.5		-16.15	
+0.80	E6	ORACLE cut every eventual loser at 30 min	24	24	4	0.1667	4			1.0				12.5	CLAIRVOYANT BOUND
+0.80	E6	ORACLE cut every eventual loser at its best post-30min second	24	24	4	0.1667	4			1.0				74.48	CLAIRVOYANT BOUND
+0.80	E6	ORACLE take EVERY trade out at its best post-30min second	24	24	4	0.1667	4			1.0				251.04	CLAIRVOYANT BOUND
+0.80	E7	sits below -$400 after 30 min	253	206	23	0.0909	23	0.0478	0.5217	0.5217	5.739	-1371.59	-86.46	-78.28	
+0.80	E7	sits below -$600 after 30 min	253	206	23	0.0909	7	0.0087	0.2174	0.7143	7.857	-1106.25	-282.5	-17.6	
+0.80	E7	reclaim level lost by 0.10 ATR	253	206	23	0.0909	20	0.0348	0.5217	0.6	6.6	-1267.97	-129.69	-56.8	
+0.80	E7	reclaim level lost by 0.20 ATR	253	206	23	0.0909	1	0.0043	0.0	0.0	0.0	-687.5		-3.34	
+0.80	E7	15 min of adverse flow, >=0.05 ATR	253	206	23	0.0909	236	0.9261	1.0	0.0975	1.072	-620.69	233.15	-615.75	
+0.80	E7	15 min of adverse flow, >=0.25 ATR	253	206	23	0.0909	21	0.0739	0.1739	0.1905	2.095	-613.24	-192.19	-54.34	
+0.80	E7	trail armed +$900, 60min extreme	253	206	23	0.0909	125	0.5261	0.1739	0.032	0.352	-369.21	709.38	-203.09	
+0.80	E7	ORACLE cut every eventual loser at 30 min	253	206	23	0.0909	23			1.0				36.5	CLAIRVOYANT BOUND
+0.80	E7	ORACLE cut every eventual loser at its best post-30min second	253	206	23	0.0909	23			1.0				80.01	CLAIRVOYANT BOUND
+0.80	E7	ORACLE take EVERY trade out at its best post-30min second	253	206	23	0.0909	23			1.0				512.92	CLAIRVOYANT BOUND
+0.80	POOLED	sits below -$400 after 30 min	670	572	75	0.1119	39	0.0235	0.3333	0.641	5.726			-32.91	
+0.80	POOLED	sits below -$600 after 30 min	670	572	75	0.1119	16	0.0034	0.1867	0.875	7.817			-8.51	
+0.80	POOLED	reclaim level lost by 0.10 ATR	670	572	75	0.1119	58	0.0387	0.4667	0.6034	5.391			-43.2	
+0.80	POOLED	reclaim level lost by 0.20 ATR	670	572	75	0.1119	11	0.0034	0.12	0.8182	7.309			-3.12	
+0.80	POOLED	15 min of adverse flow, >=0.05 ATR	670	572	75	0.1119	628	0.9361	0.9467	0.1131	1.01			-416.65	
+0.80	POOLED	15 min of adverse flow, >=0.25 ATR	670	572	75	0.1119	73	0.1008	0.1733	0.1781	1.591			-48.07	
+0.80	POOLED	trail armed +$900, 60min extreme	670	572	75	0.1119	251	0.4101	0.0933	0.0279	0.249			-111.27	
+0.85	E3	sits below -$400 after 30 min	10	10	0	0.0	0	0.0						0.0	
+0.85	E3	sits below -$600 after 30 min	10	10	0	0.0	0	0.0						0.0	
+0.85	E3	reclaim level lost by 0.10 ATR	10	10	0	0.0	1	0.1		0.0		-500.0		-50.0	
+0.85	E3	reclaim level lost by 0.20 ATR	10	10	0	0.0	0	0.0						0.0	
+0.85	E3	15 min of adverse flow, >=0.05 ATR	10	10	0	0.0	10	1.0		0.0		-263.12		-263.12	
+0.85	E3	15 min of adverse flow, >=0.25 ATR	10	10	0	0.0	2	0.2		0.0		-446.88		-89.38	
+0.85	E3	trail armed +$900, 60min extreme	10	10	0	0.0	5	0.5		0.0		-123.75		-61.88	
+0.85	E3	ORACLE cut every eventual loser at 30 min	10	10	0	0.0	0			1.0				0.0	CLAIRVOYANT BOUND
+0.85	E3	ORACLE cut every eventual loser at its best post-30min second	10	10	0	0.0	0			1.0				0.0	CLAIRVOYANT BOUND
+0.85	E3	ORACLE take EVERY trade out at its best post-30min second	10	10	0	0.0	0			1.0				358.75	CLAIRVOYANT BOUND
+0.85	E4	sits below -$400 after 30 min	89	87	14	0.1573	1	0.0	0.0714	1.0	6.357		-450.0	-5.17	
+0.85	E4	sits below -$600 after 30 min	89	87	14	0.1573	1	0.0	0.0714	1.0	6.357		-450.0	-5.17	
+0.85	E4	reclaim level lost by 0.10 ATR	89	87	14	0.1573	8	0.0667	0.2143	0.375	2.384	-911.25	-158.33	-57.83	
+0.85	E4	reclaim level lost by 0.20 ATR	89	87	14	0.1573	1	0.0	0.0714	1.0	6.357		-450.0	-5.17	
+0.85	E4	15 min of adverse flow, >=0.05 ATR	89	87	14	0.1573	80	0.8933	0.9286	0.1625	1.033	-372.39	127.88	-267.67	
+0.85	E4	15 min of adverse flow, >=0.25 ATR	89	87	14	0.1573	8	0.1067	0.0	0.0	0.0	-418.75		-38.51	
+0.85	E4	trail armed +$900, 60min extreme	89	87	14	0.1573	23	0.3067	0.0	0.0	0.0	-433.42		-114.58	
+0.85	E4	ORACLE cut every eventual loser at 30 min	89	87	14	0.1573	14			1.0				28.95	CLAIRVOYANT BOUND
+0.85	E4	ORACLE cut every eventual loser at its best post-30min second	89	87	14	0.1573	14			1.0				61.42	CLAIRVOYANT BOUND
+0.85	E4	ORACLE take EVERY trade out at its best post-30min second	89	87	14	0.1573	14			1.0				338.43	CLAIRVOYANT BOUND
+0.85	E5	sits below -$400 after 30 min	119	105	12	0.1008	3	0.0	0.25	1.0	9.917		141.67	4.05	
+0.85	E5	sits below -$600 after 30 min	119	105	12	0.1008	2	0.0	0.1667	1.0	9.917		112.5	2.14	
+0.85	E5	reclaim level lost by 0.10 ATR	119	105	12	0.1008	7	0.0187	0.4167	0.7143	7.083	-693.75	170.0	-5.12	
+0.85	E5	reclaim level lost by 0.20 ATR	119	105	12	0.1008	3	0.0	0.25	1.0	9.917		70.83	2.02	
+0.85	E5	15 min of adverse flow, >=0.05 ATR	119	105	12	0.1008	111	0.9346	0.9167	0.0991	0.983	-295.0	265.91	-253.1	
+0.85	E5	15 min of adverse flow, >=0.25 ATR	119	105	12	0.1008	17	0.1308	0.25	0.1765	1.75	-387.05	387.5	-40.54	
+0.85	E5	trail armed +$900, 60min extreme	119	105	12	0.1008	38	0.3458	0.0833	0.0263	0.261	-150.51	1175.0	-41.85	
+0.85	E5	ORACLE cut every eventual loser at 30 min	119	105	12	0.1008	12			1.0				27.98	CLAIRVOYANT BOUND
+0.85	E5	ORACLE cut every eventual loser at its best post-30min second	119	105	12	0.1008	12			1.0				65.48	CLAIRVOYANT BOUND
+0.85	E5	ORACLE take EVERY trade out at its best post-30min second	119	105	12	0.1008	12			1.0				341.37	CLAIRVOYANT BOUND
+0.85	E6	sits below -$400 after 30 min	11	11	1	0.0909	1	0.0	1.0	1.0	11.0		-175.0	-15.91	
+0.85	E6	sits below -$600 after 30 min	11	11	1	0.0909	1	0.0	1.0	1.0	11.0		-325.0	-29.55	
+0.85	E6	reclaim level lost by 0.10 ATR	11	11	1	0.0909	1	0.0	1.0	1.0	11.0		-175.0	-15.91	
+0.85	E6	reclaim level lost by 0.20 ATR	11	11	1	0.0909	0	0.0	0.0					0.0	
+0.85	E6	15 min of adverse flow, >=0.05 ATR	11	11	1	0.0909	10	0.9	1.0	0.1	1.1	-175.0	-187.5	-160.23	
+0.85	E6	15 min of adverse flow, >=0.25 ATR	11	11	1	0.0909	0	0.0	0.0					0.0	
+0.85	E6	trail armed +$900, 60min extreme	11	11	1	0.0909	0	0.0	0.0					0.0	
+0.85	E6	ORACLE cut every eventual loser at 30 min	11	11	1	0.0909	1			1.0				-15.91	CLAIRVOYANT BOUND
+0.85	E6	ORACLE cut every eventual loser at its best post-30min second	11	11	1	0.0909	1			1.0				37.5	CLAIRVOYANT BOUND
+0.85	E6	ORACLE take EVERY trade out at its best post-30min second	11	11	1	0.0909	1			1.0				152.27	CLAIRVOYANT BOUND
+0.85	E7	sits below -$400 after 30 min	139	125	10	0.0719	10	0.0465	0.4	0.4	5.56	-1664.58	-57.81	-81.75	
+0.85	E7	sits below -$600 after 30 min	139	125	10	0.0719	3	0.0078	0.2	0.6667	9.267	-1587.5	-293.75	-17.4	
+0.85	E7	reclaim level lost by 0.10 ATR	139	125	10	0.0719	8	0.0388	0.3	0.375	5.213	-1552.5	-160.42	-65.95	
+0.85	E7	reclaim level lost by 0.20 ATR	139	125	10	0.0719	0	0.0	0.0					0.0	
+0.85	E7	15 min of adverse flow, >=0.05 ATR	139	125	10	0.0719	128	0.9147	1.0	0.0781	1.086	-550.79	181.88	-505.4	
+0.85	E7	15 min of adverse flow, >=0.25 ATR	139	125	10	0.0719	6	0.0388	0.1	0.1667	2.317	-1033.75	-168.75	-42.7	
+0.85	E7	trail armed +$900, 60min extreme	139	125	10	0.0719	65	0.4884	0.2	0.0308	0.428	-304.07	575.0	-144.05	
+0.85	E7	ORACLE cut every eventual loser at 30 min	139	125	10	0.0719	10			1.0				30.35	CLAIRVOYANT BOUND
+0.85	E7	ORACLE cut every eventual loser at its best post-30min second	139	125	10	0.0719	10			1.0				48.0	CLAIRVOYANT BOUND
+0.85	E7	ORACLE take EVERY trade out at its best post-30min second	139	125	10	0.0719	10			1.0				433.3	CLAIRVOYANT BOUND
+0.85	POOLED	sits below -$400 after 30 min	368	338	37	0.1005	15	0.0181	0.2432	0.6	5.968			-30.82	
+0.85	POOLED	sits below -$600 after 30 min	368	338	37	0.1005	7	0.003	0.1622	0.8571	8.525			-8.06	
+0.85	POOLED	reclaim level lost by 0.10 ATR	368	338	37	0.1005	25	0.0393	0.3243	0.48	4.774			-42.86	
+0.85	POOLED	reclaim level lost by 0.20 ATR	368	338	37	0.1005	4	0.0	0.1081	1.0	9.946			-0.7	
+0.85	POOLED	15 min of adverse flow, >=0.05 ATR	368	338	37	0.1005	339	0.9184	0.9459	0.1032	1.027			-347.43	
+0.85	POOLED	15 min of adverse flow, >=0.25 ATR	368	338	37	0.1005	33	0.0876	0.1081	0.1212	1.206			-40.94	
+0.85	POOLED	trail armed +$900, 60min extreme	368	338	37	0.1005	131	0.3867	0.0811	0.0229	0.228			-97.6	
+0.90	E3	sits below -$400 after 30 min	2	2	0	0.0	0	0.0						0.0	
+0.90	E3	sits below -$600 after 30 min	2	2	0	0.0	0	0.0						0.0	
+0.90	E3	reclaim level lost by 0.10 ATR	2	2	0	0.0	0	0.0						0.0	
+0.90	E3	reclaim level lost by 0.20 ATR	2	2	0	0.0	0	0.0						0.0	
+0.90	E3	15 min of adverse flow, >=0.05 ATR	2	2	0	0.0	2	1.0		0.0		-218.75		-218.75	
+0.90	E3	15 min of adverse flow, >=0.25 ATR	2	2	0	0.0	0	0.0						0.0	
+0.90	E3	trail armed +$900, 60min extreme	2	2	0	0.0	1	0.5		0.0		-87.5		-43.75	
+0.90	E3	ORACLE cut every eventual loser at 30 min	2	2	0	0.0	0			1.0				0.0	CLAIRVOYANT BOUND
+0.90	E3	ORACLE cut every eventual loser at its best post-30min second	2	2	0	0.0	0			1.0				0.0	CLAIRVOYANT BOUND
+0.90	E3	ORACLE take EVERY trade out at its best post-30min second	2	2	0	0.0	0			1.0				243.75	CLAIRVOYANT BOUND
+0.90	E4	sits below -$400 after 30 min	66	64	13	0.197	1	0.0	0.0769	1.0	5.077		-450.0	-7.03	
+0.90	E4	sits below -$600 after 30 min	66	64	13	0.197	1	0.0	0.0769	1.0	5.077		-450.0	-7.03	
+0.90	E4	reclaim level lost by 0.10 ATR	66	64	13	0.197	7	0.0755	0.2308	0.4286	2.176	-870.31	-158.33	-61.82	
+0.90	E4	reclaim level lost by 0.20 ATR	66	64	13	0.197	1	0.0	0.0769	1.0	5.077		-450.0	-7.03	
+0.90	E4	15 min of adverse flow, >=0.05 ATR	66	64	13	0.197	63	0.9623	0.9231	0.1905	0.967	-294.12	130.21	-209.96	
+0.90	E4	15 min of adverse flow, >=0.25 ATR	66	64	13	0.197	7	0.1321	0.0	0.0	0.0	-80.36		-8.79	
+0.90	E4	trail armed +$900, 60min extreme	66	64	13	0.197	17	0.3208	0.0	0.0	0.0	-265.07		-70.41	
+0.90	E4	ORACLE cut every eventual loser at 30 min	66	64	13	0.197	13			1.0				36.62	CLAIRVOYANT BOUND
+0.90	E4	ORACLE cut every eventual loser at its best post-30min second	66	64	13	0.197	13			1.0				80.37	CLAIRVOYANT BOUND
+0.90	E4	ORACLE take EVERY trade out at its best post-30min second	66	64	13	0.197	13			1.0				376.95	CLAIRVOYANT BOUND
+0.90	E5	sits below -$400 after 30 min	86	77	9	0.1047	2	0.0	0.2222	1.0	9.556		50.0	1.3	
+0.90	E5	sits below -$600 after 30 min	86	77	9	0.1047	1	0.0	0.1111	1.0	9.556		-100.0	-1.3	
+0.90	E5	reclaim level lost by 0.10 ATR	86	77	9	0.1047	5	0.013	0.4444	0.8	7.644	-337.5	56.25	-1.46	
+0.90	E5	reclaim level lost by 0.20 ATR	86	77	9	0.1047	2	0.0	0.2222	1.0	9.556		-56.25	-1.46	
+0.90	E5	15 min of adverse flow, >=0.05 ATR	86	77	9	0.1047	83	0.961	1.0	0.1084	1.036	-319.76	188.89	-285.23	
+0.90	E5	15 min of adverse flow, >=0.25 ATR	86	77	9	0.1047	11	0.1169	0.2222	0.1818	1.737	-424.31	-43.75	-50.73	
+0.90	E5	trail armed +$900, 60min extreme	86	77	9	0.1047	27	0.3506	0.0	0.0	0.0	-201.85		-70.78	
+0.90	E5	ORACLE cut every eventual loser at 30 min	86	77	9	0.1047	9			1.0				21.43	CLAIRVOYANT BOUND
+0.90	E5	ORACLE cut every eventual loser at its best post-30min second	86	77	9	0.1047	9			1.0				58.6	CLAIRVOYANT BOUND
+0.90	E5	ORACLE take EVERY trade out at its best post-30min second	86	77	9	0.1047	9			1.0				329.14	CLAIRVOYANT BOUND
+0.90	E6	sits below -$400 after 30 min	6	6	0	0.0	0	0.0						0.0	
+0.90	E6	sits below -$600 after 30 min	6	6	0	0.0	0	0.0						0.0	
+0.90	E6	reclaim level lost by 0.10 ATR	6	6	0	0.0	0	0.0						0.0	
+0.90	E6	reclaim level lost by 0.20 ATR	6	6	0	0.0	0	0.0						0.0	
+0.90	E6	15 min of adverse flow, >=0.05 ATR	6	6	0	0.0	5	0.8333		0.0		-240.0		-200.0	
+0.90	E6	15 min of adverse flow, >=0.25 ATR	6	6	0	0.0	0	0.0						0.0	
+0.90	E6	trail armed +$900, 60min extreme	6	6	0	0.0	0	0.0						0.0	
+0.90	E6	ORACLE cut every eventual loser at 30 min	6	6	0	0.0	0			1.0				0.0	CLAIRVOYANT BOUND
+0.90	E6	ORACLE cut every eventual loser at its best post-30min second	6	6	0	0.0	0			1.0				0.0	CLAIRVOYANT BOUND
+0.90	E6	ORACLE take EVERY trade out at its best post-30min second	6	6	0	0.0	0			1.0				102.08	CLAIRVOYANT BOUND
+0.90	E7	sits below -$400 after 30 min	75	72	6	0.08	4	0.029	0.3333	0.5	6.25	-1893.75	-34.38	-53.56	
+0.90	E7	sits below -$600 after 30 min	75	72	6	0.08	0	0.0	0.0					0.0	
+0.90	E7	reclaim level lost by 0.10 ATR	75	72	6	0.08	4	0.029	0.3333	0.5	6.25	-1893.75	-96.88	-55.3	
+0.90	E7	reclaim level lost by 0.20 ATR	75	72	6	0.08	0	0.0	0.0					0.0	
+0.90	E7	15 min of adverse flow, >=0.05 ATR	75	72	6	0.08	70	0.9275	1.0	0.0857	1.071	-570.41	136.46	-495.66	
+0.90	E7	15 min of adverse flow, >=0.25 ATR	75	72	6	0.08	3	0.029	0.1667	0.3333	4.167	-1571.88	-168.75	-46.01	
+0.90	E7	trail armed +$900, 60min extreme	75	72	6	0.08	38	0.5507	0.0	0.0	0.0	-281.09		-148.35	
+0.90	E7	ORACLE cut every eventual loser at 30 min	75	72	6	0.08	6			1.0				29.95	CLAIRVOYANT BOUND
+0.90	E7	ORACLE cut every eventual loser at its best post-30min second	75	72	6	0.08	6			1.0				41.06	CLAIRVOYANT BOUND
+0.90	E7	ORACLE take EVERY trade out at its best post-30min second	75	72	6	0.08	6			1.0				387.76	CLAIRVOYANT BOUND
+0.90	POOLED	sits below -$400 after 30 min	235	221	28	0.1191	7	0.0097	0.1786	0.7143	5.995			-19.03	
+0.90	POOLED	sits below -$600 after 30 min	235	221	28	0.1191	2	0.0	0.0714	1.0	8.393			-2.49	
+0.90	POOLED	reclaim level lost by 0.10 ATR	235	221	28	0.1191	16	0.0338	0.3214	0.5625	4.721			-36.43	
+0.90	POOLED	reclaim level lost by 0.20 ATR	235	221	28	0.1191	3	0.0	0.1071	1.0	8.393			-2.55	
+0.90	POOLED	15 min of adverse flow, >=0.05 ATR	235	221	28	0.1191	223	0.9469	0.9643	0.1211	1.016			-329.07	
+0.90	POOLED	15 min of adverse flow, >=0.25 ATR	235	221	28	0.1191	21	0.087	0.1071	0.1429	1.199			-35.21	
+0.90	POOLED	trail armed +$900, 60min extreme	235	221	28	0.1191	83	0.401	0.0	0.0	0.0			-93.78	

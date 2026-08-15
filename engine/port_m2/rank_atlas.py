@@ -1050,7 +1050,25 @@ def stage_confirm(top_n=15, eras=CONFIRM_ERAS):
         raise N.NewObjRefusal("no screen results — run --screen first")
     res = scr["results"]
     cells = {spec_id(c): c for c in screen_grid()}
-    ranked = []
+    # THE SCREEN DEFECT, ADJUDICATED BEFORE STAGE B SPENDS ANYTHING ON IT.
+    # The `joint` cells swept the screen (+$519..+$752 lift) but the screen's
+    # yardstick is CONFOUNDED for them: a joint cell trains on 5x the rows in
+    # 5x-larger groups at the SAME per-document pair-sampling budget, which is
+    # not the same budget at all.  A direct decomposition on the same inner
+    # blocks (E3/E5/E7) settles it:
+    #     joint train + JOINT seat    $320.94 / $786.27 / $773.39
+    #     joint train + D=0 seat      $344.08 / $804.43 / $769.84
+    #     5x DUPLICATED rows, all labelled cert(D=0)
+    #                                 $303.56 / $872.95 / $596.07
+    # Exercising the timing freedom is worth -$23.14 / -$18.16 / +$3.55 (mean
+    # -$12.58/session), and a duplication control carrying NO delay information
+    # reproduces most of the lift.  The oracle on the identical block agrees:
+    # joint $2,864.17 vs member $2,731.92 at IDENTICAL seat counts -- a +$132
+    # ceiling against a claimed +$752 fitted lift, which is impossible.
+    # So the joint DECISION OBJECT is closed negative here, and Stage B confirms
+    # exactly ONE joint cell (the best) to carry the honest walk-forward read
+    # the brief asks for, instead of spending 34 hours searching an artefact.
+    ranked, ranked_joint = [], []
     for k, c in cells.items():
         a = res.get("%s|0" % k)
         b = res.get("%s|1" % k)
@@ -1058,11 +1076,16 @@ def stage_confirm(top_n=15, eras=CONFIRM_ERAS):
             continue
         if b is not None and b["inner_usd"] >= a["inner_usd"]:
             continue                                   # VOID (twin reached it)
-        ranked.append((a["inner_usd"], k))
+        (ranked_joint if c["group"] == "joint" else ranked).append(
+            (a["inner_usd"], k))
     ranked.sort(reverse=True)
+    ranked_joint.sort(reverse=True)
     keep = [k for _v, k in ranked[:top_n]]
     if spec_id(REF) not in keep:
         keep.append(spec_id(REF))
+    if ranked_joint:
+        keep.append(ranked_joint[0][1])       # the one honest OBJ-1 read
+    N.hb("confirm arms (%d): %s" % (len(keep), ", ".join(keep)))
     N.hb("confirm: %d survivors (+reference) of %d screened"
          % (len(keep) - 1, len(cells)))
     import multiprocessing as mp

@@ -578,8 +578,16 @@ def joint_confirm(D, spec, era, ifit, iva, fit_rows, ev_r, XF, FN, V, P):
     dtr.set_group(g_i)
     dva = xgb.DMatrix(X_v, label=grades(v_v), feature_names=fn)
     dva.set_group(g_v)
+    # COST RULING (recorded): the joint design is 5x the rows in 5x the groups,
+    # so a 12-cell HP search over it costs ~26 min PER (arm, era) -- 34 hours for
+    # the grid.  Since the joint decision object is already closed negative by
+    # its own oracle and by a direct decomposition, this arm exists only to
+    # carry ONE honest walk-forward read, and it runs at the champion's own
+    # per-era hyper-parameters (themselves inner-block-selected, never having
+    # seen an evaluation era) with NO search.
     cfg, best_rounds, inner = None, ROUNDS, -np.inf
-    for hp in HP_GRID:
+    for hp in ({k: CHAMP_HP[era][k] for k in
+                ("max_depth", "eta", "lambdarank_num_pair_per_sample")},):
         c = dict(BASE)
         c.update(hp)
         if spec["obj"] == "ndcg1":

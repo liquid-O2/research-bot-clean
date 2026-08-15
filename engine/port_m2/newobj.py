@@ -491,12 +491,20 @@ def read_rows(D, rows):
     den_c = [ceilings(D).get(r["session"], (0.0, 0, 0))[0] for r in rows]
     den_o = [oracle_of(r["session"]) for r in rows]
     seats = [s for r in rows for s in r["seats"]]
-    cm = PS.cluster_mean(y, cl)
-    cap = PS.cluster_ratio(y, den_c, cl)
-    orc = PS.cluster_ratio(y, den_o, cl)
+    # `panel_score`'s estimators return None when a panel is too thin to
+    # support an interval (too few day clusters, or a zero denominator).  An
+    # abstaining policy can produce exactly that, so every read is defended
+    # rather than assumed — the arm still reports its dollars, with an empty
+    # interval, instead of taking the whole stage down.
+    _NA = {"mean": None, "ratio": None, "ci_lo": None, "ci_hi": None}
+    cm = PS.cluster_mean(y, cl) or _NA
+    cap = PS.cluster_ratio(y, den_c, cl) or _NA
+    orc = PS.cluster_ratio(y, den_o, cl) or _NA
+    if cm.get("mean") is None:
+        cm = dict(_NA, mean=float(np.mean(y)) if y else None)
     tv = [s[2] for s in seats]
     tcl = [int(D["session"][s[0]].split("|")[1]) for s in seats]
-    tm = PS.cluster_mean(tv, tcl) if tv else None
+    tm = (PS.cluster_mean(tv, tcl) or _NA) if tv else _NA
     return {"n_sessions": len(rows),
             "n_takes": int(sum(r["n_takes"] for r in rows)),
             "n_seated": len(seats),
@@ -505,8 +513,7 @@ def read_rows(D, rows):
             "usd_per_session": cm["mean"], "ps_lo": cm["ci_lo"],
             "ps_hi": cm["ci_hi"],
             "usd_per_trade": float(np.mean(tv)) if tv else None,
-            "pt_lo": tm["ci_lo"] if tm else None,
-            "pt_hi": tm["ci_hi"] if tm else None,
+            "pt_lo": tm.get("ci_lo"), "pt_hi": tm.get("ci_hi"),
             "frac_ge_1000": float(np.mean(np.asarray(tv) >= 1000.0))
             if tv else None,
             "capture_day": cap["ratio"], "cd_lo": cap["ci_lo"],
@@ -530,9 +537,12 @@ def pool_reads(parts):
     dc = [v for p in parts for v in p["_den_c"]]
     do = [v for p in parts for v in p["_den_o"]]
     seats = [s for p in parts for s in p["_seats"]]
-    cm = PS.cluster_mean(y, cl)
-    cap = PS.cluster_ratio(y, dc, cl)
-    orc = PS.cluster_ratio(y, do, cl)
+    _NA = {"mean": None, "ratio": None, "ci_lo": None, "ci_hi": None}
+    cm = PS.cluster_mean(y, cl) or _NA
+    cap = PS.cluster_ratio(y, dc, cl) or _NA
+    orc = PS.cluster_ratio(y, do, cl) or _NA
+    if cm.get("mean") is None:
+        cm = dict(_NA, mean=float(np.mean(y)) if y else None)
     tv = [s[2] for s in seats]
     return {"n_sessions": len(y), "n_seated": len(seats),
             "usd_per_session": cm["mean"], "ps_lo": cm["ci_lo"],

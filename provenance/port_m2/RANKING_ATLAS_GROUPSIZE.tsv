@@ -1,0 +1,35 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# The granularity sweep made visible.  A group of size <2 carries NO ranking decision at all: it is a STARVED comparison, and the fraction of them is the direct cost of going finer.
+# Evaluation-era rows after the D-077 veto, i.e. the pool the schedule actually ranks.
+era	grouping	n_groups	n_rows	median_size	p10_size	p90_size	frac_size_lt2	frac_size_lt5
+E3	day	130	151822	1126.5	859.8	1502.3	0.0	0.0
+E3	assetday	390	151822	376.0	258.0	543.1	0.0	0.0
+E3	class	1779	151822	11.0	3.0	350.6	0.0607	0.1596
+E3	cell	1170	151822	105.0	44.0	254.1	0.0	0.0
+E3	cellclass	3780	151822	6.0	1.0	133.1	0.1439	0.3979
+E3	joint	1170	756452	520.0	220.0	1270.4	0.0	0.0
+E4	day	129	148418	1107.0	816.0	1494.0	0.0	0.0
+E4	assetday	385	148418	386.0	217.2	542.4	0.0	0.0
+E4	class	1725	148418	11.0	3.0	357.0	0.0638	0.1716
+E4	cell	1155	148418	94.0	35.0	264.0	0.0	0.0009
+E4	cellclass	3551	148418	7.0	1.0	140.0	0.1574	0.3903
+E4	joint	1155	739590	470.0	175.0	1320.0	0.0	0.0
+E5	day	129	152947	1177.0	913.8	1484.4	0.0	0.0
+E5	assetday	387	152947	381.0	276.6	523.0	0.0	0.0
+E5	class	1708	152947	11.0	4.0	357.3	0.0392	0.1247
+E5	cell	1161	152947	105.0	41.0	257.0	0.0	0.0
+E5	cellclass	3608	152947	7.0	1.0	145.3	0.1522	0.3736
+E5	joint	1161	762348	520.0	201.0	1284.0	0.0	0.0
+E6	day	128	163062	1204.0	848.1	1713.2	0.0	0.0
+E6	assetday	384	163062	386.0	257.0	624.1	0.0	0.0
+E6	class	1747	163062	11.0	3.0	363.4	0.0561	0.1649
+E6	cell	1152	163062	110.0	35.0	281.0	0.0	0.0
+E6	cellclass	3644	163062	7.0	1.0	151.0	0.1504	0.3883
+E6	joint	1152	812487	550.0	175.0	1402.9	0.0	0.0
+E7	day	131	158276	1096.0	908.0	1539.0	0.0	0.0
+E7	assetday	393	158276	360.0	247.0	588.2	0.0	0.0
+E7	class	1823	158276	10.0	3.0	337.8	0.0609	0.1931
+E7	cell	1179	158276	106.0	42.0	263.0	0.0	0.0
+E7	cellclass	3805	158276	6.0	1.0	138.0	0.1532	0.4208
+E7	joint	1179	788305	527.0	206.0	1311.0	0.0	0.0

@@ -47,6 +47,7 @@ import newobj as N                        # noqa: E402
 import newobj_arms as NA                  # noqa: E402
 import atlas_feat as AF                   # noqa: E402
 import st_common as SC                    # noqa: E402
+import m2_common as MC                   # noqa: E402
 
 LANE = "port-m2-rank-atlas"
 VERSION = "PORT-M2-RANK-ATLAS-V1"
@@ -420,7 +421,11 @@ def population(D, spec, era, tr):
     if p == "last2":
         return tr[D["era_idx"][tr] >= k - 2], None
     if p == "recency":
-        w = np.exp(-(k - 1 - D["era_idx"][tr].astype(np.float64)) / 2.0)
+        # a FULL-LENGTH weight column indexed by matrix row: the group-sorted
+        # fit order is not the `tr` order, and indexing one by the other would
+        # attach each group's weight to the wrong group (found before the run)
+        w = np.full(D["d8"].size, np.nan)
+        w[tr] = np.exp(-(k - 1 - D["era_idx"][tr].astype(np.float64)) / 2.0)
         return tr, w
     if p == "classfilt":
         # the classes that actually win cells in the TRAINING block (causal)
@@ -535,12 +540,12 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
                        for a, b in zip(ptr[:-1], ptr[1:])]) / 1000.0
         gw = np.clip(gw, 0.05, 5.0)
     if wgroup is not None:
-        ww = wgroup if wgroup.size == r_f.size else None
-        if ww is not None:
-            ptr = np.concatenate([[0], np.cumsum(g_f)])
-            per = np.array([float(np.mean(ww[a:b])) for a, b in
-                            zip(ptr[:-1], ptr[1:])])
-            gw = per if gw is None else gw * per
+        ww = np.asarray(wgroup)[r_f]          # matrix-row indexed, group order
+        ptr = np.concatenate([[0], np.cumsum(g_f)])
+        per = np.array([float(np.nanmean(ww[a:b])) for a, b in
+                        zip(ptr[:-1], ptr[1:])])
+        per = np.where(np.isfinite(per), per, 1.0)
+        gw = per if gw is None else gw * per
     if eng == "xgb":
         import xgboost as xgb
         base = {"tree_method": "hist", "min_child_weight": 20,
@@ -812,13 +817,13 @@ def confirm_arm(D, spec, era, P, V, budget=None):
         a, sc, extra = NA.joint_confirm(D, spec, era, ifit, iva, fit_rows, ev_r,
                                         XF, FN, V, P)
         extra["fit_secs"] = round(time.time() - t0, 1)
-        return a, sc, extra, (tr, itr, iva, ev_r), None, XF, FN, val
+        return a, sc, extra, (tr, itr, iva, ev_r), (None, None), XF, FN, val
     # inner-block HP search, champion discipline: 12 cells for xgboost, the
     # engine-equivalent depth/lr pair for the others (P6 keeps those narrow)
     grid = (NA.HP_GRID if spec["engine"] == "xgb"
             else tuple({"max_depth": d, "eta": e} for d in (4, 6)
                        for e in (0.05, 0.10)))
-    best, best_v = None, -np.inf
+    best, best_v, sc_iva = None, -np.inf, None
     for hp in grid:
         s_i, _info = fit_cell(D, spec, ifit, iva, XF, FN, val,
                               dict(CONFIRM, depth=hp["max_depth"],
@@ -828,7 +833,7 @@ def confirm_arm(D, spec, era, P, V, budget=None):
         tk = N.top_per_cell_score(D, N.deployable(D, iva), s_i, n_)
         v_ = N.read_rows(D, N.replay_delayed(D, tk, P)).get("usd_per_session")
         if v_ is not None and v_ > best_v:
-            best, best_v = hp, v_
+            best, best_v, sc_iva = hp, v_, s_i
     sc, info = fit_cell(D, spec, fit_rows, ev_r, XF, FN, val,
                         dict(CONFIRM, depth=best["max_depth"], eta=best["eta"],
                              rounds=CONFIRM["rounds"]),
@@ -842,24 +847,30 @@ def confirm_arm(D, spec, era, P, V, budget=None):
     a = read_arm(D, tk, P)
     info.update({"hp": best, "inner_usd": best_v,
                  "fit_secs": round(time.time() - t0, 1)})
-    return a, sc, info, (tr, itr, iva, ev_r), sc_tr, XF, FN, val
+    # `sc_iva` is OUT OF SAMPLE inside the training block (fitted on inner-train,
+    # scored on inner-validation): every threshold this lane sweeps is swept on
+    # it, never on the in-sample `sc_tr`, which exists only to supply the outer
+    # model's own score CDF for the percentile map.
+    return a, sc, info, (tr, itr, iva, ev_r), (sc_tr, sc_iva), XF, FN, val
 
 
-def apply_policies(D, spec, era, sc, sc_tr, folds, XF, FN, P, V, val):
+def apply_policies(D, spec, era, sc, sc_pair, folds, XF, FN, P, V, val):
     """P8: the five selection policies, read off ONE fitted score column."""
     tr, itr, iva, ev_r = folds
+    sc_tr, sc_iva = (sc_pair if isinstance(sc_pair, tuple)
+                     else (sc_pair, sc_pair))
     u_, n_ = N.committed_policy().get(era, ("cell", 1))
     out = {}
     out["static1"] = (read_arm(D, N.top_per_cell_score(D, ev_r, sc, n_), P), {})
     # --- thresh: seat the cell's top-1 only above an INNER-SWEPT score bar
-    if sc_tr is not None:
-        q = np.nanpercentile(sc_tr[sc_tr == sc_tr], np.arange(0, 96, 5)) \
-            if np.isfinite(sc_tr).any() else np.array([-np.inf])
-        # the sweep runs on the inner-validation rows scored by the SAME model
+    if sc_iva is not None and np.isfinite(sc_iva).any():
+        q = np.nanpercentile(sc_iva[np.isfinite(sc_iva)], np.arange(0, 96, 5))
+        # the sweep runs on the inner-validation rows, scored OUT OF SAMPLE
         best_tau, best_v = -np.inf, -np.inf
         for tau in np.concatenate([[-np.inf], q]):
-            tk = [(i, d) for (i, d) in N.top_per_cell_score(D, iva, sc_tr, n_)
-                  if sc_tr[i] >= tau]
+            tk = [(i, d) for (i, d) in
+                  N.top_per_cell_score(D, N.deployable(D, iva), sc_iva, n_)
+                  if sc_iva[i] >= tau]
             v_ = N.read_rows(D, N.replay_delayed(D, tk, P)).get(
                 "usd_per_session")
             if v_ is not None and v_ > best_v:
@@ -873,7 +884,8 @@ def apply_policies(D, spec, era, sc, sc_tr, folds, XF, FN, P, V, val):
     for dl in N.GATE_DELAYS:
         g_iva, g_ev, rounds = NA.fit_gate(D, P, dl, itr, iva, tr, ev_r, XF, FN,
                                           V)
-        top2_iva = NA.top2_by_score(D, iva, sc_tr) if sc_tr is not None else []
+        top2_iva = (NA.top2_by_score(D, N.deployable(D, iva), sc_iva)
+                    if sc_iva is not None and np.isfinite(sc_iva).any() else [])
         best_tau, best_v = -np.inf, -np.inf
         gq = np.nanpercentile(g_iva[np.isfinite(g_iva)],
                               np.arange(0, 96, 5)) if top2_iva else []
@@ -897,12 +909,15 @@ def apply_policies(D, spec, era, sc, sc_tr, folds, XF, FN, P, V, val):
         tkd, std = NA.gate_takes(top2_ev, gd, best_tau, dl, V)
         out["gate%d_DISPLACED" % dl] = (read_arm(D, tkd, P), std)
     # --- stop: OBJ-3, optimal stopping on the historical arrival process
-    if sc_tr is not None:
-        fit = NA.fit_stopping(D, P, tr, sc_tr, val)
+    if sc_tr is not None and sc_iva is not None:
+        # u(q) and the arrival process are fitted on the inner-validation rows
+        # with OUT-OF-SAMPLE scores; the forward map uses the outer model's own
+        # training-row CDF so both sides sit on one percentile scale.
+        fit = NA.fit_stopping(D, P, N.deployable(D, iva), sc_iva, val)
+        fit["cdf"] = np.sort(sc_tr[np.isfinite(sc_tr)])
         tk, st = NA.stopping_takes(D, P, ev_r, sc, fit, n_per_cell=n_)
         out["stop"] = (read_arm(D, tk, P), st)
-        fo = NA.fit_stopping(D, P, tr, sc_tr, val)
-        tko, sto = NA.stopping_takes(D, P, ev_r, sc, fo, n_per_cell=n_,
+        tko, sto = NA.stopping_takes(D, P, ev_r, sc, fit, n_per_cell=n_,
                                      oracle_val=val)
         out["stop_ORACLE"] = (read_arm(D, tko, P), sto)
     return out
@@ -932,6 +947,26 @@ def _paired_p(delta, lo, hi):
     return float(erfc(abs(delta) / (se * sqrt(2.0))))
 
 
+def _confirm_one(job):
+    """One (arm, era) confirm fit + its five policy reads, in a worker."""
+    spec, era = job
+    D, P, V = _D["D"], _D["P"], _D["V"]
+    k = spec_id(spec)
+    try:
+        a, sc, info, folds, sc_tr, XF, FN, val = confirm_arm(D, spec, era, P, V)
+    except Exception as exc:                            # noqa: BLE001
+        return (k, era, spec.get("_block", ""), None, None, None,
+                "%s: %s" % (type(exc).__name__, exc))
+    try:
+        pols = apply_policies(D, spec, era, sc, sc_tr, folds, XF, FN, P, V, val)
+    except Exception as exc:                            # noqa: BLE001
+        N.hb("policy FAIL %s %s: %s" % (k, era, exc))
+        pols = {}
+    # the "_"-prefixed per-session vectors MUST survive the pickle: pool_reads
+    # needs them to pool across eras with the day clustering intact
+    return (k, era, spec.get("_block", ""), a, info, pols, None)
+
+
 def stage_confirm(top_n=15, eras=CONFIRM_ERAS):
     import st_rank as RK
     D = N.matrix()
@@ -959,32 +994,28 @@ def stage_confirm(top_n=15, eras=CONFIRM_ERAS):
         keep.append(spec_id(REF))
     N.hb("confirm: %d survivors (+reference) of %d screened"
          % (len(keep) - 1, len(cells)))
+    import multiprocessing as mp
+    _D["P"] = P
+    _D["V"] = V
+    jobs = [(cells[k], era) for k in keep for era in eras]
     rows, pol_rows, per_arm, reps = [], [], {}, {}
-    for k in keep:
-        spec = cells[k]
-        for era in eras:
-            try:
-                a, sc, info, folds, sc_tr, XF, FN, val = confirm_arm(
-                    D, spec, era, P, V)
-            except Exception as exc:                    # noqa: BLE001
-                N.hb("confirm FAIL %s %s: %s" % (k, era, exc))
+    t0 = time.time()
+    with mp.Pool(processes=8) as pool:
+        for i, (k, era, blk, a, info, pols, err) in enumerate(
+                pool.imap_unordered(_confirm_one, jobs), start=1):
+            if err:
+                N.hb("confirm FAIL %s %s: %s" % (k, era, err))
                 continue
             per_arm.setdefault(k, []).append(dict(a, era=era))
             reps.setdefault(k, {})[era] = a
-            rows.append([k, era, spec["_block"], a["n_seated"],
+            rows.append([k, era, blk, a["n_seated"],
                          N._r(a["usd_per_session"]), N._r(a["ps_lo"]),
                          N._r(a["ps_hi"]), N._r(a["usd_per_trade"]),
                          N._r(a["frac_ge_1000"], 4),
                          N._r(a["capture_oracle"], 4),
                          json.dumps(info.get("hp", {})),
                          info.get("fit_secs")])
-            try:
-                pols = apply_policies(D, spec, era, sc, sc_tr, folds, XF, FN,
-                                      P, V, val)
-            except Exception as exc:                    # noqa: BLE001
-                N.hb("policy FAIL %s %s: %s" % (k, era, exc))
-                pols = {}
-            for pname, (pa, pst) in pols.items():
+            for pname, (pa, pst) in (pols or {}).items():
                 pol_rows.append([k, era, pname, pa.get("n_seated"),
                                  N._r(pa.get("usd_per_session")),
                                  N._r(pa.get("ps_lo")), N._r(pa.get("ps_hi")),
@@ -995,8 +1026,10 @@ def stage_confirm(top_n=15, eras=CONFIRM_ERAS):
                                              for kk, vv in pst.items()})])
                 per_arm.setdefault("%s@@%s" % (k, pname), []).append(
                     dict(pa, era=era))
-            N.hb("confirm %s %s: $%s/session (%d seats)"
-                 % (k, era, N._r(a["usd_per_session"]), a["n_seated"]))
+            N.hb("confirm %d/%d %s %s: $%s/session (%d seats) %.0fs eta %.0fs"
+                 % (i, len(jobs), k, era, N._r(a["usd_per_session"]),
+                    a["n_seated"], time.time() - t0,
+                    (time.time() - t0) / i * (len(jobs) - i)))
     # pooled + the ONE Holm family, champion as the reference arm
     ref_parts = per_arm.get(spec_id(REF), [])
     ref_pool = N.pool_reads(ref_parts)
@@ -1063,6 +1096,7 @@ def main():
     ap.add_argument("--grid", action="store_true")
     ap.add_argument("--screen", action="store_true")
     ap.add_argument("--confirm", action="store_true")
+    ap.add_argument("--blind", action="store_true")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--top-n", type=int, default=15)
     ap.add_argument("--limit", type=int, default=None)
@@ -1073,9 +1107,72 @@ def main():
         stage_screen(workers=a.workers, limit=a.limit)
     elif a.confirm:
         stage_confirm(top_n=a.top_n)
+    elif a.blind:
+        stage_blind()
     else:
         ap.print_help()
 
 
 if __name__ == "__main__":
     main()
+
+
+# ========================================================== THE BLIND READ ====
+def stage_blind(era=N.BLIND_ERA):
+    """E8, opened ONCE, for the single best CONFIRMED arm.
+
+    The choice of which arm to read is made entirely on the E3-E7 confirm table;
+    E8 has never been an input to any fit, threshold, HP choice or ranking in
+    this lane.  The 2025-H2 holdout stays sealed.
+    """
+    import st_rank as RK
+    D = N.matrix()
+    _D["D"] = D
+    _D["klass"] = RK.class_index(D)[0]
+    P = N.load_paths()
+    V = {int(d): N.delayed_value(P, d, D) for d in N.DELAYS}
+    _D["P"], _D["V"] = P, V
+    conf = N.load_json("atlas_confirm.json")
+    if conf is None:
+        raise N.NewObjRefusal("no confirm results — run --confirm first")
+    cells = {spec_id(c): c for c in screen_grid()}
+    best, best_v = None, -np.inf
+    for k, parts in conf.items():
+        if "@@" in k or k not in cells:
+            continue
+        q = N.pool_reads([p for p in parts if p.get("era") in CONFIRM_ERAS])
+        if q.get("usd_per_session") is not None and q["usd_per_session"] > best_v:
+            best, best_v = k, q["usd_per_session"]
+    N.hb("BLIND READ: single best confirmed arm = %s ($%s/session on E3-E7); "
+         "opening %s once" % (best, N._r(best_v), era))
+    rows = []
+    for k in sorted({best, spec_id(REF)}):
+        a, sc, info, folds, sc_tr, XF, FN, val = confirm_arm(
+            D, cells[k], era, P, V)
+        rows.append([k, era, a["n_seated"], N._r(a["usd_per_session"]),
+                     N._r(a["ps_lo"]), N._r(a["ps_hi"]),
+                     N._r(a["usd_per_trade"]), N._r(a["frac_ge_1000"], 4),
+                     N._r(a["capture_oracle"], 4),
+                     json.dumps(info.get("hp", {}))])
+        # per (era, asset) against the standing all-years criterion
+        for ai in sorted(set(D["asset_idx"][folds[3]].tolist())):
+            sel = folds[3][D["asset_idx"][folds[3]] == ai]
+            u_, n_ = N.committed_policy().get(era, ("cell", 1))
+            aa = read_arm(D, N.top_per_cell_score(D, sel, sc, n_), P)
+            rows.append([k, "%s|%s" % (era, MC.ASSET_ORDER[ai]),
+                         aa["n_seated"], N._r(aa["usd_per_session"]),
+                         N._r(aa["ps_lo"]), N._r(aa["ps_hi"]),
+                         N._r(aa["usd_per_trade"]),
+                         N._r(aa["frac_ge_1000"], 4),
+                         N._r(aa["capture_oracle"], 4), ""])
+        N.hb("blind %s %s: $%s/session" % (k, era, N._r(a["usd_per_session"])))
+    N.write_tsv("RANKING_ATLAS_BLIND.tsv",
+                ["cell", "era", "n_seated", "usd_per_session", "ps_lo",
+                 "ps_hi", "usd_per_trade", "frac_ge_1000", "capture_oracle",
+                 "hp"], rows,
+                extra=["THE ONE BLIND READ.  The arm was chosen entirely on the "
+                       "E3-E7 confirm table; E8 was never an input to any fit, "
+                       "threshold, hyper-parameter or ranking in this lane.",
+                       "The 2025-H2 holdout (d8 >= 20250701) is untouched and "
+                       "is not this lane's to open."])
+    return rows

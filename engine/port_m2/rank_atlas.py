@@ -582,7 +582,25 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
             d = xgb.DMatrix(XF[r_f], label=y_f, feature_names=FN)
             if gw is not None:
                 d.set_weight(np.repeat(gw, g_f))
-        b = xgb.train(base, d, rounds, obj=custom)
+        n_used = rounds
+        if early_va is not None and obj != "softmax1":
+            # THE CHAMPION'S OWN STOPPING RULE: early_stopping_rounds=25 on the
+            # inner-validation block's ndcg.  (`softmax1` is excluded on
+            # purpose: its inner metric is flat noise from round 1, which is
+            # exactly the defect that made H_TOP1 deploy a 1-6 round model.  The
+            # conditional logit runs to a FIXED budget and is guarded by the
+            # verified-to-train check instead.)
+            r_v, g_v = _groups_of(D, early_va, spec)
+            dv = xgb.DMatrix(XF[r_v], label=NA.grades(val[r_v]),
+                             feature_names=FN)
+            dv.set_group(g_v)
+            bb = xgb.train(base, d, rounds, evals=[(dv, "inner")],
+                           early_stopping_rounds=25, verbose_eval=False,
+                           obj=custom)
+            n_used = int(bb.best_iteration) + 1
+            b = bb
+        else:
+            b = xgb.train(base, d, rounds, obj=custom)
         tr_pred = b.predict(xgb.DMatrix(XF[r_f], feature_names=FN),
                             output_margin=True)
         r_s, _g_s = _groups_of(D, score_rows, spec)
@@ -606,7 +624,21 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
             params.update({"objective": "quantile", "alpha": 0.75})
             ds = lgb.Dataset(XF[r_f], label=y_f, feature_name=FN,
                              free_raw_data=False)
-        b = lgb.train(params, ds, rounds)
+        n_used = rounds
+        if early_va is not None:
+            r_v, g_v = _groups_of(D, early_va, spec)
+            if obj in ("ndcg3", "ndcg1", "dpairs"):
+                dv = lgb.Dataset(XF[r_v], label=NA.grades(val[r_v]),
+                                 group=g_v, feature_name=FN, reference=ds,
+                                 free_raw_data=False)
+            else:
+                dv = lgb.Dataset(XF[r_v], label=val[r_v], feature_name=FN,
+                                 reference=ds, free_raw_data=False)
+            b = lgb.train(params, ds, rounds, valid_sets=[dv],
+                          callbacks=[lgb.early_stopping(25, verbose=False)])
+            n_used = int(b.best_iteration or rounds)
+        else:
+            b = lgb.train(params, ds, rounds)
         tr_pred = b.predict(XF[r_f])
         r_s, _g_s = _groups_of(D, score_rows, spec)
         s = b.predict(XF[r_s])
@@ -623,8 +655,21 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
             p_f = Pool(XF[r_f], label=y_f, feature_names=FN)
         else:
             p_f = Pool(XF[r_f], label=grade, group_id=gid, feature_names=FN)
+        n_used = rounds
         m = CatBoost(params)
-        m.fit(p_f)
+        if early_va is not None:
+            r_v, g_v = _groups_of(D, early_va, spec)
+            gidv = np.repeat(np.arange(g_v.size), g_v)
+            p_v = (Pool(XF[r_v], label=val[r_v], feature_names=FN)
+                   if obj == "q75" else
+                   Pool(XF[r_v], label=NA.grades(val[r_v]), group_id=gidv,
+                        feature_names=FN))
+            params2 = dict(params, od_type="Iter", od_wait=25)
+            m = CatBoost(params2)
+            m.fit(p_f, eval_set=p_v, use_best_model=True)
+            n_used = int(m.get_best_iteration() or rounds)
+        else:
+            m.fit(p_f)
         tr_pred = m.predict(p_f)
         r_s, _g_s = _groups_of(D, score_rows, spec)
         p_s = (Pool(XF[r_s], feature_names=FN) if obj == "q75" else
@@ -636,7 +681,7 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
     return out, {"train_p1": train_dollar_p1(tr_pred, y_f, g_f),
                  "n_fit": int(r_f.size), "n_groups": int(g_f.size),
                  "median_group": float(np.median(g_f)),
-                 "rounds": rounds}
+                 "rounds": int(locals().get("n_used", rounds))}
 
 
 # ============================================================== the seating ===
@@ -823,29 +868,32 @@ def confirm_arm(D, spec, era, P, V, budget=None):
     grid = (NA.HP_GRID if spec["engine"] == "xgb"
             else tuple({"max_depth": d, "eta": e} for d in (4, 6)
                        for e in (0.05, 0.10)))
-    best, best_v, sc_iva = None, -np.inf, None
+    best, best_v, sc_iva, best_rounds = None, -np.inf, None, CONFIRM["rounds"]
     for hp in grid:
-        s_i, _info = fit_cell(D, spec, ifit, iva, XF, FN, val,
-                              dict(CONFIRM, depth=hp["max_depth"],
-                                   eta=hp["eta"], rounds=CONFIRM["rounds"]),
-                              wgroup=None, hp=hp)
+        s_i, info_i = fit_cell(D, spec, ifit, iva, XF, FN, val,
+                               dict(CONFIRM, depth=hp["max_depth"],
+                                    eta=hp["eta"], rounds=CONFIRM["rounds"]),
+                               wgroup=None, hp=hp, early_va=iva)
         u_, n_ = N.committed_policy().get(era, ("cell", 1))
         tk = N.top_per_cell_score(D, N.deployable(D, iva), s_i, n_)
         v_ = N.read_rows(D, N.replay_delayed(D, tk, P)).get("usd_per_session")
         if v_ is not None and v_ > best_v:
             best, best_v, sc_iva = hp, v_, s_i
+            best_rounds = int(info_i.get("rounds", CONFIRM["rounds"]))
+    # refit on the WHOLE training block at the inner-selected round count —
+    # the champion's §2.5 recipe, verbatim
     sc, info = fit_cell(D, spec, fit_rows, ev_r, XF, FN, val,
                         dict(CONFIRM, depth=best["max_depth"], eta=best["eta"],
-                             rounds=CONFIRM["rounds"]),
+                             rounds=best_rounds),
                         wgroup=wg, hp=best)
     sc_tr, _i2 = fit_cell(D, spec, fit_rows, fit_rows, XF, FN, val,
                           dict(CONFIRM, depth=best["max_depth"],
-                               eta=best["eta"], rounds=CONFIRM["rounds"]),
+                               eta=best["eta"], rounds=best_rounds),
                           wgroup=wg, hp=best)
     u_, n_ = N.committed_policy().get(era, ("cell", 1))
     tk = N.top_per_cell_score(D, ev_r, sc, n_)
     a = read_arm(D, tk, P)
-    info.update({"hp": best, "inner_usd": best_v,
+    info.update({"hp": best, "inner_usd": best_v, "sel_rounds": best_rounds,
                  "fit_secs": round(time.time() - t0, 1)})
     # `sc_iva` is OUT OF SAMPLE inside the training block (fitted on inner-train,
     # scored on inner-validation): every threshold this lane sweeps is swept on

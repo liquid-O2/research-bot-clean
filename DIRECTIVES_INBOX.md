@@ -329,3 +329,39 @@ cache at `artifacts/cache/port/m2/labelscreen/fits.jsonl` is void because it sco
 retrospective seating; the TARGET TENSOR at `.../labelscreen/targets.npz` is still good
 and carries the delay-averaged, multi-horizon-mark and first-passage-race targets ready to
 be re-screened FOR the arrival objective).
+- [2026-08-15T23:13:35Z] AUTONOMY HEARTBEAT (D-074, user order: run autonomously until the goal is exceeded — never idle). You are the port-program orchestrator. Do now, in order: (1) read /workspace/STATE.md NEXT_ACTION + `tail -20 /workspace/provenance/sessions/JOURNAL.md` + `/workspace/lab/run.sh --list` + check heartbeat freshness of any port-* runs (a stale hb >15min on a live pid = investigate); (2) if a lane/run has finished without being adjudicated, adjudicate it now (rulings, PROGRESS/JOURNAL/STATE, commit+push) and launch the next stage per STATE; (3) if a lane died or hung, diagnose and relaunch it; (4) if all work is genuinely mid-flight and healthy, verify watchers exist for every background job, journal nothing, and end the turn silently. The program sequence after M2c: E1 study round (day-complete, full protocol stack) -> E1 blind -> name->count censuses of validated patterns -> era advance per D-058 -> feature construction from convergent evidence -> M3 model -> walk-forward gates vs D-048. Never park work the repo can advance (D-028/D-029); user-reserved classes only (walls/risk-contract/live-money).
+
+### UPDATE 23:15Z — the target correction, and what to read first in the morning
+
+**Read in this order:** `ARRIVAL_TARGETS.tsv` (A_EV rows), `ARRIVAL_FITTED.tsv`,
+`CAUSAL_BASELINE.tsv`, `ARRIVAL_PROPHET.tsv`, `M33_FAILED_AUCTION.tsv`.
+
+**The one correction that matters.** `A_PBAR` (P(clears the day's eventual 3rd-best))
+scores AUC 0.887–0.904 — and it **does not convert**: its top-1% picks average
+**-$114.89/trade on E7** against a population mean of -$21.97. It is a **DAY-RELATIVE**
+target, so it reproduces exactly the relative-not-absolute defect the leak audit voided.
+Being the best of a bad day is still a losing trade. Do not build on it; it is retained
+only as the measured counter-example.
+
+**The corrected target `A_EV`** (`reg:squarederror` directly on `cert_close_usd`, deployed
+RAW rather than isotonic-mapped) is fitting now under `port-arrival-ev`. It is the audit's
+literal prescription and the only one of the three in the units the stopping comparison is
+actually made in — expected dollars against continuation value in dollars.
+
+**Standing honest numbers.** Best causal arrival policy = `S_TABPFN|TAU_0.99`
+**$147.52/session** (E5), which clears its luck bar ($93.90). The calibrated-target
+policies **fail** theirs (E5 $16.76 vs $36.98). Causal-oracle bar $2,021; prophet bound
+$3,264. Capture 0.073. **The campaign is far from the goal on the respecified object, and
+the prophet bound is the reason to keep going rather than close.**
+
+**Three concrete leads the night generated, in priority order:**
+1. `A_EV` and, if it also nulls, an **expectancy net of the continuation value** — i.e.
+   regress `cert - E[best of remaining m]` rather than `cert`, which is the quantity the
+   stopping rule differences anyway.
+2. The **fair-engine round folded onto A_EV, not onto the voided within-cell objective**.
+   Engine choice plausibly matters now in a way it never did for within-cell ordering,
+   because the game is calibrated *global* discrimination. catboost 1.2.10 / lightgbm
+   4.7.0 verified installed, CatBoost monotone support confirmed.
+3. The **two structural leak fixes** (dominance selection, phase-boundary tables) — the
+   phase tables currently include the sealed holdout's 158 sessions, which is a
+   decontamination issue independent of any model.

@@ -1,0 +1,26 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# TREATMENT 4: the stacked final -- W_VOLMATCH weighting x inner-selected regularization x feature-bagged ensemble.  Reference: the champion's 5-seed distribution $754.20 +/- 322.82.  Bar: $2,000.
+# Rows ERA|ASSET are the per-asset table.
+era	n_members	usd_per_session	lo	hi	n_seated	reg_config
+E3	15	535.44	364.33	706.55	1183	{"max_depth": 3, "min_child_weight": 60}
+E3|SI		659.81	357.59	962.03	395	
+E3|HG		566.56	318.53	814.58	397	
+E3|NKD		379.96	170.0	589.93	391	
+E4	15	880.83	733.39	1028.26	1155	{"max_depth": 4, "min_child_weight": 20}
+E4|SI		1116.84	841.07	1392.61	384	
+E4|HG		641.59	441.86	841.33	384	
+E4|NKD		884.03	703.79	1064.27	387	
+E5	15	1002.26	876.37	1128.16	1161	{"max_depth": 3, "min_child_weight": 150}
+E5|SI		1103.7	868.61	1338.79	387	
+E5|HG		719.35	587.9	850.8	387	
+E5|NKD		1183.74	993.62	1373.86	387	
+E6	15	742.32	574.61	910.04	1152	{"max_depth": 3, "min_child_weight": 20}
+E6|SI		708.24	419.17	997.32	384	
+E6|HG		674.36	413.77	934.94	384	
+E6|NKD		844.38	564.51	1124.24	384	
+E7	15	1455.42	1214.52	1696.32	1179	{"max_depth": 6, "min_child_weight": 150}
+E7|SI		1629.85	1244.79	2014.91	393	
+E7|HG		1028.42	833.57	1223.27	393	
+E7|NKD		1708.0	1318.66	2097.33	393	
+POOLED		924.63	843.37	1005.88	5830	

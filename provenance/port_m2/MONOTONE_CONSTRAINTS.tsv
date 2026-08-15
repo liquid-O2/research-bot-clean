@@ -1,0 +1,585 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE CONSTRAINT ARTIFACT.  A column is constrained only where a NAMED CENSUS FACT and a MEASURED STABILITY RECEIPT agree, or where the stability receipt is clean and the censuses are silent.  Where they DISAGREE the column is left FREE and the conflict is recorded (source=CONFLICT_census_vs_measured) rather than resolved by preference.
+# The stability receipt is computed on TRAINING ERAS ONLY, per fold: the within-cell Spearman of the column against `cert_close_usd` must carry the SAME SIGN in every training era and its mean |rho| must clear 0.010. A sign that was not stable in the past is not imposed on the future.
+# Census sources: CREATOR_CENSUS_MAIN.tsv (38 Holm-significant detectors; TAPE_DEAD 0.607 the strongest veto, PASSIVE_MOVE 1.838 the strongest concentrator), the SEAT_LIVE capacity replication (1.31-1.69x, 8/8 eras), and mechanical facts (cost and spread are subtracted).
+era	feature	sign	source	mean_rho_train_eras	n_train_eras	sign_agreed_every_era	census_reason
+E3	cls_SHOCK_RESOLUTION	1	STABLE_ONLY	0.04874	2	True	
+E3	cls_LEVEL_FIRST_TEST	1	STABLE_ONLY	0.04126	2	True	
+E3	cls_NEWS_WINDOW	1	STABLE_ONLY	0.03871	2	True	
+E3	cls_OPEN_DYNAMICS	1	STABLE_ONLY	0.03051	2	True	
+E3	cls_REVERSAL_CONFIRMATION	1	STABLE_ONLY	0.02872	2	True	
+E3	cls_RECLAIM	1	STABLE_ONLY	0.04508	2	True	
+E3	fam_G1_FINE	1	STABLE_ONLY	0.02539	2	True	
+E3	fam_G1_FAST_OPEN	1	STABLE_ONLY	0.02706	2	True	
+E3	fam_G2_REJECT	1	STABLE_ONLY	0.04026	2	True	
+E3	fam_G2_RECLAIM	1	STABLE_ONLY	0.04516	2	True	
+E3	fam_NEWS_WINDOW	1	STABLE_ONLY	0.03871	2	True	
+E3	fam_MICRO_OPEN	1	STABLE_ONLY	0.04256	2	True	
+E3	fam_POST_SHOCK	1	STABLE_ONLY	0.04874	2	True	
+E3	fam_FIRST_TEST	1	STABLE_ONLY	0.04126	2	True	
+E3	rung_0.05	1	STABLE_ONLY	0.02212	2	True	
+E3	rung_0.075	1	STABLE_ONLY	0.02284	2	True	
+E3	rung_0.11	1	STABLE_ONLY	0.02345	2	True	
+E3	rung_0.15	1	STABLE_ONLY	0.02443	2	True	
+E3	levfam_FVOL_LADDER	1	STABLE_ONLY	0.04072	2	True	
+E3	levfam_FVOL_BAND	1	STABLE_ONLY	0.04448	2	True	
+E3	levfam_NDAY	1	STABLE_ONLY	0.05067	2	True	
+E3	levfam_PRIOR_DAY	1	STABLE_ONLY	0.04444	2	True	
+E3	levfam_PHASE_HL	1	STABLE_ONLY	0.03885	2	True	
+E3	levfam_VWAP	1	STABLE_ONLY	0.03918	2	True	
+E3	levfam_OR_EXT	1	STABLE_ONLY	0.04001	2	True	
+E3	flag_OREXT_BEYOND	1	STABLE_ONLY	0.03161	2	True	
+E3	flag_OREXT_BEYOND_ANY	1	STABLE_ONLY	0.04204	2	True	
+E3	flag_FIRST_TEST_VIRGIN	1	STABLE_ONLY	0.04447	2	True	
+E3	rv1800_usd	1	STABLE_ONLY	0.01564	2	True	
+E3	rv_ratio	1	STABLE_ONLY	0.0162	2	True	
+E3	unspent_sess_usd	0	CONFLICT_census_vs_measured	-0.07318	2	True	capacity: unspent session dollars = room left
+E3	coverage_phase	1	STABLE_ONLY	0.0549	2	True	
+E3	coverage_session	1	STABLE_ONLY	0.05691	2	True	
+E3	runway_phase_sec	0	CONFLICT_census_vs_measured	-0.05466	2	True	runway: room-to-travel is the capacity channel
+E3	runway_sess_sec	0	CONFLICT_census_vs_measured	-0.05467	2	True	runway: room-to-travel is the capacity channel
+E3	runway_frac	0	CONFLICT_census_vs_measured	-0.05453	2	True	runway: room-to-travel is the capacity channel
+E3	phase_age_sec	1	STABLE_ONLY	0.05417	2	True	
+E3	p033_product	-1	STABLE_ONLY	-0.02626	2	True	
+E3	p033_sqrt	-1	STABLE_ONLY	-0.02626	2	True	
+E3	clock_sec	1	STABLE_ONLY	0.04173	2	True	
+E3	clock_sin	-1	STABLE_ONLY	-0.02418	2	True	
+E3	dec_sec	1	STABLE_ONLY	0.05467	2	True	
+E3	mins_to_release	1	STABLE_ONLY	0.04714	2	True	
+E3	abs_mins_to_release	-1	STABLE_ONLY	-0.01271	2	True	
+E3	post_news_10_20	1	STABLE_ONLY	0.03742	2	True	
+E3	release_age_sec	1	STABLE_ONLY	0.04074	2	True	
+E3	event_in_phase	1	STABLE_ONLY	0.07177	2	True	
+E3	nd_in_census	1	STABLE_ONLY	0.04862	2	True	
+E3	nd_mins_to_next	-1	STABLE_ONLY	-0.24396	2	True	
+E3	nd_mins_since_any	1	STABLE_ONLY	0.24396	2	True	
+E3	fev_n	1	STABLE_ONLY	0.09758	2	True	
+E3	fev_vol	1	STABLE_ONLY	0.09763	2	True	
+E3	n_conf_fam_at_refail	1	STABLE_ONLY	0.01509	2	True	
+E3	n_conf_fam_at_refail_2t	1	STABLE_ONLY	0.01372	2	True	
+E3	refail_dist_usd	1	STABLE_ONLY	0.02031	2	True	
+E3	refail_age_sec	-1	STABLE_ONLY	-0.01245	2	True	
+E3	pivot_age_sec	-1	STABLE_ONLY	-0.01779	2	True	
+E3	n_level_fams	1	STABLE_ONLY	0.04392	2	True	
+E3	thru_n	1	STABLE_ONLY	0.01992	2	True	
+E3	thru_bid	1	STABLE_ONLY	0.02283	2	True	
+E3	thru_ask	1	STABLE_ONLY	0.01824	2	True	
+E3	fuel_above	1	STABLE_ONLY	0.0295	2	True	
+E3	fuel_below	1	STABLE_ONLY	0.03014	2	True	
+E3	fuel_total	1	STABLE_ONLY	0.0542	2	True	
+E3	fuel_share_with	1	CENSUS+STABLE	0.16947	2	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E3	in_va	1	STABLE_ONLY	0.02562	2	True	
+E3	xa_SI_age_sec	1	STABLE_ONLY	0.04988	2	True	
+E3	xa_SI_rv1800	1	STABLE_ONLY	0.03416	2	True	
+E3	xa_SI_fuel_share_above	1	CENSUS+STABLE	0.03206	2	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E3	xa_SI_range_so_far	1	STABLE_ONLY	0.02716	2	True	
+E3	xa_SI_slope5m	1	STABLE_ONLY	0.02995	2	True	
+E3	xa_SI_sflow_phase	1	STABLE_ONLY	0.02985	2	True	
+E3	xa_HG_age_sec	1	STABLE_ONLY	0.04453	2	True	
+E3	xa_HG_rv1800	1	STABLE_ONLY	0.03262	2	True	
+E3	xa_HG_fuel_share_above	1	CENSUS+STABLE	0.01723	2	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E3	xa_HG_range_so_far	1	STABLE_ONLY	0.01029	2	True	
+E3	xa_HG_slope5m	1	STABLE_ONLY	0.02091	2	True	
+E3	xa_HG_sflow_phase	1	STABLE_ONLY	0.02694	2	True	
+E3	xa_NKD_age_sec	1	STABLE_ONLY	0.04716	2	True	
+E3	xa_NKD_rv1800	1	STABLE_ONLY	0.02816	2	True	
+E3	xa_NKD_fuel_share_above	1	CENSUS+STABLE	0.02531	2	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E3	xa_NKD_range_so_far	1	STABLE_ONLY	0.01239	2	True	
+E3	xa_NKD_slope5m	1	STABLE_ONLY	0.02131	2	True	
+E3	xa_NKD_sflow_phase	1	STABLE_ONLY	0.01633	2	True	
+E3	day_type	1	STABLE_ONLY	0.06482	2	True	
+E3	day_type_frac	1	STABLE_ONLY	0.0569	2	True	
+E3	ladder_band	1	STABLE_ONLY	0.0533	2	True	
+E3	surprise	1	STABLE_ONLY	0.0549	2	True	
+E3	range_so_far_usd	1	STABLE_ONLY	0.0569	2	True	
+E3	spread_dec_usd	0	CONFLICT_census_vs_measured	0.01376	2	True	wider spread = worse fill, mechanical
+E3	side	1	STABLE_ONLY	0.02961	2	True	
+E3	slope_1m_with	-1	STABLE_ONLY	-0.02988	2	True	
+E3	slope_5m_with	-1	STABLE_ONLY	-0.03947	2	True	
+E3	f5m_sflow_with	-1	STABLE_ONLY	-0.01314	2	True	
+E3	f30m_n	1	STABLE_ONLY	0.01993	2	True	
+E3	f30m_vol	1	CENSUS+STABLE	0.02146	2	True	TAPE_SPIKE 1.462 / AGG_PRINT_60 1.306 (flow concentrates)
+E3	f30m_sflow_with	-1	STABLE_ONLY	-0.04606	2	True	
+E3	fph_n	1	STABLE_ONLY	0.0542	2	True	
+E3	fph_vol	1	STABLE_ONLY	0.0542	2	True	
+E3	fph_sflow_with	-1	STABLE_ONLY	-0.09745	2	True	
+E3	flow_disagree_30m	1	STABLE_ONLY	0.02845	2	True	
+E3	flow_disagree_5m	1	STABLE_ONLY	0.03543	2	True	
+E3	extreme_age_sec	-1	STABLE_ONLY	-0.07079	2	True	
+E3	ext_needed_usd	-1	STABLE_ONLY	-0.17701	2	True	
+E3	room_with_usd	1	CENSUS+STABLE	0.19885	2	True	capacity: SEAT_LIVE 1.31-1.69x, 8/8 eras
+E3	room_against_usd	-1	STABLE_ONLY	-0.1453	2	True	
+E3	ret_sess_open_with	-1	STABLE_ONLY	-0.29256	2	True	
+E3	ret_phase_open_with	-1	STABLE_ONLY	-0.25969	2	True	
+E3	prev_phase_ret_with	1	STABLE_ONLY	0.01052	2	True	
+E3	conf_to_dec_sec	1	STABLE_ONLY	0.0408	2	True	
+E3	ep_is_earliest	1	STABLE_ONLY	0.01244	2	True	
+E3	ep_rank	1	STABLE_ONLY	0.01945	2	True	
+E3	ep_age_sec	1	STABLE_ONLY	0.01618	2	True	
+E3	cell_rank_so_far	1	STABLE_ONLY	0.05467	2	True	
+E3	cell_is_open_row	1	STABLE_ONLY	0.03566	2	True	
+E3	cell_age_sec	1	STABLE_ONLY	0.05467	2	True	
+E3	sess_rank_so_far	1	STABLE_ONLY	0.05467	2	True	
+E4	cls_SHOCK_RESOLUTION	1	STABLE_ONLY	0.04456	3	True	
+E4	cls_LEVEL_FIRST_TEST	1	STABLE_ONLY	0.03831	3	True	
+E4	cls_NEWS_WINDOW	1	STABLE_ONLY	0.0383	3	True	
+E4	cls_OPEN_DYNAMICS	1	STABLE_ONLY	0.03109	3	True	
+E4	cls_REVERSAL_CONFIRMATION	1	STABLE_ONLY	0.03147	3	True	
+E4	cls_RECLAIM	1	STABLE_ONLY	0.04565	3	True	
+E4	fam_G1_FINE	1	STABLE_ONLY	0.02772	3	True	
+E4	fam_G1_FAST_OPEN	1	STABLE_ONLY	0.02885	3	True	
+E4	fam_G2_REJECT	1	STABLE_ONLY	0.04055	3	True	
+E4	fam_G2_RECLAIM	1	STABLE_ONLY	0.04553	3	True	
+E4	fam_NEWS_WINDOW	1	STABLE_ONLY	0.0383	3	True	
+E4	fam_MICRO_OPEN	1	STABLE_ONLY	0.04281	3	True	
+E4	fam_POST_SHOCK	1	STABLE_ONLY	0.04456	3	True	
+E4	fam_FIRST_TEST	1	STABLE_ONLY	0.03831	3	True	
+E4	rung_0.05	1	STABLE_ONLY	0.02435	3	True	
+E4	rung_0.075	1	STABLE_ONLY	0.02405	3	True	
+E4	rung_0.11	1	STABLE_ONLY	0.02404	3	True	
+E4	rung_0.15	1	STABLE_ONLY	0.0251	3	True	
+E4	levfam_FVOL_LADDER	1	STABLE_ONLY	0.04026	3	True	
+E4	levfam_FVOL_BAND	1	STABLE_ONLY	0.04253	3	True	
+E4	levfam_NDAY	1	STABLE_ONLY	0.04799	3	True	
+E4	levfam_PRIOR_DAY	1	STABLE_ONLY	0.04356	3	True	
+E4	levfam_PHASE_HL	1	STABLE_ONLY	0.04049	3	True	
+E4	levfam_VWAP	1	STABLE_ONLY	0.04076	3	True	
+E4	levfam_OR_EXT	1	STABLE_ONLY	0.04423	3	True	
+E4	flag_OREXT_BEYOND	1	STABLE_ONLY	0.03624	3	True	
+E4	flag_OREXT_BEYOND_ANY	1	STABLE_ONLY	0.04532	3	True	
+E4	flag_FIRST_TEST_VIRGIN	1	STABLE_ONLY	0.04331	3	True	
+E4	rv1800_usd	1	STABLE_ONLY	0.01566	3	True	
+E4	rv_ratio	1	STABLE_ONLY	0.01824	3	True	
+E4	unspent_sess_usd	0	CONFLICT_census_vs_measured	-0.07278	3	True	capacity: unspent session dollars = room left
+E4	coverage_phase	1	STABLE_ONLY	0.05613	3	True	
+E4	coverage_session	1	STABLE_ONLY	0.05803	3	True	
+E4	runway_phase_sec	0	CONFLICT_census_vs_measured	-0.05575	3	True	runway: room-to-travel is the capacity channel
+E4	runway_sess_sec	0	CONFLICT_census_vs_measured	-0.05576	3	True	runway: room-to-travel is the capacity channel
+E4	runway_frac	0	CONFLICT_census_vs_measured	-0.05568	3	True	runway: room-to-travel is the capacity channel
+E4	phase_age_sec	1	STABLE_ONLY	0.0555	3	True	
+E4	p033_product	-1	STABLE_ONLY	-0.02731	3	True	
+E4	p033_sqrt	-1	STABLE_ONLY	-0.02731	3	True	
+E4	clock_sec	1	STABLE_ONLY	0.04254	3	True	
+E4	clock_sin	-1	STABLE_ONLY	-0.02591	3	True	
+E4	dec_sec	1	STABLE_ONLY	0.05576	3	True	
+E4	mins_to_release	1	STABLE_ONLY	0.04889	3	True	
+E4	abs_mins_to_release	-1	STABLE_ONLY	-0.01272	3	True	
+E4	post_news_10_20	1	STABLE_ONLY	0.03091	3	True	
+E4	release_age_sec	1	STABLE_ONLY	0.04165	3	True	
+E4	event_in_phase	1	STABLE_ONLY	0.07309	3	True	
+E4	nd_mins_to_next	-1	STABLE_ONLY	-0.27886	3	True	
+E4	nd_mins_since_any	1	STABLE_ONLY	0.27908	3	True	
+E4	fev_n	1	STABLE_ONLY	0.09927	3	True	
+E4	fev_vol	1	STABLE_ONLY	0.09931	3	True	
+E4	n_conf_fam_at_refail	1	STABLE_ONLY	0.01551	3	True	
+E4	n_conf_fam_at_refail_2t	1	STABLE_ONLY	0.01386	3	True	
+E4	refail_dist_usd	1	STABLE_ONLY	0.01436	3	True	
+E4	refail_age_sec	-1	STABLE_ONLY	-0.01041	3	True	
+E4	pivot_age_sec	-1	STABLE_ONLY	-0.01579	3	True	
+E4	n_level_fams	1	STABLE_ONLY	0.04338	3	True	
+E4	thru_n	1	STABLE_ONLY	0.0194	3	True	
+E4	thru_bid	1	STABLE_ONLY	0.02118	3	True	
+E4	thru_ask	1	STABLE_ONLY	0.01895	3	True	
+E4	c2f_60	1	STABLE_ONLY	0.0119	3	True	
+E4	fuel_above	1	STABLE_ONLY	0.02974	3	True	
+E4	fuel_below	1	STABLE_ONLY	0.03517	3	True	
+E4	fuel_total	1	STABLE_ONLY	0.05554	3	True	
+E4	fuel_share_with	1	CENSUS+STABLE	0.17693	3	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E4	in_va	1	STABLE_ONLY	0.02648	3	True	
+E4	xa_SI_age_sec	1	STABLE_ONLY	0.05106	3	True	
+E4	xa_SI_rv1800	1	STABLE_ONLY	0.03326	3	True	
+E4	xa_SI_fuel_share_above	1	CENSUS+STABLE	0.02903	3	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E4	xa_SI_range_so_far	1	STABLE_ONLY	0.02386	3	True	
+E4	xa_SI_slope5m	1	STABLE_ONLY	0.0275	3	True	
+E4	xa_SI_sflow_phase	1	STABLE_ONLY	0.02837	3	True	
+E4	xa_HG_age_sec	1	STABLE_ONLY	0.04404	3	True	
+E4	xa_HG_rv1800	1	STABLE_ONLY	0.03399	3	True	
+E4	xa_HG_fuel_share_above	1	CENSUS+STABLE	0.01489	3	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E4	xa_HG_slope5m	1	STABLE_ONLY	0.01789	3	True	
+E4	xa_HG_sflow_phase	1	STABLE_ONLY	0.02388	3	True	
+E4	xa_NKD_age_sec	1	STABLE_ONLY	0.04814	3	True	
+E4	xa_NKD_rv1800	1	STABLE_ONLY	0.03453	3	True	
+E4	xa_NKD_fuel_share_above	1	CENSUS+STABLE	0.03014	3	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E4	xa_NKD_range_so_far	1	STABLE_ONLY	0.01677	3	True	
+E4	xa_NKD_slope5m	1	STABLE_ONLY	0.02679	3	True	
+E4	xa_NKD_sflow_phase	1	STABLE_ONLY	0.02303	3	True	
+E4	day_type	1	STABLE_ONLY	0.06093	3	True	
+E4	day_type_frac	1	STABLE_ONLY	0.05803	3	True	
+E4	ladder_band	1	STABLE_ONLY	0.05511	3	True	
+E4	surprise	1	STABLE_ONLY	0.05613	3	True	
+E4	range_so_far_usd	1	STABLE_ONLY	0.05803	3	True	
+E4	spread_dec_usd	0	CONFLICT_census_vs_measured	0.01553	3	True	wider spread = worse fill, mechanical
+E4	side	1	STABLE_ONLY	0.03275	3	True	
+E4	slope_1m_with	-1	STABLE_ONLY	-0.03259	3	True	
+E4	slope_5m_with	-1	STABLE_ONLY	-0.04176	3	True	
+E4	f5m_sflow_with	-1	STABLE_ONLY	-0.01505	3	True	
+E4	f30m_n	1	STABLE_ONLY	0.01977	3	True	
+E4	f30m_vol	1	CENSUS+STABLE	0.0213	3	True	TAPE_SPIKE 1.462 / AGG_PRINT_60 1.306 (flow concentrates)
+E4	f30m_sflow_with	-1	STABLE_ONLY	-0.05193	3	True	
+E4	fph_n	1	STABLE_ONLY	0.05553	3	True	
+E4	fph_vol	1	STABLE_ONLY	0.05554	3	True	
+E4	fph_sflow_with	-1	STABLE_ONLY	-0.11163	3	True	
+E4	flow_disagree_30m	1	STABLE_ONLY	0.03023	3	True	
+E4	flow_disagree_5m	1	STABLE_ONLY	0.03754	3	True	
+E4	extreme_age_sec	-1	STABLE_ONLY	-0.07038	3	True	
+E4	ext_needed_usd	-1	STABLE_ONLY	-0.18595	3	True	
+E4	room_with_usd	1	CENSUS+STABLE	0.20675	3	True	capacity: SEAT_LIVE 1.31-1.69x, 8/8 eras
+E4	room_against_usd	-1	STABLE_ONLY	-0.15159	3	True	
+E4	ret_sess_open_with	-1	STABLE_ONLY	-0.29621	3	True	
+E4	ret_phase_open_with	-1	STABLE_ONLY	-0.26198	3	True	
+E4	prev_phase_ret_with	1	STABLE_ONLY	0.01265	3	True	
+E4	conf_to_dec_sec	1	STABLE_ONLY	0.04188	3	True	
+E4	ep_is_earliest	1	STABLE_ONLY	0.0148	3	True	
+E4	ep_rank	1	STABLE_ONLY	0.01774	3	True	
+E4	ep_age_sec	1	STABLE_ONLY	0.01506	3	True	
+E4	cell_rank_so_far	1	STABLE_ONLY	0.05576	3	True	
+E4	cell_is_open_row	1	STABLE_ONLY	0.03672	3	True	
+E4	cell_age_sec	1	STABLE_ONLY	0.05576	3	True	
+E4	sess_rank_so_far	1	STABLE_ONLY	0.05576	3	True	
+E5	cls_SHOCK_RESOLUTION	1	STABLE_ONLY	0.04315	4	True	
+E5	cls_LEVEL_FIRST_TEST	1	STABLE_ONLY	0.03875	4	True	
+E5	cls_NEWS_WINDOW	1	STABLE_ONLY	0.03632	4	True	
+E5	cls_OPEN_DYNAMICS	1	STABLE_ONLY	0.03058	4	True	
+E5	cls_REVERSAL_CONFIRMATION	1	STABLE_ONLY	0.02947	4	True	
+E5	cls_RECLAIM	1	STABLE_ONLY	0.04474	4	True	
+E5	fam_G1_FINE	1	STABLE_ONLY	0.02588	4	True	
+E5	fam_G1_FAST_OPEN	1	STABLE_ONLY	0.02875	4	True	
+E5	fam_G2_REJECT	1	STABLE_ONLY	0.03956	4	True	
+E5	fam_G2_RECLAIM	1	STABLE_ONLY	0.04468	4	True	
+E5	fam_NEWS_WINDOW	1	STABLE_ONLY	0.03632	4	True	
+E5	fam_MICRO_OPEN	1	STABLE_ONLY	0.04189	4	True	
+E5	fam_POST_SHOCK	1	STABLE_ONLY	0.04315	4	True	
+E5	fam_FIRST_TEST	1	STABLE_ONLY	0.03875	4	True	
+E5	rung_0.05	1	STABLE_ONLY	0.02295	4	True	
+E5	rung_0.075	1	STABLE_ONLY	0.02267	4	True	
+E5	rung_0.11	1	STABLE_ONLY	0.02268	4	True	
+E5	rung_0.15	1	STABLE_ONLY	0.02294	4	True	
+E5	levfam_FVOL_LADDER	1	STABLE_ONLY	0.03842	4	True	
+E5	levfam_FVOL_BAND	1	STABLE_ONLY	0.03969	4	True	
+E5	levfam_NDAY	1	STABLE_ONLY	0.04983	4	True	
+E5	levfam_PRIOR_DAY	1	STABLE_ONLY	0.04272	4	True	
+E5	levfam_PHASE_HL	1	STABLE_ONLY	0.04085	4	True	
+E5	levfam_VWAP	1	STABLE_ONLY	0.03832	4	True	
+E5	levfam_OR_EXT	1	STABLE_ONLY	0.046	4	True	
+E5	flag_OREXT_BEYOND	1	STABLE_ONLY	0.03487	4	True	
+E5	flag_OREXT_BEYOND_ANY	1	STABLE_ONLY	0.04355	4	True	
+E5	flag_FIRST_TEST_VIRGIN	1	STABLE_ONLY	0.04473	4	True	
+E5	rv1800_usd	1	STABLE_ONLY	0.01613	4	True	
+E5	rv_ratio	1	STABLE_ONLY	0.01659	4	True	
+E5	unspent_sess_usd	0	CONFLICT_census_vs_measured	-0.0695	4	True	capacity: unspent session dollars = room left
+E5	coverage_phase	1	STABLE_ONLY	0.05309	4	True	
+E5	coverage_session	1	STABLE_ONLY	0.05567	4	True	
+E5	runway_phase_sec	0	CONFLICT_census_vs_measured	-0.05266	4	True	runway: room-to-travel is the capacity channel
+E5	runway_sess_sec	0	CONFLICT_census_vs_measured	-0.05266	4	True	runway: room-to-travel is the capacity channel
+E5	runway_frac	0	CONFLICT_census_vs_measured	-0.0526	4	True	runway: room-to-travel is the capacity channel
+E5	phase_age_sec	1	STABLE_ONLY	0.05245	4	True	
+E5	p033_product	-1	STABLE_ONLY	-0.02412	4	True	
+E5	p033_sqrt	-1	STABLE_ONLY	-0.02412	4	True	
+E5	clock_sec	1	STABLE_ONLY	0.0394	4	True	
+E5	clock_sin	-1	STABLE_ONLY	-0.02356	4	True	
+E5	dec_sec	1	STABLE_ONLY	0.05266	4	True	
+E5	mins_to_release	1	STABLE_ONLY	0.04634	4	True	
+E5	abs_mins_to_release	-1	STABLE_ONLY	-0.01114	4	True	
+E5	post_news_10_20	1	STABLE_ONLY	0.032	4	True	
+E5	release_age_sec	1	STABLE_ONLY	0.03975	4	True	
+E5	event_in_phase	1	STABLE_ONLY	0.06704	4	True	
+E5	nd_mins_to_next	-1	STABLE_ONLY	-0.23277	4	True	
+E5	nd_mins_since_any	1	STABLE_ONLY	0.23271	4	True	
+E5	fev_n	1	STABLE_ONLY	0.09543	4	True	
+E5	fev_vol	1	STABLE_ONLY	0.09546	4	True	
+E5	n_conf_fam_at_refail	1	STABLE_ONLY	0.01569	4	True	
+E5	n_conf_fam_at_refail_2t	1	STABLE_ONLY	0.01161	4	True	
+E5	refail_dist_usd	1	STABLE_ONLY	0.01587	4	True	
+E5	refail_age_sec	-1	STABLE_ONLY	-0.01139	4	True	
+E5	pivot_age_sec	-1	STABLE_ONLY	-0.01645	4	True	
+E5	n_level_fams	1	STABLE_ONLY	0.04279	4	True	
+E5	thru_n	1	STABLE_ONLY	0.01987	4	True	
+E5	thru_bid	1	STABLE_ONLY	0.0214	4	True	
+E5	thru_ask	1	STABLE_ONLY	0.01992	4	True	
+E5	c2f_60	1	STABLE_ONLY	0.01132	4	True	
+E5	fuel_above	1	STABLE_ONLY	0.02748	4	True	
+E5	fuel_below	1	STABLE_ONLY	0.03187	4	True	
+E5	fuel_total	1	STABLE_ONLY	0.05247	4	True	
+E5	fuel_share_with	1	CENSUS+STABLE	0.17861	4	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E5	in_va	1	STABLE_ONLY	0.02426	4	True	
+E5	xa_SI_age_sec	1	STABLE_ONLY	0.04689	4	True	
+E5	xa_SI_rv1800	1	STABLE_ONLY	0.02904	4	True	
+E5	xa_SI_fuel_share_above	1	CENSUS+STABLE	0.02533	4	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E5	xa_SI_range_so_far	1	STABLE_ONLY	0.02104	4	True	
+E5	xa_SI_slope5m	1	STABLE_ONLY	0.02549	4	True	
+E5	xa_SI_sflow_phase	1	STABLE_ONLY	0.02584	4	True	
+E5	xa_HG_age_sec	1	STABLE_ONLY	0.04194	4	True	
+E5	xa_HG_rv1800	1	STABLE_ONLY	0.03077	4	True	
+E5	xa_HG_fuel_share_above	1	CENSUS+STABLE	0.0138	4	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E5	xa_HG_slope5m	1	STABLE_ONLY	0.01762	4	True	
+E5	xa_HG_sflow_phase	1	STABLE_ONLY	0.02053	4	True	
+E5	xa_NKD_age_sec	1	STABLE_ONLY	0.04428	4	True	
+E5	xa_NKD_rv1800	1	STABLE_ONLY	0.029	4	True	
+E5	xa_NKD_fuel_share_above	1	CENSUS+STABLE	0.02609	4	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E5	xa_NKD_slope5m	1	STABLE_ONLY	0.02258	4	True	
+E5	xa_NKD_sflow_phase	1	STABLE_ONLY	0.02044	4	True	
+E5	day_type	1	STABLE_ONLY	0.05777	4	True	
+E5	day_type_frac	1	STABLE_ONLY	0.05567	4	True	
+E5	ladder_band	1	STABLE_ONLY	0.05309	4	True	
+E5	surprise	1	STABLE_ONLY	0.05309	4	True	
+E5	range_so_far_usd	1	STABLE_ONLY	0.05567	4	True	
+E5	spread_dec_usd	0	CONFLICT_census_vs_measured	0.01547	4	True	wider spread = worse fill, mechanical
+E5	side	1	STABLE_ONLY	0.04045	4	True	
+E5	slope_1m_with	-1	STABLE_ONLY	-0.03285	4	True	
+E5	slope_5m_with	-1	STABLE_ONLY	-0.03975	4	True	
+E5	f5m_sflow_with	-1	STABLE_ONLY	-0.01479	4	True	
+E5	f30m_n	1	STABLE_ONLY	0.02026	4	True	
+E5	f30m_vol	1	CENSUS+STABLE	0.0218	4	True	TAPE_SPIKE 1.462 / AGG_PRINT_60 1.306 (flow concentrates)
+E5	f30m_sflow_with	-1	STABLE_ONLY	-0.0535	4	True	
+E5	fph_n	1	STABLE_ONLY	0.05248	4	True	
+E5	fph_vol	1	STABLE_ONLY	0.05247	4	True	
+E5	fph_sflow_with	-1	STABLE_ONLY	-0.11459	4	True	
+E5	flow_disagree_30m	1	STABLE_ONLY	0.02945	4	True	
+E5	flow_disagree_5m	1	STABLE_ONLY	0.03593	4	True	
+E5	extreme_age_sec	-1	STABLE_ONLY	-0.07424	4	True	
+E5	ext_needed_usd	-1	STABLE_ONLY	-0.18811	4	True	
+E5	room_with_usd	1	CENSUS+STABLE	0.20783	4	True	capacity: SEAT_LIVE 1.31-1.69x, 8/8 eras
+E5	room_against_usd	-1	STABLE_ONLY	-0.15465	4	True	
+E5	ret_sess_open_with	-1	STABLE_ONLY	-0.29784	4	True	
+E5	ret_phase_open_with	-1	STABLE_ONLY	-0.26637	4	True	
+E5	prev_phase_ret_with	1	STABLE_ONLY	0.0196	4	True	
+E5	conf_to_dec_sec	1	STABLE_ONLY	0.03963	4	True	
+E5	ep_is_earliest	1	STABLE_ONLY	0.01314	4	True	
+E5	ep_rank	1	STABLE_ONLY	0.01813	4	True	
+E5	ep_age_sec	1	STABLE_ONLY	0.01508	4	True	
+E5	cell_rank_so_far	1	STABLE_ONLY	0.05266	4	True	
+E5	cell_is_open_row	1	STABLE_ONLY	0.03342	4	True	
+E5	cell_age_sec	1	STABLE_ONLY	0.05266	4	True	
+E5	sess_rank_so_far	1	STABLE_ONLY	0.05266	4	True	
+E6	cls_SHOCK_RESOLUTION	1	STABLE_ONLY	0.03825	5	True	
+E6	cls_LEVEL_FIRST_TEST	1	STABLE_ONLY	0.03895	5	True	
+E6	cls_NEWS_WINDOW	1	STABLE_ONLY	0.03267	5	True	
+E6	cls_OPEN_DYNAMICS	1	STABLE_ONLY	0.02947	5	True	
+E6	cls_REVERSAL_CONFIRMATION	1	STABLE_ONLY	0.02712	5	True	
+E6	cls_RECLAIM	1	STABLE_ONLY	0.04279	5	True	
+E6	fam_G1_FINE	1	STABLE_ONLY	0.02443	5	True	
+E6	fam_G1_FAST_OPEN	1	STABLE_ONLY	0.02722	5	True	
+E6	fam_G2_REJECT	1	STABLE_ONLY	0.03846	5	True	
+E6	fam_G2_RECLAIM	1	STABLE_ONLY	0.04282	5	True	
+E6	fam_NEWS_WINDOW	1	STABLE_ONLY	0.03267	5	True	
+E6	fam_MICRO_OPEN	1	STABLE_ONLY	0.0405	5	True	
+E6	fam_POST_SHOCK	1	STABLE_ONLY	0.03825	5	True	
+E6	fam_FIRST_TEST	1	STABLE_ONLY	0.03895	5	True	
+E6	rung_0.05	1	STABLE_ONLY	0.02169	5	True	
+E6	rung_0.075	1	STABLE_ONLY	0.02058	5	True	
+E6	rung_0.11	1	STABLE_ONLY	0.02051	5	True	
+E6	rung_0.15	1	STABLE_ONLY	0.02069	5	True	
+E6	levfam_FVOL_LADDER	1	STABLE_ONLY	0.03625	5	True	
+E6	levfam_FVOL_BAND	1	STABLE_ONLY	0.03776	5	True	
+E6	levfam_NDAY	1	STABLE_ONLY	0.0445	5	True	
+E6	levfam_PRIOR_DAY	1	STABLE_ONLY	0.03958	5	True	
+E6	levfam_PHASE_HL	1	STABLE_ONLY	0.03828	5	True	
+E6	levfam_VWAP	1	STABLE_ONLY	0.03703	5	True	
+E6	levfam_OR_EXT	1	STABLE_ONLY	0.04	5	True	
+E6	flag_OREXT_BEYOND	1	STABLE_ONLY	0.03175	5	True	
+E6	flag_OREXT_BEYOND_ANY	1	STABLE_ONLY	0.04024	5	True	
+E6	flag_FIRST_TEST_VIRGIN	1	STABLE_ONLY	0.0445	5	True	
+E6	rv1800_usd	1	STABLE_ONLY	0.01456	5	True	
+E6	rv_ratio	1	STABLE_ONLY	0.01392	5	True	
+E6	unspent_sess_usd	0	CONFLICT_census_vs_measured	-0.06709	5	True	capacity: unspent session dollars = room left
+E6	coverage_phase	1	STABLE_ONLY	0.04991	5	True	
+E6	coverage_session	1	STABLE_ONLY	0.05302	5	True	
+E6	runway_phase_sec	0	CONFLICT_census_vs_measured	-0.04937	5	True	runway: room-to-travel is the capacity channel
+E6	runway_sess_sec	0	CONFLICT_census_vs_measured	-0.04937	5	True	runway: room-to-travel is the capacity channel
+E6	runway_frac	0	CONFLICT_census_vs_measured	-0.04939	5	True	runway: room-to-travel is the capacity channel
+E6	phase_age_sec	1	STABLE_ONLY	0.04929	5	True	
+E6	p033_product	-1	STABLE_ONLY	-0.02268	5	True	
+E6	p033_sqrt	-1	STABLE_ONLY	-0.02268	5	True	
+E6	clock_sec	1	STABLE_ONLY	0.03656	5	True	
+E6	clock_sin	-1	STABLE_ONLY	-0.02135	5	True	
+E6	dec_sec	1	STABLE_ONLY	0.04937	5	True	
+E6	mins_to_release	1	STABLE_ONLY	0.04348	5	True	
+E6	abs_mins_to_release	-1	STABLE_ONLY	-0.01018	5	True	
+E6	post_news_10_20	1	STABLE_ONLY	0.02865	5	True	
+E6	release_age_sec	1	STABLE_ONLY	0.03804	5	True	
+E6	event_in_phase	1	STABLE_ONLY	0.06214	5	True	
+E6	nd_mins_to_next	-1	STABLE_ONLY	-0.21669	5	True	
+E6	nd_mins_since_any	1	STABLE_ONLY	0.21677	5	True	
+E6	fev_n	1	STABLE_ONLY	0.09121	5	True	
+E6	fev_vol	1	STABLE_ONLY	0.09115	5	True	
+E6	n_conf_fam_at_refail	1	STABLE_ONLY	0.01261	5	True	
+E6	refail_dist_usd	1	STABLE_ONLY	0.01666	5	True	
+E6	refail_age_sec	-1	STABLE_ONLY	-0.01191	5	True	
+E6	pivot_age_sec	-1	STABLE_ONLY	-0.01623	5	True	
+E6	n_level_fams	1	STABLE_ONLY	0.04152	5	True	
+E6	thru_n	1	STABLE_ONLY	0.01919	5	True	
+E6	thru_bid	1	STABLE_ONLY	0.02109	5	True	
+E6	thru_ask	1	STABLE_ONLY	0.019	5	True	
+E6	thru_imb	1	STABLE_ONLY	0.01034	5	True	
+E6	c2f_60	1	STABLE_ONLY	0.01281	5	True	
+E6	fuel_above	1	STABLE_ONLY	0.0248	5	True	
+E6	fuel_below	1	STABLE_ONLY	0.02919	5	True	
+E6	fuel_total	1	STABLE_ONLY	0.04932	5	True	
+E6	fuel_share_with	1	CENSUS+STABLE	0.17582	5	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E6	in_va	1	STABLE_ONLY	0.02188	5	True	
+E6	xa_SI_age_sec	1	STABLE_ONLY	0.04315	5	True	
+E6	xa_SI_rv1800	1	STABLE_ONLY	0.02908	5	True	
+E6	xa_SI_fuel_share_above	1	CENSUS+STABLE	0.02441	5	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E6	xa_SI_range_so_far	1	STABLE_ONLY	0.01887	5	True	
+E6	xa_SI_slope5m	1	STABLE_ONLY	0.0247	5	True	
+E6	xa_SI_sflow_phase	1	STABLE_ONLY	0.02514	5	True	
+E6	xa_HG_age_sec	1	STABLE_ONLY	0.03974	5	True	
+E6	xa_HG_rv1800	1	STABLE_ONLY	0.0293	5	True	
+E6	xa_HG_fuel_share_above	1	CENSUS+STABLE	0.01195	5	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E6	xa_HG_slope5m	1	STABLE_ONLY	0.01863	5	True	
+E6	xa_HG_sflow_phase	1	STABLE_ONLY	0.02025	5	True	
+E6	xa_NKD_age_sec	1	STABLE_ONLY	0.04189	5	True	
+E6	xa_NKD_rv1800	1	STABLE_ONLY	0.02609	5	True	
+E6	xa_NKD_fuel_share_above	1	CENSUS+STABLE	0.02359	5	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E6	xa_NKD_slope5m	1	STABLE_ONLY	0.02049	5	True	
+E6	xa_NKD_sflow_phase	1	STABLE_ONLY	0.01941	5	True	
+E6	day_type	1	STABLE_ONLY	0.05378	5	True	
+E6	day_type_frac	1	STABLE_ONLY	0.05301	5	True	
+E6	ladder_band	1	STABLE_ONLY	0.04986	5	True	
+E6	surprise	1	STABLE_ONLY	0.04991	5	True	
+E6	range_so_far_usd	1	STABLE_ONLY	0.05301	5	True	
+E6	spread_dec_usd	0	CONFLICT_census_vs_measured	0.01429	5	True	wider spread = worse fill, mechanical
+E6	side	1	STABLE_ONLY	0.03483	5	True	
+E6	slope_1m_with	-1	STABLE_ONLY	-0.03326	5	True	
+E6	slope_5m_with	-1	STABLE_ONLY	-0.03952	5	True	
+E6	f5m_sflow_with	-1	STABLE_ONLY	-0.01595	5	True	
+E6	f30m_n	1	STABLE_ONLY	0.02012	5	True	
+E6	f30m_vol	1	CENSUS+STABLE	0.0215	5	True	TAPE_SPIKE 1.462 / AGG_PRINT_60 1.306 (flow concentrates)
+E6	f30m_sflow_with	-1	STABLE_ONLY	-0.05511	5	True	
+E6	fph_n	1	STABLE_ONLY	0.04932	5	True	
+E6	fph_vol	1	STABLE_ONLY	0.04932	5	True	
+E6	fph_sflow_with	-1	STABLE_ONLY	-0.10877	5	True	
+E6	flow_disagree_30m	1	STABLE_ONLY	0.02656	5	True	
+E6	flow_disagree_5m	1	STABLE_ONLY	0.03449	5	True	
+E6	extreme_age_sec	-1	STABLE_ONLY	-0.07367	5	True	
+E6	ext_needed_usd	-1	STABLE_ONLY	-0.18545	5	True	
+E6	room_with_usd	1	CENSUS+STABLE	0.20388	5	True	capacity: SEAT_LIVE 1.31-1.69x, 8/8 eras
+E6	room_against_usd	-1	STABLE_ONLY	-0.15435	5	True	
+E6	ret_sess_open_with	-1	STABLE_ONLY	-0.29901	5	True	
+E6	ret_phase_open_with	-1	STABLE_ONLY	-0.26199	5	True	
+E6	prev_phase_ret_with	1	STABLE_ONLY	0.01939	5	True	
+E6	conf_to_dec_sec	1	STABLE_ONLY	0.03786	5	True	
+E6	ep_is_earliest	1	STABLE_ONLY	0.01095	5	True	
+E6	ep_rank	1	STABLE_ONLY	0.01754	5	True	
+E6	ep_age_sec	1	STABLE_ONLY	0.01406	5	True	
+E6	cell_rank_so_far	1	STABLE_ONLY	0.04937	5	True	
+E6	cell_is_open_row	1	STABLE_ONLY	0.03134	5	True	
+E6	cell_age_sec	1	STABLE_ONLY	0.04937	5	True	
+E6	sess_rank_so_far	1	STABLE_ONLY	0.04937	5	True	
+E7	cls_SHOCK_RESOLUTION	1	STABLE_ONLY	0.04306	6	True	
+E7	cls_LEVEL_FIRST_TEST	1	STABLE_ONLY	0.0435	6	True	
+E7	cls_NEWS_WINDOW	1	STABLE_ONLY	0.03411	6	True	
+E7	cls_OPEN_DYNAMICS	1	STABLE_ONLY	0.03286	6	True	
+E7	cls_REVERSAL_CONFIRMATION	1	STABLE_ONLY	0.02919	6	True	
+E7	cls_RECLAIM	1	STABLE_ONLY	0.04576	6	True	
+E7	fam_G1_FINE	1	STABLE_ONLY	0.0257	6	True	
+E7	fam_G1_FAST_OPEN	1	STABLE_ONLY	0.03043	6	True	
+E7	fam_G2_REJECT	1	STABLE_ONLY	0.03926	6	True	
+E7	fam_G2_RECLAIM	1	STABLE_ONLY	0.04571	6	True	
+E7	fam_NEWS_WINDOW	1	STABLE_ONLY	0.03411	6	True	
+E7	fam_MICRO_OPEN	1	STABLE_ONLY	0.04483	6	True	
+E7	fam_POST_SHOCK	1	STABLE_ONLY	0.04306	6	True	
+E7	fam_FIRST_TEST	1	STABLE_ONLY	0.04352	6	True	
+E7	rung_0.05	1	STABLE_ONLY	0.02305	6	True	
+E7	rung_0.075	1	STABLE_ONLY	0.02234	6	True	
+E7	rung_0.11	1	STABLE_ONLY	0.02243	6	True	
+E7	rung_0.15	1	STABLE_ONLY	0.02228	6	True	
+E7	levfam_FVOL_LADDER	1	STABLE_ONLY	0.03926	6	True	
+E7	levfam_FVOL_BAND	1	STABLE_ONLY	0.03984	6	True	
+E7	levfam_NDAY	1	STABLE_ONLY	0.04665	6	True	
+E7	levfam_PRIOR_DAY	1	STABLE_ONLY	0.04265	6	True	
+E7	levfam_PHASE_HL	1	STABLE_ONLY	0.04087	6	True	
+E7	levfam_VWAP	1	STABLE_ONLY	0.03902	6	True	
+E7	levfam_OR_EXT	1	STABLE_ONLY	0.04088	6	True	
+E7	flag_OREXT_BEYOND	1	STABLE_ONLY	0.03583	6	True	
+E7	flag_OREXT_BEYOND_ANY	1	STABLE_ONLY	0.04299	6	True	
+E7	flag_FIRST_TEST_VIRGIN	1	STABLE_ONLY	0.05179	6	True	
+E7	rv1800_usd	1	STABLE_ONLY	0.01363	6	True	
+E7	rv_ratio	1	STABLE_ONLY	0.01371	6	True	
+E7	unspent_sess_usd	0	CONFLICT_census_vs_measured	-0.06898	6	True	capacity: unspent session dollars = room left
+E7	coverage_phase	1	STABLE_ONLY	0.05233	6	True	
+E7	coverage_session	1	STABLE_ONLY	0.05621	6	True	
+E7	runway_phase_sec	0	CONFLICT_census_vs_measured	-0.05184	6	True	runway: room-to-travel is the capacity channel
+E7	runway_sess_sec	0	CONFLICT_census_vs_measured	-0.05185	6	True	runway: room-to-travel is the capacity channel
+E7	runway_frac	0	CONFLICT_census_vs_measured	-0.05185	6	True	runway: room-to-travel is the capacity channel
+E7	phase_age_sec	1	STABLE_ONLY	0.05178	6	True	
+E7	p033_product	-1	STABLE_ONLY	-0.0244	6	True	
+E7	p033_sqrt	-1	STABLE_ONLY	-0.0244	6	True	
+E7	clock_sec	1	STABLE_ONLY	0.0382	6	True	
+E7	clock_sin	-1	STABLE_ONLY	-0.01878	6	True	
+E7	dec_sec	1	STABLE_ONLY	0.05185	6	True	
+E7	mins_to_release	1	STABLE_ONLY	0.04517	6	True	
+E7	abs_mins_to_release	-1	STABLE_ONLY	-0.01016	6	True	
+E7	post_news_10_20	1	STABLE_ONLY	0.03023	6	True	
+E7	release_age_sec	1	STABLE_ONLY	0.04043	6	True	
+E7	event_in_phase	1	STABLE_ONLY	0.06512	6	True	
+E7	nd_mins_to_next	-1	STABLE_ONLY	-0.20566	6	True	
+E7	nd_mins_since_any	1	STABLE_ONLY	0.20573	6	True	
+E7	fev_n	1	STABLE_ONLY	0.09455	6	True	
+E7	fev_vol	1	STABLE_ONLY	0.09435	6	True	
+E7	n_conf_fam_at_refail	1	STABLE_ONLY	0.01358	6	True	
+E7	refail_dist_usd	1	STABLE_ONLY	0.01394	6	True	
+E7	refail_age_sec	-1	STABLE_ONLY	-0.0119	6	True	
+E7	pivot_age_sec	-1	STABLE_ONLY	-0.01648	6	True	
+E7	n_level_fams	1	STABLE_ONLY	0.04235	6	True	
+E7	thru_n	1	STABLE_ONLY	0.01884	6	True	
+E7	thru_bid	1	STABLE_ONLY	0.02101	6	True	
+E7	thru_ask	1	STABLE_ONLY	0.01909	6	True	
+E7	thru_imb	1	STABLE_ONLY	0.01059	6	True	
+E7	c2f_60	1	STABLE_ONLY	0.01265	6	True	
+E7	fuel_above	1	STABLE_ONLY	0.02614	6	True	
+E7	fuel_below	1	STABLE_ONLY	0.03053	6	True	
+E7	fuel_total	1	STABLE_ONLY	0.05182	6	True	
+E7	fuel_share_with	1	CENSUS+STABLE	0.17379	6	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E7	in_va	1	STABLE_ONLY	0.02234	6	True	
+E7	xa_SI_age_sec	1	STABLE_ONLY	0.04639	6	True	
+E7	xa_SI_rv1800	1	STABLE_ONLY	0.0277	6	True	
+E7	xa_SI_fuel_share_above	1	CENSUS+STABLE	0.02494	6	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E7	xa_SI_range_so_far	1	STABLE_ONLY	0.0199	6	True	
+E7	xa_SI_slope5m	1	STABLE_ONLY	0.02371	6	True	
+E7	xa_SI_sflow_phase	1	STABLE_ONLY	0.0253	6	True	
+E7	xa_HG_age_sec	1	STABLE_ONLY	0.04369	6	True	
+E7	xa_HG_rv1800	1	STABLE_ONLY	0.02703	6	True	
+E7	xa_HG_fuel_share_above	1	CENSUS+STABLE	0.01304	6	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E7	xa_HG_slope5m	1	STABLE_ONLY	0.01921	6	True	
+E7	xa_HG_sflow_phase	1	STABLE_ONLY	0.02044	6	True	
+E7	xa_NKD_age_sec	1	STABLE_ONLY	0.04509	6	True	
+E7	xa_NKD_rv1800	1	STABLE_ONLY	0.02777	6	True	
+E7	xa_NKD_fuel_share_above	1	CENSUS+STABLE	0.02482	6	True	PASSIVE_MOVE 1.838 / OFM 1.413 (effort-vs-result)
+E7	xa_NKD_slope5m	1	STABLE_ONLY	0.02249	6	True	
+E7	xa_NKD_sflow_phase	1	STABLE_ONLY	0.01999	6	True	
+E7	day_type	1	STABLE_ONLY	0.05841	6	True	
+E7	day_type_frac	1	STABLE_ONLY	0.05621	6	True	
+E7	ladder_band	1	STABLE_ONLY	0.05401	6	True	
+E7	surprise	1	STABLE_ONLY	0.05233	6	True	
+E7	range_so_far_usd	1	STABLE_ONLY	0.05621	6	True	
+E7	spread_dec_usd	0	CONFLICT_census_vs_measured	0.01502	6	True	wider spread = worse fill, mechanical
+E7	side	1	STABLE_ONLY	0.04048	6	True	
+E7	slope_1m_with	-1	STABLE_ONLY	-0.03224	6	True	
+E7	slope_5m_with	-1	STABLE_ONLY	-0.03915	6	True	
+E7	f60_sflow_with	-1	STABLE_ONLY	-0.01104	6	True	
+E7	f5m_sflow_with	-1	STABLE_ONLY	-0.01773	6	True	
+E7	f30m_n	1	STABLE_ONLY	0.01993	6	True	
+E7	f30m_vol	1	CENSUS+STABLE	0.0211	6	True	TAPE_SPIKE 1.462 / AGG_PRINT_60 1.306 (flow concentrates)
+E7	f30m_sflow_with	-1	STABLE_ONLY	-0.05536	6	True	
+E7	fph_n	1	STABLE_ONLY	0.05182	6	True	
+E7	fph_vol	1	STABLE_ONLY	0.05182	6	True	
+E7	fph_sflow_with	-1	STABLE_ONLY	-0.10772	6	True	
+E7	flow_disagree_30m	1	STABLE_ONLY	0.02898	6	True	
+E7	flow_disagree_5m	1	STABLE_ONLY	0.03387	6	True	
+E7	extreme_age_sec	-1	STABLE_ONLY	-0.06959	6	True	
+E7	ext_needed_usd	-1	STABLE_ONLY	-0.18204	6	True	
+E7	room_with_usd	1	CENSUS+STABLE	0.20151	6	True	capacity: SEAT_LIVE 1.31-1.69x, 8/8 eras
+E7	room_against_usd	-1	STABLE_ONLY	-0.15024	6	True	
+E7	ret_sess_open_with	-1	STABLE_ONLY	-0.29529	6	True	
+E7	ret_phase_open_with	-1	STABLE_ONLY	-0.25779	6	True	
+E7	prev_phase_ret_with	1	STABLE_ONLY	0.01723	6	True	
+E7	conf_to_dec_sec	1	STABLE_ONLY	0.04025	6	True	
+E7	ep_is_earliest	1	STABLE_ONLY	0.01175	6	True	
+E7	ep_rank	1	STABLE_ONLY	0.01782	6	True	
+E7	ep_age_sec	1	STABLE_ONLY	0.01452	6	True	
+E7	cell_rank_so_far	1	STABLE_ONLY	0.05185	6	True	
+E7	cell_is_open_row	1	STABLE_ONLY	0.03304	6	True	
+E7	cell_age_sec	1	STABLE_ONLY	0.05185	6	True	
+E7	sess_rank_so_far	1	STABLE_ONLY	0.05185	6	True	

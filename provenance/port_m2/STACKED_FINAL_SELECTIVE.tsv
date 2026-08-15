@@ -1,0 +1,48 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# SELECTIVE PARTICIPATION -- the fixed 3-seats/day schedule is not the product.  0-3 takes per asset-day, ZERO ALLOWED, gated by a score bar.
+# NO BAR IS SELECTED and the whole curve is reported. A selection rule was tried and abandoned: maximising $/session ALWAYS returns q=0 when per-trade expectancy is positive, because more takes mechanically means more dollars.  That objective cannot test a thesis about $/TRADE and DRAWDOWN.
+# The bar is the q-quantile of the SELECTED TAKES' own scores -- 'trade only the best 100(1-q)% of the days you would have traded'.  A quantile of the whole candidate pool does not filter at all, because a top-1-per-cell take is already its cell's best.
+# Rows below 3 takes/week per asset are FLAGGED against the standing portfolio minimum.
+# THE THESIS UNDER TEST: proper selective entries barely draw down, so compliance costs ~nothing without any session stop.  Read win_rate, usd_per_trade and frac_sessions_dd_over_1000 together.
+era	quantile_bar	n_seated	takes_per_day_mean	takes_per_week_per_asset	win_rate	usd_per_trade	usd_per_session	usd_per_traded_day	weekly_pnl_mean	weekly_pnl_p10	losing_week_frac	frac_sessions_dd_over_1000	note
+E3	0.0	1185	3.04	15.19	0.5873	202.91	616.54	616.54	8905.56	2897.0	0.037	0.1974	
+E3	0.2	996	2.57	12.77	0.6064	219.28	564.34	564.34	8088.94	1590.0	0.037	0.1318	
+E3	0.4	763	2.11	9.78	0.6134	224.43	473.04	473.04	6342.27	62.0	0.1111	0.105	
+E3	0.5	640	1.94	8.21	0.6141	222.71	431.91	431.91	5278.94	298.75	0.1111	0.0788	
+E3	0.6	524	1.81	6.72	0.6069	220.5	398.42	398.42	4279.35	472.75	0.1111	0.069	
+E3	0.7	392	1.65	5.03	0.5944	213.61	353.31	353.31	3101.25	-761.75	0.1481	0.0717	
+E3	0.8	261	1.47	3.35	0.6092	277.09	406.29	406.29	2678.52	60.0	0.0741	0.0393	
+E3	0.9	134	1.25	1.72	0.5896	302.37	378.67	378.67	1500.65	-804.0	0.3333	0.0187	BELOW WEEKLY FLOOR
+E4	0.0	1155	3.0	14.92	0.6563	314.27	942.82	942.82	13961.06	5090.0	0.0385	0.0779	
+E4	0.2	924	2.46	11.94	0.6656	329.05	808.62	808.62	11693.94	3728.12	0.0385	0.0585	
+E4	0.4	693	1.99	8.95	0.6782	357.11	711.15	711.15	9518.41	1981.88	0.0	0.0489	
+E4	0.5	578	1.83	7.47	0.6799	363.98	665.76	665.76	8091.49	1935.0	0.0	0.0443	
+E4	0.6	462	1.7	5.97	0.6883	386.92	657.2	657.2	6875.34	2156.25	0.0385	0.0331	
+E4	0.7	347	1.59	4.48	0.6888	386.16	614.66	614.66	5153.7	1829.37	0.0385	0.0275	
+E4	0.8	231	1.38	2.98	0.7056	423.95	586.42	586.42	3917.3	962.0	0.04	0.012	BELOW WEEKLY FLOOR
+E4	0.9	116	1.22	1.5	0.6466	343.17	419.03	419.03	1592.3	-759.5	0.16	0.0211	BELOW WEEKLY FLOOR
+E5	0.0	1161	3.0	15.0	0.7261	356.61	1069.82	1069.82	15923.85	9013.13	0.0	0.0181	
+E5	0.2	929	2.44	12.0	0.6921	307.28	749.26	749.26	10979.52	6439.38	0.0	0.0157	
+E5	0.4	697	2.05	9.01	0.6815	281.38	576.83	576.83	7543.12	3948.12	0.0	0.0147	
+E5	0.5	581	1.87	7.51	0.673	271.18	508.25	508.25	6059.9	2865.0	0.0385	0.0161	
+E5	0.6	465	1.7	6.01	0.6645	247.39	419.84	419.84	4424.52	1145.0	0.0385	0.0109	
+E5	0.7	349	1.6	4.51	0.6734	246.45	394.55	394.55	3308.12	492.5	0.0769	0.0138	
+E5	0.8	233	1.43	3.01	0.6352	191.51	273.76	273.76	1716.25	-365.63	0.2692	0.0184	
+E5	0.9	117	1.27	1.51	0.6154	199.49	253.7	253.7	933.6	-640.5	0.24	0.0109	BELOW WEEKLY FLOOR
+E6	0.0	1152	3.0	15.0	0.6207	312.61	937.83	937.83	13851.06	6984.37	0.0	0.1458	
+E6	0.2	921	2.45	11.99	0.6308	330.81	810.31	810.31	11718.32	4768.75	0.0	0.1037	
+E6	0.4	691	2.07	9.0	0.6165	310.06	641.47	641.47	8240.43	1900.62	0.0385	0.1018	
+E6	0.5	576	1.9	7.5	0.6042	280.43	533.09	533.09	6212.55	678.75	0.0769	0.0924	
+E6	0.6	461	1.72	6.0	0.6009	242.71	417.5	417.5	4303.41	25.0	0.1154	0.0858	
+E6	0.7	346	1.54	4.51	0.5954	233.76	361.08	361.08	3110.87	-828.12	0.1923	0.067	
+E6	0.8	231	1.44	3.01	0.5931	223.76	323.05	323.05	1988.03	-324.37	0.1923	0.0688	
+E6	0.9	116	1.29	1.51	0.5086	134.55	173.42	173.42	650.31	-1852.75	0.2917	0.0778	BELOW WEEKLY FLOOR
+E7	0.0	1179	3.0	15.0	0.7125	509.32	1527.97	1527.97	22240.46	9163.75	0.0	0.1323	
+E7	0.2	943	2.42	12.0	0.685	450.47	1092.01	1092.01	15733.01	5137.5	0.0	0.1208	
+E7	0.4	707	1.96	8.99	0.645	338.49	664.76	664.76	8863.52	752.25	0.037	0.1083	
+E7	0.5	590	1.8	7.51	0.6407	321.68	580.41	580.41	7029.4	59.25	0.1111	0.0856	
+E7	0.6	472	1.64	6.01	0.6398	314.89	517.87	517.87	5504.72	830.75	0.0741	0.0801	
+E7	0.7	354	1.53	4.5	0.6299	257.78	395.04	395.04	3379.81	-682.5	0.1481	0.0736	
+E7	0.8	236	1.42	3.0	0.6059	250.99	356.82	356.82	2193.8	-592.0	0.1481	0.0663	
+E7	0.9	118	1.27	1.5	0.6356	175.77	223.02	223.02	768.19	-645.0	0.1852	0.043	BELOW WEEKLY FLOOR

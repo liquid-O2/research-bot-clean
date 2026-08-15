@@ -1,0 +1,18 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+era	weighting	n_seeds	inner_mean_usd
+E3	W_FLAT	3	1093.98
+E3	W_VOLMATCH	3	849.89
+E3	W_ERABAL	3	585.51
+E4	W_FLAT	3	1074.84
+E4	W_VOLMATCH	3	1080.85
+E4	W_ERABAL	3	1220.14
+E5	W_FLAT	3	686.5
+E5	W_VOLMATCH	3	623.74
+E5	W_ERABAL	3	558.36
+E6	W_FLAT	3	483.59
+E6	W_VOLMATCH	3	451.73
+E6	W_ERABAL	3	888.19
+E7	W_FLAT	3	658.23
+E7	W_VOLMATCH	3	598.12
+E7	W_ERABAL	3	344.37

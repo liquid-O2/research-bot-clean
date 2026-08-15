@@ -1,0 +1,11 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# WEAPON 2: members differ by TRAINING DATA COMPOSITION (volmatch / era-balanced / flat) rather than by seed.
+# cross_weighting_rho against the seed-only baseline of 0.75-0.80 is the test of whether composition decorrelates members better than seeds or features do.
+era	n_members	member_mean	ensemble_usd	lo	hi	delta_vs_member_mean	cross_weighting_rho
+E3	15	355.57	328.37	154.99	501.75	-27.2	0.863
+E4	15	806.99	828.04	684.89	971.19	21.04	0.881
+E5	15	941.24	960.34	839.7	1080.98	19.1	0.772
+E6	15	711.28	874.57	704.19	1044.95	163.28	0.787
+E7	15	1295.87	1440.04	1190.0	1690.08	144.17	0.834
+POOLED			887.2	803.93	970.47		

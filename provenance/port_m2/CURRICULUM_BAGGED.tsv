@@ -1,0 +1,11 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# TREATMENT 3: FEATURE-BAGGED members (10 per era, each on a random 40% of the columns plus its own seed) on top of the per-era selected weighting.
+# member_rank_rho is the achieved within-cell rank correlation BETWEEN members.  Seed-only members sat at 0.75-0.80, which caps averaging at ~9% noise removal; this column is the test of whether bagging actually decorrelated them.
+era	weighting	n_members	member_mean	member_sd	ensemble_usd	lo	hi	delta_vs_member_mean	member_rank_rho
+E3	W_VOLMATCH	10	471.07	297.31	483.18	296.53	669.83	12.11	0.755
+E4	W_VOLMATCH	10	947.91	252.08	966.36	816.62	1116.11	18.45	0.705
+E5	W_VOLMATCH	10	904.39	295.07	985.23	860.2	1110.25	80.83	0.69
+E6	W_VOLMATCH	10	504.95	427.97	869.1	683.0	1055.2	364.15	0.786
+E7	W_VOLMATCH	10	1208.42	410.25	1446.5	1195.96	1697.04	238.08	0.763
+POOLED					950.99	865.68	1036.31		

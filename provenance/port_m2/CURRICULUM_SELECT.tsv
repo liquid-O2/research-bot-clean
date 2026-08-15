@@ -1,0 +1,11 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# TREATMENT 1b: the LAWFUL combined arm -- the weighting is chosen PER ERA on the inner-validation block (3 seeds, ranking only) and the reported number is the 5-seed EVAL distribution of that choice.  Selection and reporting never touch the same rows.
+# Inner-block selection table follows in CURRICULUM_SELECT_INNER.tsv.
+era	chosen_weighting	n_seeds	mean_usd	sd_usd	min_usd	max_usd
+E3	W_FLAT	5	448.85	202.35	258.34	837.83
+E4	W_ERABAL	5	708.44	97.66	523.52	789.56
+E5	W_FLAT	5	755.94	149.99	611.42	959.4
+E6	W_ERABAL	5	604.11	280.81	369.85	1156.27
+E7	W_FLAT	5	1052.91	378.15	396.55	1469.1
+POOLED	per-era selected	25	714.05	314.28	258.34	1469.1

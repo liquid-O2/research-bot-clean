@@ -1,0 +1,6 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# CONSTRAINTS x DISTILLATION: an UNCONSTRAINED, train-window-only teacher advising a student that carries the TOP50 monotone constraints.
+# The reference is the TOP50-CONSTRAINTS-ALONE arm, not the volmatch base: the question is whether distillation adds anything ON TOP of the constraints, which are already the round's biggest result.
+# SUB-ADDITIVITY IS THE LIVE RISK and is what this measures: a constrained student has fewer degrees of freedom with which to imitate an unconstrained teacher, so the teacher's advice may simply be unfollowable.
+variant	era	n_seeds	mean_usd	sd_usd	volmatch_base_mean	top50_constraints_mean	delta_vs_constraints	delta_minus_sd

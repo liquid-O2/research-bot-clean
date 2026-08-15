@@ -1,0 +1,35 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# CONSTRAINT STRICTNESS SWEPT.  ALL = every stable sign (~110 cols); CENSUS6 = only the columns where a NAMED census fact and the stability receipt agree (the minimal proven set, run even if ALL is null because 110 constraints at once can over-constrain); TOP50 = the 50 strongest stable signs; CONFLICT_CENSUS forces the census sign on the columns the artifact left FREE because census and measurement disagreed; ALL_INTERACT adds interaction_constraints built from the matrix's own feature-group structure.
+# PROMOTION: delta_minus_sd > 0 against the W_VOLMATCH 5-seed base.
+variant	era	n_constrained	n_seeds	mean_usd	sd_usd	volmatch_base_mean	delta_vs_base	delta_minus_sd
+ALL	E3	112	5	798.61	355.57	298.56	500.04	144.47
+ALL	E4	111	5	1274.8	212.56	825.17	449.63	237.07
+ALL	E5	110	5	1206.44	7.31	1105.45	101.0	93.69
+ALL	E6	110	5	1059.17	455.36	903.83	155.34	-300.02
+ALL	E7	111	5	1774.4	59.78	1377.16	397.24	337.45
+ALL	POOLED		25	1222.68	423.45	902.03	320.65	-102.8
+CENSUS6	E3	6	5	408.69	167.95	298.56	110.13	-57.82
+CENSUS6	E4	6	5	818.2	172.98	825.17	-6.97	-179.95
+CENSUS6	E5	6	5	993.39	228.43	1105.45	-112.06	-340.49
+CENSUS6	E6	6	5	1033.62	249.73	903.83	129.79	-119.95
+CENSUS6	E7	6	5	1524.72	98.16	1377.16	147.56	49.4
+CENSUS6	POOLED		25	955.72	407.85	902.03	53.69	-354.16
+TOP50	E3	50	5	934.33	144.62	298.56	635.76	491.15
+TOP50	E4	50	5	1202.76	59.42	825.17	377.59	318.17
+TOP50	E5	50	5	1195.35	11.85	1105.45	89.91	78.06
+TOP50	E6	50	5	994.65	263.87	903.83	90.82	-173.05
+TOP50	E7	50	5	1758.35	29.54	1377.16	381.19	351.64
+TOP50	POOLED		25	1217.09	321.92	902.03	315.05	-6.86
+CONFLICT_CENSUS	E3	117	5	707.22	297.8	298.56	408.65	110.85
+CONFLICT_CENSUS	E4	116	5	1035.9	255.21	825.17	210.73	-44.48
+CONFLICT_CENSUS	E5	115	5	1200.79	11.17	1105.45	95.35	84.18
+CONFLICT_CENSUS	E6	115	5	1074.99	400.27	903.83	171.16	-229.11
+CONFLICT_CENSUS	E7	116	5	1691.72	70.48	1377.16	314.56	244.08
+CONFLICT_CENSUS	POOLED		25	1142.12	407.32	902.03	240.09	-167.23
+ALL_INTERACT	E3	112	5	459.97	23.43	298.56	161.4	137.97
+ALL_INTERACT	E4	111	5	1042.83	187.74	825.17	217.67	29.93
+ALL_INTERACT	E5	110	5	994.15	64.03	1105.45	-111.3	-175.32
+ALL_INTERACT	E6	110	5	619.53	116.46	903.83	-284.3	-400.76
+ALL_INTERACT	E7	111	5	1468.04	110.05	1377.16	90.88	-19.17
+ALL_INTERACT	POOLED		25	916.91	371.04	902.03	14.87	-356.17

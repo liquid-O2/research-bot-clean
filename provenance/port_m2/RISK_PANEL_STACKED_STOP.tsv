@@ -1,0 +1,24 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# arm = the stacked final under each session stop
+# Computed from the SAME replay the $/session table uses, so the panel and the headline cannot disagree.
+# dd_* are INTRA-SESSION drawdowns of the seated P&L sequence; the D-030 law is a $1000 maximum and frac_sessions_dd_over_1000 is the breach rate.
+# Weekly rows use ISO weeks; weekly_pnl_p10 is the 10th percentile week -- the user's weekly framing of a bad run.
+# precision_at_1000 is the fraction of TAKES paying >= $1000 (the D-021 target), not a model probability.
+# takes_per_day_* are per SESSION, i.e. per (asset, trading day) -- the unit the one-position contract applies to -- not per calendar day across the three books.
+arm	era	asset	n_sessions	n_takes	takes_per_day_mean	takes_per_day_p50	takes_per_day_max	win_rate	precision_at_1000	usd_per_trade_mean	usd_per_trade_median	usd_per_trade_p10	usd_per_trade_p90	mae_mean	mae_p50	mae_p90	wall_hit_rate	usd_per_session	dd_p50	dd_p90	dd_max	frac_sessions_dd_over_1000	losing_day_frac	n_weeks	weekly_pnl_mean	weekly_pnl_p10	losing_week_frac	longest_losing_streak_days	d077_vetoed_candidates
+STACKED_STOP_WALL2_900	E3	ALL	390	1157	2.97	3.0	4.0	0.5851	0.1357	199.28	145.0	-930.0	1182.5	351.97	212.5	842.5	0.3803	591.19	595.0	1273.75	1983.75	0.1872	0.3769	27	8539.44	1504.0	0.0741	4	
+STACKED_STOP_HARD_1000	E3	ALL	390	1157	2.97	3.0	4.0	0.5834	0.1331	197.67	138.75	-930.0	1182.5	352.62	212.5	842.5	0.3812	586.42	595.0	1285.0	1885.0	0.1974	0.3821	27	8470.46	1353.0	0.1111	4	
+STACKED_STOP_WALL1	E3	ALL	390	873	2.24	3.0	3.0	0.6002	0.1237	187.77	157.5	-930.0	1153.75	361.8	212.5	892.5	0.3826	420.31	383.13	930.0	1260.0	0.0128	0.4897	27	6071.2	662.0	0.0741	3	
+STACKED_STOP_WALL2_900	E4	ALL	385	1149	2.98	3.0	3.0	0.6554	0.1436	313.11	207.5	-580.0	1207.5	270.19	137.5	702.5	0.2907	934.44	230.0	955.0	1860.0	0.0779	0.2208	26	13836.97	5548.75	0.0385	2	
+STACKED_STOP_HARD_1000	E4	ALL	385	1149	2.98	3.0	3.0	0.6554	0.1436	313.31	207.5	-580.0	1207.5	270.37	137.5	702.5	0.2907	935.05	230.0	955.0	1860.0	0.0779	0.2208	26	13845.87	5548.75	0.0385	2	
+STACKED_STOP_WALL1	E4	ALL	385	958	2.49	3.0	3.0	0.6628	0.1326	309.51	220.0	-508.75	1159.38	276.73	140.63	728.75	0.285	770.16	167.5	930.0	1185.0	0.0104	0.3143	26	11404.23	3911.25	0.0	2	
+STACKED_STOP_WALL2_900	E5	ALL	387	1158	2.99	3.0	3.0	0.7263	0.1287	357.06	257.5	-321.25	1140.63	198.53	106.25	545.62	0.2047	1068.4	122.5	924.75	1860.0	0.0181	0.1318	26	15902.79	8959.38	0.0	2	
+STACKED_STOP_HARD_1000	E5	ALL	387	1160	3.0	3.0	3.0	0.7267	0.1293	357.72	257.5	-318.75	1146.25	198.25	106.25	544.37	0.2043	1072.22	122.5	924.75	1860.0	0.0181	0.1292	26	15959.62	9013.13	0.0	2	
+STACKED_STOP_WALL1	E5	ALL	387	1009	2.61	3.0	3.0	0.7374	0.1318	369.44	270.0	-295.0	1162.5	192.19	100.0	490.0	0.2042	963.22	105.0	717.0	955.0	0.0	0.2171	26	14337.21	7008.13	0.0	2	
+STACKED_STOP_WALL2_900	E6	ALL	384	1138	2.96	3.0	3.0	0.6239	0.1731	317.09	220.0	-930.0	1415.63	325.58	175.0	787.5	0.3286	939.71	388.13	1147.5	1910.0	0.1406	0.2917	26	13878.75	6347.5	0.0	1	
+STACKED_STOP_HARD_1000	E6	ALL	384	1137	2.96	3.0	3.0	0.6227	0.1724	315.0	220.0	-930.0	1416.25	325.54	175.0	787.5	0.3298	932.71	388.13	1147.5	1927.5	0.1458	0.2917	26	13775.34	6347.5	0.0	1	
+STACKED_STOP_WALL1	E6	ALL	384	872	2.27	3.0	3.0	0.6342	0.172	336.58	245.0	-930.0	1445.0	326.16	175.0	787.5	0.3245	764.31	283.13	955.0	1160.0	0.0078	0.3932	26	11288.32	5100.62	0.0385	3	
+STACKED_STOP_WALL2_900	E7	ALL	393	1159	2.95	3.0	3.0	0.711	0.2278	502.72	363.75	-930.0	1760.0	319.25	150.0	790.0	0.3451	1482.57	192.5	1177.5	1960.0	0.1323	0.2137	27	21579.58	9049.5	0.0	1	
+STACKED_STOP_HARD_1000	E7	ALL	393	1154	2.94	3.0	3.0	0.7114	0.2279	501.85	370.0	-930.0	1753.75	317.46	150.0	787.5	0.3449	1473.61	192.5	1177.5	1960.0	0.1323	0.2163	27	21449.26	9049.5	0.0	1	
+STACKED_STOP_WALL1	E7	ALL	393	928	2.36	3.0	3.0	0.7241	0.2328	541.13	395.0	-930.0	1786.25	313.43	150.0	762.5	0.3297	1277.79	155.0	955.0	1110.0	0.0076	0.3104	27	18598.98	6056.0	0.037	3	

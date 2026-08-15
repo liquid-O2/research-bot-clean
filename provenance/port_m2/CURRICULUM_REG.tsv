@@ -1,0 +1,11 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# TREATMENT 2 on the W_VOLMATCH base: depth x min_child_weight chosen on INNER blocks (2 seeds, ranking only), reported as a 5-SEED EVAL distribution.
+# Targets the generalization pool the sufficiency instrument sized at $1.5-2.6k/session.
+era	chosen_reg	n_seeds	mean_usd	sd_usd	min_usd	max_usd
+E3	{"max_depth": 3, "min_child_weight": 60}	5	630.72	194.46	378.37	971.23
+E4	{"max_depth": 4, "min_child_weight": 20}	5	825.17	190.06	622.76	1178.17
+E5	{"max_depth": 3, "min_child_weight": 150}	5	1015.26	216.32	695.72	1199.18
+E6	{"max_depth": 3, "min_child_weight": 20}	5	645.99	55.45	542.88	689.74
+E7	{"max_depth": 6, "min_child_weight": 150}	5	1535.4	61.37	1429.29	1604.58
+POOLED		25	930.51	369.48	378.37	1604.58

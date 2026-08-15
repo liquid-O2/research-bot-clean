@@ -1,0 +1,28 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE SESSION-STOP OVERLAY -- REPLAY ARITHMETIC ONLY. The seats are exactly the ones the arm already chose; the overlay stops the DAY once intraday drawdown crosses the line and drops every later seat.  Nothing is refitted and nothing is re-selected.
+# STOP_WALL2_900 = stop after a SECOND walled loss once drawdown >= $900.  STOP_HARD_1000 = stop at $1,000 drawdown outright (the D-030 line itself).
+# MECHANISM: a D-030 breach is almost always a TWO-WALL SESSION -- 2 x ~$930 = $1,860 against a $1,000 law, and one wall alone cannot breach it.  The breach rate is therefore a direct function of the ENTRY win rate: E5 is clean (1.8%) because 0.726 wins make two-wall days rare; E3 breaches 19.7% at 0.587.  Entries and drawdowns are the same problem seen twice.
+# MEASURED CORRECTION: the two drawdown-triggered stops do NOT drive the breach rate toward zero, because a stop cannot prevent the breach that triggers it -- at $1,000 drawdown the $1,000 breach is already booked. STOP_WALL1 (halt on the FIRST walled loss, at ~$930, before the law is broken) is the only variant that can cut the rate, and it is priced here beside them.
+# ADOPTION TOUCHES THE TRADING PROCEDURE and is the user's call (D-029); this is a measurement.
+era	arm	usd_per_session	delta_vs_raw	win_rate	frac_sessions_dd_over_1000	dd_p90	n_takes	weekly_pnl_mean	weekly_pnl_p10	losing_week_frac
+E3	RAW	616.54		0.5873	0.1974	1288.0	1185	8905.56	2897.0	0.037
+E3	STOP_WALL2_900	591.19	-25.35	0.5851	0.1872	1273.75	1157	8539.44	1504.0	0.0741
+E3	STOP_HARD_1000	586.42	-30.12	0.5834	0.1974	1285.0	1157	8470.46	1353.0	0.1111
+E3	STOP_WALL1	420.31	-196.22	0.6002	0.0128	930.0	873	6071.2	662.0	0.0741
+E4	RAW	942.82		0.6563	0.0779	955.0	1155	13961.06	5090.0	0.0385
+E4	STOP_WALL2_900	934.44	-8.38	0.6554	0.0779	955.0	1149	13836.97	5548.75	0.0385
+E4	STOP_HARD_1000	935.05	-7.78	0.6554	0.0779	955.0	1149	13845.87	5548.75	0.0385
+E4	STOP_WALL1	770.16	-172.67	0.6628	0.0104	930.0	958	11404.23	3911.25	0.0
+E5	RAW	1069.82		0.7261	0.0181	924.75	1161	15923.85	9013.13	0.0
+E5	STOP_WALL2_900	1068.4	-1.41	0.7263	0.0181	924.75	1158	15902.79	8959.38	0.0
+E5	STOP_HARD_1000	1072.22	2.4	0.7267	0.0181	924.75	1160	15959.62	9013.13	0.0
+E5	STOP_WALL1	963.22	-106.6	0.7374	0.0	717.0	1009	14337.21	7008.13	0.0
+E6	RAW	937.83		0.6207	0.1458	1173.75	1152	13851.06	6984.37	0.0
+E6	STOP_WALL2_900	939.71	1.88	0.6239	0.1406	1147.5	1138	13878.75	6347.5	0.0
+E6	STOP_HARD_1000	932.71	-5.13	0.6227	0.1458	1147.5	1137	13775.34	6347.5	0.0
+E6	STOP_WALL1	764.31	-173.52	0.6342	0.0078	955.0	872	11288.32	5100.62	0.0385
+E7	RAW	1527.97		0.7125	0.1323	1189.0	1179	22240.46	9163.75	0.0
+E7	STOP_WALL2_900	1482.57	-45.4	0.711	0.1323	1177.5	1159	21579.58	9049.5	0.0
+E7	STOP_HARD_1000	1473.61	-54.36	0.7114	0.1323	1177.5	1154	21449.26	9049.5	0.0
+E7	STOP_WALL1	1277.79	-250.18	0.7241	0.0076	955.0	928	18598.98	6056.0	0.037

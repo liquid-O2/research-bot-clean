@@ -1,0 +1,24 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# DISTILLATION with a LAWFUL teacher: unconstrained capacity (depth 12, 300 rounds, no subsampling) fitted on the TRAINING WINDOW ONLY, never on the evaluation era.  This is NOT the sufficiency memorizer, which was fitted on the evaluation rows to measure a representation ceiling.
+# The teacher's within-cell score percentile becomes the student's relevance on the SAME 0..4 ladder.  SOFT = teacher only; MIX = 50/50 teacher and true grades; SOFT_VM = teacher targets with volmatch weighting.
+# The teacher memorises the TRAINING era's noise -- that is the known danger, and the 5-seed walk-forward evaluation is the instrument that catches it.
+variant	era	n_seeds	mean_usd	sd_usd	volmatch_base_mean	delta_vs_base	delta_minus_sd
+SOFT	E3	5	83.96	32.67	298.56	-214.61	-247.28
+SOFT	E4	5	279.36	21.21	825.17	-545.81	-567.02
+SOFT	E5	5	289.22	64.85	1105.45	-816.23	-881.08
+SOFT	E6	5	77.86	81.56	903.83	-825.97	-907.53
+SOFT	E7	5	423.4	48.2	1377.16	-953.76	-1001.97
+SOFT	POOLED	25	230.76	143.19	902.03	-671.27	-814.46
+MIX	E3	5	176.05	19.86	298.56	-122.52	-142.38
+MIX	E4	5	392.0	58.08	825.17	-433.17	-491.25
+MIX	E5	5	204.99	80.19	1105.45	-900.46	-980.64
+MIX	E6	5	104.07	30.34	903.83	-799.76	-830.1
+MIX	E7	5	365.96	104.68	1377.16	-1011.2	-1115.87
+MIX	POOLED	25	248.61	129.97	902.03	-653.42	-783.39
+SOFT_VM	E3	5	104.22	34.45	298.56	-194.34	-228.8
+SOFT_VM	E4	5	290.56	32.32	825.17	-534.61	-566.93
+SOFT_VM	E5	5	316.97	42.55	1105.45	-788.48	-831.03
+SOFT_VM	E6	5	81.06	62.99	903.83	-822.77	-885.75
+SOFT_VM	E7	5	387.73	50.18	1377.16	-989.43	-1039.6
+SOFT_VM	POOLED	25	236.11	129.96	902.03	-665.93	-795.89

@@ -1,0 +1,29 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE CONSTRAINT-FOLDED STACKED FINAL.  ASSEMBLY AND REPLAY ONLY -- every member is an already-fitted score column; nothing was fitted here.
+# Pool per era: TOP50-constrained + volmatch + feature-bagged + regularization members, score-meaned.
+# champion_5seed_ref is the champion's OWN 5-seed mean at the deployed window (CHAMPION_FLOOR.tsv), not its single-fit headline -- the only lawful comparison.
+# frac_sessions_dd_over_1000 is the D-030 breach rate.
+# members_present records exactly which member sets existed for each era; nothing was fitted to fill a gap.
+era	asset	n_members	usd_per_session	lo	hi	win_rate	usd_per_trade	dd_p90	frac_sessions_dd_over_1000	champion_5seed_ref	members_present
+E3	ALL	25	616.54	447.82	785.25	0.5873	202.91	1288.0	0.1974	448.85	CONTOP50:5,W_VOLMATCH:5,BAG:10,REG:5 | missing:none
+E3	SI	25	792.04	491.49	1092.59	0.5793	259.36	1860.0	0.2308		
+E3	HG	25	597.98	348.49	847.47	0.6025	196.8	1204.37	0.1846		
+E3	NKD	25	459.6	254.04	665.15	0.5802	152.03	1253.25	0.1769		
+E4	ALL	25	942.82	790.21	1095.44	0.6563	314.27	955.0	0.0779	887.37	CONTOP50:5,W_VOLMATCH:5,BAG:10,REG:5 | missing:none
+E4	SI	25	1208.83	932.38	1485.28	0.6771	402.94	942.5	0.0938		
+E4	HG	25	720.64	517.11	924.18	0.6224	240.21	949.38	0.0781		
+E4	NKD	25	899.34	721.01	1077.67	0.6693	299.78	955.0	0.062		
+E5	ALL	25	1069.82	946.42	1193.22	0.7261	356.61	924.75	0.0181	755.94	CONTOP50:5,W_VOLMATCH:5,BAG:10,REG:5 | missing:none
+E5	SI	25	1168.43	936.8	1400.06	0.708	389.48	930.0	0.031		
+E5	HG	25	806.61	676.28	936.94	0.7287	268.87	542.75	0.0		
+E5	NKD	25	1234.42	1047.71	1421.12	0.7416	411.47	930.0	0.0233		
+E6	ALL	25	937.83	753.42	1122.25	0.6207	312.61	1173.75	0.1458	625.91	CONTOP50:5,W_VOLMATCH:5,BAG:10,REG:5 | missing:none
+E6	SI	25	992.13	643.09	1341.17	0.5859	330.71	1397.5	0.2031		
+E6	HG	25	763.71	539.66	987.76	0.6302	254.57	950.63	0.0781		
+E6	NKD	25	1057.66	784.54	1330.77	0.6458	352.55	1216.25	0.1562		
+E7	ALL	25	1527.97	1283.25	1772.69	0.7125	509.32	1189.0	0.1323	1052.91	CONTOP50:5,W_VOLMATCH:5,BAG:10,REG:5 | missing:none
+E7	SI	25	1754.94	1372.82	2137.07	0.6972	584.98	1377.5	0.145		
+E7	HG	25	1070.69	877.19	1264.19	0.7583	356.9	930.0	0.0534		
+E7	NKD	25	1758.28	1357.81	2158.76	0.6819	586.09	1277.5	0.1985		
+POOLED	ALL		1020.15	937.33	1102.98					754.2	

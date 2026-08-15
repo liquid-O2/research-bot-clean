@@ -1,0 +1,19 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# FIX 2a: what the top-decile LOSERS actually are.  The hypothesis under test is that they are high-volatility monsters carrying wall risk the dollar score cannot see -- which would show as higher mean MAE, a higher walled rate and a larger peak among TOPDEC_LOSS than among TOPDEC_WIN.
+era	group	n	mean_cert_usd	mean_mae_usd	walled_rate	mean_peak_usd	mean_hold_sec
+E3	TOPDEC_WIN	146	869.57	223.46	0.0959	1599.45	20934.37
+E3	TOPDEC_LOSS	88	-510.18	393.82	0.5114	501.39	14424.68
+E3	ALL_TAKES	2340	248.22	319.95	0.353	1229.31	20413.62
+E4	TOPDEC_WIN	75	771.92	147.33	0.0667	1480.75	19243.07
+E4	TOPDEC_LOSS	41	-441.13	421.49	0.561	476.71	7935.68
+E4	ALL_TAKES	1155	314.27	269.45	0.29	1176.81	19202.38
+E5	TOPDEC_WIN	72	597.95	138.11	0.0972	1182.5	17110.18
+E5	TOPDEC_LOSS	45	-438.06	280.28	0.4222	407.22	15719.24
+E5	ALL_TAKES	1161	356.61	198.51	0.205	1144.17	18488.37
+E6	TOPDEC_WIN	59	847.44	198.94	0.0508	1680.28	20868.39
+E6	TOPDEC_LOSS	57	-603.36	447.04	0.6842	474.39	13492.18
+E6	ALL_TAKES	1152	312.61	326.35	0.3316	1336.76	19792.23
+E7	TOPDEC_WIN	75	576.08	158.33	0.0667	1215.67	17568.01
+E7	TOPDEC_LOSS	43	-522.44	320.64	0.6047	388.75	11052.93
+E7	ALL_TAKES	1179	509.32	319.33	0.3418	1611.35	17864.0

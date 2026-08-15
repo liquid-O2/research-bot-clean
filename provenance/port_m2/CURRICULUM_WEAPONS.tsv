@@ -1,0 +1,19 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE TRAINING WEAPONS, on the W_VOLMATCH base, every cell a 5-SEED distribution.
+# MONOTONE loads xgboost's monotone_constraints with the signs our own censuses proved, intersected with a per-fold stability receipt (see MONOTONE_CONSTRAINTS.tsv).  The model becomes UNABLE to invert a stable relationship to chase era noise.
+# NOISE trains on feature-noise-injected copies, the noise scaled per column to 0.25 x its own measurement grain (its rounding quantum), floored so continuous columns still move.
+# PROMOTION RULE: `delta_minus_sd` > 0 is the bar -- the arm must clear the base's 5-seed mean by MORE THAN its own seed sd.  A single fit beating a single fit is the artefact that retracted the ranking atlas winner.
+weapon	era	n_seeds	mean_usd	sd_usd	volmatch_base_mean	delta_vs_base	delta_minus_sd
+MONOTONE	E3	5	798.61	355.57	298.56	500.04	144.47
+MONOTONE	E4	5	1274.8	212.56	825.17	449.63	237.07
+MONOTONE	E5	5	1206.44	7.31	1105.45	101.0	93.69
+MONOTONE	E6	5	1059.17	455.36	903.83	155.34	-300.02
+MONOTONE	E7	5	1774.4	59.78	1377.16	397.24	337.45
+MONOTONE	POOLED	25	1222.68	423.45	902.03	320.65	-102.8
+NOISE	E3	5	428.06	181.29	298.56	129.5	-51.79
+NOISE	E4	5	922.89	180.45	825.17	97.72	-82.74
+NOISE	E5	5	1155.79	50.13	1105.45	50.35	0.22
+NOISE	E6	5	575.23	238.31	903.83	-328.6	-566.91
+NOISE	E7	5	1216.01	342.35	1377.16	-161.15	-503.51
+NOISE	POOLED	25	859.6	381.52	902.03	-42.44	-423.96

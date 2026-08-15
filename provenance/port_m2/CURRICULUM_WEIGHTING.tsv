@@ -1,0 +1,42 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# TREATMENT 1 under the NO-SINGLE-FIT law: every cell is a 5-SEED MEAN with its sd, at the deployed PRE_E1 window.  W_FLAT is the champion verbatim and is the reference; its distribution is $754.20 +/- 322.82 pooled.
+# A weighting only counts as signal if its 5-seed mean clears W_FLAT's 5-seed mean by more than the seed sd -- a single fit beating a single fit is exactly the artefact that retracted the ranking atlas's winner.
+# Weights are per-GROUP (the cell is what the ranker scores) and are computed from TRAINING rows only; W_VOLMATCH's target regime is read from the training block's most recent era, never the evaluation era.
+weighting	era	n_seeds	mean_usd	sd_usd	min_usd	max_usd	delta_vs_W_FLAT
+W_FLAT	E3	5	448.85	202.35	258.34	837.83	0.0
+W_FLAT	E4	5	887.37	159.9	751.9	1195.99	0.0
+W_FLAT	E5	5	755.94	149.99	611.42	959.4	0.0
+W_FLAT	E6	5	625.91	269.06	384.46	981.18	0.0
+W_FLAT	E7	5	1052.91	378.15	396.55	1469.1	0.0
+W_FLAT	POOLED	25	754.2	322.82	258.34	1469.1	0.0
+W_HL1	E3	5	231.98	402.92	-36.04	1025.3	-216.87
+W_HL1	E4	5	698.21	114.0	476.15	797.05	-189.16
+W_HL1	E5	5	1048.8	111.19	880.48	1167.72	292.86
+W_HL1	E6	5	324.67	61.98	230.46	417.1	-301.23
+W_HL1	E7	5	852.74	163.72	555.15	1050.12	-200.17
+W_HL1	POOLED	25	631.28	374.07	-36.04	1167.72	-122.91
+W_HL2	E3	5	247.52	89.81	180.49	413.61	-201.33
+W_HL2	E4	5	804.92	44.29	759.11	881.74	-82.44
+W_HL2	E5	5	955.35	265.27	591.77	1174.13	199.41
+W_HL2	E6	5	322.7	83.7	170.48	414.65	-303.21
+W_HL2	E7	5	1103.91	313.87	687.18	1408.49	51.0
+W_HL2	POOLED	25	686.88	392.81	170.48	1408.49	-67.31
+W_HL4	E3	5	357.34	159.64	165.81	569.65	-91.51
+W_HL4	E4	5	755.07	78.56	664.61	868.2	-132.29
+W_HL4	E5	5	740.78	207.32	615.72	1153.96	-15.16
+W_HL4	E6	5	432.78	60.8	329.69	506.5	-193.12
+W_HL4	E7	5	1064.57	241.36	788.99	1465.33	11.67
+W_HL4	POOLED	25	670.11	302.84	165.81	1465.33	-84.08
+W_ERABAL	E3	5	319.29	157.61	181.24	616.6	-129.56
+W_ERABAL	E4	5	708.44	97.66	523.52	789.56	-178.92
+W_ERABAL	E5	5	962.32	200.3	591.56	1190.91	206.38
+W_ERABAL	E6	5	604.11	280.81	369.85	1156.27	-21.8
+W_ERABAL	E7	5	1457.54	142.98	1195.11	1627.13	404.64
+W_ERABAL	POOLED	25	810.34	426.57	181.24	1627.13	56.15
+W_VOLMATCH	E3	5	298.56	122.13	220.59	539.85	-150.29
+W_VOLMATCH	E4	5	825.17	190.06	622.76	1178.17	-62.2
+W_VOLMATCH	E5	5	1105.45	70.79	1016.14	1175.91	349.5
+W_VOLMATCH	E6	5	903.83	336.45	411.32	1322.81	277.92
+W_VOLMATCH	E7	5	1377.16	265.7	871.02	1617.9	324.25
+W_VOLMATCH	POOLED	25	902.03	418.82	220.59	1617.9	147.84

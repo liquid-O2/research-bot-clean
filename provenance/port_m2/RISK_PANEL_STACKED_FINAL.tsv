@@ -1,0 +1,14 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# arm = the constraint-folded stacked final
+# Computed from the SAME replay the $/session table uses, so the panel and the headline cannot disagree.
+# dd_* are INTRA-SESSION drawdowns of the seated P&L sequence; the D-030 law is a $1000 maximum and frac_sessions_dd_over_1000 is the breach rate.
+# Weekly rows use ISO weeks; weekly_pnl_p10 is the 10th percentile week -- the user's weekly framing of a bad run.
+# precision_at_1000 is the fraction of TAKES paying >= $1000 (the D-021 target), not a model probability.
+# takes_per_day_* are per SESSION, i.e. per (asset, trading day) -- the unit the one-position contract applies to -- not per calendar day across the three books.
+arm	era	asset	n_sessions	n_takes	takes_per_day_mean	takes_per_day_p50	takes_per_day_max	win_rate	precision_at_1000	usd_per_trade_mean	usd_per_trade_median	usd_per_trade_p10	usd_per_trade_p90	mae_mean	mae_p50	mae_p90	wall_hit_rate	usd_per_session	dd_p50	dd_p90	dd_max	frac_sessions_dd_over_1000	losing_day_frac	n_weeks	weekly_pnl_mean	weekly_pnl_p10	losing_week_frac	longest_losing_streak_days	d077_vetoed_candidates
+STACKED_CONSTRAINED	E3	ALL	390	1185	3.04	3.0	4.0	0.5873	0.1367	202.91	145.0	-930.0	1182.5	350.31	212.5	837.5	0.3755	616.54	595.0	1288.0	3345.0	0.1974	0.3692	27	8905.56	2897.0	0.037	4	
+STACKED_CONSTRAINED	E4	ALL	385	1155	3.0	3.0	3.0	0.6563	0.1437	314.27	220.0	-580.0	1207.5	269.45	137.5	700.0	0.29	942.82	230.0	955.0	1983.75	0.0779	0.2182	26	13961.06	5090.0	0.0385	2	
+STACKED_CONSTRAINED	E5	ALL	387	1161	3.0	3.0	3.0	0.7261	0.1292	356.61	257.5	-330.0	1145.0	198.51	106.25	543.75	0.205	1069.82	122.5	924.75	2790.0	0.0181	0.1292	26	15923.85	9013.13	0.0	2	
+STACKED_CONSTRAINED	E6	ALL	384	1152	3.0	3.0	3.0	0.6207	0.1727	312.61	220.0	-930.0	1419.37	326.35	175.0	800.0	0.3316	937.83	388.13	1173.75	2865.0	0.1458	0.2865	26	13851.06	6984.37	0.0	1	
+STACKED_CONSTRAINED	E7	ALL	393	1179	3.0	3.0	3.0	0.7125	0.2307	509.32	370.0	-930.0	1772.5	319.33	150.0	805.0	0.3418	1527.97	192.5	1189.0	2865.0	0.1323	0.201	27	22240.46	9163.75	0.0	2	

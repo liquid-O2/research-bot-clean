@@ -39,7 +39,24 @@ Tables: the `SEQTEST2_*.tsv` beside this file.
 
 ## 0. THE VERDICT, IN FOUR LINES
 
-*(filled at the end of the pass — see §9)*
+1. **NO. No arm from this fix pass beats the champion, and none is close.** The best of them —
+   the partially fine-tuned pretrained trunk fused with the 202 features — banks
+   **$297.41/session** against `LMART_HP_NOTF`'s **$1,174.01**, a paired difference of
+   **−$876.61/session [−966, −787], p = 3 × 10⁻⁶⁷** on 2,320 shared sessions.
+2. **Every repair applied *to* the champion made it worse, significantly.** The 26 creator
+   features −$500/session, the day-memory tokens −$461, the wall-pair hard negatives −$870
+   (and −$956 at ×4). All p < 1e−13, against an instrument that separates the champion from its
+   own shuffled control at p = 1e−101.
+3. **The two named confounds were real, and removing them did not rescue the stack.** The
+   tokenizer *was* destroying the price axis (93.31 % of events in one bucket → **30.18 %**; the
+   bigram-floor gap widened from 0.693 to **0.842 nats**) and the dollars did not move. The
+   frozen trunk *was* understating transfer — fine-tuned pretrained beats fine-tuned random by
+   **+$52.06/session, p = 0.0003**, where the frozen comparison was ~$15 and null — and that is
+   6 % of the distance to the champion.
+4. **The best honest number is $1,174.01/session/asset (59 % of the D-048 bar), and this pass
+   did not produce it.** R7 — the objective/task misalignment the first pass named — was worth
+   ~$925/session and was collected by the *seating* correction, not by any toggle here. **The
+   deep stack is settled: not a null any more, and not competitive.**
 
 ---
 

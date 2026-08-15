@@ -87,7 +87,15 @@ PROV = N.PROV
 OUT = os.path.join(N.OUT_ROOT, "atlas")
 
 # ------------------------------------------------------------ the budgets ----
-SCREEN = {"rounds": 60, "depth": 6, "eta": 0.08, "group_frac": 0.25,
+# AMENDMENT A1 (recorded, not quietly applied — a pre-registration that is
+# edited in silence is not one).  The registered budget was 60 rounds / 25% of
+# groups.  A 5-cell INSTRUMENT CALIBRATION run before the screen (no lift, no
+# ranking, no cell compared to another) showed the reference cell landing at
+# $106.73/session on the inner block with a NEGATIVE E3 fold — an instrument too
+# noisy to rank 219 cells on.  The budget is doubled in rounds and group
+# coverage.  It remains IDENTICAL for every cell and every twin, which is the
+# property the screen law actually requires.
+SCREEN = {"rounds": 120, "depth": 6, "eta": 0.08, "group_frac": 0.60,
           "seed": N.SEED}
 CONFIRM = {"rounds": 300, "early": 25, "seed": N.SEED}
 
@@ -784,3 +792,290 @@ def stage_screen(workers=8, limit=None):
     N.hb("screen done: %d cells, %d errors, %.0fs" % (len(cells), len(errs),
                                                       time.time() - t0))
     return rows
+
+
+# ================================================================ STAGE B =====
+def confirm_arm(D, spec, era, P, V, budget=None):
+    """One survivor, on the full walk-forward with the champion's HP discipline.
+
+    Returns the eval-era score column, the booster (so the POLICIES can score
+    training rows causally), and the fold's row sets.
+    """
+    import xgboost as xgb
+    tr, itr, iva, ev_r = NA.fold(D, era)
+    XF, FN = build_features(D, spec, tr, np.arange(D["d8"].size))
+    val = target_value(D, spec)
+    fit_rows, wg = population(D, spec, era, tr)
+    ifit, _wg2 = population(D, spec, era, itr)
+    t0 = time.time()
+    if spec["group"] == "joint":
+        a, sc, extra = NA.joint_confirm(D, spec, era, ifit, iva, fit_rows, ev_r,
+                                        XF, FN, V, P)
+        extra["fit_secs"] = round(time.time() - t0, 1)
+        return a, sc, extra, (tr, itr, iva, ev_r), None, XF, FN, val
+    # inner-block HP search, champion discipline: 12 cells for xgboost, the
+    # engine-equivalent depth/lr pair for the others (P6 keeps those narrow)
+    grid = (NA.HP_GRID if spec["engine"] == "xgb"
+            else tuple({"max_depth": d, "eta": e} for d in (4, 6)
+                       for e in (0.05, 0.10)))
+    best, best_v = None, -np.inf
+    for hp in grid:
+        s_i, _info = fit_cell(D, spec, ifit, iva, XF, FN, val,
+                              dict(CONFIRM, depth=hp["max_depth"],
+                                   eta=hp["eta"], rounds=CONFIRM["rounds"]),
+                              wgroup=None, hp=hp)
+        u_, n_ = N.committed_policy().get(era, ("cell", 1))
+        tk = N.top_per_cell_score(D, N.deployable(D, iva), s_i, n_)
+        v_ = N.read_rows(D, N.replay_delayed(D, tk, P)).get("usd_per_session")
+        if v_ is not None and v_ > best_v:
+            best, best_v = hp, v_
+    sc, info = fit_cell(D, spec, fit_rows, ev_r, XF, FN, val,
+                        dict(CONFIRM, depth=best["max_depth"], eta=best["eta"],
+                             rounds=CONFIRM["rounds"]),
+                        wgroup=wg, hp=best)
+    sc_tr, _i2 = fit_cell(D, spec, fit_rows, fit_rows, XF, FN, val,
+                          dict(CONFIRM, depth=best["max_depth"],
+                               eta=best["eta"], rounds=CONFIRM["rounds"]),
+                          wgroup=wg, hp=best)
+    u_, n_ = N.committed_policy().get(era, ("cell", 1))
+    tk = N.top_per_cell_score(D, ev_r, sc, n_)
+    a = read_arm(D, tk, P)
+    info.update({"hp": best, "inner_usd": best_v,
+                 "fit_secs": round(time.time() - t0, 1)})
+    return a, sc, info, (tr, itr, iva, ev_r), sc_tr, XF, FN, val
+
+
+def apply_policies(D, spec, era, sc, sc_tr, folds, XF, FN, P, V, val):
+    """P8: the five selection policies, read off ONE fitted score column."""
+    tr, itr, iva, ev_r = folds
+    u_, n_ = N.committed_policy().get(era, ("cell", 1))
+    out = {}
+    out["static1"] = (read_arm(D, N.top_per_cell_score(D, ev_r, sc, n_), P), {})
+    # --- thresh: seat the cell's top-1 only above an INNER-SWEPT score bar
+    if sc_tr is not None:
+        q = np.nanpercentile(sc_tr[sc_tr == sc_tr], np.arange(0, 96, 5)) \
+            if np.isfinite(sc_tr).any() else np.array([-np.inf])
+        # the sweep runs on the inner-validation rows scored by the SAME model
+        best_tau, best_v = -np.inf, -np.inf
+        for tau in np.concatenate([[-np.inf], q]):
+            tk = [(i, d) for (i, d) in N.top_per_cell_score(D, iva, sc_tr, n_)
+                  if sc_tr[i] >= tau]
+            v_ = N.read_rows(D, N.replay_delayed(D, tk, P)).get(
+                "usd_per_session")
+            if v_ is not None and v_ > best_v:
+                best_tau, best_v = tau, v_
+        tk = [(i, d) for (i, d) in N.top_per_cell_score(D, ev_r, sc, n_)
+              if sc[i] >= best_tau]
+        out["thresh"] = (read_arm(D, tk, P), {"tau": float(best_tau),
+                                              "inner_usd": best_v})
+    # --- gate60 / gate120: OBJ-2, the two-stage act
+    top2_ev = NA.top2_by_score(D, ev_r, sc)
+    for dl in N.GATE_DELAYS:
+        g_iva, g_ev, rounds = NA.fit_gate(D, P, dl, itr, iva, tr, ev_r, XF, FN,
+                                          V)
+        top2_iva = NA.top2_by_score(D, iva, sc_tr) if sc_tr is not None else []
+        best_tau, best_v = -np.inf, -np.inf
+        gq = np.nanpercentile(g_iva[np.isfinite(g_iva)],
+                              np.arange(0, 96, 5)) if top2_iva else []
+        for tau in np.concatenate([[-np.inf], gq]) if len(gq) else [-np.inf]:
+            tk, _st = NA.gate_takes(top2_iva, g_iva, tau, dl, V)
+            v_ = N.read_rows(D, N.replay_delayed(D, tk, P)).get(
+                "usd_per_session")
+            if v_ is not None and v_ > best_v:
+                best_tau, best_v = tau, v_
+        tk, st = NA.gate_takes(top2_ev, g_ev, best_tau, dl, V)
+        st.update({"tau": float(best_tau), "inner_usd": best_v,
+                   "gate_rounds": rounds})
+        out["gate%d" % dl] = (read_arm(D, tk, P), st)
+        # RED-FIRST: the DISPLACED gate — the same readings, attached to the
+        # wrong candidates.  Anything the real gate earns that this also earns
+        # is not verification, it is abstention rate.
+        rs = np.random.RandomState(N.SEED + 4242)
+        gd = g_ev.copy()
+        fin = np.nonzero(np.isfinite(gd))[0]
+        gd[fin] = gd[fin][rs.permutation(fin.size)]
+        tkd, std = NA.gate_takes(top2_ev, gd, best_tau, dl, V)
+        out["gate%d_DISPLACED" % dl] = (read_arm(D, tkd, P), std)
+    # --- stop: OBJ-3, optimal stopping on the historical arrival process
+    if sc_tr is not None:
+        fit = NA.fit_stopping(D, P, tr, sc_tr, val)
+        tk, st = NA.stopping_takes(D, P, ev_r, sc, fit, n_per_cell=n_)
+        out["stop"] = (read_arm(D, tk, P), st)
+        fo = NA.fit_stopping(D, P, tr, sc_tr, val)
+        tko, sto = NA.stopping_takes(D, P, ev_r, sc, fo, n_per_cell=n_,
+                                     oracle_val=val)
+        out["stop_ORACLE"] = (read_arm(D, tko, P), sto)
+    return out
+
+
+def holm(pvals):
+    """Holm-Bonferroni over ONE family, returning the adjusted p-values."""
+    m = len(pvals)
+    order = sorted(range(m), key=lambda i: pvals[i])
+    out = [0.0] * m
+    run = 0.0
+    for k, i in enumerate(order):
+        run = max(run, min(1.0, (m - k) * pvals[i]))
+        out[i] = run
+    return out
+
+
+def _paired_p(delta, lo, hi):
+    """A two-sided p from a CR1 interval (the interval IS the inference here;
+    the p is its restatement for the Holm family)."""
+    from math import erfc, sqrt
+    if delta is None or lo is None or hi is None:
+        return 1.0
+    se = (hi - lo) / (2 * 1.96)
+    if se <= 0:
+        return 1.0
+    return float(erfc(abs(delta) / (se * sqrt(2.0))))
+
+
+def stage_confirm(top_n=15, eras=CONFIRM_ERAS):
+    import st_rank as RK
+    D = N.matrix()
+    _D["D"] = D
+    _D["klass"] = RK.class_index(D)[0]
+    P = N.load_paths()
+    V = {int(d): N.delayed_value(P, d, D) for d in N.DELAYS}
+    scr = N.load_json("atlas_screen.json")
+    if scr is None:
+        raise N.NewObjRefusal("no screen results — run --screen first")
+    res = scr["results"]
+    cells = {spec_id(c): c for c in screen_grid()}
+    ranked = []
+    for k, c in cells.items():
+        a = res.get("%s|0" % k)
+        b = res.get("%s|1" % k)
+        if a is None:
+            continue
+        if b is not None and b["inner_usd"] >= a["inner_usd"]:
+            continue                                   # VOID (twin reached it)
+        ranked.append((a["inner_usd"], k))
+    ranked.sort(reverse=True)
+    keep = [k for _v, k in ranked[:top_n]]
+    if spec_id(REF) not in keep:
+        keep.append(spec_id(REF))
+    N.hb("confirm: %d survivors (+reference) of %d screened"
+         % (len(keep) - 1, len(cells)))
+    rows, pol_rows, per_arm, reps = [], [], {}, {}
+    for k in keep:
+        spec = cells[k]
+        for era in eras:
+            try:
+                a, sc, info, folds, sc_tr, XF, FN, val = confirm_arm(
+                    D, spec, era, P, V)
+            except Exception as exc:                    # noqa: BLE001
+                N.hb("confirm FAIL %s %s: %s" % (k, era, exc))
+                continue
+            per_arm.setdefault(k, []).append(dict(a, era=era))
+            reps.setdefault(k, {})[era] = a
+            rows.append([k, era, spec["_block"], a["n_seated"],
+                         N._r(a["usd_per_session"]), N._r(a["ps_lo"]),
+                         N._r(a["ps_hi"]), N._r(a["usd_per_trade"]),
+                         N._r(a["frac_ge_1000"], 4),
+                         N._r(a["capture_oracle"], 4),
+                         json.dumps(info.get("hp", {})),
+                         info.get("fit_secs")])
+            try:
+                pols = apply_policies(D, spec, era, sc, sc_tr, folds, XF, FN,
+                                      P, V, val)
+            except Exception as exc:                    # noqa: BLE001
+                N.hb("policy FAIL %s %s: %s" % (k, era, exc))
+                pols = {}
+            for pname, (pa, pst) in pols.items():
+                pol_rows.append([k, era, pname, pa.get("n_seated"),
+                                 N._r(pa.get("usd_per_session")),
+                                 N._r(pa.get("ps_lo")), N._r(pa.get("ps_hi")),
+                                 N._r(pa.get("usd_per_trade")),
+                                 json.dumps({kk: (round(vv, 3)
+                                                  if isinstance(vv, float)
+                                                  else vv)
+                                             for kk, vv in pst.items()})])
+                per_arm.setdefault("%s@@%s" % (k, pname), []).append(
+                    dict(pa, era=era))
+            N.hb("confirm %s %s: $%s/session (%d seats)"
+                 % (k, era, N._r(a["usd_per_session"]), a["n_seated"]))
+    # pooled + the ONE Holm family, champion as the reference arm
+    ref_parts = per_arm.get(spec_id(REF), [])
+    ref_pool = N.pool_reads(ref_parts)
+    fam = []
+    for k, parts in sorted(per_arm.items()):
+        q = N.pool_reads(parts)
+        if not q.get("n_sessions"):
+            continue
+        d_ = (q["usd_per_session"] - ref_pool["usd_per_session"]) \
+            if ref_pool.get("usd_per_session") is not None else None
+        rows.append([k, "POOLED_E3-E7", "", q["n_seated"],
+                     N._r(q["usd_per_session"]), N._r(q["ps_lo"]),
+                     N._r(q["ps_hi"]), N._r(q["usd_per_trade"]),
+                     N._r(q["frac_ge_1000"], 4),
+                     N._r(q["capture_oracle"], 4), "", ""])
+        if k != spec_id(REF) and d_ is not None:
+            se = ((q["ps_hi"] - q["ps_lo"]) ** 2
+                  + (ref_pool["ps_hi"] - ref_pool["ps_lo"]) ** 2) ** 0.5 \
+                / (2 * 1.96)
+            fam.append([k, d_, _paired_p(d_, d_ - 1.96 * se, d_ + 1.96 * se)])
+    if fam:
+        adj = holm([f[2] for f in fam])
+        hol = [[f[0], N._r(f[1]), N._r(f[2], 6), N._r(a, 6),
+                "SIGNIFICANT" if a < 0.05 else "not significant"]
+               for f, a in zip(fam, adj)]
+        hol.sort(key=lambda r: -(r[1] if isinstance(r[1], float) else -1e9))
+        N.write_tsv("RANKING_ATLAS_HOLM.tsv",
+                    ["arm", "delta_vs_champion_usd", "p_raw", "p_holm",
+                     "verdict"], hol,
+                    extra=["ONE Holm family over every confirmed arm and "
+                           "policy read, m=%d.  The whole screen's trial count "
+                           "(%d cells x 2) is recorded in the grid receipt and "
+                           "is the multiplicity this family sits inside."
+                           % (len(fam), len(cells))])
+    N.write_tsv("RANKING_ATLAS_CONFIRM.tsv",
+                ["cell", "era", "design_block", "n_seated", "usd_per_session",
+                 "ps_lo", "ps_hi", "usd_per_trade", "frac_ge_1000",
+                 "capture_oracle", "hp", "fit_secs"], rows,
+                extra=["STAGE B.  Full E3-E7 walk-forward, champion HP "
+                       "discipline (inner-block selection only), CR1 intervals "
+                       "clustered by DAY, m3_walk's committed per-era (unit,N), "
+                       "replay proved seat-for-seat against m3_walk.replay_rows."
+                       "  E8 IS NOT IN THIS TABLE."])
+    N.write_tsv("RANKING_ATLAS_POLICIES.tsv",
+                ["cell", "era", "policy", "n_seated", "usd_per_session",
+                 "ps_lo", "ps_hi", "usd_per_trade", "detail"], pol_rows,
+                extra=["P8: the five selection policies read off ONE fitted "
+                       "score column per arm.  gate60/gate120 = OBJ-2 "
+                       "(rank-then-gate-verify, threshold swept on the inner "
+                       "block); *_DISPLACED = the red-first control, the same "
+                       "gate readings attached to the WRONG candidates; "
+                       "stop = OBJ-3 (backward induction on the historical "
+                       "arrival process); stop_ORACLE = its clairvoyant-on-the-"
+                       "present ceiling."])
+    N.save_json("atlas_confirm.json",
+                {k: [{kk: vv for kk, vv in a.items()
+                      if not kk.startswith("_")} for a in v]
+                 for k, v in per_arm.items()})
+    return rows
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--grid", action="store_true")
+    ap.add_argument("--screen", action="store_true")
+    ap.add_argument("--confirm", action="store_true")
+    ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--top-n", type=int, default=15)
+    ap.add_argument("--limit", type=int, default=None)
+    a = ap.parse_args()
+    if a.grid:
+        print(json.dumps(grid_receipt(), indent=1, default=str))
+    elif a.screen:
+        stage_screen(workers=a.workers, limit=a.limit)
+    elif a.confirm:
+        stage_confirm(top_n=a.top_n)
+    else:
+        ap.print_help()
+
+
+if __name__ == "__main__":
+    main()

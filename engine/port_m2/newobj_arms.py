@@ -374,3 +374,235 @@ if __name__ == "__main__":
                    search=not a.no_search)
     else:
         ap.print_help()
+
+
+# ================================== OBJ-2: RANK-THEN-GATE-VERIFY (a POLICY) ===
+GATE_POST = ("f_at_D", "mae_to_D", "mfe_to_D", "walled_by_D") + \
+    tuple(__import__("m2_delay").PP_FIELDS)
+
+
+def gate_block(P, dl):
+    """The [t, t+D] post-window block as a design matrix — the DELAY census's
+    own `pp_*` fields plus the four path markers.  §3 of DELAY_DECIDABILITY
+    measured that the post-window ORDER-FLOW cues carry nothing over this
+    price-path block, which is why the block is the whole gate input."""
+    cols = [N.FIDX[f] for f in GATE_POST]
+    return P[int(dl)][:, cols], list(GATE_POST)
+
+
+def fit_gate(D, P, dl, itr, iva, tr, ev, XF, FN, V, full=True, shuffle=False):
+    """P(this delayed seat pays) from the post-window tape, fitted walk-forward.
+
+    Target = the DELAYED certificate at D, so the gate is trained on the value
+    of the act it is actually verifying.  `full=True` reproduces the DELAY
+    census's own gate shape (pre-t features + the [t, t+D] block); `full=False`
+    is the post-window block alone.
+    """
+    import xgboost as xgb
+    G, GN = gate_block(P, dl)
+    if full:
+        Xg = np.hstack([XF, G.astype(np.float32)])
+        Ng = list(FN) + GN
+    else:
+        Xg, Ng = G.astype(np.float32), list(GN)
+    y = V[int(dl)]
+    cfg = {"objective": "reg:squarederror", "tree_method": "hist",
+           "max_depth": 5, "eta": 0.06, "min_child_weight": 20,
+           "subsample": 0.8, "colsample_bytree": 0.7, "seed": N.SEED,
+           "nthread": 8}
+
+    def _fit(rows, va, rounds=None):
+        r = rows[np.isfinite(y[rows])]
+        yy = y
+        if shuffle:
+            rs = np.random.RandomState(N.SEED + 313)
+            yy = y.copy()
+            yy[r] = yy[r][rs.permutation(r.size)]
+        d = xgb.DMatrix(Xg[r], label=yy[r], feature_names=Ng)
+        if va is None:
+            return xgb.train(cfg, d, rounds or 200), rounds or 200
+        v = va[np.isfinite(y[va])]
+        dv = xgb.DMatrix(Xg[v], label=yy[v], feature_names=Ng)
+        b = xgb.train(cfg, d, 300, evals=[(dv, "inner")],
+                      early_stopping_rounds=25, verbose_eval=False)
+        return b, int(b.best_iteration) + 1
+
+    b_in, rounds = _fit(itr, iva)
+    g_iva = np.full(D["d8"].size, np.nan)
+    g_iva[iva] = b_in.predict(xgb.DMatrix(Xg[iva], feature_names=Ng))
+    b_out, _ = _fit(tr, None, rounds=rounds)
+    g_ev = np.full(D["d8"].size, np.nan)
+    g_ev[ev] = b_out.predict(xgb.DMatrix(Xg[ev], feature_names=Ng))
+    return g_iva, g_ev, rounds
+
+
+def top2_by_score(D, rows, s):
+    return N._top2_by_score(D, rows, s)
+
+
+def gate_takes(top2, gate, tau, dl, V):
+    """THE TWO-STAGE ACT: the ranker nominates, the post-window tape verifies,
+    a failed verification falls through to member #2, and a second failure means
+    NO SEAT."""
+    out = []
+    n1 = n2 = n0 = 0
+    for m1, m2 in top2:
+        got = None
+        for m, which in ((m1, 1), (m2, 2)):
+            if m is None:
+                continue
+            if np.isfinite(gate[m]) and gate[m] >= tau \
+                    and np.isfinite(V[int(dl)][m]):
+                got = (m, which)
+                break
+        if got is None:
+            n0 += 1
+            continue
+        out.append((got[0], int(dl)))
+        if got[1] == 1:
+            n1 += 1
+        else:
+            n2 += 1
+    return out, {"pass_1": n1, "fall_to_2": n2, "no_seat": n0}
+
+
+# ==================================== OBJ-3: OPTIMAL STOPPING (a POLICY) =====
+STOP_DT = 30.0            # backward-induction step, seconds
+STOP_BINS = 20            # score->dollars calibration bins
+
+
+def fit_stopping(D, P, rows, score, val):
+    """BACKWARD INDUCTION ON THE HISTORICAL ARRIVAL PROCESS.
+
+    A cell's members ARRIVE in time order.  `top-1 per cell` needs the whole
+    cell in hand before it can pick; a stopping rule decides at each arrival
+    with only the past.  Fitted on the training block:
+
+      u(q)   the calibration score-percentile -> realised dollars
+      p_b    P(at least one arrival in the next `STOP_DT` seconds | remaining
+             time in bucket b), from the training cells' own arrivals
+      W(b)   W(0) = 0;  W(b) = (1-p_b) W(b-1) + p_b E_q[max(u(q), W(b-1))]
+
+    and the rule is TAKE iff `u(q) >= W(b-1)` — the continuation value of the
+    time that is left.  Everything is estimated on `rows`; nothing here sees an
+    evaluation era.
+    """
+    r = np.asarray(rows, dtype=np.int64)
+    s = score[r]
+    ok = np.isfinite(s)
+    r, s = r[ok], s[ok]
+    v = val[r]
+    cdf = np.sort(s)
+    q = np.searchsorted(cdf, s, side="right") / max(cdf.size, 1)
+    edges = np.linspace(0.0, 1.0, STOP_BINS + 1)
+    ib = np.clip(np.digitize(q, edges[1:-1]), 0, STOP_BINS - 1)
+    u_tab = np.array([np.mean(v[ib == k]) if np.any(ib == k) else 0.0
+                      for k in range(STOP_BINS)])
+    rem = P[0][r, N.FIDX["pc_sec"]] - D["dec_sec"][r].astype(np.float64)
+    rem = np.clip(rem, 0.0, None)
+    nb = int(np.ceil(np.nanpercentile(rem, 99.5) / STOP_DT)) + 1
+    cell = ((D["asset_idx"][r].astype(np.int64) * 100000000
+             + D["d8"][r].astype(np.int64)) * 100 + D["phase_dec"][r])
+    # p_b: over all (cell, bucket) pairs the cell's window covers
+    bidx = np.clip((rem / STOP_DT).astype(np.int64), 0, nb - 1)
+    hit = np.zeros(nb)
+    tot = np.zeros(nb)
+    order = np.argsort(cell, kind="stable")
+    co = cell[order]
+    starts = [0] + (np.flatnonzero(co[1:] != co[:-1]) + 1).tolist()
+    for a, b in zip(starts, starts[1:] + [co.size]):
+        ix = order[a:b]
+        bb = bidx[ix]
+        hi = int(bb.max())
+        tot[:hi + 1] += 1
+        hit[np.unique(bb)] += 1
+    p_b = np.where(tot > 0, hit / np.maximum(tot, 1), 0.0)
+    u_sample = u_tab[ib]
+    W = np.zeros(nb)
+    for b in range(1, nb):
+        cont = W[b - 1]
+        W[b] = (1 - p_b[b]) * cont + p_b[b] * float(
+            np.mean(np.maximum(u_sample, cont)))
+    return {"cdf": cdf, "edges": edges, "u_tab": u_tab, "W": W, "nb": nb,
+            "p_b": p_b}
+
+
+def stopping_takes(D, P, rows, score, fit, n_per_cell=1, oracle_val=None):
+    """Apply the fitted stopping rule forward: inside each cell take the first
+    arrival whose value beats the continuation value of the time remaining."""
+    ro, blocks = N.cell_blocks(D, rows)
+    s = np.asarray(score)[ro]
+    cdf, edges, u_tab, W, nb = (fit["cdf"], fit["edges"], fit["u_tab"],
+                                fit["W"], fit["nb"])
+    rem = (P[0][ro, N.FIDX["pc_sec"]]
+           - D["dec_sec"][ro].astype(np.float64))
+    bidx = np.clip((np.clip(rem, 0, None) / STOP_DT).astype(np.int64), 0, nb - 1)
+    q = np.searchsorted(cdf, s, side="right") / max(cdf.size, 1)
+    ib = np.clip(np.digitize(q, edges[1:-1]), 0, STOP_BINS - 1)
+    u = u_tab[ib] if oracle_val is None else np.asarray(oracle_val)[ro]
+    out, n_take, n_pass = [], 0, 0
+    for a, b in blocks:
+        taken = 0
+        for j in range(a, b):
+            if not np.isfinite(s[j]):
+                continue
+            thr = W[max(bidx[j] - 1, 0)]
+            if u[j] >= thr:
+                out.append((int(ro[j]), 0))
+                taken += 1
+                n_take += 1
+                if taken >= n_per_cell:
+                    break
+            else:
+                n_pass += 1
+    return out, {"n_take": n_take, "n_declined": n_pass}
+
+
+def joint_confirm(D, spec, era, ifit, iva, fit_rows, ev_r, XF, FN, V, P):
+    """OBJ-1 at CONFIRM budget: the {member x delay} ranker with the champion's
+    inner-block HP discipline, seated through `replay_delayed`."""
+    import xgboost as xgb
+    import rank_atlas as RA
+    delays = tuple(N.DELAYS)
+    fn = list(FN) + ["delay_frac"]
+    r_i, d_i, v_i, X_i, g_i = _joint_design_X(D, ifit, delays, V, XF)
+    r_v, d_v, v_v, X_v, g_v = _joint_design_X(D, iva, delays, V, XF)
+    dtr = xgb.DMatrix(X_i, label=grades(v_i), feature_names=fn)
+    dtr.set_group(g_i)
+    dva = xgb.DMatrix(X_v, label=grades(v_v), feature_names=fn)
+    dva.set_group(g_v)
+    cfg, best_rounds, inner = None, ROUNDS, -np.inf
+    for hp in HP_GRID:
+        c = dict(BASE)
+        c.update(hp)
+        if spec["obj"] == "ndcg1":
+            c["eval_metric"] = "ndcg@1"
+        elif spec["obj"] == "dpairs":
+            c["objective"] = "rank:pairwise"
+        bb = xgb.train(c, dtr, ROUNDS, evals=[(dva, "inner")],
+                       early_stopping_rounds=EARLY, verbose_eval=False)
+        if float(bb.best_score) > inner:
+            cfg, best_rounds, inner = c, int(bb.best_iteration) + 1, \
+                float(bb.best_score)
+    del dtr, dva, X_i, X_v
+    r_t, d_t, v_t, X_t, g_t = _joint_design_X(D, fit_rows, delays, V, XF)
+    dall = xgb.DMatrix(X_t, label=grades(v_t), feature_names=fn)
+    dall.set_group(g_t)
+    b2 = xgb.train(cfg, dall, best_rounds)
+    del dall, X_t
+    r_e, d_e, _v, X_e, _g = _joint_design_X(D, ev_r, delays, V, XF)
+    s = b2.predict(xgb.DMatrix(X_e, feature_names=fn), output_margin=True)
+    S = {int(dl): np.full(D["d8"].size, np.nan) for dl in delays}
+    for dl in delays:
+        m = d_e == int(dl)
+        S[int(dl)][r_e[m]] = s[m]
+    _u, n_ = N.committed_policy().get(era, ("cell", 1))
+    takes = N.top_per_cell_joint(D, ev_r, S, n_, delays)
+    a = N.read_rows(D, N.replay_delayed(D, takes, P))
+    # the joint arm's "score column" for downstream policies is its D=0 slice
+    return a, S[0], {"hp": {k: cfg.get(k) for k in
+                            ("max_depth", "eta",
+                             "lambdarank_num_pair_per_sample")},
+                     "inner_ndcg": inner, "rounds": best_rounds,
+                     "n_joint_rows": int(r_t.size),
+                     "delay_mix": a["delay_mix"]}

@@ -170,7 +170,7 @@ Full cross = **7,200** cells. Live after structural prunes = **1,944**.
 
 | | |
 |---|---|
-| budget | identical for every cell: **60 rounds**, depth 6, η 0.08, **25% of training groups**, seed 20260813, no early stopping |
+| budget | identical for every cell: **120 rounds**, depth 6, η 0.08, **60% of training groups**, seed 20260813, no early stopping. **AMENDMENT A1**, recorded not silently applied: the registered budget was 60 rounds / 25%; a 5-cell instrument calibration (no lift, no ranking, no cell compared to another) left the reference cell at $106.73/session on the inner block with a negative E3 fold — too noisy to rank 219 cells on. Doubled in both. Identical for every cell and every twin, which is what the screen law actually requires. |
 | where | the **inner-TRAIN** days of the `E3 / E5 / E7` folds; read on the **inner-VALIDATION** days. Entirely inside the training block — **no evaluation era is touched by the screen** |
 | eras | `E3` (data-starved), `E5`, `E7` (the worst cell in the champion's table) — the weak-era focus the standing criterion demands |
 | **yardstick** | **realised $/session under the harness's own `cell/N` seating**, averaged over the three folds. The ONE metric comparable across objectives — *a cell's own loss is not*, "because different objectives have different losses and are not comparable on them" (`LABEL_ATLAS_V2` §2) |

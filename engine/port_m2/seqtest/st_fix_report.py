@@ -115,7 +115,7 @@ def paired_delta(D, ceil, a_tag, a_form, b_tag, b_form):
             "p": cm.get("p") if cm else None}
 
 
-CHAMPION = ("LMART_CELL_ALLDATA", "primary")   # SEQTEST.md §14, $935.97/session
+CHAMPION = ("LMART_HP_NOTF", "primary")   # SEQTEST.md §18, $1,174.01/session
 
 
 def write_paired(D, ceil, pairs, name="SEQTEST2_PAIRED.tsv"):

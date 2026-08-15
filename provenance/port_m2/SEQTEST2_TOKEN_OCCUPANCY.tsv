@@ -1,0 +1,49 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# F1: the R1/R6 REPAIR, measured.  The first pass's price axis put 93.31% of 1.43B events in ONE bucket; this vocabulary's largest price bucket is reported above.
+# The mechanism: the L1 mid moves in HALF ticks and the V1 bucketing was cut in whole ticks.
+# per-asset cuts (fitted on d8<20240101 ONLY): {"SI": 0.75, "HG": 0.75, "NKD": 0.75}
+# per-asset qhi chosen from [0.75, 1.25, 1.75, 2.25] to MINIMISE the maximum px_bucket occupancy; fitted on d8 < 20240101 only (the PRE-A causal boundary); qlo fixed at 0.25
+field	bucket	n_events	mass_fraction	n_vocab_cells
+px_bucket	0 h<=-3	419654	0.000294	116
+px_bucket	1 h=-2	1159145	0.000813	116
+px_bucket	2 h=-1	92162483	0.06465	121
+px_bucket	3 h=0,q<=-qhi	188591272	0.132293	136
+px_bucket	4 h=0,-qhi<q<=-qlo	428116809	0.300316	120
+px_bucket	5 h=0,|q|<qlo	943051	0.000662	59
+px_bucket	6 h=0,qlo<=q<qhi	430263310	0.301822	139
+px_bucket	7 h=0,q>=qhi	190178749	0.133407	160
+px_bucket	8 h=+1	92127485	0.064626	121
+px_bucket	9 h=+2	1171483	0.000822	103
+px_bucket	10 h>=+3	419262	0.000294	106
+size_bucket	1	1224351868	0.858861	427
+size_bucket	2-9	198788202	0.139446	375
+size_bucket	10-49	2356450	0.001653	304
+size_bucket	>=50	56183	3.9e-05	191
+gap_bucket	0	345294049	0.242218	338
+gap_bucket	1	512936704	0.359816	219
+gap_bucket	2	128495277	0.090137	209
+gap_bucket	3	136226356	0.09556	211
+gap_bucket	4	302600317	0.212269	320
+act_side	AB	307744200	0.215877	126
+act_side	AA	308167661	0.216174	123
+act_side	AN	662421	0.000465	84
+act_side	CB	308618993	0.216491	126
+act_side	CA	309551370	0.217145	112
+act_side	CN	1507173	0.001057	79
+act_side	MB	61549216	0.043176	145
+act_side	MA	63134874	0.044288	142
+act_side	MN	143319	0.000101	43
+act_side	TB	31496657	0.022094	108
+act_side	TA	31430053	0.022048	109
+act_side	TN	1546766	0.001085	100
+act_side	FB	0	0.0	0
+act_side	FA	0	0.0	0
+act_side	FN	0	0.0	0
+act_side	RB	0	0.0	0
+act_side	RA	0	0.0	0
+act_side	RN	0	0.0	0
+vocab	used_of_3960	1297	0.327525	0
+vocab	top10_mass	0	0.349835	10
+vocab	top100_mass	0	0.914242	100
+vocab	tail_mass_below_1e-4	0	0.005885	3735
+vocab	entropy_nats	0	4.516551	0

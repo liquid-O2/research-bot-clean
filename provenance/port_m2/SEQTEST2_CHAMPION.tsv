@@ -1,0 +1,13 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# F5: the CHAMPION UPGRADES.  +26 census-surviving creator detectors as matrix columns, and the D-021 MAE-cap label variant (18-tick dip q75: SI/NKD $450, HG $225) as an alternative TARGET COLUMN — never a contract change (D-029).
+# The dollars are the same replayed certificate dollars for every row, so the label variant is scored on exactly the same money.
+arm	n_features	label	winner_set_size	winner_rate	creator_gain_share	capture_oracle_composed	co_lo	co_hi	usd_per_session	mae_cap_usd
+GBT	202	d021	81346	0.05813		0.0271	0.0129	0.0413	80.17	{"SI": 300.0, "HG": 300.0, "NKD": 300.0}
+GBT_ALLDATA	202	d021	81346	0.05813		0.0154	0.0004	0.0303	45.49	{"SI": 300.0, "HG": 300.0, "NKD": 300.0}
+GBT_CRE26	228	d021	81346	0.05813	0.0134	0.0308	0.016	0.0456	91.22	{"SI": 300.0, "HG": 300.0, "NKD": 300.0}
+GBT_CRE26_ALLDATA	228	d021	81346	0.05813	0.0114	0.0192	0.0045	0.034	56.92	{"SI": 300.0, "HG": 300.0, "NKD": 300.0}
+GBT_CRE26_MAECAP	228	maecap	93401	0.066745	0.0134	0.0271	0.0125	0.0418	80.32	{"SI": 450.0, "HG": 225.0, "NKD": 450.0}
+GBT_CRE26_MAECAP_ALLDATA	228	maecap	93401	0.066745	0.0114	0.0228	0.008	0.0375	67.33	{"SI": 450.0, "HG": 225.0, "NKD": 450.0}
+GBT_MAECAP	202	maecap	93401	0.066745		0.0319	0.0174	0.0464	94.44	{"SI": 450.0, "HG": 225.0, "NKD": 450.0}
+GBT_MAECAP_ALLDATA	202	maecap	93401	0.066745		0.0248	0.0091	0.0405	73.29	{"SI": 450.0, "HG": 225.0, "NKD": 450.0}
+GBT_SHUFFLED	202	d021	81346	0.05813		-0.0134	-0.0289	0.0021	-39.55	{"SI": 300.0, "HG": 300.0, "NKD": 300.0}

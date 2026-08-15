@@ -1,0 +1,21 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# F2: REAL TRANSFER.  kind=probe is the FROZEN trunk (the first pass's mechanism, and the named confound on the R4 tag); kind=ft2 is the partial fine-tune / LoRA that replaces it.
+# A frozen row and a fine-tuned row on the SAME trunk isolate the transfer mechanism; a V1 row and a V2 row on the same mechanism isolate the tokenizer repair.
+arm	kind	trunk	tokenizer	mode	pooling	unfreeze_top	lora_rank	lldecay	daymem	n_trainable_params	mean_inner_rho	mean_eval_auc_winner	capture_oracle	co_lo	co_hi	usd_per_session
+FT2_RANDOM_TOP4_ATTN	ft2	RANDOM_V2	v2	fused	attn	4	0	0.75	False	13606658	0.4418	0.6089	0.016	0.0049	0.0272	47.43
+FT2_TOP4_ATTN	ft2	PRE_V2_shared_MULTI_CPC0	v2	fused	attn	4	0	0.75	False	13606658	0.4444	0.6128	0.0315	0.0207	0.0423	93.2
+PROBE2_CTXONLY	probe	PRE_V2_shared_NEXT	v1	ctx	lastmean	0	0		False		0.4431	0.6014	0.0234	0.0128	0.0341	69.35
+PROBE2_PRE_V2_shared_MULTI_CPC0.6_FUSED	probe	PRE_V2_shared_MULTI_CPC0.6	v1	fused	lastmean	0	0		False		0.4447	0.6079	0.0205	0.0094	0.0316	60.68
+PROBE2_PRE_V2_shared_MULTI_CPC0_FUSED	probe	PRE_V2_shared_MULTI_CPC0	v1	fused	lastmean	0	0		False		0.4445	0.6057	0.0255	0.0148	0.0362	75.43
+PROBE2_PRE_V2_shared_NEXT_FUSED	probe	PRE_V2_shared_NEXT	v1	fused	lastmean	0	0		False		0.444	0.6044	0.0259	0.0151	0.0368	76.68
+PROBE2_PRE_V2_shared_NEXT_SEQ	probe	PRE_V2_shared_NEXT	v1	seq	lastmean	0	0		False		0.0269	0.5709	-0.0069	-0.0223	0.0085	-20.3
+PROBE2_RANDOM_V2_FUSED	probe	RANDOM_V2	v1	fused	lastmean	0	0		False		0.4437	0.6052	0.0181	0.0069	0.0293	53.5
+PROBE_NEXTONLY_FUSED	probe	PRE_V_shared_NEXT	v1	fused	lastmean	0	0		False		0.4429	0.6087	0.0195	0.0086	0.0304	57.67
+PROBE_PRE_V_shared_MULTI_CTX	probe	PRE_V_shared_MULTI	v1	ctx	lastmean	0	0		False		0.4431	0.6014	0.0234	0.0128	0.0341	69.35
+PROBE_PRE_V_shared_MULTI_FUSED	probe	PRE_V_shared_MULTI	v1	fused	lastmean	0	0		False		0.442	0.6086	0.019	0.0078	0.0303	56.35
+PROBE_PRE_V_shared_MULTI_SEQ	probe	PRE_V_shared_MULTI	v1	seq	lastmean	0	0		False		0.0388	0.6076	0.0015	-0.0142	0.0171	4.39
+PROBE_RANDOM_FUSED	probe	RANDOM	v1	fused	lastmean	0	0		False		0.4444	0.6058	0.0171	0.006	0.0283	50.63
+PROBE_SHARED_FUSED_HG	probe	PRE_V_shared_MULTI	v1	fused	lastmean	0	0		False		0.4587	0.6509	0.0128	-0.0171	0.0427	23.47
+PROBE_SHARED_FUSED_NKD	probe	PRE_V_shared_MULTI	v1	fused	lastmean	0	0		False		0.4889	0.585	0.0015	-0.0192	0.0221	4.43
+PROBE_SHARED_FUSED_SI	probe	PRE_V_shared_MULTI	v1	fused	lastmean	0	0		False		0.3844	0.5891	0.0046	-0.0118	0.021	18.41
+PROBE_SIONLY_FUSED_SI	probe	PRE_V_si_MULTI	v1	fused	lastmean	0	0		False		0.3838	0.5802	0.0099	-0.0062	0.0261	39.63

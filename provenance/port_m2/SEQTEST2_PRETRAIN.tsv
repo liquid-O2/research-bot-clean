@@ -1,0 +1,11 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# Every trunk this lane has trained, V1 and the F1-repaired V2 grid, with its own gates.
+# The floors are RECOMPUTED per vocabulary: a V2 perplexity against a V1 floor would not be a comparison.
+trunk	tokenizer	vocab	multi_horizon	cpc_weight	steps	wall_sec	val_next	val_ppl	bigram_floor	unigram_floor	beats_bigram	overfit_gate_fired	truncated	head_loss_last200
+PRE_A_shared	v1	3152		0.0	6503	2190.9				3.8903			False	{}
+PRE_V2_shared_MULTI_CPC0.6	v2	3962	True	0.6	5729	2200.2	2.7816	16.14	3.5691	4.5166	True	False	True	{"next": 2.781019233465195, "h60": 0.882162501513958, "h300": 2.082794221639633, "cpc64": 7.504177613258362, "cpc256": 7.533489155769348, "total": 12.693106722831725}
+PRE_V2_shared_MULTI_CPC0	v2	3962	True	0.0	5883	2156.3	2.7538	15.7	3.5697	4.5166	True	False	False	{"next": 2.752233030796051, "h60": 0.8738894534111022, "h300": 2.067250680923462, "total": 3.634575115442276}
+PRE_V2_shared_NEXT	v2	3962	False	0.0	5612	2200.6	2.7276	15.3	3.5697	4.5166	True	False	False	{"next": 2.726217851638794, "total": 2.726217851638794}
+PRE_V_shared_MULTI	v1	3152	True	0.2	4525	1700.4	2.877	17.76	3.4843	3.8903	True	False	True	{"next": 2.8895576226711275, "h60": 0.898499656021595, "h300": 2.1379257655143737, "cpc64": 7.89348753452301, "cpc256": 7.91118510723114, "total": 6.9614199042320255}
+PRE_V_shared_NEXT	v1	3152	False	0.0	4913	1700.4	2.7913	16.3	3.4842	3.8903	True	False	True	{"next": 2.7928719687461854, "total": 2.7928719687461854}
+PRE_V_si_MULTI	v1	3152	True	0.2	2400	900.7	3.2171	24.95	3.396	3.8903	True	False	False	{"next": 3.2152658534049987, "h60": 0.8737701338529587, "h300": 2.0959898227453233, "cpc64": 7.893339409828186, "cpc256": 7.909202115535736, "total": 7.26670227766037}

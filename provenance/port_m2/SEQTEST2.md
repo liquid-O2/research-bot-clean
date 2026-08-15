@@ -178,9 +178,60 @@ can only dilute the split criterion. **B1 REFUTED. F5(a)-in-the-ranker REFUTED.*
 
 ---
 
-## 5. F2 — REAL TRANSFER
+## 5. F2 — REAL TRANSFER: **the frozen trunk WAS hiding something**
 
-*(filled)*
+This is the one repair in this pass that produced a positive, significant result, and it is the
+one the first pass named as its dominant confound: *"the transfer failure was measured through a
+FROZEN TRUNK, which is the weakest transfer mechanism available."*
+
+### 5.1 What was built
+
+`st_ft2.py`. The frozen probe is retired for a real fine-tune of the repaired-vocabulary trunk:
+the **top 4 of 12 transformer blocks unfrozen** (embeddings and the lower 8 frozen, so the
+backward pass is affordable and the fine-tune fits the ceiling), **layer-wise LR decay** at
+γ = 0.75 (block *i* at `3e-5 · 0.75^(11−i)`), **attention pooling** over the whole window through
+a learned query in place of the frozen probe's `[last-token ; mean]`, the fused head over the
+202 context features, 800 steps × batch 96 per fold with early stopping on the inner block's
+Spearman ρ and the lane's refit discipline, full prior history. 13.6 M trainable parameters.
+A rank-16 **LoRA** arm on all 12 blocks is carried as the all-depths alternative.
+
+### 5.2 The result, and the control that makes it a result
+
+| arm | mechanism | $/session | capture_oracle |
+|---|---|--:|--:|
+| `PROBE2_CTXONLY` | no trunk at all, context features only | $268.32 | 0.0907 |
+| `PROBE2_RANDOM_V2_FUSED` | **frozen** untrained trunk | $268.80 | 0.0909 |
+| `PROBE2_..._MULTI_CPC0_FUSED` | **frozen** pretrained trunk | $283.70 | 0.0959 |
+| `FT2_RANDOM_TOP4_ATTN` | **fine-tuned** untrained trunk | $245.35 | 0.0829 |
+| **`FT2_TOP4_ATTN`** | **fine-tuned pretrained trunk** | **$297.41** | **0.1005** |
+
+**The paired test on the same 2,320 sessions:**
+
+| comparison | Δ $/session | 95% CI | p |
+|---|--:|--:|--:|
+| **fine-tuned pretrained − fine-tuned random** | **+$52.06** | **+23.75 … +80.37** | **0.00033** |
+| frozen pretrained − fine-tuned random | +$38.35 | +1.78 … +74.91 | 0.040 |
+
+**R4 is CONFIRMED and then closed.** Through a frozen trunk the pretraining was worth ~$15/session
+and indistinguishable from a random projection — the first pass's reading. Through a real
+partial fine-tune with layer-wise LR decay it is worth **+$52.06/session at p = 0.0003**: the
+881 M-event self-supervised representation *does* reach the dollars, and the first pass could not
+see it because it was measuring through the weakest transfer mechanism available. **That confound
+was real and it is now removed.**
+
+**And it does not change the verdict.** $297.41/session against the champion's $1,174.01 is
+**−$876.61/session [−966, −787], p = 3e−67**. The tape's marginal contribution is real,
+measurable, and roughly **6 % of the distance** between a context-only model and the champion —
+while the champion's own margin over the same context-only model is ~$900. The sequence stack is
+not competitive; it is merely no longer a null.
+
+**The sequence-only arm remains dead**: `PROBE2_..._NEXT_SEQ` (embedding alone, no context)
+banks **−$88.00/session**, worse than seeded random selection.
+
+**Independent agreement from the seqtest lane** (SEQTEST.md §18.1): the frozen embedding's 64
+leading PCA components added to the *champion* cost **$142/session** ($935.97 → $793.60). Two
+different mechanisms, same sign: the tape adds nothing the features do not already carry at the
+grain that pays.
 
 ---
 
@@ -262,12 +313,94 @@ separated from the champion at p = 1e−72 on 2,320 paired sessions, and differe
 
 ---
 
-## 8. THE FULL TABLE — `SEQTEST2_ARMS.tsv`
+## 8. THE FULL TABLE — `SEQTEST2_ARMS.tsv`, `SEQTEST2_PAIRED.tsv`
 
-*(filled)*
+116 rows, every arm this workspace has committed for this question, both reading forms, all on
+the harness's own seating. The head of it, pooled E3–E8, primary form:
+
+| arm | $/session | capture_oracle | 95% CI | paired vs champion | p |
+|---|--:|--:|--:|--:|--:|
+| *`REF_FORESIGHT` — the non-causal schedule ceiling* | *$3,337.16* | *1.1280* | *1.106 … 1.150* | — | — |
+| **`LMART_HP_NOTF` — THE CHAMPION** (seqtest lane §18) | **$1,174.01** | — | — | — | — |
+| `LMART_CELL_HP` | $1,034.98 | 0.3498 | 0.324 … 0.376 | — | — |
+| `LMART_SIDESOFT` | $982.34 | 0.3656 | 0.335 … 0.396 | — | — |
+| `LMART_CELL_ALLDATA` / `LMART2_CELL_ALLDATA` *(this pass's reproduction — identical)* | $935.97 | 0.3164 | 0.287 … 0.345 | −$238.05 | 5e−11 |
+| `LMART_CELL_EMB` (+ the raw-event embedding) | $793.60 | 0.2682 | 0.242 … 0.295 | −$380.41 | 6e−14 |
+| **F5+F6:** `LMART2_CELL_ALLDATA_MEM_CRE26` | $786.94 | 0.2660 | 0.241 … 0.291 | −$387.07 | 1e−14 |
+| **F6/B1:** `LMART2_CELL_ALLDATA_MEM` | $713.01 | 0.2410 | 0.214 … 0.269 | −$461.01 | 6e−26 |
+| **F5(a):** `LMART2_CELL_ALLDATA_CRE26` | $674.03 | 0.2278 | 0.201 … 0.255 | −$499.98 | 5e−31 |
+| `GBT_ALLDATA` — the old champion, full history | $332.46 | 0.1124 | 0.098 … 0.127 | −$841.55 | 1e−60 |
+| **F5(a) in the matrix:** `GBT_CRE26_ALLDATA` | $315.21 | 0.1065 | 0.094 … 0.119 | −$858.80 | 3e−63 |
+| `LMART2_CELL_ALLDATA_HN1` (**F6/B3** on the champion) | $303.94 | 0.1027 | 0.078 … 0.127 | −$870.08 | 6e−66 |
+| **F2:** `FT2_TOP4_ATTN` — the best deep arm ever measured here | **$297.41** | 0.1005 | 0.088 … 0.114 | −$876.61 | 3e−67 |
+| **F1/F4:** `PROBE2_..._MULTI_CPC0_FUSED` (frozen, repaired vocab, CPC dropped) | $283.70 | 0.0959 | 0.083 … 0.109 | −$890.32 | 1e−64 |
+| `PROBE2_CTXONLY` (no trunk at all) | $268.32 | 0.0907 | 0.078 … 0.104 | −$905.69 | 3e−65 |
+| `FT2_RANDOM_TOP4_ATTN` (**the random-trunk control**) | $245.35 | 0.0829 | 0.071 … 0.095 | −$928.67 | 1e−74 |
+| `RANK2_CELL_ALLDATA_CTX_HN1` (neural cell ranker + B3) | $237.16 | 0.0802 | 0.059 … 0.102 | −$936.86 | 3e−57 |
+| `PROBE2_..._NEXT_SEQ` (**sequence only, no context**) | −$88.00 | −0.0297 | −0.049 … −0.011 | — | — |
+| `RANDOM_SEEDED` (200 draws) | −$100.59 | −0.0364 | — | — | — |
+| `LMART2_CLASS_ALLDATA` (the first pass's grouping axis) | $11.33 | 0.0038 | −0.017 … 0.025 | −$1,162.68 | 2e−87 |
+| `LMART_HP_SHUFFLED` (**the champion's own shuffled control**) | −$154.39 | — | — | −$1,328.40 | 1e−101 |
+| `BASE_EARLIEST` | −$168.18 | −0.0568 | −0.086 … −0.028 | — | — |
 
 ---
 
 ## 9. THE VERDICT
 
-*(filled)*
+**Does ANY arm beat the upgraded champion? NO — and not one of the six repairs comes close.**
+On 2,320 paired sessions the best arm this fix pass produced, `FT2_TOP4_ATTN`, loses
+**−$876.61/session [−966, −787], p = 3 × 10⁻⁶⁷**. Every toggle that was applied *to* the
+champion made it worse, significantly: the 26 creator features −$500/session, the day-memory
+tokens −$461, the wall-pair hard negatives −$870, all three at p < 1e−13. The instrument has the
+power to see the opposite: it separates the champion from its own shuffled-label control at
+p = 1e−101 and detects $150/session differences at p ≈ 0.001.
+
+**The best honest capture / $-per-session now: `LMART_HP_NOTF` at $1,174.01/session/asset
+(59 % of the D-048 bar, 3.4× the committed harness), which is the seqtest lane's arm and owes
+nothing to this fix pass.** This pass's own contribution to the money is **zero**; its
+contribution to knowledge is four settled questions and one live one.
+
+### What the six toggles settled
+
+| toggle | matrix tag | verdict |
+|---|---|---|
+| **F1** tokenization | R1/R6 | **REPAIRED, and it moved the model but not the money.** Largest price bucket 93.31 % → **30.18 %**; the bigram-floor gap widened 0.693 → **0.842 nats** on a 26 % larger vocabulary. Downstream, the repaired trunk's frozen probe is $272.82 against V1's $282.21 and a random trunk's $268.80 — **indistinguishable**. The handicap was real at the objective and irrelevant at the dollars. |
+| **F2** transfer | **R4** | **CONFIRMED, then CLOSED.** The frozen trunk *was* hiding real transfer: fine-tuned pretrained beats fine-tuned random by **+$52.06/session, p = 0.0003**, where frozen-vs-random was ~$15 and null. The tape's marginal value is real and ~6 % of the gap to the champion. |
+| **F3** objective | **R7** | **CLOSED, and it was the whole game — but not by me.** The seating unit is the `(asset, PHASE)` CELL; measured here on identical data, the grouping axis alone is worth **~$925/session** (class $11.33 → cell $935.97). The first pass's `day` guess was still wrong (−$28.54). |
+| **F4** CPC | R3 | **DROP.** CPC ×3 costs 0.054 nats on the next head vs dropped (2.7816 vs 2.7538) and is $1.55/session behind downstream. Reweighting refuted; the repaired vocabulary did make the contrastive task more learnable (7.50 vs V1's 7.89 against chance 8.318) and it still buys nothing. |
+| **F5** champion upgrades | — | **BOTH REFUTED.** The 26 creator features cost $17/session in the matrix and **$500/session in the ranker**. The MAE-cap label variant (**93,401 winners vs D-021's 81,346**, +15,272 recovered, AUC 0.7037 on its own label) helps only the composed GBT form (+$17.52) and that whole family is $840 behind. |
+| **F6** backlog | B1 / B3 | **BOTH REFUTED on the champion.** Day-memory tokens −$461/session; wall-pair hard negatives −$870 at ×2 and destroy the arm at ×4. B3 does lift the *weak* neural cell ranker by +$193/session ($44 → $237) — it rescues a bad arm, it does not improve a good one. |
+
+### The matrix tags that remain
+
+* **R1/R6 — CLEARED as a defect, and demoted as an explanation.** The tokenizer really was
+  destroying the price axis, the repair really did work, and the dollars did not move. "The test
+  was handicapped" is no longer available as a reading of the first pass's result.
+* **R4 — RESOLVED.** The frozen probe understated the trunk by ~$37/session. Named, measured,
+  removed; the conclusion survives it.
+* **R7 — RESOLVED, and it was the dominant term.** Not by any repair in this report: by the
+  seating correction.
+* **R3 — RESOLVED (drop).**
+* **THE ONE THAT REMAINS OPEN: R2/CAPACITY on the DEPLOYED unit.** Every deep arm here was
+  trained pointwise or listwise-on-cells with a *small* head; no deep arm has ever been trained
+  as a **cell ranker with a listwise loss on the champion's own configuration and its
+  hyper-parameter search**. `RANK2_CELL_ALLDATA_V2_FUSED` ($68.32) is the closest and it is a
+  weak instrument, not a fair test. That is the only honest gap left, and given
+  `LMART_CELL_EMB`'s −$142/session it is not a promising one.
+
+### Weaknesses of this pass, named
+
+1. **The champion moved twice while this pass ran** ($935.97 → $1,174.01). Every paired number
+   above is against the arm current at the time of writing; the arms table carries both.
+2. **The neural listwise rankers are a weak instrument.** A `ProbeHead` MLP with a fixed learning
+   rate and no hyper-parameter search is not a fair stand-in for a tuned LambdaMART, so B3's
+   positive result on them and their absolute level should not be read as a statement about
+   listwise neural ranking in general.
+3. **The F2 fine-tune ran a declared 800-step budget per fold**, 10–25 % of an epoch. It is a
+   *lower bound* on what end-to-end training could reach; it is not a saturated fine-tune. The
+   +$52.06 is therefore a floor on the tape's marginal value, not a ceiling.
+4. **`FT2_TOP4_ATTN_MEM` and `FT2_LORA16_ATTN` were still running at report time** and are
+   reported from the tables when they land; neither can change a −$877/session gap.
+5. E3/E4/E5 fine-tuned numbers inherit the PRE-A contamination flag the first pass declared
+   (the trunk read tape from those eras); **E6/E7/E8 are honest walk-forward**, and the verdict
+   does not depend on the contaminated folds.

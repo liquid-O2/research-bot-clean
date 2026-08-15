@@ -630,3 +630,30 @@ be read as the most recent walk-forward cell, **not** as a validated deployable.
 **The only untouched holdout is `d8 >= 20250701` (2025 H2), which the m3 matrix excludes
 entirely under the D-058 guard.** Testing this arm there is the decisive next step and it is a
 boundary the user reserves — it is not mine to open.
+
+### 18.5 Where the headline arm now stands, and what is left
+
+Policy sensitivity for `LMART_HP_NOTF` (pooled E3–E8): `cell/1` **$1,197.67** (capture 0.4048,
+forfeit 0.0%), `cell/2` $1,032.66, `cell/3` $893.82 — and **every `session/N` variant sits at
+~$375 regardless of N**. The schedule finding of §13 holds for the winning arm too. The headline
+$1,174.01 uses m3's own committed per-era policy (which picks `cell/2` for E3); uniform `cell/1`
+would pay $1,197.67, but choosing it on the evaluation eras would be selection-on-test, so the
+committed policy is what is quoted.
+
+Deficit ledger, `SEQTEST_DEFICIT_CELL1_LMART_HP_NOTF/`, $/session — the whole journey:
+
+| component | first-pass GBT | iteration 2 | **headline arm** |
+|---|--:|--:|--:|
+| RANKING_RESIDUAL | 814.42 | 586.64 | **532.28** |
+| SEL_WRONG_MEMBER | 745.58 | 428.06 | **359.63** |
+| SEL_WRONG_SIDE | 110.57 | 291.78 | **213.12** |
+| SEL_WRONG_MOMENT | — | 42.92 | **24.09** |
+| PARTICIPATION | −110.12 | −85.52 | −77.33 |
+| *EXIT (block B, D-029 reserved)* | *234.04* | *155.79* | *133.37* |
+| *RISK (block B, D-029 reserved)* | *45.08* | *127.89* | *68.89* |
+
+`SEL_WRONG_MEMBER` is down **52%** from where the redirect found it, and the side deficit that
+iteration 2 made worse has come back down. **Movable inside my authority (blocks A only):
+~$1,129/session against a $826/session gap to the bar.** The bar is arithmetically inside reach;
+the two largest remaining pieces are ranking headroom and side validity, and exits/stops —
+$202/session between them — stay parked under D-029.

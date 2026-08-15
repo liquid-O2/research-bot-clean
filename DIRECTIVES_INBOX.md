@@ -424,3 +424,38 @@ already pricing.
 
 **De-prioritised tonight:** wall-aware expectancy (refuted above); seed-averaging A_EV
 (tested, a wash).
+
+### UPDATE 23:45Z — THE DIAGNOSIS IS COMPLETE. Read this before anything else.
+
+The free seated-vs-selected measurement ran and it closes the question the night opened.
+A_EV's top-0.5% **selected** set vs the subset the replay actually **seats** (5 seeds,
+occupancy + ≤3/day cap):
+
+| era | selected $/trade | seated $/trade | survival |
+|---|--:|--:|--:|
+| E5 | 117.60 | 52.26 | 0.444 |
+| E6 | 401.40 | 16.83 | **0.042** |
+| E7 | 765.60 | **-179.37** | **-0.234** |
+
+**Arrival-order sampling destroys 56% / 96% / 123% of the tail's value.** The score is fine.
+**The rule is throwing the money away.** A first-past-the-post threshold spends the single
+position on whichever tail member arrives *first*, which is systematically the worse one and
+in E7 systematically a loser — 13–29 seats taken out of 765–818 selected.
+
+**This kills the reflex to hunt for a better target.** No target work can matter while
+96–123% of the selected value is lost between selection and settlement.
+
+**It opens exactly one design:** the bar must be **HIGH EARLY and FALL as the phase empties**,
+so the position is not spent on the first mediocre tail member and is still free when the good
+late arrivals come. That is the `OCCUPANCY` family (`arrival.seats_occupancy`, take when the
+score clears the `1 - c/(m+1)` quantile with `m` arrivals still expected) — **already inside
+the 24-policy family `port-ev-policy2` is pricing**, with its luck bar.
+
+**Corroboration from the other side:** the prophet's best policy takes ~1.0–1.2 seats/session
+and earns 20x what these rules do at 1.30–2.21 seats. **Selectivity in TIME, not just in
+score, is the axis.**
+
+**Morning order:** (1) read `ARRIVAL_FITTED.tsv` for the OCCUPANCY rows specifically;
+(2) if OCCUPANCY under-delivers, the next variant is an explicit *value-of-waiting* rule that
+estimates the continuation value from the training block's own late-arrival distribution;
+(3) only then return to targets.

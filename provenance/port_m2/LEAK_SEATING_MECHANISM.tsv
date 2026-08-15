@@ -1,0 +1,46 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# WHY THE LOOKAHEAD PAYS AND WHY NO CAUSAL RULE RECOVERS IT.
+# The two CTRL_ arms kill the 'a maximum of many draws is worth money by itself' explanation: both read near zero.  The SCORE_RANK_ ladder shows the real mechanism — the score orders the cell strongly and monotonically at the top, so knowing WHICH member is rank 1 is worth hundreds of dollars a trade.
+# The catch, and the reason every arrival-time rule reads ~$0: that skill lives ENTIRELY IN THE WITHIN-CELL ORDERING and not at all in the LEVEL.  Pooled across cells the same score is at chance.  A rule that must decide at arrival can only threshold the level, and the level says nothing.
+# This is a POLICY leak, not a feature leak: a feature carrying future information about its own row would have made the threshold rules work.
+era	arm_or_rank	n	usd_per_session	mean_cert_usd	median_cert_usd	win_rate	mean_arrival_frac	note
+E3	DEPLOYED_ARGMAX	1184	684.52	225.47				the committed rule
+E3	CTRL_ARGMAX_RANDOM_SCORE	1291	-58.23	-17.59				argmax of pure noise: what the max-of-~134 mechanism pays with NO information
+E3	CTRL_ARGMAX_SHUFFLED_IN_CELL	1281	-53.35	-16.24				same per-cell score distribution, row<->score pairing destroyed
+E3	SCORE_RANK_1	1170		294.85	220.0	0.6496	0.1985	mean realised value of the cell's rank-1 member
+E3	SCORE_RANK_2	1170		235.57	170.0	0.6171	0.1974	mean realised value of the cell's rank-2 member
+E3	SCORE_RANK_3	1170		189.72	145.0	0.5838	0.2091	mean realised value of the cell's rank-3 member
+E3	SCORE_RANK_4	1170		140.01	82.5	0.5538	0.2149	mean realised value of the cell's rank-4 member
+E3	SCORE_RANK_5	1170		129.75	82.5	0.5496	0.2254	mean realised value of the cell's rank-5 member
+E3	SCORE_RANK_10	5850		10.52	-48.75	0.4662	0.2421	mean realised value of the cell's rank-10 member
+E3	SCORE_RANK_25	17463		-116.38	-136.25	0.3996	0.311	mean realised value of the cell's rank-25 member
+E3	SCORE_RANK_50	27230		-84.79	-80.0	0.4305	0.4258	mean realised value of the cell's rank-50 member
+E3	SCORE_RANK_999	95429		-6.3	-67.5	0.4484	0.5894	mean realised value of the cell's rank-999 member
+E3	ALL_MEMBERS	151822		-24.52	-67.5	0.4458		the population a causal rule draws from
+E5	DEPLOYED_ARGMAX	1161	1121.37	373.79				the committed rule
+E5	CTRL_ARGMAX_RANDOM_SCORE	1161	-50.58	-16.86				argmax of pure noise: what the max-of-~134 mechanism pays with NO information
+E5	CTRL_ARGMAX_SHUFFLED_IN_CELL	1161	-70.86	-23.62				same per-cell score distribution, row<->score pairing destroyed
+E5	SCORE_RANK_1	1161		373.79	270.0	0.7373	0.353	mean realised value of the cell's rank-1 member
+E5	SCORE_RANK_2	1161		342.63	245.0	0.702	0.3472	mean realised value of the cell's rank-2 member
+E5	SCORE_RANK_3	1161		318.41	220.0	0.6848	0.3535	mean realised value of the cell's rank-3 member
+E5	SCORE_RANK_4	1161		292.35	195.0	0.6563	0.3543	mean realised value of the cell's rank-4 member
+E5	SCORE_RANK_5	1161		252.74	170.0	0.6451	0.3589	mean realised value of the cell's rank-5 member
+E5	SCORE_RANK_10	5793		168.91	95.0	0.589	0.3631	mean realised value of the cell's rank-10 member
+E5	SCORE_RANK_25	17217		-68.55	-92.5	0.4152	0.3672	mean realised value of the cell's rank-25 member
+E5	SCORE_RANK_50	26418		-174.62	-142.5	0.3578	0.4278	mean realised value of the cell's rank-50 member
+E5	SCORE_RANK_999	97714		-11.23	-36.25	0.4667	0.5597	mean realised value of the cell's rank-999 member
+E5	ALL_MEMBERS	152947		-26.66	-48.75	0.455		the population a causal rule draws from
+E7	DEPLOYED_ARGMAX	1179	1644.26	548.09				the committed rule
+E7	CTRL_ARGMAX_RANDOM_SCORE	1179	-40.94	-13.65				argmax of pure noise: what the max-of-~134 mechanism pays with NO information
+E7	CTRL_ARGMAX_SHUFFLED_IN_CELL	1179	-191.83	-63.94				same per-cell score distribution, row<->score pairing destroyed
+E7	SCORE_RANK_1	1179		548.09	407.5	0.732	0.3278	mean realised value of the cell's rank-1 member
+E7	SCORE_RANK_2	1179		479.88	345.0	0.6997	0.312	mean realised value of the cell's rank-2 member
+E7	SCORE_RANK_3	1179		445.42	320.0	0.6887	0.3203	mean realised value of the cell's rank-3 member
+E7	SCORE_RANK_4	1179		387.74	257.5	0.6573	0.3372	mean realised value of the cell's rank-4 member
+E7	SCORE_RANK_5	1179		323.32	207.5	0.6285	0.3418	mean realised value of the cell's rank-5 member
+E7	SCORE_RANK_10	5891		153.22	63.75	0.5386	0.3393	mean realised value of the cell's rank-10 member
+E7	SCORE_RANK_25	17462		-151.03	-217.5	0.3757	0.3628	mean realised value of the cell's rank-25 member
+E7	SCORE_RANK_50	26997		-235.94	-261.25	0.3325	0.4447	mean realised value of the cell's rank-50 member
+E7	SCORE_RANK_999	102031		20.12	-130.0	0.4257	0.5573	mean realised value of the cell's rank-999 member
+E7	ALL_MEMBERS	158276		-21.97	-142.5	0.418		the population a causal rule draws from

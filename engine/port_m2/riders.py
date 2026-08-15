@@ -62,7 +62,7 @@ def _fit(D, era, seed, hp, rows_fit, rows_score, ret_inner=False):
                          feature_names=names)
         dv.set_group(gv)
         b = xgb.train(cfg, d, int(ch["rounds"]), evals=[(dv, "in")],
-                      verbose_eval=False)
+                      early_stopping_rounds=25, verbose_eval=False)
         return float(b.best_score)
     b = xgb.train(cfg, d, int(ch["rounds"]))
     rs, _g = RA._groups_of(D, rows_score, CF.SPEC)
@@ -158,6 +158,11 @@ def run(workers=6, bign=False):
                      N._r(a.mean() - ic.mean()) if ic.size else "",
                      N._r(a.mean() - ic.mean() - a.std()) if ic.size else "",
                      N._r(a.mean() / cl, 4) if cl else ""])
+    if not rows:
+        raise N.NewObjRefusal(
+            "RIDER produced ZERO rows -- a null prints rows, so this is a "
+            "FAILURE.  inner selections=%d, eval results=%d"
+            % (len(inner), sum(len(v) for v in res.values())))
     N.write_tsv("RIDER_CONSTRAINED_HP.tsv",
                 ["era", "criterion", "chosen_hp", "n_seeds", "mean_usd",
                  "sd_usd", "incumbent_champHP_mean", "delta",

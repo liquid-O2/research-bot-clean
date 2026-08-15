@@ -4,3 +4,8 @@
 # Selected on INNER NDCG@3 -- never on inner dollars, which was the winner's-curse defect this campaign already had to correct once.
 # Incumbent = the same constrained config at the champion's inherited HP.  PROMOTION: delta_minus_sd > 0 on the BINDING eras.
 era	criterion	chosen_hp	n_seeds	mean_usd	sd_usd	incumbent_champHP_mean	delta	delta_minus_sd	capture
+E5	BINDING	{'max_depth': 6, 'eta': 0.05}	5	1213.79	27.44	1195.35	18.44	-9.0	0.47
+E6	BINDING	{'max_depth': 3, 'eta': 0.1}	5	1482.85	328.22	994.65	488.19	159.98	0.4404
+E7	BINDING	{'max_depth': 3, 'eta': 0.1}	5	1772.49	17.67	1758.35	14.15	-3.53	0.4339
+E3	context	{'max_depth': 3, 'eta': 0.05}	5	1011.08	242.78	934.33	76.75	-166.04	0.3405
+E4	context	{'max_depth': 3, 'eta': 0.1}	5	1292.92	87.22	1202.76	90.16	2.94	0.4712

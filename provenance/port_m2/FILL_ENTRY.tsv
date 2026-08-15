@@ -1,0 +1,19 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# (a) ENTRY SLIPPAGE vs the cost_rt assumption.  The certificate opens at the second-grid MID and charges cost_rt = session-median two-sided spread + $5 for the round trip, i.e. HALF the session median per side.  A taker pays half the spread PREVAILING AT THE DECISION SECOND.
+# excess_entry_slip_usd = (spread at decision - session median spread)/2, the per-trade dollars the cost model does not charge on the entry side.
+# spread_ctrl = the same session's spread at 20 random VALID seconds of the SAME PHASE — the matched control that separates 'candidates fire in wide markets' from 'this session was wide'.
+# BURST/QUIET split at the per-asset median of spread_at_decision / session-median spread.
+asset	bucket	n_seats	spread_entry_mean_usd	spread_entry_p50	spread_entry_p90	spread_ctrl_mean_usd	excess_vs_ctrl_usd	med_session_spread_usd	cost_rt_mean_usd	entry_halfspread_mean_usd	modeled_halfspread_mean_usd	excess_entry_slip_usd	excess_entry_slip_ticks	spread_exit_mean_usd	excess_roundtrip_slip_usd	excess_rt_per_session_usd
+HG	ALL	1943	19.51	25.0	25.0	19.02	0.48	18.86	23.86	9.75	9.43	0.32	0.026	23.81	2.81	8.45
+HG	BURST	399	27.66	25.0	37.5	18.62	9.04	14.29	19.29	13.83	7.14	6.69	0.535	20.3	9.7	14.33
+HG	QUIET	1544	17.4	12.5	25.0	19.13	-1.73	20.05	25.05	8.7	10.02	-1.32	-0.106	24.72	1.03	2.53
+NKD	ALL	1942	47.48	50.0	75.0	41.97	5.51	40.69	45.81	23.74	20.35	3.39	0.136	66.75	16.44	49.36
+NKD	BURST	548	72.22	50.0	100.0	43.41	28.8	32.89	38.17	36.11	16.45	19.66	0.786	61.77	34.1	51.34
+NKD	QUIET	1394	37.75	25.0	50.0	41.4	-3.65	43.76	48.81	18.88	21.88	-3.0	-0.12	68.71	9.49	21.48
+SI	ALL	1946	33.11	25.0	50.0	32.2	0.91	25.58	30.58	16.55	12.79	3.76	0.151	34.91	8.43	25.4
+SI	BURST	592	50.38	50.0	50.0	32.86	17.52	25.04	30.04	25.19	12.52	12.67	0.507	35.72	18.01	25.75
+SI	QUIET	1354	25.55	25.0	25.0	31.91	-6.35	25.81	30.81	12.78	12.91	-0.13	-0.005	34.56	4.24	9.19
+ALL	ALL	5831	33.36	25.0	50.0	31.06	2.3	28.37	33.41	16.68	14.19	2.49	0.12	41.83	9.23	27.76
+ALL	BURST	1539	52.27	50.0	75.0	32.93	19.34	25.05	30.15	26.13	12.52	13.61	0.625	41.01	21.59	31.7
+ALL	QUIET	4292	26.58	25.0	50.0	30.39	-3.81	29.57	34.58	13.29	14.78	-1.49	-0.073	42.13	4.79	11.01

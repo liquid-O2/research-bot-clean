@@ -385,6 +385,96 @@ def run(eras=ERAS, out=None):
     return rows, cen_rows
 
 
+MCOLS = ["era", "arm_or_rank", "n", "usd_per_session", "mean_cert_usd",
+         "median_cert_usd", "win_rate", "mean_arrival_frac", "note"]
+
+
+def mechanism(eras=ERAS):
+    """WHY the retrospective rule pays and every causal rule does not.
+
+    Two questions the dollar table alone cannot separate:
+
+      (i)  is the cell argmax paying because the SCORE identifies the good
+           member, or because taking a maximum of ~134 draws is worth money by
+           itself?  Controls: argmax of a RANDOM score, and argmax of the real
+           scores PERMUTED WITHIN THE CELL (identical score distribution per
+           cell, row<->score pairing destroyed).
+
+      (ii) if the score really does identify the good member, why does no
+           arrival-time rule recover any of it?  Answer in the rank profile:
+           the skill is in the ORDERING and there is none in the LEVEL, so a
+           threshold on the raw score is meaningless.
+    """
+    D, P = CF.boot()
+    rng = np.random.default_rng(20260821)
+    rows = []
+    for era in eras:
+        fam = SF._load(era)
+        S = [x for v in fam.values() for x in v]
+        if not S:
+            continue
+        ens = np.nanmean(np.vstack(S), axis=0)
+        ev = N.deployable(D, N.era_rows(D, era))
+        n_ = N.committed_policy()[era][1]
+        ro, blocks = _blocks(D, ev, ens)
+        s, val = ens[ro], D["cert_close_usd"][ro]
+
+        def _arm(sc, tag, note):
+            a, _ = read(D, P, N.top_per_cell_score(D, ev, sc, n_))
+            rows.append([era, tag, a["n_seated"], _r(a["usd_per_session"]),
+                         _r(a["usd_per_trade"]), "", "", "", note])
+        _arm(ens, "DEPLOYED_ARGMAX", "the committed rule")
+        rnd = np.full(ens.size, np.nan)
+        rnd[ev] = rng.random(ev.size)
+        _arm(rnd, "CTRL_ARGMAX_RANDOM_SCORE",
+             "argmax of pure noise: what the max-of-~134 mechanism pays with "
+             "NO information")
+        sh = np.full(ens.size, np.nan)
+        for a, b in blocks:
+            sh[ro[a:b]] = rng.permutation(s[a:b])
+        _arm(sh, "CTRL_ARGMAX_SHUFFLED_IN_CELL",
+             "same per-cell score distribution, row<->score pairing destroyed")
+
+        # the rank profile: mean realised value by within-cell score rank
+        buck, arr = {}, {}
+        for a, b in blocks:
+            o = np.argsort(-s[a:b], kind="stable")
+            n = b - a
+            for k, j in enumerate(o):
+                lab = (k + 1 if k < 5 else 10 if k < 10 else 25 if k < 25
+                       else 50 if k < 50 else 999)
+                buck.setdefault(lab, []).append(val[a + j])
+                arr.setdefault(lab, []).append(j / max(n - 1, 1))
+        for lab in sorted(buck):
+            v = np.asarray(buck[lab], dtype=np.float64)
+            rows.append([era, "SCORE_RANK_%s" % lab, int(v.size), "",
+                         _r(float(v.mean())), _r(float(np.median(v))),
+                         _r(float((v > 0).mean()), 4),
+                         _r(float(np.mean(arr[lab])), 4),
+                         "mean realised value of the cell's rank-%s member"
+                         % lab])
+        rows.append([era, "ALL_MEMBERS", int(val.size), "",
+                     _r(float(np.nanmean(val))), _r(float(np.nanmedian(val))),
+                     _r(float(np.nanmean(val > 0)), 4), "",
+                     "the population a causal rule draws from"])
+    N.write_tsv("LEAK_SEATING_MECHANISM.tsv", MCOLS, rows, extra=[
+        "WHY THE LOOKAHEAD PAYS AND WHY NO CAUSAL RULE RECOVERS IT.",
+        "The two CTRL_ arms kill the 'a maximum of many draws is worth money "
+        "by itself' explanation: both read near zero.  The SCORE_RANK_ ladder "
+        "shows the real mechanism — the score orders the cell strongly and "
+        "monotonically at the top, so knowing WHICH member is rank 1 is worth "
+        "hundreds of dollars a trade.",
+        "The catch, and the reason every arrival-time rule reads ~$0: that "
+        "skill lives ENTIRELY IN THE WITHIN-CELL ORDERING and not at all in "
+        "the LEVEL.  Pooled across cells the same score is at chance.  A rule "
+        "that must decide at arrival can only threshold the level, and the "
+        "level says nothing.",
+        "This is a POLICY leak, not a feature leak: a feature carrying future "
+        "information about its own row would have made the threshold rules "
+        "work."])
+    return rows
+
+
 def _r(x, nd=2):
     if x is None or (isinstance(x, str)):
         return x if isinstance(x, str) else ""
@@ -399,8 +489,13 @@ def _r(x, nd=2):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--eras", default=",".join(ERAS))
+    ap.add_argument("--mechanism", action="store_true")
     a = ap.parse_args()
-    run(tuple(x for x in a.eras.split(",") if x))
+    eras = tuple(x for x in a.eras.split(",") if x)
+    if a.mechanism:
+        mechanism(eras)
+    else:
+        run(eras)
 
 
 if __name__ == "__main__":

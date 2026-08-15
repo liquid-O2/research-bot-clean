@@ -1,0 +1,11 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# (b) WALL GAP-THROUGH.  m2_delay._close_cert books exactly -$900 - cost_rt the moment the ONE-SECOND MID adverse skeleton reaches $900.
+# gap_over_wall_usd = the adverse the mid had ALREADY reached in the second the crossing was first observed, minus $900 — dollars the certificate does not charge.
+# exit_halfspread_usd = half the spread prevailing at the wall second: a stop fills on the far touch, not the mid, and cost_rt has already spent its allowance on the session median.
+# wall_excess_per_session_usd = the $/session correction implied by these seats.
+asset	n_seats	n_walled	walled_rate	gap_over_wall_mean_usd	gap_p50	gap_p90	gap_max	frac_gap_gt_1tick	frac_gap_gt_2tick	one_step_jump_mean_usd	spread_at_wall_mean_usd	exit_halfspread_usd	total_wall_excess_mean_usd	wall_excess_per_seat_usd	wall_excess_per_session_usd
+HG	1943	127	0.0654	18.65	0.0	50.0	256.25	0.3071	0.189	40.6	21.06	10.53	29.18	1.91	5.74
+NKD	1942	172	0.0886	14.83	0.0	25.0	725.0	0.0872	0.0174	51.24	50.73	25.36	40.19	3.56	10.68
+SI	1946	253	0.13	24.85	0.0	50.0	650.0	0.166	0.087	59.58	33.2	16.6	41.45	5.39	16.23
+ALL	5831	552	0.0947	20.3	0.0	43.13	725.0	0.1739	0.0888	52.62	35.87	17.93	38.24	3.62	10.89

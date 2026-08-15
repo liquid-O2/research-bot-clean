@@ -1,0 +1,7 @@
+BOOT: reading m3_walk.py seating path
+P1: seating rule = cell max-scorer (retrospective) CONFIRMED in topn_takes; verifying deployed path
+P1: running leak_seating on E7 first (deployed folded ensemble)
+P1 CONFIRMED on E7: deployed $1644 -> causal-oracle $3.37. Running E3-E6.
+P1 COMMITTED+PUSHED (476b9a8). CRITICAL LEAK. Starting P2 generator/assembly.
+P2: dominance = same-session upd_count argmax (suspect). Running feature constancy scan.
+P5: fill-realism census launching (entry slippage + wall gap-through)

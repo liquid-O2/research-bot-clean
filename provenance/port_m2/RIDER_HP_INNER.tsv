@@ -1,53 +1,53 @@
 # PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
 # E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
 era	config	inner_ndcg3
-E5	{'max_depth': 3, 'eta': 0.05}	
-E5	{'max_depth': 3, 'eta': 0.1}	
-E5	{'max_depth': 4, 'eta': 0.05}	
-E5	{'max_depth': 4, 'eta': 0.1}	
-E5	{'max_depth': 5, 'eta': 0.05}	
-E5	{'max_depth': 5, 'eta': 0.1}	
-E5	{'max_depth': 6, 'eta': 0.05}	
-E5	{'max_depth': 6, 'eta': 0.1}	
-E5	{'max_depth': 8, 'eta': 0.05}	
-E5	{'max_depth': 8, 'eta': 0.1}	
-E6	{'max_depth': 3, 'eta': 0.05}	
-E6	{'max_depth': 3, 'eta': 0.1}	
-E6	{'max_depth': 4, 'eta': 0.05}	
-E6	{'max_depth': 4, 'eta': 0.1}	
-E6	{'max_depth': 5, 'eta': 0.05}	
-E6	{'max_depth': 5, 'eta': 0.1}	
-E6	{'max_depth': 6, 'eta': 0.05}	
-E6	{'max_depth': 6, 'eta': 0.1}	
-E6	{'max_depth': 8, 'eta': 0.05}	
-E6	{'max_depth': 8, 'eta': 0.1}	
-E7	{'max_depth': 3, 'eta': 0.05}	
-E7	{'max_depth': 3, 'eta': 0.1}	
-E7	{'max_depth': 4, 'eta': 0.05}	
-E7	{'max_depth': 4, 'eta': 0.1}	
-E7	{'max_depth': 5, 'eta': 0.05}	
-E7	{'max_depth': 5, 'eta': 0.1}	
-E7	{'max_depth': 6, 'eta': 0.05}	
-E7	{'max_depth': 6, 'eta': 0.1}	
-E7	{'max_depth': 8, 'eta': 0.05}	
-E7	{'max_depth': 8, 'eta': 0.1}	
-E3	{'max_depth': 3, 'eta': 0.05}	
-E3	{'max_depth': 3, 'eta': 0.1}	
-E3	{'max_depth': 4, 'eta': 0.05}	
-E3	{'max_depth': 4, 'eta': 0.1}	
-E3	{'max_depth': 5, 'eta': 0.05}	
-E3	{'max_depth': 5, 'eta': 0.1}	
-E3	{'max_depth': 6, 'eta': 0.05}	
-E3	{'max_depth': 6, 'eta': 0.1}	
-E3	{'max_depth': 8, 'eta': 0.05}	
-E3	{'max_depth': 8, 'eta': 0.1}	
-E4	{'max_depth': 3, 'eta': 0.05}	
-E4	{'max_depth': 3, 'eta': 0.1}	
-E4	{'max_depth': 4, 'eta': 0.05}	
-E4	{'max_depth': 4, 'eta': 0.1}	
-E4	{'max_depth': 5, 'eta': 0.05}	
-E4	{'max_depth': 5, 'eta': 0.1}	
-E4	{'max_depth': 6, 'eta': 0.05}	
-E4	{'max_depth': 6, 'eta': 0.1}	
-E4	{'max_depth': 8, 'eta': 0.05}	
-E4	{'max_depth': 8, 'eta': 0.1}	
+E5	{'max_depth': 3, 'eta': 0.05}	0.49672
+E5	{'max_depth': 3, 'eta': 0.1}	0.57582
+E5	{'max_depth': 4, 'eta': 0.05}	0.44373
+E5	{'max_depth': 4, 'eta': 0.1}	0.60861
+E5	{'max_depth': 5, 'eta': 0.05}	0.43909
+E5	{'max_depth': 5, 'eta': 0.1}	0.4794
+E5	{'max_depth': 6, 'eta': 0.05}	0.63304
+E5	{'max_depth': 6, 'eta': 0.1}	0.63284
+E5	{'max_depth': 8, 'eta': 0.05}	0.40204
+E5	{'max_depth': 8, 'eta': 0.1}	0.42896
+E6	{'max_depth': 3, 'eta': 0.05}	0.64087
+E6	{'max_depth': 3, 'eta': 0.1}	0.65068
+E6	{'max_depth': 4, 'eta': 0.05}	0.64667
+E6	{'max_depth': 4, 'eta': 0.1}	0.61373
+E6	{'max_depth': 5, 'eta': 0.05}	0.56382
+E6	{'max_depth': 5, 'eta': 0.1}	0.64942
+E6	{'max_depth': 6, 'eta': 0.05}	0.53874
+E6	{'max_depth': 6, 'eta': 0.1}	0.64265
+E6	{'max_depth': 8, 'eta': 0.05}	0.4473
+E6	{'max_depth': 8, 'eta': 0.1}	0.43727
+E7	{'max_depth': 3, 'eta': 0.05}	0.63953
+E7	{'max_depth': 3, 'eta': 0.1}	0.64401
+E7	{'max_depth': 4, 'eta': 0.05}	0.63975
+E7	{'max_depth': 4, 'eta': 0.1}	0.50093
+E7	{'max_depth': 5, 'eta': 0.05}	0.63516
+E7	{'max_depth': 5, 'eta': 0.1}	0.62216
+E7	{'max_depth': 6, 'eta': 0.05}	0.59525
+E7	{'max_depth': 6, 'eta': 0.1}	0.52803
+E7	{'max_depth': 8, 'eta': 0.05}	0.41301
+E7	{'max_depth': 8, 'eta': 0.1}	0.43916
+E3	{'max_depth': 3, 'eta': 0.05}	0.55422
+E3	{'max_depth': 3, 'eta': 0.1}	0.49741
+E3	{'max_depth': 4, 'eta': 0.05}	0.51111
+E3	{'max_depth': 4, 'eta': 0.1}	0.50945
+E3	{'max_depth': 5, 'eta': 0.05}	0.4511
+E3	{'max_depth': 5, 'eta': 0.1}	0.45303
+E3	{'max_depth': 6, 'eta': 0.05}	0.44668
+E3	{'max_depth': 6, 'eta': 0.1}	0.40811
+E3	{'max_depth': 8, 'eta': 0.05}	0.39944
+E3	{'max_depth': 8, 'eta': 0.1}	0.39453
+E4	{'max_depth': 3, 'eta': 0.05}	0.60473
+E4	{'max_depth': 3, 'eta': 0.1}	0.63237
+E4	{'max_depth': 4, 'eta': 0.05}	0.6287
+E4	{'max_depth': 4, 'eta': 0.1}	0.6274
+E4	{'max_depth': 5, 'eta': 0.05}	0.61914
+E4	{'max_depth': 5, 'eta': 0.1}	0.61146
+E4	{'max_depth': 6, 'eta': 0.05}	0.4728
+E4	{'max_depth': 6, 'eta': 0.1}	0.45843
+E4	{'max_depth': 8, 'eta': 0.05}	0.40255
+E4	{'max_depth': 8, 'eta': 0.1}	0.41101

@@ -40,6 +40,14 @@ BINDING = ("E5", "E6", "E7")
 ERAS = BINDING + ("E3", "E4")
 SEEDS = (0, 1, 2, 3, 4)
 BEST_K = {"E3": 65, "E4": 80, "E5": 80, "E6": 65, "E7": 65}
+# HP RE-SEARCH PROMOTES (RIDER_CONSTRAINED_HP.tsv, promotion rule delta_minus_sd):
+#   E6 depth3/eta0.10  +$488.19, dm-sd +159.98  -> PROMOTED
+#   E4 depth3/eta0.10  + $90.16, dm-sd  +2.94   -> promoted, marginal, flagged
+#   E5/E7/E3 fail their own sd and KEEP the champion HP.
+# Constraints changed the optimal capacity exactly where the constraint gain was
+# largest (E6), which is the coherent story, not a coincidence.
+BEST_HP = {"E6": {"max_depth": 3, "eta": 0.10},
+           "E4": {"max_depth": 3, "eta": 0.10}}
 
 
 def _one(job):
@@ -71,6 +79,7 @@ def _one(job):
                "seed": N.SEED + seed, "nthread": RA.N_THREAD,
                "monotone_constraints": "(" + ",".join(str(int(z))
                                                       for z in vec) + ")"}
+        cfg.update(BEST_HP.get(era, {}))        # the promoted HP, where one won
         rf, gf = RA._groups_of(D, tr, CF.SPEC)
         d = xgb.DMatrix(XF[rf], label=NA.grades(val[rf]), feature_names=FN)
         d.set_group(gf)

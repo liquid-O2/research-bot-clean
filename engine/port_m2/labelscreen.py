@@ -318,9 +318,18 @@ def _fit_one(job):
         tr, itr, iva, ev = NA.fold(D, era)
         V = targets()
         cols, names = NA.feat_cols(D)
+        k = FS.BEST_K[era]
+        vec = list(CP._vec(D, era, k))     # the BASE-shaped stability vector
         if arm == "F_FLOWGEO":
+            # LIKE-FOR-LIKE: the 31 flow+geometry columns keep the SAME
+            # monotone signs the full-feature champion gives them, selected by
+            # position out of the base vector rather than dropped.
             fg = [str(g) for g in D["feature_groups"].tolist()]
-            cols = [i for i in cols if fg[i] in ("flow", "geometry")]
+            keep = [j for j, i in enumerate(cols)
+                    if fg[i] in ("flow", "geometry")]
+            vec = [vec[j] for j in keep] if len(vec) == len(cols) else \
+                [0] * len(keep)
+            cols = [cols[j] for j in keep]
             names = [str(D["names"][i]) for i in cols]
         XF = D["X"][:, cols]
         tgt = "T_INCUMBENT" if arm in ROWS_EXTRA else arm
@@ -336,11 +345,7 @@ def _fit_one(job):
             for a, b in blocks:
                 ix = ro[a:b]
                 val[ix] = val[rng.permutation(ix)]
-        k = FS.BEST_K[era]
         hp = NA.CHAMP_HP[era]
-        vec = list(CP._vec(D, era, k))
-        if arm == "F_FLOWGEO":
-            vec = [0] * XF.shape[1]        # the stability vector is BASE-shaped
         vec = vec[:XF.shape[1]] + [0] * max(0, XF.shape[1] - len(vec))
         cfg = {"objective": "rank:ndcg", "eval_metric": "ndcg@3",
                "tree_method": "hist", "min_child_weight": 20, "subsample": .8,
@@ -421,6 +426,28 @@ def pbo_cscv(per_by_arm, n_blocks=10):
             "median_oos_rank": float(np.median(lam)), "n_arms": len(arms)}
 
 
+def _cache_path(out_dir=None):
+    return os.path.join(out_dir or OUT_ROOT, "fits.jsonl")
+
+
+def _load_cache(out_dir=None):
+    """Completed fits, so a second pass over more eras never refits what the
+    binding-era pass already paid for.  Incremental writes: the file is
+    appended after every fit, so a killed run loses at most one fit."""
+    out = {}
+    p = _cache_path(out_dir)
+    if not os.path.exists(p):
+        return out
+    with open(p) as fh:
+        for line in fh:
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue                    # a torn last line, never fatal
+            out[(r["arm"], r["era"], int(r["seed"]), bool(r["sh"]))] = r
+    return out
+
+
 def run_screen(eras=ERAS, workers=6, out_dir=None):
     import multiprocessing as mp
     out_dir = out_dir or OUT_ROOT
@@ -428,14 +455,22 @@ def run_screen(eras=ERAS, workers=6, out_dir=None):
     import confidence as CO
     D = N.matrix()
     targets()
-    jobs = [(a, e, s, False) for a in ARMS for e in eras for s in SEEDS]
-    jobs += [(a, e, s, True) for a in ARMS for e in eras for s in NULL_SEEDS]
-    hb("screen: %d fits (%d arms x %d eras x %d seeds + shuffled luck bar at "
-       "%d seeds), workers=%d"
-       % (len(jobs), len(ARMS), len(eras), len(SEEDS), len(NULL_SEEDS),
-          workers))
+    cache = _load_cache(out_dir)
+    allj = [(a, e, s, False) for a in ARMS for e in eras for s in SEEDS]
+    allj += [(a, e, s, True) for a in ARMS for e in eras for s in NULL_SEEDS]
+    jobs = [j for j in allj if (j[0], j[1], j[2], j[3]) not in cache]
+    hb("screen: %d fits total, %d cached, %d to run (%d arms x %d eras), "
+       "workers=%d" % (len(allj), len(allj) - len(jobs), len(jobs), len(ARMS),
+                       len(eras), workers))
     res, per, t0, nerr = {}, {}, time.time(), 0
+    for key, r in cache.items():
+        if key[1] not in eras:
+            continue
+        res.setdefault((key[0], key[1], key[3]), []).append((r["av"], r["rv"]))
+        if not key[3]:
+            per.setdefault((key[1], key[0]), {}).update(r.get("per") or {})
     ctx = mp.get_context("spawn")
+    fh = open(_cache_path(out_dir), "a")
     with ctx.Pool(processes=workers) as pool:
         for i, (arm, era, seed, sh, av, rv, pr, err) in enumerate(
                 pool.imap_unordered(_fit_one, jobs), 1):
@@ -447,10 +482,15 @@ def run_screen(eras=ERAS, workers=6, out_dir=None):
                 res.setdefault((arm, era, sh), []).append((av, rv))
                 if not sh:
                     per.setdefault((era, arm), {}).update(pr or {})
+                fh.write(json.dumps({"arm": arm, "era": era, "seed": seed,
+                                     "sh": sh, "av": av, "rv": rv,
+                                     "per": pr if not sh else None}) + "\n")
+                fh.flush()
             if i % 10 == 0 or i == len(jobs):
                 hb("screen %d/%d [eta %.0fs, %d failed]"
-                   % (i, len(jobs), (time.time() - t0) / i * (len(jobs) - i),
-                      nerr))
+                   % (i, len(jobs), (time.time() - t0) / max(i, 1)
+                      * (len(jobs) - i), nerr))
+    fh.close()
     ceil = CO.ceilings()
     rows = []
     for era in eras:

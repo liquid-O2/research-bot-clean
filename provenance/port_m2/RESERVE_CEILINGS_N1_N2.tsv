@@ -1,0 +1,22 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# CEILINGS ONLY -- hindsight bounds, no model, no policy. A ceiling delta that is immaterial kills its idea here and cheaply.
+# N1 = joint daily allocation, 0-5 seats/asset/day, <=10 across the three books, uneven phases allowed.  N2 = the SAME seat count freely allocated across phases within a session.  RIGID = the committed one-per-phase shape, on the identical days.
+# THE k-LIMITED OPTIMUM IS GREEDY, which is a LOWER bound on the true k-position DP.  Every N1/N2 figure therefore UNDERSTATES its ceiling; a small number here is not yet a refutation and must not be read as one.
+# N3 (re-entry after wall) and N6 (stop-and-reverse) need a second leg rebuilt from the WALL SECOND -- a session-load pass, not matrix arithmetic -- and are the next block.  They are NOT estimated here.
+era	criterion	arm	n_sessions	usd_per_session	entry_foresight_ceiling	capture_of_ceiling	aim_08ceiling	gap_to_aim	delta_vs_rigid
+E5	BINDING	RIGID_3x1x1_oracle	387	2582.61	2582.61	1.0	2066.09	-516.52	0.0
+E5	BINDING	N2_asym_phase_oracle	387	2582.61	2582.61	1.0	2066.09	-516.52	0.0
+E5	BINDING	N1_flexible_alloc_oracle	387	2583.53	2582.61	1.0004	2066.09	-517.45	0.92
+E6	BINDING	RIGID_3x1x1_oracle	384	3366.93	3366.93	1.0	2693.55	-673.39	0.0
+E6	BINDING	N2_asym_phase_oracle	384	3366.93	3366.93	1.0	2693.55	-673.39	0.0
+E6	BINDING	N1_flexible_alloc_oracle	384	3367.87	3366.93	1.0003	2693.55	-674.32	0.94
+E7	BINDING	RIGID_3x1x1_oracle	393	4085.25	4085.25	1.0	3268.2	-817.05	0.0
+E7	BINDING	N2_asym_phase_oracle	393	4085.25	4085.25	1.0	3268.2	-817.05	0.0
+E7	BINDING	N1_flexible_alloc_oracle	393	4087.75	4085.25	1.0006	3268.2	-819.55	2.5
+E3	context	RIGID_3x1x1_oracle	390	3012.0	2969.1	1.0144	2375.28	-636.72	0.0
+E3	context	N2_asym_phase_oracle	390	3012.0	2969.1	1.0144	2375.28	-636.72	0.0
+E3	context	N1_flexible_alloc_oracle	390	3012.58	2969.1	1.0146	2375.28	-637.3	0.58
+E4	context	RIGID_3x1x1_oracle	385	2744.19	2744.17	1.0	2195.34	-548.85	0.0
+E4	context	N2_asym_phase_oracle	385	2744.19	2744.17	1.0	2195.34	-548.85	0.0
+E4	context	N1_flexible_alloc_oracle	385	2745.29	2744.17	1.0004	2195.34	-549.95	1.1

@@ -657,3 +657,88 @@ iteration 2 made worse has come back down. **Movable inside my authority (blocks
 ~$1,129/session against a $826/session gap to the bar.** The bar is arithmetically inside reach;
 the two largest remaining pieces are ranking headroom and side validity, and exits/stops —
 $202/session between them — stay parked under D-029.
+
+---
+
+# 19. THE `SEL_WRONG_SIDE` FRONT — closed negative, under full E8 quarantine
+
+**Quarantine discipline actually kept:** every arm in this section was fitted and scored on
+**E3–E7 only**. `--eras E3,E4,E5,E6,E7` was passed to the fit, the re-seating and the ledger.
+**Neither side treatment was ever scored on E8**, so E8 remains unspent *for them*.
+
+`SEQTEST_SIDE_E3E7.tsv`, pooled E3–E7, m3's committed per-era policy, day-clustered CIs:
+
+| arm | $/session | 95% CI | capture |
+|---|--:|--:|--:|
+| **champion `LMART_HP_NOTF`** | **976.91** | 899 … 1055 | 0.3635 |
+| treatment 1 — hard side **veto** on the pool | **51.88** | −20 … 124 | 0.0193 |
+| treatment 2 — **soft** side gate, λ inner-selected | **982.34** | 904 … 1061 | 0.3656 |
+| control — veto, shuffled labels | −232.28 | −292 … −172 | −0.0864 |
+| control — soft gate, shuffled labels | −143.28 | −201 … −86 | −0.0533 |
+
+### 19.1 Treatment 1 — the hard veto: catastrophic
+
+Per cell, keep only the side with the higher mean predicted walled-winner probability, drop the
+other; the ranker's ordering inside the surviving side is untouched (a **veto**, explicitly not
+the re-ranking that failed in §17). It drops **49.3–49.8% of candidates** and takes the arm from
+$976.91 to **$51.88/session**.
+
+This is what the program's own prior measurement predicts. `INFO_CEILING.md` §4.3 puts view
+side-accuracy on wall pairs at **57.5%** (52.9% net of the era's long drift) against the 73%
+requirement. A hard gate at ~57% accuracy vetoes the correct side nearly half the time and then
+forces the ranker to pick from the wrong half. **The $243/session `SEL_WRONG_SIDE` line is an
+ORACLE repair value; it is not claimable by any causal side model at that accuracy.**
+
+### 19.2 Treatment 2 — the self-limiting gate: a genuine no-op
+
+Same signal as a **penalty** on the score, scaled by the cell's side-margin, with λ chosen on
+the **inner validation block** from a grid **containing zero** — so if the side signal is
+worthless the inner block picks λ=0 and the arm reduces exactly to the champion. It cannot lose
+anything inner selection can see.
+
+The inner block chose λ > 0 in **4 of 5 folds** (0.25, 4.0, 4.0, 1.0, 0.0), believing the gate
+helped — and it transferred to **+$5.43/session**, 0.6%, well inside the interval. The ledger is
+the flat confirmation:
+
+| component (E3–E7, $/session) | champion | + soft gate | Δ |
+|---|--:|--:|--:|
+| RANKING_RESIDUAL | 567.47 | 567.39 | −0.08 |
+| SEL_WRONG_MEMBER | 385.99 | 386.26 | +0.27 |
+| **SEL_WRONG_SIDE** | **242.96** | **241.73** | **−1.23** |
+| SEL_WRONG_MOMENT | 26.69 | 27.14 | +0.45 |
+| PARTICIPATION | −84.63 | −84.47 | +0.16 |
+
+**$1.23 recovered from a $243 component.** Nothing moved, nothing was paid for it.
+
+### 19.3 A control defect I found and fixed mid-front
+
+Treatment 1's shuffled control initially produced **identical veto drop-counts** to the real
+run. Cause: the side head was reading the *unshuffled* `y_winner` even in the shuffled arm, so
+the "control" retained a real side gate. Fixed (the head now permutes with the arm); both
+controls above are post-fix. It did not affect the verdict — the treatment was rejected on its
+own number either way — but a control that isn't controlling is worth more attention than a
+result that is merely bad.
+
+### 19.4 Verdict, and the unspent allowance
+
+**The side front is closed negative.** Two treatments, one destructive and one inert, against a
+component that is now the third independent instrument to say the same thing: side is not
+decidable from what we have (wall pairs 57.5% vs 73% needed; cross-asset marginal −0.0097;
+Opus-on-raw-tape 40% on 30 blind pairs).
+
+The coordinator authorised **up to two** further inner-selected iterations. I spent one and am
+**declining the second**: a third attempt on a target three independent instruments call dead is
+spending for the sake of the allowance, not for information. **No `CHAMPION_FREEZE_CANDIDATE.md`
+v2** — the fold-in condition (moves SIDE without costing MEMBER/RESIDUAL) is not met, so the
+champion spec stands byte-for-byte as committed.
+
+### 19.5 THE SINGLE BLIND READ — E8, opened once
+
+Stated once, and not used for any selection in this section. The champion `LMART_HP_NOTF` on the
+GATE-2025H1 echo: **SI $2,572.70 [2160, 2986] · HG $1,893.86 [1590, 2198] · NKD $2,064.82
+[1674, 2456]**, $631–858/trade, 23.9–36.0% of takes ≥ $1,000, p90 intra-session drawdown
+$758–955 (inside the D-030 $1,000 bar).
+
+**Read it with §18.5's caveat attached:** that E8 figure was taken *before* the quarantine, over
+five iterations. It is the most recent walk-forward cell, not a validated deployable. The clean
+shot remains the sealed 2025-H2 holdout.

@@ -41,14 +41,14 @@ POLICY = {"unit": "cell", "topn": 1, "deployable": True,
           "contract": "MATRIX_CERT", "scope": "scored"}
 
 
-def write_table(tag, use="composed"):
+def write_table(tag, use="composed", eras=SC.TEST_ERAS):
     os.makedirs(TABLE_DIR, exist_ok=True)
     import m3_walk as W
     D, _p = W.load_matrix()
     z = np.load(os.path.join(R.SCORE_DIR, "%s.npz" % tag))
     champ, win = z["champ"], z["win"]
     score = np.full(D["d8"].size, np.nan)
-    for era in SC.TEST_ERAS:
+    for era in eras:
         ev = np.nonzero((D["era_idx"] == SC.ERA_IDX[era])
                         & np.isfinite(champ))[0]
         if ev.size == 0:
@@ -67,8 +67,8 @@ def write_table(tag, use="composed"):
     return p
 
 
-def run(tag, name=None, use="composed"):
-    p = write_table(tag, use=use)
+def run(tag, name=None, use="composed", eras=SC.TEST_ERAS):
+    p = write_table(tag, use=use, eras=eras)
     os.makedirs(OUT_DIR, exist_ok=True)
     pol = os.path.join(TABLE_DIR, "%s.policy.json" % tag)
     with open(pol, "w") as fh:
@@ -93,13 +93,15 @@ def main():
     ap.add_argument("--name", default=None)
     ap.add_argument("--use", default="composed")
     ap.add_argument("--all", action="store_true")
+    ap.add_argument("--eras", default=",".join(SC.TEST_ERAS))
     a = ap.parse_args()
     if a.all:
         for f in sorted(os.listdir(R.SCORE_DIR)):
             if f.endswith(".npz") and not f.startswith("SHUFFLED"):
                 run(f[:-4], name=f[:-4], use=a.use)
     elif a.tag:
-        run(a.tag, name=a.name, use=a.use)
+        run(a.tag, name=a.name, use=a.use,
+            eras=tuple(a.eras.split(",")))
     else:
         ap.print_help()
 

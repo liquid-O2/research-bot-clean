@@ -1,0 +1,15 @@
+# PORT_M2_SHEETS_SPEC.md port m2 deficit ledger — orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars (spec_sha16=f6ef73a41dbf8588)
+# params_hash=9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da
+# THE-FIX-LIST: components ranked by recoverable $/session, with the named improvement type
+# block A = fixed-contract ladder (additive); B = contract change, D-029 reserved; D = diagnostic
+# standalone = the same repair applied ALONE from the judge's own takes (order-free)
+rank	judge	component	improvement_type	block	usd_per_session	usd_total	share_of_block_A	standalone_usd_per_session	n_repairs	top_cell	top_cell_usd_per_session
+1	E3E7_LMART_SIDESOFT	RANKING_RESIDUAL	scoring/foresight	A	567.390000	1100174.240000	0.457300	2162.260000	0	E7|SI|rg0|ph2	11.990000
+2	E3E7_LMART_SIDESOFT	SEL_WRONG_MEMBER	ranking	A	386.260000	748966.540000	0.311300	1100.860000	5184	E3|SI|rg2|ph2	15.580000
+3	E3E7_LMART_SIDESOFT	SEL_WRONG_SIDE	validity	A	241.730000	468722.240000	0.194800	463.070000	764	E7|SI|rg0|ph2	11.410000
+4	E3E7_LMART_SIDESOFT	EXIT	exit-contract (D-029)	B	153.070000	296796.250000	0.123400			E7|HG|rg0|ph0	13.990000
+5	E3E7_LMART_SIDESOFT	OPPORTUNITY	generation/coverage	A	102.770000	199262.500000	0.082800			E5|HG|ALL	18.650000
+6	E3E7_LMART_SIDESOFT	RISK	stop-structure (D-029)	B	66.580000	129091.250000	0.053700			E6|SI|rg2|ph2	4.480000
+7	E3E7_LMART_SIDESOFT	SEL_WRONG_MOMENT	moment	A	27.140000	52621.780000	0.021900	47.570000	776	E7|SI|rg1|ph2	1.710000
+8	E3E7_LMART_SIDESOFT	CALIBRATION	threshold	D	0.000000	0.000000	0.000000				
+9	E3E7_LMART_SIDESOFT	PARTICIPATION	throughput/abstention	A	-84.470000	-163783.550000	-0.068100	0.000000	338234	E7|HG|rg0|ph2	1.260000

@@ -80,7 +80,8 @@ def _group_arrays(D, rows, klass, unit="class"):
 
 def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
         shuffle=False, drop_tf=False, from_era="E2", compose=False,
-        emb=None, n_pc=64, search=False):
+        emb=None, n_pc=64, search=False, side_veto=False,
+        side_soft=False):
     import xgboost as xgb
     import m3_walk as W
     D, _p = W.load_matrix()
@@ -91,6 +92,7 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
     score = np.full(n, np.nan)
     pos = np.zeros(n, dtype=np.int64)      # every matrix row is scoreable here
     ledger = []
+    lam_sel = {}
     j = D["names"].index("in_news_window")
     cols = list(range(len(D["names"])))
     if drop_tf:
@@ -181,13 +183,127 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
         dall.set_group(g_tr)
         b2 = xgb.train(cfg, dall, best_rounds)
         s = b2.predict(xgb.DMatrix(XF[ev_r], feature_names=FN))
+        if side_soft:
+            # ITERATION 2 ON THE SIDE FRONT.  The hard veto lost because it
+            # discards half the pool on a ~57% side signal.  This is the same
+            # idea made SELF-LIMITING: the ranker's score is penalised by the
+            # cell's side-margin, and the penalty strength lambda is chosen on
+            # the INNER VALIDATION BLOCK from a grid that CONTAINS ZERO.  If the
+            # side signal is worthless the inner block picks lambda=0 and the
+            # arm reduces exactly to the champion, so this cannot cost anything
+            # that inner selection can see.
+            yw = D["y_winner"].astype(np.float64)
+            if shuffle:
+                rs2 = np.random.RandomState(SC.SEED + 977 + SC.ERA_IDX[era])
+                yw = yw.copy()
+                yw[tr] = yw[tr][rs2.permutation(tr.size)]
+            fw = tr[np.isfinite(yw[tr])]
+            cfgw = {"objective": "reg:squarederror", "tree_method": "hist",
+                    "subsample": 0.8, "seed": SC.SEED, "nthread": 8,
+                    "max_depth": 4, "eta": 0.08, "min_child_weight": 20,
+                    "colsample_bytree": 0.6}
+            bw = xgb.train(cfgw, xgb.DMatrix(XF[fw], label=yw[fw],
+                                             feature_names=FN), 60)
+
+            def _margins(rows_idx):
+                ww = bw.predict(xgb.DMatrix(XF[rows_idx], feature_names=FN))
+                kk2 = RK.group_key(D, rows_idx, klass, unit)
+                sd2 = D["side"][rows_idx].astype(np.int64)
+                out = np.zeros(rows_idx.size)
+                o2 = np.argsort(kk2, kind="stable")
+                k2 = kk2[o2]
+                st2 = [0] + (np.flatnonzero(k2[1:] != k2[:-1]) + 1).tolist()
+                sp2 = st2[1:] + [k2.size]
+                for a1, b1 in zip(st2, sp2):
+                    ix1 = o2[a1:b1]
+                    sides = np.unique(sd2[ix1])
+                    if sides.size < 2:
+                        continue
+                    m = {int(v): float(ww[ix1[sd2[ix1] == v]].mean())
+                         for v in sides}
+                    hi = max(m.values())
+                    for v in sides:
+                        out[ix1[sd2[ix1] == v]] = m[int(v)] - hi
+                return out           # 0 on the favoured side, negative on the other
+
+            # inner-block selection of lambda on REALISED $/session
+            iva_rows = tr[D["d8"][tr] > cut]
+            s_iva = b2.predict(xgb.DMatrix(XF[iva_rows], feature_names=FN))
+            g_iva_m = _margins(iva_rows)
+            rng_s = float(np.std(s_iva)) or 1.0
+            best_lam, best_val = 0.0, -np.inf
+            for lam in (0.0, 0.25, 0.5, 1.0, 2.0, 4.0):
+                sc_try = np.full(D["d8"].size, np.nan)
+                sc_try[iva_rows] = s_iva + lam * rng_s * g_iva_m
+                aa = R.score_arm(D, sc_try, iva_rows, ceil, unit="cell", n=1)
+                v = aa["usd_per_session"] or -np.inf
+                if v > best_val:
+                    best_lam, best_val = lam, v
+            SC.hb("%s %s side-soft: lambda=%.2f chosen on inner block "
+                  "($%.2f/session there)" % (tag, era, best_lam, best_val))
+            s = s + best_lam * rng_s * _margins(ev_r)
+            lam_sel[era] = best_lam
+        if side_veto:
+            # THE SIDE FRONT, as a VETO on the candidate POOL — never as a
+            # re-ranking.  Iteration 3 failed by SUMMING the winner head into
+            # the ordering; here the ranker's ordering is left completely
+            # untouched and the winner head only decides WHICH SIDE of a cell is
+            # eligible.  Per (asset, day, phase) cell: mean predicted
+            # walled-winner probability per side, keep the better side, drop the
+            # other.  Causal — the head is fitted on the training block only.
+            # CONTROL CORRECTNESS (defect found 2026-08-17): in the shuffled
+            # arm this head must ALSO see permuted labels, or the "control"
+            # keeps a real side gate.  Observed symptom: identical drop counts
+            # in the real and shuffled runs.
+            yw = D["y_winner"].astype(np.float64)
+            if shuffle:
+                rs2 = np.random.RandomState(SC.SEED + 977 + SC.ERA_IDX[era])
+                yw = yw.copy()
+                yw[tr] = yw[tr][rs2.permutation(tr.size)]
+            fw = tr[np.isfinite(yw[tr])]
+            cfgw = {"objective": "reg:squarederror", "tree_method": "hist",
+                    "subsample": 0.8, "seed": SC.SEED, "nthread": 8,
+                    "max_depth": 4, "eta": 0.08, "min_child_weight": 20,
+                    "colsample_bytree": 0.6}
+            bw = xgb.train(cfgw, xgb.DMatrix(XF[fw], label=yw[fw],
+                                             feature_names=FN), 60)
+            w = bw.predict(xgb.DMatrix(XF[ev_r], feature_names=FN))
+            key = RK.group_key(D, ev_r, klass, unit)
+            sd = D["side"][ev_r].astype(np.int64)
+            order = np.argsort(key, kind="stable")
+            kk = key[order]
+            starts = [0] + (np.flatnonzero(kk[1:] != kk[:-1]) + 1).tolist()
+            stops = starts[1:] + [kk.size]
+            n_drop = 0
+            for a0, b0 in zip(starts, stops):
+                idx = order[a0:b0]
+                sides = np.unique(sd[idx])
+                if sides.size < 2:
+                    continue
+                means = {int(v): float(w[idx[sd[idx] == v]].mean())
+                         for v in sides}
+                keep_side = max(means, key=means.get)
+                bad = idx[sd[idx] != keep_side]
+                s[bad] = -np.inf
+                n_drop += int(bad.size)
+            SC.hb("%s %s side-veto: %d/%d candidates dropped (%.1f%%)"
+                  % (tag, era, n_drop, ev_r.size,
+                     100.0 * n_drop / max(ev_r.size, 1)))
         if compose:
             # THE FEASIBILITY GATE, m3_walk's COMPOSED construction verbatim:
             # the ranking head ORDERS, the walled-winner head says whether a
             # seat exists here at all.  Both are put on a common monotone scale
             # (within-CELL percentile) and summed.  This attacks SEL_WRONG_SIDE,
             # which the pure ranker made worse.
-            yw = D["y_winner"]
+            # CONTROL CORRECTNESS (defect found 2026-08-17): in the shuffled
+            # arm this head must ALSO see permuted labels, or the "control"
+            # keeps a real side gate.  Observed symptom: identical drop counts
+            # in the real and shuffled runs.
+            yw = D["y_winner"].astype(np.float64)
+            if shuffle:
+                rs2 = np.random.RandomState(SC.SEED + 977 + SC.ERA_IDX[era])
+                yw = yw.copy()
+                yw[tr] = yw[tr][rs2.permutation(tr.size)]
             fw = tr[np.isfinite(yw[tr])]
             cfgw = {"objective": "reg:squarederror", "tree_method": "hist",
                     "subsample": 0.8, "seed": SC.SEED, "nthread": 8,
@@ -215,6 +331,7 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
                        "eval_ndcg3": nd, "eval_ndcg3_random": nd_rand,
                        "eval_ndcg3_earliest": nd_earl, "n_scored_groups": ng,
                        "n_eval": int(ev_r.size),
+                       "side_lambda": lam_sel.get(era),
                        "fit_secs": round(time.time() - t0, 1)})
         SC.hb("LMART %s: rounds=%d inner_ndcg3=%.5f eval NDCG@3 %.5f "
               "(random %.5f, earliest %.5f) over %d groups (%.0fs)"
@@ -249,11 +366,14 @@ def main():
     ap.add_argument("--emb", default=None)
     ap.add_argument("--n-pc", type=int, default=64)
     ap.add_argument("--search", action="store_true")
+    ap.add_argument("--side-veto", action="store_true")
+    ap.add_argument("--side-soft", action="store_true")
     a = ap.parse_args()
     if a.run:
         run(test_eras=tuple(a.eras.split(",")), unit=a.unit, shuffle=a.shuffle,
             drop_tf=a.drop_tf, from_era=a.from_era, compose=a.compose,
             emb=a.emb, n_pc=a.n_pc, search=a.search,
+            side_veto=a.side_veto, side_soft=a.side_soft,
             tag=a.tag or ("LMART_%s%s" % (a.unit.upper(),
                                           "_SHUFFLED" if a.shuffle else "")))
     else:

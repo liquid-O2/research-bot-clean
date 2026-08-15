@@ -38,6 +38,7 @@ import st_run as R
 import m3_common as M3
 
 UNITS = ("session", "cell")
+OUT_NAME = "SEQTEST_SCHEDULE"
 NS = (1, 2, 3, 5, 8)
 
 
@@ -62,7 +63,7 @@ def score_of(D, tag, ev):
     return s
 
 
-def run(tags=None):
+def run(tags=None, eras=SC.TEST_ERAS):
     import m3_walk as W
     D, _p = W.load_matrix()
     ceil = R.ceilings_of(D)
@@ -75,7 +76,7 @@ def run(tags=None):
         t0 = time.time()
         parts_dep = []
         curve = {}
-        for era in SC.TEST_ERAS:
+        for era in eras:
             ev = np.nonzero(D["era_idx"] == SC.ERA_IDX[era])[0]
             try:
                 s = score_of(D, tag, ev)
@@ -106,7 +107,8 @@ def run(tags=None):
         if not parts_dep:
             continue
         p = R.pooled(parts_dep)
-        dep_rows.append([tag, "POOLED_E3-E8", "m3_committed", "", "", "",
+        dep_rows.append([tag, "POOLED_%s-%s" % (eras[0], eras[-1]),
+                         "m3_committed", "", "", "",
                          R._r(p["usd_per_session"]), R._r(p["ps_lo"]),
                          R._r(p["ps_hi"]), "", "",
                          R._r(p["capture_day"], 4),
@@ -125,7 +127,7 @@ def run(tags=None):
                               R._r(q["co_lo"], 4), R._r(q["co_hi"], 4)])
         SC.hb("%s: deployable %s $/session (%.0fs)"
               % (tag, R._r(p["usd_per_session"]), time.time() - t0))
-    R.write_tsv("SEQTEST_SCHEDULE.tsv",
+    R.write_tsv("%s.tsv" % OUT_NAME,
                 ["arm", "era", "policy", "n_takes", "n_seated",
                  "forfeit_pct", "usd_per_session", "ps_lo", "ps_hi",
                  "usd_per_trade", "frac_ge_1000", "capture_day",
@@ -141,7 +143,7 @@ def run(tags=None):
                        "defect of this lane and these rows replace those "
                        "numbers.  Nothing is refitted: the same out-of-sample "
                        "score columns are re-seated."])
-    R.write_tsv("SEQTEST_SCHEDULE_SENSITIVITY.tsv",
+    R.write_tsv("%s_SENSITIVITY.tsv" % OUT_NAME,
                 ["arm", "unit", "topn", "n_takes", "n_seated", "forfeit_pct",
                  "usd_per_session", "capture_oracle", "co_lo", "co_hi"],
                 sens_rows,
@@ -155,8 +157,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--tags", default="")
+    ap.add_argument("--eras", default=",".join(SC.TEST_ERAS))
+    ap.add_argument("--out", default="SEQTEST_SCHEDULE")
     a = ap.parse_args()
-    run(tags=([t for t in a.tags.split(",") if t] or None))
+    global OUT_NAME
+    OUT_NAME = a.out
+    run(tags=([t for t in a.tags.split(",") if t] or None),
+        eras=tuple(a.eras.split(",")))
 
 
 if __name__ == "__main__":

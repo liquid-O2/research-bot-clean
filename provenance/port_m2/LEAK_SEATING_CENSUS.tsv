@@ -1,0 +1,11 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE MECHANISM: how much future a cell argmax needs.
+# frac_argmax_is_first = the fraction of cells where the committed seat happens to BE the first arrival — the only cells where the rule is implementable.
+# mean_lookahead_sec = mean(dec_sec of the chosen seat - dec_sec of the cell's LAST candidate); it is negative by exactly the seconds of tape the rule must see after it has already entered.
+era	n_members	n_cells	frac_singleton	mean_cell_size	p50_cell_size	p90_cell_size	max_cell_size	frac_argmax_is_first	frac_argmax_is_first_multi	mean_argmax_rank	mean_lookahead_sec
+E3	35.0	1170.0	0.0	129.762393	105.0	254.1	470.0	0.14359	0.14359	24.597436	-22167.628205
+E4	35.0	1155.0	0.0	128.500433	94.0	264.0	762.0	0.081385	0.081385	30.47619	-19866.64329
+E5	35.0	1161.0	0.0	131.737295	105.0	257.0	641.0	0.05857	0.05857	42.838932	-18275.544358
+E6	35.0	1152.0	0.0	141.546875	110.0	281.0	877.0	0.112847	0.112847	29.369792	-22222.032986
+E7	35.0	1179.0	0.0	134.245971	106.0	263.0	982.0	0.073791	0.073791	44.760814	-20043.057676

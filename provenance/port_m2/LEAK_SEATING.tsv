@@ -1,0 +1,41 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# PRIORITY 1 OF THE ADVERSARIAL LEAK AUDIT — is the committed seat earnable at arrival time?
+# DEPLOYED_CELL_ARGMAX is newobj.top_per_cell_score, the exact call made by capture_config.run and stacked_final.run, on the exact score they seat (the folded stacked ensemble).  Replay is newobj.replay_delayed at delay 0.
+# CAUSAL_* arms decide at each arrival with only that arrival's score and a constant.  TAU_ORACLE and TAU_RATEMATCH pick their constant WITH HINDSIGHT and are therefore upper bounds; TAU_PREV_ERA is the honest deployable read.
+# delta_vs_deployed is the per-session paired difference with a day-clustered 95%% interval.
+era	arm	tau_q	tau	n_sessions	n_seated	usd_per_session	ps_lo	ps_hi	usd_per_trade	delta_vs_deployed	d_lo	d_hi	note
+E3	DEPLOYED_CELL_ARGMAX			390	1184	684.52	509.04	859.99	225.47	0.0			RETROSPECTIVE: needs the whole cell in hand
+E3	CAUSAL_FIRST_ARRIVAL			390	1170	-219.28	-369.81	-68.75	-73.09	-903.79	-1115.36	-692.23	causal, score-blind participation floor
+E3	CAUSAL_TAU_ORACLE	0.99	0.404847	154	215	48.62	-136.46	233.7	34.83	-665.32	-813.22	-517.41	UPPER BOUND on any threshold-shaped causal rule (tau chosen on the eval era itself)
+E3	CAUSAL_TAU_RATEMATCH	0.74	-0.206446	390	1171	-205.64	-361.76	-49.51	-68.49	-890.15	-1097.8	-682.51	seat-count matched to DEPLOYED
+E3	CAUSAL_SECRETARY_BEST_K	20		284	457	91.67	-59.9	243.24	56.97	-617.76	-756.51	-479.02	running-max rule after k observations; k chosen on the eval era = UPPER BOUND on the family
+E3	DEPLOYED_MULTI_CELLS			390	1184	684.52	509.04	859.99	225.47				every cell where the argmax needed the future
+E4	DEPLOYED_CELL_ARGMAX			385	1155	1009.3	860.03	1158.57	336.43	0.0			RETROSPECTIVE: needs the whole cell in hand
+E4	CAUSAL_FIRST_ARRIVAL			385	1151	-114.54	-263.46	34.37	-38.31	-1123.84	-1349.79	-897.9	causal, score-blind participation floor
+E4	CAUSAL_TAU_ORACLE	0.99	0.588663	128	165	209.18	17.82	400.54	162.27	-939.76	-1089.14	-790.37	UPPER BOUND on any threshold-shaped causal rule (tau chosen on the eval era itself)
+E4	CAUSAL_TAU_RATEMATCH	0.7	-0.40289	385	1154	-50.12	-197.83	97.6	-16.72	-1059.42	-1249.57	-869.26	seat-count matched to DEPLOYED
+E4	CAUSAL_TAU_PREV_ERA	0.99	0.588663	128	165	209.18	17.82	400.54	162.27	-939.76	-1089.14	-790.37	HONEST: quantile fixed on E3, applied blind
+E4	CAUSAL_SECRETARY_BEST_K	80		89	94	125.06	-103.09	353.21	118.4	-980.39	-1117.54	-843.25	running-max rule after k observations; k chosen on the eval era = UPPER BOUND on the family
+E4	DEPLOYED_MULTI_CELLS			385	1155	1009.3	860.03	1158.57	336.43				every cell where the argmax needed the future
+E5	DEPLOYED_CELL_ARGMAX			387	1161	1121.37	999.24	1243.5	373.79	0.0			RETROSPECTIVE: needs the whole cell in hand
+E5	CAUSAL_FIRST_ARRIVAL			387	1160	-64.0	-195.23	67.22	-21.35	-1185.37	-1373.06	-997.68	causal, score-blind participation floor
+E5	CAUSAL_TAU_ORACLE	0.6	-0.514295	387	1161	14.97	-122.45	152.4	4.99	-1106.4	-1250.15	-962.64	UPPER BOUND on any threshold-shaped causal rule (tau chosen on the eval era itself)
+E5	CAUSAL_TAU_RATEMATCH	0.54	-0.602805	387	1161	9.84	-114.48	134.16	3.28	-1111.53	-1272.35	-950.71	seat-count matched to DEPLOYED
+E5	CAUSAL_TAU_PREV_ERA	0.99	0.834823	126	170	-65.92	-192.84	60.99	-48.86	-1142.83	-1253.71	-1031.95	HONEST: quantile fixed on E4, applied blind
+E5	CAUSAL_SECRETARY_BEST_K	3		386	1018	-23.57	-165.7	118.57	-8.94	-1144.87	-1243.2	-1046.55	running-max rule after k observations; k chosen on the eval era = UPPER BOUND on the family
+E5	DEPLOYED_MULTI_CELLS			387	1161	1121.37	999.24	1243.5	373.79				every cell where the argmax needed the future
+E6	DEPLOYED_CELL_ARGMAX			384	1152	1066.87	884.6	1249.14	355.62	0.0			RETROSPECTIVE: needs the whole cell in hand
+E6	CAUSAL_FIRST_ARRIVAL			384	1149	-46.91	-212.5	118.68	-15.68	-1113.78	-1369.28	-858.28	causal, score-blind participation floor
+E6	CAUSAL_TAU_ORACLE	0.94	0.170367	369	869	139.68	-41.65	321.02	59.31	-932.64	-1061.04	-804.25	UPPER BOUND on any threshold-shaped causal rule (tau chosen on the eval era itself)
+E6	CAUSAL_TAU_RATEMATCH	0.72	-0.184572	384	1150	-46.88	-217.01	123.26	-15.65	-1113.74	-1370.82	-856.66	seat-count matched to DEPLOYED
+E6	CAUSAL_TAU_PREV_ERA	0.6	-0.354497	384	1149	-46.91	-212.5	118.68	-15.68	-1113.78	-1369.28	-858.28	HONEST: quantile fixed on E5, applied blind
+E6	CAUSAL_SECRETARY_BEST_K	30		261	365	97.22	-56.19	250.64	69.52	-1000.79	-1156.81	-844.77	running-max rule after k observations; k chosen on the eval era = UPPER BOUND on the family
+E6	DEPLOYED_MULTI_CELLS			384	1152	1066.87	884.6	1249.14	355.62				every cell where the argmax needed the future
+E7	DEPLOYED_CELL_ARGMAX			393	1179	1644.26	1406.0	1882.51	548.09	0.0			RETROSPECTIVE: needs the whole cell in hand
+E7	CAUSAL_FIRST_ARRIVAL			393	1176	-227.91	-416.61	-39.21	-76.16	-1872.16	-2163.66	-1580.66	causal, score-blind participation floor
+E7	CAUSAL_TAU_ORACLE	0.68	-0.329054	393	1175	3.37	-226.66	233.4	1.13	-1640.88	-1816.99	-1464.78	UPPER BOUND on any threshold-shaped causal rule (tau chosen on the eval era itself)
+E7	CAUSAL_TAU_RATEMATCH	0.48	-0.586937	393	1177	-248.05	-431.31	-64.79	-82.82	-1892.31	-2166.44	-1618.18	seat-count matched to DEPLOYED
+E7	CAUSAL_TAU_PREV_ERA	0.94	0.448205	361	712	-205.6	-377.38	-33.82	-104.25	-1833.12	-2022.93	-1643.3	HONEST: quantile fixed on E6, applied blind
+E7	CAUSAL_SECRETARY_BEST_K	3		389	1000	-54.16	-256.24	147.92	-21.07	-1697.87	-1854.36	-1541.37	running-max rule after k observations; k chosen on the eval era = UPPER BOUND on the family
+E7	DEPLOYED_MULTI_CELLS			393	1179	1644.26	1406.0	1882.51	548.09				every cell where the argmax needed the future

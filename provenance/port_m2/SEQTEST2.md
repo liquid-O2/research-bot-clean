@@ -40,9 +40,9 @@ Tables: the `SEQTEST2_*.tsv` beside this file.
 ## 0. THE VERDICT, IN FOUR LINES
 
 1. **NO. No arm from this fix pass beats the champion, and none is close.** The best of them —
-   the partially fine-tuned pretrained trunk fused with the 202 features — banks
-   **$297.41/session** against `LMART_HP_NOTF`'s **$1,174.01**, a paired difference of
-   **−$876.61/session [−966, −787], p = 3 × 10⁻⁶⁷** on 2,320 shared sessions.
+   the LoRA-fine-tuned pretrained trunk fused with the 202 features — banks
+   **$348.17/session** against `LMART_HP_NOTF`'s **$1,174.01**, a paired difference of
+   **−$825.84/session [−917, −734], p = 3 × 10⁻⁵⁹** on 2,320 shared sessions.
 2. **Every repair applied *to* the champion made it worse, significantly.** The 26 creator
    features −$500/session, the day-memory tokens −$461, the wall-pair hard negatives −$870
    (and −$956 at ×4). All p < 1e−13, against an instrument that separates the champion from its
@@ -51,8 +51,9 @@ Tables: the `SEQTEST2_*.tsv` beside this file.
    tokenizer *was* destroying the price axis (93.31 % of events in one bucket → **30.18 %**; the
    bigram-floor gap widened from 0.693 to **0.842 nats**) and the dollars did not move. The
    frozen trunk *was* understating transfer — fine-tuned pretrained beats fine-tuned random by
-   **+$52.06/session, p = 0.0003**, where the frozen comparison was ~$15 and null — and that is
-   6 % of the distance to the champion.
+   **+$52.06/session at matched mechanism (p = 0.0003)** and **+$102.82 with LoRA on all twelve
+   blocks (p = 2e−11)**, where the frozen comparison was ~$15 and null — and that is 11 % of the
+   distance to the champion.
 4. **The best honest number is $1,174.01/session/asset (59 % of the D-048 bar), and this pass
    did not produce it.** R7 — the objective/task misalignment the first pass named — was worth
    ~$925/session and was collected by the *seating* correction, not by any toggle here. **The
@@ -236,8 +237,17 @@ partial fine-tune with layer-wise LR decay it is worth **+$52.06/session at p = 
 see it because it was measuring through the weakest transfer mechanism available. **That confound
 was real and it is now removed.**
 
-**And it does not change the verdict.** $297.41/session against the champion's $1,174.01 is
-**−$876.61/session [−966, −787], p = 3e−67**. The tape's marginal contribution is real,
+**LoRA on ALL twelve blocks doubles it.** The rank-16 adapter arm banks **$348.17/session**
+(capture 0.1177 [0.1055, 0.1299]) — **+$102.82/session over the fine-tuned random trunk,
+p = 2.4 × 10⁻¹¹**, the largest pretraining effect this program has ever measured. *Caveat,
+stated:* its matched control would be LoRA-on-a-random-trunk and that arm was not run, so the
+clean pretrained-vs-random contrast at identical mechanism is the top-4 pair's **+$52.06**; the
+LoRA figure additionally carries the mechanism change (all depths adapt instead of the top third).
+Day-memory tokens prepended into the fine-tune (B1 in the token path) are **null**: −$3.57/session
+against the same arm without them, p = 0.73.
+
+**And none of it changes the verdict.** $348.17/session against the champion's $1,174.01 is
+**−$825.84/session [−917, −734], p = 3e−59**; the top-4 arm is −$876.61, p = 3e−67. The tape's marginal contribution is real,
 measurable, and roughly **6 % of the distance** between a context-only model and the champion —
 while the champion's own margin over the same context-only model is ~$900. The sequence stack is
 not competitive; it is merely no longer a null.
@@ -349,7 +359,9 @@ the harness's own seating. The head of it, pooled E3–E8, primary form:
 | `GBT_ALLDATA` — the old champion, full history | $332.46 | 0.1124 | 0.098 … 0.127 | −$841.55 | 1e−60 |
 | **F5(a) in the matrix:** `GBT_CRE26_ALLDATA` | $315.21 | 0.1065 | 0.094 … 0.119 | −$858.80 | 3e−63 |
 | `LMART2_CELL_ALLDATA_HN1` (**F6/B3** on the champion) | $303.94 | 0.1027 | 0.078 … 0.127 | −$870.08 | 6e−66 |
-| **F2:** `FT2_TOP4_ATTN` — the best deep arm ever measured here | **$297.41** | 0.1005 | 0.088 … 0.114 | −$876.61 | 3e−67 |
+| **F2:** `FT2_LORA16_ATTN` — **the best deep arm ever measured here** | **$348.17** | 0.1177 | 0.106 … 0.130 | −$825.84 | 3e−59 |
+| **F2:** `FT2_TOP4_ATTN` | $297.41 | 0.1005 | 0.088 … 0.114 | −$876.61 | 3e−67 |
+| **F2+F6/B1:** `FT2_TOP4_ATTN_MEM` | $293.84 | 0.0993 | 0.086 … 0.113 | −$880.18 | 4e−69 |
 | **F1/F4:** `PROBE2_..._MULTI_CPC0_FUSED` (frozen, repaired vocab, CPC dropped) | $283.70 | 0.0959 | 0.083 … 0.109 | −$890.32 | 1e−64 |
 | `PROBE2_CTXONLY` (no trunk at all) | $268.32 | 0.0907 | 0.078 … 0.104 | −$905.69 | 3e−65 |
 | `FT2_RANDOM_TOP4_ATTN` (**the random-trunk control**) | $245.35 | 0.0829 | 0.071 … 0.095 | −$928.67 | 1e−74 |
@@ -402,7 +414,7 @@ contribution to knowledge is four settled questions and one live one.
 | toggle | matrix tag | verdict |
 |---|---|---|
 | **F1** tokenization | R1/R6 | **REPAIRED, and it moved the model but not the money.** Largest price bucket 93.31 % → **30.18 %**; the bigram-floor gap widened 0.693 → **0.842 nats** on a 26 % larger vocabulary. Downstream, the repaired trunk's frozen probe is $272.82 against V1's $282.21 and a random trunk's $268.80 — **indistinguishable**. The handicap was real at the objective and irrelevant at the dollars. |
-| **F2** transfer | **R4** | **CONFIRMED, then CLOSED.** The frozen trunk *was* hiding real transfer: fine-tuned pretrained beats fine-tuned random by **+$52.06/session, p = 0.0003**, where frozen-vs-random was ~$15 and null. The tape's marginal value is real and ~6 % of the gap to the champion. |
+| **F2** transfer | **R4** | **CONFIRMED, then CLOSED.** The frozen trunk *was* hiding real transfer: fine-tuned pretrained beats fine-tuned random by **+$52.06/session, p = 0.0003** at matched mechanism, and the LoRA-all-blocks arm reaches **+$102.82, p = 2e−11** — where frozen-vs-random was ~$15 and null. The tape's marginal value is real and ~11 % of the gap to the champion. |
 | **F3** objective | **R7** | **CLOSED, and it was the whole game — but not by me.** The seating unit is the `(asset, PHASE)` CELL; measured here on identical data, the grouping axis alone is worth **~$925/session** (class $11.33 → cell $935.97). The first pass's `day` guess was still wrong (−$28.54). |
 | **F4** CPC | R3 | **DROP.** CPC ×3 costs 0.054 nats on the next head vs dropped (2.7816 vs 2.7538) and is $1.55/session behind downstream. Reweighting refuted; the repaired vocabulary did make the contrastive task more learnable (7.50 vs V1's 7.89 against chance 8.318) and it still buys nothing. |
 | **F5** champion upgrades | — | **BOTH REFUTED.** The 26 creator features cost $17/session in the matrix and **$500/session in the ranker**. The MAE-cap label variant (**93,401 winners vs D-021's 81,346**, +15,272 recovered, AUC 0.7037 on its own label) helps only the composed GBT form (+$17.52) and that whole family is $840 behind. |
@@ -436,8 +448,10 @@ contribution to knowledge is four settled questions and one live one.
 3. **The F2 fine-tune ran a declared 800-step budget per fold**, 10–25 % of an epoch. It is a
    *lower bound* on what end-to-end training could reach; it is not a saturated fine-tune. The
    +$52.06 is therefore a floor on the tape's marginal value, not a ceiling.
-4. **`FT2_TOP4_ATTN_MEM` and `FT2_LORA16_ATTN` were still running at report time** and are
-   reported from the tables when they land; neither can change a −$877/session gap.
+4. **The LoRA arm's own control was not run.** `FT2_LORA16_ATTN` is compared against a
+   *top-4-unfrozen* random trunk, so its +$102.82 mixes the pretraining effect with the
+   adaptation-mechanism effect. The clean number is the top-4 pair's +$52.06. A
+   LoRA-on-random-trunk arm is the one cheap measurement this pass leaves undone.
 5. E3/E4/E5 fine-tuned numbers inherit the PRE-A contamination flag the first pass declared
    (the trunk read tape from those eras); **E6/E7/E8 are honest walk-forward**, and the verdict
    does not depend on the contaminated folds.

@@ -3,7 +3,9 @@
 # verdict=BEATS means the 95% interval of the paired difference is entirely above zero.
 # The reference arm is the committed champion LMART_CELL_ALLDATA (cell-grouped LambdaMART on the full prior history, $935.97/session pooled, SEQTEST.md §14).
 arm_a	arm_b	n_sessions	delta_usd_per_session	lo	hi	p	verdict
+FT2_LORA16_ATTN/primary	LMART_HP_NOTF/primary	2320	-825.84	-917.25	-734.43	2.63e-59	LOSES
 FT2_TOP4_ATTN/primary	LMART_HP_NOTF/primary	2320	-876.61	-966.38	-786.83	2.68e-67	LOSES
+FT2_TOP4_ATTN_MEM/primary	LMART_HP_NOTF/primary	2320	-880.18	-968.78	-791.57	3.5e-69	LOSES
 FT2_RANDOM_TOP4_ATTN/primary	LMART_HP_NOTF/primary	2320	-928.67	-1017.84	-839.49	1.39e-74	LOSES
 PROBE2_PRE_V2_shared_MULTI_CPC0_FUSED/primary	LMART_HP_NOTF/primary	2320	-890.32	-983.71	-796.92	9.84e-65	LOSES
 PROBE2_CTXONLY/primary	LMART_HP_NOTF/primary	2320	-905.69	-1000.2	-811.18	2.75e-65	LOSES
@@ -18,3 +20,4 @@ RANK2_CELL_ALLDATA_CTX_HN1/primary	LMART_HP_NOTF/primary	2320	-936.86	-1042.78	-
 LMART_CELL_EMB/primary	LMART_HP_NOTF/primary	2320	-380.41	-477.93	-282.89	5.66e-14	LOSES
 LMART2_CLASS_ALLDATA/primary	LMART_HP_NOTF/primary	2320	-1162.68	-1263.53	-1061.83	2.1e-87	LOSES
 LMART_HP_SHUFFLED/primary	LMART_HP_NOTF/primary	2320	-1328.4	-1432.69	-1224.12	1.39e-101	LOSES
+RANK2_CELL_ALLDATA_CTX_MEM_SHUFFLED/primary	LMART_HP_NOTF/primary	2320	-1278.95	-1384.93	-1172.97	1.07e-93	LOSES

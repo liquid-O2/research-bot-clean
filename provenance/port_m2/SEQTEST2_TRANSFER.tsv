@@ -2,8 +2,10 @@
 # F2: REAL TRANSFER.  kind=probe is the FROZEN trunk (the first pass's mechanism, and the named confound on the R4 tag); kind=ft2 is the partial fine-tune / LoRA that replaces it.
 # A frozen row and a fine-tuned row on the SAME trunk isolate the transfer mechanism; a V1 row and a V2 row on the same mechanism isolate the tokenizer repair.
 arm	kind	trunk	tokenizer	mode	pooling	unfreeze_top	lora_rank	lldecay	daymem	n_trainable_params	mean_inner_rho	mean_eval_auc_winner	capture_oracle	co_lo	co_hi	usd_per_session
+FT2_LORA16_ATTN	ft2	PRE_V2_shared_MULTI_CPC0	v2	fused	attn	0	16	0.75	False	2568962	0.4453	0.6078	0.0356	0.0248	0.0464	105.29
 FT2_RANDOM_TOP4_ATTN	ft2	RANDOM_V2	v2	fused	attn	4	0	0.75	False	13606658	0.4418	0.6089	0.016	0.0049	0.0272	47.43
 FT2_TOP4_ATTN	ft2	PRE_V2_shared_MULTI_CPC0	v2	fused	attn	4	0	0.75	False	13606658	0.4444	0.6128	0.0315	0.0207	0.0423	93.2
+FT2_TOP4_ATTN_MEM	ft2	PRE_V2_shared_MULTI_CPC0	v2	fused	attn	4	0	0.75	True	13618946	0.4422	0.611	0.032	0.021	0.043	94.63
 PROBE2_CTXONLY	probe	PRE_V2_shared_NEXT	v1	ctx	lastmean	0	0		False		0.4431	0.6014	0.0234	0.0128	0.0341	69.35
 PROBE2_PRE_V2_shared_MULTI_CPC0.6_FUSED	probe	PRE_V2_shared_MULTI_CPC0.6	v1	fused	lastmean	0	0		False		0.4447	0.6079	0.0205	0.0094	0.0316	60.68
 PROBE2_PRE_V2_shared_MULTI_CPC0_FUSED	probe	PRE_V2_shared_MULTI_CPC0	v1	fused	lastmean	0	0		False		0.4445	0.6057	0.0255	0.0148	0.0362	75.43

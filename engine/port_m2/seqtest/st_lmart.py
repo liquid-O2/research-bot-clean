@@ -69,7 +69,8 @@ def _group_arrays(D, rows, klass, unit="class"):
 
 
 def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
-        shuffle=False, drop_tf=False, from_era="E2", compose=False):
+        shuffle=False, drop_tf=False, from_era="E2", compose=False,
+        emb=None, n_pc=64):
     import xgboost as xgb
     import m3_walk as W
     D, _p = W.load_matrix()
@@ -91,6 +92,33 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
                                                      len(cols)))
     XF = D["X"][:, cols]
     FN = [str(D["names"][i]) for i in cols]
+    if emb:
+        # THE LANE'S HEADLINE QUESTION, RE-ASKED ON THE ARM THAT WORKS: does the
+        # frozen raw-event representation add anything on top of the features,
+        # under the correct grouping and the correct schedule?
+        # The PCA basis is fitted ONLY on rows strictly earlier than the first
+        # evaluation era, so it is causal for every fold at once.
+        import st_pretrain as PT
+        E = np.asarray(PT.embed_all(emb)).astype(np.float32)
+        pos = PT.load_ft()["pos"]
+        fit = np.nonzero((D["era_idx"] < SC.ERA_IDX["E3"]) & (pos >= 0))[0]
+        fit = fit[::max(1, fit.size // 120000)]
+        A = E[pos[fit]]
+        mu = A.mean(0)
+        U, S_, Vt = np.linalg.svd(A - mu, full_matrices=False)
+        W = Vt[:n_pc].T
+        SC.hb("emb PCA: basis on %d rows strictly before E3, %d -> %d comps "
+              "(var kept %.3f)" % (fit.size, E.shape[1], n_pc,
+                                   float((S_[:n_pc] ** 2).sum()
+                                         / max((S_ ** 2).sum(), 1e-9))))
+        P = np.full((D["d8"].size, n_pc), np.nan, dtype=np.float32)
+        have = np.nonzero(pos >= 0)[0]
+        for a0 in range(0, have.size, 200000):
+            r = have[a0:a0 + 200000]
+            P[r] = (E[pos[r]] - mu) @ W
+        XF = np.hstack([XF, P])
+        FN = FN + ["emb_pc%02d" % k for k in range(n_pc)]
+        del E, P
     for era in test_eras:
         t0 = time.time()
         tr, ev = R.fold_rows(D, era, from_era=from_era)
@@ -197,10 +225,13 @@ def main():
     ap.add_argument("--drop-tf", action="store_true")
     ap.add_argument("--from-era", default="E2")
     ap.add_argument("--compose", action="store_true")
+    ap.add_argument("--emb", default=None)
+    ap.add_argument("--n-pc", type=int, default=64)
     a = ap.parse_args()
     if a.run:
         run(test_eras=tuple(a.eras.split(",")), unit=a.unit, shuffle=a.shuffle,
             drop_tf=a.drop_tf, from_era=a.from_era, compose=a.compose,
+            emb=a.emb, n_pc=a.n_pc,
             tag=a.tag or ("LMART_%s%s" % (a.unit.upper(),
                                           "_SHUFFLED" if a.shuffle else "")))
     else:

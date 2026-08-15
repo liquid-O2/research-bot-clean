@@ -1,65 +1,80 @@
 # PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
-# THE ONE RE-EVALUATION (fix pass 2).  Every arm on the IDENTICAL schedule: m3_walk deployable, top-3 per asset-day, D-077-UPDATE veto, one-position chronological walled phase-close replay.
+# THE ONE RE-EVALUATION (fix pass 2).  Every arm on the IDENTICAL schedule: the schedule the M3 HARNESS ITSELF selects per era on its own inner validation block (the (asset,PHASE) CELL at N=1), read out of the committed walk.summary.json, with the D-077-UPDATE veto and the one-position chronological walled phase-close replay.
+# The fixed top-3-per-asset-DAY schedule used by the first pass forfeits 63-65% of its takes and is NOT used here (provenance/port_m2/SEQTEST_SCHEDULE_ALERT.md).
 # capture_oracle is pooled over E3..E8 with CR1 intervals clustered by DAY; the per-era columns are the same statistic per fold.
 # form=primary is the champion head alone; form=composed is m3_walk's rank-sum of the two heads.  A single-head arm (a ranker) has one row.
-arm	form	kind	arch	trunk	tokenizer	n_sessions	usd_per_session	ps_lo	ps_hi	usd_per_trade	capture_oracle	co_lo	co_hi	capture_day	E3	E4	E5	E6	E7	E8
-FORESIGHT3_NONCAUSAL	reference	reference				2320	1868.34	1805.34	1931.35	1710.36	0.6315	0.6169	0.6462	0.5566	0.6686	0.7249	0.8312	0.6264	0.5658	0.5463
-PROBE_SHARED_FUSED_SI	primary	probe	eventlm-probe-fused	PRE_V_shared_MULTI		773	156.86	99.16	214.56	127.06	0.0393	0.0247	0.054	0.0393	0.0505	0.0561	0.0702	0.0283	0.0123	0.0418
-PROBE_SHARED_FUSED_HG	primary	probe	eventlm-probe-fused	PRE_V_shared_MULTI		773	66.26	22.27	110.24	45.89	0.0361	0.0119	0.0604	0.0244	0.0496	0.0157	0.1513	0.0267	0.0042	0.0421
-PROBE_NEXTONLY_FUSED	primary	probe	eventlm-probe-fused	PRE_V_shared_NEXT		2320	105.63	79.14	132.12	81.8	0.0357	0.0266	0.0449	0.0315	0.0697	0.0596	0.0431	0.0356	0.02	0.0154
-GBT_CRE26	primary	champion	gbt-m3features+creator26			2320	97.19	70.12	124.25	80.38	0.0328	0.0235	0.0422	0.029	0.0571	0.0302	0.0518	0.0315	0.0234	0.0217
-GBT_CRE26_MAECAP	primary	champion	gbt-m3features+creator26			2320	97.19	70.12	124.25	80.38	0.0328	0.0235	0.0422	0.029	0.0571	0.0302	0.0518	0.0315	0.0234	0.0217
-GBT	primary	champion	gbt-m3features			2320	95.41	67.96	122.85	77.38	0.0322	0.0229	0.0416	0.0284	0.0462	0.028	0.0556	0.0321	0.0354	0.0134
-GBT_M3FEATURES	primary					2320	95.41	67.96	122.85	77.38	0.0322	0.0229	0.0416	0.0284	0.0462	0.028	0.0556	0.0321	0.0354	0.0134
-GBT_MAECAP	primary	champion	gbt-m3features			2320	95.41	67.96	122.85	77.38	0.0322	0.0229	0.0416	0.0284	0.0462	0.028	0.0556	0.0321	0.0354	0.0134
-PROBE_RANDOM_FUSED	primary	probe	eventlm-probe-fused	RANDOM		2320	94.66	69.24	120.08	73.88	0.032	0.0232	0.0407	0.0282	0.0503	0.0614	0.0321	0.0447	0.0097	0.0187
-GBT_MAECAP	composed	champion	gbt-m3features			2320	94.44	51.96	136.93	86.91	0.0319	0.0174	0.0464	0.0281	0.0728	0.0948	0.0213	0.032	-0.014	0.0242
-PROBE_PRE_V_shared_MULTI_FUSED	primary	probe	eventlm-probe-fused	PRE_V_shared_MULTI		2320	94.29	66.87	121.72	74.38	0.0319	0.0224	0.0414	0.0281	0.0575	0.0546	0.0425	0.0474	0.0174	0.0038
-GBT_CRE26	composed	champion	gbt-m3features+creator26			2320	91.22	47.69	134.76	84.89	0.0308	0.016	0.0456	0.0272	0.0513	0.0673	0.0331	-0.0171	0.0087	0.0543
-PROBE_PRE_V_shared_MULTI_CTX	primary	probe	eventlm-probe-ctx	PRE_V_shared_MULTI		2320	88.64	63.56	113.72	70.28	0.03	0.0214	0.0385	0.0264	0.0437	0.0566	0.0374	0.031	0.0228	0.0116
-GBT_CRE26_MAECAP	composed	champion	gbt-m3features+creator26			2320	80.32	37.11	123.53	73.82	0.0271	0.0125	0.0418	0.0239	0.0453	0.0492	0.066	0.0014	0.0007	0.0324
-GBT	composed	champion	gbt-m3features			2320	80.17	38.04	122.29	73.5	0.0271	0.0129	0.0413	0.0239	0.0436	0.038	0.0486	0.0045	0.0065	0.0383
-GBT_M3FEATURES	composed					2320	80.17	38.04	122.29	73.5	0.0271	0.0129	0.0413	0.0239	0.0436	0.038	0.0486	0.0045	0.0065	0.0383
-RANK_CTXONLY	primary	rank	listwise-ctx	NONE		2320	78.09	27.92	128.25	62.19	0.0264	0.0095	0.0433	0.0233	-0.0034	0.0611	-0.0037	0.0251	0.0562	0.0123
-PROBE_PRE_V_shared_MULTI_CTX	composed	probe	eventlm-probe-ctx	PRE_V_shared_MULTI		2320	69.35	38.22	100.48	65.24	0.0234	0.0128	0.0341	0.0207	0.0173	0.057	0.0593	0.0276	0.0042	0.011
-PROBE_SHARED_FUSED_NKD	primary	probe	eventlm-probe-fused	PRE_V_shared_MULTI		774	70.63	17.14	124.13	49.79	0.0231	0.0055	0.0407	0.021	0.0611	0.0298	0.0046	0.0251	0.0263	0.0115
-PROBE_SIONLY_FUSED_SI	primary	probe	eventlm-probe-fused	PRE_V_si_MULTI		773	91.11	33.73	148.49	75.92	0.0228	0.0083	0.0374	0.0229	0.0545	0.0004	0.0452	0.0053	0.0005	0.0399
-PROBE_NEXTONLY_FUSED	composed	probe	eventlm-probe-fused	PRE_V_shared_NEXT		2320	57.67	25.7	89.64	52.24	0.0195	0.0086	0.0304	0.0172	0.009	0.0333	0.0372	0.0204	0.0197	0.0108
-PROBE_PRE_V_shared_MULTI_FUSED	composed	probe	eventlm-probe-fused	PRE_V_shared_MULTI		2320	56.35	23.23	89.46	51.23	0.019	0.0078	0.0303	0.0168	0.0081	0.0336	0.0353	0.0208	0.0185	0.011
-RANK_FUSED_NEXT	primary	rank	listwise-fused	PRE_V_shared_NEXT		2320	52.51	3.22	101.8	42.42	0.0178	0.0011	0.0344	0.0156	-0.008	0.0783	0.017	0.0248	0.0099	0.0061
-PROBE_RANDOM_FUSED	composed	probe	eventlm-probe-fused	RANDOM		2320	50.63	17.75	83.51	46.38	0.0171	0.006	0.0283	0.0151	-0.0084	0.0308	0.0354	0.0175	0.0159	0.019
-PROBE_SHARED_FUSED_HG	composed	probe	eventlm-probe-fused	PRE_V_shared_MULTI		773	23.47	-31.33	78.28	20.06	0.0128	-0.0171	0.0427	0.0086	-0.038	-0.0199	-0.2577	0.0509	0.0468	0.0626
-RANK_FUSED_MULTI	primary	rank	listwise-fused	PRE_V_shared_MULTI		2320	33.34	-19.14	85.81	27.19	0.0113	-0.0065	0.029	0.0099	-0.0143	0.0677	-0.0092	0.0277	0.0093	-0.0024
-PROBE_SIONLY_FUSED_SI	composed	probe	eventlm-probe-fused	PRE_V_si_MULTI		773	39.63	-24.39	103.64	37.18	0.0099	-0.0062	0.0261	0.0099	0.027	0.0058	0.0079	0.023	-0.0133	0.0149
-LMART2_DAY_MEM_CRE26	primary	rank2	lambdamart-day	NONE		2320	29.04	-19.65	77.73	23.75	0.0098	-0.0067	0.0263	0.0087	0.0067	0.0218	0.0325	0.0335	-0.0001	-0.0109
-LMART2_DAY	primary	rank2	lambdamart-day	NONE		2320	24.01	-23.86	71.88	19.55	0.0081	-0.0081	0.0243	0.0072	-0.0048	0.0488	0.0248	-0.01	-0.0085	0.0173
-LADDER_trf_1M_L256	composed	ladder	trf			2320	20.22	-27.36	67.79	12.06	0.0068	-0.0092	0.0229	0.006	0.0059	-0.0318	-0.0075	0.0016	0.0119	0.0312
-RANK_SEQONLY	primary	rank	listwise-seq	PRE_V_shared_MULTI		2320	15.15	-38.18	68.49	11.15	0.0051	-0.0129	0.0231	0.0045	-0.0194	0.0132	0.0388	-0.0295	0.0391	-0.0059
-LMART2_DAY_MEM	primary	rank2	lambdamart-day	NONE		2320	14.49	-35.17	64.15	8.32	0.0049	-0.0119	0.0217	0.0043	0.0268	0.0166	-0.0192	-0.0268	0.0101	0.0134
-PROBE_SHARED_FUSED_SI	composed	probe	eventlm-probe-fused	PRE_V_shared_MULTI		773	18.41	-46.79	83.61	19.0	0.0046	-0.0118	0.021	0.0046	0.0412	-0.0304	0.0584	-0.026	-0.0087	0.0111
-LMART2_CLASS_MEM_CRE26	primary	rank2	lambdamart-class	NONE		2320	6.47	-44.19	57.14	6.56	0.0022	-0.0149	0.0193	0.0019	0.0392	0.0322	0.0321	-0.0014	-0.022	-0.0218
-PROBE_PRE_V_shared_MULTI_SEQ	composed	probe	eventlm-probe-seq	PRE_V_shared_MULTI		2320	4.39	-41.96	50.73	3.53	0.0015	-0.0142	0.0171	0.0013	0.0079	-0.0057	0.0026	-0.0156	0.0272	-0.0115
-PROBE_SHARED_FUSED_NKD	composed	probe	eventlm-probe-fused	PRE_V_shared_MULTI		774	4.43	-58.67	67.54	2.03	0.0015	-0.0192	0.0221	0.0013	-0.0277	-0.0236	0.0013	0.0069	0.0063	0.0113
-LMART2_DAY_CRE26	primary	rank2	lambdamart-day	NONE		2320	1.45	-50.78	53.68	3.06	0.0005	-0.0172	0.0181	0.0004	-0.046	0.0155	0.0075	0.025	-0.0158	0.0162
-LADDER_cnn_1M_L1024	primary	ladder	cnn			2320	-14.85	-57.24	27.54	-9.72	-0.005	-0.0194	0.0093	-0.0044	-0.0273	-0.0349	0.0195	-0.0153	0.0009	0.0145
-LMART2_CLASS	primary	rank2	lambdamart-class	NONE		2320	-18.57	-68.91	31.78	-13.56	-0.0063	-0.0233	0.0108	-0.0055	0.0076	-0.0376	-0.0047	0.0041	-0.0067	-0.0068
-LMART_M3FEATURES	primary	rank	lambdamart-m3features	NONE		2320	-18.57	-68.91	31.78	-13.56	-0.0063	-0.0233	0.0108	-0.0055	0.0076	-0.0376	-0.0047	0.0041	-0.0067	-0.0068
-LADDER_cnn_1M_L4096	primary	ladder	cnn			2320	-27.49	-68.33	13.35	-19.47	-0.0093	-0.0231	0.0045	-0.0082	-0.0151	-0.0326	0.0029	-0.0217	0.0111	-0.0099
-LADDER_cnn_1M_L4096	composed	ladder	cnn			2320	-31.4	-72.87	10.07	-21.25	-0.0106	-0.0247	0.0034	-0.0094	-0.0491	-0.0053	-0.0037	-0.0079	-0.0205	0.0145
-LADDER_cnn_1M_L256	composed	ladder	cnn			2320	-36.18	-85.67	13.31	-24.56	-0.0122	-0.029	0.0046	-0.0108	0.0066	-0.0117	-0.0692	-0.0337	-0.0132	0.0159
-GBT_SHUFFLED	composed	champion	gbt-m3features			2320	-39.55	-85.35	6.24	-22.78	-0.0134	-0.0289	0.0021	-0.0118	0.0177	-0.0285	-0.0201	-0.0318	-0.036	0.0126
-PROBE_PRE_V_shared_MULTI_SEQ	primary	probe	eventlm-probe-seq	PRE_V_shared_MULTI		2320	-43.46	-90.64	3.72	-27.54	-0.0147	-0.0306	0.0012	-0.0129	-0.0055	-0.0187	0.0049	-0.0092	-0.0244	-0.021
-LADDER_trf_1M_L256	primary	ladder	trf			2320	-44.48	-88.27	-0.7	-26.29	-0.015	-0.0299	-0.0002	-0.0133	-0.0496	-0.0083	0.0101	-0.0153	-0.0158	-0.0072
-LADDER_trf_10M_L256	primary	ladder	trf			2320	-45.57	-86.85	-4.28	-29.01	-0.0154	-0.0294	-0.0014	-0.0136	-0.0025	-0.0217	-0.0029	-0.0225	-0.0078	-0.0274
-SHUFFLED_cnn_1M_L256	primary					2320	-47.66	-93.58	-1.74	-28.59	-0.0161	-0.0317	-0.0005	-0.0142	-0.0277	-0.0591	-0.0459	-0.0114	0.0075	-0.0013
-LADDER_cnn_1M_L1024	composed	ladder	cnn			2320	-53.75	-98.94	-8.56	-38.08	-0.0182	-0.0335	-0.0028	-0.016	-0.0482	-0.0325	-0.0326	-0.0165	0.0137	-0.0184
-LADDER_cnn_10M_L256	primary	ladder	cnn			2320	-54.74	-100.71	-8.76	-31.53	-0.0185	-0.0341	-0.0029	-0.0163	-0.0363	-0.0249	-0.0281	-0.0369	0.0034	-0.0086
-LADDER_cnn_10M_L256	composed	ladder	cnn			2320	-57.87	-107.63	-8.1	-39.61	-0.0196	-0.0365	-0.0027	-0.0172	-0.0137	-0.0276	-0.0401	-0.0262	-0.0045	-0.0202
-LADDER_trf_1M_L1024	composed	ladder	trf			2320	-60.07	-102.88	-17.26	-39.77	-0.0203	-0.0348	-0.0058	-0.0179	-0.0407	-0.0094	0.0267	-0.0359	-0.0093	-0.0323
-LADDER_cnn_1M_L256	primary	ladder	cnn			2320	-65.21	-107.47	-22.95	-39.33	-0.022	-0.0364	-0.0077	-0.0194	-0.0329	-0.0868	-0.0083	-0.0372	0.0024	-0.0019
-RANDOM3	reference	reference	200 seeded draws				-66.39			-31.39	-0.0237	-0.032	-0.0166		-0.0222	-0.0276	-0.032	-0.0221	-0.0166	-0.0217
-LADDER_trf_1M_L1024	primary	ladder	trf			2320	-74.02	-118.53	-29.52	-46.99	-0.025	-0.0401	-0.0099	-0.0221	-0.0276	-0.0347	-0.0463	-0.033	-0.0124	-0.0162
-LADDER_trf_10M_L256	composed	ladder	trf			2320	-82.25	-127.26	-37.25	-53.94	-0.0278	-0.0431	-0.0125	-0.0245	-0.0236	-0.0608	-0.0376	-0.0259	-0.0095	-0.0286
-GBT_SHUFFLED	primary	champion	gbt-m3features			2320	-83.15	-126.44	-39.85	-49.61	-0.0281	-0.0427	-0.0135	-0.0248	-0.0347	-0.0366	-0.0379	-0.0162	-0.0213	-0.0307
-SHUFFLED_cnn_1M_L256	composed					2320	-110.56	-154.41	-66.7	-69.15	-0.0374	-0.0522	-0.0225	-0.0329	-0.0243	-0.0585	-0.0427	-0.0314	-0.0293	-0.0443
-BASE_EARLIEST	reference	reference				2320	-168.18	-253.26	-83.11	-35.66	-0.0568	-0.0855	-0.0282	-0.0501	-0.0875	-0.0671	-0.0145	-0.0054	-0.0749	-0.0701
+arm	form	kind	arch	trunk	tokenizer	policy	n_sessions	usd_per_session	ps_lo	ps_hi	usd_per_trade	capture_oracle	co_lo	co_hi	capture_day	E3	E4	E5	E6	E7	E8
+REF_FORESIGHT	primary					m3_committed (cell/1,cell/2)	2320	3337.16	3233.6	3440.73	1112.55	1.128	1.1056	1.1504	0.9943	1.1698	1.2992	1.4587	1.1148	1.0275	0.986
+FORESIGHT_NONCAUSAL	reference	reference				m3_committed	2320	3337.16	3233.6	3440.73	1112.55	1.128	1.1056	1.1504	0.9943	1.1698	1.2992	1.4587	1.1148	1.0275	0.986
+LMART_CELL_ALLDATA	primary	rank	lambdamart-cell	NONE		m3_committed (cell/1,cell/2)	2320	935.97	845.11	1026.83	312.95	0.3164	0.2874	0.3454	0.2789	0.022	0.3619	0.3992	0.3977	0.2846	0.4089
+LMART_ALLDATA_NOTF	primary	rank	lambdamart-cell	NONE		m3_committed (cell/1,cell/2)	2320	673.74	589.89	757.6	224.39	0.2277	0.2014	0.2541	0.2007	0.0171	0.069	0.2849	0.1222	0.3945	0.3247
+LMART_CELL	primary	rank	lambdamart-cell	NONE		m3_committed (cell/1,cell/2)	2320	495.11	412.64	577.57	165.78	0.1674	0.141	0.1937	0.1475	-0.0278	0.0461	0.0277	0.1056	0.2364	0.3797
+PROBE_SHARED_FUSED_HG	primary	probe	eventlm-probe-fused	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	773	256.77	198.8	314.74	85.15	0.1401	0.1067	0.1735	0.0944	0.1179	0.2253	0.4687	0.1066	0.1249	0.0997
+LMART_CELL_NOTF	primary	rank	lambdamart-cell	NONE		m3_committed (cell/1,cell/2)	2320	411.08	335.34	486.82	137.61	0.139	0.1143	0.1636	0.1225	-0.0302	0.111	0.0952	0.1251	0.1748	0.2479
+GBT	primary	champion	gbt-m3features			m3_committed (cell/1,cell/2)	2320	323.35	286.49	360.21	107.44	0.1093	0.0964	0.1222	0.0963	0.1502	0.1127	0.1759	0.1026	0.0939	0.0748
+GBT_M3FEATURES	primary					m3_committed (cell/1,cell/2)	2320	323.35	286.49	360.21	107.44	0.1093	0.0964	0.1222	0.0963	0.1502	0.1127	0.1759	0.1026	0.0939	0.0748
+GBT_MAECAP	primary	champion	gbt-m3features			m3_committed (cell/1,cell/2)	2320	323.35	286.49	360.21	107.44	0.1093	0.0964	0.1222	0.0963	0.1502	0.1127	0.1759	0.1026	0.0939	0.0748
+GBT_CRE26	primary	champion	gbt-m3features+creator26			m3_committed (cell/1,cell/2)	2320	310.67	275.69	345.66	103.22	0.105	0.0927	0.1174	0.0926	0.1729	0.088	0.1499	0.0984	0.0988	0.0646
+GBT_CRE26_MAECAP	primary	champion	gbt-m3features+creator26			m3_committed (cell/1,cell/2)	2320	310.67	275.69	345.66	103.22	0.105	0.0927	0.1174	0.0926	0.1729	0.088	0.1499	0.0984	0.0988	0.0646
+PROBE_NEXTONLY_FUSED	primary	probe	eventlm-probe-fused	PRE_V_shared_NEXT		m3_committed (cell/1,cell/2)	2320	282.21	241.09	323.33	93.5	0.0954	0.0812	0.1096	0.0841	0.1465	0.1268	0.1327	0.094	0.0744	0.0547
+PROBE_RANDOM_FUSED	primary	probe	eventlm-probe-fused	RANDOM		m3_committed (cell/1,cell/2)	2320	275.62	237.84	313.4	91.42	0.0932	0.0799	0.1065	0.0821	0.1377	0.1559	0.1296	0.0973	0.0627	0.0465
+PROBE_PRE_V_shared_MULTI_CTX	primary	probe	eventlm-probe-ctx	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	2320	268.32	231.79	304.86	88.88	0.0907	0.0777	0.1037	0.0799	0.125	0.143	0.1509	0.0975	0.069	0.0353
+PROBE_PRE_V_shared_MULTI_FUSED	primary	probe	eventlm-probe-fused	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	2320	266.68	228.48	304.89	88.47	0.0901	0.0768	0.1035	0.0795	0.1202	0.1316	0.1432	0.1034	0.0601	0.0489
+PROBE_SHARED_FUSED_NKD	primary	probe	eventlm-probe-fused	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	774	235.62	162.26	308.97	77.82	0.0771	0.0528	0.1015	0.07	0.1654	0.1913	0.0582	0.0613	0.1023	-0.0033
+GBT_MAECAP	composed	champion	gbt-m3features			m3_committed (cell/1,cell/2)	2320	203.83	145.61	262.04	67.87	0.0689	0.0492	0.0886	0.0607	0.0839	0.15	0.0644	0.06	0.0434	0.0522
+GBT_CRE26	composed	champion	gbt-m3features+creator26			m3_committed (cell/1,cell/2)	2320	195.81	137.99	253.63	65.24	0.0662	0.0467	0.0856	0.0583	0.0858	0.1008	0.072	0.0256	0.0413	0.0871
+GBT	composed	champion	gbt-m3features			m3_committed (cell/1,cell/2)	2320	195.51	135.37	255.64	65.04	0.0661	0.0459	0.0862	0.0582	0.0891	0.0663	0.0852	0.0459	0.0452	0.0783
+GBT_M3FEATURES	composed					m3_committed (cell/1,cell/2)	2320	195.51	135.37	255.64	65.04	0.0661	0.0459	0.0862	0.0582	0.0891	0.0663	0.0852	0.0459	0.0452	0.0783
+GBT_CRE26_MAECAP	composed	champion	gbt-m3features+creator26			m3_committed (cell/1,cell/2)	2320	189.96	131.98	247.93	63.25	0.0642	0.0446	0.0838	0.0566	0.0718	0.1345	0.0729	0.051	0.0396	0.054
+PROBE_SIONLY_FUSED_SI	primary	probe	eventlm-probe-fused	PRE_V_si_MULTI		m3_committed (cell/1,cell/2)	773	243.53	161.8	325.25	80.56	0.0611	0.0404	0.0818	0.0611	0.0606	0.0602	0.1334	0.019	0.0619	0.0578
+PROBE_SHARED_FUSED_SI	primary	probe	eventlm-probe-fused	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	773	241.53	161.32	321.75	80.06	0.0606	0.0403	0.0808	0.0606	0.0568	0.1314	0.1029	0.0346	0.0321	0.0471
+PROBE_PRE_V_shared_MULTI_CTX	composed	probe	eventlm-probe-ctx	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	2320	142.6	94.18	191.01	47.46	0.0482	0.0318	0.0646	0.0425	0.0416	0.071	0.0808	0.0653	0.027	0.0354
+RANK_CELL_CTX	primary	rank	listwise-ctx-cell	NONE		m3_committed (cell/1,cell/2)	2320	131.52	70.25	192.79	43.79	0.0445	0.0236	0.0654	0.0392	0.0145	0.1093	0.2229	0.039	0.015	-0.0118
+PROBE_PRE_V_shared_MULTI_FUSED	composed	probe	eventlm-probe-fused	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	2320	129.5	77.92	181.08	43.11	0.0438	0.0264	0.0612	0.0386	0.0342	0.0781	0.044	0.0537	0.0335	0.0354
+PROBE_NEXTONLY_FUSED	composed	probe	eventlm-probe-fused	PRE_V_shared_NEXT		m3_committed (cell/1,cell/2)	2320	123.81	72.7	174.93	41.12	0.0419	0.0246	0.0591	0.0369	0.0546	0.0741	0.0472	0.0386	0.0264	0.0331
+PROBE_RANDOM_FUSED	composed	probe	eventlm-probe-fused	RANDOM		m3_committed (cell/1,cell/2)	2320	117.91	68.75	167.06	39.14	0.0399	0.0233	0.0564	0.0351	0.0447	0.0918	0.0216	0.048	0.0284	0.024
+RANK_CTXONLY	primary	rank	listwise-ctx	NONE		m3_committed (cell/1,cell/2)	2320	106.56	32.82	180.3	35.34	0.036	0.0113	0.0607	0.0317	-0.0254	0.1256	0.0009	-0.0093	0.0983	0.0163
+RANK_CELL_FUSED	primary	rank	listwise-fused-cell	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	2320	97.62	32.36	162.88	32.46	0.033	0.011	0.055	0.0291	-0.0043	-0.0095	0.1581	0.0405	0.0418	0.0109
+PROBE_SHARED_FUSED_HG	composed	probe	eventlm-probe-fused	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	773	55.65	-23.24	134.54	18.92	0.0304	-0.0127	0.0734	0.0205	-0.049	0.0328	-0.1265	0.0101	0.0774	0.0887
+PROBE_SIONLY_FUSED_SI	composed	probe	eventlm-probe-fused	PRE_V_si_MULTI		m3_committed (cell/1,cell/2)	773	100.79	7.77	193.8	33.02	0.0253	0.0019	0.0486	0.0253	0.0321	0.0124	0.0344	0.0043	0.0416	0.0235
+PROBE_SHARED_FUSED_SI	composed	probe	eventlm-probe-fused	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	773	76.34	-17.57	170.25	25.12	0.0191	-0.0044	0.0427	0.0191	0.015	-0.0128	0.0723	-0.0334	0.0462	0.0291
+RANK_FUSED_NEXT	primary	rank	listwise-fused	PRE_V_shared_NEXT		m3_committed (cell/1,cell/2)	2320	33.25	-35.78	102.28	11.23	0.0112	-0.0121	0.0346	0.0099	-0.0248	0.1477	-0.0051	-0.0007	-0.0051	-0.0037
+RANK_FUSED_MULTI	primary	rank	listwise-fused	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	2320	25.62	-41.19	92.44	8.71	0.0087	-0.0139	0.0312	0.0076	-0.0345	0.102	0.0117	-0.0067	0.0035	0.003
+LMART_ALLDATA_CLASSGRP	primary	rank	lambdamart-class	NONE		m3_committed (cell/1,cell/2)	2320	11.33	-49.86	72.52	3.73	0.0038	-0.0168	0.0245	0.0034	0.0027	0.0215	0.0523	0.0067	-0.0039	-0.019
+LMART2_DAY	primary	rank2	lambdamart-day	NONE		m3_committed (cell/1,cell/2)	2320	5.8	-55.03	66.62	2.05	0.002	-0.0186	0.0225	0.0017	0.0174	-0.0411	0.0194	-0.0008	-0.0217	0.031
+LMART_DAY	primary	rank	lambdamart-day	NONE		m3_committed (cell/1,cell/2)	2320	5.8	-55.03	66.62	2.05	0.002	-0.0186	0.0225	0.0017	0.0174	-0.0411	0.0194	-0.0008	-0.0217	0.031
+LMART2_DAY_MEM_CRE26	primary	rank2	lambdamart-day	NONE		m3_committed (cell/1,cell/2)	2320	1.91	-61.29	65.11	0.71	0.0006	-0.0207	0.022	0.0006	-0.006	-0.0105	0.0078	0.015	-0.0082	0.0054
+LMART2_CLASS_MEM_CRE26	primary	rank2	lambdamart-class	NONE		m3_committed (cell/1,cell/2)	2320	0.05	-60.05	60.15	-0.18	0.0	-0.0203	0.0203	0.0	0.0312	0.0295	-0.0159	-0.0215	0.0014	-0.0128
+PROBE_SHARED_FUSED_NKD	composed	probe	eventlm-probe-fused	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	774	-9.95	-109.68	89.79	-3.05	-0.0033	-0.0359	0.0294	-0.003	-0.0427	0.0399	-0.0494	0.0085	-0.0193	0.0291
+LMART_CELL_COMPOSED	primary	rank	lambdamart-cell	NONE		m3_committed (cell/1,cell/2)	2320	-23.85	-91.43	43.73	-7.6	-0.0081	-0.0309	0.0148	-0.0071	-0.0202	-0.0522	-0.0406	0.0419	-0.0449	0.0342
+LMART2_CLASS	primary	rank2	lambdamart-class	NONE		m3_committed (cell/1,cell/2)	2320	-23.88	-87.24	39.48	-8.18	-0.0081	-0.0295	0.0134	-0.0071	0.0273	-0.0708	-0.0119	-0.023	0.0121	-0.0054
+LMART_M3FEATURES	primary	rank	lambdamart-m3features	NONE		m3_committed (cell/1,cell/2)	2320	-23.88	-87.24	39.48	-8.18	-0.0081	-0.0295	0.0134	-0.0071	0.0273	-0.0708	-0.0119	-0.023	0.0121	-0.0054
+LMART2_DAY_CRE26	primary	rank2	lambdamart-day	NONE		m3_committed (cell/1,cell/2)	2320	-30.12	-97.92	37.67	-9.66	-0.0102	-0.0331	0.0128	-0.009	-0.0467	0.0046	-0.0271	0.0396	-0.0428	0.0073
+LADDER_cnn_1M_L1024	primary	ladder	cnn			m3_committed (cell/1,cell/2)	2320	-41.51	-95.61	12.59	-13.81	-0.014	-0.0324	0.0043	-0.0124	-0.0108	-0.07	0.0079	-0.0056	-0.0074	-0.0097
+LMART2_DAY_MEM	primary	rank2	lambdamart-day	NONE		m3_committed (cell/1,cell/2)	2320	-48.75	-111.7	14.21	-16.28	-0.0165	-0.0378	0.0048	-0.0145	-0.0221	0.0144	-0.0333	-0.052	-0.0042	-0.0081
+LADDER_trf_1M_L256	primary	ladder	trf			m3_committed (cell/1,cell/2)	2320	-63.39	-120.21	-6.57	-20.42	-0.0214	-0.0407	-0.0021	-0.0189	-0.0618	-0.0163	0.0072	-0.0156	-0.0252	-0.0121
+LADDER_trf_1M_L256	composed	ladder	trf			m3_committed (cell/1,cell/2)	2320	-70.68	-124.65	-16.7	-23.25	-0.0239	-0.0422	-0.0055	-0.0211	-0.0298	-0.0548	-0.0075	-0.056	-0.0226	0.0094
+RANK_SEQONLY	primary	rank	listwise-seq	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	2320	-76.67	-132.61	-20.74	-25.42	-0.0259	-0.0449	-0.007	-0.0228	-0.0236	-0.0146	-0.0357	-0.012	-0.0244	-0.0401
+PROBE_PRE_V_shared_MULTI_SEQ	primary	probe	eventlm-probe-seq	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	2320	-81.63	-138.99	-24.27	-27.26	-0.0276	-0.0471	-0.0081	-0.0243	-0.0096	-0.0291	-0.0386	-0.0007	-0.022	-0.0572
+LADDER_cnn_1M_L256	composed	ladder	cnn			m3_committed (cell/1,cell/2)	2320	-81.79	-133.69	-29.89	-27.32	-0.0276	-0.0452	-0.0101	-0.0244	0.0021	-0.014	-0.0862	-0.0404	-0.0253	-0.0212
+LADDER_trf_10M_L256	primary	ladder	trf			m3_committed (cell/1,cell/2)	2320	-85.05	-141.31	-28.79	-28.12	-0.0287	-0.0479	-0.0096	-0.0253	-0.0366	-0.0588	-0.0539	-0.0309	-0.0108	-0.0144
+LADDER_trf_1M_L1024	composed	ladder	trf			m3_committed (cell/1,cell/2)	2320	-88.91	-139.93	-37.89	-29.41	-0.0301	-0.0474	-0.0127	-0.0265	-0.0398	-0.0163	-0.0115	-0.0514	-0.0142	-0.0387
+LADDER_cnn_1M_L4096	composed	ladder	cnn			m3_committed (cell/1,cell/2)	2320	-91.17	-140.44	-41.9	-30.21	-0.0308	-0.0476	-0.014	-0.0272	-0.0291	-0.0686	-0.0451	-0.0074	-0.0259	-0.0283
+LADDER_trf_10M_L256	composed	ladder	trf			m3_committed (cell/1,cell/2)	2320	-100.08	-149.43	-50.74	-32.99	-0.0338	-0.0506	-0.017	-0.0298	-0.0557	-0.0756	-0.0442	-0.0206	-0.0037	-0.0336
+LADDER_cnn_1M_L256	primary	ladder	cnn			m3_committed (cell/1,cell/2)	2320	-106.85	-162.49	-51.22	-35.25	-0.0361	-0.055	-0.0173	-0.0318	-0.0436	-0.074	-0.0235	-0.0087	-0.0376	-0.036
+RANDOM_SEEDED	reference	reference	200 seeded draws			m3_committed		-100.59			-33.0	-0.0364	-0.0486	-0.0259		-0.0385	-0.0435	-0.0486	-0.0334	-0.0259	-0.0285
+SHUFFLED_cnn_1M_L256	primary					m3_committed (cell/1,cell/2)	2320	-108.59	-162.77	-54.42	-35.56	-0.0367	-0.0552	-0.0182	-0.0324	-0.0634	-0.064	-0.0518	-0.0465	-0.0155	-0.0142
+LADDER_cnn_1M_L4096	primary	ladder	cnn			m3_committed (cell/1,cell/2)	2320	-109.06	-161.73	-56.39	-36.24	-0.0369	-0.0547	-0.0191	-0.0325	-0.0483	-0.0671	-0.0272	-0.044	0.0066	-0.0552
+LADDER_cnn_10M_L256	primary	ladder	cnn			m3_committed (cell/1,cell/2)	2320	-109.49	-163.24	-55.73	-35.79	-0.037	-0.0553	-0.0187	-0.0326	-0.0605	-0.0339	-0.0461	-0.0368	-0.0337	-0.0239
+LADDER_cnn_1M_L1024	composed	ladder	cnn			m3_committed (cell/1,cell/2)	2320	-110.21	-160.7	-59.73	-36.31	-0.0373	-0.0544	-0.0201	-0.0328	-0.064	-0.0753	-0.0496	-0.0472	-0.005	-0.0209
+REF_RANDOM	primary					m3_committed (cell/1,cell/2)	2320	-112.54	-162.27	-62.81	-36.46	-0.038	-0.055	-0.0211	-0.0335	-0.0835	-0.0348	-0.0467	-0.032	-0.0034	-0.0458
+PROBE_PRE_V_shared_MULTI_SEQ	composed	probe	eventlm-probe-seq	PRE_V_shared_MULTI		m3_committed (cell/1,cell/2)	2320	-116.16	-167.99	-64.33	-38.67	-0.0393	-0.0568	-0.0217	-0.0346	-0.0282	0.0041	-0.0428	-0.0627	-0.0289	-0.059
+LADDER_trf_1M_L1024	primary	ladder	trf			m3_committed (cell/1,cell/2)	2320	-121.35	-177.13	-65.57	-40.49	-0.041	-0.06	-0.022	-0.0362	-0.0199	-0.053	-0.0277	-0.097	-0.0132	-0.0404
+REF_EARLIEST	primary					m3_committed (cell/1,cell/2)	2320	-127.26	-195.68	-58.85	-42.44	-0.043	-0.0661	-0.0199	-0.0379	-0.0663	-0.0567	-0.0239	-0.0094	-0.0537	-0.0438
+GBT_SHUFFLED	composed	champion	gbt-m3features			m3_committed (cell/1,cell/2)	2320	-131.06	-180.43	-81.7	-43.58	-0.0443	-0.0611	-0.0275	-0.039	-0.0139	-0.0778	-0.0576	-0.0669	-0.0504	-0.0189
+LMART_ALLDATA_SHUFFLED	primary	rank	lambdamart-cell	NONE		m3_committed (cell/1,cell/2)	2320	-131.23	-184.07	-78.38	-42.98	-0.0444	-0.0625	-0.0262	-0.0391	-0.0863	-0.0466	-0.0888	-0.0596	-0.0206	-0.0115
+LADDER_cnn_10M_L256	composed	ladder	cnn			m3_committed (cell/1,cell/2)	2320	-132.5	-187.77	-77.23	-43.9	-0.0448	-0.0636	-0.026	-0.0395	-0.0325	-0.0353	-0.0448	-0.0598	-0.0521	-0.0393
+GBT_SHUFFLED	primary	champion	gbt-m3features			m3_committed (cell/1,cell/2)	2320	-132.65	-180.98	-84.32	-43.55	-0.0448	-0.0613	-0.0283	-0.0395	-0.0662	-0.0419	-0.0781	-0.0373	-0.0283	-0.0406
+SHUFFLED_cnn_1M_L256	composed					m3_committed (cell/1,cell/2)	2320	-137.75	-190.55	-84.95	-45.46	-0.0466	-0.0646	-0.0286	-0.041	-0.0504	-0.1051	-0.0266	-0.0478	-0.0291	-0.0394
+LMART_CELL_SHUFFLED	primary	rank	lambdamart-cell	NONE		m3_committed (cell/1,cell/2)	2320	-159.85	-214.97	-104.73	-52.95	-0.054	-0.0727	-0.0354	-0.0476	-0.0701	-0.0403	-0.0611	-0.0361	-0.0738	-0.0421
+BASE_EARLIEST	reference	reference				m3_committed	2320	-168.18	-253.26	-83.11	-35.66	-0.0568	-0.0855	-0.0282	-0.0501	-0.0875	-0.0671	-0.0145	-0.0054	-0.0749	-0.0701

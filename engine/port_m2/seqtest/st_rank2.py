@@ -57,14 +57,19 @@ CLASS_MAX_GROUP = RK.MAX_GROUP     # 64, the V1 convention for class groups
 
 
 # ================================================================ groups =====
-def build_groups(D, rows, klass, group="day"):
-    """`(asset, day)` — the DEPLOYMENT selection unit — or the V1
-    `(asset, day, class)` member set."""
+def build_groups(D, rows, klass, group="cell"):
+    """Member sets on the grouping axis, keyed by `st_rank.group_key` — the
+    lane's committed definition, imported and never re-typed (D-006).
+
+    `cell` (asset, day, PHASE) is **the schedule's own selection unit**: the
+    committed m3 policy seats top-1 per cell, so a cell group's ordering IS the
+    ordering that gets seated.  A cell or day group is therefore NEVER split —
+    splitting it would put the objective back off the deployment unit, which is
+    the whole defect being repaired.  Only the V1 `class` axis keeps its
+    MAX_GROUP split, so that arm reproduces the first pass exactly.
+    """
     r = np.asarray(rows, dtype=np.int64)
-    key = (D["asset_idx"][r].astype(np.int64) * 100000000
-           + D["d8"][r].astype(np.int64))
-    if group == "class":
-        key = key * 100 + klass[r]
+    key = RK.group_key(D, r, klass, group)
     order = np.lexsort((D["dec_sec"][r], key))
     ro, ko = r[order], key[order]
     starts = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
@@ -80,7 +85,7 @@ def build_groups(D, rows, klass, group="day"):
                 if piece.size >= 2:
                     out.append(piece)
         else:
-            out.append(g)          # the WHOLE day: never split, it is the unit
+            out.append(g)          # the seating unit, whole
     return out
 
 
@@ -227,9 +232,9 @@ def trunk_tokenizer(trunk, default="v1"):
     return default
 
 
-def run(trunk="NONE", mode="ctx", group="day", losses=("listnet", "listmle"),
+def run(trunk="NONE", mode="ctx", group="cell", losses=("listnet", "listmle"),
         hardneg=0.0, daymem=False, test_eras=SC.TEST_ERAS, tag=None,
-        shuffle=False, tokver=None):
+        shuffle=False, tokver=None, from_era="E2"):
     P.use_tokenizer(tokver or trunk_tokenizer(trunk))
     if mode == "ctx":
         # a context-only ranker never touches a tensor: skip the 2.4 GB token
@@ -250,16 +255,17 @@ def run(trunk="NONE", mode="ctx", group="day", losses=("listnet", "listmle"),
     value = D["cert_close_usd"].astype(np.float64)
     n = D["d8"].size
     score = np.full(n, np.nan)
-    name = tag or ("RANK2_%s_%s_%s%s%s%s"
+    name = tag or ("RANK2_%s_%s_%s%s%s%s%s"
                    % (group.upper(), trunk, mode.upper(),
                       "_HN%g" % hardneg if hardneg else "",
                       "_MEM" if daymem else "",
+                      "_ALLDATA" if from_era == "PRE_E1" else "",
                       "_SHUFFLED" if shuffle else ""))
     WP = A2.wall_pairs(D) if hardneg > 0 else None
     ledger = []
     for era in test_eras:
         t0 = time.time()
-        tr, ev = R.fold_rows(D, era)
+        tr, ev = R.fold_rows(D, era, from_era=from_era)
         tr = tr[pos[tr] >= 0]
         ev = ev[pos[ev] >= 0]
         j = D["names"].index("in_news_window")
@@ -273,6 +279,7 @@ def run(trunk="NONE", mode="ctx", group="day", losses=("listnet", "listmle"),
         g_tr = build_groups(D, tr, klass, group)
         g_ev = build_groups(D, ev_r, klass, group)
         g_ev_cls = build_groups(D, ev_r, klass, "class")
+        g_ev_cell = build_groups(D, ev_r, klass, "cell")
         value_fit = value
         if shuffle:
             # THE RED-FIRST CONTROL: permute the TRAINING block's dollars.
@@ -316,6 +323,7 @@ def run(trunk="NONE", mode="ctx", group="day", losses=("listnet", "listmle"),
         score[rows] = s
         nd_day, ng_day = RK.ndcg_at_k(score, value, g_ev, 3)
         nd_cls, ng_cls = RK.ndcg_at_k(score, value, g_ev_cls, 3)
+        nd_cell, ng_cell = RK.ndcg_at_k(score, value, g_ev_cell, 3)
         rnd = np.random.RandomState(SC.SEED).rand(n)
         ledger.append({
             "era": era, "loss": sel["loss"], "group": group,
@@ -328,6 +336,8 @@ def run(trunk="NONE", mode="ctx", group="day", losses=("listnet", "listmle"),
             if g_ev else 0,
             "eval_ndcg3_day": nd_day, "n_scored_groups_day": ng_day,
             "eval_ndcg3_class": nd_cls, "n_scored_groups_class": ng_cls,
+            "eval_ndcg3_cell": nd_cell, "n_scored_groups_cell": ng_cell,
+            "from_era": from_era,
             "eval_ndcg3_random_day": RK.ndcg_at_k(rnd, value, g_ev, 3)[0],
             "eval_ndcg3_random_class": RK.ndcg_at_k(rnd, value, g_ev_cls, 3)[0],
             "eval_ndcg3_earliest_day": RK.ndcg_at_k(
@@ -346,6 +356,7 @@ def run(trunk="NONE", mode="ctx", group="day", losses=("listnet", "listmle"),
                          % (group, mode), "group": group, "mode": mode,
                          "trunk": trunk, "hardneg": hardneg,
                          "daymem": bool(daymem), "n_ctx": int(C.shape[1]),
+                         "group_unit": group, "from_era": from_era,
                          "rung": "40M-frozen" if E is not None else "ctx-only",
                          "L": P.CTX, "classes": cls_names,
                          "pretrained": (E is not None
@@ -374,8 +385,8 @@ def _group_arrays(D, rows, klass, group):
     return ro, cnt
 
 
-def lmart(group="day", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
-          use_creator=False):
+def lmart(group="cell", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
+          use_creator=False, from_era="E2"):
     import xgboost as xgb
     import st_lmart as LM
     import st_creator as CR
@@ -392,13 +403,15 @@ def lmart(group="day", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
     n = D["d8"].size
     score = np.full(n, np.nan)
     pos = np.zeros(n, dtype=np.int64)
-    name = tag or ("LMART2_%s%s%s" % (group.upper(), "_MEM" if daymem else "",
-                                      "_CRE26" if use_creator else ""))
+    name = tag or ("LMART2_%s%s%s%s"
+                   % (group.upper(), "_MEM" if daymem else "",
+                      "_CRE26" if use_creator else "",
+                      "_ALLDATA" if from_era == "PRE_E1" else ""))
     j = D["names"].index("in_news_window")
     ledger = []
     for era in test_eras:
         t0 = time.time()
-        tr, ev = R.fold_rows(D, era)
+        tr, ev = R.fold_rows(D, era, from_era=from_era)
         tr = tr[D["X"][tr, j] < 0.5]
         ev_r = ev[D["X"][ev, j] < 0.5]
         cut = SC.inner_split_days(D["d8"][tr])
@@ -430,8 +443,10 @@ def lmart(group="day", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
         score[ev_r] = b2.predict(xgb.DMatrix(C[ev_r], feature_names=cnames))
         g_ev = build_groups(D, ev_r, klass, group)
         g_ev_cls = build_groups(D, ev_r, klass, "class")
+        g_ev_cell = build_groups(D, ev_r, klass, "cell")
         nd_day, ng = RK.ndcg_at_k(score, value, g_ev, 3)
         nd_cls, _ = RK.ndcg_at_k(score, value, g_ev_cls, 3)
+        nd_cell, _ = RK.ndcg_at_k(score, value, g_ev_cell, 3)
         rnd = np.random.RandomState(SC.SEED).rand(n)
         ledger.append({"era": era, "loss": "rank:ndcg", "group": group,
                        "inner_ndcg3": inner, "best_epoch": best_rounds,
@@ -439,6 +454,7 @@ def lmart(group="day", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
                        "n_groups_train": int(g_tr.size),
                        "n_groups_eval": len(g_ev),
                        "eval_ndcg3_day": nd_day, "eval_ndcg3_class": nd_cls,
+                       "eval_ndcg3_cell": nd_cell, "from_era": from_era,
                        "eval_ndcg3_random_day": RK.ndcg_at_k(rnd, value, g_ev,
                                                              3)[0],
                        "eval_ndcg3_random_class": RK.ndcg_at_k(rnd, value,
@@ -451,6 +467,7 @@ def lmart(group="day", daymem=False, test_eras=SC.TEST_ERAS, tag=None,
     R.save_result(name, {"kind": "rank2", "arch": "lambdamart-%s" % group,
                          "group": group, "mode": "ctx", "trunk": "NONE",
                          "daymem": bool(daymem), "use_creator": bool(use_creator),
+                         "group_unit": group, "from_era": from_era,
                          "n_ctx": int(C.shape[1]), "rung": "gbt", "L": 0,
                          "classes": cls_names, "pretrained": False,
                          "per_era": [R._strip(a) for a in per], "pooled": pool,
@@ -469,7 +486,8 @@ def main():
     ap.add_argument("--lmart", action="store_true")
     ap.add_argument("--trunk", default="NONE")
     ap.add_argument("--mode", default="ctx")
-    ap.add_argument("--group", default="day")
+    ap.add_argument("--group", default="cell",
+                    choices=("class", "day", "cell"))
     ap.add_argument("--losses", default="listnet,listmle")
     ap.add_argument("--hardneg", type=float, default=0.0)
     ap.add_argument("--daymem", action="store_true")
@@ -478,16 +496,17 @@ def main():
     ap.add_argument("--tag", default=None)
     ap.add_argument("--shuffle", action="store_true")
     ap.add_argument("--tokver", default=None)
+    ap.add_argument("--from-era", default="E2")
     a = ap.parse_args()
     eras = tuple(x for x in a.eras.split(",") if x)
     if a.lmart:
         lmart(group=a.group, daymem=a.daymem, test_eras=eras, tag=a.tag,
-              use_creator=a.creator)
+              use_creator=a.creator, from_era=a.from_era)
     elif a.run:
         run(a.trunk, mode=a.mode, group=a.group,
             losses=tuple(x for x in a.losses.split(",") if x),
             hardneg=a.hardneg, daymem=a.daymem, test_eras=eras, tag=a.tag,
-            shuffle=a.shuffle, tokver=a.tokver)
+            shuffle=a.shuffle, tokver=a.tokver, from_era=a.from_era)
     else:
         ap.print_help()
 

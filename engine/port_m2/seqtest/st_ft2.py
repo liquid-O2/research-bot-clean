@@ -294,7 +294,7 @@ def _fit(m, ft, C, MEMZ, cmu, csd, mmu, msd, itr, iva, y_c, y_w, mode, daymem,
 
 def run(trunk="PRE_V2_shared_NEXT", mode="fused", pool="attn", unfreeze=4,
         lora=0, lldecay=0.75, daymem=False, scratch=False, steps=FT_STEPS,
-        test_eras=SC.TEST_ERAS, tag=None, tokver="v2"):
+        test_eras=SC.TEST_ERAS, tag=None, tokver="v2", from_era="E2"):
     P.use_tokenizer(tokver)
     ft = P.load_ft()
     D, pos = ft["D"], ft["pos"]
@@ -315,11 +315,12 @@ def run(trunk="PRE_V2_shared_NEXT", mode="fused", pool="attn", unfreeze=4,
                    % (trunk, mode.upper(),
                       "_LORA%d" % lora if lora else "_TOP%d" % unfreeze,
                       "_ATTN" if pool == "attn" else "",
-                      "_MEM" if daymem else ""))
+                      "_MEM" if daymem else "")
+                   + ("_ALLDATA" if from_era == "PRE_E1" else ""))
     ledger = []
     for era in test_eras:
         t0 = time.time()
-        tr, ev = R.fold_rows(D, era)
+        tr, ev = R.fold_rows(D, era, from_era=from_era)
         tr = tr[(pos[tr] >= 0) & np.isfinite(y_c0[tr])]
         ev = ev[pos[ev] >= 0]
         cut = SC.inner_split_days(D["d8"][tr])
@@ -368,6 +369,7 @@ def run(trunk="PRE_V2_shared_NEXT", mode="fused", pool="attn", unfreeze=4,
         "L": P.CTX, "trunk": trunk, "mode": mode, "pooling": pool,
         "unfreeze_top": int(unfreeze), "lora_rank": int(lora),
         "lldecay": lldecay, "daymem": bool(daymem), "steps_budget": int(steps),
+        "from_era": from_era,
         "tokenizer": P.TOKVER(), "vocab": P.VOCAB(),
         "pretrained": (not scratch and not trunk.startswith("RANDOM")),
         "per_era": [R._strip(a) for a in per], "pooled": pool_,
@@ -393,6 +395,7 @@ def main():
     ap.add_argument("--scratch", action="store_true")
     ap.add_argument("--steps", type=int, default=FT_STEPS)
     ap.add_argument("--tokver", default="v2")
+    ap.add_argument("--from-era", default="E2")
     ap.add_argument("--eras", default=",".join(SC.TEST_ERAS))
     ap.add_argument("--tag", default=None)
     a = ap.parse_args()
@@ -400,6 +403,7 @@ def main():
         run(a.trunk, mode=a.mode, pool=a.pool, unfreeze=a.unfreeze,
             lora=a.lora, lldecay=a.lldecay, daymem=a.daymem,
             scratch=a.scratch, steps=a.steps, tokver=a.tokver,
+            from_era=a.from_era,
             test_eras=tuple(x for x in a.eras.split(",") if x), tag=a.tag)
     else:
         ap.print_help()

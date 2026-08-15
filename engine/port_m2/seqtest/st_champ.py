@@ -71,7 +71,7 @@ def _hp(era, target):
 
 
 def run(use_creator=False, label="d021", tag=None, test_eras=SC.TEST_ERAS,
-        shuffle=False):
+        shuffle=False, from_era="E2"):
     import xgboost as xgb
     D, _p = W.load_matrix()
     ceil = R.ceilings_of(D)
@@ -86,15 +86,16 @@ def run(use_creator=False, label="d021", tag=None, test_eras=SC.TEST_ERAS,
     y_champ = D["y_retg_rank_phase"].astype(np.float64)
     y_win, cap = label_variant(D, label)
     y_d021 = D["y_winner"].astype(np.float64)
-    name = tag or ("GBT%s%s%s" % ("_CRE26" if use_creator else "",
-                                  "_MAECAP" if label != "d021" else "",
-                                  "_SHUFFLED" if shuffle else ""))
+    name = tag or ("GBT%s%s%s%s" % ("_CRE26" if use_creator else "",
+                                    "_MAECAP" if label != "d021" else "",
+                                    "_ALLDATA" if from_era == "PRE_E1" else "",
+                                    "_SHUFFLED" if shuffle else ""))
     champ = np.full(n, np.nan)
     win = np.full(n, np.nan)
     ledger = []
     for era in test_eras:
         t0 = time.time()
-        tr, ev = R.fold_rows(D, era)
+        tr, ev = R.fold_rows(D, era, from_era=from_era)
         info = {"era": era, "n_train": int(tr.size), "n_eval": int(ev.size),
                 "n_features": int(X.shape[1])}
         for target, y0 in (("y_retg_rank_phase", y_champ),
@@ -140,7 +141,7 @@ def run(use_creator=False, label="d021", tag=None, test_eras=SC.TEST_ERAS,
     pos = np.zeros(n, dtype=np.int64)          # every matrix row is scoreable
     per, pool = R.eval_scores(D, champ, win, ceil, pos, test_eras=test_eras)
     R.save_result(name, {
-        "kind": "champion", "shuffled": bool(shuffle), "arch": "gbt-m3features%s" % ("+creator26"
+        "kind": "champion", "shuffled": bool(shuffle), "from_era": from_era, "arch": "gbt-m3features%s" % ("+creator26"
                                                           if use_creator else ""),
         "rung": "gbt", "L": 0, "label": label, "use_creator": bool(use_creator),
         "n_features": int(X.shape[1]),
@@ -204,6 +205,7 @@ def main():
     ap.add_argument("--creator", action="store_true")
     ap.add_argument("--label", default="d021")
     ap.add_argument("--one", action="store_true")
+    ap.add_argument("--from-era", default="E2")
     a = ap.parse_args()
     eras = tuple(x for x in a.eras.split(",") if x)
     if a.labels:
@@ -215,10 +217,11 @@ def main():
         SC.hb("label stats: %s" % json.dumps(stats["overlap"]))
         for use_cre, lab in ((False, "d021"), (True, "d021"),
                              (False, "maecap"), (True, "maecap")):
-            run(use_creator=use_cre, label=lab, test_eras=eras)
+            run(use_creator=use_cre, label=lab, test_eras=eras,
+                from_era=a.from_era)
     if a.one:
         run(use_creator=a.creator, label=a.label, test_eras=eras,
-            shuffle=a.shuffle)
+            shuffle=a.shuffle, from_era=a.from_era)
     if not (a.grid or a.labels or a.one):
         ap.print_help()
 

@@ -49,24 +49,43 @@ def best_trunk(default="PRE_V2_shared_NEXT"):
 
 
 def stage_rank(trunk=None):
+    """F3 + F6, RE-POINTED at the schedule's real selection unit.
+
+    The coordinator correction of 2026-08-15 establishes that the deployed
+    policy seats top-1 per (asset, PHASE) CELL, not top-3 per asset-day, and
+    that the champion is the cell-grouped LambdaMART trained on the FULL prior
+    history.  So the deploy-matched objective is `cell`, the training block is
+    `PRE_E1..Ek`, and the toggles are measured against THAT arm.  The `day` and
+    `class` cells stay in the grid as the two mis-specified controls that
+    isolate how much the grouping axis alone is worth.
+    """
     import st_rank2 as RK2
     t, _c = best_trunk()
     trunk = trunk or t
     cells = [
-        # (trunk, mode, group, hardneg, daymem, tag)
-        ("NONE", "ctx", "day", 0.0, False, "RANK2_DAY_CTX"),
-        ("NONE", "ctx", "day", 1.0, False, "RANK2_DAY_CTX_HN1"),
-        ("NONE", "ctx", "day", 0.0, True, "RANK2_DAY_CTX_MEM"),
-        ("NONE", "ctx", "day", 1.0, True, "RANK2_DAY_CTX_HN1_MEM"),
-        ("NONE", "ctx", "class", 0.0, False, "RANK2_CLASS_CTX"),
-        (trunk, "fused", "day", 0.0, False, "RANK2_DAY_V2_FUSED"),
-        (trunk, "fused", "day", 1.0, True, "RANK2_DAY_V2_FUSED_HN1_MEM"),
+        # (trunk, mode, group, hardneg, daymem, from_era, tag)
+        ("NONE", "ctx", "cell", 0.0, False, "PRE_E1", "RANK2_CELL_ALLDATA_CTX"),
+        ("NONE", "ctx", "cell", 1.0, False, "PRE_E1",
+         "RANK2_CELL_ALLDATA_CTX_HN1"),
+        ("NONE", "ctx", "cell", 0.0, True, "PRE_E1",
+         "RANK2_CELL_ALLDATA_CTX_MEM"),
+        ("NONE", "ctx", "cell", 1.0, True, "PRE_E1",
+         "RANK2_CELL_ALLDATA_CTX_HN1_MEM"),
+        (trunk, "fused", "cell", 0.0, False, "PRE_E1",
+         "RANK2_CELL_ALLDATA_V2_FUSED"),
+        (trunk, "fused", "cell", 1.0, True, "PRE_E1",
+         "RANK2_CELL_ALLDATA_V2_FUSED_HN1_MEM"),
+        # the two mis-specified grouping controls, same data, same everything
+        ("NONE", "ctx", "day", 0.0, False, "PRE_E1", "RANK2_DAY_ALLDATA_CTX"),
+        ("NONE", "ctx", "class", 0.0, False, "PRE_E1",
+         "RANK2_CLASS_ALLDATA_CTX"),
     ]
-    for tr, mode, grp, hn, mem, tag in cells:
+    for tr, mode, grp, hn, mem, fe, tag in cells:
         if os.path.exists(os.path.join(R.RES_DIR, "%s.json" % tag)):
             SC.hb("skip %s (already committed)" % tag)
             continue
-        RK2.run(tr, mode=mode, group=grp, hardneg=hn, daymem=mem, tag=tag)
+        RK2.run(tr, mode=mode, group=grp, hardneg=hn, daymem=mem, tag=tag,
+                from_era=fe)
 
 
 def stage_ft(steps=1500, trunk=None):
@@ -87,14 +106,16 @@ def stage_ft(steps=1500, trunk=None):
             SC.hb("skip %s (already committed)" % tag)
             continue
         F2.run(tr, mode="fused", pool=pool, unfreeze=unf, lora=lora,
-               daymem=mem, scratch=scr, steps=steps, tag=tag, tokver="v2")
+               daymem=mem, scratch=scr, steps=steps, tag=tag, tokver="v2",
+               from_era="PRE_E1")
 
 
 def stage_control(steps=1500):
     """The two red-first controls at the pass's own winning configurations."""
     import st_rank2 as RK2
-    RK2.run("NONE", mode="ctx", group="day", hardneg=0.0, daymem=True,
-            shuffle=True, tag="RANK2_DAY_CTX_MEM_SHUFFLED")
+    RK2.run("NONE", mode="ctx", group="cell", hardneg=0.0, daymem=True,
+            shuffle=True, from_era="PRE_E1",
+            tag="RANK2_CELL_ALLDATA_CTX_MEM_SHUFFLED")
 
 
 def main():

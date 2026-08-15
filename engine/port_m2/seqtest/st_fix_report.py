@@ -27,13 +27,31 @@ import numpy as np
 
 import st_common as SC
 import st_run as R
+import st_sched as SD
 import st_tok2 as TK2
 import m3_common as M3
+
+# THE SCHEDULE (coordinator correction, 2026-08-15).  The first pass and the
+# first draft of this one scored through a FIXED top-3-per-asset-DAY schedule
+# that forfeits 63-65% of its own takes to same-session position collisions —
+# on it, perfect foresight lands BELOW the $2,000 bar.  The committed m3
+# harness selects (unit, N) on its own inner validation block and lands on the
+# (asset, PHASE) CELL at N=1, forfeit 0.1%, foresight $3,344 = 1.67x the bar.
+# EVERY row below is seated on the harness's own per-era policy, read out of
+# the committed walk.summary.json.  Nothing is refitted; the identical
+# out-of-sample score columns are re-seated.
+_POLICY = {}
+
+
+def policy_for(era):
+    if not _POLICY:
+        _POLICY.update(SD.committed_policy())
+    return _POLICY.get(era, ("cell", 1))
 
 OUT = SC.OUT_DIR
 
 # reference arms that are not model scores
-REFERENCE = ("FORESIGHT3_NONCAUSAL", "BASE_EARLIEST", "RANDOM3")
+REFERENCE = ("FORESIGHT_NONCAUSAL", "BASE_EARLIEST", "RANDOM_SEEDED")
 
 
 def _load(D, tag):
@@ -52,8 +70,10 @@ def score_form(D, champ, win, ceil, pos, form, test_eras=SC.TEST_ERAS):
         if ev.size == 0:
             continue
         s = R.composed(D, champ, win, ev) if form == "composed" else champ
-        a = R.score_arm(D, s, ev, ceil)
+        u, n = policy_for(era)
+        a = R.score_arm(D, s, ev, ceil, unit=u, n=n)
         a["era"] = era
+        a["policy"] = "%s/%d" % (u, n)
         per.append(a)
         parts.append(a)
     return per, (R.pooled(parts) if parts else None)
@@ -69,8 +89,8 @@ def arm_sessions(D, champ, win, ceil, form, test_eras=SC.TEST_ERAS):
         if ev.size == 0:
             continue
         s = R.composed(D, champ, win, ev) if form == "composed" else champ
-        take = W.topn_takes(D, s, ev, SC.SCHEDULE_N, deployable=True,
-                            unit=SC.SCHEDULE_UNIT)
+        u, n = policy_for(era)
+        take = W.topn_takes(D, s, ev, n, deployable=True, unit=u)
         for r in W.replay_rows(D, take):
             out[r["session"]] = float(r["realised"])
     return out
@@ -95,6 +115,9 @@ def paired_delta(D, ceil, a_tag, a_form, b_tag, b_form):
             "p": cm.get("p") if cm else None}
 
 
+CHAMPION = ("LMART_CELL_ALLDATA", "primary")   # SEQTEST.md §14, $935.97/session
+
+
 def write_paired(D, ceil, pairs, name="SEQTEST2_PAIRED.tsv"):
     rows = []
     for a_tag, a_form, b_tag, b_form in pairs:
@@ -112,12 +135,17 @@ def write_paired(D, ceil, pairs, name="SEQTEST2_PAIRED.tsv"):
                               "delta_usd_per_session", "lo", "hi", "p",
                               "verdict"], rows,
                        extra=["THE PAIRED TEST.  Both arms are seated on the "
-                              "SAME sessions under the same schedule, so the "
-                              "difference is measured per session and "
-                              "bootstrapped with clusters = DAY (CR1) — not "
-                              "read off two overlapping marginal intervals.",
+                              "SAME sessions under the HARNESS'S OWN per-era "
+                              "policy, so the difference is measured per "
+                              "session and bootstrapped with clusters = DAY "
+                              "(CR1) — not read off two overlapping marginal "
+                              "intervals.",
                               "verdict=BEATS means the 95% interval of the "
-                              "paired difference is entirely above zero."])
+                              "paired difference is entirely above zero.",
+                              "The reference arm is the committed champion "
+                              "LMART_CELL_ALLDATA (cell-grouped LambdaMART on "
+                              "the full prior history, $935.97/session pooled, "
+                              "SEQTEST.md §14)."])
 
 
 def result_meta():
@@ -161,6 +189,8 @@ def arms_table(D, ceil, pos, tags=None):
                 "co_lo": pool["co_lo"], "co_hi": pool["co_hi"],
                 "capture_day": pool["capture_day"],
                 "per_era": {a["era"]: a["capture_oracle"] for a in per},
+                "policy": "m3_committed (%s)"
+                          % ",".join(sorted({a["policy"] for a in per})),
                 "secs": round(time.time() - t0, 1)})
             SC.hb("arm %-34s %-8s cap=%.4f [%.4f,%.4f] $%.2f/session"
                   % (tag, form, pool["capture_oracle"] or float("nan"),
@@ -170,6 +200,25 @@ def arms_table(D, ceil, pos, tags=None):
     return rows
 
 
+def random_arm(D, ev, ceil, unit, n, draws=SC.N_RANDOM_DRAWS):
+    """The seeded random-selection reference, on the harness's own policy."""
+    rs = np.random.RandomState(SC.SEED)
+    caps, pss, pts = [], [], []
+    for _ in range(draws):
+        a = R.score_arm(D, rs.rand(D["d8"].size), ev, ceil, unit=unit, n=n)
+        caps.append(a["capture_oracle"] or 0.0)
+        pss.append(a["usd_per_session"] or 0.0)
+        pts.append(a["usd_per_trade"] or 0.0)
+    return {"capture_oracle": float(np.mean(caps)),
+            "co_lo": float(np.percentile(caps, 2.5)),
+            "co_hi": float(np.percentile(caps, 97.5)),
+            "usd_per_session": float(np.mean(pss)),
+            "usd_per_trade": float(np.mean(pts)),
+            "capture_day": None, "ps_lo": None, "ps_hi": None,
+            "n_takes": None, "n_seated": None, "_realised": [], "_cl": [],
+            "_den_c": [], "_den_o": []}
+
+
 def reference_rows(D, ceil):
     """FORESIGHT3 / BASE_EARLIEST / RANDOM3 on the same schedule."""
     pos = np.zeros(D["d8"].size, dtype=np.int64)
@@ -177,13 +226,15 @@ def reference_rows(D, ceil):
     parts = {k: [] for k in REFERENCE}
     for era in SC.TEST_ERAS:
         ev = np.nonzero(D["era_idx"] == SC.ERA_IDX[era])[0]
-        for k, v in (("FORESIGHT3_NONCAUSAL",
-                      R.score_arm(D, D["cert_close_usd"], ev, ceil)),
+        u, n = policy_for(era)
+        for k, v in (("FORESIGHT_NONCAUSAL",
+                      R.score_arm(D, D["cert_close_usd"], ev, ceil, unit=u,
+                                  n=n)),
                      ("BASE_EARLIEST", R.base_earliest(D, ev, ceil)),
-                     ("RANDOM3", R.random3(D, ev, ceil))):
+                     ("RANDOM_SEEDED", random_arm(D, ev, ceil, u, n))):
             v["era"] = era
             parts[k].append(v)
-    for k in ("FORESIGHT3_NONCAUSAL", "BASE_EARLIEST"):
+    for k in ("FORESIGHT_NONCAUSAL", "BASE_EARLIEST"):
         pool = R.pooled(parts[k])
         upt = [a["usd_per_trade"] for a in parts[k]
                if a.get("usd_per_trade") is not None]
@@ -198,33 +249,35 @@ def reference_rows(D, ceil):
                     "capture_day": pool["capture_day"],
                     "per_era": {a["era"]: a["capture_oracle"]
                                 for a in parts[k]}, "secs": 0})
-    c = [a["capture_oracle"] for a in parts["RANDOM3"]]
-    out.append({"arm": "RANDOM3", "form": "reference", "kind": "reference",
+    c = [a["capture_oracle"] for a in parts["RANDOM_SEEDED"]]
+    out.append({"arm": "RANDOM_SEEDED", "form": "reference", "kind": "reference",
                 "arch": "200 seeded draws", "trunk": "", "tokenizer": "",
                 "n_sessions": None,
                 "usd_per_session": float(np.mean(
-                    [a["usd_per_session"] for a in parts["RANDOM3"]])),
+                    [a["usd_per_session"] for a in parts["RANDOM_SEEDED"]])),
                 "ps_lo": None, "ps_hi": None,
                 "usd_per_trade": float(np.mean(
-                    [a["usd_per_trade"] for a in parts["RANDOM3"]])),
+                    [a["usd_per_trade"] for a in parts["RANDOM_SEEDED"]])),
                 "capture_oracle": float(np.mean(c)),
                 "co_lo": float(np.min(c)), "co_hi": float(np.max(c)),
                 "capture_day": None,
                 "per_era": {a["era"]: a["capture_oracle"]
-                            for a in parts["RANDOM3"]}, "secs": 0})
+                            for a in parts["RANDOM_SEEDED"]}, "secs": 0})
     return out
 
 
 def write_arms(rows, name="SEQTEST2_ARMS.tsv"):
     rows = sorted(rows, key=lambda r: -(r["capture_oracle"] or -9))
-    cols = ["arm", "form", "kind", "arch", "trunk", "tokenizer", "n_sessions",
+    cols = ["arm", "form", "kind", "arch", "trunk", "tokenizer", "policy",
+            "n_sessions",
             "usd_per_session", "ps_lo", "ps_hi", "usd_per_trade",
             "capture_oracle", "co_lo", "co_hi", "capture_day"] \
         + list(SC.TEST_ERAS)
     out = []
     for r in rows:
         out.append([r["arm"], r["form"], r["kind"], r["arch"], r["trunk"],
-                    r["tokenizer"], r["n_sessions"],
+                    r["tokenizer"], r.get("policy", "m3_committed"),
+                    r["n_sessions"],
                     R._r(r["usd_per_session"]), R._r(r["ps_lo"]),
                     R._r(r["ps_hi"]), R._r(r["usd_per_trade"]),
                     R._r(r["capture_oracle"], 4), R._r(r["co_lo"], 4),
@@ -232,8 +285,13 @@ def write_arms(rows, name="SEQTEST2_ARMS.tsv"):
                    + [R._r(r["per_era"].get(e), 4) for e in SC.TEST_ERAS])
     return R.write_tsv(name, cols, out, extra=[
         "THE ONE RE-EVALUATION (fix pass 2).  Every arm on the IDENTICAL "
-        "schedule: m3_walk deployable, top-3 per asset-day, D-077-UPDATE veto, "
-        "one-position chronological walled phase-close replay.",
+        "schedule: the schedule the M3 HARNESS ITSELF selects per era on its "
+        "own inner validation block (the (asset,PHASE) CELL at N=1), read out "
+        "of the committed walk.summary.json, with the D-077-UPDATE veto and "
+        "the one-position chronological walled phase-close replay.",
+        "The fixed top-3-per-asset-DAY schedule used by the first pass "
+        "forfeits 63-65% of its takes and is NOT used here "
+        "(provenance/port_m2/SEQTEST_SCHEDULE_ALERT.md).",
         "capture_oracle is pooled over E3..E8 with CR1 intervals clustered by "
         "DAY; the per-era columns are the same statistic per fold.",
         "form=primary is the champion head alone; form=composed is m3_walk's "

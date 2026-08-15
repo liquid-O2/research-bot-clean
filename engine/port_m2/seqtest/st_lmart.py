@@ -34,6 +34,16 @@ GRADE_EDGES = (0.0, 600.0, 1000.0, 2000.0)   # -> grades 0..4
 ROUNDS = 300
 EARLY = 25
 
+# THE INNER-BLOCK HP GRID.  m3's own discipline is a small documented search on
+# the FIT side only; this lane had been running a single fixed guess.  Selected
+# by inner-validation NDCG@3 and nothing else; the evaluation era is never
+# touched by the choice.
+HP_GRID = tuple({"max_depth": d, "eta": e,
+                 "lambdarank_num_pair_per_sample": p}
+                for d in (4, 6, 8)
+                for e in (0.05, 0.10)
+                for p in (8, 16))
+
 
 def _pct_within(v, key):
     """Within-group percentile, so two heads on different scales can be summed
@@ -70,7 +80,7 @@ def _group_arrays(D, rows, klass, unit="class"):
 
 def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
         shuffle=False, drop_tf=False, from_era="E2", compose=False,
-        emb=None, n_pc=64):
+        emb=None, n_pc=64, search=False):
     import xgboost as xgb
     import m3_walk as W
     D, _p = W.load_matrix()
@@ -143,16 +153,27 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
         dva = xgb.DMatrix(XF[r_iva], label=grades(yv[r_iva]),
                           feature_names=FN)
         dva.set_group(g_iva)
-        cfg = {"objective": "rank:ndcg", "eval_metric": "ndcg@3",
-               "tree_method": "hist", "eta": 0.05, "max_depth": 6,
-               "min_child_weight": 20, "subsample": 0.8,
-               "colsample_bytree": 0.8, "lambdarank_pair_method": "topk",
-               "lambdarank_num_pair_per_sample": 8,
-               "seed": SC.SEED, "nthread": 8}
-        b = xgb.train(cfg, dtr, ROUNDS, evals=[(dva, "inner")],
-                      early_stopping_rounds=EARLY, verbose_eval=False)
-        best_rounds = int(b.best_iteration) + 1
-        inner = float(b.best_score)
+        base = {"objective": "rank:ndcg", "eval_metric": "ndcg@3",
+                "tree_method": "hist", "min_child_weight": 20,
+                "subsample": 0.8, "colsample_bytree": 0.8,
+                "lambdarank_pair_method": "topk",
+                "seed": SC.SEED, "nthread": 8}
+        grid = HP_GRID if search else ({"max_depth": 6, "eta": 0.05,
+                                        "lambdarank_num_pair_per_sample": 8},)
+        cfg, best_rounds, inner = None, ROUNDS, -np.inf
+        for hp in grid:
+            c = dict(base)
+            c.update(hp)
+            bb = xgb.train(c, dtr, ROUNDS, evals=[(dva, "inner")],
+                           early_stopping_rounds=EARLY, verbose_eval=False)
+            if float(bb.best_score) > inner:
+                cfg = c
+                best_rounds = int(bb.best_iteration) + 1
+                inner = float(bb.best_score)
+        SC.hb("%s %s: HP %s rounds=%d inner_ndcg3=%.5f"
+              % (tag, era, {k: cfg[k] for k in ("max_depth", "eta",
+                                                "lambdarank_num_pair_per_sample")},
+                 best_rounds, inner))
         # refit on the WHOLE training block at the selected round count
         r_tr, g_tr = _group_arrays(D, tr, klass, unit)
         dall = xgb.DMatrix(XF[r_tr], label=grades(yv[r_tr]),
@@ -227,11 +248,12 @@ def main():
     ap.add_argument("--compose", action="store_true")
     ap.add_argument("--emb", default=None)
     ap.add_argument("--n-pc", type=int, default=64)
+    ap.add_argument("--search", action="store_true")
     a = ap.parse_args()
     if a.run:
         run(test_eras=tuple(a.eras.split(",")), unit=a.unit, shuffle=a.shuffle,
             drop_tf=a.drop_tf, from_era=a.from_era, compose=a.compose,
-            emb=a.emb, n_pc=a.n_pc,
+            emb=a.emb, n_pc=a.n_pc, search=a.search,
             tag=a.tag or ("LMART_%s%s" % (a.unit.upper(),
                                           "_SHUFFLED" if a.shuffle else "")))
     else:

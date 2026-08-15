@@ -565,3 +565,68 @@ head is not a usable gate at this grain.
 
 **Reverted. `LMART_CELL_ALLDATA` stands as the iteration-2 arm.** `SEL_WRONG_SIDE` remains open
 and now has one ruled-out treatment against it.
+
+## 18. ITERATIONS 4–5 — the tape re-tested where it matters, and the arm that clears the bar
+
+### 18.1 The lane's headline question, re-asked on the arm that works
+
+The §0 verdict was measured on the crippled schedule with a pointwise model. Re-asked properly
+— the frozen raw-event embedding, 64 PCA components (97.7% of variance, basis fitted only on
+rows strictly earlier than E3), added to the cell-grouped ranker:
+
+| arm | $/session |
+|---|--:|
+| `LMART_CELL_ALLDATA` (features only) | **$935.97** |
+| `LMART_CELL_EMB` (+ raw-event embedding) | **$793.60** |
+
+**The raw stream costs $142/session on the arm that actually banks money.** The §0 conclusion
+is not an artefact of the bad schedule; it is stronger than first stated.
+
+### 18.2 The hyper-parameters were a single fixed guess
+
+m3's discipline is a small documented search on the FIT side only. This lane had none. Adding a
+12-cell grid selected on inner-validation NDCG@3 and nothing else (every era chose `max_depth 4`
+— shallower and longer than the guess):
+
+| arm | $/session | capture | 95% CI |
+|---|--:|--:|--:|
+| fixed HP, all 202 features | $935.97 | 0.3164 | 845 … 1027 |
+| **searched HP, all 202 features** | $1,034.98 | 0.3498 | 949 … 1121 |
+| **searched HP, teacher columns struck out** | **$1,174.01** | — | — |
+| **shuffled-label control, same config** | **−$154.39** | −0.0359 | — |
+
+The 18 `tf_*` columns another lane added mid-session **hurt** at this configuration, so the
+headline arm is the one that does not depend on them: `LMART_HP_NOTF`, the original 184
+features.
+
+### 18.3 THE ARM, PER ASSET AND PER ERA — `LMART_HP_NOTF`
+
+| era | SI | HG | NKD |
+|---|--:|--:|--:|
+| E3 | $815.12 | $885.16 | $813.21 |
+| E4 | $1,389.98 | $1,035.63 | $1,162.62 |
+| E5 | $1,101.57 | $747.65 | $1,028.99 |
+| E6 | $1,163.81 | $777.29 | $839.98 |
+| E7 | $589.58 | $644.30 | $1,664.96 |
+| **E8 — the GATE-2025H1 echo** | **$2,572.70** [2160, 2986] | **$1,893.86** [1590, 2198] | **$2,064.82** [1674, 2456] |
+| **pooled E3–E8** | **$1,266.39** [1130, 1403] | **$994.17** [900, 1088] | **$1,261.36** [1137, 1386] |
+
+**Pooled $1,174.01/session/asset = 59% of the D-048 bar, 3.4× the committed harness's $342.5.
+In E8 all three assets clear or nearly clear the $2,000 bar**, at $631–858/trade (D-021 floor
+$600, target $1,000) and 23.9–36.0% of takes ≥ $1,000.
+
+**D-030 drawdown**, p90 intra-session: E8 SI $940 / HG $758 / NKD $955, all inside the $1,000
+bar with 2.4–6.3% of sessions over it. **One cell fails it: E7 SI, p90 $1,865 with 39.7% of
+sessions over the bar.** Reported, not hidden.
+
+### 18.4 THE CAVEAT THAT MATTERS MOST — E8 is no longer a clean holdout
+
+Five iterations were run and **E8 was looked at every time**. Each change was chosen on the
+inner validation block, never on E8, and every arm carries a shuffled-label control — but the
+*sequence* of changes was guided by results that included E8. Its status as the program's
+designated final evaluation cell is eroded by that multiplicity, and the E8 figures above should
+be read as the most recent walk-forward cell, **not** as a validated deployable.
+
+**The only untouched holdout is `d8 >= 20250701` (2025 H2), which the m3 matrix excludes
+entirely under the D-058 guard.** Testing this arm there is the decisive next step and it is a
+boundary the user reserves — it is not mine to open.

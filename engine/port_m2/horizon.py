@@ -532,11 +532,268 @@ def run_table(eras=ERAS, out_dir=None):
     return rows
 
 
+# ============================================================== S1b: SHORT ==
+# S1's gradient is MONOTONE AND POINTS SHORT: shorter horizon = bigger
+# foresight ceiling + more seats/session + fewer walls, and capture RISES as
+# the horizon shortens.  The symmetric question was never asked — exit EARLIER
+# than the phase close and let the freed position be re-filled.
+#
+# THE AUDIT THAT ESTABLISHES IT IS UNMEASURED: EXIT_CENSUS2_RULES.tsv holds
+# `n_seats` FIXED AT 352 for all 40 of its rules — the exit census re-priced
+# each seat's exit and NEVER re-seated the position an early exit frees, so the
+# throughput channel S1 just proved dominant is absent from that null.  Its
+# only time rules (TIME120/TIME180_T150/T300) are path-CONDITIONAL.
+SHORT_H = (300, 600, 900, 1800, 3600, 7200, 14400)
+SCOLS = tuple("H%d_%s" % (H, f) for H in SHORT_H for f in ("cert", "exit_sec",
+                                                           "walled"))
+SIDX = {c: i for i, c in enumerate(SCOLS)}
+
+
+def _short_one(job):
+    asset, d8, rows = job
+    try:
+        sess = A.load_session(asset, int(d8))
+        s = sess["s"]
+        mult = float(C.ASSETS[asset]["mult"])
+        out = []
+        for (i, t, side, cost) in rows:
+            t, side, cost = int(t), int(side), float(cost)
+            r = np.full(len(SCOLS), np.nan, dtype=np.float64)
+            e = MD._first_sane(s, t)
+            pc0 = X.next_phase_boundary(s, t)
+            if e >= 0 and e < pc0:
+                vt, f, at, av = MD._leg(s, e, float(s.mid[e]), side, mult)
+                for H in SHORT_H:
+                    pc = min(e + int(H), pc0)   # NEVER past the phase close
+                    val, xs, wl, _ev = MD._close_cert(vt, f, at, av, pc, cost)
+                    r[SIDX["H%d_cert" % H]] = val
+                    r[SIDX["H%d_exit_sec" % H]] = float(xs)
+                    r[SIDX["H%d_walled" % H]] = wl
+            out.append((int(i), r))
+        return (asset, int(d8), out, None)
+    except Exception as exc:                              # noqa: BLE001
+        return (asset, int(d8), [], "%s: %s" % (type(exc).__name__, exc))
+
+
+def build_short(workers=8, out_dir=None, limit_days=None):
+    import multiprocessing as mp
+    out_dir = out_dir or OUT_ROOT
+    os.makedirs(out_dir, exist_ok=True)
+    D = N.matrix()
+    n = int(D["d8"].size)
+    joblist = N._jobs_from_matrix(D)
+    if limit_days:
+        joblist = joblist[:limit_days]
+    S = np.full((n, len(SCOLS)), np.nan, dtype=np.float64)
+    t0, errs, done = time.time(), [], 0
+    hb("short: %d sessions, %d candidates, H=%s, workers=%d"
+       % (len(joblist), n, list(SHORT_H), workers))
+    with mp.Pool(processes=int(workers)) as pool:
+        for k, (asset, d8, rows, err) in enumerate(
+                pool.imap_unordered(_short_one, joblist, chunksize=1), start=1):
+            if err:
+                errs.append("%s %d %s" % (asset, d8, err))
+            for i, r in rows:
+                S[i] = r
+                done += 1
+            if k % 400 == 0 or k == len(joblist):
+                el = time.time() - t0
+                hb("short %d/%d %.0fs eta %.0fs filled=%d errs=%d"
+                   % (k, len(joblist), el, el / k * (len(joblist) - k), done,
+                      len(errs)))
+    if done == 0:
+        raise HorizonRefusal("ZERO rows filled — the short build produced "
+                             "nothing")
+    np.savez(os.path.join(out_dir, "short.npz"), cols=np.array(SCOLS), S=S)
+    rec = {"version": VERSION, "n_rows_filled": int(done), "n_errors":
+           len(errs), "errors": errs[:20], "horizons_sec": list(SHORT_H),
+           "cap": "min(entry + H, phase_close) — never past the phase close",
+           "arithmetic": "m2_delay._leg + m2_delay._close_cert (imported)",
+           "secs": round(time.time() - t0, 1)}
+    with open(os.path.join(out_dir, "short.receipt.json"), "w") as fh:
+        json.dump(rec, fh, indent=1, sort_keys=True)
+    hb("short: %d rows, %d errors, %.0fs" % (done, len(errs), rec["secs"]))
+    if errs:
+        raise HorizonRefusal("%d session errors — first: %s"
+                             % (len(errs), errs[0]))
+    return S
+
+
+_S = {}
+
+
+def load_short(out_dir=None):
+    if "S" in _S:
+        return _S["S"]
+    p = os.path.join(out_dir or OUT_ROOT, "short.npz")
+    if not os.path.exists(p):
+        raise HorizonRefusal("no short tensor at %s — run --short" % p)
+    z = np.load(p, allow_pickle=False)
+    if tuple(str(x) for x in z["cols"].tolist()) != tuple(SCOLS):
+        raise HorizonRefusal("short tensor column mismatch")
+    _S["S"] = z["S"]
+    z.close()
+    return _S["S"]
+
+
+def short_as_P(H):
+    key = "H%d" % H
+    if key in _P:
+        return _P[key]
+    T, S = load(), load_short()
+    n = T.shape[0]
+    M = np.full((n, len(N.FIELDS)), np.nan, dtype=np.float64)
+    M[:, N.FIDX["entry_sec"]] = T[:, CIDX["entry_sec"]]
+    M[:, N.FIDX["feasible"]] = T[:, CIDX["feasible"]]
+    M[:, N.FIDX["cert_close"]] = S[:, SIDX["%s_cert" % key]]
+    M[:, N.FIDX["exit_sec"]] = S[:, SIDX["%s_exit_sec" % key]]
+    M[:, N.FIDX["walled"]] = S[:, SIDX["%s_walled" % key]]
+    M[:, N.FIDX["wall_hit"]] = T[:, CIDX["PHASE_wall_hit"]]
+    _P[key] = {0: M}
+    return _P[key]
+
+
+def short_value(H, D):
+    S = load_short()
+    T = load()
+    v = S[:, SIDX["H%d_cert" % H]].copy()
+    v[T[:, CIDX["feasible"]] <= 0.5] = np.nan
+    v[D["cert_refused"] != 0] = np.nan
+    return v
+
+
+def dp_ceiling_h(D, rows, cert, exit_sec):
+    """The SCHEDULE-FREE one-position DP bound per session at this horizon —
+    `c_c_roster.dp_schedule`, the frozen function, over EVERY candidate.
+    NON-COMPLIANT with the <=10 trades/day cap by construction and labelled so;
+    it is the unconstrained bound the compliant schedule is measured against."""
+    import c_c_roster as CC
+    r = np.asarray(rows, dtype=np.int64)
+    ok = np.isfinite(cert[r]) & np.isfinite(exit_sec[r])
+    r = r[ok]
+    sess = D["session"][r]
+    order = np.lexsort((D["dec_sec"][r], sess))
+    ro, so = r[order], sess[order]
+    if ro.size == 0:
+        return {}
+    starts = [0] + (np.flatnonzero(so[1:] != so[:-1]) + 1).tolist()
+    out = {}
+    for a, b in zip(starts, starts[1:] + [so.size]):
+        idx = ro[a:b]
+        dec = D["dec_sec"][idx].astype(np.int64).tolist()
+        ex = exit_sec[idx].astype(np.int64).tolist()
+        cv = cert[idx].tolist()
+        rid = idx.tolist()
+        total, chosen = CC.dp_schedule(list(zip(dec, ex, cv, dec, rid, rid)))
+        out[str(so[a])] = (float(total), len(chosen))
+    return out
+
+
+def run_short_table(eras=ERAS, out_dir=None):
+    import stacked_final as SF
+    D = N.matrix()
+    load(out_dir)
+    load_short(out_dir)
+    grid = [("PHASE", None)] + [("H%d" % H, H) for H in SHORT_H]
+    rows = []
+    for era in eras:
+        crit = "BINDING" if era in BINDING else "context"
+        ev = N.deployable(D, N.era_rows(D, era))
+        n_ = N.committed_policy()[era][1]
+        inc = None
+        for tag, H in grid:
+            if H is None:
+                Ph, V = tensor_as_P("PHASE"), {0: true_value("PHASE", D)}
+                cert = load()[:, CIDX["PHASE_cert"]]
+                ex = load()[:, CIDX["PHASE_exit_sec"]]
+            else:
+                Ph, V = short_as_P(H), {0: short_value(H, D)}
+                cert = load_short()[:, SIDX["H%d_cert" % H]]
+                ex = load_short()[:, SIDX["H%d_exit_sec" % H]]
+            ceil_rows = N.replay_delayed(
+                D, N.top_per_cell_joint(D, ev, V, n_, (0,)), P=Ph,
+                val_by_delay=V)
+            cr = N.read_rows(D, ceil_rows)
+            dp = dp_ceiling_h(D, ev, cert, ex)
+            dpv = [v[0] for v in dp.values()]
+            dpn = [v[1] for v in dp.values()]
+            arm, raw, nse, nfo = [], [], [], []
+            for sd in SEEDS:
+                fp = os.path.join(_sdir(), "FOLD_%s_%d.npy" % (era, sd))
+                if not os.path.exists(fp):
+                    raise HorizonRefusal("missing folded member %s" % fp)
+                sc = np.load(fp).astype(np.float64)
+                rp = N.replay_delayed(D, N.top_per_cell_score(D, ev, sc, n_),
+                                      P=Ph)
+                a = N.read_rows(D, SF.apply_stop(D, rp, "STOP_WALL1"))
+                b = N.read_rows(D, rp)
+                arm.append(a["usd_per_session"])
+                raw.append(b["usd_per_session"])
+                nse.append(b["n_seated"] / max(b["n_sessions"], 1))
+                nfo.append(b["n_forfeited"] / max(b["n_sessions"], 1))
+            A_ = np.asarray(arm, np.float64)
+            Rw = np.asarray(raw, np.float64)
+            if inc is None:
+                inc = A_
+            d = A_.mean() - inc.mean()
+            ceil = cr.get("usd_per_session")
+            aim = AIM_FRAC * ceil if ceil else None
+            rows.append([
+                era, crit, tag, "" if H is None else H,
+                int(cr["n_sessions"]), int(A_.size), N._r(A_.mean()),
+                N._r(A_.std()), N._r(Rw.mean()), N._r(Rw.std()),
+                N._r(float(np.mean(nse)), 3), N._r(float(np.mean(nfo)), 3),
+                N._r(ceil), N._r((A_.mean() / ceil) if ceil else None, 4),
+                N._r(aim), N._r(A_.mean() - aim) if aim else "",
+                N._r(float(np.mean(dpv))) if dpv else "",
+                N._r(float(np.mean(dpn)), 2) if dpn else "",
+                N._r(d), N._r(d - A_.std()),
+                "YES" if (d - A_.std()) > 0 else "no"])
+        hb("short table: %s done" % era)
+    if not rows:
+        raise HorizonRefusal(
+            "HORIZON_SHORT produced ZERO rows — a null prints rows, so this is "
+            "a FAILURE, not a result")
+    N.write_tsv(
+        "HORIZON_SHORT.tsv",
+        ["era", "criterion", "horizon", "hold_cap_sec", "n_sessions",
+         "n_seeds", "armed_mean", "armed_sd", "raw_mean", "raw_sd",
+         "seats_per_session", "forfeits_per_session", "foresight_ceiling",
+         "armed_capture", "aim_08ceiling", "gap_to_aim", "dp_ceiling_free",
+         "dp_seats_free", "delta_vs_phase", "delta_minus_sd", "promotes"],
+        rows,
+        extra=[
+            "S1b — THE SHORT SIDE OF THE HORIZON GRADIENT, the drawing-board "
+            "move S1's own finding generates.  Exit at min(entry + H, phase "
+            "close) and LET THE FREED POSITION BE RE-SEATED.",
+            "WHY THIS IS NOT COVERED BY THE EXIT-CENSUS NULL: "
+            "EXIT_CENSUS2_RULES.tsv holds n_seats FIXED AT 352 across all 40 "
+            "rules — it re-priced exits and never re-filled the seat an early "
+            "exit frees, so the throughput channel S1 proved dominant is "
+            "absent from that null.  Its time rules are path-CONDITIONAL; "
+            "these are fixed horizons chosen at entry.",
+            "THE WALL IS LIVE inside the shortened hold (m2_delay._close_cert, "
+            "imported).  H is CAPPED at the phase close, so no row here rides "
+            "past the incumbent's exit.",
+            "dp_ceiling_free / dp_seats_free = the SCHEDULE-FREE one-position "
+            "DP bound over EVERY candidate at that horizon "
+            "(c_c_roster.dp_schedule).  It is NON-COMPLIANT with the <=10 "
+            "trades/day cap by construction and is the unconstrained bound, "
+            "never a deployable number.",
+            "ARM = the deployed folded members with the adopted first-wall "
+            "stop, 5 seeds.  PROMOTION = delta_minus_sd > 0 vs the PHASE "
+            "incumbent."])
+    hb("HORIZON_SHORT.tsv: %d rows" % len(rows))
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--paths", action="store_true")
     ap.add_argument("--verify", action="store_true")
     ap.add_argument("--table", action="store_true")
+    ap.add_argument("--short", action="store_true")
+    ap.add_argument("--short-table", action="store_true")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--limit-days", type=int, default=None)
     a = ap.parse_args()
@@ -549,6 +806,12 @@ def main():
         did = True
     if a.table:
         run_table()
+        did = True
+    if a.short:
+        build_short(workers=a.workers, limit_days=a.limit_days)
+        did = True
+    if a.short_table:
+        run_short_table()
         did = True
     if not did:
         ap.print_help()

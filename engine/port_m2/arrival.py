@@ -52,6 +52,14 @@ WHAT IS EVALUATED
                      compliant schedule.
     TAU_DAYSOFAR     tau recalibrated INTRADAY from the day's own arrivals so
                      far — lawful, because it reads only arrivals already past.
+    CELLSOFAR        tau from the CELL's own arrivals so far.  This is the
+                     family that matches what a within-cell-trained score
+                     actually knows, and it needs no global level at all.
+    OCCUPANCY        the rule the one-position constraint implies: taking now
+                     blocks the rest of the phase, so the bar falls as the cell
+                     empties — take when the score clears the
+                     (1 - c/(m+1)) quantile with `m` arrivals still expected.
+                     No fitted knob; `c` is one pre-registered constant.
     SECRETARY        observe a fixed fraction of the phase, then take the first
                      arrival beating everything seen so far in that cell.
     SECRETARY_REENTRY  the same, re-armed after the position frees, so a better
@@ -126,6 +134,7 @@ TAU_Q = (0.50, 0.70, 0.80, 0.90, 0.95, 0.975, 0.99)
 DAY_Q = (0.50, 0.70, 0.90)
 DAY_WARM = 10                  # arrivals observed before the intraday tau arms
 CELL_Q = (0.80, 0.90, 0.95, 0.99)   # the within-cell running quantile family
+OCC_C = (0.5, 1.0, 2.0)             # occupancy-aware stopping constant
 SEC_F = (0.10, 0.25, 0.50)     # fraction of the phase spent observing
 
 
@@ -270,6 +279,48 @@ def seats_cellsofar(D, rows, score, q, warm=5):
     return out
 
 
+def seats_occupancy(D, rows, score, c, train_rows):
+    """OCCUPANCY-AWARE STOPPING — the rule the one-position constraint actually
+    implies, rather than a flat threshold that ignores it.
+
+    Taking a seat BLOCKS THE REST OF THE PHASE, so the bar for taking must
+    depend on how much phase is left: high while many arrivals remain, falling
+    as the cell empties.  With `m` arrivals still to come, a candidate is worth
+    taking when it is plausibly the best of the `m + 1` acts still available —
+    i.e. when its score sits above the (1 - c/(m+1)) quantile of the score
+    distribution.  That is the classical stopping threshold, and it has NO
+    fitted knob: `c` is one pre-registered constant and everything else is
+    arithmetic.
+
+    Strictly causal: `m` is estimated from the TRAINING BLOCK's mean cell size
+    minus the arrivals already seen in this cell, and the quantile is taken on
+    the TRAINING BLOCK's own score distribution.  Nothing later than arrival j
+    is read.
+    """
+    ro, blocks = _arrivals(D, rows, score)
+    s = np.asarray(score)[ro]
+    ref = np.asarray(score)[train_rows]
+    ref = np.sort(ref[np.isfinite(ref)])
+    if ref.size == 0 or ro.size == 0:
+        return []
+    tr_cells = np.unique(D["cell"][np.asarray(train_rows, dtype=np.int64)])
+    n_mean = max(1.0, float(len(train_rows)) / max(tr_cells.size, 1))
+    out = []
+    for a, b in blocks:
+        for j in range(a, b):
+            m = max(0.0, n_mean - (j - a))
+            q = 1.0 - c / (m + 1.0)
+            if q <= 0.0:
+                out.append((int(ro[j]), 0))
+                continue
+            if q >= 1.0:
+                continue
+            tau = ref[min(int(q * ref.size), ref.size - 1)]
+            if s[j] >= tau:
+                out.append((int(ro[j]), 0))
+    return out
+
+
 def seats_secretary(D, rows, score, frac, reentry=False):
     """Observe the first `frac` of the CELL's arrival sequence, then take the
     first arrival beating everything seen so far.  With `reentry`, the rule
@@ -311,6 +362,7 @@ POLICIES = ([("FIRST_%d" % DAY_CAP, "first", None)]
             + [("TAU_%g" % q, "tau", q) for q in TAU_Q]
             + [("DAYSOFAR_%g" % q, "day", q) for q in DAY_Q]
             + [("CELLSOFAR_%g" % q, "cell", q) for q in CELL_Q]
+            + [("OCCUPANCY_%g" % c, "occ", c) for c in OCC_C]
             + [("SECRETARY_%g" % f, "sec", f) for f in SEC_F]
             + [("SECRETARY_RE_%g" % f, "secre", f) for f in SEC_F])
 
@@ -328,6 +380,8 @@ def build_seats(D, rows, score, kind, knob, train_rows):
         return seats_daysofar(D, rows, score, knob)
     if kind == "cell":
         return seats_cellsofar(D, rows, score, knob)
+    if kind == "occ":
+        return seats_occupancy(D, rows, score, knob, train_rows)
     if kind == "sec":
         return seats_secretary(D, rows, score, knob, False)
     if kind == "secre":

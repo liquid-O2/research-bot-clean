@@ -397,3 +397,30 @@ targets with the search-adjusted luck bar — **the only number that decides any
 **Process law reaffirmed the hard way:** never `pkill -f` against a registered lane's command
 line — two lanes sharing a command line are indistinguishable to any name matcher. Kill the
 recorded pid and verify with `run.sh --list`.
+
+### UPDATE 23:38Z — final night state, and the one free measurement to run first
+
+**Three lanes running, all self-committing:** `port-ev-policy2` (→`ARRIVAL_FITTED.tsv`,
+24-policy family × 3 targets + luck bar), `port-causal-baseline` (→`CAUSAL_BASELINE.tsv`),
+`port-arrival-engines` (→`ARRIVAL_ENGINES.tsv`, 60 fits).
+
+**The gap that now defines the problem.** A_EV selects a tail worth **+$118 / +$401 / +$766
+per trade** (E5/E6/E7, 5-seed) — but E5's replayed policy returns **$16.76**. Two hypotheses
+were tested tonight:
+- **Wall population — REFUTED.** A_EV's tail walls *no more* than the population
+  (E5 0.254 vs 0.321, E6 0.408 vs 0.417, E7 0.516 vs 0.484). Do not spend effort on
+  wall-aware expectancy; it was aimed at a mechanism that is not operating.
+- **Occupancy + arrival-order sampling — SURVIVING.** The replay seats the *first* arrival
+  clearing the bar, not the best of those that clear it. The seated subset of a tail has no
+  reason to inherit the tail's mean.
+
+**RUN THIS FIRST — it is free and it is decisive:** mean realised certificate of the
+**SEATED** subset vs the **SELECTED** set, per era, per score. Pure replay arithmetic on
+artifacts already on disk. It isolates exactly how much of a score's tail survives
+arrival-order sampling, and it tells you whether the answer is a better *score* or a better
+*rule*. If early members of the tail are ordinary, the answer is a rule whose bar **rises as
+the phase ages** — which the `OCCUPANCY` family already implements and the policy table is
+already pricing.
+
+**De-prioritised tonight:** wall-aware expectancy (refuted above); seed-averaging A_EV
+(tested, a wash).

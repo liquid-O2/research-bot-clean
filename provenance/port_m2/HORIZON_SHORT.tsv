@@ -1,3 +1,12 @@
+# ==== VOID FOR DEPLOYMENT (seating lookahead, leak audit P1, 2026-08-21) ====
+# Every REALISED $/session column below is produced under retrospective seating
+# (newobj.top_per_cell_score = the cell's EVENTUAL argmax, ~5.5h of future
+# arrivals on average; the argmax is the cell's first arrival only 5.9-14.4% of
+# the time, LEAK_SEATING_CENSUS.tsv).  Those numbers are NOT earnable at arrival
+# time and must never be quoted as results or used as promotion baselines.
+# THE CEILING COLUMNS SURVIVE: a ceiling is a hindsight BOUND, not a policy, and
+# the verdicts of this table rest on them.  Replacement object: the arrival-time
+# policy (engine/port_m2/arrival.py, ARRIVAL_ZOO.tsv, ARRIVAL_PROPHET.tsv).
 # PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
 # E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
 # S1b — THE SHORT SIDE OF THE HORIZON GRADIENT, the drawing-board move S1's own finding generates.  Exit at min(entry + H, phase close) and LET THE FREED POSITION BE RE-SEATED.

@@ -182,3 +182,44 @@ kind (ranking headroom and side validity).
 3. **The sealed 2025-H2 holdout** — freeze-then-one-shot. Not this lane's to open.
 
 **Further spend awaits orchestrator adjudication. Holding.**
+
+---
+
+# REAFFIRMATION v1 (2026-08-15, after the final improvement pass)
+
+**The champion is UNCHANGED. This spec stands byte-for-byte; there is no v2.**
+
+The final pass ran **eleven arms** against it on E3–E7 with E8 quarantined from every selection
+(`SEQTEST.md` §20). None beat it. The closest were the two arms deliberately built so that inner
+selection could reject them — the TabPFN stacker and the meta-labelling gate — and **both
+rejected themselves**: blend weight `w = 0.00` in all five folds, veto threshold `τ = 0`.
+
+### The all-years criterion, measured
+
+`SEQTEST_ERATABLE_CHAMPION_FINAL.tsv` — every (era, asset) cell against $2,000 (thin floor
+$1,500):
+
+| era | SI | HG | NKD |
+|---|--:|--:|--:|
+| E3 | 815.12 | 885.16 | 813.21 |
+| E4 | 1,389.98 | 1,035.63 | 1,162.62 |
+| E5 | 1,101.57 | 747.65 | 1,028.99 |
+| E6 | 1,163.81 | 777.29 | 839.98 |
+| E7 | 589.58 | 644.30 | 1,664.96 |
+| **E8** (single blind read) | **2,572.70** ✔ | 1,893.86 | **2,064.82** ✔ |
+
+**2/18 cells clear $2,000. 4/18 clear $1,500. The criterion is NOT met.** The eras are not thin
+— mean day ceilings are $1,936–$4,958 — so the floor exemption does not rescue them. The weak-era
+gap is ~2–2.5×.
+
+### What this means for the freeze conversation
+
+The champion is the best instrument this lane has produced and it is **3.4× the committed m3
+harness**, but it does **not** satisfy the user's all-years bar. The freeze decision is therefore
+a decision about a good instrument that misses a standing criterion — not about a candidate that
+meets it. Both facts belong in that conversation.
+
+**Still open, and unmeasured rather than refuted:** the deployment-exact per-cell objective
+(§20.3 — my implementation did not train, so the idea is untested); a properly hyper-parameter-
+searched CatBoost/LightGBM; and TabPFN at a context large enough to hold a whole early-era
+training pool, which is where its small-data edge would actually be tested.

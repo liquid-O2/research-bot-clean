@@ -1,0 +1,119 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# P8: the five selection policies read off ONE fitted score column per arm.  gate60/gate120 = OBJ-2 (rank-then-gate-verify, threshold swept on the inner block); *_DISPLACED = the red-first control, the same gate readings attached to the WRONG candidates; stop = OBJ-3 (backward induction on the historical arrival process); stop_ORACLE = its clairvoyant-on-the-present ceiling.
+cell	era	policy	n_seated	usd_per_session	ps_lo	ps_hi	usd_per_trade	detail
+cell|dpairs|cellrank|full|xgb|CELLREL	E3	static1	1171	675.98	610.7	741.26	225.13	{}
+cell|dpairs|cellrank|full|xgb|CELLREL	E3	thresh	1171	675.98	610.7	741.26	225.13	{"tau": -Infinity, "inner_usd": 822.139}
+cell|dpairs|cellrank|full|xgb|CELLREL	E3	gate60	1167	660.23	597.57	722.89	220.64	{"pass_1": 1155, "fall_to_2": 12, "no_seat": 3, "tau": -Infinity, "inner_usd": 765.472, "gate_rounds": 30}
+cell|dpairs|cellrank|full|xgb|CELLREL	E3	gate60_DISPLACED	1167	660.23	597.57	722.89	220.64	{"pass_1": 1155, "fall_to_2": 12, "no_seat": 3, "tau": -502.457, "rate_matched_to": 1167}
+cell|dpairs|cellrank|full|xgb|CELLREL	E3	gate120	1160	632.71	569.48	695.94	212.72	{"pass_1": 1139, "fall_to_2": 21, "no_seat": 10, "tau": -Infinity, "inner_usd": 735.1, "gate_rounds": 6}
+cell|dpairs|cellrank|full|xgb|CELLREL	E3	gate120_DISPLACED	1160	632.71	569.48	695.94	212.72	{"pass_1": 1139, "fall_to_2": 21, "no_seat": 10, "tau": -199.803, "rate_matched_to": 1160}
+cell|dpairs|cellrank|full|xgb|CELLREL	E3	stop	1094	-149.38	-223.05	-75.71	-53.25	{"n_take": 2088, "n_declined": 126639, "n_forced_last": 0}
+cell|dpairs|cellrank|full|xgb|CELLREL	E3	stop_forced	1175	-142.63	-216.5	-68.75	-47.34	{"n_take": 2088, "n_declined": 126639, "n_forced_last": 81}
+cell|dpairs|cellrank|full|xgb|CELLREL	E3	stop_ORACLE	1170	2188.37	2033.98	2342.75	729.46	{"n_take": 2340, "n_declined": 5722, "n_forced_last": 0}
+cell|dpairs|cellrank|full|xgb|CELLREL	E4	static1	1155	647.5	595.22	699.78	215.83	{}
+cell|dpairs|cellrank|full|xgb|CELLREL	E4	thresh	1155	647.5	595.22	699.78	215.83	{"tau": -Infinity, "inner_usd": 718.684}
+cell|dpairs|cellrank|full|xgb|CELLREL	E4	gate60	1152	601.58	549.44	653.72	201.05	{"pass_1": 1141, "fall_to_2": 11, "no_seat": 3, "tau": -Infinity, "inner_usd": 672.888, "gate_rounds": 1}
+cell|dpairs|cellrank|full|xgb|CELLREL	E4	gate60_DISPLACED	1152	601.58	549.44	653.72	201.05	{"pass_1": 1141, "fall_to_2": 11, "no_seat": 3, "tau": -82.184, "rate_matched_to": 1152}
+cell|dpairs|cellrank|full|xgb|CELLREL	E4	gate120	1150	563.81	512.58	615.05	188.76	{"pass_1": 1131, "fall_to_2": 19, "no_seat": 5, "tau": -Infinity, "inner_usd": 632.294, "gate_rounds": 1}
+cell|dpairs|cellrank|full|xgb|CELLREL	E4	gate120_DISPLACED	1150	563.81	512.58	615.05	188.76	{"pass_1": 1131, "fall_to_2": 19, "no_seat": 5, "tau": -78.388, "rate_matched_to": 1150}
+cell|dpairs|cellrank|full|xgb|CELLREL	E4	stop	1083	-49.84	-127.82	28.13	-17.72	{"n_take": 1083, "n_declined": 100061, "n_forced_last": 0}
+cell|dpairs|cellrank|full|xgb|CELLREL	E4	stop_forced	1155	-40.26	-119.39	38.87	-13.42	{"n_take": 1083, "n_declined": 100061, "n_forced_last": 72}
+cell|dpairs|cellrank|full|xgb|CELLREL	E4	stop_ORACLE	1154	1984.79	1861.31	2108.26	662.17	{"n_take": 1155, "n_declined": 3489, "n_forced_last": 0}
+cell|dpairs|cellrank|full|xgb|CELLREL	E5	static1	1161	579.96	527.43	632.49	193.32	{}
+cell|dpairs|cellrank|full|xgb|CELLREL	E5	thresh	1161	579.96	527.43	632.49	193.32	{"tau": -0.803, "inner_usd": 716.758}
+cell|dpairs|cellrank|full|xgb|CELLREL	E5	gate60	1157	543.95	492.72	595.18	181.94	{"pass_1": 1145, "fall_to_2": 12, "no_seat": 4, "tau": -Infinity, "inner_usd": 670.214, "gate_rounds": 3}
+cell|dpairs|cellrank|full|xgb|CELLREL	E5	gate60_DISPLACED	1157	543.95	492.72	595.18	181.94	{"pass_1": 1145, "fall_to_2": 12, "no_seat": 4, "tau": -71.768, "rate_matched_to": 1157}
+cell|dpairs|cellrank|full|xgb|CELLREL	E5	gate120	1151	510.16	460.35	559.97	171.53	{"pass_1": 1129, "fall_to_2": 22, "no_seat": 10, "tau": -Infinity, "inner_usd": 627.035, "gate_rounds": 41}
+cell|dpairs|cellrank|full|xgb|CELLREL	E5	gate120_DISPLACED	1151	510.16	460.35	559.97	171.53	{"pass_1": 1129, "fall_to_2": 22, "no_seat": 10, "tau": -460.908, "rate_matched_to": 1151}
+cell|dpairs|cellrank|full|xgb|CELLREL	E5	stop	1083	-48.78	-110.74	13.18	-17.43	{"n_take": 1084, "n_declined": 123182, "n_forced_last": 0}
+cell|dpairs|cellrank|full|xgb|CELLREL	E5	stop_forced	1160	-43.48	-105.97	19.02	-14.5	{"n_take": 1084, "n_declined": 123182, "n_forced_last": 77}
+cell|dpairs|cellrank|full|xgb|CELLREL	E5	stop_ORACLE	1161	1877.01	1759.28	1994.74	625.67	{"n_take": 1161, "n_declined": 3292, "n_forced_last": 0}
+cell|dpairs|cellrank|full|xgb|CELLREL	E6	static1	1152	775.41	694.19	856.64	258.47	{}
+cell|dpairs|cellrank|full|xgb|CELLREL	E6	thresh	1152	775.41	694.19	856.64	258.47	{"tau": -1.381, "inner_usd": 697.181}
+cell|dpairs|cellrank|full|xgb|CELLREL	E6	gate60	1150	712.84	632.13	793.56	238.03	{"pass_1": 1131, "fall_to_2": 19, "no_seat": 2, "tau": -Infinity, "inner_usd": 643.467, "gate_rounds": 2}
+cell|dpairs|cellrank|full|xgb|CELLREL	E6	gate60_DISPLACED	1150	712.84	632.13	793.56	238.03	{"pass_1": 1131, "fall_to_2": 19, "no_seat": 2, "tau": -82.072, "rate_matched_to": 1150}
+cell|dpairs|cellrank|full|xgb|CELLREL	E6	gate120	1149	666.53	587.82	745.25	222.76	{"pass_1": 1120, "fall_to_2": 29, "no_seat": 3, "tau": -Infinity, "inner_usd": 600.901, "gate_rounds": 3}
+cell|dpairs|cellrank|full|xgb|CELLREL	E6	gate120_DISPLACED	1149	666.53	587.82	745.25	222.76	{"pass_1": 1120, "fall_to_2": 29, "no_seat": 3, "tau": -111.661, "rate_matched_to": 1149}
+cell|dpairs|cellrank|full|xgb|CELLREL	E6	stop	1078	-186.01	-266.65	-105.37	-66.26	{"n_take": 1078, "n_declined": 126167, "n_forced_last": 0}
+cell|dpairs|cellrank|full|xgb|CELLREL	E6	stop_forced	1152	-174.86	-254.83	-94.9	-58.29	{"n_take": 1078, "n_declined": 126167, "n_forced_last": 74}
+cell|dpairs|cellrank|full|xgb|CELLREL	E6	stop_ORACLE	1150	2488.67	2296.91	2680.44	831.0	{"n_take": 1152, "n_declined": 6053, "n_forced_last": 0}
+cell|dpairs|cellrank|full|xgb|CELLREL	E7	static1	1179	929.42	838.05	1020.78	309.81	{}
+cell|dpairs|cellrank|full|xgb|CELLREL	E7	thresh	1178	929.3	837.93	1020.67	310.03	{"tau": -1.455, "inner_usd": 702.516}
+cell|dpairs|cellrank|full|xgb|CELLREL	E7	gate60	1178	859.42	770.48	948.37	286.72	{"pass_1": 1161, "fall_to_2": 17, "no_seat": 1, "tau": -Infinity, "inner_usd": 654.146, "gate_rounds": 1}
+cell|dpairs|cellrank|full|xgb|CELLREL	E7	gate60_DISPLACED	1178	859.42	770.48	948.37	286.72	{"pass_1": 1161, "fall_to_2": 17, "no_seat": 1, "tau": -81.577, "rate_matched_to": 1178}
+cell|dpairs|cellrank|full|xgb|CELLREL	E7	gate120	1172	804.41	726.71	882.11	269.74	{"pass_1": 1144, "fall_to_2": 28, "no_seat": 7, "tau": -Infinity, "inner_usd": 611.33, "gate_rounds": 2}
+cell|dpairs|cellrank|full|xgb|CELLREL	E7	gate120_DISPLACED	1172	804.41	726.71	882.11	269.74	{"pass_1": 1144, "fall_to_2": 28, "no_seat": 7, "tau": -115.537, "rate_matched_to": 1172}
+cell|dpairs|cellrank|full|xgb|CELLREL	E7	stop	1094	-116.21	-209.95	-22.47	-41.75	{"n_take": 1094, "n_declined": 124610, "n_forced_last": 0}
+cell|dpairs|cellrank|full|xgb|CELLREL	E7	stop_forced	1179	-106.17	-199.87	-12.48	-35.39	{"n_take": 1094, "n_declined": 124610, "n_forced_last": 85}
+cell|dpairs|cellrank|full|xgb|CELLREL	E7	stop_ORACLE	1178	3138.77	2848.92	3428.61	1047.14	{"n_take": 1179, "n_declined": 5740, "n_forced_last": 0}
+cell|ndcg3|dollars|full|xgb|BASE	E3	static1	1183	837.83	651.06	1024.6	276.21	{}
+cell|ndcg3|dollars|full|xgb|BASE	E3	thresh	1183	837.83	651.06	1024.6	276.21	{"tau": -0.657, "inner_usd": 1090.411}
+cell|ndcg3|dollars|full|xgb|BASE	E3	gate60	1170	952.84	761.14	1144.54	317.61	{"pass_1": 1170, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": 1204.944, "gate_rounds": 6}
+cell|ndcg3|dollars|full|xgb|BASE	E3	gate60_DISPLACED	1170	952.84	761.14	1144.54	317.61	{"pass_1": 1170, "fall_to_2": 0, "no_seat": 0, "tau": -305.63, "rate_matched_to": 1170}
+cell|ndcg3|dollars|full|xgb|BASE	E3	gate120	1169	928.67	737.65	1119.69	309.82	{"pass_1": 1169, "fall_to_2": 0, "no_seat": 1, "tau": -Infinity, "inner_usd": 1182.111, "gate_rounds": 12}
+cell|ndcg3|dollars|full|xgb|BASE	E3	gate120_DISPLACED	1169	928.67	737.65	1119.69	309.82	{"pass_1": 1169, "fall_to_2": 0, "no_seat": 1, "tau": -277.633, "rate_matched_to": 1169}
+cell|ndcg3|dollars|full|xgb|BASE	E3	stop	1143	-28.24	-155.02	98.54	-9.64	{"n_take": 2097, "n_declined": 88281, "n_forced_last": 0}
+cell|ndcg3|dollars|full|xgb|BASE	E3	stop_forced	1215	-28.59	-154.81	97.63	-9.18	{"n_take": 2097, "n_declined": 88281, "n_forced_last": 72}
+cell|ndcg3|dollars|full|xgb|BASE	E3	stop_ORACLE	1170	2208.04	2054.79	2361.3	736.01	{"n_take": 2340, "n_declined": 5975, "n_forced_last": 0}
+joint|dpairs|dollars|full|xgb|CELLREL	E3	static1	1173	1409.0	1233.37	1584.63	468.47	{}
+joint|dpairs|dollars|full|xgb|CELLREL	E3	gate60	1170	1532.72	1359.94	1705.51	510.91	{"pass_1": 1170, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": -Infinity, "gate_rounds": 30}
+joint|dpairs|dollars|full|xgb|CELLREL	E3	gate60_DISPLACED	1170	1532.72	1359.94	1705.51	510.91	{"pass_1": 1170, "fall_to_2": 0, "no_seat": 0, "tau": -502.457, "rate_matched_to": 1170}
+joint|dpairs|dollars|full|xgb|CELLREL	E3	gate120	1169	1484.76	1311.62	1657.89	495.34	{"pass_1": 1169, "fall_to_2": 0, "no_seat": 1, "tau": -Infinity, "inner_usd": -Infinity, "gate_rounds": 6}
+joint|dpairs|dollars|full|xgb|CELLREL	E3	gate120_DISPLACED	1169	1484.76	1311.62	1657.89	495.34	{"pass_1": 1169, "fall_to_2": 0, "no_seat": 1, "tau": -199.803, "rate_matched_to": 1169}
+cell|ndcg3|dollars|full|xgb|BASE	E4	static1	1155	1195.99	1058.57	1333.41	398.66	{}
+cell|ndcg3|dollars|full|xgb|BASE	E4	thresh	1155	1195.99	1058.57	1333.41	398.66	{"tau": -Infinity, "inner_usd": 1351.667}
+cell|ndcg3|dollars|full|xgb|BASE	E4	gate60	1155	1158.1	1019.34	1296.86	386.03	{"pass_1": 1155, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": 1324.047, "gate_rounds": 1}
+cell|ndcg3|dollars|full|xgb|BASE	E4	gate60_DISPLACED	1155	1158.1	1019.34	1296.86	386.03	{"pass_1": 1155, "fall_to_2": 0, "no_seat": 0, "tau": -86.551, "rate_matched_to": 1155}
+cell|ndcg3|dollars|full|xgb|BASE	E4	gate120	1155	1116.25	983.5	1249.0	372.08	{"pass_1": 1155, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": 1287.636, "gate_rounds": 2}
+cell|ndcg3|dollars|full|xgb|BASE	E4	gate120_DISPLACED	1155	1116.25	983.5	1249.0	372.08	{"pass_1": 1155, "fall_to_2": 0, "no_seat": 0, "tau": -87.415, "rate_matched_to": 1155}
+cell|ndcg3|dollars|full|xgb|BASE	E4	stop	849	-0.55	-124.12	123.03	-0.24	{"n_take": 849, "n_declined": 76765, "n_forced_last": 0}
+cell|ndcg3|dollars|full|xgb|BASE	E4	stop_forced	1155	-7.91	-130.69	114.88	-2.64	{"n_take": 849, "n_declined": 76765, "n_forced_last": 306}
+cell|ndcg3|dollars|full|xgb|BASE	E4	stop_ORACLE	1154	2027.66	1906.3	2149.02	676.47	{"n_take": 1144, "n_declined": 5016, "n_forced_last": 11}
+joint|dpairs|dollars|full|xgb|CELLREL	E4	static1	1155	1486.56	1357.56	1615.55	495.52	{}
+joint|dpairs|dollars|full|xgb|CELLREL	E4	gate60	1155	1431.46	1300.47	1562.45	477.15	{"pass_1": 1154, "fall_to_2": 1, "no_seat": 0, "tau": -Infinity, "inner_usd": -Infinity, "gate_rounds": 1}
+joint|dpairs|dollars|full|xgb|CELLREL	E4	gate60_DISPLACED	1155	1431.46	1300.47	1562.45	477.15	{"pass_1": 1154, "fall_to_2": 1, "no_seat": 0, "tau": -82.184, "rate_matched_to": 1155}
+joint|dpairs|dollars|full|xgb|CELLREL	E4	gate120	1154	1411.8	1282.85	1540.75	471.01	{"pass_1": 1152, "fall_to_2": 2, "no_seat": 1, "tau": -Infinity, "inner_usd": -Infinity, "gate_rounds": 1}
+joint|dpairs|dollars|full|xgb|CELLREL	E4	gate120_DISPLACED	1154	1411.8	1282.85	1540.75	471.01	{"pass_1": 1152, "fall_to_2": 2, "no_seat": 1, "tau": -78.388, "rate_matched_to": 1154}
+cell|ndcg3|dollars|full|xgb|BASE	E5	static1	1161	959.4	828.82	1089.98	319.8	{}
+cell|ndcg3|dollars|full|xgb|BASE	E5	thresh	1161	959.4	828.82	1089.98	319.8	{"tau": -0.085, "inner_usd": 715.518}
+cell|ndcg3|dollars|full|xgb|BASE	E5	gate60	9	254.72	-535.66	1045.1	254.72	{"pass_1": 9, "fall_to_2": 0, "no_seat": 1152, "tau": 77.038, "inner_usd": 680.924, "gate_rounds": 30}
+cell|ndcg3|dollars|full|xgb|BASE	E5	gate60_DISPLACED	52	222.4	4.78	440.02	222.4	{"pass_1": 26, "fall_to_2": 26, "no_seat": 1109, "tau": 54.947, "rate_matched_to": 9}
+cell|ndcg3|dollars|full|xgb|BASE	E5	gate120	1161	900.21	770.83	1029.59	300.07	{"pass_1": 1161, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": 652.629, "gate_rounds": 3}
+cell|ndcg3|dollars|full|xgb|BASE	E5	gate120_DISPLACED	1161	900.21	770.83	1029.59	300.07	{"pass_1": 1161, "fall_to_2": 0, "no_seat": 0, "tau": -50.428, "rate_matched_to": 1161}
+cell|ndcg3|dollars|full|xgb|BASE	E5	stop	954	-135.4	-249.7	-21.09	-54.78	{"n_take": 954, "n_declined": 65166, "n_forced_last": 0}
+cell|ndcg3|dollars|full|xgb|BASE	E5	stop_forced	1161	-135.62	-250.32	-20.92	-45.21	{"n_take": 954, "n_declined": 65166, "n_forced_last": 207}
+cell|ndcg3|dollars|full|xgb|BASE	E5	stop_ORACLE	1161	1919.17	1801.96	2036.39	639.72	{"n_take": 1159, "n_declined": 4634, "n_forced_last": 2}
+joint|dpairs|dollars|full|xgb|CELLREL	E5	static1	1161	1386.71	1274.21	1499.22	462.24	{}
+joint|dpairs|dollars|full|xgb|CELLREL	E5	gate60	1160	1339.13	1226.74	1451.52	446.76	{"pass_1": 1159, "fall_to_2": 1, "no_seat": 1, "tau": -Infinity, "inner_usd": -Infinity, "gate_rounds": 3}
+joint|dpairs|dollars|full|xgb|CELLREL	E5	gate60_DISPLACED	1160	1339.13	1226.74	1451.52	446.76	{"pass_1": 1159, "fall_to_2": 1, "no_seat": 1, "tau": -71.768, "rate_matched_to": 1160}
+joint|dpairs|dollars|full|xgb|CELLREL	E5	gate120	1160	1295.12	1181.88	1408.36	432.08	{"pass_1": 1159, "fall_to_2": 1, "no_seat": 1, "tau": -Infinity, "inner_usd": -Infinity, "gate_rounds": 41}
+joint|dpairs|dollars|full|xgb|CELLREL	E5	gate120_DISPLACED	1160	1295.12	1181.88	1408.36	432.08	{"pass_1": 1159, "fall_to_2": 1, "no_seat": 1, "tau": -460.908, "rate_matched_to": 1160}
+cell|ndcg3|dollars|full|xgb|BASE	E6	static1	1152	927.02	749.24	1104.81	309.01	{}
+cell|ndcg3|dollars|full|xgb|BASE	E6	thresh	1152	927.02	749.24	1104.81	309.01	{"tau": -Infinity, "inner_usd": 637.696}
+cell|ndcg3|dollars|full|xgb|BASE	E6	gate60	1150	898.1	724.79	1071.4	299.89	{"pass_1": 1149, "fall_to_2": 1, "no_seat": 2, "tau": -67.901, "inner_usd": 644.382, "gate_rounds": 2}
+cell|ndcg3|dollars|full|xgb|BASE	E6	gate60_DISPLACED	1151	899.97	727.49	1072.45	300.25	{"pass_1": 1094, "fall_to_2": 57, "no_seat": 1, "tau": -46.118, "rate_matched_to": 1150}
+cell|ndcg3|dollars|full|xgb|BASE	E6	gate120	1152	885.39	712.28	1058.5	295.13	{"pass_1": 1152, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": 610.191, "gate_rounds": 4}
+cell|ndcg3|dollars|full|xgb|BASE	E6	gate120_DISPLACED	1152	885.39	712.28	1058.5	295.13	{"pass_1": 1152, "fall_to_2": 0, "no_seat": 0, "tau": -119.524, "rate_matched_to": 1152}
+cell|ndcg3|dollars|full|xgb|BASE	E6	stop	935	27.97	-101.91	157.85	11.46	{"n_take": 935, "n_declined": 82668, "n_forced_last": 0}
+cell|ndcg3|dollars|full|xgb|BASE	E6	stop_forced	1152	25.72	-104.66	156.11	8.57	{"n_take": 935, "n_declined": 82668, "n_forced_last": 217}
+cell|ndcg3|dollars|full|xgb|BASE	E6	stop_ORACLE	1150	2530.05	2337.17	2722.92	844.82	{"n_take": 1152, "n_declined": 6665, "n_forced_last": 0}
+joint|dpairs|dollars|full|xgb|CELLREL	E6	static1	1152	1157.3	1014.35	1300.24	385.77	{}
+joint|dpairs|dollars|full|xgb|CELLREL	E6	gate60	1152	1092.86	951.86	1233.86	364.29	{"pass_1": 1152, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": -Infinity, "gate_rounds": 2}
+joint|dpairs|dollars|full|xgb|CELLREL	E6	gate60_DISPLACED	1152	1092.86	951.86	1233.86	364.29	{"pass_1": 1152, "fall_to_2": 0, "no_seat": 0, "tau": -82.072, "rate_matched_to": 1152}
+joint|dpairs|dollars|full|xgb|CELLREL	E6	gate120	1151	1059.48	918.93	1200.03	353.47	{"pass_1": 1150, "fall_to_2": 1, "no_seat": 1, "tau": -Infinity, "inner_usd": -Infinity, "gate_rounds": 3}
+joint|dpairs|dollars|full|xgb|CELLREL	E6	gate120_DISPLACED	1151	1059.48	918.93	1200.03	353.47	{"pass_1": 1150, "fall_to_2": 1, "no_seat": 1, "tau": -111.661, "rate_matched_to": 1151}
+cell|ndcg3|dollars|full|xgb|BASE	E7	static1	1179	966.28	742.38	1190.19	322.09	{}
+cell|ndcg3|dollars|full|xgb|BASE	E7	thresh	1177	967.61	743.88	1191.35	323.09	{"tau": -0.033, "inner_usd": 940.978}
+cell|ndcg3|dollars|full|xgb|BASE	E7	gate60	1179	924.42	711.6	1137.25	308.14	{"pass_1": 1179, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": 921.482, "gate_rounds": 2}
+cell|ndcg3|dollars|full|xgb|BASE	E7	gate60_DISPLACED	1179	924.42	711.6	1137.25	308.14	{"pass_1": 1179, "fall_to_2": 0, "no_seat": 0, "tau": -118.789, "rate_matched_to": 1179}
+cell|ndcg3|dollars|full|xgb|BASE	E7	gate120	1179	919.08	704.94	1133.22	306.36	{"pass_1": 1179, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": 897.453, "gate_rounds": 1}
+cell|ndcg3|dollars|full|xgb|BASE	E7	gate120_DISPLACED	1179	919.08	704.94	1133.22	306.36	{"pass_1": 1179, "fall_to_2": 0, "no_seat": 0, "tau": -81.602, "rate_matched_to": 1179}
+cell|ndcg3|dollars|full|xgb|BASE	E7	stop	880	-131.83	-258.58	-5.08	-57.83	{"n_take": 880, "n_declined": 111613, "n_forced_last": 0}
+cell|ndcg3|dollars|full|xgb|BASE	E7	stop_forced	1179	-129.04	-254.44	-3.65	-43.01	{"n_take": 880, "n_declined": 111613, "n_forced_last": 299}
+cell|ndcg3|dollars|full|xgb|BASE	E7	stop_ORACLE	1177	3178.74	2887.48	3470.01	1061.38	{"n_take": 1179, "n_declined": 6067, "n_forced_last": 0}
+joint|dpairs|dollars|full|xgb|CELLREL	E7	static1	1179	2082.2	1880.1	2284.31	694.07	{}
+joint|dpairs|dollars|full|xgb|CELLREL	E7	gate60	1179	2026.67	1819.3	2234.03	675.56	{"pass_1": 1179, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": -Infinity, "gate_rounds": 1}
+joint|dpairs|dollars|full|xgb|CELLREL	E7	gate60_DISPLACED	1179	2026.67	1819.3	2234.03	675.56	{"pass_1": 1179, "fall_to_2": 0, "no_seat": 0, "tau": -81.577, "rate_matched_to": 1179}
+joint|dpairs|dollars|full|xgb|CELLREL	E7	gate120	1179	1966.15	1756.62	2175.69	655.38	{"pass_1": 1179, "fall_to_2": 0, "no_seat": 0, "tau": -Infinity, "inner_usd": -Infinity, "gate_rounds": 2}
+joint|dpairs|dollars|full|xgb|CELLREL	E7	gate120_DISPLACED	1179	1966.15	1756.62	2175.69	655.38	{"pass_1": 1179, "fall_to_2": 0, "no_seat": 0, "tau": -115.537, "rate_matched_to": 1179}

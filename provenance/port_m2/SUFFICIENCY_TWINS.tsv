@@ -1,0 +1,30 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# A cell is TWIN-AMBIGUOUS when its best and second-best members are within the pre-registered distance (the 10th percentile of BASE's own top-2 distances, frozen per era and reused for every other feature set) yet differ by >= $600.
+# A feature family that SHRINKS this fraction adds ordering information directly — not by inference from a dollar number.
+feature_set	era	n_columns	twin_fraction	distance_threshold
+BASE	E3	184	0.0	0.09567
+BASE	E4	184	0.0	0.10074
+BASE	E5	184	0.0	0.09139
+BASE	E6	184	0.0	0.09759
+BASE	E7	184	0.0	0.09519
+CELLREL	E3	248	0.0	0.09528
+CELLREL	E4	248	0.0	0.09756
+CELLREL	E5	248	0.0	0.09186
+CELLREL	E6	248	0.0	0.09567
+CELLREL	E7	248	0.0	0.09695
+DAYSOFAR	E3	193	0.0	0.09164
+DAYSOFAR	E4	193	0.0	0.09753
+DAYSOFAR	E5	193	0.0	0.08789
+DAYSOFAR	E6	193	0.0	0.09356
+DAYSOFAR	E7	193	0.0	0.09177
+TABPFN	E3	185	0.0	0.09518
+TABPFN	E4	185	0.0	0.10068
+TABPFN	E5	185	0.0	0.09102
+TABPFN	E6	185	0.0	0.09748
+TABPFN	E7	185	0.0	0.09533
+DIP	E3	185	0.0	0.09522
+DIP	E4	185	0.0	0.10018
+DIP	E5	185	0.0	0.09088
+DIP	E6	185	0.0	0.0973
+DIP	E7	185	0.0	0.09483

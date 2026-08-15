@@ -1,0 +1,19 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# TREATMENT 1: 5 seeds x 3 training windows at the arm's own configuration (inflate=5x, pairs=16), averaged on the WITHIN-CELL PERCENTILE.
+# member_sd / member_range are THE NOISE FLOOR: every member is the SAME configuration at a different seed/window, so their spread is pure fit noise.  The sweep's config-to-config differences, and the atlas arm's +$524.88 over the champion, can only be believed to the extent they EXCEED it.
+# Rows of the form ERA|ASSET are the per-asset table against the $2000 bar.
+era	n_members	member_mean_usd	ensemble_usd	lo	hi	delta_vs_member_mean	n_seated	member_sd	member_range
+E3	15	182.21	-75.05	-221.92	71.82	-257.26	1190	210.94	706.8
+E3|SI	15		130.75	-158.89	420.39		398		
+E3|HG	15		-173.72	-405.45	58.01		398		
+E3|NKD	15		-182.17	-377.08	12.73		394		
+E5	15	416.61	189.28	59.31	319.25	-227.34	1161	181.66	552.21
+E5|SI	15		60.39	-200.37	321.15		387		
+E5|HG	15		260.92	92.43	429.41		387		
+E5|NKD	15		246.53	28.93	464.13		387		
+E7	15	825.97	980.9	806.99	1154.81	154.93	1179	141.59	516.03
+E7|SI	15		1272.5	934.43	1610.57		393		
+E7|HG	15		666.39	453.88	878.9		393		
+E7|NKD	15		1003.8	696.35	1311.25		393		
+POOLED			367.07	269.44	464.7		3530		

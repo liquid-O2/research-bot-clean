@@ -1,0 +1,13 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE ONE BLIND READ.  The arm was chosen entirely on the E3-E7 confirm table; E8 was never an input to any fit, threshold, hyper-parameter or ranking in this lane.
+# The 2025-H2 holdout (d8 >= 20250701) is untouched and is not this lane's to open.
+cell	era	n_seated	usd_per_session	ps_lo	ps_hi	usd_per_trade	frac_ge_1000	capture_oracle	hp
+cell|ndcg3|dollars|full|xgb|BASE	E8	1143	2177.13	1885.26	2468.99	725.71	0.2913	0.5018	{"max_depth": 4, "eta": 0.05, "lambdarank_num_pair_per_sample": 8}
+cell|ndcg3|dollars|full|xgb|BASE	E8|SI	381	2572.7	2159.53	2985.86	857.57	0.3596	0.4978	
+cell|ndcg3|dollars|full|xgb|BASE	E8|HG	381	1893.86	1589.75	2197.97	631.29	0.2388	0.5472	
+cell|ndcg3|dollars|full|xgb|BASE	E8|NKD	381	2064.82	1673.65	2456.0	688.27	0.2756	0.4706	
+joint|dpairs|dollars|full|xgb|CELLREL	E8	1143	2561.13	2253.56	2868.71	853.71	0.3132	0.5903	{"max_depth": 4, "eta": 0.05, "lambdarank_num_pair_per_sample": 8}
+joint|dpairs|dollars|full|xgb|CELLREL	E8|SI	381	3004.78	2646.06	3363.51	1001.59	0.3753	0.5815	
+joint|dpairs|dollars|full|xgb|CELLREL	E8|HG	381	2169.79	1841.08	2498.51	723.26	0.2651	0.6269	
+joint|dpairs|dollars|full|xgb|CELLREL	E8|NKD	381	2508.82	2066.95	2950.69	836.27	0.2992	0.5718	

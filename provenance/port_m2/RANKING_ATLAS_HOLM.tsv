@@ -1,0 +1,43 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# ONE Holm family over every confirmed arm and policy read, m=39.  The whole screen's trial count (219 cells x 2) is recorded in the grid receipt and is the multiplicity this family sits inside.
+arm	delta_vs_champion_usd	p_raw	p_holm	verdict
+cell|ndcg3|dollars|full|xgb|BASE@@stop_ORACLE	1398.18	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|CELLREL@@stop_ORACLE	1360.99	0.0	0.0	SIGNIFICANT
+joint|dpairs|dollars|full|xgb|CELLREL@@static1	529.64	0.0	0.0	SIGNIFICANT
+joint|dpairs|dollars|full|xgb|CELLREL	524.88	0.0	0.0	SIGNIFICANT
+joint|dpairs|dollars|full|xgb|CELLREL@@gate60	510.07	0.0	0.0	SIGNIFICANT
+joint|dpairs|dollars|full|xgb|CELLREL@@gate60_DISPLACED	510.07	0.0	0.0	SIGNIFICANT
+joint|dpairs|dollars|full|xgb|CELLREL@@gate120	468.86	0.0	0.0	SIGNIFICANT
+joint|dpairs|dollars|full|xgb|CELLREL@@gate120_DISPLACED	468.86	0.0	0.0	SIGNIFICANT
+cell|ndcg3|dollars|full|xgb|BASE@@gate60	1.91	0.974921	1.0	not significant
+cell|ndcg3|dollars|full|xgb|BASE@@thresh	0.27	0.996181	1.0	not significant
+cell|ndcg3|dollars|full|xgb|BASE@@static1	0.0	1.0	1.0	not significant
+cell|ndcg3|dollars|full|xgb|BASE@@gate60_DISPLACED	-18.1	0.762784	1.0	not significant
+cell|ndcg3|dollars|full|xgb|BASE@@gate120	-27.19	0.625255	1.0	not significant
+cell|ndcg3|dollars|full|xgb|BASE@@gate120_DISPLACED	-27.19	0.625255	1.0	not significant
+cell|dpairs|cellrank|full|xgb|CELLREL	-254.69	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|CELLREL@@static1	-254.69	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|CELLREL@@thresh	-254.71	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|CELLREL@@gate60	-300.74	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|CELLREL@@gate60_DISPLACED	-300.74	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|CELLREL@@gate120	-340.84	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|CELLREL@@gate120_DISPLACED	-340.84	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|BASE	-384.77	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|TABPFN	-388.83	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|DIP	-389.13	0.0	0.0	SIGNIFICANT
+cellclass|ndcg3|dollars|full|xgb|DIP	-393.05	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|DAYSOFAR	-395.65	0.0	0.0	SIGNIFICANT
+cell|ndcg1|cellrank|full|xgb|DAYSOFAR	-479.77	0.0	0.0	SIGNIFICANT
+cell|ndcg3|cellrank|full|xgb|DAYSOFAR	-479.77	0.0	0.0	SIGNIFICANT
+cell|ndcg3|cellrank|classfilt|xgb|CELLREL	-479.83	0.0	0.0	SIGNIFICANT
+cell|ndcg1|cellrank|full|xgb|CELLREL	-489.44	0.0	0.0	SIGNIFICANT
+cell|ndcg3|cellrank|full|xgb|CELLREL	-489.44	0.0	0.0	SIGNIFICANT
+cell|ndcg1|cellrank|full|xgb|BASE	-504.38	0.0	0.0	SIGNIFICANT
+cell|ndcg3|cellrank|full|xgb|BASE	-504.38	0.0	0.0	SIGNIFICANT
+cell|ndcg1|cellrank|full|xgb|TABPFN	-515.47	0.0	0.0	SIGNIFICANT
+cell|ndcg3|cellrank|full|xgb|TABPFN	-515.47	0.0	0.0	SIGNIFICANT
+cell|ndcg3|dollars|full|xgb|BASE@@stop	-1030.76	0.0	0.0	SIGNIFICANT
+cell|ndcg3|dollars|full|xgb|BASE@@stop_forced	-1032.36	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|CELLREL@@stop_forced	-1078.42	0.0	0.0	SIGNIFICANT
+cell|dpairs|cellrank|full|xgb|CELLREL@@stop	-1086.98	0.0	0.0	SIGNIFICANT

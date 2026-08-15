@@ -1,0 +1,12 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# arm = LMART_HP_NOTF
+# Computed from the SAME replay the $/session table uses, so the panel and the headline cannot disagree.
+# dd_* are INTRA-SESSION drawdowns of the seated P&L sequence; the D-030 law is a $1000 maximum and frac_sessions_dd_over_1000 is the breach rate.
+# Weekly rows use ISO weeks; weekly_pnl_p10 is the 10th percentile week -- the user's weekly framing of a bad run.
+# precision_at_1000 is the fraction of TAKES paying >= $1000 (the D-021 target), not a model probability.
+arm	era	asset	n_sessions	n_takes	takes_per_day_mean	takes_per_day_p50	takes_per_day_max	win_rate	precision_at_1000	usd_per_trade_mean	usd_per_trade_median	usd_per_trade_p10	usd_per_trade_p90	mae_mean	mae_p50	mae_p90	wall_hit_rate	usd_per_session	dd_p50	dd_p90	dd_max	frac_sessions_dd_over_1000	losing_day_frac	n_weeks	weekly_pnl_mean	weekly_pnl_p10	losing_week_frac	longest_losing_streak_days	d077_vetoed_candidates
+LMART_HP_NOTF	E5	ALL	387	1161	3.0	3.0	3.0	0.7123	0.1197	319.8	238.75	-398.75	1107.5	209.38	100.0	587.5	0.2214	959.4	155.0	930.0	2190.0	0.0336	0.1783	26	14280.34	7984.37	0.0	2	6108
+LMART_HP_NOTF	E5	SI	129	387	3.0	3.0	3.0	0.7028	0.1447	367.19	270.0	-432.5	1250.0	295.35	150.0	780.0	0.3282	1101.57	180.0	930.0	2190.0	0.0388	0.2016	26	5465.48	1420.0	0.0385	3	
+LMART_HP_NOTF	E5	HG	129	387	3.0	3.0	3.0	0.7209	0.062	249.22	195.0	-262.5	878.75	145.62	62.5	350.0	0.1318	747.65	98.75	543.75	1715.0	0.0155	0.1473	26	3709.47	1525.0	0.0	2	
+LMART_HP_NOTF	E5	NKD	129	387	3.0	3.0	3.0	0.7132	0.1525	343.0	257.5	-490.0	1212.5	187.18	87.5	505.0	0.2041	1028.99	267.5	955.0	1465.0	0.0465	0.186	26	5105.38	2056.25	0.0385	2	

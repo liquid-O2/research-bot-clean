@@ -1,0 +1,26 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE CHAMPION'S OWN FIT-VARIANCE, at its EXACT frozen configuration.  Only the SEED and the TRAINING WINDOW vary -- the two things a deployment does not get to choose.  15 members = 5 seeds x 3 windows.
+# `committed_single_fit` is the number CHAMPION_FREEZE_CANDIDATE.md currently quotes.  Where it sits far above member_mean, the quoted figure is a draw from this distribution rather than its centre.
+# This is the measurement that retracted the ranking atlas's winning arm; it is applied to the incumbent on the same terms.
+era	asset	n_members	member_mean	member_sd	member_range	member_min	member_max	member_p10	member_p90	committed_single_fit
+E3	ALL	15	296.58	182.49	807.12	30.71	837.83	125.36	423.34	837.83
+E3	SI	15	509.08	161.39	593.88	221.23	815.12	335.97	741.3	815.12
+E3	HG	15	292.51	202.54	879.19	5.97	885.16	86.13	478.72	885.16
+E3	NKD	15	88.16	222.93	1044.94	-231.73	813.21	-78.77	202.73	813.21
+E4	ALL	15	790.51	132.64	621.22	574.77	1195.99	689.15	878.72	1195.99
+E4	SI	15	973.38	154.43	697.95	692.03	1389.98	856.54	1106.84	1389.98
+E4	HG	15	859.65	92.97	327.0	708.63	1035.63	753.7	998.79	1035.63
+E4	NKD	15	540.47	191.59	837.02	325.6	1162.62	372.48	646.1	1162.62
+E5	ALL	15	616.6	142.99	529.86	429.54	959.4	481.31	809.91	959.4
+E5	SI	15	882.55	142.55	436.43	665.14	1101.57	720.37	1070.6	1101.57
+E5	HG	15	377.34	151.54	539.44	208.21	747.65	258.78	601.57	747.65
+E5	NKD	15	589.91	204.03	868.12	160.87	1028.99	456.09	868.16	1028.99
+E6	ALL	15	442.37	225.17	885.17	96.0	981.18	263.48	772.27	927.02
+E6	SI	15	612.71	271.87	1010.45	153.36	1163.81	266.76	959.34	1163.81
+E6	HG	15	523.08	175.41	708.64	203.55	912.2	300.22	730.76	777.29
+E6	NKD	15	191.3	312.74	1174.71	-181.5	993.2	-65.12	618.11	839.98
+E7	ALL	15	893.12	351.05	1072.55	396.55	1469.1	447.3	1380.6	966.28
+E7	SI	15	864.44	408.14	1293.23	313.34	1606.56	399.08	1558.24	589.58
+E7	HG	15	721.27	193.54	657.25	377.18	1034.43	477.59	947.5	644.3
+E7	NKD	15	1093.66	553.67	1695.23	71.07	1766.3	382.71	1670.46	1664.96

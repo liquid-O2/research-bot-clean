@@ -1,0 +1,11 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# TREATMENT 3: one threshold per era on the arm's own score, chosen on the inner validation block by realised $/session and nothing else.  The grid CONTAINS -inf, so if abstention is worthless the inner block can return the unvetoed arm untouched.
+# takes_per_week is reported because the standing floor is 3-4 takes/week; an abstainer that clears the bar by refusing to trade does not count.
+era	no_veto_usd	no_veto_seats	abstain_usd	lo	hi	abstain_seats	delta_usd	tau	takes_per_week
+E3	391.66	1189	390.46	236.63	544.29	1183	-1.21	0.1296	45.5
+E4	515.6	1155	515.46	389.88	641.04	1147	-0.14	0.0176	44.46
+E5	636.42	1161	636.42	501.14	771.7	1161	0.0	-0.6298	45.0
+E6	575.54	1152	576.28	416.9	735.66	1149	0.74	0.0067	44.88
+E7	933.11	1179	933.11	747.41	1118.8	1179	0.0		45.0
+POOLED_E3-E7	611.28	5836	611.16	541.74	680.57	5819	-0.12		

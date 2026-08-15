@@ -1,0 +1,14 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# BOTH ensemble constructions on the SAME members: SCORE_MEAN averages the raw margins (comparable across seeds of one configuration), PERCENTILE_MEAN averages the within-cell percentile.  The atlas ensemble used the percentile form and it hurt; reporting both here separates the construction from the effect.
+era	construction	member_mean	ensemble_usd	lo	hi	delta_vs_member_mean	n_seated	committed_single_fit
+E3	SCORE_MEAN	296.58	222.52	54.45	390.59	-74.06	1187	837.83
+E3	PERCENTILE_MEAN	296.58	26.36	-123.47	176.19	-270.22	1189	837.83
+E4	SCORE_MEAN	790.51	795.81	663.03	928.59	5.3	1155	1195.99
+E4	PERCENTILE_MEAN	790.51	643.13	501.52	784.75	-147.38	1155	1195.99
+E5	SCORE_MEAN	616.6	699.1	576.09	822.11	82.5	1161	959.4
+E5	PERCENTILE_MEAN	616.6	347.65	229.87	465.42	-268.95	1161	959.4
+E6	SCORE_MEAN	442.37	543.2	378.03	708.38	100.84	1152	927.02
+E6	PERCENTILE_MEAN	442.37	314.3	170.36	458.23	-128.07	1152	927.02
+E7	SCORE_MEAN	893.12	977.76	754.26	1201.27	84.64	1179	966.28
+E7	PERCENTILE_MEAN	893.12	763.78	544.09	983.48	-129.34	1179	966.28

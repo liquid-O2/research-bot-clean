@@ -1,0 +1,15 @@
+# PORT_M2_SHEETS_SPEC.md port m2 deficit ledger — orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars (spec_sha16=f6ef73a41dbf8588)
+# params_hash=9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da
+# THE-FIX-LIST: components ranked by recoverable $/session, with the named improvement type
+# block A = fixed-contract ladder (additive); B = contract change, D-029 reserved; D = diagnostic
+# standalone = the same repair applied ALONE from the judge's own takes (order-free)
+rank	judge	component	improvement_type	block	usd_per_session	usd_total	share_of_block_A	standalone_usd_per_session	n_repairs	top_cell	top_cell_usd_per_session
+1	CELL1_FIX2_PROBE2_V2	RANKING_RESIDUAL	scoring/foresight	A	860.630000	1996653.280000	0.499700	3055.820000	0	E7|SI|rg0|ph2	12.700000
+2	CELL1_FIX2_PROBE2_V2	SEL_WRONG_MEMBER	ranking	A	728.400000	1689877.590000	0.422900	1663.660000	6834	E6|SI|rg2|ph2	19.130000
+3	CELL1_FIX2_PROBE2_V2	EXIT	exit-contract (D-029)	B	256.540000	595180.000000	0.149000			E5|SI|rg2|ph0	13.400000
+4	CELL1_FIX2_PROBE2_V2	SEL_WRONG_SIDE	validity	A	144.680000	335659.530000	0.084000	279.320000	703	E8|NKD|rg1|ph0	4.100000
+5	CELL1_FIX2_PROBE2_V2	OPPORTUNITY	generation/coverage	A	89.240000	207047.500000	0.051800			E5|HG|ALL	15.590000
+6	CELL1_FIX2_PROBE2_V2	RISK	stop-structure (D-029)	B	51.440000	119330.000000	0.029900			E8|NKD|rg0|ph0	2.730000
+7	CELL1_FIX2_PROBE2_V2	SEL_WRONG_MOMENT	moment	A	20.850000	48374.820000	0.012100	39.430000	1000	E7|SI|rg0|ph2	1.570000
+8	CELL1_FIX2_PROBE2_V2	CALIBRATION	threshold	D	0.000000	0.000000	0.000000				
+9	CELL1_FIX2_PROBE2_V2	PARTICIPATION	throughput/abstention	A	-121.550000	-281991.480000	-0.070600	-0.400000	685235	E6|HG|rg0|ph1	1.550000

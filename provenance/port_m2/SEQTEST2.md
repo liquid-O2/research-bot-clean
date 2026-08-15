@@ -362,6 +362,26 @@ the harness's own seating. The head of it, pooled E3–E8, primary form:
 
 ---
 
+## 8b. THE LEDGER, ON THE BEST ARMS — `SEQTEST_DEFICIT_CELL1_*`
+
+`deficit_ledger.py --score-table`, the committed code path, on the corrected `cell/1` policy.
+$/session.
+
+| component | **champion** `LMART_HP_NOTF` | F2 `FT2_TOP4_ATTN` | its random-trunk control | F5+F6 `LMART2_..._MEM_CRE26` |
+|---|--:|--:|--:|--:|
+| RANKING_RESIDUAL (scoring/foresight) | **532.28** | 850.95 | 868.02 | 632.52 |
+| **SEL_WRONG_MEMBER** (ranking) | **359.63** | 746.97 | 769.73 | 473.96 |
+| SEL_WRONG_SIDE (validity) | 213.12 | 124.28 | 129.85 | 291.77 |
+| OPPORTUNITY (generation/coverage) | 89.24 | 89.24 | 89.24 | 89.24 |
+| *EXIT (block B, D-029 reserved)* | *133.37* | *235.07* | *232.43* | *146.05* |
+
+The decomposition says the same thing the dollars do. On `SEL_WRONG_MEMBER` — the component the
+whole redirect was aimed at — the champion sits at **$359.63** while the best deep arm sits at
+**$746.97**, barely below its own random-trunk control's $769.73. **The fine-tune's +$52/session
+is visible as a −$23 move on member ranking and nothing else.** The pass's toggle arms sit
+between the two and closer to the champion, because they *are* the champion with something
+subtracted.
+
 ## 9. THE VERDICT
 
 **Does ANY arm beat the upgraded champion? NO — and not one of the six repairs comes close.**

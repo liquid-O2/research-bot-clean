@@ -1,0 +1,23 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# PROP CONSTRAINTS CHECKED IN EVERY ROW: <=10 trades/day across the three books (cap_flag), >=$667/trade (trade_target), >=$2000/day/asset (day_target).  NO EXIT IS TOUCHED -- the contract remains ride-to-phase-close with the $900 wall, so no quick exit or microscalp is expressible by construction.
+# THE CONFIDENCE-SELECTIVE ARM: ensemble-agreement gating on a risk-adjusted ordering.  Targets on the face of the table: FLOOR $2000/session/asset, AIM $2500-3000, and capture_of_ceiling against the entry foresight bound.
+era	arm	knob	n_seated	takes_per_session	trades_per_day_3books	win_rate	usd_per_trade	usd_per_session	usd_per_traded_day	weekly_pnl_p10	frac_sessions_dd_over_1000	cap_flag	trade_target	day_target	entry_foresight_ceiling	capture_of_ceiling
+E3	COMBINED	agree=0.70,lam=0.50	16	1.0	3.2	0.875	528.98	528.98	528.98	146.0	0.0				2969.1	0.1782
+E3	COMBINED	agree=0.80,lam=0.50	10	1.0	3.0	0.9	511.25	511.25	511.25	125.0	0.0				2969.1	0.1722
+E3	COMBINED	agree=0.85,lam=0.50	1	1.0	3.0	1.0	170.0	170.0	170.0	170.0	0.0				2969.1	0.0573
+E4	COMBINED	agree=0.70,lam=0.50	53	1.0	3.31	0.8491	389.93	389.93	389.93	91.0	0.0				2744.17	0.1421
+E4	COMBINED	agree=0.80,lam=0.50	34	1.0	3.29	0.8824	439.49	439.49	439.49	130.0	0.0				2744.17	0.1602
+E4	COMBINED	agree=0.85,lam=0.50	25	1.0	3.26	0.88	401.75	401.75	401.75	70.0	0.0				2744.17	0.1464
+E4	COMBINED	agree=0.90,lam=0.50	14	1.0	3.23	0.8571	463.75	463.75	463.75	-6.25	0.0				2744.17	0.169
+E5	COMBINED	agree=0.70,lam=0.50	78	1.13	4.11	0.8974	507.42	573.61	573.61	119.5	0.0				2582.61	0.2221
+E5	COMBINED	agree=0.80,lam=0.50	42	1.08	3.82	0.9524	529.97	570.74	570.74	240.0	0.0				2582.61	0.221
+E5	COMBINED	agree=0.85,lam=0.50	25	1.09	3.57	0.96	521.25	566.58	566.58	182.5	0.0				2582.61	0.2194
+E5	COMBINED	agree=0.90,lam=0.50	15	1.07	3.21	1.0	607.92	651.34	651.34	344.37	0.0				2582.61	0.2522
+E6	COMBINED	agree=0.70,lam=0.50	13	1.0	3.0	0.7692	209.42	209.42	209.42	-383.25	0.0				3366.93	0.0622
+E6	COMBINED	agree=0.80,lam=0.50	5	1.0	3.0	0.6	297.5	297.5	297.5	-285.0	0.0				3366.93	0.0884
+E6	COMBINED	agree=0.85,lam=0.50	1	1.0	3.0	0.0	-355.0	-355.0	-355.0	-355.0	0.0				3366.93	-0.1054
+E7	COMBINED	agree=0.70,lam=0.50	95	1.04	3.96	0.8947	710.99	742.24	742.24	735.75	0.0		TRADE_OK		4085.25	0.1817
+E7	COMBINED	agree=0.80,lam=0.50	67	1.05	3.65	0.9254	757.03	792.52	792.52	619.5	0.0		TRADE_OK		4085.25	0.194
+E7	COMBINED	agree=0.85,lam=0.50	41	1.0	3.24	0.9512	801.55	801.55	801.55	375.25	0.0		TRADE_OK		4085.25	0.1962
+E7	COMBINED	agree=0.90,lam=0.50	24	1.0	3.13	0.9167	920.26	920.26	920.26	308.75	0.0		TRADE_OK		4085.25	0.2253

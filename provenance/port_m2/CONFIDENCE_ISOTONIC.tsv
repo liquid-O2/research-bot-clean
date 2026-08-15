@@ -1,0 +1,10 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# PROP CONSTRAINTS CHECKED IN EVERY ROW: <=10 trades/day across the three books (cap_flag), >=$667/trade (trade_target), >=$2000/day/asset (day_target).  NO EXIT IS TOUCHED -- the contract remains ride-to-phase-close with the $900 wall, so no quick exit or microscalp is expressible by construction.
+# FIX 3: isotonic calibration of within-cell score percentile -> realised dollars, fitted on the PRIOR eras' takes and applied forward.  E3 has no prior era and is reported uncalibrated and flagged.
+era	arm	knob	n_seated	takes_per_session	trades_per_day_3books	win_rate	usd_per_trade	usd_per_session	usd_per_traded_day	weekly_pnl_p10	frac_sessions_dd_over_1000	cap_flag	trade_target	day_target	entry_foresight_ceiling	capture_of_ceiling
+E3	ISOTONIC	NO PRIOR ERA - uncalibrated	1185	3.04	27.35	0.5873	202.91	616.54	616.54	2897.0	0.1974	OVER_DAY_CAP			2969.1	0.2077
+E4	ISOTONIC	prior-era isotonic	1155	3.0	26.86	0.6571	314.55	943.64	943.64	5246.25	0.0779	OVER_DAY_CAP			2744.17	0.3439
+E5	ISOTONIC	prior-era isotonic	1161	3.0	27.0	0.7252	356.7	1070.11	1070.11	9069.38	0.0181	OVER_DAY_CAP			2582.61	0.4144
+E6	ISOTONIC	prior-era isotonic	1152	3.0	27.0	0.6207	312.61	937.83	937.83	6984.37	0.1458	OVER_DAY_CAP			3366.93	0.2785
+E7	ISOTONIC	prior-era isotonic	1179	3.0	27.0	0.7125	509.32	1527.97	1527.97	9163.75	0.1323	OVER_DAY_CAP			4085.25	0.374

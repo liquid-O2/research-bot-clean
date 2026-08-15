@@ -1,0 +1,37 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# EXITS RE-PRICED ON THE FULL ARMORED BOOK (3/asset/day + first-wall stop).
+# TRAIL_giveX% banks max(close, peak*(1-X)) -- an UPPER BOUND on a trailing rule, because it assumes the trail is never hit early and never gives back more than X of the FINAL peak. It is a bound, not a policy.
+# EXIT_ORACLE banks max(close, peak) and is CLAIRVOYANT -- the ceiling of all exit work on this book.
+# capture_of_entry_ceiling uses the ENTRY foresight denominator, so >1.0 means exit work would carry the book past what entry selection alone could ever reach.
+era	exit_rule	usd_per_session	capture_of_entry_ceiling	usd_per_trade	win_rate
+E3	TRAIL_give0%	2662.21	0.8966	1189.3	0.9794
+E3	TRAIL_give15%	2270.52	0.7647	1014.32	0.9794
+E3	TRAIL_give30%	1905.02	0.6416	851.04	0.9794
+E3	TRAIL_give50%	1478.69	0.498	660.58	0.9794
+E3	CLOSE (as traded)	420.31	0.1416	187.77	0.6002
+E3	EXIT_ORACLE (clairvoyant)	2675.09	0.901	1195.06	
+E4	TRAIL_give0%	2963.66	1.08	1191.03	0.9864
+E4	TRAIL_give15%	2531.1	0.9224	1017.2	0.9864
+E4	TRAIL_give30%	2138.0	0.7791	859.22	0.9864
+E4	TRAIL_give50%	1689.63	0.6157	679.03	0.9864
+E4	CLOSE (as traded)	770.16	0.2807	309.51	0.6628
+E4	EXIT_ORACLE (clairvoyant)	2978.97	1.0856	1197.19	
+E5	TRAIL_give0%	3054.94	1.1829	1171.72	0.997
+E5	TRAIL_give15%	2622.59	1.0155	1005.89	0.997
+E5	TRAIL_give30%	2235.94	0.8658	857.59	0.997
+E5	TRAIL_give50%	1799.16	0.6966	690.07	0.997
+E5	CLOSE (as traded)	963.22	0.373	369.44	0.7374
+E5	EXIT_ORACLE (clairvoyant)	3057.17	1.1838	1172.57	
+E6	TRAIL_give0%	3219.42	0.9562	1417.73	0.9931
+E6	TRAIL_give15%	2763.7	0.8208	1217.04	0.9931
+E6	TRAIL_give30%	2353.85	0.6991	1036.56	0.9931
+E6	TRAIL_give50%	1870.21	0.5555	823.58	0.9931
+E6	CLOSE (as traded)	764.31	0.227	336.58	0.6342
+E6	EXIT_ORACLE (clairvoyant)	3231.6	0.9598	1423.09	
+E7	TRAIL_give0%	3954.37	0.968	1674.64	0.9849
+E7	TRAIL_give15%	3386.66	0.829	1434.22	0.9849
+E7	TRAIL_give30%	2880.26	0.705	1219.77	0.9849
+E7	TRAIL_give50%	2318.69	0.5676	981.95	0.9849
+E7	CLOSE (as traded)	1277.79	0.3128	541.13	0.7241
+E7	EXIT_ORACLE (clairvoyant)	3970.94	0.972	1681.66	

@@ -1,0 +1,22 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# THE DEPLOYABLE READING, on the schedule the HARNESS itself selects: the per-era (unit, N) that m3_walk chose on its own inner validation block, read out of the committed walk.summary.json.  It never saw an evaluation era, so applying it here leaks nothing.
+# The first pass used a fixed top-3-per-asset-DAY schedule that forfeits 63-65% of its takes (one position per asset-session).  That was a scoring defect of this lane and these rows replace those numbers.  Nothing is refitted: the same out-of-sample score columns are re-seated.
+arm	era	policy	n_takes	n_seated	forfeit_pct	usd_per_session	ps_lo	ps_hi	usd_per_trade	frac_ge_1000	capture_day	capture_oracle	co_lo	co_hi
+H_TOP1	E3	cell/2	2340	1200	48.7	-50.05	-195.7	95.6	-16.27	0.1025	-0.0166	-0.0197	-0.0772	0.0377
+H_TOP1	E4	cell/1	1155	1154	0.1	-37.39	-168.04	93.26	-12.47	0.0763	-0.0136	-0.0177	-0.0795	0.0441
+H_TOP1	E5	cell/1	1161	1161	0.0	-108.57	-226.66	9.51	-36.19	0.0689	-0.0419	-0.0613	-0.1268	0.0042
+H_TOP1	E6	cell/1	1152	1152	0.0	-70.71	-222.63	81.21	-23.57	0.0981	-0.0209	-0.0234	-0.0738	0.0269
+H_TOP1	E7	cell/1	1179	1179	0.0	-192.83	-338.11	-47.56	-64.28	0.1094	-0.047	-0.0485	-0.0848	-0.0122
+H_TOP1	POOLED_E3-E7	m3_committed				-92.25	-153.86	-30.63			-0.0291	-0.0343	-0.0572	-0.0115
+H_TOP1_SHUF	E3	cell/2	2340	1229	47.5	-56.24	-188.07	75.59	-17.85	0.0683	-0.0186	-0.0222	-0.0743	0.03
+H_TOP1_SHUF	E4	cell/1	1155	1155	0.0	-159.84	-266.66	-53.01	-53.28	0.0364	-0.058	-0.0757	-0.1265	-0.0249
+H_TOP1_SHUF	E5	cell/1	1161	1161	0.0	-123.49	-225.47	-21.52	-41.16	0.0413	-0.0477	-0.0698	-0.1285	-0.011
+H_TOP1_SHUF	E6	cell/1	1152	1152	0.0	-81.42	-190.58	27.74	-27.14	0.0781	-0.0241	-0.027	-0.063	0.0091
+H_TOP1_SHUF	E7	cell/1	1179	1179	0.0	-24.89	-184.98	135.2	-8.3	0.0814	-0.0061	-0.0063	-0.0467	0.0341
+H_TOP1_SHUF	POOLED_E3-E7	m3_committed				-88.87	-143.97	-33.77			-0.028	-0.0331	-0.0538	-0.0123
+LMART_HP_NOTF	E3	cell/2	2340	1183	49.4	837.83	651.06	1024.6	276.21	0.1336	0.2775	0.3301	0.2599	0.4003
+LMART_HP_NOTF	E4	cell/1	1155	1155	0.0	1195.99	1058.57	1333.41	398.66	0.1446	0.434	0.5662	0.4982	0.6342
+LMART_HP_NOTF	E5	cell/1	1161	1161	0.0	959.4	828.82	1089.98	319.8	0.1197	0.3702	0.5419	0.4599	0.6239
+LMART_HP_NOTF	E6	cell/1	1152	1152	0.0	927.02	749.24	1104.81	309.01	0.171	0.2742	0.307	0.2431	0.3708
+LMART_HP_NOTF	E7	cell/1	1179	1179	0.0	966.28	742.38	1190.19	322.09	0.1925	0.2356	0.243	0.1878	0.2983
+LMART_HP_NOTF	POOLED_E3-E7	m3_committed				976.91	898.88	1054.94			0.3079	0.3635	0.3327	0.3943

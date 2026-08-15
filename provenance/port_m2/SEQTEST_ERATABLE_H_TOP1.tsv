@@ -1,0 +1,20 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# THE ALL-YEARS CRITERION: every (era, asset) cell must clear $2,000/session, or the D-043/D-045 thin-era floor of $1,500 where the era's own ceiling is thin.
+# `mean_day_ceiling` and `realised_over_ceiling` are carried so 'thin' is evidenced, not asserted.
+# 0/15 cells clear $2,000; 0/15 clear $1,500.
+era	asset	n_sessions	usd_per_session	ps_lo	ps_hi	usd_per_trade	frac_ge_1000	mean_day_ceiling	realised_over_ceiling	clears_2000	clears_1500	p90_dd_usd	frac_dd_over_1000
+E3	SI	130	12.35	-288.34	313.03	3.92	0.1369	3722.88	0.0033	0	0	2086.25	0.4462
+E3	HG	130	-188.11	-410.28	34.07	-61.6	0.0957	2996.97	-0.0628	0	0	1860.0	0.4154
+E3	NKD	130	25.62	-160.97	212.2	8.45	0.0736	2338.27	0.011	0	0	1490.5	0.2615
+E4	SI	128	22.6	-239.02	284.22	7.53	0.0885	3428.16	0.0066	0	0	1860.0	0.3594
+E4	HG	128	-82.34	-307.89	143.2	-27.52	0.0757	2491.79	-0.033	0	0	1696.0	0.3281
+E4	NKD	129	-52.31	-252.38	147.77	-17.44	0.0646	2350.64	-0.0223	0	0	1680.0	0.2481
+E5	SI	129	-205.89	-415.01	3.23	-68.63	0.0775	2968.0	-0.0694	0	0	1860.0	0.3721
+E5	HG	129	-18.68	-178.16	140.8	-6.23	0.0388	1936.26	-0.0096	0	0	1240.0	0.2248
+E5	NKD	129	-101.14	-360.6	158.31	-33.71	0.0904	2869.79	-0.0352	0	0	1910.0	0.3953
+E6	SI	128	-171.54	-460.28	117.2	-57.18	0.1068	4209.1	-0.0408	0	0	1992.5	0.5078
+E6	HG	128	43.74	-159.74	247.22	14.58	0.0625	2528.87	0.0173	0	0	1536.88	0.2188
+E6	NKD	128	-84.34	-350.41	181.74	-28.11	0.125	3404.63	-0.0248	0	0	1915.25	0.4375
+E7	SI	131	-89.14	-417.89	239.61	-29.71	0.1399	4731.79	-0.0188	0	0	2127.5	0.5191
+E7	HG	131	-126.55	-324.94	71.85	-42.18	0.0712	2614.9	-0.0484	0	0	1808.75	0.3435
+E7	NKD	131	-362.81	-642.2	-83.41	-120.94	0.117	4958.0	-0.0732	0	0	2640.0	0.458

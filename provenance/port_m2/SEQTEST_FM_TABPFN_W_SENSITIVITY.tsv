@@ -1,0 +1,13 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# ALL TEN (unit x N) cells for every arm, pooled E3-E8, so the selection-unit choice can never again do invisible work in this lane.
+arm	unit	topn	n_takes	n_seated	forfeit_pct	usd_per_session	capture_oracle	co_lo	co_hi
+FM_TABPFN_WINNER	cell	1	5817	5816	0.0	-65.17	-0.0243	-0.0483	-0.0002
+FM_TABPFN_WINNER	cell	2	11634	5914	49.2	-102.82	-0.0383	-0.0628	-0.0137
+FM_TABPFN_WINNER	cell	3	17451	5983	65.7	-123.28	-0.0459	-0.071	-0.0207
+FM_TABPFN_WINNER	cell	5	29084	6116	79.0	-134.77	-0.0502	-0.0765	-0.0238
+FM_TABPFN_WINNER	cell	8	46523	6281	86.5	-127.15	-0.0473	-0.0746	-0.0201
+FM_TABPFN_WINNER	session	1	1939	1939	0.0	18.83	0.007	-0.0101	0.0241
+FM_TABPFN_WINNER	session	2	3878	2099	45.9	-0.58	-0.0002	-0.0181	0.0176
+FM_TABPFN_WINNER	session	3	5817	2214	61.9	-21.49	-0.008	-0.0265	0.0105
+FM_TABPFN_WINNER	session	5	9695	2403	75.2	-54.04	-0.0201	-0.0388	-0.0014
+FM_TABPFN_WINNER	session	8	15512	2611	83.2	-29.82	-0.0111	-0.0304	0.0082

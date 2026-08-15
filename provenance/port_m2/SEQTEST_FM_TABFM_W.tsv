@@ -1,0 +1,10 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# THE DEPLOYABLE READING, on the schedule the HARNESS itself selects: the per-era (unit, N) that m3_walk chose on its own inner validation block, read out of the committed walk.summary.json.  It never saw an evaluation era, so applying it here leaks nothing.
+# The first pass used a fixed top-3-per-asset-DAY schedule that forfeits 63-65% of its takes (one position per asset-session).  That was a scoring defect of this lane and these rows replace those numbers.  Nothing is refitted: the same out-of-sample score columns are re-seated.
+arm	era	policy	n_takes	n_seated	forfeit_pct	usd_per_session	ps_lo	ps_hi	usd_per_trade	frac_ge_1000	capture_day	capture_oracle	co_lo	co_hi
+FM_TABFM_WINNER	E3	cell/2	2340	1180	49.6	132.64	-38.19	303.48	43.84	0.128	0.0439	0.0523	-0.0143	0.1188
+FM_TABFM_WINNER	E4	cell/1	1155	1155	0.0	129.89	-23.68	283.45	43.3	0.1004	0.0471	0.0615	-0.0114	0.1344
+FM_TABFM_WINNER	E5	cell/1	1161	1161	0.0	-138.18	-266.97	-9.38	-46.06	0.0732	-0.0533	-0.078	-0.1515	-0.0046
+FM_TABFM_WINNER	E6	cell/1	1152	1148	0.3	-21.47	-174.39	131.44	-7.18	0.1159	-0.0064	-0.0071	-0.0579	0.0436
+FM_TABFM_WINNER	E7	cell/1	1179	1178	0.1	-97.8	-257.22	61.63	-32.63	0.1273	-0.0238	-0.0246	-0.065	0.0158
+FM_TABFM_WINNER	POOLED_E3-E7	m3_committed				0.82	-67.8	69.44			0.0003	0.0003	-0.0252	0.0258

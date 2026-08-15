@@ -1,0 +1,22 @@
+# PORT M2 M2.SEQ raw-event sequence model at candidate grain (lane=port-m2-seqtest; seed=20260813; device=NVIDIA RTX PRO 6000 Blackwell Workstation Edition)
+# THE DEPLOYABLE READING, on the schedule the HARNESS itself selects: the per-era (unit, N) that m3_walk chose on its own inner validation block, read out of the committed walk.summary.json.  It never saw an evaluation era, so applying it here leaks nothing.
+# The first pass used a fixed top-3-per-asset-DAY schedule that forfeits 63-65% of its takes (one position per asset-session).  That was a scoring defect of this lane and these rows replace those numbers.  Nothing is refitted: the same out-of-sample score columns are re-seated.
+arm	era	policy	n_takes	n_seated	forfeit_pct	usd_per_session	ps_lo	ps_hi	usd_per_trade	frac_ge_1000	capture_day	capture_oracle	co_lo	co_hi
+LMART_HP_NOTF	E3	cell/2	2340	1183	49.4	837.83	651.06	1024.6	276.21	0.1336	0.2775	0.3301	0.2599	0.4003
+LMART_HP_NOTF	E4	cell/1	1155	1155	0.0	1195.99	1058.57	1333.41	398.66	0.1446	0.434	0.5662	0.4982	0.6342
+LMART_HP_NOTF	E5	cell/1	1161	1161	0.0	959.4	828.82	1089.98	319.8	0.1197	0.3702	0.5419	0.4599	0.6239
+LMART_HP_NOTF	E6	cell/1	1152	1152	0.0	927.02	749.24	1104.81	309.01	0.171	0.2742	0.307	0.2431	0.3708
+LMART_HP_NOTF	E7	cell/1	1179	1179	0.0	966.28	742.38	1190.19	322.09	0.1925	0.2356	0.243	0.1878	0.2983
+LMART_HP_NOTF	POOLED_E3-E7	m3_committed				976.91	898.88	1054.94			0.3079	0.3635	0.3327	0.3943
+F1_NDCG1	E3	cell/2	2340	1184	49.4	832.88	644.13	1021.63	274.34	0.1301	0.2758	0.3281	0.2573	0.399
+F1_NDCG1	E4	cell/1	1155	1155	0.0	1160.21	1021.11	1299.31	386.74	0.1446	0.421	0.5493	0.4804	0.6182
+F1_NDCG1	E5	cell/1	1161	1161	0.0	917.75	792.55	1042.95	305.92	0.1206	0.3542	0.5184	0.4391	0.5976
+F1_NDCG1	E6	cell/1	1152	1152	0.0	881.37	714.17	1048.57	293.79	0.1701	0.2607	0.2918	0.2327	0.351
+F1_NDCG1	E7	cell/1	1179	1179	0.0	984.03	758.44	1209.62	328.01	0.1942	0.2399	0.2475	0.1919	0.303
+F1_NDCG1	POOLED_E3-E7	m3_committed				955.05	877.81	1032.29			0.301	0.3554	0.3253	0.3855
+F1_NDCG1_SHUF	E3	cell/2	2340	1234	47.3	-274.92	-399.82	-150.03	-86.89	0.0721	-0.0911	-0.1083	-0.1584	-0.0582
+F1_NDCG1_SHUF	E4	cell/1	1155	1155	0.0	-70.31	-187.6	46.98	-23.44	0.0442	-0.0255	-0.0333	-0.0891	0.0226
+F1_NDCG1_SHUF	E5	cell/1	1161	1161	0.0	-138.8	-236.23	-41.38	-46.27	0.0396	-0.0536	-0.0784	-0.1351	-0.0217
+F1_NDCG1_SHUF	E6	cell/1	1152	1152	0.0	-70.75	-198.23	56.74	-23.58	0.059	-0.0209	-0.0234	-0.0656	0.0187
+F1_NDCG1_SHUF	E7	cell/1	1179	1178	0.1	-127.23	-268.3	13.84	-42.45	0.0951	-0.031	-0.032	-0.0675	0.0035
+F1_NDCG1_SHUF	POOLED_E3-E7	m3_committed				-136.76	-191.32	-82.2			-0.0431	-0.0509	-0.0713	-0.0304

@@ -45,6 +45,27 @@ HP_GRID = tuple({"max_depth": d, "eta": e,
                 for p in (8, 16))
 
 
+def _ndcg_metric(dollars_sorted, group_sizes):
+    """NDCG@1 on the inner block for the custom objective — i.e. exactly the
+    top-1-per-cell hit the deployment makes."""
+    ptr = np.concatenate([[0], np.cumsum(np.asarray(group_sizes,
+                                                    dtype=np.int64))])
+
+    def m(preds, dvalid):
+        p = np.asarray(preds, dtype=np.float64)
+        num = den = 0.0
+        for a, b in zip(ptr[:-1], ptr[1:]):
+            if b - a < 2:
+                continue
+            v = np.maximum(dollars_sorted[a:b], 0.0)
+            if v.sum() <= 0:
+                continue
+            num += float(v[int(np.argmax(p[a:b]))])
+            den += float(v.max())
+        return "ndcg@1", (num / den if den > 0 else 0.0)
+    return m
+
+
 def _pct_within(v, key):
     """Within-group percentile, so two heads on different scales can be summed
     (the same device m3_walk._unit_pct uses for its composition)."""
@@ -58,6 +79,38 @@ def _pct_within(v, key):
         r = np.argsort(np.argsort(v[idx], kind="stable"), kind="stable")
         out[idx] = (r + 0.5) / max(idx.size, 1)
     return out
+
+
+_GRP = {}
+
+
+def _softmax_top1_obj(dollars_sorted):
+    """(h) THE DEPLOYMENT-EXACT OBJECTIVE.
+
+    We deploy TOP-1 PER CELL but train NDCG@k, which spends gradient on ranks
+    2..k that are never seated.  This is the objective the deployment actually
+    implies: a MULTINOMIAL over each cell's members, target = the member that
+    paid most.  Softmax cross-entropy per group, so
+        grad_i = p_i - t_i ,  hess_i = p_i (1 - p_i)
+    with p the within-cell softmax of the score.
+    """
+    def obj(preds, dtrain):
+        g = np.asarray(dtrain.get_uint_info("group_ptr"), dtype=np.int64)
+        p = np.asarray(preds, dtype=np.float64)
+        grad = np.zeros_like(p)
+        hess = np.zeros_like(p)
+        for a, b in zip(g[:-1], g[1:]):
+            if b - a < 2:
+                continue
+            z = p[a:b] - p[a:b].max()
+            e = np.exp(z)
+            pr = e / max(e.sum(), 1e-12)
+            t = np.zeros(b - a)
+            t[int(np.argmax(dollars_sorted[a:b]))] = 1.0
+            grad[a:b] = pr - t
+            hess[a:b] = np.maximum(pr * (1.0 - pr), 1e-6)
+        return grad, hess
+    return obj
 
 
 def grades(v):
@@ -81,7 +134,8 @@ def _group_arrays(D, rows, klass, unit="class"):
 def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
         shuffle=False, drop_tf=False, from_era="E2", compose=False,
         emb=None, n_pc=64, search=False, side_veto=False,
-        side_soft=False):
+        side_soft=False, topk=3, policy_select=False,
+        objective="ndcg"):
     import xgboost as xgb
     import m3_walk as W
     D, _p = W.load_matrix()
@@ -93,6 +147,7 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
     pos = np.zeros(n, dtype=np.int64)      # every matrix row is scoreable here
     ledger = []
     lam_sel = {}
+    pol_sel = {}
     j = D["names"].index("in_news_window")
     cols = list(range(len(D["names"])))
     if drop_tf:
@@ -155,33 +210,51 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
         dva = xgb.DMatrix(XF[r_iva], label=grades(yv[r_iva]),
                           feature_names=FN)
         dva.set_group(g_iva)
-        base = {"objective": "rank:ndcg", "eval_metric": "ndcg@3",
+        base = {"objective": "rank:ndcg", "eval_metric": "ndcg@%d" % topk,
                 "tree_method": "hist", "min_child_weight": 20,
                 "subsample": 0.8, "colsample_bytree": 0.8,
                 "lambdarank_pair_method": "topk",
+                "lambdarank_normalization": True,
                 "seed": SC.SEED, "nthread": 8}
         grid = HP_GRID if search else ({"max_depth": 6, "eta": 0.05,
                                         "lambdarank_num_pair_per_sample": 8},)
+        obj_tr = obj_va = None
+        if objective == "top1":
+            base = {k2: v2 for k2, v2 in base.items()
+                    if k2 not in ("objective",)}
+            base["disable_default_eval_metric"] = 1
+            obj_tr = _softmax_top1_obj(yv[r_itr])
         cfg, best_rounds, inner = None, ROUNDS, -np.inf
         for hp in grid:
             c = dict(base)
             c.update(hp)
+            if objective == "top1":
+                c.pop("lambdarank_num_pair_per_sample", None)
+                c.pop("lambdarank_pair_method", None)
+                c.pop("lambdarank_normalization", None)
+                c.pop("eval_metric", None)
             bb = xgb.train(c, dtr, ROUNDS, evals=[(dva, "inner")],
-                           early_stopping_rounds=EARLY, verbose_eval=False)
+                           early_stopping_rounds=EARLY, verbose_eval=False,
+                           obj=obj_tr,
+                           custom_metric=(_ndcg_metric(yv[r_iva], g_iva)
+                                          if objective == "top1" else None))
             if float(bb.best_score) > inner:
                 cfg = c
                 best_rounds = int(bb.best_iteration) + 1
                 inner = float(bb.best_score)
-        SC.hb("%s %s: HP %s rounds=%d inner_ndcg3=%.5f"
-              % (tag, era, {k: cfg[k] for k in ("max_depth", "eta",
-                                                "lambdarank_num_pair_per_sample")},
+        SC.hb("%s %s: HP %s rounds=%d inner=%.5f"
+              % (tag, era, {k: cfg.get(k) for k in
+                            ("max_depth", "eta",
+                             "lambdarank_num_pair_per_sample")},
                  best_rounds, inner))
         # refit on the WHOLE training block at the selected round count
         r_tr, g_tr = _group_arrays(D, tr, klass, unit)
         dall = xgb.DMatrix(XF[r_tr], label=grades(yv[r_tr]),
                            feature_names=FN)
         dall.set_group(g_tr)
-        b2 = xgb.train(cfg, dall, best_rounds)
+        b2 = xgb.train(cfg, dall, best_rounds,
+                       obj=(_softmax_top1_obj(yv[r_tr])
+                            if objective == "top1" else None))
         s = b2.predict(xgb.DMatrix(XF[ev_r], feature_names=FN))
         if side_soft:
             # ITERATION 2 ON THE SIDE FRONT.  The hard veto lost because it
@@ -314,6 +387,28 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
             w = bw.predict(xgb.DMatrix(XF[ev_r], feature_names=FN))
             key = RK.group_key(D, ev_r, klass, unit)
             s = _pct_within(s, key) + _pct_within(w, key)
+        if policy_select:
+            # PER-ERA POLICY REFINEMENT, chosen on the INNER VALIDATION BLOCK
+            # with THIS arm's own scores.  The champion inherited m3's committed
+            # (unit, N), which was selected for m3's POINTWISE scores — a
+            # different ordering with a different concentration.  Nothing here
+            # ever sees an evaluation era.
+            iva_rows = tr[D["d8"][tr] > cut]
+            s_iva = np.full(D["d8"].size, np.nan)
+            s_iva[iva_rows] = b2.predict(xgb.DMatrix(XF[iva_rows],
+                                                     feature_names=FN))
+            best_p, best_v = ("cell", 1), -np.inf
+            curve = []
+            for u2 in ("session", "cell"):
+                for n2 in (1, 2, 3, 5, 8):
+                    aa = R.score_arm(D, s_iva, iva_rows, ceil, unit=u2, n=n2)
+                    v = aa["usd_per_session"] or -np.inf
+                    curve.append([u2, n2, round(float(v), 2)])
+                    if v > best_v:
+                        best_p, best_v = (u2, n2), v
+            pol_sel[era] = list(best_p)
+            SC.hb("%s %s policy-select: %s/%d on inner block ($%.2f/session "
+                  "there)" % (tag, era, best_p[0], best_p[1], best_v))
         score[ev_r] = s
         g_ev = RK.build_groups(D, ev_r, klass, unit)
         nd, ng = RK.ndcg_at_k(score, value, g_ev, 3)
@@ -321,7 +416,7 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
         nd_rand, _ = RK.ndcg_at_k(rnd, value, g_ev, 3)
         nd_earl, _ = RK.ndcg_at_k(-D["dec_sec"].astype(np.float64), value,
                                   g_ev, 3)
-        ledger.append({"era": era, "loss": "rank:ndcg", "inner_ndcg3": inner,
+        ledger.append({"era": era, "loss": "rank:ndcg@%d" % topk, "inner_ndcg3": inner,
                        "best_epoch": best_rounds,
                        "loss_curve": [["rank:ndcg", round(inner, 5)]],
                        "n_groups_train": len(RK.build_groups(D, tr, klass, unit)),
@@ -332,6 +427,7 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
                        "eval_ndcg3_earliest": nd_earl, "n_scored_groups": ng,
                        "n_eval": int(ev_r.size),
                        "side_lambda": lam_sel.get(era),
+                       "policy_selected": pol_sel.get(era),
                        "fit_secs": round(time.time() - t0, 1)})
         SC.hb("LMART %s: rounds=%d inner_ndcg3=%.5f eval NDCG@3 %.5f "
               "(random %.5f, earliest %.5f) over %d groups (%.0fs)"
@@ -346,6 +442,10 @@ def run(test_eras=SC.TEST_ERAS, tag="LMART_M3FEATURES", unit="class",
                         "per_era": [R._strip(a) for a in per], "pooled": pool,
                         "ledger": ledger, "gpu": {"device": "cpu/xgboost"}})
     np.savez(os.path.join(R._sdir(), "%s.npz" % tag), champ=score, win=score)
+    if pol_sel:
+        with open(os.path.join(R.SCORE_DIR, "%s.policy.json" % tag), "w") as fh:
+            json.dump({k: list(v) for k, v in pol_sel.items()}, fh, indent=1)
+        SC.hb("%s: inner-selected policy %s" % (tag, pol_sel))
     SC.hb("%s pooled capture_oracle=%.4f [%.4f,%.4f]"
           % (tag, pool["capture_oracle"] or float("nan"),
              pool["co_lo"] or float("nan"), pool["co_hi"] or float("nan")))
@@ -368,12 +468,16 @@ def main():
     ap.add_argument("--search", action="store_true")
     ap.add_argument("--side-veto", action="store_true")
     ap.add_argument("--side-soft", action="store_true")
+    ap.add_argument("--topk", type=int, default=3)
+    ap.add_argument("--policy-select", action="store_true")
+    ap.add_argument("--objective", default="ndcg", choices=("ndcg", "top1"))
     a = ap.parse_args()
     if a.run:
         run(test_eras=tuple(a.eras.split(",")), unit=a.unit, shuffle=a.shuffle,
             drop_tf=a.drop_tf, from_era=a.from_era, compose=a.compose,
             emb=a.emb, n_pc=a.n_pc, search=a.search,
-            side_veto=a.side_veto, side_soft=a.side_soft,
+            side_veto=a.side_veto, side_soft=a.side_soft, topk=a.topk,
+            policy_select=a.policy_select, objective=a.objective,
             tag=a.tag or ("LMART_%s%s" % (a.unit.upper(),
                                           "_SHUFFLED" if a.shuffle else "")))
     else:

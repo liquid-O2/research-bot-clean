@@ -742,3 +742,92 @@ $758–955 (inside the D-030 $1,000 bar).
 **Read it with §18.5's caveat attached:** that E8 figure was taken *before* the quarantine, over
 five iterations. It is the most recent walk-forward cell, not a validated deployable. The clean
 shot remains the sealed 2025-H2 holdout.
+
+---
+
+# 20. THE FINAL PASS — the all-years criterion, and eleven arms that did not move it
+
+**The criterion changed the problem.** Not the pooled mean: **every (era, asset) cell must clear
+$2,000/session**, or the D-043/D-045 thin floor of $1,500 where the era's own ceiling is thin.
+`SEQTEST_ERATABLE_CHAMPION_FINAL.tsv`. And these eras are **not** thin — mean day ceilings run
+$1,936–$4,958, so the floor exemption barely applies anywhere.
+
+**Champion `LMART_HP_NOTF` against the criterion: 2/18 cells clear $2,000, 4/18 clear $1,500.**
+Both clearances are in E8 (SI $2,572.70, NKD $2,064.82). Every E3–E7 cell fails. The arm captures
+22–35% of its own day ceiling and the criterion needs ~54%.
+
+## 20.1 Eleven arms, one champion
+
+All on E3–E7, m3's committed policy, E8 quarantined from every selection.
+
+| arm | what changed | $/session | verdict |
+|---|---|--:|---|
+| **`LMART_HP_NOTF`** | — | **976.91** | **champion, unbeaten** |
+| F2 per-era policy select | policy chosen on inner block, not inherited | ~1,005 (cell mean) | null |
+| STK_TABPFN | blend with TabPFN, w inner-selected | 978.86 | null — **w=0 chosen in every fold** |
+| F1 NDCG@1 | objective truncation matched to top-1 | 955.05 | null |
+| META_GATE | secondary judge vetoes the champion's own picks | 974.98 | null — **τ=0 chosen** |
+| G_LGBM | LightGBM `lambdarank` | 65.90 | fails |
+| FM_TABFM_WINNER | Google TabFM, 32k context | 0.82 | fails |
+| FM_TABPFN_DOLLARS_TS | TabPFN v3 regressor, timeseries ckpt | −79.33 | fails |
+| FM_TABPFN_WINNER | TabPFN v3 classifier, binary ckpt | −81.09 | fails |
+| FM_TABPFN_DOLLARS | TabPFN v3 regressor, OOD ckpt | −81.62 | fails |
+| H_TOP1 | custom per-cell softmax objective | −92.25 | **INCONCLUSIVE** — see §20.3 |
+| F_CATB_YETI | CatBoost YetiRank, ordered boosting | −105.35 | fails as configured |
+
+Shuffled controls throughout: −$131 to −$232, all clean.
+
+## 20.2 The two self-limiting arms are the informative ones
+
+The stacker and the meta gate were both built so the inner block could return the champion
+untouched, and **both did** — `w = 0.00` in all five folds, `τ = 0` for the real arm. That is
+much stronger than a bad number: the inner block, given a free choice, refused the addition.
+
+The stacker's weight curve is monotonically **down** in every era (E4: $1,343 → $1,024 → $713 →
+$500 → $157 → −$220). **TabPFN is the best global winner-classifier this program has produced
+(AUC 0.687 vs the champion's 0.521) and it damages within-cell ordering at every blend weight.**
+Its within-cell correlation with dollars is −0.107. Global discrimination and within-cell
+ordering are close to orthogonal here, and only the second one is ever seated.
+
+## 20.3 What I could not conclude
+
+`H_TOP1` — the deployment-exact per-cell softmax, implemented as a custom xgboost objective —
+scored **−$92.25 against its own shuffled control at −$88.87**. Real and control are
+indistinguishable, which says the custom objective **did not train**, not that the objective is
+wrong. It is recorded as INCONCLUSIVE. The idea it tests (we train NDCG@k and deploy top-1) is
+still live and still unmeasured; a working implementation is the honest next attempt.
+
+`F_CATB_YETI` and `G_LGBM` ran on their engine defaults with a fixed depth/lr, while the
+champion carries a 12-cell inner-block search. They are **configured-baseline** readings, not
+engine verdicts.
+
+## 20.4 The foundation-model arms, with their receipts
+
+Local TabPFN v3 checkpoints only (`model_path=`, nothing downloaded): `classifier-v3_20260417_binary`,
+`regressor-v3_20260506_ood`, `regressor-v3_20260506_timeseries`. Untried: `classifier-v3_20260506_ood`,
+the `default` pair, `multiclass`, `mediumdata`.
+
+**Fit strategy** (in-context limit): per fold, 4 independent uniform draws of **32,768** rows from
+that fold's training block, predictions averaged; evaluation rows predicted in chunks; no
+evaluation row ever in a context and no context ever containing an evaluation-era row (asserted
+per draw by both fold guards). TabFM took the **same 32,768** context — not handicapped.
+
+| arm | wall | GPU peak | notes |
+|---|--:|--:|---|
+| TabPFN winner | 332 s | 2.45 GB | 4 ctx × 5 eras |
+| TabPFN dollars (OOD) | 474 s | 3.69 GB | |
+| TabPFN dollars (TS) | 474 s | 3.69 GB | |
+| TabFM winner | 1,569 s | 27.85 GB | 2 ctx; NaN imputed from context medians (TabPFN ingests NaN natively) |
+
+GPU was mandatory and enforced by a refusal in both backends. On a 97 GB card the contexts used
+2.5–27.9 GB, so **context size was not the binding constraint** — an honest limitation of this
+pass is that TabPFN was never pushed toward its full 417k-row E3 pool, which is precisely where
+its small-data edge would have been tested hardest.
+
+## 20.5 Verdict of the pass
+
+**No arm beat the champion. `CHAMPION_FREEZE_CANDIDATE.md` v1 is REAFFIRMED, unchanged.** The
+all-years criterion is **not met**: 2/18 cells at $2,000, 4/18 at $1,500, and every E3–E7 cell
+short. The gap in the weak eras is roughly 2–2.5×, and eleven independent attempts — objective,
+policy, engine, blend, gate, and two tabular foundation models — moved it by less than the width
+of its own confidence interval.

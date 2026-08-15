@@ -54,6 +54,9 @@ import arrival as AR                      # noqa: E402
 ERA_ORDER = ("E3", "E4", "E5", "E6", "E7")
 ASSETS = ("ALL", "SI", "HG", "NKD")
 FLOOR = 2000.0
+# THE DENOMINATOR IS THE CAUSAL ORACLE (arrival.CAUSAL_ORACLE), never the
+# full-hindsight DP ceiling: an arrival-time rule may not be asked to capture a
+# fraction of a bound that is allowed to see the whole day.
 
 
 def hb(m):
@@ -87,18 +90,26 @@ def _resolve(D, tr, sname, col):
     return np.asarray(col, dtype=np.float64)
 
 
-def sweep(D, P, era, keys=None):
-    """(score, policy, knob) -> mean $/session over that score's columns."""
+def sweep(D, P, era, keys=None, with_null=True):
+    """(score, policy) -> mean $/session, plus the SEARCH-ADJUSTED LUCK BAR.
+
+    The luck bar must be computed over the SAME FAMILY WIDTH the winner was
+    selected from, or it is not a luck bar at all — so the shuffled arm is run
+    inside this same sweep, cell for cell, with the ARRIVAL TIMES PRESERVED and
+    only the row->score pairing destroyed.  The era's bar is the BEST of those
+    shuffled cells.
+    """
     import stacked_final as SF
     import newobj_arms as NA
     tr, itr, iva, ev = NA.fold(D, era)
     Z = all_scores(D, era)
-    out = {}
+    rng = np.random.default_rng(N.SEED)
+    out, null = {}, {}
     for sname, cols in Z.items():
         for pname, kind, knob in AR.POLICIES:
             if keys is not None and (sname, pname) not in keys:
                 continue
-            vals = []
+            vals, nvals = [], []
             for col in cols:
                 v = _resolve(D, tr, sname, col)
                 rp = N.replay_delayed(
@@ -107,8 +118,21 @@ def sweep(D, P, era, keys=None):
                     D, AR.cap_seats(D, rp), "STOP_WALL1"))
                 if r.get("usd_per_session") is not None:
                     vals.append(r["usd_per_session"])
+                if with_null:
+                    vs = v.copy()
+                    fin = np.nonzero(np.isfinite(vs))[0]
+                    vs[fin] = vs[rng.permutation(fin)]
+                    rp2 = N.replay_delayed(
+                        D, AR.build_seats(D, ev, vs, kind, knob, tr), P)
+                    r2 = N.read_rows(D, SF.apply_stop(
+                        D, AR.cap_seats(D, rp2), "STOP_WALL1"))
+                    if r2.get("usd_per_session") is not None:
+                        nvals.append(r2["usd_per_session"])
             if vals:
                 out[(sname, pname)] = float(np.mean(vals))
+            if nvals:
+                null[(sname, pname)] = float(np.mean(nvals))
+    out["__LUCK__"] = max(null.values()) if null else None
     return out
 
 
@@ -152,16 +176,19 @@ def run(eras=("E5", "E6", "E7")):
     D, P = CF.boot()
     ceil = CO.ceilings()
     rows = []
-    prev_best = {}
+    prev_best, luck, best_val = {}, {}, {}
     for era in ERA_ORDER:
         if era not in eras and era not in [
                 ERA_ORDER[max(ERA_ORDER.index(e) - 1, 0)] for e in eras]:
             continue
         sw = sweep(D, P, era)
+        luck[era] = sw.pop("__LUCK__", None)
         if sw:
             prev_best[era] = max(sw, key=sw.get)
-        hb("%s swept: %d (score,policy) cells; argmax %s"
-           % (era, len(sw), prev_best.get(era)))
+            best_val[era] = sw[prev_best[era]]
+        hb("%s swept: %d cells; argmax %s $%s; LUCK BAR $%s"
+           % (era, len(sw), prev_best.get(era),
+              N._r(best_val.get(era)), N._r(luck.get(era))))
     for era in eras:
         i = ERA_ORDER.index(era)
         prior = ERA_ORDER[i - 1] if i > 0 else None
@@ -182,7 +209,8 @@ def run(eras=("E5", "E6", "E7")):
                 if asset not in res:
                     continue
                 a, nse, cap = res[asset]
-                cl = ceil.get("%s|%s" % (era, asset)) or cl_all
+                cl = (AR.CAUSAL_ORACLE.get(era) if asset == "ALL"
+                      else ceil.get("%s|%s" % (era, asset)) or cl_all)
                 aim = 0.80 * cl if cl else None
                 rows.append([
                     era, "BINDING" if era in AR.BINDING else "context", asset,
@@ -191,7 +219,10 @@ def run(eras=("E5", "E6", "E7")):
                     N._r(a.mean() / cl, 4) if cl else "", N._r(aim),
                     N._r(a.mean() - aim) if aim else "",
                     N._r(a.mean() - FLOOR),
-                    "1" if (cl and cl >= FLOOR / 0.80) else "0"])
+                    "1" if (cl and cl >= FLOOR / 0.80) else "0",
+                    N._r(luck.get(era)),
+                    "YES" if (luck.get(era) is not None
+                              and a.mean() > luck[era]) else "no"])
     if not rows:
         raise BaselineRefusal(
             "CAUSAL_BASELINE produced ZERO rows — a null prints rows, so this "
@@ -201,7 +232,8 @@ def run(eras=("E5", "E6", "E7")):
         ["era", "criterion", "asset", "row", "kind", "rule", "n_seeds",
          "usd_per_session", "sd_usd", "seats_per_session", "oracle_ceiling",
          "capture_of_ceiling", "aim_08ceiling", "gap_to_aim",
-         "gap_to_floor_2000", "ceiling_supports_floor"], rows,
+         "gap_to_floor_2000", "ceiling_supports_floor",
+         "search_adjusted_luck_bar", "beats_luck_bar"], rows,
         extra=[
             "THE HONEST CAUSAL BASELINE — the table a deployment decision may "
             "be taken from, and the replacement for the VOID freeze table.  "

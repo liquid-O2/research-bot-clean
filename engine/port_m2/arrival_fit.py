@@ -68,7 +68,7 @@ SCORES = os.path.join(OUT_ROOT, "scores")
 BINDING = AR.BINDING
 ERAS = AR.ERAS
 SEEDS = AR.SEEDS
-TARGETS = ("A_PWIN", "A_PBAR")
+TARGETS = ("A_PWIN", "A_PBAR", "A_EV")
 
 
 def hb(m):
@@ -145,8 +145,19 @@ def _one(job):
         import fold_stack as FS
         D, P = CF.boot()
         tr, itr, iva, ev = NA.fold(D, era)
-        y = (np.nan_to_num(D["y_winner"].astype(np.float64), nan=0.0)
-             if target == "A_PWIN" else day_bar_label(D))
+        # A_EV is the AUDIT'S OWN PRESCRIPTION and the only ABSOLUTE
+        # expectancy of the three: a stopping rule compares this candidate's
+        # expected DOLLARS against the continuation value in DOLLARS, so the
+        # target must be dollars.  A_PWIN is a threshold indicator (absolute
+        # but coarse); A_PBAR is DAY-RELATIVE and is retained only as the
+        # measured counter-example — its AUC 0.89 does not convert, because
+        # being the best of a bad day is still a losing trade.
+        if target == "A_PWIN":
+            y = np.nan_to_num(D["y_winner"].astype(np.float64), nan=0.0)
+        elif target == "A_PBAR":
+            y = day_bar_label(D)
+        else:
+            y = np.nan_to_num(D["cert_close_usd"].astype(np.float64), nan=0.0)
         # LEAK FIX P3_DOM_SHARE_FEATURE: the audited leaky columns are dropped
         # here, and the monotone sign vector is subset BY POSITION so the
         # surviving columns keep exactly the signs the champion gave them.
@@ -161,7 +172,10 @@ def _one(job):
         XF = D["X"][:, cols]
         hp = NA.CHAMP_HP[era]
         vec = vec[:XF.shape[1]] + [0] * max(0, XF.shape[1] - len(vec))
-        cfg = {"objective": "binary:logistic", "eval_metric": "logloss",
+        is_ev = (target == "A_EV")
+        cfg = {"objective": ("reg:squarederror" if is_ev
+                             else "binary:logistic"),
+               "eval_metric": ("rmse" if is_ev else "logloss"),
                "tree_method": "hist", "min_child_weight": 20, "subsample": .8,
                "colsample_bytree": .8, "max_depth": hp["max_depth"],
                "eta": hp["eta"], "seed": N.SEED + seed,
@@ -183,12 +197,19 @@ def _one(job):
         b = xgb.train(cfg, d, int(hp["rounds"]))
         del d
         # ISOTONIC CALIBRATION on the INNER VALIDATION BLOCK (training data,
-        # never the eval era)
+        # never the eval era).  For A_EV the map is fitted against the SIGN of
+        # the certificate, so the calibrated column is P(profitable) while the
+        # RAW expectancy is what the policy actually thresholds — both are
+        # kept, and A_EV deliberately deploys the RAW dollars because that is
+        # the quantity the stopping comparison is in.
         pv = b.predict(xgb.DMatrix(XF[iva], feature_names=names))
-        cal = isotonic(pv, y[iva])
         sc = np.full(D["d8"].size, np.nan)
         raw = b.predict(xgb.DMatrix(XF[ev], feature_names=names))
-        sc[ev] = cal(raw)
+        if is_ev:
+            sc[ev] = raw
+        else:
+            cal = isotonic(pv, y[iva])
+            sc[ev] = cal(raw)
         os.makedirs(SCORES, exist_ok=True)
         np.save(os.path.join(SCORES, "%s_%s_%d.npy" % (target, era, seed)),
                 sc.astype(np.float32))
@@ -199,7 +220,11 @@ def _one(job):
         base = float(np.mean(yy)) if m.any() else None
         try:
             from sklearn.metrics import roc_auc_score
-            auc = float(roc_auc_score(yy, pp)) if len(set(yy.tolist())) > 1 \
+            # for A_EV the discrimination question is "does it separate
+            # profitable from unprofitable", so the AUC is taken against the
+            # SIGN of the certificate rather than against the raw dollars
+            yb = (yy > 0).astype(int) if is_ev else yy
+            auc = float(roc_auc_score(yb, pp)) if len(set(yb.tolist())) > 1 \
                 else None
         except Exception:                                 # noqa: BLE001
             auc = None

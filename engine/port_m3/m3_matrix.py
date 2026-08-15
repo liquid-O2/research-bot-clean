@@ -849,7 +849,17 @@ def join_forecaster(R):
                 continue
             d = row["trade_date"]
             d8 = int(d[:4] + d[5:7] + d[8:10])
-            asec = FC_ANCHOR_SEC.get(row["anchor"])
+            # LEAK FIX P3_FORECASTER_ANCHOR_JOIN (leak audit, MODERATE): the
+            # anchor second came from a HARD-CODED table keyed on the anchor's
+            # NAME, which disagrees with the session's own anchor second on
+            # 3.17% of rows and can therefore attach a forecast to a decision
+            # that preceded it.  The receipt carries the real second; use it.
+            # The name table survives only as the declared fallback for a row
+            # that predates the column.
+            try:
+                asec = int(row["anchor_sec"])
+            except (KeyError, TypeError, ValueError):
+                asec = FC_ANCHOR_SEC.get(row["anchor"])
             if asec is None:
                 raise M3.HarnessRefusal("unknown forecaster anchor %r"
                                         % row["anchor"])

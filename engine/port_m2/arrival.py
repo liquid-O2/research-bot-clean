@@ -96,6 +96,31 @@ ERAS = BINDING + ("E3", "E4")
 SEEDS = (0, 1, 2, 3, 4)
 DAY_CAP = 3                    # per asset-day; 3 books x 3 = 9 of the <=10 cap
 
+# THE BAR, and it is the CAUSAL one.  The full-hindsight DP ceiling is not the
+# right denominator for an arrival-time policy — it is allowed to see the whole
+# day.  These are the CAUSAL ORACLE readings (leak audit, CAUSAL_CEILING): the
+# most any arrival-time rule can earn.  Aims are 0.80 x THESE, and on this
+# denominator the $2,000 floor is reachable at this formulation by measurement,
+# which is why the campaign continues rather than closing.
+CAUSAL_ORACLE = {"E3": 2348.0, "E4": 2133.0, "E5": 2021.0, "E6": 2675.0,
+                 "E7": 3360.0}
+
+# LEAK FIX P3_DOM_SHARE_FEATURE (leak audit, LOW): `dom_share` is a
+# WHOLE-SESSION aggregate — the dominant instrument's share of the session's
+# entire volume — and it aliased past three separate guards because it is
+# constant within a session and so trips no shift/constancy test.  A decision
+# at 09:41 cannot know the session's final volume split.  Dropped everywhere in
+# this lane; the as-of running replacement is queued, not faked.
+LEAKY_FEATURES = ("dom_share",)
+
+
+def clean_feature_cols(D):
+    """The champion's feature columns MINUS the audited leaky ones."""
+    import newobj_arms as NA
+    cols, names = NA.feat_cols(D)
+    keep = [(i, n) for i, n in zip(cols, names) if n not in LEAKY_FEATURES]
+    return [i for i, _n in keep], [n for _i, n in keep]
+
 # PRE-REGISTERED KNOB GRIDS.  Fixed before any era is read; never adaptive.
 TAU_Q = (0.50, 0.70, 0.80, 0.90, 0.95, 0.975, 0.99)
 DAY_Q = (0.50, 0.70, 0.90)

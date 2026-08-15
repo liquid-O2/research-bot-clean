@@ -51,3 +51,29 @@ reason.
 2. Does **NKD's** asset-native structure pay under `PA_CON`?
 3. Does **E3** hold its constraint gain under per-asset fitting, or give it back
    to the data-size cost?
+
+---
+
+# NAMED-NEXT IF ENTRY ARMS STALL — M-33 FAILED AUCTION (generation side)
+
+**Design first; price the CEILING addition before building anything.**
+
+Every capture treatment so far has moved dollars *within* a fixed candidate
+pool. M-33 is the one remaining **generation-side** move on the backlog: it
+would add candidates the roster does not currently emit, which raises the
+**ceiling** rather than the capture fraction. That is categorically different
+from everything in the campaign, and it is why it is the named-next.
+
+Standing from `CREATOR_MECHANICS_CENSUS`: M-33 was recorded as the **richest
+untested backlog mechanic**. It has never been censused.
+
+**The order of work is fixed and must not be inverted:**
+1. Define the detector from the creator's verbatim mechanic.
+2. Census it on E2–E6 against frequency-matched nulls, one Holm family.
+3. **Price the ceiling addition**: how much does the per-cell oracle rise when
+   M-33 candidates enter the pool? If the ceiling does not move materially,
+   nothing downstream can, and the family closes there.
+4. Only then build.
+
+Per-asset specialization (above) slots after the regime-router per the user's
+"later" ruling.

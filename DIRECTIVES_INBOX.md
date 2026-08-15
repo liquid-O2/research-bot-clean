@@ -274,3 +274,58 @@ Everything I've tried so far has been a null. You need to think about everything
 
 But if it, if, if we can, if we can do it without having an overfit in any way, I'm fine with that, but again, we need to look at clever ways of getting to our goal without overfitting, without having false positives, et cetera, et cetera.
 - [2026-08-15T22:23:11Z] And we have verified that transferring the thing, like from training to the actual state, is not something we are missing. The training-to-live transfer is perfect for us, or like we need to improve our training itself, or something like that.
+- [2026-08-15T22:46:48Z] AUTONOMY HEARTBEAT (D-074, user order: run autonomously until the goal is exceeded — never idle). You are the port-program orchestrator. Do now, in order: (1) read /workspace/STATE.md NEXT_ACTION + `tail -20 /workspace/provenance/sessions/JOURNAL.md` + `/workspace/lab/run.sh --list` + check heartbeat freshness of any port-* runs (a stale hb >15min on a live pid = investigate); (2) if a lane/run has finished without being adjudicated, adjudicate it now (rulings, PROGRESS/JOURNAL/STATE, commit+push) and launch the next stage per STATE; (3) if a lane died or hung, diagnose and relaunch it; (4) if all work is genuinely mid-flight and healthy, verify watchers exist for every background job, journal nothing, and end the turn silently. The program sequence after M2c: E1 study round (day-complete, full protocol stack) -> E1 blind -> name->count censuses of validated patterns -> era advance per D-058 -> feature construction from convergent evidence -> M3 model -> walk-forward gates vs D-048. Never park work the repo can advance (D-028/D-029); user-reserved classes only (walls/risk-contract/live-money).
+
+## NIGHT LANE HANDOFF — 2026-08-21 ~23:05Z (the horizon pass, then the seating respecification)
+
+**Running when this was written** (both self-committing drivers, live heartbeats):
+`port-arrival-zoo` (all five eras) and `port-arrival-fit2` (calibrated arrival targets ->
+causal policy family). `port-prophet` finished rc=0.
+
+**Launch immediately after `port-arrival-fit2` writes rc=0** (do NOT put an rc wait inside
+another driver — the cross-driver deadlock law):
+```
+bash lab/run.sh port-causal-baseline -- bash -c '\
+  PYTHONPATH=/workspace/engine/port_m2:/workspace/engine/port_m2/seqtest:/workspace/engine/port_m0:/workspace/engine/port_m1:/workspace/engine/port_m3:/workspace/artifacts/cache/pylibs \
+  python3 engine/port_m2/causal_baseline.py --run --eras E5 E6 E7'
+```
+`causal_baseline.py` is written, syntax-clean and unrun. It selects the
+(score, policy, knob) triple on the PREVIOUS era and applies it blind, reports per era per
+asset, and prints the eval-era argmax beside it as a labelled selection-premium upper
+bound. It is the replacement for the VOID freeze table.
+
+**Then, in this order:**
+1. **Occupancy-aware stopping** (respecification step 3). The natural parameter-free form
+   is already implied by the family: take when the score's training-block quantile exceeds
+   `1 - c/(m+1)`, where `m` = the expected REMAINING arrivals in the cell, estimated
+   causally from the training block's arrival process, and `c` is a small pre-registered
+   grid. It has no fitted knob, which matters under the search-adjusted-null law.
+   `arrival.seats_cellsofar` (added tonight) is the level-free cousin and is already in
+   the family.
+2. **The two structural leak fixes.** P2_DOMINANCE_SELECTION -> previous-session volume;
+   P2_PHASE_BOUNDARY_TABLES -> strictly prior tape (they currently include the sealed
+   holdout's 158 sessions). Both are upstream of session assembly; rebuild chain is
+   phase tables/dominance -> sessions -> roster -> matrix -> every fitted score. The
+   matrix rebuild itself is cheap (measured 180.7s) and the row SET is unchanged by the
+   already-applied FC_ANCHOR fix, so every row-indexed tensor on disk survives it.
+3. **The fair-engine round**, folded onto the arrival targets rather than the voided
+   within-cell objective: CatBoost-full (ordered boosting, YetiRank + StochasticRank,
+   monotone constraints from the TOP50 sign vector, native categoricals, langevin toggle)
+   and LightGBM-full (lambdarank + monotone + dart/linear_tree), small pre-registered
+   grids only, 5 seeds, search-adjusted null + PBO. Both engines verified installed
+   (catboost 1.2.10, lightgbm 4.7.0) and CatBoost's monotone support confirmed present.
+4. **M-33 failed auction** — `engine/port_m2/m33.py` is written and unrun (detector +
+   census + marginal-ceiling; every constant pre-registered). It is a GENERATION-side
+   idea, so it is unaffected by the seating defect: its deciding column is the DP ceiling
+   of the UNION of the roster and the M-33 events minus the roster's own. Run
+   `--detect --workers 8` then `--table`. The b4_profiles POC/VA objects it needs are
+   already on disk (18,088 rows).
+5. `engine/port_m2/reserve79.py` (N7/N9 ceilings) is written and unrun — but note it
+   evaluates through `top_per_cell_score` and MUST be ported to the arrival family before
+   its numbers mean anything.
+
+**Written tonight, unrun or superseded:** `labelscreen.py` (S2 label re-screen — its fit
+cache at `artifacts/cache/port/m2/labelscreen/fits.jsonl` is void because it scored under
+retrospective seating; the TARGET TENSOR at `.../labelscreen/targets.npz` is still good
+and carries the delay-averaged, multi-horizon-mark and first-passage-race targets ready to
+be re-screened FOR the arrival objective).

@@ -365,3 +365,35 @@ the prophet bound is the reason to keep going rather than close.**
 3. The **two structural leak fixes** (dominance selection, phase-boundary tables) — the
    phase tables currently include the sealed holdout's 158 sessions, which is a
    decontamination issue independent of any model.
+
+### UPDATE 23:21Z — A_EV converts; the two lanes that decide it are running
+
+**`A_EV` (absolute expectancy, `reg:squarederror` on `cert_close_usd`, deployed RAW) is the
+only one of the three targets that converts.** 5-seed mean realised certificate of its
+top-0.5% picks: **E5 $117.60 ± 317.04, E6 $401.40 ± 140.87, E7 $765.60 ± 487.30** against
+population means of ≈ **-$26**. E6 is 2.9 sd above zero, E7 1.6 sd; **E5 is within one sd of
+zero and must not be quoted as established.**
+
+Ordering of the three targets by conversion — and this *is* the finding:
+**absolute expectancy > absolute indicator (A_PWIN) > day-relative rank (A_PBAR)**, exactly
+as the audit's "train an absolute per-arrival expectancy" predicted.
+
+**Beware my seed-0 numbers if you see them quoted anywhere:** the first A_EV read was seed 0
+and overstated E5 by ~5.8x ($678 vs a 5-seed mean of $118). Same single-fit defect
+`CHAMPION_FREEZE_CANDIDATE_V2` exists to correct.
+
+**Tested and downgraded:** seed-averaging the A_EV score is *not* a free win (E5 $118→$3,
+E6 $401→$248, E7 $766→$1,146; pooled a wash). Correlated member errors, and tail
+thresholding is the operation most exposed to averaging.
+
+**Running:** `port-ev-policy2` → `ARRIVAL_FITTED.tsv` (the 24-policy family on all three
+targets with the search-adjusted luck bar — **the only number that decides anything**) and
+`port-causal-baseline` → `CAUSAL_BASELINE.tsv`.
+
+**Next after those:** (1) expectancy **net of continuation value** — regress
+`cert - E[best of remaining m]`, which is the quantity the stopping rule differences anyway;
+(2) the fair-engine round folded onto **A_EV**; (3) the two structural leak fixes.
+
+**Process law reaffirmed the hard way:** never `pkill -f` against a registered lane's command
+line — two lanes sharing a command line are indistinguishable to any name matcher. Kill the
+recorded pid and verify with `run.sh --list`.

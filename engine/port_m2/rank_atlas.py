@@ -118,6 +118,21 @@ CONFIRM = {"rounds": 300, "early": 25, "seed": N.SEED}
 # not from the hardware.  This is why the parity was measured instead of assumed.
 USE_GPU = os.environ.get("ATLAS_GPU", "0") == "1"
 
+# PARALLELISM AND MEMORY -- MEASURED, NOT ASSUMED (user caught this).
+# `nproc`, `sched_getaffinity`, `cpuset.cpus.effective` and `free` all describe
+# the HOST (64 vCPU / 1.1 TB).  The container's real budget is the cgroup:
+#     /sys/fs/cgroup/cpu.max    = "1360000 100000"  ->  13.6 vCPU
+#     /sys/fs/cgroup/memory.max = 281999998976      ->  282 GB
+# The lane had been running 8 workers x 8 xgboost threads = 64 threads against
+# 13.6 CPUs -- a 4.7x oversubscription whose only product is context switching.
+# The evidence was there and was misread: 8 workers at ~165% CPU is 1,320%,
+# i.e. the quota exactly.  Total threads are now held AT the quota, and the
+# worker count is additionally capped by MEMORY: a joint-cell worker peaked at
+# 17 GB resident, so 6 workers is ~100 GB and safe inside 282 GB, while the 16
+# workers a 64-CPU reading would have justified would have OOMed the container.
+N_WORKERS = int(os.environ.get("ATLAS_WORKERS", "6"))
+N_THREAD = int(os.environ.get("ATLAS_NTHREAD", "2"))
+
 
 # =========================================================== the prune law ====
 PRUNES = [
@@ -568,7 +583,7 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
         import xgboost as xgb
         base = {"tree_method": "hist", "min_child_weight": 20,
                 "subsample": 0.8, "colsample_bytree": 0.8,
-                "seed": budget.get("seed", N.SEED), "nthread": 8,
+                "seed": budget.get("seed", N.SEED), "nthread": N_THREAD,
                 "max_depth": depth, "eta": eta}
         if USE_GPU:
             base["device"] = "cuda"
@@ -633,7 +648,7 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
         params = {"learning_rate": eta, "num_leaves": 2 ** min(depth, 8),
                   "min_data_in_leaf": 20, "feature_fraction": 0.8,
                   "bagging_fraction": 0.8, "bagging_freq": 1,
-                  "seed": budget.get("seed", N.SEED), "num_threads": 8,
+                  "seed": budget.get("seed", N.SEED), "num_threads": N_THREAD,
                   "verbosity": -1}
         if obj in ("ndcg3", "ndcg1", "dpairs"):
             params.update({"objective": "lambdarank", "metric": "ndcg",
@@ -672,7 +687,7 @@ def fit_cell(D, spec, fit_rows, score_rows, XF, FN, val, budget,
         params = {"loss_function": loss, "iterations": rounds, "depth": depth,
                   "learning_rate": eta, "random_seed": budget.get("seed", N.SEED),
                   "verbose": False, "boosting_type": "Ordered",
-                  "thread_count": 8, "allow_writing_files": False}
+                  "thread_count": N_THREAD, "allow_writing_files": False}
         if obj == "q75":
             p_f = Pool(XF[r_f], label=y_f, feature_names=FN)
         else:
@@ -918,29 +933,42 @@ def confirm_arm(D, spec, era, P, V, budget=None, search=False,
         grid = tuple({k: v for k, v in g.items() if k !=
                       "lambdarank_num_pair_per_sample"} for g in grid)
     best, best_ndcg, sc_iva, best_rounds = None, -np.inf, None, CONFIRM["rounds"]
-    for hp in grid:
-        s_i, info_i = fit_cell(D, spec, ifit, iva, XF, FN, val,
-                               dict(CONFIRM, depth=hp["max_depth"],
-                                    eta=hp["eta"], rounds=CONFIRM["rounds"]),
-                               wgroup=None, hp=hp, early_va=iva)
-        nd = float(info_i.get("inner_metric", -np.inf))
-        if nd > best_ndcg or best is None:
-            best, best_ndcg, sc_iva = hp, nd, s_i
-            best_rounds = int(info_i.get("rounds", CONFIRM["rounds"]))
+    if not search:
+        # TIER A COSTS EXACTLY ONE FIT.  The champion spec pins both the per-era
+        # config AND its round count (74/178/138/82/107/228), each chosen on an
+        # inner block that never saw an evaluation era, so no inner fit is
+        # needed to rediscover them.
+        best = dict(grid[0])
+        best_rounds = int(NA.CHAMP_HP[era]["rounds"])
+    else:
+        for hp in grid:
+            s_i, info_i = fit_cell(D, spec, ifit, iva, XF, FN, val,
+                                   dict(CONFIRM, depth=hp["max_depth"],
+                                        eta=hp["eta"],
+                                        rounds=CONFIRM["rounds"]),
+                                   wgroup=None, hp=hp, early_va=iva)
+            nd = float(info_i.get("inner_metric", -np.inf))
+            if nd > best_ndcg or best is None:
+                best, best_ndcg, sc_iva = hp, nd, s_i
+                best_rounds = int(info_i.get("rounds", CONFIRM["rounds"]))
     u_, n_ = N.committed_policy().get(era, ("cell", 1))
-    best_v = N.read_rows(D, N.replay_delayed(
+    best_v = (N.read_rows(D, N.replay_delayed(
         D, N.top_per_cell_score(D, N.deployable(D, iva), sc_iva, n_), P)).get(
-        "usd_per_session")
+        "usd_per_session") if sc_iva is not None else None)
     # refit on the WHOLE training block at the inner-selected round count —
     # the champion's §2.5 recipe, verbatim
     sc, info = fit_cell(D, spec, fit_rows, ev_r, XF, FN, val,
                         dict(CONFIRM, depth=best["max_depth"], eta=best["eta"],
                              rounds=best_rounds),
                         wgroup=wg, hp=best)
-    sc_tr, _i2 = fit_cell(D, spec, fit_rows, fit_rows, XF, FN, val,
-                          dict(CONFIRM, depth=best["max_depth"],
-                               eta=best["eta"], rounds=best_rounds),
-                          wgroup=wg, hp=best)
+    # the in-sample training score exists ONLY to supply the stopping rule's
+    # score CDF, so it is not fitted for arms that are not read under policies
+    sc_tr = None
+    if policies:
+        sc_tr, _i2 = fit_cell(D, spec, fit_rows, fit_rows, XF, FN, val,
+                              dict(CONFIRM, depth=best["max_depth"],
+                                   eta=best["eta"], rounds=best_rounds),
+                              wgroup=wg, hp=best)
     u_, n_ = N.committed_policy().get(era, ("cell", 1))
     tk = N.top_per_cell_score(D, ev_r, sc, n_)
     a = read_arm(D, tk, P)
@@ -1152,7 +1180,9 @@ def stage_confirm(top_n=15, eras=CONFIRM_ERAS):
     # Tier A (every arm at the champion's own per-era HP) is what makes the axis
     # contrasts one-change-at-a-time; Tier B makes sure a genuine contender is
     # never held back by hyper-parameters it inherited from another arm.
-    tierB = set([spec_id(REF)] + keep[:3]
+    # TIER B narrowed from three contenders to ONE on the measured CPU budget
+    # (13.6 vCPU), recorded rather than quietly applied.
+    tierB = set([spec_id(REF)] + keep[:1]
                 + ([ranked_joint[0][1]] if ranked_joint else []))
     jobs = []
     for k in keep:
@@ -1165,7 +1195,7 @@ def stage_confirm(top_n=15, eras=CONFIRM_ERAS):
          % (len(keep), len(eras), len(jobs), ", ".join(sorted(tierB))))
     rows, pol_rows, per_arm, reps = [], [], {}, {}
     t0 = time.time()
-    with mp.Pool(processes=8) as pool:
+    with mp.Pool(processes=N_WORKERS) as pool:
         for i, (k, era, blk, a, info, pols, err) in enumerate(
                 pool.imap_unordered(_confirm_one, jobs), start=1):
             if err:

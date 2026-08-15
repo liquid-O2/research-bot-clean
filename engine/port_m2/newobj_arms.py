@@ -37,7 +37,7 @@ import st_common as SC                    # noqa: E402
 BASE = {"objective": "rank:ndcg", "eval_metric": "ndcg@3", "tree_method": "hist",
         "min_child_weight": 20, "subsample": 0.8, "colsample_bytree": 0.8,
         "lambdarank_pair_method": "topk", "lambdarank_normalization": True,
-        "seed": N.SEED, "nthread": 8}
+        "seed": N.SEED, "nthread": int(__import__("os").environ.get("ATLAS_NTHREAD","4"))}
 HP_GRID = tuple({"max_depth": d, "eta": e,
                  "lambdarank_num_pair_per_sample": p}
                 for d in (4, 6, 8) for e in (0.05, 0.10) for p in (8, 16))
@@ -238,7 +238,8 @@ def joint_arm_screen(D, spec, era, fit_rows, iva, XF, FN, V, P, budget,
             "tree_method": "hist", "min_child_weight": 20, "subsample": 0.8,
             "colsample_bytree": 0.8, "lambdarank_pair_method": "topk",
             "lambdarank_normalization": True, "seed": budget["seed"],
-            "nthread": 8, "max_depth": budget["depth"], "eta": budget["eta"]}
+            "nthread": int(__import__("os").environ.get("ATLAS_NTHREAD","4")),
+            "max_depth": budget["depth"], "eta": budget["eta"]}
     if spec["obj"] == "ndcg1":
         base["eval_metric"] = "ndcg@1"
     elif spec["obj"] == "dpairs":
@@ -409,7 +410,7 @@ def fit_gate(D, P, dl, itr, iva, tr, ev, XF, FN, V, full=True, shuffle=False):
     cfg = {"objective": "reg:squarederror", "tree_method": "hist",
            "max_depth": 5, "eta": 0.06, "min_child_weight": 20,
            "subsample": 0.8, "colsample_bytree": 0.7, "seed": N.SEED,
-           "nthread": 8}
+           "nthread": 2}
 
     def _fit(rows, va, rounds=None):
         r = rows[np.isfinite(y[rows])]

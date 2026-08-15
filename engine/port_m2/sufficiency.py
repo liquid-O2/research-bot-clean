@@ -212,7 +212,7 @@ def _split_one(job):
             D, N.top_per_cell_joint(D, ev_r, V,
                                     N.committed_policy()[era][1], (0,)), P))
         pm = {"objective": "rank:ndcg", "eval_metric": "ndcg@1",
-              "tree_method": "hist", "seed": N.SEED, "nthread": 8,
+              "tree_method": "hist", "seed": N.SEED, "nthread": RA.N_THREAD,
               "lambdarank_pair_method": "topk",
               "lambdarank_num_pair_per_sample": 16}
         pm.update({k: MEMO[k] for k in
@@ -223,7 +223,8 @@ def _split_one(job):
         ph = {"objective": "rank:ndcg", "eval_metric": "ndcg@3",
               "tree_method": "hist", "min_child_weight": 20, "subsample": 0.8,
               "colsample_bytree": 0.8, "lambdarank_pair_method": "topk",
-              "lambdarank_normalization": True, "seed": N.SEED, "nthread": 8}
+              "lambdarank_normalization": True, "seed": N.SEED,
+              "nthread": RA.N_THREAD}
         hp = NA.CHAMP_HP[era]
         ph.update({k: hp[k] for k in ("max_depth", "eta",
                                       "lambdarank_num_pair_per_sample")})
@@ -257,7 +258,7 @@ def _split_one(job):
         return (feat, era, None, "%s: %s" % (type(exc).__name__, exc))
 
 
-def stage_split(eras=ERAS, feats=FEATS, workers=8):
+def stage_split(eras=ERAS, feats=FEATS, workers=RA.N_WORKERS):
     import multiprocessing as mp
     probes = [fixture_memorizer(), fixture_twins()]
     N.hb("red-first: %s" % json.dumps(probes))
@@ -367,7 +368,8 @@ def stage_ablation(eras=ERAS):
         ph = {"objective": "rank:ndcg", "eval_metric": "ndcg@3",
               "tree_method": "hist", "min_child_weight": 20, "subsample": 0.8,
               "colsample_bytree": 0.8, "lambdarank_pair_method": "topk",
-              "lambdarank_normalization": True, "seed": N.SEED, "nthread": 8}
+              "lambdarank_normalization": True, "seed": N.SEED,
+              "nthread": RA.N_THREAD}
         hp = NA.CHAMP_HP[era]
         ph.update({k: hp[k] for k in ("max_depth", "eta",
                                       "lambdarank_num_pair_per_sample")})

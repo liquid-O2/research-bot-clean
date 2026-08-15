@@ -271,7 +271,12 @@ def run_policy(eras=ERAS):
     for era in eras:
         crit = "BINDING" if era in BINDING else "context"
         tr, itr, iva, ev = NA.fold(D, era)
-        cl = ceil.get("%s|ALL" % era)
+        # THE BAR IS THE CAUSAL ORACLE, not the full-hindsight DP ceiling: an
+        # arrival-time rule cannot be asked to capture a fraction of a bound
+        # that is allowed to see the whole day.  aims = 0.80 x the causal
+        # oracle; the hindsight ceiling is kept beside it as context only.
+        cl = AR.CAUSAL_ORACLE.get(era)
+        dp = ceil.get("%s|ALL" % era)
         aim = 0.80 * cl if cl else None
 
         def read(seats):
@@ -315,7 +320,7 @@ def run_policy(eras=ERAS):
                              N._r(nl.mean()) if nl.size else "",
                              N._r(cl), N._r(a.mean() / cl, 4) if cl else "",
                              N._r(aim), N._r(a.mean() - aim) if aim else "",
-                             ""])
+                             N._r(dp), ""])
         if best_real:
             bk = max(best_real, key=best_real.get)
             luck = max(best_null.values()) if best_null else None
@@ -324,6 +329,7 @@ def run_policy(eras=ERAS):
                          N._r(luck) if luck is not None else "", N._r(cl),
                          N._r(best_real[bk] / cl, 4) if cl else "",
                          N._r(aim), N._r(best_real[bk] - aim) if aim else "",
+                         N._r(dp),
                          "YES" if (luck is not None
                                    and best_real[bk] > luck) else "no"])
             hb("%s: best calibrated-target policy %s|%s $%.2f (luck $%s)"
@@ -336,8 +342,9 @@ def run_policy(eras=ERAS):
         "ARRIVAL_FITTED.tsv",
         ["era", "criterion", "target", "policy", "knob", "n_seeds",
          "usd_per_session", "sd_usd", "seats_per_session", "shuffled_null",
-         "oracle_ceiling", "capture_of_ceiling", "aim_08ceiling",
-         "gap_to_aim", "beats_search_adjusted_null"], rows,
+         "causal_oracle", "capture_of_causal_oracle", "aim_08causal",
+         "gap_to_aim", "hindsight_dp_ceiling",
+         "beats_search_adjusted_null"], rows,
         extra=[
             "The causal arrival policy family, run on models TRAINED AND "
             "CALIBRATED FOR THE ARRIVAL DECISION rather than for within-cell "
@@ -346,8 +353,15 @@ def run_policy(eras=ERAS):
             "THE FAMILY IS A SEARCH and carries its search-adjusted luck bar: "
             "the identical family on shuffled scores, arrival times preserved, "
             "best-of taken as the bar.",
-            "Capture and aims are against the surviving ORACLE ceilings, which "
-            "are hindsight bounds and are untouched by the seating defect."])
+            "THE DENOMINATOR IS THE CAUSAL ORACLE (E3 $2,348 / E4 $2,133 / "
+            "E5 $2,021 / E6 $2,675 / E7 $3,360), not the full-hindsight DP "
+            "ceiling: an arrival-time rule may not be asked to capture a "
+            "fraction of a bound allowed to see the whole day.  aims = 0.80 x "
+            "the causal oracle; the hindsight ceiling rides beside it as "
+            "context only.",
+            "ANY ROW HERE THAT READS NEGATIVE IS THE HONEST BASELINE, not a "
+            "losing arm to file away: it is what this formulation actually "
+            "earns at the arrival second, and it is reported as such."])
     hb("ARRIVAL_FITTED.tsv: %d rows" % len(rows))
     return rows
 

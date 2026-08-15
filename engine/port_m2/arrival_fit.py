@@ -136,6 +136,12 @@ def isotonic(x, y):
 def _one(job):
     target, era, seed = job
     try:
+        # INCREMENTAL: a score already on disk is not refitted.  Deleting the
+        # .npy is the explicit way to force a redo, so a corrected target can
+        # be added to TARGETS without paying for the ones already measured.
+        _sp = os.path.join(SCORES, "%s_%s_%d.npy" % (target, era, seed))
+        if os.path.exists(_sp):
+            return (target, era, seed, None, None, None, "CACHED")
         import xgboost as xgb
         import newobj_arms as NA
         import rank_atlas as RA
@@ -246,7 +252,9 @@ def run_fit(eras=ERAS, workers=5):
     with ctx.Pool(processes=workers) as pool:
         for i, (t, e, s, br, bs, auc, err) in enumerate(
                 pool.imap_unordered(_one, jobs), 1):
-            if err:
+            if err == "CACHED":
+                hb("cached %s %s s%d — not refitted" % (t, e, s))
+            elif err:
                 nerr += 1
                 hb("FIT FAILED %s %s s%d: %s" % (t, e, s, err))
             else:

@@ -87,3 +87,23 @@
 - Tables: `CAUSAL_STATE.tsv`, `KNOB_HONESTY.tsv`, `ERA_GAP.tsv`,
   `ARRIVAL_CAUSAL_SECRETARY.tsv`, `PROPHET_DENOMINATOR_CORRECTION.tsv`,
   `KNOB_INVARIANCE.tsv`, `ARRIVAL_FITTED2{,_RAWCOL}.tsv`, `ARRIVAL_INNER{,_RAWCOL}.tsv`.
+
+## 2026-08-22 04:20Z — repo-wide denominator audit + THE TRUE CAUSAL STATE
+- **(1) Audit done.** 118 tables with per-session columns classified
+  (`DENOMINATOR_AUDIT_INDEX.tsv`); 74/77 `read_rows` call sites carry the
+  defect; 99 tables were already void by seating; the 6 load-bearing ones are
+  corrected or superseded. Control: an arm firing every session corrects to
+  exactly zero. The causal-oracle bar has no writer in the repo and is now
+  verified independently to within 1%.
+- **(2) Level families ran honestly for the first time.** 66 policies x 8 score
+  columns x 5 seeds x 4 eras, all-session denominators, in-sweep nulls,
+  blind selectors only. `TRUE_FAMILY_SWEEP.tsv` (3,696 rows),
+  `TRUE_FAMILY_VERDICTS.tsv`, `TRUE_CAUSAL_STATE.tsv`.
+- **THE RESULT:** `S_XGB|DAYSOFAR`, prev-era blind, positive in all three
+  binding eras and clearing the global 528-cell null in each —
+  E5 $57.76 / E6 $88.96 / E7 $101.77 at ~700 trades in every session,
+  capture 0.029-0.033. Suggestive, not established: the inner-block selector
+  disagrees, and E5/E7 clear by ~$1.
+- **(3) SECDECL extended honestly and lost to its own search width** — the
+  30-knob grid raised its null to $100.72 and its best blind read ($40.21) no
+  longer clears it.

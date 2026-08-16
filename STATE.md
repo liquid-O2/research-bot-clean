@@ -1,13 +1,53 @@
 # STATE — fast cursor (rewritten at every boundary)
 
-LAST_UPDATED: 2026-08-22T03:30Z by the morning lane (knob honesty -> three defects -> the honest causal state)
+LAST_UPDATED: 2026-08-22T04:20Z by the morning lane (knob honesty -> three defects -> repo-wide audit -> the TRUE causal state)
 
-STAGE: **THE OVERNIGHT ARRIVAL HEADLINE IS VOID ON THREE INDEPENDENT COUNTS.**
+STAGE: **THE OVERNIGHT ARRIVAL HEADLINE IS VOID ON THREE INDEPENDENT COUNTS —
+AND THE HONEST SEARCH THAT REPLACED IT HAS PRODUCED THE PROGRAM'S FIRST BLIND,
+POSITIVE, CROSS-ERA CAUSAL ARM.** `TRUE_CAUSAL_STATE.tsv` is the ground truth.
+
+## THE RESULT (`TRUE_CAUSAL_STATE.tsv`, line 1)
+**`S_XGB|DAYSOFAR`** — the knob chosen on the PREVIOUS era within its policy
+family and applied blind — is positive in all three binding eras and clears the
+**global 528-cell search-adjusted null** in every one:
+
+| era | $/session (ALL sessions) | null bar | trades | sessions | capture |
+|-----|--------------------------|----------|--------|----------|---------|
+| E5  | **$57.76**  | $56.32  | 725.8 | 387/387 | 0.0286 |
+| E6  | **$88.96**  | $49.04  | 730.0 | 384/384 | 0.0333 |
+| E7  | **$101.77** | $100.72 | 692.4 | 393/393 | 0.0303 |
+
+The chain is genuinely blind: E4's within-family argmax was DAYSOFAR_0.9
+($44.35) → E5 $57.76; E5's was 0.7 ($86.20) → E6 $88.96; E6's was 0.9 ($104.08)
+→ E7 $101.77. **On E7 the blind pick IS the argmax of the entire search.**
+
+**What it is:** an intraday-recalibrated LEVEL rule — tau taken from the day's
+own past arrivals — on the **deployed champion score**, not on any of the
+night's new fitted targets. Exactly where the corrected prophet pointed (its
+money is in TAU_0.7/0.8 trading *every* session at 2.8-2.9 seats), and the
+opposite of everything the selectivity story recommended.
+
+**THE CAVEATS ARE PART OF THE RESULT:**
+1. **The two honest selectors disagree.** Prev-era finds this arm; the
+   INNER-BLOCK selector does not (E5 $7.64, E6 −$6.86, E7 −$143.35). The last
+   days of a training era are not a proxy for the next era. Until that is
+   understood this is **suggestive, not established**.
+2. E5 and E7 clear the global bar by **$1.44 and $1.05**. Margins that small
+   are not a claim.
+3. Choosing *which family* to quote is a selection step taken after seeing all
+   of them — which is why the conservative global bar is printed beside it.
+
+**SECDECL self-corrected, and it is an instructive loss.** Extending its grid
+downward to 30 knobs (as the era diagnosis demanded) raised the family's own
+null to $100.72, and its best blind reading — E7 $40.21 at 658 trades — no
+longer clears it. The morning's +$11.68 was measured against a narrower family.
+The extension cost more in search width than it bought. That is exactly what an
+in-sweep null is for, and it fired against the arm we most wanted to work.
+
+## WHAT WAS PUBLISHED, AND WHAT IT IS WORTH
 The night reported E5 $185.63 / E6 $1,261.25 / E7 $345.25 per session, capture
-0.4715 of the causal oracle on E6. The honest figures for those same cells are
-**E5 $0.19 / E6 $4.78 / E7 $1.60**, and the best *deployable* (blindly
-selected) policy in the whole corrected family is **E5 -$32.99 / E6 +$11.68 /
-E7 -$90.90**. Nothing is promoted. `CAUSAL_STATE.tsv` is the new ground truth.
+0.4715 on E6. Those same cells, honest: **E5 $0.19 / E6 $4.78 / E7 $1.60**.
+Nothing from the overnight lane is promoted.
 
 ## THE THREE DEFECTS, each independently sufficient to void the headline
 
@@ -71,7 +111,30 @@ The prize is real: `cell_best_minus_mean` = $889/$1,155/$1,398 and **every**
 cell has a positive best. The scores find it 12-15x better than chance and
 nowhere near often enough.
 
-## WHAT PAID (the only forward-looking result)
+## THE REPO-WIDE DENOMINATOR AUDIT (`DENOMINATOR_AUDIT_INDEX.tsv`)
+118 tables carry a per-session dollar column; **74 of 77 `read_rows` call sites
+feed it an unpadded replay**. What makes it tractable: **99 of those tables are
+pre-respecification** and already void for deployment on the seating defect, so
+the divisor is a second independent void, not a number to repair.
+* Load-bearing set (6), all disposed: ARRIVAL_PROPHET (corrected arithmetically;
+  its writer is now a repo stage), CAUSAL_BASELINE (24 cells replayed),
+  LEAK_SEATING (arithmetic), ARRIVAL_FITTED (superseded), ARRIVAL_ZOO
+  (superseded by the TRUE sweep), LEAK_SEATING_MECHANISM (per-trade, no divisor).
+* **The control that makes the correction trustworthy:** `S_XGB|DAYSOFAR_0.9`
+  fires in 393/393 sessions and corrects to **exactly zero change**.
+* **The leak audit's verdict survives its own correction:**
+  DEPLOYED_CELL_ARGMAX fires everywhere, and `delta_vs_deployed` used
+  `paired_delta`, which unions session keys and zero-fills — the one
+  denominator-safe construction that already existed. Only the causal arms'
+  LEVELS move (E4 CAUSAL_TAU_ORACLE $209.18 → $69.55).
+* Worst site: **`harvest.py:439`** sweeps tau to *maximise* the
+  conditional-on-trading mean. Also `newobj.paired_sessions` **intersects**
+  session sets.
+* **The bar has no writer.** The causal oracle exists only as prose in
+  LEAK_AUDIT.md plus a hardcoded dict. It is now verified independently: the
+  prophet TAU sweep returns $2,005.87/$2,656.24/$3,363.45, within 0.8/0.7/0.1%.
+
+## WHAT PAID EARLIER IN THE MORNING (superseded by line 1 above)
 **SECDECL_f_p** — causal-clock observation, then a bar falling from the running
 max to the p-quantile of what has been observed (SECRETARY x OCCUPANCY, the
 declining-bar shape the seated-vs-selected diagnosis prescribed, now with a
@@ -105,20 +168,25 @@ P2_DOMINANCE_SELECTION and P2_PHASE_BOUNDARY_TABLES, both upstream of session
 assembly. Rebuild chain: phase tables/dominance -> sessions -> roster -> matrix
 -> every fitted score.
 
-NEXT_ACTION: (1) **audit `read_rows`'s denominator across the whole repo** —
-every table written through `newobj.read_rows` for an abstaining arm carries
-the same defect (`ARRIVAL_ZOO.tsv`'s $147.52 E5 "honest causal baseline" sits
-at 1.014 seats/session and is the same signature; it is not auditable from the
-file because the zoo does not print n_sessions). (2) Push the SECDECL family:
-it is the only shape with a positive blind reading, the diagnosis (value
-arrives early) motivates a finer low-f grid, and the p-floor grid is
-pre-registered but coarse. (3) The corrected prophet says TAU_0.7/0.8 on a good
-LEVEL attains the oracle — so the modelling target is unchanged and now
-correctly aimed: a per-arrival LEVEL good enough for a moderate threshold that
-trades every session. (4) The two structural leak fixes + matrix rebuild.
+NEXT_ACTION: (1) **Resolve the selector disagreement** — it is the single
+thing standing between "suggestive" and "established". Why does the inner block
+(last days of the training era) fail to find what the previous era finds?
+Candidates: inner-block days are adjacent to the eval era but far fewer; the
+inner block is the tail of a training era rather than a whole era. Test a
+WHOLE-PRIOR-ERA inner selector and a rolling multi-era selector. (2) **Repair
+the abstention-biased selection at `harvest.py:439`** and re-run anything that
+depended on it. (3) **Push DAYSOFAR properly**: its grid is only
+{0.5, 0.7, 0.9} and the winner sat at 0.9 twice — a knob winning at its
+boundary has been truncated, not measured (the exact mistake SECRETARY made at
+0.5). Extend upward with the family-width penalty priced in. (4) The corrected
+prophet says a good LEVEL at a moderate threshold attains the oracle, and
+DAYSOFAR is a level rule on the *deployed* score — so the modelling target is
+a per-arrival LEVEL, and S_XGB already carries more of it than any fitted
+target did. (5) The two structural leak fixes + matrix rebuild.
 
 RESUME RECIPE: 1) this file 2) `tail -6 provenance/sessions/JOURNAL.md`
-3) `provenance/port_m2/{CAUSAL_STATE.tsv,KNOB_HONESTY.tsv,ERA_GAP.tsv,
+3) `provenance/port_m2/{TRUE_CAUSAL_STATE.tsv,TRUE_FAMILY_VERDICTS.tsv,
+TRUE_FAMILY_SWEEP.tsv,DENOMINATOR_AUDIT_INDEX.tsv,CAUSAL_STATE.tsv,KNOB_HONESTY.tsv,ERA_GAP.tsv,
 ARRIVAL_CAUSAL_SECRETARY.tsv,PROPHET_DENOMINATOR_CORRECTION.tsv,
 KNOB_INVARIANCE.tsv,ARRIVAL_FITTED2.tsv}`
 4) `engine/port_m2/knob_honesty.py` (the one inline driver; stages

@@ -151,6 +151,28 @@ class ArrivalRefusal(RuntimeError):
     """A guard fired.  Never downgraded, never silently filtered."""
 
 
+# THE SILENT-EMPTY LAW, added 2026-08-22 after the same defect was found THREE
+# TIMES IN ONE SESSION behind `if ref.size == 0: return []`:
+#   1. ARRIVAL_FITTED.tsv silently lost all 7 TAU and all 3 OCCUPANCY policies,
+#      because the fitted score columns were written only on eval rows;
+#   2. the same columns then made the OCCUPANCY family — the medicine the
+#      seated-vs-selected diagnosis prescribed — read as "already in flight"
+#      when it had never once executed;
+#   3. `FOLD_<era>_<seed>.npy` turns out to be finite on 100% of eval rows and
+#      0% of ALL training rows, so the level families have STILL never run on
+#      the DEPLOYED score, and the symptom ($0.00 at 0 trades) was misread as a
+#      level-shift finding rather than an absent-column one.
+# An empty seat list is indistinguishable from a policy that lawfully declined,
+# so it must never be returned when the CAUSE is a missing input.
+# A POLICY THAT CANNOT RUN MUST RAISE.  A POLICY THAT RAN AND DECLINED MAY
+# RETURN EMPTY.
+
+
+class EmptyReference(ArrivalRefusal):
+    """A policy could not run because an input it needs is absent — not
+    because it declined to seat.  Loud by construction."""
+
+
 def _sdir():
     import curriculum as CU
     return CU._sdir()
@@ -194,7 +216,10 @@ def ecdf_map(v, train_rows):
     ref = np.asarray(v)[train_rows]
     ref = np.sort(ref[np.isfinite(ref)])
     if ref.size == 0:
-        return np.full_like(np.asarray(v, dtype=np.float64), np.nan)
+        raise EmptyReference(
+            "ecdf_map: the TRAINING BLOCK carries no finite score (%d rows). "
+            "The score column has no coverage there, which is an ABSENT INPUT, "
+            "not an empty result." % len(train_rows))
     out = np.full(np.asarray(v).size, np.nan)
     m = np.isfinite(v)
     out[m] = np.searchsorted(ref, np.asarray(v)[m], side="right") / float(
@@ -246,6 +271,11 @@ def seats_daysofar(D, rows, score, q, warm=DAY_WARM):
     ro, so = r[order], sess[order]
     s = np.asarray(score)[ro]
     if ro.size == 0:
+        if len(np.asarray(rows)) > 0:
+            raise EmptyReference(
+                "seats_daysofar: %d rows were offered and NONE carries a "
+                "finite score — the column has no coverage on this row set."
+                % len(np.asarray(rows)))
         return []
     st = [0] + (np.flatnonzero(so[1:] != so[:-1]) + 1).tolist()
     out = []
@@ -305,7 +335,17 @@ def seats_occupancy(D, rows, score, c, train_rows):
     s = np.asarray(score)[ro]
     ref = np.asarray(score)[train_rows]
     ref = np.sort(ref[np.isfinite(ref)])
-    if ref.size == 0 or ro.size == 0:
+    if ref.size == 0:
+        raise EmptyReference(
+            "seats_occupancy: the TRAINING BLOCK carries no finite score "
+            "(%d rows), so the quantile reference cannot be built.  This is "
+            "the defect that hid the whole OCCUPANCY family."
+            % len(train_rows))
+    if ro.size == 0:
+        if len(np.asarray(rows)) > 0:
+            raise EmptyReference(
+                "seats_occupancy: %d rows offered, none with a finite score."
+                % len(np.asarray(rows)))
         return []
     tr_cells = np.unique(D["cell"][np.asarray(train_rows, dtype=np.int64)])
     n_mean = max(1.0, float(len(train_rows)) / max(tr_cells.size, 1))
@@ -378,7 +418,12 @@ def build_seats(D, rows, score, kind, knob, train_rows):
         ref = np.asarray(score)[train_rows]
         ref = ref[np.isfinite(ref)]
         if ref.size == 0:
-            return []
+            raise EmptyReference(
+                "seats_tau: the TRAINING BLOCK carries no finite score (%d "
+                "rows), so tau cannot be set.  This is the defect that hid all "
+                "seven TAU policies from ARRIVAL_FITTED.tsv and that still "
+                "hides the level families from the DEPLOYED score."
+                % len(train_rows))
         return seats_tau(D, rows, score, float(np.quantile(ref, knob)))
     if kind == "day":
         return seats_daysofar(D, rows, score, knob)

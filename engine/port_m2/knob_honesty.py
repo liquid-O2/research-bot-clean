@@ -1517,6 +1517,7 @@ def _true_job(job):
             rows_ev, train_rows = N.deployable(D, iva), itr
         else:
             rows_ev, train_rows = ev, tr
+        import arrival as _AR_ns  # noqa: F401
         cols = true_cols(D, col, era, mode)
         if not cols:
             # A column that does not exist for this era is a SKIP, not a
@@ -1530,7 +1531,14 @@ def _true_job(job):
         rng = np.random.default_rng(N.SEED)
 
         def read(v, kind, knob):
-            seats = build_ext(D, rows_ev, v, kind, knob, train_rows, pc)
+            try:
+                seats = build_ext(D, rows_ev, v, kind, knob, train_rows, pc)
+            except AR.EmptyReference as e:
+                # THE SILENT-EMPTY LAW, from the consuming side: a policy that
+                # CANNOT RUN is recorded as NOT_RUN, never as $0.00.  Reading
+                # an absent column as a zero-dollar result is exactly how the
+                # level families stayed invisible for three findings running.
+                return {"notrun": str(e)}
             rp = SF.apply_stop(D, AR.cap_seats(D, N.replay_delayed(
                 D, seats, P)), "STOP_WALL1")
             nst = int(sum(r["n_seated"] for r in rp))
@@ -1542,25 +1550,46 @@ def _true_job(job):
                     "nfire": len(rp), "nseat": nst,
                     "trade": full.get("usd_per_trade"),
                     "lo": full.get("ps_lo"), "hi": full.get("ps_hi"),
-                    "top5": sum(sv[:5]) / pos if pos > 0 else float("nan")}
+                    "top5": sum(sv[:5]) / pos if pos > 0 else float("nan"),
+                    "notrun": None}
         out = []
         for pname, kind, knob in POLSETS.get(polset, TRUE_POLICIES):
             t0 = time.time()
             acc = {k: [] for k in ("all", "nfire", "nseat", "trade", "lo",
                                    "hi", "top5")}
             null = []
+            notrun = None
             for v in cols:
                 r = read(v, kind, knob)
+                if r.get("notrun"):
+                    notrun = r["notrun"]
+                    break
                 for k in acc:
                     acc[k].append(r[k] if r[k] is not None else np.nan)
                 vs = v.copy()
                 fin = np.nonzero(np.isfinite(vs))[0]
                 vs[fin] = vs[rng.permutation(fin)]
                 null.append(read(vs, kind, knob)["all"])
+            if notrun:
+                hb("NOT_RUN %s %s %s %s: %s" % (mode, era, col, pname,
+                                                notrun[:110]))
+                out.append({"mode": mode, "era": era, "col": col,
+                            "policy": pname, "family": _family(pname),
+                            "n_sessions": nsess, "n_seeds": len(cols),
+                            "usd": float("nan"), "sd": float("nan"),
+                            "n_firing": float("nan"),
+                            "n_seated": float("nan"),
+                            "usd_trade": float("nan"),
+                            "ci_lo": float("nan"), "ci_hi": float("nan"),
+                            "top5_share": float("nan"),
+                            "null": float("nan"), "notrun": notrun,
+                            "secs": time.time() - t0})
+                continue
             a = np.asarray(acc["all"], dtype=np.float64)
             nl = np.asarray(null, dtype=np.float64)
             out.append({"mode": mode, "era": era, "col": col,
                         "policy": pname, "family": _family(pname),
+                        "notrun": None,
                         "n_sessions": nsess, "n_seeds": len(cols),
                         "usd": float(a.mean()), "sd": float(a.std()),
                         "n_firing": float(np.mean(acc["nfire"])),
@@ -1677,6 +1706,8 @@ def write_true():
             "diagnosis says the cell's best arrives at ~26% of the phase "
             "clock.  The old grid began at 0.25 — at its own boundary."])
     # ---------------- per-family honest selection ----------------
+    recs = [r for r in recs if not r.get("notrun")
+            and np.isfinite(r.get("usd", float("nan")))]
     ev = {(r["era"], r["col"], r["policy"]): r
           for r in recs if r["mode"] == "eval"}
     inn = {(r["era"], r["col"], r["policy"]): r
@@ -2597,8 +2628,9 @@ def write_dayx():
                 recs.extend(json.load(fh))
     if not recs:
         raise KnobRefusal("no DAYX records")
+    live = [r for r in recs if not r.get("notrun")]
     ev = {(r["era"], r["col"], r["policy"]): r
-          for r in recs if r["mode"] == "eval"}
+          for r in live if r["mode"] == "eval"}
     rows = []
     for r in sorted(recs, key=lambda z: (z["mode"], z["era"], z["col"],
                                          z["policy"])):

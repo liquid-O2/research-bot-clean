@@ -135,7 +135,11 @@ DAY_Q = (0.50, 0.70, 0.90)
 DAY_WARM = 10                  # arrivals observed before the intraday tau arms
 CELL_Q = (0.80, 0.90, 0.95, 0.99)   # the within-cell running quantile family
 OCC_C = (0.5, 1.0, 2.0)             # occupancy-aware stopping constant
-SEC_F = (0.10, 0.25, 0.50)     # fraction of the phase spent observing
+SEC_F = (0.10, 0.25, 0.50, 0.60, 0.70, 0.80)
+# EXTENDED UPWARD after ARRIVAL_FITTED: SECRETARY_0.5 won BOTH E6 ($491.53,
+# the program's best causal number) and E7 at the TOP of the old grid, seating
+# exactly 1.000/session — and the prophet's own best seats 1.0-1.2.  A knob that
+# wins at its boundary has not been measured, it has been truncated.
 
 
 def hb(m):

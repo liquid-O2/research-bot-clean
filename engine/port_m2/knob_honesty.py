@@ -379,11 +379,12 @@ def run_check():
     D, P = CF.boot()
     era, tgt, seed = "E6", "A_PBAR", 0
     tr, itr, iva, ev = NA.fold(D, era)
-    raw = load_full(tgt, era, seed)
+    raw = load_full(tgt, era, seed, "RAW")
+    calev = load_full(tgt, era, seed, "CALEV")
     cal = np.load(os.path.join(AF.SCORES, "%s_%s_%d.npy" % (tgt, era, seed))
                   ).astype(np.float64)
-    if raw is None:
-        raise KnobRefusal("--check needs --scores first")
+    if raw is None or calev is None:
+        raise KnobRefusal("--check needs --scores and --calib first")
 
     def read(v, kind, knob):
         seats = AR.build_seats(D, ev, v, kind, knob, tr)
@@ -396,19 +397,29 @@ def run_check():
             continue          # cal is all-NaN on tr, so it cannot be compared
         r1, s1 = read(raw, kind, knob)
         r2, s2 = read(cal, kind, knob)
+        _r3, s3 = read(calev, kind, knob)
         same = (sorted(s1) == sorted(s2))
+        repro = (sorted(s3) == sorted(s2))
         d1 = r1.get("usd_per_session")
         d2 = r2.get("usd_per_session")
         rows.append([pname, len(s1), len(s2), "YES" if same else "NO",
-                     N._r(d1), N._r(d2)])
-        hb("check %s: seats %d/%d identical=%s  $%s vs $%s"
-           % (pname, len(s1), len(s2), same, N._r(d1), N._r(d2)))
+                     "YES" if repro else "NO", N._r(d1), N._r(d2)])
+        hb("check %s: seats raw=%d cal=%d calev=%d  raw==cal:%s  "
+           "calev==incumbent:%s" % (pname, len(s1), len(s2), len(s3), same,
+                                    repro))
     nbad = sum(1 for r in rows if r[3] == "NO")
-    hb("INVARIANCE: %d of %d policies seat DIFFERENTLY on raw vs calibrated"
-       % (nbad, len(rows)))
+    nrep = sum(1 for r in rows if r[4] == "NO")
+    hb("INVARIANCE: %d of %d policies seat DIFFERENTLY on raw vs calibrated; "
+       "REPRODUCIBILITY: %d of %d disagree with the incumbent column"
+       % (nbad, len(rows), nrep, len(rows)))
+    if nrep:
+        raise KnobRefusal("%d policies do not reproduce the incumbent's seats "
+                          "from my CALEV column" % nrep)
     N.write_tsv("KNOB_INVARIANCE.tsv",
-                ["policy", "n_seats_raw", "n_seats_cal", "identical",
-                 "usd_raw", "usd_cal"], rows,
+                ["policy", "n_seats_raw", "n_seats_incumbent_cal",
+                 "raw_seats_identical_to_cal",
+                 "my_CALEV_identical_to_incumbent",
+                 "usd_firing_raw", "usd_firing_cal"], rows,
                 extra=[
                     "RED-FIRST, AND IT CAME BACK RED.  I expected this table "
                     "to show that every rule in the arrival family is a "
@@ -1220,6 +1231,125 @@ def run_diag(eras=BINDING, workers=3):
     return res
 
 
+# ============================== STAGE 5: THE HONEST CAUSAL STATE TABLE ======
+PUBLISHED = {"E5": ("A_PBAR", "SECRETARY_0.7", 185.63),
+             "E6": ("A_PBAR", "SECRETARY_0.6", 1261.25),
+             "E7": ("A_PBAR", "SECRETARY_0.7", 345.25)}
+PROPHET_CORRECTED = {"E5": ("TAU_0.7", 2005.87), "E6": ("TAU_0.7", 2656.24),
+                     "E7": ("TAU_0.8", 3363.45)}
+
+
+def run_state():
+    """THE NEW GROUND TRUTH.  One block per era: what was published, what the
+    same cell is worth once the denominator is honest, what it is worth once
+    the rule is causal, what an honest SELECTOR would have chosen, and the
+    ceiling and the bar it all sits under."""
+    recs = read_cache()
+    ext = read_ext()
+    ev = {(r["era"], r["target"], r["policy"]): r
+          for r in recs if r["mode"] == "eval"}
+    inn = {(r["era"], r["target"], r["policy"]): r
+           for r in recs if r["mode"] == "inner"}
+    xev = {(r["era"], r["target"], r["policy"]): r
+           for r in ext if r["mode"] == "eval"}
+    xinn = {(r["era"], r["target"], r["policy"]): r
+            for r in ext if r["mode"] == "inner"}
+    rows = []
+    for era in BINDING:
+        cl = AR.CAUSAL_ORACLE[era]
+        aim = 0.8 * cl
+        luck = max([r["null"] for r in recs
+                    if r["mode"] == "eval" and r["era"] == era]
+                   + [r["null"] for r in ext if r["mode"] == "eval"
+                      and r["era"] == era and np.isfinite(r["null"])],
+                   default=None)
+        tgt, pol, pub = PUBLISHED[era]
+
+        def add(label, r, status, override=None):
+            if r is None and override is None:
+                return
+            u = override if override is not None else r["usd"]
+            rows.append([
+                era, label,
+                "%s|%s" % (r["target"], r["policy"]) if r else "",
+                N._r(u), N._r(r["sd"]) if r else "",
+                N._r(r["n_seated"], 1) if r else "",
+                r["n_sessions"] if r else "",
+                N._r(r["usd_trade"]) if r else "",
+                N._r(luck) if luck is not None else "",
+                N._r(cl), N._r(u / cl, 4), N._r(aim), N._r(u - aim),
+                ("YES" if (luck is not None and u > luck) else "no")
+                if r else "", status])
+
+        rows.append([era, "0_AS_PUBLISHED_VOID", "%s|%s" % (tgt, pol),
+                     N._r(pub), "", "", "", "", "", N._r(cl),
+                     N._r(pub / cl, 4), N._r(aim), N._r(pub - aim), "",
+                     "VOID x3: eval-argmax knob, firing-session divisor, "
+                     "non-causal observation window"])
+        add("1_SAME_CELL_HONEST_DENOMINATOR", ev.get((era, tgt, pol)),
+            "same cell, same leaky rule, dollars over EVERY session")
+        add("2_SAME_CELL_CAUSAL_CLOCK",
+            xev.get((era, tgt, pol.replace("SECRETARY_", "SECTIME_"))),
+            "leaky observation window replaced by the phase clock")
+        ce = {k: v for k, v in list(ev.items()) + list(xev.items())
+              if k[0] == era}
+        if ce:
+            k = max(ce, key=lambda z: ce[z]["usd"])
+            add("3_BEST_EVAL_ARGMAX", ce[k],
+                "UPPER BOUND — argmax on the era being reported, NOT "
+                "deployable")
+        ci = {k: v for k, v in list(inn.items()) + list(xinn.items())
+              if k[0] == era}
+        if ci:
+            k = max(ci, key=lambda z: ci[z]["usd"])
+            r = ev.get((era, k[1], k[2])) or xev.get((era, k[1], k[2]))
+            add("4_BEST_INNER_SELECTED", r,
+                "DEPLOYABLE — cell chosen on the era's inner validation "
+                "block, read blind on eval")
+        pe = PREV.get(era)
+        cp = {k: v for k, v in list(ev.items()) + list(xev.items())
+              if k[0] == pe} if pe else {}
+        if cp:
+            k = max(cp, key=lambda z: cp[z]["usd"])
+            r = ev.get((era, k[1], k[2])) or xev.get((era, k[1], k[2]))
+            add("5_BEST_PREV_ERA_SELECTED", r,
+                "DEPLOYABLE — cell chosen on %s, read blind on %s" % (pe, era))
+        pp, pv = PROPHET_CORRECTED[era]
+        rows.append([era, "6_PROPHET_CEILING_CORRECTED", "TRUE_VALUE|%s" % pp,
+                     N._r(pv), "", "", "", "", "", N._r(cl),
+                     N._r(pv / cl, 4), N._r(aim), N._r(pv - aim), "",
+                     "HINDSIGHT ceiling of any arrival-time model, on the "
+                     "corrected denominator"])
+        rows.append([era, "7_CAUSAL_ORACLE_BAR", "", N._r(cl), "", "", "", "",
+                     "", N._r(cl), 1.0, N._r(aim), N._r(cl - aim), "",
+                     "the denominator every capture in this table uses"])
+    N.write_tsv(
+        "CAUSAL_STATE.tsv",
+        ["era", "line", "cell", "usd_per_session_ALL", "sd_usd",
+         "n_trades_total", "n_era_sessions", "usd_per_trade",
+         "family_luck_bar", "causal_oracle", "capture_of_causal_oracle",
+         "aim_08causal", "gap_to_aim", "beats_search_adjusted_null",
+         "status"], rows,
+        extra=[
+            "THE HONEST CAUSAL STATE OF THE ARRIVAL OBJECT.  Line 0 is what "
+            "the program published overnight and it is VOID on three counts, "
+            "each independently sufficient: the knob was chosen by argmax on "
+            "the era being reported; the dollars were divided by the sessions "
+            "that traded rather than the sessions that existed; and the "
+            "SECRETARY observation window k = round(frac x m) reads m, the "
+            "cell's EVENTUAL arrival count, which the arrival second cannot "
+            "know.",
+            "Lines 1 and 2 strip those defects one at a time from the SAME "
+            "cell, so the reader can see which one costs what.",
+            "Lines 3-5 are the selection question: 3 is the winner's curse "
+            "kept as an upper bound, 4 and 5 are the two honest selectors.  "
+            "Only 4 and 5 are deployable.",
+            "Lines 6-7 are the ceiling and the bar.  The prophet figure is the "
+            "denominator-corrected one from "
+            "PROPHET_DENOMINATOR_CORRECTION.tsv."])
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", action="store_true")
@@ -1229,6 +1359,7 @@ def main():
     ap.add_argument("--verdict", action="store_true")
     ap.add_argument("--causal", action="store_true")
     ap.add_argument("--diag", action="store_true")
+    ap.add_argument("--state", action="store_true")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--eras", nargs="*", default=None)
     a = ap.parse_args()
@@ -1255,6 +1386,9 @@ def main():
         did = True
     if a.diag:
         run_diag(eras=tuple(a.eras) if a.eras else BINDING)
+        did = True
+    if a.state:
+        run_state()
         did = True
     if not did:
         ap.print_help()

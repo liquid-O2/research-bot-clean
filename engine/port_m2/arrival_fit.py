@@ -68,7 +68,16 @@ SCORES = os.path.join(OUT_ROOT, "scores")
 BINDING = AR.BINDING
 ERAS = AR.ERAS
 SEEDS = AR.SEEDS
-TARGETS = ("A_PWIN", "A_PBAR", "A_EV")
+# The three arrival targets, plus the ENGINE VARIANTS of the expectancy that
+# ARRIVAL_ENGINES.tsv measured (LightGBM doubles E7's tail dollars over xgb and
+# cuts seed variance 27x).  Their score columns are already on disk; listing
+# them here is what puts them through the causal policy family and its
+# search-adjusted luck bar, which is the only thing that can promote them.
+TARGETS = ("A_PWIN", "A_PBAR", "A_EV",
+           "A_EV_LGBM", "A_EV_LGBM_DART", "A_EV_CATB")
+# The engine variants are SCORED ONLY (never refitted here): _one() returns
+# CACHED for any target whose .npy already exists, so --fit is a no-op for them
+# and --policy is what consumes them.
 
 
 def hb(m):

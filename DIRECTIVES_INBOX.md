@@ -510,3 +510,23 @@ it was closed under**, and the respecification changed the objective.
 causal policy family with its luck bar. Nothing here is claimable until it survives a replay —
 tail dollars is the right diagnostic for A_EV's level-consuming rules, but it is still a
 selection statistic.
+
+### UPDATE 00:12Z — engine variants wired in; ONE command finishes the chain
+
+`arrival_fit.TARGETS` now includes `A_EV_LGBM`, `A_EV_LGBM_DART`, `A_EV_CATB`. Their score
+columns are already on disk and `_one()` returns CACHED for them, so `--fit` is a no-op and
+`--policy` is what consumes them.
+
+**Do NOT launch while `port-secretary-ext` is alive** — it writes the same
+`ARRIVAL_FITTED.tsv`. Wait for its rc, then:
+
+```
+bash lab/run.sh port-fitted-final -- bash -c '\
+  PYTHONPATH=/workspace/engine/port_m2:/workspace/engine/port_m2/seqtest:/workspace/engine/port_m0:/workspace/engine/port_m1:/workspace/engine/port_m3:/workspace/artifacts/cache/pylibs \
+  python3 engine/port_m2/arrival_fit.py --policy --eras E5 E6 E7'
+```
+
+That single run gives the complete table: **6 scores × 27 policies** (SECRETARY extended to
+0.8) with the search-adjusted luck bar — every thread of the night converging in one place.
+It is the table that decides whether E7's LightGBM tail ($1,415/trade) and E6's
+`A_PBAR|SECRETARY_0.5` ($491.53/session) survive a replay.

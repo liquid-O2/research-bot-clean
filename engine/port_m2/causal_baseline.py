@@ -90,6 +90,28 @@ def _resolve(D, tr, sname, col):
     return np.asarray(col, dtype=np.float64)
 
 
+def _pad_all(D, rows_ev, rp):
+    """THE HONEST DENOMINATOR (denominator audit, 2026-08-22).
+
+    `newobj.replay_delayed` emits a row only for sessions that TRADED, so
+    `read_rows`' usd_per_session is conditional on trading.  This sweep then
+    took `max(sw, key=sw.get)` over exactly that quantity — so, like
+    `harvest.stage_abstain`, THE SELECTION OBJECTIVE ITSELF was the
+    conditional mean and the argmax was pulled toward whichever cell abstained
+    most.  Padding every non-trading session with $0 prices abstention instead
+    of excusing it.
+    """
+    have = {r["session"] for r in rp}
+    rp = list(rp)
+    for sess in np.unique(D["session"][np.asarray(rows_ev, dtype=np.int64)]):
+        sess = str(sess)
+        if sess not in have:
+            rp.append({"session": sess, "realised": 0.0, "n_takes": 0,
+                       "n_seated": 0, "n_forfeited": 0, "n_refused": 0,
+                       "seats": []})
+    return rp
+
+
 def sweep(D, P, era, keys=None, with_null=True):
     """(score, policy) -> mean $/session, plus the SEARCH-ADJUSTED LUCK BAR.
 
@@ -114,8 +136,8 @@ def sweep(D, P, era, keys=None, with_null=True):
                 v = _resolve(D, tr, sname, col)
                 rp = N.replay_delayed(
                     D, AR.build_seats(D, ev, v, kind, knob, tr), P)
-                r = N.read_rows(D, SF.apply_stop(
-                    D, AR.cap_seats(D, rp), "STOP_WALL1"))
+                r = N.read_rows(D, _pad_all(D, ev, SF.apply_stop(
+                    D, AR.cap_seats(D, rp), "STOP_WALL1")))
                 if r.get("usd_per_session") is not None:
                     vals.append(r["usd_per_session"])
                 if with_null:
@@ -124,8 +146,8 @@ def sweep(D, P, era, keys=None, with_null=True):
                     vs[fin] = vs[rng.permutation(fin)]
                     rp2 = N.replay_delayed(
                         D, AR.build_seats(D, ev, vs, kind, knob, tr), P)
-                    r2 = N.read_rows(D, SF.apply_stop(
-                        D, AR.cap_seats(D, rp2), "STOP_WALL1"))
+                    r2 = N.read_rows(D, _pad_all(D, ev, SF.apply_stop(
+                        D, AR.cap_seats(D, rp2), "STOP_WALL1")))
                     if r2.get("usd_per_session") is not None:
                         nvals.append(r2["usd_per_session"])
             if vals:

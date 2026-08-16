@@ -1472,6 +1472,16 @@ def true_cols(D, col, era, mode):
         v = z["X"][:, 0].astype(np.float64)
         z.close()
         return [v]
+    if col == "ORACLE_DAYRANK":
+        p = os.path.join(FULL, "ORACLE_DAYRANK_ALL_0_RAW.npy")
+        return [np.load(p).astype(np.float64)] if os.path.exists(p) else []
+    if col in ("S_XGB_DAYZ", "H1_DAYRANK"):
+        out = []
+        for s in SEEDS:
+            p = os.path.join(FULL, "%s_%s_%d_RAW.npy" % (col, era, s))
+            if os.path.exists(p):
+                out.append(np.load(p).astype(np.float64))
+        return out
     if col == "S_XGB":
         out = []
         for s in SEEDS:
@@ -1490,8 +1500,12 @@ def true_cols(D, col, era, mode):
     return out
 
 
+POLSETS = {}
+
+
 def _true_job(job):
-    mode, era, col = job
+    mode, era, col = job[0], job[1], job[2]
+    polset = job[3] if len(job) > 3 else "TRUE"
     try:
         import champ_floor as CF
         import stacked_final as SF
@@ -1524,7 +1538,7 @@ def _true_job(job):
                     "lo": full.get("ps_lo"), "hi": full.get("ps_hi"),
                     "top5": sum(sv[:5]) / pos if pos > 0 else float("nan")}
         out = []
-        for pname, kind, knob in TRUE_POLICIES:
+        for pname, kind, knob in POLSETS.get(polset, TRUE_POLICIES):
             t0 = time.time()
             acc = {k: [] for k in ("all", "nfire", "nseat", "trade", "lo",
                                    "hi", "top5")}
@@ -2258,6 +2272,432 @@ def run_truestate():
     return rows
 
 
+# ============ STAGE 9: THE DRAWING BOARD ON SCORE QUALITY — H1/H2 ==========
+# WHAT THE EVIDENCE ACTUALLY SAYS, AND WHY THESE ARE THE HYPOTHESES
+#   1. The winning arm is DAYSOFAR on S_XGB: a threshold taken from THE DAY'S
+#      OWN PAST ARRIVALS.  It consumes a WITHIN-DAY relative level.
+#   2. The champion score S_XGB is trained with a pairwise ranking objective
+#      GROUPED BY CELL (asset, day, phase).  The rule that wins compares
+#      within DAY.  THE OBJECTIVE AND THE RULE ARE MISMATCHED BY EXACTLY ONE
+#      LEVEL OF THE HIERARCHY — and this program's own law is that score type
+#      must be paired with rule type.
+#   3. Every target fitted overnight for "the decision we actually make"
+#      (A_PWIN, A_PBAR, A_EV, and the three engine variants) LOSES to the plain
+#      deployed score under the honest denominator.  Pointwise fitting onto
+#      global labels did not beat a within-cell pairwise ranker even for a
+#      level-consuming rule.  So the repair is not "another global target".
+#   4. DAYSOFAR manufactures its own level out of the day's arrivals, and it is
+#      the only thing that works.  That is direct evidence the score's level
+#      defect is a PER-DAY LOCATION/SCALE SHIFT rather than a missing model.
+#
+# H1  DAY-GROUPED RANKING.  Refit the champion's own objective with the group
+#     changed from CELL to (asset, DAY), labels = within-day certificate
+#     grades.  One line of grouping, aimed exactly at what DAYSOFAR eats.
+# H2  CAUSAL PER-DAY STANDARDISATION.  z = (s_j - mean(s_<j of the same day)) /
+#     sd(s_<j of the same day), warmup 10.  No fit at all.  If TAU on the
+#     standardised score reaches what DAYSOFAR reaches on the raw one, the
+#     level defect IS a per-day shift and the fix is arithmetic, not modelling.
+# CEILING PROBE  ORACLE_DAYRANK = the TRUE within-day certificate rank.
+#     HINDSIGHT.  It separates "the rule needs the day-RANK" from "the rule
+#     needs the dollar LEVEL": if the day-rank oracle already attains the
+#     DAYSOFAR shape ceiling, H1 is aimed at the right quantity.
+#
+# THE PROMOTION BAR, ON THE DEPLOYABLE LINE, PRE-REGISTERED:
+#     a score is promoted only if its PREV-ERA-SELECTED, all-session causal
+#     $/session is (a) positive in ALL THREE binding eras, (b) clears the
+#     GLOBAL search-adjusted null of this sweep in all three, and (c) beats the
+#     incumbent S_XGB|DAYSOFAR ($57.76 / $88.96 / $101.77) in at least two of
+#     three — with 5-seed sd reported and top-5 P&L concentration below 0.30.
+H1_COLUMNS = ("S_XGB", "S_XGB_DAYZ", "H1_DAYRANK", "ORACLE_DAYRANK")
+H1_POLICIES = ([("DAYSOFAR_%g" % q, "day", q) for q in AR.DAY_Q]
+               + [("TAU_%g" % q, "tau", q) for q in AR.TAU_Q]
+               + [("OCCUPANCY_%g" % c, "occ", c) for c in AR.OCC_C]
+               + [("CELLSOFAR_%g" % q, "cell", q) for q in AR.CELL_Q])
+# NARROW BY PRE-REGISTRATION, not by peeking: the era diagnosis and the
+# corrected prophet both name the LEVEL/day families, so the sweep is confined
+# to them and the search-adjusted null stays correspondingly low.
+INCUMBENT_DEPLOYABLE = {"E5": 57.76, "E6": 88.96, "E7": 101.77}
+
+
+def _day_groups(D, rows):
+    """rows sorted by (asset, day, arrival second) + per-DAY group sizes."""
+    r = np.asarray(rows, dtype=np.int64)
+    key = (D["asset_idx"][r].astype(np.int64) * 100000000
+           + D["d8"][r].astype(np.int64))
+    order = np.lexsort((D["dec_sec"][r], key))
+    ro, ko = r[order], key[order]
+    _u, cnt = np.unique(ko, return_counts=True)
+    return ro, cnt
+
+
+def day_grade(D, k=5):
+    """Within-(asset, day) certificate GRADE over the deployable pool: the
+    label DAYSOFAR's comparison set actually implies.  A_PBAR was this
+    quantity collapsed to one bit; this keeps the gradation."""
+    v = D["cert_close_usd"].astype(np.float64)
+    ok = (D["cert_refused"] == 0) & np.isfinite(v)
+    dep = np.zeros(v.size, dtype=bool)
+    dep[N.deployable(D, np.arange(v.size))] = True
+    y = np.zeros(v.size, dtype=np.float64)
+    key = (D["asset_idx"].astype(np.int64) * 100000000
+           + D["d8"].astype(np.int64))
+    order = np.argsort(key, kind="stable")
+    ko = key[order]
+    st = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
+    for a, b in zip(st, st[1:] + [ko.size]):
+        idx = order[a:b]
+        good = idx[ok[idx] & dep[idx]]
+        if good.size < k:
+            continue
+        q = np.quantile(v[good], np.linspace(0, 1, k + 1)[1:-1])
+        y[idx] = np.searchsorted(q, v[idx], side="right").astype(np.float64)
+    return y
+
+
+def _h1_one(job):
+    """H1: the champion's objective, regrouped from CELL to DAY."""
+    era, seed = job
+    try:
+        out = os.path.join(FULL, "H1_DAYRANK_%s_%d_RAW.npy" % (era, seed))
+        if os.path.exists(out):
+            return (era, seed, "CACHED", None)
+        import xgboost as xgb
+        import newobj_arms as NA
+        import rank_atlas as RA
+        import champ_floor as CF
+        import campaign as CP
+        import fold_stack as FS
+        D, _P = CF.boot()
+        tr, itr, iva, ev = NA.fold(D, era)
+        y = day_grade(D)
+        base_cols, base_names = NA.feat_cols(D)
+        vec_base = list(CP._vec(D, era, FS.BEST_K[era]))
+        keep = [j for j, n in enumerate(base_names)
+                if n not in AR.LEAKY_FEATURES]
+        cols = [base_cols[j] for j in keep]
+        names = [base_names[j] for j in keep]
+        vec = ([vec_base[j] for j in keep]
+               if len(vec_base) == len(base_cols) else [0] * len(keep))
+        XF = D["X"][:, cols]
+        hp = NA.CHAMP_HP[era]
+        vec = vec[:XF.shape[1]] + [0] * max(0, XF.shape[1] - len(vec))
+        r_f, g_f = _day_groups(D, N.deployable(D, itr))
+        cfg = {"objective": "rank:ndcg", "eval_metric": "ndcg",
+               "tree_method": "hist", "min_child_weight": 20, "subsample": .8,
+               "colsample_bytree": .8, "max_depth": hp["max_depth"],
+               "eta": hp["eta"], "seed": N.SEED + seed,
+               "nthread": RA.N_THREAD,
+               "lambdarank_num_pair_per_sample":
+                   int(hp["lambdarank_num_pair_per_sample"]),
+               "monotone_constraints": "(" + ",".join(str(int(z))
+                                                      for z in vec) + ")"}
+        d = xgb.DMatrix(XF[r_f], label=y[r_f], feature_names=names)
+        d.set_group(g_f)
+        b = xgb.train(cfg, d, int(hp["rounds"]))
+        del d
+        want = np.union1d(np.asarray(tr, dtype=np.int64),
+                          np.asarray(ev, dtype=np.int64))
+        sc = np.full(D["d8"].size, np.nan)
+        sc[want] = b.predict(xgb.DMatrix(XF[want], feature_names=names))
+        os.makedirs(FULL, exist_ok=True)
+        np.save(out, sc.astype(np.float32))
+        return (era, seed, None, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (era, seed, "%s: %s | %s" % (type(e).__name__, e,
+                                            traceback.format_exc()[-300:]),
+                None)
+
+
+def build_probe_columns():
+    """H2 and the ceiling probe.  Neither needs a fit."""
+    import champ_floor as CF
+    D, _P = CF.boot()
+    key = (D["asset_idx"].astype(np.int64) * 100000000
+           + D["d8"].astype(np.int64))
+    # ---- ORACLE_DAYRANK: hindsight within-day rank of the true certificate
+    p = os.path.join(FULL, "ORACLE_DAYRANK_ALL_0_RAW.npy")
+    if not os.path.exists(p):
+        v = np.where(D["cert_refused"] == 0,
+                     D["cert_close_usd"].astype(np.float64), np.nan)
+        out = np.full(v.size, np.nan)
+        order = np.argsort(key, kind="stable")
+        ko = key[order]
+        st = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
+        for a, b in zip(st, st[1:] + [ko.size]):
+            idx = order[a:b]
+            m = np.isfinite(v[idx])
+            if m.sum() < 2:
+                continue
+            g = idx[m]
+            out[g] = (np.argsort(np.argsort(v[g])).astype(np.float64)
+                      / max(g.size - 1, 1))
+        np.save(p, out.astype(np.float32))
+        hb("built ORACLE_DAYRANK (HINDSIGHT ceiling probe)")
+    # ---- S_XGB_DAYZ: causal day-so-far standardisation of the folded score
+    for era in FIT_ERAS:
+        for s in SEEDS:
+            src = os.path.join(AR._sdir(), "FOLD_%s_%d.npy" % (era, s))
+            dst = os.path.join(FULL, "S_XGB_DAYZ_%s_%d_RAW.npy" % (era, s))
+            if os.path.exists(dst) or not os.path.exists(src):
+                continue
+            v = np.load(src).astype(np.float64)
+            out = np.full(v.size, np.nan)
+            order = np.lexsort((D["dec_sec"], key))
+            ko = key[order]
+            st = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
+            for a, b in zip(st, st[1:] + [ko.size]):
+                idx = order[a:b]
+                x = v[idx]
+                fin = np.isfinite(x)
+                xf = np.where(fin, x, 0.0)
+                n = np.cumsum(fin.astype(np.float64))
+                c1 = np.cumsum(xf)
+                c2 = np.cumsum(xf * xf)
+                nn = np.maximum(n - 1.0, 0.0)          # strictly PAST only
+                mu = np.where(nn > 0, (c1 - xf) / np.maximum(nn, 1.0), np.nan)
+                ex2 = np.where(nn > 0, (c2 - xf * xf) / np.maximum(nn, 1.0),
+                               np.nan)
+                sd = np.sqrt(np.maximum(ex2 - mu * mu, 1e-12))
+                z = np.where((nn >= 10) & fin, (x - mu) / sd, np.nan)
+                out[idx] = z
+            np.save(dst, out.astype(np.float32))
+        hb("built S_XGB_DAYZ %s" % era)
+
+
+def run_h1(workers=20, eras=BINDING):
+    import multiprocessing as mp
+    jobs = [(e, s) for e in FIT_ERAS for s in SEEDS]
+    hb("H1: %d day-grouped ranker fits" % len(jobs))
+    nerr = 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for era, seed, err, _ in pool.imap_unordered(_h1_one, jobs):
+            if err == "CACHED":
+                hb("cached H1 %s s%d" % (era, seed))
+            elif err:
+                nerr += 1
+                hb("H1 FIT FAILED %s s%d: %s" % (era, seed, err))
+            else:
+                hb("H1 fit %s s%d done" % (era, seed))
+    if nerr:
+        raise KnobRefusal("%d H1 fits FAILED" % nerr)
+    build_probe_columns()
+    hb("H1 columns ready")
+
+
+# ================ STAGE 10: ESTABLISH OR KILL S_XGB|DAYSOFAR ===============
+# THE GRID IS EXTENDED PAST ITS BOUNDARY, PRE-REGISTERED HERE.  DAYSOFAR's grid
+# was {0.5, 0.7, 0.9} and the blind chain picked 0.9 twice — a knob that wins
+# at its boundary has been TRUNCATED, NOT MEASURED.  That is the third time
+# this program has made the same mistake (SECRETARY at 0.5, SECDECL at 0.25).
+DAY_Q2 = (0.50, 0.70, 0.80, 0.90, 0.92, 0.95, 0.97)
+DAYX_POLICIES = [("DAYSOFAR_%g" % q, "day", q) for q in DAY_Q2]
+POLSETS["DAYX"] = DAYX_POLICIES
+# THE CHAIN IS EXTENDED BACKWARD.  More BLIND readings is the only honest way
+# to grow n: E3->E4, E4->E5, E5->E6, E6->E7 is four blind links instead of two.
+DAYX_ERAS = ("E3", "E4", "E5", "E6", "E7")
+DAYX_CHAIN = (("E3", "E4"), ("E4", "E5"), ("E5", "E6"), ("E6", "E7"))
+
+
+def _selector_diag(era):
+    """WHY DOES PREV-ERA TRANSFER WHILE THE INNER BLOCK DOES NOT?
+
+    My first suspicion was a slow regime variable.  The fold arithmetic says
+    something simpler and worse.  `newobj_arms.fold` splits the TRAINING block
+    by day: itr = the earlier days, iva = the LATER days — so the inner
+    validation block is drawn from the same prior eras the previous-era
+    selector uses.  They are nearly the same DAYS.  What differs is the SCORE:
+    the folded champion column `FOLD_<era>_<seed>.npy` is trained on the WHOLE
+    training block, and the inner validation days are INSIDE it.  So S_XGB is
+    OUT-OF-SAMPLE on the eval era and IN-SAMPLE on the inner block, and the
+    inner-block selector was never valid for the one column that wins.
+
+    This returns the measurement that settles it: the score-to-certificate
+    rank correlation of S_XGB on the inner block against the eval era.  If the
+    inner figure is materially higher, the block is in-sample and the selector
+    is reading a fitted score, not a forecast.
+    """
+    import champ_floor as CF
+    import newobj_arms as NA
+    D, _P = CF.boot()
+    tr, itr, iva, ev = NA.fold(D, era)
+    ivad = N.deployable(D, iva)
+    cert = np.where(D["cert_refused"] == 0,
+                    D["cert_close_usd"].astype(np.float64), np.nan)
+    out = {"era": era, "n_iva_days": int(np.unique(D["d8"][ivad]).size),
+           "n_ev_days": int(np.unique(D["d8"][ev]).size),
+           "n_itr_days": int(np.unique(D["d8"][itr]).size)}
+    for tag, rows in (("iva", ivad), ("ev", ev)):
+        sp = []
+        for s in SEEDS:
+            p = os.path.join(AR._sdir(), "FOLD_%s_%d.npy" % (era, s))
+            if not os.path.exists(p):
+                continue
+            v = np.load(p).astype(np.float64)
+            m = np.isfinite(v[rows]) & np.isfinite(cert[rows])
+            if m.sum() > 1000:
+                sp.append(_spear(v[rows][m], cert[rows][m]))
+        out["S_XGB_spearman_%s" % tag] = float(np.nanmean(sp)) if sp else None
+    a, b = out.get("S_XGB_spearman_iva"), out.get("S_XGB_spearman_ev")
+    out["inner_minus_eval_spearman"] = (a - b) if (a is not None
+                                                   and b is not None) else None
+    return out
+
+
+def run_dayx(workers=24):
+    """ESTABLISH OR KILL.  The extended grid on the extended blind chain, with
+    both the pre-registered narrow reading and the wide one, each against its
+    OWN search width."""
+    import json
+    import multiprocessing as mp
+    jobs = ([("eval", e, c, "DAYX") for e in DAYX_ERAS for c in H1_COLUMNS[:1]
+             + TRUE_COLUMNS]
+            + [("inner", e, c, "DAYX") for e in DAYX_ERAS[1:]
+               for c in TRUE_COLUMNS])
+    jobs = sorted({(m, e, c, "DAYX") for m, e, c, _p in jobs})
+    os.makedirs(CACHE, exist_ok=True)
+    todo = [j for j in jobs
+            if not os.path.exists(os.path.join(
+                CACHE, "DAYX_%s_%s_%s.json" % (j[0], j[1], j[2])))]
+    hb("DAYX: %d jobs (%d cached), %d knobs" % (len(todo),
+                                                len(jobs) - len(todo),
+                                                len(DAYX_POLICIES)))
+    nerr = 0
+    if todo:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(processes=workers) as pool:
+            for mode, era, col, out, err in pool.imap_unordered(_true_job,
+                                                                todo):
+                if err:
+                    nerr += 1
+                    hb("DAYX FAILED %s %s %s: %s" % (mode, era, col, err))
+                    continue
+                with open(os.path.join(CACHE, "DAYX_%s_%s_%s.json"
+                                       % (mode, era, col)), "w") as fh:
+                    json.dump(out, fh)
+                hb("DAYX done %s %s %s" % (mode, era, col))
+    if nerr:
+        raise KnobRefusal("%d DAYX jobs FAILED" % nerr)
+    return write_dayx()
+
+
+def write_dayx():
+    import json
+    recs = []
+    for fn in sorted(os.listdir(CACHE)):
+        if fn.startswith("DAYX_") and fn.endswith(".json"):
+            with open(os.path.join(CACHE, fn)) as fh:
+                recs.extend(json.load(fh))
+    if not recs:
+        raise KnobRefusal("no DAYX records")
+    ev = {(r["era"], r["col"], r["policy"]): r
+          for r in recs if r["mode"] == "eval"}
+    rows = []
+    for r in sorted(recs, key=lambda z: (z["mode"], z["era"], z["col"],
+                                         z["policy"])):
+        cl = AR.CAUSAL_ORACLE.get(r["era"])
+        rows.append([r["mode"], r["era"], r["col"], r["policy"],
+                     N._r(r["usd"]), N._r(r["sd"]), N._r(r["ci_lo"]),
+                     N._r(r["ci_hi"]), N._r(r["n_seated"], 1),
+                     N._r(r["n_firing"], 1), r["n_sessions"],
+                     N._r(r["usd_trade"]), N._r(r["top5_share"], 3),
+                     N._r(r["null"]), N._r(cl),
+                     N._r(r["usd"] / cl, 4) if cl else ""])
+    N.write_tsv(
+        "DAYSOFAR_EXTENDED.tsv",
+        ["mode", "era", "score_column", "policy", "usd_per_session_ALL",
+         "sd_usd", "ci_lo", "ci_hi", "n_trades_total", "n_firing_sessions",
+         "n_era_sessions", "usd_per_trade", "top5_trade_share_of_pnl",
+         "shuffled_null", "causal_oracle", "capture_of_causal_oracle"], rows,
+        extra=["The DAYSOFAR grid EXTENDED PAST ITS 0.9 BOUNDARY to "
+               "{0.92, 0.95, 0.97}, on the blind chain extended BACKWARD to "
+               "E3->E4.  All-session denominators, 5 seeds, in-sweep nulls."])
+    # ---- the blind chain, narrow (S_XGB only) and wide (all columns) ----
+    crows = []
+    for sel, tgt in DAYX_CHAIN:
+        cl = AR.CAUSAL_ORACLE.get(tgt)
+        for width, cols in (("NARROW_S_XGB_prereg", ("S_XGB",)),
+                            ("WIDE_all_columns",
+                             tuple(sorted({k[1] for k in ev})))):
+            cp = {k: v for k, v in ev.items()
+                  if k[0] == sel and k[1] in cols}
+            if not cp:
+                continue
+            k = max(cp, key=lambda z: cp[z]["usd"])
+            r = ev.get((tgt, k[1], k[2]))
+            if r is None:
+                continue
+            bar = max((x["null"] for x in recs if x["mode"] == "eval"
+                       and x["era"] == tgt and x["col"] in cols),
+                      default=None)
+            crows.append([
+                "%s->%s" % (sel, tgt), width, "%s|%s" % (k[1], k[2]),
+                N._r(cp[k]["usd"]), N._r(r["usd"]), N._r(r["sd"]),
+                N._r(r["ci_lo"]), N._r(r["ci_hi"]), N._r(r["n_seated"], 1),
+                N._r(r["n_firing"], 1), r["n_sessions"],
+                N._r(r["top5_share"], 3), N._r(bar),
+                len(cols) * len(DAYX_POLICIES),
+                "YES" if (bar is not None and r["usd"] > bar) else "no",
+                N._r(r["usd"] / cl, 4) if cl else "",
+                "POSITIVE" if r["usd"] > 0 else "NEGATIVE"])
+    N.write_tsv(
+        "DAYSOFAR_BLIND_CHAIN.tsv",
+        ["link", "search_width", "cell_chosen_on_selector_era",
+         "usd_on_selector_era", "usd_on_TARGET_era_BLIND", "sd_usd", "ci_lo",
+         "ci_hi", "n_trades_total", "n_firing_sessions", "n_era_sessions",
+         "top5_trade_share_of_pnl", "search_adjusted_null", "n_cells_searched",
+         "beats_null", "capture_of_causal_oracle", "sign"], crows,
+        extra=[
+            "ESTABLISH OR KILL.  Four BLIND links instead of two: the knob is "
+            "chosen on the selector era and read on the target era, never "
+            "the other way.",
+            "TWO WIDTHS, BOTH REPORTED.  NARROW is the pre-registered "
+            "incumbent column S_XGB with only the 7-knob grid searched.  WIDE "
+            "re-selects the column too and pays the wider null for it.  "
+            "Quoting only the narrow one would hide that S_XGB was itself "
+            "chosen after seeing the previous sweep.",
+            "usd_on_selector_era is printed beside the blind reading so the "
+            "SHRINKAGE from selection to blind application is visible on every "
+            "link."])
+    # ---- the selector-disagreement diagnostic ----
+    drows = []
+    for era in DAYX_ERAS[1:]:
+        try:
+            d = _selector_diag(era)
+        except Exception as e:                            # noqa: BLE001
+            hb("selector diag failed %s: %s" % (era, e))
+            continue
+        drows.append([d["era"], d["n_itr_days"], d["n_iva_days"],
+                      d["n_ev_days"], N._r(d.get("S_XGB_spearman_iva"), 5),
+                      N._r(d.get("S_XGB_spearman_ev"), 5),
+                      N._r(d.get("inner_minus_eval_spearman"), 5)])
+    N.write_tsv(
+        "SELECTOR_DISAGREEMENT.tsv",
+        ["era", "n_inner_train_days", "n_inner_val_days", "n_eval_days",
+         "S_XGB_spearman_vs_cert_INNER", "S_XGB_spearman_vs_cert_EVAL",
+         "inner_minus_eval"], drows,
+        extra=[
+            "WHY PREV-ERA TRANSFERS AND THE INNER BLOCK DOES NOT.  My first "
+            "guess was a slow regime variable.  The fold arithmetic says "
+            "something simpler and worse: `newobj_arms.fold` splits the "
+            "TRAINING block by day, so the inner validation days come from the "
+            "same prior eras the previous-era selector uses — they are nearly "
+            "the same DAYS.  What differs is the SCORE.  The folded champion "
+            "column FOLD_<era>_<seed>.npy is trained on the WHOLE training "
+            "block and the inner validation days are INSIDE it.",
+            "So S_XGB is OUT-OF-SAMPLE on the eval era and IN-SAMPLE on the "
+            "inner block.  The inner-block selector was never valid for the "
+            "one column that wins, and the 'disagreement' is not evidence "
+            "against the arm — it is a defect in the selector.",
+            "The spearman columns are the test: a materially HIGHER "
+            "score-to-certificate rank correlation on the inner block than on "
+            "the eval era is the in-sample signature."])
+    hb("DAYX: %d sweep rows, %d chain links" % (len(rows), len(crows)))
+    del json
+    return crows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", action="store_true")
@@ -2275,6 +2715,8 @@ def main():
     ap.add_argument("--prophetfix", action="store_true")
     ap.add_argument("--leakfix", action="store_true")
     ap.add_argument("--truestate", action="store_true")
+    ap.add_argument("--dayx", action="store_true")
+    ap.add_argument("--h1", action="store_true")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--eras", nargs="*", default=None)
     a = ap.parse_args()
@@ -2314,6 +2756,12 @@ def main():
         did = True
     if a.leakfix:
         run_leakfix()
+        did = True
+    if a.dayx:
+        run_dayx(workers=a.workers)
+        did = True
+    if a.h1:
+        run_h1(workers=a.workers)
         did = True
     if a.truestate:
         run_truestate()

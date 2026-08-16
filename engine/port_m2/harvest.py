@@ -412,6 +412,28 @@ def stage_ensemble(eras=WEAK, inflate=5, pairs=16, seeds=(0, 1, 2, 3, 4),
     return rows
 
 
+def _read_all(D, rows_ev, takes, P):
+    """`read_rows` with THE HONEST DENOMINATOR.
+
+    `newobj.replay_delayed` emits a row only for sessions that produced a take
+    and `read_rows` averages over exactly those, so its `usd_per_session` is
+    conditional on trading.  For an abstaining arm that is a different quantity
+    wearing the same name.  Every session in `rows_ev` that never traded is
+    padded here with a $0 row, so the mean is over the sessions that existed
+    and the day-clustered interval is over the real day clusters.
+    """
+    rp = N.replay_delayed(D, takes, P)
+    have = {r["session"] for r in rp}
+    rp = list(rp)
+    for sess in np.unique(D["session"][np.asarray(rows_ev, dtype=np.int64)]):
+        sess = str(sess)
+        if sess not in have:
+            rp.append({"session": sess, "realised": 0.0, "n_takes": 0,
+                       "n_seated": 0, "n_forfeited": 0, "n_refused": 0,
+                       "seats": []})
+    return N.read_rows(D, rp)
+
+
 # ======================================================= 3: THE ABSTENTION ====
 def stage_abstain(eras=ERAS, inflate=5, pairs=16):
     """TREATMENT 3 -- a plain threshold on the arm's OWN score, inner-selected.
@@ -436,13 +458,22 @@ def stage_abstain(eras=ERAS, inflate=5, pairs=16):
             tk = [(i, d) for (i, d) in
                   N.top_per_cell_score(D, iva_dep, sc_iva, n_)
                   if sc_iva[i] >= tau]
-            v = N.read_rows(D, N.replay_delayed(D, tk, P)).get(
-                "usd_per_session")
+            # DEFECT REPAIRED (denominator audit, 2026-08-22).  This loop used
+            # to select tau on `read_rows(replay_delayed(...))`, whose
+            # `usd_per_session` averages ONLY over sessions that traded — so
+            # THE SELECTION OBJECTIVE WAS THE CONDITIONAL-ON-TRADING MEAN and
+            # the search was driven toward whichever tau abstained most.  That
+            # is the worst instance of the defect in this engine: everywhere
+            # else it corrupted a reported number, here it corrupted the
+            # objective a knob was chosen by.  `_read_all` pads every
+            # non-trading session with $0 so an abstention is priced, not
+            # excused.
+            v = _read_all(D, iva_dep, tk, P).get("usd_per_session")
             if v is not None and v > best_v:
                 best_tau, best_v = tau, v
         tk = [(i, d) for (i, d) in N.top_per_cell_score(D, ev_r, sc, n_)
               if sc[i] >= best_tau]
-        a = N.read_rows(D, N.replay_delayed(D, tk, P))
+        a = _read_all(D, ev_r, tk, P)
         per_era_on[era] = a
         wk = a["n_seated"] / max(len(set(D["d8"][ev_r].tolist())) / 5.0, 1e-9)
         rows.append([era, N._r(base["usd_per_session"]), base["n_seated"],
@@ -466,7 +497,19 @@ def stage_abstain(eras=ERAS, inflate=5, pairs=16):
                 ["era", "no_veto_usd", "no_veto_seats", "abstain_usd", "lo",
                  "hi", "abstain_seats", "delta_usd", "tau", "takes_per_week"],
                 rows,
-                extra=["TREATMENT 3: one threshold per era on the arm's own "
+                extra=["DENOMINATOR DEFECT REPAIRED 2026-08-22: the tau "
+                       "search used to maximise read_rows' usd_per_session, "
+                       "which averages only over sessions that TRADED, so the "
+                       "selection objective was the conditional-on-trading "
+                       "mean and the search was pulled toward whichever tau "
+                       "abstained most.  Both the selection and the eval read "
+                       "now pad non-trading sessions with $0 (`_read_all`).  "
+                       "NOTE: this lane still seats `top_per_cell_score`, the "
+                       "cell's EVENTUAL argmax, so its dollars remain "
+                       "VOID_FOR_DEPLOYMENT on the seating defect — the repair "
+                       "is at source so the pattern is not reused, not to "
+                       "resurrect the table.",
+                       "TREATMENT 3: one threshold per era on the arm's own "
                        "score, chosen on the inner validation block by realised "
                        "$/session and nothing else.  The grid CONTAINS -inf, so "
                        "if abstention is worthless the inner block can return "

@@ -460,3 +460,36 @@ score, is the axis.**
 estimates the continuation value from the training block's own late-arrival distribution;
 (3) only then return to targets.
 - [2026-08-15T23:46:48Z] AUTONOMY HEARTBEAT (D-074, user order: run autonomously until the goal is exceeded — never idle). You are the port-program orchestrator. Do now, in order: (1) read /workspace/STATE.md NEXT_ACTION + `tail -20 /workspace/provenance/sessions/JOURNAL.md` + `/workspace/lab/run.sh --list` + check heartbeat freshness of any port-* runs (a stale hb >15min on a live pid = investigate); (2) if a lane/run has finished without being adjudicated, adjudicate it now (rulings, PROGRESS/JOURNAL/STATE, commit+push) and launch the next stage per STATE; (3) if a lane died or hung, diagnose and relaunch it; (4) if all work is genuinely mid-flight and healthy, verify watchers exist for every background job, journal nothing, and end the turn silently. The program sequence after M2c: E1 study round (day-complete, full protocol stack) -> E1 blind -> name->count censuses of validated patterns -> era advance per D-058 -> feature construction from convergent evidence -> M3 model -> walk-forward gates vs D-048. Never park work the repo can advance (D-028/D-029); user-reserved classes only (walls/risk-contract/live-money).
+
+### UPDATE 00:08Z — `ARRIVAL_FITTED.tsv` landed and it changes the picture. READ THIS FIRST.
+
+**Best causal number the program has produced: E6 `A_PBAR|SECRETARY_0.5` = $491.53/session**
+at exactly **1.000 seats/session**, capture **0.1838** of the causal oracle, luck bar **-$10.03**.
+That is 4.0x the zoo's E6 best and 3.3x the previous overall best ($147.52).
+E7 `A_PBAR|SECRETARY_0.5` $96.50 (luck $57.22). E5 still poor: $16.76.
+
+**I was wrong to kill A_PBAR and the reason matters more than the reversal.** I condemned it
+on a tail-dollar diagnostic thresholded at a *global quantile* — a **level** operation applied
+to a **relative** score. Under `SECRETARY` (a pure rank rule, invariant to monotone transforms)
+A_PBAR is the best score in two of three binding eras.
+
+**The law this establishes — it supersedes my earlier "tail dollars is the right diagnostic":**
+> The diagnostic must match **the rule the score will be used by.**
+> Tail-dollars-at-a-global-threshold is right for **level-consuming** rules (TAU, OCCUPANCY)
+> and wrong for **rank-consuming** rules (SECRETARY, CELLSOFAR). AUC is wrong for both.
+> **Pair score type with rule type:** relative score → relative rule; absolute score → level rule.
+> Tonight produced one clean example of each mismatch: A_PBAR-under-TAU (-$115 tail) and
+> A_EV-under-SECRETARY ($5.37).
+
+**Three independent measurements now agree that TIME-SELECTIVITY is the axis:** the winner
+seats 1.000/session; the prophet's best seats 1.0–1.2; every rule seating 1.7–2.2 bleeds; and
+seated-vs-selected survival collapses precisely because early arrivals consume the position.
+
+**Revised morning order:**
+1. Push on `SECRETARY`-family variants around the E6 winner — the observe-fraction grid is only
+   {0.1, 0.25, 0.5} and 0.5 won at both ends; **extend it upward (0.6, 0.7, 0.8)**, which the
+   1.0-seat/session result and the prophet both predict will help.
+2. Ask why **E5 is immune** ($16.76 while E6 gives $491.53) — that per-era spread is now the
+   biggest unexplained variance in the table.
+3. `OCCUPANCY` rows in the same table (the level-consuming medicine for A_EV) — check whether
+   they lift A_EV the way SECRETARY lifts A_PBAR.

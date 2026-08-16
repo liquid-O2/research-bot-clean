@@ -938,6 +938,10 @@ def build_ext(D, rows, score, kind, knob, train_rows, pc):
         return seats_sec_nhat(D, rows, score, knob, train_rows)
     if kind == "secdecl":
         return seats_sec_decl(D, rows, score, knob[0], knob[1], pc)
+    if kind == "tauz":
+        # ABSOLUTE threshold on a score that carries its own scale.  No
+        # training-block reference exists or is needed.
+        return AR.seats_tau(D, rows, score, float(knob))
     return AR.build_seats(D, rows, score, kind, knob, train_rows)
 
 
@@ -2744,6 +2748,584 @@ def write_dayx():
     return crows
 
 
+# ============ STAGE 11: H1/H2 POLICY EVALUATION — the decisive stage ========
+# TAUZ IS THE ADDITION THAT MAKES H2 TESTABLE AT ALL, and it is forced by the
+# coverage finding rather than invented for it.  H2's whole claim is that the
+# level defect is a PER-DAY shift, so a standardised score should be usable by
+# a LEVEL rule.  But `S_XGB_DAYZ` is derived from the folded column, which has
+# no training-block coverage, so TAU — whose threshold is a TRAINING quantile —
+# cannot run on it and would only record NOT_RUN.  A z-score, however, carries
+# its own scale: an ABSOLUTE threshold on it needs no training block whatsoever.
+# TAUZ is therefore the level rule H2 implies, and it is the shape the corrected
+# prophet points at (a threshold that trades every session) made reachable by a
+# score that never had a global level.
+TAUZ_T = (0.5, 1.0, 1.5, 2.0, 2.5)
+H1_POLICIES = ([("DAYSOFAR_%g" % q, "day", q) for q in AR.DAY_Q]
+               + [("TAU_%g" % q, "tau", q) for q in AR.TAU_Q]
+               + [("TAUZ_%g" % t, "tauz", t) for t in TAUZ_T]
+               + [("OCCUPANCY_%g" % c, "occ", c) for c in AR.OCC_C]
+               + [("CELLSOFAR_%g" % q, "cell", q) for q in AR.CELL_Q]
+               + [("SECTIME_%g" % f, "sectime", f) for f in SEC_F2])
+POLSETS["H1"] = H1_POLICIES
+H1EVAL_ERAS = ("E3", "E4", "E5", "E6", "E7")
+H1_CHAIN = (("E4", "E5"), ("E5", "E6"), ("E6", "E7"))
+
+
+def run_h1eval(workers=24):
+    import json
+    import multiprocessing as mp
+    jobs = ([("eval", e, c, "H1") for e in H1EVAL_ERAS for c in H1_COLUMNS]
+            + [("inner", e, c, "H1") for e in H1EVAL_ERAS[1:]
+               for c in H1_COLUMNS])
+    os.makedirs(CACHE, exist_ok=True)
+    todo = [j for j in jobs
+            if not os.path.exists(os.path.join(
+                CACHE, "H1E_%s_%s_%s.json" % (j[0], j[1], j[2])))]
+    hb("H1EVAL: %d jobs (%d cached), %d policies x %d columns"
+       % (len(todo), len(jobs) - len(todo), len(H1_POLICIES),
+          len(H1_COLUMNS)))
+    nerr = 0
+    if todo:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(processes=workers) as pool:
+            for mode, era, col, out, err in pool.imap_unordered(_true_job,
+                                                                todo):
+                if err:
+                    nerr += 1
+                    hb("H1EVAL FAILED %s %s %s: %s" % (mode, era, col, err))
+                    continue
+                with open(os.path.join(CACHE, "H1E_%s_%s_%s.json"
+                                       % (mode, era, col)), "w") as fh:
+                    json.dump(out, fh)
+                hb("H1EVAL done %s %s %s" % (mode, era, col))
+    if nerr:
+        raise KnobRefusal("%d H1EVAL jobs FAILED" % nerr)
+    return write_h1eval()
+
+
+def write_h1eval():
+    import json
+    recs = []
+    for fn in sorted(os.listdir(CACHE)):
+        if fn.startswith("H1E_") and fn.endswith(".json"):
+            with open(os.path.join(CACHE, fn)) as fh:
+                recs.extend(json.load(fh))
+    if not recs:
+        raise KnobRefusal("no H1EVAL records")
+    rows = []
+    for r in sorted(recs, key=lambda z: (z["mode"], z["era"], z["col"],
+                                         z["policy"])):
+        cl = AR.CAUSAL_ORACLE.get(r["era"])
+        nr = r.get("notrun")
+        rows.append([r["mode"], r["era"], r["col"], r["family"], r["policy"],
+                     "NOT_RUN" if nr else "ran",
+                     "" if nr else N._r(r["usd"]),
+                     "" if nr else N._r(r["sd"]),
+                     "" if nr else N._r(r["ci_lo"]),
+                     "" if nr else N._r(r["ci_hi"]),
+                     "" if nr else N._r(r["n_seated"], 1),
+                     "" if nr else N._r(r["n_firing"], 1), r["n_sessions"],
+                     "" if nr else N._r(r["top5_share"], 3),
+                     "" if nr else N._r(r["null"]), N._r(cl),
+                     "" if (nr or not cl) else N._r(r["usd"] / cl, 4),
+                     (nr or "")[:120]])
+    N.write_tsv(
+        "H1_SWEEP.tsv",
+        ["mode", "era", "score_column", "family", "policy", "status",
+         "usd_per_session_ALL", "sd_usd", "ci_lo", "ci_hi", "n_trades_total",
+         "n_firing_sessions", "n_era_sessions", "top5_trade_share_of_pnl",
+         "shuffled_null", "causal_oracle", "capture_of_causal_oracle",
+         "not_run_reason"], rows,
+        extra=[
+            "H1 = the champion's OWN ranking objective regrouped from CELL to "
+            "(asset, DAY), labels = within-day certificate grades.  The rule "
+            "that wins compares within DAY while the champion is trained "
+            "within CELL — mismatched by exactly one level of the hierarchy.",
+            "H2 = S_XGB_DAYZ, the folded score standardised causally against "
+            "the DAY'S OWN PAST arrivals (expanding mean/sd, warmup 10).  "
+            "TAUZ is the absolute-threshold level rule that a z-score makes "
+            "possible without any training-block reference.",
+            "ORACLE_DAYRANK is the HINDSIGHT ceiling probe: the true "
+            "within-day certificate rank.  It separates 'the rule needs the "
+            "day-RANK' from 'the rule needs the dollar LEVEL'.",
+            "H1_DAYRANK is fitted HERE and therefore predicted over tr | ev, "
+            "so it carries TRAINING-BLOCK COVERAGE and can run the LEVEL "
+            "families that the deployed column structurally cannot.",
+            "NOT_RUN rows are policies that could not execute because an input "
+            "was absent.  They are never $0.00, and they are excluded from "
+            "both the selection and the search-adjusted null."])
+    live = [r for r in recs if not r.get("notrun")
+            and np.isfinite(r.get("usd", float("nan")))]
+    ev = {(r["era"], r["col"], r["policy"]): r
+          for r in live if r["mode"] == "eval"}
+    inn = {(r["era"], r["col"], r["policy"]): r
+           for r in live if r["mode"] == "inner"}
+    crows = []
+    for sel, tgt in H1_CHAIN:
+        cl = AR.CAUSAL_ORACLE.get(tgt)
+        widths = [("NARROW_%s" % c, (c,)) for c in H1_COLUMNS]
+        widths.append(("WIDE_all_columns", tuple(H1_COLUMNS)))
+        for width, cols in widths:
+            hs = {k[1] for k in ev if k[0] == sel}
+            ht = {k[1] for k in ev if k[0] == tgt}
+            cc = tuple(sorted(set(cols) & hs & ht))
+            if not cc:
+                continue
+            for selname, src in (("PREV_ERA", ev), ("INNER_BLOCK", inn)):
+                pool = {k: v for k, v in src.items()
+                        if k[0] == (sel if selname == "PREV_ERA" else tgt)
+                        and k[1] in cc}
+                if not pool:
+                    continue
+                k = max(pool, key=lambda z: pool[z]["usd"])
+                r = ev.get((tgt, k[1], k[2]))
+                if r is None:
+                    continue
+                bar = max((x["null"] for x in live if x["mode"] == "eval"
+                           and x["era"] == tgt and x["col"] in cc),
+                          default=None)
+                inc = INCUMBENT_DEPLOYABLE.get(tgt)
+                crows.append([
+                    "%s->%s" % (sel, tgt), width, selname,
+                    "%s|%s" % (k[1], k[2]), N._r(pool[k]["usd"]),
+                    N._r(r["usd"]), N._r(r["sd"]), N._r(r["ci_lo"]),
+                    N._r(r["ci_hi"]), N._r(r["n_seated"], 1),
+                    N._r(r["n_firing"], 1), r["n_sessions"],
+                    N._r(r["top5_share"], 3), N._r(bar),
+                    len(cc) * len(H1_POLICIES),
+                    "YES" if (bar is not None and r["usd"] > bar) else "no",
+                    N._r(inc), N._r(r["usd"] - inc) if inc else "",
+                    "YES" if (inc is not None and r["usd"] > inc) else "no",
+                    N._r(r["usd"] / cl, 4) if cl else "",
+                    "POSITIVE" if r["usd"] > 0 else "NEGATIVE"])
+    N.write_tsv(
+        "H1_BLIND_CHAIN.tsv",
+        ["link", "search_width", "selector", "cell_chosen", "usd_on_selector",
+         "usd_on_TARGET_BLIND", "sd_usd", "ci_lo", "ci_hi", "n_trades_total",
+         "n_firing_sessions", "n_era_sessions", "top5_trade_share_of_pnl",
+         "search_adjusted_null", "n_cells_searched", "beats_null",
+         "incumbent_S_XGB_DAYSOFAR", "delta_vs_incumbent", "beats_incumbent",
+         "capture_of_causal_oracle", "sign"], crows,
+        extra=[
+            "THE PRE-REGISTERED PROMOTION BAR, ON THE DEPLOYABLE LINE: a score "
+            "is promoted only if its blind reading is POSITIVE in all three "
+            "binding eras, CLEARS its search-adjusted null in all three, and "
+            "BEATS the incumbent S_XGB|DAYSOFAR ($57.76 / $88.96 / $101.77) in "
+            "at least two of three — with top-5 P&L concentration below 0.30.",
+            "Both honest selectors are reported.  PREV_ERA is the deployable "
+            "one; INNER_BLOCK is meaningful here for the first time, because "
+            "H1_DAYRANK is fitted in this lane and so HAS inner-block "
+            "coverage — the deployed column has none, which is why its inner "
+            "readings were silent zeros.",
+            "NARROW_<column> prices each column against only its own policy "
+            "grid; WIDE_all_columns re-selects the column too and pays the "
+            "wider null for it.  Both are printed; the wide one is the honest "
+            "bar when the column itself was chosen after looking."])
+    hb("H1EVAL: %d sweep rows, %d chain links" % (len(rows), len(crows)))
+    del json
+    return crows
+
+
+# ================== STAGE 12: THE ATTACK MAP — M1 dose-response ============
+# WHAT THE CEILING PROBE ALREADY SETTLED, AND WHY IT DEFINES "QUALITY".
+#   ORACLE_DAYRANK|TAU_0.7 — a threshold on the TRUE WITHIN-DAY RANK, carrying
+#   no dollar information at all — reaches $1,952.94 / $2,618.35 / $3,287.50,
+#   i.e. 0.966 / 0.979 / 0.978 of the causal oracle, against the true-DOLLAR
+#   prophet's 0.9925 / 0.9930 / 1.0010.  THE WITHIN-DAY ORDERING IS ~98% OF THE
+#   ATTAINABLE VALUE.  So the axis of "score quality" is not calibration and not
+#   dollar level: it is WITHIN-DAY RANK CORRELATION WITH THE CERTIFICATE, and
+#   that is the quantity this curve is swept over.
+# CONSTRUCTION: within each (asset, day), the true certificate is mapped to its
+#   normal score z_true; the corrupted score is  rho*z_true + sqrt(1-rho^2)*eps
+#   with eps standard normal and independent.  The REALISED spearman is
+#   measured and reported, never assumed.
+# NO NULLS HERE, DELIBERATELY: this is a BOUND, not a claim.  The per-quality
+#   figure is the max over the policy family and is labelled an upper envelope.
+M1_RHO = (0.05, 0.10, 0.15, 0.20, 0.30, 0.50, 0.70, 1.00)
+M1_POLICIES = ([("TAU_%g" % q, "tau", q) for q in AR.TAU_Q]
+               + [("DAYSOFAR_%g" % q, "day", q) for q in AR.DAY_Q])
+
+
+def _daynorm(D, v, key):
+    """Within-(asset, day) normal score of v.  NaN where v is absent."""
+    from scipy.stats import norm
+    out = np.full(v.size, np.nan)
+    order = np.argsort(key, kind="stable")
+    ko = key[order]
+    st = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
+    for a, b in zip(st, st[1:] + [ko.size]):
+        idx = order[a:b]
+        m = np.isfinite(v[idx])
+        g = idx[m]
+        if g.size < 3:
+            continue
+        r = np.argsort(np.argsort(v[g])).astype(np.float64)
+        out[g] = norm.ppf((r + 0.5) / g.size)
+    return out
+
+
+def _m1_job(job):
+    era, rho = job
+    try:
+        import champ_floor as CF
+        import stacked_final as SF
+        import newobj_arms as NA
+        D, P = CF.boot()
+        pc = phase_close(D, P)
+        tr, _itr, _iva, ev = NA.fold(D, era)
+        key = (D["asset_idx"].astype(np.int64) * 100000000
+               + D["d8"].astype(np.int64))
+        cert = np.where(D["cert_refused"] == 0,
+                        D["cert_close_usd"].astype(np.float64), np.nan)
+        zt = _daynorm(D, cert, key)
+        nsess = int(np.unique(D["session"][ev]).size)
+        out = []
+        for seed in SEEDS:
+            rng = np.random.default_rng(N.SEED + 977 * seed)
+            eps = rng.standard_normal(zt.size)
+            v = rho * zt + np.sqrt(max(1.0 - rho * rho, 0.0)) * eps
+            v = np.where(np.isfinite(zt), v, np.nan)
+            m = np.isfinite(v[ev]) & np.isfinite(cert[ev])
+            sp = _spear(v[ev][m], cert[ev][m])
+            # the within-DAY spearman is the axis; measure it, never assume it
+            spd = []
+            ro, blocks = AR._arrivals(D, ev, v)
+            cc = cert[ro]
+            vv = v[ro]
+            kk = key[ro]
+            stk = [0] + (np.flatnonzero(kk[1:] != kk[:-1]) + 1).tolist()
+            for a, b in zip(stk, stk[1:] + [kk.size]):
+                mm = np.isfinite(cc[a:b]) & np.isfinite(vv[a:b])
+                if mm.sum() >= 5:
+                    spd.append(_spear(vv[a:b][mm], cc[a:b][mm]))
+            del blocks
+            best, bname = -np.inf, None
+            for pname, kind, knob in M1_POLICIES:
+                try:
+                    seats = build_ext(D, ev, v, kind, knob, tr, pc)
+                except AR.EmptyReference:
+                    continue
+                rp = SF.apply_stop(D, AR.cap_seats(D, N.replay_delayed(
+                    D, seats, P)), "STOP_WALL1")
+                r = N.read_rows(D, pad_sessions(D, ev, rp))
+                u = r.get("usd_per_session") or 0.0
+                if u > best:
+                    best, bname = u, pname
+                    bn = int(sum(x["n_seated"] for x in rp))
+            out.append({"era": era, "rho": rho, "seed": seed,
+                        "spearman_global": sp,
+                        "spearman_within_day": float(np.nanmean(spd))
+                        if spd else float("nan"),
+                        "usd": best, "policy": bname, "n_seated": bn,
+                        "n_sessions": nsess})
+        return (era, rho, out, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (era, rho, [], "%s: %s | %s" % (type(e).__name__, e,
+                                               traceback.format_exc()[-300:]))
+
+
+def run_m1(workers=24, eras=BINDING):
+    import json
+    import multiprocessing as mp
+    jobs = [(e, r) for e in eras for r in M1_RHO]
+    os.makedirs(CACHE, exist_ok=True)
+    todo = [j for j in jobs
+            if not os.path.exists(os.path.join(CACHE, "M1_%s_%g.json" % j))]
+    hb("M1: %d dose-response cells (%d cached)"
+       % (len(todo), len(jobs) - len(todo)))
+    nerr = 0
+    if todo:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(processes=workers) as pool:
+            for era, rho, out, err in pool.imap_unordered(_m1_job, todo):
+                if err:
+                    nerr += 1
+                    hb("M1 FAILED %s rho=%g: %s" % (era, rho, err))
+                    continue
+                with open(os.path.join(CACHE, "M1_%s_%g.json" % (era, rho)),
+                          "w") as fh:
+                    json.dump(out, fh)
+                hb("M1 done %s rho=%g" % (era, rho))
+    if nerr:
+        raise KnobRefusal("%d M1 cells FAILED" % nerr)
+    return write_m1()
+
+
+def _observed_columns():
+    """Where our REAL columns sit on the same axis: within-day spearman to the
+    certificate, and the dollars they actually earn."""
+    import champ_floor as CF
+    import newobj_arms as NA
+    D, _P = CF.boot()
+    key = (D["asset_idx"].astype(np.int64) * 100000000
+           + D["d8"].astype(np.int64))
+    cert = np.where(D["cert_refused"] == 0,
+                    D["cert_close_usd"].astype(np.float64), np.nan)
+    got = []
+    for era in BINDING:
+        _t, _i, _v, ev = NA.fold(D, era)
+        for name in ("S_XGB", "S_XGB_DAYZ", "H1_DAYRANK", "A_EV", "A_PBAR"):
+            cols = []
+            if name == "S_XGB":
+                for sd in SEEDS:
+                    p = os.path.join(AR._sdir(), "FOLD_%s_%d.npy" % (era, sd))
+                    if os.path.exists(p):
+                        cols.append(np.load(p).astype(np.float64))
+            else:
+                for sd in SEEDS:
+                    p = os.path.join(FULL, "%s_%s_%d_RAW.npy"
+                                     % (name, era, sd))
+                    if os.path.exists(p):
+                        cols.append(np.load(p).astype(np.float64))
+            if not cols:
+                continue
+            sp = []
+            for v in cols:
+                ro, _b = AR._arrivals(D, ev, v)
+                cc, vv, kk = cert[ro], v[ro], key[ro]
+                stk = [0] + (np.flatnonzero(kk[1:] != kk[:-1]) + 1).tolist()
+                per = []
+                for a, b in zip(stk, stk[1:] + [kk.size]):
+                    mm = np.isfinite(cc[a:b]) & np.isfinite(vv[a:b])
+                    if mm.sum() >= 5:
+                        per.append(_spear(vv[a:b][mm], cc[a:b][mm]))
+                if per:
+                    sp.append(float(np.nanmean(per)))
+            if sp:
+                got.append((era, name, float(np.mean(sp))))
+    return got
+
+
+def write_m1():
+    import json
+    recs = []
+    for fn in sorted(os.listdir(CACHE)):
+        if fn.startswith("M1_") and fn.endswith(".json"):
+            with open(os.path.join(CACHE, fn)) as fh:
+                recs.extend(json.load(fh))
+    if not recs:
+        raise KnobRefusal("no M1 records")
+    agg = {}
+    for r in recs:
+        agg.setdefault((r["era"], r["rho"]), []).append(r)
+    rows = []
+    curve = {}
+    for (era, rho), rs in sorted(agg.items()):
+        cl = AR.CAUSAL_ORACLE[era]
+        u = float(np.mean([x["usd"] for x in rs]))
+        sd = float(np.std([x["usd"] for x in rs]))
+        spd = float(np.nanmean([x["spearman_within_day"] for x in rs]))
+        rows.append([era, N._r(rho, 3), N._r(spd, 4),
+                     N._r(float(np.nanmean([x["spearman_global"]
+                                            for x in rs])), 4),
+                     N._r(u), N._r(sd),
+                     N._r(float(np.mean([x["n_seated"] for x in rs])), 1),
+                     rs[0]["n_sessions"], rs[0]["policy"], N._r(cl),
+                     N._r(u / cl, 4)])
+        curve.setdefault(era, []).append((spd, u))
+    for era, name, sp in _observed_columns():
+        rows.append([era, "OBSERVED", N._r(sp, 4), "", "", "", "", "",
+                     name, N._r(AR.CAUSAL_ORACLE[era]), ""])
+    N.write_tsv(
+        "M1_DOSE_RESPONSE.tsv",
+        ["era", "rho_target", "spearman_within_day_MEASURED",
+         "spearman_global_MEASURED", "usd_per_session_ALL", "sd_usd",
+         "n_trades_total", "n_era_sessions", "best_policy", "causal_oracle",
+         "capture_of_causal_oracle"], rows,
+        extra=[
+            "THE DOSE-RESPONSE CURVE: what a score of a given quality is "
+            "worth, on the honest all-session denominator.",
+            "QUALITY IS WITHIN-DAY RANK CORRELATION WITH THE CERTIFICATE, and "
+            "that choice is forced by the ceiling probe rather than assumed: "
+            "a threshold on the TRUE within-day RANK, carrying no dollar "
+            "information at all, reaches 0.966-0.979 of the causal oracle "
+            "against the true-DOLLAR prophet's 0.99-1.00.  The ordering is "
+            "~98% of the attainable value; calibration and dollar level are "
+            "the remaining 2%.",
+            "Corruption is a Gaussian-copula mixture on the within-day normal "
+            "score, rho*z_true + sqrt(1-rho^2)*eps, 5 seeds.  The REALISED "
+            "spearman is measured and reported; the target rho is only a knob.",
+            "Each row is the MAX over the TAU x7 + DAYSOFAR x3 family at that "
+            "quality.  It is an UPPER ENVELOPE and a BOUND, not a deployable "
+            "claim, which is why it carries no search-adjusted null.",
+            "Rows marked OBSERVED place this program's REAL columns on the "
+            "same axis, so the required quality and the achieved quality are "
+            "read off one table."])
+    # ---- read off the required quality for the money targets ----
+    trows = []
+    for era, pts in sorted(curve.items()):
+        pts = sorted(pts)
+        for tgt in (500.0, 1000.0, 2000.0):
+            need = None
+            for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+                if (y0 - tgt) * (y1 - tgt) <= 0 and y1 != y0:
+                    need = x0 + (tgt - y0) * (x1 - x0) / (y1 - y0)
+                    break
+            trows.append([era, N._r(tgt), N._r(need, 4) if need else
+                          "beyond the swept range", N._r(AR.CAUSAL_ORACLE[era])])
+        lo = [p for p in pts if p[0] <= 0.20]
+        if len(lo) >= 2:
+            slope = (lo[-1][1] - lo[0][1]) / max(lo[-1][0] - lo[0][0], 1e-9)
+            trows.append([era, "LOW_END_SLOPE_usd_per_unit_spearman",
+                          N._r(slope), ""])
+            trows.append([era, "usd_per_+0.01_spearman_at_the_low_end",
+                          N._r(slope * 0.01), ""])
+    N.write_tsv(
+        "M1_REQUIRED_QUALITY.tsv",
+        ["era", "target", "within_day_spearman_REQUIRED", "causal_oracle"],
+        trows,
+        extra=["Read off M1_DOSE_RESPONSE.tsv by linear interpolation between "
+               "swept quality levels.",
+               "THE LOW-END SLOPE IS THE STEERING NUMBER: it says what one "
+               "additional point of within-day rank correlation is worth in "
+               "dollars per session where we actually stand.  A steep low end "
+               "means modest, achievable score gains pay disproportionately "
+               "and the attack should be on score quality; a flat low end "
+               "means only a large jump matters and the attack should be "
+               "elsewhere."])
+    hb("M1: %d curve rows, %d target rows" % (len(rows), len(trows)))
+    del json
+    return rows
+
+
+# ============ STAGE 13: THE ATTACK MAP — M2 arrival-grain sufficiency ======
+# THE QUESTION M2 ANSWERS: does the feature set CONTAIN the information the
+# dose-response curve says we need, and if it does, how much of it is currently
+# being extracted?  Two numbers per era, on the SAME axis M1 uses (within-day
+# rank correlation with the certificate, because the ceiling probe showed the
+# ordering is ~98% of the attainable value):
+#   MEMORIZER (NON-CAUSAL BOUND) — an unconstrained regressor onto the
+#     candidate's own dollars, fitted AND read on the eval era itself, deep and
+#     long, no monotone constraints, no early stopping.  It is allowed to
+#     memorise.  It is NOT a forecast and is labelled NON-CAUSAL on its face.
+#     What it bounds is the INFORMATION: if the features cannot separate value
+#     even when the model is handed the answers, no training procedure will.
+#   WALK-FORWARD (HONEST) — A_EV, the same feature set fitted on the inner
+#     training days and read on the eval era.  What we actually extract today.
+# MEMORIZER - WALK-FORWARD is THE TRAINABLE POOL at this grain: the part of the
+#   shortfall that is a TRAINING problem rather than an INFORMATION problem.
+#   Whatever the memorizer itself cannot reach is missing from the features and
+#   is a FEATURE problem, which no amount of fitting will close.
+M2_ROUNDS = 1200
+M2_DEPTH = 12
+
+
+def _m2_job(era):
+    try:
+        import xgboost as xgb
+        import champ_floor as CF
+        import newobj_arms as NA
+        import rank_atlas as RA
+        D, _P = CF.boot()
+        tr, itr, iva, ev = NA.fold(D, era)
+        key = (D["asset_idx"].astype(np.int64) * 100000000
+               + D["d8"].astype(np.int64))
+        cert = np.where(D["cert_refused"] == 0,
+                        D["cert_close_usd"].astype(np.float64), np.nan)
+        cols, names = AR.clean_feature_cols(D)
+        XF = D["X"][:, cols]
+        y = np.nan_to_num(cert, nan=0.0)
+
+        def within_day_spearman(v, rows):
+            ro, _b = AR._arrivals(D, rows, v)
+            cc, vv, kk = cert[ro], np.asarray(v)[ro], key[ro]
+            stk = [0] + (np.flatnonzero(kk[1:] != kk[:-1]) + 1).tolist()
+            per = []
+            for a, b in zip(stk, stk[1:] + [kk.size]):
+                mm = np.isfinite(cc[a:b]) & np.isfinite(vv[a:b])
+                if mm.sum() >= 5:
+                    per.append(_spear(vv[a:b][mm], cc[a:b][mm]))
+            return float(np.nanmean(per)) if per else float("nan")
+        # ---- the MEMORIZER: fitted on the eval era itself, unconstrained ----
+        cfg = {"objective": "reg:squarederror", "eval_metric": "rmse",
+               "tree_method": "hist", "max_depth": M2_DEPTH, "eta": 0.10,
+               "min_child_weight": 1, "subsample": 1.0,
+               "colsample_bytree": 1.0, "lambda": 0.0, "alpha": 0.0,
+               "seed": N.SEED, "nthread": max(RA.N_THREAD, 8)}
+        d = xgb.DMatrix(XF[ev], label=y[ev], feature_names=names)
+        b = xgb.train(cfg, d, M2_ROUNDS)
+        mem = np.full(D["d8"].size, np.nan)
+        mem[ev] = b.predict(d)
+        del d, b
+        out = {"era": era,
+               "memorizer_within_day_spearman": within_day_spearman(mem, ev),
+               "n_features": len(cols), "n_eval_rows": int(ev.size)}
+        # ---- the HONEST walk-forward at the same grain ----
+        wf = []
+        for sd in SEEDS:
+            p = os.path.join(FULL, "A_EV_%s_%d_RAW.npy" % (era, sd))
+            if os.path.exists(p):
+                wf.append(within_day_spearman(
+                    np.load(p).astype(np.float64), ev))
+        out["walkforward_within_day_spearman"] = (float(np.nanmean(wf))
+                                                  if wf else float("nan"))
+        # ---- and the true-value reference, which is 1.0 by construction ----
+        out["oracle_within_day_spearman"] = 1.0
+        return (era, out, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (era, None, "%s: %s | %s" % (type(e).__name__, e,
+                                            traceback.format_exc()[-300:]))
+
+
+def run_m2(workers=3, eras=BINDING):
+    import multiprocessing as mp
+    hb("M2: memorizer bound at the LEVEL grain, %d eras" % len(eras))
+    res, nerr = {}, 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for era, out, err in pool.imap_unordered(_m2_job, list(eras)):
+            if err:
+                nerr += 1
+                hb("M2 FAILED %s: %s" % (era, err))
+            else:
+                res[era] = out
+                hb("M2 %s: memorizer within-day spearman %.4f, walk-forward "
+                   "%.4f" % (era, out["memorizer_within_day_spearman"],
+                             out["walkforward_within_day_spearman"]))
+    if nerr or not res:
+        raise KnobRefusal("%d M2 jobs FAILED" % nerr)
+    rows = []
+    for era in sorted(res):
+        d = res[era]
+        m = d["memorizer_within_day_spearman"]
+        w = d["walkforward_within_day_spearman"]
+        rows.append([era, d["n_features"], d["n_eval_rows"], N._r(w, 4),
+                     N._r(m, 4), N._r(m - w, 4), N._r(1.0 - m, 4),
+                     N._r(AR.CAUSAL_ORACLE[era])])
+    N.write_tsv(
+        "M2_SUFFICIENCY_LEVEL_GRAIN.tsv",
+        ["era", "n_features", "n_eval_rows",
+         "walkforward_within_day_spearman_HONEST",
+         "memorizer_within_day_spearman_NONCAUSAL_BOUND",
+         "TRAINABLE_POOL_memorizer_minus_walkforward",
+         "INFORMATION_SHORTFALL_1_minus_memorizer", "causal_oracle"], rows,
+        extra=[
+            "THE SUFFICIENCY QUESTION AT THE GRAIN THAT PAYS.  Every earlier "
+            "sufficiency reading in this program was taken against the "
+            "WITHIN-CELL RANKING objective; the ceiling probe has since shown "
+            "that WITHIN-DAY ORDERING carries ~98% of the attainable value, so "
+            "the bound is re-derived on that axis.",
+            "MEMORIZER is NON-CAUSAL BY CONSTRUCTION and is labelled so on its "
+            "face: depth %d, %d rounds, no regularisation, no monotone "
+            "constraints, fitted AND read on the eval era.  It is not a "
+            "forecast.  It bounds the INFORMATION the feature set carries "
+            "about per-candidate value — if it cannot separate value with the "
+            "answers in hand, no training procedure will."
+            % (M2_DEPTH, M2_ROUNDS),
+            "TRAINABLE_POOL = memorizer - walk-forward: the part of the "
+            "shortfall that is a TRAINING problem.",
+            "INFORMATION_SHORTFALL = 1 - memorizer: the part that is a FEATURE "
+            "problem, which no fitting can close and which only new "
+            "information can.",
+            "Read this beside M1_REQUIRED_QUALITY.tsv: M1 says what quality is "
+            "REQUIRED, M2 says what the features SUPPORT, and the two together "
+            "say whether the attack is training, features, or neither."])
+    hb("M2_SUFFICIENCY_LEVEL_GRAIN.tsv: %d rows" % len(rows))
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", action="store_true")
@@ -2763,6 +3345,9 @@ def main():
     ap.add_argument("--truestate", action="store_true")
     ap.add_argument("--dayx", action="store_true")
     ap.add_argument("--h1", action="store_true")
+    ap.add_argument("--h1eval", action="store_true")
+    ap.add_argument("--m1", action="store_true")
+    ap.add_argument("--m2", action="store_true")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--eras", nargs="*", default=None)
     a = ap.parse_args()
@@ -2808,6 +3393,15 @@ def main():
         did = True
     if a.h1:
         run_h1(workers=a.workers)
+        did = True
+    if a.h1eval:
+        run_h1eval(workers=a.workers)
+        did = True
+    if a.m1:
+        run_m1(workers=a.workers)
+        did = True
+    if a.m2:
+        run_m2()
         did = True
     if a.truestate:
         run_truestate()

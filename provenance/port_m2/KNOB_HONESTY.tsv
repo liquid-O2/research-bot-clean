@@ -1,0 +1,18 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# READ n_trades_total FIRST.  Every dollar figure here is over the era's FULL session count with non-trading sessions at $0; the incumbent's per-firing-session quantity rides beside it.
+# THE WINNER'S-CURSE AUDIT OF THIS PROGRAM'S OWN HEADLINE.  `arrival_fit.run_policy` selects its FAMILY_VERDICT with `max(best_real)` where every value is the EVAL era's realised $/session — an argmax on the data being reported.  Every knob in that verdict, including the SECRETARY observe-fraction, was chosen by looking at the answer.
+# INNER_BLOCK is the honest selector: the identical family run on the era's own inner validation block (training-block days, day-disjoint from the inner train days, never the eval era), argmax taken there, that one cell read out on the eval era.
+# PREV_ERA is the second honest selector and the deployable one: the cell that won the PREVIOUS era, applied blind.
+# selection_premium_vs_argmax = what the eval-era argmax adds over the honest selector.  THAT NUMBER IS THE WINNER'S CURSE, IN DOLLARS, and it is not earnable.
+# The luck bar is the search-adjusted null of the FULL 30-policy family on this era (identical family, shuffled scores, arrival times preserved, best-of taken).
+era	selector	cell	usd_per_session_ALL	sd_usd	n_trades_total	n_era_sessions	usd_per_FIRING_session	family_luck_bar	causal_oracle	capture_of_causal_oracle	aim_08causal	gap_to_aim	beats_search_adjusted_null	selection_premium_vs_argmax	status
+E5	ARGMAX_EVAL_UPPER_BOUND	A_EV|TAU_0.9	26.95	21.28	423.0	387	34.34	36.27	2021.0	0.0133	1616.8	-1589.85	no	0.0	UPPER BOUND, NOT DEPLOYABLE
+E5	INNER_BLOCK	A_PBAR|TAU_0.95	-31.07	25.26	542.0	387	-31.33	36.27	2021.0	-0.0154	1616.8	-1647.87	no	58.02	deployable
+E5	PREV_ERA_E4	A_PBAR|OCCUPANCY_2	-61.9	15.67	498.0	387	-61.94	36.27	2021.0	-0.0306	1616.8	-1678.7	no	88.85	deployable
+E6	ARGMAX_EVAL_UPPER_BOUND	A_EV|TAU_0.975	26.32	8.5	141.6	384	84.54	0.87	2675.0	0.0098	2140.0	-2113.68	YES	0.0	UPPER BOUND, NOT DEPLOYABLE
+E6	INNER_BLOCK	A_EV|DAYSOFAR_0.5	-26.37	17.01	709.2	384	-26.37	0.87	2675.0	-0.0099	2140.0	-2166.37	no	52.69	deployable
+E6	PREV_ERA_E5	A_EV|TAU_0.9	-5.67	24.12	327.2	384	-8.31	0.87	2675.0	-0.0021	2140.0	-2145.67	no	31.99	deployable
+E7	ARGMAX_EVAL_UPPER_BOUND	A_PWIN|CELLSOFAR_0.8	32.61	39.71	682.6	393	32.61	31.12	3360.0	0.0097	2688.0	-2655.39	YES	0.0	UPPER BOUND, NOT DEPLOYABLE
+E7	INNER_BLOCK	A_PBAR|SECRETARY_0.1	-82.09	23.66	337.6	393	-113.68	31.12	3360.0	-0.0244	2688.0	-2770.09	no	114.7	deployable
+E7	PREV_ERA_E6	A_EV|TAU_0.975	-57.09	31.58	247.8	393	-105.61	31.12	3360.0	-0.017	2688.0	-2745.09	no	89.71	deployable

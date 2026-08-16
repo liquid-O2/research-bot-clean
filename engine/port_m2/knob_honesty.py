@@ -455,6 +455,14 @@ def _policy_job(job):
         tr, itr, iva, ev = NA.fold(D, era)
         if mode == "inner":
             rows_ev, train_rows, which = N.deployable(D, iva), itr, "CALIN"
+        elif mode == "evalraw":
+            # THE PROGRAM'S OWN LAW, APPLIED TO THE COLUMN INSTEAD OF THE
+            # DIAGNOSTIC: pair score type with rule type.  Isotonic ties are
+            # what collapse a RANK rule to two proposals, so the rank rules
+            # should be eating the tie-free RAW column.  Level rules are
+            # unaffected (a quantile of a monotone map is the map of the
+            # quantile), so this pass costs nothing and can only inform.
+            rows_ev, train_rows, which = ev, tr, "RAW"
         else:
             rows_ev, train_rows, which = ev, tr, "CALEV"
         cols = [c for c in (load_full(target, era, s, which) for s in SEEDS)
@@ -519,6 +527,32 @@ def _policy_job(job):
                                  traceback.format_exc()[-400:]))
 
 
+def run_rawpass(workers=9, eras=BINDING):
+    import json
+    import multiprocessing as mp
+    jobs = [("evalraw", e, t) for e in eras for t in TARGETS]
+    os.makedirs(CACHE, exist_ok=True)
+    todo = [j for j in jobs
+            if not os.path.exists(os.path.join(CACHE, "%s_%s_%s.json" % j))]
+    hb("rawpass: %d jobs, workers=%d" % (len(todo), workers))
+    nerr = 0
+    if todo:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(processes=workers) as pool:
+            for mode, era, tgt, out, err in pool.imap_unordered(_policy_job,
+                                                               todo):
+                if err:
+                    nerr += 1
+                    hb("RAWPASS FAILED %s %s: %s" % (era, tgt, err))
+                    continue
+                with open(os.path.join(CACHE, "%s_%s_%s.json"
+                                       % (mode, era, tgt)), "w") as fh:
+                    json.dump(out, fh)
+                hb("rawpass done %s %s" % (era, tgt))
+    if nerr:
+        raise KnobRefusal("%d rawpass jobs FAILED" % nerr)
+
+
 def run_tables(workers=12, eval_eras=FIT_ERAS, inner_eras=BINDING):
     import json
     import multiprocessing as mp
@@ -567,6 +601,7 @@ def read_cache():
 
 def _write_family_tables(recs):
     for mode, name in (("eval", "ARRIVAL_FITTED2.tsv"),
+                       ("evalraw", "ARRIVAL_FITTED2_RAWCOL.tsv"),
                        ("inner", "ARRIVAL_INNER.tsv")):
         rows = []
         for r in sorted([x for x in recs if x["mode"] == mode],
@@ -1360,6 +1395,7 @@ def main():
     ap.add_argument("--causal", action="store_true")
     ap.add_argument("--diag", action="store_true")
     ap.add_argument("--state", action="store_true")
+    ap.add_argument("--rawpass", action="store_true")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--eras", nargs="*", default=None)
     a = ap.parse_args()
@@ -1386,6 +1422,10 @@ def main():
         did = True
     if a.diag:
         run_diag(eras=tuple(a.eras) if a.eras else BINDING)
+        did = True
+    if a.rawpass:
+        run_rawpass(workers=a.workers,
+                    eras=tuple(a.eras) if a.eras else BINDING)
         did = True
     if a.state:
         run_state()

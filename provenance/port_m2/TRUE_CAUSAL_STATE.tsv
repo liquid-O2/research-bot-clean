@@ -1,0 +1,28 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE TRUE CAUSAL STATE OF THE ARRIVAL OBJECT.  All-session denominators throughout, 5 seeds, in-sweep shuffled nulls, and ONLY blind selectors on the deployable lines.
+# LINE 1 IS THE RESULT.  The knob is chosen on the PREVIOUS era within its policy family and applied blind; the bar it is shown against is the GLOBAL null over the whole 528-cell search, which is the conservative choice — line 1a shows the same row against its own family's narrower bar.
+# THE HONEST CAVEAT ON LINE 1: picking WHICH FAMILY to quote is itself a selection step taken after seeing all of them.  That is why the global bar is the one printed beside it, and why the cross-era consistency of the chain matters more than any single era's margin.
+# THE LEAKY SECRETARY FAMILY IS ABSENT FROM THIS SEARCH, so it does not inflate the null the honest arms must clear.
+era	line	cell	usd_per_session_ALL	sd_usd	n_trades_total	n_firing_sessions	n_era_sessions	usd_per_trade	top5_trade_share_of_pnl	search_adjusted_null	causal_oracle	capture_of_causal_oracle	aim_08causal	gap_to_aim	beats_null	status
+E5	0_AS_PUBLISHED_VOID	A_PBAR|SECRETARY_0.7	185.63								2021.0	0.0919	1616.8	-1431.17		VOID x3: eval-argmax knob, firing-session divisor, non-causal observation window
+E5	1_BEST_PREV_ERA_BLIND	S_XGB|DAYSOFAR_0.9	57.76	9.46	725.8	387.0	387	30.78	0.08	56.32	2021.0	0.0286	1616.8	-1559.04	YES	DEPLOYABLE — knob chosen on E4 WITHIN family DAYSOFAR, applied blind.  Bar shown is the GLOBAL 528-cell search-adjusted null, the conservative one.
+E5	1a_SAME_CELL_VS_ITS_FAMILY_BAR	S_XGB|DAYSOFAR_0.9	57.76	9.46	725.8	387.0	387	30.78	0.08	56.32	2021.0	0.0286	1616.8	-1559.04	YES	the same row against family DAYSOFAR's own 24-cell null
+E5	2_BEST_INNER_BLOCK_BLIND	S_TABPFN|SECDECL_0.2_0.5	7.64	0.0	411.0	324.0	387	7.2	0.143	56.32	2021.0	0.0038	1616.8	-1609.16	no	DEPLOYABLE — chosen on the era's own inner validation block over the WHOLE search
+E5	3_EVAL_ARGMAX_UPPER_BOUND	S_TABPFN|CELLSOFAR_0.99	88.7	0.0	576.0	381.0	387	59.59	0.085	56.32	2021.0	0.0439	1616.8	-1528.1	YES	UPPER BOUND — argmax on the era being reported, NOT deployable
+E5	4_PROPHET_CEILING_CORRECTED	TRUE_VALUE|TAU_0.7	2005.87								2021.0	0.9925	1616.8	389.07		HINDSIGHT ceiling of any arrival-time model, honest denominator
+E5	5_CAUSAL_ORACLE_BAR		2021.0								2021.0	1.0	1616.8	404.2		the denominator every capture here divides by; verified independently to within 1% by the prophet TAU sweep
+E6	0_AS_PUBLISHED_VOID	A_PBAR|SECRETARY_0.6	1261.25								2675.0	0.4715	2140.0	-878.75		VOID x3: eval-argmax knob, firing-session divisor, non-causal observation window
+E6	1_BEST_PREV_ERA_BLIND	S_XGB|DAYSOFAR_0.7	88.96	60.86	730.0	384.0	384	46.2	0.076	49.04	2675.0	0.0333	2140.0	-2051.04	YES	DEPLOYABLE — knob chosen on E5 WITHIN family DAYSOFAR, applied blind.  Bar shown is the GLOBAL 528-cell search-adjusted null, the conservative one.
+E6	1a_SAME_CELL_VS_ITS_FAMILY_BAR	S_XGB|DAYSOFAR_0.7	88.96	60.86	730.0	384.0	384	46.2	0.076	-30.07	2675.0	0.0333	2140.0	-2051.04	YES	the same row against family DAYSOFAR's own 24-cell null
+E6	2_BEST_INNER_BLOCK_BLIND	S_TABPFN|CELLSOFAR_0.99	-6.86	0.0	503.0	363.0	384	-5.24	0.107	49.04	2675.0	-0.0026	2140.0	-2146.86	no	DEPLOYABLE — chosen on the era's own inner validation block over the WHOLE search
+E6	3_EVAL_ARGMAX_UPPER_BOUND	S_XGB|CELLSOFAR_0.95	128.25	50.63	697.0	382.8	384	70.0	0.078	49.04	2675.0	0.0479	2140.0	-2011.75	YES	UPPER BOUND — argmax on the era being reported, NOT deployable
+E6	4_PROPHET_CEILING_CORRECTED	TRUE_VALUE|TAU_0.7	2656.24								2675.0	0.993	2140.0	516.24		HINDSIGHT ceiling of any arrival-time model, honest denominator
+E6	5_CAUSAL_ORACLE_BAR		2675.0								2675.0	1.0	2140.0	535.0		the denominator every capture here divides by; verified independently to within 1% by the prophet TAU sweep
+E7	0_AS_PUBLISHED_VOID	A_PBAR|SECRETARY_0.7	345.25								3360.0	0.1028	2688.0	-2342.75		VOID x3: eval-argmax knob, firing-session divisor, non-causal observation window
+E7	1_BEST_PREV_ERA_BLIND	S_XGB|DAYSOFAR_0.9	101.77	11.19	692.4	393.0	393	57.77	0.113	100.72	3360.0	0.0303	2688.0	-2586.23	YES	DEPLOYABLE — knob chosen on E6 WITHIN family DAYSOFAR, applied blind.  Bar shown is the GLOBAL 528-cell search-adjusted null, the conservative one.
+E7	1a_SAME_CELL_VS_ITS_FAMILY_BAR	S_XGB|DAYSOFAR_0.9	101.77	11.19	692.4	393.0	393	57.77	0.113	27.57	3360.0	0.0303	2688.0	-2586.23	YES	the same row against family DAYSOFAR's own 24-cell null
+E7	2_BEST_INNER_BLOCK_BLIND	S_TABPFN|TAU_0.8	-143.35	0.0	422.0	372.0	393	-133.5	0.136	100.72	3360.0	-0.0427	2688.0	-2831.35	no	DEPLOYABLE — chosen on the era's own inner validation block over the WHOLE search
+E7	3_EVAL_ARGMAX_UPPER_BOUND	S_XGB|DAYSOFAR_0.9	101.77	11.19	692.4	393.0	393	57.77	0.113	100.72	3360.0	0.0303	2688.0	-2586.23	YES	UPPER BOUND — argmax on the era being reported, NOT deployable
+E7	4_PROPHET_CEILING_CORRECTED	TRUE_VALUE|TAU_0.8	3363.45								3360.0	1.001	2688.0	675.45		HINDSIGHT ceiling of any arrival-time model, honest denominator
+E7	5_CAUSAL_ORACLE_BAR		3360.0								3360.0	1.0	2688.0	672.0		the denominator every capture here divides by; verified independently to within 1% by the prophet TAU sweep

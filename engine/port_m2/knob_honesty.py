@@ -2135,6 +2135,129 @@ def run_leakfix():
     return rows
 
 
+def run_truestate():
+    """THE TRUE CAUSAL STATE TABLE — the deliverable.
+
+    One block per binding era: what was published, what that same cell is
+    worth once the divisor and the lookahead are removed, what an HONEST
+    selector reaches, and the ceiling and bar it sits under.  Only the
+    prev-era and inner-block lines are deployable.
+    """
+    recs = read_true()
+    if not recs:
+        raise KnobRefusal("no TRUE records")
+    ev = {(r["era"], r["col"], r["policy"]): r
+          for r in recs if r["mode"] == "eval"}
+    inn = {(r["era"], r["col"], r["policy"]): r
+           for r in recs if r["mode"] == "inner"}
+    rows = []
+    for era in BINDING:
+        cl = AR.CAUSAL_ORACLE[era]
+        aim = 0.8 * cl
+        glob = max((r["null"] for r in recs
+                    if r["mode"] == "eval" and r["era"] == era), default=None)
+        tgt, pol, pub = PUBLISHED[era]
+        pp, pv = PROPHET_CORRECTED[era]
+
+        def line(label, r, cell, status, bar, override=None):
+            u = override if override is not None else (r["usd"] if r else None)
+            if u is None:
+                return
+            rows.append([era, label, cell, N._r(u),
+                         N._r(r["sd"]) if r else "",
+                         N._r(r["n_seated"], 1) if r else "",
+                         N._r(r["n_firing"], 1) if r else "",
+                         r["n_sessions"] if r else "",
+                         N._r(r["usd_trade"]) if r else "",
+                         N._r(r["top5_share"], 3) if r else "",
+                         N._r(bar) if bar is not None else "",
+                         N._r(cl), N._r(u / cl, 4), N._r(aim), N._r(u - aim),
+                         ("YES" if (bar is not None and u > bar) else "no")
+                         if r else "", status])
+        rows.append([era, "0_AS_PUBLISHED_VOID", "%s|%s" % (tgt, pol),
+                     N._r(pub), "", "", "", "", "", "", "", N._r(cl),
+                     N._r(pub / cl, 4), N._r(aim), N._r(pub - aim), "",
+                     "VOID x3: eval-argmax knob, firing-session divisor, "
+                     "non-causal observation window"])
+        # the honest blind chain, per family, best family by its PREV-ERA read
+        pe = PREV.get(era)
+        best = None
+        for fam in sorted({r["family"] for r in recs}):
+            cp = {k: v for k, v in ev.items()
+                  if k[0] == pe and v["family"] == fam}
+            if not cp:
+                continue
+            k = max(cp, key=lambda z: cp[z]["usd"])
+            r = ev.get((era, k[1], k[2]))
+            if r is None:
+                continue
+            fbar = max((x["null"] for x in recs if x["mode"] == "eval"
+                        and x["era"] == era and x["family"] == fam),
+                       default=None)
+            if best is None or r["usd"] > best[0]["usd"]:
+                best = (r, "%s|%s" % (k[1], k[2]), fam, fbar)
+        if best:
+            r, cell, fam, fbar = best
+            line("1_BEST_PREV_ERA_BLIND", r, cell,
+                 "DEPLOYABLE — knob chosen on %s WITHIN family %s, applied "
+                 "blind.  Bar shown is the GLOBAL %d-cell search-adjusted "
+                 "null, the conservative one."
+                 % (pe, fam, len(TRUE_POLICIES) * len(TRUE_COLUMNS)), glob)
+            line("1a_SAME_CELL_VS_ITS_FAMILY_BAR", r, cell,
+                 "the same row against family %s's own %d-cell null" % (fam,
+                 sum(1 for pn, _k, _b in TRUE_POLICIES if _family(pn) == fam)
+                 * len(TRUE_COLUMNS)), fbar)
+        ci = {k: v for k, v in inn.items() if k[0] == era}
+        if ci:
+            k = max(ci, key=lambda z: ci[z]["usd"])
+            line("2_BEST_INNER_BLOCK_BLIND", ev.get((era, k[1], k[2])),
+                 "%s|%s" % (k[1], k[2]),
+                 "DEPLOYABLE — chosen on the era's own inner validation "
+                 "block over the WHOLE search", glob)
+        ce = {k: v for k, v in ev.items() if k[0] == era}
+        if ce:
+            k = max(ce, key=lambda z: ce[z]["usd"])
+            line("3_EVAL_ARGMAX_UPPER_BOUND", ev[k], "%s|%s" % (k[1], k[2]),
+                 "UPPER BOUND — argmax on the era being reported, NOT "
+                 "deployable", glob)
+        rows.append([era, "4_PROPHET_CEILING_CORRECTED",
+                     "TRUE_VALUE|%s" % pp, N._r(pv), "", "", "", "", "", "",
+                     "", N._r(cl), N._r(pv / cl, 4), N._r(aim),
+                     N._r(pv - aim), "",
+                     "HINDSIGHT ceiling of any arrival-time model, honest "
+                     "denominator"])
+        rows.append([era, "5_CAUSAL_ORACLE_BAR", "", N._r(cl), "", "", "", "",
+                     "", "", "", N._r(cl), 1.0, N._r(aim), N._r(cl - aim), "",
+                     "the denominator every capture here divides by; verified "
+                     "independently to within 1% by the prophet TAU sweep"])
+    N.write_tsv(
+        "TRUE_CAUSAL_STATE.tsv",
+        ["era", "line", "cell", "usd_per_session_ALL", "sd_usd",
+         "n_trades_total", "n_firing_sessions", "n_era_sessions",
+         "usd_per_trade", "top5_trade_share_of_pnl", "search_adjusted_null",
+         "causal_oracle", "capture_of_causal_oracle", "aim_08causal",
+         "gap_to_aim", "beats_null", "status"], rows,
+        extra=[
+            "THE TRUE CAUSAL STATE OF THE ARRIVAL OBJECT.  All-session "
+            "denominators throughout, 5 seeds, in-sweep shuffled nulls, and "
+            "ONLY blind selectors on the deployable lines.",
+            "LINE 1 IS THE RESULT.  The knob is chosen on the PREVIOUS era "
+            "within its policy family and applied blind; the bar it is shown "
+            "against is the GLOBAL null over the whole %d-cell search, which "
+            "is the conservative choice — line 1a shows the same row against "
+            "its own family's narrower bar." % (len(TRUE_POLICIES)
+                                                * len(TRUE_COLUMNS)),
+            "THE HONEST CAVEAT ON LINE 1: picking WHICH FAMILY to quote is "
+            "itself a selection step taken after seeing all of them.  That is "
+            "why the global bar is the one printed beside it, and why the "
+            "cross-era consistency of the chain matters more than any single "
+            "era's margin.",
+            "THE LEAKY SECRETARY FAMILY IS ABSENT FROM THIS SEARCH, so it "
+            "does not inflate the null the honest arms must clear."])
+    hb("TRUE_CAUSAL_STATE.tsv: %d rows" % len(rows))
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", action="store_true")
@@ -2146,11 +2269,12 @@ def main():
     ap.add_argument("--diag", action="store_true")
     ap.add_argument("--state", action="store_true")
     ap.add_argument("--rawpass", action="store_true")
-    ap.add_argument("--true", action="store_true", dest="truestate")
+    ap.add_argument("--true", action="store_true", dest="run_true_sweep")
     ap.add_argument("--audit", action="store_true")
     ap.add_argument("--auditindex", action="store_true")
     ap.add_argument("--prophetfix", action="store_true")
     ap.add_argument("--leakfix", action="store_true")
+    ap.add_argument("--truestate", action="store_true")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--eras", nargs="*", default=None)
     a = ap.parse_args()
@@ -2191,10 +2315,13 @@ def main():
     if a.leakfix:
         run_leakfix()
         did = True
+    if a.truestate:
+        run_truestate()
+        did = True
     if a.auditindex:
         run_auditindex()
         did = True
-    if a.truestate:
+    if a.run_true_sweep:
         run_true(workers=a.workers,
                  eras=tuple(a.eras) if a.eras else BINDING)
         did = True

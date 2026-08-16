@@ -4387,6 +4387,1166 @@ def run_tail(workers=3, eras=BINDING):
     return rows
 
 
+# ====== STAGE 19: M3 — THE DOSE-RESPONSE REBUILT OVER TAIL QUALITY =========
+# WHY M1 HAD TO BE REPLACED, in one line: a Gaussian-copula corruption is
+# HOMOSCEDASTIC IN RANK, so every score on that curve carried its quality
+# uniformly across the day, while every real fitted score concentrates its
+# somewhere — and the measured ordering on the tail is the REVERSE of the
+# ordering on the bulk.  M3 corrupts HETEROSCEDASTICALLY, which is the shape
+# the champion actually has: near-zero in the bulk, positive in the tail.
+#     s = rho(u) * z_true + sqrt(1 - rho(u)^2) * eps,
+#     rho(u) = RHO_TAIL where the TRUE within-day percentile u >= 0.90,
+#              RHO_BULK otherwise.
+# RHO_BULK is pinned at 0.0 for the primary sweep precisely because that is
+# what the champion measures in the bulk.  The knob is RHO_TAIL, and what is
+# reported is not the knob but the REALISED top-decile spearman and the
+# REALISED q90/q95/q99 tail lift in dollars — the quantities a threshold rule
+# actually consumes — beside the dollars earned.
+# THE CONVERSION IS READ OFF IN BOTH UNITS: $ per +0.01 of top-decile spearman
+# AND $ per +$1 of q90 tail lift, the latter being the directly interpretable
+# one.  The real columns are placed on the same curve by their own measured
+# tail statistics, so "what would this score be worth" is a lookup, not a
+# model.
+M3_RHO_TAIL = (0.0, 0.10, 0.20, 0.30, 0.50, 0.70, 0.90, 1.00)
+M3_RHO_BULK = 0.0
+M3_TAILCUT = 0.90
+
+
+def _tailstats(D, v, rows, cert, daykey):
+    """(top-decile spearman, q90 lift, q95 lift, q99 lift) — the axis that
+    survived the inversion."""
+    ro, _b = AR._arrivals(D, rows, v)
+    cv, sv, kk = cert[ro], np.asarray(v)[ro], daykey[ro]
+    stk = [0] + (np.flatnonzero(kk[1:] != kk[:-1]) + 1).tolist()
+    pt, l90, l95, l99 = [], [], [], []
+    for a, b in zip(stk, stk[1:] + [kk.size]):
+        m = np.isfinite(cv[a:b]) & np.isfinite(sv[a:b])
+        if m.sum() < 20:
+            continue
+        cs, ss = cv[a:b][m], sv[a:b][m]
+        dm = float(np.mean(cs))
+        t = ss >= np.quantile(ss, 0.90)
+        if t.sum() >= 5:
+            pt.append(_spear(ss[t], cs[t]))
+        for q, acc in ((0.90, l90), (0.95, l95), (0.99, l99)):
+            tq = ss >= np.quantile(ss, q)
+            if tq.sum() >= 1:
+                acc.append(float(np.mean(cs[tq])) - dm)
+    return (float(np.nanmean(pt)) if pt else np.nan,
+            float(np.nanmean(l90)) if l90 else np.nan,
+            float(np.nanmean(l95)) if l95 else np.nan,
+            float(np.nanmean(l99)) if l99 else np.nan)
+
+
+def _m3_job(job):
+    era, rt = job
+    try:
+        import champ_floor as CF
+        import stacked_final as SF
+        import newobj_arms as NA
+        D, P = CF.boot()
+        pc = phase_close(D, P)
+        tr, _i, _v, ev = NA.fold(D, era)
+        daykey = (D["asset_idx"].astype(np.int64) * 100000000
+                  + D["d8"].astype(np.int64))
+        cert = np.where(D["cert_refused"] == 0,
+                        D["cert_close_usd"].astype(np.float64), np.nan)
+        zt = _daynorm(None, cert, daykey)
+        # the TRUE within-day percentile defines the tail region
+        u = np.full(cert.size, np.nan)
+        order = np.argsort(daykey, kind="stable")
+        ko = daykey[order]
+        st = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
+        for a, b in zip(st, st[1:] + [ko.size]):
+            idx = order[a:b]
+            m = np.isfinite(cert[idx])
+            g = idx[m]
+            if g.size < 2:
+                continue
+            u[g] = np.argsort(np.argsort(cert[g])) / float(g.size - 1)
+        istail = u >= M3_TAILCUT
+        nsess = int(np.unique(D["session"][ev]).size)
+        out = []
+        for seed in SEEDS:
+            rng = np.random.default_rng(N.SEED + 613 * seed)
+            eps = rng.standard_normal(zt.size)
+            rho = np.where(istail, rt, M3_RHO_BULK)
+            v = rho * zt + np.sqrt(np.maximum(1.0 - rho * rho, 0.0)) * eps
+            v = np.where(np.isfinite(zt), v, np.nan)
+            td, l90, l95, l99 = _tailstats(D, v, ev, cert, daykey)
+            best, bp, bn = -np.inf, None, 0
+            for pname, kind, knob in M1_POLICIES:
+                try:
+                    seats = build_ext(D, ev, v, kind, knob, tr, pc)
+                except AR.EmptyReference:
+                    continue
+                rp = SF.apply_stop(D, AR.cap_seats(D, N.replay_delayed(
+                    D, seats, P)), "STOP_WALL1")
+                r = N.read_rows(D, pad_sessions(D, ev, rp))
+                uu = r.get("usd_per_session") or 0.0
+                if uu > best:
+                    best, bp = uu, pname
+                    bn = int(sum(x["n_seated"] for x in rp))
+            out.append({"era": era, "rho_tail": rt, "seed": seed,
+                        "topdec_spearman": td, "lift90": l90, "lift95": l95,
+                        "lift99": l99, "usd": best, "policy": bp,
+                        "n_seated": bn, "n_sessions": nsess})
+        return (era, rt, out, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (era, rt, [], "%s: %s | %s" % (type(e).__name__, e,
+                                              traceback.format_exc()[-300:]))
+
+
+def run_m3(workers=24, eras=BINDING):
+    import json
+    import multiprocessing as mp
+    jobs = [(e, r) for e in eras for r in M3_RHO_TAIL]
+    os.makedirs(CACHE, exist_ok=True)
+    todo = [j for j in jobs
+            if not os.path.exists(os.path.join(CACHE, "M3_%s_%g.json" % j))]
+    hb("M3: %d tail dose-response cells (%d cached)"
+       % (len(todo), len(jobs) - len(todo)))
+    nerr = 0
+    if todo:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(processes=workers) as pool:
+            for era, rt, out, err in pool.imap_unordered(_m3_job, todo):
+                if err:
+                    nerr += 1
+                    hb("M3 FAILED %s rt=%g: %s" % (era, rt, err))
+                    continue
+                with open(os.path.join(CACHE, "M3_%s_%g.json" % (era, rt)),
+                          "w") as fh:
+                    json.dump(out, fh)
+                hb("M3 done %s rho_tail=%g" % (era, rt))
+    if nerr:
+        raise KnobRefusal("%d M3 cells FAILED" % nerr)
+    return write_m3()
+
+
+def write_m3():
+    import json
+    import champ_floor as CF
+    import newobj_arms as NA
+    recs = []
+    for fn in sorted(os.listdir(CACHE)):
+        if fn.startswith("M3_") and fn.endswith(".json"):
+            with open(os.path.join(CACHE, fn)) as fh:
+                recs.extend(json.load(fh))
+    if not recs:
+        raise KnobRefusal("no M3 records")
+    agg = {}
+    for r in recs:
+        agg.setdefault((r["era"], r["rho_tail"]), []).append(r)
+    rows, curve = [], {}
+    for (era, rt), rs in sorted(agg.items()):
+        cl = AR.CAUSAL_ORACLE[era]
+        u = float(np.mean([x["usd"] for x in rs]))
+        td = float(np.nanmean([x["topdec_spearman"] for x in rs]))
+        l90 = float(np.nanmean([x["lift90"] for x in rs]))
+        rows.append([era, N._r(rt, 3), N._r(td, 4), N._r(l90, 2),
+                     N._r(float(np.nanmean([x["lift95"] for x in rs])), 2),
+                     N._r(float(np.nanmean([x["lift99"] for x in rs])), 2),
+                     N._r(u), N._r(float(np.std([x["usd"] for x in rs]))),
+                     N._r(float(np.mean([x["n_seated"] for x in rs])), 1),
+                     rs[0]["n_sessions"], rs[0]["policy"], N._r(cl),
+                     N._r(u / cl, 4)])
+        curve.setdefault(era, []).append((td, l90, u))
+    # the REAL columns, placed on the same curve by their own tail statistics
+    D, _P = CF.boot()
+    daykey = (D["asset_idx"].astype(np.int64) * 100000000
+              + D["d8"].astype(np.int64))
+    cert = np.where(D["cert_refused"] == 0,
+                    D["cert_close_usd"].astype(np.float64), np.nan)
+    for era in BINDING:
+        _t, _i, _v, ev = NA.fold(D, era)
+        for name in ("S_XGB", "A_EV_RAW", "H3_DAYZ", "V_SHALLOW",
+                     "V_FLOWGEO", "ORACLE_DAYRANK"):
+            cc = true_cols(D, name, era, "eval")
+            if not cc:
+                continue
+            ts = [_tailstats(D, v, ev, cert, daykey) for v in cc]
+            rows.append([era, "OBSERVED",
+                         N._r(float(np.nanmean([t[0] for t in ts])), 4),
+                         N._r(float(np.nanmean([t[1] for t in ts])), 2),
+                         N._r(float(np.nanmean([t[2] for t in ts])), 2),
+                         N._r(float(np.nanmean([t[3] for t in ts])), 2),
+                         "", "", "", "", name, N._r(AR.CAUSAL_ORACLE[era]),
+                         ""])
+    N.write_tsv(
+        "M3_TAIL_DOSE_RESPONSE.tsv",
+        ["era", "rho_tail", "topdec_spearman_MEASURED", "tail_lift_q90_usd",
+         "tail_lift_q95_usd", "tail_lift_q99_usd", "usd_per_session_ALL",
+         "sd_usd", "n_trades_total", "n_era_sessions", "best_policy",
+         "causal_oracle", "capture_of_causal_oracle"], rows,
+        extra=[
+            "M1 IS SUPERSEDED BY THIS TABLE AND ITS $-PER-+0.01 CONVERSION IS "
+            "WITHDRAWN.  M1 corrupted the true score HOMOSCEDASTICALLY in "
+            "rank, so every synthetic column on it carried its quality "
+            "uniformly across the day; every real fitted column concentrates "
+            "its somewhere, and the measured ordering of our columns on the "
+            "TAIL is the REVERSE of their ordering on the bulk.",
+            "M3 corrupts HETEROSCEDASTICALLY, in the shape the champion "
+            "actually has: rho = RHO_TAIL above the true 90th within-day "
+            "percentile and 0.0 below it, because 0.0 is what the champion "
+            "measures in the bulk.",
+            "THE KNOB IS NOT THE AXIS.  What is reported is the REALISED "
+            "top-decile spearman and the REALISED q90/q95/q99 tail lift in "
+            "dollars — what a threshold rule consumes — beside the dollars "
+            "earned.",
+            "Rows marked OBSERVED place the real columns on the same curve by "
+            "their own measured tail statistics, so pricing a score is a "
+            "lookup rather than a model."])
+    trows = []
+    for era, pts in sorted(curve.items()):
+        by_td = sorted(pts)
+        by_l90 = sorted((p[1], p[2]) for p in pts)
+        for tgt in (500.0, 1000.0, 2000.0):
+            need_td = need_l = None
+            for (x0, _l0, y0), (x1, _l1, y1) in zip(by_td, by_td[1:]):
+                if (y0 - tgt) * (y1 - tgt) <= 0 and y1 != y0:
+                    need_td = x0 + (tgt - y0) * (x1 - x0) / (y1 - y0)
+                    break
+            for (x0, y0), (x1, y1) in zip(by_l90, by_l90[1:]):
+                if (y0 - tgt) * (y1 - tgt) <= 0 and y1 != y0:
+                    need_l = x0 + (tgt - y0) * (x1 - x0) / (y1 - y0)
+                    break
+            trows.append([era, N._r(tgt), N._r(need_td, 4) if need_td
+                          else "beyond the swept range",
+                          N._r(need_l, 2) if need_l
+                          else "beyond the swept range"])
+        lo_td = [p for p in by_td if p[0] <= 0.35]
+        if len(lo_td) >= 2:
+            sl = ((lo_td[-1][2] - lo_td[0][2])
+                  / max(lo_td[-1][0] - lo_td[0][0], 1e-9))
+            trows.append([era, "usd_per_+0.01_TOPDEC_SPEARMAN",
+                          N._r(sl * 0.01), ""])
+        lo_l = [p for p in by_l90 if p[0] <= 400.0]
+        if len(lo_l) >= 2:
+            sl2 = ((lo_l[-1][1] - lo_l[0][1])
+                   / max(lo_l[-1][0] - lo_l[0][0], 1e-9))
+            trows.append([era, "usd_per_session_per_+$1_of_q90_TAIL_LIFT",
+                          N._r(sl2, 4), ""])
+    N.write_tsv(
+        "M3_REQUIRED_TAIL_QUALITY.tsv",
+        ["era", "target", "topdec_spearman_REQUIRED",
+         "q90_tail_lift_usd_REQUIRED"], trows,
+        extra=[
+            "THE CORRECTED STEERING NUMBERS, in both units.  Read by linear "
+            "interpolation between swept tail-quality levels.",
+            "THE SECOND UNIT IS THE USEFUL ONE: dollars per session per extra "
+            "dollar of q90 tail lift.  Tail lift is measured directly on any "
+            "candidate score without reference to this curve, so it converts "
+            "a model change into money without a fitted intermediary — which "
+            "is exactly what the withdrawn M1 conversion could not do."])
+    hb("M3: %d curve rows, %d target rows" % (len(rows), len(trows)))
+    del json
+    return rows
+
+
+# ====== STAGE 20: THE CHAMPION-TAIL CLIMB — the champion is the base =======
+# THE CHAMPION LEADS WHERE RULES SEAT: top-decile spearman 0.277/0.234/0.254
+# and q90 tail lift $144/$168/$175, against H3_DAYZ's 0.178/0.167/0.191 and
+# $37/$64/$47.  So the base is the champion's OWN objective — pairwise ranking
+# GROUPED BY CELL on within-cell certificate grades — and every lever is a
+# modification of it, judged on TAIL quality first and the blind deployable
+# line second.
+CLIMB_VARIANTS = {
+    "K_BASE":     {},
+    # TAIL WEIGHTING IN A RANKING OBJECTIVE HAS TO GO THROUGH THE GAIN, NOT A
+    # SAMPLE WEIGHT: xgboost requires ONE weight PER QUERY GROUP when a group
+    # is set, so a per-row emphasis is rejected outright (it refused loudly,
+    # which is how this was caught).  With ndcg_exp_gain the gain is 2^y - 1,
+    # so raising the top grade concentrates the gradient on exactly the region
+    # a threshold rule seats.
+    "K_TAILW":    {"expgain": True, "topgrade": 8.0},
+    "K_TAILW3":   {"expgain": True, "topgrade": 6.0},
+    "K_FLOWGEO":  {"groups": ("flow", "geometry")},
+    "K_SHALLOW":  {"depth_delta": -2},
+    "K_NOMONO":   {"nomono": True},
+}
+
+
+def cell_grade(D, k=5):
+    """Within-CELL certificate grade — the champion's own label shape."""
+    v = D["cert_close_usd"].astype(np.float64)
+    ok = (D["cert_refused"] == 0) & np.isfinite(v)
+    y = np.zeros(v.size, dtype=np.float64)
+    key = ((D["asset_idx"].astype(np.int64) * 100000000
+            + D["d8"].astype(np.int64)) * 100
+           + D["phase_dec"].astype(np.int64))
+    order = np.argsort(key, kind="stable")
+    ko = key[order]
+    st = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
+    for a, b in zip(st, st[1:] + [ko.size]):
+        idx = order[a:b]
+        g = idx[ok[idx]]
+        if g.size < k:
+            continue
+        q = np.quantile(v[g], np.linspace(0, 1, k + 1)[1:-1])
+        y[idx] = np.searchsorted(q, v[idx], side="right").astype(np.float64)
+    return y
+
+
+def _climb_one(job):
+    variant, era, seed = job
+    try:
+        out = os.path.join(FULL, "%s_%s_%d_RAW.npy" % (variant, era, seed))
+        if os.path.exists(out):
+            return (variant, era, seed, "CACHED")
+        import xgboost as xgb
+        import newobj_arms as NA
+        import rank_atlas as RA
+        import champ_floor as CF
+        import campaign as CP
+        import fold_stack as FS
+        D, _P = CF.boot()
+        cf = CLIMB_VARIANTS[variant]
+        tr, itr, iva, ev = NA.fold(D, era)
+        y = cell_grade(D)
+        if cf.get("topgrade"):
+            y = np.where(y >= 4.0, float(cf["topgrade"]), y)
+        base_cols, base_names = NA.feat_cols(D)
+        vec_base = list(CP._vec(D, era, FS.BEST_K[era]))
+        keep = [j for j, n in enumerate(base_names)
+                if n not in AR.LEAKY_FEATURES]
+        cols = [base_cols[j] for j in keep]
+        names = [base_names[j] for j in keep]
+        vec = ([vec_base[j] for j in keep]
+               if len(vec_base) == len(base_cols) else [0] * len(keep))
+        if cf.get("groups"):
+            fg = list(D["feature_groups"])
+            pos = {c: i for i, c in enumerate(base_cols)}
+            sel = [i for i, c in enumerate(cols)
+                   if pos.get(c) is not None
+                   and str(fg[pos[c]]) in cf["groups"]]
+            cols = [cols[i] for i in sel]
+            names = [names[i] for i in sel]
+            vec = [vec[i] for i in sel]
+        XF = D["X"][:, cols]
+        hp = NA.CHAMP_HP[era]
+        vec = vec[:XF.shape[1]] + [0] * max(0, XF.shape[1] - len(vec))
+        cfg = {"objective": "rank:ndcg", "eval_metric": "ndcg",
+               "tree_method": "hist", "min_child_weight": 20, "subsample": .8,
+               "colsample_bytree": .8,
+               "max_depth": max(2, hp["max_depth"] + cf.get("depth_delta", 0)),
+               "eta": hp["eta"], "seed": N.SEED + seed,
+               "nthread": RA.N_THREAD,
+               "lambdarank_num_pair_per_sample":
+                   int(hp["lambdarank_num_pair_per_sample"])}
+        if cf.get("expgain"):
+            cfg["ndcg_exp_gain"] = True
+        if not cf.get("nomono"):
+            cfg["monotone_constraints"] = "(" + ",".join(
+                str(int(z)) for z in vec) + ")"
+        r_f, g_f = RA._groups_of(D, itr, CF.SPEC)
+        d = xgb.DMatrix(XF[r_f], label=y[r_f], feature_names=names)
+        d.set_group(g_f)
+        b = xgb.train(cfg, d, int(hp["rounds"]))
+        del d
+        want = np.union1d(np.asarray(tr, dtype=np.int64),
+                          np.asarray(ev, dtype=np.int64))
+        sc = np.full(D["d8"].size, np.nan)
+        sc[want] = b.predict(xgb.DMatrix(XF[want], feature_names=names))
+        np.save(out, sc.astype(np.float32))
+        return (variant, era, seed, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (variant, era, seed,
+                "%s: %s | %s" % (type(e).__name__, e,
+                                 traceback.format_exc()[-300:]))
+
+
+def run_climb(workers=20, variants=None):
+    import multiprocessing as mp
+    vs = variants or tuple(CLIMB_VARIANTS)
+    jobs = [(v, e, s) for v in vs for e in FIT_ERAS for s in SEEDS]
+    hb("CLIMB: %d fits (%d variants)" % (len(jobs), len(vs)))
+    nerr = 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for v, e, sd, err in pool.imap_unordered(_climb_one, jobs):
+            if err and err != "CACHED":
+                nerr += 1
+                hb("CLIMB FIT FAILED %s %s s%d: %s" % (v, e, sd, err))
+    if nerr:
+        raise KnobRefusal("%d climb fits FAILED" % nerr)
+    hb("CLIMB fits done")
+
+
+def run_tailboard(columns=None):
+    """THE TAIL LEADERBOARD — every column on the axis that survived."""
+    import champ_floor as CF
+    import newobj_arms as NA
+    D, _P = CF.boot()
+    daykey = (D["asset_idx"].astype(np.int64) * 100000000
+              + D["d8"].astype(np.int64))
+    cert = np.where(D["cert_refused"] == 0,
+                    D["cert_close_usd"].astype(np.float64), np.nan)
+    cols_want = columns or (("S_XGB", "A_EV_RAW", "H3_DAYZ", "V_SHALLOW",
+                             "V_FLOWGEO") + tuple(sorted(CLIMB_VARIANTS))
+                            + ("ORACLE_DAYRANK",))
+    rows = []
+    for era in BINDING:
+        _t, _i, _v, ev = NA.fold(D, era)
+        for name in cols_want:
+            cc = true_cols(D, name, era, "eval")
+            if not cc:
+                continue
+            ts = [_tailstats(D, v, ev, cert, daykey) for v in cc]
+            ens = _tailstats(D, np.nanmean(cc, axis=0), ev, cert, daykey) \
+                if len(cc) > 1 else ts[0]
+            rows.append([era, name, len(cc),
+                         N._r(float(np.nanmean([t[0] for t in ts])), 5),
+                         N._r(float(np.nanmean([t[1] for t in ts])), 2),
+                         N._r(float(np.nanmean([t[2] for t in ts])), 2),
+                         N._r(float(np.nanmean([t[3] for t in ts])), 2),
+                         N._r(ens[0], 5), N._r(ens[1], 2), N._r(ens[2], 2)])
+    if not rows:
+        raise KnobRefusal("TAILBOARD: no column produced a reading")
+    N.write_tsv(
+        "TAIL_LEADERBOARD.tsv",
+        ["era", "score_column", "n_seeds", "topdec_spearman_PERSEED",
+         "tail_lift_q90_PERSEED", "tail_lift_q95_PERSEED",
+         "tail_lift_q99_PERSEED", "topdec_spearman_SEED_ENSEMBLE",
+         "tail_lift_q90_SEED_ENSEMBLE", "tail_lift_q95_SEED_ENSEMBLE"], rows,
+        extra=[
+            "THE AXIS THAT SURVIVED THE INVERSION.  Overall within-day "
+            "spearman is ANTI-CORRELATED with what pays; these are the "
+            "statistics restricted to the region a threshold rule seats.",
+            "SEED_ENSEMBLE columns score the MEAN of the seed columns rather "
+            "than averaging their scores — bagging judged on tail quality "
+            "only, which is one of the named levers.",
+            "K_* are the champion-base climb variants: the champion's own "
+            "pairwise objective grouped by CELL on within-cell certificate "
+            "grades, with one lever changed each."])
+    hb("TAIL_LEADERBOARD.tsv: %d rows" % len(rows))
+    return rows
+
+
+# ============ STAGE 21: THE TAIL ASSAULT — four arms, all on the tail ======
+# WHAT THE CORRECTED CURVE PRICES (M3_REQUIRED_TAIL_QUALITY.tsv):
+#   $500/session needs q90 tail lift of $203 / $229 / $157 on E5 / E6 / E7,
+#   $1,000/session needs $619 / $440 where it is reachable at all, and the
+#   conversion at the low end is $1.99 / $2.07 / $2.40 OF SESSION DOLLARS PER
+#   $1 OF Q90 TAIL LIFT.  The champion stands at $144 / $168 / $175 of lift.
+# AND THE CURVE EXPOSES SOMETHING THE OLD ONE HID.  At the champion's measured
+# TOP-DECILE SPEARMAN (0.277 / 0.234 / 0.254) the synthetic curve is at its
+# rho_tail=1.0 endpoint, where q90 lift is $570-873 and the arm earns $855-
+# $1,428.  The champion has the SAME top-decile ordering and only $144-175 of
+# lift.  So the two tail statistics are NOT interchangeable: the champion
+# ORDERS its own top decile as well as a perfect-tail score does, but its top
+# decile CONTAINS THE WRONG CANDIDATES.  TAIL SELECTION, NOT TAIL ORDERING, IS
+# THE BINDING DEFICIT, and every arm below is aimed at selection.
+# A SECOND UNLOCK, MECHANICAL AND FREE: the curve's dollars are earned by
+# TAU_0.95-0.99, and the deployed column CANNOT RUN TAU AT ALL because
+# FOLD_<era>_<seed>.npy has no training-block coverage.  Every arm here is
+# fitted in this lane and predicted over tr | ev, so TAU is available to all of
+# them.  Part of any gain will be that, not quality, and the tables must let
+# the two be told apart — which is why the tail statistics are reported beside
+# the dollars for every arm.
+TAIL_DECILE = 0.90
+ASSAULT_VARIANTS = {
+    # A1 — TAIL-POPULATION TRAINING: the champion recipe fitted on ONLY the
+    #      historical top-decile-of-day rows.  The bulk never seats and has
+    #      been consuming the whole of the model's capacity.
+    "A1_TAILPOP":   {"train_tail": True, "group": "cell"},
+    "A1_TAILPOP_FG": {"train_tail": True, "group": "cell",
+                      "groups": ("flow", "geometry")},
+    # A2 — TAIL-WEIGHTED OBJECTIVE: full population, gradient concentrated on
+    #      the top by lambdarank's topk pair method and exponential gains.
+    "A2_LAMBDAK":   {"group": "cell", "topk": 10},
+    "A2_LAMBDAK_FG": {"group": "cell", "topk": 10,
+                      "groups": ("flow", "geometry")},
+    # A3 — TAIL-PAIR TRAINING: pairwise over the DAY, restricted to the day's
+    #      top decile, so every pair is a tail-vs-tail comparison.  This is the
+    #      repair of the failed day-grouped ranker, whose pairs were
+    #      bulk-dominated.
+    "A3_TAILPAIR":  {"train_tail": True, "group": "day"},
+}
+
+
+def _assault_one(job):
+    variant, era, seed = job
+    try:
+        out = os.path.join(FULL, "%s_%s_%d_RAW.npy" % (variant, era, seed))
+        if os.path.exists(out):
+            return (variant, era, seed, "CACHED")
+        import xgboost as xgb
+        import newobj_arms as NA
+        import rank_atlas as RA
+        import champ_floor as CF
+        D, _P = CF.boot()
+        cf = ASSAULT_VARIANTS[variant]
+        tr, itr, iva, ev = NA.fold(D, era)
+        daykey = (D["asset_idx"].astype(np.int64) * 100000000
+                  + D["d8"].astype(np.int64))
+        cellkey = daykey * 100 + D["phase_dec"].astype(np.int64)
+        cert = np.where(D["cert_refused"] == 0,
+                        D["cert_close_usd"].astype(np.float64), np.nan)
+        rows_f = N.deployable(D, itr)
+        if cf.get("train_tail"):
+            # the historical top decile OF ITS DAY — the rule-reachable
+            # population, and the only region a threshold rule ever seats
+            up = np.full(cert.size, np.nan)
+            order = np.argsort(daykey, kind="stable")
+            ko = daykey[order]
+            st = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
+            for a, b in zip(st, st[1:] + [ko.size]):
+                idx = order[a:b]
+                g = idx[np.isfinite(cert[idx])]
+                if g.size < 2:
+                    continue
+                up[g] = np.argsort(np.argsort(cert[g])) / float(g.size - 1)
+            rows_f = rows_f[up[rows_f] >= TAIL_DECILE]
+            if rows_f.size < 5000:
+                raise KnobRefusal("%s %s: tail population only %d rows"
+                                  % (variant, era, rows_f.size))
+        key = cellkey if cf.get("group") == "cell" else daykey
+        o = np.lexsort((D["dec_sec"][rows_f], key[rows_f]))
+        rows_f = rows_f[o]
+        ks = key[rows_f]
+        _u, grp = np.unique(ks, return_counts=True)
+        # labels: within-GROUP certificate grades on the training population
+        y = np.zeros(cert.size)
+        st = [0] + (np.flatnonzero(ks[1:] != ks[:-1]) + 1).tolist()
+        for a, b in zip(st, st[1:] + [ks.size]):
+            idx = rows_f[a:b]
+            g = idx[np.isfinite(cert[idx])]
+            if g.size < 2:
+                continue
+            y[g] = np.round(
+                (np.argsort(np.argsort(cert[g])).astype(np.float64)
+                 / max(g.size - 1, 1)) * 4.0)
+        cols, names = AR.clean_feature_cols(D)
+        if cf.get("groups"):
+            fg = list(D["feature_groups"])
+            allc, _an = NA.feat_cols(D)
+            pos = {c: i for i, c in enumerate(allc)}
+            sel = [i for i, c in enumerate(cols)
+                   if pos.get(c) is not None
+                   and str(fg[pos[c]]) in cf["groups"]]
+            cols = [cols[i] for i in sel]
+            names = [names[i] for i in sel]
+        XF = D["X"][:, cols]
+        hp = NA.CHAMP_HP[era]
+        cfg = {"objective": "rank:ndcg", "eval_metric": "ndcg",
+               "tree_method": "hist", "min_child_weight": 20, "subsample": .8,
+               "colsample_bytree": .8, "max_depth": hp["max_depth"],
+               "eta": hp["eta"], "seed": N.SEED + seed,
+               "nthread": RA.N_THREAD,
+               "lambdarank_num_pair_per_sample":
+                   int(hp["lambdarank_num_pair_per_sample"])}
+        if cf.get("topk"):
+            # gradient concentrated on the top of each list
+            cfg["lambdarank_pair_method"] = "topk"
+            cfg["ndcg_exp_gain"] = True
+            cfg["eval_metric"] = "ndcg@%d" % int(cf["topk"])
+        d = xgb.DMatrix(XF[rows_f], label=y[rows_f], feature_names=names)
+        d.set_group(grp)
+        b = xgb.train(cfg, d, int(hp["rounds"]))
+        del d
+        want = np.union1d(np.asarray(tr, dtype=np.int64),
+                          np.asarray(ev, dtype=np.int64))
+        sc = np.full(D["d8"].size, np.nan)
+        sc[want] = b.predict(xgb.DMatrix(XF[want], feature_names=names))
+        np.save(out, sc.astype(np.float32))
+        return (variant, era, seed, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (variant, era, seed,
+                "%s: %s | %s" % (type(e).__name__, e,
+                                 traceback.format_exc()[-300:]))
+
+
+def build_a4():
+    """A4 — ENSEMBLE DISPERSION AS A TAIL-ORDERING STATISTIC.
+
+    The agreement signal across the champion's folded members built 0.9-win
+    books once and has never been measured on this axis.  No fit: it is
+    -stdev across the members, plus the champion's own mean divided by that
+    dispersion (a t-like statistic), both scored purely as ORDERINGS.
+    """
+    import champ_floor as CF
+    import newobj_arms as NA
+    D, _P = CF.boot()
+    made = []
+    for era in FIT_ERAS:
+        _t, _i, _v, ev = NA.fold(D, era)
+        cc = true_cols(D, "S_XGB", era, "eval")
+        if len(cc) < 2:
+            continue
+        M = np.vstack(cc)
+        with np.errstate(invalid="ignore"):
+            disp = np.nanstd(M, axis=0)
+            mu = np.nanmean(M, axis=0)
+        np.save(os.path.join(FULL, "A4_AGREE_%s_0_RAW.npy" % era),
+                (-disp).astype(np.float32))
+        made.append("A4_AGREE")
+        t = np.where(disp > 0, mu / np.maximum(disp, 1e-9), np.nan)
+        np.save(os.path.join(FULL, "A4_TSTAT_%s_0_RAW.npy" % era),
+                t.astype(np.float32))
+        made.append("A4_TSTAT")
+    hb("A4 columns built: %s" % sorted(set(made)))
+    return sorted(set(made))
+
+
+def run_assault(workers=16, variants=None):
+    import multiprocessing as mp
+    build_a4()
+    vs = variants or tuple(ASSAULT_VARIANTS)
+    jobs = [(v, e, s) for v in vs for e in FIT_ERAS for s in SEEDS]
+    hb("ASSAULT: %d fits (%d arms)" % (len(jobs), len(vs)))
+    nerr = 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for v, e, sd, err in pool.imap_unordered(_assault_one, jobs):
+            if err and err != "CACHED":
+                nerr += 1
+                hb("ASSAULT FIT FAILED %s %s s%d: %s" % (v, e, sd, err))
+    if nerr:
+        raise KnobRefusal("%d assault fits FAILED" % nerr)
+    hb("ASSAULT fits done")
+
+
+ASSAULT_COLUMNS = (("S_XGB", "A_EV_RAW", "H3_DAYZ", "V_SHALLOW", "V_FLOWGEO")
+                   + tuple(sorted(CLIMB_VARIANTS))
+                   + tuple(sorted(ASSAULT_VARIANTS))
+                   + ("A4_AGREE", "A4_TSTAT", "ORACLE_DAYRANK"))
+
+
+# ============ STAGE 22: B1 — THE SEAT BOUNDARY, AS A BINARY ================
+# THE OBJECTIVE EVERYONE HAS HAD WRONG, INCLUDING ME.  Every rule ever priced
+# takes ~3 seats per asset-day.  The only question that pays is BINARY: is this
+# candidate in today's true top-3 or not?  Ordering rank 4 against rank 20 —
+# most of what every fitted model spends capacity on, and most of what
+# tail-spearman measures — is worth exactly $0.
+# THE CORRECTED CURVE IS THE CONFIRMATION, not a separate idea: at the
+# champion's top-decile spearman the synthetic curve earns $855-1,428 with
+# $570-873 of q90 lift, while the champion has the SAME tail ordering and only
+# $144-175 of lift.  Same ordering, a quarter of the money: THE DEFICIT IS
+# WHICH CANDIDATES LAND IN THE TOP DECILE, WHICH IS THE SEAT BOUNDARY.
+# TRAINED ON THE TAIL POPULATION ONLY (top decile of its day), because the bulk
+# never seats and has been consuming the whole of every model's capacity.
+# 100-SEED GPU ENSEMBLE, with the across-seed dispersion kept as a confidence
+# column — the one measured confidence mechanism this program owns.
+# METRIC: PRECISION@3 PER DAY, against three controls that must all be beaten —
+# the champion restricted to the same tail, a random pick inside the tail, and
+# the same fit on SHUFFLED LABELS.
+B1_SEEDS = 100
+B1_TOPK = 3
+
+
+def _b1_labels(D):
+    """1 where the candidate is in its (asset, day)'s true top-3 by realised
+    certificate, over the DEPLOYABLE pool — the seat boundary itself."""
+    v = np.where(D["cert_refused"] == 0,
+                 D["cert_close_usd"].astype(np.float64), np.nan)
+    dep = np.zeros(v.size, dtype=bool)
+    dep[N.deployable(D, np.arange(v.size))] = True
+    key = (D["asset_idx"].astype(np.int64) * 100000000
+           + D["d8"].astype(np.int64))
+    y = np.zeros(v.size, dtype=np.float64)
+    u = np.full(v.size, np.nan)
+    order = np.argsort(key, kind="stable")
+    ko = key[order]
+    st = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
+    for a, b in zip(st, st[1:] + [ko.size]):
+        idx = order[a:b]
+        g = idx[dep[idx] & np.isfinite(v[idx])]
+        if g.size < 2:
+            continue
+        u[g] = np.argsort(np.argsort(v[g])) / float(g.size - 1)
+        top = g[np.argsort(v[g])[::-1][:B1_TOPK]]
+        y[top] = 1.0
+    return y, u, key
+
+
+def _precision_at_k(D, score, rows, ytrue, key, k=B1_TOPK):
+    r = np.asarray(rows, dtype=np.int64)
+    r = r[np.isfinite(np.asarray(score)[r])]
+    kk = key[r]
+    o = np.argsort(kk, kind="stable")
+    r, kk = r[o], kk[o]
+    s = np.asarray(score)[r]
+    st = [0] + (np.flatnonzero(kk[1:] != kk[:-1]) + 1).tolist()
+    hits, days = 0, 0
+    for a, b in zip(st, st[1:] + [kk.size]):
+        idx = r[a:b]
+        if idx.size < k:
+            continue
+        top = idx[np.argsort(s[a:b])[::-1][:k]]
+        hits += int(ytrue[top].sum())
+        days += 1
+    return (hits / float(days * k)) if days else float("nan"), days
+
+
+def _b1_job(era):
+    try:
+        import xgboost as xgb
+        import newobj_arms as NA
+        import champ_floor as CF
+        D, _P = CF.boot()
+        tr, itr, iva, ev = NA.fold(D, era)
+        y, u, key = _b1_labels(D)
+        cols, names = AR.clean_feature_cols(D)
+        XF = D["X"][:, cols]
+        rows_f = N.deployable(D, itr)
+        rows_f = rows_f[u[rows_f] >= TAIL_DECILE]      # THE TAIL POPULATION
+        if rows_f.size < 3000:
+            raise KnobRefusal("B1 %s: tail population %d rows"
+                              % (era, rows_f.size))
+        hp = NA.CHAMP_HP[era]
+        want = np.union1d(np.asarray(tr, dtype=np.int64),
+                          np.asarray(ev, dtype=np.int64))
+        dtr = xgb.DMatrix(XF[rows_f], label=y[rows_f], feature_names=names)
+        dall = xgb.DMatrix(XF[want], feature_names=names)
+        preds, dev = [], "cuda"
+        for sd in range(B1_SEEDS):
+            cfg = {"objective": "binary:logistic", "eval_metric": "logloss",
+                   "tree_method": "hist", "device": dev,
+                   "max_depth": hp["max_depth"], "eta": hp["eta"],
+                   "min_child_weight": 20, "subsample": 0.7,
+                   "colsample_bytree": 0.7, "seed": N.SEED + sd}
+            try:
+                b = xgb.train(cfg, dtr, int(hp["rounds"]))
+            except Exception:                              # noqa: BLE001
+                dev = "cpu"
+                cfg["device"] = dev
+                b = xgb.train(cfg, dtr, int(hp["rounds"]))
+            preds.append(b.predict(dall))
+            del b
+        M = np.vstack(preds)
+        mu, sd_ = M.mean(axis=0), M.std(axis=0)
+        sc = np.full(D["d8"].size, np.nan)
+        sc[want] = mu
+        np.save(os.path.join(FULL, "B1_SEAT_%s_0_RAW.npy" % era),
+                sc.astype(np.float32))
+        cf = np.full(D["d8"].size, np.nan)
+        cf[want] = -sd_
+        np.save(os.path.join(FULL, "B1_SEATDISP_%s_0_RAW.npy" % era),
+                cf.astype(np.float32))
+        gate = np.full(D["d8"].size, np.nan)
+        gate[want] = mu / np.maximum(sd_, 1e-6)
+        np.save(os.path.join(FULL, "B1_SEATCONF_%s_0_RAW.npy" % era),
+                gate.astype(np.float32))
+        # ---- SHUFFLED-LABEL CONTROL, same recipe, 10 seeds ----
+        rng = np.random.default_rng(N.SEED)
+        ysh = y.copy()
+        ysh[rows_f] = y[rows_f][rng.permutation(rows_f.size)]
+        dsh = xgb.DMatrix(XF[rows_f], label=ysh[rows_f], feature_names=names)
+        shp = []
+        for sd in range(10):
+            cfg = {"objective": "binary:logistic", "eval_metric": "logloss",
+                   "tree_method": "hist", "device": dev,
+                   "max_depth": hp["max_depth"], "eta": hp["eta"],
+                   "min_child_weight": 20, "subsample": 0.7,
+                   "colsample_bytree": 0.7, "seed": N.SEED + 5000 + sd}
+            b = xgb.train(cfg, dsh, int(hp["rounds"]))
+            shp.append(b.predict(dall))
+            del b
+        shs = np.full(D["d8"].size, np.nan)
+        shs[want] = np.vstack(shp).mean(axis=0)
+        # ---- PRECISION@3 against every control ----
+        out = []
+        p, nd = _precision_at_k(D, sc, ev, y, key)
+        out.append((era, "B1_SEAT_ensemble%d" % B1_SEEDS, p, nd, dev))
+        p, _ = _precision_at_k(D, np.where(np.isfinite(sc), preds[0], np.nan),
+                               ev, y, key)
+        out.append((era, "B1_SEAT_single_seed", p, nd, dev))
+        p, _ = _precision_at_k(D, shs, ev, y, key)
+        out.append((era, "CONTROL_shuffled_labels", p, nd, dev))
+        for nm in ("S_XGB", "A_EV_RAW", "H3_DAYZ"):
+            cc = true_cols(D, nm, era, "eval")
+            if cc:
+                p, _ = _precision_at_k(D, np.nanmean(cc, axis=0), ev, y, key)
+                out.append((era, "CONTROL_%s" % nm, p, nd, dev))
+        evd = ev[u[ev] >= TAIL_DECILE]
+        rnd = np.full(D["d8"].size, np.nan)
+        rnd[evd] = rng.standard_normal(evd.size)
+        p, _ = _precision_at_k(D, rnd, ev, y, key)
+        out.append((era, "CONTROL_random_in_tail", p, nd, dev))
+        base = float(np.nanmean([B1_TOPK / max(np.sum(key[ev] == kx), 1)
+                                 for kx in np.unique(key[ev])[:200]]))
+        out.append((era, "CONTROL_chance", base, nd, dev))
+        return (era, out, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (era, [], "%s: %s | %s" % (type(e).__name__, e,
+                                          traceback.format_exc()[-350:]))
+
+
+def run_b1(workers=3, eras=BINDING):
+    import multiprocessing as mp
+    hb("B1: seat-boundary binary, %d-seed ensemble on the tail population"
+       % B1_SEEDS)
+    rows, nerr = [], 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for era, out, err in pool.imap_unordered(_b1_job, list(eras)):
+            if err:
+                nerr += 1
+                hb("B1 FAILED %s: %s" % (era, err))
+            else:
+                rows.extend(out)
+                hb("B1 %s done" % era)
+    if nerr or not rows:
+        raise KnobRefusal("%d B1 jobs FAILED" % nerr)
+    N.write_tsv(
+        "B1_SEAT_BOUNDARY.tsv",
+        ["era", "arm", "precision_at_3_per_day", "n_days", "device"],
+        [[e, a, N._r(p, 5), n, d] for e, a, p, n, d in rows],
+        extra=[
+            "THE SEAT BOUNDARY AS A BINARY: P(candidate is in its day's true "
+            "top-3), trained ONLY on the historical tail population (top "
+            "decile of its day), %d-seed ensemble, across-seed dispersion kept "
+            "as a confidence column." % B1_SEEDS,
+            "WHY THIS TARGET AND NOT ORDERING: every rule takes ~3 seats per "
+            "asset-day, so ordering rank 4 against rank 20 is worth $0.  The "
+            "corrected tail curve is the confirmation — at the champion's "
+            "top-decile spearman the synthetic curve earns $855-1,428 with "
+            "$570-873 of q90 lift while the champion has the SAME tail "
+            "ordering and $144-175.  Same ordering, a quarter of the money: "
+            "the deficit is WHICH candidates land in the tail.",
+            "PRECISION@3 PER DAY is the metric, and it must beat FOUR "
+            "controls: the champion on the same days, a random pick inside "
+            "the tail, the identical fit on SHUFFLED LABELS, and chance.  A "
+            "shuffled-label control that scores near the real one means the "
+            "tail population alone is doing the work.",
+            "This table promotes nothing.  The blind replay on the deployable "
+            "line is what adjudicates."])
+    hb("B1_SEAT_BOUNDARY.tsv: %d rows" % len(rows))
+    return rows
+
+
+def run_assault_eval(workers=24):
+    """B3/B7 — the blind deployable line for every assault and climb column."""
+    import json
+    import multiprocessing as mp
+    cols = tuple(c for c in ASSAULT_COLUMNS if c != "ORACLE_DAYRANK") + (
+        "B1_SEAT", "B1_SEATCONF", "A4_AGREE", "A4_TSTAT")
+    jobs = ([("eval", e, c, "H1") for e in H1EVAL_ERAS for c in cols]
+            + [("inner", e, c, "H1") for e in H1EVAL_ERAS[1:] for c in cols])
+    os.makedirs(CACHE, exist_ok=True)
+    todo = [j for j in jobs
+            if not os.path.exists(os.path.join(
+                CACHE, "AS_%s_%s_%s.json" % (j[0], j[1], j[2])))]
+    hb("ASSAULT_EVAL: %d jobs (%d cached), %d policies x %d columns"
+       % (len(todo), len(jobs) - len(todo), len(H1_POLICIES), len(cols)))
+    nerr = 0
+    if todo:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(processes=workers) as pool:
+            for mode, era, col, out, err in pool.imap_unordered(_true_job,
+                                                                todo):
+                if err:
+                    nerr += 1
+                    hb("AS FAILED %s %s %s: %s" % (mode, era, col, err))
+                    continue
+                with open(os.path.join(CACHE, "AS_%s_%s_%s.json"
+                                       % (mode, era, col)), "w") as fh:
+                    json.dump(out, fh)
+                hb("AS done %s %s %s" % (mode, era, col))
+    if nerr:
+        raise KnobRefusal("%d assault-eval jobs FAILED" % nerr)
+    return write_assault_eval(cols)
+
+
+def write_assault_eval(cols):
+    import json
+    recs = []
+    for fn in sorted(os.listdir(CACHE)):
+        if fn.startswith("AS_") and fn.endswith(".json"):
+            with open(os.path.join(CACHE, fn)) as fh:
+                recs.extend(json.load(fh))
+    live = [r for r in recs if not r.get("notrun")
+            and np.isfinite(r.get("usd", float("nan")))]
+    ev = {(r["era"], r["col"], r["policy"]): r
+          for r in live if r["mode"] == "eval"}
+    inn = {(r["era"], r["col"], r["policy"]): r
+           for r in live if r["mode"] == "inner"}
+    # LIKE-FOR-LIKE vs COVERAGE-UNLOCKED: the deployed column cannot run TAU at
+    # all, so any arm that only wins once TAU is allowed has won on PLUMBING.
+    LFL = {"DAYSOFAR", "CELLSOFAR"}
+    crows = []
+    for sel, tgt in T2_CHAIN:
+        cl = AR.CAUSAL_ORACLE.get(tgt)
+        inc = INCUMBENT_DEPLOYABLE.get(tgt)
+        for col in cols:
+            for fam, tag in ((LFL, "LIKE_FOR_LIKE_no_TAU"),
+                             (None, "ALL_RULES_incl_TAU")):
+                pool_ = {k: v for k, v in ev.items()
+                         if k[0] == sel and k[1] == col
+                         and (fam is None or v["family"].split("_")[0] in fam)}
+                if not pool_:
+                    continue
+                k = max(pool_, key=lambda z: pool_[z]["usd"])
+                r = ev.get((tgt, k[1], k[2]))
+                if r is None:
+                    continue
+                bar = max((x["null"] for x in live if x["mode"] == "eval"
+                           and x["era"] == tgt and x["col"] == col
+                           and (fam is None
+                                or x["family"].split("_")[0] in fam)),
+                          default=None)
+                crows.append([
+                    "%s->%s" % (sel, tgt), col, tag, "%s|%s" % (k[1], k[2]),
+                    N._r(pool_[k]["usd"]), N._r(r["usd"]), N._r(r["sd"]),
+                    N._r(r["ci_lo"]), N._r(r["ci_hi"]),
+                    N._r(r["n_seated"], 1), r["n_sessions"],
+                    N._r(r["top5_share"], 3), N._r(bar),
+                    "YES" if (bar is not None and r["usd"] > bar) else "no",
+                    N._r(inc), N._r(r["usd"] - inc) if inc else "",
+                    "YES" if (inc is not None and r["usd"] > inc) else "no",
+                    N._r(r["usd"] / cl, 4) if cl else "",
+                    "POSITIVE" if r["usd"] > 0 else "NEGATIVE"])
+    N.write_tsv(
+        "ASSAULT_BLIND_CHAIN.tsv",
+        ["link", "score_column", "rule_set", "cell_chosen", "usd_on_selector",
+         "usd_on_TARGET_BLIND", "sd_usd", "ci_lo", "ci_hi", "n_trades_total",
+         "n_era_sessions", "top5_trade_share_of_pnl", "search_adjusted_null",
+         "beats_null", "incumbent_S_XGB_DAYSOFAR", "delta_vs_incumbent",
+         "beats_incumbent", "capture_of_causal_oracle", "sign"], crows,
+        extra=[
+            "EVERY ARM ON THE DEPLOYABLE LINE, prev-era blind, all-session "
+            "denominators, 5 seeds, in-sweep nulls.",
+            "TWO RULE SETS PER ARM, AND THE PAIR IS THE POINT.  "
+            "LIKE_FOR_LIKE_no_TAU restricts to DAYSOFAR/CELLSOFAR — the rules "
+            "the DEPLOYED column can also run — and is the honest quality "
+            "comparison.  ALL_RULES_incl_TAU adds the level rules, which the "
+            "deployed column CANNOT RUN AT ALL because FOLD_<era>_<seed>.npy "
+            "has no training-block coverage.  An arm that wins only in the "
+            "second column has won on PLUMBING, not on modelling, and the "
+            "coverage-refit control (K_BASE — the champion's own objective "
+            "refitted in this lane, hence with coverage) is what separates "
+            "them.",
+            "THE PRE-REGISTERED BAR, unchanged: positive in all three binding "
+            "eras, clearing the search-adjusted null in all three, beating the "
+            "incumbent in at least two of three, top-5 concentration < 0.30."])
+    hb("ASSAULT_BLIND_CHAIN.tsv: %d rows" % len(crows))
+    del json
+    return crows
+
+
+# ====== STAGE 23: B2/B4/B5/B6 — ceilings and censuses on the causal book ===
+# A DATA CONSTRAINT, STATED BEFORE THE RESULTS RATHER THAN AFTER.  The delayed
+# tensor carries ENTRY delays {0, 60, 120, 300, 600}s only; there is no
+# mid-hold slice at t+30/60/120min anywhere in it, and `pp_*` are whole-hold
+# aggregates.  So B2 and B4 CANNOT be priced as literally specified.  What the
+# data does support is the same question at its MAXIMAL form, which is the
+# right ceiling-first move anyway:
+#   B4  CLAIRVOYANT PEAK EXIT — pay `cert_peak_usd` instead of
+#       `cert_close_usd` on the causal book's own blind seats.  That is
+#       PERFECT exit timing, so it bounds the ENTIRE management pot from
+#       above.  If the pot is small here it is smaller at any real horizon and
+#       the whole management axis dies for the price of one replay.
+#   B2  THE SCOUT, at its coarsest hindsight: seats 2-3 are allowed only when
+#       the day's FIRST seat turned out to be a winner.  It bounds how much
+#       information a day carries about ITSELF.  A finer conditioning on
+#       first-30/60min state needs path slices this tensor does not have, and
+#       that requirement is a finding rather than an excuse.
+def _ceil_job(era):
+    try:
+        import champ_floor as CF
+        import stacked_final as SF
+        import newobj_arms as NA
+        D, P = CF.boot()
+        pc = phase_close(D, P)
+        tr, _i, _v, ev = NA.fold(D, era)
+        nsess = int(np.unique(D["session"][ev]).size)
+        cert = np.where(D["cert_refused"] == 0,
+                        D["cert_close_usd"].astype(np.float64), np.nan)
+        peak = D["cert_peak_usd"].astype(np.float64)
+        cols = true_cols(D, "S_XGB", era, "eval")
+        if not cols:
+            return (era, [], [], [], "no S_XGB")
+        rows = []
+
+        def replay(seats, val=None):
+            rp = SF.apply_stop(D, AR.cap_seats(D, N.replay_delayed(
+                D, seats, P, val_by_delay=val)), "STOP_WALL1")
+            r = N.read_rows(D, pad_sessions(D, ev, rp))
+            return (r.get("usd_per_session") or 0.0,
+                    int(sum(x["n_seated"] for x in rp)), rp)
+        # the incumbent's own blind cell, per era
+        knob = {"E5": 0.9, "E6": 0.7, "E7": 0.9}.get(era, 0.9)
+        base_u, base_n, base_rp = [], [], None
+        peak_u = []
+        for v in cols:
+            seats = build_ext(D, ev, v, "day", knob, tr, pc)
+            u, n, rp = replay(seats)
+            base_u.append(u)
+            base_n.append(n)
+            base_rp = rp
+            vd = {d: peak for d in P}
+            u2, _n2, _r2 = replay(seats, val=vd)
+            peak_u.append(u2)
+        rows.append(["B4_MANAGEMENT_CEILING", "causal book paid at PEAK",
+                     N._r(float(np.mean(base_u))), N._r(float(np.mean(peak_u))),
+                     N._r(float(np.mean(peak_u)) - float(np.mean(base_u))),
+                     N._r(float(np.mean(base_n)), 1)])
+        # B2 — the scout, hindsight-conditioned on the day's first seat
+        sc_u, sc_n = [], []
+        for v in cols:
+            seats = build_ext(D, ev, v, "day", knob, tr, pc)
+            byday = {}
+            for i, dl in seats:
+                k = (int(D["asset_idx"][i]), int(D["d8"][i]))
+                byday.setdefault(k, []).append((int(D["dec_sec"][i]), i, dl))
+            keep = []
+            for k, lst in byday.items():
+                lst.sort()
+                first = lst[0]
+                keep.append((first[1], first[2]))
+                if np.isfinite(cert[first[1]]) and cert[first[1]] > 0:
+                    keep.extend([(i, dl) for _t, i, dl in lst[1:]])
+            u, n, _r = replay(keep)
+            sc_u.append(u)
+            sc_n.append(n)
+        rows.append(["B2_SCOUT_CEILING",
+                     "seats 2-3 only if the day's FIRST seat won",
+                     N._r(float(np.mean(base_u))), N._r(float(np.mean(sc_u))),
+                     N._r(float(np.mean(sc_u)) - float(np.mean(base_u))),
+                     N._r(float(np.mean(sc_n)), 1)])
+        # B6 — pre-day gate: prior-session mean |cert| of the same asset
+        gate_rows = []
+        akey = D["asset_idx"].astype(np.int64)
+        dkey = D["d8"].astype(np.int64)
+        prior = {}
+        for a in np.unique(akey[tr]):
+            m = akey[tr] == a
+            ds = np.unique(dkey[tr][m])
+            for j, d in enumerate(ds):
+                mm = m & (dkey[tr] == d)
+                prior[(int(a), int(d))] = float(
+                    np.nanmean(np.abs(cert[tr][mm]))) if mm.any() else np.nan
+        alldays = sorted({(int(a), int(d)) for a, d in
+                          zip(akey[ev], dkey[ev])})
+        hist = {}
+        for a, d in sorted(prior):
+            hist.setdefault(a, []).append((d, prior[(a, d)]))
+        qual = {}
+        for a, d in alldays:
+            h = [x for x in hist.get(a, []) if x[0] < d]
+            qual[(a, d)] = h[-1][1] if h else np.nan
+        qv = np.array([qual[(int(a), int(dd))] for a, dd in
+                       zip(akey[ev], dkey[ev])])
+        for q in (0.0, 0.3, 0.5, 0.7):
+            thr = np.nanquantile(qv, q) if q > 0 else -np.inf
+            keepmask = ~np.isfinite(qv) | (qv >= thr)
+            ug, ng = [], []
+            for v in cols:
+                seats = [(i, dl) for i, dl in
+                         build_ext(D, ev, v, "day", knob, tr, pc)
+                         if keepmask[np.searchsorted(ev, i)]
+                         if i in set(ev.tolist())] if False else None
+                sel = build_ext(D, ev, v, "day", knob, tr, pc)
+                idx = np.asarray([i for i, _d in sel], dtype=np.int64)
+                ok = np.isfinite(qual.get((0, 0), np.nan)) if False else None
+                keep2 = [(int(i), int(dl)) for i, dl in sel
+                         if (not np.isfinite(qual.get(
+                             (int(D["asset_idx"][i]), int(D["d8"][i])),
+                             np.nan)))
+                         or qual[(int(D["asset_idx"][i]),
+                                  int(D["d8"][i]))] >= thr]
+                del idx, ok
+                u, n, _r = replay(keep2)
+                ug.append(u)
+                ng.append(n)
+            gate_rows.append([era, N._r(q, 2), N._r(float(np.mean(ug))),
+                              N._r(float(np.mean(ng)), 1), nsess])
+        # B5 — per-class tail separability (asset x side x phase)
+        daykey = (akey * 100000000 + dkey)
+        cls_rows = []
+        for a in np.unique(akey[ev]):
+            for sdv in np.unique(D["side"][ev]):
+                m = (akey[ev] == a) & (D["side"][ev] == sdv)
+                rr = ev[m]
+                if rr.size < 2000:
+                    continue
+                ts = [_tailstats(D, v, rr, cert, daykey) for v in cols]
+                cls_rows.append([era, str(D["asset"][rr[0]]), str(sdv),
+                                 int(rr.size),
+                                 N._r(float(np.nanmean([t[0] for t in ts])), 4),
+                                 N._r(float(np.nanmean([t[1] for t in ts])), 2),
+                                 N._r(float(np.nanmean([t[3] for t in ts])), 2)])
+        return (era, rows, gate_rows, cls_rows, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (era, [], [], [], "%s: %s | %s"
+                % (type(e).__name__, e, traceback.format_exc()[-350:]))
+
+
+def run_ceilings(workers=3, eras=BINDING):
+    import multiprocessing as mp
+    hb("CEILINGS: B2 scout / B4 management / B5 per-class / B6 pre-day gate")
+    cr, gr, kr, nerr = [], [], [], 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for era, rows, gate, cls, err in pool.imap_unordered(_ceil_job,
+                                                             list(eras)):
+            if err:
+                nerr += 1
+                hb("CEILING FAILED %s: %s" % (era, err))
+                continue
+            cr.extend([[era] + r for r in rows])
+            gr.extend(gate)
+            kr.extend(cls)
+            hb("CEILINGS %s done" % era)
+    if nerr or not cr:
+        raise KnobRefusal("%d ceiling jobs FAILED" % nerr)
+    N.write_tsv(
+        "B2_B4_CEILINGS.tsv",
+        ["era", "arm", "what", "causal_book_usd_per_session",
+         "with_the_privilege_usd", "delta_usd", "n_trades"], cr,
+        extra=[
+            "HINDSIGHT CEILINGS ON THE CAUSAL BOOK — the incumbent's own blind "
+            "cell (S_XGB|DAYSOFAR at its per-era knob), granted one privilege "
+            "at a time.  Nothing here is deployable and nothing is promoted.",
+            "A DATA CONSTRAINT, STATED UP FRONT: the delayed tensor carries "
+            "ENTRY delays {0,60,120,300,600}s only and no mid-hold slice, so "
+            "the t+{30,60,120}min management cut and the first-30/60min scout "
+            "condition CANNOT be priced as specified.  Both are priced at "
+            "their MAXIMAL form instead, which bounds the real thing from "
+            "above: B4 pays the PEAK (perfect exit timing) and B2 conditions "
+            "on the first seat's FINAL outcome (perfect day-reading).  If a "
+            "pot is small at the maximum it is smaller at any achievable "
+            "version, and the axis dies for one replay.",
+            "The missing mid-hold slices are a FINDING about the tensor, not "
+            "an excuse: pricing the real management rule needs a path rebuild."])
+    if gr:
+        N.write_tsv(
+            "B6_PREDAY_GATE.tsv",
+            ["era", "gate_quantile", "usd_per_session_ALL", "n_trades",
+             "n_era_sessions"], gr,
+            extra=[
+                "PRE-DAY GATE on the causal book: trade only asset-days whose "
+                "PRIOR session's mean |certificate| for that asset sits above "
+                "a quantile of the training distribution.  Strictly causal — "
+                "the qualifier is known before the day opens.",
+                "gate_quantile 0.0 is the ungated book, so every other row is "
+                "read against it.  Trade count falls with the gate, which is "
+                "the point: the 3-4/week floor is a CONSTRAINT, and a gate "
+                "that raises $/session while cutting trades below the floor "
+                "has not helped."])
+    if kr:
+        N.write_tsv(
+            "B5_CLASS_TAIL_SEPARABILITY.tsv",
+            ["era", "asset", "side", "n_rows", "topdec_spearman",
+             "tail_lift_q90_usd", "tail_lift_q99_usd"], kr,
+            extra=[
+                "PER-CLASS TAIL SEPARABILITY.  The tail statistics were "
+                "measured POOLED; this splits them by asset and side, which "
+                "are the only class axes carried on every row.",
+                "If one class carries most of the champion's q90 lift, class "
+                "weighting is a real lever and the pooled figure was hiding "
+                "it.  If the lift is flat across classes, weighting is dead."])
+    hb("CEILINGS: %d ceiling rows, %d gate rows, %d class rows"
+       % (len(cr), len(gr), len(kr)))
+    return cr
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", action="store_true")
@@ -4417,6 +5577,13 @@ def main():
     ap.add_argument("--decomp", action="store_true")
     ap.add_argument("--renorm", action="store_true")
     ap.add_argument("--tail", action="store_true")
+    ap.add_argument("--tailboard", action="store_true")
+    ap.add_argument("--assault", action="store_true")
+    ap.add_argument("--aseval", action="store_true")
+    ap.add_argument("--ceilings", action="store_true")
+    ap.add_argument("--b1", action="store_true")
+    ap.add_argument("--climb", action="store_true")
+    ap.add_argument("--m3", action="store_true")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--eras", nargs="*", default=None)
     a = ap.parse_args()
@@ -4489,6 +5656,27 @@ def main():
         did = True
     if a.tail:
         run_tail()
+        did = True
+    if a.assault:
+        run_assault(workers=a.workers)
+        did = True
+    if a.aseval:
+        run_assault_eval(workers=a.workers)
+        did = True
+    if a.ceilings:
+        run_ceilings()
+        did = True
+    if a.b1:
+        run_b1()
+        did = True
+    if a.tailboard:
+        run_tailboard(columns=ASSAULT_COLUMNS)
+        did = True
+    if a.climb:
+        run_climb(workers=a.workers)
+        did = True
+    if a.m3:
+        run_m3(workers=a.workers)
         did = True
     if a.axis:
         run_axis()

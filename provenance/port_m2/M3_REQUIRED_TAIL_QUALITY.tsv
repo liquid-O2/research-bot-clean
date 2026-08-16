@@ -1,0 +1,20 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE CORRECTED STEERING NUMBERS, in both units.  Read by linear interpolation between swept tail-quality levels.
+# THE SECOND UNIT IS THE USEFUL ONE: dollars per session per extra dollar of q90 tail lift.  Tail lift is measured directly on any candidate score without reference to this curve, so it converts a model change into money without a fitted intermediary — which is exactly what the withdrawn M1 conversion could not do.
+era	target	topdec_spearman_REQUIRED	q90_tail_lift_usd_REQUIRED
+E5	500.0	0.0776	203.29
+E5	1000.0	beyond the swept range	beyond the swept range
+E5	2000.0	beyond the swept range	beyond the swept range
+E5	usd_per_+0.01_TOPDEC_SPEARMAN	29.85	
+E5	usd_per_session_per_+$1_of_q90_TAIL_LIFT	1.9879	
+E6	500.0	0.0669	228.65
+E6	1000.0	0.167	618.53
+E6	2000.0	beyond the swept range	beyond the swept range
+E6	usd_per_+0.01_TOPDEC_SPEARMAN	38.34	
+E6	usd_per_session_per_+$1_of_q90_TAIL_LIFT	2.0654	
+E7	500.0	0.0385	156.59
+E7	1000.0	0.1079	440.02
+E7	2000.0	beyond the swept range	beyond the swept range
+E7	usd_per_+0.01_TOPDEC_SPEARMAN	48.12	
+E7	usd_per_session_per_+$1_of_q90_TAIL_LIFT	2.3973	

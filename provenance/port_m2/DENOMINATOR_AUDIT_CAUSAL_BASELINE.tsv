@@ -1,0 +1,31 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# CAUSAL_BASELINE.tsv RE-MEASURED ON THE HONEST DENOMINATOR.  STATE.md named that file as the per-era per-asset table that REPLACES the frozen champion; its headline arms sit at 1.000-1.053 seats/session, which is the firing-session signature.
+# It cannot be corrected by arithmetic — unlike ARRIVAL_PROPHET.tsv it never printed a session count — so every cell is replayed.
+# usd_per_FIRING_session_remeasured reproduces the published column and is the control: where it matches, the correction beside it is the whole story.
+# The rule column is left EXACTLY as published, including the leaky SECRETARY cells, because the point of this table is to correct the published numbers in place, not to replace the policy.
+era	asset	kind	rule	usd_per_session_AS_PUBLISHED	seats_per_session_AS_PUBLISHED	usd_per_FIRING_session_remeasured	usd_per_session_ALL_CORRECTED	n_trades_total	n_firing_sessions	n_era_asset_sessions	correction	published_luck_bar	corrected_beats_published_luck_bar	capture_of_causal_oracle_CORRECTED
+E5	ALL	deployable	S_TABPFN|TAU_0.95	-16.91	1.07	-16.91	-8.65	211.0	198.0	387	8.26	47.21	no	-0.0043
+E5	ALL	SELECTION-PREMIUM UPPER BOUND	S_TABPFN|TAU_0.99	147.52	1.01	147.52	26.68	71.0	70.0	387	-120.84	47.21	no	0.0132
+E5	HG	deployable	S_TABPFN|TAU_0.95	11.02	1.09	11.02	2.82	36.0	33.0	129	-8.2	47.21	no	0.0014
+E5	HG	SELECTION-PREMIUM UPPER BOUND	S_TABPFN|TAU_0.99	191.88	1.0	191.88	8.92	6.0	6.0	129	-182.96	47.21	no	0.0044
+E5	NKD	deployable	S_TABPFN|TAU_0.95	-5.69	1.1	-5.69	-3.04	76.0	69.0	129	2.65	47.21	no	-0.0015
+E5	NKD	SELECTION-PREMIUM UPPER BOUND	S_TABPFN|TAU_0.99	136.53	1.0	136.53	32.81	31.0	31.0	129	-103.72	47.21	no	0.0162
+E5	SI	deployable	S_TABPFN|TAU_0.95	-34.58	1.03	-34.58	-25.74	99.0	96.0	129	8.84	47.21	no	-0.0127
+E5	SI	SELECTION-PREMIUM UPPER BOUND	S_TABPFN|TAU_0.99	149.77	1.03	149.77	38.31	34.0	33.0	129	-111.46	47.21	no	0.019
+E6	ALL	SELECTION-PREMIUM UPPER BOUND	A_PBAR|SECRETARY_0.5	491.53	1.0	491.53	10.74	8.6	8.6	384	-480.79	42.86	no	0.004
+E6	ALL	deployable	S_TABPFN|TAU_0.99	-73.04	1.02	-73.04	-8.75	47.0	46.0	384	64.29	42.86	no	-0.0033
+E6	HG	SELECTION-PREMIUM UPPER BOUND	A_PBAR|SECRETARY_0.5	790.31	1.0	632.25	6.33	1.0	1.0	128	-783.98	42.86	no	0.0024
+E6	HG	deployable	S_TABPFN|TAU_0.99	532.5	1.0	532.5	12.48	3.0	3.0	128	-520.02	42.86	no	0.0047
+E6	NKD	SELECTION-PREMIUM UPPER BOUND	A_PBAR|SECRETARY_0.5	-671.67	1.0	-403.0	-3.15	0.6	0.6	128	668.52	42.86	no	-0.0012
+E6	NKD	deployable	S_TABPFN|TAU_0.99	350.66	1.05	350.66	52.05	20.0	19.0	128	-298.61	42.86	YES	0.0195
+E6	SI	SELECTION-PREMIUM UPPER BOUND	A_PBAR|SECRETARY_0.5	520.53	1.0	520.53	29.04	7.0	7.0	128	-491.49	42.86	no	0.0109
+E6	SI	deployable	S_TABPFN|TAU_0.99	-484.17	1.0	-484.17	-90.78	24.0	24.0	128	393.39	42.86	no	-0.0339
+E7	ALL	deployable	A_PBAR|SECRETARY_0.5	96.5	1.03	96.5	4.83	22.4	21.8	393	-91.67	73.94	no	0.0014
+E7	ALL	SELECTION-PREMIUM UPPER BOUND	S_XGB|DAYSOFAR_0.9	101.77	1.76	101.77	101.77	692.4	393.0	393	0.0	73.94	YES	0.0303
+E7	HG	deployable	A_PBAR|SECRETARY_0.5	212.71	1.0	127.63	1.43	1.6	1.6	131	-211.28	73.94	no	0.0004
+E7	HG	SELECTION-PREMIUM UPPER BOUND	S_XGB|DAYSOFAR_0.9	30.19	1.95	30.19	30.19	255.2	131.0	131	0.0	73.94	no	0.009
+E7	NKD	deployable	A_PBAR|SECRETARY_0.5	60.8	1.04	60.8	6.29	14.6	14.0	131	-54.51	73.94	no	0.0019
+E7	NKD	SELECTION-PREMIUM UPPER BOUND	S_XGB|DAYSOFAR_0.9	88.85	1.57	88.85	88.85	206.2	131.0	131	-0.0	73.94	YES	0.0264
+E7	SI	deployable	A_PBAR|SECRETARY_0.5	142.44	1.0	142.44	6.77	6.2	6.2	131	-135.67	73.94	no	0.002
+E7	SI	SELECTION-PREMIUM UPPER BOUND	S_XGB|DAYSOFAR_0.9	186.28	1.76	186.28	186.28	231.0	131.0	131	-0.0	73.94	YES	0.0554

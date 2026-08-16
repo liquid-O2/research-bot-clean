@@ -302,10 +302,15 @@ def run_calib(eras=FIT_ERAS):
         for tgt in TARGETS:
             if tgt == "A_PWIN":
                 y = np.nan_to_num(D["y_winner"].astype(np.float64), nan=0.0)
-            elif tgt == "A_PBAR":
+            elif tgt == "A_PBAR":  # noqa: SIM114
                 y = AF.day_bar_label(D)
             else:
-                continue                      # A_EV deploys raw dollars
+                # A_EV deploys RAW dollars and that is right for a level rule,
+                # but its calibrated twin is built anyway: quantile rules are
+                # invariant to a monotone map only UP TO TIES, and ties are
+                # exactly what collapsed the rank rules here.  y = sign(cert).
+                y = (np.nan_to_num(D["cert_close_usd"].astype(np.float64),
+                                   nan=0.0) > 0).astype(np.float64)
             for s in SEEDS:
                 raw = load_full(tgt, era, s, "RAW")
                 if raw is None:
@@ -321,6 +326,8 @@ def run_calib(eras=FIT_ERAS):
                     out[m] = cal(raw[m])
                     np.save(p, out.astype(np.float32))
                 # RED-FIRST: on eval rows CALEV must BE the incumbent column.
+                if tgt == "A_EV":
+                    continue          # the incumbent stores A_EV raw; nothing
                 old = os.path.join(AF.SCORES, "%s_%s_%d.npy" % (tgt, era, s))
                 if os.path.exists(old):
                     o = np.load(old).astype(np.float64)
@@ -1409,6 +1416,453 @@ def run_state():
     return rows
 
 
+# ================== STAGE 6: THE TRUE CAUSAL STATE — LEVEL FAMILIES, HONESTLY =
+# PRE-REGISTERED BEFORE ANY OF IT IS READ.  The SECDECL grid is extended
+# DOWNWARD because the era diagnosis says so and for no other reason: the
+# cell's best arrives at ~26% of the phase clock and P(best after 0.6) is
+# 0.075-0.094, so the observation window has to be short or the prize is
+# already gone.  The old grid started at 0.25 — at its own boundary, which is
+# the same mistake the SECRETARY grid made at 0.5.
+DECL_F2 = (0.05, 0.10, 0.15, 0.20, 0.25, 0.35)
+DECL_P2 = (0.30, 0.50, 0.65, 0.75, 0.90)
+SEC_F2 = (0.05, 0.10, 0.15, 0.25, 0.40, 0.60)
+TRUE_POLICIES = (
+    [("FIRST_3", "first", None)]
+    + [("TAU_%g" % q, "tau", q) for q in AR.TAU_Q]              # 7  LEVEL
+    + [("OCCUPANCY_%g" % c, "occ", c) for c in AR.OCC_C]        # 3  LEVEL
+    + [("DAYSOFAR_%g" % q, "day", q) for q in AR.DAY_Q]         # 3
+    + [("CELLSOFAR_%g" % q, "cell", q) for q in AR.CELL_Q]      # 4
+    + [("SECTIME_%g" % f, "sectime", f) for f in SEC_F2]        # 6  causal
+    + [("SECTIME_RE_%g" % f, "sectimere", f) for f in SEC_F2]   # 6  causal
+    + [("SECNHAT_%g" % f, "secnhat", f) for f in SEC_F2]        # 6  causal
+    + [("SECDECL_%g_%g" % (f, p), "secdecl", (f, p))            # 30 causal
+       for f in DECL_F2 for p in DECL_P2])
+# The leaky SECRETARY family is DELIBERATELY ABSENT: it is void, and carrying
+# it would only widen the search-adjusted null that the honest arms must clear.
+TRUE_COLUMNS = ("A_EV_RAW", "A_EV_CAL", "A_PWIN_CAL", "A_PWIN_RAW",
+                "A_PBAR_CAL", "A_PBAR_RAW", "S_TABPFN", "S_XGB")
+FAMILY_OF = {"FIRST": "FIRST", "TAU": "TAU_LEVEL", "OCCUPANCY": "OCC_LEVEL",
+             "DAYSOFAR": "DAYSOFAR", "CELLSOFAR": "CELLSOFAR",
+             "SECTIME": "SECTIME", "SECNHAT": "SECNHAT", "SECDECL": "SECDECL"}
+
+
+def _family(pname):
+    head = pname.split("_")[0]
+    if pname.startswith("SECTIME_RE"):
+        return "SECTIME_RE"
+    return FAMILY_OF.get(head, head)
+
+
+def true_cols(D, col, era, mode):
+    """The eight score columns of the true-state search.
+
+    S_TABPFN is here because it is the only score in the program with
+    calibrated GLOBAL discrimination (AUC 0.687 against the champion's 0.521),
+    which is precisely the shape a LEVEL rule consumes — and the level rules
+    have never once run honestly.  S_XGB is the deployed score, carried so the
+    incumbent is represented.  Both are full-length arrays already, which is
+    why TAU could run on them in the zoo when it could not run on the fitted
+    targets.
+    """
+    if col == "S_TABPFN":
+        p = os.path.join(N.OUT_ROOT, "feat_tabpfn.npz")
+        if not os.path.exists(p):
+            return []
+        z = np.load(p, allow_pickle=False)
+        v = z["X"][:, 0].astype(np.float64)
+        z.close()
+        return [v]
+    if col == "S_XGB":
+        out = []
+        for s in SEEDS:
+            p = os.path.join(AR._sdir(), "FOLD_%s_%d.npy" % (era, s))
+            if os.path.exists(p):
+                out.append(np.load(p).astype(np.float64))
+        return out
+    tgt, tail = col.rsplit("_", 1)
+    which = "RAW" if tail == "RAW" else (
+        "CALIN" if mode.startswith("inner") else "CALEV")
+    out = []
+    for s in SEEDS:
+        p = os.path.join(FULL, "%s_%s_%d_%s.npy" % (tgt, era, s, which))
+        if os.path.exists(p):
+            out.append(np.load(p).astype(np.float64))
+    return out
+
+
+def _true_job(job):
+    mode, era, col = job
+    try:
+        import champ_floor as CF
+        import stacked_final as SF
+        import newobj_arms as NA
+        D, P = CF.boot()
+        pc = phase_close(D, P)
+        tr, itr, iva, ev = NA.fold(D, era)
+        if mode == "inner":
+            rows_ev, train_rows = N.deployable(D, iva), itr
+        else:
+            rows_ev, train_rows = ev, tr
+        cols = true_cols(D, col, era, mode)
+        if not cols:
+            return (mode, era, col, [], "no score columns for %s" % col)
+        nsess = int(np.unique(D["session"][np.asarray(rows_ev)]).size)
+        rng = np.random.default_rng(N.SEED)
+
+        def read(v, kind, knob):
+            seats = build_ext(D, rows_ev, v, kind, knob, train_rows, pc)
+            rp = SF.apply_stop(D, AR.cap_seats(D, N.replay_delayed(
+                D, seats, P)), "STOP_WALL1")
+            nst = int(sum(r["n_seated"] for r in rp))
+            sv = sorted((float(x[2]) for r in rp for x in r["seats"]),
+                        reverse=True)
+            pos = sum(x for x in sv if x > 0)
+            full = N.read_rows(D, pad_sessions(D, rows_ev, rp))
+            return {"all": full.get("usd_per_session") or 0.0,
+                    "nfire": len(rp), "nseat": nst,
+                    "trade": full.get("usd_per_trade"),
+                    "lo": full.get("ps_lo"), "hi": full.get("ps_hi"),
+                    "top5": sum(sv[:5]) / pos if pos > 0 else float("nan")}
+        out = []
+        for pname, kind, knob in TRUE_POLICIES:
+            t0 = time.time()
+            acc = {k: [] for k in ("all", "nfire", "nseat", "trade", "lo",
+                                   "hi", "top5")}
+            null = []
+            for v in cols:
+                r = read(v, kind, knob)
+                for k in acc:
+                    acc[k].append(r[k] if r[k] is not None else np.nan)
+                vs = v.copy()
+                fin = np.nonzero(np.isfinite(vs))[0]
+                vs[fin] = vs[rng.permutation(fin)]
+                null.append(read(vs, kind, knob)["all"])
+            a = np.asarray(acc["all"], dtype=np.float64)
+            nl = np.asarray(null, dtype=np.float64)
+            out.append({"mode": mode, "era": era, "col": col,
+                        "policy": pname, "family": _family(pname),
+                        "n_sessions": nsess, "n_seeds": len(cols),
+                        "usd": float(a.mean()), "sd": float(a.std()),
+                        "n_firing": float(np.mean(acc["nfire"])),
+                        "n_seated": float(np.mean(acc["nseat"])),
+                        "usd_trade": float(np.nanmean(acc["trade"]))
+                        if np.isfinite(acc["trade"]).any() else float("nan"),
+                        "ci_lo": float(np.nanmean(acc["lo"])),
+                        "ci_hi": float(np.nanmean(acc["hi"])),
+                        "top5_share": float(np.nanmean(acc["top5"])),
+                        "null": float(nl.mean()), "secs": time.time() - t0})
+            hb("TRUE %s %s %s %s: $%.2f/sess (%.0f trades, %.0f of %d "
+               "sessions) null $%.2f  %.0fs"
+               % (mode, era, col, pname, a.mean(),
+                  float(np.mean(acc["nseat"])), float(np.mean(acc["nfire"])),
+                  nsess, nl.mean(), time.time() - t0))
+        return (mode, era, col, out, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (mode, era, col, [],
+                "%s: %s | %s" % (type(e).__name__, e,
+                                 traceback.format_exc()[-400:]))
+
+
+def run_true(workers=28, eras=BINDING):
+    import json
+    import multiprocessing as mp
+    sel_eras = tuple(sorted({PREV[e] for e in eras if e in PREV} | set(eras)))
+    jobs = ([("eval", e, c) for e in sel_eras for c in TRUE_COLUMNS]
+            + [("inner", e, c) for e in eras for c in TRUE_COLUMNS])
+    os.makedirs(CACHE, exist_ok=True)
+    todo = [j for j in jobs
+            if not os.path.exists(os.path.join(CACHE, "TRUE_%s_%s_%s.json"
+                                               % j))]
+    hb("TRUE: %d jobs (%d cached), %d policies x %d columns, workers=%d"
+       % (len(todo), len(jobs) - len(todo), len(TRUE_POLICIES),
+          len(TRUE_COLUMNS), workers))
+    nerr, t0 = 0, time.time()
+    if todo:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(processes=workers) as pool:
+            for i, (mode, era, col, out, err) in enumerate(
+                    pool.imap_unordered(_true_job, todo), 1):
+                if err:
+                    nerr += 1
+                    hb("TRUE JOB FAILED %s %s %s: %s" % (mode, era, col, err))
+                    continue
+                with open(os.path.join(CACHE, "TRUE_%s_%s_%s.json"
+                                       % (mode, era, col)), "w") as fh:
+                    json.dump(out, fh)
+                hb("TRUE job %d/%d done (%s %s %s) [eta %.0fs]"
+                   % (i, len(todo), mode, era, col,
+                      (time.time() - t0) / i * (len(todo) - i)))
+    if nerr:
+        raise KnobRefusal("%d TRUE jobs FAILED — loud, never filtered" % nerr)
+    return write_true()
+
+
+def read_true():
+    import json
+    recs = []
+    if not os.path.isdir(CACHE):
+        return recs
+    for fn in sorted(os.listdir(CACHE)):
+        if fn.startswith("TRUE_") and fn.endswith(".json"):
+            with open(os.path.join(CACHE, fn)) as fh:
+                recs.extend(json.load(fh))
+    return recs
+
+
+def write_true():
+    """THE TRUE CAUSAL STATE TABLE + the per-family honest readings."""
+    recs = read_true()
+    if not recs:
+        raise KnobRefusal("no TRUE records")
+    rows = []
+    for r in sorted(recs, key=lambda z: (z["mode"], z["era"], z["col"],
+                                         z["policy"])):
+        cl = AR.CAUSAL_ORACLE.get(r["era"])
+        rows.append([r["mode"], r["era"],
+                     "BINDING" if r["era"] in BINDING else "context",
+                     r["col"], r["family"], r["policy"], r["n_seeds"],
+                     N._r(r["usd"]), N._r(r["sd"]), N._r(r["ci_lo"]),
+                     N._r(r["ci_hi"]), N._r(r["n_seated"], 1),
+                     N._r(r["n_firing"], 1), r["n_sessions"],
+                     N._r(r["usd_trade"]), N._r(r["top5_share"], 3),
+                     N._r(r["null"]), N._r(cl),
+                     N._r(r["usd"] / cl, 4) if cl else ""])
+    N.write_tsv(
+        "TRUE_FAMILY_SWEEP.tsv",
+        ["mode", "era", "criterion", "score_column", "family", "policy",
+         "n_seeds", "usd_per_session_ALL", "sd_usd", "ci_lo", "ci_hi",
+         "n_trades_total", "n_firing_sessions", "n_era_sessions",
+         "usd_per_trade", "top5_trade_share_of_pnl", "shuffled_null",
+         "causal_oracle", "capture_of_causal_oracle"], rows,
+        extra=[
+            "THE FULL SWEEP BEHIND TRUE_CAUSAL_STATE.tsv: %d policies x %d "
+            "score columns, 5 seeds, all-session denominators, in-sweep "
+            "shuffled null on every cell." % (len(TRUE_POLICIES),
+                                              len(TRUE_COLUMNS)),
+            "THE LEVEL FAMILIES (TAU x7, OCCUPANCY x3) RUN HERE FOR THE FIRST "
+            "TIME ON PROPERLY-FITTED CALIBRATED TARGETS.  They were absent "
+            "from ARRIVAL_FITTED.tsv because the fitted score columns existed "
+            "only on eval rows, so their training-block reference was all-NaN "
+            "and both families returned empty seat lists that were then "
+            "silently dropped.",
+            "S_TABPFN is in the column set on purpose: it is the only score "
+            "with calibrated GLOBAL discrimination, which is the shape a level "
+            "rule eats, and its earlier dismissal was measured against the "
+            "within-cell objective the leak audit voided.",
+            "THE LEAKY SECRETARY FAMILY IS DELIBERATELY ABSENT.  It is void, "
+            "and carrying it would only widen the search-adjusted null the "
+            "honest arms have to clear.",
+            "SECDECL's grid is EXTENDED DOWNWARD (f from 0.05) because the era "
+            "diagnosis says the cell's best arrives at ~26% of the phase "
+            "clock.  The old grid began at 0.25 — at its own boundary."])
+    # ---------------- per-family honest selection ----------------
+    ev = {(r["era"], r["col"], r["policy"]): r
+          for r in recs if r["mode"] == "eval"}
+    inn = {(r["era"], r["col"], r["policy"]): r
+           for r in recs if r["mode"] == "inner"}
+    frows, srows = [], []
+    for era in BINDING:
+        cl = AR.CAUSAL_ORACLE[era]
+        aim = 0.8 * cl
+        fams = sorted({r["family"] for r in recs if r["era"] == era})
+        for fam in fams + ["__ALL__"]:
+            def pick(d, e):
+                c = {k: v for k, v in d.items()
+                     if k[0] == e and (fam == "__ALL__"
+                                       or v["family"] == fam)}
+                return (max(c, key=lambda z: c[z]["usd"]), c) if c else (None,
+                                                                         {})
+            luck = max((r["null"] for r in recs
+                        if r["mode"] == "eval" and r["era"] == era
+                        and (fam == "__ALL__" or r["family"] == fam)),
+                       default=None)
+            ka, _ = pick(ev, era)
+            ki, _ = pick(inn, era)
+            pe = PREV.get(era)
+            kp, _ = pick(ev, pe) if pe else (None, {})
+            for label, key in (("ARGMAX_EVAL_UPPER_BOUND", ka),
+                               ("INNER_BLOCK", (era, ki[1], ki[2])
+                                if ki else None),
+                               ("PREV_ERA_%s" % pe, (era, kp[1], kp[2])
+                                if kp else None)):
+                r = ev.get(key) if key else None
+                if r is None:
+                    continue
+                frows.append([era, fam, label, "%s|%s" % (key[1], key[2]),
+                              N._r(r["usd"]), N._r(r["sd"]),
+                              N._r(r["ci_lo"]), N._r(r["ci_hi"]),
+                              N._r(r["n_seated"], 1), r["n_sessions"],
+                              N._r(r["usd_trade"]), N._r(r["top5_share"], 3),
+                              N._r(luck), N._r(r["usd"] / cl, 4),
+                              N._r(r["usd"] - aim),
+                              "YES" if (luck is not None and r["usd"] > luck)
+                              else "no",
+                              "UPPER BOUND, NOT DEPLOYABLE"
+                              if label.startswith("ARGMAX") else "deployable"])
+                if fam == "__ALL__":
+                    srows.append(frows[-1])
+    N.write_tsv(
+        "TRUE_FAMILY_VERDICTS.tsv",
+        ["era", "family", "selector", "cell", "usd_per_session_ALL", "sd_usd",
+         "ci_lo", "ci_hi", "n_trades_total", "n_era_sessions", "usd_per_trade",
+         "top5_trade_share_of_pnl", "family_luck_bar",
+         "capture_of_causal_oracle", "gap_to_aim",
+         "beats_search_adjusted_null", "status"], frows,
+        extra=[
+            "PER-FAMILY honest readings.  Each policy family is selected "
+            "WITHIN ITSELF and carries ITS OWN search-adjusted null, which is "
+            "narrower and far more informative than one bar over the whole "
+            "search — a family of 30 knobs and a family of 3 do not deserve "
+            "the same penalty.  __ALL__ is the global reading.",
+            "ONLY INNER_BLOCK AND PREV_ERA ARE DEPLOYABLE.  ARGMAX_EVAL is "
+            "printed as an upper bound and is never a promotion target.",
+            "top5_trade_share_of_pnl separates an edge from a lottery: the "
+            "void overnight arms sat at 0.76-0.89."])
+    hb("TRUE: %d sweep rows, %d family verdicts" % (len(rows), len(frows)))
+    return frows
+
+
+# ===================== STAGE 7: THE REPO-WIDE DENOMINATOR AUDIT ============
+def _audit_job(job):
+    """Re-measure one published (era, asset, rule) cell on the HONEST
+    denominator: every session of that era-and-asset counts, a session with no
+    take contributing $0."""
+    era, asset, rule = job
+    try:
+        import champ_floor as CF
+        import stacked_final as SF
+        import newobj_arms as NA
+        D, P = CF.boot()
+        pc = phase_close(D, P)
+        tr, itr, iva, ev = NA.fold(D, era)
+        if asset != "ALL":
+            ev = ev[D["asset"][ev] == asset]
+        tgt, pol = rule.split("|")
+        kind, knob = None, None
+        for pn, kd, kb in AR.POLICIES:
+            if pn == pol:
+                kind, knob = kd, kb
+        if kind is None:
+            return (job, None, "unknown policy %s" % pol)
+        if tgt == "S_TABPFN":
+            z = np.load(os.path.join(N.OUT_ROOT, "feat_tabpfn.npz"),
+                        allow_pickle=False)
+            cols = [z["X"][:, 0].astype(np.float64)]
+            z.close()
+        elif tgt == "S_XGB":
+            cols = [np.load(os.path.join(AR._sdir(), "FOLD_%s_%d.npy"
+                                         % (era, s))).astype(np.float64)
+                    for s in SEEDS
+                    if os.path.exists(os.path.join(
+                        AR._sdir(), "FOLD_%s_%d.npy" % (era, s)))]
+        else:
+            cols = [c for c in (load_full(tgt, era, s, "CALEV")
+                                for s in SEEDS) if c is not None]
+        if not cols:
+            return (job, None, "no columns for %s" % tgt)
+        nsess = int(np.unique(D["session"][ev]).size)
+        allv, firev, nseat, nfire = [], [], [], []
+        for v in cols:
+            seats = build_ext(D, ev, v, kind, knob, tr, pc)
+            rp = SF.apply_stop(D, AR.cap_seats(D, N.replay_delayed(
+                D, seats, P)), "STOP_WALL1")
+            tot = float(sum(r["realised"] for r in rp))
+            full = N.read_rows(D, pad_sessions(D, ev, rp))
+            allv.append(full.get("usd_per_session") or 0.0)
+            firev.append(tot / len(rp) if rp else 0.0)
+            nseat.append(sum(r["n_seated"] for r in rp))
+            nfire.append(len(rp))
+        return (job, {"n_sessions": nsess, "all": float(np.mean(allv)),
+                      "fire": float(np.mean(firev)),
+                      "nseat": float(np.mean(nseat)),
+                      "nfire": float(np.mean(nfire))}, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (job, None, "%s: %s | %s" % (type(e).__name__, e,
+                                            traceback.format_exc()[-300:]))
+
+
+def run_audit(workers=12):
+    """CAUSAL_BASELINE.tsv is the table STATE.md called the replacement for the
+    frozen champion, and it carries the firing-session divisor: its headline
+    arms sit at 1.000-1.053 seats/session, the signature.  It cannot be
+    corrected arithmetically because it never printed a session count, so
+    every one of its cells is re-measured here."""
+    import csv
+    import multiprocessing as mp
+    src = os.path.join(N.PROV, "CAUSAL_BASELINE.tsv")
+    pub, jobs = {}, []
+    with open(src) as fh:
+        for ln in fh:
+            if ln.startswith("#"):
+                continue
+            f = ln.rstrip("\n").split("\t")
+            if len(f) < 10 or f[0] == "era" or not f[7]:
+                continue
+            era, asset, kind, rule = f[0], f[2], f[4], f[5]
+            try:
+                pub[(era, asset, rule, kind)] = (float(f[7]), float(f[9]),
+                                                 float(f[16]) if f[16] else
+                                                 None)
+            except ValueError:
+                continue
+            jobs.append((era, asset, rule))
+    jobs = sorted(set(jobs))
+    hb("audit: re-measuring %d published CAUSAL_BASELINE cells" % len(jobs))
+    res, nerr = {}, 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=min(workers, max(len(jobs), 1))) as pool:
+        for job, out, err in pool.imap_unordered(_audit_job, jobs):
+            if err:
+                nerr += 1
+                hb("AUDIT FAILED %s: %s" % (job, err))
+            else:
+                res[job] = out
+                hb("audit %s: published-style $%.2f/firing -> $%.2f/session-ALL"
+                   " (%.1f trades, %.0f of %d sessions)"
+                   % (job, out["fire"], out["all"], out["nseat"],
+                      out["nfire"], out["n_sessions"]))
+    if nerr:
+        raise KnobRefusal("%d audit cells FAILED" % nerr)
+    rows = []
+    for (era, asset, rule, kind), (pu, seats, luck) in sorted(pub.items()):
+        r = res.get((era, asset, rule))
+        if r is None:
+            continue
+        rows.append([era, asset, kind, rule, N._r(pu), N._r(seats),
+                     N._r(r["fire"]), N._r(r["all"]), N._r(r["nseat"], 1),
+                     N._r(r["nfire"], 1), r["n_sessions"],
+                     N._r(r["all"] - pu), N._r(luck) if luck else "",
+                     "YES" if (luck is not None and r["all"] > luck) else "no",
+                     N._r(r["all"] / AR.CAUSAL_ORACLE[era], 4)
+                     if era in AR.CAUSAL_ORACLE else ""])
+    N.write_tsv(
+        "DENOMINATOR_AUDIT_CAUSAL_BASELINE.tsv",
+        ["era", "asset", "kind", "rule", "usd_per_session_AS_PUBLISHED",
+         "seats_per_session_AS_PUBLISHED", "usd_per_FIRING_session_remeasured",
+         "usd_per_session_ALL_CORRECTED", "n_trades_total",
+         "n_firing_sessions", "n_era_asset_sessions", "correction",
+         "published_luck_bar", "corrected_beats_published_luck_bar",
+         "capture_of_causal_oracle_CORRECTED"], rows,
+        extra=[
+            "CAUSAL_BASELINE.tsv RE-MEASURED ON THE HONEST DENOMINATOR.  "
+            "STATE.md named that file as the per-era per-asset table that "
+            "REPLACES the frozen champion; its headline arms sit at "
+            "1.000-1.053 seats/session, which is the firing-session signature.",
+            "It cannot be corrected by arithmetic — unlike ARRIVAL_PROPHET.tsv "
+            "it never printed a session count — so every cell is replayed.",
+            "usd_per_FIRING_session_remeasured reproduces the published column "
+            "and is the control: where it matches, the correction beside it is "
+            "the whole story.",
+            "The rule column is left EXACTLY as published, including the leaky "
+            "SECRETARY cells, because the point of this table is to correct "
+            "the published numbers in place, not to replace the policy."])
+    hb("DENOMINATOR_AUDIT_CAUSAL_BASELINE.tsv: %d rows" % len(rows))
+    del csv
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", action="store_true")
@@ -1420,6 +1874,8 @@ def main():
     ap.add_argument("--diag", action="store_true")
     ap.add_argument("--state", action="store_true")
     ap.add_argument("--rawpass", action="store_true")
+    ap.add_argument("--true", action="store_true", dest="truestate")
+    ap.add_argument("--audit", action="store_true")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--eras", nargs="*", default=None)
     a = ap.parse_args()
@@ -1450,6 +1906,13 @@ def main():
     if a.rawpass:
         run_rawpass(workers=a.workers,
                     eras=tuple(a.eras) if a.eras else BINDING)
+        did = True
+    if a.audit:
+        run_audit(workers=a.workers)
+        did = True
+    if a.truestate:
+        run_true(workers=a.workers,
+                 eras=tuple(a.eras) if a.eras else BINDING)
         did = True
     if a.state:
         run_state()

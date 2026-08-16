@@ -1,0 +1,25 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# WHY THE AXIS OVERPROMISED.  H3_DAYZ leads the overall within-day spearman on every era and the M1 curve prices that at $156-338/session, yet its blind deployable line is -$26.45 / -$54.77 / -$6.78.  Within-day spearman is a SCREEN, NOT A PROMISE.
+# M1's synthetic score is a Gaussian-copula corruption, which is HOMOSCEDASTIC IN RANK: its quality is spread uniformly across the day.  A fitted model need not be — it can order the BULK well and the TAIL not at all — and every policy in this family seats only the top of the day.
+# within_day_spearman_TOP_DECILE is the same statistic computed only among the candidates the score itself puts in the top 10% of the day.  tail_lift_usd_qQ is the realised certificate of the score's top-Q set minus the day's mean, in dollars — the quantity a threshold rule actually banks.
+# THE CORRECT AXIS IS THE TAIL ONE.  A column is worth chasing only if its advantage survives restriction to the region the rule seats.
+era	score_column	within_day_spearman_OVERALL	within_day_spearman_TOP_DECILE	tail_lift_usd_q0.9	tail_lift_usd_q0.95	tail_lift_usd_q0.99
+E5	S_XGB	-0.03294	0.27724	143.82	211.45	301.96
+E5	A_EV_RAW	0.03356	0.08338	68.75	87.37	110.89
+E5	H3_DAYZ	0.05015	0.1777	37.15	72.71	121.39
+E5	V_SHALLOW	0.06696	0.21224	33.62	62.29	113.03
+E5	V_FLOWGEO	0.07136	0.17695	65.46	99.33	139.98
+E5	ORACLE_DAYRANK	0.99496	0.99498	1090.06	1226.71	1384.53
+E6	S_XGB	-0.00228	0.23448	167.89	244.64	390.43
+E6	A_EV_RAW	0.05234	0.1981	103.57	149.13	204.43
+E6	H3_DAYZ	0.08925	0.16665	64.35	96.72	155.24
+E6	V_SHALLOW	0.09543	0.17915	58.72	87.23	140.04
+E6	V_FLOWGEO	0.06888	0.15133	64.91	102.12	146.48
+E6	ORACLE_DAYRANK	0.98921	0.99579	1418.55	1611.34	1818.0
+E7	S_XGB	-0.0372	0.25434	175.41	267.21	429.35
+E7	A_EV_RAW	0.03244	0.1774	64.07	130.6	231.35
+E7	H3_DAYZ	0.07785	0.19053	46.83	99.76	176.42
+E7	V_SHALLOW	0.08398	0.20363	29.08	74.6	159.62
+E7	V_FLOWGEO	0.06621	0.12948	45.98	76.07	131.78
+E7	ORACLE_DAYRANK	0.98573	0.99712	1623.74	1862.53	2119.76

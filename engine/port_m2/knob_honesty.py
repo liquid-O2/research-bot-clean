@@ -4274,6 +4274,119 @@ def run_renorm(workers=3, eras=BINDING):
     return sorted(made)
 
 
+# ====== STAGE 18: WHY THE AXIS OVERPROMISED — TAIL-WEIGHTED QUALITY ========
+# THE FAILURE TO EXPLAIN.  H3_DAYZ leads the within-day axis on every era
+# (+0.050 / +0.089 / +0.078 against the deployed score's -0.033 / -0.002 /
+# -0.037) and the M1 curve prices that at $156-338/session.  On the blind
+# deployable line it returns -$26.45 / -$54.77 / -$6.78, clearing its null on
+# none.  THE CURVE OVERPROMISED, and the honest reading is that WITHIN-DAY
+# SPEARMAN IS A SCREEN, NOT A PROMISE.
+# THE MECHANISM I EXPECT, stated before it is measured: M1's synthetic score
+# spreads its quality UNIFORMLY over the whole day, because a Gaussian-copula
+# corruption is homoscedastic in rank.  A fitted model need not be: it can
+# order the BULK well and the TAIL not at all.  Every policy in this family
+# seats only the top of the day, so two scores with identical overall spearman
+# can be worth completely different money.
+# THE TEST: spearman restricted to the TOP DECILE of the score's own day
+# ranking, beside the overall figure, and the realised certificate of the top-q
+# set the rules actually consume.  If H3_DAYZ's advantage is bulk-only, its
+# tail figures will be at or below the incumbent's while its overall figure
+# leads — and the axis must be replaced by a tail-weighted one.
+TAIL_Q = (0.90, 0.95, 0.99)
+
+
+def _tail_job(era):
+    try:
+        import champ_floor as CF
+        import newobj_arms as NA
+        D, _P = CF.boot()
+        _t, _i, _v, ev = NA.fold(D, era)
+        daykey = (D["asset_idx"].astype(np.int64) * 100000000
+                  + D["d8"].astype(np.int64))
+        cert = np.where(D["cert_refused"] == 0,
+                        D["cert_close_usd"].astype(np.float64), np.nan)
+        out = []
+        for name in ("S_XGB", "A_EV_RAW", "H3_DAYZ", "V_SHALLOW",
+                     "V_FLOWGEO", "ORACLE_DAYRANK"):
+            cc = true_cols(D, name, era, "eval")
+            if not cc:
+                continue
+            ov, tl = [], []
+            lift = {q: [] for q in TAIL_Q}
+            for v in cc:
+                ro, _b = AR._arrivals(D, ev, v)
+                cv, sv, kk = cert[ro], np.asarray(v)[ro], daykey[ro]
+                stk = [0] + (np.flatnonzero(kk[1:] != kk[:-1]) + 1).tolist()
+                po, pt = [], []
+                for a, b in zip(stk, stk[1:] + [kk.size]):
+                    m = np.isfinite(cv[a:b]) & np.isfinite(sv[a:b])
+                    if m.sum() < 20:
+                        continue
+                    cs, ss = cv[a:b][m], sv[a:b][m]
+                    po.append(_spear(ss, cs))
+                    thr = np.quantile(ss, 0.90)
+                    t = ss >= thr
+                    if t.sum() >= 5:
+                        pt.append(_spear(ss[t], cs[t]))
+                    dm = float(np.mean(cs))
+                    for q in TAIL_Q:
+                        tq = ss >= np.quantile(ss, q)
+                        if tq.sum() >= 1:
+                            lift[q].append(float(np.mean(cs[tq])) - dm)
+                ov.append(float(np.nanmean(po)) if po else np.nan)
+                tl.append(float(np.nanmean(pt)) if pt else np.nan)
+            out.append([era, name, N._r(float(np.nanmean(ov)), 5),
+                        N._r(float(np.nanmean(tl)), 5)]
+                       + [N._r(float(np.nanmean(lift[q])), 2) for q in TAIL_Q])
+        return (era, out, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (era, [], "%s: %s | %s" % (type(e).__name__, e,
+                                          traceback.format_exc()[-300:]))
+
+
+def run_tail(workers=3, eras=BINDING):
+    import multiprocessing as mp
+    rows, nerr = [], 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for era, out, err in pool.imap_unordered(_tail_job, list(eras)):
+            if err:
+                nerr += 1
+                hb("TAIL FAILED %s: %s" % (era, err))
+            else:
+                rows.extend(out)
+                hb("TAIL %s done" % era)
+    if nerr or not rows:
+        raise KnobRefusal("%d tail jobs FAILED" % nerr)
+    N.write_tsv(
+        "TAIL_QUALITY.tsv",
+        ["era", "score_column", "within_day_spearman_OVERALL",
+         "within_day_spearman_TOP_DECILE"]
+        + ["tail_lift_usd_q%g" % q for q in TAIL_Q], rows,
+        extra=[
+            "WHY THE AXIS OVERPROMISED.  H3_DAYZ leads the overall within-day "
+            "spearman on every era and the M1 curve prices that at "
+            "$156-338/session, yet its blind deployable line is -$26.45 / "
+            "-$54.77 / -$6.78.  Within-day spearman is a SCREEN, NOT A "
+            "PROMISE.",
+            "M1's synthetic score is a Gaussian-copula corruption, which is "
+            "HOMOSCEDASTIC IN RANK: its quality is spread uniformly across the "
+            "day.  A fitted model need not be — it can order the BULK well and "
+            "the TAIL not at all — and every policy in this family seats only "
+            "the top of the day.",
+            "within_day_spearman_TOP_DECILE is the same statistic computed "
+            "only among the candidates the score itself puts in the top 10% of "
+            "the day.  tail_lift_usd_qQ is the realised certificate of the "
+            "score's top-Q set minus the day's mean, in dollars — the "
+            "quantity a threshold rule actually banks.",
+            "THE CORRECT AXIS IS THE TAIL ONE.  A column is worth chasing only "
+            "if its advantage survives restriction to the region the rule "
+            "seats."])
+    hb("TAIL_QUALITY.tsv: %d rows" % len(rows))
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", action="store_true")
@@ -4303,6 +4416,7 @@ def main():
     ap.add_argument("--axis", action="store_true")
     ap.add_argument("--decomp", action="store_true")
     ap.add_argument("--renorm", action="store_true")
+    ap.add_argument("--tail", action="store_true")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--eras", nargs="*", default=None)
     a = ap.parse_args()
@@ -4372,6 +4486,9 @@ def main():
         did = True
     if a.renorm:
         run_renorm()
+        did = True
+    if a.tail:
+        run_tail()
         did = True
     if a.axis:
         run_axis()

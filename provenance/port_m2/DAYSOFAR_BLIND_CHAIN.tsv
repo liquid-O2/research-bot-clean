@@ -1,0 +1,14 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# ESTABLISH OR KILL.  Four BLIND links instead of two: the knob is chosen on the selector era and read on the target era, never the other way.
+# TWO WIDTHS, BOTH REPORTED.  NARROW is the pre-registered incumbent column S_XGB with only the 7-knob grid searched.  WIDE re-selects the column too and pays the wider null for it.  Quoting only the narrow one would hide that S_XGB was itself chosen after seeing the previous sweep.
+# usd_on_selector_era is printed beside the blind reading so the SHRINKAGE from selection to blind application is visible on every link.
+link	search_width	cell_chosen_on_selector_era	usd_on_selector_era	usd_on_TARGET_era_BLIND	sd_usd	ci_lo	ci_hi	n_trades_total	n_firing_sessions	n_era_sessions	top5_trade_share_of_pnl	search_adjusted_null	n_cells_searched	beats_null	capture_of_causal_oracle	sign
+E3->E4	NARROW_S_XGB_prereg	S_XGB|DAYSOFAR_0.8	33.33	8.79	26.03	-91.35	108.93	738.8	385.0	385	0.079	-23.75	7	YES	0.0041	POSITIVE
+E3->E4	WIDE_all_columns	S_XGB|DAYSOFAR_0.8	33.33	8.79	26.03	-91.35	108.93	738.8	385.0	385	0.079	30.68	14	no	0.0041	POSITIVE
+E4->E5	NARROW_S_XGB_prereg	S_XGB|DAYSOFAR_0.92	44.84	49.3	10.34	-57.29	155.9	707.6	387.0	387	0.083	17.56	7	YES	0.0244	POSITIVE
+E4->E5	WIDE_all_columns	S_XGB|DAYSOFAR_0.92	44.84	49.3	10.34	-57.29	155.9	707.6	387.0	387	0.083	77.99	56	no	0.0244	POSITIVE
+E5->E6	NARROW_S_XGB_prereg	S_XGB|DAYSOFAR_0.8	90.0	91.58	52.16	-37.21	220.38	719.8	384.0	384	0.076	-65.71	7	YES	0.0342	POSITIVE
+E5->E6	WIDE_all_columns	S_XGB|DAYSOFAR_0.8	90.0	91.58	52.16	-37.21	220.38	719.8	384.0	384	0.076	38.0	56	YES	0.0342	POSITIVE
+E6->E7	NARROW_S_XGB_prereg	S_XGB|DAYSOFAR_0.9	104.08	101.77	11.19	-72.78	276.33	692.4	393.0	393	0.113	53.29	7	YES	0.0303	POSITIVE
+E6->E7	WIDE_all_columns	S_XGB|DAYSOFAR_0.9	104.08	101.77	11.19	-72.78	276.33	692.4	393.0	393	0.113	53.29	56	YES	0.0303	POSITIVE

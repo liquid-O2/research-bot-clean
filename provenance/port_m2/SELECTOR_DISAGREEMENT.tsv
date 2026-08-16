@@ -1,0 +1,10 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# WHY PREV-ERA TRANSFERS AND THE INNER BLOCK DOES NOT.  My first guess was a slow regime variable.  The fold arithmetic says something simpler and worse: `newobj_arms.fold` splits the TRAINING block by day, so the inner validation days come from the same prior eras the previous-era selector uses — they are nearly the same DAYS.  What differs is the SCORE.  The folded champion column FOLD_<era>_<seed>.npy is trained on the WHOLE training block and the inner validation days are INSIDE it.
+# So S_XGB is OUT-OF-SAMPLE on the eval era and IN-SAMPLE on the inner block.  The inner-block selector was never valid for the one column that wins, and the 'disagreement' is not evidence against the arm — it is a defect in the selector.
+# The spearman columns are the test: a materially HIGHER score-to-certificate rank correlation on the inner block than on the eval era is the in-sample signature.
+era	n_inner_train_days	n_inner_val_days	n_eval_days	S_XGB_spearman_vs_cert_INNER	S_XGB_spearman_vs_cert_EVAL	inner_minus_eval
+E4	405	101	129		0.00108	
+E5	508	127	129		-0.01072	
+E6	611	153	128		-0.00691	
+E7	714	178	131		-0.01385	

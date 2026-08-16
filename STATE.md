@@ -17,6 +17,15 @@ family and applied blind — is positive in all three binding eras and clears th
 | E6  | **$88.96**  | $49.04  | 730.0 | 384/384 | 0.0333 |
 | E7  | **$101.77** | $100.72 | 692.4 | 393/393 | 0.0303 |
 
+**SUPERSEDED 05:10Z by `DAYSOFAR_BLIND_CHAIN.tsv`** — extended grid
+{0.92,0.95,0.97}, chain extended backward to E3→E4, four blind links:
+E3→E4 **$8.79**, E4→E5 **$49.30**, E5→E6 **$91.58**, E6→E7 **$101.77**, knobs
+now interior (0.8/0.92/0.8/0.9). **All four positive; all four clear the narrow
+pre-registered 7-cell null; but every day-clustered CI spans zero**
+([-91,109], [-57,156], [-37,220], [-73,276]), two of four fail the wide 56-cell
+null, and 4/4 positive is a sign test at p=0.0625. **The arm survives on
+consistency alone and the strict promotion bar is NOT met.**
+
 The chain is genuinely blind: E4's within-family argmax was DAYSOFAR_0.9
 ($44.35) → E5 $57.76; E5's was 0.7 ($86.20) → E6 $88.96; E6's was 0.9 ($104.08)
 → E7 $101.77. **On E7 the blind pick IS the argmax of the entire search.**
@@ -28,10 +37,12 @@ money is in TAU_0.7/0.8 trading *every* session at 2.8-2.9 seats), and the
 opposite of everything the selectivity story recommended.
 
 **THE CAVEATS ARE PART OF THE RESULT:**
-1. **The two honest selectors disagree.** Prev-era finds this arm; the
-   INNER-BLOCK selector does not (E5 $7.64, E6 −$6.86, E7 −$143.35). The last
-   days of a training era are not a proxy for the next era. Until that is
-   understood this is **suggestive, not established**.
+1. **CORRECTED 05:12Z — the "selector disagreement" was not evidence.** I
+   claimed the inner block fails as a proxy for the next era. It does not fail;
+   it was **blind**. `FOLD_<era>_<seed>.npy` is finite on **100% of eval rows
+   and 0% of all training rows**, so the inner-block selector never evaluated
+   S_XGB at all — every S_XGB inner cell scored a silent $0.00. My in-sample
+   hypothesis is refuted by my own diagnostic.
 2. E5 and E7 clear the global bar by **$1.44 and $1.05**. Margins that small
    are not a claim.
 3. Choosing *which family* to quote is a selection step taken after seeing all
@@ -168,21 +179,26 @@ P2_DOMINANCE_SELECTION and P2_PHASE_BOUNDARY_TABLES, both upstream of session
 assembly. Rebuild chain: phase tables/dominance -> sessions -> roster -> matrix
 -> every fitted score.
 
-NEXT_ACTION: (1) **Resolve the selector disagreement** — it is the single
-thing standing between "suggestive" and "established". Why does the inner block
-(last days of the training era) fail to find what the previous era finds?
-Candidates: inner-block days are adjacent to the eval era but far fewer; the
-inner block is the tail of a training era rather than a whole era. Test a
-WHOLE-PRIOR-ERA inner selector and a rolling multi-era selector. (2) **Repair
-the abstention-biased selection at `harvest.py:439`** and re-run anything that
-depended on it. (3) **Push DAYSOFAR properly**: its grid is only
-{0.5, 0.7, 0.9} and the winner sat at 0.9 twice — a knob winning at its
-boundary has been truncated, not measured (the exact mistake SECRETARY made at
-0.5). Extend upward with the family-width penalty priced in. (4) The corrected
-prophet says a good LEVEL at a moderate threshold attains the oracle, and
-DAYSOFAR is a level rule on the *deployed* score — so the modelling target is
-a per-arrival LEVEL, and S_XGB already carries more of it than any fitted
-target did. (5) The two structural leak fixes + matrix rebuild.
+## THE THIRD SILENT-EMPTY FINDING, AND IT IS NOW A LAW
+`FOLD_<era>_<seed>.npy` has **no values on training rows**. `seats_tau` and
+`seats_occupancy` take their reference from `score[train_rows]`, hit
+`ref.size == 0`, and `return []`. So **the LEVEL FAMILIES HAVE STILL NEVER RUN
+ON THE DEPLOYED SCORE** — and I misread the symptom earlier, recording
+`S_XGB TAU_0.8: $0.00 (0 trades)` as a level-shift finding when it was an
+absent-column finding. Three separate findings this session have hidden behind
+`if ref.size == 0: return []`.
+**LAW: a policy that produces zero seats must RAISE, not return empty.**
+DAYSOFAR/CELLSOFAR/SECRETARY are unaffected (they read only the day's or cell's
+own past) — which is why the surviving arm survives.
+
+NEXT_ACTION: (1) **Make `seats_tau`/`seats_occupancy` refuse loudly on an empty
+reference**, and audit every other `return []` in the policy family. (2) **H1 is
+running** — the day-grouped ranker is fitted here so it has training-block
+coverage, which means it can run the level families S_XGB structurally cannot;
+it tests the grouping hypothesis and unlocks the TAU shape in one stage.
+(3) H2 (causal per-day standardisation) and the ORACLE_DAYRANK ceiling probe.
+(4) The inner-block selector needs an **itr-trained** fold score before it can
+say anything about S_XGB. (5) The two structural leak fixes + matrix rebuild.
 
 RESUME RECIPE: 1) this file 2) `tail -6 provenance/sessions/JOURNAL.md`
 3) `provenance/port_m2/{TRUE_CAUSAL_STATE.tsv,TRUE_FAMILY_VERDICTS.tsv,

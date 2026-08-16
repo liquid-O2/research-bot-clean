@@ -1,0 +1,20 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# Read off M1_DOSE_RESPONSE.tsv by linear interpolation between swept quality levels.
+# THE LOW-END SLOPE IS THE STEERING NUMBER: it says what one additional point of within-day rank correlation is worth in dollars per session where we actually stand.  A steep low end means modest, achievable score gains pay disproportionately and the attack should be on score quality; a flat low end means only a large jump matters and the attack should be elsewhere.
+era	target	within_day_spearman_REQUIRED	causal_oracle
+E5	500.0	0.1619	2021.0
+E5	1000.0	0.3338	2021.0
+E5	2000.0	beyond the swept range	2021.0
+E5	LOW_END_SLOPE_usd_per_unit_spearman	3101.31	
+E5	usd_per_+0.01_spearman_at_the_low_end	31.01	
+E6	500.0	0.142	2675.0
+E6	1000.0	0.2651	2675.0
+E6	2000.0	0.5952	2675.0
+E6	LOW_END_SLOPE_usd_per_unit_spearman	3784.22	
+E6	usd_per_+0.01_spearman_at_the_low_end	37.84	
+E7	500.0	0.1218	3360.0
+E7	1000.0	0.2257	3360.0
+E7	2000.0	0.4434	3360.0
+E7	LOW_END_SLOPE_usd_per_unit_spearman	4333.47	
+E7	usd_per_+0.01_spearman_at_the_low_end	43.33	

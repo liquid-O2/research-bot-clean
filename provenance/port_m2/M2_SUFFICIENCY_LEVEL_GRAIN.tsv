@@ -1,0 +1,11 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE SUFFICIENCY QUESTION AT THE GRAIN THAT PAYS.  Every earlier sufficiency reading in this program was taken against the WITHIN-CELL RANKING objective; the ceiling probe has since shown that WITHIN-DAY ORDERING carries ~98% of the attainable value, so the bound is re-derived on that axis.
+# MEMORIZER is NON-CAUSAL BY CONSTRUCTION and is labelled so on its face: depth 12, 1200 rounds, no regularisation, no monotone constraints, fitted AND read on the eval era.  It is not a forecast.  It bounds the INFORMATION the feature set carries about per-candidate value — if it cannot separate value with the answers in hand, no training procedure will.
+# TRAINABLE_POOL = memorizer - walk-forward: the part of the shortfall that is a TRAINING problem.
+# INFORMATION_SHORTFALL = 1 - memorizer: the part that is a FEATURE problem, which no fitting can close and which only new information can.
+# Read this beside M1_REQUIRED_QUALITY.tsv: M1 says what quality is REQUIRED, M2 says what the features SUPPORT, and the two together say whether the attack is training, features, or neither.
+era	n_features	n_eval_rows	walkforward_within_day_spearman_HONEST	memorizer_within_day_spearman_NONCAUSAL_BOUND	TRAINABLE_POOL_memorizer_minus_walkforward	INFORMATION_SHORTFALL_1_minus_memorizer	causal_oracle
+E5	183	152947	0.0336	0.9875	0.954	0.0125	2021.0
+E6	183	163062	0.0523	0.9691	0.9168	0.0309	2675.0
+E7	183	158276	0.0324	0.9545	0.922	0.0455	3360.0

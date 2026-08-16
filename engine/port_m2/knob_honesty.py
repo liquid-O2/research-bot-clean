@@ -1519,7 +1519,13 @@ def _true_job(job):
             rows_ev, train_rows = ev, tr
         cols = true_cols(D, col, era, mode)
         if not cols:
-            return (mode, era, col, [], "no score columns for %s" % col)
+            # A column that does not exist for this era is a SKIP, not a
+            # failure.  E3 predates the fitted targets, and the blind chain is
+            # extended backward precisely to use the eras that DO exist; the
+            # per-link column set below intersects what both eras carry, so a
+            # missing column narrows the search rather than corrupting it.
+            hb("SKIP %s %s %s: column absent for this era" % (mode, era, col))
+            return (mode, era, col, [], None)
         nsess = int(np.unique(D["session"][np.asarray(rows_ev)]).size)
         rng = np.random.default_rng(N.SEED)
 
@@ -2620,6 +2626,14 @@ def write_dayx():
         for width, cols in (("NARROW_S_XGB_prereg", ("S_XGB",)),
                             ("WIDE_all_columns",
                              tuple(sorted({k[1] for k in ev})))):
+            # THE SEARCH WIDTH MUST BE THE SAME ON BOTH ENDS OF A LINK: only
+            # columns carried by the selector era AND the target era are in it,
+            # so the null the blind reading clears is the width actually used.
+            have_sel = {k[1] for k in ev if k[0] == sel}
+            have_tgt = {k[1] for k in ev if k[0] == tgt}
+            cols = tuple(sorted(set(cols) & have_sel & have_tgt))
+            if not cols:
+                continue
             cp = {k: v for k, v in ev.items()
                   if k[0] == sel and k[1] in cols}
             if not cp:

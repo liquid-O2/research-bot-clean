@@ -493,3 +493,20 @@ seated-vs-selected survival collapses precisely because early arrivals consume t
    biggest unexplained variance in the table.
 3. `OCCUPANCY` rows in the same table (the level-consuming medicine for A_EV) — check whether
    they lift A_EV the way SECRETARY lifts A_PBAR.
+
+### UPDATE 00:09Z — the fair-engine round paid: LightGBM doubles E7 and cuts variance 27x
+
+`ARRIVAL_ENGINES.tsv` (rc=0). E7 tail dollars, 5 seeds: **LGBM_DART $1,415.21 (sd/mean 0.046)**
+and **LGBM depth-8 $1,413.66 (sd/mean 0.023)** vs the **xgb incumbent $765.60 (sd/mean 0.637)**.
+E6: xgb still best ($401). E5: xgb best ($118), all others ≤0.
+
+**This vindicates re-asking a closed axis.** The engine question was declared dead against the
+*within-cell ranking* objective — where a pairwise ranker is invariant to monotone transforms,
+so engines could only read as noise. Against an **absolute regression onto dollars** they
+separate 2x in money and 27x in stability. **A closed axis is only closed against the objective
+it was closed under**, and the respecification changed the objective.
+
+**Do this next (the LightGBM columns are already on disk):** push `A_EV_LGBM*` through the
+causal policy family with its luck bar. Nothing here is claimable until it survives a replay —
+tail dollars is the right diagnostic for A_EV's level-consuming rules, but it is still a
+selection statistic.

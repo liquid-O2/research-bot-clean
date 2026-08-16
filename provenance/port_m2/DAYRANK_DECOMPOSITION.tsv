@@ -1,0 +1,16 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# WHICH COMPONENT CARRIES THE DAY-RANK ORACLE'S DOLLARS.  A day score is written Z_cell + W_within with both parts normal-scored onto one scale, and one part at a time is replaced by noise.
+# WITHIN_ONLY_random_placement keeps PERFECT within-cell ordering and destroys cross-cell placement — it is what a perfect renormalisation of a perfect within-cell score would bank.
+# CROSS_ONLY_random_within keeps perfect cell PLACEMENT and destroys the ordering inside each cell.
+# HINDSIGHT.  Not deployable, not fitted, and never a promotion target: this exists to aim the build.  If WITHIN_ONLY carries most of the oracle, renormalising the champion is the multiple-jump; if CROSS_ONLY carries it, the placement model is the aimed attack.
+era	arm	usd_per_session_ALL	best_policy	n_trades_total	n_era_sessions	within_day_spearman	causal_oracle	capture_of_causal_oracle	share_of_oracle_arm
+E5	ORACLE_DAY	1767.84	TAU_0.8	1009.0	387	0.6617	2021.0	0.8747	1.0
+E5	WITHIN_ONLY_random_placement	1945.12	TAU_0.8	1055.0	387	0.7878	2021.0	0.9625	1.1003
+E5	CROSS_ONLY_random_within	98.46	TAU_0.95	649.0	387	0.0201	2021.0	0.0487	0.0557
+E7	ORACLE_DAY	2929.27	TAU_0.8	1043.0	393	0.6515	3360.0	0.8718	1.0
+E7	WITHIN_ONLY_random_placement	3006.11	TAU_0.8	1051.0	393	0.7396	3360.0	0.8947	1.0262
+E7	CROSS_ONLY_random_within	132.84	TAU_0.975	501.0	393	0.0354	3360.0	0.0395	0.0454
+E6	ORACLE_DAY	2362.35	TAU_0.9	904.0	384	0.6554	2675.0	0.8831	1.0
+E6	WITHIN_ONLY_random_placement	2542.58	TAU_0.8	1042.0	384	0.7584	2675.0	0.9505	1.0763
+E6	CROSS_ONLY_random_within	159.14	TAU_0.95	593.0	384	0.0347	2675.0	0.0595	0.0674

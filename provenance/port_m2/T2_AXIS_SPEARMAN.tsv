@@ -1,0 +1,24 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE AXIS THE CEILING PROBE FORCED: within-day rank correlation with the certificate.  A threshold on the TRUE within-day rank, carrying no dollar information, reaches 0.966-0.979 of the causal oracle, so the ordering is ~98% of the attainable value.
+# usd_per_+0.01_spearman is the M1 low-end slope ($31.01 / $37.84 / $43.33 on E5 / E6 / E7).  usd_implied_by_delta converts a column's spearman GAIN over the deployed score directly into dollars per session at that slope.  A lift of +0.03 is worth ~$93-130 and +0.05 ~$155-217 — larger than the whole incumbent.
+# usd_implied_by_level is the same conversion applied to the column's absolute spearman, i.e. what the M1 curve says a score of that quality should earn.  Compare it with the column's REALISED blind dollars in T2_BLIND_CHAIN.tsv: agreement means the curve is describing this score honestly, disagreement means the dollars are coming from the rule rather than the score.
+era	score_column	within_day_spearman	sd_over_seeds	n_seeds	incumbent_S_XGB_spearman	delta_vs_incumbent	usd_per_+0.01_spearman	usd_implied_by_delta	usd_implied_by_level
+E5	S_XGB	-0.03294	0.00114	5	-0.03294	0.0	31.01	0.0	-102.15
+E5	A_EV_RAW	0.03356	0.00914	5	-0.03294	0.0665	31.01	206.22	104.07
+E5	H1_DAYRANK	-0.01229	0.01414	5	-0.03294	0.02065	31.01	64.04	-38.11
+E5	H1_NOMONO	-0.02126	0.00137	5	-0.03294	0.01168	31.01	36.22	-65.93
+E5	H3_DAYPAIR	0.00288	0.0029	5	-0.03294	0.03582	31.01	111.08	8.93
+E5	H3_DAYZ	0.05015	0.00776	5	-0.03294	0.08309	31.01	257.67	155.52
+E6	S_XGB	-0.00228	0.01729	5	-0.00228	0.0	37.84	0.02	-8.63
+E6	A_EV_RAW	0.05234	0.0038	5	-0.00228	0.05462	37.84	206.7	198.05
+E6	H1_DAYRANK	-0.0208	0.00621	5	-0.00228	-0.01852	37.84	-70.06	-78.71
+E6	H1_NOMONO	-0.04393	0.00809	5	-0.00228	-0.04165	37.84	-157.59	-166.23
+E6	H3_DAYPAIR	-0.00193	0.00511	5	-0.00228	0.00035	37.84	1.34	-7.3
+E6	H3_DAYZ	0.08925	0.00353	5	-0.00228	0.09153	37.84	346.37	337.72
+E7	S_XGB	-0.0372	0.00196	5	-0.0372	-0.0	43.33	-0.0	-161.19
+E7	A_EV_RAW	0.03244	0.00991	5	-0.0372	0.06964	43.33	301.75	140.56
+E7	H1_DAYRANK	-0.03641	0.00344	5	-0.0372	0.00079	43.33	3.42	-157.76
+E7	H1_NOMONO	-0.04896	0.00265	5	-0.0372	-0.01176	43.33	-50.96	-212.14
+E7	H3_DAYPAIR	-0.00885	0.00321	5	-0.0372	0.02835	43.33	122.84	-38.35
+E7	H3_DAYZ	0.07785	0.00217	5	-0.0372	0.11505	43.33	498.51	337.32

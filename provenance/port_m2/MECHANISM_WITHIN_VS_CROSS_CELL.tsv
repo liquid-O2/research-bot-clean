@@ -1,0 +1,15 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE PARADOX, TESTED WITH ONE NUMBER PER COLUMN.  The champion is worth $548/trade at within-cell rank 1 yet reads ~0 or negative on within-DAY spearman.  A pairwise objective trained WITHIN cell leaves levels meaningless ACROSS cells, and roughly two thirds of the pairs inside a day are cross-cell.
+# within_cell_spearman_vs_cert is measured inside each cell and averaged; cross_cell is the spearman of the CELL AGGREGATES against the cells' true mean certificate, inside each day.
+# A strongly positive within-cell figure beside a flat or negative cross-cell figure CONFIRMS the mechanism, and the repair is a RENORMALISATION rather than a new model.
+era	score_column	within_cell_spearman_vs_cert	cross_cell_spearman_of_cell_aggregates	gap
+E5	S_XGB	-0.02842	-0.01344	-0.01498
+E5	A_EV_RAW	0.06046	0.03798	0.02248
+E5	H3_DAYZ	0.10506	0.08682	0.01823
+E7	S_XGB	-0.0115	0.02977	-0.04127
+E7	A_EV_RAW	0.11981	0.02061	0.0992
+E7	H3_DAYZ	0.15753	0.12977	0.02776
+E6	S_XGB	0.01913	0.02396	-0.00483
+E6	A_EV_RAW	0.11712	0.02604	0.09108
+E6	H3_DAYZ	0.14418	0.05573	0.08845

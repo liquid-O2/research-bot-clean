@@ -1479,17 +1479,21 @@ def true_cols(D, col, era, mode):
     if col == "ORACLE_DAYRANK":
         p = os.path.join(FULL, "ORACLE_DAYRANK_ALL_0_RAW.npy")
         return [np.load(p).astype(np.float64)] if os.path.exists(p) else []
-    if col in ("S_XGB_DAYZ", "H1_DAYRANK"):
-        out = []
-        for s in SEEDS:
-            p = os.path.join(FULL, "%s_%s_%d_RAW.npy" % (col, era, s))
-            if os.path.exists(p):
-                out.append(np.load(p).astype(np.float64))
-        return out
     if col == "S_XGB":
+        # MUST precede the generic branch: the deployed column lives in the
+        # champion's own score directory, not in FULL.  Ordering these the
+        # other way round silently returned [] for the incumbent reference —
+        # caught by the axis table coming back without an S_XGB row.
         out = []
         for s in SEEDS:
             p = os.path.join(AR._sdir(), "FOLD_%s_%d.npy" % (era, s))
+            if os.path.exists(p):
+                out.append(np.load(p).astype(np.float64))
+        return out
+    if not col.startswith(("A_PWIN", "A_PBAR", "A_EV")):
+        out = []
+        for s in SEEDS:
+            p = os.path.join(FULL, "%s_%s_%d_RAW.npy" % (col, era, s))
             if os.path.exists(p):
                 out.append(np.load(p).astype(np.float64))
         return out
@@ -2946,7 +2950,7 @@ M1_POLICIES = ([("TAU_%g" % q, "tau", q) for q in AR.TAU_Q]
                + [("DAYSOFAR_%g" % q, "day", q) for q in AR.DAY_Q])
 
 
-def _daynorm(D, v, key):
+def _daynorm(_D, v, key):
     """Within-(asset, day) normal score of v.  NaN where v is absent."""
     from scipy.stats import norm
     out = np.full(v.size, np.nan)
@@ -3326,6 +3330,950 @@ def run_m2(workers=3, eras=BINDING):
     return rows
 
 
+# ========== STAGE 14: THE TWO NAMED TESTS, ON THE AXIS THAT PAYS ===========
+# THE CONVERSION IS PRINTED ON EVERY ROW, because it is the whole point: the
+# M1 low-end slope is $31.01 / $37.84 / $43.33 per +0.01 of within-day
+# spearman on E5 / E6 / E7.  A column that lifts the axis by +0.03 is worth
+# ~$100-130/session and by +0.05 ~$155-215 — larger than the entire incumbent.
+M1_SLOPE_PER_001 = {"E5": 31.01, "E6": 37.84, "E7": 43.33}
+# T1  H1_NOMONO   — H1 with THE CONFOUND STRIPPED.  H1 inherited the champion's
+#     monotone constraint vector, which was fitted for the within-CELL ranking
+#     objective, and applied it unchanged to a within-DAY label; its measured
+#     within-day spearman came back NEGATIVE, which a model trained on
+#     within-day grades should not do.  Same fit, constraints dropped.
+# T2  THE NEVER-TRIED OBJECTIVE — day-grouped ranking on the CERTIFICATE
+#     ITSELF, in two forms because they fail differently:
+#       H3_DAYPAIR  rank:pairwise, group = (asset, day), label = the within-day
+#                   rank of the certificate at FULL resolution (H1 quantised to
+#                   five grades and may have thrown the ordering away).
+#       H3_DAYZ     reg:squarederror onto the within-day NORMAL SCORE of the
+#                   certificate — a direct regression onto the very quantity
+#                   whose spearman the map measures.  No grades, no ndcg gain
+#                   scaling, no pair sampling.
+# The champion optimises within-CELL rank; A_EV a GLOBAL dollar regression;
+# A_PBAR a day-bar bit.  NONE of them has ever been asked for within-day
+# ordering of dollars, which the ceiling probe says is ~98% of the value.
+T2_VARIANTS = ("H1_NOMONO", "H3_DAYPAIR", "H3_DAYZ")
+T2_COLUMNS = ("S_XGB", "A_EV_RAW", "H1_DAYRANK", "H1_NOMONO", "H3_DAYPAIR",
+              "H3_DAYZ")
+POLSETS["T2"] = H1_POLICIES          # TAUZ rides as a first-class rule
+T2_CHAIN = (("E4", "E5"), ("E5", "E6"), ("E6", "E7"))
+
+
+def _t2_one(job):
+    variant, era, seed = job
+    try:
+        out = os.path.join(FULL, "%s_%s_%d_RAW.npy" % (variant, era, seed))
+        if os.path.exists(out):
+            return (variant, era, seed, "CACHED")
+        import xgboost as xgb
+        import newobj_arms as NA
+        import rank_atlas as RA
+        import champ_floor as CF
+        import campaign as CP
+        import fold_stack as FS
+        D, _P = CF.boot()
+        tr, itr, iva, ev = NA.fold(D, era)
+        key = (D["asset_idx"].astype(np.int64) * 100000000
+               + D["d8"].astype(np.int64))
+        cert = np.where(D["cert_refused"] == 0,
+                        D["cert_close_usd"].astype(np.float64), np.nan)
+        cols, names = AR.clean_feature_cols(D)
+        XF = D["X"][:, cols]
+        hp = NA.CHAMP_HP[era]
+        rows_f, grp = _day_groups(D, N.deployable(D, itr))
+        if variant == "H1_NOMONO":
+            y = day_grade(D)
+            obj = {"objective": "rank:ndcg", "eval_metric": "ndcg",
+                   "lambdarank_num_pair_per_sample":
+                       int(hp["lambdarank_num_pair_per_sample"])}
+        elif variant == "H3_DAYPAIR":
+            # within-day rank of the certificate at FULL resolution
+            y = np.zeros(cert.size)
+            order = np.argsort(key, kind="stable")
+            ko = key[order]
+            st = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
+            for a, b in zip(st, st[1:] + [ko.size]):
+                idx = order[a:b]
+                m = np.isfinite(cert[idx])
+                g = idx[m]
+                if g.size < 2:
+                    continue
+                y[g] = (np.argsort(np.argsort(cert[g])).astype(np.float64)
+                        / max(g.size - 1, 1)) * 10.0
+            obj = {"objective": "rank:pairwise", "eval_metric": "ndcg",
+                   "lambdarank_num_pair_per_sample":
+                       int(hp["lambdarank_num_pair_per_sample"])}
+        else:                                   # H3_DAYZ
+            y = np.nan_to_num(_daynorm(D, cert, key), nan=0.0)
+            obj = {"objective": "reg:squarederror", "eval_metric": "rmse"}
+        cfg = {"tree_method": "hist", "min_child_weight": 20, "subsample": .8,
+               "colsample_bytree": .8, "max_depth": hp["max_depth"],
+               "eta": hp["eta"], "seed": N.SEED + seed,
+               "nthread": RA.N_THREAD}
+        cfg.update(obj)
+        # NO MONOTONE CONSTRAINTS ANYWHERE IN THIS STAGE.  That is the point of
+        # T1 and it applies to T2 for the same reason: the champion's sign
+        # vector was fitted for a different objective on a different grouping.
+        del CP, FS
+        d = xgb.DMatrix(XF[rows_f], label=y[rows_f], feature_names=names)
+        if obj["objective"].startswith("rank:"):
+            d.set_group(grp)
+        b = xgb.train(cfg, d, int(hp["rounds"]))
+        del d
+        want = np.union1d(np.asarray(tr, dtype=np.int64),
+                          np.asarray(ev, dtype=np.int64))
+        sc = np.full(D["d8"].size, np.nan)
+        sc[want] = b.predict(xgb.DMatrix(XF[want], feature_names=names))
+        os.makedirs(FULL, exist_ok=True)
+        np.save(out, sc.astype(np.float32))
+        return (variant, era, seed, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (variant, era, seed,
+                "%s: %s | %s" % (type(e).__name__, e,
+                                 traceback.format_exc()[-300:]))
+
+
+def run_t2fit(workers=20):
+    import multiprocessing as mp
+    jobs = [(v, e, s) for v in T2_VARIANTS for e in FIT_ERAS for s in SEEDS]
+    hb("T2: %d fits (%d variants x %d eras x %d seeds)"
+       % (len(jobs), len(T2_VARIANTS), len(FIT_ERAS), len(SEEDS)))
+    nerr = 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for v, e, sd, err in pool.imap_unordered(_t2_one, jobs):
+            if err == "CACHED":
+                hb("cached %s %s s%d" % (v, e, sd))
+            elif err:
+                nerr += 1
+                hb("T2 FIT FAILED %s %s s%d: %s" % (v, e, sd, err))
+            else:
+                hb("T2 fit %s %s s%d done" % (v, e, sd))
+    if nerr:
+        raise KnobRefusal("%d T2 fits FAILED" % nerr)
+
+
+def t2_spearman():
+    """THE AXIS, for every column, with the dollar conversion printed."""
+    import champ_floor as CF
+    import newobj_arms as NA
+    D, _P = CF.boot()
+    key = (D["asset_idx"].astype(np.int64) * 100000000
+           + D["d8"].astype(np.int64))
+    cert = np.where(D["cert_refused"] == 0,
+                    D["cert_close_usd"].astype(np.float64), np.nan)
+    rows = []
+    base = {}
+    for era in BINDING:
+        _t, _i, _v, ev = NA.fold(D, era)
+        for name in T2_COLUMNS:
+            cols = true_cols(D, name, era, "eval")
+            if not cols:
+                raise KnobRefusal(
+                    "T2_AXIS: column %r has no data on %s.  A requested column "
+                    "that silently returns nothing is the same defect this "
+                    "session has now found four times." % (name, era))
+            sp = []
+            for v in cols:
+                ro, _b = AR._arrivals(D, ev, v)
+                cc, vv, kk = cert[ro], np.asarray(v)[ro], key[ro]
+                stk = [0] + (np.flatnonzero(kk[1:] != kk[:-1]) + 1).tolist()
+                per = []
+                for a, b in zip(stk, stk[1:] + [kk.size]):
+                    mm = np.isfinite(cc[a:b]) & np.isfinite(vv[a:b])
+                    if mm.sum() >= 5:
+                        per.append(_spear(vv[a:b][mm], cc[a:b][mm]))
+                if per:
+                    sp.append(float(np.nanmean(per)))
+            if not sp:
+                continue
+            m, s_ = float(np.mean(sp)), float(np.std(sp))
+            if name == "S_XGB":
+                base[era] = m
+            rows.append([era, name, N._r(m, 5), N._r(s_, 5), len(sp)])
+    out = []
+    for era, name, m, s_, n in rows:
+        b = base.get(era)
+        d = (float(m) - b) if b is not None else None
+        slope = M1_SLOPE_PER_001.get(era)
+        out.append([era, name, m, s_, n, N._r(b, 5) if b is not None else "",
+                    N._r(d, 5) if d is not None else "", N._r(slope),
+                    N._r(d * 100.0 * slope) if (d is not None and slope)
+                    else "", N._r(float(m) * 100.0 * slope) if slope else ""])
+    N.write_tsv(
+        "T2_AXIS_SPEARMAN.tsv",
+        ["era", "score_column", "within_day_spearman", "sd_over_seeds",
+         "n_seeds", "incumbent_S_XGB_spearman", "delta_vs_incumbent",
+         "usd_per_+0.01_spearman", "usd_implied_by_delta",
+         "usd_implied_by_level"], out,
+        extra=[
+            "THE AXIS THE CEILING PROBE FORCED: within-day rank correlation "
+            "with the certificate.  A threshold on the TRUE within-day rank, "
+            "carrying no dollar information, reaches 0.966-0.979 of the causal "
+            "oracle, so the ordering is ~98% of the attainable value.",
+            "usd_per_+0.01_spearman is the M1 low-end slope ($31.01 / $37.84 / "
+            "$43.33 on E5 / E6 / E7).  usd_implied_by_delta converts a "
+            "column's spearman GAIN over the deployed score directly into "
+            "dollars per session at that slope.  A lift of +0.03 is worth "
+            "~$93-130 and +0.05 ~$155-217 — larger than the whole incumbent.",
+            "usd_implied_by_level is the same conversion applied to the "
+            "column's absolute spearman, i.e. what the M1 curve says a score "
+            "of that quality should earn.  Compare it with the column's "
+            "REALISED blind dollars in T2_BLIND_CHAIN.tsv: agreement means the "
+            "curve is describing this score honestly, disagreement means the "
+            "dollars are coming from the rule rather than the score."])
+    hb("T2_AXIS_SPEARMAN.tsv: %d rows" % len(out))
+    return out
+
+
+def run_t2eval(workers=24):
+    import json
+    import multiprocessing as mp
+    jobs = ([("eval", e, c, "T2") for e in H1EVAL_ERAS for c in T2_COLUMNS]
+            + [("inner", e, c, "T2") for e in H1EVAL_ERAS[1:]
+               for c in T2_COLUMNS])
+    os.makedirs(CACHE, exist_ok=True)
+    todo = [j for j in jobs
+            if not os.path.exists(os.path.join(
+                CACHE, "T2E_%s_%s_%s.json" % (j[0], j[1], j[2])))]
+    hb("T2EVAL: %d jobs (%d cached), %d policies x %d columns"
+       % (len(todo), len(jobs) - len(todo), len(H1_POLICIES),
+          len(T2_COLUMNS)))
+    nerr = 0
+    if todo:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(processes=workers) as pool:
+            for mode, era, col, out, err in pool.imap_unordered(_true_job,
+                                                                todo):
+                if err:
+                    nerr += 1
+                    hb("T2EVAL FAILED %s %s %s: %s" % (mode, era, col, err))
+                    continue
+                with open(os.path.join(CACHE, "T2E_%s_%s_%s.json"
+                                       % (mode, era, col)), "w") as fh:
+                    json.dump(out, fh)
+                hb("T2EVAL done %s %s %s" % (mode, era, col))
+    if nerr:
+        raise KnobRefusal("%d T2EVAL jobs FAILED" % nerr)
+    recs = []
+    for fn in sorted(os.listdir(CACHE)):
+        if fn.startswith("T2E_") and fn.endswith(".json"):
+            with open(os.path.join(CACHE, fn)) as fh:
+                recs.extend(json.load(fh))
+    live = [r for r in recs if not r.get("notrun")
+            and np.isfinite(r.get("usd", float("nan")))]
+    ev = {(r["era"], r["col"], r["policy"]): r
+          for r in live if r["mode"] == "eval"}
+    inn = {(r["era"], r["col"], r["policy"]): r
+           for r in live if r["mode"] == "inner"}
+    crows = []
+    for sel, tgt in T2_CHAIN:
+        cl = AR.CAUSAL_ORACLE.get(tgt)
+        inc = INCUMBENT_DEPLOYABLE.get(tgt)
+        widths = [("NARROW_%s" % c, (c,)) for c in T2_COLUMNS]
+        widths.append(("WIDE_all_columns", tuple(T2_COLUMNS)))
+        for width, cols in widths:
+            hs = {k[1] for k in ev if k[0] == sel}
+            ht = {k[1] for k in ev if k[0] == tgt}
+            cc = tuple(sorted(set(cols) & hs & ht))
+            if not cc:
+                continue
+            for selname, src, sera in (("PREV_ERA", ev, sel),
+                                       ("INNER_BLOCK", inn, tgt)):
+                pool_ = {k: v for k, v in src.items()
+                         if k[0] == sera and k[1] in cc}
+                if not pool_:
+                    continue
+                k = max(pool_, key=lambda z: pool_[z]["usd"])
+                r = ev.get((tgt, k[1], k[2]))
+                if r is None:
+                    continue
+                bar = max((x["null"] for x in live if x["mode"] == "eval"
+                           and x["era"] == tgt and x["col"] in cc),
+                          default=None)
+                crows.append([
+                    "%s->%s" % (sel, tgt), width, selname,
+                    "%s|%s" % (k[1], k[2]), N._r(pool_[k]["usd"]),
+                    N._r(r["usd"]), N._r(r["sd"]), N._r(r["ci_lo"]),
+                    N._r(r["ci_hi"]), N._r(r["n_seated"], 1),
+                    r["n_sessions"], N._r(r["top5_share"], 3), N._r(bar),
+                    len(cc) * len(H1_POLICIES),
+                    "YES" if (bar is not None and r["usd"] > bar) else "no",
+                    N._r(inc), N._r(r["usd"] - inc) if inc else "",
+                    "YES" if (inc is not None and r["usd"] > inc) else "no",
+                    N._r(r["usd"] / cl, 4) if cl else "",
+                    "POSITIVE" if r["usd"] > 0 else "NEGATIVE"])
+    N.write_tsv(
+        "T2_BLIND_CHAIN.tsv",
+        ["link", "search_width", "selector", "cell_chosen", "usd_on_selector",
+         "usd_on_TARGET_BLIND", "sd_usd", "ci_lo", "ci_hi", "n_trades_total",
+         "n_era_sessions", "top5_trade_share_of_pnl", "search_adjusted_null",
+         "n_cells_searched", "beats_null", "incumbent_S_XGB_DAYSOFAR",
+         "delta_vs_incumbent", "beats_incumbent", "capture_of_causal_oracle",
+         "sign"], crows,
+        extra=[
+            "THE TWO NAMED TESTS ON THE DEPLOYABLE LINE.  T1 = H1_NOMONO, the "
+            "day-grouped ranker with the inherited monotone constraints "
+            "STRIPPED — the confound removed so the hypothesis is judged "
+            "clean.  T2 = the never-tried objective: day-grouped ranking on "
+            "the CERTIFICATE itself, as full-resolution within-day rank "
+            "(H3_DAYPAIR) and as regression onto the within-day normal score "
+            "(H3_DAYZ).",
+            "NO MONOTONE CONSTRAINTS ANYWHERE IN THIS STAGE.  The champion's "
+            "sign vector was fitted for a different objective on a different "
+            "grouping and is the named suspect for H1's negative correlation.",
+            "TAUZ rides as a first-class rule in the family, alongside TAU, "
+            "OCCUPANCY, DAYSOFAR, CELLSOFAR and SECTIME.",
+            "THE PRE-REGISTERED BAR, unchanged: positive in all three binding "
+            "eras, clearing the search-adjusted null in all three, and beating "
+            "the incumbent S_XGB|DAYSOFAR ($57.76 / $88.96 / $101.77) in at "
+            "least two of three, top-5 concentration below 0.30.",
+            "READ THIS BESIDE T2_AXIS_SPEARMAN.tsv: the axis moves first and "
+            "the dollars follow it.  A column that lifts within-day spearman "
+            "without lifting dollars, or the reverse, is telling you the "
+            "dollars are coming from the rule and not the score."])
+    hb("T2EVAL: %d chain links" % len(crows))
+    del json
+    return crows
+
+
+# ============ STAGE 15: THE +0.01 HUNT — the standing loop ==================
+# THE LOOP: one change per iteration, judged FIRST on within-day spearman
+# (cheap: a fit and a correlation, no replay) and only THEN confirmed on the
+# blind deployable line.  The M1 curve prices every +0.01 of within-day
+# spearman at $31.01 / $37.84 / $43.33 on E5 / E6 / E7, so the screen has a
+# dollar meaning before any policy is run.
+# BASE RECIPE = H3_DAYZ: reg:squarederror onto the WITHIN-DAY NORMAL SCORE of
+# the certificate, grouped/normalised by (asset, day), champion HP, no monotone
+# constraints.  It is the base because it won the axis: +0.050 / +0.089 /
+# +0.078 against A_EV's +0.034 / +0.052 / +0.032 and the deployed score's
+# -0.033 / -0.002 / -0.037.
+# WHY THE RANKERS ARE OUT: rank:ndcg on within-day grades (H1) and
+# rank:pairwise on full-resolution within-day ranks (H3_DAYPAIR) BOTH returned
+# a within-day spearman at or below zero, on every era, with and without the
+# inherited monotone constraints.  Two ranking objectives and two pointwise
+# regressions, and the split is clean: POINTWISE REGRESSION ONTO THE METRIC
+# WORKS, RANKING OBJECTIVES DO NOT.
+HUNT_VARIANTS = {
+    # one change each, from the same base
+    "V_FLOWGEO":  {"groups": ("flow", "geometry")},
+    "V_VOLMATCH": {"volmatch": True},
+    "V_DEEP":     {"depth_delta": +2},
+    "V_SHALLOW":  {"depth_delta": -2},
+    "V_ASSETZ":   {"znorm": "asset"},
+    "V_SESSZ":    {"znorm": "session"},
+}
+
+
+def _hunt_one(job):
+    variant, era, seed = job
+    try:
+        out = os.path.join(FULL, "%s_%s_%d_RAW.npy" % (variant, era, seed))
+        if os.path.exists(out):
+            return (variant, era, seed, "CACHED")
+        import xgboost as xgb
+        import newobj_arms as NA
+        import rank_atlas as RA
+        import champ_floor as CF
+        import curriculum as CU
+        D, _P = CF.boot()
+        cf = HUNT_VARIANTS[variant]
+        tr, itr, iva, ev = NA.fold(D, era)
+        znorm = cf.get("znorm", "day")
+        if znorm == "asset":
+            key = D["asset_idx"].astype(np.int64)
+        elif znorm == "session":
+            key = (D["asset_idx"].astype(np.int64) * 100000000
+                   + D["d8"].astype(np.int64)) * 100 + D["phase_dec"]
+        else:
+            key = (D["asset_idx"].astype(np.int64) * 100000000
+                   + D["d8"].astype(np.int64))
+        cert = np.where(D["cert_refused"] == 0,
+                        D["cert_close_usd"].astype(np.float64), np.nan)
+        y = np.nan_to_num(_daynorm(D, cert, key), nan=0.0)
+        cols, names = AR.clean_feature_cols(D)
+        if cf.get("groups"):
+            fg = list(D["feature_groups"])
+            allc, alln = NA.feat_cols(D)
+            pos = {c: i for i, c in enumerate(allc)}
+            keep = [(c, n) for c, n in zip(cols, names)
+                    if pos.get(c) is not None
+                    and str(fg[pos[c]]) in cf["groups"]]
+            if len(keep) < 4:
+                raise KnobRefusal("variant %s kept only %d features"
+                                  % (variant, len(keep)))
+            cols = [c for c, _n in keep]
+            names = [n for _c, n in keep]
+        XF = D["X"][:, cols]
+        hp = NA.CHAMP_HP[era]
+        rows_f = N.deployable(D, itr)
+        cfg = {"objective": "reg:squarederror", "eval_metric": "rmse",
+               "tree_method": "hist", "min_child_weight": 20, "subsample": .8,
+               "colsample_bytree": .8,
+               "max_depth": max(2, hp["max_depth"] + cf.get("depth_delta", 0)),
+               "eta": hp["eta"], "seed": N.SEED + seed,
+               "nthread": RA.N_THREAD}
+        d = xgb.DMatrix(XF[rows_f], label=y[rows_f], feature_names=names)
+        if cf.get("volmatch"):
+            import champ_floor as _CF
+            r_f, g_f = RA._groups_of(D, itr, _CF.SPEC)
+            gw = CU.group_weights(D, itr, r_f, g_f, era, "W_VOLMATCH")
+            if gw is not None:
+                wrow = np.repeat(np.asarray(gw, dtype=np.float64),
+                                 np.asarray(g_f, dtype=np.int64))
+                wmap = dict(zip(r_f.tolist(), wrow.tolist()))
+                d.set_weight(np.asarray([wmap.get(int(i), 1.0)
+                                         for i in rows_f]))
+        b = xgb.train(cfg, d, int(hp["rounds"]))
+        del d
+        want = np.union1d(np.asarray(tr, dtype=np.int64),
+                          np.asarray(ev, dtype=np.int64))
+        sc = np.full(D["d8"].size, np.nan)
+        sc[want] = b.predict(xgb.DMatrix(XF[want], feature_names=names))
+        np.save(out, sc.astype(np.float32))
+        return (variant, era, seed, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (variant, era, seed,
+                "%s: %s | %s" % (type(e).__name__, e,
+                                 traceback.format_exc()[-300:]))
+
+
+def run_hunt(workers=20, variants=None):
+    import multiprocessing as mp
+    vs = variants or tuple(HUNT_VARIANTS)
+    jobs = [(v, e, s) for v in vs for e in FIT_ERAS for s in SEEDS]
+    hb("HUNT: %d fits (%d variants x %d eras x %d seeds)"
+       % (len(jobs), len(vs), len(FIT_ERAS), len(SEEDS)))
+    nerr = 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for v, e, sd, err in pool.imap_unordered(_hunt_one, jobs):
+            if err and err != "CACHED":
+                nerr += 1
+                hb("HUNT FIT FAILED %s %s s%d: %s" % (v, e, sd, err))
+    if nerr:
+        raise KnobRefusal("%d hunt fits FAILED" % nerr)
+    hb("HUNT fits done")
+
+
+# THE CUMULATIVE AXIS REGISTRY — every column ever measured, one file.
+AXIS_COLUMNS = ("S_XGB", "S_XGB_DAYZ", "A_EV_RAW", "A_PWIN_RAW", "A_PBAR_RAW",
+                "H1_DAYRANK", "H1_NOMONO", "H3_DAYPAIR", "H3_DAYZ",
+                "C_CELLPCT", "C_RRF", "C_RRF_MULTI", "C_PLACE", "C_STACK",
+                "C_STACK_Z", "R_PCT_H3_DAYZ", "R_PCT_A_EV_RAW", "R_PCT_S_XGB",
+                "R_RRF_H3_DAYZ", "R_RRF_A_EV_RAW", "R_RRF_S_XGB",
+                "R_RRF_FUSE", "R_PCT_MEAN",
+                "ORACLE_DAYRANK") + tuple(sorted(HUNT_VARIANTS))
+
+
+def run_axis(columns=None):
+    """THE CUMULATIVE AXIS TABLE.  One file, every column ever measured, the
+    dollar conversion printed on each row.  The climb is one number."""
+    import champ_floor as CF
+    import newobj_arms as NA
+    D, _P = CF.boot()
+    key = (D["asset_idx"].astype(np.int64) * 100000000
+           + D["d8"].astype(np.int64))
+    cert = np.where(D["cert_refused"] == 0,
+                    D["cert_close_usd"].astype(np.float64), np.nan)
+    cols_want = columns or AXIS_COLUMNS
+    seen, rows = {}, []
+    for era in BINDING:
+        _t, _i, _v, ev = NA.fold(D, era)
+        for name in cols_want:
+            cc = true_cols(D, name, era, "eval")
+            if not cc:
+                continue
+            sp = []
+            for v in cc:
+                ro, _b = AR._arrivals(D, ev, v)
+                a_, b_, k_ = cert[ro], np.asarray(v)[ro], key[ro]
+                stk = [0] + (np.flatnonzero(k_[1:] != k_[:-1]) + 1).tolist()
+                per = []
+                for a, b in zip(stk, stk[1:] + [k_.size]):
+                    mm = np.isfinite(a_[a:b]) & np.isfinite(b_[a:b])
+                    if mm.sum() >= 5:
+                        per.append(_spear(b_[a:b][mm], a_[a:b][mm]))
+                if per:
+                    sp.append(float(np.nanmean(per)))
+            if not sp:
+                continue
+            seen.setdefault(name, []).append(era)
+            rows.append((era, name, float(np.mean(sp)), float(np.std(sp)),
+                         len(sp)))
+    absent = [c for c in cols_want if c not in seen]
+    if absent:
+        hb("AXIS: %d columns have no data on any binding era: %s"
+           % (len(absent), absent))
+    if not rows:
+        raise KnobRefusal("AXIS: no column produced a reading")
+    base = {e: m for e, n, m, _s, _k in rows if n == "S_XGB"}
+    best = {}
+    for e, n, m, _s, _k in rows:
+        if n != "ORACLE_DAYRANK" and (e not in best or m > best[e][1]):
+            best[e] = (n, m)
+    out = []
+    for era, name, m, sd, n in sorted(rows, key=lambda z: (z[0], -z[2])):
+        slope = M1_SLOPE_PER_001.get(era)
+        b = base.get(era)
+        d = (m - b) if b is not None else None
+        out.append([era, name, N._r(m, 5), N._r(sd, 5), n,
+                    N._r(b, 5) if b is not None else "",
+                    N._r(d, 5) if d is not None else "", N._r(slope),
+                    N._r(d * 100.0 * slope) if (d is not None and slope)
+                    else "", N._r(m * 100.0 * slope) if slope else "",
+                    "BEST" if best.get(era, ("", 0))[0] == name else ""])
+    N.write_tsv(
+        "AXIS_CUMULATIVE.tsv",
+        ["era", "score_column", "within_day_spearman", "sd_over_seeds",
+         "n_seeds", "incumbent_S_XGB_spearman", "delta_vs_incumbent",
+         "usd_per_+0.01_spearman", "usd_implied_by_delta",
+         "usd_implied_by_level", "is_best_causal_column"], out,
+        extra=[
+            "THE CUMULATIVE AXIS TABLE — every score column this campaign has "
+            "measured, on the one number that pays.  Append-only in intent: "
+            "new columns are added to AXIS_COLUMNS and this file is rebuilt.",
+            "WHY THIS AXIS: a threshold on the TRUE within-day rank of the "
+            "certificate, carrying no dollar information at all, reaches "
+            "0.966-0.979 of the causal oracle against the true-DOLLAR "
+            "prophet's 0.99-1.00.  The within-day ORDERING is ~98% of the "
+            "attainable value.",
+            "usd_per_+0.01_spearman is the M1 low-end slope ($31.01 / $37.84 / "
+            "$43.33 on E5 / E6 / E7).  usd_implied_by_level is what the M1 "
+            "dose-response says a score of that quality should earn per "
+            "session; compare it against the column's REALISED blind dollars, "
+            "because agreement means the curve describes the score honestly "
+            "and disagreement means the dollars came from the rule.",
+            "ORACLE_DAYRANK is HINDSIGHT and is excluded from the BEST flag.",
+            "THE MEASURED SPLIT, and it is clean: POINTWISE REGRESSION ONTO "
+            "THE METRIC WORKS (A_EV on raw dollars, H3_DAYZ on the within-day "
+            "normal score) and RANKING OBJECTIVES DO NOT (rank:ndcg on "
+            "within-day grades, rank:pairwise on full-resolution within-day "
+            "ranks, both at or below zero on every era, with and without the "
+            "inherited monotone constraints)."])
+    hb("AXIS_CUMULATIVE.tsv: %d rows, %d columns measured"
+       % (len(out), len(seen)))
+    return out
+
+
+# ====== STAGE 16: THE DAY-RANK DECOMPOSITION, MECHANISM, AND COMPOSITE =====
+# THE PARADOX TO EXPLAIN: the champion orders candidates WITHIN A CELL well
+# enough to be worth $548/trade at rank 1, yet its WITHIN-DAY spearman against
+# the certificate is ~0 or negative (-0.033 / -0.002 / -0.037).  The proposed
+# mechanism is that a pairwise objective trained WITHIN cell makes levels
+# meaningless ACROSS cells, and about two thirds of the pairs inside a day are
+# cross-cell — so a real within-cell signal is drowned by anti-correlated
+# cross-cell placement.  MECHANISM.tsv tests it with one number per column: the
+# WITHIN-CELL-only spearman against the certificate, beside the CROSS-CELL-only
+# spearman of the cell aggregates.  If within-cell is strongly positive while
+# cross-cell is flat or negative, the mechanism is confirmed and the repair is
+# a RENORMALISATION, not a new model.
+#
+# THE DECOMPOSITION answers what that repair is worth before any of it is
+# built.  A day score is written as  Z_cell + W_within, both normal-scored so
+# the two components are on one scale:
+#     ORACLE      Z = the cell's TRUE aggregate, W = the TRUE within-cell order
+#     WITHIN_ONLY Z = RANDOM,                    W = the TRUE within-cell order
+#     CROSS_ONLY  Z = the cell's TRUE aggregate, W = RANDOM
+# Replayed through the same causal policy family on the honest denominator, the
+# three numbers say which component carries the $1,950-$3,290 — and therefore
+# whether perfect within-cell ordering ALONE is the multiple-jump or whether
+# the placement layer is where the money is.  HINDSIGHT on the face of it.
+#
+# THE COMPOSITE, built from what is already proven:
+#   C_CELLPCT   the champion's percentile WITHIN ITS CELL AMONG ARRIVALS SO FAR
+#               — strictly causal, and it recovers the strong third for free by
+#               throwing away exactly the cross-cell level that is the defect.
+#   C_RRF       RECIPROCAL RANK FUSION, 1/(k + rank-so-far), k=60.  Our problem
+#               is literally federated-search results merging: incomparable
+#               per-collection scores that must become one ranked list.  RRF is
+#               that field's workhorse for it, needs no fit, and differs from
+#               the plain percentile only in shape (it compresses the tail).
+#   C_RRF_MULTI RRF over THREE within-cell lists (champion, A_EV, H3_DAYZ) —
+#               the actual multi-list use, and their errors need not be
+#               correlated, so a fusion can exceed all of its inputs.
+#   C_PLACE     the RESOURCE-SELECTION layer, in its most conservative form: a
+#               STATIC per-(asset, phase) value-density prior estimated on the
+#               TRAINING BLOCK only.  Even a static prior beats random
+#               placement, and it costs one groupby.
+#   C_STACK     C_CELLPCT + C_PLACE, both normal-scored.  Renormalise, then
+#               place.
+#   C_STACK_Z   C_STACK + H3_DAYZ, the axis winner folded in as a third
+#               component.
+RRF_K = 60.0
+
+
+def _cellpct_sofar(D, score, rows):
+    """CAUSAL percentile of the score within its CELL among arrivals SO FAR."""
+    ro, blocks = AR._arrivals(D, rows, score)
+    s = np.asarray(score)[ro]
+    out = np.full(np.asarray(score).size, np.nan)
+    for a, b in blocks:
+        seen = []
+        for j in range(a, b):
+            if seen:
+                out[ro[j]] = float(np.mean(np.asarray(seen) <= s[j]))
+            else:
+                out[ro[j]] = 0.5
+            seen.append(float(s[j]))
+    return out
+
+
+def _rank_sofar(D, score, rows):
+    """CAUSAL rank-so-far within the cell (1 = best seen so far)."""
+    ro, blocks = AR._arrivals(D, rows, score)
+    s = np.asarray(score)[ro]
+    out = np.full(np.asarray(score).size, np.nan)
+    for a, b in blocks:
+        seen = []
+        for j in range(a, b):
+            r = 1 + int(np.sum(np.asarray(seen) > s[j])) if seen else 1
+            out[ro[j]] = r
+            seen.append(float(s[j]))
+    return out
+
+
+def _zof(v, key):
+    return _daynorm(None, np.asarray(v, dtype=np.float64), key)
+
+
+def _decomp_job(era):
+    try:
+        import champ_floor as CF
+        import stacked_final as SF
+        import newobj_arms as NA
+        D, P = CF.boot()
+        pc = phase_close(D, P)
+        tr, itr, iva, ev = NA.fold(D, era)
+        daykey = (D["asset_idx"].astype(np.int64) * 100000000
+                  + D["d8"].astype(np.int64))
+        # D["cell"] is a STRING key ('HG|20210119|0'); the numeric cell key
+        # used everywhere else in this engine is (asset, day, phase) packed.
+        cellkey = ((D["asset_idx"].astype(np.int64) * 100000000
+                    + D["d8"].astype(np.int64)) * 100
+                   + D["phase_dec"].astype(np.int64))
+        cert = np.where(D["cert_refused"] == 0,
+                        D["cert_close_usd"].astype(np.float64), np.nan)
+        rng = np.random.default_rng(N.SEED)
+        # ---------- 1) MECHANISM: within-cell vs cross-cell, per column -----
+        mech = []
+        for name in ("S_XGB", "A_EV_RAW", "H3_DAYZ"):
+            cc = true_cols(D, name, era, "eval")
+            if not cc:
+                continue
+            wi, xc = [], []
+            for v in cc:
+                ro, blocks = AR._arrivals(D, ev, v)
+                sv, cv = np.asarray(v)[ro], cert[ro]
+                per = []
+                cm_s, cm_c, cm_d = [], [], []
+                for a, b in blocks:
+                    m = np.isfinite(sv[a:b]) & np.isfinite(cv[a:b])
+                    if m.sum() >= 5:
+                        per.append(_spear(sv[a:b][m], cv[a:b][m]))
+                    if m.sum() >= 1:
+                        cm_s.append(float(np.nanmean(sv[a:b][m])))
+                        cm_c.append(float(np.nanmean(cv[a:b][m])))
+                        cm_d.append(int(daykey[ro[a]]))
+                wi.append(float(np.nanmean(per)) if per else np.nan)
+                cm_s = np.asarray(cm_s)
+                cm_c = np.asarray(cm_c)
+                cm_d = np.asarray(cm_d)
+                per2 = []
+                for d in np.unique(cm_d):
+                    m = cm_d == d
+                    if m.sum() >= 3:
+                        per2.append(_spear(cm_s[m], cm_c[m]))
+                xc.append(float(np.nanmean(per2)) if per2 else np.nan)
+            mech.append({"era": era, "col": name,
+                         "within_cell": float(np.nanmean(wi)),
+                         "cross_cell": float(np.nanmean(xc))})
+        # ---------- 2) DECOMPOSITION of the day-rank oracle ----------------
+        zc_true = np.full(cert.size, np.nan)
+        order = np.argsort(cellkey, kind="stable")
+        ko = cellkey[order]
+        st = [0] + (np.flatnonzero(ko[1:] != ko[:-1]) + 1).tolist()
+        cell_mean = {}
+        for a, b in zip(st, st[1:] + [ko.size]):
+            idx = order[a:b]
+            m = np.isfinite(cert[idx])
+            if m.any():
+                cell_mean[int(ko[a])] = float(np.nanmean(cert[idx][m]))
+        cm_arr = np.array([cell_mean.get(int(c), np.nan) for c in cellkey])
+        zc_true = _zof(cm_arr, daykey)
+        uc = np.unique(cellkey)
+        rnd_vals = rng.standard_normal(uc.size)
+        zc_rand = rnd_vals[np.searchsorted(uc, cellkey)]
+        w_true = _zof(cert, cellkey)
+        w_rand = rng.standard_normal(cert.size)
+        w_rand = np.where(np.isfinite(cert), w_rand, np.nan)
+        arms = {"ORACLE_DAY": zc_true + w_true,
+                "WITHIN_ONLY_random_placement": zc_rand + w_true,
+                "CROSS_ONLY_random_within": zc_true + w_rand}
+        nsess = int(np.unique(D["session"][ev]).size)
+        drows = []
+        for nm, v in arms.items():
+            best, bp = -np.inf, None
+            for pname, kind, knob in M1_POLICIES:
+                try:
+                    seats = build_ext(D, ev, v, kind, knob, tr, pc)
+                except AR.EmptyReference:
+                    continue
+                rp = SF.apply_stop(D, AR.cap_seats(D, N.replay_delayed(
+                    D, seats, P)), "STOP_WALL1")
+                r = N.read_rows(D, pad_sessions(D, ev, rp))
+                u = r.get("usd_per_session") or 0.0
+                if u > best:
+                    best, bp = u, pname
+                    bn = int(sum(x["n_seated"] for x in rp))
+            ro, _b = AR._arrivals(D, ev, v)
+            cv, vv, kk = cert[ro], np.asarray(v)[ro], daykey[ro]
+            stk = [0] + (np.flatnonzero(kk[1:] != kk[:-1]) + 1).tolist()
+            per = []
+            for a, b in zip(stk, stk[1:] + [kk.size]):
+                m = np.isfinite(cv[a:b]) & np.isfinite(vv[a:b])
+                if m.sum() >= 5:
+                    per.append(_spear(vv[a:b][m], cv[a:b][m]))
+            drows.append({"era": era, "arm": nm, "usd": best, "policy": bp,
+                          "n_seated": bn, "n_sessions": nsess,
+                          "within_day_spearman": float(np.nanmean(per))})
+        # ---------- 3) the CAUSAL composite columns ------------------------
+        base = true_cols(D, "S_XGB", era, "eval")
+        made = []
+        if base:
+            pct = np.nanmean([_cellpct_sofar(D, v, ev) for v in base], axis=0)
+            np.save(os.path.join(FULL, "C_CELLPCT_%s_0_RAW.npy" % era),
+                    pct.astype(np.float32))
+            made.append("C_CELLPCT")
+            rr = np.nanmean([1.0 / (RRF_K + _rank_sofar(D, v, ev))
+                             for v in base], axis=0)
+            np.save(os.path.join(FULL, "C_RRF_%s_0_RAW.npy" % era),
+                    rr.astype(np.float32))
+            made.append("C_RRF")
+            lists = [base[0]]
+            for other in ("A_EV_RAW", "H3_DAYZ"):
+                oc = true_cols(D, other, era, "eval")
+                if oc:
+                    lists.append(oc[0])
+            rrm = np.zeros(cert.size)
+            for v in lists:
+                rrm = rrm + 1.0 / (RRF_K + _rank_sofar(D, v, ev))
+            rrm = np.where(np.isfinite(pct), rrm, np.nan)
+            np.save(os.path.join(FULL, "C_RRF_MULTI_%s_0_RAW.npy" % era),
+                    rrm.astype(np.float32))
+            made.append("C_RRF_MULTI")
+            # RESOURCE SELECTION: static per-(asset, phase) value-density
+            # prior from the TRAINING BLOCK only.
+            akey = (D["asset_idx"].astype(np.int64) * 100
+                    + D["phase_dec"].astype(np.int64))
+            trd = N.deployable(D, tr)
+            prior = {}
+            for k in np.unique(akey[trd]):
+                m = akey[trd] == k
+                vals = cert[trd][m]
+                vals = vals[np.isfinite(vals)]
+                if vals.size:
+                    prior[int(k)] = float(np.mean(vals))
+            gl = float(np.mean(list(prior.values()))) if prior else 0.0
+            place = np.array([prior.get(int(k), gl) for k in akey])
+            place = np.where(np.isfinite(pct), place, np.nan)
+            np.save(os.path.join(FULL, "C_PLACE_%s_0_RAW.npy" % era),
+                    place.astype(np.float32))
+            made.append("C_PLACE")
+            zp = _zof(pct, daykey)
+            zpl = _zof(place, daykey)
+            stack = np.where(np.isfinite(zp), zp, 0.0) + np.where(
+                np.isfinite(zpl), zpl, 0.0)
+            stack = np.where(np.isfinite(pct), stack, np.nan)
+            np.save(os.path.join(FULL, "C_STACK_%s_0_RAW.npy" % era),
+                    stack.astype(np.float32))
+            made.append("C_STACK")
+            hz = true_cols(D, "H3_DAYZ", era, "eval")
+            if hz:
+                zh = _zof(np.nanmean(hz, axis=0), daykey)
+                st2 = stack + np.where(np.isfinite(zh), zh, 0.0)
+                st2 = np.where(np.isfinite(pct), st2, np.nan)
+                np.save(os.path.join(FULL, "C_STACK_Z_%s_0_RAW.npy" % era),
+                        st2.astype(np.float32))
+                made.append("C_STACK_Z")
+        return (era, mech, drows, made, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (era, [], [], [], "%s: %s | %s"
+                % (type(e).__name__, e, traceback.format_exc()[-350:]))
+
+
+def run_decomp(workers=3, eras=BINDING):
+    import multiprocessing as mp
+    hb("DECOMP: mechanism + day-rank decomposition + composite columns")
+    mech, drows, made, nerr = [], [], set(), 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for era, m, d, mk, err in pool.imap_unordered(_decomp_job,
+                                                      list(eras)):
+            if err:
+                nerr += 1
+                hb("DECOMP FAILED %s: %s" % (era, err))
+                continue
+            mech.extend(m)
+            drows.extend(d)
+            made.update(mk)
+            hb("DECOMP %s done (%d composite columns)" % (era, len(mk)))
+    if nerr or not drows:
+        raise KnobRefusal("%d decomp jobs FAILED" % nerr)
+    N.write_tsv(
+        "MECHANISM_WITHIN_VS_CROSS_CELL.tsv",
+        ["era", "score_column", "within_cell_spearman_vs_cert",
+         "cross_cell_spearman_of_cell_aggregates", "gap"],
+        [[m["era"], m["col"], N._r(m["within_cell"], 5),
+          N._r(m["cross_cell"], 5),
+          N._r(m["within_cell"] - m["cross_cell"], 5)] for m in mech],
+        extra=[
+            "THE PARADOX, TESTED WITH ONE NUMBER PER COLUMN.  The champion is "
+            "worth $548/trade at within-cell rank 1 yet reads ~0 or negative "
+            "on within-DAY spearman.  A pairwise objective trained WITHIN cell "
+            "leaves levels meaningless ACROSS cells, and roughly two thirds of "
+            "the pairs inside a day are cross-cell.",
+            "within_cell_spearman_vs_cert is measured inside each cell and "
+            "averaged; cross_cell is the spearman of the CELL AGGREGATES "
+            "against the cells' true mean certificate, inside each day.",
+            "A strongly positive within-cell figure beside a flat or negative "
+            "cross-cell figure CONFIRMS the mechanism, and the repair is a "
+            "RENORMALISATION rather than a new model."])
+    N.write_tsv(
+        "DAYRANK_DECOMPOSITION.tsv",
+        ["era", "arm", "usd_per_session_ALL", "best_policy", "n_trades_total",
+         "n_era_sessions", "within_day_spearman", "causal_oracle",
+         "capture_of_causal_oracle", "share_of_oracle_arm"],
+        [[d["era"], d["arm"], N._r(d["usd"]), d["policy"],
+          N._r(d["n_seated"], 1), d["n_sessions"],
+          N._r(d["within_day_spearman"], 4),
+          N._r(AR.CAUSAL_ORACLE[d["era"]]),
+          N._r(d["usd"] / AR.CAUSAL_ORACLE[d["era"]], 4),
+          N._r(d["usd"] / max([x["usd"] for x in drows
+                               if x["era"] == d["era"]
+                               and x["arm"] == "ORACLE_DAY"] or [1.0]), 4)]
+         for d in drows],
+        extra=[
+            "WHICH COMPONENT CARRIES THE DAY-RANK ORACLE'S DOLLARS.  A day "
+            "score is written Z_cell + W_within with both parts normal-scored "
+            "onto one scale, and one part at a time is replaced by noise.",
+            "WITHIN_ONLY_random_placement keeps PERFECT within-cell ordering "
+            "and destroys cross-cell placement — it is what a perfect "
+            "renormalisation of a perfect within-cell score would bank.",
+            "CROSS_ONLY_random_within keeps perfect cell PLACEMENT and "
+            "destroys the ordering inside each cell.",
+            "HINDSIGHT.  Not deployable, not fitted, and never a promotion "
+            "target: this exists to aim the build.  If WITHIN_ONLY carries "
+            "most of the oracle, renormalising the champion is the "
+            "multiple-jump; if CROSS_ONLY carries it, the placement model is "
+            "the aimed attack."])
+    hb("DECOMP: composite columns built: %s" % sorted(made))
+    return sorted(made)
+
+
+# ====== STAGE 17: THE RENORMALISATION, AIMED BY THE DECOMPOSITION ==========
+# WHAT THE DECOMPOSITION SAID, and it is lopsided: PERFECT WITHIN-CELL ORDERING
+# WITH RANDOM CROSS-CELL PLACEMENT banks $1,945 / $2,543 / $3,006 — 0.96 / 0.95
+# / 0.89 of the causal oracle and 103-110% of the full day-rank oracle arm —
+# while PERFECT PLACEMENT WITH RANDOM WITHIN-CELL ORDER banks $98 / $159 / $133,
+# i.e. 4-7%.  THE ORDERING INSIDE THE CELL IS EVERYTHING AND PLACEMENT IS
+# ALMOST NOTHING.  (Placement is not merely weak: adding TRUE placement to
+# perfect within-cell ordering makes it WORSE than random placement, because a
+# threshold rule then spends its seats in high-mean cells rather than on the
+# best individual candidates.)  So the resource-selection layer is de-prioritised
+# on measurement, and the aimed attack is renormalisation.
+#
+# AND THE PROPOSED MECHANISM IS REFUTED BY ITS OWN TEST.  The story was that
+# the champion has a strong within-cell signal drowned by anti-correlated
+# cross-cell placement.  Measured, the champion's WITHIN-CELL spearman against
+# the certificate is -0.028 / +0.019 / -0.012 — indistinguishable from zero.
+# There is no drowned signal to recover; the $548/trade at rank 1 belonged to
+# the eventual-argmax seating the leak audit voided, not to an ability to order
+# a cell by certificate.  Renormalising the CHAMPION is therefore pointless.
+# What DOES carry within-cell signal is the pointwise regressions:
+#     A_EV   within-cell +0.060 / +0.117 / +0.120
+#     H3_DAYZ within-cell +0.105 / +0.144 / +0.158   <- 2-3x its within-DAY
+# H3_DAYZ's own within-day figure (0.050 / 0.089 / 0.078) is roughly HALF its
+# within-cell figure, which is the decomposition's dilution showing up in our
+# own column.  So: take the columns that have within-cell order, throw the
+# cross-cell level away, and see if the axis moves.
+RENORM_SOURCES = ("H3_DAYZ", "A_EV_RAW", "S_XGB")
+
+
+def _renorm_job(era):
+    try:
+        import champ_floor as CF
+        import newobj_arms as NA
+        D, _P = CF.boot()
+        _t, _i, _v, ev = NA.fold(D, era)
+        made = []
+        pcts = {}
+        for src in RENORM_SOURCES:
+            cc = true_cols(D, src, era, "eval")
+            if not cc:
+                continue
+            pct = np.nanmean([_cellpct_sofar(D, v, ev) for v in cc], axis=0)
+            tag = "R_PCT_%s" % src
+            np.save(os.path.join(FULL, "%s_%s_0_RAW.npy" % (tag, era)),
+                    pct.astype(np.float32))
+            made.append(tag)
+            pcts[src] = pct
+            rr = np.nanmean([1.0 / (RRF_K + _rank_sofar(D, v, ev))
+                             for v in cc], axis=0)
+            tag = "R_RRF_%s" % src
+            np.save(os.path.join(FULL, "%s_%s_0_RAW.npy" % (tag, era)),
+                    rr.astype(np.float32))
+            made.append(tag)
+        if len(pcts) >= 2:
+            # RECIPROCAL RANK FUSION over the renormalised lists — the
+            # federated-merge construction, now over the columns that actually
+            # carry within-cell order rather than over the champion.
+            fuse = None
+            for src, pct in pcts.items():
+                r = 1.0 / (RRF_K + (1.0 - np.nan_to_num(pct, nan=0.5))
+                           * 100.0)
+                fuse = r if fuse is None else fuse + r
+            base = pcts.get("H3_DAYZ", list(pcts.values())[0])
+            fuse = np.where(np.isfinite(base), fuse, np.nan)
+            np.save(os.path.join(FULL, "R_RRF_FUSE_%s_0_RAW.npy" % era),
+                    fuse.astype(np.float32))
+            made.append("R_RRF_FUSE")
+            mix = np.nanmean([pcts[k] for k in pcts], axis=0)
+            mix = np.where(np.isfinite(base), mix, np.nan)
+            np.save(os.path.join(FULL, "R_PCT_MEAN_%s_0_RAW.npy" % era),
+                    mix.astype(np.float32))
+            made.append("R_PCT_MEAN")
+        return (era, made, None)
+    except Exception as e:                                # noqa: BLE001
+        import traceback
+        return (era, [], "%s: %s | %s" % (type(e).__name__, e,
+                                          traceback.format_exc()[-300:]))
+
+
+def run_renorm(workers=3, eras=BINDING):
+    import multiprocessing as mp
+    hb("RENORM: causal within-cell percentile / RRF on the columns that have "
+       "within-cell order")
+    made, nerr = set(), 0
+    ctx = mp.get_context("spawn")
+    with ctx.Pool(processes=workers) as pool:
+        for era, mk, err in pool.imap_unordered(_renorm_job, list(eras)):
+            if err:
+                nerr += 1
+                hb("RENORM FAILED %s: %s" % (era, err))
+            else:
+                made.update(mk)
+                hb("RENORM %s done: %d columns" % (era, len(mk)))
+    if nerr:
+        raise KnobRefusal("%d renorm jobs FAILED" % nerr)
+    hb("RENORM columns: %s" % sorted(made))
+    return sorted(made)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", action="store_true")
@@ -3348,6 +4296,13 @@ def main():
     ap.add_argument("--h1eval", action="store_true")
     ap.add_argument("--m1", action="store_true")
     ap.add_argument("--m2", action="store_true")
+    ap.add_argument("--t2fit", action="store_true")
+    ap.add_argument("--t2eval", action="store_true")
+    ap.add_argument("--t2axis", action="store_true")
+    ap.add_argument("--hunt", action="store_true")
+    ap.add_argument("--axis", action="store_true")
+    ap.add_argument("--decomp", action="store_true")
+    ap.add_argument("--renorm", action="store_true")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--eras", nargs="*", default=None)
     a = ap.parse_args()
@@ -3402,6 +4357,27 @@ def main():
         did = True
     if a.m2:
         run_m2()
+        did = True
+    if a.t2fit:
+        run_t2fit(workers=a.workers)
+        did = True
+    if a.t2axis:
+        t2_spearman()
+        did = True
+    if a.hunt:
+        run_hunt(workers=a.workers)
+        did = True
+    if a.decomp:
+        run_decomp()
+        did = True
+    if a.renorm:
+        run_renorm()
+        did = True
+    if a.axis:
+        run_axis()
+        did = True
+    if a.t2eval:
+        run_t2eval(workers=a.workers)
         did = True
     if a.truestate:
         run_truestate()

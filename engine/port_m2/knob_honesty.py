@@ -1863,6 +1863,278 @@ def run_audit(workers=12):
     return rows
 
 
+# ============ STAGE 8: THE REPO-WIDE INDEX, AND THE BAR'S OWN PROVENANCE ====
+# The arrival lane is the only lane whose numbers are still load-bearing:
+# everything written before the seating respecification is ALREADY void for
+# deployment, because it seats `newobj.top_per_cell_score` = the cell's
+# EVENTUAL argmax.  For those tables the denominator is a SECOND, independent
+# void and correcting it would not resurrect them.  This index says which is
+# which so that no one re-reads a pre-respecification dollar figure as if the
+# only thing wrong with it were the divisor.
+ARRIVAL_LANE = {
+    "ARRIVAL_ZOO.tsv", "ARRIVAL_FITTED.tsv", "ARRIVAL_PROPHET.tsv",
+    "ARRIVAL_ENGINES.tsv", "ARRIVAL_TARGETS.tsv", "CAUSAL_BASELINE.tsv",
+    "LEAK_SEATING.tsv", "LEAK_SEATING_MECHANISM.tsv",
+    "LEAK_SEATING_CENSUS.tsv", "HORIZON_ALIGNMENT.tsv", "HORIZON_SHORT.tsv",
+}
+FIXED_BY_ME = {
+    "ARRIVAL_FITTED2.tsv", "ARRIVAL_FITTED2_RAWCOL.tsv", "ARRIVAL_INNER.tsv",
+    "ARRIVAL_INNER_RAWCOL.tsv", "ARRIVAL_CAUSAL_SECRETARY.tsv",
+    "CAUSAL_STATE.tsv", "KNOB_HONESTY.tsv", "TRUE_FAMILY_SWEEP.tsv",
+    "TRUE_FAMILY_VERDICTS.tsv", "PROPHET_DENOMINATOR_CORRECTION.tsv",
+    "DENOMINATOR_AUDIT_CAUSAL_BASELINE.tsv", "KNOB_INVARIANCE.tsv",
+}
+# Tables whose denominator is fixed BY CONSTRUCTION, verified in the code.
+DENOM_SAFE = {
+    "RESERVE_CEILINGS_N1_N2.tsv":
+        "reserve_ceilings.py:95-135 increments n_sess once per asset-session "
+        "while enumerating the era, independent of any policy",
+    "PRECISION_FRONTIER_DAYGATE.tsv":
+        "precision_frontier.py:520-531 already prints usd_per_session_all "
+        "(era denominator) BESIDE usd_per_session_traded — the only place in "
+        "the program that had this right before today",
+    "HORIZON_SHORT.tsv":
+        "n_sessions is the full era (393) and seats_per_session is 3.0 — a "
+        "non-abstaining arm, so the correction is identically zero",
+    "HORIZON_ALIGNMENT.tsv":
+        "n_sessions is held FIXED WITHIN each day_set across the horizons "
+        "being compared (393/393/393, 116/116/116, 34/34/34), so the "
+        "phase>next>session ordering the exit axis rests on is a clean "
+        "comparison; the LEVELS still carry the day-set denominator",
+    "ARRIVAL_ENGINES.tsv":
+        "reports tail dollars PER TRADE, not per session — no denominator",
+}
+PER_SESS_PAT = ("usd_per_session", "per_session", "usd_to_bar_per_session",
+                "armed_mean", "raw_mean", "abstain_usd", "no_veto_usd")
+COUNT_PAT = ("n_sessions", "n_firing_sessions", "n_era_sessions",
+             "n_eval_sessions", "n_sessions_qualified")
+
+
+def run_auditindex():
+    rows = []
+    for fn in sorted(os.listdir(N.PROV)):
+        if not fn.endswith(".tsv"):
+            continue
+        p = os.path.join(N.PROV, fn)
+        hdr = None
+        try:
+            with open(p, errors="replace") as fh:
+                for ln in fh:
+                    if ln.startswith("#"):
+                        continue
+                    hdr = ln.rstrip("\n").split("\t")
+                    break
+        except OSError:
+            continue
+        if not hdr:
+            continue
+        ps = [c for c in hdr if any(k in c for k in PER_SESS_PAT)]
+        cs = [c for c in hdr if any(k in c for k in COUNT_PAT)]
+        if not ps:
+            continue
+        if fn in FIXED_BY_ME:
+            cls, verdict = "FIXED", ("written by this audit with "
+                                     "all-session denominators")
+        elif fn in DENOM_SAFE:
+            cls, verdict = "SAFE", DENOM_SAFE[fn]
+        elif fn in ARRIVAL_LANE:
+            cls = "AFFECTED_LOAD_BEARING"
+            verdict = ("post-respecification and STILL LOAD-BEARING — "
+                       + ("correctable from the file (carries %s)" % cs[0]
+                          if cs else "NOT correctable from the file: no "
+                          "session count was ever printed; needs a replay"))
+        else:
+            cls = "AFFECTED_ALREADY_VOID"
+            verdict = ("PRE-RESPECIFICATION: already VOID_FOR_DEPLOYMENT "
+                       "because it seats the cell's EVENTUAL argmax.  The "
+                       "denominator is a SECOND independent void, not a "
+                       "repairable defect")
+        rows.append([fn, cls, len(ps), ";".join(ps[:3]),
+                     ";".join(cs[:2]) if cs else "", verdict])
+    N.write_tsv(
+        "DENOMINATOR_AUDIT_INDEX.tsv",
+        ["table", "class", "n_per_session_columns", "per_session_columns",
+         "session_count_columns", "verdict"], rows,
+        extra=[
+            "THE REPO-WIDE INDEX OF THE FIRING-SESSION DIVISOR.  "
+            "`newobj.replay_delayed` emits a row only for sessions that "
+            "traded and `read_rows` averages over exactly those, so every "
+            "$/session figure for an ABSTAINING arm is conditional on trading. "
+            " 74 of the 77 `read_rows` call sites in /workspace/engine feed it "
+            "an unpadded replay; the three that do not are this file's own.",
+            "THE ONE THING THAT MAKES THIS TRACTABLE: everything outside the "
+            "arrival lane is ALREADY void for deployment on the seating "
+            "defect, so its dollars were never claimable and the divisor is a "
+            "second independent void rather than a number to repair.  The "
+            "load-bearing set is small and is corrected in "
+            "PROPHET_DENOMINATOR_CORRECTION.tsv, "
+            "DENOMINATOR_AUDIT_CAUSAL_BASELINE.tsv and the TRUE_* tables.",
+            "THE WORST SINGLE SITE IS harvest.py:439 (`stage_abstain`), which "
+            "SWEEPS TAU TO MAXIMISE `read_rows(...)['usd_per_session']` on the "
+            "inner block — the selection objective IS the conditional mean, so "
+            "that search is biased toward whichever arm abstains most.",
+            "TWO CORRECTIONS TO WHAT THIS PROGRAM BELIEVED.  (a) "
+            "LEAK_SEATING.tsv's causal arms DO carry the divisor — "
+            "CAUSAL_TAU_ORACLE reads n_sessions 154/128/126 against a "
+            "DEPLOYED_CELL_ARGMAX at 390/385/387 in the same column.  Only its "
+            "`delta_vs_deployed` column is denominator-safe, via "
+            "`leak_seating.paired_delta`, which unions the session keys and "
+            "zero-fills.  (b) `newobj.paired_sessions` INTERSECTS the two "
+            "session sets, so any paired delta between an abstaining arm and a "
+            "full arm was computed only over sessions both of them traded.",
+            "THE BAR ITSELF IS SOUND, AND THAT IS NOW VERIFIED RATHER THAN "
+            "ASSERTED.  The causal oracle (E5 $2,021 / E6 $2,675 / E7 $3,360) "
+            "has NO WRITER ANYWHERE IN /workspace/engine — it exists only as "
+            "prose in LEAK_AUDIT.md and as a hardcoded dict in "
+            "`arrival.CAUSAL_ORACLE`, which is a provenance gap in the one "
+            "number every capture ratio divides by.  It is confirmed here "
+            "INDEPENDENTLY: the prophet TAU sweep on the honest all-session "
+            "denominator returns $2,005.87 / $2,656.24 / $3,363.45, matching "
+            "to 0.8% / 0.7% / 0.1%.  Two separately-computed quantities, one "
+            "of them denominator-verified, agreeing to within 1% is strong "
+            "evidence the audit's 'denominator held fixed' claim was true.  "
+            "The prophet TAU sweep is now the reproducible writer for it."])
+    hb("DENOMINATOR_AUDIT_INDEX.tsv: %d tables" % len(rows))
+    return rows
+
+
+def run_prophetfix():
+    """PROPHET_DENOMINATOR_CORRECTION.tsv, written FROM THE REPO.
+
+    This table was first produced from a scratchpad script, which means the
+    repo could not regenerate one of its own load-bearing artifacts — a
+    violation of the rule that the repo is the only project memory.  The
+    correction is exact arithmetic (`panel_score.cluster_mean` returns the
+    plain mean of the rows it is handed), so it needs no replay.
+    """
+    nall = {}
+    import champ_floor as CF
+    import newobj_arms as NA
+    D, _P = CF.boot()
+    for era in AR.ERAS:
+        _tr, _itr, _iva, ev = NA.fold(D, era)
+        nall[era] = int(np.unique(D["session"][ev]).size)
+    rows = []
+    with open(os.path.join(N.PROV, "ARRIVAL_PROPHET.tsv")) as fh:
+        for ln in fh:
+            if ln.startswith("#"):
+                continue
+            f = ln.rstrip("\n").split("\t")
+            if len(f) < 9 or f[0] == "era" or f[0] not in nall or not f[6]:
+                continue
+            try:
+                ns, usd = int(f[6]), float(f[7])
+            except ValueError:
+                continue
+            na = nall[f[0]]
+            allv = usd * ns / na
+            cl = AR.CAUSAL_ORACLE.get(f[0])
+            rows.append([f[0], "BINDING" if f[0] in BINDING else "context",
+                         f[3], f[4], ns, na, N._r(ns / na, 4), N._r(usd),
+                         N._r(allv), N._r(cl),
+                         N._r(allv / cl, 4) if cl else "",
+                         N._r(usd / cl, 4) if cl else ""])
+    rows.sort(key=lambda r: (r[0], -float(r[8])))
+    N.write_tsv(
+        "PROPHET_DENOMINATOR_CORRECTION.tsv",
+        ["era", "criterion", "policy", "knob", "n_firing_sessions",
+         "n_era_sessions", "firing_rate",
+         "usd_per_FIRING_session_AS_PUBLISHED",
+         "usd_per_session_ALL_CORRECTED", "causal_oracle",
+         "capture_CORRECTED", "capture_AS_PUBLISHED"], rows,
+        extra=[
+            "AN EXACT ARITHMETIC CORRECTION, NOT A RE-RUN.  "
+            "`panel_score.cluster_mean` returns the PLAIN mean of the rows it "
+            "is handed and `replay_delayed` hands it one row per session THAT "
+            "TRADED, so usd_per_session_ALL = usd_per_FIRING_session x "
+            "n_firing / n_era_sessions, exactly.",
+            "WHY THIS MATTERS MORE THAN A TIDY-UP.  ARRIVAL_PROPHET.tsv "
+            "appeared to BEAT the full-hindsight DP ceiling (E5 $3,264 vs "
+            "$2,583) and the journal recorded that as 'the structure gap is "
+            "negative'.  A causal bound cannot exceed a hindsight bound; the "
+            "impossibility was the defect announcing itself.  Corrected, the "
+            "prophet's best arm is TAU_0.7/0.8 at capture 0.9925 / 0.9930 / "
+            "1.0010 of the causal oracle — exactly what a prophet must do.",
+            "THE SUBSTANTIVE CONCLUSION SURVIVES AND IS CLEANER: the prophet "
+            "attains ~99-100% of the causal oracle, so deciding at the arrival "
+            "second costs essentially nothing against that denominator.  100% "
+            "of the deficit is PREDICTION and 0% is STRUCTURE.",
+            "THE DESIGN CONCLUSION IS REVERSED.  The old argmax was TAU_0.99, "
+            "an arm firing in 29 of 387 sessions, and the program read from it "
+            "that TIME-SELECTIVITY is the axis and ~1.0 seats/session is the "
+            "winning shape.  Corrected, the money is in TAU_0.7/0.8, which "
+            "fires in EVERY session at 2.8-2.9 seats.  The three 'independent' "
+            "measurements that agreed on selectivity were the same artifact "
+            "three times.",
+            "THIS TABLE ALSO SERVES AS THE MISSING WRITER FOR THE BAR: the "
+            "causal oracle has no computing code anywhere in /workspace/engine "
+            "and lives only as prose plus a hardcoded dict.  The TAU rows here "
+            "reproduce it to within 1% on a verified denominator."])
+    hb("PROPHET_DENOMINATOR_CORRECTION.tsv: %d rows" % len(rows))
+    return rows
+
+
+def run_leakfix():
+    """LEAK_SEATING.tsv corrected arithmetically — the leak audit's own table.
+
+    The audit that voided this program for a seating lookahead published its
+    causal arms on the firing-session divisor: CAUSAL_TAU_ORACLE reads
+    n_sessions 154/128/126 against a DEPLOYED_CELL_ARGMAX at 390/385/387 in
+    the SAME column.  Its `delta_vs_deployed` column is denominator-safe
+    (`leak_seating.paired_delta` unions the session keys and zero-fills), so
+    the audit's DELTAS were always honest and only its LEVELS were not — and
+    the two sat side by side in one table.
+    """
+    import champ_floor as CF
+    import newobj_arms as NA
+    D, _P = CF.boot()
+    nall = {}
+    for era in AR.ERAS:
+        _t, _i, _v, ev = NA.fold(D, era)
+        nall[era] = int(np.unique(D["session"][ev]).size)
+    rows = []
+    with open(os.path.join(N.PROV, "LEAK_SEATING.tsv")) as fh:
+        for ln in fh:
+            if ln.startswith("#"):
+                continue
+            f = ln.rstrip("\n").split("\t")
+            if len(f) < 11 or f[0] == "era" or f[0] not in nall:
+                continue
+            try:
+                ns, usd = int(f[4]), float(f[6])
+            except ValueError:
+                continue
+            na = nall[f[0]]
+            allv = usd * ns / na
+            rows.append([f[0], f[1], ns, na, N._r(ns / na, 4), N._r(usd),
+                         N._r(allv), N._r(allv - usd), f[9], f[10],
+                         "unchanged (fires every session)" if ns == na
+                         else "ABSTAINING — the published level is "
+                              "conditional on trading"])
+    N.write_tsv(
+        "DENOMINATOR_AUDIT_LEAK_SEATING.tsv",
+        ["era", "arm", "n_firing_sessions", "n_era_sessions", "firing_rate",
+         "usd_per_session_AS_PUBLISHED", "usd_per_session_ALL_CORRECTED",
+         "correction", "usd_per_trade_AS_PUBLISHED",
+         "delta_vs_deployed_ALREADY_SAFE", "status"], rows,
+        extra=[
+            "THE LEAK AUDIT'S OWN TABLE, CORRECTED.  Exact arithmetic; it "
+            "printed n_sessions, so no replay is needed.",
+            "WHAT THIS DOES NOT CHANGE: the audit's VERDICT.  "
+            "DEPLOYED_CELL_ARGMAX fires in every session, so its level is "
+            "uncorrected, and `delta_vs_deployed` was computed by "
+            "`paired_delta`, which unions the session keys and zero-fills — "
+            "the one denominator-safe construction that already existed in the "
+            "engine.  The seating lookahead is voided by the deltas, and the "
+            "deltas were always honest.",
+            "WHAT IT DOES CHANGE: the causal arms' LEVELS.  CAUSAL_TAU_ORACLE "
+            "was published as an UPPER BOUND on any threshold-shaped causal "
+            "rule; on the honest denominator that bound is far lower than "
+            "printed, because it was earned in 128-154 sessions of 385-390."])
+    hb("DENOMINATOR_AUDIT_LEAK_SEATING.tsv: %d rows" % len(rows))
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", action="store_true")
@@ -1876,6 +2148,9 @@ def main():
     ap.add_argument("--rawpass", action="store_true")
     ap.add_argument("--true", action="store_true", dest="truestate")
     ap.add_argument("--audit", action="store_true")
+    ap.add_argument("--auditindex", action="store_true")
+    ap.add_argument("--prophetfix", action="store_true")
+    ap.add_argument("--leakfix", action="store_true")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--eras", nargs="*", default=None)
     a = ap.parse_args()
@@ -1909,6 +2184,15 @@ def main():
         did = True
     if a.audit:
         run_audit(workers=a.workers)
+        did = True
+    if a.prophetfix:
+        run_prophetfix()
+        did = True
+    if a.leakfix:
+        run_leakfix()
+        did = True
+    if a.auditindex:
+        run_auditindex()
         did = True
     if a.truestate:
         run_true(workers=a.workers,

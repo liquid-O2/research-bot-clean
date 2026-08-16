@@ -1,0 +1,34 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE HONEST CAUSAL STATE OF THE ARRIVAL OBJECT.  Line 0 is what the program published overnight and it is VOID on three counts, each independently sufficient: the knob was chosen by argmax on the era being reported; the dollars were divided by the sessions that traded rather than the sessions that existed; and the SECRETARY observation window k = round(frac x m) reads m, the cell's EVENTUAL arrival count, which the arrival second cannot know.
+# Lines 1 and 2 strip those defects one at a time from the SAME cell, so the reader can see which one costs what.
+# Lines 3-5 are the selection question: 3 is the winner's curse kept as an upper bound, 4 and 5 are the two honest selectors.  Only 4 and 5 are deployable.
+# Lines 6-7 are the ceiling and the bar.  The prophet figure is the denominator-corrected one from PROPHET_DENOMINATOR_CORRECTION.tsv.
+era	line	cell	usd_per_session_ALL	sd_usd	n_trades_total	n_era_sessions	usd_per_trade	family_luck_bar	causal_oracle	capture_of_causal_oracle	aim_08causal	gap_to_aim	beats_search_adjusted_null	status
+E5	0_AS_PUBLISHED_VOID	A_PBAR|SECRETARY_0.7	185.63						2021.0	0.0919	1616.8	-1431.17		VOID x3: eval-argmax knob, firing-session divisor, non-causal observation window
+E5	1_SAME_CELL_HONEST_DENOMINATOR	A_PBAR|SECRETARY_0.7	0.19	0.65	0.4	387	185.63	36.27	2021.0	0.0001	1616.8	-1616.61	no	same cell, same leaky rule, dollars over EVERY session
+E5	2_SAME_CELL_CAUSAL_CLOCK	A_PBAR|SECTIME_0.7	0.0	0.0	0.0	387		36.27	2021.0	0.0	1616.8	-1616.8	no	leaky observation window replaced by the phase clock
+E5	3_BEST_EVAL_ARGMAX	A_PBAR|CAL|SECDECL_0.25_0.75	41.12	32.12	346.8	387	45.01	36.27	2021.0	0.0203	1616.8	-1575.68	YES	UPPER BOUND — argmax on the era being reported, NOT deployable
+E5	4_BEST_INNER_SELECTED	A_PBAR|RAW|TAU_0.95	-32.99	30.14	528.4	387	-24.16	36.27	2021.0	-0.0163	1616.8	-1649.79	no	DEPLOYABLE — cell chosen on the era's inner validation block, read blind on eval
+E5	5_BEST_PREV_ERA_SELECTED	A_PBAR|CAL|OCCUPANCY_2	-61.9	15.67	498.0	387	-48.21	36.27	2021.0	-0.0306	1616.8	-1678.7	no	DEPLOYABLE — cell chosen on E4, read blind on E5
+E5	6a_PROPHET_BEST_CAUSAL_SHAPE	TRUE_VALUE|SECTIME_0.1	1369.56	0.0	836.0	387	634.0	36.27	2021.0	0.6777	1616.8	-247.24	YES	HINDSIGHT — the best this rule SHAPE can do with a perfect score, on the honest denominator
+E5	6_PROPHET_CEILING_CORRECTED	TRUE_VALUE|TAU_0.7	2005.87						2021.0	0.9925	1616.8	389.07		HINDSIGHT ceiling of any arrival-time model, on the corrected denominator
+E5	7_CAUSAL_ORACLE_BAR		2021.0						2021.0	1.0	1616.8	404.2		the denominator every capture in this table uses
+E6	0_AS_PUBLISHED_VOID	A_PBAR|SECRETARY_0.6	1261.25						2675.0	0.4715	2140.0	-878.75		VOID x3: eval-argmax knob, firing-session divisor, non-causal observation window
+E6	1_SAME_CELL_HONEST_DENOMINATOR	A_PBAR|SECRETARY_0.6	4.78	1.44	1.8	384	1261.25	0.87	2675.0	0.0018	2140.0	-2135.22	YES	same cell, same leaky rule, dollars over EVERY session
+E6	2_SAME_CELL_CAUSAL_CLOCK	A_PBAR|SECTIME_0.6	0.74	0.97	1.2	384	330.0	0.87	2675.0	0.0003	2140.0	-2139.26	no	leaky observation window replaced by the phase clock
+E6	3_BEST_EVAL_ARGMAX	A_PBAR|RAW|SECRETARY_0.1	61.84	17.7	325.4	384	73.5	0.87	2675.0	0.0231	2140.0	-2078.16	YES	UPPER BOUND — argmax on the era being reported, NOT deployable
+E6	4_BEST_INNER_SELECTED	A_EV|CAL|DAYSOFAR_0.5	-26.37	17.01	709.2	384	-14.3	0.87	2675.0	-0.0099	2140.0	-2166.37	no	DEPLOYABLE — cell chosen on the era's inner validation block, read blind on eval
+E6	5_BEST_PREV_ERA_SELECTED	A_PBAR|CAL|SECDECL_0.25_0.75	11.68	17.03	451.6	384	9.83	0.87	2675.0	0.0044	2140.0	-2128.32	YES	DEPLOYABLE — cell chosen on E5, read blind on E6
+E6	6a_PROPHET_BEST_CAUSAL_SHAPE	TRUE_VALUE|SECTIME_0.1	1738.76	0.0	801.0	384	833.56	0.87	2675.0	0.65	2140.0	-401.24	YES	HINDSIGHT — the best this rule SHAPE can do with a perfect score, on the honest denominator
+E6	6_PROPHET_CEILING_CORRECTED	TRUE_VALUE|TAU_0.7	2656.24						2675.0	0.993	2140.0	516.24		HINDSIGHT ceiling of any arrival-time model, on the corrected denominator
+E6	7_CAUSAL_ORACLE_BAR		2675.0						2675.0	1.0	2140.0	535.0		the denominator every capture in this table uses
+E7	0_AS_PUBLISHED_VOID	A_PBAR|SECRETARY_0.7	345.25						3360.0	0.1028	2688.0	-2342.75		VOID x3: eval-argmax knob, firing-session divisor, non-causal observation window
+E7	1_SAME_CELL_HONEST_DENOMINATOR	A_PBAR|SECRETARY_0.7	1.6	1.32	3.4	393	345.25	31.12	3360.0	0.0005	2688.0	-2686.4	no	same cell, same leaky rule, dollars over EVERY session
+E7	2_SAME_CELL_CAUSAL_CLOCK	A_PBAR|SECTIME_0.7	0.28	3.45	3.6	393	-181.75	31.12	3360.0	0.0001	2688.0	-2687.72	no	leaky observation window replaced by the phase clock
+E7	3_BEST_EVAL_ARGMAX	A_PWIN|CAL|CELLSOFAR_0.8	32.61	39.71	682.6	393	18.76	31.12	3360.0	0.0097	2688.0	-2655.39	YES	UPPER BOUND — argmax on the era being reported, NOT deployable
+E7	4_BEST_INNER_SELECTED	A_PBAR|RAW|SECRETARY_0.1	-90.9	18.38	408.8	393	-87.78	31.12	3360.0	-0.0271	2688.0	-2778.9	no	DEPLOYABLE — cell chosen on the era's inner validation block, read blind on eval
+E7	5_BEST_PREV_ERA_SELECTED	A_PBAR|RAW|SECRETARY_0.1	-90.9	18.38	408.8	393	-87.78	31.12	3360.0	-0.0271	2688.0	-2778.9	no	DEPLOYABLE — cell chosen on E6, read blind on E7
+E7	6a_PROPHET_BEST_CAUSAL_SHAPE	TRUE_VALUE|SECTIME_0.1	2117.4	0.0	804.0	393	1035.0	31.12	3360.0	0.6302	2688.0	-570.6	YES	HINDSIGHT — the best this rule SHAPE can do with a perfect score, on the honest denominator
+E7	6_PROPHET_CEILING_CORRECTED	TRUE_VALUE|TAU_0.8	3363.45						3360.0	1.001	2688.0	675.45		HINDSIGHT ceiling of any arrival-time model, on the corrected denominator
+E7	7_CAUSAL_ORACLE_BAR		3360.0						3360.0	1.0	2688.0	672.0		the denominator every capture in this table uses

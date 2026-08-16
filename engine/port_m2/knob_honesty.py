@@ -455,6 +455,8 @@ def _policy_job(job):
         tr, itr, iva, ev = NA.fold(D, era)
         if mode == "inner":
             rows_ev, train_rows, which = N.deployable(D, iva), itr, "CALIN"
+        elif mode == "innerraw":
+            rows_ev, train_rows, which = N.deployable(D, iva), itr, "RAW"
         elif mode == "evalraw":
             # THE PROGRAM'S OWN LAW, APPLIED TO THE COLUMN INSTEAD OF THE
             # DIAGNOSTIC: pair score type with rule type.  Isotonic ties are
@@ -530,7 +532,8 @@ def _policy_job(job):
 def run_rawpass(workers=9, eras=BINDING):
     import json
     import multiprocessing as mp
-    jobs = [("evalraw", e, t) for e in eras for t in TARGETS]
+    jobs = [(m, e, t) for m in ("evalraw", "innerraw")
+            for e in eras for t in TARGETS]
     os.makedirs(CACHE, exist_ok=True)
     todo = [j for j in jobs
             if not os.path.exists(os.path.join(CACHE, "%s_%s_%s.json" % j))]
@@ -593,7 +596,7 @@ def read_cache():
     import json
     recs = []
     for fn in sorted(os.listdir(CACHE)) if os.path.isdir(CACHE) else []:
-        if fn.endswith(".json"):
+        if fn.endswith(".json") and not fn.startswith("EXT_"):
             with open(os.path.join(CACHE, fn)) as fh:
                 recs.extend(json.load(fh))
     return recs
@@ -602,6 +605,7 @@ def read_cache():
 def _write_family_tables(recs):
     for mode, name in (("eval", "ARRIVAL_FITTED2.tsv"),
                        ("evalraw", "ARRIVAL_FITTED2_RAWCOL.tsv"),
+                       ("innerraw", "ARRIVAL_INNER_RAWCOL.tsv"),
                        ("inner", "ARRIVAL_INNER.tsv")):
         rows = []
         for r in sorted([x for x in recs if x["mode"] == mode],
@@ -676,10 +680,17 @@ def run_verdict():
     if not recs:
         raise KnobRefusal("no cached policy jobs — run --tables first")
     _write_family_tables(recs)
-    ev = {(r["era"], r["target"], r["policy"]): r
-          for r in recs if r["mode"] == "eval"}
-    inn = {(r["era"], r["target"], r["policy"]): r
-           for r in recs if r["mode"] == "inner"}
+    # THE SELECTION SET IS THE UNION OF BOTH SCORE COLUMNS.  The calibrated
+    # column is the incumbent's; the RAW column is the same model without the
+    # isotonic tie structure.  Which column a rule should eat is itself a
+    # choice a selector must make, so it is inside the search — and inside the
+    # search-adjusted null with it.
+    ev = {(r["era"], r["target"] + ("|RAW" if r["mode"] == "evalraw" else
+                                    "|CAL"), r["policy"]): r
+          for r in recs if r["mode"] in ("eval", "evalraw")}
+    inn = {(r["era"], r["target"] + ("|RAW" if r["mode"] == "innerraw" else
+                                     "|CAL"), r["policy"]): r
+           for r in recs if r["mode"] in ("inner", "innerraw")}
     eras = sorted({k[0] for k in ev})
 
     def argmax(d, era):
@@ -695,7 +706,8 @@ def run_verdict():
         cl = AR.CAUSAL_ORACLE.get(era)
         aim = 0.8 * cl if cl else None
         luck = max((r["null"] for r in recs
-                    if r["mode"] == "eval" and r["era"] == era), default=None)
+                    if r["mode"] in ("eval", "evalraw") and r["era"] == era),
+                   default=None)
         picks = []
         ka = argmax(ev, era)
         if ka:
@@ -1281,32 +1293,35 @@ def run_state():
     ceiling and the bar it all sits under."""
     recs = read_cache()
     ext = read_ext()
-    ev = {(r["era"], r["target"], r["policy"]): r
-          for r in recs if r["mode"] == "eval"}
-    inn = {(r["era"], r["target"], r["policy"]): r
-           for r in recs if r["mode"] == "inner"}
-    xev = {(r["era"], r["target"], r["policy"]): r
+    ev = {(r["era"], r["target"] + ("|RAW" if r["mode"] == "evalraw" else
+                                    "|CAL"), r["policy"]): r
+          for r in recs if r["mode"] in ("eval", "evalraw")}
+    inn = {(r["era"], r["target"] + ("|RAW" if r["mode"] == "innerraw" else
+                                     "|CAL"), r["policy"]): r
+           for r in recs if r["mode"] in ("inner", "innerraw")}
+    xev = {(r["era"], r["target"] + "|CAL", r["policy"]): r
            for r in ext if r["mode"] == "eval"}
-    xinn = {(r["era"], r["target"], r["policy"]): r
+    xinn = {(r["era"], r["target"] + "|CAL", r["policy"]): r
             for r in ext if r["mode"] == "inner"}
     rows = []
     for era in BINDING:
         cl = AR.CAUSAL_ORACLE[era]
         aim = 0.8 * cl
         luck = max([r["null"] for r in recs
-                    if r["mode"] == "eval" and r["era"] == era]
+                    if r["mode"] in ("eval", "evalraw") and r["era"] == era]
                    + [r["null"] for r in ext if r["mode"] == "eval"
                       and r["era"] == era and np.isfinite(r["null"])],
                    default=None)
         tgt, pol, pub = PUBLISHED[era]
+        tgtc = tgt + "|CAL"
 
-        def add(label, r, status, override=None):
+        def add(label, r, status, override=None, cell=None):
             if r is None and override is None:
                 return
             u = override if override is not None else r["usd"]
             rows.append([
                 era, label,
-                "%s|%s" % (r["target"], r["policy"]) if r else "",
+                cell or ("%s|%s" % (r["target"], r["policy"]) if r else ""),
                 N._r(u), N._r(r["sd"]) if r else "",
                 N._r(r["n_seated"], 1) if r else "",
                 r["n_sessions"] if r else "",
@@ -1321,34 +1336,43 @@ def run_state():
                      N._r(pub / cl, 4), N._r(aim), N._r(pub - aim), "",
                      "VOID x3: eval-argmax knob, firing-session divisor, "
                      "non-causal observation window"])
-        add("1_SAME_CELL_HONEST_DENOMINATOR", ev.get((era, tgt, pol)),
+        add("1_SAME_CELL_HONEST_DENOMINATOR", ev.get((era, tgtc, pol)),
             "same cell, same leaky rule, dollars over EVERY session")
         add("2_SAME_CELL_CAUSAL_CLOCK",
-            xev.get((era, tgt, pol.replace("SECRETARY_", "SECTIME_"))),
+            xev.get((era, tgtc, pol.replace("SECRETARY_", "SECTIME_"))),
             "leaky observation window replaced by the phase clock")
         ce = {k: v for k, v in list(ev.items()) + list(xev.items())
-              if k[0] == era}
+              if k[0] == era and not k[1].startswith("PROPHET")}
         if ce:
             k = max(ce, key=lambda z: ce[z]["usd"])
             add("3_BEST_EVAL_ARGMAX", ce[k],
                 "UPPER BOUND — argmax on the era being reported, NOT "
-                "deployable")
+                "deployable", cell="%s|%s" % (k[1], k[2]))
         ci = {k: v for k, v in list(inn.items()) + list(xinn.items())
-              if k[0] == era}
+              if k[0] == era and not k[1].startswith("PROPHET")}
         if ci:
             k = max(ci, key=lambda z: ci[z]["usd"])
             r = ev.get((era, k[1], k[2])) or xev.get((era, k[1], k[2]))
             add("4_BEST_INNER_SELECTED", r,
                 "DEPLOYABLE — cell chosen on the era's inner validation "
-                "block, read blind on eval")
+                "block, read blind on eval", cell="%s|%s" % (k[1], k[2]))
         pe = PREV.get(era)
         cp = {k: v for k, v in list(ev.items()) + list(xev.items())
-              if k[0] == pe} if pe else {}
+              if k[0] == pe and not k[1].startswith("PROPHET")} if pe else {}
         if cp:
             k = max(cp, key=lambda z: cp[z]["usd"])
             r = ev.get((era, k[1], k[2])) or xev.get((era, k[1], k[2]))
             add("5_BEST_PREV_ERA_SELECTED", r,
-                "DEPLOYABLE — cell chosen on %s, read blind on %s" % (pe, era))
+                "DEPLOYABLE — cell chosen on %s, read blind on %s" % (pe, era),
+                cell="%s|%s" % (k[1], k[2]))
+        cx = {k: v for k, v in xev.items()
+              if k[0] == era and k[1].startswith("PROPHET")}
+        if cx:
+            k = max(cx, key=lambda z: cx[z]["usd"])
+            add("6a_PROPHET_BEST_CAUSAL_SHAPE", cx[k],
+                "HINDSIGHT — the best this rule SHAPE can do with a perfect "
+                "score, on the honest denominator",
+                cell="TRUE_VALUE|%s" % k[2])
         pp, pv = PROPHET_CORRECTED[era]
         rows.append([era, "6_PROPHET_CEILING_CORRECTED", "TRUE_VALUE|%s" % pp,
                      N._r(pv), "", "", "", "", "", N._r(cl),

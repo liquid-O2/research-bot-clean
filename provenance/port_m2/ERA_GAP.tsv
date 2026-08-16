@@ -1,0 +1,45 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# WHY ONE SCORE FAMILY CAPTURES 0.47 OF THE CAUSAL ORACLE ON E6 AND 0.09-0.10 ON E5/E7 — the arrival process and the score, measured separately, per era.
+# SCORE side: within-cell spearman against the realised certificate and the cell-argmax hit rate are the diagnostics a RANK-consuming rule actually eats (the night's own law: the diagnostic must match the rule).
+# PROCESS side: cell size and its dispersion, where the cell's best lands on the phase clock, and whether value drifts through the phase.  P_best_after_f is the reachability of the prize for an observe-fraction f: a secretary that observes f can only ever seat the cell's best when the best arrives after f.
+# Computed on the eval rows of each era, with the same deployable filter the policies use.  Descriptive only — nothing here is selected on.
+metric	E5	E6	E7	what_it_measures
+n_cells	1161.0	1152.0	1179.0	
+n_rows	152947.0	163062.0	158276.0	
+n_sessions	387.0	384.0	393.0	
+cell_size_mean	131.7373	141.5469	134.246	
+cell_size_median	105.0	110.0	106.0	
+cell_size_p10	41.0	35.0	42.0	
+cell_size_p90	257.0	281.0	263.0	
+cell_size_cv	0.7104	0.7888	0.7616	dispersion of the eventual arrival count — this is exactly what the leaky secretary window reads
+phase_span_h_mean	7.4062	7.4581	7.4749	
+best_arrival_pos_count_mean	0.2955	0.2789	0.2812	
+best_arrival_pos_clock_mean	0.2652	0.2576	0.2571	where in the phase CLOCK the cell's best candidate lands (0=open, 1=close)
+spearman_arrival_order_vs_cert	0.0362	0.0642	0.0905	does value drift up or down through the phase
+cell_best_cert_mean	860.8699	1122.3112	1361.7515	
+cell_mean_cert_mean	-28.1096	-32.8495	-36.0201	
+cell_top3_cert_mean	829.7958	1084.3717	1313.7306	
+cell_best_minus_mean	888.9795	1155.1607	1397.7715	the prize on the table inside one cell
+frac_cells_best_positive	1.0	1.0	1.0	
+P_best_after_0.1_of_clock	0.7261	0.7049	0.6955	
+P_best_after_0.1_of_count	0.6701	0.6632	0.6412	
+P_best_after_0.25_of_clock	0.4729	0.4792	0.4555	
+P_best_after_0.25_of_count	0.4574	0.4418	0.4309	
+P_best_after_0.5_of_clock	0.1499	0.1267	0.1349	
+P_best_after_0.5_of_count	0.2472	0.217	0.2231	
+P_best_after_0.6_of_clock	0.0939	0.0747	0.0916	
+P_best_after_0.6_of_count	0.174	0.1432	0.1628	
+P_best_after_0.7_of_clock	0.0534	0.0477	0.0636	
+P_best_after_0.7_of_count	0.0999	0.0781	0.1018	
+P_best_after_0.8_of_clock	0.0233	0.026	0.0297	
+P_best_after_0.8_of_count	0.0508	0.0417	0.0475	
+A_PWIN_within_cell_spearman	-0.0221	-0.0405	-0.06	
+A_PWIN_top1_hit_rate	0.0394	0.0476	0.0453	
+A_PWIN_rank1_cert_mean	-5.955	-24.8394	12.782	
+A_PBAR_within_cell_spearman	0.0958	0.0696	0.0776	SCORE QUALITY at the grain a rank rule consumes: score vs realised cert inside the cell
+A_PBAR_top1_hit_rate	0.0889	0.0991	0.1109	how often the score's cell-argmax IS the cell's true best
+A_PBAR_rank1_cert_mean	-12.669	15.6543	-0.7167	
+A_EV_within_cell_spearman	0.0605	0.1171	0.1198	
+A_EV_top1_hit_rate	0.0338	0.0762	0.0592	
+A_EV_rank1_cert_mean	63.0803	155.9082	150.7103	

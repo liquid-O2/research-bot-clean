@@ -161,3 +161,53 @@ and what little survived. Receipts for every line live in `provenance/sessions/J
 
 *This document is the program's honest mirror. Anything claimed anywhere else that conflicts
 with a receipt named here is wrong.*
+
+---
+
+## 7. The continuity system — how context survives compaction and session death
+
+The repo is the only memory; the conversation is disposable. Four user-level hooks
+(`/home/claude/.claude/settings.json` → `/home/claude/.claude/hooks/*.py`, all output-only,
+never blocking) plus three load-bearing files make every context loss recoverable:
+
+**The three files (the core the user remembers):**
+1. **`STATE.md`** — the fast cursor: stage, binding refs, key facts, NEXT_ACTION, and a
+   resume recipe. Rewritten at every boundary (D-012); read first on every resume.
+2. **`DIRECTIVES.md`** — the user's binding law corpus (D-001…), append-only, carried
+   verbatim across every compaction so no ruling is ever re-litigated from memory.
+3. **`provenance/sessions/JOURNAL.md`** — the append-only true cursor: every adjudication,
+   retraction, and ruling with timestamps. When STATE is stale, the journal wins.
+   (`PROGRESS.md` and `DIRECTIVES_INBOX.md` are the supporting cast: per-item status, and a
+   capture buffer that nothing user-said can fall out of.)
+
+**The four hooks:**
+- **`SessionStart`** (`session_start_context.py`): on every new/compacted session, prints
+  STATE.md + a PROGRESS status summary into context — the session opens already knowing
+  where it stands, before any tool call.
+- **`PreCompact`** (`precompact_context.py`): fires before compaction and prints STATE.md +
+  DIRECTIVES.md **verbatim** + the journal's last 30 lines + in-flight PROGRESS rows, with
+  the instruction that the summary preserve them verbatim — so the compacted summary carries
+  the exact law text and cursor, not a paraphrase. Includes a staleness alarm (STATE older
+  than run activity by >30min ⇒ flagged, with a bounded artifact scan so the hook itself
+  can't hang).
+- **`UserPromptSubmit`** (`userprompt_capture.py`): mirrors every real user prompt verbatim
+  to `artifacts/session_transcripts/live/<sid>.user.log`, and pattern-flags directive-like
+  language ("never/always/make sure/from now on/we need to…") into `DIRECTIVES_INBOX.md` —
+  so user rulings survive even if the turn that received them is later compacted away.
+  System notifications and task-notifications are filtered out.
+- **`SessionEnd`** (`sessionend_capture.py`): final capture at session death.
+
+**The processes beyond hooks:**
+- **The D-074 heartbeat cron** re-invokes the orchestrator ~every 40 min with a fixed
+  protocol (read STATE/journal/runs → adjudicate → relaunch → or end silently), so autonomy
+  survives even a fully idle conversation.
+- **`lab/run.sh`** gives every background job a pid/hb/rc contract; `lab/alive.sh` reduces
+  liveness to one line; `liveness_watch.sh` + the persistent dead-air re-alert monitor wake
+  the orchestrator on stalls (with the law: heartbeat period < the staleness threshold that
+  judges it).
+- **Commit+push at every boundary** (explicit pathspecs) — the remote repo is the disaster
+  recovery of last resort; sub-agent lanes write their own tables/receipts to disk so their
+  context loss costs nothing.
+- **Resume recipe** (in STATE.md): `cat STATE.md` → `tail JOURNAL.md` → the named receipt
+  files → `lab/run.sh --list`. Any fresh session — or a fresh model — can reconstruct the
+  program from the repo alone, which is the design's entire point.

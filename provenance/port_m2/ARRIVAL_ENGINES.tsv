@@ -1,0 +1,22 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE FAIR-ENGINE ROUND, FOLDED ONTO THE ARRIVAL EXPECTANCY.  Every previous engine comparison in this program ran against the WITHIN-CELL RANKING objective the leak audit voided — a pairwise ranker is invariant to monotone transforms inside a group, so engines were being compared on a quantity the deployment cannot use.  An absolute regression onto dollars is a question engines genuinely differ at.
+# THE DIAGNOSTIC IS TAIL DOLLARS AT THE OPERATING POINT (top 0.5%), NOT AUC.  Tonight measured A_EV at coin-flip sign-AUC (0.478-0.507) with a +$766/trade tail and A_PBAR at AUC 0.887-0.904 with a -$115 tail, on the same data — AUC does not predict the thing the seat banks.
+# sd_over_mean is reported because A_EV's measured weakness IS its seed variance (0.35-2.7x its own mean): a more stable fit at the same tail dollars is a real improvement and a less stable one at higher dollars is not.
+# NO ADAPTIVE HP OPTIMISER — one small pre-registered grid per engine, declared in the module and never extended by a run.  This table PROMOTES NOTHING on its own: a winner must clear the search-adjusted null of the causal POLICY family downstream.
+era	criterion	engine	config	n_seeds	tail_usd_mean	tail_usd_sd	population_usd	tail_minus_population	sd_over_mean
+E5	BINDING	CATB	{'depth': 6, 'learning_rate': 0.05}	5	-363.76	70.43	-26.66	-337.1	0.194
+E6	BINDING	CATB	{'depth': 6, 'learning_rate': 0.05}	5	343.65	333.35	-29.58	373.23	0.97
+E7	BINDING	CATB	{'depth': 6, 'learning_rate': 0.05}	5	988.14	187.1	-21.97	1010.11	0.189
+E5	BINDING	LGBM	{'max_depth': 6, 'learning_rate': 0.05}	5	-32.6	364.77	-26.66	-5.94	11.189
+E6	BINDING	LGBM	{'max_depth': 6, 'learning_rate': 0.05}	5	94.49	215.77	-29.58	124.07	2.283
+E7	BINDING	LGBM	{'max_depth': 6, 'learning_rate': 0.05}	5	1349.44	63.79	-21.97	1371.4	0.047
+E5	BINDING	LGBM	{'max_depth': 8, 'learning_rate': 0.03}	5	10.1	215.57	-26.66	36.76	21.35
+E6	BINDING	LGBM	{'max_depth': 8, 'learning_rate': 0.03}	5	127.57	156.7	-29.58	157.15	1.228
+E7	BINDING	LGBM	{'max_depth': 8, 'learning_rate': 0.03}	5	1413.66	32.01	-21.97	1435.63	0.023
+E5	BINDING	LGBM_DART	{'max_depth': 6, 'learning_rate': 0.05}	5	-241.81	373.69	-26.66	-215.15	1.545
+E6	BINDING	LGBM_DART	{'max_depth': 6, 'learning_rate': 0.05}	5	241.15	90.95	-29.58	270.73	0.377
+E7	BINDING	LGBM_DART	{'max_depth': 6, 'learning_rate': 0.05}	5	1415.21	65.45	-21.97	1437.18	0.046
+E5	BINDING	XGB_INCUMBENT	champ	5	117.6	317.04	-26.66	144.27	2.696
+E6	BINDING	XGB_INCUMBENT	champ	5	401.4	140.87	-29.58	430.98	0.351
+E7	BINDING	XGB_INCUMBENT	champ	5	765.6	487.3	-21.97	787.57	0.636

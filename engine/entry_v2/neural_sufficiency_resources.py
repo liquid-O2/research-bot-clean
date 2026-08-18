@@ -7877,10 +7877,22 @@ class ProductionExactDiagnosticResources:
         balanced_selected = np.zeros(len(probability), bool)
         balanced_selected[balanced_index] = True
         metrics = self._balanced_clone_overfit(model, arm, balanced_index, rows, memories)
-        if metrics[0] < .995 or metrics[1] < .995 or metrics[2] > .02:
-            raise RealDiagnosticExecutorRefusal(
-                "joint encoder/head competence threshold failed: "
-                f"auroc={metrics[0]:.4f} ap={metrics[1]:.4f} ll={metrics[2]:.4f}")
+        # Ruling 16 (2026-08-19, measured): C0's memorization ceiling is 0.752
+        # flat over 400 steps — an INPUT-SEPARABILITY fact about the legacy
+        # broadcast memory, exactly what the C1-C0 attribution exists to
+        # measure. Gate-5 outcomes are therefore TYPED PER-ARM VERDICTS: a
+        # failed arm continues through the matrix as ledger evidence and is
+        # NEVER selectable (eligibility excludes it); all-arms-failed flows
+        # into the typed NO_FIT_ONLY_DEPLOYABLE_DEPTH result. A-020's launch
+        # law is untouched: held data still requires a real PASSING path.
+        if getattr(self, "_gate5_verdicts", None) is None:
+            self._gate5_verdicts = {}
+        gate5_pass = bool(metrics[0] >= .995 and metrics[1] >= .995
+                          and metrics[2] <= .02)
+        self._gate5_verdicts[arm] = {
+            "joint": {"auroc": float(metrics[0]), "ap": float(metrics[1]),
+                      "logloss": float(metrics[2]), "pass": gate5_pass},
+        }
         # B-07: the balanced-overfit law was satisfiable with the raw event
         # memory zeroed as long as the 1865-wide static bypass was on (measured
         # AUROC 1.0000).  Prove the .995/.995/.02 law on the RAW route with the
@@ -7888,19 +7900,27 @@ class ProductionExactDiagnosticResources:
         # lose at least a declared AUROC margin.
         raw_metrics = self._balanced_clone_overfit(
             model, arm, balanced_index, rows, memories, bypass_static=True)
-        if (raw_metrics[0] < .995 or raw_metrics[1] < .995
-                or raw_metrics[2] > .02):
-            raise RealDiagnosticExecutorRefusal(
-                "balanced oracle overfit is not attained by the raw route with "
-                "the static bypass off")
+        raw_route_pass = bool(raw_metrics[0] >= .995 and raw_metrics[1] >= .995
+                              and raw_metrics[2] <= .02)
+        self._gate5_verdicts[arm]["bypass_off"] = {
+            "auroc": float(raw_metrics[0]), "ap": float(raw_metrics[1]),
+            "logloss": float(raw_metrics[2]), "pass": raw_route_pass}
         occluded_metrics = self._balanced_clone_overfit(
             model, arm, balanced_index, rows, memories, occlude_memory=True)
         raw_occlusion_auroc_drop = float(metrics[0] - occluded_metrics[0])
-        if raw_occlusion_auroc_drop < RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP:
-            raise RealDiagnosticExecutorRefusal(
-                "occluding raw event memory does not cost the declared AUROC "
-                f"margin: drop={raw_occlusion_auroc_drop:.6f} < "
-                f"{RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP}")
+        self._gate5_verdicts[arm]["occlusion"] = {
+            "auroc_drop": raw_occlusion_auroc_drop,
+            "minimum": float(RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP),
+            "pass": bool(raw_occlusion_auroc_drop
+                         >= RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP)}
+        self._gate5_verdicts[arm]["competent"] = bool(
+            gate5_pass and raw_route_pass
+            and self._gate5_verdicts[arm]["occlusion"]["pass"])
+        print(f"GATE5-VERDICT {arm} competent="
+              f"{self._gate5_verdicts[arm]['competent']} "
+              f"joint={metrics[0]:.4f} bypass={raw_metrics[0]:.4f} "
+              f"occl_drop={raw_occlusion_auroc_drop:.4f}",
+              file=sys.stderr, flush=True)
         stage_wall["gates_s"] = time.monotonic() - _gates_start
         # D-098 timing is NONSEMANTIC (A-014/A-017): it must never enter any
         # hashed receipt (this mapping is embedded in arm_evidence and hashed).
@@ -12086,9 +12106,18 @@ class ProductionExactDiagnosticResources:
         self._raw_summary_funnel_diagnostic = getattr(
             self, "_raw_summary_funnel_diagnostic", {})
         self._raw_summary_funnel_diagnostic[chronology] = raw_summary_diagnostic
+        # Ruling 16: an arm whose gate-5 verdict is not competent (measured
+        # input-degeneracy, e.g. C0's 0.752 memorization ceiling) stays in the
+        # matrix as ledger evidence but can NEVER become the selectable or
+        # deployable path.
+        gate5 = getattr(self, "_gate5_verdicts", {})
+        def _arm_competent(path_key: str) -> bool:
+            verdict = gate5.get(str(path_key).split(":", 1)[0])
+            return bool(verdict is None or verdict.get("competent", False))
         eligible = [(min(row["economics"][asset]["usd_per_asset_day"]
                          for asset in C.ASSETS), -row["parameter_count"], key)
-                    for key, row in matrix.items() if row["status"] == "ELIGIBLE"]
+                    for key, row in matrix.items()
+                    if row["status"] == "ELIGIBLE" and _arm_competent(key)]
         diagnostic = [(min(row["economics"][asset]["usd_per_asset_day"]
                            for asset in C.ASSETS), -row["parameter_count"], key)
                       for key, row in matrix.items()]
@@ -12116,6 +12145,8 @@ class ProductionExactDiagnosticResources:
         result = {"schema": "entry-v2-fit-only-e2r-measured-v1",
             "status": ("ELIGIBLE" if deployable
                        else "NO_FIT_ONLY_DEPLOYABLE_DEPTH"),
+            "gate5_verdicts": {arm: dict(v) for arm, v in sorted(
+                getattr(self, "_gate5_verdicts", {}).items())},
             "objective_status": objective_status,
             "selected_objective": selected_probe,
             "selected_learner_objective": selected_learner_objective,

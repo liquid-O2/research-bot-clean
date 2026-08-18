@@ -8145,7 +8145,11 @@ class ProductionExactDiagnosticResources:
             # alter both raw memory and the deployed action path independently.
             row = min(cutoff - 1, 3)
             for field, name in enumerate(self.schema.continuous_fields):
-                mutant = x.detach().clone(); mutant[row, field] += 1.25
+                mutant = x.detach().clone()
+                # Scale-proof mutation (the A1/canary float32 law): an
+                # additive 1.25 vanishes at clock magnitudes (eps ~128 at
+                # 1.6e9); relative+absolute survives any float32 magnitude.
+                mutant[row, field] = mutant[row, field] * 1.5 + 1.0e6
                 changed_memory = encoder(
                     mutant, k, cut, receive_clock_ns=clock,
                     candidate_decision_ts_ns=decision, asset_idx=0)

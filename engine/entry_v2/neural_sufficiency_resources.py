@@ -870,14 +870,18 @@ def _actual_multitask_loss(output: Any, batch: "_CandidateBatch",
     phase_rows = torch.nn.functional.cross_entropy(
         output.phase_logits.float(), phase_target, reduction="none")
     components["phase"] = reduce_rows("phase", phase_rows, phase_mask)
-    weights = {"action": 1.0, "ordinal": 1.0, "value_distribution": 1.0,
-               "value_quantiles": .5, "expected_value": 1.0, "top3": .5,
-               "rank": .35, "mfe_quantiles": .5, "mae_quantiles": .5,
-               "wall": .5, "time_to_peak": .25,
-               # Ruling 9: the six-horizon dense economic path is a PRIMARY
-               # representation signal (the whole point of A-015 after the
-               # §8.4 horizon-starvation diagnosis), not a .25 auxiliary.
-               "horizons": 1.0, "phase": .25}
+    # Ruling 13 (2026-08-19, MEASURED): unweighted encoder gradient norms
+    # differ ~7x across components (real-batch measurement: time_to_peak
+    # 15.7%, phase 13.5%, rank 13.3% ... horizons 3.3%, ordinal 2.6%,
+    # value_quantiles 2.2%), so equal weights do NOT equalize influence.
+    # Gradient-normalized toward intended shares: economic value block ~50%
+    # (horizons/ordinal/value_dist/expected/quantiles), action ~14%,
+    # structural aux ~24%, self-supervised ~12%. Supersedes ruling 9's parity.
+    weights = {"action": 2.5, "ordinal": 4.0, "value_distribution": 1.0,
+               "value_quantiles": 2.0, "expected_value": 1.0, "top3": .75,
+               "rank": .4, "mfe_quantiles": .9, "mae_quantiles": .9,
+               "wall": .7, "time_to_peak": .25,
+               "horizons": 4.5, "phase": .6}
     return sum(weights[name] * value for name, value in components.items()), \
         MappingProxyType(components)
 

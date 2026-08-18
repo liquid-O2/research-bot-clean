@@ -7187,7 +7187,11 @@ class ProductionExactDiagnosticResources:
         before = _component_fit_projection(roster, manifest, self.batches,
                                            include_action=False)
         canary_batches = list(self.batches)
-        changed = canary_batches[0].continuous.clone(); changed[0, 0] += 1.0
+        changed = canary_batches[0].continuous.clone()
+        # A +1.0 nudge is absorbed by float32 at raw-clock magnitudes (eps ~128
+        # at 1.6e9); perturb relatively AND absolutely so the mutation survives
+        # any magnitude (2026-08-18 canary-hardening batch).
+        changed[0, 0] = changed[0, 0] * 1.5 + 1.0e6
         canary_batches[0] = replace(canary_batches[0], continuous=changed)
         canary_hash = _component_fit_projection(roster, manifest, canary_batches,
                                                 include_action=False)
@@ -7197,13 +7201,19 @@ class ProductionExactDiagnosticResources:
             allowed = np.asarray([index[str(cid)].action_loss_mask for cid in ids], bool)
             return _bounded_supervised_fit_sha(features, target, allowed, seed=20260815)
         raw_refit_before = raw_refit(roster)
-        changed_summary = summary.copy(); changed_summary[0, 0] += 1.0
+        changed_summary = summary.copy()
+        changed_summary[0, 0] = changed_summary[0, 0] * 1.5 + 1.0e6
         raw_refit_canary = raw_refit(roster, changed_summary)
-        firewall_exact = (bool(firewall_sha256) and canary_hash != before
-                          and raw_refit_canary != raw_refit_before)
-        if not firewall_exact:
+        if not bool(firewall_sha256):
             raise RealDiagnosticExecutorRefusal(
-                "raw fit-only firewall or visible-row canary failed")
+                "raw fit-only roster firewall produced no receipt")
+        if canary_hash == before:
+            raise RealDiagnosticExecutorRefusal(
+                "visible-row projection canary is inert (mutation not observed)")
+        if raw_refit_canary == raw_refit_before:
+            raise RealDiagnosticExecutorRefusal(
+                "bounded refit canary is inert (mutation not observed)")
+        firewall_exact = True
         raw_evidence = {"schema": "entry-v2-raw-fidelity-evidence-v1",
                          "manifest": manifest.receipt_sha256,
                          "event_schema_sha256": self.schema.sha256,
@@ -9384,6 +9394,10 @@ class ProductionExactDiagnosticResources:
             score, ids=np.asarray(ids), assets=assets, days=days,
             recipient=recipient, chronology=chronology,
             artifact_name=f"G7/{chronology}/PROPHET/positive-control")
+        # C0 (2026-08-18 sweep): the M8 census must reference every payload;
+        # the prophet path payloads join the selected-transition reference list.
+        self._m8_selected_transition_payloads.extend(
+            self._m8_path_payloads[f"G7/{chronology}/PROPHET/positive-control"])
         # Quantitative health bar: a perfect score must not merely be
         # "ELIGIBLE", it must recover at least the prelaunch floor of the
         # GOAL-GRADE ceiling on every asset and both blocks.  A healthy funnel
@@ -9580,6 +9594,7 @@ class ProductionExactDiagnosticResources:
                     "required_floor_usd": floor,
                     "minimum_oracle_capture": FIT_ONLY_MIN_ORACLE_CAPTURE,
                     "maximum_observed_oracle_capture": best_capture,
+                    "oracle_capture": best_capture,
                     "oracle_total_pnl_usd": oracle_total,
                     "oracle_usd_per_asset_day": oracle_day,
                     "ceiling_receipt_sha256": ceiling_sha,

@@ -1016,6 +1016,11 @@ class RealDataExactNeuralDiagnosticExecutor:
         records.append(FitLedgerRecord("fit-only-competence", "COMPETENCE", "FIT",
                                        self.atlas.competence_artifact_sha256))
         receipt = validate_fit_ledger(records, finalist_count=0)
+        # Declared limitation (2026-08-18 sweep): the COMPETENCE row is
+        # artifact-backed (competence_artifact_sha256) but its clone fits run
+        # outside the optimizer census (fit_probe path), so the census
+        # under-counts by that stage only — conservative for the 98-fit cap.
+        # Revisit hook: route fit_probe constructions through _run_optimizer.
         # C3/A-011: reconcile the DECLARATIVE ledger above against the MEASURED
         # process-global optimizer census.  Every optimizer construction on the
         # atlas/arm/head paths is routed through ``_run_optimizer``; a

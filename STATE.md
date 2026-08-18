@@ -1,49 +1,55 @@
 # STATE — current fast cursor
 
-**Last updated:** 2026-08-18T13:05Z
+**Last updated:** 2026-08-18T18:50Z
 
 **Canonical entry point:** [`index.md`](index.md) · **Detailed ledger:** [`docs/ENTRY_V2_CURRENT_STATUS.md`](docs/ENTRY_V2_CURRENT_STATUS.md)
 
 ## Operational state
 
-**EXECUTION RESUMED by explicit user instruction 2026-08-18 (~12:10Z).** Approved plan:
-`/home/claude/.claude/plans/so-i-want-you-quizzical-grove.md` — one consolidated audit →
-one fix pass → mechanical verification → ONE real fit-only E1r/E2r rehearsal → held
-campaign to the goal. No review→fix loops (D-001/AGENTS.md). 2025H2 remains sealed.
+**EXECUTING the approved one-pass cycle** (user order 2026-08-18 ~12:10Z; plan:
+`/home/claude/.claude/plans/so-i-want-you-quizzical-grove.md`): one audit → one fix
+pass → mechanical verify → ONE real fit-only E1r/E2r rehearsal → held campaign to the
+>$2,000/asset-day goal. No review→fix loops. 2025H2 sealed (user-reserved).
 
 ## Stage cursor
 
-- **Phase 0 DONE**: baseline frozen at commit `2e0c33f` (entire Entry V2 engine +
-  designs + provenance committed; durable store/mempalace excluded), pushed to origin.
-- **Phase 1 ACTIVE**: four parallel port-reviewer audit lanes on the frozen bytes:
-  - Lane A: session-domain/roster class + LIVE probe factory→one_load→raw_fidelity
-    (scratch root `audit_probe_a`) — production-verifies the v9 fix.
-  - Lane B: five arms + shared decision module + the 8 competence gates (executed
-    synthetic-first; GPU overfit gate).
-  - Lane C: 44-objective atlas → statistics → mapper/Platt/threshold/replay funnel
-    (elevated suspect: threshold transport; wiring spec for M10 transport receipt +
-    prophet-through-funnel positive control).
-  - Lane D: weak-proxy/raw-fidelity conformance table (D-092/A-007/D-089) + receipt
-    spot-audit.
-- **NEXT_ACTION**: adjudicate the four lane reports into ONE typed blocker manifest →
-  launch the single port-implementer fix pass (Phase 2).
+- Phase 0 DONE: baseline `2e0c33f` (+pushed).
+- Phase 1 DONE: four-lane audit; ~25 blockers incl. 3 run-killers (A1 dtype, A2 stale
+  pins, A3 timing-poison); v9 domain fix CONFIRMED on real data (236/235).
+- Phase 2 DONE: ONE fix pass, 59 items via three lanes (commit `86eb339` + pin fixes);
+  measurement-corrected rulings: 80% gate denominator = GOAL-GRADE (≥600) ceiling
+  (prophet transport bound: 60–79% of exact vs 82–91% of goal-grade); prophet-through-
+  funnel control + transport receipt wired; context data ruling (macro block unmasked:
+  COT/SLV/SHFE/FRED-rates/JGB/BOJ live; 5/15→13/15 SI series; CFTC archives fetched
+  w/ sha manifests); clock-law provenance restored TOWARD immutable artifacts
+  (pre-banner doc + original receipt; all pin layers consistent).
+- Phase 3 ACTIVE: 327/327 python + 4/4 native tests green; **probe-c running**
+  (lab/run.sh `entry-v2-probe-c`): factory → corpus (typed COLD rebuild under the
+  21-field law; repopulates the durable store) → one_load → raw_fidelity (first
+  execution of the A9 CatBoost gate); stops before arm_C0; monitored.
+- **NEXT_ACTION**: on probe PASS → launch Phase 4, the ONE fit-only rehearsal:
+  `bash lab/run.sh entry-v2-pre-h2-v10 -- /usr/bin/python3 -m
+  engine.entry_v2.neural_sufficiency_production --run-root
+  /workspace/artifacts/cache/port/entry_v2_runs/pre_h2_v10 --executor-factory
+  engine.entry_v2.neural_sufficiency_resources:entry_v2_production_executor_factory
+  --fit-only-rehearsal` + watcher. On typed FAIL → D-095 attribution, pre-registered
+  response ladder, NO serial relaunch.
 
-## Key facts (verified this session)
+## Key facts
 
-- Learner has NEVER run; 9 attempts died at 9 different software boundaries (r1-r6,
-  v5, v8, v9). v9: warm corpus 8m38 + one_load PASS, raw_fidelity refusal (236/235).
-- Fix exists at `neural_sufficiency_resources.py:4389` — NOT production-verified (Lane
-  A probe is doing exactly that).
-- Hindsight oracle headroom at era grain: per-year deployable-ceiling values exceed
-  $2,000 on every asset-year (HG 2,136-3,490 / NKD 2,420-4,068 / SI 2,532-4,399
-  $/asset-day). These are hindsight candidate-schedule ceilings, not deployable
-  dollars; sub-period blocks dip below $2,000 (see ledger §6.1/§6.2) and use the
-  typed A-005 floors. No learned result exists yet.
-- E2r calendar: A-019 dates control (code matches; fix pass records the resolution).
-- Env: torch 2.8.0+cu128 OK, catboost 1.2.10, xgboost ABSENT (must not be imported),
-  GPU idle, 845G RAM free, durable store warm (236/411/577).
+- Goal law: >$2,000/asset-day each of SI/HG/NKD; floors $1,500 weak / $1,000+MDD<500;
+  ≥$600/trade; ≥10 trades; PASS gate = ≥80% of goal-grade ceiling on all assets, both
+  E2r blocks + absolute laws (A-020). Prophet health bar ≥80% of goal-grade.
+- Oracle supports the goal at era grain (per-year deployable ceilings all >$2k).
+- Geometry-null measured: candidate geometry transports ~$0/day — raw tape is the
+  load-bearing layer.
+- 2021 rehearsal caveats filed: vol forecaster typed-MISSING (first READY 2022);
+  NIKKEI_VI 2023+; BLS thin; DTWEXBGS masked.
+- MemPalace: hub-bridge hooks live (mine via MCP hub JSON-RPC; daemon lease-exclusive
+  with hub — documented in palace room resolved_blockers). Full transcript mined.
 
-## Resume recipe (any context loss)
+## Resume recipe
 
-1. `cat STATE.md` (this file) 2. approved plan file 3. `tail -40 provenance/sessions/JOURNAL.md`
-4. audit lane reports (task outputs / journal) 5. `docs/ENTRY_V2_CURRENT_STATUS.md` for the deep ledger.
+1. This file. 2. `tail -60 provenance/sessions/JOURNAL.md` (true cursor). 3.
+`bash lab/run.sh --list` + `runs/entry-v2-*.{hb,rc,log}`. 4. The approved plan file.
+5. Ledger `docs/ENTRY_V2_CURRENT_STATUS.md`.

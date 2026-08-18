@@ -337,15 +337,17 @@ def denominator_disposition(asset: str, d8: int) -> str:
 
 @_functools.lru_cache(maxsize=None)
 def _first_lockable_denominator_day(asset: str) -> int:
+    """The asset's first trading day is lock-less ONLY when coverage opens
+    directly on it: the calendar carries synthetic Sunday windows precisely
+    so prior-session locks stay auditable, so any coverage gap before the
+    first trading day supplies a lock donor (HG/NKD lock off the Sunday
+    window; SI's coverage opens on a tradeable Monday with no prior row).
+    Returns the coverage start when it is itself a tradeable day, else a
+    sentinel that matches no real date."""
     d8 = qre2_asset_coverage_start_d8(asset)
-    for _ in range(31):
-        if is_globex_trading_day(d8) and (asset, d8) not in qre2_full_closures():
-            return d8
-        day = dt.date(d8 // 10000, (d8 // 100) % 100, d8 % 100)
-        day = day + dt.timedelta(days=1)
-        d8 = day.year * 10000 + day.month * 100 + day.day
-    raise EntryV2Refusal(
-        f"no lockable first session within 31 days of coverage for {asset}")
+    if is_globex_trading_day(d8) and (asset, d8) not in qre2_full_closures():
+        return d8
+    return -1
 
 
 def is_denominator_day(asset: str, d8: int) -> bool:

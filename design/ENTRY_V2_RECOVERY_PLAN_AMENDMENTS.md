@@ -547,14 +547,3 @@ pass and the one real fit-only rehearsal. They add no new user law.
    arm on its supervised window; they never feed the arm's own early stopping,
    so validation-day rows in the gate population warm-start nothing. Quota
    thresholds are unchanged.
-
-9. **Base-stage loss balance (2026-08-19, pre-run reading of the as-built
-   trainer).** The implemented multitask weights gave the six-horizon dense
-   economic path ~3% of the base-stage gradient (0.25 of a 7.6-weight sum) —
-   quietly reproducing the diagnosed §8.4 pathology (representation shaped by
-   sparse ~2%-positive signals) that the six-horizon law exists to fix. The
-   base-stage weight for "horizons" is raised to 1.0 (parity with the other
-   primary economic signals). The A-004 law is untouched: horizons remain
-   supervised auxiliaries at DECISION time (never deployment vetoes); this
-   ruling concerns representation learning only. Flagged for the design-
-   excellence review to confirm or refine when it lands.

@@ -80,10 +80,24 @@ CORPUS_READY_MILESTONE_SOURCE = "production_diagnostic_stage_return"
 LIFECYCLE_COLD = "COLD"
 LIFECYCLE_WARM = "WARM"
 LIFECYCLE_MIXED = "MIXED"
-DIAGNOSTIC_PLANE_LAW_SHA256 = hashlib.sha256(
-    b"ENTRY_V2_DIAGNOSTIC_PLANE_V1|truth-quality-derived-semantic-map|"
-    b"typed-contiguous-immutable-vectors"
-).hexdigest()
+def _diagnostic_plane_law_sha256() -> str:
+    """A-014: the durable key binds the semantic law, so a schema change moves
+    the key and stale planes refuse at reopen instead of surfacing downstream
+    (the 2026-08-18 raw_fidelity roster refusal). The law folds in the derived
+    builder version, the exact ordered raw-route roster, and the equation set."""
+    from .diagnostic_inputs import RAW_ROUTE_FIELDS, DerivedEventFieldBuilder
+    parts = [
+        b"ENTRY_V2_DIAGNOSTIC_PLANE_V2|truth-quality-derived-semantic-map|",
+        b"typed-contiguous-immutable-vectors|",
+        DerivedEventFieldBuilder.VERSION.encode("utf-8"), b"|",
+        ",".join(RAW_ROUTE_FIELDS).encode("utf-8"), b"|",
+        ",".join(f"{k}={v}" for k, v in sorted(
+            DerivedEventFieldBuilder.EQUATIONS.items())).encode("utf-8"),
+    ]
+    return hashlib.sha256(b"".join(parts)).hexdigest()
+
+
+DIAGNOSTIC_PLANE_LAW_SHA256 = _diagnostic_plane_law_sha256()
 WALL_UNITS = 900 * PNL_UNITS_PER_USD
 PRIOR_SCALE_CONVERSION_LAW = (
     "ENTRY_V2_PRIOR_SCALE_V1|original-decimal-text|positive-finite|"

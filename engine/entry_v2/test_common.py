@@ -48,7 +48,12 @@ class CommonTest(unittest.TestCase):
         )
         self.assertFalse(C.is_denominator_day("HG", 20210402))
         self.assertTrue(C.is_denominator_day("NKD", 20210402))
-        self.assertTrue(C.is_denominator_day("SI", 20210531))
+        # 2026-08-19: an asset's first covered session is structurally
+        # untradeable under the lock-law (no prior session to lock) and is a
+        # typed non-denominator disposition, not an INCLUDE day.
+        self.assertEqual(C.denominator_disposition("SI", 20210531),
+                         "FIRST_SESSION_NO_LOCK")
+        self.assertTrue(C.is_denominator_day("SI", 20210601))
 
         # CME's 2023 Good Friday equity session was abbreviated, not closed.
         self.assertFalse(C.is_denominator_day("SI", 20230407))

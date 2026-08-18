@@ -10,6 +10,7 @@ import functools
 import hashlib
 import json
 import os
+import functools as _functools
 from pathlib import Path
 import re
 import subprocess
@@ -325,7 +326,26 @@ def denominator_disposition(asset: str, d8: int) -> str:
         return "WEEKEND"
     if (name, d8) in qre2_full_closures():
         return "FULL_CLOSE"
+    if d8 == _first_lockable_denominator_day(name):
+        # The lock-law (recovery plan §2) binds each session to the dominant
+        # contract of the immediately preceding completed session; the FIRST
+        # covered session has no prior and is structurally untradeable, so it
+        # is excluded from every replay denominator as a typed disposition.
+        return "FIRST_SESSION_NO_LOCK"
     return "INCLUDE"
+
+
+@_functools.lru_cache(maxsize=None)
+def _first_lockable_denominator_day(asset: str) -> int:
+    d8 = qre2_asset_coverage_start_d8(asset)
+    for _ in range(31):
+        if is_globex_trading_day(d8) and (asset, d8) not in qre2_full_closures():
+            return d8
+        day = dt.date(d8 // 10000, (d8 // 100) % 100, d8 % 100)
+        day = day + dt.timedelta(days=1)
+        d8 = day.year * 10000 + day.month * 100 + day.day
+    raise EntryV2Refusal(
+        f"no lockable first session within 31 days of coverage for {asset}")
 
 
 def is_denominator_day(asset: str, d8: int) -> bool:

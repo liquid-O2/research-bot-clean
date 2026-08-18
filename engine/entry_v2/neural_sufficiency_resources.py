@@ -7323,6 +7323,107 @@ class ProductionExactDiagnosticResources:
                            log_loss(y, p, labels=[0, 1])))
         return min(x[0] for x in values), min(x[1] for x in values), max(x[2] for x in values)
 
+    def _balanced_clone_overfit(self, model, arm: str, balanced_index: np.ndarray,
+                                *, bypass_static: bool = False,
+                                occlude_memory: bool = False
+                                ) -> tuple[float, float, float]:
+        """A-012 gate-5: the balanced-overfit law is proven by a DEDICATED
+        <=400-step fit of a DISCARDED DEEPCOPY CLONE, trained ON the balanced
+        32+32 slice and measured ON that slice (B-07/B-26).  The clone never
+        touches the arm being scored; it is trained and measured here only,
+        then discarded.
+        """
+        clone = copy.deepcopy(model)
+        clone.to(self.device); clone.train()
+        wanted = {int(value) for value in np.asarray(balanced_index, np.int64)}
+        kept_batches: list[tuple[dict, torch.Tensor, torch.Tensor]] = []
+        offset = 0
+        for batch in self.batches:
+            count = len(batch.candidate_ids)
+            positions = [local for local, global_row in
+                         enumerate(range(offset, offset + count))
+                         if global_row in wanted]
+            offset += count
+            if not positions:
+                continue
+            idx = torch.tensor(positions, dtype=torch.long)
+            kwargs = dict(
+                event_continuous=batch.continuous.to(self.device),
+                event_categorical=batch.categorical.to(self.device),
+                receive_clock_ns=batch.clock.to(self.device),
+                candidate_cutoffs=batch.cutoffs.to(self.device),
+                candidate_decision_ts_ns=batch.decisions.to(self.device),
+                candidate_features=batch.candidate_features.to(self.device),
+                context_values=batch.context_values.to(self.device),
+                context_type_ids=batch.context_type_ids.to(self.device),
+                context_valid=batch.context_valid.to(self.device),
+                asset_idx=C.ASSET_INDEX[batch.asset],
+                static_features=(None if bypass_static or arm not in ("L1", "M1")
+                                  else batch.static_features.to(self.device)),
+            )
+            targets_kept = batch.targets[idx].to(self.device).float()
+            kept_batches.append((kwargs, idx, targets_kept))
+        if not kept_batches:
+            raise RealDiagnosticExecutorRefusal(
+                "balanced clone overfit training view is empty")
+
+        def _forward(kwargs):
+            # Replicates the two-line NeuralSufficiencyModel.forward
+            # composition (encoder -> head), with the raw memory zeroed for
+            # the occlusion twin instead of routed through model.__call__.
+            raw = clone.encoder(
+                kwargs["event_continuous"], kwargs["event_categorical"],
+                kwargs["candidate_cutoffs"],
+                receive_clock_ns=kwargs["receive_clock_ns"],
+                candidate_decision_ts_ns=kwargs["candidate_decision_ts_ns"],
+                asset_idx=kwargs["asset_idx"])
+            if occlude_memory:
+                raw = torch.zeros_like(raw)
+            return clone.head(
+                raw, kwargs["candidate_features"], kwargs["context_values"],
+                kwargs["context_type_ids"], kwargs["context_valid"],
+                kwargs["asset_idx"], static_features=kwargs["static_features"])
+
+        def _balanced_metrics() -> tuple[float, float, float]:
+            logit_parts = []; target_parts = []
+            with torch.no_grad():
+                for kwargs, idx, targets_kept in kept_batches:
+                    out = _forward(kwargs)
+                    logit_parts.append(out.action_logit[idx].detach().cpu())
+                    target_parts.append(targets_kept.detach().cpu())
+            logits_all = torch.cat(logit_parts)
+            probability_all = torch.sigmoid(logits_all).numpy()
+            y_all = torch.cat(target_parts).numpy().astype(int)
+            return (float(roc_auc_score(y_all, probability_all)),
+                    float(average_precision_score(y_all, probability_all)),
+                    float(log_loss(y_all, probability_all, labels=[0, 1])))
+
+        optimizer = _run_optimizer(
+            lambda: torch.optim.Adam(clone.parameters(), lr=1e-3),
+            category="CANARY",
+            fit_id=(f"gate5/{arm}/"
+                    f"{'bypass' if bypass_static else 'occlude' if occlude_memory else 'joint'}"))
+        final_metrics = None
+        for step in range(1, 401):
+            kwargs, idx, targets_kept = kept_batches[(step - 1) % len(kept_batches)]
+            out = _forward(kwargs)
+            logits_kept = out.action_logit[idx]
+            loss = torch.nn.functional.binary_cross_entropy_with_logits(
+                logits_kept, targets_kept)
+            optimizer.zero_grad(set_to_none=True)
+            loss.backward()
+            optimizer.step()
+            if step % 25 == 0:
+                auroc, ap, ll = _balanced_metrics()
+                if auroc >= .995 and ap >= .995 and ll <= .02:
+                    final_metrics = (auroc, ap, ll)
+                    break
+        if final_metrics is None:
+            final_metrics = _balanced_metrics()
+        del clone
+        torch.cuda.empty_cache()
+        return final_metrics
+
     def _encode(self, model, arm: str):
         stage_wall: dict[str, float] = {"collects_s": 0.0}
         model.to(self.device)
@@ -7715,7 +7816,7 @@ class ProductionExactDiagnosticResources:
             np.concatenate(_balanced_index_parts).astype(np.int64))
         balanced_selected = np.zeros(len(probability), bool)
         balanced_selected[balanced_index] = True
-        metrics = self._metrics(rows, probability, balanced_selected)
+        metrics = self._balanced_clone_overfit(model, arm, balanced_index)
         if metrics[0] < .995 or metrics[1] < .995 or metrics[2] > .02:
             raise RealDiagnosticExecutorRefusal("joint encoder/head competence threshold failed")
         # B-07: the balanced-overfit law was satisfiable with the raw event
@@ -7723,26 +7824,15 @@ class ProductionExactDiagnosticResources:
         # AUROC 1.0000).  Prove the .995/.995/.02 law on the RAW route with the
         # bypass OFF, and require the bypass-only twin (raw memory occluded) to
         # lose at least a declared AUROC margin.
-        _collect_t0 = time.monotonic()
-        raw_rows, _raw_all, _raw_mem, _raw_states, raw_probabilities = \
-            self._collect(model, arm, bypass_static=True, reuse_memories=memories)
-        stage_wall["collects_s"] += time.monotonic() - _collect_t0
-        raw_probability = np.asarray(
-            [raw_probabilities[cid] for cid in raw_rows.candidate_id])
-        raw_metrics = self._metrics(raw_rows, raw_probability, balanced_selected)
+        raw_metrics = self._balanced_clone_overfit(
+            model, arm, balanced_index, bypass_static=True)
         if (raw_metrics[0] < .995 or raw_metrics[1] < .995
                 or raw_metrics[2] > .02):
             raise RealDiagnosticExecutorRefusal(
                 "balanced oracle overfit is not attained by the raw route with "
                 "the static bypass off")
-        _collect_t0 = time.monotonic()
-        occluded_rows, _occ_all, _occ_mem, _occ_states, occluded_probabilities = \
-            self._collect(model, arm, occlude_memory=True, reuse_memories=memories)
-        stage_wall["collects_s"] += time.monotonic() - _collect_t0
-        occluded_probability = np.asarray(
-            [occluded_probabilities[cid] for cid in occluded_rows.candidate_id])
-        occluded_metrics = self._metrics(
-            occluded_rows, occluded_probability, balanced_selected)
+        occluded_metrics = self._balanced_clone_overfit(
+            model, arm, balanced_index, occlude_memory=True)
         raw_occlusion_auroc_drop = float(metrics[0] - occluded_metrics[0])
         if raw_occlusion_auroc_drop < RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP:
             raise RealDiagnosticExecutorRefusal(

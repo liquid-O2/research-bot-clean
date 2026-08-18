@@ -360,8 +360,12 @@ class SelectedStageLawTest(unittest.TestCase):
     def test_field_survival_is_not_an_independent_full_tape_stage(self):
         self.assertNotIn("field_survival", STAGE_SPECS)
         self.assertEqual(tuple(STAGE_SPECS), ("pointwise_dense", "grouped_atlas"))
-        self.assertEqual(STAGE_SPECS["pointwise_dense"].max_epochs, 12)
+        # Ruling 10: the ceiling is enabling-only (40); the governors are
+        # patience and the minimum-improvement law, asserted here.
+        self.assertEqual(STAGE_SPECS["pointwise_dense"].max_epochs, 40)
         self.assertEqual(STAGE_SPECS["pointwise_dense"].patience, 3)
+        self.assertEqual(
+            STAGE_SPECS["pointwise_dense"].minimum_relative_improvement, .001)
         model = _CountingStageModel()
         train_epoch, validate_epoch, _ = _stage_callbacks([1.0, 0.5, 0.6, 0.6])
         with self.assertRaises(EntryModelRefusal):
@@ -372,10 +376,11 @@ class SelectedStageLawTest(unittest.TestCase):
 
     def test_stage_must_not_finish_at_a_rising_best_validation_loss(self):
         model = _CountingStageModel()
-        # Still improving at every one of the six grouped-atlas epochs: the
+        # Still improving at every grouped-atlas epoch up to the ceiling: the
         # budget was exhausted mid-descent, which is not convergence.
+        _n = STAGE_SPECS["grouped_atlas"].max_epochs
         train_epoch, validate_epoch, _ = _stage_callbacks(
-            [1.0, .8, .6, .4, .2, .1])
+            [1.0 * (0.8 ** i) for i in range(_n)])
         with self.assertRaises(EntryModelRefusal) as caught:
             train_chronological_stage(
                 model, torch.optim.AdamW(model.parameters(), lr=1e-2),

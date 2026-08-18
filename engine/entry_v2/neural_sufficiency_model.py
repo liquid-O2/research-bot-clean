@@ -1434,8 +1434,14 @@ class StageTrainingSpec:
 # stages over the same rows is forbidden, so ``field_survival`` is not a
 # separate registered stage; it is an additive component of ``pointwise_dense``.
 STAGE_SPECS = MappingProxyType({
-    "pointwise_dense": StageTrainingSpec("pointwise_dense", 12, 3),
-    "grouped_atlas": StageTrainingSpec("grouped_atlas", 6, 2),
+    # Ruling 10 (2026-08-19): the old caps (12/6 epochs = ~2.3k/1.1k optimizer
+    # steps at ~192 session-batches) were sized for the diagnostic screen and
+    # bind exactly when validation is STILL IMPROVING — the one case where
+    # stopping is the mistake. Raised ceilings are enabling-only: patience and
+    # the 0.1% min-improvement law remain the governors; converged stages stop
+    # exactly as before. Wall-clock is receipted per stage (D-098).
+    "pointwise_dense": StageTrainingSpec("pointwise_dense", 40, 3),
+    "grouped_atlas": StageTrainingSpec("grouped_atlas", 24, 2),
 })
 FORBIDDEN_INDEPENDENT_STAGES = frozenset({"field_survival"})
 

@@ -75,6 +75,9 @@ from .neural_sufficiency_model import (
     validate_balanced_overfit_inputs,
 )
 from .neural_sufficiency_model import _monotone_ordinal
+from .neural_sufficiency_model import STAGE_SPECS as _STAGE_SPECS
+_BASE_MAX_EPOCHS = _STAGE_SPECS["pointwise_dense"].max_epochs
+_HEAD_MAX_EPOCHS = _STAGE_SPECS["grouped_atlas"].max_epochs
 from .neural_sufficiency_production import derive_production_context
 from .capacity_contract import (
     FIT_ONLY_MIN_ORACLE_CAPTURE, SCHEMA as CAPACITY_SCHEMA,
@@ -2345,7 +2348,7 @@ class ProductionExactDiagnosticResources:
                 category="ARM", fit_id=f"E1r/arm/{arm}/base")
             best = None; best_loss = np.inf; stale = 0; trace = []
             gradient_census: set[str] = set()
-            for epoch in range(12):
+            for epoch in range(_BASE_MAX_EPOCHS):
                 model.train(); decoder.train(); rows = []; epoch_gradient_norm = 0.0
                 named = [*model.named_parameters(), *[(f"decoder.{name}", parameter)
                          for name, parameter in decoder.named_parameters()]]
@@ -2585,7 +2588,7 @@ class ProductionExactDiagnosticResources:
                     weight_decay=1e-4),
                 category="ARM", fit_id=f"E1r/arm/{arm}/objective-head")
             best = None; best_loss = np.inf; stale = 0; trace = []
-            for epoch in range(6):
+            for epoch in range(_HEAD_MAX_EPOCHS):
                 model.train(); objective.train(); train_losses = []; components = []
                 before = {name: value.detach().cpu().clone() for name, value in
                           [*model.named_parameters(), *[(f"objective.{n}", p)
@@ -10151,7 +10154,7 @@ class ProductionExactDiagnosticResources:
             lambda: torch.optim.Adam(
                 [*model.parameters(), *decoder.parameters()], lr=3e-4),
             category="REHEARSAL", fit_id=f"E1r/{arm}/base")
-        for epoch in range(12):
+        for epoch in range(_BASE_MAX_EPOCHS):
             model.train(); decoder.train(); epoch_losses = []; pair_count = 0
             gradient_norm = 0.0
             for (asset, day), day_specs in sorted(train_by_day.items()):
@@ -10230,7 +10233,7 @@ class ProductionExactDiagnosticResources:
             lambda: torch.optim.Adam(parameters, lr=3e-4),
             category="REHEARSAL", fit_id=f"E1r/{arm}/selected-head")
         best = None; best_loss = np.inf; stale = 0
-        for epoch in range(6):
+        for epoch in range(_HEAD_MAX_EPOCHS):
             model.train(); objective_head.train(); epoch_losses = []; pair_count = 0
             gradient_norm = 0.0
             for (asset, day), day_specs in sorted(train_by_day.items()):

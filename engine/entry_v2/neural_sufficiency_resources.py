@@ -10,6 +10,7 @@ from dataclasses import asdict, dataclass, replace
 import copy
 import hashlib
 import io
+import sys
 import json
 import os
 import resource
@@ -7316,6 +7317,7 @@ class ProductionExactDiagnosticResources:
         return min(x[0] for x in values), min(x[1] for x in values), max(x[2] for x in values)
 
     def _encode(self, model, arm: str):
+        stage_wall: dict[str, float] = {"collects_s": 0.0}
         model.to(self.device)
         decoder = LastRowReconstructionProbe(
             self.batches[0].continuous.shape[1], CATEGORY_SIZES).to(self.device)
@@ -7378,6 +7380,7 @@ class ProductionExactDiagnosticResources:
         # The bounded competence clone jointly optimizes the actual encoder and
         # shared head. Twelve chronological passes are the frozen dense-stage
         # ceiling; the independent competence ceiling remains 400 updates.
+        _base_stage_start = time.monotonic()
         for epoch in range(12):
             model.train(); decoder.train()
             named = [*model.named_parameters(), *((f"decoder.{name}", parameter)
@@ -7525,6 +7528,7 @@ class ProductionExactDiagnosticResources:
                 stale += 1
             if epoch >= 1 and (stale >= 3 or updates >= 400):
                 break
+        stage_wall["base_stage_s"] = time.monotonic() - _base_stage_start
         if best is None or len(trace) < 2:
             raise RealDiagnosticExecutorRefusal("joint arm training produced no checkpoint")
         model.load_state_dict(best[0], strict=True)
@@ -7536,6 +7540,7 @@ class ProductionExactDiagnosticResources:
         if reload_sha256 != best[2]:
             raise RealDiagnosticExecutorRefusal(
                 "joint arm/field checkpoint reload differs")
+        _gates_start = time.monotonic()
         # A-015/ordinal structural canaries: every selected horizon coordinate
         # and every cumulative boundary must independently alter its own loss
         # and receive a finite nonzero gradient.
@@ -7617,7 +7622,9 @@ class ProductionExactDiagnosticResources:
             raise RealDiagnosticExecutorRefusal(
                 "cumulative ordinal head lacks all-boundary reachability")
         model.zero_grad(set_to_none=True)
+        _collect_t0 = time.monotonic()
         rows, _all_metrics, memories, states, probabilities = self._collect(model, arm)
+        stage_wall["collects_s"] += time.monotonic() - _collect_t0
         # Decode the REAL competence slice through the production monotone
         # cumulative decoder; the empirical attained-set is receipt evidence
         # (calibration state before the head stage), while REACHABILITY is the
@@ -7682,7 +7689,26 @@ class ProductionExactDiagnosticResources:
                  for value in np.asarray(rows.asset, str)[_gate_rows]], np.int64)),
             torch.from_numpy(np.asarray(
                 np.asarray(rows.action_target, np.int8)[_gate_rows], np.int64)))
-        metrics = self._metrics(rows, probability, None)
+        # Deterministic balanced slice: 32 positive + 32 negative rows per
+        # asset, drawn from the full fit-only competence window the quota
+        # check above just certified as >=32/32 available.
+        _asset_arr = np.asarray(rows.asset, str)
+        _action_loss_mask_arr = np.asarray(rows.action_loss_mask, bool)
+        _action_target_arr = np.asarray(rows.action_target, int)
+        _balanced_index_parts = []
+        for _asset in ("HG", "NKD", "SI"):
+            pos_idx = np.nonzero((_asset_arr == _asset) & _action_loss_mask_arr
+                                  & (_action_target_arr == 1))[0]
+            neg_idx = np.nonzero((_asset_arr == _asset) & _action_loss_mask_arr
+                                  & (_action_target_arr == 0))[0]
+            rng = np.random.default_rng(20260819)
+            _balanced_index_parts.append(rng.choice(pos_idx, size=32, replace=False))
+            _balanced_index_parts.append(rng.choice(neg_idx, size=32, replace=False))
+        balanced_index = np.sort(
+            np.concatenate(_balanced_index_parts).astype(np.int64))
+        balanced_selected = np.zeros(len(probability), bool)
+        balanced_selected[balanced_index] = True
+        metrics = self._metrics(rows, probability, balanced_selected)
         if metrics[0] < .995 or metrics[1] < .995 or metrics[2] > .02:
             raise RealDiagnosticExecutorRefusal("joint encoder/head competence threshold failed")
         # B-07: the balanced-overfit law was satisfiable with the raw event
@@ -7690,28 +7716,42 @@ class ProductionExactDiagnosticResources:
         # AUROC 1.0000).  Prove the .995/.995/.02 law on the RAW route with the
         # bypass OFF, and require the bypass-only twin (raw memory occluded) to
         # lose at least a declared AUROC margin.
+        _collect_t0 = time.monotonic()
         raw_rows, _raw_all, _raw_mem, _raw_states, raw_probabilities = \
-            self._collect(model, arm, bypass_static=True)
+            self._collect(model, arm, bypass_static=True, reuse_memories=memories)
+        stage_wall["collects_s"] += time.monotonic() - _collect_t0
         raw_probability = np.asarray(
             [raw_probabilities[cid] for cid in raw_rows.candidate_id])
-        raw_metrics = self._metrics(raw_rows, raw_probability, None)
+        raw_metrics = self._metrics(raw_rows, raw_probability, balanced_selected)
         if (raw_metrics[0] < .995 or raw_metrics[1] < .995
                 or raw_metrics[2] > .02):
             raise RealDiagnosticExecutorRefusal(
                 "balanced oracle overfit is not attained by the raw route with "
                 "the static bypass off")
+        _collect_t0 = time.monotonic()
         occluded_rows, _occ_all, _occ_mem, _occ_states, occluded_probabilities = \
-            self._collect(model, arm, occlude_memory=True)
+            self._collect(model, arm, occlude_memory=True, reuse_memories=memories)
+        stage_wall["collects_s"] += time.monotonic() - _collect_t0
         occluded_probability = np.asarray(
             [occluded_probabilities[cid] for cid in occluded_rows.candidate_id])
         occluded_metrics = self._metrics(
-            occluded_rows, occluded_probability, None)
+            occluded_rows, occluded_probability, balanced_selected)
         raw_occlusion_auroc_drop = float(metrics[0] - occluded_metrics[0])
         if raw_occlusion_auroc_drop < RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP:
             raise RealDiagnosticExecutorRefusal(
                 "occluding raw event memory does not cost the declared AUROC "
                 f"margin: drop={raw_occlusion_auroc_drop:.6f} < "
                 f"{RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP}")
+        stage_wall["gates_s"] = time.monotonic() - _gates_start
+        # D-098 timing is NONSEMANTIC (A-014/A-017): it must never enter any
+        # hashed receipt (this mapping is embedded in arm_evidence and hashed).
+        # Emit to stderr (run log) and stash for side reporting only.
+        print(f"ARM-STAGE-WALL {arm} " + " ".join(
+            f"{k}={v:.1f}s" for k, v in sorted(stage_wall.items())),
+            file=sys.stderr, flush=True)
+        if getattr(self, "_stage_wall_clock", None) is None:
+            self._stage_wall_clock = {}
+        self._stage_wall_clock[arm] = dict(stage_wall)
         if getattr(self, "_raw_occlusion_auroc_drop", None) is None:
             self._raw_occlusion_auroc_drop = {}
         self._raw_occlusion_auroc_drop[arm] = raw_occlusion_auroc_drop
@@ -7725,6 +7765,9 @@ class ProductionExactDiagnosticResources:
                                   list(balanced_positive),
                               "balanced_overfit_negative_by_asset":
                                   list(balanced_negative),
+                              "balanced_slice_seed": 20260819,
+                              "balanced_slice_sha256": _sha(
+                                  {"index": [int(x) for x in balanced_index]}),
                               "bypass_off_minimum_auroc": float(raw_metrics[0]),
                               "bypass_off_minimum_ap": float(raw_metrics[1]),
                               "bypass_off_maximum_bce": float(raw_metrics[2]),
@@ -7737,25 +7780,36 @@ class ProductionExactDiagnosticResources:
                               "validation_days": tuple(sorted(validation_days))})
 
     def _collect(self, model, arm: str, *, bypass_static: bool = False,
-                 occlude_memory: bool = False):
+                 occlude_memory: bool = False,
+                 reuse_memories: Mapping | None = None):
         """Collect the competence slice.
 
         B-07: ``bypass_static`` forces ``static_features=None`` so the balanced
         overfit law can be proven by the RAW route, and ``occlude_memory``
         zeroes the raw event memory so the static-bypass-only twin can be
         measured.  Both are diagnostic routes over the SAME frozen weights;
-        neither refits anything.
+        neither refits anything.  ``reuse_memories``, when given, skips the
+        encoder forward pass and reuses the caller's already-computed
+        per-candidate raw memories instead: the encoder output does not
+        depend on ``bypass_static``/``occlude_memory`` (those only change the
+        HEAD inputs), so replaying it is exact as long as the model weights
+        are unchanged between calls.
         """
         model.eval(); states = {}; probabilities = {}; memories = {}
         # R3: constructing a legacy GBT AssetPolicy anywhere inside the neural
         # inference path is a typed refusal, not an import error.
         with torch.no_grad(), neural_inference_path():
             for batch in self.batches:
-                memory = model.encoder(
-                    batch.continuous.to(self.device), batch.categorical.to(self.device),
-                    batch.cutoffs.to(self.device), receive_clock_ns=batch.clock.to(self.device),
-                    candidate_decision_ts_ns=batch.decisions.to(self.device),
-                    asset_idx=C.ASSET_INDEX[batch.asset])
+                if reuse_memories is not None:
+                    memory = torch.stack([
+                        reuse_memories[cid] for cid in batch.candidate_ids
+                    ]).to(self.device)
+                else:
+                    memory = model.encoder(
+                        batch.continuous.to(self.device), batch.categorical.to(self.device),
+                        batch.cutoffs.to(self.device), receive_clock_ns=batch.clock.to(self.device),
+                        candidate_decision_ts_ns=batch.decisions.to(self.device),
+                        asset_idx=C.ASSET_INDEX[batch.asset])
                 head_memory = torch.zeros_like(memory) if occlude_memory else memory
                 out = model.head(
                     head_memory, batch.candidate_features.to(self.device),

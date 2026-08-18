@@ -7366,52 +7366,60 @@ class ProductionExactDiagnosticResources:
     def _balanced_clone_overfit(self, model, arm: str, balanced_index, rows,
                                 memories, *, bypass_static: bool = False,
                                 occlude_memory: bool = False):
-        """A-012 gate 5, head-only full-batch form (2026-08-19 reformulation):
-        the clone's encoder is a weight-identical deepcopy, so its memories
-        equal the already-computed real memories; memorization capacity is
-        therefore lawfully tested by a DISCARDED head clone trained FULL-BATCH
-        on the frozen memories + head inputs of the balanced 32+32 rows for
-        <=400 Adam steps. Thresholds unchanged (.995/.995/.02). bypass_static
-        and occlude_memory ablate the head inputs (B-07 semantics exactly)."""
+        """A-012 gate 5, head-only per-asset full-batch form: the clone's
+        encoder is weight-identical, so the computed memories are its
+        memories; memorization capacity is tested by a DISCARDED head clone
+        trained on the balanced 32+32 rows for <=400 Adam steps. Context is
+        asset-heterogeneous (SI 15 series vs HG/NKD 13), so each step runs
+        one forward per asset and sums the losses into one optimizer step.
+        Thresholds unchanged; per-asset metrics reduced exactly like
+        ``_metrics`` (min AUROC, min AP, max logloss)."""
         import copy as _copy
         from sklearn.metrics import (roc_auc_score, average_precision_score,
                                      log_loss)
         index = np.asarray(balanced_index, np.int64)
         wanted = {int(v) for v in index}
-        keep_raw, keep_cand, keep_ctxv, keep_ctxt, keep_ctxb = [], [], [], [], []
-        keep_static, keep_asset, keep_target = [], [], []
+        per_asset: dict[str, dict[str, list]] = {}
         offset = 0
-        cids = np.asarray(rows.candidate_id, str)
         for batch in self.batches:
             count = len(batch.candidate_ids)
             local = [k for k in range(count) if offset + k in wanted]
             if local:
+                bucket = per_asset.setdefault(batch.asset, {
+                    "raw": [], "cand": [], "ctxv": [], "ctxt": [], "ctxb": [],
+                    "static": [], "target": []})
                 sel = torch.as_tensor(local, dtype=torch.long)
-                keep_cand.append(batch.candidate_features[sel])
-                keep_ctxv.append(batch.context_values[sel])
-                keep_ctxt.append(batch.context_type_ids[sel])
-                keep_ctxb.append(batch.context_valid[sel])
-                keep_static.append(batch.static_features[sel])
+                bucket["cand"].append(batch.candidate_features[sel])
+                bucket["ctxv"].append(batch.context_values[sel])
+                bucket["ctxt"].append(batch.context_type_ids[sel])
+                bucket["ctxb"].append(batch.context_valid[sel])
+                bucket["static"].append(batch.static_features[sel])
                 for k in local:
-                    keep_raw.append(memories[batch.candidate_ids[k]])
-                    keep_asset.append(C.ASSET_INDEX[batch.asset])
-                keep_target.extend(
-                    float(batch.targets[k]) for k in local)
+                    bucket["raw"].append(memories[batch.candidate_ids[k]])
+                bucket["target"].extend(float(batch.targets[k]) for k in local)
             offset += count
-        raw = torch.stack([torch.as_tensor(v) for v in keep_raw]).to(self.device)
-        if occlude_memory:
-            raw = torch.zeros_like(raw)
-        cand = torch.cat(keep_cand).to(self.device)
-        ctx_v = torch.cat(keep_ctxv).to(self.device)
-        ctx_t = torch.cat(keep_ctxt).to(self.device)
-        ctx_b = torch.cat(keep_ctxb).to(self.device)
-        static = (None if bypass_static or arm not in ("L1", "M1")
-                  else torch.cat(keep_static).to(self.device))
-        asset_idx = torch.as_tensor(keep_asset, dtype=torch.long,
-                                    device=self.device)
-        target = torch.as_tensor(keep_target, dtype=torch.float32,
-                                 device=self.device)
-        if raw.shape[0] != len(index) or target.shape[0] != len(index):
+        views = {}
+        total_rows = 0
+        for asset, bucket in per_asset.items():
+            raw = torch.stack([torch.as_tensor(v) for v in bucket["raw"]]
+                              ).to(self.device)
+            if occlude_memory:
+                raw = torch.zeros_like(raw)
+            views[asset] = {
+                "raw": raw,
+                "cand": torch.cat(bucket["cand"]).to(self.device),
+                "ctx_v": torch.cat(bucket["ctxv"]).to(self.device),
+                "ctx_t": torch.cat(bucket["ctxt"]).to(self.device),
+                "ctx_b": torch.cat(bucket["ctxb"]).to(self.device),
+                "static": (None if bypass_static or arm not in ("L1", "M1")
+                           else torch.cat(bucket["static"]).to(self.device)),
+                "asset_idx": C.ASSET_INDEX[asset],
+                "target": torch.as_tensor(bucket["target"],
+                                          dtype=torch.float32,
+                                          device=self.device),
+            }
+            total_rows += int(views[asset]["target"].shape[0])
+        if total_rows != len(index):
             raise RealDiagnosticExecutorRefusal(
                 "balanced clone gathered a different row count than the slice")
         clone_head = _copy.deepcopy(model.head).to(self.device)
@@ -7421,24 +7429,30 @@ class ProductionExactDiagnosticResources:
             category="CANARY",
             fit_id=(f"gate5/{arm}/"
                     f"{'bypass' if bypass_static else 'occlude' if occlude_memory else 'joint'}"))
-        y = target.detach().cpu().numpy()
+        def _forward(view):
+            return clone_head(view["raw"], view["cand"], view["ctx_v"],
+                              view["ctx_t"], view["ctx_b"], view["asset_idx"],
+                              static_features=view["static"])
         def _metrics_now():
             clone_head.eval()
+            aurocs, aps, lls = [], [], []
             with torch.no_grad():
-                out = clone_head(raw, cand, ctx_v, ctx_t, ctx_b, asset_idx,
-                                 static_features=static)
-                prob = torch.sigmoid(out.action_logit.float()).cpu().numpy()
+                for view in views.values():
+                    prob = torch.sigmoid(
+                        _forward(view).action_logit.float()).cpu().numpy()
+                    y = view["target"].detach().cpu().numpy()
+                    aurocs.append(float(roc_auc_score(y, prob)))
+                    aps.append(float(average_precision_score(y, prob)))
+                    lls.append(float(log_loss(y, prob, labels=[0, 1])))
             clone_head.train()
-            return (float(roc_auc_score(y, prob)),
-                    float(average_precision_score(y, prob)),
-                    float(log_loss(y, prob, labels=[0, 1])))
+            return min(aurocs), min(aps), max(lls)
         final = None
         for step in range(1, 401):
             optimizer.zero_grad(set_to_none=True)
-            out = clone_head(raw, cand, ctx_v, ctx_t, ctx_b, asset_idx,
-                             static_features=static)
-            loss = torch.nn.functional.binary_cross_entropy_with_logits(
-                out.action_logit.float(), target)
+            loss = sum(
+                torch.nn.functional.binary_cross_entropy_with_logits(
+                    _forward(view).action_logit.float(), view["target"])
+                for view in views.values())
             if not torch.isfinite(loss):
                 raise RealDiagnosticExecutorRefusal(
                     "balanced clone loss is non-finite")

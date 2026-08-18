@@ -7582,11 +7582,21 @@ class ProductionExactDiagnosticResources:
                         weights_by_id[cid][name] for cid in batch.candidate_ids],
                         dtype=torch.float32) for name in ("action", "base", "top3", "wall")}
                     total, components = _actual_multitask_loss(out, batch, batch_weights)
-                    # B-17: detached -- the survival probe measures what the
-                    # encoder already retains; it never trains the encoder.
+                    # Ruling 18 (2026-08-19, supersedes B-17): the
+                    # reconstruction loss IS a lawful auxiliary of the base
+                    # stage — D-092's "nothing aggregated away" is enforced by
+                    # gradient, and the geometry-null measured the raw tape as
+                    # the load-bearing input, so an encoder free to discard
+                    # fields loses exactly what the program depends on. The
+                    # shaping is DISCLOSED (field_survival_shaping receipt
+                    # key) and the gate still certifies on HELD reconstruction
+                    # days — preservation must generalize, not memorize.
+                    # (Measured: under B-17 isolation the gate was
+                    # structurally unsatisfiable — plateau-converged C0 still
+                    # failed held reconstruction.)
                     reconstruction_loss, continuous_loss, categorical_loss = \
                         _field_reconstruction_loss(
-                            decoder, out.raw_memory.detach(), batch,
+                            decoder, out.raw_memory, batch,
                             batch_weights["base"],
                         )
                     oracle_losses.append(total)
@@ -7943,6 +7953,7 @@ class ProductionExactDiagnosticResources:
         self._raw_occlusion_auroc_drop[arm] = raw_occlusion_auroc_drop
         return rows, metrics, memories, decoder, frozenset(validation_days), \
             MappingProxyType({"trace": tuple(trace),
+                              "field_survival_shaping": True,
                               "best_validation": best_validation,
                               "best_reload_sha256": reload_sha256,
                               "decoder_sha256": _sha_bytes(module_state_bytes(decoder)),

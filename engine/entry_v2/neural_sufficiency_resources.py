@@ -7487,6 +7487,13 @@ class ProductionExactDiagnosticResources:
     def _encode(self, model, arm: str):
         stage_wall: dict[str, float] = {"collects_s": 0.0}
         model.to(self.device)
+        # Ruling 20: capture the ARCHITECTURE's weights (pre-training) — the
+        # route-aliveness mutation gate judges the graph, not the learning.
+        if getattr(self, "_initial_encoder_state", None) is None:
+            self._initial_encoder_state = {}
+        self._initial_encoder_state[arm] = {
+            key: value.detach().cpu().clone()
+            for key, value in model.encoder.state_dict().items()}
         decoder = LastRowReconstructionProbe(
             self.batches[0].continuous.shape[1], CATEGORY_SIZES).to(self.device)
         # B-17: the throwaway field-survival decoder used to share ONE optimizer
@@ -8106,6 +8113,18 @@ class ProductionExactDiagnosticResources:
         """Measure every input route and the exact causal suffix boundary."""
         encoder = model.encoder
         model.eval(); model.zero_grad(set_to_none=True)
+        # Ruling 20 (2026-08-19): route-aliveness is a property of the GRAPH.
+        # The mutation gate judges a clone carrying the arm's pre-training
+        # weights (a trained encoder rationally zeroes useless routes, e.g.
+        # absolute epoch time: ~constant within-session, non-stationary
+        # across sessions — measured route death, receipted not refused).
+        # Suffix/teacher/consistency checks stay on the TRAINED weights.
+        import copy as _copy
+        arch_encoder = _copy.deepcopy(encoder)
+        arch_encoder.load_state_dict({
+            key: value.to(self.device)
+            for key, value in self._initial_encoder_state[arm].items()})
+        arch_encoder.eval()
         # B-15: a 64-event prefix never completes a single 256-event block, so
         # M1's completed-block / band / GRU machinery was never exercised by
         # this gate at all.  Run it at three completed blocks on the largest
@@ -8154,6 +8173,10 @@ class ProductionExactDiagnosticResources:
         if any(e.weight.grad is None or not bool(e.weight.grad.abs().sum() > 0)
                for e in embeddings):
             raise RealDiagnosticExecutorRefusal("categorical route gradient failed")
+        with torch.no_grad():
+            arch_memory = arch_encoder(
+                x.detach(), k, cut, receive_clock_ns=clock,
+                candidate_decision_ts_ns=decision, asset_idx=0)
 
         route_delta = {}; suffix_checks = []
         with torch.no_grad():
@@ -8170,19 +8193,22 @@ class ProductionExactDiagnosticResources:
                 # fp32-detectable (the raw-unit absorption law applies to raw
                 # CSV canaries, NOT here; 1e6-scale injections saturate).
                 mutant = x.detach().clone(); mutant[row, field] += 1.25
+                with torch.no_grad():
+                    arch_changed = arch_encoder(
+                        mutant, k, cut, receive_clock_ns=clock,
+                        candidate_decision_ts_ns=decision, asset_idx=0)
                 changed_memory = encoder(
                     mutant, k, cut, receive_clock_ns=clock,
                     candidate_decision_ts_ns=decision, asset_idx=0)
                 changed = decide(changed_memory)
+                arch_delta = float((arch_changed - arch_memory).abs().max())
                 memory_delta = float((changed_memory - memory.detach()).abs().max())
                 action_delta = float(
                     (changed.action_logit - base.action_logit.detach()).abs().max())
-                # A-012 gate 2 as WRITTEN: the field must move the raw
-                # MEMORY (architectural routing) with a finite nonzero
-                # gradient. A base-TRAINED model may lawfully learn action-
-                # insensitivity to a field (e.g. microsecond remainders);
-                # per-field action sensitivity is receipted as measurement.
-                if memory_delta <= 1e-6:
+                # Ruling 20: the GATE judges the graph (pre-training clone);
+                # the trained encoder's memory/action deltas are receipted —
+                # a trained model lawfully zeroes useless routes.
+                if arch_delta <= 1e-6:
                     raise RealDiagnosticExecutorRefusal(
                         f"continuous route did not reach raw memory: {name}")
                 if getattr(self, "_route_action_sensitivity", None) is None:
@@ -8194,16 +8220,20 @@ class ProductionExactDiagnosticResources:
                                                        CATEGORY_SIZES)):
                 mutant = k.clone()
                 mutant[row, field] = (mutant[row, field] + 1) % size
+                with torch.no_grad():
+                    arch_changed = arch_encoder(
+                        x.detach(), mutant, cut, receive_clock_ns=clock,
+                        candidate_decision_ts_ns=decision, asset_idx=0)
                 changed_memory = encoder(
                     x.detach(), mutant, cut, receive_clock_ns=clock,
                     candidate_decision_ts_ns=decision, asset_idx=0)
                 changed = decide(changed_memory)
+                arch_delta = float((arch_changed - arch_memory).abs().max())
                 memory_delta = float((changed_memory - memory.detach()).abs().max())
                 action_delta = float(
                     (changed.action_logit - base.action_logit.detach()).abs().max())
-                # Same law-faithful form as the continuous routes: memory
-                # routing gates; learned action sensitivity is receipted.
-                if memory_delta <= 1e-6:
+                # Ruling 20: gate on the graph; trained deltas receipted.
+                if arch_delta <= 1e-6:
                     raise RealDiagnosticExecutorRefusal(
                         f"categorical route did not reach raw memory: {name}")
                 self._route_action_sensitivity.setdefault(arm, {})[name] = (
@@ -8233,6 +8263,13 @@ class ProductionExactDiagnosticResources:
                 consistent_x, consistent_k, cut, receive_clock_ns=clock,
                 candidate_decision_ts_ns=decision, asset_idx=0)
             consistent_output = decide(consistent_memory)
+            with torch.no_grad():
+                arch_mask_memory = arch_encoder(
+                    x.detach(), mask_only, cut, receive_clock_ns=clock,
+                    candidate_decision_ts_ns=decision, asset_idx=0)
+                arch_consistent_memory = arch_encoder(
+                    consistent_x, consistent_k, cut, receive_clock_ns=clock,
+                    candidate_decision_ts_ns=decision, asset_idx=0)
             undefined_deltas = {
                 "mask_only_memory": float((mask_memory - memory.detach()).abs().max()),
                 "mask_only_action": float((mask_output.action_logit
@@ -8241,12 +8278,14 @@ class ProductionExactDiagnosticResources:
                     - memory.detach()).abs().max()),
                 "price_plus_mask_action": float((consistent_output.action_logit
                     - base.action_logit.detach()).abs().max()),
+                "arch_mask_only_memory": float(
+                    (arch_mask_memory - arch_memory).abs().max()),
+                "arch_price_plus_mask_memory": float(
+                    (arch_consistent_memory - arch_memory).abs().max()),
             }
-            # Law-faithful (same class as the route gates): MEMORY movement
-            # gates the architectural routing; learned ACTION sensitivity is
-            # receipted as measurement, never a refusal.
-            if (undefined_deltas["mask_only_memory"] <= 1e-6
-                    or undefined_deltas["price_plus_mask_memory"] <= 1e-6):
+            # Ruling 20: the GATE judges the graph; trained deltas receipted.
+            if (undefined_deltas["arch_mask_only_memory"] <= 1e-6
+                    or undefined_deltas["arch_price_plus_mask_memory"] <= 1e-6):
                 raise RealDiagnosticExecutorRefusal(
                     "undefined-price mask/price routes did not reach raw memory")
             self._route_action_sensitivity.setdefault(arm, {}).update({
@@ -8372,13 +8411,16 @@ class ProductionExactDiagnosticResources:
                 bcut = candidate_batch.cutoffs[local:local + 1].to(self.device)
                 bd = candidate_batch.decisions[local:local + 1].to(self.device)
                 with torch.no_grad():
-                    reference = encoder(
+                    # Ruling 20: band structure is ARCHITECTURE (M1's memory
+                    # layout) — judged on the pre-training clone; a trained
+                    # encoder may lawfully attenuate a band's influence.
+                    reference = arch_encoder(
                         bx, bk, bcut, receive_clock_ns=bc,
                         candidate_decision_ts_ns=bd,
                         asset_idx=C.ASSET_INDEX[candidate_batch.asset])
                     for band_name, index in indices.items():
                         mutant = bx.clone(); mutant[index, 0] += 1.25
-                        changed = encoder(
+                        changed = arch_encoder(
                             mutant, bk, bcut, receive_clock_ns=bc,
                             candidate_decision_ts_ns=bd,
                             asset_idx=C.ASSET_INDEX[candidate_batch.asset])

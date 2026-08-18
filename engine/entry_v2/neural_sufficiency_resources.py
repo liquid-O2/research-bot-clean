@@ -7545,11 +7545,16 @@ class ProductionExactDiagnosticResources:
             "top3": top3_receipt.receipt_sha256,
             "wall": wall_receipt.receipt_sha256})
         updates = 0; best = None; best_validation = np.inf; stale = 0; trace = []
-        # The bounded competence clone jointly optimizes the actual encoder and
-        # shared head. Twelve chronological passes are the frozen dense-stage
-        # ceiling; the independent competence ceiling remains 400 updates.
+        # Ruling 17 (2026-08-19): this loop trains the arm's ACTUAL encoder —
+        # the frozen memory plane every downstream head consumes. It runs the
+        # full pointwise_dense STAGE_SPECS law (ruling 10: raised ceiling,
+        # patience + 0.1% min-improvement governors). A-012's 400-update
+        # ceiling binds the DISCARDED acceptance clones (gate-5 balanced
+        # overfit), never the base stage: a memory plane from a 2-epoch
+        # encoder made the reconstruction gate unreachable by construction.
+        _base_spec = _STAGE_SPECS["pointwise_dense"]
         _base_stage_start = time.monotonic()
-        for epoch in range(12):
+        for epoch in range(_base_spec.max_epochs):
             model.train(); decoder.train()
             named = [*model.named_parameters(), *((f"decoder.{name}", parameter)
                      for name, parameter in decoder.named_parameters())]
@@ -7620,7 +7625,7 @@ class ProductionExactDiagnosticResources:
                     parameter.grad.detach())) for _name, parameter in named
                     if parameter.grad is not None)
                 optimizer.step(); decoder_optimizer.step(); updates += 1
-                if updates >= 400: break
+
             rows_now, _metrics_all, _, _, probabilities_now = self._collect(model, arm)
             p_now = np.asarray([probabilities_now[cid] for cid in rows_now.candidate_id])
             val_mask = (np.isin(np.asarray(rows_now.day), list(validation_days))
@@ -7694,7 +7699,7 @@ class ProductionExactDiagnosticResources:
                 )
             else:
                 stale += 1
-            if epoch >= 1 and (stale >= 3 or updates >= 400):
+            if epoch >= 1 and stale >= _base_spec.patience:
                 break
         stage_wall["base_stage_s"] = time.monotonic() - _base_stage_start
         if best is None or len(trace) < 2:

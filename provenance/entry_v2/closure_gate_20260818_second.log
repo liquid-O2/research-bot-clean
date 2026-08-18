@@ -1,0 +1,4 @@
+.../workspace/engine/entry_v2/test_atlas_losses.py:111: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  self.assertNotEqual(float(fixed_loss), float(joint_loss))
+....................................................................................../bin/bash: line 2: 132725 Segmentation fault      (core dumped) python -m unittest discover -s engine/entry_v2 -p 'test_*.py' -t .

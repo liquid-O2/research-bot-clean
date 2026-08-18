@@ -1,0 +1,12 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE SIDE=+1 BOOK, blind, on the deployable line.  B5 measured that the champion's TAIL skill exists on one side only — q90 lift +$129..+$341 on side=+1 against -$349..+$31 on side=-1, on every asset and every era — and the pooled figure quoted all night is the two cancelling.
+# THE SIDE IS KNOWN AT THE ARRIVAL SECOND, so this is a deployable restriction and not an outcome filter.  The denominator is unchanged: every session of the era still counts, and a session with no side=+1 take contributes $0 — so halving the book cannot flatter the mean.
+# incumbent_POOLED_BOOK is the $57.76 / $88.96 / $101.77 that the unrestricted book earns, and it is the number to beat.
+link	search_width	cell_chosen	usd_on_selector	usd_on_TARGET_BLIND	sd_usd	ci_lo	ci_hi	n_trades_total	n_era_sessions	top5_trade_share_of_pnl	LONG_ONLY_BOOK_search_adjusted_null	n_cells_searched	beats_LONG_ONLY_null	incumbent_POOLED_BOOK	delta_vs_pooled_incumbent	beats_pooled_incumbent	capture_of_causal_oracle	sign
+E4->E5	NARROW_S_XGB	S_XGB|DAYSOFAR_0.5	59.9	87.28	4.68	-30.35	204.91	765.0	387	0.075	90.33	28	no	57.76	29.52	YES	0.0432	POSITIVE
+E4->E5	WIDE_all_columns	S_XGB|DAYSOFAR_0.5	59.9	87.28	4.68	-30.35	204.91	765.0	387	0.075	90.33	28	no	57.76	29.52	YES	0.0432	POSITIVE
+E5->E6	NARROW_S_XGB	S_XGB|DAYSOFAR_0.5	87.28	161.07	7.99	20.95	301.18	733.2	384	0.068	180.12	28	no	88.96	72.11	YES	0.0602	POSITIVE
+E5->E6	WIDE_all_columns	S_XGB|DAYSOFAR_0.5	87.28	161.07	7.99	20.95	301.18	733.2	384	0.068	180.12	28	no	88.96	72.11	YES	0.0602	POSITIVE
+E6->E7	NARROW_S_XGB	S_XGB|CELLSOFAR_0.8	169.15	55.49	10.39	-97.69	208.66	654.8	393	0.116	161.21	28	no	101.77	-46.28	no	0.0165	POSITIVE
+E6->E7	WIDE_all_columns	S_XGB|CELLSOFAR_0.8	169.15	55.49	10.39	-97.69	208.66	654.8	393	0.116	161.21	28	no	101.77	-46.28	no	0.0165	POSITIVE

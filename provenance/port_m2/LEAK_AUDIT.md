@@ -1,5 +1,13 @@
 # ADVERSARIAL LEAK AUDIT — port m2/m3 (lane=port-m2-leakaudit)
 
+> **Historical audit only.** This audit explains why the old port-m2/m3 result
+> base was not reused as Entry V2 learned evidence. It is not a result from the
+> current Entry V2 recovery. The environment/status snapshot is 2026-08-18 UTC;
+> later-dated narrative in this historical file is preserved but cannot
+> override current Entry V2 receipts. Start at
+> [`../../index.md`](../../index.md) and
+> [`../../docs/ENTRY_V2_CURRENT_STATUS.md`](../../docs/ENTRY_V2_CURRENT_STATUS.md).
+
 Ordered 2026-08-20 ~23:45Z. The user's ORB story is the standard: PBO and
 purged walk-forward were both green, and the opening-range bars still carried
 next-day information. Green validation machinery does not clear a chain; only

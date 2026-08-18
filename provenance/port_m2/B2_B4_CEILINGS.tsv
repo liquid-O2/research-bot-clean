@@ -1,0 +1,12 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# HINDSIGHT CEILINGS ON THE CAUSAL BOOK — the incumbent's own blind cell (S_XGB|DAYSOFAR at its per-era knob), granted one privilege at a time.  Nothing here is deployable and nothing is promoted.
+# A DATA CONSTRAINT, STATED UP FRONT: the delayed tensor carries ENTRY delays {0,60,120,300,600}s only and no mid-hold slice, so the t+{30,60,120}min management cut and the first-30/60min scout condition CANNOT be priced as specified.  Both are priced at their MAXIMAL form instead, which bounds the real thing from above: B4 pays the PEAK (perfect exit timing) and B2 conditions on the first seat's FINAL outcome (perfect day-reading).  If a pot is small at the maximum it is smaller at any achievable version, and the axis dies for one replay.
+# The missing mid-hold slices are a FINDING about the tensor, not an excuse: pricing the real management rule needs a path rebuild.
+era	arm	what	causal_book_usd_per_session	with_the_privilege_usd	delta_usd	n_trades
+E5	B4_MANAGEMENT_CEILING	causal book paid at PEAK	57.76	2152.61	2094.85	725.8
+E5	B2_SCOUT_CEILING	seats 2-3 only if the day's FIRST seat won	57.76	-44.06	-101.82	636.4
+E7	B4_MANAGEMENT_CEILING	causal book paid at PEAK	101.77	3121.85	3020.08	692.4
+E7	B2_SCOUT_CEILING	seats 2-3 only if the day's FIRST seat won	101.77	46.85	-54.93	632.8
+E6	B4_MANAGEMENT_CEILING	causal book paid at PEAK	88.96	3073.76	2984.79	730.0
+E6	B2_SCOUT_CEILING	seats 2-3 only if the day's FIRST seat won	88.96	25.52	-63.44	650.0

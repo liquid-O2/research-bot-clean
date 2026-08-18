@@ -1,5 +1,13 @@
 # Data and authority map
 
+> **Legacy map.** The map below is for the earlier IWM/Russell clean-room
+> program. It does not define the current SI/HG/NKD Entry V2 source, chronology,
+> or sealed-data wall. Current Entry V2 authority and retained artifact
+> locations are summarized in
+> [`ENTRY_V2_CURRENT_STATUS.md`](ENTRY_V2_CURRENT_STATUS.md), with the exact raw
+> event law in
+> [`../design/ENTRY_V2_DATABENTO_CLOCK_LAW.md`](../design/ENTRY_V2_DATABENTO_CLOCK_LAW.md).
+
 Large payloads stay external. `authorities/REGISTRY.tsv` is the
 machine-readable map; this document explains roles and walls.
 

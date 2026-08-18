@@ -10,3 +10,11 @@
 !provenance/code_seed/verification/*.log
 .DS_Store
 engine/target/
+
+# Entry V2 boundary (2026-08-18): bulk stays outside git
+/.mempalace/
+/mempalace/
+provenance/entry_v2/.entry-v2-durable-store/
+.claude/settings.local.json
+# provenance logs are authority, not scratch
+!provenance/entry_v2/**/*.log

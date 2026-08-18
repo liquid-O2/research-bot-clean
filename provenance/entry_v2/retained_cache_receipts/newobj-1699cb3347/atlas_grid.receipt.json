@@ -1,0 +1,160 @@
+{
+ "axes": {
+  "engine": [
+   "xgb",
+   "lgbm",
+   "catb"
+  ],
+  "feat": [
+   "BASE",
+   "CELLREL",
+   "DAYSOFAR",
+   "TABPFN",
+   "DIP"
+  ],
+  "group": [
+   "day",
+   "assetday",
+   "class",
+   "cell",
+   "cellclass",
+   "joint"
+  ],
+  "obj": [
+   "ndcg3",
+   "ndcg1",
+   "softmax1",
+   "dpairs",
+   "q75"
+  ],
+  "pop": [
+   "full",
+   "recency",
+   "last2",
+   "classfilt"
+  ],
+  "target": [
+   "dollars",
+   "cellrank",
+   "winner",
+   "maecap"
+  ]
+ },
+ "confirm_budget": {
+  "early": 25,
+  "rounds": 300,
+  "seed": 20260813
+ },
+ "confirm_eras": [
+  "E3",
+  "E4",
+  "E5",
+  "E6",
+  "E7"
+ ],
+ "n_full_cross": 7200,
+ "n_live_after_prunes": 1944,
+ "n_screen_cells": 219,
+ "policies": [
+  "static1",
+  "thresh",
+  "gate60",
+  "gate120",
+  "stop"
+ ],
+ "promotion": false,
+ "pruned_by": {
+  "P1": 960,
+  "P2": 960,
+  "P3": 240,
+  "P4": 120,
+  "P5": 420,
+  "P6": 2556
+ },
+ "prunes": [
+  {
+   "id": "P1",
+   "name": "pointwise objective collapses the grouping axis",
+   "reason": "`q75` is a pointwise quantile regression: it never sees a group, so all five grouping levels would fit the identical model.  Kept only at group=cell (where the grouping label is inert and honest) and at group=joint (where the grouping changes the training ROWS, not only the groups)."
+  },
+  {
+   "id": "P2",
+   "name": "custom-objective engines",
+   "reason": "`softmax1` is a per-cell multinomial implemented as a custom objective that needs the group pointer; only xgboost exposes it.  lightgbm/catboost cells for that objective are infeasible, not merely redundant."
+  },
+  {
+   "id": "P3",
+   "name": "softmax1 x {winner, cellrank} is degenerate",
+   "reason": "The softmax target IS 'the member that paid most'.  With target=cellrank the argmax is identical by construction; with target=winner a cell has ties or no positive at all.  Both re-express the dollars cell."
+  },
+  {
+   "id": "P4",
+   "name": "q75 x winner is degenerate",
+   "reason": "A 0.75-quantile regression on a 0/1 target returns a step function of the cell's base rate."
+  },
+  {
+   "id": "P5",
+   "name": "joint x {winner, cellrank}",
+   "reason": "`y_winner` is a D=0 label with no delayed counterpart, and a within-cell rank over the joint {member x delay} set ranks different ACTS against each other on a scale defined at one of them.  Incoherent, not merely weak."
+  },
+  {
+   "id": "P6",
+   "name": "non-xgboost engines answer the ENGINE question only",
+   "reason": "lightgbm and catboost-ordered are in the grid to test whether a different implementation of the same objective matters (the final pass ran them at defaults and flagged it).  They are crossed with population=full and feature-set in {BASE, CELLREL} only; crossing them with every population and feature family would triple the grid to answer a question nobody asked."
+  },
+  {
+   "id": "P7",
+   "name": "`day` and `asset-day` are NOT redundant",
+   "reason": "`st_rank.group_key(unit='day')` is (asset, day) = asset-day.  A cross-asset day group (all three books' candidates competing) is a DIFFERENT object and is kept as `day`.  Both levels are live; the coordinator's list named them separately and they are separated here."
+  },
+  {
+   "id": "P8",
+   "name": "the policy axis is post-hoc",
+   "reason": "static top-1 / inner-swept threshold / gate-verified / optimal-stopping are read off a fitted score column at zero fit cost.  Screening them would multiply the fit count by five to measure nothing new; every Stage-B survivor is read under all five instead."
+  },
+  {
+   "id": "P9",
+   "name": "FRACTIONAL SCREEN DESIGN \u2014 stated, not hidden",
+   "reason": "The pruned full cross is 1,616 live cells, which is not a cheap screen.  Stage A therefore screens a RESOLUTION-III + MARQUEE-PLANE design: (a) the marquee plane group x feat fully crossed, (b) the axis marginals of objective x target x population and engine, each at BOTH feature levels that the diagnosis distinguishes (BASE and CELLREL), (c) named interaction cells each carrying a stated mechanism.  Stage A2 then fully crosses the SURVIVING levels of every axis, which is where any interaction the fractional design missed can still surface."
+  },
+  {
+   "id": "P10",
+   "name": "measured prune",
+   "reason": "Any cell that comes out constant, all-NaN, or that fails to fit is dropped and RECORDED in the screen ledger as such, never silently."
+  }
+ ],
+ "reference": {
+  "engine": "xgb",
+  "feat": "BASE",
+  "group": "cell",
+  "obj": "ndcg3",
+  "pop": "full",
+  "target": "dollars"
+ },
+ "screen_blocks": {
+  "engine_x_obj": 16,
+  "engine_x_target": 6,
+  "granularity_x_obj": 40,
+  "joint": 19,
+  "marquee": 29,
+  "obj_x_target": 72,
+  "pop_x_feat": 15,
+  "pop_x_obj": 12,
+  "pop_x_target": 9,
+  "reference": 1
+ },
+ "screen_budget": {
+  "depth": 6,
+  "eta": 0.08,
+  "group_frac": 0.6,
+  "rounds": 120,
+  "seed": 20260813
+ },
+ "screen_grid_sha256": "723f972a7cf03533a493e388856d8b9c7d5e47ddd482efed9e99757d2fedfe46",
+ "version": "PORT-M2-RANK-ATLAS-V1",
+ "weak_eras": [
+  "E3",
+  "E5",
+  "E7"
+ ]
+}

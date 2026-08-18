@@ -1,0 +1,16 @@
+{
+  "schema": "entry-v2-invalid-cache-deletion-receipt-v1",
+  "executed_at_utc": "2026-08-16T15:36:10Z",
+  "status": "EXECUTED",
+  "deleted_root": "/workspace/artifacts/cache/port/entry_v2",
+  "deleted_directory_count": 10,
+  "deleted_file_count": 4056,
+  "deleted_total_file_bytes": 63244943663,
+  "open_reference_count_before_delete": 0,
+  "exact_inventory_matched_before_delete": true,
+  "target_absent_after_delete": true,
+  "deletion_manifest_sha256": "b36ecd95f17b749ad9839a6713430bf454dc65c2687546ef395114748d00dc4c",
+  "failed_substrate_receipt_sha256": "ca5acac066d1e19d3a53d42546dc3a60b0f3c9447079bd8fb771f82987f5bf4b",
+  "mechanical_acceptance_audit_sha256": "0a5d367c06e614d20ce4d5db3dc0c46924da47e87e47fdbc612fef84df68b8fe",
+  "recovery": "locally_irreversible; rebuild from retained provider source"
+}

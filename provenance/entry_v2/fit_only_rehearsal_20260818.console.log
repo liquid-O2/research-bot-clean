@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 1022, in main
+    executor, context = factory(args.run_root)
+                        ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_resources.py", line 7778, in entry_v2_production_executor_factory
+    loaded = resources._ensure_loaded()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_resources.py", line 4837, in _ensure_loaded
+    self.stage = build_production_diagnostic_stage(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/production_runtime.py", line 1182, in build_production_diagnostic_stage
+    diagnostic = finalize_diagnostic_corpus(stage.corpus, observers)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/diagnostic_corpus.py", line 1328, in finalize_diagnostic_corpus
+    anchors = tuple(
+              ^^^^^^
+  File "/workspace/engine/entry_v2/diagnostic_corpus.py", line 1329, in <genexpr>
+    _anchor(binding, candidate, session.truth,
+  File "/workspace/engine/entry_v2/diagnostic_corpus.py", line 1125, in _anchor
+    prior = _units_text(candidate, "atr14_prev_usd")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/diagnostic_corpus.py", line 609, in _units_text
+    raise DiagnosticCorpusRefusal(
+engine.entry_v2.diagnostic_corpus.DiagnosticCorpusRefusal: atr14_prev_usd is not integral at 2000000000 units/USD
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 1049, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 1030, in main
+    raise ProductionDiagnosticRefusal("exact executor factory could not be loaded") from error
+ProductionDiagnosticRefusal: exact executor factory could not be loaded

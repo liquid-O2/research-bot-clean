@@ -1,0 +1,17 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# PRE-DAY GATE on the causal book: trade only asset-days whose PRIOR session's mean |certificate| for that asset sits above a quantile of the training distribution.  Strictly causal — the qualifier is known before the day opens.
+# gate_quantile 0.0 is the ungated book, so every other row is read against it.  Trade count falls with the gate, which is the point: the 3-4/week floor is a CONSTRAINT, and a gate that raises $/session while cutting trades below the floor has not helped.
+era	gate_quantile	usd_per_session_ALL	n_trades	n_era_sessions
+E5	0.0	57.76	725.8	387
+E5	0.3	57.76	725.8	387
+E5	0.5	57.8	472.0	387
+E5	0.7	64.39	242.2	387
+E7	0.0	101.77	692.4	393
+E7	0.3	101.77	692.4	393
+E7	0.5	72.16	486.2	393
+E7	0.7	62.09	231.0	393
+E6	0.0	88.96	730.0	384
+E6	0.3	88.96	730.0	384
+E6	0.5	32.14	450.8	384
+E6	0.7	2.55	224.8	384

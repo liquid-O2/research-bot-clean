@@ -1,0 +1,26 @@
+.../workspace/engine/entry_v2/test_atlas_losses.py:111: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  self.assertNotEqual(float(fixed_loss), float(joint_loss))
+................................................................................................................................................................................E........................................................................................
+======================================================================
+ERROR: test_crash_after_each_boundary_resumes_without_refit_or_reselection (engine.entry_v2.test_neural_sufficiency_stage_persistence.StagePersistenceTest.test_crash_after_each_boundary_resumes_without_refit_or_reselection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/test_neural_sufficiency_stage_persistence.py", line 573, in test_crash_after_each_boundary_resumes_without_refit_or_reselection
+    runtime.execute_e3(
+  File "/workspace/engine/entry_v2/neural_sufficiency_stage_persistence.py", line 1349, in execute_e3
+    self.store.publish_e3(acceptance_sha256, prior_stage_sha256, execution,
+  File "/workspace/engine/entry_v2/neural_sufficiency_stage_persistence.py", line 1041, in publish_e3
+    return self._publish("E3", acceptance_sha256, prior_stage_sha256, execution,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_stage_persistence.py", line 1008, in _publish
+    loaded = self.load(
+             ^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_stage_persistence.py", line 1253, in load
+    raise StagePersistenceRefusal("E3 execution/parent cannot be reproduced")
+engine.entry_v2.neural_sufficiency_stage_persistence.StagePersistenceRefusal: E3 execution/parent cannot be reproduced
+
+----------------------------------------------------------------------
+Ran 268 tests in 212.696s
+
+FAILED (errors=1)

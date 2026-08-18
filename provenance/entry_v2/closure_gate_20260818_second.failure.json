@@ -1,0 +1,28 @@
+{
+  "schema": "entry-v2-one-shot-closure-gate-failure-v1",
+  "recorded_at_utc": "2026-08-18T00:41:07Z",
+  "source_tree_sha256": "77f47afbc3e954d906f20de1e700caeea791f9ef59a1940de7f4f27134ee7471",
+  "prior_gate_failure_inventory": {
+    "path": "provenance/entry_v2/closure_gate_20260818.failure.json",
+    "sha256": "d91e1f1a3e193f47157bd6a8bacd94d6d0ca80a01528a2f2a4db85557d6d8cc3"
+  },
+  "command": "python -m py_compile engine/entry_v2/*.py && python -m unittest discover -s engine/entry_v2 -p 'test_*.py' -t .",
+  "compile_status": "PASS",
+  "test_status": "NATIVE_PROCESS_CRASH",
+  "exit_code": 139,
+  "signal": "SIGSEGV",
+  "completed_progress_dots": 89,
+  "next_discovered_test_if_progress_is_one_dot_per_completion": "engine.entry_v2.test_corpus.CorpusBridgeTest.test_strict_durable_parent_refuses_missing_before_qre_open",
+  "next_test_attribution_is_inferred_not_proven": true,
+  "python_exception_or_assertion": null,
+  "core_artifact": null,
+  "core_capture_note": "kernel core_pattern pipes to apport; no accessible core or crash report was produced",
+  "output_log": {
+    "path": "provenance/entry_v2/closure_gate_20260818_second.log",
+    "sha256": "fee12243843126f2b8d165f6d53993a36fa19e4b98b27c647bcedb78e8ab21b1",
+    "bytes": 571
+  },
+  "fit_only_rehearsal_started": false,
+  "held_e1_e2_e3_started": false,
+  "post_failure_patch_or_rerun": false
+}

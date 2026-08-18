@@ -1,0 +1,298 @@
+{
+  "schema": "entry-v2-compliance-source-manifest-v1",
+  "development_start_d8": 20210101,
+  "development_end_exclusive_d8": 20250701,
+  "policy": {
+    "directive": "D-077-UPDATE",
+    "window": "inclusive [-10,+10] minutes",
+    "calendars": ["BLS CPI", "BLS Employment Situation", "FOMC statement"],
+    "absence_without_joint_coverage": "COMPLIANCE_UNKNOWN",
+    "h2_and_2026": "no emitted timestamp on or after 2025-07-01T00:00:00Z"
+  },
+  "acquisition": {
+    "BLS_capture_url_template": "https://web.archive.org/web/{UTC_CAPTURE_YYYYMMDDhhmmss}id_/https://www.bls.gov/schedule/news_release/{cpi|empsit}.htm",
+    "BLS_cdx_url_template": "https://web.archive.org/cdx/search/cdx?url=bls.gov/schedule/news_release/{cpi|empsit}.htm&from=2020&to=2025&output=json&fl=timestamp,original,statuscode,digest&filter=statuscode:200&filter=mimetype:text/html&collapse=digest",
+    "FOMC_official_url_template": "https://www.federalreserve.gov/newsevents/pressreleases/{source filename}",
+    "free_download_authority": "D-060",
+    "current_or_later_historical_calendar_used": false
+  },
+  "archive_indices": [
+    {
+      "path": "compliance_sources/bls/cpi_cdx_2020_2025.json",
+      "sha256": "b64fe2a939cc7df26ac8489c53b88f74092001adbd2e5037c97b2a6c36784cf1",
+      "query": "Wayback CDX; cpi.htm; 2020..2025; status=200; mime=text/html; collapse=digest"
+    },
+    {
+      "path": "compliance_sources/bls/empsit_cdx_2020_2025.json",
+      "sha256": "15940e3ef012434686e70a3907f9369718420faf7d0d7b1a276598b3d27615ba",
+      "query": "Wayback CDX; empsit.htm; 2020..2025; status=200; mime=text/html; collapse=digest"
+    }
+  ],
+  "earliest_capture_audit": [
+    {"program": "CPI", "year": 2021, "index_path": "compliance_sources/bls/cpi_cdx_2020_2025.json", "predecessor_ts": "20200918204016", "selected_ts": "20201016223633"},
+    {"program": "CPI", "year": 2022, "index_path": "compliance_sources/bls/cpi_cdx_2020_2025.json", "predecessor_ts": "20211019044013", "selected_ts": "20211110230622"},
+    {"program": "CPI", "year": 2023, "index_path": "compliance_sources/bls/cpi_cdx_2020_2025.json", "predecessor_ts": "20221016232016", "selected_ts": "20221018044827"},
+    {"program": "CPI", "year": 2024, "index_path": "compliance_sources/bls/cpi_cdx_2020_2025.json", "predecessor_ts": "20230924145356", "selected_ts": "20231012170920"},
+    {"program": "CPI", "year": 2025, "index_path": "compliance_sources/bls/cpi_cdx_2020_2025.json", "predecessor_ts": "20241001182219", "selected_ts": "20241110022915"},
+    {"program": "EMPLOYMENT_SITUATION", "year": 2021, "index_path": "compliance_sources/bls/empsit_cdx_2020_2025.json", "predecessor_ts": "20201003124947", "selected_ts": "20201016173943"},
+    {"program": "EMPLOYMENT_SITUATION", "year": 2022, "index_path": "compliance_sources/bls/empsit_cdx_2020_2025.json", "predecessor_ts": "20211017000757", "selected_ts": "20211101202326"},
+    {"program": "EMPLOYMENT_SITUATION", "year": 2023, "index_path": "compliance_sources/bls/empsit_cdx_2020_2025.json", "predecessor_ts": "20221012092400", "selected_ts": "20221020073958"},
+    {"program": "EMPLOYMENT_SITUATION", "year": 2024, "index_path": "compliance_sources/bls/empsit_cdx_2020_2025.json", "predecessor_ts": "20231003083619", "selected_ts": "20231027223803"},
+    {"program": "EMPLOYMENT_SITUATION", "year": 2025, "index_path": "compliance_sources/bls/empsit_cdx_2020_2025.json", "predecessor_ts": "20240926173407", "selected_ts": "20241009023323"}
+  ],
+  "availability_notes": {
+    "BLS": "UTC Wayback capture timestamp; each selected capture is the first distinct archived body with the complete declared release-year roster, and its immediate distinct predecessor is included as an incomplete negative proof.",
+    "FOMC_schedule": "Exact official press-release clock printed in the source page, interpreted in America/New_York.",
+    "FOMC_time_policy": "The 2013 source says For immediate release without a clock. 2013-03-14T00:00:00Z is a conservative post-publication proof clock; it is years earlier than, and therefore never controls, any coverage/event row availability."
+  },
+  "sources": [
+    {
+      "source_id": "FED_FOMC_TIME_POLICY_20130313",
+      "kind": "FOMC_TIME_POLICY_HTML",
+      "coverage_year": null,
+      "availability_ts_ns": 1363219200000000000,
+      "path": "compliance_sources/fed/monetary20130313a.htm",
+      "sha256": "0e7e533e7463838c35ef9bda46e23755d4f6b3e168c9af722c0380a772df5191",
+      "program": null
+    },
+    {
+      "source_id": "FED_FOMC_SCHEDULE_2021",
+      "kind": "FOMC_SCHEDULE_HTML",
+      "coverage_year": 2021,
+      "availability_ts_ns": 1593698400000000000,
+      "path": "compliance_sources/fed/monetary20200702a.htm",
+      "sha256": "d78d61032b9f6d508c034a94459e0e235d32146017c0c5a2444166de5ec352d4",
+      "program": "FOMC"
+    },
+    {
+      "source_id": "FED_FOMC_SCHEDULE_2022",
+      "kind": "FOMC_SCHEDULE_HTML",
+      "coverage_year": 2022,
+      "availability_ts_ns": 1622818800000000000,
+      "path": "compliance_sources/fed/monetary20210604a.htm",
+      "sha256": "c7086abdc93aae2632faba2907cd8bfacc1f68cf6e4eac9dc0b47f5bc6135fda",
+      "program": "FOMC"
+    },
+    {
+      "source_id": "FED_FOMC_SCHEDULE_2023",
+      "kind": "FOMC_SCHEDULE_HTML",
+      "coverage_year": 2023,
+      "availability_ts_ns": 1656093600000000000,
+      "path": "compliance_sources/fed/monetary20220624a.htm",
+      "sha256": "1d0b862ec6dec060da3de54cac63cb353aa1d33a2a89e3fa4d7bffe277ecd871",
+      "program": "FOMC"
+    },
+    {
+      "source_id": "FED_FOMC_SCHEDULE_2024",
+      "kind": "FOMC_SCHEDULE_HTML",
+      "coverage_year": 2024,
+      "availability_ts_ns": 1687534200000000000,
+      "path": "compliance_sources/fed/monetary20230623a.htm",
+      "sha256": "e3eb499dea7f3d4cb507b2795c2cc3f65cf907f4952e45cf4885220b9e2cce23",
+      "program": "FOMC"
+    },
+    {
+      "source_id": "FED_FOMC_SCHEDULE_2025",
+      "kind": "FOMC_SCHEDULE_HTML",
+      "coverage_year": 2025,
+      "availability_ts_ns": 1723224600000000000,
+      "path": "compliance_sources/fed/monetary20240809a.htm",
+      "sha256": "f8772a8ac3f492e140416b2e165993e01fcaf1a5f393e7a1874e3a943aaca7ca",
+      "program": "FOMC"
+    },
+
+    {
+      "source_id": "BLS_CPI_2021_PREDECESSOR",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2021,
+      "availability_ts_ns": 1600461616000000000,
+      "path": "compliance_sources/bls/cpi_20200918204016_predecessor.htm",
+      "sha256": "e9bf0cd64def5ed37124c62d6503beb7290619360e23c228ebeeca38e6c96b23",
+      "program": "CPI"
+    },
+    {
+      "source_id": "BLS_CPI_2021_EARLIEST_COMPLETE",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2021,
+      "availability_ts_ns": 1602887793000000000,
+      "path": "compliance_sources/bls/cpi_20201016223633.htm",
+      "sha256": "fa09ea66842d7509bfdeb6081d96b0fb43eaf101bfee306df4b432fc8bd6975f",
+      "program": "CPI"
+    },
+    {
+      "source_id": "BLS_EMP_2021_PREDECESSOR",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2021,
+      "availability_ts_ns": 1601729387000000000,
+      "path": "compliance_sources/bls/empsit_20201003124947_predecessor.htm",
+      "sha256": "75f2ceffec4ead9e1fd0b74ac69ef7cbc97478bf2cd7343721f024415d9bb888",
+      "program": "EMPLOYMENT_SITUATION"
+    },
+    {
+      "source_id": "BLS_EMP_2021_EARLIEST_COMPLETE",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2021,
+      "availability_ts_ns": 1602869983000000000,
+      "path": "compliance_sources/bls/empsit_20201016173943.htm",
+      "sha256": "5d7fc3ad8366bbd2fd1a3dafe142c4de37711655521a937f5e17324d4f4557c0",
+      "program": "EMPLOYMENT_SITUATION"
+    },
+
+    {
+      "source_id": "BLS_CPI_2022_PREDECESSOR",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2022,
+      "availability_ts_ns": 1634618413000000000,
+      "path": "compliance_sources/bls/cpi_20211019044013_predecessor.htm",
+      "sha256": "0d8d377017bacf7bba176b3acd60fd981dad928d2c50b4b59ea4cca0a41325e4",
+      "program": "CPI"
+    },
+    {
+      "source_id": "BLS_CPI_2022_EARLIEST_COMPLETE",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2022,
+      "availability_ts_ns": 1636585582000000000,
+      "path": "compliance_sources/bls/cpi_20211110230622.htm",
+      "sha256": "f03a5acca221745e16869d9b95de0f18a7eda7231df9e1d66a70615ae378c26b",
+      "program": "CPI"
+    },
+    {
+      "source_id": "BLS_EMP_2022_PREDECESSOR",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2022,
+      "availability_ts_ns": 1634429277000000000,
+      "path": "compliance_sources/bls/empsit_20211017000757_predecessor.htm",
+      "sha256": "239fd5e09ccb9812f7bf13a3bfb1c9d28e5c41949f87500369e6077db4da0442",
+      "program": "EMPLOYMENT_SITUATION"
+    },
+    {
+      "source_id": "BLS_EMP_2022_EARLIEST_COMPLETE",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2022,
+      "availability_ts_ns": 1635798206000000000,
+      "path": "compliance_sources/bls/empsit_20211101202326.htm",
+      "sha256": "abc0a42c0aead69b15fb72a80bf0be4700b2f8db1f2ceb1a9ce99404600f309f",
+      "program": "EMPLOYMENT_SITUATION"
+    },
+
+    {
+      "source_id": "BLS_CPI_2023_PREDECESSOR",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2023,
+      "availability_ts_ns": 1665962416000000000,
+      "path": "compliance_sources/bls/cpi_20221016232016_predecessor.htm",
+      "sha256": "babcb28d99221d4e4f85d278a87f9bd39c56aa392f797cbec6bbdadf5760fcfd",
+      "program": "CPI"
+    },
+    {
+      "source_id": "BLS_CPI_2023_EARLIEST_COMPLETE",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2023,
+      "availability_ts_ns": 1666068507000000000,
+      "path": "compliance_sources/bls/cpi_20221018044827.htm",
+      "sha256": "bbe5b463f52309fabd61b02851402e3d00b5478a0c0f108154684efc487ce79e",
+      "program": "CPI"
+    },
+    {
+      "source_id": "BLS_EMP_2023_PREDECESSOR",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2023,
+      "availability_ts_ns": 1665566640000000000,
+      "path": "compliance_sources/bls/empsit_20221012092400_predecessor.htm",
+      "sha256": "cad473f7750c83e23139ac595a2cfb0fb5fedc78e62c7a804698c4bf548b59a3",
+      "program": "EMPLOYMENT_SITUATION"
+    },
+    {
+      "source_id": "BLS_EMP_2023_EARLIEST_COMPLETE",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2023,
+      "availability_ts_ns": 1666251598000000000,
+      "path": "compliance_sources/bls/empsit_20221020073958.htm",
+      "sha256": "a1534f75a404bbb6474bf42758f8fdcff82720ad210fa483f10828e164221f07",
+      "program": "EMPLOYMENT_SITUATION"
+    },
+
+    {
+      "source_id": "BLS_CPI_2024_PREDECESSOR",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2024,
+      "availability_ts_ns": 1695567236000000000,
+      "path": "compliance_sources/bls/cpi_20230924145356_predecessor.htm",
+      "sha256": "70f3c8d6c6a550ae37d17e6a0573ad7c0094860744176514066852ffeed25775",
+      "program": "CPI"
+    },
+    {
+      "source_id": "BLS_CPI_2024_EARLIEST_COMPLETE",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2024,
+      "availability_ts_ns": 1697130560000000000,
+      "path": "compliance_sources/bls/cpi_20231012170920.htm",
+      "sha256": "e5443b120939bddfee597efe9c043abcb0e3065f4e2c091b2e711913617077fe",
+      "program": "CPI"
+    },
+    {
+      "source_id": "BLS_EMP_2024_PREDECESSOR",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2024,
+      "availability_ts_ns": 1696322179000000000,
+      "path": "compliance_sources/bls/empsit_20231003083619_predecessor.htm",
+      "sha256": "67a0829813f614bf6418b53634eaf9e0e3486991b844da65fa7a20b509919aa6",
+      "program": "EMPLOYMENT_SITUATION"
+    },
+    {
+      "source_id": "BLS_EMP_2024_EARLIEST_COMPLETE",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2024,
+      "availability_ts_ns": 1698446283000000000,
+      "path": "compliance_sources/bls/empsit_20231027223803.htm",
+      "sha256": "829c685655aa13b7c1ebc0e3b131fee40630b5ba3d70a95a571e7c5e085c0d67",
+      "program": "EMPLOYMENT_SITUATION"
+    },
+
+    {
+      "source_id": "BLS_CPI_2025_PREDECESSOR",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2025,
+      "availability_ts_ns": 1727806939000000000,
+      "path": "compliance_sources/bls/cpi_20241001182219_predecessor.htm",
+      "sha256": "a89294661302642a79e97f7bde51612e30c7f41a8bebb302ed49a14e3b69e866",
+      "program": "CPI"
+    },
+    {
+      "source_id": "BLS_CPI_2025_EARLIEST_COMPLETE",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2025,
+      "availability_ts_ns": 1731205755000000000,
+      "path": "compliance_sources/bls/cpi_20241110022915.htm",
+      "sha256": "8ffa6fac32df0fcf4405d83877282761b1efb72674b1ba0401e0ce90aa51fcd0",
+      "program": "CPI"
+    },
+    {
+      "source_id": "BLS_EMP_2025_PREDECESSOR",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2025,
+      "availability_ts_ns": 1727372047000000000,
+      "path": "compliance_sources/bls/empsit_20240926173407_predecessor.htm",
+      "sha256": "c930bc6df951c3916e0789c1058cab3a15ac6d6469b4ee5622d2238f3e47e782",
+      "program": "EMPLOYMENT_SITUATION"
+    },
+    {
+      "source_id": "BLS_EMP_2025_EARLIEST_COMPLETE",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2025,
+      "availability_ts_ns": 1728441203000000000,
+      "path": "compliance_sources/bls/empsit_20241009023323.htm",
+      "sha256": "e9de07a3a1b6d2c504257dbba6434803ad450fa919ace8a7d39ab1945ae2ca21",
+      "program": "EMPLOYMENT_SITUATION"
+    },
+    {
+      "source_id": "BLS_EMP_2025_LATER_CONFIRMATION",
+      "kind": "BLS_SCHEDULE_HTML",
+      "coverage_year": 2025,
+      "availability_ts_ns": 1730619576000000000,
+      "path": "compliance_sources/bls/empsit_20241103073936.htm",
+      "sha256": "59b6b0d8e59b729c6cc0019d8ac7402d346301e69da0b36233c71ff43872bc19",
+      "program": "EMPLOYMENT_SITUATION"
+    }
+  ]
+}

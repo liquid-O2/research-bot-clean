@@ -1,0 +1,31 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# THE SEAT BOUNDARY AS A BINARY: P(candidate is in its day's true top-3), trained ONLY on the historical tail population (top decile of its day), 100-seed ensemble, across-seed dispersion kept as a confidence column.
+# WHY THIS TARGET AND NOT ORDERING: every rule takes ~3 seats per asset-day, so ordering rank 4 against rank 20 is worth $0.  The corrected tail curve is the confirmation — at the champion's top-decile spearman the synthetic curve earns $855-1,428 with $570-873 of q90 lift while the champion has the SAME tail ordering and $144-175.  Same ordering, a quarter of the money: the deficit is WHICH candidates land in the tail.
+# PRECISION@3 PER DAY is the metric, and it must beat FOUR controls: the champion on the same days, a random pick inside the tail, the identical fit on SHUFFLED LABELS, and chance.  A shuffled-label control that scores near the real one means the tail population alone is doing the work.
+# This table promotes nothing.  The blind replay on the deployable line is what adjudicates.
+era	arm	precision_at_3_per_day	n_days	device
+E6	B1_SEAT_ensemble100	0.06858	384	cuda
+E6	B1_SEAT_single_seed	0.0651	384	cuda
+E6	CONTROL_shuffled_labels	0.01476	384	cuda
+E6	CONTROL_S_XGB	0.11545	384	cuda
+E6	CONTROL_A_EV_RAW	0.03733	384	cuda
+E6	CONTROL_H3_DAYZ	0.04427	384	cuda
+E6	CONTROL_random_in_tail	0.08247	384	cuda
+E6	CONTROL_chance	0.00778	384	cuda
+E5	B1_SEAT_ensemble100	0.08096	387	cuda
+E5	B1_SEAT_single_seed	0.06977	387	cuda
+E5	CONTROL_shuffled_labels	0.00775	387	cuda
+E5	CONTROL_S_XGB	0.09819	387	cuda
+E5	CONTROL_A_EV_RAW	0.03187	387	cuda
+E5	CONTROL_H3_DAYZ	0.03015	387	cuda
+E5	CONTROL_random_in_tail	0.07752	387	cuda
+E5	CONTROL_chance	0.00788	387	cuda
+E7	B1_SEAT_ensemble100	0.08227	393	cuda
+E7	B1_SEAT_single_seed	0.08482	393	cuda
+E7	CONTROL_shuffled_labels	0.01272	393	cuda
+E7	CONTROL_S_XGB	0.10772	393	cuda
+E7	CONTROL_A_EV_RAW	0.04156	393	cuda
+E7	CONTROL_H3_DAYZ	0.04241	393	cuda
+E7	CONTROL_random_in_tail	0.09669	393	cuda
+E7	CONTROL_chance	0.00793	393	cuda

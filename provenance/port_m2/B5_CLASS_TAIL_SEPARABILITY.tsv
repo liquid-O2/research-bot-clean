@@ -1,0 +1,23 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# PER-CLASS TAIL SEPARABILITY.  The tail statistics were measured POOLED; this splits them by asset and side, which are the only class axes carried on every row.
+# If one class carries most of the champion's q90 lift, class weighting is a real lever and the pooled figure was hiding it.  If the lift is flat across classes, weighting is dead.
+era	asset	side	n_rows	topdec_spearman	tail_lift_q90_usd	tail_lift_q99_usd
+E5	SI	-1	27001	-0.0856	-196.58	-229.94
+E5	SI	1	27158	0.2424	332.93	445.58
+E5	HG	-1	24437	-0.0454	-101.52	-105.59
+E5	HG	1	24348	0.2943	128.69	188.18
+E5	NKD	-1	24736	-0.0692	-166.39	-201.39
+E5	NKD	1	25267	0.2902	213.21	380.29
+E7	SI	-1	27362	-0.0042	-348.7	-363.8
+E7	SI	1	28538	0.2082	250.8	526.25
+E7	HG	-1	24293	-0.1016	-197.85	-227.95
+E7	HG	1	24559	0.3215	213.11	329.23
+E7	NKD	-1	26229	-0.0292	-286.06	-358.57
+E7	NKD	1	27295	0.2904	307.17	551.64
+E6	SI	-1	29029	0.1447	-56.99	107.07
+E6	SI	1	29422	0.2998	341.27	634.0
+E6	HG	-1	27437	0.0981	30.88	83.68
+E6	HG	1	27349	0.3097	190.86	338.71
+E6	NKD	-1	24596	0.0956	2.07	99.44
+E6	NKD	1	25229	0.2711	227.99	421.09

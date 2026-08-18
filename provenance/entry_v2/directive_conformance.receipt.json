@@ -1,0 +1,1479 @@
+{
+  "schema": "entry-v2-directive-conformance-v1",
+  "generated_at_utc": "2026-08-16T11:19:45.434Z",
+  "audit_scope": {
+    "kind": "complete-current-entry-v2-design-conformance-not-production-certification",
+    "directives_sha256": "aec0a5aac794938575f73e1260e525852242ad2d77afbd0cd3f4411b5f1a7c22",
+    "directives_records": 103,
+    "first_directive": "D-001",
+    "last_directive": "D-097",
+    "supplemental_records": [
+      "D-098",
+      "ENTRY-V2-EVIDENCE-5-SEED"
+    ],
+    "design_snapshot": {
+      "python_path_hash_aggregate": "c3047fb348b6e8f580455cb4216162cc732b8e69a5c03d17af009f54409b2c06",
+      "cpp_path_hash_aggregate": "a4934f901c94b58ea0ea61d15b2b30813900383d50ebf4e13ecbaf0bd8a88d00",
+      "index_sha256": "79b6292ec30bdb0d025a0df9d2f8f176875688efda41c87840064c85b8ceaef4",
+      "journal_sha256": "454918e5b659ab9f5fe6221ae2f477b0f7d90f98335994c6f880ccff79599c41",
+      "compliance_calendar_sha256": "b85ea543b8573b82a410e7dba6716e42263fef3abee808fdcf18a4bab484fe8d",
+      "source_manifest_sha256": "6c3a4f94e66294c0ee78a1b9cf2c5f946676c12fde0cc045df530e95f8f471f0"
+    },
+    "production_corpus_run": false,
+    "production_fit_run": false,
+    "production_campaign_run": false,
+    "h2_opened": false,
+    "year_2026_opened": false
+  },
+  "status_vocabulary": [
+    "SATISFIED",
+    "N/A_WITH_REASON",
+    "VIOLATION"
+  ],
+  "summary": {
+    "counts": {
+      "SATISFIED": 43,
+      "VIOLATION": 19,
+      "N/A_WITH_REASON": 43
+    },
+    "freeze_allowed": false,
+    "freeze_blocked_because": "one or more directive/supplemental records are VIOLATION",
+    "production_goal_claim": false,
+    "h2_authority": false
+  },
+  "evidence_catalog": {
+    "DIRECTIVE_SOURCE": {
+      "kind": "file",
+      "path": "DIRECTIVES.md",
+      "lines": "3-105",
+      "sha256": "aec0a5aac794938575f73e1260e525852242ad2d77afbd0cd3f4411b5f1a7c22"
+    },
+    "D094_RESET": {
+      "kind": "file",
+      "path": "DIRECTIVES.md",
+      "lines": "102",
+      "sha256": "aec0a5aac794938575f73e1260e525852242ad2d77afbd0cd3f4411b5f1a7c22"
+    },
+    "AUDIT_FRAME": {
+      "kind": "receipt",
+      "path": "provenance/entry_v2/directive_conformance.receipt.json",
+      "finding": "all 103 directive records expanded; freeze_allowed is derived from VIOLATION count"
+    },
+    "ENTRY_V2_FILES": {
+      "kind": "aggregate",
+      "paths": [
+        "engine/entry_v2/*.py"
+      ],
+      "sha256_of_sorted_path_hash_lines": "c3047fb348b6e8f580455cb4216162cc732b8e69a5c03d17af009f54409b2c06"
+    },
+    "CPP_SUBSTRATE": {
+      "kind": "file_set",
+      "paths": [
+        "engine/cpp/qr_entry_v2/include/qr_entry_v2/substrate.hpp",
+        "engine/cpp/qr_entry_v2/src/substrate.cpp"
+      ],
+      "lines": "substrate.hpp:1-151; substrate.cpp:1012-1145",
+      "aggregate_sha256_of_all_cpp_path_hash_lines": "a4934f901c94b58ea0ea61d15b2b30813900383d50ebf4e13ecbaf0bd8a88d00"
+    },
+    "CPP_G1": {
+      "kind": "file",
+      "path": "engine/cpp/qr_entry_v2/include/qr_entry_v2/g1.hpp",
+      "lines": "28-44,130-285",
+      "finding": "G1 geometry, compliance, candidate strict prefix, future-only teacher and schedule ceiling"
+    },
+    "COMMON_GUARDS": {
+      "kind": "file",
+      "path": "engine/entry_v2/common.py",
+      "lines": "17-50,94-107,126-225",
+      "finding": "three assets, dollar laws, output roots, H2/2026 guards and one-time permit"
+    },
+    "FOLDS": {
+      "kind": "file",
+      "path": "engine/entry_v2/folds.py",
+      "lines": "14-90",
+      "finding": "disjoint causal E1-E8 day ladder; H2 refused"
+    },
+    "RAW_PREFIX": {
+      "kind": "file_set",
+      "paths": [
+        "engine/entry_v2/event_pack.py",
+        "engine/entry_v2/corpus.py"
+      ],
+      "lines": "event_pack.py:1-15,179-252; corpus.py:980-1008,1215-1283,1349-1457",
+      "finding": "native-ns lower_bound prefix, exact event count/hash, mandatory tensor packing and corpus receipt design"
+    },
+    "CONTEXT": {
+      "kind": "file_set",
+      "paths": [
+        "engine/entry_v2/context_sources.py",
+        "engine/entry_v2/context_pack.py"
+      ],
+      "lines": "context_sources.py:390-425,478-559; context_pack.py:21-31,76-136",
+      "finding": "asset rosters, strict availability<decision, typed revised masks, mandatory packed tensors"
+    },
+    "MODEL_POLICY": {
+      "kind": "file_set",
+      "paths": [
+        "engine/entry_v2/model.py",
+        "engine/entry_v2/policy.py"
+      ],
+      "lines": "model.py:565-778; policy.py:166-181,477-760",
+      "finding": "full-prefix neural representation; local frozen per-asset GBT heads and hash verification"
+    },
+    "TRAIN_SINGLE_SEED": {
+      "kind": "file",
+      "path": "engine/entry_v2/train.py",
+      "lines": "13-20,76-114,741-746,794-843,1483-1512",
+      "finding": "one seed and one full-population pass"
+    },
+    "REPLAY": {
+      "kind": "file",
+      "path": "engine/entry_v2/replay.py",
+      "lines": "29-74,133-143,228-359",
+      "finding": "exit may equal decision; strict-prior prior exit; exact native timestamp groups; all-session denominators"
+    },
+    "CAMPAIGN": {
+      "kind": "file",
+      "path": "engine/entry_v2/campaign.py",
+      "lines": "35-101,185-379,437-482,554-606,619-867",
+      "finding": "E1-E8 exact fold checks, raw/teacher evidence, direct and shuffled controls, per-asset goal gates"
+    },
+    "AUDIT_CHAIN": {
+      "kind": "file",
+      "path": "engine/entry_v2/audit.py",
+      "lines": "53-69,458-588,794",
+      "finding": "ordered first-boundary audit and exact positive/null checks"
+    },
+    "COMPLIANCE": {
+      "kind": "file_set",
+      "paths": [
+        "engine/entry_v2/compliance_calendar.py",
+        "provenance/entry_v2/compliance_calendar.qre2.tsv",
+        "provenance/entry_v2/compliance_calendar.receipt.json"
+      ],
+      "lines": "compliance_calendar.py:1-760",
+      "hashes": {
+        "calendar": "b85ea543b8573b82a410e7dba6716e42263fef3abee808fdcf18a4bab484fe8d",
+        "receipt": "9b1e2f3215fb2eb4ff92b0c56ecd9c827f079a367a9b50d3a1fc741e25b92308"
+      },
+      "finding": "QRE2COMPLIANCE1; 144 exact prohibited rows; 5 coverage rows; continuous 2021-01-01 through 2025-06-30; H2 absent"
+    },
+    "CLEANUP": {
+      "kind": "file",
+      "path": "provenance/entry_v2/storage_cleanup_manifest.json",
+      "sha256": "c7a50ad75a8a1d5298152e8a26332eba4c0a4b855d58db820fb0945a376fc930"
+    },
+    "NO_ENTRY_V2_SPEC": {
+      "kind": "negative_census",
+      "command": "find FINAL_PLAN.md design -type f | rg -i 'entry.?v2|entry_v2'",
+      "result": [],
+      "finding": "no prescribed entry-v2 design/spec artifact"
+    },
+    "NO_PRODUCTION_RESULTS": {
+      "kind": "negative_census",
+      "path": "provenance/entry_v2",
+      "observed_top_level_files": [
+        "compliance_calendar.qre2.tsv",
+        "compliance_calendar.receipt.json",
+        "compliance_source_manifest.json",
+        "retained_cache_receipts_manifest.json",
+        "source_manifest.json",
+        "storage_cleanup_manifest.json",
+        "storage_cleanup_reconciliation.json",
+        "storage_cleanup_result.json"
+      ],
+      "finding": "no production corpus, fold, model, policy, campaign, adaptation, constructor-census or goal receipt"
+    },
+    "NO_ADAPTATION": {
+      "kind": "negative_census",
+      "command": "rg -n 'adaptation latency|metal fade|rate shock|chop onset|trend onset|control chart|shadow.book|recovery sessions' engine/entry_v2 engine/cpp/qr_entry_v2",
+      "result": [],
+      "finding": "regime input fields exist, mandated adaptation machinery and measurements do not"
+    },
+    "NO_GENERATION_LAWS": {
+      "kind": "schema_census",
+      "paths": [
+        "engine/cpp/qr_entry_v2/include/qr_entry_v2/g1.hpp",
+        "engine/entry_v2/corpus.py"
+      ],
+      "lines": "g1.hpp:165-215; corpus.py:78-120,846-890",
+      "missing": [
+        "candidate_class",
+        "episode_id",
+        "level_ledger",
+        "VWAP_2.0sigma",
+        "VWAP_2.5sigma",
+        "level_relevance_census",
+        "slice_mining",
+        "current_path_forfeit_receipt"
+      ]
+    },
+    "OWNED_GENERATION_FINDING": {
+      "kind": "file",
+      "path": "provenance/sessions/JOURNAL.md",
+      "lines": "258-263",
+      "sha256": "454918e5b659ab9f5fe6221ae2f477b0f7d90f98335994c6f880ccff79599c41",
+      "finding": "old v3 roster reached 89.5%; D-069 closed for that roster; current rebuilt G1 has no pinned regression"
+    },
+    "OWNED_EPISODE_FINDING": {
+      "kind": "file",
+      "path": "DIRECTIVES.md",
+      "lines": "68-73",
+      "sha256": "aec0a5aac794938575f73e1260e525852242ad2d77afbd0cd3f4411b5f1a7c22",
+      "finding": "episode grouping proven as count shrink, statistics honesty and selection substrate"
+    },
+    "OWNED_FIVE_SEED": {
+      "kind": "file_set",
+      "paths": [
+        "index.md",
+        "provenance/sessions/JOURNAL.md"
+      ],
+      "lines": "index.md:128-133; JOURNAL.md:424-425",
+      "hashes": {
+        "index": "79b6292ec30bdb0d025a0df9d2f8f176875688efda41c87840064c85b8ceaef4",
+        "journal": "454918e5b659ab9f5fe6221ae2f477b0f7d90f98335994c6f880ccff79599c41"
+      },
+      "finding": "every arm must be compared over at least 5 seeds and reported as mean with sd"
+    },
+    "HOOK_CONFIG": {
+      "kind": "external_file",
+      "path": "/home/claude/.codex/hooks.json",
+      "lines": "4-27,42-67",
+      "sha256": "6a511d01bf472313f45b37aea48ef88993c0a36afc7f915fc477537ec9eddb6f"
+    },
+    "MEMPALACE_STATE": {
+      "kind": "external_evidence",
+      "paths": [
+        "/home/claude/.mempalace/hook_state/hook.log",
+        "MemPalace entry_v2/continuity diary marker"
+      ],
+      "lines": "hook.log:223-224",
+      "hook_log_sha256": "4f208649f59861df45ce3e511252f4c3908ffe9fcfdc6c3f1963ac552cdaad03",
+      "marker": "ENTRYV2-MILESTONE-20260816-D099-HOOK-RESTART",
+      "finding": "new spool/recall manual E2E passed, but current live process loaded old hooks; clean resume and real automatic proof pending"
+    },
+    "EVIDENCE_CROSSWALK": {
+      "kind": "embedded",
+      "path": "provenance/entry_v2/directive_conformance.receipt.json#/owned_evidence_crosswalk"
+    }
+  },
+  "owned_evidence_crosswalk": [
+    {
+      "design_element": "causal raw-byte substrate",
+      "classification": "SUPPORTED",
+      "owned_evidence": [
+        "D-054 exact sane-mid law",
+        "D-057 availability law",
+        "D-094 reset"
+      ],
+      "implementation_evidence": [
+        "CPP_SUBSTRATE",
+        "CPP_G1",
+        "CONTEXT"
+      ]
+    },
+    {
+      "design_element": "exact future-path teacher over every G1 arrival",
+      "classification": "SUPPORTED_HYPOTHESIS_PENDING_PRODUCTION",
+      "owned_evidence": [
+        "D-094.3 exact oracle",
+        "D-095 teacher-alignment boundary"
+      ],
+      "implementation_evidence": [
+        "CPP_G1",
+        "RAW_PREFIX"
+      ]
+    },
+    {
+      "design_element": "native-ns full-prefix neural representation",
+      "classification": "SUPPORTED_HYPOTHESIS_PENDING_PRODUCTION",
+      "owned_evidence": [
+        "D-092 raw fidelity",
+        "D-094.1 old $100 ceiling withdrawn",
+        "D-094.3 full prefix"
+      ],
+      "implementation_evidence": [
+        "RAW_PREFIX",
+        "MODEL_POLICY"
+      ]
+    },
+    {
+      "design_element": "per-asset frozen GBT decision heads",
+      "classification": "SUPPORTED_HYPOTHESIS_PENDING_PRODUCTION",
+      "owned_evidence": [
+        "D-040 local frozen taker",
+        "D-091-CORRECTION asset nonuniformity",
+        "D-094.4 per-asset GBT"
+      ],
+      "implementation_evidence": [
+        "MODEL_POLICY"
+      ]
+    },
+    {
+      "design_element": "exact chronological native-clock replay",
+      "classification": "SUPPORTED",
+      "owned_evidence": [
+        "D-095 promotion law",
+        "D-098 supplemental native-clock law"
+      ],
+      "implementation_evidence": [
+        "REPLAY",
+        "CAMPAIGN"
+      ]
+    },
+    {
+      "design_element": "point-in-time news compliance",
+      "classification": "SUPPORTED",
+      "owned_evidence": [
+        "D-077",
+        "D-077-UPDATE"
+      ],
+      "implementation_evidence": [
+        "COMPLIANCE"
+      ]
+    },
+    {
+      "design_element": "single-seed single-pass evidence",
+      "classification": "CONTRADICTED_BLOCKED",
+      "owned_evidence": [
+        "index standing 5-seed law",
+        "JOURNAL minimum-k mean+sd"
+      ],
+      "implementation_evidence": [
+        "TRAIN_SINGLE_SEED",
+        "OWNED_FIVE_SEED"
+      ]
+    },
+    {
+      "design_element": "no episode substrate",
+      "classification": "CONTRADICTED_BLOCKED",
+      "owned_evidence": [
+        "D-065",
+        "D-065-AMENDMENT"
+      ],
+      "implementation_evidence": [
+        "NO_GENERATION_LAWS",
+        "OWNED_EPISODE_FINDING"
+      ]
+    },
+    {
+      "design_element": "rebuilt G1 without current generation-truth regression",
+      "classification": "UNSUPPORTED_BLOCKED",
+      "owned_evidence": [
+        "D-050",
+        "D-052",
+        "D-053",
+        "D-055",
+        "D-069",
+        "D-071"
+      ],
+      "implementation_evidence": [
+        "NO_GENERATION_LAWS",
+        "OWNED_GENERATION_FINDING"
+      ]
+    },
+    {
+      "design_element": "regime tags without adaptive reaction machinery",
+      "classification": "UNSUPPORTED_BLOCKED",
+      "owned_evidence": [
+        "D-031",
+        "D-032",
+        "D-084"
+      ],
+      "implementation_evidence": [
+        "NO_ADAPTATION"
+      ]
+    },
+    {
+      "design_element": "asset-native slow context tensor",
+      "classification": "SUPPORTED_HYPOTHESIS_PENDING_PRODUCTION",
+      "owned_evidence": [
+        "D-057",
+        "D-060",
+        "D-093",
+        "D-094.3"
+      ],
+      "implementation_evidence": [
+        "CONTEXT",
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "design_element": "MemPalace automatic save/retrieve continuity",
+      "classification": "IMPLEMENTED_BUT_RESTART_PROOF_BLOCKED",
+      "owned_evidence": [
+        "D-096"
+      ],
+      "implementation_evidence": [
+        "HOOK_CONFIG",
+        "MEMPALACE_STATE"
+      ]
+    }
+  ],
+  "directives": [
+    {
+      "id": "D-001",
+      "source_line": 3,
+      "status": "SATISFIED",
+      "assessment": "This receipt is the single consolidated directive/evidence review on the frozen entry-v2 snapshot; no review/fix/re-review cycle is authorized here.",
+      "evidence_ids": [
+        "AUDIT_FRAME"
+      ]
+    },
+    {
+      "id": "D-002",
+      "source_line": 4,
+      "status": "VIOLATION",
+      "assessment": "Entry-v2 was implemented without the required frozen orchestrator-owned spec in FINAL_PLAN.md appendices/design; no entry-v2 design artifact exists in the prescribed locations.",
+      "evidence_ids": [
+        "NO_ENTRY_V2_SPEC",
+        "ENTRY_V2_FILES"
+      ]
+    },
+    {
+      "id": "D-003",
+      "source_line": 5,
+      "status": "SATISFIED",
+      "assessment": "The package is entry-only; campaign refuses goal promotion without entry gates and no exit-program work is part of entry_v2.",
+      "evidence_ids": [
+        "COMMON_GUARDS",
+        "CAMPAIGN"
+      ]
+    },
+    {
+      "id": "D-004",
+      "source_line": 6,
+      "status": "SATISFIED",
+      "assessment": "Raw decode, causal substrate, forecast, candidate generation, teacher certification and artifact emission are C++; Python is the training/orchestration/control plane.",
+      "evidence_ids": [
+        "CPP_SUBSTRATE",
+        "CPP_G1",
+        "ENTRY_V2_FILES"
+      ]
+    },
+    {
+      "id": "D-005",
+      "source_line": 7,
+      "status": "N/A_WITH_REASON",
+      "assessment": "This is historical Claude/Fable lane economics. The current Codex implementation has no Opus/Fable implementation or review lane.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-006",
+      "source_line": 8,
+      "status": "VIOLATION",
+      "assessment": "Red-first fixtures exist, but no entry-v2 production constructor census/formula-fidelity receipt exists; tests alone do not satisfy the three-part built definition.",
+      "evidence_ids": [
+        "NO_PRODUCTION_RESULTS",
+        "NO_ENTRY_V2_SPEC"
+      ]
+    },
+    {
+      "id": "D-007",
+      "source_line": 9,
+      "status": "SATISFIED",
+      "assessment": "The current reset and corrections are present as D-094 through D-097 in the same append-only directive source audited here.",
+      "evidence_ids": [
+        "DIRECTIVE_SOURCE"
+      ]
+    },
+    {
+      "id": "D-008",
+      "source_line": 10,
+      "status": "SATISFIED",
+      "assessment": "The human blocker report is plain-language; this JSON is intentionally machine-readable evidence, not the user-facing report.",
+      "evidence_ids": [
+        "AUDIT_FRAME"
+      ]
+    },
+    {
+      "id": "D-009",
+      "source_line": 11,
+      "status": "SATISFIED",
+      "assessment": "No readiness percentage is asserted; freeze_allowed is mechanically false because violations exist.",
+      "evidence_ids": [
+        "AUDIT_FRAME"
+      ]
+    },
+    {
+      "id": "D-010",
+      "source_line": 12,
+      "status": "SATISFIED",
+      "assessment": "Every conformance call resolves through this receipt's concrete evidence catalog and pinned source hashes; external reports are not authority.",
+      "evidence_ids": [
+        "AUDIT_FRAME"
+      ]
+    },
+    {
+      "id": "D-011",
+      "source_line": 13,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The old JSA reader/model campaign was closed by D-094's isolated full-prefix entry-v2 reset and prohibition on repeating closed reader/short-context axes.",
+      "evidence_ids": [
+        "D094_RESET",
+        "MODEL_POLICY"
+      ]
+    },
+    {
+      "id": "D-012",
+      "source_line": 14,
+      "status": "SATISFIED",
+      "assessment": "Numeric authority is retained in repo receipts and the milestone is durably stored in MemPalace; automatic post-compaction activation remains separately blocked under D-096.",
+      "evidence_ids": [
+        "CLEANUP",
+        "COMPLIANCE",
+        "MEMPALACE_STATE"
+      ]
+    },
+    {
+      "id": "D-013",
+      "source_line": 15,
+      "status": "SATISFIED",
+      "assessment": "Configured hooks are bounded command hooks with finite timeouts and output-only additional-context behavior.",
+      "evidence_ids": [
+        "HOOK_CONFIG"
+      ]
+    },
+    {
+      "id": "D-014",
+      "source_line": 16,
+      "status": "SATISFIED",
+      "assessment": "This pass produces a committed blocker receipt rather than ending on an unrecorded finding; implementation fixes are intentionally barred by the restart instruction.",
+      "evidence_ids": [
+        "AUDIT_FRAME"
+      ]
+    },
+    {
+      "id": "D-015",
+      "source_line": 17,
+      "status": "SATISFIED",
+      "assessment": "No floor or goal is lowered; unmet obligations remain explicit blocking violations and H2 remains sealed.",
+      "evidence_ids": [
+        "COMMON_GUARDS",
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-016",
+      "source_line": 18,
+      "status": "SATISFIED",
+      "assessment": "The receipt is structured and the handoff is terse; detailed evidence stays machine-readable.",
+      "evidence_ids": [
+        "AUDIT_FRAME"
+      ]
+    },
+    {
+      "id": "D-017",
+      "source_line": 19,
+      "status": "SATISFIED",
+      "assessment": "Implemented entry-v2 constructs use exact raw/native-time contracts and refusal guards, not proxy promotion measures; missing mandated constructs are explicitly violations below.",
+      "evidence_ids": [
+        "CPP_SUBSTRATE",
+        "RAW_PREFIX",
+        "AUDIT_CHAIN"
+      ]
+    },
+    {
+      "id": "D-018",
+      "source_line": 20,
+      "status": "SATISFIED",
+      "assessment": "Bulk outputs are restricted to /workspace/artifacts and provenance; the cleanup manifest is hash-gated.",
+      "evidence_ids": [
+        "COMMON_GUARDS",
+        "CLEANUP"
+      ]
+    },
+    {
+      "id": "D-019",
+      "source_line": 21,
+      "status": "VIOLATION",
+      "assessment": "The one-position replay accepts an exit at or after decision time and G1 only requires phase close after decision; no >=1800-second hold floor is enforced.",
+      "evidence_ids": [
+        "REPLAY",
+        "CPP_G1"
+      ]
+    },
+    {
+      "id": "D-020",
+      "source_line": 22,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The conditional trigger is a disappointing production model result. No production fit/campaign has run, so no case-study trigger has occurred.",
+      "evidence_ids": [
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-021",
+      "source_line": 23,
+      "status": "SATISFIED",
+      "assessment": "The exact $600 minimum expectancy, $1,000 target, $2,000/session target and $900 wall are encoded and campaign-gated per asset.",
+      "evidence_ids": [
+        "COMMON_GUARDS",
+        "CAMPAIGN"
+      ]
+    },
+    {
+      "id": "D-022",
+      "source_line": 24,
+      "status": "N/A_WITH_REASON",
+      "assessment": "This is an IWM-to-RTY reporting overlay. Entry-v2 operates directly on SI, HG and NKD native futures contracts.",
+      "evidence_ids": [
+        "COMMON_GUARDS"
+      ]
+    },
+    {
+      "id": "D-023",
+      "source_line": 25,
+      "status": "SATISFIED",
+      "assessment": "No fit has been launched and no fit blocks construction; the design exposes fixed worker/device control for local background training.",
+      "evidence_ids": [
+        "TRAIN_SINGLE_SEED",
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-024",
+      "source_line": 26,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The ThetaData six-stream/IWM deployment constraint applies to the superseded IWM lane, not the Databento futures entry-v2 substrate.",
+      "evidence_ids": [
+        "D094_RESET",
+        "CPP_SUBSTRATE"
+      ]
+    },
+    {
+      "id": "D-025",
+      "source_line": 27,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Dealer/options mechanics belong to the superseded IWM feature program; these modalities are not owned for all three futures assets in entry-v2.",
+      "evidence_ids": [
+        "D094_RESET",
+        "CONTEXT"
+      ]
+    },
+    {
+      "id": "D-026",
+      "source_line": 28,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Hand-registered L-P-E-H-R-U feature families were replaced by D-094's raw full-prefix neural representation; no handcrafted feature family is being registered as a vote.",
+      "evidence_ids": [
+        "D094_RESET",
+        "MODEL_POLICY"
+      ]
+    },
+    {
+      "id": "D-027",
+      "source_line": 29,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The old concept-by-modality feature-family registration program is not part of the D-094 raw-sequence entry-v2 reset.",
+      "evidence_ids": [
+        "D094_RESET",
+        "MODEL_POLICY"
+      ]
+    },
+    {
+      "id": "D-028",
+      "source_line": 30,
+      "status": "SATISFIED",
+      "assessment": "In-scope construction and this gate proceeded autonomously; only the user-reserved restart/wall boundary stops further work.",
+      "evidence_ids": [
+        "AUDIT_FRAME"
+      ]
+    },
+    {
+      "id": "D-029",
+      "source_line": 31,
+      "status": "SATISFIED",
+      "assessment": "H2/2026 unsealing remains reserved and has not occurred; no other user permission was introduced into entry-v2.",
+      "evidence_ids": [
+        "COMMON_GUARDS"
+      ]
+    },
+    {
+      "id": "D-030",
+      "source_line": 32,
+      "status": "SATISFIED",
+      "assessment": "The design targets each of three native one-mini asset books independently with the bound $1,000 MDD target.",
+      "evidence_ids": [
+        "COMMON_GUARDS",
+        "CAMPAIGN"
+      ]
+    },
+    {
+      "id": "D-031",
+      "source_line": 33,
+      "status": "VIOLATION",
+      "assessment": "Regime tags exist as inputs, but no causal pattern-library activation/weight update, break detector, control chart or shadow-book adaptation mechanism exists.",
+      "evidence_ids": [
+        "NO_ADAPTATION",
+        "CONTEXT"
+      ]
+    },
+    {
+      "id": "D-032",
+      "source_line": 34,
+      "status": "VIOLATION",
+      "assessment": "No regime-native pattern discovery/adaptation mechanism exists, so the design cannot demonstrate adaptation-before-retreat.",
+      "evidence_ids": [
+        "NO_ADAPTATION"
+      ]
+    },
+    {
+      "id": "D-033",
+      "source_line": 35,
+      "status": "SATISFIED",
+      "assessment": "G1 emits decisions after causal confirmation with the frozen 15s fast-open or 120s standard delay; the student ranks those post-confirmation arrivals.",
+      "evidence_ids": [
+        "CPP_G1"
+      ]
+    },
+    {
+      "id": "D-034",
+      "source_line": 36,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The human walk-forward study protocol was superseded by D-094's exact machine oracle plus E1-E8 OOF ladder.",
+      "evidence_ids": [
+        "D094_RESET",
+        "FOLDS"
+      ]
+    },
+    {
+      "id": "D-035",
+      "source_line": 37,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Human case-taint and used-case ledgers do not apply because entry-v2 has no reader case draws; machine days are disjoint and test days are used once.",
+      "evidence_ids": [
+        "D094_RESET",
+        "FOLDS"
+      ]
+    },
+    {
+      "id": "D-036",
+      "source_line": 38,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Human full-day reader evaluation was replaced; its machine analogue is day-complete E1-E8 chronological replay over expected sessions.",
+      "evidence_ids": [
+        "D094_RESET",
+        "FOLDS",
+        "REPLAY"
+      ]
+    },
+    {
+      "id": "D-037",
+      "source_line": 39,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The human post-mortem training protocol and rendered case sheets were closed by D-094's no-reader reset.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-038",
+      "source_line": 40,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Its old 2025-09-01 wall is superseded by D-058/D-094/D-097's stricter 2025-07-01 H2 wall, which entry-v2 enforces.",
+      "evidence_ids": [
+        "D094_RESET",
+        "COMMON_GUARDS"
+      ]
+    },
+    {
+      "id": "D-039",
+      "source_line": 41,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The multi-model reader panel is a closed reader axis and is excluded from D-094 entry-v2.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-040",
+      "source_line": 42,
+      "status": "SATISFIED",
+      "assessment": "Decision taking is local, frozen, hash-pinned and per-asset GBT; the authorized neural network is only the representation layer and no API model decides live.",
+      "evidence_ids": [
+        "MODEL_POLICY"
+      ]
+    },
+    {
+      "id": "D-041",
+      "source_line": 43,
+      "status": "N/A_WITH_REASON",
+      "assessment": "No external-model/OpenCode run is part of entry-v2; the historical budget freeze has no current action.",
+      "evidence_ids": [
+        "D094_RESET",
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-042",
+      "source_line": 44,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Reader-sheet certification and remaining reader rounds were superseded by D-094; machine context completeness is separately assessed under D-093/D-094.",
+      "evidence_ids": [
+        "D094_RESET",
+        "CONTEXT"
+      ]
+    },
+    {
+      "id": "D-043",
+      "source_line": 45,
+      "status": "SATISFIED",
+      "assessment": "Per-asset $2,000 targets, $1,500 weak-era floor, entry-first ordering and three-asset architecture are encoded; no exit program has started.",
+      "evidence_ids": [
+        "COMMON_GUARDS",
+        "CAMPAIGN"
+      ]
+    },
+    {
+      "id": "D-044",
+      "source_line": 46,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The OpenCode spend freeze is historical process scope; entry-v2 invokes no external model.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-044-CORRECTION",
+      "source_line": 47,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The correction narrows the historical external-spend freeze, but entry-v2 uses no OpenCode or GPT decision service.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-045",
+      "source_line": 48,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The exit-active clause is expressly superseded by D-094's entry-first reset; the $2,000 target survives and is encoded.",
+      "evidence_ids": [
+        "D094_RESET",
+        "COMMON_GUARDS"
+      ]
+    },
+    {
+      "id": "D-046",
+      "source_line": 49,
+      "status": "SATISFIED",
+      "assessment": "Exact replay enforces one active position at a time and campaign reports the one-mini per-asset goal; no two-position framing exists.",
+      "evidence_ids": [
+        "REPLAY",
+        "CAMPAIGN"
+      ]
+    },
+    {
+      "id": "D-047",
+      "source_line": 50,
+      "status": "SATISFIED",
+      "assessment": "The substrate consumes MBP-1 only and all newly acquired compliance sources are free official/Wayback artifacts with hashes.",
+      "evidence_ids": [
+        "CPP_SUBSTRATE",
+        "COMPLIANCE"
+      ]
+    },
+    {
+      "id": "D-048",
+      "source_line": 51,
+      "status": "SATISFIED",
+      "assessment": "Promotion gates require >=$2,000/session independently for SI, HG and NKD, with expectancy and risk gates.",
+      "evidence_ids": [
+        "COMMON_GUARDS",
+        "CAMPAIGN"
+      ]
+    },
+    {
+      "id": "D-049",
+      "source_line": 52,
+      "status": "SATISFIED",
+      "assessment": "Design ordering is enforced: C++ candidate/teacher artifacts and pinned receipts are required before corpus construction or fitting. Reader clauses 2-3 are specifically superseded by D-094's exact oracle/raw student. Production evidence is pending.",
+      "evidence_ids": [
+        "CPP_G1",
+        "RAW_PREFIX",
+        "NO_PRODUCTION_RESULTS",
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-050",
+      "source_line": 53,
+      "status": "VIOLATION",
+      "assessment": "Current G1 has rung/phase geometry only; it does not carry the mandated fvol, prior/phase, virgin, profile and AMT level sources as candidate-generation families.",
+      "evidence_ids": [
+        "NO_GENERATION_LAWS",
+        "CPP_G1"
+      ]
+    },
+    {
+      "id": "D-052",
+      "source_line": 54,
+      "status": "VIOLATION",
+      "assessment": "No entry-v2 level-family variant/relevance census or displaced-level null exists for min/max move, sigma, or regime-scaled bands.",
+      "evidence_ids": [
+        "NO_GENERATION_LAWS"
+      ]
+    },
+    {
+      "id": "D-051",
+      "source_line": 55,
+      "status": "SATISFIED",
+      "assessment": "All three assets advance through one asset-agnostic C++ substrate/G1 and Python control plane; no asset is dropped.",
+      "evidence_ids": [
+        "COMMON_GUARDS",
+        "CPP_SUBSTRATE",
+        "CPP_G1"
+      ]
+    },
+    {
+      "id": "D-053",
+      "source_line": 56,
+      "status": "VIOLATION",
+      "assessment": "No session/phase VWAP line or +/-2.0sigma and +/-2.5sigma generation family/relevance census exists in entry-v2.",
+      "evidence_ids": [
+        "NO_GENERATION_LAWS"
+      ]
+    },
+    {
+      "id": "D-054",
+      "source_line": 57,
+      "status": "SATISFIED",
+      "assessment": "The C++ shared event-grain sane-book primitive enforces two-sided books and min(10x prior median,$500), with no interpolation.",
+      "evidence_ids": [
+        "CPP_G1"
+      ]
+    },
+    {
+      "id": "D-055",
+      "source_line": 58,
+      "status": "VIOLATION",
+      "assessment": "No systematic observable-slice mining/multiplicity-controlled candidate-family discovery stage or receipt exists in entry-v2.",
+      "evidence_ids": [
+        "NO_GENERATION_LAWS"
+      ]
+    },
+    {
+      "id": "D-056",
+      "source_line": 59,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Opus-led feature discovery is a closed reader axis under D-094. Its surviving raw/context fidelity intent is implemented by full native prefixes and typed causal context, without claiming reader evidence.",
+      "evidence_ids": [
+        "D094_RESET",
+        "RAW_PREFIX",
+        "CONTEXT"
+      ]
+    },
+    {
+      "id": "D-057",
+      "source_line": 60,
+      "status": "SATISFIED",
+      "assessment": "Context and compliance use actual availability timestamps and require availability strictly before decision; equal-time is excluded, stronger than the older <= wording.",
+      "evidence_ids": [
+        "CONTEXT",
+        "COMPLIANCE"
+      ]
+    },
+    {
+      "id": "D-058",
+      "source_line": 61,
+      "status": "SATISFIED",
+      "assessment": "The machine path implements 2021-to-2025H1 disjoint E1-E8 walk-forward and hard-seals >=2025-07-01; obsolete discretionary-study clauses do not execute.",
+      "evidence_ids": [
+        "FOLDS",
+        "COMMON_GUARDS"
+      ]
+    },
+    {
+      "id": "D-059",
+      "source_line": 62,
+      "status": "N/A_WITH_REASON",
+      "assessment": "This governs Opus era briefings/pattern ledgers, which D-094 closed. Machine adaptation remains a separate unsatisfied D-031/D-032/D-084 obligation.",
+      "evidence_ids": [
+        "D094_RESET",
+        "NO_ADAPTATION"
+      ]
+    },
+    {
+      "id": "D-060",
+      "source_line": 63,
+      "status": "SATISFIED",
+      "assessment": "No paid source was acquired; official/Wayback compliance acquisition is hash-manifested and the context inventory uses owned free data with typed absences.",
+      "evidence_ids": [
+        "COMPLIANCE",
+        "CONTEXT"
+      ]
+    },
+    {
+      "id": "D-061",
+      "source_line": 64,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Entry-v2 consumes a banked SLV_FLOW_OZ point-in-time series and performs no new SLV shares-to-ounces conversion; the conditional conversion implementation is therefore not invoked.",
+      "evidence_ids": [
+        "CONTEXT"
+      ]
+    },
+    {
+      "id": "D-062",
+      "source_line": 65,
+      "status": "SATISFIED",
+      "assessment": "Targets remain per asset and results are not portfolio-substituted; three-asset posture stays open.",
+      "evidence_ids": [
+        "COMMON_GUARDS",
+        "CAMPAIGN"
+      ]
+    },
+    {
+      "id": "D-063",
+      "source_line": 66,
+      "status": "SATISFIED",
+      "assessment": "The same full-session substrate/G1 runs for all three assets; clock concentration is input context, not an eligibility partition.",
+      "evidence_ids": [
+        "CPP_SUBSTRATE",
+        "CPP_G1"
+      ]
+    },
+    {
+      "id": "D-064",
+      "source_line": 67,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The eight discretion-to-model transfer mechanisms belong to the closed reader/distillation program; D-094 replaces calls with an exact future-path teacher.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-065",
+      "source_line": 68,
+      "status": "VIOLATION",
+      "assessment": "Current candidate/corpus/model schemas contain no episode identifier or best-entry-within-episode learning/selection substrate.",
+      "evidence_ids": [
+        "NO_GENERATION_LAWS",
+        "RAW_PREFIX"
+      ]
+    },
+    {
+      "id": "D-066",
+      "source_line": 69,
+      "status": "VIOLATION",
+      "assessment": "No entry-v2 episode grouping implementation or current empirical/research adopt-skip adjudication exists.",
+      "evidence_ids": [
+        "NO_GENERATION_LAWS"
+      ]
+    },
+    {
+      "id": "D-067",
+      "source_line": 70,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Judgment-transfer and panel-label target families are excluded by D-094's exact-oracle/no-reader reset.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-068",
+      "source_line": 71,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The Opus briefing/panel law applies only to the superseded reader program.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-068-CORRECTION",
+      "source_line": 72,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Its correction governs how a superseded reader records interactions; entry-v2 has no reader ledger.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-065-AMENDMENT",
+      "source_line": 73,
+      "status": "VIOLATION",
+      "assessment": "Owned evidence says episode grouping is the count-shrink/statistics/selection substrate, yet entry-v2 omits episode grouping entirely.",
+      "evidence_ids": [
+        "OWNED_EPISODE_FINDING",
+        "NO_GENERATION_LAWS"
+      ]
+    },
+    {
+      "id": "D-069",
+      "source_line": 74,
+      "status": "VIOLATION",
+      "assessment": "The old v3-roster path audit is committed evidence, but no standing path-level forfeit regression/visual audit was rerun or pinned for the rebuilt entry-v2 G1 roster.",
+      "evidence_ids": [
+        "OWNED_GENERATION_FINDING",
+        "NO_GENERATION_LAWS",
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-070",
+      "source_line": 75,
+      "status": "SATISFIED",
+      "assessment": "The generator retains reversal confirmation as the evidence-backed starting core without asserting stylistic closure; the old audit's continuation trigger was not met.",
+      "evidence_ids": [
+        "OWNED_GENERATION_FINDING",
+        "CPP_G1"
+      ]
+    },
+    {
+      "id": "D-071",
+      "source_line": 76,
+      "status": "VIOLATION",
+      "assessment": "CandidateRow and corpus schemas do not declare the mandated candidate class and policy/model code has no class-conditioned path.",
+      "evidence_ids": [
+        "CPP_G1",
+        "NO_GENERATION_LAWS"
+      ]
+    },
+    {
+      "id": "D-072",
+      "source_line": 77,
+      "status": "N/A_WITH_REASON",
+      "assessment": "No Opus reader lane exists in entry-v2, so reader effort settings cannot apply.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-073",
+      "source_line": 78,
+      "status": "N/A_WITH_REASON",
+      "assessment": "No reader draw/scored sheet exists. The machine analogue uses all eligible chronological sessions and candidates in replay.",
+      "evidence_ids": [
+        "D094_RESET",
+        "REPLAY"
+      ]
+    },
+    {
+      "id": "D-074",
+      "source_line": 79,
+      "status": "N/A_WITH_REASON",
+      "assessment": "No production/background corpus or fit job was launched in this frozen construction pass, so watcher/heartbeat duties were not triggered.",
+      "evidence_ids": [
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-075",
+      "source_line": 80,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The weak human-teacher iterate loop is replaced by D-094/D-095's exact oracle and first-failed-boundary audit; no reader gate is launched.",
+      "evidence_ids": [
+        "D094_RESET",
+        "AUDIT_CHAIN"
+      ]
+    },
+    {
+      "id": "D-076",
+      "source_line": 81,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Human study-day regime draws no longer exist. The machine analogue evaluates every day across E1-E8; adaptation competence is separately violated under D-084.",
+      "evidence_ids": [
+        "D094_RESET",
+        "FOLDS",
+        "NO_ADAPTATION"
+      ]
+    },
+    {
+      "id": "D-077",
+      "source_line": 82,
+      "status": "SATISFIED",
+      "assessment": "C++ applies a hard compliance veto; absence of proven coverage yields COMPLIANCE_UNKNOWN rather than CLEAR.",
+      "evidence_ids": [
+        "COMPLIANCE",
+        "CPP_G1"
+      ]
+    },
+    {
+      "id": "D-077-UPDATE",
+      "source_line": 83,
+      "status": "SATISFIED",
+      "assessment": "Every supported dated high-impact release has an exact inclusive [-10,+10] minute PROHIBITED interval and all >=2025-07-01 bytes remain walled.",
+      "evidence_ids": [
+        "COMPLIANCE"
+      ]
+    },
+    {
+      "id": "D-078",
+      "source_line": 84,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Reader-evidence distillation and effort confound are closed reader concerns; entry-v2 uses exact future-path labels.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-079",
+      "source_line": 85,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The Opus teacher-first test is superseded by the deterministic exact training-only oracle over every eligible candidate.",
+      "evidence_ids": [
+        "D094_RESET",
+        "CPP_G1"
+      ]
+    },
+    {
+      "id": "D-080",
+      "source_line": 86,
+      "status": "SATISFIED",
+      "assessment": "Its standing collision-surfacing clause is honored by explicit violations/N-A reasons here; episode-reader/ribbon clauses are superseded by D-094's machine reset.",
+      "evidence_ids": [
+        "AUDIT_FRAME",
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-081",
+      "source_line": 87,
+      "status": "SATISFIED",
+      "assessment": "This is one consolidated conformance pass with no corpus rerun or incremental test loop; blockers are reported before further spend.",
+      "evidence_ids": [
+        "AUDIT_FRAME",
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-082",
+      "source_line": 88,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Natural reader decisions and post-hoc transcript extraction do not exist in entry-v2; exact labels replace reader calls.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-083",
+      "source_line": 89,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The old 2024 human teacher-test placement was replaced by full E1-E8 machine OOF evaluation with typed context absence.",
+      "evidence_ids": [
+        "D094_RESET",
+        "FOLDS",
+        "CONTEXT"
+      ]
+    },
+    {
+      "id": "D-084",
+      "source_line": 90,
+      "status": "VIOLATION",
+      "assessment": "The design has no measured recovery latency for the four named breaks, no per-break session counts, and no control/shadow reaction parameters derived from those latencies.",
+      "evidence_ids": [
+        "NO_ADAPTATION",
+        "CAMPAIGN"
+      ]
+    },
+    {
+      "id": "D-085",
+      "source_line": 91,
+      "status": "VIOLATION",
+      "assessment": "The E1-E8 scale path is designed but cannot certify: no production all-day/all-era receipt exists and D-084's mandatory adaptation-latency clause is structurally absent.",
+      "evidence_ids": [
+        "FOLDS",
+        "NO_ADAPTATION",
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-086",
+      "source_line": 92,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Balanced human teaching samples and the orchestrator read cap apply to the closed reader/distillation program.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-087",
+      "source_line": 93,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Compressed human apprenticeship and committed reader libraries are excluded by D-094's no-reader reset.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-088",
+      "source_line": 94,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Human teacher walk-forward testing is superseded; machine walk-forward is governed directly by D-084/D-085/D-094.",
+      "evidence_ids": [
+        "D094_RESET",
+        "FOLDS"
+      ]
+    },
+    {
+      "id": "D-089",
+      "source_line": 95,
+      "status": "SATISFIED",
+      "assessment": "This machine-readable receipt walks every directive line individually, records concrete evidence and blocks freeze on every violation.",
+      "evidence_ids": [
+        "AUDIT_FRAME"
+      ]
+    },
+    {
+      "id": "D-090",
+      "source_line": 96,
+      "status": "N/A_WITH_REASON",
+      "assessment": "The human oracle-apprenticeship curriculum is not used; entry-v2 trains directly from the exact oracle target plane.",
+      "evidence_ids": [
+        "D094_RESET",
+        "CPP_G1"
+      ]
+    },
+    {
+      "id": "D-091",
+      "source_line": 97,
+      "status": "N/A_WITH_REASON",
+      "assessment": "Human curriculum extensions are not used in entry-v2; no blind reader phase exists.",
+      "evidence_ids": [
+        "D094_RESET"
+      ]
+    },
+    {
+      "id": "D-091-CORRECTION",
+      "source_line": 98,
+      "status": "N/A_WITH_REASON",
+      "assessment": "No cross-asset human transfer probe is run. Its nonuniformity lesson is honored by separate per-asset policy heads, not treated as a competence score.",
+      "evidence_ids": [
+        "MODEL_POLICY"
+      ]
+    },
+    {
+      "id": "D-089-EXTENSION",
+      "source_line": 99,
+      "status": "VIOLATION",
+      "assessment": "This receipt supplies the missing post-hoc evidence crosswalk, but no contemporaneous pre-proposal element-to-owned-finding/hypothesis receipt existed; the one-seed and omitted-episode choices contradicted committed evidence.",
+      "evidence_ids": [
+        "EVIDENCE_CROSSWALK",
+        "OWNED_FIVE_SEED",
+        "OWNED_EPISODE_FINDING"
+      ]
+    },
+    {
+      "id": "D-092",
+      "source_line": 100,
+      "status": "N/A_WITH_REASON",
+      "assessment": "It conditionally governs human reader decisions, and entry-v2 has none. The stronger machine analogue is exact native-ns full prefix with lower_bound and per-candidate event counts/hashes; production byte-consumption evidence remains pending.",
+      "evidence_ids": [
+        "RAW_PREFIX",
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-093",
+      "source_line": 101,
+      "status": "N/A_WITH_REASON",
+      "assessment": "It gates the superseded human Round 2/rendered stack, which was not launched. The machine context loader has typed per-source receipts and mandatory tensors, but no production sample-day actual-consumption receipt is claimed.",
+      "evidence_ids": [
+        "D094_RESET",
+        "CONTEXT",
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-094",
+      "source_line": 102,
+      "status": "SATISFIED",
+      "assessment": "Design-complete only: isolated causal C++ substrate, exact future teacher, full-prefix neural encoder, per-asset frozen GBT heads, cleanup receipt and hard walls are present. This is not a production-goal claim.",
+      "evidence_ids": [
+        "CPP_SUBSTRATE",
+        "CPP_G1",
+        "RAW_PREFIX",
+        "MODEL_POLICY",
+        "CLEANUP",
+        "COMMON_GUARDS"
+      ]
+    },
+    {
+      "id": "D-095",
+      "source_line": 103,
+      "status": "SATISFIED",
+      "assessment": "Design-complete only: audit order follows candidate ceiling through exact replay and includes positive/direct/shuffled controls; production boundary results are still absent.",
+      "evidence_ids": [
+        "AUDIT_CHAIN",
+        "CAMPAIGN",
+        "NO_PRODUCTION_RESULTS"
+      ]
+    },
+    {
+      "id": "D-096",
+      "source_line": 104,
+      "status": "VIOLATION",
+      "assessment": "New save/recall hooks and a manual end-to-end check exist, but the live process loaded the older hooks; a clean resume plus real automatic SessionStart injection and PreCompact spool proof is still required.",
+      "evidence_ids": [
+        "HOOK_CONFIG",
+        "MEMPALACE_STATE"
+      ]
+    },
+    {
+      "id": "D-097",
+      "source_line": 105,
+      "status": "SATISFIED",
+      "assessment": "All >=2025-07-01 development reads are hard-refused absent a one-time permit, 2026 is unconditional refusal, and campaign requires every asset goal before H2 authority.",
+      "evidence_ids": [
+        "COMMON_GUARDS",
+        "CAMPAIGN"
+      ]
+    }
+  ],
+  "supplemental": [
+    {
+      "id": "D-098",
+      "status": "SATISFIED",
+      "assessment": "Native decision_ts_ns groups, prior exit strictly before next decision, continuous cert_close_usd GBT priority, five-bin distribution and both shuffled-direct/shuffled-policy controls are structurally present; production execution is pending.",
+      "evidence_ids": [
+        "REPLAY",
+        "MODEL_POLICY",
+        "CAMPAIGN"
+      ]
+    },
+    {
+      "id": "ENTRY-V2-EVIDENCE-5-SEED",
+      "status": "VIOLATION",
+      "assessment": "The committed standing 5-seed mean+sd law is not represented: training/policy use one seed and campaign has no member distribution.",
+      "evidence_ids": [
+        "OWNED_FIVE_SEED",
+        "TRAIN_SINGLE_SEED",
+        "CAMPAIGN"
+      ]
+    }
+  ],
+  "exact_blockers": [
+    "D-002: missing frozen entry-v2 design/spec artifact",
+    "D-006: missing production constructor census/formula-fidelity receipt",
+    "D-019: >=30 minute hold floor not enforced",
+    "D-031/D-032/D-084: adaptation machinery, four break latencies and latency-derived reactions absent",
+    "D-050/D-052/D-053/D-055: mandated level and slice-mined generation families/censuses absent",
+    "D-065/D-066/D-065-AMENDMENT: episode selection substrate absent",
+    "D-069: rebuilt G1 lacks current path-level generation/forfeit regression and visual audit",
+    "D-071: candidate class and class-conditioned model path absent",
+    "D-085: no production scale certification and D-084 latency clause absent",
+    "D-089-EXTENSION: no contemporaneous pre-proposal owned-evidence crosswalk; contradictions entered design",
+    "D-096: configured new hooks await clean-restart automatic round-trip proof",
+    "ENTRY-V2-EVIDENCE-5-SEED: one-seed training/policy contradicts mandatory 5-seed mean+sd law"
+  ],
+  "pending_execution_evidence": [
+    "production C++ candidate/teacher/corpus receipts",
+    "E1-E8 production model/policy OOF receipts",
+    "exact all-session replay/candidate-ceiling capture and per-asset goal receipt",
+    "sample-day machine context actual-consumption receipt",
+    "adaptation break-latency/control/shadow receipt"
+  ],
+  "authoritative_compliance": {
+    "schema": "QRE2COMPLIANCE1",
+    "sha256": "b85ea543b8573b82a410e7dba6716e42263fef3abee808fdcf18a4bab484fe8d",
+    "coverage_start_ts_ns": "1609459200000000000",
+    "coverage_end_ts_ns": "1751327999999999999",
+    "coverage_start_utc": "2021-01-01T00:00:00Z",
+    "coverage_end_utc": "2025-06-30T23:59:59.999999999Z",
+    "prohibited_rows": 144,
+    "coverage_rows": 5,
+    "gaps": [],
+    "h2_rows": 0
+  }
+}

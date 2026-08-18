@@ -1,5 +1,13 @@
 # Experiment and failure history
 
+> **Historical scope notice.** This document describes the earlier IWM/Russell
+> clean-room research and its exact scientific objects. It is not the current
+> Entry V2 futures result or execution cursor. For the 2026-08-16 through
+> 2026-08-18 Entry V2 attempts, including v3/v4 learned failures, v5/v8/v9
+> engineering refusals, the six real-path rehearsal failures, and the fact that
+> the replacement learner never ran, use
+> [`ENTRY_V2_CURRENT_STATUS.md`](ENTRY_V2_CURRENT_STATUS.md).
+
 This is the human-readable history. Exact task-card, code, input, output and
 review hashes belong in `knowledge/evidence.tsv` and `evidence/claims/`.
 Numbers below must not be read outside the disposition and scientific object
@@ -196,4 +204,3 @@ current Gate-1 implementation starting point, not active production code.
 - Allowing stale, rejected or merely newest files to look authoritative.
 
 The clean-room repository exists to make those failures mechanically harder.
-

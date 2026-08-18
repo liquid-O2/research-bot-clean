@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 1064, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 1046, in main
+    result = run_production_chain(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 772, in run_production_chain
+    acceptance = run_neural_sufficiency(
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_runner.py", line 501, in run_neural_sufficiency
+    evidence = {name: _call(name, backends[name], context,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_runner.py", line 221, in _call
+    evidence = callback(context)
+               ^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 593, in callback
+    return self._run(name)
+           ^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 558, in _run
+    elif component == "raw_fidelity": result = self.executor.raw_fidelity()
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_executor.py", line 520, in raw_fidelity
+    result = self.provider.audit_raw_fidelity(loaded, manifest)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_resources.py", line 5439, in audit_raw_fidelity
+    self._prepare(manifest); assert self.schema is not None
+    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_resources.py", line 5017, in _prepare
+    depth_wanted, depth_receipt = self._select_pairlogit_depth_ids()
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_resources.py", line 4989, in _select_pairlogit_depth_ids
+    raise RealDiagnosticExecutorRefusal(
+engine.entry_v2.neural_sufficiency_executor.RealDiagnosticExecutorRefusal: SI/FIT lacks 16 real PairLogit phase groups

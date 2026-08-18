@@ -1,0 +1,36 @@
+{
+  "reading": "CAL-PREVIEW sensor dump",
+  "certifying": false,
+  "fold": "F4",
+  "sessions": [
+    398,
+    399
+  ],
+  "arms": [
+    "NATIVE_ORDER",
+    "NATIVE_INTERACTION",
+    "JOINT_STREAM_ATTENTION"
+  ],
+  "heads": [
+    "risk",
+    "cert",
+    "net30",
+    "net60"
+  ],
+  "excluded_heads": [
+    "15m net (did not transfer)",
+    "same-clock direction/common components (did not transfer)"
+  ],
+  "wall": "TRAIN + gate_select only; every fold's TEST and gate_cert refused",
+  "rows": 36480,
+  "files": [
+    "s0398_sensors.tsv",
+    "s0399_sensors.tsv"
+  ],
+  "head_columns": {
+    "risk": 11,
+    "cert": 7,
+    "net30": 3,
+    "net60": 4
+  }
+}

@@ -1,4 +1,42 @@
-# PROGRESS — completion ledger (one row per FINAL_PLAN item ID; a work item is DONE only when its row says so with an evidence id)
+# PROGRESS — current Entry V2 and historical completion ledger
+
+## Current Entry V2 progress — 2026-08-18
+
+This section overrides older cursor language for the current project. Detailed
+evidence and definitions are in
+[`docs/ENTRY_V2_CURRENT_STATUS.md`](docs/ENTRY_V2_CURRENT_STATUS.md). `DONE`
+below means a retained production/experimental boundary exists. `ENGINEERING`
+means useful plumbing evidence but no learned result. `UNVERIFIED` means source
+or local checks exist without a completed real production boundary.
+
+| id | status | evidence | honest meaning |
+|---|---|---|---|
+| EV2-AUTHORITY | DONE | recovery plan + A-001…A-020 + clock law + neural diagnostic | frozen governing design; not an experimental result |
+| EV2-SUBSTRATE | DONE | v2-v4 corpus receipts; QRE2 provenance | causal pre-H2 substrate produced retained corpora |
+| EV2-CANDIDATE-CEILING | DONE | v4 candidate preflight; v9 one-load preflight | candidate/replay opportunity measured; some fold/assets below $2,000 goal |
+| EV2-LEGACY-V3 | FAILED | `pre_h2_v3` E3-E5 folds | all assets/arms threshold 1.000001; zero entries |
+| EV2-LEGACY-V4 | FAILED_WITH_PARTIAL_SIGNAL | v4 E3 policy gate SHA `b03c81d…` | HG one trade; NKD five; SI none; far below goal |
+| EV2-REPRESENTATION-PROBE | FAILED_ECONOMICS | v4 diagnostic receipt `2ab4b51f…` | static/late-fusion AUROC improved; no useful test economics |
+| EV2-DURABLE-WARM | ENGINEERING | v9 corpus timing receipt `4ecaa4a6…` | 8m38 warm corpus, zero physical opens/fills; reusable infrastructure |
+| EV2-ONE-LOAD | ENGINEERING | v9 component receipt `007937ed…` | fit-only roster/ceiling preflight completed |
+| EV2-RAW-FIDELITY | FAILED | v9 failure SHA `d2d58da5…` | diagnostic/learner session-domain assumption failed before neural |
+| EV2-V9-DOMAIN-FIX | UNVERIFIED | current `_expanded_session_metadata` + real 236/235 adversary | locally corrected; no production rerun |
+| EV2-FIVE-ARMS | NOT_RUN | no component receipts | C0/C1/L0/L1/M1 never trained authoritatively |
+| EV2-ATLAS-44 | NOT_RUN | no stage receipt | no real-vs-shuffled objective screen |
+| EV2-DIRECT-CAT | NOT_RUN | no replacement-stage receipt | no fair head comparison |
+| EV2-E1R-E2R | NOT_RUN | candidate oracle only | unchanged full learner has not proven ceiling recovery |
+| EV2-HELD-E1 | NOT_RUN | absent | no held learning result |
+| EV2-HELD-E2 | NOT_RUN | absent | no frozen finalist confirmation |
+| EV2-HELD-E3 | NOT_RUN | absent | no replacement report-only E3 |
+| EV2-ADOPTION | NOT_RUN | absent | no selected winner or READY bundle |
+| EV2-2025H2 | SEALED | every retained attempt has `h2_permit=false` | no use authorized or observed |
+| EV2-EXECUTION | STOPPED | explicit user order | no Entry V2 learning/production process is running; documentation only |
+
+## Historical FINAL_PLAN completion ledger
+
+The rows below predate the current Entry V2 recovery and retain their original
+scientific objects and terminology. They do not imply current Entry V2
+completion.
 
 | id | status | date | evidence_id | artifact/hash | note |
 |---|---|---|---|---|---|

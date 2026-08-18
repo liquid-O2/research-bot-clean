@@ -1,0 +1,61 @@
+.../workspace/engine/entry_v2/test_atlas_losses.py:111: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  self.assertNotEqual(float(fixed_loss), float(joint_loss))
+.................................................................................E.............EE.......................................................................................................................................E...................................
+======================================================================
+ERROR: test_incremental_windows_match_full_semantics_and_refuse_bad_chains (engine.entry_v2.test_corpus.CorpusBridgeTest.test_incremental_windows_match_full_semantics_and_refuse_bad_chains)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/test_corpus.py", line 874, in test_incremental_windows_match_full_semantics_and_refuse_bad_chains
+    attach_coverage(first), attach_coverage(second),
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/test_corpus.py", line 820, in attach_coverage
+    coverage = selected_horizon_coverage_receipt(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/selected_horizon_contract.py", line 222, in selected_horizon_coverage_receipt
+    "roster_sha256": _digest(_canonical({
+                     ^^^^^^^
+NameError: name '_digest' is not defined
+
+======================================================================
+ERROR: test_one_authoritative_open_global_schedule_and_atlas_receipts (engine.entry_v2.test_diagnostic_corpus.DiagnosticCorpusIntegrationTest.test_one_authoritative_open_global_schedule_and_atlas_receipts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/test_diagnostic_corpus.py", line 427, in test_one_authoritative_open_global_schedule_and_atlas_receipts
+    final = finalize_diagnostic_corpus(corpus, observers)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/diagnostic_corpus.py", line 1443, in finalize_diagnostic_corpus
+    raise DiagnosticCorpusRefusal(
+engine.entry_v2.diagnostic_corpus.DiagnosticCorpusRefusal: diagnostic observers disagree on the selected-target start
+
+======================================================================
+ERROR: test_selected_coverage_preflight_is_prefix_optional_suffix_exact (engine.entry_v2.test_diagnostic_corpus.DiagnosticCorpusIntegrationTest.test_selected_coverage_preflight_is_prefix_optional_suffix_exact)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/test_diagnostic_corpus.py", line 74, in test_selected_coverage_preflight_is_prefix_optional_suffix_exact
+    coverage = _selected_horizon_coverage_preflight(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/diagnostic_corpus.py", line 1239, in _selected_horizon_coverage_preflight
+    return selected_horizon_coverage_receipt(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/selected_horizon_contract.py", line 222, in selected_horizon_coverage_receipt
+    "roster_sha256": _digest(_canonical({
+                     ^^^^^^^
+NameError: name '_digest' is not defined
+
+======================================================================
+ERROR: test_coverage_is_optional_prefix_then_complete_suffix (engine.entry_v2.test_selected_horizon_contract.SelectedHorizonContractTest.test_coverage_is_optional_prefix_then_complete_suffix)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/test_selected_horizon_contract.py", line 53, in test_coverage_is_optional_prefix_then_complete_suffix
+    receipt = selected_horizon_coverage_receipt(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/selected_horizon_contract.py", line 222, in selected_horizon_coverage_receipt
+    "roster_sha256": _digest(_canonical({
+                     ^^^^^^^
+NameError: name '_digest' is not defined
+
+----------------------------------------------------------------------
+Ran 271 tests in 210.742s
+
+FAILED (errors=4)

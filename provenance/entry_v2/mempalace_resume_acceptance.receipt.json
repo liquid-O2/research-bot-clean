@@ -1,0 +1,65 @@
+{
+  "schema": "ENTRY_V2_MEMPALACE_RESUME_ACCEPTANCE_V1",
+  "created_at_utc": "2026-08-16T13:03:39Z",
+  "h2_opened_or_run": false,
+  "real_resume": {
+    "codex_started_at_utc": "2026-08-16T12:52:33Z",
+    "session_start_observed_at_utc": "2026-08-16T12:52:49Z",
+    "source": "resume",
+    "workspace_hook_executed": true,
+    "spool_injected": true,
+    "spool_checkpoint_sha256": "0a42c9563e3c752a7964dc272107a94e1cd3607262e94cc0f39edf60c8347a1d",
+    "context_chars": 6701,
+    "context_sha256": "79162ddcc0c916dd47717c10e4e84bc0ab286e0034fcbc81fa2e4720c6da9ede",
+    "raw_tool_markers_injected": false,
+    "initial_palace_diary_status": "EMPTY_DUE_TO_PHYSICAL_CHUNKS_COUNTED_AS_LOGICAL_ENTRIES"
+  },
+  "diary_api_fix": {
+    "law": "last_n counts logical diary writes; chunked writes are reconstructed byte-for-byte before sort and limit",
+    "source": "/workspace/mempalace/source/mempalace/mcp_server.py",
+    "source_sha256": "04da72cd30c1e08fa9b92d9f1fc28d3b34fa9d1d264da9afd88380e7c7b9bf6b",
+    "test": "/workspace/mempalace/source/tests/test_mcp_server.py",
+    "test_sha256": "7278c2a188ed679fae7d9657d2535554241413240d9a3f90331c833290da1cee",
+    "focused_tests_passed": 9,
+    "live_logical_diary_entries_total": 14,
+    "live_last_n_returned": 5
+  },
+  "post_fix_handler_replay": {
+    "same_workspace_session_start_handler": true,
+    "same_live_http_hub": true,
+    "context_chars": 11000,
+    "context_sha256": "db42dd1a24fc035d4fe9ddb4e8f83f23e570ab72b081b4fb003c5a2794044a89",
+    "spool_present": true,
+    "palace_diary_present": true,
+    "recall_error_present": false,
+    "raw_tool_markers_present": false,
+    "status": "PASS"
+  },
+  "missed_old_process_session_end_recovery": {
+    "reason": "the stopped pre-migration Codex process retained its old hook table",
+    "worker": "/workspace/engine/entry_v2/mempalace_session_end_hook.py",
+    "archive_path": "/workspace/.mempalace/sources/codex/01a009ae-e02a-7ae3-8a52-95c90611026b.db757b31104b5ecd.jsonl",
+    "archive_bytes": 66149928,
+    "archive_sha256": "1af48223d631902ed8133eb0c50edfab01d6e8bd3a19288e5fee9973350ebb30",
+    "archive_receipt_sha256": "42d5ca9b8743c5674d4350525e4814ca199626c51e3eeebdf2f2a2c3a6f346fd",
+    "continuity_scan_match": true,
+    "palace_reconciled": true,
+    "mine_returncode": 0,
+    "semantic_recall_exact_user_prefix": "> resumed",
+    "semantic_drawer_id": "drawer_sessions_technical_6b60eeba2920bb6d99411ffd",
+    "status": "PASS"
+  },
+  "post_fix_topology": {
+    "hub_pid": 2652281,
+    "hub_bind": "127.0.0.1:8765",
+    "backend": "chroma",
+    "palace": "/workspace/.mempalace/palace",
+    "hub_count": 1,
+    "legacy_stdio_mcp_children": 0,
+    "plugin_transport": "http://127.0.0.1:8765/mcp",
+    "trusted_workspace_hooks": 3,
+    "bundled_plugin_hooks": 0
+  },
+  "acceptance": "PASS_REMEDIATED_LIVE",
+  "additional_restart_required": false
+}

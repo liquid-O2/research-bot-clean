@@ -1,0 +1,81 @@
+{
+ "kind": "rank",
+ "group_unit": "cell",
+ "arch": "tabpfn-dollars-reg_ood",
+ "rung": "foundation",
+ "L": 0,
+ "trunk": "tabpfn",
+ "mode": "ctx",
+ "pretrained": true,
+ "per_era": [],
+ "pooled": {},
+ "ledger": [
+  {
+   "era": "E3",
+   "model": "tabpfn",
+   "target": "dollars",
+   "variant": "reg_ood",
+   "n_context": 32768,
+   "n_ensemble": 4,
+   "n_train_pool": 406468,
+   "n_eval": 151884,
+   "secs": 92.2,
+   "gpu_peak_gb": 3.69
+  },
+  {
+   "era": "E4",
+   "model": "tabpfn",
+   "target": "dollars",
+   "variant": "reg_ood",
+   "n_context": 32768,
+   "n_ensemble": 4,
+   "n_train_pool": 558352,
+   "n_eval": 148474,
+   "secs": 91.9,
+   "gpu_peak_gb": 3.69
+  },
+  {
+   "era": "E5",
+   "model": "tabpfn",
+   "target": "dollars",
+   "variant": "reg_ood",
+   "n_context": 32768,
+   "n_ensemble": 4,
+   "n_train_pool": 706826,
+   "n_eval": 153013,
+   "secs": 93.0,
+   "gpu_peak_gb": 3.69
+  },
+  {
+   "era": "E6",
+   "model": "tabpfn",
+   "target": "dollars",
+   "variant": "reg_ood",
+   "n_context": 32768,
+   "n_ensemble": 4,
+   "n_train_pool": 859839,
+   "n_eval": 163182,
+   "secs": 103.2,
+   "gpu_peak_gb": 3.69
+  },
+  {
+   "era": "E7",
+   "model": "tabpfn",
+   "target": "dollars",
+   "variant": "reg_ood",
+   "n_context": 32768,
+   "n_ensemble": 4,
+   "n_train_pool": 1023021,
+   "n_eval": 158329,
+   "secs": 93.6,
+   "gpu_peak_gb": 3.69
+  }
+ ],
+ "gpu": {
+  "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+  "vram_gb": 102.0,
+  "torch": "2.8.0+cu128",
+  "cuda": "12.8"
+ },
+ "wall_secs": 473.8
+}

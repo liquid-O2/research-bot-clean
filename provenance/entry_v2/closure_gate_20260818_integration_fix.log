@@ -1,0 +1,19 @@
+.../workspace/engine/entry_v2/test_atlas_losses.py:111: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  self.assertNotEqual(float(fixed_loss), float(joint_loss))
+................................................................................................................................................................................E........................................................................................
+======================================================================
+ERROR: test_crash_after_each_boundary_resumes_without_refit_or_reselection (engine.entry_v2.test_neural_sufficiency_stage_persistence.StagePersistenceTest.test_crash_after_each_boundary_resumes_without_refit_or_reselection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/test_neural_sufficiency_stage_persistence.py", line 517, in test_crash_after_each_boundary_resumes_without_refit_or_reselection
+    fold = build_selected_winner_fold_report(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/train.py", line 2639, in build_selected_winner_fold_report
+    raise C.EntryV2Refusal(
+engine.entry_v2.common.EntryV2Refusal: selected-winner report lacks frozen policy training evidence
+
+----------------------------------------------------------------------
+Ran 268 tests in 205.110s
+
+FAILED (errors=1)

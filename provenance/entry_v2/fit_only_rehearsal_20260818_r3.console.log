@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 1049, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 1031, in main
+    result = run_production_chain(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 757, in run_production_chain
+    acceptance = run_neural_sufficiency(
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_runner.py", line 501, in run_neural_sufficiency
+    evidence = {name: _call(name, backends[name], context,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_runner.py", line 221, in _call
+    evidence = callback(context)
+               ^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 578, in callback
+    return self._run(name)
+           ^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 557, in _run
+    evidence = self._persist(component, result)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 499, in _persist
+    raise ProductionDiagnosticRefusal(f"{component} exact execution did not pass fit-only")
+ProductionDiagnosticRefusal: one_load exact execution did not pass fit-only

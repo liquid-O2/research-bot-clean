@@ -1,0 +1,12 @@
+# PORT M2 port m2 NEW DECISION OBJECTS — joint (member x delay) ranking, rank-then-gate-verify, optimal stopping (E3-E7 develop, E8 one blind read) (lane=port-m2-newobj; version=PORT-M2-NEWOBJ-V1; seed=20260813)
+# E8 QUARANTINE: every fit, threshold and selection in this file is made on E3-E7 only; E8 rows are ONE labeled blind read and were never an input to any choice.
+# IS THE SIDE=+1 EDGE SKILL, OR IS IT 2021-25 DRIFT IN METALS AND NKD?  Three books, and EVERY NULL IS REPLAYED ON ITS OWN BOOK — shuffled scores, same restricted row set, same rules — so any directional drift is inside the null and cannot be sold as skill.
+# EXCESS OVER OWN-BOOK NULL is the only number to read.  A raw side=+1 figure that is large but sits at its own null is drift.
+# BOOK C IS THE MIRROR: the side=-1 book with every realised P&L NEGATED, i.e. taking the opposite side of each short.  If the side=+1 edge is drift, a direction-blind score reproduces it here; if C is flat or negative while A has real excess, the side=+1 result is skill.
+# The per-book argmax is an UPPER BOUND on each book (it is not a blind selection); SIDE_BLIND_CHAIN.tsv carries the deployable prev-era reading for book A.
+era	score_column	book_A	best_usd_A	own_book_null_A	excess_over_null_A	book_B	best_usd_B	own_book_null_B	excess_over_null_B	book_C	best_usd_C	own_book_null_C	excess_over_null_C
+E3	S_XGB	side+1	57.25	63.9	-6.65	side-1	28.13	68.48	-40.35	side-1_SIGN_FLIPPED	26.63	20.13	6.5
+E4	S_XGB	side+1	59.9	81.71	-21.81	side-1	47.26	85.43	-38.17	side-1_SIGN_FLIPPED	50.86	50.46	0.4
+E5	S_XGB	side+1	87.28	90.33	-3.05	side-1	58.39	83.82	-25.42	side-1_SIGN_FLIPPED	22.86	14.68	8.17
+E6	S_XGB	side+1	169.15	180.12	-10.97	side-1	43.04	47.68	-4.63	side-1_SIGN_FLIPPED	100.72	74.57	26.15
+E7	S_XGB	side+1	147.28	161.21	-13.93	side-1	127.24	137.22	-9.99	side-1_SIGN_FLIPPED	37.99	24.53	13.45

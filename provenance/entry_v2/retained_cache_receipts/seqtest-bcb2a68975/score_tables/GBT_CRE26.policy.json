@@ -1,0 +1,8 @@
+{
+ "unit": "session",
+ "topn": 3,
+ "deployable": true,
+ "contract": "MATRIX_CERT",
+ "scope": "scored",
+ "name": "FIX2_GBT_CRE26_COMPOSED"
+}

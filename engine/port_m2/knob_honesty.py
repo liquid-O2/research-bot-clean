@@ -1521,12 +1521,40 @@ def _true_job(job):
         D, P = CF.boot()
         pc = phase_close(D, P)
         tr, itr, iva, ev = NA.fold(D, era)
-        if mode == "inner":
+        if mode.startswith("inner"):
             rows_ev, train_rows = N.deployable(D, iva), itr
         else:
             rows_ev, train_rows = ev, tr
+        # ---- THE SIDE BOOKS, and the drift-vs-skill mirror ----------------
+        # B5 measured the champion's TAIL skill on one side only: side=+1
+        # carries q90 lift +$129..+$341 on every asset and era, side=-1
+        # carries -$349..+$31.  But 2021-25 metals and NKD DRIFT UPWARD, and a
+        # direction-blind score would produce exactly that pattern with no
+        # skill at all.  Hence three books, and the null for each is replayed
+        # ON ITS OWN BOOK:
+        #   _sp      side=+1 only
+        #   _sn      side=-1 only, as-is
+        #   _snflip  side=-1 only with every realised P&L NEGATED — "what if
+        #            we had taken the opposite side of each short".  If the
+        #            side=+1 edge is drift, this mirror reproduces it; if the
+        #            mirror is flat or negative, side=+1 is skill.
+        # The side is known at the arrival second, so restricting the book is
+        # a deployable rule, not a filter on outcomes.
+        valmap = None
+        if mode.endswith("_snflip"):
+            ci = N.FIDX["cert_close"]
+            valmap = {d: -np.asarray(P[d][:, ci], dtype=np.float64)
+                      for d in P}
+            rows_ev = rows_ev[D["side"][rows_ev] < 0]
+        elif mode.endswith("_sn"):
+            rows_ev = rows_ev[D["side"][rows_ev] < 0]
+        elif mode.endswith("_sp"):
+            rows_ev = rows_ev[D["side"][rows_ev] > 0]
         import arrival as _AR_ns  # noqa: F401
-        cols = true_cols(D, col, era, mode)
+        _bm = mode
+        for _sfx in ("_snflip", "_sn", "_sp"):
+            _bm = _bm.replace(_sfx, "")
+        cols = true_cols(D, col, era, _bm)
         if not cols:
             # A column that does not exist for this era is a SKIP, not a
             # failure.  E3 predates the fitted targets, and the blind chain is
@@ -1548,7 +1576,7 @@ def _true_job(job):
                 # level families stayed invisible for three findings running.
                 return {"notrun": str(e)}
             rp = SF.apply_stop(D, AR.cap_seats(D, N.replay_delayed(
-                D, seats, P)), "STOP_WALL1")
+                D, seats, P, val_by_delay=valmap)), "STOP_WALL1")
             nst = int(sum(r["n_seated"] for r in rp))
             sv = sorted((float(x[2]) for r in rp for x in r["seats"]),
                         reverse=True)
@@ -5152,8 +5180,9 @@ def _b1_job(era):
         out = []
         p, nd = _precision_at_k(D, sc, ev, y, key)
         out.append((era, "B1_SEAT_ensemble%d" % B1_SEEDS, p, nd, dev))
-        p, _ = _precision_at_k(D, np.where(np.isfinite(sc), preds[0], np.nan),
-                               ev, y, key)
+        s1 = np.full(D["d8"].size, np.nan)
+        s1[want] = preds[0]          # preds are over `want`, not full length
+        p, _ = _precision_at_k(D, s1, ev, y, key)
         out.append((era, "B1_SEAT_single_seed", p, nd, dev))
         p, _ = _precision_at_k(D, shs, ev, y, key)
         out.append((era, "CONTROL_shuffled_labels", p, nd, dev))
@@ -5547,6 +5576,167 @@ def run_ceilings(workers=3, eras=BINDING):
     return cr
 
 
+# ====== STAGE 24: THE SIDE SPLIT — B5's finding, on the deployable line ====
+# B5_CLASS_TAIL_SEPARABILITY.tsv is the strongest lead this campaign has
+# produced and it was hiding inside a pooled average.  The champion's tail
+# skill exists ON ONE SIDE ONLY:
+#     side=+1  top-decile spearman 0.21-0.32, q90 lift +$129..+$341,
+#              q99 lift +$188..+$634 — every asset, every era, all positive
+#     side=-1  top-decile spearman -0.10..+0.14, q90 lift -$349..+$31
+# Pooled, the two cancel to the $144/$168/$175 that has been quoted all night.
+# THE SIDE IS KNOWN AT THE ARRIVAL SECOND, so restricting the book to side=+1
+# is a deployable rule and not an outcome filter.  On the M3 conversion
+# ($1.99/$2.07/$2.40 per $1 of q90 lift) the implied gain is large; whether it
+# converts is exactly what this stage measures, blind, on the deployable line.
+# CUT TO CRITICAL PATH (user order, 2026-08-16): the side chain runs on the
+# CHAMPION ONLY.  Every other column had already FAILED at the fit or
+# leaderboard stage with a number on the record — A1_TAILPOP q90 lift $2.02,
+# H3_DAYZ blind -$26/-$55/-$7, B1 precision@3 below the champion on all three
+# eras — and re-sweeping failed arms across three books is completeness, not
+# evidence.  Those arms are listed FAILED-with-numbers in the verdict; their
+# side-book sweeps are NOT_RUN(cut by order).
+SIDE_COLUMNS = ("S_XGB",)
+
+
+def run_sideeval(workers=24):
+    import json
+    import multiprocessing as mp
+    jobs = ([(m, e, c, "H1") for m in ("eval_sp", "eval_sn", "eval_snflip")
+             for e in H1EVAL_ERAS for c in SIDE_COLUMNS]
+            + [("inner_sp", e, c, "H1") for e in H1EVAL_ERAS[1:]
+               for c in SIDE_COLUMNS])
+    os.makedirs(CACHE, exist_ok=True)
+    todo = [j for j in jobs
+            if not os.path.exists(os.path.join(
+                CACHE, "SP_%s_%s_%s.json" % (j[0], j[1], j[2])))]
+    hb("SIDEEVAL: %d jobs, %d policies x %d columns, side=+1 book only"
+       % (len(todo), len(H1_POLICIES), len(SIDE_COLUMNS)))
+    nerr = 0
+    if todo:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(processes=workers) as pool:
+            for mode, era, col, out, err in pool.imap_unordered(_true_job,
+                                                                todo):
+                if err:
+                    nerr += 1
+                    hb("SP FAILED %s %s %s: %s" % (mode, era, col, err))
+                    continue
+                with open(os.path.join(CACHE, "SP_%s_%s_%s.json"
+                                       % (mode, era, col)), "w") as fh:
+                    json.dump(out, fh)
+                hb("SP done %s %s %s" % (mode, era, col))
+    if nerr:
+        raise KnobRefusal("%d side-eval jobs FAILED" % nerr)
+    recs = []
+    for fn in sorted(os.listdir(CACHE)):
+        if fn.startswith("SP_") and fn.endswith(".json"):
+            with open(os.path.join(CACHE, fn)) as fh:
+                recs.extend(json.load(fh))
+    live = [r for r in recs if not r.get("notrun")
+            and np.isfinite(r.get("usd", float("nan")))]
+    ev = {(r["era"], r["col"], r["policy"]): r
+          for r in live if r["mode"] == "eval_sp"}
+    crows = []
+    for sel, tgt in T2_CHAIN:
+        cl = AR.CAUSAL_ORACLE.get(tgt)
+        inc = INCUMBENT_DEPLOYABLE.get(tgt)
+        widths = [("NARROW_%s" % c, (c,)) for c in SIDE_COLUMNS]
+        widths.append(("WIDE_all_columns", tuple(SIDE_COLUMNS)))
+        for width, cc0 in widths:
+            hs = {k[1] for k in ev if k[0] == sel}
+            ht = {k[1] for k in ev if k[0] == tgt}
+            cc = tuple(sorted(set(cc0) & hs & ht))
+            if not cc:
+                continue
+            pool_ = {k: v for k, v in ev.items()
+                     if k[0] == sel and k[1] in cc}
+            if not pool_:
+                continue
+            k = max(pool_, key=lambda z: pool_[z]["usd"])
+            r = ev.get((tgt, k[1], k[2]))
+            if r is None:
+                continue
+            bar = max((x["null"] for x in live if x["mode"] == "eval_sp"
+                       and x["era"] == tgt and x["col"] in cc), default=None)
+            crows.append([
+                "%s->%s" % (sel, tgt), width, "%s|%s" % (k[1], k[2]),
+                N._r(pool_[k]["usd"]), N._r(r["usd"]), N._r(r["sd"]),
+                N._r(r["ci_lo"]), N._r(r["ci_hi"]), N._r(r["n_seated"], 1),
+                r["n_sessions"], N._r(r["top5_share"], 3), N._r(bar),
+                len(cc) * len(H1_POLICIES),
+                "YES" if (bar is not None and r["usd"] > bar) else "no",
+                N._r(inc), N._r(r["usd"] - inc) if inc else "",
+                "YES" if (inc is not None and r["usd"] > inc) else "no",
+                N._r(r["usd"] / cl, 4) if cl else "",
+                "POSITIVE" if r["usd"] > 0 else "NEGATIVE"])
+    N.write_tsv(
+        "SIDE_BLIND_CHAIN.tsv",
+        ["link", "search_width", "cell_chosen", "usd_on_selector",
+         "usd_on_TARGET_BLIND", "sd_usd", "ci_lo", "ci_hi", "n_trades_total",
+         "n_era_sessions", "top5_trade_share_of_pnl",
+         "LONG_ONLY_BOOK_search_adjusted_null",
+         "n_cells_searched", "beats_LONG_ONLY_null", "incumbent_POOLED_BOOK",
+         "delta_vs_pooled_incumbent", "beats_pooled_incumbent",
+         "capture_of_causal_oracle", "sign"], crows,
+        extra=[
+            "THE SIDE=+1 BOOK, blind, on the deployable line.  B5 measured "
+            "that the champion's TAIL skill exists on one side only — q90 lift "
+            "+$129..+$341 on side=+1 against -$349..+$31 on side=-1, on every "
+            "asset and every era — and the pooled figure quoted all night is "
+            "the two cancelling.",
+            "THE SIDE IS KNOWN AT THE ARRIVAL SECOND, so this is a deployable "
+            "restriction and not an outcome filter.  The denominator is "
+            "unchanged: every session of the era still counts, and a session "
+            "with no side=+1 take contributes $0 — so halving the book cannot "
+            "flatter the mean.",
+            "incumbent_POOLED_BOOK is the $57.76 / $88.96 / $101.77 that the "
+            "unrestricted book earns, and it is the number to beat."])
+    # ---- THE DRIFT-VS-SKILL MIRROR: the three books side by side --------
+    drows = []
+    for era in H1EVAL_ERAS:
+        for col in SIDE_COLUMNS:
+            row = [era, col]
+            for m, lab in (("eval_sp", "side+1"), ("eval_sn", "side-1"),
+                           ("eval_snflip", "side-1_SIGN_FLIPPED")):
+                cells = [r for r in live if r["mode"] == m
+                         and r["era"] == era and r["col"] == col]
+                if not cells:
+                    row += ["", "", "", ""]
+                    continue
+                b = max(cells, key=lambda z: z["usd"])
+                nul = max(x["null"] for x in cells)
+                row += [lab, N._r(b["usd"]), N._r(nul),
+                        N._r(b["usd"] - nul)]
+            drows.append(row)
+    N.write_tsv(
+        "SIDE_DRIFT_DIAGNOSTIC.tsv",
+        ["era", "score_column",
+         "book_A", "best_usd_A", "own_book_null_A", "excess_over_null_A",
+         "book_B", "best_usd_B", "own_book_null_B", "excess_over_null_B",
+         "book_C", "best_usd_C", "own_book_null_C", "excess_over_null_C"],
+        drows,
+        extra=[
+            "IS THE SIDE=+1 EDGE SKILL, OR IS IT 2021-25 DRIFT IN METALS AND "
+            "NKD?  Three books, and EVERY NULL IS REPLAYED ON ITS OWN BOOK — "
+            "shuffled scores, same restricted row set, same rules — so any "
+            "directional drift is inside the null and cannot be sold as "
+            "skill.",
+            "EXCESS OVER OWN-BOOK NULL is the only number to read.  A raw "
+            "side=+1 figure that is large but sits at its own null is drift.",
+            "BOOK C IS THE MIRROR: the side=-1 book with every realised P&L "
+            "NEGATED, i.e. taking the opposite side of each short.  If the "
+            "side=+1 edge is drift, a direction-blind score reproduces it "
+            "here; if C is flat or negative while A has real excess, the "
+            "side=+1 result is skill.",
+            "The per-book argmax is an UPPER BOUND on each book (it is not a "
+            "blind selection); SIDE_BLIND_CHAIN.tsv carries the deployable "
+            "prev-era reading for book A."])
+    hb("SIDE_BLIND_CHAIN.tsv: %d links; SIDE_DRIFT_DIAGNOSTIC.tsv: %d rows"
+       % (len(crows), len(drows)))
+    del json
+    return crows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", action="store_true")
@@ -5581,6 +5771,7 @@ def main():
     ap.add_argument("--assault", action="store_true")
     ap.add_argument("--aseval", action="store_true")
     ap.add_argument("--ceilings", action="store_true")
+    ap.add_argument("--sideeval", action="store_true")
     ap.add_argument("--b1", action="store_true")
     ap.add_argument("--climb", action="store_true")
     ap.add_argument("--m3", action="store_true")
@@ -5665,6 +5856,9 @@ def main():
         did = True
     if a.ceilings:
         run_ceilings()
+        did = True
+    if a.sideeval:
+        run_sideeval(workers=a.workers)
         did = True
     if a.b1:
         run_b1()

@@ -1,0 +1,8 @@
+{
+ "unit": "cell",
+ "topn": 1,
+ "deployable": true,
+ "contract": "MATRIX_CERT",
+ "scope": "scored",
+ "name": "E3E7_META_GATE"
+}

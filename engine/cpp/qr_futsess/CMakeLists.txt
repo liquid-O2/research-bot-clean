@@ -2,17 +2,23 @@
 # (PORT_M1_SPEC section 1.2; semantics from PORT_M0_CENSUS_SPEC sections 0/4/5).
 include(${CMAKE_SOURCE_DIR}/cmake/FindLocalZstd.cmake)
 
-add_library(qr_futsess STATIC
+add_library(qr_futsess_support STATIC
   src/calendar.cpp
   src/constants.cpp
   src/dayrec.cpp
-  src/decode.cpp
   src/json.cpp
   src/seal.cpp
   src/sessions.cpp
 )
+target_include_directories(qr_futsess_support PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(qr_futsess_support PUBLIC qr_core)
+qr_apply_flags(qr_futsess_support)
+
+# Legacy DBN decoding remains available to its existing tools and tests, while
+# production Entry V2 links only the DBN-free support target above.
+add_library(qr_futsess STATIC src/decode.cpp)
 target_include_directories(qr_futsess PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(qr_futsess PUBLIC qr_core qr_dbn PRIVATE qr_zstd)
+target_link_libraries(qr_futsess PUBLIC qr_futsess_support qr_dbn PRIVATE qr_zstd)
 qr_apply_flags(qr_futsess)
 
 add_executable(qr_futsess_tests tests/test_futsess.cpp)

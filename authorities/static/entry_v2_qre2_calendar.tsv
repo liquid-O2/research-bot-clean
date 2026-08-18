@@ -1,0 +1,57 @@
+# QRE2CAL1 coverage_start_d8=20210101 coverage_end_d8=20250630 audited_as_of_utc=2026-08-16T00:00:00Z source_manifest_sha256=e44f2a98b79fdf5e245d49e25cf519e67447780a1a44e5d221720da701921ed4
+# asset_coverage HG start_d8=20210101
+# asset_coverage NKD start_d8=20210101
+# asset_coverage SI start_d8=20210531
+# source CME_METALS_2021 https://www.cmegroup.com/trading/metals/files/metals-prod-guide-2021.pdf
+# source CME_FX_2021 https://www.cmegroup.com/trading/fx/files/fx-product-guide-2021-us.pdf
+# source CME_XMAS_2021 https://www.cmegroup.com/tools-information/holiday-calendar/files/2021-christmas-advisory.pdf
+# source CME_METALS_2022 https://www.cmegroup.com/trading/metals/files/metals-prod-guide-2022.pdf
+# source CME_FX_2022 https://www.cmegroup.com/trading/fx/files/fx-product-guide-2022-us.pdf
+# source CME_METALS_2023 https://www.cmegroup.com/trading/metals/files/metals-prod-guide-2023.pdf
+# source CME_FX_2023 https://www.cmegroup.com/trading/fx/files/fx-product-guide-2023-us.pdf
+# source CME_GF_2023 https://www.cmegroup.com/tools-information/holiday-calendar/files/2023-good-friday-advisory.pdf
+# source CME_XMAS_2023 https://www.cmegroup.com/trading-hours/files/christmas-day-2023.pdf
+# source CME_METALS_2024 https://www.cmegroup.com/trading/metals/files/metals-prod-guide-2024.pdf
+# source CME_GF_2024 https://www.cmegroup.com/content/dam/cmegroup/tools-information/holiday-calendar/files/2024-good-friday-advisory.pdf
+# source CME_MEP_2024 https://www.cmegroup.com/globex/files/mepholidaycalendar.pdf
+# source CME_GF_CLEAR_2025 https://www.cmegroup.com/tools-information/holiday-calendar/files/2025/2025-good-friday-clearing-advisory.pdf
+# source CME_GF_SETTLE_2025 https://www.cmegroup.com/tools-information/holiday-calendar/files/2025/good-friday-holiday-settlement-times-2025.pdf
+# source CME_MEP_2025 https://www.cmegroup.com/globex/files/2025-mep-holiday-calendar.pdf
+asset	d8	disposition	holiday	source_id
+HG	20210101	FULL_CLOSE	NEW_YEAR_DAY	CME_METALS_2021
+NKD	20210101	FULL_CLOSE	NEW_YEAR_DAY	CME_METALS_2021
+SI	20210101	FULL_CLOSE	NEW_YEAR_DAY	CME_METALS_2021
+HG	20210402	FULL_CLOSE	GOOD_FRIDAY	CME_METALS_2021
+SI	20210402	FULL_CLOSE	GOOD_FRIDAY	CME_METALS_2021
+HG	20211224	FULL_CLOSE	CHRISTMAS_OBSERVED	CME_XMAS_2021
+NKD	20211224	FULL_CLOSE	CHRISTMAS_OBSERVED	CME_FX_2021
+SI	20211224	FULL_CLOSE	CHRISTMAS_OBSERVED	CME_XMAS_2021
+HG	20220415	FULL_CLOSE	GOOD_FRIDAY	CME_METALS_2022
+NKD	20220415	FULL_CLOSE	GOOD_FRIDAY	CME_FX_2022
+SI	20220415	FULL_CLOSE	GOOD_FRIDAY	CME_METALS_2022
+HG	20221226	FULL_CLOSE	CHRISTMAS_OBSERVED	CME_METALS_2022
+NKD	20221226	FULL_CLOSE	CHRISTMAS_OBSERVED	CME_FX_2022
+SI	20221226	FULL_CLOSE	CHRISTMAS_OBSERVED	CME_METALS_2022
+HG	20230102	FULL_CLOSE	NEW_YEAR_OBSERVED	CME_METALS_2023
+NKD	20230102	FULL_CLOSE	NEW_YEAR_OBSERVED	CME_FX_2023
+SI	20230102	FULL_CLOSE	NEW_YEAR_OBSERVED	CME_METALS_2023
+HG	20230407	FULL_CLOSE	GOOD_FRIDAY	CME_METALS_2023
+SI	20230407	FULL_CLOSE	GOOD_FRIDAY	CME_METALS_2023
+HG	20231225	FULL_CLOSE	CHRISTMAS_DAY	CME_XMAS_2023
+NKD	20231225	FULL_CLOSE	CHRISTMAS_DAY	CME_XMAS_2023
+SI	20231225	FULL_CLOSE	CHRISTMAS_DAY	CME_XMAS_2023
+HG	20240101	FULL_CLOSE	NEW_YEAR_DAY	CME_METALS_2024
+NKD	20240101	FULL_CLOSE	NEW_YEAR_DAY	CME_METALS_2024
+SI	20240101	FULL_CLOSE	NEW_YEAR_DAY	CME_METALS_2024
+HG	20240329	FULL_CLOSE	GOOD_FRIDAY	CME_GF_2024
+NKD	20240329	FULL_CLOSE	GOOD_FRIDAY	CME_GF_2024
+SI	20240329	FULL_CLOSE	GOOD_FRIDAY	CME_GF_2024
+HG	20241225	FULL_CLOSE	CHRISTMAS_DAY	CME_METALS_2024
+NKD	20241225	FULL_CLOSE	CHRISTMAS_DAY	CME_MEP_2024
+SI	20241225	FULL_CLOSE	CHRISTMAS_DAY	CME_METALS_2024
+HG	20250101	FULL_CLOSE	NEW_YEAR_DAY	CME_MEP_2025
+NKD	20250101	FULL_CLOSE	NEW_YEAR_DAY	CME_MEP_2025
+SI	20250101	FULL_CLOSE	NEW_YEAR_DAY	CME_MEP_2025
+HG	20250418	FULL_CLOSE	GOOD_FRIDAY	CME_GF_CLEAR_2025
+NKD	20250418	FULL_CLOSE	GOOD_FRIDAY	CME_GF_SETTLE_2025
+SI	20250418	FULL_CLOSE	GOOD_FRIDAY	CME_GF_CLEAR_2025

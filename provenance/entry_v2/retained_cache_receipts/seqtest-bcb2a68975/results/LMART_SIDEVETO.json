@@ -1,0 +1,243 @@
+{
+ "kind": "rank",
+ "group_unit": "cell",
+ "arch": "lambdamart-cell",
+ "rung": "gbt",
+ "L": 0,
+ "trunk": "NONE",
+ "mode": "ctx",
+ "classes": [
+  "cls_SHOCK_RESOLUTION",
+  "cls_LEVEL_FIRST_TEST",
+  "cls_NEWS_WINDOW",
+  "cls_OPEN_DYNAMICS",
+  "cls_REVERSAL_CONFIRMATION",
+  "cls_RECLAIM",
+  "cls_UNCLASSED"
+ ],
+ "pretrained": false,
+ "per_era": [
+  {
+   "n_takes": 1170,
+   "n_sessions": 390,
+   "n_seated": 507,
+   "usd_per_session": -32.012820512820014,
+   "ps_lo": -113.67045335872935,
+   "ps_hi": 49.64481233308932,
+   "usd_per_trade": -24.625246548323094,
+   "pt_lo": -87.28165876786758,
+   "pt_hi": 38.0311656712214,
+   "frac_ge_1000": 0.08086785009861933,
+   "capture_day": -0.010602465911925487,
+   "cd_lo": -0.03769103112756409,
+   "cd_hi": 0.016486099303713114,
+   "capture_oracle": -0.012612623988988382,
+   "co_lo": -0.044856265386411694,
+   "co_hi": 0.019631017408434932,
+   "era": "E3",
+   "auc_winner": 0.5185607277076918
+  },
+  {
+   "n_takes": 1155,
+   "n_sessions": 385,
+   "n_seated": 451,
+   "usd_per_session": 314.8409090909089,
+   "ps_lo": 219.25261185316992,
+   "ps_hi": 410.42920632864787,
+   "usd_per_trade": 268.76662971175153,
+   "pt_lo": 187.32499975497097,
+   "pt_hi": 350.2082596685321,
+   "frac_ge_1000": 0.15521064301552107,
+   "capture_day": 0.11424629678282817,
+   "cd_lo": 0.07987159038403377,
+   "cd_hi": 0.14862100318162258,
+   "capture_oracle": 0.14905544368784288,
+   "co_lo": 0.10285224727726147,
+   "co_hi": 0.19525864009842428,
+   "era": "E4",
+   "auc_winner": 0.5436028322499159
+  },
+  {
+   "n_takes": 1161,
+   "n_sessions": 387,
+   "n_seated": 439,
+   "usd_per_session": 130.43927648578776,
+   "ps_lo": 61.65641542159342,
+   "ps_hi": 199.2221375499821,
+   "usd_per_trade": 114.98861047835959,
+   "pt_lo": 54.41392403567194,
+   "pt_hi": 175.56329692104725,
+   "frac_ge_1000": 0.08428246013667426,
+   "capture_day": 0.050336415375142295,
+   "cd_lo": 0.023559507349547988,
+   "cd_hi": 0.0771133234007366,
+   "capture_oracle": 0.07367595278492309,
+   "co_lo": 0.033661868773317276,
+   "co_hi": 0.11369003679652889,
+   "era": "E5",
+   "auc_winner": 0.5621915563483452
+  },
+  {
+   "n_takes": 1152,
+   "n_sessions": 384,
+   "n_seated": 502,
+   "usd_per_session": 170.67708333333348,
+   "ps_lo": 50.40050477916438,
+   "ps_hi": 290.95366188750256,
+   "usd_per_trade": 130.5577689243029,
+   "pt_lo": 38.15594354412802,
+   "pt_hi": 222.95959430447778,
+   "frac_ge_1000": 0.14342629482071714,
+   "capture_day": 0.050483245747649286,
+   "cd_lo": 0.015519531604547887,
+   "cd_hi": 0.08544695989075068,
+   "capture_oracle": 0.05651400670424787,
+   "co_lo": 0.017340359922301145,
+   "co_hi": 0.0956876534861946,
+   "era": "E6",
+   "auc_winner": 0.5015640983268363
+  },
+  {
+   "n_takes": 1179,
+   "n_sessions": 393,
+   "n_seated": 529,
+   "usd_per_session": 65.9637404580147,
+   "ps_lo": -64.7481412834194,
+   "ps_hi": 196.6756221994488,
+   "usd_per_trade": 49.00519848771225,
+   "pt_lo": -48.238294546179546,
+   "pt_hi": 146.24869152160403,
+   "frac_ge_1000": 0.15500945179584122,
+   "capture_day": 0.016082578796028188,
+   "cd_lo": -0.015853834292982677,
+   "cd_hi": 0.04801899188503905,
+   "capture_oracle": 0.016590270944826947,
+   "co_lo": -0.016416470921791926,
+   "co_hi": 0.04959701281144582,
+   "era": "E7",
+   "auc_winner": 0.5051642799717554
+  }
+ ],
+ "pooled": {
+  "n_sessions": 1939,
+  "usd_per_session": 129.27926766374406,
+  "ps_lo": 83.2046578718522,
+  "ps_hi": 175.35387745563594,
+  "capture_day": 0.04074940309880616,
+  "cd_lo": 0.026209376638548987,
+  "cd_hi": 0.05528942955906334,
+  "capture_oracle": 0.04810858725495954,
+  "co_lo": 0.030825626709152253,
+  "co_hi": 0.06539154780076684
+ },
+ "ledger": [
+  {
+   "era": "E3",
+   "loss": "rank:ndcg",
+   "inner_ndcg3": 0.577952702287516,
+   "best_epoch": 74,
+   "loss_curve": [
+    [
+     "rank:ndcg",
+     0.57795
+    ]
+   ],
+   "n_groups_train": 7785,
+   "n_groups_eval": 2923,
+   "median_group": 64,
+   "eval_ndcg3": 0.7809238466316558,
+   "eval_ndcg3_random": 0.27983727165741035,
+   "eval_ndcg3_earliest": 0.34775305530122236,
+   "n_scored_groups": 7,
+   "n_eval": 151884,
+   "fit_secs": 24.2
+  },
+  {
+   "era": "E4",
+   "loss": "rank:ndcg",
+   "inner_ndcg3": 0.6173867611087475,
+   "best_epoch": 178,
+   "loss_curve": [
+    [
+     "rank:ndcg",
+     0.61739
+    ]
+   ],
+   "n_groups_train": 10708,
+   "n_groups_eval": 2893,
+   "median_group": 64,
+   "eval_ndcg3": 0.7510358363817845,
+   "eval_ndcg3_random": 0.277575345145113,
+   "eval_ndcg3_earliest": 0.35233162623614145,
+   "n_scored_groups": 6,
+   "n_eval": 148474,
+   "fit_secs": 41.2
+  },
+  {
+   "era": "E5",
+   "loss": "rank:ndcg",
+   "inner_ndcg3": 0.5202244846292225,
+   "best_epoch": 138,
+   "loss_curve": [
+    [
+     "rank:ndcg",
+     0.52022
+    ]
+   ],
+   "n_groups_train": 13601,
+   "n_groups_eval": 2934,
+   "median_group": 64,
+   "eval_ndcg3": 0.7733234633440971,
+   "eval_ndcg3_random": 0.2873238273497045,
+   "eval_ndcg3_earliest": 0.35875340580224885,
+   "n_scored_groups": 4,
+   "n_eval": 153013,
+   "fit_secs": 51.0
+  },
+  {
+   "era": "E6",
+   "loss": "rank:ndcg",
+   "inner_ndcg3": 0.5506566658235975,
+   "best_epoch": 82,
+   "loss_curve": [
+    [
+     "rank:ndcg",
+     0.55066
+    ]
+   ],
+   "n_groups_train": 16535,
+   "n_groups_eval": 3111,
+   "median_group": 64,
+   "eval_ndcg3": 1.0,
+   "eval_ndcg3_random": 0.27696654657602315,
+   "eval_ndcg3_earliest": 0.3520480539385405,
+   "n_scored_groups": 2,
+   "n_eval": 163182,
+   "fit_secs": 69.4
+  },
+  {
+   "era": "E7",
+   "loss": "rank:ndcg",
+   "inner_ndcg3": 0.5435396504130662,
+   "best_epoch": 107,
+   "loss_curve": [
+    [
+     "rank:ndcg",
+     0.54354
+    ]
+   ],
+   "n_groups_train": 19646,
+   "n_groups_eval": 3031,
+   "median_group": 64,
+   "eval_ndcg3": 0.9783678617741409,
+   "eval_ndcg3_random": 0.26853898854258695,
+   "eval_ndcg3_earliest": 0.33645812841629275,
+   "n_scored_groups": 2,
+   "n_eval": 158329,
+   "fit_secs": 96.7
+  }
+ ],
+ "gpu": {
+  "device": "cpu/xgboost"
+ }
+}

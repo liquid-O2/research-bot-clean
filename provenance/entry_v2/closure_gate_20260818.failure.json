@@ -1,0 +1,122 @@
+{
+  "schema": "entry-v2-single-closure-gate-failure-v1",
+  "date_utc": "2026-08-18",
+  "command": "set -euo pipefail; python -m py_compile engine/entry_v2/*.py; python -m unittest discover -s engine/entry_v2 -p 'test_*.py' -t .",
+  "compile_status": "PASS",
+  "test_status": "FAILED",
+  "tests_run": 266,
+  "elapsed_seconds": 224.588,
+  "errors": 19,
+  "failures": 2,
+  "fit_only_rehearsal_started": false,
+  "held_e1_e3_started": false,
+  "h2_opened": false,
+  "failure_inventory": [
+    {
+      "test": "test_atlas_losses.AtlasLossTest.test_fit_weights_never_change_validation_loss",
+      "type": "ERROR",
+      "message": "AtlasRefusal: exact-time candidates require one explicit group id"
+    },
+    {
+      "test": "test_corpus.CorpusBridgeTest.test_incremental_windows_match_full_semantics_and_refuse_bad_chains",
+      "type": "ERROR",
+      "message": "KeyError: selected_horizon_tensors_sha256"
+    },
+    {
+      "test": "test_corpus.CorpusBridgeTest.test_strict_durable_parent_refuses_missing_before_qre_open",
+      "type": "ERROR",
+      "message": "TypeError: memoryview cannot cast view with zeros in shape or strides"
+    },
+    {
+      "test": "test_corpus.CorpusBridgeTest.test_verified_session_cold_then_new_object_warm_avoids_payload_opens",
+      "type": "ERROR",
+      "message": "TypeError: memoryview cannot cast view with zeros in shape or strides"
+    },
+    {
+      "test": "test_diagnostic_catboost.DiagnosticCatBoostTest.test_exact_pair_manifest_and_competence",
+      "type": "ERROR",
+      "message": "TypeError: FrozenRepresentationRows has no len()"
+    },
+    {
+      "test": "test_neural_sufficiency_executor.RealExecutorTest.test_catboost_component_runs_real_pinned_fit_on_direct_rows",
+      "type": "ERROR",
+      "message": "RealDiagnosticExecutorRefusal: representation rows differ from manifest"
+    },
+    {
+      "test": "test_neural_sufficiency_executor.RealExecutorTest.test_manifest_is_derived_and_five_real_torch_rehearsals_run",
+      "type": "ERROR",
+      "message": "RealDiagnosticExecutorRefusal: representation rows differ from manifest"
+    },
+    {
+      "test": "test_neural_sufficiency_production.NeuralSufficiencyProductionTest.test_exact_executor_runs_dependency_order_and_persists_chain",
+      "type": "ERROR",
+      "message": "NeuralSufficiencyRefusal: competence/full-policy candidate manifests are not independently frozen"
+    },
+    {
+      "test": "test_neural_sufficiency_resources.ExpandedEventTransformTest.test_production_resource_refuses_cgroup_shortfall_and_uses_durable_cache",
+      "type": "ERROR",
+      "message": "EntryV2Refusal: cold asset process pool must be created before CUDA initialization"
+    },
+    {
+      "test": "test_neural_sufficiency_runner.NeuralSufficiencyRunnerTest.test_capacity_regime_is_oracle_derived_and_job_folder_is_not_payload",
+      "type": "ERROR",
+      "message": "NeuralSufficiencyRefusal: competence/full-policy candidate manifests are not independently frozen"
+    },
+    {
+      "test": "test_neural_sufficiency_runner.NeuralSufficiencyRunnerTest.test_complete_fit_only_acceptance_is_atomic_and_immutable",
+      "type": "ERROR",
+      "message": "NeuralSufficiencyRefusal: competence/full-policy candidate manifests are not independently frozen"
+    },
+    {
+      "test": "test_neural_sufficiency_runner.NeuralSufficiencyRunnerTest.test_e3_is_report_only_and_memory_h2_guards_precede_callbacks",
+      "type": "ERROR",
+      "message": "NeuralSufficiencyRefusal: competence/full-policy candidate manifests are not independently frozen"
+    },
+    {
+      "test": "test_neural_sufficiency_runner.NeuralSufficiencyRunnerTest.test_held_stage_hard_blocks_without_acceptance_then_runs_frozen",
+      "type": "ERROR",
+      "message": "NeuralSufficiencyRefusal: competence/full-policy candidate manifests are not independently frozen"
+    },
+    {
+      "test": "test_neural_sufficiency_stage_engine.HeldStageEngineTest.test_exact_e1_holm_and_e2_romano_wolf_freeze",
+      "type": "ERROR",
+      "message": "HeldStageRefusal: capacity economics do not reproduce the shared law"
+    },
+    {
+      "test": "test_neural_sufficiency_stage_engine.HeldStageEngineTest.test_fit_only_rehearsal_transition_is_engine_verified",
+      "type": "ERROR",
+      "message": "HeldStageRefusal: E1r full-population measured atlas differs"
+    },
+    {
+      "test": "test_neural_sufficiency_stage_persistence.StagePersistenceTest.test_crash_after_each_boundary_resumes_without_refit_or_reselection",
+      "type": "ERROR",
+      "message": "HeldStageRefusal: capacity economics do not reproduce the shared law"
+    },
+    {
+      "test": "test_neural_winner_artifact.WinnerArtifactTest.test_bundle_binds_real_payloads_and_rejects_receipt_only",
+      "type": "ERROR",
+      "message": "WinnerArtifactRefusal: winner capacity economics do not reconcile"
+    },
+    {
+      "test": "test_production_runtime.ProductionRuntimeTest.test_cold_asset_process_pool_is_spawned_and_idempotently_closed",
+      "type": "ERROR",
+      "message": "EntryV2Refusal: cold asset process pool must be created before CUDA initialization"
+    },
+    {
+      "test": "test_production_runtime.ProductionRuntimeTest.test_parallel_preload_matches_serial_cache_bytes_and_identity",
+      "type": "ERROR",
+      "message": "EntryV2Refusal: production session array preload failed because synthetic Source lacks source_sha256"
+    },
+    {
+      "test": "test_neural_sufficiency_source_manifest.HeldSourceManifestTest.test_missing_and_symlinked_inputs_refuse",
+      "type": "FAILURE",
+      "message": "HeldSourceManifestRefusal was not raised for the missing-input adversary"
+    },
+    {
+      "test": "test_production_runtime.ProductionRuntimeTest.test_preload_surfaces_canonical_failure_waits_and_clears",
+      "type": "FAILURE",
+      "message": "expected canonical failure but observed later-key failure"
+    }
+  ],
+  "disposition": "STOPPED_BEFORE_FIT_ONLY_REHEARSAL_NO_PATCH_RETEST_LOOP"
+}

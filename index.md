@@ -1,16 +1,82 @@
-# INDEX — The Honest Record of the Futures Port Program
+# INDEX — canonical repository entry point
 
-Entry point for the complete accounting: what was attempted, what failed, what was done wrong,
-and what little survived. Receipts for every line live in `provenance/sessions/JOURNAL.md`
+## Current Entry V2 status — 2026-08-18 UTC
+
+**Entry V2 execution is stopped. No Entry V2 learning/production process or GPU
+compute process is running. 2025H2 remains sealed.** Long-lived unrelated
+Claude/tmux sessions and an idle historical port-m2 supervisor exist on the
+host; they are outside this Entry V2 status and were not touched.
+
+The authoritative current ledger is
+[`docs/ENTRY_V2_CURRENT_STATUS.md`](docs/ENTRY_V2_CURRENT_STATUS.md). It records
+every retained Entry V2 attempt, the exact learned and oracle results, all
+real-path rehearsal failures, what materially worked, what did not, the v9
+root cause, the current dirty/unverified source state, artifact locations, and
+the mandatory resume law.
+
+### Current answer in one paragraph
+
+Entry V2 has **not** produced a successful replacement learner. The retained
+v3 campaign emitted no entries on E3-E5. The corrected legacy v4 E3 run found
+only one HG trade and five NKD trades from its full-prefix arm and no feasible
+SI policy; its static GBTs produced no feasible thresholds. Static and
+late-fusion probes improved AUROC but still produced zero useful test
+economics. The later five-arm/44-objective neural-sufficiency chain never
+reached neural training: v9 completed the authoritative durable warm corpus in
+8m38 and passed `one_load`, then failed in `raw_fidelity` on a legitimate
+236-diagnostic/235-learner session-set difference. That exact domain defect is
+corrected in the working tree but has not been production-verified. There is
+no completed C0/C1/L0/L1/M1 result, no E1/E2/E3 replacement result, no winner,
+and no adoption bundle.
+
+### Correct goal
+
+The binding goal is **more than $2,000 per asset per trading day**, separately
+for SI, HG, and NKD—not per session. A-001 through A-020 in
+[`design/ENTRY_V2_RECOVERY_PLAN_AMENDMENTS.md`](design/ENTRY_V2_RECOVERY_PLAN_AMENDMENTS.md)
+override conflicting wording in the original plan and the historical record.
+
+### Reading order
+
+1. This file.
+2. [`docs/ENTRY_V2_CURRENT_STATUS.md`](docs/ENTRY_V2_CURRENT_STATUS.md).
+3. [`STATE.md`](STATE.md) for the short stopped cursor.
+4. [`design/ENTRY_V2_RECOVERY_PLAN.md`](design/ENTRY_V2_RECOVERY_PLAN.md) and
+   its [`amendments`](design/ENTRY_V2_RECOVERY_PLAN_AMENDMENTS.md).
+5. [`design/ENTRY_V2_NEURAL_SUFFICIENCY_DIAGNOSTIC.md`](design/ENTRY_V2_NEURAL_SUFFICIENCY_DIAGNOSTIC.md)
+   for the frozen experiment that has not completed.
+6. [`design/ENTRY_V2_DATABENTO_CLOCK_LAW.md`](design/ENTRY_V2_DATABENTO_CLOCK_LAW.md)
+   for the raw-event authority.
+7. [`AGENTS.md`](AGENTS.md) for the mandatory no-serial-paid-run execution law.
+8. [`PROGRESS.md`](PROGRESS.md) and the append-only
+   [`JOURNAL.md`](provenance/sessions/JOURNAL.md).
+
+### Historical-document warning
+
+The remainder of this file is the inherited port-m2/port-m3 record. It is
+preserved, not deleted. It is **historical rather than current Entry V2
+authority**. It also contains narrative dated 2026-08-21/22 while this status
+snapshot and environment date are 2026-08-18; those later-dated entries cannot
+override retained Entry V2 artifacts from 2026-08-16 through 2026-08-18.
+The uppercase [`INDEX.md`](INDEX.md) is likewise the legacy Russell/IWM
+clean-room index, not an alternate current cursor.
+
+---
+
+# Historical record — pre-Entry-V2 futures port program
+
+Historical entry point for the pre-Entry-V2 accounting: what was attempted,
+what failed, what was done wrong, and what little survived. Receipts for every
+line live in `provenance/sessions/JOURNAL.md`
 (append-only, ~2026-08-13 → present) and the TSVs under `provenance/port_m2/` and
 `provenance/port_m3/`. Nothing here is softened.
 
 ---
 
-## 1. The goal and the honest state
+## 1. The historical goal and state
 
-- **Goal**: >$2,000/session per asset on one mini contract (floor), aim $2,500–3,000; ≤10
-  trades/day; long holds; MDD < $1,000.
+- **Historical wording only**: >$2,000/session per asset on one mini contract.
+  This is superseded for Entry V2 by A-001: the unit is per asset trading day.
 - **Honest deployable today** (blind prev-era selection, all-session denominators, causal
   seating): **~$58–102/session/asset** (`S_XGB|DAYSOFAR` chain, 4/4 blind-positive links,
   narrow nulls cleared, wide nulls 2/4). ~3–5% of the goal.
@@ -159,8 +225,9 @@ and what little survived. Receipts for every line live in `provenance/sessions/J
   backlogs with their kill receipts.
 - `STATE.md` — the standing cursor. `DIRECTIVES.md` — the user's binding law corpus.
 
-*This document is the program's honest mirror. Anything claimed anywhere else that conflicts
-with a receipt named here is wrong.*
+*Within the historical port-m2/port-m3 scope, this section is the program's
+honest mirror. For Entry V2, the current ledger at the top of this file and its
+named immutable receipts control.*
 
 ---
 

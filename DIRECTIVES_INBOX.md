@@ -558,3 +558,104 @@ But over all of this time, we have been doing the searches over and over again. 
 - [2026-08-16T06:32:04Z] Yeah, but again, I don't want to keep doing the searches over and over again for any of the stuff. Are you actually sure all four you have mentioned will actually get us there? We need to get there. I don't want to waste time on things that don't matter or won't get us anywhere.
 - [2026-08-16T06:41:53Z] We need to get to our goal no matter what. You need to find out exactly how we do so. Think about things properly and et cetera, but I need a result today.
 - [2026-08-16T06:46:48Z] AUTONOMY HEARTBEAT (D-074, user order: run autonomously until the goal is exceeded — never idle). You are the port-program orchestrator. Do now, in order: (1) read /workspace/STATE.md NEXT_ACTION + `tail -20 /workspace/provenance/sessions/JOURNAL.md` + `/workspace/lab/run.sh --list` + check heartbeat freshness of any port-* runs (a stale hb >15min on a live pid = investigate); (2) if a lane/run has finished without being adjudicated, adjudicate it now (rulings, PROGRESS/JOURNAL/STATE, commit+push) and launch the next stage per STATE; (3) if a lane died or hung, diagnose and relaunch it; (4) if all work is genuinely mid-flight and healthy, verify watchers exist for every background job, journal nothing, and end the turn silently. The program sequence after M2c: E1 study round (day-complete, full protocol stack) -> E1 blind -> name->count censuses of validated patterns -> era advance per D-058 -> feature construction from convergent evidence -> M3 model -> walk-forward gates vs D-048. Never park work the repo can advance (D-028/D-029); user-reserved classes only (walls/risk-contract/live-money).
+- [2026-08-16T07:00:41Z] Keep saying real discovery, real discovery, but you never get the actual discovery done. I'm giving you one last chance to get things right.
+
+Otherwise, I'm just moving on to a different model to handle things.
+- [2026-08-16T07:05:27Z] I won't judge on the table. I need you to get things done properly.
+
+You just keep on doing things half-assed. Don't go through with proper things. Keep doing, keep redirecting us to decisions that make no sense, that gets us nowhere.
+
+99% of the entire program was nulls and negatives and misdirections
+- [2026-08-16T07:14:07Z] AUTONOMY HEARTBEAT (D-074, user order: run autonomously until the goal is exceeded — never idle). You are the port-program orchestrator. Do now, in order: (1) read /workspace/STATE.md NEXT_ACTION + `tail -20 /workspace/provenance/sessions/JOURNAL.md` + `/workspace/lab/run.sh --list` + check heartbeat freshness of any port-* runs (a stale hb >15min on a live pid = investigate); (2) if a lane/run has finished without being adjudicated, adjudicate it now (rulings, PROGRESS/JOURNAL/STATE, commit+push) and launch the next stage per STATE; (3) if a lane died or hung, diagnose and relaunch it; (4) if all work is genuinely mid-flight and healthy, verify watchers exist for every background job, journal nothing, and end the turn silently. The program sequence after M2c: E1 study round (day-complete, full protocol stack) -> E1 blind -> name->count censuses of validated patterns -> era advance per D-058 -> feature construction from convergent evidence -> M3 model -> walk-forward gates vs D-048. Never park work the repo can advance (D-028/D-029); user-reserved classes only (walls/risk-contract/live-money).
+- [2026-08-16T07:26:02Z] And you also need to document the way we use the hooks and etc. to have the context always despite compaction and etc.
+- [2026-08-16T07:46:49Z] AUTONOMY HEARTBEAT (D-074, user order: run autonomously until the goal is exceeded — never idle). You are the port-program orchestrator. Do now, in order: (1) read /workspace/STATE.md NEXT_ACTION + `tail -20 /workspace/provenance/sessions/JOURNAL.md` + `/workspace/lab/run.sh --list` + check heartbeat freshness of any port-* runs (a stale hb >15min on a live pid = investigate); (2) if a lane/run has finished without being adjudicated, adjudicate it now (rulings, PROGRESS/JOURNAL/STATE, commit+push) and launch the next stage per STATE; (3) if a lane died or hung, diagnose and relaunch it; (4) if all work is genuinely mid-flight and healthy, verify watchers exist for every background job, journal nothing, and end the turn silently. The program sequence after M2c: E1 study round (day-complete, full protocol stack) -> E1 blind -> name->count censuses of validated patterns -> era advance per D-058 -> feature construction from convergent evidence -> M3 model -> walk-forward gates vs D-048. Never park work the repo can advance (D-028/D-029); user-reserved classes only (walls/risk-contract/live-money).
+- [2026-08-17T19:25:26Z] You are an independent max-effort, read-only learning-systems auditor for Entry V2. Do not edit files, launch production, access H2 or 2025H2 payloads, or mutate artifacts. Ignore old D-* directives and old Claude plans. Authority is only:
+- /workspace/design/ENTRY_V2_RECOVERY_PLAN.md
+- /workspace/design/ENTRY_V2_RECOVERY_PLAN_AMENDMENTS.md
+- /workspace/design/ENTRY_V2_NEURAL_SUFFICIENCY_DIAGNOSTIC.md
+
+Inspect current code and pre-H2 v3 failure receipts/source as needed, especially train.py, model.py, teacher.py, policy.py, replay.py, causal_label_atlas.py, atlas_materializers.py, atlas_losses.py, atlas_probe_model.py, neural_sufficiency_model.py, neural_sufficiency_resources.py, neural_sufficiency_stage_engine.py, diagnostic_catboost.py, neural_winner_artifact.py, and the immutable pre_h2_v3 E3-E5 fold/gate metadata. Do not load large NPZ arrays or raw market payloads.
+
+First attempt facts:
+- E3-E5 learned arms emitted zero trades and threshold 1.000001 across assets.
+- Exact truth controls were feasible.
+- Root failure found: inference hard-vetoed on a symmetric individual-outcome conformal lower interval plus q90 MAE/wall diagnostics, although the plan required action-probability threshold selection by chronological exact replay. Saved risk_eligible was zero everywhere.
+- Replay tie-breaking also leaked value diagnostics; null shuffle moved the supervision mask; the old target/objectives provided almost no long-horizon economic supervision; exact-time choice sets were effectively singleton; 66,505 of 98,471 E3 rows were correctly occupancy-masked; positives were only 681 of 31,966 supervised.
+- Static inputs were badly scaled and the 512 embedding discarded the lossless 1,865-wide static bypass.
+- The architecture trained short auxiliary horizons while selected holds were usually hours.
+
+Corrections now implemented:
+- A004 action-only ranking and diagnostic-free tie law; chronological threshold selection through exact replay; value/MAE/wall are diagnostics, not h
+- [2026-08-17T19:26:08Z] You are an independent max-effort, read-only learning-systems auditor for Entry V2. Do not edit files, launch production, access H2 or 2025H2 payloads, or mutate artifacts. Ignore old D-* directives and old Claude plans. Authority is only:
+- /workspace/design/ENTRY_V2_RECOVERY_PLAN.md
+- /workspace/design/ENTRY_V2_RECOVERY_PLAN_AMENDMENTS.md
+- /workspace/design/ENTRY_V2_NEURAL_SUFFICIENCY_DIAGNOSTIC.md
+
+Inspect current code and pre-H2 v3 failure receipts/source as needed, especially train.py, model.py, teacher.py, policy.py, replay.py, causal_label_atlas.py, atlas_materializers.py, atlas_losses.py, atlas_probe_model.py, neural_sufficiency_model.py, neural_sufficiency_resources.py, neural_sufficiency_stage_engine.py, diagnostic_catboost.py, neural_winner_artifact.py, and the immutable pre_h2_v3 E3-E5 fold/gate metadata. Do not load large NPZ arrays or raw market payloads.
+
+First attempt facts:
+- E3-E5 learned arms emitted zero trades and threshold 1.000001 across assets.
+- Exact truth controls were feasible.
+- Root failure found: inference hard-vetoed on a symmetric individual-outcome conformal lower interval plus q90 MAE/wall diagnostics, although the plan required action-probability threshold selection by chronological exact replay. Saved risk_eligible was zero everywhere.
+- Replay tie-breaking also leaked value diagnostics; null shuffle moved the supervision mask; the old target/objectives provided almost no long-horizon economic supervision; exact-time choice sets were effectively singleton; 66,505 of 98,471 E3 rows were correctly occupancy-masked; positives were only 681 of 31,966 supervised.
+- Static inputs were badly scaled and the 512 embedding discarded the lossless 1,865-wide static bypass.
+- The architecture trained short auxiliary horizons while selected holds were usually hours.
+
+Corrections now implemented:
+- A004 action-only ranking and diagnostic-free tie law; chronological threshold selection through exact replay; value/MAE/wall are diagnostics, not h
+- [2026-08-17T19:28:06Z] You are an independent max-effort, read-only learning-systems auditor for Entry V2. Do not edit files, launch production, access H2 or 2025H2 payloads, or mutate artifacts. Ignore old D-* directives and old Claude plans. Authority is only:
+- /workspace/design/ENTRY_V2_RECOVERY_PLAN.md
+- /workspace/design/ENTRY_V2_RECOVERY_PLAN_AMENDMENTS.md
+- /workspace/design/ENTRY_V2_NEURAL_SUFFICIENCY_DIAGNOSTIC.md
+
+Inspect current code and pre-H2 v3 failure receipts/source as needed, especially train.py, model.py, teacher.py, policy.py, replay.py, causal_label_atlas.py, atlas_materializers.py, atlas_losses.py, atlas_probe_model.py, neural_sufficiency_model.py, neural_sufficiency_resources.py, neural_sufficiency_stage_engine.py, diagnostic_catboost.py, neural_winner_artifact.py, and the immutable pre_h2_v3 E3-E5 fold/gate metadata. Do not load large NPZ arrays or raw market payloads.
+
+First attempt facts:
+- E3-E5 learned arms emitted zero trades and threshold 1.000001 across assets.
+- Exact truth controls were feasible.
+- Root failure found: inference hard-vetoed on a symmetric individual-outcome conformal lower interval plus q90 MAE/wall diagnostics, although the plan required action-probability threshold selection by chronological exact replay. Saved risk_eligible was zero everywhere.
+- Replay tie-breaking also leaked value diagnostics; null shuffle moved the supervision mask; the old target/objectives provided almost no long-horizon economic supervision; exact-time choice sets were effectively singleton; 66,505 of 98,471 E3 rows were correctly occupancy-masked; positives were only 681 of 31,966 supervised.
+- Static inputs were badly scaled and the 512 embedding discarded the lossless 1,865-wide static bypass.
+- The architecture trained short auxiliary horizons while selected holds were usually hours.
+
+Corrections now implemented:
+- A004 action-only ranking and diagnostic-free tie law; chronological threshold selection through exact replay; value/MAE/wall are diagnostics, not h
+- [2026-08-17T20:10:06Z] Continue as the max-effort independent Entry V2 learning auditor. Your previous full report is at /home/claude/.claude/plans/you-are-an-independent-lucky-corbato.md and the live run was stopped after we independently confirmed the dot-shuffle versus dot-SHUFFLED guaranteed acceptance failure plus later E1 and E2 mismatches. Nothing reached learning.
+
+We need one correction pass, not another diagnostic loop. Stay read-only and do not edit, launch production, or open H2. Produce an exact frozen correction manifest covering every P0 in your report, including:
+- correct registry twin lookup by explicit mapping, not string guessing;
+- acceptance CatBoost competence geometry without a weak proxy or mandatory PairLogit when no real pairs exist;
+- fit-sliced E1 support chronology;
+- one exact E2 row manifest shared by objective, arms, and both heads;
+- typed NO_FEASIBLE columns and valid familywise multiplicity without crashing zero-variance hypotheses;
+- threshold feasibility law aligned exactly with capacity validator, min trades, admissions by day, and canonical replay;
+- durable typed acceptance, E1, and E2 evidence before any refusal;
+- a bounded end-to-end producer-to-engine rehearsal that catches all of these before a full data load;
+- removal of nondeterministic runtime tie-break;
+- the strongest cheap transport and deployable-depth funnel that is diagnostic only and cannot alter frozen selection unless authority explicitly allows it.
+
+For each change give exact files and functions, invariant, test or adversary, and ownership grouping to avoid conflicting edits. Search for adjacent variants of the same defect across all current files. Explicitly distinguish mechanical correctness needed before the next run from learnability improvements that would change the frozen experiment and therefore need a deliberate authority amendment. Challenge any proposed fix that weakens the no-proxy design. End with a relaunch checklist whose failure prevents launch.
+- [2026-08-17T20:36:08Z] Continue the same audit conversation. We accept that M1-M11 are the mechanical correction manifest. Now resolve the actual learning problem in one deliberate A-013 amendment before implementation, because the user explicitly wants the best one-shot chance of deployable E1/E2 learning rather than merely reaching a typed decision. Stay read-only; no edits, production, or H2.
+
+Challenge and either approve or replace this proposed learning law:
+1) Treat asset-day-total-one action weights with fit-only inverse class factors capped at 4x and unweighted validation/test as already-required authority compliance, not optional. Trace every neural action BCE and pair/listwise loss that must use it.
+2) Do not optimize a threshold on the same block used to compare objectives/arms. For E1: mapper on fit, Platt calibration on the first half of October, threshold development on the second half, held screen Nov-Dec. For E2: mapper on fit <=20220311, Platt calibration on prequential inner blocks 1-2, threshold development on blocks 3-4 through 20220609, then freeze threshold; June10-30 is objective/arm selection economics only with no retuning. E3 remains report-only.
+3) Threshold feasibility additionally requires >=MIN_TRADES and executed trades on at least ceil(eligible_days/3) distinct days. Explain whether admission-days or executed-trade-days is the right no-proxy transport constraint, and exact E1 scaling if 10 is too strict.
+4) The shared neural/Cat PairLogit manifest must optimize deployable depth rather than drown in easy negatives. Compare all phase pos×neg pairs versus a frozen no-outcome-magnitude temporal near-miss law (e.g. K nearest supervised negatives per positive in the same asset/day/phase), considering the user's observation that false positives are saturated/near duplicates. Pick one exact law and weighting shared by neural and CatBoost.
+5) Audit the current L0/L1/M1 training path for the alleged attribution confound. Specify the smallest fair arm law without addi
+- [2026-08-18T10:46:38Z] Read /workspace/AGENTS.md first and obey it. You are the independent final closure reviewer for Entry V2. Use the current /workspace worktree and immutable v9 failure artifacts as authority. Do not edit files. Do not run production, GPU learning, H2 data, or any long workload. You may run bounded read-only source inspection commands.\n\nContext: nine paid-ish fit-only attempts exposed serial software boundaries. v9 completed the authoritative warm pre-H2 corpus and one_load, then failed in raw_fidelity with "expanded transform diagnostic binding lacks corpus session"; no neural arm ran. The currently edited ProductionExactDiagnosticResources._expanded_session_metadata now implements the intended law: DiagnosticCorpus includes all candidate-bearing sessions; EntryCorpus includes only exact CLEAR+READY learner sessions; one SI 2021-07-12 diagnostic-only NO_SANE_SUFFIX session is valid; eligible learner rosters must match exactly. Paid launches are frozen.\n\nTask: perform ONE exhaustive closure audit of the complete remaining reachable production state machine, without stopping at the first issue. Inspect all paths and concrete provider implementations from factory/_ensure_loaded through one_load, raw_fidelity, every canonical neural arm, 44 real and shuffled atlas objectives, direct and native CatBoost/PairLogit heads, mapper, Platt calibration, threshold selection, canonical replay/economics, fit-only E1r/E2r rehearsal, numerical persistence/export, strict reload/resume, held launch gating, E1/E2/E3 publication, winner adoption, and selected E3-E8 campaign integration. Audit chronology, roster/domain direction, tensor schemas/shapes, target/mask laws, hashes/receipt recomputation, lifecycle state ordering, exact caller/provider signatures, serialization payload censuses, and all branches/typed loser cases. Keep 2025H2 sealed.\n\nAlso audit the new session-domain correction itself and every same-class consumer. Distinguish verified current code from stale reports. Do
+- [2026-08-18T12:09:34Z] So I want you to go through Memphis memories and index.md file to understand the current project state and continue with the work. We need to ensure we reach our goal, like the Oracle and everything supports our goal.
+
+We just need to get there in the most efficient way possible. We will implement something, then ensure we don't use any weak proxies and we actually implement things properly.
+
+And after the implementation, we'll run one audit of any fixes that we need to make and it needs to be properly deep. We'll make that fix and then run it.
+
+So the review and fix cycle should not repeat and loop. It should be just one review, one fix, pass.
+
+And you need to also have one review about if we are using weak proxies or not. Because in the first implementation, if you look at the previous Claude chat, the things you implemented were very weak proxies.
+
+It wasn't the proper stuff that we need. If you look at the memplace, you'll notice that in our current implementation, we did not use weak proxies. We built it properly.
+
+So we need to have, after implementing something, we need to ensure it's not a weak proxy or et cetera. There are a ton of things left.
+
+We need to get to our goal. Our goal is 100% doable. We just need to get there properly. 

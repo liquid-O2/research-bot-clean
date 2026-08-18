@@ -1,0 +1,82 @@
+.../workspace/engine/entry_v2/test_atlas_losses.py:111: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  self.assertNotEqual(float(fixed_loss), float(joint_loss))
+.......................................................................................................................................E................E.........F..E.E......................................................................................
+======================================================================
+ERROR: test_partial_durable_recovery_is_valid_cold_timing (engine.entry_v2.test_neural_sufficiency_executor.RealExecutorTest.test_partial_durable_recovery_is_valid_cold_timing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/test_neural_sufficiency_executor.py", line 238, in test_partial_durable_recovery_is_valid_cold_timing
+    executor.prepare()
+  File "/workspace/engine/entry_v2/neural_sufficiency_executor.py", line 505, in prepare
+    self.timing_provenance()
+  File "/workspace/engine/entry_v2/neural_sufficiency_executor.py", line 344, in timing_provenance
+    raise RealDiagnosticExecutorRefusal(
+engine.entry_v2.neural_sufficiency_executor.RealDiagnosticExecutorRefusal: cold corpus timing provenance lacks producer work
+
+======================================================================
+ERROR: engine.entry_v2.test_neural_sufficiency_resources (unittest.loader._FailedTest.engine.entry_v2.test_neural_sufficiency_resources)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: engine.entry_v2.test_neural_sufficiency_resources
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/unittest/loader.py", line 394, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/loader.py", line 337, in _get_module_from_name
+    __import__(name)
+  File "/workspace/engine/entry_v2/test_neural_sufficiency_resources.py", line 30, in <module>
+    from .selected_horizon_contract import SELECTED_HORIZON_SCHEMA_SHA256
+ImportError: cannot import name 'SELECTED_HORIZON_SCHEMA_SHA256' from 'engine.entry_v2.selected_horizon_contract' (/workspace/engine/entry_v2/selected_horizon_contract.py)
+
+
+======================================================================
+ERROR: test_crash_after_each_boundary_resumes_without_refit_or_reselection (engine.entry_v2.test_neural_sufficiency_stage_persistence.StagePersistenceTest.test_crash_after_each_boundary_resumes_without_refit_or_reselection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/test_neural_sufficiency_stage_persistence.py", line 452, in test_crash_after_each_boundary_resumes_without_refit_or_reselection
+    runtime.execute_e2(
+  File "/workspace/engine/entry_v2/neural_sufficiency_stage_persistence.py", line 1342, in execute_e2
+    self.store.publish_e2(acceptance_sha256, prior_stage_sha256, execution,
+  File "/workspace/engine/entry_v2/neural_sufficiency_stage_persistence.py", line 1036, in publish_e2
+    return self._publish("E2", acceptance_sha256, prior_stage_sha256, execution,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_stage_persistence.py", line 892, in _publish
+    _validate_numerical_public_binding(public_result, numerical)
+  File "/workspace/engine/entry_v2/neural_sufficiency_stage_persistence.py", line 439, in _validate_numerical_public_binding
+    raise StagePersistenceRefusal("E2 numerical bytes differ from its frozen winner")
+engine.entry_v2.neural_sufficiency_stage_persistence.StagePersistenceRefusal: E2 numerical bytes differ from its frozen winner
+
+======================================================================
+ERROR: test_bundle_binds_real_payloads_and_rejects_receipt_only (engine.entry_v2.test_neural_winner_artifact.WinnerArtifactTest.test_bundle_binds_real_payloads_and_rejects_receipt_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/neural_winner_artifact.py", line 429, in fit
+    candidate_id = np.asarray(targets["candidate_id"]).astype(str)
+                              ~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'candidate_id'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/test_neural_winner_artifact.py", line 389, in test_bundle_binds_real_payloads_and_rejects_receipt_only
+    first_fit = factory("SI", config, binding).fit(x, targets)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_winner_artifact.py", line 435, in fit
+    raise WinnerArtifactRefusal(
+engine.entry_v2.neural_winner_artifact.WinnerArtifactRefusal: selected forward fit lacks causal row identity
+
+======================================================================
+FAIL: test_exact_e1_holm_and_e2_romano_wolf_freeze (engine.entry_v2.test_neural_sufficiency_stage_engine.HeldStageEngineTest.test_exact_e1_holm_and_e2_romano_wolf_freeze)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/engine/entry_v2/test_neural_sufficiency_stage_engine.py", line 227, in test_exact_e1_holm_and_e2_romano_wolf_freeze
+    self.assertEqual(winner.confirmation.probe_id, "A0_CURRENT_GROUPING")
+AssertionError: 'C01P01' != 'A0_CURRENT_GROUPING'
+- C01P01
++ A0_CURRENT_GROUPING
+
+
+----------------------------------------------------------------------
+Ran 257 tests in 229.623s
+
+FAILED (failures=1, errors=4)

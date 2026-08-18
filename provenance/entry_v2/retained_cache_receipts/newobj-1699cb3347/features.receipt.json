@@ -1,0 +1,27 @@
+{
+ "version": "PORT-M2-NEWOBJ-V1",
+ "cellrel_base": [
+  "fuel_share_with",
+  "room_against_usd",
+  "ext_needed_usd",
+  "phase_age_sec",
+  "cell_age_sec",
+  "ret_phase_open_with",
+  "cell_rank_so_far",
+  "room_with_usd",
+  "extreme_age_sec",
+  "runway_frac",
+  "f30m_vol",
+  "fuel_share_above",
+  "xa_SI_fuel_share_above",
+  "regime_tercile",
+  "surprise",
+  "fc_bench_range_trailmed",
+  "unspent_sess_usd",
+  "p033_sqrt",
+  "range_so_far_usd",
+  "range_hat_usd"
+ ],
+ "peek_sec": 3600,
+ "causality": "CELLREL/DAYSOFAR read only rows with dec_sec <= t (CELLREL) or exit_close_sec <= t (DAYSOFAR); DAYSOFAR_PEEK deliberately reads exit_close_sec <= t+3600 and MUST score ABOVE the causal family"
+}

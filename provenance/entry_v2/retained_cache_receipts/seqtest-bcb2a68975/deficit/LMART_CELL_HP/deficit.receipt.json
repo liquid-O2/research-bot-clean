@@ -1,0 +1,147 @@
+{
+ "databento_dbn": "0.66.0",
+ "git_sha": "1e1c5c8b9cd458025cd112d844881e2d451bbe5b",
+ "input_sha256": {},
+ "m0_spec_sha16": "4bdf772927b5f316",
+ "m1_spec_sha16": "b84832556267e703",
+ "m1b_spec_sha16": "d31f48b59877e44d",
+ "m2_spec_sha16": "f6ef73a41dbf8588",
+ "numpy_version": "2.1.2",
+ "params": {
+  "bars": {
+   "session_usd": 2000.0,
+   "thin_usd": 1500.0,
+   "trade_min_usd": 600.0,
+   "trade_target_usd": 1000.0
+  },
+  "cal_tiers": [
+   0.005,
+   0.01,
+   0.02,
+   0.05,
+   0.1,
+   0.2,
+   0.5,
+   1.0
+  ],
+  "components": [
+   {
+    "block": "A",
+    "improvement_type": "generation/coverage",
+    "meaning": "the bar above the day ceiling \u2014 days where even perfect play misses",
+    "name": "OPPORTUNITY"
+   },
+   {
+    "block": "A",
+    "improvement_type": "throughput/abstention",
+    "meaning": "qualified-but-untaken seats under the judge's own threshold",
+    "name": "PARTICIPATION"
+   },
+   {
+    "block": "A",
+    "improvement_type": "validity",
+    "meaning": "taken losers whose wall-pair mirror paid",
+    "name": "SEL_WRONG_SIDE"
+   },
+   {
+    "block": "A",
+    "improvement_type": "moment",
+    "meaning": "right episode, a better candidate second existed",
+    "name": "SEL_WRONG_MOMENT"
+   },
+   {
+    "block": "A",
+    "improvement_type": "ranking",
+    "meaning": "a better same-class episode existed that day",
+    "name": "SEL_WRONG_MEMBER"
+   },
+   {
+    "block": "A",
+    "improvement_type": "scoring/foresight",
+    "meaning": "the ceiling the score never surfaced, after every named repair",
+    "name": "RANKING_RESIDUAL"
+   },
+   {
+    "block": "B",
+    "improvement_type": "exit-contract (D-029)",
+    "meaning": "taken winners' realised vs achievable-at-entry under the same wall",
+    "name": "EXIT"
+   },
+   {
+    "block": "B",
+    "improvement_type": "stop-structure (D-029)",
+    "meaning": "wall-hit takes a different stop would have carried to profit",
+    "name": "RISK"
+   },
+   {
+    "block": "D",
+    "improvement_type": "threshold",
+    "meaning": "stated-vs-realised by tier \u2014 the judge's own ordering, re-thresholded",
+    "name": "CALIBRATION"
+   }
+  ],
+  "exit_marks": [
+   "CLOSE",
+   "H30",
+   "H60",
+   "H120",
+   "SESS_CLOSE"
+  ],
+  "judges": [
+   {
+    "ceiling_usd_per_session": 3356.4413,
+    "judge": "CELL1_LMART_CELL_HP",
+    "levels_total": {
+     "PARTICIPATION": 4996537.5,
+     "SEL_WRONG_MEMBER": 5307100.0,
+     "SEL_WRONG_MOMENT": 3597757.5,
+     "SEL_WRONG_SIDE": 3456981.25,
+     "v0": 2435375.0
+    },
+    "n_qualified": 479862,
+    "n_seats": 6960,
+    "n_sessions": 2320,
+    "n_takes": 6960,
+    "policy": {
+     "bar_usd": 2000.0,
+     "contract": "MATRIX_CERT",
+     "deployable": true,
+     "keep_frac": null,
+     "name": "CELL1_LMART_CELL_HP",
+     "participation": null,
+     "scope": "scored",
+     "seats_per_day": 3,
+     "topn": 1,
+     "unit": "cell"
+    },
+    "realised_usd_per_session": 1049.7306,
+    "secs": 9.0,
+    "theta": -0.73782778
+   }
+  ],
+  "ladder_order": [
+   "SEL_WRONG_SIDE",
+   "SEL_WRONG_MOMENT",
+   "SEL_WRONG_MEMBER",
+   "PARTICIPATION",
+   "RANKING_RESIDUAL"
+  ],
+  "risk_walls": [
+   300.0,
+   450.0,
+   600.0,
+   1200.0,
+   1500.0,
+   1800.0,
+   2400.0
+  ],
+  "seats_per_day": 3,
+  "section": "port m2 deficit ledger \u2014 orthogonal dollar decomposition of any scored judge's gap to the D-048/D-021 bars",
+  "seed": 20260813,
+  "version": "PORT-M2-DEFICIT-V1"
+ },
+ "params_hash": "9fae0a685b6c9ab64f7a2a80f80e1707f19c2c4aca06d972368322da45ee13da",
+ "sheets_version": "PORT-SHEETS-V1.1",
+ "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
+ "token_proxy": "M2-PROXY-2"
+}

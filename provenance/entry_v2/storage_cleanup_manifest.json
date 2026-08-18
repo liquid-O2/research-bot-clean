@@ -1,0 +1,388 @@
+{
+  "authorization": "user-approved futures-only cleanup: raw IWM/RUTW and superseded caches",
+  "bytes_expected": 2906176934912,
+  "cleanup_script": {
+    "path": "/workspace/engine/entry_v2/storage_cleanup.py",
+    "sha256": "cf9171824ecab1b90ba33c293582ad764964ab6166f1ac0033fc28965dfcb5aa"
+  },
+  "created_at_utc": "2026-08-16T09:11:03.329275+00:00",
+  "filesystem_before": [
+    "Filesystem                        1B-blocks             Used       Available Use% Mounted on",
+    "overlay                         32212254720      25171271680      7040983040  79% /",
+    "mfs#euro-2.runpod.net:9421 2352452913332224 1577175535845376 775277377486848  68% /workspace"
+  ],
+  "git": {
+    "head": "2d3decd3510af85f1943ca4e3d3488cf7e01fe87",
+    "status_porcelain": [
+      "M DIRECTIVES_INBOX.md",
+      " M engine/port_m2/knob_honesty.py",
+      "?? engine/entry_v2/",
+      "?? provenance/entry_v2/",
+      "?? provenance/port_m2/B1_SEAT_BOUNDARY.tsv",
+      "?? provenance/port_m2/B2_B4_CEILINGS.tsv",
+      "?? provenance/port_m2/B5_CLASS_TAIL_SEPARABILITY.tsv",
+      "?? provenance/port_m2/B6_PREDAY_GATE.tsv",
+      "?? provenance/port_m2/SIDE_BLIND_CHAIN.tsv",
+      "?? provenance/port_m2/SIDE_DRIFT_DIAGNOSTIC.tsv",
+      "?? provenance/port_m2/TAIL_LEADERBOARD.tsv"
+    ]
+  },
+  "irreversible": true,
+  "retained_sentinels": [
+    {
+      "exists": true,
+      "path": "/workspace/artifacts/reference/futures_mbp1",
+      "realpath": "/workspace/artifacts/reference/futures_mbp1"
+    },
+    {
+      "exists": true,
+      "path": "/workspace/artifacts/reference/port_context",
+      "realpath": "/workspace/artifacts/reference/port_context"
+    },
+    {
+      "exists": true,
+      "path": "/workspace/artifacts/cache/port/m2/events",
+      "realpath": "/workspace/artifacts/cache/port/m2/events"
+    },
+    {
+      "exists": true,
+      "path": "/workspace/artifacts/cache/port/m0",
+      "realpath": "/workspace/artifacts/cache/port/m0"
+    },
+    {
+      "exists": true,
+      "path": "/workspace/artifacts/cache/port/m1",
+      "realpath": "/workspace/artifacts/cache/port/m1"
+    },
+    {
+      "exists": true,
+      "path": "/workspace/provenance",
+      "realpath": "/workspace/provenance"
+    },
+    {
+      "exists": true,
+      "path": "/workspace/design",
+      "realpath": "/workspace/design"
+    },
+    {
+      "exists": true,
+      "path": "/home/claude/.mempalace",
+      "realpath": "/home/claude/.mempalace"
+    },
+    {
+      "exists": true,
+      "path": "/home/claude/.codex",
+      "realpath": "/home/claude/.codex"
+    }
+  ],
+  "schema": "entry-v2-storage-cleanup-v1",
+  "targets": [
+    {
+      "bytes": 47406308864,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1783395854000000000,
+      "open_handles": [],
+      "path": "/workspace/data/tokens/stock_quotes/IWM"
+    },
+    {
+      "bytes": 4642269184,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1783488332000000000,
+      "open_handles": [],
+      "path": "/workspace/data/tokens/stock_trades/IWM"
+    },
+    {
+      "bytes": 13460982272,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1783395814000000000,
+      "open_handles": [],
+      "path": "/workspace/data/tokens/options_prints/IWM"
+    },
+    {
+      "bytes": 507162755072,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1783395714000000000,
+      "open_handles": [],
+      "path": "/workspace/data/tokens/option_quotes/IWM"
+    },
+    {
+      "bytes": 259069472256,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1783395359000000000,
+      "open_handles": [],
+      "path": "/workspace/data/tokens/RUTW"
+    },
+    {
+      "bytes": 6517035008,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1783395112000000000,
+      "open_handles": [],
+      "path": "/workspace/data/thetadata/Stocks/IWM"
+    },
+    {
+      "bytes": 157542668800,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1783395323000000000,
+      "open_handles": [],
+      "path": "/workspace/data/thetadata/Options/IWM"
+    },
+    {
+      "bytes": 331619514368,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1783395319000000000,
+      "open_handles": [],
+      "path": "/workspace/data/thetadata/Options/RUTW"
+    },
+    {
+      "bytes": 413413376,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1783395099000000000,
+      "open_handles": [],
+      "path": "/workspace/data/thetadata/Options/RUT"
+    },
+    {
+      "bytes": 615774987264,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786558283000000000,
+      "open_handles": [],
+      "path": "/workspace/artifacts/tensors/v4.0/run1/tapes"
+    },
+    {
+      "bytes": 3359069696,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786558118000000000,
+      "open_handles": [],
+      "path": "/workspace/artifacts/tensors/v4.0/run1/rosters"
+    },
+    {
+      "bytes": 472427794944,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786558458000000000,
+      "open_handles": [],
+      "path": "/workspace/artifacts/tensors/v4.0/run2/tapes"
+    },
+    {
+      "bytes": 2609266176,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786558450000000000,
+      "open_handles": [],
+      "path": "/workspace/artifacts/tensors/v4.0/run2/rosters"
+    },
+    {
+      "bytes": 87797030400,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786519965000000000,
+      "open_handles": [],
+      "path": "/workspace/artifacts/cache/campaign"
+    },
+    {
+      "bytes": 370193263616,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786754616000000000,
+      "open_handles": [],
+      "path": "/workspace/artifacts/cache/port/m2/seqtest"
+    },
+    {
+      "bytes": 6312460288,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786821327000000000,
+      "open_handles": [],
+      "path": "/workspace/artifacts/cache/port/m2/newobj"
+    },
+    {
+      "bytes": 4325408256,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786848577000000000,
+      "open_handles": [],
+      "path": "/workspace/artifacts/cache/port/m2/arrival"
+    },
+    {
+      "bytes": 1483584000,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786723591000000000,
+      "open_handles": [],
+      "path": "/workspace/artifacts/cache/port/m3/matrix"
+    },
+    {
+      "bytes": 5167460352,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786779381000000000,
+      "open_handles": [],
+      "path": "/workspace/artifacts/cache/port/models/tabpfn_v3"
+    },
+    {
+      "bytes": 6557904896,
+      "category": "approved-durable",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786781008312610779,
+      "open_handles": [],
+      "path": "/home/claude/.cache/huggingface/hub/models--google--tabfm-1.0.0-pytorch"
+    },
+    {
+      "bytes": 574754816,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786233518805442267,
+      "open_handles": [],
+      "path": "/tmp/vilkov0dte-b9DY0K"
+    },
+    {
+      "bytes": 302256128,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "file",
+      "mtime_ns": 1786278566549534114,
+      "open_handles": [],
+      "path": "/tmp/root_broad_features_v1.npz"
+    },
+    {
+      "bytes": 283570176,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786241284197815224,
+      "open_handles": [],
+      "path": "/tmp/select-fulltext-Wi49QM"
+    },
+    {
+      "bytes": 248164352,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786288707786196239,
+      "open_handles": [],
+      "path": "/tmp/select-plan-audit.dpNKqe"
+    },
+    {
+      "bytes": 223719424,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786214428518498667,
+      "open_handles": [],
+      "path": "/tmp/select-research.4L1W2Y"
+    },
+    {
+      "bytes": 206835712,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "file",
+      "mtime_ns": 1786231028287129744,
+      "open_handles": [],
+      "path": "/tmp/select_raw_print_states_v1.npz"
+    },
+    {
+      "bytes": 110739456,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786202630241810762,
+      "open_handles": [],
+      "path": "/tmp/russell_history_probe_import.git"
+    },
+    {
+      "bytes": 99287040,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786279199719687995,
+      "open_handles": [],
+      "path": "/tmp/peer_fable_broad_v1"
+    },
+    {
+      "bytes": 54587392,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "file",
+      "mtime_ns": 1786286413937023548,
+      "open_handles": [],
+      "path": "/tmp/raw_print_short_horizon_side_v1.npz"
+    },
+    {
+      "bytes": 53977088,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786300780027265512,
+      "open_handles": [],
+      "path": "/tmp/opencode_deepseek_v4_flash.KyVFqw"
+    },
+    {
+      "bytes": 50712576,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "file",
+      "mtime_ns": 1786278852243152336,
+      "open_handles": [],
+      "path": "/tmp/root_broad_scores_v1.npz"
+    },
+    {
+      "bytes": 50089984,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786116434188529156,
+      "open_handles": [],
+      "path": "/tmp/x"
+    },
+    {
+      "bytes": 46288896,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "dir",
+      "mtime_ns": 1786221814228942334,
+      "open_handles": [],
+      "path": "/tmp/select-papers-batch1-VvnqE4"
+    },
+    {
+      "bytes": 29302784,
+      "category": "stale-tmp",
+      "exists": true,
+      "kind": "file",
+      "mtime_ns": 1786238128700047390,
+      "open_handles": [],
+      "path": "/tmp/select_allgreeks_sideaware_probe_v1.npz"
+    }
+  ],
+  "tmp_cutoff_utc": "2026-08-15T00:00:00+00:00"
+}

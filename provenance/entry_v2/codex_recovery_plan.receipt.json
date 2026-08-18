@@ -1,0 +1,12 @@
+{
+  "schema": "entry-v2-codex-plan-receipt-v1",
+  "authority": "Codex persisted plan item",
+  "codex_created_at_utc": "2026-08-16T08:56:21Z",
+  "codex_item_id": "01a009b3-d5d9-7952-ac68-6a25cc4042f2-plan",
+  "codex_thread_id": "01a009ae-e02a-7ae3-8a52-95c90611026b",
+  "plan_path": "design/ENTRY_V2_RECOVERY_PLAN.md",
+  "plan_sha256": "452ab386e0ec03fc2e4dc3942184a5374d2b0730deea288f9a480fefb144ca24",
+  "selection_law": "latest item_type=plan on 2026-08-16 UTC; exactly one matching item",
+  "supersedes": "old Claude/Russell implementation interpretations",
+  "title": "Entry Extraction Recovery Plan"
+}

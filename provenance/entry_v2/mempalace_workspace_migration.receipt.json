@@ -1,0 +1,90 @@
+{
+  "schema": "ENTRY_V2_MEMPALACE_WORKSPACE_MIGRATION_V1",
+  "created_at_utc": "2026-08-16T12:44:21Z",
+  "scope": "MemPalace Codex lifecycle, raw archive, semantic rebuild, workspace migration, and hook activation",
+  "h2_opened_or_run": false,
+  "migration": {
+    "old_total_drawers": 85972,
+    "old_session_drawers": 85942,
+    "final_total_drawers": 2363,
+    "final_session_drawers": 2312,
+    "semantic_normalize_version": 3,
+    "semantic_unique_session_sources": 95,
+    "semantic_missing_source_files": 0,
+    "semantic_staging_or_clean_prefixes": 0,
+    "raw_telemetry_marker_hits": 0
+  },
+  "raw_archive": {
+    "root": "/workspace/.mempalace/sources/codex",
+    "jsonl_files": 95,
+    "receipt_files": 95,
+    "jsonl_bytes": 1005667571,
+    "receipt_bytes": 64404,
+    "total_bytes": 1005731975,
+    "missing_or_orphaned_pairs": 0,
+    "size_or_sha256_mismatches": 0,
+    "noncanonical_receipt_paths": 0,
+    "jsonl_manifest_sha256": "1596e8f98d444e3adf21c38ca11a8ffe0e9a47fe40054f408b98464dca800ab1",
+    "receipt_manifest_sha256": "ea8bc6cd689b8d72453a07adadbcbb9a513f690590edb2bd8203c7b1a510d476",
+    "combined_manifest_sha256": "08d90952b02ce9d1535645c7c766dcb7b52ca26c9038f7ce4061b14cf3470d1a",
+    "contains_full_codex_jsonl_including_tools": true,
+    "tool_and_reasoning_telemetry_semantically_embedded": false
+  },
+  "runtime": {
+    "state_root": "/workspace/.mempalace",
+    "source_root": "/workspace/mempalace/source",
+    "python_runtime": "/workspace/mempalace/uv-tool",
+    "plugin_cache": "/workspace/mempalace/plugin-cache",
+    "plugin_version": "3.7.1+codex.20260816123233",
+    "mempalace_version": "3.7.1",
+    "chromadb_version": "1.5.9",
+    "backend": "chroma",
+    "sqlite_integrity_errors": 0,
+    "hub_pid": 2630868,
+    "hub_bind": "127.0.0.1:8765",
+    "hub_health": "ok",
+    "hub_count": 1,
+    "plugin_mcp_url": "http://127.0.0.1:8765/mcp",
+    "plugin_bundled_hooks": 0
+  },
+  "hooks": {
+    "source": "/home/claude/.codex/hooks.json",
+    "count": 3,
+    "warnings": 0,
+    "errors": 0,
+    "all_enabled": true,
+    "all_trusted": true,
+    "precompact_sha256": "70624600c0c6ab17de4c936fb8eefa4089bf2127ae4fad8d48b3275f35e8e728",
+    "session_start_sha256": "524f1493a0ef460fb57ae81a63b31c916ed6875c451ce312f708fb4303c3733e",
+    "session_end_sha256": "bede4483031cd7f74fe3826d175c50b3d95b5c1d9c0085bb2335cdc44e95c4eb",
+    "live_precompact_status": "hub-reconciled",
+    "live_precompact_checkpoint_sha256_prefix": "0a42c9563e3c",
+    "live_resume_simulation_context_chars": 6701,
+    "live_resume_simulation_latest_checkpoint_present": true,
+    "live_resume_simulation_raw_tool_markers_present": false,
+    "automatic_real_resume_observation": "PENDING_USER_STOP_RESUME"
+  },
+  "verification": {
+    "patched_mempalace_tests_passed": 331,
+    "workspace_lifecycle_tests_passed": 17,
+    "tests_skipped": 1,
+    "current_root_latest_exchange_retrieved": true,
+    "canonical_search_paths_only": true,
+    "independent_final_audit": "PASS"
+  },
+  "rollback": {
+    "path": "/workspace/mempalace/backups/pre-clean-codex0147-20260816",
+    "files": 39,
+    "bytes": 1137706884,
+    "tree_sha256": "a25ae6d90aac8d08ac6d9458c8762239beb26da84d4cf529cd84e52d5d8c9734"
+  },
+  "cleanup": {
+    "deleted_obsolete_home_state": "/home/claude/.mempalace.pre-workspace-20260816",
+    "deleted_obsolete_home_source": "/home/claude/plugins/mempalace.pre-workspace-20260816",
+    "deleted_obsolete_home_runtime": "/home/claude/.local/share/uv/tools/mempalace.pre-workspace-20260816",
+    "deleted_failed_staging": "/workspace/.mempalace.staging-codex0147",
+    "recoverable_old_palace_from_rollback": true,
+    "overlay_used_after_gib_approx": 15,
+    "overlay_free_after_gib_approx": 16
+  }
+}

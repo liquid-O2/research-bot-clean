@@ -1,0 +1,31 @@
+{
+  "arm": "GBT_DIRECT_h_ref",
+  "fold": "F4",
+  "reading": "CAL-PREVIEW",
+  "certifying": false,
+  "tier": "R3a cheap-model control",
+  "proxy_firewall": "CANNOT veto native arms (FINAL_PLAN R3a)",
+  "key_columns": [
+    "session_ordinal",
+    "decision_ordinal",
+    "decision_ts_ns",
+    "sigma"
+  ],
+  "logits_note": "only menu column 2 is populated; this control predicts one scalar, not the 16-head bundle, and cal_metrics reads that column when asked for that horizon",
+  "model": "XGBoost 3.4.0, frozen config",
+  "config": {
+    "max_depth": 6,
+    "eta": 0.05,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "min_child_weight": 20.0,
+    "lambda": 1.0,
+    "objective": "reg:squarederror",
+    "tree_method": "hist",
+    "seed": 20260812,
+    "num_boost_round": 400
+  },
+  "target": "menu_net[2] (h_ref)",
+  "train_rows": 6325698,
+  "train_sessions": 271
+}

@@ -1,0 +1,10 @@
+{
+ "trunk": "RANDOM",
+ "rows": 1157447,
+ "dim": 1024,
+ "secs": 902.6,
+ "pretrain": {
+  "tag": "RANDOM",
+  "note": "untrained trunk, identical shape"
+ }
+}

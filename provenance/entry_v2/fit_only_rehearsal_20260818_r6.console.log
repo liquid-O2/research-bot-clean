@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 1090, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 1072, in main
+    result = run_production_chain(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 789, in run_production_chain
+    acceptance = run_neural_sufficiency(
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_runner.py", line 514, in run_neural_sufficiency
+    evidence = {name: _call(name, backends[name], context,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_runner.py", line 221, in _call
+    evidence = callback(context)
+               ^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 608, in callback
+    return self._run(name)
+           ^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_production.py", line 573, in _run
+    elif component == "raw_fidelity": result = self.executor.raw_fidelity()
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_executor.py", line 528, in raw_fidelity
+    result = self.provider.audit_raw_fidelity(loaded, manifest)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_resources.py", line 5695, in audit_raw_fidelity
+    self._prepare(manifest); assert self.schema is not None
+    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_resources.py", line 5360, in _prepare
+    bindings=self._expanded_session_metadata(),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/engine/entry_v2/neural_sufficiency_resources.py", line 4203, in _expanded_session_metadata
+    raise RealDiagnosticExecutorRefusal(
+engine.entry_v2.neural_sufficiency_executor.RealDiagnosticExecutorRefusal: expanded transform session lacks diagnostic bindings

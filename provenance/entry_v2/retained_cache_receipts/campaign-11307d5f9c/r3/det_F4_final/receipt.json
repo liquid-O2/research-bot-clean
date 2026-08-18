@@ -1,0 +1,12 @@
+{
+  "device": "cuda",
+  "wall_seconds": 1052.4183,
+  "model_tokens": 24656430240,
+  "tokens_per_second": 23428356.22,
+  "tokens_formula": "rows * (3*128 micro + 3*120 bin + 192 jsa)",
+  "vram_peak_bytes": 2613975552,
+  "utilization_percent_mean": 9.6,
+  "utilization_percent_max": 88,
+  "utilization_samples": 3751,
+  "utilization_method": "nvidia-smi/torch"
+}

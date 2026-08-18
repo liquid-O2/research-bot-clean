@@ -1,4 +1,15 @@
-# Russell causal-selection research — start here
+# INDEX.md — legacy clean-room index
+
+> **Current canonical entry point:** [`index.md`](index.md).  The authoritative
+> Entry V2 status as of 2026-08-18 UTC is
+> [`docs/ENTRY_V2_CURRENT_STATUS.md`](docs/ENTRY_V2_CURRENT_STATUS.md).
+> Execution is stopped, 2025H2 is sealed, and the replacement five-arm learner
+> has not run.  The document below is preserved as the earlier Russell/IWM
+> clean-room index; it must not be used as the current Entry V2 cursor.
+
+---
+
+# Russell causal-selection research — historical start page
 
 This repository is the clean-room control plane for the IWM causal-entry
 research program. Raw market data, large authorities, private raw transcripts,

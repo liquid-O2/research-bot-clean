@@ -1,0 +1,83 @@
+{
+  "schema": "entry-v2-codex-plan-amendments-receipt-v1",
+  "amendments_path": "design/ENTRY_V2_RECOVERY_PLAN_AMENDMENTS.md",
+  "amendments_sha256": "edd79c79f4c86d824b86cd708349b5ec6e17593210c33caaef43a036030c230f",
+  "base_plan_path": "design/ENTRY_V2_RECOVERY_PLAN.md",
+  "base_plan_sha256": "452ab386e0ec03fc2e4dc3942184a5374d2b0730deea288f9a480fefb144ca24",
+  "neural_diagnostic_path": "design/ENTRY_V2_NEURAL_SUFFICIENCY_DIAGNOSTIC.md",
+  "neural_diagnostic_sha256": "604f48c4f619dacc963bfd023f6b6dcb5861359c155fbc42388a18d47e45e4b1",
+  "binding_amendments": [
+    {
+      "id": "A-001",
+      "law": "certification > $2,000 per asset per trading day; never per session or aggregate portfolio",
+      "recorded_utc_date": "2026-08-16",
+      "user_wording": "2000 per asset per day, not per session btw"
+    },
+    {
+      "id": "A-002",
+      "law": "$2,000 per asset-day is the low acceptance floor; maximize dollars and oracle capture above it, and require clean-oracle headroom before fitting",
+      "recorded_utc_date": "2026-08-16",
+      "user_wording": "that is the low floor btw our goal is to exceed it"
+    },
+    {
+      "id": "A-003",
+      "law": "D-* directives and old Claude decisions are not Entry V2 authority; use the Codex recovery plan, current user amendments, and verified current code/receipts",
+      "recorded_utc_date": "2026-08-17",
+      "user_wording": "the D thingies are the old claude code thingy nothing to do with our current session"
+    },
+    {
+      "id": "A-004",
+      "law": "arrival-final action teacher with exact-time choice and occupancy/cap masking; deploy from calibrated action probability only, with value/MAE/wall as diagnostics",
+      "recorded_utc_date": "2026-08-17",
+      "user_wording": "recorded from the current Codex plan and implementation record"
+    },
+    {
+      "id": "A-005",
+      "law": "normal weak-era floor is $1,500 per asset trading day; a genuine low-capacity era may use $1,000 only with learned OOF chronological MDD below $500",
+      "recorded_utc_date": "2026-08-16",
+      "user_wording": "for 1100 era 1000 is fine if we can get less than 500 dd"
+    },
+    {
+      "id": "A-006",
+      "law": "keep 2025H2 sealed until the pre-H2 learned policy reaches the agreed goals",
+      "recorded_utc_date": "2026-08-16",
+      "user_wording": "keep going autonomusly until we reach our goal"
+    },
+    {
+      "id": "A-007",
+      "law": "preserve and independently route every raw MBP-1 field; causal gap, tape-speed, flow, and book features supplement rather than replace raw data",
+      "recorded_utc_date": "2026-08-17",
+      "user_wording": "The action side and flack thingies are there to provide more information ... if the gap in timestamp, the speed of the tape, everything has value. We will not discount anything."
+    },
+    {
+      "id": "A-008",
+      "law": "screen the complete factorized label/objective atlas on E1, confirm on E2, and freeze the objective before the next E3 run",
+      "recorded_utc_date": "2026-08-17",
+      "user_wording": "can't we do a proper atlas of different labels and different objectives to find out which one works best, but in a cheap manner?"
+    },
+    {
+      "id": "A-009",
+      "law": "attribute learnability separately to input fidelity, optimization, objective, representation, direct head, CatBoost/ranker, calibration, and replay using fair shared-head controls",
+      "recorded_utc_date": "2026-08-17",
+      "user_wording": "we need to separate exsctly what is holding us back, if it is the xgboost part or neural part or someething deeper"
+    },
+    {
+      "id": "A-010",
+      "law": "run one efficient layer-exact diagnostic, then one integrated correction and one consolidated verification; no ambiguous zero-entry result or open-ended fix loops",
+      "recorded_utc_date": "2026-08-17",
+      "user_wording": "do one diagnostic and then fix it in one go"
+    },
+    {
+      "id": "A-011",
+      "law": "count exactly 90 registered E1 fits and at most eight explicit E2 finalist/twin refits, for a hard maximum of 98 optimizer fits through objective freeze",
+      "recorded_utc_date": "2026-08-17",
+      "user_wording": "technical correction from the pre-payload xhigh audit"
+    },
+    {
+      "id": "A-012",
+      "law": "every raw, neural, direct-head, CatBoost, label/loss, calibration, threshold, replay, and runner layer must pass synthetic and bounded real fit-only competence before held-forward access",
+      "recorded_utc_date": "2026-08-17",
+      "user_wording": "if the raw learner passes, but neural fails, or if both fail, then you should have known that from the very beginning"
+    }
+  ]
+}

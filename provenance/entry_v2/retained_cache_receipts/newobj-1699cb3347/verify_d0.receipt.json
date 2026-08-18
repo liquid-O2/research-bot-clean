@@ -1,0 +1,13 @@
+{
+ "max_abs_cert_diff": 0.0,
+ "max_abs_exit_diff": 0.0,
+ "max_abs_walled_diff": 0.0,
+ "n_candidates": 1399374,
+ "n_cert_mismatch": 0,
+ "n_cert_refused": 0,
+ "n_compared": 1399369,
+ "n_entry_shifted": 0,
+ "n_exit_mismatch": 0,
+ "n_infeasible_D0": 5,
+ "n_walled_mismatch": 0
+}

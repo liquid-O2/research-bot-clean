@@ -1,0 +1,20 @@
+{
+  "arm": "RIDGE_DIRECT_h_ref",
+  "fold": "F4",
+  "reading": "CAL-PREVIEW",
+  "certifying": false,
+  "tier": "R3a cheap-model control",
+  "proxy_firewall": "CANNOT veto native arms (FINAL_PLAN R3a)",
+  "key_columns": [
+    "session_ordinal",
+    "decision_ordinal",
+    "decision_ts_ns",
+    "sigma"
+  ],
+  "logits_note": "only menu column 2 is populated; this control predicts one scalar, not the 16-head bundle, and cal_metrics reads that column when asked for that horizon",
+  "model": "closed-form ridge on 180 DIRECT columns",
+  "target": "menu_net[2] (h_ref)",
+  "lambda": 6213.20863774754,
+  "train_rows": 6325698,
+  "train_sessions": 271
+}

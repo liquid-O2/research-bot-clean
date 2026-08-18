@@ -1,0 +1,24 @@
+{
+ "chosen": {
+  "E3": {
+   "max_depth": 3,
+   "min_child_weight": 60
+  },
+  "E4": {
+   "max_depth": 4,
+   "min_child_weight": 20
+  },
+  "E5": {
+   "max_depth": 3,
+   "min_child_weight": 150
+  },
+  "E6": {
+   "max_depth": 3,
+   "min_child_weight": 20
+  },
+  "E7": {
+   "max_depth": 6,
+   "min_child_weight": 150
+  }
+ }
+}

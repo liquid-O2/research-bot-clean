@@ -1,0 +1,352 @@
+{
+ "kind": "champion",
+ "arch": "gbt-m3features+creator26",
+ "rung": "gbt",
+ "L": 0,
+ "label": "d021",
+ "use_creator": true,
+ "n_features": 228,
+ "creator_coverage": 0.82712,
+ "label_winner_n": 81346,
+ "label_winner_rate": 0.05813,
+ "d021_winner_n": 81346,
+ "d021_winner_rate": 0.05813,
+ "mae_cap_usd": {
+  "SI": 300.0,
+  "HG": 300.0,
+  "NKD": 300.0
+ },
+ "per_era": [
+  {
+   "n_takes": 1170,
+   "n_sessions": 390,
+   "n_seated": 424,
+   "usd_per_session": 130.15705128205124,
+   "ps_lo": 35.29827775595621,
+   "ps_hi": 225.01582480814628,
+   "usd_per_trade": 119.71992924528297,
+   "pt_lo": 32.00882114135331,
+   "pt_hi": 207.43103734921263,
+   "frac_ge_1000": 0.14622641509433962,
+   "capture_day": 0.04310728256081184,
+   "cd_lo": 0.011684106271744314,
+   "cd_hi": 0.07453045884987936,
+   "capture_oracle": 0.051280140925994894,
+   "co_lo": 0.01390685884066295,
+   "co_hi": 0.08865342301132684,
+   "era": "E3",
+   "auc_winner": 0.6502624265537266
+  },
+  {
+   "n_takes": 1155,
+   "n_sessions": 385,
+   "n_seated": 396,
+   "usd_per_session": 142.24350649350623,
+   "ps_lo": 50.96920411152672,
+   "ps_hi": 233.51780887548574,
+   "usd_per_trade": 138.2922979797977,
+   "pt_lo": 49.28389386303046,
+   "pt_hi": 227.30070209656492,
+   "frac_ge_1000": 0.13383838383838384,
+   "capture_day": 0.05161589040385763,
+   "cd_lo": 0.018602145920835922,
+   "cd_hi": 0.08462963488687934,
+   "capture_oracle": 0.06734248428301323,
+   "co_lo": 0.024077238254154663,
+   "co_hi": 0.1106077303118718,
+   "era": "E4",
+   "auc_winner": 0.6868323891143384
+  },
+  {
+   "n_takes": 1161,
+   "n_sessions": 387,
+   "n_seated": 425,
+   "usd_per_session": 58.60788113695081,
+   "ps_lo": -27.329696233185032,
+   "ps_hi": 144.54545850708666,
+   "usd_per_trade": 53.367647058823444,
+   "pt_lo": -25.0162979706573,
+   "pt_hi": 131.7515920883042,
+   "frac_ge_1000": 0.11764705882352941,
+   "capture_day": 0.022616735761241038,
+   "cd_lo": -0.010630162900206259,
+   "cd_hi": 0.05586363442268834,
+   "capture_oracle": 0.033103460857825645,
+   "co_lo": -0.015653852945070275,
+   "co_hi": 0.08186077466072156,
+   "era": "E5",
+   "auc_winner": 0.7258026569005566
+  },
+  {
+   "n_takes": 1152,
+   "n_sessions": 384,
+   "n_seated": 438,
+   "usd_per_session": -51.71549479166689,
+   "ps_lo": -149.28776628724847,
+   "ps_hi": 45.8567767039147,
+   "usd_per_trade": -45.33961187214632,
+   "pt_lo": -130.83310817169786,
+   "pt_hi": 40.15388442740523,
+   "frac_ge_1000": 0.1415525114155251,
+   "capture_day": -0.015296523596141804,
+   "cd_lo": -0.04399154858989689,
+   "cd_hi": 0.013398501397613278,
+   "capture_oracle": -0.01712385612813528,
+   "co_lo": -0.04929141246737742,
+   "co_hi": 0.015043700211106861,
+   "era": "E6",
+   "auc_winner": 0.6874939639406608
+  },
+  {
+   "n_takes": 1179,
+   "n_sessions": 393,
+   "n_seated": 442,
+   "usd_per_session": 34.58015267175608,
+   "ps_lo": -80.24742501224046,
+   "ps_hi": 149.40773035575262,
+   "usd_per_trade": 30.746606334841946,
+   "pt_lo": -71.59050691726914,
+   "pt_hi": 133.08371958695304,
+   "frac_ge_1000": 0.17194570135746606,
+   "capture_day": 0.008430965652655468,
+   "cd_lo": -0.019660680706313986,
+   "cd_hi": 0.036522612011624926,
+   "capture_oracle": 0.008697112961674237,
+   "co_lo": -0.020323860831120463,
+   "co_hi": 0.03771808675446894,
+   "era": "E7",
+   "auc_winner": 0.6532699392548567
+  },
+  {
+   "n_takes": 1143,
+   "n_sessions": 381,
+   "n_seated": 422,
+   "usd_per_session": 235.42322834645708,
+   "ps_lo": 90.30301238942664,
+   "ps_hi": 380.5434443034875,
+   "usd_per_trade": 212.5503554502373,
+   "pt_lo": 80.63544933571845,
+   "pt_hi": 344.46526156475613,
+   "frac_ge_1000": 0.22985781990521326,
+   "capture_day": 0.05484730242565773,
+   "cd_lo": 0.020745300870972934,
+   "cd_hi": 0.08894930398034254,
+   "capture_oracle": 0.05426003712763674,
+   "co_lo": 0.02077614452941673,
+   "co_hi": 0.08774392972585675,
+   "era": "E8",
+   "auc_winner": 0.6397282596688587
+  }
+ ],
+ "pooled": {
+  "n_sessions": 2320,
+  "usd_per_session": 91.22144396551725,
+  "ps_lo": 47.686107010781214,
+  "ps_hi": 134.75678092025328,
+  "capture_day": 0.027178024754577177,
+  "cd_lo": 0.01415058676047627,
+  "cd_hi": 0.04020546274867808,
+  "capture_oracle": 0.03083405118641537,
+  "co_lo": 0.016047430526905465,
+  "co_hi": 0.045620671845925276
+ },
+ "ledger": [
+  {
+   "era": "E3",
+   "n_train": 175562,
+   "n_eval": 158282,
+   "n_features": 228,
+   "gain_share_creator_y_retg_rank_phase": 0.0,
+   "top_creator_y_retg_rank_phase": [],
+   "gain_share_creator_winner": 0.01626,
+   "top_creator_winner": [
+    [
+     "cre_ONX_UNTOUCHED_AHEAD",
+     0.01626
+    ]
+   ],
+   "winner_rate_train": 0.06408,
+   "winner_n_train": 11250,
+   "winner_rate_eval": 0.05641,
+   "winner_n_eval": 8929,
+   "auc_winner_vs_label": 0.6503,
+   "auc_winner_vs_d021": 0.6503,
+   "fit_secs": 1.5
+  },
+  {
+   "era": "E4",
+   "n_train": 333844,
+   "n_eval": 154742,
+   "n_features": 228,
+   "gain_share_creator_y_retg_rank_phase": 0.01633,
+   "top_creator_y_retg_rank_phase": [
+    [
+     "cre_IB_BROKEN_WITH",
+     0.00576
+    ],
+    [
+     "cre_ONX_UNTOUCHED_AHEAD",
+     0.00568
+    ],
+    [
+     "cre_SQUEEZE",
+     0.00384
+    ],
+    [
+     "cre_SQUEEZE_CATALYST_NEAR",
+     0.00063
+    ],
+    [
+     "cre_WICK_ABSORBED_OPP",
+     0.00042
+    ]
+   ],
+   "gain_share_creator_winner": 0.02462,
+   "top_creator_winner": [
+    [
+     "cre_ONX_UNTOUCHED_AHEAD",
+     0.01801
+    ],
+    [
+     "cre_WICK_ABSORBED_OPP",
+     0.00661
+    ]
+   ],
+   "winner_rate_train": 0.06044,
+   "winner_n_train": 20179,
+   "winner_rate_eval": 0.0518,
+   "winner_n_eval": 8015,
+   "auc_winner_vs_label": 0.6868,
+   "auc_winner_vs_d021": 0.6868,
+   "fit_secs": 2.9
+  },
+  {
+   "era": "E5",
+   "n_train": 488586,
+   "n_eval": 159055,
+   "n_features": 228,
+   "gain_share_creator_y_retg_rank_phase": 0.00228,
+   "top_creator_y_retg_rank_phase": [
+    [
+     "cre_ONX_UNTOUCHED_AHEAD",
+     0.00228
+    ]
+   ],
+   "gain_share_creator_winner": 0.0,
+   "top_creator_winner": [],
+   "winner_rate_train": 0.05771,
+   "winner_n_train": 28194,
+   "winner_rate_eval": 0.04752,
+   "winner_n_eval": 7558,
+   "auc_winner_vs_label": 0.7258,
+   "auc_winner_vs_d021": 0.7258,
+   "fit_secs": 3.4
+  },
+  {
+   "era": "E6",
+   "n_train": 647641,
+   "n_eval": 169326,
+   "n_features": 228,
+   "gain_share_creator_y_retg_rank_phase": 0.03145,
+   "top_creator_y_retg_rank_phase": [
+    [
+     "cre_IB_BROKEN_WITH",
+     0.02646
+    ],
+    [
+     "cre_ONX_UNTOUCHED_AHEAD",
+     0.00499
+    ]
+   ],
+   "gain_share_creator_winner": 0.03254,
+   "top_creator_winner": [
+    [
+     "cre_ONX_UNTOUCHED_AHEAD",
+     0.01308
+    ],
+    [
+     "cre_REPEATED_FAIL_RECLAIM",
+     0.01125
+    ],
+    [
+     "cre_IB_BROKEN_WITH",
+     0.00484
+    ],
+    [
+     "cre_SQUEEZE",
+     0.00337
+    ]
+   ],
+   "winner_rate_train": 0.0552,
+   "winner_n_train": 35752,
+   "winner_rate_eval": 0.06024,
+   "winner_n_eval": 10201,
+   "auc_winner_vs_label": 0.6875,
+   "auc_winner_vs_d021": 0.6875,
+   "fit_secs": 4.8
+  },
+  {
+   "era": "E7",
+   "n_train": 816967,
+   "n_eval": 163374,
+   "n_features": 228,
+   "gain_share_creator_y_retg_rank_phase": 0.02021,
+   "top_creator_y_retg_rank_phase": [
+    [
+     "cre_ONX_UNTOUCHED_AHEAD",
+     0.0084
+    ],
+    [
+     "cre_IB_BROKEN_WITH",
+     0.00642
+    ],
+    [
+     "cre_REFILL_AREA_HELD",
+     0.00222
+    ],
+    [
+     "cre_SQUEEZE",
+     0.00168
+    ],
+    [
+     "cre_BODY_REWARDED_WITH",
+     0.0015
+    ]
+   ],
+   "gain_share_creator_winner": 0.0,
+   "top_creator_winner": [],
+   "winner_rate_train": 0.05625,
+   "winner_n_train": 45953,
+   "winner_rate_eval": 0.06521,
+   "winner_n_eval": 10653,
+   "auc_winner_vs_label": 0.6533,
+   "auc_winner_vs_d021": 0.6533,
+   "fit_secs": 6.3
+  },
+  {
+   "era": "E8",
+   "n_train": 980341,
+   "n_eval": 177106,
+   "n_features": 228,
+   "gain_share_creator_y_retg_rank_phase": 0.01041,
+   "top_creator_y_retg_rank_phase": [
+    [
+     "cre_ONX_UNTOUCHED_AHEAD",
+     0.01041
+    ]
+   ],
+   "gain_share_creator_winner": 0.0,
+   "top_creator_winner": [],
+   "winner_rate_train": 0.05774,
+   "winner_n_train": 56606,
+   "winner_rate_eval": 0.06587,
+   "winner_n_eval": 11666,
+   "auc_winner_vs_label": 0.6397,
+   "auc_winner_vs_d021": 0.6397,
+   "fit_secs": 7.2
+  }
+ ],
+ "gpu": {
+  "device": "cpu/xgboost"
+ }
+}

@@ -1,0 +1,65 @@
+{
+ "kind": "rank",
+ "group_unit": "cell",
+ "arch": "lightgbm-YetiRank",
+ "rung": "engine",
+ "L": 0,
+ "trunk": "lightgbm",
+ "mode": "ctx",
+ "pretrained": false,
+ "per_era": [],
+ "pooled": {},
+ "ledger": [
+  {
+   "era": "E3",
+   "engine": "lightgbm",
+   "loss": "YetiRank",
+   "best_iteration": 27,
+   "n_eval": 151884,
+   "n_groups_train": 3063,
+   "secs": 3.7
+  },
+  {
+   "era": "E4",
+   "engine": "lightgbm",
+   "loss": "YetiRank",
+   "best_iteration": 28,
+   "n_eval": 148474,
+   "n_groups_train": 4233,
+   "secs": 4.4
+  },
+  {
+   "era": "E5",
+   "engine": "lightgbm",
+   "loss": "YetiRank",
+   "best_iteration": 25,
+   "n_eval": 153013,
+   "n_groups_train": 5388,
+   "secs": 5.3
+  },
+  {
+   "era": "E6",
+   "engine": "lightgbm",
+   "loss": "YetiRank",
+   "best_iteration": 12,
+   "n_eval": 163182,
+   "n_groups_train": 6549,
+   "secs": 5.3
+  },
+  {
+   "era": "E7",
+   "engine": "lightgbm",
+   "loss": "YetiRank",
+   "best_iteration": 47,
+   "n_eval": 158329,
+   "n_groups_train": 7701,
+   "secs": 9.1
+  }
+ ],
+ "gpu": {
+  "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+  "vram_gb": 102.0,
+  "torch": "2.8.0+cu128",
+  "cuda": "12.8"
+ }
+}

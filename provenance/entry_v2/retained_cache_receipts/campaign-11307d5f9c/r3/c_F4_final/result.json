@@ -1,0 +1,24 @@
+{
+  "additive": 0.4857959747314453,
+  "rank8": 1.0,
+  "additive_band": [
+    0.45,
+    0.55
+  ],
+  "rank8_bar": 0.98,
+  "passes": true,
+  "wall_seconds": 248.11,
+  "certifying": true,
+  "a2_budget_epochs": 30,
+  "session_store": {
+    "held_sessions": 28,
+    "held_bytes": 932536640,
+    "budget_bytes": 161061273600,
+    "hits": 1416,
+    "misses": 28,
+    "spills": 0,
+    "spill_reads": 0
+  },
+  "device": "cuda",
+  "vram_peak_bytes": 4080345088
+}

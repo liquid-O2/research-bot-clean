@@ -1,0 +1,28 @@
+{
+ "errors": [],
+ "memo": {
+  "colsample_bytree": 1.0,
+  "eta": 0.3,
+  "max_depth": 12,
+  "min_child_weight": 1,
+  "reg_lambda": 0.0,
+  "rounds": 300,
+  "subsample": 1.0
+ },
+ "probes": [
+  {
+   "bar": 0.95,
+   "capture": 0.9941,
+   "probe": "memorizer_on_fully_determined_fixture",
+   "verdict": "PASS"
+  },
+  {
+   "bar": 0.95,
+   "probe": "twins_on_features_stripped_fixture",
+   "twin_fraction": 1.0,
+   "verdict": "PASS"
+  }
+ ],
+ "twin_dollars": 600.0,
+ "twin_q": 0.1
+}

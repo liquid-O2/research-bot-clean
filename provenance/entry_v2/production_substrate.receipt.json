@@ -1,0 +1,364 @@
+{
+  "schema": "entry-v2-production-substrate-receipt-v1",
+  "created_at_utc": "2026-08-16T14:13:35Z",
+  "status": "FAIL_CLOSED_NON_AUTHORITATIVE",
+  "authoritative": false,
+  "canonical_production_substrate": false,
+  "plan_authority": {
+    "path": "/home/claude/.codex/thread_history_1.sqlite",
+    "table": "thread_items",
+    "item_type": "plan",
+    "item_id": "01a009b3-d5d9-7952-ac68-6a25cc4042f2-plan",
+    "created_at_utc": "2026-08-16T08:56:21Z",
+    "title": "Entry Extraction Recovery Plan"
+  },
+  "binding_plan_amendments": [
+    {
+      "text": "certification denominator is >$2,000 per asset per trading day, not per session",
+      "effect_on_this_wave": "none; raw substrate scope only"
+    },
+    {
+      "amendment_id": "A-002",
+      "text": "$2k/asset-day is a low floor; clean oracle headroom preflight occurs after substrate/candidate/teacher and before fit",
+      "effect_on_this_wave": "none; raw substrate scope only"
+    }
+  ],
+  "scope": {
+    "requested_wave": "raw causal substrate only",
+    "record_window": {
+      "start_d8_inclusive": 20210101,
+      "end_d8_exclusive": 20250701
+    },
+    "output_root": "/workspace/artifacts/cache/port/entry_v2",
+    "production_downstream_launched": false,
+    "not_launched": [
+      "G1 candidates",
+      "teacher",
+      "forecast",
+      "corpus",
+      "training",
+      "arrival",
+      "H2",
+      "2026"
+    ]
+  },
+  "inputs": {
+    "receipt_path": "/workspace/provenance/entry_v2/input_lists/receipt.json",
+    "receipt_sha256": "b5544f9f3638e30f20a4e1831b7a20e977fd88a4d217d69b312745c336e06756",
+    "receipt_status": "PASS",
+    "pass_scope": "mechanical list derivation and source-file verification only; not substrate acceptance",
+    "source_manifest": {
+      "path": "/workspace/provenance/entry_v2/source_manifest.json",
+      "sha256": "6c3a4f94e66294c0ee78a1b9cf2c5f946676c12fde0cc045df530e95f8f471f0"
+    },
+    "lists": {
+      "SI": {
+        "path": "/workspace/provenance/entry_v2/input_lists/SI.tsv",
+        "rows": 1279,
+        "sha256": "74b91fedf250a0d14a04c79b3c0f70d4622254500aaec3dd4be199e09ca4a8c1"
+      },
+      "HG": {
+        "path": "/workspace/provenance/entry_v2/input_lists/HG.tsv",
+        "rows": 5,
+        "sha256": "f7e95da85b1b75cb54334d62047ba0e91145ad6fc8733f7bb9c3a283bfa5ecb9",
+        "contains_mixed_annual_2025_container": true,
+        "reuse_permitted": false
+      },
+      "NKD": {
+        "path": "/workspace/provenance/entry_v2/input_lists/NKD.tsv",
+        "rows": 5,
+        "sha256": "71ba34b562bb22c1ce103134bcbac1a9ae39778cb7c409ead58da585b7dd6530",
+        "contains_mixed_annual_2025_container": true,
+        "reuse_permitted": false
+      }
+    },
+    "source_manifest_order_audit": {
+      "SI_list_equals_manifest_order": true,
+      "SI_container_intervals_strictly_nonoverlapping": true,
+      "SI_first_container_date": 20210531,
+      "SI_last_container_date": 20250630,
+      "source_manifest_order_was_sole_failure_cause": false,
+      "finding": "The reversal occurs between adjacent physical records inside the first SI payload."
+    }
+  },
+  "release_gate": {
+    "configure": {
+      "command": "cmake --preset release",
+      "rc": 0
+    },
+    "build": {
+      "targets": [
+        "qr_entry_v2_build",
+        "qr_entry_v2_tests"
+      ],
+      "parallelism": 12,
+      "rc": 0
+    },
+    "focused_test": {
+      "ctest_regex": "^qr_entry_v2_tests$",
+      "passed": 1,
+      "failed": 0,
+      "elapsed_seconds": 28.59,
+      "note": "The focused test binary also contains synthetic downstream unit cases; no production downstream stage was launched."
+    },
+    "binaries": {
+      "qr_entry_v2_build": {
+        "path": "/workspace/artifacts/cache/cpp/release/bin/qr_entry_v2_build",
+        "sha256": "2af848500dcb8e5aa9a98d5593dd831c1e2d684e234c676740625bc2deefa519"
+      },
+      "qr_entry_v2_tests": {
+        "path": "/workspace/artifacts/cache/cpp/release/bin/qr_entry_v2_tests",
+        "sha256": "110b94889f80541d55e42192397b7966049fbc75eababc7282ee5e386b745704"
+      }
+    },
+    "rejected_experimental_patch_fully_reverted": true,
+    "restored_sources": {
+      "substrate_cpp_sha256": "a95f11ec056fcc8d4285707538a25357986aee91d573e55420dc01bb62244860",
+      "test_entry_v2_cpp_sha256": "a486a1bcd5a0b9e71602dd6661d19339797f687b552411e320541ea3ce21405d"
+    },
+    "schema_migration_implemented": false
+  },
+  "production_runs": {
+    "launcher": "/workspace/lab/run.sh",
+    "SI": {
+      "registry_name": "entry_v2_substrate_si",
+      "command": "/workspace/lab/run.sh entry_v2_substrate_si -- /workspace/artifacts/cache/cpp/release/bin/qr_entry_v2_build --stage all --asset SI --output-root /workspace/artifacts/cache/port/entry_v2 --start-d8 20210101 --end-d8-exclusive 20250701 --input-list /workspace/provenance/entry_v2/input_lists/SI.tsv",
+      "pid": 2748433,
+      "rc": 1,
+      "pid_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_si.pid",
+      "pid_sha256": "4857a95e3a1606c5d3c4a6a42710d1948a03377ac6eac619eafd633b7fc1063f",
+      "rc_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_si.rc",
+      "rc_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "heartbeat_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_si.hb",
+      "heartbeat_sha256": "972684a5db1ee782f9bbe116ff61359b3d2f3d02e6017d36ee9abf283663a2e4",
+      "stdout_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_si.log",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_paths": [
+        "/workspace/artifacts/cache/port/entry_v2/manifests/SI.inputs.tsv"
+      ],
+      "outcome": "REFUSED OUT_OF_ORDER in the first input container",
+      "refusal": "OUT_OF_ORDER at qr_entry_v2::run_tally: input payloads are not chronological by trade date [context=20210530]"
+    },
+    "HG": {
+      "registry_name": "entry_v2_substrate_hg",
+      "command": "/workspace/lab/run.sh entry_v2_substrate_hg -- /workspace/artifacts/cache/cpp/release/bin/qr_entry_v2_build --stage all --asset HG --output-root /workspace/artifacts/cache/port/entry_v2 --start-d8 20210101 --end-d8-exclusive 20250701 --input-list /workspace/provenance/entry_v2/input_lists/HG.tsv",
+      "pid": 2748441,
+      "rc": 143,
+      "pid_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_hg.pid",
+      "pid_sha256": "ac8319da1404a91cff899054383d7b9d99b6b4f77f373a8d7eae49bebe687cf4",
+      "rc_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_hg.rc",
+      "rc_sha256": "9d9b18720961e9b4689fd763b85e7b6f36160ccd3a8a1c9ddc5103bb0f66c396",
+      "heartbeat_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_hg.hb",
+      "heartbeat_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_hg.log",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_paths": [
+        "/workspace/artifacts/cache/port/entry_v2/events/HG",
+        "/workspace/artifacts/cache/port/entry_v2/tallies/HG.tsv",
+        "/workspace/artifacts/cache/port/entry_v2/locks/HG.tsv",
+        "/workspace/artifacts/cache/port/entry_v2/phases/HG.tsv",
+        "/workspace/artifacts/cache/port/entry_v2/manifests/HG.inputs.tsv",
+        "/workspace/artifacts/cache/port/entry_v2/receipts/HG.tally.json",
+        "/workspace/artifacts/cache/port/entry_v2/receipts/HG.lock.json",
+        "/workspace/artifacts/cache/port/entry_v2/receipts/HG.phase.json"
+      ],
+      "outcome": "Terminated cleanly on the causal stop; partial files preserved for forensic audit only."
+    },
+    "NKD": {
+      "registry_name": "entry_v2_substrate_nkd",
+      "command": "/workspace/lab/run.sh entry_v2_substrate_nkd -- /workspace/artifacts/cache/cpp/release/bin/qr_entry_v2_build --stage all --asset NKD --output-root /workspace/artifacts/cache/port/entry_v2 --start-d8 20210101 --end-d8-exclusive 20250701 --input-list /workspace/provenance/entry_v2/input_lists/NKD.tsv",
+      "pid": 2748448,
+      "rc": 0,
+      "pid_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_nkd.pid",
+      "pid_sha256": "3239a6442d6cf1ddfc0c639b381561fb8812b34f8a53a8b71ac4da8472b65779",
+      "rc_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_nkd.rc",
+      "rc_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "heartbeat_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_nkd.hb",
+      "heartbeat_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_nkd.log",
+      "stdout_sha256": "dbefba423fe09b45eba0701c1d3923852c2d3deaf71385d1b6e490de4864e5a3",
+      "output_paths": [
+        "/workspace/artifacts/cache/port/entry_v2/events/NKD",
+        "/workspace/artifacts/cache/port/entry_v2/events/NKD/manifest.tsv",
+        "/workspace/artifacts/cache/port/entry_v2/tallies/NKD.tsv",
+        "/workspace/artifacts/cache/port/entry_v2/locks/NKD.tsv",
+        "/workspace/artifacts/cache/port/entry_v2/phases/NKD.tsv",
+        "/workspace/artifacts/cache/port/entry_v2/manifests/NKD.inputs.tsv",
+        "/workspace/artifacts/cache/port/entry_v2/receipts/NKD.tally.json",
+        "/workspace/artifacts/cache/port/entry_v2/receipts/NKD.lock.json",
+        "/workspace/artifacts/cache/port/entry_v2/receipts/NKD.phase.json",
+        "/workspace/artifacts/cache/port/entry_v2/receipts/NKD.events.json"
+      ],
+      "outcome": "Process returned zero before the causal stop, but all output is invalidated by the clock-law audit."
+    },
+    "all_recorded_pids_live_at_receipt_time": false
+  },
+  "clock_evidence": {
+    "source_payload": "/workspace/artifacts/reference/futures_mbp1/[Silver] GLBX-20260531-RPHWMFRBFW/glbx-mdp3-20210531.mbp-1.dbn.zst",
+    "source_payload_sha256": "d721eacdbd6df62e30edcb451b231cbc75a2730df7d732ef0995b0d6c08676b0",
+    "adjacent_physical_records": [
+      {
+        "one_based_ordinal": 4,
+        "instrument_id": 32490,
+        "symbol": "SIN1",
+        "ts_event_ns": 1622419198740669027,
+        "ts_recv_ns": 1622419200000000000,
+        "sequence": 119483,
+        "action": "A",
+        "side": "N",
+        "flags": 168,
+        "depth": 0
+      },
+      {
+        "one_based_ordinal": 5,
+        "instrument_id": 79190,
+        "symbol": "SIN1-SIZ5",
+        "ts_event_ns": 1622401207681005329,
+        "ts_recv_ns": 1622419200000000000,
+        "sequence": 14682,
+        "action": "A",
+        "side": "N",
+        "flags": 168,
+        "depth": 0
+      }
+    ],
+    "flags_decoded": [
+      "LAST",
+      "SNAPSHOT",
+      "BAD_TS_RECV"
+    ],
+    "snapshot_block": {
+      "rows": 45,
+      "all_shared_ts_recv_ns": 1622419200000000000,
+      "current_trade_date_for_ts_event": {
+        "d8_20210530": 27,
+        "d8_20210531": 12,
+        "outside_rth_skipped": 6
+      },
+      "trade_date_for_ts_recv": {
+        "d8_20210531": 45
+      }
+    },
+    "whole_file_order_audit": {
+      "mbp1_records": 331441,
+      "ts_recv_descents": 0,
+      "adjacent_equal_ts_recv": 2263,
+      "ts_event_descents": 19,
+      "ts_event_descents_touching_snapshot_or_bad_ts_recv": 15,
+      "ordinary_ts_event_descents": 4
+    },
+    "official_vs_custom_dump": {
+      "official_binary": "/workspace/artifacts/cache/cpp/dbn_diff/build/bin/dbn_dump",
+      "official_binary_sha256": "c7a5f82b3dc3c2cd911730a5678c79255564625b3484843ae94367882f116e40",
+      "custom_binary": "/workspace/artifacts/cache/cpp/dbn_diff/build/bin/qr_dbn_dump",
+      "custom_binary_sha256": "96fb92ce93835c029504f2ec7918654c23c301c0bdc84a70fdaab245a3079e77",
+      "exact_record_fields_equal": true,
+      "serialized_order_equal": true,
+      "columns_compared": 16,
+      "finding": "Custom byte decoding agrees with official databento-cpp; the defect is clock semantics, not bytes."
+    },
+    "official_databento_law": {
+      "mbp1_index_ts": "ts_recv",
+      "dbn_file_store_replay_order": "serialized decoder callback order; no event-time sort",
+      "ts_symbol_map_date": "UTC floor of IndexTs"
+    },
+    "frozen_design_path": "/workspace/design/ENTRY_V2_DATABENTO_CLOCK_LAW.md",
+    "frozen_design_sha256": null,
+    "frozen_design_hash_note": "Intentionally deferred to the parent's final clock-law check."
+  },
+  "causal_stop": {
+    "reason": "QRE2EVT1 session assignment, event ordering, and decision cutoff use ts_event while DBN MBP-1 availability/index order is ts_recv; the implementation does not enforce ts_recv < decision_ts_ns.",
+    "causal_leakage_possible": true,
+    "stable_ts_event_sort_accepted": false,
+    "relaunch_permitted": false,
+    "downstream_consumption_permitted": false,
+    "mixed_annual_2025_inputs_permitted": false,
+    "handling": "Preserve for forensic audit only. Do not train, score, certify, or consume as G1, teacher, forecast, corpus, arrival, H2, or any downstream input."
+  },
+  "boundary_exposure": {
+    "record_stop_implementation_clock": "ts_event",
+    "HG_mixed_2025_container_opened": true,
+    "HG_reached_H2_record_stop": false,
+    "NKD_mixed_2025_container_opened": true,
+    "NKD_first_H2_record_decoded_to_apply_stop": true,
+    "H2_record_tallied_or_emitted": false,
+    "H2_event_pack_emitted": false,
+    "H2_filename_or_header_observed": false,
+    "max_published_header_d8": 20250630,
+    "strict_zero_H2_record_decode_certified": false,
+    "2026_input_selected_or_opened": false,
+    "finding": "The completed NKD run opened its manifest-authorized mixed 2025 container and decoded the first record classified at or after 20250701 before breaking. No such row was tallied or emitted, but this is not a zero-H2-record-decode boundary. Both mixed annual 2025 inputs are now blocked."
+  },
+  "preserved_partial_inventory": {
+    "root": "/workspace/artifacts/cache/port/entry_v2",
+    "directories": 10,
+    "files": 4056,
+    "total_file_bytes": 63244943663,
+    "SI": {
+      "published_event_packs": 0,
+      "input_manifest": "/workspace/artifacts/cache/port/entry_v2/manifests/SI.inputs.tsv"
+    },
+    "HG": {
+      "published_event_packs": 1264,
+      "temporary_event_packs": 1,
+      "temporary_pack": "/workspace/artifacts/cache/port/entry_v2/events/HG/20250203.qre2.tmp",
+      "max_header_d8": 20250203,
+      "event_manifest_published": false
+    },
+    "NKD": {
+      "published_event_packs": 1377,
+      "event_sidecars": 1396,
+      "max_header_d8": 20250630,
+      "event_manifest_published": true,
+      "event_manifest_sha256": "48aed53accf4b328306acea703dd2c1aff34dd666dad59855d3bf79c9c0c7290",
+      "events_receipt_sha256": "849ec7c15108c35796de52c03ead0717202a4c35dbf34770af9fbb6b39e256c5",
+      "manifest_and_sidecar_pin_mismatches": 0,
+      "semantic_causality_valid": false
+    },
+    "qre2_structural_audit": {
+      "published_packs": 2641,
+      "published_pack_bytes": 63198883684,
+      "bad_magic_version_asset_reserved_d8_size_or_length": 0,
+      "minimum_header_d8": 20210104,
+      "maximum_header_d8": 20250630,
+      "header_d8_at_or_after_20250701": 0,
+      "H2_or_2026_filenames": 0,
+      "finding": "Structural integrity does not cure the receive-clock causality defect."
+    }
+  },
+  "invalidation_evidence": {
+    "marker": {
+      "path": "/workspace/artifacts/cache/port/entry_v2/NON_AUTHORITATIVE.json",
+      "sha256": "4eb2220b37572fce2782e973275ed06b6ca52d8060cba28ffdcd8b78366adb75"
+    },
+    "deletion_manifest": {
+      "path": "/workspace/provenance/entry_v2/invalid_cache_deletion_manifest.tsv",
+      "sha256": "b36ecd95f17b749ad9839a6713430bf454dc65c2687546ef395114748d00dc4c",
+      "mode": "0444",
+      "status": "NOT_EXECUTED_APPROVAL_REQUIRED",
+      "delete_root": "/workspace/artifacts/cache/port/entry_v2",
+      "directory_entries": 10,
+      "file_entries": 4056,
+      "total_file_bytes": 63244943663
+    },
+    "deletion_executed": false,
+    "preserve_outside_target": [
+      "/workspace/provenance/entry_v2/source_manifest.json",
+      "/workspace/provenance/entry_v2/input_lists",
+      "/workspace/provenance/entry_v2/invalid_cache_deletion_manifest.tsv",
+      "/workspace/provenance/entry_v2/production_substrate.receipt.json",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_si.pid",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_si.rc",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_si.hb",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_si.log",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_hg.pid",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_hg.rc",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_hg.hb",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_hg.log",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_nkd.pid",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_nkd.rc",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_nkd.hb",
+      "/workspace/artifacts/workflow_memory/runs/entry_v2_substrate_nkd.log"
+    ]
+  }
+}

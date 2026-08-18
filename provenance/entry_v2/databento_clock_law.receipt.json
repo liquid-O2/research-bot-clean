@@ -1,0 +1,96 @@
+{
+  "schema": "entry-v2-databento-clock-law-receipt-v1",
+  "created_at_utc": "2026-08-16T16:10:48Z",
+  "amended_at_utc": "2026-08-16T16:39:08Z",
+  "status": "FROZEN_IMPLEMENTATION_PREREQUISITE",
+  "authoritative_for_production_results": false,
+  "law_path": "design/ENTRY_V2_DATABENTO_CLOCK_LAW.md",
+  "law_sha256": "dfc33cfe21c7deff5ab09d82963f1b1eff77c91d5073f2bb1aacdedfca8151f1",
+  "authority": {
+    "recovery_plan_sha256": "452ab386e0ec03fc2e4dc3942184a5374d2b0730deea288f9a480fefb144ca24",
+    "amendments_sha256": "e6a65c2bfc8e69e31e122d8aab015ee894025e060bd5fa72673abf841c777cb1",
+    "directives_sha256": "aec0a5aac794938575f73e1260e525852242ad2d77afbd0cd3f4411b5f1a7c22",
+    "source_manifest_sha256": "d8ecbacd5afd29c140b1f1b349517cc563945f9aacc622f049492323aacb113a"
+  },
+  "official_decoder": {
+    "name": "databento-cpp",
+    "version": "0.64.0",
+    "upstream_commit": "12eca77e70137ea848e4af3f4173ee0569cbf1aa",
+    "vendor_path": "vendor/databento-cpp",
+    "deterministic_vendor_tree_sha256": "9aa9aede26acf2f0e442a84867819f0efd93c64f6cb606ba4320f3ad100175b8",
+    "tree_hash_law": "sort NUL-separated regular-file paths excluding .git; sha256sum each; replace vendor/databento-cpp/ with relative path; sha256sum manifest",
+    "record_header_sha256": "dd8d1cbdce66d96714b1ee328a6bad782d3fc7bec0ec6b59a29747c4e11a477f",
+    "flag_set_sha256": "52b9289a508eb04d96e751b36f262542726e11ba98d10a3c25f8ca4f5c97e8c3",
+    "symbol_map_sha256": "903b926e94cca2f54fe434bcb96b10ad208d5760e82e7b3558eadfcbb350c12a",
+    "dbn_store_sha256": "69c26996dd3c565af7d1f09f627d7a7b5b8adad9ffdb0920d201bb3fa213a6f3"
+  },
+  "differential_evidence": {
+    "threeway_report": "artifacts/cache/cpp/dbn_diff/threeway/THREEWAY_DIFFERENTIAL.tsv",
+    "threeway_report_sha256": "2a15ac6eff742e8eefaaef8da3f043909d57c708e7fd3fbc83faea1eaf8c8860",
+    "legs": [
+      "official_databento_cpp_0.64.0",
+      "official_databento_dbn_python_0.66.0",
+      "custom_qr_dbn_test_oracle"
+    ],
+    "byte_field_differences": 0,
+    "production_authority": "official_databento_cpp_0.64.0"
+  },
+  "causal_law": {
+    "availability_clock": "Mbp1Msg::IndexTs/ts_recv",
+    "exchange_feature_clock": "ts_event",
+    "tie_order": "physical_decoder_order",
+    "cutoff": "lower_bound(ts_recv_ns,decision_ts_ns)",
+    "equal_receive_time": "future",
+    "standalone_bad_ts_recv": "quarantine_before_symbol_date_order_economics_or_model; bracket_same_iid_clean_sane_f_last; locked_session_BAD_TS_RECV_CLOCK_TAINT_no_pack_zero_denominator",
+    "event_pack_schema": "QRE2EVT2",
+    "prefix_domain": "QRE2PREFIX2"
+  },
+  "snapshot_regression": {
+    "source": "SI glbx-mdp3-20210531.mbp-1.dbn.zst",
+    "snapshot_rows": 45,
+    "common_ts_recv_ns": 1622419200000000000,
+    "flags_decimal": 168,
+    "flags": ["F_LAST", "F_SNAPSHOT", "F_BAD_TS_RECV"],
+    "old_event_clock_assignment": {
+      "d8_20210530": 27,
+      "d8_20210531": 12,
+      "outside_rth": 6
+    },
+    "receive_clock_assignment": {
+      "d8_20210531": 45
+    }
+  },
+  "standalone_bad_ts_recv_regression": {
+    "source": "HG 2021 annual physical MBP-1",
+    "first_source_ordinal": 110016439,
+    "last_source_ordinal": 110016461,
+    "rows": 23,
+    "instrument_id": 225412,
+    "frozen_ts_recv_ns": 1636680365333798497,
+    "flags_distribution": {"8": 3, "138": 20},
+    "snapshot_rows": 0,
+    "maybe_bad_book_rows": 0,
+    "law": "payload_quarantined; same-session clean IID anchors taint locked manifest; no event pack"
+  },
+  "h2_source_gate": {
+    "status": "READY_WITH_SEMANTIC_DEVELOPMENT_PREFIX",
+    "trade_d8_cutoff": 20250701,
+    "end_exclusive_utc": "2025-06-30T22:00:00Z",
+    "end_exclusive_ts_recv_ns": 1751320800000000000,
+    "mixed_hg_2025_admitted": true,
+    "mixed_nkd_2025_admitted": true,
+    "mixed_access": "DEVELOPMENT_PREFIX",
+    "first_boundary_record": "TRANSPORT_ONLY_STOP_BEFORE_ENTRY_V2_STATE",
+    "owned_2026_containers_admitted": false,
+    "owned_provider_authenticated_byte_boundary": false,
+    "required_symbols": ["HG.v.0", "NKD.c.0"]
+  },
+  "implementation_gate": {
+    "official_adapter_complete": false,
+    "all_v2_domains_complete": false,
+    "adversarial_suite_complete": false,
+    "production_rebuild_permitted": false,
+    "h2_evaluation_permitted": false
+  },
+  "receipt_sha256": "7d40f746ba7ba9ba2614b06891fea1f49dd60ad23910704fc0cec0ad89823014"
+}

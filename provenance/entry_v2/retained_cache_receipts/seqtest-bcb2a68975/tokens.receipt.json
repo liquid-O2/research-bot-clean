@@ -1,0 +1,196 @@
+{
+ "brief": "D-078/D-084/D-085 + PORT_M2_SHEETS_SPEC CC-M2-15..24 + LABEL_ATLAS_V2 \u00a72.2/\u00a72.5 (the atlas champion)",
+ "databento_dbn": "0.66.0",
+ "elapsed_sec": 58.8,
+ "git_sha": "769729f9b15a71a4ea3047790a37fd6ae18e0642",
+ "harness_version": "PORT-M3-HARNESS-V1",
+ "input_sha256": {},
+ "m0_spec_sha16": "4bdf772927b5f316",
+ "m1_spec_sha16": "b84832556267e703",
+ "m1b_spec_sha16": "d31f48b59877e44d",
+ "m2_spec_sha16": "f6ef73a41dbf8588",
+ "n_blocks": 66969,
+ "n_cand": 1157447,
+ "n_days": 3341,
+ "n_events": 1425552703,
+ "n_tokens_used": 1095,
+ "numpy_version": "2.1.2",
+ "params": {
+  "architectures": [
+   "cnn",
+   "trf"
+  ],
+  "capacity_rule": "climb a rung ONLY while honest day-fold walk-forward capture improves; the full ladder table is reported so weak-model vs no-signal is decided by the curve",
+  "capacity_rungs": [
+   "1M",
+   "10M",
+   "50M"
+  ],
+  "causality": "events with ts_event STRICTLY BEFORE (open_utc + dec_sec) seconds; the window is additionally clamped to the start of the contiguous cached block containing dec_sec",
+  "channel_note": "raw record fields only \u2014 action byte one-hot, side byte one-hot, record price delta / mid delta / price-minus-mid in ticks, log size, log inter-event gap, log L1 size and ORDER COUNT both sides, spread in ticks, log seconds to the decision second, and a pad-validity mask.  No cue, no window statistic, no featurisation.",
+  "channels": [
+   "act_A",
+   "act_C",
+   "act_M",
+   "act_T",
+   "act_F",
+   "act_R",
+   "side_B",
+   "side_A",
+   "side_N",
+   "dpx_ticks",
+   "dmid_ticks",
+   "px_minus_mid_ticks",
+   "log_size",
+   "log_gap_us",
+   "log_bid_sz",
+   "log_ask_sz",
+   "log_bid_ct",
+   "log_ask_ct",
+   "spread_ticks",
+   "log_secs_to_decision",
+   "valid"
+  ],
+  "cnn_kernel": 5,
+  "controls": [
+   "shuffled-label (red-first, committed before the real run)",
+   "duplicate-day leak probe against assert_disjoint_days",
+   "non-causal era-order probe against assert_causal_era_order",
+   "tensor-causality probe on the seconds-to-decision channel"
+  ],
+  "determinism": "torch.use_deterministic_algorithms(warn_only) + cudnn.deterministic + CUBLAS_WORKSPACE_CONFIG=:4096:8; fused attention backward is the one op that may remain nondeterministic and is named rather than hidden",
+  "device": "cuda (RTX PRO 6000 Blackwell); bf16 autocast; TF32 matmul",
+  "early_stopping": "inner validation = the training block's last 20% of DAYS",
+  "folds": "walk-forward era ladder: train E2..Ek -> test E(k+1); whole DAYS",
+  "inference": "panel_score CR1, clustered by DAY",
+  "normalisation": "mean/std fitted on TRAINING rows only, per channel",
+  "pretraining": "masked-event self-supervised pretraining of the transformer on the unlabelled stream, fine-tuned under the same folds; reported as its own pretrained-vs-scratch row",
+  "question": "does a small sequence model reading RAW EVENTS pick better MOMENTS than anything measured, at CANDIDATE grain",
+  "schedule": "top-3 per asset-day, D-077-UPDATE news veto ON, one-position chronological phase-close replay \u2014 m3_walk.topn_takes / replay_rows / per_trade_stats VERBATIM",
+  "seed": 20260813,
+  "seq_lens": [
+   256,
+   1024,
+   4096
+  ],
+  "spec_section": "M2.SEQ raw-event sequence model at candidate grain",
+  "targets": [
+   "y_retg_rank_phase (the atlas champion)",
+   "y_winner (D-021 flag)"
+  ],
+  "tokenizer": "SEQ_PRETRAIN_DESIGN.md \u00a73",
+  "universe": "m3 matrix rows (candidate grain, v3 roster) with era in ['E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8']; the m3 holdout guard (d8 < 20250701) is inherited at load"
+ },
+ "params_hash": "db9fa8637cc3e10207fc793e22d770081b1ce394b05ed0452ee711cc261991a2",
+ "shards": [
+  [
+   "SI",
+   "E2",
+   59338
+  ],
+  [
+   "SI",
+   "E3",
+   56095
+  ],
+  [
+   "SI",
+   "E4",
+   57240
+  ],
+  [
+   "SI",
+   "E5",
+   57580
+  ],
+  [
+   "SI",
+   "E6",
+   61581
+  ],
+  [
+   "SI",
+   "E7",
+   58148
+  ],
+  [
+   "SI",
+   "E8",
+   60319
+  ],
+  [
+   "HG",
+   "E2",
+   56299
+  ],
+  [
+   "HG",
+   "E3",
+   54503
+  ],
+  [
+   "HG",
+   "E4",
+   54812
+  ],
+  [
+   "HG",
+   "E5",
+   50549
+  ],
+  [
+   "HG",
+   "E6",
+   56798
+  ],
+  [
+   "HG",
+   "E7",
+   50311
+  ],
+  [
+   "HG",
+   "E8",
+   57177
+  ],
+  [
+   "NKD",
+   "E2",
+   59925
+  ],
+  [
+   "NKD",
+   "E3",
+   47684
+  ],
+  [
+   "NKD",
+   "E4",
+   42690
+  ],
+  [
+   "NKD",
+   "E5",
+   50926
+  ],
+  [
+   "NKD",
+   "E6",
+   50947
+  ],
+  [
+   "NKD",
+   "E7",
+   54915
+  ],
+  [
+   "NKD",
+   "E8",
+   59610
+  ]
+ ],
+ "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
+ "unigram_entropy_bits": 5.612478176589412,
+ "unigram_entropy_nats": 3.8902734240571735,
+ "vocab": 3152
+}

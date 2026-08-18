@@ -1,0 +1,35 @@
+{
+ "d021": {
+  "n_winners_all": 81346,
+  "rate_all": 0.05813,
+  "n_winners_E2E8": 68272,
+  "rate_E2E8": 0.058985,
+  "cap_usd_by_asset": {
+   "SI": 300.0,
+   "HG": 300.0,
+   "NKD": 300.0
+  }
+ },
+ "maecap": {
+  "n_winners_all": 93401,
+  "rate_all": 0.066745,
+  "n_winners_E2E8": 79240,
+  "rate_E2E8": 0.068461,
+  "cap_usd_by_asset": {
+   "SI": 450.0,
+   "HG": 225.0,
+   "NKD": 450.0
+  }
+ },
+ "overlap": {
+  "both": 78129,
+  "maecap_only": 15272,
+  "d021_only": 3217
+ },
+ "uncapped_dip_ticks": {
+  "n": 126792,
+  "median": 9.5,
+  "q75": 19.0,
+  "q90": 29.0
+ }
+}

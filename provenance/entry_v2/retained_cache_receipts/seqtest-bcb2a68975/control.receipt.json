@@ -1,0 +1,124 @@
+{
+ "brief": "D-078/D-084/D-085 + PORT_M2_SHEETS_SPEC CC-M2-15..24 + LABEL_ATLAS_V2 \u00a72.2/\u00a72.5 (the atlas champion)",
+ "databento_dbn": "0.66.0",
+ "git_sha": "d66d353798bc72fab86685f76465f42f243e982d",
+ "gpu": {
+  "cuda": "12.8",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+  "torch": "2.8.0+cu128",
+  "vram_gb": 102.0
+ },
+ "harness_version": "PORT-M3-HARNESS-V1",
+ "input_sha256": {},
+ "m0_spec_sha16": "4bdf772927b5f316",
+ "m1_spec_sha16": "b84832556267e703",
+ "m1b_spec_sha16": "d31f48b59877e44d",
+ "m2_spec_sha16": "f6ef73a41dbf8588",
+ "numpy_version": "2.1.2",
+ "params": {
+  "architectures": [
+   "cnn",
+   "trf"
+  ],
+  "capacity_rule": "climb a rung ONLY while honest day-fold walk-forward capture improves; the full ladder table is reported so weak-model vs no-signal is decided by the curve",
+  "capacity_rungs": [
+   "1M",
+   "10M",
+   "50M"
+  ],
+  "causality": "events with ts_event STRICTLY BEFORE (open_utc + dec_sec) seconds; the window is additionally clamped to the start of the contiguous cached block containing dec_sec",
+  "channel_note": "raw record fields only \u2014 action byte one-hot, side byte one-hot, record price delta / mid delta / price-minus-mid in ticks, log size, log inter-event gap, log L1 size and ORDER COUNT both sides, spread in ticks, log seconds to the decision second, and a pad-validity mask.  No cue, no window statistic, no featurisation.",
+  "channels": [
+   "act_A",
+   "act_C",
+   "act_M",
+   "act_T",
+   "act_F",
+   "act_R",
+   "side_B",
+   "side_A",
+   "side_N",
+   "dpx_ticks",
+   "dmid_ticks",
+   "px_minus_mid_ticks",
+   "log_size",
+   "log_gap_us",
+   "log_bid_sz",
+   "log_ask_sz",
+   "log_bid_ct",
+   "log_ask_ct",
+   "spread_ticks",
+   "log_secs_to_decision",
+   "valid"
+  ],
+  "cnn_kernel": 5,
+  "controls": [
+   "shuffled-label (red-first, committed before the real run)",
+   "duplicate-day leak probe against assert_disjoint_days",
+   "non-causal era-order probe against assert_causal_era_order",
+   "tensor-causality probe on the seconds-to-decision channel"
+  ],
+  "determinism": "torch.use_deterministic_algorithms(warn_only) + cudnn.deterministic + CUBLAS_WORKSPACE_CONFIG=:4096:8; fused attention backward is the one op that may remain nondeterministic and is named rather than hidden",
+  "device": "cuda (RTX PRO 6000 Blackwell); bf16 autocast; TF32 matmul",
+  "early_stopping": "inner validation = the training block's last 20% of DAYS",
+  "folds": "walk-forward era ladder: train E2..Ek -> test E(k+1); whole DAYS",
+  "inference": "panel_score CR1, clustered by DAY",
+  "normalisation": "mean/std fitted on TRAINING rows only, per channel",
+  "pretraining": "masked-event self-supervised pretraining of the transformer on the unlabelled stream, fine-tuned under the same folds; reported as its own pretrained-vs-scratch row",
+  "question": "does a small sequence model reading RAW EVENTS pick better MOMENTS than anything measured, at CANDIDATE grain",
+  "schedule": "top-3 per asset-day, D-077-UPDATE news veto ON, one-position chronological phase-close replay \u2014 m3_walk.topn_takes / replay_rows / per_trade_stats VERBATIM",
+  "seed": 20260813,
+  "seq_lens": [
+   256,
+   1024,
+   4096
+  ],
+  "spec_section": "M2.SEQ raw-event sequence model at candidate grain",
+  "targets": [
+   "y_retg_rank_phase (the atlas champion)",
+   "y_winner (D-021 flag)"
+  ],
+  "universe": "m3 matrix rows (candidate grain, v3 roster) with era in ['E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8']; the m3 holdout guard (d8 < 20250701) is inherited at load"
+ },
+ "params_hash": "08840d4ec0c7174cdc8def968f4200421ebe41b24598656384ba12f7d287fbc9",
+ "pooled_shuffled": {
+  "capture_day": -0.03293846831756038,
+  "capture_oracle": -0.03736939778652352,
+  "cd_hi": -0.019840817294854207,
+  "cd_lo": -0.04603611934026655,
+  "co_hi": -0.022495873927863688,
+  "co_lo": -0.05224292164518335,
+  "n_sessions": 2320,
+  "ps_hi": -66.69937125272887,
+  "ps_lo": -154.41269771278823,
+  "usd_per_session": -110.55603448275855
+ },
+ "probes": [
+  [
+   "duplicate_day",
+   "REFUSED",
+   "PASS",
+   "DUPLICATE-DAY LEAK [PROBE]: 1 day(s) appear in BOTH the training and the evaluation block (first 5: [20220103])"
+  ],
+  [
+   "duplicate_day_clean_fold",
+   "ACCEPTED",
+   "PASS",
+   ""
+  ],
+  [
+   "non_causal_era",
+   "REFUSED",
+   "PASS",
+   "NON-CAUSAL FOLD [PROBE]: max train era 5 >= min eval era 5"
+  ],
+  [
+   "tensor_causality",
+   "0/1278601 valid cells at or after the decision second",
+   "PASS",
+   "channel 19 = log1p(seconds to decision) > 0 on every valid cell"
+  ]
+ ],
+ "spec_sha": "4bdf772927b5f316916e63c10f9a59f23e51f2ad13b54e6021cc02a42398838d",
+ "stage": "CONTROL_RED_FIRST"
+}

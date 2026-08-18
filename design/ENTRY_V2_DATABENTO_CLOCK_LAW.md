@@ -1,13 +1,5 @@
 # Entry V2 Databento Clock and Book-State Law
 
-> **Frozen substrate law; not a learned result.** The QRE2/Databento substrate,
-> teacher, and candidate preflights produced useful retained evidence, and the
-> v9 durable warm corpus completed in 518.133 seconds with zero physical source
-> opens/fills. The replacement learner nevertheless never began: v9 failed at
-> raw fidelity before C0. Execution is stopped and 2025H2 remains sealed. See
-> [`../docs/ENTRY_V2_CURRENT_STATUS.md`](../docs/ENTRY_V2_CURRENT_STATUS.md)
-> for the current boundary and exact attempt ledger.
-
 ## Status and authority
 
 This is the frozen implementation law for the Entry V2 raw-event substrate. It

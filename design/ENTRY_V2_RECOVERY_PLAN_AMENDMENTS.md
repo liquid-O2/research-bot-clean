@@ -535,3 +535,15 @@ pass and the one real fit-only rehearsal. They add no new user law.
    `RAW_ROUTE_FIELDS` order remains the binding law for existing durable
    planes (reused under A-017 identity checks); the source builder is fixed so
    future materializations are lawful at the source.
+
+8. **Competence-gate population (2026-08-18, measured collision).** The
+   A-012/A-013 balanced-competence quota (≥32 positives and ≥32 matched
+   negatives per asset) is certified by the one-load preflight on the FULL
+   fit-only competence window (measured support HG 79 / NKD 60 / SI 41) and is
+   unsatisfiable on the train-minus-validation slice for SI. The gates
+   therefore source their populations from the full fit-only competence
+   window — the exact population the preflight receipt certifies. Clone/readout
+   semantics: competence gates certify fitting capacity of the base-trained
+   arm on its supervised window; they never feed the arm's own early stopping,
+   so validation-day rows in the gate population warm-start nothing. Quota
+   thresholds are unchanged.

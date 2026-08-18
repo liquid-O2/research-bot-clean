@@ -7386,12 +7386,14 @@ class ProductionExactDiagnosticResources:
             local = [k for k in range(count) if offset + k in wanted]
             if local:
                 bucket = per_asset.setdefault(batch.asset, {
-                    "raw": [], "cand": [], "ctxv": [], "ctxt": [], "ctxb": [],
-                    "static": [], "target": []})
+                    "raw": [], "cand": [], "ctxv": [], "ctxt": None,
+                    "ctxb": [], "static": [], "target": []})
                 sel = torch.as_tensor(local, dtype=torch.long)
                 bucket["cand"].append(batch.candidate_features[sel])
                 bucket["ctxv"].append(batch.context_values[sel])
-                bucket["ctxt"].append(batch.context_type_ids[sel])
+                # context_type_ids is a 1-D per-asset SERIES roster (the
+                # model expands it per row) -- never row-indexed.
+                bucket["ctxt"] = batch.context_type_ids
                 bucket["ctxb"].append(batch.context_valid[sel])
                 bucket["static"].append(batch.static_features[sel])
                 for k in local:
@@ -7409,7 +7411,7 @@ class ProductionExactDiagnosticResources:
                 "raw": raw,
                 "cand": torch.cat(bucket["cand"]).to(self.device),
                 "ctx_v": torch.cat(bucket["ctxv"]).to(self.device),
-                "ctx_t": torch.cat(bucket["ctxt"]).to(self.device),
+                "ctx_t": bucket["ctxt"].to(self.device),
                 "ctx_b": torch.cat(bucket["ctxb"]).to(self.device),
                 "static": (None if bypass_static or arm not in ("L1", "M1")
                            else torch.cat(bucket["static"]).to(self.device)),

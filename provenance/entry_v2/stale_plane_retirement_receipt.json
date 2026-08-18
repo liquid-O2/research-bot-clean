@@ -1,0 +1,8 @@
+{
+ "schema": "entry-v2-stale-plane-retirement-receipt-v1",
+ "manifest_sha256": "d383710c36ae0d8cdc1cb46438a0591498ae4311ffe0cf8777cb87fdaf8f1b43",
+ "deleted_files": 472,
+ "deleted_bytes": 48604463649,
+ "remaining_entries": 0,
+ "completed_utc": "2026-08-18T15:21:50Z"
+}

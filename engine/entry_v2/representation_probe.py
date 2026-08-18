@@ -875,13 +875,49 @@ def fast_threshold_sweep(arrivals: Sequence[ScoredArrival], probability: np.ndar
         daily_admissions, daily_cumulative, days_with_trades)
 
 
+def _parity_row_variants(
+    arrivals: Sequence[ScoredArrival], probability: np.ndarray,
+) -> tuple[tuple[ScoredArrival, ScoredArrival], ...]:
+    """Build the two threshold-independent parity rows for every arrival.
+
+    ``_canonical_threshold_eval`` rebuilds one validated ``EntryScore``
+    dataclass per arrival for EVERY sampled threshold.  Only ``enter``
+    depends on the threshold, so an exhaustive sweep of ``T`` thresholds
+    over ``N`` rows constructed ``T * N`` dataclasses where ``2 * N``
+    distinct objects exist.  The pair below is that exact object set; the
+    caller selects by ``probability >= threshold`` and therefore replays
+    byte-identical rows.
+    """
+    variants = []
+    for i, row in enumerate(arrivals):
+        value = float(probability[i])
+        rejected = replace(
+            row.score, model_hash="probe-sweep-parity", priority_score=value,
+            take_probability=value, enter=False,
+        )
+        variants.append((
+            ScoredArrival(row.example, rejected, row.outcome),
+            ScoredArrival(row.example, replace(rejected, enter=True), row.outcome),
+        ))
+    return tuple(variants)
+
+
+def _canonical_threshold_eval_variants(
+    variants: Sequence[tuple[ScoredArrival, ScoredArrival]],
+    entered: np.ndarray, sessions: Sequence[SessionRef],
+):
+    scored = tuple(pair[1] if taken else pair[0]
+                   for pair, taken in zip(variants, entered.tolist()))
+    return replay(scored, expected_sessions=sessions)
+
+
 def _canonical_threshold_eval(arrivals: Sequence[ScoredArrival], probability: np.ndarray,
                               threshold: float, sessions: Sequence[SessionRef]):
-    scored = tuple(ScoredArrival(row.example, replace(
-        row.score, model_hash="probe-sweep-parity", priority_score=float(probability[i]),
-        take_probability=float(probability[i]), enter=float(probability[i]) >= threshold
-    ), row.outcome) for i, row in enumerate(arrivals))
-    return replay(scored, expected_sessions=sessions)
+    values = np.asarray(probability, np.float64)
+    return _canonical_threshold_eval_variants(
+        _parity_row_variants(arrivals, values), values >= float(threshold),
+        sessions,
+    )
 
 
 def assert_fast_sweep_parity(arrivals: Sequence[ScoredArrival], probability: np.ndarray,
@@ -890,10 +926,14 @@ def assert_fast_sweep_parity(arrivals: Sequence[ScoredArrival], probability: np.
     indices = np.unique(np.linspace(0, len(sweep.thresholds) - 1,
                                     min(samples, len(sweep.thresholds)), dtype=int))
     evidence = []
+    values = np.asarray(probability, np.float64)
+    variants = _parity_row_variants(arrivals, values)
+    row_days = np.asarray([row.example.trading_day for row in arrivals], np.int64)
+    eligible_days = np.asarray(sweep.eligible_days, np.int64)
+    day_rows = eligible_days[:, None] == row_days[None, :]
     for i in indices:
-        result = _canonical_threshold_eval(
-            arrivals, probability, float(sweep.thresholds[i]), sessions
-        )
+        entered = values >= float(sweep.thresholds[i])
+        result = _canonical_threshold_eval_variants(variants, entered, sessions)
         observed = (result.trades, result.total_pnl_usd, result.usd_per_trade,
                     result.usd_per_asset_day, result.max_drawdown_usd,
                     result.drawdown_p90_usd,
@@ -910,11 +950,8 @@ def assert_fast_sweep_parity(arrivals: Sequence[ScoredArrival], probability: np.
             raise C.EntryV2Refusal(
                 f"fast threshold daily trades differ from replay at {i}")
         daily_pnl = tuple(float(row.pnl_usd) for row in result.asset_day_results)
-        daily_admissions = tuple(sum(
-            row.example.trading_day == day
-            and float(probability[index]) >= float(sweep.thresholds[i])
-            for index, row in enumerate(arrivals)
-        ) for day in sweep.eligible_days)
+        daily_admissions = tuple(
+            int(value) for value in (day_rows & entered[None, :]).sum(1))
         if (daily_admissions != tuple(int(value) for value in
                                       sweep.daily_admissions[i])
                 or any(not math.isclose(a, b, rel_tol=0.0, abs_tol=1e-9)

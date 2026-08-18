@@ -116,8 +116,9 @@ from .representation_probe import (
     depth_funnel, fast_threshold_sweep, transport_receipt,
 )
 from .atlas_statistics import (
-    PairedObservationRecord, hierarchical_holm, nonredundant_finalists,
-    paired_day_cluster_records, romano_wolf_lower_bounds,
+    PairedClusterResult, PairedObservationRecord, hierarchical_holm,
+    nonredundant_finalists, paired_day_cluster_records,
+    romano_wolf_lower_bounds,
 )
 from .session_stream import SessionArrayCache
 from .train import (
@@ -9752,6 +9753,25 @@ class ProductionExactDiagnosticResources:
         self._prophet_controls[chronology] = control
         return MappingProxyType(control)
 
+    def _degenerate_screen_path_result(self, token: str, message: str,
+                                       artifact_name: str):
+        """Ruling 14: a degenerate calibrator on an objective-SCREEN or
+        diagnostic path is the registered TYPED PATH STATUS (a null control
+        being null is its job), never a chain abort. Registers a status
+        payload so the M8 census stays exactly balanced; evaluation is None
+        (screen consumers read only status/receipt/detail)."""
+        body = {"schema": "entry-v2-degenerate-screen-path-v1",
+                "status": token, "message": str(message)[:500],
+                "artifact": str(artifact_name)}
+        receipt = _sha(body)
+        payload_name = f"M8/paths/{artifact_name}/degenerate-status.json"
+        self._m8_payloads[payload_name] = _canonical_json_bytes(body)
+        self._m8_path_payloads[str(artifact_name)] = [payload_name]
+        detail = {"status": token, "degenerate": True,
+                  "message": body["message"], "diagnostic_only": True,
+                  "path_receipt_sha256": receipt}
+        return None, token, receipt, detail
+
     def _rehearsal_score_path(self, score: np.ndarray, *, ids: np.ndarray,
                               assets: np.ndarray, days: np.ndarray,
                               recipient: np.ndarray, chronology: str,
@@ -9802,9 +9822,18 @@ class ProductionExactDiagnosticResources:
         supervised_fit = fit & recipient
         weights, weight_receipt = action_fit_weights(
             assets, days, action, recipient, supervised_fit)
-        mapper = FrozenLogisticBindingMapper().fit(
-            features, action, supervised_fit, ids, sample_weight=weights,
-            weight_receipt_sha256=weight_receipt.receipt_sha256)
+        from .atlas_probe_model import AtlasProbeRefusal as _MapperRefusal
+        try:
+            mapper = FrozenLogisticBindingMapper().fit(
+                features, action, supervised_fit, ids, sample_weight=weights,
+                weight_receipt_sha256=weight_receipt.receipt_sha256)
+        except _MapperRefusal as error:
+            # Typed-refusal law: every failure at this production boundary must
+            # be a RealDiagnosticExecutorRefusal.  A bare AtlasProbeRefusal
+            # escaping here is attributed to an unknown layer by
+            # ``_failure_layer`` instead of to the mapper stage.
+            raise RealDiagnosticExecutorRefusal(
+                f"{chronology} rehearsal mapper fit refused: {error}") from error
         supervised_platt = platt & recipient
         # Cross-lane item 27: the Platt stage now raises a TYPED
         # DEGENERATE_CALIBRATOR refusal instead of publishing a flat calibrator.
@@ -9818,8 +9847,22 @@ class ProductionExactDiagnosticResources:
                 ids[supervised_platt], threshold_selection_ids=ids[threshold])
         except AtlasProbeRefusal as error:
             token = str(error).split(":", 1)[0]
+            # Ruling 14 (2026-08-19): degeneracy is a HARD implementation
+            # refusal only where the funnel's health is the claim under test —
+            # the PROPHET positive control and the G7 arm/head learner paths.
+            # On the E1r objective-SCREEN paths (real + twin probes) and the
+            # diagnostic paths, a degenerate calibrator is the TYPED PATH
+            # STATUS the enum registers: a null control being null is its job,
+            # never a chain abort (measured: null scores refuse 25/60 draws).
+            screen_path = ("/objectives/" in str(artifact_name)
+                           or "/RAWSUMMARY/" in str(artifact_name))
+            if token in REHEARSAL_PATH_IMPLEMENTATION_REFUSALS and screen_path:
+                return _degenerate_screen_path_result(
+                    token, str(error), artifact_name)
             if token not in REHEARSAL_PATH_IMPLEMENTATION_REFUSALS:
-                raise
+                raise RealDiagnosticExecutorRefusal(
+                    f"{chronology} rehearsal calibration refused: {error}"
+                ) from error
             raise RealDiagnosticExecutorRefusal(
                 f"{chronology} rehearsal path status {token}: {error}") from error
         probability, _ = mapper.predict(features)
@@ -11022,7 +11065,25 @@ class ProductionExactDiagnosticResources:
                 raise RealDiagnosticExecutorRefusal(
                     f"E1r objective {probe.probe_id} produced no paired "
                     "asset-day loss observation")
-            test = paired_day_cluster_records(records)
+            # Ruling 15 (2026-08-19): an objective whose loss was typed-
+            # UNAVAILABLE across every batch of one asset cannot bind all
+            # three assets — that is the UNAVAILABLE_LOW_SUPPORT typed state
+            # for the probe (the S3 law), never an untyped screen abort.
+            record_assets = tuple(sorted({row.asset for row in records}))
+            if record_assets != ("HG", "NKD", "SI"):
+                from .atlas_statistics import PairedTestState as _PTS
+                test = PairedClusterResult(
+                    mean_difference=float("nan"),
+                    standard_error=float("nan"), t_statistic=None,
+                    p_value_one_sided=None, n_rows=len(records),
+                    n_day_clusters=len({(r.asset, r.day) for r in records}),
+                    receipt_sha256=_sha({
+                        "schema": "entry-v2-ruling15-partial-assets-v1",
+                        "probe": probe.probe_id,
+                        "assets_present": list(record_assets)}),
+                    state=_PTS.UNAVAILABLE_LOW_SUPPORT)
+            else:
+                test = paired_day_cluster_records(records)
             fingerprints[probe.probe_id] = _probe_fingerprint(
                 target, np.isin(np.arange(len(ids)), fit_idx), recipient)
             ledger[probe.probe_id] = {"status": "MATERIALIZED",

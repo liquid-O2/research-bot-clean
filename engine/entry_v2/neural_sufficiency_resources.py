@@ -841,7 +841,11 @@ def _actual_multitask_loss(output: Any, batch: "_CandidateBatch",
     weights = {"action": 1.0, "ordinal": 1.0, "value_distribution": 1.0,
                "value_quantiles": .5, "expected_value": 1.0, "top3": .5,
                "rank": .35, "mfe_quantiles": .5, "mae_quantiles": .5,
-               "wall": .5, "time_to_peak": .25, "horizons": .25, "phase": .25}
+               "wall": .5, "time_to_peak": .25,
+               # Ruling 9: the six-horizon dense economic path is a PRIMARY
+               # representation signal (the whole point of A-015 after the
+               # §8.4 horizon-starvation diagnosis), not a .25 auxiliary.
+               "horizons": 1.0, "phase": .25}
     return sum(weights[name] * value for name, value in components.items()), \
         MappingProxyType(components)
 

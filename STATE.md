@@ -34,8 +34,11 @@ campaign to the goal. No review→fix loops (D-001/AGENTS.md). 2025H2 remains se
   v5, v8, v9). v9: warm corpus 8m38 + one_load PASS, raw_fidelity refusal (236/235).
 - Fix exists at `neural_sufficiency_resources.py:4389` — NOT production-verified (Lane
   A probe is doing exactly that).
-- Oracle supports the goal at era grain: per-year deployable ceilings all >$2,000
-  every asset-year (HG 2,136-3,490 / NKD 2,420-4,068 / SI 2,532-4,399 $/asset-day).
+- Hindsight oracle headroom at era grain: per-year deployable-ceiling values exceed
+  $2,000 on every asset-year (HG 2,136-3,490 / NKD 2,420-4,068 / SI 2,532-4,399
+  $/asset-day). These are hindsight candidate-schedule ceilings, not deployable
+  dollars; sub-period blocks dip below $2,000 (see ledger §6.1/§6.2) and use the
+  typed A-005 floors. No learned result exists yet.
 - E2r calendar: A-019 dates control (code matches; fix pass records the resolution).
 - Env: torch 2.8.0+cu128 OK, catboost 1.2.10, xgboost ABSENT (must not be imported),
   GPU idle, 845G RAM free, durable store warm (236/411/577).

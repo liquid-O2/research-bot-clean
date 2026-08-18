@@ -82,7 +82,10 @@ line live in `provenance/sessions/JOURNAL.md`
   narrow nulls cleared, wide nulls 2/4). ~3–5% of the goal.
 - **Measured ceilings that survive all audits**: causal oracle $2,021–3,360/session；
   mid-hold management ceiling $2,153–3,122 (hindsight); entry-time information repeatedly
-  measures out near ~$100/session across every formulation tried.
+  measures out near ~$100/session across every formulation tried
+  *(scope note 2026-08-18: withdrawn as a general ceiling by D-094 — these were
+  short-window/quantized/pooled formulations; lower bounds only, historical
+  record, not Entry V2 authority)*.
 
 ## 2. What I (the orchestrator) did wrong — process failures, owned
 

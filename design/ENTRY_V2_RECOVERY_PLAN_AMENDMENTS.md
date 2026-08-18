@@ -486,3 +486,52 @@ auditability; these amendments take precedence wherever they conflict.
   inventory covers the fit-only boundary and every reload receipt.  The source
   manifest includes this amendments file, `AGENTS.md`, all governing authority
   files and every non-test Entry V2 production Python module.
+
+## Post-audit execution rulings — 2026-08-18 (orchestrator; documented before execution per plan §5)
+
+These are execution rulings under the frozen law above, recorded after the
+one consolidated closure audit (commit `2e0c33f`) and before the single fix
+pass and the one real fit-only rehearsal. They add no new user law.
+
+1. **E2r calendar.** A-019's fit-only chronology supersedes A-016's earlier
+   E2r PLATT/THRESHOLD dates (A-019 declares itself the one centrally defined
+   law): PLATT 2021-08-16..2021-08-25, THRESHOLD 2021-08-26..2021-09-20. The
+   code and the v9/probe receipts conform to A-019.
+2. **Two named ceiling objects (measurement-corrected 2026-08-18).** Receipts
+   carry both: the **exact offer ceiling** (every CLEAR+READY candidate with
+   positive value; the native `DEPLOYABLE_...` law) as a reference column, and
+   the **goal-grade ceiling** (candidates ≥ $600). The A-020 80%-recovery
+   denominator and the capacity-regime source are the **goal-grade ceiling**,
+   with each receipt stating its admission law explicitly. Basis, measured on
+   the committed G1 teacher artifacts over all twelve E1r/E2r asset×block
+   cells: a perfect-knowledge one-threshold arrival policy captures only
+   60.2–78.6% of the exact ceiling at the lawful $600 threshold (best
+   unlawful threshold 72.9–85.3%), so an 80%-of-exact gate is unattainable
+   even by a prophet; against the goal-grade ceiling the same prophet
+   captures 81.9–90.8%, so 80% is attainable and demanding (the learner must
+   bank ≈88–95% of prophet dollars). The original audit defect was the
+   filter being undocumented and silently driving the floors; the fix is
+   explicit naming, dual receipts, and the prophet-through-funnel control
+   enforcing ≥80%-of-goal-grade as the funnel-health bar.
+3. **Timing targets.** After three measured warm corpus loads (518.1s, 583.1s,
+   546.4s) on the identical durable store, the nonsemantic ceilings are set to
+   warm corpus_ready 1200s, warm first_competence 1500s, cold corpus_ready
+   3600s. Exceedance stops that invocation with a typed receipt and never
+   poisons later processes in the same run root (the A-020 restart law
+   prevails over ledger reconstruction refusals).
+4. **Drawdown law.** The per-asset chronological MDD ≤ $1,000 gate stands
+   (recovery plan §4 "per asset"). Portfolio-level chronological MDD is added
+   to feasibility receipts as a report-only column.
+5. **Raw route roster.** The model-input raw route roster is restored to the
+   full 21-field event contract with an import-time census refusal. If this
+   stales durable expanded planes, the rebuild runs as a typed COLD load;
+   avoiding the fix to preserve warm caches would be a proxy violation.
+6. **Float replay plane.** Migrating the replay/ceiling plane to end-to-end
+   integer units is deferred with a revisit hook: byte-exact Python↔C++
+   schedule parity (including selected-id sets) was measured on all three
+   assets, so the float plane is measured-safe today. The equal-value
+   tie-break is aligned to the sorted-id C++ law now.
+7. **Expanded-column order.** Consumer-side canonicalization to
+   `RAW_ROUTE_FIELDS` order remains the binding law for existing durable
+   planes (reused under A-017 identity checks); the source builder is fixed so
+   future materializations are lawful at the source.

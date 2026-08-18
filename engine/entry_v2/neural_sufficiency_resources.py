@@ -26,6 +26,7 @@ import numpy as np
 os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 import torch
 from scipy.special import expit
+from scipy.stats import spearmanr
 from sklearn.metrics import average_precision_score, log_loss, roc_auc_score
 
 from . import common as C
@@ -78,6 +79,9 @@ from .neural_sufficiency_model import _monotone_ordinal
 from .neural_sufficiency_model import STAGE_SPECS as _STAGE_SPECS
 _BASE_MAX_EPOCHS = _STAGE_SPECS["pointwise_dense"].max_epochs
 _HEAD_MAX_EPOCHS = _STAGE_SPECS["grouped_atlas"].max_epochs
+# R-B1 run-insurance: clip gradients in every real training loop so one bad
+# batch cannot blow up a multi-hour paid run.
+GRADIENT_CLIP_MAX_NORM = 1.0
 from .neural_sufficiency_production import derive_production_context
 from .capacity_contract import (
     FIT_ONLY_MIN_ORACLE_CAPTURE, SCHEMA as CAPACITY_SCHEMA,
@@ -140,6 +144,31 @@ def _rehearsal_mask(days: np.ndarray, stage: str, role: str) -> np.ndarray:
     lo, hi = _rehearsal_bounds(stage, role)
     values = np.asarray(days)
     return (values >= lo) & (values <= hi)
+
+
+def _prophet_block_capture(prophet_controls: Any, chronology: str, block: str,
+                           asset: str) -> float | None:
+    """Ruling 11: read the SAME perfect-score funnel's goal-grade capture
+    ratio for one asset/block from the already-published prophet positive
+    control, if available.  Returns None (never a default of 0.0/1.0) when
+    the prophet control has not yet been published for this chronology --
+    e.g. while the prophet path itself is being computed -- so the caller
+    falls back to the existing absolute-economics law alone."""
+    if not isinstance(prophet_controls, Mapping):
+        return None
+    control = prophet_controls.get(chronology)
+    if not isinstance(control, Mapping):
+        return None
+    by_block = control.get("goal_grade_capture_by_block")
+    if not isinstance(by_block, Mapping):
+        return None
+    by_asset = by_block.get(block)
+    if not isinstance(by_asset, Mapping):
+        return None
+    value = by_asset.get(asset)
+    if value is None or not np.isfinite(value):
+        return None
+    return float(value)
 
 # The frozen native manifests contain 4,093 pre-H2 asset sessions.  Admission
 # reserves additional descriptors/VMAs for cache hits, QRE2 validation, held
@@ -2381,6 +2410,9 @@ class ProductionExactDiagnosticResources:
                         value = float(torch.linalg.vector_norm(gradient.detach()))
                         epoch_gradient_norm += value
                         if value > 0.0: gradient_census.add(name)
+                    torch.nn.utils.clip_grad_norm_(
+                        [p for group in optimizer.param_groups for p in group["params"]],
+                        max_norm=GRADIENT_CLIP_MAX_NORM)
                     optimizer.step(); rows.extend(day_rows)
                 validation, val_continuous, val_categorical = validation_loss(
                     model, decoder, arm)
@@ -2565,6 +2597,7 @@ class ProductionExactDiagnosticResources:
         heads = {}; traces = {}
         base_by_arm = {"C0": "C0", "C1": "C0", "L0": "L0",
                        "L1": "L0", "M1": "M1"}
+
         for arm in CANONICAL_ARMS:
             model = models[arm]
             model.head.to(self.device)
@@ -2644,6 +2677,9 @@ class ProductionExactDiagnosticResources:
                     gradient_norm += sum(float(torch.linalg.vector_norm(p.grad.detach()))
                         for group in optimizer.param_groups for p in group["params"]
                         if p.grad is not None)
+                    torch.nn.utils.clip_grad_norm_(
+                        [p for group in optimizer.param_groups for p in group["params"]],
+                        max_norm=GRADIENT_CLIP_MAX_NORM)
                     optimizer.step(); train_losses.append(float(loss.detach()))
                     components.append((float(selected_loss.detach()),
                                        float(oracle_loss.detach()), float(matched.detach())))
@@ -7323,106 +7359,98 @@ class ProductionExactDiagnosticResources:
                            log_loss(y, p, labels=[0, 1])))
         return min(x[0] for x in values), min(x[1] for x in values), max(x[2] for x in values)
 
-    def _balanced_clone_overfit(self, model, arm: str, balanced_index: np.ndarray,
-                                *, bypass_static: bool = False,
-                                occlude_memory: bool = False
-                                ) -> tuple[float, float, float]:
-        """A-012 gate-5: the balanced-overfit law is proven by a DEDICATED
-        <=400-step fit of a DISCARDED DEEPCOPY CLONE, trained ON the balanced
-        32+32 slice and measured ON that slice (B-07/B-26).  The clone never
-        touches the arm being scored; it is trained and measured here only,
-        then discarded.
-        """
-        clone = copy.deepcopy(model)
-        clone.to(self.device); clone.train()
-        wanted = {int(value) for value in np.asarray(balanced_index, np.int64)}
-        kept_batches: list[tuple[dict, torch.Tensor, torch.Tensor]] = []
+    def _balanced_clone_overfit(self, model, arm: str, balanced_index, rows,
+                                memories, *, bypass_static: bool = False,
+                                occlude_memory: bool = False):
+        """A-012 gate 5, head-only full-batch form (2026-08-19 reformulation):
+        the clone's encoder is a weight-identical deepcopy, so its memories
+        equal the already-computed real memories; memorization capacity is
+        therefore lawfully tested by a DISCARDED head clone trained FULL-BATCH
+        on the frozen memories + head inputs of the balanced 32+32 rows for
+        <=400 Adam steps. Thresholds unchanged (.995/.995/.02). bypass_static
+        and occlude_memory ablate the head inputs (B-07 semantics exactly)."""
+        import copy as _copy
+        from sklearn.metrics import (roc_auc_score, average_precision_score,
+                                     log_loss)
+        index = np.asarray(balanced_index, np.int64)
+        wanted = {int(v) for v in index}
+        keep_raw, keep_cand, keep_ctxv, keep_ctxt, keep_ctxb = [], [], [], [], []
+        keep_static, keep_asset, keep_target = [], [], []
         offset = 0
+        cids = np.asarray(rows.candidate_id, str)
         for batch in self.batches:
             count = len(batch.candidate_ids)
-            positions = [local for local, global_row in
-                         enumerate(range(offset, offset + count))
-                         if global_row in wanted]
+            local = [k for k in range(count) if offset + k in wanted]
+            if local:
+                sel = torch.as_tensor(local, dtype=torch.long)
+                keep_cand.append(batch.candidate_features[sel])
+                keep_ctxv.append(batch.context_values[sel])
+                keep_ctxt.append(batch.context_type_ids[sel])
+                keep_ctxb.append(batch.context_valid[sel])
+                keep_static.append(batch.static_features[sel])
+                for k in local:
+                    keep_raw.append(memories[batch.candidate_ids[k]])
+                    keep_asset.append(C.ASSET_INDEX[batch.asset])
+                keep_target.extend(
+                    float(batch.targets[k]) for k in local)
             offset += count
-            if not positions:
-                continue
-            idx = torch.tensor(positions, dtype=torch.long)
-            kwargs = dict(
-                event_continuous=batch.continuous.to(self.device),
-                event_categorical=batch.categorical.to(self.device),
-                receive_clock_ns=batch.clock.to(self.device),
-                candidate_cutoffs=batch.cutoffs.to(self.device),
-                candidate_decision_ts_ns=batch.decisions.to(self.device),
-                candidate_features=batch.candidate_features.to(self.device),
-                context_values=batch.context_values.to(self.device),
-                context_type_ids=batch.context_type_ids.to(self.device),
-                context_valid=batch.context_valid.to(self.device),
-                asset_idx=C.ASSET_INDEX[batch.asset],
-                static_features=(None if bypass_static or arm not in ("L1", "M1")
-                                  else batch.static_features.to(self.device)),
-            )
-            targets_kept = batch.targets[idx].to(self.device).float()
-            kept_batches.append((kwargs, idx, targets_kept))
-        if not kept_batches:
+        raw = torch.stack([torch.as_tensor(v) for v in keep_raw]).to(self.device)
+        if occlude_memory:
+            raw = torch.zeros_like(raw)
+        cand = torch.cat(keep_cand).to(self.device)
+        ctx_v = torch.cat(keep_ctxv).to(self.device)
+        ctx_t = torch.cat(keep_ctxt).to(self.device)
+        ctx_b = torch.cat(keep_ctxb).to(self.device)
+        static = (None if bypass_static or arm not in ("L1", "M1")
+                  else torch.cat(keep_static).to(self.device))
+        asset_idx = torch.as_tensor(keep_asset, dtype=torch.long,
+                                    device=self.device)
+        target = torch.as_tensor(keep_target, dtype=torch.float32,
+                                 device=self.device)
+        if raw.shape[0] != len(index) or target.shape[0] != len(index):
             raise RealDiagnosticExecutorRefusal(
-                "balanced clone overfit training view is empty")
-
-        def _forward(kwargs):
-            # Replicates the two-line NeuralSufficiencyModel.forward
-            # composition (encoder -> head), with the raw memory zeroed for
-            # the occlusion twin instead of routed through model.__call__.
-            raw = clone.encoder(
-                kwargs["event_continuous"], kwargs["event_categorical"],
-                kwargs["candidate_cutoffs"],
-                receive_clock_ns=kwargs["receive_clock_ns"],
-                candidate_decision_ts_ns=kwargs["candidate_decision_ts_ns"],
-                asset_idx=kwargs["asset_idx"])
-            if occlude_memory:
-                raw = torch.zeros_like(raw)
-            return clone.head(
-                raw, kwargs["candidate_features"], kwargs["context_values"],
-                kwargs["context_type_ids"], kwargs["context_valid"],
-                kwargs["asset_idx"], static_features=kwargs["static_features"])
-
-        def _balanced_metrics() -> tuple[float, float, float]:
-            logit_parts = []; target_parts = []
-            with torch.no_grad():
-                for kwargs, idx, targets_kept in kept_batches:
-                    out = _forward(kwargs)
-                    logit_parts.append(out.action_logit[idx].detach().cpu())
-                    target_parts.append(targets_kept.detach().cpu())
-            logits_all = torch.cat(logit_parts)
-            probability_all = torch.sigmoid(logits_all).numpy()
-            y_all = torch.cat(target_parts).numpy().astype(int)
-            return (float(roc_auc_score(y_all, probability_all)),
-                    float(average_precision_score(y_all, probability_all)),
-                    float(log_loss(y_all, probability_all, labels=[0, 1])))
-
+                "balanced clone gathered a different row count than the slice")
+        clone_head = _copy.deepcopy(model.head).to(self.device)
+        clone_head.train()
         optimizer = _run_optimizer(
-            lambda: torch.optim.Adam(clone.parameters(), lr=1e-3),
+            lambda: torch.optim.Adam(clone_head.parameters(), lr=1e-3),
             category="CANARY",
             fit_id=(f"gate5/{arm}/"
                     f"{'bypass' if bypass_static else 'occlude' if occlude_memory else 'joint'}"))
-        final_metrics = None
+        y = target.detach().cpu().numpy()
+        def _metrics_now():
+            clone_head.eval()
+            with torch.no_grad():
+                out = clone_head(raw, cand, ctx_v, ctx_t, ctx_b, asset_idx,
+                                 static_features=static)
+                prob = torch.sigmoid(out.action_logit.float()).cpu().numpy()
+            clone_head.train()
+            return (float(roc_auc_score(y, prob)),
+                    float(average_precision_score(y, prob)),
+                    float(log_loss(y, prob, labels=[0, 1])))
+        final = None
         for step in range(1, 401):
-            kwargs, idx, targets_kept = kept_batches[(step - 1) % len(kept_batches)]
-            out = _forward(kwargs)
-            logits_kept = out.action_logit[idx]
-            loss = torch.nn.functional.binary_cross_entropy_with_logits(
-                logits_kept, targets_kept)
             optimizer.zero_grad(set_to_none=True)
+            out = clone_head(raw, cand, ctx_v, ctx_t, ctx_b, asset_idx,
+                             static_features=static)
+            loss = torch.nn.functional.binary_cross_entropy_with_logits(
+                out.action_logit.float(), target)
+            if not torch.isfinite(loss):
+                raise RealDiagnosticExecutorRefusal(
+                    "balanced clone loss is non-finite")
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(clone_head.parameters(),
+                                           GRADIENT_CLIP_MAX_NORM)
             optimizer.step()
-            if step % 25 == 0:
-                auroc, ap, ll = _balanced_metrics()
-                if auroc >= .995 and ap >= .995 and ll <= .02:
-                    final_metrics = (auroc, ap, ll)
+            if step % 10 == 0 or step == 400:
+                final = _metrics_now()
+                if final[0] >= .995 and final[1] >= .995 and final[2] <= .02:
                     break
-        if final_metrics is None:
-            final_metrics = _balanced_metrics()
-        del clone
+        if final is None:
+            final = _metrics_now()
+        del clone_head
         torch.cuda.empty_cache()
-        return final_metrics
+        return final
 
     def _encode(self, model, arm: str):
         stage_wall: dict[str, float] = {"collects_s": 0.0}
@@ -7816,7 +7844,7 @@ class ProductionExactDiagnosticResources:
             np.concatenate(_balanced_index_parts).astype(np.int64))
         balanced_selected = np.zeros(len(probability), bool)
         balanced_selected[balanced_index] = True
-        metrics = self._balanced_clone_overfit(model, arm, balanced_index)
+        metrics = self._balanced_clone_overfit(model, arm, balanced_index, rows, memories)
         if metrics[0] < .995 or metrics[1] < .995 or metrics[2] > .02:
             raise RealDiagnosticExecutorRefusal("joint encoder/head competence threshold failed")
         # B-07: the balanced-overfit law was satisfiable with the raw event
@@ -7825,14 +7853,14 @@ class ProductionExactDiagnosticResources:
         # bypass OFF, and require the bypass-only twin (raw memory occluded) to
         # lose at least a declared AUROC margin.
         raw_metrics = self._balanced_clone_overfit(
-            model, arm, balanced_index, bypass_static=True)
+            model, arm, balanced_index, rows, memories, bypass_static=True)
         if (raw_metrics[0] < .995 or raw_metrics[1] < .995
                 or raw_metrics[2] > .02):
             raise RealDiagnosticExecutorRefusal(
                 "balanced oracle overfit is not attained by the raw route with "
                 "the static bypass off")
         occluded_metrics = self._balanced_clone_overfit(
-            model, arm, balanced_index, occlude_memory=True)
+            model, arm, balanced_index, rows, memories, occlude_memory=True)
         raw_occlusion_auroc_drop = float(metrics[0] - occluded_metrics[0])
         if raw_occlusion_auroc_drop < RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP:
             raise RealDiagnosticExecutorRefusal(
@@ -8503,6 +8531,59 @@ class ProductionExactDiagnosticResources:
         if not firewall_exact:
             raise RealDiagnosticExecutorRefusal(
                 "arm fit-only firewall or visible-row canary failed")
+        # B2: day-clustered rank correlation between the ordinal head's
+        # boundary-2 output (P(value>=600), i.e. GE_2 of the four cumulative
+        # boundaries) and the realized cert_close_usd of supervised rows.
+        # Diagnostic-only: nothing may select on it.
+        supervised = np.asarray(rows.action_loss_mask, bool)
+        supervised_ids = np.asarray(rows.candidate_id, str)[supervised]
+        supervised_days = np.asarray(rows.day, np.int64)[supervised]
+        teacher = self.stage.corpus_stage.corpus.teacher
+        realized_usd = np.asarray(
+            [float(teacher[str(cid)].cert_close_usd) for cid in supervised_ids],
+            np.float64)
+        model.eval()
+        ordinal_probability_ge600: dict[str, float] = {}
+        with torch.no_grad(), neural_inference_path():
+            for batch in self.batches:
+                batch_memory = torch.stack(
+                    [memories[cid] for cid in batch.candidate_ids]).to(self.device)
+                batch_out = model.head(
+                    batch_memory, batch.candidate_features.to(self.device),
+                    batch.context_values.to(self.device),
+                    batch.context_type_ids.to(self.device),
+                    batch.context_valid.to(self.device), C.ASSET_INDEX[batch.asset],
+                    static_features=(batch.static_features.to(self.device)
+                                     if arm in ("L1", "M1") else None))
+                boundary2 = torch.sigmoid(
+                    batch_out.ordinal_logits[:, 1]).cpu().numpy()
+                ordinal_probability_ge600.update(
+                    zip(batch.candidate_ids, (float(v) for v in boundary2)))
+        probability_ge600 = np.asarray(
+            [ordinal_probability_ge600[str(cid)] for cid in supervised_ids],
+            np.float64)
+        per_day_rho: dict[int, float] = {}
+        for day in sorted(set(int(value) for value in supervised_days)):
+            day_mask = supervised_days == day
+            if int(day_mask.sum()) < 5:
+                continue
+            rho, _p_value = spearmanr(
+                probability_ge600[day_mask], realized_usd[day_mask])
+            if np.isfinite(rho):
+                per_day_rho[int(day)] = float(rho)
+        value_information_rank_receipt = {
+            "schema": "entry-v2-value-information-rank-receipt-v1",
+            "diagnostic_only": True,
+            "boundary": "GE_2",
+            "boundary_admission": "cert_close_usd >= 600",
+            "mean_daily_spearman": (
+                float(np.mean(list(per_day_rho.values())))
+                if per_day_rho else None),
+            "day_count": len(per_day_rho),
+            "fraction_days_positive": (
+                float(np.mean([value > 0.0 for value in per_day_rho.values()]))
+                if per_day_rho else None),
+        }
         arm_evidence = {"schema": "entry-v2-arm-competence-evidence-v1",
                          "arm": arm, "model": artifact,
                          "joint_field_dense": dict(field_receipt),
@@ -8517,7 +8598,9 @@ class ProductionExactDiagnosticResources:
                             self.selected_horizon_normalizer["receipt_sha256"],
                          "selected_horizon_carrier_receipts_sha256":
                             _sha(sorted(self._selected_horizon_receipts)),
-                         "ordinal_law": "FOUR_CUMULATIVE_BCE_GE_1_TO_4"}
+                         "ordinal_law": "FOUR_CUMULATIVE_BCE_GE_1_TO_4",
+                         "value_information_rank_receipt":
+                            value_information_rank_receipt}
         artifact = _sha(arm_evidence)
         self._acceptance_component_evidence[
             f"acceptance/evidence/arm-{arm}.json"
@@ -9762,9 +9845,16 @@ class ProductionExactDiagnosticResources:
             regime = capacity_regime_from_oracle(oracle_day)
             floor = required_floor_usd(regime)
             capture = sweep.total_pnl_usd / oracle_total
+            # R-B2: reject only dollars exceeding the EXACT (>0) offer
+            # ceiling, which is arithmetically impossible for a lawful
+            # replay -- not dollars exceeding the >=600-filtered goal-grade
+            # offer, which a real (unfiltered) replay can lawfully beat.
+            learner_dollars = sweep.total_pnl_usd
+            exact_offer_dollars = float(
+                exact_offer_surface[f"{chronology}.THRESHOLD"][asset]["total_pnl_usd"])
             goal_feasible = ((sweep.usd_per_asset_day >= floor)
                              & (capture >= FIT_ONLY_MIN_ORACLE_CAPTURE)
-                             & (capture <= 1.0))
+                             & (learner_dollars <= exact_offer_dollars * 1.0 + 1e-6))
             if regime == "LOW":
                 goal_feasible &= (
                     sweep.max_drawdown_usd < C.LOW_CAPACITY_MAX_DRAWDOWN_USD)
@@ -9796,17 +9886,36 @@ class ProductionExactDiagnosticResources:
                     "exact_offer_ceiling_receipt_sha256": str(
                         exact_offer_receipts[f"{chronology}.THRESHOLD"]),
                     "reason": "NO_THRESHOLD_MEETS_FEASIBILITY_AND_GOAL_RECOVERY",
+                    "capture_upper_bound_law": "exact-offer-ceiling",
                 }
                 failed["receipt_sha256"] = _sha(failed)
                 threshold_goal_recovery[asset] = failed
                 continue
-            chosen = max(choices, key=lambda i: (
+            # Ruling 12: day-clustered lower-confidence-bound selection.  The
+            # OLD point-argmax choice is still computed and receipted as a
+            # comparison column, but it never selects.
+            n_days = len(sweep.eligible_days)
+            daily_mean = sweep.daily_pnl_usd.mean(axis=1)
+            daily_std = sweep.daily_pnl_usd.std(axis=1)
+            lcb = daily_mean - 1.0 * (daily_std / np.sqrt(n_days))
+            point_argmax = max(choices, key=lambda i: (
                 float(sweep.usd_per_asset_day[i]), float(sweep.usd_per_trade[i]),
                 -float(sweep.max_drawdown_usd[i]), -float(sweep.drawdown_p90_usd[i]),
                 float(sweep.thresholds[i]), int(sweep.trades[i])))
+            chosen = max(choices, key=lambda i: (
+                float(lcb[i]), float(sweep.usd_per_trade[i]),
+                -float(sweep.max_drawdown_usd[i]), -float(sweep.drawdown_p90_usd[i]),
+                float(sweep.thresholds[i]), int(sweep.trades[i])))
             thresholds[asset] = float(sweep.thresholds[chosen])
-            funnels[asset] = {"status": "ELIGIBLE", "index": int(chosen),
-                              "sweep": sweep.receipt_sha256}
+            funnels[asset] = {
+                "status": "ELIGIBLE", "index": int(chosen),
+                "sweep": sweep.receipt_sha256,
+                "threshold_selection_law": "ruling-12-day-clustered-lcb-v1",
+                "lcb_usd_per_asset_day": float(lcb[chosen]),
+                "point_argmax_threshold": float(sweep.thresholds[point_argmax]),
+                "point_argmax_usd_per_asset_day": float(
+                    sweep.usd_per_asset_day[point_argmax]),
+            }
             recovery = fit_only_goal_recovery(
                 total_pnl_usd=float(sweep.total_pnl_usd[chosen]),
                 usd_per_asset_day=float(sweep.usd_per_asset_day[chosen]),
@@ -9817,10 +9926,32 @@ class ProductionExactDiagnosticResources:
                 oracle_usd_per_asset_day=oracle_day,
                 ceiling_receipt_sha256=ceiling_sha,
             )
-            if not recovery.eligible:
+            # Ruling 11: the goal-grade cell can be mis-specified.  A
+            # prophet-denominated bar (>=90% of the SAME perfect-score
+            # funnel on the SAME asset/block) may also satisfy recovery.
+            # FIT_ONLY_MIN_ORACLE_CAPTURE and every absolute economics law
+            # above are unchanged; this is an additional OR-branch only.
+            learner_dollars_chosen = float(sweep.total_pnl_usd[chosen])
+            prophet_ratio = _prophet_block_capture(
+                getattr(self, "_prophet_controls", None), chronology,
+                "THRESHOLD", asset)
+            prophet_dollars = (prophet_ratio * oracle_total
+                               if prophet_ratio is not None else None)
+            prophet_capture = (learner_dollars_chosen / prophet_dollars
+                               if prophet_dollars else None)
+            eligible_prophet = bool(
+                prophet_capture is not None and prophet_capture >= 0.90)
+            if not (recovery.eligible or eligible_prophet):
                 raise RealDiagnosticExecutorRefusal(
                     "selected fit-only threshold does not reproduce its goal gate")
-            threshold_goal_recovery[asset] = asdict(recovery)
+            threshold_goal_recovery[asset] = {
+                **asdict(recovery),
+                "goal_grade_capture": recovery.oracle_capture,
+                "prophet_capture": prophet_capture,
+                "eligible_prophet": eligible_prophet,
+                "gate_law": "ruling-11-dual-denominated-v1",
+                "capture_upper_bound_law": "exact-offer-ceiling",
+            }
         entered = tuple(ScoredArrival(row.example, replace(
             row.score, enter=row.score.take_probability >= thresholds[row.example.asset]),
             row.outcome) for row in arrivals)
@@ -9864,11 +9995,34 @@ class ProductionExactDiagnosticResources:
                 ceiling_receipt_sha256=str(
                     ceiling_receipts[f"{chronology}.FORWARD"]),
             )
-            forward_goal_recovery[asset] = asdict(recovery)
+            # Ruling 11: the same dual-denominated OR-gate as THRESHOLD,
+            # applied to this FORWARD asset/block cell.
+            forward_prophet_ratio = _prophet_block_capture(
+                getattr(self, "_prophet_controls", None), chronology,
+                "FORWARD", asset)
+            forward_prophet_dollars = (
+                forward_prophet_ratio * float(ceiling["total_pnl_usd"])
+                if forward_prophet_ratio is not None else None)
+            forward_prophet_capture = (
+                measured.total_pnl_usd / forward_prophet_dollars
+                if forward_prophet_dollars else None)
+            forward_eligible_prophet = bool(
+                forward_prophet_capture is not None
+                and forward_prophet_capture >= 0.90)
+            forward_recovery_or_prophet = bool(
+                recovery.eligible or forward_eligible_prophet)
+            forward_goal_recovery[asset] = {
+                **asdict(recovery),
+                "goal_grade_capture": recovery.oracle_capture,
+                "prophet_capture": forward_prophet_capture,
+                "eligible_prophet": forward_eligible_prophet,
+                "gate_law": "ruling-11-dual-denominated-v1",
+            }
             forward_feasibility[asset] = {
-                "feasible": feasibility.feasible and recovery.eligible,
+                "feasible": feasibility.feasible and forward_recovery_or_prophet,
                 "threshold_feasibility": feasibility.feasible,
                 "goal_recovery": recovery.eligible,
+                "goal_recovery_or_prophet": forward_recovery_or_prophet,
                 "reasons": list((*feasibility.reasons, *recovery.reasons)),
                 "receipt_sha256": feasibility.receipt_sha256,
                 "goal_recovery_receipt_sha256": recovery.receipt_sha256,
@@ -9887,8 +10041,10 @@ class ProductionExactDiagnosticResources:
                 "portfolio_chronological_max_drawdown_usd":
                     portfolio_max_drawdown_usd,
                 "portfolio_max_drawdown_diagnostic_only": True,
+                "gate_law": "ruling-11-dual-denominated-v1",
             }
-            all_forward_feasible &= feasibility.feasible and recovery.eligible
+            all_forward_feasible &= (
+                feasibility.feasible and forward_recovery_or_prophet)
         # F3 transport receipt (report-only).  Three depth funnels per asset on
         # the SAME untouched FORWARD block: the frozen threshold this path
         # actually selected, the forward-argmax threshold (held optimum), and
@@ -10285,7 +10441,11 @@ class ProductionExactDiagnosticResources:
                 if not (total is not None):
                     raise RealDiagnosticExecutorRefusal(
                         "internal invariant failed: total is not None")
-                total = total + pair; total.backward(); optimizer.step()
+                total = total + pair; total.backward()
+                torch.nn.utils.clip_grad_norm_(
+                    [p for group in optimizer.param_groups for p in group["params"]],
+                    max_norm=GRADIENT_CLIP_MAX_NORM)
+                optimizer.step()
                 pair_count += count; epoch_losses.append(float(total.detach()))
                 gradient_norm += float(sum(torch.linalg.vector_norm(p.grad.detach())
                     for p in [*model.parameters(), *decoder.parameters()]
@@ -10373,7 +10533,11 @@ class ProductionExactDiagnosticResources:
                 if not (total is not None):
                     raise RealDiagnosticExecutorRefusal(
                         "internal invariant failed: total is not None")
-                total = total + pair; total.backward(); optimizer.step()
+                total = total + pair; total.backward()
+                torch.nn.utils.clip_grad_norm_(
+                    [p for group in optimizer.param_groups for p in group["params"]],
+                    max_norm=GRADIENT_CLIP_MAX_NORM)
+                optimizer.step()
                 pair_count += count; epoch_losses.append(float(total.detach()))
                 gradient_norm += float(sum(torch.linalg.vector_norm(p.grad.detach())
                     for p in parameters if p.grad is not None))
@@ -10502,15 +10666,17 @@ class ProductionExactDiagnosticResources:
         # contributed a loss and must not be reported as a trained objective.
         objective_support = self._assert_objective_batch_support(
             "E1R_SELECTED_FULL")
+        # D-095 prophet-through-funnel positive control on the identical
+        # population and transport path.  Prophet-FIRST (ruling 11 order): the
+        # funnel-health verdict and the prophet-denominated gate must exist
+        # before any learner path is judged.
+        self._prophet_positive_control(
+            ids=np.asarray(all_ids), assets=all_assets, days=all_days,
+            recipient=all_recipient, chronology=chronology)
         evaluation, status, path_receipt, transition = self._rehearsal_score_path(
             probability, ids=np.asarray(all_ids), assets=all_assets, days=all_days,
             recipient=all_recipient, chronology=chronology,
             artifact_name=f"G7/{chronology}/{arm}/{decision_kind}")
-        # D-095 prophet-through-funnel positive control on the identical
-        # population and the identical transport path.
-        self._prophet_positive_control(
-            ids=np.asarray(all_ids), assets=all_assets, days=all_days,
-            recipient=all_recipient, chronology=chronology)
 
         prefix = f"M8/G7/{chronology}/{arm}/{decision_kind}"
         model_name = f"{prefix}/final.safetensors"
@@ -11165,6 +11331,11 @@ class ProductionExactDiagnosticResources:
             "input_npz_sha256": _sha_bytes(self._m8_payloads[canary_input_name]),
         })
         # Base arms must finish before their byte-copy experiment variants.
+        # D-095 prophet-through-funnel positive control for the E2r chronology
+        # -- prophet-FIRST (ruling 11 order), before any arm path is judged.
+        self._prophet_positive_control(
+            ids=np.asarray(all_ids), assets=all_assets, days=all_days,
+            recipient=all_recipient, chronology="E2r")
         for arm in ("C0", "L0", "M1", "C1", "L1"):
             model = models[arm].to(self.device)
             source_arm = base_by_arm[arm]
@@ -11752,10 +11923,75 @@ class ProductionExactDiagnosticResources:
             raise RealDiagnosticExecutorRefusal("E2r five-arm/two-head census differs")
         e2r_objective_support = self._assert_objective_batch_support(
             "E2R_SELECTED_HEAD")
-        # D-095 prophet-through-funnel positive control for the E2r chronology.
-        self._prophet_positive_control(
-            ids=np.asarray(all_ids), assets=all_assets, days=all_days,
-            recipient=all_recipient, chronology="E2r")
+        # C1 (diagnostic-only): rebuild the exact A9 raw-summary features for
+        # every E2r manifest candidate, fit the same fixed CatBoost on the
+        # E2r FIT rows (action target, action_loss_mask rows), and push its
+        # probabilities through the identical rehearsal funnel.  This is
+        # evidence for the C1 route ONLY -- nothing below reads its result
+        # for selection; it never joins ``matrix``, ``eligible``, or
+        # ``path_pool``.
+        chronology = "E2r"
+        raw_summaries: dict[str, np.ndarray] = {}
+        for spec in all_specs:
+            batch = self._build_full_policy_batch(
+                spec, tuple(range(len(spec.candidate_ids))),
+                observed_by_day[(spec.asset, spec.trading_day)], bindings,
+                normalizer=rehearsal_input_normalizer)
+            obs = observed_by_day[(spec.asset, spec.trading_day)].observed
+            for i, cid in enumerate(batch.candidate_ids):
+                cutoff = int(batch.cutoffs[i])
+                _, canonical = _expanded_columns(obs.derived, cutoff)
+                if not len(canonical):
+                    raise RealDiagnosticExecutorRefusal(
+                        "raw summary diagnostic prefix is empty")
+                continuous_summary = np.concatenate((
+                    canonical[-1], canonical.mean(0), canonical.std(0),
+                    canonical.min(0), canonical.max(0)))
+                category_summary = []
+                for column, size in enumerate(CATEGORY_SIZES):
+                    values = np.asarray(batch.categorical[:cutoff, column], np.int64)
+                    category_summary.extend(np.bincount(
+                        values, minlength=size)[:size] / max(1, cutoff))
+                raw_summaries[cid] = np.concatenate((
+                    continuous_summary, np.asarray(category_summary, np.float64)))
+        raw_summary_array = np.asarray(
+            [raw_summaries[cid] for cid in all_ids], np.float32)
+        raw_summary_rows = FrozenRepresentationRows(
+            raw_summary_array, np.asarray(all_ids, str), all_assets, all_days,
+            np.asarray([bindings[cid].decision_ts_ns for cid in all_ids], np.int64),
+            all_action, all_recipient, all_phase,
+            np.where(np.isin(all_days, tuple(validation_days)),
+                     "VALIDATION", "E2R"),
+            "REHEARSAL_E2", group_semantics="PHASE")
+        raw_summary_rows.validate()
+        raw_summary_fit = _run_optimizer(
+            lambda: fit_diagnostic_catboost(
+                raw_summary_rows,
+                expected_representation_sha256=raw_summary_rows.representation_sha256,
+                minimum_pair_groups_per_asset=1),
+            category="CANARY", fit_id=f"rawsummary/{chronology}")
+        raw_summary_probability = np.asarray(
+            raw_summary_fit.action_probability, np.float64)
+        (raw_diagnostic_eval, raw_diagnostic_status, raw_diagnostic_path,
+         raw_diagnostic_detail) = self._rehearsal_score_path(
+            raw_summary_probability, ids=np.asarray(all_ids), assets=all_assets,
+            days=all_days, recipient=all_recipient, chronology=chronology,
+            artifact_name=f"G7/{chronology}/RAWSUMMARY/diagnostic")
+        self._m8_selected_transition_payloads.extend(
+            self._m8_path_payloads[f"G7/{chronology}/RAWSUMMARY/diagnostic"])
+        raw_summary_diagnostic = {
+            **dict(raw_diagnostic_detail),
+            "diagnostic_only": True,
+            "status": raw_diagnostic_status,
+            "path_receipt_sha256": raw_diagnostic_path,
+            "artifact": f"G7/{chronology}/RAWSUMMARY/diagnostic",
+            "raw_summary_competence_sha256": raw_summary_fit.receipt_sha256,
+            "economics": {row.asset: asdict(row)
+                          for row in raw_diagnostic_eval.by_asset},
+        }
+        self._raw_summary_funnel_diagnostic = getattr(
+            self, "_raw_summary_funnel_diagnostic", {})
+        self._raw_summary_funnel_diagnostic[chronology] = raw_summary_diagnostic
         eligible = [(min(row["economics"][asset]["usd_per_asset_day"]
                          for asset in C.ASSETS), -row["parameter_count"], key)
                     for key, row in matrix.items() if row["status"] == "ELIGIBLE"]

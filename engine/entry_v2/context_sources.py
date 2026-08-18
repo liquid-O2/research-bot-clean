@@ -100,10 +100,18 @@ def _availability_module() -> Any:
 def _date(value: str | None) -> dt.date | None:
     text = (value or "").strip().strip('"').replace("/", "-")
     try:
-        parsed = dt.date.fromisoformat(text)
+        return dt.date.fromisoformat(text)
     except ValueError:
-        return None
-    return parsed
+        pass
+    # MOF/JGB sheets switch to unpadded d/m parts (e.g. 2021-1-5); parse
+    # the same three integer fields rather than dropping the row.
+    parts = text.split("-")
+    if len(parts) == 3 and all(part.isdigit() for part in parts):
+        try:
+            return dt.date(int(parts[0]), int(parts[1]), int(parts[2]))
+        except ValueError:
+            return None
+    return None
 
 
 def _number(value: str | None) -> float | None:
@@ -242,12 +250,67 @@ def _gold_silver(row: Mapping[str, str], end_d8_exclusive: int) -> _LoadedSeries
     )
 
 
+_COT_MARKET_NAMES = {
+    "COT_DISAGG_SILVER": ("SILVER - COMMODITY EXCHANGE INC.",),
+    # CFTC renamed the copper market ("COPPER-GRADE #1" -> "COPPER- #1")
+    # during 2022; both names denote the same COMEX contract series.
+    "COT_DISAGG_COPPER": ("COPPER-GRADE #1 - COMMODITY EXCHANGE INC.",
+                          "COPPER- #1 - COMMODITY EXCHANGE INC."),
+    # NKD is the USD-denominated CME contract; the YEN DENOM row is NIY and
+    # is deliberately not consumed here (receipted choice).
+    "COT_TFF_NIKKEI": ("NIKKEI STOCK AVERAGE - CHICAGO MERCANTILE EXCHANGE",),
+}
+
+
+def _cot(row: Mapping[str, str], end_d8_exclusive: int) -> _LoadedSeries:
+    """CFTC yearly as-published archive: one weekly row per report date."""
+    markets = _COT_MARKET_NAMES[row["series_id"]]
+    value_columns = [c.strip() for c in row["value_columns"].split(",") if c.strip()]
+    pattern = row["file"].split("/")[-1]
+    first_year = 2021
+    last_year = min(2025, (int(end_d8_exclusive) - 1) // 10000)
+    observations: list[AvailableObservation] = []
+    refused = 0
+    paths: list[str] = []
+    for year in range(first_year, last_year + 1):
+        path = (REFERENCE_ROOT / "port_context" / "cot" /
+                pattern.replace("YYYY", str(year))).resolve()
+        if not path.is_file():
+            raise C.EntryV2Refusal(f"cot archive missing: {path}")
+        paths.append(str(path))
+        with path.open(newline="", encoding="utf-8", errors="replace") as handle:
+            for record in csv.DictReader(handle):
+                name = (record.get("Market_and_Exchange_Names") or "").strip()
+                if name not in markets:
+                    continue
+                stamp = _date(record.get("Report_Date_as_YYYY-MM-DD"))
+                if stamp is None or _d8(stamp) >= end_d8_exclusive:
+                    continue
+                values = tuple(_number(record.get(column)) for column in value_columns)
+                if any(value is None for value in values):
+                    refused += 1
+                    continue
+                available = _available_ns(row["avail_rule"], stamp)
+                if available is None:
+                    refused += 1
+                    continue
+                observations.append(AvailableObservation(
+                    stamp.isoformat(), available, values))
+    stamps = [obs.stamp for obs in observations]
+    if len(stamps) != len(set(stamps)):
+        raise C.EntryV2Refusal(
+            f"{row['series_id']} emits duplicate report dates across market names")
+    return _LoadedSeries(tuple(observations), tuple(paths), refused)
+
+
 def _first_print(row: Mapping[str, str], end_d8_exclusive: int) -> _LoadedSeries:
     series_id = row["series_id"]
     if series_id == "JGB_10Y":
         return _jgb_10y(row, end_d8_exclusive)
     if series_id == "GOLD_SILVER_RATIO":
         return _gold_silver(row, end_d8_exclusive)
+    if series_id in _COT_MARKET_NAMES:
+        return _cot(row, end_d8_exclusive)
     return _simple_csv(row, end_d8_exclusive)
 
 
@@ -327,18 +390,43 @@ def _fomc_events(row: Mapping[str, str], end_d8_exclusive: int) -> _LoadedSeries
     )
 
 
+_JST = ZoneInfo("Asia/Tokyo")
+
+
+def _boj_events(row: Mapping[str, str], end_d8_exclusive: int) -> _LoadedSeries:
+    """BOJ MPM decision days (second meeting day), BOJ-published history.
+
+    Same conservative law as the FOMC file: no forward schedule is inferred;
+    the event becomes knowable at a conservative post-announcement clock
+    (15:00 JST on the decision day).  Rows at/after the development wall are
+    never emitted, which keeps sealed-year dates unread by consumers.
+    """
+    path, = _source_paths(row)
+    observations: list[AvailableObservation] = []
+    unproved = 0
+    with path.open(newline="", encoding="utf-8", errors="replace") as handle:
+        for record in csv.DictReader(handle):
+            stamp = _date(record.get("mpm_date"))
+            if stamp is None:
+                unproved += 1
+                continue
+            if _d8(stamp) >= end_d8_exclusive:
+                continue
+            event = _event_ns(stamp, 15, 0, _JST)
+            observations.append(AvailableObservation(stamp.isoformat(), event, (1.0,)))
+    return _LoadedSeries(
+        tuple(observations), (str(path),), unproved_rows=unproved,
+        status="PAST_EVENT_ONLY_NO_ANNOUNCEMENT_TS",
+    )
+
+
 def _schedule(row: Mapping[str, str], end_d8_exclusive: int) -> _LoadedSeries:
     if row["series_id"] == "CAL_BLS":
         return _bls_events(row, end_d8_exclusive)
     if row["series_id"] == "CAL_FOMC":
         return _fomc_events(row, end_d8_exclusive)
     if row["series_id"] == "CAL_BOJ":
-        # The audited lag-table declaration says the banked file starts in
-        # 2026.  Opening it during development would cross the permanent seal,
-        # so the documented gap is represented explicitly and no file is read.
-        return _LoadedSeries(
-            (), (), status="TYPED_MISSING_BANKED_HISTORY_STARTS_2026"
-        )
+        return _boj_events(row, end_d8_exclusive)
     raise C.EntryV2Refusal(f"unsupported schedule source: {row['series_id']}")
 
 

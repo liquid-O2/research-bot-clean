@@ -123,14 +123,24 @@ class ContextSourceAdversarialTests(unittest.TestCase):
                 point.availability_ts_ns < decision
                 for point in by_id[series_id].points
             ))
-        for series_id in (
-            "COT_TFF_NIKKEI", "FRED_DGS10", "FRED_DTWEXBGS",
-            "FRED_DEXJPUS",
-        ):
-            self.assertEqual(
-                by_id[series_id].missing_reason, "REVISED_VALUE_MASKED"
-            )
-        self.assertFalse(by_id["CAL_BOJ"].mask)
+        # 2026-08-18 data ruling: COT/FRED market-rate series are FIRST_PRINT
+        # (as-published records); only the re-weighted DTWEXBGS index remains
+        # vintage-masked pending genuine ALFRED vintages.
+        for series_id in ("COT_TFF_NIKKEI", "FRED_DGS10", "FRED_DEXJPUS"):
+            self.assertTrue(by_id[series_id].mask, series_id)
+            self.assertTrue(all(
+                point.availability_ts_ns < decision
+                for point in by_id[series_id].points
+            ))
+        self.assertEqual(
+            by_id["FRED_DTWEXBGS"].missing_reason, "REVISED_VALUE_MASKED"
+        )
+        self.assertTrue(by_id["CAL_BOJ"].mask)
+        # JGB unpadded-date regression: 2021+ rows must survive parsing, and
+        # the last-64 window at a 2025 decision must reach recent stamps.
+        self.assertGreaterEqual(
+            max(point.stamp for point in by_id["JGB_10Y"].points), "2024-12-01"
+        )
 
         tensor = tensorize_context_pack(pack)
         self.assertEqual(

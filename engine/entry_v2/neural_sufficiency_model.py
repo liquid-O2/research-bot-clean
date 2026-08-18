@@ -250,6 +250,23 @@ class FieldPreservingStem(nn.Module):
         return self.norm(torch.stack(routes, dim=0).sum(dim=0))
 
 
+def enforce_model_float32(name: str, value: Tensor) -> Tensor:
+    """Model-input dtype law: floating inputs are float32 (time is losslessly
+    split into sec/us/ns columns upstream precisely so float32 suffices; the
+    float64 expanded view exists only for byte-parity against the one-open
+    truth). float64 is cast at this single declared boundary; any other
+    floating dtype is a typed refusal naming the field."""
+    if not isinstance(value, Tensor) or not value.is_floating_point():
+        return value
+    if value.dtype in (torch.float32, torch.bfloat16):
+        # float32 is the input law; bfloat16 is the lawful autocast activation.
+        return value
+    if value.dtype == torch.float64:
+        return value.float()
+    raise EntryModelRefusal(
+        f"model input {name} has unlawful floating dtype {value.dtype}")
+
+
 class _ExactInputEncoder(nn.Module):
     def __init__(self, n_event_continuous: int,
                  event_category_sizes: Sequence[int],
@@ -267,6 +284,7 @@ class _ExactInputEncoder(nn.Module):
     def _validate(self, continuous: Tensor, categorical: Tensor,
                   receive_clock_ns: Tensor, cutoffs: Tensor,
                   decisions: Tensor) -> tuple[Tensor, Tensor, int]:
+        continuous = enforce_model_float32("event_continuous", continuous)
         return _validate_exact_inputs(continuous, categorical, receive_clock_ns,
                                       cutoffs, decisions, self.field_schema)
 
@@ -1010,6 +1028,13 @@ class SharedCandidateDecisionHead(nn.Module):
                 context_values: Tensor, context_type_ids: Tensor,
                 context_valid: Tensor, asset_idx: int | Tensor, *,
                 static_features: Optional[Tensor] = None) -> NeuralSufficiencyOutput:
+        raw_memory = enforce_model_float32("raw_memory", raw_memory)
+        candidate_features = enforce_model_float32(
+            "candidate_features", candidate_features)
+        context_values = enforce_model_float32("context_values", context_values)
+        if static_features is not None:
+            static_features = enforce_model_float32(
+                "static_features", static_features)
         if raw_memory.ndim != 3 or raw_memory.shape[1:] != (4, 512):
             raise EntryModelRefusal("raw_memory must be [candidates,4,512]")
         count = raw_memory.shape[0]

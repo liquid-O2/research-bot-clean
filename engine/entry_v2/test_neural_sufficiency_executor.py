@@ -66,6 +66,8 @@ class _SmallExactProvider:
         )
         receipt = MappingProxyType({"candidate_suffix_rows_visited": 0,
             "receipt_sha256": _digest(b"corpus"),
+            # A8: the diagnostic start wall is receipt-derived, never a literal.
+            "selected_horizon_start_d8": 20210531,
             "lifecycle_provenance": {
                 "schema": "entry-v2-corpus-lifecycle-provenance-v1",
                 "cold_or_warm": "COLD", "warm_corpus_ready": False,

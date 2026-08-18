@@ -3,11 +3,15 @@ from __future__ import annotations
 import unittest
 import numpy as np
 
+from scipy.stats import norm
+from scipy.stats import t as student_t
+
 from engine.entry_v2.atlas_statistics import (
     AtlasStatisticsRefusal, FitLedgerRecord, PairedObservationRecord,
-    SupportKind, SupportState, e1_fit_count,
-    hierarchical_holm, holm_rejections, nonredundant_finalists,
-    paired_day_cluster_records, romano_wolf_lower_bounds, support_gate,
+    PairedTestState, SupportKind, SupportState, e1_fit_count,
+    hierarchical_holm, holm_rejections, holm_rejections_with_ledger,
+    nonredundant_finalists, paired_day_cluster_records, paired_day_cluster_test,
+    romano_wolf_lower_bounds, support_gate,
     through_e2_fit_count, validate_fit_ledger,
 )
 
@@ -16,8 +20,19 @@ class AtlasStatisticsTest(unittest.TestCase):
     def test_exact_support_boundaries(self):
         asset = np.repeat(["HG", "NKD", "SI"], [200, 200, 100])
         values = np.arange(500, dtype=float)
-        self.assertTrue(support_gate(SupportKind.CONTINUOUS, asset=asset, values=values).available)
-        self.assertFalse(support_gate(SupportKind.CONTINUOUS, asset=asset[:-1], values=values[:-1]).available)
+        uncensored = np.zeros(500, bool)
+        self.assertTrue(support_gate(SupportKind.CONTINUOUS, asset=asset, values=values,
+                                     censored=uncensored).available)
+        self.assertFalse(support_gate(SupportKind.CONTINUOUS, asset=asset[:-1],
+                                      values=values[:-1],
+                                      censored=uncensored[:-1]).available)
+        # C6: the quota counts uncensored rows, not merely finite ones.  One
+        # censored SI row drops the per-asset census below its floor.
+        one_censored = uncensored.copy(); one_censored[-1] = True
+        self.assertFalse(support_gate(SupportKind.CONTINUOUS, asset=asset,
+                                      values=values, censored=one_censored).available)
+        with self.assertRaises(AtlasStatisticsRefusal):
+            support_gate(SupportKind.CONTINUOUS, asset=asset, values=values)
         cls_asset = np.repeat(["HG", "NKD", "SI"], 400)
         classes = np.tile(np.repeat([0, 1], 200), 3)
         self.assertTrue(support_gate(SupportKind.BINARY_ORDINAL, asset=cls_asset,
@@ -42,7 +57,8 @@ class AtlasStatisticsTest(unittest.TestCase):
         constant_si = values.copy()
         constant_si[asset == "SI"] = 7.0
         self.assertFalse(support_gate(
-            SupportKind.CONTINUOUS, asset=asset, values=constant_si
+            SupportKind.CONTINUOUS, asset=asset, values=constant_si,
+            censored=uncensored,
         ).available)
 
         # Reusing the same group label on different clocks is not a deployed
@@ -80,6 +96,59 @@ class AtlasStatisticsTest(unittest.TestCase):
         balanced = paired_day_cluster_records(replicated)
         self.assertAlmostEqual(balanced.mean_difference,
                                result.mean_difference)
+
+    def test_paired_p_value_uses_student_t_on_day_cluster_degrees_of_freedom(self):
+        # S1: the sole engine-wide p-value site is Student-t on G-1, not normal.
+        real = [2.0, 3.5, 4.0, 5.5, 3.0]
+        day = ["d1", "d2", "d3", "d4", "d5"]
+        result = paired_day_cluster_test(real, [1.0] * 5, day)
+        self.assertIs(result.state, PairedTestState.MATERIALIZED)
+        self.assertEqual(result.n_day_clusters, 5)
+        self.assertAlmostEqual(
+            result.p_value_one_sided,
+            float(student_t.sf(result.t_statistic, result.n_day_clusters - 1)),
+            places=15,
+        )
+        self.assertGreater(result.p_value_one_sided,
+                           float(norm.sf(result.t_statistic)))
+
+    def test_degenerate_and_low_support_paired_tests_are_typed_never_p_values(self):
+        # S2: a constant positive paired column has se == 0.  It must never
+        # become p = 0.0 and win Holm at any alpha.
+        constant = paired_day_cluster_test([2.0, 2.0, 2.0], [1.0, 1.0, 1.0],
+                                           ["d1", "d2", "d3"])
+        self.assertIs(constant.state, PairedTestState.DEGENERATE_ZERO_VARIANCE)
+        self.assertIsNone(constant.p_value_one_sided)
+        self.assertIsNone(constant.t_statistic)
+        # The already-covered all-zero column stays typed too.
+        zero = paired_day_cluster_test([1.0, 1.0], [1.0, 1.0], ["d1", "d2"])
+        self.assertIs(zero.state, PairedTestState.DEGENERATE_ZERO_VARIANCE)
+        self.assertIsNone(zero.p_value_one_sided)
+        # S3: G = 1 is typed UNAVAILABLE_LOW_SUPPORT and retained in the
+        # ledger; it must not abort the surrounding 44-objective screen.
+        single = paired_day_cluster_test([2.0, 3.0], [1.0, 1.0], ["d1", "d1"])
+        self.assertIs(single.state, PairedTestState.UNAVAILABLE_LOW_SUPPORT)
+        self.assertIsNone(single.p_value_one_sided)
+        self.assertEqual(single.n_day_clusters, 1)
+
+        accepted, skipped = holm_rejections_with_ledger({
+            "a": .01,
+            "degenerate": PairedTestState.DEGENERATE_ZERO_VARIANCE,
+            "thin": PairedTestState.UNAVAILABLE_LOW_SUPPORT,
+        })
+        self.assertEqual(accepted, ("a",))
+        self.assertEqual(dict(skipped), {
+            "degenerate": "DEGENERATE_ZERO_VARIANCE",
+            "thin": "UNAVAILABLE_LOW_SUPPORT",
+        })
+        self.assertEqual(holm_rejections({"a": .01, "z": constant}), ("a",))
+        hierarchy = hierarchical_holm(
+            {"a1": .001, "a2": .01, "b1": single},
+            {"a1": "a", "a2": "a", "b1": "b"},
+        )
+        self.assertEqual(hierarchy.excluded_probes, ("b1",))
+        self.assertNotIn("b1", hierarchy.surviving_probes)
+        self.assertEqual(hierarchy.surviving_families, ("a",))
 
     def test_dedup_and_deterministic_max_t(self):
         ids = ("a", "b", "c", "d", "e")
@@ -141,13 +210,42 @@ class AtlasStatisticsTest(unittest.TestCase):
         mixed = x30.copy(); mixed[:, -3:] = 0.0
         capture_ids = tuple(f"path-{i // 3}:{asset}:capture"
                             for i, asset in enumerate(assets30))
+        families30 = tuple(f"path-{i // 3}" for i in range(30))
         zero = romano_wolf_lower_bounds(
             mixed, resamples=128, hypothesis_ids=capture_ids,
             hypothesis_assets=assets30,
-            hypothesis_families=tuple(f"path-{i // 3}" for i in range(30)))
-        np.testing.assert_array_equal(zero.simultaneous_lower_bounds[-3:], 0.0)
+            hypothesis_families=families30)
+        # S5: a zero-variance column carries no uncertainty and is therefore
+        # ineligible for selection; its simultaneous bound is -inf.
+        self.assertTrue(np.all(np.isneginf(zero.simultaneous_lower_bounds[-3:])))
         np.testing.assert_array_equal(zero.stochastic_mask[-3:], False)
+        np.testing.assert_array_equal(zero.eligible_mask[-3:], False)
+        self.assertEqual(zero.column_states[-3:],
+                         ("DEGENERATE_ZERO_VARIANCE",) * 3)
         self.assertEqual(len(zero.hypothesis_ids), 30)
+
+        # The measured defect: a CONSTANT POSITIVE column also has se == 0 and
+        # previously passed selection with zero uncertainty at lower=estimate.
+        constant = x30.copy(); constant[:, -3:] = 0.75
+        positive = romano_wolf_lower_bounds(
+            constant, resamples=128, hypothesis_ids=capture_ids,
+            hypothesis_assets=assets30, hypothesis_families=families30)
+        np.testing.assert_array_equal(positive.estimates[-3:], 0.75)
+        self.assertTrue(np.all(np.isneginf(
+            positive.simultaneous_lower_bounds[-3:])))
+        self.assertFalse(bool(positive.eligible_mask[-3:].any()))
+
+        # All-degenerate gives critical = 0.0; no column may become selectable.
+        all_constant = np.full((80, 3), 0.75)
+        degenerate = romano_wolf_lower_bounds(
+            all_constant, resamples=128,
+            hypothesis_ids=("only:HG", "only:NKD", "only:SI"),
+            hypothesis_assets=("HG", "NKD", "SI"),
+            hypothesis_families=("only",) * 3)
+        self.assertEqual(degenerate.max_t_critical_value, 0.0)
+        self.assertTrue(np.all(np.isneginf(
+            degenerate.simultaneous_lower_bounds)))
+        self.assertFalse(bool(degenerate.eligible_mask.any()))
 
     def test_fit_accounting(self):
         self.assertEqual(e1_fit_count(), 90)

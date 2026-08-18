@@ -923,6 +923,12 @@ def build_event_truth_columns(rows: np.ndarray, asset: str,
     columns: dict[str, np.ndarray] = {
         "ts_recv_ns": ts, "ts_event_ns": rows["ts_event_ns"],
         "ordinal": np.arange(len(rows), dtype=np.uint32),
+        # A-007: every raw undefined state is routed independently.  The packed
+        # three-bit ``missing_mask`` is an aggregation and may not be the only
+        # carrier of the per-field undefined-price states.
+        "price_undefined": (rows["price"] == UNDEF_PRICE).astype(np.uint8),
+        "bid_px_undefined": (rows["bid_px"] == UNDEF_PRICE).astype(np.uint8),
+        "ask_px_undefined": (rows["ask_px"] == UNDEF_PRICE).astype(np.uint8),
         "generation": quality.generation,
         "trusted_message": quality.trusted_message,
         "trusted_economic": quality.trusted_economic,
@@ -1061,11 +1067,27 @@ class OneLoadDiagnosticInput:
                 close()
 
 
+# The exact 21-field raw MBP-1 event contract.  ``event_pack`` carries the
+# same 21 raw coordinates (16 continuous + 5 categorical) at the model plane.
+# A-007: every raw field is routed independently and no aggregate may stand in
+# for an independent route, so the three per-field undefined-price states are
+# routed beside the packed ``missing_mask`` bitfield rather than only inside it.
 RAW_ROUTE_FIELDS = (
     "ts_recv_ns", "ts_event_ns", "price", "bid_px", "ask_px", "size",
     "bid_sz", "ask_sz", "bid_ct", "ask_ct", "sequence", "ts_in_delta",
     "receive_session_sec", "action", "side", "flags", "depth", "missing_mask",
+    "price_undefined", "bid_px_undefined", "ask_px_undefined",
 )
+RAW_ROUTE_FIELD_COUNT = 21
+# Exact bit decomposition of the packed ``missing_mask`` undefined-price code.
+UNDEFINED_PRICE_ROUTE_BITS = MappingProxyType({
+    "price_undefined": 1, "bid_px_undefined": 2, "ask_px_undefined": 4,
+})
+if len(RAW_ROUTE_FIELDS) != RAW_ROUTE_FIELD_COUNT or len(
+        set(RAW_ROUTE_FIELDS)) != RAW_ROUTE_FIELD_COUNT:
+    raise DiagnosticInputRefusal(
+        "raw route roster must independently route all 21 raw event fields"
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1101,7 +1123,23 @@ class DerivedEventFieldBuilder:
     })
 
     def build(self, truth: EventTruthColumns) -> DerivedEventFields:
-        raw = {name: truth[name] for name in RAW_ROUTE_FIELDS}
+        # A-007: the three per-field undefined-price states are independent raw
+        # routes.  They are the exact bit decomposition of ``missing_mask`` and
+        # are derived here so every producer of the truth plane routes them,
+        # whether or not it materialized them as separate columns.
+        mask = np.asarray(truth["missing_mask"], np.uint8)
+        undefined = {name: ((mask & bit) != 0).astype(np.uint8)
+                     for name, bit in UNDEFINED_PRICE_ROUTE_BITS.items()}
+        for name, value in undefined.items():
+            supplied = truth.columns.get(name)
+            if supplied is not None and not np.array_equal(
+                    np.asarray(supplied, np.uint8), value):
+                raise DiagnosticInputRefusal(
+                    f"raw undefined-price route {name} differs from missing_mask"
+                )
+            _readonly(value)
+        raw = {name: (undefined[name] if name in undefined else truth[name])
+               for name in RAW_ROUTE_FIELDS}
         n = len(truth["ts_recv_ns"])
         derived: dict[str, np.ndarray] = {}
         masks: dict[str, np.ndarray] = {}
@@ -1185,7 +1223,11 @@ class DerivedEventFieldBuilder:
         block_clock = np.zeros(n, dtype=np.int64)
         block_mask = np.zeros(n, dtype=np.bool_)
         if n:
-            ends = np.unique(np.r_[np.arange(255, n, 256), n - 1])
+            # Only completed causal 256-event blocks are block ends.  The
+            # roster endpoint ``n-1`` is an arbitrary slice boundary, not an
+            # invariant block boundary; appending it leaks the candidate
+            # roster's extent.  The consumer already enforces this law.
+            ends = np.arange(255, n, 256, dtype=np.int64)
             block_clock[ends] = receive[ends]
             block_mask[ends] = True
         derived["block_end_receive_ns"] = block_clock
@@ -1221,7 +1263,15 @@ class DerivedEventFieldBuilder:
                        *, receive_clock_ns: Optional[np.ndarray] = None
                        ) -> np.ndarray:
         stop = int(cutoff)
-        arrays = list(fields.raw_routes.values()) + list(fields.derived_routes.values())
+        # Mapping insertion order is not a semantic schema.  Build the row
+        # order from the declared route roster so a canonicalized (for example
+        # alphabetized) warm reopen produces identical summaries.
+        if set(fields.raw_routes) != set(RAW_ROUTE_FIELDS):
+            raise DiagnosticInputRefusal(
+                "summary raw-route roster differs from the canonical schema")
+        arrays = ([fields.raw_routes[name] for name in RAW_ROUTE_FIELDS]
+                  + [fields.derived_routes[name]
+                     for name in sorted(fields.derived_routes)])
         if stop < 0 or (arrays and stop > len(arrays[0])):
             raise DiagnosticInputRefusal("summary cutoff outside event fields")
         # Every named route receives the same causal multiscale statistics.
@@ -1257,7 +1307,9 @@ __all__ = [
     "CandidateTruthBinding", "DerivedEventFieldBuilder", "DerivedEventFields",
     "DiagnosticInputRefusal", "DiagnosticSession", "EventTruthColumns",
     "HELD_CHRONOLOGIES", "HeldChronology", "HeldChronologySplit",
-    "OneLoadDiagnosticInput", "RAW_ROUTE_FIELDS", "SingleOpenReceipt",
+    "OneLoadDiagnosticInput", "RAW_ROUTE_FIELDS", "RAW_ROUTE_FIELD_COUNT",
+    "UNDEFINED_PRICE_ROUTE_BITS",
+    "SingleOpenReceipt",
     "PRODUCTION_E1", "PRODUCTION_E2", "REHEARSAL_E1", "REHEARSAL_E2",
     "A004CounterfactualAtoms", "assert_teacher_schedule_parity",
     "build_a004_counterfactual_atoms", "build_candidate_truth_bindings",

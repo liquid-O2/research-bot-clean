@@ -142,12 +142,37 @@ def artifact_manifest(root: Path, *, bad_model_hash: bool = False,
 class AuditHarnessTests(unittest.TestCase):
     def test_synthetic_one_shot_is_complete_and_self_hashed(self) -> None:
         report = run_audit()
-        self.assertTrue(report["payload"]["passed"])
+        # V7: a fixture-only audit (no artifact manifest) can never publish a
+        # PASS.  It runs every check, verifies its own receipt, and reports the
+        # typed refusal instead.
+        self.assertFalse(report["payload"]["passed"])
+        self.assertEqual(report["payload"]["audit_scope"], "SYNTHETIC_BUILTINS")
+        attribution_check = next(
+            row for row in report["payload"]["checks"]
+            if row["name"] == "exact_bottleneck_attribution")
+        self.assertEqual(attribution_check["details"]["evidence_scope"],
+                         "SYNTHETIC_REGRESSION_ONLY")
+        self.assertIn("NO_ARTIFACT_MANIFEST",
+                      attribution_check["details"]["refusal"])
         self.assertTrue(verify_receipt(report))
         names = [row["name"] for row in report["payload"]["checks"]]
-        self.assertEqual(names, list(REQUIRED_CHECKS))
+        # V7: the production-live gate is now REPORTED for a fixture-only run
+        # instead of being short-circuited to complete by a missing manifest.
+        self.assertEqual(names,
+                         [*REQUIRED_CHECKS, "production_live_mutation_gate"])
+        gate = next(row for row in report["payload"]["checks"]
+                    if row["name"] == "production_live_mutation_gate")
+        self.assertFalse(gate["passed"])
         controls = next(row for row in report["payload"]["checks"]
                         if row["name"] == "oracle_and_null_controls")
+        # V7: the +/-$1,000 bounds are synthetic-regression-only, labelled so.
+        self.assertEqual(controls["details"]["evidence_scope"],
+                         "SYNTHETIC_REGRESSION_ONLY")
+        self.assertFalse(controls["details"]["economic_evidence"])
+        self.assertEqual(controls["details"]["truth_floor_scope"],
+                         "SYNTHETIC_REGRESSION_ONLY")
+        self.assertEqual(controls["details"]["shuffled_max_scope"],
+                         "SYNTHETIC_REGRESSION_ONLY")
         self.assertGreaterEqual(controls["details"]["truth_usd_per_asset_day"],
                                 controls["details"]["truth_floor"])
         self.assertLessEqual(controls["details"]["shuffled_usd_per_asset_day"],

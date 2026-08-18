@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import hashlib
+import json
+from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any, Mapping, Sequence
 
@@ -437,12 +439,23 @@ def materialize_probe_target(
                        prediction_layout=prediction_names)
     if cell == 11:
         raw = np.zeros((n, 20)); valid = np.zeros(n, bool)
+        coordinates = np.zeros((n, 20), bool)
         for i, trends in enumerate(atlas.atoms["trends"]):
             if trends:
                 for j, key in enumerate(("10s", "60s", "300s", "900s", "1800s")):
-                    row = trends[key]; raw[i, 3*j:3*j+3] = (
-                        row["slope_units_per_sec"] or 0, row["t_stat"] or 0, row["count"])
+                    row = trends[key]
+                    slope = row["slope_units_per_sec"]
+                    t_stat = row["t_stat"]
+                    # An undetermined slope/t-statistic is a masked coordinate.
+                    # Writing 0.0 would train "flat trend" as observed truth.
+                    raw[i, 3*j] = 0.0 if slope is None else slope
+                    raw[i, 3*j+1] = 0.0 if t_stat is None else t_stat
+                    raw[i, 3*j+2] = row["count"]
+                    coordinates[i, 3*j] = slope is not None
+                    coordinates[i, 3*j+1] = t_stat is not None
+                    coordinates[i, 3*j+2] = True
                     raw[i, 15 + j] = int(row["sign"] + 1)
+                    coordinates[i, 15 + j] = True
                 valid[i] = True
         prediction_names = tuple(f"regression_{i}" for i in range(15)) + tuple(
             f"sign_window{window}_logit{level}" for window in range(5) for level in range(3)
@@ -450,6 +463,7 @@ def materialize_probe_target(
         return _finish(spec, raw, valid,
                        layout=tuple(f"regression_{i}" for i in range(15)) +
                        tuple(f"sign_{i}" for i in range(5)),
+                       coordinate_mask=coordinates,
                        prediction_layout=prediction_names)
     if cell == 12:
         raw = np.zeros((n, 4)); valid = np.zeros(n, bool)
@@ -633,19 +647,36 @@ def materialize_probe_target(
     raise AtlasRefusal(f"unresolved materializer for cell {cell}")
 
 
+# A singleton shuffle stratum yields no donor, so the row is unusable for the
+# twin and must therefore be dropped from the REAL fit as well.  Above this
+# frozen fraction the paired real-minus-twin evidence rests on too little of
+# the roster to be believed, and the materializer refuses.
+SINGLETON_DROP_REFUSAL_FRACTION = 0.05
+
+
 def stage_global_recipient_fixed_permutation(
     stage: Sequence[str], asset: Sequence[str], day: Sequence[int],
-    action_loss_mask: Sequence[bool], *, seed: int,
+    action_loss_mask: Sequence[bool], *, materialized: Sequence[bool], seed: int,
 ) -> np.ndarray:
+    """Derange within (stage, asset, day, action-loss mask, availability).
+
+    ``materialized`` is a stratum key, not an afterthought: every mask,
+    censor, at-risk and weight array a recipient keeps must describe the
+    recipient's own availability, so a materialized row can only receive a
+    materialized donor's value.
+    """
     stage = np.asarray(stage); asset = np.asarray(asset); day = np.asarray(day)
-    mask = np.asarray(action_loss_mask, bool); n = len(stage)
-    if any(len(x) != n for x in (asset, day, mask)):
+    mask = np.asarray(action_loss_mask, bool)
+    available = np.asarray(materialized, bool); n = len(stage)
+    if any(len(x) != n for x in (asset, day, mask, available)):
         raise AtlasRefusal("global shuffle strata are misaligned")
     rng = np.random.default_rng(int(seed)); result = np.full(n, -1, dtype=np.int64)
-    scopes = {(str(stage[i]), str(asset[i]), int(day[i]), bool(mask[i])) for i in range(n)}
+    scopes = {(str(stage[i]), str(asset[i]), int(day[i]), bool(mask[i]),
+               bool(available[i])) for i in range(n)}
     for scope in sorted(scopes):
         members = np.flatnonzero((stage == scope[0]) & (asset == scope[1])
-                                 & (day == scope[2]) & (mask == scope[3]))
+                                 & (day == scope[2]) & (mask == scope[3])
+                                 & (available == scope[4]))
         if len(members) < 2:
             continue
         ordered = rng.permutation(members)
@@ -653,12 +684,63 @@ def stage_global_recipient_fixed_permutation(
     supported = result >= 0
     if np.any(mask[result[supported]] != mask[supported]):
         raise AtlasRefusal("global shuffle changed recipient mask strata")
+    if np.any(available[result[supported]] != available[supported]):
+        raise AtlasRefusal("global shuffle changed recipient availability strata")
     return result
 
 
-def permute_probe_target_recipient_fixed(
-    target: ProbeTarget, permutation: Sequence[int]
-) -> ProbeTarget:
+@dataclass(frozen=True)
+class SingletonDropCensus:
+    """Frozen census of the rows no shuffle stratum could donate to."""
+
+    total_rows: int
+    dropped_singleton_rows: int
+    dropped_fraction: float
+    refusal_fraction: float
+    dropped_row_indices: tuple[int, ...]
+    receipt_sha256: str
+
+    @property
+    def receipt(self) -> Mapping[str, Any]:
+        return MappingProxyType({
+            "schema": "entry-v2-recipient-fixed-singleton-drop-census-v1",
+            "total_rows": self.total_rows,
+            "dropped_singleton_rows": self.dropped_singleton_rows,
+            "dropped_fraction": self.dropped_fraction,
+            "refusal_fraction": self.refusal_fraction,
+            "dropped_row_indices": list(self.dropped_row_indices),
+            "receipt_sha256": self.receipt_sha256,
+        })
+
+
+def singleton_drop_census(permutation: Sequence[int]) -> SingletonDropCensus:
+    values = np.asarray(permutation, np.int64)
+    if values.ndim != 1 or not len(values):
+        raise AtlasRefusal("singleton drop census requires a permutation vector")
+    dropped = np.flatnonzero(values < 0)
+    total = int(len(values))
+    fraction = float(len(dropped)) / total
+    if fraction > SINGLETON_DROP_REFUSAL_FRACTION:
+        raise AtlasRefusal(
+            "dropped singleton stratum rows exceed the frozen fraction "
+            f"{SINGLETON_DROP_REFUSAL_FRACTION}: {len(dropped)}/{total}"
+        )
+    body = {
+        "schema": "entry-v2-recipient-fixed-singleton-drop-census-v1",
+        "total_rows": total, "dropped_singleton_rows": int(len(dropped)),
+        "dropped_fraction": fraction,
+        "refusal_fraction": SINGLETON_DROP_REFUSAL_FRACTION,
+        "dropped_row_indices": [int(row) for row in dropped],
+    }
+    digest = hashlib.sha256(json.dumps(
+        body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return SingletonDropCensus(total, int(len(dropped)), fraction,
+                               SINGLETON_DROP_REFUSAL_FRACTION,
+                               tuple(int(row) for row in dropped), digest)
+
+
+def _recipient_fixed_rows(target: ProbeTarget, permutation: Sequence[int],
+                          *, donor_values: bool) -> ProbeTarget:
     permutation = np.asarray(permutation, np.int64)
     n = len(target.validity_mask)
     if permutation.shape != (n,) or np.any(permutation < -1) or np.any(permutation >= n):
@@ -667,7 +749,8 @@ def permute_probe_target_recipient_fixed(
     donors = permutation.copy(); donors[~supported] = np.flatnonzero(~supported)
     if len(set(donors[supported].tolist())) != int(supported.sum()):
         raise AtlasRefusal("global target permutation reuses a donor")
-    values = np.ascontiguousarray(target.values[donors]); values[~supported] = 0
+    source = target.values[donors] if donor_values else target.values
+    values = np.ascontiguousarray(source).copy(); values[~supported] = 0
     coordinate = target.coordinate_mask.copy(); coordinate[~supported] = False
     coordinate_risk = target.coordinate_at_risk.copy(); coordinate_risk[~supported] = False
     coordinate_censor = target.coordinate_censor.copy(); coordinate_censor[~supported] = False
@@ -684,6 +767,34 @@ def permute_probe_target_recipient_fixed(
         target.schema_sha256, target.transform_provenance_sha256,
         target.prediction_width, target.prediction_layout,
     )
+
+
+def permute_probe_target_recipient_fixed(
+    target: ProbeTarget, permutation: Sequence[int]
+) -> ProbeTarget:
+    return _recipient_fixed_rows(target, permutation, donor_values=True)
+
+
+def apply_recipient_fixed_singleton_drop(
+    target: ProbeTarget, permutation: Sequence[int]
+) -> ProbeTarget:
+    """Zero the REAL target rows that the shuffle could not donate to.
+
+    Without this the real objective fits on strictly more supported rows than
+    its own twin, which biases real-minus-twin positive independently of any
+    learned structure.
+    """
+    return _recipient_fixed_rows(target, permutation, donor_values=False)
+
+
+def recipient_fixed_real_and_twin(
+    target: ProbeTarget, permutation: Sequence[int]
+) -> tuple[ProbeTarget, ProbeTarget, SingletonDropCensus]:
+    """Return the row-identical (real, twin, drop census) triple."""
+    census = singleton_drop_census(permutation)
+    return (apply_recipient_fixed_singleton_drop(target, permutation),
+            permute_probe_target_recipient_fixed(target, permutation),
+            census)
 
 
 MATERIALIZER_REGISTRY = MappingProxyType({

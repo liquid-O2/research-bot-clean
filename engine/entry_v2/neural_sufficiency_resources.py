@@ -71,7 +71,9 @@ from .neural_sufficiency_model import (
     FrozenRowManifest, LastRowReconstructionProbe, LiTShortMemoryEncoder,
     SharedCandidateDecisionHead, assert_tensor_tree_identical,
     build_five_arm_registry, module_state_bytes, reconstruction_receipt,
+    validate_balanced_overfit_inputs,
 )
+from .neural_sufficiency_model import _monotone_ordinal
 from .neural_sufficiency_production import derive_production_context
 from .capacity_contract import (
     FIT_ONLY_MIN_ORACLE_CAPTURE, SCHEMA as CAPACITY_SCHEMA,
@@ -81,11 +83,13 @@ from .capacity_contract import (
 )
 from .selected_horizon_contract import (
     COORDINATES as SELECTED_HORIZON_COORDINATES,
+    SELECTED_HORIZON_ATLAS_AXES,
     SCHEMA_SHA256 as SELECTED_HORIZON_SCHEMA_SHA256,
     TARGET_LAW_SHA256 as SELECTED_HORIZON_TARGET_LAW_SHA256,
     WIDTH as SELECTED_HORIZON_WIDTH,
     validate_selected_horizon_identity,
 )
+from .policy import neural_inference_path
 from .production_runtime import (
     ColdAssetProcessPool,
     PRODUCTION_DISK_CACHE_MEMORY_RESERVE_BYTES,
@@ -95,10 +99,13 @@ from .production_runtime import (
 )
 from .durable_store import DurableEntryV2Store
 from .contracts import EntryScore
-from .replay import ScoredArrival, candidate_ceiling, replay
+from .replay import (
+    MAX_ENTRIES_PER_DAY as REPLAY_MAX_ENTRIES_PER_DAY,
+    ScoredArrival, candidate_ceiling, replay,
+)
 from .representation_probe import (
     assert_fast_sweep_parity, canonical_replay_adversary_receipt,
-    fast_threshold_sweep,
+    depth_funnel, fast_threshold_sweep, transport_receipt,
 )
 from .atlas_statistics import (
     PairedObservationRecord, hierarchical_holm, nonredundant_finalists,
@@ -321,14 +328,34 @@ def _selected_horizon_targets(atlas: Any, candidate_ids: Sequence[str],
         raise RealDiagnosticExecutorRefusal("selected horizon teacher rows differ")
     index = {cid: i for i, cid in enumerate(atlas.candidate_ids)}
     rows = np.asarray([index[cid] for cid in candidate_ids], np.int64)
-    columns = np.asarray((3, 4, 5, 6, 7, 11), np.int64)
+    # The six atlas axes are DERIVED from the frozen coordinate contract, never
+    # written as a literal tuple that silently survives a contract change.
+    if (len(SELECTED_HORIZON_ATLAS_AXES) != len(SELECTED_HORIZON_COORDINATES)
+            or len(SELECTED_HORIZON_ATLAS_AXES) != SELECTED_HORIZON_WIDTH):
+        raise RealDiagnosticExecutorRefusal(
+            "selected horizon atlas axes disagree with the coordinate contract")
+    columns = np.asarray(SELECTED_HORIZON_ATLAS_AXES, np.int64)
     values = (np.asarray(atlas.atoms["vertical_units"], np.int64)[rows][:, columns]
               .astype(np.float64) / PNL_UNITS_PER_USD)
     valid = np.asarray(atlas.atoms["vertical_mask"], bool)[rows][:, columns]
-    values[~valid] = 0.0
+    # B-22 (item 30): a censored/invalid coordinate carries the NaN sentinel,
+    # never 0.0.  A zero fill is byte-identical to a true $0 outcome once the
+    # mask is dropped, so unmasked arithmetic silently produced a real number;
+    # the sentinel makes it fail loudly instead.  Matches
+    # diagnostic_corpus.py:1404.
+    values[~valid] = np.nan
+    # V16: parity is proven in EXACT INTEGER UNITS.  An atol=1e-9 float
+    # comparison accepted a teacher terminal that differed from the atlas
+    # atom by up to a nanodollar, which is not the same number.
     terminal = np.asarray([float(label.cert_close_usd) for label in labels], np.float64)
+    atlas_units = np.asarray(atlas.atoms["vertical_units"], np.int64)[rows][:, int(columns[-1])]
+    teacher_units = terminal * float(PNL_UNITS_PER_USD)
+    if not np.all(teacher_units == np.rint(teacher_units)):
+        raise RealDiagnosticExecutorRefusal(
+            "teacher cert_close is not an exact integer number of PnL units")
     if (not np.all(valid[:, -1])
-            or not np.allclose(values[:, -1], terminal, rtol=0.0, atol=1e-9)):
+            or not np.array_equal(atlas_units,
+                                  np.rint(teacher_units).astype(np.int64))):
         raise RealDiagnosticExecutorRefusal(
             "canonical terminal horizon differs from teacher cert_close")
     if values.shape != (len(candidate_ids), SELECTED_HORIZON_WIDTH):
@@ -336,6 +363,7 @@ def _selected_horizon_targets(atlas: Any, candidate_ids: Sequence[str],
     receipt = _sha({"schema": "entry-v2-selected-horizon-targets-v1",
                     "schema_sha256": SELECTED_HORIZON_SCHEMA_SHA256,
                     "axes": list(SELECTED_HORIZON_COORDINATES),
+                    "atlas_axes": list(SELECTED_HORIZON_ATLAS_AXES),
                     "units": "RAW_USD_UNNORMALIZED",
                     "candidate_ids": list(candidate_ids),
                     "values_sha256": _sha_bytes(values.tobytes()),
@@ -363,11 +391,19 @@ def _selected_horizon_targets_from_spec(
     index = torch.tensor(positions, dtype=torch.long)
     carried_values = spec.selected_horizon_value[index].detach().cpu()
     carried_valid = spec.selected_horizon_valid[index].detach().cpu().to(torch.bool)
+    # Item 30: NaN sentinels are never equal to themselves, so byte identity
+    # is proven on the raw buffers and value identity is proven on the VALID
+    # coordinates only.
+    carried_numpy = carried_values.numpy()
     if (carried_values.dtype != torch.float64
             or carried_values.shape != values.shape
             or carried_valid.shape != valid.shape
-            or not torch.equal(carried_values, values)
-            or not torch.equal(carried_valid, valid)):
+            or not torch.equal(carried_valid, valid)
+            or _sha_bytes(np.ascontiguousarray(carried_numpy).tobytes())
+                != _sha_bytes(np.ascontiguousarray(values.numpy()).tobytes())
+            or not np.array_equal(
+                carried_numpy[valid.numpy()], values.numpy()[valid.numpy()])
+            or not np.all(np.isnan(carried_numpy[~valid.numpy()]))):
         raise RealDiagnosticExecutorRefusal(
             "selected horizon atlas/corpus carrier differs")
     return values, valid, receipt
@@ -448,7 +484,7 @@ def _probe_fingerprint(target: ProbeTarget, fit_rows: np.ndarray,
 
 def _e1_fit_support_inputs(
     probe: ProbeSpec, target: ProbeTarget, rows: ProbeRows,
-    fit_indices: Sequence[int],
+    fit_indices: Sequence[int], *, selected_horizon_start_d8: int,
 ):
     """Build every E1 support plane from physical FIT-only row slices."""
     from .atlas_statistics import SupportKind
@@ -467,20 +503,34 @@ def _e1_fit_support_inputs(
     decisions = np.asarray(rows.decision_ts_ns, np.int64)[idx]
     if np.any(days > 20210930):
         raise RealDiagnosticExecutorRefusal("E1 support physical slice crossed FIT")
+    if (not isinstance(selected_horizon_start_d8, (int, np.integer))
+            or not 19000101 <= int(selected_horizon_start_d8) <= 99991231):
+        raise RealDiagnosticExecutorRefusal(
+            "E1 support slice lacks a valid selected-horizon start wall")
+    start_d8 = int(selected_horizon_start_d8)
+    if np.any(days < start_d8):
+        raise RealDiagnosticExecutorRefusal(
+            "E1 support physical slice precedes the selected-horizon start wall")
     fit_valid = np.asarray(target.validity_mask, bool)[idx]
     values = np.asarray(target.values[idx, 0], np.float64)
+    # Item 24: a finite RIGHT-CENSORED value is not an observation.  The
+    # CONTINUOUS family now requires the censor plane explicitly.
+    coordinate_censor = np.asarray(target.coordinate_censor, bool)[idx]
+    censored = coordinate_censor[:, 0]
+    wall = {"selected_horizon_start_d8": start_d8}
     additional_support = ()
     support_kind = probe.support_id.removeprefix("support.")
     if support_kind == "exact_time_ranking":
         support = ProbeSupportInputs(
             SupportKind.EXACT_TIME_RANKING, assets, fit_valid,
             group_id=np.asarray(target.group_id)[idx], day=days,
-            decision_ts=decisions)
+            decision_ts=decisions, **wall)
     elif support_kind == "economic_continuous":
         support = ProbeSupportInputs(
-            SupportKind.ECONOMIC, assets, fit_valid, day=days)
+            SupportKind.ECONOMIC, assets, fit_valid, day=days, **wall)
         additional_support = (ProbeSupportInputs(
-            SupportKind.CONTINUOUS, assets, fit_valid, values=values, day=days),)
+            SupportKind.CONTINUOUS, assets, fit_valid, values=values, day=days,
+            censored=censored, **wall),)
     elif support_kind == "competing_cause":
         if probe.cell in (10, 24):
             cause = np.asarray(target.values[idx, :24], np.int64).reshape(-1)
@@ -488,26 +538,30 @@ def _e1_fit_support_inputs(
                 SupportKind.COMPETING_CAUSE, np.repeat(assets, 24),
                 (np.asarray(target.coordinate_mask[idx, :24], bool)
                  & fit_valid[:, None]).reshape(-1), values=cause,
-                required_levels=(0, 1, 2, 3), day=np.repeat(days, 24))
+                required_levels=(0, 1, 2, 3), day=np.repeat(days, 24),
+                censored=coordinate_censor[:, :24].reshape(-1), **wall)
         else:
             support = ProbeSupportInputs(
                 SupportKind.COMPETING_CAUSE, assets, fit_valid, values=values,
-                required_levels=(0, 1), day=days)
+                required_levels=(0, 1), day=days, censored=censored, **wall)
     elif support_kind == "binary_ordinal":
         support = ProbeSupportInputs(
             SupportKind.BINARY_ORDINAL, assets, fit_valid, values=values,
-            required_levels=(0, 1), day=days)
+            required_levels=(0, 1), day=days, censored=censored, **wall)
     elif support_kind == "mixed_continuous_ordinal":
         width = max(2, min(target.output_width, 9))
         ordinal = np.argmax(target.values[idx, 1:width], axis=1)
         support = ProbeSupportInputs(
-            SupportKind.CONTINUOUS, assets, fit_valid, values=values, day=days)
+            SupportKind.CONTINUOUS, assets, fit_valid, values=values, day=days,
+            censored=censored, **wall)
         additional_support = (ProbeSupportInputs(
             SupportKind.BINARY_ORDINAL, assets, fit_valid, values=ordinal,
-            required_levels=tuple(range(width - 1)), day=days),)
+            required_levels=tuple(range(width - 1)), day=days,
+            censored=censored, **wall),)
     else:
         support = ProbeSupportInputs(
-            SupportKind.CONTINUOUS, assets, fit_valid, values=values, day=days)
+            SupportKind.CONTINUOUS, assets, fit_valid, values=values, day=days,
+            censored=censored, **wall)
     coordinate_support = []
     coordinate_mask = np.asarray(target.coordinate_mask, bool)[idx]
     for coordinate in range(target.output_width):
@@ -522,7 +576,8 @@ def _e1_fit_support_inputs(
             SupportKind.BINARY_ORDINAL if categorical_coordinate
             else SupportKind.CONTINUOUS,
             assets, valid_coordinate, values=coordinate_values,
-            required_levels=((0, 1) if categorical_coordinate else ()), day=days))
+            required_levels=((0, 1) if categorical_coordinate else ()), day=days,
+            censored=coordinate_censor[:, coordinate], **wall))
     result = (support, tuple((*additional_support, *coordinate_support)))
     for item in (result[0], *result[1]):
         item.validate_fit_slice()
@@ -678,7 +733,9 @@ def _bounded_supervised_fit_sha(
     with torch.random.fork_rng():
         torch.manual_seed(seed)
         head = torch.nn.Linear(x.shape[1], 1)
-        optimizer = torch.optim.SGD(head.parameters(), lr=.025)
+        optimizer = _run_optimizer(
+            lambda: torch.optim.SGD(head.parameters(), lr=.025),
+            category="CANARY", fit_id=f"bounded-isolation-fit/{seed}")
         for _ in range(8):
             optimizer.zero_grad(set_to_none=True)
             logits = head(x).squeeze(1)
@@ -722,7 +779,9 @@ def _actual_multitask_loss(output: Any, batch: "_CandidateBatch",
             return row.sum() * 0.0
         if not weighted:
             return row[mask].mean()
-        assert oracle_fit_weights is not None
+        if not (oracle_fit_weights is not None):
+            raise RealDiagnosticExecutorRefusal(
+                "internal invariant failed: oracle_fit_weights is not None")
         key = name if name in ("action", "top3", "wall") else "base"
         supplied = oracle_fit_weights[key].to(device=device, dtype=torch.float32)
         if (supplied.shape != batch.targets.shape
@@ -1199,6 +1258,252 @@ def _available_host_gib() -> float:
     return value
 
 
+# ---------------------------------------------------------------------------
+# A-011 process-global optimizer-fit census (C3).
+#
+# Every optimizer construction on the atlas/arm/head paths is routed through
+# ``_run_optimizer`` so that the number of fits that actually executed is a
+# MEASURED quantity, not a declaration.  ``validate_fit_ledger`` in the
+# executor reconciles the registered categories against this census and
+# refuses on any mismatch: an unregistered hidden fit, a registered fit that
+# never ran, or more than 98 registered fits through the E2 freeze.
+# ---------------------------------------------------------------------------
+
+#: Categories the declarative fit ledger registers and therefore reconciles
+#: exactly.  ``COMPETENCE`` fits are discarded and counted separately.
+#: Complete typed status vocabulary of one fit-only rehearsal score path.
+#: DEGENERATE_MAPPER/DEGENERATE_CALIBRATOR are IMPLEMENTATION refusals -- a
+#: transport funnel that cannot carry any score is never an economic loser.
+REHEARSAL_PATH_STATUSES = (
+    "ELIGIBLE", "NO_FEASIBLE_THRESHOLD", "NO_FEASIBLE_FORWARD",
+    "DEGENERATE_MAPPER", "DEGENERATE_CALIBRATOR",
+)
+#: Statuses that mean the path implementation is broken, not that the economics
+#: lost.  ``finalize`` raises on any of these.
+REHEARSAL_PATH_IMPLEMENTATION_REFUSALS = (
+    "DEGENERATE_MAPPER", "DEGENERATE_CALIBRATOR",
+)
+
+LEDGER_FIT_CATEGORIES = ("E1_PRETEXT", "E1_REAL", "E1_TWIN", "E2_REAL", "E2_TWIN")
+#: Categories that are real optimizer fits but are never registered objective
+#: slots: competence rehearsal, gate canaries and the E1r/E2r rehearsal path.
+UNREGISTERED_FIT_CATEGORIES = ("ARM", "HEAD", "GATE", "CANARY", "REHEARSAL",
+                               "COMPETENCE")
+FIT_CENSUS_CATEGORIES = LEDGER_FIT_CATEGORIES + UNREGISTERED_FIT_CATEGORIES
+#: A-011 ceiling on registered optimizer fits through the E2 freeze.
+MAXIMUM_REGISTERED_FITS_THROUGH_E2 = 98
+
+#: B-07: minimum AUROC the arm must LOSE when the raw event memory is occluded
+#: and only the static bypass remains.  Replaces a 1e-6 logit-delta epsilon
+#: that a bypass-only decision satisfied trivially.
+RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP = 0.05
+
+#: B-15: the route/suffix gate must run past three COMPLETED 256-event blocks
+#: so the completed-block, band and GRU machinery is genuinely exercised.
+ROUTE_GATE_MINIMUM_CUTOFF = 3 * 256
+#: Post-cutoff rows the suffix mutation checks require.
+ROUTE_GATE_SUFFIX_ROWS = 32
+
+
+class _OptimizerFitCensus:
+    """Append-only census of every executed optimizer fit in this process."""
+
+    def __init__(self) -> None:
+        self._records: list[tuple[str, str]] = []
+
+    def reset(self) -> None:
+        self._records.clear()
+
+    def record(self, category: str, fit_id: str) -> None:
+        if category not in FIT_CENSUS_CATEGORIES:
+            raise RealDiagnosticExecutorRefusal(
+                f"optimizer fit census category is unregistered: {category!r}")
+        if not fit_id or not isinstance(fit_id, str):
+            raise RealDiagnosticExecutorRefusal("optimizer fit census id is invalid")
+        self._records.append((category, fit_id))
+
+    def counts(self) -> dict[str, int]:
+        return {category: sum(row[0] == category for row in self._records)
+                for category in FIT_CENSUS_CATEGORIES}
+
+    def registered_total(self) -> int:
+        return sum(row[0] in LEDGER_FIT_CATEGORIES for row in self._records)
+
+    def snapshot(self) -> dict[str, Any]:
+        counts = self.counts()
+        return {"counts": counts,
+                "registered_total": self.registered_total(),
+                "total": len(self._records),
+                "maximum_registered_through_e2":
+                    MAXIMUM_REGISTERED_FITS_THROUGH_E2,
+                "records_sha256": _sha([list(row) for row in self._records])}
+
+
+_OPTIMIZER_FIT_CENSUS = _OptimizerFitCensus()
+
+
+def optimizer_fit_census() -> dict[str, Any]:
+    """Measured snapshot of every optimizer fit executed in this process."""
+    return _OPTIMIZER_FIT_CENSUS.snapshot()
+
+
+def reset_optimizer_fit_census() -> None:
+    _OPTIMIZER_FIT_CENSUS.reset()
+
+
+def _run_optimizer(construct, *, category: str, fit_id: str):
+    """Construct/execute exactly one optimizer fit and count it (A-011)."""
+    _OPTIMIZER_FIT_CENSUS.record(category, fit_id)
+    if _OPTIMIZER_FIT_CENSUS.registered_total() > MAXIMUM_REGISTERED_FITS_THROUGH_E2:
+        raise RealDiagnosticExecutorRefusal(
+            "registered optimizer fit ceiling of 98 exceeded through the E2 freeze")
+    return construct()
+
+
+class _HorizonLossBatch:
+    """Minimal batch view for the REAL selected-horizon loss (B-08)."""
+
+    __slots__ = ("selected_horizon_value", "selected_horizon_valid",
+                 "selected_horizon_schema_sha256", "rows")
+
+    def __init__(self, value, valid, rows: int) -> None:
+        self.selected_horizon_value = value
+        self.selected_horizon_valid = valid
+        self.selected_horizon_schema_sha256 = SELECTED_HORIZON_SCHEMA_SHA256
+        self.rows = int(rows)
+
+
+class _HorizonLossOutput:
+    """Minimal learning-output view for the REAL selected-horizon loss."""
+
+    __slots__ = ("horizon_value",)
+
+    def __init__(self, horizon_value) -> None:
+        self.horizon_value = horizon_value
+
+
+def _selected_horizon_components(prediction, target, valid):
+    """Per-coordinate components of the PRODUCTION selected-horizon loss.
+
+    B-08: the A-015 coordinate gate must exercise the same
+    ``train._selected_horizon_component`` the learner optimizes, one
+    coordinate at a time, so that perturbing coordinate ``k`` can be proven to
+    move exactly component ``k``.
+    """
+    from .train import _selected_horizon_component
+    rows = int(prediction.shape[0])
+    weights = torch.ones(rows, dtype=torch.float32, device=prediction.device)
+    components = []
+    for coordinate in range(SELECTED_HORIZON_WIDTH):
+        local = torch.zeros_like(valid)
+        local[:, coordinate] = valid[:, coordinate]
+        if not bool(local.any()):
+            raise RealDiagnosticExecutorRefusal(
+                f"selected horizon coordinate {coordinate} has no valid target")
+        components.append(_selected_horizon_component(
+            _HorizonLossOutput(prediction),
+            _HorizonLossBatch(target, local, rows), weights))
+    return components
+
+
+#: Cross-lane item 26: ``loss_for_probe`` raises AtlasRefusal("UNAVAILABLE: ...")
+#: when a batch/stage has no supported row for an objective.  That is a typed
+#: LEDGER STATE for that batch, never a crash and never a silent zero loss.
+OBJECTIVE_BATCH_UNAVAILABLE = "UNAVAILABLE_IN_BATCH"
+OBJECTIVE_BATCH_MATERIALIZED = "MATERIALIZED"
+
+
+def _executed_threshold_candidate_law() -> dict[str, Any]:
+    """F7: describe the law this path ACTUALLY executes.
+
+    ``train.threshold_candidate_law()`` declares
+    ``maximum_calibrated_levels: PolicyConfig().venn_bins`` (512), which
+    belongs to the binned Venn-Abers path.  The executed neural path applies an
+    UNCAPPED continuous positive-slope Platt calibrator and enumerates every
+    distinct finite calibrated level plus the nextafter no-entry sentinel, so
+    the number of levels is bounded by the row count, not by 512.
+    """
+    from .train import threshold_candidate_law
+    declared = dict(threshold_candidate_law())
+    declared.pop("maximum_calibrated_levels", None)
+    declared["calibrator"] = "UNCAPPED_CONTINUOUS_POSITIVE_SLOPE_PLATT"
+    declared["maximum_calibrated_levels"] = "UNBOUNDED_BY_DISTINCT_ROW_LEVELS"
+    declared["binned_venn_abers_levels_used"] = False
+    declared["no_entry_sentinel"] = "nextafter(max_calibrated_level, +inf)"
+    return declared
+
+
+def _typed_loss_for_probe(spec, prediction, target):
+    """Return ``(loss, state)``; ``loss`` is None for a typed-unavailable batch."""
+    from .causal_label_atlas import AtlasRefusal
+    try:
+        return loss_for_probe(spec, prediction, target), OBJECTIVE_BATCH_MATERIALIZED
+    except AtlasRefusal as error:
+        if not str(error).startswith("UNAVAILABLE:"):
+            raise
+        return None, OBJECTIVE_BATCH_UNAVAILABLE
+
+
+def _typed_loss_for_probe_unweighted(spec, prediction, target):
+    from .causal_label_atlas import AtlasRefusal
+    try:
+        return (loss_for_probe(spec, prediction, target, use_fit_weight=False),
+                OBJECTIVE_BATCH_MATERIALIZED)
+    except AtlasRefusal as error:
+        if not str(error).startswith("UNAVAILABLE:"):
+            raise
+        return None, OBJECTIVE_BATCH_UNAVAILABLE
+
+
+def _recipient_fixed_permutation_for(target, *, stage, asset, day,
+                                     action_loss_mask, seed: int) -> np.ndarray:
+    """Twin permutation for ONE target's own availability stratum.
+
+    Cross-lane item 23: ``materialized`` is a stratum key, not an afterthought.
+    A shared permutation built once for many probes cannot describe each
+    probe's own availability, so the permutation is derived per target from
+    that target's validity mask.
+    """
+    return stage_global_recipient_fixed_permutation(
+        stage, asset, day, action_loss_mask,
+        materialized=np.asarray(target.validity_mask, bool), seed=int(seed))
+
+
+def _chronological_portfolio_drawdown_usd(trades) -> float:
+    """R2: peak-to-trough drawdown of the ALL-ASSET cumulative PnL curve.
+
+    Report-only.  Trades are ordered by their native entry nanosecond and then
+    by candidate id, so the curve is the portfolio a single operator would
+    actually have experienced.  Per-asset MDD stays the gate.
+    """
+    cumulative = 0.0; peak = 0.0; worst = 0.0
+    for trade in sorted(trades, key=lambda row: (int(row.entry_ts_ns),
+                                                 str(row.candidate_id))):
+        cumulative += float(trade.pnl_usd)
+        peak = max(peak, cumulative)
+        worst = max(worst, peak - cumulative)
+    return float(worst)
+
+
+def reference_phase_clocks(truth, stop: int) -> tuple[np.ndarray, np.ndarray]:
+    """Recompute the producer's phase clocks exactly (A1).
+
+    ``ts_recv_ns`` is uint64 while ``phase_open_ts_ns``/``phase_close_ts_ns``
+    are int64.  Subtracting them directly promotes to float64 under NumPy 2,
+    which cannot represent a real 1.6e18 nanosecond epoch exactly (the ULP is
+    256 ns there), so the naive expression silently disagrees with the
+    producer on every real session.  The producer casts the receive clock to
+    int64 first (diagnostic_inputs.py:1121) and this must reproduce it byte
+    for byte.
+    """
+    receive = np.asarray(truth["ts_recv_ns"][:stop]).astype(np.int64)
+    phase_open = np.asarray(truth["phase_open_ts_ns"][:stop]).astype(np.int64)
+    phase_close = np.asarray(truth["phase_close_ts_ns"][:stop]).astype(np.int64)
+    if receive.dtype != np.int64 or phase_open.dtype != np.int64 or phase_close.dtype != np.int64:
+        raise RealDiagnosticExecutorRefusal("phase clock reference is not integer-exact")
+    return receive - phase_open, phase_close - receive
+
+
 def _expanded_columns(fields: DerivedEventFields, stop: int) -> tuple[tuple[str, ...], np.ndarray]:
     categorical = set(CATEGORICAL_FIELDS[:-1]) | {"missing_mask"}
     columns: list[np.ndarray] = []; names: list[str] = []
@@ -1502,16 +1807,63 @@ class ProductionExactDiagnosticResources:
                 key: tuple(value) for key, value in by_session.items()})
         return self._binding_by_id, self._binding_by_session
 
+    def _record_objective_batch_state(self, stage_label: str, probe_id: str,
+                                      state: str) -> None:
+        """Ledger one objective batch state (item 26); never a silent zero."""
+        census = getattr(self, "_objective_batch_census", None)
+        if census is None:
+            census = self._objective_batch_census = {}
+        key = (str(stage_label), str(probe_id))
+        row = census.setdefault(key, {OBJECTIVE_BATCH_MATERIALIZED: 0,
+                                      OBJECTIVE_BATCH_UNAVAILABLE: 0})
+        if state not in row:
+            raise RealDiagnosticExecutorRefusal(
+                f"unregistered objective batch state {state!r}")
+        row[state] += 1
+
+    def _assert_objective_batch_support(self, stage_label: str) -> Mapping[str, Any]:
+        """Refuse if an objective was typed-unavailable in EVERY batch."""
+        census = dict(getattr(self, "_objective_batch_census", None) or {})
+        rows = {probe_id: counts for (stage, probe_id), counts in census.items()
+                if stage == str(stage_label)}
+        dead = sorted(probe_id for probe_id, counts in rows.items()
+                      if counts[OBJECTIVE_BATCH_MATERIALIZED] == 0)
+        if dead:
+            raise RealDiagnosticExecutorRefusal(
+                f"{stage_label} objective had no supported batch: {dead[0]}")
+        return MappingProxyType({probe_id: dict(counts)
+                                 for probe_id, counts in sorted(rows.items())})
+
+    def _selected_horizon_start_d8(self) -> int:
+        """A8: the diagnostic start wall, read off the corpus receipt.
+
+        The wall was hardcoded as ``20210531`` in eight places.  A corpus
+        rebuilt at any other start day silently kept the stale literal, so the
+        learner/diagnostic domain laws checked the wrong window.
+        """
+        if self.stage is None:
+            raise RealDiagnosticExecutorRefusal(
+                "selected-horizon start wall requires a loaded corpus")
+        receipt = self.stage.diagnostic_corpus.receipt
+        value = receipt.get("selected_horizon_start_d8")
+        if not isinstance(value, (int, np.integer)) or not 19000101 <= int(value) <= 99991231:
+            raise RealDiagnosticExecutorRefusal(
+                "corpus receipt selected_horizon_start_d8 is absent or invalid")
+        return int(value)
+
     def _held_population(self, end_d8: int) -> tuple[Any, ...]:
+        start_d8 = self._selected_horizon_start_d8()
         return tuple(sorted((spec for spec in self.stage.corpus_stage.corpus.sessions
-                             if 20210531 <= spec.trading_day <= end_d8),
+                             if start_d8 <= spec.trading_day <= end_d8),
                             key=lambda spec: (spec.asset, spec.trading_day,
                                               spec.session_id)))
 
     def _fit_held_normalizers(self) -> Mapping[str, Any]:
         if self._held_normalizer is not None:
             return self._held_normalizer
-        assert self.stage is not None and self.schema is not None
+        if not (self.stage is not None and self.schema is not None):
+            raise RealDiagnosticExecutorRefusal(
+                "internal invariant failed: self.stage is not None and self.schema is not None")
         specs = self._held_population(20220311)
         days = sorted({spec.trading_day for spec in specs})
         validation = frozenset(days[-max(1, int(np.ceil(.1 * len(days)))):])
@@ -1980,10 +2332,12 @@ class ProductionExactDiagnosticResources:
             model = models[arm].to(self.device)
             decoder = LastRowReconstructionProbe(
                 len(self.schema.continuous_fields), CATEGORY_SIZES).to(self.device)
-            optimizer = torch.optim.AdamW(
-                [*model.parameters(), *decoder.parameters()], lr=1e-3,
-                weight_decay=1e-4,
-            )
+            optimizer = _run_optimizer(
+                lambda: torch.optim.AdamW(
+                    [*model.parameters(), *decoder.parameters()], lr=1e-3,
+                    weight_decay=1e-4,
+                ),
+                category="ARM", fit_id=f"E1r/arm/{arm}/base")
             best = None; best_loss = np.inf; stale = 0; trace = []
             gradient_census: set[str] = set()
             for epoch in range(12):
@@ -2219,10 +2573,12 @@ class ProductionExactDiagnosticResources:
             else:
                 torch.nn.init.xavier_uniform_(objective.weight)
                 torch.nn.init.zeros_(objective.bias)
-            optimizer = torch.optim.AdamW(
-                [*model.head.parameters(),
-                 *(() if arm == "C0" else objective.parameters())], lr=1e-3,
-                weight_decay=1e-4)
+            optimizer = _run_optimizer(
+                lambda: torch.optim.AdamW(
+                    [*model.head.parameters(),
+                     *(() if arm == "C0" else objective.parameters())], lr=1e-3,
+                    weight_decay=1e-4),
+                category="ARM", fit_id=f"E1r/arm/{arm}/objective-head")
             best = None; best_loss = np.inf; stale = 0; trace = []
             for epoch in range(6):
                 model.train(); objective.train(); train_losses = []; components = []
@@ -2249,10 +2605,16 @@ class ProductionExactDiagnosticResources:
                                 asset_idx=C.ASSET_INDEX[batch.asset],
                                 static_features=(batch.static_features.to(self.device)
                                                  if arm in ("L1", "M1") else None))
-                            selected_parts.append(out.action_logit.sum() * 0.0
-                                if arm == "C0" else loss_for_probe(
+                            if arm == "C0":
+                                selected_parts.append(out.action_logit.sum() * 0.0)
+                            else:
+                                _loss, _state = _typed_loss_for_probe(
                                     probe, objective(out.decision_state),
-                                    _target_take(target, idx)))
+                                    _target_take(target, idx))
+                                self._record_objective_batch_state(
+                                    "HELD_E2_SELECTED", probe.probe_id, _state)
+                                if _loss is not None:
+                                    selected_parts.append(_loss)
                             action_weight = {name: torch.tensor([
                                 grouped_weight_by_id[cid][name]
                                 for cid in batch.candidate_ids], dtype=torch.float32)
@@ -2296,11 +2658,19 @@ class ProductionExactDiagnosticResources:
                                     asset_idx=C.ASSET_INDEX[batch.asset],
                                     static_features=(batch.static_features.to(self.device)
                                                      if arm in ("L1", "M1") else None))
-                                selected_parts.append(out.action_logit.sum() * 0.0
-                                    if arm == "C0" else loss_for_probe(
-                                        probe, objective(out.decision_state),
-                                        _target_take(target, idx),
-                                        use_fit_weight=False))
+                                if arm == "C0":
+                                    selected_parts.append(
+                                        out.action_logit.sum() * 0.0)
+                                else:
+                                    _loss, _state = \
+                                        _typed_loss_for_probe_unweighted(
+                                            probe, objective(out.decision_state),
+                                            _target_take(target, idx))
+                                    self._record_objective_batch_state(
+                                        "HELD_E2_SELECTED_VALIDATION",
+                                        probe.probe_id, _state)
+                                    if _loss is not None:
+                                        selected_parts.append(_loss)
                                 oracle_parts.append(_actual_multitask_loss(out, batch)[0])
                                 logits.update({cid: out.action_logit[i]
                                     for i, cid in enumerate(batch.candidate_ids)})
@@ -2373,7 +2743,9 @@ class ProductionExactDiagnosticResources:
                 and not hasattr(self, "_accepted_arm_authorization")):
             raise RealDiagnosticExecutorRefusal("acceptance must authorize architecture first")
         models = self._train_fresh_held_models()
-        assert self.stage is not None
+        if not (self.stage is not None):
+            raise RealDiagnosticExecutorRefusal(
+                "internal invariant failed: self.stage is not None")
         bindings, binding_by_session = self._binding_indexes()
         selected = self._held_population(end_d8)
         if not selected:
@@ -2545,7 +2917,9 @@ class ProductionExactDiagnosticResources:
                       f"_probe_plane_{maximum_d8}_{pretext_fit_end}")
         if hasattr(self, cache_name):
             return getattr(self, cache_name)
-        assert self.stage is not None
+        if not (self.stage is not None):
+            raise RealDiagnosticExecutorRefusal(
+                "internal invariant failed: self.stage is not None")
         observed = {session.key: session for session in self.stage.diagnostic_corpus.sessions}
         bindings = {row.candidate_id: row for row in self.stage.diagnostic_corpus.bindings}
         specs = self._held_population(maximum_d8)
@@ -2865,9 +3239,8 @@ class ProductionExactDiagnosticResources:
         binding_index, _ = self._binding_indexes()
         recipient = np.asarray([binding_index[cid].action_loss_mask for cid in ids], bool)
         fit_row_mask = np.zeros(len(days), bool); fit_row_mask[fit_idx] = True
-        permutation = stage_global_recipient_fixed_permutation(
-            np.where(days <= 20210930, "FIT", np.where(days <= 20211029, "CAL", "HELD")),
-            assets, days, recipient, seed=20260816)
+        _twin_stage = np.where(days <= 20210930, "FIT",
+                               np.where(days <= 20211029, "CAL", "HELD"))
         torch.manual_seed(20260816); initialization = AtlasProbeNet()
         screens = []
         shared_plane = SharedProbePlane.build(rows, fit_idx, stage_id="E1")
@@ -2875,7 +3248,8 @@ class ProductionExactDiagnosticResources:
         for probe in PROBE_REGISTRY:
             target = targets[probe.probe_id]
             support, additional_support = _e1_fit_support_inputs(
-                probe, target, rows, fit_idx)
+                probe, target, rows, fit_idx,
+                selected_horizon_start_d8=self._selected_horizon_start_d8())
             support_decisions = tuple(x.measure() for x in (support, *additional_support))
             availability = (target.state if target.state != CellAvailability.MATERIALIZED
                             else (CellAvailability.MATERIALIZED
@@ -2891,6 +3265,9 @@ class ProductionExactDiagnosticResources:
                     e1_platt_days,
                     MappingProxyType({}), additional_support, availability))
                 continue
+            permutation = _recipient_fixed_permutation_for(
+                target, stage=_twin_stage, asset=assets, day=days,
+                action_loss_mask=recipient, seed=20260816)
             twin = permute_probe_target_recipient_fixed(target, permutation)
             real = fit_probe(probe, rows, target, fit_indices=fit_idx,
                              initialization=initialization, stage_id="E1",
@@ -2952,8 +3329,14 @@ class ProductionExactDiagnosticResources:
                 raise RealDiagnosticExecutorRefusal(
                     "E1 paired roster differs from QRE2CAL1 denominator")
             for asset, day in calendar_keys:
+                # Lane C: honor the REAL recipient mask.  A hard-coded ``True``
+                # made ``paired_day_cluster_records``' recipient filter dead,
+                # so an asset-day with no recipient row still voted.
+                local_rows = np.flatnonzero(
+                    (assets == asset) & (days == int(day)))
                 records.append(PairedObservationRecord(
-                        f"CALENDAR:{asset}:{day}", asset, str(day), True,
+                        f"CALENDAR:{asset}:{day}", asset, str(day),
+                        bool(len(local_rows) and np.any(recipient[local_rows])),
                         real_target_hash, twin_target_hash,
                         float(real_day.get((asset, day), 0.0)),
                         float(twin_day.get((asset, day), 0.0))))
@@ -3019,8 +3402,6 @@ class ProductionExactDiagnosticResources:
         split = np.where(days <= 20220311, "FIT", np.where(
             days <= 20220427, "PLATT", np.where(days <= 20220609,
             "THRESHOLD", np.where(days <= 20220630, "SELECTION", "HELD"))))
-        permutation = stage_global_recipient_fixed_permutation(
-            split, assets, days, recipient, seed=20260816)
         plane = SharedProbePlane.build(rows, fit_idx, stage_id="E2")
         torch.manual_seed(20260816); initialization = AtlasProbeNet()
         selection_days = tuple(sorted({session.trading_day for session in
@@ -3034,6 +3415,9 @@ class ProductionExactDiagnosticResources:
             objective_started = time.perf_counter()
             probe = next(x for x in PROBE_REGISTRY if x.probe_id == probe_id)
             target = targets[probe_id]
+            permutation = _recipient_fixed_permutation_for(
+                target, stage=split, asset=assets, day=days,
+                action_loss_mask=recipient, seed=20260816)
             twin = permute_probe_target_recipient_fixed(target, permutation)
             twin_spec = shuffled_probe_for(
                 probe,
@@ -3110,12 +3494,16 @@ class ProductionExactDiagnosticResources:
             capture_lower = tuple(float(x) for x in capture_rw.simultaneous_lower_bounds[
                 index * len(C.ASSETS):(index + 1) * len(C.ASSETS)])
             metric = receipts[probe_id]
-            # Romano-Wolf already gives deterministic zero-variance columns
-            # their exact lower bound.  A deterministic positive effect is
-            # evidence, while a deterministic nonpositive effect has a
-            # nonpositive bound and fails below; neither may be dropped from
-            # the registered family or rejected merely for having zero SE.
-            if (min(lower) > 0 and min(capture_lower) > 0
+            # Cross-lane item 29: a zero-standard-error column now receives a
+            # -inf lower bound and is flagged ineligible.  A deterministic
+            # column carries no sampling evidence and can never be certified,
+            # so selection requires the measured eligibility mask as well as a
+            # positive bound.  The hypothesis stays in the registered family.
+            window = slice(index * len(C.ASSETS), (index + 1) * len(C.ASSETS))
+            eligible_columns = bool(
+                np.all(np.asarray(rw.eligible_mask, bool)[window])
+                and np.all(np.asarray(capture_rw.eligible_mask, bool)[window]))
+            if (eligible_columns and min(lower) > 0 and min(capture_lower) > 0
                     and all(value == "ELIGIBLE" for value in
                             metric["real_availability"].values())):
                 eligible.append(((min(lower), min(capture_lower),
@@ -3274,7 +3662,10 @@ class ProductionExactDiagnosticResources:
             choices = np.flatnonzero(feasible)
             chosen = None
             if not len(choices):
-                thresholds[asset] = 1.0
+                # F5: the no-entry sentinel is the sweep's nextafter level,
+                # never a literal 1.0 -- a saturated Platt output
+                # (expit(40.0) == 1.0 exactly) would ENTER at ">= 1.0".
+                thresholds[asset] = float(sweep.thresholds[-1])
                 availability[asset] = ("UNAVAILABLE_PAIRLOGIT_SUPPORT"
                     if asset in unavailable_ranker else "NO_FEASIBLE_THRESHOLD")
             else:
@@ -4222,7 +4613,7 @@ class ProductionExactDiagnosticResources:
                 asset: asdict(threshold_selections[asset]) for asset in C.ASSETS}},
             "truth_inner_thresholds_usd": {
                 asset: asdict(truth_selections[asset]) for asset in C.ASSETS},
-            "threshold_candidate_law": threshold_candidate_law(),
+            "threshold_candidate_law": _executed_threshold_candidate_law(),
             "truth_threshold_grid_usd": list(TRUTH_THRESHOLD_GRID_USD),
             "threshold_funnel_schema": THRESHOLD_FUNNEL_SCHEMA,
             "action_supervision_census": dict(action_census),
@@ -4312,7 +4703,9 @@ class ProductionExactDiagnosticResources:
                 acceptance_sha256, prior_stage_sha256, self._held_confirmations,
                 self._held_objective_freeze_receipt)
             winner = self._held_engine.e2
-            assert winner is not None
+            if not (winner is not None):
+                raise RealDiagnosticExecutorRefusal(
+                    "internal invariant failed: winner is not None")
             selected_key = (winner.confirmation.probe_id, winner.confirmation.arm,
                             winner.confirmation.decision_kind)
             selected_candidate = self._held_candidate_payloads[selected_key]
@@ -4385,6 +4778,12 @@ class ProductionExactDiagnosticResources:
         self._binding_by_id = None
         self._binding_by_session = None
         self._observed_by_session = None
+        # A7: the held normalizers are fitted from _held_population(), whose
+        # domain is the corpus window that was just extended.  Leaving them
+        # cached carried moments fitted on the SHORTER window into the longer
+        # one, silently normalizing held rows with pre-extension statistics.
+        self._held_normalizer = None
+        self._held_horizon_normalizer = None
 
     def _expanded_session_metadata(
         self,
@@ -4454,6 +4853,19 @@ class ProductionExactDiagnosticResources:
                 raise RealDiagnosticExecutorRefusal(
                     "expanded transform session identity is duplicated")
             metadata[key] = rows
+        # A4: the loop above proves every DIAGNOSTIC day with a learner-eligible
+        # row has its corpus session.  The reverse direction was never checked:
+        # a corpus session at or after the selected-horizon start wall that has
+        # no diagnostic day map entry at all would pass silently.
+        start_d8 = self._selected_horizon_start_d8()
+        orphans = tuple(sorted(
+            day_key for day_key in spec_by_day
+            if int(day_key[1]) >= start_d8 and day_key not in frozen_by_day))
+        if orphans:
+            raise RealDiagnosticExecutorRefusal(
+                "corpus session at/after the selected-horizon start wall is "
+                f"absent from the diagnostic day map: {orphans[0][0]}/{orphans[0][1]} "
+                f"(+{len(orphans) - 1} more)")
         return MappingProxyType(metadata)
 
     @staticmethod
@@ -5510,10 +5922,9 @@ class ProductionExactDiagnosticResources:
         assets = np.asarray([bindings[cid].asset for cid in ids])
         days = np.asarray([bindings[cid].trading_day for cid in ids], np.int64)
         recipient = np.asarray([bindings[cid].action_loss_mask for cid in ids], bool)
-        permutation = stage_global_recipient_fixed_permutation(
-            np.full(len(ids), "FOLD"), assets, days, recipient,
-            seed=int(shuffle_seed),
-        )
+        permutation = _recipient_fixed_permutation_for(
+            handoff.target, stage=np.full(len(ids), "FOLD"), asset=assets,
+            day=days, action_loss_mask=recipient, seed=int(shuffle_seed))
         shuffled = permute_probe_target_recipient_fixed(handoff.target, permutation)
         permutation_sha = C.object_sha256(permutation.tolist())
         source_sha = _sha_bytes(np.ascontiguousarray(handoff.target.values).tobytes())
@@ -5760,54 +6171,109 @@ class ProductionExactDiagnosticResources:
                 expected = tuple(session for session in
                     corpus.replay.expected_sessions
                     if lower <= int(session.trading_day) <= upper)
-                selected = roles[role] & (close_values >= C.MIN_EXPECTANCY_USD)
-                arrivals = tuple(ScoredArrival(
-                    examples[str(cid)], EntryScore(
-                        str(cid), str(name), examples[str(cid)].decision_ts_ns,
-                        f"fit-only-preflight:{rehearsal}:{role}",
-                        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, False),
-                    corpus.replay.outcomes[str(cid)])
-                    for cid, name in zip(ids[selected], assets[selected]))
-                if not arrivals or not expected:
-                    raise RealDiagnosticExecutorRefusal(
-                        f"{rehearsal} {role} candidate ceiling is empty")
-                ceiling = candidate_ceiling(arrivals, expected_sessions=expected)
-                by_asset = {row.asset: row for row in ceiling.evaluation.by_asset}
-                asset_rows = {}
+                # V1/R1: two DIFFERENT ceiling universes, named explicitly and
+                # receipted separately so they can never be conflated again.
+                #
+                #  * GOAL-GRADE (admission cert_close_usd >= MIN_EXPECTANCY_USD)
+                #    is the 80% recovery denominator, the capacity-regime
+                #    source and the A-013 block-feasibility schedule.  It is
+                #    the only object any gate reads.
+                #  * EXACT OFFER (admission cert_close_usd > 0) is the full
+                #    CLEAR+READY offer surface.  Measured prophet transport
+                #    recovers only 60-79% of it at the lawful $600 threshold
+                #    (72.9-85.3% even at the best hindsight threshold), so an
+                #    80%-of-exact gate is unattainable by construction.  It is
+                #    carried as a REFERENCE column only.
+                def _ceiling_for(mask: np.ndarray, label: str):
+                    local = roles[role] & mask
+                    local_arrivals = tuple(ScoredArrival(
+                        examples[str(cid)], EntryScore(
+                            str(cid), str(name), examples[str(cid)].decision_ts_ns,
+                            f"fit-only-preflight:{rehearsal}:{role}:{label}",
+                            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, False),
+                        corpus.replay.outcomes[str(cid)])
+                        for cid, name in zip(ids[local], assets[local]))
+                    if not local_arrivals or not expected:
+                        raise RealDiagnosticExecutorRefusal(
+                            f"{rehearsal} {role} {label} candidate ceiling is empty")
+                    return candidate_ceiling(
+                        local_arrivals, expected_sessions=expected)
+
+                def _asset_rows(built) -> dict[str, Any]:
+                    by_asset = {row.asset: row for row in built.evaluation.by_asset}
+                    out: dict[str, Any] = {}
+                    for name in C.ASSETS:
+                        measured = by_asset.get(name)
+                        days_for_asset = tuple(row for row in
+                            built.evaluation.asset_day_results if row.asset == name)
+                        if measured is None or not days_for_asset:
+                            raise RealDiagnosticExecutorRefusal(
+                                f"{rehearsal} {role} ceiling lacks {name}")
+                        feasibility = threshold_feasibility(
+                            trades=measured.trades,
+                            usd_per_trade=measured.usd_per_trade,
+                            max_drawdown_usd=measured.max_drawdown_usd,
+                            days_with_trades=sum(row.trades > 0
+                                                 for row in days_for_asset),
+                            eligible_days=len(days_for_asset))
+                        out[name] = {
+                            "trades": measured.trades,
+                            "total_pnl_usd": measured.total_pnl_usd,
+                            "usd_per_trade": measured.usd_per_trade,
+                            "usd_per_asset_day": measured.usd_per_asset_day,
+                            "max_drawdown_usd": measured.max_drawdown_usd,
+                            "drawdown_p90_usd": measured.drawdown_p90_usd,
+                            "days_with_trades": sum(row.trades > 0
+                                                    for row in days_for_asset),
+                            "eligible_days": len(days_for_asset),
+                            "feasible": feasibility.feasible,
+                            "reasons": list(feasibility.reasons),
+                            "feasibility_sha256": feasibility.receipt_sha256,
+                        }
+                    return out
+
+                exact_ceiling = _ceiling_for(close_values > 0.0, "exact-offer")
+                goal_ceiling = _ceiling_for(
+                    close_values >= C.MIN_EXPECTANCY_USD, "goal-grade")
+                exact_rows = _asset_rows(exact_ceiling)
+                goal_rows = _asset_rows(goal_ceiling)
+                # A-013 block feasibility is verified on the GOAL-GRADE
+                # schedule, which is also the gate denominator.
                 for name in C.ASSETS:
-                    measured = by_asset.get(name)
-                    days_for_asset = tuple(row for row in
-                        ceiling.evaluation.asset_day_results if row.asset == name)
-                    if measured is None or not days_for_asset:
+                    if not goal_rows[name]["feasible"]:
                         raise RealDiagnosticExecutorRefusal(
-                            f"{rehearsal} {role} ceiling lacks {name}")
-                    feasibility = threshold_feasibility(
-                        trades=measured.trades,
-                        usd_per_trade=measured.usd_per_trade,
-                        max_drawdown_usd=measured.max_drawdown_usd,
-                        days_with_trades=sum(row.trades > 0 for row in days_for_asset),
-                        eligible_days=len(days_for_asset))
-                    asset_rows[name] = {
-                        "trades": measured.trades,
-                        "total_pnl_usd": measured.total_pnl_usd,
-                        "usd_per_trade": measured.usd_per_trade,
-                        "usd_per_asset_day": measured.usd_per_asset_day,
-                        "max_drawdown_usd": measured.max_drawdown_usd,
-                        "drawdown_p90_usd": measured.drawdown_p90_usd,
-                        "days_with_trades": sum(row.trades > 0
-                                                for row in days_for_asset),
-                        "eligible_days": len(days_for_asset),
-                        "feasible": feasibility.feasible,
-                        "reasons": list(feasibility.reasons),
-                        "feasibility_sha256": feasibility.receipt_sha256,
-                    }
-                    if not feasibility.feasible:
-                        raise RealDiagnosticExecutorRefusal(
-                            f"{rehearsal} {role} is unattainable for {name}")
+                            f"{rehearsal} {role} goal-grade ceiling is "
+                            f"unattainable for {name}")
+                    goal_rows[name]["admission"] = (
+                        "cert_close_usd >= MIN_EXPECTANCY_USD")
+                    goal_rows[name]["goal_grade_ceiling_usd_per_day"] = float(
+                        goal_rows[name]["usd_per_asset_day"])
+                    goal_rows[name]["exact_offer_ceiling_usd_per_day"] = float(
+                        exact_rows[name]["usd_per_asset_day"])
+                    exact_rows[name]["admission"] = "cert_close_usd > 0"
+                exact_block = {
+                    "schema": "entry-v2-exact-offer-ceiling-v1",
+                    "admission": "cert_close_usd > 0",
+                    "purpose": ("REFERENCE column only -- the full CLEAR+READY "
+                                "offer surface; never a gate denominator"),
+                    "schedule_sha256": exact_ceiling.schedule_sha256,
+                    "selected_candidate_count":
+                        len(exact_ceiling.selected_candidate_ids),
+                    "by_asset": exact_rows,
+                }
+                exact_block["receipt_sha256"] = _sha(exact_block)
                 block = {
-                    "schedule_sha256": ceiling.schedule_sha256,
-                    "selected_candidate_count": len(ceiling.selected_candidate_ids),
-                    "by_asset": asset_rows,
+                    "schema": "entry-v2-goal-grade-ceiling-v1",
+                    "admission": "cert_close_usd >= MIN_EXPECTANCY_USD",
+                    "minimum_expectancy_usd": C.MIN_EXPECTANCY_USD,
+                    "purpose": ("80% oracle-recovery denominator, "
+                                "capacity-regime source and A-013 block "
+                                "feasibility schedule"),
+                    "schedule_sha256": goal_ceiling.schedule_sha256,
+                    "selected_candidate_count":
+                        len(goal_ceiling.selected_candidate_ids),
+                    "by_asset": goal_rows,
+                    "exact_offer_ceiling": exact_block,
                 }
                 block["receipt_sha256"] = _sha(block)
                 oracle_blocks[f"{rehearsal}.{role}"] = block
@@ -5832,7 +6298,9 @@ class ProductionExactDiagnosticResources:
 
     def _ensure_loaded(self) -> LoadedFitOnlyResources:
         if self.stage is not None:
-            assert self.loaded is not None
+            if not (self.loaded is not None):
+                raise RealDiagnosticExecutorRefusal(
+                    "internal invariant failed: self.loaded is not None")
             return self.loaded
         self.stage = build_production_diagnostic_stage(
             C.CACHE_ROOT, array_cache=self.cache,
@@ -5851,10 +6319,24 @@ class ProductionExactDiagnosticResources:
         if (not isinstance(preflight_blocks, Mapping)
                 or set(preflight_blocks) != expected_blocks
                 or any(not isinstance(preflight_blocks[name], Mapping)
+                       or preflight_blocks[name].get("schema")
+                            != "entry-v2-goal-grade-ceiling-v1"
+                       or preflight_blocks[name].get("admission")
+                            != "cert_close_usd >= MIN_EXPECTANCY_USD"
                        or set(preflight_blocks[name].get("by_asset", {}))
                             != set(C.ASSETS)
                        or not _is_sha(preflight_blocks[name].get(
                            "receipt_sha256"))
+                       or not isinstance(
+                           preflight_blocks[name].get("exact_offer_ceiling"), Mapping)
+                       or preflight_blocks[name]["exact_offer_ceiling"].get("schema")
+                            != "entry-v2-exact-offer-ceiling-v1"
+                       or preflight_blocks[name]["exact_offer_ceiling"].get(
+                           "admission") != "cert_close_usd > 0"
+                       or set(preflight_blocks[name]["exact_offer_ceiling"].get(
+                           "by_asset", {})) != set(C.ASSETS)
+                       or not _is_sha(preflight_blocks[name]["exact_offer_ceiling"]
+                                      .get("receipt_sha256"))
                        for name in expected_blocks)):
             raise RealDiagnosticExecutorRefusal(
                 "fit-only preflight candidate-ceiling surface is incomplete")
@@ -5866,6 +6348,22 @@ class ProductionExactDiagnosticResources:
         })
         self._fit_only_ceiling_receipts = MappingProxyType({
             name: str(preflight_blocks[name]["receipt_sha256"])
+            for name in sorted(expected_blocks)
+        })
+        # V1: ``_fit_only_ceiling_rows`` above IS the goal-grade (>= $600)
+        # ceiling -- the gate denominator and the capacity-regime source.  The
+        # exact (> $0) offer surface is a separately named REFERENCE object;
+        # measured prophet transport recovers only 60-79% of it, so it can
+        # never be a gate denominator.
+        self._fit_only_exact_offer_ceiling_rows = MappingProxyType({
+            name: MappingProxyType({
+                asset: MappingProxyType(dict(
+                    preflight_blocks[name]["exact_offer_ceiling"]["by_asset"][asset]))
+                for asset in C.ASSETS
+            }) for name in sorted(expected_blocks)
+        })
+        self._fit_only_exact_offer_ceiling_receipts = MappingProxyType({
+            name: str(preflight_blocks[name]["exact_offer_ceiling"]["receipt_sha256"])
             for name in sorted(expected_blocks)
         })
         if (receipt.get("truth_end_d8") != self._loaded_maximum_d8
@@ -5972,8 +6470,12 @@ class ProductionExactDiagnosticResources:
         # All source conversion/process publication is now complete for this
         # window.  Only here may the production process initialize CUDA.
         self._initialize_accelerator()
-        assert self.device is not None
-        assert self.determinism_receipt_sha256 is not None
+        if not (self.device is not None):
+            raise RealDiagnosticExecutorRefusal(
+                "internal invariant failed: self.device is not None")
+        if not (self.determinism_receipt_sha256 is not None):
+            raise RealDiagnosticExecutorRefusal(
+                "internal invariant failed: self.determinism_receipt_sha256 is not None")
         self.loaded = LoadedFitOnlyResources(
             diagnostic, one_load_id, 4, True, True, True,
             self.effective_memory_available_bytes, self.cache.capacity_bytes,
@@ -5988,6 +6490,8 @@ class ProductionExactDiagnosticResources:
         if self._load_claimed:
             raise RealDiagnosticExecutorRefusal("production diagnostic stage already loaded")
         self._load_claimed = True
+        # A-011: the one-load boundary is the scope of the optimizer census.
+        reset_optimizer_fit_census()
         return self._ensure_loaded()
 
     def fit_only_timing_provenance(self) -> Mapping[str, Any]:
@@ -6009,8 +6513,9 @@ class ProductionExactDiagnosticResources:
         """
         bindings = {row.candidate_id: row for row in self.stage.diagnostic_corpus.bindings}
         grouped: dict[tuple[str, int, str], list[tuple[int, str, bool]]] = {}
+        start_d8 = self._selected_horizon_start_d8()
         for spec in self.stage.corpus_stage.corpus.sessions:
-            if not 20210531 <= int(spec.trading_day) <= 20210930:
+            if not start_d8 <= int(spec.trading_day) <= FIT_ONLY_MAXIMUM_D8:
                 continue
             for example in spec.examples:
                 row = bindings.get(example.candidate_id)
@@ -6071,7 +6576,9 @@ class ProductionExactDiagnosticResources:
     def _prepare(self, manifest: FrozenRowManifest) -> None:
         if self.batches:
             return
-        assert self.stage is not None
+        if not (self.stage is not None):
+            raise RealDiagnosticExecutorRefusal(
+                "internal invariant failed: self.stage is not None")
         wanted = set(manifest.candidate_id)
         depth_wanted, depth_receipt = self._select_pairlogit_depth_ids()
         self._pairlogit_depth_manifest_sha256 = depth_receipt
@@ -6354,6 +6861,7 @@ class ProductionExactDiagnosticResources:
             raise RealDiagnosticExecutorRefusal("full policy scoring preceded fitted heads")
         binding = {row.candidate_id: row for row in self.stage.diagnostic_corpus.bindings}
         observed = {session.key: session for session in self.stage.diagnostic_corpus.sessions}
+        start_d8 = self._selected_horizon_start_d8()
         model = self._models()["M1"].to(self.device).eval()
         direct_head = direct_head.to(self.device).eval()
         ids: list[str] = []; assets: list[str] = []; days: list[int] = []
@@ -6361,7 +6869,7 @@ class ProductionExactDiagnosticResources:
         phases: list[str] = []; states: list[np.ndarray] = []; direct: list[np.ndarray] = []
         for spec in sorted(self.stage.corpus_stage.corpus.sessions,
                            key=lambda row: (row.asset, row.trading_day, row.session_id)):
-            if not 20210531 <= int(spec.trading_day) <= 20210930:
+            if not start_d8 <= int(spec.trading_day) <= FIT_ONLY_MAXIMUM_D8:
                 continue
             local = [i for i, cid in enumerate(spec.candidate_ids)
                      if binding[cid].compliance_status == "CLEAR"
@@ -6397,7 +6905,7 @@ class ProductionExactDiagnosticResources:
         if not ids or len(set(ids)) != len(ids):
             raise RealDiagnosticExecutorRefusal("full policy roster is empty or duplicate")
         expected = {row.candidate_id for row in self.stage.diagnostic_corpus.bindings
-                    if 20210531 <= row.trading_day <= 20210930
+                    if start_d8 <= row.trading_day <= FIT_ONLY_MAXIMUM_D8
                     and row.compliance_status == "CLEAR" and row.teacher_status == "READY"}
         if set(ids) != expected:
             raise RealDiagnosticExecutorRefusal("full policy roster differs from CLEAR+READY")
@@ -6416,7 +6924,7 @@ class ProductionExactDiagnosticResources:
             raise RealDiagnosticExecutorRefusal("full policy PairLogit prediction incomplete")
         eligible_days = tuple(sorted({session.trading_day for session in
             self.stage.corpus_stage.corpus.replay.expected_sessions
-            if 20210531 <= session.trading_day <= 20210930}))
+            if start_d8 <= session.trading_day <= FIT_ONLY_MAXIMUM_D8}))
         rows = FrozenRepresentationRows(
             representation, np.asarray(ids, str), asset_array,
             np.asarray(days, np.int64), np.asarray(decisions, np.int64),
@@ -6560,11 +7068,12 @@ class ProductionExactDiagnosticResources:
                 if cutoff:
                     phase_age = obs.derived.derived_routes["phase_age_ns"][:cutoff]
                     phase_remaining = obs.derived.derived_routes["phase_remaining_ns"][:cutoff]
-                    if (not np.all(phase_age == truth["ts_recv_ns"][:cutoff]
-                                   - truth["phase_open_ts_ns"][:cutoff])
-                            or not np.all(phase_remaining ==
-                                          truth["phase_close_ts_ns"][:cutoff]
-                                          - truth["ts_recv_ns"][:cutoff])):
+                    # A1: ts_recv_ns is uint64 and the phase columns are int64;
+                    # mixing them promotes to float64 under NumPy 2 and silently
+                    # loses nanosecond resolution at real 1.6e18 epoch scale.
+                    expected_age, expected_remaining = reference_phase_clocks(truth, cutoff)
+                    if (not np.array_equal(phase_age, expected_age)
+                            or not np.array_equal(phase_remaining, expected_remaining)):
                         raise RealDiagnosticExecutorRefusal("adjacent phase clock differs")
                     phase_checks += 1
                     if not np.all(np.isfinite(canonical)):
@@ -6750,7 +7259,9 @@ class ProductionExactDiagnosticResources:
 
     def _new_model_registry(self):
         """Fresh deterministic arm initialization; never returns competence state."""
-        assert self.schema is not None
+        if not (self.schema is not None):
+            raise RealDiagnosticExecutorRefusal(
+                "internal invariant failed: self.schema is not None")
         width = len(self.schema.continuous_fields)
         candidate_width = int(self.batches[0].candidate_features.shape[1])
         devices = ([self.device.index or 0] if self.device.type == "cuda" else [])
@@ -6798,8 +7309,18 @@ class ProductionExactDiagnosticResources:
         model.to(self.device)
         decoder = LastRowReconstructionProbe(
             self.batches[0].continuous.shape[1], CATEGORY_SIZES).to(self.device)
-        optimizer = torch.optim.AdamW(
-            [*model.parameters(), *decoder.parameters()], lr=1e-3)
+        # B-17: the throwaway field-survival decoder used to share ONE optimizer
+        # with the arm.  Its reconstruction gradient therefore reached the
+        # encoder, so "the fields survive the encoder" was partly achieved by
+        # SHAPING the encoder to be reconstructable.  The encoder is now frozen
+        # with respect to the survival probe (the memory is detached below) and
+        # the decoder has its own optimizer.
+        optimizer = _run_optimizer(
+            lambda: torch.optim.AdamW(model.parameters(), lr=1e-3),
+            category="ARM", fit_id=f"arm/{arm}/encode")
+        decoder_optimizer = _run_optimizer(
+            lambda: torch.optim.AdamW(decoder.parameters(), lr=1e-3),
+            category="ARM", fit_id=f"arm/{arm}/field-survival-decoder")
         unique_days = sorted({b.day for b in self.batches}); validation_days = set(
             unique_days[-max(1, int(np.ceil(.1 * len(unique_days)))):])
         training_batches = tuple(b for b in self.batches if b.day not in validation_days)
@@ -6856,6 +7377,7 @@ class ProductionExactDiagnosticResources:
             epoch_components = []; epoch_gradient_norm = 0.0
             for day_key in sorted(by_day):
                 optimizer.zero_grad(set_to_none=True)
+                decoder_optimizer.zero_grad(set_to_none=True)
                 oracle_losses = []; reconstruction_losses = []; component_rows = []
                 for batch in by_day[day_key]:
                     static = batch.static_features.to(self.device) if arm in ("L1", "M1") else None
@@ -6874,9 +7396,11 @@ class ProductionExactDiagnosticResources:
                         weights_by_id[cid][name] for cid in batch.candidate_ids],
                         dtype=torch.float32) for name in ("action", "base", "top3", "wall")}
                     total, components = _actual_multitask_loss(out, batch, batch_weights)
+                    # B-17: detached -- the survival probe measures what the
+                    # encoder already retains; it never trains the encoder.
                     reconstruction_loss, continuous_loss, categorical_loss = \
                         _field_reconstruction_loss(
-                            decoder, out.raw_memory, batch,
+                            decoder, out.raw_memory.detach(), batch,
                             batch_weights["base"],
                         )
                     oracle_losses.append(total)
@@ -6914,7 +7438,7 @@ class ProductionExactDiagnosticResources:
                 epoch_gradient_norm += sum(float(torch.linalg.vector_norm(
                     parameter.grad.detach())) for _name, parameter in named
                     if parameter.grad is not None)
-                optimizer.step(); updates += 1
+                optimizer.step(); decoder_optimizer.step(); updates += 1
                 if updates >= 400: break
             rows_now, _metrics_all, _, _, probabilities_now = self._collect(model, arm)
             p_now = np.asarray([probabilities_now[cid] for cid in rows_now.candidate_id])
@@ -7025,30 +7549,39 @@ class ProductionExactDiagnosticResources:
                 asset_idx=C.ASSET_INDEX[probe_batch.asset],
                 static_features=(probe_batch.static_features.to(self.device)
                                  if arm in ("L1", "M1") else None))
+            # B-08: the previous form compared an INLINE smooth_l1 expression
+            # against a mutant built from its own detached prediction.  It
+            # never touched the target/mask and never called the production
+            # loss, so a horizon coordinate that the real loss ignores still
+            # passed.  Perturb the real target value AND its validity mask and
+            # re-evaluate the REAL ``_selected_horizon_component``, requiring
+            # that EXACTLY coordinate ``k`` moves.
             horizon_prediction = probe_out.horizon_values.float()
             horizon_target = probe_batch.horizon_targets.to(self.device).float()
             horizon_valid = probe_batch.horizon_valid.to(self.device).bool()
-            valid_coordinate = horizon_valid[:, coordinate]
-            original = torch.nn.functional.smooth_l1_loss(
-                horizon_prediction[valid_coordinate, coordinate],
-                horizon_target[valid_coordinate, coordinate])
-            # The perturbed target is deliberately one unit from the detached
-            # prediction, guaranteeing a nonzero coordinate-local derivative
-            # while the comparison still proves that this target coordinate is
-            # consumed by the declared loss.
-            detached_prediction = horizon_prediction[
-                valid_coordinate, coordinate].detach()
-            mutant = detached_prediction + 1.0
-            changed = torch.nn.functional.smooth_l1_loss(
-                horizon_prediction[valid_coordinate, coordinate], mutant)
-            changed_far = torch.nn.functional.smooth_l1_loss(
-                horizon_prediction[valid_coordinate, coordinate],
-                detached_prediction + 2.0)
-            if bool(torch.isclose(original, changed)) and bool(
-                    torch.isclose(original, changed_far)):
+            baseline = _selected_horizon_components(
+                horizon_prediction, horizon_target, horizon_valid)
+            value_mutant = horizon_target.clone()
+            value_mutant[:, coordinate] += 1.0
+            moved_value = _selected_horizon_components(
+                horizon_prediction, value_mutant, horizon_valid)
+            mask_mutant = horizon_valid.clone()
+            valid_rows = torch.nonzero(mask_mutant[:, coordinate], as_tuple=False)
+            if int(valid_rows.numel()) < 2:
                 raise RealDiagnosticExecutorRefusal(
-                    "selected horizon coordinate mutation did not alter loss")
-            changed.backward()
+                    "selected horizon coordinate lacks two valid rows to perturb")
+            mask_mutant[int(valid_rows[0]), coordinate] = False
+            moved_mask = _selected_horizon_components(
+                horizon_prediction, horizon_target, mask_mutant)
+            for mutated, label in ((moved_value, "value"), (moved_mask, "mask")):
+                for other in range(SELECTED_HORIZON_WIDTH):
+                    changed = not bool(torch.equal(
+                        baseline[other].detach(), mutated[other].detach()))
+                    if changed != (other == coordinate):
+                        raise RealDiagnosticExecutorRefusal(
+                            f"selected horizon {label} mutation of coordinate "
+                            f"{coordinate} moved loss component {other}")
+            moved_value[coordinate].backward()
         horizon_gradient = model.head.horizon_head.weight.grad
         if (horizon_gradient is None or horizon_gradient.shape[0] != 6
                 or torch.any(horizon_gradient.abs().sum(1) <= 0)
@@ -7056,9 +7589,12 @@ class ProductionExactDiagnosticResources:
             raise RealDiagnosticExecutorRefusal(
                 "selected horizon head lacks independent coordinate gradients")
         model.zero_grad(set_to_none=True)
+        # B-09: the gradient check previously used the RAW ordinal_head output,
+        # bypassing the monotone cumulative decoder that the production output
+        # actually publishes, and never decoded the five economic bins at all.
         synthetic_state = torch.arange(5 * 512, device=self.device,
             dtype=torch.float32).reshape(5, 512) / (5 * 512)
-        ordinal_logits = model.head.ordinal_head(synthetic_state)
+        ordinal_logits = _monotone_ordinal(model.head.ordinal_head(synthetic_state))
         ordinal_target = (torch.arange(5, device=self.device)[:, None]
                           >= torch.arange(1, 5, device=self.device)[None]).float()
         torch.nn.functional.binary_cross_entropy_with_logits(
@@ -7068,35 +7604,119 @@ class ProductionExactDiagnosticResources:
                 or not torch.isfinite(ordinal_gradient).all()):
             raise RealDiagnosticExecutorRefusal(
                 "cumulative ordinal head lacks all-boundary reachability")
+        model.zero_grad(set_to_none=True)
         rows, _all_metrics, memories, states, probabilities = self._collect(model, arm)
+        # Decode the REAL competence slice through the production monotone
+        # cumulative decoder and require all five economic bins to be attained.
+        with torch.no_grad():
+            competence_state = torch.from_numpy(np.asarray(
+                [states[cid] for cid in np.asarray(rows.candidate_id, str)],
+                np.float32)).to(self.device)
+            decoded = _monotone_ordinal(model.head.ordinal_head(competence_state))
+            if not bool(torch.isfinite(decoded).all()):
+                raise RealDiagnosticExecutorRefusal(
+                    "decoded ordinal boundaries are non-finite")
+            bins = (decoded > 0).sum(-1)
+        attained = sorted({int(value) for value in bins.cpu().numpy().tolist()})
+        if attained != list(range(model.head.n_value_bins)):
+            raise RealDiagnosticExecutorRefusal(
+                "decoded cumulative ordinal bins do not attain all five "
+                f"economic bins on the competence slice: attained={attained}")
         probability = np.asarray([probabilities[cid] for cid in rows.candidate_id])
-        metrics = self._metrics(rows, probability,
-                                ~np.isin(np.asarray(rows.day), list(validation_days)))
+        train_selected = ~np.isin(np.asarray(rows.day), list(validation_days))
+        # B-26 (item 31): the outcome thresholds below say nothing about the
+        # INPUT population.  Prove the >=32-per-asset/per-class precondition on
+        # the competence slice first, so an under-populated slice refuses
+        # instead of scoring a meaningless 1.0000.
+        _gate_rows = train_selected & np.asarray(rows.action_loss_mask, bool)
+        balanced_positive, balanced_negative = validate_balanced_overfit_inputs(
+            torch.from_numpy(np.asarray(
+                [C.ASSET_INDEX[str(value)]
+                 for value in np.asarray(rows.asset, str)[_gate_rows]], np.int64)),
+            torch.from_numpy(np.asarray(
+                np.asarray(rows.action_target, np.int8)[_gate_rows], np.int64)))
+        metrics = self._metrics(rows, probability, train_selected)
         if metrics[0] < .995 or metrics[1] < .995 or metrics[2] > .02:
             raise RealDiagnosticExecutorRefusal("joint encoder/head competence threshold failed")
+        # B-07: the balanced-overfit law was satisfiable with the raw event
+        # memory zeroed as long as the 1865-wide static bypass was on (measured
+        # AUROC 1.0000).  Prove the .995/.995/.02 law on the RAW route with the
+        # bypass OFF, and require the bypass-only twin (raw memory occluded) to
+        # lose at least a declared AUROC margin.
+        raw_rows, _raw_all, _raw_mem, _raw_states, raw_probabilities = \
+            self._collect(model, arm, bypass_static=True)
+        raw_probability = np.asarray(
+            [raw_probabilities[cid] for cid in raw_rows.candidate_id])
+        raw_metrics = self._metrics(raw_rows, raw_probability, train_selected)
+        if (raw_metrics[0] < .995 or raw_metrics[1] < .995
+                or raw_metrics[2] > .02):
+            raise RealDiagnosticExecutorRefusal(
+                "balanced oracle overfit is not attained by the raw route with "
+                "the static bypass off")
+        occluded_rows, _occ_all, _occ_mem, _occ_states, occluded_probabilities = \
+            self._collect(model, arm, occlude_memory=True)
+        occluded_probability = np.asarray(
+            [occluded_probabilities[cid] for cid in occluded_rows.candidate_id])
+        occluded_metrics = self._metrics(
+            occluded_rows, occluded_probability, train_selected)
+        raw_occlusion_auroc_drop = float(metrics[0] - occluded_metrics[0])
+        if raw_occlusion_auroc_drop < RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP:
+            raise RealDiagnosticExecutorRefusal(
+                "occluding raw event memory does not cost the declared AUROC "
+                f"margin: drop={raw_occlusion_auroc_drop:.6f} < "
+                f"{RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP}")
+        if getattr(self, "_raw_occlusion_auroc_drop", None) is None:
+            self._raw_occlusion_auroc_drop = {}
+        self._raw_occlusion_auroc_drop[arm] = raw_occlusion_auroc_drop
         return rows, metrics, memories, decoder, frozenset(validation_days), \
             MappingProxyType({"trace": tuple(trace),
                               "best_validation": best_validation,
                               "best_reload_sha256": reload_sha256,
                               "decoder_sha256": _sha_bytes(module_state_bytes(decoder)),
                               "chronological_validation_only": True,
+                              "balanced_overfit_positive_by_asset":
+                                  list(balanced_positive),
+                              "balanced_overfit_negative_by_asset":
+                                  list(balanced_negative),
+                              "bypass_off_minimum_auroc": float(raw_metrics[0]),
+                              "bypass_off_minimum_ap": float(raw_metrics[1]),
+                              "bypass_off_maximum_bce": float(raw_metrics[2]),
+                              "raw_occluded_minimum_auroc":
+                                  float(occluded_metrics[0]),
+                              "raw_occlusion_auroc_drop":
+                                  raw_occlusion_auroc_drop,
+                              "raw_occlusion_minimum_auroc_drop":
+                                  RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP,
                               "validation_days": tuple(sorted(validation_days))})
 
-    def _collect(self, model, arm: str):
+    def _collect(self, model, arm: str, *, bypass_static: bool = False,
+                 occlude_memory: bool = False):
+        """Collect the competence slice.
+
+        B-07: ``bypass_static`` forces ``static_features=None`` so the balanced
+        overfit law can be proven by the RAW route, and ``occlude_memory``
+        zeroes the raw event memory so the static-bypass-only twin can be
+        measured.  Both are diagnostic routes over the SAME frozen weights;
+        neither refits anything.
+        """
         model.eval(); states = {}; probabilities = {}; memories = {}
-        with torch.no_grad():
+        # R3: constructing a legacy GBT AssetPolicy anywhere inside the neural
+        # inference path is a typed refusal, not an import error.
+        with torch.no_grad(), neural_inference_path():
             for batch in self.batches:
                 memory = model.encoder(
                     batch.continuous.to(self.device), batch.categorical.to(self.device),
                     batch.cutoffs.to(self.device), receive_clock_ns=batch.clock.to(self.device),
                     candidate_decision_ts_ns=batch.decisions.to(self.device),
                     asset_idx=C.ASSET_INDEX[batch.asset])
+                head_memory = torch.zeros_like(memory) if occlude_memory else memory
                 out = model.head(
-                    memory, batch.candidate_features.to(self.device),
+                    head_memory, batch.candidate_features.to(self.device),
                     batch.context_values.to(self.device), batch.context_type_ids.to(self.device),
                     batch.context_valid.to(self.device), C.ASSET_INDEX[batch.asset],
                     static_features=(batch.static_features.to(self.device)
-                                     if arm in ("L1", "M1") else None))
+                                     if arm in ("L1", "M1") and not bypass_static
+                                     else None))
                 memories.update(zip(batch.candidate_ids, memory.cpu()))
                 states.update(zip(batch.candidate_ids, out.decision_state.cpu().numpy()))
                 probabilities.update(zip(batch.candidate_ids,
@@ -7190,10 +7810,22 @@ class ProductionExactDiagnosticResources:
         """Measure every input route and the exact causal suffix boundary."""
         encoder = model.encoder
         model.eval(); model.zero_grad(set_to_none=True)
+        # B-15: a 64-event prefix never completes a single 256-event block, so
+        # M1's completed-block / band / GRU machinery was never exercised by
+        # this gate at all.  Run it at three completed blocks on the largest
+        # available real batch, with at least one post-cutoff row present.
         batch = max(self.batches, key=lambda b: len(b.continuous))
-        n = min(len(batch.continuous), 96); cutoff = min(64, n)
-        if cutoff <= 0:
-            raise RealDiagnosticExecutorRefusal("route gate has an empty real prefix")
+        available = len(batch.continuous)
+        cutoff = ROUTE_GATE_MINIMUM_CUTOFF
+        if available <= cutoff:
+            raise RealDiagnosticExecutorRefusal(
+                "route/suffix gate needs more than "
+                f"{cutoff} real events plus a post-cutoff row; the largest real "
+                f"batch has {available}")
+        n = min(available, cutoff + ROUTE_GATE_SUFFIX_ROWS)
+        if n <= cutoff:
+            raise RealDiagnosticExecutorRefusal(
+                "route/suffix gate has no post-cutoff suffix rows")
         x = batch.continuous[:n].to(self.device).clone().requires_grad_(True)
         k = batch.categorical[:n].to(self.device)
         clock = batch.clock[:n].to(self.device)
@@ -7310,16 +7942,20 @@ class ProductionExactDiagnosticResources:
                 suffix_checks.append(label)
 
             # Mutate each already-present post-cutoff coordinate independently.
-            if cutoff < n:
-                for field, name in enumerate(self.schema.continuous_fields):
-                    mutant = x.detach().clone(); mutant[cutoff, field] += 1.25
-                    assert_suffix(mutant, k, clock, f"mutate-continuous:{name}")
-                for field, (name, size) in enumerate(zip(CATEGORICAL_FIELDS,
-                                                          CATEGORY_SIZES)):
-                    mutant = k.clone()
-                    mutant[cutoff, field] = (mutant[cutoff, field] + 1) % size
-                    assert_suffix(x.detach(), mutant, clock,
-                                  f"mutate-categorical:{name}")
+            # B-15: this used to be a silent ``if cutoff < n`` skip, so a batch
+            # with no suffix rows quietly performed zero mutation checks.
+            if cutoff >= n:
+                raise RealDiagnosticExecutorRefusal(
+                    "route/suffix gate skipped every post-cutoff mutation")
+            for field, name in enumerate(self.schema.continuous_fields):
+                mutant = x.detach().clone(); mutant[cutoff, field] += 1.25
+                assert_suffix(mutant, k, clock, f"mutate-continuous:{name}")
+            for field, (name, size) in enumerate(zip(CATEGORICAL_FIELDS,
+                                                      CATEGORY_SIZES)):
+                mutant = k.clone()
+                mutant[cutoff, field] = (mutant[cutoff, field] + 1) % size
+                assert_suffix(x.detach(), mutant, clock,
+                              f"mutate-categorical:{name}")
 
             # Append every field independently both exactly at the decision
             # clock and strictly after it.  The cutoff is a left searchsorted
@@ -7347,7 +7983,18 @@ class ProductionExactDiagnosticResources:
             occluded = decide(torch.zeros_like(memory))
             occlusion_delta = float(
                 (occluded.action_logit - base.action_logit).abs().max())
-            if occlusion_delta <= 1e-6:
+            # B-07: a nonzero logit wiggle proves nothing about competence -- a
+            # 1e-6 epsilon is satisfied while the static bypass carries the
+            # entire decision.  The binding law is the measured AUROC cost of
+            # occluding raw memory, taken over the whole competence slice in
+            # ``_encode``; this epsilon survives only as a shape check.
+            measured_drop = (getattr(self, "_raw_occlusion_auroc_drop", None)
+                             or {}).get(arm)
+            if measured_drop is None:
+                raise RealDiagnosticExecutorRefusal(
+                    "raw-memory occlusion AUROC margin was never measured")
+            if (occlusion_delta <= 0.0
+                    or measured_drop < RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP):
                 raise RealDiagnosticExecutorRefusal(
                     "decision ignores raw event memory")
 
@@ -7385,8 +8032,15 @@ class ProductionExactDiagnosticResources:
                     "300_900": int(torch.nonzero(band900, as_tuple=False)[-1]),
                     "older": int(torch.nonzero(older, as_tuple=False)[-1]),
                 }
+                # B-16: token 3 is long_projection(cat(900s band, full_states)),
+                # so the "300_900" and "older" bands share ONE observable
+                # surface.  ``full_states`` is internal to
+                # gather_candidate_memory and is not separately exposed, so the
+                # collision is DECLARED here and receipted below rather than
+                # being presented as two independent band signatures.
                 designated = {"recent": 0, "0_60": 1, "60_300": 2,
                               "300_900": 3, "older": 3}
+                shared_surface = {"300_900", "older"}
                 bx = candidate_batch.continuous.to(self.device)
                 bk = candidate_batch.categorical.to(self.device)
                 bc = candidate_batch.clock.to(self.device)
@@ -7416,6 +8070,10 @@ class ProductionExactDiagnosticResources:
                             "expected_change": expected_change,
                             "designated_token": (designated[band_name]
                                                  if arm == "M1" else "ALL"),
+                            "surface_shared_with": sorted(
+                                shared_surface - {band_name})
+                                if arm == "M1" and band_name in shared_surface
+                                else [],
                         }
                 routed = True
                 break
@@ -7432,6 +8090,18 @@ class ProductionExactDiagnosticResources:
             "route_delta": route_delta, "undefined_price": undefined_deltas,
             "suffix_checks": suffix_checks, "suffix_check_count": len(suffix_checks),
             "five_time_bands": band_deltas,
+            # B-16 declared limitation, receipted rather than implied away.
+            "band_surface_collision": ({
+                "tokens": {"300_900": 3, "older": 3},
+                "reason": ("token 3 is long_projection(cat(900s band, "
+                           "full_states)); the completed-block history surface "
+                           "is not separately observable"),
+                "independent_band_surfaces": 4,
+                "declared_limitation": True,
+            } if arm == "M1" else {
+                "tokens": {}, "reason": "arm observes all tokens jointly",
+                "independent_band_surfaces": 1,
+                "declared_limitation": True}),
             "raw_memory_occlusion_action_delta": occlusion_delta,
         }
         evidence["receipt_sha256"] = _sha(evidence)
@@ -7797,10 +8467,12 @@ class ProductionExactDiagnosticResources:
             target = targets[probe_id]
             if target.state != CellAvailability.MATERIALIZED:
                 raise RealDiagnosticExecutorRefusal("mandatory mixed-event pretext unavailable")
-            pretexts.append(fit_stage_pretext(
-                "E1", pretext_sessions, CATEGORY_SIZES, spec, target,
-                fit_indices=fit_idx, consumer_probe_ids=all_consumers,
-            ))
+            pretexts.append(_run_optimizer(
+                lambda: fit_stage_pretext(
+                    "E1", pretext_sessions, CATEGORY_SIZES, spec, target,
+                    fit_indices=fit_idx, consumer_probe_ids=all_consumers,
+                ),
+                category="E1_PRETEXT", fit_id=f"pretext-{probe_id}"))
         decisions = np.asarray([next(x.decision_ts_ns for x in
             self.stage.diagnostic_corpus.bindings if x.candidate_id == cid)
             for cid in manifest.candidate_id], np.int64)
@@ -7809,18 +8481,20 @@ class ProductionExactDiagnosticResources:
         probe_rows = ProbeRows(static, ordered_pretext, np.asarray(manifest.asset),
                                np.asarray(manifest.day), decisions,
                                np.asarray(manifest.candidate_id))
-        permutation = stage_global_recipient_fixed_permutation(
-            np.full(len(fit_idx), "FIT"), manifest.asset, manifest.day,
-            np.asarray([next(x.action_loss_mask for x in self.stage.diagnostic_corpus.bindings
-                             if x.candidate_id == cid) for cid in manifest.candidate_id]),
-            seed=20260816,
-        )
+        _atlas_twin_stage = np.full(len(fit_idx), "FIT")
+        _atlas_twin_mask = np.asarray(
+            [next(x.action_loss_mask for x in self.stage.diagnostic_corpus.bindings
+                  if x.candidate_id == cid) for cid in manifest.candidate_id])
         torch.manual_seed(20260816); initialization = AtlasProbeNet()
         real_hash: dict[str, str | None] = {}; twin_hash: dict[str, str | None] = {}
         learned = 0
         separation = 0
         for spec in PROBE_REGISTRY:
             target = targets[spec.probe_id]
+            permutation = _recipient_fixed_permutation_for(
+                target, stage=_atlas_twin_stage, asset=manifest.asset,
+                day=manifest.day, action_loss_mask=_atlas_twin_mask,
+                seed=20260816)
             twin = permute_probe_target_recipient_fixed(target, permutation)
             days = np.asarray(manifest.day); unique = sorted(set(days.tolist()))
             validation = set(unique[-max(1, int(np.ceil(.1 * len(unique)))):])
@@ -7830,8 +8504,10 @@ class ProductionExactDiagnosticResources:
                     or not twin.validity_mask.any():
                 real_hash[spec.probe_id] = twin_hash[spec.probe_id] = None
                 continue
-            real = fit_probe(spec, probe_rows, target, fit_indices=fit_idx,
-                             initialization=initialization)
+            real = _run_optimizer(
+                lambda: fit_probe(spec, probe_rows, target, fit_indices=fit_idx,
+                                  initialization=initialization),
+                category="E1_REAL", fit_id=spec.probe_id)
             twin_spec = shuffled_probe_for(
                 spec,
                 available=self.stage.diagnostic_corpus.sessions[0].atlas.shuffled_probes,
@@ -7841,8 +8517,10 @@ class ProductionExactDiagnosticResources:
                                twin_spec.probe_id, twin.output_width, twin.output_layout,
                                twin.direction, twin.transform_provenance_sha256,
                                twin.prediction_width, twin.prediction_layout))
-            shuffled = fit_probe(twin_spec, probe_rows, twin, fit_indices=fit_idx,
-                                 initialization=initialization)
+            shuffled = _run_optimizer(
+                lambda: fit_probe(twin_spec, probe_rows, twin, fit_indices=fit_idx,
+                                  initialization=initialization),
+                category="E1_TWIN", fit_id=twin_spec.probe_id)
             real_hash[spec.probe_id] = real.best_checkpoint_sha256
             twin_hash[spec.probe_id] = shuffled.best_checkpoint_sha256
             learned += int(real.best_validation_loss < real.initial_validation_loss)
@@ -7913,7 +8591,9 @@ class ProductionExactDiagnosticResources:
         supervised = torch.from_numpy(
             np.asarray(rows.action_loss_mask, bool)).to(self.device)
         head = torch.nn.Sequential(torch.nn.LayerNorm(512), torch.nn.Linear(512, 1)).to(self.device)
-        optimizer = torch.optim.Adam(head.parameters(), lr=1e-2); gradient = False
+        optimizer = _run_optimizer(
+            lambda: torch.optim.Adam(head.parameters(), lr=1e-2),
+            category="HEAD", fit_id="direct-head/action"); gradient = False
         row_assets = np.asarray(rows.asset, str); row_days = np.asarray(rows.day, np.int64)
         fit_weights, fit_weight_receipt = action_fit_weights(
             row_assets, row_days, np.asarray(rows.action_target, np.int8),
@@ -8083,7 +8763,8 @@ class ProductionExactDiagnosticResources:
                         for i in range(len(sweep.thresholds))], bool)
                     choices = np.flatnonzero(feasible)
                     if not len(choices):
-                        thresholds[asset] = 1.0
+                        # F5: nextafter no-entry sentinel, never literal 1.0.
+                        thresholds[asset] = float(sweep.thresholds[-1])
                         funnels[asset] = {"status": "NO_FEASIBLE_THRESHOLD",
                                           "sweep": sweep.receipt_sha256}
                         asset_ok[asset] = False
@@ -8174,26 +8855,123 @@ class ProductionExactDiagnosticResources:
         parity_measured = all(bool(value) for evidence in branch_evidence.values()
                               for stage in evidence["stages"].values()
                               for value in stage["parity"].values())
+        # B-12: every boolean below is now an INDEPENDENT measured comparison
+        # on the REAL rehearsal population.  Previously ``equal_time_ties`` and
+        # ``occupancy_caps_cost_wall`` were ``bool(sha)`` (always true), and
+        # ``mdd_exact`` re-compared a pair that ``canonical_parity`` had already
+        # proven equal, so it could not fail.  The six-row synthetic adversary
+        # is retained as an EDGE receipt beside the real measurements, never as
+        # the evidence itself.
         replay_edge_receipt = canonical_replay_adversary_receipt()
-        equal_time_ties = bool(replay_edge_receipt.get("receipt_sha256"))
-        reversed_replay = replay(reversed(tuple(
-            scored[i] for i in np.flatnonzero(threshold_rows))),
-            expected_sessions=denominator)
+        real_threshold_rows = tuple(
+            scored[i] for i in np.flatnonzero(threshold_rows))
+        reversed_replay = replay(reversed(real_threshold_rows),
+                                 expected_sessions=denominator)
         canonical_parity = reversed_replay == canonical
-        full_denominator = (canonical.asset_days == len({
+
+        # -- equal-time ties: measured on the REAL arrivals.  Permute only the
+        # members of each exact equal-decision-nanosecond group and require the
+        # canonical replay to be byte-identical.
+        by_equal_time: dict[tuple[str, int], list[Any]] = {}
+        for row in real_threshold_rows:
+            by_equal_time.setdefault(
+                (row.example.asset, int(row.example.decision_ts_ns)), []).append(row)
+        real_equal_time_groups = sum(
+            1 for group in by_equal_time.values() if len(group) > 1)
+        tie_permuted = []
+        for key in sorted(by_equal_time):
+            group = by_equal_time[key]
+            tie_permuted.extend(reversed(group) if len(group) > 1 else group)
+        tie_replay = replay(tie_permuted, expected_sessions=denominator)
+        equal_time_ties = bool(
+            tie_replay == canonical
+            and _is_sha(replay_edge_receipt.get("receipt_sha256")))
+        if real_equal_time_groups == 0:
+            # No exact tie exists in the real population, so the real
+            # measurement is vacuous and only the adversary exercised the law.
+            equal_time_ties = False
+
+        full_denominator = bool(canonical.asset_days == len({
             (session.asset, session.trading_day) for session in denominator}))
+
+        # -- occupancy / caps / costs / wall: each measured separately on the
+        # real canonical trade list.
         day_trade_totals: dict[int, int] = {}
         for row in canonical.asset_day_results:
             day_trade_totals[row.trading_day] = (
                 day_trade_totals.get(row.trading_day, 0) + row.trades)
-        occupancy_caps_cost_wall = (
-            bool(replay_edge_receipt.get("receipt_sha256"))
-            and all(row.trades <= 3 and np.isfinite(row.pnl_usd)
-                    for row in canonical.asset_day_results)
-            and all(value <= 9 for value in day_trade_totals.values())
-        )
-        mdd_exact = (reversed_replay.max_drawdown_usd == canonical.max_drawdown_usd
-                     and reversed_replay.drawdown_p90_usd == canonical.drawdown_p90_usd)
+        occupancy_exact = True
+        open_until_by_asset: dict[str, int] = {}
+        for trade in sorted(canonical.trade_results,
+                            key=lambda item: (item.asset, int(item.entry_ts_ns),
+                                              item.candidate_id)):
+            previous_exit = open_until_by_asset.get(trade.asset)
+            if previous_exit is not None and int(trade.entry_ts_ns) < previous_exit:
+                occupancy_exact = False
+                break
+            open_until_by_asset[trade.asset] = int(trade.exit_ts_ns)
+        asset_day_cap_exact = all(
+            row.trades <= C.MAX_ENTRIES_PER_ASSET_DAY
+            for row in canonical.asset_day_results)
+        portfolio_cap_exact = all(
+            value <= REPLAY_MAX_ENTRIES_PER_DAY
+            for value in day_trade_totals.values())
+        outcome_by_id = {str(cid): outcomes[str(cid)] for cid in ids}
+        cost_exact = True
+        for trade in canonical.trade_results:
+            resolved = outcome_by_id[trade.candidate_id].resolve(
+                int(trade.entry_ts_ns))
+            if (not np.isfinite(trade.pnl_usd)
+                    or float(trade.pnl_usd) != float(resolved[1])
+                    or int(trade.exit_ts_ns) != int(resolved[0])):
+                cost_exact = False
+                break
+        wall_trades = sum(str(getattr(trade.exit_reason, "value",
+                                      trade.exit_reason)).upper().endswith("WALL")
+                          for trade in canonical.trade_results)
+        occupancy_caps_cost_wall = bool(
+            occupancy_exact and asset_day_cap_exact and portfolio_cap_exact
+            and cost_exact and _is_sha(replay_edge_receipt.get("receipt_sha256")))
+
+        # -- MDD: recompute the certification law INDEPENDENTLY from the real
+        # trade list rather than re-comparing an already-equated pair.
+        recomputed_asset_mdd = {}
+        for asset in sorted({trade.asset for trade in canonical.trade_results}):
+            cumulative = 0.0; peak = 0.0; worst = 0.0
+            for trade in sorted(
+                    (t for t in canonical.trade_results if t.asset == asset),
+                    key=lambda item: (int(item.entry_ts_ns), item.candidate_id)):
+                cumulative += float(trade.pnl_usd)
+                peak = max(peak, cumulative)
+                worst = max(worst, peak - cumulative)
+            recomputed_asset_mdd[asset] = float(worst)
+        published_asset_mdd = {row.asset: float(row.max_drawdown_usd)
+                               for row in canonical.by_asset
+                               if row.asset in recomputed_asset_mdd}
+        mdd_exact = bool(
+            recomputed_asset_mdd == published_asset_mdd
+            and canonical.trade_results
+            and reversed_replay.max_drawdown_usd == canonical.max_drawdown_usd
+            and reversed_replay.drawdown_p90_usd == canonical.drawdown_p90_usd)
+        gate8_measurements = MappingProxyType({
+            "schema": "entry-v2-canonical-replay-gate-evidence-v1",
+            "real_threshold_arrivals": len(real_threshold_rows),
+            "real_equal_time_groups": real_equal_time_groups,
+            "equal_time_tie_replay_identical": bool(tie_replay == canonical),
+            "canonical_parity": bool(canonical_parity),
+            "full_denominator": full_denominator,
+            "occupancy_exact": bool(occupancy_exact),
+            "asset_day_cap_exact": bool(asset_day_cap_exact),
+            "portfolio_cap_exact": bool(portfolio_cap_exact),
+            "cost_and_exit_exact": bool(cost_exact),
+            "wall_resolved_trades": int(wall_trades),
+            "recomputed_max_drawdown_by_asset": dict(recomputed_asset_mdd),
+            "published_max_drawdown_by_asset": dict(published_asset_mdd),
+            "mdd_exact": mdd_exact,
+            "synthetic_edge_receipt_sha256":
+                replay_edge_receipt.get("receipt_sha256"),
+            "synthetic_edge_rows_are_evidence": False,
+        })
         roster = tuple(self.stage.diagnostic_corpus.bindings)
         firewall_sha256 = _fit_only_loaded_roster_firewall(
             self.stage, roster, required_candidate_ids=ids)
@@ -8242,6 +9020,89 @@ class ProductionExactDiagnosticResources:
         if not firewall_exact:
             raise RealDiagnosticExecutorRefusal(
                 "policy fit-only firewall or visible-row canary failed")
+
+        # B-11: the two comparisons above are computed from projections that
+        # never look at a masked row, so the masked arm was true by
+        # construction.  Mutate the masked label UPSTREAM of the projection and
+        # RE-RUN the real E1r mapper -> Platt -> threshold selection on the
+        # mutated copy; the FINAL threshold artifacts must be byte-identical.
+        def _e1r_selection_artifacts(action_targets: np.ndarray) -> Mapping[str, Any]:
+            features = branch_inputs[selected_branch]
+            local_fit = e1_masks["FIT"] & recipient
+            local_weight, local_receipt = action_fit_weights(
+                np.asarray(rows.asset, str), days, action_targets, recipient,
+                local_fit)
+            local_mapper = FrozenLogisticBindingMapper().fit(
+                features, action_targets, local_fit, ids,
+                sample_weight=local_weight,
+                weight_receipt_sha256=local_receipt.receipt_sha256)
+            local_platt = e1_masks["PLATT"] & recipient
+            local_mapper.calibrate(
+                features[local_platt], action_targets[local_platt],
+                ids[local_platt],
+                threshold_selection_ids=ids[e1_masks["THRESHOLD"]])
+            local_probability, _ = local_mapper.predict(features)
+            local_arrivals = tuple(ScoredArrival(
+                example[cid], EntryScore(
+                    cid, example[cid].asset, example[cid].decision_ts_ns,
+                    "teacher-isolation-canary", float(p), float(p), 0.0, 0.0,
+                    float(p), 0.0, 0.0, False), outcomes[cid])
+                for cid, p in zip(ids, local_probability))
+            local_thresholds = {}
+            for asset in C.ASSETS:
+                local_rows = np.flatnonzero(
+                    e1_masks["THRESHOLD"] & (np.asarray(rows.asset, str) == asset))
+                sessions = self.stage.corpus_stage.corpus.replay.sessions_for(
+                    e1_days["THRESHOLD"], asset=asset)
+                sweep = fast_threshold_sweep(
+                    tuple(local_arrivals[i] for i in local_rows),
+                    local_probability[local_rows], sessions)
+                feasible = np.asarray([threshold_feasibility(
+                    trades=int(sweep.trades[i]),
+                    usd_per_trade=float(sweep.usd_per_trade[i]),
+                    max_drawdown_usd=float(sweep.max_drawdown_usd[i]),
+                    days_with_trades=int(sweep.days_with_trades[i]),
+                    eligible_days=len(sweep.eligible_days)).feasible
+                    for i in range(len(sweep.thresholds))], bool)
+                choices = np.flatnonzero(feasible)
+                local_thresholds[asset] = (
+                    float(sweep.thresholds[-1]) if not len(choices)
+                    else float(sweep.thresholds[max(choices, key=lambda i: (
+                        float(sweep.usd_per_asset_day[i]),
+                        float(sweep.usd_per_trade[i]),
+                        -float(sweep.max_drawdown_usd[i]),
+                        -float(sweep.drawdown_p90_usd[i]),
+                        float(sweep.thresholds[i]), int(sweep.trades[i])))]))
+            return MappingProxyType({
+                "mapper": local_mapper.parameter_sha256,
+                "calibrator": local_mapper.calibrator.parameter_sha256,
+                "weight_receipt": local_receipt.receipt_sha256,
+                "thresholds": dict(local_thresholds),
+                "probability_sha256": _sha_bytes(
+                    np.ascontiguousarray(local_probability, np.float64).tobytes()),
+            })
+
+        masked_index = {row.candidate_id: row for row in masked_canary}
+        mutated_targets = np.asarray(
+            [masked_index[str(cid)].action_target for cid in ids], int)
+        if np.array_equal(mutated_targets, y):
+            raise RealDiagnosticExecutorRefusal(
+                "teacher-isolation masked label mutation is ineffective")
+        isolation_before_artifacts = _e1r_selection_artifacts(y)
+        isolation_after_artifacts = _e1r_selection_artifacts(mutated_targets)
+        masked_selection_unchanged = bool(
+            dict(isolation_before_artifacts) == dict(isolation_after_artifacts))
+        teacher_ids_before = tuple(sorted(
+            cid for cid in full_ids if teacher[cid].take_target))
+        teacher_ids_after = tuple(sorted(
+            cid for cid in full_ids
+            if teacher[cid].take_target and masked_index[cid].teacher_status == "READY"))
+        masked_teacher_ids_unchanged = bool(
+            teacher_ids_before == teacher_ids_after)
+        if not (masked_selection_unchanged and masked_teacher_ids_unchanged):
+            raise RealDiagnosticExecutorRefusal(
+                "a masked (non-recipient) label reached the final teacher ids "
+                "or the objective selection/threshold artifacts")
 
         # Mutating a non-FIT auxiliary horizon must not reach the frozen FINAL
         # teacher, model inputs, objective/head score surface, or thresholds.
@@ -8333,8 +9194,17 @@ class ProductionExactDiagnosticResources:
         teacher_isolation = {
             "schema": "entry-v2-teacher-isolation-evidence-v1",
             "masked_candidate_id": masked.candidate_id,
-            "masked_action_projection_unchanged": True,
-            "masked_action_refit_unchanged": True,
+            # B-11: MEASURED, not declared.  The projection/refit arms are the
+            # cheap surface checks; the binding evidence is the re-run
+            # selection/threshold comparison below.
+            "masked_action_projection_unchanged":
+                bool(masked_projection == policy_projection),
+            "masked_action_refit_unchanged":
+                bool(masked_refit == policy_refit_before),
+            "masked_selection_threshold_unchanged": masked_selection_unchanged,
+            "masked_final_teacher_ids_unchanged": masked_teacher_ids_unchanged,
+            "masked_selection_before": dict(isolation_before_artifacts),
+            "masked_selection_after": dict(isolation_after_artifacts),
             "auxiliary_candidate_id": auxiliary_original.candidate_ids[0],
             "auxiliary_coordinate": auxiliary_coordinate,
             "auxiliary_target_before_sha256": _sha_bytes(
@@ -8351,6 +9221,7 @@ class ProductionExactDiagnosticResources:
         teacher_isolation["receipt_sha256"] = _sha(teacher_isolation)
         full_manifest_sha256 = str(full_roster["candidate_manifest_sha256"])
         artifact = _sha({"branches": branch_evidence,
+                         "canonical_replay_gate": dict(gate8_measurements),
                          "canonical_replay_adversary": replay_edge_receipt,
                          "competence_manifest": manifest.receipt_sha256,
                          "full_policy_roster": dict(full_roster),
@@ -8363,13 +9234,13 @@ class ProductionExactDiagnosticResources:
         from .neural_sufficiency_source_manifest import \
             held_rehearsal_source_tree_sha256
         source_tree = held_rehearsal_source_tree_sha256()
+        # Lane C: ``all_asset_disjoint_forward`` was initialized here and then
+        # unconditionally superseded below by the measured E1r/E2r value.  The
+        # dead initializer is removed so only the measured value exists.
         g7 = {"single_real_path": selected_branch,
                    "all_asset_in_sample": all(
                        branch_evidence[selected_branch]["stages"][stage]["status"]
                        == "ELIGIBLE" for stage in ("E1r", "E2r")),
-                   "all_asset_disjoint_forward": all(
-                       branch_evidence[selected_branch]["stages"]["E1r"]
-                       ["forward_ok"].values()),
                    "candidate_ceiling_all_blocks":
                        set(ceiling_receipts) == set(ceiling_blocks),
                    "candidate_ceiling_receipts": ceiling_receipts,
@@ -8417,7 +9288,14 @@ class ProductionExactDiagnosticResources:
         g7["e2r_checkpoint_sha256"] = measured_winner["checkpoint_sha256"]
         g7["e1r_fit_wall"] = selected_e1_full["fit_wall"]
         g7["e2r_fit_wall"] = measured_winner["fit_wall"]
-        g7["same_full_learner_independent_fits"] = True
+        # B-13 class: measured, not declared.  Two independent fits of the SAME
+        # learner law at two walls must share the law hash and differ in bytes.
+        g7["same_full_learner_independent_fits"] = bool(
+            selected_e1_full["learner_law_sha256"]
+            == measured_winner.get("learner_law_sha256")
+            and selected_e1_full["checkpoint_sha256"]
+            != measured_winner["checkpoint_sha256"]
+            and selected_e1_full["fit_wall"] != measured_winner["fit_wall"])
         g7["all_asset_in_sample"] = bool(
             matrix_winner is not None
             and e1r_transition["threshold_feasible"]
@@ -8446,6 +9324,11 @@ class ProductionExactDiagnosticResources:
         g7["goal_recovery_receipts"] = goal_receipts
         g7["goal_recovery_all_blocks"] = bool(
             g7["all_asset_in_sample"] and g7["all_asset_disjoint_forward"])
+        prophet = dict(getattr(self, "_prophet_controls", None) or {})
+        if set(prophet) != {"E1r", "E2r"}:
+            raise RealDiagnosticExecutorRefusal(
+                "prophet-through-funnel positive control is missing a chronology")
+        g7["prophet_positive_control"] = prophet
         self._fit_only_rehearsal_receipt = execute_fit_only_rehearsal(
             e1r=e1r_transition,
             e2r=e2r_transition,
@@ -8457,15 +9340,113 @@ class ProductionExactDiagnosticResources:
             mapper_positive_skill, mapper.calibrator.slope > 0,
             parity_measured, canonical_parity, equal_time_ties,
             occupancy_caps_cost_wall, full_denominator, mdd_exact,
-            firewall_exact, bool(teacher_isolation["receipt_sha256"]),
+            firewall_exact,
+            # B-11: the measured comparison, never ``bool(sha)`` -- a sha is
+            # always truthy, so the old expression could not fail.
+            bool(masked_selection_unchanged and masked_teacher_ids_unchanged
+                 and auxiliary_before == auxiliary_after
+                 and _is_sha(teacher_isolation["receipt_sha256"])),
             parts[0], parts[1], parts[2], artifact,
         )
+
+    def _prophet_positive_control(self, *, ids, assets, days, recipient,
+                                  chronology: str) -> Mapping[str, Any]:
+        """D-095 positive control: push a PERFECT score through the same funnel.
+
+        The score is the exact teacher action target per candidate plus a
+        1e-3-scaled rank-normalised teacher margin tie-break, both read
+        straight off the frozen stage bindings.  It then travels the identical
+        mapper -> Platt -> threshold-sweep -> feasibility -> goal-recovery ->
+        forward-replay path as every real arm.  A perfect score that the funnel
+        cannot carry proves a TRANSPORT defect, never an economic verdict, so
+        ``finalize`` refuses on any non-ELIGIBLE outcome here.
+        """
+        bindings, _ = self._binding_indexes()
+        rows = [bindings[str(candidate_id)] for candidate_id in ids]
+        action = np.asarray([row.action_target for row in rows], np.float64)
+        if not np.all(np.isin(action, (0.0, 1.0))):
+            raise RealDiagnosticExecutorRefusal(
+                "prophet positive control requires a binary teacher action target")
+        margin = np.asarray([0.0 if row.cert_close_units is None
+                             else float(row.cert_close_units) for row in rows],
+                            np.float64)
+        if not np.all(np.isfinite(margin)):
+            raise RealDiagnosticExecutorRefusal(
+                "prophet positive control teacher margin is non-finite")
+        # Rank-normalised so the tie-break is bounded in [0, 1] and can never
+        # move a candidate across the teacher's own class boundary.
+        order = np.argsort(margin, kind="stable")
+        rank = np.empty(len(margin), np.float64)
+        rank[order] = np.arange(len(margin), dtype=np.float64)
+        rank /= max(1.0, float(len(margin) - 1))
+        score = action + 1e-3 * rank
+        evaluation, status, path_receipt, detail = self._rehearsal_score_path(
+            score, ids=np.asarray(ids), assets=assets, days=days,
+            recipient=recipient, chronology=chronology,
+            artifact_name=f"G7/{chronology}/PROPHET/positive-control")
+        # Quantitative health bar: a perfect score must not merely be
+        # "ELIGIBLE", it must recover at least the prelaunch floor of the
+        # GOAL-GRADE ceiling on every asset and both blocks.  A healthy funnel
+        # measures 82-91%; anything below the floor is a transport defect.
+        capture_by_block: dict[str, dict[str, float]] = {}
+        for block, field in (("THRESHOLD", "threshold_goal_recovery"),
+                             ("FORWARD", "forward_goal_recovery")):
+            rows_by_asset = detail[field]
+            capture_by_block[block] = {}
+            for asset in C.ASSETS:
+                row = rows_by_asset.get(asset)
+                if not isinstance(row, Mapping):
+                    raise RealDiagnosticExecutorRefusal(
+                        "prophet positive control lacks a goal-recovery row")
+                value = row.get("oracle_capture")
+                capture_by_block[block][asset] = (
+                    float("nan") if value is None else float(value))
+        finite = [value for block in capture_by_block.values()
+                  for value in block.values() if np.isfinite(value)]
+        control = {
+            "schema": "entry-v2-prophet-positive-control-v1",
+            "chronology": chronology,
+            "artifact": f"G7/{chronology}/PROPHET/positive-control",
+            "status": status,
+            "path_receipt_sha256": path_receipt,
+            "threshold_feasible": bool(detail["threshold_feasible"]),
+            "forward_feasible": bool(detail["forward_feasible"]),
+            "degenerate_mapper": bool(detail["degenerate_mapper"]),
+            "degenerate_calibrator": bool(detail["degenerate_calibrator"]),
+            "thresholds": dict(detail["thresholds"]),
+            "ceiling_admission": "cert_close_usd >= MIN_EXPECTANCY_USD",
+            "minimum_oracle_capture": FIT_ONLY_MIN_ORACLE_CAPTURE,
+            "goal_grade_capture_by_block": {
+                block: dict(sorted(values.items()))
+                for block, values in sorted(capture_by_block.items())},
+            "minimum_goal_grade_capture": (
+                min(finite) if len(finite) == 2 * len(C.ASSETS) else None),
+            "meets_capture_bar": bool(
+                len(finite) == 2 * len(C.ASSETS)
+                and min(finite) >= FIT_ONLY_MIN_ORACLE_CAPTURE),
+            "economics": {row.asset: asdict(row) for row in evaluation.by_asset},
+        }
+        control["receipt_sha256"] = _sha(control)
+        if getattr(self, "_prophet_controls", None) is None:
+            self._prophet_controls = {}
+        self._prophet_controls[chronology] = control
+        return MappingProxyType(control)
 
     def _rehearsal_score_path(self, score: np.ndarray, *, ids: np.ndarray,
                               assets: np.ndarray, days: np.ndarray,
                               recipient: np.ndarray, chronology: str,
                               artifact_name: str):
         """Execute one real fit-only mapper→Platt→threshold→forward path."""
+        # R3: no legacy GBT policy may be constructed on this path.
+        with neural_inference_path():
+            return self._rehearsal_score_path_inner(
+                score, ids=ids, assets=assets, days=days, recipient=recipient,
+                chronology=chronology, artifact_name=artifact_name)
+
+    def _rehearsal_score_path_inner(self, score: np.ndarray, *, ids: np.ndarray,
+                                    assets: np.ndarray, days: np.ndarray,
+                                    recipient: np.ndarray, chronology: str,
+                                    artifact_name: str):
         from .atlas_probe_model import FrozenLogisticBindingMapper
         bindings, _ = self._binding_indexes()
         action = np.asarray([bindings[str(cid)].action_target for cid in ids], np.int8)
@@ -8484,10 +9465,17 @@ class ProductionExactDiagnosticResources:
         if any(not mask.any() for mask in (fit, platt, threshold, forward)):
             raise RealDiagnosticExecutorRefusal(f"{chronology} score path has an empty block")
         ceiling_surface = getattr(self, "_fit_only_ceiling_rows", None)
-        if (not isinstance(ceiling_surface, Mapping)
-                or set(ceiling_surface) != {
-                    "E1r.THRESHOLD", "E1r.FORWARD",
-                    "E2r.THRESHOLD", "E2r.FORWARD"}):
+        ceiling_receipts = getattr(self, "_fit_only_ceiling_receipts", None)
+        exact_offer_surface = getattr(
+            self, "_fit_only_exact_offer_ceiling_rows", None)
+        exact_offer_receipts = getattr(
+            self, "_fit_only_exact_offer_ceiling_receipts", None)
+        expected_ceiling_blocks = {
+            "E1r.THRESHOLD", "E1r.FORWARD", "E2r.THRESHOLD", "E2r.FORWARD"}
+        if any(not isinstance(surface, Mapping)
+               or set(surface) != expected_ceiling_blocks
+               for surface in (ceiling_surface, ceiling_receipts,
+                               exact_offer_surface, exact_offer_receipts)):
             raise RealDiagnosticExecutorRefusal(
                 "fit-only candidate-ceiling economic surface is absent")
         features = _decision_binding(np.asarray(score, np.float64))
@@ -8498,9 +9486,36 @@ class ProductionExactDiagnosticResources:
             features, action, supervised_fit, ids, sample_weight=weights,
             weight_receipt_sha256=weight_receipt.receipt_sha256)
         supervised_platt = platt & recipient
-        mapper.calibrate(features[supervised_platt], action[supervised_platt],
-                         ids[supervised_platt], threshold_selection_ids=ids[threshold])
+        # Cross-lane item 27: the Platt stage now raises a TYPED
+        # DEGENERATE_CALIBRATOR refusal instead of publishing a flat calibrator.
+        # A funnel that cannot carry any score is an implementation defect, so
+        # it fails closed here with its typed status rather than travelling on
+        # as an ordinary economic loser.
+        from .atlas_probe_model import AtlasProbeRefusal
+        try:
+            mapper.calibrate(
+                features[supervised_platt], action[supervised_platt],
+                ids[supervised_platt], threshold_selection_ids=ids[threshold])
+        except AtlasProbeRefusal as error:
+            token = str(error).split(":", 1)[0]
+            if token not in REHEARSAL_PATH_IMPLEMENTATION_REFUSALS:
+                raise
+            raise RealDiagnosticExecutorRefusal(
+                f"{chronology} rehearsal path status {token}: {error}") from error
         probability, _ = mapper.predict(features)
+        # F2: a mapper with no slope, or a Platt stage with a non-positive or
+        # non-finite slope, produces a transport funnel that cannot carry any
+        # score.  Those are IMPLEMENTATION defects, not economic outcomes, so
+        # they get their own typed status rather than being reported as an
+        # ordinary "no feasible threshold" loser.
+        mapper_coefficients = np.asarray(mapper.coef_, np.float64)
+        calibrator_slope = float(mapper.calibrator.slope)
+        degenerate_mapper = bool(
+            not np.all(np.isfinite(mapper_coefficients))
+            or float(np.max(np.abs(mapper_coefficients))) == 0.0)
+        degenerate_calibrator = bool(
+            not np.isfinite(calibrator_slope) or calibrator_slope <= 0.0
+            or len(np.unique(np.asarray(probability, np.float64))) < 2)
         examples = {item.candidate_id: item for spec in
                     self.stage.corpus_stage.corpus.sessions for item in spec.examples}
         outcomes = self.stage.corpus_stage.corpus.replay.outcomes
@@ -8534,7 +9549,10 @@ class ProductionExactDiagnosticResources:
                 days_with_trades=int(sweep.days_with_trades[i]),
                 eligible_days=len(sweep.eligible_days)).feasible
                 for i in range(len(sweep.thresholds))], bool)
+            # R1: the GOAL-GRADE ceiling is the denominator and the
+            # capacity-regime source; the exact offer surface is reference only.
             ceiling = ceiling_surface[f"{chronology}.THRESHOLD"][asset]
+            ceiling_sha = str(ceiling_receipts[f"{chronology}.THRESHOLD"])
             oracle_total = float(ceiling["total_pnl_usd"])
             oracle_day = float(ceiling["usd_per_asset_day"])
             regime = capacity_regime_from_oracle(oracle_day)
@@ -8549,7 +9567,9 @@ class ProductionExactDiagnosticResources:
             feasible &= goal_feasible
             choices = np.flatnonzero(feasible)
             if not len(choices):
-                thresholds[asset] = 1.0; all_feasible = False
+                # F5: nextafter no-entry sentinel, never literal 1.0.
+                thresholds[asset] = float(sweep.thresholds[-1])
+                all_feasible = False
                 funnels[asset] = {"status": "NO_FEASIBLE_THRESHOLD",
                                   "sweep": sweep.receipt_sha256}
                 best_capture = float(np.max(capture)) if len(capture) else float("-inf")
@@ -8562,6 +9582,14 @@ class ProductionExactDiagnosticResources:
                     "maximum_observed_oracle_capture": best_capture,
                     "oracle_total_pnl_usd": oracle_total,
                     "oracle_usd_per_asset_day": oracle_day,
+                    "ceiling_receipt_sha256": ceiling_sha,
+                    "admission": "cert_close_usd >= MIN_EXPECTANCY_USD",
+                    "goal_grade_ceiling_usd_per_day": oracle_day,
+                    "exact_offer_ceiling_usd_per_day": float(
+                        exact_offer_surface[f"{chronology}.THRESHOLD"][asset]
+                        ["usd_per_asset_day"]),
+                    "exact_offer_ceiling_receipt_sha256": str(
+                        exact_offer_receipts[f"{chronology}.THRESHOLD"]),
                     "reason": "NO_THRESHOLD_MEETS_FEASIBILITY_AND_GOAL_RECOVERY",
                 }
                 failed["receipt_sha256"] = _sha(failed)
@@ -8582,6 +9610,7 @@ class ProductionExactDiagnosticResources:
                 included_trading_days=len(sweep.eligible_days),
                 oracle_total_pnl_usd=oracle_total,
                 oracle_usd_per_asset_day=oracle_day,
+                ceiling_receipt_sha256=ceiling_sha,
             )
             if not recovery.eligible:
                 raise RealDiagnosticExecutorRefusal(
@@ -8593,6 +9622,12 @@ class ProductionExactDiagnosticResources:
         evaluation = replay((entered[i] for i in np.flatnonzero(forward)),
             expected_sessions=self.stage.corpus_stage.corpus.replay.sessions_for(forward_days))
         forward_by_asset = {row.asset: row for row in evaluation.by_asset}
+        # R2: portfolio-level chronological max drawdown across ALL assets on
+        # the same untouched forward block.  REPORT ONLY -- the per-asset MDD
+        # remains the gate; this column exists so a portfolio-level drawdown
+        # that no single asset shows is visible instead of invisible.
+        portfolio_max_drawdown_usd = _chronological_portfolio_drawdown_usd(
+            evaluation.trade_results)
         forward_feasibility = {}
         forward_goal_recovery = {}
         all_forward_feasible = True
@@ -8613,6 +9648,7 @@ class ProductionExactDiagnosticResources:
                 eligible_days=len(asset_days),
             )
             ceiling = ceiling_surface[f"{chronology}.FORWARD"][asset]
+            exact_offer = exact_offer_surface[f"{chronology}.FORWARD"][asset]
             recovery = fit_only_goal_recovery(
                 total_pnl_usd=measured.total_pnl_usd,
                 usd_per_asset_day=measured.usd_per_asset_day,
@@ -8620,6 +9656,8 @@ class ProductionExactDiagnosticResources:
                 included_trading_days=len(asset_days),
                 oracle_total_pnl_usd=float(ceiling["total_pnl_usd"]),
                 oracle_usd_per_asset_day=float(ceiling["usd_per_asset_day"]),
+                ceiling_receipt_sha256=str(
+                    ceiling_receipts[f"{chronology}.FORWARD"]),
             )
             forward_goal_recovery[asset] = asdict(recovery)
             forward_feasibility[asset] = {
@@ -8629,8 +9667,96 @@ class ProductionExactDiagnosticResources:
                 "reasons": list((*feasibility.reasons, *recovery.reasons)),
                 "receipt_sha256": feasibility.receipt_sha256,
                 "goal_recovery_receipt_sha256": recovery.receipt_sha256,
+                "admission": "cert_close_usd >= MIN_EXPECTANCY_USD",
+                "goal_grade_ceiling_receipt_sha256": str(
+                    ceiling_receipts[f"{chronology}.FORWARD"]),
+                "goal_grade_ceiling_usd_per_day": float(
+                    ceiling["usd_per_asset_day"]),
+                # Reference column only (admission cert_close_usd > 0).
+                "exact_offer_ceiling_usd_per_day": float(
+                    exact_offer["usd_per_asset_day"]),
+                "exact_offer_ceiling_receipt_sha256": str(
+                    exact_offer_receipts[f"{chronology}.FORWARD"]),
+                # R2: portfolio-level chronological MDD is REPORT-ONLY; the
+                # per-asset MDD above remains the gate.
+                "portfolio_chronological_max_drawdown_usd":
+                    portfolio_max_drawdown_usd,
+                "portfolio_max_drawdown_diagnostic_only": True,
             }
             all_forward_feasible &= feasibility.feasible and recovery.eligible
+        # F3 transport receipt (report-only).  Three depth funnels per asset on
+        # the SAME untouched FORWARD block: the frozen threshold this path
+        # actually selected, the forward-argmax threshold (held optimum), and
+        # the recipient-fixed twin's threshold selected on the same THRESHOLD
+        # block.  TransportReceipt.__bool__ already refuses selection use.
+        twin_permutation = stage_global_recipient_fixed_permutation(
+            np.where(fit, "FIT", np.where(platt | threshold, "CAL", "HELD")),
+            assets, days, recipient,
+            # Every row carries a calibrated probability, so the availability
+            # stratum for THIS permutation is uniformly materialized.
+            materialized=np.ones(len(ids), bool), seed=20260816)
+        twin_probability = np.asarray(probability, np.float64).copy()
+        _donated = twin_permutation >= 0
+        twin_probability[_donated] = np.asarray(
+            probability, np.float64)[twin_permutation[_donated]]
+        transport: dict[str, Any] = {}
+        for asset in C.ASSETS:
+            forward_local = np.flatnonzero(forward & (assets == asset))
+            threshold_local = np.flatnonzero(threshold & (assets == asset))
+            if not len(forward_local) or not len(threshold_local):
+                raise RealDiagnosticExecutorRefusal(
+                    f"{chronology} transport diagnostic lacks {asset} rows")
+            forward_sessions = self.stage.corpus_stage.corpus.replay.sessions_for(
+                forward_days, asset=asset)
+            threshold_sessions = self.stage.corpus_stage.corpus.replay.sessions_for(
+                threshold_days, asset=asset)
+            forward_arrivals = tuple(arrivals[i] for i in forward_local)
+            forward_probability = np.asarray(probability, np.float64)[forward_local]
+            positive_ids = [str(ids[i]) for i in forward_local if action[i] == 1]
+            forward_sweep = fast_threshold_sweep(
+                forward_arrivals, forward_probability, forward_sessions)
+            held_index = int(max(
+                range(len(forward_sweep.thresholds)),
+                key=lambda i: (float(forward_sweep.usd_per_asset_day[i]),
+                               float(forward_sweep.usd_per_trade[i]),
+                               -float(forward_sweep.max_drawdown_usd[i]),
+                               float(forward_sweep.thresholds[i]))))
+            twin_sweep = fast_threshold_sweep(
+                tuple(arrivals[i] for i in threshold_local),
+                twin_probability[threshold_local], threshold_sessions)
+            twin_index = int(max(
+                range(len(twin_sweep.thresholds)),
+                key=lambda i: (float(twin_sweep.usd_per_asset_day[i]),
+                               float(twin_sweep.usd_per_trade[i]),
+                               -float(twin_sweep.max_drawdown_usd[i]),
+                               float(twin_sweep.thresholds[i]))))
+            funnel_args = dict(expected_sessions=forward_sessions,
+                               positive_candidate_ids=positive_ids)
+            frozen_funnel = depth_funnel(
+                forward_arrivals, forward_probability,
+                float(thresholds[asset]), **funnel_args)
+            held_funnel = depth_funnel(
+                forward_arrivals, forward_probability,
+                float(forward_sweep.thresholds[held_index]), **funnel_args)
+            twin_funnel = depth_funnel(
+                forward_arrivals, forward_probability,
+                float(twin_sweep.thresholds[twin_index]), **funnel_args)
+            receipt_row = transport_receipt(frozen_funnel, held_funnel, twin_funnel)
+            transport[asset] = MappingProxyType({
+                "diagnostic_only": True,
+                "frozen_threshold": float(thresholds[asset]),
+                "held_optimum_threshold": float(forward_sweep.thresholds[held_index]),
+                "twin_threshold": float(twin_sweep.thresholds[twin_index]),
+                "twin_threshold_block": "THRESHOLD",
+                "frozen_depth_sha256": frozen_funnel.receipt_sha256,
+                "held_optimum_depth_sha256": held_funnel.receipt_sha256,
+                "twin_depth_sha256": twin_funnel.receipt_sha256,
+                "frozen_vs_held_optimum_ratio":
+                    receipt_row.frozen_vs_held_optimum_ratio,
+                "held_optimum_nonpositive": receipt_row.held_optimum_nonpositive,
+                "twin_false_feasibility": receipt_row.twin_false_feasibility,
+                "receipt_sha256": receipt_row.receipt_sha256,
+            })
         receipt = _sha({"chronology": chronology, "fit_ids": ids[fit].tolist(),
                         "platt_ids": ids[platt].tolist(),
                         "threshold_ids": ids[threshold].tolist(),
@@ -8640,13 +9766,28 @@ class ProductionExactDiagnosticResources:
                         "threshold_goal_recovery": threshold_goal_recovery,
                         "forward_feasibility": forward_feasibility,
                         "forward_goal_recovery": forward_goal_recovery,
+                        "transport": {asset: dict(row)
+                                      for asset, row in transport.items()},
                         "evaluation": [asdict(row) for row in evaluation.by_asset]})
-        status = ("ELIGIBLE" if all_feasible and all_forward_feasible else
+        # F2: implementation degeneracies rank ahead of the economic verdicts;
+        # a broken transport funnel must never be reported as an economic loser.
+        status = ("DEGENERATE_MAPPER" if degenerate_mapper else
+                  "DEGENERATE_CALIBRATOR" if degenerate_calibrator else
+                  "ELIGIBLE" if all_feasible and all_forward_feasible else
                   "NO_FEASIBLE_THRESHOLD" if not all_feasible else
                   "NO_FEASIBLE_FORWARD")
+        if status not in REHEARSAL_PATH_STATUSES:
+            raise RealDiagnosticExecutorRefusal(
+                f"unregistered fit-only rehearsal path status: {status!r}")
         detail = MappingProxyType({"status": status,
             "mapper": mapper.parameter_sha256,
             "calibrator": mapper.calibrator.parameter_sha256,
+            "degenerate_mapper": degenerate_mapper,
+            "degenerate_calibrator": degenerate_calibrator,
+            "mapper_absolute_max_coefficient":
+                float(np.max(np.abs(mapper_coefficients))),
+            "calibrator_slope": calibrator_slope,
+            "transport": MappingProxyType(transport),
             "weight_receipt": weight_receipt.receipt_sha256,
             "thresholds": thresholds,
             "parity": parity,
@@ -8697,6 +9838,7 @@ class ProductionExactDiagnosticResources:
                                   for row in evaluation.asset_day_results],
             "threshold_goal_recovery": threshold_goal_recovery,
             "forward_goal_recovery": forward_goal_recovery,
+            "transport": {asset: dict(row) for asset, row in transport.items()},
             "path_receipt_sha256": receipt,
         }
         self._m8_payloads.update({
@@ -8893,8 +10035,10 @@ class ProductionExactDiagnosticResources:
 
         trace: list[Mapping[str, Any]] = []
         best_base = None; best_base_loss = np.inf; stale = 0
-        optimizer = torch.optim.Adam(
-            [*model.parameters(), *decoder.parameters()], lr=3e-4)
+        optimizer = _run_optimizer(
+            lambda: torch.optim.Adam(
+                [*model.parameters(), *decoder.parameters()], lr=3e-4),
+            category="REHEARSAL", fit_id=f"E1r/{arm}/base")
         for epoch in range(12):
             model.train(); decoder.train(); epoch_losses = []; pair_count = 0
             gradient_norm = 0.0
@@ -8933,7 +10077,9 @@ class ProductionExactDiagnosticResources:
                 pair, count, _ = day_pair_loss(
                     logits, ids, phases, decisions, actions, recipients,
                     asset, day, weighted=True)
-                assert total is not None
+                if not (total is not None):
+                    raise RealDiagnosticExecutorRefusal(
+                        "internal invariant failed: total is not None")
                 total = total + pair; total.backward(); optimizer.step()
                 pair_count += count; epoch_losses.append(float(total.detach()))
                 gradient_norm += float(sum(torch.linalg.vector_norm(p.grad.detach())
@@ -8968,7 +10114,9 @@ class ProductionExactDiagnosticResources:
         parameters = list(model.head.parameters())
         if arm != "C0":
             parameters += list(objective_head.parameters())
-        optimizer = torch.optim.Adam(parameters, lr=3e-4)
+        optimizer = _run_optimizer(
+            lambda: torch.optim.Adam(parameters, lr=3e-4),
+            category="REHEARSAL", fit_id=f"E1r/{arm}/selected-head")
         best = None; best_loss = np.inf; stale = 0
         for epoch in range(6):
             model.train(); objective_head.train(); epoch_losses = []; pair_count = 0
@@ -8997,10 +10145,14 @@ class ProductionExactDiagnosticResources:
                         if arm != "C0":
                             rows = np.asarray([target_position[cid]
                                                for cid in batch.candidate_ids], np.int64)
-                            value = value + loss_for_probe(
+                            _loss, _state = _typed_loss_for_probe(
                                 objective_spec,
                                 objective_head(output.decision_state.float()),
                                 _target_take(selected_target, rows))
+                            self._record_objective_batch_state(
+                                "E1R_SELECTED_FULL", objective_spec.probe_id, _state)
+                            if _loss is not None:
+                                value = value + _loss
                     total = value if total is None else total + value
                     logits.append(output.action_logit.float()); ids.extend(batch.candidate_ids)
                     phases.extend(str(item.phase) for item in spec.examples)
@@ -9013,7 +10165,9 @@ class ProductionExactDiagnosticResources:
                 pair, count, _ = day_pair_loss(
                     logits, ids, phases, decisions, actions, recipients,
                     asset, day, weighted=True)
-                assert total is not None
+                if not (total is not None):
+                    raise RealDiagnosticExecutorRefusal(
+                        "internal invariant failed: total is not None")
                 total = total + pair; total.backward(); optimizer.step()
                 pair_count += count; epoch_losses.append(float(total.detach()))
                 gradient_norm += float(sum(torch.linalg.vector_norm(p.grad.detach())
@@ -9139,10 +10293,19 @@ class ProductionExactDiagnosticResources:
                 "canary_predictions": catboost_canary,
             })
             catboost_names.append(config_name)
+        # Item 26: an objective that was typed-unavailable in EVERY batch never
+        # contributed a loss and must not be reported as a trained objective.
+        objective_support = self._assert_objective_batch_support(
+            "E1R_SELECTED_FULL")
         evaluation, status, path_receipt, transition = self._rehearsal_score_path(
             probability, ids=np.asarray(all_ids), assets=all_assets, days=all_days,
             recipient=all_recipient, chronology=chronology,
             artifact_name=f"G7/{chronology}/{arm}/{decision_kind}")
+        # D-095 prophet-through-funnel positive control on the identical
+        # population and the identical transport path.
+        self._prophet_positive_control(
+            ids=np.asarray(all_ids), assets=all_assets, days=all_days,
+            recipient=all_recipient, chronology=chronology)
 
         prefix = f"M8/G7/{chronology}/{arm}/{decision_kind}"
         model_name = f"{prefix}/final.safetensors"
@@ -9171,6 +10334,9 @@ class ProductionExactDiagnosticResources:
                     canary_output.decision_state.float()).float().cpu().numpy())
         self._m8_payloads[output_name] = _npz_bytes(selected_canary_arrays)
         training = {"schema": "entry-v2-fit-only-selected-full-training-v1",
+            "objective_batch_support": {
+                probe_id: dict(counts)
+                for probe_id, counts in objective_support.items()},
             "chronology": chronology, "fit_wall": fit_hi, "arm": arm,
             "decision_kind": decision_kind, "selected_probe": selected_probe,
             "learner_objective": learner_objective,
@@ -9245,11 +10411,15 @@ class ProductionExactDiagnosticResources:
                         elif arm != "C0":
                             rows = np.asarray([target_position[cid]
                                                for cid in batch.candidate_ids], np.int64)
-                            value = value + loss_for_probe(
+                            _loss, _state = _typed_loss_for_probe_unweighted(
                                 objective_spec,
                                 objective_head(output.decision_state.float()),
-                                _target_take(selected_target, rows),
-                                use_fit_weight=False)
+                                _target_take(selected_target, rows))
+                            self._record_objective_batch_state(
+                                "E1R_SELECTED_FULL_VALIDATION",
+                                objective_spec.probe_id, _state)
+                            if _loss is not None:
+                                value = value + _loss
                     row_losses.append(value); logits.append(output.action_logit.float())
                     ids.extend(batch.candidate_ids)
                     phases.extend(str(item.phase) for item in spec.examples)
@@ -9291,8 +10461,6 @@ class ProductionExactDiagnosticResources:
         split = np.full(len(days), "E2R", dtype="<U16")
         for role in ("FIT", "PLATT", "THRESHOLD", "FORWARD"):
             split[_rehearsal_mask(days, "E1r", role)] = role
-        permutation = stage_global_recipient_fixed_permutation(
-            split, assets, days, recipient, seed=20260816)
         shared = SharedProbePlane.build(rows, fit_idx, stage_id="E1R")
         shared_name = "M8/E1r/shared-probe-plane.npz"
         canary_rows = np.arange(min(8, len(shared.normalized)), dtype=np.int64)
@@ -9339,7 +10507,9 @@ class ProductionExactDiagnosticResources:
         optimizer_fits = 2
         for probe in PROBE_REGISTRY:
             target = targets[probe.probe_id]
-            support, additional = _e1_fit_support_inputs(probe, target, rows, fit_idx)
+            support, additional = _e1_fit_support_inputs(
+                probe, target, rows, fit_idx,
+                selected_horizon_start_d8=self._selected_horizon_start_d8())
             decisions = tuple(item.measure() for item in (support, *additional))
             if (target.state != CellAvailability.MATERIALIZED
                     or not all(item.available for item in decisions)):
@@ -9356,6 +10526,9 @@ class ProductionExactDiagnosticResources:
                 fingerprints[probe.probe_id] = _probe_fingerprint(
                     target, np.isin(np.arange(len(ids)), fit_idx), recipient)
                 continue
+            permutation = _recipient_fixed_permutation_for(
+                target, stage=split, asset=assets, day=days,
+                action_loss_mask=recipient, seed=20260816)
             twin_target = permute_probe_target_recipient_fixed(target, permutation)
             twin_spec = shuffled_probe_for(
                 probe, available=self.stage.diagnostic_corpus.sessions[0].atlas.shuffled_probes)
@@ -9403,15 +10576,48 @@ class ProductionExactDiagnosticResources:
                 twin_score, ids=ids, assets=assets, days=days,
                 recipient=recipient, chronology="E1r",
                 artifact_name=f"E1r/objectives/{probe.probe_id}/twin")
-            real_day = {(row.asset, row.trading_day): row.pnl_usd
-                        for row in real_eval.asset_day_results}
-            twin_day = {(row.asset, row.trading_day): row.pnl_usd
-                        for row in twin_eval.asset_day_results}
-            records = tuple(PairedObservationRecord(
-                f"E1r:{asset}:{day}", asset, str(day), True,
-                target.schema_sha256, twin_target.schema_sha256,
-                float(real_day.get((asset, day), 0.0)),
-                float(twin_day.get((asset, day), 0.0))) for asset, day in calendar)
+            # S4: the E1 Holm screen tests LABEL learnability, so its input is
+            # the day-clustered paired real-vs-twin OBJECTIVE-LOSS difference,
+            # not replayed dollars.  Feeding dollars let a threshold/economics
+            # outcome decide which objective was statistically learnable, and
+            # an exactly-zero-variance dollar column could be certified as the
+            # most significant.  Replay dollars remain the E2 Romano-Wolf and
+            # economic-selection input only.
+            #
+            # Signed as negative loss so that ``real_value - shuffled_value``
+            # is positive exactly when the real objective fits better.
+            loss_records = []
+            for asset, day in calendar:
+                local_rows = np.flatnonzero(
+                    (assets == asset) & (days == int(day)))
+                if not len(local_rows):
+                    continue
+                real_loss, real_state = _typed_loss_for_probe(
+                    probe, real_output[local_rows],
+                    _target_take(target, local_rows))
+                twin_loss, twin_state = _typed_loss_for_probe(
+                    twin_spec, twin_output[local_rows],
+                    _target_take(twin_target, local_rows))
+                if real_loss is None or twin_loss is None:
+                    self._record_objective_batch_state(
+                        "E1R_PAIRED_SCREEN", probe.probe_id,
+                        OBJECTIVE_BATCH_UNAVAILABLE)
+                    continue
+                self._record_objective_batch_state(
+                    "E1R_PAIRED_SCREEN", probe.probe_id,
+                    OBJECTIVE_BATCH_MATERIALIZED)
+                loss_records.append(PairedObservationRecord(
+                    f"E1r:{probe.probe_id}:{asset}:{day}", asset, str(day),
+                    # Lane C: honor the real recipient mask instead of a
+                    # hard-coded True that made the downstream filter dead.
+                    bool(np.any(recipient[local_rows])),
+                    target.schema_sha256, twin_target.schema_sha256,
+                    -float(real_loss.detach()), -float(twin_loss.detach())))
+            records = tuple(loss_records)
+            if not records:
+                raise RealDiagnosticExecutorRefusal(
+                    f"E1r objective {probe.probe_id} produced no paired "
+                    "asset-day loss observation")
             test = paired_day_cluster_records(records)
             fingerprints[probe.probe_id] = _probe_fingerprint(
                 target, np.isin(np.arange(len(ids)), fit_idx), recipient)
@@ -9423,13 +10629,20 @@ class ProductionExactDiagnosticResources:
                 "twin_transition": dict(twin_detail),
                 "real_status": real_status, "twin_status": twin_status,
                 "paired": test.receipt_sha256,
+                "paired_state": str(test.state.value if hasattr(
+                    test.state, "value") else test.state),
                 "support": [item.receipt_sha256 for item in decisions]}
             # Statistical objective screening is independent of whether this
             # shallow E1r policy happens to clear the economic threshold.  A
             # prior version discarded measured real-vs-twin evidence whenever
             # its policy was economically typed as a loser, conflating label
             # learnability with downstream threshold feasibility.
-            p_values[probe.probe_id] = test.p_value_one_sided
+            # Cross-lane item 25: pass the RESULT OBJECT, not a bare float.  A
+            # degenerate-zero-variance or low-support test has
+            # ``p_value_one_sided is None`` and a typed ``.state``;
+            # ``hierarchical_holm`` skips those explicitly instead of letting a
+            # zero-variance column be certified as most-significant.
+            p_values[probe.probe_id] = test
             families[probe.probe_id] = f"cell-{probe.cell:02d}"
             screens[probe.probe_id] = (real_score, twin_score)
             self._m8_objective_payloads[probe.probe_id] = [
@@ -9456,7 +10669,7 @@ class ProductionExactDiagnosticResources:
         # five-arm/two-head matrix can identify whether the limiting layer is
         # objective learnability, representation, or downstream policy.
         ordered = (sorted(holm.surviving_probes,
-                          key=lambda probe: (p_values[probe], probe))
+                          key=lambda probe: (holm.probe_p_values[probe], probe))
                    if holm.surviving_probes else ["C14P01"])
         matrix = np.stack([fingerprints[probe] for probe in ordered])
         correlation = np.eye(len(matrix)) if len(matrix) == 1 else np.corrcoef(matrix)
@@ -9470,6 +10683,8 @@ class ProductionExactDiagnosticResources:
             "pretext_checkpoints": [p.checkpoint_sha256 for p in pretexts],
             "optimizer_fit_count": optimizer_fits, "ledger": ledger,
             "holm_receipt_sha256": holm.receipt_sha256,
+            "holm_excluded_probes": list(holm.excluded_probes),
+            "holm_excluded_probe_states": dict(holm.excluded_probe_states),
             "holm_survivor_count": len(holm.surviving_probes),
             "diagnostic_fallback": (None if holm.surviving_probes else "C14P01"),
             "finalists": list(finalists.finalists),
@@ -9508,14 +10723,15 @@ class ProductionExactDiagnosticResources:
         if np.any(split == "OUTSIDE"):
             raise RealDiagnosticExecutorRefusal(
                 "E2r probe plane contains a row outside frozen chronology")
-        permutation = stage_global_recipient_fixed_permutation(
-            split, assets, days, recipient, seed=20260816)
         plane = SharedProbePlane.build(probe_rows, fit_idx, stage_id="E2R")
         torch.manual_seed(20260816); initialization = AtlasProbeNet()
         objective_receipts = {}; eligible_objectives = []
         for probe_id in e1r["finalists"]:
             probe = next(item for item in PROBE_REGISTRY if item.probe_id == probe_id)
             target = targets[probe_id]
+            permutation = _recipient_fixed_permutation_for(
+                target, stage=split, asset=assets, day=days,
+                action_loss_mask=recipient, seed=20260816)
             twin_target = permute_probe_target_recipient_fixed(target, permutation)
             twin_spec = shuffled_probe_for(
                 probe, available=self.stage.diagnostic_corpus.sessions[0].atlas.shuffled_probes)
@@ -9781,9 +10997,14 @@ class ProductionExactDiagnosticResources:
                 stage_name = ("BASE" if epoch < 12 else
                               "A0_HEAD" if arm == "C0" else "SELECTED_HEAD")
                 if epoch == 0:
-                    assert base_decoder is not None
-                    optimizer = torch.optim.Adam(
-                        [*model.parameters(), *base_decoder.parameters()], lr=3e-4)
+                    if not (base_decoder is not None):
+                        raise RealDiagnosticExecutorRefusal(
+                            "internal invariant failed: base_decoder is not None")
+                    optimizer = _run_optimizer(
+                        lambda: torch.optim.Adam(
+                            [*model.parameters(), *base_decoder.parameters()],
+                            lr=3e-4),
+                        category="REHEARSAL", fit_id=f"E2r/{arm}/base")
                 elif epoch == 12:
                     if arm in ("C0", "L0", "M1"):
                         if base_best_state is None or base_decoder is None:
@@ -9804,8 +11025,12 @@ class ProductionExactDiagnosticResources:
                     parameters = list(model.head.parameters())
                     if arm != "C0":
                         parameters += list(objective_head.parameters())
-                    optimizer = torch.optim.Adam(parameters, lr=3e-4)
-                assert optimizer is not None
+                    optimizer = _run_optimizer(
+                        lambda: torch.optim.Adam(parameters, lr=3e-4),
+                        category="REHEARSAL", fit_id=f"E2r/{arm}/selected-head")
+                if optimizer is None:
+                    raise RealDiagnosticExecutorRefusal(
+                        f"E2r {arm} optimizer was never constructed")
                 named_parameters = [*model.named_parameters(),
                     *((f"objective_head.{name}", value)
                       for name, value in objective_head.named_parameters()),
@@ -9874,7 +11099,9 @@ class ProductionExactDiagnosticResources:
                                     and arm in ("L1", "M1") else None))
                             loss, components = _actual_multitask_loss(output, batch, supplied)
                             if stage_name == "BASE":
-                                assert base_decoder is not None
+                                if not (base_decoder is not None):
+                                    raise RealDiagnosticExecutorRefusal(
+                                        "internal invariant failed: base_decoder is not None")
                                 reconstruction, field_continuous, field_categorical = \
                                     _field_reconstruction_loss(
                                         base_decoder, memory, batch,
@@ -9888,13 +11115,19 @@ class ProductionExactDiagnosticResources:
                                 objective_rows = np.asarray(
                                     [target_position[cid] for cid in batch.candidate_ids],
                                     np.int64)
-                                objective_loss = loss_for_probe(
+                                objective_loss, _state = _typed_loss_for_probe(
                                     objective_spec,
                                     objective_head(output.decision_state.float()),
                                     _target_take(selected_target, objective_rows))
-                                loss = loss + objective_loss
+                                self._record_objective_batch_state(
+                                    "E1R_SELECTED_FULL", objective_spec.probe_id,
+                                    _state)
                                 components = dict(components)
-                                components["selected_objective"] = objective_loss
+                                if objective_loss is not None:
+                                    loss = loss + objective_loss
+                                    components["selected_objective"] = objective_loss
+                                else:
+                                    components["selected_objective_state"] = _state
                         day_loss = loss if day_loss is None else day_loss + loss
                         day_logits.append(output.action_logit.float())
                         day_ids.extend(batch.candidate_ids)
@@ -9997,7 +11230,9 @@ class ProductionExactDiagnosticResources:
                                         and arm in ("L1", "M1") else None))
                                 value, _ = _actual_multitask_loss(output, batch)
                                 if stage_name == "BASE":
-                                    assert base_decoder is not None
+                                    if not (base_decoder is not None):
+                                        raise RealDiagnosticExecutorRefusal(
+                                            "internal invariant failed: base_decoder is not None")
                                     reconstruction, _continuous, _categorical = \
                                         _field_reconstruction_loss(
                                             base_decoder, memory, batch,
@@ -10007,11 +11242,18 @@ class ProductionExactDiagnosticResources:
                                     objective_rows = np.asarray(
                                         [target_position[cid] for cid in batch.candidate_ids],
                                         np.int64)
-                                    value = value + loss_for_probe(
-                                        objective_spec,
-                                        objective_head(output.decision_state.float()),
-                                        _target_take(selected_target, objective_rows),
-                                        use_fit_weight=False)
+                                    _loss, _state = \
+                                        _typed_loss_for_probe_unweighted(
+                                            objective_spec,
+                                            objective_head(
+                                                output.decision_state.float()),
+                                            _target_take(selected_target,
+                                                         objective_rows))
+                                    self._record_objective_batch_state(
+                                        "E2R_SELECTED_HEAD",
+                                        objective_spec.probe_id, _state)
+                                    if _loss is not None:
+                                        value = value + _loss
                             day_value.append((value.float(), len(batch.candidate_ids))); day_outputs.append(
                                 output.action_logit.float())
                             day_ids.extend(batch.candidate_ids)
@@ -10075,7 +11317,9 @@ class ProductionExactDiagnosticResources:
                 if stage_name == "BASE":
                     if validation_loss < base_best_validation * .999:
                         base_best_validation = validation_loss; base_stale = 0
-                        assert base_decoder is not None
+                        if not (base_decoder is not None):
+                            raise RealDiagnosticExecutorRefusal(
+                                "internal invariant failed: base_decoder is not None")
                         base_best_state = (
                             {name: value.detach().cpu().clone()
                              for name, value in model.state_dict().items()},
@@ -10301,6 +11545,12 @@ class ProductionExactDiagnosticResources:
             row_store[arm] = rows.representation_sha256; model.cpu()
         if set(matrix) != {f"{arm}:{kind}" for arm in CANONICAL_ARMS for kind in DECISIONS}:
             raise RealDiagnosticExecutorRefusal("E2r five-arm/two-head census differs")
+        e2r_objective_support = self._assert_objective_batch_support(
+            "E2R_SELECTED_HEAD")
+        # D-095 prophet-through-funnel positive control for the E2r chronology.
+        self._prophet_positive_control(
+            ids=np.asarray(all_ids), assets=all_assets, days=all_days,
+            recipient=all_recipient, chronology="E2r")
         eligible = [(min(row["economics"][asset]["usd_per_asset_day"]
                          for asset in C.ASSETS), -row["parameter_count"], key)
                     for key, row in matrix.items() if row["status"] == "ELIGIBLE"]
@@ -10343,6 +11593,9 @@ class ProductionExactDiagnosticResources:
             "base_weight_receipt_sha256": base_receipt.receipt_sha256,
             "top3_weight_receipt_sha256": top_receipt.receipt_sha256,
             "wall_weight_receipt_sha256": wall_receipt.receipt_sha256,
+            "objective_batch_support": {
+                probe_id: dict(counts)
+                for probe_id, counts in e2r_objective_support.items()},
             "selected_horizon_normalizer": horizon_normalizer,
             "selected_horizon_normalizer_sha256":
                 horizon_normalizer["receipt_sha256"],
@@ -10437,5 +11690,8 @@ def entry_v2_production_executor_factory(run_root: str | Path):
 
 
 __all__ = ["CompactAtlasHandoff", "ExpandedEventTransform", "ExpandedEventView",
+           "LEDGER_FIT_CATEGORIES", "MAXIMUM_REGISTERED_FITS_THROUGH_E2",
+           "REHEARSAL_PATH_IMPLEMENTATION_REFUSALS", "REHEARSAL_PATH_STATUSES",
            "ProductionExactDiagnosticResources", "build_compact_atlas_handoff",
-           "entry_v2_production_executor_factory"]
+           "entry_v2_production_executor_factory", "optimizer_fit_census",
+           "reference_phase_clocks", "reset_optimizer_fit_census"]

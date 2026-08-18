@@ -325,6 +325,13 @@ class DurableEntryV2Store:
         producer: Mapping[str, Any],
     ) -> DurableProduct:
         key = self.product_key(kind, identity, law_sha256)
+        # Lane C: an all-empty product used to be published as a real one, so a
+        # downstream strict reload saw published=True over zero bytes.  A
+        # product with no array, or with every array empty, is refused.
+        materialized = tuple(np.asarray(value) for value in arrays)
+        if not materialized or all(value.size == 0 for value in materialized):
+            raise C.EntryV2Refusal(
+                f"durable product {kind}/{key} has no materialized array bytes")
         descriptors, total = self._descriptors(arrays)
         expected_digest = hashlib.sha256()
         cursor = 0

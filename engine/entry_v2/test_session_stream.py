@@ -340,6 +340,10 @@ class SessionStreamTest(unittest.TestCase):
                 n * 6, dtype=torch.float64).reshape(n, 6),
             selected_horizon_valid=torch.tensor(
                 [[True, True, False, True, True, True]] * n),
+            # B-10: the typed per-coordinate censor cause travels with the
+            # target; a censored coordinate keeps its named cause code.
+            selected_horizon_status=torch.tensor(
+                [[0, 0, 2, 0, 0, 0]] * n, dtype=torch.int8),
             selected_horizon_schema_sha256=SELECTED_SCHEMA_SHA256,
         )
         with self.source.materialize(template) as batch:
@@ -356,6 +360,8 @@ class SessionStreamTest(unittest.TestCase):
                           template.selected_horizon_valid)
             self.assertEqual(batch.selected_horizon_value.numpy().tobytes(),
                              template.selected_horizon_value.numpy().tobytes())
+            self.assertIs(batch.selected_horizon_status,
+                          template.selected_horizon_status)
 
     def test_cache_reuses_one_bitwise_immutable_conversion_without_receipt_drift(
             self) -> None:

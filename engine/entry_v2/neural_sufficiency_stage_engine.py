@@ -289,6 +289,12 @@ class ProbeSupportInputs:
     group_id: np.ndarray | None = None
     day: np.ndarray | None = None
     decision_ts: np.ndarray | None = None
+    #: Cross-lane item 24: a finite RIGHT-CENSORED value is not an observation.
+    #: ``support_gate`` requires this for the CONTINUOUS family.
+    censored: np.ndarray | None = None
+    at_risk: np.ndarray | None = None
+    #: Corpus-receipt selected-horizon start wall (item 28); never a literal.
+    selected_horizon_start_d8: int | None = None
 
     def validate_fit_slice(self) -> None:
         """Prove every support plane is physically confined to E1 FIT rows."""
@@ -307,7 +313,17 @@ class ProbeSupportInputs:
             raise HeldStageRefusal("E1 support day array is not numeric") from exc
         if np.any(numeric_day > 20210930):
             raise HeldStageRefusal("E1 support census crossed its fit boundary")
-        for name in ("values", "group_id", "decision_ts"):
+        # Cross-lane item 28: the upper wall was checked but not the lower one,
+        # so a pre-start row could sit inside an "E1 FIT" support census.  The
+        # wall is the corpus-receipt selected-horizon start day, never a literal.
+        start_d8 = self.selected_horizon_start_d8
+        if start_d8 is None:
+            raise HeldStageRefusal(
+                "E1 support slice lacks its selected-horizon start wall")
+        if np.any(numeric_day < int(start_d8)):
+            raise HeldStageRefusal(
+                "E1 support census precedes the selected-horizon start wall")
+        for name in ("values", "group_id", "decision_ts", "censored", "at_risk"):
             value = getattr(self, name)
             if value is not None and np.asarray(value).shape != asset.shape:
                 raise HeldStageRefusal(f"E1 support {name} array is misaligned")
@@ -316,7 +332,7 @@ class ProbeSupportInputs:
         return support_gate(
             self.kind, asset=self.asset, valid=self.valid, values=self.values,
             required_levels=self.required_levels or None, group_id=self.group_id,
-            day=self.day, decision_ts=self.decision_ts,
+            day=self.day, decision_ts=self.decision_ts, censored=self.censored,
         )
 
 
@@ -395,6 +411,7 @@ def execute_e1_screen(rows: Sequence[MeasuredProbeScreen]) -> E1ScreenResult:
             or {row.probe_id for row in measured} != expected):
         raise HeldStageRefusal("E1 ledger must contain every registered probe exactly once")
     paired = {}; p_values = {}; family = {}; supported = {}
+    paired_states: dict[str, str] = {}
     support_receipts = {}
     optimizer_fits = 2
     for row in measured:
@@ -414,7 +431,12 @@ def execute_e1_screen(rows: Sequence[MeasuredProbeScreen]) -> E1ScreenResult:
             continue
         test = paired_day_cluster_records(row.records)
         paired[row.probe_id] = test.receipt_sha256
-        p_values[row.probe_id] = test.p_value_one_sided
+        # Cross-lane item 25: hand the RESULT OBJECT to Holm.  A typed state
+        # (DEGENERATE_ZERO_VARIANCE / UNAVAILABLE_LOW_SUPPORT) carries no
+        # numeric p-value and is skipped explicitly rather than being certified.
+        p_values[row.probe_id] = test
+        paired_states[row.probe_id] = str(
+            test.state.value if hasattr(test.state, "value") else test.state)
         family[row.probe_id] = row.family_id
         supported[row.probe_id] = row
     if not supported:
@@ -425,7 +447,7 @@ def execute_e1_screen(rows: Sequence[MeasuredProbeScreen]) -> E1ScreenResult:
     if not holm.surviving_probes:
         raise HeldStageRefusal("E1 hierarchical Holm selected no objective")
     ordered = sorted(holm.surviving_probes, key=lambda probe: (
-        p_values[probe], probe))
+        holm.probe_p_values[probe], probe))
     targets = [supported[probe].target_vector for probe in ordered]
     if len({len(value) for value in targets}) != 1:
         raise HeldStageRefusal("E1 target vectors are not row-aligned")
@@ -442,7 +464,11 @@ def execute_e1_screen(rows: Sequence[MeasuredProbeScreen]) -> E1ScreenResult:
     if not finalists.finalists:
         raise HeldStageRefusal("E1 produced no nonredundant finalist")
     payload = {"supported": sorted(supported), "paired": paired,
+               "paired_states": dict(sorted(paired_states.items())),
                "support": support_receipts, "holm": holm.receipt_sha256,
+               # Cross-lane item 25: typed exclusions stay in the ledger.
+               "holm_excluded_probes": list(holm.excluded_probes),
+               "holm_excluded_probe_states": dict(holm.excluded_probe_states),
                "finalists": finalists.receipt_sha256,
                "registry_count": len(expected), "optimizer_fit_count": optimizer_fits}
     return E1ScreenResult(
@@ -647,10 +673,14 @@ def execute_e2_freeze(e1: E1ScreenResult,
                         for j, asset in enumerate(ASSETS)}
         capture_lower = {asset: float(capture_rw.simultaneous_lower_bounds[i * 3 + j])
                          for j, asset in enumerate(ASSETS)}
-        # Zero-variance hypotheses stay inside the same 30-column family.
-        # The statistics kernel assigns them their exact lower bound, so a
-        # deterministic positive effect may survive and a nonpositive one
-        # fails by its bound.  Requiring a nonzero SE here would undo that law.
+        # Cross-lane item 29: zero-variance hypotheses stay inside the same
+        # 30-column family, but the statistics kernel now gives them a -inf
+        # lower bound and marks them ineligible -- a deterministic column
+        # carries no sampling evidence and may never be certified.
+        window = slice(i * 3, i * 3 + 3)
+        if not (np.all(np.asarray(rw.eligible_mask, bool)[window])
+                and np.all(np.asarray(capture_rw.eligible_mask, bool)[window])):
+            continue
         if (min(dollar_lower.values()) <= 0
                 or min(capture_lower.values()) <= 0):
             continue

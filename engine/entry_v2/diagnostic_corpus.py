@@ -63,6 +63,7 @@ from .selected_horizon_contract import (
     COVERAGE_LAW_SHA256 as SELECTED_HORIZON_COVERAGE_LAW_SHA256,
     COVERAGE_SCHEMA as SELECTED_HORIZON_COVERAGE_SCHEMA,
     SCHEMA_SHA256 as SELECTED_HORIZON_SCHEMA_SHA256,
+    SELECTED_HORIZON_ATLAS_AXES,
     TARGET_LAW as SELECTED_HORIZON_TARGET_LAW,
     SelectedHorizonContractRefusal,
     selected_horizon_coverage_receipt,
@@ -1343,7 +1344,9 @@ def _bind_selected_horizon_corpus(
         raise DiagnosticCorpusRefusal(
             "selected target finalized atlas sessions duplicate an asset-day"
         )
-    axes = np.asarray((3, 4, 5, 6, 7, 11), dtype=np.int64)
+    # B-21: the six-horizon coordinates are resolved from the shared derived
+    # constant, never from a magic literal duplicated across modules.
+    axes = np.asarray(SELECTED_HORIZON_ATLAS_AXES, dtype=np.int64)
     sessions = []
     selected_receipts: dict[tuple[str, int, str], dict[str, Any]] = {}
     for spec in corpus.sessions:
@@ -1355,6 +1358,7 @@ def _bind_selected_horizon_corpus(
                 )
             if any(value is not None for value in (
                     spec.selected_horizon_value, spec.selected_horizon_valid,
+                    spec.selected_horizon_status,
                     spec.selected_horizon_schema_sha256)):
                 raise DiagnosticCorpusRefusal(
                     "selected target prefix unexpectedly carries targets"
@@ -1394,7 +1398,10 @@ def _bind_selected_horizon_corpus(
                     "selected FINAL differs from exact READY teacher"
                 )
         values = units.astype(np.float64) / float(PNL_UNITS_PER_USD)
-        values[~valid] = 0.0
+        # B-22: a censored coordinate carries the NaN sentinel, never 0.0.  A
+        # zero fill is byte-identical to a true $0 outcome once the mask is
+        # dropped; the NaN sentinel makes any unmasked arithmetic fail loudly.
+        values[~valid] = np.nan
         # Bind both the exact integer atlas authority and the byte-exact raw
         # float64 USD carrier consumed by the selected-head normalizer.
         selected_sha = _array_sha256(units, values, valid, status)
@@ -1403,10 +1410,19 @@ def _bind_selected_horizon_corpus(
             "selected_horizon_tensors_sha256": selected_sha,
             "selected_horizon_status_sha256": _array_sha256(status),
         }
+        # B-10: the typed censor cause is carried into the learner spec, not
+        # hashed and dropped.  ``selected_horizon_valid`` remains the
+        # backward-compatible boolean projection of the same plane.
+        if bool((status < 0).any()):
+            raise DiagnosticCorpusRefusal(
+                "selected target coordinate has no typed endpoint status"
+            )
         attached = replace(
             spec,
             selected_horizon_value=torch.from_numpy(values),
             selected_horizon_valid=torch.from_numpy(valid.copy()),
+            selected_horizon_status=torch.from_numpy(
+                status.astype(np.int8, copy=True)),
             selected_horizon_schema_sha256=SELECTED_HORIZON_SCHEMA_SHA256,
         )
         attached.validate(corpus.teacher)

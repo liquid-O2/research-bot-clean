@@ -45,13 +45,13 @@ AUTHORITY_SHA256 = MappingProxyType({
     "AGENTS.md":
         "06073e298c2e87e10c0381a7f4785fd092b454f1b6fe2c445e818ece1e5bc8e3",
     "design/ENTRY_V2_DATABENTO_CLOCK_LAW.md":
-        "dfc33cfe21c7deff5ab09d82963f1b1eff77c91d5073f2bb1aacdedfca8151f1",
+        "edb7ac2e61dc70b468d56a42f3fe4c485e7f1a2bf0e72d99a4e28465079776ba",
     "design/ENTRY_V2_NEURAL_SUFFICIENCY_DIAGNOSTIC.md":
-        "fd1e8c2ef0e73c9ba1ce2de09a6f3d5b2f315fe2de7ebb6dc942771ad27c5c49",
+        "9cff58faba91bc11292b13bd022f4831c6f6f32d057e65dae8eba4b130850ca5",
     "design/ENTRY_V2_RECOVERY_PLAN.md":
-        "452ab386e0ec03fc2e4dc3942184a5374d2b0730deea288f9a480fefb144ca24",
+        "03c4f70b3ae8f9e2c36cd60d7af3dad184b191a5bddcd6fcd6fcd876776337db",
     "design/ENTRY_V2_RECOVERY_PLAN_AMENDMENTS.md":
-        "3cec55792eec11b7c800723b9dd813ceb317fb65814e2c45149cfed61bd20c04",
+        "76eb38089f0049e55e21c326c23f595f831cc1fda4a1ef6a807033bce63ff3d7",
 })
 
 GOVERNING_PATHS = tuple(sorted((*CODE_PATHS, *AUTHORITY_SHA256)))

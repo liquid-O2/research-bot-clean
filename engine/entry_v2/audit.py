@@ -480,10 +480,18 @@ def check_oracle_and_null_controls(_ctx: AuditContext) -> Mapping[str, Any]:
              f"shuffled control {shuffled:.2f} above null bound")
     _require(truth > shuffled, "truth control does not beat shuffled labels")
     return {"asset_days": len({(row.asset, row.trading_day) for row in sessions}),
+            # V7: these bounds are properties of ``_control_fixture()``, a
+            # SYNTHETIC ledger.  They are a regression check on the teacher /
+            # replay implementations and are never economic evidence.
+            "evidence_scope": "SYNTHETIC_REGRESSION_ONLY",
+            "economic_evidence": False,
+            "population": "_control_fixture (synthetic)",
             "truth_usd_per_asset_day": truth,
             "truth_floor": TRUTH_CONTROL_FLOOR_USD_PER_ASSET_DAY,
+            "truth_floor_scope": "SYNTHETIC_REGRESSION_ONLY",
             "shuffled_usd_per_asset_day": shuffled,
             "shuffled_max": SHUFFLED_NULL_MAX_USD_PER_ASSET_DAY,
+            "shuffled_max_scope": "SYNTHETIC_REGRESSION_ONLY",
             "shuffle_seed": SHUFFLE_SEED}
 
 
@@ -725,8 +733,16 @@ def check_exact_bottleneck_attribution(ctx: AuditContext) -> Mapping[str, Any]:
                  "artifact bottleneck_boundaries must be a mapping")
         detail["artifact"] = _attribute_bottleneck(real)
         detail["_audit_pass"] = bool(detail["artifact"]["promotion"]["promoted"])
+        detail["evidence_scope"] = "REAL_ARTIFACT"
     else:
-        detail["_audit_pass"] = True
+        # V7: with no artifact this check saw only the synthetic fixture, and
+        # returning True let a fixture-only run publish an audit PASS.  A
+        # missing manifest is a typed REFUSAL, never a pass.
+        detail["_audit_pass"] = False
+        detail["evidence_scope"] = "SYNTHETIC_REGRESSION_ONLY"
+        detail["refusal"] = (
+            "NO_ARTIFACT_MANIFEST: bottleneck attribution has no real evidence; "
+            "the synthetic fixture cannot certify a boundary")
     return detail
 
 
@@ -1283,8 +1299,11 @@ def run_audit(*, manifest: Mapping[str, Any] | None = None,
         and result.details.get("evidence_scope") == "LIVE_PRODUCTION_OBJECTS"
         for result in results if result.name in PRODUCTION_HOOK_NAMES
     ))
-    production_complete = manifest is None or production_live
-    if manifest is not None and not production_complete:
+    # V7: ``manifest is None`` used to short-circuit this to complete, so a
+    # fixture-only invocation certified production.  A missing manifest is now
+    # incomplete by definition.
+    production_complete = production_live
+    if not production_complete:
         missing = sorted(set(PRODUCTION_HOOK_NAMES) - hook_names)
         results.append(CheckResult(
             "production_live_mutation_gate", False,

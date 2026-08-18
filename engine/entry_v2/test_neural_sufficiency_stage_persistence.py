@@ -73,7 +73,9 @@ def _screens() -> tuple[MeasuredProbeScreen, ...]:
     base = MeasuredProbeScreen(
         "C01P01", "mixed-event", "SHARED_PRETEXT", "shallow_probe", records,
         ProbeSupportInputs(SupportKind.CONTINUOUS, assets, np.ones(600, bool),
-                           values=values, day=fit_days),
+                           values=values, day=fit_days,
+                           censored=np.zeros(600, bool),
+                           selected_horizon_start_d8=20210531),
         values, _sha("real-checkpoint"), _sha("twin-checkpoint"), _sha("rows"),
         (20211001, 20211004, 20211005, 20211006,
          20211007, 20211008, 20211011),

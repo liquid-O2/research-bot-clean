@@ -27,11 +27,17 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from contextlib import nullcontext
 from dataclasses import asdict, dataclass, fields, replace
 import hashlib
+import os
+import shutil
+import tempfile
 from time import perf_counter
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Mapping, Sequence
 
 import numpy as np
+# Must precede the first CUDA context/cuBLAS handle created in this process.
+# The selected trainer mirrors the executor's deterministic configuration.
+os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 import torch
 from torch import Tensor, nn
 import torch.nn.functional as F
@@ -245,6 +251,11 @@ class EntrySessionBatch:
     static_features: Tensor | None = None
     selected_horizon_value: Tensor | None = None
     selected_horizon_valid: Tensor | None = None
+    # B-10: the typed per-coordinate censor cause travels with the target.  The
+    # bool mask is the backward-compatible projection of this plane; the cause
+    # itself (source / generation / development / no-sane-suffix) is never
+    # collapsed away before training.
+    selected_horizon_status: Tensor | None = None
     selected_horizon_schema_sha256: str | None = None
 
     @property
@@ -337,7 +348,7 @@ class EntrySessionBatch:
                 raise C.EntryV2Refusal("lossless static bypass must be finite [C,1865]")
         selected_horizon = (
             self.selected_horizon_value, self.selected_horizon_valid,
-            self.selected_horizon_schema_sha256,
+            self.selected_horizon_status, self.selected_horizon_schema_sha256,
         )
         if any(value is not None for value in selected_horizon):
             if (any(value is None for value in selected_horizon)
@@ -354,6 +365,13 @@ class EntrySessionBatch:
             if bool(selected_valid.any()) and not bool(torch.isfinite(
                     self.selected_horizon_value[selected_valid]).all()):
                 raise C.EntryV2Refusal("selected horizon target is non-finite")
+            status = self.selected_horizon_status
+            if (status.shape != (n, SELECTED_HORIZON_WIDTH)
+                    or status.dtype not in (torch.int8, torch.int16,
+                                            torch.int32, torch.int64)
+                    or bool((status < 0).any())):
+                raise C.EntryV2Refusal(
+                    "selected horizon censor cause is missing or untyped")
         devices = {
             tensor.device
             for tensor in (
@@ -377,6 +395,7 @@ class EntrySessionBatch:
         if self.selected_horizon_value is not None:
             devices.add(self.selected_horizon_value.device)
             devices.add(self.selected_horizon_valid.device)
+            devices.add(self.selected_horizon_status.device)
         if len(devices) != 1:
             raise C.EntryV2Refusal("all tensors in a session batch must share a device")
         self.self_supervised.validate(n)
@@ -404,6 +423,8 @@ class EntrySessionBatch:
                                     else self.selected_horizon_value.to(device)),
             selected_horizon_valid=(None if self.selected_horizon_valid is None
                                     else self.selected_horizon_valid.to(device)),
+            selected_horizon_status=(None if self.selected_horizon_status is None
+                                     else self.selected_horizon_status.to(device)),
             selected_horizon_schema_sha256=self.selected_horizon_schema_sha256,
         )
 
@@ -423,6 +444,8 @@ class EntrySessionSpec:
     static_features: Tensor | None = None
     selected_horizon_value: Tensor | None = None
     selected_horizon_valid: Tensor | None = None
+    # B-10: typed per-coordinate censor cause; see EntrySessionBatch.
+    selected_horizon_status: Tensor | None = None
     selected_horizon_schema_sha256: str | None = None
 
     @property
@@ -507,7 +530,7 @@ class EntrySessionSpec:
             raise C.EntryV2Refusal("lossless static bypass must be finite [C,1865]")
         selected_horizon = (
             self.selected_horizon_value, self.selected_horizon_valid,
-            self.selected_horizon_schema_sha256,
+            self.selected_horizon_status, self.selected_horizon_schema_sha256,
         )
         if any(value is not None for value in selected_horizon):
             if (any(value is None for value in selected_horizon)
@@ -524,6 +547,13 @@ class EntrySessionSpec:
             if bool(selected_valid.any()) and not bool(torch.isfinite(
                     self.selected_horizon_value[selected_valid]).all()):
                 raise C.EntryV2Refusal("selected horizon target is non-finite")
+            status = self.selected_horizon_status
+            if (status.shape != (n, SELECTED_HORIZON_WIDTH)
+                    or status.dtype not in (torch.int8, torch.int16,
+                                            torch.int32, torch.int64)
+                    or bool((status < 0).any())):
+                raise C.EntryV2Refusal(
+                    "selected horizon censor cause is missing or untyped")
         devices = {
             tensor.device
             for tensor in (
@@ -543,6 +573,7 @@ class EntrySessionSpec:
         if self.selected_horizon_value is not None:
             devices.add(self.selected_horizon_value.device)
             devices.add(self.selected_horizon_valid.device)
+            devices.add(self.selected_horizon_status.device)
         if len(devices) != 1:
             raise C.EntryV2Refusal(
                 "all metadata tensors in a session specification must share a device"
@@ -781,6 +812,18 @@ class TrainFoldNormalizer:
     def transform(
         self, batch: EntrySessionBatch, device: torch.device
     ) -> EntrySessionBatch:
+        # A-015: this legacy FullPrefix normalizer fits only the four-column
+        # self-supervised plane.  It has no six-coordinate moments, so letting a
+        # selected batch pass through here would deliver RAW USD targets to a
+        # selected consumer.  Refuse rather than silently pass raw values.
+        if any(value is not None for value in (
+                batch.selected_horizon_value, batch.selected_horizon_valid,
+                batch.selected_horizon_schema_sha256)):
+            raise C.EntryV2Refusal(
+                "legacy normalizer cannot pass the selected six-coordinate "
+                "plane through unnormalized"
+            )
+
         def zscore(value: Tensor, mean: tuple[float, ...], scale: tuple[float, ...]) -> Tensor:
             mu = value.new_tensor(mean)
             sigma = value.new_tensor(scale)
@@ -953,10 +996,16 @@ class SelectedFoldNormalizer:
                     != self.selected_horizon_schema_sha256):
             raise C.EntryV2Refusal(
                 "selected batch lacks the frozen six-coordinate target")
-        horizon = z(batch.selected_horizon_value,
-                    self.horizon_mean, self.horizon_scale)
-        horizon = torch.where(batch.selected_horizon_valid, horizon,
-                              torch.zeros_like(horizon))
+        # B-22: a censored coordinate is filled with the NaN sentinel, never
+        # with 0.0.  Zero fill is byte-identical to a true $0 outcome once the
+        # mask is dropped; NaN makes any unmasked arithmetic fail loudly.
+        selected_valid = batch.selected_horizon_valid.to(dtype=torch.bool)
+        safe_target = torch.where(
+            selected_valid, batch.selected_horizon_value,
+            torch.zeros_like(batch.selected_horizon_value))
+        horizon = z(safe_target, self.horizon_mean, self.horizon_scale)
+        horizon = torch.where(selected_valid, horizon,
+                              torch.full_like(horizon, float("nan")))
         if self.use_static and batch.static_features is None:
             raise C.EntryV2Refusal("selected batch lacks static bypass")
         static = (None if not self.use_static else
@@ -970,6 +1019,7 @@ class SelectedFoldNormalizer:
             static_features=static,
             selected_horizon_value=horizon,
             selected_horizon_valid=batch.selected_horizon_valid,
+            selected_horizon_status=batch.selected_horizon_status,
             selected_horizon_schema_sha256=self.selected_horizon_schema_sha256,
         )
         return normalized.to(device)
@@ -1353,11 +1403,20 @@ def _selected_horizon_component(
     weight = row_weights[:, None].float() * valid.float()
     if not bool(weight.sum() > 0):
         raise C.EntryV2Refusal("selected horizon loss has no weighted target")
-    loss = F.smooth_l1_loss(
-        output.horizon_value.float(), batch.selected_horizon_value.float(),
-        reduction="none",
-    )
-    return (loss * weight).sum() / weight.sum()
+    # B-22: censored coordinates carry the NaN sentinel.  The mask is applied
+    # BEFORE any arithmetic; ``NaN * 0`` is still NaN, so a post-hoc weight
+    # multiply would poison the whole stage loss.
+    target = batch.selected_horizon_value.float()
+    if not bool(torch.isfinite(target[valid]).all()):
+        raise C.EntryV2Refusal("selected horizon observed target is non-finite")
+    target = torch.where(valid, target, torch.zeros_like(target))
+    prediction = torch.where(valid, output.horizon_value.float(),
+                             torch.zeros_like(target))
+    loss = F.smooth_l1_loss(prediction, target, reduction="none")
+    total = (loss * weight).sum() / weight.sum()
+    if not bool(torch.isfinite(total)):
+        raise C.EntryV2Refusal("selected horizon loss is non-finite")
+    return total
 
 
 def _self_supervised_components(
@@ -1669,12 +1728,46 @@ def _device(config: TrainingConfig) -> torch.device:
     return torch.device(config.device)
 
 
-def _seed(config: TrainingConfig) -> None:
+DETERMINISM_LAW = (
+    "cublas-workspace-4096x8;torch-use-deterministic-algorithms;"
+    "cudnn-deterministic;cudnn-benchmark-off;math-sdp-only"
+)
+
+
+def _configure_deterministic_torch() -> str:
+    """Exact mirror of the executor's deterministic configuration law.
+
+    ``CUBLAS_WORKSPACE_CONFIG`` is exported at import time, before any CUDA
+    context exists in this process, because cuBLAS reads it once when its
+    handle is created.
+    """
+
+    if os.environ.get("CUBLAS_WORKSPACE_CONFIG") != ":4096:8":
+        raise C.EntryV2Refusal("deterministic cuBLAS workspace differs")
+    torch.use_deterministic_algorithms(True)
+    if torch.cuda.is_available():
+        torch.backends.cuda.enable_flash_sdp(False)
+        torch.backends.cuda.enable_mem_efficient_sdp(False)
+        torch.backends.cuda.enable_math_sdp(True)
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
+    return C.object_sha256({
+        "law": DETERMINISM_LAW,
+        "cublas_workspace": os.environ["CUBLAS_WORKSPACE_CONFIG"],
+        "deterministic_algorithms": bool(
+            torch.are_deterministic_algorithms_enabled()),
+        "cudnn_benchmark": bool(torch.backends.cudnn.benchmark),
+        "cudnn_deterministic": bool(torch.backends.cudnn.deterministic),
+    })
+
+
+def _seed(config: TrainingConfig) -> str:
     np.random.seed(config.seed)
     torch.manual_seed(config.seed)
     torch.set_num_threads(config.workers)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(config.seed)
+    return _configure_deterministic_torch()
 
 
 def _autocast(config: TrainingConfig, device: torch.device):
@@ -1749,6 +1842,209 @@ def _train_pass(
     )
 
 
+
+# The field-survival reconstruction is an additive component of the single
+# merged base pass.  Its weight lives outside ``LOSS_WEIGHTS`` because that
+# mapping is the frozen legacy multitask law bound into the legacy receipts.
+SELECTED_FIELD_SURVIVAL_WEIGHT = 1.00
+FROZEN_RAW_MEMORY_LAW = (
+    "base-encoders-train-once;candidate-raw-memory-encoded-once-per-session-"
+    "and-base-checkpoint;immutable-fp32-file-map;head-stage-reads-only;"
+    "second-encode-is-a-hard-refusal"
+)
+
+
+def _selected_component_weight(name: str) -> float:
+    if name == "field_survival":
+        return SELECTED_FIELD_SURVIVAL_WEIGHT
+    return LOSS_WEIGHTS[name]
+
+
+def _refuse_raw_reencode(module: nn.Module, inputs: tuple) -> None:
+    """Hard refusal: the head stage may never re-encode the raw tape."""
+    raise C.EntryV2Refusal(
+        "raw base encoder re-encoded while the frozen memory plane is active"
+    )
+
+
+class _FrozenRawMemoryPlane:
+    """Immutable FP32 file-backed candidate raw-memory plane.
+
+    Each ``(session, base checkpoint)`` key is encoded exactly once.  A second
+    encode of the same key is a hard refusal, and every read re-verifies the
+    stored bytes against the digest recorded at materialization.
+    """
+
+    def __init__(self, root: str, checkpoint_sha256: str) -> None:
+        self.root = str(root)
+        self.checkpoint_sha256 = str(checkpoint_sha256)
+        self._shape: dict[tuple[str, int, str], tuple[int, ...]] = {}
+        self._sha256: dict[tuple[str, int, str], str] = {}
+        self._encodes = 0
+        self._reads = 0
+
+    def _path(self, key: tuple[str, int, str]) -> str:
+        digest = hashlib.sha256(
+            C.object_sha256([self.checkpoint_sha256, list(key)]).encode()
+        ).hexdigest()
+        return os.path.join(self.root, f"{digest}.f32")
+
+    def encode_once(self, key: tuple[str, int, str],
+                    encode: Callable[[], Tensor]) -> None:
+        if key in self._shape:
+            raise C.EntryV2Refusal(
+                "candidate raw memory re-encoded for one session/checkpoint key"
+            )
+        with torch.no_grad():
+            memory = encode().detach().to("cpu", torch.float32).contiguous()
+        if memory.ndim != 3 or memory.shape[0] == 0:
+            raise C.EntryV2Refusal("frozen raw memory plane row shape is invalid")
+        if not bool(torch.isfinite(memory).all()):
+            raise C.EntryV2Refusal("frozen raw memory plane is non-finite")
+        array = memory.numpy()
+        path = self._path(key)
+        mapped = np.memmap(path, dtype=np.float32, mode="w+", shape=array.shape)
+        mapped[:] = array
+        mapped.flush()
+        del mapped
+        os.chmod(path, 0o444)
+        self._shape[key] = tuple(int(value) for value in array.shape)
+        self._sha256[key] = hashlib.sha256(array.tobytes()).hexdigest()
+        self._encodes += 1
+
+    def get(self, key: tuple[str, int, str]) -> Tensor:
+        if key not in self._shape:
+            raise C.EntryV2Refusal(
+                "frozen raw memory plane has no entry for this session"
+            )
+        mapped = np.memmap(self._path(key), dtype=np.float32, mode="r",
+                           shape=self._shape[key])
+        array = np.array(mapped, dtype=np.float32, copy=True)
+        del mapped
+        if hashlib.sha256(array.tobytes()).hexdigest() != self._sha256[key]:
+            raise C.EntryV2Refusal("frozen raw memory bytes changed after freeze")
+        self._reads += 1
+        return torch.from_numpy(array)
+
+    def receipt(self) -> Mapping[str, Any]:
+        return MappingProxyType({
+            "schema": "entry-v2-frozen-raw-memory-plane-v1",
+            "law": FROZEN_RAW_MEMORY_LAW,
+            "base_checkpoint_sha256": self.checkpoint_sha256,
+            "sessions": len(self._shape),
+            "encodes": int(self._encodes),
+            "reads": int(self._reads),
+            "logical_bytes": int(sum(
+                4 * int(np.prod(shape)) for shape in self._shape.values())),
+            "plane_sha256": C.object_sha256(
+                sorted((list(key), value) for key, value in self._sha256.items())),
+        })
+
+
+class _FrozenRawMemoryEncoder(nn.Module):
+    """Read-only encoder view: it returns frozen bytes and never encodes.
+
+    The plane is held outside the module registry so the frozen head stage does
+    not gain a second copy of the raw encoder's parameters or state-dict keys.
+    """
+
+    def __init__(self, plane: _FrozenRawMemoryPlane) -> None:
+        super().__init__()
+        self._plane = [plane]
+        self._key: tuple[str, int, str] | None = None
+
+    def select(self, key: tuple[str, int, str]) -> None:
+        self._key = key
+
+    def forward(self, event_continuous: Tensor, event_categorical: Tensor,
+                candidate_cutoffs: Tensor, *, receive_clock_ns: Tensor,
+                candidate_decision_ts_ns: Tensor,
+                asset_idx: int | Tensor = 0, **_: object) -> Tensor:
+        if self._key is None:
+            raise C.EntryV2Refusal(
+                "frozen raw memory view has no selected session"
+            )
+        memory = self._plane[0].get(self._key)
+        if memory.shape[0] != int(candidate_cutoffs.numel()):
+            raise C.EntryV2Refusal(
+                "frozen raw memory rows differ from the candidate roster"
+            )
+        return memory.to(candidate_cutoffs.device)
+
+
+def _materialize_frozen_raw_memory_plane(
+    system: nn.Module, encoder: nn.Module,
+    specs: Sequence[EntrySessionSpec], normalizer: Any,
+    config: TrainingConfig, device: torch.device, root: str,
+) -> _FrozenRawMemoryPlane:
+    """Encode every candidate raw memory once from the best base checkpoint."""
+    plane = _FrozenRawMemoryPlane(root, model_state_sha256(encoder))
+    was_training = bool(encoder.training)
+    encoder.eval()
+    try:
+        with torch.no_grad():
+            for spec in specs:
+                with spec.source.open_batch(spec) as batch:
+                    normalized = normalizer.transform(batch, device)
+                    if normalized.receive_clock_ns is None:
+                        raise C.EntryV2Refusal(
+                            "frozen raw memory needs exact receive clocks")
+                    decisions = torch.tensor(
+                        [row.decision_ts_ns for row in batch.examples],
+                        dtype=torch.int64,
+                        device=normalized.candidate_cutoffs.device,
+                    )
+
+                    def encode(view: EntrySessionBatch = normalized,
+                               stamps: Tensor = decisions,
+                               asset: str = batch.asset) -> Tensor:
+                        with _autocast(config, device):
+                            return encoder(
+                                view.event_continuous, view.event_categorical,
+                                view.candidate_cutoffs,
+                                receive_clock_ns=view.receive_clock_ns,
+                                candidate_decision_ts_ns=stamps,
+                                asset_idx=C.ASSET_INDEX[asset],
+                            )
+
+                    plane.encode_once(
+                        (batch.asset, int(batch.trading_day), batch.session_id),
+                        encode,
+                    )
+    finally:
+        encoder.train(was_training)
+    return plane
+
+
+def _grouped_atlas_optimizer(system: nn.Module, encoder: nn.Module,
+                             config: TrainingConfig) -> torch.optim.Optimizer:
+    """Head/objective-only optimizer; it cannot own raw-encoder parameters."""
+    encoder_ids = {id(parameter) for parameter in encoder.parameters()}
+    if not encoder_ids or not encoder_ids <= {
+            id(parameter) for parameter in system.parameters()}:
+        raise C.EntryV2Refusal(
+            "grouped atlas encoder is not this system's raw encoder"
+        )
+    trainable = [
+        parameter for name, parameter in system.named_parameters()
+        if id(parameter) not in encoder_ids and not name.startswith("survival_")
+    ]
+    if not trainable:
+        raise C.EntryV2Refusal(
+            "grouped atlas stage has no head/objective parameter to train"
+        )
+    optimizer = torch.optim.AdamW(
+        trainable, lr=config.learning_rate, weight_decay=config.weight_decay,
+    )
+    owned = {id(parameter) for group in optimizer.param_groups
+             for parameter in group["params"]}
+    if owned & encoder_ids:
+        raise C.EntryV2Refusal(
+            "grouped atlas optimizer owns or mutates raw-encoder parameters"
+        )
+    return optimizer
+
+
 def _fit_selected_winner(
     system: EntryLearningSystem, ordered: Sequence[EntrySessionSpec],
     fit: Sequence[EntrySessionSpec], teacher: TeacherStore, fold: FoldSpec,
@@ -1756,8 +2052,30 @@ def _fit_selected_winner(
     model_input_binding: ModelInputBinding, config: TrainingConfig,
     device: torch.device, initial: str, static_normalizer_sha256: str,
 ) -> TrainingArtifact:
-    """Exact 8/12/6 chronological best-checkpoint path for the selected arm."""
+    """Exact merged 12/6 chronological best-checkpoint path for the arm.
+
+    The field-survival reconstruction and the dense pointwise oracle share one
+    raw forward/backward pass and one best checkpoint; the grouped atlas head
+    then trains only from the frozen immutable raw-memory plane.
+    """
+    from .causal_label_atlas import AtlasRefusal
     from .neural_sufficiency_model import FrozenRowManifest, train_chronological_stage
+
+    determinism_sha256 = _configure_deterministic_torch()
+    # A-015: the selected six-coordinate moments are fitted on selected TRAIN
+    # rows alone and applied frozen everywhere else.  Only the selected
+    # normalizer implements that law; anything else would deliver RAW USD.
+    if not isinstance(normalizer, SelectedFoldNormalizer):
+        raise C.EntryV2Refusal(
+            "selected trainer requires the fit-only six-coordinate normalizer"
+        )
+    if (len(normalizer.horizon_mean) != SELECTED_HORIZON_WIDTH
+            or len(normalizer.horizon_scale) != SELECTED_HORIZON_WIDTH
+            or normalizer.selected_horizon_schema_sha256
+                != SELECTED_HORIZON_SCHEMA_SHA256):
+        raise C.EntryV2Refusal(
+            "selected horizon normalizer moments/schema differ from the law"
+        )
 
     fit_rows = [row for spec in sorted(fit, key=_batch_key) for row in spec.examples]
     manifest = FrozenRowManifest.build_fit_validation(
@@ -1816,6 +2134,16 @@ def _fit_selected_winner(
                 != SELECTED_HORIZON_SCHEMA_SHA256 for spec in sorted(fit, key=_batch_key)):
         raise C.EntryV2Refusal(
             "selected fit population lacks six-coordinate horizon targets")
+    # B-10: the typed censor cause must reach training; it may never be
+    # collapsed to a bare mask and dropped.
+    if any(spec.selected_horizon_status is None
+           for spec in sorted(fit, key=_batch_key)):
+        raise C.EntryV2Refusal(
+            "selected fit population lacks typed horizon censor causes")
+    selected_status_sha256 = C.object_sha256([
+        spec.selected_horizon_status.detach().cpu().to(torch.int64).tolist()
+        for spec in sorted(fit, key=_batch_key)
+    ])
     raw_selected_horizon = torch.cat([
         spec.selected_horizon_value.detach().cpu()
         for spec in sorted(fit, key=_batch_key)
@@ -1852,6 +2180,30 @@ def _fit_selected_winner(
         pairs_by_asset_day.setdefault(
             (positive.asset, positive.trading_day), []
         ).append((ids, float(weight)))
+    # B-19: early stopping must measure the objective the stage optimizes.  The
+    # canonical matched contrast is therefore rebuilt over the VALIDATION rows
+    # under the identical pair law.  A-013 forbids reweighting validation, so
+    # every validation pair carries the identical 1/len(pairs) weight.
+    validation_indices = np.asarray([
+        index for index, split in enumerate(manifest.split)
+        if split == "VALIDATION"
+    ], np.int64)
+    validation_phase_pairs = canonical_phase_pair_manifest(
+        manifest.candidate_id, assets, days, [row.phase for row in fit_rows],
+        [row.decision_ts_ns for row in fit_rows],
+        [row.take_target for row in labels],
+        [row.action_loss_mask for row in labels], validation_indices,
+    )
+    if not validation_phase_pairs.candidate_id_pairs:
+        raise C.EntryV2Refusal(
+            "selected validation split has no canonical matched pair"
+        )
+    validation_pairs_by_asset_day: dict[tuple[str, int], list[tuple[str, str]]] = {}
+    for ids in validation_phase_pairs.candidate_id_pairs:
+        positive = example_by_id[ids[0]]
+        validation_pairs_by_asset_day.setdefault(
+            (positive.asset, positive.trading_day), []
+        ).append(ids)
     train_specs = tuple(spec for spec in sorted(fit, key=_batch_key)
                         if spec.trading_day in {
                             day for day, split in zip(manifest.day, manifest.split)
@@ -1892,6 +2244,13 @@ def _fit_selected_winner(
         for name in ("TRAIN", "VALIDATION")
     }
     matched_pair_receipts: dict[str, int] = {}
+    validation_pair_receipts: dict[str, int] = {}
+    unavailable_objective_receipts: dict[str, list[dict[str, Any]]] = {}
+    component_receipts: dict[str, list[dict[str, float]]] = {}
+    frozen_encoder: "_FrozenRawMemoryEncoder | None" = None
+
+    def _session_key(batch: EntrySessionBatch) -> tuple[str, int, str]:
+        return (batch.asset, int(batch.trading_day), batch.session_id)
 
     def epoch(stage: str, train: bool, optimizer: torch.optim.Optimizer | None) -> Tensor:
         selected = tuple(spec for spec in sorted(fit, key=_batch_key)
@@ -1899,6 +2258,10 @@ def _fit_selected_winner(
         if not selected:
             raise C.EntryV2Refusal(f"selected {stage} stage has an empty chronological split")
         system.train(train); values: list[Tensor] = []; matched_pairs = 0
+        validation_pairs = 0
+        objective_available = 0
+        objective_unavailable: list[dict[str, Any]] = []
+        totals: dict[str, float] = {}
         context = nullcontext() if train else torch.no_grad()
         with context:
             for spec in selected:
@@ -1908,127 +2271,199 @@ def _fit_selected_winner(
                     if train:
                         assert optimizer is not None
                         optimizer.zero_grad(set_to_none=True)
+                    if frozen_encoder is not None:
+                        frozen_encoder.select(_session_key(batch))
                     with _autocast(config, device):
                         output = system(normalized)
-                        batch_fit_weights = None
-                        horizon_row_weights = None
-                        if stage != "field_survival":
-                            batch_fit_weights = MappingProxyType({
-                                name: (
-                                    torch.tensor(
-                                        [rows[candidate_id]
-                                         for candidate_id in batch.candidate_ids],
-                                        dtype=torch.float32, device=device,
-                                    ) if train else torch.ones(
-                                        batch.rows, dtype=torch.float32,
-                                        device=device,
-                                    )
+                        batch_fit_weights = MappingProxyType({
+                            name: (
+                                torch.tensor(
+                                    [rows[candidate_id]
+                                     for candidate_id in batch.candidate_ids],
+                                    dtype=torch.float32, device=device,
+                                ) if train else torch.ones(
+                                    batch.rows, dtype=torch.float32,
+                                    device=device,
                                 )
-                                for name, rows in fit_weight_by_component.items()
-                            })
-                            horizon_row_weights = (
-                                torch.tensor([
-                                    horizon_fit_weight_by_id[candidate_id]
-                                    for candidate_id in batch.candidate_ids
-                                ], dtype=torch.float32, device=device)
-                                if train else torch.ones(
-                                    batch.rows, dtype=torch.float32, device=device)
                             )
-                        if stage == "field_survival":
-                            loss = system.field_survival_loss(output, normalized)
-                        elif stage == "pointwise_dense":
-                            components = _oracle_components(
-                                output, target, supervision_weights,
-                                torch.ones(batch.rows, dtype=torch.bool, device=device),
-                                batch_fit_weights,
-                            )
-                            assert horizon_row_weights is not None
-                            components["horizons"] = _selected_horizon_component(
-                                output, normalized, horizon_row_weights)
-                            loss = sum(LOSS_WEIGHTS[key] * value
+                            for name, rows in fit_weight_by_component.items()
+                        })
+                        horizon_row_weights = (
+                            torch.tensor([
+                                horizon_fit_weight_by_id[candidate_id]
+                                for candidate_id in batch.candidate_ids
+                            ], dtype=torch.float32, device=device)
+                            if train else torch.ones(
+                                batch.rows, dtype=torch.float32, device=device)
+                        )
+                        components = _oracle_components(
+                            output, target, supervision_weights,
+                            torch.ones(batch.rows, dtype=torch.bool, device=device),
+                            batch_fit_weights,
+                        )
+                        components["horizons"] = _selected_horizon_component(
+                            output, normalized, horizon_row_weights)
+                        if stage == "pointwise_dense":
+                            # Frozen optimization law: the field-survival
+                            # reconstruction and the dense pointwise oracle
+                            # share ONE raw forward/backward pass and ONE best
+                            # checkpoint.  Two independent full-tape stages
+                            # over the same rows are forbidden, so the survival
+                            # loss is an additive component here and is
+                            # receipted as its own component.
+                            components["field_survival"] = (
+                                system.field_survival_loss(output, normalized))
+                            loss = sum(_selected_component_weight(key) * value
                                        for key, value in components.items())
                         else:
-                            if getattr(system, "arm", "") == "C0":
-                                canonical = pairs_by_asset_day.get(
-                                    (batch.asset, batch.trading_day), []) if train else []
-                                contrast, pairs = _matched_hard_listwise_components(
-                                    output, target, batch.examples,
-                                    ([row[0] for row in canonical] if train else None),
-                                    ([row[1] for row in canonical] if train else None),
-                                )
-                                matched_pairs += pairs
-                                components = _oracle_components(
-                                    output, target, supervision_weights,
-                                    torch.ones(batch.rows, dtype=torch.bool, device=device),
-                                    batch_fit_weights,
-                                )
-                                assert horizon_row_weights is not None
-                                components["horizons"] = _selected_horizon_component(
-                                    output, normalized, horizon_row_weights)
-                                components.update(contrast)
-                                loss = sum(LOSS_WEIGHTS[key] * value
-                                           for key, value in components.items())
+                            # Every selected arm retains the canonical
+                            # full-population oracle law and exactly one
+                            # matched hard-negative/listwise pass.  The
+                            # selected atlas objective is additive; it does not
+                            # replace either proven supervision path and no
+                            # second contrast pass is run.  Validation uses the
+                            # identical canonical pair law over the VALIDATION
+                            # rows with uniform 1/len(pairs) weights, so early
+                            # stopping measures the optimized objective and
+                            # never the legacy heuristic contrast.
+                            key = (batch.asset, batch.trading_day)
+                            if train:
+                                canonical = pairs_by_asset_day.get(key, [])
+                                pair_ids = [row[0] for row in canonical]
+                                pair_weights = [row[1] for row in canonical]
                             else:
-                                # Every selected arm retains the canonical
-                                # full-population oracle law and exactly one
-                                # matched hard-negative/listwise pass.  The
-                                # selected atlas objective is additive; it
-                                # does not replace either proven supervision
-                                # path and no second contrast pass is run.
-                                canonical = pairs_by_asset_day.get(
-                                    (batch.asset, batch.trading_day), []) if train else []
-                                contrast, pairs = _matched_hard_listwise_components(
-                                    output, target, batch.examples,
-                                    ([row[0] for row in canonical] if train else None),
-                                    ([row[1] for row in canonical] if train else None),
-                                )
+                                day_pairs = validation_pairs_by_asset_day.get(key, [])
+                                pair_ids = list(day_pairs)
+                                pair_weights = [
+                                    1.0 / len(day_pairs) for _ in day_pairs
+                                ]
+                            contrast, pairs = _matched_hard_listwise_components(
+                                output, target, batch.examples,
+                                pair_ids, pair_weights,
+                            )
+                            if train:
                                 matched_pairs += pairs
-                                components = _oracle_components(
-                                    output, target, supervision_weights,
-                                    torch.ones(batch.rows, dtype=torch.bool,
-                                               device=device),
-                                    batch_fit_weights,
-                                )
-                                assert horizon_row_weights is not None
-                                components["horizons"] = _selected_horizon_component(
-                                    output, normalized, horizon_row_weights)
-                                components.update(contrast)
-                                loss = (sum(LOSS_WEIGHTS[key] * value
-                                            for key, value in components.items())
-                                        + system.selected_objective_loss(
-                                            output, batch.candidate_ids,
-                                            use_fit_weight=train))
+                            else:
+                                validation_pairs += pairs
+                            components.update(contrast)
+                            loss = sum(_selected_component_weight(key_name) * value
+                                       for key_name, value in components.items())
+                            if getattr(system, "arm", "") != "C0":
+                                # Cross-lane law: a fully masked atlas
+                                # objective is a typed UNAVAILABLE result, not
+                                # a zero (best possible) loss.  Ledger it and
+                                # continue; the stage refuses below if the
+                                # objective never became available.
+                                try:
+                                    loss = loss + system.selected_objective_loss(
+                                        output, batch.candidate_ids,
+                                        use_fit_weight=train)
+                                    objective_available += 1
+                                except AtlasRefusal as exc:
+                                    if not str(exc).startswith("UNAVAILABLE:"):
+                                        raise
+                                    objective_unavailable.append({
+                                        "asset": batch.asset,
+                                        "trading_day": int(batch.trading_day),
+                                        "session_id": batch.session_id,
+                                        "rows": int(batch.rows),
+                                        "cause": str(exc),
+                                    })
                     if not bool(torch.isfinite(loss)):
                         raise C.EntryV2Refusal(f"non-finite selected {stage} loss")
+                    for name, value in components.items():
+                        totals[name] = totals.get(name, 0.0) + float(value.detach())
                     if train:
                         loss.backward()
                         nn.utils.clip_grad_norm_(system.parameters(), config.max_grad_norm)
                         optimizer.step()
                     values.append(loss.detach().float())
-        if train and stage == "grouped_atlas" and matched_pairs == 0:
+        if stage == "grouped_atlas" and (matched_pairs == 0 if train
+                                         else validation_pairs == 0):
             raise C.EntryV2Refusal(
                 "selected matched hard-negative/listwise pass found no pair"
             )
+        if (stage == "grouped_atlas" and getattr(system, "arm", "") != "C0"
+                and objective_available == 0):
+            raise C.EntryV2Refusal(
+                "selected atlas objective is UNAVAILABLE on every session of "
+                f"the {stage} {'TRAIN' if train else 'VALIDATION'} split"
+            )
+        if objective_unavailable:
+            unavailable_objective_receipts.setdefault(
+                f"{stage}:{'TRAIN' if train else 'VALIDATION'}", []
+            ).extend(objective_unavailable)
         if train:
             matched_pair_receipts[stage] = matched_pairs
+        else:
+            validation_pair_receipts[stage] = validation_pairs
+        # The law persists EVERY epoch's component losses, so each epoch
+        # appends its own row rather than overwriting the stage entry.
+        component_receipts.setdefault(
+            f"{stage}:{'TRAIN' if train else 'VALIDATION'}", []
+        ).append({name: value / len(values)
+                  for name, value in sorted(totals.items())})
         return torch.stack(values).mean()
 
+    # B-03: base encoders train once.  After the merged base stage the
+    # candidate raw memories are frozen into one immutable FP32 file plane and
+    # the grouped head stage consumes only that plane.  Re-encoding the raw
+    # tape for an objective epoch is a hard refusal.
+    inner = getattr(system, "model", None)
+    if inner is None or getattr(inner, "encoder", None) is not system.encoder:
+        raise C.EntryV2Refusal(
+            "selected system does not expose exactly one raw encoder to freeze"
+        )
+    original_encoder = inner.encoder
+    original_requires_grad = {
+        name: bool(parameter.requires_grad)
+        for name, parameter in original_encoder.named_parameters()
+    }
+    plane_root = tempfile.mkdtemp(prefix="entry-v2-selected-raw-memory-")
+    plane: _FrozenRawMemoryPlane | None = None
+    refusal_handle = None
     stage_receipts = []
-    for stage in ("field_survival", "pointwise_dense", "grouped_atlas"):
-        optimizer = torch.optim.AdamW(
-            system.parameters(), lr=config.learning_rate,
-            weight_decay=config.weight_decay,
-        )
-        receipt = train_chronological_stage(
-            system, optimizer, stage=stage, row_manifest=manifest,
-            train_epoch=lambda _model, opt, _manifest, name=stage:
-                epoch(name, True, opt),
-            validate_epoch=lambda _model, _manifest, name=stage:
-                epoch(name, False, None),
-        )
-        if len(receipt.epochs) < 2 or not receipt.best_reloaded:
-            raise C.EntryV2Refusal(f"selected {stage} convergence law did not complete")
-        stage_receipts.append(receipt)
+    try:
+        for stage in ("pointwise_dense", "grouped_atlas"):
+            if stage == "pointwise_dense":
+                optimizer = torch.optim.AdamW(
+                    system.parameters(), lr=config.learning_rate,
+                    weight_decay=config.weight_decay,
+                )
+            else:
+                plane = _materialize_frozen_raw_memory_plane(
+                    system, original_encoder, sorted(fit, key=_batch_key),
+                    normalizer, config, device, plane_root,
+                )
+                original_encoder.requires_grad_(False)
+                for parameter in original_encoder.parameters():
+                    parameter.grad = None
+                frozen_encoder = _FrozenRawMemoryEncoder(plane)
+                inner.encoder = frozen_encoder
+                refusal_handle = original_encoder.register_forward_pre_hook(
+                    _refuse_raw_reencode)
+                optimizer = _grouped_atlas_optimizer(
+                    system, original_encoder, config)
+            receipt = train_chronological_stage(
+                system, optimizer, stage=stage, row_manifest=manifest,
+                train_epoch=lambda _model, opt, _manifest, name=stage:
+                    epoch(name, True, opt),
+                validate_epoch=lambda _model, _manifest, name=stage:
+                    epoch(name, False, None),
+            )
+            if len(receipt.epochs) < 2 or not receipt.best_reloaded:
+                raise C.EntryV2Refusal(f"selected {stage} convergence law did not complete")
+            stage_receipts.append(receipt)
+    finally:
+        if refusal_handle is not None:
+            refusal_handle.remove()
+        frozen_encoder = None
+        inner.encoder = original_encoder
+        for name, parameter in original_encoder.named_parameters():
+            parameter.requires_grad_(original_requires_grad[name])
+        frozen_plane_receipt = (
+            None if plane is None else dict(plane.receipt()))
+        shutil.rmtree(plane_root, ignore_errors=True)
     passes = tuple(PassReceipt(
         receipt.spec.name, len(manifest.candidate_id), len(receipt.epochs),
         float(np.mean([row.train_loss for row in receipt.epochs])),
@@ -2078,6 +2513,29 @@ def _fit_selected_winner(
         "selected_phase_pair_manifest_sha256": phase_pairs.receipt_sha256,
         "selected_optimizer_step_unit": "complete_asset_day_gradient",
         "selected_validation_weighting": "UNWEIGHTED",
+        "selected_stage_law": (
+            "field_survival+pointwise_dense-share-one-raw-forward-backward-"
+            "pass-and-one-best-checkpoint;grouped_atlas-trains-from-the-frozen-"
+            "raw-memory-plane-with-a-head-and-objective-only-optimizer"
+        ),
+        "selected_stage_order": ["pointwise_dense", "grouped_atlas"],
+        "selected_component_losses": {
+            name: [dict(sorted(row.items())) for row in rows]
+            for name, rows in sorted(component_receipts.items())
+        },
+        "selected_field_survival_weight": SELECTED_FIELD_SURVIVAL_WEIGHT,
+        "selected_frozen_raw_memory_plane": frozen_plane_receipt,
+        "selected_grouped_optimizer_scope": "HEAD_AND_OBJECTIVE_ONLY",
+        "selected_validation_phase_pair_manifest_sha256":
+            validation_phase_pairs.receipt_sha256,
+        "selected_validation_matched_pairs":
+            dict(sorted(validation_pair_receipts.items())),
+        "selected_determinism_sha256": determinism_sha256,
+        "selected_horizon_status_sha256": selected_status_sha256,
+        "selected_objective_unavailable": {
+            name: list(rows)
+            for name, rows in sorted(unavailable_objective_receipts.items())
+        },
         "selected_horizon_schema_sha256": SELECTED_HORIZON_SCHEMA_SHA256,
         "selected_horizon_coordinates": list(SELECTED_HORIZON_COORDINATES),
         "selected_horizon_normalizer_sha256": horizon_normalizer_sha256,

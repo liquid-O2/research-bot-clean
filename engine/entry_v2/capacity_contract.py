@@ -43,6 +43,10 @@ class FitOnlyGoalRecovery:
     required_floor_usd: float
     oracle_capture: float
     minimum_oracle_capture: float
+    #: R1: the EXACT candidate-ceiling receipt this recovery was measured
+    #: against.  Without it a receipt could not be reconciled to the ceiling
+    #: whose denominator produced its capture number.
+    ceiling_receipt_sha256: str
     eligible: bool
     reasons: tuple[str, ...]
     receipt_sha256: str
@@ -87,6 +91,11 @@ def threshold_feasibility(
         reasons.append("USD_PER_TRADE_BELOW_MINIMUM")
     if max_drawdown_usd > C.TARGET_MDD_USD:
         reasons.append("MAX_DRAWDOWN_ABOVE_LIMIT")
+    if trades == 0:
+        # V4: an empty book reports max_drawdown_usd == 0.0.  That is an
+        # UNMEASURED drawdown, not a passing one, so it may never be read as
+        # satisfying the MDD law.
+        reasons.append("MAX_DRAWDOWN_UNMEASURED_EMPTY_BOOK")
     if days_with_trades < minimum_days:
         reasons.append("TRADE_DAY_COVERAGE_BELOW_MINIMUM")
     core = {
@@ -98,6 +107,7 @@ def threshold_feasibility(
         "minimum_trades": C.MIN_TRADES,
         "minimum_usd_per_trade": C.MIN_EXPECTANCY_USD,
         "maximum_drawdown_usd": C.TARGET_MDD_USD,
+        "max_drawdown_measured": trades > 0,
         "feasible": not reasons, "reasons": reasons,
     }
     receipt = C.object_sha256(core)
@@ -154,6 +164,7 @@ def fit_only_goal_recovery(
     *, total_pnl_usd: float, usd_per_asset_day: float,
     chronological_max_drawdown_usd: float, included_trading_days: int,
     oracle_total_pnl_usd: float, oracle_usd_per_asset_day: float,
+    ceiling_receipt_sha256: str,
 ) -> FitOnlyGoalRecovery:
     """Apply the prelaunch economic-confidence law to one replay block.
 
@@ -176,6 +187,9 @@ def fit_only_goal_recovery(
             or mdd < 0.0 or oracle_total <= 0.0 or oracle_day <= 0.0
             or total / days != per_day or oracle_total / days != oracle_day):
         raise C.EntryV2Refusal("fit-only goal recovery inputs do not reconcile")
+    if not _sha(ceiling_receipt_sha256):
+        raise C.EntryV2Refusal(
+            "fit-only goal recovery must bind its exact candidate-ceiling receipt")
     regime = capacity_regime_from_oracle(oracle_day)
     floor = required_floor_usd(regime)
     capture = total / oracle_total
@@ -200,11 +214,13 @@ def fit_only_goal_recovery(
         "oracle_usd_per_asset_day": oracle_day,
         "oracle_capture": capture,
         "minimum_oracle_capture": FIT_ONLY_MIN_ORACLE_CAPTURE,
+        "ceiling_receipt_sha256": str(ceiling_receipt_sha256),
         "eligible": not reasons,
         "reasons": reasons,
     }
     return FitOnlyGoalRecovery(
-        regime, floor, capture, FIT_ONLY_MIN_ORACLE_CAPTURE, not reasons,
+        regime, floor, capture, FIT_ONLY_MIN_ORACLE_CAPTURE,
+        str(ceiling_receipt_sha256), not reasons,
         tuple(reasons), C.object_sha256(core))
 
 

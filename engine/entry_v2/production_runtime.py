@@ -1135,7 +1135,9 @@ def build_production_diagnostic_stage(
             )
         plane_root = durable_store.root / "diagnostic-planes"
     else:
-        assert cache.backing_dir is not None
+        if not (cache.backing_dir is not None):
+            raise C.EntryV2Refusal(
+                "internal invariant failed: cache.backing_dir is not None")
         plane_root = (
             cache.backing_dir.parent
             / f"{cache.backing_dir.name}.diagnostic-planes"

@@ -108,7 +108,18 @@ def _better_schedule(
 ) -> tuple[float, tuple[str, ...]]:
     if left[0] != right[0]:
         return left if left[0] > right[0] else right
-    return left if left[1] < right[1] else right
+    # V9: the native authority SORTS both candidate-id lists before the
+    # lexicographic tie-break (g1.cpp:497-510).  The DP accumulates its ids in
+    # interval order, so comparing the unsorted tuples resolved exact ties
+    # differently from the C++ law.
+    #
+    # V10 (integer-units replay plane) is DEFERRED by ruling.  This float
+    # comparison is measured-safe-by-parity: the values compared here are the
+    # same float64 PnL the canonical replay produces, and exact ties resolve on
+    # sorted ids, so the schedule is identical to the integer plane.  When the
+    # integer plane lands, replace ``left[0] != right[0]`` with the integer
+    # units comparison at this hook.
+    return left if tuple(sorted(left[1])) < tuple(sorted(right[1])) else right
 
 
 def _asset_day_ceiling(rows: tuple[ScoredArrival, ...]) -> tuple[str, ...]:
@@ -251,6 +262,14 @@ def replay(arrivals: Iterable[ScoredArrival], *,
         raise ContractError("expected_sessions contains duplicates")
     expected = set(sessions)
     rows = tuple(arrivals)
+    if not rows:
+        # V4: an empty arrival set produces trades:0 / $0 / MDD:0.0 -- the
+        # arithmetic of an EMPTY BOOK, which a consumer reading only the
+        # numbers cannot distinguish from a genuinely flat, zero-drawdown
+        # result.  It is typed here instead.
+        raise ContractError(
+            "EMPTY_ARRIVALS: replay received no candidate arrivals; an empty "
+            "book has no economics and no measurable drawdown")
     ids = [row.example.candidate_id for row in rows]
     if len(ids) != len(set(ids)):
         raise ContractError("duplicate replay candidate_id")

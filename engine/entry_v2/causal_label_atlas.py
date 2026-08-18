@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, replace
 from enum import Enum
 import hashlib
 import inspect
@@ -1334,9 +1334,12 @@ class SessionTruthIndex:
                 "final_units": final if economic else None,
                 "wall_hit": reason is BoundaryReason.WALL, "mfe_units": mfe,
                 "mae_units": mae,
-                "time_to_mfe_ns": (0 if mfe_i is None else
+                # An unattained favorable/adverse extreme has no passage time.
+                # ``0`` would publish "occurred instantly" as observed truth,
+                # so the atom stays None and becomes a masked coordinate.
+                "time_to_mfe_ns": (None if mfe_i is None else
                                     int(self.economic_ts[mfe_i]) - anchor.decision_ts_ns),
-                "time_to_mae_ns": (0 if mae_i is None else
+                "time_to_mae_ns": (None if mae_i is None else
                                     int(self.economic_ts[mae_i]) - anchor.decision_ts_ns),
                 "fixed_endpoints": endpoints, "trajectory": tuple(trajectory),
                 "rung_touches": tuple(touches), "mixed_targets": mixed,
@@ -1583,6 +1586,12 @@ def _support_descriptor(kind: str, target: ProbeTarget) -> Mapping[str, Any]:
         "kind": kind,
         "validity_mask": target.validity_mask,
         "coordinate_mask": target.coordinate_mask,
+        # The continuous quota counts UNCENSORED observations, so the censor
+        # planes must travel with the support descriptor.  A finite censored
+        # value is not an observation and cannot repair low support.
+        "censor_mask": target.censor_mask,
+        "coordinate_censor": target.coordinate_censor,
+        "at_risk_mask": target.at_risk_mask,
         "values": target.values[:, :target.output_width],
         "group_id": target.group_id,
     })
@@ -1662,6 +1671,13 @@ def action_score_for_probe(*args: Any, **kwargs: Any) -> Any:
 
 
 def reject_placeholder_callable(name: str, function: Any) -> None:
+    """Cheap static screen.
+
+    This is a first filter only.  Names and bytecode shapes cannot see a
+    constant-returning mapper or a C-implemented callable, so the binding
+    evidence is the EXECUTED two-plane behaviour check in
+    :func:`validate_registry`; this function never stands alone.
+    """
     if not callable(function):
         raise AtlasRefusal(f"{name}: registry entry is not callable")
     lowered = getattr(function, "__name__", "").lower()
@@ -1675,7 +1691,184 @@ def reject_placeholder_callable(name: str, function: Any) -> None:
             raise AtlasRefusal(f"{name}: identity/placeholder callable refuses startup")
 
 
+SENTINEL_REGISTRY_SHA256 = "0" * 64
+_REGISTRY_VALIDATION_STATE = threading.local()
+
+
+def _registry_validation_active() -> bool:
+    return bool(getattr(_REGISTRY_VALIDATION_STATE, "active", False))
+
+
+def _sentinel_columns(mid2: Sequence[int], seconds: Sequence[int],
+                      offset: int = 0) -> dict[str, Any]:
+    n = len(mid2)
+    ts = np.asarray([int(value) * 1_000_000_000 for value in seconds], np.uint64)
+    values = np.asarray(mid2, np.int64)
+    return dict(
+        ts_recv_ns=ts, source_ordinal=np.zeros(n, np.uint32),
+        trusted_message=np.ones(n, bool), trusted_economic=np.ones(n, bool),
+        sane_bbo=np.ones(n, bool), generation=np.ones(n, np.int64), mid2=values,
+        action=(np.arange(n, dtype=np.int16) + offset).astype(np.int16),
+        side=np.resize([-1, 1], n),
+        flags=(np.arange(n, dtype=np.int64) + offset).astype(np.uint32),
+        depth=np.ones(n, np.int16),
+        missing_mask=np.zeros(n, np.uint32), spread_mask=np.zeros(n, np.uint32),
+        price=values, bid_px=values - 1, ask_px=values + 1,
+        size=np.arange(n, dtype=np.int64) + 3 + offset,
+        bid_size=np.arange(n, dtype=np.int64) + 1 + offset,
+        ask_size=np.arange(n, dtype=np.int64) + 2 + offset,
+        bid_count=np.arange(n, dtype=np.int64) + 4 + offset,
+        ask_count=np.arange(n, dtype=np.int64) + 5 + offset,
+        ts_in_delta=np.arange(n, dtype=np.int64) + 6 + offset,
+        receive_session_sec=np.arange(n, dtype=np.int64) + 7 + offset,
+        sequence=np.arange(n, dtype=np.int64) + offset,
+        ts_event_ns=ts.astype(np.int64) - 7,
+    )
+
+
+_SENTINEL_PLANES = (
+    {
+        "mid2": (1000, 1020, 1300, 900, 1600, 500),
+        "seconds": (1, 2, 3, 4, 5, 6),
+        "offset": 0,
+        "anchors": (
+            dict(candidate_id="sentinel-a0", side=1, entry_mid2=1000,
+                 take_target=True, payer_target=True,
+                 native_candidate_local=True,
+                 now_wait_pass_regret_units=(1, 2, 3),
+                 shadow_marginal_regret_units=(4, 5), process_utility_units=6),
+            dict(candidate_id="sentinel-a1", side=1, entry_mid2=1010,
+                 take_target=False, payer_target=False,
+                 native_candidate_local=False,
+                 now_wait_pass_regret_units=(3, 2, 1),
+                 shadow_marginal_regret_units=(5, 4), process_utility_units=7),
+        ),
+    },
+    {
+        "mid2": (1005, 980, 1900, 1100, 300, 1400),
+        "seconds": (1, 3, 4, 5, 6, 7),
+        "offset": 3,
+        "anchors": (
+            dict(candidate_id="sentinel-b0", side=-1, entry_mid2=1005,
+                 take_target=False, payer_target=False,
+                 native_candidate_local=False,
+                 now_wait_pass_regret_units=(9, 8, 7),
+                 shadow_marginal_regret_units=(2, 1), process_utility_units=11),
+            dict(candidate_id="sentinel-b1", side=1, entry_mid2=700,
+                 take_target=True, payer_target=True,
+                 native_candidate_local=True,
+                 now_wait_pass_regret_units=(4, 6, 8),
+                 shadow_marginal_regret_units=(7, 3), process_utility_units=13),
+        ),
+    },
+)
+
+
+def _sentinel_atlas(plane: int) -> MaterializedAtlas:
+    """Build one throwaway two-candidate atlas used only for startup evidence."""
+    spec = _SENTINEL_PLANES[plane]
+    index = SessionTruthIndex(**_sentinel_columns(
+        spec["mid2"], spec["seconds"], int(spec["offset"])))
+    anchors = tuple(CandidateAnchor(
+        decision_ts_ns=1_000_000_000, multiplier=PNL_UNITS_PER_USD,
+        frozen_cost_units=0, phase_close_ts_ns=8 * 1_000_000_000,
+        source_ordinal=0, generation=1, sigma_prior_units=100 * PNL_UNITS_PER_USD,
+        exact_time_group_id=f"sentinel-group-{plane}", **row
+    ) for row in spec["anchors"])
+    return index.materialize(anchors)
+
+
+_SENTINEL_FIT_CONTEXT = MappingProxyType({
+    "fit_population_sha256": "a" * 64,
+    "c1_location": np.zeros(21), "c1_scale": np.ones(21),
+    "location": np.zeros(12), "scale": np.ones(12),
+    "lower": np.full(12, -5000.0), "upper": np.full(12, 5000.0),
+    "rank_reference": np.zeros((3, 12)),
+    "ipcw_weights": np.asarray([1.5, 2.5], np.float32),
+})
+
+
+def _sentinel_probe_target(row: ProbeSpec, plane: int) -> ProbeTarget:
+    """Two distinct synthetic label planes for one registered probe."""
+    variant = int(row.probe_id.split("P", 1)[1].split(".", 1)[0])
+    width, prediction_width = _probe_dimensions(row.cell, variant)
+    layout = tuple(f"synthetic_{index}" for index in range(width))
+    prediction_layout = tuple(f"synthetic_prediction_{index}"
+                              for index in range(prediction_width))
+    values = np.zeros((2, PADDED_OUTPUT_WIDTH), np.float32)
+    if plane == 0:
+        values[0, 0] = 1.0
+        values[1, 1] = 1.0
+        if row.cell in (10, 24):
+            values[:, 28:42] = 1.0
+            values[0, 14] = 1.0
+            values[1, 15] = 2.0
+        if row.cell == 15:
+            values[0, 2] = 1.0
+        valid = np.ones(2, bool)
+        weight = np.ones(2, np.float32)
+    else:
+        values[:, :width] = 0.5
+        values[0, 1] = 2.0
+        values[1, 0] = 3.0
+        if row.cell in (10, 24):
+            values[:, 28:42] = 2.0
+            values[0, 14] = 3.0
+            values[1, 15] = 1.0
+        if row.cell == 15:
+            values[1, 2] = 2.0
+        valid = np.asarray([True, False])
+        weight = np.asarray([2.0, 0.0], np.float32)
+    coordinates = np.zeros_like(values, dtype=bool)
+    coordinates[:, :width] = valid[:, None]
+    return ProbeTarget(
+        row.probe_id, CellAvailability.MATERIALIZED, values,
+        coordinates, coordinates, np.zeros_like(coordinates),
+        valid, valid, np.zeros(2, bool), weight,
+        np.asarray([0, 0], np.int64), np.asarray([2, 2], np.int64),
+        width, layout, 1,
+        probe_target_schema_sha256(row.probe_id, width, layout, 1, None,
+                                   prediction_width, prediction_layout),
+        None, prediction_width, prediction_layout,
+    )
+
+
+def _sentinel_prediction(plane: int) -> Any:
+    import torch
+    if plane == 0:
+        return torch.linspace(
+            -0.2, 0.2, 2 * PADDED_OUTPUT_WIDTH
+        ).reshape(2, PADDED_OUTPUT_WIDTH).requires_grad_()
+    return torch.linspace(
+        0.7, -1.3, 2 * PADDED_OUTPUT_WIDTH
+    ).reshape(2, PADDED_OUTPUT_WIDTH).requires_grad_()
+
+
+def _descriptor_bytes(value: Any) -> bytes:
+    digest = hashlib.sha256()
+    if isinstance(value, Mapping):
+        for name in sorted(value):
+            digest.update(str(name).encode())
+            digest.update(_descriptor_bytes(value[name]))
+        return digest.digest()
+    array = np.asarray(value)
+    if array.dtype == object:
+        return hashlib.sha256(repr(value).encode()).digest()
+    digest.update(str(array.dtype).encode()); digest.update(str(array.shape).encode())
+    digest.update(np.ascontiguousarray(array).tobytes())
+    return digest.digest()
+
+
 def validate_registry() -> None:
+    previous = getattr(_REGISTRY_VALIDATION_STATE, "active", False)
+    _REGISTRY_VALIDATION_STATE.active = True
+    try:
+        _validate_registry_body()
+    finally:
+        _REGISTRY_VALIDATION_STATE.active = previous
+
+
+def _validate_registry_body() -> None:
     (materializer_registry, loss_registry, action_mapper_registry,
      shuffle_registry) = _runtime_registries()
     if sum(_PROBE_COUNTS) != 44 or len(PROBE_REGISTRY) != 44:
@@ -1713,38 +1906,20 @@ def validate_registry() -> None:
         reject_placeholder_callable(row.action_mapper_id,
                                     action_mapper_registry[row.action_mapper_id])
     import torch
+    # Executed anti-placeholder evidence.  A name/bytecode screen cannot see a
+    # constant-returning mapper, a C-implemented callable, or an unguarded
+    # mask/support entry, so every registered callable is RUN on two distinct
+    # sentinel input planes and must respond where the law says it must.
+    sentinel_atlases = tuple(_sentinel_atlas(plane) for plane in (0, 1))
+    predictions = tuple(_sentinel_prediction(plane) for plane in (0, 1))
     for row in PROBE_REGISTRY:
         width, prediction_width = _probe_dimensions(row.cell, _variant := int(
             row.probe_id.split("P", 1)[1].split(".", 1)[0]))
         if row.target_schema != _nominal_probe_schema(row.cell, _variant):
             raise AtlasRefusal(f"{row.probe_id}: nominal numeric schema differs")
-        layout = tuple(f"synthetic_{index}" for index in range(width))
-        prediction_layout = tuple(f"synthetic_prediction_{index}"
-                                  for index in range(prediction_width))
-        values = np.zeros((2, PADDED_OUTPUT_WIDTH), np.float32)
-        values[0, 0] = 1.0
-        values[1, 1] = 1.0
-        if row.cell in (10, 24):
-            values[:, 28:42] = 1.0
-            values[0, 14] = 1.0
-            values[1, 15] = 2.0
-        if row.cell == 15:
-            values[0, 2] = 1.0
-        coordinates = np.zeros_like(values, dtype=bool); coordinates[:, :width] = True
-        mask = np.ones(2, bool); weight = np.ones(2, np.float32)
-        synthetic = ProbeTarget(
-            row.probe_id, CellAvailability.MATERIALIZED, values,
-            coordinates, coordinates, np.zeros_like(coordinates),
-            mask, mask, np.zeros(2, bool), weight,
-            np.asarray([0, 0], np.int64), np.asarray([2, 2], np.int64),
-            width, layout, 1,
-            probe_target_schema_sha256(row.probe_id, width, layout, 1, None,
-                                       prediction_width, prediction_layout),
-            None, prediction_width, prediction_layout,
-        )
-        prediction = torch.linspace(
-            -0.2, 0.2, 2 * PADDED_OUTPUT_WIDTH
-        ).reshape(2, PADDED_OUTPUT_WIDTH).requires_grad_()
+        planes = tuple(_sentinel_probe_target(row, plane) for plane in (0, 1))
+        synthetic = planes[0]
+        prediction = predictions[0]
         scalar = loss_registry[row.loss_id](prediction, synthetic)
         scalar.backward()
         if (scalar.ndim != 0 or not bool(torch.isfinite(scalar))
@@ -1755,6 +1930,57 @@ def validate_registry() -> None:
         action = action_mapper_registry[row.action_mapper_id](prediction, synthetic)
         if action.shape != (2,) or not bool(torch.isfinite(action).all()):
             raise AtlasRefusal(f"{row.probe_id}: action mapper validation failed")
+
+        # (a) the loss must read its labels: two distinct label planes under
+        # one prediction plane cannot score identically.
+        other = loss_registry[row.loss_id](predictions[0], planes[1]).detach()
+        if not bool(torch.isfinite(other)) or float(other) == float(scalar.detach()):
+            raise AtlasRefusal(
+                f"{row.probe_id}: loss is label-blind on two sentinel planes"
+            )
+        # (a) the action mapper must read its prediction: two distinct
+        # prediction planes cannot produce the same action vector.
+        first = action_mapper_registry[row.action_mapper_id](
+            predictions[0].detach(), synthetic)
+        second = action_mapper_registry[row.action_mapper_id](
+            predictions[1].detach(), synthetic)
+        if bool(torch.equal(first, second)):
+            raise AtlasRefusal(
+                f"{row.probe_id}: action mapper is prediction-blind on two sentinel planes"
+            )
+        # (b) mask and support registries are guarded on the same evidence.
+        mask_callable = MASK_REGISTRY[row.mask_id]
+        mask_first = np.asarray(mask_callable(planes[0]))
+        mask_second = np.asarray(mask_callable(planes[1]))
+        if mask_first.shape != (2,) or mask_first.dtype != np.bool_:
+            raise AtlasRefusal(f"{row.mask_id}: mask registry entry is not a row mask")
+        if np.array_equal(mask_first, mask_second):
+            raise AtlasRefusal(
+                f"{row.mask_id}: mask registry entry is target-blind on two sentinel planes"
+            )
+        support_callable = SUPPORT_REGISTRY[row.support_id]
+        support_first = support_callable(planes[0])
+        support_second = support_callable(planes[1])
+        if not isinstance(support_first, Mapping) or "kind" not in support_first:
+            raise AtlasRefusal(f"{row.support_id}: support registry entry is not typed")
+        if _descriptor_bytes(support_first) == _descriptor_bytes(support_second):
+            raise AtlasRefusal(
+                f"{row.support_id}: support registry entry is target-blind "
+                "on two sentinel planes"
+            )
+        # (a) the materializer must read its atlas: two distinct sentinel
+        # truth planes cannot produce byte-identical labels.
+        materializer = materializer_registry[row.materializer_id]
+        materialized = tuple(
+            materializer(atlas, row, dict(_SENTINEL_FIT_CONTEXT))
+            for atlas in sentinel_atlases
+        )
+        if probe_fit_slice_content_sha256(materialized[0]) == \
+                probe_fit_slice_content_sha256(materialized[1]):
+            raise AtlasRefusal(
+                f"{row.materializer_id}/{row.probe_id}: materializer is "
+                "atlas-blind on two sentinel truth planes"
+            )
 
 _REGISTRY_CACHE_LOCK = threading.Lock()
 _REGISTRY_BYTES_CACHE: bytes | None = None
@@ -1788,6 +2014,18 @@ def _compute_registry_bytes() -> bytes:
     callable_hashes["implementation.stage_global_shuffle"] = callable_digest(
         shuffle_registry["shuffle.stage_global_recipient_fixed"]
     )
+    for name in ("mask.typed_availability",):
+        callable_hashes[name] = callable_digest(MASK_REGISTRY[name])
+    # The registry rows and the module forwarders are three-line indirections.
+    # Bind the IMPLEMENTING module source bytes so a rewritten materializer or
+    # loss body cannot keep the registry digest.
+    from . import atlas_losses as _losses_module
+    from . import atlas_materializers as _materializers_module
+    module_sources = {
+        module.__name__: hashlib.sha256(
+            inspect.getsource(module).encode()).hexdigest()
+        for module in (_losses_module, _materializers_module)
+    }
     payload = {
         "schema": "entry-v2-causal-label-probe-registry-v3",
         "probes": [row.canonical() for row in PROBE_REGISTRY],
@@ -1797,6 +2035,7 @@ def _compute_registry_bytes() -> bytes:
         "e1_fit_budget": 90,
         "max_through_e2_fit_budget": 98,
         "callable_semantics_sha256": callable_hashes,
+        "implementing_module_source_sha256": module_sources,
     }
     return json.dumps(C.canonical_json_value(payload), sort_keys=True,
                       separators=(",", ":"), allow_nan=False).encode()
@@ -1828,10 +2067,17 @@ def registry_bytes() -> bytes:
 def registry_sha256() -> str:
     global _REGISTRY_SHA256_CACHE
     digest = _REGISTRY_SHA256_CACHE
+    if digest is None and _registry_validation_active():
+        # Startup validation materializes throwaway sentinel atlases, whose
+        # receipts ask for this digest while it is still being computed.  The
+        # sentinel receipts are discarded, so a typed placeholder is returned
+        # instead of re-entering (and deadlocking) the registry computation.
+        return SENTINEL_REGISTRY_SHA256
     if digest is None:
         registry_bytes()
         digest = _REGISTRY_SHA256_CACHE
-    assert digest is not None
+    if digest is None:
+        raise AtlasRefusal("registry digest is unavailable after computation")
     return digest
 
 
@@ -1862,6 +2108,129 @@ def probe_target_receipt(spec: ProbeSpec, target: ProbeTarget) -> Mapping[str, A
         body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()})
 
 
+BYTE_IDENTICAL_FIT_SLICE_SCHEMA = "entry-v2-probe-fit-slice-content-v1"
+BYTE_IDENTICAL_CENSUS_SCHEMA = "entry-v2-probe-byte-identical-collapse-census-v1"
+
+
+def probe_fit_slice_content_sha256(
+    target: ProbeTarget, fit_rows: Sequence[int] | None = None
+) -> str:
+    """Hash one probe's fit-slice label bytes.
+
+    The collapse law is measured on screen-fit data only and over exactly the
+    label content a fit consumes: values, row validity and per-coordinate
+    validity.  Layout names and identifiers are deliberately excluded, so two
+    differently named probes carrying identical labels hash identically.
+    """
+    rows = slice(None) if fit_rows is None else np.asarray(fit_rows, np.int64)
+    if fit_rows is not None and (rows.ndim != 1 or len(np.unique(rows)) != len(rows)
+                                 or np.any(rows < 0)
+                                 or np.any(rows >= len(target.validity_mask))):
+        raise AtlasRefusal("byte-identical fit slice rows are invalid")
+    digest = hashlib.sha256()
+    digest.update(BYTE_IDENTICAL_FIT_SLICE_SCHEMA.encode())
+    for name in ("values", "validity_mask", "coordinate_mask"):
+        array = np.ascontiguousarray(np.asarray(getattr(target, name))[rows])
+        digest.update(name.encode()); digest.update(str(array.dtype).encode())
+        digest.update(str(array.shape).encode()); digest.update(array.tobytes())
+    return digest.hexdigest()
+
+
+def prune_byte_identical_probe_targets(
+    targets: Mapping[str, ProbeTarget], fit_rows: Sequence[int] | None = None,
+) -> tuple[Mapping[str, ProbeTarget], Mapping[str, Any]]:
+    """Collapse true duplicate probes in registry probe-id order.
+
+    The frozen prune key is the triple
+    ``(fit-slice label content sha256, loss_id, action_mapper_id)``.  A probe
+    is ``PRUNED_BYTE_IDENTICAL`` only when an earlier registered probe matches
+    on ALL THREE.  Probes that share label bytes but carry a different
+    registered loss or action mapper are lawful objective CONTRAST cells
+    (cells 19-24 register exactly such contrasts) and MUST survive; deleting
+    them would gut the purpose of A-008/A-011.
+
+    The census therefore carries two sections: ``label_identical_groups`` is
+    transparency about which probes share label bytes, and ``pruned`` is the
+    actual all-three-identical duplicate set.
+    """
+    registry_order = tuple(row.probe_id for row in PROBE_REGISTRY)
+    unknown = tuple(sorted(set(targets) - set(registry_order)))
+    if unknown:
+        raise AtlasRefusal(f"byte-identical pass received unregistered probes: {unknown}")
+    hashes: dict[str, str] = {}
+    keeper_by_key: dict[tuple[str, str, str], str] = {}
+    probes_by_hash: dict[str, list[str]] = {}
+    pruned: dict[str, str] = {}
+    resolved: dict[str, ProbeTarget] = {}
+    for probe_id in registry_order:
+        target = targets.get(probe_id)
+        if target is None:
+            continue
+        spec = PROBE_BY_ID[probe_id]
+        content = probe_fit_slice_content_sha256(target, fit_rows)
+        hashes[probe_id] = content
+        probes_by_hash.setdefault(content, []).append(probe_id)
+        key = (content, spec.loss_id, spec.action_mapper_id)
+        keeper = keeper_by_key.get(key)
+        if keeper is None:
+            keeper_by_key[key] = probe_id
+            resolved[probe_id] = target
+            continue
+        pruned[probe_id] = keeper
+        resolved[probe_id] = replace(
+            target, state=CellAvailability.PRUNED_BYTE_IDENTICAL)
+    label_groups = [
+        {
+            "fit_slice_sha256": content,
+            "probe_ids": list(members),
+            "distinct_loss_ids": sorted({PROBE_BY_ID[row].loss_id for row in members}),
+            "distinct_action_mapper_ids": sorted(
+                {PROBE_BY_ID[row].action_mapper_id for row in members}),
+            "surviving_contrast_probe_ids": [row for row in members
+                                             if row not in pruned],
+        }
+        for content, members in sorted(probes_by_hash.items())
+        if len(members) > 1
+    ]
+    body = {
+        "schema": BYTE_IDENTICAL_CENSUS_SCHEMA,
+        "prune_key_law": "label-content-and-loss-and-mapper-triple-v1",
+        "fit_slice_row_count": (None if fit_rows is None else len(tuple(fit_rows))),
+        "registered_probe_count": len(hashes),
+        "pruned_probe_count": len(pruned),
+        "retained_fit_probe_count": len(hashes) - len(pruned),
+        "fit_slice_sha256": dict(sorted(hashes.items())),
+        "label_identical_groups": label_groups,
+        "label_identical_group_count": len(label_groups),
+        "label_identical_probe_ids": sorted(
+            row for group in label_groups for row in group["probe_ids"]),
+        "pruned": [
+            {"kept": keeper, "pruned": probe_id,
+             "fit_slice_sha256": hashes[probe_id],
+             "loss_id": PROBE_BY_ID[probe_id].loss_id,
+             "action_mapper_id": PROBE_BY_ID[probe_id].action_mapper_id}
+            for probe_id, keeper in sorted(pruned.items())
+        ],
+        "pruned_probe_ids": sorted(pruned),
+    }
+    body["receipt_sha256"] = hashlib.sha256(json.dumps(
+        body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return MappingProxyType(resolved), MappingProxyType(body)
+
+
+def bind_byte_identical_census(
+    receipt: Mapping[str, Any], census: Mapping[str, Any]
+) -> Mapping[str, Any]:
+    """Rebind one atlas receipt to its byte-identical collapse census."""
+    if census.get("schema") != BYTE_IDENTICAL_CENSUS_SCHEMA:
+        raise AtlasRefusal("byte-identical census schema differs")
+    body = {key: value for key, value in receipt.items() if key != "receipt_sha256"}
+    body["byte_identical_census"] = dict(census)
+    body["receipt_sha256"] = hashlib.sha256(json.dumps(
+        body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return MappingProxyType(body)
+
+
 def _array_digest(columns: Mapping[str, np.ndarray]) -> str:
     digest = hashlib.sha256()
     for name, value in sorted(columns.items()):
@@ -1874,7 +2243,9 @@ def _array_digest(columns: Mapping[str, np.ndarray]) -> str:
 
 
 def atlas_receipt(index: SessionTruthIndex, candidates: Sequence[CandidateAnchor],
-                  atoms: Mapping[str, Any]) -> dict[str, Any]:
+                  atoms: Mapping[str, Any],
+                  byte_identical_census: Mapping[str, Any] | None = None,
+                  ) -> dict[str, Any]:
     def encode(value: Any) -> Any:
         if isinstance(value, Enum):
             return value.value
@@ -1902,6 +2273,9 @@ def atlas_receipt(index: SessionTruthIndex, candidates: Sequence[CandidateAnchor
         "fit_budget": 90,
         "e1_fit_budget": 90,
         "max_through_e2_fit_budget": 98,
+        # Bound once the probe targets exist; see prune_byte_identical_probe_targets.
+        "byte_identical_census": (None if byte_identical_census is None
+                                  else dict(byte_identical_census)),
     }
     body["receipt_sha256"] = hashlib.sha256(json.dumps(
         body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
@@ -1933,10 +2307,14 @@ __all__ = [
     "PassageState", "ProbeSpec", "ProbeTarget",
     "SHUFFLED_PROBES", "SUPPORT_REGISTRY",
     "SessionTruthIndex", "TREND_SECONDS", "WALL_UNITS",
+    "BYTE_IDENTICAL_CENSUS_SCHEMA", "BYTE_IDENTICAL_FIT_SLICE_SCHEMA",
+    "SENTINEL_REGISTRY_SHA256",
     "action_score_for_probe", "atlas_receipt", "atlas_receipt_bytes",
+    "bind_byte_identical_census",
     "loss_for_probe", "materialize_probe_target", "probe_target_schema_sha256",
     "merge_candidate_truth_atlases",
-    "probe_target_receipt",
+    "probe_fit_slice_content_sha256", "probe_target_receipt",
+    "prune_byte_identical_probe_targets",
     "permute_probe_target_recipient_fixed",
     "registry_bytes", "registry_sha256", "reject_placeholder_callable",
     "shuffled_probe_for",

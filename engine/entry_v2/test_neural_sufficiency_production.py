@@ -196,9 +196,17 @@ runpy.run_module(
         )
 
     def test_timing_side_receipt_is_monotonic_nonsemantic_and_enforces_ceiling(self):
+        # A3: the raised ceilings.  Cold first_competence is 1800s, so 1801s
+        # exceeds it and 1201s (which used to) no longer does.
+        self.assertEqual(NonSemanticTimingLedger.LIMITS_NS[("warm", "corpus_ready")],
+                         1200 * 1_000_000_000)
+        self.assertEqual(NonSemanticTimingLedger.LIMITS_NS[("warm", "first_competence")],
+                         1500 * 1_000_000_000)
+        self.assertEqual(NonSemanticTimingLedger.LIMITS_NS[("cold", "corpus_ready")],
+                         3600 * 1_000_000_000)
         with tempfile.TemporaryDirectory() as directory, mock.patch(
                 "engine.entry_v2.neural_sufficiency_production.time.monotonic_ns",
-                side_effect=[1_000, 1_001, 1_201 * 1_000_000_000 + 1_000]):
+                side_effect=[1_000, 1_001, 1_801 * 1_000_000_000 + 1_000]):
             ledger = NonSemanticTimingLedger(Path(directory) / "timing")
             ledger.record("corpus_ready", provenance={"load_class": "cold"})
             with self.assertRaisesRegex(ProductionDiagnosticRefusal,
@@ -207,6 +215,33 @@ runpy.run_module(
             receipts = sorted((Path(directory) / "timing").glob("*.json"))
             self.assertEqual(len(receipts), 2)
             self.assertEqual(json.loads(receipts[-1].read_text())["status"], "REFUSED")
+
+    def test_prior_over_ceiling_receipt_does_not_poison_the_run_root(self):
+        """A3/A-020: a NONSEMANTIC ceiling stops ONE invocation, never the run."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "timing"
+            with mock.patch(
+                    "engine.entry_v2.neural_sufficiency_production.time.monotonic_ns",
+                    side_effect=[1_000, 1_001, 1_801 * 1_000_000_000 + 1_000]):
+                first = NonSemanticTimingLedger(root)
+                first.record("corpus_ready", provenance={"load_class": "cold"})
+                with self.assertRaisesRegex(ProductionDiagnosticRefusal,
+                                            "timing ceiling exceeded"):
+                    first.record("first_competence")
+            self.assertEqual(
+                json.loads(sorted(root.glob("*.json"))[-1].read_text())["status"],
+                "REFUSED")
+            # A LATER process must reconstruct over the REFUSED receipt.
+            with mock.patch(
+                    "engine.entry_v2.neural_sufficiency_production.time.monotonic_ns",
+                    side_effect=[5_000, 5_001, 5_002]):
+                resumed = NonSemanticTimingLedger(root)
+                self.assertEqual(resumed.prior_ceiling_refusals, 1)
+                resumed.record("corpus_ready", provenance={"load_class": "cold"})
+                resumed.record("first_competence")
+            statuses = [json.loads(path.read_text())["status"]
+                        for path in sorted(root.glob("*.json"))]
+            self.assertEqual(statuses, ["PASS", "REFUSED", "PASS", "PASS"])
 
     def test_fit_only_rehearsal_is_a_source_bound_launch_gate(self):
         rehearsal = _fit_only_rehearsal()
@@ -244,6 +279,10 @@ runpy.run_module(
             backend = ProductionDiagnosticBackends(
                 executor, artifact_root=Path(directory) / "components", context=context,
             )
+            # A6: the NONSEMANTIC timing ledger requires exactly one
+            # corpus-ready provenance receipt per invocation before any other
+            # milestone.  The driver calls this; a double must too.
+            backend.record_corpus_ready()
             receipt = run_neural_sufficiency(
                 "preheld-fit-only-acceptance", context, backend.callbacks(),
                 output_path=Path(directory) / "acceptance.json", production=False,
@@ -272,6 +311,7 @@ runpy.run_module(
         with tempfile.TemporaryDirectory() as directory:
             backend = ProductionDiagnosticBackends(
                 executor, artifact_root=directory, context=context)
+            backend.record_corpus_ready()
             backend.callbacks()["one_load"](context)
             with self.assertRaisesRegex(RuntimeError, "typed-canary"):
                 backend.callbacks()["raw_fidelity"](context)
@@ -302,6 +342,8 @@ runpy.run_module(
             root = Path(directory)
             backend = ProductionDiagnosticBackends(
                 executor, artifact_root=root / "components", context=context)
+            # A6: one corpus-ready provenance receipt per invocation.
+            backend.record_corpus_ready()
             for component in ACCEPTANCE_COMPONENTS:
                 backend.callbacks()[component](context)
             evidence_sha = StageBoundaryStore(
@@ -354,6 +396,8 @@ runpy.run_module(
             root = Path(directory)
             backend = ProductionDiagnosticBackends(
                 executor, artifact_root=root / "components", context=context)
+            # A6: one corpus-ready provenance receipt per invocation.
+            backend.record_corpus_ready()
             for component in ACCEPTANCE_COMPONENTS:
                 backend.callbacks()[component](context)
             miss = ExactComponentExecution(

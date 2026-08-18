@@ -7,6 +7,8 @@ import json
 from types import MappingProxyType
 from typing import Any, Mapping, Sequence
 
+from .causal_label_atlas import HORIZON_SECONDS as ATLAS_HORIZON_SECONDS
+
 
 SCHEMA = "entry-v2-selected-horizon-contract-v1"
 COORDINATES = (300, 600, 900, 1_200, 1_800, "FINAL")
@@ -63,6 +65,42 @@ CONTRACT = MappingProxyType({**_CORE, "schema_sha256": SCHEMA_SHA256})
 
 class SelectedHorizonContractRefusal(RuntimeError):
     pass
+
+
+# The 12-axis causal atlas endpoint plane is
+# ``(*HORIZON_SECONDS, "PHASE", "FINAL")``.  The six selected coordinates are
+# resolved from that plane by name rather than by a magic literal so a change
+# to either roster refuses at import instead of silently reindexing targets.
+ATLAS_ENDPOINT_AXES = tuple(
+    f"{seconds}s" for seconds in ATLAS_HORIZON_SECONDS
+) + ("PHASE", "FINAL")
+
+
+def _derive_selected_atlas_axes() -> tuple[int, ...]:
+    index = {name: position for position, name in enumerate(ATLAS_ENDPOINT_AXES)}
+    if len(index) != len(ATLAS_ENDPOINT_AXES):
+        raise SelectedHorizonContractRefusal(
+            "atlas endpoint axis names are not unique"
+        )
+    axes: list[int] = []
+    for coordinate in COORDINATES:
+        name = ("FINAL" if coordinate == "FINAL"
+                else f"{int(coordinate)}s")  # type: ignore[arg-type]
+        if name not in index:
+            raise SelectedHorizonContractRefusal(
+                f"selected horizon coordinate {coordinate!r} has no atlas axis"
+            )
+        axes.append(index[name])
+    if (len(axes) != WIDTH or len(set(axes)) != WIDTH
+            or axes != sorted(axes)):
+        raise SelectedHorizonContractRefusal(
+            "selected horizon atlas axes are duplicated or out of order"
+        )
+    return tuple(axes)
+
+
+SELECTED_HORIZON_ATLAS_AXES = _derive_selected_atlas_axes()
+ATLAS_AXIS_COUNT = len(ATLAS_ENDPOINT_AXES)
 
 
 def _sha256_hex(value: object, label: str) -> str:
@@ -263,6 +301,7 @@ def validate_selected_horizon_identity(
 
 
 __all__ = [
+    "ATLAS_AXIS_COUNT", "ATLAS_ENDPOINT_AXES", "SELECTED_HORIZON_ATLAS_AXES",
     "CONTRACT", "COORDINATES", "COVERAGE_LAW", "COVERAGE_LAW_SHA256",
     "COVERAGE_SCHEMA", "MODEL_COORDINATES", "NORMALIZATION_LAW",
     "NORMALIZATION_LAW_SHA256",

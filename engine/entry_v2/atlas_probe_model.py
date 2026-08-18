@@ -1558,6 +1558,18 @@ class FrozenLogisticBindingMapper:
         if not result.success or not np.all(np.isfinite(result.x)):
             raise AtlasProbeRefusal("monotone Platt optimization failed")
         slope = float(np.logaddexp(0.0, result.x[0])); intercept = float(result.x[1])
+        # A softplus slope is positive by construction, so "slope > 0" is a
+        # vacuous law: a numerically constant calibrator (measured slope
+        # 5.34e-11, calibrated probability spread 2.6e-09) satisfies it while
+        # selecting among thresholds separated by 1e-11 and publishing the
+        # result as an economic winner.  Require an economically real slope
+        # and a real calibrated spread over the observed score range.
+        spread = float(np.ptp(expit(slope * score + intercept))) if len(score) else 0.0
+        if not slope >= 1e-6 or not spread >= 1e-6:
+            raise AtlasProbeRefusal(
+                "DEGENERATE_CALIBRATOR: monotone Platt calibrator is numerically "
+                f"constant (slope={slope!r}, calibrated_spread={spread!r})"
+            )
         fit_hash = _sha("\n".join(ids.tolist()).encode())
         parameter_hash = _sha(_array_bytes(np.asarray([slope, intercept])))
         self.calibrator = PositiveSlopePlatt(slope, intercept, fit_hash, parameter_hash)

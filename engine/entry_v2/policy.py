@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import contextlib
+
 from dataclasses import asdict, dataclass, fields
 import json
 import math
@@ -754,11 +756,33 @@ def _validate_model_family(models: Mapping[str, Any], config: PolicyConfig,
         raise C.EntryV2Refusal("loaded MAE model is not the fixed q90 objective")
 
 
+#: R3 depth counter for ``neural_inference_path()``.
+_NEURAL_INFERENCE_DEPTH = 0
+
+
+@contextlib.contextmanager
+def neural_inference_path():
+    """Scope in which constructing a legacy ``AssetPolicy`` is a refusal (R3)."""
+    global _NEURAL_INFERENCE_DEPTH
+    _NEURAL_INFERENCE_DEPTH += 1
+    try:
+        yield
+    finally:
+        _NEURAL_INFERENCE_DEPTH -= 1
+
+
 class AssetPolicy:
     """The fixed GBT family, fitted either per asset or once on a pooled arm."""
 
     def __init__(self, asset: str, config: PolicyConfig,
                  model_input_binding: ModelInputBinding):
+        # R3: xgboost IS importable in this environment (vendored under
+        # /workspace/artifacts/cache/pylibs), so a stray legacy GBT policy on
+        # the neural inference path would construct and score silently instead
+        # of failing on an import error.  It is refused explicitly.
+        if _NEURAL_INFERENCE_DEPTH:
+            raise C.EntryV2Refusal(
+                "legacy AssetPolicy constructed on the neural inference path")
         if asset not in POLICY_SCOPES:
             raise C.EntryV2Refusal(f"unknown policy scope {asset}")
         model_input_binding.validate()

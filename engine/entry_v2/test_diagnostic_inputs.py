@@ -13,7 +13,7 @@ from . import common as C
 from .diagnostic_inputs import (
     ActionDecision, ActionMaskReason, CandidateTruthBinding,
     DerivedEventFieldBuilder, DiagnosticInputRefusal, DiagnosticSession,
-    OneLoadDiagnosticInput, build_candidate_truth_bindings,
+    OneLoadDiagnosticInput, RAW_ROUTE_FIELDS, build_candidate_truth_bindings,
     build_a004_counterfactual_atoms, build_event_truth_columns,
     detailed_a004_schedule, native_book_quality,
     frozen_chronology_split, PRODUCTION_E2, REHEARSAL_E1, REHEARSAL_E2,
@@ -287,7 +287,12 @@ class DiagnosticInputsTest(unittest.TestCase):
         truth = build_event_truth_columns(rows, "SI", (_binding(),))
         builder = DerivedEventFieldBuilder()
         fields = builder.build(truth)
-        self.assertEqual(len(fields.raw_routes), 18)
+        self.assertEqual(len(fields.raw_routes), 21)
+        self.assertEqual(tuple(fields.raw_routes), RAW_ROUTE_FIELDS)
+        # A-007: the three per-field undefined-price states are independent
+        # routes, not only the packed missing_mask aggregate.
+        for name in ("price_undefined", "bid_px_undefined", "ask_px_undefined"):
+            self.assertIn(name, fields.raw_routes)
         for name in rows.dtype.names:
             if name not in fields.raw_routes:
                 continue
@@ -343,6 +348,44 @@ class DiagnosticInputsTest(unittest.TestCase):
         with self.assertRaises(DiagnosticInputRefusal):
             one.open_once(opener, (binding,))
         self.assertEqual(len(calls), 1)
+
+
+class DerivedRouteSourceOrderTest(unittest.TestCase):
+    """V15: source order and block-clock law must match the consumer."""
+
+    def test_block_clock_uses_completed_256_blocks_only(self) -> None:
+        rows = np.zeros(300, dtype=EVENT_DTYPE)
+        base = _rows()
+        for index in range(300):
+            rows[index] = base[index % len(base)]
+        rows["ts_recv_ns"] = np.arange(300, dtype=np.uint64) * 1_000_000
+        rows["ts_event_ns"] = rows["ts_recv_ns"] - 17
+        truth = build_event_truth_columns(rows, "SI", (_binding(),))
+        fields = DerivedEventFieldBuilder().build(truth)
+        mask = np.asarray(fields.valid_masks["block_end_receive_ns"], bool)
+        ends = np.flatnonzero(mask).tolist()
+        # 300 events contain exactly one completed 256-event block.  The roster
+        # endpoint 299 is a slice boundary, never a block boundary.
+        self.assertEqual(ends, [255])
+        self.assertNotIn(299, ends)
+
+    def test_summary_rows_follow_the_declared_route_order(self) -> None:
+        rows = _rows()
+        truth = build_event_truth_columns(rows, "SI", (_binding(),))
+        builder = DerivedEventFieldBuilder()
+        fields = builder.build(truth)
+        summary = builder.prefix_summary(fields, len(rows))
+        self.assertEqual(summary.shape[0],
+                         len(RAW_ROUTE_FIELDS) + len(fields.derived_routes))
+        shuffled = replace(
+            fields,
+            raw_routes={name: fields.raw_routes[name]
+                        for name in sorted(fields.raw_routes)},
+            derived_routes={name: fields.derived_routes[name]
+                            for name in reversed(sorted(fields.derived_routes))},
+        )
+        self.assertTrue(np.array_equal(
+            summary, builder.prefix_summary(shuffled, len(rows))))
 
 
 if __name__ == "__main__":

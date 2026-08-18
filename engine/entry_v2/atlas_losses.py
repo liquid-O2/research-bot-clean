@@ -9,7 +9,9 @@ from typing import Callable
 import torch
 import torch.nn.functional as F
 
-from .causal_label_atlas import PADDED_OUTPUT_WIDTH, ProbeSpec, ProbeTarget
+from .causal_label_atlas import (
+    AtlasRefusal, PADDED_OUTPUT_WIDTH, ProbeSpec, ProbeTarget,
+)
 
 
 def _tensors(
@@ -35,7 +37,12 @@ def _tensors(
 def _mean(value: torch.Tensor, mask: torch.Tensor, weight: torch.Tensor) -> torch.Tensor:
     selected = mask & torch.isfinite(value)
     if not bool(selected.any()):
-        return value.sum() * 0.0
+        # A fully-masked objective has no measurement.  Returning 0.0 makes it
+        # the best possible loss and wins checkpoint selection outright; the
+        # availability law owns this case as a typed unavailable objective.
+        raise AtlasRefusal(
+            "UNAVAILABLE: atlas objective has no supported row in this batch/stage"
+        )
     return (value[selected] * weight[selected]).sum() / weight[selected].sum().clamp_min(1e-12)
 
 
@@ -253,9 +260,12 @@ def loss_for_probe(
         else:
             hazard = p[:, 4]
             loss = F.softplus(hazard) - event * hazard
-            loss = loss + F.smooth_l1_loss(
-                p[:, :4], y[:, :4], reduction="none"
-            ).mean(1)
+            # The per-column coordinate mask carries the censored MFE/MAE and
+            # unattained-extreme passage times.  A masked coordinate must
+            # contribute nothing; regressing it to 0.0 is the named prohibition.
+            extreme = coordinate[:, :4]
+            point = F.smooth_l1_loss(p[:, :4], y[:, :4], reduction="none")
+            loss = loss + (point * extreme).sum(1) / extreme.sum(1).clamp_min(1)
     elif cell == 8:
         composition_target = y[:, :3] / y[:, :3].sum(1, keepdim=True).clamp_min(1e-12)
         composition = -(composition_target * torch.log_softmax(p[:, :3], 1)).sum(1)

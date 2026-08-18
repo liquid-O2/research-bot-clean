@@ -12,6 +12,7 @@ import copy
 from dataclasses import asdict, dataclass
 import hashlib
 import json
+import math
 from types import MappingProxyType
 from typing import Callable, Mapping, Optional, Sequence
 
@@ -424,6 +425,13 @@ class CausalMultiresolutionEncoder(_ExactInputEncoder):
         nn.init.trunc_normal_(self.empty_memory, std=.02)
         self.last_complexity_receipt: Optional[EncoderComplexityReceipt] = None
         self._regular_encode_calls = 0
+        # Complexity counters must exist on a strict-loaded instance that has
+        # not yet run ``encode_session``; ``gather_candidate_memory`` reads
+        # them unconditionally when it builds its receipt.
+        self._regular_block_chunks = 0
+        self._regular_block_chunk_high_water = 0
+        self._candidate_window_chunks = 0
+        self._candidate_window_chunk_high_water = 0
 
     def _encode_windows(self, continuous: Tensor, categorical: Tensor,
                         starts: Tensor, stops: Tensor) -> tuple[Tensor, Tensor]:
@@ -1115,10 +1123,28 @@ def build_shared_arms(encoders: Mapping[str, nn.Module],
 def build_five_arm_registry(c0: nn.Module, c1: nn.Module, lit: nn.Module,
                             m1: nn.Module, shared_head: SharedCandidateDecisionHead
                             ) -> dict[str, NeuralSufficiencyModel]:
-    return build_shared_arms({"C0": copy.deepcopy(c0), "C1": copy.deepcopy(c1),
+    arms = build_shared_arms({"C0": copy.deepcopy(c0), "C1": copy.deepcopy(c1),
                               "L0": copy.deepcopy(lit), "L1": copy.deepcopy(lit),
                               "M1": copy.deepcopy(m1)},
                              shared_head, require_canonical=True)
+    # The C1-C0 objective attribution is only meaningful when C1 starts from
+    # C0's exact checkpoint bytes, exactly as L1 starts from L0's.
+    assert_current_checkpoint_identity(arms)
+    return arms
+
+
+def assert_current_checkpoint_identity(arms: Mapping[str, NeuralSufficiencyModel]) -> str:
+    """C1 must consume C0's exact checkpoint bytes without aliasing storage."""
+    if "C0" not in arms or "C1" not in arms:
+        raise EntryModelRefusal("C0 and C1 are required")
+    left = module_state_bytes(arms["C0"].encoder)
+    right = module_state_bytes(arms["C1"].encoder)
+    if left != right:
+        raise EntryModelRefusal("C0/C1 encoder checkpoints differ")
+    if any(a.data_ptr() == b.data_ptr() for a, b in
+           zip(arms["C0"].encoder.parameters(), arms["C1"].encoder.parameters())):
+        raise EntryModelRefusal("C0/C1 encoder checkpoint storage aliases")
+    return hashlib.sha256(left).hexdigest()
 
 
 def assert_lit_checkpoint_identity(arms: Mapping[str, NeuralSufficiencyModel]) -> str:
@@ -1139,19 +1165,104 @@ class FieldRoutingReceipt:
     categorical_mutations: tuple[bool, ...]
     continuous_gradients: tuple[bool, ...]
     embedding_gradients: tuple[bool, ...]
+    mask_only_mutations: tuple[bool, ...] = ()
+    price_mask_mutations: tuple[bool, ...] = ()
+    mutation_rows: tuple[int, ...] = ()
+    comparison_device: str = "cpu"
+    comparison_dtype: str = "torch.float32"
 
     @property
     def passed(self) -> bool:
         return all(self.continuous_mutations + self.categorical_mutations
-                   + self.continuous_gradients + self.embedding_gradients)
+                   + self.continuous_gradients + self.embedding_gradients
+                   + self.mask_only_mutations + self.price_mask_mutations)
+
+
+FIELD_ROUTING_BAND_SECONDS = (60, 300, 900)
+FIELD_ROUTING_MUTATION_DELTA = 1.25
+FIELD_ROUTING_LINF_TOLERANCE = 1e-6
+PRICE_ROUTE_SUFFIXES = ("price", "bid_px", "ask_px")
+UNDEFINED_PRICE_CATEGORY_SIZE = 8
+
+
+def _resolve_price_routes(encoder: nn.Module,
+                          price_field_indices: Optional[Sequence[int]],
+                          undefined_mask_field: Optional[int],
+                          ) -> tuple[tuple[int, ...], int]:
+    """Locate the price routes and the packed undefined-price mask route."""
+    schema = getattr(encoder, "field_schema", None)
+    names = tuple(getattr(schema, "continuous_fields", ()) or ())
+    if price_field_indices is None:
+        resolved = [index for index, name in enumerate(names)
+                    if any(name == suffix or name.endswith(f".{suffix}")
+                           for suffix in PRICE_ROUTE_SUFFIXES)]
+    else:
+        resolved = [int(value) for value in price_field_indices]
+    sizes = tuple(int(value) for value in encoder.event_category_sizes)
+    if undefined_mask_field is None:
+        candidates = [index for index, size in enumerate(sizes)
+                      if size == UNDEFINED_PRICE_CATEGORY_SIZE]
+        mask_field = candidates[-1] if candidates else -1
+    else:
+        mask_field = int(undefined_mask_field)
+    if (not resolved or not 0 <= mask_field < len(sizes)
+            or any(not 0 <= index < len(names) for index in resolved)):
+        raise EntryModelRefusal(
+            "field routing cannot resolve the price/undefined-mask routes"
+        )
+    return tuple(sorted(set(resolved))), mask_field
+
+
+def _field_routing_mutation_rows(receive_clock_ns: Tensor,
+                                 candidate_decision_ts_ns: Tensor,
+                                 candidate_cutoffs: Tensor, *,
+                                 seed: int, rows_per_band: int
+                                 ) -> tuple[int, ...]:
+    """Seeded sample of visible rows spread across the declared time bands.
+
+    Mutating only row 0 lets a late-drop encoder pass: it can discard every
+    recent event and still register the change.  Sampling across bands and
+    requiring each sampled row to move the memory closes that hole.
+    """
+    visible = int(candidate_cutoffs.detach().cpu().max()) if candidate_cutoffs.numel() else 0
+    if visible <= 0:
+        raise EntryModelRefusal("field routing needs at least one visible event")
+    clocks = receive_clock_ns.detach().cpu().to(torch.int64).numpy()[:visible]
+    now = int(candidate_decision_ts_ns.detach().cpu().to(torch.int64).max())
+    elapsed = (now - clocks.astype(np.float64)) / 1.0e9
+    rng = np.random.default_rng(int(seed))
+    rows = {0, visible - 1}
+    edges = ((-np.inf, float(FIELD_ROUTING_BAND_SECONDS[0])),
+             (float(FIELD_ROUTING_BAND_SECONDS[0]),
+              float(FIELD_ROUTING_BAND_SECONDS[1])),
+             (float(FIELD_ROUTING_BAND_SECONDS[1]),
+              float(FIELD_ROUTING_BAND_SECONDS[2])),
+             (float(FIELD_ROUTING_BAND_SECONDS[2]), np.inf))
+    for low, high in edges:
+        members = np.flatnonzero((elapsed > low) & (elapsed <= high))
+        if members.size:
+            take = int(min(int(rows_per_band), members.size))
+            rows.update(int(value) for value in
+                        rng.choice(members, size=take, replace=False).tolist())
+    return tuple(sorted(rows))
 
 
 def field_routing_competence(encoder: nn.Module, *, event_continuous: Tensor,
                              event_categorical: Tensor, receive_clock_ns: Tensor,
                              candidate_cutoffs: Tensor,
                              candidate_decision_ts_ns: Tensor,
-                             mutation_row: int = 0) -> FieldRoutingReceipt:
-    """Reusable synthetic mutation/gradient gate for every input route."""
+                             seed: int = 20_260_818,
+                             rows_per_band: int = 2,
+                             price_field_indices: Optional[Sequence[int]] = None,
+                             undefined_mask_field: Optional[int] = None,
+                             ) -> FieldRoutingReceipt:
+    """Reusable synthetic mutation/gradient gate for every input route.
+
+    Every mutation arm is compared on a CPU/FP32 pin so the ``1e-6`` L-infinity
+    threshold measures routing, not autocast or device rounding.  Undefined
+    price states are exercised by a mask-only arm and by a semantically
+    consistent price-plus-mask arm.
+    """
     encoder.zero_grad(set_to_none=True)
     values = event_continuous.detach().clone().requires_grad_(True)
     base = encoder(values, event_categorical, candidate_cutoffs,
@@ -1172,24 +1283,71 @@ def field_routing_competence(encoder: nn.Module, *, event_continuous: Tensor,
         )
     embedding_gradients = tuple(e.weight.grad is not None and
                                 bool(e.weight.grad.abs().sum() > 0) for e in embeddings)
+    price_fields, mask_field = _resolve_price_routes(
+        encoder, price_field_indices, undefined_mask_field)
+    mutation_rows = _field_routing_mutation_rows(
+        receive_clock_ns, candidate_decision_ts_ns, candidate_cutoffs,
+        seed=seed, rows_per_band=rows_per_band)
+    # FP32/CPU pin: a deep copy is used so the caller's device placement,
+    # parameter dtypes, and gradients are untouched by the mutation arms.
+    pinned = copy.deepcopy(encoder).to(device="cpu", dtype=torch.float32).eval()
+    pinned.zero_grad(set_to_none=True)
+    cpu_continuous = event_continuous.detach().to("cpu", torch.float32)
+    cpu_categorical = event_categorical.detach().to("cpu")
+    cpu_clock = receive_clock_ns.detach().to("cpu", torch.int64)
+    cpu_cutoffs = candidate_cutoffs.detach().to("cpu")
+    cpu_decisions = candidate_decision_ts_ns.detach().to("cpu", torch.int64)
+
+    def encode(continuous: Tensor, categorical: Tensor) -> Tensor:
+        with torch.no_grad():
+            return pinned(continuous, categorical, cpu_cutoffs,
+                          receive_clock_ns=cpu_clock,
+                          candidate_decision_ts_ns=cpu_decisions).float()
+
+    def moved(continuous: Tensor, categorical: Tensor, reference: Tensor) -> bool:
+        return bool((encode(continuous, categorical) - reference).abs().max()
+                    > FIELD_ROUTING_LINF_TOLERANCE)
+
+    reference = encode(cpu_continuous, cpu_categorical)
     continuous_mutations, categorical_mutations = [], []
-    with torch.no_grad():
-        reference = base.detach()
-        for field in range(event_continuous.shape[1]):
-            mutant = event_continuous.clone(); mutant[mutation_row, field] += 1.25
-            changed = encoder(mutant, event_categorical, candidate_cutoffs,
-                receive_clock_ns=receive_clock_ns,
-                candidate_decision_ts_ns=candidate_decision_ts_ns)
-            continuous_mutations.append(bool((changed - reference).abs().max() > 1e-6))
-        for field, size in enumerate(encoder.event_category_sizes):
-            mutant = event_categorical.clone()
-            mutant[mutation_row, field] = (mutant[mutation_row, field] + 1) % size
-            changed = encoder(event_continuous, mutant, candidate_cutoffs,
-                receive_clock_ns=receive_clock_ns,
-                candidate_decision_ts_ns=candidate_decision_ts_ns)
-            categorical_mutations.append(bool((changed - reference).abs().max() > 1e-6))
-    receipt = FieldRoutingReceipt(tuple(continuous_mutations),
-        tuple(categorical_mutations), continuous_gradients, embedding_gradients)
+    mask_only_mutations, price_mask_mutations = [], []
+    for field in range(cpu_continuous.shape[1]):
+        changed_all = True
+        for row in mutation_rows:
+            mutant = cpu_continuous.clone()
+            mutant[row, field] += FIELD_ROUTING_MUTATION_DELTA
+            changed_all = changed_all and moved(mutant, cpu_categorical, reference)
+        continuous_mutations.append(changed_all)
+    for field, size in enumerate(pinned.event_category_sizes):
+        changed_all = True
+        for row in mutation_rows:
+            mutant = cpu_categorical.clone()
+            mutant[row, field] = (mutant[row, field] + 1) % size
+            changed_all = changed_all and moved(cpu_continuous, mutant, reference)
+        categorical_mutations.append(changed_all)
+    # Undefined-price arms.  ``mask-only`` flips just the packed undefined bit;
+    # ``price+mask`` additionally drives the price route to its canonical
+    # undefined carrier value, which is the semantically consistent pair.
+    mask_size = int(pinned.event_category_sizes[mask_field])
+    for position, field in enumerate(price_fields):
+        bit = 1 << (position % max(1, mask_size.bit_length() - 1))
+        mask_changed, pair_changed = True, True
+        for row in mutation_rows:
+            mask_only = cpu_categorical.clone()
+            mask_only[row, mask_field] = (
+                int(mask_only[row, mask_field]) ^ bit) % mask_size
+            mask_changed = mask_changed and moved(
+                cpu_continuous, mask_only, reference)
+            paired = cpu_continuous.clone()
+            paired[row, field] = 0.0
+            pair_changed = pair_changed and moved(paired, mask_only, reference)
+        mask_only_mutations.append(mask_changed)
+        price_mask_mutations.append(pair_changed)
+    receipt = FieldRoutingReceipt(
+        tuple(continuous_mutations), tuple(categorical_mutations),
+        continuous_gradients, embedding_gradients,
+        tuple(mask_only_mutations), tuple(price_mask_mutations),
+        tuple(mutation_rows), "cpu", "torch.float32")
     if not receipt.passed:
         raise EntryModelRefusal("field routing competence failed")
     return receipt
@@ -1245,11 +1403,16 @@ class StageTrainingSpec:
     minimum_relative_improvement: float = .001
 
 
+# Frozen optimization law: the field-survival reconstruction and the dense
+# pointwise oracle losses share ONE raw forward/backward pass and ONE best
+# checkpoint (max 12 epochs, patience 3).  Running two independent full-tape
+# stages over the same rows is forbidden, so ``field_survival`` is not a
+# separate registered stage; it is an additive component of ``pointwise_dense``.
 STAGE_SPECS = MappingProxyType({
-    "field_survival": StageTrainingSpec("field_survival", 8, 2),
     "pointwise_dense": StageTrainingSpec("pointwise_dense", 12, 3),
     "grouped_atlas": StageTrainingSpec("grouped_atlas", 6, 2),
 })
+FORBIDDEN_INDEPENDENT_STAGES = frozenset({"field_survival"})
 
 
 @dataclass(frozen=True)
@@ -1327,6 +1490,10 @@ def train_chronological_stage(model: nn.Module, optimizer: torch.optim.Optimizer
                               validate_epoch: Callable[[nn.Module, FrozenRowManifest], Tensor]
                               ) -> StageTrainingReceipt:
     """Frozen 8/12/6 best-checkpoint law; callbacks own chronological fit data."""
+    if stage in FORBIDDEN_INDEPENDENT_STAGES:
+        raise EntryModelRefusal(
+            f"{stage} may not run as an independent full-tape stage"
+        )
     if stage not in STAGE_SPECS:
         raise EntryModelRefusal(f"unknown training stage {stage}")
     spec = STAGE_SPECS[stage]
@@ -1363,6 +1530,13 @@ def train_chronological_stage(model: nn.Module, optimizer: torch.optim.Optimizer
         raise EntryModelRefusal(
             f"{stage} did not demonstrate a post-initial 0.1% validation improvement"
         )
+    # "A stage must not finish at a rising best validation loss."  Exhausting
+    # the epoch budget while the final epoch is still the best means the stage
+    # was truncated mid-descent, not converged.
+    if best_epoch == len(history) - 1 and len(history) == spec.max_epochs:
+        raise EntryModelRefusal(
+            f"{stage} exhausted its epoch budget while still improving"
+        )
     model.load_state_dict(best_state, strict=True)
     reloaded_hash = hashlib.sha256(module_state_bytes(model)).hexdigest()
     expected_chunks: list[bytes] = []
@@ -1374,6 +1548,14 @@ def train_chronological_stage(model: nn.Module, optimizer: torch.optim.Optimizer
     expected_hash = hashlib.sha256(b"".join(expected_chunks)).hexdigest()
     if reloaded_hash != expected_hash:
         raise EntryModelRefusal(f"{stage} best-checkpoint reload hash differs")
+    # Reloading the best checkpoint must reproduce the recorded best validation
+    # loss.  A drift here means the reloaded bytes are not the measured best.
+    reloaded_validation = float(validate_epoch(model, row_manifest).detach())
+    if not np.isfinite(reloaded_validation) or not math.isclose(
+            reloaded_validation, best, rel_tol=1e-6, abs_tol=1e-9):
+        raise EntryModelRefusal(
+            f"{stage} reloaded checkpoint validation loss differs from the best"
+        )
     return StageTrainingReceipt(spec, tuple(history), best_epoch, best,
         reloaded_hash, True,
         row_manifest.receipt_sha256, min(row_manifest.day), max(row_manifest.day))
@@ -1381,6 +1563,19 @@ def train_chronological_stage(model: nn.Module, optimizer: torch.optim.Optimizer
 
 def validate_balanced_overfit_inputs(asset_idx: Tensor, target: Tensor
                                      ) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Balanced decision-overfit INPUT precondition: >=32 per asset per class.
+
+    B-26 (wire, do not delete): the production balanced-overfit gate measures
+    only the AUROC/AP/action-loss outcome thresholds; it never proves the
+    per-asset 32-positive / 32-matched-negative input precondition that makes
+    those thresholds meaningful.  This function is therefore NOT redundant.
+
+    NOTE FOR LANE I1: call this from the balanced-overfit gate path in
+    ``neural_sufficiency_resources`` immediately before the ``.995/.995/.02``
+    metric comparison, using the competence slice's asset index and action
+    target, so an under-populated slice refuses instead of scoring.
+    """
+
     positive = tuple(int(((asset_idx == asset) & (target == 1)).sum()) for asset in range(3))
     negative = tuple(int(((asset_idx == asset) & (target == 0)).sum()) for asset in range(3))
     if min(positive + negative) < 32:
@@ -1393,12 +1588,15 @@ __all__ = [
     "EncoderComplexityReceipt", "EventFieldSchema", "FieldPreservingStem",
     "LiTShortMemoryEncoder", "LosslessStaticTokenAdapter", "M1SessionCache",
     "NeuralSufficiencyModel", "NeuralSufficiencyOutput",
-    "SharedCandidateDecisionHead", "assert_lit_checkpoint_identity",
+    "SharedCandidateDecisionHead", "assert_current_checkpoint_identity",
+    "assert_lit_checkpoint_identity",
     "EpochTrainingReceipt", "FieldRoutingReceipt", "FrozenRowManifest",
     "LastRowReconstructionProbe",
+    "FORBIDDEN_INDEPENDENT_STAGES",
     "ReconstructionReceipt", "STAGE_SPECS", "StageTrainingReceipt",
     "StageTrainingSpec", "assert_tensor_tree_identical",
     "build_five_arm_registry", "build_shared_arms", "generic_event_schema",
+    "FIELD_ROUTING_BAND_SECONDS", "FIELD_ROUTING_LINF_TOLERANCE",
     "field_routing_competence", "module_state_bytes", "reconstruction_receipt",
     "shared_head_sha256", "train_chronological_stage",
     "validate_balanced_overfit_inputs",

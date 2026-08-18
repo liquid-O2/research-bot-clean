@@ -8,11 +8,15 @@ import unittest
 import numpy as np
 
 from .atlas_materializers import (
-    COMPETING_PAIR_AXES, materialize_probe_target, permute_probe_target_recipient_fixed,
+    apply_recipient_fixed_singleton_drop,
+    COMPETING_PAIR_AXES, SINGLETON_DROP_REFUSAL_FRACTION,
+    materialize_probe_target, permute_probe_target_recipient_fixed,
+    recipient_fixed_real_and_twin, singleton_drop_census,
     stage_global_recipient_fixed_permutation,
 )
 from .causal_label_atlas import (
-    CellAvailability, E1_PROBE_FIT_BUDGET, MAX_THROUGH_E2_PROBE_FIT_BUDGET,
+    AtlasRefusal, CellAvailability, E1_PROBE_FIT_BUDGET,
+    MAX_THROUGH_E2_PROBE_FIT_BUDGET,
     PADDED_OUTPUT_WIDTH, PROBE_REGISTRY, SHUFFLED_PROBES, ProbeTarget,
     probe_target_receipt,
 )
@@ -39,6 +43,24 @@ class AtlasMaterializerTest(unittest.TestCase):
                     shadow_marginal_regret_units=(5,4),
                     process_utility_units=7),
         ))
+
+    def _wide_atlas(self, n):
+        atlas = self._atlas()
+        groups = np.empty(n, dtype=object)
+        groups[:] = [("SI", 20250102, row, f"row-{row}") for row in range(n)]
+        atoms = MappingProxyType({
+            "availability": np.full(n, CellAvailability.MATERIALIZED, object),
+            "final_units": np.zeros(n, object),
+            "vertical_units": np.zeros((n, 12), object),
+            "vertical_mask": np.ones((n, 12), bool),
+            "action_loss_mask": np.ones(n, bool),
+            "take_target": np.arange(n) % 2 == 0,
+            "exact_time_group_id": groups,
+        })
+        return replace(
+            atlas, candidate_ids=tuple(f"candidate-{row}" for row in range(n)),
+            anchors=(atlas.anchors[0],) * n, atoms=atoms,
+        )
 
     def test_all_44_numeric_padded_targets_and_golden_masks(self):
         atlas = self._atlas()
@@ -182,12 +204,25 @@ class AtlasMaterializerTest(unittest.TestCase):
         stage = ["FIT"] * 8; asset = ["SI"] * 8
         day = [1,1,2,2,1,1,2,2]; mask = [True]*4 + [False]*4
         permutation = stage_global_recipient_fixed_permutation(
-            stage, asset, day, mask, seed=17
+            stage, asset, day, mask, materialized=[True] * 8, seed=17
         )
         self.assertTrue(np.all(permutation != np.arange(8)))
         self.assertEqual(np.asarray(mask)[permutation].tolist(), mask)
         values = np.arange(8)
         self.assertEqual(sorted(values[permutation].tolist()), values.tolist())
+
+        # V13: availability is a stratum key, so every mask/censor/at-risk/
+        # weight array a recipient keeps is its own.  A materialized recipient
+        # can never receive an unavailable donor's row.
+        availability = [True, False, True, False, True, False, True, False]
+        typed = stage_global_recipient_fixed_permutation(
+            stage, asset, [1] * 8, [True] * 8,
+            materialized=availability, seed=17,
+        )
+        supported = typed >= 0
+        self.assertTrue(supported.any())
+        self.assertEqual(np.asarray(availability)[typed[supported]].tolist(),
+                         np.asarray(availability)[supported].tolist())
 
         atlas = self._atlas()
         target = materialize_probe_target(
@@ -195,14 +230,16 @@ class AtlasMaterializerTest(unittest.TestCase):
         )
         shuffled = permute_probe_target_recipient_fixed(target, [1, 0])
         self.assertEqual(shuffled.values[:, 0].tolist(), [0.0, 1.0])
-        np.testing.assert_array_equal(shuffled.coordinate_mask,
-                                      target.coordinate_mask)
-        np.testing.assert_array_equal(shuffled.validity_mask,
-                                      target.validity_mask)
+        for name in ("coordinate_mask", "coordinate_at_risk", "coordinate_censor",
+                     "validity_mask", "at_risk_mask", "censor_mask",
+                     "fit_weight", "group_id", "group_size"):
+            with self.subTest(array=name):
+                np.testing.assert_array_equal(getattr(shuffled, name),
+                                              getattr(target, name))
 
         singleton = stage_global_recipient_fixed_permutation(
             ["FIT", "FIT", "FIT"], ["SI"] * 3, [1, 1, 2],
-            [True] * 3, seed=17,
+            [True] * 3, materialized=[True] * 3, seed=17,
         )
         self.assertEqual(singleton[2], -1)
         singleton_target = permute_probe_target_recipient_fixed(
@@ -211,6 +248,53 @@ class AtlasMaterializerTest(unittest.TestCase):
             ), [1, -1],
         )
         self.assertFalse(singleton_target.validity_mask[1])
+
+    def test_singleton_drop_is_symmetric_across_real_and_twin(self):
+        # C1: a singleton stratum row is unusable for the twin.  If the REAL
+        # target keeps it, the real fits on more supported rows than its twin
+        # and real-minus-twin is biased positive by construction.
+        atlas = self._atlas()
+        spec = next(x for x in PROBE_REGISTRY if x.cell == 14)
+        target = materialize_probe_target(atlas, spec)
+        self.assertEqual(target.validity_mask.tolist(), [True, True])
+        real = apply_recipient_fixed_singleton_drop(target, [1, -1])
+        twin = permute_probe_target_recipient_fixed(target, [1, -1])
+        self.assertEqual(real.validity_mask.tolist(), twin.validity_mask.tolist())
+        self.assertFalse(bool(real.validity_mask[1]))
+        self.assertEqual(float(real.fit_weight[1]), 0.0)
+        self.assertEqual(float(twin.fit_weight[1]), 0.0)
+        self.assertEqual(real.values[1].tolist(), twin.values[1].tolist())
+        self.assertEqual(float(real.values[1, 0]), 0.0)
+        np.testing.assert_array_equal(real.coordinate_mask[1], False)
+        # The real row that survives keeps its own real value.
+        self.assertEqual(float(real.values[0, 0]), float(target.values[0, 0]))
+
+        # The paired accessor returns the row-identical triple and receipts the
+        # dropped-singleton census.
+        wide = self._wide_atlas(100)
+        wide_target = materialize_probe_target(wide, spec)
+        permutation = np.roll(np.arange(100), 1)
+        permutation[:5] = -1
+        wide_real, wide_twin, census = recipient_fixed_real_and_twin(
+            wide_target, permutation)
+        np.testing.assert_array_equal(wide_real.validity_mask,
+                                      wide_twin.validity_mask)
+        self.assertFalse(bool(wide_real.validity_mask[:5].any()))
+        self.assertEqual(census.dropped_singleton_rows, 5)
+        self.assertEqual(census.dropped_row_indices, (0, 1, 2, 3, 4))
+        self.assertEqual(census.total_rows, 100)
+        self.assertEqual(census.refusal_fraction, SINGLETON_DROP_REFUSAL_FRACTION)
+        self.assertEqual(SINGLETON_DROP_REFUSAL_FRACTION, 0.05)
+        self.assertEqual(census.receipt["dropped_singleton_rows"], 5)
+        self.assertEqual(len(census.receipt_sha256), 64)
+
+        # A drop census above the frozen fraction refuses; exactly at the
+        # frozen fraction it is retained and receipted.
+        with self.assertRaisesRegex(AtlasRefusal, "singleton"):
+            singleton_drop_census([-1] * 6 + list(range(6, 100)))
+        boundary = singleton_drop_census([-1] * 5 + list(range(5, 100)))
+        self.assertEqual(boundary.dropped_singleton_rows, 5)
+        self.assertAlmostEqual(boundary.dropped_fraction, 0.05)
 
     def test_ipcw_requires_external_fit_for_censored_risk(self):
         atlas = _index((1000, 1000), ts=(1_000_000_000, 2_000_000_000)).materialize((_anchor(

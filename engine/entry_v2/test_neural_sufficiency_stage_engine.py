@@ -217,7 +217,9 @@ class HeldStageEngineTest(unittest.TestCase):
             "C01P01", "mixed-event", "SHARED_PRETEXT", "shallow_probe",
             tuple(records),
             ProbeSupportInputs(SupportKind.CONTINUOUS, assets, np.ones(600, bool),
-                               values=values, day=fit_days),
+                               values=values, day=fit_days,
+                               censored=np.zeros(600, bool),
+                               selected_horizon_start_d8=20210531),
             values, _h("real-checkpoint"), _h("twin-checkpoint"), _h("rows"),
             (20211001, 20211004, 20211005, 20211006,
              20211007, 20211008, 20211011),
@@ -251,7 +253,8 @@ class HeldStageEngineTest(unittest.TestCase):
 
         extra = ProbeSupportInputs(
             SupportKind.CONTINUOUS, np.asarray(["HG"]), np.asarray([False]),
-            values=np.asarray([0.0]), day=np.asarray([20211101]))
+            values=np.asarray([0.0]), day=np.asarray([20211101]),
+            censored=np.asarray([False]), selected_horizon_start_d8=20210531)
         with self.assertRaisesRegex(HeldStageRefusal, "crossed its fit boundary"):
             replace(unavailable, additional_support=(extra,)).validate()
         with self.assertRaisesRegex(HeldStageRefusal, "canonical atlas state"):

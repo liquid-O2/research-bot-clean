@@ -794,9 +794,12 @@ class CorpusBridgeTest(unittest.TestCase):
                         values = torch.zeros(
                             (spec.rows, 6), dtype=torch.float64)
                         valid = torch.ones((spec.rows, 6), dtype=torch.bool)
+                        status = torch.zeros(
+                            (spec.rows, 6), dtype=torch.int8)
                         spec = replace(
                             spec, selected_horizon_value=values,
                             selected_horizon_valid=valid,
+                            selected_horizon_status=status,
                             selected_horizon_schema_sha256=
                                 SELECTED_HORIZON_SCHEMA_SHA256,
                         )

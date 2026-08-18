@@ -1363,6 +1363,7 @@ class SessionEventSource:
                 static_features=template.static_features,
                 selected_horizon_value=template.selected_horizon_value,
                 selected_horizon_valid=template.selected_horizon_valid,
+                selected_horizon_status=template.selected_horizon_status,
                 selected_horizon_schema_sha256=(
                     template.selected_horizon_schema_sha256
                 ),

@@ -15,9 +15,13 @@ from .neural_sufficiency_model import (
     LiTShortMemoryEncoder,
     LosslessStaticTokenAdapter, NeuralSufficiencyModel,
     SharedCandidateDecisionHead,
+    STAGE_SPECS, FrozenRowManifest,
+    assert_current_checkpoint_identity,
     assert_lit_checkpoint_identity, build_five_arm_registry,
-    build_shared_arms, generic_event_schema,
+    build_shared_arms, field_routing_competence, generic_event_schema,
+    train_chronological_stage,
 )
+from .neural_sufficiency_model import _field_routing_mutation_rows
 
 
 CONTINUOUS = 16
@@ -317,6 +321,192 @@ class NeuralSufficiencyModelTest(unittest.TestCase):
         self.assertTrue(torch.isfinite(lit_loss))
         self.assertEqual(lit_memory.dtype, torch.float32)
         self.assertTrue(torch.isfinite(lit_continuous.grad).all())
+
+
+class _CountingStageModel(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.linear = nn.Linear(2, 1)
+
+
+def _stage_callbacks(validations):
+    state = {"epoch": 0, "validations": 0}
+
+    def train_epoch(model, optimizer, manifest):
+        optimizer.zero_grad(set_to_none=True)
+        loss = (model.linear(torch.ones(1, 2)).squeeze() - 3.0) ** 2
+        loss.backward()
+        optimizer.step()
+        state["epoch"] += 1
+        return loss.detach()
+
+    def validate_epoch(model, manifest):
+        index = min(state["validations"], len(validations) - 1)
+        state["validations"] += 1
+        return torch.tensor(float(validations[index]))
+
+    return train_epoch, validate_epoch, state
+
+
+class SelectedStageLawTest(unittest.TestCase):
+    """Red-first laws for the frozen stage/convergence contract."""
+
+    def _manifest(self) -> FrozenRowManifest:
+        return FrozenRowManifest.build_fit_validation(
+            ["a", "b", "c", "d"], ["SI"] * 4, [20240102, 20240102, 20240103, 20240104],
+            chronology="E4",
+        )
+
+    def test_field_survival_is_not_an_independent_full_tape_stage(self):
+        self.assertNotIn("field_survival", STAGE_SPECS)
+        self.assertEqual(tuple(STAGE_SPECS), ("pointwise_dense", "grouped_atlas"))
+        self.assertEqual(STAGE_SPECS["pointwise_dense"].max_epochs, 12)
+        self.assertEqual(STAGE_SPECS["pointwise_dense"].patience, 3)
+        model = _CountingStageModel()
+        train_epoch, validate_epoch, _ = _stage_callbacks([1.0, 0.5, 0.6, 0.6])
+        with self.assertRaises(EntryModelRefusal):
+            train_chronological_stage(
+                model, torch.optim.AdamW(model.parameters(), lr=1e-2),
+                stage="field_survival", row_manifest=self._manifest(),
+                train_epoch=train_epoch, validate_epoch=validate_epoch)
+
+    def test_stage_must_not_finish_at_a_rising_best_validation_loss(self):
+        model = _CountingStageModel()
+        # Still improving at every one of the six grouped-atlas epochs: the
+        # budget was exhausted mid-descent, which is not convergence.
+        train_epoch, validate_epoch, _ = _stage_callbacks(
+            [1.0, .8, .6, .4, .2, .1])
+        with self.assertRaises(EntryModelRefusal) as caught:
+            train_chronological_stage(
+                model, torch.optim.AdamW(model.parameters(), lr=1e-2),
+                stage="grouped_atlas", row_manifest=self._manifest(),
+                train_epoch=train_epoch, validate_epoch=validate_epoch)
+        self.assertIn("exhausted its epoch budget", str(caught.exception))
+
+    def test_reloaded_best_checkpoint_must_reproduce_the_best_loss(self):
+        model = _CountingStageModel()
+        # Converged: best at epoch 0, then patience exhausted.  The post-reload
+        # validation call is answered with a different value, which proves the
+        # reloaded bytes are not the measured best.
+        train_epoch, validate_epoch, _ = _stage_callbacks(
+            [1.0, 0.5, 0.6, 0.6, 9.0])
+        with self.assertRaises(EntryModelRefusal) as caught:
+            train_chronological_stage(
+                model, torch.optim.AdamW(model.parameters(), lr=1e-2),
+                stage="grouped_atlas", row_manifest=self._manifest(),
+                train_epoch=train_epoch, validate_epoch=validate_epoch)
+        self.assertIn("reloaded checkpoint validation loss", str(caught.exception))
+
+    def test_converged_stage_reloads_and_reproduces_the_best_loss(self):
+        model = _CountingStageModel()
+        train_epoch, validate_epoch, _ = _stage_callbacks(
+            [1.0, 0.5, 0.6, 0.6, 0.5])
+        receipt = train_chronological_stage(
+            model, torch.optim.AdamW(model.parameters(), lr=1e-2),
+            stage="grouped_atlas", row_manifest=self._manifest(),
+            train_epoch=train_epoch, validate_epoch=validate_epoch)
+        self.assertTrue(receipt.best_reloaded)
+        self.assertEqual(receipt.best_epoch, 1)
+        self.assertAlmostEqual(receipt.best_validation_loss, 0.5)
+
+    def test_c1_must_consume_c0_exact_checkpoint(self):
+        head = SharedCandidateDecisionHead(6, 3, 9)
+        lit = LiTShortMemoryEncoder(CONTINUOUS, CATEGORIES, field_schema=SCHEMA)
+        m1 = CausalMultiresolutionEncoder(CONTINUOUS, CATEGORIES, field_schema=SCHEMA)
+        base = FullPrefixEntryModel(
+            CONTINUOUS, 6, 3, 9, event_category_sizes=CATEGORIES)
+        c0 = CurrentEncoderAdapter(base, SCHEMA)
+        same = CurrentEncoderAdapter(copy.deepcopy(base), SCHEMA)
+        arms = build_five_arm_registry(c0, same, lit, m1, head)
+        digest = assert_current_checkpoint_identity(arms)
+        self.assertEqual(len(digest), 64)
+        different = CurrentEncoderAdapter(
+            FullPrefixEntryModel(
+                CONTINUOUS, 6, 3, 9, event_category_sizes=CATEGORIES),
+            SCHEMA)
+        with self.assertRaises(EntryModelRefusal):
+            build_five_arm_registry(c0, different, lit, m1, head)
+
+    def test_m1_gather_candidate_memory_after_strict_load(self):
+        source = CausalMultiresolutionEncoder(CONTINUOUS, CATEGORIES,
+                                              field_schema=SCHEMA)
+        loaded = CausalMultiresolutionEncoder(CONTINUOUS, CATEGORIES,
+                                              field_schema=SCHEMA)
+        loaded.load_state_dict(source.state_dict(), strict=True)
+        loaded.eval()
+        self.assertEqual(loaded._regular_block_chunks, 0)
+        self.assertEqual(loaded._regular_block_chunk_high_water, 0)
+        x, k, clock = _events(300)
+        cutoffs, decisions = _bounds(clock, [120 * NS, 200 * NS])
+        with torch.no_grad():
+            cache = loaded.encode_session(x, k, clock, visible_events=260)
+        fresh = CausalMultiresolutionEncoder(CONTINUOUS, CATEGORIES,
+                                             field_schema=SCHEMA)
+        fresh.load_state_dict(source.state_dict(), strict=True)
+        fresh.eval()
+        with torch.no_grad():
+            memory = fresh.gather_candidate_memory(cache, cutoffs, decisions)
+        self.assertEqual(memory.shape, (2, 4, 512))
+        self.assertEqual(fresh.last_complexity_receipt.regular_block_chunks, 0)
+
+
+class FieldRoutingCompetenceTest(unittest.TestCase):
+    """Red-first laws for the every-field routing competence gate."""
+
+    def _inputs(self, n: int = 400):
+        x, k, clock = _events(n, seed=5)
+        cutoffs, decisions = _bounds(clock, [(n - 4) * NS, (n - 2) * NS])
+        return x.double().float(), k, clock, cutoffs, decisions
+
+    def test_mutation_rows_span_the_declared_bands(self):
+        _x, _k, clock, cutoffs, decisions = self._inputs()
+        rows = _field_routing_mutation_rows(
+            clock, decisions, cutoffs, seed=7, rows_per_band=2)
+        self.assertIn(0, rows)
+        visible = int(cutoffs.max())
+        self.assertIn(visible - 1, rows)
+        self.assertGreaterEqual(len(rows), 5)
+        self.assertEqual(rows, _field_routing_mutation_rows(
+            clock, decisions, cutoffs, seed=7, rows_per_band=2))
+
+    def test_late_drop_encoder_fails_and_a_full_router_passes(self):
+        x, k, clock, cutoffs, decisions = self._inputs()
+        full = CausalMultiresolutionEncoder(CONTINUOUS, CATEGORIES,
+                                            field_schema=SCHEMA)
+        receipt = field_routing_competence(
+            full, event_continuous=x, event_categorical=k,
+            receive_clock_ns=clock, candidate_cutoffs=cutoffs,
+            candidate_decision_ts_ns=decisions,
+            price_field_indices=(5, 8, 9), undefined_mask_field=4)
+        self.assertTrue(receipt.passed)
+        self.assertEqual(receipt.comparison_device, "cpu")
+        self.assertEqual(receipt.comparison_dtype, "torch.float32")
+        self.assertEqual(len(receipt.mask_only_mutations), 3)
+        self.assertEqual(len(receipt.price_mask_mutations), 3)
+        self.assertGreater(len(receipt.mutation_rows), 4)
+        # Mutating only row 0 is exactly the hole this gate closed: a memory
+        # that drops every recent event still moves when row 0 moves.  The
+        # declared short-memory control therefore cannot pass the band-spanning
+        # arm on a long tape, and it is gated on its own declared window.
+        short = LiTShortMemoryEncoder(CONTINUOUS, CATEGORIES,
+                                      field_schema=SCHEMA)
+        with self.assertRaises(EntryModelRefusal):
+            field_routing_competence(
+                short, event_continuous=x, event_categorical=k,
+                receive_clock_ns=clock, candidate_cutoffs=cutoffs,
+                candidate_decision_ts_ns=decisions,
+                price_field_indices=(5, 8, 9), undefined_mask_field=4)
+
+    def test_price_and_mask_routes_must_resolve(self):
+        x, k, clock, cutoffs, decisions = self._inputs(80)
+        encoder = LiTShortMemoryEncoder(CONTINUOUS, CATEGORIES,
+                                        field_schema=SCHEMA)
+        with self.assertRaises(EntryModelRefusal):
+            field_routing_competence(
+                encoder, event_continuous=x, event_categorical=k,
+                receive_clock_ns=clock, candidate_cutoffs=cutoffs,
+                candidate_decision_ts_ns=decisions,
+                price_field_indices=(999,), undefined_mask_field=4)
 
 
 if __name__ == "__main__":

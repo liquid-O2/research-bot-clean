@@ -10,13 +10,20 @@ from dataclasses import dataclass
 from enum import Enum
 import hashlib
 import json
+from types import MappingProxyType
 from typing import Mapping, Sequence
 
 import numpy as np
-from scipy.stats import norm
+from scipy.stats import t as student_t
 
 
 EXACT_ASSETS = ("HG", "NKD", "SI")
+
+# Zero-variance/degenerate columns are typed losers.  They are retained in the
+# ledger and in the preregistered hypothesis family, but they never receive a
+# numeric p-value and are never eligible for selection.
+DEGENERATE_ZERO_VARIANCE = "DEGENERATE_ZERO_VARIANCE"
+STOCHASTIC = "STOCHASTIC"
 
 
 class AtlasStatisticsRefusal(RuntimeError):
@@ -33,6 +40,18 @@ class SupportKind(str, Enum):
 
 class SupportState(str, Enum):
     MATERIALIZED = "MATERIALIZED"
+    UNAVAILABLE_LOW_SUPPORT = "UNAVAILABLE_LOW_SUPPORT"
+
+
+class PairedTestState(str, Enum):
+    """Typed outcome of one paired day-clustered objective test.
+
+    Only ``MATERIALIZED`` carries a numeric p-value.  Every other state is a
+    ledger entry that the Holm consumer must skip explicitly.
+    """
+
+    MATERIALIZED = "MATERIALIZED"
+    DEGENERATE_ZERO_VARIANCE = "DEGENERATE_ZERO_VARIANCE"
     UNAVAILABLE_LOW_SUPPORT = "UNAVAILABLE_LOW_SUPPORT"
 
 
@@ -65,12 +84,15 @@ def support_gate(
     group_id: Sequence[str | int] | None = None,
     day: Sequence[str | int] | None = None,
     decision_ts: Sequence[int] | None = None,
+    censored: Sequence[bool] | None = None,
 ) -> SupportDecision:
     """Apply the exact frozen fit-only support boundary.
 
     For ranking, ``group_id`` is candidate-aligned; only exact-time groups with
     at least two available candidates count.  Economic support counts unique
-    eligible asset-days.
+    eligible asset-days.  Continuous cells require 500 pooled and 100 per-asset
+    *uncensored* observations, so ``censored`` is mandatory for that family:
+    a finite right-censored value is not an observation.
     """
     kind = SupportKind(kind)
     a = np.asarray(asset, dtype=str)
@@ -92,8 +114,16 @@ def support_gate(
         y = np.asarray(values, dtype=np.float64)
         if y.shape != (n,):
             raise AtlasStatisticsRefusal("continuous values are misaligned")
-        usable = v & np.isfinite(y)
+        if censored is None:
+            raise AtlasStatisticsRefusal(
+                "continuous support requires the candidate-aligned censor mask"
+            )
+        censor = np.asarray(censored, dtype=bool)
+        if censor.shape != (n,):
+            raise AtlasStatisticsRefusal("continuous censor mask is misaligned")
+        usable = v & np.isfinite(y) & ~censor
         pooled["observations"] = int(usable.sum())
+        pooled["censored_excluded"] = int(np.sum(v & np.isfinite(y) & censor))
         nz_iqr = bool(usable.any() and np.subtract(*np.percentile(y[usable], [75, 25])) > 0)
         ok &= pooled["observations"] >= 500 and nz_iqr
         for x in assets:
@@ -164,11 +194,16 @@ def support_gate(
 class PairedClusterResult:
     mean_difference: float
     standard_error: float
-    t_statistic: float
-    p_value_one_sided: float
+    t_statistic: float | None
+    p_value_one_sided: float | None
     n_rows: int
     n_day_clusters: int
     receipt_sha256: str
+    state: PairedTestState = PairedTestState.MATERIALIZED
+
+    @property
+    def available(self) -> bool:
+        return self.state is PairedTestState.MATERIALIZED
 
 
 @dataclass(frozen=True)
@@ -202,14 +237,38 @@ def paired_day_cluster_test(
     x = r - s
     mu = float(x.mean())
     keys = tuple(sorted(set(day.tolist())))
-    if len(keys) < 2:
-        raise AtlasStatisticsRefusal("at least two day clusters are required")
+    g = len(keys)
+    if g < 2:
+        # A-019: the full ledger must be retained.  A thin day census is a
+        # typed unavailable objective, never an exception that aborts the
+        # surrounding 44-objective screen from inside its loop.
+        payload = {"mean": mu, "se": None, "t": None, "p": None, "n": len(x),
+                   "g": g, "state": PairedTestState.UNAVAILABLE_LOW_SUPPORT.value}
+        return PairedClusterResult(
+            mu, 0.0, None, None, len(x), g, _digest(payload),
+            PairedTestState.UNAVAILABLE_LOW_SUPPORT,
+        )
     scores = np.asarray([np.sum(x[day == k] - mu) for k in keys], dtype=np.float64)
-    se = float(np.sqrt(len(keys) / (len(keys) - 1) * np.sum(scores * scores)) / len(x))
-    t = mu / se if se > 0 else (np.inf if mu > 0 else -np.inf if mu < 0 else 0.0)
-    p = float(norm.sf(t))
-    payload = {"mean": mu, "se": se, "t": t, "p": p, "n": len(x), "g": len(keys)}
-    return PairedClusterResult(mu, se, float(t), p, len(x), len(keys), _digest(payload))
+    se = float(np.sqrt(g / (g - 1) * np.sum(scores * scores)) / len(x))
+    if not se > 0:
+        # A zero-variance paired column has no sampling uncertainty.  It must
+        # never studentize to +/-inf and win Holm at any alpha.
+        payload = {"mean": mu, "se": se, "t": None, "p": None, "n": len(x),
+                   "g": g, "state": PairedTestState.DEGENERATE_ZERO_VARIANCE.value}
+        return PairedClusterResult(
+            mu, se, None, None, len(x), g, _digest(payload),
+            PairedTestState.DEGENERATE_ZERO_VARIANCE,
+        )
+    t = mu / se
+    # A-013.d frozen resolution: the day-cluster count is the whole sample
+    # size of the clustered intercept test, so the reference law is Student-t
+    # on G-1 degrees of freedom, never the normal tail.
+    p = float(student_t.sf(t, g - 1))
+    payload = {"mean": mu, "se": se, "t": t, "p": p, "n": len(x), "g": g,
+               "reference": "student-t-day-cluster-df-v1",
+               "state": PairedTestState.MATERIALIZED.value}
+    return PairedClusterResult(mu, se, float(t), p, len(x), g, _digest(payload),
+                               PairedTestState.MATERIALIZED)
 
 
 def paired_day_cluster_records(records: Sequence[PairedObservationRecord]) -> PairedClusterResult:
@@ -252,18 +311,58 @@ def paired_day_cluster_records(records: Sequence[PairedObservationRecord]) -> Pa
         "test_receipt_sha256": result.receipt_sha256,
         "asset_day_count": len(asset_days),
         "asset_day_balance_law": "each-recipient-asset-day-total-weight-one-v1",
+        "state": result.state.value,
     }
     return PairedClusterResult(
         result.mean_difference, result.standard_error, result.t_statistic,
         result.p_value_one_sided, result.n_rows, result.n_day_clusters,
-        _digest(binding),
+        _digest(binding), result.state,
     )
 
 
-def holm_rejections(p_values: Mapping[str, float], alpha: float = .05) -> tuple[str, ...]:
-    if not p_values:
-        return ()
-    ordered = sorted(((str(k), float(v)) for k, v in p_values.items()), key=lambda z: (z[1], z[0]))
+def _split_typed_p_values(
+    p_values: Mapping[str, object]
+) -> tuple[dict[str, float], dict[str, str]]:
+    """Separate numeric p-values from typed non-numeric ledger entries.
+
+    A typed entry (``PairedTestState`` other than ``MATERIALIZED``, a
+    non-materialized ``PairedClusterResult``, or ``None``) is skipped
+    EXPLICITLY: it never enters the multiplicity count and never receives a
+    numeric p-value, but it is returned so the caller retains it in the ledger.
+    """
+    numeric: dict[str, float] = {}
+    skipped: dict[str, str] = {}
+    for key, value in p_values.items():
+        name = str(key)
+        if value is None:
+            skipped[name] = PairedTestState.UNAVAILABLE_LOW_SUPPORT.value
+        elif isinstance(value, PairedTestState):
+            if value is PairedTestState.MATERIALIZED:
+                raise AtlasStatisticsRefusal(
+                    "a materialized paired test must supply its numeric p-value"
+                )
+            skipped[name] = value.value
+        elif isinstance(value, PairedClusterResult):
+            if value.state is PairedTestState.MATERIALIZED \
+                    and value.p_value_one_sided is not None:
+                numeric[name] = float(value.p_value_one_sided)
+            else:
+                skipped[name] = value.state.value
+        else:
+            p = float(value)
+            if not np.isfinite(p):
+                raise AtlasStatisticsRefusal("Holm p-values must be finite")
+            numeric[name] = p
+    return numeric, skipped
+
+
+def holm_rejections_with_ledger(
+    p_values: Mapping[str, object], alpha: float = .05
+) -> tuple[tuple[str, ...], Mapping[str, str]]:
+    numeric, skipped = _split_typed_p_values(p_values)
+    if not numeric:
+        return (), MappingProxyType(dict(sorted(skipped.items())))
+    ordered = sorted(numeric.items(), key=lambda z: (z[1], z[0]))
     if any(not 0 <= p <= 1 for _, p in ordered):
         raise AtlasStatisticsRefusal("Holm p-values must lie in [0,1]")
     accepted: list[str] = []
@@ -273,7 +372,11 @@ def holm_rejections(p_values: Mapping[str, float], alpha: float = .05) -> tuple[
             accepted.append(name)
         else:
             break
-    return tuple(accepted)
+    return tuple(accepted), MappingProxyType(dict(sorted(skipped.items())))
+
+
+def holm_rejections(p_values: Mapping[str, object], alpha: float = .05) -> tuple[str, ...]:
+    return holm_rejections_with_ledger(p_values, alpha)[0]
 
 
 @dataclass(frozen=True)
@@ -284,27 +387,38 @@ class HierarchicalHolmResult:
     probe_p_values: Mapping[str, float]
     alpha: float
     receipt_sha256: str
+    excluded_probes: tuple[str, ...] = ()
+    excluded_probe_states: Mapping[str, str] = MappingProxyType({})
 
 
 def hierarchical_holm(
-    probe_p: Mapping[str, float], probe_family: Mapping[str, str], alpha: float = .05
+    probe_p: Mapping[str, object], probe_family: Mapping[str, str], alpha: float = .05
 ) -> HierarchicalHolmResult:
     if set(probe_p) != set(probe_family):
         raise AtlasStatisticsRefusal("probe p-values and family map differ")
+    numeric, skipped = _split_typed_p_values(probe_p)
     members: dict[str, dict[str, float]] = {}
-    for probe, p in probe_p.items():
+    for probe, p in numeric.items():
         members.setdefault(probe_family[probe], {})[probe] = float(p)
-    # Frozen Bonferroni-min intersection p-value per family, then Holm.
+    # Frozen Bonferroni-min intersection p-value per family, then Holm.  Typed
+    # degenerate/low-support probes are skipped explicitly: they change neither
+    # the family census nor the within-family multiplicity.
     family_p = {fam: min(1.0, len(rows) * min(rows.values())) for fam, rows in members.items()}
     families = holm_rejections(family_p, alpha)
     probes: list[str] = []
     for fam in families:
         probes.extend(holm_rejections(members[fam], alpha))
+    excluded = tuple(sorted(skipped))
     payload = {"law": "bonferroni-min-family-then-holm-within-v1",
-               "family_p": family_p, "probe_p": dict(probe_p), "alpha": alpha,
-               "families": families, "probes": probes}
-    return HierarchicalHolmResult(tuple(families), tuple(probes), family_p,
-                                  dict(probe_p), alpha, _digest(payload))
+               "family_p": family_p, "probe_p": dict(numeric), "alpha": alpha,
+               "families": families, "probes": probes,
+               "excluded_probes": excluded,
+               "excluded_probe_states": dict(sorted(skipped.items()))}
+    return HierarchicalHolmResult(
+        tuple(families), tuple(probes), family_p, dict(numeric), alpha,
+        _digest(payload), excluded,
+        MappingProxyType(dict(sorted(skipped.items()))),
+    )
 
 
 @dataclass(frozen=True)
@@ -363,6 +477,8 @@ class RomanoWolfResult:
     hypothesis_families: tuple[str, ...]
     hypothesis_map_sha256: str
     stochastic_mask: np.ndarray
+    eligible_mask: np.ndarray | None = None
+    column_states: tuple[str, ...] = ()
 
 
 def romano_wolf_lower_bounds(
@@ -421,19 +537,32 @@ def romano_wolf_lower_bounds(
             if np.any(stochastic) else 0.0)
         done += count
     critical = float(np.quantile(maxima, 1 - alpha, method="higher"))
-    lower = estimate - critical * se
+    # A finalist column must be STOCHASTIC (se > 0) to be eligible for
+    # selection.  A deterministic column carries no sampling uncertainty, so
+    # it cannot be assigned lower = estimate and pass selection with a
+    # constant-positive mean; its simultaneous lower bound is -inf and it is
+    # marked as a typed loser.  When every column is degenerate the critical
+    # value is 0.0, which must still select nothing.
+    lower = np.where(stochastic, estimate - critical * se, -np.inf)
+    eligible = stochastic.copy()
+    column_states = tuple(STOCHASTIC if bool(flag) else DEGENERATE_ZERO_VARIANCE
+                          for flag in stochastic.tolist())
     map_hash = _digest({"ids": ids, "assets": assets, "families": families})
     payload = {"shape": x.shape, "estimate": estimate.tolist(), "se": se.tolist(),
                "critical": critical, "lower": lower.tolist(), "seed": seed,
                "resamples": resamples, "hypothesis_map_sha256": map_hash,
                "stochastic_mask": stochastic.tolist(),
+               "eligible_mask": eligible.tolist(),
+               "column_states": list(column_states),
+               "selection_eligibility_law": "stochastic-se-positive-required-v1",
                "deterministic_columns_retained": int(np.count_nonzero(~stochastic))}
     frozen = []
-    for value in (estimate, se, lower, stochastic):
+    for value in (estimate, se, lower, stochastic, eligible):
         copy_value = np.ascontiguousarray(value).copy(); copy_value.setflags(write=False)
         frozen.append(copy_value)
     return RomanoWolfResult(frozen[0], frozen[1], frozen[2], critical, seed, resamples,
-                            _digest(payload), ids, assets, families, map_hash, frozen[3])
+                            _digest(payload), ids, assets, families, map_hash,
+                            frozen[3], frozen[4], column_states)
 
 
 def e1_fit_count(real_probe_fits: int = 44, twin_probe_fits: int = 44,
@@ -521,11 +650,14 @@ def validate_fit_ledger(records: Sequence[FitLedgerRecord], *,
 
 
 __all__ = [
-    "AtlasStatisticsRefusal", "EXACT_ASSETS", "FinalistSelectionResult",
+    "AtlasStatisticsRefusal", "DEGENERATE_ZERO_VARIANCE", "EXACT_ASSETS",
+    "FinalistSelectionResult",
     "FitLedgerReceipt", "FitLedgerRecord", "HierarchicalHolmResult",
-    "PairedClusterResult", "PairedObservationRecord",
-    "RomanoWolfResult", "SupportDecision", "SupportKind", "SupportState",
+    "PairedClusterResult", "PairedObservationRecord", "PairedTestState",
+    "RomanoWolfResult", "STOCHASTIC",
+    "SupportDecision", "SupportKind", "SupportState",
     "e1_fit_count", "hierarchical_holm", "holm_rejections",
+    "holm_rejections_with_ledger",
     "nonredundant_finalists", "paired_day_cluster_records", "paired_day_cluster_test",
     "romano_wolf_lower_bounds", "support_gate", "through_e2_fit_count",
     "validate_fit_ledger",

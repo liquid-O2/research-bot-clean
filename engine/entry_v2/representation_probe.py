@@ -621,9 +621,20 @@ def binary_metrics(target: np.ndarray, score: np.ndarray) -> Mapping[str, float 
     descending = np.argsort(-score, kind="stable")
     cumulative = np.cumsum(target[descending])
     ap = float(np.sum((cumulative / np.arange(1, len(score) + 1))[target[descending]]) / positives)
+    # V18: AUROC / AP / Brier are CLASSIFICATION metrics.  They are never a
+    # promotion basis (the promotion basis is exact chronological asset-day
+    # dollars, candidate-oracle capture and per-asset drawdown), so each
+    # published entry carries its own diagnostic-only marker the way
+    # audit.py's promotion receipt does.
     return {"auroc": float(auroc), "average_precision": ap,
             "brier": float(np.mean((score - target) ** 2)),
-            "unique_scores": int(len(np.unique(score)))}
+            "unique_scores": int(len(np.unique(score))),
+            "diagnostic_only": True,
+            "diagnostic_only_metrics": ["auroc", "average_precision", "brier"],
+            "promotion_eligible_metrics": [
+                "per_asset_exact_arrival_replay_dollars",
+                "per_asset_candidate_oracle_capture",
+                "per_asset_expectancy_and_max_drawdown"]}
 
 
 def _topk_view(rows: ProbeRows, scores: np.ndarray, eligible: np.ndarray
@@ -1175,20 +1186,49 @@ def select_thresholds(fold: Any, indices: np.ndarray, calibrated: np.ndarray
                 "reason": "FEASIBLE" if not reasons else "+".join(reasons)})
         feasible_indices = np.flatnonzero(feasible)
         if not len(feasible_indices):
+            # V4: with zero feasible thresholds the sweep's no-entry sentinel
+            # publishes trades:0 / $0 / MDD:0.  Those are the arithmetic of an
+            # EMPTY book, not an economic result, and a consumer that read the
+            # rows without reading ``status`` saw a clean zero-drawdown row.
+            # The branch is typed and every consumer must inspect it.
             chosen = len(sweep.thresholds) - 1
             typed_reason = "NO_FEASIBLE_THRESHOLD"
+            status = "NO_FEASIBLE_THRESHOLD"
         else:
             chosen = max(feasible_indices, key=lambda i: (
                 float(sweep.usd_per_asset_day[i]), float(sweep.usd_per_trade[i]),
                 -float(sweep.max_drawdown_usd[i]), -float(sweep.drawdown_p90_usd[i]),
                 float(sweep.thresholds[i]), int(sweep.trades[i])))
             typed_reason = None
+            status = "ELIGIBLE"
         thresholds[asset] = float(sweep.thresholds[chosen])
         funnels[asset] = {"selected_index": int(chosen), "reason": typed_reason,
+                          "status": status,
+                          "economics_publishable": status == "ELIGIBLE",
+                          "no_entry_sentinel_threshold":
+                              float(sweep.thresholds[-1]),
+                          "selected_trades": int(sweep.trades[chosen]),
                           "feasible_thresholds": int(feasible.sum()),
                           "fast_replay_parity_sha256": parity_hash,
                           "candidates": funnel}
     return thresholds, funnels
+
+
+def assert_threshold_funnels_publishable(funnels: Mapping[str, Any]) -> None:
+    """Refuse to treat a NO_FEASIBLE_THRESHOLD funnel as an economic result.
+
+    V4: consumers that publish per-asset dollars/MDD must call this first so a
+    typed empty book can never be reported as a clean $0 / zero-drawdown row.
+    """
+    for asset in sorted(funnels):
+        row = funnels[asset]
+        if not isinstance(row, Mapping) or "status" not in row:
+            raise C.EntryV2Refusal(
+                f"{asset} threshold funnel lacks its typed status")
+        if row["status"] != "ELIGIBLE":
+            raise C.EntryV2Refusal(
+                f"{asset} threshold funnel is typed {row['status']}; its "
+                "trades/PnL/drawdown columns are an empty book, not economics")
 
 
 def state_sha256(model: nn.Module) -> str:
@@ -1366,6 +1406,13 @@ def run_probe(path: str | Path = DEFAULT_FOLD, *, device: str | None = None,
                     "topk": topk_metrics(test_rows.take(np.flatnonzero(local)),
                                          calibrated["test"][local]),
                     "threshold": thresholds[asset], "calibration_funnel": funnel[asset],
+                    # V4: never a bare $0/MDD:0 row -- the typed status of the
+                    # threshold funnel travels with every published economic
+                    # column so a consumer cannot read an empty book as a
+                    # clean, zero-drawdown result.
+                    "threshold_status": funnel[asset]["status"],
+                    "economics_publishable":
+                        funnel[asset]["economics_publishable"],
                     "test": {key: getattr(asset_eval, key) for key in (
                         "trades", "total_pnl_usd", "usd_per_asset_day",
                         "usd_per_trade", "max_drawdown_usd")},

@@ -191,7 +191,18 @@ class AtlasProbeModelTest(unittest.TestCase):
                              threshold_selection_ids=["c3", "t1"])
         cal = mapper.calibrate(latent[80:100], y[80:100], [f"c{i}" for i in range(20)],
                                threshold_selection_ids=[f"t{i}" for i in range(20)])
-        self.assertGreater(cal.slope, 0)
+        # F2: a merely positive softplus slope is a vacuous law.  The measured
+        # defect calibrated slope = 5.34e-11 with a 2.6e-09 probability spread
+        # and published the numerically constant calibrator as an economic
+        # result.  The law is a real economic slope, not a positive float.
+        self.assertGreaterEqual(cal.slope, 1e-6)
+        self.assertGreaterEqual(
+            float(np.ptp(cal.predict(mapper.raw_score(latent[80:100])))), 1e-6)
+        anti_correlated = 1 - y[80:100]
+        with self.assertRaisesRegex(AtlasProbeRefusal, "DEGENERATE_CALIBRATOR"):
+            mapper.calibrate(latent[80:100], anti_correlated,
+                             [f"c{i}" for i in range(20)],
+                             threshold_selection_ids=[f"t{i}" for i in range(20)])
         p, hashes = mapper.predict(latent[100:])
         self.assertTrue(np.all((p >= 0) & (p <= 1)))
         self.assertEqual(len(hashes), 4)

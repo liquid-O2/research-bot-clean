@@ -120,11 +120,13 @@ class NonSemanticTimingLedger:
     """Append-only monotonic side receipts, never inputs to semantic hashes."""
 
     SCHEMA = "entry-v2-nonsemantic-monotonic-timing-v2"
+    # A-020 restart law: these are NONSEMANTIC wall-clock ceilings.  They stop
+    # the invocation that exceeds one, they never poison the run root.
     LIMITS_NS = {
-        ("cold", "corpus_ready"): 40 * 60 * 1_000_000_000,
-        ("warm", "corpus_ready"): 10 * 60 * 1_000_000_000,
-        ("cold", "first_competence"): 20 * 60 * 1_000_000_000,
-        ("warm", "first_competence"): 15 * 60 * 1_000_000_000,
+        ("cold", "corpus_ready"): 3600 * 1_000_000_000,
+        ("warm", "corpus_ready"): 1200 * 1_000_000_000,
+        ("cold", "first_competence"): 1800 * 1_000_000_000,
+        ("warm", "first_competence"): 1500 * 1_000_000_000,
         ("warm", "complete_pre_h2"): 4 * 60 * 60 * 1_000_000_000,
     }
 
@@ -132,6 +134,7 @@ class NonSemanticTimingLedger:
         self.root = root
         self.root.mkdir(parents=True, exist_ok=True)
         self._sequence = 0
+        self._prior_ceiling_refusals = 0
         self._parent = "0" * 64
         self._base_elapsed_ns = 0
         self._load_class: str | None = None
@@ -224,8 +227,13 @@ class NonSemanticTimingLedger:
                 raise ProductionDiagnosticRefusal(
                     "timing ceiling/status receipt differs")
             if expected_status != "PASS":
-                raise ProductionDiagnosticRefusal(
-                    "prior invocation exceeded a timing ceiling")
+                # A-020 restart law.  A NONSEMANTIC timing ceiling stops the
+                # invocation that exceeded it (see emit(), which raises after
+                # writing the typed REFUSED receipt).  It must NEVER poison the
+                # run root: a later process reconstructs the ledger over the
+                # REFUSED receipt and continues.  The event stays visible in the
+                # receipt tree and is counted here for the timing provenance.
+                self._prior_ceiling_refusals += 1
             if (value["segment_id"] == last_segment_id
                     and last_segment_class != load_class):
                 raise ProductionDiagnosticRefusal(
@@ -247,6 +255,14 @@ class NonSemanticTimingLedger:
         self._segment_start_ns = (now_ns if segment_start_ns is None
                                   else segment_start_ns)
         self._milestone_start_ns = self._segment_start_ns
+
+    @property
+    def prior_ceiling_refusals(self) -> int:
+        """Count of REFUSED ceiling receipts left by earlier invocations.
+
+        Report-only.  A nonzero value never blocks reconstruction (A-020).
+        """
+        return self._prior_ceiling_refusals
 
     def record(self, milestone: str, *,
                provenance: Mapping[str, Any] | None = None) -> str:
@@ -1001,7 +1017,9 @@ def run_production_chain(executor: ExactNeuralDiagnosticExecutor, context: RunCo
               "fit_only_rehearsal_sha256": rehearsal_sha,
               "status": fit_only_rehearsal_status,
           }
-      assert prior_fit_only_boundary is not None
+      if not (prior_fit_only_boundary is not None):
+          raise ProductionDiagnosticRefusal(
+              "internal invariant failed: prior_fit_only_boundary is not None")
       if (prior_fit_only_boundary["status"] != fit_only_rehearsal_status
               or prior_fit_only_boundary["fit_only_rehearsal_sha256"]
                   != fit_only_rehearsal_sha256):
@@ -1360,7 +1378,19 @@ def main(argv: list[str] | None = None) -> int:
         _stop_after_fit_only_rehearsal=args.fit_only_rehearsal,
         _invocation_start_ns=invocation_start_ns,
     )
-    print(json.dumps(result, sort_keys=True)); return 0
+    print(json.dumps(result, sort_keys=True))
+    # V4: a typed non-PASS terminal status is a real refusal for the caller.
+    # Returning 0 for FAIL / NO_FIT_ONLY_DEPLOYABLE_DEPTH let shell drivers,
+    # CI, and the campaign runner treat a refused chain as a success.
+    status = result.get("status")
+    if status is None:
+        return 0
+    if status == "PASS":
+        return 0
+    if status in {"FAIL", "NO_FIT_ONLY_DEPLOYABLE_DEPTH"}:
+        return 1
+    raise ProductionDiagnosticRefusal(
+        f"production chain returned an unrecognized terminal status: {status!r}")
 
 
 __all__ = [

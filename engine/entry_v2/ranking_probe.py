@@ -199,8 +199,14 @@ def hindsight_test_diagnostic(fold: Any, indices: np.ndarray,
                     & (sweep.usd_per_trade >= C.MIN_EXPECTANCY_USD)
                     & (sweep.max_drawdown_usd <= C.TARGET_MDD_USD))
         feasible_indices = np.flatnonzero(feasible)
-        unconstrained_index = max(range(len(sweep.thresholds)),
-                                  key=lambda i: _sweep_key(sweep, i))
+        # A zero-trade sentinel scores exactly (0.0, 0.0, -0.0, -0.0, ...) and
+        # therefore WON this argmax over any genuinely negative threshold, so
+        # "best unconstrained" could be an empty book.  Zero-trade rows are
+        # typed out of the comparison entirely.
+        traded_indices = [i for i in range(len(sweep.thresholds))
+                          if int(sweep.trades[i]) > 0]
+        unconstrained_index = (max(traded_indices, key=lambda i: _sweep_key(sweep, i))
+                               if traded_indices else None)
         best_feasible = (None if not len(feasible_indices) else _sweep_row(
             sweep, max(feasible_indices, key=lambda i: _sweep_key(sweep, int(i)))
         ))
@@ -210,7 +216,12 @@ def hindsight_test_diagnostic(fold: Any, indices: np.ndarray,
             "best_feasible": best_feasible,
             "best_feasible_reason": (None if best_feasible is not None
                                      else "NO_FEASIBLE_THRESHOLD"),
-            "best_unconstrained": _sweep_row(sweep, unconstrained_index),
+            "best_unconstrained": (None if unconstrained_index is None
+                                   else _sweep_row(sweep, unconstrained_index)),
+            "best_unconstrained_reason": (None if unconstrained_index is not None
+                                          else "NO_THRESHOLD_PRODUCES_A_TRADE"),
+            "zero_trade_thresholds_excluded":
+                len(sweep.thresholds) - len(traded_indices),
             "all_thresholds": [_sweep_row(sweep, i)
                                for i in range(len(sweep.thresholds))],
         }
@@ -305,6 +316,14 @@ def run_ranking_probe(path: str | Path = DEFAULT_FOLD, *, artifact_dir: Path
             "platt": {"slope": calibrator.slope, "intercept": calibrator.intercept},
             "thresholds": dict(thresholds),
             "calibration_funnel": calibration_funnel,
+            # V4: publish the typed threshold status beside the economics so a
+            # NO_FEASIBLE_THRESHOLD empty book is never read as a clean $0 row.
+            "threshold_status_by_asset": {
+                asset: calibration_funnel[asset]["status"]
+                for asset in calibration_funnel},
+            "economics_publishable": all(
+                calibration_funnel[asset]["economics_publishable"]
+                for asset in calibration_funnel),
             "score_diagnostics": {name: _split_score_diagnostics(
                 rows.take(splits[name]), logits[name], probability[name]
             ) for name in ("fit", "calibration", "test")},

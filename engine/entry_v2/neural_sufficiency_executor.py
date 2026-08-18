@@ -13,6 +13,7 @@ from dataclasses import asdict, dataclass, field
 import hashlib
 import json
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Mapping, Protocol, Sequence
 
 import numpy as np
@@ -21,10 +22,13 @@ import torch
 from . import common as C
 from .atlas_losses import loss_for_probe
 from .atlas_materializers import materialize_probe_target
-from .atlas_statistics import FitLedgerRecord, validate_fit_ledger
+from .atlas_statistics import (
+    FitLedgerRecord, e1_fit_count, through_e2_fit_count, validate_fit_ledger,
+)
 from .capacity_contract import FIT_ONLY_MIN_ORACLE_CAPTURE
 from .causal_label_atlas import (
-    PADDED_OUTPUT_WIDTH, PROBE_REGISTRY, CellAvailability, shuffled_probe_for,
+    PADDED_OUTPUT_WIDTH, PROBE_REGISTRY, AtlasRefusal, CellAvailability,
+    shuffled_probe_for,
 )
 from .diagnostic_catboost import (
     CatBoostCompetenceResult, FrozenRepresentationRows,
@@ -80,6 +84,50 @@ class LoadedFitOnlyResources:
     source_open_count_by_session: Mapping[str, int]
     resource_admission: Mapping[str, Any]
     fit_only_preflight: Mapping[str, Any] = field(default_factory=dict)
+
+
+#: F2: statuses that mean the rehearsal transport path is BROKEN, not that
+#: the economics lost.  See neural_sufficiency_resources.REHEARSAL_PATH_STATUSES.
+DEGENERATE_PATH_STATUSES = frozenset({"DEGENERATE_MAPPER", "DEGENERATE_CALIBRATOR"})
+
+
+def _catboost_deterministic_cpu() -> bool:
+    """Measured: the frozen CatBoost parameter set is CPU and seed-pinned."""
+    from .diagnostic_catboost import _classifier_params, _ranker_params
+    return all(
+        params.get("task_type") == "CPU"
+        and params.get("bootstrap_type") == "No"
+        and float(params.get("random_strength", 1.0)) == 0.0
+        and isinstance(params.get("random_seed"), int)
+        for params in (_classifier_params(), _ranker_params()))
+
+
+def _corpus_selected_horizon_start_d8(corpus: DiagnosticCorpus) -> int:
+    """A8: the diagnostic start wall, read off the corpus receipt.
+
+    A rebuilt corpus with a different start day silently kept the hardcoded
+    ``20210531`` literal, so the roster laws checked the wrong window.
+    """
+    value = getattr(corpus, "receipt", {}).get("selected_horizon_start_d8")
+    if not isinstance(value, (int, np.integer)) or not 19000101 <= int(value) <= 99991231:
+        raise RealDiagnosticExecutorRefusal(
+            "corpus receipt selected_horizon_start_d8 is absent or invalid")
+    return int(value)
+
+
+def _degenerate_path_statuses(payload: object) -> set[str]:
+    """Collect every degenerate transport status anywhere in a receipt tree."""
+    found: set[str] = set()
+    if isinstance(payload, Mapping):
+        status = payload.get("status")
+        if isinstance(status, str) and status in DEGENERATE_PATH_STATUSES:
+            found.add(status)
+        for value in payload.values():
+            found |= _degenerate_path_statuses(value)
+    elif isinstance(payload, (list, tuple)):
+        for value in payload:
+            found |= _degenerate_path_statuses(value)
+    return found
 
 
 @dataclass(frozen=True)
@@ -409,16 +457,24 @@ class RealDataExactNeuralDiagnosticExecutor:
             for session in getattr(corpus.corpus, "sessions", ())
             for candidate_id in session.candidate_ids
         }
+        start_d8 = _corpus_selected_horizon_start_d8(corpus)
         authoritative_learner = {
             row.candidate_id for row in corpus.bindings
-            if 20210531 <= int(row.trading_day) <= ACCEPTANCE_FIT_END
+            if start_d8 <= int(row.trading_day) <= ACCEPTANCE_FIT_END
             and row.compliance_status == "CLEAR" and row.teacher_status == "READY"
         }
+        # A10: the previous form re-scanned every binding for every learner id
+        # (O(n^2) over the full roster).  One dict lookup is exact and linear.
+        binding_day_by_id: dict[str, int] = {}
+        for row in corpus.bindings:
+            if row.candidate_id in binding_day_by_id:
+                raise RealDiagnosticExecutorRefusal(
+                    "diagnostic binding candidate id is duplicated")
+            binding_day_by_id[row.candidate_id] = int(row.trading_day)
         learner_fit_ids = {
             candidate_id for candidate_id in learner_ids
-            if any(row.candidate_id == candidate_id
-                   and 20210531 <= int(row.trading_day) <= ACCEPTANCE_FIT_END
-                   for row in corpus.bindings)
+            if start_d8 <= binding_day_by_id.get(candidate_id, -1)
+            <= ACCEPTANCE_FIT_END
         }
         if learner_fit_ids != authoritative_learner:
             raise RealDiagnosticExecutorRefusal(
@@ -587,11 +643,23 @@ class RealDataExactNeuralDiagnosticExecutor:
                 or result.maximum_bce > .02 or not _valid_sha(result.field_schema_sha256)):
             raise RealDiagnosticExecutorRefusal(f"{arm} competence failed")
         self.arms[arm] = result
+        # B-13/V2: every gate key below is READ OFF the measured stage result.
+        # Emitting literal ``True`` made the receipt a restatement of the
+        # assertion above rather than evidence of what was measured.
+        reconstruction_pass = bool(result.continuous_mae <= 1e-3
+                                   and result.categorical_accuracy == 1.0)
+        balanced_oracle_overfit = bool(
+            result.minimum_auroc >= .995 and result.minimum_ap >= .995
+            and result.maximum_bce <= .02)
         return self._execution(f"arm_{arm}", {
-            "all_routes_gradient": True, "suffix_bit_identical": True,
-            "reconstruction_pass": True, "balanced_oracle_overfit": True,
-            "shared_head_exact": True, "real_fit_only_rehearsal": True,
-            "time_band_routing": True, "no_retrain_occlusion": True,
+            "all_routes_gradient": bool(result.all_routes_gradient),
+            "suffix_bit_identical": bool(result.suffix_bit_identical),
+            "reconstruction_pass": reconstruction_pass,
+            "balanced_oracle_overfit": balanced_oracle_overfit,
+            "shared_head_exact": bool(result.shared_head_exact),
+            "real_fit_only_rehearsal": bool(result.fit_only_firewall_exact),
+            "time_band_routing": bool(result.time_band_routing),
+            "no_retrain_occlusion": bool(result.no_retrain_occlusion),
             "continuous_mae": result.continuous_mae,
             "categorical_accuracy": result.categorical_accuracy,
             "minimum_auroc": result.minimum_auroc, "minimum_ap": result.minimum_ap,
@@ -607,6 +675,8 @@ class RealDataExactNeuralDiagnosticExecutor:
         # Execute every registered materializer and loss on the already-built
         # session truth planes. Unsupported cells remain typed, never skipped.
         seen: set[str] = set(); numeric: set[str] = set()
+        materialized: set[str] = set(); typed: set[str] = set()
+        unavailable: set[str] = set()
         for session in loaded.corpus.sessions:
             local_ids = set(session.atlas.candidate_ids)
             if not local_ids & set(manifest.candidate_id):
@@ -614,7 +684,10 @@ class RealDataExactNeuralDiagnosticExecutor:
             for spec in PROBE_REGISTRY:
                 target = materialize_probe_target(session.atlas, spec, fit_context=None)
                 seen.add(spec.probe_id)
+                if isinstance(target.state, CellAvailability):
+                    typed.add(spec.probe_id)
                 if target.state == CellAvailability.MATERIALIZED and bool(target.validity_mask.any()):
+                    materialized.add(spec.probe_id)
                     prediction = torch.linspace(
                         -0.17, 0.19,
                         len(target.values) * PADDED_OUTPUT_WIDTH,
@@ -622,7 +695,15 @@ class RealDataExactNeuralDiagnosticExecutor:
                     ).reshape(
                         len(target.values), PADDED_OUTPUT_WIDTH,
                     ).requires_grad_(True)
-                    loss = loss_for_probe(spec, prediction, target)
+                    # Cross-lane item 26: a fully-masked batch is a typed
+                    # UNAVAILABLE ledger state, never a crash or a silent zero.
+                    try:
+                        loss = loss_for_probe(spec, prediction, target)
+                    except AtlasRefusal as error:
+                        if not str(error).startswith("UNAVAILABLE:"):
+                            raise
+                        unavailable.add(spec.probe_id)
+                        continue
                     loss.backward()
                     if not bool(torch.isfinite(loss)) or prediction.grad is None \
                             or not bool(torch.isfinite(prediction.grad).all()) \
@@ -651,11 +732,27 @@ class RealDataExactNeuralDiagnosticExecutor:
                 or not _valid_sha(result.competence_artifact_sha256)):
             raise RealDiagnosticExecutorRefusal("atlas 44+44+2 execution is incomplete")
         self.atlas = result
+        # B-13: measured, not declared.  ``registered_e1_slots`` and
+        # ``maximum_through_e2`` are derived from len(PROBE_REGISTRY) through
+        # the frozen A-011 counters instead of being written as 90/98.
+        registered_e1_slots = e1_fit_count(
+            len(PROBE_REGISTRY), len(PROBE_REGISTRY), 2)
+        maximum_through_e2 = through_e2_fit_count(
+            4, base_e1_fits=registered_e1_slots)
         return self._execution("atlas_probe_loss", {
-            "all_44_registered": True, "all_losses_numeric_gradient": True,
-            "real_beyond_recipient_fixed_twin": True, "support_typed": True,
-            "materialization_end_to_end": True, "registered_e1_slots": 90,
-            "maximum_through_e2": 98, "numeric_supported_probe_count": len(numeric),
+            "all_44_registered": bool(seen == expected and len(PROBE_REGISTRY) == 44),
+            "all_losses_numeric_gradient": bool(
+                numeric == (materialized - unavailable)),
+            "typed_unavailable_probe_count": len(unavailable),
+            "real_beyond_recipient_fixed_twin": bool(result.real_beyond_twin),
+            "support_typed": bool(typed == seen),
+            "materialization_end_to_end": bool(
+                materialized and numeric == (materialized - unavailable)
+                and seen == expected),
+            "registered_e1_slots": registered_e1_slots,
+            "maximum_through_e2": maximum_through_e2,
+            "numeric_supported_probe_count": len(numeric),
+            "materialized_probe_count": len(materialized),
             "manifest_sha256": manifest.receipt_sha256,
             "measured_evidence_sha256": result.artifact_sha256,
             "competence_artifact_sha256": result.competence_artifact_sha256,
@@ -678,8 +775,15 @@ class RealDataExactNeuralDiagnosticExecutor:
             raise RealDiagnosticExecutorRefusal("direct head competence failed")
         self.direct = result
         return self._execution("direct_head", {
-            "balanced_oracle_overfit": True, "every_head_gradient": True,
-            "identical_representation": True,
+            "balanced_oracle_overfit": bool(
+                result.minimum_auroc >= .995 and result.minimum_ap >= .995
+                and result.maximum_bce <= .02),
+            "every_head_gradient": bool(result.every_head_gradient),
+            "identical_representation": bool(
+                result.rows.representation_sha256 == base.representation_sha256),
+            "minimum_auroc": float(result.minimum_auroc),
+            "minimum_ap": float(result.minimum_ap),
+            "maximum_bce": float(result.maximum_bce),
             "representation_sha256": result.rows.representation_sha256,
             "candidate_manifest_sha256": manifest.receipt_sha256,
             "measured_evidence_sha256": result.artifact_sha256,
@@ -710,11 +814,23 @@ class RealDataExactNeuralDiagnosticExecutor:
                 or not _valid_sha(result.row_manifest_sha256)):
             raise RealDiagnosticExecutorRefusal("CatBoost numerical competence differs")
         self.catboost = result
+        probability_array = np.asarray(result.action_probability)
         return self._execution("catboost", {
-            "balanced_oracle_overfit": True, "singleton_action_classifier": True,
+            "balanced_oracle_overfit": bool(
+                min(result.auroc_by_asset.values()) >= .995
+                and min(result.ap_by_asset.values()) >= .995
+                and max(result.bce_by_asset.values()) <= .02),
+            "singleton_action_classifier": bool(
+                probability_array.ndim == 1
+                and probability_array.shape == (len(self.direct.rows.candidate_id),)),
             "pairlogit_group_semantics": "asset-day-phase",
             "equal_timestamp_claim": False,
-            "deterministic_cpu": True,
+            # B-13: measured from the frozen CatBoost parameter set actually
+            # used for the fit, not declared.
+            "deterministic_cpu": _catboost_deterministic_cpu(),
+            "minimum_auroc": float(min(result.auroc_by_asset.values())),
+            "minimum_ap": float(min(result.ap_by_asset.values())),
+            "maximum_bce": float(max(result.bce_by_asset.values())),
             "pair_group_count_by_asset": dict(result.pair_group_count_by_asset),
             "pair_accuracy_by_asset": dict(result.pair_accuracy_by_asset),
             "pair_manifest_sha256_by_asset": dict(
@@ -756,7 +872,56 @@ class RealDataExactNeuralDiagnosticExecutor:
                     "policy partitions differ from internally derived chronology"
                 )
             self.policy = result
+            self._policy_measurements = self._measure_policy_partitions(result)
         return self.policy
+
+    def _measure_policy_partitions(self, result: PolicyReplayResult
+                                   ) -> Mapping[str, Any]:
+        """B-13: measure the chronology/disjointness/fit-only partition laws.
+
+        The mapper/calibration/threshold receipts used to emit literal ``True``
+        for these keys.  Each one is now derived from the frozen bindings.
+        """
+        loaded, _ = self._require_loaded()
+        rows = {row.candidate_id: row for row in loaded.corpus.bindings}
+        groups = {"mapper": tuple(result.mapper_row_ids),
+                  "calibration": tuple(result.calibration_row_ids),
+                  "threshold": tuple(result.threshold_row_ids)}
+        missing = [cid for group in groups.values() for cid in group
+                   if cid not in rows]
+        if missing:
+            raise RealDiagnosticExecutorRefusal(
+                "policy partition references an unbound candidate")
+        days = {name: tuple(rows[cid].trading_day for cid in group)
+                for name, group in groups.items()}
+        masks = {name: tuple(bool(rows[cid].action_loss_mask) for cid in group)
+                 for name, group in groups.items()}
+        if any(not group for group in groups.values()):
+            raise RealDiagnosticExecutorRefusal("policy partition is empty")
+        return MappingProxyType({
+            "a004_mask_exact": bool(all(masks["mapper"])),
+            "mapper_fit_only": bool(max(days["mapper"]) <= ACCEPTANCE_FIT_END),
+            "calibration_chronological": bool(
+                max(days["mapper"]) <= min(days["calibration"])),
+            "calibration_fit_disjoint": bool(
+                set(groups["calibration"]).isdisjoint(groups["mapper"])),
+            "threshold_chronological": bool(
+                max(days["calibration"]) <= min(days["threshold"])),
+            "threshold_calibration_disjoint": bool(
+                set(groups["threshold"]).isdisjoint(groups["calibration"])
+                and set(groups["threshold"]).isdisjoint(groups["mapper"])),
+            "threshold_no_held_labels": bool(
+                max(days["threshold"]) <= ACCEPTANCE_FIT_END),
+            "maximum_partition_day": int(max(
+                day for group in days.values() for day in group)),
+        })
+
+    def _policy_measurement(self, key: str) -> bool:
+        measurements = getattr(self, "_policy_measurements", None)
+        if not isinstance(measurements, Mapping) or key not in measurements:
+            raise RealDiagnosticExecutorRefusal(
+                f"policy partition measurement {key!r} was never taken")
+        return bool(measurements[key])
 
     def _partition_ids(self) -> tuple[list[str], list[str], list[str]]:
         loaded, _ = self._require_loaded()
@@ -766,11 +931,12 @@ class RealDataExactNeuralDiagnosticExecutor:
         ranges = (e1r["FIT"], e1r["PLATT"], e1r["THRESHOLD"])
         learner_ids = {candidate_id for session in loaded.corpus.corpus.sessions
                        for candidate_id in session.candidate_ids}
+        start_d8 = _corpus_selected_horizon_start_d8(loaded.corpus)
         rows = tuple(row for row in loaded.corpus.bindings
                      if row.candidate_id in learner_ids
                      and row.compliance_status == "CLEAR"
                      and row.teacher_status == "READY"
-                     and 20210531 <= row.trading_day <= 20210930)
+                     and start_d8 <= row.trading_day <= ACCEPTANCE_FIT_END)
         rows = tuple(sorted(rows, key=lambda row: (
             row.asset, row.trading_day, row.decision_ts_ns, row.candidate_id)))
         ids = [[row.candidate_id for row in rows if start <= row.trading_day <= end]
@@ -782,7 +948,9 @@ class RealDataExactNeuralDiagnosticExecutor:
     def fit_mapper(self) -> ExactComponentExecution:
         result = self._ensure_policy(); fit = list(result.mapper_row_ids)
         return self._execution("mapper", {
-            "a004_mask_exact": True, "fit_only": True, "positive_skill": True,
+            "a004_mask_exact": self._policy_measurement("a004_mask_exact"),
+            "fit_only": self._policy_measurement("mapper_fit_only"),
+            "positive_skill": bool(result.mapper_positive_skill),
             "row_ids": fit, "candidate_manifest_sha256": result.candidate_manifest_sha256,
             "measured_evidence_sha256": result.artifact_sha256,
         })
@@ -790,7 +958,9 @@ class RealDataExactNeuralDiagnosticExecutor:
     def calibrate(self) -> ExactComponentExecution:
         result = self._ensure_policy(); calibration = list(result.calibration_row_ids)
         return self._execution("calibration", {
-            "positive_slope": True, "chronological": True, "fit_disjoint": True,
+            "positive_slope": bool(result.calibration_positive_slope),
+            "chronological": self._policy_measurement("calibration_chronological"),
+            "fit_disjoint": self._policy_measurement("calibration_fit_disjoint"),
             "row_ids": calibration,
             "candidate_manifest_sha256": result.candidate_manifest_sha256,
             "measured_evidence_sha256": result.artifact_sha256,
@@ -799,8 +969,12 @@ class RealDataExactNeuralDiagnosticExecutor:
     def select_threshold_with_canonical_sweep(self) -> ExactComponentExecution:
         result = self._ensure_policy(); threshold = list(result.threshold_row_ids)
         return self._execution("threshold", {
-            "chronological": True, "calibration_disjoint": True,
-            "no_held_labels": True, "row_ids": threshold,
+            "chronological": self._policy_measurement("threshold_chronological"),
+            "calibration_disjoint":
+                self._policy_measurement("threshold_calibration_disjoint"),
+            "no_held_labels":
+                self._policy_measurement("threshold_no_held_labels"),
+            "row_ids": threshold,
             "canonical_fast_sweep": result.fast_sweep_parity,
             "selected_threshold_parity": result.canonical_parity,
             "threshold_by_asset": dict(result.threshold_by_asset),
@@ -811,10 +985,14 @@ class RealDataExactNeuralDiagnosticExecutor:
     def run_canonical_replay(self) -> ExactComponentExecution:
         result = self._ensure_policy()
         return self._execution("canonical_replay", {
-            "canonical_parity": True, "equal_time_ties": True,
-            "occupancy_caps_cost_wall": True, "full_denominator": True,
-            "mdd_exact": True, "fit_only_end_to_end": True,
-            "teacher_isolation_exact": result.teacher_isolation_exact,
+            "canonical_parity": bool(result.canonical_parity),
+            "equal_time_ties": bool(result.equal_time_ties),
+            "occupancy_caps_cost_wall": bool(result.occupancy_caps_cost_wall),
+            "full_denominator": bool(result.full_denominator),
+            "mdd_exact": bool(result.mdd_exact),
+            "fast_sweep_parity": bool(result.fast_sweep_parity),
+            "fit_only_end_to_end": bool(result.fit_only_firewall_exact),
+            "teacher_isolation_exact": bool(result.teacher_isolation_exact),
             "candidate_manifest_sha256": result.candidate_manifest_sha256,
             "artifact_sha256": result.artifact_sha256,
         })
@@ -838,12 +1016,44 @@ class RealDataExactNeuralDiagnosticExecutor:
         records.append(FitLedgerRecord("fit-only-competence", "COMPETENCE", "FIT",
                                        self.atlas.competence_artifact_sha256))
         receipt = validate_fit_ledger(records, finalist_count=0)
+        # C3/A-011: reconcile the DECLARATIVE ledger above against the MEASURED
+        # process-global optimizer census.  Every optimizer construction on the
+        # atlas/arm/head paths is routed through ``_run_optimizer``; a
+        # registered fit that never ran, or a hidden extra fit, refuses here.
+        from .neural_sufficiency_resources import (
+            LEDGER_FIT_CATEGORIES, MAXIMUM_REGISTERED_FITS_THROUGH_E2,
+            optimizer_fit_census,
+        )
+        census = optimizer_fit_census()
+        declared = {category: sum(row.category == category and row.status == "FIT"
+                                  for row in records)
+                    for category in LEDGER_FIT_CATEGORIES}
+        measured = {category: int(census["counts"][category])
+                    for category in LEDGER_FIT_CATEGORIES}
+        if measured != declared:
+            raise RealDiagnosticExecutorRefusal(
+                "declared fit ledger differs from the measured optimizer census: "
+                f"declared={declared} measured={measured}")
+        if census["registered_total"] > MAXIMUM_REGISTERED_FITS_THROUGH_E2:
+            raise RealDiagnosticExecutorRefusal(
+                "measured optimizer census exceeds the 98-fit through-E2 ceiling")
+        if census["registered_total"] != receipt.through_e2_optimizer_fits:
+            raise RealDiagnosticExecutorRefusal(
+                "through-E2 optimizer fit totals differ from the measured census")
         self.ledger = receipt
         return self._execution("fit_ledger", {
-            "all_fits_counted": True, "competence_separate": True,
+            "all_fits_counted": bool(measured == declared
+                                     and census["registered_total"]
+                                     == receipt.through_e2_optimizer_fits),
+            "competence_separate": bool(
+                receipt.through_e2_optimizer_fits
+                == receipt.e1_optimizer_fits + receipt.e2_optimizer_fits),
             "e1_registered_slots": receipt.e1_registered_slots,
             "through_e2_optimizer_fits": receipt.through_e2_optimizer_fits,
             "discarded_competence_fits": receipt.discarded_competence_fits,
+            "measured_optimizer_census": dict(census["counts"]),
+            "measured_registered_total": int(census["registered_total"]),
+            "measured_optimizer_census_sha256": census["records_sha256"],
             "manifest_sha256": manifest.receipt_sha256,
         })
 
@@ -937,6 +1147,43 @@ class RealDataExactNeuralDiagnosticExecutor:
                     and g7["goal_recovery_all_blocks"] is True))):
             raise RealDiagnosticExecutorRefusal(
                 "fit-only goal-recovery rehearsal evidence differs")
+        # F2: a degenerate mapper/calibrator anywhere in the rehearsal is an
+        # IMPLEMENTATION defect.  It must never be reported as an economic
+        # loser, so it refuses here regardless of the overall status.
+        degenerate = _degenerate_path_statuses(rehearsal)
+        if degenerate:
+            raise RealDiagnosticExecutorRefusal(
+                "fit-only rehearsal produced a degenerate transport path: "
+                + ",".join(sorted(degenerate)))
+        # D-095: a PERFECT score must survive the identical mapper/Platt/
+        # threshold-sweep/feasibility/goal-recovery/forward-replay transport.
+        # Failing that is an implementation refusal, never an economic loser.
+        prophet = g7.get("prophet_positive_control")
+        if not isinstance(prophet, Mapping) or set(prophet) != {"E1r", "E2r"}:
+            raise RealDiagnosticExecutorRefusal(
+                "prophet-through-funnel positive control is absent")
+        for chronology in sorted(prophet):
+            control = prophet[chronology]
+            if (not isinstance(control, Mapping)
+                    or control.get("chronology") != chronology
+                    or control.get("artifact")
+                        != f"G7/{chronology}/PROPHET/positive-control"
+                    or not _valid_sha(control.get("path_receipt_sha256"))
+                    or not _valid_sha(control.get("receipt_sha256"))):
+                raise RealDiagnosticExecutorRefusal(
+                    "prophet positive-control receipt differs")
+            if control.get("status") != "ELIGIBLE":
+                raise RealDiagnosticExecutorRefusal(
+                    "transport funnel cannot carry a perfect score")
+            # Quantitative bar: measured healthy transport recovers 82-91% of
+            # the goal-grade ceiling.  Below the prelaunch floor the funnel is
+            # broken even when every block reports "feasible".
+            if (control.get("minimum_oracle_capture") != FIT_ONLY_MIN_ORACLE_CAPTURE
+                    or control.get("ceiling_admission")
+                        != "cert_close_usd >= MIN_EXPECTANCY_USD"
+                    or control.get("meets_capture_bar") is not True):
+                raise RealDiagnosticExecutorRefusal(
+                    "transport funnel cannot carry a perfect score")
         diagnostic_evidence_sha256 = self._stage_boundary_store.publish_evidence(
             "ACCEPTANCE", combined)
         self._diagnostic_evidence_sha256 = diagnostic_evidence_sha256

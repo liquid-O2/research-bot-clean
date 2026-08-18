@@ -89,15 +89,57 @@ class AtlasLossTest(unittest.TestCase):
 
     def test_censor_coordinates_do_not_train_as_zero(self):
         atlas = _index((1000, 1100), ts=(1_000_000_000, 20_000_000_000)).materialize((
-            _anchor(source_censor_ts_ns=5_000_000_000),
+            _anchor("censored", exact_time_group_id="g",
+                    source_censor_ts_ns=5_000_000_000),
+            _anchor("observed", exact_time_group_id="g", entry_mid2=1010),
         ))
         spec = next(x for x in PROBE_REGISTRY if x.cell == 3 and "P01" in x.probe_id)
         target = materialize_probe_target(atlas, spec)
-        self.assertFalse(target.coordinate_mask[0, 1:].any())
-        prediction = torch.full((1, PADDED_OUTPUT_WIDTH), .25,
+        # The censored row contributes no coordinate at all; the batch stays
+        # supported through the observed row, so the objective is measurable.
+        self.assertEqual(target.validity_mask.tolist(), [False, True])
+        self.assertFalse(target.coordinate_mask[0].any())
+        prediction = torch.full((2, PADDED_OUTPUT_WIDTH), .25,
                                 requires_grad=True)
         loss_for_probe(spec, prediction, target).backward()
-        self.assertTrue(torch.all(prediction.grad[0, 1:] == 0))
+        self.assertTrue(torch.all(prediction.grad[0] == 0))
+        self.assertTrue(torch.any(prediction.grad[1] != 0))
+
+    def test_fully_masked_objective_refuses_instead_of_scoring_zero(self):
+        # V3: a fully-masked batch previously returned value.sum() * 0.0, the
+        # best possible loss, which wins checkpoint selection outright.
+        atlas = _index().materialize((_anchor(),))
+        spec = next(x for x in PROBE_REGISTRY if x.cell == 16)
+        target = materialize_probe_target(atlas, spec)
+        self.assertFalse(target.validity_mask.any())
+        prediction = torch.zeros((1, PADDED_OUTPUT_WIDTH), requires_grad=True)
+        with self.assertRaisesRegex(AtlasRefusal, "UNAVAILABLE"):
+            loss_for_probe(spec, prediction, target)
+
+    def test_c6_censored_extreme_times_are_masked_not_zero(self):
+        # V5: an unattained favorable/adverse extreme has no passage time.
+        # Recording 0.0 trains "occurred instantly" as observed truth.
+        atlas = _index((1000, 900, 800), ts=(1_000_000_000, 2_000_000_000,
+                                             3_000_000_000)).materialize((
+            _anchor(phase_close_ts_ns=3_000_000_000),
+        ))
+        self.assertIsNone(atlas.atoms["time_to_mfe_ns"][0])
+        spec = next(x for x in PROBE_REGISTRY if x.cell == 6)
+        target = materialize_probe_target(atlas, spec)
+        self.assertFalse(bool(target.coordinate_mask[0, 2]))
+        prediction = torch.full((1, PADDED_OUTPUT_WIDTH), .3, requires_grad=True)
+        loss_for_probe(spec, prediction, target).backward()
+        self.assertEqual(float(prediction.grad[0, 2]), 0.0)
+        self.assertNotEqual(float(prediction.grad[0, 1]), 0.0)
+
+    def test_c11_undetermined_slope_is_masked_not_zero(self):
+        atlas = _index((1000,), ts=(1_000_000_000,)).materialize((_anchor(),))
+        spec = next(x for x in PROBE_REGISTRY if x.cell == 11)
+        target = materialize_probe_target(atlas, spec)
+        self.assertFalse(bool(target.coordinate_mask[0, 0]))
+        prediction = torch.full((1, PADDED_OUTPUT_WIDTH), .3, requires_grad=True)
+        loss_for_probe(spec, prediction, target).backward()
+        self.assertEqual(float(prediction.grad[0, 0]), 0.0)
 
     def test_c3_joint_and_fixed_objectives_are_distinct(self):
         atlas = _index().materialize((_anchor(),))

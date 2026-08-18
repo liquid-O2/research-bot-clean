@@ -85,5 +85,31 @@ class SelectedHorizonContractTest(unittest.TestCase):
             )
 
 
+class SelectedHorizonAtlasAxesTest(unittest.TestCase):
+    """B-21: the six-horizon atlas axes are derived, never a magic literal."""
+
+    def test_axes_are_derived_from_the_atlas_endpoint_roster(self) -> None:
+        from engine.entry_v2.causal_label_atlas import HORIZON_SECONDS
+        from engine.entry_v2.selected_horizon_contract import (
+            ATLAS_AXIS_COUNT, ATLAS_ENDPOINT_AXES, COORDINATES,
+            SELECTED_HORIZON_ATLAS_AXES, WIDTH,
+        )
+        self.assertEqual(ATLAS_AXIS_COUNT, len(HORIZON_SECONDS) + 2)
+        self.assertEqual(ATLAS_ENDPOINT_AXES[-2:], ("PHASE", "FINAL"))
+        self.assertEqual(len(SELECTED_HORIZON_ATLAS_AXES), WIDTH)
+        self.assertEqual(SELECTED_HORIZON_ATLAS_AXES, (3, 4, 5, 6, 7, 11))
+        for axis, coordinate in zip(SELECTED_HORIZON_ATLAS_AXES, COORDINATES):
+            expected = ("FINAL" if coordinate == "FINAL"
+                        else f"{int(coordinate)}s")
+            self.assertEqual(ATLAS_ENDPOINT_AXES[axis], expected)
+
+    def test_an_unresolvable_coordinate_refuses_at_derivation(self) -> None:
+        from unittest import mock
+        from engine.entry_v2 import selected_horizon_contract as contract
+        with mock.patch.object(contract, "COORDINATES", (300, 42, "FINAL")):
+            with self.assertRaises(contract.SelectedHorizonContractRefusal):
+                contract._derive_selected_atlas_axes()
+
+
 if __name__ == "__main__":
     unittest.main()

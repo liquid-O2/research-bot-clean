@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
-from dataclasses import asdict, dataclass, replace
+from dataclasses import asdict, dataclass, fields as dataclasses_fields, replace
 from types import SimpleNamespace
 from typing import Iterator
 import gc
@@ -1071,6 +1071,181 @@ class TrainContractTest(unittest.TestCase):
         self.assertEqual(
             tuple(score.candidate_id for score in control.truth_scores),
             tuple(score.candidate_id for score in result.truth_scores),
+        )
+
+
+class SelectedOptimizationLawTest(unittest.TestCase):
+    """Red-first laws for the frozen selected-trainer optimization contract."""
+
+    def test_deterministic_configuration_is_applied_before_cuda_use(self) -> None:
+        import os
+        self.assertEqual(os.environ.get("CUBLAS_WORKSPACE_CONFIG"), ":4096:8")
+        digest = T._configure_deterministic_torch()
+        self.assertEqual(len(digest), 64)
+        self.assertTrue(torch.are_deterministic_algorithms_enabled())
+        if torch.cuda.is_available():
+            self.assertTrue(torch.backends.cudnn.deterministic)
+            self.assertFalse(torch.backends.cudnn.benchmark)
+
+    def test_grouped_atlas_optimizer_cannot_own_encoder_parameters(self) -> None:
+        class _System(torch.nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.encoder = torch.nn.Linear(3, 3)
+                self.head = torch.nn.Linear(3, 2)
+                self.objective = torch.nn.Linear(2, 1)
+                self.survival_continuous = torch.nn.Linear(2, 3)
+
+        system = _System()
+        config = T.TrainingConfig()
+        optimizer = T._grouped_atlas_optimizer(system, system.encoder, config)
+        owned = {id(p) for group in optimizer.param_groups for p in group["params"]}
+        encoder_ids = {id(p) for p in system.encoder.parameters()}
+        self.assertFalse(owned & encoder_ids)
+        self.assertTrue(owned & {id(p) for p in system.head.parameters()})
+        self.assertTrue(owned & {id(p) for p in system.objective.parameters()})
+        self.assertFalse(owned & {id(p) for p in system.survival_continuous.parameters()})
+        # An encoder that is not actually the system's encoder cannot be used
+        # to smuggle raw parameters into the head optimizer.
+        foreign = torch.nn.Linear(3, 3)
+        with self.assertRaises(C.EntryV2Refusal):
+            T._grouped_atlas_optimizer(system, foreign, config)
+
+    def test_frozen_raw_memory_plane_refuses_a_second_encode(self) -> None:
+        import shutil
+        import tempfile
+        root = tempfile.mkdtemp(prefix="entry-v2-test-plane-")
+        try:
+            plane = T._FrozenRawMemoryPlane(root, "a" * 64)
+            memory = torch.arange(2 * 4 * 3, dtype=torch.float32).reshape(2, 4, 3)
+            calls = []
+
+            def encode() -> torch.Tensor:
+                calls.append(1)
+                return memory
+
+            key = ("SI", 20240102, "SI-20240102")
+            plane.encode_once(key, encode)
+            self.assertTrue(torch.equal(plane.get(key), memory))
+            self.assertTrue(torch.equal(plane.get(key), memory))
+            with self.assertRaises(C.EntryV2Refusal):
+                plane.encode_once(key, encode)
+            self.assertEqual(len(calls), 1)
+            with self.assertRaises(C.EntryV2Refusal):
+                plane.get(("SI", 20240103, "SI-20240103"))
+            receipt = plane.receipt()
+            self.assertEqual(receipt["sessions"], 1)
+            self.assertEqual(receipt["encodes"], 1)
+            self.assertEqual(receipt["base_checkpoint_sha256"], "a" * 64)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_frozen_memory_view_never_encodes_and_pins_its_session(self) -> None:
+        import shutil
+        import tempfile
+        root = tempfile.mkdtemp(prefix="entry-v2-test-plane-")
+        try:
+            plane = T._FrozenRawMemoryPlane(root, "b" * 64)
+            memory = torch.zeros(2, 4, 3)
+            key = ("SI", 20240102, "SI-20240102")
+            plane.encode_once(key, lambda: memory)
+            view = T._FrozenRawMemoryEncoder(plane)
+            self.assertEqual(list(view.parameters()), [])
+            self.assertEqual(dict(view.state_dict()), {})
+            cutoffs = torch.tensor([1, 2], dtype=torch.int64)
+            clock = torch.zeros(2, dtype=torch.int64)
+            with self.assertRaises(C.EntryV2Refusal):
+                view(torch.zeros(2, 1), torch.zeros(2, 1, dtype=torch.int64),
+                     cutoffs, receive_clock_ns=clock,
+                     candidate_decision_ts_ns=clock)
+            view.select(key)
+            self.assertTrue(torch.equal(
+                view(torch.zeros(2, 1), torch.zeros(2, 1, dtype=torch.int64),
+                     cutoffs, receive_clock_ns=clock,
+                     candidate_decision_ts_ns=clock),
+                memory))
+            with self.assertRaises(C.EntryV2Refusal):
+                view(torch.zeros(3, 1), torch.zeros(3, 1, dtype=torch.int64),
+                     torch.tensor([1, 2, 3]), receive_clock_ns=clock,
+                     candidate_decision_ts_ns=clock)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_raw_reencode_during_the_frozen_head_stage_is_a_hard_refusal(self) -> None:
+        encoder = torch.nn.Linear(3, 3)
+        handle = encoder.register_forward_pre_hook(T._refuse_raw_reencode)
+        try:
+            with self.assertRaises(C.EntryV2Refusal):
+                encoder(torch.zeros(1, 3))
+        finally:
+            handle.remove()
+        self.assertEqual(encoder(torch.zeros(1, 3)).shape, (1, 3))
+
+    def test_legacy_normalizer_refuses_the_selected_plane_passthrough(self) -> None:
+        normalizer = TrainFoldNormalizer(
+            (0.0,), (1.0,), (0.0,), (1.0,), (0.0,), (1.0,), (0.0,), (1.0,),
+            (FIT_DAY,), "0" * 64, None, "1" * 64,
+        )
+        batch = SimpleNamespace(
+            selected_horizon_value=torch.zeros(2, 6, dtype=torch.float64),
+            selected_horizon_valid=torch.ones(2, 6, dtype=torch.bool),
+            selected_horizon_schema_sha256="2" * 64,
+        )
+        with self.assertRaises(C.EntryV2Refusal):
+            normalizer.transform(batch, torch.device("cpu"))
+
+    def test_censored_horizon_nan_sentinel_is_masked_before_arithmetic(self) -> None:
+        rows, width = 3, T.SELECTED_HORIZON_WIDTH
+        valid = torch.ones(rows, width, dtype=torch.bool)
+        valid[0, 1] = False
+        valid[2, 4] = False
+        value = torch.arange(rows * width, dtype=torch.float64).reshape(rows, width)
+        censored = value.clone()
+        censored[~valid] = float("nan")
+        prediction = torch.zeros(rows, width, dtype=torch.float32)
+        batch = SimpleNamespace(
+            rows=rows,
+            selected_horizon_value=censored,
+            selected_horizon_valid=valid,
+            selected_horizon_schema_sha256=T.SELECTED_HORIZON_SCHEMA_SHA256,
+        )
+        output = SimpleNamespace(horizon_value=prediction)
+        weights = torch.ones(rows, dtype=torch.float32)
+        loss = T._selected_horizon_component(output, batch, weights)
+        self.assertTrue(bool(torch.isfinite(loss)))
+        # A zero fill would be byte-identical to a true $0 outcome; the NaN
+        # sentinel plus mask-before-arithmetic must reproduce exactly the
+        # observed-only loss.
+        zero_filled = value.clone()
+        zero_filled[~valid] = 0.0
+        reference = T._selected_horizon_component(
+            output,
+            SimpleNamespace(rows=rows, selected_horizon_value=zero_filled,
+                            selected_horizon_valid=valid,
+                            selected_horizon_schema_sha256=(
+                                T.SELECTED_HORIZON_SCHEMA_SHA256)),
+            weights)
+        self.assertAlmostEqual(float(loss), float(reference), places=9)
+        # An observed coordinate may never be NaN.
+        broken = censored.clone()
+        broken[1, 0] = float("nan")
+        with self.assertRaises(C.EntryV2Refusal):
+            T._selected_horizon_component(
+                output,
+                SimpleNamespace(rows=rows, selected_horizon_value=broken,
+                                selected_horizon_valid=valid,
+                                selected_horizon_schema_sha256=(
+                                    T.SELECTED_HORIZON_SCHEMA_SHA256)),
+                weights)
+
+    def test_selected_spec_refuses_a_dropped_typed_censor_cause(self) -> None:
+        self.assertIn(
+            "selected_horizon_status",
+            {field.name for field in dataclasses_fields(EntrySessionSpec)},
+        )
+        self.assertIn(
+            "selected_horizon_status",
+            {field.name for field in dataclasses_fields(EntrySessionBatch)},
         )
 
 

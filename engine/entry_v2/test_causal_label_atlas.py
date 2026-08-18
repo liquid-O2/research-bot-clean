@@ -4,17 +4,23 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import json
 import time
+from types import MappingProxyType
 import unittest
+from unittest import mock
 
 import numpy as np
 
+from . import causal_label_atlas as atlas_module
 from .causal_label_atlas import (
     ActionMaskCause, AtlasRefusal, BoundaryReason, CandidateAnchor, CanonicalOutcome,
     CellAvailability, DEVELOPMENT_CUTOFF_NS, EndpointStatus,
     PNL_UNITS_PER_USD, PROBE_REGISTRY, PassageState, SHUFFLED_PROBES,
-    SessionTruthIndex, _WeightedRangeIndex, atlas_receipt_bytes, registry_bytes,
-    shuffled_probe_for,
+    SessionTruthIndex, _WeightedRangeIndex, atlas_receipt_bytes,
+    bind_byte_identical_census, probe_fit_slice_content_sha256,
+    prune_byte_identical_probe_targets, registry_bytes,
+    reject_placeholder_callable, shuffled_probe_for,
 )
 
 
@@ -338,6 +344,138 @@ class CausalLabelAtlasTest(unittest.TestCase):
         self.assertEqual(registry_bytes(), registry_bytes())
         self.assertEqual(atlas_receipt_bytes({"b": 2, "a": 1}),
                          atlas_receipt_bytes({"a": 1, "b": 2}))
+
+    @staticmethod
+    def _fit_context():
+        return {"fit_population_sha256": "b" * 64,
+                "c1_location": np.zeros(21), "c1_scale": np.ones(21),
+                "location": np.zeros(12), "scale": np.ones(12),
+                "lower": np.full(12, -5000.0), "upper": np.full(12, 5000.0),
+                "rank_reference": np.zeros((3, 12))}
+
+    def test_byte_identical_collapse_keeps_lawful_loss_contrasts(self):
+        atlas = _index().materialize((
+            _anchor("a", exact_time_group_id="g", take_target=True,
+                    now_wait_pass_regret_units=(1, 2, 3),
+                    shadow_marginal_regret_units=(4, 5)),
+            _anchor("b", exact_time_group_id="g", entry_mid2=1010,
+                    now_wait_pass_regret_units=(3, 2, 1),
+                    shadow_marginal_regret_units=(5, 4)),
+        ))
+        fit = self._fit_context()
+        targets = {row.probe_id: atlas.materialize_probe(row, fit)
+                   for row in PROBE_REGISTRY}
+        resolved, census = prune_byte_identical_probe_targets(targets)
+        self.assertEqual(census["prune_key_law"],
+                         "label-content-and-loss-and-mapper-triple-v1")
+
+        # (a) transparency: the measured label-identical families are visible.
+        groups = {row["fit_slice_sha256"]: row
+                  for row in census["label_identical_groups"]}
+        by_probe = {}
+        for row in census["label_identical_groups"]:
+            for probe in row["probe_ids"]:
+                by_probe[probe] = row
+        self.assertEqual(probe_fit_slice_content_sha256(targets["C04P01"]),
+                         probe_fit_slice_content_sha256(targets["C21P01"]))
+        self.assertIn("C21P01", by_probe["C04P01"]["probe_ids"])
+        self.assertIn("C20P04", by_probe["C20P02"]["probe_ids"])
+        self.assertIn("C10P04", by_probe["C10P01"]["probe_ids"])
+        self.assertTrue(all(len(row["probe_ids"]) > 1 for row in groups.values()))
+
+        # (b) a label-identical probe with its OWN registered loss/mapper is a
+        # lawful objective contrast and survives, never PRUNED_BYTE_IDENTICAL.
+        for probe in ("C04P01", "C21P01", "C20P02", "C20P04",
+                      "C10P01", "C10P02", "C10P03", "C10P04"):
+            with self.subTest(probe=probe):
+                self.assertNotIn(probe, census["pruned_probe_ids"])
+                self.assertIs(resolved[probe].state,
+                              CellAvailability.MATERIALIZED)
+        self.assertEqual(census["registered_probe_count"], 44)
+        self.assertEqual(census["retained_fit_probe_count"],
+                         44 - census["pruned_probe_count"])
+        self.assertEqual(set(resolved), set(targets))
+        for row in census["label_identical_groups"]:
+            self.assertEqual(len(row["distinct_loss_ids"]),
+                             len(row["probe_ids"]))
+
+        # A true duplicate — same label bytes, same loss, same mapper — is the
+        # only thing that prunes.  Registering one probe twice proves the key.
+        forged = replace(atlas_module.PROBE_BY_ID["C21P01"],
+                         loss_id=atlas_module.PROBE_BY_ID["C04P01"].loss_id,
+                         action_mapper_id=atlas_module.PROBE_BY_ID[
+                             "C04P01"].action_mapper_id)
+        patched = MappingProxyType({**atlas_module.PROBE_BY_ID,
+                                    "C21P01": forged})
+        with mock.patch.object(atlas_module, "PROBE_BY_ID", patched):
+            _, forged_census = prune_byte_identical_probe_targets(targets)
+        self.assertIn("C21P01", forged_census["pruned_probe_ids"])
+        self.assertEqual(
+            [row for row in forged_census["pruned"]
+             if row["pruned"] == "C21P01"][0]["kept"], "C04P01")
+
+        bound = bind_byte_identical_census(atlas.receipt, census)
+        self.assertEqual(bound["byte_identical_census"]["receipt_sha256"],
+                         census["receipt_sha256"])
+        self.assertNotEqual(bound["receipt_sha256"],
+                            atlas.receipt["receipt_sha256"])
+        with self.assertRaisesRegex(AtlasRefusal, "census schema"):
+            bind_byte_identical_census(atlas.receipt, {"schema": "wrong"})
+
+    def test_registry_startup_executes_every_callable_on_two_planes(self):
+        import torch
+        # The static screen alone is blind to a constant-returning mapper and
+        # to a C-implemented callable; neither refuses here.
+        reject_placeholder_callable("constant", lambda prediction, target: 1.0)
+        reject_placeholder_callable("c_callable", len)
+
+        materializers, losses, actions, shuffles = atlas_module._runtime_registries()
+
+        blind_actions = MappingProxyType({
+            key: (lambda prediction, target: torch.ones(len(prediction)))
+            for key in actions
+        })
+        with mock.patch.object(atlas_module, "_runtime_registries",
+                               return_value=(materializers, losses,
+                                             blind_actions, shuffles)):
+            with self.assertRaisesRegex(AtlasRefusal, "prediction-blind"):
+                atlas_module.validate_registry()
+
+        blind_losses = MappingProxyType({
+            key: (lambda prediction, target: prediction.mean()) for key in losses
+        })
+        with mock.patch.object(atlas_module, "_runtime_registries",
+                               return_value=(materializers, blind_losses,
+                                             actions, shuffles)):
+            with self.assertRaisesRegex(AtlasRefusal, "label-blind"):
+                atlas_module.validate_registry()
+
+        blind_mask = MappingProxyType({
+            "mask.typed_availability": lambda target: np.ones(2, bool)
+        })
+        with mock.patch.object(atlas_module, "MASK_REGISTRY", blind_mask):
+            with self.assertRaisesRegex(AtlasRefusal, "mask registry entry is target-blind"):
+                atlas_module.validate_registry()
+
+        blind_support = MappingProxyType({
+            key: (lambda target: MappingProxyType({"kind": "constant"}))
+            for key in atlas_module.SUPPORT_REGISTRY
+        })
+        with mock.patch.object(atlas_module, "SUPPORT_REGISTRY", blind_support):
+            with self.assertRaisesRegex(AtlasRefusal, "support registry entry is target-blind"):
+                atlas_module.validate_registry()
+
+        # The unmodified registries still validate.
+        atlas_module.validate_registry()
+
+    def test_registry_digest_binds_implementing_module_source(self):
+        payload = json.loads(registry_bytes())
+        sources = payload["implementing_module_source_sha256"]
+        self.assertEqual(sorted(sources), ["engine.entry_v2.atlas_losses",
+                                           "engine.entry_v2.atlas_materializers"])
+        self.assertTrue(all(len(value) == 64 for value in sources.values()))
+        self.assertIn("mask.typed_availability",
+                      payload["callable_semantics_sha256"])
 
     def test_exact_time_group_refusal_and_valid_group(self):
         with self.assertRaisesRegex(AtlasRefusal, "exact-time"):

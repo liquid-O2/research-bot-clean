@@ -21,11 +21,15 @@ from .atlas_probe_model import ProbeRows
 from .durable_store import DurableEntryV2Store
 from .diagnostic_inputs import DerivedEventFields, RAW_ROUTE_FIELDS
 from .neural_sufficiency_resources import (
-    ExpandedEventTransform, ProductionExactDiagnosticResources,
+    ExpandedEventTransform, MAXIMUM_REGISTERED_FITS_THROUGH_E2,
+    ProductionExactDiagnosticResources, RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP,
+    REHEARSAL_PATH_IMPLEMENTATION_REFUSALS, REHEARSAL_PATH_STATUSES,
+    ROUTE_GATE_MINIMUM_CUTOFF,
     RealDiagnosticExecutorRefusal, _competing_candidate_ipcw,
     _competing_ipcw_observations, _admit_production_resources,
-    _e1_fit_support_inputs, _expanded_columns,
-    _selected_horizon_targets_from_spec,
+    _e1_fit_support_inputs, _executed_threshold_candidate_law,
+    _expanded_columns, _selected_horizon_targets_from_spec,
+    optimizer_fit_census, reference_phase_clocks, reset_optimizer_fit_census,
 )
 from .neural_sufficiency_model import EncoderComplexityReceipt, EventFieldSchema
 from .policy import ModelInputBinding
@@ -36,25 +40,140 @@ from .session_stream import MODEL_ARRAYS_CONVERSION_LAW_SHA256
 
 
 class ExpandedEventTransformTest(unittest.TestCase):
-    def test_expanded_metadata_excludes_valid_pre_diagnostic_context_sessions(self):
+    # ------------------------------------------------------------------
+    # A5: the previous fixture built bindings out of bare SimpleNamespace
+    # objects with only asset/trading_day, so the domain law never reached its
+    # compliance/teacher/roster branches at all -- the test passed without
+    # exercising anything it claimed to.
+    # ------------------------------------------------------------------
+    START_D8 = 20210531
+
+    @staticmethod
+    def _binding(candidate_id, asset, day, *, compliance="CLEAR",
+                 teacher="READY"):
+        return SimpleNamespace(
+            candidate_id=candidate_id, asset=asset, trading_day=day,
+            compliance_status=compliance, teacher_status=teacher,
+            phase_open_ts_ns=1, phase_close_ts_ns=2,
+            sane_ceiling_units=3, multiplier=4)
+
+    @staticmethod
+    def _session(asset, day, session_id, candidate_ids):
+        return SimpleNamespace(asset=asset, trading_day=day,
+                               session_id=session_id,
+                               candidate_ids=tuple(candidate_ids))
+
+    def _resources(self, corpus_sessions, bindings, *, start_d8=None):
         resources = ProductionExactDiagnosticResources.__new__(
             ProductionExactDiagnosticResources)
-        context = SimpleNamespace(
-            asset="HG", trading_day=20210528, session_id="context")
-        learner = SimpleNamespace(
-            asset="HG", trading_day=20210531, session_id="learner")
-        binding = SimpleNamespace(asset="HG", trading_day=20210531)
+        keys = []
+        for row in bindings:
+            key = (row.asset, row.trading_day)
+            if key not in keys:
+                keys.append(key)
         resources.stage = SimpleNamespace(
             corpus_stage=SimpleNamespace(corpus=SimpleNamespace(
-                sessions=(context, learner))),
+                sessions=tuple(corpus_sessions))),
             diagnostic_corpus=SimpleNamespace(
-                sessions=(SimpleNamespace(key=("HG", 20210531)),),
-                bindings=(binding,),
+                sessions=tuple(SimpleNamespace(key=key) for key in keys),
+                bindings=tuple(bindings),
+                receipt={"selected_horizon_start_d8":
+                         self.START_D8 if start_d8 is None else start_d8},
             ),
         )
-        metadata = resources._expanded_session_metadata()
-        self.assertEqual(tuple(metadata), (("HG", 20210531, "learner"),))
-        self.assertEqual(metadata[("HG", 20210531, "learner")], (binding,))
+        return resources
+
+    def _baseline(self):
+        context = self._session("HG", 20210528, "context", ("HG:c-1",))
+        learner = self._session("HG", 20210601, "learner", ("HG:a", "HG:b"))
+        bindings = [
+            self._binding("HG:a", "HG", 20210601),
+            self._binding("HG:b", "HG", 20210601),
+            self._binding("SI:z", "SI", 20210712, teacher="NO_SANE_SUFFIX"),
+        ]
+        return context, learner, bindings
+
+    def test_expanded_metadata_excludes_valid_pre_diagnostic_context_sessions(self):
+        context, learner, bindings = self._baseline()
+        metadata = self._resources((context, learner), bindings
+                                   )._expanded_session_metadata()
+        self.assertEqual(tuple(metadata), (("HG", 20210601, "learner"),))
+        self.assertEqual(metadata[("HG", 20210601, "learner")],
+                         (bindings[0], bindings[1]))
+
+    def test_m1_diagnostic_only_day_gaining_an_eligible_row_refuses(self):
+        context, learner, bindings = self._baseline()
+        mutated = [*bindings[:2], self._binding("SI:z", "SI", 20210712)]
+        with self.assertRaisesRegex(
+                RealDiagnosticExecutorRefusal,
+                "eligible binding lacks corpus session"):
+            self._resources((context, learner), mutated
+                            )._expanded_session_metadata()
+
+    def test_m2_corpus_session_for_a_zero_eligible_diagnostic_day_refuses(self):
+        context, learner, bindings = self._baseline()
+        extra = self._session("SI", 20210712, "S1", ("SI:z",))
+        with self.assertRaisesRegex(
+                RealDiagnosticExecutorRefusal,
+                "corpus session has no eligible binding"):
+            self._resources((context, learner, extra), bindings
+                            )._expanded_session_metadata()
+
+    def test_m3_permuted_learner_roster_order_refuses(self):
+        context, _learner, bindings = self._baseline()
+        permuted = self._session("HG", 20210601, "learner", ("HG:b", "HG:a"))
+        with self.assertRaisesRegex(
+                RealDiagnosticExecutorRefusal,
+                "learner candidate roster differs"):
+            self._resources((context, permuted), bindings
+                            )._expanded_session_metadata()
+
+    def test_m4_learner_roster_dropping_an_eligible_candidate_refuses(self):
+        context, _learner, bindings = self._baseline()
+        short = self._session("HG", 20210601, "learner", ("HG:a",))
+        with self.assertRaisesRegex(
+                RealDiagnosticExecutorRefusal,
+                "learner candidate roster differs"):
+            self._resources((context, short), bindings
+                            )._expanded_session_metadata()
+
+    def test_m6_post_wall_corpus_session_absent_from_diagnostic_map_refuses(self):
+        # A4 reverse direction: a corpus session at/after the receipt-derived
+        # selected-horizon start wall with NO diagnostic day at all.
+        context, learner, bindings = self._baseline()
+        orphan = self._session("NKD", 20210602, "N1", ("NKD:q",))
+        with self.assertRaisesRegex(
+                RealDiagnosticExecutorRefusal,
+                "absent from the diagnostic day map"):
+            self._resources((context, learner, orphan), bindings
+                            )._expanded_session_metadata()
+
+    def test_a8_start_wall_comes_from_the_corpus_receipt_not_a_literal(self):
+        # With the wall moved later, the 20210601 corpus session is BEFORE the
+        # wall and is treated as pre-diagnostic context, not an orphan.
+        context, learner, bindings = self._baseline()
+        orphan = self._session("NKD", 20210602, "N1", ("NKD:q",))
+        metadata = self._resources(
+            (context, learner, orphan), bindings, start_d8=20210901
+        )._expanded_session_metadata()
+        self.assertEqual(tuple(metadata), (("HG", 20210601, "learner"),))
+        resources = self._resources((context, learner), bindings,
+                                    start_d8="not-a-day")
+        with self.assertRaisesRegex(RealDiagnosticExecutorRefusal,
+                                    "selected_horizon_start_d8"):
+            resources._expanded_session_metadata()
+
+    def test_m8_ineligible_same_day_row_stays_in_the_transform_bindings(self):
+        context, learner, bindings = self._baseline()
+        rows = [*bindings[:2],
+                self._binding("HG:c", "HG", 20210601, compliance="PROHIBITED"),
+                bindings[2]]
+        metadata = self._resources((context, learner), rows
+                                   )._expanded_session_metadata()
+        self.assertEqual(
+            [row.candidate_id
+             for row in metadata[("HG", 20210601, "learner")]],
+            ["HG:a", "HG:b", "HG:c"])
 
     def test_competence_metrics_ignore_action_masked_near_positives(self):
         assets = np.repeat(np.asarray(("HG", "NKD", "SI"), str), 3)
@@ -187,7 +306,8 @@ class ExpandedEventTransformTest(unittest.TestCase):
             np.asarray([20210601, 20211101, 20210701, 20211201, 20210901]),
             np.arange(n, dtype=np.int64), np.asarray([f"c{i}" for i in range(n)]))
         primary, additional = _e1_fit_support_inputs(
-            probe, target, rows, np.asarray([0, 2, 4]))
+            probe, target, rows, np.asarray([0, 2, 4]),
+            selected_horizon_start_d8=20210531)
         self.assertEqual(np.asarray(primary.asset).shape, (3 * 24,))
         self.assertEqual(np.asarray(primary.valid).shape, (3 * 24,))
         self.assertEqual(np.asarray(primary.values).shape, (3 * 24,))
@@ -197,9 +317,22 @@ class ExpandedEventTransformTest(unittest.TestCase):
                             for row in additional))
         self.assertTrue(all(np.max(np.asarray(row.day)) <= 20210930
                             for row in (primary, *additional)))
+        # Item 24: the CONTINUOUS family carries its censor plane explicitly.
+        self.assertIsNotNone(primary.censored)
+        self.assertEqual(np.asarray(primary.censored).shape, (3 * 24,))
+        self.assertTrue(all(row.censored is not None for row in additional))
+        self.assertTrue(all(row.selected_horizon_start_d8 == 20210531
+                            for row in (primary, *additional)))
         with self.assertRaisesRegex(
                 RealDiagnosticExecutorRefusal, "physical slice crossed FIT"):
-            _e1_fit_support_inputs(probe, target, rows, np.asarray([0, 1, 2]))
+            _e1_fit_support_inputs(probe, target, rows, np.asarray([0, 1, 2]),
+                                   selected_horizon_start_d8=20210531)
+        # Item 28/A8: the lower wall is enforced from the receipt-derived day.
+        with self.assertRaisesRegex(
+                RealDiagnosticExecutorRefusal,
+                "precedes the selected-horizon start wall"):
+            _e1_fit_support_inputs(probe, target, rows, np.asarray([0, 2, 4]),
+                                   selected_horizon_start_d8=20210801)
 
     def test_frozen_raw_memory_is_encoded_once_per_base_session(self):
         class Encoder(torch.nn.Module):
@@ -514,3 +647,108 @@ class ExpandedEventTransformTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PhaseClockDtypeTest(unittest.TestCase):
+    """A1: uint64 (+) int64 promotes to float64 under NumPy 2."""
+
+    def _truth(self):
+        # Real 2021-scale nanosecond epochs.  The float64 ULP at 1.6e18 is
+        # 256 ns, so the naive expression cannot be exact here.
+        recv = np.asarray([1_622_505_600_000_000_001,
+                           1_622_505_600_000_000_129,
+                           1_622_505_600_000_000_257], np.uint64)
+        open_ns = np.full(3, 1_622_505_600_000_000_000, np.int64)
+        close_ns = np.full(3, 1_622_509_200_000_000_000, np.int64)
+        return {"ts_recv_ns": recv, "phase_open_ts_ns": open_ns,
+                "phase_close_ts_ns": close_ns}
+
+    def test_naive_mixed_dtype_expression_is_not_exact_at_real_scale(self):
+        truth = self._truth()
+        naive_age = truth["ts_recv_ns"] - truth["phase_open_ts_ns"]
+        self.assertEqual(naive_age.dtype, np.float64)
+        expected = np.asarray([1, 129, 257], np.int64)
+        # This is the defect: the producer's exact integer clocks are NOT
+        # reproduced by the naive expression.
+        self.assertFalse(np.array_equal(naive_age.astype(np.int64), expected))
+
+    def test_reference_phase_clocks_are_integer_exact_at_real_scale(self):
+        truth = self._truth()
+        age, remaining = reference_phase_clocks(truth, 3)
+        self.assertEqual(age.dtype, np.int64)
+        self.assertEqual(remaining.dtype, np.int64)
+        self.assertTrue(np.array_equal(age, np.asarray([1, 129, 257], np.int64)))
+        self.assertTrue(np.array_equal(
+            remaining,
+            np.asarray([3_599_999_999_999, 3_599_999_999_871,
+                        3_599_999_999_743], np.int64)))
+
+    def test_reference_phase_clocks_reproduce_the_producer(self):
+        truth = self._truth()
+        receive = truth["ts_recv_ns"].astype(np.int64)
+        producer_age = receive - truth["phase_open_ts_ns"]
+        producer_remaining = truth["phase_close_ts_ns"] - receive
+        age, remaining = reference_phase_clocks(truth, 3)
+        self.assertTrue(np.array_equal(age, producer_age))
+        self.assertTrue(np.array_equal(remaining, producer_remaining))
+
+
+class OptimizerFitCensusTest(unittest.TestCase):
+    """C3/A-011: every optimizer fit is counted."""
+
+    def setUp(self):
+        reset_optimizer_fit_census()
+        self.addCleanup(reset_optimizer_fit_census)
+
+    def test_census_counts_registered_and_unregistered_categories(self):
+        from .neural_sufficiency_resources import _run_optimizer
+        _run_optimizer(lambda: torch.optim.SGD([torch.zeros(1, requires_grad=True)],
+                                               lr=.1),
+                       category="E1_REAL", fit_id="C01P01")
+        _run_optimizer(lambda: torch.optim.SGD([torch.zeros(1, requires_grad=True)],
+                                               lr=.1),
+                       category="ARM", fit_id="arm/M1/encode")
+        census = optimizer_fit_census()
+        self.assertEqual(census["counts"]["E1_REAL"], 1)
+        self.assertEqual(census["counts"]["ARM"], 1)
+        self.assertEqual(census["registered_total"], 1)
+        self.assertEqual(census["total"], 2)
+
+    def test_unregistered_category_refuses(self):
+        from .neural_sufficiency_resources import _run_optimizer
+        with self.assertRaisesRegex(RealDiagnosticExecutorRefusal,
+                                    "category is unregistered"):
+            _run_optimizer(lambda: None, category="MYSTERY", fit_id="x")
+
+    def test_registered_fit_ceiling_of_98_refuses(self):
+        from .neural_sufficiency_resources import _run_optimizer
+        maker = lambda: torch.optim.SGD([torch.zeros(1, requires_grad=True)], lr=.1)
+        for index in range(MAXIMUM_REGISTERED_FITS_THROUGH_E2):
+            _run_optimizer(maker, category="E1_REAL", fit_id=f"probe-{index}")
+        with self.assertRaisesRegex(RealDiagnosticExecutorRefusal,
+                                    "ceiling of 98 exceeded"):
+            _run_optimizer(maker, category="E1_TWIN", fit_id="one-too-many")
+
+
+class GateLawConstantTest(unittest.TestCase):
+    def test_rehearsal_status_enum_carries_the_degenerate_states(self):
+        self.assertIn("DEGENERATE_MAPPER", REHEARSAL_PATH_STATUSES)
+        self.assertIn("DEGENERATE_CALIBRATOR", REHEARSAL_PATH_STATUSES)
+        self.assertEqual(set(REHEARSAL_PATH_IMPLEMENTATION_REFUSALS),
+                         {"DEGENERATE_MAPPER", "DEGENERATE_CALIBRATOR"})
+
+    def test_raw_memory_occlusion_margin_replaces_the_1e6_epsilon(self):
+        # B-07: a 1e-6 logit wiggle is not evidence of competence.
+        self.assertGreaterEqual(RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP, 0.05)
+        self.assertGreater(RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP, 1e-6)
+
+    def test_route_gate_runs_past_three_completed_blocks(self):
+        self.assertEqual(ROUTE_GATE_MINIMUM_CUTOFF, 3 * 256)
+
+    def test_executed_threshold_law_describes_the_uncapped_platt_path(self):
+        law = _executed_threshold_candidate_law()
+        self.assertEqual(law["maximum_calibrated_levels"],
+                         "UNBOUNDED_BY_DISTINCT_ROW_LEVELS")
+        self.assertFalse(law["binned_venn_abers_levels_used"])
+        self.assertEqual(law["calibrator"],
+                         "UNCAPPED_CONTINUOUS_POSITIVE_SLOPE_PLATT")

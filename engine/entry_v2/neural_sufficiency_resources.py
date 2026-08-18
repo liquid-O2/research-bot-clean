@@ -8623,11 +8623,26 @@ class ProductionExactDiagnosticResources:
                         print(f"RECON-FIELD {arm} categorical {_fname} "
                               f"acc={_acc:.6f} miss={_miss}/{len(_vk)}",
                               file=sys.stderr, flush=True)
-            raise RealDiagnosticExecutorRefusal(
-                "last-row reconstruction competence failed: "
-                f"mae={receipt.continuous_mae:.6f} "
-                f"accuracy={receipt.categorical_accuracy:.6f} "
-                f"rows={int(validation_take.sum())}")
+        # Ruling 19 (2026-08-19, measured): C0's broadcast memory maps ONE
+        # state to MANY candidate last rows — held reconstruction from it is
+        # unsatisfiable by construction (measured: decoder converges to the
+        # session mean, MAE~0.46, acc 0.78). Every per-arm competence gate is
+        # therefore a TYPED VERDICT in the gate-5 structure: broadcast arms
+        # failing IS the factorial's attribution evidence; per-candidate arms
+        # (L0/L1/M1) must still certify to stay selectable. Hard refusals
+        # remain for mechanical defects only.
+        self._gate5_verdicts[arm]["reconstruction"] = {
+            "mae": float(receipt.continuous_mae),
+            "accuracy": float(receipt.categorical_accuracy),
+            "rows": int(validation_take.sum()),
+            "pass": bool(receipt.passed)}
+        self._gate5_verdicts[arm]["competent"] = bool(
+            self._gate5_verdicts[arm]["competent"] and receipt.passed)
+        print(f"RECON-VERDICT {arm} pass={bool(receipt.passed)} "
+              f"mae={receipt.continuous_mae:.4f} "
+              f"acc={receipt.categorical_accuracy:.4f} "
+              f"rows={int(validation_take.sum())}",
+              file=sys.stderr, flush=True)
         artifact = _sha_bytes(module_state_bytes(model))
         self.arm_rows[arm] = rows
         initial_heads = {value.shared_head_initial_bytes for value in self._models().values()}

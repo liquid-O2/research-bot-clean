@@ -8602,7 +8602,32 @@ class ProductionExactDiagnosticResources:
             decoder, memory[validation_take], last_x[validation_take],
             last_k[validation_take])
         if not receipt.passed:
-            raise RealDiagnosticExecutorRefusal("last-row reconstruction competence failed")
+            # Evidence-bearing refusal + per-field breakdown so the failing
+            # field names itself (rare held-only category values vs a plain
+            # undershoot are different defects).
+            with torch.no_grad():
+                _pred, _logits = decoder(memory[validation_take])
+                _vx = last_x[validation_take]; _vk = last_k[validation_take]
+                _field_mae = (_pred - _vx).abs().mean(0)
+                for _i, _fname in enumerate(self.schema.continuous_fields):
+                    _m = float(_field_mae[_i])
+                    if _m > 1e-3:
+                        print(f"RECON-FIELD {arm} continuous {_fname} "
+                              f"mae={_m:.6f}", file=sys.stderr, flush=True)
+                for _i, _fname in enumerate(CATEGORICAL_FIELDS):
+                    _acc = float((_logits[_i].argmax(-1)
+                                  == _vk[:, _i]).float().mean())
+                    if _acc < 1.0:
+                        _miss = int((_logits[_i].argmax(-1)
+                                     != _vk[:, _i]).sum())
+                        print(f"RECON-FIELD {arm} categorical {_fname} "
+                              f"acc={_acc:.6f} miss={_miss}/{len(_vk)}",
+                              file=sys.stderr, flush=True)
+            raise RealDiagnosticExecutorRefusal(
+                "last-row reconstruction competence failed: "
+                f"mae={receipt.continuous_mae:.6f} "
+                f"accuracy={receipt.categorical_accuracy:.6f} "
+                f"rows={int(validation_take.sum())}")
         artifact = _sha_bytes(module_state_bytes(model))
         self.arm_rows[arm] = rows
         initial_heads = {value.shared_head_initial_bytes for value in self._models().values()}

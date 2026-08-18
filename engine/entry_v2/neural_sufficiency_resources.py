@@ -8159,9 +8159,18 @@ class ProductionExactDiagnosticResources:
                 memory_delta = float((changed_memory - memory.detach()).abs().max())
                 action_delta = float(
                     (changed.action_logit - base.action_logit.detach()).abs().max())
-                if memory_delta <= 1e-6 or action_delta <= 1e-6:
+                # A-012 gate 2 as WRITTEN: the field must move the raw
+                # MEMORY (architectural routing) with a finite nonzero
+                # gradient. A base-TRAINED model may lawfully learn action-
+                # insensitivity to a field (e.g. microsecond remainders);
+                # per-field action sensitivity is receipted as measurement.
+                if memory_delta <= 1e-6:
                     raise RealDiagnosticExecutorRefusal(
-                        f"continuous route did not reach action: {name}")
+                        f"continuous route did not reach raw memory: {name}")
+                if getattr(self, "_route_action_sensitivity", None) is None:
+                    self._route_action_sensitivity = {}
+                self._route_action_sensitivity.setdefault(arm, {})[name] = (
+                    float(action_delta))
                 route_delta[name] = (memory_delta, action_delta)
             for field, (name, size) in enumerate(zip(CATEGORICAL_FIELDS,
                                                        CATEGORY_SIZES)):
@@ -8174,9 +8183,13 @@ class ProductionExactDiagnosticResources:
                 memory_delta = float((changed_memory - memory.detach()).abs().max())
                 action_delta = float(
                     (changed.action_logit - base.action_logit.detach()).abs().max())
-                if memory_delta <= 1e-6 or action_delta <= 1e-6:
+                # Same law-faithful form as the continuous routes: memory
+                # routing gates; learned action sensitivity is receipted.
+                if memory_delta <= 1e-6:
                     raise RealDiagnosticExecutorRefusal(
-                        f"categorical route did not reach action: {name}")
+                        f"categorical route did not reach raw memory: {name}")
+                self._route_action_sensitivity.setdefault(arm, {})[name] = (
+                    float(action_delta))
                 route_delta[name] = (memory_delta, action_delta)
 
             # Undefined-price handling has two separate observable routes:

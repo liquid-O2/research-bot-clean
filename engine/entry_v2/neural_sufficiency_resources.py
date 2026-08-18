@@ -7765,9 +7765,7 @@ class ProductionExactDiagnosticResources:
             baseline = _selected_horizon_components(
                 horizon_prediction, horizon_target, horizon_valid)
             value_mutant = horizon_target.clone()
-            # scale-proof (targets are normalized floats; the relative
-            # form is still magnitude-safe and detectably nonzero)
-            value_mutant[:, coordinate] = value_mutant[:, coordinate] * 1.5 + 1.0e3
+            value_mutant[:, coordinate] += 1.0
             moved_value = _selected_horizon_components(
                 horizon_prediction, value_mutant, horizon_valid)
             mask_mutant = horizon_valid.clone()
@@ -8168,11 +8166,10 @@ class ProductionExactDiagnosticResources:
             # gradient check above already proves route participation).
             row = cutoff - 1
             for field, name in enumerate(self.schema.continuous_fields):
-                mutant = x.detach().clone()
-                # Scale-proof mutation (the A1/canary float32 law): an
-                # additive 1.25 vanishes at clock magnitudes (eps ~128 at
-                # 1.6e9); relative+absolute survives any float32 magnitude.
-                mutant[row, field] = mutant[row, field] * 1.5 + 1.0e6
+                # These tensors are z-scored: +1.25 = 1.25 sigma, always
+                # fp32-detectable (the raw-unit absorption law applies to raw
+                # CSV canaries, NOT here; 1e6-scale injections saturate).
+                mutant = x.detach().clone(); mutant[row, field] += 1.25
                 changed_memory = encoder(
                     mutant, k, cut, receive_clock_ns=clock,
                     candidate_decision_ts_ns=decision, asset_idx=0)
@@ -8231,8 +8228,7 @@ class ProductionExactDiagnosticResources:
                     zero_normalized = 0.0
                 consistent_x[row, price_column] = zero_normalized
             else:
-                consistent_x[row, price_column] = (
-                    consistent_x[row, price_column] * 1.5 + 1.0e6)
+                consistent_x[row, price_column] += 1.25
             consistent_memory = encoder(
                 consistent_x, consistent_k, cut, receive_clock_ns=clock,
                 candidate_decision_ts_ns=decision, asset_idx=0)
@@ -8277,8 +8273,7 @@ class ProductionExactDiagnosticResources:
                 raise RealDiagnosticExecutorRefusal(
                     "route/suffix gate skipped every post-cutoff mutation")
             for field, name in enumerate(self.schema.continuous_fields):
-                mutant = x.detach().clone()
-                mutant[cutoff, field] = mutant[cutoff, field] * 1.5 + 1.0e6
+                mutant = x.detach().clone(); mutant[cutoff, field] += 1.25
                 assert_suffix(mutant, k, clock, f"mutate-continuous:{name}")
             for field, (name, size) in enumerate(zip(CATEGORICAL_FIELDS,
                                                       CATEGORY_SIZES)):
@@ -8300,8 +8295,7 @@ class ProductionExactDiagnosticResources:
             base_append_k = torch.cat((k, k[-1:].clone()), 0)
             for clock_kind, append_clock in append_clocks.items():
                 for field, name in enumerate(self.schema.continuous_fields):
-                    mutant = base_append_x.clone()
-                    mutant[-1, field] = mutant[-1, field] * 1.5 + 1.0e6
+                    mutant = base_append_x.clone(); mutant[-1, field] += 1.25
                     assert_suffix(mutant, base_append_k, append_clock,
                                   f"append-{clock_kind}-continuous:{name}")
                 for field, (name, size) in enumerate(zip(CATEGORICAL_FIELDS,
@@ -8383,8 +8377,7 @@ class ProductionExactDiagnosticResources:
                         candidate_decision_ts_ns=bd,
                         asset_idx=C.ASSET_INDEX[candidate_batch.asset])
                     for band_name, index in indices.items():
-                        mutant = bx.clone()
-                        mutant[index, 0] = mutant[index, 0] * 1.5 + 1.0e6
+                        mutant = bx.clone(); mutant[index, 0] += 1.25
                         changed = encoder(
                             mutant, bk, bcut, receive_clock_ns=bc,
                             candidate_decision_ts_ns=bd,
@@ -8970,7 +8963,7 @@ class ProductionExactDiagnosticResources:
         canary_targets = {key: _sha_bytes(value.values.tobytes())
                           for key, value in targets.items()}
         changed_values = np.asarray(targets[first_key].values).copy()
-        changed_values.flat[0] = changed_values.flat[0] * 1.5 + 1.0e6
+        changed_values.flat[0] += 1.0
         canary_targets[first_key] = _sha_bytes(changed_values.tobytes())
         visible_target = targets[first_key]
         coordinate = np.asarray(visible_target.coordinate_mask, bool)

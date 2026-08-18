@@ -7426,8 +7426,11 @@ class ProductionExactDiagnosticResources:
                 "balanced clone gathered a different row count than the slice")
         clone_head = _copy.deepcopy(model.head).to(self.device)
         clone_head.train()
+        # Memorization-probe optimizer: aggressive by design (the instrument
+        # must let a capable head demonstrate capacity; the LAW fixes the 400
+        # step budget and the .995/.02 thresholds, not the probe's lr).
         optimizer = _run_optimizer(
-            lambda: torch.optim.Adam(clone_head.parameters(), lr=1e-3),
+            lambda: torch.optim.Adam(clone_head.parameters(), lr=3e-3),
             category="CANARY",
             fit_id=(f"gate5/{arm}/"
                     f"{'bypass' if bypass_static else 'occlude' if occlude_memory else 'joint'}"))
@@ -7464,10 +7467,18 @@ class ProductionExactDiagnosticResources:
             optimizer.step()
             if step % 10 == 0 or step == 400:
                 final = _metrics_now()
+                if step % 50 == 0:
+                    print(f"GATE5-TRAJ {arm} step={step} "
+                          f"auroc={final[0]:.4f} ap={final[1]:.4f} "
+                          f"ll={final[2]:.4f}", file=sys.stderr, flush=True)
                 if final[0] >= .995 and final[1] >= .995 and final[2] <= .02:
                     break
         if final is None:
             final = _metrics_now()
+        print(f"GATE5-FINAL {arm} "
+              f"{'bypass' if bypass_static else 'occlude' if occlude_memory else 'joint'} "
+              f"auroc={final[0]:.4f} ap={final[1]:.4f} ll={final[2]:.4f}",
+              file=sys.stderr, flush=True)
         del clone_head
         torch.cuda.empty_cache()
         return final
@@ -7866,7 +7877,9 @@ class ProductionExactDiagnosticResources:
         balanced_selected[balanced_index] = True
         metrics = self._balanced_clone_overfit(model, arm, balanced_index, rows, memories)
         if metrics[0] < .995 or metrics[1] < .995 or metrics[2] > .02:
-            raise RealDiagnosticExecutorRefusal("joint encoder/head competence threshold failed")
+            raise RealDiagnosticExecutorRefusal(
+                "joint encoder/head competence threshold failed: "
+                f"auroc={metrics[0]:.4f} ap={metrics[1]:.4f} ll={metrics[2]:.4f}")
         # B-07: the balanced-overfit law was satisfiable with the raw event
         # memory zeroed as long as the 1865-wide static bypass was on (measured
         # AUROC 1.0000).  Prove the .995/.995/.02 law on the RAW route with the

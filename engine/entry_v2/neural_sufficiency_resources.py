@@ -7670,14 +7670,19 @@ class ProductionExactDiagnosticResources:
         # INPUT population.  Prove the >=32-per-asset/per-class precondition on
         # the competence slice first, so an under-populated slice refuses
         # instead of scoring a meaningless 1.0000.
-        _gate_rows = train_selected & np.asarray(rows.action_loss_mask, bool)
+        # Ruling 8 (amendments §Post-audit item 8): gate populations are the
+        # FULL fit-only competence window the one-load preflight certifies
+        # (HG 79 / NKD 60 / SI 41); the train/validation split is the arm's
+        # own training mechanics and must not starve the quota (SI < 32 after
+        # the split). Readouts warm-start nothing.
+        _gate_rows = np.asarray(rows.action_loss_mask, bool)
         balanced_positive, balanced_negative = validate_balanced_overfit_inputs(
             torch.from_numpy(np.asarray(
                 [C.ASSET_INDEX[str(value)]
                  for value in np.asarray(rows.asset, str)[_gate_rows]], np.int64)),
             torch.from_numpy(np.asarray(
                 np.asarray(rows.action_target, np.int8)[_gate_rows], np.int64)))
-        metrics = self._metrics(rows, probability, train_selected)
+        metrics = self._metrics(rows, probability, None)
         if metrics[0] < .995 or metrics[1] < .995 or metrics[2] > .02:
             raise RealDiagnosticExecutorRefusal("joint encoder/head competence threshold failed")
         # B-07: the balanced-overfit law was satisfiable with the raw event
@@ -7689,7 +7694,7 @@ class ProductionExactDiagnosticResources:
             self._collect(model, arm, bypass_static=True)
         raw_probability = np.asarray(
             [raw_probabilities[cid] for cid in raw_rows.candidate_id])
-        raw_metrics = self._metrics(raw_rows, raw_probability, train_selected)
+        raw_metrics = self._metrics(raw_rows, raw_probability, None)
         if (raw_metrics[0] < .995 or raw_metrics[1] < .995
                 or raw_metrics[2] > .02):
             raise RealDiagnosticExecutorRefusal(
@@ -7700,7 +7705,7 @@ class ProductionExactDiagnosticResources:
         occluded_probability = np.asarray(
             [occluded_probabilities[cid] for cid in occluded_rows.candidate_id])
         occluded_metrics = self._metrics(
-            occluded_rows, occluded_probability, train_selected)
+            occluded_rows, occluded_probability, None)
         raw_occlusion_auroc_drop = float(metrics[0] - occluded_metrics[0])
         if raw_occlusion_auroc_drop < RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP:
             raise RealDiagnosticExecutorRefusal(

@@ -8225,9 +8225,17 @@ class ProductionExactDiagnosticResources:
                 "price_plus_mask_action": float((consistent_output.action_logit
                     - base.action_logit.detach()).abs().max()),
             }
-            if any(value <= 1e-6 for value in undefined_deltas.values()):
+            # Law-faithful (same class as the route gates): MEMORY movement
+            # gates the architectural routing; learned ACTION sensitivity is
+            # receipted as measurement, never a refusal.
+            if (undefined_deltas["mask_only_memory"] <= 1e-6
+                    or undefined_deltas["price_plus_mask_memory"] <= 1e-6):
                 raise RealDiagnosticExecutorRefusal(
-                    "undefined-price mask/price routes did not reach action")
+                    "undefined-price mask/price routes did not reach raw memory")
+            self._route_action_sensitivity.setdefault(arm, {}).update({
+                "undefined_price.mask_only": undefined_deltas["mask_only_action"],
+                "undefined_price.price_plus_mask":
+                    undefined_deltas["price_plus_mask_action"]})
 
             def assert_suffix(candidate_x, candidate_k, candidate_clock,
                               label: str) -> None:

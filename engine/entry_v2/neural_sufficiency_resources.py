@@ -8161,7 +8161,12 @@ class ProductionExactDiagnosticResources:
         with torch.no_grad():
             # Every expanded continuous and every exact categorical route must
             # alter both raw memory and the deployed action path independently.
-            row = min(cutoff - 1, 3)
+            # Probe the LAST visible row: the freshest event at decision
+            # time, the one row a causal encoder can never legitimately
+            # ignore (early-row attention can lawfully be ~0 in a trained
+            # encoder, which starved the fp32 delta below 1e-6 at row 3; the
+            # gradient check above already proves route participation).
+            row = cutoff - 1
             for field, name in enumerate(self.schema.continuous_fields):
                 mutant = x.detach().clone()
                 # Scale-proof mutation (the A1/canary float32 law): an

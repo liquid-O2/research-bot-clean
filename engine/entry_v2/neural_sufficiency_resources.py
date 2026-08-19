@@ -7923,6 +7923,7 @@ class ProductionExactDiagnosticResources:
         gate5_pass = bool(metrics[0] >= .995 and metrics[1] >= .995
                           and metrics[2] <= .02)
         self._gate5_verdicts[arm] = {
+            "probe_optimizer": {"kind": "adam", "lr": 3e-3, "max_steps": 400},
             "joint": {"auroc": float(metrics[0]), "ap": float(metrics[1]),
                       "logloss": float(metrics[2]), "pass": gate5_pass},
         }
@@ -9955,17 +9956,23 @@ class ProductionExactDiagnosticResources:
         being null is its job), never a chain abort. Registers a status
         payload so the M8 census stays exactly balanced; evaluation is None
         (screen consumers read only status/receipt/detail)."""
+        # Distinct token class: the F2 acceptance sweep hard-refuses on
+        # DEGENERATE_* anywhere in the tree (correct for prophet/arm); screen
+        # paths carry SCREEN_-prefixed statuses so ruling 14 and the F2 law
+        # compose instead of contradicting.
+        screen_token = f"SCREEN_{token}"
         body = {"schema": "entry-v2-degenerate-screen-path-v1",
-                "status": token, "message": str(message)[:500],
+                "status": screen_token, "original_status": token,
+                "message": str(message)[:500],
                 "artifact": str(artifact_name)}
         receipt = _sha(body)
         payload_name = f"M8/paths/{artifact_name}/degenerate-status.json"
         self._m8_payloads[payload_name] = _canonical_json_bytes(body)
         self._m8_path_payloads[str(artifact_name)] = [payload_name]
-        detail = {"status": token, "degenerate": True,
+        detail = {"status": screen_token, "degenerate": True,
                   "message": body["message"], "diagnostic_only": True,
                   "path_receipt_sha256": receipt}
-        return None, token, receipt, detail
+        return None, screen_token, receipt, detail
 
     def _rehearsal_score_path(self, score: np.ndarray, *, ids: np.ndarray,
                               assets: np.ndarray, days: np.ndarray,
@@ -10052,7 +10059,7 @@ class ProductionExactDiagnosticResources:
             screen_path = ("/objectives/" in str(artifact_name)
                            or "/RAWSUMMARY/" in str(artifact_name))
             if token in REHEARSAL_PATH_IMPLEMENTATION_REFUSALS and screen_path:
-                return _degenerate_screen_path_result(
+                return self._degenerate_screen_path_result(
                     token, str(error), artifact_name)
             if token not in REHEARSAL_PATH_IMPLEMENTATION_REFUSALS:
                 raise RealDiagnosticExecutorRefusal(
@@ -12287,8 +12294,10 @@ class ProductionExactDiagnosticResources:
         # deployable path.
         gate5 = getattr(self, "_gate5_verdicts", {})
         def _arm_competent(path_key: str) -> bool:
+            # FAIL CLOSED (audit 2026-08-19): a missing gate-5 verdict is
+            # never competence.
             verdict = gate5.get(str(path_key).split(":", 1)[0])
-            return bool(verdict is None or verdict.get("competent", False))
+            return bool(verdict is not None and verdict.get("competent", False))
         eligible = [(min(row["economics"][asset]["usd_per_asset_day"]
                          for asset in C.ASSETS), -row["parameter_count"], key)
                     for key, row in matrix.items()

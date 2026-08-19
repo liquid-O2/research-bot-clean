@@ -6848,7 +6848,8 @@ class ProductionExactDiagnosticResources:
                                   for i in local], dtype=torch.long)
         clock = torch.from_numpy(np.asarray(
             observed.truth["ts_recv_ns"][:stop], np.int64))
-        static_raw = np.asarray(_static_context_summary(spec), np.float64)[tuple(local)]
+        static_raw = np.asarray(_static_context_summary(spec),
+                                np.float64)[np.asarray(tuple(local), np.int64)]
         static_location = (self.static_location if normalizer is None
                            else normalizer["static_location"])
         static_scale = (self.static_scale if normalizer is None

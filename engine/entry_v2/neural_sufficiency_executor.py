@@ -637,11 +637,12 @@ class RealDataExactNeuralDiagnosticExecutor:
         booleans = (result.all_routes_gradient, result.suffix_bit_identical,
                     result.shared_head_exact, result.time_band_routing,
                     result.no_retrain_occlusion, result.fit_only_firewall_exact)
-        if (not all(booleans) or result.continuous_mae > 1e-3
-                or result.categorical_accuracy != 1.0
-                or result.minimum_auroc < .995 or result.minimum_ap < .995
-                or result.maximum_bce > .02 or not _valid_sha(result.field_schema_sha256)):
-            raise RealDiagnosticExecutorRefusal(f"{arm} competence failed")
+        # Rulings 16/19: MECHANICAL laws stay hard (structural defects);
+        # CAPABILITY metrics (memorization, reconstruction) are typed per-arm
+        # verdicts recorded in the receipt — an incompetent arm continues as
+        # ledger evidence and is excluded from selection by the provider.
+        if not all(booleans) or not _valid_sha(result.field_schema_sha256):
+            raise RealDiagnosticExecutorRefusal(f"{arm} mechanical law failed")
         self.arms[arm] = result
         # B-13/V2: every gate key below is READ OFF the measured stage result.
         # Emitting literal ``True`` made the receipt a restatement of the
@@ -663,7 +664,9 @@ class RealDataExactNeuralDiagnosticExecutor:
             "continuous_mae": result.continuous_mae,
             "categorical_accuracy": result.categorical_accuracy,
             "minimum_auroc": result.minimum_auroc, "minimum_ap": result.minimum_ap,
-            "maximum_bce": result.maximum_bce, "assets": list(ASSETS),
+            "maximum_bce": result.maximum_bce,
+            "arm_competent": bool(reconstruction_pass and balanced_oracle_overfit),
+            "assets": list(ASSETS),
             "manifest_sha256": manifest.receipt_sha256,
             "measured_evidence_sha256": result.artifact_sha256,
         })
@@ -769,12 +772,16 @@ class RealDataExactNeuralDiagnosticExecutor:
         if type(result) is not DirectHeadResult:
             raise RealDiagnosticExecutorRefusal("weak direct-head result")
         self._bound(result, manifest); self._validate_rows(result.rows, manifest)
+        # Same rulings-16/19 split: identity + gradient laws hard;
+        # memorization metrics are a typed verdict in the receipt.
         if (result.rows.representation_sha256 != base.representation_sha256
-                or result.minimum_auroc < .995 or result.minimum_ap < .995
-                or result.maximum_bce > .02 or not result.every_head_gradient):
-            raise RealDiagnosticExecutorRefusal("direct head competence failed")
+                or not result.every_head_gradient):
+            raise RealDiagnosticExecutorRefusal("direct head mechanical law failed")
         self.direct = result
         return self._execution("direct_head", {
+            "head_competent": bool(result.minimum_auroc >= .995
+                                   and result.minimum_ap >= .995
+                                   and result.maximum_bce <= .02),
             "balanced_oracle_overfit": bool(
                 result.minimum_auroc >= .995 and result.minimum_ap >= .995
                 and result.maximum_bce <= .02),

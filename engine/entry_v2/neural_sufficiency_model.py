@@ -1391,22 +1391,83 @@ class LastRowReconstructionProbe(nn.Module):
         return self.continuous(state), tuple(head(state) for head in self.categories)
 
 
+# R9 (2026-08-19, MEASURED): ``field_continuous`` is ~2/3 of every base-stage
+# gradient step and DOES NOT DESCEND; its worst columns are the six absolute
+# clock z-scores, whose within-session variance is ~0.007 sigma — the
+# reconstruction target there is effectively the calendar date, i.e.
+# unreconstructable BY DESIGN.  They remain INPUTS and routes (gate-2 still
+# proves their routing); they leave the reconstruction TARGET.  The scope is
+# resolved BY NAME against the bound schema, never by positional constants.
+ABSOLUTE_CLOCK_TARGET_FIELDS = (
+    "raw.ts_recv_ns.sec", "raw.ts_recv_ns.microsecond", "raw.ts_recv_ns.nanosecond",
+    "raw.ts_event_ns.sec", "raw.ts_event_ns.microsecond", "raw.ts_event_ns.nanosecond",
+)
+
+
+def reconstruction_target_scope(continuous_fields: Sequence[str], *,
+                                strict: bool = False) -> tuple[bool, ...]:
+    """R9 per-column mask of the reconstruction TARGET (True = supervised).
+
+    ``strict`` refuses when the bound schema does not carry every named
+    absolute-clock column, so a renamed route can never silently widen the
+    target back to the unreconstructable columns.
+    """
+    names = tuple(str(name) for name in continuous_fields)
+    if not names:
+        raise EntryModelRefusal("reconstruction scope needs named continuous fields")
+    if len(set(names)) != len(names):
+        raise EntryModelRefusal("continuous field names must be unique")
+    excluded = tuple(name for name in ABSOLUTE_CLOCK_TARGET_FIELDS if name in names)
+    if strict and len(excluded) != len(ABSOLUTE_CLOCK_TARGET_FIELDS):
+        raise EntryModelRefusal(
+            "R9 reconstruction scope: the bound schema is missing named "
+            f"absolute-clock columns (resolved {excluded})")
+    mask = tuple(name not in ABSOLUTE_CLOCK_TARGET_FIELDS for name in names)
+    if not any(mask):
+        raise EntryModelRefusal("reconstruction target scope is empty")
+    return mask
+
+
+def _scope_tensor(continuous_scope: Sequence[bool] | Tensor | None,
+                  width: int, device: torch.device) -> Optional[Tensor]:
+    if continuous_scope is None:
+        return None
+    scope = torch.as_tensor(
+        [bool(value) for value in continuous_scope], dtype=torch.bool, device=device)
+    if scope.shape != (width,):
+        raise EntryModelRefusal(
+            "reconstruction scope mask must be one flag per continuous field")
+    if not bool(scope.any()):
+        raise EntryModelRefusal("reconstruction target scope is empty")
+    return scope
+
+
 @dataclass(frozen=True)
 class ReconstructionReceipt:
     continuous_mae: float
     categorical_accuracy: float
     passed: bool
+    scoped_continuous_fields: int = -1
 
 
 def reconstruction_receipt(probe: LastRowReconstructionProbe, memory: Tensor,
-                           continuous: Tensor, categorical: Tensor
+                           continuous: Tensor, categorical: Tensor, *,
+                           continuous_scope: Sequence[bool] | Tensor | None = None,
                            ) -> ReconstructionReceipt:
     predicted, logits = probe(memory)
-    mae = float((predicted - continuous).abs().mean().detach())
+    scope = _scope_tensor(continuous_scope, int(predicted.shape[1]), predicted.device)
+    if scope is None:
+        error = (predicted - continuous).abs()
+        scoped = int(predicted.shape[1])
+    else:
+        error = (predicted[:, scope] - continuous[:, scope]).abs()
+        scoped = int(scope.sum())
+    mae = float(error.mean().detach())
     correct = torch.stack([value.argmax(-1) == categorical[:, i]
                            for i, value in enumerate(logits)], dim=1)
     accuracy = float(correct.float().mean().detach())
-    return ReconstructionReceipt(mae, accuracy, mae <= 1e-3 and accuracy == 1.0)
+    return ReconstructionReceipt(mae, accuracy, mae <= 1e-3 and accuracy == 1.0,
+                                 scoped)
 
 
 def assert_tensor_tree_identical(left: object, right: object) -> None:
@@ -1629,6 +1690,7 @@ __all__ = [
     "build_five_arm_registry", "build_shared_arms", "generic_event_schema",
     "FIELD_ROUTING_BAND_SECONDS", "FIELD_ROUTING_LINF_TOLERANCE",
     "field_routing_competence", "module_state_bytes", "reconstruction_receipt",
+    "ABSOLUTE_CLOCK_TARGET_FIELDS", "reconstruction_target_scope",
     "shared_head_sha256", "train_chronological_stage",
     "validate_balanced_overfit_inputs",
 ]

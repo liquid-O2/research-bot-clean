@@ -198,8 +198,14 @@ def fit_only_goal_recovery(
         reasons.append("USD_PER_ASSET_DAY_BELOW_CAPACITY_FLOOR")
     if capture < FIT_ONLY_MIN_ORACLE_CAPTURE:
         reasons.append("ORACLE_CAPTURE_BELOW_PRELAUNCH_FLOOR")
-    if capture > 1.0:
-        reasons.append("ORACLE_CAPTURE_ABOVE_CANDIDATE_CEILING")
+    # Ruling 21 (2026-08-19, adjudicates the R-B2 / capacity-contract
+    # conflict measured live: prophet NKD capture 1.0536): the GOAL-GRADE
+    # ceiling counts only >=$600 candidates, while a lawful replay also
+    # collects sub-$600 winners — goal-grade capture may therefore exceed
+    # 1.0 and is REPORTED unbounded (it is the ruling-11 gate ratio, not an
+    # anomaly cap). The arithmetic-impossibility law lives on the
+    # EXACT-OFFER ceiling at the replay layer (nothing may beat the
+    # unfiltered DP optimum), where R-B2 already enforces it.
     if regime == "LOW" and not mdd < C.LOW_CAPACITY_MAX_DRAWDOWN_USD:
         reasons.append("LOW_CAPACITY_MDD_NOT_BELOW_LIMIT")
     core = {

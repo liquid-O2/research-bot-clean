@@ -103,3 +103,26 @@ R8 M1 stability, R9 recon scope, gate-5 as demoted sanity floor: all stand.
 The probe TARGETS are re-pointed per section 2; the acceptance currency per
 section 1. The funnel-execution sweep and v19's prophet-transport proof
 proceed unchanged.
+
+## 8. STEP-0 MEASURED CONSTANTS (P1 decisive run, 2026-08-19, committed)
+| asset | hindsight oracle | ARRIVAL oracle (deployable) | haircut | capture needed for $2k | best shallow arrival $/day | tail-AUROC range |
+| SI  | $5,123 | $2,639 | 48.5% | 75.8% | $383 | 0.35-0.60 (~chance) |
+| HG  | $3,743 | $2,695 | 28.0% | 74.2% | $147 | 0.35-0.56 (~chance) |
+| NKD | $2,171 | $1,787 | 17.7% | INFEASIBLE (>100%) | $69 | 0.37-0.64 (~chance) |
+VERDICTS: (1) NKD per-asset $2,000/day is MEASURED-INFEASIBLE at current
+candidate grain even for a perfect classifier under the deployable arrival
+rule — the section-6 user decision is now forced by measurement, and
+candidate DENSIFICATION gains a second justification (it raises the arrival
+oracle by giving the rule more winners to meet early). (2) The tail is
+invisible to every shallow feature set (tail-AUROC ~ chance): bulk
+separation exists (AUROC 0.6-0.7), tail ordering does not — the encoder
+bet's acceptance becomes precisely "memory shows tail-AUROC > 0.5 and
+positive paired arrival dollars where every shallow plane shows chance".
+(3) The P1 mechanism ablation PROVED the horizon thesis: SI hindsight
+capture P1 $915 vs P1-short $11 vs crude $362 — the lift lives in the
+long-horizon windows. The plane enters candidate_features regardless (real
+bulk information). (4) CAVEAT: the arrival simulator uses one fixed theta
+targeting 3 picks/day; the real funnel's per-asset threshold law + a
+theta-sweep + veto-style selection + episode capacity engineering are
+lawful levers ABOVE these floor estimates — pre-registered as harness
+report columns, not silently assumed.

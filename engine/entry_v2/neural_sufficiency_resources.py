@@ -100,6 +100,7 @@ from .selected_horizon_contract import (
     validate_selected_horizon_identity,
 )
 from .policy import neural_inference_path
+from .corpus import CANDIDATE_FEATURE_SCHEMA
 from .production_runtime import (
     ColdAssetProcessPool,
     PRODUCTION_DISK_CACHE_MEMORY_RESERVE_BYTES,
@@ -972,15 +973,55 @@ IDENTITY_TRAINED_ARMS = ("L0", "L1", "M1")
 IDENTITY_UNAVAILABLE_BROADCAST = "IDENTITY_UNAVAILABLE_BROADCAST"
 IDENTITY_SKIP_REASONS = ("TOO_FEW_UNIQUE_WINDOWS", "NO_LAWFUL_CROP",
                          "NO_LAWFUL_NEGATIVE")
+# Ruling 5 (rulings 16/19 taxonomy): a held population with no multi-window
+# session is a DATA-SHAPE CAPABILITY FACT, not a mechanical defect.  Identity
+# leaves the governed set for that run, typed and receipted.
+IDENTITY_VALIDATION_TRAINED = "TRAINED"
+IDENTITY_VALIDATION_UNAVAILABLE = "UNAVAILABLE_NO_MULTI_WINDOW_SESSIONS"
 # Leakage law (R1): the identity objective is a function of the INPUT tape
 # only.  Its reduction is UNIFORM - never the outcome-derived action/top3/wall
 # fit weights.  A graph-walk test proves the loss reaches no target tensor.
 IDENTITY_FIT_WEIGHT_LAW = "UNIFORM"
 
-# R2 - memory-value probe (the dollars bridge).  Weighted by the OUTCOME-FREE
-# ``base`` asset-day weights only.
-MEMORY_VALUE_FIT_WEIGHT_LAW = "OUTCOME_FREE_BASE"
-MEMORY_VALUE_TARGETS = ("value_bin", "top3", "action")
+# R2 as AMENDED by the one-shot pre-registration section 2: the probe's
+# targets are re-pointed from bulk classification to DOLLAR ORDERING.  The
+# measured pathology the amendment answers: AUROC 0.70 bought -$41/day, and
+# the tail is invisible to every shallow plane (tail-AUROC ~ chance).
+#     L = L_util + lambda_list * L_list + lambda_tail * L_tail
+# Leakage: outcome-derived weights live ONLY in this probe channel (the base
+# stage already consumes teacher-joined targets); NEVER in the identity
+# weights.  The graph-walk assertion still binds the identity loss.
+MEMORY_VALUE_FIT_WEIGHT_LAW = "OUTCOME_DERIVED_PROBE_CHANNEL_ONLY"
+MEMORY_VALUE_TARGETS = ("util_goal_grade", "list_dollar_mass", "tail_wall_hit")
+GOAL_GRADE_USD = 600.0
+FROZEN_COST_FEATURE_NAME = "frozen_cost_usd"
+# L_util: dollar-weighted BCE.  The gradient buys dollar-ordering, not bulk
+# separation: w_i = clip(|net_i|, 50, 1500) / 600.
+MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD = 50.0
+MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD = 1_500.0
+MEMORY_VALUE_UTIL_WEIGHT_SCALE_USD = 600.0
+# L_list: within-(asset,day) listwise dollar-mass KL against normalized
+# positive nets, on the SAME util score the harness selects with.
+MEMORY_VALUE_LIST_TAU = 1.0
+MEMORY_VALUE_LIST_SKIP_REASONS = ("NO_POSITIVE_DOLLAR_MASS", "SINGLE_CANDIDATE")
+# L_tail: the MDD law made differentiable (single trades breach $1,000 alone).
+MEMORY_VALUE_TAIL_SCALE_USD = 900.0
+# Internal shares, gradient-normalized ~50/30/20.  Placeholders until the
+# harness two-point measurement sets them.
+MEMORY_VALUE_UTIL_WEIGHT = 1.0
+MEMORY_VALUE_LIST_WEIGHT = 1.0
+MEMORY_VALUE_TAIL_WEIGHT = 1.0
+MEMORY_VALUE_TARGET_SHARES = MappingProxyType({
+    "util": 0.50, "list": 0.30, "tail": 0.20})
+MEMORY_VALUE_WEIGHTS_MEASURED = False
+# value_bin survives as a PASSIVE diagnostic: it reads the memory through a
+# detached tensor, so it reports without steering the encoder.
+MEMORY_VALUE_VALUE_BIN_LAW = "DETACHED_PASSIVE_DIAGNOSTIC"
+# Section 4 of the pre-registration: the occlusion baseline is WITHIN-SESSION
+# SHUFFLED memories (the recipient-fixed twin law), never zeros.  Zeros stay
+# as a second reference column only.
+MEMORY_VALUE_SHUFFLE_SEED = 20260819
+MEMORY_VALUE_BASELINE_LAW = "WITHIN_SESSION_SHUFFLED_MEMORY"
 
 # F3 - gradient-share scaffolding.  The weights are placeholders until the
 # harness MEASURES them; ``AUX_WEIGHTS_MEASURED`` is the honest receipt flag.
@@ -988,8 +1029,11 @@ AUX_RECON_WEIGHT = 1.0
 AUX_IDENTITY_WEIGHT = 1.0
 AUX_MEMORY_VALUE_WEIGHT = 1.0
 AUX_WEIGHTS_MEASURED = False
+# Ruling 2 / pre-registration section 7: targets ~15% recon-scoped, 20%
+# identity, 35-40% probe, 25% oracle stack; the CAPS carry headroom above the
+# targets so a healthy auxiliary is never throttled for being on target.
 AUX_SHARE_CAPS = MappingProxyType({
-    "recon": 1.0, "identity": 1.0, "memory_value": 1.0})
+    "recon": 0.20, "identity": 0.25, "memory_value": 0.45})
 AUX_SHARE_CAPS_MEASURED = False
 AUX_WEIGHT_TODO = "TODO_MEASURE_IN_HARNESS"
 GRADIENT_SHARE_MEASUREMENT_EPOCHS = (0, 3)
@@ -1002,7 +1046,11 @@ ARM_WALL_CEILING_SECONDS = MappingProxyType({
     "C0": 360.0, "C1": 360.0, "L0": 480.0, "L1": 480.0, "M1": 1800.0})
 
 # Section 4.5 - the 26-row held reconstruction slice was too thin to certify.
+# Ruling 3 amends the floor: never more than a quarter of the competence
+# population, so a small corpus cannot pay for certifiability with the
+# training set itself.
 RECONSTRUCTION_VALIDATION_MINIMUM_ROWS = 100
+RECONSTRUCTION_VALIDATION_MAXIMUM_HELD_FRACTION = 0.25
 
 # R8 - M1 optimization stability (measured oscillation, grad spikes 13k->23k).
 M1_ENCODER_GRU_LR_SCALE = 0.3
@@ -1031,7 +1079,14 @@ class CandidateIdentityProjection(torch.nn.Module):
 
 
 class MemoryValueProbe(torch.nn.Module):
-    """R2 discarded probe: oracle value targets from the RAW MEMORY ALONE."""
+    """R2 discarded probe: DOLLAR ORDERING from the RAW MEMORY ALONE.
+
+    ``util`` is both the L_util logit and the score the acceptance harness
+    selects with, so the listwise dollar-mass term shapes exactly the ranking
+    that spends money.  ``tail`` carries the wall-hit / drawdown channel.
+    ``value_bin`` is a PASSIVE diagnostic: it reads a detached memory, so it
+    reports value bins without steering the encoder.
+    """
 
     def __init__(self, tokens: int = 4, width: int = 512,
                  n_value_bins: int = 5) -> None:
@@ -1039,63 +1094,169 @@ class MemoryValueProbe(torch.nn.Module):
         self.trunk = torch.nn.Sequential(
             torch.nn.Flatten(), torch.nn.Linear(tokens * width, 512),
             torch.nn.GELU())
-        self.value_bin = torch.nn.Linear(512, int(n_value_bins))
-        self.top3 = torch.nn.Linear(512, 1)
-        self.action = torch.nn.Linear(512, 1)
+        self.util = torch.nn.Linear(512, 1)
+        self.tail = torch.nn.Linear(512, 1)
+        self.diagnostic_trunk = torch.nn.Sequential(
+            torch.nn.Flatten(), torch.nn.Linear(tokens * width, 256),
+            torch.nn.GELU())
+        self.value_bin = torch.nn.Linear(256, int(n_value_bins))
 
     def forward(self, memory: torch.Tensor
                 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         state = self.trunk(memory)
-        return (self.value_bin(state), self.top3(state).squeeze(-1),
-                self.action(state).squeeze(-1))
+        # The diagnostic branch never carries encoder gradient.
+        diagnostic = self.diagnostic_trunk(memory.detach())
+        return (self.util(state).squeeze(-1), self.tail(state).squeeze(-1),
+                self.value_bin(diagnostic))
+
+
+def _batch_dollars(batch: "_CandidateBatch", device: torch.device
+                   ) -> Mapping[str, torch.Tensor]:
+    """Certified / frozen / net dollars and the goal-grade label for a batch.
+
+    Every quantity comes from planes the base stage ALREADY consumes: the
+    teacher-joined oracle value target and the frozen candidate-feature
+    column.  The frozen-cost column is resolved BY NAME against the frozen
+    candidate feature schema, never by a positional constant.
+    """
+    features = batch.candidate_features.to(device=device, dtype=torch.float32)
+    if features.ndim != 2 or features.shape[1] != len(CANDIDATE_FEATURE_SCHEMA):
+        raise RealDiagnosticExecutorRefusal(
+            "candidate features do not match the frozen candidate feature "
+            f"schema ({features.shape[1]} vs {len(CANDIDATE_FEATURE_SCHEMA)})")
+    column = CANDIDATE_FEATURE_SCHEMA.index(FROZEN_COST_FEATURE_NAME)
+    frozen = features[:, column]
+    certified = (batch.oracle_targets["value"].to(device=device,
+                                                  dtype=torch.float32)
+                 * VALUE_SCALE_USD)
+    net = certified - frozen
+    return MappingProxyType({
+        "certified_usd": certified, "frozen_usd": frozen, "net_usd": net,
+        "goal_grade": (certified >= GOAL_GRADE_USD).float(),
+    })
 
 
 def _memory_value_probe_loss(
     probe: MemoryValueProbe,
     memory: torch.Tensor,
     batch: "_CandidateBatch",
-    fit_weight: torch.Tensor | None = None,
-) -> tuple[torch.Tensor, Mapping[str, torch.Tensor]]:
-    """R2: value_bin/top3/action predicted from the raw memory alone.
+) -> tuple[torch.Tensor, Mapping[str, torch.Tensor], Mapping[str, Any]]:
+    """Per-batch L_util + L_tail, plus the record the day-level L_list needs.
 
-    No new information class enters the stage: every target is already an
-    in-stage oracle target of ``_actual_multitask_loss``.  The reduction uses
-    ONLY the outcome-free ``base`` weights (or a plain mean) - the outcome
-    derived action/top3/wall weights are forbidden here by the leakage law.
+    L_util: dollar-weighted BCE on goal grade, w_i = clip(|net|, 50, 1500)/600.
+    L_tail: wall-hit BCE weighted (1 + |min(net, 0)| / 900).
+    Both reduce as WEIGHTED MEANS so the scale does not drift with batch size.
     """
     device = memory.device
-    value_logits, top3_logit, action_logit = probe(memory)
-    oracle = {name: value.to(device) for name, value in batch.oracle_targets.items()}
-    selected = batch.action_loss_mask.to(device=device, dtype=torch.bool)
-    rows = {
-        "value_bin": torch.nn.functional.cross_entropy(
-            value_logits.float(), oracle["value_bin"].long(), reduction="none"),
-        "top3": torch.nn.functional.binary_cross_entropy_with_logits(
-            top3_logit.float(), oracle["top3"].float(), reduction="none"),
-        "action": torch.nn.functional.binary_cross_entropy_with_logits(
-            action_logit.float(), batch.targets.to(device).float(),
-            reduction="none"),
-    }
-    if fit_weight is None:
-        weight = None
-    else:
-        weight = fit_weight.to(device=device, dtype=torch.float32)
-        if (weight.shape != batch.targets.shape
-                or not bool(torch.isfinite(weight).all())
-                or bool((weight < 0).any())):
-            raise RealDiagnosticExecutorRefusal(
-                "memory-value probe fit weights are invalid")
-    components: dict[str, torch.Tensor] = {}
-    for name, row in rows.items():
-        mask = selected if name == "action" else torch.ones_like(selected)
-        if not bool(mask.any()):
-            components[name] = row.sum() * 0.0
-        elif weight is None:
-            components[name] = row[mask].mean()
-        else:
-            components[name] = (row[mask] * weight[mask]).sum()
-    total = components["value_bin"] + components["top3"] + components["action"]
-    return total, MappingProxyType(dict(components))
+    util_logit, tail_logit, value_bin_logits = probe(memory)
+    dollars = _batch_dollars(batch, device)
+    net = dollars["net_usd"]
+    goal_grade = dollars["goal_grade"]
+    util_weight = (net.abs().clamp(MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD,
+                                   MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD)
+                   / MEMORY_VALUE_UTIL_WEIGHT_SCALE_USD)
+    util_rows = torch.nn.functional.binary_cross_entropy_with_logits(
+        util_logit.float(), goal_grade, reduction="none")
+    util = (util_rows * util_weight).sum() / util_weight.sum().clamp_min(1e-12)
+    tail_weight = 1.0 + net.clamp_max(0.0).abs() / MEMORY_VALUE_TAIL_SCALE_USD
+    tail_rows = torch.nn.functional.binary_cross_entropy_with_logits(
+        tail_logit.float(),
+        batch.oracle_targets["wall"].to(device=device, dtype=torch.float32),
+        reduction="none")
+    tail = (tail_rows * tail_weight).sum() / tail_weight.sum().clamp_min(1e-12)
+    diagnostic = torch.nn.functional.cross_entropy(
+        value_bin_logits.float(),
+        batch.oracle_targets["value_bin"].to(device=device).long())
+    total = (MEMORY_VALUE_UTIL_WEIGHT * util + MEMORY_VALUE_TAIL_WEIGHT * tail)
+    record = MappingProxyType({
+        "asset": str(batch.asset), "day": int(batch.day),
+        "session_id": str(batch.session_id),
+        "scores": util_logit.float(),
+        "gains": net.clamp_min(0.0).detach(),
+        "rows": int(len(batch.candidate_ids)),
+    })
+    return total, MappingProxyType({
+        "util": util, "tail": tail, "value_bin_diagnostic": diagnostic,
+    }), record
+
+
+def _memory_value_list_loss(
+    records: Sequence[Mapping[str, Any]], *, tau: float | None = None,
+) -> tuple[torch.Tensor | None, Mapping[str, Any]]:
+    """Within-(asset, day) listwise DOLLAR-MASS KL.
+
+    The target is the normalized positive-net mass over the day's candidates:
+    a day where one candidate carries most of the dollars must be ranked that
+    way, and a flat shelf must be scored flat.  Session batches do not always
+    span the whole asset-day, so the coverage actually optimized is receipted
+    rather than assumed.
+    """
+    tau = MEMORY_VALUE_LIST_TAU if tau is None else float(tau)
+    empty = MappingProxyType({"groups": 0, "rows": 0, "skips": {},
+                              "list_coverage": 0.0})
+    if not records:
+        return None, empty
+    by_group: dict[tuple[str, int], list[Mapping[str, Any]]] = {}
+    for record in records:
+        by_group.setdefault((record["asset"], record["day"]), []).append(record)
+    losses = []; used_rows = 0; total_rows = 0
+    skips: dict[str, int] = {}
+    for key in sorted(by_group):
+        group = by_group[key]
+        scores = torch.cat([record["scores"] for record in group])
+        gains = torch.cat([record["gains"] for record in group])
+        total_rows += int(sum(int(record["rows"]) for record in group))
+        if int(scores.numel()) < 2:
+            skips["SINGLE_CANDIDATE"] = skips.get("SINGLE_CANDIDATE", 0) + 1
+            continue
+        mass = float(gains.sum())
+        if not (mass > 0):
+            skips["NO_POSITIVE_DOLLAR_MASS"] = (
+                skips.get("NO_POSITIVE_DOLLAR_MASS", 0) + 1)
+            continue
+        target = gains / gains.sum()
+        log_q = torch.log_softmax(scores / tau, dim=0)
+        losses.append(-(target * log_q).sum())
+        used_rows += int(scores.numel())
+    if not losses:
+        return None, MappingProxyType({
+            "groups": len(by_group), "rows": 0, "skips": dict(skips),
+            "list_coverage": 0.0})
+    receipt = MappingProxyType({
+        "groups": len(by_group), "rows": int(used_rows),
+        "skips": dict(skips),
+        "list_coverage": (used_rows / total_rows) if total_rows else 0.0,
+        "tau": float(tau),
+    })
+    return torch.stack(losses).mean(), receipt
+
+
+def _within_session_shuffled_memory(memory: torch.Tensor, *, seed: int,
+                                    epoch: int, session_id: str
+                                    ) -> torch.Tensor:
+    """Pre-registration section 4: permute candidate<->memory INSIDE a session.
+
+    Zeros answer "does the head use its memory at all"; a shuffle answers the
+    question that pays - "does THIS candidate's memory beat a sibling's from
+    the same session".  A single-candidate session cannot be shuffled and is
+    returned unchanged (its own typed receipt lives at the call site).
+    """
+    count = int(memory.shape[0])
+    if count < 2:
+        return memory
+    digest = hashlib.sha256(
+        f"{int(seed)}|{int(epoch)}|{session_id}".encode()).digest()
+    generator = np.random.default_rng(
+        int.from_bytes(digest[:8], "big") % (2 ** 63))
+    order = generator.permutation(count)
+    # A derangement is not required, but an identity permutation would make
+    # the baseline a copy of the live trace; redraw the degenerate case.
+    attempts = 0
+    while bool(np.all(order == np.arange(count))) and attempts < 8:
+        order = generator.permutation(count)
+        attempts += 1
+    return memory.index_select(
+        0, torch.as_tensor(order, dtype=torch.long, device=memory.device))
 
 
 def _lawful_crop_boundaries(clock: np.ndarray) -> np.ndarray:
@@ -1368,6 +1529,8 @@ def _apply_linear_warmup(optimizer: torch.optim.Optimizer,
 def _widened_validation_days(
     batches: Sequence["_CandidateBatch"],
     minimum_rows: int = RECONSTRUCTION_VALIDATION_MINIMUM_ROWS,
+    *,
+    maximum_held_fraction: float = RECONSTRUCTION_VALIDATION_MAXIMUM_HELD_FRACTION,
 ) -> tuple[frozenset[int], Mapping[str, Any]]:
     """Section 4.5: grow the trailing held window until it can certify.
 
@@ -1386,18 +1549,26 @@ def _widened_validation_days(
                                        + len(batch.candidate_ids))
     baseline = max(1, int(np.ceil(.1 * len(unique_days))))
     count = min(baseline, len(unique_days) - 1)
+    population = int(sum(rows_by_day.values()))
 
     def held_rows(taken: int) -> int:
         return int(sum(rows_by_day[day] for day in unique_days[-taken:]))
 
-    while count < len(unique_days) - 1 and held_rows(count) < int(minimum_rows):
+    # Ruling 3: the floor is min(100, ceil(0.25 * population)) - a small
+    # competence population must never buy a certifiable held slice with more
+    # than a quarter of itself.
+    floor = min(int(minimum_rows),
+                int(np.ceil(float(maximum_held_fraction) * population)))
+    while count < len(unique_days) - 1 and held_rows(count) < floor:
         count += 1
     days = frozenset(unique_days[-count:])
-    total_rows = int(sum(rows_by_day.values()))
+    total_rows = population
     receipt = MappingProxyType({
         "baseline_trailing_days": int(baseline),
         "trailing_days": int(count),
         "held_rows": held_rows(count),
+        "effective_minimum_held_rows": int(floor),
+        "maximum_held_fraction": float(maximum_held_fraction),
         # The cost of the wider window is receipted, not hidden: a small
         # fit-only population pays for a certifiable held slice in training
         # rows, and the ratio is the number a reader needs to judge it.
@@ -1405,7 +1576,8 @@ def _widened_validation_days(
         "total_rows": total_rows,
         "held_fraction": (held_rows(count) / total_rows if total_rows else 0.0),
         "minimum_held_rows": int(minimum_rows),
-        "meets_minimum": bool(held_rows(count) >= int(minimum_rows)),
+        "meets_minimum": bool(held_rows(count) >= floor),
+        "meets_absolute_minimum": bool(held_rows(count) >= int(minimum_rows)),
         "chronological_trailing_only": True})
     return days, receipt
 
@@ -1500,6 +1672,9 @@ def _base_stage_fix_receipt(
     optimizer_group_receipt: Mapping[str, Any],
     scope_receipt: Mapping[str, Any],
     validation_window_receipt: Mapping[str, Any],
+    identity_validation_status: str = IDENTITY_VALIDATION_TRAINED,
+    list_receipts: Sequence[Mapping[str, Any]] = (),
+    unshuffleable_sessions: int = 0,
 ) -> Mapping[str, Any]:
     """Every law the encoder-training fix pass introduced, receipted.
 
@@ -1532,8 +1707,10 @@ def _base_stage_fix_receipt(
         "stop_reason": stop_reason,
         "stop_reasons": BASE_STAGE_STOP_REASONS,
         "wall_ceiling_seconds": float(wall_ceiling_s),
-        "identity_status": ("TRAINED" if identity_enabled
+        "identity_status": (identity_validation_status if identity_enabled
                             else IDENTITY_UNAVAILABLE_BROADCAST),
+        "identity_validation": (identity_validation_status if identity_enabled
+                                else IDENTITY_UNAVAILABLE_BROADCAST),
         "identity_temperature": IDENTITY_TEMPERATURE,
         "identity_min_cutoff_gap_events": IDENTITY_MIN_CUTOFF_GAP_EVENTS,
         "identity_max_crop_events": IDENTITY_MAX_CROP_EVENTS,
@@ -1544,16 +1721,52 @@ def _base_stage_fix_receipt(
         "identity_skip_reasons": IDENTITY_SKIP_REASONS,
         "identity_skips": dict(identity_skips),
         "identity_trace": (tuple(float(row["governed"]["identity"])
-                                 for row in trace) if identity_enabled
-                           else IDENTITY_UNAVAILABLE_BROADCAST),
+                                 for row in trace)
+                           if "identity" in tuple(governed)
+                           else (IDENTITY_UNAVAILABLE_BROADCAST
+                                 if not identity_enabled
+                                 else identity_validation_status)),
         "memory_value_trace": tuple(
             float(row["governed"]["memory_value"]) for row in trace),
-        "memory_value_occluded_baseline": tuple(
-            float(row["memory_value_occluded"]) for row in trace),
+        # The ACCEPTANCE baseline (pre-registration section 4).
+        "memory_value_shuffled_baseline": tuple(
+            float(row["memory_value_shuffled"]) for row in trace),
         "memory_value_margin": tuple(
             float(row["memory_value_margin"]) for row in trace),
+        # Reference column only: zeros answer a weaker question.
+        "memory_value_occluded_baseline": tuple(
+            float(row["memory_value_occluded"]) for row in trace),
+        "memory_value_occluded_margin": tuple(
+            float(row["memory_value_occluded_margin"]) for row in trace),
+        "memory_value_baseline_law": MEMORY_VALUE_BASELINE_LAW,
+        "memory_value_shuffle_seed": MEMORY_VALUE_SHUFFLE_SEED,
+        "memory_value_unshuffleable_sessions": int(unshuffleable_sessions),
         "memory_value_fit_weight_law": MEMORY_VALUE_FIT_WEIGHT_LAW,
         "memory_value_targets": MEMORY_VALUE_TARGETS,
+        "memory_value_goal_grade_usd": GOAL_GRADE_USD,
+        "memory_value_util_weight_law": {
+            "floor_usd": MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD,
+            "ceiling_usd": MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD,
+            "scale_usd": MEMORY_VALUE_UTIL_WEIGHT_SCALE_USD,
+            "reduction": "WEIGHTED_MEAN"},
+        "memory_value_tail_scale_usd": MEMORY_VALUE_TAIL_SCALE_USD,
+        "memory_value_list_tau": MEMORY_VALUE_LIST_TAU,
+        "memory_value_list_skip_reasons": MEMORY_VALUE_LIST_SKIP_REASONS,
+        "memory_value_list_coverage_trace": tuple(
+            float(row["memory_value_list_coverage"]) for row in trace),
+        "memory_value_list_training_groups": int(sum(
+            int(row["groups"]) for row in list_receipts)),
+        "memory_value_list_training_skips": {
+            name: int(sum(int(dict(row["skips"]).get(name, 0))
+                          for row in list_receipts))
+            for name in MEMORY_VALUE_LIST_SKIP_REASONS},
+        "memory_value_internal_weights": {
+            "util": MEMORY_VALUE_UTIL_WEIGHT,
+            "list": MEMORY_VALUE_LIST_WEIGHT,
+            "tail": MEMORY_VALUE_TAIL_WEIGHT},
+        "memory_value_internal_target_shares": dict(MEMORY_VALUE_TARGET_SHARES),
+        "memory_value_internal_weights_measured": MEMORY_VALUE_WEIGHTS_MEASURED,
+        "memory_value_value_bin_law": MEMORY_VALUE_VALUE_BIN_LAW,
         "memory_value_probe_persisted": False,
         "auxiliary_weights": {"recon": AUX_RECON_WEIGHT,
                               "identity": AUX_IDENTITY_WEIGHT,
@@ -8263,10 +8476,14 @@ class ProductionExactDiagnosticResources:
         # overfit), never the base stage: a memory plane from a 2-epoch
         # encoder made the reconstruction gate unreachable by construction.
         _base_spec = _STAGE_SPECS["pointwise_dense"]
-        governor = _PerComponentGovernor(
-            governed,
-            minimum_relative_improvement=_base_spec.minimum_relative_improvement,
-            patience=_base_spec.patience)
+        # Ruling 5: the governed roster is settled by what the FIRST held
+        # validation can actually measure.  A held population with no
+        # multi-window session drops identity as a typed capability fact.
+        governor = None
+        identity_validation_status = (
+            IDENTITY_VALIDATION_TRAINED if identity_enabled
+            else IDENTITY_UNAVAILABLE_BROADCAST)
+        list_receipts: list[Mapping[str, Any]] = []
         _wall_ceiling_s = float(ARM_WALL_CEILING_SECONDS[arm])
         _base_stage_start = time.monotonic()
         for epoch in range(_base_spec.max_epochs):
@@ -8286,6 +8503,7 @@ class ProductionExactDiagnosticResources:
                     identity_optimizer.zero_grad(set_to_none=True)
                 oracle_losses = []; reconstruction_losses = []; component_rows = []
                 memory_value_losses = []; identity_records = []
+                memory_value_records = []; component_probe_rows = []
                 for batch in by_day[day_key]:
                     static = batch.static_features.to(self.device) if arm in ("L1", "M1") else None
                     out = model(
@@ -8323,13 +8541,15 @@ class ProductionExactDiagnosticResources:
                             batch_weights["base"],
                             continuous_scope=continuous_scope,
                         )
-                    # R2: the memory-value probe predicts already-in-stage
-                    # oracle targets from the RAW MEMORY ALONE, with gradient
-                    # into the encoder.  Outcome-free `base` weights only.
-                    memory_value_loss, memory_value_components = \
-                        _memory_value_probe_loss(
-                            memory_value_probe, out.raw_memory, batch,
-                            batch_weights["base"])
+                    # R2 as amended (pre-registration section 2): the probe
+                    # reads the RAW MEMORY ALONE and is graded on DOLLAR
+                    # ORDERING - dollar-weighted goal grade plus the wall-hit
+                    # tail here, and the within-(asset,day) listwise
+                    # dollar-mass KL at the day level below.
+                    memory_value_loss, memory_value_components, \
+                        memory_value_record = _memory_value_probe_loss(
+                            memory_value_probe, out.raw_memory, batch)
+                    memory_value_records.append(memory_value_record)
                     if identity_enabled:
                         record, skipped = _identity_cropped_views(
                             model.encoder, batch, out.raw_memory, projection,
@@ -8343,6 +8563,7 @@ class ProductionExactDiagnosticResources:
                     oracle_losses.append(total)
                     reconstruction_losses.append(reconstruction_loss)
                     memory_value_losses.append(memory_value_loss)
+                    component_probe_rows.append(memory_value_components)
                     component_rows.append({**dict(components),
                         "field_continuous": continuous_loss,
                         "field_categorical": categorical_loss,
@@ -8351,6 +8572,13 @@ class ProductionExactDiagnosticResources:
                 oracle_family = torch.stack(oracle_losses).sum()
                 recon_family = torch.stack(reconstruction_losses).sum()
                 memory_value_family = torch.stack(memory_value_losses).sum()
+                list_family, list_step_receipt = _memory_value_list_loss(
+                    memory_value_records)
+                if list_step_receipt is not None:
+                    list_receipts.append(list_step_receipt)
+                if list_family is not None:
+                    memory_value_family = (memory_value_family
+                                           + MEMORY_VALUE_LIST_WEIGHT * list_family)
                 identity_family, identity_step_receipt = (
                     _candidate_identity_loss(identity_records)
                     if identity_records else (None, None))
@@ -8365,8 +8593,27 @@ class ProductionExactDiagnosticResources:
                         "memory_value": memory_value_family})
                     auxiliary_scales = dict(_auxiliary_share_scales(
                         measurement["encoder_gradient_share"]))
+                    # Section 2 asks for the probe's INTERNAL shares
+                    # (~50/30/20) as well as the family shares, so the
+                    # harness can set lambda_list / lambda_tail from
+                    # measurement instead of taste.
+                    def _probe_family(name):
+                        if not component_probe_rows:
+                            return None
+                        return torch.stack([row[name] for row
+                                            in component_probe_rows]).sum()
+                    internal = _encoder_gradient_shares(model, {
+                        "oracle": oracle_family,
+                        "util": _probe_family("util"),
+                        "list": (MEMORY_VALUE_LIST_WEIGHT * list_family
+                                 if list_family is not None else None),
+                        "tail": _probe_family("tail")})
                     gradient_share_receipts.append(MappingProxyType({
                         "epoch": int(epoch), **dict(measurement),
+                        "memory_value_internal_share": dict(
+                            internal["encoder_gradient_share"]),
+                        "memory_value_target_shares": dict(
+                            MEMORY_VALUE_TARGET_SHARES),
                         "applied_scales": dict(auxiliary_scales)}))
                     optimizer.zero_grad(set_to_none=True)
                     decoder_optimizer.zero_grad(set_to_none=True)
@@ -8428,7 +8675,11 @@ class ProductionExactDiagnosticResources:
                 raise RealDiagnosticExecutorRefusal(
                     "arm validation lacks supervised action rows")
             validation_parts = []; oracle_parts = []; recon_parts = []
-            memory_value_parts = []; occluded_parts = []
+            memory_value_parts = []; occluded_parts = []; shuffled_parts = []
+            memory_value_validation_records = []
+            shuffled_validation_records = []
+            occluded_validation_records = []
+            unshuffleable_sessions = 0
             identity_validation_groups: dict[tuple[str, int], list] = {}
             model.eval(); decoder.eval(); memory_value_probe.eval()
             if projection is not None:
@@ -8455,20 +8706,38 @@ class ProductionExactDiagnosticResources:
                             decoder, out.raw_memory, batch,
                             continuous_scope=continuous_scope,
                         )
-                    memory_value_validation, _memory_value_components = \
+                    memory_value_validation, _memory_value_components, \
+                        memory_value_validation_record = \
                         _memory_value_probe_loss(
                             memory_value_probe, out.raw_memory, batch)
-                    # R2 margin instrument: the SAME probe on zeroed memories.
-                    occluded_validation, _occluded_components = \
-                        _memory_value_probe_loss(
+                    memory_value_validation_records.append(
+                        memory_value_validation_record)
+                    # Pre-registration section 4: the ACCEPTANCE baseline is
+                    # the same probe on WITHIN-SESSION SHUFFLED memories -
+                    # "does THIS candidate's memory beat a sibling's from the
+                    # same session".  Zeros answer only "is the memory read at
+                    # all" and stay as a reference column.
+                    shuffled_memory = _within_session_shuffled_memory(
+                        out.raw_memory, seed=MEMORY_VALUE_SHUFFLE_SEED,
+                        epoch=epoch, session_id=str(batch.session_id))
+                    if int(out.raw_memory.shape[0]) < 2:
+                        unshuffleable_sessions += 1
+                    shuffled_validation, _shuffled_components, \
+                        shuffled_validation_record = _memory_value_probe_loss(
+                            memory_value_probe, shuffled_memory, batch)
+                    shuffled_validation_records.append(shuffled_validation_record)
+                    occluded_validation, _occluded_components, \
+                        occluded_validation_record = _memory_value_probe_loss(
                             memory_value_probe,
                             torch.zeros_like(out.raw_memory), batch)
+                    occluded_validation_records.append(occluded_validation_record)
                     count = len(batch.candidate_ids)
                     validation_parts.append((
                         float(oracle_validation + field_validation), count))
                     oracle_parts.append((float(oracle_validation), count))
                     recon_parts.append((float(field_validation), count))
                     memory_value_parts.append((float(memory_value_validation), count))
+                    shuffled_parts.append((float(shuffled_validation), count))
                     occluded_parts.append((float(occluded_validation), count))
                     if identity_enabled:
                         record, skipped = _identity_cropped_views(
@@ -8488,10 +8757,24 @@ class ProductionExactDiagnosticResources:
                              / sum(count for _value, count in parts))
 
             validation = _held_mean(validation_parts)
+
+            def _with_list(parts, records):
+                """The held probe trace carries the same three terms as training."""
+                value = _held_mean(parts)
+                listwise, receipt = _memory_value_list_loss(records)
+                if listwise is not None:
+                    value = value + MEMORY_VALUE_LIST_WEIGHT * float(listwise)
+                return value, receipt
+
+            memory_value_validation_value, list_validation_receipt = _with_list(
+                memory_value_parts, memory_value_validation_records)
+            shuffled_baseline, _shuffled_list_receipt = _with_list(
+                shuffled_parts, shuffled_validation_records)
+            occluded_baseline, _occluded_list_receipt = _with_list(
+                occluded_parts, occluded_validation_records)
             traces = {"oracle": _held_mean(oracle_parts),
                       "recon": _held_mean(recon_parts),
-                      "memory_value": _held_mean(memory_value_parts)}
-            occluded_baseline = _held_mean(occluded_parts)
+                      "memory_value": memory_value_validation_value}
             if identity_enabled:
                 identity_parts = []
                 for group_key in sorted(identity_validation_groups):
@@ -8499,10 +8782,28 @@ class ProductionExactDiagnosticResources:
                         identity_validation_groups[group_key])
                     if value is not None:
                         identity_parts.append((float(value), int(receipt["rows"])))
-                if not identity_parts:
+                if identity_parts:
+                    traces["identity"] = _held_mean(identity_parts)
+                elif epoch == 0:
+                    # Ruling 5: a typed capability fact, not a refusal.
+                    identity_validation_status = IDENTITY_VALIDATION_UNAVAILABLE
+                    governed = tuple(name for name in governed
+                                     if name != "identity")
+                    print(f"IDENTITY-DROP {arm} {identity_validation_status}",
+                          file=sys.stderr, flush=True)
+                elif "identity" in governed:
+                    # The validation crops are drawn from ONE fixed seed, so
+                    # availability cannot change between epochs; if it did,
+                    # the population moved underneath the run.
                     raise RealDiagnosticExecutorRefusal(
-                        "candidate-identity validation is unavailable on held days")
-                traces["identity"] = _held_mean(identity_parts)
+                        "candidate-identity validation vanished mid-run: the "
+                        "held population changed under a fixed crop seed")
+            if governor is None:
+                governor = _PerComponentGovernor(
+                    governed,
+                    minimum_relative_improvement=(
+                        _base_spec.minimum_relative_improvement),
+                    patience=_base_spec.patience)
             train_metrics = self._metrics(rows_now, p_now, ~val_mask)
             checkpoint = _sha({
                 "model": _sha_bytes(module_state_bytes(model)),
@@ -8522,9 +8823,14 @@ class ProductionExactDiagnosticResources:
             trace.append({"epoch": epoch, "validation": validation,
                           "governed": {name: float(traces[name]) for name in governed},
                           "composite": composite,
+                          "memory_value_shuffled": shuffled_baseline,
                           "memory_value_occluded": occluded_baseline,
                           "memory_value_margin":
+                              shuffled_baseline - traces["memory_value"],
+                          "memory_value_occluded_margin":
                               occluded_baseline - traces["memory_value"],
+                          "memory_value_list_coverage": float(
+                              list_validation_receipt["list_coverage"]),
                           "train_auroc": train_metrics[0],
                           "train_ap": train_metrics[1],
                           "train_bce": train_metrics[2],
@@ -8825,7 +9131,11 @@ class ProductionExactDiagnosticResources:
                                   gradient_share_receipts=gradient_share_receipts,
                                   optimizer_group_receipt=optimizer_group_receipt,
                                   scope_receipt=scope_receipt,
-                                  validation_window_receipt=validation_window_receipt),
+                                  validation_window_receipt=validation_window_receipt,
+                                  identity_validation_status=(
+                                      identity_validation_status),
+                                  list_receipts=tuple(list_receipts),
+                                  unshuffleable_sessions=unshuffleable_sessions),
                               "best_validation": best_validation,
                               "best_reload_sha256": reload_sha256,
                               "decoder_sha256": _sha_bytes(module_state_bytes(decoder)),

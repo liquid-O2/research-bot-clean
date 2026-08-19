@@ -12,6 +12,8 @@ import numpy as np
 import torch
 
 from . import common as C
+from .corpus import CANDIDATE_FEATURE_SCHEMA
+from .train import VALUE_SCALE_USD
 from .neural_sufficiency_model import (
     ABSOLUTE_CLOCK_TARGET_FIELDS, EntryModelRefusal, LastRowReconstructionProbe,
     LiTShortMemoryEncoder, generic_event_schema, reconstruction_receipt,
@@ -28,12 +30,21 @@ from .neural_sufficiency_resources import (
     IDENTITY_TEMPERATURE, IDENTITY_TRAINED_ARMS, IDENTITY_UNAVAILABLE_BROADCAST,
     M1_ENCODER_GRU_LR_SCALE, M1_WARMUP_EPOCHS,
     MemoryValueProbe, RECONSTRUCTION_VALIDATION_MINIMUM_ROWS,
+    RECONSTRUCTION_VALIDATION_MAXIMUM_HELD_FRACTION,
+    GOAL_GRADE_USD, FROZEN_COST_FEATURE_NAME,
+    IDENTITY_VALIDATION_UNAVAILABLE, MEMORY_VALUE_BASELINE_LAW,
+    MEMORY_VALUE_LIST_TAU, MEMORY_VALUE_SHUFFLE_SEED,
+    MEMORY_VALUE_TAIL_SCALE_USD, MEMORY_VALUE_TARGETS,
+    MEMORY_VALUE_TARGET_SHARES, MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD,
+    MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD, MEMORY_VALUE_UTIL_WEIGHT_SCALE_USD,
+    MEMORY_VALUE_VALUE_BIN_LAW, MEMORY_VALUE_WEIGHTS_MEASURED,
     RealDiagnosticExecutorRefusal, _PerComponentGovernor,
-    _apply_linear_warmup, _auxiliary_share_scales,
+    _apply_linear_warmup, _auxiliary_share_scales, _batch_dollars,
     _base_stage_fix_receipt, _base_stage_parameter_groups,
     _candidate_identity_loss, _CandidateBatch, _encoder_gradient_shares,
     _field_reconstruction_loss, _identity_cropped_views,
-    _memory_value_probe_loss, _widened_validation_days,
+    _memory_value_list_loss, _memory_value_probe_loss,
+    _widened_validation_days, _within_session_shuffled_memory,
 )
 
 
@@ -50,7 +61,8 @@ def _tiny_encoder(seed: int = 7) -> LiTShortMemoryEncoder:
 
 def _tiny_batch(*, clock: np.ndarray, cutoffs: np.ndarray, asset: str = "HG",
                 day: int = 20210701, session_id: str = "S1",
-                seed: int = 11) -> _CandidateBatch:
+                seed: int = 11, certified_usd=None, frozen_usd=None,
+                wall_hit=None) -> _CandidateBatch:
     """One real ``_CandidateBatch`` over a synthetic but LAWFUL event tape."""
     generator = torch.Generator().manual_seed(seed)
     events = len(clock)
@@ -70,7 +82,7 @@ def _tiny_batch(*, clock: np.ndarray, cutoffs: np.ndarray, asset: str = "HG",
         clock=clock_tensor,
         cutoffs=cutoff_tensor,
         decisions=decisions,
-        candidate_features=torch.randn(candidates, 8, generator=generator),
+        candidate_features=_candidate_feature_block(candidates, frozen_usd),
         context_values=torch.zeros(candidates, 2, 4, 3),
         context_type_ids=torch.zeros(2, dtype=torch.long),
         context_valid=torch.ones(candidates, 2, 4, dtype=torch.bool),
@@ -79,12 +91,19 @@ def _tiny_batch(*, clock: np.ndarray, cutoffs: np.ndarray, asset: str = "HG",
         action_loss_mask=torch.ones(candidates, dtype=torch.bool),
         oracle_targets={
             "value_bin": torch.randint(0, 5, (candidates,), generator=generator),
-            "value": torch.randn(candidates, generator=generator),
+            # The base stage stores certified dollars scaled by VALUE_SCALE_USD.
+            "value": (torch.randn(candidates, generator=generator)
+                      if certified_usd is None
+                      else torch.as_tensor(certified_usd, dtype=torch.float32)
+                      / VALUE_SCALE_USD),
             "top3": torch.randint(0, 2, (candidates,), generator=generator).float(),
             "rank": torch.randn(candidates, generator=generator),
             "mfe": torch.randn(candidates, generator=generator),
             "mae": torch.randn(candidates, generator=generator),
-            "wall": torch.randint(0, 2, (candidates,), generator=generator).float(),
+            "wall": (torch.randint(0, 2, (candidates,),
+                                   generator=generator).float()
+                     if wall_hit is None
+                     else torch.as_tensor(wall_hit, dtype=torch.float32)),
             "time": torch.randn(candidates, generator=generator),
         },
         horizon_targets=torch.randn(candidates, 6, generator=generator),
@@ -95,6 +114,15 @@ def _tiny_batch(*, clock: np.ndarray, cutoffs: np.ndarray, asset: str = "HG",
         last_categorical=torch.randint(0, 4, (candidates, len(CATEGORY_SIZES)),
                                        generator=generator),
     )
+
+
+def _candidate_feature_block(candidates: int, frozen_usd) -> torch.Tensor:
+    """The frozen candidate-feature schema width, with a real frozen cost."""
+    block = torch.zeros(candidates, len(CANDIDATE_FEATURE_SCHEMA))
+    column = CANDIDATE_FEATURE_SCHEMA.index(FROZEN_COST_FEATURE_NAME)
+    if frozen_usd is not None:
+        block[:, column] = torch.as_tensor(frozen_usd, dtype=torch.float32)
+    return block
 
 
 def _graph_leaf_pointers(tensor: torch.Tensor) -> set[int]:
@@ -269,8 +297,12 @@ class ReconstructionTargetScopeTest(unittest.TestCase):
 
 def _replace_last_continuous(batch: _CandidateBatch,
                              values: torch.Tensor) -> _CandidateBatch:
+    return dataclasses_replace(batch, last_continuous=values)
+
+
+def dataclasses_replace(batch: _CandidateBatch, **changes) -> _CandidateBatch:
     import dataclasses
-    return dataclasses.replace(batch, last_continuous=values)
+    return dataclasses.replace(batch, **changes)
 
 
 class CandidateIdentityLawTest(unittest.TestCase):
@@ -414,52 +446,258 @@ class CandidateIdentityLawTest(unittest.TestCase):
 
 
 class MemoryValueProbeLawTest(unittest.TestCase):
-    """R2: the dollars bridge reads the RAW MEMORY and nothing else."""
+    """R2 as AMENDED: the probe is graded on DOLLAR ORDERING, not bulk labels.
 
-    def _batch(self):
-        return _tiny_batch(clock=np.arange(1, 41, dtype=np.int64) * 1_000,
-                           cutoffs=np.asarray([10, 20, 30], np.int64))
+    The measured pathology the amendment answers: AUROC 0.70 bought -$41/day,
+    and the tail is invisible to every shallow plane.
+    """
 
-    def test_probe_gradient_reaches_the_memory(self):
-        batch = self._batch()
+    def _batch(self, certified=None, frozen=None, wall=None, candidates=3,
+               asset="HG", day=20210701, session_id="S1"):
+        cutoffs = np.asarray([10 * (index + 1) for index in range(candidates)],
+                             np.int64)
+        clock = np.arange(1, 10 * candidates + 11, dtype=np.int64) * 1_000
+        return _tiny_batch(clock=clock, cutoffs=cutoffs, asset=asset, day=day,
+                           session_id=session_id, certified_usd=certified,
+                           frozen_usd=frozen, wall_hit=wall)
+
+    def test_dollars_come_from_planes_the_stage_already_consumes(self):
+        batch = self._batch(certified=[1_200.0, 400.0, 0.0],
+                            frozen=[200.0, 100.0, 50.0])
+        dollars = _batch_dollars(batch, torch.device("cpu"))
+        np.testing.assert_allclose(dollars["certified_usd"].numpy(),
+                                   [1_200.0, 400.0, 0.0], rtol=1e-5)
+        np.testing.assert_allclose(dollars["net_usd"].numpy(),
+                                   [1_000.0, 300.0, -50.0], rtol=1e-5)
+        np.testing.assert_allclose(dollars["goal_grade"].numpy(), [1.0, 0.0, 0.0])
+        self.assertEqual(GOAL_GRADE_USD, 600.0)
+
+    def test_frozen_cost_is_resolved_by_name_not_position(self):
+        self.assertIn(FROZEN_COST_FEATURE_NAME, CANDIDATE_FEATURE_SCHEMA)
+        batch = self._batch(certified=[1_000.0] * 3, frozen=[10.0] * 3)
+        moved = dataclasses_replace(
+            batch, candidate_features=batch.candidate_features[:, :4])
+        with self.assertRaisesRegex(RealDiagnosticExecutorRefusal,
+                                    "frozen candidate feature schema"):
+            _batch_dollars(moved, torch.device("cpu"))
+
+    def test_util_weight_is_clipped_dollar_magnitude(self):
+        # w = clip(|net|, 50, 1500)/600: a $10 candidate and a $5,000 candidate
+        # both stop counting at the clip, so one outlier cannot own the batch.
+        batch = self._batch(certified=[610.0, 6_500.0, 605.0],
+                            frozen=[600.0, 0.0, 0.0])
+        dollars = _batch_dollars(batch, torch.device("cpu"))
+        net = dollars["net_usd"]
+        weight = (net.abs().clamp(MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD,
+                                  MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD)
+                  / MEMORY_VALUE_UTIL_WEIGHT_SCALE_USD)
+        self.assertAlmostEqual(float(weight[0]),
+                              MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD / 600.0)
+        self.assertAlmostEqual(float(weight[1]),
+                              MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD / 600.0)
+
+    def test_the_big_dollar_row_dominates_the_util_gradient(self):
+        # The whole point of the retarget: two rows with the SAME label but
+        # very different dollars must not pull equally.  With IDENTICAL
+        # memories the two rows differ only in their dollar weight, so the
+        # gradient ratio is exactly w0/w1 - the law, not a correlation.
+        torch.manual_seed(3)
         probe = MemoryValueProbe()
+        batch = self._batch(certified=[3_000.0, 620.0], frozen=[0.0, 0.0],
+                            wall=[0.0, 0.0], candidates=2)
+        row = torch.randn(1, 4, 512)
+        memory = row.repeat(2, 1, 1).clone().requires_grad_(True)
+        _total, components, _record = _memory_value_probe_loss(
+            probe, memory, batch)
+        grads = torch.autograd.grad(components["util"], memory)[0]
+        clipped = [min(max(value, MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD),
+                       MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD)
+                   for value in (3_000.0, 620.0)]
+        self.assertAlmostEqual(
+            float(grads[0].abs().sum() / grads[1].abs().sum()),
+            clipped[0] / clipped[1], places=4)
+
+    def test_listwise_term_is_the_dollar_mass_kl_on_the_util_score(self):
+        # Ranking the day's dollars correctly must score better than the
+        # reverse ranking, and a perfectly matched ranking is the entropy floor.
+        gains = torch.tensor([300.0, 100.0, 0.0])
+        target = gains / gains.sum()
+
+        def loss_for(scores):
+            record = {"asset": "HG", "day": 20210701, "session_id": "S",
+                      "scores": torch.as_tensor(scores),
+                      "gains": gains, "rows": 3}
+            value, receipt = _memory_value_list_loss([record])
+            return float(value), receipt
+
+        aligned = torch.log(target.clamp_min(1e-9)) * MEMORY_VALUE_LIST_TAU
+        right, receipt = loss_for([3.0, 1.0, 0.0])
+        wrong, _ = loss_for([0.0, 1.0, 3.0])
+        matched, _ = loss_for(aligned)
+        entropy = float(-(target * torch.log(target.clamp_min(1e-9))).sum())
+        self.assertLess(right, wrong)
+        self.assertAlmostEqual(matched, entropy, places=4)
+        self.assertEqual(int(receipt["groups"]), 1)
+        self.assertAlmostEqual(float(receipt["list_coverage"]), 1.0)
+
+    def test_a_day_without_positive_dollar_mass_is_a_typed_skip(self):
+        record = {"asset": "HG", "day": 20210701, "session_id": "S",
+                  "scores": torch.zeros(3), "gains": torch.zeros(3), "rows": 3}
+        value, receipt = _memory_value_list_loss([record])
+        self.assertIsNone(value)
+        self.assertEqual(dict(receipt["skips"]),
+                         {"NO_POSITIVE_DOLLAR_MASS": 1})
+
+    def test_listwise_groups_by_asset_day_across_sessions(self):
+        def record(asset, day, session):
+            return {"asset": asset, "day": day, "session_id": session,
+                    "scores": torch.zeros(2), "gains": torch.tensor([1.0, 0.0]),
+                    "rows": 2}
+        _value, receipt = _memory_value_list_loss([
+            record("HG", 20210701, "a"), record("HG", 20210701, "b"),
+            record("SI", 20210701, "c")])
+        self.assertEqual(int(receipt["groups"]), 2)
+        self.assertEqual(int(receipt["rows"]), 6)
+
+    def test_tail_term_weights_losers_by_their_drawdown(self):
+        batch = self._batch(certified=[0.0, 0.0], frozen=[900.0, 0.0],
+                            wall=[1.0, 1.0], candidates=2)
+        dollars = _batch_dollars(batch, torch.device("cpu"))
+        weight = (1.0 + dollars["net_usd"].clamp_max(0.0).abs()
+                  / MEMORY_VALUE_TAIL_SCALE_USD)
+        self.assertAlmostEqual(float(weight[0]), 2.0)
+        self.assertAlmostEqual(float(weight[1]), 1.0)
+        self.assertEqual(MEMORY_VALUE_TAIL_SCALE_USD, 900.0)
+
+    def test_value_bin_is_a_detached_passive_diagnostic(self):
+        # It reports, it does not steer: no encoder gradient may flow from it.
+        torch.manual_seed(5)
+        probe = MemoryValueProbe()
+        batch = self._batch(certified=[1_000.0, 100.0, 0.0], frozen=[0.0] * 3)
         memory = torch.randn(3, 4, 512, requires_grad=True)
-        loss, components = _memory_value_probe_loss(probe, memory, batch)
-        loss.backward()
+        _total, components, _record = _memory_value_probe_loss(
+            probe, memory, batch)
+        components["value_bin_diagnostic"].backward()
+        self.assertIsNone(memory.grad)
+        self.assertIsNotNone(probe.value_bin.weight.grad)
+        self.assertEqual(MEMORY_VALUE_VALUE_BIN_LAW,
+                         "DETACHED_PASSIVE_DIAGNOSTIC")
+
+    def test_the_trained_terms_do_reach_the_memory(self):
+        torch.manual_seed(7)
+        probe = MemoryValueProbe()
+        batch = self._batch(certified=[1_000.0, 100.0, 0.0], frozen=[0.0] * 3)
+        memory = torch.randn(3, 4, 512, requires_grad=True)
+        total, components, record = _memory_value_probe_loss(
+            probe, memory, batch)
+        total.backward()
         self.assertIsNotNone(memory.grad)
         self.assertGreater(float(memory.grad.abs().sum()), 0.0)
-        self.assertEqual(set(components), {"value_bin", "top3", "action"})
+        self.assertEqual(set(components),
+                         {"util", "tail", "value_bin_diagnostic"})
+        self.assertEqual(MEMORY_VALUE_TARGETS,
+                         ("util_goal_grade", "list_dollar_mass", "tail_wall_hit"))
 
-    def test_occluding_the_memory_changes_the_probe_loss(self):
-        batch = self._batch()
+    def test_the_probe_channel_MAY_touch_outcome_tensors(self):
+        # The leakage law is two-sided: identity must reach no outcome tensor,
+        # and the probe channel must actually be where the outcome-derived
+        # weights live.  An assertion that only ever holds one way is half a
+        # law.
+        torch.manual_seed(13)
         probe = MemoryValueProbe()
-        memory = torch.randn(3, 4, 512)
+        batch = self._batch(certified=[2_000.0, 100.0], frozen=[0.0, 0.0],
+                            wall=[1.0, 0.0], candidates=2)
+        certified = batch.oracle_targets["value"]
+        wall = batch.oracle_targets["wall"]
+        certified.requires_grad_(True); wall.requires_grad_(True)
+        memory = torch.randn(2, 4, 512, requires_grad=True)
+        total, _components, _record = _memory_value_probe_loss(
+            probe, memory, batch)
+        reachable = _graph_leaf_pointers(total)
+        self.assertIn(certified.data_ptr(), reachable)
+        self.assertIn(wall.data_ptr(), reachable)
+
+    def test_internal_target_shares_are_the_pre_registered_fifty_thirty_twenty(self):
+        self.assertEqual(dict(MEMORY_VALUE_TARGET_SHARES),
+                         {"util": 0.50, "list": 0.30, "tail": 0.20})
+        self.assertFalse(MEMORY_VALUE_WEIGHTS_MEASURED)
+
+
+class WithinSessionShuffleBaselineTest(unittest.TestCase):
+    """Section 4: the acceptance baseline is a SIBLING's memory, not zeros."""
+
+    def test_shuffle_permutes_inside_the_session_and_is_deterministic(self):
+        memory = torch.arange(6 * 4 * 512, dtype=torch.float32).reshape(6, 4, 512)
+        first = _within_session_shuffled_memory(
+            memory, seed=MEMORY_VALUE_SHUFFLE_SEED, epoch=0, session_id="S")
+        again = _within_session_shuffled_memory(
+            memory, seed=MEMORY_VALUE_SHUFFLE_SEED, epoch=0, session_id="S")
+        self.assertTrue(torch.equal(first, again))
+        self.assertFalse(torch.equal(first, memory))
+        # A permutation moves rows; it never invents or drops one.
+        self.assertEqual(sorted(float(row[0, 0]) for row in first),
+                         sorted(float(row[0, 0]) for row in memory))
+
+    def test_a_different_session_or_epoch_draws_a_different_permutation(self):
+        memory = torch.arange(8 * 4 * 512, dtype=torch.float32).reshape(8, 4, 512)
+        base = _within_session_shuffled_memory(
+            memory, seed=MEMORY_VALUE_SHUFFLE_SEED, epoch=0, session_id="A")
+        other_session = _within_session_shuffled_memory(
+            memory, seed=MEMORY_VALUE_SHUFFLE_SEED, epoch=0, session_id="B")
+        other_epoch = _within_session_shuffled_memory(
+            memory, seed=MEMORY_VALUE_SHUFFLE_SEED, epoch=1, session_id="A")
+        self.assertFalse(torch.equal(base, other_session))
+        self.assertFalse(torch.equal(base, other_epoch))
+
+    def test_a_single_candidate_session_cannot_be_shuffled(self):
+        memory = torch.randn(1, 4, 512)
+        self.assertTrue(torch.equal(
+            _within_session_shuffled_memory(
+                memory, seed=MEMORY_VALUE_SHUFFLE_SEED, epoch=0,
+                session_id="S"), memory))
+
+    def test_the_shuffled_baseline_is_not_the_zero_baseline(self):
+        torch.manual_seed(11)
+        probe = MemoryValueProbe()
+        clock = np.arange(1, 61, dtype=np.int64) * 1_000
+        batch = _tiny_batch(clock=clock,
+                            cutoffs=np.asarray([10, 20, 30, 40], np.int64),
+                            certified_usd=[2_000.0, 700.0, 100.0, 0.0],
+                            frozen_usd=[0.0] * 4)
+        memory = torch.randn(4, 4, 512)
         with torch.no_grad():
-            live, _ = _memory_value_probe_loss(probe, memory, batch)
-            occluded, _ = _memory_value_probe_loss(
+            live, _c, _r = _memory_value_probe_loss(probe, memory, batch)
+            shuffled, _c, _r = _memory_value_probe_loss(
+                probe, _within_session_shuffled_memory(
+                    memory, seed=MEMORY_VALUE_SHUFFLE_SEED, epoch=0,
+                    session_id="S1"), batch)
+            zeroed, _c, _r = _memory_value_probe_loss(
                 probe, torch.zeros_like(memory), batch)
-        self.assertNotAlmostEqual(float(live), float(occluded))
-
-    def test_negative_fit_weights_refuse(self):
-        batch = self._batch()
-        probe = MemoryValueProbe()
-        with self.assertRaisesRegex(RealDiagnosticExecutorRefusal,
-                                    "memory-value probe fit weights"):
-            _memory_value_probe_loss(probe, torch.randn(3, 4, 512), batch,
-                                     torch.tensor([-1.0, 1.0, 1.0]))
+        self.assertNotAlmostEqual(float(shuffled), float(zeroed), places=4)
+        self.assertNotAlmostEqual(float(shuffled), float(live), places=4)
+        self.assertEqual(MEMORY_VALUE_BASELINE_LAW,
+                         "WITHIN_SESSION_SHUFFLED_MEMORY")
 
 
 class BaseStageFixReceiptTest(unittest.TestCase):
     """Every law the fix pass introduced is receipted, and typed."""
 
-    def _receipt(self, *, identity_enabled: bool, stop_reason="CONVERGED"):
+    def _receipt(self, *, identity_enabled: bool, stop_reason="CONVERGED",
+                 governed_override=None,
+                 identity_validation_status=None):
         governed = ("oracle", "recon", "memory_value")
         if identity_enabled:
             governed = ("oracle", "recon", "identity", "memory_value")
+        if governed_override is not None:
+            governed = tuple(governed_override)
         trace = []
         for epoch in range(2):
             row = {"epoch": epoch, "composite": 1.0 - .1 * epoch,
-                   "memory_value_occluded": 2.0, "memory_value_margin": .5,
+                   "memory_value_shuffled": 1.8,
+                   "memory_value_occluded": 2.0,
+                   "memory_value_margin": .8,
+                   "memory_value_occluded_margin": 1.0,
+                   "memory_value_list_coverage": 1.0,
                    "governed": {name: 1.0 for name in governed}}
             trace.append(row)
         return _base_stage_fix_receipt(
@@ -475,7 +713,9 @@ class BaseStageFixReceiptTest(unittest.TestCase):
                               "memory_value": 1.0},
             gradient_share_receipts=(), optimizer_group_receipt={},
             scope_receipt={"scoped_fields": 10},
-            validation_window_receipt={"held_rows": 120})
+            validation_window_receipt={"held_rows": 120},
+            **({} if identity_validation_status is None
+               else {"identity_validation_status": identity_validation_status}))
 
     def test_broadcast_arms_carry_the_typed_identity_refusal(self):
         receipt = self._receipt(identity_enabled=False)
@@ -499,9 +739,36 @@ class BaseStageFixReceiptTest(unittest.TestCase):
     def test_memory_value_margin_keys_are_present(self):
         receipt = self._receipt(identity_enabled=True)
         self.assertEqual(len(receipt["memory_value_trace"]), 2)
+        # The ACCEPTANCE baseline is the shuffled one; zeros are a reference.
+        self.assertEqual(len(receipt["memory_value_shuffled_baseline"]), 2)
         self.assertEqual(len(receipt["memory_value_occluded_baseline"]), 2)
+        self.assertEqual(receipt["memory_value_baseline_law"],
+                         "WITHIN_SESSION_SHUFFLED_MEMORY")
+        self.assertEqual(tuple(receipt["memory_value_margin"]), (0.8, 0.8))
+        self.assertEqual(tuple(receipt["memory_value_occluded_margin"]),
+                         (1.0, 1.0))
+        # Outcome-derived weights are lawful in the PROBE channel only.
         self.assertEqual(receipt["memory_value_fit_weight_law"],
-                         "OUTCOME_FREE_BASE")
+                         "OUTCOME_DERIVED_PROBE_CHANNEL_ONLY")
+        self.assertEqual(receipt["memory_value_targets"], MEMORY_VALUE_TARGETS)
+        self.assertEqual(float(receipt["memory_value_goal_grade_usd"]), 600.0)
+        self.assertFalse(receipt["memory_value_internal_weights_measured"])
+        self.assertEqual(dict(receipt["memory_value_internal_target_shares"]),
+                         {"util": 0.50, "list": 0.30, "tail": 0.20})
+
+    def test_identity_can_be_dropped_as_a_typed_capability_fact(self):
+        # Ruling 5: no multi-window held session is a data-shape fact, not a
+        # mechanical defect - identity leaves the governed set, typed.
+        receipt = self._receipt(identity_enabled=True, governed_override=(
+            "oracle", "recon", "memory_value"),
+            identity_validation_status=IDENTITY_VALIDATION_UNAVAILABLE)
+        self.assertEqual(receipt["identity_validation"],
+                         IDENTITY_VALIDATION_UNAVAILABLE)
+        self.assertEqual(receipt["identity_trace"],
+                         IDENTITY_VALIDATION_UNAVAILABLE)
+        self.assertNotIn("identity", receipt["governed_traces"])
+        self.assertEqual(IDENTITY_VALIDATION_UNAVAILABLE,
+                         "UNAVAILABLE_NO_MULTI_WINDOW_SESSIONS")
 
     def test_an_untyped_stop_reason_refuses(self):
         with self.assertRaisesRegex(RealDiagnosticExecutorRefusal, "untyped"):
@@ -543,9 +810,12 @@ class AuxiliaryShareLawTest(unittest.TestCase):
         self.assertEqual(scales["identity"], 1.0)
         self.assertEqual(scales["memory_value"], 1.0)
 
-    def test_default_caps_are_inactive_until_measured(self):
+    def test_caps_carry_the_pre_registered_targets_with_headroom(self):
+        # Ruling 2 / pre-registration section 7: targets ~15/20/35-40%, caps
+        # sit above them so an on-target auxiliary is never throttled.
         self.assertEqual(dict(AUX_SHARE_CAPS),
-                         {"recon": 1.0, "identity": 1.0, "memory_value": 1.0})
+                         {"recon": 0.20, "identity": 0.25,
+                          "memory_value": 0.45})
         self.assertFalse(AUX_SHARE_CAPS_MEASURED)
         self.assertFalse(AUX_WEIGHTS_MEASURED)
         self.assertEqual(GRADIENT_SHARE_MEASUREMENT_EPOCHS, (0, 3))
@@ -634,18 +904,34 @@ class ValidationWindowLawTest(unittest.TestCase):
                         day=20210700 + day, session_id=f"S{day}")
             for day in range(1, days + 1)]
 
-    def test_window_widens_until_the_hundred_row_floor(self):
-        days, receipt = _widened_validation_days(self._batches(20, 10))
-        self.assertEqual(int(receipt["baseline_trailing_days"]), 2)
-        self.assertEqual(int(receipt["trailing_days"]), 10)
+    def test_window_widens_to_the_hundred_row_floor_on_a_large_population(self):
+        # 40 days x 40 rows = 1600 rows: 100 is well under a quarter, so the
+        # absolute floor binds and the window stops there.
+        days, receipt = _widened_validation_days(self._batches(40, 40))
+        self.assertEqual(int(receipt["effective_minimum_held_rows"]),
+                         RECONSTRUCTION_VALIDATION_MINIMUM_ROWS)
         self.assertGreaterEqual(int(receipt["held_rows"]),
                                 RECONSTRUCTION_VALIDATION_MINIMUM_ROWS)
         self.assertTrue(receipt["meets_minimum"])
-        self.assertEqual(len(days), 10)
-        # The cost of the wider window is visible, not hidden.
+        self.assertTrue(receipt["meets_absolute_minimum"])
+        self.assertLessEqual(float(receipt["held_fraction"]),
+                             RECONSTRUCTION_VALIDATION_MAXIMUM_HELD_FRACTION)
+        self.assertEqual(len(days), int(receipt["trailing_days"]))
+
+    def test_a_small_population_never_pays_more_than_a_quarter_of_itself(self):
+        # Ruling 3: 20 days x 10 rows = 200 rows.  The old law would have held
+        # 100 of them (half the competence population); the quarter cap stops
+        # the window at 50.
+        days, receipt = _widened_validation_days(self._batches(20, 10))
         self.assertEqual(int(receipt["total_rows"]), 200)
-        self.assertEqual(int(receipt["training_rows"]), 100)
-        self.assertAlmostEqual(float(receipt["held_fraction"]), 0.5)
+        self.assertEqual(int(receipt["effective_minimum_held_rows"]), 50)
+        self.assertEqual(int(receipt["held_rows"]), 50)
+        self.assertEqual(int(receipt["training_rows"]), 150)
+        self.assertAlmostEqual(float(receipt["held_fraction"]), 0.25)
+        self.assertTrue(receipt["meets_minimum"])
+        self.assertFalse(receipt["meets_absolute_minimum"])
+        self.assertEqual(len(days), 5)
+        self.assertEqual(RECONSTRUCTION_VALIDATION_MAXIMUM_HELD_FRACTION, 0.25)
 
     def test_a_wide_enough_baseline_window_is_left_alone(self):
         _days, receipt = _widened_validation_days(self._batches(20, 60))
@@ -654,13 +940,19 @@ class ValidationWindowLawTest(unittest.TestCase):
 
     def test_at_least_one_training_day_always_survives(self):
         days, receipt = _widened_validation_days(self._batches(3, 2))
-        self.assertEqual(len(days), 2)
-        self.assertFalse(receipt["meets_minimum"])
+        self.assertLessEqual(len(days), 2)
+        self.assertGreaterEqual(int(receipt["training_rows"]), 1)
+        self.assertFalse(receipt["meets_absolute_minimum"])
         self.assertEqual(RECONSTRUCTION_VALIDATION_MINIMUM_ROWS, 100)
 
 
 class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
-    """R7: the harness scores held-day TOP-3 DOLLARS, not AUROC."""
+    """The acceptance currency: ARRIVAL-ORDER goal-grade dollars.
+
+    Hindsight top-3 was a lookahead coordinate system - the cap fills
+    chronologically.  These tests pin the deployable rule, both cap laws, the
+    shuffled baseline and the tail-visibility column.
+    """
 
     @staticmethod
     def _harness():
@@ -673,64 +965,226 @@ class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
         spec.loader.exec_module(module)
         return module
 
-    def _data_root(self, rows):
+    def _data_root(self, rows_by_day):
         import tempfile
         from pathlib import Path
         root = Path(tempfile.mkdtemp())
         self.addCleanup(__import__("shutil").rmtree, root, True)
-        (root / "g1" / "candidates" / "HG").mkdir(parents=True)
-        (root / "g1" / "teacher" / "HG").mkdir(parents=True)
-        candidates = ["# provenance header", "candidate_id\tfrozen_cost_usd"]
-        teacher = ["# provenance header",
-                   "candidate_id\tcert_close_usd\tcompliance_status"]
-        for candidate_id, frozen, certified, status in rows:
-            candidates.append(f"{candidate_id}\t{frozen}")
-            teacher.append(f"{candidate_id}\t{certified}\t{status}")
-        (root / "g1" / "candidates" / "HG" / "20210813.tsv").write_text(
-            "\n".join(candidates) + "\n")
-        (root / "g1" / "teacher" / "HG" / "20210813.tsv").write_text(
-            "\n".join(teacher) + "\n")
+        for (asset, day), rows in rows_by_day.items():
+            (root / "g1" / "candidates" / asset).mkdir(parents=True, exist_ok=True)
+            (root / "g1" / "teacher" / asset).mkdir(parents=True, exist_ok=True)
+            candidates = ["# provenance header",
+                          "candidate_id\tfrozen_cost_usd"]
+            teacher = ["# provenance header",
+                       "candidate_id\tcert_close_usd\tcompliance_status"]
+            for candidate_id, frozen, certified, status in rows:
+                candidates.append(f"{candidate_id}\t{frozen}")
+                teacher.append(f"{candidate_id}\t{certified}\t{status}")
+            (root / "g1" / "candidates" / asset / f"{day}.tsv").write_text(
+                "\n".join(candidates) + "\n")
+            (root / "g1" / "teacher" / asset / f"{day}.tsv").write_text(
+                "\n".join(teacher) + "\n")
         return str(root)
 
-    def test_ledger_is_certified_minus_frozen_for_compliant_rows_only(self):
+    def test_ledger_carries_net_dollars_and_goal_grade(self):
         harness = self._harness()
-        root = self._data_root([("a", 10.0, 110.0, "CLEAR"),
-                                ("b", 5.0, 55.0, "READY"),
-                                ("c", 1.0, 900.0, "BLOCKED")])
+        root = self._data_root({("HG", 20210813): [
+            ("a", 10.0, 1_110.0, "CLEAR"),
+            ("b", 5.0, 500.0, "READY"),
+            ("c", 1.0, 900.0, "BLOCKED")]})
         ledger = harness.day_dollar_ledger(root, "HG", 20210813)
         self.assertEqual(set(ledger), {"a", "b"})
-        self.assertAlmostEqual(ledger["a"], 100.0)
-        self.assertAlmostEqual(ledger["b"], 50.0)
+        self.assertAlmostEqual(ledger["a"]["net_usd"], 1_100.0)
+        self.assertEqual(ledger["a"]["goal_grade"], 1)
+        self.assertEqual(ledger["b"]["goal_grade"], 0)
+        self.assertEqual(harness.GOAL_GRADE_USD, 600.0)
 
-    def test_memory_only_top3_beats_the_occluded_baseline(self):
+    def test_arrival_order_is_not_hindsight_order(self):
+        # The winner arrives LAST.  A hindsight top-1 takes it; the arrival
+        # rule with a budget of 1 has already spent the budget on the early
+        # candidate that cleared theta.  That gap is the haircut.
+        harness = self._harness()
+        decisions = [10, 20, 30]
+        assets = ["HG", "HG", "HG"]
+        nets = [100.0, 0.0, 5_000.0]
+        scores = [9.0, 0.0, 8.0]
+        total, per_asset, picks = harness._run_arrival_rule(
+            [0, 1, 2], decisions, assets, nets, scores,
+            budget=1, per_asset_cap=None, theta=1.0)
+        self.assertEqual(picks, [0])
+        self.assertAlmostEqual(total, 100.0)
+        self.assertAlmostEqual(harness._hindsight_top3([0, 1, 2], nets, scores),
+                               5_100.0)
+
+    def test_the_per_asset_cap_costs_deployable_ceiling(self):
+        # Section 9's measured finding, in miniature: the winners cluster on
+        # one asset, and the 3-per-asset cap leaves money on the table that a
+        # portfolio budget collects.
+        harness = self._harness()
+        decisions = list(range(8))
+        assets = ["NKD"] * 5 + ["HG"] * 3
+        nets = [1_000.0] * 5 + [10.0] * 3
+        scores = [5.0] * 8
+        capped, _per_asset, capped_picks = harness._run_arrival_rule(
+            list(range(8)), decisions, assets, nets, scores,
+            budget=9, per_asset_cap=3, theta=1.0)
+        portfolio, _per_asset, portfolio_picks = harness._run_arrival_rule(
+            list(range(8)), decisions, assets, nets, scores,
+            budget=9, per_asset_cap=None, theta=1.0)
+        self.assertEqual(len(capped_picks), 6)
+        self.assertEqual(len(portfolio_picks), 8)
+        self.assertAlmostEqual(capped, 3_030.0)
+        self.assertAlmostEqual(portfolio, 5_030.0)
+        self.assertGreater(portfolio, capped)
+
+    def test_the_portfolio_budget_binds(self):
+        harness = self._harness()
+        decisions = list(range(20))
+        assets = ["HG"] * 20
+        nets = [100.0] * 20
+        scores = [5.0] * 20
+        total, _per_asset, picks = harness._run_arrival_rule(
+            list(range(20)), decisions, assets, nets, scores,
+            budget=9, per_asset_cap=None, theta=1.0)
+        self.assertEqual(len(picks), 9)
+        self.assertAlmostEqual(total, 900.0)
+
+    def test_the_oracle_variant_is_a_perfect_classifier_under_the_same_rule(self):
+        harness = self._harness()
+        decisions = [1, 2, 3, 4]
+        assets = ["HG"] * 4
+        nets = [-50.0, 900.0, -20.0, 700.0]
+        goal_grade = [0, 1, 0, 1]
+        total, _per_asset, picks = harness._run_arrival_rule(
+            [0, 1, 2, 3], decisions, assets, nets, scores=[0.0] * 4,
+            budget=9, per_asset_cap=3, goal_grade=goal_grade)
+        self.assertEqual(picks, [1, 3])
+        self.assertAlmostEqual(total, 1_600.0)
+
+    def test_theta_is_frozen_on_train_days_at_the_rule_budget(self):
+        import numpy as np
+        harness = self._harness()
+        decisions = list(range(40))
+        assets = ["HG"] * 40
+        nets = [100.0] * 40
+        scores = np.linspace(0.0, 1.0, 40)
+        day_rows = {1: np.arange(0, 20), 2: np.arange(20, 40)}
+        theta = harness._calibrate_theta(
+            [1, 2], day_rows, decisions, assets, nets, scores,
+            budget=9, per_asset_cap=3)
+        self.assertIsNotNone(theta)
+        counts = []
+        for day in (1, 2):
+            _total, _per_asset, picks = harness._run_arrival_rule(
+                day_rows[day], decisions, assets, nets, scores,
+                budget=9, per_asset_cap=3, theta=theta)
+            counts.append(len(picks))
+        # The grid targets ~80% of the budget; the cap of 3/asset binds first.
+        self.assertTrue(all(count <= 3 for count in counts))
+
+    def test_tail_visibility_is_auroc_within_the_winners(self):
+        import numpy as np
+        harness = self._harness()
+        assets = ["HG"] * 12
+        nets = [float(100 * (index + 1)) for index in range(12)]
+        goal_grade = [1] * 12
+        held = [True] * 12
+        perfect = harness.tail_visibility(
+            assets, nets, goal_grade, np.asarray(nets), held)
+        inverted = harness.tail_visibility(
+            assets, nets, goal_grade, -np.asarray(nets), held)
+        self.assertAlmostEqual(perfect["HG"], 1.0)
+        self.assertAlmostEqual(inverted["HG"], 0.0)
+
+    def test_tail_visibility_refuses_to_invent_a_number_on_a_thin_slice(self):
+        import numpy as np
+        harness = self._harness()
+        assets = ["HG"] * 4
+        result = harness.tail_visibility(
+            assets, [1.0, 2.0, 3.0, 4.0], [1, 1, 1, 1],
+            np.asarray([1.0, 2.0, 3.0, 4.0]), [True] * 4)
+        self.assertIsNone(result["HG"])
+
+    def test_within_session_shuffle_moves_memories_inside_the_session(self):
         harness = self._harness()
         from types import SimpleNamespace
-        names = [f"c{index}" for index in range(6)]
-        dollars = [0.0, 0.0, 0.0, 100.0, 200.0, 300.0]
-        root = self._data_root([(name, 0.0, value, "CLEAR")
-                                for name, value in zip(names, dollars)])
+        batches = [
+            SimpleNamespace(asset="HG", day=20210813, session_id="s1",
+                            candidate_ids=("a", "b", "c")),
+            SimpleNamespace(asset="SI", day=20210813, session_id="s2",
+                            candidate_ids=("d", "e", "f")),
+        ]
+        memories = {name: torch.full((4, 512), float(index))
+                    for index, name in enumerate("abcdef")}
+        shuffled = harness.within_session_shuffled_memories(
+            batches, memories, seed=20260819)
+        first = {float(shuffled[name][0, 0]) for name in "abc"}
+        second = {float(shuffled[name][0, 0]) for name in "def"}
+        # A within-session permutation: the session's own memories, rearranged.
+        self.assertEqual(first, {0.0, 1.0, 2.0})
+        self.assertEqual(second, {3.0, 4.0, 5.0})
+        self.assertNotEqual([float(shuffled[name][0, 0]) for name in "abc"],
+                            [0.0, 1.0, 2.0])
+
+    def test_full_acceptance_reports_both_cap_laws_and_beats_shuffled(self):
+        harness = self._harness()
+        from types import SimpleNamespace
+        # Two train days and one held day; the memory carries the dollars and
+        # a sibling's memory does not.
+        rows_by_day = {}
+        names = []
+        for day in (20210801, 20210802, 20210813):
+            day_rows = []
+            for index in range(6):
+                name = f"{day}-{index}"
+                names.append(name)
+                certified = 2_000.0 if index >= 4 else 100.0
+                day_rows.append((name, 0.0, certified, "CLEAR"))
+            rows_by_day[("HG", day)] = day_rows
+        root = self._data_root(rows_by_day)
 
         class _Probe(torch.nn.Module):
             def forward(self, memory):
-                score = memory.reshape(memory.shape[0], -1).sum(1)
-                return (torch.zeros(memory.shape[0], 5), score,
-                        torch.zeros(memory.shape[0]))
+                score = memory.reshape(memory.shape[0], -1)[:, 0]
+                return (score, torch.zeros_like(score),
+                        torch.zeros(memory.shape[0], 5))
 
-        memories = {name: torch.full((4, 512), float(index))
-                    for index, name in enumerate(names)}
-        rows = SimpleNamespace(candidate_id=np.asarray(names),
-                               asset=np.asarray(["HG"] * 6),
-                               day=np.asarray([20210813] * 6))
-        result = harness.held_day_top3_dollars(
+        memories = {}
+        batches = []
+        for day in (20210801, 20210802, 20210813):
+            ids = tuple(f"{day}-{index}" for index in range(6))
+            batches.append(SimpleNamespace(
+                asset="HG", day=day, session_id=f"s{day}", candidate_ids=ids))
+            for index, name in enumerate(ids):
+                memories[name] = torch.full(
+                    (4, 512), 5.0 if index >= 4 else -5.0)
+        rows = SimpleNamespace(
+            candidate_id=np.asarray(names),
+            asset=np.asarray(["HG"] * len(names)),
+            day=np.asarray([int(name.split("-")[0]) for name in names]),
+            decision_ts_ns=np.asarray([index for index in range(len(names))]))
+        result = harness.arrival_acceptance(
             rows, memories, _Probe(), device=torch.device("cpu"),
-            data_root=root, held_days=frozenset({20210813}))
+            data_root=root, held_days=frozenset({20210813}),
+            batches=batches, shuffle_seed=20260819)
         self.assertEqual(int(result["days"]), 1)
-        self.assertAlmostEqual(result["memory_only_usd_day"], 600.0)
-        self.assertAlmostEqual(result["occluded_usd_day"], 0.0)
-        self.assertAlmostEqual(result["oracle_usd_day"], 600.0)
-        self.assertTrue(result["beats_occlusion"])
-        self.assertAlmostEqual(result["margin_usd_day"], 600.0)
-
+        self.assertEqual(int(result["train_days"]), 2)
+        self.assertEqual(set(result["rules"]),
+                         {harness.CURRENT_LAW["name"], harness.AMENDED_LAW["name"]})
+        current = result["rules"][harness.CURRENT_LAW["name"]]
+        self.assertEqual(int(current["per_asset_cap"]), 3)
+        self.assertIsNone(result["rules"][harness.AMENDED_LAW["name"]]["per_asset_cap"])
+        # The memory plane finds the two goal-grade candidates; every rule
+        # reports its own oracle on the same day.
+        self.assertGreater(current["memory"]["portfolio_usd_day"],
+                           current["shuffled"]["portfolio_usd_day"])
+        self.assertTrue(current["beats_shuffled"])
+        self.assertEqual(int(current["paired_days"]), 1)
+        self.assertGreaterEqual(current["oracle"]["portfolio_usd_day"],
+                                current["memory"]["portfolio_usd_day"])
+        # Hindsight survives as a reference column only.
+        self.assertIn("oracle", result["hindsight_reference"])
+        self.assertIn("HG", result["tail_visibility"])
 
 
 class BaseStageInnerLoopSmokeTest(unittest.TestCase):
@@ -752,10 +1206,12 @@ class BaseStageInnerLoopSmokeTest(unittest.TestCase):
             _actual_multitask_loss)
         torch.manual_seed(20260819)
         encoder = _tiny_encoder()
-        head = SharedCandidateDecisionHead(8, 3, 2)
+        head = SharedCandidateDecisionHead(len(CANDIDATE_FEATURE_SCHEMA), 3, 2)
         model = NeuralSufficiencyModel(encoder, head)
         batch = _tiny_batch(clock=np.arange(1, 121, dtype=np.int64) * 1_000,
-                            cutoffs=np.asarray([40, 70, 100], np.int64))
+                            cutoffs=np.asarray([40, 70, 100], np.int64),
+                            certified_usd=[2_000.0, 700.0, 0.0],
+                            frozen_usd=[100.0, 100.0, 100.0])
         scope = reconstruction_target_scope(
             tuple(f"raw.f{index}" for index in range(N_CONTINUOUS)))
         decoder = LastRowReconstructionProbe(N_CONTINUOUS, CATEGORY_SIZES)
@@ -779,8 +1235,11 @@ class BaseStageInnerLoopSmokeTest(unittest.TestCase):
         recon, _c, _k = _field_reconstruction_loss(
             decoder, out.raw_memory, batch, weights["base"],
             continuous_scope=scope)
-        value, _v = _memory_value_probe_loss(
-            probe, out.raw_memory, batch, weights["base"])
+        value, _v, value_record = _memory_value_probe_loss(
+            probe, out.raw_memory, batch)
+        listwise, list_receipt = _memory_value_list_loss([value_record])
+        if listwise is not None:
+            value = value + listwise
         record, skipped = _identity_cropped_views(
             model.encoder, batch, out.raw_memory, projection,
             device=torch.device("cpu"), seed=5)
@@ -814,6 +1273,14 @@ class BaseStageInnerLoopSmokeTest(unittest.TestCase):
             self.assertGreater(value_, 0.0, f"{name} received no gradient")
         self.assertTrue(np.isfinite(float(total.detach())))
         self.assertGreaterEqual(int(identity_receipt["rows"]), 2)
+        self.assertGreaterEqual(float(list_receipt["list_coverage"]), 0.0)
+        # The acceptance baseline runs on the SAME batch, same probe.
+        with torch.no_grad():
+            shuffled, _c, _r = _memory_value_probe_loss(
+                probe, _within_session_shuffled_memory(
+                    out.raw_memory, seed=MEMORY_VALUE_SHUFFLE_SEED, epoch=0,
+                    session_id=str(batch.session_id)), batch)
+        self.assertTrue(np.isfinite(float(shuffled)))
 
 
 

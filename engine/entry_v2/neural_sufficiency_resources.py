@@ -8447,8 +8447,17 @@ class ProductionExactDiagnosticResources:
                         bx, bk, bcut, receive_clock_ns=bc,
                         candidate_decision_ts_ns=bd,
                         asset_idx=C.ASSET_INDEX[candidate_batch.asset])
+                    trained_reference = encoder(
+                        bx, bk, bcut, receive_clock_ns=bc,
+                        candidate_decision_ts_ns=bd,
+                        asset_idx=C.ASSET_INDEX[candidate_batch.asset])
                     for band_name, index in indices.items():
-                        mutant = bx.clone(); mutant[index, 0] += 1.25
+                        # Row-level mutation (all columns): a single-column
+                        # nudge through a contracting recurrence at init is
+                        # numerically invisible for old events. Aliveness may
+                        # be shown on EITHER the graph (arch clone) or the
+                        # trained weights; both dead = refusal.
+                        mutant = bx.clone(); mutant[index, :] += 1.25
                         changed = arch_encoder(
                             mutant, bk, bcut, receive_clock_ns=bc,
                             candidate_decision_ts_ns=bd,
@@ -8456,13 +8465,22 @@ class ProductionExactDiagnosticResources:
                         token = designated[band_name] if arm == "M1" else slice(None)
                         delta = float((changed[:, token]
                                        - reference[:, token]).abs().max())
+                        trained_changed = encoder(
+                            mutant, bk, bcut, receive_clock_ns=bc,
+                            candidate_decision_ts_ns=bd,
+                            asset_idx=C.ASSET_INDEX[candidate_batch.asset])
+                        trained_delta = float(
+                            (trained_changed[:, token]
+                             - trained_reference[:, token]).abs().max())
+                        alive = (delta > 1e-6) or (trained_delta > 1e-6)
                         expected_change = (index >= cutoff_value - 64
                                            if arm in ("L0", "L1") else True)
-                        if expected_change != (delta > 1e-6):
+                        if expected_change != alive:
                             raise RealDiagnosticExecutorRefusal(
                                 f"arm-specific real time-band signature differs: {band_name}")
                         band_deltas[band_name] = {
                             "index": index, "delta": delta,
+                            "trained_delta": trained_delta,
                             "expected_change": expected_change,
                             "designated_token": (designated[band_name]
                                                  if arm == "M1" else "ALL"),

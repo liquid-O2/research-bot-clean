@@ -12582,10 +12582,14 @@ class ProductionExactDiagnosticResources:
             # Signed as negative loss so that ``real_value - shuffled_value``
             # is positive exactly when the real objective fits better.
             loss_records = []
+            screen_dropped_empty = 0; screen_dropped_unavailable = 0
             for asset, day in calendar:
                 local_rows = np.flatnonzero(
                     (assets == asset) & (days == int(day)))
                 if not len(local_rows):
+                    # P1 audit finding #1: the drop is now RECEIPTED (below)
+                    # so cluster attrition is visible, never silent.
+                    screen_dropped_empty += 1
                     continue
                 real_loss, real_state = _typed_loss_for_probe(
                     probe, real_output[local_rows],
@@ -12597,6 +12601,7 @@ class ProductionExactDiagnosticResources:
                     self._record_objective_batch_state(
                         "E1R_PAIRED_SCREEN", probe.probe_id,
                         OBJECTIVE_BATCH_UNAVAILABLE)
+                    screen_dropped_unavailable += 1
                     continue
                 self._record_objective_batch_state(
                     "E1R_PAIRED_SCREEN", probe.probe_id,
@@ -12642,6 +12647,9 @@ class ProductionExactDiagnosticResources:
                 "twin_transition": dict(twin_detail),
                 "real_status": real_status, "twin_status": twin_status,
                 "paired": test.receipt_sha256,
+                "screen_calendar_clusters": len(calendar),
+                "screen_dropped_empty": screen_dropped_empty,
+                "screen_dropped_unavailable": screen_dropped_unavailable,
                 "paired_state": str(test.state.value if hasattr(
                     test.state, "value") else test.state),
                 "support": [item.receipt_sha256 for item in decisions]}
@@ -12674,6 +12682,9 @@ class ProductionExactDiagnosticResources:
         if not p_values or "C14P01" not in p_values:
             raise RealDiagnosticExecutorRefusal(
                 "E1r lacks the executable canonical action objective")
+        # P1 audit finding #2: the paired-screen census was write-only.
+        paired_screen_support = self._assert_objective_batch_support(
+            "E1R_PAIRED_SCREEN")
         holm = hierarchical_holm(p_values, families)
         screen_status = ("ELIGIBLE" if holm.surviving_probes
                          else "NO_SIGNIFICANT_OBJECTIVE")

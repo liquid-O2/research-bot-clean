@@ -514,7 +514,10 @@ class AssetEconomics:
                 or self.eligibility != "ELIGIBLE"
                 or float(self.chronological_max_drawdown_usd) < 0
                 or float(self.drawdown_p90_usd) < 0
-                or not 0.0 <= float(self.oracle_capture) <= 1.0
+                # Ruling 21: goal-grade capture may lawfully exceed 1.0
+                # (unfiltered replay vs the >=$600-filtered ceiling); the
+                # arithmetic-impossibility law binds the exact-offer layer.
+                or not 0.0 <= float(self.oracle_capture)
                 or abs(total / self.included_trading_days
                        - float(self.usd_per_asset_day)) > 1e-9
                 or abs(total / self.trades - float(self.usd_per_trade)) > 1e-9

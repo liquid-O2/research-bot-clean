@@ -682,7 +682,7 @@ def run_neural_sufficiency(
                     or not np_isfinite(drawdown) or drawdown < 0
                     or not np_isfinite(drawdown_p90) or drawdown_p90 < 0
                     or not np_isfinite(oracle_capture)
-                    or (goal_required and not 0.0 <= oracle_capture <= 1.0)
+                    or (goal_required and not 0.0 <= oracle_capture)
                     or regime != derived_regime or (goal_required and goal_miss)
                     or not exact_policy_money or not exact_oracle_money
                     or not _is_sha(replay_hash) or not _is_sha(oracle_replay_hash)

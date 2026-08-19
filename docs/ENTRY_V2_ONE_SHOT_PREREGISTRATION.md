@@ -135,3 +135,27 @@ targeting 3 picks/day; the real funnel's per-asset threshold law + a
 theta-sweep + veto-style selection + episode capacity engineering are
 lawful levers ABOVE these floor estimates — pre-registered as harness
 report columns, not silently assumed.
+
+## 9. CAP-LAW AMENDMENT (user-initiated, measured 2026-08-19)
+USER CLARIFICATION: the 3/asset cap was always a proxy for confidence-driven
+selection with a PORTFOLIO budget of <=10-12 trades/day total. MEASURED
+(held days, perfect-classifier + rule):
+| rule | portfolio oracle/day | SI | HG | NKD |
+| current 3/asset+9 | $6,593 | $2,111 | $2,695 | $1,787 |
+| confidence-only, budget 9 | $7,522 | $2,210 | $2,305 | $3,007 |
+| confidence-only, budget 12 | $10,276 | $3,542 | $3,125 | $3,608 |
+The per-asset cap cost up to $3.7k/day of deployable ceiling; NKD was its
+main victim (winners cluster on its good days) — NKD is NOT ceiling-limited
+under the clarified law (its $1,500 gate from section 6 stands but is now
+conservative). ADOPTED (pending user confirmation of the budget number):
+portfolio budget 9 hard (matches "less than 10 total every day"), per-asset
+hard cap removed; per-asset soft caps {none, 6} A/B'd in the harness for
+concentration/MDD risk; budget-12 as a report-only column. Shallow-model
+economics under all rules ~ $0 (no real confidence exists at shallow depth;
+frozen-theta transport drift also confirmed live: theta from fit days took
+zero held trades) — the amendment moves CEILINGS; capture still awaits the
+encoder bet, and the trailing-quantile threshold column is now doubly
+justified. Engine changes (capacity/replay/threshold laws + constants) are
+a LAUNCH-BATCH item through the implementation lane with red-first tests;
+all pinned per-asset ceiling receipts remain valid for the OLD law and the
+new-law ceilings are computed alongside, never overwriting.

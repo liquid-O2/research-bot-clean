@@ -752,3 +752,63 @@ class GateLawConstantTest(unittest.TestCase):
         self.assertFalse(law["binned_venn_abers_levels_used"])
         self.assertEqual(law["calibrator"],
                          "UNCAPPED_CONTINUOUS_POSITIVE_SLOPE_PLATT")
+
+
+class DegenerateScreenPathTest(unittest.TestCase):
+    """Ruling 14 + F2 composition, measured live on the real E1r population.
+
+    A null (constant) score makes the monotone Platt calibrator numerically
+    constant.  On an objective-SCREEN or diagnostic artifact name that is the
+    registered TYPED PATH STATUS -- a null control being null is its job -- and
+    it must carry the SCREEN_-prefixed token so the F2 acceptance sweep (which
+    hard-refuses on DEGENERATE_* anywhere in the receipt tree) still refuses on
+    prophet/arm names while the screen path travels on.
+    """
+
+    @staticmethod
+    def _resources():
+        resources = ProductionExactDiagnosticResources.__new__(
+            ProductionExactDiagnosticResources)
+        resources._m8_payloads = {}
+        resources._m8_path_payloads = {}
+        return resources
+
+    def test_screen_path_degeneracy_is_a_typed_status_not_a_chain_abort(self):
+        from .neural_sufficiency_executor import DEGENERATE_PATH_STATUSES
+        resources = self._resources()
+        artifact = "E1r/objectives/C14P01/real"
+        evaluation, status, receipt, detail = \
+            resources._degenerate_screen_path_result(
+                "DEGENERATE_CALIBRATOR",
+                "DEGENERATE_CALIBRATOR: monotone Platt calibrator is "
+                "numerically constant (slope=1.47, calibrated_spread=0.0)",
+                artifact)
+        self.assertIsNone(evaluation)
+        self.assertEqual(status, "SCREEN_DEGENERATE_CALIBRATOR")
+        self.assertEqual(len(receipt), 64)
+        self.assertTrue(detail["degenerate"])
+        self.assertTrue(detail["diagnostic_only"])
+        self.assertEqual(detail["status"], status)
+        self.assertEqual(detail["path_receipt_sha256"], receipt)
+        payload = f"M8/paths/{artifact}/degenerate-status.json"
+        self.assertIn(payload, resources._m8_payloads)
+        self.assertEqual(resources._m8_path_payloads[artifact], [payload])
+        # F2 composition: the SCREEN_ token must NOT be a finalize-refusing
+        # status, while its unprefixed original remains one.
+        self.assertNotIn(status, DEGENERATE_PATH_STATUSES)
+        self.assertIn(detail["message"].split(":", 1)[0],
+                      REHEARSAL_PATH_IMPLEMENTATION_REFUSALS)
+
+    def test_screen_status_payload_names_the_original_typed_token(self):
+        import json
+        resources = self._resources()
+        artifact = "E1r/RAWSUMMARY/diagnostic"
+        _, status, _, _ = resources._degenerate_screen_path_result(
+            "DEGENERATE_MAPPER", "mapper has no slope", artifact)
+        self.assertEqual(status, "SCREEN_DEGENERATE_MAPPER")
+        body = json.loads(
+            resources._m8_payloads[f"M8/paths/{artifact}/degenerate-status.json"])
+        self.assertEqual(body["schema"], "entry-v2-degenerate-screen-path-v1")
+        self.assertEqual(body["status"], "SCREEN_DEGENERATE_MAPPER")
+        self.assertEqual(body["original_status"], "DEGENERATE_MAPPER")
+        self.assertEqual(body["artifact"], artifact)

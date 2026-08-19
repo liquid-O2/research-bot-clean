@@ -642,6 +642,10 @@ class ValidationWindowLawTest(unittest.TestCase):
                                 RECONSTRUCTION_VALIDATION_MINIMUM_ROWS)
         self.assertTrue(receipt["meets_minimum"])
         self.assertEqual(len(days), 10)
+        # The cost of the wider window is visible, not hidden.
+        self.assertEqual(int(receipt["total_rows"]), 200)
+        self.assertEqual(int(receipt["training_rows"]), 100)
+        self.assertAlmostEqual(float(receipt["held_fraction"]), 0.5)
 
     def test_a_wide_enough_baseline_window_is_left_alone(self):
         _days, receipt = _widened_validation_days(self._batches(20, 60))

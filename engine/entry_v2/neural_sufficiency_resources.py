@@ -1252,29 +1252,47 @@ def _encoder_gradient_shares(
     """
     parameters = [value for value in model.encoder.parameters()
                   if value.requires_grad]
-    l1: dict[str, float] = {}; vectors: dict[str, torch.Tensor | None] = {}
-    for name, value in families.items():
-        model.zero_grad(set_to_none=True)
-        if value is None or not bool(getattr(value, "requires_grad", False)):
-            l1[name] = 0.0; vectors[name] = None
-            continue
-        value.backward(retain_graph=True)
-        flat = torch.cat([
+
+    def _flat() -> torch.Tensor:
+        return torch.cat([
             (parameter.grad.detach().reshape(-1) if parameter.grad is not None
              else torch.zeros(parameter.numel(), device=parameter.device))
             for parameter in parameters])
-        l1[name] = float(flat.abs().sum()); vectors[name] = flat.clone()
+
+    def _measure(value) -> torch.Tensor | None:
+        model.zero_grad(set_to_none=True)
+        if value is None or not bool(getattr(value, "requires_grad", False)):
+            return None
+        value.backward(retain_graph=True)
+        return _flat().clone()
+
+    # Only ONE auxiliary vector is resident at a time next to the oracle's:
+    # M1's encoder gradient is large enough that holding four copies is a real
+    # allocation, and the harness runs this inside the training loop.
+    l1: dict[str, float] = {}
+    cosine: dict[str, float] = {}
+    oracle = _measure(families.get("oracle"))
+    l1["oracle"] = 0.0 if oracle is None else float(oracle.abs().sum())
+    oracle_norm = 0.0 if oracle is None else float(oracle.norm())
+    for name, value in families.items():
+        if name == "oracle":
+            continue
+        vector = _measure(value)
+        if vector is None:
+            l1[name] = 0.0
+            continue
+        l1[name] = float(vector.abs().sum())
+        scale = float(vector.norm()) * oracle_norm
+        if oracle is not None and scale > 0:
+            cosine[name] = float((vector @ oracle) / scale)
+        else:
+            cosine[name] = 0.0
+        del vector
+    del oracle
     model.zero_grad(set_to_none=True)
     total = float(sum(l1.values()))
     share = {name: (value / total if total > 0 else 0.0)
              for name, value in l1.items()}
-    oracle = vectors.get("oracle")
-    cosine: dict[str, float] = {}
-    for name, vector in vectors.items():
-        if name == "oracle" or vector is None or oracle is None:
-            continue
-        scale = float(vector.norm()) * float(oracle.norm())
-        cosine[name] = float((vector @ oracle) / scale) if scale > 0 else 0.0
     return MappingProxyType({
         "encoder_gradient_l1": {name: float(value) for name, value in l1.items()},
         "encoder_gradient_share": {name: float(value)
@@ -1375,10 +1393,17 @@ def _widened_validation_days(
     while count < len(unique_days) - 1 and held_rows(count) < int(minimum_rows):
         count += 1
     days = frozenset(unique_days[-count:])
+    total_rows = int(sum(rows_by_day.values()))
     receipt = MappingProxyType({
         "baseline_trailing_days": int(baseline),
         "trailing_days": int(count),
         "held_rows": held_rows(count),
+        # The cost of the wider window is receipted, not hidden: a small
+        # fit-only population pays for a certifiable held slice in training
+        # rows, and the ratio is the number a reader needs to judge it.
+        "training_rows": total_rows - held_rows(count),
+        "total_rows": total_rows,
+        "held_fraction": (held_rows(count) / total_rows if total_rows else 0.0),
         "minimum_held_rows": int(minimum_rows),
         "meets_minimum": bool(held_rows(count) >= int(minimum_rows)),
         "chronological_trailing_only": True})
@@ -8525,7 +8550,12 @@ class ProductionExactDiagnosticResources:
             if verdict["all_stale"]:
                 stop_reason = "CONVERGED"
                 break
-            if time.monotonic() - _base_stage_start >= _wall_ceiling_s:
+            # The two-epoch floor is the same one the convergence break
+            # already respects: a single-epoch stage has no trace to certify
+            # and would refuse downstream with an opaque message instead of
+            # this typed stop reason.
+            if (epoch >= 1
+                    and time.monotonic() - _base_stage_start >= _wall_ceiling_s):
                 stop_reason = "WALL_CEILING"
                 break
         stage_wall["base_stage_s"] = time.monotonic() - _base_stage_start

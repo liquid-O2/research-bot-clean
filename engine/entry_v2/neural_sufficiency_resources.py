@@ -7314,6 +7314,16 @@ class ProductionExactDiagnosticResources:
         if self._arms is not None:
             return self._arms
         self._arms = self._new_model_registry()
+        # Ruling 20 addendum: the ARCHITECTURE snapshot is taken at
+        # construction, BEFORE any cross-arm encoder transfer (C1 loads C0's
+        # trained weights in train_and_rehearse_arm — a post-transfer stash
+        # would hand the arch clone learned route-kills).
+        if getattr(self, "_initial_encoder_state", None) is None:
+            self._initial_encoder_state = {}
+        for _arm_name, _arm_model in self._arms.items():
+            self._initial_encoder_state[_arm_name] = {
+                key: value.detach().cpu().clone()
+                for key, value in _arm_model.encoder.state_dict().items()}
         return self._arms
 
     def _new_model_registry(self):
@@ -7487,13 +7497,13 @@ class ProductionExactDiagnosticResources:
     def _encode(self, model, arm: str):
         stage_wall: dict[str, float] = {"collects_s": 0.0}
         model.to(self.device)
-        # Ruling 20: capture the ARCHITECTURE's weights (pre-training) — the
-        # route-aliveness mutation gate judges the graph, not the learning.
+        # Ruling 20: the arch snapshot comes from _models() construction
+        # (pre-transfer); this fallback covers only direct-call harnesses.
         if getattr(self, "_initial_encoder_state", None) is None:
             self._initial_encoder_state = {}
-        self._initial_encoder_state[arm] = {
+        self._initial_encoder_state.setdefault(arm, {
             key: value.detach().cpu().clone()
-            for key, value in model.encoder.state_dict().items()}
+            for key, value in model.encoder.state_dict().items()})
         decoder = LastRowReconstructionProbe(
             self.batches[0].continuous.shape[1], CATEGORY_SIZES).to(self.device)
         # B-17: the throwaway field-survival decoder used to share ONE optimizer

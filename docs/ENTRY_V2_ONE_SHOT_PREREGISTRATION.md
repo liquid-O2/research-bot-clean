@@ -147,10 +147,12 @@ selection with a PORTFOLIO budget of <=10-12 trades/day total. MEASURED
 The per-asset cap cost up to $3.7k/day of deployable ceiling; NKD was its
 main victim (winners cluster on its good days) — NKD is NOT ceiling-limited
 under the clarified law (its $1,500 gate from section 6 stands but is now
-conservative). ADOPTED (pending user confirmation of the budget number):
-portfolio budget 9 hard (matches "less than 10 total every day"), per-asset
-hard cap removed; per-asset soft caps {none, 6} A/B'd in the harness for
-concentration/MDD risk; budget-12 as a report-only column. Shallow-model
+conservative). ADOPTED — USER CONFIRMED 2026-08-19: portfolio budget 12 hard,
+confidence-based, per-asset hard cap removed; per-asset soft caps {none, 6}
+A/B'd in the harness for concentration/MDD risk. GOAL RESTATED at portfolio
+grain: TARGET $7,000-8,000/day, HARD MINIMUM $6,000/day (58.4% of the
+$10,276 deployable oracle; target = 68-78%), per-asset gates as
+sub-structure. Shallow-model
 economics under all rules ~ $0 (no real confidence exists at shallow depth;
 frozen-theta transport drift also confirmed live: theta from fit days took
 zero held trades) — the amendment moves CEILINGS; capture still awaits the

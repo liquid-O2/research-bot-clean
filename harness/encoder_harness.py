@@ -72,9 +72,9 @@ SCORE_QUANTILES = (0.50, 0.90, 0.99)
 # inside the fit era.  Fold k fits on the first (7 + 5k) trading days and
 # scores on the NEXT 5.  Constant iteration lives here; the CONFIRM blocks
 # are never touched by this script.
-FOLD_ERA_START_D8 = 20210701
-FOLD_ERA_END_D8 = 20210801
-FOLD_WALL_D8 = 20210802
+FOLD_ERA_START_D8 = 20210531
+FOLD_ERA_END_D8 = 20210625
+FOLD_WALL_D8 = 20210628
 FOLD_FIT_BASE_DAYS = 7
 FOLD_FIT_STEP_DAYS = 5
 FOLD_SCORE_DAYS = 5
@@ -964,6 +964,8 @@ def main(argv=None) -> int:
           flush=True)
 
     if args.json_out:
+        os.makedirs(os.path.dirname(os.path.abspath(args.json_out)),
+                    exist_ok=True)
         payload = {
             "arm": args.arm, "applied_constants": applied,
             "fold": calendar,

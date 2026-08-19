@@ -161,3 +161,17 @@ justified. Engine changes (capacity/replay/threshold laws + constants) are
 a LAUNCH-BATCH item through the implementation lane with red-first tests;
 all pinned per-asset ceiling receipts remain valid for the OLD law and the
 new-law ceilings are computed alongside, never overwriting.
+
+## 10. FOLD-PROTOCOL CORRECTION (2026-08-19, chronology law)
+Section 4's fold era (0701-0801) and CONFIRM-A (0802-0806) were drawn across
+the A-019 rehearsal calendar: E1r FIT ends 20210709; PLATT 0712-0720 and
+THRESHOLD 0721-0806 are the funnel's own calibration blocks and may not host
+encoder development or confirmation. CORRECTED LAW: iteration fold era =
+20210531-20210625 (E1r FIT interior, ~19-20 trading days -> canonical
+chained folds with 5-day score blocks); CONFIRM-A = the untouched FIT tail
+20210628-20210709 (~9 trading days, read at most twice at the registered
+checkpoints); CONFIRM-B = the rehearsal itself (the E2r blocks under their
+own law). The store carries every needed day for all three assets
+(verified). The 0802-0813 days used by Q1/P1 shallow tests were REFERENCE
+measurements, not encoder-selection reads; they remain excluded from any
+encoder acceptance.

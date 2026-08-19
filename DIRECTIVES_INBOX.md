@@ -658,4 +658,37 @@ It wasn't the proper stuff that we need. If you look at the memplace, you'll not
 
 So we need to have, after implementing something, we need to ensure it's not a weak proxy or et cetera. There are a ton of things left.
 
-We need to get to our goal. Our goal is 100% doable. We just need to get there properly. 
+We need to get to our goal. Our goal is 100% doable. We just need to get there properly.
+- [2026-08-18T17:32:05Z] No, number three is unacceptable. You're telling me that the first outcome will be a tight miss? We need to fix it now.
+
+It should not turn into the same like serial fixes that we are doing, that we have done so far. This first run should be the best version or the second best version. It should not be 10%. That is unacceptable.
+
+You need to fix it now
+- [2026-08-18T17:41:56Z] i just dont want us to go through this pass and end up with a null. also if the fix doesnt need thinking, and if you can specify thing exactly then we could use sonnet 5 for implementation temporarily until opus comes back online, but it is a dumb model so you need to be detailed in your instructions and check its work after it is done. if the staggered approach works then awesome lets keep using opus
+- [2026-08-18T17:46:40Z] Okay, and do you know exactly what might fail or what will happen if we can't get to our goal? Like what should be our next steps and et cetera?
+
+Do you know it from the beginning? And I understand not everything can be done without tests, but maybe we can properly understand if the things we are doing will actually net us our result or not, because we need to get our result on this goal, by the way
+- [2026-08-18T17:59:28Z] The teacher evidence distillation is not possible. It was done by Opus, and Opus can't read the proper raw data. Like, you would run out of tokens even before one day is passed. So that is not 100% doable for us, by the way.
+
+And the mode one, learner strength, like, you meant that you said that it was restored to parity, but wasn't the old stuff, like, the thing that failed before? Like the learner's trend, you need to maximize it properly. Like you need to read through the code, read through the implementation. Think about all of the nulls we faced, all the negatives, what failed, et cetera, et cetera. Like we need to ensure the whole thing is perfect Can't we just run it on one day and et cetera or something to check if it's doing it properly? Like, there must be a way to check all of this — like all of the things it can fail on — cheaply, without taking hours to run.
+- [2026-08-18T18:01:38Z] Like, I need you to implement things properly. Like, you're not thinking things through. Like, why did I have to catch that? That you were going to start off the dense signal and et cetera.
+
+Like, it isn't my job to do so. I literally told you to think about things properly and do things right. Like, design things properly, read the code, and do things right.
+
+Like, we have some time. So I don't mind you thinking for a longer time.
+- [2026-08-18T18:42:28Z] Yeah, like if there are cheap tests you can do to understand where we are at and if we are doing things properly, do so. And if it fails or something, like you will know exactly what to improve and etc.
+
+So yeah, keep iterating until we get to our goal. Again, we have all agreed that our goal is 100% doable. Let's just make sure we get it done properly, please
+- [2026-08-19T07:02:15Z] and all of our convo is going to memplace right? so we can always keep track of the failures and what is causing it
+- [2026-08-19T07:38:07Z] And fine-tuning on the next event and flow prediction will still help us on our longer horizon traits, because our traits are longer horizon, and usually microstructure just predicts the next milliseconds or the next event, and et cetera.
+
+It'll still be good for us, and the fine-tuning and then the other stuff, maybe reinforcement learning as well. There are so many things we could do, and I do agree with the self-supervised pre-training and et cetera.
+
+And yeah, I agree with all of these, but we want to be 100% sure on what to do. I don't want to waste time on things that won't work. Like we need to ensure we get to our goal properly.  I think about things through properly, like go through everything we have done, every code we have written, etc. Like we need to ensure this works.
+- [2026-08-19T08:27:14Z] Remove the hard cap and go into like 12 together, confidence-based. We can easily aim for 7, 8,000 a day portfolio, right? Because our total is 10,000.
+
+And again, I don't want to be too greedy, but as close as we can get to the oracle is what I need. At the very minimum is 6,000.
+
+And then, yeah, do you know exactly what to do in order to ensure we get to our goal? Like, we have measured a ton of things, right? And would V19 give us the last bit of straw to understand exactly what is wrong?
+
+The other thing is, you mentioned something about us being able to like measure if things are working in minutes instead of hours now. Like we need a quick way to understand if they're doing things properly or not, or if we need another design pass so we can iterate quickly and get to our goal 

@@ -942,6 +942,7 @@ def action_fit_weights(
     asset: Sequence[object], day: Sequence[object],
     action_target: Sequence[object], action_loss_mask: Sequence[bool],
     fit_rows: Sequence[int] | np.ndarray, *, apply_class_weight: bool = True,
+    allow_single_class_fallback: bool = False,
 ) -> tuple[np.ndarray, ActionFitWeightReceipt]:
     """Return A-013 weights; consumers step once per complete asset-day gradient."""
     a = np.asarray(asset).astype(str); d = np.asarray(day).astype(str)
@@ -972,10 +973,19 @@ def action_fit_weights(
                            & (d[eligible] == asset_day[1])]
         weight[members] = 1.0 / len(members)
     class_factors: dict[str, float] = {}
+    single_class_fallback = False
     if apply_class_weight:
         counts = {level: int(np.sum(eligible_y == level)) for level in (0, 1)}
         if not all(counts.values()):
-            raise AtlasProbeRefusal("action fit weights require both pooled classes")
+            if not allow_single_class_fallback:
+                raise AtlasProbeRefusal(
+                    "action fit weights require both pooled classes")
+            # Typed thin-data fallback (fold-context only, receipted): a
+            # narrowed development-fold slice can lawfully carry one class;
+            # weights fall back to unweighted rather than aborting.
+            single_class_fallback = True
+            apply_class_weight = False
+    if apply_class_weight:
         largest = max(counts.values())
         factors = {level: min(4.0, largest / counts[level]) for level in (0, 1)}
         for level, factor in factors.items():
@@ -1037,11 +1047,13 @@ def asset_day_fit_weights(
     asset: Sequence[object], day: Sequence[object], target: Sequence[object],
     loss_mask: Sequence[bool], fit_rows: Sequence[int] | np.ndarray, *,
     apply_class_weight: bool = False,
+    allow_single_class_fallback: bool = False,
 ) -> tuple[np.ndarray, ActionFitWeightReceipt]:
     """Generic seam: base day weights by default, capped binary weights on request."""
     return action_fit_weights(
         asset, day, target, loss_mask, fit_rows,
-        apply_class_weight=apply_class_weight)
+        apply_class_weight=apply_class_weight,
+        allow_single_class_fallback=allow_single_class_fallback)
 
 
 @dataclass(frozen=True)

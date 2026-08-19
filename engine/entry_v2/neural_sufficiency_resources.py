@@ -8542,10 +8542,14 @@ class ProductionExactDiagnosticResources:
                                for batch in training_batches])
         order = np.lexsort((np.asarray(ids, str), days, assets))
         def weights_for(target_values, mask_values, class_weight):
+            # Fold-narrowed slices may carry a single pooled class; the typed
+            # unweighted fallback fires ONLY in fold context (production
+            # full-window law unchanged).
             local, receipt = asset_day_fit_weights(
                 assets[order], days[order], np.asarray(target_values)[order],
                 np.asarray(mask_values)[order], np.ones(len(order), bool),
-                apply_class_weight=class_weight)
+                apply_class_weight=class_weight,
+                allow_single_class_fallback=bool(fit_days))
             full = np.zeros(len(order), np.float32); full[order] = local
             return full, receipt
         action_weight, action_receipt = weights_for(action, recipient, True)

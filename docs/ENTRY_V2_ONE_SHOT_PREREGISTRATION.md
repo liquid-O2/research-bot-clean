@@ -83,11 +83,20 @@ targets); NEVER in identity weights; graph-walk assertions enforce.
 - Step 3 the ONE rehearsal (after atlas <=3h optimization + amendments
   re-land/re-pin): E2r threshold and forward blocks >= 80% of h*(goal-grade
   ceilings); >=10 trades, >=$600/trade, MDD<=$1,000, 3/day caps. Typed-weak
-  NKD path decided in Step 0 (see 6). FAIL -> successor named by the gate
+  NKD gates per section 6: >=$1,500, or >=$1,000 with MDD<$500.
+  FAIL -> successor named by the gate
   (transport / margin / capacity).
 - Step 4 the ONE held run (A-020). Typed miss publishes and stops.
 
-## 6. THE NKD DECISION (user-reserved, required before Step 3)
+## 6. THE NKD DECISION — DECIDED BY USER 2026-08-19
+USER RULING: "for NKD, aim for 1500 or above 1000 instead of 2000." Filed
+as the existing A-005 typed-floor structure: NKD PRIMARY target $1,500/day
+(83.9% of the $1,787 arrival oracle — stretch gate); PASS also at
+>=$1,000/day WITH MDD<$500 (low-capacity floor; 56.0% capture, comparable
+to SI/HG's ~75% requirement). SI/HG unchanged at >$2,000. Step-3 NKD gates
+read accordingly. Densification remains the named follow-up. Original
+options text kept for the record below.
+### (superseded) THE NKD DECISION (user-reserved, required before Step 3)
 Measured: NKD arrival/hindsight oracle supports $2,000/day on only ~7/10
 held days; reliable per-asset $2k on NKD is oracle-infeasible at current
 grain. Options: (a) portfolio-mean accounting (SI/HG headroom covers NKD;

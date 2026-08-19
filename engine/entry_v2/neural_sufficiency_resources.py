@@ -70,9 +70,11 @@ from .neural_sufficiency_model import (
     CANONICAL_ARMS, CausalMultiresolutionEncoder, CurrentEncoderAdapter,
     EncoderComplexityReceipt,
     EventFieldSchema,
+    ABSOLUTE_CLOCK_TARGET_FIELDS,
     FrozenRowManifest, LastRowReconstructionProbe, LiTShortMemoryEncoder,
     SharedCandidateDecisionHead, assert_tensor_tree_identical,
     build_five_arm_registry, module_state_bytes, reconstruction_receipt,
+    reconstruction_target_scope,
     validate_balanced_overfit_inputs,
 )
 from .neural_sufficiency_model import _monotone_ordinal
@@ -98,6 +100,7 @@ from .selected_horizon_contract import (
     validate_selected_horizon_identity,
 )
 from .policy import neural_inference_path
+from .corpus import CANDIDATE_FEATURE_SCHEMA
 from .production_runtime import (
     ColdAssetProcessPool,
     PRODUCTION_DISK_CACHE_MEMORY_RESERVE_BYTES,
@@ -892,19 +895,36 @@ def _field_reconstruction_loss(
     memory: torch.Tensor,
     batch: "_CandidateBatch",
     fit_weight: torch.Tensor | None = None,
+    *,
+    continuous_scope: Sequence[bool] | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Candidate-row reconstruction with the same asset-day weight law.
 
     Training callers supply the globally fitted per-row base weights, whose
     complete asset-day sum is one. Validation deliberately omits weights and
     receives a plain row mean.
+
+    R9: ``continuous_scope`` is the named per-column TARGET mask.  The decoder
+    still PREDICTS every column (the route law is untouched); the supervised
+    target excludes the six absolute-clock columns, which are unreconstructable
+    by construction and were consuming ~2/3 of every gradient step.
     """
     reconstructed_continuous, reconstructed_categorical = decoder(memory)
     device = memory.device
-    continuous_rows = torch.nn.functional.mse_loss(
+    continuous_error = torch.nn.functional.mse_loss(
         reconstructed_continuous.float(),
         batch.last_continuous.to(device).float(), reduction="none",
-    ).mean(1)
+    )
+    if continuous_scope is None:
+        continuous_rows = continuous_error.mean(1)
+    else:
+        scope = torch.as_tensor([bool(value) for value in continuous_scope],
+                                dtype=torch.bool, device=device)
+        if (scope.shape != (continuous_error.shape[1],)
+                or not bool(scope.any())):
+            raise RealDiagnosticExecutorRefusal(
+                "field-reconstruction target scope mask is misaligned")
+        continuous_rows = continuous_error[:, scope].mean(1)
     categorical_rows = sum(
         torch.nn.functional.cross_entropy(
             logits.float(),
@@ -926,6 +946,926 @@ def _field_reconstruction_loss(
         continuous = (continuous_rows * weight).sum()
         categorical = (categorical_rows * weight).sum()
     return continuous + categorical, continuous, categorical
+
+
+# ---------------------------------------------------------------------------
+# Entry V2 encoder-training fix pass (design REVISION 2, R1-R9).
+#
+# The base-stage objective never demanded that a candidate's memory identify
+# its own slice of tape, the total-loss governor stopped at the oracle
+# plateau, and two thirds of every gradient step was spent on a
+# reconstruction target that cannot be reconstructed.  The constants below
+# are the LAW of the fix; every one of them is receipted.
+# ---------------------------------------------------------------------------
+
+# R1 - candidate-identity InfoNCE (per-candidate arms only).
+IDENTITY_TEMPERATURE = 0.1
+IDENTITY_MIN_CUTOFF_GAP_EVENTS = 4
+IDENTITY_MAX_CROP_EVENTS = 8
+IDENTITY_MINIMUM_UNIQUE_WINDOWS = 2
+IDENTITY_POOLED_NEGATIVE_THRESHOLD = 8
+IDENTITY_VALIDATION_CROP_SEED = 20260819
+IDENTITY_PROJECTION_WIDTH = 128
+IDENTITY_TRAINED_ARMS = ("L0", "L1", "M1")
+# Broadcast arms pose an ill-posed identity question by construction (one
+# session state serves every candidate).  They are NOT trained on it; the
+# refusal is typed, receipted, and leaves them as controls.
+IDENTITY_UNAVAILABLE_BROADCAST = "IDENTITY_UNAVAILABLE_BROADCAST"
+IDENTITY_SKIP_REASONS = ("TOO_FEW_UNIQUE_WINDOWS", "NO_LAWFUL_CROP",
+                         "NO_LAWFUL_NEGATIVE")
+# Ruling 5 (rulings 16/19 taxonomy): a held population with no multi-window
+# session is a DATA-SHAPE CAPABILITY FACT, not a mechanical defect.  Identity
+# leaves the governed set for that run, typed and receipted.
+IDENTITY_VALIDATION_TRAINED = "TRAINED"
+IDENTITY_VALIDATION_UNAVAILABLE = "UNAVAILABLE_NO_MULTI_WINDOW_SESSIONS"
+# Leakage law (R1): the identity objective is a function of the INPUT tape
+# only.  Its reduction is UNIFORM - never the outcome-derived action/top3/wall
+# fit weights.  A graph-walk test proves the loss reaches no target tensor.
+IDENTITY_FIT_WEIGHT_LAW = "UNIFORM"
+
+# R2 as AMENDED by the one-shot pre-registration section 2: the probe's
+# targets are re-pointed from bulk classification to DOLLAR ORDERING.  The
+# measured pathology the amendment answers: AUROC 0.70 bought -$41/day, and
+# the tail is invisible to every shallow plane (tail-AUROC ~ chance).
+#     L = L_util + lambda_list * L_list + lambda_tail * L_tail
+# Leakage: outcome-derived weights live ONLY in this probe channel (the base
+# stage already consumes teacher-joined targets); NEVER in the identity
+# weights.  The graph-walk assertion still binds the identity loss.
+MEMORY_VALUE_FIT_WEIGHT_LAW = "OUTCOME_DERIVED_PROBE_CHANNEL_ONLY"
+MEMORY_VALUE_TARGETS = ("util_goal_grade", "list_dollar_mass", "tail_wall_hit")
+GOAL_GRADE_USD = 600.0
+FROZEN_COST_FEATURE_NAME = "frozen_cost_usd"
+# L_util: dollar-weighted BCE.  The gradient buys dollar-ordering, not bulk
+# separation: w_i = clip(|net_i|, 50, 1500) / 600.
+MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD = 50.0
+MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD = 1_500.0
+MEMORY_VALUE_UTIL_WEIGHT_SCALE_USD = 600.0
+# L_list: within-(asset,day) listwise dollar-mass KL against normalized
+# positive nets, on the SAME util score the harness selects with.
+MEMORY_VALUE_LIST_TAU = 1.0
+MEMORY_VALUE_LIST_SKIP_REASONS = ("NO_POSITIVE_DOLLAR_MASS", "SINGLE_CANDIDATE")
+# Section 2's [A/B]: candidates whose decisions sit inside one episode are
+# near-duplicates of the same opportunity, so ranking them against each other
+# is noise.  Collapsing each episode to its best candidate makes the listwise
+# target rank EPISODES.  ONE FLAG IS THE A/B - default off, harness-settable.
+EPISODE_CLUSTER_COLLAPSE = False
+EPISODE_CLUSTER_GAP_SECONDS = 60
+# Section 4: two probes.  The 2-layer MLP is the TRAINED channel (its
+# gradient reaches the encoder, ruling-18 disclosed shaping); the linear probe
+# is a second READ-OUT on the same memory, detached, so adding it cannot
+# change the training signal it is meant to audit.  Acceptance passes on
+# EITHER; the shuffled null must fail BOTH.
+MEMORY_VALUE_PROBE_KINDS = ("mlp", "linear")
+MEMORY_VALUE_LINEAR_PROBE_LAW = "DETACHED_SECOND_READOUT"
+MEMORY_VALUE_ACCEPTANCE_RULE = "EITHER_PROBE_PASSES_SHUFFLED_NULL_FAILS_BOTH"
+# L_tail: the MDD law made differentiable (single trades breach $1,000 alone).
+MEMORY_VALUE_TAIL_SCALE_USD = 900.0
+# Internal shares, gradient-normalized ~50/30/20.  Placeholders until the
+# harness two-point measurement sets them.
+MEMORY_VALUE_UTIL_WEIGHT = 1.0
+MEMORY_VALUE_LIST_WEIGHT = 1.0
+MEMORY_VALUE_TAIL_WEIGHT = 1.0
+MEMORY_VALUE_TARGET_SHARES = MappingProxyType({
+    "util": 0.50, "list": 0.30, "tail": 0.20})
+MEMORY_VALUE_WEIGHTS_MEASURED = False
+# value_bin survives as a PASSIVE diagnostic: it reads the memory through a
+# detached tensor, so it reports without steering the encoder.
+MEMORY_VALUE_VALUE_BIN_LAW = "DETACHED_PASSIVE_DIAGNOSTIC"
+# Section 4 of the pre-registration: the occlusion baseline is WITHIN-SESSION
+# SHUFFLED memories (the recipient-fixed twin law), never zeros.  Zeros stay
+# as a second reference column only.
+MEMORY_VALUE_SHUFFLE_SEED = 20260819
+MEMORY_VALUE_BASELINE_LAW = "WITHIN_SESSION_SHUFFLED_MEMORY"
+
+# F3 - gradient-share scaffolding.  The weights are placeholders until the
+# harness MEASURES them; ``AUX_WEIGHTS_MEASURED`` is the honest receipt flag.
+AUX_RECON_WEIGHT = 1.0
+AUX_IDENTITY_WEIGHT = 1.0
+AUX_MEMORY_VALUE_WEIGHT = 1.0
+AUX_WEIGHTS_MEASURED = False
+# Ruling 2 / pre-registration section 7: targets ~15% recon-scoped, 20%
+# identity, 35-40% probe, 25% oracle stack; the CAPS carry headroom above the
+# targets so a healthy auxiliary is never throttled for being on target.
+AUX_SHARE_CAPS = MappingProxyType({
+    "recon": 0.20, "identity": 0.25, "memory_value": 0.45})
+AUX_SHARE_CAPS_MEASURED = False
+AUX_WEIGHT_TODO = "TODO_MEASURE_IN_HARNESS"
+GRADIENT_SHARE_MEASUREMENT_EPOCHS = (0, 3)
+
+# F2 + R3 - per-component governor and the checkpoint law that moves with it.
+BASE_STAGE_GOVERNED_TRACES = ("oracle", "recon", "identity", "memory_value")
+BASE_STAGE_STOP_REASONS = ("CONVERGED", "WALL_CEILING", "EPOCH_CEILING")
+BASE_STAGE_CHECKPOINT_LAW = "MIN_MEAN_EPOCH0_NORMALIZED_GOVERNED_TRACES"
+ARM_WALL_CEILING_SECONDS = MappingProxyType({
+    "C0": 360.0, "C1": 360.0, "L0": 480.0, "L1": 480.0, "M1": 1800.0})
+
+# Section 4.5 - the 26-row held reconstruction slice was too thin to certify.
+# Ruling 3 amends the floor: never more than a quarter of the competence
+# population, so a small corpus cannot pay for certifiability with the
+# training set itself.
+RECONSTRUCTION_VALIDATION_MINIMUM_ROWS = 100
+RECONSTRUCTION_VALIDATION_MAXIMUM_HELD_FRACTION = 0.25
+
+# R8 - M1 optimization stability (measured oscillation, grad spikes 13k->23k).
+M1_ENCODER_GRU_LR_SCALE = 0.3
+M1_WARMUP_EPOCHS = 1
+M1_GRU_PARAMETER_PREFIXES = ("encoder.gru_60.", "encoder.gru_300.",
+                             "encoder.gru_900.", "encoder.gru_full.")
+
+
+class CandidateIdentityProjection(torch.nn.Module):
+    """R1 projection head ``g``: raw memory -> unit-norm identity space.
+
+    InfoNCE lives BEHIND this head so z-space invariance never competes with
+    exact last-row reconstruction on the raw memory itself.  The head is
+    discarded with the stage and is never persisted in an arm artifact.
+    """
+
+    def __init__(self, tokens: int = 4, width: int = 512,
+                 out_width: int = IDENTITY_PROJECTION_WIDTH) -> None:
+        super().__init__()
+        self.trunk = torch.nn.Sequential(
+            torch.nn.Flatten(), torch.nn.Linear(tokens * width, 256),
+            torch.nn.GELU(), torch.nn.Linear(256, int(out_width)))
+
+    def forward(self, memory: torch.Tensor) -> torch.Tensor:
+        return torch.nn.functional.normalize(self.trunk(memory).float(), dim=-1)
+
+
+class MemoryValueProbe(torch.nn.Module):
+    """R2 discarded probe: DOLLAR ORDERING from the RAW MEMORY ALONE.
+
+    ``util`` is both the L_util logit and the score the acceptance harness
+    selects with, so the listwise dollar-mass term shapes exactly the ranking
+    that spends money.  ``tail`` carries the wall-hit / drawdown channel.
+    ``value_bin`` is a PASSIVE diagnostic: it reads a detached memory, so it
+    reports value bins without steering the encoder.
+    """
+
+    def __init__(self, tokens: int = 4, width: int = 512,
+                 n_value_bins: int = 5, *, kind: str = "mlp") -> None:
+        super().__init__()
+        if kind not in MEMORY_VALUE_PROBE_KINDS:
+            raise RealDiagnosticExecutorRefusal(
+                f"memory-value probe kind {kind!r} is untyped")
+        self.kind = str(kind)
+        state_width = tokens * width if kind == "linear" else 512
+        self.trunk = (torch.nn.Flatten() if kind == "linear"
+                      else torch.nn.Sequential(
+                          torch.nn.Flatten(),
+                          torch.nn.Linear(tokens * width, 512),
+                          torch.nn.GELU()))
+        self.util = torch.nn.Linear(state_width, 1)
+        self.tail = torch.nn.Linear(state_width, 1)
+        self.diagnostic_trunk = torch.nn.Sequential(
+            torch.nn.Flatten(), torch.nn.Linear(tokens * width, 256),
+            torch.nn.GELU())
+        self.value_bin = torch.nn.Linear(256, int(n_value_bins))
+
+    def forward(self, memory: torch.Tensor
+                ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        state = self.trunk(memory)
+        # The diagnostic branch never carries encoder gradient.
+        diagnostic = self.diagnostic_trunk(memory.detach())
+        return (self.util(state).squeeze(-1), self.tail(state).squeeze(-1),
+                self.value_bin(diagnostic))
+
+
+def _batch_dollars(batch: "_CandidateBatch", device: torch.device
+                   ) -> Mapping[str, torch.Tensor]:
+    """Certified / frozen / net dollars and the goal-grade label for a batch.
+
+    Every quantity comes from planes the base stage ALREADY consumes: the
+    teacher-joined oracle value target and the frozen candidate-feature
+    column.  The frozen-cost column is resolved BY NAME against the frozen
+    candidate feature schema, never by a positional constant.
+    """
+    features = batch.candidate_features.to(device=device, dtype=torch.float32)
+    if features.ndim != 2 or features.shape[1] != len(CANDIDATE_FEATURE_SCHEMA):
+        raise RealDiagnosticExecutorRefusal(
+            "candidate features do not match the frozen candidate feature "
+            f"schema ({features.shape[1]} vs {len(CANDIDATE_FEATURE_SCHEMA)})")
+    column = CANDIDATE_FEATURE_SCHEMA.index(FROZEN_COST_FEATURE_NAME)
+    frozen = features[:, column]
+    certified = (batch.oracle_targets["value"].to(device=device,
+                                                  dtype=torch.float32)
+                 * VALUE_SCALE_USD)
+    net = certified - frozen
+    return MappingProxyType({
+        "certified_usd": certified, "frozen_usd": frozen, "net_usd": net,
+        "goal_grade": (certified >= GOAL_GRADE_USD).float(),
+    })
+
+
+def _memory_value_probe_loss(
+    probe: MemoryValueProbe,
+    memory: torch.Tensor,
+    batch: "_CandidateBatch",
+) -> tuple[torch.Tensor, Mapping[str, torch.Tensor], Mapping[str, Any]]:
+    """Per-batch L_util + L_tail, plus the record the day-level L_list needs.
+
+    L_util: dollar-weighted BCE on goal grade, w_i = clip(|net|, 50, 1500)/600.
+    L_tail: wall-hit BCE weighted (1 + |min(net, 0)| / 900).
+    Both reduce as WEIGHTED MEANS so the scale does not drift with batch size.
+    """
+    device = memory.device
+    util_logit, tail_logit, value_bin_logits = probe(memory)
+    dollars = _batch_dollars(batch, device)
+    net = dollars["net_usd"]
+    goal_grade = dollars["goal_grade"]
+    util_weight = (net.abs().clamp(MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD,
+                                   MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD)
+                   / MEMORY_VALUE_UTIL_WEIGHT_SCALE_USD)
+    util_rows = torch.nn.functional.binary_cross_entropy_with_logits(
+        util_logit.float(), goal_grade, reduction="none")
+    util = (util_rows * util_weight).sum() / util_weight.sum().clamp_min(1e-12)
+    tail_weight = 1.0 + net.clamp_max(0.0).abs() / MEMORY_VALUE_TAIL_SCALE_USD
+    tail_rows = torch.nn.functional.binary_cross_entropy_with_logits(
+        tail_logit.float(),
+        batch.oracle_targets["wall"].to(device=device, dtype=torch.float32),
+        reduction="none")
+    tail = (tail_rows * tail_weight).sum() / tail_weight.sum().clamp_min(1e-12)
+    diagnostic = torch.nn.functional.cross_entropy(
+        value_bin_logits.float(),
+        batch.oracle_targets["value_bin"].to(device=device).long())
+    total = (MEMORY_VALUE_UTIL_WEIGHT * util + MEMORY_VALUE_TAIL_WEIGHT * tail)
+    record = MappingProxyType({
+        "asset": str(batch.asset), "day": int(batch.day),
+        "session_id": str(batch.session_id),
+        "scores": util_logit.float(),
+        "gains": net.clamp_min(0.0).detach(),
+        "decisions": np.asarray(batch.decisions.cpu().numpy(), np.int64),
+        "rows": int(len(batch.candidate_ids)),
+    })
+    return total, MappingProxyType({
+        "util": util, "tail": tail, "value_bin_diagnostic": diagnostic,
+    }), record
+
+
+def _episode_clusters(decisions: np.ndarray, *, gap_seconds: int) -> np.ndarray:
+    """Cluster id per row: a new episode starts after a decision gap.
+
+    The rows arrive in whatever order the session batches produced them, so
+    the ordering is done here and the ids are mapped back to input positions.
+    """
+    order = np.argsort(np.asarray(decisions, np.int64), kind="stable")
+    gap_ns = int(gap_seconds) * 1_000_000_000
+    ordered = np.asarray(decisions, np.int64)[order]
+    starts = np.zeros(len(ordered), bool)
+    if len(ordered) > 1:
+        starts[1:] = (ordered[1:] - ordered[:-1]) >= gap_ns
+    ids = np.cumsum(starts)
+    out = np.empty(len(ordered), np.int64)
+    out[order] = ids
+    return out
+
+
+def _memory_value_list_loss(
+    records: Sequence[Mapping[str, Any]], *, tau: float | None = None,
+    collapse_episodes: bool | None = None,
+    gap_seconds: int | None = None,
+) -> tuple[torch.Tensor | None, Mapping[str, Any]]:
+    """Within-(asset, day) listwise DOLLAR-MASS KL.
+
+    The target is the normalized positive-net mass over the day's candidates:
+    a day where one candidate carries most of the dollars must be ranked that
+    way, and a flat shelf must be scored flat.  Session batches do not always
+    span the whole asset-day, so the coverage actually optimized is receipted
+    rather than assumed.
+    """
+    tau = MEMORY_VALUE_LIST_TAU if tau is None else float(tau)
+    collapse_episodes = (EPISODE_CLUSTER_COLLAPSE if collapse_episodes is None
+                         else bool(collapse_episodes))
+    gap_seconds = (EPISODE_CLUSTER_GAP_SECONDS if gap_seconds is None
+                   else int(gap_seconds))
+    empty = MappingProxyType({"groups": 0, "rows": 0, "skips": {},
+                              "list_coverage": 0.0,
+                              "episode_cluster_collapse": collapse_episodes,
+                              "clusters": 0})
+    if not records:
+        return None, empty
+    by_group: dict[tuple[str, int], list[Mapping[str, Any]]] = {}
+    for record in records:
+        by_group.setdefault((record["asset"], record["day"]), []).append(record)
+    losses = []; used_rows = 0; total_rows = 0; clusters_used = 0
+    skips: dict[str, int] = {}
+    for key in sorted(by_group):
+        group = by_group[key]
+        scores = torch.cat([record["scores"] for record in group])
+        gains = torch.cat([record["gains"] for record in group])
+        total_rows += int(sum(int(record["rows"]) for record in group))
+        if collapse_episodes:
+            decisions = np.concatenate([
+                np.asarray(record["decisions"], np.int64) for record in group])
+            if len(decisions) != int(scores.numel()):
+                raise RealDiagnosticExecutorRefusal(
+                    "listwise episode clustering lost row alignment")
+            cluster_ids = _episode_clusters(decisions, gap_seconds=gap_seconds)
+            collapsed_scores = []; collapsed_gains = []
+            for cluster in np.unique(cluster_ids):
+                members = torch.as_tensor(
+                    np.nonzero(cluster_ids == cluster)[0], dtype=torch.long,
+                    device=scores.device)
+                # The episode is represented by its BEST candidate: one
+                # opportunity contributes one list entry, and the gradient
+                # reaches the candidate that would actually be taken.
+                collapsed_scores.append(scores.index_select(0, members).max())
+                collapsed_gains.append(gains.index_select(0, members).max())
+            scores = torch.stack(collapsed_scores)
+            gains = torch.stack(collapsed_gains)
+        if int(scores.numel()) < 2:
+            skips["SINGLE_CANDIDATE"] = skips.get("SINGLE_CANDIDATE", 0) + 1
+            continue
+        mass = float(gains.sum())
+        if not (mass > 0):
+            skips["NO_POSITIVE_DOLLAR_MASS"] = (
+                skips.get("NO_POSITIVE_DOLLAR_MASS", 0) + 1)
+            continue
+        target = gains / gains.sum()
+        log_q = torch.log_softmax(scores / tau, dim=0)
+        losses.append(-(target * log_q).sum())
+        used_rows += int(scores.numel())
+        clusters_used += int(scores.numel())
+    if not losses:
+        return None, MappingProxyType({
+            "groups": len(by_group), "rows": 0, "skips": dict(skips),
+            "list_coverage": 0.0,
+            "episode_cluster_collapse": collapse_episodes, "clusters": 0})
+    receipt = MappingProxyType({
+        "groups": len(by_group), "rows": int(used_rows),
+        "skips": dict(skips),
+        "list_coverage": (used_rows / total_rows) if total_rows else 0.0,
+        "tau": float(tau),
+        "episode_cluster_collapse": collapse_episodes,
+        "episode_cluster_gap_seconds": int(gap_seconds),
+        "clusters": int(clusters_used),
+    })
+    return torch.stack(losses).mean(), receipt
+
+
+def _within_session_shuffled_memory(memory: torch.Tensor, *, seed: int,
+                                    epoch: int, session_id: str
+                                    ) -> torch.Tensor:
+    """Pre-registration section 4: permute candidate<->memory INSIDE a session.
+
+    Zeros answer "does the head use its memory at all"; a shuffle answers the
+    question that pays - "does THIS candidate's memory beat a sibling's from
+    the same session".  A single-candidate session cannot be shuffled and is
+    returned unchanged (its own typed receipt lives at the call site).
+    """
+    count = int(memory.shape[0])
+    if count < 2:
+        return memory
+    digest = hashlib.sha256(
+        f"{int(seed)}|{int(epoch)}|{session_id}".encode()).digest()
+    generator = np.random.default_rng(
+        int.from_bytes(digest[:8], "big") % (2 ** 63))
+    order = generator.permutation(count)
+    # A derangement is not required, but an identity permutation would make
+    # the baseline a copy of the live trace; redraw the degenerate case.
+    attempts = 0
+    while bool(np.all(order == np.arange(count))) and attempts < 8:
+        order = generator.permutation(count)
+        attempts += 1
+    return memory.index_select(
+        0, torch.as_tensor(order, dtype=torch.long, device=memory.device))
+
+
+def _lawful_crop_boundaries(clock: np.ndarray) -> np.ndarray:
+    """Largest lawful cutoff at or below each index.
+
+    A cutoff ``j`` is only reproducible by the model plane's
+    ``lower_bound(receive_clock_ns, decision)`` proof when the clock strictly
+    increases at ``j``; ties are one indivisible arrival.  ``-1`` means no
+    lawful cutoff exists at or below that index.
+    """
+    clock = np.asarray(clock)
+    positions = np.arange(len(clock), dtype=np.int64)
+    boundary = np.zeros(len(clock), bool)
+    if len(clock) > 1:
+        boundary[1:] = clock[1:] > clock[:-1]
+    return np.maximum.accumulate(np.where(boundary, positions, -1))
+
+
+def _identity_cropped_views(
+    encoder: torch.nn.Module,
+    batch: "_CandidateBatch",
+    raw_memory: torch.Tensor,
+    projection: CandidateIdentityProjection,
+    *,
+    device: torch.device,
+    seed: int,
+) -> tuple[Mapping[str, Any] | None, str | None]:
+    """R1 cropped-view positive pair for one session batch.
+
+    The positive is (memory of the FULL window, sg-target of the SAME window
+    truncated by k in 1..8 trailing events).  The target view is a SECOND
+    encoder forward under ``no_grad``: nothing on the target branch carries a
+    graph, so the identity objective can never be solved by a last-tick
+    snapshot (the two views disagree on exactly the last rows).
+
+    Candidates sharing a cutoff are ONE identity class and are deduped to a
+    single representative.
+    """
+    clock = np.asarray(batch.clock.numpy())
+    cutoffs = np.asarray(batch.cutoffs.numpy(), np.int64)
+    unique, first = np.unique(cutoffs, return_index=True)
+    if len(unique) < IDENTITY_MINIMUM_UNIQUE_WINDOWS:
+        return None, "TOO_FEW_UNIQUE_WINDOWS"
+    last_lawful = _lawful_crop_boundaries(clock)
+    generator = np.random.default_rng(int(seed))
+    rows: list[int] = []; cropped: list[int] = []; decisions: list[int] = []
+    for position, cutoff in zip(first.tolist(), unique.tolist()):
+        drawn = int(generator.integers(1, IDENTITY_MAX_CROP_EVENTS + 1))
+        limit = int(cutoff) - drawn
+        if limit < 1:
+            continue
+        candidate_cut = int(last_lawful[min(limit, len(clock) - 1)])
+        if candidate_cut < 1 or candidate_cut >= int(cutoff):
+            continue
+        rows.append(int(position)); cropped.append(candidate_cut)
+        decisions.append(int(clock[candidate_cut - 1]) + 1)
+    if len(rows) < IDENTITY_MINIMUM_UNIQUE_WINDOWS:
+        return None, "NO_LAWFUL_CROP"
+    take = torch.as_tensor(rows, dtype=torch.long, device=raw_memory.device)
+    view = projection(raw_memory.index_select(0, take))
+    with torch.no_grad():
+        target_memory = encoder(
+            batch.continuous.to(device), batch.categorical.to(device),
+            torch.as_tensor(cropped, dtype=torch.long, device=device),
+            receive_clock_ns=batch.clock.to(device),
+            candidate_decision_ts_ns=torch.as_tensor(
+                decisions, dtype=torch.int64, device=device),
+            asset_idx=C.ASSET_INDEX[batch.asset])
+        target = projection(target_memory)
+    return MappingProxyType({
+        "session_id": str(batch.session_id),
+        "view": view,
+        "target": target.detach(),
+        "cutoffs": np.asarray([cutoffs[index] for index in rows], np.int64),
+        "cropped_cutoffs": np.asarray(cropped, np.int64),
+    }), None
+
+
+def _candidate_identity_loss(
+    records: Sequence[Mapping[str, Any]],
+    *,
+    temperature: float | None = None,
+    minimum_cutoff_gap: int | None = None,
+    pooled_threshold: int | None = None,
+) -> tuple[torch.Tensor | None, Mapping[str, Any]]:
+    """R1 InfoNCE over same-session candidates for one (asset, day) group.
+
+    Negatives are the other candidates of the SAME session.  Near-neighbour
+    windows (cutoff gap < ``minimum_cutoff_gap`` events) are excluded: they are
+    the same tape and asking the head to separate them is noise, not identity.
+    Sessions thinner than ``pooled_threshold`` candidates borrow the (asset,
+    day) pool for negatives; cross-session pairs carry no cutoff gap law
+    because they index different tapes.
+    """
+    # Resolved at CALL time, never bound as default arguments: the harness
+    # measures these constants inside a live process.
+    temperature = (IDENTITY_TEMPERATURE if temperature is None
+                   else float(temperature))
+    minimum_cutoff_gap = (IDENTITY_MIN_CUTOFF_GAP_EVENTS
+                          if minimum_cutoff_gap is None else int(minimum_cutoff_gap))
+    pooled_threshold = (IDENTITY_POOLED_NEGATIVE_THRESHOLD
+                        if pooled_threshold is None else int(pooled_threshold))
+    empty = MappingProxyType({"rows": 0, "pooled_rows": 0, "sessions": 0,
+                              "mean_negatives": 0.0})
+    if not records:
+        return None, empty
+    view = torch.cat([record["view"] for record in records])
+    target = torch.cat([record["target"] for record in records])
+    session = np.concatenate([np.full(len(record["cutoffs"]), index, np.int64)
+                              for index, record in enumerate(records)])
+    cutoffs = np.concatenate([record["cutoffs"] for record in records])
+    count = int(len(session))
+    if count < 2:
+        return None, empty
+    same_session = session[:, None] == session[None, :]
+    gap = np.abs(cutoffs[:, None] - cutoffs[None, :])
+    identity = np.eye(count, dtype=bool)
+    per_session = {int(key): int((session == key).sum())
+                   for key in np.unique(session)}
+    thin = np.asarray([per_session[int(key)] < int(pooled_threshold)
+                       for key in session], bool)
+    allowed = np.where(thin[:, None], np.ones((count, count), bool), same_session)
+    allowed = allowed & ~(same_session & (gap < int(minimum_cutoff_gap)) & ~identity)
+    allowed = allowed | identity
+    keep = allowed.sum(1) >= 2
+    if not bool(keep.any()):
+        return None, MappingProxyType({"rows": 0, "pooled_rows": int(thin.sum()),
+                                       "sessions": len(records),
+                                       "mean_negatives": 0.0})
+    logits = (view @ target.t()) / float(temperature)
+    mask = torch.as_tensor(allowed, device=logits.device)
+    logits = logits.masked_fill(~mask, float("-inf"))
+    rows = torch.nn.functional.cross_entropy(
+        logits, torch.arange(count, device=logits.device), reduction="none")
+    selected = torch.as_tensor(keep, device=logits.device)
+    loss = rows[selected].mean()
+    receipt = MappingProxyType({
+        "rows": int(keep.sum()), "pooled_rows": int((thin & keep).sum()),
+        "sessions": len(records),
+        "mean_negatives": float((allowed.sum(1)[keep] - 1).mean()),
+    })
+    return loss, receipt
+
+
+def _encoder_gradient_shares(
+    model: torch.nn.Module, families: Mapping[str, torch.Tensor | None],
+) -> Mapping[str, Any]:
+    """F3: per-loss-family encoder-gradient L1 shares and conflict cosines.
+
+    Each family is backpropagated SEPARATELY through the same batch graph, so
+    the shares are the real competition for the encoder's parameters, not an
+    algebraic guess.  ``cosine_to_oracle`` is the conflict receipt: a negative
+    cosine means the auxiliary is pulling the encoder against the oracle.
+    """
+    parameters = [value for value in model.encoder.parameters()
+                  if value.requires_grad]
+
+    def _flat() -> torch.Tensor:
+        return torch.cat([
+            (parameter.grad.detach().reshape(-1) if parameter.grad is not None
+             else torch.zeros(parameter.numel(), device=parameter.device))
+            for parameter in parameters])
+
+    def _measure(value) -> torch.Tensor | None:
+        model.zero_grad(set_to_none=True)
+        if value is None or not bool(getattr(value, "requires_grad", False)):
+            return None
+        value.backward(retain_graph=True)
+        return _flat().clone()
+
+    # Only ONE auxiliary vector is resident at a time next to the oracle's:
+    # M1's encoder gradient is large enough that holding four copies is a real
+    # allocation, and the harness runs this inside the training loop.
+    l1: dict[str, float] = {}
+    cosine: dict[str, float] = {}
+    oracle = _measure(families.get("oracle"))
+    l1["oracle"] = 0.0 if oracle is None else float(oracle.abs().sum())
+    oracle_norm = 0.0 if oracle is None else float(oracle.norm())
+    for name, value in families.items():
+        if name == "oracle":
+            continue
+        vector = _measure(value)
+        if vector is None:
+            l1[name] = 0.0
+            continue
+        l1[name] = float(vector.abs().sum())
+        scale = float(vector.norm()) * oracle_norm
+        if oracle is not None and scale > 0:
+            cosine[name] = float((vector @ oracle) / scale)
+        else:
+            cosine[name] = 0.0
+        del vector
+    del oracle
+    model.zero_grad(set_to_none=True)
+    total = float(sum(l1.values()))
+    share = {name: (value / total if total > 0 else 0.0)
+             for name, value in l1.items()}
+    return MappingProxyType({
+        "encoder_gradient_l1": {name: float(value) for name, value in l1.items()},
+        "encoder_gradient_share": {name: float(value)
+                                   for name, value in share.items()},
+        "cosine_to_oracle": cosine})
+
+
+def _auxiliary_share_scales(shares: Mapping[str, float],
+                            caps: Mapping[str, float] | None = None,
+                            ) -> Mapping[str, float]:
+    """F3 share CAP: an auxiliary over its target share is down-scaled."""
+    caps = AUX_SHARE_CAPS if caps is None else caps
+    scales: dict[str, float] = {}
+    for name, cap in caps.items():
+        measured = float(shares.get(name, 0.0))
+        scales[name] = (float(cap) / measured
+                        if measured > float(cap) and measured > 0 else 1.0)
+    return MappingProxyType(scales)
+
+
+def _base_stage_parameter_groups(model: torch.nn.Module, arm: str, lr: float
+                                 ) -> tuple[list[dict[str, Any]], Mapping[str, Any]]:
+    """R8: M1-only encoder GRU-bank param group at 0.3x lr.
+
+    Measured: M1's governor-free validation OSCILLATES with grad-norm spikes
+    13k->23k while L0 descends smoothly under identical law.  The named GRU
+    banks are M1's alone (L-arms have an LSTM, no GRU), so the group is
+    resolved BY NAME and refuses when it comes back empty.
+    """
+    if arm != "M1":
+        return ([{"params": [value for value in model.parameters()
+                             if value.requires_grad], "lr": float(lr),
+                  "name": "all"}],
+                MappingProxyType({"param_groups": ("all",),
+                                  "encoder_gru_lr_scale": None,
+                                  "warmup_epochs": 0}))
+    banks: list[torch.nn.Parameter] = []; rest: list[torch.nn.Parameter] = []
+    for name, parameter in model.named_parameters():
+        if not parameter.requires_grad:
+            continue
+        (banks if name.startswith(M1_GRU_PARAMETER_PREFIXES) else rest).append(
+            parameter)
+    if not banks or not rest:
+        raise RealDiagnosticExecutorRefusal(
+            "R8 M1 encoder GRU-bank parameter group resolved empty")
+    groups = [{"params": banks, "lr": float(lr) * M1_ENCODER_GRU_LR_SCALE,
+               "name": "encoder_gru"},
+              {"params": rest, "lr": float(lr), "name": "rest"}]
+    receipt = MappingProxyType({
+        "param_groups": ("encoder_gru", "rest"),
+        "encoder_gru_lr_scale": M1_ENCODER_GRU_LR_SCALE,
+        "warmup_epochs": M1_WARMUP_EPOCHS,
+        "encoder_gru_parameter_tensors": len(banks),
+        "other_parameter_tensors": len(rest),
+        "prefixes": M1_GRU_PARAMETER_PREFIXES})
+    return groups, receipt
+
+
+def _apply_linear_warmup(optimizer: torch.optim.Optimizer,
+                         base_lrs: Sequence[float], *, epoch: int, step: int,
+                         steps_per_epoch: int, warmup_epochs: int) -> float:
+    """R8 linear lr warmup over the first ``warmup_epochs`` epochs."""
+    if warmup_epochs <= 0:
+        return 1.0
+    total = max(1, int(steps_per_epoch) * int(warmup_epochs))
+    done = int(epoch) * int(steps_per_epoch) + int(step)
+    scale = min(1.0, (done + 1) / total)
+    for group, base in zip(optimizer.param_groups, base_lrs):
+        group["lr"] = float(base) * scale
+    return float(scale)
+
+
+def _widened_validation_days(
+    batches: Sequence["_CandidateBatch"],
+    minimum_rows: int = RECONSTRUCTION_VALIDATION_MINIMUM_ROWS,
+    *,
+    maximum_held_fraction: float = RECONSTRUCTION_VALIDATION_MAXIMUM_HELD_FRACTION,
+) -> tuple[frozenset[int], Mapping[str, Any]]:
+    """Section 4.5: grow the trailing held window until it can certify.
+
+    26 held rows cannot certify preservation.  The window stays strictly
+    chronological (trailing days only) and always leaves at least one training
+    day; when the corpus is too small to reach the floor that fact is
+    receipted, not hidden.
+    """
+    unique_days = sorted({int(batch.day) for batch in batches})
+    if len(unique_days) < 2:
+        raise RealDiagnosticExecutorRefusal(
+            "arm day population cannot support a held validation window")
+    rows_by_day: dict[int, int] = {}
+    for batch in batches:
+        rows_by_day[int(batch.day)] = (rows_by_day.get(int(batch.day), 0)
+                                       + len(batch.candidate_ids))
+    baseline = max(1, int(np.ceil(.1 * len(unique_days))))
+    count = min(baseline, len(unique_days) - 1)
+    population = int(sum(rows_by_day.values()))
+
+    def held_rows(taken: int) -> int:
+        return int(sum(rows_by_day[day] for day in unique_days[-taken:]))
+
+    # Ruling 3: the floor is min(100, ceil(0.25 * population)) - a small
+    # competence population must never buy a certifiable held slice with more
+    # than a quarter of itself.
+    floor = min(int(minimum_rows),
+                int(np.ceil(float(maximum_held_fraction) * population)))
+    while count < len(unique_days) - 1 and held_rows(count) < floor:
+        count += 1
+    days = frozenset(unique_days[-count:])
+    total_rows = population
+    receipt = MappingProxyType({
+        "baseline_trailing_days": int(baseline),
+        "trailing_days": int(count),
+        "held_rows": held_rows(count),
+        "effective_minimum_held_rows": int(floor),
+        "maximum_held_fraction": float(maximum_held_fraction),
+        # The cost of the wider window is receipted, not hidden: a small
+        # fit-only population pays for a certifiable held slice in training
+        # rows, and the ratio is the number a reader needs to judge it.
+        "training_rows": total_rows - held_rows(count),
+        "total_rows": total_rows,
+        "held_fraction": (held_rows(count) / total_rows if total_rows else 0.0),
+        "minimum_held_rows": int(minimum_rows),
+        "meets_minimum": bool(held_rows(count) >= floor),
+        "meets_absolute_minimum": bool(held_rows(count) >= int(minimum_rows)),
+        "chronological_trailing_only": True})
+    return days, receipt
+
+
+class _PerComponentGovernor:
+    """F2 + R3: the stopping law and the checkpoint law, moving together.
+
+    The base stage used to be governed by ONE summed validation scalar that
+    the oracle stack dominates, so the stage stopped at the oracle plateau and
+    the best-checkpoint law then RELOADED that plateau.  Here every governed
+    trace carries its own 0.1% min-improvement and its own patience; the stage
+    continues while ANY trace still improves, and the selected checkpoint is
+    the minimum over epochs of the MEAN of each trace divided by its own
+    epoch-0 value (scale free, so the big oracle stack cannot outvote
+    preservation, identity or value by magnitude alone).
+    """
+
+    def __init__(self, governed: Sequence[str], *,
+                 minimum_relative_improvement: float, patience: int) -> None:
+        self.governed = tuple(str(name) for name in governed)
+        if not self.governed or len(set(self.governed)) != len(self.governed):
+            raise RealDiagnosticExecutorRefusal(
+                "the governed trace roster must be a nonempty unique tuple")
+        self.minimum_relative_improvement = float(minimum_relative_improvement)
+        self.patience = int(patience)
+        self.best_by_trace = {name: np.inf for name in self.governed}
+        self.stale_by_trace = {name: 0 for name in self.governed}
+        self.epoch_zero: dict[str, float] = {}
+        self.best_composite = np.inf
+        self.best_epoch = -1
+        self.epochs = 0
+
+    def observe(self, traces: Mapping[str, float]) -> Mapping[str, Any]:
+        missing = [name for name in self.governed if name not in traces]
+        if missing:
+            raise RealDiagnosticExecutorRefusal(
+                f"governed traces are missing from this epoch: {missing}")
+        values = {name: float(traces[name]) for name in self.governed}
+        if not self.epoch_zero:
+            if any(not np.isfinite(value) or value <= 0
+                   for value in values.values()):
+                raise RealDiagnosticExecutorRefusal(
+                    "epoch-0 governed traces must be finite and positive for "
+                    "the scale-free checkpoint composite")
+            self.epoch_zero = dict(values)
+        composite = float(np.mean([values[name] / self.epoch_zero[name]
+                                   for name in self.governed]))
+        for name in self.governed:
+            if values[name] < self.best_by_trace[name] * (
+                    1.0 - self.minimum_relative_improvement):
+                self.best_by_trace[name] = values[name]
+                self.stale_by_trace[name] = 0
+            else:
+                self.stale_by_trace[name] += 1
+        selected = bool(composite < self.best_composite)
+        if selected:
+            self.best_composite = composite
+            self.best_epoch = self.epochs
+        epoch = self.epochs
+        self.epochs += 1
+        return MappingProxyType({
+            "epoch": int(epoch),
+            "composite": composite,
+            "selected": selected,
+            "stale_by_trace": dict(self.stale_by_trace),
+            "all_stale": bool(epoch >= 1 and all(
+                value >= self.patience
+                for value in self.stale_by_trace.values())),
+        })
+
+
+def _identity_crop_seed(arm: str, salt: int, batch: "_CandidateBatch") -> int:
+    """Deterministic per (arm, salt, session) crop draw for R1.
+
+    Training salts with the epoch so the crop depth varies; validation salts
+    with one FIXED constant so the held identity trace compares like with like
+    from epoch to epoch.
+    """
+    digest = hashlib.sha256(
+        f"{arm}|{int(salt)}|{batch.asset}|{int(batch.day)}|"
+        f"{batch.session_id}".encode()).digest()
+    return int.from_bytes(digest[:8], "big") % (2 ** 63)
+
+
+def _base_stage_fix_receipt(
+    *, arm: str, trace: Sequence[Mapping[str, Any]], governed: Sequence[str],
+    epoch_zero: Mapping[str, float], stale_by_trace: Mapping[str, int],
+    best_composite: float, best_epoch: int, stop_reason: str,
+    wall_ceiling_s: float, spec: Any, identity_enabled: bool,
+    identity_skips: Mapping[str, int], auxiliary_scales: Mapping[str, float],
+    gradient_share_receipts: Sequence[Mapping[str, Any]],
+    optimizer_group_receipt: Mapping[str, Any],
+    scope_receipt: Mapping[str, Any],
+    validation_window_receipt: Mapping[str, Any],
+    identity_validation_status: str = IDENTITY_VALIDATION_TRAINED,
+    list_receipts: Sequence[Mapping[str, Any]] = (),
+    unshuffleable_sessions: int = 0,
+    fit_block_days: Any = "FULL_COMPETENCE_POPULATION",
+) -> Mapping[str, Any]:
+    """Every law the encoder-training fix pass introduced, receipted.
+
+    Deterministic content only: constants, typed verdicts and the measured
+    traces.  Wall-clock seconds stay nonsemantic (stderr + the side stash);
+    only the CEILING constant and the typed stop reason enter the receipt.
+    """
+    if stop_reason not in BASE_STAGE_STOP_REASONS:
+        raise RealDiagnosticExecutorRefusal(
+            f"base-stage stop reason {stop_reason!r} is untyped")
+    return {
+        "validation_window": dict(validation_window_receipt),
+        "fit_block_days": fit_block_days,
+        "reconstruction_target_scope": dict(scope_receipt),
+        "governed_traces": tuple(governed),
+        "governed_trace_values": tuple(
+            {name: float(row["governed"][name]) for name in governed}
+            for row in trace),
+        "per_trace_minimum_relative_improvement":
+            float(spec.minimum_relative_improvement),
+        "per_trace_patience": int(spec.patience),
+        "epoch_ceiling": int(spec.max_epochs),
+        "checkpoint_law": BASE_STAGE_CHECKPOINT_LAW,
+        "checkpoint_composite_trace": tuple(
+            float(row["composite"]) for row in trace),
+        "epoch_zero_traces": {name: float(value)
+                              for name, value in epoch_zero.items()},
+        "best_composite": float(best_composite),
+        "best_epoch": int(best_epoch),
+        "stale_by_trace": dict(stale_by_trace),
+        "stop_reason": stop_reason,
+        "stop_reasons": BASE_STAGE_STOP_REASONS,
+        "wall_ceiling_seconds": float(wall_ceiling_s),
+        "identity_status": (identity_validation_status if identity_enabled
+                            else IDENTITY_UNAVAILABLE_BROADCAST),
+        "identity_validation": (identity_validation_status if identity_enabled
+                                else IDENTITY_UNAVAILABLE_BROADCAST),
+        "identity_temperature": IDENTITY_TEMPERATURE,
+        "identity_min_cutoff_gap_events": IDENTITY_MIN_CUTOFF_GAP_EVENTS,
+        "identity_max_crop_events": IDENTITY_MAX_CROP_EVENTS,
+        "identity_minimum_unique_windows": IDENTITY_MINIMUM_UNIQUE_WINDOWS,
+        "identity_pooled_negative_threshold": IDENTITY_POOLED_NEGATIVE_THRESHOLD,
+        "identity_fit_weight_law": IDENTITY_FIT_WEIGHT_LAW,
+        "identity_projection_persisted": False,
+        "identity_skip_reasons": IDENTITY_SKIP_REASONS,
+        "identity_skips": dict(identity_skips),
+        "identity_trace": (tuple(float(row["governed"]["identity"])
+                                 for row in trace)
+                           if "identity" in tuple(governed)
+                           else (IDENTITY_UNAVAILABLE_BROADCAST
+                                 if not identity_enabled
+                                 else identity_validation_status)),
+        "memory_value_trace": tuple(
+            float(row["governed"]["memory_value"]) for row in trace),
+        # The ACCEPTANCE baseline (pre-registration section 4).
+        "memory_value_shuffled_baseline": tuple(
+            float(row["memory_value_shuffled"]) for row in trace),
+        "memory_value_margin": tuple(
+            float(row["memory_value_margin"]) for row in trace),
+        # Reference column only: zeros answer a weaker question.
+        "memory_value_occluded_baseline": tuple(
+            float(row["memory_value_occluded"]) for row in trace),
+        "memory_value_occluded_margin": tuple(
+            float(row["memory_value_occluded_margin"]) for row in trace),
+        "memory_value_baseline_law": MEMORY_VALUE_BASELINE_LAW,
+        "memory_value_probe_kinds": MEMORY_VALUE_PROBE_KINDS,
+        "memory_value_linear_probe_law": MEMORY_VALUE_LINEAR_PROBE_LAW,
+        "memory_value_acceptance_rule": MEMORY_VALUE_ACCEPTANCE_RULE,
+        "memory_value_linear_trace": tuple(
+            float(row["memory_value_linear"]) for row in trace),
+        "memory_value_linear_shuffled_baseline": tuple(
+            float(row["memory_value_linear_shuffled"]) for row in trace),
+        "memory_value_linear_margin": tuple(
+            float(row["memory_value_linear_margin"]) for row in trace),
+        "episode_cluster_collapse": EPISODE_CLUSTER_COLLAPSE,
+        "episode_cluster_gap_seconds": EPISODE_CLUSTER_GAP_SECONDS,
+        "memory_value_shuffle_seed": MEMORY_VALUE_SHUFFLE_SEED,
+        "memory_value_unshuffleable_sessions": int(unshuffleable_sessions),
+        "memory_value_fit_weight_law": MEMORY_VALUE_FIT_WEIGHT_LAW,
+        "memory_value_targets": MEMORY_VALUE_TARGETS,
+        "memory_value_goal_grade_usd": GOAL_GRADE_USD,
+        "memory_value_util_weight_law": {
+            "floor_usd": MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD,
+            "ceiling_usd": MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD,
+            "scale_usd": MEMORY_VALUE_UTIL_WEIGHT_SCALE_USD,
+            "reduction": "WEIGHTED_MEAN"},
+        "memory_value_tail_scale_usd": MEMORY_VALUE_TAIL_SCALE_USD,
+        "memory_value_list_tau": MEMORY_VALUE_LIST_TAU,
+        "memory_value_list_skip_reasons": MEMORY_VALUE_LIST_SKIP_REASONS,
+        "memory_value_list_coverage_trace": tuple(
+            float(row["memory_value_list_coverage"]) for row in trace),
+        "memory_value_list_training_groups": int(sum(
+            int(row["groups"]) for row in list_receipts)),
+        "memory_value_list_training_skips": {
+            name: int(sum(int(dict(row["skips"]).get(name, 0))
+                          for row in list_receipts))
+            for name in MEMORY_VALUE_LIST_SKIP_REASONS},
+        "memory_value_internal_weights": {
+            "util": MEMORY_VALUE_UTIL_WEIGHT,
+            "list": MEMORY_VALUE_LIST_WEIGHT,
+            "tail": MEMORY_VALUE_TAIL_WEIGHT},
+        "memory_value_internal_target_shares": dict(MEMORY_VALUE_TARGET_SHARES),
+        "memory_value_internal_weights_measured": MEMORY_VALUE_WEIGHTS_MEASURED,
+        "memory_value_value_bin_law": MEMORY_VALUE_VALUE_BIN_LAW,
+        "memory_value_probe_persisted": False,
+        "auxiliary_weights": {"recon": AUX_RECON_WEIGHT,
+                              "identity": AUX_IDENTITY_WEIGHT,
+                              "memory_value": AUX_MEMORY_VALUE_WEIGHT},
+        "auxiliary_weights_measured": AUX_WEIGHTS_MEASURED,
+        "auxiliary_weights_todo": AUX_WEIGHT_TODO,
+        "auxiliary_share_caps": dict(AUX_SHARE_CAPS),
+        "auxiliary_share_caps_measured": AUX_SHARE_CAPS_MEASURED,
+        "auxiliary_share_scales": dict(auxiliary_scales),
+        "gradient_share_measurement_epochs": GRADIENT_SHARE_MEASUREMENT_EPOCHS,
+        "gradient_share_measurements": tuple(
+            dict(row) for row in gradient_share_receipts),
+        "optimizer_param_groups": dict(optimizer_group_receipt),
+    }
 
 
 @dataclass
@@ -7495,7 +8435,16 @@ class ProductionExactDiagnosticResources:
         torch.cuda.empty_cache()
         return final
 
-    def _encode(self, model, arm: str):
+    def _encode(self, model, arm: str, *,
+                fit_days: frozenset[int] | None = None):
+        """Train the arm's real encoder.
+
+        ``fit_days`` restricts the FIT BLOCK to a set of trading days (the
+        harness's inner development folds).  The stage's own trailing held
+        window is then carved out of that block, so training never sees a
+        fold's scored days.  ``None`` keeps the production behaviour exactly:
+        the whole competence population is the fit block.
+        """
         stage_wall: dict[str, float] = {"collects_s": 0.0}
         model.to(self.device)
         # Ruling 20: the arch snapshot comes from _models() construction
@@ -7513,15 +8462,67 @@ class ProductionExactDiagnosticResources:
         # SHAPING the encoder to be reconstructable.  The encoder is now frozen
         # with respect to the survival probe (the memory is detached below) and
         # the decoder has its own optimizer.
+        # R9: the reconstruction TARGET scope is resolved BY NAME against the
+        # bound schema (never positional constants).  The six absolute-clock
+        # columns leave the target and stay inputs/routes.
+        continuous_scope = reconstruction_target_scope(
+            self.schema.continuous_fields, strict=True)
+        scope_receipt = MappingProxyType({
+            "excluded_fields": ABSOLUTE_CLOCK_TARGET_FIELDS,
+            "scoped_fields": int(sum(continuous_scope)),
+            "total_fields": int(len(continuous_scope)),
+            "resolved_by": "SCHEMA_FIELD_NAME"})
+        # R1: identity is well posed only for the per-candidate arms.  The
+        # broadcast controls carry a typed refusal, not a trained objective.
+        identity_enabled = arm in IDENTITY_TRAINED_ARMS
+        projection = (CandidateIdentityProjection().to(self.device)
+                      if identity_enabled else None)
+        memory_value_probe = MemoryValueProbe(
+            n_value_bins=model.head.n_value_bins, kind="mlp").to(self.device)
+        # Section 4's second probe.  It reads the SAME memory through a
+        # detached tensor, so adding an acceptance instrument cannot change
+        # the training signal it exists to audit.
+        memory_value_linear_probe = MemoryValueProbe(
+            n_value_bins=model.head.n_value_bins, kind="linear").to(self.device)
+        parameter_groups, optimizer_group_receipt = _base_stage_parameter_groups(
+            model, arm, 1e-3)
         optimizer = _run_optimizer(
-            lambda: torch.optim.AdamW(model.parameters(), lr=1e-3),
+            lambda: torch.optim.AdamW(parameter_groups),
             category="ARM", fit_id=f"arm/{arm}/encode")
+        base_learning_rates = [float(group["lr"])
+                               for group in optimizer.param_groups]
+        warmup_epochs = M1_WARMUP_EPOCHS if arm == "M1" else 0
         decoder_optimizer = _run_optimizer(
             lambda: torch.optim.AdamW(decoder.parameters(), lr=1e-3),
             category="ARM", fit_id=f"arm/{arm}/field-survival-decoder")
-        unique_days = sorted({b.day for b in self.batches}); validation_days = set(
-            unique_days[-max(1, int(np.ceil(.1 * len(unique_days)))):])
-        training_batches = tuple(b for b in self.batches if b.day not in validation_days)
+        # Both auxiliary heads are DISCARDED with the stage and never enter an
+        # arm artifact.  CANARY is an UNREGISTERED fit-census category, so
+        # neither one touches the registered-fit ceiling (A-011).
+        identity_optimizer = (_run_optimizer(
+            lambda: torch.optim.AdamW(projection.parameters(), lr=1e-3),
+            category="CANARY", fit_id=f"arm/{arm}/identity")
+            if identity_enabled else None)
+        memory_value_optimizer = _run_optimizer(
+            lambda: torch.optim.AdamW(memory_value_probe.parameters(), lr=1e-3),
+            category="CANARY", fit_id=f"arm/{arm}/memory-value-probe")
+        memory_value_linear_optimizer = _run_optimizer(
+            lambda: torch.optim.AdamW(
+                memory_value_linear_probe.parameters(), lr=1e-3),
+            category="CANARY", fit_id=f"arm/{arm}/memory-value-probe-linear")
+        # Section 4: the fit block is the whole competence population in
+        # production, and ONE inner development fold in the harness.
+        fit_batches = tuple(self.batches if fit_days is None
+                            else [b for b in self.batches
+                                  if int(b.day) in fit_days])
+        if not fit_batches:
+            raise RealDiagnosticExecutorRefusal(
+                "the arm fit block is empty for the requested fold")
+        # Section 4.5: 26 held reconstruction rows cannot certify preservation.
+        _validation_days, validation_window_receipt = _widened_validation_days(
+            fit_batches)
+        validation_days = set(_validation_days)
+        training_batches = tuple(b for b in fit_batches
+                                 if b.day not in validation_days)
         if not training_batches:
             raise RealDiagnosticExecutorRefusal("arm training-day population is empty")
         by_day: dict[tuple[str, int], list[_CandidateBatch]] = {}
@@ -7562,7 +8563,23 @@ class ProductionExactDiagnosticResources:
             "base": base_receipt.receipt_sha256,
             "top3": top3_receipt.receipt_sha256,
             "wall": wall_receipt.receipt_sha256})
-        updates = 0; best = None; best_validation = np.inf; stale = 0; trace = []
+        updates = 0; best = None; trace = []
+        # F2 + R3 (design REVISION 2): the base stage used to be governed by
+        # ONE summed validation scalar.  The oracle stack dominates that sum
+        # (~16 total, ~10 of it field_continuous), so preservation, identity
+        # and value never got to govern, and the best-checkpoint law then
+        # reloaded the early oracle plateau - stopping alone would have been a
+        # null fix.  Both laws now move together: per-trace 0.1% staleness with
+        # patience 3 stops the stage only when EVERY governed trace is stale,
+        # and the checkpoint is the minimum over epochs of the MEAN of each
+        # governed trace divided by its own epoch-0 value (scale free).
+        governed = tuple(name for name in BASE_STAGE_GOVERNED_TRACES
+                         if name != "identity" or identity_enabled)
+        best_validation = np.inf
+        identity_skips: dict[str, int] = {}
+        gradient_share_receipts: list[Mapping[str, Any]] = []
+        auxiliary_scales = {"recon": 1.0, "identity": 1.0, "memory_value": 1.0}
+        stop_reason = "EPOCH_CEILING"
         # Ruling 17 (2026-08-19): this loop trains the arm's ACTUAL encoder —
         # the frozen memory plane every downstream head consumes. It runs the
         # full pointwise_dense STAGE_SPECS law (ruling 10: raised ceiling,
@@ -7571,18 +8588,37 @@ class ProductionExactDiagnosticResources:
         # overfit), never the base stage: a memory plane from a 2-epoch
         # encoder made the reconstruction gate unreachable by construction.
         _base_spec = _STAGE_SPECS["pointwise_dense"]
+        # Ruling 5: the governed roster is settled by what the FIRST held
+        # validation can actually measure.  A held population with no
+        # multi-window session drops identity as a typed capability fact.
+        governor = None
+        identity_validation_status = (
+            IDENTITY_VALIDATION_TRAINED if identity_enabled
+            else IDENTITY_UNAVAILABLE_BROADCAST)
+        list_receipts: list[Mapping[str, Any]] = []
+        _wall_ceiling_s = float(ARM_WALL_CEILING_SECONDS[arm])
         _base_stage_start = time.monotonic()
         for epoch in range(_base_spec.max_epochs):
-            model.train(); decoder.train()
+            model.train(); decoder.train(); memory_value_probe.train()
+            memory_value_linear_probe.train()
+            if projection is not None:
+                projection.train()
             named = [*model.named_parameters(), *((f"decoder.{name}", parameter)
                      for name, parameter in decoder.named_parameters())]
             before_parameters = {
                 name: parameter.detach().cpu().clone() for name, parameter in named}
             epoch_components = []; epoch_gradient_norm = 0.0
-            for day_key in sorted(by_day):
+            for step_index, day_key in enumerate(sorted(by_day)):
                 optimizer.zero_grad(set_to_none=True)
                 decoder_optimizer.zero_grad(set_to_none=True)
+                memory_value_optimizer.zero_grad(set_to_none=True)
+                memory_value_linear_optimizer.zero_grad(set_to_none=True)
+                if identity_optimizer is not None:
+                    identity_optimizer.zero_grad(set_to_none=True)
                 oracle_losses = []; reconstruction_losses = []; component_rows = []
+                memory_value_losses = []; identity_records = []
+                memory_value_records = []; component_probe_rows = []
+                linear_losses = []; linear_records = []
                 for batch in by_day[day_key]:
                     static = batch.static_features.to(self.device) if arm in ("L1", "M1") else None
                     out = model(
@@ -7612,18 +8648,115 @@ class ProductionExactDiagnosticResources:
                     # (Measured: under B-17 isolation the gate was
                     # structurally unsatisfiable — plateau-converged C0 still
                     # failed held reconstruction.)
+                    # R9: the TARGET is the decision-relevant scope; the six
+                    # absolute-clock columns stay inputs/routes, never targets.
                     reconstruction_loss, continuous_loss, categorical_loss = \
                         _field_reconstruction_loss(
                             decoder, out.raw_memory, batch,
                             batch_weights["base"],
+                            continuous_scope=continuous_scope,
                         )
+                    # R2 as amended (pre-registration section 2): the probe
+                    # reads the RAW MEMORY ALONE and is graded on DOLLAR
+                    # ORDERING - dollar-weighted goal grade plus the wall-hit
+                    # tail here, and the within-(asset,day) listwise
+                    # dollar-mass KL at the day level below.
+                    memory_value_loss, memory_value_components, \
+                        memory_value_record = _memory_value_probe_loss(
+                            memory_value_probe, out.raw_memory, batch)
+                    memory_value_records.append(memory_value_record)
+                    linear_loss, _linear_components, linear_record = \
+                        _memory_value_probe_loss(
+                            memory_value_linear_probe,
+                            out.raw_memory.detach(), batch)
+                    linear_losses.append(linear_loss)
+                    linear_records.append(linear_record)
+                    if identity_enabled:
+                        record, skipped = _identity_cropped_views(
+                            model.encoder, batch, out.raw_memory, projection,
+                            device=self.device,
+                            seed=_identity_crop_seed(arm, epoch, batch))
+                        if record is None:
+                            identity_skips[str(skipped)] = (
+                                identity_skips.get(str(skipped), 0) + 1)
+                        else:
+                            identity_records.append(record)
                     oracle_losses.append(total)
                     reconstruction_losses.append(reconstruction_loss)
+                    memory_value_losses.append(memory_value_loss)
+                    component_probe_rows.append(memory_value_components)
                     component_rows.append({**dict(components),
                         "field_continuous": continuous_loss,
-                        "field_categorical": categorical_loss})
-                loss = (torch.stack(oracle_losses).sum()
-                        + torch.stack(reconstruction_losses).sum())
+                        "field_categorical": categorical_loss,
+                        **{f"memory_value_{name}": value for name, value
+                           in memory_value_components.items()}})
+                oracle_family = torch.stack(oracle_losses).sum()
+                recon_family = torch.stack(reconstruction_losses).sum()
+                memory_value_family = torch.stack(memory_value_losses).sum()
+                list_family, list_step_receipt = _memory_value_list_loss(
+                    memory_value_records)
+                if list_step_receipt is not None:
+                    list_receipts.append(list_step_receipt)
+                if list_family is not None:
+                    memory_value_family = (memory_value_family
+                                           + MEMORY_VALUE_LIST_WEIGHT * list_family)
+                # The linear read-out trains its OWN weights on a detached
+                # memory; it never joins the encoder's objective.
+                linear_family = torch.stack(linear_losses).sum()
+                linear_list, _linear_list_receipt = _memory_value_list_loss(
+                    linear_records)
+                if linear_list is not None:
+                    linear_family = (linear_family
+                                     + MEMORY_VALUE_LIST_WEIGHT * linear_list)
+                linear_family.backward()
+                identity_family, identity_step_receipt = (
+                    _candidate_identity_loss(identity_records)
+                    if identity_records else (None, None))
+                if (epoch in GRADIENT_SHARE_MEASUREMENT_EPOCHS
+                        and step_index == 0):
+                    # F3: measure the real competition for the encoder's
+                    # parameters (separate backwards on the SAME batch), then
+                    # CAP any auxiliary above its target share for this epoch.
+                    measurement = _encoder_gradient_shares(model, {
+                        "oracle": oracle_family, "recon": recon_family,
+                        "identity": identity_family,
+                        "memory_value": memory_value_family})
+                    auxiliary_scales = dict(_auxiliary_share_scales(
+                        measurement["encoder_gradient_share"]))
+                    # Section 2 asks for the probe's INTERNAL shares
+                    # (~50/30/20) as well as the family shares, so the
+                    # harness can set lambda_list / lambda_tail from
+                    # measurement instead of taste.
+                    def _probe_family(name):
+                        if not component_probe_rows:
+                            return None
+                        return torch.stack([row[name] for row
+                                            in component_probe_rows]).sum()
+                    internal = _encoder_gradient_shares(model, {
+                        "oracle": oracle_family,
+                        "util": _probe_family("util"),
+                        "list": (MEMORY_VALUE_LIST_WEIGHT * list_family
+                                 if list_family is not None else None),
+                        "tail": _probe_family("tail")})
+                    gradient_share_receipts.append(MappingProxyType({
+                        "epoch": int(epoch), **dict(measurement),
+                        "memory_value_internal_share": dict(
+                            internal["encoder_gradient_share"]),
+                        "memory_value_target_shares": dict(
+                            MEMORY_VALUE_TARGET_SHARES),
+                        "applied_scales": dict(auxiliary_scales)}))
+                    optimizer.zero_grad(set_to_none=True)
+                    decoder_optimizer.zero_grad(set_to_none=True)
+                    memory_value_optimizer.zero_grad(set_to_none=True)
+                    if identity_optimizer is not None:
+                        identity_optimizer.zero_grad(set_to_none=True)
+                loss = (oracle_family
+                        + AUX_RECON_WEIGHT * auxiliary_scales["recon"] * recon_family
+                        + AUX_MEMORY_VALUE_WEIGHT
+                        * auxiliary_scales["memory_value"] * memory_value_family)
+                if identity_family is not None:
+                    loss = loss + (AUX_IDENTITY_WEIGHT
+                                   * auxiliary_scales["identity"] * identity_family)
                 loss.backward()
                 common = [p.grad for p in model.encoder.parameters() if p.grad is not None]
                 heads = [p.grad for p in model.head.parameters() if p.grad is not None]
@@ -7652,7 +8785,17 @@ class ProductionExactDiagnosticResources:
                 epoch_gradient_norm += sum(float(torch.linalg.vector_norm(
                     parameter.grad.detach())) for _name, parameter in named
                     if parameter.grad is not None)
-                optimizer.step(); decoder_optimizer.step(); updates += 1
+                # R8: linear warmup over the first epoch (M1 only; the other
+                # arms take warmup_epochs=0 and keep their constant lr).
+                _apply_linear_warmup(
+                    optimizer, base_learning_rates, epoch=epoch, step=step_index,
+                    steps_per_epoch=len(by_day), warmup_epochs=warmup_epochs)
+                optimizer.step(); decoder_optimizer.step()
+                memory_value_optimizer.step()
+                memory_value_linear_optimizer.step()
+                if identity_optimizer is not None:
+                    identity_optimizer.step()
+                updates += 1
 
             rows_now, _metrics_all, _, _, probabilities_now = self._collect(model, arm)
             p_now = np.asarray([probabilities_now[cid] for cid in rows_now.candidate_id])
@@ -7662,10 +8805,21 @@ class ProductionExactDiagnosticResources:
             if not val_mask.any():
                 raise RealDiagnosticExecutorRefusal(
                     "arm validation lacks supervised action rows")
-            validation_parts = []
-            model.eval(); decoder.eval()
+            validation_parts = []; oracle_parts = []; recon_parts = []
+            memory_value_parts = []; occluded_parts = []; shuffled_parts = []
+            memory_value_validation_records = []
+            shuffled_validation_records = []
+            occluded_validation_records = []
+            linear_parts = []; linear_shuffled_parts = []
+            linear_validation_records = []; linear_shuffled_records = []
+            unshuffleable_sessions = 0
+            identity_validation_groups: dict[tuple[str, int], list] = {}
+            model.eval(); decoder.eval(); memory_value_probe.eval()
+            memory_value_linear_probe.eval()
+            if projection is not None:
+                projection.eval()
             with torch.no_grad():
-                for batch in (value for value in self.batches
+                for batch in (value for value in fit_batches
                               if value.day in validation_days):
                     out = model(
                         event_continuous=batch.continuous.to(self.device),
@@ -7684,16 +8838,124 @@ class ProductionExactDiagnosticResources:
                     field_validation, _continuous, _categorical = \
                         _field_reconstruction_loss(
                             decoder, out.raw_memory, batch,
+                            continuous_scope=continuous_scope,
                         )
+                    memory_value_validation, _memory_value_components, \
+                        memory_value_validation_record = \
+                        _memory_value_probe_loss(
+                            memory_value_probe, out.raw_memory, batch)
+                    memory_value_validation_records.append(
+                        memory_value_validation_record)
+                    # Pre-registration section 4: the ACCEPTANCE baseline is
+                    # the same probe on WITHIN-SESSION SHUFFLED memories -
+                    # "does THIS candidate's memory beat a sibling's from the
+                    # same session".  Zeros answer only "is the memory read at
+                    # all" and stay as a reference column.
+                    shuffled_memory = _within_session_shuffled_memory(
+                        out.raw_memory, seed=MEMORY_VALUE_SHUFFLE_SEED,
+                        epoch=epoch, session_id=str(batch.session_id))
+                    if int(out.raw_memory.shape[0]) < 2:
+                        unshuffleable_sessions += 1
+                    shuffled_validation, _shuffled_components, \
+                        shuffled_validation_record = _memory_value_probe_loss(
+                            memory_value_probe, shuffled_memory, batch)
+                    shuffled_validation_records.append(shuffled_validation_record)
+                    occluded_validation, _occluded_components, \
+                        occluded_validation_record = _memory_value_probe_loss(
+                            memory_value_probe,
+                            torch.zeros_like(out.raw_memory), batch)
+                    occluded_validation_records.append(occluded_validation_record)
+                    # Section 4's second probe, scored in the SAME run on the
+                    # same two planes: acceptance passes on EITHER probe, and
+                    # the shuffled null must fail BOTH.
+                    linear_validation, _linear_c, linear_validation_record = \
+                        _memory_value_probe_loss(
+                            memory_value_linear_probe, out.raw_memory, batch)
+                    linear_validation_records.append(linear_validation_record)
+                    linear_shuffled_validation, _linear_s, \
+                        linear_shuffled_record = _memory_value_probe_loss(
+                            memory_value_linear_probe, shuffled_memory, batch)
+                    linear_shuffled_records.append(linear_shuffled_record)
+                    count = len(batch.candidate_ids)
+                    linear_parts.append((float(linear_validation), count))
+                    linear_shuffled_parts.append(
+                        (float(linear_shuffled_validation), count))
                     validation_parts.append((
-                        float(oracle_validation + field_validation),
-                        len(batch.candidate_ids),
-                    ))
+                        float(oracle_validation + field_validation), count))
+                    oracle_parts.append((float(oracle_validation), count))
+                    recon_parts.append((float(field_validation), count))
+                    memory_value_parts.append((float(memory_value_validation), count))
+                    shuffled_parts.append((float(shuffled_validation), count))
+                    occluded_parts.append((float(occluded_validation), count))
+                    if identity_enabled:
+                        record, skipped = _identity_cropped_views(
+                            model.encoder, batch, out.raw_memory, projection,
+                            device=self.device,
+                            seed=_identity_crop_seed(
+                                arm, IDENTITY_VALIDATION_CROP_SEED, batch))
+                        if record is not None:
+                            identity_validation_groups.setdefault(
+                                (batch.asset, int(batch.day)), []).append(record)
             if not validation_parts or not np.all(np.isfinite(validation_parts)):
                 raise RealDiagnosticExecutorRefusal(
                     "joint arm validation loss is unavailable")
-            validation = float(sum(value * count for value, count in validation_parts)
-                               / sum(count for _value, count in validation_parts))
+
+            def _held_mean(parts):
+                return float(sum(value * count for value, count in parts)
+                             / sum(count for _value, count in parts))
+
+            validation = _held_mean(validation_parts)
+
+            def _with_list(parts, records):
+                """The held probe trace carries the same three terms as training."""
+                value = _held_mean(parts)
+                listwise, receipt = _memory_value_list_loss(records)
+                if listwise is not None:
+                    value = value + MEMORY_VALUE_LIST_WEIGHT * float(listwise)
+                return value, receipt
+
+            memory_value_validation_value, list_validation_receipt = _with_list(
+                memory_value_parts, memory_value_validation_records)
+            shuffled_baseline, _shuffled_list_receipt = _with_list(
+                shuffled_parts, shuffled_validation_records)
+            occluded_baseline, _occluded_list_receipt = _with_list(
+                occluded_parts, occluded_validation_records)
+            linear_value, _linear_list_receipt = _with_list(
+                linear_parts, linear_validation_records)
+            linear_shuffled_value, _linear_shuffled_receipt = _with_list(
+                linear_shuffled_parts, linear_shuffled_records)
+            traces = {"oracle": _held_mean(oracle_parts),
+                      "recon": _held_mean(recon_parts),
+                      "memory_value": memory_value_validation_value}
+            if identity_enabled:
+                identity_parts = []
+                for group_key in sorted(identity_validation_groups):
+                    value, receipt = _candidate_identity_loss(
+                        identity_validation_groups[group_key])
+                    if value is not None:
+                        identity_parts.append((float(value), int(receipt["rows"])))
+                if identity_parts:
+                    traces["identity"] = _held_mean(identity_parts)
+                elif epoch == 0:
+                    # Ruling 5: a typed capability fact, not a refusal.
+                    identity_validation_status = IDENTITY_VALIDATION_UNAVAILABLE
+                    governed = tuple(name for name in governed
+                                     if name != "identity")
+                    print(f"IDENTITY-DROP {arm} {identity_validation_status}",
+                          file=sys.stderr, flush=True)
+                elif "identity" in governed:
+                    # The validation crops are drawn from ONE fixed seed, so
+                    # availability cannot change between epochs; if it did,
+                    # the population moved underneath the run.
+                    raise RealDiagnosticExecutorRefusal(
+                        "candidate-identity validation vanished mid-run: the "
+                        "held population changed under a fixed crop seed")
+            if governor is None:
+                governor = _PerComponentGovernor(
+                    governed,
+                    minimum_relative_improvement=(
+                        _base_spec.minimum_relative_improvement),
+                    patience=_base_spec.patience)
             train_metrics = self._metrics(rows_now, p_now, ~val_mask)
             checkpoint = _sha({
                 "model": _sha_bytes(module_state_bytes(model)),
@@ -7708,7 +8970,23 @@ class ProductionExactDiagnosticResources:
                 row[name] for row in epoch_components if name in row]))
                 for name in sorted({key for row in epoch_components for key in row})}
                 if epoch_components else {})
+            verdict = governor.observe(traces)
+            composite = float(verdict["composite"])
             trace.append({"epoch": epoch, "validation": validation,
+                          "governed": {name: float(traces[name]) for name in governed},
+                          "composite": composite,
+                          "memory_value_shuffled": shuffled_baseline,
+                          "memory_value_occluded": occluded_baseline,
+                          "memory_value_margin":
+                              shuffled_baseline - traces["memory_value"],
+                          "memory_value_occluded_margin":
+                              occluded_baseline - traces["memory_value"],
+                          "memory_value_list_coverage": float(
+                              list_validation_receipt["list_coverage"]),
+                          "memory_value_linear": linear_value,
+                          "memory_value_linear_shuffled": linear_shuffled_value,
+                          "memory_value_linear_margin":
+                              linear_shuffled_value - linear_value,
                           "train_auroc": train_metrics[0],
                           "train_ap": train_metrics[1],
                           "train_bce": train_metrics[2],
@@ -7716,24 +8994,53 @@ class ProductionExactDiagnosticResources:
                           "gradient_norm": epoch_gradient_norm,
                           "parameter_delta": parameter_delta,
                           "checkpoint_sha256": checkpoint})
-            if validation < best_validation * .999:
-                best_validation = validation; stale = 0
+            trace[-1]["stale_by_trace"] = dict(verdict["stale_by_trace"])
+            if verdict["selected"]:
+                best_validation = validation
                 best = (
                     {name: value.detach().cpu().clone()
                      for name, value in model.state_dict().items()},
                     {name: value.detach().cpu().clone()
                      for name, value in decoder.state_dict().items()},
                     checkpoint,
+                    {name: value.detach().cpu().clone()
+                     for name, value in memory_value_probe.state_dict().items()},
+                    ({name: value.detach().cpu().clone()
+                      for name, value in projection.state_dict().items()}
+                     if projection is not None else None),
+                    {name: value.detach().cpu().clone() for name, value
+                     in memory_value_linear_probe.state_dict().items()},
                 )
-            else:
-                stale += 1
-            if epoch >= 1 and stale >= _base_spec.patience:
+            if verdict["all_stale"]:
+                stop_reason = "CONVERGED"
+                break
+            # The two-epoch floor is the same one the convergence break
+            # already respects: a single-epoch stage has no trace to certify
+            # and would refuse downstream with an opaque message instead of
+            # this typed stop reason.
+            if (epoch >= 1
+                    and time.monotonic() - _base_stage_start >= _wall_ceiling_s):
+                stop_reason = "WALL_CEILING"
                 break
         stage_wall["base_stage_s"] = time.monotonic() - _base_stage_start
         if best is None or len(trace) < 2:
             raise RealDiagnosticExecutorRefusal("joint arm training produced no checkpoint")
         model.load_state_dict(best[0], strict=True)
         decoder.load_state_dict(best[1], strict=True)
+        memory_value_probe.load_state_dict(best[3], strict=True)
+        if projection is not None and best[4] is not None:
+            projection.load_state_dict(best[4], strict=True)
+        memory_value_linear_probe.load_state_dict(best[5], strict=True)
+        # R2: the memory-value probe at the SELECTED checkpoint is the
+        # acceptance instrument the harness scores in held-day dollars.  It is
+        # a discarded diagnostic head: stashed on the provider, never part of
+        # the arm artifact.
+        if getattr(self, "_memory_value_probes", None) is None:
+            self._memory_value_probes = {}
+        self._memory_value_probes[arm] = memory_value_probe
+        if getattr(self, "_memory_value_linear_probes", None) is None:
+            self._memory_value_linear_probes = {}
+        self._memory_value_linear_probes[arm] = memory_value_linear_probe
         reload_sha256 = _sha({
             "model": _sha_bytes(module_state_bytes(model)),
             "decoder": _sha_bytes(module_state_bytes(decoder)),
@@ -7971,6 +9278,31 @@ class ProductionExactDiagnosticResources:
         return rows, metrics, memories, decoder, frozenset(validation_days), \
             MappingProxyType({"trace": tuple(trace),
                               "field_survival_shaping": True,
+                              **_base_stage_fix_receipt(
+                                  arm=arm, trace=trace, governed=governed,
+                                  epoch_zero=governor.epoch_zero,
+                                  stale_by_trace=governor.stale_by_trace,
+                                  best_composite=governor.best_composite,
+                                  best_epoch=governor.best_epoch,
+                                  stop_reason=stop_reason,
+                                  wall_ceiling_s=_wall_ceiling_s,
+                                  spec=_base_spec,
+                                  identity_enabled=identity_enabled,
+                                  identity_skips=identity_skips,
+                                  auxiliary_scales=auxiliary_scales,
+                                  gradient_share_receipts=gradient_share_receipts,
+                                  optimizer_group_receipt=optimizer_group_receipt,
+                                  scope_receipt=scope_receipt,
+                                  validation_window_receipt=validation_window_receipt,
+                                  identity_validation_status=(
+                                      identity_validation_status),
+                                  list_receipts=tuple(list_receipts),
+                                  unshuffleable_sessions=unshuffleable_sessions,
+                                  fit_block_days=(
+                                      "FULL_COMPETENCE_POPULATION"
+                                      if fit_days is None
+                                      else tuple(sorted(int(day) for day
+                                                        in fit_days)))),
                               "best_validation": best_validation,
                               "best_reload_sha256": reload_sha256,
                               "decoder_sha256": _sha_bytes(module_state_bytes(decoder)),
@@ -8682,9 +10014,15 @@ class ProductionExactDiagnosticResources:
         validation_take = torch.tensor([int(day) in reconstruction_days
             for day in rows.day], dtype=torch.bool, device=self.device)
         decoder = decoder.to(self.device).eval()
+        # R9: the gate certifies the DECISION-RELEVANT scope.  The six
+        # absolute-clock columns are unreconstructable by construction
+        # (within-session variance ~0.007 sigma) and are excluded from the
+        # TARGET, never from the inputs or the route gate.
+        continuous_scope = reconstruction_target_scope(
+            self.schema.continuous_fields, strict=True)
         receipt = reconstruction_receipt(
             decoder, memory[validation_take], last_x[validation_take],
-            last_k[validation_take])
+            last_k[validation_take], continuous_scope=continuous_scope)
         if not receipt.passed:
             # Evidence-bearing refusal + per-field breakdown so the failing
             # field names itself (rare held-only category values vs a plain
@@ -8697,7 +10035,9 @@ class ProductionExactDiagnosticResources:
                     _m = float(_field_mae[_i])
                     if _m > 1e-3:
                         print(f"RECON-FIELD {arm} continuous {_fname} "
-                              f"mae={_m:.6f}", file=sys.stderr, flush=True)
+                              f"mae={_m:.6f} "
+                              f"scope={'IN' if continuous_scope[_i] else 'OUT'}",
+                              file=sys.stderr, flush=True)
                 for _i, _fname in enumerate(CATEGORICAL_FIELDS):
                     _acc = float((_logits[_i].argmax(-1)
                                   == _vk[:, _i]).float().mean())
@@ -8719,11 +10059,13 @@ class ProductionExactDiagnosticResources:
             "mae": float(receipt.continuous_mae),
             "accuracy": float(receipt.categorical_accuracy),
             "rows": int(validation_take.sum()),
+            "scoped_continuous_fields": int(receipt.scoped_continuous_fields),
+            "excluded_continuous_fields": list(ABSOLUTE_CLOCK_TARGET_FIELDS),
             "pass": bool(receipt.passed)}
         self._gate5_verdicts[arm]["competent"] = bool(
             self._gate5_verdicts[arm]["competent"] and receipt.passed)
         print(f"RECON-VERDICT {arm} pass={bool(receipt.passed)} "
-              f"mae={receipt.continuous_mae:.4f} "
+              f"scoped_mae={receipt.continuous_mae:.4f} "
               f"acc={receipt.categorical_accuracy:.4f} "
               f"rows={int(validation_take.sum())}",
               file=sys.stderr, flush=True)

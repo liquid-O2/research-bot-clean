@@ -1,6 +1,6 @@
 # STATE — current fast cursor
 
-**Last updated:** 2026-08-18T18:50Z
+**Last updated:** 2026-08-19T13:35Z
 
 **Canonical entry point:** [`index.md`](index.md) · **Detailed ledger:** [`docs/ENTRY_V2_CURRENT_STATUS.md`](docs/ENTRY_V2_CURRENT_STATUS.md)
 
@@ -53,3 +53,16 @@ pass → mechanical verify → ONE real fit-only E1r/E2r rehearsal → held camp
 1. This file. 2. `tail -60 provenance/sessions/JOURNAL.md` (true cursor). 3.
 `bash lab/run.sh --list` + `runs/entry-v2-*.{hb,rc,log}`. 4. The approved plan file.
 5. Ledger `docs/ENTRY_V2_CURRENT_STATUS.md`.
+
+## 2026-08-19 overnight cursor (autonomous session)
+- The complete-batch driver has crossed arm_C0/C1/L0/L1 for the FIRST TIME in
+  program history; M1 is at its band gate. Five-arm capability table journaled
+  (~13:30Z): instrument validated (L1 joint=1.0); no raw route separates yet —
+  a training/objective finding (see JOURNAL for the D-075 read).
+- Rulings 14-20 landed in code (typed screen calibrators, typed partial-asset
+  objectives, typed per-arm gate verdicts incl. reconstruction + occlusion,
+  base stage unshackled to the pointwise_dense law, field-survival shaping
+  restored w/ disclosure, arch-clone route gates, RNN-capable gate battery,
+  fair band instrument). AMENDMENTS TEXT RE-LAND + DUAL RE-PIN STILL PENDING
+  (launch-batch op before pre_h2_v13).
+- JOURNAL.md is the true cursor; lab/run.sh entry-v2-armfix + monitor watch.

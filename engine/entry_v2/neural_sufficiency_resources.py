@@ -8156,8 +8156,13 @@ class ProductionExactDiagnosticResources:
         clock = batch.clock[:n].to(self.device)
         cut = torch.tensor([cutoff], device=self.device)
         decision = torch.tensor([int(clock[cutoff - 1]) + 1], device=self.device)
-        memory = encoder(x, k, cut, receive_clock_ns=clock,
-                         candidate_decision_ts_ns=decision, asset_idx=0)
+        # cudnn RNN backward is illegal in eval mode (LiT's GRU); the
+        # GRADIENT-check region runs with cudnn disabled. The reference
+        # memory for mutation deltas and suffix BIT-IDENTITY is computed
+        # separately below on the standard kernels.
+        with torch.backends.cudnn.flags(enabled=False):
+            memory = encoder(x, k, cut, receive_clock_ns=clock,
+                             candidate_decision_ts_ns=decision, asset_idx=0)
         static = (batch.static_features[:1].to(self.device)
                   if arm in ("L1", "M1") else None)
 
@@ -8172,6 +8177,11 @@ class ProductionExactDiagnosticResources:
 
         base = decide(memory)
         base.action_logit.sum().backward()
+        with torch.no_grad():
+            reference_memory = encoder(
+                x.detach(), k, cut, receive_clock_ns=clock,
+                candidate_decision_ts_ns=decision, asset_idx=0)
+            base_reference = decide(reference_memory)
         if x.grad is None or not all(bool(x.grad[:, i].abs().sum() > 0)
                                      for i in range(x.shape[1])):
             raise RealDiagnosticExecutorRefusal("continuous route gradient failed")
@@ -8212,9 +8222,10 @@ class ProductionExactDiagnosticResources:
                     candidate_decision_ts_ns=decision, asset_idx=0)
                 changed = decide(changed_memory)
                 arch_delta = float((arch_changed - arch_memory).abs().max())
-                memory_delta = float((changed_memory - memory.detach()).abs().max())
+                memory_delta = float((changed_memory - reference_memory).abs().max())
                 action_delta = float(
-                    (changed.action_logit - base.action_logit.detach()).abs().max())
+                    (changed.action_logit
+                     - base_reference.action_logit).abs().max())
                 # Ruling 20: the GATE judges the graph (pre-training clone);
                 # the trained encoder's memory/action deltas are receipted —
                 # a trained model lawfully zeroes useless routes.
@@ -8239,9 +8250,10 @@ class ProductionExactDiagnosticResources:
                     candidate_decision_ts_ns=decision, asset_idx=0)
                 changed = decide(changed_memory)
                 arch_delta = float((arch_changed - arch_memory).abs().max())
-                memory_delta = float((changed_memory - memory.detach()).abs().max())
+                memory_delta = float((changed_memory - reference_memory).abs().max())
                 action_delta = float(
-                    (changed.action_logit - base.action_logit.detach()).abs().max())
+                    (changed.action_logit
+                     - base_reference.action_logit).abs().max())
                 # Ruling 20: gate on the graph; trained deltas receipted.
                 if arch_delta <= 1e-6:
                     raise RealDiagnosticExecutorRefusal(
@@ -8281,13 +8293,13 @@ class ProductionExactDiagnosticResources:
                     consistent_x, consistent_k, cut, receive_clock_ns=clock,
                     candidate_decision_ts_ns=decision, asset_idx=0)
             undefined_deltas = {
-                "mask_only_memory": float((mask_memory - memory.detach()).abs().max()),
+                "mask_only_memory": float((mask_memory - reference_memory).abs().max()),
                 "mask_only_action": float((mask_output.action_logit
-                    - base.action_logit.detach()).abs().max()),
+                    - base_reference.action_logit).abs().max()),
                 "price_plus_mask_memory": float((consistent_memory
-                    - memory.detach()).abs().max()),
+                    - reference_memory).abs().max()),
                 "price_plus_mask_action": float((consistent_output.action_logit
-                    - base.action_logit.detach()).abs().max()),
+                    - base_reference.action_logit).abs().max()),
                 "arch_mask_only_memory": float(
                     (arch_mask_memory - arch_memory).abs().max()),
                 "arch_price_plus_mask_memory": float(
@@ -8309,10 +8321,13 @@ class ProductionExactDiagnosticResources:
                     candidate_x, candidate_k, cut,
                     receive_clock_ns=candidate_clock,
                     candidate_decision_ts_ns=decision, asset_idx=0)
-                if not torch.equal(memory.detach(), other_memory):
+                # Bit-identity against the STANDARD-kernel reference (the
+                # gradient memory was computed with cudnn disabled and may
+                # differ in low bits — a kernel fact, not a causality fact).
+                if not torch.equal(reference_memory, other_memory):
                     raise RealDiagnosticExecutorRefusal(
                         f"suffix changed raw memory: {label}")
-                assert_tensor_tree_identical(base, decide(other_memory))
+                assert_tensor_tree_identical(base_reference, decide(other_memory))
                 suffix_checks.append(label)
 
             # Mutate each already-present post-cutoff coordinate independently.

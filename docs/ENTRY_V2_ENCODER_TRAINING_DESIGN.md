@@ -238,3 +238,26 @@ categoricals). Combined with F3's share caps this frees the majority of the
 gradient budget for value/identity learning. The reconstruction threshold is
 then re-measured in the harness (R5 band for L-arms; 1e-3 target for M1 on
 the scoped fields).
+
+## R10 — Self-supervised pre-training, horizon-matched (user-refined 2026-08-19)
+The data regime (~400-800 positives/asset) cannot teach a deep encoder
+microstructure AND value; the fit window lawfully holds millions of events.
+Pre-train the shared encoder self-supervised on full sessions, then freeze
+per the train-once law and fine-tune/probe on candidates. CRITICAL REFINEMENT
+(user): next-event prediction alone is a millisecond-scale objective and
+does not match the minutes-to-hours trade horizon. The SSL target family is
+therefore MULTI-HORIZON TAPE FUTURES from each anchor state: cumulative
+signed flow, price displacement, realized range, and trade-intensity profile
+over the next {1m, 5m, 30m, 2h} — future INPUT quantities (not outcomes:
+leakage-clean, fit-window-lawful) at exactly the deployment horizon;
+next-event stays as a low-weight mechanics auxiliary. The chain's six-horizon
+target machinery is reused for scales. Acceptance (harness, pre-registered):
+SSL-pretrained encoder must lift the memory-value probe's held-day top-3
+dollars over the no-SSL baseline, else SSL is dropped — no sunk-cost runs.
+
+## R11 — RL deferred (recorded decision)
+The per-candidate decision is one-shot under caps; the RL benefit reduces to
+utility-weighted supervised learning (dollar-magnitude-aware objectives, see
+the dollars-backward ideation). True RL adds variance without information at
+this sample size; revisit only if a genuinely sequential decision (e.g.,
+intraday capacity allocation) enters scope.

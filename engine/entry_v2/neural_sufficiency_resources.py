@@ -1177,9 +1177,9 @@ def _identity_cropped_views(
 def _candidate_identity_loss(
     records: Sequence[Mapping[str, Any]],
     *,
-    temperature: float = IDENTITY_TEMPERATURE,
-    minimum_cutoff_gap: int = IDENTITY_MIN_CUTOFF_GAP_EVENTS,
-    pooled_threshold: int = IDENTITY_POOLED_NEGATIVE_THRESHOLD,
+    temperature: float | None = None,
+    minimum_cutoff_gap: int | None = None,
+    pooled_threshold: int | None = None,
 ) -> tuple[torch.Tensor | None, Mapping[str, Any]]:
     """R1 InfoNCE over same-session candidates for one (asset, day) group.
 
@@ -1190,6 +1190,14 @@ def _candidate_identity_loss(
     day) pool for negatives; cross-session pairs carry no cutoff gap law
     because they index different tapes.
     """
+    # Resolved at CALL time, never bound as default arguments: the harness
+    # measures these constants inside a live process.
+    temperature = (IDENTITY_TEMPERATURE if temperature is None
+                   else float(temperature))
+    minimum_cutoff_gap = (IDENTITY_MIN_CUTOFF_GAP_EVENTS
+                          if minimum_cutoff_gap is None else int(minimum_cutoff_gap))
+    pooled_threshold = (IDENTITY_POOLED_NEGATIVE_THRESHOLD
+                        if pooled_threshold is None else int(pooled_threshold))
     empty = MappingProxyType({"rows": 0, "pooled_rows": 0, "sessions": 0,
                               "mean_negatives": 0.0})
     if not records:
@@ -1275,9 +1283,10 @@ def _encoder_gradient_shares(
 
 
 def _auxiliary_share_scales(shares: Mapping[str, float],
-                            caps: Mapping[str, float] = AUX_SHARE_CAPS,
+                            caps: Mapping[str, float] | None = None,
                             ) -> Mapping[str, float]:
     """F3 share CAP: an auxiliary over its target share is down-scaled."""
+    caps = AUX_SHARE_CAPS if caps is None else caps
     scales: dict[str, float] = {}
     for name, cap in caps.items():
         measured = float(shares.get(name, 0.0))

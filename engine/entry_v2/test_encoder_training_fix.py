@@ -71,9 +71,9 @@ def _tiny_batch(*, clock: np.ndarray, cutoffs: np.ndarray, asset: str = "HG",
         cutoffs=cutoff_tensor,
         decisions=decisions,
         candidate_features=torch.randn(candidates, 8, generator=generator),
-        context_values=torch.zeros(candidates, 4),
-        context_type_ids=torch.zeros(4, dtype=torch.long),
-        context_valid=torch.zeros(candidates, 4, dtype=torch.bool),
+        context_values=torch.zeros(candidates, 2, 4, 3),
+        context_type_ids=torch.zeros(2, dtype=torch.long),
+        context_valid=torch.ones(candidates, 2, 4, dtype=torch.bool),
         static_features=torch.zeros(candidates, 1_865),
         targets=torch.randint(0, 2, (candidates,), generator=generator).float(),
         action_loss_mask=torch.ones(candidates, dtype=torch.bool),
@@ -513,6 +513,14 @@ class BaseStageFixReceiptTest(unittest.TestCase):
         self.assertNotIn("elapsed_seconds", receipt)
         self.assertNotIn("base_stage_s", receipt)
 
+    def test_the_receipt_is_canonically_hashable(self):
+        from .neural_sufficiency_resources import _sha
+        receipt = self._receipt(identity_enabled=True)
+        first = _sha(receipt)
+        self.assertEqual(first, _sha(self._receipt(identity_enabled=True)))
+        self.assertEqual(len(first), 64)
+        self.assertNotEqual(first, _sha(self._receipt(identity_enabled=False)))
+
     def test_auxiliary_weights_are_flagged_unmeasured(self):
         receipt = self._receipt(identity_enabled=True)
         self.assertFalse(receipt["auxiliary_weights_measured"])
@@ -645,6 +653,164 @@ class ValidationWindowLawTest(unittest.TestCase):
         self.assertEqual(len(days), 2)
         self.assertFalse(receipt["meets_minimum"])
         self.assertEqual(RECONSTRUCTION_VALIDATION_MINIMUM_ROWS, 100)
+
+
+class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
+    """R7: the harness scores held-day TOP-3 DOLLARS, not AUROC."""
+
+    @staticmethod
+    def _harness():
+        import importlib.util
+        from pathlib import Path
+        path = (Path(__file__).resolve().parents[2]
+                / "harness" / "encoder_harness.py")
+        spec = importlib.util.spec_from_file_location("_encoder_harness", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def _data_root(self, rows):
+        import tempfile
+        from pathlib import Path
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(__import__("shutil").rmtree, root, True)
+        (root / "g1" / "candidates" / "HG").mkdir(parents=True)
+        (root / "g1" / "teacher" / "HG").mkdir(parents=True)
+        candidates = ["# provenance header", "candidate_id\tfrozen_cost_usd"]
+        teacher = ["# provenance header",
+                   "candidate_id\tcert_close_usd\tcompliance_status"]
+        for candidate_id, frozen, certified, status in rows:
+            candidates.append(f"{candidate_id}\t{frozen}")
+            teacher.append(f"{candidate_id}\t{certified}\t{status}")
+        (root / "g1" / "candidates" / "HG" / "20210813.tsv").write_text(
+            "\n".join(candidates) + "\n")
+        (root / "g1" / "teacher" / "HG" / "20210813.tsv").write_text(
+            "\n".join(teacher) + "\n")
+        return str(root)
+
+    def test_ledger_is_certified_minus_frozen_for_compliant_rows_only(self):
+        harness = self._harness()
+        root = self._data_root([("a", 10.0, 110.0, "CLEAR"),
+                                ("b", 5.0, 55.0, "READY"),
+                                ("c", 1.0, 900.0, "BLOCKED")])
+        ledger = harness.day_dollar_ledger(root, "HG", 20210813)
+        self.assertEqual(set(ledger), {"a", "b"})
+        self.assertAlmostEqual(ledger["a"], 100.0)
+        self.assertAlmostEqual(ledger["b"], 50.0)
+
+    def test_memory_only_top3_beats_the_occluded_baseline(self):
+        harness = self._harness()
+        from types import SimpleNamespace
+        names = [f"c{index}" for index in range(6)]
+        dollars = [0.0, 0.0, 0.0, 100.0, 200.0, 300.0]
+        root = self._data_root([(name, 0.0, value, "CLEAR")
+                                for name, value in zip(names, dollars)])
+
+        class _Probe(torch.nn.Module):
+            def forward(self, memory):
+                score = memory.reshape(memory.shape[0], -1).sum(1)
+                return (torch.zeros(memory.shape[0], 5), score,
+                        torch.zeros(memory.shape[0]))
+
+        memories = {name: torch.full((4, 512), float(index))
+                    for index, name in enumerate(names)}
+        rows = SimpleNamespace(candidate_id=np.asarray(names),
+                               asset=np.asarray(["HG"] * 6),
+                               day=np.asarray([20210813] * 6))
+        result = harness.held_day_top3_dollars(
+            rows, memories, _Probe(), device=torch.device("cpu"),
+            data_root=root, held_days=frozenset({20210813}))
+        self.assertEqual(int(result["days"]), 1)
+        self.assertAlmostEqual(result["memory_only_usd_day"], 600.0)
+        self.assertAlmostEqual(result["occluded_usd_day"], 0.0)
+        self.assertAlmostEqual(result["oracle_usd_day"], 600.0)
+        self.assertTrue(result["beats_occlusion"])
+        self.assertAlmostEqual(result["margin_usd_day"], 600.0)
+
+
+
+class BaseStageInnerLoopSmokeTest(unittest.TestCase):
+    """The session-batch InfoNCE gather is exactly the class that bit gate-5.
+
+    One real inner training step over a real encoder + the real shared head:
+    oracle stack, scoped reconstruction, memory-value probe and candidate
+    identity composed into ONE backward, with the same gradient-presence
+    checks the base stage enforces.
+    """
+
+    def test_one_full_inner_step_composes_and_backpropagates(self):
+        from .neural_sufficiency_model import (
+            NeuralSufficiencyModel, SharedCandidateDecisionHead)
+        from .neural_sufficiency_resources import (
+            AUX_IDENTITY_WEIGHT as identity_weight,
+            AUX_MEMORY_VALUE_WEIGHT as value_weight,
+            AUX_RECON_WEIGHT as recon_weight,
+            _actual_multitask_loss)
+        torch.manual_seed(20260819)
+        encoder = _tiny_encoder()
+        head = SharedCandidateDecisionHead(8, 3, 2)
+        model = NeuralSufficiencyModel(encoder, head)
+        batch = _tiny_batch(clock=np.arange(1, 121, dtype=np.int64) * 1_000,
+                            cutoffs=np.asarray([40, 70, 100], np.int64))
+        scope = reconstruction_target_scope(
+            tuple(f"raw.f{index}" for index in range(N_CONTINUOUS)))
+        decoder = LastRowReconstructionProbe(N_CONTINUOUS, CATEGORY_SIZES)
+        projection = CandidateIdentityProjection()
+        probe = MemoryValueProbe()
+        out = model(
+            event_continuous=batch.continuous,
+            event_categorical=batch.categorical,
+            receive_clock_ns=batch.clock,
+            candidate_cutoffs=batch.cutoffs,
+            candidate_decision_ts_ns=batch.decisions,
+            candidate_features=batch.candidate_features,
+            context_values=batch.context_values,
+            context_type_ids=batch.context_type_ids,
+            context_valid=batch.context_valid,
+            asset_idx=C.ASSET_INDEX[batch.asset], static_features=None)
+        self.assertEqual(tuple(out.raw_memory.shape), (3, 4, 512))
+        weights = {name: torch.full((3,), 1 / 3) for name in
+                   ("action", "base", "top3", "wall")}
+        oracle, _components = _actual_multitask_loss(out, batch, weights)
+        recon, _c, _k = _field_reconstruction_loss(
+            decoder, out.raw_memory, batch, weights["base"],
+            continuous_scope=scope)
+        value, _v = _memory_value_probe_loss(
+            probe, out.raw_memory, batch, weights["base"])
+        record, skipped = _identity_cropped_views(
+            model.encoder, batch, out.raw_memory, projection,
+            device=torch.device("cpu"), seed=5)
+        self.assertIsNone(skipped)
+        identity, identity_receipt = _candidate_identity_loss([record])
+        shares = _encoder_gradient_shares(model, {
+            "oracle": oracle, "recon": recon, "identity": identity,
+            "memory_value": value})
+        self.assertAlmostEqual(
+            sum(shares["encoder_gradient_share"].values()), 1.0, places=5)
+        model.zero_grad(set_to_none=True)
+        total = (oracle + recon_weight * recon + value_weight * value
+                 + identity_weight * identity)
+        total.backward()
+        encoder_grad = sum(float(p.grad.abs().sum())
+                           for p in model.encoder.parameters()
+                           if p.grad is not None)
+        head_grad = sum(float(p.grad.abs().sum())
+                        for p in model.head.parameters() if p.grad is not None)
+        decoder_grad = sum(float(p.grad.abs().sum())
+                           for p in decoder.parameters() if p.grad is not None)
+        projection_grad = sum(float(p.grad.abs().sum())
+                              for p in projection.parameters()
+                              if p.grad is not None)
+        probe_grad = sum(float(p.grad.abs().sum())
+                         for p in probe.parameters() if p.grad is not None)
+        for name, value_ in (("encoder", encoder_grad), ("head", head_grad),
+                             ("decoder", decoder_grad),
+                             ("projection", projection_grad),
+                             ("probe", probe_grad)):
+            self.assertGreater(value_, 0.0, f"{name} received no gradient")
+        self.assertTrue(np.isfinite(float(total.detach())))
+        self.assertGreaterEqual(int(identity_receipt["rows"]), 2)
+
 
 
 if __name__ == "__main__":

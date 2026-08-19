@@ -175,3 +175,34 @@ own law). The store carries every needed day for all three assets
 (verified). The 0802-0813 days used by Q1/P1 shallow tests were REFERENCE
 measurements, not encoder-selection reads; they remain excluded from any
 encoder acceptance.
+
+## 11. TRANCHE-2 FEATURE FAMILY — PARTICIPANT INTENT (game-theoretic, user-directed 2026-08-19)
+The discretionary mechanics are implicit game theory; made explicit, each
+yields a causal feature with a strategic story (who is acting, what their
+revealed action commits them to, what that forces later):
+- REVEALED COMMITMENT (escalation): a defender who refills a consumed level
+  has escalated a sunk position; each refill cycle RAISES the predicted cost
+  of abandonment and hence P(continued defense) — feature: refill-escalation
+  ladder (count x size-trend of successive refills) as a DEFENSE-STRENGTH
+  prior; its INVERSION (refills shrinking = pacing thinning) predicts
+  abandonment; ABANDONMENT ITSELF (defender stops refilling after >=2
+  escalations, level trades through) = capitulation cascade fuel — the
+  strongest continuation signal in the intent family.
+- FORCED-FLOW INVENTORY (the fuel map formalized): from the causal
+  volume-at-price map, aggressive volume transacted ABOVE current price
+  (for a down-move) = underwater longs whose stop-out is future sell flow;
+  weight by adverse distance in sigma_hat units (deeper underwater = closer
+  to forcing). Features: trapped_mass_ahead/behind, trapped_depth_weighted.
+- INFORMATION-CLOCK SEGREGATION: sub-ms reactive events (algos reading the
+  same public tape — uninformative herding) vs slow large prints (private
+  intent paying spread + impact); the INTENT RATIO = slow-large aggressive
+  volume / total aggressive volume in the window; crossing-cadence = median
+  inter-arrival of spread-CROSSING trades specifically (how fast is real
+  business crossing, not quoting).
+- COSTLY-SIGNAL PROBES: spread compress-then-restore cycles (probing = paying
+  queue priority to test) vs INTIMIDATION ADDS (large ADD that cancels when
+  price approaches within 1 tick without trading = revealed bluff) — bluff
+  count on the opposing side is a fade-supporting feature; on own side, a
+  veto.
+Evaluation law identical to tranche 1 (OOS AUROC + usd-corr + veto economics
++ destruction tests). Sequenced after tranche-1 lands, same graded pool.

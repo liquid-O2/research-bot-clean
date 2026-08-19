@@ -92,15 +92,33 @@ def fold_calendar(trading_days, fold: int) -> dict:
         raise ValueError(f"fold must be one of {FOLDS}")
     era = sorted(int(day) for day in trading_days
                  if FOLD_ERA_START_D8 <= int(day) <= FOLD_ERA_END_D8)
-    fit_count = FOLD_FIT_BASE_DAYS + FOLD_FIT_STEP_DAYS * int(fold)
-    needed = fit_count + FOLD_SCORE_DAYS
+    # Proportional amendment (2026-08-19): the diagnostic corpus's roster is
+    # sparser than the calendar (measured: 8 pre-CONFIRM days). Folds derive
+    # from the days the corpus ACTUALLY carries: chained 2-day score blocks
+    # carved from the era's end; fold k scores block k counting forward.
+    # A fold whose blocks don't exist refuses (never silently short).
+    if len(era) >= FOLD_FIT_BASE_DAYS + 3 * FOLD_FIT_STEP_DAYS + FOLD_SCORE_DAYS:
+        fit_count = FOLD_FIT_BASE_DAYS + FOLD_FIT_STEP_DAYS * int(fold)
+        score_len = FOLD_SCORE_DAYS
+    else:
+        score_len = 2
+        n_folds = max(1, min(3, (len(era) - 4) // score_len))
+        if int(fold) > n_folds:
+            raise ValueError(
+                f"fold {fold} unavailable: era carries {len(era)} days -> "
+                f"{n_folds} proportional fold(s)")
+        fit_count = len(era) - score_len * (n_folds - int(fold) + 1)
+        if fit_count < 4:
+            raise ValueError(
+                f"fold {fold} fit block would be {fit_count} days (<4)")
+    needed = fit_count + score_len
     if len(era) < needed:
         raise ValueError(
             f"fold {fold} needs {needed} trading days inside "
             f"{FOLD_ERA_START_D8}-{FOLD_ERA_END_D8}; the corpus carries "
             f"{len(era)}")
     fit_days = tuple(era[:fit_count])
-    score_days = tuple(era[fit_count:fit_count + FOLD_SCORE_DAYS])
+    score_days = tuple(era[fit_count:fit_count + score_len])
     if any(day >= FOLD_WALL_D8 for day in score_days):
         raise ValueError(
             f"fold {fold} would score on or past the CONFIRM wall "

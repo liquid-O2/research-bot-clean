@@ -97,13 +97,19 @@ def fold_calendar(trading_days, fold: int) -> dict:
     # from the days the corpus ACTUALLY carries: chained 2-day score blocks
     # carved from the era's end; fold k scores block k counting forward.
     # A fold whose blocks don't exist refuses (never silently short).
-    if len(era) >= FOLD_FIT_BASE_DAYS + 3 * FOLD_FIT_STEP_DAYS + FOLD_SCORE_DAYS:
-        fit_count = FOLD_FIT_BASE_DAYS + FOLD_FIT_STEP_DAYS * int(fold)
+    canonical_fit = FOLD_FIT_BASE_DAYS + FOLD_FIT_STEP_DAYS * int(fold)
+    if len(era) >= canonical_fit + FOLD_SCORE_DAYS:
+        # The canonical law whenever THIS fold fits in the era.
+        fit_count = canonical_fit
         score_len = FOLD_SCORE_DAYS
     else:
+        # Proportional fallback for a sparse corpus roster (measured: the
+        # diagnostic corpus carries 8 pre-CONFIRM days): chained 2-day score
+        # blocks carved from the era's end. Refuses rather than running a
+        # degenerate fold.
         score_len = 2
-        n_folds = max(1, min(3, (len(era) - 4) // score_len))
-        if int(fold) > n_folds:
+        n_folds = min(3, max(0, (len(era) - 4) // score_len))
+        if n_folds < 1 or int(fold) > n_folds:
             raise ValueError(
                 f"fold {fold} unavailable: era carries {len(era)} days -> "
                 f"{n_folds} proportional fold(s)")

@@ -38,6 +38,9 @@ from .neural_sufficiency_resources import (
     MEMORY_VALUE_TARGET_SHARES, MEMORY_VALUE_UTIL_WEIGHT_CEILING_USD,
     MEMORY_VALUE_UTIL_WEIGHT_FLOOR_USD, MEMORY_VALUE_UTIL_WEIGHT_SCALE_USD,
     MEMORY_VALUE_VALUE_BIN_LAW, MEMORY_VALUE_WEIGHTS_MEASURED,
+    EPISODE_CLUSTER_COLLAPSE, EPISODE_CLUSTER_GAP_SECONDS,
+    MEMORY_VALUE_ACCEPTANCE_RULE, MEMORY_VALUE_LINEAR_PROBE_LAW,
+    MEMORY_VALUE_PROBE_KINDS, _episode_clusters,
     RealDiagnosticExecutorRefusal, _PerComponentGovernor,
     _apply_linear_warmup, _auxiliary_share_scales, _batch_dollars,
     _base_stage_fix_receipt, _base_stage_parameter_groups,
@@ -623,6 +626,168 @@ class MemoryValueProbeLawTest(unittest.TestCase):
         self.assertFalse(MEMORY_VALUE_WEIGHTS_MEASURED)
 
 
+class EpisodeClusterCollapseTest(unittest.TestCase):
+    """Section 2's [A/B], behind ONE flag.
+
+    Candidates inside one episode are near-duplicates of the same
+    opportunity; ranking them against each other is noise, so the collapse
+    makes the listwise target rank EPISODES.
+    """
+
+    def _record(self, scores, gains, decisions):
+        return {"asset": "HG", "day": 20210701, "session_id": "S",
+                "scores": torch.as_tensor(scores, dtype=torch.float32),
+                "gains": torch.as_tensor(gains, dtype=torch.float32),
+                "decisions": np.asarray(decisions, np.int64),
+                "rows": len(scores)}
+
+    def test_the_flag_is_off_by_default(self):
+        self.assertFalse(EPISODE_CLUSTER_COLLAPSE)
+        self.assertEqual(EPISODE_CLUSTER_GAP_SECONDS, 60)
+
+    def test_clusters_break_on_a_sixty_second_decision_gap(self):
+        second = 1_000_000_000
+        decisions = np.asarray(
+            [0, 10 * second, 20 * second,          # one episode
+             200 * second, 210 * second,           # a second episode
+             400 * second], np.int64)
+        ids = _episode_clusters(decisions, gap_seconds=60)
+        np.testing.assert_array_equal(ids, [0, 0, 0, 1, 1, 2])
+
+    def test_cluster_ids_follow_the_row_back_out_of_order(self):
+        second = 1_000_000_000
+        # Rows arrive session-ordered, not clock-ordered.
+        decisions = np.asarray([400 * second, 0, 10 * second], np.int64)
+        ids = _episode_clusters(decisions, gap_seconds=60)
+        np.testing.assert_array_equal(ids, [1, 0, 0])
+
+    def test_collapse_ranks_episodes_not_near_duplicate_candidates(self):
+        second = 1_000_000_000
+        # Three near-duplicate candidates of ONE $0 episode, and one real
+        # $900 winner.  Uncollapsed, the flat trio owns three quarters of the
+        # list; collapsed, it is one entry carrying its own best gain.
+        record = self._record(
+            [0.0, 0.0, 0.0, 5.0], [0.0, 0.0, 0.0, 900.0],
+            [0, 5 * second, 10 * second, 600 * second])
+        without, plain = _memory_value_list_loss(
+            [record], collapse_episodes=False)
+        with_collapse, collapsed = _memory_value_list_loss(
+            [record], collapse_episodes=True, gap_seconds=60)
+        self.assertEqual(int(plain["rows"]), 4)
+        self.assertEqual(int(collapsed["rows"]), 2)
+        self.assertFalse(plain["episode_cluster_collapse"])
+        self.assertTrue(collapsed["episode_cluster_collapse"])
+        self.assertEqual(int(collapsed["episode_cluster_gap_seconds"]), 60)
+        # All the dollar mass is on the winner, and the collapsed list gives
+        # the winner a two-way contest instead of a four-way one.
+        self.assertLess(float(with_collapse), float(without))
+
+    def test_collapse_takes_the_cluster_max_gain(self):
+        second = 1_000_000_000
+        # Two candidates in ONE episode: $0 and $900.  Collapsed the episode
+        # is worth its best candidate, so the loss matches a single entry.
+        record = self._record([0.0, 3.0, 3.0], [0.0, 900.0, 900.0],
+                              [0, 5 * second, 600 * second])
+        _value, receipt = _memory_value_list_loss(
+            [record], collapse_episodes=True, gap_seconds=60)
+        self.assertEqual(int(receipt["rows"]), 2)
+        self.assertEqual(int(receipt["clusters"]), 2)
+
+    def test_the_gradient_reaches_the_candidate_that_would_be_taken(self):
+        second = 1_000_000_000
+        scores = torch.tensor([1.0, 4.0, 0.0], requires_grad=True)
+        record = {"asset": "HG", "day": 20210701, "session_id": "S",
+                  "scores": scores, "gains": torch.tensor([500.0, 500.0, 0.0]),
+                  "decisions": np.asarray([0, 5 * second, 600 * second],
+                                          np.int64),
+                  "rows": 3}
+        value, _receipt = _memory_value_list_loss(
+            [record], collapse_episodes=True, gap_seconds=60)
+        value.backward()
+        # Row 1 is the episode's best candidate; row 0 is the sibling it
+        # represents and must not be pulled.
+        self.assertEqual(float(scores.grad[0]), 0.0)
+        self.assertNotEqual(float(scores.grad[1]), 0.0)
+
+
+class FlatShelfIndifferenceTest(unittest.TestCase):
+    """Ruling 2 of the final batch: the KL's indifference IS the intent."""
+
+    def test_a_flat_dollar_shelf_scores_every_ordering_alike(self):
+        gains = torch.tensor([300.0, 300.0, 300.0])
+
+        def loss_for(scores):
+            value, _receipt = _memory_value_list_loss([{
+                "asset": "HG", "day": 20210701, "session_id": "S",
+                "scores": torch.as_tensor(scores, dtype=torch.float32),
+                "gains": gains,
+                "decisions": np.asarray([0, 10 ** 12, 2 * 10 ** 12], np.int64),
+                "rows": 3}])
+            return float(value)
+
+        # On a shelf the oracle cannot tell rank 1 from rank 3, so neither
+        # should the loss: any PERMUTATION of one score set is equivalent.
+        self.assertAlmostEqual(loss_for([2.0, 1.0, 0.0]),
+                               loss_for([0.0, 1.0, 2.0]), places=6)
+        # Flat scores are the minimum on a flat shelf.
+        self.assertLess(loss_for([1.0, 1.0, 1.0]), loss_for([5.0, 0.0, 0.0]))
+
+
+class TwoProbeAcceptanceTest(unittest.TestCase):
+    """Section 4: linear + MLP, accept on either, the null must fail both."""
+
+    def _batch(self):
+        return _tiny_batch(clock=np.arange(1, 41, dtype=np.int64) * 1_000,
+                           cutoffs=np.asarray([10, 20, 30], np.int64),
+                           certified_usd=[2_000.0, 700.0, 0.0],
+                           frozen_usd=[0.0, 0.0, 0.0])
+
+    def test_probe_kinds_are_typed(self):
+        self.assertEqual(MEMORY_VALUE_PROBE_KINDS, ("mlp", "linear"))
+        with self.assertRaisesRegex(RealDiagnosticExecutorRefusal, "untyped"):
+            MemoryValueProbe(kind="quadratic")
+
+    def test_the_linear_probe_has_no_hidden_layer(self):
+        linear = MemoryValueProbe(kind="linear")
+        mlp = MemoryValueProbe(kind="mlp")
+        self.assertIsInstance(linear.trunk, torch.nn.Flatten)
+        self.assertIsInstance(mlp.trunk, torch.nn.Sequential)
+        self.assertEqual(linear.util.in_features, 4 * 512)
+        self.assertEqual(mlp.util.in_features, 512)
+
+    def test_both_probes_read_the_same_memory_and_score_it(self):
+        torch.manual_seed(17)
+        batch = self._batch()
+        memory = torch.randn(3, 4, 512)
+        with torch.no_grad():
+            mlp, _c, _r = _memory_value_probe_loss(
+                MemoryValueProbe(kind="mlp"), memory, batch)
+            linear, _c, _r = _memory_value_probe_loss(
+                MemoryValueProbe(kind="linear"), memory, batch)
+        self.assertTrue(np.isfinite(float(mlp)))
+        self.assertTrue(np.isfinite(float(linear)))
+
+    def test_the_linear_readout_cannot_change_the_training_signal(self):
+        # It is an AUDITOR: run on a detached memory it must leave the
+        # encoder's gradient untouched.
+        torch.manual_seed(19)
+        batch = self._batch()
+        memory = torch.randn(3, 4, 512, requires_grad=True)
+        linear = MemoryValueProbe(kind="linear")
+        total, _components, _record = _memory_value_probe_loss(
+            linear, memory.detach(), batch)
+        total.backward()
+        self.assertIsNone(memory.grad)
+        self.assertIsNotNone(linear.util.weight.grad)
+        self.assertEqual(MEMORY_VALUE_LINEAR_PROBE_LAW,
+                         "DETACHED_SECOND_READOUT")
+
+    def test_the_dual_acceptance_rule_is_receipted(self):
+        self.assertEqual(
+            MEMORY_VALUE_ACCEPTANCE_RULE,
+            "EITHER_PROBE_PASSES_SHUFFLED_NULL_FAILS_BOTH")
+
+
 class WithinSessionShuffleBaselineTest(unittest.TestCase):
     """Section 4: the acceptance baseline is a SIBLING's memory, not zeros."""
 
@@ -698,6 +863,9 @@ class BaseStageFixReceiptTest(unittest.TestCase):
                    "memory_value_margin": .8,
                    "memory_value_occluded_margin": 1.0,
                    "memory_value_list_coverage": 1.0,
+                   "memory_value_linear": 1.2,
+                   "memory_value_linear_shuffled": 1.9,
+                   "memory_value_linear_margin": .7,
                    "governed": {name: 1.0 for name in governed}}
             trace.append(row)
         return _base_stage_fix_receipt(
@@ -755,6 +923,25 @@ class BaseStageFixReceiptTest(unittest.TestCase):
         self.assertFalse(receipt["memory_value_internal_weights_measured"])
         self.assertEqual(dict(receipt["memory_value_internal_target_shares"]),
                          {"util": 0.50, "list": 0.30, "tail": 0.20})
+
+    def test_both_probe_traces_are_receipted_for_dual_acceptance(self):
+        receipt = self._receipt(identity_enabled=True)
+        self.assertEqual(receipt["memory_value_probe_kinds"], ("mlp", "linear"))
+        self.assertEqual(len(receipt["memory_value_linear_trace"]), 2)
+        self.assertEqual(len(receipt["memory_value_linear_shuffled_baseline"]), 2)
+        self.assertEqual(tuple(receipt["memory_value_linear_margin"]),
+                         (0.7, 0.7))
+        self.assertEqual(receipt["memory_value_acceptance_rule"],
+                         MEMORY_VALUE_ACCEPTANCE_RULE)
+        self.assertEqual(receipt["memory_value_linear_probe_law"],
+                         MEMORY_VALUE_LINEAR_PROBE_LAW)
+
+    def test_the_fit_block_is_receipted(self):
+        receipt = self._receipt(identity_enabled=True)
+        self.assertEqual(receipt["fit_block_days"],
+                         "FULL_COMPETENCE_POPULATION")
+        self.assertFalse(receipt["episode_cluster_collapse"])
+        self.assertEqual(int(receipt["episode_cluster_gap_seconds"]), 60)
 
     def test_identity_can_be_dropped_as_a_typed_capability_fact(self):
         # Ruling 5: no multi-window held session is a data-shape fact, not a
@@ -938,6 +1125,20 @@ class ValidationWindowLawTest(unittest.TestCase):
         self.assertEqual(int(receipt["trailing_days"]),
                          int(receipt["baseline_trailing_days"]))
 
+    def test_a_fold_fit_block_keeps_its_held_window_inside_itself(self):
+        # The critical fold property: the stage's own trailing held window is
+        # carved out of the FOLD's fit block, so training never sees a day the
+        # fold will score on.
+        batches = self._batches(30, 10)
+        fit_days = sorted({int(batch.day) for batch in batches})[:20]
+        score_days = sorted({int(batch.day) for batch in batches})[20:25]
+        fit_batches = [batch for batch in batches
+                       if int(batch.day) in set(fit_days)]
+        days, receipt = _widened_validation_days(fit_batches)
+        self.assertTrue(set(days) <= set(fit_days))
+        self.assertFalse(set(days) & set(score_days))
+        self.assertGreaterEqual(int(receipt["training_rows"]), 1)
+
     def test_at_least_one_training_day_always_survives(self):
         days, receipt = _widened_validation_days(self._batches(3, 2))
         self.assertLessEqual(len(days), 2)
@@ -946,13 +1147,8 @@ class ValidationWindowLawTest(unittest.TestCase):
         self.assertEqual(RECONSTRUCTION_VALIDATION_MINIMUM_ROWS, 100)
 
 
-class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
-    """The acceptance currency: ARRIVAL-ORDER goal-grade dollars.
-
-    Hindsight top-3 was a lookahead coordinate system - the cap fills
-    chronologically.  These tests pin the deployable rule, both cap laws, the
-    shuffled baseline and the tail-visibility column.
-    """
+class InnerFoldCalendarTest(unittest.TestCase):
+    """Section 4: forward-chained day-blocked folds, strictly inside the era."""
 
     @staticmethod
     def _harness():
@@ -964,6 +1160,79 @@ class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module
+
+    def _days(self, count=30):
+        # A plausible trading calendar inside the fit era plus CONFIRM days
+        # that must never be touched.
+        july = [20210700 + day for day in range(1, 32)]
+        august = [20210800 + day for day in range(1, 14)]
+        return [day for day in july + august][:count + 13]
+
+    def test_folds_are_forward_chained_and_day_blocked(self):
+        harness = self._harness()
+        previous_fit = None
+        for fold in (1, 2, 3):
+            calendar = harness.fold_calendar(self._days(), fold)
+            self.assertEqual(len(calendar["fit_days"]), 7 + 5 * fold)
+            self.assertEqual(len(calendar["score_days"]), 5)
+            self.assertFalse(set(calendar["fit_days"])
+                             & set(calendar["score_days"]))
+            # Forward chaining: each fold's fit block extends the last.
+            if previous_fit is not None:
+                self.assertEqual(calendar["fit_days"][:len(previous_fit)],
+                                 previous_fit)
+            previous_fit = calendar["fit_days"]
+            # The fit block always precedes the scored block in time.
+            self.assertLess(max(calendar["fit_days"]),
+                            min(calendar["score_days"]))
+
+    def test_no_fold_ever_scores_past_the_confirm_wall(self):
+        harness = self._harness()
+        for fold in (1, 2, 3):
+            calendar = harness.fold_calendar(self._days(), fold)
+            self.assertTrue(all(day < 20210802
+                                for day in calendar["score_days"]))
+            self.assertTrue(all(day <= 20210801
+                                for day in calendar["fit_days"]))
+
+    def test_the_calendar_comes_from_the_days_the_corpus_carries(self):
+        harness = self._harness()
+        # A real calendar has weekends and holidays: the fold must count the
+        # days the corpus HAS, never a nominal 7+5k span of the month.
+        sparse = [20210701, 20210702, 20210706, 20210707, 20210708,
+                  20210709, 20210712, 20210713, 20210714, 20210715,
+                  20210716, 20210719, 20210720, 20210721, 20210722,
+                  20210723, 20210726]
+        calendar = harness.fold_calendar(sparse, 1)
+        self.assertEqual(list(calendar["fit_days"]), sparse[:12])
+        self.assertEqual(list(calendar["score_days"]), sparse[12:17])
+        # 22 fit + 5 scored days do not exist here, so fold 3 refuses rather
+        # than quietly running short.
+        with self.assertRaisesRegex(ValueError, "needs 27 trading days"):
+            harness.fold_calendar(sparse, 3)
+
+    def test_a_short_corpus_refuses_rather_than_running_a_short_fold(self):
+        harness = self._harness()
+        with self.assertRaisesRegex(ValueError, "trading days inside"):
+            harness.fold_calendar([20210701, 20210702], 1)
+
+    def test_an_untyped_fold_refuses(self):
+        harness = self._harness()
+        with self.assertRaisesRegex(ValueError, "fold must be one of"):
+            harness.fold_calendar(self._days(), 4)
+
+
+class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
+    """The acceptance currency: ARRIVAL-ORDER goal-grade dollars.
+
+    Hindsight top-3 was a lookahead coordinate system - the cap fills
+    chronologically.  These tests pin the deployable rule, both cap laws, the
+    shuffled baseline, the report-only theta columns and tail visibility.
+    """
+
+    @staticmethod
+    def _harness():
+        return InnerFoldCalendarTest._harness()
 
     def _data_root(self, rows_by_day):
         import tempfile
@@ -999,6 +1268,15 @@ class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
         self.assertEqual(ledger["b"]["goal_grade"], 0)
         self.assertEqual(harness.GOAL_GRADE_USD, 600.0)
 
+    def test_the_amended_law_is_portfolio_twelve_with_no_per_asset_cap(self):
+        harness = self._harness()
+        self.assertEqual(harness.AMENDED_LAW["budget"], 12)
+        self.assertIsNone(harness.AMENDED_LAW["per_asset_cap"])
+        self.assertEqual(harness.LEGACY_LAW["budget"], 9)
+        self.assertEqual(harness.LEGACY_LAW["per_asset_cap"], 3)
+        self.assertEqual(harness.PORTFOLIO_GOAL_USD_DAY, 7_000.0)
+        self.assertEqual(harness.PORTFOLIO_MINIMUM_USD_DAY, 6_000.0)
+
     def test_arrival_order_is_not_hindsight_order(self):
         # The winner arrives LAST.  A hindsight top-1 takes it; the arrival
         # rule with a budget of 1 has already spent the budget on the early
@@ -1008,7 +1286,7 @@ class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
         assets = ["HG", "HG", "HG"]
         nets = [100.0, 0.0, 5_000.0]
         scores = [9.0, 0.0, 8.0]
-        total, per_asset, picks = harness._run_arrival_rule(
+        total, _per_asset, picks, _taken = harness._run_arrival_rule(
             [0, 1, 2], decisions, assets, nets, scores,
             budget=1, per_asset_cap=None, theta=1.0)
         self.assertEqual(picks, [0])
@@ -1025,29 +1303,29 @@ class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
         assets = ["NKD"] * 5 + ["HG"] * 3
         nets = [1_000.0] * 5 + [10.0] * 3
         scores = [5.0] * 8
-        capped, _per_asset, capped_picks = harness._run_arrival_rule(
+        capped, _pa, capped_picks, _t = harness._run_arrival_rule(
             list(range(8)), decisions, assets, nets, scores,
             budget=9, per_asset_cap=3, theta=1.0)
-        portfolio, _per_asset, portfolio_picks = harness._run_arrival_rule(
+        portfolio, _pa, portfolio_picks, _t = harness._run_arrival_rule(
             list(range(8)), decisions, assets, nets, scores,
-            budget=9, per_asset_cap=None, theta=1.0)
+            budget=12, per_asset_cap=None, theta=1.0)
         self.assertEqual(len(capped_picks), 6)
         self.assertEqual(len(portfolio_picks), 8)
         self.assertAlmostEqual(capped, 3_030.0)
         self.assertAlmostEqual(portfolio, 5_030.0)
         self.assertGreater(portfolio, capped)
 
-    def test_the_portfolio_budget_binds(self):
+    def test_the_portfolio_budget_binds_at_twelve(self):
         harness = self._harness()
         decisions = list(range(20))
         assets = ["HG"] * 20
         nets = [100.0] * 20
         scores = [5.0] * 20
-        total, _per_asset, picks = harness._run_arrival_rule(
+        total, _pa, picks, _t = harness._run_arrival_rule(
             list(range(20)), decisions, assets, nets, scores,
-            budget=9, per_asset_cap=None, theta=1.0)
-        self.assertEqual(len(picks), 9)
-        self.assertAlmostEqual(total, 900.0)
+            budget=12, per_asset_cap=None, theta=1.0)
+        self.assertEqual(len(picks), 12)
+        self.assertAlmostEqual(total, 1_200.0)
 
     def test_the_oracle_variant_is_a_perfect_classifier_under_the_same_rule(self):
         harness = self._harness()
@@ -1055,13 +1333,13 @@ class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
         assets = ["HG"] * 4
         nets = [-50.0, 900.0, -20.0, 700.0]
         goal_grade = [0, 1, 0, 1]
-        total, _per_asset, picks = harness._run_arrival_rule(
+        total, _pa, picks, _t = harness._run_arrival_rule(
             [0, 1, 2, 3], decisions, assets, nets, scores=[0.0] * 4,
-            budget=9, per_asset_cap=3, goal_grade=goal_grade)
+            budget=12, per_asset_cap=None, goal_grade=goal_grade)
         self.assertEqual(picks, [1, 3])
         self.assertAlmostEqual(total, 1_600.0)
 
-    def test_theta_is_frozen_on_train_days_at_the_rule_budget(self):
+    def test_theta_is_frozen_on_train_days_and_reports_its_quantile(self):
         import numpy as np
         harness = self._harness()
         decisions = list(range(40))
@@ -1069,18 +1347,65 @@ class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
         nets = [100.0] * 40
         scores = np.linspace(0.0, 1.0, 40)
         day_rows = {1: np.arange(0, 20), 2: np.arange(20, 40)}
-        theta = harness._calibrate_theta(
+        theta, quantile = harness._calibrate_theta(
             [1, 2], day_rows, decisions, assets, nets, scores,
-            budget=9, per_asset_cap=3)
+            budget=12, per_asset_cap=None)
         self.assertIsNotNone(theta)
-        counts = []
-        for day in (1, 2):
-            _total, _per_asset, picks = harness._run_arrival_rule(
-                day_rows[day], decisions, assets, nets, scores,
-                budget=9, per_asset_cap=3, theta=theta)
-            counts.append(len(picks))
-        # The grid targets ~80% of the budget; the cap of 3/asset binds first.
-        self.assertTrue(all(count <= 3 for count in counts))
+        self.assertIn(quantile, harness.THETA_QUANTILE_GRID)
+
+    def test_trailing_theta_reads_the_last_five_scored_days(self):
+        import numpy as np
+        harness = self._harness()
+        # Day k carries scores centred on k; the trailing window must follow.
+        day_rows = {day: np.arange(10 * day, 10 * day + 10)
+                    for day in range(1, 9)}
+        scores = np.concatenate([np.full(10, 0.0)]
+                                + [np.full(10, float(day))
+                                   for day in range(1, 9)])
+        early = harness._trailing_theta([1, 2], day_rows, scores, 0.9)
+        late = harness._trailing_theta([1, 2, 3, 4, 5, 6, 7], day_rows,
+                                       scores, 0.9)
+        self.assertLess(early, late)
+        # Only the last five scored days count.
+        self.assertAlmostEqual(
+            late, float(np.quantile(np.concatenate(
+                [scores[day_rows[day]] for day in (3, 4, 5, 6, 7)]), 0.9)))
+
+    def test_trailing_theta_has_nothing_to_read_on_the_first_day(self):
+        import numpy as np
+        harness = self._harness()
+        day_rows = {1: np.arange(0, 10)}
+        self.assertIsNone(harness._trailing_theta([], day_rows,
+                                                  np.zeros(10), 0.9))
+
+    def test_rank_normalization_puts_every_asset_on_its_own_scale(self):
+        import numpy as np
+        harness = self._harness()
+        # HG scores live near +100, SI near -100.  A shared raw theta would
+        # let HG hog the budget; on their own train-day CDFs they are
+        # comparable.
+        assets = ["HG"] * 10 + ["SI"] * 10
+        days = [1] * 5 + [2] * 5 + [1] * 5 + [2] * 5
+        scores = np.concatenate([np.linspace(100, 110, 10),
+                                 np.linspace(-110, -100, 10)])
+        normalized = harness.rank_normalize(scores, assets, days,
+                                            train_days=[1])
+        # Each asset's own top score maps near 1.0 on its own CDF.
+        self.assertGreater(normalized[9], 0.9)
+        self.assertGreater(normalized[19], 0.9)
+        self.assertLess(normalized[0], 0.5)
+        self.assertLess(normalized[10], 0.5)
+
+    def test_per_asset_score_quantiles_are_reported_on_held_days(self):
+        import numpy as np
+        harness = self._harness()
+        assets = ["HG"] * 10 + ["SI"] * 10
+        days = [20210813] * 20
+        scores = np.concatenate([np.linspace(0, 1, 10),
+                                 np.linspace(10, 11, 10)])
+        quantiles = harness.score_quantiles(scores, assets, days, [20210813])
+        self.assertEqual(set(quantiles["HG"]), {"p50", "p90", "p99"})
+        self.assertLess(quantiles["HG"]["p50"], quantiles["SI"]["p50"])
 
     def test_tail_visibility_is_auroc_within_the_winners(self):
         import numpy as np
@@ -1105,6 +1430,47 @@ class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
             np.asarray([1.0, 2.0, 3.0, 4.0]), [True] * 4)
         self.assertIsNone(result["HG"])
 
+    def test_a_fold_never_calibrates_theta_outside_its_own_fit_block(self):
+        # The competence population reaches past the fold era.  A day the
+        # fold never fit on must not enter theta calibration, the scored
+        # block, or the tail column.
+        harness = self._harness()
+        from types import SimpleNamespace
+        rows_by_day = {}
+        names = []
+        for day in (20210701, 20210702, 20210703, 20210930):
+            day_rows = []
+            for index in range(4):
+                name = f"{day}-{index}"
+                names.append(name)
+                day_rows.append((name, 0.0, 2_000.0 if index else 0.0, "CLEAR"))
+            rows_by_day[("HG", day)] = day_rows
+        root = self._data_root(rows_by_day)
+
+        class _Probe(torch.nn.Module):
+            def forward(self, memory):
+                score = memory.reshape(memory.shape[0], -1)[:, 0]
+                return (score, torch.zeros_like(score),
+                        torch.zeros(memory.shape[0], 5))
+
+        memories = {name: torch.full((4, 512), 1.0) for name in names}
+        batches = [SimpleNamespace(
+            asset="HG", day=day, session_id=f"s{day}",
+            candidate_ids=tuple(f"{day}-{index}" for index in range(4)))
+            for day in (20210701, 20210702, 20210703, 20210930)]
+        rows = SimpleNamespace(
+            candidate_id=np.asarray(names),
+            asset=np.asarray(["HG"] * len(names)),
+            day=np.asarray([int(name.split("-")[0]) for name in names]),
+            decision_ts_ns=np.asarray(list(range(len(names)))))
+        result = harness.arrival_acceptance(
+            rows, memories, {"mlp": _Probe()}, device=torch.device("cpu"),
+            data_root=root, held_days=frozenset({20210703}), batches=batches,
+            shuffle_seed=20260819, train_days=(20210701, 20210702))
+        self.assertEqual(result["train_day_list"], [20210701, 20210702])
+        self.assertEqual(result["held_days"], [20210703])
+        self.assertNotIn(20210930, result["train_day_list"])
+
     def test_within_session_shuffle_moves_memories_inside_the_session(self):
         harness = self._harness()
         from types import SimpleNamespace
@@ -1120,17 +1486,14 @@ class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
             batches, memories, seed=20260819)
         first = {float(shuffled[name][0, 0]) for name in "abc"}
         second = {float(shuffled[name][0, 0]) for name in "def"}
-        # A within-session permutation: the session's own memories, rearranged.
         self.assertEqual(first, {0.0, 1.0, 2.0})
         self.assertEqual(second, {3.0, 4.0, 5.0})
         self.assertNotEqual([float(shuffled[name][0, 0]) for name in "abc"],
                             [0.0, 1.0, 2.0])
 
-    def test_full_acceptance_reports_both_cap_laws_and_beats_shuffled(self):
+    def test_full_acceptance_reports_both_laws_both_probes_and_the_verdict(self):
         harness = self._harness()
         from types import SimpleNamespace
-        # Two train days and one held day; the memory carries the dollars and
-        # a sibling's memory does not.
         rows_by_day = {}
         names = []
         for day in (20210801, 20210802, 20210813):
@@ -1164,27 +1527,33 @@ class EncoderHarnessAcceptanceMetricTest(unittest.TestCase):
             day=np.asarray([int(name.split("-")[0]) for name in names]),
             decision_ts_ns=np.asarray([index for index in range(len(names))]))
         result = harness.arrival_acceptance(
-            rows, memories, _Probe(), device=torch.device("cpu"),
-            data_root=root, held_days=frozenset({20210813}),
-            batches=batches, shuffle_seed=20260819)
+            rows, memories, {"mlp": _Probe(), "linear": _Probe()},
+            device=torch.device("cpu"), data_root=root,
+            held_days=frozenset({20210813}), batches=batches,
+            shuffle_seed=20260819)
         self.assertEqual(int(result["days"]), 1)
-        self.assertEqual(int(result["train_days"]), 2)
-        self.assertEqual(set(result["rules"]),
-                         {harness.CURRENT_LAW["name"], harness.AMENDED_LAW["name"]})
-        current = result["rules"][harness.CURRENT_LAW["name"]]
-        self.assertEqual(int(current["per_asset_cap"]), 3)
-        self.assertIsNone(result["rules"][harness.AMENDED_LAW["name"]]["per_asset_cap"])
-        # The memory plane finds the two goal-grade candidates; every rule
-        # reports its own oracle on the same day.
-        self.assertGreater(current["memory"]["portfolio_usd_day"],
-                           current["shuffled"]["portfolio_usd_day"])
-        self.assertTrue(current["beats_shuffled"])
-        self.assertEqual(int(current["paired_days"]), 1)
-        self.assertGreaterEqual(current["oracle"]["portfolio_usd_day"],
-                                current["memory"]["portfolio_usd_day"])
-        # Hindsight survives as a reference column only.
-        self.assertIn("oracle", result["hindsight_reference"])
-        self.assertIn("HG", result["tail_visibility"])
+        self.assertEqual(set(result["probes"]), {"mlp", "linear"})
+        law = harness.AMENDED_LAW["name"]
+        entry = result["probes"]["mlp"]["rules"][law]
+        self.assertEqual(int(entry["budget"]), 12)
+        self.assertIsNone(entry["per_asset_cap"])
+        self.assertGreater(entry["memory"]["portfolio_usd_day"],
+                           entry["shuffled"]["portfolio_usd_day"])
+        self.assertTrue(entry["beats_shuffled"])
+        self.assertGreaterEqual(entry["oracle"]["portfolio_usd_day"],
+                                entry["memory"]["portfolio_usd_day"])
+        # Every report-only column is present alongside the frozen one.
+        self.assertIn("memory_trailing_quantile", entry)
+        self.assertIn("memory_rank_normalized", entry)
+        self.assertIn("per_asset_pick_share", entry["memory"])
+        # Dual acceptance is decided, not implied.
+        verdict = result["dual"][law]
+        self.assertTrue(verdict["accepted_either"])
+        self.assertIn("null_fails_both", verdict)
+        self.assertIn("accepted", verdict)
+        self.assertEqual(set(verdict["per_probe_beats_shuffled"]),
+                         {"mlp", "linear"})
+        self.assertIn("HG", result["probes"]["mlp"]["score_quantiles"])
 
 
 class BaseStageInnerLoopSmokeTest(unittest.TestCase):
@@ -1238,6 +1607,7 @@ class BaseStageInnerLoopSmokeTest(unittest.TestCase):
         value, _v, value_record = _memory_value_probe_loss(
             probe, out.raw_memory, batch)
         listwise, list_receipt = _memory_value_list_loss([value_record])
+        self.assertIn("decisions", value_record)
         if listwise is not None:
             value = value + listwise
         record, skipped = _identity_cropped_views(

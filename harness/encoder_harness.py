@@ -52,13 +52,64 @@ TOP_K = 3
 # and take the ones whose score clears a theta frozen on the TRAIN days.
 # ---------------------------------------------------------------------------
 GOAL_GRADE_USD = 600.0
-CURRENT_LAW = {"name": "current 3/asset + portfolio 9", "budget": 9,
-               "per_asset_cap": 3}
-AMENDED_LAW = {"name": "amended portfolio 9, no per-asset cap", "budget": 9,
+# Section 9 as ruled by the user: the portfolio budget is 12, confidence
+# only, per-asset hard cap removed.  The old 3/asset law stays as a LEGACY
+# reference column so the cost of the cap keeps being measured.
+LEGACY_LAW = {"name": "legacy 3/asset + portfolio 9", "budget": 9,
+              "per_asset_cap": 3}
+AMENDED_LAW = {"name": "amended portfolio 12, no per-asset cap", "budget": 12,
                "per_asset_cap": None}
+SELECTION_LAWS = (LEGACY_LAW, AMENDED_LAW)
+PORTFOLIO_GOAL_USD_DAY = 7_000.0
+PORTFOLIO_MINIMUM_USD_DAY = 6_000.0
 THETA_QUANTILE_GRID = (0.80, 0.85, 0.90, 0.925, 0.95, 0.965, 0.98, 0.99, 0.995)
 THETA_TARGET_BUDGET_USE = 0.8
+TRAILING_THETA_DAYS = 5
 HINDSIGHT_K = 3
+SCORE_QUANTILES = (0.50, 0.90, 0.99)
+
+# Section 4 inner development folds: forward-chained, day-blocked, strictly
+# inside the fit era.  Fold k fits on the first (7 + 5k) trading days and
+# scores on the NEXT 5.  Constant iteration lives here; the CONFIRM blocks
+# are never touched by this script.
+FOLD_ERA_START_D8 = 20210701
+FOLD_ERA_END_D8 = 20210801
+FOLD_WALL_D8 = 20210802
+FOLD_FIT_BASE_DAYS = 7
+FOLD_FIT_STEP_DAYS = 5
+FOLD_SCORE_DAYS = 5
+FOLDS = (1, 2, 3)
+
+
+def fold_calendar(trading_days, fold: int) -> dict:
+    """Exact d8 lists for one inner development fold.
+
+    Derived from the trading days the corpus ACTUALLY carries, never from a
+    nominal calendar: a fold that silently ran short would be an invisible
+    change to the protocol.
+    """
+    if int(fold) not in FOLDS:
+        raise ValueError(f"fold must be one of {FOLDS}")
+    era = sorted(int(day) for day in trading_days
+                 if FOLD_ERA_START_D8 <= int(day) <= FOLD_ERA_END_D8)
+    fit_count = FOLD_FIT_BASE_DAYS + FOLD_FIT_STEP_DAYS * int(fold)
+    needed = fit_count + FOLD_SCORE_DAYS
+    if len(era) < needed:
+        raise ValueError(
+            f"fold {fold} needs {needed} trading days inside "
+            f"{FOLD_ERA_START_D8}-{FOLD_ERA_END_D8}; the corpus carries "
+            f"{len(era)}")
+    fit_days = tuple(era[:fit_count])
+    score_days = tuple(era[fit_count:fit_count + FOLD_SCORE_DAYS])
+    if any(day >= FOLD_WALL_D8 for day in score_days):
+        raise ValueError(
+            f"fold {fold} would score on or past the CONFIRM wall "
+            f"{FOLD_WALL_D8}: {score_days}")
+    if set(fit_days) & set(score_days):
+        raise ValueError(f"fold {fold} fit and score blocks overlap")
+    return {"fold": int(fold), "fit_days": fit_days, "score_days": score_days,
+            "era_days": tuple(era), "era_start": FOLD_ERA_START_D8,
+            "era_end": FOLD_ERA_END_D8, "wall": FOLD_WALL_D8}
 
 
 def day_dollar_ledger(data_root: str, asset: str, d8: int) -> dict[str, dict]:
@@ -140,6 +191,49 @@ def memory_probe_scores(probe, memories, candidate_ids, device):
             "expected_value_bin": expected_bin.cpu().numpy()}
 
 
+def rank_normalize(scores, assets, days, train_days):
+    """Map each asset's scores onto its OWN train-day empirical CDF.
+
+    Final ruling 7: the util head is both the loss's logit and the ranking
+    score, so a single cross-asset theta assumes a comparability the head was
+    never asked to provide.  This column answers that empirically - if raw
+    scores let one asset hog the portfolio budget and rank-normalized scores
+    do not, the receipt carries both the diagnosis and the fix.
+    """
+    import numpy as np
+    scores = np.asarray(scores, np.float64)
+    out = np.zeros(len(scores), np.float64)
+    train = set(int(day) for day in train_days)
+    for asset in sorted(set(str(value) for value in assets)):
+        rows = np.asarray([index for index in range(len(scores))
+                           if str(assets[index]) == asset], np.int64)
+        pool = np.asarray([scores[index] for index in rows
+                           if int(days[index]) in train], np.float64)
+        if not len(pool):
+            out[rows] = 0.5
+            continue
+        order = np.sort(pool)
+        out[rows] = np.searchsorted(order, scores[rows], side="right") / len(order)
+    return out
+
+
+def score_quantiles(scores, assets, days, held_days):
+    """Per-asset held score quantiles - the comparability evidence."""
+    import numpy as np
+    held = set(int(day) for day in held_days)
+    out: dict[str, dict] = {}
+    for asset in sorted(set(str(value) for value in assets)):
+        values = np.asarray([scores[index] for index in range(len(scores))
+                             if str(assets[index]) == asset
+                             and int(days[index]) in held], np.float64)
+        if not len(values):
+            out[asset] = {}
+            continue
+        out[asset] = {f"p{int(100 * q)}": float(np.quantile(values, q))
+                      for q in SCORE_QUANTILES}
+    return out
+
+
 def _arrival_day_stream(index, decisions, assets):
     """One trading day's candidates in DECISION-CLOCK order."""
     return sorted(index, key=lambda row: (int(decisions[row]), str(assets[row]),
@@ -176,34 +270,48 @@ def _run_arrival_rule(day_index, decisions, assets, nets, scores, *, budget,
         total += float(nets[row])
         per_asset[asset] = per_asset.get(asset, 0.0) + float(nets[row])
         picks.append(row)
-    return total, per_asset, picks
+    return total, per_asset, picks, dict(taken)
 
 
 def _calibrate_theta(train_days, day_rows, decisions, assets, nets, scores, *,
                      budget, per_asset_cap):
     """Freeze theta on the TRAIN days at the rule's own budget.
 
-    Section 9 measured frozen-theta transport drift live (theta from fit days
-    took zero held trades), so the harness also reports the trailing-quantile
-    column; this function is the FROZEN arm of that comparison.
+    Returns (theta, quantile): the quantile is what the trailing-quantile
+    column re-applies to a moving window, so the two thetas differ only in
+    WHICH days they are read from.
     """
     import numpy as np
     if not train_days:
-        return None
+        return None, None
     pool = np.concatenate([scores[day_rows[day]] for day in train_days])
-    best, best_gap = None, float("inf")
+    best, best_quantile, best_gap = None, None, float("inf")
     for quantile in THETA_QUANTILE_GRID:
         theta = float(np.quantile(pool, quantile))
         counts = []
         for day in train_days:
-            _total, _per_asset, picks = _run_arrival_rule(
+            _total, _per_asset, picks, _taken = _run_arrival_rule(
                 day_rows[day], decisions, assets, nets, scores,
                 budget=budget, per_asset_cap=per_asset_cap, theta=theta)
             counts.append(len(picks))
         gap = abs(float(np.mean(counts)) - budget * THETA_TARGET_BUDGET_USE)
         if gap < best_gap:
-            best_gap, best = gap, theta
-    return best
+            best_gap, best, best_quantile = gap, theta, quantile
+    return best, best_quantile
+
+
+def _trailing_theta(previous_days, day_rows, scores, quantile):
+    """Theta from the last N SCORED days at the frozen budget-quantile.
+
+    Section 9 measured frozen-theta transport drift live (theta from the fit
+    days took zero held trades), so this column travels with the data.
+    """
+    import numpy as np
+    window = list(previous_days)[-TRAILING_THETA_DAYS:]
+    if not window or quantile is None:
+        return None
+    pool = np.concatenate([scores[day_rows[day]] for day in window])
+    return float(np.quantile(pool, quantile))
 
 
 def _hindsight_top3(day_index, nets, scores):
@@ -240,18 +348,69 @@ def tail_visibility(assets, nets, goal_grade, scores, held_mask):
     return out
 
 
-def arrival_acceptance(rows, memories, probe, *, device, data_root, held_days,
-                       batches, shuffle_seed, score_key="util"):
-    """The R7 acceptance metric as AMENDED: arrival-order goal-grade dollars.
+def _selection_column(held_day_list, day_rows, decisions, assets, nets, scores,
+                      *, budget, per_asset_cap, theta, quantile,
+                      trailing=False):
+    """Score every held day under one rule and one theta policy."""
+    import numpy as np
+    per_day = []; per_asset_days: dict[str, list] = {}
+    per_asset_picks: dict[str, list] = {}
+    seen: list[int] = []
+    for day in held_day_list:
+        day_theta = theta
+        if trailing:
+            day_theta = _trailing_theta(seen, day_rows, scores, quantile)
+            if day_theta is None:
+                day_theta = theta          # first days fall back to frozen
+        seen.append(day)
+        if day_theta is None:
+            continue
+        total, per_asset, picks, taken = _run_arrival_rule(
+            day_rows[day], decisions, assets, nets, scores,
+            budget=budget, per_asset_cap=per_asset_cap, theta=day_theta)
+        per_day.append({"day": day, "usd": total, "picks": len(picks),
+                        "theta": float(day_theta)})
+        for asset in sorted(set(str(value) for value in assets)):
+            per_asset_days.setdefault(asset, []).append(
+                per_asset.get(asset, 0.0))
+            per_asset_picks.setdefault(asset, []).append(
+                float(taken.get(asset, 0)))
+    if not per_day:
+        return None
+    return {
+        "theta": theta,
+        "theta_quantile": quantile,
+        "portfolio_usd_day": float(np.mean([row["usd"] for row in per_day])),
+        "picks_day": float(np.mean([row["picks"] for row in per_day])),
+        "worst_day_usd": float(np.min([row["usd"] for row in per_day])),
+        "per_asset_usd_day": {asset: float(np.mean(values))
+                              for asset, values in per_asset_days.items()},
+        "per_asset_picks_day": {asset: float(np.mean(values))
+                                for asset, values in per_asset_picks.items()},
+        # Ruling 7's budget-hogging evidence: what fraction of the portfolio
+        # budget each asset actually consumed.
+        "per_asset_pick_share": {
+            asset: (float(np.mean(values))
+                    / max(1e-9, float(np.mean(
+                        [row["picks"] for row in per_day]))))
+            for asset, values in per_asset_picks.items()},
+        "per_day": tuple(per_day),
+    }
 
-    Three score planes are carried: the live memory, the WITHIN-SESSION
-    SHUFFLED memory (the acceptance baseline) and zeroed memory (a weaker
-    reference).  Two selection rules are reported side by side: the current
-    3-per-asset law and the amended portfolio-budget law.  Hindsight top-3
-    survives as a reference column only, and every rule reports the oracle on
-    exactly the same days.
+
+def arrival_acceptance(rows, memories, probes, *, device, data_root,
+                       held_days, batches, shuffle_seed, score_key="util",
+                       train_days=None):
+    """The acceptance metric: ARRIVAL-ORDER goal-grade dollars, both probes.
+
+    Three score planes (live memory, WITHIN-SESSION SHUFFLED, zeroed), two
+    selection laws (legacy 3/asset+9 and the amended portfolio 12), three
+    theta policies (frozen, trailing-quantile, per-asset rank-normalized) and
+    two probes.  Acceptance passes on EITHER probe; the shuffled null must
+    fail BOTH.
     """
     import numpy as np
+    import torch
     candidate_ids = [str(value) for value in rows.candidate_id]
     assets = [str(value) for value in rows.asset]
     days = [int(value) for value in rows.day]
@@ -271,111 +430,153 @@ def arrival_acceptance(rows, memories, probe, *, device, data_root, held_days,
     goal_grade = np.asarray(goal_grade, np.int64)
     known = np.asarray(known, bool)
 
-    planes = {
-        "memory": memories,
-        "shuffled": within_session_shuffled_memories(
-            batches, memories, seed=shuffle_seed),
-        "occluded": None,
-    }
-    scores_by_plane: dict[str, "np.ndarray"] = {}
-    for name, plane in planes.items():
-        if plane is None:
-            import torch
-            zeroed = {cid: torch.zeros_like(memories[cid])
-                      for cid in candidate_ids}
-            plane = zeroed
-        scores_by_plane[name] = memory_probe_scores(
-            probe, plane, candidate_ids, device)[score_key]
-
-    day_rows: dict[int, "np.ndarray"] = {}
+    # When a fold is active the caller names its FIT days explicitly: the
+    # competence population reaches past the fold era, and calibrating theta
+    # on a day the fold never fit on would quietly read outside the protocol.
+    allowed = (None if train_days is None
+               else set(int(day) for day in train_days) | held)
+    day_rows_raw: dict[int, list] = {}
     for index, day in enumerate(days):
         if not known[index]:
             continue
-        day_rows.setdefault(day, []).append(index)
-    day_rows = {day: np.asarray(sorted(rows_), np.int64)
-                for day, rows_ in day_rows.items()}
+        if allowed is not None and int(day) not in allowed:
+            continue
+        day_rows_raw.setdefault(day, []).append(index)
+    day_rows = {day: np.asarray(sorted(values), np.int64)
+                for day, values in day_rows_raw.items()}
     train_days = sorted(day for day in day_rows if day not in held)
     held_day_list = sorted(day for day in day_rows if day in held)
     if not held_day_list:
-        return {"days": 0, "rules": {}, "tail_visibility": {},
-                "hindsight_reference": {}}
+        return {"days": 0, "probes": {}, "dual": {}, "hindsight_reference": {}}
 
-    result: dict[str, object] = {"days": len(held_day_list),
-                                 "train_days": len(train_days),
-                                 "score_key": score_key,
-                                 "held_days": held_day_list}
-    rules: dict[str, dict] = {}
-    for law in (CURRENT_LAW, AMENDED_LAW):
-        entry: dict[str, object] = {"budget": law["budget"],
-                                    "per_asset_cap": law["per_asset_cap"]}
-        for plane, scores in scores_by_plane.items():
-            theta = _calibrate_theta(
-                train_days, day_rows, decisions, assets, nets, scores,
-                budget=law["budget"], per_asset_cap=law["per_asset_cap"])
-            per_day = []; per_asset_days: dict[str, list] = {}
-            for day in held_day_list:
-                total, per_asset, picks = _run_arrival_rule(
-                    day_rows[day], decisions, assets, nets, scores,
-                    budget=law["budget"],
-                    per_asset_cap=law["per_asset_cap"], theta=theta)
-                per_day.append({"day": day, "usd": total, "picks": len(picks)})
-                for asset in sorted(set(assets)):
-                    per_asset_days.setdefault(asset, []).append(
-                        per_asset.get(asset, 0.0))
-            entry[plane] = {
-                "theta": theta,
-                "portfolio_usd_day": float(np.mean(
-                    [row["usd"] for row in per_day])),
-                "picks_day": float(np.mean([row["picks"] for row in per_day])),
-                "worst_day_usd": float(np.min([row["usd"] for row in per_day])),
-                "per_asset_usd_day": {asset: float(np.mean(values))
-                                      for asset, values in per_asset_days.items()},
-                "per_day": tuple(per_day),
-            }
-        oracle_days = []; oracle_per_asset: dict[str, list] = {}
-        for day in held_day_list:
-            total, per_asset, _picks = _run_arrival_rule(
-                day_rows[day], decisions, assets, nets,
-                scores_by_plane["memory"], budget=law["budget"],
-                per_asset_cap=law["per_asset_cap"], goal_grade=goal_grade)
-            oracle_days.append(total)
-            for asset in sorted(set(assets)):
-                oracle_per_asset.setdefault(asset, []).append(
-                    per_asset.get(asset, 0.0))
-        entry["oracle"] = {
-            "portfolio_usd_day": float(np.mean(oracle_days)),
-            "per_asset_usd_day": {asset: float(np.mean(values))
-                                  for asset, values in oracle_per_asset.items()},
+    shuffled_memories = within_session_shuffled_memories(
+        batches, memories, seed=shuffle_seed)
+    zeroed = {cid: torch.zeros_like(memories[cid]) for cid in candidate_ids}
+
+    result: dict[str, object] = {
+        "days": len(held_day_list), "train_days": len(train_days),
+        "score_key": score_key, "held_days": held_day_list,
+        "train_day_list": train_days,
+    }
+    probe_results: dict[str, dict] = {}
+    for kind, probe in probes.items():
+        planes = {"memory": memories, "shuffled": shuffled_memories,
+                  "occluded": zeroed}
+        raw_scores = {name: memory_probe_scores(
+            probe, plane, candidate_ids, device)[score_key]
+            for name, plane in planes.items()}
+        normalized = {name: rank_normalize(values, assets, days, train_days)
+                      for name, values in raw_scores.items()}
+        entry: dict[str, object] = {
+            "score_quantiles": score_quantiles(
+                raw_scores["memory"], assets, days, held_day_list),
+            "rules": {},
         }
-        # PAIRED per held day: the sign test the protocol runs on.
-        paired = [entry["memory"]["per_day"][index]["usd"]
-                  - entry["shuffled"]["per_day"][index]["usd"]
-                  for index in range(len(held_day_list))]
-        entry["paired_margin_usd_day"] = float(np.mean(paired))
-        entry["paired_positive_days"] = int(sum(1 for value in paired
-                                                if value > 0))
-        entry["paired_days"] = len(paired)
-        entry["beats_shuffled"] = bool(entry["paired_margin_usd_day"] > 0)
-        rules[law["name"]] = entry
-    result["rules"] = rules
+        for law in SELECTION_LAWS:
+            law_entry: dict[str, object] = {
+                "budget": law["budget"], "per_asset_cap": law["per_asset_cap"]}
+            for plane in ("memory", "shuffled", "occluded"):
+                theta, quantile = _calibrate_theta(
+                    train_days, day_rows, decisions, assets, nets,
+                    raw_scores[plane], budget=law["budget"],
+                    per_asset_cap=law["per_asset_cap"])
+                law_entry[plane] = _selection_column(
+                    held_day_list, day_rows, decisions, assets, nets,
+                    raw_scores[plane], budget=law["budget"],
+                    per_asset_cap=law["per_asset_cap"], theta=theta,
+                    quantile=quantile)
+                if plane == "memory":
+                    # Report-only columns, both on the SAME rule.
+                    law_entry["memory_trailing_quantile"] = _selection_column(
+                        held_day_list, day_rows, decisions, assets, nets,
+                        raw_scores[plane], budget=law["budget"],
+                        per_asset_cap=law["per_asset_cap"], theta=theta,
+                        quantile=quantile, trailing=True)
+                    rank_theta, rank_quantile = _calibrate_theta(
+                        train_days, day_rows, decisions, assets, nets,
+                        normalized[plane], budget=law["budget"],
+                        per_asset_cap=law["per_asset_cap"])
+                    law_entry["memory_rank_normalized"] = _selection_column(
+                        held_day_list, day_rows, decisions, assets, nets,
+                        normalized[plane], budget=law["budget"],
+                        per_asset_cap=law["per_asset_cap"], theta=rank_theta,
+                        quantile=rank_quantile)
+            oracle_days = []; oracle_per_asset: dict[str, list] = {}
+            for day in held_day_list:
+                total, per_asset, _picks, _taken = _run_arrival_rule(
+                    day_rows[day], decisions, assets, nets,
+                    raw_scores["memory"], budget=law["budget"],
+                    per_asset_cap=law["per_asset_cap"], goal_grade=goal_grade)
+                oracle_days.append(total)
+                for asset in sorted(set(assets)):
+                    oracle_per_asset.setdefault(asset, []).append(
+                        per_asset.get(asset, 0.0))
+            law_entry["oracle"] = {
+                "portfolio_usd_day": float(np.mean(oracle_days)),
+                "per_asset_usd_day": {asset: float(np.mean(values))
+                                      for asset, values
+                                      in oracle_per_asset.items()}}
+            live = law_entry["memory"]; null = law_entry["shuffled"]
+            if live is not None and null is not None:
+                paired = [live["per_day"][index]["usd"]
+                          - null["per_day"][index]["usd"]
+                          for index in range(len(live["per_day"]))]
+                law_entry["paired_margin_usd_day"] = float(np.mean(paired))
+                law_entry["paired_positive_days"] = int(
+                    sum(1 for value in paired if value > 0))
+                law_entry["paired_days"] = len(paired)
+                law_entry["beats_shuffled"] = bool(np.mean(paired) > 0)
+                law_entry["meets_portfolio_goal"] = bool(
+                    live["portfolio_usd_day"] >= PORTFOLIO_GOAL_USD_DAY)
+                law_entry["meets_portfolio_minimum"] = bool(
+                    live["portfolio_usd_day"] >= PORTFOLIO_MINIMUM_USD_DAY)
+            entry["rules"][law["name"]] = law_entry
+        held_mask = np.asarray(
+            [known[index] and days[index] in held
+             and (allowed is None or int(days[index]) in allowed)
+             for index in range(len(days))], bool)
+        entry["tail_visibility"] = tail_visibility(
+            assets, nets, goal_grade, raw_scores["memory"], held_mask)
+        entry["tail_visibility_shuffled"] = tail_visibility(
+            assets, nets, goal_grade, raw_scores["shuffled"], held_mask)
+        entry["hindsight_reference"] = {
+            name: float(np.mean([_hindsight_top3(day_rows[day], nets, values)
+                                 for day in held_day_list]))
+            for name, values in raw_scores.items()}
+        probe_results[kind] = entry
+    result["probes"] = probe_results
 
-    # Reference column only (a lookahead coordinate system).
-    hindsight: dict[str, float] = {}
-    for plane, scores in scores_by_plane.items():
-        hindsight[plane] = float(np.mean(
-            [_hindsight_top3(day_rows[day], nets, scores)
-             for day in held_day_list]))
-    hindsight["oracle"] = float(np.mean([
-        float(np.sort(nets[day_rows[day]])[-HINDSIGHT_K:].sum())
-        for day in held_day_list]))
-    result["hindsight_reference"] = hindsight
-
-    held_mask = np.asarray([known[index] and days[index] in held
-                            for index in range(len(days))], bool)
-    result["tail_visibility"] = tail_visibility(
-        assets, nets, goal_grade, scores_by_plane["memory"], held_mask)
-    result["tail_visibility_shuffled"] = tail_visibility(
-        assets, nets, goal_grade, scores_by_plane["shuffled"], held_mask)
+    # Section 4's dual-acceptance rule, evaluated on the AMENDED law.
+    dual: dict[str, object] = {}
+    for law in SELECTION_LAWS:
+        passes: dict[str, bool] = {}
+        null_passes: dict[str, bool] = {}
+        for kind in probe_results:
+            law_entry = probe_results[kind]["rules"][law["name"]]
+            passes[kind] = bool(law_entry.get("beats_shuffled", False))
+            null_column = law_entry.get("shuffled")
+            # The NULL fails when the shuffled plane cannot itself clear the
+            # portfolio minimum.  A null that looks acceptable means the
+            # metric is not discriminating, whatever the margin says.
+            null_passes[kind] = bool(
+                null_column is not None
+                and null_column["portfolio_usd_day"] >= PORTFOLIO_MINIMUM_USD_DAY)
+        dual[law["name"]] = {
+            "per_probe_beats_shuffled": passes,
+            "per_probe_null_clears_minimum": null_passes,
+            "accepted_either": bool(any(passes.values())),
+            "null_fails_both": bool(not any(null_passes.values())),
+            "accepted": bool(any(passes.values())
+                             and not any(null_passes.values())),
+            "portfolio_minimum_usd_day": PORTFOLIO_MINIMUM_USD_DAY,
+            "portfolio_goal_usd_day": PORTFOLIO_GOAL_USD_DAY,
+            "rule": "EITHER_PROBE_PASSES_SHUFFLED_NULL_FAILS_BOTH",
+        }
+    result["dual"] = dual
+    result["hindsight_reference"] = {
+        "oracle": float(np.mean([
+            float(np.sort(nets[day_rows[day]])[-HINDSIGHT_K:].sum())
+            for day in held_day_list]))}
     return result
 
 
@@ -468,6 +669,42 @@ def print_scope(receipt) -> None:
 # ---------------------------------------------------------------------------
 # entry point
 # ---------------------------------------------------------------------------
+def print_fold(calendar) -> None:
+    print("\nINNER DEVELOPMENT FOLD (section 4 - constant iteration lives "
+          "here, the CONFIRM blocks are never touched)", flush=True)
+    if calendar is None:
+        print("  none: the whole competence population is the fit block",
+              flush=True)
+        return
+    print(f"  fold={calendar['fold']} era={calendar['era_start']}-"
+          f"{calendar['era_end']} wall={calendar['wall']} "
+          f"era_days={len(calendar['era_days'])}", flush=True)
+    print(f"  FIT   ({len(calendar['fit_days'])}): "
+          f"{list(calendar['fit_days'])}", flush=True)
+    print(f"  SCORE ({len(calendar['score_days'])}): "
+          f"{list(calendar['score_days'])}", flush=True)
+
+
+def _print_column(label, column) -> None:
+    if column is None:
+        print(f"    {label:22s} (no scored day)", flush=True)
+        return
+    theta = ("n/a" if column["theta"] is None
+             else f"{float(column['theta']):.4f}")
+    print(f"    {label:22s} theta={theta:>8s} "
+          f"portfolio=${column['portfolio_usd_day']:8.0f}/day "
+          f"picks={column['picks_day']:.1f}/day "
+          f"worst=${column['worst_day_usd']:8.0f} "
+          + " ".join(f"{asset}=${value:.0f}" for asset, value
+                     in sorted(column["per_asset_usd_day"].items())),
+          flush=True)
+    share = column.get("per_asset_pick_share", {})
+    if share:
+        print(f"    {'':22s} budget share: "
+              + " ".join(f"{asset}={100 * value:.0f}%" for asset, value
+                         in sorted(share.items())), flush=True)
+
+
 def print_acceptance(acceptance) -> None:
     print("\nACCEPTANCE: ARRIVAL-ORDER GOAL-GRADE DOLLARS (sections 1/4/9)",
           flush=True)
@@ -475,48 +712,66 @@ def print_acceptance(acceptance) -> None:
         print("  no held asset-day carried a compliant candidate slice",
               flush=True)
         return
-    print(f"  held_days={acceptance['days']} "
+    print(f"  scored_days={acceptance['days']} "
           f"train_days={acceptance['train_days']} "
           f"score={acceptance['score_key']} logit", flush=True)
-    for name, entry in acceptance["rules"].items():
-        print(f"\n  RULE {name} (budget {entry['budget']}, "
-              f"per-asset cap {entry['per_asset_cap']})", flush=True)
-        for plane in ("memory", "shuffled", "occluded"):
-            row = entry[plane]
-            theta = ("n/a" if row["theta"] is None
-                     else f"{float(row['theta']):.4f}")
-            print(f"    {plane:9s} theta={theta:>8s} "
-                  f"portfolio=${row['portfolio_usd_day']:8.0f}/day "
-                  f"picks={row['picks_day']:.1f}/day "
-                  f"worst=${row['worst_day_usd']:8.0f} "
+    for kind, entry in acceptance["probes"].items():
+        print(f"\n  ===== PROBE {kind.upper()} =====", flush=True)
+        print("  per-asset HELD score quantiles (ruling 7 comparability "
+              "evidence)", flush=True)
+        for asset, quantiles in sorted(entry["score_quantiles"].items()):
+            if quantiles:
+                print(f"    {asset:>3} " + " ".join(
+                    f"{name}={value:+.4f}" for name, value
+                    in sorted(quantiles.items())), flush=True)
+        for name, law_entry in entry["rules"].items():
+            print(f"\n  RULE {name} (budget {law_entry['budget']}, "
+                  f"per-asset cap {law_entry['per_asset_cap']})", flush=True)
+            _print_column("memory (frozen)", law_entry["memory"])
+            _print_column("memory (trailing q)",
+                          law_entry.get("memory_trailing_quantile"))
+            _print_column("memory (rank-norm)",
+                          law_entry.get("memory_rank_normalized"))
+            _print_column("shuffled null", law_entry["shuffled"])
+            _print_column("occluded (ref)", law_entry["occluded"])
+            oracle = law_entry["oracle"]
+            print(f"    {'ORACLE':22s} {'':>14s} "
+                  f"portfolio=${oracle['portfolio_usd_day']:8.0f}/day "
                   + " ".join(f"{asset}=${value:.0f}" for asset, value
-                             in sorted(row["per_asset_usd_day"].items())),
+                             in sorted(oracle["per_asset_usd_day"].items())),
                   flush=True)
-        oracle = entry["oracle"]
-        print(f"    {'ORACLE':9s} {'':>14s} "
-              f"portfolio=${oracle['portfolio_usd_day']:8.0f}/day "
-              + " ".join(f"{asset}=${value:.0f}" for asset, value
-                         in sorted(oracle["per_asset_usd_day"].items())),
-              flush=True)
-        print(f"    PAIRED memory-minus-shuffled="
-              f"${entry['paired_margin_usd_day']:.0f}/day  "
-              f"positive_days={entry['paired_positive_days']}"
-              f"/{entry['paired_days']}  "
-              f"BEATS SHUFFLED: {entry['beats_shuffled']}", flush=True)
-    reference = acceptance["hindsight_reference"]
-    print("\n  HINDSIGHT TOP-3 (reference only - a lookahead coordinate "
-          "system): " + " ".join(f"{name}=${value:.0f}" for name, value
-                                 in sorted(reference.items())), flush=True)
-    print("\n  TAIL VISIBILITY (held goal-grade rows, AUROC of score vs "
-          "above/below-median net)", flush=True)
-    for asset in sorted(acceptance["tail_visibility"]):
-        live = acceptance["tail_visibility"][asset]
-        shuffled = acceptance["tail_visibility_shuffled"].get(asset)
-        print(f"    {asset:>3} memory="
-              + ("  n/a" if live is None else f"{live:.4f}")
-              + "  shuffled="
-              + ("  n/a" if shuffled is None else f"{shuffled:.4f}"),
-              flush=True)
+            if "paired_margin_usd_day" in law_entry:
+                print(f"    PAIRED memory-minus-shuffled="
+                      f"${law_entry['paired_margin_usd_day']:.0f}/day  "
+                      f"positive_days={law_entry['paired_positive_days']}"
+                      f"/{law_entry['paired_days']}  "
+                      f"beats_shuffled={law_entry['beats_shuffled']}  "
+                      f"goal>=$7k:{law_entry['meets_portfolio_goal']}  "
+                      f"min>=$6k:{law_entry['meets_portfolio_minimum']}",
+                      flush=True)
+        print("\n  TAIL VISIBILITY (held goal-grade rows, AUROC of score vs "
+              "above/below-median net)", flush=True)
+        for asset in sorted(entry["tail_visibility"]):
+            live = entry["tail_visibility"][asset]
+            shuffled = entry["tail_visibility_shuffled"].get(asset)
+            print(f"    {asset:>3} memory="
+                  + ("  n/a" if live is None else f"{live:.4f}")
+                  + "  shuffled="
+                  + ("  n/a" if shuffled is None else f"{shuffled:.4f}"),
+                  flush=True)
+        print("  HINDSIGHT TOP-3 (reference only - a lookahead coordinate "
+              "system): " + " ".join(
+                  f"{name}=${value:.0f}" for name, value
+                  in sorted(entry["hindsight_reference"].items())), flush=True)
+    print(f"\n  HINDSIGHT ORACLE (reference): "
+          f"${acceptance['hindsight_reference']['oracle']:.0f}/day", flush=True)
+    print("\n  DUAL-PROBE ACCEPTANCE (section 4: either probe passes, the "
+          "shuffled null must fail both)", flush=True)
+    for name, verdict in acceptance["dual"].items():
+        print(f"    {name}: accepted={verdict['accepted']} "
+              f"(either={verdict['accepted_either']} "
+              f"null_fails_both={verdict['null_fails_both']}) "
+              f"per_probe={verdict['per_probe_beats_shuffled']}", flush=True)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -537,6 +792,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--share-cap-recon", type=float, default=0.0)
     parser.add_argument("--share-cap-identity", type=float, default=0.0)
     parser.add_argument("--share-cap-memory-value", type=float, default=0.0)
+    parser.add_argument("--fold", type=int, default=0, choices=(0, 1, 2, 3),
+                        help="inner development fold (0 = whole fit block)")
+    parser.add_argument("--episode-cluster-collapse", action="store_true",
+                        help="section 2 [A/B]: collapse episodes to their best "
+                             "candidate in the listwise term")
     parser.add_argument("--score-key", default="util",
                         choices=("util", "tail", "expected_value_bin"))
     parser.add_argument("--list-tau", type=float, default=0.0)
@@ -583,6 +843,9 @@ def apply_measured_constants(resources, model_module, args) -> dict[str, object]
             applied[name] = value
             if name != "MEMORY_VALUE_LIST_TAU":
                 resources.MEMORY_VALUE_WEIGHTS_MEASURED = True
+    if args.episode_cluster_collapse:
+        resources.EPISODE_CLUSTER_COLLAPSE = True
+        applied["EPISODE_CLUSTER_COLLAPSE"] = True
     if args.wall_ceiling_s > 0:
         ceilings = dict(resources.ARM_WALL_CEILING_SECONDS)
         ceilings[args.arm] = float(args.wall_ceiling_s)
@@ -632,9 +895,25 @@ def main(argv=None) -> int:
     if args.arm == "L1":
         model.encoder.load_state_dict(models["L0"].encoder.state_dict(), strict=True)
 
+    calendar = None
+    encode_kwargs = {}
+    if args.fold:
+        calendar = fold_calendar(
+            {int(batch.day) for batch in provider.batches}, args.fold)
+        encode_kwargs["fit_days"] = frozenset(calendar["fit_days"])
+    print_fold(calendar)
+
     encode_started = time.monotonic()
     rows, metrics, memories, _decoder, held_days, receipt = provider._encode(
-        model, args.arm)
+        model, args.arm, **encode_kwargs)
+    if calendar is not None:
+        # The stage's own trailing held window lives INSIDE the fit block;
+        # the fold's scored days are what the acceptance metric reads.
+        inside = set(calendar["fit_days"])
+        if not set(int(day) for day in held_days) <= inside:
+            raise RuntimeError(
+                "the stage validation window escaped the fold fit block")
+        held_days = frozenset(calendar["score_days"])
     print(f"\nbase_stage {time.monotonic() - encode_started:.0f}s "
           f"(NONSEMANTIC wall clock)", flush=True)
 
@@ -645,14 +924,16 @@ def main(argv=None) -> int:
     print(f"\nOPTIMIZER GROUPS (R8) {dict(receipt['optimizer_param_groups'])}",
           flush=True)
 
-    probe = provider._memory_value_probes[args.arm]
     from engine.entry_v2.neural_sufficiency_resources import (
         MEMORY_VALUE_SHUFFLE_SEED)
+    probes = {"mlp": provider._memory_value_probes[args.arm],
+              "linear": provider._memory_value_linear_probes[args.arm]}
     acceptance = arrival_acceptance(
-        rows, memories, probe, device=provider.device,
+        rows, memories, probes, device=provider.device,
         data_root=args.data_root, held_days=held_days,
         batches=provider.batches, shuffle_seed=MEMORY_VALUE_SHUFFLE_SEED,
-        score_key=args.score_key)
+        score_key=args.score_key,
+        train_days=(None if calendar is None else calendar["fit_days"]))
     print_acceptance(acceptance)
     print(f"\nGATE-5 SANITY FLOOR joint_auroc={float(metrics[0]):.4f} "
           f"ap={float(metrics[1]):.4f} logloss={float(metrics[2]):.4f}",
@@ -661,7 +942,15 @@ def main(argv=None) -> int:
     if args.json_out:
         payload = {
             "arm": args.arm, "applied_constants": applied,
+            "fold": calendar,
             "acceptance": acceptance,
+            "memory_value_linear_trace": list(
+                receipt["memory_value_linear_trace"]),
+            "memory_value_linear_margin": list(
+                receipt["memory_value_linear_margin"]),
+            "fit_block_days": (list(receipt["fit_block_days"])
+                               if not isinstance(receipt["fit_block_days"], str)
+                               else receipt["fit_block_days"]),
             "governed_traces": list(receipt["governed_traces"]),
             "governed_trace_values": [dict(row) for row
                                       in receipt["governed_trace_values"]],

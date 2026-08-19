@@ -1004,6 +1004,20 @@ MEMORY_VALUE_UTIL_WEIGHT_SCALE_USD = 600.0
 # positive nets, on the SAME util score the harness selects with.
 MEMORY_VALUE_LIST_TAU = 1.0
 MEMORY_VALUE_LIST_SKIP_REASONS = ("NO_POSITIVE_DOLLAR_MASS", "SINGLE_CANDIDATE")
+# Section 2's [A/B]: candidates whose decisions sit inside one episode are
+# near-duplicates of the same opportunity, so ranking them against each other
+# is noise.  Collapsing each episode to its best candidate makes the listwise
+# target rank EPISODES.  ONE FLAG IS THE A/B - default off, harness-settable.
+EPISODE_CLUSTER_COLLAPSE = False
+EPISODE_CLUSTER_GAP_SECONDS = 60
+# Section 4: two probes.  The 2-layer MLP is the TRAINED channel (its
+# gradient reaches the encoder, ruling-18 disclosed shaping); the linear probe
+# is a second READ-OUT on the same memory, detached, so adding it cannot
+# change the training signal it is meant to audit.  Acceptance passes on
+# EITHER; the shuffled null must fail BOTH.
+MEMORY_VALUE_PROBE_KINDS = ("mlp", "linear")
+MEMORY_VALUE_LINEAR_PROBE_LAW = "DETACHED_SECOND_READOUT"
+MEMORY_VALUE_ACCEPTANCE_RULE = "EITHER_PROBE_PASSES_SHUFFLED_NULL_FAILS_BOTH"
 # L_tail: the MDD law made differentiable (single trades breach $1,000 alone).
 MEMORY_VALUE_TAIL_SCALE_USD = 900.0
 # Internal shares, gradient-normalized ~50/30/20.  Placeholders until the
@@ -1089,13 +1103,20 @@ class MemoryValueProbe(torch.nn.Module):
     """
 
     def __init__(self, tokens: int = 4, width: int = 512,
-                 n_value_bins: int = 5) -> None:
+                 n_value_bins: int = 5, *, kind: str = "mlp") -> None:
         super().__init__()
-        self.trunk = torch.nn.Sequential(
-            torch.nn.Flatten(), torch.nn.Linear(tokens * width, 512),
-            torch.nn.GELU())
-        self.util = torch.nn.Linear(512, 1)
-        self.tail = torch.nn.Linear(512, 1)
+        if kind not in MEMORY_VALUE_PROBE_KINDS:
+            raise RealDiagnosticExecutorRefusal(
+                f"memory-value probe kind {kind!r} is untyped")
+        self.kind = str(kind)
+        state_width = tokens * width if kind == "linear" else 512
+        self.trunk = (torch.nn.Flatten() if kind == "linear"
+                      else torch.nn.Sequential(
+                          torch.nn.Flatten(),
+                          torch.nn.Linear(tokens * width, 512),
+                          torch.nn.GELU()))
+        self.util = torch.nn.Linear(state_width, 1)
+        self.tail = torch.nn.Linear(state_width, 1)
         self.diagnostic_trunk = torch.nn.Sequential(
             torch.nn.Flatten(), torch.nn.Linear(tokens * width, 256),
             torch.nn.GELU())
@@ -1173,6 +1194,7 @@ def _memory_value_probe_loss(
         "session_id": str(batch.session_id),
         "scores": util_logit.float(),
         "gains": net.clamp_min(0.0).detach(),
+        "decisions": np.asarray(batch.decisions.cpu().numpy(), np.int64),
         "rows": int(len(batch.candidate_ids)),
     })
     return total, MappingProxyType({
@@ -1180,8 +1202,28 @@ def _memory_value_probe_loss(
     }), record
 
 
+def _episode_clusters(decisions: np.ndarray, *, gap_seconds: int) -> np.ndarray:
+    """Cluster id per row: a new episode starts after a decision gap.
+
+    The rows arrive in whatever order the session batches produced them, so
+    the ordering is done here and the ids are mapped back to input positions.
+    """
+    order = np.argsort(np.asarray(decisions, np.int64), kind="stable")
+    gap_ns = int(gap_seconds) * 1_000_000_000
+    ordered = np.asarray(decisions, np.int64)[order]
+    starts = np.zeros(len(ordered), bool)
+    if len(ordered) > 1:
+        starts[1:] = (ordered[1:] - ordered[:-1]) >= gap_ns
+    ids = np.cumsum(starts)
+    out = np.empty(len(ordered), np.int64)
+    out[order] = ids
+    return out
+
+
 def _memory_value_list_loss(
     records: Sequence[Mapping[str, Any]], *, tau: float | None = None,
+    collapse_episodes: bool | None = None,
+    gap_seconds: int | None = None,
 ) -> tuple[torch.Tensor | None, Mapping[str, Any]]:
     """Within-(asset, day) listwise DOLLAR-MASS KL.
 
@@ -1192,20 +1234,45 @@ def _memory_value_list_loss(
     rather than assumed.
     """
     tau = MEMORY_VALUE_LIST_TAU if tau is None else float(tau)
+    collapse_episodes = (EPISODE_CLUSTER_COLLAPSE if collapse_episodes is None
+                         else bool(collapse_episodes))
+    gap_seconds = (EPISODE_CLUSTER_GAP_SECONDS if gap_seconds is None
+                   else int(gap_seconds))
     empty = MappingProxyType({"groups": 0, "rows": 0, "skips": {},
-                              "list_coverage": 0.0})
+                              "list_coverage": 0.0,
+                              "episode_cluster_collapse": collapse_episodes,
+                              "clusters": 0})
     if not records:
         return None, empty
     by_group: dict[tuple[str, int], list[Mapping[str, Any]]] = {}
     for record in records:
         by_group.setdefault((record["asset"], record["day"]), []).append(record)
-    losses = []; used_rows = 0; total_rows = 0
+    losses = []; used_rows = 0; total_rows = 0; clusters_used = 0
     skips: dict[str, int] = {}
     for key in sorted(by_group):
         group = by_group[key]
         scores = torch.cat([record["scores"] for record in group])
         gains = torch.cat([record["gains"] for record in group])
         total_rows += int(sum(int(record["rows"]) for record in group))
+        if collapse_episodes:
+            decisions = np.concatenate([
+                np.asarray(record["decisions"], np.int64) for record in group])
+            if len(decisions) != int(scores.numel()):
+                raise RealDiagnosticExecutorRefusal(
+                    "listwise episode clustering lost row alignment")
+            cluster_ids = _episode_clusters(decisions, gap_seconds=gap_seconds)
+            collapsed_scores = []; collapsed_gains = []
+            for cluster in np.unique(cluster_ids):
+                members = torch.as_tensor(
+                    np.nonzero(cluster_ids == cluster)[0], dtype=torch.long,
+                    device=scores.device)
+                # The episode is represented by its BEST candidate: one
+                # opportunity contributes one list entry, and the gradient
+                # reaches the candidate that would actually be taken.
+                collapsed_scores.append(scores.index_select(0, members).max())
+                collapsed_gains.append(gains.index_select(0, members).max())
+            scores = torch.stack(collapsed_scores)
+            gains = torch.stack(collapsed_gains)
         if int(scores.numel()) < 2:
             skips["SINGLE_CANDIDATE"] = skips.get("SINGLE_CANDIDATE", 0) + 1
             continue
@@ -1218,15 +1285,20 @@ def _memory_value_list_loss(
         log_q = torch.log_softmax(scores / tau, dim=0)
         losses.append(-(target * log_q).sum())
         used_rows += int(scores.numel())
+        clusters_used += int(scores.numel())
     if not losses:
         return None, MappingProxyType({
             "groups": len(by_group), "rows": 0, "skips": dict(skips),
-            "list_coverage": 0.0})
+            "list_coverage": 0.0,
+            "episode_cluster_collapse": collapse_episodes, "clusters": 0})
     receipt = MappingProxyType({
         "groups": len(by_group), "rows": int(used_rows),
         "skips": dict(skips),
         "list_coverage": (used_rows / total_rows) if total_rows else 0.0,
         "tau": float(tau),
+        "episode_cluster_collapse": collapse_episodes,
+        "episode_cluster_gap_seconds": int(gap_seconds),
+        "clusters": int(clusters_used),
     })
     return torch.stack(losses).mean(), receipt
 
@@ -1675,6 +1747,7 @@ def _base_stage_fix_receipt(
     identity_validation_status: str = IDENTITY_VALIDATION_TRAINED,
     list_receipts: Sequence[Mapping[str, Any]] = (),
     unshuffleable_sessions: int = 0,
+    fit_block_days: Any = "FULL_COMPETENCE_POPULATION",
 ) -> Mapping[str, Any]:
     """Every law the encoder-training fix pass introduced, receipted.
 
@@ -1687,6 +1760,7 @@ def _base_stage_fix_receipt(
             f"base-stage stop reason {stop_reason!r} is untyped")
     return {
         "validation_window": dict(validation_window_receipt),
+        "fit_block_days": fit_block_days,
         "reconstruction_target_scope": dict(scope_receipt),
         "governed_traces": tuple(governed),
         "governed_trace_values": tuple(
@@ -1739,6 +1813,17 @@ def _base_stage_fix_receipt(
         "memory_value_occluded_margin": tuple(
             float(row["memory_value_occluded_margin"]) for row in trace),
         "memory_value_baseline_law": MEMORY_VALUE_BASELINE_LAW,
+        "memory_value_probe_kinds": MEMORY_VALUE_PROBE_KINDS,
+        "memory_value_linear_probe_law": MEMORY_VALUE_LINEAR_PROBE_LAW,
+        "memory_value_acceptance_rule": MEMORY_VALUE_ACCEPTANCE_RULE,
+        "memory_value_linear_trace": tuple(
+            float(row["memory_value_linear"]) for row in trace),
+        "memory_value_linear_shuffled_baseline": tuple(
+            float(row["memory_value_linear_shuffled"]) for row in trace),
+        "memory_value_linear_margin": tuple(
+            float(row["memory_value_linear_margin"]) for row in trace),
+        "episode_cluster_collapse": EPISODE_CLUSTER_COLLAPSE,
+        "episode_cluster_gap_seconds": EPISODE_CLUSTER_GAP_SECONDS,
         "memory_value_shuffle_seed": MEMORY_VALUE_SHUFFLE_SEED,
         "memory_value_unshuffleable_sessions": int(unshuffleable_sessions),
         "memory_value_fit_weight_law": MEMORY_VALUE_FIT_WEIGHT_LAW,
@@ -8350,7 +8435,16 @@ class ProductionExactDiagnosticResources:
         torch.cuda.empty_cache()
         return final
 
-    def _encode(self, model, arm: str):
+    def _encode(self, model, arm: str, *,
+                fit_days: frozenset[int] | None = None):
+        """Train the arm's real encoder.
+
+        ``fit_days`` restricts the FIT BLOCK to a set of trading days (the
+        harness's inner development folds).  The stage's own trailing held
+        window is then carved out of that block, so training never sees a
+        fold's scored days.  ``None`` keeps the production behaviour exactly:
+        the whole competence population is the fit block.
+        """
         stage_wall: dict[str, float] = {"collects_s": 0.0}
         model.to(self.device)
         # Ruling 20: the arch snapshot comes from _models() construction
@@ -8384,7 +8478,12 @@ class ProductionExactDiagnosticResources:
         projection = (CandidateIdentityProjection().to(self.device)
                       if identity_enabled else None)
         memory_value_probe = MemoryValueProbe(
-            n_value_bins=model.head.n_value_bins).to(self.device)
+            n_value_bins=model.head.n_value_bins, kind="mlp").to(self.device)
+        # Section 4's second probe.  It reads the SAME memory through a
+        # detached tensor, so adding an acceptance instrument cannot change
+        # the training signal it exists to audit.
+        memory_value_linear_probe = MemoryValueProbe(
+            n_value_bins=model.head.n_value_bins, kind="linear").to(self.device)
         parameter_groups, optimizer_group_receipt = _base_stage_parameter_groups(
             model, arm, 1e-3)
         optimizer = _run_optimizer(
@@ -8406,11 +8505,24 @@ class ProductionExactDiagnosticResources:
         memory_value_optimizer = _run_optimizer(
             lambda: torch.optim.AdamW(memory_value_probe.parameters(), lr=1e-3),
             category="CANARY", fit_id=f"arm/{arm}/memory-value-probe")
+        memory_value_linear_optimizer = _run_optimizer(
+            lambda: torch.optim.AdamW(
+                memory_value_linear_probe.parameters(), lr=1e-3),
+            category="CANARY", fit_id=f"arm/{arm}/memory-value-probe-linear")
+        # Section 4: the fit block is the whole competence population in
+        # production, and ONE inner development fold in the harness.
+        fit_batches = tuple(self.batches if fit_days is None
+                            else [b for b in self.batches
+                                  if int(b.day) in fit_days])
+        if not fit_batches:
+            raise RealDiagnosticExecutorRefusal(
+                "the arm fit block is empty for the requested fold")
         # Section 4.5: 26 held reconstruction rows cannot certify preservation.
         _validation_days, validation_window_receipt = _widened_validation_days(
-            self.batches)
+            fit_batches)
         validation_days = set(_validation_days)
-        training_batches = tuple(b for b in self.batches if b.day not in validation_days)
+        training_batches = tuple(b for b in fit_batches
+                                 if b.day not in validation_days)
         if not training_batches:
             raise RealDiagnosticExecutorRefusal("arm training-day population is empty")
         by_day: dict[tuple[str, int], list[_CandidateBatch]] = {}
@@ -8488,6 +8600,7 @@ class ProductionExactDiagnosticResources:
         _base_stage_start = time.monotonic()
         for epoch in range(_base_spec.max_epochs):
             model.train(); decoder.train(); memory_value_probe.train()
+            memory_value_linear_probe.train()
             if projection is not None:
                 projection.train()
             named = [*model.named_parameters(), *((f"decoder.{name}", parameter)
@@ -8499,11 +8612,13 @@ class ProductionExactDiagnosticResources:
                 optimizer.zero_grad(set_to_none=True)
                 decoder_optimizer.zero_grad(set_to_none=True)
                 memory_value_optimizer.zero_grad(set_to_none=True)
+                memory_value_linear_optimizer.zero_grad(set_to_none=True)
                 if identity_optimizer is not None:
                     identity_optimizer.zero_grad(set_to_none=True)
                 oracle_losses = []; reconstruction_losses = []; component_rows = []
                 memory_value_losses = []; identity_records = []
                 memory_value_records = []; component_probe_rows = []
+                linear_losses = []; linear_records = []
                 for batch in by_day[day_key]:
                     static = batch.static_features.to(self.device) if arm in ("L1", "M1") else None
                     out = model(
@@ -8550,6 +8665,12 @@ class ProductionExactDiagnosticResources:
                         memory_value_record = _memory_value_probe_loss(
                             memory_value_probe, out.raw_memory, batch)
                     memory_value_records.append(memory_value_record)
+                    linear_loss, _linear_components, linear_record = \
+                        _memory_value_probe_loss(
+                            memory_value_linear_probe,
+                            out.raw_memory.detach(), batch)
+                    linear_losses.append(linear_loss)
+                    linear_records.append(linear_record)
                     if identity_enabled:
                         record, skipped = _identity_cropped_views(
                             model.encoder, batch, out.raw_memory, projection,
@@ -8579,6 +8700,15 @@ class ProductionExactDiagnosticResources:
                 if list_family is not None:
                     memory_value_family = (memory_value_family
                                            + MEMORY_VALUE_LIST_WEIGHT * list_family)
+                # The linear read-out trains its OWN weights on a detached
+                # memory; it never joins the encoder's objective.
+                linear_family = torch.stack(linear_losses).sum()
+                linear_list, _linear_list_receipt = _memory_value_list_loss(
+                    linear_records)
+                if linear_list is not None:
+                    linear_family = (linear_family
+                                     + MEMORY_VALUE_LIST_WEIGHT * linear_list)
+                linear_family.backward()
                 identity_family, identity_step_receipt = (
                     _candidate_identity_loss(identity_records)
                     if identity_records else (None, None))
@@ -8662,6 +8792,7 @@ class ProductionExactDiagnosticResources:
                     steps_per_epoch=len(by_day), warmup_epochs=warmup_epochs)
                 optimizer.step(); decoder_optimizer.step()
                 memory_value_optimizer.step()
+                memory_value_linear_optimizer.step()
                 if identity_optimizer is not None:
                     identity_optimizer.step()
                 updates += 1
@@ -8679,13 +8810,16 @@ class ProductionExactDiagnosticResources:
             memory_value_validation_records = []
             shuffled_validation_records = []
             occluded_validation_records = []
+            linear_parts = []; linear_shuffled_parts = []
+            linear_validation_records = []; linear_shuffled_records = []
             unshuffleable_sessions = 0
             identity_validation_groups: dict[tuple[str, int], list] = {}
             model.eval(); decoder.eval(); memory_value_probe.eval()
+            memory_value_linear_probe.eval()
             if projection is not None:
                 projection.eval()
             with torch.no_grad():
-                for batch in (value for value in self.batches
+                for batch in (value for value in fit_batches
                               if value.day in validation_days):
                     out = model(
                         event_continuous=batch.continuous.to(self.device),
@@ -8731,7 +8865,21 @@ class ProductionExactDiagnosticResources:
                             memory_value_probe,
                             torch.zeros_like(out.raw_memory), batch)
                     occluded_validation_records.append(occluded_validation_record)
+                    # Section 4's second probe, scored in the SAME run on the
+                    # same two planes: acceptance passes on EITHER probe, and
+                    # the shuffled null must fail BOTH.
+                    linear_validation, _linear_c, linear_validation_record = \
+                        _memory_value_probe_loss(
+                            memory_value_linear_probe, out.raw_memory, batch)
+                    linear_validation_records.append(linear_validation_record)
+                    linear_shuffled_validation, _linear_s, \
+                        linear_shuffled_record = _memory_value_probe_loss(
+                            memory_value_linear_probe, shuffled_memory, batch)
+                    linear_shuffled_records.append(linear_shuffled_record)
                     count = len(batch.candidate_ids)
+                    linear_parts.append((float(linear_validation), count))
+                    linear_shuffled_parts.append(
+                        (float(linear_shuffled_validation), count))
                     validation_parts.append((
                         float(oracle_validation + field_validation), count))
                     oracle_parts.append((float(oracle_validation), count))
@@ -8772,6 +8920,10 @@ class ProductionExactDiagnosticResources:
                 shuffled_parts, shuffled_validation_records)
             occluded_baseline, _occluded_list_receipt = _with_list(
                 occluded_parts, occluded_validation_records)
+            linear_value, _linear_list_receipt = _with_list(
+                linear_parts, linear_validation_records)
+            linear_shuffled_value, _linear_shuffled_receipt = _with_list(
+                linear_shuffled_parts, linear_shuffled_records)
             traces = {"oracle": _held_mean(oracle_parts),
                       "recon": _held_mean(recon_parts),
                       "memory_value": memory_value_validation_value}
@@ -8831,6 +8983,10 @@ class ProductionExactDiagnosticResources:
                               occluded_baseline - traces["memory_value"],
                           "memory_value_list_coverage": float(
                               list_validation_receipt["list_coverage"]),
+                          "memory_value_linear": linear_value,
+                          "memory_value_linear_shuffled": linear_shuffled_value,
+                          "memory_value_linear_margin":
+                              linear_shuffled_value - linear_value,
                           "train_auroc": train_metrics[0],
                           "train_ap": train_metrics[1],
                           "train_bce": train_metrics[2],
@@ -8852,6 +9008,8 @@ class ProductionExactDiagnosticResources:
                     ({name: value.detach().cpu().clone()
                       for name, value in projection.state_dict().items()}
                      if projection is not None else None),
+                    {name: value.detach().cpu().clone() for name, value
+                     in memory_value_linear_probe.state_dict().items()},
                 )
             if verdict["all_stale"]:
                 stop_reason = "CONVERGED"
@@ -8872,6 +9030,7 @@ class ProductionExactDiagnosticResources:
         memory_value_probe.load_state_dict(best[3], strict=True)
         if projection is not None and best[4] is not None:
             projection.load_state_dict(best[4], strict=True)
+        memory_value_linear_probe.load_state_dict(best[5], strict=True)
         # R2: the memory-value probe at the SELECTED checkpoint is the
         # acceptance instrument the harness scores in held-day dollars.  It is
         # a discarded diagnostic head: stashed on the provider, never part of
@@ -8879,6 +9038,9 @@ class ProductionExactDiagnosticResources:
         if getattr(self, "_memory_value_probes", None) is None:
             self._memory_value_probes = {}
         self._memory_value_probes[arm] = memory_value_probe
+        if getattr(self, "_memory_value_linear_probes", None) is None:
+            self._memory_value_linear_probes = {}
+        self._memory_value_linear_probes[arm] = memory_value_linear_probe
         reload_sha256 = _sha({
             "model": _sha_bytes(module_state_bytes(model)),
             "decoder": _sha_bytes(module_state_bytes(decoder)),
@@ -9135,7 +9297,12 @@ class ProductionExactDiagnosticResources:
                                   identity_validation_status=(
                                       identity_validation_status),
                                   list_receipts=tuple(list_receipts),
-                                  unshuffleable_sessions=unshuffleable_sessions),
+                                  unshuffleable_sessions=unshuffleable_sessions,
+                                  fit_block_days=(
+                                      "FULL_COMPETENCE_POPULATION"
+                                      if fit_days is None
+                                      else tuple(sorted(int(day) for day
+                                                        in fit_days)))),
                               "best_validation": best_validation,
                               "best_reload_sha256": reload_sha256,
                               "decoder_sha256": _sha_bytes(module_state_bytes(decoder)),

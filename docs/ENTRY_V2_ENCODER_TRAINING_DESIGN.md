@@ -200,3 +200,17 @@ Leave the harness / enter the paid run only when, stable across 2 seeds, M1:
 3. recon within its measured-feasible band (1e-3 target),
 with F3 weights set by the two-point (init + epoch-3) gradient-share
 measurement, single-auxiliary share caps, and the conflict-cosine receipted.
+
+## R7 — Q1 measured floors and the acceptance currency (2026-08-19)
+Q1 (shallow-feature premise test, held days 0802-0813): oracle top-3 = SI
+$5,123 / HG $3,743 / NKD $2,171 per day — the opportunity is confirmed at
+candidate grain on unseen days. But EVERY shallow model is ~$0 or negative
+per day at the top — including geometry at AUROC 0.702 (−$41/day): AUROC is
+NOT the goal currency; top-rank precision is. Therefore:
+- The memory-value probe's acceptance (R2/R6) is measured in HELD-DAY TOP-3
+  DOLLARS (certified minus frozen cost), not AUROC: memory-only selection
+  must beat the memory-occluded baseline in $/day, and the harness tracks
+  progress against the Q1 floors (tape-stat CatBoost) toward the oracle.
+- The Q1 script (scratchpad q1_tape_value_test.py) is the harness's
+  reference implementation for this metric.
+- Gate-5 (identity) and reconstruction remain necessary floors only.

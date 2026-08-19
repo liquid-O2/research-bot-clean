@@ -8382,10 +8382,14 @@ class ProductionExactDiagnosticResources:
             if measured_drop is None:
                 raise RealDiagnosticExecutorRefusal(
                     "raw-memory occlusion AUROC margin was never measured")
-            if (occlusion_delta <= 0.0
-                    or measured_drop < RAW_MEMORY_OCCLUSION_MIN_AUROC_DROP):
+            # Rulings 16/19 taxonomy: the SHAPE check (occlusion produces a
+            # numerically live path) stays hard; the AUROC-margin outcome is
+            # the CAPABILITY verdict already typed in gate-5 (occlusion.pass)
+            # — an arm whose decision ignores its memory is a typed loser
+            # (measured live: L0 drop 0.008), never a chain abort.
+            if occlusion_delta <= 0.0:
                 raise RealDiagnosticExecutorRefusal(
-                    "decision ignores raw event memory")
+                    "raw-memory occlusion path is numerically dead")
 
         # Five independent real-clock signatures: recent raw block, 0-60s,
         # 60-300s, 300-900s and older history.

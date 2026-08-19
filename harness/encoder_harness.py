@@ -964,8 +964,8 @@ def main(argv=None) -> int:
           flush=True)
 
     if args.json_out:
-        os.makedirs(os.path.dirname(os.path.abspath(args.json_out)),
-                    exist_ok=True)
+        Path(args.json_out).expanduser().resolve().parent.mkdir(
+            parents=True, exist_ok=True)
         payload = {
             "arm": args.arm, "applied_constants": applied,
             "fold": calendar,

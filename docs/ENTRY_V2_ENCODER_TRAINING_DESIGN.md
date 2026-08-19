@@ -214,3 +214,27 @@ NOT the goal currency; top-rank precision is. Therefore:
 - The Q1 script (scratchpad q1_tape_value_test.py) is the harness's
   reference implementation for this metric.
 - Gate-5 (identity) and reconstruction remain necessary floors only.
+
+## R8 — M1 optimization stability (R4-measured, new)
+Governor-free M1 trace: validation OSCILLATES (16.35/16.58/16.08/16.35),
+grad-norm spikes 13k->23k, parameter-delta spikes 32->223, and action
+REGRESSES after ep3 (0.701 -> 0.752). L0 descends smoothly under identical
+law — this is M1-specific. Fix, harness-measured: (a) encoder param-group lr
+0.3x for the GRU banks + linear warmup over the first epoch; (b) if spikes
+persist, per-group clip (encoder 0.5) — constants from the harness traces,
+receipted. Acceptance: monotone-ish val descent (no >1% regressions) over 10
+epochs.
+
+## R9 — Reconstruction target scope (R4-measured)
+field_continuous = 10.2-11.3 of ~16.3 total (~2/3 of every gradient step)
+and DOES NOT DESCEND for either encoder family; its worst columns are the
+absolute-clock z-scores (ts_recv/ts_event sec/us/ns, MAE ~1.1) which are
+unreconstructable BY DESIGN (within-session variance ~0.007 sigma — the
+target is effectively the date). Law change: the last-row reconstruction
+TARGET excludes the six absolute-clock columns (they remain INPUTS/routes;
+gate-2 still proves their routing); the preservation law applies to
+decision-relevant fields (prices, sizes, counts, flows, undefined-masks,
+categoricals). Combined with F3's share caps this frees the majority of the
+gradient budget for value/identity learning. The reconstruction threshold is
+then re-measured in the harness (R5 band for L-arms; 1e-3 target for M1 on
+the scoped fields).

@@ -1206,14 +1206,20 @@ class InnerFoldCalendarTest(unittest.TestCase):
         calendar = harness.fold_calendar(sparse, 1)
         self.assertEqual(list(calendar["fit_days"]), sparse[:12])
         self.assertEqual(list(calendar["score_days"]), sparse[12:17])
-        # 22 fit + 5 scored days do not exist here, so fold 3 refuses rather
-        # than quietly running short.
-        with self.assertRaisesRegex(ValueError, "needs 27 trading days"):
-            harness.fold_calendar(sparse, 3)
+        # 22 fit + 5 scored days do not exist here; the amended law (the
+        # real diagnostic corpus carries only 8 pre-CONFIRM days) falls back
+        # to chained proportional folds: 2-day score blocks carved from the
+        # era's end, fold 3 taking the final block.
+        calendar3 = harness.fold_calendar(sparse, 3)
+        self.assertEqual(list(calendar3["fit_days"]), sparse[:15])
+        self.assertEqual(list(calendar3["score_days"]), sparse[15:17])
+        self.assertEqual(calendar3["fit_days"][-1], 20210722)
 
     def test_a_short_corpus_refuses_rather_than_running_a_short_fold(self):
         harness = self._harness()
-        with self.assertRaisesRegex(ValueError, "trading days inside"):
+        # Even the proportional fallback needs >=4 fit days + a 2-day score
+        # block; a 2-day corpus refuses with the typed unavailability.
+        with self.assertRaisesRegex(ValueError, "proportional fold"):
             harness.fold_calendar([20210701, 20210702], 1)
 
     def test_an_untyped_fold_refuses(self):

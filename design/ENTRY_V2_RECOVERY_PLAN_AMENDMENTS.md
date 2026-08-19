@@ -535,3 +535,20 @@ pass and the one real fit-only rehearsal. They add no new user law.
    `RAW_ROUTE_FIELDS` order remains the binding law for existing durable
    planes (reused under A-017 identity checks); the source builder is fixed so
    future materializations are lawful at the source.
+
+## Rulings 8-21 (2026-08-19 session; code landed and committed live, text re-landed at this launch batch per the pin law)
+
+- **Ruling 8** — the competence-gate populations draw from the preflight-certified full fit-only window (supersedes the B-26 post-split quota that starved SI).
+- **Ruling 9** — the six-horizon base-stage loss weight moves to 1.0 (measured gradient share).
+- **Ruling 10** — stage epoch ceilings are enabling-only: base 40 / head 24 via STAGE_SPECS; patience and the 0.1% min-improvement governors unchanged.
+- **Ruling 11** — the fit-only goal gate is dual-denominated: >=80% of the GOAL-GRADE (>=$600) ceiling OR >=90% of the prophet-through-funnel on the same asset/block; absolute economics laws unchanged.
+- **Ruling 12** — threshold selection uses the day-clustered LCB (mean - std/sqrt(n)); the point-argmax is receipted as comparison.
+- **Ruling 13** — head loss weights are the measured gradient-share set (action 2.5, ordinal 4.0, value_distribution 1.0, value_quantiles 2.0, expected_value 1.0, top3 .75, rank .4, mfe_q .9, mae_q .9, wall .7, time_to_peak .25, horizons 4.5, phase .6).
+- **Ruling 14** — a degenerate calibrator on objective-screen/diagnostic paths is a TYPED path status (SCREEN_-prefixed token class); the hard refusal binds prophet and arm paths only.
+- **Ruling 15** — an objective whose loss is typed-UNAVAILABLE across every batch of one asset carries UNAVAILABLE_LOW_SUPPORT (Holm skips it); never an untyped screen abort.
+- **Ruling 16** — gate-5 competence outcomes are TYPED PER-ARM VERDICTS: failed arms continue as ledger evidence and are excluded from the selectable pool (fail-closed on missing verdicts); all-fail flows to NO_FIT_ONLY_DEPLOYABLE_DEPTH; A-020's launch law unchanged.
+- **Ruling 17** — the arm base stage runs the full pointwise_dense STAGE_SPECS law; A-012's 400-update ceiling binds only the discarded acceptance clones.
+- **Ruling 18** — the last-row reconstruction loss is a lawful auxiliary of the shared base optimizer (disclosed via field_survival_shaping; certified on held reconstruction days); supersedes B-17's isolation, which made the gate structurally unsatisfiable (measured at plateau).
+- **Ruling 19** — reconstruction is a typed per-arm verdict (ill-posed by construction for broadcast memories — the factorial's attribution evidence); per-candidate arms must certify to remain selectable.
+- **Ruling 20** — route-aliveness mutation gates judge a pre-training architecture clone (snapshots at model construction, before cross-arm transfer); trained per-field sensitivities are receipted evidence; suffix/teacher-isolation checks bind the deployed weights. Probe row = the decision edge (cutoff-1).
+- **Ruling 21** — the capture>1.0 anomaly law binds the EXACT-OFFER ceiling (the replay layer, R-B2); goal-grade capture is the ruling-11 gate ratio and is reported unbounded (a lawful unfiltered replay may exceed the >=$600-filtered ceiling; measured live on the prophet control).

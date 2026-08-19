@@ -51,7 +51,7 @@ AUTHORITY_SHA256 = MappingProxyType({
     "design/ENTRY_V2_RECOVERY_PLAN.md":
         "03c4f70b3ae8f9e2c36cd60d7af3dad184b191a5bddcd6fcd6fcd876776337db",
     "design/ENTRY_V2_RECOVERY_PLAN_AMENDMENTS.md":
-        "76eb38089f0049e55e21c326c23f595f831cc1fda4a1ef6a807033bce63ff3d7",
+        "8e6d6cd209844bee6dd1796ae6f71880b14b37daa293007b2b564e806ab92f03",
 })
 
 GOVERNING_PATHS = tuple(sorted((*CODE_PATHS, *AUTHORITY_SHA256)))

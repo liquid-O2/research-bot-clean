@@ -119,3 +119,84 @@ amendments re-land + dual re-pin → the ONE real run.
 - Tests: red-first law tests for the per-trace governor and the typed
   broadcast-identity refusal; harness smoke for shapes (the session-batch
   InfoNCE gather is exactly the class that bit gate-5 — write the smoke FIRST).
+
+---
+
+# REVISION 2 (2026-08-19, post Fable adversarial review — supersedes conflicting §§ above)
+
+The independent review confirmed F2/F3/harness discipline and found five real
+defects. The implemented design is THIS revision.
+
+## R1 — F1 re-targeted (the last-row target is struck)
+The drafted target sg(h(last-row features)) is degenerate: InfoNCE over it is
+optimally solved by a last-tick snapshot — informationally the neighbor of the
+static geometry already measured at ~$0/day. Replacement, in order:
+- PRIMARY: **cropped-view positive** — positive pair = (memory of the full
+  window, sg-target of the same window truncated by k∈{1..8} trailing events);
+  negatives = same-session candidates. Structurally forbids last-row-only
+  solutions (the views differ in their last rows — matched content must be
+  depth). InfoNCE lives behind the projection head g (z-space invariance,
+  never on raw pooled memory — coexists with exact last-row reconstruction).
+- FALLBACK: multi-depth fingerprint target t_i = sg(R·φ_i), φ_i = fixed stats
+  over the last d events, d∈{1,4,16,64} (L) / {1,16,64,256} (M1), R seeded.
+- Both: L2-normalize z,t; dedupe same-cutoff candidates into one identity
+  class; exclude/down-weight negatives with tiny cutoff gaps (pre-registered);
+  typed refusal for <2 unique windows, (asset,day)-pooled negatives when
+  session K<8, receipted. τ measured in harness, tuning trace receipted.
+- LEAKAGE LAW (verified against code): identity loss uses the outcome-free
+  `base` weights or uniform ONLY (never action/top3/wall weights — those are
+  outcome-derived); a graph-walk assertion proves the identity loss's autograd
+  graph touches no target/teacher tensor; identity-validation on held days.
+
+## R2 — THE BRIDGE: memory-only oracle probe (the dollars link; new instrument)
+Fact-check adopted: the base stage is NOT label-free — _actual_multitask_loss
+already trains on teacher-joined oracle targets; the frozen law is
+train-once-freeze-memory. Therefore, lawfully and at near-zero cost:
+- A small discarded probe p(mem_i) (LastRowReconstructionProbe pattern,
+  CANARY-registered `arm/{arm}/memory-value-probe`) predicts a subset of the
+  ALREADY-IN-STAGE oracle targets (value_bin, top3, action) from the RAW
+  MEMORY ALONE, gradient into the encoder (ruling-18 disclosed-shaping
+  precedent). No new information class enters the stage.
+- Its held-day validation trace joins the F2 governed traces, and becomes THE
+  acceptance instrument (gate-5 is demoted to a sanity floor the moment F1
+  optimizes it — Goodhart): **memory-only held-day oracle loss must beat the
+  memory-OCCLUDED baseline by a pre-registered margin, and the occlusion drop
+  on held-day value metrics must be positive.** That is the untrained-on
+  measurement pointed at dollars.
+
+## R3 — F2 completed: the checkpoint law moves with the stopping law
+Stopping alone is a null fix (best-checkpoint selection would still reload the
+early oracle-plateau weights). Selection law: scale-free composite — each
+governed trace normalized by its own epoch-0 value; best checkpoint = min of
+the mean of normalized traces. Traces: oracle-val, recon-val, identity-val,
+memory-value-val (C-arms: no identity — typed). Per-trace 0.1% / patience 3;
+stop when ALL stale; ceiling 40 epochs.
+Wall ceilings ASYMMETRIC (measured epoch costs): C0 6 / C1 6 / L0 8 / L1 8 /
+M1 30 minutes (~58 total inside the 3h law). Stop reason receipted as
+CONVERGED vs WALL_CEILING — the distinction is itself a finding.
+
+## R4 — F4 struck; replaced by the free discriminating diagnostic
+L0/L1 have no GRU (nn.LSTM at model.py:326; GRUs are M1's). F4 is replaced in
+the harness by: governor OFF, 10 fixed epochs on L0, logging per-group
+grad-norms and parameter deltas (encoder.lstm | rest-of-encoder | head) plus
+per-component validation traces. Healthy grads + still-descending aux traces →
+it was the stopping law (F2 suffices). Vanishing encoder grads → add a
+correctly-named lstm param-group at 0.3x lr. Large grads + flat traces → R5.
+
+## R5 — L-arm reconstruction threshold: measured band, arch fix pre-registered
+The LiT patch pooling sum-pools 4-event patches with position signal only at
+patch level — exact last-row recovery at MAE 1e-3 is a DeepSets-inversion
+problem; the measured 0.4 plateau ≈ within-patch dispersion. Law: L-arm recon
+threshold becomes a MEASURED BAND from the harness (M1 keeps 1e-3 as target);
+the band-3 architecture action is pre-registered as intra-patch position
+embeddings before the sum (one line), triggered by R4's third outcome — NOT by
+identity non-convergence.
+
+## R6 — Acceptance rewritten (M1 is the deployable scale; "L0 or M1" struck)
+Leave the harness / enter the paid run only when, stable across 2 seeds, M1:
+1. memory-only held-day oracle trace beats the occluded baseline by the
+   pre-registered margin (R2), AND
+2. gate-5 raw-route >= 0.995 (sanity floor), AND
+3. recon within its measured-feasible band (1e-3 target),
+with F3 weights set by the two-point (init + epoch-3) gradient-share
+measurement, single-auxiliary share caps, and the conflict-cosine receipted.

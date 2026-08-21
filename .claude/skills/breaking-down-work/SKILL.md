@@ -64,6 +64,9 @@ states both, inline, at the step:
 - **A step you choose not to do stays in the list with `skip: <reason>`** (pstack
   `poteto-mode`, Playbooks). Deleting it hides the decision. A dimension that genuinely does
   not apply keeps its item with `n/a: <reason>` (pstack `feature` step 3).
+- **When a governing skill or playbook names steps for this situation, copy its steps into the
+  plan verbatim first, then adapt** (pstack `poteto-mode`: "copy its steps in verbatim").
+  Paraphrase is where the check that mattered quietly drops out.
 
 ## The throughput checkpoint — four items, before any fan-out
 Shape from pstack `feature` step 3. Write all four; answer or mark `n/a: <reason>`.
@@ -72,7 +75,7 @@ Shape from pstack `feature` step 3. Write all four; answer or mark `n/a: <reason
    serialize.
 3. **Shared mutable state** — default to *splitting the target*, not locking it (pstack
    `principle-separate-before-serializing-shared-state`). House form: one writer per artifact
-   path (briefing-agents:34).
+   path (briefing-agents, Red flags: two lanes writing the same file — assign ownership).
 4. **Smallest safe decomposition** — if one lane is best, name why. Attach the house resource
    clause here: workers × threads-per-worker ≤ HARDWARE.md's 13.6 cores, per lane
    (briefing-agents:25).
@@ -96,7 +99,7 @@ There is no issue tracker, so blocking edges and claims are text.
 5. **`## Out of scope` is a separate section and never graduates.** A mis-scoped ticket is
    *closed* with one line of why, so it stays off the frontier permanently. House analogs:
    `design/REFUTED/` and the scoped-null law — record every closure WITH its scope, "closed FOR
-   <representation/data/grain X>", never a bare closed (keeping-continuity:19).
+   <representation/data/grain X>", never a bare closed (keeping-continuity, Currency section).
 6. **One decision per session**, then record it: the answer in the ticket, a one-line gist
    appended to the map's `## Decisions so far`, and STATE.md's NEXT_ACTION repointed at the new
    frontier. The map is an **index, not a store** — each decision lives in exactly one place.

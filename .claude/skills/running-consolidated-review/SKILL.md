@@ -29,9 +29,11 @@ each finding 1-10 on three lenses: *exploitability/impact* (does the bad thing a
 on a reachable path?), *actionability* (is there a concrete fix, or only a worry?), and
 *precedent* (has this class been paid for here — check `DEFECT_CLASSES.md`?). **9-10** =
 demonstrated path, report as Critical. **8** = clear pattern, report. **7** = suspicious —
-report as Minor and ledger it, never as Critical. **Below 7 is not reported at all.** A lens
-that returns a wall of sub-7 findings has failed its brief and is re-run once with the floor
-restated, not merged. A finding leaves the review in exactly one of three states, and "dropped" is not one:
+report as Minor and ledger it, never as Critical. **Below 7 is not reported at all** — but the lens states
+the COUNT of sub-floor observations it withheld, so the merge sees the volume without the
+noise and no discard is fully silent (same move as the diff-scope lens's traced-line count).
+A lens that returns a wall of sub-7 findings has failed its brief and is re-run once with the
+floor restated, not merged. A finding leaves the review in exactly one of three states, and "dropped" is not one:
 1. **Fixed** in the single fix pass.
 2. **Ledgered as known-open** — a FINDINGS entry in STATE.md with file:line, severity, one line of why not now.
 3. **Adjudicated away**, in writing: `Ruling: <what was decided> — <why> — <what it costs if wrong>`.

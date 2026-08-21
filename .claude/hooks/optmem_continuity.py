@@ -357,8 +357,14 @@ SKILL_KEYWORD_MAP = (
     (("launch", "rehearsal", "long run", "experiment", "fit", "measure"),
      ("operating-long-runs", "preregistering-results", "running-evals")),
     (("review",), ("running-consolidated-review",)),
+    # breaking-down-work leads on big-work words: decomposition precedes the
+    # grilling/design/spec skills in time (installed 2026-08-21 skill port).
+    (("break down", "breakdown", "decompos", "multi-stage", "roadmap",
+      "too big", "stages"), ("breaking-down-work",)),
+    (("refactor",), ("breaking-down-work", "shaping-code-for-agents")),
     (("plan", "design", "spec", "freeze", "adopt"),
-     ("stress-testing-plans", "designing-it-twice", "sharpening-specs")),
+     ("breaking-down-work", "stress-testing-plans", "designing-it-twice",
+      "sharpening-specs")),
     (("commit", "tidy", "clean up", "stray"), ("tidying-workspace",)),
     (("done", "verified", "passing", "receipt"), ("verifying-with-receipts",)),
     (("gate", "threshold", "criterion"), ("encoding-goals-in-gates",)),
@@ -416,7 +422,20 @@ SUBAGENT_NUDGE = (
 )
 
 
+LANE_ACTIVE_TTL_S = 5400
+
+
 def do_subagentstart(payload: dict) -> None:
+    # Lanes cannot register Skill engagements in the transcript the gate
+    # reads (their transcripts are separate files) — a lane was falsely
+    # denied 4x on 2026-08-21. Lanes are governed by briefs + orchestrator
+    # diff verification (D-002/D-010); mark the window so the gate defers.
+    sid = (payload.get("session_id") or "nosid")[:32]
+    try:
+        HOOK_STATE.mkdir(parents=True, exist_ok=True)
+        (HOOK_STATE / f"{sid}.lane_active").write_text(now())
+    except Exception:
+        pass
     print(json.dumps({
         "hookSpecificOutput": {
             "hookEventName": "SubagentStart",
@@ -448,8 +467,16 @@ TDD_MARKER_TTL_S = 1200
 
 def _session_engaged_marker_skill(payload: dict, sid: str) -> bool:
     """True while this session holds a FRESH marker-skill engagement.
-    Cached in a marker file with a TTL so re-invocation stays required."""
+    Cached in a marker file with a TTL so re-invocation stays required.
+    A recently spawned lane defers the gate (subagent engagements are
+    invisible to this transcript — see do_subagentstart)."""
     HOOK_STATE.mkdir(parents=True, exist_ok=True)
+    lane = HOOK_STATE / f"{sid}.lane_active"
+    try:
+        if lane.exists() and time.time() - lane.stat().st_mtime < LANE_ACTIVE_TTL_S:
+            return True
+    except Exception:
+        pass
     marker = HOOK_STATE / f"{sid}.tdd_ok"
     try:
         if marker.exists():

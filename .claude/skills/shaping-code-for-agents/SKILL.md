@@ -17,5 +17,8 @@ From Akita, "Clean Code for AI Agents" (2026): clean code stopped being taste an
 7. **One-command tests**, no manual setup or external secrets; deterministic. "Good tests are the difference between a productive agent and one that keeps guessing."
 8. **DRY matters more for agents**: they don't notice copies; each copy must be grepped and edited separately. Duplication is an automated-refactor hazard.
 
+## Files we will not split
+Some modules are frozen research code where a split would break identity or provenance. Those get an anchor structure instead of a refactor: any file over ~800 lines that will not be split carries `# === SECTION: <anchor> ===` banners and a MAP in the module docstring listing every anchor with one line of what lives there. Read such a file **by anchor** (grep the banner, read the range), never whole — an agent reads roughly 2000 lines per chunk and is not told where it was cut off, so a 13,804-line module read "completely" is silently a fifth of the file. A file with no MAP and no anchors is either small enough to read whole or is a defect.
+
 ## When refactoring toward this
 Surgical only: split/rename with behavior frozen and tests green before and after; never mix shape changes with logic changes in one pass.

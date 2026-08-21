@@ -11,7 +11,7 @@ Silent shape drift across a boundary corrupts downstream results without errorin
 
 ## Recipe
 1. **Name the boundary** and its two sides (producer file:line, consumer file:line).
-2. **Key-set assertion**: exact column/field names AND order where order is identity (dense stores). Extra key = failure; missing key = failure; reordered = failure unless the consumer is order-free by proof.
+2. **Key-set assertion**: exact column/field names AND order where order is identity (dense stores). Extra key = failure; missing key = failure; reordered = failure unless the consumer is order-free by proof. **The failure message carries the evidence, not a category**: `missing=`, `extra=`, `expected_width=`, `got_width=`, `source=file:line`. "Schema mismatch" and "invalid input" are banned at a boundary — they cost a debugging round to learn what the assertion already knew.
 3. **Dtype/width assertion**: builder width vs consumer expectation computed from the SAME source of truth (e.g. causal + COMPONENT_STACK_NAMES + ACTION_STATE_FEATURE_NAMES — never a parallel hand-list).
 4. **Temporal guard** (D-057): every joined series asserts availability_ts <= decision_ts strictly; keep the red-first future-join fixture that must be caught.
 5. **Fixture pair, hand-derived** (D-017 + FP guard): one deliberately-broken input the check must reject, one conforming input it must accept — and the fixture's expected key list is written out **by hand**, never generated from the same constant the assertion reads. A fixture built by the producer's own helper is a mirror assertion: it passes whether the contract holds or not.

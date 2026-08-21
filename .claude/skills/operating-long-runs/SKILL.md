@@ -15,6 +15,8 @@ Born of paid incidents: a night lost to a liveness FALSE alarm, another to a REA
 
 ## While running
 - Check LIVENESS before declaring death: nlwp/%cpu of the pid tree, newest artifact mtime, the stage's own heartbeat. 100%-CPU with no output can be real work (verify against the stage's expected cadence) or a deadlock — distinguish by strace/py-spy sample, never by vibes.
+- **When a check fails or a run looks dead, suspect the observation method before the system.** A blank artifact, a stale mtime, a heartbeat file nobody writes, `nproc` on this pod (`DEFECT_CLASSES.md:18` env-probe-lie) — verify the instrument, then the subject.
+- **A plateau is not a stop, and the predicate is not negotiable.** Pivot the approach or escalate a genuine dead end — never relax the exit predicate to declare victory.
 - A stall verdict has exactly two lawful exits: escalate to the owner, or freeze-and-audit the whole remaining chain (AGENTS.md rule 1) — never patch-and-relaunch.
 
 ## On failure

@@ -2,6 +2,67 @@
 
 **New session? Read `/workspace/START_HERE.md` FIRST** — it carries the mission, the reading order, and the current speed mandate. Then:
 
+<!-- Kept in sync with the "# MANDATORY: skills are law, not suggestions" block in AGENTS.md — edit both together. -->
+# MANDATORY: skills are law, not suggestions
+
+The routing table below is binding law. A matching situation means the skill is invoked at its trigger moment, before acting — never bulk-loaded for coverage, never skipped because the work "looks small".
+- **Per-turn nudge** (D-104.1): the UserPromptSubmit hook names the specific matching skills for your situation, not just this table.
+- **Edit|Write|Bash gate** (D-104.2, D-108): unskilled `engine/` and `tools/` work is DENIED at the tool call, with a stated reason; engagement markers expire after 20 minutes, so the skill is engaged near the edit, not once per session.
+- **Re-invoke before the high-stakes step** (D-104.4): a review, a freeze application, or a launch re-invokes its governing skill even if that skill is already in context — salience at the moment of application beats residual presence.
+- **After a compaction every previously loaded skill counts unloaded** (D-104.4): the PostCompact hook re-arms the gate and says so; you re-invoke.
+- **The unslop discipline binds every user-visible sentence** (writing-plainly): standing law injected every turn, not a polish pass at report time.
+
+## Autonomous skill routing — never wait to be told
+
+The user will not name skills. Trigger the matching skill from the situation:
+
+| Situation | Skill |
+|---|---|
+| Session start / post-compaction / unsure what was in progress / milestone done | keeping-continuity |
+| Entry V2, tabular CatBoost, rehearsal, economic gates, learning-result claims | entry-v2-goal |
+| Rough, spoken-style, or ambiguous request lands | sharpening-specs |
+| A plan or design is about to be adopted; assumptions or library/vendor behavior unverified | stress-testing-plans |
+| About to build a nontrivial new component or add a dependency | researching-first |
+| Unknown behavior blocks a design choice or estimate | spiking-prototypes |
+| Shaping an interface, module boundary, or format | designing-it-twice |
+| About to build or launch any pipeline/driver/model stage | running-evals |
+| Data crosses a boundary (Python↔C++, matrix/store schemas, staged artifacts) | checking-data-contracts |
+| A batch of work is ready for review | running-consolidated-review (ONE review, ONE fix pass — never review→fix→review) |
+| Just fixed a bug | generalizing-fixes |
+| About to claim done/verified/passing | verifying-with-receipts |
+| Working tree accumulating strays; before commits | tidying-workspace |
+| Writing anything the user reads | writing-plainly |
+| Creating a module; refactoring an oversized/hard-to-grep file | shaping-code-for-agents |
+| A bug, test failure, or unexpected behavior appears | debugging-with-a-loop |
+| Creating or editing any skill | skill-creator:skill-creator |
+| Implementing any feature/constructor/bugfix, before writing code | driving-tests-first |
+| Launching, monitoring, or resuming any background run/lane; a run looks stalled | operating-long-runs |
+| Writing any prompt/brief/task card for a subagent, lane, or workflow | briefing-agents |
+| Launching any experiment/fit/screen; quoting any headline number | preregistering-results |
+| Writing or reviewing any PASS/FAIL gate, launch law, or economic threshold; a gate returns empty/degenerate output | encoding-goals-in-gates |
+| About to start a review, apply a freeze, or launch — even if the skill is already in context | re-invoke the governing skill (D-104.4: salience at the moment of application; after a compaction every previously loaded skill counts unloaded) |
+
+Skill files live at `/workspace/.claude/skills/<name>/SKILL.md`.
+<!-- Table kept in sync with the "## Skill routing" block in AGENTS.md — edit both together. -->
+
+## Commands
+
+- Tests: `python3 -m unittest <module>` (e.g. `engine.entry_v2.test_common`). **pytest is NOT installed.**
+- Memory: `~/.optmem/memo wake|note|nap|recall`.
+- A gate isn't done until its verified command line is recorded here or in the spec.
+- Probe/receipt tools carry their own tests: `python3 tools/<tool>.py --selftest` runs them without touching hardware (e.g. `tools/probe_gpu_quantile_bigfold.py`, `tools/receipt_gpu_fit_determinism.py`). Use that pattern for any new single-file tool.
+
+<!-- Kept in sync with the "## Coding conduct" block in AGENTS.md — edit both together. -->
+## Coding conduct (always on — Karpathy/Akita distillation)
+
+- **Think before coding**: state assumptions; if multiple interpretations exist, present them — never pick silently; if a simpler approach exists, say so.
+- **Stop when confused**: mid-work confusion is a STOP, not a guess — name what is unclear and ask. If the uncertainty is answerable by the repo or the box, it is a grep or a probe, so run it: stale-doc-read and env-probe-lie are both proceeding on an unverified premise.
+- **Simplicity first**: minimum code that solves the problem. No speculative features, single-use abstractions, unrequested configurability, or error handling for impossible states. Before showing it, ask whether a senior engineer would call it overcomplicated — if 200 lines could be 50, rewrite first.
+- **Surgical changes**: every changed line traces to the request. Don't improve adjacent code/comments/formatting; match existing style; remove only orphans YOUR change created; mention (don't delete) pre-existing dead code.
+- **Citations and WHY-comments survive refactors**: never strip a `D-`/`CC-`/`A-` ruling citation or a provenance comment in an unrelated change — 1,031 such citations across 206 `engine/` files are the only record of why a line is the way it is. Pre-land check: `git diff -U0 | grep -E '^-.*\b(D-[0-9]{3}|CC-|A-[0-9]{3})\b'`; every hit is a finding until explained.
+- **Code is agent infrastructure**: unique grep-able names (<5 hits repo-wide), typed signatures, files that fit one read (<500 lines), ~2 nesting levels max, errors carrying offending value + expected shape, comments saying WHY with provenance — never WHAT.
+- **Goal-driven**: every plan step carries its own `→ verify:` check; a bug fix starts from a red reproducing test.
+
 <!-- Kept in sync with the `## Memory` block at the top of AGENTS.md — edit both together. -->
 ## Memory
 
@@ -67,51 +128,6 @@ Before trusting any doc, verdict, or old transcript: `/workspace/CURRENT.md`
 (live line vs inherited narrative vs scoped closed questions). Hardware
 limits: `/workspace/HARDWARE.md` (nproc/free LIE on this pod — 13.6 cores,
 263 GiB, thread_count=16).
-
-## Commands
-
-- Tests: `python3 -m unittest <module>` (e.g. `engine.entry_v2.test_common`). **pytest is NOT installed.**
-- Memory: `~/.optmem/memo wake|note|nap|recall`.
-- A gate isn't done until its verified command line is recorded here or in the spec.
-
-## Autonomous skill routing — never wait to be told
-
-The user will not name skills. Trigger the matching skill from the situation:
-
-| Situation | Skill |
-|---|---|
-| Session start / post-compaction / unsure what was in progress / milestone done | keeping-continuity |
-| Entry V2, tabular CatBoost, rehearsal, economic gates, learning-result claims | entry-v2-goal |
-| Rough, spoken-style, or ambiguous request lands | sharpening-specs |
-| A plan or design is about to be adopted; assumptions or library/vendor behavior unverified | stress-testing-plans |
-| About to build a nontrivial new component or add a dependency | researching-first |
-| Unknown behavior blocks a design choice or estimate | spiking-prototypes |
-| Shaping an interface, module boundary, or format | designing-it-twice |
-| About to build or launch any pipeline/driver/model stage | running-evals |
-| Data crosses a boundary (Python↔C++, matrix/store schemas, staged artifacts) | checking-data-contracts |
-| A batch of work is ready for review | running-consolidated-review (ONE review, ONE fix pass — never review→fix→review) |
-| Just fixed a bug | generalizing-fixes |
-| About to claim done/verified/passing | verifying-with-receipts |
-| Working tree accumulating strays; before commits | tidying-workspace |
-| Writing anything the user reads | writing-plainly |
-| Creating a module; refactoring an oversized/hard-to-grep file | shaping-code-for-agents |
-| A bug, test failure, or unexpected behavior appears | debugging-with-a-loop |
-| Creating or editing any skill | skill-creator:skill-creator |
-| Implementing any feature/constructor/bugfix, before writing code | driving-tests-first |
-| Launching, monitoring, or resuming any background run/lane; a run looks stalled | operating-long-runs |
-| Writing any prompt/brief/task card for a subagent, lane, or workflow | briefing-agents |
-| Launching any experiment/fit/screen; quoting any headline number | preregistering-results |
-| Writing or reviewing any PASS/FAIL gate, launch law, or economic threshold; a gate returns empty/degenerate output | encoding-goals-in-gates |
-
-Skill files live at `/workspace/.claude/skills/<name>/SKILL.md`.
-
-## Coding conduct (always on — Karpathy/Akita distillation)
-
-- **Think before coding**: state assumptions; if multiple interpretations exist, present them — never pick silently; if a simpler approach exists, say so.
-- **Simplicity first**: minimum code that solves the problem. No speculative features, single-use abstractions, unrequested configurability, or error handling for impossible states.
-- **Surgical changes**: every changed line traces to the request. Don't improve adjacent code/comments/formatting; match existing style; remove only orphans YOUR change created; mention (don't delete) pre-existing dead code.
-- **Code is agent infrastructure**: unique grep-able names (<5 hits repo-wide), typed signatures, files that fit one read (<500 lines), ~2 nesting levels max, errors carrying offending value + expected shape, comments saying WHY with provenance — never WHAT.
-- **Goal-driven**: every plan step carries its own `→ verify:` check; a bug fix starts from a red reproducing test.
 
 <!-- Kept in sync with the "# Mandatory Entry V2 execution rules" block in AGENTS.md — edit both together. -->
 # Mandatory Entry V2 execution rules

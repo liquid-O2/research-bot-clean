@@ -58,6 +58,16 @@ A subagent is not: it must never run `memo`, because it cannot judge what
 is already known, and its notes would arrive duplicated and incorrectly.
 When you spawn one, write: `You are a subagent. Don't run memo.`
 
+<!-- Kept in sync with the "# MANDATORY: skills are law, not suggestions" block in CLAUDE.md — edit both together. -->
+# MANDATORY: skills are law, not suggestions
+
+The routing table below is binding law. A matching situation means the skill is invoked at its trigger moment, before acting — never bulk-loaded for coverage, never skipped because the work "looks small".
+- **Per-turn nudge** (D-104.1): the UserPromptSubmit hook names the specific matching skills for your situation, not just this table.
+- **Edit|Write|Bash gate** (D-104.2, D-108): unskilled `engine/` and `tools/` work is DENIED at the tool call, with a stated reason; engagement markers expire after 20 minutes, so the skill is engaged near the edit, not once per session.
+- **Re-invoke before the high-stakes step** (D-104.4): a review, a freeze application, or a launch re-invokes its governing skill even if that skill is already in context — salience at the moment of application beats residual presence.
+- **After a compaction every previously loaded skill counts unloaded** (D-104.4): the PostCompact hook re-arms the gate and says so; you re-invoke.
+- **The unslop discipline binds every user-visible sentence** (writing-plainly): standing law injected every turn, not a polish pass at report time.
+
 ## Skill routing — never wait to be told
 
 The user will not name skills. Trigger the matching skill from the situation.
@@ -85,8 +95,20 @@ pass — never review→fix→review.
 | Launching any experiment/fit/screen; quoting any headline number | preregistering-results |
 | Writing/reviewing any PASS gate or economic law; a gate returns empty/degenerate output | encoding-goals-in-gates |
 | Creating a module; refactoring an oversized/hard-to-grep file | shaping-code-for-agents |
+| About to start a review, apply a freeze, or launch — even if the skill is already in context | re-invoke the governing skill (D-104.4: salience at the moment of application; after a compaction every previously loaded skill counts unloaded) |
 
 Before trusting any doc or old transcript: /workspace/CURRENT.md. Hardware truth: /workspace/HARDWARE.md (nproc/free lie; 13.6 cores, 263 GiB).
+
+<!-- Kept in sync with the "## Coding conduct" block in CLAUDE.md — edit both together. -->
+## Coding conduct (always on — Karpathy/Akita distillation)
+
+- **Think before coding**: state assumptions; if multiple interpretations exist, present them — never pick silently; if a simpler approach exists, say so.
+- **Stop when confused**: mid-work confusion is a STOP, not a guess — name what is unclear and ask. If the uncertainty is answerable by the repo or the box, it is a grep or a probe, so run it: stale-doc-read and env-probe-lie are both proceeding on an unverified premise.
+- **Simplicity first**: minimum code that solves the problem. No speculative features, single-use abstractions, unrequested configurability, or error handling for impossible states. Before showing it, ask whether a senior engineer would call it overcomplicated — if 200 lines could be 50, rewrite first.
+- **Surgical changes**: every changed line traces to the request. Don't improve adjacent code/comments/formatting; match existing style; remove only orphans YOUR change created; mention (don't delete) pre-existing dead code.
+- **Citations and WHY-comments survive refactors**: never strip a `D-`/`CC-`/`A-` ruling citation or a provenance comment in an unrelated change — 1,031 such citations across 206 `engine/` files are the only record of why a line is the way it is. Pre-land check: `git diff -U0 | grep -E '^-.*\b(D-[0-9]{3}|CC-|A-[0-9]{3})\b'`; every hit is a finding until explained.
+- **Code is agent infrastructure**: unique grep-able names (<5 hits repo-wide), typed signatures, files that fit one read (<500 lines), ~2 nesting levels max, errors carrying offending value + expected shape, comments saying WHY with provenance — never WHAT.
+- **Goal-driven**: every plan step carries its own `→ verify:` check; a bug fix starts from a red reproducing test.
 
 
 # Mandatory Entry V2 execution rules

@@ -8,8 +8,10 @@ Verbs (argv[1], cross-checked against stdin hook_event_name):
   stop          spool + refresh snapshot (throttled). Print nothing.
   sessionend    spool + refresh snapshot
 
-Law: output-only, never blocks. Grok Stop additionalContext keeps the agent
-working — this script never prints decision/additionalContext on Stop.
+Law: continuity verbs are output-only and never block; the D-104 pretooluse
+gate MAY deny with a reason and fails OPEN on error (D-108 amends D-013).
+Grok Stop additionalContext keeps the agent working — this script never
+prints decision/additionalContext on Stop.
 Grok SessionStart stdout is ignored; the agent still runs memo wake.
 CONTINUITY.md is an overwritten token-bounded snapshot (backup if OptMem is down).
 """
@@ -211,10 +213,25 @@ def write_backup(payload: dict, event: str, extra: str = "") -> None:
         log(f"write_backup: {type(exc).__name__}: {exc}")
 
 
-def do_sessionstart(payload: dict) -> None:
+def do_sessionstart(payload: dict, verb: str = "") -> None:
     self_heal()
     wake = run_memo(["wake"], timeout=8).strip()
-    write_backup(payload, payload.get("hook_event_name") or "SessionStart")
+    event = (payload.get("hook_event_name") or "SessionStart")
+    # The real compact resume arrives as {"hook_event_name":"SessionStart",
+    # "source":"compact"} (hook.log: `sessionstart source=compact`); the
+    # postcompact verb only ever comes from argv. Both must re-arm.
+    is_postcompact = (
+        verb == "postcompact" or str(payload.get("source", "")).lower() == "compact"
+    )
+    sid = (payload.get("session_id") or "nosid")[:32]
+    if is_postcompact:
+        # Compaction drops skill text from context. Re-arm the D-104 edit
+        # gate so the next engine/tools edit forces re-engagement, and say so.
+        try:
+            (HOOK_STATE / f"{sid}.tdd_ok").unlink(missing_ok=True)
+        except Exception:
+            pass
+    write_backup(payload, event)
     parts = [
         "OptMem `memo wake` (if it asks a compression, run that `memo nap` "
         "before other work). If wake failed, read /workspace/CONTINUITY.md.",
@@ -228,6 +245,14 @@ def do_sessionstart(payload: dict) -> None:
             "Skill-usage ledger (previous sessions; skills=NONE on a session "
             "that edited code violated the routing law — audit it):\n```\n"
             + ledger_tail + "\n```"
+        )
+    if is_postcompact:
+        parts.append(
+            "POST-COMPACTION SKILL RESET: skill rules loaded before compaction "
+            "are NO LONGER in context (summaries are not the skill). The edit "
+            "gate has been re-armed. Re-invoke each skill at its next matching "
+            "situation per the CLAUDE.md routing table; the ledger above shows "
+            "what this session had engaged."
         )
     out = {
         "hookSpecificOutput": {
@@ -354,17 +379,24 @@ def do_userprompt(payload: dict) -> None:
             for s in skills:
                 if s not in named:
                     named.append(s)
-        if len(named) >= 3:
+        if len(named) >= 5:
             break
     nudge = ROUTING_NUDGE
     if named:
         nudge = (
             "Skill routing check (harness-enforced): this turn's situation "
-            "matches: " + ", ".join(named[:3]) + " — invoke each matching one "
+            "matches: " + ", ".join(named[:5]) + " — invoke each matching one "
             "via the Skill tool before acting (situations, not keywords, are "
             "the trigger; full table in /workspace/CLAUDE.md). Follow the "
             "coding-conduct block on any code change."
         )
+    # User order 2026-08-21: unslop binds ALWAYS, from the first sentence —
+    # a standing rule on every turn, not a routed suggestion.
+    nudge += (
+        " STANDING (writing-plainly, every user-visible sentence): verdict "
+        "first; plain words; no puffery, no filler-ing tails, no fragment/"
+        "arrow chains; calibrated hedging stays in research claims."
+    )
     print(json.dumps({
         "hookSpecificOutput": {
             "hookEventName": "UserPromptSubmit",
@@ -393,36 +425,48 @@ def do_subagentstart(payload: dict) -> None:
     }))
 
 
-# Routing gate (user ruling 2026-08-21): an engine/tools edit in a session that
-# never engaged a tests-first/review/debug skill is refused with the reason.
-# Matches real engagements only — a Skill tool call ("skill": "<name>") or a
-# read of the skill file (skills/<name>) — so injected nudge text that merely
-# NAMES a skill cannot satisfy the gate.
+# Routing gate (user ruling 2026-08-21, hardened per the 2026-08-21 enforcement
+# audit): an engine/tools edit in a session that never engaged a
+# tests-first/review/debug skill is refused with the reason. Matches REAL
+# engagements only — a Skill tool call ("skill": "<name>") or a tool call
+# whose file_path targets the SKILL.md — never a bare path substring, which
+# any ls/find output would contain (audit defect 2). The marker expires
+# (D-104.4: salience at the moment of application; audit defect 1).
 TDD_MARKER_SKILLS = (
     "driving-tests-first",
     "running-consolidated-review",
     "debugging-with-a-loop",
     "generalizing-fixes",
 )
+_TDD_NAMES = "|".join(TDD_MARKER_SKILLS)
 _TDD_MARKER_RE = (
-    r'(?:"skill"\s*:\s*"|skills/)(?:' + "|".join(TDD_MARKER_SKILLS) + r')'
+    r'(?:"skill"\s*:\s*"(?:' + _TDD_NAMES + r')"'
+    r'|"file_path"\s*:\s*"[^"]*skills/(?:' + _TDD_NAMES + r')/SKILL\.md")'
 )
+TDD_MARKER_TTL_S = 1200
 
 
 def _session_engaged_marker_skill(payload: dict, sid: str) -> bool:
-    """True once this session's transcript shows a marker-skill engagement.
-    Cached in a marker file so the transcript is not re-read on every edit."""
+    """True while this session holds a FRESH marker-skill engagement.
+    Cached in a marker file with a TTL so re-invocation stays required."""
     HOOK_STATE.mkdir(parents=True, exist_ok=True)
     marker = HOOK_STATE / f"{sid}.tdd_ok"
-    if marker.exists():
-        return True
+    try:
+        if marker.exists():
+            if time.time() - marker.stat().st_mtime < TDD_MARKER_TTL_S:
+                return True
+            marker.unlink(missing_ok=True)
+    except Exception:
+        pass
     try:
         raw = Path(payload.get("transcript_path") or "").read_bytes().decode(
             "utf-8", "replace")
     except Exception:
         return False
     import re as _re
-    if _re.search(_TDD_MARKER_RE, raw):
+    # Only the TAIL can renew an expired marker: an old engagement earlier in
+    # the transcript must not satisfy the gate forever (D-104.4).
+    if _re.search(_TDD_MARKER_RE, raw[-400_000:]):
         try:
             marker.write_text(now())
         except Exception:
@@ -431,16 +475,51 @@ def _session_engaged_marker_skill(payload: dict, sid: str) -> bool:
     return False
 
 
-def do_pretooluse(payload: dict) -> None:
-    """Edit|Write gate on engine/ and tools/ paths. Fails OPEN on any error —
-    a broken gate must never block lawful work."""
-    sid = (payload.get("session_id") or "nosid")[:32]
-    path = str((payload.get("tool_input") or {}).get("file_path") or "")
+# Bash write-verbs that can modify code without Edit|Write (audit defect 3).
+_BASH_WRITE_RE = (
+    r'(?:sed\s+-i|>\s*/?(?:workspace/)?(?:engine|tools)/'
+    r'|>>\s*/?(?:workspace/)?(?:engine|tools)/'
+    r'|\btee\s+(?:-a\s+)?/?(?:workspace/)?(?:engine|tools)/'
+    r'|\b(?:cp|mv)\s+[^|;&]*\s/?(?:workspace/)?(?:engine|tools)/)'
+)
+
+
+def _gate_verdict(payload: dict, sid: str) -> str | None:
+    """Return the offending target description, or None if allowed."""
+    tool = str(payload.get("tool_name") or "")
+    tool_input = payload.get("tool_input") or {}
+    if tool == "Bash":
+        command = str(tool_input.get("command") or "")
+        import re as _re
+        hit = _re.search(_BASH_WRITE_RE, command)
+        if not hit:
+            return None
+        if "test_" in command or "/tests/" in command:
+            return None
+        if _session_engaged_marker_skill(payload, sid):
+            return None
+        return "Bash write into engine/tools (" + hit.group(0).strip()[:40] + ")"
+    path = str(tool_input.get("file_path") or "")
     rel = path[len("/workspace/"):] if path.startswith("/workspace/") else path
-    gated = rel.startswith(("engine/", "tools/"))
     basename = rel.rsplit("/", 1)[-1]
-    is_test = basename.startswith("test_") or "/tests/" in rel
-    if not gated or is_test or _session_engaged_marker_skill(payload, sid):
+    if (not rel.startswith(("engine/", "tools/"))
+            or basename.startswith("test_") or "/tests/" in rel):
+        return None
+    if _session_engaged_marker_skill(payload, sid):
+        return None
+    return rel
+
+
+def do_pretooluse(payload: dict) -> None:
+    """Edit|Write|Bash gate on engine/ and tools/ code. Fails OPEN on any
+    error — a broken gate must never block lawful work."""
+    sid = (payload.get("session_id") or "nosid")[:32]
+    try:
+        offender = _gate_verdict(payload, sid)
+    except Exception as exc:
+        log(f"pretooluse fail-open: {type(exc).__name__}")
+        offender = None
+    if offender is None:
         print("{}")
         return
     print(json.dumps({
@@ -448,15 +527,15 @@ def do_pretooluse(payload: dict) -> None:
             "hookEventName": "PreToolUse",
             "permissionDecision": "deny",
             "permissionDecisionReason": (
-                "Routing gate: " + rel + " is engine/tools code but this "
-                "session has not engaged driving-tests-first (or a "
-                "review/debug skill). Invoke the matching skill via the Skill "
-                "tool — red test first — then retry the edit. Test files are "
-                "exempt."
+                "Routing gate: " + offender + " is engine/tools code but "
+                "this session has no FRESH tests-first/review/debug skill "
+                "engagement (markers expire after 20 min — D-104.4). Invoke "
+                "the matching skill via the Skill tool, then retry. Test "
+                "files are exempt."
             ),
         }
     }))
-    log(f"pretooluse DENY sid={sid[:8]} path={rel}")
+    log(f"pretooluse DENY sid={sid[:8]} target={offender}")
 
 
 def main() -> int:
@@ -480,7 +559,7 @@ def main() -> int:
         elif verb == "subagentstart":
             do_subagentstart(payload)
         elif verb in ("sessionstart", "postcompact"):
-            do_sessionstart(payload)
+            do_sessionstart(payload, verb)
         elif verb == "precompact":
             do_precompact(payload)
         elif verb == "stop":

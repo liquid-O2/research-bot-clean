@@ -12,9 +12,9 @@ Declare what must pass BEFORE building/launching, with runnable graders. A launc
 
 ## Recipe
 1. Name the capability under test in one sentence.
-2. Write `design/EVALS-<name>.md` with two lists:
-   - **Capability evals** — does it do the job? (e.g. "chain completes end-to-end on a 1-day slice, exit 0, produces the OOF table with expected row count")
-   - **Regression evals** — did we break anything? (existing tests, receipt hashes unchanged where identity demands)
+2. Evals are the spec's `## Acceptance scenarios` block — never a separate `design/EVALS-<name>.md`. If the work has no spec, write and freeze that block first; it is then the spec. Capability vs regression is a tag on the scenario, not a second list:
+   - **capability** — does it do the job? (e.g. "chain completes end-to-end on a 1-day slice, exit 0, produces the OOF table with expected row count")
+   - **regression** — did we break anything? (existing tests, receipt hashes unchanged where identity demands)
 3. Grader type per eval: `code` (a real shell command with exit-code verdict) or `judged` (explicit written rubric with pass/fail criteria — never vibes).
 4. Strictness tier per eval: `EXPERIMENTAL` (may flake, logs only) → `USUALLY_PASSES` (warns) → `ALWAYS_PASSES` (any failure blocks launch). Promote only on consecutive clean passes.
 5. Run before launch; log a results table with pass@k. Launch is blocked until ALWAYS_PASSES is green — composes with the zero-predicted-refusals launch rule.
@@ -23,6 +23,7 @@ Declare what must pass BEFORE building/launching, with runnable graders. A launc
    - **Positive arm (must PASS):** a synthetic input with the answer planted, proving the eval can detect the thing when present.
    - A capability eval without a failing null arm may not be promoted past EXPERIMENTAL. (D-095's controls, designed in at authoring time instead of discovered at post-mortem.)
 7. **Slice-verdict law**: before any long launch, the FULL chain — every stage INCLUDING resume/restart boundaries and the final verdict object itself — runs end-to-end on a 1-day slice in minutes. "The verdict object gets produced" is the eval, not "the stages run." Every rehearsal death in this repo's history (resume-identity refusals, dead neural stub, unattributable 1h46m failure) was catchable at slice scale for pennies. A chain whose slice mode doesn't exist is not launchable; build the slice mode first.
+8. **Structured run log.** Any driver expected to run longer than 5 minutes appends one JSON object per stage transition to `<run-root>/run.jsonl`: `ts`, `stage`, `event` (`start|ok|fail`), `n_rows`, `hash` of what the stage published, `exit`. One line per transition, never prose prints — the 9-plumbing-failures post-mortem was archaeology through 524 free-text prints. **A stage with a `start` and no matching `ok` or `fail` is a verdict, not a gap:** that stage is where the run died, readable by `grep` without reopening the transcript.
 
 ## Common mistakes
 | Mistake | Reality |

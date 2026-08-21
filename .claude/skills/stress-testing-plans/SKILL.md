@@ -15,7 +15,7 @@ Relentless assumption-surfacing before commitment. "Seems right" is not a decisi
 - **Decisions** are trade-offs needing the user's judgment (risk posture, scope, spend). Present options with a recommendation, one question at a time.
 
 ## Design mode — frontier rounds (from Pocock `grilling`)
-Map the plan as a **design tree**: every decision branches into the decisions that hang off it. Work in **rounds**: the frontier is every decision whose prerequisites are already settled. Ask the WHOLE frontier in one round — numbered questions, each with your recommended answer — then wait. A question depending on another still-open question belongs to a later round. Each answered round pushes the frontier outward. Tensions between choices get named explicitly, never papered over.
+Map the plan as a **design tree**: every decision branches into the decisions that hang off it. Work in **rounds**: the frontier is every decision whose prerequisites are already settled. Ask the WHOLE frontier in one round — numbered questions, each with your recommended answer — then wait. A question depending on another still-open question belongs to a later round. Each answered round pushes the frontier outward. Tensions between choices get named explicitly, never papered over. **A running fact-finding lane is an unsettled prerequisite, not a blocker** — only the questions downstream of it wait; ask the rest of the frontier now. **The session ends when the frontier is empty:** every branch of the design tree visited, nothing left silently assumed. Do not freeze the plan until the user confirms shared understanding.
 
 ## Docs mode (when a library/API/vendor is involved)
 1. List every external behavior relied on (CatBoost params, Databento schema fields, vendor timestamps).

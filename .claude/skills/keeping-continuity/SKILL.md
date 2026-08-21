@@ -21,6 +21,7 @@ Read `/workspace/CURRENT.md` before trusting any doc, verdict, or transcript: it
 ## On finishing any step (D-012)
 - Update STATE.md (cursor + NEXT_ACTION), PROGRESS.md if a stage moved, journal at true milestones.
 - `~/.optmem/memo note "<date> <one lasting fact, ≤280 bytes>"` — decisions, verdicts, receipts hashes, user rulings. Not narration.
+- **Before a milestone entry lands, check it against what actually happened.** Every claim maps to a real action; every evidence pointer resolves and shows what the entry claims; a pivot or abandoned approach that shaped the work but isn't recorded is a gap — add it. Cut aspirational entries. Fix the record, not the story.
 
 ## Other harnesses (opencode/Grok, Codex, any agent)
 No hooks there — do it manually: `~/.optmem/memo wake` at session start (opencode: `export PATH=/usr/local/bin:/usr/bin:/bin:$PATH` first or memo's python3 fails), settle any nap it asks, read STATE.md + CONTINUITY.md tail, `memo note` lasting facts. Full manual: `/workspace/HARNESS_MANUAL.md`.

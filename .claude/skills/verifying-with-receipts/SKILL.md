@@ -14,7 +14,8 @@ A claim of "done/passing" is a measurement, not a mood. The verdict must be repr
 2. **A gate that cannot run must not claim it did.** If a check is unavailable/degraded, report exactly that — a distinct outcome, never a pass.
 3. **Failing-ledger.** Checklist items start FAILED; only captured evidence flips one.
 4. **Refute once.** Before recording PASS, make one honest attempt to break it (perturb input, rerun cold, check the negative fixture).
-5. **Receipt.** Record command, exit code, timestamp, and content hash of what was tested. Timing is nonsemantic (D-098); bytes are identity.
+5. **Receipt.** Record command, exit code, timestamp, and content hash of what was tested. Timing is nonsemantic (D-098); bytes are identity. When the work has a spec with acceptance scenarios, the receipt names the `SC-<spec>-<n>` id(s) it discharges — that closes the spec→grader→receipt binding (sharpening-specs step 6).
+6. **Build the lever, don't do it by hand.** For any non-trivial edit, sweep, or analysis, build the script/codemod/query that does it or proves it, then run that. Hand-done work can only be re-verified by redoing it; a deterministic script turns "trust me" into "run this". Do the first unit by hand to learn the recipe, then build the tool and diff it against your hand-done version. **Applying this produces a file: if a report cites it and there is no script in the diff, it wasn't applied.**
 
 ## Cheap-first verification ladder (trading project: full runs cost box-hours)
 Verify at the SMALLEST scale that can falsify the claim, and only climb when the rung passes:
@@ -22,6 +23,11 @@ Verify at the SMALLEST scale that can falsify the claim, and only climb when the
 2. **Slice** (seconds-minutes, pennies): one session/day of real data through the real path — this is what catches plumbing failures before a launch burns money.
 3. **Full run** (hours, box-dollars): only after 1-2 are green and the predicted-refusal count is zero.
 A tight pass/fail signal that goes red on THIS defect is the whole game — build it before staring at code (Pocock: "this is the skill; everything else is mechanical").
+
+## How sure are you — tag every safety claim with its rung
+For each fact a verdict depends on, get it as far down this list as is cheap, and say where it stopped.
+1. You said so. Worthless on its own. 2. You pointed at the line (a real file:line, or the vendored source). 3. You showed the bad case can't happen (walked the failure step by step; it doesn't reach). 4. You ran it (a script or fixture that calls the real code and fails loud if you're wrong). 5. You reproduced it on the real path at slice scale.
+Any safety fact you can't get to rung 4, say so out loud. Don't write it up as settled, and don't round up.
 
 ## Red flags — stop, you are about to fabricate
 - "Tests passed earlier, and the new change is unrelated"

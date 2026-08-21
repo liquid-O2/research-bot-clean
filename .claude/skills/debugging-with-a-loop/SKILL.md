@@ -13,6 +13,10 @@ Read the ACTUAL error text and the failing input completely; reproduce once as-i
 ## Phase 1 — build the feedback loop. This IS the skill.
 A **tight pass/fail signal that goes red on THIS bug**, one command, seconds not hours. Bisection, hypotheses, and instrumentation merely consume it; without it, staring at code is theater. For this repo: a 1-day slice through the real path beats any synthetic fixture (the three rehearsal deaths were all reproducible at slice scale for pennies).
 
+**Ways to build one, in rough order:** a failing test at the seam that reaches the bug · a CLI/driver run on a fixture input diffed against a known-good snapshot · replay a captured artifact (a saved day-store, a real payload) through the path in isolation · a throwaway harness that calls the one function with mocked neighbours · a property/fuzz loop when the symptom is "sometimes wrong" · a bisection harness when the bug appeared between two known states (commit, dataset, config) · **a differential loop: same input through old-vs-new or two configs, diff the outputs** — this is the one that catches resume-width and sign/side classes.
+**Phase 1 is done when you can name ONE command you have already run at least once, and paste its output:** red-capable (asserts the exact observed symptom, not "didn't crash"), deterministic (same verdict every run; for flaky bugs, a pinned high reproduction rate — a 50% flake is debuggable, 1% is not), fast (seconds), and runnable unattended. **If you catch yourself reading code to build a theory before this command exists, stop.** If you genuinely cannot build a loop, say so explicitly and list what you tried — do not proceed to hypotheses without one.
+**Perf branch:** for a performance regression, logs are usually the wrong instrument. Establish a baseline measurement first (timing harness, profiler, thread/CPU sample), then bisect against it. Measure first, fix second.
+
 ## Phase 2 — tighten and minimize
 Strip the loop until every element is load-bearing (deletion test): fewer sessions, fewer columns, smaller window — while the red stays red. A loop that stops reproducing when simplified just told you where the bug lives.
 
@@ -24,6 +28,9 @@ Tag temporary instrumentation `[DBG-<slug>]` so it greps out cleanly afterward. 
 
 ## Exit — root cause, not symptom
 The fix lands at the ORIGIN of the bad value (trace backward; fixing where it hurt leaves the class alive one layer up). Red→green through the loop, THEN generalizing-fixes (sibling sweep + depth pass + registry check). A fix without the loop's green is a hope; a green without the root cause named is a symptom patch.
+
+**Restart and resume bugs: suspect state before code.** Code does not change between runs; state does. If clearing or rebuilding a state file, cache, lock, or published artifact restores the behaviour, the fix is state validation at the load boundary, not a code patch.
+**Belt-and-suspenders that "might help" is a hypothesis, not a fix, and does not ship. When evidence refutes a hypothesis, revert what it motivated** — only the smallest change the evidence justifies survives the turn.
 
 ## Red flags
 - "I'll rerun the full 2h chain to check" (build the slice loop first) · one hypothesis pursued to exhaustion · fixing at the symptom layer because the origin is far away · declaring a stall dead without a heartbeat check (this repo lost a night to a liveness false alarm — and another to a real deadlock reported healthy).

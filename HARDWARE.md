@@ -11,6 +11,6 @@ RunPod container; the host lies to naive probes.
 | Overlay `/` | 30G total | ~6.9G free. NO bulk writes (D-018) — caches/logs go under `/workspace/artifacts/cache/`. |
 | `/workspace` | network volume | effectively unbounded (petabyte-class), survives pod stops. |
 
-Standing facts: box-hours are billed wall-clock whether or not hardware is used; CatBoost fits pinned `thread_count=16`; `python3 -m pytest` does NOT exist here — tests run via `python3 -m unittest <module>` (50 of 51 test files are stdlib unittest).
+Standing facts: box-hours are billed wall-clock whether or not hardware is used; CatBoost fits pinned `thread_count=16`; `python3 -m pytest` does NOT exist here — tests run via `python3 -m unittest <module>` (50 of 51 test files are stdlib unittest); `/usr/bin/find` is **bfs 4.1.1**, NOT GNU find — `-newermt "<date>"` fails with "Invalid timestamp" (use `-mmin -N`/`-newer FILE`), and `2>/dev/null` turns that failure into a silent empty result (burned a tripwire 2026-08-21).
 
 Re-measure after any pod change: the two cgroup files above + `nvidia-smi` + `torch.__version__`.

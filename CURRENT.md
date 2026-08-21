@@ -1,6 +1,6 @@
 # CURRENT — what is live vs inherited (read before trusting any doc)
 
-Updated 2026-08-21 (post-pruning). Bootstrap for new sessions: `START_HERE.md`. The repo carries multiple program generations; sessions have repeatedly mistaken old material for current. This manifest is the currency authority. Update it when a line opens, closes, or a doc changes status.
+Updated 2026-08-21 (post-pruning). Bootstrap for new sessions: `START_HERE.md`. The repo carries multiple program generations; sessions have repeatedly mistaken old material for current. This manifest is the currency authority. Update it when a line opens, closes, or a doc changes status. For `DIRECTIVES.md` (append-only law), the matching currency layer is `/workspace/DIRECTIVES_INDEX.md` — which entries are LIVE, CONDITIONALLY-LIVE, or DEAD-LINE.
 
 ## THE LIVE LINE
 **Entry V2 tabular recovery** — CatBoost only, neural dead, 2025H2 sealed. Cursor: `STATE.md`. Contract: `AGENTS.md` rules 1-8 + the per-asset >$2,000/day, 80%-of-exact-candidate-ceiling gate. Live evidence state: engineering receipts only; **zero learned economics have ever been published**. Rehearsal relaunched 2026-08-21T12:03Z (see STATE.md).

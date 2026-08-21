@@ -18,6 +18,8 @@ House replacement for the third-party TDD skill; composes with D-017 (red-first 
 - **Tests that matter** (user law): unit/synthetic tests are regression checks only — never launch or correctness evidence for a chain; the real-data slice is the evidence tier (running-evals).
 - Tests run via `python3 -m unittest <module>` — pytest is not installed.
 - Test the contract, not the implementation: assert on outputs/receipts, not internal call order.
+- **Name the seam before the test, and get it agreed.** Write down the seam under test (the public boundary where behaviour is observed) and confirm it with the orchestrator or the spec before writing anything. No test at an unconfirmed seam. Prefer existing seams; take the highest one available. **The interface is the test surface — if the test has to reach past the interface, the module is the wrong shape.**
+- **If no correct seam exists, that is the finding.** A seam too shallow to carry the real failure (a unit test standing in for a chain that only breaks across stages) gives false confidence. Record "no correct seam — architecture prevents lockdown" as a named finding in STATE.md instead of shipping a test that cannot fail on this defect.
 
 ## Red flags
 - "I'll add tests after" · a test that passed on first run and was never seen red · asserting the code's own output back at it (mirror assertion) · green suite presented as launch readiness.

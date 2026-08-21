@@ -4,7 +4,7 @@
 
 **Speed plan execution (approved 13:40Z, plan file per session):** Phase A done — strays killed, CLAUDE.md synced, D-103/D-104/D-105 recorded, routing gate live, **live line committed+pushed at commit `849803f` (2026-08-21T13:51:58Z, "Harness: OptMem continuity hooks + D-104 routing enforcement + house skills"); tree was clean as of 13:50Z**. Phase B live: DP-1 GPU loss probe → DP-2 determinism receipt → R2/R3 walk twin lanes → ONE freeze/resume lands the reviewed batch → E2R on GPU (branch b, per-head backends per D-105). R6 C++ dense port runs as a parallel lane (own budget, D-103), never on the chain's critical path.
 
-**Pending freeze (not yet applied):** at the rollout-r1 boundary, ~20:00Z. Batch = walk-twin Edit 1 (θ loop through the multistate walk) + per-head fit backends (D-105) + the teacher O(N) id-scan fix. Nothing in this batch is applied mid-chain; the fix-pass dispositions are in `artifacts/cache/review/freeze_batch_20260821_MERGED_FINDINGS.md`.
+**FREEZE APPLIED 2026-08-21T20:29-20:36Z (commit 51b7771):** rollout r1 completed at 51 days; 18 anchored edits landed via tools/apply_freeze_batch_20260821.py (battery green); teacher store adopted 267/267 under the fixed-solver identity; big-fold probe returned GPU_DEGENERATE ⇒ Quantile:0.9 flipped to CPU pre-registered; pre-swap round-0 bundle strict-loads; chain regression 29/29; driver RESUMED as **pid 3032100**, zero errors post-marker. Live levers: multistate eval (11.62×), teacher scan+skip (rollout days 10×), per-head GPU fits (Logloss/MultiRMSE/MultiClass/PairLogitPairwise), R5 packing. E1R verdict projected ≈03:00-05:00Z; read per D-107 (full attribution first). E2R-prep window owes: homogeneity-guard wiring + fresh-bundle strict-load pair (FIT spec §G.3).
 
 **Canonical entry point:** [`index.md`](index.md) · **Stop checkpoint:** [`artifacts/entry_v2/tabular_recovery/rehearsal/STOP_CHECKPOINT_20260820T182424Z.md`](artifacts/entry_v2/tabular_recovery/rehearsal/STOP_CHECKPOINT_20260820T182424Z.md)
 
@@ -58,3 +58,4 @@ Carried, not fixed in the one fix pass. Source: `artifacts/cache/review/freeze_b
 ## Resume recipe
 
 1. `~/.optmem/memo wake` (mandatory on Grok). 2. If wake fails: `/workspace/CONTINUITY.md` then this file.
+- adopt_teacher_identity_transcribe summary line counted adopted entries as 'failed' in the v2 run (ground truth verified: store resolves under current solver hash) — fix the summary accounting on next touch.

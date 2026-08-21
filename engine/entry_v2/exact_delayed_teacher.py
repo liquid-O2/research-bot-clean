@@ -1434,19 +1434,37 @@ def replay_exact_teacher_day(
     return evaluation
 
 
+def assert_perfect_enter_actions(teacher: ExactDelayedTeacherDay) -> None:
+    """Base-plane ENTER rows must be exactly the exact schedule.
+
+    Scoped to base rows (action_rollout_round == 0): relabel rows are
+    policy-conditioned lessons and may lawfully mark ENTER off-schedule
+    (2026-08-21, day 20210706 — premature-pass relabels whose conditioned
+    optimum is ENTER; latent since round-1 relabeling landed, surfaced by
+    the first heavy-tail day containing one. The whole-plane equality this
+    replaces was correct only for round-0 teachers)."""
+
+    action_ids = np.asarray(teacher.action_opportunity_id, str)
+    action = np.asarray(teacher.optimal_action, str)
+    rounds = np.asarray(teacher.action_rollout_round, np.int64)
+    base = rounds == 0
+    if not base.any():
+        raise RecoveryRefusal("teacher has no base-round action rows")
+    entered = set(action_ids[
+        base & (action == DecisionAction.ENTER.value)].tolist())
+    selected = set(teacher.selected_opportunity_ids)
+    if entered != selected:
+        raise RecoveryRefusal("perfect teacher ENTER actions differ from exact schedule")
+
+
 def replay_perfect_teacher_actions(
     teacher: ExactDelayedTeacherDay, universe: DayOptionUniverse, *,
     expected_sessions: Iterable[SessionRef],
 ) -> object:
-    """Prove that the teacher's published ENTER actions are its exact schedule."""
+    """Prove that the teacher's published base ENTER actions are its exact schedule."""
 
     teacher.validate(); universe.validate()
-    action_ids = np.asarray(teacher.action_opportunity_id, str)
-    action = np.asarray(teacher.optimal_action, str)
-    entered = set(action_ids[action == DecisionAction.ENTER.value].tolist())
-    selected = set(teacher.selected_opportunity_ids)
-    if entered != selected:
-        raise RecoveryRefusal("perfect teacher ENTER actions differ from exact schedule")
+    assert_perfect_enter_actions(teacher)
     return replay_exact_teacher_day(
         teacher, universe, expected_sessions=expected_sessions)
 
@@ -1503,5 +1521,6 @@ __all__ = [
     "TEACHER_MANIFEST_SCHEMA", "add_rollout_relabels",
     "build_exact_delayed_teacher_day", "dominance_pruned_indices",
     "publish_teacher_manifest", "replay_exact_teacher_day",
+    "assert_perfect_enter_actions",
     "replay_perfect_teacher_actions", "rollout_error_queries",
 ]

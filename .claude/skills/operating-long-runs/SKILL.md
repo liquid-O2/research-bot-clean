@@ -62,6 +62,7 @@ Born of paid incidents: a night lost to a liveness FALSE alarm, another to a REA
 
 ## On failure
 - The failure is a defect-class instance: sweep the class (generalizing-fixes) across the REMAINING chain in one closure pass before any relaunch.
+- **After any driver death, sweep for its orphaned pool** (`spawn_main` processes with ppid 1, DEFECT_CLASSES `orphaned-pool`): the crashed parent's workers survive, burn cores against the successor, and write under the pre-crash code. Kill them, then verify every manifest written in the crash window parses — atomic `os.replace` publishes make the kill safe; a torn small-json manifest is the residual risk.
 - Resume must strict-reload published artifacts by receipt, never recompute silently; a resume that recomputes is a defect.
 
 ## Red flags

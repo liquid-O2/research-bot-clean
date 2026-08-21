@@ -37,6 +37,7 @@ from .tabular_recovery_contracts import (
     CausalFeatureSchema,EconomicGateResult,REGIME_FEATURE_NAMES,
     RecoveryChronology,RecoveryConfig,RecoveryRefusal,
 )
+from .tabular_walk_twin import wtwin_load_or_replay_day_multistate
 
 
 BLOCK_RESULT_SCHEMA:Final="QRE2TABPOLICYBLOCK2"
@@ -732,14 +733,13 @@ def select_seed_threshold(*,lane:str,component_roster:SeedModelRoster,
                 raise RecoveryRefusal("threshold dense day source roster differs")
             dense=tuple(load_or_materialize_dense_session(
                 row,max_delay_sec=int(next(iter(horizons)))) for row in day_specs)
-        for index,(admission,target) in enumerate(zip(admissions,targets)):
-            trace=_load_or_replay_day(day=day,universe=universe,
-                specs=spec_map.get(day,()),outcome_rows=outcome_map[day],
-                feature_schema=feature_schema,component_fold=component_fold,
-                action_fold=action_fold,mode="CALIBRATED",output_root=root,
-                calibration=calibration,admission=admission,
-                dense_features=dense)
-            trace_by_index[index].append(trace);paths_by_index[index].append(str(target))
+        for index,trace in enumerate(wtwin_load_or_replay_day_multistate(
+                day=day,universe=universe,feature_schema=feature_schema,
+                component_fold=component_fold,action_fold=action_fold,
+                output_root=root,calibration=calibration,
+                admissions=admissions,dense_features=dense)):
+            trace_by_index[index].append(trace)
+            paths_by_index[index].append(str(targets[index]))
     sessions=_sessions_for_bounds(specs,(lo,hi))
     ceilings={day:teacher_map[day].exact_objective_cents for day in active_days}
     asset_ceilings=_asset_ceiling_cents(

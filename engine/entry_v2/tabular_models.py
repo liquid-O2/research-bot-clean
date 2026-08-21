@@ -21,6 +21,10 @@ import numpy as np
 
 from . import common as C
 from .tabular_atomic import atomic_replace_directory
+from .tabular_fit_backends import (
+    COMPONENT_HEAD_LOSS_FUNCTIONS, fit_receipt_backend_fields,
+    fit_receipt_law_fields, gpu_fit_param_overlay,
+)
 from .tabular_recovery_contracts import (
     RecoveryConfig, RecoveryRefusal, VALUE_SCALE_USD, sha256_row_array,
 )
@@ -105,6 +109,18 @@ def _fit_with_early_stop(
         early_stopping_rounds=patience)
     if int(model.tree_count_) <= 0:
         raise RecoveryRefusal("CatBoost fitted no trees")
+
+
+def _head_model(factory, *, loss_function: str,
+                common: Mapping[str, object]) -> object:
+    """One CatBoost head: frozen parameters plus its D-105 GPU overlay.
+
+    The overlay is {} for a CPU head (MultiQuantile), so this call is safe to
+    use for every head; the backend is a pure function of the loss string.
+    """
+
+    return factory(loss_function=loss_function,
+                   **{**common, **gpu_fit_param_overlay(loss_function)})
 
 
 @contextmanager
@@ -301,6 +317,9 @@ class ComponentModelBundle:
                 self.iteration_selection_receipt_sha256,
             "receipt_sha256": self.receipt_sha256,
             "files": dict(files), "catboost_version": catboost.__version__,
+            "fit_backend_fields": {
+                head: fit_receipt_backend_fields(loss)
+                for head, loss in COMPONENT_HEAD_LOSS_FUNCTIONS.items()},
             "numpy_version": np.__version__, "workers": 16,
         }
 
@@ -361,6 +380,13 @@ class ComponentModelBundle:
         }
         if C.object_sha256(core) != manifest.get("receipt_sha256"):
             raise RecoveryRefusal("component bundle identity differs")
+        stored=manifest.get("fit_backend_fields")
+        if stored is not None and {
+                head:dict(fields).get("law") for head,fields in stored.items()
+                }!={head:fit_receipt_law_fields(loss)
+                    for head,loss in COMPONENT_HEAD_LOSS_FUNCTIONS.items()}:
+            raise RecoveryRefusal(
+                f"published fit backend differs from the D-105 law: {stored}")
         return cls(
             config=config, seed=int(manifest["seed"]),
             feature_names=tuple(manifest["feature_names"]), models=models,
@@ -392,15 +418,20 @@ def fit_component_bundle(
         raise RecoveryRefusal("component shuffle identity is incomplete")
     common = _common_parameters(config, seed)
     models: dict[str, object] = {
-        "current": CatBoostRegressor(
-            loss_function="MultiQuantile:alpha=0.2,0.5,0.8", **common),
-        "continuation": CatBoostRegressor(
-            loss_function="MultiQuantile:alpha=0.2,0.5,0.8", **common),
-        "wall": CatBoostClassifier(loss_function="Logloss", **common),
-        "adverse": CatBoostRegressor(
-            loss_function="Quantile:alpha=0.9", **common),
-        "occupancy": CatBoostRegressor(
-            loss_function="MultiQuantile:alpha=0.5,0.9", **common),
+        "current": _head_model(
+            CatBoostRegressor,
+            loss_function="MultiQuantile:alpha=0.2,0.5,0.8", common=common),
+        "continuation": _head_model(
+            CatBoostRegressor,
+            loss_function="MultiQuantile:alpha=0.2,0.5,0.8", common=common),
+        "wall": _head_model(
+            CatBoostClassifier, loss_function="Logloss", common=common),
+        "adverse": _head_model(
+            CatBoostRegressor, loss_function="Quantile:alpha=0.9",
+            common=common),
+        "occupancy": _head_model(
+            CatBoostRegressor, loss_function="MultiQuantile:alpha=0.5,0.9",
+            common=common),
     }
     x = np.asarray(train.x, np.float32); vx = np.asarray(validation.x, np.float32)
     _fit_with_early_stop(models["current"], x, train.current_asinh,
@@ -563,7 +594,10 @@ class ActionModelBundle:
                     self.iteration_selection_receipt_sha256,
                 "receipt_sha256":self.receipt_sha256,"file":filename,
                 "file_sha256":C.file_sha256(model_path),
-                "catboost_version":catboost.__version__,"workers":16}
+                "catboost_version":catboost.__version__,
+                "fit_backend_fields":
+                    fit_receipt_backend_fields(self.objective),
+                "workers":16}
             C.atomic_json(stage/"manifest.json",manifest)
             atomic_replace_directory(stage,target)
         except Exception:
@@ -604,6 +638,11 @@ class ActionModelBundle:
               "shuffle_seed":manifest["shuffle_seed"]}
         if C.object_sha256(core)!=manifest.get("receipt_sha256"):
             raise RecoveryRefusal("action bundle identity differs")
+        stored=manifest.get("fit_backend_fields")
+        if (stored is not None and dict(stored).get("law")
+                !=fit_receipt_law_fields(objective)):
+            raise RecoveryRefusal(
+                f"published fit backend differs from the D-105 law: {stored}")
         return cls(config=config,seed=int(manifest["seed"]),
                    feature_names=tuple(manifest["feature_names"]),model=model,
                    objective=objective,train_receipt_sha256=manifest["train_receipt_sha256"],
@@ -655,12 +694,14 @@ def fit_action_bundle(
     common=_common_parameters(config,seed)
     x=np.asarray(train.x,np.float32);vx=np.asarray(validation.x,np.float32)
     if objective=="MultiRMSE":
-        model=CatBoostRegressor(loss_function="MultiRMSE",**common)
+        model=_head_model(CatBoostRegressor,loss_function="MultiRMSE",
+                          common=common)
         _fit_with_early_stop(model,x,train.regret_log_target,train.sample_weight,
                              vx,validation.regret_log_target,validation.sample_weight,
                              patience=config.early_stopping_rounds)
     elif objective=="MultiClass":
-        model=CatBoostClassifier(loss_function="MultiClass",**common)
+        model=_head_model(CatBoostClassifier,loss_function="MultiClass",
+                          common=common)
         action_index={value:index for index,value in enumerate(("ENTER","DEFER","PASS"))}
         y=np.asarray([action_index[value] for value in train.optimal_action],np.int8)
         vy=np.asarray([action_index[value] for value in validation.optimal_action],np.int8)
@@ -729,7 +770,8 @@ def fit_pairwise_action_bundle(
                 and shuffle_seed not in config.shuffle_seeds)):
         raise RecoveryRefusal("pairwise action shuffle identity is incomplete")
     common=_common_parameters(config,seed)
-    model=CatBoostRanker(loss_function="PairLogitPairwise",**common)
+    model=_head_model(CatBoostRanker,loss_function="PairLogitPairwise",
+                      common=common)
     model.fit(_pairwise_pool(train),eval_set=_pairwise_pool(validation),use_best_model=True,
               early_stopping_rounds=config.early_stopping_rounds)
     model_hash=_serialized_model_sha256(model)
@@ -779,19 +821,19 @@ def fit_all_pre_h2_component_bundle(matrix:ComponentTrainingMatrix,*,
         value=_common_parameters(config,seed);value["iterations"]=iterations[name]
         return value
     models={
-        "current":CatBoostRegressor(
+        "current":_head_model(CatBoostRegressor,
             loss_function="MultiQuantile:alpha=0.2,0.5,0.8",
-            **parameters("current")),
-        "continuation":CatBoostRegressor(
+            common=parameters("current")),
+        "continuation":_head_model(CatBoostRegressor,
             loss_function="MultiQuantile:alpha=0.2,0.5,0.8",
-            **parameters("continuation")),
-        "wall":CatBoostClassifier(loss_function="Logloss",
-                                   **parameters("wall")),
-        "adverse":CatBoostRegressor(loss_function="Quantile:alpha=0.9",
-                                    **parameters("adverse")),
-        "occupancy":CatBoostRegressor(
+            common=parameters("continuation")),
+        "wall":_head_model(CatBoostClassifier,loss_function="Logloss",
+            common=parameters("wall")),
+        "adverse":_head_model(CatBoostRegressor,
+            loss_function="Quantile:alpha=0.9",common=parameters("adverse")),
+        "occupancy":_head_model(CatBoostRegressor,
             loss_function="MultiQuantile:alpha=0.5,0.9",
-            **parameters("occupancy")),
+            common=parameters("occupancy")),
     }
     x=np.asarray(matrix.x,np.float32)
     _fixed_fit(models["current"],x,matrix.current_asinh,matrix.sample_weight)
@@ -855,18 +897,21 @@ def fit_all_pre_h2_action_bundle(matrix:ActionTrainingMatrix,*,
     common=_common_parameters(config,seed);common["iterations"]=iterations
     objective=selection_bundle.objective
     if objective=="MultiRMSE":
-        model=CatBoostRegressor(loss_function="MultiRMSE",**common)
+        model=_head_model(CatBoostRegressor,loss_function="MultiRMSE",
+                          common=common)
         _fixed_fit(model,matrix.x,matrix.regret_log_target,
                    matrix.sample_weight)
     elif objective=="MultiClass":
-        model=CatBoostClassifier(loss_function="MultiClass",**common)
+        model=_head_model(CatBoostClassifier,loss_function="MultiClass",
+                          common=common)
         action_index={value:index for index,value in enumerate(
             ("ENTER","DEFER","PASS"))}
         target=np.asarray([action_index[value]
                            for value in matrix.optimal_action],np.int8)
         _fixed_fit(model,matrix.x,target,matrix.sample_weight)
     elif objective=="PairLogitPairwise":
-        model=CatBoostRanker(loss_function="PairLogitPairwise",**common)
+        model=_head_model(CatBoostRanker,loss_function="PairLogitPairwise",
+                          common=common)
         model.fit(_pairwise_pool(matrix))
         if int(model.tree_count_)<=0:
             raise RecoveryRefusal("all-data pairwise refit produced no trees")

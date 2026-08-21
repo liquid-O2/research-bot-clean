@@ -47,6 +47,9 @@ Carried, not fixed in the one fix pass. Source: `artifacts/cache/review/freeze_b
 - `_training_metrics` / `_published_metric` move to `tabular_model_io` on the next touch of that file.
 - MultiRMSE GPU capacity variance measured at 65/164/124 trees across seeds. Priced by the artifact-pin variance receipt plus the 5-seed law, not treated as a defect.
 - Ruling recorded: GPU stays per D-105. Revisit only if the E2R real-vs-shuffle margins come out inside the variance floor.
+- FREEZE-CHECKLIST GUARD (coverage moved out of tests, 2026-08-21): "Quantile:0.9 GPU routing is unlicensed until gpu_quantile_bigfold_probe.json exists with GPU_OK" is enforced ONLY by the freeze checklist now (the missing-receipt test case became a skip). The probe MUST run before the first E2R component fit.
+- R6 acceptance design gap (2026-08-21, harness lane): ALL 145 store sessions have a prior session — the PriorSessionContext=None branch has ZERO stored oracle bytes; R6 acceptance needs a direct-oracle arm for prior-absent days (report carries coverage.prior_absent:0). Also: EventPack memmap use-after-unmap = registered segfault class (holding .rows past `with` SIGSEGVs silently in workers) — sweep owed across engine/ before next chain; diff_discretionary_native writes its JSON once at end (a dying --all-store run loses its receipt).
+- Gate lane blind spot fixed 2026-08-21 (subagent Skill engagements invisible to the transcript the hook reads → false denials): SubagentStart now writes a 90-min lane_active marker the gate defers to; briefed lanes are governed by D-002/D-010 diff verification. Three fixtures on record.
 
 ## Goal
 

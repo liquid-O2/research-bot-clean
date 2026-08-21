@@ -739,10 +739,12 @@ class ExactDaySolver:
 
         query.__post_init__()
         try:
-            index = int(np.flatnonzero(
-                np.asarray(self.universe.opportunity_id, str)
-                == query.opportunity_id)[0])
-        except IndexError as exc:
+            # O(1) bijection built in __init__ (:360-361); DayOptionUniverse
+            # .validate refuses duplicate opportunity_id (:218) and __init__
+            # calls it, so this cannot silently pick a different row than the
+            # first-match scan it replaces.
+            index = self._universe_index_by_opportunity[str(query.opportunity_id)]
+        except KeyError as exc:
             raise RecoveryRefusal("action query opportunity is absent") from exc
         condition = query.condition
         now = int(self.universe.snapshot_ts_ns[index])
@@ -1319,6 +1321,19 @@ def rollout_error_queries(
         query = ActionQuery(
             proposal.opportunity_id, proposal.condition,
             f"POLICY_ROLLOUT_{round_index}", round_index)
+        # Structurally unflaggable states: none of the three error classes can
+        # fire, so the exact solver call is pure cost.  Off the oracle schedule
+        # missed_oracle cannot fire; DEFER fires neither false_enter nor
+        # premature_pass; at the entry cap _interval_dp_value returns 0 for
+        # every conditioned variant (:526-527) so regrets are (10**18, 0, 0)
+        # and premature_pass cannot fire for PASS either.
+        if str(proposal.opportunity_id) not in selected:
+            if proposal.predicted_action is DecisionAction.DEFER:
+                continue
+            if (proposal.predicted_action is DecisionAction.PASS
+                    and int(proposal.condition.entries_used)
+                    >= C.MAX_ENTRIES_PORTFOLIO_DAY):
+                continue
         enter, defer, passed, _optimal, regrets = solver.action_values(query)
         predicted_index = {
             DecisionAction.ENTER: 0, DecisionAction.DEFER: 1,

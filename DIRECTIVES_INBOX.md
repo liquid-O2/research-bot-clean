@@ -23,3 +23,20 @@ And that's just one rule, one skill. Like, we have so many skills that we need t
 And we need to properly create a plan to get to our goal. I think our current plan is just to fix it and make it fast, but our main objective is to get to the economics goal that we have. Everything, the oracle and everything supports it. We have just been unable to get there with all of the things we have tried so far.
 - [2026-08-21T~18:20Z] (verbatim, program direction): "don't want to launch the second thingy. Exits and hold extension. That is not what we need. That is still a bit of a cop-out because if we don't fix the entries first... We need to first get the first stage done properly. And E1R, we need to get that done properly before we move on to the E2R... hold and exit is something we need to look into later... We need to first fix the entry part, so we have to understand exactly where to get there"
 - [2026-08-21T~19:10Z] (verbatim, overnight autonomy): "you will be running autonomously overnight. So if there are any questions or et cetera, just use the things that you find are worth doing or that you recommend. So I think in some of the things there are like questionnaires and et cetera that I need to answer — that just you fill it up yourself with the recommended steps."
+- [2026-08-21T16:26:47Z] Okay, then run the audit properly. But again, 18 hours for the largest thing is not acceptable for me. We need to speed things up.
+
+It's still extremely slow for my taste. It's extremely slow. Six hours is the max I can ever give anything. This is really bad
+- [2026-08-21T~19:45Z] (verbatim, budget): "18 hours for the largest thing is not acceptable for me. We need to speed things up. It's still extremely slow for my taste. Six hours is the max I can ever give anything."
+- [2026-08-21T~19:55Z] (verbatim, amending the 6h-cap enforcement): "we will not sacrifice on quality to speed things up. We will speed things up with proper architecture, proper code changes, and making things genuinely fast, not cutting on things that we need or cutting up on quality."
+- [2026-08-21T16:45:44Z] Okay, then go ahead with it. The other thing is, you are using the new skills, right? With the checklist and everything and every rule followed from the skills Like we need to get to our goal no matter what. And every step you take needs to bring us closer to it than ever.
+
+It should not repeat the same wall of nulls that we were facing. That is everything we did resulted in negative or null. We need to fix that.
+
+Every change we do, everything we fix, needs to be absolutely perfect.
+- [2026-08-21T17:21:01Z] but didnt we finish r6 already why 12-19 day, it it will never take that long
+- [2026-08-21T17:39:33Z] Yeah, and don't just stop, by the way. Even if you get the results when I'm sleeping, you have the full authority to move forward. Use all of the skills and et cetera to ensure we do things properly.
+
+Because currently we haven't been using the skills as they're intended. Like, we are not using the proper rules in the skills. So we need to use those to make further decisions and et cetera.
+
+So even when I'm asleep, even when we get results, find the thing and start working on the next step to improve it further to get us to our goal. If we can't get us there with the first results, 
+- [2026-08-21T~20:40Z] (verbatim, overnight authority expanded): "don't just stop, by the way. Even if you get the results when I'm sleeping, you have the full authority to move forward. Use all of the skills and et cetera to ensure we do things properly... even when we get results, find the thing and start working on the next step to improve it further to get us to our goal. If we can't get us there with the first results"

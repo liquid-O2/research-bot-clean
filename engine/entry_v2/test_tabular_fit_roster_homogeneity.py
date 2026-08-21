@@ -108,7 +108,12 @@ class HeadHomogeneityTest(unittest.TestCase):
     def test_a_law_difference_between_arms_refuses(self) -> None:
         good = _component_fields()
         drifted = _component_fields()
-        drifted["adverse"]["law"]["fit_backend"] = "CATBOOST_CPU"
+        # Flip whatever the live law says, so a D-105 backend re-pin can never
+        # turn this mutant into a no-op (it did once, at the Quantile CPU flip).
+        drifted["adverse"]["law"]["fit_backend"] = (
+            "CATBOOST_GPU"
+            if good["adverse"]["law"]["fit_backend"] == "CATBOOST_CPU"
+            else "CATBOOST_CPU")
         with self.assertRaises(RecoveryRefusal) as caught:
             assert_head_homogeneous_fit_backends(
                 {"seed_20260820/E3": good, "seed_20260821/E3": drifted})

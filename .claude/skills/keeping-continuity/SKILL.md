@@ -14,6 +14,12 @@ The repo is the only project memory (D-012). OptMem + CONTINUITY.md are the sess
 2. Read DIRECTIVES.md before designing or freezing anything (D-089).
 3. Name, in one sentence, the current stage and NEXT_ACTION from STATE.md. If your planned work doesn't serve it, stop and re-read — that is drift.
 4. Deeper history: `~/.optmem/memo recall <regex>`; verbatim transcripts in `/workspace/artifacts/cache/continuity/`.
+5. **Cross-check the cursor against the world** (bigpowers `survey-context`, mechanized). Every
+   identity STATE.md names — a commit, a hash, a run root, a published artifact — is resolved
+   before it is trusted: `git rev-parse` the commit, `ls` the path, compare the recorded hash to
+   the live one. On any contradiction, **halt and say which two sources disagree** — do not
+   reconcile it silently and do not proceed on the file's word. STATE.md is authority for what
+   was decided; it is not evidence that the thing it names still exists.
 
 ## Currency: live vs inherited
 Read `/workspace/CURRENT.md` before trusting any doc, verdict, or transcript: it names the live line, the authoritative files, and the dead lines. **Record every null/closure WITH its scope** — "closed FOR <representation/data/grain X>", never a bare "closed" — so old nulls neither over-steer new formulations nor get re-litigated. Treat inherited narrative (marked in CURRENT.md) as history, never as current state.

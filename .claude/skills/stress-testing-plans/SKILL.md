@@ -17,6 +17,29 @@ Relentless assumption-surfacing before commitment. "Seems right" is not a decisi
 ## Design mode — frontier rounds (from Pocock `grilling`)
 Map the plan as a **design tree**: every decision branches into the decisions that hang off it. Work in **rounds**: the frontier is every decision whose prerequisites are already settled. Ask the WHOLE frontier in one round — numbered questions, each with your recommended answer — then wait. A question depending on another still-open question belongs to a later round. Each answered round pushes the frontier outward. Tensions between choices get named explicitly, never papered over. **A running fact-finding lane is an unsettled prerequisite, not a blocker** — only the questions downstream of it wait; ask the rest of the frontier now. **The session ends when the frontier is empty:** every branch of the design tree visited, nothing left silently assumed. Do not freeze the plan until the user confirms shared understanding.
 
+## Durable maps (ladders that outlive a session)
+
+A frontier that will not empty this session gets a **map** — one file under `design/`, named
+for the destination, that is the ladder's only memory (D-012). Four sections, nothing else:
+
+- **Destination** — what "clear" looks like, in one or two lines, in the goal's own units.
+- **Decisions so far** — one line per resolved item, each with the receipt or journal entry
+  that closed it. Append-only.
+- **Not yet specified** — in-scope fog you cannot phrase sharply yet.
+- **Out of scope** — ruled beyond the destination, each with WHY. Out-of-scope never graduates;
+  it returns only if the destination is redrawn.
+
+**Fog-or-item test.** Can you state the question precisely NOW? If yes it is an item on the
+ladder, even if blocked. If no it is fog, and it stays in Not-yet-specified until a resolved
+item sharpens it. Writing a vague item is how a ladder acquires steps nobody can climb.
+
+**Charting resolves nothing.** A mapping pass adds no code, no fit, no verdict. If you find
+yourself implementing while charting, you have left the map — stop and finish the map first.
+
+**One item, one pre-registration.** An item leaves Not-yet-specified only through its own
+frozen spec (sharpening-specs) and its own pre-registered result (preregistering-results),
+never as a sweep across several items at once.
+
 ## Docs mode (when a library/API/vendor is involved)
 1. List every external behavior relied on (CatBoost params, Databento schema fields, vendor timestamps).
 2. Fetch the actual doc or read the vendored source — never answer from memory.

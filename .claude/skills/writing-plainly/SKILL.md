@@ -19,6 +19,8 @@ Plain simple language, outcome first, at true milestones only. The reader is a t
 7. **Unslop** (from pstack): cut AI tells — puffery ("pivotal", "testament to", "evolving landscape"), superficial -ing tails ("...highlighting the importance of"), neutral pro/con listing where a verdict is owed. **Name the source or delete it** — "the analysis suggests", "reports indicate" are unattributed claims (D-010). **One name per thing**, repeated: no synonym cycling across a report (the same fold, gate, or era gets one spelling). **No abstract metaphor nouns** — substrate, wedge, vector, surface, scaffolding, ratchet, gold-plating, north star; use the concrete word ("gold-plating" → "more than the job needs"). **The portability test: if a sentence could appear unchanged in another project's report, it says nothing about this one — cut it.** Have an opinion, vary rhythm, be specific with the actual number or file, react to facts instead of narrating them.
 8. **Self-audit before sending**: ask "what makes this obviously AI-generated?" and fix what that surfaces. Draft clean rather than cleaning up — the cleanup-afterward pass is measured to fail (pstack), so don't write the bad sentence.
 9. **Every count, table, or claim of size is true at the commit that lands it, and carries the command that regenerates it.** A number in a report with no reproducing command is a memory, not a measurement.
+10. **A checkpoint presents a brief, not the output** (Pocock `loop-me`): what was produced,
+    why, and a link down to the asset. Speed of review is the constraint.
 
 ## Common mistakes
 | Mistake | Reality |

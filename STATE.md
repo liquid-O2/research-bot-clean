@@ -36,7 +36,7 @@ Let the live rehearsal finish. First economic verdict is a published `launch_reh
 
 16 workers. Reuse matrix/bundle/OOF.
 
-Then apply the pending freeze batch at the rollout-r1 boundary and relaunch. The one fix pass (D-001) re-verifies mechanically only — no second review.
+Freeze batch APPLIED 2026-08-21T20:31Z (receipts in artifacts/cache/review/); one post-freeze crash (latent perfect-actions check vs relabeled teachers) root-caused and fixed, chain resumed. E1R verdict expected ~03:30-05:30Z — read the four-column attribution FIRST (D-107) before any branch action.
 
 ## FINDINGS ledger (deferred items, 2026-08-21 consolidated review)
 
@@ -50,6 +50,9 @@ Carried, not fixed in the one fix pass. Source: `artifacts/cache/review/freeze_b
 - FREEZE-CHECKLIST GUARD (coverage moved out of tests, 2026-08-21): "Quantile:0.9 GPU routing is unlicensed until gpu_quantile_bigfold_probe.json exists with GPU_OK" is enforced ONLY by the freeze checklist now (the missing-receipt test case became a skip). The probe MUST run before the first E2R component fit.
 - R6 acceptance design gap (2026-08-21, harness lane): ALL 145 store sessions have a prior session — the PriorSessionContext=None branch has ZERO stored oracle bytes; R6 acceptance needs a direct-oracle arm for prior-absent days (report carries coverage.prior_absent:0). Also: EventPack memmap use-after-unmap = registered segfault class (holding .rows past `with` SIGSEGVs silently in workers) — sweep owed across engine/ before next chain; diff_discretionary_native writes its JSON once at end (a dying --all-store run loses its receipt).
 - Gate lane blind spot fixed 2026-08-21 (subagent Skill engagements invisible to the transcript the hook reads → false denials): SubagentStart now writes a 90-min lane_active marker the gate defers to; briefed lanes are governed by D-002/D-010 diff verification. Three fixtures on record.
+- Skill-port batch landed 2026-08-21 ~21:45Z via `tools/apply_skill_port_batch_20260821.py` (30 anchor-asserted edits, 19 files): NEW skill `breaking-down-work` (planning-cluster port; routing row in CLAUDE.md+AGENTS.md) + bigpowers re-verdict extractions R1-R12. Lane reports verbatim at `artifacts/cache/review/upstream_planning_port.md` and `bigpowers_reverdict.md` (46/51 drops stand; 12 rules extracted, 0 wholesale reversals). `entry-v2-goal` was unreachable by the Claude harness (.grok only) — symlinked into .claude/skills/, registration confirmed.
+- Battery `bash tools/run_all_checks.sh --fast` GREEN after two post-flip fixes: roster-homogeneity law-drift mutant and bigfold-probe selftest both assumed Quantile:0.9 on GPU; both rewritten flip-agnostic (mutant flips the live value; overlay test pins backend by mock + law-path sentinel).
+- shared-mutable-lifetime sweep across engine/ still OWED (EventPack memmap class, registry row added).
 
 ## Goal
 

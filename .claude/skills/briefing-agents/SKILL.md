@@ -26,6 +26,18 @@ Sources: Pocock `writing-for-agents`/`triage`, bigpowers `delegate-task`, and th
 - **Tripwire clause** for long-running lanes: the brief names the heartbeat artifact and the "no output in N min ⇒ report" rule (operating-long-runs).
 - **Build the lever, don't do it by hand.** For any non-trivial edit, sweep, or analysis, build the script/codemod/query that does it or proves it, then run that. Hand-done work can only be re-verified by redoing it; a deterministic script turns "trust me" into "run this". Do the first unit by hand to learn the recipe, then build the tool and diff it against your hand-done version. **Applying this produces a file: if a report cites it and there is no script in the diff, it wasn't applied.** When work fans out, write the lever as one artifact every lane reads (recipe + verification contract + do-not-touch fences), kept outside the lanes' write scope so they cannot edit the contract.
 - **Pair every prohibition with its positive target.** Steering by ban drags the forbidden behaviour into context and makes it more available, not less; the negation is a weak modifier the activated concept overruns. State what to do ("report NOT-VERIFIED and name the missing gate"), then the ban ("never present a skipped check as a pass"). A prohibition rides alone only as a hard guardrail with no positive phrasing.
+- **Every lane returns exactly one terminal state, named:** `success` (deliverable produced,
+  verify line green) · `no-op` (nothing to do — already applied or already green; say what you
+  checked) · `blocked` (an external gate: a red baseline, a missing receipt, a decision that is
+  the orchestrator's) · `exhausted` (tried and could not; attach what was tried). "Did nothing"
+  and "finished" must never read the same. A report with no terminal state is incomplete and
+  goes back.
+- **Bound the re-dispatch, don't loop it.** Three consecutive `exhausted`/failed returns on the
+  same task closes the circuit: stop dispatching it, and escalate to the user with all three
+  summaries side by side. Re-briefing tighter is one attempt, not a retry loop (D-001).
+- **Communicate to and from lanes primarily through context pointers** (Pocock `implement-spec`)
+  — the spec path, the ticket, the research note, the prior commit. Do not duplicate
+  information already reachable via a pointer.
 
 ## Pointers (skill descriptions, routing-table rows, "read X before Y" lines)
 A pointer names out-of-context material and encodes the condition for reaching it. **Its wording, not its target, decides whether the agent reaches it.** A must-have target behind a weakly worded pointer is a variance bug: sharpen the wording first; inline the material only if sharpening fails. Front-load the triggering word. One trigger per genuinely distinct branch — synonyms that rename one branch are one branch written twice. Cut identity the body already carries. Every word of an always-loaded pointer costs on every turn.

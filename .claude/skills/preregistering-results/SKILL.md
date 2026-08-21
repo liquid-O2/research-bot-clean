@@ -11,9 +11,15 @@ Born of this repo's own record: at least a dozen celebrated numbers died under a
 1. **The promotion metric**: exact chronological replay DOLLARS at the deployable operating point (D-095). AUC/rho/Spearman/capture-% are diagnostics; they may appear only in the same table as their dollar conversion.
 2. **The perfect-label ceiling test**: if a model ranked this label perfectly, would it clear the gate under the laws? If no — the label/gate is wrong; do not train against it.
 3. **The matched null**: a shuffle/permutation that CAN fail and destroys exactly the mechanism claimed (not an artificially easy null). Name what it destroys.
-4. **The luck bar**: seed/draw variance plan — 5 seeds minimum for any promotable number; report mean±sd, never a single draw.
+4. **The luck bar**: seed/draw variance plan — 5 seeds minimum for any promotable number; report mean±sd, never a single draw. A stop predicate pairs its target with a floor on attempts (pstack `hillclimb`), so a lucky early result cannot end the run.
 5. **Knob provenance**: every threshold/fraction/window selected on inner/prev-era data only; list the knobs and their selection block. Eval-selected knobs void the result.
 6. **The denominator**: the exact session set and per-session divisor, written before the run (abstention priced at $0, missing sessions counted).
+7. **The noise floor**: write down, before the run, the smallest difference this comparison
+   can resolve — from the seed spread (D-106) and, on ARTIFACT_PIN backends, the per-fit
+   variance receipt (D-105). A margin inside that floor is **noise, not an improvement**, and
+   is reported as "not resolved at this sample size", never as a win or a loss. State the floor
+   in the same table as the result, so the reader can check the margin against it without
+   opening a receipt.
 
 ## After the run
 - Report the pre-registered metric FIRST, with null and seed spread beside it. A result that beats the null but not the luck bar is "not established," never a win.

@@ -19,3 +19,12 @@ Propose, get confirmation, then act. Never delete on pattern-match alone; a stra
 - Bulk data lives under `/workspace/artifacts/cache/` — never on the overlay (/, /tmp, /home) (D-018).
 - Never `git clean -f`, never delete provenance/, artifacts/reference/, or anything hash-pinned.
 - Confirmation is per-batch and explicit; silence is not consent.
+- **The destroy-work verbs are ask-first, every time:** `git push --force` · `git reset --hard` ·
+  `git clean -f` · `git branch -D` · `git checkout .` · `git restore .` · `git stash push -u`
+  (on this tree it sweeps unreceipted artifacts into a stash nobody reads). None of these runs
+  without an explicit confirmation naming the paths it will touch. D-108 permits a PreToolUse
+  deny gate for these verbs; if one is installed it fails open, like every other D-104 gate.
+- **Self-grep for secrets before any commit** — `sk-`, `ghp_`/`gho_`, `AKIA`, `xoxb-`,
+  `-----BEGIN`. This is a check you run, not a hook that runs you.
+- **An audit script's bucket is advice, not permission** (pstack `worktree-cleanup`): the
+  pinned/active set is the authority, and uncommitted work pauses for a decision.

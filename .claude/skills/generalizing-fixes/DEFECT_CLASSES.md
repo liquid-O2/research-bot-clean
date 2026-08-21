@@ -19,3 +19,4 @@ Named classes this program has paid for at least once. Every new bug: check if i
 | torch-stack-swap | optional install silently replaces the pinned CUDA Torch | 2x; pin cu128 on every install |
 | unit-test-as-launch-proof | green unit/synthetic tests presented as chain readiness | AGENTS.md rule 2 exists because of this; 9-plumbing-failure launch |
 | gate-not-goal | gate enforces a different grain/law than the contract | portfolio-vs-per-asset PASS; shuffle-can-pass; zero-eligible haircut |
+| shared-mutable-lifetime | a handle, buffer, memmap, lock or module-level cache outlives the scope that owns it, or is read/written from two workers with no stated synchronization | EventPack memmap use-after-unmap: holding `.rows` past the `with` SIGSEGVs silently in workers (registered 2026-08-21, sweep owed across `engine/`); journal lock file; 16 workers on a 13.6-core cgroup |

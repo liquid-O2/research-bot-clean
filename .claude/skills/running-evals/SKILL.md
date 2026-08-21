@@ -23,6 +23,9 @@ Declare what must pass BEFORE building/launching, with runnable graders. A launc
    - **Positive arm (must PASS):** a synthetic input with the answer planted, proving the eval can detect the thing when present.
    - A capability eval without a failing null arm may not be promoted past EXPERIMENTAL. (D-095's controls, designed in at authoring time instead of discovered at post-mortem.)
 7. **Slice-verdict law**: before any long launch, the FULL chain — every stage INCLUDING resume/restart boundaries and the final verdict object itself — runs end-to-end on a 1-day slice in minutes. "The verdict object gets produced" is the eval, not "the stages run." Every rehearsal death in this repo's history (resume-identity refusals, dead neural stub, unattributable 1h46m failure) was catchable at slice scale for pennies. A chain whose slice mode doesn't exist is not launchable; build the slice mode first.
+8. **Anti-shortcut clauses, stated up front and held** (pstack `visual-parity`): no harness
+   modifications, no baseline tampering, no restructuring the work to make the diff pass. If
+   the baseline looks wrong, stop and ask — do not edit it.
 8. **Structured run log.** Any driver expected to run longer than 5 minutes appends one JSON object per stage transition to `<run-root>/run.jsonl`: `ts`, `stage`, `event` (`start|ok|fail`), `n_rows`, `hash` of what the stage published, `exit`. One line per transition, never prose prints — the 9-plumbing-failures post-mortem was archaeology through 524 free-text prints. **A stage with a `start` and no matching `ok` or `fail` is a verdict, not a gap:** that stage is where the run died, readable by `grep` without reopening the transcript.
 
 ## Common mistakes

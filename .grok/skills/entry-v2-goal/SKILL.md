@@ -32,6 +32,13 @@ Do not start from MemPalace `RECALL.md`, compaction `INDEX.md`, or
 - 16 workers. Do not infer RAM from cgroup.
 - Per-asset >$2,000/day independently for SI/HG/NKD. Portfolio $3,000 cannot hide a failing asset. 80% exact delayed-candidate ceiling (90% target).
 
+## Law added 2026-08-21 (after this card was first written)
+
+- D-105: fit backends are per-head-per-transition (`engine/entry_v2/tabular_fit_backends.py` is the authority; Quantile:0.9 flipped to CPU by bigfold probe — GPU_DEGENERATE receipt).
+- D-106: 5 real seeds + 5 matched shuffles minimum for any promotable number.
+- D-107: ENTRIES FIRST — no exits/holds extension until E1R is understood and attributed.
+- D-109: six hours is the cap for any work item, met by genuine speed only — never by cutting scope or quality; over-budget arithmetic goes to the user BEFORE the run.
+
 ## Process
 
 Implement with edge cases. One remaining-chain audit. One fix pass. One run. On typed failure: freeze, audit that class, one fix, one resume. No `patch → launch → next defect`.

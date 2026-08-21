@@ -481,10 +481,16 @@ class BigfoldFoldSelectionTest(unittest.TestCase):
 class BigfoldForceGpuTest(unittest.TestCase):
     """I7/M4: the probe stays runnable after the flip sent the head to CPU."""
 
-    def test_the_live_law_supplies_the_overlay_while_the_head_is_gpu(
-            self) -> None:
-        self.assertEqual(_probe_overlay(force_gpu=False),
-                         {"task_type": "GPU", "devices": "0"})
+    def test_the_law_supplies_the_overlay_while_the_head_is_gpu(self) -> None:
+        # Backend pinned GPU by mock (the live law flipped this head to CPU);
+        # the sentinel proves the overlay comes from the LAW path, not from
+        # the probe's raw GPU_DEVICE_PARAMETERS force-gpu fallback.
+        sentinel = {"task_type": "GPU", "devices": "0", "law_marker": 1}
+        with unittest.mock.patch(f"{__name__}.fit_backend_for_loss",
+                                 return_value=CATBOOST_GPU), \
+                unittest.mock.patch(f"{__name__}.gpu_fit_param_overlay",
+                                    return_value=sentinel):
+            self.assertEqual(_probe_overlay(force_gpu=False), sentinel)
 
     def test_after_a_flip_the_probe_refuses_without_force_gpu(self) -> None:
         with unittest.mock.patch(f"{__name__}.fit_backend_for_loss",

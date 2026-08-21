@@ -81,6 +81,7 @@ pass — never review→fix→review.
 | Entry V2, tabular CatBoost, rehearsal, economic gates, learning-result claims | entry-v2-goal |
 | Rough, spoken-style, or ambiguous request lands | sharpening-specs |
 | A plan or design is about to be adopted; assumptions or library/vendor behavior unverified | stress-testing-plans |
+| Work is too big for one pass; a multi-stage plan, wide refactor, or task graph is about to be written | breaking-down-work |
 | About to build a nontrivial new component or add a dependency | researching-first |
 | Unknown behavior blocks a design choice or estimate | spiking-prototypes |
 | Shaping an interface, module boundary, or format | designing-it-twice |
@@ -108,7 +109,7 @@ Before trusting any doc or old transcript: /workspace/CURRENT.md. Hardware truth
 - **Surgical changes**: every changed line traces to the request. Don't improve adjacent code/comments/formatting; match existing style; remove only orphans YOUR change created; mention (don't delete) pre-existing dead code.
 - **Citations and WHY-comments survive refactors**: never strip a `D-`/`CC-`/`A-` ruling citation or a provenance comment in an unrelated change — 1,031 such citations across 206 `engine/` files are the only record of why a line is the way it is. Pre-land check: `git diff -U0 | grep -E '^-.*\b(D-[0-9]{3}|CC-|A-[0-9]{3})\b'`; every hit is a finding until explained.
 - **Code is agent infrastructure**: unique grep-able names (<5 hits repo-wide), typed signatures, files that fit one read (<500 lines), ~2 nesting levels max, errors carrying offending value + expected shape, comments saying WHY with provenance — never WHAT.
-- **Goal-driven**: every plan step carries its own `→ verify:` check; a bug fix starts from a red reproducing test.
+- **Goal-driven**: every plan step is WRITTEN in the literal template `1. [Step] → verify: [exact command/check]` — the shape is mandatory, not advisory (Karpathy E-K4); a bug fix starts from a red reproducing test. The full check battery is one command: `bash tools/run_all_checks.sh`.
 
 
 # Mandatory Entry V2 execution rules

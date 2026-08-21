@@ -45,6 +45,8 @@ that dies on the first real result — the D-107 sequencing law exists because o
    parallel lanes take it without asking; a slice with no blocker starts now.
 5. **Infrastructure and shared types land first** (pstack `references/plan.md`), and prefactor
    before you build: "Make the change easy, then make the easy change" (`to-tickets` §2).
+   Among the rest, **sequence riskiest-unknown-first** (pstack `figure-it-out`): the slice most
+   likely to invalidate the plan runs earliest, while changing course is still cheap.
 6. **The slice card** (Pocock `to-tickets` templates): each slice is written as *what to
    build* — the end-to-end behaviour it makes work, from the caller's perspective, never a
    layer-by-layer implementation list — plus its blockers and 2–5 acceptance criteria. No file

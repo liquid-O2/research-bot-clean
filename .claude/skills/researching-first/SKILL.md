@@ -16,6 +16,7 @@ Look before build. Minimum outcome: **adopt / extend / compose / build** — wit
 2. **Vendored/local source next**: read the actual dependency source under the venv or engine/cpp vendor dirs before writing integration code — API shapes from source, not memory.
 3. **Literature/web**: for method questions, run a cross-domain sweep (the house pattern: EVT declustering, NMS, Hawkes etc. came from exactly this) — named techniques, adopt/skip verdict per technique.
 4. **Record Prior Art** in the design doc: name, source, fit verdict, why.
+5. **Coverage map for multi-source questions** (pstack `why`): when the question spans several evidence sources (git history, journal, design/, provenance/, OptMem, transcripts, web), sweep them in parallel and report one line per source — what was searched, and what was found, or "no relevant results", or "skipped: <reason>". A null from a searched source is first-class evidence; **never skip a source by anticipation** ("probably not there" is not a reason — run the search and let the null speak). The map lets the reader judge breadth and redirect.
 
 | Verdict | Action |
 |---|---|

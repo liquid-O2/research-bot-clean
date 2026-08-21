@@ -23,6 +23,9 @@ A claim of "done/passing" is a measurement, not a mood. The verdict must be repr
    a zero-row table is a false pass — the most expensive kind. This is `encoding-goals-in-gates`
    step 2 applied to the checks themselves.
 
+## The one fact it's safe because of (pstack `blast-radius`)
+A change that looks scary is usually safe because of a SINGLE fact ("this file is in no identity hash", "this call only drops already-dead entries"). Find that fact, and prove IT — by running real code (rung 4: a script that calls the exact function), not by writeup. A safety writeup reads as convincing whether or not it is true; the one-fact proof is what you hand back, and an unprovable fact is written "unproven — don't round up". Look where grep stops: the vendored library's source, timing/teardown order, wire formats and columns another reader consumes, flags, code three hops downstream. List risks you confirmed separately from risks you checked and cleared. A generated lever or skill that was never executed is a draft, not a deliverable (pstack `create-verification-skill`).
+
 ## Cheap-first verification ladder (trading project: full runs cost box-hours)
 Verify at the SMALLEST scale that can falsify the claim, and only climb when the rung passes:
 1. **Fixture** (ms, free): one red-first fixture + one false-positive guard on the exact construct.

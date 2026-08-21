@@ -42,6 +42,12 @@ Sources: Pocock `writing-for-agents`/`triage`, bigpowers `delegate-task`, and th
   bound is sharp when the agent cannot declare done early — clarity (what exactly must be true
   after) plus demand (the evidence required to claim it). Premature completion is a brief
   defect, not an agent defect.
+- **A deterministic lever beats fan-out** (pstack `build-the-lever`): if one script can process
+  every unit in one pass, run it yourself — don't dispatch delegates to hand-apply what a
+  codemod can do.
+- **Directives decay across resumes** (pstack `orchestrate`/router): standing rules go verbatim
+  into every spawn AND every resume message; for consolidated new scope, prefer a fresh lane
+  over a long interrupt-chain — resumed agents silently drop earlier directives.
 
 ## Pointers (skill descriptions, routing-table rows, "read X before Y" lines)
 A pointer names out-of-context material and encodes the condition for reaching it. **Its wording, not its target, decides whether the agent reaches it.** A must-have target behind a weakly worded pointer is a variance bug: sharpen the wording first; inline the material only if sharpening fails. Front-load the triggering word. One trigger per genuinely distinct branch — synonyms that rename one branch are one branch written twice. Cut identity the body already carries. Every word of an always-loaded pointer costs on every turn.

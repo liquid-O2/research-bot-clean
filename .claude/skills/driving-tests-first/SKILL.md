@@ -14,7 +14,7 @@ House replacement for the third-party TDD skill; composes with D-017 (red-first 
 
 ## House rules
 - **Fixture pair** for every detector/validator/gate: the red-first fixture it must catch AND the false-positive guard it must accept.
-- **Two-commit isolation** where practical: test commit separable from implementation commit, so the red state is provable from history.
+- **Two-commit isolation** where practical: test commit separable from implementation commit, so the red state is provable from history. Generalized (pstack `sequence-verifiable-units`): order commits so the sequence proves the work — red before green, baseline before treatment, subtraction before reshape; each commit lands alone and the stack reads as an argument.
 - **Tests that matter** (user law): unit/synthetic tests are regression checks only — never launch or correctness evidence for a chain; the real-data slice is the evidence tier (running-evals).
 - Tests run via `python3 -m unittest <module>` — pytest is not installed.
 - Test the contract, not the implementation: assert on outputs/receipts, not internal call order.

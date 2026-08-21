@@ -195,9 +195,9 @@ class TeacherControlTests(unittest.TestCase):
         ceiling = candidate_ceiling(arrivals, expected_sessions=(examples[0].session,))
         self.assertEqual(
             {trade.candidate_id for trade in ceiling.evaluation.trade_results},
-            {"p2", "p4", "p5"},
+            {"p2", "p3", "p4", "p5"},
         )
-        self.assertEqual(ceiling.evaluation.total_pnl_usd, 6_500.0)
+        self.assertEqual(ceiling.evaluation.total_pnl_usd, 7_300.0)
 
         with self.assertRaisesRegex(ContractError, "outside expected sessions"):
             build_teacher_store(
@@ -233,7 +233,7 @@ class TeacherControlTests(unittest.TestCase):
             sorted(vector(store[cid]) for cid, *_ in specs),
         )
 
-    def test_same_timestamp_highest_wins_peers_negative_and_cap_masks(self) -> None:
+    def test_same_timestamp_highest_wins_and_peers_are_negative(self) -> None:
         specs = (
             ("same-low", 10, 11, 700.0),
             ("same-high-z", 10, 11, 1_500.0),
@@ -256,8 +256,8 @@ class TeacherControlTests(unittest.TestCase):
         self.assertFalse(store["same-low"].take_target)
         self.assertTrue(store["same-high-z"].action_loss_mask)
         self.assertTrue(store["same-low"].action_loss_mask)
-        self.assertFalse(store["capped"].take_target)
-        self.assertFalse(store["capped"].action_loss_mask)
+        self.assertTrue(store["capped"].take_target)
+        self.assertTrue(store["capped"].action_loss_mask)
 
 class ArrivalReplayTests(unittest.TestCase):
     def test_exact_timestamp_batch_occupancy_and_future_mutation(self) -> None:
@@ -359,12 +359,27 @@ class ArrivalReplayTests(unittest.TestCase):
             SessionRef("SI", 20250103, "SI-20250103-empty"),
         ))
         capped = replay(arrivals, expected_sessions=expected)
-        self.assertEqual(capped.trades, 9)
-        self.assertEqual([row.trades for row in capped.by_asset], [3, 3, 3])
+        self.assertEqual(capped.trades, 12)
+        self.assertEqual([row.trades for row in capped.by_asset], [4, 4, 4])
         self.assertEqual(capped.asset_days, 4)
         self.assertEqual(capped.zero_asset_days, 1)
-        self.assertEqual(capped.total_pnl_usd, 900.0)
-        self.assertEqual(capped.usd_per_asset_day, 225.0)
+        self.assertEqual(capped.total_pnl_usd, 1_200.0)
+        self.assertEqual(capped.usd_per_asset_day, 300.0)
+
+    def test_no_separate_asset_cap_but_portfolio_cap_is_twelve(self) -> None:
+        arrivals = []
+        for index in range(13):
+            item = example(f"SI-{index:02d}", "SI", 100 + index * 2)
+            arrivals.append(ScoredArrival(
+                item, score(item, 100 - index),
+                outcome(item, 101 + index * 2, 100.0)))
+        result = replay(arrivals, expected_sessions=(arrivals[0].example.session,))
+        self.assertEqual(result.trades, 12)
+        self.assertEqual(result.by_asset[0].trades, 12)
+        self.assertEqual(
+            [row.candidate_id for row in result.trade_results],
+            [f"SI-{index:02d}" for index in range(12)],
+        )
 
     def test_drawdown_is_cumulative_per_asset_and_wall_loss_carries_cost(self) -> None:
         losses = tuple(

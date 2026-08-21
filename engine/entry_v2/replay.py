@@ -23,8 +23,11 @@ from .contracts import (
 
 
 WALL_LOSS_USD = -900.0
-MAX_ENTRIES_PER_ASSET_DAY = 3
-MAX_ENTRIES_PER_DAY = 9
+# One position at a time per asset is enforced by ``open_until``.  There is no
+# separate per-asset daily count cap; the shared twelve-entry portfolio budget
+# is the only daily count law.  The alias keeps the bounded interval DP simple.
+MAX_ENTRIES_PER_DAY = 12
+MAX_ENTRIES_PER_ASSET_DAY = MAX_ENTRIES_PER_DAY
 
 
 @dataclass(frozen=True, slots=True)
@@ -122,8 +125,15 @@ def _better_schedule(
     return left if tuple(sorted(left[1])) < tuple(sorted(right[1])) else right
 
 
-def _asset_day_ceiling(rows: tuple[ScoredArrival, ...]) -> tuple[str, ...]:
-    """Exact weighted-interval schedule with at most three entries."""
+def _asset_day_schedules(
+    rows: tuple[ScoredArrival, ...],
+) -> tuple[tuple[float, tuple[str, ...]], ...]:
+    """Exact per-asset weighted-interval schedules for every count budget.
+
+    The compatibility return remains the best schedule using at most the
+    portfolio-wide count budget.  ``candidate_ceiling`` performs the actual
+    cross-asset twelve-seat allocation below.
+    """
 
     intervals: list[tuple[int, int, float, str]] = []
     for row in rows:
@@ -151,7 +161,13 @@ def _asset_day_ceiling(rows: tuple[ScoredArrival, ...]) -> tuple[str, ...]:
             base = dp[previous][cap - 1]
             take = (base[0] + pnl_usd, base[1] + (candidate_id,))
             dp[i][cap] = _better_schedule(skip, take)
-    return dp[-1][MAX_ENTRIES_PER_ASSET_DAY][1]
+    return tuple(dp[-1])
+
+
+def _asset_day_ceiling(rows: tuple[ScoredArrival, ...]) -> tuple[str, ...]:
+    """Compatibility wrapper returning the unconstrained-by-other-assets row."""
+
+    return _asset_day_schedules(rows)[MAX_ENTRIES_PER_ASSET_DAY][1]
 
 
 def candidate_ceiling(
@@ -161,10 +177,10 @@ def candidate_ceiling(
     """Return the exact candidate-set schedule ceiling.
 
     This is deliberately not an online prophet.  It solves the weighted
-    interval schedule with full future knowledge, independently per asset-day.
-    With the fixed three-asset universe, the three-per-asset cap implies the
-    nine-per-day portfolio cap.  The selected schedule is then passed through
-    the same replay implementation as every learned policy.
+    interval schedule with full future knowledge.  Per-asset non-overlap and
+    the shared twelve-entry portfolio budget are both binding; there is no
+    additional per-asset daily count cap.  The selected schedule is then
+    passed through the same replay implementation as every learned policy.
     """
 
     rows = tuple(arrivals)
@@ -173,10 +189,37 @@ def candidate_ceiling(
         groups.setdefault((row.example.asset, row.example.trading_day), []).append(row)
     selected: set[str] = set()
     by_day: dict[int, int] = {}
-    for (_asset, day), group in sorted(groups.items()):
-        chosen = _asset_day_ceiling(tuple(group))
-        selected.update(chosen)
-        by_day[day] = by_day.get(day, 0) + len(chosen)
+    days = sorted({day for _asset, day in groups})
+    for day in days:
+        # Knapsack the independently non-overlapping asset schedules under the
+        # one shared twelve-entry budget.  A per-asset table is "at most k",
+        # which is exactly what the portfolio composition needs.
+        portfolio: list[tuple[float, tuple[str, ...]]] = [
+            (0.0, ()) for _ in range(MAX_ENTRIES_PER_DAY + 1)
+        ]
+        for asset in sorted({name for name, row_day in groups if row_day == day}):
+            schedules = _asset_day_schedules(tuple(groups[(asset, day)]))
+            updated = list(portfolio)
+            for used in range(MAX_ENTRIES_PER_DAY + 1):
+                # The per-asset table is indexed by an *allowance*, so adjacent
+                # cells can contain the same smaller schedule.  Portfolio seats
+                # are charged by the actual selected count, never the allowance.
+                for asset_schedule in schedules:
+                    seats = len(asset_schedule[1])
+                    if used + seats > MAX_ENTRIES_PER_DAY:
+                        continue
+                    candidate = (
+                        portfolio[used][0] + asset_schedule[0],
+                        portfolio[used][1] + asset_schedule[1],
+                    )
+                    updated[used + seats] = _better_schedule(
+                        updated[used + seats], candidate)
+            portfolio = updated
+        best = (0.0, ())
+        for candidate in portfolio:
+            best = _better_schedule(best, candidate)
+        selected.update(best[1])
+        by_day[day] = len(best[1])
     if any(count > MAX_ENTRIES_PER_DAY for count in by_day.values()):
         raise ContractError("candidate ceiling exceeds portfolio daily cap")
     ordered_ids = tuple(sorted(selected))

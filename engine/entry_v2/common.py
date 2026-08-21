@@ -48,9 +48,14 @@ ERAS = (
     ("E8", 20250101, 20250630),
 )
 
-MAX_CPU_WORKERS = 12
-MAX_ENTRIES_PER_ASSET_DAY = 3
-MAX_ENTRIES_PORTFOLIO_DAY = 9
+MAX_CPU_WORKERS = 16
+# Position law (user ruling 2026-08-19): one concurrent mini per asset,
+# unlimited sequential re-entry, and at most twelve entries across the whole
+# portfolio day.  ``MAX_ENTRIES_PER_ASSET_DAY`` is retained as a compatibility
+# alias for consumers whose DP has a per-asset dimension; setting it equal to
+# the portfolio budget means it imposes no additional per-asset daily cap.
+MAX_ENTRIES_PORTFOLIO_DAY = 12
+MAX_ENTRIES_PER_ASSET_DAY = MAX_ENTRIES_PORTFOLIO_DAY
 WALL_USD = 900.0
 MIN_EXPECTANCY_USD = 600.0
 MIN_TRADES = 10
@@ -66,7 +71,22 @@ TARGET_SESSION_USD = TARGET_ASSET_DAY_USD
 WEAK_SESSION_FLOOR_USD = WEAK_ASSET_DAY_FLOOR_USD
 TARGET_MDD_USD = 1000.0
 
+# Goal-bound tabular recovery law (user-approved 2026-08-20).  These are
+# portfolio-day gates and intentionally do not replace the older per-asset
+# diagnostic constants above.  Keeping the units explicit prevents another
+# asset-day/session/portfolio-day denominator substitution.
+RECOVERY_MIN_PORTFOLIO_DAY_USD = 3_000.0
+RECOVERY_TARGET_PORTFOLIO_DAY_USD = 6_000.0
+RECOVERY_MIN_CEILING_CAPTURE = 0.80
+RECOVERY_TARGET_CEILING_CAPTURE = 0.90
+RECOVERY_MIN_CONVERSION_RETENTION = 0.90
+
 _D8 = re.compile(r"(?<!\d)(\d{8})(?!\d)")
+_SHA256_TOKEN = re.compile(
+    r"(?<![0-9a-fA-F])[0-9a-fA-F]{64}(?![0-9a-fA-F])")
+# Frozen CatBoost RNG identities are path components like seed_20260820.
+# They are not payload trading days and must not trip the 2026 seal.
+_SEED_TOKEN = re.compile(r"seed_\d+")
 
 
 class EntryV2Refusal(RuntimeError):
@@ -149,7 +169,20 @@ def assert_workspace_output(path: os.PathLike[str] | str) -> Path:
 
 
 def dates_in_basename(path: os.PathLike[str] | str) -> tuple[int, ...]:
-    return tuple(int(x) for x in _D8.findall(Path(path).name))
+    """Return explicit date-like tokens, excluding opaque SHA-256 identities.
+
+    Content-addressed artifact directories are full 64-hex tokens.  Treating
+    an incidental eight-digit run inside one as a date makes a lawful pre-H2
+    artifact fail nondeterministically based on its hash.  Hash tokens carry
+    no date authority; any separate date token in the basename remains guarded.
+
+    ``seed_<digits>`` path identities are frozen RNG seeds (REAL_SEEDS /
+    SHUFFLE_SEEDS), not session trading days.  A basename that is only a seed
+    must not be sealed as 2026 payload.  A bare ``20260820.json`` still is.
+    """
+
+    name=_SEED_TOKEN.sub("",_SHA256_TOKEN.sub("",Path(path).name))
+    return tuple(int(x) for x in _D8.findall(name))
 
 
 def era_of(d8: int) -> str:

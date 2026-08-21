@@ -28,6 +28,29 @@ class CommonTest(unittest.TestCase):
         with self.assertRaises(C.EntryV2Refusal):
             C.guard_date(20260101)
 
+    def test_payload_date_guard_ignores_only_opaque_sha256_tokens(self):
+        identity="a"*20+"20250701"+"b"*36
+        self.assertEqual(len(identity),64)
+        self.assertEqual(C.dates_in_basename(identity),())
+        self.assertEqual(C.guard_payload(identity),())
+        self.assertEqual(
+            C.dates_in_basename(f"artifact-{identity}-20250630.json"),
+            (20250630,))
+        with self.assertRaisesRegex(C.EntryV2Refusal,"2025H2 HOLDOUT"):
+            C.guard_payload("artifact-20250701.json")
+
+    def test_payload_date_guard_ignores_rng_seed_path_identities(self):
+        self.assertEqual(C.dates_in_basename("seed_20260820"),())
+        self.assertEqual(C.guard_payload("seed_20260820"),())
+        self.assertEqual(C.dates_in_basename("seed_20260820.json"),())
+        self.assertEqual(C.guard_payload("seed_20261820"),())
+        self.assertEqual(
+            C.dates_in_basename("action_matrices/real/seed_20260820"),())
+        with self.assertRaisesRegex(C.EntryV2Refusal,"2026 SEALED"):
+            C.guard_payload("session-20260820.json")
+        with self.assertRaisesRegex(C.EntryV2Refusal,"2026 SEALED"):
+            C.guard_payload("20260820.npz")
+
     def test_qre2cal1_asset_aware_denominator(self):
         self.assertEqual(
             C.file_sha256(C.QRE2_CALENDAR_PATH), C.QRE2_CALENDAR_SHA256)

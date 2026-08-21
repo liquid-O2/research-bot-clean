@@ -9,7 +9,7 @@ Born of paid incidents: a night lost to a liveness FALSE alarm, another to a REA
 
 ## Before launch
 1. **Thread budget arithmetic**: workers × threads-per-worker ≤ HARDWARE.md cores. Check every library's default (CatBoost `predict(thread_count=-1)` spawns ~n_cpu threads PER WORKER — pin it). Oversubscription looks like progress at 1/10 speed.
-2. **Resume safety proven at slice scale**: kill-and-resume the 1-day slice before the long run; the resume path is where three consecutive rehearsals died (running-evals slice-verdict law).
+2. **Resume safety proven at slice scale**: kill-and-resume the 1-day slice before the long run; the resume path is where three consecutive rehearsals died (running-evals slice-verdict law). Design test (pstack `make-operations-idempotent`): what happens if the previous run crashed at EVERY possible point? Each answer is either "resumes correctly by receipt" or a named defect.
 3. **Watcher armed at launch** (D-074): a completion/failure watcher plus a **stage-aware tripwire** — "no new <artifact-kind> in <N min> ⇒ escalate," with N set per stage (a heartbeat-per-era stage needs a longer N than a per-file stage; per-policy heartbeats prevent false alarms).
 4. **Logs**: `setsid nohup ... >> <run-root>/logs/<stage>.log`; the log path recorded in the launch note; no orphan processes without a recorded pid.
 5. **Freeze the ruler before the first attempt** (pstack `hillclimb` step 2): prove the

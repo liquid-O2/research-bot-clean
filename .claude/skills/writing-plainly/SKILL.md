@@ -21,6 +21,7 @@ Plain simple language, outcome first, at true milestones only. The reader is a t
 9. **Every count, table, or claim of size is true at the commit that lands it, and carries the command that regenerates it.** A number in a report with no reproducing command is a memory, not a measurement.
 10. **A checkpoint presents a brief, not the output** (Pocock `loop-me`): what was produced,
     why, and a link down to the asset. Speed of review is the constraint.
+11. **Procedure and runbook sentences (STE, from pstack `technical-writing`)**: put the warning or condition BEFORE the step it guards; keep "only" and "not" next to the word they change ("fails only on growth" ≠ "only fails on growth"); say which parts "and"/"or" joins when a sentence can group two ways ("both…and", "either…or", "if…then" are free disambiguators); never "simply", "easy", or "quickly" in a procedure. Gate contracts are sentences before they are code — an ambiguous clause is an unenforceable one (encoding-goals-in-gates).
 
 ## Common mistakes
 | Mistake | Reality |

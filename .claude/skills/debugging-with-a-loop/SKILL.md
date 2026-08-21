@@ -36,13 +36,13 @@ Strip the loop until every element is load-bearing (deletion test): fewer sessio
 Write **3-5 ranked falsifiable hypotheses** before touching code (a single hypothesis anchors; this repo's "selector-disagreement" and "wall" hypotheses were both refuted by their own first diagnostic — cheap because the loop existed). Each hypothesis names the one-number test that would kill it. Run the cheapest killer first.
 
 ## Phase 4 — instrument, don't guess
-Tag temporary instrumentation `[DBG-<slug>]` so it greps out cleanly afterward. Log the deciding values immediately before the irreversible step. Redact secrets in anything shown.
+Tag temporary instrumentation `[DBG-<slug>]` so it greps out cleanly afterward. Log the deciding values immediately before the irreversible step. Redact secrets in anything shown. Change ONE variable per experiment — two changed variables explain nothing; and prefer the sharpest instrument available (Pocock: debugger > targeted logs > never log-everything-and-grep).
 **Prove the mechanism before believing it** (pstack `runtime-forensics` step 3): inject the
 instrumentation or flip the value live and watch the symptom move. A plausible-but-unconfirmed
 cause can be wrong while the real one sits one layer over.
 
 ## Exit — root cause, not symptom
-The fix lands at the ORIGIN of the bad value (trace backward; fixing where it hurt leaves the class alive one layer up). Red→green through the loop, THEN generalizing-fixes (sibling sweep + depth pass + registry check). A fix without the loop's green is a hope; a green without the root cause named is a symptom patch.
+The fix lands at the ORIGIN of the bad value (trace backward; fixing where it hurt leaves the class alive one layer up). Red→green through the loop, THEN generalizing-fixes (sibling sweep + depth pass + registry check). A fix without the loop's green is a hope; a green without the root cause named is a symptom patch. The commit message states the winning hypothesis — the next reader of this file gets the mechanism, not just the diff.
 **A frame with no source mapping is not a diagnosis** (pstack `trace-forensics` step 4):
 resolve the symbol to file and line, or say plainly the artifact does not carry it. **Without a
 paired before/after capture, the finding is the strongest hypothesis the artifact supports, not

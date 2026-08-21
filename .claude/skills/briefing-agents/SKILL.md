@@ -38,6 +38,10 @@ Sources: Pocock `writing-for-agents`/`triage`, bigpowers `delegate-task`, and th
 - **Communicate to and from lanes primarily through context pointers** (Pocock `implement-spec`)
   — the spec path, the ticket, the research note, the prior commit. Do not duplicate
   information already reachable via a pointer.
+- **Sharpen the completion bound before splitting the task** (Pocock `writing-for-agents`): a
+  bound is sharp when the agent cannot declare done early — clarity (what exactly must be true
+  after) plus demand (the evidence required to claim it). Premature completion is a brief
+  defect, not an agent defect.
 
 ## Pointers (skill descriptions, routing-table rows, "read X before Y" lines)
 A pointer names out-of-context material and encodes the condition for reaching it. **Its wording, not its target, decides whether the agent reaches it.** A must-have target behind a weakly worded pointer is a variance bug: sharpen the wording first; inline the material only if sharpening fails. Front-load the triggering word. One trigger per genuinely distinct branch — synonyms that rename one branch are one branch written twice. Cut identity the body already carries. Every word of an always-loaded pointer costs on every turn.

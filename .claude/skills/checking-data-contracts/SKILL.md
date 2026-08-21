@@ -10,7 +10,10 @@ description: Use when data crosses a boundary — Python feature frames into the
 Silent shape drift across a boundary corrupts downstream results without erroring. Contracts are asserted by code at the boundary, not enforced by convention.
 
 ## Recipe
-1. **Name the boundary** and its two sides (producer file:line, consumer file:line).
+1. **Inventory the boundaries, one row per medium** (bcp `flow-boundaries`) — every distinct medium the stage exchanges data with, not every call: ten reads of the same day-store is ONE boundary; one read plus one C++ handoff plus one vendor file is THREE. Complete when every producer/consumer pair (file:line both sides) appears in exactly one row. Classify each row on three axes; anything not "full/internal/persistent" earns an explicit assertion:
+   - **Ownership** — does the consumer own the bytes after the handoff, or is the producer still authoritative? Shared ownership means a schema change has two owners.
+   - **Validity** — must the consumer reason about *when* the value was true? A yes marks a **volatile exchange**: it needs the D-057 availability-time guard (step 4) and a staleness bound, and it is the row most likely to leak the future. This axis is an independent detector for future-leak rows nobody yet suspects.
+   - **Durability** — persistent store on disk, or ephemeral (in-memory, per-run)? An ephemeral row cannot be re-derived after the fact, so its contract is asserted at the moment of exchange or never.
 2. **Key-set assertion**: exact column/field names AND order where order is identity (dense stores). Extra key = failure; missing key = failure; reordered = failure unless the consumer is order-free by proof. **The failure message carries the evidence, not a category**: `missing=`, `extra=`, `expected_width=`, `got_width=`, `source=file:line`. "Schema mismatch" and "invalid input" are banned at a boundary — they cost a debugging round to learn what the assertion already knew.
 3. **Dtype/width assertion**: builder width vs consumer expectation computed from the SAME source of truth (e.g. causal + COMPONENT_STACK_NAMES + ACTION_STATE_FEATURE_NAMES — never a parallel hand-list).
 4. **Temporal guard** (D-057): every joined series asserts availability_ts <= decision_ts strictly; keep the red-first future-join fixture that must be caught.

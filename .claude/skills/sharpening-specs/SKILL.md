@@ -22,3 +22,4 @@ Adapted from bigpowers `elaborate-spec`. Output is shared understanding written 
 | Jumping to architecture mid-elaboration | Understanding first; design after the spec is confirmed. |
 | Asking questions the repo answers | Facts get grepped, not asked (see stress-testing-plans). |
 | Leaving the spec in the chat | Unwritten specs die at the next compaction. |
+| Averaging two lanes' divergent estimates | A >2x divergence is a scope disagreement, not noise (bcp): find the item one side counted and the other did not — that item is the ambiguous line in the spec. Fix the spec, then re-estimate. |

@@ -84,6 +84,8 @@ Shape from pstack `feature` step 3. Write all four; answer or mark `n/a: <reason
 3. **Shared mutable state** — default to *splitting the target*, not locking it (pstack
    `principle-separate-before-serializing-shared-state`). House form: one writer per artifact
    path (briefing-agents, Red flags: two lanes writing the same file — assign ownership).
+   Concrete test: each writer gets its own file or partition merged later, over one shared
+   file behind a lock.
 4. **Smallest safe decomposition** — if one lane is best, name why. Attach the house resource
    clause here: workers × threads-per-worker ≤ HARDWARE.md's 13.6 cores, per lane
    (briefing-agents:25).

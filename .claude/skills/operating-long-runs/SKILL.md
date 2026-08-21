@@ -17,7 +17,11 @@ Born of paid incidents: a night lost to a liveness FALSE alarm, another to a REA
    it mid-run invalidates every earlier number. Sample enough to clear noise — median of N,
    never a single run (DEFECT_CLASSES.md `seed-draw-headline`). **A stop predicate pairs its
    target with a floor on attempts** (`hillclimb` step 1), so a lucky early result cannot end
-   the run.
+   the run. **One change, one measurement, keep or revert** — never stack untested changes; a
+   reject reverts in full. Keep a decision log from the first attempt (`hillclimb` step 3): one
+   row per attempt — hypothesis, change, before, after, delta, verdict kept/reverted — held
+   outside the tree so it survives reverts, and read before each attempt so the search
+   accumulates instead of circling.
 6. **Six-hour arithmetic, written before the launch (D-109).** State the block's predicted wall
    time and the arithmetic behind it: stages × per-stage measured rate × the HARDWARE.md core
    budget from step 1. Under 6h: launch. Over 6h: the answer is faster code, not smaller science

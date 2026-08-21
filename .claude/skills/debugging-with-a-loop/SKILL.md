@@ -21,11 +21,13 @@ A **tight pass/fail signal that goes red on THIS bug**, one command, seconds not
 **Phase 1 is done when you can name ONE command you have already run at least once, and paste its output:** red-capable (asserts the exact observed symptom, not "didn't crash"), deterministic (same verdict every run; for flaky bugs, a pinned high reproduction rate — a 50% flake is debuggable, 1% is not), fast (seconds), and runnable unattended. **If you catch yourself reading code to build a theory before this command exists, stop.** If you genuinely cannot build a loop, say so explicitly and list what you tried — do not proceed to hypotheses without one.
 **Perf branch:** for a performance regression, logs are usually the wrong instrument. Establish a baseline measurement first (timing harness, profiler, thread/CPU sample), then bisect against it. Measure first, fix second.
 The eight strategy families are **hypothesis generators, not a checklist** (pstack `perf-issue`
-step 2): elimination · divide-and-shard · caching · indirection · batching · redundancy/hedging
+step 2): elimination · divide-and-conquer · caching · indirection · batching · redundancy/hedging
 · lazy evaluation · scheduling. **A family earns an attempt only when the trace shows the signal
 it names**, and a focused fix for the dominant cost beats applying all eight. Elimination is the
 exception that needs the read-the-code pass, not the profiler: **the trace shows what is slow,
-never that it is deletable.**
+never that it is deletable.** Each family has a *claim-validity check* (what the trace must show
+first, what must be named before the win is claimed) — with the trace in hand, read
+`references/perf-families.md` beside this skill before picking one.
 
 ## Phase 2 — tighten and minimize
 Strip the loop until every element is load-bearing (deletion test): fewer sessions, fewer columns, smaller window — while the red stays red. A loop that stops reproducing when simplified just told you where the bug lives.

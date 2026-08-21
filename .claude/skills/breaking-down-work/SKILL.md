@@ -45,7 +45,15 @@ that dies on the first real result — the D-107 sequencing law exists because o
    parallel lanes take it without asking; a slice with no blocker starts now.
 5. **Infrastructure and shared types land first** (pstack `references/plan.md`), and prefactor
    before you build: "Make the change easy, then make the easy change" (`to-tickets` §2).
-6. **Pilot ONE slice through the whole path before any fan-out** (pstack `orchestrate` step 3).
+6. **The slice card** (Pocock `to-tickets` templates): each slice is written as *what to
+   build* — the end-to-end behaviour it makes work, from the caller's perspective, never a
+   layer-by-layer implementation list — plus its blockers and 2–5 acceptance criteria. No file
+   paths or code snippets in cards (they go stale fast); the one exception is a decision-rich
+   snippet a spike produced (a schema, state machine, type shape), trimmed to the decision.
+   **Sanity-pass the whole graph before fan-out**: granularity right? every blocking edge
+   genuine? anything to merge or split? Upstream asks the user these; running autonomously,
+   answer them yourself in the plan doc and leave the answers visible.
+7. **Pilot ONE slice through the whole path before any fan-out** (pstack `orchestrate` step 3).
    The pilot exists to falsify the brief template, the verify recipe, and the slice size while
    that costs one lane instead of twelve. Fix the contract from pilot evidence, then fan out.
    This is AGENTS.md rule 1 stated at planning time: the alternative is discovering the

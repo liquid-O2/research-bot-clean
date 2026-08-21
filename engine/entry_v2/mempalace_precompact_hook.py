@@ -9,13 +9,15 @@ from collections.abc import Mapping
 from typing import Any
 
 try:
+    from .mempalace_continuity_spool import append_journal_checkpoint
     from .mempalace_continuity_spool import append_receipt_log
     from .mempalace_continuity_spool import capture_precompact
-    from .mempalace_continuity_spool import reconcile_pending
+    from .mempalace_continuity_spool import reconcile_path
 except ImportError:  # Executed as an absolute script by Codex.
+    from mempalace_continuity_spool import append_journal_checkpoint
     from mempalace_continuity_spool import append_receipt_log
     from mempalace_continuity_spool import capture_precompact
-    from mempalace_continuity_spool import reconcile_pending
+    from mempalace_continuity_spool import reconcile_path
 
 
 # MemPalace's write modules protect MCP stdout at import time. Preserve the
@@ -36,7 +38,7 @@ def _log_receipt(kind: str, receipt: Mapping[str, Any]) -> None:
 
 def run(payload: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     try:
-        _, _, receipt = capture_precompact(payload)
+        record, spool_path, receipt = capture_precompact(payload)
     except Exception as exc:
         receipt = {
             "status": "spool_failed",
@@ -51,21 +53,35 @@ def run(payload: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
             "suppressOutput": False,
         }, receipt
 
-    # This is always non-blocking on the official writer lease.  Reconciliation
-    # goes only through the live HTTP hub; this hook never opens ChromaDB.
-    reconciliations = reconcile_pending(limit=2)
-    receipt["reconcile"] = [item.get("status") for item in reconciliations]
-    receipt["palace_reconciled"] = any(
-        item.get("spool_file") == receipt.get("spool_file")
-        and item.get("status") == "reconciled"
-        for item in reconciliations
-    )
+    # The local journal is the synchronous durability boundary.  Commit it
+    # before touching the network so an unavailable palace cannot consume the
+    # hook budget and lose the last pre-compaction context.
+    try:
+        journal = append_journal_checkpoint(record)
+    except Exception as exc:
+        journal = {"status": "journal_failed", "error_type": type(exc).__name__}
+    receipt["journal_status"] = journal.get("status")
+    for key in ("journal_path", "journal_sha256", "journal_entry_sha256"):
+        value = journal.get(key)
+        if isinstance(value, str):
+            receipt[key] = value
+
+    # Reconcile the exact checkpoint just captured, rather than an older item
+    # selected from the backlog.  The HTTP path is bounded below the Codex hook
+    # timeout and never opens a second ChromaDB writer.
+    reconciliation = reconcile_path(spool_path)
+    receipt["reconcile"] = [reconciliation.get("status")]
+    receipt["palace_reconciled"] = reconciliation.get("status") in {
+        "reconciled",
+        "already_reconciled",
+    }
     checkpoint_sha = str(receipt.get("checkpoint_sha256") or "")[:12]
     palace_state = "hub-reconciled" if receipt["palace_reconciled"] else "spooled"
+    journal_state = str(receipt.get("journal_status") or "journal-unknown")
     return {
         "systemMessage": (
             "MemPalace PreCompact checkpoint captured "
-            f"({palace_state}, sha256={checkpoint_sha})."
+            f"({journal_state}, {palace_state}, sha256={checkpoint_sha})."
         ),
         "suppressOutput": False,
     }, receipt

@@ -20,23 +20,24 @@ def test_precompact_success_is_visible_and_hub_reconciled(monkeypatch):
     monkeypatch.setattr(
         precompact,
         "capture_precompact",
-        lambda payload: ({}, Path("unused"), dict(receipt)),
+        lambda payload: ({"checkpoint_sha256": "1234567890abcdef"}, Path("unused"), dict(receipt)),
     )
     monkeypatch.setattr(
         precompact,
-        "reconcile_pending",
-        lambda limit: [
-            {
-                "status": "reconciled",
-                "spool_file": "session.hash.json",
-            }
-        ],
+        "append_journal_checkpoint",
+        lambda record: {"status": "journal_appended", "journal_path": "/workspace/journal.md"},
+    )
+    monkeypatch.setattr(
+        precompact,
+        "reconcile_path",
+        lambda path: {"status": "reconciled", "spool_file": "session.hash.json"},
     )
 
     output, actual = precompact.run({"session_id": "session"})
 
     assert output["suppressOutput"] is False
     assert "MemPalace PreCompact checkpoint captured" in output["systemMessage"]
+    assert "journal_appended" in output["systemMessage"]
     assert "hub-reconciled" in output["systemMessage"]
     assert "1234567890ab" in output["systemMessage"]
     assert actual["palace_reconciled"] is True

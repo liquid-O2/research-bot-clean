@@ -1,26 +1,16 @@
-"""Atomic, bounded continuity spool for Codex compaction hooks.
+"""Atomic, bounded continuity spool for Codex/Grok/Claude compaction hooks.
 
-The MemPalace MCP server is normally a long-lived stdio child of Codex.  That
-process owns the palace's single-writer lease, while a command hook is a
-separate process with no safe way to borrow the MCP stdio pipes.  This module
-therefore provides a small local write-ahead checkpoint:
-
-* ``PreCompact`` records a sanitized, model-visible conversation delta plus
-  verifiable transcript/project metadata using an atomic 0600 file replace.
-* compact/resume ``SessionStart`` reads the checkpoint before querying the
-  palace.
-* pending checkpoints are reconciled to the palace only through the live HTTP
-  MemPalace hub that owns the ChromaDB writer lease.  Hook processes never
-  open a second direct ChromaDB writer.
-
-Tool inputs/outputs, reasoning, developer/system messages, and raw environment
-context are never copied into the checkpoint.  The remaining user/assistant
-text is passed through conservative credential redaction before persistence.
+The 6k checkpoint is a pointer plus last UI messages.  It is never the
+memory.  Authoritative stores are the full transcript files (Codex JSONL,
+Claude JSONL, Grok chat_history.jsonl, Grok compaction/segment_*.md) and
+the HTTP palace drawers mined from those files.  Hook processes never
+open a second ChromaDB writer.
 """
 
 from __future__ import annotations
 
 import collections
+import fcntl
 import hashlib
 import json
 import os
@@ -44,6 +34,10 @@ DEFAULT_MAX_MESSAGES = 64
 DEFAULT_RECONCILE_LIMIT = 2
 WORKSPACE_MEMPALACE_ROOT = Path("/workspace/.mempalace")
 DEFAULT_HOOK_STATE_DIR = WORKSPACE_MEMPALACE_ROOT / "hook_state"
+DEFAULT_JOURNAL_PATH = Path("/workspace/journal.md")
+DEFAULT_MAX_JOURNAL_BYTES = 64_000_000
+JOURNAL_ENTRY_PREFIX = "<!-- CODEX_CONTINUITY_ENTRY sha256="
+JOURNAL_ENTRY_SUFFIX = "<!-- /CODEX_CONTINUITY_ENTRY -->"
 
 
 _SAFE_ID_RE = re.compile(r"[^A-Za-z0-9_-]+")
@@ -93,6 +87,16 @@ def default_spool_dir() -> Path:
     return DEFAULT_HOOK_STATE_DIR / "continuity_spool"
 
 
+def default_journal_path() -> Path:
+    """Return the local append-only continuity journal destination."""
+
+    override = os.environ.get("MEMPALACE_CONTINUITY_JOURNAL_PATH", "").strip()
+    path = Path(override).expanduser() if override else DEFAULT_JOURNAL_PATH
+    if not path.is_absolute():
+        raise ValueError("continuity journal path must be absolute")
+    return path
+
+
 def append_receipt_log(kind: str, receipt: Mapping[str, Any]) -> None:
     """Append content-free hook evidence under the workspace state root."""
 
@@ -119,24 +123,131 @@ def _allowed_transcript_roots() -> tuple[Path, ...]:
     if override:
         roots = [Path(part).expanduser().resolve() for part in override.split(os.pathsep) if part]
         return tuple(roots)
-    codex_home = Path(os.environ.get("CODEX_HOME", str(Path.home() / ".codex")))
-    return (codex_home.expanduser().resolve(),)
+    home = Path.home()
+    codex_home = Path(os.environ.get("CODEX_HOME", str(home / ".codex")))
+    grok_home = Path(os.environ.get("GROK_HOME", str(home / ".grok")))
+    claude_home = Path(os.environ.get("CLAUDE_CONFIG_DIR", str(home / ".claude")))
+    return (
+        codex_home.expanduser().resolve(),
+        (grok_home / "sessions").expanduser().resolve(),
+        (claude_home / "projects").expanduser().resolve(),
+        Path("/workspace/.mempalace/sources").resolve(),
+    )
 
 
 def validate_transcript_path(raw_path: Any) -> Path:
-    """Resolve a regular Codex JSONL transcript under an approved root."""
+    """Resolve a regular transcript under an approved root.
+
+    Grok compaction segments are markdown (``segment_*.md``, ``INDEX.md``).
+    Live Grok/Claude/Codex transcripts are JSONL.
+    """
 
     if not isinstance(raw_path, str) or not raw_path or ".." in Path(raw_path).parts:
         raise ValueError("missing or unsafe transcript path")
     path = Path(raw_path).expanduser().resolve()
-    if path.suffix.lower() not in {".jsonl", ".json"}:
+    suffix = path.suffix.lower()
+    if suffix not in {".jsonl", ".json", ".md"}:
         raise ValueError("unsupported transcript extension")
+    if suffix == ".md" and path.name != "INDEX.md" and not path.name.startswith("segment_"):
+        raise ValueError("unsupported markdown transcript name")
     if not any(path == root or path.is_relative_to(root) for root in _allowed_transcript_roots()):
         raise ValueError("transcript is outside approved roots")
     info = path.stat()
     if not stat.S_ISREG(info.st_mode):
         raise ValueError("transcript is not a regular file")
     return path
+
+
+def discover_transcript_path(payload: Mapping[str, Any]) -> str:
+    """Find the live transcript when the hook payload omits transcriptPath.
+
+    Grok PreCompact often has sessionId/cwd but no transcript path.  Codex
+    usually passes the JSONL path explicitly.
+    """
+
+    existing = payload.get("transcript_path") or payload.get("transcriptPath")
+    if isinstance(existing, str) and existing.strip():
+        return existing.strip()
+    session_id = str(
+        payload.get("session_id")
+        or payload.get("sessionId")
+        or os.environ.get("GROK_SESSION_ID")
+        or ""
+    ).strip()
+    if not session_id:
+        return ""
+    grok_home = Path(os.environ.get("GROK_HOME", str(Path.home() / ".grok"))).expanduser()
+    sessions = grok_home / "sessions"
+    if sessions.is_dir():
+        direct = sessions / session_id / "chat_history.jsonl"
+        if direct.is_file():
+            return str(direct.resolve())
+        try:
+            for child in sessions.rglob("chat_history.jsonl"):
+                if child.parent.name == session_id and child.is_file():
+                    return str(child.resolve())
+        except OSError:
+            pass
+    claude_home = Path(
+        os.environ.get("CLAUDE_CONFIG_DIR", str(Path.home() / ".claude"))
+    ).expanduser()
+    projects = claude_home / "projects"
+    if projects.is_dir():
+        named = list(projects.rglob(f"{session_id}.jsonl"))
+        if named:
+            return str(named[0].resolve())
+    return ""
+
+
+def list_session_memory_files(transcript: Path) -> list[dict[str, Any]]:
+    """Hash the live transcript and Grok compaction segments beside it."""
+
+    files: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    def add(path: Path) -> None:
+        try:
+            resolved = path.resolve()
+        except OSError:
+            return
+        key = str(resolved)
+        if key in seen:
+            return
+        item = _hash_regular_file(resolved, max_bytes=50_000_000)
+        if item is None:
+            return
+        seen.add(key)
+        files.append(item)
+
+    add(transcript)
+    session_dir = transcript.parent
+    compact_dir = session_dir / "compaction"
+    add(compact_dir / "INDEX.md")
+    if compact_dir.is_dir():
+        try:
+            for segment in sorted(compact_dir.glob("segment_*.md")):
+                add(segment)
+        except OSError:
+            pass
+    return files
+
+
+def render_file_pointers(files: Sequence[Mapping[str, Any]]) -> str:
+    if not files:
+        return ""
+    lines = [
+        "Authoritative files (READ THESE. The checkpoint body is not the memory.):",
+    ]
+    for item in files:
+        lines.append(
+            f"- `{item.get('path')}` sha256={item.get('sha256')} bytes={item.get('bytes')}"
+        )
+    lines.append(
+        "After compact, read compaction/INDEX.md then every segment_*.md "
+        "with read_file/grep. Do not rely on the 6k checkpoint or the "
+        "compaction summary."
+    )
+    return "\n".join(lines)
 
 
 def redact_text(text: str) -> tuple[str, int]:
@@ -180,38 +291,55 @@ def _content_text(content: Any) -> str:
     return "\n".join(chunks)
 
 
-def _completed_message(entry: Mapping[str, Any]) -> tuple[dict[str, str] | None, bool]:
-    """Return a safe UI message and whether this is a compaction boundary."""
-
-    if entry.get("type") != "event_msg":
-        return None, False
-    payload = entry.get("payload")
-    if not isinstance(payload, Mapping) or payload.get("type") != "item_completed":
-        return None, False
-    item = payload.get("item")
-    if not isinstance(item, Mapping):
-        return None, False
-    item_type = item.get("type")
-    if item_type == "ContextCompaction":
-        return None, True
-    if item_type not in {"UserMessage", "AgentMessage"}:
-        return None, False
-    raw_text = _content_text(item.get("content"))
+def _message_from_text(role: str, raw_text: str, phase: str = "") -> dict[str, str] | None:
     if not raw_text.strip():
-        return None, False
+        return None
     safe_text, redactions = redact_text(raw_text)
     if not safe_text:
-        return None, False
+        return None
     if len(safe_text) > DEFAULT_MAX_MESSAGE_CHARS:
         safe_text = safe_text[: DEFAULT_MAX_MESSAGE_CHARS - 34] + "\n[TRUNCATED MESSAGE IN SPOOL]"
-    role = "user" if item_type == "UserMessage" else "assistant"
-    phase = item.get("phase") if isinstance(item.get("phase"), str) else ""
     return {
         "role": role,
         "phase": phase,
         "text": safe_text,
         "redactions": str(redactions),
-    }, False
+    }
+
+
+def _completed_message(entry: Mapping[str, Any]) -> tuple[dict[str, str] | None, bool]:
+    """Return a safe UI message and whether this is a compaction boundary."""
+
+    entry_type = entry.get("type")
+    if entry_type == "event_msg":
+        payload = entry.get("payload")
+        if not isinstance(payload, Mapping) or payload.get("type") != "item_completed":
+            return None, False
+        item = payload.get("item")
+        if not isinstance(item, Mapping):
+            return None, False
+        item_type = item.get("type")
+        if item_type == "ContextCompaction":
+            return None, True
+        if item_type not in {"UserMessage", "AgentMessage"}:
+            return None, False
+        role = "user" if item_type == "UserMessage" else "assistant"
+        phase = item.get("phase") if isinstance(item.get("phase"), str) else ""
+        return _message_from_text(role, _content_text(item.get("content")), phase), False
+
+    # Grok compaction_meta lines are summaries injected after compact. Keep
+    # them out of the spool; do not treat them as a Codex-style boundary that
+    # wipes earlier messages from a still-growing JSONL.
+    if entry.get("synthetic_reason"):
+        return None, False
+    if entry_type in {"user", "assistant"}:
+        content = entry.get("content")
+        message = entry.get("message")
+        if (content in (None, "") or content == []) and isinstance(message, Mapping):
+            content = message.get("content")
+        role = "user" if entry_type == "user" else "assistant"
+        return _message_from_text(role, _content_text(content)), False
+    return None, False
 
 
 def scan_transcript(path: Path) -> dict[str, Any]:
@@ -224,6 +352,21 @@ def scan_transcript(path: Path) -> dict[str, Any]:
     bytes_hashed = 0
     compaction_boundaries = 0
     parse_errors = 0
+    fmt = "jsonl"
+    if path.suffix.lower() == ".md":
+        fmt = "markdown_segment"
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+                bytes_hashed += len(chunk)
+        return {
+            "transcript_sha256": digest.hexdigest(),
+            "transcript_bytes_hashed": bytes_hashed,
+            "messages": [],
+            "compaction_boundaries": 0,
+            "parse_errors": 0,
+            "format": fmt,
+        }
 
     with path.open("rb") as handle:
         for raw_line in handle:
@@ -254,6 +397,7 @@ def scan_transcript(path: Path) -> dict[str, Any]:
         "messages": list(messages),
         "compaction_boundaries": compaction_boundaries,
         "parse_errors": parse_errors,
+        "format": fmt,
     }
 
 
@@ -396,6 +540,164 @@ def _atomic_write_json(path: Path, value: Mapping[str, Any]) -> None:
         raise
 
 
+def _fsync_directory(path: Path) -> None:
+    try:
+        directory_fd = os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    except OSError:
+        pass
+
+
+def _read_regular_bytes(path: Path, *, max_bytes: int) -> bytes:
+    fd = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+    try:
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode):
+            raise ValueError("continuity journal is not a regular file")
+        if info.st_size < 0 or info.st_size > max_bytes:
+            raise ValueError("continuity journal exceeds its hard size limit")
+        chunks: list[bytes] = []
+        remaining = info.st_size
+        while remaining:
+            chunk = os.read(fd, min(1024 * 1024, remaining))
+            if not chunk:
+                raise OSError("continuity journal changed during read")
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        if os.read(fd, 1):
+            raise OSError("continuity journal changed during read")
+        return b"".join(chunks)
+    finally:
+        os.close(fd)
+
+
+def _journal_entry(record: Mapping[str, Any]) -> tuple[str, str]:
+    checkpoint = record.get("checkpoint")
+    checkpoint_sha = record.get("checkpoint_sha256")
+    if not isinstance(checkpoint, str) or not isinstance(checkpoint_sha, str):
+        raise ValueError("continuity record has no checkpoint")
+    if hashlib.sha256(checkpoint.encode("utf-8")).hexdigest() != checkpoint_sha:
+        raise ValueError("continuity checkpoint checksum mismatch")
+    project = record.get("project") if isinstance(record.get("project"), Mapping) else {}
+    source = record.get("source") if isinstance(record.get("source"), Mapping) else {}
+    marker = f"{JOURNAL_ENTRY_PREFIX}{checkpoint_sha} -->"
+    entry = (
+        f"{marker}\n"
+        f"## {record.get('captured_at') or 'unknown-time'} — Codex continuity\n\n"
+        f"- Session: `{record.get('session_id') or 'unknown'}`\n"
+        f"- Event: `{source.get('hook_event_name') or 'unknown'}` / "
+        f"`{source.get('trigger') or 'unspecified'}`\n"
+        f"- Project: `{project.get('cwd') or 'unknown'}`\n"
+        f"- Transcript SHA-256: `{record.get('transcript_sha256') or 'unknown'}`\n"
+        f"- Checkpoint SHA-256: `{checkpoint_sha}`\n\n"
+        "### Latest completed user/assistant context\n\n"
+        f"{checkpoint}\n"
+        f"{JOURNAL_ENTRY_SUFFIX}\n"
+    )
+    return marker, entry
+
+
+def append_journal_checkpoint(
+    record: Mapping[str, Any],
+    *,
+    journal_path: Path | None = None,
+) -> dict[str, Any]:
+    """Atomically append one unique, redacted checkpoint to ``journal.md``.
+
+    The local journal is committed before any MemPalace network attempt.  A
+    deterministic checkpoint marker makes retries idempotent, while a lock and
+    atomic replace keep concurrent root/subagent hooks from interleaving bytes.
+    Existing manual journal content is preserved verbatim.
+    """
+
+    path = (journal_path or default_journal_path()).expanduser()
+    if not path.is_absolute():
+        raise ValueError("continuity journal path must be absolute")
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    marker, entry = _journal_entry(record)
+    lock_path = path.with_name(f".{path.name}.lock")
+    lock_fd = os.open(
+        lock_path,
+        os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0),
+        0o600,
+    )
+    try:
+        os.fchmod(lock_fd, 0o600)
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        if path.exists() or path.is_symlink():
+            existing = _read_regular_bytes(path, max_bytes=DEFAULT_MAX_JOURNAL_BYTES)
+        else:
+            existing = b"# Codex Continuity Journal\n\n"
+        marker_bytes = marker.encode("utf-8")
+        if marker_bytes in existing:
+            return {
+                "status": "journal_unchanged",
+                "journal_path": str(path),
+                "checkpoint_sha256": record.get("checkpoint_sha256"),
+                "journal_bytes": len(existing),
+                "journal_sha256": hashlib.sha256(existing).hexdigest(),
+            }
+        separator = b"" if existing.endswith(b"\n\n") else (b"\n" if existing.endswith(b"\n") else b"\n\n")
+        updated = existing + separator + entry.encode("utf-8") + b"\n"
+        if len(updated) > DEFAULT_MAX_JOURNAL_BYTES:
+            raise ValueError("continuity journal exceeds its hard size limit")
+        fd, temp_name = tempfile.mkstemp(
+            prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+        )
+        try:
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, "wb", closefd=True) as handle:
+                handle.write(updated)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temp_name, path)
+            temp_name = ""
+            os.chmod(path, 0o600)
+            _fsync_directory(path.parent)
+        finally:
+            if temp_name:
+                try:
+                    os.unlink(temp_name)
+                except OSError:
+                    pass
+        return {
+            "status": "journal_appended",
+            "journal_path": str(path),
+            "checkpoint_sha256": record.get("checkpoint_sha256"),
+            "journal_entry_sha256": hashlib.sha256(entry.encode("utf-8")).hexdigest(),
+            "journal_bytes": len(updated),
+            "journal_sha256": hashlib.sha256(updated).hexdigest(),
+        }
+    finally:
+        try:
+            fcntl.flock(lock_fd, fcntl.LOCK_UN)
+        finally:
+            os.close(lock_fd)
+
+
+def pending_path_for(latest_path: Path, record: Mapping[str, Any]) -> Path:
+    """Return the immutable retry-queue path for one checkpoint."""
+
+    checkpoint_sha = record.get("checkpoint_sha256")
+    if not isinstance(checkpoint_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", checkpoint_sha):
+        raise ValueError("continuity checkpoint has an invalid checksum")
+    pending_dir = latest_path.parent / "pending"
+    return pending_dir / f"{latest_path.stem}.{checkpoint_sha}.json"
+
+
+def _queue_pending_record(latest_path: Path, record: Mapping[str, Any]) -> Path:
+    pending_path = pending_path_for(latest_path, record)
+    existing = _read_record(pending_path) if pending_path.exists() else None
+    if existing is None:
+        _atomic_write_json(pending_path, record)
+    elif existing.get("checkpoint_sha256") != record.get("checkpoint_sha256"):
+        raise ValueError("pending continuity checkpoint identity mismatch")
+    return pending_path
+
+
 def capture_precompact(
     payload: Mapping[str, Any],
     *,
@@ -407,7 +709,11 @@ def capture_precompact(
     path, transcript = spool_path_for(payload, spool_dir=spool_dir)
     assert transcript is not None
     scan = scan_transcript(transcript)
+    artifacts = list_session_memory_files(transcript)
+    pointer = render_file_pointers(artifacts)
     checkpoint, used, redactions = build_checkpoint(scan.pop("messages"))
+    if pointer:
+        checkpoint = pointer + "\n\n" + checkpoint
     checkpoint_sha = hashlib.sha256(checkpoint.encode("utf-8")).hexdigest()
     record: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
@@ -424,6 +730,7 @@ def capture_precompact(
         "transcript_path": str(transcript),
         "transcript_sha256": scan["transcript_sha256"],
         "transcript_bytes_hashed": scan["transcript_bytes_hashed"],
+        "memory_files": artifacts,
         "project": project_fingerprint(payload.get("cwd")),
         "checkpoint": checkpoint,
         "checkpoint_sha256": checkpoint_sha,
@@ -592,11 +899,10 @@ def _write_via_http_hub(record: Mapping[str, Any], palace_path: str) -> dict[str
     ).encode("utf-8")
     request = urllib.request.Request(f"{base_url}/mcp", data=body, headers=headers)
     try:
-        # The first write after a clean hub start may initialize the embedding
-        # runtime and narrowly exceed five seconds even though the hub commits
-        # successfully.  Keep this below the 20-second Codex hook budget while
-        # allowing enough time to receive the authoritative write receipt.
-        with urllib.request.urlopen(request, timeout=15.0) as response:
+        # Local journal/spool durability is already committed.  Bound this
+        # optional hub reconciliation tightly so it cannot consume Codex's
+        # 20-second PreCompact budget and prevent the hook receipt from landing.
+        with urllib.request.urlopen(request, timeout=4.0) as response:
             payload = json.loads(response.read().decode("utf-8"))
     except (urllib.error.URLError, OSError, TimeoutError, ValueError):
         return {"success": False, "status": "http_hub_failed"}

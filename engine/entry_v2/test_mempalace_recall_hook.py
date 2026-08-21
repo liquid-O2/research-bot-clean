@@ -10,6 +10,7 @@ from unittest.mock import patch
 import jsonschema
 
 from engine.entry_v2.mempalace_continuity_spool import capture_precompact
+from engine.entry_v2.mempalace_continuity_spool import append_journal_checkpoint
 from engine.entry_v2.mempalace_continuity_spool import load_for_session_start
 from engine.entry_v2.mempalace_continuity_spool import reconcile_path
 from engine.entry_v2.mempalace_continuity_spool import render_for_model
@@ -217,6 +218,32 @@ def test_precompact_spool_is_atomic_bounded_redacted_and_verifiable(tmp_path=Non
     assert stat.S_IMODE(path.parent.stat().st_mode) == 0o700
     assert not list(path.parent.glob(f".{path.name}.*"))
     assert record["project"]["state_files"][0]["path"] == str(tmp_path / "index.md")
+
+
+def test_journal_checkpoint_is_append_only_atomic_and_idempotent(tmp_path=None):
+    if tmp_path is None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            return test_journal_checkpoint_is_append_only_atomic_and_idempotent(
+                Path(directory)
+            )
+    _, record, _, _, secret, _, _, _ = _fixture_spool(tmp_path)
+    journal = tmp_path / "journal.md"
+    journal.write_text("# Manual journal\n\nkeep this note\n", encoding="utf-8")
+
+    first = append_journal_checkpoint(record, journal_path=journal)
+    second = append_journal_checkpoint(record, journal_path=journal)
+    rendered = journal.read_text(encoding="utf-8")
+
+    assert first["status"] == "journal_appended"
+    assert second["status"] == "journal_unchanged"
+    assert rendered.startswith("# Manual journal\n\nkeep this note\n")
+    assert rendered.count(record["checkpoint_sha256"]) == 2
+    assert "SAFE-CHECKPOINT-D096" in rendered
+    assert secret not in rendered
+    assert stat.S_IMODE(journal.stat().st_mode) == 0o600
+    assert not list(journal.parent.glob(f".{journal.name}.*.tmp"))
 
 
 def test_sessionstart_reads_exact_spool_first_and_keeps_palace_distinct(tmp_path=None):

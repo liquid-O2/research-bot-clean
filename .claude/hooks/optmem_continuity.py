@@ -1,0 +1,498 @@
+#!/usr/bin/env python3
+"""OptMem lifecycle hook + short markdown backup.
+
+Verbs (argv[1], cross-checked against stdin hook_event_name):
+  sessionstart  self-heal, memo wake, refresh CONTINUITY.md snapshot; inject wake only
+  postcompact   same as sessionstart
+  precompact    spool + memo note + refresh snapshot
+  stop          spool + refresh snapshot (throttled). Print nothing.
+  sessionend    spool + refresh snapshot
+
+Law: output-only, never blocks. Grok Stop additionalContext keeps the agent
+working — this script never prints decision/additionalContext on Stop.
+Grok SessionStart stdout is ignored; the agent still runs memo wake.
+CONTINUITY.md is an overwritten token-bounded snapshot (backup if OptMem is down).
+"""
+import json
+import os
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+HOME_OPTMEM = Path.home() / ".optmem"
+WS_OPTMEM = Path("/workspace/.optmem")
+MEMO_HOME = HOME_OPTMEM / "memo"
+MEMO_WS = WS_OPTMEM / "memo"
+CONTINUITY = Path("/workspace/CONTINUITY.md")
+STATE_MD = Path("/workspace/STATE.md")
+SPOOL_DIR = Path("/workspace/artifacts/cache/continuity")
+HOOK_STATE = WS_OPTMEM / "hook_state"
+LOG = HOOK_STATE / "hook.log"
+STOP_THROTTLE_S = 600
+PRECOMPACT_THROTTLE_S = 30
+SNIPPET_CHARS = 220
+WAKE_CAP_LINES = 40
+STATE_CAP_LINES = 40
+BACKUP_CAP_CHARS = 8000
+
+
+def log(msg: str) -> None:
+    try:
+        HOOK_STATE.mkdir(parents=True, exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write(f"{now()} {msg}\n")
+    except Exception:
+        pass
+
+
+def now() -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+
+def read_payload() -> dict:
+    try:
+        return json.load(sys.stdin)
+    except Exception:
+        return {}
+
+
+def run(cmd, timeout=6):
+    try:
+        env = os.environ.copy()
+        env["PATH"] = "/usr/local/bin:/usr/bin:/bin:" + env.get("PATH", "")
+        p = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout, env=env
+        )
+        return (p.stdout or "") + (p.stderr or "")
+    except Exception as exc:
+        log(f"run failed {cmd[:2]}: {type(exc).__name__}")
+        return ""
+
+
+def run_memo(args, timeout=6):
+    """Always invoke via /usr/bin/python3: Grok/opencode PATH hides env python3."""
+    return run(["/usr/bin/python3", memo_path(), *args], timeout=timeout)
+
+
+def memo_path() -> str:
+    if MEMO_HOME.exists():
+        return str(MEMO_HOME)
+    return str(MEMO_WS)
+
+
+def self_heal() -> None:
+    """Overlay wipe recovery: restore ~/.optmem/memo and the store symlink."""
+    try:
+        HOME_OPTMEM.mkdir(parents=True, exist_ok=True)
+        if not MEMO_HOME.exists() and MEMO_WS.exists():
+            shutil.copy2(MEMO_WS, MEMO_HOME)
+            os.chmod(MEMO_HOME, 0o755)
+        mem = HOME_OPTMEM / "memory"
+        if not mem.is_symlink():
+            if mem.exists():
+                mem.rename(HOME_OPTMEM / f"memory.displaced.{int(time.time())}")
+            mem.symlink_to(WS_OPTMEM / "memory")
+    except Exception as exc:
+        log(f"self_heal: {type(exc).__name__}: {exc}")
+
+
+def git_line() -> str:
+    head = run(["git", "-C", "/workspace", "rev-parse", "--short", "HEAD"], 1).strip()
+    dirty = run(["git", "-C", "/workspace", "status", "--porcelain"], 1)
+    n = len([l for l in dirty.splitlines() if l.strip()])
+    return f"HEAD {head or '?'} dirty {n}"
+
+
+def tail_of(path: Path, lines: int) -> str:
+    try:
+        return "\n".join(path.read_text(encoding="utf-8").splitlines()[-lines:])
+    except Exception:
+        return ""
+
+
+def spool(payload: dict) -> Path | None:
+    """Lossless incremental copy of the session transcript to the durable volume.
+
+    Tracks a byte offset per (session, generation). If the source shrank
+    (harness rewrote it, e.g. post-compact), a new generation segment starts,
+    so the union of segments is a superset of every byte ever observed.
+    """
+    tp = payload.get("transcript_path") or ""
+    sid = (payload.get("session_id") or "nosid")[:32]
+    src = Path(tp)
+    if not tp or not src.is_file():
+        return None
+    try:
+        SPOOL_DIR.mkdir(parents=True, exist_ok=True)
+        HOOK_STATE.mkdir(parents=True, exist_ok=True)
+        meta = HOOK_STATE / f"{sid}.spool.json"
+        st = {"gen": 0, "offset": 0}
+        try:
+            st = json.loads(meta.read_text())
+        except Exception:
+            pass
+        size = src.stat().st_size
+        if size < st["offset"]:
+            st = {"gen": st["gen"] + 1, "offset": 0}
+        dst = SPOOL_DIR / f"{sid}.g{st['gen']}.jsonl"
+        if size > st["offset"]:
+            with open(src, "rb") as fin:
+                fin.seek(st["offset"])
+                data = fin.read()
+            with open(dst, "ab") as fout:
+                fout.write(data)
+            st["offset"] = size
+            meta.write_text(json.dumps(st))
+        return dst
+    except Exception as exc:
+        log(f"spool: {type(exc).__name__}: {exc}")
+        return None
+
+
+def last_user_snippet(payload: dict) -> str:
+    tp = payload.get("transcript_path") or ""
+    try:
+        raw = Path(tp).read_bytes()[-8_000_000:]
+        text = ""
+        for line in raw.decode("utf-8", "replace").splitlines():
+            try:
+                rec = json.loads(line)
+            except Exception:
+                continue
+            if rec.get("type") != "user":
+                continue
+            content = (rec.get("message") or {}).get("content")
+            if isinstance(content, str):
+                cand = content
+            elif isinstance(content, list):
+                cand = " ".join(
+                    c.get("text", "") for c in content if isinstance(c, dict) and c.get("type") == "text"
+                )
+            else:
+                continue
+            cand = " ".join(cand.split())
+            if cand and not cand.startswith(("<system", "[SYSTEM", "<task-notification", "<local-command")):
+                text = cand
+        return text[:SNIPPET_CHARS]
+    except Exception:
+        return ""
+
+
+def write_backup(payload: dict, event: str, extra: str = "") -> None:
+    """Overwrite CONTINUITY.md with a short current snapshot. Backup only."""
+    try:
+        sid = (payload.get("session_id") or "nosid")[:12]
+        snip = last_user_snippet(payload)
+        wake = run_memo(["wake"], timeout=8).strip()
+        wake_txt = "\n".join(wake.splitlines()[:WAKE_CAP_LINES]) or "(memo wake unavailable)"
+        state = tail_of(STATE_MD, STATE_CAP_LINES) or "(STATE.md missing)"
+        extra_line = f"- {extra}\n" if extra else ""
+        body = (
+            "# CONTINUITY — backup if OptMem is down\n\n"
+            "Overwritten snapshot from `optmem_continuity.py`. "
+            "Primary memory is OptMem (`memo wake`). Read this file only if wake fails.\n\n"
+            f"- Updated: {now()}\n"
+            f"- Event: {event}\n"
+            f"- Session: {sid}\n"
+            f"- Git: {git_line()}\n"
+            f"- Last user: {snip or '(none)'}\n"
+            f"{extra_line}\n"
+            "## Last OptMem wake\n\n"
+            f"```\n{wake_txt}\n```\n\n"
+            "## STATE.md\n\n"
+            f"```\n{state}\n```\n"
+        )
+        if len(body) > BACKUP_CAP_CHARS:
+            body = body[:BACKUP_CAP_CHARS] + "\n…truncated\n"
+        CONTINUITY.write_text(body, encoding="utf-8")
+    except Exception as exc:
+        log(f"write_backup: {type(exc).__name__}: {exc}")
+
+
+def do_sessionstart(payload: dict) -> None:
+    self_heal()
+    wake = run_memo(["wake"], timeout=8).strip()
+    write_backup(payload, payload.get("hook_event_name") or "SessionStart")
+    parts = [
+        "OptMem `memo wake` (if it asks a compression, run that `memo nap` "
+        "before other work). If wake failed, read /workspace/CONTINUITY.md.",
+        "```\n" + (wake or "(memo wake unavailable)") + "\n```",
+    ]
+    # User ruling 2026-08-21: skill routing is audited, not hoped. Surface the
+    # previous sessions' ledger at wake so a skills=NONE code session is seen.
+    ledger_tail = tail_of(HOOK_STATE / "skill_usage.log", 3).strip()
+    if ledger_tail:
+        parts.append(
+            "Skill-usage ledger (previous sessions; skills=NONE on a session "
+            "that edited code violated the routing law — audit it):\n```\n"
+            + ledger_tail + "\n```"
+        )
+    out = {
+        "hookSpecificOutput": {
+            "hookEventName": "SessionStart",
+            "additionalContext": "\n\n".join(parts),
+        }
+    }
+    print(json.dumps(out))
+    log(f"sessionstart source={payload.get('source', '')} wake_bytes={len(wake)}")
+
+
+def _throttled(sid: str, name: str, window_s: float) -> bool:
+    """True if this (session, name) already ran inside window_s."""
+    HOOK_STATE.mkdir(parents=True, exist_ok=True)
+    tfile = HOOK_STATE / f"{sid}.{name}_ts"
+    last = 0.0
+    try:
+        last = float(tfile.read_text().strip())
+    except Exception:
+        pass
+    if time.time() - last < window_s:
+        return True
+    try:
+        tfile.write_text(str(time.time()))
+    except Exception:
+        pass
+    return False
+
+
+def do_precompact(payload: dict) -> None:
+    sid = (payload.get("session_id") or "nosid")[:8]
+    trigger = payload.get("trigger") or ""
+    dst = spool(payload)
+    if _throttled(sid, "precompact", PRECOMPACT_THROTTLE_S):
+        log(f"precompact sid={sid} spool={dst} throttled")
+        print("{}")
+        return
+    snip = last_user_snippet(payload)
+    write_backup(
+        payload,
+        f"PreCompact:{trigger or 'unknown'}",
+        extra=f"spool: {dst or '(spool failed)'}",
+    )
+    note = f"{time.strftime('%Y-%m-%d')} compact s{sid}: {snip}"[:270]
+    if snip:
+        run_memo(["note", note], timeout=6)
+    log(f"precompact sid={sid} spool={dst}")
+    print("{}")
+
+
+def _ledger_skill_usage(payload: dict, sid: str) -> None:
+    """Observability, not enforcement: count Skill invocations in the transcript
+    so skill usage is measured per session (hook_state/skill_usage.log)."""
+    try:
+        tp = payload.get("transcript_path") or ""
+        raw = Path(tp).read_bytes().decode("utf-8", "replace")
+        import re as _re
+        names = _re.findall(r'"name"\s*:\s*"Skill"[^}]*?"skill"\s*:\s*"([a-z0-9:_-]+)"', raw)
+        if not names:
+            names = _re.findall(r'"skill"\s*:\s*"([a-z0-9:_-]+)"', raw)
+        from collections import Counter
+        counts = Counter(names)
+        line = f"{now()} sid={sid[:8]} turns_seen skills={dict(counts) if counts else 'NONE'}\n"
+        with open(HOOK_STATE / "skill_usage.log", "a", encoding="utf-8") as f:
+            f.write(line)
+    except Exception as exc:
+        log(f"skill_ledger: {type(exc).__name__}")
+
+
+def do_stop(payload: dict) -> None:
+    # Grok treats Stop additionalContext as "keep working". Print nothing.
+    sid = (payload.get("session_id") or "nosid")[:32]
+    spool(payload)
+    if _throttled(sid, "stop", STOP_THROTTLE_S):
+        return
+    write_backup(payload, "Stop")
+    _ledger_skill_usage(payload, sid)
+    log(f"stop heartbeat sid={sid[:8]}")
+
+
+def do_sessionend(payload: dict) -> None:
+    sid = (payload.get("session_id") or "nosid")[:8]
+    reason = payload.get("reason") or ""
+    spool(payload)
+    write_backup(payload, f"SessionEnd:{reason}")
+    log(f"sessionend sid={sid} reason={reason}")
+
+
+ROUTING_NUDGE = (
+    "Skill routing check (harness-enforced): before responding, match this request "
+    "against the situation->skill table in /workspace/CLAUDE.md and invoke every "
+    "matching skill via the Skill tool. The user never names skills; the situation "
+    "is the trigger. Follow the CLAUDE.md coding-conduct block on any code change."
+)
+
+# Situational routing map (user ruling 2026-08-21: name the matching skills,
+# a named miss is harder to ignore than a table pointer). Keys are lowercase
+# substrings of the prompt; order = priority.
+SKILL_KEYWORD_MAP = (
+    (("bug", "fail", "error", "broken", "stall", "crash", "refus"),
+     ("debugging-with-a-loop", "driving-tests-first")),
+    (("launch", "rehearsal", "long run", "experiment", "fit", "measure"),
+     ("operating-long-runs", "preregistering-results", "running-evals")),
+    (("review",), ("running-consolidated-review",)),
+    (("plan", "design", "spec", "freeze", "adopt"),
+     ("stress-testing-plans", "designing-it-twice", "sharpening-specs")),
+    (("commit", "tidy", "clean up", "stray"), ("tidying-workspace",)),
+    (("done", "verified", "passing", "receipt"), ("verifying-with-receipts",)),
+    (("gate", "threshold", "criterion"), ("encoding-goals-in-gates",)),
+    (("agent", "lane", "brief", "subagent", "workflow"), ("briefing-agents",)),
+    (("port", "c++", "cpp", "schema", "boundary", "contract"),
+     ("checking-data-contracts", "driving-tests-first")),
+    (("implement", "build", "create", "add a", "write code"),
+     ("driving-tests-first", "researching-first")),
+)
+
+
+def do_userprompt(payload: dict) -> None:
+    """Per-turn routing nudge. No subprocess calls: must return instantly."""
+    prompt = str(payload.get("prompt") or "").lower()
+    named: list[str] = []
+    for keys, skills in SKILL_KEYWORD_MAP:
+        if any(k in prompt for k in keys):
+            for s in skills:
+                if s not in named:
+                    named.append(s)
+        if len(named) >= 3:
+            break
+    nudge = ROUTING_NUDGE
+    if named:
+        nudge = (
+            "Skill routing check (harness-enforced): this turn's situation "
+            "matches: " + ", ".join(named[:3]) + " — invoke each matching one "
+            "via the Skill tool before acting (situations, not keywords, are "
+            "the trigger; full table in /workspace/CLAUDE.md). Follow the "
+            "coding-conduct block on any code change."
+        )
+    print(json.dumps({
+        "hookSpecificOutput": {
+            "hookEventName": "UserPromptSubmit",
+            "additionalContext": nudge,
+        }
+    }))
+
+
+SUBAGENT_NUDGE = (
+    "House rules bind subagents too: follow the coding-conduct block and the "
+    "situation->skill routing table in /workspace/CLAUDE.md (skills live at "
+    "/workspace/.claude/skills/<name>/SKILL.md — read the matching one before "
+    "acting on its situation). HARDWARE truth: /workspace/HARDWARE.md (13.6 cores "
+    "effective; pin library thread counts). Evidence rules: verbatim quote + "
+    "file:line anchors for claims; empty findings valid only after reading; "
+    "your report is a claim — the diff/receipt is the evidence."
+)
+
+
+def do_subagentstart(payload: dict) -> None:
+    print(json.dumps({
+        "hookSpecificOutput": {
+            "hookEventName": "SubagentStart",
+            "additionalContext": SUBAGENT_NUDGE,
+        }
+    }))
+
+
+# Routing gate (user ruling 2026-08-21): an engine/tools edit in a session that
+# never engaged a tests-first/review/debug skill is refused with the reason.
+# Matches real engagements only — a Skill tool call ("skill": "<name>") or a
+# read of the skill file (skills/<name>) — so injected nudge text that merely
+# NAMES a skill cannot satisfy the gate.
+TDD_MARKER_SKILLS = (
+    "driving-tests-first",
+    "running-consolidated-review",
+    "debugging-with-a-loop",
+    "generalizing-fixes",
+)
+_TDD_MARKER_RE = (
+    r'(?:"skill"\s*:\s*"|skills/)(?:' + "|".join(TDD_MARKER_SKILLS) + r')'
+)
+
+
+def _session_engaged_marker_skill(payload: dict, sid: str) -> bool:
+    """True once this session's transcript shows a marker-skill engagement.
+    Cached in a marker file so the transcript is not re-read on every edit."""
+    HOOK_STATE.mkdir(parents=True, exist_ok=True)
+    marker = HOOK_STATE / f"{sid}.tdd_ok"
+    if marker.exists():
+        return True
+    try:
+        raw = Path(payload.get("transcript_path") or "").read_bytes().decode(
+            "utf-8", "replace")
+    except Exception:
+        return False
+    import re as _re
+    if _re.search(_TDD_MARKER_RE, raw):
+        try:
+            marker.write_text(now())
+        except Exception:
+            pass
+        return True
+    return False
+
+
+def do_pretooluse(payload: dict) -> None:
+    """Edit|Write gate on engine/ and tools/ paths. Fails OPEN on any error —
+    a broken gate must never block lawful work."""
+    sid = (payload.get("session_id") or "nosid")[:32]
+    path = str((payload.get("tool_input") or {}).get("file_path") or "")
+    rel = path[len("/workspace/"):] if path.startswith("/workspace/") else path
+    gated = rel.startswith(("engine/", "tools/"))
+    basename = rel.rsplit("/", 1)[-1]
+    is_test = basename.startswith("test_") or "/tests/" in rel
+    if not gated or is_test or _session_engaged_marker_skill(payload, sid):
+        print("{}")
+        return
+    print(json.dumps({
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "deny",
+            "permissionDecisionReason": (
+                "Routing gate: " + rel + " is engine/tools code but this "
+                "session has not engaged driving-tests-first (or a "
+                "review/debug skill). Invoke the matching skill via the Skill "
+                "tool — red test first — then retry the edit. Test files are "
+                "exempt."
+            ),
+        }
+    }))
+    log(f"pretooluse DENY sid={sid[:8]} path={rel}")
+
+
+def main() -> int:
+    verb = (sys.argv[1] if len(sys.argv) > 1 else "").lower()
+    payload = read_payload()
+    if "session_id" not in payload and payload.get("sessionId"):
+        payload["session_id"] = payload["sessionId"]
+    if "transcript_path" not in payload and payload.get("transcriptPath"):
+        payload["transcript_path"] = payload["transcriptPath"]
+    event = (
+        payload.get("hook_event_name")
+        or payload.get("hookEventName")
+        or ""
+    ).lower()
+    verb = verb or event
+    try:
+        if verb == "userprompt":
+            do_userprompt(payload)
+        elif verb == "pretooluse":
+            do_pretooluse(payload)
+        elif verb == "subagentstart":
+            do_subagentstart(payload)
+        elif verb in ("sessionstart", "postcompact"):
+            do_sessionstart(payload)
+        elif verb == "precompact":
+            do_precompact(payload)
+        elif verb == "stop":
+            do_stop(payload)
+        elif verb == "sessionend":
+            do_sessionend(payload)
+        else:
+            log(f"unknown verb {verb!r} event {event!r}")
+    except Exception as exc:
+        log(f"FATAL {verb}: {type(exc).__name__}: {exc}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

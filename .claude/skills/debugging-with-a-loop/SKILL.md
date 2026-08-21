@@ -1,0 +1,29 @@
+---
+name: debugging-with-a-loop
+description: Use when a hard bug, refusal, stall, or performance regression resists the first look — before proposing hypotheses or fixes.
+---
+
+# Debugging With a Loop
+
+Adapted from Pocock `diagnosing-bugs` + the systematic-debugging discipline (house-owned; no plugin dependency).
+
+## Phase 0 — read before touching
+Read the ACTUAL error text and the failing input completely; reproduce once as-is before changing anything. State what you observed vs what you expected in one sentence. Never fix a bug you have not reproduced.
+
+## Phase 1 — build the feedback loop. This IS the skill.
+A **tight pass/fail signal that goes red on THIS bug**, one command, seconds not hours. Bisection, hypotheses, and instrumentation merely consume it; without it, staring at code is theater. For this repo: a 1-day slice through the real path beats any synthetic fixture (the three rehearsal deaths were all reproducible at slice scale for pennies).
+
+## Phase 2 — tighten and minimize
+Strip the loop until every element is load-bearing (deletion test): fewer sessions, fewer columns, smaller window — while the red stays red. A loop that stops reproducing when simplified just told you where the bug lives.
+
+## Phase 3 — hypotheses, plural
+Write **3-5 ranked falsifiable hypotheses** before touching code (a single hypothesis anchors; this repo's "selector-disagreement" and "wall" hypotheses were both refuted by their own first diagnostic — cheap because the loop existed). Each hypothesis names the one-number test that would kill it. Run the cheapest killer first.
+
+## Phase 4 — instrument, don't guess
+Tag temporary instrumentation `[DBG-<slug>]` so it greps out cleanly afterward. Log the deciding values immediately before the irreversible step. Redact secrets in anything shown.
+
+## Exit — root cause, not symptom
+The fix lands at the ORIGIN of the bad value (trace backward; fixing where it hurt leaves the class alive one layer up). Red→green through the loop, THEN generalizing-fixes (sibling sweep + depth pass + registry check). A fix without the loop's green is a hope; a green without the root cause named is a symptom patch.
+
+## Red flags
+- "I'll rerun the full 2h chain to check" (build the slice loop first) · one hypothesis pursued to exhaustion · fixing at the symptom layer because the origin is far away · declaring a stall dead without a heartbeat check (this repo lost a night to a liveness false alarm — and another to a real deadlock reported healthy).

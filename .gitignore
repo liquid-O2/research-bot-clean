@@ -16,5 +16,10 @@ engine/target/
 /mempalace/
 provenance/entry_v2/.entry-v2-durable-store/
 .claude/settings.local.json
+# Continuity system live state (2026-08-21): OptMem store + hook-overwritten
+# snapshot churn constantly; the repo is not their durability layer (D-101).
+/.optmem/
+/CONTINUITY.md
+/.journal.md.lock
 # provenance logs are authority, not scratch
 !provenance/entry_v2/**/*.log

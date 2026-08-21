@@ -24,3 +24,16 @@ Authorization: D-047 + D-060 (free data only). Every series below carries its D-
 
 ## Conventions note
 Manifests here add a `publication_lag` column (between granularity and caveats) versus the older asset_port_data manifests — required by this lane's D-057 mandate.
+
+## 2026-08-18 — Entry V2 context data ruling fetch (orchestrator)
+- CFTC disaggregated futures-only + TFF yearly archives 2021-2025 fetched from
+  https://www.cftc.gov/files/dea/history/ (fut_disagg_txt_YYYY.zip / fut_fin_txt_YYYY.zip),
+  extracted to fut_disagg_YYYY.txt / fut_fin_YYYY.txt; sha256 manifest: cot/MANIFEST_DISAGG_TFF.tsv.
+  Markets consumed: SILVER-COMEX, COPPER-GRADE #1/COPPER- #1 (renamed 2022; both accepted, duplicate-date guard),
+  NIKKEI STOCK AVERAGE-CME (USD contract; YEN DENOM row deliberately not consumed). Sparse Nikkei weeks are
+  as-published (open-interest reporting threshold), not data loss.
+- calendar_boj.csv: BOJ MPM decision days 2021-2025 (second meeting day) parsed from BOJ minutes indexes
+  (boj.or.jp/en/mopo/mpmsche_minu/minu_YYYY/); 39 rows added before the pre-existing 2026 rows.
+- BLS schedule extension NOT obtained (bls.gov 403, wayback empty) — CAL_BLS stays typed-thin
+  (15 verified 'actual' rows through 2021-06); revisit hook stands.
+- FRED_DTWEXBGS deliberately left REVISED_VALUE-masked (re-weighted index); ALFRED-vintage revisit hook.

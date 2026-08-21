@@ -1,3 +1,8 @@
+# /workspace — standing instructions
+
+**New session? Read `/workspace/START_HERE.md` FIRST** — it carries the mission, the reading order, and the current speed mandate. Then:
+
+<!-- Kept in sync with the `## Memory` block at the top of AGENTS.md — edit both together. -->
 ## Memory
 
 Your memory is OptMem:
@@ -58,12 +63,20 @@ A subagent is not: it must never run `memo`, because it cannot judge what
 is already known, and its notes would arrive duplicated and incorrectly.
 When you spawn one, write: `You are a subagent. Don't run memo.`
 
-## Skill routing — never wait to be told
+Before trusting any doc, verdict, or old transcript: `/workspace/CURRENT.md`
+(live line vs inherited narrative vs scoped closed questions). Hardware
+limits: `/workspace/HARDWARE.md` (nproc/free LIE on this pod — 13.6 cores,
+263 GiB, thread_count=16).
 
-The user will not name skills. Trigger the matching skill from the situation.
-Skill files: `/workspace/.claude/skills/<name>/SKILL.md`. Entry V2 also uses
-`/workspace/.grok/skills/entry-v2-goal/SKILL.md`. One review pass, one fix
-pass — never review→fix→review.
+## Commands
+
+- Tests: `python3 -m unittest <module>` (e.g. `engine.entry_v2.test_common`). **pytest is NOT installed.**
+- Memory: `~/.optmem/memo wake|note|nap|recall`.
+- A gate isn't done until its verified command line is recorded here or in the spec.
+
+## Autonomous skill routing — never wait to be told
+
+The user will not name skills. Trigger the matching skill from the situation:
 
 | Situation | Skill |
 |---|---|
@@ -76,19 +89,31 @@ pass — never review→fix→review.
 | Shaping an interface, module boundary, or format | designing-it-twice |
 | About to build or launch any pipeline/driver/model stage | running-evals |
 | Data crosses a boundary (Python↔C++, matrix/store schemas, staged artifacts) | checking-data-contracts |
-| A batch of work is ready for review | running-consolidated-review |
+| A batch of work is ready for review | running-consolidated-review (ONE review, ONE fix pass — never review→fix→review) |
 | Just fixed a bug | generalizing-fixes |
 | About to claim done/verified/passing | verifying-with-receipts |
 | Working tree accumulating strays; before commits | tidying-workspace |
 | Writing anything the user reads | writing-plainly |
+| Creating a module; refactoring an oversized/hard-to-grep file | shaping-code-for-agents |
+| A bug, test failure, or unexpected behavior appears | debugging-with-a-loop |
+| Creating or editing any skill | skill-creator:skill-creator |
+| Implementing any feature/constructor/bugfix, before writing code | driving-tests-first |
+| Launching, monitoring, or resuming any background run/lane; a run looks stalled | operating-long-runs |
 | Writing any prompt/brief/task card for a subagent, lane, or workflow | briefing-agents |
 | Launching any experiment/fit/screen; quoting any headline number | preregistering-results |
-| Writing/reviewing any PASS gate or economic law; a gate returns empty/degenerate output | encoding-goals-in-gates |
-| Creating a module; refactoring an oversized/hard-to-grep file | shaping-code-for-agents |
+| Writing or reviewing any PASS/FAIL gate, launch law, or economic threshold; a gate returns empty/degenerate output | encoding-goals-in-gates |
 
-Before trusting any doc or old transcript: /workspace/CURRENT.md. Hardware truth: /workspace/HARDWARE.md (nproc/free lie; 13.6 cores, 263 GiB).
+Skill files live at `/workspace/.claude/skills/<name>/SKILL.md`.
 
+## Coding conduct (always on — Karpathy/Akita distillation)
 
+- **Think before coding**: state assumptions; if multiple interpretations exist, present them — never pick silently; if a simpler approach exists, say so.
+- **Simplicity first**: minimum code that solves the problem. No speculative features, single-use abstractions, unrequested configurability, or error handling for impossible states.
+- **Surgical changes**: every changed line traces to the request. Don't improve adjacent code/comments/formatting; match existing style; remove only orphans YOUR change created; mention (don't delete) pre-existing dead code.
+- **Code is agent infrastructure**: unique grep-able names (<5 hits repo-wide), typed signatures, files that fit one read (<500 lines), ~2 nesting levels max, errors carrying offending value + expected shape, comments saying WHY with provenance — never WHAT.
+- **Goal-driven**: every plan step carries its own `→ verify:` check; a bug fix starts from a red reproducing test.
+
+<!-- Kept in sync with the "# Mandatory Entry V2 execution rules" block in AGENTS.md — edit both together. -->
 # Mandatory Entry V2 execution rules
 
 These rules are non-negotiable for Entry V2 recovery, diagnostics, learning,

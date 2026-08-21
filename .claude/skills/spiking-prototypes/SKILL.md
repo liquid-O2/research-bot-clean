@@ -15,7 +15,7 @@ A spike is a time-boxed experiment answering ONE stated question. The learning i
 2. **Timebox** (30–120 min). Time up = stop; partial learning still counts.
 3. **Experiment** with the simplest code that answers it. Ignore error handling, tests, quality. Scratch code lives in the scratchpad or `/workspace/artifacts/cache/` — never in engine/. When comparing alternatives, build them behind one switcher, each variant labeled so the user can name it; the observation is the test here, not an assertion (pstack `prototype`).
 4. **Write the learning note** `design/spikes/SPIKE-<name>.md`: Question · Result (answered/partial/no) · Findings (observations, not opinions) · Evidence (numbers, output) · Implications for the plan · What was NOT explored · Recommendation.
-5. **Delete the spike code.** If you catch yourself cleaning it up for production, stop — spec it properly and implement fresh (spike insights inform the spec).
+5. **Quarantine the spike code, don't promote it** (founding bigpowers adapt, house-adjusted from "delete"): move it under `artifacts/cache/` with a one-line README naming what it answered — auditable forever, promotable never (the repo's own precedent: bugged research scripts quarantined with incident README). If you catch yourself cleaning it up for production, stop — spec it properly and implement fresh (spike insights inform the spec). **No spike result is cited as evidence without a red-first fixture behind it** (D-017) — a spike answers a design question; it never certifies behavior.
 
 ## Common mistakes
 | Mistake | Reality |

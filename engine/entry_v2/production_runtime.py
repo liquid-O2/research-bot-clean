@@ -157,8 +157,8 @@ def _artifact_sets(root: Path) -> tuple[AssetArtifactSet, ...]:
 def _forecast_provider(root: Path) -> QRE2ForecastProvider:
     inputs = []
     for asset in C.ASSETS:
-        artifact = _required(root, f"forecast/{asset}.qrf2.tsv")
-        receipt = _required(root, f"forecast/{asset}.qrf2.json")
+        artifact = _required(root, f"forecast/{asset}.qrf4.tsv")
+        receipt = _required(root, f"forecast/{asset}.qrf4.json")
         inputs.append(QRE2ForecastArtifactInput(
             root=root,
             asset=asset,

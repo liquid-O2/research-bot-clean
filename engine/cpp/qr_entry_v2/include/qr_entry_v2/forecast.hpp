@@ -1,6 +1,6 @@
 // qr_entry_v2/forecast.hpp -- causal realized-volatility and HAR forecasts.
 //
-// QRE2FORECAST2 is observational context. It is generated at the current
+// QRE2FORECAST4 is observational context. It is generated at the current
 // session open from completed QRE2 sessions only and is never part of a G1
 // candidate's identity.  Current-session realized values live only inside the
 // state after commit and are not serialized onto that session's forecast row.
@@ -25,6 +25,9 @@ inline constexpr std::int32_t kForecastSubsampleSec = 300;
 inline constexpr std::size_t kForecastRegimeLong = 66;
 inline constexpr std::size_t kForecastCalibrationWindow = 250;
 inline constexpr std::size_t kForecastCalibrationMin = 30;
+inline constexpr std::size_t kForecastSigmaCalibrationWindow = 66;
+inline constexpr std::size_t kForecastSigmaCalibrationMin = 20;
+inline constexpr double kForecastSigmaOlsWeight = 1.0;
 inline constexpr std::array<double, 5> kForecastQuantiles = {
     0.10, 0.25, 0.50, 0.75, 0.90};
 
@@ -120,6 +123,14 @@ struct ForecastRow {
   double prior_rs_usd = 0.0;
   double prior_jump_usd = 0.0;
 
+  // The final sigma is an evidence-selected shrinkage forecast.  Every
+  // component is serialized so calibration cannot become an opaque model
+  // mutation.  V4's exact-sidecar selection chose the causally calibrated
+  // raw OLS (weight 1.0); persistence remains serialized as a comparator.
+  double sigma_raw_hat_usd = 0.0;
+  double sigma_persistence_usd = 0.0;
+  double sigma_calibration_ratio = 0.0;
+  std::uint32_t n_sigma_calibration = 0;
   double sigma_hat_usd = 0.0;
   double range_hat_usd = 0.0;
   double rv5_over_rv66 = 0.0;
@@ -182,7 +193,10 @@ struct ForecastBuildStats {
   std::uint64_t rows = 0;
   std::uint64_t ready = 0;
   std::uint64_t missing = 0;
+  std::uint64_t evaluation_rows = 0;
+  std::uint64_t evaluation_valid = 0;
   std::string output_sha256;
+  std::string evaluation_output_sha256;
   std::string receipt_sha256;
 };
 

@@ -32,7 +32,7 @@ constexpr std::array<std::int64_t, 3> kEntryAssetMultipliers = {
 }
 
 constexpr std::string_view kForecastLaw =
-    "QRE2FORECAST2|clock=IndexTs/ts_recv; ts_event feature only; equal receive "
+    "QRE2FORECAST4|clock=IndexTs/ts_recv; ts_event feature only; equal receive "
     "times retain provider order|book=QRE2EVT2 trusted-economic rows only; "
     "snapshot atomically discards all pre-reset current-session extrema/returns/"
     "OHLC/spread aggregates; unresolved MAYBE_BAD_BOOK invalidates the session until "
@@ -44,7 +44,13 @@ constexpr std::string_view kForecastLaw =
     "log prior SESSION GK,log prior SESSION RS,log1p prior segment jump,Tue..Fri "
     "dummies]; exact complete positive lag windows, no imputation, "
     "no context|fit=expanding monthly OLS(log RANGE), OLS(log SIGMA), rank-full, "
-    "MIN_TRAIN=250, no substitution|ladder=realized_range/sigma_hat trailing250 "
+    "MIN_TRAIN=250, no substitution|sigma_point=raw log-OLS multiplied by "
+    "strictly-prior trailing66 median(realized_sigma/raw_sigma), min20 else "
+    "ratio1; exact-sidecar convex weight selection chose 1.0 calibrated OLS + "
+    "0.0 prior-session sigma through 2023 and passed every asset/segment in "
+    "2024 and 2025H1 under receipt ef424de36c20ef2eca61f6b70513c18df8aa1c2ca1"
+    "0647a6f114581b914edf5c|"
+    "ladder=realized_range/sigma_hat trailing250 "
     "strictly prior linear quantiles q10,25,50,75,90 min30|regime=RV5/RV66 "
     "complete positive prior windows; trailing250 prior ratio terciles min30; "
     "same-regime calibration min30 else explicit unscaled fallback|availability="
@@ -102,6 +108,9 @@ void initialize_missing(ForecastRow* row) {
   row->prior_gk_usd = missing_double();
   row->prior_rs_usd = missing_double();
   row->prior_jump_usd = missing_double();
+  row->sigma_raw_hat_usd = missing_double();
+  row->sigma_persistence_usd = missing_double();
+  row->sigma_calibration_ratio = missing_double();
   row->sigma_hat_usd = missing_double();
   row->range_hat_usd = missing_double();
   row->rv5_over_rv66 = missing_double();
@@ -291,6 +300,7 @@ struct Observation {
   double session_gk = missing_double();
   double session_rs = missing_double();
   double forecast_ratio = missing_double();
+  double sigma_forecast_ratio = missing_double();
   double regime_ratio = missing_double();
   ForecastRegime regime = ForecastRegime::NA;
 };
@@ -521,6 +531,20 @@ struct Fit {
   return out;
 }
 
+[[nodiscard]] std::vector<double> trailing_sigma_calibration(
+    const SegmentState& state) {
+  std::vector<double> out;
+  const std::size_t begin =
+      state.history.size() > kForecastSigmaCalibrationWindow
+          ? state.history.size() - kForecastSigmaCalibrationWindow
+          : 0u;
+  for (std::size_t i = begin; i < state.history.size(); ++i) {
+    const double value = state.history[i].sigma_forecast_ratio;
+    if (std::isfinite(value) && value > 0.0) out.push_back(value);
+  }
+  return out;
+}
+
 [[nodiscard]] ForecastRegime regime_of(double ratio, double low, double high) {
   if (!std::isfinite(ratio) || !std::isfinite(low) || !std::isfinite(high)) {
     return ForecastRegime::NA;
@@ -550,7 +574,7 @@ Expected<ForecastSegment, Refusal> forecast_segment_from_name(
   if (name == "NY") return ForecastSegment::NY;
   return refuse<ForecastSegment>(Refusal(
       RefusalCode::CONFIG, "qr_entry_v2::forecast_segment_from_name",
-      "unknown QRE2FORECAST2 segment"));
+      "unknown QRE2FORECAST4 segment"));
 }
 
 const char* forecast_status_name(ForecastStatus status) noexcept {
@@ -596,7 +620,7 @@ std::string forecast_law_sha256() { return sha256_bytes(kForecastLaw); }
 std::string forecast_row_lineage(const ForecastRow& row) {
   std::ostringstream out;
   out << std::setprecision(std::numeric_limits<double>::max_digits10)
-      << "QRE2FORECASTROW2|" << forecast_law_sha256() << '|'
+      << "QRE2FORECASTROW4|" << forecast_law_sha256() << '|'
       << static_cast<unsigned>(row.asset) << '|' << row.d8 << '|'
       << static_cast<unsigned>(row.segment) << '|'
       << static_cast<unsigned>(row.status) << '|'
@@ -607,7 +631,9 @@ std::string forecast_row_lineage(const ForecastRow& row) {
       << row.n_train_sigma << '|' << row.rank_sigma << '|' << row.rv1_usd << '|'
       << row.rv5_usd << '|' << row.rv22_usd << '|' << row.prior_parkinson_usd
       << '|' << row.prior_gk_usd << '|' << row.prior_rs_usd << '|'
-      << row.prior_jump_usd << '|' << row.sigma_hat_usd << '|'
+      << row.prior_jump_usd << '|' << row.sigma_raw_hat_usd << '|'
+      << row.sigma_persistence_usd << '|' << row.sigma_calibration_ratio << '|'
+      << row.n_sigma_calibration << '|' << row.sigma_hat_usd << '|'
       << row.range_hat_usd << '|' << row.rv5_over_rv66 << '|'
       << row.regime_cut_lo << '|' << row.regime_cut_hi << '|'
       << static_cast<unsigned>(row.regime) << '|'
@@ -711,7 +737,7 @@ Expected<ForecastSessionRealization, Refusal> realize_forecast_session(
 struct ForecastModelState::Impl {
   explicit Impl(qr::futsess::Asset selected) : asset(selected) {
     history_source_sha256 = sha256_bytes(
-        std::string("QRE2FORECASTHISTORY2|") +
+        std::string("QRE2FORECASTHISTORY4|") +
         qr::futsess::asset_spec(asset).name);
   }
 
@@ -822,9 +848,29 @@ ForecastModelState::snapshot(std::int32_t d8, std::int64_t session_open_utc,
       row.missing_reason = ForecastMissingReason::RANK_DEFICIENT;
     } else {
       row.range_hat_usd = predict(model.range, design);
-      row.sigma_hat_usd = predict(model.sigma, design);
+      row.sigma_raw_hat_usd = predict(model.sigma, design);
+      row.sigma_persistence_usd = std::sqrt(design.rv1);
+      const std::vector<double> sigma_calibration =
+          trailing_sigma_calibration(impl_->segment[s]);
+      row.n_sigma_calibration =
+          static_cast<std::uint32_t>(sigma_calibration.size());
+      row.sigma_calibration_ratio =
+          sigma_calibration.size() >= kForecastSigmaCalibrationMin
+              ? percentile(sigma_calibration, 0.5)
+              : 1.0;
+      row.sigma_hat_usd =
+          kForecastSigmaOlsWeight *
+              row.sigma_raw_hat_usd * row.sigma_calibration_ratio +
+          (1.0 - kForecastSigmaOlsWeight) * row.sigma_persistence_usd;
       if (!std::isfinite(row.range_hat_usd) ||
-          !std::isfinite(row.sigma_hat_usd)) {
+          !std::isfinite(row.sigma_raw_hat_usd) ||
+          !std::isfinite(row.sigma_persistence_usd) ||
+          !std::isfinite(row.sigma_calibration_ratio) ||
+          !std::isfinite(row.sigma_hat_usd) ||
+          !(row.sigma_raw_hat_usd > 0.0) ||
+          !(row.sigma_persistence_usd > 0.0) ||
+          !(row.sigma_calibration_ratio > 0.0) ||
+          !(row.sigma_hat_usd > 0.0)) {
         row.missing_reason = ForecastMissingReason::NONFINITE_PREDICTION;
       } else {
         row.status = ForecastStatus::READY;
@@ -924,12 +970,19 @@ Expected<std::monostate, Refusal> ForecastModelState::commit(
       observation.forecast_ratio = realized[s].range_usd /
                                    pending.sigma_hat_usd;
     }
+    if (pending.status == ForecastStatus::READY &&
+        std::isfinite(pending.sigma_raw_hat_usd) &&
+        pending.sigma_raw_hat_usd > 0.0 &&
+        std::isfinite(realized[s].sigma_usd) && realized[s].sigma_usd > 0.0) {
+      observation.sigma_forecast_ratio =
+          realized[s].sigma_usd / pending.sigma_raw_hat_usd;
+    }
     observation.regime_ratio = pending.rv5_over_rv66;
     observation.regime = pending.regime;
     impl_->segment[s].history.push_back(std::move(observation));
   }
   std::ostringstream token;
-  token << "QRE2FORECASTCOMMIT2|" << impl_->history_source_sha256 << '|'
+  token << "QRE2FORECASTCOMMIT4|" << impl_->history_source_sha256 << '|'
         << d8 << '|' << source_session_sha256;
   impl_->history_source_sha256 = sha256_bytes(token.str());
   impl_->last_committed_d8 = d8;

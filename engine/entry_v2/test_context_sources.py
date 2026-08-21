@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import datetime as dt
+from types import MappingProxyType
 import unittest
 
+import numpy as np
 import torch
 
 from engine.entry_v2 import common as C
@@ -15,8 +17,10 @@ from engine.entry_v2.context_pack import (
     build_context_pack,
 )
 from engine.entry_v2.context_sources import (
-    CONTEXT_TENSOR_WIDTH,
+    CONTEXT_TENSOR_WIDTH, CausalContextRepository,
+    TABULAR_CONTEXT_FEATURE_NAMES,
     load_context_repository,
+    tabular_context_summary,
     tensorize_context_pack,
 )
 from engine.entry_v2.contracts import VintageClass
@@ -27,6 +31,31 @@ D8 = 20250115
 
 
 class ContextSourceAdversarialTests(unittest.TestCase):
+    def test_tabular_summary_has_global_schema_and_strict_prior_values(self) -> None:
+        decision = 100 * NS
+        source = ContextSource(
+            "VIX", VintageClass.FIRST_PRINT, (
+                AvailableObservation("past-1", 50 * NS, (20.0,)),
+                AvailableObservation("past-2", 90 * NS, (22.0,)),
+                AvailableObservation("equal", decision, (9_000.0,)),
+                AvailableObservation("future", 101 * NS, (-9_000.0,)),
+            ))
+        receipt = {"schema": "test", "receipt_sha256": "a" * 64}
+        repository = CausalContextRepository(
+            "SI", MappingProxyType({"VIX": source}),
+            MappingProxyType(receipt))
+        matrix = tabular_context_summary(repository, D8, (decision,))
+        self.assertEqual(matrix.shape, (1, len(TABULAR_CONTEXT_FEATURE_NAMES)))
+        positions = {name: index for index, name in enumerate(
+            TABULAR_CONTEXT_FEATURE_NAMES)}
+        self.assertEqual(matrix[0, positions["ctx_VIX_last_value_0"]], 22.0)
+        self.assertEqual(matrix[0, positions["ctx_VIX_mean_value_0"]], 21.0)
+        self.assertAlmostEqual(
+            matrix[0, positions["ctx_VIX_history_coverage"]], 2.0 / 64.0)
+        self.assertEqual(
+            matrix[0, positions["ctx_FRED_DTWEXBGS_history_coverage"]], 0.0)
+        self.assertTrue(np.isfinite(matrix).all())
+
     def test_future_mutation_cannot_change_pack_or_tensor(self) -> None:
         decision = 100 * NS
         past = (

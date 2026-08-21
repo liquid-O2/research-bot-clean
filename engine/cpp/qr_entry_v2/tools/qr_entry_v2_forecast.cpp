@@ -16,9 +16,10 @@ void usage(const char* program) {
       "usage: %s --asset SI|HG|NKD|ALL [--output-root PATH] "
       "[--start-d8 YYYYMMDD] [--end-d8-exclusive YYYYMMDD]\n"
       "\n"
-      "Builds the isolated QRE2FORECAST2 observation plane from existing "
+      "Builds the isolated QRE2FORECAST4 observation plane from existing "
       "QRE2 locks, phase schedules, event manifest, and exact event packs.\n"
-      "Outputs: <root>/forecast/<ASSET>.qrf2.tsv and .qrf2.json.\n"
+      "Outputs: <root>/forecast/<ASSET>.qrf4.tsv, .qrf4.eval.tsv, and "
+      ".qrf4.json.  The eval sidecar is diagnostics-only hindsight data.\n"
       "Ordinary CLI is hard-confined to [%d,%d); it cannot open 2025H2.\n",
       program, qr::entry_v2::kDevelopmentStartD8,
       qr::entry_v2::kDevelopmentEndD8Exclusive);
@@ -107,15 +108,19 @@ int main(int argc, char** argv) {
     const qr::entry_v2::ForecastBuildStats& stats = result.value();
     std::printf(
         "asset\t%s\nstart_d8\t%d\nend_d8_exclusive\t%d\nsessions\t%llu\n"
-        "rows\t%llu\nready\t%llu\nmissing\t%llu\noutput_sha256\t%s\n"
-        "receipt_sha256\t%s\n",
+        "rows\t%llu\nready\t%llu\nmissing\t%llu\nevaluation_rows\t%llu\n"
+        "evaluation_valid\t%llu\noutput_sha256\t%s\n"
+        "evaluation_output_sha256\t%s\nreceipt_sha256\t%s\n",
         qr::futsess::asset_spec(config.asset).name, config.start_d8,
         config.end_d8_exclusive,
         static_cast<unsigned long long>(stats.sessions),
         static_cast<unsigned long long>(stats.rows),
         static_cast<unsigned long long>(stats.ready),
         static_cast<unsigned long long>(stats.missing),
-        stats.output_sha256.c_str(), stats.receipt_sha256.c_str());
+        static_cast<unsigned long long>(stats.evaluation_rows),
+        static_cast<unsigned long long>(stats.evaluation_valid),
+        stats.output_sha256.c_str(), stats.evaluation_output_sha256.c_str(),
+        stats.receipt_sha256.c_str());
   }
   return 0;
 }

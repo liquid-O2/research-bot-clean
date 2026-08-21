@@ -336,6 +336,11 @@ TEST_F(EntryV2Fixture, BoundedRawFixtureRunsAllFourProductionStages) {
   EXPECT_EQ(forecast.value().ready, 0u);
   EXPECT_EQ(forecast.value().missing,
             65u * qr::entry_v2::kForecastSegmentCount);
+  EXPECT_EQ(forecast.value().evaluation_rows,
+            65u * qr::entry_v2::kForecastSegmentCount);
+  EXPECT_LE(forecast.value().evaluation_valid,
+            forecast.value().evaluation_rows);
+  EXPECT_EQ(forecast.value().evaluation_output_sha256.size(), 64u);
   auto frozen = qr::entry_v2::read_forecast_artifact(
       cfg, forecast.value().output_sha256);
   ASSERT_TRUE(frozen.has_value()) << frozen.error().message();
@@ -354,7 +359,30 @@ TEST_F(EntryV2Fixture, BoundedRawFixtureRunsAllFourProductionStages) {
   ASSERT_TRUE(causal_availability.has_value())
       << causal_availability.error().message();
   EXPECT_TRUE(fs::is_regular_file(fs::path(cfg.output_root) / "forecast" /
-                                  "SI.qrf2.json"));
+                                  "SI.qrf4.json"));
+  EXPECT_TRUE(fs::is_regular_file(fs::path(cfg.output_root) / "forecast" /
+                                  "SI.qrf4.eval.tsv"));
+  const std::string evaluation = text(
+      fs::path(cfg.output_root) / "forecast" / "SI.qrf4.eval.tsv");
+  std::istringstream evaluation_stream(evaluation);
+  std::string evaluation_line;
+  ASSERT_TRUE(std::getline(evaluation_stream, evaluation_line));
+  EXPECT_NE(evaluation_line.find("# QRE2FORECASTEVAL4"), std::string::npos);
+  ASSERT_TRUE(std::getline(evaluation_stream, evaluation_line));
+  EXPECT_EQ(std::count(evaluation_line.begin(), evaluation_line.end(), '\t'),
+            21);
+  std::uint64_t evaluation_rows = 0;
+  while (std::getline(evaluation_stream, evaluation_line)) {
+    if (evaluation_line.empty()) continue;
+    EXPECT_EQ(std::count(evaluation_line.begin(), evaluation_line.end(), '\t'),
+              21);
+    ++evaluation_rows;
+  }
+  EXPECT_EQ(evaluation_rows, forecast.value().evaluation_rows);
+  const std::string forecast_receipt = text(
+      fs::path(cfg.output_root) / "forecast" / "SI.qrf4.json");
+  EXPECT_NE(forecast_receipt.find(forecast.value().evaluation_output_sha256),
+            std::string::npos);
 }
 
 TEST_F(EntryV2Fixture, BoundedFixtureWritesSeparatedCandidateTeacherAndCeilingPlanes) {

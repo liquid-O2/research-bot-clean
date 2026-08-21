@@ -63,6 +63,8 @@ CONTEXT_FEATURE_NAMES = tuple(
     + [f"delta_{i}_present" for i in range(MAX_VALUE_WIDTH)]
 )
 
+TABULAR_CONTEXT_STATISTICS = ("last", "mean", "std", "min", "max")
+
 
 def _union_roster() -> tuple[str, ...]:
     out: list[str] = []
@@ -76,6 +78,19 @@ def _union_roster() -> tuple[str, ...]:
 GLOBAL_CONTEXT_SERIES = _union_roster()
 CONTEXT_TYPE_ID = MappingProxyType(
     {series_id: index for index, series_id in enumerate(GLOBAL_CONTEXT_SERIES)}
+)
+
+TABULAR_CONTEXT_FEATURE_NAMES = tuple(
+    name
+    for series_id in GLOBAL_CONTEXT_SERIES
+    for name in (
+        *(
+            f"ctx_{series_id}_{stat}_{feature_name}"
+            for stat in TABULAR_CONTEXT_STATISTICS
+            for feature_name in CONTEXT_FEATURE_NAMES
+        ),
+        f"ctx_{series_id}_history_coverage",
+    )
 )
 
 _AVAILABILITY: Any | None = None
@@ -687,6 +702,81 @@ class CausalContextRepository:
         if not bool(torch.isfinite(values_tensor).all()):
             raise C.EntryV2Refusal("context batch contains a non-finite value")
         return values_tensor, type_ids, valid_tensor
+
+
+def tabular_context_summary(
+    repository: CausalContextRepository,
+    trading_day: int,
+    decision_ts_ns: Iterable[int],
+    *,
+    permit: C.FinalExamPermit | None = None,
+) -> np.ndarray:
+    """Return the fixed-schema strict-prior context summary for CatBoost.
+
+    Asset-specific series are scattered into the frozen global series roster,
+    so SI/HG/NKD always expose the same ordered columns.  Every channel uses
+    the same last/mean/std/min/max/coverage contract as the existing classical
+    control.  Missing and deliberately masked revised-vintage sources remain
+    typed zero with zero coverage; this function never opens another source.
+    """
+
+    timestamps = tuple(int(value) for value in decision_ts_ns)
+    values, type_ids, valid = repository.tensor_batch(
+        int(trading_day), timestamps, permit=permit)
+    values = values.detach().cpu().to(torch.float64)
+    valid = valid.detach().cpu().to(torch.bool)
+    type_ids = type_ids.detach().cpu().to(torch.int64)
+    rows, series, history, width = values.shape
+    if (valid.shape != values.shape[:-1]
+            or type_ids.shape != (series,)
+            or width != CONTEXT_TENSOR_WIDTH
+            or history != HISTORY_LENGTH):
+        raise C.EntryV2Refusal(
+            "tabular context summary received misaligned tensors")
+    slots = len(CONTEXT_TYPE_ID)
+    if any(int(item) < 0 or int(item) >= slots for item in type_ids):
+        raise C.EntryV2Refusal(
+            "tabular context type id is outside the frozen roster")
+
+    stats = torch.zeros(
+        (rows, slots, width * len(TABULAR_CONTEXT_STATISTICS) + 1),
+        dtype=torch.float64,
+    )
+    positions = torch.arange(history, dtype=torch.int64)[None, :]
+    row_index = torch.arange(rows, dtype=torch.int64)
+    for series_index, type_id_tensor in enumerate(type_ids):
+        type_id = int(type_id_tensor)
+        mask = valid[:, series_index, :]
+        x = values[:, series_index, :, :]
+        expanded = mask[..., None]
+        count = mask.sum(dim=1).to(torch.float64)
+        denom = count.clamp_min(1.0)[:, None]
+        safe = torch.where(expanded, x, torch.zeros_like(x))
+        mean = safe.sum(dim=1) / denom
+        variance = torch.where(
+            expanded, (x - mean[:, None, :]).square(),
+            torch.zeros_like(x)).sum(dim=1) / denom
+        high = torch.where(
+            expanded, x, torch.full_like(x, -torch.inf)).amax(dim=1)
+        low = torch.where(
+            expanded, x, torch.full_like(x, torch.inf)).amin(dim=1)
+        present = count > 0
+        high = torch.where(present[:, None], high, torch.zeros_like(high))
+        low = torch.where(present[:, None], low, torch.zeros_like(low))
+        last_position = torch.where(mask, positions, -1).amax(dim=1)
+        last = torch.zeros((rows, width), dtype=torch.float64)
+        if bool(present.any()):
+            last[present] = x[row_index[present], last_position[present]]
+        stats[:, type_id, :] = torch.cat((
+            last, mean, variance.sqrt(), low, high,
+            (count / history)[:, None],
+        ), dim=1)
+    result = stats.flatten(1)
+    if (result.shape != (rows, len(TABULAR_CONTEXT_FEATURE_NAMES))
+            or not bool(torch.isfinite(result).all())):
+        raise C.EntryV2Refusal(
+            "tabular context summary is non-finite or has schema drift")
+    return result.numpy().astype(np.float32, copy=False)
 
 
 def load_context_repository(

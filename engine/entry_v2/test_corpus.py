@@ -27,6 +27,7 @@ from .corpus import (
     _FORECAST_COLUMNS,
     _forecast_features,
     _forecast_lineage,
+    _forecast_vintage_features,
     _prefix_sha256,
     _read_pinned,
     build_corpus,
@@ -1049,7 +1050,8 @@ class CorpusBridgeTest(unittest.TestCase):
                     "fit_month": "202501", "fit_end_range_d8": "20241231",
                     "fit_end_sigma_d8": "20241231", "n_train_range": "100",
                     "rank_range": "12", "n_train_sigma": "100",
-                    "rank_sigma": "12", "regime_tag": "NA",
+                    "rank_sigma": "12", "n_sigma_calibration": "0",
+                    "regime_tag": "NA",
                     "ladder_source": "MISSING", "n_calibration": "0",
                     "n_regime_calibration": "0",
                     "phase_profile_sha256": "4" * 64,
@@ -1061,19 +1063,19 @@ class CorpusBridgeTest(unittest.TestCase):
                     row, QRE2_FORECAST_LAW_SHA256)
                 rows.append(row)
             artifact = (
-                f"# QRE2FORECAST2 start_d8=20250101 "
+                f"# QRE2FORECAST4 start_d8=20250101 "
                 f"end_d8_exclusive=20250104 asset=SI "
                 f"law_sha256={QRE2_FORECAST_LAW_SHA256}\n"
                 + "\t".join(_FORECAST_COLUMNS) + "\n"
                 + "".join("\t".join(row[name] for name in _FORECAST_COLUMNS) + "\n"
                           for row in rows)
             ).encode()
-            artifact_sha = _write(root / "forecast" / "SI.qrf2.tsv", artifact)
+            artifact_sha = _write(root / "forecast" / "SI.qrf4.tsv", artifact)
             lineage_sha = hashlib.sha256((
-                "QRE2FORECASTLINEAGES2" + "".join(
+                "QRE2FORECASTLINEAGES4" + "".join(
                     f"|{row['lineage_sha256']}" for row in rows)).encode()).hexdigest()
-            receipt_sha = _json(root / "forecast" / "SI.qrf2.json", {
-                "schema": "QRE2FORECASTRECEIPT2", "asset": "SI",
+            receipt_sha = _json(root / "forecast" / "SI.qrf4.json", {
+                "schema": "QRE2FORECASTRECEIPT4", "asset": "SI",
                 "start_d8": 20250101, "end_d8_exclusive": 20250104,
                 "forecast_law_sha256": QRE2_FORECAST_LAW_SHA256,
                 "sessions": 1, "rows": 4, "ready": 0, "missing": 4,
@@ -1082,11 +1084,22 @@ class CorpusBridgeTest(unittest.TestCase):
                                   "phase_schedule_sha256": "9" * 64},
                 "lineage_aggregate_sha256": lineage_sha,
                 "output_sha256": artifact_sha,
+                "evaluation": {
+                    "schema": "QRE2FORECASTEVAL4", "rows": 4,
+                    "valid_rows": 0, "output_sha256": "a" * 64,
+                    "consumer_law": "diagnostics-only hindsight plane; live "
+                                    "QRE2ForecastProvider must not open it",
+                },
                 "holdout_start_d8": C.HOLDOUT_START_D8,
                 "final_exam_permit": False,
             })
+            # The live provider consumes only the causal artifact and receipt;
+            # the diagnostics-only hindsight sidecar deliberately does not
+            # exist in this fixture.
+            self.assertFalse((root / "forecast" / "SI.qrf4.eval.tsv").exists())
             provider = QRE2ForecastProvider((QRE2ForecastArtifactInput(
                 root, "SI", artifact_sha, receipt_sha),))
+            self.assertFalse((root / "forecast" / "SI.qrf4.eval.tsv").exists())
             joined = provider.forecast(ForecastQuery(
                 "candidate", "SI", d8, availability + NS, 0))
             self.assertIsNotNone(joined)
@@ -1114,7 +1127,10 @@ class CorpusBridgeTest(unittest.TestCase):
                     "rank_sigma": "12", "rv1_usd": "1", "rv5_usd": "2",
                     "rv22_usd": "3", "prior_parkinson_usd": "4",
                     "prior_gk_usd": "5", "prior_rs_usd": "6",
-                    "prior_jump_usd": "7", "sigma_hat_usd": "500",
+                    "prior_jump_usd": "7", "sigma_raw_hat_usd": "500",
+                    "sigma_persistence_usd": "500",
+                    "sigma_calibration_ratio": "1",
+                    "n_sigma_calibration": "20", "sigma_hat_usd": "500",
                     "range_hat_usd": "900", "rv5_over_rv66": "1.2",
                     "regime_cut_lo": "0.8", "regime_cut_hi": "1.1",
                     "regime_tag": "HIGH", "ladder_source": "MISSING",
@@ -1128,19 +1144,19 @@ class CorpusBridgeTest(unittest.TestCase):
                     row, QRE2_FORECAST_LAW_SHA256)
                 rows.append(row)
             artifact = (
-                f"# QRE2FORECAST2 start_d8=20221001 "
+                f"# QRE2FORECAST4 start_d8=20221001 "
                 f"end_d8_exclusive=20221004 asset=SI "
                 f"law_sha256={QRE2_FORECAST_LAW_SHA256}\n"
                 + "\t".join(_FORECAST_COLUMNS) + "\n"
                 + "".join("\t".join(row[name] for name in _FORECAST_COLUMNS) + "\n"
                           for row in rows)
             ).encode()
-            artifact_sha = _write(root / "forecast" / "SI.qrf2.tsv", artifact)
+            artifact_sha = _write(root / "forecast" / "SI.qrf4.tsv", artifact)
             lineage_sha = hashlib.sha256((
-                "QRE2FORECASTLINEAGES2" + "".join(
+                "QRE2FORECASTLINEAGES4" + "".join(
                     f"|{row['lineage_sha256']}" for row in rows)).encode()).hexdigest()
-            receipt_sha = _json(root / "forecast" / "SI.qrf2.json", {
-                "schema": "QRE2FORECASTRECEIPT2", "asset": "SI",
+            receipt_sha = _json(root / "forecast" / "SI.qrf4.json", {
+                "schema": "QRE2FORECASTRECEIPT4", "asset": "SI",
                 "start_d8": 20221001, "end_d8_exclusive": 20221004,
                 "forecast_law_sha256": QRE2_FORECAST_LAW_SHA256,
                 "sessions": 1, "rows": 4, "ready": 4, "missing": 0,
@@ -1149,11 +1165,19 @@ class CorpusBridgeTest(unittest.TestCase):
                                   "phase_schedule_sha256": "9" * 64},
                 "lineage_aggregate_sha256": lineage_sha,
                 "output_sha256": artifact_sha,
+                "evaluation": {
+                    "schema": "QRE2FORECASTEVAL4", "rows": 4,
+                    "valid_rows": 4, "output_sha256": "a" * 64,
+                    "consumer_law": "diagnostics-only hindsight plane; live "
+                                    "QRE2ForecastProvider must not open it",
+                },
                 "holdout_start_d8": C.HOLDOUT_START_D8,
                 "final_exam_permit": False,
             })
+            self.assertFalse((root / "forecast" / "SI.qrf4.eval.tsv").exists())
             provider = QRE2ForecastProvider((QRE2ForecastArtifactInput(
                 root, "SI", artifact_sha, receipt_sha),))
+            self.assertFalse((root / "forecast" / "SI.qrf4.eval.tsv").exists())
             query = ForecastQuery("candidate", "SI", d8, availability + NS, 0)
             joined = provider.forecast(query)
             self.assertIsNotNone(joined)
@@ -1170,6 +1194,24 @@ class CorpusBridgeTest(unittest.TestCase):
             self.assertEqual(features["session_unscaled_fallback_present"], 0.0)
             for quantile in ("q10", "q25", "q50", "q75", "q90"):
                 self.assertEqual(features[f"session_move_{quantile}_usd"], 0.0)
+
+    def test_forecast_vintage_dynamics_use_strictly_prior_history(self) -> None:
+        def snapshot(value: float, regime: str) -> ForecastSegmentSnapshot:
+            return ForecastSegmentSnapshot(
+                segment="SESSION", status="READY",
+                availability_ts_ns=int(value * NS),
+                sigma_hat_usd=value, range_hat_usd=2.0 * value,
+                move_usd=(.5 * value, .75 * value, value,
+                          1.25 * value, 1.5 * value),
+                rv5_over_rv66=value / 100.0, regime=regime,
+                ladder_source="REGIME", lineage_sha256="a" * 64)
+        history = (snapshot(100.0, "MID"), snapshot(110.0, "HIGH"))
+        values = _forecast_vintage_features(snapshot(125.0, "HIGH"), history)
+        self.assertEqual(values["vintage_sigma_delta_1_usd"], 15.0)
+        self.assertEqual(values["vintage_sigma_acceleration_usd"], 5.0)
+        self.assertGreater(values["vintage_sigma_slope_5_usd"], 0.0)
+        self.assertEqual(values["vintage_regime_changed"], 0.0)
+        self.assertEqual(values["vintage_regime_persistence"], 2.0)
 
     def test_teacher_permutation_missing_and_typed_refusal_are_distinguished(self) -> None:
         with self._temporary() as td:

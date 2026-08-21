@@ -27,8 +27,8 @@ namespace {
 namespace fs = std::filesystem;
 using qr::futsess::JsonWriter;
 
-constexpr std::string_view kForecastSchema = "QRE2FORECAST2";
-constexpr std::string_view kForecastReceiptSchema = "QRE2FORECASTRECEIPT2";
+constexpr std::string_view kForecastSchema = "QRE2FORECAST4";
+constexpr std::string_view kForecastReceiptSchema = "QRE2FORECASTRECEIPT4";
 
 struct EventManifestRow {
   std::int32_t d8 = 0;
@@ -59,7 +59,7 @@ struct EventManifestRow {
       config.start_d8 >= config.end_d8_exclusive) {
     return refuse<std::monostate>(Refusal(
         RefusalCode::DAY_OUTSIDE_CALENDAR, site,
-        "QRE2FORECAST2 is confined to [20210101,20250701)"));
+        "QRE2FORECAST4 is confined to [20210101,20250701)"));
   }
   return std::monostate{};
 }
@@ -188,12 +188,17 @@ struct EventManifestRow {
 
 [[nodiscard]] fs::path forecast_path(const Config& config) {
   return fs::path(config.output_root) / "forecast" /
-         (std::string(asset_name(config.asset)) + ".qrf2.tsv");
+         (std::string(asset_name(config.asset)) + ".qrf4.tsv");
 }
 
 [[nodiscard]] fs::path receipt_path(const Config& config) {
   return fs::path(config.output_root) / "forecast" /
-         (std::string(asset_name(config.asset)) + ".qrf2.json");
+         (std::string(asset_name(config.asset)) + ".qrf4.json");
+}
+
+[[nodiscard]] fs::path evaluation_path(const Config& config) {
+  return fs::path(config.output_root) / "forecast" /
+         (std::string(asset_name(config.asset)) + ".qrf4.eval.tsv");
 }
 
 [[nodiscard]] fs::path event_manifest_path(const Config& config) {
@@ -252,7 +257,9 @@ template <class T>
         "fit_end_range_d8", "fit_end_sigma_d8", "n_train_range",
         "rank_range", "n_train_sigma", "rank_sigma", "rv1_usd", "rv5_usd",
         "rv22_usd", "prior_parkinson_usd", "prior_gk_usd", "prior_rs_usd",
-        "prior_jump_usd", "sigma_hat_usd", "range_hat_usd",
+        "prior_jump_usd", "sigma_raw_hat_usd", "sigma_persistence_usd",
+        "sigma_calibration_ratio", "n_sigma_calibration", "sigma_hat_usd",
+        "range_hat_usd",
         "rv5_over_rv66", "regime_cut_lo", "regime_cut_hi", "regime_tag",
         "ladder_source", "n_calibration", "n_regime_calibration"};
     for (const char* q : {"q10", "q25", "q50", "q75", "q90"}) {
@@ -301,6 +308,10 @@ template <class T>
         << number_or_na(row.prior_gk_usd) << '\t'
         << number_or_na(row.prior_rs_usd) << '\t'
         << number_or_na(row.prior_jump_usd) << '\t'
+        << number_or_na(row.sigma_raw_hat_usd) << '\t'
+        << number_or_na(row.sigma_persistence_usd) << '\t'
+        << number_or_na(row.sigma_calibration_ratio) << '\t'
+        << row.n_sigma_calibration << '\t'
         << number_or_na(row.sigma_hat_usd) << '\t'
         << number_or_na(row.range_hat_usd) << '\t'
         << number_or_na(row.rv5_over_rv66) << '\t'
@@ -400,12 +411,74 @@ read_event_manifest(const Config& config) {
     const Config& config, const LockRow& lock, const PhaseRow& phase,
     const EventManifestRow& event) {
   std::ostringstream out;
-  out << "QRE2FORECASTSOURCE2|" << asset_name(config.asset) << '|' << lock.d8
+  out << "QRE2FORECASTSOURCE4|" << asset_name(config.asset) << '|' << lock.d8
       << '|' << lock_status_name(lock.status) << '|' << lock.locked_iid << '|'
       << lock.selection_basis_d8 << '|' << lock.open_utc << '|' << lock.close_utc
       << '|' << phase.profile_sha256 << '|' << event.status << '|'
       << event.binary_sha256;
   return sha256_bytes(out.str());
+}
+
+struct EvaluationRow {
+  ForecastRow forecast;
+  RealizedVolSegment realized;
+  std::string source_session_sha256;
+  std::string lineage_sha256;
+};
+
+[[nodiscard]] std::string evaluation_lineage(const EvaluationRow& row) {
+  std::ostringstream out;
+  out << std::setprecision(std::numeric_limits<double>::max_digits10)
+      << "QRE2FORECASTEVALROW4|" << forecast_law_sha256() << '|'
+      << static_cast<unsigned>(row.forecast.asset) << '|' << row.forecast.d8
+      << '|' << static_cast<unsigned>(row.forecast.segment) << '|'
+      << static_cast<unsigned>(row.forecast.status) << '|'
+      << row.forecast.lineage_sha256 << '|' << row.source_session_sha256 << '|'
+      << row.realized.valid << '|' << row.realized.sane_events << '|'
+      << row.realized.grid_samples << '|' << row.realized.open_px << '|'
+      << row.realized.high_px << '|' << row.realized.low_px << '|'
+      << row.realized.close_px << '|' << row.realized.range_usd << '|'
+      << row.realized.rv_usd << '|' << row.realized.bv_usd << '|'
+      << row.realized.jump_usd << '|' << row.realized.sigma_usd << '|'
+      << row.realized.parkinson_usd << '|' << row.realized.gk_usd << '|'
+      << row.realized.rs_usd;
+  return sha256_bytes(out.str());
+}
+
+[[nodiscard]] std::string render_evaluation_rows(
+    const Config& config, const std::vector<EvaluationRow>& rows) {
+  std::ostringstream out;
+  out << "# QRE2FORECASTEVAL4 " << window_tag(config) << " asset="
+      << asset_name(config.asset) << " law_sha256=" << forecast_law_sha256()
+      << '\n'
+      << "asset\td8\tsegment\tforecast_status\tforecast_lineage_sha256"
+         "\tsource_session_sha256\trealized_valid\tsane_events\tgrid_samples"
+         "\topen_px\thigh_px\tlow_px\tclose_px\trange_usd\trv_usd\tbv_usd"
+         "\tjump_usd\tsigma_usd\tparkinson_usd\tgk_usd\trs_usd"
+         "\tevaluation_lineage_sha256\n";
+  out << std::setprecision(std::numeric_limits<double>::max_digits10);
+  for (const EvaluationRow& row : rows) {
+    out << asset_name(row.forecast.asset) << '\t' << row.forecast.d8 << '\t'
+        << forecast_segment_name(row.forecast.segment) << '\t'
+        << forecast_status_name(row.forecast.status) << '\t'
+        << row.forecast.lineage_sha256 << '\t' << row.source_session_sha256
+        << '\t' << row.realized.valid << '\t' << row.realized.sane_events
+        << '\t' << row.realized.grid_samples << '\t'
+        << number_or_na(row.realized.open_px) << '\t'
+        << number_or_na(row.realized.high_px) << '\t'
+        << number_or_na(row.realized.low_px) << '\t'
+        << number_or_na(row.realized.close_px) << '\t'
+        << number_or_na(row.realized.range_usd) << '\t'
+        << number_or_na(row.realized.rv_usd) << '\t'
+        << number_or_na(row.realized.bv_usd) << '\t'
+        << number_or_na(row.realized.jump_usd) << '\t'
+        << number_or_na(row.realized.sigma_usd) << '\t'
+        << number_or_na(row.realized.parkinson_usd) << '\t'
+        << number_or_na(row.realized.gk_usd) << '\t'
+        << number_or_na(row.realized.rs_usd) << '\t'
+        << row.lineage_sha256 << '\n';
+  }
+  return out.str();
 }
 
 [[nodiscard]] std::string receipt_text(
@@ -430,7 +503,7 @@ read_event_manifest(const Config& config) {
       "current-session OHLC/extrema/return/spread aggregates; previous-tick "
       "300-second dollar returns; RV/BV/jump/Parkinson/GK/RS");
   json.key("model_law");
-  json.value_string("expanding monthly rank-full OLS(log RANGE,log SIGMA); MIN_TRAIN=250; no imputation/context/substitution");
+  json.value_string("expanding monthly rank-full OLS(log RANGE,log SIGMA); sigma = trailing66-median-ratio-calibrated raw OLS; prior-session sigma serialized as comparator; MIN_TRAIN=250; no imputation/context/substitution");
   json.key("availability_law");
   json.value_string(
       "availability_ts_ns=session_open_ts_recv_ns; join requires "
@@ -458,6 +531,19 @@ read_event_manifest(const Config& config) {
   json.value_string(std::string(lineage_sha));
   json.key("output_sha256");
   json.value_string(stats.output_sha256);
+  json.key("evaluation");
+  json.begin_object();
+  json.key("schema");
+  json.value_string("QRE2FORECASTEVAL4");
+  json.key("rows");
+  json.value_int(static_cast<std::int64_t>(stats.evaluation_rows));
+  json.key("valid_rows");
+  json.value_int(static_cast<std::int64_t>(stats.evaluation_valid));
+  json.key("output_sha256");
+  json.value_string(stats.evaluation_output_sha256);
+  json.key("consumer_law");
+  json.value_string("diagnostics-only hindsight plane; live QRE2ForecastProvider must not open it");
+  json.end_object();
   json.key("holdout_start_d8");
   json.value_int(kDevelopmentEndD8Exclusive);
   json.key("final_exam_permit");
@@ -571,6 +657,8 @@ Expected<ForecastBuildStats, Refusal> build_forecast_artifact(
   ForecastModelState model_state(config.asset);
   std::vector<ForecastRow> rows;
   rows.reserve(locks.value().size() * kForecastSegmentCount);
+  std::vector<EvaluationRow> evaluation;
+  evaluation.reserve(locks.value().size() * kForecastSegmentCount);
   ForecastBuildStats stats;
   for (std::size_t ordinal = 0; ordinal < locks.value().size(); ++ordinal) {
     const LockRow& lock = locks.value()[ordinal];
@@ -629,6 +717,13 @@ Expected<ForecastBuildStats, Refusal> build_forecast_artifact(
     }
     const std::string source_hash = source_session_hash(
         config, lock, phase->second, event);
+    for (std::size_t s = 0; s < kForecastSegmentCount; ++s) {
+      EvaluationRow row{forecast.value()[s], realized.segment[s], source_hash, {}};
+      row.lineage_sha256 = evaluation_lineage(row);
+      evaluation.push_back(std::move(row));
+      ++stats.evaluation_rows;
+      if (realized.segment[s].valid) ++stats.evaluation_valid;
+    }
     auto sane_committed = sane_state.commit(realized.sane_commit);
     if (!sane_committed) return refuse<ForecastBuildStats>(sane_committed.error());
     auto model_committed = model_state.commit(lock.d8, realized.segment, source_hash);
@@ -640,8 +735,13 @@ Expected<ForecastBuildStats, Refusal> build_forecast_artifact(
   stats.output_sha256 = sha256_bytes(output);
   auto wrote = write_atomic(forecast_path(config), output);
   if (!wrote) return refuse<ForecastBuildStats>(wrote.error());
+  const std::string evaluation_output =
+      render_evaluation_rows(config, evaluation);
+  stats.evaluation_output_sha256 = sha256_bytes(evaluation_output);
+  wrote = write_atomic(evaluation_path(config), evaluation_output);
+  if (!wrote) return refuse<ForecastBuildStats>(wrote.error());
   std::ostringstream lineage;
-  lineage << "QRE2FORECASTLINEAGES2";
+  lineage << "QRE2FORECASTLINEAGES4";
   for (const ForecastRow& row : rows) lineage << '|' << row.lineage_sha256;
   const std::string lineage_sha = sha256_bytes(lineage.str());
   const std::string receipt = receipt_text(
@@ -699,8 +799,8 @@ Expected<ForecastArtifact, Refusal> read_forecast_artifact(
     auto segment = forecast_segment_from_name(f[2]);
     auto status = parse_status(f[3]);
     auto reason = parse_reason(f[4]);
-    auto regime = parse_regime(f[26]);
-    auto ladder = parse_ladder(f[27]);
+    auto regime = parse_regime(f[30]);
+    auto ladder = parse_ladder(f[31]);
     if (!segment) return refuse<ForecastArtifact>(segment.error());
     if (!status) return refuse<ForecastArtifact>(status.error());
     if (!reason) return refuse<ForecastArtifact>(reason.error());
@@ -728,17 +828,21 @@ Expected<ForecastArtifact, Refusal> read_forecast_artifact(
         !parse_double(f[18], &row.prior_gk_usd) ||
         !parse_double(f[19], &row.prior_rs_usd) ||
         !parse_double(f[20], &row.prior_jump_usd) ||
-        !parse_double(f[21], &row.sigma_hat_usd) ||
-        !parse_double(f[22], &row.range_hat_usd) ||
-        !parse_double(f[23], &row.rv5_over_rv66) ||
-        !parse_double(f[24], &row.regime_cut_lo) ||
-        !parse_double(f[25], &row.regime_cut_hi) ||
-        !parse_int(f[28], &row.n_calibration) ||
-        !parse_int(f[29], &row.n_regime_calibration)) {
+        !parse_double(f[21], &row.sigma_raw_hat_usd) ||
+        !parse_double(f[22], &row.sigma_persistence_usd) ||
+        !parse_double(f[23], &row.sigma_calibration_ratio) ||
+        !parse_int(f[24], &row.n_sigma_calibration) ||
+        !parse_double(f[25], &row.sigma_hat_usd) ||
+        !parse_double(f[26], &row.range_hat_usd) ||
+        !parse_double(f[27], &row.rv5_over_rv66) ||
+        !parse_double(f[28], &row.regime_cut_lo) ||
+        !parse_double(f[29], &row.regime_cut_hi) ||
+        !parse_int(f[32], &row.n_calibration) ||
+        !parse_int(f[33], &row.n_regime_calibration)) {
       return refuse<ForecastArtifact>(content_refusal(
           "qr_entry_v2::read_forecast_artifact", "invalid forecast scalar"));
     }
-    std::size_t column = 30u;
+    std::size_t column = 34u;
     for (std::size_t q = 0; q < kForecastQuantiles.size(); ++q) {
       if (!parse_double(f[column++], &row.move_ratio[q]) ||
           !parse_double(f[column++], &row.move_usd[q])) {
@@ -779,6 +883,7 @@ Expected<ForecastArtifact, Refusal> read_forecast_artifact(
          row.fit_end_range_d8 >= fit_cutoff_d8) ||
         (row.fit_end_sigma_d8 >= 0 &&
          row.fit_end_sigma_d8 >= fit_cutoff_d8) ||
+        row.n_sigma_calibration > kForecastSigmaCalibrationWindow ||
         row.n_calibration > kForecastCalibrationWindow ||
         row.n_regime_calibration > row.n_calibration) {
       return refuse<ForecastArtifact>(content_refusal(
@@ -786,8 +891,19 @@ Expected<ForecastArtifact, Refusal> read_forecast_artifact(
           "monthly-fit/calibration causality invariant failed", row.d8));
     }
     if (row.status == ForecastStatus::READY) {
+      const double expected_sigma =
+          kForecastSigmaOlsWeight * row.sigma_raw_hat_usd *
+              row.sigma_calibration_ratio +
+          (1.0 - kForecastSigmaOlsWeight) * row.sigma_persistence_usd;
       if (row.missing_reason != ForecastMissingReason::NONE || !design_finite ||
+          !std::isfinite(row.sigma_raw_hat_usd) ||
+          !(row.sigma_raw_hat_usd > 0.0) ||
+          !std::isfinite(row.sigma_persistence_usd) ||
+          !(row.sigma_persistence_usd > 0.0) ||
+          !std::isfinite(row.sigma_calibration_ratio) ||
+          !(row.sigma_calibration_ratio > 0.0) ||
           !std::isfinite(row.sigma_hat_usd) || !(row.sigma_hat_usd > 0.0) ||
+          row.sigma_hat_usd != expected_sigma ||
           !std::isfinite(row.range_hat_usd) || !(row.range_hat_usd > 0.0) ||
           row.n_train_range < kForecastMinTrain ||
           row.n_train_sigma < kForecastMinTrain ||
@@ -797,6 +913,9 @@ Expected<ForecastArtifact, Refusal> read_forecast_artifact(
             "qr_entry_v2::read_forecast_artifact", "READY invariant failed", row.d8));
       }
     } else if (row.missing_reason == ForecastMissingReason::NONE ||
+               std::isfinite(row.sigma_raw_hat_usd) ||
+               std::isfinite(row.sigma_persistence_usd) ||
+               std::isfinite(row.sigma_calibration_ratio) ||
                std::isfinite(row.sigma_hat_usd) ||
                std::isfinite(row.range_hat_usd)) {
       return refuse<ForecastArtifact>(content_refusal(

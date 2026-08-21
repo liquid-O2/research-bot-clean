@@ -95,10 +95,10 @@ VERIFIED_SESSION_LAW_SHA256 = hashlib.sha256(
     b"ENTRY_V2_VERIFIED_SESSION_V1|manifest-pinned-payloads|prefix-proof|"
     b"legacy-target-plane|source-stat-header-sidecar|no-h2|no-silent-rebuild"
 ).hexdigest()
-FORECAST_SCHEMA = "QRE2FORECAST2"
+FORECAST_SCHEMA = "QRE2FORECAST4"
 EXPLICIT_FORECAST_SCHEMA = "entry-v2-explicit-forecast-test-adapter-v1"
 QRE2_FORECAST_LAW_SHA256 = (
-    "34d3620ac300323d64a48356ab953cbb93f113471c4147afa3ee898b633d776a"
+    "6b43efa63272f370aa7fc3331446ff30cd616acf12e897aef13062fdf19b3a3b"
 )
 
 
@@ -187,11 +187,29 @@ FORECAST_SEGMENTS = ("SESSION", "TOKYO", "LONDON", "NY")
 PHASE_FORECAST_SEGMENT = MappingProxyType({0: "TOKYO", 1: "LONDON", 2: "NY"})
 FORECAST_SCOPE_FIELDS = (
     "forecast_age_sec", "sigma_hat_usd", "range_hat_usd",
+    "sigma_components_present", "sigma_raw_hat_usd",
+    "sigma_persistence_usd", "sigma_calibration_ratio",
+    "sigma_calibration_count", "sigma_calibrated_hat_usd",
+    "sigma_shrinkage_delta_usd", "sigma_ols_minus_persistence_usd",
+    "sigma_ols_over_persistence",
     *(f"move_{quantile}_usd" for quantile in FORECAST_QUANTILES),
     "rv5_over_rv66", "rv5_over_rv66_present",
     "regime_low_present", "regime_mid_present", "regime_high_present",
     "regime_present", "move_ladder_present",
     "unscaled_fallback_present", "forecast_present",
+    "vintage_history_present", "vintage_ready_count_5",
+    "vintage_ready_count_22",
+    "vintage_sigma_delta_1_usd", "vintage_sigma_slope_5_usd",
+    "vintage_sigma_slope_22_usd", "vintage_sigma_acceleration_usd",
+    "vintage_range_delta_1_usd", "vintage_range_slope_5_usd",
+    "vintage_range_slope_22_usd", "vintage_range_acceleration_usd",
+    "vintage_q50_delta_1_usd", "vintage_q50_slope_5_usd",
+    "vintage_q50_slope_22_usd", "vintage_q50_acceleration_usd",
+    "vintage_q90_delta_1_usd", "vintage_q90_slope_5_usd",
+    "vintage_q90_slope_22_usd", "vintage_q90_acceleration_usd",
+    "vintage_rv_ratio_delta_1", "vintage_rv_ratio_slope_5",
+    "vintage_rv_ratio_slope_22", "vintage_rv_ratio_acceleration",
+    "vintage_regime_changed", "vintage_regime_persistence",
 )
 FORECAST_FEATURE_FIELDS = tuple(
     f"{scope}_{name}"
@@ -231,7 +249,9 @@ _FORECAST_COLUMNS = (
     "fit_end_range_d8", "fit_end_sigma_d8", "n_train_range", "rank_range",
     "n_train_sigma", "rank_sigma", "rv1_usd", "rv5_usd", "rv22_usd",
     "prior_parkinson_usd", "prior_gk_usd", "prior_rs_usd", "prior_jump_usd",
-    "sigma_hat_usd", "range_hat_usd", "rv5_over_rv66", "regime_cut_lo",
+    "sigma_raw_hat_usd", "sigma_persistence_usd",
+    "sigma_calibration_ratio", "n_sigma_calibration", "sigma_hat_usd",
+    "range_hat_usd", "rv5_over_rv66", "regime_cut_lo",
     "regime_cut_hi", "regime_tag", "ladder_source", "n_calibration",
     "n_regime_calibration",
     *(name for quantile in FORECAST_QUANTILES
@@ -449,7 +469,7 @@ class ForecastQuery:
 
 @dataclass(frozen=True, slots=True)
 class ForecastSegmentSnapshot:
-    """One pinned QRE2FORECAST2 segment reduced to student-visible fields."""
+    """One pinned QRE2FORECAST4 segment reduced to student-visible fields."""
 
     segment: str
     status: str
@@ -461,6 +481,10 @@ class ForecastSegmentSnapshot:
     regime: str
     ladder_source: str
     lineage_sha256: str
+    sigma_raw_hat_usd: float | None = None
+    sigma_persistence_usd: float | None = None
+    sigma_calibration_ratio: float | None = None
+    n_sigma_calibration: int | None = None
 
     def validate(self, *, expected_segment: str, decision_ts_ns: int) -> None:
         if self.segment != expected_segment or self.segment not in FORECAST_SEGMENTS:
@@ -472,6 +496,10 @@ class ForecastSegmentSnapshot:
         _sha(self.lineage_sha256, "forecast row lineage")
         if self.status == "MISSING":
             if (self.sigma_hat_usd is not None or self.range_hat_usd is not None
+                    or self.sigma_raw_hat_usd is not None
+                    or self.sigma_persistence_usd is not None
+                    or self.sigma_calibration_ratio is not None
+                    or self.n_sigma_calibration is not None
                     or self.rv5_over_rv66 is not None
                     or any(value is not None for value in self.move_usd)
                     or self.regime != "NA" or self.ladder_source != "MISSING"):
@@ -489,6 +517,14 @@ class ForecastSegmentSnapshot:
                 or float(self.sigma_hat_usd) <= 0.0
                 or float(self.range_hat_usd) <= 0.0):
             raise C.EntryV2Refusal("READY forecast segment has invalid numeric values")
+        components = (self.sigma_raw_hat_usd, self.sigma_persistence_usd,
+                      self.sigma_calibration_ratio)
+        if any(value is not None for value in components):
+            if (any(value is None or not math.isfinite(float(value))
+                    or float(value) <= 0.0 for value in components)
+                    or self.n_sigma_calibration is None
+                    or not 0 <= int(self.n_sigma_calibration) <= 66):
+                raise C.EntryV2Refusal("forecast sigma components are invalid")
         if self.ladder_source == "MISSING":
             if any(value is not None for value in self.move_usd):
                 raise C.EntryV2Refusal("missing forecast ladder carries move values")
@@ -541,6 +577,11 @@ class ForecastProvider(Protocol):
         self, asset: str, trading_day: int
     ) -> ForecastSegmentSnapshot | None: ...
 
+    def forecast_history(
+        self, asset: str, trading_day: int, segment: str,
+        decision_ts_ns: int, limit: int,
+    ) -> tuple[ForecastSegmentSnapshot, ...]: ...
+
 
 @dataclass(frozen=True, slots=True)
 class AssetScopedForecastProvider:
@@ -584,6 +625,15 @@ class AssetScopedForecastProvider:
         if str(asset).upper() != self.asset:
             raise C.EntryV2Refusal("forecast regime query escaped its asset lane")
         return self.delegate.session_regime(asset, trading_day)
+
+    def forecast_history(
+        self, asset: str, trading_day: int, segment: str,
+        decision_ts_ns: int, limit: int,
+    ) -> tuple[ForecastSegmentSnapshot, ...]:
+        if str(asset).upper() != self.asset:
+            raise C.EntryV2Refusal("forecast history query escaped its asset lane")
+        return self.delegate.forecast_history(
+            asset, trading_day, segment, decision_ts_ns, limit)
 
 
 def _is_test_forecast_provider(provider: ForecastProvider) -> bool:
@@ -647,6 +697,28 @@ class ExplicitForecastRows:
             )
         return next(iter(rows), None)
 
+    def forecast_history(
+        self, asset: str, trading_day: int, segment: str,
+        decision_ts_ns: int, limit: int,
+    ) -> tuple[ForecastSegmentSnapshot, ...]:
+        if segment not in FORECAST_SEGMENTS or limit < 1:
+            raise C.EntryV2Refusal("explicit forecast history query is invalid")
+        by_day: dict[int, ForecastSegmentSnapshot] = {}
+        for row in self.rows:
+            if row.asset != asset or int(row.trading_day) >= int(trading_day):
+                continue
+            snapshot = (row.session if segment == "SESSION" else
+                        row.phase_segment if row.phase_segment.segment == segment
+                        else None)
+            if (snapshot is not None
+                    and int(snapshot.availability_ts_ns) < int(decision_ts_ns)):
+                prior = by_day.get(int(row.trading_day))
+                if prior is not None and prior != snapshot:
+                    raise C.EntryV2Refusal(
+                        "explicit forecast history disagrees within an asset-day")
+                by_day[int(row.trading_day)] = snapshot
+        return tuple(by_day[day] for day in sorted(by_day)[-int(limit):])
+
     @property
     def assets(self) -> frozenset[str]:
         return frozenset(row.asset for row in self.rows)
@@ -672,7 +744,7 @@ class QRE2ForecastArtifactInput:
 
 
 class QRE2ForecastProvider:
-    """Verified production reader for C++ QRE2FORECAST2 artifacts."""
+    """Verified production reader for C++ QRE2FORECAST4 artifacts."""
 
     def __init__(self, inputs: Sequence[QRE2ForecastArtifactInput]) -> None:
         if not inputs:
@@ -695,11 +767,21 @@ class QRE2ForecastProvider:
                 "law_sha256": law_sha,
             })
         self._rows = MappingProxyType(rows)
+        history: dict[tuple[str, str], tuple[
+                tuple[int, ForecastSegmentSnapshot], ...]] = {}
+        for asset in assets:
+            for segment in FORECAST_SEGMENTS:
+                history[(asset, segment)] = tuple(sorted(
+                    ((day, snapshot)
+                     for (row_asset, day, row_segment), snapshot in rows.items()
+                     if row_asset == asset and row_segment == segment),
+                    key=lambda item: item[0]))
+        self._history = MappingProxyType(history)
         self._artifacts = MappingProxyType({item.asset: item.artifact_sha256
                                             for item in inputs})
         self.assets = frozenset(assets)
         self.receipt_sha256 = C.object_sha256({
-            "schema": "entry-v2-qre2-forecast-provider-v2", "artifacts": pins})
+            "schema": "entry-v2-qre2-forecast-provider-v4", "artifacts": pins})
 
     def forecast(self, query: ForecastQuery) -> ForecastRow | None:
         phase_name = PHASE_FORECAST_SEGMENT.get(int(query.phase))
@@ -721,6 +803,20 @@ class QRE2ForecastProvider:
     ) -> ForecastSegmentSnapshot | None:
         return self._rows.get((str(asset).upper(), int(trading_day), "SESSION"))
 
+    def forecast_history(
+        self, asset: str, trading_day: int, segment: str,
+        decision_ts_ns: int, limit: int,
+    ) -> tuple[ForecastSegmentSnapshot, ...]:
+        asset = str(asset).upper()
+        if (asset not in self.assets or segment not in FORECAST_SEGMENTS
+                or int(limit) < 1):
+            raise C.EntryV2Refusal("QRE2 forecast history query is invalid")
+        selected = [snapshot for day, snapshot in self._history[(asset, segment)]
+                    if (int(day) < int(trading_day)
+                        and int(snapshot.availability_ts_ns)
+                        < int(decision_ts_ns))]
+        return tuple(selected[-int(limit):])
+
 
 def _forecast_snapshot_payload(row: ForecastSegmentSnapshot) -> dict[str, Any]:
     return {
@@ -728,6 +824,10 @@ def _forecast_snapshot_payload(row: ForecastSegmentSnapshot) -> dict[str, Any]:
         "status": row.status,
         "availability_ts_ns": row.availability_ts_ns,
         "sigma_hat_usd": row.sigma_hat_usd,
+        "sigma_raw_hat_usd": row.sigma_raw_hat_usd,
+        "sigma_persistence_usd": row.sigma_persistence_usd,
+        "sigma_calibration_ratio": row.sigma_calibration_ratio,
+        "n_sigma_calibration": row.n_sigma_calibration,
         "range_hat_usd": row.range_hat_usd,
         "move_usd": list(row.move_usd),
         "rv5_over_rv66": row.rv5_over_rv66,
@@ -765,33 +865,42 @@ def _forecast_lineage(row: Mapping[str, str], law_sha256: str) -> str:
     int_fields = (
         "d8", "history_end_d8", "availability_ts_ns", "fit_month",
         "fit_end_range_d8", "fit_end_sigma_d8", "n_train_range", "rank_range",
-        "n_train_sigma", "rank_sigma", "n_calibration", "n_regime_calibration",
+        "n_train_sigma", "rank_sigma", "n_sigma_calibration",
+        "n_calibration", "n_regime_calibration",
     )
     for name in int_fields:
         value = _int(row, name)
         if row[name] != str(value):
             raise C.EntryV2Refusal(f"non-canonical QRE2 forecast integer: {name}")
-    base_float_fields = (
+    pre_sigma_float_fields = (
         "rv1_usd", "rv5_usd", "rv22_usd", "prior_parkinson_usd",
-        "prior_gk_usd", "prior_rs_usd", "prior_jump_usd", "sigma_hat_usd",
-        "range_hat_usd", "rv5_over_rv66", "regime_cut_lo", "regime_cut_hi",
+        "prior_gk_usd", "prior_rs_usd", "prior_jump_usd",
+        "sigma_raw_hat_usd", "sigma_persistence_usd",
+        "sigma_calibration_ratio",
+    )
+    post_sigma_float_fields = (
+        "sigma_hat_usd", "range_hat_usd", "rv5_over_rv66",
+        "regime_cut_lo", "regime_cut_hi",
     )
     move_ratio_fields = tuple(f"move_{q}_ratio" for q in FORECAST_QUANTILES)
     move_usd_fields = tuple(f"move_{q}_usd" for q in FORECAST_QUANTILES)
     regime_ratio_fields = tuple(f"move_rs_{q}_ratio" for q in FORECAST_QUANTILES)
     regime_usd_fields = tuple(f"move_rs_{q}_usd" for q in FORECAST_QUANTILES)
-    float_fields = (base_float_fields + move_ratio_fields + move_usd_fields
+    float_fields = (pre_sigma_float_fields + post_sigma_float_fields
+                    + move_ratio_fields + move_usd_fields
                     + regime_ratio_fields + regime_usd_fields)
     for name in float_fields:
         _forecast_optional(row, name)
     cpp = lambda name: "nan" if row[name] == "NA" else row[name]
     parts = [
-        "QRE2FORECASTROW2", law_sha256, str(asset_index), row["d8"],
+        "QRE2FORECASTROW4", law_sha256, str(asset_index), row["d8"],
         str(enums[0]), str(enums[1]), str(enums[2]), row["history_end_d8"],
         row["availability_ts_ns"], row["fit_month"], row["fit_end_range_d8"],
         row["fit_end_sigma_d8"], row["n_train_range"], row["rank_range"],
         row["n_train_sigma"], row["rank_sigma"],
-        *(cpp(name) for name in base_float_fields),
+        *(cpp(name) for name in pre_sigma_float_fields),
+        row["n_sigma_calibration"],
+        *(cpp(name) for name in post_sigma_float_fields),
         str(enums[3]), str(enums[4]), row["n_calibration"],
         row["n_regime_calibration"],
         *(cpp(name) for name in move_ratio_fields),
@@ -807,8 +916,8 @@ def _forecast_lineage(row: Mapping[str, str], law_sha256: str) -> str:
 def _read_qre2_forecast(
     item: QRE2ForecastArtifactInput,
 ) -> tuple[dict[tuple[str, int, str], ForecastSegmentSnapshot], str]:
-    artifact_path = item.root / "forecast" / f"{item.asset}.qrf2.tsv"
-    receipt_path = item.root / "forecast" / f"{item.asset}.qrf2.json"
+    artifact_path = item.root / "forecast" / f"{item.asset}.qrf4.tsv"
+    receipt_path = item.root / "forecast" / f"{item.asset}.qrf4.json"
     artifact_raw = _read_pinned(
         artifact_path, item.artifact_sha256, f"{item.asset} QRE2 forecast artifact")
     receipt_raw = _read_pinned(
@@ -819,7 +928,7 @@ def _read_qre2_forecast(
         raise C.EntryV2Refusal("QRE2 forecast artifact is not UTF-8") from exc
     lines = text.splitlines()
     header = re.fullmatch(
-        r"# QRE2FORECAST2 start_d8=(\d{8}) end_d8_exclusive=(\d{8}) "
+        r"# QRE2FORECAST4 start_d8=(\d{8}) end_d8_exclusive=(\d{8}) "
         r"asset=(SI|HG|NKD) law_sha256=([0-9a-f]{64})",
         lines[0] if lines else "")
     if len(lines) < 2 or header is None or header.group(3) != item.asset:
@@ -845,7 +954,7 @@ def _read_qre2_forecast(
             receipt.get("schema"), receipt.get("asset"),
             receipt.get("forecast_law_sha256"), receipt.get("output_sha256"),
             receipt.get("holdout_start_d8"), receipt.get("final_exam_permit")) != (
-                "QRE2FORECASTRECEIPT2", item.asset, law_sha,
+                "QRE2FORECASTRECEIPT4", item.asset, law_sha,
                 item.artifact_sha256, C.HOLDOUT_START_D8, False):
         raise C.EntryV2Refusal("QRE2 forecast receipt identity/hash mismatch")
     try:
@@ -868,6 +977,16 @@ def _read_qre2_forecast(
         raise C.EntryV2Refusal("QRE2 forecast source receipt mismatch")
     for name, value in source_hashes.items():
         _sha(value, f"forecast {name}")
+    evaluation = receipt.get("evaluation")
+    if (not isinstance(evaluation, dict)
+            or evaluation.get("schema") != "QRE2FORECASTEVAL4"
+            or int(evaluation.get("rows", -1)) != receipt_rows
+            or not 0 <= int(evaluation.get("valid_rows", -1)) <= receipt_rows
+            or evaluation.get("consumer_law") != (
+                "diagnostics-only hindsight plane; live QRE2ForecastProvider "
+                "must not open it")):
+        raise C.EntryV2Refusal("QRE2 forecast evaluation receipt mismatch")
+    _sha(evaluation.get("output_sha256"), "forecast evaluation output")
 
     parsed: dict[tuple[str, int, str], ForecastSegmentSnapshot] = {}
     lineage: list[str] = []
@@ -903,6 +1022,11 @@ def _read_qre2_forecast(
 
         status, reason = raw["status"], raw["missing_reason"]
         sigma = _forecast_optional(raw, "sigma_hat_usd")
+        sigma_raw = _forecast_optional(raw, "sigma_raw_hat_usd")
+        sigma_persistence = _forecast_optional(raw, "sigma_persistence_usd")
+        sigma_calibration_ratio = _forecast_optional(
+            raw, "sigma_calibration_ratio")
+        n_sigma_calibration = _int(raw, "n_sigma_calibration")
         range_hat = _forecast_optional(raw, "range_hat_usd")
         ratio = _forecast_optional(raw, "rv5_over_rv66")
         unscaled = tuple(_forecast_optional(raw, f"move_{q}_usd")
@@ -921,12 +1045,18 @@ def _read_qre2_forecast(
         if status == "READY":
             ready_count += 1
             if (reason != "NONE" or any(value is None for value in design)
+                    or sigma_raw is None or sigma_raw <= 0.0
+                    or sigma_persistence is None or sigma_persistence <= 0.0
+                    or sigma_calibration_ratio is None
+                    or sigma_calibration_ratio <= 0.0
+                    or not 0 <= n_sigma_calibration <= 66
                     or sigma is None or sigma <= 0.0
                     or range_hat is None or range_hat <= 0.0
                     or _int(raw, "n_train_range") < 250
                     or _int(raw, "n_train_sigma") < 250
                     or _int(raw, "rank_range") != 12
                     or _int(raw, "rank_sigma") != 12
+                    or sigma != sigma_raw * sigma_calibration_ratio
                     or ladder not in {
                         "MISSING", "REGIME", "UNSCALED_FALLBACK"}
                     or regime not in {"NA", "LOW", "MID", "HIGH"}):
@@ -953,26 +1083,33 @@ def _read_qre2_forecast(
             if (reason not in {"DESIGN_HISTORY", "MIN_TRAIN", "RANK_DEFICIENT",
                                "NONFINITE_PREDICTION"}
                     or sigma is not None or range_hat is not None
+                    or sigma_raw is not None or sigma_persistence is not None
+                    or sigma_calibration_ratio is not None
+                    or n_sigma_calibration != 0
                     or ladder != "MISSING"
                     or any(value is not None for value in unscaled + selected)):
                 raise C.EntryV2Refusal("QRE2 MISSING forecast invariant failed")
             # A present MISSING artifact row is valid causal provenance.  Its
             # possibly-known design/regime fields remain masked from students.
             sigma = range_hat = ratio = None
+            sigma_raw = sigma_persistence = sigma_calibration_ratio = None
+            n_sigma_calibration = None
             selected = (None,) * len(FORECAST_QUANTILES)
             regime = "NA"
         else:
             raise C.EntryV2Refusal("unknown QRE2 forecast status")
         snapshot = ForecastSegmentSnapshot(
             raw["segment"], status, availability, sigma, range_hat, selected,
-            ratio, regime, ladder, raw["lineage_sha256"])
+            ratio, regime, ladder, raw["lineage_sha256"], sigma_raw,
+            sigma_persistence, sigma_calibration_ratio,
+            n_sigma_calibration)
         parsed[(item.asset, d8, raw["segment"])] = snapshot
         lineage.append(raw["lineage_sha256"])
 
     if (ready_count, missing_count) != (receipt_ready, receipt_missing):
         raise C.EntryV2Refusal("QRE2 forecast READY/MISSING receipt mismatch")
     expected_lineage = hashlib.sha256(
-        ("QRE2FORECASTLINEAGES2" + "".join(f"|{value}" for value in lineage)).encode()
+        ("QRE2FORECASTLINEAGES4" + "".join(f"|{value}" for value in lineage)).encode()
     ).hexdigest()
     if receipt.get("lineage_aggregate_sha256") != expected_lineage:
         raise C.EntryV2Refusal("QRE2 forecast aggregate lineage mismatch")
@@ -1042,6 +1179,95 @@ def _prefix_sha256(pack: EventPack, cutoff: int) -> str:
     return prefix_sha256(pack, cutoff)
 
 
+def _forecast_vintage_features(
+    current: ForecastSegmentSnapshot,
+    history: Sequence[ForecastSegmentSnapshot],
+) -> dict[str, float]:
+    """Causal daily-vintage dynamics from the pinned forecast history.
+
+    QRE2FORECAST4 publishes at the session open.  These are therefore slopes
+    across prior daily forecast vintages, not intraday revisions.  Missing
+    vintages are retained in the support counts and never imputed.
+    """
+
+    records = tuple(history) + (current,)
+    ready = tuple(snapshot.status == "READY" for snapshot in records)
+    output: dict[str, float] = {
+        "vintage_history_present": float(bool(history)),
+        "vintage_ready_count_5": float(sum(ready[-5:])),
+        "vintage_ready_count_22": float(sum(ready[-22:])),
+    }
+
+    def metric(snapshot: ForecastSegmentSnapshot, name: str) -> float | None:
+        if snapshot.status != "READY":
+            return None
+        if name == "sigma":
+            value = snapshot.sigma_hat_usd
+        elif name == "range":
+            value = snapshot.range_hat_usd
+        elif name == "q50":
+            value = snapshot.move_usd[2]
+        elif name == "q90":
+            value = snapshot.move_usd[4]
+        elif name == "rv_ratio":
+            value = snapshot.rv5_over_rv66
+        else:  # pragma: no cover - fixed local roster
+            raise AssertionError(name)
+        if value is None or not math.isfinite(float(value)):
+            return None
+        return float(value)
+
+    def slope(values: Sequence[float], window: int) -> float:
+        selected = np.asarray(values[-window:], np.float64)
+        if len(selected) < 2:
+            return 0.0
+        x = np.arange(len(selected), dtype=np.float64)
+        centered = x - float(x.mean())
+        denominator = float(np.dot(centered, centered))
+        return float(np.dot(centered, selected - selected.mean()) / denominator
+                     if denominator > 0.0 else 0.0)
+
+    for name, unit in (
+            ("sigma", "_usd"), ("range", "_usd"),
+            ("q50", "_usd"), ("q90", "_usd"),
+            ("rv_ratio", "")):
+        observed = [value for snapshot in records
+                    if (value := metric(snapshot, name)) is not None]
+        current_value = metric(current, name)
+        prior = [value for snapshot in history
+                 if (value := metric(snapshot, name)) is not None]
+        delta = (current_value - prior[-1]
+                 if current_value is not None and prior else 0.0)
+        acceleration = (current_value - 2.0 * prior[-1] + prior[-2]
+                        if current_value is not None and len(prior) >= 2 else 0.0)
+        stem = f"vintage_{name}"
+        output.update({
+            stem + f"_delta_1{unit}": float(delta),
+            stem + f"_slope_5{unit}": slope(observed, 5),
+            stem + f"_slope_22{unit}": slope(observed, 22),
+            stem + f"_acceleration{unit}": float(acceleration),
+        })
+
+    previous_regime = next((snapshot.regime for snapshot in reversed(history)
+                            if snapshot.status == "READY"
+                            and snapshot.regime != "NA"), None)
+    current_regime = current.regime if current.status == "READY" else "NA"
+    persistence = 0
+    if current_regime != "NA":
+        persistence = 1
+        for snapshot in reversed(history):
+            if snapshot.status != "READY" or snapshot.regime != current_regime:
+                break
+            persistence += 1
+    output.update({
+        "vintage_regime_changed": float(
+            previous_regime is not None and current_regime != "NA"
+            and previous_regime != current_regime),
+        "vintage_regime_persistence": float(persistence),
+    })
+    return output
+
+
 def _forecast_features(provider: ForecastProvider, query: ForecastQuery,
                        ) -> tuple[dict[str, float], str]:
     receipt = _sha(getattr(provider, "receipt_sha256", ""), "forecast receipt")
@@ -1050,6 +1276,7 @@ def _forecast_features(provider: ForecastProvider, query: ForecastQuery,
         raise C.EntryV2Refusal(f"forecast row missing: {query.candidate_id}")
     row.validate(query)
     out: dict[str, float] = {}
+    history_lineage: dict[str, tuple[str, ...]] = {}
     for scope, snapshot in (("session", row.session),
                             ("phase", row.phase_segment)):
         present = snapshot.status == "READY"
@@ -1062,6 +1289,40 @@ def _forecast_features(provider: ForecastProvider, query: ForecastQuery,
                 / 1_000_000_000.0) if present else 0.0,
             "sigma_hat_usd": float(snapshot.sigma_hat_usd) if present else 0.0,
             "range_hat_usd": float(snapshot.range_hat_usd) if present else 0.0,
+            "sigma_components_present": float(
+                present and snapshot.sigma_raw_hat_usd is not None),
+            "sigma_raw_hat_usd": (
+                float(snapshot.sigma_raw_hat_usd)
+                if present and snapshot.sigma_raw_hat_usd is not None else 0.0),
+            "sigma_persistence_usd": (
+                float(snapshot.sigma_persistence_usd)
+                if present and snapshot.sigma_persistence_usd is not None else 0.0),
+            "sigma_calibration_ratio": (
+                float(snapshot.sigma_calibration_ratio)
+                if present and snapshot.sigma_calibration_ratio is not None else 0.0),
+            "sigma_calibration_count": (
+                float(snapshot.n_sigma_calibration)
+                if present and snapshot.n_sigma_calibration is not None else 0.0),
+            "sigma_calibrated_hat_usd": (
+                float(snapshot.sigma_raw_hat_usd)
+                * float(snapshot.sigma_calibration_ratio)
+                if present and snapshot.sigma_raw_hat_usd is not None
+                and snapshot.sigma_calibration_ratio is not None else 0.0),
+            "sigma_shrinkage_delta_usd": (
+                float(snapshot.sigma_hat_usd)
+                - float(snapshot.sigma_raw_hat_usd)
+                if present and snapshot.sigma_raw_hat_usd is not None else 0.0),
+            "sigma_ols_minus_persistence_usd": (
+                float(snapshot.sigma_raw_hat_usd)
+                - float(snapshot.sigma_persistence_usd)
+                if present and snapshot.sigma_raw_hat_usd is not None
+                and snapshot.sigma_persistence_usd is not None else 0.0),
+            "sigma_ols_over_persistence": (
+                float(snapshot.sigma_raw_hat_usd)
+                / float(snapshot.sigma_persistence_usd)
+                if present and snapshot.sigma_raw_hat_usd is not None
+                and snapshot.sigma_persistence_usd is not None
+                and float(snapshot.sigma_persistence_usd) > 0.0 else 0.0),
             **{
                 f"move_{quantile}_usd": (
                     float(value) if ladder_present else 0.0)
@@ -1079,6 +1340,14 @@ def _forecast_features(provider: ForecastProvider, query: ForecastQuery,
                 present and snapshot.ladder_source == "UNSCALED_FALLBACK"),
             "forecast_present": float(present),
         }
+        history = provider.forecast_history(
+            query.asset, query.trading_day, snapshot.segment,
+            query.decision_ts_ns, 22)
+        if any(int(item.availability_ts_ns) >= int(query.decision_ts_ns)
+               for item in history):
+            raise C.EntryV2Refusal("forecast history is not strictly prior")
+        values.update(_forecast_vintage_features(snapshot, history))
+        history_lineage[scope] = tuple(item.lineage_sha256 for item in history)
         for name in FORECAST_SCOPE_FIELDS:
             out[f"{scope}_{name}"] = values[name]
     row_lineage = C.object_sha256({
@@ -1093,6 +1362,7 @@ def _forecast_features(provider: ForecastProvider, query: ForecastQuery,
         "feature_values": [out[name] for name in FORECAST_FEATURE_FIELDS],
         "session": _forecast_snapshot_payload(row.session),
         "phase_segment": _forecast_snapshot_payload(row.phase_segment),
+        "history_lineage": history_lineage,
         "source_sha256": row.source_sha256,
     })
     return out, row_lineage

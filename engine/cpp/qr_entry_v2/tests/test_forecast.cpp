@@ -311,6 +311,17 @@ TEST(Qre2ForecastModel, MonthlyFullRankWarmupAndCausalLadderBecomeReady) {
     EXPECT_LT(row.fit_end_range_d8, row.fit_month * 100 + 1);
     EXPECT_LT(row.fit_end_sigma_d8, row.fit_month * 100 + 1);
     EXPECT_GT(row.sigma_hat_usd, 0.0);
+    EXPECT_GT(row.sigma_raw_hat_usd, 0.0);
+    EXPECT_GT(row.sigma_persistence_usd, 0.0);
+    EXPECT_GT(row.sigma_calibration_ratio, 0.0);
+    EXPECT_LE(row.n_sigma_calibration,
+              qr::entry_v2::kForecastSigmaCalibrationWindow);
+    EXPECT_DOUBLE_EQ(
+        row.sigma_hat_usd,
+        qr::entry_v2::kForecastSigmaOlsWeight * row.sigma_raw_hat_usd *
+                row.sigma_calibration_ratio +
+            (1.0 - qr::entry_v2::kForecastSigmaOlsWeight) *
+                row.sigma_persistence_usd);
     EXPECT_GT(row.range_hat_usd, 0.0);
     EXPECT_GE(row.n_calibration, qr::entry_v2::kForecastCalibrationMin);
     EXPECT_NE(row.ladder_source, ForecastLadderSource::MISSING);

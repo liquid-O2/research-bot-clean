@@ -465,3 +465,7 @@ ships consensus or re-runs on wild divergence, freezes ONE spec with its one-pag
   sharp: among extended candidates, does confirmation accrual separate the final extreme
   from premature ones causally? Next probe: extension eligibility x accrual composite x
   sequential stopping.
+- 2026-08-22 12:20Z: extension x confirmation NEGATIVE (JOURNAL): no causal decision-time
+  signal with current ingredients in the 300s window; scoped closure recorded. Levers left:
+  PATIENCE (time reveals the final extreme — probe next), the 600s window (D8), new
+  ingredients from catalog gaps G1-G3/G7/G10 (EXHAUST/DEFENSE inputs).

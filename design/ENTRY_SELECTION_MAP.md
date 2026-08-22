@@ -459,3 +459,9 @@ ships consensus or re-runs on wild divergence, freezes ONE spec with its one-pag
   the CAUSAL form (first candidate clearing a train-set threshold / running max) is running
   (probe_extension_causal). The "formation-moment candidate-local separation" closure is
   scoped down only if the causal form clears.
+- 2026-08-22 ~14:35Z: CAUSAL extension rule FAILS (threshold/forward at or below random,
+  knobs from train) — the oracle's edge is hindsight about the phase's final extreme; the
+  closure STANDS; D6/D7 cell-pick numbers = cell-oracle diagnostics. The crux is now
+  sharp: among extended candidates, does confirmation accrual separate the final extreme
+  from premature ones causally? Next probe: extension eligibility x accrual composite x
+  sequential stopping.

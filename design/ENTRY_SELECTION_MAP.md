@@ -16,6 +16,11 @@ seed above strongest shuffle — with every number replay-dollars, 5+5 seeds, pr
 
 - 2026-08-22: branch ladder struck; diagnosis precedes any formulation/architecture choice
   (user ruling + D-020). Receipt: DIRECTIVES_INBOX 2026-08-22 entry.
+- 2026-08-22 ~07:30Z: user frontier round 1 — (1) diagnosis-first ADOPTED (A1-A5 before any
+  formulation choice); (2) E2R KILLED mid-run by user ruling (driver stopped cleanly, zero
+  orphans, kill-window manifests 5/5 parse; second-block confirmation deliberately forfeited
+  for box time); (3) Phase-B priors DEFERRED until A1/A2 land. Receipt: AskUserQuestion
+  answers in session transcript + this entry.
 - 2026-08-22: the E1R failure is attributed to mechanism level: near-flat 3-way regret
   regression + argmin-of-levels converter; ranking signal exists (gap AUC .659 real vs .480
   shuffle) but is ~an order short of the gate. Receipt: JOURNAL 2026-08-22 ~04:45Z.

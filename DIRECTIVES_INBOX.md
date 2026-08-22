@@ -40,3 +40,45 @@ Because currently we haven't been using the skills as they're intended. Like, we
 
 So even when I'm asleep, even when we get results, find the thing and start working on the next step to improve it further to get us to our goal. If we can't get us there with the first results, 
 - [2026-08-21T~20:40Z] (verbatim, overnight authority expanded): "don't just stop, by the way. Even if you get the results when I'm sleeping, you have the full authority to move forward. Use all of the skills and et cetera to ensure we do things properly... even when we get results, find the thing and start working on the next step to improve it further to get us to our goal. If we can't get us there with the first results"
+- [2026-08-21T21:25:03Z] Yeah, and did we port over the planning skills and every other skill for building out an entire plan for handling, like, breaking down things into TDD development and et cetera? Like, did we port over those skills as well from all of the repositories and all of the links I have sent you? Because that will be really important for us for the next stage when the things come back and we don't get to our goal.
+
+The results don't look good. Then we need to do a proper planning and proper like implementation stage that would need all of the learnings and etc that we learned from all of the websites and repos I've sent you for the skills. We need all of it from there. I'm not sure if we implemented all of it.
+- [2026-08-21T21:52:28Z] Okay, an entry V2 goal is something that was built before our session, right? So I'm not sure if we should use it. Like, is there anything informative about that?
+
+And does it like override any of the proper skills that we have? And you mentioned that all of the stuff from like the P thingy as well as the bit powers as well as the other stuff is all combined into breaking down work: stress testing plans, driving test first, and designing it twice.
+
+So two tickets and wayfinder are in the breaking down work and the other plan building stuff from on the potato mode router and everything. So that will trigger when I ask for you to create a plan.
+
+Like all of these should trigger without me having to trigger it myself, if that makes sense. Like we need to ensure all of the skills are there, like nothing is missed.
+
+I need you to do a like gap check and do a like audit of the decisions it made and et cetera, because this was done by Opus, I guess. I need your eyes on it.
+
+To ensure we are getting the best skills possible.
+- [2026-08-21T22:00:30Z] And we are using those skills properly, right? Nothing from them is getting mangled or reduced to something that makes no sense or does not have the same effect or value, right?
+
+And if I just say "create a plan," will it also understand breaking down work and shaping code for agents or whatever else? Like, will it combine all of the planning things together?
+
+And two tickets: Wayfinder, ImplementSpec, TDD, BreakingDownWork, and other skills that we have. Like all of them will trigger, right? Not just the skills we have — like, can we look at the other stuff as well?
+
+Because I'm not sure these few are the ones that are the best things possible. Because I think we have several skills for the planning phase and everything else — BreakingDownWork and everything else as well.
+
+You told me that you added one line from the other skills, which makes no sense given we need to follow proper skill plans and etc. But if you just add one line, does it even add anything  but can't you yourself actually? Never mind. Yeah, like, I'm not sure if we have imprinted things properly. That's all.
+- [2026-08-22T07:24:25Z] okay lets think this through, with plan and break things down, I don't believe histogram learners is the best path forward, but yeah, let's plan things out. Understand how we can get to it because the results are abhorrent, absolutely horrendous.
+
+This is the same as having no model at all. This isn't something I can accept, so we need to think things through to fix this before anything else again.
+
+I literally told you, don't use the decision ledger that we have. That was planned like ages ago. So whatever there is, is not accurate. So next work is not histogram learners by branch design.
+
+## 2026-08-22 ~05:30Z — user ruling: the pre-registered branch ladder is STRUCK as decision authority
+Verbatim: "I don't believe histogram learners is the best path forward, but yeah, let's plan
+things out. Understand how we can get to it because the results are abhorrent, absolutely
+horrendous. This is the same as having no model at all. This isn't something I can accept, so
+we need to think things through to fix this before anything else again. I literally told you,
+don't use the decision ledger that we have. That was planned like ages ago. So whatever there
+is, is not accurate. So next work is not histogram learners by branch design."
+Effect: tabular_fallbacks.FAILURE_BRANCHES / select_failure_branch is no longer the authority
+for the post-E1R direction — it was authored under an older understanding and is superseded.
+The branch names survive only as an idea list. The next stage is diagnosis-first planning
+(consistent with D-020's case-studies-before-architecture law and the entry-v2-goal locked
+fact "model-family capacity is not the bottleneck"). goal_lowered / terminal_null remain
+refused; the economic goal is unchanged.

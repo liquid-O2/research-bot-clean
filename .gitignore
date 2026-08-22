@@ -23,3 +23,5 @@ provenance/entry_v2/.entry-v2-durable-store/
 /.journal.md.lock
 # provenance logs are authority, not scratch
 !provenance/entry_v2/**/*.log
+# unlazy Stop-wall progress counter (D-111): per-session scratch, not a record
+/.unlazy-hook-state.json

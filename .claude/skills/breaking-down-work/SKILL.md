@@ -1,6 +1,13 @@
 ---
 name: breaking-down-work
-description: Use when work is too big for one pass — a multi-stage program, a wide refactor, or a research push whose shape is unknown — before writing the first plan step or dispatching the first lane.
+description: >
+  Draft a plan for work too big for one pass. Use when the user says draft
+  a plan, write a plan, break this down, stages, or roadmap — even if that
+  is the entire message — or before writing the first plan step or dispatching
+  a lane.
+when-to-use: >
+  draft a plan, write a plan, break this down, too big, stages, roadmap,
+  multi-stage
 ---
 
 # Breaking Down Work

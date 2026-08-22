@@ -45,3 +45,7 @@ Any safety fact you can't get to rung 4, say so out loud. Don't write it up as s
 - "I'm confident from reading the code"
 
 All of these mean: run the gate now, contiguously, or report NOT-VERIFIED.
+
+## Where this sits next to unlazy (D-111)
+
+`unlazy` owns the work-item ledger (`GATES.md`) and the Stop wall that blocks a turn while a box is unchecked. This skill owns what counts as evidence *inside* a box: a receipt file with a sha and the command that regenerates it, never a remembered number. A gate whose `EVIDENCE:` line quotes a figure with no receipt behind it satisfies the wall and fails this skill.

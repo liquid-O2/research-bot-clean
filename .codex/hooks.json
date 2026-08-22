@@ -1,0 +1,95 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py sessionstart",
+            "timeout": 20,
+            "statusMessage": "OptMem session start"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py userprompt",
+            "timeout": 5,
+            "statusMessage": "Skill routing nudge"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py pretooluse",
+            "timeout": 10,
+            "statusMessage": "House routing gate"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py subagentstart",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py postcompact",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py precompact",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py stop",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py sessionend",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

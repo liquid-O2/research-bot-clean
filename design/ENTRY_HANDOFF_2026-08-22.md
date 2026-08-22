@@ -1,3 +1,9 @@
+> SUPERSEDED AS THE LIVE PLAN on 2026-08-22 by `design/entry_reset/overview.md` (user order:
+> re-read this handoff, take nothing as gospel, find the exact problem). This file stays as the
+> record of what was measured on the 67-day 2021 matrix and how. Its §8 lever menu and its
+> "waiting for the go-ahead" status are history; the user's rulings since are D-110. Start at
+> `START_HERE.md`.
+
 # ENTRY HANDOFF — 2026-08-22 (cold-start document; read this first)
 
 Written 2026-08-22 ~12:00Z on the user's order: "document everything and wait for the

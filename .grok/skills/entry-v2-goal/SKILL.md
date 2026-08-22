@@ -1,6 +1,13 @@
 ---
 name: entry-v2-goal
-description: Entry V2 tabular CatBoost goal law. Use when continuing Entry V2, tabular recovery, rehearsal, economic gates, or any claim about learning results.
+description: >
+  Entry V2 tabular CatBoost goal law. Use when the user says draft a plan,
+  the goal, Entry V2, CatBoost, rehearsal, economics, or continue the live
+  line. A plan in this repo is a plan toward the dollar gate unless they
+  named something else.
+when-to-use: >
+  draft a plan, the goal, Entry V2, CatBoost, rehearsal, economics,
+  dollars per day, continue
 ---
 
 # Entry V2 goal law

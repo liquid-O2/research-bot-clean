@@ -23,3 +23,7 @@ Born of this repo's own record: the PASS gate measured pooled portfolio dollars 
 
 ## Red flags
 - "The portfolio number covers it" · "shuffle passing is fine, it's just a floor" · "zero rows selected — the model is bad" (check the gate first) · "we'll tighten the gate after seeing results" (that is eval-selection of the law itself).
+
+## Not the same thing as an unlazy gate (D-111)
+
+This skill governs PASS/FAIL gates that live in **engine code** — the dollar rung, launch law, degenerate-selection refusals. `unlazy` governs a **work-item ledger** (`GATES.md`): checkboxes that say when this task is finished. A ledger box may CHECK an economic gate; it never replaces one. Writing an economic threshold only into `GATES.md` is the failure this note exists to prevent.

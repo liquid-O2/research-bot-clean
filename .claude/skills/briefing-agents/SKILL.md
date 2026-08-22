@@ -1,11 +1,13 @@
 ---
 name: briefing-agents
-description: Use when writing any prompt, brief, task card, or workflow script for a subagent, delegated lane, or agent fleet — before dispatching it.
+description: Use when writing any prompt, brief, task card, or workflow script for a subagent, delegated lane, or agent fleet — before dispatching it. Load writing-for-agents in the same turn.
 ---
 
 # Briefing Agents
 
 Sources: Pocock `writing-for-agents`/`triage`, bigpowers `delegate-task`, and this repo's own lane history (a lane that "spent its turn planning and produced no diff"; readers that answered from summaries; verifiers that couldn't attribute failures).
+
+**Load `/workspace/.claude/skills/writing-for-agents/SKILL.md` NOW.** That file is how we write to agents. This file is the brief anatomy. Both, before `spawn_subagent` or a workflow.
 
 ## The brief anatomy (every dispatch)
 1. **Context**: the agent knows NOTHING you don't write. Absolute file paths, the goal in one line, the laws it must honor (name the specific D-rules/AGENTS.md rules that bind THIS task — never "follow the directives").

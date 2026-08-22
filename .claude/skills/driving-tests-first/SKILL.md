@@ -1,11 +1,17 @@
 ---
 name: driving-tests-first
-description: Use when implementing any feature, constructor, or bug fix — before writing the implementation code.
+description: >
+  Red-green before production code. The user will not say "implement" —
+  load this when YOU start writing production code in any folder, or when they
+  say implement this, write tests, TDD, or fix a bug.
+when-to-use: >
+  implement this, write tests, TDD, red-green, bug fix, first production
+  edit after a plan
 ---
 
 # Driving Tests First
 
-House replacement for the third-party TDD skill; composes with D-017 (red-first fixture law) and D-006 (a constructor is "built" only with spec + red-first proof).
+House replacement for the third-party TDD skill; composes with D-017 (red-first fixture law) and D-006 (a constructor is "built" only with spec + red-first proof). The user will not say "implement" — you are here because you are about to edit production code. **One vertical slice, not a hundred tests.**
 
 ## The cycle
 1. **RED**: write the test that encodes the spec's behavior and RUN it — watch it fail for the RIGHT reason (assertion, not import error). A test never seen red proves nothing.

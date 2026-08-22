@@ -1,5 +1,7 @@
 # PROGRESS — current Entry V2 and historical completion ledger
 
+> 2026-08-22: the current cursor is `STATE.md` and the live plan is `design/entry_reset/overview.md`; the table below is the 2026-08-18 ledger.
+
 ## Current Entry V2 progress — 2026-08-18
 
 This section overrides older cursor language for the current project. Detailed

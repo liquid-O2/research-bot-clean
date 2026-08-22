@@ -60,6 +60,32 @@ def read_payload() -> dict:
         return {}
 
 
+def normalize_payload(payload: dict) -> dict:
+    """Grok sends camelCase (toolName, toolInput, sessionId); Claude sends snake_case."""
+    p = dict(payload or {})
+    for snake, camel in (
+        ("session_id", "sessionId"),
+        ("transcript_path", "transcriptPath"),
+        ("tool_name", "toolName"),
+        ("tool_input", "toolInput"),
+        ("hook_event_name", "hookEventName"),
+        ("stop_hook_active", "stopHookActive"),
+        ("prompt", "prompt"),
+    ):
+        if not p.get(snake) and p.get(camel) is not None:
+            p[snake] = p[camel]
+    ti = p.get("tool_input")
+    if isinstance(ti, str):
+        try:
+            ti = json.loads(ti)
+        except Exception:
+            ti = {}
+    if not isinstance(ti, dict):
+        ti = ti if isinstance(ti, dict) else {}
+    p["tool_input"] = ti
+    return p
+
+
 def run(cmd, timeout=6):
     try:
         env = os.environ.copy()
@@ -225,12 +251,15 @@ def do_sessionstart(payload: dict, verb: str = "") -> None:
     )
     sid = (payload.get("session_id") or "nosid")[:32]
     if is_postcompact:
-        # Compaction drops skill text from context. Re-arm the D-104 edit
-        # gate so the next engine/tools edit forces re-engagement, and say so.
+        # Compaction drops skill text and OptMem from context. Re-arm
+        # the D-104 gates and require memo wake (Grok ignores this
+        # stdout; PreToolUse deny is the recall).
         try:
             (HOOK_STATE / f"{sid}.tdd_ok").unlink(missing_ok=True)
+            (HOOK_STATE / f"{sid}.agent_ok").unlink(missing_ok=True)
         except Exception:
             pass
+        _arm_need_wake(sid)
     write_backup(payload, event)
     parts = [
         "OptMem `memo wake` (if it asks a compression, run that `memo nap` "
@@ -248,15 +277,19 @@ def do_sessionstart(payload: dict, verb: str = "") -> None:
         )
     if is_postcompact:
         parts.append(
-            "POST-COMPACTION SKILL RESET: skill rules loaded before compaction "
-            "are NO LONGER in context (summaries are not the skill). The edit "
-            "gate has been re-armed. Re-invoke each skill at its next matching "
-            "situation per the CLAUDE.md routing table; the ledger above shows "
-            "what this session had engaged."
+            "POST-COMPACT: OptMem and skills are out of context. Summaries "
+            "are not the memory. Run ~/.optmem/memo wake NOW and follow it "
+            "to the end. PreToolUse denies every tool until you have. Then "
+            "re-invoke each skill at its next matching situation."
         )
+    event_name = "PostCompact" if (
+        verb in ("postcompact", "post_compact")
+        or str(payload.get("hook_event_name") or "").lower()
+        in ("postcompact", "post_compact")
+    ) else "SessionStart"
     out = {
         "hookSpecificOutput": {
-            "hookEventName": "SessionStart",
+            "hookEventName": event_name,
             "additionalContext": "\n\n".join(parts),
         }
     }
@@ -282,12 +315,60 @@ def _throttled(sid: str, name: str, window_s: float) -> bool:
     return False
 
 
+def _need_wake_path(sid: str) -> Path:
+    return HOOK_STATE / f"{sid}.need_wake"
+
+
+def _arm_need_wake(sid: str) -> None:
+    """Compaction dropped OptMem from the model. PreToolUse will deny
+    until ~/.optmem/memo wake runs. Grok ignores SessionStart/PostCompact
+    stdout, so this marker is the enforce path."""
+    try:
+        HOOK_STATE.mkdir(parents=True, exist_ok=True)
+        _need_wake_path(sid).write_text(now())
+    except Exception:
+        pass
+
+
+def _need_wake(sid: str) -> bool:
+    try:
+        return _need_wake_path(sid).exists()
+    except Exception:
+        return False
+
+
+def _clear_need_wake(sid: str) -> None:
+    try:
+        _need_wake_path(sid).unlink(missing_ok=True)
+    except Exception:
+        pass
+
+
+def _is_wake_command(command: str) -> bool:
+    c = command or ""
+    if "optmem" not in c or "memo" not in c:
+        return False
+    import re as _re
+    return bool(_re.search(r"memo\s+(?:wake|nap)\b", c))
+
+
+_WAKE_DENY_REASON = (
+    "POST-COMPACT: OptMem is out of context. Compaction summaries are "
+    "not the memory. Run ~/.optmem/memo wake now and do exactly what it "
+    "prints to the end (including any memo nap). Then retry. This harness "
+    "ignores SessionStart/PostCompact stdout, so the deny is the recall."
+)
+
+
 def do_precompact(payload: dict) -> None:
-    sid = (payload.get("session_id") or "nosid")[:8]
+    payload = normalize_payload(payload)
+    sid_full = (payload.get("session_id") or "nosid")[:32]
+    _arm_need_wake(sid_full)
+    sid = sid_full[:8]
     trigger = payload.get("trigger") or ""
     dst = spool(payload)
     if _throttled(sid, "precompact", PRECOMPACT_THROTTLE_S):
-        log(f"precompact sid={sid} spool={dst} throttled")
+        log(f"precompact sid={sid} spool={dst} throttled need_wake=1")
         print("{}")
         return
     snip = last_user_snippet(payload)
@@ -299,7 +380,7 @@ def do_precompact(payload: dict) -> None:
     note = f"{time.strftime('%Y-%m-%d')} compact s{sid}: {snip}"[:270]
     if snip:
         run_memo(["note", note], timeout=6)
-    log(f"precompact sid={sid} spool={dst}")
+    log(f"precompact sid={sid} spool={dst} need_wake=1")
     print("{}")
 
 
@@ -313,6 +394,7 @@ def _ledger_skill_usage(payload: dict, sid: str) -> None:
         names = _re.findall(r'"name"\s*:\s*"Skill"[^}]*?"skill"\s*:\s*"([a-z0-9:_-]+)"', raw)
         if not names:
             names = _re.findall(r'"skill"\s*:\s*"([a-z0-9:_-]+)"', raw)
+        names.extend(_re.findall(r'skills/([a-z0-9_-]+)/SKILL\.md', raw))
         from collections import Counter
         counts = Counter(names)
         line = f"{now()} sid={sid[:8]} turns_seen skills={dict(counts) if counts else 'NONE'}\n"
@@ -378,10 +460,64 @@ def _promise_block(payload: dict) -> bool:
     return True
 
 
+UNLAZY_MAX_BLOCKS = 6
+UNLAZY_STATE = Path("/workspace/.unlazy-hook-state.json")
+
+
+def _unlazy_block(payload: dict) -> bool:
+    """D-111 (user, 2026-08-22): the unlazy gate wall.
+
+    Never end a turn while GATES.md / gates/*.md carry an unmet gate. Parsing is
+    delegated to tools/unlazy_gates.py so the runner the agent calls and the wall
+    that stops it can never disagree. Zero tokens: a file scan, not a model call.
+    An `ABANDON: <id> <reason>` line is the honest exit; six consecutive blocks
+    with no ledger change release rather than trap.
+    """
+    try:
+        if "/workspace/tools" not in sys.path:
+            sys.path.insert(0, "/workspace/tools")
+        from unlazy_gates import unlazy_stop_verdict
+        cwd = Path(payload.get("cwd") or "/workspace")
+        unmet, digest = unlazy_stop_verdict(cwd)
+    except Exception as exc:  # a broken wall must never trap a session
+        log(f"unlazy scan skipped: {exc!r}")
+        return False
+    if not unmet:
+        UNLAZY_STATE.unlink(missing_ok=True)
+        return False
+    try:
+        state = json.loads(UNLAZY_STATE.read_text())
+    except (OSError, ValueError):
+        state = {"hash": "", "blocks": 0}
+    if state.get("hash") != digest:
+        state = {"hash": digest, "blocks": 0}
+    state["blocks"] = int(state.get("blocks", 0)) + 1
+    try:
+        UNLAZY_STATE.write_text(json.dumps(state))
+    except OSError:
+        pass
+    if state["blocks"] > UNLAZY_MAX_BLOCKS:
+        log(f"unlazy release after {UNLAZY_MAX_BLOCKS} blocks, {len(unmet)} unmet")
+        return False
+    listed = ", ".join(unmet[:5]) + (f", +{len(unmet) - 5} more" if len(unmet) > 5 else "")
+    print(json.dumps({"decision": "block", "reason": (
+        f"unlazy gate wall (D-111): {len(unmet)} gate(s) unmet: {listed}. A checked "
+        f"box whose EVIDENCE still reads 'pending' counts as unmet. Open the ledger, "
+        f"work the next unchecked gate, then run "
+        f"`python3 tools/unlazy_gates.py` to execute the CHECK lines and record "
+        f"evidence. If a gate is genuinely impossible, add "
+        f"`ABANDON: <id> <reason>` at column 0 and say so in your report. "
+        f"Done means every box checked with evidence, never a status summary.")}))
+    return True
+
+
 def do_stop(payload: dict) -> None:
     # Grok treats Stop additionalContext as "keep working". Print nothing
     # (except the one-shot promise-catcher block below).
     sid = (payload.get("session_id") or "nosid")[:32]
+    if _unlazy_block(payload):
+        log(f"stop unlazy-block sid={sid[:8]}")
+        return
     if _promise_block(payload):
         log(f"stop promise-block sid={sid[:8]}")
         return
@@ -401,67 +537,109 @@ def do_sessionend(payload: dict) -> None:
     log(f"sessionend sid={sid} reason={reason}")
 
 
-ROUTING_NUDGE = (
-    "Skill routing check (harness-enforced): before responding, match this request "
-    "against the situation->skill table in /workspace/CLAUDE.md and invoke every "
-    "matching skill via the Skill tool. The user never names skills; the situation "
-    "is the trigger. Follow the CLAUDE.md coding-conduct block on any code change."
-)
+SKILL_ROOT = "/workspace/.claude/skills"
 
-# Situational routing map (user ruling 2026-08-21: name the matching skills,
-# a named miss is harder to ignore than a table pointer). Keys are lowercase
-# substrings of the prompt; order = priority.
+# First matching group wins. "draft a plan" is a complete user message in this
+# repo — it must load the plan cluster and must NOT load implement skills.
+# Implement skills fire later, when the AGENT writes production code
+# in any folder (PreToolUse). Skills are mandatory, not suggestions.
 SKILL_KEYWORD_MAP = (
+    (("draft a plan", "write a plan", "create a plan", "make a plan",
+      "draft plan"),
+     ("sharpening-specs", "grilling", "to-spec", "to-tickets", "wayfinder",
+      "architect", "poteto-mode", "codebase-design", "entry-v2-goal",
+      "keeping-continuity", "clean-code-for-agents")),
+    (("implement this", "implement", "do this", "build this", "land this"),
+     ("implementing-work", "tdd", "driving-tests-first", "poteto-mode",
+      "clean-code-for-agents")),
     (("bug", "fail", "error", "broken", "stall", "crash", "refus"),
      ("debugging-with-a-loop", "driving-tests-first")),
     (("launch", "rehearsal", "long run", "experiment", "fit", "measure"),
      ("operating-long-runs", "preregistering-results", "running-evals")),
     (("review",), ("running-consolidated-review",)),
-    # breaking-down-work leads on big-work words: decomposition precedes the
-    # grilling/design/spec skills in time (installed 2026-08-21 skill port).
     (("break down", "breakdown", "decompos", "multi-stage", "roadmap",
       "too big", "stages"), ("breaking-down-work",)),
     (("refactor",), ("breaking-down-work", "shaping-code-for-agents")),
     (("plan", "design", "spec", "freeze", "adopt"),
-     ("breaking-down-work", "stress-testing-plans", "designing-it-twice",
-      "sharpening-specs")),
+     ("sharpening-specs", "breaking-down-work", "entry-v2-goal")),
     (("commit", "tidy", "clean up", "stray"), ("tidying-workspace",)),
     (("done", "verified", "passing", "receipt"), ("verifying-with-receipts",)),
     (("gate", "threshold", "criterion"), ("encoding-goals-in-gates",)),
-    (("agent", "lane", "brief", "subagent", "workflow"), ("briefing-agents",)),
+    (("write a skill", "create a skill", "edit a skill"),
+     ("writing-for-agents",)),
+    (("agent", "lane", "brief", "subagent", "workflow", "spawn"),
+     ("writing-for-agents", "briefing-agents")),
     (("port", "c++", "cpp", "schema", "boundary", "contract"),
      ("checking-data-contracts", "driving-tests-first")),
-    (("implement", "build", "create", "add a", "write code"),
-     ("driving-tests-first", "researching-first")),
+    (("continue", "resume", "pick up"),
+     ("keeping-continuity", "entry-v2-goal")),
 )
 
 
-def do_userprompt(payload: dict) -> None:
-    """Per-turn routing nudge. No subprocess calls: must return instantly."""
-    prompt = str(payload.get("prompt") or "").lower()
+def _named_skills_for_prompt(prompt: str) -> list[str]:
     named: list[str] = []
+    text = (prompt or "").lower()
     for keys, skills in SKILL_KEYWORD_MAP:
-        if any(k in prompt for k in keys):
+        if any(k in text for k in keys):
             for s in skills:
                 if s not in named:
                     named.append(s)
-        if len(named) >= 5:
+        if named:
             break
-    nudge = ROUTING_NUDGE
+    return named[:12]
+
+
+def _read_skill_nudge(named: list[str]) -> str:
     if named:
-        nudge = (
-            "Skill routing check (harness-enforced): this turn's situation "
-            "matches: " + ", ".join(named[:5]) + " — invoke each matching one "
-            "via the Skill tool before acting (situations, not keywords, are "
-            "the trigger; full table in /workspace/CLAUDE.md). Follow the "
-            "coding-conduct block on any code change."
+        paths = ", ".join(f"{SKILL_ROOT}/{s}/SKILL.md" for s in named)
+        return (
+            "This prompt matches: " + ", ".join(named) + ". "
+            "READ those SKILL.md files NOW and follow them "
+            f"({paths}). Skills are mandatory, not suggestions. "
+            "This harness may have no Skill tool — "
+            "reading the file is the invocation. The user will "
+            "barely send follow-ups. When YOU later write production "
+            "code in any folder, READ implementing-work and "
+            "driving-tests-first yourself; they will not say implement."
         )
-    # User order 2026-08-21: unslop binds ALWAYS, from the first sentence —
-    # a standing rule on every turn, not a routed suggestion.
+    return (
+        "READ the matching SKILL.md under /workspace/.claude/skills/ "
+        "and follow it. Skills are mandatory, not suggestions. "
+        "The user will barely send follow-ups and will "
+        "not name skills. A message that is only 'draft a plan' loads "
+        "sharpening-specs, breaking-down-work, entry-v2-goal. When YOU "
+        "write production code in any folder, READ implementing-work and "
+        "driving-tests-first yourself — do not wait for them to say "
+        "implement."
+    )
+
+
+def do_userprompt(payload: dict) -> None:
+    """Per-turn routing nudge. No subprocess calls: must return instantly.
+
+    Grok ignores UserPromptSubmit stdout (observe-only). Claude/OpenCode
+    inject additionalContext. Implement skills are NOT required to appear
+    here — they bind at PreToolUse when the agent edits code.
+    """
+    payload = normalize_payload(payload)
+    prompt = str(payload.get("prompt") or "")
+    named = _named_skills_for_prompt(prompt)
+    nudge = _read_skill_nudge(named)
+    sid = (payload.get("session_id") or "nosid")[:32]
+    if _need_wake(sid):
+        nudge = (
+            "POST-COMPACT: OptMem is out of context. Run ~/.optmem/memo "
+            "wake NOW and do exactly what it prints, then continue. "
+        ) + nudge
     nudge += (
-        " STANDING (writing-plainly, every user-visible sentence): verdict "
-        "first; plain words; no puffery, no filler-ing tails, no fragment/"
-        "arrow chains; calibrated hedging stays in research claims."
+        " STANDING voice: unslop is mandatory (pstack). Every user-visible "
+        "sentence. Not optional polish. READ "
+        "/workspace/.claude/skills/unslop/SKILL.md and write that way. "
+        "writing-plainly still applies for outcome-first house form. "
+        "Verdict first; plain words; no puffery, no filler-ing tails, no "
+        "fragment/arrow chains; calibrated hedging stays in research "
+        "claims. Grilling: take recommended options yourself; ask the "
+        "user only about the actual goal."
     )
     print(json.dumps({
         "hookSpecificOutput": {
@@ -473,12 +651,16 @@ def do_userprompt(payload: dict) -> None:
 
 SUBAGENT_NUDGE = (
     "House rules bind subagents too: follow the coding-conduct block and the "
-    "situation->skill routing table in /workspace/CLAUDE.md (skills live at "
-    "/workspace/.claude/skills/<name>/SKILL.md — read the matching one before "
-    "acting on its situation). HARDWARE truth: /workspace/HARDWARE.md (13.6 cores "
-    "effective; pin library thread counts). Evidence rules: verbatim quote + "
-    "file:line anchors for claims; empty findings valid only after reading; "
-    "your report is a claim — the diff/receipt is the evidence."
+    "skill table in /workspace/CLAUDE.md. Skills are mandatory, not "
+    "suggestions. Skills live at "
+    "/workspace/.claude/skills/<name>/SKILL.md — READ the matching file "
+    "and follow it before acting. Before this spawn, the parent must have read "
+    "writing-for-agents and briefing-agents. The user will not say "
+    "implement; if you write production code in any folder, read "
+    "implementing-work and driving-tests-first first. HARDWARE: "
+    "/workspace/HARDWARE.md (13.6 cores). Evidence: verbatim quote + "
+    "file:line; empty findings valid only after reading; the report is a "
+    "claim, the diff/receipt is the evidence."
 )
 
 
@@ -504,28 +686,83 @@ def do_subagentstart(payload: dict) -> None:
     }))
 
 
-# Routing gate (user ruling 2026-08-21, hardened per the 2026-08-21 enforcement
-# audit): an engine/tools edit in a session that never engaged a
-# tests-first/review/debug skill is refused with the reason. Matches REAL
-# engagements only — a Skill tool call ("skill": "<name>") or a tool call
-# whose file_path targets the SKILL.md — never a bare path substring, which
-# any ls/find output would contain (audit defect 2). The marker expires
-# (D-104.4: salience at the moment of application; audit defect 1).
+# Routing gate (user ruling 2026-08-21, Grok-fixed 2026-08-22,
+# folder-agnostic 2026-08-22): a production-code write in ANY folder,
+# in a session that never engaged a tests-first/implement/review/debug
+# skill, is refused. Matches REAL engagements only — a Skill tool call
+# ("skill": "<name>") OR a Read of SKILL.md via file_path (Claude) or
+# target_file (Grok). Never a bare path substring from ls/find (audit
+# defect 2). Marker expires 20 min (D-104.4). THIS is how implement
+# skills auto-trigger: the user will not say "implement"; the first
+# production-code write is the trigger, wherever the file lives.
 TDD_MARKER_SKILLS = (
     "driving-tests-first",
+    "tdd",
+    "implementing-work",
+    "poteto-mode",
     "running-consolidated-review",
     "debugging-with-a-loop",
+    "diagnosing-bugs",
     "generalizing-fixes",
+    "clean-code-for-agents",
 )
-_TDD_NAMES = "|".join(TDD_MARKER_SKILLS)
-_TDD_MARKER_RE = (
-    r'(?:"skill"\s*:\s*"(?:' + _TDD_NAMES + r')"'
-    r'|"file_path"\s*:\s*"[^"]*skills/(?:' + _TDD_NAMES + r')/SKILL\.md")'
+AGENT_MARKER_SKILLS = (
+    "writing-for-agents",
+    "briefing-agents",
 )
 TDD_MARKER_TTL_S = 1200
+_SHELL_TOOLS = frozenset({
+    "Bash", "bash", "run_terminal_command", "Shell", "shell",
+})
+_AGENT_TOOLS = frozenset({
+    "spawn_subagent", "Task", "task", "workflow", "Agent", "agent",
+})
+_CODE_EXTS = frozenset({
+    ".py", ".pyi", ".pyx", ".c", ".cc", ".cpp", ".cxx", ".h", ".hh",
+    ".hpp", ".hxx", ".cu", ".cuh", ".rs", ".go", ".java",
+    ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx",
+})
+_EXEMPT_PREFIXES = (
+    ".claude/", ".grok/", ".codex/", ".opencode/", ".agents/",
+    ".optmem/", "design/", "docs/", "attic/", "artifacts/",
+    "provenance/", "compaction/",
+)
+_DENY_REASON = (
+    "Routing gate: {offender} is production code. The user did not "
+    "and will not say 'implement'. READ these files, then retry the "
+    "edit: /workspace/.claude/skills/implementing-work/SKILL.md and "
+    "/workspace/.claude/skills/driving-tests-first/SKILL.md. Reading "
+    "the file is the engagement (this harness may have no Skill tool). "
+    "Markers expire after 20 min (D-104.4). Test files and "
+    "harness/design/docs dirs are exempt. The folder name does not "
+    "matter — lab/src/lib are gated the same as engine/tools."
+)
+_AGENT_DENY_REASON = (
+    "Routing gate: {offender} talks to another agent. READ "
+    "/workspace/.claude/skills/writing-for-agents/SKILL.md and "
+    "/workspace/.claude/skills/briefing-agents/SKILL.md, then retry. "
+    "Reading the file is the engagement. Markers expire after 20 min "
+    "(D-104.4)."
+)
 
 
-def _session_engaged_marker_skill(payload: dict, sid: str) -> bool:
+def _engagement_re(skill_names: tuple[str, ...]) -> str:
+    names = "|".join(skill_names)
+    return (
+        r'(?:"skill"\s*:\s*"(?:' + names + r')"'
+        r'|"(?:file_path|target_file)"\s*:\s*"[^"]*skills/(?:'
+        + names + r')/SKILL\.md")'
+    )
+
+
+def _session_engaged(
+    payload: dict,
+    sid: str,
+    *,
+    skills: tuple[str, ...],
+    marker_stem: str,
+    ttl_s: float,
+) -> bool:
     """True while this session holds a FRESH marker-skill engagement.
     Cached in a marker file with a TTL so re-invocation stays required.
     A recently spawned lane defers the gate (subagent engagements are
@@ -537,10 +774,10 @@ def _session_engaged_marker_skill(payload: dict, sid: str) -> bool:
             return True
     except Exception:
         pass
-    marker = HOOK_STATE / f"{sid}.tdd_ok"
+    marker = HOOK_STATE / f"{sid}.{marker_stem}"
     try:
         if marker.exists():
-            if time.time() - marker.stat().st_mtime < TDD_MARKER_TTL_S:
+            if time.time() - marker.stat().st_mtime < ttl_s:
                 return True
             marker.unlink(missing_ok=True)
     except Exception:
@@ -553,7 +790,7 @@ def _session_engaged_marker_skill(payload: dict, sid: str) -> bool:
     import re as _re
     # Only the TAIL can renew an expired marker: an old engagement earlier in
     # the transcript must not satisfy the gate forever (D-104.4).
-    if _re.search(_TDD_MARKER_RE, raw[-400_000:]):
+    if _re.search(_engagement_re(skills), raw[-400_000:]):
         try:
             marker.write_text(now())
         except Exception:
@@ -562,7 +799,22 @@ def _session_engaged_marker_skill(payload: dict, sid: str) -> bool:
     return False
 
 
-# Bash write-verbs that can modify code without Edit|Write (audit defect 3).
+def _session_engaged_marker_skill(payload: dict, sid: str) -> bool:
+    return _session_engaged(
+        payload, sid,
+        skills=TDD_MARKER_SKILLS, marker_stem="tdd_ok", ttl_s=TDD_MARKER_TTL_S,
+    )
+
+
+def _session_engaged_agent_skill(payload: dict, sid: str) -> bool:
+    return _session_engaged(
+        payload, sid,
+        skills=AGENT_MARKER_SKILLS, marker_stem="agent_ok",
+        ttl_s=TDD_MARKER_TTL_S,
+    )
+
+
+# Fallback for engine/tools shell writes the dest parser might miss.
 _BASH_WRITE_RE = (
     r'(?:sed\s+-i|>\s*/?(?:workspace/)?(?:engine|tools)/'
     r'|>>\s*/?(?:workspace/)?(?:engine|tools)/'
@@ -571,13 +823,113 @@ _BASH_WRITE_RE = (
 )
 
 
+def _tool_path(tool_input: dict) -> str:
+    return str(
+        tool_input.get("file_path")
+        or tool_input.get("target_file")
+        or tool_input.get("path")
+        or tool_input.get("script_path")
+        or ""
+    )
+
+
+def _workspace_rel(path: str) -> str | None:
+    p = (path or "").replace("\\", "/").strip().strip("'\"")
+    if not p or p in {".", "/"}:
+        return None
+    if p.startswith("/workspace/"):
+        p = p[len("/workspace/"):]
+    elif p.startswith("workspace/"):
+        p = p[len("workspace/"):]
+    elif p.startswith("./"):
+        p = p[2:]
+    elif p.startswith("/") or p.startswith("~") or p.startswith("../"):
+        return None
+    return p.lstrip("/") or None
+
+
+def _is_test_path(rel: str) -> bool:
+    base = rel.rsplit("/", 1)[-1]
+    padded = f"/{rel}/"
+    return (
+        "/tests/" in padded
+        or "/test/" in padded
+        or base.startswith("test_")
+        or "_test." in base
+        or base.endswith("_test")
+    )
+
+
+def _is_gated_code_path(path: str) -> bool:
+    """True for production source in the workspace, any folder.
+
+    Exempt: tests, harness config, design/docs/attic/artifacts.
+    The folder name is not the trigger — the file type is.
+    """
+    rel = _workspace_rel(path)
+    if not rel:
+        return False
+    if any(rel.startswith(p) for p in _EXEMPT_PREFIXES):
+        return False
+    if _is_test_path(rel):
+        return False
+    base = rel.rsplit("/", 1)[-1]
+    if "." not in base:
+        return False
+    ext = "." + base.rsplit(".", 1)[-1].lower()
+    return ext in _CODE_EXTS
+
+
+def _shell_write_destinations(command: str) -> list[str]:
+    """Destinations of write-verbs in a shell command. Not the files it runs."""
+    import re as _re
+    dests: list[str] = []
+    dests.extend(_re.findall(r'(?:>>?|\btee(?:\s+-a)?)\s*(\S+)', command))
+    for m in _re.finditer(r'\b(?:cp|mv)\s+(.+?)(?:\s*[|;&]|$)', command):
+        args = m.group(1).split()
+        if args:
+            dests.append(args[-1])
+    for m in _re.finditer(r'\bsed\s+-i\S*(?:\s+\S+)+', command):
+        toks = m.group(0).split()
+        if toks:
+            dests.append(toks[-1])
+    return dests
+
+
 def _gate_verdict(payload: dict, sid: str) -> str | None:
-    """Return the offending target description, or None if allowed."""
+    """Return the offending target description, or None if allowed.
+
+    Agent spawns are prefixed with 'agent:' so do_pretooluse can pick
+    the writing-for-agents reason.
+    """
+    payload = normalize_payload(payload)
     tool = str(payload.get("tool_name") or "")
     tool_input = payload.get("tool_input") or {}
-    if tool == "Bash":
+    if not isinstance(tool_input, dict):
+        tool_input = {}
+    if _need_wake(sid):
+        if tool in _SHELL_TOOLS:
+            command = str(tool_input.get("command") or "")
+            if _is_wake_command(command):
+                if "wake" in command:
+                    _clear_need_wake(sid)
+                return None
+        return "wake:post-compact"
+    if tool in _AGENT_TOOLS:
+        if _session_engaged_agent_skill(payload, sid):
+            return None
+        return "agent:" + tool
+    if tool in _SHELL_TOOLS:
         command = str(tool_input.get("command") or "")
         import re as _re
+        dests = [
+            d for d in _shell_write_destinations(command)
+            if _is_gated_code_path(d)
+        ]
+        if dests:
+            if _session_engaged_marker_skill(payload, sid):
+                return None
+            return "shell write " + dests[0]
         hit = _re.search(_BASH_WRITE_RE, command)
         if not hit:
             return None
@@ -585,21 +937,23 @@ def _gate_verdict(payload: dict, sid: str) -> str | None:
             return None
         if _session_engaged_marker_skill(payload, sid):
             return None
-        return "Bash write into engine/tools (" + hit.group(0).strip()[:40] + ")"
-    path = str(tool_input.get("file_path") or "")
-    rel = path[len("/workspace/"):] if path.startswith("/workspace/") else path
-    basename = rel.rsplit("/", 1)[-1]
-    if (not rel.startswith(("engine/", "tools/"))
-            or basename.startswith("test_") or "/tests/" in rel):
+        return "shell write into engine/tools (" + hit.group(0).strip()[:40] + ")"
+    path = _tool_path(tool_input)
+    if not _is_gated_code_path(path):
         return None
     if _session_engaged_marker_skill(payload, sid):
         return None
+    rel = _workspace_rel(path) or path
     return rel
 
 
 def do_pretooluse(payload: dict) -> None:
-    """Edit|Write|Bash gate on engine/ and tools/ code. Fails OPEN on any
-    error — a broken gate must never block lawful work."""
+    """Production-code write gate + agent-spawn gate. Fails OPEN (D-108).
+
+    Emits both Grok `{decision: deny, reason}` and Claude
+    `permissionDecision` so either harness actually blocks.
+    """
+    payload = normalize_payload(payload)
     sid = (payload.get("session_id") or "nosid")[:32]
     try:
         offender = _gate_verdict(payload, sid)
@@ -609,29 +963,27 @@ def do_pretooluse(payload: dict) -> None:
     if offender is None:
         print("{}")
         return
+    if str(offender).startswith("wake:"):
+        reason = _WAKE_DENY_REASON
+    elif str(offender).startswith("agent:"):
+        reason = _AGENT_DENY_REASON.format(offender=offender)
+    else:
+        reason = _DENY_REASON.format(offender=offender)
     print(json.dumps({
+        "decision": "deny",
+        "reason": reason,
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
             "permissionDecision": "deny",
-            "permissionDecisionReason": (
-                "Routing gate: " + offender + " is engine/tools code but "
-                "this session has no FRESH tests-first/review/debug skill "
-                "engagement (markers expire after 20 min — D-104.4). Invoke "
-                "the matching skill via the Skill tool, then retry. Test "
-                "files are exempt."
-            ),
-        }
+            "permissionDecisionReason": reason,
+        },
     }))
     log(f"pretooluse DENY sid={sid[:8]} target={offender}")
 
 
 def main() -> int:
     verb = (sys.argv[1] if len(sys.argv) > 1 else "").lower()
-    payload = read_payload()
-    if "session_id" not in payload and payload.get("sessionId"):
-        payload["session_id"] = payload["sessionId"]
-    if "transcript_path" not in payload and payload.get("transcriptPath"):
-        payload["transcript_path"] = payload["transcriptPath"]
+    payload = normalize_payload(read_payload())
     event = (
         payload.get("hook_event_name")
         or payload.get("hookEventName")
@@ -639,24 +991,25 @@ def main() -> int:
     ).lower()
     verb = verb or event
     try:
-        if verb == "userprompt":
+        if verb in ("userprompt", "user_prompt_submit"):
             do_userprompt(payload)
-        elif verb == "pretooluse":
+        elif verb in ("pretooluse", "pre_tool_use"):
             do_pretooluse(payload)
-        elif verb == "subagentstart":
+        elif verb in ("subagentstart", "subagent_start"):
             do_subagentstart(payload)
-        elif verb in ("sessionstart", "postcompact"):
+        elif verb in ("sessionstart", "session_start", "postcompact",
+                      "post_compact"):
             do_sessionstart(payload, verb)
-        elif verb == "precompact":
+        elif verb in ("precompact", "pre_compact"):
             do_precompact(payload)
         elif verb == "stop":
             do_stop(payload)
-        elif verb == "sessionend":
+        elif verb in ("sessionend", "session_end"):
             do_sessionend(payload)
         else:
             log(f"unknown verb {verb!r} event {event!r}")
-    except Exception as exc:
-        log(f"FATAL {verb}: {type(exc).__name__}: {exc}")
+    except Exception as ext:
+        log(f"FATAL {verb}: {type(ext).__name__}: {ext}")
     return 0
 
 

@@ -61,25 +61,31 @@ When you spawn one, write: `You are a subagent. Don't run memo.`
 <!-- Kept in sync with the "# MANDATORY: skills are law, not suggestions" block in CLAUDE.md — edit both together. -->
 # MANDATORY: skills are law, not suggestions
 
-The routing table below is binding law. A matching situation means the skill is invoked at its trigger moment, before acting — never bulk-loaded for coverage, never skipped because the work "looks small".
-- **Per-turn nudge** (D-104.1): the UserPromptSubmit hook names the specific matching skills for your situation, not just this table.
-- **Edit|Write|Bash gate** (D-104.2, D-108): unskilled `engine/` and `tools/` work is DENIED at the tool call, with a stated reason; engagement markers expire after 20 minutes, so the skill is engaged near the edit, not once per session.
-- **Re-invoke before the high-stakes step** (D-104.4): a review, a freeze application, or a launch re-invokes its governing skill even if that skill is already in context — salience at the moment of application beats residual presence.
-- **After a compaction every previously loaded skill counts unloaded** (D-104.4): the PostCompact hook re-arms the gate and says so; you re-invoke.
-- **The unslop discipline binds every user-visible sentence** (writing-plainly): standing law injected every turn, not a polish pass at report time.
+The routing table below is binding law. Skills are mandatory, not suggestions. A matching situation means READ `/workspace/.claude/skills/<name>/SKILL.md` and follow it before acting — never bulk-loaded, never skipped because the work "looks small", "you already know this", or "it is only a tweak". This harness may have no Skill tool; reading the file is the invocation. The PreToolUse gate is the backstop for code and spawns, not permission to skip every other skill.
+- **The user barely sends messages.** A message that is only `draft a plan` loads sharpening-specs, breaking-down-work, and entry-v2-goal. They will not say "implement". When YOU write production code in any folder, read implementing-work and driving-tests-first yourself. The PreToolUse gate denies those edits until you have.
+- **Per-turn nudge** (D-104.1): UserPromptSubmit names the matching skills (Claude and Codex inject it; Grok ignores that stdout).
+- **Write gate** (D-104.2, D-108): unskilled production-code writes (by file type, any folder) are DENIED; test files and harness/design/docs dirs are exempt; markers expire after 20 minutes. Spawning a subagent or workflow without writing-for-agents is also DENIED. Grok deny JSON is `decision: deny`. Codex PreToolUse currently sees Bash.
+- **Re-invoke before the high-stakes step** (D-104.4). After a compaction every previously loaded skill counts unloaded.
+- **Unlazy is mandatory** (D-111, user 2026-08-22): before any substantial work item you write the acceptance gates to `/workspace/GATES.md` (or `gates/*.md` per leaf), and you do not end the turn until every box is checked with real evidence. `python3 tools/unlazy_gates.py` runs the CHECK lines; the Stop hook DENIES the stop while a gate is unmet, and treats a checked box whose `EVIDENCE:` still reads `pending` as unmet. The honest exit is `ABANDON: <id> <reason>` at column 0, reported. READ `/workspace/.claude/skills/unlazy/SKILL.md`. Conversational replies and one-line fixes are out of scope; everything the user wants DONE is in.
+- **Unslop is mandatory** (pstack `unslop`): every sentence the user reads. Not optional polish, not reports-only. READ `/workspace/.claude/skills/unslop/SKILL.md` and write that way. writing-plainly still applies for outcome-first house form.
+- **Grilling:** grill the tree yourself. Take every recommended option. Ask the user only about the actual goal.
+- **Post-compact:** compaction summaries are not the memory. Run `~/.optmem/memo wake` and follow it to the end. PreToolUse denies every tool until you have. Skills loaded before the compact count as unloaded.
 
 ## Skill routing — never wait to be told
 
-The user will not name skills. Trigger the matching skill from the situation.
+The user will not name skills and will not enter plan-mode. Trigger from the words they actually sent, then from the work you are about to do.
 Skill files: `/workspace/.claude/skills/<name>/SKILL.md`. Entry V2 also uses
 `/workspace/.grok/skills/entry-v2-goal/SKILL.md`. One review pass, one fix
 pass — never review→fix→review.
 
 | Situation | Skill |
 |---|---|
+| **Any substantial work item begins** (a plan, a probe, an implementation, a run, a review) — and again before any done-claim | **unlazy** (mandatory, D-111): write `GATES.md` BEFORE the work, `python3 tools/unlazy_gates.py` flips boxes, the Stop hook blocks the turn while a gate is unmet |
 | Session start / post-compaction / unsure what was in progress / milestone done | keeping-continuity |
 | Entry V2, tabular CatBoost, rehearsal, economic gates, learning-result claims | entry-v2-goal |
+| Message is "draft a plan" / write a plan / create a plan (plan-mode not required) | sharpening-specs then grilling, to-spec, to-tickets, wayfinder, architect, poteto-mode, codebase-design, clean-code-for-agents, entry-v2-goal |
 | Rough, spoken-style, or ambiguous request lands | sharpening-specs |
+| YOU start writing production code in any folder (they will not say implement) | implementing-work, then tdd, poteto-mode (matching playbook), clean-code-for-agents, blast-radius |
 | A plan or design is about to be adopted; assumptions or library/vendor behavior unverified | stress-testing-plans |
 | Work is too big for one pass; a multi-stage plan, wide refactor, or task graph is about to be written | breaking-down-work |
 | About to build a nontrivial new component or add a dependency | researching-first |
@@ -87,12 +93,14 @@ pass — never review→fix→review.
 | Shaping an interface, module boundary, or format | designing-it-twice |
 | About to build or launch any pipeline/driver/model stage | running-evals |
 | Data crosses a boundary (Python↔C++, matrix/store schemas, staged artifacts) | checking-data-contracts |
+| A bug, test failure, or unexpected behavior appears | debugging-with-a-loop |
 | A batch of work is ready for review | running-consolidated-review |
 | Just fixed a bug | generalizing-fixes |
 | About to claim done/verified/passing | verifying-with-receipts |
 | Working tree accumulating strays; before commits | tidying-workspace |
-| Writing anything the user reads | writing-plainly |
-| Writing any prompt/brief/task card for a subagent, lane, or workflow | briefing-agents |
+| Writing anything the user reads | unslop (mandatory, pstack) and writing-plainly |
+| Writing any prompt, brief, task card, subagent, or workflow | writing-for-agents and briefing-agents |
+| Launching, monitoring, or resuming any background run/lane; a run looks stalled | operating-long-runs |
 | Launching any experiment/fit/screen; quoting any headline number | preregistering-results |
 | Writing/reviewing any PASS gate or economic law; a gate returns empty/degenerate output | encoding-goals-in-gates |
 | Creating a module; refactoring an oversized/hard-to-grep file | shaping-code-for-agents |
@@ -110,6 +118,7 @@ Before trusting any doc or old transcript: /workspace/CURRENT.md. Hardware truth
 - **Citations and WHY-comments survive refactors**: never strip a `D-`/`CC-`/`A-` ruling citation or a provenance comment in an unrelated change — 1,031 such citations across 206 `engine/` files are the only record of why a line is the way it is. Pre-land check: `git diff -U0 | grep -E '^-.*\b(D-[0-9]{3}|CC-|A-[0-9]{3})\b'`; every hit is a finding until explained.
 - **Code is agent infrastructure**: unique grep-able names (<5 hits repo-wide), typed signatures, files that fit one read (<500 lines), ~2 nesting levels max, errors carrying offending value + expected shape, comments saying WHY with provenance — never WHAT.
 - **Goal-driven**: every plan step is WRITTEN in the literal template `1. [Step] → verify: [exact command/check]` — the shape is mandatory, not advisory (Karpathy E-K4); a bug fix starts from a red reproducing test. The full check battery is one command: `bash tools/run_all_checks.sh`.
+- **Clean code for agents** (Akita / Ousterhout / Uncle Bob, standing for Codex): READ `/workspace/.claude/skills/clean-code-for-agents/SKILL.md` before production edits. Small files, unique grep names, WHY comments, errors with value+shape. Development method: `poteto-mode` playbooks (copy steps verbatim first) + Pocock grilling / to-spec / to-tickets / tdd.
 
 
 # Mandatory Entry V2 execution rules
@@ -164,3 +173,6 @@ and campaign work.
    Ninety percent remains the target. Classification metrics, oracle headroom,
    unit tests, architecture arguments, or a positive-but-small PnL cannot
    substitute for this gate.
+   D-110 (2026-08-22, user): the 80%/90% ceiling-capture clause is a REPORTED
+   diagnostic, not a refusal; the per-asset dollar rung ($2,000 HG / $1,500 NKD,
+   SI) with the shuffle margin, MDD and trade cap is the gate and is non-negotiable.

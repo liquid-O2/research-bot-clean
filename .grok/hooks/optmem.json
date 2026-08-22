@@ -1,5 +1,5 @@
 {
-  "description": "OptMem continuity (D-101). Output-only (D-013). Grok SessionStart stdout is ignored; Stop must not print additionalContext.",
+  "description": "OptMem continuity (D-101) + D-104 routing gate. Continuity verbs are output-only. PreToolUse MAY deny (D-108). Grok SessionStart/UserPromptSubmit stdout is ignored — PreToolUse deny is the Grok enforce path. Stop must not print additionalContext (it keeps Grok working).",
   "hooks": {
     "SessionStart": [
       {
@@ -8,6 +8,39 @@
             "type": "command",
             "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py sessionstart",
             "timeout": 20
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py userprompt",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py pretooluse",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/optmem_continuity.py subagentstart",
+            "timeout": 5
           }
         ]
       }

@@ -1,6 +1,11 @@
 ---
 name: keeping-continuity
-description: Use when starting a session, resuming after a compaction, feeling unsure what was in progress, or finishing a milestone that must survive the next context loss.
+description: >
+  Resume, continue, or start a session. Use when the user says continue,
+  resume, pick up, draft a plan (read STATE.md first), or a milestone must
+  survive the next context loss.
+when-to-use: >
+  continue, resume, pick up, draft a plan, session start, post-compaction
 ---
 
 # Keeping Continuity
@@ -10,7 +15,7 @@ description: Use when starting a session, resuming after a compaction, feeling u
 The repo is the only project memory (D-012). OptMem + CONTINUITY.md are the session memory (D-101). Compaction summaries are never the memory.
 
 ## On resume (start / post-compact)
-1. Read the SessionStart injection: `memo wake` output, CONTINUITY.md tail, STATE.md. If wake asks a compression, run the exact `~/.optmem/memo nap ...` it prints NOW, before other work.
+1. Run `~/.optmem/memo wake` yourself. Grok ignores SessionStart and PostCompact stdout, so the injection is not the recall. The PreToolUse gate denies every tool until that command runs. If wake asks a compression, run the exact `~/.optmem/memo nap ...` it prints NOW, before other work. Then read CONTINUITY.md only if wake failed.
 2. Read DIRECTIVES.md before designing or freezing anything (D-089).
 3. Name, in one sentence, the current stage and NEXT_ACTION from STATE.md. If your planned work doesn't serve it, stop and re-read — that is drift.
 4. Deeper history: `~/.optmem/memo recall <regex>`; verbatim transcripts in `/workspace/artifacts/cache/continuity/`.
@@ -29,8 +34,8 @@ Read `/workspace/CURRENT.md` before trusting any doc, verdict, or transcript: it
 - `~/.optmem/memo note "<date> <one lasting fact, ≤280 bytes>"` — decisions, verdicts, receipts hashes, user rulings. Not narration.
 - **Before a milestone entry lands, check it against what actually happened.** Every claim maps to a real action; every evidence pointer resolves and shows what the entry claims; a pivot or abandoned approach that shaped the work but isn't recorded is a gap — add it. Cut aspirational entries. Fix the record, not the story.
 
-## Other harnesses (opencode/Grok, Codex, any agent)
-No hooks there — do it manually: `~/.optmem/memo wake` at session start (opencode: `export PATH=/usr/local/bin:/usr/bin:/bin:$PATH` first or memo's python3 fails), settle any nap it asks, read STATE.md + CONTINUITY.md tail, `memo note` lasting facts. Full manual: `/workspace/HARNESS_MANUAL.md`.
+## Other harnesses (Grok, Codex, OpenCode)
+Hooks exist on Claude, Grok, and Codex (same script: `.claude/hooks/optmem_continuity.py`). Grok ignores SessionStart, PostCompact, and UserPromptSubmit stdout — `memo wake` is mandatory there, and PreToolUse denies until it runs. Codex SessionStart and UserPromptSubmit do inject; Codex PreToolUse historically emits Bash only, so file-patch edits may skip the write gate. OpenCode discovers `.claude/skills/` but has no OptMem plugin right now. Full map: `/workspace/HARNESS_MANUAL.md`.
 
 ## Common mistakes
 | Mistake | Reality |

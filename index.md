@@ -1,5 +1,7 @@
 # INDEX — canonical repository entry point
 
+> 2026-08-22: this top section is dated 2026-08-18 and describes the line before the entry reset. The current bootstrap is `START_HERE.md`; the live plan is `design/entry_reset/overview.md`.
+
 ## Current Entry V2 status — 2026-08-18 UTC
 
 **Entry V2 execution is stopped. No Entry V2 learning/production process or GPU

@@ -1,5 +1,7 @@
 # Russell research
 
+> 2026-08-22: start at `START_HERE.md` (the one current bootstrap). The INDEX pointer below is the pre-reset entry point.
+
 Start with [INDEX.md](INDEX.md). It is the authoritative entry point for
 agents and humans.
 

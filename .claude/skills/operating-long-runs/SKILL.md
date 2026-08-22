@@ -67,3 +67,7 @@ Born of paid incidents: a night lost to a liveness FALSE alarm, another to a REA
 
 ## Red flags
 - "It's probably still working" / "it's probably dead" without a liveness check · relaunching with a point fix · two drivers waiting on each other's rc · workers=2 on a 13.6-core box, or 256 threads on it.
+
+## Ledger binding (D-111)
+
+A launched run is a work item, so it has an `unlazy` ledger before it launches. Its gates carry the pid, the log path, the receipt path and the verdict marker as CHECK lines, so 'the run finished' is decided by a command rather than by a glance at a log tail. The Stop wall then blocks the turn until the run's own receipt gate is checked with evidence.

@@ -29,12 +29,29 @@ from .tabular_recovery_contracts import (
     DecisionAction, OpenPositionState, PortfolioDecisionState,
     RecoveryRefusal,
 )
-from .tabular_policy import decide
+from .tabular_policy import decide,decide_margin
 from .tabular_model_io import predict_action_regret
 
 
 LIVE_REPLAY_SCHEMA: Final="QRE2TABLIVEREPLAY3"
 TRACE_STORE_SCHEMA: Final="QRE2TABLIVETRACESTORE1"
+# A1 diagnosis (design/A1_MARGIN_RULE_SPEC.md item 2).  ARGMIN is the frozen
+# chain default; MARGIN is CALIBRATED-only and reached by explicit argument.
+POLICY_MODES: Final=("ARGMIN","MARGIN")
+
+
+def policy_mode_core_key(policy_mode:str)->Mapping[str,str]:
+    """The receipt-core contribution of ``policy_mode``, empty for ARGMIN.
+
+    WHY conditional: every already-published PolicyDayTrace and trace-store
+    file was hashed WITHOUT this key, and A1 spec item 2 requires the default
+    to stay byte-identical.  An unconditional key would invalidate every
+    stored artifact on strict reload.
+    """
+
+    if policy_mode not in POLICY_MODES:
+        raise RecoveryRefusal(f"live replay policy mode is unknown: {policy_mode!r}")
+    return {} if policy_mode=="ARGMIN" else {"policy_mode":policy_mode}
 
 
 def _learned_action(regret:np.ndarray)->DecisionAction:
@@ -62,10 +79,15 @@ class PolicyDayTrace:
     source_universe_sha256:str
     source_feature_receipts:tuple[str,...]
     receipt_sha256:str
+    # Trails receipt_sha256 so every existing positional construction and
+    # every stored trace keeps its meaning (A1 spec item 2).
+    policy_mode:str="ARGMIN"
 
     def __post_init__(self)->None:
         C.guard_date(self.trading_day)
         if (self.mode not in {"RAW","CALIBRATED"}
+                or self.policy_mode not in POLICY_MODES
+                or (self.policy_mode=="MARGIN" and self.mode!="CALIBRATED")
                 or (self.mode=="CALIBRATED")
                    !=(self.calibration_receipt_sha256 is not None)
                 or (self.mode=="CALIBRATED")
@@ -108,6 +130,7 @@ class PolicyDayTrace:
                   for row in self.proposals),
               "crossings":dict(self.policy_crossing_timestamps),
               "action_changes":dict(self.action_change_timestamps),
+              **policy_mode_core_key(self.policy_mode),
               "h2_open_count":0}
         if C.object_sha256(core)!=self.receipt_sha256:
             raise RecoveryRefusal("live policy day trace receipt differs")
@@ -274,10 +297,14 @@ def replay_policy_day(*,universe:DayOptionUniverse,
         action_model:object,mode:str,
         calibration:CalibrationBundle|None=None,
         admission:AdmissionContract|None=None,
-        collect_proposals:bool=False)->PolicyDayTrace:
+        collect_proposals:bool=False,
+        policy_mode:str="ARGMIN")->PolicyDayTrace:
     """Run the unchanged policy chronologically at every available second."""
 
     universe.validate();mode=str(mode).upper()
+    policy_mode=str(policy_mode).upper();policy_mode_core_key(policy_mode)
+    if policy_mode=="MARGIN" and mode!="CALIBRATED":
+        raise RecoveryRefusal("margin policy mode is CALIBRATED-only")
     if mode not in {"RAW","CALIBRATED"}:
         raise RecoveryRefusal("live replay mode is unknown")
     if mode=="CALIBRATED" and (calibration is None or admission is None):
@@ -384,7 +411,9 @@ def replay_policy_day(*,universe:DayOptionUniverse,
                 now,watches[str(series[row])][1],feature_schema.names,
                 tuple(causal[local].tolist()),prediction,entries,open_states,
                 counts,str(phase[row]),regime_name)
-            if mode=="CALIBRATED":decision=decide(state,admission)
+            if mode=="CALIBRATED":
+                decision=(decide(state,admission) if policy_mode=="ARGMIN"
+                          else decide_margin(state,admission))
             elif state.asset_occupied:decision_action=DecisionAction.DEFER
             elif entries>=C.MAX_ENTRIES_PORTFOLIO_DAY:decision_action=DecisionAction.PASS
             else:decision_action=_learned_action(regrets[local])
@@ -462,7 +491,8 @@ def replay_policy_day(*,universe:DayOptionUniverse,
           "proposals":tuple((row.opportunity_id,row.condition.receipt_sha256,
               row.predicted_action.value) for row in proposals),
           "crossings":dict(crossing_frozen),
-          "action_changes":dict(change_frozen),"h2_open_count":0}
+          "action_changes":dict(change_frozen),
+          **policy_mode_core_key(policy_mode),"h2_open_count":0}
     result=PolicyDayTrace(trading_day,mode,
         None if calibration is None else calibration.receipt_sha256,
         None if admission is None else admission.receipt_sha256,
@@ -471,7 +501,8 @@ def replay_policy_day(*,universe:DayOptionUniverse,
         component_model.receipt_sha256,action_model.receipt_sha256,
         feature_schema.receipt_sha256,universe_representation,
         tuple(sorted(row.representation_sha256
-                     for row in dense_feature_shards)),C.object_sha256(core))
+                     for row in dense_feature_shards)),C.object_sha256(core),
+        policy_mode)
     result.__post_init__();return result
 
 
@@ -496,6 +527,7 @@ def save_policy_day_trace(trace:PolicyDayTrace,path:str|Path)->str:
         "feature_schema_sha256":trace.feature_schema_sha256,
         "source_universe_sha256":trace.source_universe_sha256,
         "source_feature_receipts":trace.source_feature_receipts,
+        **policy_mode_core_key(trace.policy_mode),
         "trace_receipt_sha256":trace.receipt_sha256}
     core={"schema":TRACE_STORE_SCHEMA,"trace":value,"h2_open_count":0}
     return C.atomic_json(target,{**core,"receipt_sha256":C.object_sha256(core)})
@@ -530,7 +562,8 @@ def load_policy_day_trace(path:str|Path)->PolicyDayTrace:
         str(value["component_model_sha256"]),str(value["action_model_sha256"]),
         str(value["feature_schema_sha256"]),str(value["source_universe_sha256"]),
         tuple(value["source_feature_receipts"]),
-        str(value["trace_receipt_sha256"]))
+        str(value["trace_receipt_sha256"]),
+        str(value.get("policy_mode","ARGMIN")))
     result.__post_init__();return result
 
 
@@ -562,6 +595,7 @@ def replay_policy_block(traces:Sequence[PolicyDayTrace],*,
         expected_days,active,eligible,by_asset,1)
 
 
-__all__=["LIVE_REPLAY_SCHEMA","PolicyDayTrace","TRACE_STORE_SCHEMA",
-         "load_policy_day_trace","replay_policy_block","replay_policy_day",
-         "save_policy_day_trace","walkable_row_mask"]
+__all__=["LIVE_REPLAY_SCHEMA","POLICY_MODES","PolicyDayTrace",
+         "TRACE_STORE_SCHEMA","load_policy_day_trace","policy_mode_core_key",
+         "replay_policy_block","replay_policy_day","save_policy_day_trace",
+         "walkable_row_mask"]

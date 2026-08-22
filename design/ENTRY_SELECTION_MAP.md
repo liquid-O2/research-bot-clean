@@ -267,10 +267,16 @@ read (lane-U stack audit; parallel-line within-cell spearman ~0). Post-hoc best 
 feature (disc_auction_phase_low_edge_fraction, 0.81 winner-higher) is within the 1,764-way
 chance tail — D4 test candidate only.
 
-USER RULING (2026-08-22 ~15:15Z, DIRECTIVES_INBOX verbatim): THE DECISION POINT MOVES.
-Entry need not be decided at candidate formation — a confirmation window of up to 300s
-after formation is lawful, and the user asserts (A6 to measure exactly) that the oracle
-loses little under that delay. Consequences for Phase D and design round 2:
+USER RULING (2026-08-22 ~15:15Z + ~16:00Z extension, DIRECTIVES_INBOX verbatim): THE
+DECISION POINT MOVES. Entry need not be decided at candidate formation — a confirmation
+window after formation is lawful; 300s is an UPPER-BOUND GUESS, not a hard cap
+(confirmation may lawfully arrive later; D5 measures the delay cost curve past 300s too).
+The confirmation framework is THE original framework (WAIT/PASS states were built on it);
+decide-at-formation was a regression, cause recorded in the inbox. Source material: the
+discretionary course PDFs — 5 vision-extraction lanes running against
+design/book_confirmations/EXTRACTION_CONTRACT.md; synthesis target = a CONFIRMATION
+CATALOG of computable predicates with per-confirmation timing, tested by D3-accrual/D5 on
+real data. Consequences for Phase D and design round 2:
 - D3 gains a fourth subproblem: (d) information ACCRUAL — how does winner/loser
   separability grow over the first 300s post-formation (the matrix already holds sampled
   offsets 0-300s; measure separability as a function of min_alert_age_sec).

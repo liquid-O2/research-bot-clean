@@ -72,6 +72,41 @@ SCORE_DEFS: dict[str, list[tuple[str, float]]] = {
         ("w15_aligned_trade_flow", +1), ("w60_aligned_trade_flow", +1),
     ],
 }
+# V2 (2026-08-22, from tools/probe_feature_accrual_scan.py receipt — the RAW DATA's own
+# top accruing families per user ruling; replaces armchair v1 ingredient guesses):
+SCORE_DEFS_V2: dict[str, list[tuple[str, float]]] = {
+    "DEFENSE2": [  # defended-quote geometry (HG/SI family)
+        ("disc_quote_formation_defense_best_aligned_ticks_current", +1),
+        ("disc_quote_formation_defense_best_aligned_ticks_mean", +1),
+        ("disc_quote_h30_defense_best_aligned_ticks_mean", +1),
+        ("disc_quote_h120_defense_best_aligned_ticks_mean", +1),
+        ("disc_quote_formation_defense_best_favorable_change_count", +1),
+        ("disc_quote_h120_defense_best_favorable_change_count", +1),
+        ("disc_quote_h120_defense_best_max_dwell_sec", -1),
+    ],
+    "REPLENISH2": [  # book-turnover battle intensity (NKD-dominant family)
+        ("disc_quote_formation_rebuild_size", +1),
+        ("disc_quote_formation_rebuild_count", +1),
+        ("disc_quote_formation_rebuild_rate_per_sec", +1),
+        ("disc_quote_h30_rebuild_size", +1),
+        ("disc_quote_h120_rebuild_size", +1),
+        ("disc_quote_formation_depletion_size", +1),
+        ("disc_quote_h30_depletion_size", +1),
+        ("disc_quote_h120_depletion_size", +1),
+        ("disc_quote_formation_depletion_rate_per_sec", +1),
+    ],
+    "PROGRESS2": [  # already-being-paid: past progress + yield per aggression
+        ("aligned_from_formation_mean_usd", +1),
+        ("disc_state_current_displacement_ticks", +1),
+        ("disc_state_favorable_max_ticks", +1),
+        ("disc_state_price_yield_per_attack", +1),
+        ("disc_state_price_yield_per_net_aggression", +1),
+        ("disc_test_response_h5_favorable_mean_ticks", +1),
+        ("disc_eclock_n1024_aligned_displacement_usd", +1),
+        ("disc_prior_level_z0_distance_ticks", +1),
+    ],
+}
+
 # Side-resolved virtual columns -> (long_name, short_name)
 VIRTUAL = {
     "OPP_gap_median_h5": ("disc_evt_h5_attack_gap_median_ms", "disc_evt_h5_lift_gap_median_ms"),
@@ -87,13 +122,15 @@ class AccrualRefusal(RuntimeError):
     pass
 
 
-def resolve_ingredients(names: list[str]) -> tuple[dict[str, list[tuple[int, int, float]]], list[str]]:
+def resolve_ingredients(names: list[str], defs: dict | None = None) -> tuple[dict[str, list[tuple[int, int, float]]], list[str]]:
     """Per score: list of (long_col, short_col, sign). Missing ingredients are dropped
     (recorded); a score with <3 available ingredients refuses."""
+    if defs is None:
+        defs = SCORE_DEFS
     index = {n: i for i, n in enumerate(names)}
     resolved: dict[str, list[tuple[int, int, float]]] = {}
     missing: list[str] = []
-    for score, items in SCORE_DEFS.items():
+    for score, items in defs.items():
         rows = []
         for name, sign in items:
             if name in VIRTUAL:
@@ -129,7 +166,7 @@ def compute_scores(x_rows: np.ndarray, side: np.ndarray,
         sd = np.nanstd(parts, axis=1, keepdims=True)
         sd[sd == 0] = 1.0
         out[score] = np.nanmean((parts - mu) / sd, axis=0)
-    out["COMBINED"] = np.nanmean(np.vstack([out[s] for s in SCORE_DEFS]), axis=0)
+    out["COMBINED"] = np.nanmean(np.vstack([out[s] for s in out]), axis=0)
     return out
 
 
@@ -161,10 +198,12 @@ def pooled_auc(per_day: dict[int, tuple[float, float]], days: list[int] | None =
 
 
 def run(matrix_dir: Path, out_path: Path, *, n_null: int, n_boot: int,
-        seed: int = 20260822) -> dict:
+        seed: int = 20260822, defs: dict | None = None) -> dict:
     manifest = json.loads((matrix_dir / "manifest.json").read_text())
     names = list(manifest["feature_names"])
-    resolved, missing = resolve_ingredients(names)
+    if defs is None:
+        defs = SCORE_DEFS
+    resolved, missing = resolve_ingredients(names, defs)
     needed = sorted({c for rows in resolved.values() for lc, sc, _ in rows for c in (lc, sc)}
                     | {names.index("side"), names.index("min_alert_age_sec")})
     col_of = {c: i for i, c in enumerate(needed)}
@@ -202,7 +241,7 @@ def run(matrix_dir: Path, out_path: Path, *, n_null: int, n_boot: int,
                     "delta_targets_sec": DELTA_TARGETS_SEC, "tolerance_sec": DELTA_TOL_SEC,
                     "n_null": n_null, "n_boot": n_boot,
                     "missing_ingredients": missing, "assets": {}}
-    score_names = list(SCORE_DEFS) + ["COMBINED"]
+    score_names = list(defs) + ["COMBINED"]
     for a in sorted(set(asset)):
         a_rows = np.flatnonzero((asset == a) & eligible[inv])
         a_report = {"per_delta": {}, "n_winner_series": int(np.sum(s_win & (np.bincount(inv, weights=(asset == a)).astype(bool)[:n_series] if False else s_win))) }
@@ -353,12 +392,15 @@ def main() -> int:
     ap.add_argument("--out", type=Path)
     ap.add_argument("--n-null", type=int, default=100)
     ap.add_argument("--n-boot", type=int, default=200)
+    ap.add_argument("--scores", choices=["v1", "v2"], default="v1")
     args = ap.parse_args()
     if args.selftest:
         return selftest()
     if not args.matrix_dir or not args.out:
         ap.error("--matrix-dir and --out required (or --selftest)")
-    rep = run(args.matrix_dir, args.out, n_null=args.n_null, n_boot=args.n_boot)
+    defs = SCORE_DEFS_V2 if args.scores == "v2" else SCORE_DEFS
+    rep = run(args.matrix_dir, args.out, n_null=args.n_null, n_boot=args.n_boot,
+              defs=defs)
     for a, ar in rep["assets"].items():
         line = " ".join(f"{s}:{v['verdict']}" for s, v in ar["accrual"].items())
         print(f"{a}: {line}")

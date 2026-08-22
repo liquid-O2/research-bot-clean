@@ -14,3 +14,9 @@ RunPod container; the host lies to naive probes.
 Standing facts: box-hours are billed wall-clock whether or not hardware is used; CatBoost fits pinned `thread_count=16`; `python3 -m pytest` does NOT exist here — tests run via `python3 -m unittest <module>` (50 of 51 test files are stdlib unittest); `/usr/bin/find` is **bfs 4.1.1**, NOT GNU find — `-newermt "<date>"` fails with "Invalid timestamp" (use `-mmin -N`/`-newer FILE`), and `2>/dev/null` turns that failure into a silent empty result (burned a tripwire 2026-08-21).
 
 Re-measure after any pod change: the two cgroup files above + `nvidia-smi` + `torch.__version__`.
+
+## Pod restart = overlay wipe (measured 2026-08-22)
+A pod restart resets `/` (overlay): catboost, scipy, pandas, scikit-learn, pyarrow, numba were gone; torch 2.8.0+cu128 and numpy 2.1.2 survive in the image; cgroup limits and the GPU were unchanged; no background process survives. Reinstall with **uv** (user order), pinned to the receipts' versions:
+`UV_LINK_MODE=copy ~/.local/bin/uv pip install --python /usr/bin/python3 --system --break-system-packages --prefix ~/.local "catboost==1.2.10" "numpy==2.1.2" scipy scikit-learn threadpoolctl safetensors joblib jsonschema`
+(`--prefix ~/.local`: the system dist-packages is root-owned; the user site is what `python3` imports from.)
+Then `bash tools/run_all_checks.sh --fast` before any run. The qrdisc native `.so` rebuilds itself on first load (cmake/g++ present in the image).

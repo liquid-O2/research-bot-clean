@@ -33,7 +33,8 @@ from .tabular_delayed_corpus import CausalFeatureShard
 from .tabular_live_replay import (
     LIVE_REPLAY_SCHEMA, PolicyDayTrace, _ActiveWatchCounter, _arrival_payload,
     _day_feature_plane, _label_free_live_arrival, _watch_metadata,
-    load_policy_day_trace, save_policy_day_trace, walkable_row_mask,
+    load_policy_day_trace, policy_mode_core_key, save_policy_day_trace,
+    walkable_row_mask,
 )
 from .tabular_model_io import (
     load_action_model, load_component_model, predict_action_regret,
@@ -116,6 +117,30 @@ def wtwin_state_action_codes(*, learned: np.ndarray, occupied: np.ndarray,
     return codes
 
 
+def wtwin_margin_action_codes(*, margin: np.ndarray, occupied: np.ndarray,
+        entries_used: int, admission: AdmissionContract,
+        component: np.ndarray) -> np.ndarray:
+    """Vector form of ``tabular_policy.decide_margin`` (A1 spec item 1).
+
+    No argmin pre-stage exists here, so every unoccupied row starts at DEFER
+    and is promoted to ENTER only by the margin threshold plus the three risk
+    gates.  Column order is ``COMPONENT_STACK_NAMES``: 0 current_q20, 6 wall
+    probability, 7 mae_q90.  The cap/occupancy precedence is written in the
+    same order as ``wtwin_state_action_codes`` and for the same reason.
+    """
+
+    admitted = ((np.asarray(margin, np.float64)
+                 >= admission.action_advantage_threshold_usd)
+                & (component[:, 0] >= admission.minimum_current_q20_usd)
+                & (component[:, 6] <= admission.maximum_wall_probability)
+                & (component[:, 7] <= admission.maximum_adverse_q90_usd))
+    codes = np.where(admitted, _WTWIN_ENTER, _WTWIN_DEFER).astype(np.int8)
+    if int(entries_used) >= C.MAX_ENTRIES_PORTFOLIO_DAY:
+        codes[:] = _WTWIN_PASS
+    codes[np.asarray(occupied, bool)] = _WTWIN_DEFER
+    return codes
+
+
 def wtwin_rank_entries(*, codes: np.ndarray, priority: np.ndarray,
         candidate_id: np.ndarray, asset: np.ndarray,
         entries_used: int) -> tuple[list[int], set[int]]:
@@ -188,6 +213,7 @@ class _WtwinPlane:
     component_model: object
     action_model: object
     mode: str
+    policy_mode: str
     calibration: object | None
     plane: Mapping[str, np.ndarray]
     opportunity: np.ndarray
@@ -232,11 +258,16 @@ def _wtwin_build_plane(*, universe: DayOptionUniverse,
         dense_feature_shards: Sequence[CausalFeatureShard],
         feature_schema: CausalFeatureSchema, component_model: object,
         action_model: object, mode: str, calibration: object | None,
-        admission_present: bool) -> _WtwinPlane:
+        admission_present: bool,
+        policy_mode: str = "ARGMIN") -> _WtwinPlane:
     """Byte-for-byte the oracle's pre-walk setup (tabular_live_replay:280-325)."""
 
     universe.validate()
     mode = str(mode).upper()
+    policy_mode = str(policy_mode).upper()
+    policy_mode_core_key(policy_mode)
+    if policy_mode == "MARGIN" and mode != "CALIBRATED":
+        raise RecoveryRefusal("margin policy mode is CALIBRATED-only")
     if mode not in {"RAW", "CALIBRATED"}:
         raise RecoveryRefusal("live replay mode is unknown")
     if mode == "CALIBRATED" and (calibration is None or not admission_present):
@@ -280,6 +311,7 @@ def _wtwin_build_plane(*, universe: DayOptionUniverse,
         universe_representation=universe_representation,
         trading_day=trading_day, feature_schema=feature_schema,
         component_model=component_model, action_model=action_model, mode=mode,
+        policy_mode=policy_mode,
         calibration=calibration, plane=plane, opportunity=opportunity,
         series=series, candidate=np.asarray(plane["candidate_id"], str),
         asset=asset, side=side, phase=phase, timestamp=timestamp,
@@ -314,6 +346,7 @@ class _WtwinScores:
     probability: np.ndarray
     regime_names: np.ndarray
     learned: np.ndarray
+    margin: np.ndarray
 
 
 def _wtwin_score_rows(plane: _WtwinPlane, *, now: int, rows: np.ndarray,
@@ -357,7 +390,8 @@ def _wtwin_score_rows(plane: _WtwinPlane, *, now: int, rows: np.ndarray,
     return _WtwinScores(causal=causal, component=component, regrets=regrets,
         mapped=mapped, lower=lower, probability=probability,
         regime_names=regime_names,
-        learned=wtwin_learned_action_codes(regrets))
+        learned=wtwin_learned_action_codes(regrets),
+        margin=regrets[:, 1] - regrets[:, 0])
 
 
 def _wtwin_decision_state(plane: _WtwinPlane, scores: _WtwinScores,
@@ -392,11 +426,21 @@ def _wtwin_apply(plane: _WtwinPlane, machine: _WtwinMachine, *, now: int,
                         for name, value in sorted(machine.positions.items()))
     causal_open_array = np.asarray(causal_open, np.int64)
     occupied = causal_open_array[plane.asset_index[rows]] >= now
-    codes = wtwin_state_action_codes(learned=scores.learned, occupied=occupied,
-        entries_used=entries_at_start, admission=machine.admission,
-        component=scores.component, lower=scores.lower)
+    if plane.policy_mode == "MARGIN":
+        # PolicyDecision.incremental_dollars_usd carries the margin, so the
+        # per-second best-per-asset competition ranks by it (A1 spec item 1).
+        priority = scores.margin
+        codes = wtwin_margin_action_codes(margin=scores.margin,
+            occupied=occupied, entries_used=entries_at_start,
+            admission=machine.admission, component=scores.component)
+    else:
+        priority = scores.mapped
+        codes = wtwin_state_action_codes(learned=scores.learned,
+            occupied=occupied, entries_used=entries_at_start,
+            admission=machine.admission, component=scores.component,
+            lower=scores.lower)
     candidate = plane.candidate[rows]
-    ranked, chosen = wtwin_rank_entries(codes=codes, priority=scores.mapped,
+    ranked, chosen = wtwin_rank_entries(codes=codes, priority=priority,
         candidate_id=candidate, asset=plane.asset[rows],
         entries_used=entries_at_start)
     final = codes.copy()
@@ -460,7 +504,7 @@ def _wtwin_apply(plane: _WtwinPlane, machine: _WtwinMachine, *, now: int,
         score = EntryScore(candidate_id=base.example.candidate_id,
             asset=base.example.asset, decision_ts_ns=now,
             model_hash=str(plane.action_model.receipt_sha256),
-            priority_score=float(scores.mapped[local]),
+            priority_score=float(priority[local]),
             take_probability=probability,
             expected_pnl_usd=state.components.current_q50_usd,
             expected_pnl_lower_usd=state.components.current_q20_usd,
@@ -535,7 +579,8 @@ def _wtwin_trace(plane: _WtwinPlane, machine: _WtwinMachine,
                             row.predicted_action.value)
                            for row in machine.proposals),
         "crossings": dict(crossing_frozen),
-        "action_changes": dict(change_frozen), "h2_open_count": 0}
+        "action_changes": dict(change_frozen),
+        **policy_mode_core_key(plane.policy_mode), "h2_open_count": 0}
     result = PolicyDayTrace(plane.trading_day, plane.mode,
         None if calibration is None else calibration.receipt_sha256,
         None if admission is None else admission.receipt_sha256,
@@ -544,7 +589,7 @@ def _wtwin_trace(plane: _WtwinPlane, machine: _WtwinMachine,
         plane.component_model.receipt_sha256,
         plane.action_model.receipt_sha256,
         plane.feature_schema.receipt_sha256, plane.universe_representation,
-        shard_receipts, C.object_sha256(core))
+        shard_receipts, C.object_sha256(core), plane.policy_mode)
     result.__post_init__()
     return result
 
@@ -555,14 +600,15 @@ def replay_policy_day_twin(*, universe: DayOptionUniverse,
         action_model: object, mode: str,
         calibration: CalibrationBundle | None = None,
         admission: AdmissionContract | None = None,
-        collect_proposals: bool = False) -> PolicyDayTrace:
+        collect_proposals: bool = False,
+        policy_mode: str = "ARGMIN") -> PolicyDayTrace:
     """Drop-in twin of ``tabular_live_replay.replay_policy_day``."""
 
     plane = _wtwin_build_plane(universe=universe,
         dense_feature_shards=dense_feature_shards,
         feature_schema=feature_schema, component_model=component_model,
         action_model=action_model, mode=mode, calibration=calibration,
-        admission_present=admission is not None)
+        admission_present=admission is not None, policy_mode=policy_mode)
     machine = _wtwin_new_machine(plane, admission)
     _wtwin_walk(plane, (machine,), collect_proposals)
     return _wtwin_trace(plane, machine, dense_feature_shards)
@@ -573,7 +619,8 @@ def replay_policy_day_multistate(*, admissions: Sequence[AdmissionContract],
         dense_feature_shards: Sequence[CausalFeatureShard],
         feature_schema: CausalFeatureSchema, component_model: object,
         action_model: object,
-        calibration: CalibrationBundle) -> tuple[PolicyDayTrace, ...]:
+        calibration: CalibrationBundle,
+        policy_mode: str = "ARGMIN") -> tuple[PolicyDayTrace, ...]:
     """One row scan carrying N independent CALIBRATED admission machines.
 
     Machines that reach a timestamp in the same walk state (identical live
@@ -591,7 +638,7 @@ def replay_policy_day_multistate(*, admissions: Sequence[AdmissionContract],
         dense_feature_shards=dense_feature_shards,
         feature_schema=feature_schema, component_model=component_model,
         action_model=action_model, mode="CALIBRATED", calibration=calibration,
-        admission_present=True)
+        admission_present=True, policy_mode=policy_mode)
     machines = tuple(_wtwin_new_machine(plane, admission) for admission in rows)
     _WTWIN_WALK_INVOCATIONS["multistate"] += 1
     # Proposals are a rollout-only output; the eval theta loop that is the sole
@@ -702,6 +749,6 @@ def wtwin_load_or_replay_day_multistate(*, day: int,
 
 __all__ = ["WTWIN_ACTION_BY_CODE", "replay_policy_day_multistate",
            "replay_policy_day_twin", "wtwin_learned_action_codes",
-           "wtwin_load_or_replay_day_multistate", "wtwin_rank_entries",
-           "wtwin_reset_walk_invocations", "wtwin_state_action_codes",
-           "wtwin_walk_invocations"]
+           "wtwin_load_or_replay_day_multistate", "wtwin_margin_action_codes",
+           "wtwin_rank_entries", "wtwin_reset_walk_invocations",
+           "wtwin_state_action_codes", "wtwin_walk_invocations"]

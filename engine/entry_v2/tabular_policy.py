@@ -88,6 +88,45 @@ def decide(state:PortfolioDecisionState,admission:AdmissionContract)->PolicyDeci
                           component.lower_action_advantage_usd,"ADMITTED")
 
 
+def decide_margin(state:PortfolioDecisionState,admission:AdmissionContract)->PolicyDecision:
+    """A1 diagnosis rule (design/A1_MARGIN_RULE_SPEC.md item 1).
+
+    The argmin pre-stage of ``decide`` is REMOVED.  The decision score is the
+    predicted dollars by which entering beats deferring, and it takes the
+    threshold slot the argmin stage used to guard, so MARGIN_BELOW_THRESHOLD
+    replaces the MINIMUM_REGRET_* reasons and the three risk gates keep their
+    ADMISSION_ names.  Never a chain default: only ``policy_mode="MARGIN"``
+    reaches this function.
+    """
+
+    state.__post_init__();admission.__post_init__();component=state.components
+    margin=float(component.defer_regret-component.enter_regret)
+    if state.asset_occupied:
+        return PolicyDecision(DecisionAction.DEFER,margin,
+                              component.lower_action_advantage_usd,"ASSET_OCCUPIED")
+    if state.entries_used>=C.MAX_ENTRIES_PORTFOLIO_DAY:
+        return PolicyDecision(DecisionAction.PASS,margin,
+                              component.lower_action_advantage_usd,
+                              "PORTFOLIO_CAP_EXHAUSTED")
+    if margin<admission.action_advantage_threshold_usd:
+        return PolicyDecision(DecisionAction.DEFER,margin,
+                              component.lower_action_advantage_usd,
+                              "MARGIN_BELOW_THRESHOLD")
+    failures=[]
+    if component.current_q20_usd<admission.minimum_current_q20_usd:
+        failures.append("CURRENT_Q20")
+    if component.wall_probability>admission.maximum_wall_probability:
+        failures.append("WALL")
+    if component.mae_q90_usd>admission.maximum_adverse_q90_usd:
+        failures.append("ADVERSE")
+    if failures:
+        return PolicyDecision(DecisionAction.DEFER,margin,
+                              component.lower_action_advantage_usd,
+                              "ADMISSION_"+"_".join(failures))
+    return PolicyDecision(DecisionAction.ENTER,margin,
+                          component.lower_action_advantage_usd,"ADMITTED")
+
+
 @dataclass(frozen=True,slots=True)
 class CausalSnapshotInput:
     candidate_id:str
@@ -486,5 +525,5 @@ class RuntimeCheckpoint:
 
 __all__=["CausalSnapshotInput","PolicyRestartProbe","RankedDecision",
          "RuntimeCheckpoint","TabularInferencePipeline","TabularPolicyBundle",
-         "create_policy_bundle","decide","decide_simultaneous",
+         "create_policy_bundle","decide","decide_margin","decide_simultaneous",
          "decision_entry_score"]

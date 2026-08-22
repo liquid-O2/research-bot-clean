@@ -36,6 +36,7 @@ Let the live rehearsal finish. First economic verdict is a published `launch_reh
 
 16 workers. Reuse matrix/bundle/OOF.
 
+R6 ADOPTION PACKAGE COMPLETE 2026-08-22T01:54Z: all-store acceptance PASS (145 sessions x 300 rows, end-state builder qrdisc-native-wave2, report diagnostics/disc_native_differential_qrdisc-native-wave2_allstore300.json) on top of landed f6e349a (5 differentials, 2 mutants RED, suites green). Adoption decision (freeze #2: roster member + confirmation.py call-site + store transcription) taken AT the E1R verdict boundary, attribution first (D-107).
 Freeze batch APPLIED 2026-08-21T20:31Z (receipts in artifacts/cache/review/); one post-freeze crash (latent perfect-actions check vs relabeled teachers) root-caused and fixed, chain resumed. E1R verdict expected ~03:30-05:30Z — read the four-column attribution FIRST (D-107) before any branch action.
 
 ## FINDINGS ledger (deferred items, 2026-08-21 consolidated review)

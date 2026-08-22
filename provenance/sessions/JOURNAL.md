@@ -724,3 +724,5 @@ Regenerate every number:
   round_2/action_models/*/action_oof_all.npz + round_2/action_matrices/*/ (argmin rates,
   regrets at label-ENTER rows, gap AUC real vs shuffle).
 - training capture: fit_only/e1r/evaluation/training_capture/seed_*/training_teacher_capture.json
+
+2026-08-22 ~14:20Z D2 BLIND CASES SEALED (protocol design/D2_BLIND_CASES_PROTOCOL.md, frozen pre-draw): 36 same-(asset,day,phase) winner-vs-loser pairs drawn from the round-0 matrix (seed 20260822, 12/asset, one per (asset,day)); sealed answer key sha256 = 22ba9f9625a9738dfc198e83c826806e1cfeb1504f741f2e446fc12bbb93e4e6 — journaled BEFORE any case is read. Calls next, all 36 committed before unsealing; view = fixed context panel + top differing features (relative diff), noted here for the record.

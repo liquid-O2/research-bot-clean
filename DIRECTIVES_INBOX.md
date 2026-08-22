@@ -127,3 +127,25 @@ refusal clause. Gates treat it as a target, never a hard floor. The margin-rank 
 aligns with the intent by construction (takes highest predicted EV first). A7 reframed from
 "$600-constrained ceiling" to "ceiling concentration profile": what fraction of each block's
 ceiling lives in the top-1/2/3 trades per asset-day.
+- [2026-08-22T08:05:50Z] I want you to keep drilling down and using the skill that you have to break things down properly and get things done well and to properly diagnose exactly what's going wrong and how we can fix them. The current A1 through A7 is still a bit broad in terms of the things that we need to fix. We need to look at the minor details and et cetera. You can look through the code and everything as well.
+- [2026-08-22T08:10:39Z] Okay, you know the exact defects and things that are holding us back. So I want you to design things in a way that we can get to our goal, because the way things were built might not have been the best.
+
+Instead of trying to fix the things that have been broken, try to fix this problem at its core. You can design new things. You can do other ways of doing things as well. You just need to get to our goal.
+
+What has happened is not like the code that has been written is untouchable. Like you can write new things, you can write new labels, you can write different ways of getting to our goal. Like we need to get to our goal. That is the main objective.
+
+How you get there does not matter. So you don't need to keep fixing the broken parts that have already been implemented. You can build new parts as well if needed, but you need to find the defect properly and fix it 
+
+## 2026-08-22 ~09:45Z — user ruling: rebuild from the goal; existing code is not sacred
+Verbatim: "design things in a way that we can get to our goal, because the way things were
+built might not have been the best. Instead of trying to fix the things that have been
+broken, try to fix this problem at its core. You can design new things... you can write new
+labels, you can write different ways of getting to our goal... How you get there does not
+matter. So you don't need to keep fixing the broken parts that have already been
+implemented. You can build new parts as well if needed, but you need to find the defect
+properly and fix it."
+Effect: Phase B is a GROUND-UP design round (designing-it-twice, 3 blind forced-different
+candidates), not a patch series. The frozen laws stay: goal ladder, shuffle control, 5+5
+seeds, replay dollars, D-057 causality, one-position, candidate generator frozen, 2025H2
+sealed. Everything else — labels, objectives, heads, calibration, decision rule — is
+redesignable.

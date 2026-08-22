@@ -321,3 +321,122 @@ BRANCHES design round 2 must be written against (decided by evidence, not prefer
   the diagnosed bottleneck; a family swap without a diagnosis would re-run the same collapse.
 - Goal lowering, terminal null, opening 2025H2, candidate-generator changes, neural revival —
   standing law.
+
+## CONFIRMATION-WINDOW FRONTIER (2026-08-22 ~11:00Z, post-restart) — the live frontier
+
+Context: the pod restart at ~10:13Z lost the session transcript and the overlay (env restored
+via uv, battery green, JOURNAL 2026-08-22 ~10:13Z entry). This section is the rebuilt plan,
+written from the receipts, not from memory of the lost conversation.
+
+### The problem, in its own units (sharpening-specs synthesis)
+- **Unit of decision**: the cell c = (asset, day, phase); 3 cells per asset-day; 50-160
+  candidate series per cell. A series s is watched from formation for up to 300s; the matrix
+  holds ~36 sampled rows per series at ages τ ∈ {0,5,..,60,70,..,300}s (1,473,724 rows,
+  41,006 series, 67 days 20210531-20210831, receipt 7e9e2588…). y(s,τ) = standalone PnL of
+  entering s at age τ under the frozen exit rule (`current_asinh` column; A7 semantics).
+- **Objective**: per forward asset-day, Σ over its 3 cells of the realized y of the ONE entry
+  taken in the cell (or 0 if skipped) ≥ rung — $2,000 HG / $1,500 SI, NKD — and ≥80% of the
+  exact delayed ceiling (forward: HG $2,973 / NKD $2,021 / SI $2,259 per asset-day, A7).
+  The optimum is ≤1 entry per cell (A7: top-2 trades = 79-88% of asset ceiling).
+- **Decision time**: NOT formation. Any second in the watch window, and the window may run
+  past 300s (user ruling; 300s = upper-bound guess). The walk machinery (WAIT/ENTER per second,
+  one position per asset, caps) exists and is differential-tested; only the scoring object is
+  missing.
+- **What is measured (receipts)**: at formation nothing separates winners from losers (D2
+  19/36; accrual probes Δ=0 AUC .50-.53 on every asset; lane-U stack audit). Separation
+  ACCRUES with time since formation: v2 state scores (data-chosen families, unfitted) reach
+  COMBINED AUC .599 HG / .596 NKD / .618 SI at 300s, still rising at the cap
+  (confirmation_accrual_v2_20260822.json). Waiting costs little: goal cells retain 97% of
+  best available value at ≥180s and 92-93% at ≥290s (delay_forfeit_20260822.json). The old
+  head (teacher regret regression + argmin) converted its .659 action-row gap-AUC into $0;
+  its out-of-sample rank-rule conversion is being measured (A1, resumed 10:58Z).
+- **Success criterion for this frontier**: a trained confirmation object whose cell-pick
+  dollars on held chronological blocks clear the ladder with weakest-real > strongest-shuffle,
+  then the same object through the rail (RAIL-0..4 + PILOT) into exact replay.
+- **Out of scope (standing)**: exits/holds, position concurrency, generator changes, neural,
+  2025H2, goal lowering, retest/return-to-level waits.
+
+### The reframed questions (causal order)
+- **Q1 · Trained information at Δ.** With full features and a proper objective, how well does
+  a trained object rank series WITHIN a cell at each Δ ∈ {0,30,60,120,180,240,290}s, on
+  chronological folds, vs shuffle? (The v2 scores are a floor: unfitted, 3 families.)
+- **Q2 · Dollars from that ranking.** If at Δ we enter the top-scored series of every cell
+  (and, in a second arm, only cells whose top score clears θ chosen on the prior block), what
+  fraction of the per-asset-day ceiling is realized? Priced over ALL series in the cell (not
+  only the winner/loser-labeled ones), diagnostic-tier; replay stays the authoritative dollar.
+- **Q3 · Required grade.** How small must the value-noise σ be for a ≤1-per-cell picker to
+  reach 80% capture on each asset (lane V's ruler, re-run on cells, not days)? This is the bar
+  Q1/Q2 must clear, stated before their numbers land.
+- **Q4 · Window length.** The curves rise at 300s: what does the 600s window add? The corpus
+  supports max_delay_sec=600 and `five_minute_extension_trigger` already carries the
+  pre-registered bar (extend iff ceiling_600 > 1.10 × ceiling_300). Price it, don't invent it.
+
+### Tickets (Phase D continued; every step carries its verify line)
+- **D6 trained-accrual probe** (task; the decisive number — the journal named it at 09:30Z):
+  one file `tools/probe_trained_accrual.py` (--selftest: planted-accrual signal recovered +
+  no-signal fixture stays at chance + red fixture refuses; prereg in the header, echoed into
+  the receipt). Rows = the 7 Δ targets only (~290k rows), features = the full 1,764-column
+  plane minus leakage-shaped columns (none exist by construction: the feature plane refuses
+  teacher/outcome names at load), `min_alert_age_sec` kept as a feature. Folds = the E1R
+  action-fold chronology (E3..E6, FROZEN_Q3_E8: information max-day, score later days only),
+  NEVER random day CV. Arms: (a) default = shallow (depth 2-4) RMSE on CELL-standardized y
+  (cross-program evidence: day-z regression climbs, pairwise anti-correlates, depth-2 wins);
+  (b) PairLogitPairwise grouped by cell — control arm; (c) Logloss on winner≥$600 — control
+  arm. 5 real + 5 matched-shuffle seeds (within-cell label permutation). Outputs per
+  (asset, Δ, arm): within-cell winner-vs-loser AUC (comparable to v1/v2) AND cell-pick
+  capture over all series (enter-all and θ-skip arms, θ from the fold's prior block), day
+  bootstrap CI, permutation null. Blocked by: nothing (A1 runs beside it on 6 cores; D6 fits
+  pinned to ≤7 threads).
+  -> verify static: `python3 tools/probe_trained_accrual.py --selftest` green; real-path:
+  receipt diagnostics/trained_accrual_20260822.json with the prereg echoed; D-109 arithmetic
+  in the launch note (predicted: 10 seeds × 4 folds × 3 arms × ~3 min CPU ≈ 6h single-thread
+  → run arms as 3 parallel lanes ×2 threads, ≈2-2.5h; abort rule at 1.5× predicted).
+- **D7 cell noise ruler** (task, numpy only): for each asset and block, simulate a picker
+  that sees y + N(0, σ) per series at Δ=180s, picks top-1 per cell (enter-all and θ-skip),
+  sweep σ ∈ {0..2000}; report σ* at 80% capture and at the rung. Blocked by: nothing.
+  -> verify: `--selftest` (σ=0 reproduces the ceiling; σ→∞ reproduces random pick) +
+  receipt diagnostics/cell_noise_ruler_20260822.json.
+- **D8 600s pricing** (task; fires iff D6's curves still rise at 290s): recompute the dense
+  store at max_delay_sec=600 for a 6-day-per-asset slice via the R6 native path, rebuild the
+  delay-forfeit and accrual curves to 600s on that slice, and run the existing trigger.
+  Blocked by: D6 verdict (direction), R6 native availability (landed f6e349a). Cost to state
+  before launch: native rate ≈2.33 ms/row (wave-2 receipt) × rows per session at 600s.
+  -> verify: trigger receipt QRE2TAB600TRIGGER1 + curves receipt; the slice days named.
+- **D1 = A1 resumed** (running; 6 lanes; logs artifacts/cache/a1_margin_logs/; summary by
+  `tools/diag_margin_rule_replay.py --summary`). Its reading: does the OLD head's ordering
+  convert to dollars under a causal rank rule? Yes → B-i carries the formulation work; no →
+  the information must come from the window (D6 decides).
+- Blocking edges: D6 ∥ D7 ∥ D1 (disjoint inputs/outputs: diagnostics/ vs diagnosis/margin_rule).
+  **Design round 2 is blocked by D6 + D7** (and reads D1). D8 is blocked by D6's direction.
+
+### Design round 2 — the confirmation object (designing-it-twice, run in full, AFTER D6/D7)
+Purpose (≤5 lines): a causal score c(s, t) for every live series at every watch second plus a
+stopping/selection rule, such that the walk enters ≤1 series per cell at the second the rule
+fires; thresholds/knobs from prior blocks only; all three assets independently.
+Three blind lanes, forcing constraints that FORCE different shapes (not flavors):
+- **Lane α — fixed-Δ cell pick**: decide once per cell at a per-asset Δ* chosen on prior
+  blocks; the object is a pure within-cell ranker; timing is mechanical.
+- **Lane β — sequential stopping**: per-second hazard — enter the first second at which
+  c(s,t) ≥ θ_asset(t); the object must price "enter now vs keep watching" from accrual
+  features + age; no fixed Δ.
+- **Lane γ — two-stage which/when**: a series ranker (which) and a within-series timing
+  ranker (when; the V9 stopping ranker's lineage), composed; neither alone decides.
+Every lane: targets are standalone y (cell-standardized where trained), never DP margins;
+≤1 entry per cell; shuffle arm; 5+5 seeds; the same funnel/caps; the rail (RAIL-0..4 +
+PILOT, design/ENTRY_PHASE_B_PLAN.md) unchanged — RAIL-3's pluggable score source IS c(s,t).
+Orchestrator reads all three end to end, screens against references/design-red-flags.md,
+ships consensus or re-runs on wild divergence, freezes ONE spec with its one-page rationale.
+
+### Throughput checkpoint (breaking-down-work)
+1. Blocking first: D6's tool (tests-first, prereg, selftest) — built by the orchestrator, no
+   lane; its first real run IS the pilot measurement. 2. Independent: D1 (running), D7.
+3. Shared state: none — separate artifact roots, one writer each. 4. Cores: A1 6 lanes × 1
+   thread + D6 ≤7 threads ≤ 13.6 (HARDWARE.md). Budget per item under D-109: D6 ≤2.5h,
+   D7 minutes, D1 ≈3.9h (arithmetic in its driver.log).
+
+### Decisions so far (this section)
+- 2026-08-22 ~10:55Z: advisor review of the framing — adopted: price over all cell series,
+  add the θ-skip arm, chronological folds only, cell-standardized shallow regression as the
+  default arm, Δ=0 of D6 (not the .659) is the baseline, D8 reuses the existing 600s trigger.
+- 2026-08-22 ~10:58Z: A1 resumed (not abandoned): it discriminates B-i from B-ii/B-iii and
+  exercises the MARGIN walk seam RAIL-3 reuses; the box was idle.

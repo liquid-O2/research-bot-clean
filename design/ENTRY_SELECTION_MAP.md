@@ -473,3 +473,10 @@ ships consensus or re-runs on wild divergence, freezes ONE spec with its one-pag
   the current plane, no causal decision-time rule recovers the oracle's edge; the phase
   extreme is set on a minutes-hours scale. Next: oracle-pick anatomy, then either a
   phase-scale "second test of the extreme" rule or the 600s / new-ingredient builds.
+- 2026-08-22 12:25Z: RE-TEST NEGATIVE; DAY SYNTHESIS (JOURNAL): five causal shapes inside
+  the 300s window fail; the extreme is set mid-phase and holds; winners form early. Scoped
+  closure: decision-time selection inside 300s from the current plane (extension geometry,
+  four-state composite as built, their time compositions) does not reach goal grade.
+  OPEN LEVERS: (a) 600s window (D8), (b) catalog ingredients G1-G3/G7/G10, (c)
+  time-remaining conditioning + horizon-fixed value label, (d) phase-scale sequential
+  object. Design round 2 brief updated; dispatch decision to the user (cost of (a)/(b)).

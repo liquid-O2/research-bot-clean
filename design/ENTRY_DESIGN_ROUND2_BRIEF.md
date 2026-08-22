@@ -60,6 +60,15 @@ seeds, knobs from prior blocks only.
    WHEN — "is this extended candidate the final extreme?" — is the confirmation question the
    object must answer from accruing state. Note: the D6/D7 cell-pick numbers share the
    cell-oracle frame; read them as ranking diagnostics, not causal capture.
+8. FIVE causal decision-time shapes inside the 300 s window FAIL on threshold+forward
+   (receipts extension_causal / extension_confirmation / patience_rule / retest_rule):
+   extension threshold, running max, extension×composite, time-patience, re-test of a held
+   extreme — all at or below random. Anatomy (JOURNAL 12:10Z): the extreme is set
+   mid-phase and HOLDS while 17–26 later candidates form; big winners form EARLY in the
+   phase (tercile winner share .3/.2/.07). Every lane must therefore design a PHASE-SCALE
+   sequential object (not a 300 s clock on one candidate), condition on time remaining,
+   and say which of the open levers it needs: the 600 s window, the catalog ingredients
+   G1–G3/G7/G10, or neither.
 
 ## Constraints every candidate must satisfy (the brief's non-negotiables)
 - Decide at formation+Δ (any Δ in the watch window), never at formation; the object must

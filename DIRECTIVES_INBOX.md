@@ -187,3 +187,24 @@ So don't take those as face value, just like I told you. And the concept is defe
 Don't get fixated on the exact things told there 
 
 2026-08-22 ~17:15Z USER RULING (verbatim): "the three ticks, the specific numbers, and et cetera are not perfect. We need to look at it ourselves. In different assets, it might be different. In different regimes, it might be different. In different years, it might be different. So don't take those as face value, just like I told you. And the concept is defense, replenishment, exhaustion, and liftoff. These are states that we can compute from different features and different stuff we have in our data. Don't get fixated on the exact things told there." — Encoded as the catalog's GOVERNING ABSTRACTION: four abstract states as CONTINUOUS learnable scores; all numeric thresholds = book's parameterization, ours selected per asset (regime-conditioned where supported) on prior blocks; book values only as sweep grid centers; state closures scoped per asset x regime x block.
+
+## 2026-08-22 ~11:50Z — user rulings (verbatim): A1 speed, 12-trade cap, document and wait
+Verbatim: "First of all, A1 is not doable because we have literally made R6 to speed things up.
+A1 should be extremely quick. The other thing is, I will not accept any trades above twelve
+portfolio wide. You are mentioning less than three hundred dollars a day for fifty to hundred
+candidates. That is not doable in the slightest. I want you to document everything and just
+wait for me to give you the go ahead. Like you should leave nothing behind. Any cold start
+should easily be able to understand exactly where we are at, everything we have done so far,
+and what is remaining."
+Effect: (1) A1 as launched (10-12h for 5+5 seeds at ~20 min per 21-state day-walk) is
+REJECTED; the A1 lanes were stopped 11:48Z (content-addressed traces kept; resume command in
+design/ENTRY_HANDOFF_2026-08-22.md). The speed gap is the Python walk (R3 compiled walk twin
+measured 1.25x, never landed) — R6 (native dense builder) is landed+accepted but NOT wired
+into the chain call site, and the A1 walk reads dense-store cache hits, so R6 adoption alone
+would not make A1 fast. (2) The 12-trade portfolio-day cap (common.py:57
+MAX_ENTRIES_PORTFOLIO_DAY=12) is reaffirmed as law; every diagnostic today enters <=1 per
+(asset, phase) = <=9 per day. (3) The "$300" the user read as dollars/day for 50-100
+candidates was the D7 precision ruler (sigma of a value estimate per candidate, a
+requirement on score quality) — restated in the handoff so it cannot be misread; no design
+proposes 50-100 trades. (4) STOP: no launches, no new probes, no lane dispatch until the
+user's go-ahead; the cold-start handoff is the deliverable.

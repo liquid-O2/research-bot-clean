@@ -480,3 +480,6 @@ ships consensus or re-runs on wild divergence, freezes ONE spec with its one-pag
   OPEN LEVERS: (a) 600s window (D8), (b) catalog ingredients G1-G3/G7/G10, (c)
   time-remaining conditioning + horizon-fixed value label, (d) phase-scale sequential
   object. Design round 2 brief updated; dispatch decision to the user (cost of (a)/(b)).
+- 2026-08-22 ~11:50Z USER RULING: A1 at 10–12 h rejected (must be fast — Python walk is the
+  cost; R3 never landed; R6 not wired); 12-trade cap reaffirmed; "$300" = precision ruler,
+  not trades; DOCUMENT AND WAIT. Handoff: design/ENTRY_HANDOFF_2026-08-22.md. STOPPED.

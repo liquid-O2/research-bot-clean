@@ -1,11 +1,11 @@
 # CURRENT — what is live vs inherited (read before trusting any doc)
 
-Updated 2026-08-21 (post-pruning). Bootstrap for new sessions: `START_HERE.md`. The repo carries multiple program generations; sessions have repeatedly mistaken old material for current. This manifest is the currency authority. Update it when a line opens, closes, or a doc changes status. For `DIRECTIVES.md` (append-only law), the matching currency layer is `/workspace/DIRECTIVES_INDEX.md` — which entries are LIVE, CONDITIONALLY-LIVE, or DEAD-LINE.
+Updated 2026-08-22 (post-restart; entry line stopped pending user go-ahead). Bootstrap for new sessions: `START_HERE.md`. The repo carries multiple program generations; sessions have repeatedly mistaken old material for current. This manifest is the currency authority. Update it when a line opens, closes, or a doc changes status. For `DIRECTIVES.md` (append-only law), the matching currency layer is `/workspace/DIRECTIVES_INDEX.md` — which entries are LIVE, CONDITIONALLY-LIVE, or DEAD-LINE.
 
 ## THE LIVE LINE
-**Entry V2 tabular recovery** — CatBoost only, neural dead, 2025H2 sealed. Cursor: `STATE.md`. Contract: `AGENTS.md` rules 1-8 + the per-asset >$2,000/day, 80%-of-exact-candidate-ceiling gate. Live evidence state: engineering receipts only; **zero learned economics have ever been published**. Rehearsal relaunched 2026-08-21T12:03Z (see STATE.md).
+**Entry V2 tabular recovery** — CatBoost only, neural dead, 2025H2 sealed. Cursor: `STATE.md`. Contract: `AGENTS.md` rules 1-8 + the per-asset >$2,000/day, 80%-of-exact-candidate-ceiling gate. Live evidence state: engineering receipts and preregistered diagnostics only; **zero learned economics have ever been published**. 2026-08-22: the entry line is STOPPED pending the user's go-ahead (no rehearsal, no lanes running); E2R was killed by user ruling 2026-08-22 ~07:30Z; the E1R verdict was $0.
 
-Authoritative current files: `STATE.md` · `AGENTS.md` · `index.md` (top section, 2026-08-18) · `artifacts/entry_v2/tabular_recovery/rehearsal/STOP_CHECKPOINT_20260820T182424Z.md` · `docs/ENTRY_V2_ONE_SHOT_PREREGISTRATION.md` · journal entries from 2026-08-18 onward (bottom of `provenance/sessions/JOURNAL.md`).
+Authoritative current files: `design/ENTRY_HANDOFF_2026-08-22.md` (cold-start handoff) · `design/ENTRY_SELECTION_MAP.md` (frontier + decisions) · `design/ENTRY_DESIGN_ROUND2_BRIEF.md` · `STATE.md` · `AGENTS.md` · `index.md` (top section, 2026-08-18) · `artifacts/entry_v2/tabular_recovery/rehearsal/STOP_CHECKPOINT_20260820T182424Z.md` · `docs/ENTRY_V2_ONE_SHOT_PREREGISTRATION.md` · journal entries from 2026-08-18 onward (bottom of `provenance/sessions/JOURNAL.md`).
 
 ## REFERENCE-ONLY (neither live authority nor dead)
 - `design/0x alpha one.md` — a synthesis/plan written by ANOTHER MODEL (0x-alpha, 2026-08-21) supplied for evaluation. USER RULING: not the master plan; cross-check anything taken from it against receipts.
@@ -23,6 +23,7 @@ Pruned 2026-08-21: the pre-reset root/design documents (old INDEX.md, NIGHT_PLAN
 - Neural representation path — closed FOR Entry V2 (user ruling; "neural is dead"). Candidate generation — not the bottleneck (oracle headroom exceeds goal, all 3 assets).
 - Old "~$100/session information ceiling" — WITHDRAWN (D-094); never a valid closure.
 - Cross-asset timing at tried grains — null; formation-moment candidate-local separation — null at every measured grain.
+- 2026-08-22: decision-time selection INSIDE the 300 s watch window FROM the current feature plane — by extension geometry, by the four-state confirmation composite as built, or by their time compositions (patience, re-test) — does not reach goal-grade capture. Closed FOR: these ingredients, the 300 s window, these rule shapes. Does NOT close: the composite's accrual (rising at the cap), windows beyond 300 s, unbuilt ingredients, phase-scale sequential objects. Receipts: `diagnostics/{extension_causal,extension_confirmation,patience_rule,retest_rule}_20260822.json`.
 
 ## STANDING TRUTHS THAT SURVIVE ALL ERAS
 Passive execution +$84-116/trade (banked) · candidates contain +$5,019/day of goal-grade outcomes at perfect +60s skip/take · MBP-1 infra + receipts discipline · HARDWARE.md limits · the goal contract itself.

@@ -91,7 +91,24 @@ A2 (fires only if info-bound).
   disc_regime 8.6%, w1800 7.6%, disc_memory 5.4%, stack 5.1%; fvol now 2.4%; 1385/1793
   features near-zero. (4) Per-asset AUC: NKD .703 / HG .672 / SI .647.
 
+- 2026-08-22 ~08:50Z: ceiling asymmetry resolved (user challenge, verified): SI is
+  block-specific, not structurally weak — training $805/d (June dead zone) vs threshold
+  $2,735/d (2nd highest) vs forward $2,066/d. A2's SI number was training-block noise.
+- 2026-08-22 ~08:50Z: TWO honesty corrections on A2: (1) the teacher's D-regrets at ENTER
+  rows are LOCAL SUBSTITUTION costs (~$11-38/trade), not trade values — the additive pricing
+  is optimistic away from the optimum; A1's real replay is the only authoritative dollar
+  number. (2) $600/trade law tension: teacher ceiling/trade averages HG $692 / NKD $461 /
+  SI $429 on training — the exact-delayed teacher optimizes total dollars, NOT under the
+  $600/trade clause; the lawful (constrained) ceiling needs actual per-trade values
+  (q_enter_cents at selected rows) — probe being built (A7).
+
 ## Frontier additions
+
+- **A7 lawful-ceiling probe** (task): the $600/trade-constrained ceiling per asset per block
+  from actual teacher trade values (q_enter at selected), replacing the regret-based
+  approximation. One tool with selftest; receipts per block.
+  -> verify: probe --selftest green; receipted JSON; sum q_enter(selected) reconciles to the
+  day objective within $1.
 
 - **A6 delay-structure ceiling study** (task, OPEN by round-2 ruling): measure the exact
   ceiling as a function of confirmation delay (0/60/120/300s) on existing outcome data —

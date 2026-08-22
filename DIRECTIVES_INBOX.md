@@ -104,3 +104,14 @@ Verbatim: "for diagnosis, we should do the entries properly because we haven't e
 at other levers — we need to fix our entries first. Think about it properly and think
 through. Look into every nickel and cranny to find out how we can get there."
 Effect: Phase A depth mandate — exhaustive entry-side diagnosis before formulation choice.
+- [2026-08-22T07:48:09Z] Kind of doesn't make sense because previously Silver and NKD were earning higher than HD. So it feels weird, especially given the ceilings that we have.
+
+But yeah, after all the stuff you're doing, like look at all the links, try to fix them. We're going to look for sure shot ways of fixing them. Look for novel ideas as well if you need, but we need to fix them no matter what
+
+## 2026-08-22 ~08:50Z — user: fix all links, sure-shot + novel
+Verbatim: "after all the stuff you're doing, like look at all the links, try to fix them.
+We're going to look for sure shot ways of fixing them. Look for novel ideas as well if you
+need, but we need to fix them no matter what." Also challenged the per-asset ceiling
+asymmetry (SI/NKD historically out-earned HG) — verified: BLOCK-SPECIFIC, not structural.
+SI ceiling/asset-day: training \$805 (June dead zone), threshold \$2,735 (2nd highest),
+forward \$2,066. The A2 curve's SI pessimism was training-block noise.

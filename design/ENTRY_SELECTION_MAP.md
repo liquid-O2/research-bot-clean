@@ -440,3 +440,12 @@ ships consensus or re-runs on wild divergence, freezes ONE spec with its one-pag
   default arm, Δ=0 of D6 (not the .659) is the baseline, D8 reuses the existing 600s trigger.
 - 2026-08-22 ~10:58Z: A1 resumed (not abandoned): it discriminates B-i from B-ii/B-iii and
   exercises the MARGIN walk seam RAIL-3 reuses; the box was idle.
+- 2026-08-22 ~12:05Z: D6 first read (JOURNAL same stamp): accrual REAL on held days
+  (v1 REPLENISH .50->.54/.55/.60 at 290s, no selection); CELLZ_RMSE arm = under-fit
+  instrument (11 trees, val RMSE .99) yet +12-18% capture vs shuffle negative;
+  WINNER_LOGLOSS .63-.65 AUC is a STATIC which-signal (phase_remaining_sec / session ages:
+  early-formed series have more time to reach $600 before phase-close) and its pick loses
+  money — TIME-REMAINING CONFOUND registered as a design-round-2 constraint (condition on
+  time remaining; decompose which/when). PAIRLOGIT killed (pair explosion); D6b arms
+  YETIRANK + CELLZ_RMSE_FIXED preregistered and running. D7 running. Stale-network-flock
+  defect class fixed (pod_local_lock) before A1 relaunch.

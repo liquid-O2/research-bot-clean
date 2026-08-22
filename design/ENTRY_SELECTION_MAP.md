@@ -208,6 +208,70 @@ FUNNEL / COVERAGE
 Blocking: Phase B design is blocked by A1 + L1/M1/C1 (they define the candidate set); the
 refit experiment arms (L1-L3, M1) are ONE preregistered design-it-twice batch, not four.
 
+## Layer-down reframe (USER RULING 2026-08-22 ~13:30Z) — the live frontier
+
+User: "Everything we have tried so far for the entries has failed... go back a layer,
+understand the actual problem we are facing, and find ways to fix it. Do not look at 'okay,
+pairwise did not work, let's try another thing that is much more verbose.'"
+
+Consequence: the R/V/U synthesis is ON HOLD as a formulation choice. All three candidates are
+answers to Q-A (decision object) that ASSUME answers to Q-B (information sufficiency) and
+Q-C (label fitness). The frontier moves to measuring Q-B/Q-C first. The candidates are kept
+as inputs — whichever branch the evidence picks reuses their verified parts.
+
+THE ACTUAL PROBLEM, restated in its own units: out of ~300-500 candidate-seconds per
+asset-day, pick ~2-3 whose standalone value averages $600-1,200/trade, from decision-time
+information only, delivering >= rung ($2,000 HG / $1,500 NKD, SI) per asset-day on forward
+blocks. Structure known (A7): the optimum is <=1 entry per (asset, phase) — three
+within-phase picks per asset-day, each among ~50-160 candidates, plus within-series timing
+(retention 0.80-0.90 even with flat scores — lane V measurement).
+
+WHAT IS ACTUALLY KNOWN vs ASSUMED on Q-B:
+- Known: ordering signal exists (.659 real vs .480 shuffle, seed-stable).
+- NOT known: whether it converts to dollars through ANY causal rule. A2's required-AUC curve
+  is hereby marked UNRELIABLE for this question by its own receipt: the curve is nearly flat
+  in AUC (0.55 -> $2,352 HG vs 1.00 -> $2,898) and the real OOF score prices above its own
+  .659 row — both are signatures of the substitution-local pricing optimism already recorded
+  in the ~08:50Z correction. First authoritative point: A1's causal replay (in flight).
+- Second ruler (independent): lane V's forward-block value-noise table — current grade
+  sigma~$1,300 clears HG only; needs sigma<=~$800 for NKD/SI.
+- Never measured: whether goal-grade winners are DISTINGUISHABLE from losers at decision
+  time even in principle (A3 — never run), and WHICH subproblem carries the miss.
+
+## Frontier — Phase D: information diagnosis (all tickets, verify lines inline)
+
+- **D1 causal conversion point** (task, RUNNING = A1): the margin rule's OOS $/asset-day
+  table, 5+5 seeds. The first honest signal->dollars number. -> verify: A1's receipts.
+- **D2 blind case studies** (task, D-020 — orchestrator PERSONALLY, starts now): script
+  draws N>=30 mixed goal-grade winners / losers / near-misses; calls committed blind on
+  causal features only; unblind; classify each "decidable-but-unused" vs "undecidable from
+  this information". Crude human ceiling on decidability + a direct look at what winners
+  look like. -> verify: journal entry with blind ledger + reconciliation; draw script with
+  --selftest.
+- **D3 difficulty decomposition** (task, no new fits): split the required accuracy into the
+  three subproblems and measure each separately on existing OOF + outcome planes:
+  (a) within-phase series-pick — if we pick the best-of-phase series by OOF score, what
+  fraction of phase value is kept vs oracle? (b) within-series timing — realized-second vs
+  best-second value on selected series; (c) cross-day threshold transfer — does a
+  training-block theta hold its meaning forward? Deliverable: which subproblem loses the
+  dollars. -> verify: receipted JSON per subproblem, regenerable command.
+- **D4 winner anatomy** (task = A4 + A5 merged): feature families that separate winners at
+  decision time (importances + group ablations on existing fold models); teacher-margin
+  fitness distribution. -> verify: receipted JSON.
+- Blocking: NONE between D1-D4 (disjoint inputs). Design round 2 is blocked by D1+D2+D3.
+
+BRANCHES design round 2 must be written against (decided by evidence, not preference):
+- B-i information sufficient, formulation wasted it -> synthesize R/V/U parts onto the
+  per-(asset,phase) decomposition; day/group-standardized dollar regression favored
+  (cross-program evidence: pairwise anti-correlates; day-standardized regression climbs;
+  shallow beats deep).
+- B-ii information short on series-pick, timing mechanical -> information engineering for
+  the entry second (new views/families; delay-structure A6 already user-approved; R6 native
+  engine makes recomputation cheap; generator stays frozen — features are not the generator).
+- B-iii winners undecidable from current views (D2 verdict) -> Q-C move: change WHAT is
+  selected (phase-level entry commitment, regime-conditioned rungs) and/or report honestly
+  that the goal requires new data views — with the D2 case ledger as the evidence.
+
 ## Not yet specified (fog — do not pre-slice)
 
 - Phase B formulation candidates (margin/rank objective · two-stage eligibility+margin ·

@@ -149,3 +149,8 @@ candidates), not a patch series. The frozen laws stay: goal ladder, shuffle cont
 seeds, replay dollars, D-057 causality, one-position, candidate generator frozen, 2025H2
 sealed. Everything else — labels, objectives, heads, calibration, decision rule — is
 redesignable.
+- [2026-08-22T08:41:17Z] yea once you have everything do the break down and design skills first to understand how to go about this. Everything we have tried so far for the entries has failed. And as you can see, everything like this is also failing. So we need to find a way to make this work.
+
+Look at the actual problem statement. Think of ways to fix it. Do not look at. Okay, pairwise did not work. Let's try another thing that is much more verbose. Like we need to go back a layer, understand the actual problem we are facing, and find ways to fix it. Does that make sense?
+
+2026-08-22 ~13:30Z USER RULING (verbatim): "yea once you have everything do the break down and design skills first to understand how to go about this. Everything we have tried so far for the entries has failed. And as you can see, everything like this is also failing. So we need to find a way to make this work. Look at the actual problem statement. Think of ways to fix it. Do not look at. Okay, pairwise did not work. Let's try another thing that is much more verbose. Like we need to go back a layer, understand the actual problem we are facing, and find ways to fix it." — Encoded in ENTRY_SELECTION_MAP.md 'Layer-down reframe': R/V/U synthesis ON HOLD; frontier = Phase D information diagnosis (D1 A1-causal-point, D2 blind case studies, D3 difficulty decomposition, D4 winner anatomy); design round 2 only against D1+D2+D3 evidence.

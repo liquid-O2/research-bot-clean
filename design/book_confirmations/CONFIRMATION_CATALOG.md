@@ -15,6 +15,26 @@ One book sentence survives as the frame (it is also our D2 measurement): "AMT gi
 where, never the when" — the candidate generator gives the where; these predicates are
 candidates for the when.
 
+## THE GOVERNING ABSTRACTION (user ruling 2026-08-22 ~17:15Z — supersedes any literal
+## reading of Part A)
+
+The durable object is the FOUR ABSTRACT STATES: **DEFENSE → REPLENISHMENT → EXHAUSTION →
+LIFT-OFF**. Every specific number in this catalog (3 ticks, 27%, 2-4 upticks, counts,
+windows) is the book's parameterization on ITS instrument/regime/years — ours WILL differ
+by asset, by regime, by year. Consequences, binding on the harness and design round 2:
+1. Each state is computed as a CONTINUOUS score from our features (defense intensity,
+   replenishment persistence, exhaustion degree, lift-off impulse), not a hand-thresholded
+   boolean. The predicates in Part A are the state scores' ingredient lists.
+2. Free parameters θ (tick thresholds, window lengths, counts, decay rates) are selected
+   on prior blocks only, PER ASSET, regime-conditioned where the data supports it — the
+   same knob-provenance law as every other knob. Book values enter only as grid centers.
+3. Preferred path: emit the continuous state scores at formation+Δ as features and let
+   the trained object learn the cuts — hand-thresholded predicate probes are for
+   interpretable diagnostics, never the deployed rule.
+4. A predicate "failing" at the book's parameters is NOT a refutation of its state —
+   only the full per-asset sweep can close a state, and closures are scoped
+   (asset × regime × block).
+
 ## A · Confirmation predicates (computable from the existing stream)
 
 Each: predicate sketch · timing band · source (digest, entry) · feature families.

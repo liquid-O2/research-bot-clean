@@ -82,3 +82,18 @@ The branch names survive only as an idea list. The next stage is diagnosis-first
 (consistent with D-020's case-studies-before-architecture law and the entry-v2-goal locked
 fact "model-family capacity is not the bottleneck"). goal_lowered / terminal_null remain
 refused; the economic goal is unchanged.
+
+## 2026-08-22 ~08:00Z — user rulings on the ceiling question (frontier round 2)
+Verbatim: "Again, I literally told you, like, if we can't get 2,000, if the Oracle doesn't
+support it, then we'll go 1,500. Fix our entries properly. Do not recommend exits and holes
+at all. This is not the remaining gap. We haven't even figured out how to get to our entries
+at all. So why are we looking at exits and other stuff? And no, position concurrency is 100%
+not doable."
+Effects: (1) GOAL LADDER (standing, restated): >$2,000/asset-day where the oracle ceiling
+supports it; $1,500/asset-day where it does not. Forward-block arithmetic: SI/NKD ceilings
+~$2,050-2,066/day -> $1,500 = ~73% of ceiling, inside the 80% capture target. No goal
+lowering beyond this user-owned ladder. (2) EXITS/HOLDS: out of scope, not to be recommended
+again until entries are FIXED (not merely attributed) — D-107 hardened. (3) POSITION
+CONCURRENCY: closed permanently. (4) DELAY STRUCTURE: open for STUDY (diagnosis only).
+(5) The directive: fix entries properly — Phase A1 out-of-sample proof of the rank/margin
+formulation is the critical path.

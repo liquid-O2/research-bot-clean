@@ -71,6 +71,25 @@ Blocking edges: none between A1-A5 (disjoint inputs, disjoint outputs — all pa
 Phase B is blocked by A1+A2 (the evidence that picks the formulation); Phase C is blocked by
 A2 (fires only if info-bound).
 
+- 2026-08-22 ~08:00Z: frontier round 2 (user): goal ladder restated — $2,000/asset-day where
+  the oracle ceiling supports it, $1,500 where it does not (fwd SI/NKD: $1,500 = ~73% of
+  ceiling, inside the 80% target). Exits/holds OUT until entries are FIXED, not recommended
+  again. Position concurrency CLOSED permanently. Delay-structure study OPEN (A6). Receipt:
+  DIRECTIVES_INBOX 2026-08-22 ~08:00Z.
+- 2026-08-22 ~07:55Z: A2 landed (tools/probe_required_auc_curve.py, receipt
+  diagnostics/e1r_required_auc_curve.json): no AUC reaches $2k capacity-matched on the
+  training block (ceiling binds: SI $805/d, NKD $1,842/d); the EXISTING head under a rank
+  rule prices 83-94% of ceiling in-sample vs argmin's $0 — Q-A (decision object) is the
+  proven first bottleneck, pending A1's out-of-sample confirmation.
+
+## Frontier additions
+
+- **A6 delay-structure ceiling study** (task, OPEN by round-2 ruling): measure the exact
+  ceiling as a function of confirmation delay (0/60/120/300s) on existing outcome data —
+  what the delay forfeits between the ~$5k/day in-candidates figure (journal 125be4c) and
+  the ~$2k exact-delayed ceiling. Diagnosis only; no generator change.
+  -> verify: receipted JSON with ceiling-vs-delay per asset; method section names its inputs.
+
 ## Not yet specified (fog — do not pre-slice)
 
 - Phase B formulation candidates (margin/rank objective · two-stage eligibility+margin ·
@@ -84,6 +103,9 @@ A2 (fires only if info-bound).
 
 ## Out of scope (never graduates)
 
+- Exits/holds work or recommendations until entries are FIXED (user, round 2): "we haven't
+  even figured out how to get to our entries at all".
+- Position concurrency (user, round 2): "100% not doable" — closed.
 - HISTOGRAM_LEARNERS as a branch decision (user ruling 2026-08-22): family capacity is not
   the diagnosed bottleneck; a family swap without a diagnosis would re-run the same collapse.
 - Goal lowering, terminal null, opening 2025H2, candidate-generator changes, neural revival —

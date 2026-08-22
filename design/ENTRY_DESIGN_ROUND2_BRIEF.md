@@ -49,9 +49,13 @@ seeds, knobs from prior blocks only.
    Any label that does not condition on time remaining learns this instead of quality.
 6. The old head (E1R): regret regression + argmin → $0; A1 (rank rule on the same head,
    out of sample): <fill from margin_rule_summary.json before dispatch>.
-7. Structural levers seen but unexplored (exploratory only): picking the series nearest the
-   prior-session high/low realizes +38–56% of ceiling on the FROZEN score days — a location
-   prior that any design may use as eligibility, never as the decision.
+7. The EXTENSION prior (extension_prior_20260822.json, preregistered): picking the candidate
+   most extended beyond the prior-session range on its fade side keeps .39/.51/.60 of the
+   forward ceiling (HG/NKD/SI ≈ $1,130/$1,050/$1,355 per asset-day), clears the random null
+   on every asset/block/Δ, mirror rule loses; "nearest level" is ~0. CAVEAT: cell-oracle
+   frame (the pick competes with series that form later) — the causal threshold / running-max
+   form is being measured; every lane must state which form it uses and treat extension as
+   the book's "reversal at the extreme" location state, composed with the accrual composite.
 
 ## Constraints every candidate must satisfy (the brief's non-negotiables)
 - Decide at formation+Δ (any Δ in the watch window), never at formation; the object must

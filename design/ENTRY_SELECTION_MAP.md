@@ -449,3 +449,13 @@ ships consensus or re-runs on wild divergence, freezes ONE spec with its one-pag
   time remaining; decompose which/when). PAIRLOGIT killed (pair explosion); D6b arms
   YETIRANK + CELLZ_RMSE_FIXED preregistered and running. D7 running. Stale-network-flock
   defect class fixed (pod_local_lock) before A1 relaunch.
+- 2026-08-22 ~13:20Z: D6 loop closed (JOURNAL): fitted rankers on the plane lose to the
+  unit-weight side-resolved composite of the 54 state ingredients (AUC ~.60/.56/.62 at 290s,
+  honest train-day selection reproduces it; logistic ties) — Dawes principle adopted: the
+  confirmation object is a few-parameter composite; side swap is a feature transform.
+- 2026-08-22 ~14:00Z: EXTENSION PRIOR (cell-oracle form) clears every asset/block/Δ:
+  forward capture .39/.51/.60 HG/NKD/SI (~$1,130/$1,050/$1,355 per asset-day), mirror rule
+  loses, "nearest level" ~0. Caveat: lookahead frame (competes with later-forming series);
+  the CAUSAL form (first candidate clearing a train-set threshold / running max) is running
+  (probe_extension_causal). The "formation-moment candidate-local separation" closure is
+  scoped down only if the causal form clears.

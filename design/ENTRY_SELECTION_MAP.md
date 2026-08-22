@@ -24,6 +24,29 @@ seed above strongest shuffle — with every number replay-dollars, 5+5 seeds, pr
 - 2026-08-22: the E1R failure is attributed to mechanism level: near-flat 3-way regret
   regression + argmin-of-levels converter; ranking signal exists (gap AUC .659 real vs .480
   shuffle) but is ~an order short of the gate. Receipt: JOURNAL 2026-08-22 ~04:45Z.
+- 2026-08-22 ~13:00Z: all three design candidates landed verbatim in design/candidates/
+  (R=anchored rank, V=value-first, U=distribution-EU). Two orchestrator-verified synthesis
+  inputs recorded BEFORE reading for a pick:
+  (1) Lane U's foundation audit REPRODUCED personally (rung 5): the frozen round-0 component
+  stack has NO signal at the 14,817 decision-relevant rows — real seeds spearman(q50, y)
+  −.029/−.048 vs label-SHUFFLED +.119; P(y≤q20)=.000 vs nominal .2; head median −$41.5 on
+  rows with realized median +$751 (unconditional distribution pasted per row). Consequence:
+  lane V's slice-0 (price on frozen stack_current_q50) is refuted before running, and NO
+  design may reuse the frozen stack's risk gates without refitting them. Regenerate: join
+  round_0 component_oof_all.npz opportunity_id → teacher_days 2021*.npz
+  component_opportunity_id, y=current_entry_usd.
+  (2) Cross-program evidence from the parallel selector line (JOURNAL 2026-08-22 05:42Z,
+  12:10Z — different program, 184-feature certificate score, per-session grain; analogical
+  not same-distribution): day-grouped PAIRWISE rank training actively ANTI-correlates even
+  with its confound removed (H1-minus-constraints worse, H3_DAYPAIR ~0), while regression on
+  DAY-STANDARDIZED dollars nearly doubled the paying-axis correlation (H3_DAYZ), and
+  depth-2 beat deeper on every era ("binding constraint is variance, not expressiveness").
+  Bears directly on lane R's PairLogitPairwise core and on target/depth choices in V/U.
+- 2026-08-22 ~13:10Z: RAIL-0 ladder-gate spec frozen (design/RAIL0_LADDER_GATE_SPEC.md,
+  SC-RAIL0-1..7) and dispatched to an implementation lane: rung = $2,000 where
+  0.80 × block per-asset-day ceiling ≥ $2,000 else $1,500 (rung robust to the
+  JOURNAL:696-vs-A7 ceiling discrepancy — same rungs either way); USD_PER_TRADE demoted to
+  reported preference; schema GATE2; regate tool for the frozen E1R blocks.
 
 ## The three stacked questions (causal order — each gates the next)
 

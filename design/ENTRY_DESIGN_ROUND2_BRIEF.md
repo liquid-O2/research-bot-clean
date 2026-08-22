@@ -1,0 +1,95 @@
+# Entry design round 2 — the confirmation object (brief for three blind lanes)
+
+Status: DRAFT 2026-08-22 ~12:40Z, written while D6b (YETIRANK / CELLZ_RMSE_FIXED) and A1
+finish; the "Evidence pack" section is completed from their receipts before dispatch.
+Governing skills: designing-it-twice (three forced-different candidates, orchestrator
+synthesizes and freezes ONE spec), briefing-agents (this card), preregistering-results
+(every number a lane quotes carries its controls). Law: D-002 (orchestrator designs),
+D-005 (lanes = Opus), D-106 (5+5 seeds), D-107 (entries only), D-109 (6h per item).
+
+## Destination (unchanged)
+On held pre-H2 forward blocks, exact chronological replay dollars ≥ $2,000/asset-day HG and
+≥ $1,500/asset-day NKD, SI (≥80% of the exact delayed ceiling: forward HG $2,973 / NKD $2,021
+/ SI $2,259 per asset-day), MDD < $1,000, weakest real seed above strongest shuffle, 5+5
+seeds, knobs from prior blocks only.
+
+## The problem in its units (do not redefine it)
+- Cell = (asset, day, phase); 50–160 candidate series per cell; optimum ≤1 entry per cell.
+- A series is watched from formation; rows every 5–10 s to 300 s (the corpus supports 600 s;
+  extension is priced by D8 only if the accrual curves still rise at 290 s).
+- y(s, τ) = standalone PnL of entering series s at age τ under the frozen exit rule ($900
+  adverse wall or phase close). The decision may be made at ANY watch second; formation-time
+  decisions are measured dead (D2, accrual Δ=0 ≈ .50 on every asset).
+
+## Evidence pack (receipts; every lane reads these before designing)
+1. Accrual is real on held days (confirmation_accrual_*.json; instrument check on the FROZEN
+   fold, JOURNAL ~12:05Z): hand-built REPLENISH/DEFENSE/PROGRESS scores go from ≈.50 at
+   formation to .54–.62 within-cell AUC at 290 s; curves still rising at the cap.
+2. Waiting is cheap (delay_forfeit_20260822.json): goal cells keep 97% of value at ≥180 s,
+   92–93% at ≥290 s; the delayed pick may switch series.
+3. The bar (cell_noise_ruler_20260822.json): a one-shot top-of-cell picker needs value noise
+   σ ≤ $302 HG / $150 NKD / $183 SI for 80% capture (rung: $634 / $236 / $528) — the
+   winner's curse over 50–160 candidates. Shrinking the candidate set per decision, or
+   deciding sequentially, lowers the bar; a better regressor alone does not.
+4. Trained objects so far (trained_accrual_20260822_*.json): an early-stopped RMSE on
+   cell-standardized y under-fits (11 trees) yet its pick keeps +12–18% of ceiling vs
+   shuffle negative; a winner≥$600 classifier reaches .63–.65 AUC but its pick LOSES money.
+   D6b (listwise YetiRank; fixed-iteration RMSE): <fill from receipts before dispatch>.
+5. The time-remaining confound (JOURNAL ~12:25Z): phase_remaining_sec alone ranks
+   winner-vs-loser series at .65/.64/.57 (winners 1.5% → 31% across deciles of time left)
+   because the phase-close exit truncates late formations; picking by it realizes nothing.
+   Any label that does not condition on time remaining learns this instead of quality.
+6. The old head (E1R): regret regression + argmin → $0; A1 (rank rule on the same head,
+   out of sample): <fill from margin_rule_summary.json before dispatch>.
+7. Structural levers seen but unexplored (exploratory only): picking the series nearest the
+   prior-session high/low realizes +38–56% of ceiling on the FROZEN score days — a location
+   prior that any design may use as eligibility, never as the decision.
+
+## Constraints every candidate must satisfy (the brief's non-negotiables)
+- Decide at formation+Δ (any Δ in the watch window), never at formation; the object must
+  consume accruing confirmation state (the DEFENSE / REPLENISH / EXHAUST / LIFT-OFF families
+  as continuous scores, book thresholds only as sweep-grid centers — user ruling 2026-08-22).
+- Labels are standalone y (or a function of it), conditioned on time remaining: either a
+  fixed-horizon value (exit at min(horizon, phase close)) or y standardized within
+  (cell, time-remaining bucket). No DP/substitution margins. No teacher schedules.
+- ≤1 entry per cell, one position per asset (occupancy enforced), per-asset thresholds from
+  prior blocks only; θ must never fall to "most permissive" silently (refuse instead).
+- The candidate set per decision is part of the design: state how many series the rule
+  chooses among at the moment it fires (the ruler's bar scales with that count).
+- Shuffle arm that destroys the feature→outcome link within cell; 5 real + 5 shuffle seeds.
+- Everything runs through the rail (design/ENTRY_PHASE_B_PLAN.md RAIL-0..4 + PILOT):
+  RAIL-3's pluggable score source IS the candidate's score; no new walk.
+
+## The three lanes — forcing constraints (structurally different, not flavors)
+- **Lane α — fixed-Δ cell pick.** Exactly one decision per cell at a per-asset Δ* chosen on
+  prior blocks; the object is a within-cell ranker at Δ*; timing is mechanical. Must show
+  how it shrinks the candidate set before ranking.
+- **Lane β — sequential stopping.** No fixed Δ. Per second, for each live series, a hazard
+  "enter now" decision from accrual state + age + time remaining; the first series in the
+  cell whose hazard clears θ_asset(t) is entered. Must state the stopping label (what
+  "should have entered now" means without hindsight leakage) and the candidate count at the
+  moment of firing.
+- **Lane γ — two-stage which/when.** Stage 1 ranks series by conditioned value (which);
+  stage 2 times the entry within the chosen series by accrual (when). Neither alone decides.
+  Must state how stage-1 errors and stage-2 errors compose against the ruler.
+
+## Required return package (a candidate without all six is not comparable)
+1. Caller's usage FIRST: the walk's call at its busiest second (two live candidates, one
+   seat), with the decision trace.
+2. Interface: score(s, t) and the rule; invariants; ordering; error/refusal modes; what is
+   hidden behind the seam.
+3. Label construction, exact (source fields, horizon, conditioning, causality argument).
+4. Objective and model shape; why this beats the D6 arms on the evidence above.
+5. The ruler math: the expected capture given the candidate count and the achievable σ or
+   AUC — a number, with the receipt it rests on.
+6. Tradeoffs + what it deliberately does not do; a 1-hour slice that would refute it.
+
+## Out of scope (never graduates)
+Exits/holds; position concurrency; generator changes; neural; 2025H2; goal lowering;
+return-to-level/retest waits; literal book thresholds as constants.
+
+## Synthesis rule
+Orchestrator reads all three end to end, screens against
+.claude/skills/designing-it-twice/references/design-red-flags.md, applies the deletion test,
+ships consensus or re-runs on wild divergence (never averages), freezes ONE spec with its
+one-page rationale, then breaking-down-work slices it onto the rail with a PILOT first.

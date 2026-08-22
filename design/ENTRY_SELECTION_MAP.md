@@ -116,6 +116,48 @@ A2 (fires only if info-bound).
   the ~$2k exact-delayed ceiling. Diagnosis only; no generator change.
   -> verify: receipted JSON with ceiling-vs-delay per asset; method section names its inputs.
 
+## Micro-ticket graph (drill-down 2026-08-22 ~09:30Z — personal code+artifact reads; every
+item carries evidence, fix candidate, verify line)
+
+LABEL OBJECT
+- **L1 label-is-substitution-margin** [SOURCED exact_delayed_teacher.py:780-798 + measured]:
+  the E-D margin label equals Q_enter - Q_defer of the day-suffix DP — substitution-adjusted,
+  $11-38 scale, tick-quantized; the trade's standalone value (~$400-700) never appears as a
+  target. Fix candidates (Phase B): standalone-entry-value head + substitution head, or
+  margin target with value weighting. -> verify: preregistered refit AUC/$ vs current.
+- **L2 tied labels** [measured: >10% of DEFER rows have $0 enter-regret]: tie-aware weights
+  (w ~ |margin|). -> verify: same refit experiment arm.
+- **L3 flat sample weights** [measured 1.07/0.99]: 7.7% imbalance unaddressed. -> same arm.
+- **L4 curriculum harm** [measured .684->.659 r0->r2]: use round-0 labels; relabel rounds off.
+  -> verify: A1 re-read on round-0 models' OOF (cheap addition to A1's report).
+
+MODEL OBJECT
+- **M1 joint-MultiRMSE wrong object** [SOURCED tabular_models.py:696-700; measured]: three
+  columns share one tree structure; DEFER column corr with label = -0.005 (pure noise), ENTER
+  .394, PASS .232 — the margin inherits E-signal MINUS D-noise. PairLogitPairwise is ALREADY
+  a registered objective (:511). Fix: direct margin target or pairwise rank. -> verify:
+  Phase B candidate, preregistered.
+- **M2 inverse-transform floor** [SOURCED :554 max(0, expm1(clip(raw,0,40)))]: predictions
+  floored at 0; benign for rank use; recorded checked-minor.
+- **M3 D-column autopsy** [measured above]: subsumed by M1.
+
+CALIBRATION / DECISION OBJECT
+- **C1 lower-bound-of-tiny-margin** [SOURCED tabular_calibration.py:109 (q20 residual band),
+  :157-169 (n/(n+200) group shrinkage); measured bank -649..-300]: thresholding predict_lower
+  of a $20-scale margin is structurally all-negative noise. Fix: threshold the raw/mean
+  margin (A1 does exactly this); lower-bounds reserved for $-scale EV heads. -> verify: A1.
+- **C2 argmin-first converter** [SOURCED tabular_policy.py:57-88; proven]: A1 in flight.
+- **C3 caps not binding** [SOURCED common.py:57-58 = 12/12; teacher enters ~2-4/asset-day]:
+  checked-clean, no action.
+
+FUNNEL / COVERAGE
+- **F1 candidate flow** [measured: ~1.4k candidates/day scored]: generator frozen, healthy.
+- **F2 OOF warm-up holes** [measured: 1,478 uncovered rows all in 20210610-0618 = first-fold
+  chronological warm-up]: benign, checked-clean.
+
+Blocking: Phase B design is blocked by A1 + L1/M1/C1 (they define the candidate set); the
+refit experiment arms (L1-L3, M1) are ONE preregistered design-it-twice batch, not four.
+
 ## Not yet specified (fog — do not pre-slice)
 
 - Phase B formulation candidates (margin/rank objective · two-stage eligibility+margin ·

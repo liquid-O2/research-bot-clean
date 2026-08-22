@@ -322,9 +322,69 @@ def _ledger_skill_usage(payload: dict, sid: str) -> None:
         log(f"skill_ledger: {type(exc).__name__}")
 
 
+_PROMISE_RE = None
+
+
+def _last_assistant_text(payload: dict) -> str:
+    path = payload.get("transcript_path") or ""
+    try:
+        lines = Path(path).read_text(errors="replace").splitlines()
+    except OSError:
+        return ""
+    for line in reversed(lines[-400:]):
+        try:
+            obj = json.loads(line)
+        except ValueError:
+            continue
+        if obj.get("type") != "assistant":
+            continue
+        parts = ((obj.get("message") or {}).get("content") or [])
+        texts = [p.get("text", "") for p in parts if isinstance(p, dict)
+                 and p.get("type") == "text"]
+        if texts:
+            return "\n".join(texts)
+    return ""
+
+
+def _promise_block(payload: dict) -> bool:
+    """User order 2026-08-22: never end a turn on a bare 'next' promise — do the
+    work, launch it, or state the deferral reason. Blocks the stop ONCE."""
+    global _PROMISE_RE
+    if payload.get("stop_hook_active"):
+        return False
+    import re
+    if _PROMISE_RE is None:
+        _PROMISE_RE = re.compile(
+            r"(?i)\b(next:|next steps?\b|next up\b|the (decisive|remaining) next\b|"
+            r"i(?:'|’)ll (then|now|next)\b|will (build|run|measure|fit|launch|"
+            r"dispatch|synthesize) \w+ (next|after|when)\b|"
+            r"next (build|measure|action|work)\b)")
+    text = _last_assistant_text(payload)
+    tail = text[-600:]
+    m = _PROMISE_RE.search(tail)
+    if not m:
+        return False
+    deferral = re.compile(
+        r"(?i)(deferred because|blocked on|waiting (on|for) (the )?(user|a1|lane|"
+        r"task|notification)|running in (the )?background|launched|dispatched|"
+        r"in flight)")
+    if deferral.search(tail):
+        return False
+    print(json.dumps({"decision": "block", "reason": (
+        f"Stop-hook promise-catcher (user order 2026-08-22): your final message "
+        f"promises next work (matched: {m.group(0)!r}) without starting it. Do it "
+        f"now or launch it in background — or restate it as explicitly deferred "
+        f"with the blocking reason. This blocks only once.")}))
+    return True
+
+
 def do_stop(payload: dict) -> None:
-    # Grok treats Stop additionalContext as "keep working". Print nothing.
+    # Grok treats Stop additionalContext as "keep working". Print nothing
+    # (except the one-shot promise-catcher block below).
     sid = (payload.get("session_id") or "nosid")[:32]
+    if _promise_block(payload):
+        log(f"stop promise-block sid={sid[:8]}")
+        return
     spool(payload)
     if _throttled(sid, "stop", STOP_THROTTLE_S):
         return

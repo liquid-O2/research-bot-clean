@@ -116,6 +116,22 @@ A2 (fires only if info-bound).
   the ~$2k exact-delayed ceiling. Diagnosis only; no generator change.
   -> verify: receipted JSON with ceiling-vs-delay per asset; method section names its inputs.
 
+- 2026-08-22 ~10:40Z A7 LANDED (tools/probe_ceiling_concentration.py, receipt
+  diagnostics/e1r_ceiling_concentration.json, $0.00 reconciliation on 35/35 days; teacher
+  per-entry term = signed_pnl_cents, current_entry_usd row-aligned — semantics anchored at
+  exact_delayed_teacher.py:685,:1024-1040). THREE corrections to earlier numbers:
+  (1) MY earlier per-asset ceilings were DENOMINATOR-poisoned (registry class `denominator`,
+  self-instance): SI was divided by all block days when it entered the corpus only 20210624.
+  TRUE ceilings/asset-day — training HG $3,109/NKD $1,952/SI $1,944(5d); threshold
+  $3,655/$2,273/$2,675; forward $2,973/$2,021/$2,259. "June SI dead zone" is WRONG — SI
+  wasn't dead, it wasn't in the universe. (2) Teacher $/trade is $650-1,218 (not $429-692)
+  — the $600 preference is met naturally; no scalps exist in the optimum (median $510-930).
+  (3) Goal ladder arithmetic at 80% capture: HG clears $2k everywhere; SI fwd $1,807 and
+  NKD fwd $1,617 clear the $1.5k rung. STRUCTURE: the optimum is EXACTLY one entry per
+  phase per asset (3/asset-day, top-2 trades = 79-88% of asset ceiling; portfolio cap never
+  binds) — selection decomposes BY PHASE: pick <=1 best candidate per (asset, phase). This
+  is a decisive design-synthesis input.
+
 ## Phase-B process contract (user 2026-08-22: "design things with this skill" + "breaking down work")
 The SHAPE is owned by designing-it-twice, run in full: 3 blind forced-different candidates
 (dispatched ~09:50Z: value-first / rank-first / distribution-first vs

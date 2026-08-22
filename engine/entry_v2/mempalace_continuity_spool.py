@@ -14,6 +14,7 @@ import fcntl
 import hashlib
 import json
 import os
+from .pod_local_lock import pod_local_lock_path
 import re
 import stat
 import subprocess
@@ -618,7 +619,10 @@ def append_journal_checkpoint(
         raise ValueError("continuity journal path must be absolute")
     path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     marker, entry = _journal_entry(record)
-    lock_path = path.with_name(f".{path.name}.lock")
+    # Lock file on the pod-local overlay, keyed by the target (stale-network-flock,
+    # 2026-08-22: a lock beside the target on /workspace outlives a dead pod).
+    lock_path = pod_local_lock_path(path)
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
     lock_fd = os.open(
         lock_path,
         os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0),

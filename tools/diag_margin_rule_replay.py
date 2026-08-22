@@ -31,6 +31,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from engine.entry_v2.native_thread_cap import cap_native_thread_env  # noqa:E402
+from engine.entry_v2.pod_local_lock import pod_local_flock  # noqa:E402
 
 cap_native_thread_env()
 os.environ.setdefault("ENTRY_V2_PREDICT_THREADS", "1")
@@ -331,11 +332,10 @@ def load_margin_context() -> MarginContext:
     # authoritative 16, so three concurrent A1 chains would each open a
     # 16-worker pool and put 48 processes on 13.6 cores.  The corpus is warm
     # and this phase is pure manifest resolution: serialize it.
-    import fcntl
-    lock_path = Path(REPO_ROOT / "artifacts/cache/a1_margin_corpus.lock")
-    lock_path.parent.mkdir(parents=True, exist_ok=True)
-    with lock_path.open("w") as handle:
-        fcntl.flock(handle, fcntl.LOCK_EX)
+    # Pod-local lock (stale-network-flock, 2026-08-22): the previous lock file on
+    # /workspace stayed held by the dead pod's FUSE client and blocked all six
+    # resumed lanes forever.
+    with pod_local_flock(REPO_ROOT / "artifacts/cache/a1_margin_corpus"):
         specs = discover_authoritative_session_specs(SOURCE_ROOT,
                                                      REHEARSAL_BOUNDS)
         outcomes = materialize_outcome_corpus(specs, CACHE_ROOT,

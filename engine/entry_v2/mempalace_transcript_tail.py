@@ -6,6 +6,7 @@ import fcntl
 import hashlib
 import json
 import os
+from .pod_local_lock import pod_local_lock_path
 import stat
 import tempfile
 from collections.abc import Mapping
@@ -102,7 +103,10 @@ def capture_transcript_tail(
     directory.mkdir(parents=True, exist_ok=True, mode=0o700)
     os.chmod(directory, 0o700)
     cursor_path = _cursor_path(directory, session_id)
-    lock_path = cursor_path.with_suffix(".lock")
+    # Lock file on the pod-local overlay, keyed by the target (stale-network-flock,
+    # 2026-08-22: a lock beside the target on /workspace outlives a dead pod).
+    lock_path = pod_local_lock_path(cursor_path)
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
     lock_fd = os.open(
         lock_path,
         os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0),

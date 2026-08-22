@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from contextlib import contextmanager
-import fcntl
 import hashlib
 import json
 import os
@@ -20,6 +19,7 @@ from typing import Any, Iterable, Mapping, Sequence
 import numpy as np
 
 from . import common as C
+from .pod_local_lock import pod_local_flock
 
 
 DURABLE_STORE_SCHEMA = "entry-v2-durable-store-v1"
@@ -311,13 +311,11 @@ class DurableEntryV2Store:
     @staticmethod
     @contextmanager
     def _publication_lock(path: Path):
-        descriptor = os.open(path, os.O_RDONLY | os.O_DIRECTORY)
-        try:
-            fcntl.flock(descriptor, fcntl.LOCK_EX)
+        # Held on the pod-local overlay, keyed by `path`, never on the directory
+        # itself: a flock on the network mount outlives a dead pod and blocks
+        # every successor forever (stale-network-flock, 2026-08-22).
+        with pod_local_flock(path):
             yield
-        finally:
-            fcntl.flock(descriptor, fcntl.LOCK_UN)
-            os.close(descriptor)
 
     def publish(
         self, kind: str, identity: Mapping[str, Any], law_sha256: str,

@@ -116,6 +116,17 @@ A2 (fires only if info-bound).
   the ~$2k exact-delayed ceiling. Diagnosis only; no generator change.
   -> verify: receipted JSON with ceiling-vs-delay per asset; method section names its inputs.
 
+## Phase-B process contract (user 2026-08-22: "design things with this skill" + "breaking down work")
+The SHAPE is owned by designing-it-twice, run in full: 3 blind forced-different candidates
+(dispatched ~09:50Z: value-first / rank-first / distribution-first vs
+ENTRY_DESIGN_ROUND1_BRIEF.md) -> orchestrator reads every candidate end-to-end, screens
+against references/design-red-flags.md, applies the deletion test, ships consensus or
+re-runs on wild divergence (never averages) -> one-page rationale doc + FROZEN spec.
+The BUILD is owned by breaking-down-work, run in full: the frozen spec becomes a slice
+graph (slice cards: end-to-end behaviour + blockers + acceptance criteria; every step
+`-> verify:`), riskiest-unknown first, ONE pilot slice through the whole path before any
+fan-out, landing continuous.
+
 ## Micro-ticket graph (drill-down 2026-08-22 ~09:30Z — personal code+artifact reads; every
 item carries evidence, fix candidate, verify line)
 

@@ -735,7 +735,7 @@ class PublicContractTests(unittest.TestCase):
             {"SI":40_000.0,"HG":40_000.0,"NKD":8_000.0})
         gate=evaluate_economic_gate(evidence,config=RecoveryConfig())
         self.assertFalse(gate.floor_pass)
-        self.assertIn("ASSET_DAY_FLOOR:NKD", gate.reasons)
+        self.assertIn("ASSET_DAY_LADDER:NKD", gate.reasons)
         self.assertGreater(gate.usd_per_active_portfolio_day, 3_000.0)
         self.assertGreaterEqual(gate.ceiling_capture, 0.80)
 
@@ -760,7 +760,8 @@ class PublicContractTests(unittest.TestCase):
                 usd_per_trade=600.0, max_drawdown_usd=0.0,
                 exact_ceiling_usd=10_000.0, ceiling_capture=capture,
                 laws_pass=True, floor_pass=floor_pass, target_pass=False,
-                reasons=(), receipt_sha256=_SHA)
+                reasons=(), ladder={}, usd_per_trade_by_asset={},
+                receipt_sha256=_SHA)
         real=tuple(gate(pnl=9_000.0, capture=0.9, floor_pass=True)
                    for _ in range(5))
         shuffle_ok=tuple(gate(pnl=100.0, capture=0.01, floor_pass=False)

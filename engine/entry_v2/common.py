@@ -61,6 +61,10 @@ MIN_EXPECTANCY_USD = 600.0
 MIN_TRADES = 10
 TARGET_EXPECTANCY_USD = 1000.0
 TARGET_ASSET_DAY_USD = 2000.0
+# RAIL-0 ladder lower rung (design/RAIL0_LADDER_GATE_SPEC.md L1): the per-asset
+# goal a block keeps when its exact ceiling cannot support $2,000/asset-day at
+# the minimum capture.  Two rungs only -- the goal is never lowered further.
+LADDER_FALLBACK_ASSET_DAY_USD = 1500.0
 WEAK_ASSET_DAY_FLOOR_USD = 1500.0
 LOW_CAPACITY_ASSET_DAY_FLOOR_USD = 1000.0
 LOW_CAPACITY_MAX_DRAWDOWN_USD = 500.0

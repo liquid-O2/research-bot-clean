@@ -431,6 +431,10 @@ class EconomicGateResult:
     floor_pass: bool
     target_pass: bool
     reasons: tuple[str, ...]
+    # RAIL-0 ladder receipt (design/RAIL0_LADDER_GATE_SPEC.md L1/L2): the rung
+    # each asset was judged against, and the $/trade preference as a report.
+    ladder: Mapping[str, Mapping[str, float | bool]]
+    usd_per_trade_by_asset: Mapping[str, float]
     receipt_sha256: str
 
 

@@ -466,6 +466,7 @@ def evaluate_economic_gate(
                for index in range(1,len(ordered))):
             reasons.append(f"CLOSED_K1:{key[0]}:{key[1]}")
     covered=sum(bool(rows) for rows in by_asset_day.values())
+    ladder={};usd_per_trade_by_asset={}
     evaluation_by_asset={row.asset:row for row in evaluation.by_asset}
     if set(evaluation_by_asset)!=set(C.ASSETS):
         raise RecoveryRefusal("canonical replay lacks an evaluated asset")
@@ -479,15 +480,24 @@ def evaluate_economic_gate(
         asset_evaluation=evaluation_by_asset[asset]
         if asset_evaluation.trades<config.minimum_trades:
             reasons.append(f"MINIMUM_TRADES:{asset}")
-        if asset_evaluation.usd_per_trade<config.minimum_usd_per_trade:
-            reasons.append(f"USD_PER_TRADE:{asset}")
+        # RAIL-0 L2: $600/trade is a PREFERENCE, reported per asset, never a
+        # refusal (design/RAIL0_LADDER_GATE_SPEC.md; user ruling 2026-08-22).
+        usd_per_trade_by_asset[asset]=float(asset_evaluation.usd_per_trade)
         if asset_evaluation.max_drawdown_usd>config.maximum_drawdown_usd:
             reasons.append(f"MAX_DRAWDOWN:{asset}")
         if days_with_trades<minimum_days:
             reasons.append(f"TRADE_DAY_COVERAGE:{asset}")
-        if asset_evaluation.usd_per_asset_day<C.TARGET_ASSET_DAY_USD:
-            reasons.append(f"ASSET_DAY_FLOOR:{asset}")
         asset_ceiling=float(dict(evidence.exact_ceiling_usd_by_asset)[asset])
+        # RAIL-0 L1: per-asset ladder rung on the asset's OWN eligible-day
+        # denominator (never the portfolio day count).
+        ceiling_per_day=asset_ceiling/len(eligible_days)
+        supported=ceiling_per_day*config.minimum_ceiling_capture
+        rung=(C.TARGET_ASSET_DAY_USD if supported>=C.TARGET_ASSET_DAY_USD
+              else C.LADDER_FALLBACK_ASSET_DAY_USD)
+        ladder[asset]={"ceiling_usd_per_day":ceiling_per_day,"rung_usd":rung,
+                       "rung_supported":supported>=rung}
+        if asset_evaluation.usd_per_asset_day<rung:
+            reasons.append(f"ASSET_DAY_LADDER:{asset}")
         if asset_ceiling<=0:
             reasons.append(f"ASSET_CEILING_ZERO:{asset}")
         elif (asset_evaluation.total_pnl_usd/asset_ceiling
@@ -503,14 +513,15 @@ def evaluate_economic_gate(
                  and capture>=config.target_ceiling_capture)
     if per_active<config.minimum_portfolio_day_usd: reasons.append("PORTFOLIO_DAY_FLOOR")
     if capture<config.minimum_ceiling_capture: reasons.append("CEILING_CAPTURE_FLOOR")
-    core={"schema":"QRE2TABECONOMICGATE1","portfolio_days":len(evidence.expected_portfolio_days),
+    core={"schema":"QRE2TABECONOMICGATE2","portfolio_days":len(evidence.expected_portfolio_days),
           "active_portfolio_days":active_n,"eligible_asset_days":len(by_asset_day),
           "covered_asset_days":covered,"trades":evaluation.trades,
           "total_pnl_usd":evaluation.total_pnl_usd,"usd_per_active_portfolio_day":per_active,
           "usd_per_trade":evaluation.usd_per_trade,"max_drawdown_usd":evaluation.max_drawdown_usd,
           "exact_ceiling_usd":evidence.exact_ceiling_usd,"ceiling_capture":capture,
           "laws_pass":laws_pass,"floor_pass":floor_pass,"target_pass":target_pass,
-          "reasons":tuple(reasons)}
+          "reasons":tuple(reasons),"ladder":ladder,
+          "usd_per_trade_by_asset":usd_per_trade_by_asset}
     fields={key:value for key,value in core.items() if key!="schema"}
     return EconomicGateResult(**fields,receipt_sha256=C.object_sha256(core))
 

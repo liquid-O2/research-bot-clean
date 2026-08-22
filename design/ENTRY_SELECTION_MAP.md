@@ -260,6 +260,29 @@ WHAT IS ACTUALLY KNOWN vs ASSUMED on Q-B:
   fitness distribution. -> verify: receipted JSON.
 - Blocking: NONE between D1-D4 (disjoint inputs). Design round 2 is blocked by D1+D2+D3.
 
+D2 RESULT (2026-08-22 ~15:10Z, journaled with receipts): 19/36 = chance (p=.43). The
+within-phase winner is NOT decidable by a careful reader from the alert-second feature view;
+all 17 misses classified "undecidable from this view". Third independent weak-separability
+read (lane-U stack audit; parallel-line within-cell spearman ~0). Post-hoc best single
+feature (disc_auction_phase_low_edge_fraction, 0.81 winner-higher) is within the 1,764-way
+chance tail — D4 test candidate only.
+
+USER RULING (2026-08-22 ~15:15Z, DIRECTIVES_INBOX verbatim): THE DECISION POINT MOVES.
+Entry need not be decided at candidate formation — a confirmation window of up to 300s
+after formation is lawful, and the user asserts (A6 to measure exactly) that the oracle
+loses little under that delay. Consequences for Phase D and design round 2:
+- D3 gains a fourth subproblem: (d) information ACCRUAL — how does winner/loser
+  separability grow over the first 300s post-formation (the matrix already holds sampled
+  offsets 0-300s; measure separability as a function of min_alert_age_sec).
+- A6 (delay-structure ceiling study) is promoted into Phase D as D5: price the exact
+  oracle cost of deciding at formation+Delta for Delta in {30,60,120,180,300}s on the
+  teacher plane. Its output = the lawful decision-second menu.
+- The scoped-null law applies to journal 125be4c ("post-formation window contains no
+  information") — that closure is scoped to the CONFIRMATION LANE's representation and
+  labels, not to this program's feature plane.
+- Design round 2 briefs must design for decide-at-formation+Delta, not
+  decide-at-formation.
+
 BRANCHES design round 2 must be written against (decided by evidence, not preference):
 - B-i information sufficient, formulation wasted it -> synthesize R/V/U parts onto the
   per-(asset,phase) decomposition; day/group-standardized dollar regression favored

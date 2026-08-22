@@ -34,7 +34,15 @@ seeds, knobs from prior blocks only.
 4. Trained objects so far (trained_accrual_20260822_*.json): an early-stopped RMSE on
    cell-standardized y under-fits (11 trees) yet its pick keeps +12–18% of ceiling vs
    shuffle negative; a winner≥$600 classifier reaches .63–.65 AUC but its pick LOSES money.
-   D6b (listwise YetiRank; fixed-iteration RMSE): <fill from receipts before dispatch>.
+   D6b: YetiRank on the full plane .54/.56/.46 AUC (not separated from shuffle), capture ~0;
+   fixed-iteration RMSE separates NKD only (AUC .56-.58 vs .46-.48; capture +19-22%).
+   LOOP VERDICT (JOURNAL ~13:20Z): fitted models on the plane LOSE to the unfitted unit-weight
+   composite of the 54 side-resolved state ingredients (.60/.55/.62 at 290 s, reproduced with
+   ingredient selection on train days only; logistic weights tie). Design principle that
+   follows (Dawes 1979, improper linear models; house cross-program "binding constraint is
+   variance"): the confirmation object is a composite with FEW fitted parameters — ingredient
+   membership, per-asset signs/thresholds, window — and the side-aware OWN/OPP swap is a
+   FEATURE transform, never something the model must learn.
 5. The time-remaining confound (JOURNAL ~12:25Z): phase_remaining_sec alone ranks
    winner-vs-loser series at .65/.64/.57 (winners 1.5% → 31% across deciles of time left)
    because the phase-close exit truncates late formations; picking by it realizes nothing.

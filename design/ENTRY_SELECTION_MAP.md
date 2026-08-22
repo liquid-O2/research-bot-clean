@@ -469,3 +469,7 @@ ships consensus or re-runs on wild divergence, freezes ONE spec with its one-pag
   signal with current ingredients in the 300s window; scoped closure recorded. Levers left:
   PATIENCE (time reveals the final extreme — probe next), the 600s window (D8), new
   ingredients from catalog gaps G1-G3/G7/G10 (EXHAUST/DEFENSE inputs).
+- 2026-08-22 11:55Z: PATIENCE NEGATIVE (JOURNAL). Day verdict: inside the 300s window with
+  the current plane, no causal decision-time rule recovers the oracle's edge; the phase
+  extreme is set on a minutes-hours scale. Next: oracle-pick anatomy, then either a
+  phase-scale "second test of the extreme" rule or the 600s / new-ingredient builds.

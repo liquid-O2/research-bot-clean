@@ -97,3 +97,10 @@ again until entries are FIXED (not merely attributed) — D-107 hardened. (3) PO
 CONCURRENCY: closed permanently. (4) DELAY STRUCTURE: open for STUDY (diagnosis only).
 (5) The directive: fix entries properly — Phase A1 out-of-sample proof of the rank/margin
 formulation is the critical path.
+
+## 2026-08-22 ~08:15Z — user directive (entries deep-dive)
+Verbatim: "for diagnosis, we should do the entries properly because we haven't even captured
+1% of the oracles. So there's something inherently wrong with this. Not that we need to look
+at other levers — we need to fix our entries first. Think about it properly and think
+through. Look into every nickel and cranny to find out how we can get there."
+Effect: Phase A depth mandate — exhaustive entry-side diagnosis before formulation choice.

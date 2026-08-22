@@ -82,6 +82,15 @@ A2 (fires only if info-bound).
   rule prices 83-94% of ceiling in-sample vs argmin's $0 — Q-A (decision object) is the
   proven first bottleneck, pending A1's out-of-sample confirmation.
 
+- 2026-08-22 ~08:30Z: nook-and-cranny batch (receipts: session transcript commands over
+  round_0/1/2 artifacts): (1) CURRICULUM HURT — gap AUC round_0 .684 -> round_2 .659; the
+  rollout-relabel rounds fed the collapsing policy back into the labels; round-0 labels are
+  the best available. (2) LABELS TIED — >10% of DEFER-optimal rows have $0 enter-regret;
+  ENTER margins are tick-quantized, median $25 — hard imitation of one arbitrary tie-break;
+  margin-weighted/soft objective indicated. (3) HEAD USES REAL STRUCTURE — disc_auction 22%,
+  disc_regime 8.6%, w1800 7.6%, disc_memory 5.4%, stack 5.1%; fvol now 2.4%; 1385/1793
+  features near-zero. (4) Per-asset AUC: NKD .703 / HG .672 / SI .647.
+
 ## Frontier additions
 
 - **A6 delay-structure ceiling study** (task, OPEN by round-2 ruling): measure the exact

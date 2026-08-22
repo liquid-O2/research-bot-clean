@@ -53,3 +53,18 @@ target_compile_definitions(qr_entry_v2_forecast_tests PRIVATE
 qr_apply_flags(qr_entry_v2_forecast_tests)
 
 add_test(NAME qr_entry_v2_forecast_tests COMMAND qr_entry_v2_forecast_tests)
+
+# --- qrdisc: native port of the discretionary per-row query path -------------
+# Kept as its own library with NO qr_core dependency so the CPython extension
+# (src/qrdisc_pymodule.cpp) can compile the same translation unit standalone,
+# outside this tree, and still be the same kernels the gtest suite locked down.
+add_library(qrdisc_np_kernels STATIC src/qrdisc_np_kernels.cpp)
+target_include_directories(qrdisc_np_kernels PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+qr_apply_flags(qrdisc_np_kernels)
+
+add_executable(qrdisc_kernel_tests tests/test_qrdisc_kernels.cpp)
+target_link_libraries(qrdisc_kernel_tests PRIVATE qrdisc_np_kernels
+  GTest::gtest GTest::gtest_main)
+qr_apply_flags(qrdisc_kernel_tests)
+
+add_test(NAME qrdisc_kernel_tests COMMAND qrdisc_kernel_tests)

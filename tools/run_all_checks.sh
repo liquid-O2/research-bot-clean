@@ -25,6 +25,8 @@ run /usr/bin/python3 tools/adopt_teacher_identity_transcribe.py --selftest
 # anchors the apply itself consumed. Historical tool, receipts on record.
 if [ "$FAST" != "--fast" ]; then
   run python3 -m unittest engine.entry_v2.test_qrdisc_state_marshal
+  run python3 -m unittest engine.entry_v2.test_qrdisc_maps
+  run python3 -m unittest engine.entry_v2.test_qrdisc_kernels_events
   run python3 -m unittest engine.entry_v2.test_tabular_recovery
 fi
 if [ "$FAILED" -eq 0 ]; then echo "ALL CHECKS GREEN"; else echo "BATTERY FAILED"; fi

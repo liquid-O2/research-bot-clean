@@ -685,3 +685,42 @@ FINDINGS: (1) the opportunity is CONFIRMED at candidate grain on unseen days (or
 2026-08-21 ~11:00Z CONTINUITY V2 + BIGPOWERS RECONCILIATION (D-101) — OptMem adopted as primary durable session memory for both harnesses: store migrated to /workspace/.optmem/memory (persistent volume; ~/.optmem symlinked, memo backed up, hooks self-heal), merge-tree settled clean, D-096 marker round-trip PROVEN (note->recall->compact-source SessionStart injection). New Claude Code hooks (/workspace/.claude/hooks/optmem_continuity.py, all output-only per D-013, all four verbs tested exit-0): SessionStart injects memo wake + CONTINUITY.md tail + STATE.md (~5KB, replaces ~20KB stale MemPalace tape); PreCompact spools verbatim transcript to artifacts/cache/continuity/ + CONTINUITY.md entry + memo note; Stop = throttled heartbeat; SessionEnd closes. MemPalace demoted to passive capture (hub at 8765 found DEAD — old hooks were curling into nothing); hub-bridge + lifecycle PreCompact capture stay wired. /workspace/CONTINUITY.md = hook-maintained markdown backup trail. BIGPOWERS AUDIT (3 Opus lanes, all 79 skills read): ADOPT 3 / ADAPT 27 / DROP ~51; package is a YAML-spec spine whose verify gates test its own repo (inoperable here), whose git policy bans-and-blocks our mandated Co-Authored-By trailers, and whose core control flow is the loop D-001 bans. 24 law-fighting skills silenced via skillOverrides (reversible); full verdicts in .claude/skills_draft/audit/; law-collision table + curated 8-skill DRAFT set (untested, activation gated on writing-skills baseline test) in .claude/skills_draft/RECONCILIATION.md + curated/; directive-grade extracts in STOLEN_RULES.md. STATE.md resume recipe updated. Open user decisions: full catalog uninstall; verbatim DIRECTIVES emission vs D-016.
 
 2026-08-21 ~13:30Z TRANSCRIPT ARCHAEOLOGY + SKILL LAYER V2 (user-ordered; no goal code written). 38 Opus-medium readers over the ENTIRE reduced Grok+Codex corpus (13MB, every session) returned 451 evidence-anchored failure episodes (10/10 sampled anchors verified verbatim): verification-gap 86, data-contract-break 80, leakage/tautology 51, plumbing 50, harness 44, rework-loop 33, context-loss 25 — the top three are 48% of all burn. Headline diagnosis (DIAGNOSIS_AND_PROPOSALS.md, delivered): the deciding measurement has never run (zero learned economics in program history; three consecutive rehearsal resume-refusals after an empty freeze list); gates historically did not encode the goal; the science that ran localizes the gap to selection information posed with wrong training contracts. READ-ONLY GATE VERIFICATION (current code): evaluate_economic_gate now encodes per-asset $2,000 (ASSET_DAY_FLOOR per asset, C.TARGET_ASSET_DAY_USD=2000), per-asset 80% ceiling capture, K=1, per-asset MDD/coverage/trades, frozen denominators with refusal, active-day denominator = oracle-positive days (lawful); measure_seed_control_separation requires 5 matched seeds, weakest-real > strongest-shuffle on pnl AND capture, and every shuffle floor_pass=False — the shuffle-can-pass and portfolio-hides-asset defects are closed in shipped code. USER-APPROVED PACKS IMPLEMENTED (all four): preregistering-results + encoding-goals-in-gates + briefing-agents + debugging-with-a-loop skills (18 total installed); DEFECT_CLASSES.md registry (16 paid-for classes) wired into reviews; slice-verdict law into running-evals; CURRENT.md currency manifest (live vs inherited vs scoped-closed); HARDWARE.md measured truth (13.6 cores, 263GiB, cu128 pin); design/REFUTED/ registry; G/W/T acceptance scenarios + scenario IDs into sharpening-specs; law-anchor guard + diff-scope + defect-class lenses into consolidated review; routing tables updated in CLAUDE.md and AGENTS.md; Commands block (unittest, NOT pytest). Next session: goal work under the new layer.
+
+2026-08-21 ~20:40Z THE FREEZE BATCH LANDED AND THE CHAIN RESUMED (engineering only, no economics). Rollout round 1 completed at 51 days; the driver was stopped at the boundary and 18 anchored edits applied by a self-testing lever script (every anchor asserted present exactly once; post-apply battery green; commit 51b7771). Everything adopted was differential-accepted bit-identical first: the 21-threshold multistate eval walk (mismatches=0 over 22 contracts on an entry-dense day, 11.62x — one scan replaces 22 walks), the teacher O(1) id-scan fix (3/3 teacher days byte-identical), and the solver-skip fix (heaviest rollout day byte-identical at 786s vs ~131min — 10x). The 267-day teacher store was transcription-adopted under the fixed solver's identity (zero recompute). The pre-registered big-fold probe returned GPU_DEGENERATE for the Quantile:0.9 head (GPU 1 tree vs CPU 5; both backends early-stop at 1 tree on the largest fold) — the head flipped to CPU exactly as the D-105 amendment prescribes, before any E2R arm fit. GPU heads for E2R: Logloss, MultiRMSE (Plain-pinned), MultiClass, PairLogitPairwise under ARTIFACT_PIN. Driver resumed (pid 3032100), strict reloads clean, zero errors post-marker. Separately: the R6 C++ dense-builder port reached a bit-identical fully-delegated skeleton on a full session (stages 1-3 in ~5.6h total lane time; disc share measured 91.6% of row cost) and stage-4 family nativization is running. E1R four-column verdict projected ~03:00-05:00Z, to be read entries-first per D-107 with full boundary attribution before any branch commentary.
+
+## 2026-08-22 ~04:45Z — E1R verdict: $0 learner, mechanism attributed, branch = HISTOGRAM_LEARNERS
+
+The E1R rehearsal published its evaluation (fit_only/e1r/evaluation/). The pre-registered
+four-column read, frozen FORWARD block 20210809-20210826 (17 portfolio days, 51 asset-days):
+
+- exact offer ceiling: $118,788.75 (HG $48,788.75 / SI $35,117.50 / NKD $34,882.50)
+- learner (CALIBRATED, deployable operating point): $0, 0 trades — all 5 real seeds
+- matched shuffle: $0, 0 trades — all 5 seeds
+- threshold-selection block (RAW): also 0 trades at EVERY theta; selector found no feasible
+  floor and fell to quantile 0 (accept advantage above -$649) — still zero.
+
+Attribution (not a model vibe — measured):
+1. The walk's arrivals are zero because tabular_policy.decide's FIRST stage — argmin of the
+   action head's predicted (enter, defer, pass) regrets — never once returns ENTER. The four
+   admission gates were never reached; no knob rescues this.
+2. The head is near-flat: predicted mean regrets E~$140 / D~$2-3 / P~$36 everywhere. At the
+   label-ENTER rows (7.7% of candidates, teacher regret E=$0, D=$22.1) it predicts E=$105.7,
+   D=$3.0. In-sample training capture: $382.50 of $88,727.50 = 0.43% (target 90%).
+3. The head is NOT empty: predicted E-D gap ranks label-ENTER candidates at AUC 0.659+/-0.009
+   (5 real seeds) vs 0.480+/-0.018 (5 shuffles); weakest real 0.646 > strongest shuffle 0.513.
+   Real signal, seed-stable, ~2x lift in the top-500 — an order of magnitude short of
+   selection grade, and the argmin decision rule converts none of it into trades.
+
+Branch: the precommitted ladder (tabular_fallbacks.select_failure_branch) fires
+HISTOGRAM_LEARNERS on TRAINING_TEACHER_CAPTURE_BELOW_90_PERCENT (0.43% << 90%), subject to
+the five-minute right-censor fraction the driver measures first. goal_lowered and
+terminal_null stay refused by construction. E2R runs to completion as the pre-registered
+rehearsal. Entries first (D-107) — the branch work is entry-side.
+
+Regenerate every number:
+- blocks: python3 -c "import json,glob; [print(p, json.load(open(p))['gate_detail']['trades'])
+  for p in glob.glob('/workspace/artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/e1r/evaluation/E1R_frozen_FORWARD/*/seed_*/calibrated_block.json')]"
+- head flatness + AUC: the two python blocks in this session's transcript against
+  round_2/action_models/*/action_oof_all.npz + round_2/action_matrices/*/ (argmin rates,
+  regrets at label-ENTER rows, gap AUC real vs shuffle).
+- training capture: fit_only/e1r/evaluation/training_capture/seed_*/training_teacher_capture.json

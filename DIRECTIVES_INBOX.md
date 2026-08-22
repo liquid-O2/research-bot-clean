@@ -115,3 +115,15 @@ need, but we need to fix them no matter what." Also challenged the per-asset cei
 asymmetry (SI/NKD historically out-earned HG) — verified: BLOCK-SPECIFIC, not structural.
 SI ceiling/asset-day: training \$805 (June dead zone), threshold \$2,735 (2nd highest),
 forward \$2,066. The A2 curve's SI pessimism was training-block noise.
+
+## 2026-08-22 ~09:05Z — user ruling: $600/trade was never a hard clause
+Verbatim: "the $600 per crate was an arbitrary thing set up before. I wanted more than $600.
+Like, I wanted the crates that have the higher expected values because those are usually the
+ones that will get us there with less amount of crates per day, if that makes sense. And then
+the previous agent fixed the $600 per crate clause for some reason. I just wanted higher,
+like more than $600 per crate if possible."
+Effect: USD_PER_TRADE is a PREFERENCE (higher-EV trades first, fewer trades per day), not a
+refusal clause. Gates treat it as a target, never a hard floor. The margin-rank selector
+aligns with the intent by construction (takes highest predicted EV first). A7 reframed from
+"$600-constrained ceiling" to "ceiling concentration profile": what fraction of each block's
+ceiling lives in the top-1/2/3 trades per asset-day.

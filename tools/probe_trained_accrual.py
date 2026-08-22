@@ -33,6 +33,14 @@ PREREGISTRATION (written before the real run; echoed into the receipt):
   (delay_forfeit_20260822.json) — above the 80% gate, so the label can carry the goal.
 - Tier: DIAGNOSTIC.  Cell-pick dollars are not replay dollars; exact replay through the walk
   remains the only promotable number.  Reported numbers steer design round 2 only.
+- AMENDMENT D6b (2026-08-22 ~12:05Z, preregistered before its run; first-run receipts stand
+  unchanged): the instrument check on the FROZEN fold showed CELLZ_RMSE early-stops at 11
+  trees (val RMSE 0.99 = the cell mean) and PAIRLOGIT completes 1 run per ~75 min.  Two
+  replacement arms, same folds/seeds/metrics/null: YETIRANK (listwise CatBoostRanker grouped
+  by (cell, Delta), early-stopped on its own ranking loss) and CELLZ_RMSE_FIXED (the RMSE arm
+  with a FIXED 300 iterations, no early stopping — the validation RMSE of a noise-dominated
+  target is the wrong stopping signal for a ranking use).  Iteration count fixed here, never
+  eval-selected.
 
 Selftest: python3 tools/probe_trained_accrual.py --selftest     (synthetic; no artifacts)
 Real:     OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python3 tools/probe_trained_accrual.py \
@@ -56,7 +64,8 @@ from probe_confirmation_accrual import pairwise_auc_by_day, pooled_auc  # noqa: 
 DELTAS = (0.0, 30.0, 60.0, 120.0, 180.0, 240.0, 290.0)
 DELTA_TOL_SEC = 2.5
 WINNER_MIN_USD, LOSER_MAX_USD, VALUE_SCALE_USD = 600.0, 0.0, 600.0
-ARMS = ("CELLZ_RMSE", "PAIRLOGIT", "WINNER_LOGLOSS")
+ARMS = ("CELLZ_RMSE", "PAIRLOGIT", "WINNER_LOGLOSS", "YETIRANK", "CELLZ_RMSE_FIXED")
+FIXED_ITERATIONS = 300
 SEEDS = (20260820, 20260821, 20260822, 20260823, 20260824)
 FIT_PARAMS = {"depth": 3, "iterations": 400, "learning_rate": 0.05,
               "early_stopping_rounds": 40}
@@ -182,9 +191,16 @@ def fit_and_score(arm: str, rows: DeltaRows, fit: np.ndarray, val: np.ndarray,
         model.fit(Pool(x_fit, label=z_fit), eval_set=Pool(x_val, label=z_val),
                   early_stopping_rounds=es, use_best_model=True)
         return model.predict(x_score)
-    if arm == "PAIRLOGIT":
+    if arm == "CELLZ_RMSE_FIXED":
+        z_fit = standardize_by_cell(y_fit, rows.cell[fit])
+        model = CatBoostRegressor(loss_function="RMSE",
+                                  **{**common, "iterations": FIXED_ITERATIONS})
+        model.fit(Pool(x_fit, label=z_fit))
+        return model.predict(x_score)
+    if arm in ("PAIRLOGIT", "YETIRANK"):
         o_fit, o_val = np.argsort(g_fit, kind="stable"), np.argsort(g_val, kind="stable")
-        model = CatBoostRanker(loss_function="PairLogitPairwise", **common)
+        loss = "PairLogitPairwise" if arm == "PAIRLOGIT" else "YetiRank"
+        model = CatBoostRanker(loss_function=loss, **common)
         model.fit(Pool(x_fit[o_fit], label=y_fit[o_fit], group_id=g_fit[o_fit]),
                   eval_set=Pool(x_val[o_val], label=y_val[o_val], group_id=g_val[o_val]),
                   early_stopping_rounds=es, use_best_model=True)
@@ -438,6 +454,12 @@ def selftest() -> int:
         assert cap_gain >= 0.10, f"planted capture gain too small: {cap_gain:.3f}"
         assert s["290"]["auc"]["strongest_shuffle"] < s["290"]["auc"]["weakest_real"], \
             f"shuffle arm not below real at 290: {s['290']['auc']}"
+        rep_y = run(tmp / "planted", folds, tmp / "planted_y.json", arms=("YETIRANK",),
+                    seeds=(1,), shuffle_seeds=(1,), threads=2, n_boot=20, params=fast,
+                    log=lambda *_: None)
+        sy = rep_y["summary"]["F1"]["YETIRANK"]["HG"]
+        y_gain = sy["290"]["auc"]["real_mean"] - sy["0"]["auc"]["real_mean"]
+        assert y_gain >= 0.15, f"YETIRANK did not recover the planted accrual: {y_gain:.3f}"
         _synthetic_matrix(tmp / "nosignal", signal=False, seed=11)
         rep = run(tmp / "nosignal", folds, tmp / "nosignal.json", arms=("CELLZ_RMSE",),
                   seeds=(1,), shuffle_seeds=(1,), threads=2, n_boot=20, params=fast,

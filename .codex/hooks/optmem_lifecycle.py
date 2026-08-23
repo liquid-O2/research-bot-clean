@@ -14,7 +14,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import Sequence, TextIO
+from typing import Iterator, Sequence, TextIO
 
 
 MEMO_CANDIDATES = (
@@ -92,15 +92,21 @@ def open_regular_file(path: Path, label: str) -> tuple[int, tuple[int, ...]]:
     return descriptor, source_version(opened_metadata)
 
 
+def stream_chunks(descriptor: int) -> Iterator[bytes]:
+    """Yield the source file in chunks without closing the caller's descriptor."""
+    with os.fdopen(descriptor, "rb", closefd=False) as source:
+        while chunk := source.read(COPY_CHUNK_BYTES):
+            yield chunk
+
+
 def copy_transcript(descriptor: int, destination: Path) -> str:
     digest = sha256()
-    with os.fdopen(descriptor, "rb", closefd=False) as source:
-        with destination.open("wb") as output:
-            while chunk := source.read(COPY_CHUNK_BYTES):
-                output.write(chunk)
-                digest.update(chunk)
-            output.flush()
-            os.fsync(output.fileno())
+    with destination.open("wb") as output:
+        for chunk in stream_chunks(descriptor):
+            output.write(chunk)
+            digest.update(chunk)
+        output.flush()
+        os.fsync(output.fileno())
     destination.chmod(ARCHIVE_OBJECT_MODE)
     return digest.hexdigest()
 
@@ -112,9 +118,8 @@ def digest_archive_object(destination: Path) -> str:
         raise TranscriptArchiveError(f"archive object has an unsafe mode: {destination}")
     digest = sha256()
     try:
-        with os.fdopen(descriptor, "rb", closefd=False) as source:
-            while chunk := source.read(COPY_CHUNK_BYTES):
-                digest.update(chunk)
+        for chunk in stream_chunks(descriptor):
+            digest.update(chunk)
         if not file_matches_version(destination, descriptor, initial_version):
             raise TranscriptArchiveError(f"archive object changed while reading: {destination}")
         return digest.hexdigest()
@@ -174,7 +179,8 @@ def copy_and_publish_transcript(
 
 def archive_transcript(raw_source: object) -> Path:
     if not isinstance(raw_source, str) or not raw_source:
-        raise TranscriptArchiveError("transcript_path must be a non-empty string")
+        raise TranscriptArchiveError(
+            f"transcript_path must be a non-empty string, got {raw_source!r}")
     source = Path(raw_source)
     try:
         descriptor, initial_version = open_regular_file(source, "transcript source")
@@ -199,26 +205,24 @@ def shebang_python_is_missing(result: MemoResult) -> bool:
     )
 
 
+def timeout_result(error: subprocess.TimeoutExpired) -> MemoResult:
+    """Return whatever a timed-out command managed to print, plus why it stopped."""
+    partial = error.stdout or ""
+    if isinstance(partial, bytes):
+        partial = partial.decode("utf-8", errors="replace")
+    return MemoResult(124, partial + "OptMem lifecycle command timed out.\n")
+
+
 def run_process(command: Sequence[str], deadline: float) -> MemoResult:
     remaining = deadline - time.monotonic()
     if remaining <= 0:
         return MemoResult(124, "OptMem lifecycle deadline expired.\n")
     try:
         completed = subprocess.run(
-            command,
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=remaining,
-        )
+            command, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, encoding="utf-8", errors="replace", timeout=remaining)
     except subprocess.TimeoutExpired as error:
-        partial = error.stdout or ""
-        if isinstance(partial, bytes):
-            partial = partial.decode("utf-8", errors="replace")
-        return MemoResult(124, partial + "OptMem lifecycle command timed out.\n")
+        return timeout_result(error)
     return MemoResult(completed.returncode, completed.stdout)
 
 
@@ -235,32 +239,41 @@ def run_memo(memo: Path, arguments: Sequence[str], deadline: float) -> MemoResul
     return direct
 
 
+def next_wake_arguments(output: str) -> tuple[str, ...] | None:
+    """Return the next wake page OptMem asked for, or None when it is done."""
+    matches = list(NEXT_WAKE_RE.finditer(output))
+    if not matches:
+        return None
+    page, snapshot = matches[-1].groups()
+    return ("wake", page, snapshot)
+
+
+def collect_wake_pages(memo: Path, deadline: float, outputs: list[str]) -> str | None:
+    """Follow every wake page, returning an error line when one is reached."""
+    arguments: tuple[str, ...] = ("wake",)
+    seen: set[tuple[str, ...]] = set()
+    for _ in range(MAX_WAKE_CALLS):
+        if arguments in seen:
+            return f"OptMem lifecycle error: repeated wake arguments {arguments!r}.\n"
+        seen.add(arguments)
+        result = run_memo(memo, arguments, deadline)
+        outputs.append(result.output)
+        following = next_wake_arguments(result.output) if result.returncode == 0 else None
+        if following is None:
+            return None
+        arguments = following
+    return f"OptMem lifecycle error: wake exceeded {MAX_WAKE_CALLS} calls.\n"
+
+
 def session_start_context() -> str:
     memo = find_memo_executable()
     if memo is None:
         expected = ", ".join(str(path) for path in MEMO_CANDIDATES)
         return f"OptMem lifecycle error: no memo executable found; expected one of {expected}.\n"
-
-    deadline = time.monotonic() + HOOK_DEADLINE_SECONDS
-    arguments: tuple[str, ...] = ("wake",)
     outputs: list[str] = []
-    seen: set[tuple[str, ...]] = set()
-    for _ in range(MAX_WAKE_CALLS):
-        if arguments in seen:
-            outputs.append(f"OptMem lifecycle error: repeated wake arguments {arguments!r}.\n")
-            break
-        seen.add(arguments)
-        result = run_memo(memo, arguments, deadline)
-        outputs.append(result.output)
-        if result.returncode != 0:
-            break
-        matches = list(NEXT_WAKE_RE.finditer(result.output))
-        if not matches:
-            break
-        page, snapshot = matches[-1].groups()
-        arguments = ("wake", page, snapshot)
-    else:
-        outputs.append(f"OptMem lifecycle error: wake exceeded {MAX_WAKE_CALLS} calls.\n")
+    error = collect_wake_pages(memo, time.monotonic() + HOOK_DEADLINE_SECONDS, outputs)
+    if error is not None:
+        outputs.append(error)
     return "".join(outputs)
 
 
@@ -290,6 +303,17 @@ def transcript_archive_failure(
     return None
 
 
+def nap_response(result: MemoResult, stderr: TextIO) -> dict[str, object]:
+    """Turn one nap probe into an advisory response, never a refusal."""
+    if result.returncode == 0 and PENDING_NAP_RE.fullmatch(result.output):
+        return advisory_precompact_response(result.output)
+    if result.returncode == 0 and result.output == "Nothing left to compress.\n":
+        return {}
+    stderr.write("OptMem precompact check did not produce a recognized result "
+                 f"(exit {result.returncode}); compaction continues.\n")
+    return {}
+
+
 def pre_compact_response(payload: dict[str, object], stderr: TextIO) -> dict[str, object]:
     archive_failure = transcript_archive_failure(payload, stderr)
     if archive_failure is not None:
@@ -298,20 +322,8 @@ def pre_compact_response(payload: dict[str, object], stderr: TextIO) -> dict[str
     if memo is None:
         stderr.write("OptMem precompact check skipped: memo executable not found.\n")
         return {}
-    result = run_memo(
-        memo,
-        ("nap",),
-        time.monotonic() + HOOK_DEADLINE_SECONDS,
-    )
-    if result.returncode == 0 and PENDING_NAP_RE.fullmatch(result.output):
-        return advisory_precompact_response(result.output)
-    if result.returncode == 0 and result.output == "Nothing left to compress.\n":
-        return {}
-    stderr.write(
-        "OptMem precompact check did not produce a recognized result "
-        f"(exit {result.returncode}); compaction continues.\n"
-    )
-    return {}
+    return nap_response(run_memo(memo, ("nap",),
+                                 time.monotonic() + HOOK_DEADLINE_SECONDS), stderr)
 
 
 def post_compact_health_check(stderr: TextIO) -> None:
@@ -336,6 +348,24 @@ def write_hook_json(value: object, stdout: TextIO) -> None:
     stdout.write("\n")
 
 
+EXPECTED_EVENTS = {"session-start": "SessionStart", "pre-compact": "PreCompact",
+                   "post-compact": "PostCompact"}
+
+
+def require_event(command: str, payload: dict[str, object]) -> None:
+    """Refuse a payload whose event does not match the command that ran."""
+    expected = EXPECTED_EVENTS[command]
+    actual = payload.get("hook_event_name")
+    if actual != expected:
+        raise ValueError(f"{command} expected hook_event_name={expected!r}, got {actual!r}")
+
+
+def session_start_response() -> dict[str, object]:
+    """Return the wake output as SessionStart context."""
+    return {"hookSpecificOutput": {"hookEventName": "SessionStart",
+                                   "additionalContext": session_start_context()}}
+
+
 def main(
     argv: Sequence[str] | None = None,
     stdin: TextIO = sys.stdin,
@@ -345,40 +375,18 @@ def main(
     """Run one Codex lifecycle event."""
     arguments = tuple(sys.argv[1:] if argv is None else argv)
     payload = json.load(stdin)
-    if arguments == ("session-start",):
-        if payload.get("hook_event_name") != "SessionStart":
-            raise ValueError(
-                "session-start expected hook_event_name='SessionStart', "
-                f"got {payload.get('hook_event_name')!r}"
-            )
-        write_hook_json(
-            {
-                "hookSpecificOutput": {
-                    "hookEventName": "SessionStart",
-                    "additionalContext": session_start_context(),
-                }
-            },
-            stdout,
-        )
-        return 0
-    if arguments == ("pre-compact",):
-        if payload.get("hook_event_name") != "PreCompact":
-            raise ValueError(
-                "pre-compact expected hook_event_name='PreCompact', "
-                f"got {payload.get('hook_event_name')!r}"
-            )
+    if len(arguments) != 1 or arguments[0] not in EXPECTED_EVENTS:
+        raise ValueError(f"unknown lifecycle command {arguments!r}")
+    command = arguments[0]
+    require_event(command, payload)
+    if command == "session-start":
+        write_hook_json(session_start_response(), stdout)
+    elif command == "pre-compact":
         write_hook_json(pre_compact_response(payload, stderr), stdout)
-        return 0
-    if arguments == ("post-compact",):
-        if payload.get("hook_event_name") != "PostCompact":
-            raise ValueError(
-                "post-compact expected hook_event_name='PostCompact', "
-                f"got {payload.get('hook_event_name')!r}"
-            )
+    else:
         post_compact_health_check(stderr)
         write_hook_json({}, stdout)
-        return 0
-    raise ValueError(f"unknown lifecycle command {arguments!r}")
+    return 0
 
 
 if __name__ == "__main__":

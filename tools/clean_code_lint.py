@@ -22,6 +22,11 @@ import subprocess
 import sys
 from typing import Iterator, Sequence, TextIO
 
+# Length and nesting are production-code rules. A test method holds one whole
+# scenario, and splitting it to fit a cap separates a fixture from its use,
+# which makes the test worse rather than better. Types and exception messages
+# still apply everywhere, because those help a reader in any file.
+SHAPE_EXEMPT = ("tests/", "test_", "_test.py", "/fixtures/")
 MAX_FILE_LINES = 500
 MAX_FUNCTION_LINES = 20
 MAX_NESTING = 2
@@ -193,14 +198,27 @@ def check_file_length(path: Path, source: str) -> Iterator[Finding]:
                   "Split it by responsibility.")
 
 
-def definition_findings(path: Path, tree: ast.AST) -> list[Finding]:
+def definition_findings(path: Path, tree: ast.AST, exempt: bool = False) -> list[Finding]:
     """Return every per-function finding in one parsed file."""
     findings: list[Finding] = []
     for node in ast.walk(tree):
         if is_definition(node):
-            findings.extend([*check_length(path, node), *check_nesting(path, node),
-                             *check_types(path, node)])
+            findings.extend(node_findings(path, node, exempt))
     return findings
+
+
+def node_findings(path: Path, node: ast.AST, exempt: bool) -> list[Finding]:
+    """Return the findings for one definition, honouring the shape exemption."""
+    findings = list(check_types(path, node))
+    if exempt:
+        return findings
+    return [*check_length(path, node), *check_nesting(path, node), *findings]
+
+
+def shape_exempt(path: Path) -> bool:
+    """Report whether the length and nesting caps apply to this file."""
+    name = path.as_posix()
+    return any(marker in name or path.name.startswith("test_") for marker in SHAPE_EXEMPT)
 
 
 def lint_file(path: Path) -> list[Finding]:
@@ -210,8 +228,9 @@ def lint_file(path: Path) -> list[Finding]:
         tree = ast.parse(source)
     except SyntaxError as error:
         return [Finding(str(path), error.lineno or 1, "syntax-error", str(error))]
-    findings = [*check_file_length(path, source), *check_raises(path, tree),
-                *definition_findings(path, tree)]
+    findings = [*check_raises(path, tree), *definition_findings(path, tree, shape_exempt(path))]
+    if not shape_exempt(path):
+        findings.extend(check_file_length(path, source))
     return sorted(findings, key=lambda row: (row.path, row.line))
 
 

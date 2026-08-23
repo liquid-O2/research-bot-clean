@@ -203,6 +203,49 @@ class HeredocTests(unittest.TestCase):
                 self.assertEqual(rules.command_write_paths(body), ["a.py"])
 
 
+class UnresolvablePathTests(unittest.TestCase):
+    """A path the guard cannot resolve is opaque, not repository-relative."""
+
+    def test_a_shell_variable_target_is_not_resolvable(self) -> None:
+        self.assertFalse(rules.resolvable("$SCRATCH/.token"))
+
+    def test_a_command_substitution_target_is_not_resolvable(self) -> None:
+        self.assertFalse(rules.resolvable("$(mktemp)/file"))
+
+    def test_a_literal_path_is_resolvable(self) -> None:
+        self.assertTrue(rules.resolvable("tools/x.py"))
+        self.assertTrue(rules.resolvable("/tmp/scratch/plan.md"))
+
+    def test_a_home_relative_path_stays_resolvable(self) -> None:
+        self.assertTrue(rules.resolvable("~/notes.md"))
+
+    def test_a_variable_target_scans_as_opaque(self) -> None:
+        command = "cat " + chr(62) + " $SCRATCH/.token"
+        self.assertEqual(rules.scan_command(command).kind, "opaque")
+
+    def test_a_literal_target_scans_as_paths(self) -> None:
+        command = "cat " + chr(62) + " tools/x.py"
+        self.assertEqual(rules.scan_command(command).kind, "paths")
+
+
+class DirectoryChangeTests(unittest.TestCase):
+    """A cd moves where relative paths land, and the payload cannot see that."""
+
+    def command(self, target: str) -> str:
+        return f"cd /elsewhere && cat {chr(62)} {target}"
+
+    def test_a_relative_target_after_a_cd_is_opaque(self) -> None:
+        self.assertEqual(rules.scan_command(self.command("notes.md")).kind, "opaque")
+
+    def test_an_absolute_target_after_a_cd_still_resolves(self) -> None:
+        scan = rules.scan_command(self.command("/tmp/notes.md"))
+        self.assertEqual(scan.kind, "paths")
+        self.assertIn("/tmp/notes.md", scan.paths)
+
+    def test_a_relative_target_without_a_cd_still_resolves(self) -> None:
+        self.assertEqual(rules.scan_command(f"cat {chr(62)} notes.md").kind, "paths")
+
+
 class BriefTests(unittest.TestCase):
     GOOD = ("You are a subagent. Don't run memo.\n"
             "Own: tools/x.py\n"

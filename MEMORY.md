@@ -428,6 +428,8 @@ New memories land here, newest last.
 - 2026-08-23 #189 Claude Code reads the canonical skills through 76 symlinks at .claude/skills, built by tools/install_claude_skills.py from the Codex install receipt. No skill is ever copied.
 - 2026-08-23 #190 AGENTS.md and CLAUDE.md are generated from shared blocks by tools/render_agent_contract.py. Only the client block differs, and verify_agent_harness.py contract fails on any hand edit.
 - 2026-08-23 #191 Both harnesses are live-proven: 32 canaries on Claude and 30 on Codex drive the installed hooks and check every denial and every allowance.
+- 2026-08-23 #192 The reusable harness is exported to the private repo liquid-O2/trading-skills, 339 files, secret-scanned and clean-install verified into a scratch repository.
+- 2026-08-23 #193 USER supplied the same GitHub PAT twice and directed its use. Rotate it: it sits in plaintext in two session transcripts.
 
 ## Checkpoints
 

@@ -16,6 +16,7 @@ from fnmatch import fnmatchcase
 import json
 from hashlib import sha256
 import importlib.util
+import shutil
 from pathlib import Path
 import re
 import shlex
@@ -196,6 +197,19 @@ def strip_heredocs(command: str) -> str:
     return "\n".join(kept)
 
 
+UNRESOLVED = re.compile(r"[$`]|~[^/\s]")
+
+
+def resolvable(path: str) -> bool:
+    """Report whether a write target can be resolved without running a shell.
+
+    A target holding a shell variable or a command substitution has no literal
+    value here. Treating it as a repository-relative path denied a write to the
+    scratchpad that the path never named.
+    """
+    return not UNRESOLVED.search(path)
+
+
 def command_write_paths(command: str) -> list[str] | None:
     """Return the paths a shell command writes, or None when it names none."""
     command = strip_heredocs(command)
@@ -226,6 +240,25 @@ def scan_command(command: str) -> WriteScan:
         return WriteScan("opaque")
     if not paths:
         return WriteScan("unparsed")
+    return classify_paths(paths, command)
+
+
+CHANGES_DIRECTORY = re.compile(r"(?:^|[;&|]\s*)cd\s")
+
+
+def classify_paths(paths: Sequence[str], command: str = "") -> WriteScan:
+    """Return a scan for named targets, opaque when any cannot be resolved.
+
+    A command that changes directory moves where its relative paths land, and
+    the hook payload only carries the session's own working directory. Rather
+    than resolve such a path against the wrong root, treat the write as opaque
+    so the method is still required and no false owner is invented.
+    """
+    relative = [path for path in paths if not path.startswith("/")]
+    if relative and CHANGES_DIRECTORY.search(command):
+        return WriteScan("opaque")
+    if not all(resolvable(path) for path in paths):
+        return WriteScan("opaque")
     return WriteScan("paths", tuple(paths))
 
 
@@ -323,17 +356,29 @@ def cast_input(tool_input: object) -> Mapping[str, object]:
     return cast(Mapping[str, object], tool_input)
 
 
-UNLAZY_STOP = Path(
-    "/workspace/vendor/agent-sources/unlazy/"
-    "754d9a68109e39b836cc72a39fb9a823f9d6b613/scripts/stop-hook.mjs"
-)
-PINNED_NODE = Path("/home/algo/.local/share/fnm/node-versions/v24.19.0/installation/bin/node")
+UNLAZY_PIN = "754d9a68109e39b836cc72a39fb9a823f9d6b613"
+
+
+def unlazy_stop_hook(root: Path) -> Path:
+    """Return the pinned unlazy Stop hook, exported layout first."""
+    vendor = root / "vendor/agent-sources/unlazy"
+    exported = vendor / "scripts/stop-hook.mjs"
+    return exported if exported.is_file() else vendor / UNLAZY_PIN / "scripts/stop-hook.mjs"
+
+
+def node_runtime() -> Path | None:
+    """Return a node runtime, preferring whatever is on PATH."""
+    found = shutil.which("node")
+    if found:
+        return Path(found)
+    pinned = Path.home() / ".local/share/fnm/node-versions/v24.19.0/installation/bin/node"
+    return pinned if pinned.is_file() else None
 
 
 def call_unlazy(payload: Mapping[str, object], root: Path) -> subprocess.CompletedProcess[str]:
     """Run the pinned unlazy stop hook as its own process."""
     return subprocess.run(
-        (str(PINNED_NODE), str(UNLAZY_STOP), "--unlazy"), cwd=root,
+        (str(node_runtime()), str(unlazy_stop_hook(root)), "--unlazy"), cwd=root,
         input=json.dumps(dict(payload)), text=True, encoding="utf-8",
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False, timeout=20)
 
@@ -344,16 +389,24 @@ def run_unlazy_stop(payload: Mapping[str, object], root: Path) -> JsonObject:
     Unlazy owns completion discipline, so its wall is reused rather than
     reimplemented. A missing runtime is reported, never silently skipped.
     """
-    if not PINNED_NODE.is_file() or not UNLAZY_STOP.is_file():
-        return {"systemMessage": "unlazy Stop wall is not installed; completion is unguarded."}
+    node = node_runtime()
+    stop_hook = unlazy_stop_hook(root)
+    if node is None or not stop_hook.is_file():
+        return {"systemMessage": f"unlazy Stop wall is not installed at {stop_hook}; "
+                                 "completion is unguarded."}
     try:
         completed = call_unlazy(payload, root)
     except (OSError, subprocess.TimeoutExpired) as error:
         return {"systemMessage": f"unlazy Stop wall failed to run: {error}"}
-    lines = [line for line in completed.stdout.splitlines() if line.strip()]
+    return read_unlazy_result(completed)
+
+
+def read_unlazy_result(completed: subprocess.CompletedProcess[str]) -> JsonObject:
+    """Turn the unlazy stop hook's output into a decision, or explain why not."""
     if completed.returncode != 0:
         return {"systemMessage": f"unlazy Stop wall exited {completed.returncode}: "
                                  f"{completed.stderr.strip()[:200]}"}
+    lines = [line for line in completed.stdout.splitlines() if line.strip()]
     if not lines:
         return {}
     try:

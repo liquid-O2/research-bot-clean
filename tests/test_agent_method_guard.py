@@ -6,6 +6,8 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+from types import ModuleType
+from typing import Iterator
 import stat
 import sys
 import tempfile
@@ -28,7 +30,7 @@ principle-redesign-from-first-principles principle-subtract-before-you-add princ
 principle-boundary-discipline principle-make-operations-idempotent principle-separate-before-serializing-shared-state
 principle-encode-lessons-in-structure principle-sequence-verifiable-units principle-prove-it-works
 principle-minimize-reader-load""".split()
-def load_module(name: str, path: Path):
+def load_module(name: str, path: Path) -> ModuleType | None:
     if not path.is_file():
         return None
     spec = importlib.util.spec_from_file_location(name, path)
@@ -138,7 +140,7 @@ class MethodFixture:
             "# Gates\n\n- [ ] G1\n  CHECK: python test.py\n  EXPECT: OK\n",
         )
     @contextmanager
-    def environment(self):
+    def environment(self) -> Iterator[None]:
         values = {
             "CODEX_METHOD_REPO_ROOT": str(self.repo),
             "CODEX_METHOD_STATE_ROOT": str(self.state),
@@ -147,7 +149,7 @@ class MethodFixture:
         with patch.dict(os.environ, values, clear=False):
             yield
 class MethodGuardTests(unittest.TestCase):
-    def require_guard(self):
+    def require_guard(self) -> ModuleType:
         self.assertIsNotNone(
             method_guard,
             f"missing planned method guard at {METHOD_GUARD_PATH}",
@@ -394,6 +396,10 @@ class MethodGuardTests(unittest.TestCase):
         def unslop(_: str) -> str | None:
             calls.append("unslop")
             return "em dash"
+
+        def clean_code(_: object) -> str | None:
+            calls.append("clean-code")
+            return None
         with (
             patch.object(guard, "run_unlazy_stop", unlazy, create=True),
             patch.object(guard, "method_evidence_violation", evidence, create=True),
@@ -410,11 +416,12 @@ class MethodGuardTests(unittest.TestCase):
             patch.object(guard, "run_unlazy_stop", lambda _: calls.append("unlazy") or {}, create=True),
             patch.object(guard, "method_evidence_violation", evidence, create=True),
             patch.object(guard, "unslop_violation", unslop, create=True),
+            patch.object(guard.rules, "clean_code_violation", clean_code, create=True),
         ):
             _, output, _ = self.call_guard(
                 ["stop"], hook_payload("Stop", last_assistant_message="bad prose")
             )
-        self.assertEqual(calls, ["unlazy", "evidence", "unslop"])
+        self.assertEqual(calls, ["unlazy", "evidence", "clean-code", "unslop"])
         self.assertIn("em dash", json.loads(output.getvalue())["reason"])
 FAKE_MEMO = """#!/usr/bin/python3
 import os

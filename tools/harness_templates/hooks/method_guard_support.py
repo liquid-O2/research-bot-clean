@@ -46,14 +46,39 @@ def env_name(suffix: str) -> str:
 def default_state_root() -> Path:
     """Return where this client keeps its per-session guard state."""
     return Path.home() / CLIENTS[_CLIENT][1]
-PINNED_PSTACK = Path(
-    "/workspace/vendor/agent-sources/pstack/"
-    "46125561306434d8a1d7745d540d8932ab0cd2a2/pstack"
-)
-PINNED_IMPLEMENT = Path(
-    "/workspace/vendor/agent-sources/pocock/"
-    "5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/implement/SKILL.md"
-)
+def install_root() -> Path:
+    """Return the repository this hook was installed into.
+
+    The hook sits at `<repo>/.claude/hooks` or `<repo>/.codex/hooks`, so the
+    root is two levels up. Deriving it here is what lets the harness be
+    installed anywhere instead of only in the repository it was written in.
+    """
+    return Path(__file__).resolve().parents[2]
+
+
+def vendor_root() -> Path:
+    """Return where the pinned upstream sources live."""
+    return install_root() / "vendor/agent-sources"
+
+
+PSTACK_PIN = "46125561306434d8a1d7745d540d8932ab0cd2a2"
+POCOCK_PIN = "5b15a47f2d7150f545fbcacbfe381787fc0230dc"
+
+
+def pinned_pstack() -> Path:
+    """Return the pinned Pstack checkout, exported layout first."""
+    exported = vendor_root() / "pstack/pstack"
+    if exported.is_dir():
+        return exported
+    return vendor_root() / f"pstack/{PSTACK_PIN}/pstack"
+
+
+def pinned_implement() -> Path:
+    """Return the pristine Pocock Implement source, exported layout first."""
+    exported = vendor_root() / "pocock/skills/engineering/implement/SKILL.md"
+    if exported.is_file():
+        return exported
+    return vendor_root() / f"pocock/{POCOCK_PIN}/skills/engineering/implement/SKILL.md"
 JsonObject = dict[str, object]
 
 
@@ -254,12 +279,12 @@ def source_row(name: str, path: Path) -> JsonObject:
 
 def method_sources(root: Path, contract: JsonObject) -> list[JsonObject]:
     configured = os.environ.get(env_name("PSTACK_ROOT"))
-    pstack = Path(configured).resolve() if configured else PINNED_PSTACK
+    pstack = Path(configured).resolve() if configured else pinned_pstack()
     rows: list[JsonObject] = []
     for name in source_names(contract):
         rows.append(source_row(name, source_path(root, pstack, contract, name)))
         if name == "implement" and "# Implement pointer" in cast(str, rows[-1]["content"]):
-            rows.append(source_row("implement:pristine", PINNED_IMPLEMENT.resolve(strict=True)))
+            rows.append(source_row("implement:pristine", pinned_implement().resolve(strict=True)))
     return rows
 
 

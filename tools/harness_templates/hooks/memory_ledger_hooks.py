@@ -22,7 +22,8 @@ import sys
 from types import ModuleType
 from typing import Mapping, Sequence, TextIO
 
-ROOT = Path(os.environ.get("CLAUDE_METHOD_REPO_ROOT", "/workspace"))
+ROOT = Path(os.environ.get("CLAUDE_METHOD_REPO_ROOT")
+            or Path(__file__).resolve().parents[2])
 LEDGER_TOOL = ROOT / "tools/memory_ledger.py"
 SPOOL_ROOT = ROOT / "artifacts/cache/continuity"
 START_HERE = ROOT / "START_HERE.md"

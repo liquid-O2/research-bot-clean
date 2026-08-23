@@ -127,6 +127,26 @@ def rearm_on_contract_edit(paths: Sequence[str], state: JsonObject,
     return None
 
 
+def check_opaque(state: JsonObject, payload: Mapping[str, object]) -> None:
+    """Require the method for a write whose target cannot be resolved."""
+    if not rules.route_selected(state):
+        raise ValueError(f"A write to an unresolvable path requires an explicit $plan-flow "
+                         f"or $implement-flow route, and route={state.get('route')!r}.")
+    policy.current_contract(payload, state)
+
+
+def gate_write(targets: list[str] | None, state: JsonObject,
+               payload: Mapping[str, object]) -> JsonObject | None:
+    """Apply the gate that matches what this write can reach."""
+    if targets is None:
+        return None
+    if not all(rules.resolvable(path) for path in targets):
+        check_opaque(state, payload)
+        return None
+    inside = rules.repository_paths(policy.repo_root(payload), targets)
+    return check_write(inside, state, payload) if inside else None
+
+
 def pre_tool_use(payload: Mapping[str, object]) -> JsonObject:
     """Gate one tool call against the active route and its contract."""
     name = tool_name(payload)
@@ -136,13 +156,7 @@ def pre_tool_use(payload: Mapping[str, object]) -> JsonObject:
         if name in SPAWN_TOOLS:
             check_spawn(tool_input, state, payload)
             return {}
-        targets = write_targets(name, tool_input)
-        if targets is None:
-            return {}
-        inside = rules.repository_paths(policy.repo_root(payload), targets)
-        if not inside:
-            return {}
-        return check_write(inside, state, payload) or {}
+        return gate_write(write_targets(name, tool_input), state, payload) or {}
     except ValueError as error:
         return deny(str(error))
     except Exception as error:  # noqa: BLE001

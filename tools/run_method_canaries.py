@@ -22,8 +22,29 @@ import tempfile
 from typing import Callable, Sequence, TextIO
 
 ROOT = Path(__file__).resolve().parent.parent
-GUARD = ROOT / ".claude/hooks/method_guard.py"
 SCOPE = "claude-method-port"
+
+
+@dataclass(frozen=True)
+class Client:
+    """Where one client's guard lives and how it names its inputs."""
+
+    name: str
+    guard: Path
+    env_prefix: str
+    write_tool: str
+    spawn_tool: str
+    brief_key: str
+    stdin_engage: bool
+
+
+CLIENTS = {
+    "claude": Client("claude", ROOT / ".claude/hooks/method_guard.py", "CLAUDE_METHOD",
+                     "Write", "Agent", "prompt", stdin_engage=False),
+    "codex": Client("codex", ROOT / ".codex/hooks/method_guard.py", "CODEX_METHOD",
+                    "apply_patch", "collaboration.spawn_agent", "message", stdin_engage=True),
+}
+ACTIVE = CLIENTS["claude"]
 NO_MEMO = "You are a subagent. Don't run memo."
 GOOD_BRIEF = (f"{NO_MEMO}\n"
               "Own: tools/scratch_canary.py\n"
@@ -67,15 +88,31 @@ def tool_payload(tool: str, tool_input: dict[str, object], **extra: object) -> d
 
 
 def write_payload(path: str, **extra: object) -> dict[str, object]:
-    """Build a Write payload for one target path."""
+    """Build a write payload in the active client's own shape."""
+    if ACTIVE.write_tool == "apply_patch":
+        relative = relative_to_root(path)
+        return tool_payload("apply_patch",
+                            {"patch": f"*** Add File: {relative}\n+canary\n"}, **extra)
     return tool_payload("Write", {"file_path": path, "content": "canary\n"}, **extra)
+
+
+def relative_to_root(path: str) -> str:
+    """Return a repository-relative path for a patch header."""
+    candidate = Path(path)
+    if candidate.is_absolute() and candidate.is_relative_to(ROOT):
+        return candidate.relative_to(ROOT).as_posix()
+    return candidate.as_posix()
 
 
 def spawn_payload(brief: str, subagent: str = "method-worker",
                   model: str = "opus") -> dict[str, object]:
-    """Build an Agent payload for one subagent launch."""
-    return tool_payload("Agent", {"prompt": brief, "subagent_type": subagent,
-                                  "model": model, "description": "canary"})
+    """Build a subagent launch payload in the active client's own shape."""
+    if ACTIVE.name == "codex":
+        return tool_payload(ACTIVE.spawn_tool,
+                            {"message": brief, "model": "gpt-5.6-sol",
+                             "reasoning_effort": "medium", "task_name": "canary"})
+    return tool_payload(ACTIVE.spawn_tool, {"prompt": brief, "subagent_type": subagent,
+                                            "model": model, "description": "canary"})
 
 
 def prompt_payload(text: str, mode: str = "bypassPermissions") -> dict[str, object]:
@@ -93,22 +130,32 @@ def stop_payload(message: str, event: str = "Stop") -> dict[str, object]:
 def run_guard(verb: str, payload: dict[str, object], state: Path,
               scope: str = "") -> dict[str, object]:
     """Run the installed hook script exactly as the client runs it."""
-    environment = {**os.environ, "CLAUDE_METHOD_STATE_ROOT": str(state),
-                   "CLAUDE_METHOD_REPO_ROOT": str(ROOT), "PYTHONDONTWRITEBYTECODE": "1"}
+    environment = guard_environment(state)
     if scope:
         environment["UNLAZY_SCOPE"] = scope
-    result = subprocess.run((sys.executable, str(GUARD), verb), input=json.dumps(payload),
-                            text=True, capture_output=True, env=environment, check=False)
+    result = subprocess.run((sys.executable, str(ACTIVE.guard), verb),
+                            input=json.dumps(payload), text=True, capture_output=True,
+                            env=environment, check=False)
     if result.returncode != 0:
         return {"_error": result.stderr.strip() or f"exit {result.returncode}"}
     return json.loads(result.stdout or "{}")
 
 
+def guard_environment(state: Path) -> dict[str, str]:
+    """Return the environment that points one guard at this canary run."""
+    return {**os.environ, f"{ACTIVE.env_prefix}_STATE_ROOT": str(state),
+            f"{ACTIVE.env_prefix}_REPO_ROOT": str(ROOT), "PYTHONDONTWRITEBYTECODE": "1"}
+
+
 def engage(state: Path, scope: str = SCOPE) -> subprocess.CompletedProcess[str]:
     """Run the engage command the denial messages tell the agent to run."""
-    environment = {**os.environ, "CLAUDE_METHOD_STATE_ROOT": str(state),
-                   "CLAUDE_METHOD_REPO_ROOT": str(ROOT), "PYTHONDONTWRITEBYTECODE": "1"}
-    return subprocess.run((sys.executable, str(GUARD), "engage", scope),
+    environment = guard_environment(state)
+    if ACTIVE.stdin_engage:
+        payload = json.dumps({"hook_event_name": "Engage", "session_id": "canary",
+                              "cwd": str(ROOT), "scope": scope})
+        return subprocess.run((sys.executable, str(ACTIVE.guard), "engage"), input=payload,
+                              text=True, capture_output=True, env=environment, check=False)
+    return subprocess.run((sys.executable, str(ACTIVE.guard), "engage", scope),
                           text=True, capture_output=True, env=environment, check=False)
 
 
@@ -256,11 +303,12 @@ def shared_codebase_canaries() -> list[Canary]:
 def spawn_canaries() -> list[Canary]:
     """Canaries for the subagent type and model policy."""
     return [
-        Canary("the wrong subagent type is denied", "pre-tool-use",
-               spawn_payload(GOOD_BRIEF, subagent="general-purpose"), "deny",
-               "subagent_type", setup=engaged),
-        Canary("the wrong model is denied", "pre-tool-use",
-               spawn_payload(GOOD_BRIEF, model="haiku"), "deny", "model", setup=engaged),
+        *([Canary("the wrong subagent type is denied", "pre-tool-use",
+                  spawn_payload(GOOD_BRIEF, subagent="general-purpose"), "deny",
+                  "subagent_type", setup=engaged),
+           Canary("the wrong model is denied", "pre-tool-use",
+                  spawn_payload(GOOD_BRIEF, model="haiku"), "deny", "model", setup=engaged)]
+          if ACTIVE.name == "claude" else []),
         Canary("a well-formed spawn passes", "pre-tool-use",
                spawn_payload(GOOD_BRIEF), "allow", setup=engaged),
     ]
@@ -387,9 +435,13 @@ def report(outcomes: Sequence[Outcome], stdout: TextIO) -> int:
 
 
 def main(argv: Sequence[str] | None = None, stdout: TextIO = sys.stdout) -> int:
-    """Run every canary against the installed guard."""
-    if not GUARD.is_file():
-        raise ValueError(f"no installed guard at {GUARD}")
+    """Run every canary against one installed guard."""
+    arguments = list(sys.argv[1:] if argv is None else argv)
+    global ACTIVE
+    name = arguments[1] if len(arguments) > 1 and arguments[0] == "--client" else "claude"
+    ACTIVE = CLIENTS[name]
+    if not ACTIVE.guard.is_file():
+        raise ValueError(f"no installed guard at {ACTIVE.guard}")
     state_root = Path(tempfile.mkdtemp(prefix="method-canaries-"))
     write_scope(OPEN_SCOPE, met=False)
     write_scope(DONE_SCOPE, met=True)
@@ -397,6 +449,7 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO = sys.stdout) -> int:
         outcomes = [run_one(canary, state_root) for canary in all_canaries()]
         outcomes.append(packet_outcome(state_root))
         outcomes.append(unchanged_outcome(state_root))
+        stdout.write(f"client: {ACTIVE.name} guard: {ACTIVE.guard}\n")
         return report(outcomes, stdout)
     finally:
         shutil.rmtree(state_root, ignore_errors=True)

@@ -90,9 +90,10 @@ def check_spawn(tool_input: Mapping[str, object], state: JsonObject,
     contract = policy.current_contract(payload, state)
     brief = tool_input.get("message", tool_input.get("prompt", tool_input.get("task")))
     rules.validate_brief(brief, policy.repo_root(payload))
-    rules.validate_model_policy(tool_input, contract, "model", "routine_implementation_model")
+    rules.validate_model_policy(tool_input, contract, "model",
+                                "routine_implementation_model", "codex")
     rules.validate_model_policy(tool_input, contract, "reasoning_effort",
-                                "routine_implementation_reasoning")
+                                "routine_implementation_reasoning", "codex")
 
 
 def check_write(paths: Sequence[str], state: JsonObject,
@@ -152,17 +153,13 @@ def user_prompt_submit(payload: Mapping[str, object]) -> JsonObject:
         policy.remember_session(payload)
         route = rules.route_from_prompt(str(payload.get("prompt") or ""))
         state = policy.load_state(payload)
-        if route is None:
-            return {}
-        state.update({"route": route, "epoch": int(state.get("epoch", 0)) + 1})
-        state.pop("ready", None)
-        state.pop("rearm_reason", None)
-        policy.save_state(payload, state)
-        router = policy.repo_root(payload) / f".agents/skills/{route}/SKILL.md"
+        if route is not None:
+            state.update({"route": route, "epoch": int(state.get("epoch", 0)) + 1})
+            state.pop("ready", None)
+            state.pop("rearm_reason", None)
+            policy.save_state(payload, state)
         return context("UserPromptSubmit",
-                       f"Method route {route} selected. Read {router} in full, write "
-                       f".unlazy/<scope>/METHOD.json and its GATES.md, then run {ENGAGE_HINT} "
-                       "before the first repository write.")
+                       rules.turn_reminder(route, state.get("route"), ENGAGE_HINT))
     except Exception as error:  # noqa: BLE001
         return allow_with_warning(f"{type(error).__name__}: {error}")
 

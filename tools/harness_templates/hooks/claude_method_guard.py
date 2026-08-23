@@ -96,8 +96,10 @@ def check_spawn(tool_input: Mapping[str, object], state: JsonObject,
     root = policy.repo_root(payload)
     contract = policy.current_contract(payload, state)
     rules.validate_brief(tool_input.get("prompt"), root)
-    rules.validate_model_policy(tool_input, contract, "subagent_type", "subagent_type")
-    rules.validate_model_policy(tool_input, contract, "model", "routine_implementation_model")
+    rules.validate_model_policy(tool_input, contract, "subagent_type",
+                                "subagent_type", "claude")
+    rules.validate_model_policy(tool_input, contract, "model",
+                                "routine_implementation_model", "claude")
 
 
 def check_write(paths: Sequence[str], state: JsonObject,
@@ -170,7 +172,8 @@ def user_prompt_submit(payload: Mapping[str, object]) -> JsonObject:
         state = policy.load_state(payload)
         if route is not None:
             select_route(payload, state, route)
-        return context("UserPromptSubmit", turn_reminder(state, route))
+        return context("UserPromptSubmit",
+                       rules.turn_reminder(route, state.get("route"), ENGAGE_HINT))
     except Exception as error:  # noqa: BLE001
         return allow_with_warning(f"{type(error).__name__}: {error}")
 
@@ -181,21 +184,6 @@ def select_route(payload: Mapping[str, object], state: JsonObject, route: str) -
     state.pop("ready", None)
     state.pop("rearm_reason", None)
     policy.save_state(payload, state)
-
-
-def turn_reminder(state: JsonObject, route: str | None) -> str:
-    """Return the standing laws for this turn, and the route's next step."""
-    laws = ("Mandatory this turn: $unslop governs every sentence you write to the user and "
-            "every MEMORY.md line. $writing-for-agents governs every skill, contract, plan and "
-            "subagent brief. $unlazy gates any substantial work.")
-    if route is not None:
-        return (f"{laws} Route {route} selected. Read .agents/skills/{route}/SKILL.md in full, "
-                f"then run {ENGAGE_HINT} before the first repository write.")
-    active = state.get("route")
-    if active in policy.ROUTES:
-        return f"{laws} Route {active} is active."
-    return (f"{laws} No route is selected. A repository write will select $implement-flow and be "
-            "denied until its method enters this session.")
 
 
 def session_start(payload: Mapping[str, object]) -> JsonObject:

@@ -278,12 +278,9 @@ def validate_brief(brief: object, root: Path) -> None:
 
 
 def validate_model_policy(tool_input: Mapping[str, object], contract: JsonObject,
-                          key: str, expected_field: str) -> None:
+                          key: str, expected_field: str, client: str = "") -> None:
     """Check a spawn matches the contract's model policy for this client."""
-    policy = contract.get("model_policy")
-    if not isinstance(policy, dict):
-        raise ValueError(f"METHOD.json model_policy must be an object, got {policy!r}")
-    expected = policy.get(expected_field)
+    expected = model_policy_value(contract, expected_field, client)
     actual = tool_input.get(key)
     if expected and actual != expected:
         raise ValueError(f"Agent launch requires {key}={expected!r}, got {actual!r}.")
@@ -402,3 +399,37 @@ def clean_code_violation(root: Path) -> str | None:
     listed = "\n".join(findings[:12])
     return ("clean-code-for-agents refuses this diff. Fix these before finishing:\n"
             f"{listed}")
+
+
+STANDING_LAWS = (
+    "Mandatory this turn: $unslop governs every sentence you write to the user and every "
+    "MEMORY.md line. $writing-for-agents governs every skill, contract, plan and subagent "
+    "brief. $unlazy gates any substantial work."
+)
+
+
+def turn_reminder(route: str | None, active: object, engage_hint: str) -> str:
+    """Return this turn's standing laws and the route's next step."""
+    if route is not None:
+        return (f"{STANDING_LAWS} Route {route} selected. Read "
+                f".agents/skills/{route}/SKILL.md in full, write .unlazy/<scope>/METHOD.json "
+                f"and its GATES.md, then run {engage_hint} before the first repository write.")
+    if active in ROUTES:
+        return f"{STANDING_LAWS} Route {active} is active."
+    return (f"{STANDING_LAWS} No route is selected. A repository write will select "
+            "$implement-flow and be denied until its method enters this session.")
+
+
+def model_policy_value(contract: JsonObject, field: str, client: str) -> object:
+    """Return a model policy value, preferring this client's own override.
+
+    One contract serves both clients, and they do not run the same models. A
+    flat key is the default; a key nested under the client name wins.
+    """
+    policy = contract.get("model_policy")
+    if not isinstance(policy, dict):
+        raise ValueError(f"METHOD.json model_policy must be an object, got {policy!r}")
+    scoped = policy.get(client)
+    if isinstance(scoped, dict) and field in scoped:
+        return scoped[field]
+    return policy.get(field)

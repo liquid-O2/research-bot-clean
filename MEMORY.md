@@ -427,6 +427,7 @@ New memories land here, newest last.
 - 2026-08-23 #188 USER: Claude subagents run Opus 5 at medium reasoning, matching the Codex gpt-5.6-sol medium rule. Skills stay unchanged in .agents/skills and Claude reaches them by symlink.
 - 2026-08-23 #189 Claude Code reads the canonical skills through 76 symlinks at .claude/skills, built by tools/install_claude_skills.py from the Codex install receipt. No skill is ever copied.
 - 2026-08-23 #190 AGENTS.md and CLAUDE.md are generated from shared blocks by tools/render_agent_contract.py. Only the client block differs, and verify_agent_harness.py contract fails on any hand edit.
+- 2026-08-23 #191 Both harnesses are live-proven: 32 canaries on Claude and 30 on Codex drive the installed hooks and check every denial and every allowance.
 
 ## Checkpoints
 

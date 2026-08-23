@@ -112,8 +112,23 @@ QRDISC_CPP_SOURCES = (
 # House FP law (engine/cpp/CMakeLists.txt:36): -ffp-contract=off, no fast-math,
 # warnings are errors.  Python/numpy headers come in with -isystem so their own
 # pedantic diagnostics cannot fail our build.
+# Ticket 41, and the measurement matters more than the reasoning. -O3 with
+# -fno-math-errno is lossless here because -ffp-contract=off stays and nothing
+# enables -ffast-math or -fassociative-math, so GCC may not reorder a
+# floating-point reduction and the float64 bytes are the oracle's; that is
+# PROVEN by the standing differential, not argued (receipt
+# disc_native_differential_o3_allstore300.json, 5/5 store sessions PASS).
+#
+# It also buys almost nothing: 3.8385 ms/row against -O2's 3.8616, which is 0.6%
+# and inside the run-to-run spread the oracle itself shows (7.0668 vs 7.1473).
+# Recorded so nobody re-runs this experiment: the remaining cost is NOT compute
+# in the ported families, it is the row's calls back into Python for the
+# families wave 2 did not port. More speed means porting more families, not more
+# flags. -march=native was tried in the same pass, passed the differential, and
+# was REMOVED anyway: zero measured gain does not justify a binary that dies
+# with SIGILL if the pod's CPU changes under it.
 QRDISC_COMPILE_FLAGS = (
-    "-std=c++20", "-O2", "-g", "-fPIC", "-shared",
+    "-std=c++20", "-O3", "-fno-math-errno", "-g", "-fPIC", "-shared",
     "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-ffp-contract=off",
 )
 
@@ -123,9 +138,17 @@ class QrdiscNativeRefusal(RuntimeError):
 
 
 def qrdisc_source_manifest() -> tuple[str, str]:
-    """(sha256, text) over the listed C++ sources, path and content."""
+    """(sha256, text) over the listed C++ sources AND the compile flags.
 
-    lines = []
+    The sha addresses the build directory, so anything that changes the emitted
+    binary must be in it. Sources alone are not enough: raising -O2 to -O3 leaves
+    the cached `.so` at the same address, the next run loads the OLD binary, and
+    any speed or byte-identity number taken from it is measuring code that is no
+    longer the code on disk. Ticket 41; fixture
+    test_qrdisc_state_marshal.test_manifest_sha_covers_the_compile_flags.
+    """
+
+    lines = [f"FLAGS {' '.join(QRDISC_COMPILE_FLAGS)}"]
     for relative in QRDISC_CPP_SOURCES:
         path = QRDISC_CPP_ROOT / relative
         if not path.is_file():

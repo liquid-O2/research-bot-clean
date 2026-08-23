@@ -446,6 +446,28 @@ class QrdiscStaleBinaryRefusal(unittest.TestCase):
     the check must accept the binary at its own address.
     """
 
+    def test_manifest_sha_covers_the_compile_flags(self) -> None:
+        """A flag change MUST move the manifest sha (ticket 41).
+
+        The sha addresses the build directory, so if it covers sources only,
+        raising -O2 to -O3 leaves the cached .so in place and the next run
+        silently measures the OLD binary. Every speed number taken that way is
+        a lie, and this is the fixture that stops it.
+        """
+
+        before, text = loader.qrdisc_source_manifest()
+        self.assertIn("-ffp-contract=off", text,
+                      "the manifest text must record the flags it was built with")
+        with mock.patch.object(
+                loader, "QRDISC_COMPILE_FLAGS",
+                tuple(f for f in loader.QRDISC_COMPILE_FLAGS if f != "-O2") + ("-O3",)):
+            after, after_text = loader.qrdisc_source_manifest()
+        self.assertNotEqual(
+            before, after,
+            "changing a compile flag left the manifest sha unchanged, so the "
+            "cached .so would be reused for a different binary")
+        self.assertNotEqual(text, after_text)
+
     def test_binary_from_another_manifest_is_refused(self) -> None:
         library, real_sha = loader.qrdisc_build_extension()
         reordered = tuple(reversed(loader.QRDISC_CPP_SOURCES))

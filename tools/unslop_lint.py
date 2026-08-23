@@ -37,6 +37,7 @@ BULLET = re.compile(r"^\s*(?:[-*+]|\d+\.)\s")
 CAPITALIZED = re.compile(r"^[A-Z][a-z]+$")
 COLON = re.compile(r"(?<![:\d]):(?![:/\d])")
 WORD = re.compile(r"[A-Za-z][\w'-]*")
+CLAUSE_BOUNDARY = re.compile(r"(?:[.!?]\s+|\(\d+\)\s*|;\s+)")
 MIN_WORDS_BEFORE_COLON = 5
 MAX_TITLE_CASE_WORDS = 1
 
@@ -149,15 +150,24 @@ def scan_colon(path: str, number: int, line: str) -> Iterator[Finding]:
                       line[max(0, match.start() - 30):match.start() + 30].strip())
 
 
+def clause_before(line: str, index: int) -> str:
+    """Return the text since the last sentence boundary or numbered marker.
+
+    Counting from the start of the line misreads a label colon in a long
+    paragraph as a mid-sentence connector. Rule 14 is about the clause the
+    colon sits in, not the line it happens to share.
+    """
+    return CLAUSE_BOUNDARY.split(line[:index])[-1]
+
+
 def connector_colon(line: str, index: int) -> bool:
     """Report whether the colon joins two clauses instead of leading a list."""
     tail = line[index + 1:]
     if not tail.strip() or not tail.startswith(" "):
         return False
-    following = tail.lstrip()
-    if not following[:1].islower():
+    if not tail.lstrip()[:1].islower():
         return False
-    return len(WORD.findall(line[:index])) >= MIN_WORDS_BEFORE_COLON
+    return len(WORD.findall(clause_before(line, index))) >= MIN_WORDS_BEFORE_COLON
 
 
 def scan_heading(path: str, number: int, line: str, allowlist: frozenset[str]) -> Iterator[Finding]:

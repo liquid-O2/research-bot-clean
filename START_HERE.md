@@ -16,34 +16,53 @@ depth you can reach for when you need it.
 
 # 1. How to work here
 
-## OptMem is the session memory
+## MEMORY.md is the session memory (D-116)
 
 It outlives every session, compaction, model and vendor change. Compaction
-summaries are **not** the memory. Do not start from `DIRECTIVES.md`,
-`.mempalace/hook_state/RECALL.md`, or `compaction/INDEX.md`.
+summaries are **not** the memory. Do not start from `DIRECTIVES.md`.
 
-1. First command of the session: `~/.optmem/memo wake`. If the shebang fails,
-   use `/usr/bin/python3 ~/.optmem/memo wake`. If PATH is bare,
-   `export PATH=/usr/local/bin:/usr/bin:/bin` first. Done when it prints
-   `You are awake.`
-2. **Follow its output to the end.** If it asks for a `nap`, run that exact line
-   before anything else. Unsettled compressions pile up and wake degrades.
-3. While working: `~/.optmem/memo note "<one line, max 280 bytes>"` for decisions,
-   verdicts, receipt shas and user rulings. Not narration.
-4. To find an old fact: `~/.optmem/memo recall <regex>`, or `zoom <a-b>` on the
-   summary tree wake prints.
-5. Spawning a subagent? Its brief must say: `You are a subagent. Don't run memo.`
+1. First command of the session. `python3 tools/memory_ledger.py tail 40`. The
+   SessionStart hook already injects this, so read what it gave you.
+2. While working. `python3 tools/memory_ledger.py note "<one line, 280 bytes>"`
+   for decisions, verdicts, receipt digests and user rulings. Not narration.
+   Every line passes the unslop lint, so write it clean the first time.
+3. To find an old fact. `python3 tools/memory_ledger.py recall <regex>`. It
+   searches the whole history, the 186 imported OptMem entries included.
+4. Spawning a subagent. Its brief must carry this sentence exactly once.
+   `You are a subagent. Don't run memo.`
 
-Fallback only if wake itself fails: `/workspace/CONTINUITY.md`, then `STATE.md`.
+There is no compression step, so no memory chore can block a session. OptMem
+stays installed at `~/.optmem/memo` and nothing gates on it. Its PreCompact
+hook used to refuse compaction while a compression was pending, which
+deadlocked a full session on 2026-08-23; it now reports and never blocks.
 
-## Skills are law, not a menu
+## Skills are law, and the guard enforces them (D-112, D-114)
 
-`AGENTS.md` is the harness wiring, and `.agents/skills` is the sole repository
-skill authority. A matching situation means read
-`/workspace/.agents/skills/<name>/SKILL.md` and follow it. `plan-flow` and
-`implement-flow` route planning and implementation through Poteto Mode while
-preserving the selected Pocock methods. Verify the installed authority with
-`python3 tools/verify_agent_harness.py skills`.
+`.agents/skills` is the sole skill authority. Codex reads it directly, Claude
+Code reaches the same bytes through symlinks at `.claude/skills`. `AGENTS.md`
+and `CLAUDE.md` are generated from shared blocks, so a rule cannot differ
+between the two clients.
+
+Entering a route is the first thing you do, not an afterthought.
+
+1. Type `$plan-flow` to plan, or `$implement-flow` to build. Use `$plan-flow`
+   rather than the client's built-in plan mode. The guard reads the route from
+   your prompt and infers nothing from the permission mode.
+2. Write `.unlazy/<scope>/METHOD.json` and its `GATES.md`. Both stay writable
+   without a route, because they are what unlocks one.
+3. Run the engage command the guard names. It prints the exact router, the
+   Poteto principles index, the selected playbook, the standing laws, the
+   nested method and every applicable principle leaf, then records their
+   digests.
+
+A repository write with no route selects `$implement-flow` and is denied until
+that packet arrives. A compaction clears the record, so run engage again; what
+you remember of the method does not count. Writes outside the repository,
+`MEMORY.md` and the two bootstrap files are never gated.
+
+Prove the whole thing with `python3 tools/run_method_canaries.py --client claude`
+and `--client codex`. Verify the install with
+`python3 tools/verify_agent_harness.py skills`, `contract`, and `hooks`.
 
 ## The unlazy wall (D-111)
 

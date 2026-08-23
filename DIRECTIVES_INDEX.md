@@ -72,3 +72,28 @@ Their recurrence conditions cluster into five:
 A session conforms to LIVE entries. CONDITIONALLY-LIVE entries bind the moment their recurrence condition triggers —
 check the cluster table before opening any of that work. DEAD-LINE entries are history: read them for context, do not
 spend a turn conforming to them, and do not cite them as authority unless a user ruling revives their subject.
+
+## 2026-08-23 addendum: the enforcement entries
+
+D-111 was cited by `.gitignore` and `DIRECTIVES_INBOX.md` for a day before it was written into the
+registry. It is now recorded, and D-112 through D-116 follow it.
+
+| # | Subject | Status |
+|---|---|---|
+| **D-111** | unlazy is mandatory law, enforced by its Stop hook | LIVE |
+| **D-112** | Method enforcement is mechanical on both clients: route precedence, engagement, re-arm | LIVE |
+| **D-113** | The laws that can be linted are linted: unslop, the Akita block, writing-for-agents | LIVE |
+| **D-114** | One skill authority, two clients; both contracts generated from shared blocks | LIVE |
+| **D-115** | Subagents run pinned, with the standing laws preloaded | LIVE |
+| **D-116** | The ledger is primary memory and OptMem gates nothing (amends D-101) | LIVE |
+
+**How D-013, D-108 and D-112 fit together.** D-013 bans blocking hooks. D-108 amended it so that
+enforcement gates may deny and must fail open on an internal error. D-112 is the standing application of
+that amendment. Read together: continuity hooks report and never block, which is why the OptMem
+PreCompact refusal in D-116 was a defect rather than a policy; enforcement gates deny with a reason that
+names the fix, and any unexpected exception allows the call and reports loudly.
+
+**What D-116 changes in D-101.** D-101(1) named OptMem the primary durable memory. That clause is
+superseded. D-101(2) and D-101(3), the lifecycle hooks and the hook-maintained markdown trail, survive in
+the new shape: `MEMORY.md` is the trail, the hooks are output-only, and `SessionStart` with
+`source=compact` carries rehydration because `PostCompact` cannot inject context.

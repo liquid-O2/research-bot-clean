@@ -110,6 +110,20 @@ class ColonHeuristicTests(unittest.TestCase):
     def test_a_colon_before_a_list_is_allowed(self) -> None:
         self.assertNotIn(14, rules("The guard checks three things:\n"))
 
+    def test_a_label_after_a_numbered_marker_is_allowed(self) -> None:
+        line = ("The rule is long and says several things first. (2) ENGAGEMENT: before the "
+                "first write the guard injects the sources.")
+        self.assertNotIn(14, rules(line))
+
+    def test_a_label_after_a_sentence_boundary_is_allowed(self) -> None:
+        line = "This sentence runs on for a while and then ends. Note: the tool manages it."
+        self.assertNotIn(14, rules(line))
+
+    def test_a_connector_deep_in_a_line_is_still_caught(self) -> None:
+        line = ("An unrelated opening sentence sits here. If you are coming from the old "
+                "runner: instead of handlers, you declare rules.")
+        self.assertIn(14, rules(line))
+
     def test_a_time_and_a_url_are_allowed(self) -> None:
         self.assertNotIn(14, rules("The run started at 09:30 and finished later on."))
 

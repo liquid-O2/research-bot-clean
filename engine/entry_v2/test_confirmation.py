@@ -10,6 +10,7 @@ import unittest
 import numpy as np
 
 from engine.entry_v2 import common as C
+from engine.entry_v2 import confirmation
 from engine.entry_v2.confirmation import (
     ConfirmationConfig, ConfirmationDataset, ConfirmationOpportunitySet,
     ConfirmationRefusal, combine_confirmation_datasets,
@@ -220,6 +221,64 @@ def _synthetic_opportunity_set(day: int) -> ConfirmationOpportunitySet:
     )
     result.validate()
     return result
+
+
+class CorpusAgeGrid(unittest.TestCase):
+    """The corpus row grid (ticket 42).
+
+    The corpus does not need every scheduled age. It needs the ages the entry
+    work actually reads, and cutting below that silently disarms measurements
+    that have already decided things: the ticket-29 decay bound reads eight ages
+    and a four-age corpus cannot answer it at all.
+    """
+
+    def test_corpus_grid_is_a_strict_subset_of_the_schedule(self) -> None:
+        scheduled = set(confirmation.training_offsets_seconds(300))
+        grid = set(confirmation.CORPUS_AGE_GRID_SECONDS)
+        self.assertTrue(grid < scheduled,
+                        "the corpus grid must be a STRICT subset of the schedule; "
+                        f"off-schedule ages: {sorted(grid - scheduled)}")
+
+    def test_corpus_grid_covers_every_age_the_live_probes_read(self) -> None:
+        """Derived from the probes' own constants, never hand-copied."""
+
+        import sys
+        sys.path.insert(0, "/workspace/tools")
+        from probe_armed_entry import AGE_GRID
+        from probe_path_dedup_live import DELTA_SEC, FORM_DELTA
+        from probe_trained_accrual import DELTAS
+        needed = {int(d) for d in DELTAS} | {int(a) for a in AGE_GRID}
+        needed |= {int(FORM_DELTA), int(DELTA_SEC)}
+        missing = needed - set(confirmation.CORPUS_AGE_GRID_SECONDS)
+        self.assertEqual(missing, set(),
+                         f"the corpus grid drops ages a live probe reads: {sorted(missing)}")
+
+    def test_selecting_the_corpus_grid_changes_the_receipt(self) -> None:
+        full = confirmation.ConfirmationConfig(max_delay_sec=300)
+        corpus = confirmation.ConfirmationConfig(max_delay_sec=300, age_grid="CORPUS")
+        self.assertEqual(full.offsets, confirmation.training_offsets_seconds(300),
+                         "the FULL path must be byte-for-byte what it was")
+        self.assertEqual(corpus.offsets, confirmation.CORPUS_AGE_GRID_SECONDS)
+        self.assertNotEqual(full.receipt_sha256, corpus.receipt_sha256,
+                            "a corpus built on a reduced grid must not be able to "
+                            "pass as a full-resolution one")
+        # Two independent paths protect that: the age_grid field is in asdict,
+        # AND the resolved offsets are in the receipt. Pin the second one too,
+        # by moving the grid with the field held constant - otherwise a future
+        # refactor could drop offsets from the receipt and nothing would notice.
+        from unittest import mock
+        with mock.patch.object(confirmation, "CORPUS_AGE_GRID_SECONDS",
+                               (0, 60, 180, 300)):
+            narrower = confirmation.ConfirmationConfig(
+                max_delay_sec=300, age_grid="CORPUS").receipt_sha256
+        self.assertNotEqual(
+            corpus.receipt_sha256, narrower,
+            "two corpora built on DIFFERENT age grids share a receipt sha; the "
+            "resolved offsets are not reaching receipt_sha256")
+
+    def test_an_unknown_grid_is_refused(self) -> None:
+        with self.assertRaises(confirmation.ConfirmationRefusal):
+            confirmation.ConfirmationConfig(age_grid="SOMETHING_ELSE")
 
 
 class ConfirmationUnitTests(unittest.TestCase):

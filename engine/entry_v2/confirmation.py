@@ -68,6 +68,24 @@ class ConfirmationRefusal(RuntimeError):
     """The confirmation stream, feature, label, or persistence law failed."""
 
 
+# Ticket 42. The corpus does not need every scheduled age, it needs the ages the
+# entry work reads, and this is that set MEASURED rather than guessed: the union
+# of probe_trained_accrual.DELTAS (7), probe_armed_entry.AGE_GRID (8) and the
+# live rule's FORM_DELTA/DELTA_SEC. Nine of the 37 training offsets, a 4.1x row
+# cut, and nothing dropped that anything reads.
+#
+# It is deliberately NOT four. A four-age corpus cannot answer the ticket-29
+# entry-age decay bound, which reads eight, and that bound is what killed the
+# ticket-28 hold. Cutting below what the diagnostics read buys 0.6 h and
+# disarms the measurement that decides whether a rule is priced honestly.
+#
+# What it DOES discard: the 5-second resolution below 60 s and the 10-second
+# resolution to 300 s. No live probe reads those, and recovering them means
+# rebuilding the corpus. Fixture: test_confirmation.CorpusAgeGrid.
+CORPUS_AGE_GRID_SECONDS: tuple[int, ...] = (0, 30, 60, 90, 120, 180, 240, 290, 300)
+AGE_GRIDS = frozenset({"FULL", "CORPUS"})
+
+
 def training_offsets_seconds(max_delay_sec: int = 600) -> tuple[int, ...]:
     """The cheap registered training grid, including the formation baseline."""
 
@@ -135,6 +153,12 @@ def read_versioned_tsv(
 class ConfirmationConfig:
     max_delay_sec: int = 600
     snapshot_mode: str = "TRAINING"
+    # "FULL" schedules every training offset. "CORPUS" schedules only
+    # CORPUS_AGE_GRID_SECONDS, which is a 4.1x row cut for the corpus build and
+    # drops nothing any live probe reads (ticket 42). It is a strict subset, so
+    # the rows it keeps are the same rows, and `receipt_sha256` carries the
+    # offsets, so a reduced corpus can never pass as a full-resolution one.
+    age_grid: str = "FULL"
     fee_usd: float = FEE_USD
     wall_usd: float = WALL_USD
     level_association_mode: str = "REAL"
@@ -146,6 +170,9 @@ class ConfirmationConfig:
             raise ConfirmationRefusal("max_delay_sec must be 300 or 600")
         if self.snapshot_mode not in {"TRAINING", "REPLAY"}:
             raise ConfirmationRefusal("snapshot_mode must be TRAINING or REPLAY")
+        if self.age_grid not in AGE_GRIDS:
+            raise ConfirmationRefusal(
+                f"age_grid must be one of {sorted(AGE_GRIDS)}; got {self.age_grid!r}")
         if self.level_association_mode not in LEVEL_ASSOCIATION_MODES:
             raise ConfirmationRefusal("level_association_mode is invalid")
         if not isinstance(self.require_forecast_context, bool):
@@ -161,9 +188,21 @@ class ConfirmationConfig:
 
     @property
     def offsets(self) -> tuple[int, ...]:
-        return (training_offsets_seconds(self.max_delay_sec)
-                if self.snapshot_mode == "TRAINING"
-                else replay_offsets_seconds(self.max_delay_sec))
+        scheduled = (training_offsets_seconds(self.max_delay_sec)
+                     if self.snapshot_mode == "TRAINING"
+                     else replay_offsets_seconds(self.max_delay_sec))
+        if self.age_grid == "FULL":
+            return scheduled
+        keep = tuple(age for age in scheduled if age in CORPUS_AGE_GRID_SECONDS)
+        # A grid that silently loses an age it was asked for would build a
+        # corpus missing rows nobody notices until a probe returns nothing.
+        missing = set(CORPUS_AGE_GRID_SECONDS) - set(scheduled)
+        if missing:
+            raise ConfirmationRefusal(
+                f"corpus age grid asks for ages the {self.snapshot_mode} schedule "
+                f"at max_delay_sec={self.max_delay_sec} does not contain: "
+                f"{sorted(missing)}; expected a strict subset of {scheduled}")
+        return keep
 
     @property
     def receipt_sha256(self) -> str:

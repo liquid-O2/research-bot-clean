@@ -1,37 +1,34 @@
-# 51: The loser screen — the framing nobody has tried
+# 51: Land in the top two — the correctly framed target
 
-**What to build:** a screen that identifies which new-extreme events will LOSE,
-at each event's own DELTA_SEC row, and a rule that drops the predicted losers
-and takes the best of what remains.
+**What to build:** a rule that reliably lands in the top TWO of the ~6
+new-extreme events per cell, and the measurement of what that is worth.
 
-**Why this and not another ranker.** Ticket 50 measured the thing that explains
-every null: the event pool has a NEGATIVE mean (HG -$95, NKD -$51, SI -$71 on
-TRAIN) and fewer than half of events are profitable. So "find the best of six"
-demands being right about the top against five members that lose money. That is
-the hardest possible framing and it is the only one this program has ever tried.
+**The corrected framing.** An earlier draft of this ticket said "five losers per
+winner" and aimed at eliminating losers. That arithmetic was wrong — 41-49% of
+events are profitable, so it is roughly one loser per winner — and the rank
+profile (ticket 50, corrected) shows why the right target is different:
 
-Elimination is a different problem:
+| Asset | Need/trade | Top-2 mean | Top-3 mean | All-6 | Live arm |
+|---|---|---|---|---|---|
+| HG | $667 | **$678** | $451 | -$95 | $333 |
+| NKD | $500 | $498 | $374 | -$51 | $292 |
+| SI | $500 | **$623** | $494 | -$71 | $488 |
 
-- Base rate 51-59% instead of 17%.
-- Five losers per winner, so precision on the LOSER class carries about five
-  times the leverage of precision on the winner class.
-- Never measured. Ticket 23's `good_enough` asked whether a CELL contains a $600
-  name. Tickets 25, 26 and 36 asked which name is best. **No measurement has
-  ever asked which name will lose.**
+Top-2 clears HG and SI and is $2 short on NKD. Top-3 clears nothing. So the job
+is not "pick the best" and not "drop the losers" — it is **land in the top two**,
+and the current picker does not reach uniform-top-3 on HG.
 
-**Blocked by:** None. The event set and exact labels are on disk.
+**Blocked by:** None. Event set and exact labels are on disk.
 
 **Status:** ready-for-agent
 
-- [ ] Label is `y < 0` at the event's own DELTA_SEC row, base rate reported per
-      asset and block
-- [ ] Every candidate column scored as a LOSER classifier, precision and recall
-      on the loser class, not AUC alone
-- [ ] The ticket-44 collinearity control is mandatory: any survivor is tested
-      against the entry price it may be a repackaging of
-- [ ] The rule is CASHED, not scored: drop predicted losers, take the best of the
-      remainder, one entry per phase, with its shuffled null and per-day SE
-- [ ] Report the pool mean AFTER the screen; if it does not cross zero the screen
-      has failed whatever its AUC says
-- [ ] If nothing separates losers either, letter it `plane_closed_both_framings`
-      — that is a conclusive answer, not another null
+- [ ] Report the picker's RANK DISTRIBUTION, not just its dollars: where in the
+      cell does the live arm actually land, per asset and block
+- [ ] Measure the top-2 hit rate needed per asset against what each arm achieves
+- [ ] The ticket-44 collinearity control is STRUCTURAL, not post-hoc: any score
+      is residualised against side x entry price before it is scored, and every
+      survivor is reported beside its entry-price-only twin
+- [ ] Multi-entry inside the 12-trade cap is priced: two entries in one cell per
+      asset plus one in the others is 12 portfolio trades and its oracle is
+      $3,203/day on HG against a $2,000 rung
+- [ ] Cash every arm with its shuffled null and per-day SE; AUC is not dollars

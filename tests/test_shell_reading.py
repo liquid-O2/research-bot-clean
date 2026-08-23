@@ -40,6 +40,9 @@ OPAQUE_COMMANDS = (
     "diff --output=out README.md START_HERE.md",
     "file --compile README.md",
     "git status\ntouch bypass",
+    "rm tests/a;touch tests/b",
+    "touch tests/a\nrm tests/b",
+    "python3 tools/memory_ledger.py note fact>AGENTS.md",
     "rg pattern . | find scratch -delete",
     "rg pattern . > out",
 )
@@ -63,6 +66,7 @@ class ShellReadingTests(unittest.TestCase):
 
     def test_engage_requires_one_plain_operator_free_command(self) -> None:
         plain = "python3 .codex/hooks/method_guard.py engage fixture"
+        absolute = "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py engage fixture"
         hidden = (
             f"{plain}; touch bypass",
             f"{plain}$(touch bypass)",
@@ -70,9 +74,12 @@ class ShellReadingTests(unittest.TestCase):
         mentions = (
             "echo .codex/hooks/method_guard.py engage fixture",
             "python3 -c pass .codex/hooks/method_guard.py engage fixture",
+            "/tmp/python3 .codex/hooks/method_guard.py engage fixture",
+            "python3 /tmp/method_guard.py engage fixture",
         )
 
         self.assertTrue(bare_engage(plain))
+        self.assertTrue(bare_engage(absolute))
         for command in hidden:
             with self.subTest(command=command):
                 self.assertFalse(bare_engage(command))

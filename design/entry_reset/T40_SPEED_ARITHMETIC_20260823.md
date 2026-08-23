@@ -87,3 +87,61 @@ Two fundable shapes, and the choice is a time-and-money call:
 
 Nothing launches until item 1 above is receipted and the user has picked a
 scope.
+
+## Addendum, same day: R6 measured, and the full window fits
+
+The user asked why R6 was not being used and whether 2025H1 is reachable with
+it. Both answered by measurement.
+
+**Why it was not being used: nothing was running it.** Two separate facts.
+
+1. The built C++ tree in `artifacts/cache/cpp/release` is dated 2026-08-16 and
+   R6's sources are dated 2026-08-21. The binaries predate R6 by five days.
+   Rebuilt today into `artifacts/cache/cpp/r6release` (346 targets, 0 errors;
+   `ninja` was missing and is now installed to `~/.local/lib/pybin/bin`).
+2. More importantly, the existing instrument was measuring the wrong thing.
+   `tools/time_qrdisc_row_paths.py` times `QRDISC_TAIL_FAMILIES`, which is
+   wave 1: three families, lane C's assembly question. On HG/20210721 it reports
+   7.20 ms/row native against the oracle's 7.10 — **0.98x, i.e. no gain** — and
+   that is a true measurement of the wrong configuration. R6's shipped end state
+   is `QRDISC_WAVE2_FAMILIES`: eight families AND native row assembly.
+
+**Measured today**, `tools/time_qrdisc_wave2.py`, receipt
+`diagnostics/qrdisc_wave2_rate_20260823.json`, HG/20210721, 300 rows, 20 warm-up,
+one process, no profiler:
+
+| Path | Native families | ms/row | Speedup |
+|---|---|---|---|
+| oracle (frozen Python) | 0 | 7.1473 | — |
+| wave 1 | 3 | 7.3078 | 0.98x |
+| **R6 shipped (wave 2 + assembly)** | 8 | **3.8616** | **1.85x** |
+
+The tool refuses if `assembly_available` is false, so a run that silently fell
+back to the whole-map delegate cannot be quoted as an R6 number.
+
+**The totals.** At 21,996 rows per day-store (1,473,724 matrix rows / 67 stores;
+the direct per-session count is running and will replace this anchor), against
+HARDWARE.md's 13.6 real cores:
+
+| Scope | Path | s/session | CPU-hours | Wall | D-109 |
+|---|---|---|---|---|---|
+| 2022-2025H1 | oracle | 157 | 114.6 | 8.4 h | over |
+| **2022-2025H1** | **R6** | **85** | **61.9** | **4.6 h** | **UNDER the cap** |
+| 2022 only | oracle | 157 | 32.8 | 2.4 h | under |
+| 2022 only | R6 | 85 | 17.7 | 1.3 h | under |
+
+**So the answer is yes: with R6, 2022-2025H1 fits in about 4.6 hours**, inside
+the six-hour cap, and there is no reason to settle for 2022 alone. Add the
+substrate at 3.5 minutes and it is unchanged.
+
+**What this number does NOT cover, stated so it is not mistaken for the whole
+build:** it is the discretionary row path only. Candidate generation, the exact
+delayed teacher, and matrix assembly sit on top and are unmeasured. The
+discretionary plane was the dominant cost in the 2021 build, which is why R6
+was built for it, but "4.6 h" is the row path and the rest is additive.
+
+**The blocking step before launch** is therefore R6 ADOPTION, which STATE.md
+line 61 records as deferred at the E1R boundary and never taken: the roster
+member, the `confirmation.py` call site, and the store transcription. The
+package has its acceptance (all-store 145 sessions x 300 rows, 5 differentials,
+2 mutants red). What it does not have is the wiring.

@@ -34,3 +34,12 @@ ticket changes how bytes are READ, never what a candidate is.
   CHECK: bash /workspace/tools/run_all_checks.sh --fast 2>&1 | tail -2
   EXPECT: ALL CHECKS GREEN
   EVIDENCE: SELFTEST PASS | ALL CHECKS GREEN
+
+- [x] C7: R6 measured, not recalled — the shipped end state timed against the
+        frozen oracle on one real session, with assembly asserted
+  CHECK: python3 -c "import json;d=json.load(open('/workspace/artifacts/entry_v2/tabular_recovery/diagnostics/qrdisc_wave2_rate_20260823.json'));print('r6_speedup=%.2f' % d['wave2_shipped']['speedup_vs_oracle'])"
+  EXPECT: /^r6_speedup=1\.[0-9]+$/m
+  EVIDENCE: 1.85x measured (3.8616 ms/row against the oracle's 7.1473) with the eight QRDISC_WAVE2_FAMILIES and native row assembly, HG/20210721, 300 rows, 20 warm-up, one process, no profiler. Wave 1 alone is 0.98x, which is why the pre-existing instrument made R6 look worthless: it times QRDISC_TAIL_FAMILIES, and that is wave 1. The tool refuses when assembly_available is false so a silent fallback cannot be quoted.
+
+- [x] C8: the full-window answer the user asked for, with R6
+  EVIDENCE: 2022-2025H1 is about 4.6 h wall with R6 (61.9 CPU-hours over 13.6 cores) against 8.4 h on the oracle path — INSIDE the D-109 six-hour cap, so 2022-only is unnecessary. Caveat stated in the doc: this is the discretionary row path only; candidates, teacher and matrix assembly are additive and unmeasured. The blocking step is R6 ADOPTION (roster member, confirmation.py call site, store transcription), deferred at the E1R boundary per STATE.md line 61 and never taken.

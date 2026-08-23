@@ -432,6 +432,7 @@ New memories land here, newest last.
 - 2026-08-23 #193 USER supplied the same GitHub PAT twice and directed its use. Rotate it: it sits in plaintext in two session transcripts.
 - 2026-08-23 #194 The guard locked itself out. It gated the engage command on being engaged, and gated every non-read shell command on engagement, so a digest change left no way to repair it. D-117 makes engage always permitted.
 - 2026-08-23 #195 The review wall was blind to untracked files, so a session creating only new files escaped review. diff_digest now folds them in. Canaries run twice from now on, on the dirty tree and again after the commit, before any push.
+- 2026-08-23 #196 Live after the restart. The method-worker dispatched through the guard, quoted one exact sentence from each of its four preloaded law skills, all verified against the bodies. The skills, hooks and pinned agent all load from a clean start.
 
 ## Checkpoints
 
@@ -450,3 +451,11 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - cwd: /workspace
 - transcript spool: /workspace/artifacts/cache/continuity/precompact-test-20260823T200141Z.jsonl
 - the method packet left context here; run the guard's engage command before the next repository write
+
+### 2026-08-23T22:37:25Z
+
+- session 3dbd6f27-1813-46c6-a66c-1200ee0d88a2 ended (prompt_input_exit)
+
+### 2026-08-23T22:37:38Z
+
+- session 762a8e37-8ae1-4769-86b8-1a0002c12a41 ended (resume)

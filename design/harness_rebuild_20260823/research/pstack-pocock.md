@@ -559,3 +559,92 @@ Hooks should enforce only facts they can observe:
 - A source-integrity check can reject modified vendor bytes.
 
 Hooks should not try to reimplement a principle, playbook, TDD loop, or review rubric. The source skill owns those decisions.
+
+## Representative workflows
+
+These traces show routing and ownership. Quotation marks identify exact upstream instructions. Codex wiring is labeled Recommendation.
+
+### A rough feature request
+
+1. Recommendation. The session and communication layers invoke OptMem, Unlazy when the task is substantial, and mandatory Pstack unslop.
+2. Direct. Poteto Mode reads the request. Its source says the first task-list item is reading the inline principles index, then it ["matches your task to a playbook and copies the steps in verbatim."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/README.md)
+3. Recommendation. Because the request still contains product decisions, the router invokes planning-flow before production work.
+4. Direct. In a repository, ask-matt starts at [grill-with-docs](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/ask-matt/SKILL.md). Grilling treats the current answerable decisions as a frontier and ["Ask[s] the whole frontier in one round."](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/productivity/grilling/SKILL.md) Domain-modeling updates project terms and any warranted ADR during those rounds.
+5. Direct. If the work is too large for one session and the route is unknown, [wayfinder](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/wayfinder/SKILL.md) creates a named destination, a persistent map, and decision tickets. It stops when the route is clear. If the route is already clear, skip Wayfinder.
+6. Direct. [to-spec](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/to-spec/SKILL.md) says, "Do NOT interview the user; just synthesize what you already know." After approval, [to-tickets](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/to-tickets/SKILL.md) emits tracer-bullet tickets with blocking edges.
+7. Recommendation. Each ready ticket returns to Poteto Mode. New behavior selects [Feature](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/feature.md). The router copies all eight Feature steps verbatim.
+8. Direct. Feature calls how, then architect. Architect may consult Pocock codebase-design and DESIGN-IT-TWICE without changing its own workflow.
+9. Direct principle application. Feature requires a named data shape. The relevant source rule is, ["Encode the real domain in a data structure instead of scattering it across conditionals."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/principle-model-the-domain/SKILL.md) The agent reads that leaf in full. If workers may share a write target, it also reads [separate-before-serializing-shared-state](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/principle-separate-before-serializing-shared-state/SKILL.md).
+10. Recommendation. The Feature delegation uses the poteto-agent wrapper. The brief carries exact file scope, the named data shape, success criteria, and one-writer ownership. The parent reviews the result.
+11. Direct testing and proof contract. Feature says, ["Verify on the matching surface."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/feature.md) It also invokes the exact [sequence-verifiable-units](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/principle-sequence-verifiable-units/SKILL.md) leaf. No Pocock testing steps are added unless the route separately selected pocock/tdd.
+12. Direct. A contested design invokes interrogate. Ordinary final review may invoke Pocock code-review. Opening-a-pr remains the terminal Pstack playbook.
+
+### A hard bug
+
+1. Recommendation. Poteto Mode selects [Bug fix](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) and copies its six steps verbatim.
+2. Direct. Step 1 says, ["Reproduce it yourself on the matching surface via the control skill."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md)
+3. Recommendation. If the cause resists the first pass, step 2 invokes Pocock diagnosing-bugs as a bounded specialist. Its source requires a tight red feedback loop before hypotheses, then minimization, ranked falsifiable hypotheses, and one-variable instrumentation. The complete method remains in [diagnosing-bugs/SKILL.md](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/diagnosing-bugs/SKILL.md). The specialist returns the surviving mechanism and evidence to Pstack step 2.
+4. Direct principle application. The agent reads [fix-root-causes](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/principle-fix-root-causes/SKILL.md). Its exact rule is, "Trace every problem to its root cause and fix it there."
+5. Direct. If the fix crosses a function boundary, Pstack step 3 invokes architect. A poteto-agent worker implements the bounded change; the parent reviews it.
+6. Direct testing contract. Pstack step 5 says, ["See the tdd skill for the failing-test-first cadence when the bug has a cheap local test path; skip it when the test would be expensive, integration-heavy, or unclear."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) That call resolves to pstack/tdd. It does not resolve to Pocock TDD.
+7. Direct proof contract. Step 4 says, ["Verify on the same surface; the original repro now passes."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) Step 5 orders the failing reproduction before the fix in git history. The route then runs Opening a PR.
+
+### A large planning request
+
+1. Recommendation. Poteto Mode remains the entry point and hands the unresolved planning branch to planning-flow.
+2. Direct. grill-with-docs invokes grilling and domain-modeling. The design-tree frontier continues until no settled question has an unresolved dependent decision.
+3. Direct. If the destination spans more than one session and the path is unknown, Wayfinder creates a map. Its source says, ["Plan, don't do."](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/wayfinder/SKILL.md) Decision-ticket types include research, prototype, grilling, and task. Only the current unblocked frontier is worked.
+4. Direct. When the path is clear, to-spec synthesizes. to-tickets creates approved vertical slices and blocking edges.
+5. Recommendation. Poteto Mode selects Multi-phase plan for a known staged execution, Figure it out when no bundled execution playbook fits, or Orchestrate only when the work outlives one agent session and needs a standing coordinator.
+6. Direct. Orchestrate says, ["You own the program, never the code."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/orchestrate.md) Its coordinator writes briefs and drains the queue. Poteto-agent workers own code. The plain store records units, frontier, decisions, and source-defined verdicts.
+
+### A known long-running target
+
+1. Direct. A single task with a checkable endpoint selects [Autonomous run](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/autonomous-run.md), not Wayfinder or Orchestrate.
+2. Direct testing and proof contract. Autonomous run says, ["State the exit condition as a checkable predicate before the first iteration."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/autonomous-run.md) It then says each iteration makes the smallest evidence-backed change, checks that predicate, keeps an advance, and discards a non-advance.
+3. Recommendation. Codex goal continuation replaces Cursor /loop. show-me-your-work remains the decision trail. Unlazy runs as its separate house layer and does not replace the Pstack loop.
+4. Direct. A dead end is surfaced. A plateau is not silently redefined as success.
+
+### A Benny report
+
+1. Direct. A configured Cursor Automation starts [triage-issue-reports](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/triage-issue-reports/SKILL.md). This does not enter through the normal chat router.
+2. Direct. Triage freezes source coordinates, reads the full report and attachments, invokes Pstack how and sometimes why for bounded cause-aware routing, deduplicates through a tracker adapter, and writes one in-thread verdict marker. It creates a tracker item only for a clear new bug or performance report.
+3. Direct. [reproduce-and-fix-issues](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/reproduce-and-fix-issues/SKILL.md) accepts only a trusted marker from the configured identity. It stops for a human owner or an existing fix artifact.
+4. Direct. The automation requires all seven capabilities in control-adapter.md and a matching feature-map entry before it drives the real UI.
+5. Direct testing and proof contract. The source says, ["The exact discriminating symptom must appear twice through real UI interaction."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/reproduce-and-fix-issues/SKILL.md) An existing fix uses the unchanged verify-existing-fix flow. A bounded new fix uses Pstack TDD only when its cheap-local-test condition holds. The patched UI path then repeats twice.
+6. Direct. Only the coordinator can post to Slack. Children are read-only unless a tightly scoped code worker has provable isolation from Slack credentials and write actions. A successful new fix ends at a draft PR. It never merges or deploys.
+7. Recommendation. Leave the entire route disabled in Codex until every trigger, identity, tracker, message, and product-control contract can be provided. Partial activation would change the automation's safety model.
+
+### An agent document
+
+1. Recommendation. Poteto Mode selects Authoring a skill for SKILL.md work. AGENTS.md, rules, and worker briefs invoke Pocock writing-for-agents as their structure reference.
+2. Direct. [writing-for-agents](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/productivity/writing-for-agents/SKILL.md) separates always-loaded pointer cost from on-demand body cost. It keeps common steps in the main file and branch-specific reference behind pointers.
+3. Direct. Pstack [authoring-a-skill](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/authoring-a-skill.md) validates frontmatter, referenced files, and cross-skill links. Structural behavior receives source-defined test cases; subjective behavior does not gain a fabricated test.
+4. Direct. Pstack unslop applies while drafting every user-visible line. Technical-writing applies when the artifact is a technical document. This is one drafting path with several applicable references, not a cleanup chain.
+
+## Implementation handoff
+
+The driver can implement this note without reopening either repository:
+
+1. Copy both pinned source trees and licenses unchanged.
+2. Create a source manifest with repository URL, commit, tree hash, license path, and install date.
+3. Build the namespace registry and the public alias table exactly as specified above.
+4. Implement Poteto Mode as the default substantial-task router.
+5. Register all 21 principle leaves. Make the complete index read mandatory and each applicable leaf read mandatory.
+6. Register the 23 Pstack non-principle skills. Keep host-specific setup and unavailable external integrations dormant through explicit capability checks.
+7. Register the 23 playbooks, including opening-a-pr as an internal terminal route.
+8. Register the 25 promoted Pocock skills. Preserve the four misc and seven in-progress skills in the vendor tree with the activation decisions above.
+9. Add planning-flow and the collision aliases. Keep internal calls source-relative.
+10. Add only host adapters for Codex delegation, tools, paths, trackers, and model selection.
+11. Keep the two TDD sources and every playbook proof method unchanged.
+12. Keep Benny disabled until its complete external contract is present.
+13. Write the small AGENTS.md pointer layer, then enforce observable activation with hooks.
+14. Add source-integrity and registry-count checks using the counts in this note.
+
+## Audit conclusion
+
+Direct: Pstack has 156 tracked files, 44 skills, 21 principles, 23 non-principle skills, 23 playbooks, two agents, 12 automation files, and 17 guide files at commit 46125561306434d8a1d7745d540d8932ab0cd2a2.
+
+Direct: Pocock has 162 tracked files, 36 skills, 25 promoted skills, four misc skills, seven in-progress skills, zero deprecated skills, and 25 generated docs at commit 5b15a47f2d7150f545fbcacbfe381787fc0230dc. The 25 AI Hero Markdown pages matched those docs after generated wrapper removal.
+
+Recommendation: ship Pstack as the base, Pocock as the main planning and design overlay, and keep Akita, Unlazy, and OptMem as separate core house layers. Preserve upstream methods in revisioned source trees. Make every local difference a small, named adapter with a source link.

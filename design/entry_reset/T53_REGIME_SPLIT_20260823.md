@@ -61,19 +61,40 @@ Those are two different things and the two-regime rule needed them to be one.
 conditioner**: it was never wrong, it was answering a different question than the
 rule assumed.
 
-## What the conditioner is actually worth, and the lever it opens
+## THE TWO-ENTRY LEVER IS WITHDRAWN (user ruling, same day)
+
+I proposed "two entries in predicted-rich cells" as the next step. **It is wrong
+on principle and it is also already forbidden by the code.** Withdrawn.
+
+On principle: two entries in one cell means two simultaneous positions in one
+asset. Same side, that is leverage — doubling size to reach a dollar target
+rather than earning it per trade, which is a shortcut to the rung, not a path to
+it. Opposite side, the two positions cancel and there is nothing to earn. Neither
+is an edge.
+
+And the law already says so. `_cell_pick` (`probe_trained_accrual.py:234`) walks
+one position per asset: `if t < prev_exit_all: occupied_skips += 1`. A second
+entry while the first is open is SKIPPED. With occupancy running a median
+17,000-25,000 s, the first position in a cell is open for hours, so a second
+entry in the same cell would essentially never seat. The lever was not merely a
+shortcut; it was not executable.
+
+**The rung has to be met by dollars per trade, not by trade count.** That is the
+standing constraint on every future arm, and this document is the record of the
+one time it was nearly violated.
+
+## What the conditioner is actually worth
 
 It is a capital-allocation signal, not a name-picker. The rule currently takes
 one entry in every cell — three per asset-day, nine portfolio-wide against a cap
 of twelve. The conditioner says which of those cells is worth twice as much,
 before the fact.
 
-The untested lever that follows, and it fits inside the cap: **two entries in the
-predicted-rich cells, one in the rest.** About 1.5 rich cells per asset-day at
-two entries plus 1.5 cheap at one is 4.5 per asset, and the portfolio arithmetic
-has to be checked against the 12 cap per asset mix. Ranks 0 and 1 in a rich cell
-are worth far more than rank 0 in a cheap one, and that is exactly what a 2x
-value separation buys.
+It is a capital-allocation signal with no legal way to spend it by adding trades
+(see the withdrawal above). What it can legitimately do is inform WHICH single
+name to take, and how the score should behave, in a cell whose size is
+predictable in advance. That is a per-trade question, which is the only kind the
+rung accepts.
 
 Not tried: `RICH_ONLY` at one entry. Arithmetic kills it before a run — 1.5 rich
 cells at a perfect $1,209 is $1,814 a day against HG's $2,000 rung, so it cannot

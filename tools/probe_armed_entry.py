@@ -158,8 +158,27 @@ def _pick_ages(rows_grid, series_ids: set[str], asset: str, lo: int, hi: int) ->
     return out
 
 
+def hold_h_by_asset(receipt: Path | None) -> dict[str, float]:
+    """The ticket-28 hold's chosen H per asset, read from its receipt.
+
+    Stage 1's bound is about the HOLD's entry age, not the armed rule's. Using
+    the armed rule's h* here understates `entered_age` by an order of magnitude
+    and puts a wrong number in the receipt, which is exactly the class D-111
+    exists to catch. No receipt means no Stage 1, never a silent substitute.
+    """
+    if receipt is None or not receipt.exists():
+        return {}
+    data = json.loads(receipt.read_text())
+    out = {}
+    for asset, blk in (data.get("assets") or {}).items():
+        stage_b = blk.get("stage_b") or {}
+        if stage_b.get("chosen_h_sec") is not None:
+            out[asset] = float(stage_b["chosen_h_sec"])
+    return out
+
+
 def run(matrix_dir: Path, out_path: Path, *, blocks=BLOCKS, n_draw: int = N_DRAW,
-        h_grid=H_SEC, log=print) -> dict:
+        h_grid=H_SEC, hold_h: dict[str, float] | None = None, log=print) -> dict:
     rows180 = load_delta_rows(matrix_dir, deltas=(DELTA_SEC,))
     rows0 = load_delta_rows(matrix_dir, deltas=(FORM_DELTA,))
     rows_grid = load_delta_rows(matrix_dir, deltas=AGE_GRID)
@@ -278,10 +297,17 @@ def run(matrix_dir: Path, out_path: Path, *, blocks=BLOCKS, n_draw: int = N_DRAW
                 f"${stats['usd_per_asset_day']:7.0f} se ${stats['usd_se']:5.0f} "
                 f"{entry['stage2_armed'][bname]['letter']}")
 
-        # Stage 1: the ticket-29 bound, on the ticket-28 hold's own picks.
+        # Stage 1: the ticket-29 bound, on the ticket-28 hold's own picks, at the
+        # HOLD's H — not this probe's armed h*, which is 10x smaller.
+        hold_h_sec = (hold_h or {}).get(asset)
+        if hold_h_sec is None:
+            entry["stage1_age_decay"] = {"letter": "no_t28_receipt",
+                                         "note": "pass --t28-receipt to price the hold's wait"}
+            continue
+        entry["stage1_hold_h_sec"] = hold_h_sec
         for bname, pack in packed.items():
             hold_flag, fired = _hold_walk(pack["formed"], pack["side"],
-                                          pack["vw"][score_tag], pack["cell"], h_star,
+                                          pack["vw"][score_tag], pack["cell"], hold_h_sec,
                                           pack["close"], long_min, short_min)
             picked = np.flatnonzero(hold_flag)
             if not len(picked):
@@ -365,6 +391,13 @@ def selftest() -> int:
         hg = rep["assets"]["HG"]
         assert hg["stage2_armed"]["train"]["grid"], hg
         assert hg["orientation"].startswith("long_min"), hg
+        # Without the ticket-28 receipt Stage 1 REFUSES rather than quietly
+        # pricing the wrong wait.
+        assert hg["stage1_age_decay"]["letter"] == "no_t28_receipt", hg["stage1_age_decay"]
+        rep2 = run(tmp / "p", tmp / "p2.json", blocks=blocks, h_grid=(300.0, 900.0),
+                   hold_h={"HG": 7200.0}, log=lambda *_: None)
+        assert rep2["assets"]["HG"]["stage1_hold_h_sec"] == 7200.0, rep2["assets"]["HG"]
+        assert hold_h_by_asset(None) == {}, "missing receipt must not invent an H"
     print("selftest OK: armed entry takes the next eligible name after the hold, "
           "arms nothing when the hold never completes, decay bound letters "
           "material/negligible/unmeasurable")
@@ -376,12 +409,14 @@ def main() -> int:
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--matrix-dir", type=Path)
     ap.add_argument("--out", type=Path)
+    ap.add_argument("--t28-receipt", type=Path, default=None,
+                    help="ticket-28 receipt; supplies the HOLD's H for Stage 1")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
     if a.matrix_dir is None or a.out is None:
         ap.error("--matrix-dir and --out are required unless --selftest")
-    run(a.matrix_dir, a.out)
+    run(a.matrix_dir, a.out, hold_h=hold_h_by_asset(a.t28_receipt))
     return 0
 
 

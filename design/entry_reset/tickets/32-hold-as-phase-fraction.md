@@ -9,9 +9,9 @@ wide band, which is the signature of a knob that is standing in for something
 scale-relative. An absolute H is also the form least likely to survive the move
 off 2021, where session structure differs.
 
-**Blocked by:** 29.
+**Blocked by:** SUPERSEDED 2026-08-23. Ticket 29 answered that the hold's wait cannot be priced on this matrix, and ticket 35 replaced the wait with the new-extreme-event frame, where every entry is exactly labelled. Do NOT tune H as a phase fraction against the age-180 proxy. Revive only if ticket 38 extends the labelled age grid.
 
-**Status:** ready-for-agent
+**Status:** superseded by ticket 35
 
 - [ ] `--selftest`: two planted phases of different length with the same shape
       enter at the same relative moment under fractional H, and at different

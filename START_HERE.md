@@ -86,58 +86,75 @@ It cannot promote.
 
 ## The short way to the goal
 
-**Ticket 28 landed (2026-08-22 night).** Verdict with every margin read against
-its day-to-day spread: `design/entry_reset/T28_VERDICT_20260822.md`. Receipt
-`diagnostics/hold_running_extreme_20260822.json`.
+**As of 2026-08-23 the frame changed and the goal is closer than it has ever
+been.** Verdicts: `design/entry_reset/T35_VERDICT_20260823.md` (the frame and
+the live rule) and `design/entry_reset/T29_T34_VERDICT_20260823.md` (why the
+old shape had to be abandoned). Receipts `extreme_events_20260823.json`,
+`event_column_scan_20260823.json`, `hold_running_extreme_20260822.json`.
 
-The score was wrong and is now right. The live rule built on it is not there yet.
+### The frame: new-extreme events
 
-Ranking names against each other was the wrong object. The live object is a
-stopping rule on the phase's own VWAP extreme: track the most-extended
-already-eligible keep-first name per side, and enter it once no newer zigzag has
-beaten it for H minutes.
+The score is static per name (its own 180 s row), so the name that ends a phase
+as its side's extreme necessarily BEAT every earlier name when it became
+eligible. Call that a **new-extreme event**. Two measured consequences:
 
-**The spec's side convention was inverted.** It read "short: largest aligned,
-long: smallest". `aligned = side * (mid - level)`, so extended-on-the-fade-side
-is the MOST NEGATIVE value on BOTH sides. `long_min_short_min` won 24 of 24
-asset x score x block cells and the feature source says the same thing. It is a
-sign-convention correction, not a fitted knob.
+1. The event set contains the paying name at **recall 1.000** on all three
+   assets.
+2. Every event is entered at 180 s of age, the only age this matrix labels
+   exactly. No proxy, no unpriceable wait.
 
-Under it the Stage A oracle goes from missing every rung ($1441/$1214/$1442) to:
+There are about 6 events per cell, down from 15 names.
+
+### The numbers
 
 | | HG (rung $2,000) | NKD ($1,500) | SI ($1,500) |
 |---|---|---|---|
-| Stage A oracle TRAIN / THRESHOLD / FORWARD | 2760 / 2717 / 2598 | 1824 / 1689 / 1709 | 2378 / 2334 / 1918 |
-| margin in standard errors | +3.2 / +2.4 / +2.1 | +1.0 / +0.9 / +1.0 | +2.7 / +1.8 / +1.9 |
-| Stage B live causal hold | 1610 / 1527 / 1532 | 761 / 658 / 399 | 1916 / 1717 / 1559 |
-| margin in standard errors | -1.2 / -1.3 / -1.3 | -3.1 / -3.7 / -4.0 | +1.0 / +0.4 / +0.3 |
+| Event oracle, exactly labelled | **2,772** (+3.3 SE) | 1,851 (+1.1 SE) | **2,396** (+2.7 SE) |
+| Best LIVE rule (TRAIN) | 801, inside its null | 875 vs null 547 | **1,465** vs null 1,251 |
+| Capture of the oracle | 29% | 47% | **61%** |
+| Capture the rung needs | 72% | 81% | 63% |
 
-**Stage A clears HG's rung on every block at 2.1 to 3.2 SE.** SI clears on
-TRAIN only (2.7 SE; THRESHOLD 1.8, FORWARD 1.9 letter `vwap_oracle_not_resolved`).
-NKD letters `vwap_oracle_not_resolved` everywhere.
-The candidate set already contains the money, so the generator was never the
-bottleneck and neither was the model family. A margin under 2 SE is reported as not resolved, never as a clear.
+**SI is two points of capture short of its rung**, with a fully causal rule and
+exactly labelled cash. That is the closest this program has come, and the gap is
+now a CAPTURE gap, not an identification gap or a pricing gap.
 
-**No live rule clears a rung at resolution yet.** SI's hold sits above $1,500 on
-all three blocks, but by 0.3 to 1.0 SE, which is inside the noise. HG is 1.3 SE
-short; NKD is 3 to 4 SE short. Do not quote SI as cleared.
+The live score is extension beyond a fixed location level
+(`disc_prior_high_aligned_usd` and its family, inverse direction: further beyond
+the level on the fade side marks the payer). It survives TRAIN, THRESHOLD and
+FORWARD on NKD and SI in the column scan. HG carries no member of that family
+and is the open per-asset question.
 
-Stage B captures 58% / 42% / 81% of its own Stage A oracle. The oracle's only
-remaining advantages are knowing which side pays and never having to stop
-waiting. So the live gap is side selection and stopping, not missing
-information.
+All Stage 5 numbers are TRAIN-selected and therefore EXPLORATORY. THRESHOLD is
+read ONCE, for a frozen rule (ticket 39).
 
-**One blocker sits in front of every dollar figure above.** Cash is the selected
-name's y at 180 s of age, while the rule enters at `extreme_t + H` with H of 120
-to 180 minutes, and this matrix stops sampling at 300 s of age. On a fade, the
-drift you wait through IS the reversion you are paid for. The sign is unknown
-and the size is plausibly bigger than SI's $59 FORWARD margin. Ticket 29 prices
-it, and nothing downstream is worth running first: every lever would be tuned
-against a proxy.
+### Two things that are dead, and why it matters
 
-Then tickets 30 (per-side H), 31 (choose the side at fire time), 32 (H as a
-phase fraction), 33 (replicate off 2021 — THRESHOLD and FORWARD have been read
-five times for this rule family and their power is spent).
+- **Ticket 28's hold** (wait H minutes, enter the standing extreme) cannot be
+  priced. It enters at 7,380-10,980 s of name age while the labelled grid stops
+  at 600 s (`confirmation.training_offsets_seconds` refuses anything else). The
+  window is still open there, so the error is pure entry-price drift, and a
+  linear extrapolation of the measured decay is about $750 against HG's $1,610.
+  Bound, not correction. Do not tune it.
+- **Ticket 34's armed entry** (wait, then take the next fresh name) is inside
+  its null on every asset. The hold's value is the IDENTITY of the held name,
+  never a timing signal.
+
+### The correction that unlocked all of it
+
+The frozen spec's per-side extreme was INVERTED. `aligned = side * (mid - level)`,
+so extended-on-the-fade-side is the MOST NEGATIVE value on BOTH sides.
+`long_min_short_min` won 24 of 24 asset x score x block cells. Under it the
+finished-cell oracle went from missing every rung to clearing HG's by 2.1-3.2 SE.
+Every earlier closure that ranked by an aligned extreme without cashing both
+ends is suspect; tickets 24-27 were checked and are unaffected
+(`artifacts/cache/review/sibling_sweep_20260822.md`).
+
+### Next
+
+Ticket 39: one per-asset ranker over the location-extension family, per-side
+z-scored inside the cell, plus nearest-beyond-level and count-of-levels-cleared
+arms. TRAIN only until frozen; then ONE THRESHOLD read. If SI clears, ticket 33
+(2022-2025H1, the cheap D-110 corpus) is the verdict tier, not another 2021 arm.
 
 Do not rewrite G1. Do not fit CatBoost on 1,764 columns. Do not open exits.
 2025H2 stays sealed. 2021 can kill a rule; it cannot promote one.

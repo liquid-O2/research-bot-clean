@@ -434,6 +434,7 @@ New memories land here, newest last.
 - 2026-08-23 #195 The review wall was blind to untracked files, so a session creating only new files escaped review. diff_digest now folds them in. Canaries run twice from now on, on the dirty tree and again after the commit, before any push.
 - 2026-08-23 #196 Live after the restart. The method-worker dispatched through the guard, quoted one exact sentence from each of its four preloaded law skills, all verified against the bodies. The skills, hooks and pinned agent all load from a clean start.
 - 2026-08-23 #197 Codex enforcement is installed and canary-proven, but the live client marks the changed hooks untrusted. One acceptance inside an interactive Codex session re-trusts them, then verify_agent_harness.py hook-trust must report PASS.
+- 2026-08-23 #198 Codex re-trusted the changed hooks and the live probe reports HOOK TRUST PASS, nine handlers on current hashes. Both clients now run the same enforcement end to end.
 
 ## Checkpoints
 

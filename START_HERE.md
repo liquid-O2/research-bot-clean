@@ -149,12 +149,41 @@ Every earlier closure that ranked by an aligned extreme without cashing both
 ends is suspect; tickets 24-27 were checked and are unaffected
 (`artifacts/cache/review/sibling_sweep_20260822.md`).
 
+### Ticket 39 is done: the rule replicates, at about half the rung
+
+`design/entry_reset/T39_VERDICT_20260823.md`, receipt
+`location_ranker_20260823.json`. Frozen on TRAIN before any held block was read,
+then read once:
+
+| Asset | Arm | TRAIN | THRESHOLD | FORWARD | Null (thr / fwd) | Capture (thr) | Rung needs |
+|---|---|---|---|---|---|---|---|
+| HG | MAX_BEYOND | 1,000 | 857 | 790 | 535 / 21 | 31% | 72% |
+| NKD | BEST_SINGLE | 875 | **940** | 807 | 546 / 449 | 51% | 81% |
+| SI | BEST_SINGLE | 1,465 | 1,061 | 868 | 503 / 468 | 44% | 63% |
+
+Every asset clears its null on every block and NKD does not decay from TRAIN to
+held. Every asset letters `loc_insufficient`: HG needs 2.3x, NKD 1.6x, SI 1.4x.
+
+What the arms taught: one column beats every composite (the family is one signal
+measured many times, and averaging dilutes it); HG has zero surviving levels and
+its geometry is genuinely different; count-of-levels-cleared and
+nearest-cleared are worthless while DEPTH is not; and abstention makes cash fall
+monotonically, so the score's magnitude is not a quality signal, only its
+within-cell order is.
+
 ### Next
 
-Ticket 39: one per-asset ranker over the location-extension family, per-side
-z-scored inside the cell, plus nearest-beyond-level and count-of-levels-cleared
-arms. TRAIN only until frozen; then ONE THRESHOLD read. If SI clears, ticket 33
-(2022-2025H1, the cheap D-110 corpus) is the verdict tier, not another 2021 arm.
+**Ticket 33, off 2021.** Every number above rests on 11-21 days per block, with
+standard errors of $169-374 on cash of $790-1,061 — this sample resolves to
+about a third of the answer, and its held blocks have now been read across three
+rule families. The same frozen rule on 2022-2025H1 is about one box-hour under
+D-110 (four Delta-grid rows per series, not the 296-row store), gives four and a
+half years instead of forty-six days, and is the only tier that can promote
+anything.
+
+Cheap and secondary, after that corpus exists: HG deserves its own column scan
+rather than borrowed levels, and one entry per phase leaves three of the twelve
+portfolio-day trades unspent, worth perhaps 20-30% and not the missing 100%.
 
 Do not rewrite G1. Do not fit CatBoost on 1,764 columns. Do not open exits.
 2025H2 stays sealed. 2021 can kill a rule; it cannot promote one.

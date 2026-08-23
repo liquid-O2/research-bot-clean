@@ -62,6 +62,22 @@ harness hook here already calls. The `.mjs` files are kept as the reference
 implementation. **Do not run `scripts/install-hooks.mjs`** — the wall is
 already installed (below), and a second wall would double-block.
 
+## Writing an EXPECT that actually matches
+
+Two gates in this repo have failed on a correct claim because their EXPECT was
+wrong, both the same way: `EXPECT: /portfolio_max=[0-9]$/` against output that
+ends in a newline. The runner matches against combined stdout AND stderr, so
+there is always a trailing newline and usually a blank line, and `$` without the
+`m` flag anchors at the very end of that string.
+
+- Anchor with the multiline flag: `/^count=[0-9]+$/m`, never a bare `$`.
+- Prefer a decisive substring over a regex when one exists. `ALL CHECKS GREEN`
+  needs no anchors.
+- Make the CHECK print ONE decisive line rather than a table the EXPECT has to
+  navigate.
+- A gate that fails on a claim that is actually true wastes the same attention
+  as one that passes on a false claim. Fix the gate, never the claim.
+
 ## Done means the ledger is full
 
 A gate is UNMET if its box is unchecked with no `ABANDON` line naming it, **or

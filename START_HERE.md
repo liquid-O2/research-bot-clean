@@ -118,11 +118,8 @@ There are about 6 events per cell, down from 15 names.
 exactly labelled cash. That is the closest this program has come, and the gap is
 now a CAPTURE gap, not an identification gap or a pricing gap.
 
-The live score is extension beyond a fixed location level
-(`disc_prior_high_aligned_usd` and its family, inverse direction: further beyond
-the level on the fade side marks the payer). It survives TRAIN, THRESHOLD and
-FORWARD on NKD and SI in the column scan. HG carries no member of that family
-and is the open per-asset question.
+**CORRECTED by ticket 44.** The live score is NOT extension beyond a location
+level. `prior_high` and `prior_low` are per-day constants that pick the SAME name within a side 100% of the time (91/91 HG, 97/97 NKD, 49/49 SI), so within a side the score is `side * entry_price` and the level is only a per-(day, side) offset arbitrating long against short — one degree of freedom fitted over 32 candidates on TRAIN. Not lookahead; entry price is known at the snapshot. Not a strict tautology either (`var(y+aligned)/var(y)` is 8-9). But `corr(y, -aligned)` within a cell is +0.38 / +0.36 / +0.75, and `y = side*(exit - entry)`, so part of the edge is arithmetic. What is established is the margin over the shuffled null: SI +$214 TRAIN / +$558 THRESHOLD / +$400 FORWARD. Full audit: `design/entry_reset/T44_TAUTOLOGY_AUDIT_20260823.md`.
 
 All Stage 5 numbers are TRAIN-selected and therefore EXPLORATORY. THRESHOLD is
 read ONCE, for a frozen rule (ticket 39).

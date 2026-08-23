@@ -1,44 +1,34 @@
-# Gates: ticket 42 — cut corpus rows without losing anything we read
+# Gates: ticket 44 — is the winning feature a tautology?
 
-Scope: the user asked whether the four-row grid loses quality. It does. This
-ticket cuts to the MEASURED union of every age any live probe reads — nine, not
-four — and proves the cut is a strict subset with nothing dropped that is used.
+Scope: the user flagged `disc_prior_high_aligned_usd` as suspicious. There is a
+specific mechanism that would make it worthless, and it must be tested before
+the corpus build spends four years of data chasing it.
 
-The answer, measured before any code: `training_offsets_seconds(300)` schedules
-37 ages. The union across every live probe is 9: 0, 30, 60, 90, 120, 180, 240,
-290, 300. Four would break `probe_trained_accrual` (reads 7), `probe_armed_entry`
-(reads 8, and it is the ticket-29 decay bound), and `probe_ceiling_split`.
+THE MECHANISM. `aligned = side * (mid_entry - level)` and
+`y = side * (mid_exit - mid_entry)`, so `y + aligned = side * (mid_exit - level)`.
+If exit and level are both cell-constant, then within a cell `y = c - aligned`
+exactly, and ranking by most-negative aligned IS ranking by highest y with no
+information whatsoever. Registered class: `tautological-label`.
 
-| Grid | Kept | Factor | Row-path wall | Costs us |
-|---|---|---|---|---|
-| four-row | 4/37 | 9.25x | 0.49 h | breaks three live probes |
-| **union of every live probe** | **9/37** | **4.11x** | **1.11 h** | **nothing we read** |
-| all scheduled | 37/37 | 1.00x | 4.55 h | nothing |
+- [ ] L1: the within-cell relation is measured — correlation of y with -aligned,
+        and whether var(y + aligned) collapses against var(y)
+  EVIDENCE: pending
 
-- [x] Q1: RED FIRST — a fixture pins the corpus grid as a strict subset of the
-        scheduled grid and refuses any age that is not on it
-  CHECK: python3 -m unittest engine.entry_v2.test_confirmation.CorpusAgeGrid 2>&1 | tail -3
-  EXPECT: OK
-  EVIDENCE: RED first: the fixtures failed with TypeError - ConfirmationConfig had no age_grid - then went green. Four mutants run: an off-schedule age (301) turns the subset test red, a four-age grid turns the union test red, dropping the age_grid guard turns the refusal test red, and blanking offsets out of receipt_sha256 turns the receipt test red once the grid-moves-the-sha case was added.
+- [ ] L2: THE DECISIVE CONTROL — a PLACEBO level. Replace the prior-session high
+        with an arbitrary fixed price. If the edge survives an arbitrary level,
+        the level carries nothing and the signal is the entry price
+  EVIDENCE: pending
 
-- [x] Q2: the grid is the measured union, and it is derived from the probes'
-        own constants where possible, not hand-copied
-  CHECK: python3 -c "import sys;sys.path.insert(0,'/workspace');from engine.entry_v2.confirmation import CORPUS_AGE_GRID_SECONDS as G;print('grid=%s n=%d' % (','.join(str(x) for x in G), len(G)))"
-  EXPECT: /^grid=0,30,60,90,120,180,240,290,300 n=9$/m
-  EVIDENCE: grid=0,30,60,90,120,180,240,290,300 n=9
+- [ ] L3: leakage audit of the level itself — `prior_high` is established BEFORE
+        the current session opens, read from source not assumed
+  EVIDENCE: pending
 
-- [x] Q3: selecting the corpus grid changes the config receipt, so a corpus
-        built on it can never be mistaken for a full-resolution one
-  EVIDENCE: receipt_sha256 carries the resolved offsets AND asdict carries the age_grid field, so two independent paths stop a reduced corpus passing as full-resolution. The fixture pins both: the second by patching CORPUS_AGE_GRID_SECONDS with age_grid held at CORPUS and asserting the sha moves. Blanking offsets from the receipt now fails.
+- [ ] L4: the verdict is recorded either way, and if it is a tautology the
+        ticket-39 result is retracted in START_HERE, STATE and CURRENT rather
+        than quietly left standing
+  EVIDENCE: pending
 
-- [x] Q4: the FULL path is untouched — same offsets, same receipt as before
-  EVIDENCE: test_selecting_the_corpus_grid_changes_the_receipt asserts ConfirmationConfig(max_delay_sec=300).offsets equals training_offsets_seconds(300) exactly - the FULL path is byte-for-byte what it was, and FULL is still the default so nothing changes unless a caller asks.
-
-- [x] Q5: what the cut actually discards is stated: which ages, and the one
-        capability that becomes unavailable without a rebuild
-  EVIDENCE: Discarded: the 5-second resolution below 60 s and the 10-second resolution between the kept points. No live probe reads them. The capability lost without a rebuild is measuring accrual at finer than 30-second resolution inside the first five minutes; D6 sampled at 290 s and the ticket-29 decay at 30-60 s steps, so nothing on the books needs it. Written into design/entry_reset/T42_CORPUS_GRID_20260823.md and into the constant's own comment.
-
-- [x] Q6: battery green and the confirmation suite passes
+- [ ] L5: battery green
   CHECK: bash /workspace/tools/run_all_checks.sh --fast 2>&1 | tail -2
   EXPECT: ALL CHECKS GREEN
-  EVIDENCE: SELFTEST PASS | ALL CHECKS GREEN
+  EVIDENCE: pending

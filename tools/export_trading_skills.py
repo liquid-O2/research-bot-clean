@@ -74,11 +74,15 @@ def reset(target: Path) -> None:
 
 
 def copy_tree(source: Path, destination: Path) -> int:
-    """Copy one directory and report how many files landed."""
+    """Copy one directory and report how many files came from it.
+
+    Counted at the source. Counting the destination double-counted every nested
+    subtree and reported 805 files for a 337 file export.
+    """
     if not source.is_dir():
         raise ValueError(f"expected a directory to export, got {source}")
     shutil.copytree(source, destination, dirs_exist_ok=True, symlinks=False)
-    return sum(1 for path in destination.rglob("*") if path.is_file())
+    return sum(1 for path in source.rglob("*") if path.is_file())
 
 
 def copy_named(sources: Iterable[Path], destination: Path) -> int:
@@ -218,7 +222,8 @@ def main(argv: Sequence[str] | None = None, stdout: TextIO = sys.stdout) -> int:
     strays = audit(target)
     if strays:
         raise ValueError(f"export is not publishable: {strays[:5]}")
-    total = sum(1 for path in target.rglob("*") if path.is_file())
+    total = sum(1 for path in target.rglob("*")
+                if path.is_file() and ".git" not in path.relative_to(target).parts)
     stdout.write(f"EXPORT PASS target={target} files={total} "
                  + " ".join(f"{k}={v}" for k, v in sorted(counts.items())) + "\n")
     return 0

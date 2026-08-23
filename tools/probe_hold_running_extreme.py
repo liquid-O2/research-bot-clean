@@ -200,11 +200,11 @@ def _random_flag(cell: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     return flag
 
 
-def _hold_running_extreme_flag(formed: np.ndarray, side: np.ndarray,
+def _hold_walk(formed: np.ndarray, side: np.ndarray,
                                vwap: np.ndarray, cell: np.ndarray,
-                               h_sec: float, close: np.ndarray,
-                               long_min: bool = True,
-                               short_min: bool = False) -> np.ndarray:
+               h_sec: float, close: np.ndarray,
+               long_min: bool = True,
+               short_min: bool = False) -> tuple[np.ndarray, np.ndarray]:
     """Enter the first side whose unbeaten extreme has held for h_sec.
 
     `close` is the phase's scheduled close in the same phase-elapsed clock as
@@ -214,6 +214,7 @@ def _hold_running_extreme_flag(formed: np.ndarray, side: np.ndarray,
     the cell having ended, and banked holds that never completed.
     """
     flag = np.full(len(formed), False)
+    fired_at = np.full(len(formed), np.nan)   # phase-elapsed seconds of the entry
     eligible = formed + DELTA_SEC
     for g in _cell_groups(cell):
         order = g[np.argsort(eligible[g], kind="stable")]
@@ -222,6 +223,7 @@ def _hold_running_extreme_flag(formed: np.ndarray, side: np.ndarray,
         long_v = np.inf if long_min else -np.inf
         short_v = np.inf if short_min else -np.inf
         chosen = -1
+        fire_time = np.nan
         for i in order:
             t = float(eligible[i])
             fire_l = (long_t + h_sec) if long_i >= 0 else np.inf
@@ -229,6 +231,7 @@ def _hold_running_extreme_flag(formed: np.ndarray, side: np.ndarray,
             fire = min(fire_l, fire_s)
             if fire <= t + 1e-9:
                 chosen = long_i if fire_l <= fire_s + 1e-12 else short_i
+                fire_time = fire
                 break
             v = float(vwap[i])
             if not np.isfinite(v):
@@ -250,9 +253,55 @@ def _hold_running_extreme_flag(formed: np.ndarray, side: np.ndarray,
             limit = float(np.max(g_close)) if len(g_close) else -np.inf
             if fire <= limit + 1e-9:
                 chosen = long_i if fire_l <= fire_s + 1e-12 else short_i
+                fire_time = fire
         if chosen >= 0:
             flag[chosen] = True
-    return flag
+            fired_at[chosen] = fire_time
+    return flag, fired_at
+
+
+def _hold_running_extreme_flag(*args, **kwargs) -> np.ndarray:
+    """Flag only, for the null draws that do not need the entry moment."""
+    return _hold_walk(*args, **kwargs)[0]
+
+
+def _entry_window(flag: np.ndarray, fired_at: np.ndarray, formed: np.ndarray,
+                  occupancy: np.ndarray, y: np.ndarray, cell, day, elapsed,
+                  days) -> dict:
+    """Is the trade still OPEN at the moment the hold rule actually enters?
+
+    Ticket 29. Cash on every ticket-28 row is the picked name's y at DELTA_SEC
+    of age, but the rule enters at `fired_at`. The label's window runs from its
+    own snapshot to a mostly fixed right edge (`exit_ts_recv_ns`, the phase
+    close, or a censor), so occupancy at the 180 s row puts the exit at
+    `DELTA_SEC + occupancy` in the name's own age clock. A real entry at age A
+    therefore has `DELTA_SEC + occupancy - A` seconds of window left, and when
+    that is <= 0 the position the proxy cashed had already closed before the
+    rule would have entered it. Those picks are not a drift correction. They do
+    not exist.
+    """
+    idx = np.flatnonzero(flag)
+    if not len(idx):
+        return {"picks": 0, "entered_age_median_sec": None,
+                "window_open_frac": None, "usd_window_open": 0.0}
+    entered_age = fired_at[idx] - formed[idx]
+    remaining = DELTA_SEC + occupancy[idx] - entered_age
+    open_mask = remaining > 0
+    open_flag = np.full(len(flag), False)
+    open_flag[idx[open_mask]] = True
+    return {
+        "picks": int(len(idx)),
+        "entered_age_median_sec": float(np.nanmedian(entered_age)),
+        "entered_age_p90_sec": float(np.nanpercentile(entered_age, 90)),
+        "occupancy_median_sec": float(np.nanmedian(occupancy[idx])),
+        "window_open_frac": float(np.mean(open_mask)),
+        "remaining_median_sec": float(np.nanmedian(remaining)),
+        # Cash keeping ONLY the picks whose window is still open at real entry.
+        # Still the 180 s y for those, so still an upper bound, but it drops the
+        # picks that are impossible rather than merely mispriced.
+        "usd_window_open": _cash_flag(open_flag, y, cell, day, elapsed,
+                                      occupancy, days),
+    }
 
 
 def _entries_per_day(flag: np.ndarray, day: np.ndarray, days: list[int]) -> dict:
@@ -356,8 +405,8 @@ def _stage_b(y, side, vwap, cell, day, elapsed, occupancy, formed, days, rung,
              rng, n_draw, h_grid, close, long_min, short_min) -> dict:
     grid = []
     for h in h_grid:
-        flag = _hold_running_extreme_flag(formed, side, vwap, cell, h, close,
-                                          long_min, short_min)
+        flag, fired_at = _hold_walk(formed, side, vwap, cell, h, close,
+                                    long_min, short_min)
         usd = _cash_flag(flag, y, cell, day, elapsed, occupancy, days)
         draws = []
         for _ in range(n_draw):
@@ -374,6 +423,8 @@ def _stage_b(y, side, vwap, cell, day, elapsed, occupancy, formed, days, rung,
             "null_p975_usd": float(np.quantile(draws, SHUFFLE_Q)),
             "clears_rung": bool(usd >= rung),
             **_entries_per_day(flag, day, days),
+            **_entry_window(flag, fired_at, formed, occupancy, y, cell, day,
+                            elapsed, days),
         })
     chosen, rule = _choose_h(grid)
     letter = _rung_letter(chosen["usd_per_asset_day"], chosen["usd_se"], rung, "hold")
@@ -483,8 +534,8 @@ def run(matrix_dir: Path, out_path: Path, *, blocks=BLOCKS, n_draw: int = N_DRAW
             if bname == "train":
                 continue
             y, side, cell, day, elapsed, occupancy, formed, days, close, vw = pack
-            flag = _hold_running_extreme_flag(formed, side, vw[chosen], cell, h_star,
-                                              close, long_min, short_min)
+            flag, fired_at = _hold_walk(formed, side, vw[chosen], cell, h_star,
+                                        close, long_min, short_min)
             usd = _cash_flag(flag, y, cell, day, elapsed, occupancy, days)
             draws = []
             for _ in range(n_draw):
@@ -505,6 +556,8 @@ def run(matrix_dir: Path, out_path: Path, *, blocks=BLOCKS, n_draw: int = N_DRAW
                                                         occupancy, days)["usd_se"],
                                        rung, "hold"),
                 **_entries_per_day(flag, day, days),
+                **_entry_window(flag, fired_at, formed, occupancy, y, cell, day,
+                                elapsed, days),
             }
             log(f"{asset:4s} hold {bname:10s} H={h_star:.0f}s usd={usd:.0f} "
                 f"null975={np.quantile(draws, SHUFFLE_Q):.0f} "
@@ -634,6 +687,18 @@ def selftest() -> int:
         assert abs(lg[900.0]["usd_per_asset_day"]) < 1.0, (
             "hold that outruns the phase close was entered: " + repr(lg[900.0]))
         assert abs(lg[300.0]["usd_per_asset_day"] - 2500.0) < 1.0, lg[300.0]
+
+        # RED 7 (ticket 29): a pick entered long after its label window closed
+        # must be counted as closed, not silently cashed at its 180 s value.
+        # The "ok" plant has occupancy 600 s, so the H=900 arm enters at age
+        # 1300 s, which is 520 s past the exit.
+        okg = {r["h_sec"]: r for r in rep["assets"]["HG"]["stage_b"]["train"]["grid"]}
+        assert okg[900.0]["picks"] == 2, okg[900.0]
+        assert okg[900.0]["window_open_frac"] == 0.0, okg[900.0]
+        assert okg[900.0]["usd_window_open"] == 0.0, okg[900.0]
+        assert okg[300.0]["window_open_frac"] == 1.0, okg[300.0]
+        assert okg[300.0]["entered_age_median_sec"] == 480.0, okg[300.0]
+        assert okg[300.0]["remaining_median_sec"] == 300.0, okg[300.0]
 
         # RED 6 (gate-not-goal): a margin inside the noise floor is not a clear.
         assert _rung_letter(1559.0, 224.0, 1500.0, "hold") == "hold_not_resolved"

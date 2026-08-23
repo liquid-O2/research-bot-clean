@@ -49,7 +49,8 @@ CANONICAL_TREES = {
     "vendor": "f08f741fa29ff79834f2c5b9cd3446a4add8523a",
 }
 SHARED_HOOK_MODULES = ("method_guard_support.py", "method_guard_rules.py")
-CODEX_HOOK_MODULES = (*SHARED_HOOK_MODULES, "method_guard.py", "optmem_lifecycle.py")
+CODEX_HOOK_MODULES = (*SHARED_HOOK_MODULES, "method_guard.py", "optmem_lifecycle.py",
+                      "memory_ledger_hooks.py", "shell_reading.py")
 CLAUDE_HOOK_MODULES = (*SHARED_HOOK_MODULES, "memory_ledger_hooks.py")
 CLAUDE_GUARD_TEMPLATE = "claude_method_guard.py"
 CLAUDE_GUARD_INSTALLED = "method_guard.py"

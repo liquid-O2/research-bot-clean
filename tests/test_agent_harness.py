@@ -43,17 +43,22 @@ HOOK_EVENTS = {
     "subagent_stop": "subagentStop",
     "user_prompt_submit": "userPromptSubmit",
 }
-HOOK_HANDLER_COUNTS = {name: 2 if name == "session_start" else 1 for name in HOOK_EVENTS}
+HOOK_HANDLER_COUNTS = {name: 2 if name in {"session_start", "pre_compact"} else 1
+                       for name in HOOK_EVENTS}
 HookOwner = tuple[int, str, int | None]
 HOOK_POLICY: dict[str, tuple[str | None, tuple[HookOwner, ...]]] = {
     "SessionStart": ("^(startup|resume|clear|compact)$", (
-        (30, "optmem_lifecycle.py session-start", 12000), (10, "method_guard.py session-start", 6000),
+        (20, "memory_ledger_hooks.py session-start", 12000),
+        (10, "method_guard.py session-start", 6000),
     )),
     "UserPromptSubmit": (None, ((10, "method_guard.py user-prompt-submit", 6000),)),
     "PreToolUse": ("^(Bash|apply_patch|Agent)$", ((15, "method_guard.py pre-tool-use", None),)),
     "SubagentStart": (None, ((10, "method_guard.py subagent-start", 6000),)),
     "SubagentStop": (None, ((15, "method_guard.py subagent-stop", None),)),
-    "PreCompact": ("^(manual|auto)$", ((30, "optmem_lifecycle.py pre-compact", None),)),
+    "PreCompact": ("^(manual|auto)$", (
+        (30, "optmem_lifecycle.py pre-compact", None),
+        (30, "memory_ledger_hooks.py pre-compact", None),
+    )),
     "PostCompact": ("^(manual|auto)$", ((10, "optmem_lifecycle.py post-compact", None),)),
     "Stop": (None, ((30, "method_guard.py stop", None),)),
 }
@@ -269,7 +274,7 @@ class HookTrustTests(unittest.TestCase):
             self.assertEqual(set(configured), set(HOOK_POLICY), path)
             handler_count = sum(len(group["hooks"]) for groups in configured.values()
                                 for group in groups)
-            self.assertEqual(handler_count, 9, path)
+            self.assertEqual(handler_count, 10, path)
             for event, (matcher, owners) in HOOK_POLICY.items():
                 with self.subTest(path=path, event=event):
                     self.assertEqual(len(configured[event]), 1)

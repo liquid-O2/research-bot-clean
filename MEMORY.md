@@ -435,6 +435,7 @@ New memories land here, newest last.
 - 2026-08-23 #196 Live after the restart. The method-worker dispatched through the guard, quoted one exact sentence from each of its four preloaded law skills, all verified against the bodies. The skills, hooks and pinned agent all load from a clean start.
 - 2026-08-23 #197 Codex enforcement is installed and canary-proven, but the live client marks the changed hooks untrusted. One acceptance inside an interactive Codex session re-trusts them, then verify_agent_harness.py hook-trust must report PASS.
 - 2026-08-23 #198 Codex re-trusted the changed hooks and the live probe reports HOOK TRUST PASS, nine handlers on current hashes. Both clients now run the same enforcement end to end.
+- 2026-08-23 #199 Codex now receives the ledger tail at SessionStart instead of the stale OptMem wake, and its PreCompact writes a ledger checkpoint beside the exact transcript archive. Compaction drills pass live on both clients.
 
 ## Checkpoints
 
@@ -461,3 +462,11 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 ### 2026-08-23T22:37:38Z
 
 - session 762a8e37-8ae1-4769-86b8-1a0002c12a41 ended (resume)
+
+### 2026-08-23T22:50:47Z
+
+- session: drill-codex
+- trigger: auto
+- cwd: /workspace
+- transcript spool: /workspace/artifacts/cache/continuity/drill-codex-20260823T225047Z.jsonl
+- the method packet left context here; run the guard's engage command before the next repository write

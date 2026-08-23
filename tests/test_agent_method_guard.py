@@ -210,7 +210,7 @@ class MethodGuardTests(unittest.TestCase):
             self.assertEqual(len(hooks["Stop"]), 1, config_path)
             command = hooks["Stop"][0]["hooks"][0]["command"]
             self.assertIn("method_guard.py stop", command)
-            self.assertIn("optmem_lifecycle.py", hooks["SessionStart"][0]["hooks"][0]["command"])
+            self.assertIn("memory_ledger_hooks.py", hooks["SessionStart"][0]["hooks"][0]["command"])
     def test_plan_packet_is_complete_and_production_patch_is_denied(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             fixture = MethodFixture(Path(raw))

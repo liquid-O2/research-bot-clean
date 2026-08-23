@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/bin/python3 /workspace/.codex/hooks/optmem_lifecycle.py session-start",
-            "timeout": 30,
+            "command": "/usr/bin/python3 /workspace/.codex/hooks/memory_ledger_hooks.py session-start",
+            "timeout": 20,
             "additionalContextLimit": 12000
           },
           {
@@ -73,6 +73,11 @@
           {
             "type": "command",
             "command": "/usr/bin/python3 /workspace/.codex/hooks/optmem_lifecycle.py pre-compact",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.codex/hooks/memory_ledger_hooks.py pre-compact",
             "timeout": 30
           }
         ]

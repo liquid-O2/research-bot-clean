@@ -4,3 +4,6 @@ timestamp	unit	verdict	evidence	note
 2026-08-23T10:47:04Z	codex-skills	VERIFIED	https://learn.chatgpt.com/docs/build-skills	Repository skills are discovered under .agents/skills; duplicate names are not merged.
 2026-08-23T10:47:04Z	codex-rules	VERIFIED	https://learn.chatgpt.com/docs/agent-configuration/rules	.rules controls commands outside the sandbox and cannot enforce prose or workflow.
 2026-08-23T10:47:04Z	baseline	VERIFIED	python3 tools/test_skill_routing_gate.py --selftest; python3 tools/unlazy_gates.py --selftest	Old routing passes its fixtures; Unlazy passes 22 of 22 fixtures before migration.
+2026-08-23T10:55:28Z	upstream-method	VERIFIED	user clarification in active thread	Preserve Pstack and Pocock testing methods and principles as written. Add no house testing regime; adapt only the invocation wiring required by Codex.
+2026-08-23T10:58:50Z	source-layering	VERIFIED	user clarification in active thread	Pstack is the base, not the sole authority. Layer compatible Pocock, Karpathy, Akita, Ousterhout, Unlazy, and OptMem material on top while keeping source ownership visible.
+2026-08-23T10:59:19Z	source-priority	VERIFIED	user clarification in active thread	The core is Pstack, Pocock, Akita, Unlazy, and OptMem. Karpathy and Bigpowers receive only small compatible additions where they fill a clear gap.

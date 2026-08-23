@@ -1,439 +1,296 @@
-# START HERE. The one file for a new session (current as of 2026-08-22, night)
+# START HERE. The one file for a new session (current 2026-08-23)
 
-You are working on Entry V2: a tabular CatBoost entry policy for SI, HG and
-NKD futures that must bank more than $2,000 per asset-day on HG and more
-than $1,500 per asset-day on NKD and SI, from one contract per asset, on
-held pre-2025H2 blocks, in exact chronological replay dollars, with at most
-12 entries per portfolio-day, one position per asset, and a maximum
-drawdown under $1,000. Neural is dead. The candidate generator is frozen.
-2025H2 is sealed until the goal is met pre-H2. The goal is the user's and
-is non-negotiable (D-110).
+You are working on **Entry V2**: a tabular entry policy for SI, HG and NKD
+futures that must bank more than **$2,000 per asset-day on HG** and **$1,500 on
+NKD and SI**, from one contract per asset, on held pre-2025H2 blocks, in exact
+chronological replay dollars, with at most **12 entries per portfolio-day**, one
+position per asset, and maximum drawdown under $1,000.
 
-**Stop.** Do not launch probes, fits, Fable, or Opus unless the user says
-so. The diagnosis below is the live state. This file is meant to be enough
-to understand the problem.
+The goal is the user's and is non-negotiable (D-110). Neural is dead. The
+candidate generator is frozen. 2025H2 is sealed.
 
-## If this is a new session on this workspace
+Read this file, then `STATE.md`'s first NEXT_ACTION block. Everything else is
+depth you can reach for when you need it.
 
-OptMem is the session memory. It outlives every session, compact, model,
-and vendor change. Without it you do not know what was decided. A chat
-that is not this `/workspace` cannot see OptMem or these receipts.
-Compaction summaries are not the memory. Do not start from
-`DIRECTIVES.md`, `.mempalace/hook_state/RECALL.md`, or
-`compaction/INDEX.md`.
+---
 
-Tool: `~/.optmem/memo`. Store: `/workspace/.optmem/memory` (also at
-`~/.optmem/memory`). Backup binary: `/workspace/.optmem/memo`. Never
-edit or delete anything under those paths. The tool manages them.
+# 1. How to work here
 
-### How to use OptMem
+## OptMem is the session memory
 
-Run these yourself. Some harnesses print wake stdout at session start.
-Some ignore that stdout. A printed hook is not the recall. After a
-compact, PreToolUse denies every tool until wake has actually run in
-this session.
+It outlives every session, compaction, model and vendor change. Compaction
+summaries are **not** the memory. Do not start from `DIRECTIVES.md`,
+`.mempalace/hook_state/RECALL.md`, or `compaction/INDEX.md`.
 
-1. First command of the session. `~/.optmem/memo wake`. If the shebang
-   fails (`python3: No such file or directory`), run
-   `/usr/bin/python3 ~/.optmem/memo wake` (same for `note`, `nap`,
-   `recall`, `zoom`). A bare PATH can also fail. Then
-   `export PATH=/usr/local/bin:/usr/bin:/bin` and retry. Done when the
-   output includes `You are awake.`
+1. First command of the session: `~/.optmem/memo wake`. If the shebang fails,
+   use `/usr/bin/python3 ~/.optmem/memo wake`. If PATH is bare,
+   `export PATH=/usr/local/bin:/usr/bin:/bin` first. Done when it prints
+   `You are awake.`
+2. **Follow its output to the end.** If it asks for a `nap`, run that exact line
+   before anything else. Unsettled compressions pile up and wake degrades.
+3. While working: `~/.optmem/memo note "<one line, max 280 bytes>"` for decisions,
+   verdicts, receipt shas and user rulings. Not narration.
+4. To find an old fact: `~/.optmem/memo recall <regex>`, or `zoom <a-b>` on the
+   summary tree wake prints.
+5. Spawning a subagent? Its brief must say: `You are a subagent. Don't run memo.`
 
-2. Follow the output to the end. If it says `Not awake yet. Run:
-   ~/.optmem/memo wake 2 T`, run that exact command. If it says
-   `Run: ~/.optmem/memo nap ...`, run that exact line before any other
-   work. Repeat until it prints `Nothing left to compress` or does not
-   ask for another nap. Unsettled compressions pile up and wake
-   degrades.
+Fallback only if wake itself fails: `/workspace/CONTINUITY.md`, then `STATE.md`.
 
-3. Then keep reading this file through the short way. Then
-   `STATE.md` (first NEXT_ACTION block) and
-   `design/entry_reset/SELECTION_HOLD_EXTREME_20260822.md` (the next
-   rule, unmeasured). Skills setup: `SKILLS.md`.
+## Skills are law, not a menu
 
-4. While working, register lasting facts:
-   `~/.optmem/memo note "<one line, max 280 bytes>"`.
-   Decisions, verdicts, receipt hashes, user rulings. Not session
-   narration. Not a fact already in memory. If `note` asks a
-   compression, settle it before the next action.
+`SKILLS.md` is the full wiring. In short: a matching situation means READ
+`/workspace/.claude/skills/<name>/SKILL.md` and follow it. Reading the file is
+the invocation; this harness may have no Skill tool. The routing table lives in
+both `AGENTS.md` and `CLAUDE.md` and a PreToolUse hook DENIES production-code
+writes until the implement skills have been read.
 
-5. When you need an old fact, search.
-   `~/.optmem/memo recall <regex>` matches every memory, word for word.
-   Wake also prints a binary tree of one-line summaries (`#0-1`,
-   `#2-3`, `#0-3`, ...). `~/.optmem/memo zoom <a-b>` opens one node
-   into its two halves, down to the raw memories. Use zoom when a
-   summary line might hold the fact and recall is too broad.
+## The unlazy wall (D-111)
 
-6. If you spawn a subagent, put this in its brief: `You are a
-   subagent. Don't run memo.` Parallel sessions on this machine may
-   all write memories. A subagent cannot judge what is already known.
-   Its notes would land duplicated and wrong.
+Before any substantial work item, write acceptance gates to `/workspace/GATES.md`.
+`python3 tools/unlazy_gates.py` runs the CHECK lines and records evidence. The
+Stop hook **denies the turn** while a gate is unmet, and a checked box whose
+`EVIDENCE:` still reads `pending` counts as unmet. Honest exit:
+`ABANDON: <id> <reason>` at column 0, reported.
 
-Fallback, only if `memo wake` itself fails: read
-`/workspace/CONTINUITY.md` then `/workspace/STATE.md`. Those are a
-short overwritten snapshot, not the default. Do not dump CONTINUITY
-into every turn.
+Scope, fixed 2026-08-23: **a session is walled by its own ledgers.** `GATES.md`
+is always enforced; a leaf under `gates/` walls you only once you have run the
+runner against it. Two agents in `/workspace` no longer wall each other.
+Finished ledgers are archived under `design/gates_ledgers/`.
 
-Repo files remain authority for what was decided. OptMem is recall so
-the next session finds it. Update `STATE.md` when the live stage
-moves. A note without a STATE cursor is a memory the next agent will
-not treat as current.
+## Commands
 
-Zero learned economics have ever been published. Every number here is a
-2021 diagnostic on 67 days (11-21 days per block). 2021 can kill a rule.
-It cannot promote.
+- Tests: `python3 -m unittest <module>`. **pytest is not installed.**
+- Full battery: `bash tools/run_all_checks.sh --fast`
+- Every probe carries `--selftest`. Run it, then mutate the code and confirm the
+  selftest goes red. A fixture no mutant kills is decoration.
+- Hardware: `HARDWARE.md`. `nproc` and `free` LIE here — 13.6 cores, 263 GiB.
+- Pod restarts wipe the overlay. Reinstall recipe is in `HARDWARE.md`; install
+  with `uv`, not pip.
 
-## The short way to the goal
+---
 
-**As of 2026-08-23 the frame changed and the goal is closer than it has ever
-been.** Verdicts: `design/entry_reset/T35_VERDICT_20260823.md` (the frame and
-the live rule) and `design/entry_reset/T29_T34_VERDICT_20260823.md` (why the
-old shape had to be abandoned). Receipts `extreme_events_20260823.json`,
-`event_column_scan_20260823.json`, `hold_running_extreme_20260822.json`.
+# 2. What the problem actually is
 
-### The frame: new-extreme events
+## The frame
 
-The score is static per name (its own 180 s row), so the name that ends a phase
-as its side's extreme necessarily BEAT every earlier name when it became
-eligible. Call that a **new-extreme event**. Two measured consequences:
+A **cell** is one (asset, day, phase). G1 emits zigzag reversal candidates
+throughout it. After live keep-first dedup about 15 unique names survive per
+cell. A **new-extreme event** is a name that sets a new running extreme on its
+own side at its own eligibility moment (formation + 180 s).
 
-1. The event set contains the paying name at **recall 1.000** on all three
-   assets.
-2. Every event is entered at 180 s of age, the only age this matrix labels
-   exactly. No proxy, no unpriceable wait.
+Two facts make events the right universe, both measured:
 
-There are about 6 events per cell, down from 15 names.
+- The paying name is **always** an event: recall **1.000** on all three assets.
+- Every event is entered at 180 s of age, the only age this matrix labels
+  exactly. No proxy.
 
-### The numbers
+There are about **6.3 events per cell** and about 3 cells per asset-day.
 
-| | HG (rung $2,000) | NKD ($1,500) | SI ($1,500) |
+## The payoff, and it is the whole problem
+
+`diagnostics/entry_economics_20260823.json`. Mean y of an event, TRAIN:
+
+| Asset | Mean per event | % profitable | r0 | r1 | r2 | r3 |
+|---|---|---|---|---|---|---|
+| HG | **-$95** | 43% | $924 | $431 | -$2 | -$240 |
+| NKD | **-$51** | 44% | $617 | $378 | $127 | -$50 |
+| SI | **-$71** | 40% | $799 | $447 | $235 | -$49 |
+
+The pool mean is negative, ranks 0-2 are non-negative, ranks 3+ are not.
+
+**The target, stated correctly: land in the TOP TWO of about six.**
+
+| Asset | Need per trade | Top-2 mean | Top-3 mean | All-6 |
+|---|---|---|---|---|
+| HG | $667 | **$678** | $451 | -$95 |
+| NKD | $500 | $498 | $374 | -$51 |
+| SI | $500 | **$623** | $494 | -$71 |
+
+Top-2 clears HG and SI and is $2 short on NKD. Top-3 clears nothing.
+
+**The rung must be met by dollars per trade, not by trade count** (user ruling,
+2026-08-23). A "two entries per rich cell" lever was proposed and **withdrawn**:
+two simultaneous positions in one asset is leverage if same-side and
+self-cancelling if opposite, and `_cell_pick` already refuses it — occupancy runs
+a median 17,000-25,000 s, so a second entry in a cell would never seat. Adding
+size or count to reach the rung is a shortcut, not a path.
+
+## The ceiling is real and exactly labelled
+
+`diagnostics/extreme_events_20260823.json`, best event per cell cashed at its own
+180 s row:
+
+| Asset | Event oracle | SE | Letter |
 |---|---|---|---|
-| Event oracle, exactly labelled | **2,772** (+3.3 SE) | 1,851 (+1.1 SE) | **2,396** (+2.7 SE) |
-| Best LIVE rule (TRAIN) | 801, inside its null | 875 vs null 547 | **1,465** vs null 1,251 |
-| Capture of the oracle | 29% | 47% | **61%** |
-| Capture the rung needs | 72% | 81% | 63% |
+| HG | **$2,772** | $238 | event_clears_rung |
+| NKD | $1,851 | $321 | event_not_resolved |
+| SI | **$2,396** | $329 | event_clears_rung |
 
-**SI is two points of capture short of its rung**, with a fully causal rule and
-exactly labelled cash. That is the closest this program has come, and the gap is
-now a CAPTURE gap, not an identification gap or a pricing gap.
+**There is more money in the candidate set than the goal needs.** The generator
+is not the bottleneck and never was.
 
-**CORRECTED by ticket 44.** The live score is NOT extension beyond a location
-level. `prior_high` and `prior_low` are per-day constants that pick the SAME name within a side 100% of the time (91/91 HG, 97/97 NKD, 49/49 SI), so within a side the score is `side * entry_price` and the level is only a per-(day, side) offset arbitrating long against short — one degree of freedom fitted over 32 candidates on TRAIN. Not lookahead; entry price is known at the snapshot. Not a strict tautology either (`var(y+aligned)/var(y)` is 8-9). But `corr(y, -aligned)` within a cell is +0.38 / +0.36 / +0.75, and `y = side*(exit - entry)`, so part of the edge is arithmetic. What is established is the margin over the shuffled null: SI +$214 TRAIN / +$558 THRESHOLD / +$400 FORWARD. Full audit: `design/entry_reset/T44_TAUTOLOGY_AUDIT_20260823.md`.
+## Where the live rule stands
 
-All Stage 5 numbers are TRAIN-selected and therefore EXPLORATORY. THRESHOLD is
-read ONCE, for a frozen rule (ticket 39).
+`diagnostics/location_ranker_20260823.json`, frozen on TRAIN before any held read:
 
-### Two things that are dead, and why it matters
+| Asset | Arm | TRAIN | THRESHOLD | FORWARD | Rung |
+|---|---|---|---|---|---|
+| HG | MAX_BEYOND | $1,000 | $857 | $790 | $2,000 |
+| NKD | BEST_SINGLE | $875 | $940 | $807 | $1,500 |
+| SI | BEST_SINGLE | $1,465 | $1,061 | $868 | $1,500 |
 
-- **Ticket 28's hold** (wait H minutes, enter the standing extreme) cannot be
-  priced. It enters at 7,380-10,980 s of name age while the labelled grid stops
-  at 600 s (`confirmation.training_offsets_seconds` refuses anything else). The
-  window is still open there, so the error is pure entry-price drift, and a
-  linear extrapolation of the measured decay is about $750 against HG's $1,610.
-  Bound, not correction. Do not tune it.
-- **Ticket 34's armed entry** (wait, then take the next fresh name) is inside
-  its null on every asset. The hold's value is the IDENTITY of the held name,
-  never a timing signal.
+Every asset clears its shuffled null on every block. Every asset letters
+`loc_insufficient`. Roughly half the rung.
 
-### The correction that unlocked all of it
+The picker is **not** weak: it lands top-2 **65-77%** of the time against a
+30-34% random baseline, and rank-0 41-56%. Occupancy skips: **zero**.
 
-The frozen spec's per-side extreme was INVERTED. `aligned = side * (mid - level)`,
-so extended-on-the-fade-side is the MOST NEGATIVE value on BOTH sides.
-`long_min_short_min` won 24 of 24 asset x score x block cells. Under it the
-finished-cell oracle went from missing every rung to clearing HG's by 2.1-3.2 SE.
-Every earlier closure that ranked by an aligned extreme without cashing both
-ends is suspect; tickets 24-27 were checked and are unaffected
-(`artifacts/cache/review/sibling_sweep_20260822.md`).
+---
 
-### Ticket 39 is done: the rule replicates, at about half the rung
+# 3. What has been ruled out, and why
 
-`design/entry_reset/T39_VERDICT_20260823.md`, receipt
-`location_ranker_20260823.json`. Frozen on TRAIN before any held block was read,
-then read once:
+Do not re-run these. Each is closed WITH its scope.
 
-| Asset | Arm | TRAIN | THRESHOLD | FORWARD | Null (thr / fwd) | Capture (thr) | Rung needs |
-|---|---|---|---|---|---|---|---|
-| HG | MAX_BEYOND | 1,000 | 857 | 790 | 535 / 21 | 31% | 72% |
-| NKD | BEST_SINGLE | 875 | **940** | 807 | 546 / 449 | 51% | 81% |
-| SI | BEST_SINGLE | 1,465 | 1,061 | 868 | 503 / 468 | 44% | 63% |
-
-Every asset clears its null on every block and NKD does not decay from TRAIN to
-held. Every asset letters `loc_insufficient`: HG needs 2.3x, NKD 1.6x, SI 1.4x.
-
-What the arms taught: one column beats every composite (the family is one signal
-measured many times, and averaging dilutes it); HG has zero surviving levels and
-its geometry is genuinely different; count-of-levels-cleared and
-nearest-cleared are worthless while DEPTH is not; and abstention makes cash fall
-monotonically, so the score's magnitude is not a quality signal, only its
-within-cell order is.
-
-### Next
-
-**Ticket 33, off 2021.** Every number above rests on 11-21 days per block, with
-standard errors of $169-374 on cash of $790-1,061 — this sample resolves to
-about a third of the answer, and its held blocks have now been read across three
-rule families. The same frozen rule on 2022-2025H1 is about one box-hour under
-D-110 (four Delta-grid rows per series, not the 296-row store), gives four and a
-half years instead of forty-six days, and is the only tier that can promote
-anything.
-
-Cheap and secondary, after that corpus exists: HG deserves its own column scan
-rather than borrowed levels, and one entry per phase leaves three of the twelve
-portfolio-day trades unspent, worth perhaps 20-30% and not the missing 100%.
-
-Do not rewrite G1. Do not fit CatBoost on 1,764 columns. Do not open exits.
-2025H2 stays sealed. 2021 can kill a rule; it cannot promote one.
-
-## What the goal needs, and what the generator already has
-
-A one-entry-per-phase picker at 180 s after formation, on the frozen G1
-reversal names, needs a within-cell score-to-value correlation of about
-ρ 0.49 to 0.76 (winner-vs-loser AUC 0.77 to 0.95) to print the rung.
-Receipt `rho_ruler_20260822.json`.
-
-After live keep-first (formation VWAP, HG 2θ, NKD/SI 1θ), the hindsight
-cell-max still prints TRAIN $2781 HG / $1860 NKD / $2409 SI. The
-generator is not the bottleneck. Receipt `rho_on_dedup_20260822.json`
-sha `3b5e69c8`. Ranking the remaining 15 unique paths still needs AUC
-0.87 / 0.90 / 0.81. Dedup does not make a weak score print.
-
-CatBoost is not the limiter. Unit-weight Dawes beat trees on this plane.
-YetiRank on 1764 columns was not separated from shuffle.
-
-## Oracles versus a model. Do not mix them.
-
-| Number | What it is | TRAIN $ HG / NKD / SI |
+| Closed | Why | Scope |
 |---|---|---|
-| Cell-max of keep-first names | Finished-cell hindsight oracle. Illegal live (uses later names and later y). | 2781 / 1860 / 2409 |
-| Side-first (ticket 24) | Oracle: know the finished cell's winning side, take the earliest name on it. Not a model. | 1986 / 985 / 1471 |
-| MAX_EXT vs prior range | Finished-cell oracle: most extended versus yesterday. Ticket 28's first score. | 1411 / 1103 / 1521 |
-| Enter-first (ticket 25) | Fully live. Take the first eligible keep-first name. No score. | 489 / -313 / -196 |
-| Isolated Dawes as a picker | A score, live-legal. Cashes negative on the 15. | -50 / -160 / -267 |
-| Clock / formation-order | One score at Δ=180. | 490 HG, negative NKD/SI |
+| The generator | Cell-best clears the per-trade requirement on all three assets | Not a bottleneck at any grain tried |
+| Model family | Unit-weight Dawes beat trees; YetiRank on 1,764 cols was inside shuffle | This plane |
+| Ticket 28's hold | Enters at 7,380-10,980 s of name age while labels stop at 600 s, so it cannot be priced. Its pick averages 23-58% of the cell best — it is NOT the payer | This matrix's label grid |
+| Ticket 34 armed entry | Arm on the held extreme, take the next fresh name: inside its null on all three assets. The hold's value is the held name's IDENTITY, never a timing signal | That shape |
+| Ranking at <= 300 s | 1,764 columns scanned in the prefix frame and the event frame, raw and side-resolved. The only survivor was entry-price arithmetic | These columns, these ages |
+| The "location extension" story | `prior_high` and `prior_low` are per-day constants and pick the SAME name within a side 100% of the time (91/91, 97/97, 49/49). Within a side the score IS `side x entry_price`; the level is a fitted cross-side offset | See `T44_TAUTOLOGY_AUDIT_20260823.md` |
+| Two-regime split | Every split arm loses to plain EXTREME_ALL on all three assets and both blocks; CHEAP_ONLY is catastrophic | That rule shape |
+| Abstention on score magnitude | Cash falls monotonically with the threshold on all three assets | The score's size carries nothing; only its within-cell ORDER does |
 
-Side-first already misses the rung. A live side call can only do worse.
-Receipts: `side_split_20260822.json` sha `d64b1d68`,
-`label_variants_20260822.json` sha `ca83d2d2`,
-`crux_prefix_winner_20260822.json` sha `d2fe2753`.
+**One retraction worth knowing about.** On 2026-08-23 I claimed "the picker is
+right in cheap cells and wrong in rich ones" from a hit-versus-miss table. It had
+no null. Against 40 within-cell shuffles the null's own gap reaches $431-658, and
+all nine real gaps sit inside it. **Retracted.** What survived is narrower: the
+count-controlled version shows the payer's percentile position in the picker's
+order going 0.309 (cheap) to 0.502 (chance) in rich cells **on HG only**; NKD and
+SI do not resolve. The lesson generalises: **every comparison in this program
+gets its own null before it is believed.**
 
-## The live object
+---
 
-Names become eligible 180 s after they form, in formation order. When
-the eventual paying name (cell-max) becomes eligible:
+# 4. What is alive
 
-- It is the first-born in 21% HG / 6% NKD / 12% SI of cells.
-- Median already-eligible keep-first names on the table: 4 / 7 / 5.
-- You are ranking a live prefix of 4-7 names, not a finished list of 15.
+## The conditioner: cell richness is causally predictable
 
-## How long until the paying name exists (ticket 26)
+`diagnostics/regime_split_20260823.json`. A unit-weight composite of activity,
+sweep speed, path variation and prior range, read from the FIRST event's own row,
+split at the TRAIN median:
 
-Seconds from the first keep-first formation to the cell-max formation
-(same as the eligibility gap). Receipt `crux_wait_scan_20260822.json`
-sha `044cde9b`. TRAIN:
-
-| | HG | NKD | SI |
-|---|---|---|---|
-| Median wait | 2442 s (41 min) | 2536 s (42 min) | 2214 s (37 min) |
-| p25 | 204 s | 333 s | 237 s |
-| p75 | 4850 s (81 min) | 7381 s (123 min) | 5723 s (95 min) |
-| p90 | 8544 s (142 min) | 11434 s (191 min) | 7936 s (132 min) |
-| Arrived by 0 s (is first) | 0.21 | 0.06 | 0.12 |
-| Arrived by 60 s | 0.22 | 0.11 | 0.12 |
-| Arrived by 180 s | 0.25 | 0.24 | 0.21 |
-| Arrived by 300 s | 0.29 | 0.24 | 0.30 |
-| Arrived by 600 s | 0.35 | 0.30 | 0.39 |
-| Arrived by 1800 s (30 min) | 0.44 | 0.44 | 0.48 |
-| Arrived by 3600 s (60 min) | 0.60 | 0.63 | 0.61 |
-
-The 180 s / 300 s confirmation window sits on the first names. About
-70% of the time the paying name is not even eligible yet. That is why
-scoring confirmation 3-5 minutes after the first birth cannot print
-the rung: the name that pays usually has not formed.
-
-THRESHOLD and FORWARD wait medians are the same scale (HG 2580 / 2954 s).
-This is not a TRAIN quirk.
-
-## Is it missing information, or something else?
-
-Split the claim. Do not collapse it.
-
-**Until the paying name is born, the information cannot exist.** No
-feature of the earlier names can point at a name that is not on the
-table. Direct from the wait table. This is not a model defect and not
-a generator defect. The decision time scale we used (180-300 s after
-each birth, and especially after the first birth) is the wrong scale
-for "the name that pays." The phase-scale wait is tens of minutes to
-hours.
-
-**Once it is born, among the 4-7 already-eligible names, the columns
-we actually trained (confirmation Dawes, clock, location proximity)
-do not identify it.** Ticket 25: prefix AUC ~0.46-0.51 HG/NKD, inside
-shuffle. Clock remaining AUC is 0.0: remaining falls as later names
-form, so it always prefers earlier names. Direct.
-
-**We scanned every matrix column in that same prefix frame (ticket 26).**
-Letter `only_clock` on all three assets. The top TRAIN columns are
-session/phase elapsed and `ctx_*_age_seconds` at AUC 1.0. That 1.0 is
-tautological: in the prefix-at-winner-time frame the winner is always
-the last-born, so any clock that increases with formation time
-"identifies" it. That is not a live rule. You would also pick "the
-latest" at every earlier moment, which is not the winner. Zero
-non-clock single columns survive TRAIN AUC >= 0.60 and THRESHOLD
-AUC >= 0.60.
-
-**What is still unknown.** Combinations of non-clock columns other
-than Dawes. Dawes is already a combination of the confirmation family
-and was chance on HG/NKD in the prefix frame. Identification at 600 s
-or 1800 s after each name's own birth (not after the first name).
-Zigzag `pivot_mid2` and G1 tape histograms, which are not columns on
-this matrix. Those are the remaining ways information could still
-exist. They are not measured. They are not an excuse to refit CatBoost
-on the 1764-column isolated plane.
-
-**What it is not.** Not CatBoost (trees lost to Dawes; the plane is
-empty). Not the generator (cell-max prints the ceiling). Not the
-dollar label (perfect ranker of y prints the ceiling, but that ranker
-is illegal live). Not "good enough" classification (T23: too many
-cells have no $600 name). Not location keep (leftover 83/73/52%).
-Not Fable's side-then-earliest (oracle already under the rung). Not
-rank-by-runway (T23 clock cash $490 HG).
-
-## If you wait ~40 minutes, how much of the oracle is on the table
-
-Ticket 27. Still an oracle: hindsight max y among names already born,
-never names not yet born, never a model. Receipt
-`wait_prefix_ceiling_20260822.json` sha `1630a2d4`. TRAIN:
-
-| Wait after first name | HG $ (cap) | NKD $ (cap) | SI $ (cap) |
-|---|---|---|---|
-| 0 s (enter-first) | 489 (0.18) | -313 | -196 |
-| 300 s (5 min) | 1123 (0.40) | 625 (0.34) | 510 (0.21) |
-| 600 s (10 min) | 1445 (0.52) | 803 (0.43) | 1201 (0.50) |
-| 1800 s (30 min) | 1921 (0.69) | 1127 (0.61) | 1488 (0.62) |
-| 2400 s (~40 min) | 2117 (0.76) | 1262 (0.68) | 1777 (0.74) |
-| 3600 s (60 min) | 2340 (0.84) | 1350 (0.73) | 1817 (0.75) |
-| inf (finished cell) | 2781 (1.00) | 1860 (1.00) | 2409 (1.00) |
-
-At ~40 min, about half the paying names are born (0.49 / 0.48 / 0.55).
-The prefix oracle cashes $2117 HG TRAIN (clears $2000) and $1777 SI
-TRAIN (clears $1500). NKD $1262 does not clear $1500 even at 60 min
-($1350). THRESHOLD/FORWARD at 40 min: HG $1741 / $1787, both under
-$2000. So "wait 40 min and pick perfectly among names on the table"
-is not a held path. It is also still an oracle. Ticket 25 says this
-plane cannot make that pick live.
-
-## Is generation random, so we have to wait 40 minutes
-
-No. G1 is a high-recall zigzag (D-065: generation stays high-recall,
-pruning is selection). Early names are real local extrema. The phase's
-remaining-move extreme often has not printed yet, so a later zigzag is
-the paying name. That is not random placement and not a reason to
-rewrite birth. You cannot select a name that does not exist yet. The
-180-300 s confirmation window was attached to the first zigzags. The
-paying zigzag usually arrives tens of minutes later.
-
-## How to select the paying name (the next rule, unmeasured)
-
-Identification is not a 3-minute confirmation score on the first
-zigzag. The first zigzags are real swings. The paying swing is the
-one that forms when the phase extreme is set, then holds. Anatomy:
-the extreme is set mid-phase and holds; last-formed is never best;
-causal "enter the first extended name" failed because the extreme
-then ran further. 300 s patience failed because 300 s is not the
-hold time. Ticket 26 says the hold time is tens of minutes.
-
-Live rule, prefix-legal, generator untouched:
-
-1. Let G1 print every zigzag. Keep-first coalesces nested rungs.
-2. Track the running phase extreme among already-eligible keep-first
-   names. Score is session (or phase) VWAP-aligned dollars, not
-   prior-session extension. Prior-session MAX_EXT is a finished-cell
-   oracle at $1411 / $1103 / $1521 TRAIN and cannot print.
-3. Do not enter while a newer zigzag is still making a new extreme.
-4. Enter the current extreme's path when nothing has beaten it for
-   H minutes. H comes from TRAIN. One name per phase. Occupancy as
-   today.
-
-That is not RUNMAX (RUNMAX entered the first name that was extended
-versus yesterday). That is not ranking 15 finished names. That is
-not CatBoost on 1764 columns. That is not an exit.
-
-The first measurement is the 2-name VWAP-extreme oracle, then the
-causal hold only if that oracle clears. Ticket 28. If the oracle
-misses, these columns are done; tag `pivot_mid2` next. If the hold
-misses on THRESHOLD, the rule is dead on 2021. Do not add CatBoost.
-
-Exits stay deferred (D-107, D-110). They are not a path until entries
-print.
-
-## Receipts (all under `artifacts/entry_v2/tabular_recovery/diagnostics/`)
-
-Matrix `7e9e2588…` at
-`artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/e1r/curriculum/fits/round_0/component_matrix`.
-
-| Ticket | Fact | File |
+| Asset | TRAIN cheap → rich | THRESHOLD cheap → rich |
 |---|---|---|
-| 01 | Rung needs AUC 0.77-0.95. AUC 0.60 buys $200-650. Pool mean negative. | `rho_ruler_20260822.json` |
-| 07 | `no single dimension` on top of the AUC 0.60 picker | `ceiling_split_20260822.json` |
-| 11-12 | Location keep misses leftovers 83/73/52% | `oracle_retention_filters_20260822.json` |
-| 18-20 | Live keep-first, ~15 paths, most of ceiling kept | `path_dedup_live_20260822.json` sha `4beb0045` |
-| 22 | After dedup, AUC at rung still 0.87/0.90/0.81 | `rho_on_dedup_20260822.json` sha `3b5e69c8` |
-| 23 | y is an aligned label. Dawes cash negative. Clock $490. good_enough cannot_reach HG/NKD | `label_variants_20260822.json` sha `ca83d2d2` |
-| 24 | Side-first is an oracle and misses the rung ($1986/$985/$1471) | `side_split_20260822.json` sha `d64b1d68` |
-| 25 | Live prefix identification `prefix_blind` HG/NKD. Enter-first $489/$-313/$-196 | `crux_prefix_winner_20260822.json` sha `d2fe2753` |
-| 26 | Wait median ~40 min. Scan `only_clock` (tautological elapsed). No non-clock column holds | `crux_wait_scan_20260822.json` sha `044cde9b` |
-| 27 | Prefix oracle after wait. 40 min: HG $2117 TRAIN (0.76 of max), NKD $1262, SI $1777. THRESHOLD HG $1741 | `wait_prefix_ceiling_20260822.json` sha `1630a2d4` |
-| — | MAX_EXT vs yesterday is $1411/$1103/$1521 TRAIN at 180 s. Cannot be ticket 28's score. | `extension_prior_20260822.json` |
-| 28 | Unmeasured. VWAP-extreme oracle, then hold. Not MAX_EXT. | `design/entry_reset/SELECTION_HOLD_EXTREME_20260822.md` |
+| HG | $662 → $1,209 (1.83x) | $649 → $1,206 (**1.86x**) |
+| NKD | $413 → $828 (2.00x) | $360 → $715 (**1.99x**) |
+| SI | $568 → $1,079 (1.90x) | $566 → $1,178 (**2.08x**) |
 
-## Fable and Opus (written, not to re-run)
+Nine of nine, and the separation WIDENS out of sample. It is the strongest
+out-of-sample result this program has produced.
 
-Fable 5 xhigh session `6f11e029-99cc-45f6-9998-050986c3b51c`:
-`design/entry_reset/FABLE5_XHIGH_LABEL_DIAGNOSIS.md`. Took
-side-then-earliest. T24 killed it as a ceiling.
+It predicts cell VALUE. It does **not** locate the picker's failures — that is
+why the two-regime rule failed, and the reason rescues the conditioner rather
+than burying it.
 
-Opus 5 max session `18d4977a-f745-4f6d-857a-b1cfb0d7743c`:
-`design/entry_reset/OPUS5_MAX_LABEL_DIAGNOSIS.md`. Took runway-offset.
-T23 killed rank-by-clock.
+## The forward-vol model, which the entry line has never used
 
-Resume recipes: `artifacts/cache/review/cli_sessions_20260822.md`.
-Never `--bare`. Restate the fence every resume.
+`design/entry_reset/T54_FORWARD_VOL_20260823.md`. Already built and audited:
 
-## Laws in one screen
+- `artifacts/entry_v2/forecast/forward_vol_audit_v4_exact.json`: 84 slices,
+  3 assets x 4 phases (TOKYO, LONDON, NY, SESSION), predicting phase **range in
+  dollars** at **20.8-28.4% gain over baseline on all twelve slices**, with
+  q10-q90 calibrated coverage and an existing REGIME_HIGH / MID / LOW taxonomy.
+- `artifacts/runs/e6_vol_forecasts_v2/vol_service_forecasts.tsv`: 37,427 rows,
+  **twelve horizons** (daily plus intraday_30 through intraday_330 in 30-minute
+  steps), two arms, walk-forward folds, every row gate-passed.
 
-Rung $2000 HG, $1500 NKD and SI when that block's delayed ceiling
-cannot support $2000. 5 real + 5 shuffle seeds. Exact replay dollars
-only (D-095). Knobs from prior blocks. At most 12 entries per
-portfolio-day. MDD under $1000. Entries only (D-107, D-110).
-Generator frozen. Neural dead. 2025H2 sealed. Waiting after
-formation is lawful. 300 s was a guess. Ticket 26 says the relevant
-wait is tens of minutes.
+**Why it was never used:** the 2021 component matrix carries **zero** forecast
+columns. Its eight `disc_fvol_*` are realized range and clocks. The forecast
+starts 2022-03-09; ticket 19 recorded this as `READY overlap 0`. Every regime
+attempt was forced onto realized proxies by a data wall nobody had named.
 
-## How you work here
+## The 2022-2024 substrate, built 2026-08-23
 
-OptMem first, as written above. Follow wake to the end, including every
-`nap` it prints. Skills are law, not a menu. How they are wired, why
-other agents in this repo skip them, and how `AGENTS.md` / `CLAUDE.md`
-must be written so the table is mandatory: `SKILLS.md`. Reading
-`/workspace/.claude/skills/<name>/SKILL.md` is the invocation. The user
-will not name skills and will not say implement. Tests:
-`python3 -m unittest`. pytest is not installed. Battery:
-`bash tools/run_all_checks.sh`. Hardware: `HARDWARE.md` (`nproc` and
-`free` lie: 13.6 cores, 263 GiB).
+`artifacts/cache/corpus_2022_2024/`. Decode HG 936 days / 390.5M records,
+NKD 937 / 215.5M, SI 936 / 615.3M, zero file failures. Assemble 931 / 932 / 925
+session receipts — **2,788 sessions against 2021's 586.**
 
-## Read next, in this order, only if you need depth
+2025 is EXCLUDED: the Copper and NKD raw ships as ANNUAL bundles, so the 2025
+bundle contains sealed H2 bytes. It was left out of the staged window rather than
+filtered afterwards.
 
-1. `~/.optmem/memo wake` (follow it to the end; this file has the recipe)
-2. This file (you are here)
-3. `SKILLS.md` (how the skill law is wired)
-4. `STATE.md` (first NEXT_ACTION block)
-5. `CURRENT.md` (closed questions with scope)
-6. `design/entry_reset/HANDOFF_DECISION_PLANE_20260822.md`
-7. `design/entry_reset/SELECTION_HOLD_EXTREME_20260822.md`
-8. `AGENTS.md`, `HARDWARE.md`
+**708 days overlap the forward-vol service**, all pre-seal, 2022-03-09 to
+2024-12-31. That is the corpus's real justification: it is the only era where the
+forward-vol plane and the entry plane can be joined at all.
+
+---
+
+# 5. The frontier
+
+Tickets live in `design/entry_reset/tickets/`. The plan is
+`design/entry_reset/ENTRY_PLAN_20260823.md`.
+
+1. **45 — one-session pilot** through `build_corpus`. The gate everything blocks
+   on. Must catch the prior-absent first-day branch, forecast-context wiring
+   (2021 never exercised it), schema drift, and the measured per-session cost.
+2. **46 — extended age grid.** The corpus grid is nine ages
+   (`ConfirmationConfig.age_grid="CORPUS"`), which is the union of what every
+   live probe reads. For a REBUILD that criterion is circular, so the grid gains
+   a late tail (600 to 10,800 s) preregistered from the hold's own entry ages.
+   Costs the `max_delay_sec in (300, 600)` refusal, which is teacher-identity
+   machinery.
+3. **47 — build the corpus.** R6 adoption is DEFERRED on purpose: the oracle path
+   is 2.0-4 h wall, inside the cap, and wiring a native plane into a 2,000-line
+   production file to save an hour serialises science behind harness work.
+4. **48 — freeze the protocol** before any 2022+ outcome is read.
+5. **54 — join the forward-vol model.** The chain to MEASURE, not assume:
+   forecast range (21-28% skill) → realized range → cell-best (ticket 19 measured
+   Spearman 0.82 between cells on 2021).
+6. **51 — land in the top two**, and **37** (`pivot_mid2` / G1 tape tagging) only
+   if the plane closes.
+
+## The protocol that must not be broken
+
+2021's held blocks died of read-peek-amend: eight or more reads across three rule
+families, each amendment individually principled and the aggregate fatal. **There
+is no third corpus behind 2022-2024.** Everything frozen in writing before the
+first outcome is read, **one read per rule**, anything else labelled exploratory
+in the same sentence it is reported.
+
+## Standing controls, learned the hard way
+
+- Every comparison gets its own **null** before it is believed.
+- Any candidate score is tested against the **entry price** it may be collinear
+  with. Eleven of 33 aligned columns provably are.
+- A margin under **2 standard errors** of the block's own per-day spread letters
+  `not_resolved`, never `clears_rung`.
+- Clock columns (`phase_remaining_sec`, `phase_index`, elapsed, ages) correlate
+  with everything for capacity reasons. Flag, never promote.
+- 2021 can kill a rule. It can never promote one.
+
+---
+
+# 6. Where things live
+
+| What | Where |
+|---|---|
+| This file | `START_HERE.md` |
+| Live cursor | `STATE.md`, first NEXT_ACTION block |
+| Live vs inherited, closures WITH scope | `CURRENT.md` |
+| Skill wiring and the enforcement layers | `SKILLS.md` |
+| The plan | `design/entry_reset/ENTRY_PLAN_20260823.md` |
+| Tickets | `design/entry_reset/tickets/` |
+| Verdicts, newest first | `design/entry_reset/T54_FORWARD_VOL_20260823.md`, `T53_REGIME_SPLIT_20260823.md`, `T52_REGIME_20260823.md`, `T50_DIAGNOSIS_20260823.md`, `T44_TAUTOLOGY_AUDIT_20260823.md`, `T41_R6_SPEED_20260823.md`, `T42_CORPUS_GRID_20260823.md`, `T43_RESOLUTION_20260823.md`, `T39_VERDICT_20260823.md`, `T35_VERDICT_20260823.md`, `T29_T34_VERDICT_20260823.md` |
+| Receipts | `artifacts/entry_v2/tabular_recovery/diagnostics/` |
+| Probe logs | `artifacts/cache/t28_logs/` |
+| Finished gate ledgers | `design/gates_ledgers/` |
+| Defect classes, all paid for | `.claude/skills/generalizing-fixes/DEFECT_CLASSES.md` |
+| Hardware truth | `HARDWARE.md` |
+| Data inventory | `DATA_INVENTORY.md` |
 
 ## If the pod restarted
 
-Reinstall from `HARDWARE.md`, then `bash tools/run_all_checks.sh --fast`.
-The matrix, receipts and OptMem live on `/workspace`. Overlay `/` does not.
+Reinstall from `HARDWARE.md`, then `bash tools/run_all_checks.sh --fast`. The
+matrix, receipts and OptMem live on `/workspace`. The overlay `/` does not.

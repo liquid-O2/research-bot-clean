@@ -8,6 +8,8 @@ Budget note: research, design, migration, and behavioral verification span sever
 - Interfaces: `AGENTS.md` is the small always-loaded policy; `.agents/skills/` is the canonical repository skill tree; `.codex/hooks.json` is the Codex lifecycle entrypoint; `archive/harness-pre-rebuild-20260823/` is immutable evidence of the previous harness.
 - Data ownership: research leaves write only their named notes under `design/harness_rebuild_20260823/research/`; the driver owns the frozen design, migration, and integration checks.
 - Naming and conventions: upstream material keeps its upstream name and license when installed unchanged. Local composition uses separate, short router skills rather than editing upstream bodies. Every generated artifact carries its source commit in a machine-readable manifest.
+- Method fidelity: Pstack and Pocock testing methods and principles remain unchanged. Codex adapters may route or invoke them, but may not merge, expand, or reinterpret their instructions.
+- Source priority: Pstack, Pocock, Akita, Unlazy, and OptMem form the active core. Karpathy and Bigpowers supply only small compatible additions that fill a named gap.
 - Safety: archive before removing any active harness path. Preserve project code, data, directives, and unrelated user changes. No production run or 2025H2 data is in scope.
 
 ## Tree

@@ -433,6 +433,7 @@ New memories land here, newest last.
 - 2026-08-23 #194 The guard locked itself out. It gated the engage command on being engaged, and gated every non-read shell command on engagement, so a digest change left no way to repair it. D-117 makes engage always permitted.
 - 2026-08-23 #195 The review wall was blind to untracked files, so a session creating only new files escaped review. diff_digest now folds them in. Canaries run twice from now on, on the dirty tree and again after the commit, before any push.
 - 2026-08-23 #196 Live after the restart. The method-worker dispatched through the guard, quoted one exact sentence from each of its four preloaded law skills, all verified against the bodies. The skills, hooks and pinned agent all load from a clean start.
+- 2026-08-23 #197 Codex enforcement is installed and canary-proven, but the live client marks the changed hooks untrusted. One acceptance inside an interactive Codex session re-trusts them, then verify_agent_harness.py hook-trust must report PASS.
 
 ## Checkpoints
 

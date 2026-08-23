@@ -186,19 +186,25 @@ def plan_route_canaries() -> list[Canary]:
     ]
 
 
+def unengaged(state: Path) -> None:
+    """Put the session on the implementation route without its method."""
+    select(state, "implement-flow")
+
+
+def engaged(state: Path) -> None:
+    """Put the session on the implementation route with its method in context."""
+    select(state, "implement-flow")
+    engage(state)
+
+
+def engaged_then_compacted(state: Path) -> None:
+    """Engage, then take the method back out with a compaction."""
+    engaged(state)
+    compact(state)
+
+
 def engagement_canaries() -> list[Canary]:
     """Canaries for the packet gate and its re-arm after a compaction."""
-    def unengaged(state: Path) -> None:
-        select(state, "implement-flow")
-
-    def engaged(state: Path) -> None:
-        select(state, "implement-flow")
-        engage(state)
-
-    def engaged_then_compacted(state: Path) -> None:
-        engaged(state)
-        compact(state)
-
     return [
         Canary("an implementation write before engage is denied", "pre-tool-use",
                write_payload(str(ROOT / "tools/canary_probe.py")), "deny",
@@ -217,12 +223,8 @@ def engagement_canaries() -> list[Canary]:
     ]
 
 
-def spawn_canaries() -> list[Canary]:
-    """Canaries for the subagent brief, type and model rules."""
-    def engaged(state: Path) -> None:
-        select(state, "implement-flow")
-        engage(state)
-
+def brief_canaries() -> list[Canary]:
+    """Canaries for what every subagent brief must say."""
     return [
         Canary("a brief without the no-memo sentence is denied", "pre-tool-use",
                spawn_payload("Own: x\nAcceptance check: y\n"), "deny",
@@ -233,6 +235,12 @@ def spawn_canaries() -> list[Canary]:
         Canary("a brief without an acceptance check is denied", "pre-tool-use",
                spawn_payload(GOOD_BRIEF.split("Acceptance check")[0]), "deny",
                "Acceptance check", setup=engaged),
+    ]
+
+
+def shared_codebase_canaries() -> list[Canary]:
+    """Canaries for the two lines that keep parallel workers out of each other."""
+    return [
         Canary("a brief that assumes it is alone is denied", "pre-tool-use",
                spawn_payload(GOOD_BRIEF.replace("You are not alone in the codebase.\n", "")),
                "deny", "not alone", setup=engaged),
@@ -242,6 +250,12 @@ def spawn_canaries() -> list[Canary]:
         Canary("an unslopped brief is denied", "pre-tool-use",
                spawn_payload(GOOD_BRIEF + "Of course! delve into it.\n"), "deny",
                "fails unslop", setup=engaged),
+    ]
+
+
+def spawn_canaries() -> list[Canary]:
+    """Canaries for the subagent type and model policy."""
+    return [
         Canary("the wrong subagent type is denied", "pre-tool-use",
                spawn_payload(GOOD_BRIEF, subagent="general-purpose"), "deny",
                "subagent_type", setup=engaged),
@@ -298,7 +312,8 @@ def prose_canaries() -> list[Canary]:
 def all_canaries() -> list[Canary]:
     """Every canary, grouped by the law it checks."""
     return [*route_canaries(), *escape_canaries(), *plan_route_canaries(),
-            *engagement_canaries(), *spawn_canaries(), *prose_canaries()]
+            *engagement_canaries(), *brief_canaries(), *shared_codebase_canaries(),
+            *spawn_canaries(), *prose_canaries()]
 
 
 def run_one(canary: Canary, state_root: Path) -> Outcome:

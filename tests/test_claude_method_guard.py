@@ -12,6 +12,7 @@ from __future__ import annotations
 import importlib.util
 import json
 from pathlib import Path
+from types import ModuleType
 import sys
 import unittest
 from unittest.mock import patch
@@ -22,7 +23,7 @@ FIXTURES = ROOT / "tests/fixtures/claude_hook_payloads"
 sys.path.insert(0, str(HOOKS))
 
 
-def load(name: str, path: Path):
+def load(name: str, path: Path) -> ModuleType | None:
     """Import one installed hook module by path."""
     spec = importlib.util.spec_from_file_location(name, path)
     if spec is None or spec.loader is None:
@@ -177,6 +178,29 @@ class CommandTests(unittest.TestCase):
 
     def test_a_piped_command_is_not_treated_as_read_only(self) -> None:
         self.assertFalse(rules.readonly_command("cat a > b"))
+
+
+class HeredocTests(unittest.TestCase):
+    """A heredoc body is data. Reading it as shell syntax denied a real write."""
+
+    def command(self) -> str:
+        operator = chr(62)
+        return ("cat " + operator + " tools/target.py " + "<<'PY'\n"
+                "if lines " + operator + " MAX_LINES:\n"
+                "    raise ValueError(name)\n"
+                "PY\n")
+
+    def test_only_the_real_target_is_extracted(self) -> None:
+        self.assertEqual(rules.command_write_paths(self.command()), ["tools/target.py"])
+
+    def test_a_comparison_inside_a_heredoc_is_not_a_redirect(self) -> None:
+        self.assertNotIn("MAX_LINES:", rules.command_write_paths(self.command()))
+
+    def test_a_quoted_and_an_unquoted_marker_both_close(self) -> None:
+        for marker in ("'PY'", "PY"):
+            with self.subTest(marker=marker):
+                body = f"cat {chr(62)} a.py <<{marker}\nx {chr(62)} y\nPY\n"
+                self.assertEqual(rules.command_write_paths(body), ["a.py"])
 
 
 class BriefTests(unittest.TestCase):

@@ -58,6 +58,8 @@ def settings_document() -> dict[str, object]:
                               "startup|resume|clear|compact"),
         "UserPromptSubmit": group([hook(f"{GUARD} user-prompt-submit", 10)]),
         "PreToolUse": group([hook(f"{GUARD} pre-tool-use", 20)], WRITE_TOOLS),
+        "PostToolUse": group([hook(f"{GUARD} post-tool-use", 20)],
+                             "Edit|Write|MultiEdit|NotebookEdit"),
         "SubagentStop": group([hook(f"{GUARD} subagent-stop", 15)]),
         "Stop": group([hook(f"{GUARD} stop", 30)]),
         "PreCompact": group([hook(f"{MEMORY} pre-compact", 30)], "manual|auto"),

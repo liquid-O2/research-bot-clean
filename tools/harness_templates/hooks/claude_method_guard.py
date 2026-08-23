@@ -108,8 +108,8 @@ def check_write(paths: Sequence[str], state: JsonObject,
     if not rules.route_selected(state):
         raise ValueError(rules.default_route_reason(paths))
     if state["route"] == "plan-flow" and not rules.planning_paths(paths):
-        raise ValueError("plan-flow denies production writes. Deliver the plan and stop. "
-                         "Send $implement-flow when you are ready to build.")
+        raise ValueError(f"plan-flow denies production writes such as {paths[0]!r}. "
+                         "Deliver the plan and stop, then send $implement-flow to build.")
     contract = policy.current_contract(payload, state)
     rules.validate_write_paths(paths, contract)
     state["production_write"] = True
@@ -143,6 +143,21 @@ def pre_tool_use(payload: Mapping[str, object]) -> JsonObject:
         return check_write(inside, state, payload) or {}
     except ValueError as error:
         return deny(str(error))
+    except Exception as error:  # noqa: BLE001
+        return allow_with_warning(f"{type(error).__name__}: {error}")
+
+
+def post_tool_use(payload: Mapping[str, object]) -> JsonObject:
+    """Report Akita violations in the file just written, without blocking."""
+    try:
+        tool_input = rules.cast_input(payload.get("tool_input", {}))
+        targets = write_targets(tool_name(payload), tool_input) or []
+        root = policy.repo_root(payload)
+        findings = rules.clean_code_findings([Path(path) for path in targets], root)
+        if not findings:
+            return {}
+        listed = "\n".join(findings[:6])
+        return {"systemMessage": f"clean-code-for-agents on the file you just wrote:\n{listed}"}
     except Exception as error:  # noqa: BLE001
         return allow_with_warning(f"{type(error).__name__}: {error}")
 
@@ -217,7 +232,10 @@ def stop(payload: Mapping[str, object]) -> JsonObject:
         if unlazy.get("decision") == "block":
             return unlazy
         evidence = evidence_violation(payload)
-        return block(evidence) if evidence else unlazy
+        if evidence:
+            return block(evidence)
+        akita = rules.clean_code_violation(root)
+        return block(akita) if akita else unlazy
     except Exception as error:  # noqa: BLE001
         return allow_with_warning(f"{type(error).__name__}: {error}")
 
@@ -265,6 +283,7 @@ EVENTS = {
     "session-start": session_start,
     "user-prompt-submit": user_prompt_submit,
     "pre-tool-use": pre_tool_use,
+    "post-tool-use": post_tool_use,
     "subagent-stop": subagent_stop,
     "stop": stop,
 }

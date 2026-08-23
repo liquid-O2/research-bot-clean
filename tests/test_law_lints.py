@@ -12,11 +12,14 @@ import json
 from io import StringIO
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
+import brief_lint  # noqa: E402
+import clean_code_lint  # noqa: E402
 import unslop_lint  # noqa: E402
 
 DIRTY = {
@@ -136,6 +139,88 @@ class CommandLineTests(unittest.TestCase):
         rows = json.loads(output.getvalue())
         self.assertEqual(rows[0]["rule"], 20)
         self.assertIn("message", rows[0])
+
+
+Q3 = chr(34) * 3
+DIRTY_CODE = {
+    "function-too-long": "def f(a: int) -> int:\n" + "    a += 1\n" * 25 + "    return a\n",
+    "nesting-too-deep": ("def f(a: int) -> int:\n    if a:\n        for _ in range(a):\n"
+                         "            while a:\n                a -= 1\n    return a\n"),
+    "missing-parameter-type": "def f(a) -> int:\n    return 1\n",
+    "missing-return-type": "def f(a: int):\n    return 1\n",
+    "vague-type": "from typing import Any\ndef f(a: Any) -> int:\n    return 1\n",
+    "opaque-exception": 'def f(a: int) -> int:\n    raise ValueError("bad")\n',
+}
+CLEAN_CODE = (
+    "def add(left: int, right: int) -> int:\n"
+    f"    {Q3}Return the sum, naming the value when it is not a number.{Q3}\n"
+    "    if not isinstance(left, int):\n"
+    '        raise TypeError(f"left must be an int, got {left!r}")\n'
+    "    return left + right\n"
+)
+GOOD_BRIEF = ("You are a subagent. Don't run memo.\n"
+              "Own: tools/x.py\n"
+              "You are not alone in the codebase.\n"
+              "Do not revert others' edits.\n"
+              "Acceptance check: the named test passes.\n")
+
+
+def code_rules(source: str) -> set[str]:
+    """Return the clean-code rules one snippet trips."""
+    with tempfile.TemporaryDirectory() as raw:
+        path = Path(raw) / "sample.py"
+        path.write_text(source, encoding="utf-8")
+        return {finding.rule for finding in clean_code_lint.lint_file(path)}
+
+
+class CleanCodeRuleTests(unittest.TestCase):
+    def test_every_encoded_rule_fires_on_its_own_dirty_snippet(self) -> None:
+        for rule, source in DIRTY_CODE.items():
+            with self.subTest(rule=rule):
+                self.assertIn(rule, code_rules(source))
+
+    def test_clean_code_trips_nothing(self) -> None:
+        self.assertEqual(code_rules(CLEAN_CODE), set())
+
+    def test_control_flow_exceptions_are_not_opaque(self) -> None:
+        source = "def f() -> int:\n    raise SystemExit(1)\n"
+        self.assertNotIn("opaque-exception", code_rules(source))
+
+    def test_a_long_file_is_flagged(self) -> None:
+        source = "x = 1\n" * (clean_code_lint.MAX_FILE_LINES + 1)
+        self.assertIn("file-too-long", code_rules(source))
+
+    def test_the_shipped_harness_passes_its_own_rule(self) -> None:
+        findings = [row for path in sorted((ROOT / ".claude/hooks").glob("*.py"))
+                    for row in clean_code_lint.lint_file(path)]
+        self.assertEqual([row.message for row in findings], [])
+
+
+class BriefLintTests(unittest.TestCase):
+    def test_a_complete_brief_passes(self) -> None:
+        self.assertEqual(brief_lint.main(["-"], StringIO(GOOD_BRIEF), StringIO()), 0)
+
+    def test_each_missing_element_is_reported(self) -> None:
+        removals = ("You are a subagent. Don't run memo.\n", "Own: tools/x.py\n",
+                    "You are not alone in the codebase.\n", "Do not revert others' edits.\n",
+                    "Acceptance check: the named test passes.\n")
+        for line in removals:
+            with self.subTest(missing=line.strip()):
+                output = StringIO()
+                status = brief_lint.main(["-"], StringIO(GOOD_BRIEF.replace(line, "")), output)
+                self.assertEqual(status, 1)
+                self.assertIn("BRIEF FAIL", output.getvalue())
+
+    def test_an_unslopped_brief_is_reported(self) -> None:
+        output = StringIO()
+        brief = GOOD_BRIEF + "Of course! This is a testament to the work.\n"
+        self.assertEqual(brief_lint.main(["-"], StringIO(brief), output), 1)
+        self.assertIn("unslop", output.getvalue())
+
+    def test_a_failure_prints_the_checklist(self) -> None:
+        output = StringIO()
+        brief_lint.main(["-"], StringIO("do it"), output)
+        self.assertIn("A brief must carry", output.getvalue())
 
 
 if __name__ == "__main__":

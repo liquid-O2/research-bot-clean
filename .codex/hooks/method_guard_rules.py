@@ -46,6 +46,7 @@ READONLY_COMMANDS = frozenset({
 READONLY_GIT = frozenset({"diff", "log", "show", "status", "branch", "blame"})
 REDIRECT = re.compile(r"(?:^|\s)(?:>>?|[12]>)\s*([^\s;&|]+)")
 _UNSLOP: ModuleType | None = None
+_CLEAN: ModuleType | None = None
 
 
 @dataclass(frozen=True)
@@ -169,8 +170,35 @@ def command_words(command: str) -> list[str] | None:
         return None
 
 
+HEREDOC = re.compile(r"<<-?\s*['\"]?([A-Za-z_][A-Za-z0-9_]*)['\"]?")
+
+
+def strip_heredocs(command: str) -> str:
+    """Remove heredoc bodies before reading a command as shell syntax.
+
+    A heredoc body is data. Left in, a Python comparison such as
+    `if lines OPERATOR MAX:` reads as a shell redirect and the guard denies a
+    write to a path that never existed.
+    """
+    match = HEREDOC.search(command)
+    if match is None:
+        return command
+    marker = match.group(1)
+    lines = command.splitlines()
+    kept: list[str] = []
+    inside = False
+    for line in lines:
+        if inside:
+            inside = line.strip() != marker
+            continue
+        kept.append(line)
+        inside = bool(HEREDOC.search(line))
+    return "\n".join(kept)
+
+
 def command_write_paths(command: str) -> list[str] | None:
     """Return the paths a shell command writes, or None when it names none."""
+    command = strip_heredocs(command)
     words = command_words(command)
     if words is None:
         return []
@@ -203,6 +231,7 @@ def scan_command(command: str) -> WriteScan:
 
 def readonly_command(command: str) -> bool:
     """Report whether a command is a plain read that needs no route."""
+    command = strip_heredocs(command)
     if re.search(r"[;&|><`]", command):
         return False
     words = command_words(command)
@@ -304,6 +333,14 @@ UNLAZY_STOP = Path(
 PINNED_NODE = Path("/home/algo/.local/share/fnm/node-versions/v24.19.0/installation/bin/node")
 
 
+def call_unlazy(payload: Mapping[str, object], root: Path) -> subprocess.CompletedProcess[str]:
+    """Run the pinned unlazy stop hook as its own process."""
+    return subprocess.run(
+        (str(PINNED_NODE), str(UNLAZY_STOP), "--unlazy"), cwd=root,
+        input=json.dumps(dict(payload)), text=True, encoding="utf-8",
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False, timeout=20)
+
+
 def run_unlazy_stop(payload: Mapping[str, object], root: Path) -> JsonObject:
     """Run the pinned unlazy Stop wall and return its own decision.
 
@@ -313,10 +350,7 @@ def run_unlazy_stop(payload: Mapping[str, object], root: Path) -> JsonObject:
     if not PINNED_NODE.is_file() or not UNLAZY_STOP.is_file():
         return {"systemMessage": "unlazy Stop wall is not installed; completion is unguarded."}
     try:
-        completed = subprocess.run(
-            (str(PINNED_NODE), str(UNLAZY_STOP), "--unlazy"), cwd=root,
-            input=json.dumps(dict(payload)), text=True, encoding="utf-8",
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False, timeout=20)
+        completed = call_unlazy(payload, root)
     except (OSError, subprocess.TimeoutExpired) as error:
         return {"systemMessage": f"unlazy Stop wall failed to run: {error}"}
     lines = [line for line in completed.stdout.splitlines() if line.strip()]
@@ -330,3 +364,41 @@ def run_unlazy_stop(payload: Mapping[str, object], root: Path) -> JsonObject:
     except json.JSONDecodeError as error:
         return {"systemMessage": f"unlazy Stop wall returned invalid JSON: {error}"}
     return value if isinstance(value, dict) else {}
+
+
+def clean_code_module(root: Path) -> ModuleType:
+    """Load the clean-code lint from wherever the harness is installed."""
+    global _CLEAN
+    if _CLEAN is not None:
+        return _CLEAN
+    candidates = [path.parent / "clean_code_lint.py" for path in lint_candidates(root)]
+    found = next((path for path in candidates if path.is_file()), None)
+    if found is None:
+        raise ValueError(f"clean code lint not found; looked in {candidates}")
+    spec = importlib.util.spec_from_file_location("guard_clean_code_lint", found)
+    if spec is None or spec.loader is None:
+        raise ValueError(f"clean code lint could not be loaded from {found}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["guard_clean_code_lint"] = module
+    spec.loader.exec_module(module)
+    _CLEAN = module
+    return _CLEAN
+
+
+def clean_code_findings(paths: Sequence[Path], root: Path) -> list[str]:
+    """Return one readable line per Akita violation in the named files."""
+    lint = clean_code_module(root)
+    rows = [finding for path in paths if path.suffix == ".py" and path.is_file()
+            for finding in lint.lint_file(path)]
+    return [f"{row.path}:{row.line} {row.rule}: {row.message}" for row in rows]
+
+
+def clean_code_violation(root: Path) -> str | None:
+    """Return the Akita violations in the current diff, or None when it is clean."""
+    lint = clean_code_module(root)
+    findings = clean_code_findings(lint.changed_files("HEAD"), root)
+    if not findings:
+        return None
+    listed = "\n".join(findings[:12])
+    return ("clean-code-for-agents refuses this diff. Fix these before finishing:\n"
+            f"{listed}")

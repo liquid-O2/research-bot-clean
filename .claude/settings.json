@@ -40,6 +40,18 @@
         "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|Agent|Task"
       }
     ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/method_guard.py post-tool-use",
+            "timeout": 20
+          }
+        ],
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit"
+      }
+    ],
     "SubagentStop": [
       {
         "hooks": [

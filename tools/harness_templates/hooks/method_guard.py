@@ -105,7 +105,8 @@ def check_write(paths: Sequence[str], state: JsonObject,
     if not rules.route_selected(state):
         raise ValueError(rules.default_route_reason(paths))
     if state["route"] == "plan-flow" and not rules.planning_paths(paths):
-        raise ValueError("plan-flow denies production writes. Deliver the plan and stop.")
+        raise ValueError(f"plan-flow denies production writes such as {paths[0]!r}. "
+                         "Deliver the plan and stop, then send $implement-flow to build.")
     contract = policy.current_contract(payload, state)
     rules.validate_write_paths(paths, contract)
     state["production_write"] = True
@@ -121,24 +122,28 @@ def pre_tool_use(payload: Mapping[str, object]) -> JsonObject:
         if spawn_input(tool_name):
             check_spawn(tool_input, state, payload)
             return {}
-        scan = scan_call(tool_name, tool_input)
-        if scan.kind == "none":
-            return {}
-        if scan.kind == "unparsed":
-            raise ValueError("A mutating shell command did not expose a path for "
-                             "ownership checks.")
-        if scan.kind == "opaque":
-            check_opaque(state, payload)
-            return {}
-        inside = rules.repository_paths(policy.repo_root(payload), scan.paths)
-        if not inside:
-            return {}
-        check_write(inside, state, payload)
+        apply_scan(scan_call(tool_name, tool_input), tool_name, state, payload)
         return {}
     except ValueError as error:
         return deny(str(error))
     except Exception as error:  # noqa: BLE001
         return allow_with_warning(f"{type(error).__name__}: {error}")
+
+
+def apply_scan(scan: rules.WriteScan, tool_name: str, state: JsonObject,
+               payload: Mapping[str, object]) -> None:
+    """Apply the gate that matches what this call can change."""
+    if scan.kind == "none":
+        return
+    if scan.kind == "unparsed":
+        raise ValueError(f"A mutating {tool_name} command exposed no path for "
+                         "ownership checks. Name the file it writes.")
+    if scan.kind == "opaque":
+        check_opaque(state, payload)
+        return
+    inside = rules.repository_paths(policy.repo_root(payload), scan.paths)
+    if inside:
+        check_write(inside, state, payload)
 
 
 def user_prompt_submit(payload: Mapping[str, object]) -> JsonObject:
@@ -181,10 +186,12 @@ def last_message(payload: Mapping[str, object]) -> str:
 def check_opaque(state: JsonObject, payload: Mapping[str, object]) -> None:
     """Require the method for a command whose effects cannot be read."""
     if not rules.route_selected(state):
-        raise ValueError("Project writes require an explicit $plan-flow or $implement-flow route.")
+        raise ValueError(f"A command whose effects cannot be read requires an explicit "
+                         f"$plan-flow or $implement-flow route, and route={state.get('route')!r}.")
     policy.current_contract(payload, state)
     if state["route"] == "plan-flow":
-        raise ValueError("plan-flow permits only read-only commands and planning artifacts.")
+        raise ValueError(f"plan-flow permits only read-only commands and planning "
+                         f"artifacts, and route={state['route']!r} is active.")
 
 
 def run_unlazy_stop(payload: Mapping[str, object]) -> JsonObject:
@@ -231,6 +238,9 @@ def stop(payload: Mapping[str, object]) -> JsonObject:
         evidence = method_evidence_violation(payload)
         if evidence:
             return block(evidence)
+        akita = rules.clean_code_violation(policy.repo_root(payload))
+        if akita:
+            return block(akita)
         violation = unslop_violation(last_message(payload))
         return block(violation) if violation else unlazy
     except Exception as error:  # noqa: BLE001

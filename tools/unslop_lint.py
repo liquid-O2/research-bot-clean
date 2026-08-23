@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from unslop_rules import (  # noqa: E402
     EMOJI_PATTERN,
+    Rule,
     JUDGEMENT_ITEMS,
     PATTERN_RULES,
 )
@@ -121,14 +122,19 @@ def allowed(span: str, allowlist: frozenset[str]) -> bool:
     return span.strip().lower() in allowlist
 
 
+def rule_findings(path: str, number: int, line: str, rule: Rule,
+                  allowlist: frozenset[str]) -> Iterator[Finding]:
+    """Apply one pattern rule to one line."""
+    for match in rule.pattern.finditer(line):
+        if not allowed(match.group(0), allowlist):
+            yield Finding(path, number, match.start() + 1, rule.number, rule.name,
+                          rule.message, match.group(0))
+
+
 def scan_patterns(path: str, number: int, line: str, allowlist: frozenset[str]) -> Iterator[Finding]:
     """Apply every straightforward pattern rule to one line."""
     for rule in PATTERN_RULES:
-        for match in rule.pattern.finditer(line):
-            if allowed(match.group(0), allowlist):
-                continue
-            yield Finding(path, number, match.start() + 1, rule.number, rule.name,
-                          rule.message, match.group(0))
+        yield from rule_findings(path, number, line, rule, allowlist)
 
 
 def scan_colon(path: str, number: int, line: str) -> Iterator[Finding]:
@@ -244,7 +250,8 @@ def main(argv: Sequence[str] | None = None, stdin: TextIO = sys.stdin,
     elif paths:
         findings = collect(paths, allowlist)
     else:
-        raise ValueError("unslop_lint expects one or more paths, or '-' for stdin")
+        raise ValueError(f"unslop_lint expects one or more paths, or '-' for stdin, "
+                         f"and received {arguments!r}")
     report(findings, as_json, stdout)
     return 1 if findings else 0
 

@@ -19,6 +19,7 @@ import os
 from pathlib import Path
 import shutil
 import sys
+from types import ModuleType
 from typing import Mapping, Sequence, TextIO
 
 ROOT = Path(os.environ.get("CLAUDE_METHOD_REPO_ROOT", "/workspace"))
@@ -29,7 +30,7 @@ TAIL_LINES = 30
 JsonObject = dict[str, object]
 
 
-def load_ledger():
+def load_ledger() -> ModuleType:
     """Import the ledger tool so hooks and the CLI share one implementation."""
     import importlib.util
     spec = importlib.util.spec_from_file_location("hook_memory_ledger", LEDGER_TOOL)

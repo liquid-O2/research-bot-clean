@@ -224,22 +224,25 @@ def principle_names(principles: list[object]) -> list[str]:
     return names
 
 
+def pinned_sources(pstack: Path, contract: JsonObject) -> dict[str, Path]:
+    """Return the sources that must come from the pinned Pstack checkout."""
+    poteto = pstack / "skills/poteto-mode"
+    playbook = cast(str, contract["playbook"])
+    return {
+        "poteto-mode": poteto / "SKILL.md",
+        f"playbook:{playbook}": poteto / f"playbooks/{playbook}.md",
+        "reference:plan": poteto / "references/plan.md",
+    }
+
+
 def source_path(root: Path, pstack: Path, contract: JsonObject, name: str) -> Path:
-    if name == contract["route"]:
-        path = root / f".agents/skills/{name}/SKILL.md"
-    elif name == "poteto-mode":
-        path = pstack / "skills/poteto-mode/SKILL.md"
-    elif name == f"playbook:{contract['playbook']}":
-        path = pstack / f"skills/poteto-mode/playbooks/{contract['playbook']}.md"
-    elif name == "reference:plan":
-        path = pstack / "skills/poteto-mode/references/plan.md"
-    else:
-        path = root / f".agents/skills/{name}/SKILL.md"
+    """Resolve one method source, refusing anything outside its canonical root."""
+    pinned = pinned_sources(pstack, contract)
+    path = pinned.get(name, root / f".agents/skills/{name}/SKILL.md")
     resolved = path.resolve(strict=True)
-    pinned = name.startswith(("playbook:", "reference:")) or name == "poteto-mode"
-    allowed = pstack.resolve() if pinned else root
-    if not resolved.is_relative_to(allowed.resolve()):
-        raise ValueError(f"source {name!r} resolved outside its canonical root: {resolved}")
+    allowed = (pstack if name in pinned else root).resolve()
+    if not resolved.is_relative_to(allowed):
+        raise ValueError(f"source {name!r} resolved outside {allowed}: {resolved}")
     return resolved
 
 
@@ -272,7 +275,8 @@ def prepare_engagement(payload: Mapping[str, object]) -> tuple[JsonObject, JsonO
     root = repo_root(payload)
     state = load_state(payload)
     if state.get("route") not in ROUTES:
-        raise ValueError("engage requires an explicit $plan-flow or $implement-flow route")
+        raise ValueError(f"engage requires an explicit $plan-flow or $implement-flow route, "
+                         f"and this session has route={state.get('route')!r}")
     contract_path, contract = load_contract(root, payload.get("scope"))
     validate_contract(contract, state["route"])
     gates = gates_path(root, contract)
@@ -301,12 +305,13 @@ def bind_unlazy_session(payload: Mapping[str, object], scope_dir: Path) -> None:
 def require_ignored(root: Path, paths: tuple[Path, Path]) -> None:
     if not (root / ".git").exists():
         return
-    ignored = all(subprocess.run(
+    tracked = [str(path.relative_to(root)) for path in paths if subprocess.run(
         ("git", "check-ignore", "--quiet", "--", str(path.relative_to(root))),
         cwd=root, check=False,
-    ).returncode == 0 for path in paths)
-    if not ignored:
-        raise ValueError("METHOD.json and GATES.md must both be ignored by Git.")
+    ).returncode != 0]
+    if tracked:
+        raise ValueError(f"METHOD.json and GATES.md must both be ignored by Git, "
+                         f"and these are tracked: {tracked}")
 
 
 def ready_record(
@@ -362,12 +367,14 @@ def validate_ready_digests(
     )
     if not artifacts_current:
         rearm(payload, state, "contract or gates digest change")
-        raise ValueError("The METHOD.json or GATES.md digest changed. Run engage again.")
+        raise ValueError(f"The METHOD.json or GATES.md digest changed under "
+                         f"{contract_path.parent.name}. Run engage again.")
     current = {cast(str, row["name"]): cast(str, row["sha256"])
                for row in method_sources(repo_root(payload), contract)}
     if current != ready.get("source_hashes"):
         rearm(payload, state, "source digest change")
-        raise ValueError("A method source digest changed. Run method_guard.py engage again.")
+        raise ValueError(f"A method source digest changed under "
+                         f"{state.get('scope')!r}. Run engage again.")
 
 
 def rearm(payload: Mapping[str, object], state: JsonObject, reason: str) -> None:

@@ -436,6 +436,7 @@ New memories land here, newest last.
 - 2026-08-23 #197 Codex enforcement is installed and canary-proven, but the live client marks the changed hooks untrusted. One acceptance inside an interactive Codex session re-trusts them, then verify_agent_harness.py hook-trust must report PASS.
 - 2026-08-23 #198 Codex re-trusted the changed hooks and the live probe reports HOOK TRUST PASS, nine handlers on current hashes. Both clients now run the same enforcement end to end.
 - 2026-08-23 #199 Codex now receives the ledger tail at SessionStart instead of the stale OptMem wake, and its PreCompact writes a ledger checkpoint beside the exact transcript archive. Compaction drills pass live on both clients.
+- 2026-08-23 #200 Codex trusted the ledger wiring. hook-trust reports PASS with ten handlers on current hashes, so both clients run the full enforcement and the shared memory end to end.
 
 ## Checkpoints
 

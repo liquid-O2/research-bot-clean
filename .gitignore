@@ -25,3 +25,5 @@ provenance/entry_v2/.entry-v2-durable-store/
 !provenance/entry_v2/**/*.log
 # unlazy Stop-wall progress counter (D-111): per-session scratch, not a record
 /.unlazy-hook-state.json
+/.unlazy/
+/archive/agent-harness-pre-20260823/

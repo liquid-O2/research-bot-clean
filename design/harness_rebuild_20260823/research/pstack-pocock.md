@@ -10,7 +10,7 @@ The existing /workspace/.claude and /workspace/.codex skills were excluded as ev
 
 ## Verdict
 
-Pstack should own the main execution route. Its Poteto Mode reads the complete principle index, selects one of 23 files in its playbook directory, copies that playbook's steps verbatim, and routes to narrower skills. Pstack's README calls the public set "twenty-two playbooks." The directory contains 23 because opening-a-pr.md is an internal terminal playbook used by the other playbooks.
+Pstack should own the main execution route. Its [README](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/README.md) says Poteto Mode first reads the inline principle index, then "matches your task to a playbook and copies the steps in verbatim." The README calls the public set "twenty-two playbooks." The directory contains 23 because opening-a-pr.md is an internal terminal playbook used by the other playbooks.
 
 Matt Pocock's set should own the planning route. Its strongest addition is the sequence grilling, domain-modeling, to-spec, to-tickets, and wayfinder. That route resolves decisions before Pstack chooses an execution playbook. Pocock's codebase-design, diagnosing-bugs, research, code-review, and writing-for-agents remain separate callable skills.
 
@@ -39,10 +39,10 @@ Pstack's pinned commit is dated 2026-08-20 and titled "docs(pstack): port workfl
 The audit reconciled every tracked file. No requested category was sampled.
 
     PSTACK_COUNTS tracked=156 root_setup=4 agents=2 automations=12 docs=17 skills_tree=121 skill_files=44 principles=21 nonprinciple_skills=23 playbooks=23
+    PSTACK_DETAIL guide_md=11 guide_images=6 poteto_refs=2 poteto_scripts=19 other_refs=32 other_scripts=1
     POCOCK_COUNTS tracked=162 skills_tree=103 skill_files=36 promoted=25 misc=4 in_progress=7 deprecated=0 user_invoked=21 model_invoked=15 docs=25
-    AIHERO_COUNTS docs_fetched=25
-    AIHERO_DOCS repo_docs=25 fetched=25 body_exact_after_frontmatter=25 fetch_failures=0
-    AIHERO_SKILL_LINKS=25
+    POCOCK_DETAIL openai_yaml=36 other_companions=31 root=9 agents_meta=5 plugin=2 changeset=11 github=1 out_scope=3 scripts=3
+    AIHERO_DOCS repo_docs=25 fetched=25 body_exact_after_frontmatter=25 fetch_failures=0 sitemap_skill_pages=25
     HEAD_MATCH pstack=yes pocock=yes
 
 The Pstack file equation is 4 + 2 + 12 + 17 + 121 = 156. Its 121 skill-tree files are 44 SKILL.md files, 23 playbooks, two Poteto references, 19 Poteto scripts, 32 other reference files, and one other script.
@@ -72,6 +72,13 @@ These commands check out the audited bytes rather than whatever main contains la
     pstack_nonprinciples=$((pstack_skill_files-pstack_principles))
     pstack_playbooks=$(find "$pstack_dir/skills/poteto-mode/playbooks" -maxdepth 1 -type f -name '*.md' | wc -l)
     printf 'PSTACK_COUNTS tracked=%s root_setup=%s agents=%s automations=%s docs=%s skills_tree=%s skill_files=%s principles=%s nonprinciple_skills=%s playbooks=%s\n' "$pstack_tracked" "$pstack_root" "$pstack_agents" "$pstack_automations" "$pstack_docs" "$pstack_skills_tree" "$pstack_skill_files" "$pstack_principles" "$pstack_nonprinciples" "$pstack_playbooks"
+    pstack_guide_md=$(find "$pstack_dir/docs" -type f -name '*.md' | wc -l)
+    pstack_guide_images=$(find "$pstack_dir/docs" -type f ! -name '*.md' | wc -l)
+    pstack_poteto_refs=$(find "$pstack_dir/skills/poteto-mode/references" -type f | wc -l)
+    pstack_poteto_scripts=$(find "$pstack_dir/skills/poteto-mode/scripts" -type f | wc -l)
+    pstack_other_refs=$(find "$pstack_dir/skills" -path '*/references/*' -type f ! -path '*/poteto-mode/references/*' | wc -l)
+    pstack_other_scripts=$(find "$pstack_dir/skills" -path '*/scripts/*' -type f ! -path '*/poteto-mode/scripts/*' | wc -l)
+    printf 'PSTACK_DETAIL guide_md=%s guide_images=%s poteto_refs=%s poteto_scripts=%s other_refs=%s other_scripts=%s\n' "$pstack_guide_md" "$pstack_guide_images" "$pstack_poteto_refs" "$pstack_poteto_scripts" "$pstack_other_refs" "$pstack_other_scripts"
 
     pocock_tracked=$(git -C "$pocock_dir" ls-files | wc -l)
     pocock_skills_tree=$(find "$pocock_dir/skills" -type f | wc -l)
@@ -84,12 +91,57 @@ These commands check out the audited bytes rather than whatever main contains la
     pocock_model=$((pocock_skill_files-pocock_user))
     pocock_docs=$(find "$pocock_dir/docs" -type f -name '*.md' | wc -l)
     printf 'POCOCK_COUNTS tracked=%s skills_tree=%s skill_files=%s promoted=%s misc=%s in_progress=%s deprecated=%s user_invoked=%s model_invoked=%s docs=%s\n' "$pocock_tracked" "$pocock_skills_tree" "$pocock_skill_files" "$pocock_promoted" "$pocock_misc" "$pocock_in_progress" "$pocock_deprecated" "$pocock_user" "$pocock_model" "$pocock_docs"
+    pocock_openai=$(find "$pocock_dir/skills" -path '*/agents/openai.yaml' -type f | wc -l)
+    pocock_other_companions=$(find "$pocock_dir/skills" -type f ! -name SKILL.md ! -path '*/agents/openai.yaml' | wc -l)
+    pocock_root=$(git -C "$pocock_dir" ls-files | awk -F/ 'NF==1{n++} END{print n}')
+    pocock_agents_meta=$(find "$pocock_dir/.agents" -type f | wc -l)
+    pocock_plugin=$(find "$pocock_dir/.claude-plugin" -type f | wc -l)
+    pocock_changeset=$(find "$pocock_dir/.changeset" -type f | wc -l)
+    pocock_github=$(find "$pocock_dir/.github" -type f | wc -l)
+    pocock_out_scope=$(find "$pocock_dir/.out-of-scope" -type f | wc -l)
+    pocock_scripts=$(find "$pocock_dir/scripts" -type f | wc -l)
+    printf 'POCOCK_DETAIL openai_yaml=%s other_companions=%s root=%s agents_meta=%s plugin=%s changeset=%s github=%s out_scope=%s scripts=%s\n' "$pocock_openai" "$pocock_other_companions" "$pocock_root" "$pocock_agents_meta" "$pocock_plugin" "$pocock_changeset" "$pocock_github" "$pocock_out_scope" "$pocock_scripts"
 
     test "$(git ls-remote https://github.com/cursor/plugins.git refs/heads/main | cut -f1)" = 46125561306434d8a1d7745d540d8932ab0cd2a2
     test "$(git ls-remote https://github.com/mattpocock/skills.git refs/heads/main | cut -f1)" = 5b15a47f2d7150f545fbcacbfe381787fc0230dc
     printf 'HEAD_MATCH pstack=yes pocock=yes\n'
 
-To regenerate the AI Hero mirror check, enumerate the 25 Markdown files in docs, fetch https://www.aihero.dev/skills-NAME.md for each basename, strip the site's generated frontmatter and outside blank lines, and compare each body byte-for-byte with its repository doc. Also count links matching /skills-[a-z0-9-]+ on https://www.aihero.dev/skills.md. The decisive audit result was 25 repository docs, 25 fetched pages, 25 exact bodies, zero failures, and 25 index links.
+The following shell block regenerates the AI Hero mirror count and comparison. It writes only to a temporary directory.
+
+    aihero_check_dir=$(mktemp -d /tmp/harness-research-pstack-pocock-aihero-XXXXXX)
+    trim_blank() {
+      awk 'BEGIN{started=0;n=0}
+           {if (!started && $0=="") next; started=1; lines[++n]=$0}
+           END{while (n>0 && lines[n]=="") n--; for(i=1;i<=n;i++) print lines[i]}'
+    }
+    repo_docs=$(find "$pocock_dir/docs" -type f -name '*.md' | wc -l)
+    fetched=0
+    exact=0
+    failures=0
+    while IFS= read -r repo_doc; do
+      name=$(basename "$repo_doc" .md)
+      site_raw="$aihero_check_dir/$name.site.md"
+      site_body="$aihero_check_dir/$name.site.body"
+      repo_body="$aihero_check_dir/$name.repo.body"
+      if ! curl -fsSL "https://www.aihero.dev/skills-$name.md" -o "$site_raw"; then
+        failures=$((failures+1))
+        continue
+      fi
+      fetched=$((fetched+1))
+      awk 'NR==1 && $0=="---"{front=1;next}
+           front && $0=="---"{front=0;next}
+           !front{print}' "$site_raw" | trim_blank > "$site_body"
+      trim_blank < "$repo_doc" > "$repo_body"
+      if cmp -s "$site_body" "$repo_body"; then exact=$((exact+1)); fi
+    done < <(find "$pocock_dir/docs" -type f -name '*.md' | sort)
+    skill_pages=$(curl -fsSL https://www.aihero.dev/sitemap.xml |
+      rg -o 'https://www\.aihero\.dev/skills-[a-z0-9-]+' |
+      sort -u |
+      rg -v '/skills-(catalog|changelog-)' |
+      wc -l)
+    printf 'AIHERO_DOCS repo_docs=%s fetched=%s body_exact_after_frontmatter=%s fetch_failures=%s sitemap_skill_pages=%s\n' "$repo_docs" "$fetched" "$exact" "$failures" "$skill_pages"
+
+The decisive result was 25 repository docs, 25 fetched pages, 25 exact bodies, zero failures, and 25 current skill pages in the sitemap.
 
 ## Complete Pstack inventory
 
@@ -141,10 +193,10 @@ The Benny directory has 12 files. It is a dormant Cursor Automations pack, not a
 |---|---|---|---|
 | BA01 | [benny/FOR_AGENTS.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/FOR_AGENTS.md) | Agent-facing pack rules and safety boundaries. | Vendor unchanged. |
 | BA02 | [benny/README.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/README.md) | Architecture, prerequisites, setup, flow, and failure handling. | Vendor unchanged. |
-| BA03 | [reproduce-and-fix-issues/SKILL.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/reproduce-and-fix-issues/SKILL.md) | Waits for trusted triage, proves the user symptom on the real UI, checks an existing fix, and may open a bounded draft fix. | Do not activate until Codex has equivalent automation triggers, tracker access, Slack actions, and a real control adapter. |
+| BA03 | [reproduce-and-fix-issues/SKILL.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/reproduce-and-fix-issues/SKILL.md) | "Reproduce triaged Slack bugs through a configured app-control adapter, verify existing fixes, and open a bounded draft pull request only after before-and-after proof." | Do not activate until Codex has equivalent automation triggers, tracker access, Slack actions, and a real control adapter. |
 | BA04 | [control-adapter.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/reproduce-and-fix-issues/references/control-adapter.md) | Required contract for driving the product. | Vendor unchanged; reimplement only the transport-specific adapter. |
 | BA05 | [feature-map.example.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/reproduce-and-fix-issues/references/feature-map.example.md) | Example map from user-visible features to controls and evidence. | Vendor unchanged. |
-| BA06 | [verify-existing-fix.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/reproduce-and-fix-issues/references/verify-existing-fix.md) | Baseline and patched-worktree check for an existing candidate fix. | Vendor unchanged. |
+| BA06 | [verify-existing-fix.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/reproduce-and-fix-issues/references/verify-existing-fix.md) | "The existing artifact owns the fix. Verify it. Do not edit it, author a competing patch, or open another pull request." | Vendor unchanged. |
 | BA07 | [setup-benny/SKILL.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/setup-benny/SKILL.md) | Copies the pack, creates user-owned configuration, and enables the project plugin. | Cursor-specific. Keep as setup reference; write a distinct Codex installer if this automation is later enabled. |
 | BA08 | [triage-issue-reports/SKILL.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/triage-issue-reports/SKILL.md) | Classifies a top-level Slack report, deduplicates it in the tracker, creates a clear new bug only when warranted, and replies once in-thread. | Keep dormant until its external actions exist in Codex. |
 | BA09 | [routing.example.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/automations/benny/skills/triage-issue-reports/references/routing.example.md) | Example report routing configuration. | Vendor unchanged. |
@@ -253,7 +305,7 @@ There are 23 source files. The public README lists 22 and omits only opening-a-p
 | PB03 | [autopilot-full.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/autopilot-full.md) | "One owner runs each PR from build to merge, and nothing merges without your clean swarm verdict." | Keep dormant unless the user grants merge authority and Codex has equivalent PR, watcher, and Graphite controls. |
 | PB04 | [autopilot-stack.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/autopilot-stack.md) | "Build and verify the queue with full autonomy, then hand the operator one linear Graphite stack she reviews and lands herself." | Keep dormant without Graphite and a monitored wake chain. |
 | PB05 | [babysit.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/babysit.md) | "Declare a mode, clear one PR at a time, stop where the human's call begins." | Adapt watcher and loop calls only. Preserve drive, background, threads-only, and check modes. |
-| PB06 | [bug-fix.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) | "Reproduce a defect, root-cause it, and fix with runtime evidence." | Adopt as Pstack's default bug route. A Pocock diagnosis route may run before it only when the hard-bug trigger fires. |
+| PB06 | [bug-fix.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) | "Reproduce a defect, root-cause it, and fix with runtime evidence." | Adopt as Pstack's ordinary bug route. Select Pocock diagnosing-bugs as a separate complete route for a hard or resistant bug. Never nest a partial Pocock run inside this playbook. |
 | PB07 | [eval.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/eval.md) | "Testing how a skill, structure, or prompt change affects agent behavior before promoting it." | Adopt. Translate candidate launch and transcript locations. Keep blinded candidates and the held-back judge rubric unchanged. |
 | PB08 | [feature.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/feature.md) | "New or changed behavior, built from a named data shape." | Adopt as the default build route. Translate delegation and control-tool calls. |
 | PB09 | [hillclimb.md](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/hillclimb.md) | "One change, one measurement, keep or revert." | Adopt. Keep the metric, frozen measurement command, decision log, and stop predicate unchanged. |
@@ -312,7 +364,7 @@ Invocation below comes from frontmatter. User means disable-model-invocation: tr
 | MS01 | [ask-matt](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/ask-matt/SKILL.md) | User | Router over the main idea-to-ship flow, two on-ramps, and standalone skills. | PHASE-BOUNDARIES.md; openai | Register as planning-flow, below Poteto Mode. Do not make it the main router. |
 | MS02 | [code-review](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/code-review/SKILL.md) | Model | Review a pinned diff on separate Standards and Spec axes, using independent agents, then report both without reranking. | openai | Adopt. Route Pstack work here for normal final review. Keep interrogate for contested adversarial review. |
 | MS03 | [codebase-design](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/codebase-design/SKILL.md) | Model | Shared vocabulary and rules for deep modules, interfaces, seams, adapters, leverage, locality, and testability. | DEEPENING.md; DESIGN-IT-TWICE.md; openai | Adopt as the module-design reference beneath Pstack architect and model-the-domain. |
-| MS04 | [diagnosing-bugs](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/diagnosing-bugs/SKILL.md) | Model | Hard-bug loop: build a tight red signal, minimize it, rank falsifiable hypotheses, instrument one variable, fix, and clean up. | scripts/hitl-loop.template.sh; openai | Adopt for hard or resistant bugs. It is an on-ramp into the Pstack bug-fix route, not a replacement for that playbook. |
+| MS04 | [diagnosing-bugs](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/diagnosing-bugs/SKILL.md) | Model | Its six exact phases are "Build a feedback loop," "Reproduce + minimise," "Hypothesise," "Instrument," "Fix + regression test," and "Cleanup." | scripts/hitl-loop.template.sh; openai | Adopt unchanged as the complete route for hard or resistant bugs. Never truncate it into a diagnosis-only subtask. |
 | MS05 | [domain-modeling](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/domain-modeling/SKILL.md) | Model | Maintain project language in CONTEXT.md and hard-to-reverse or surprising decisions in ADRs while challenging terms and edge cases. | ADR-FORMAT.md; CONTEXT-FORMAT.md; openai | Adopt. Keep distinct from Pstack model-the-domain, which shapes code. |
 | MS06 | [grill-with-docs](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/grill-with-docs/SKILL.md) | User | Invoke grilling and domain-modeling together. | openai | Adopt as the preferred planning start when a repository exists. |
 | MS07 | [implement](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/implement/SKILL.md) | User | Implement from a spec or tickets, use its TDD where possible, run checks, review, and commit. | openai | Keep as source-only in the first Codex release. Pstack's execution playbooks have the fuller route. |
@@ -439,7 +491,7 @@ The rule is source selection, not prose blending. "Default" below chooses which 
 | Module architecture | Pstack [architect](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/architect/SKILL.md) owns the workflow. Pocock [codebase-design](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/codebase-design/SKILL.md) owns the vocabulary and quality test. | Neither replaces the other. | Compose by reference. Architect is stronger at sketching, comparing, implementing, and scrapping a wrong shape. Codebase-design is stronger at defining a deep module, interface, seam, adapter, deletion test, and locality. |
 | Alternative designs | Pocock [DESIGN-IT-TWICE.md](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/codebase-design/DESIGN-IT-TWICE.md) for module interfaces | Pstack [exhaust-the-design-space](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/principle-exhaust-the-design-space/SKILL.md) for general architecture and UI decisions. | Route by subject. Pocock is more demanding for an interface because it requires at least three radically different candidates and comparison criteria. Pstack is broader and remains mandatory in its applicable principle branch. |
 | Domain work | Pstack [model-the-domain](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/principle-model-the-domain/SKILL.md) for code shape | Pocock [domain-modeling](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/domain-modeling/SKILL.md) for language, CONTEXT.md, and ADRs. | Keep both names. They solve different problems and compose cleanly. |
-| Bug diagnosis | Pstack [bug-fix](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) owns the outer execution path. | Pocock [diagnosing-bugs](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/diagnosing-bugs/SKILL.md) owns a hard diagnosis subtask. | Compose through one explicit handoff. Pstack is stronger at end-to-end ownership, same-interface proof, commit order, and PR handoff. Pocock is stronger when the cause resists the first look because it defines a tight red loop, minimization, falsifiable hypotheses, and one-variable instrumentation. |
+| Bug diagnosis | Pstack [bug-fix](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) for an ordinary reported defect | Pocock [diagnosing-bugs](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/diagnosing-bugs/SKILL.md) for a hard bug, performance regression, or failure that resists the first look. | Route by difficulty and run the selected method in full. Pstack is stronger at a direct end-to-end defect path, same-interface proof, commit order, and PR handoff. Pocock is stronger for hard diagnosis because it requires a tight red loop, minimization, falsifiable hypotheses, one-variable instrumentation, a fix with regression test, and cleanup. |
 | TDD | Scope-dependent. No global winner. | Keep pstack/tdd and pocock/tdd as separate skills. | Namespace and route by call origin. Pstack is stronger for an optional cheap local regression inside its bug playbook. Pocock is stronger for a requested feature or bug built as vertical red-green slices through agreed seams. Neither source text changes. |
 | Prototype | Pstack [prototype playbook](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/prototype.md) | Rename Pocock's source route to prototype-ui-logic. | Pstack is stronger as the generic default because it covers visual, behavioral, and timing questions and hands the decision to Feature or architect. Pocock is stronger for its two exact artifact recipes, a state-machine HTML and switchable UI variants. |
 | Routine code review | Pocock [code-review](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/code-review/SKILL.md) | Pstack [interrogate](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/interrogate/SKILL.md) remains an explicit adversarial route. | Pocock is stronger for a normal review because it keeps documented standards and the originating spec as separate axes. Interrogate is stronger when a disputed or high-risk design needs diverse-model challenge. Run one route unless the playbook explicitly requires the other. |
@@ -523,7 +575,7 @@ This stays short enough to remain an index. Pocock's [writing-for-agents](https:
 4. Poteto Mode reads its complete inline principle index.
 5. Poteto Mode selects one playbook and copies its steps verbatim into the active task list.
 6. If the request needs unresolved product or design decisions, Poteto Mode hands that planning branch to planning-flow. The result returns as a spec, decision map, or ticket.
-7. Each playbook step activates its named Pstack skill. If an overlap table row above names a Pocock specialist, the adapter invokes that pristine Pocock skill as the bounded subtask.
+7. Each playbook step activates its named Pstack skill. If an overlap row selects a complete Pocock route, run that route in full. If a row selects a Pocock reference, read it as the bounded reference. Never truncate a workflow skill into a partial method.
 8. Each applied Pstack principle triggers a full read of its leaf file.
 9. Delegated Pstack work uses the poteto-agent reading contract. Skills such as how, why, arena, swarm, interrogate, and reflect keep their own prescribed worker types.
 10. An event automation enters through its own trigger. It does not bypass its ownership, trust-marker, control-adapter, or external-action checks.
@@ -579,15 +631,15 @@ These traces show routing and ownership. Quotation marks identify exact upstream
 11. Direct testing and proof contract. Feature says, ["Verify on the matching surface."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/feature.md) It also invokes the exact [sequence-verifiable-units](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/principle-sequence-verifiable-units/SKILL.md) leaf. No Pocock testing steps are added unless the route separately selected pocock/tdd.
 12. Direct. A contested design invokes interrogate. Ordinary final review may invoke Pocock code-review. Opening-a-pr remains the terminal Pstack playbook.
 
-### A hard bug
+### A reported bug and the hard-bug branch
 
-1. Recommendation. Poteto Mode selects [Bug fix](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) and copies its six steps verbatim.
-2. Direct. Step 1 says, ["Reproduce it yourself on the matching surface via the control skill."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md)
-3. Recommendation. If the cause resists the first pass, step 2 invokes Pocock diagnosing-bugs as a bounded specialist. Its source requires a tight red feedback loop before hypotheses, then minimization, ranked falsifiable hypotheses, and one-variable instrumentation. The complete method remains in [diagnosing-bugs/SKILL.md](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/diagnosing-bugs/SKILL.md). The specialist returns the surviving mechanism and evidence to Pstack step 2.
-4. Direct principle application. The agent reads [fix-root-causes](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/principle-fix-root-causes/SKILL.md). Its exact rule is, "Trace every problem to its root cause and fix it there."
-5. Direct. If the fix crosses a function boundary, Pstack step 3 invokes architect. A poteto-agent worker implements the bounded change; the parent reviews it.
-6. Direct testing contract. Pstack step 5 says, ["See the tdd skill for the failing-test-first cadence when the bug has a cheap local test path; skip it when the test would be expensive, integration-heavy, or unclear."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) That call resolves to pstack/tdd. It does not resolve to Pocock TDD.
-7. Direct proof contract. Step 4 says, ["Verify on the same surface; the original repro now passes."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) Step 5 orders the failing reproduction before the fix in git history. The route then runs Opening a PR.
+1. Recommendation. Poteto Mode classifies the defect before selecting one complete method. An ordinary reported defect selects [Pstack Bug fix](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md). A hard bug, a performance regression, or a failure that resists the first look selects [Pocock diagnosing-bugs](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/diagnosing-bugs/SKILL.md). Do not nest one method inside the other.
+2. Direct Pstack route. Poteto Mode copies all six Bug fix steps verbatim. Step 1 says, ["Reproduce it yourself on the matching surface via the control skill."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md)
+3. Direct Pstack principle application. The agent reads [fix-root-causes](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/principle-fix-root-causes/SKILL.md). Its exact rule is, "Trace every problem to its root cause and fix it there."
+4. Direct Pstack implementation. If the fix crosses a function boundary, step 3 invokes architect. A poteto-agent worker implements the bounded change; the parent reviews it.
+5. Direct Pstack testing contract. Step 5 says, ["See the tdd skill for the failing-test-first cadence when the bug has a cheap local test path; skip it when the test would be expensive, integration-heavy, or unclear."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) That call resolves to pstack/tdd.
+6. Direct Pstack proof contract. Step 4 says, ["Verify on the same surface; the original repro now passes."](https://github.com/cursor/plugins/blob/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/bug-fix.md) Step 5 orders the failing reproduction before the fix in git history. The route then runs Opening a PR.
+7. Direct Pocock route. diagnosing-bugs runs all six named phases. Phase 1 requires a tight red feedback loop before Phase 2. Phase 5 is exactly ["Fix + regression test."](https://github.com/mattpocock/skills/blob/5b15a47f2d7150f545fbcacbfe381787fc0230dc/skills/engineering/diagnosing-bugs/SKILL.md) Phase 6 cleans temporary instrumentation. No Pstack TDD steps are added to this route. After the complete Pocock method returns, Pstack may handle review and PR delivery without rerunning Bug fix.
 
 ### A large planning request
 

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "sources": {
+    "akita": {
+      "commit": "bbd8e681c14c0f57b2e5ea63e4d1c0043a6890da",
+      "origin": "https://github.com/akitaonrails/akitaonrails.github.io",
+      "path": "/workspace/vendor/agent-sources/akita/bbd8e681c14c0f57b2e5ea63e4d1c0043a6890da",
+      "selection": "akita-article-and-license",
+      "sha256": "9db39591b9a8d157e327081b6921be5f9c16295bb806d364939ab07e62bc5c90"
+    },
+    "bigpowers": {
+      "commit": "c0209032fb978d730a416167cd8f1e91e411650b",
+      "origin": "https://github.com/danielvm-git/bigpowers",
+      "path": "/workspace/vendor/agent-sources/bigpowers/c0209032fb978d730a416167cd8f1e91e411650b",
+      "selection": "ousterhout-subset",
+      "sha256": "86090c4d86d85f69fddd1a1ce9033f034bd2776c443ea3a60bf70983c6550406"
+    },
+    "karpathy": {
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2",
+      "origin": "https://github.com/multica-ai/andrej-karpathy-skills",
+      "path": "/workspace/vendor/agent-sources/karpathy/2c606141936f1eeef17fa3043a72095b4765b9c2",
+      "selection": "full",
+      "sha256": "a032acabec41d7666693c2c11de0a4833fa46ab5ab80f89533c95c1bd5270563"
+    },
+    "optmem": {
+      "commit": "1fb164cf39028047781f72ac3bb1e5a691c1dcb0",
+      "origin": "https://github.com/VictorTaelin/OptMem",
+      "path": "/home/algo/.optmem/memo",
+      "selection": "installed-binary",
+      "sha256": "3dc120d01be3115ef6267eab4103e7909fc830d6227b549f20991ba999ee9ffb"
+    },
+    "pocock": {
+      "commit": "5b15a47f2d7150f545fbcacbfe381787fc0230dc",
+      "origin": "https://github.com/mattpocock/skills",
+      "path": "/workspace/vendor/agent-sources/pocock/5b15a47f2d7150f545fbcacbfe381787fc0230dc",
+      "selection": "full",
+      "sha256": "75a8fcb3fbdbf333676485bf016dfa64a1c0d14708a1fdac01e3710d04995b1a"
+    },
+    "pstack": {
+      "commit": "46125561306434d8a1d7745d540d8932ab0cd2a2",
+      "origin": "https://github.com/cursor/plugins",
+      "path": "/workspace/vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2",
+      "selection": "full",
+      "sha256": "dfe34e3d1e57ed3f0b4b67a7e88e3f3bab8f73780a4753349099acb1d3923490"
+    },
+    "unlazy": {
+      "commit": "754d9a68109e39b836cc72a39fb9a823f9d6b613",
+      "origin": "https://github.com/Leonxlnx/unlazy",
+      "path": "/workspace/vendor/agent-sources/unlazy/754d9a68109e39b836cc72a39fb9a823f9d6b613",
+      "selection": "full",
+      "sha256": "8cf9591a58b46723a0f7e96ef6b2afefd6b0ed8a83b698b2cee57fe11778aaeb"
+    }
+  }
+}

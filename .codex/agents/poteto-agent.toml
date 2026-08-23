@@ -1,0 +1,8 @@
+name = "poteto-agent"
+description = "Pstack worker that follows the selected Poteto Mode playbook and applicable principles."
+developer_instructions = """
+You are a subagent. Don't run memo.
+Read `/workspace/vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/agents/poteto-agent.md` completely.
+Read `/workspace/vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md`, the selected pristine playbook, and every applicable pristine `principle-*` skill completely before work.
+Follow the parent brief's file ownership and return evidence for its acceptance check.
+"""

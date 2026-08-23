@@ -38,11 +38,12 @@ Fallback only if wake itself fails: `/workspace/CONTINUITY.md`, then `STATE.md`.
 
 ## Skills are law, not a menu
 
-`SKILLS.md` is the full wiring. In short: a matching situation means READ
-`/workspace/.claude/skills/<name>/SKILL.md` and follow it. Reading the file is
-the invocation; this harness may have no Skill tool. The routing table lives in
-both `AGENTS.md` and `CLAUDE.md` and a PreToolUse hook DENIES production-code
-writes until the implement skills have been read.
+`AGENTS.md` is the harness wiring, and `.agents/skills` is the sole repository
+skill authority. A matching situation means read
+`/workspace/.agents/skills/<name>/SKILL.md` and follow it. `plan-flow` and
+`implement-flow` route planning and implementation through Poteto Mode while
+preserving the selected Pocock methods. Verify the installed authority with
+`python3 tools/verify_agent_harness.py skills`.
 
 ## The unlazy wall (D-111)
 

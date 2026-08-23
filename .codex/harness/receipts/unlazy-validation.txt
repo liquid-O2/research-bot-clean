@@ -1,0 +1,88 @@
+UPSTREAM VALIDATION RECEIPT 1
+source=unlazy
+commit=754d9a68109e39b836cc72a39fb9a823f9d6b613
+status=PASS
+commands_json=["npm test"]
+exit_codes_json=[0]
+output_sha256=381bd55a2d02f9a7885e6c1fc3b73422790720213c1de374b54452d1c430c891
+--- output ---
+$ npm test
+Script started on 2026-08-23 13:00:27+00:00 [COMMAND="npm test" <not executed on terminal>]
+
+> unlazy-skill@2.1.0 test
+> node tests/run-tests.mjs && node tests/hardening-tests.mjs && node tests/stress-tests.mjs && node tests/self-check.mjs
+
+ok   args: two explicit files are both processed without --timeout
+ok   args: one explicit file never widens to the rest of the tree
+ok   args: unknown option is rejected instead of treated as a file
+ok   scope: running one pipeline leaves the other pipeline alone
+ok   scope: two pipelines and no scope is refused, not guessed
+ok   scope: UNLAZY_SCOPE selects the pipeline
+ok   scope: a single pipeline needs no flag
+ok   scope: legacy GATES.md layout still works
+ok   state: checked box with pending evidence counts as unmet
+ok   state: ABANDON resolves a gate honestly
+ok   state: unmet gates are reported with file-qualified ids
+ok   run: a concurrent edit to another gate in the same file survives
+ok   checks: CWD runs a check in the directory it names
+ok   leases: overlapping OWNS across pipelines is refused
+ok   leases: disjoint OWNS both succeed, and release frees them
+ok   status log: appends, and appends survive concurrency
+ok   hook: does not block on a pipeline this session does not own
+ok   hook: blocks on its own scope, naming qualified ids
+ok   hook: unresolvable scope allows the stop instead of blocking blindly
+ok   hook: session binding resolves the scope among several
+ok   hook: each pipeline keeps its own loop-guard counter
+ok   hook: no gate files anywhere means silence
+ok   install: repeated install stays a single Stop entry
+ok   install: changing the scope replaces the entry instead of stacking
+ok   install: uninstall removes our entry and leaves others alone
+ok   install: an upstream v2.0 entry is still recognised and removable
+
+26/26 passed
+ok   approval: status is read-only and an unapproved CHECK is printed but not run
+ok   approval: token binds the full oracle and changing CWD invalidates it
+ok   approval: storage failures use the infrastructure exit code
+ok   shell: resolution and PATH context are visible, invalid overrides are usage errors
+ok   execution: exit zero and EXPECT must both pass
+ok   execution: failure summaries retain early assertion diagnostics
+ok   reverify: a stale success is demoted and a reproducible success stays met
+ok   parser: fenced examples are ignored and CRLF plus missing EVIDENCE are preserved
+ok   parser: Markdown fence length and closing syntax are respected
+ok   parser: malformed ledgers are usage errors in checker and blocking in hook
+ok   regex: a decisive regex succeeds and catastrophic matching is bounded
+ok   execution: output is capped and overflow cannot certify a gate
+ok   jobs: rolling concurrency is opt-in and output stays in gate order
+ok   jobs: runner waits for stdio close so delayed descendant output is visible
+ok   writeback: a result cannot certify a gate whose oracle changed in flight
+ok   reverify: a stale in-flight result cannot leave old evidence falsely green
+ok   CLI: numeric bounds, incompatible modes, and file types fail with exit 2
+ok   targeting: explicit files anchor relative commands and every positional file is honored
+ok   leases: unsafe declarations, unknown leaves, and wildcard witnesses fail closed
+
+19/19 passed
+ok   leases: 200 simultaneous conflicting claim pairs never both succeed
+ok   leases: the same scope and leaf cannot be claimed by two workers
+ok   leases: an explicit release cleans orphaned leases after a scope directory is gone
+ok   hook: repeated 64-writer bursts are serialized without lost increments
+ok   hook: sessions remain isolated and completion/no-gates clears stale state
+ok   atomic writer: predictable pre-created temp links are never followed
+ok   installer: malformed settings shapes are refused without mutation
+ok   installer: uninstall preserves a sibling in the same matcher group and writes a backup
+ok   installer: a matching command with broken managed fields is repaired
+ok   installer: scope input is validated and local state warning is explicit
+
+10/10 passed
+ok   zero non-stdlib imports
+ok   one shared gate parser
+ok   no index-arithmetic argument filtering
+ok   gate files are written atomically
+ok   checks wait for close and cap output
+ok   approval identity binds execution semantics
+ok   the hook resolves a scope rather than globbing the tree
+ok   every reference doc the skill links to exists
+ok   all executable sources retain the Node 16 floor
+
+self-check ok (9/9)
+
+Script done on 2026-08-23 13:00:47+00:00 [COMMAND_EXIT_CODE="0"]

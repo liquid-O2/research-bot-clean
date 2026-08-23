@@ -1,0 +1,14 @@
+UPSTREAM VALIDATION RECEIPT 1
+source=optmem
+commit=1fb164cf39028047781f72ac3bb1e5a691c1dcb0
+status=PASS
+commands_json=["python3 test.py"]
+exit_codes_json=[0]
+output_sha256=1ce9d3f1f82e2f321cd621c78bf36a7e2f5c8cf0dec8e5e4eb092ac567627af5
+--- output ---
+$ python3 test.py
+Script started on 2026-08-23 13:00:50+00:00 [COMMAND="python3 test.py" <not executed on terminal>]
+
+109099 passed, 0 failed
+
+Script done on 2026-08-23 13:00:52+00:00 [COMMAND_EXIT_CODE="0"]

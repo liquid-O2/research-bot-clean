@@ -1,0 +1,48 @@
+# Terms this repository uses concretely, exempt from the unslop word rules.
+# One lowercase term per line. Keep this list short and justify each entry.
+
+# Rule 26, used as the literal name of a thing rather than as a metaphor.
+harness          # "agent harness" is the installed hook and skill system
+surface          # only appears as a concrete noun in these documents
+vector           # a numeric feature vector in the trading engine
+primitive        # a numeric primitive in the engine's type discipline
+ratchet          # not used metaphorically here
+evacuate         # not used metaphorically here
+
+# Rule 17, proper nouns that are legitimately capitalized mid-heading.
+claude
+codex
+code
+grok
+opus
+sonnet
+fable
+haiku
+gpt
+sol
+optmem
+mempalace
+pstack
+pocock
+poteto
+akita
+karpathy
+bigpowers
+unslop
+unlazy
+github
+git
+python
+markdown
+json
+yaml
+anthropic
+openai
+cursor
+agents
+memory
+directives
+continuity
+progress
+state
+i

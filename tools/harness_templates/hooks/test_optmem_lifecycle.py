@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from contextlib import redirect_stderr
+from hashlib import sha256
 from io import StringIO
 import json
 import os
 from pathlib import Path
+import stat
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -59,6 +61,20 @@ if sys.argv[1:] != ["nap"]:
 print("Nothing left to compress.")
 """
 
+FAKE_ARCHIVE_ORDER_MEMO = """#!/usr/bin/python3
+import os
+from pathlib import Path
+import sys
+
+archive = Path(os.environ["CODEX_TRANSCRIPT_ARCHIVE_ROOT"])
+objects = list(archive.rglob("*.jsonl"))
+with Path(os.environ["FAKE_MEMO_LOG"]).open("a", encoding="utf-8") as stream:
+    stream.write(f"objects={len(objects)}\\n")
+if sys.argv[1:] != ["nap"]:
+    raise SystemExit(7)
+print("Nothing left to compress.")
+"""
+
 FAKE_HEALTH_MEMO = """#!/usr/bin/python3
 import json
 import os
@@ -94,6 +110,150 @@ raise SystemExit(1)
 
 
 class OptMemLifecycleTests(unittest.TestCase):
+    def test_pre_compact_archives_exact_bytes_before_memo_and_deduplicates(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            transcript = directory / "session.jsonl"
+            transcript_bytes = b'{"snowman":"\xe2\x98\x83"}\n\x00exact\xffbytes\n'
+            transcript.write_bytes(transcript_bytes)
+            archive = directory / "archive"
+            fake_memo = directory / "memo"
+            fake_memo.write_text(FAKE_ARCHIVE_ORDER_MEMO, encoding="utf-8")
+            fake_memo.chmod(0o755)
+            invocation_log = directory / "invocations.txt"
+            payload = {"hook_event_name": "PreCompact", "transcript_path": str(transcript)}
+            environment = {
+                "CODEX_TRANSCRIPT_ARCHIVE_ROOT": str(archive),
+                "FAKE_MEMO_LOG": str(invocation_log),
+            }
+
+            with (
+                patch.object(optmem_lifecycle, "MEMO_CANDIDATES", (fake_memo,)),
+                patch.dict(os.environ, environment),
+            ):
+                for _ in range(2):
+                    output = StringIO()
+                    status = optmem_lifecycle.main(
+                        ["pre-compact"], StringIO(json.dumps(payload)), output, StringIO()
+                    )
+                    self.assertEqual(status, 0)
+                    self.assertEqual(json.loads(output.getvalue()), {})
+
+            objects = list(archive.rglob("*.jsonl"))
+            self.assertEqual(len(objects), 1)
+            self.assertEqual(objects[0].read_bytes(), transcript_bytes)
+            self.assertEqual(objects[0].stem, sha256(transcript_bytes).hexdigest())
+            self.assertEqual(stat.S_IMODE(objects[0].stat().st_mode), 0o600)
+            directories = [archive, *(path for path in archive.rglob("*") if path.is_dir())]
+            self.assertTrue(all(stat.S_IMODE(path.stat().st_mode) == 0o700 for path in directories))
+            self.assertEqual(invocation_log.read_text(encoding="utf-8"), "objects=1\nobjects=1\n")
+
+    def test_pre_compact_rejects_a_symlink_before_memo(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            target = directory / "target.jsonl"
+            target.write_bytes(b"secret\n")
+            transcript = directory / "session.jsonl"
+            transcript.symlink_to(target)
+            fake_memo = directory / "memo"
+            fake_memo.write_text(FAKE_ARCHIVE_ORDER_MEMO, encoding="utf-8")
+            fake_memo.chmod(0o755)
+            invocation_log = directory / "invocations.txt"
+            payload = {"hook_event_name": "PreCompact", "transcript_path": str(transcript)}
+            environment = {
+                "CODEX_TRANSCRIPT_ARCHIVE_ROOT": str(directory / "archive"),
+                "FAKE_MEMO_LOG": str(invocation_log),
+            }
+
+            with (
+                patch.object(optmem_lifecycle, "MEMO_CANDIDATES", (fake_memo,)),
+                patch.dict(os.environ, environment),
+            ):
+                output = StringIO()
+                status = optmem_lifecycle.main(
+                    ["pre-compact"], StringIO(json.dumps(payload)), output, StringIO()
+                )
+
+            response = json.loads(output.getvalue())
+            self.assertEqual(status, 0)
+            self.assertNotIn("continue", response)
+            self.assertIn("regular file", response["systemMessage"])
+            self.assertFalse(invocation_log.exists())
+            self.assertEqual(list((directory / "archive").rglob("*.jsonl")), [])
+
+    def test_pre_compact_rejects_atomic_source_replacement_during_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            transcript = directory / "session.jsonl"
+            transcript.write_bytes(b"initial bytes\n")
+            original_copy = optmem_lifecycle.copy_transcript
+
+            def copy_then_change(descriptor: int, destination: Path) -> str:
+                digest = original_copy(descriptor, destination)
+                replacement = directory / "replacement.jsonl"
+                replacement.write_bytes(b"changed bytes with a different size\n")
+                replacement.replace(transcript)
+                return digest
+
+            payload = {"hook_event_name": "PreCompact", "transcript_path": str(transcript)}
+            with (
+                patch.object(optmem_lifecycle, "copy_transcript", copy_then_change),
+                patch.dict(
+                    os.environ,
+                    {"CODEX_TRANSCRIPT_ARCHIVE_ROOT": str(directory / "archive")},
+                ),
+            ):
+                output = StringIO()
+                status = optmem_lifecycle.main(
+                    ["pre-compact"], StringIO(json.dumps(payload)), output, StringIO()
+                )
+
+            response = json.loads(output.getvalue())
+            self.assertEqual(status, 0)
+            self.assertNotIn("continue", response)
+            self.assertIn("changed while copying", response["systemMessage"])
+            self.assertEqual(list((directory / "archive").rglob("*.jsonl")), [])
+            self.assertEqual(list((directory / "archive").rglob(".archive-*")), [])
+
+    def test_pre_compact_rejects_a_corrupt_existing_content_object(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            transcript = directory / "session.jsonl"
+            transcript_bytes = b"expected transcript bytes\n"
+            transcript.write_bytes(transcript_bytes)
+            expected_digest = sha256(transcript_bytes).hexdigest()
+            archive = directory / "archive"
+            object_directory = archive / "objects" / expected_digest[:2]
+            object_directory.mkdir(mode=0o700, parents=True)
+            corrupt_object = object_directory / f"{expected_digest}.jsonl"
+            corrupt_object.write_bytes(b"corrupt bytes\n")
+            corrupt_object.chmod(0o600)
+            fake_memo = directory / "memo"
+            fake_memo.write_text(FAKE_ARCHIVE_ORDER_MEMO, encoding="utf-8")
+            fake_memo.chmod(0o755)
+            invocation_log = directory / "invocations.txt"
+            payload = {"hook_event_name": "PreCompact", "transcript_path": str(transcript)}
+            environment = {
+                "CODEX_TRANSCRIPT_ARCHIVE_ROOT": str(archive),
+                "FAKE_MEMO_LOG": str(invocation_log),
+            }
+
+            with (
+                patch.object(optmem_lifecycle, "MEMO_CANDIDATES", (fake_memo,)),
+                patch.dict(os.environ, environment),
+            ):
+                output = StringIO()
+                status = optmem_lifecycle.main(
+                    ["pre-compact"], StringIO(json.dumps(payload)), output, StringIO()
+                )
+
+            response = json.loads(output.getvalue())
+            self.assertEqual(status, 0)
+            self.assertNotIn("continue", response)
+            self.assertIn("did not match", response["systemMessage"])
+            self.assertFalse(invocation_log.exists())
+            self.assertEqual(corrupt_object.read_bytes(), b"corrupt bytes\n")
+
     def test_session_start_follows_every_wake_page(self) -> None:
         with tempfile.TemporaryDirectory() as raw_directory:
             directory = Path(raw_directory)
@@ -187,7 +347,7 @@ class OptMemLifecycleTests(unittest.TestCase):
             )
             self.assertEqual(invocation_log.read_text(encoding="utf-8"), "called\n")
 
-    def test_pre_compact_blocks_with_the_exact_pending_nap_prompt(self) -> None:
+    def test_pre_compact_reports_a_pending_nap_without_blocking(self) -> None:
         with tempfile.TemporaryDirectory() as raw_directory:
             directory = Path(raw_directory)
             fake_memo = directory / "memo"
@@ -217,7 +377,7 @@ class OptMemLifecycleTests(unittest.TestCase):
             self.assertEqual(status, 0)
             self.assertEqual(
                 json.loads(output.getvalue()),
-                {"continue": False, "stopReason": prompt, "systemMessage": prompt},
+                {"systemMessage": prompt},
             )
             self.assertEqual(errors.getvalue(), "")
 

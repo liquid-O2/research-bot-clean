@@ -256,17 +256,31 @@ def self_repair_canaries() -> list[Canary]:
     ]
 
 
+PROBE = ROOT / "tools/canary_receipt_probe.py"
+
+
 def receipt_canaries() -> list[Canary]:
-    """A production write cannot end the turn without a current review receipt."""
+    """A production write cannot end the turn without a current review receipt.
+
+    The setup makes its own change, because the check compares against the live
+    diff and a committed tree has none. A canary that only passes on a dirty
+    repository is not testing the guard.
+    """
     def wrote_without_review(state: Path) -> None:
         engaged(state)
-        run_guard("pre-tool-use", write_payload(str(ROOT / "tools/canary_probe.py")), state)
+        PROBE.write_text('"""A canary probe, removed by the runner."""\n', encoding="utf-8")
+        run_guard("pre-tool-use", write_payload(str(PROBE)), state)
 
     return [
         Canary("Stop refuses a production write with no review receipt", "stop",
                stop_payload("The change is finished."), "block", "review_receipt",
                setup=wrote_without_review, scope=DONE_SCOPE),
     ]
+
+
+def drop_probe() -> None:
+    """Remove whatever the receipt canary created."""
+    PROBE.unlink(missing_ok=True)
 
 
 def prose_canaries() -> list[Canary]:

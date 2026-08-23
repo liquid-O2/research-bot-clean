@@ -36,6 +36,7 @@ from method_canaries import (  # noqa: E402
     DONE_SCOPE,
     OPEN_SCOPE,
     all_canaries,
+    drop_probe,
     drop_scope,
     engaged,
     write_scope,
@@ -127,6 +128,7 @@ def run_all(client: object, stdout: TextIO) -> int:
         shutil.rmtree(state_root, ignore_errors=True)
         drop_scope(OPEN_SCOPE)
         drop_scope(DONE_SCOPE)
+        drop_probe()
 
 
 def main(argv: Sequence[str] | None = None, stdout: TextIO = sys.stdout) -> int:

@@ -9,6 +9,59 @@
             "command": "/usr/bin/python3 /workspace/.codex/hooks/optmem_lifecycle.py session-start",
             "timeout": 30,
             "additionalContextLimit": 12000
+          },
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py session-start",
+            "timeout": 10,
+            "additionalContextLimit": 6000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py user-prompt-submit",
+            "timeout": 10,
+            "additionalContextLimit": 6000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^(Bash|apply_patch|Agent)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py pre-tool-use",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py subagent-start",
+            "timeout": 10,
+            "additionalContextLimit": 6000
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py subagent-stop",
+            "timeout": 15
           }
         ]
       }
@@ -42,8 +95,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "'/home/algo/.local/share/fnm/node-versions/v24.19.0/installation/bin/node' '/workspace/vendor/agent-sources/unlazy/754d9a68109e39b836cc72a39fb9a823f9d6b613/scripts/stop-hook.mjs' --unlazy",
-            "timeout": 20
+            "command": "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py stop",
+            "timeout": 30
           }
         ]
       }

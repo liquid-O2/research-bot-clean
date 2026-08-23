@@ -1,0 +1,41 @@
+{
+  "cwd": "/workspace",
+  "duration_ms": 13,
+  "effort": {
+    "level": "xhigh"
+  },
+  "hook_event_name": "PostToolUse",
+  "permission_mode": "bypassPermissions",
+  "prompt_id": "e56f25d2-d0cc-4081-956c-806ed6e39187",
+  "session_id": "session-fixture",
+  "tool_input": {
+    "file_path": "/tmp/scratch/capture_probe.txt",
+    "new_string": "probe line one edited",
+    "old_string": "probe line one",
+    "replace_all": false
+  },
+  "tool_name": "Edit",
+  "tool_response": {
+    "filePath": "/tmp/scratch/capture_probe.txt",
+    "newString": "probe line one edited",
+    "oldString": "probe line one",
+    "originalFile": "probe line one\nprobe line two\n",
+    "replaceAll": false,
+    "structuredPatch": [
+      {
+        "lines": [
+          "-probe line one",
+          "+probe line one edited",
+          " probe line two"
+        ],
+        "newLines": 2,
+        "newStart": 1,
+        "oldLines": 2,
+        "oldStart": 1
+      }
+    ],
+    "userModified": false
+  },
+  "tool_use_id": "toolu_016LJCBkuaQu7mSFS86qXqo5",
+  "transcript_path": "/tmp/scratch/transcript.jsonl"
+}

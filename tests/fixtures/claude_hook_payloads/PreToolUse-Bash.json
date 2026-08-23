@@ -1,0 +1,17 @@
+{
+  "cwd": "/workspace",
+  "effort": {
+    "level": "xhigh"
+  },
+  "hook_event_name": "PreToolUse",
+  "permission_mode": "bypassPermissions",
+  "prompt_id": "e56f25d2-d0cc-4081-956c-806ed6e39187",
+  "session_id": "session-fixture",
+  "tool_input": {
+    "command": "cd /workspace\necho \"capture probe\" > /tmp/scratch/probe.txt\nsleep 1 2>/dev/null || true\nL=/tmp/scratch/hook_payloads.jsonl\nif [ -f \"$L\" ]; then echo \"CAPTURED $(wc -l < $L) events\"; /usr/bin/python3 -c \"\nimport json,sys\nseen={}\nfor line in open('$L'):\n    d=json.loads(line); seen.setdefault(d['argv'][0], d)\nfor k,v in seen.items(): print(k, sorted(v['payload']))\n\"; else echo \"NO CAPTURE YET (settings not reloaded mid-session)\"; fi",
+    "description": "Check whether the capture hook fired"
+  },
+  "tool_name": "Bash",
+  "tool_use_id": "toolu_01RhEUrBgEnhdkEJi9GB9oK8",
+  "transcript_path": "/tmp/scratch/transcript.jsonl"
+}

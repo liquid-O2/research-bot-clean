@@ -92,6 +92,11 @@ Before writing a skill, a contract, or a plan, read `$writing-for-agents`. It go
 
 `.agents/skills` is the only repository skill authority. Read a skill there, or through the client link pointing at it, and change neither.
 """
+SHARED_HOOK_MODULES = ("method_guard_support.py", "method_guard_rules.py")
+CODEX_HOOK_MODULES = (*SHARED_HOOK_MODULES, "method_guard.py", "optmem_lifecycle.py")
+CLAUDE_HOOK_MODULES = (*SHARED_HOOK_MODULES, "memory_ledger_hooks.py")
+CLAUDE_GUARD_TEMPLATE = "claude_method_guard.py"
+CLAUDE_GUARD_INSTALLED = "method_guard.py"
 MEMORY_MARKERS = ("<!-- MEMORY_BLOCK_BEGIN -->", "<!-- MEMORY_BLOCK_END -->")
 AGENT_METHOD_MARKERS = ("<!-- AGENT_METHOD_BLOCK_BEGIN -->", "<!-- AGENT_METHOD_BLOCK_END -->")
 CLIENT_MARKERS = ("<!-- CLIENT_BLOCK_BEGIN -->", "<!-- CLIENT_BLOCK_END -->")

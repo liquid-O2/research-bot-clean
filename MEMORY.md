@@ -425,6 +425,8 @@ New memories land here, newest last.
 - 2026-08-23 #186 Memory ledger replaces OptMem as primary memory. The unslop lint gates every new line and no compression step can block a session or a compaction.
 - 2026-08-23 #187 OptMem deadlock root cause: the PreCompact hook returned continue=false while a compression was pending, so compaction was refused exactly when the context was full. Fixed to advisory output only, per D-108.
 - 2026-08-23 #188 USER: Claude subagents run Opus 5 at medium reasoning, matching the Codex gpt-5.6-sol medium rule. Skills stay unchanged in .agents/skills and Claude reaches them by symlink.
+- 2026-08-23 #189 Claude Code reads the canonical skills through 76 symlinks at .claude/skills, built by tools/install_claude_skills.py from the Codex install receipt. No skill is ever copied.
+- 2026-08-23 #190 AGENTS.md and CLAUDE.md are generated from shared blocks by tools/render_agent_contract.py. Only the client block differs, and verify_agent_harness.py contract fails on any hand edit.
 
 ## Checkpoints
 
@@ -435,3 +437,11 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - route: implement-flow
 - scope: claude-method-port
 - note: phase 0 smoke test
+
+### 2026-08-23T20:01:41Z
+
+- session: precompact-test
+- trigger: auto
+- cwd: /workspace
+- transcript spool: /workspace/artifacts/cache/continuity/precompact-test-20260823T200141Z.jsonl
+- the method packet left context here; run the guard's engage command before the next repository write

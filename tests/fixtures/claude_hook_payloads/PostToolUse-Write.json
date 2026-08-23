@@ -1,0 +1,26 @@
+{
+  "cwd": "/workspace",
+  "duration_ms": 16,
+  "effort": {
+    "level": "xhigh"
+  },
+  "hook_event_name": "PostToolUse",
+  "permission_mode": "bypassPermissions",
+  "prompt_id": "e56f25d2-d0cc-4081-956c-806ed6e39187",
+  "session_id": "session-fixture",
+  "tool_input": {
+    "content": "fixture content\n",
+    "file_path": "/tmp/scratch/capture_probe.txt"
+  },
+  "tool_name": "Write",
+  "tool_response": {
+    "content": "probe line one\nprobe line two\n",
+    "filePath": "/tmp/scratch/capture_probe.txt",
+    "originalFile": null,
+    "structuredPatch": [],
+    "type": "create",
+    "userModified": false
+  },
+  "tool_use_id": "toolu_01DGur4UwUM6vwx8oMeFDecb",
+  "transcript_path": "/tmp/scratch/transcript.jsonl"
+}

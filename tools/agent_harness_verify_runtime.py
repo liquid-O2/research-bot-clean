@@ -18,10 +18,9 @@ from agent_harness_verify_common import (
     require,
     sha256_file,
 )
-from agent_harness_verify_static import expected_skill_names
+from agent_harness_verify_static import expected_live_hook_inventory, expected_skill_names
 
 WORKSPACE_HOOK_PATH = str(ROOT / ".codex/hooks.json")
-REQUIRED_HOOK_EVENTS = {"preCompact", "postCompact", "sessionStart", "stop"}
 CODEX_CONFIG = Path("/home/algo/.codex/config.toml")
 
 
@@ -187,9 +186,11 @@ def workspace_trust_state(trust_state: dict[str, str]) -> dict[str, str]:
 def validate_hook_inventory(rows: list[dict[str, str]]) -> set[str]:
     keys = {row["key"] for row in rows}
     events = {row["eventName"] for row in rows}
-    require(len(keys) == len(rows) == 4 and events == REQUIRED_HOOK_EVENTS,
+    required_events, required_handlers = expected_live_hook_inventory()
+    valid = len(keys) == len(rows) == required_handlers and events == required_events
+    require(valid,
             "hooks.trust-current", {"keys": sorted(keys), "events": sorted(events)},
-            "four unique current workspace hooks")
+            f"{required_handlers} current handlers for {len(required_events)} events")
     return keys
 
 

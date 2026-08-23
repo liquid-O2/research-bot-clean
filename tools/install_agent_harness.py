@@ -15,6 +15,7 @@ from agent_harness_sources import HOME, OPT_MEM, PINS, VENDOR_ROOT, WORKSPACE, S
 from render_agent_contract import render as render_contract
 from render_agent_contract import write_all as render_all_contracts
 from agent_harness_verify_common import (
+    CODEX_HOOK_MODULES,
     archived_relative,
     archive_kind,
     atomic_write,
@@ -258,10 +259,12 @@ def write_client_contracts() -> dict[str, int]:
 
 
 def codex_hook_templates() -> list[Path]:
-    """List active Codex hook templates. Example: codex_hook_templates()."""
-    excluded = {"cached_session_bridge.py"}
-    return [source for source in sorted((TEMPLATES / "hooks").glob("*.py"))
-            if not source.name.startswith("test_") and source.name not in excluded]
+    """List the Codex hook templates by name. Example: codex_hook_templates().
+
+    Named rather than globbed. A glob quietly swept Claude-only modules into
+    the Codex install the moment they appeared beside them.
+    """
+    return [TEMPLATES / "hooks" / name for name in sorted(CODEX_HOOK_MODULES)]
 
 
 def remove_unused_codex_bridge() -> None:

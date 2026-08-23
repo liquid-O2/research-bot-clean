@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import shutil
 import sys
 import tempfile
@@ -15,6 +16,7 @@ import agent_harness_verify_static
 import agent_harness_verify_runtime
 import agent_harness_verify_common
 from agent_harness_verify_common import HarnessVerificationError
+from agent_harness_verify_common import CODEX_HOOK_MODULES
 import install_agent_harness
 import verify_agent_harness
 
@@ -33,9 +35,27 @@ trusted_hash = "sha256:workspace"
 WORKSPACE_HOOK_PATH = "/workspace/.codex/hooks.json"
 HOOK_EVENTS = {
     "pre_compact": "preCompact",
+    "pre_tool_use": "preToolUse",
     "post_compact": "postCompact",
     "session_start": "sessionStart",
     "stop": "stop",
+    "subagent_start": "subagentStart",
+    "subagent_stop": "subagentStop",
+    "user_prompt_submit": "userPromptSubmit",
+}
+HOOK_HANDLER_COUNTS = {name: 2 if name == "session_start" else 1 for name in HOOK_EVENTS}
+HookOwner = tuple[int, str, int | None]
+HOOK_POLICY: dict[str, tuple[str | None, tuple[HookOwner, ...]]] = {
+    "SessionStart": ("^(startup|resume|clear|compact)$", (
+        (30, "optmem_lifecycle.py session-start", 12000), (10, "method_guard.py session-start", 6000),
+    )),
+    "UserPromptSubmit": (None, ((10, "method_guard.py user-prompt-submit", 6000),)),
+    "PreToolUse": ("^(Bash|apply_patch|Agent)$", ((15, "method_guard.py pre-tool-use", None),)),
+    "SubagentStart": (None, ((10, "method_guard.py subagent-start", 6000),)),
+    "SubagentStop": (None, ((15, "method_guard.py subagent-stop", None),)),
+    "PreCompact": ("^(manual|auto)$", ((30, "optmem_lifecycle.py pre-compact", None),)),
+    "PostCompact": ("^(manual|auto)$", ((10, "optmem_lifecycle.py post-compact", None),)),
+    "Stop": (None, ((30, "method_guard.py stop", None),)),
 }
 REAL_RMTREE = shutil.rmtree
 
@@ -69,18 +89,16 @@ class FakeCodexSkillsProcess:
 def trusted_hook_fixture() -> tuple[dict[str, object], dict[str, str]]:
     hooks: list[dict[str, object]] = []
     trust: dict[str, str] = {}
-    for index, (identity, event) in enumerate(HOOK_EVENTS.items()):
-        key = f"{WORKSPACE_HOOK_PATH}:{identity}:0:0"
-        current_hash = f"sha256:{index + 1:064x}"
-        trust[key] = current_hash
-        hooks.append({
-            "key": key,
-            "eventName": event,
-            "source": "project",
-            "sourcePath": WORKSPACE_HOOK_PATH,
-            "currentHash": current_hash,
-            "trustStatus": "trusted",
-        })
+    for identity, event in HOOK_EVENTS.items():
+        for handler_index in range(HOOK_HANDLER_COUNTS[identity]):
+            key = f"{WORKSPACE_HOOK_PATH}:{identity}:0:{handler_index}"
+            current_hash = f"sha256:{len(hooks) + 1:064x}"
+            trust[key] = current_hash
+            hooks.append({
+                "key": key, "eventName": event, "source": "project",
+                "sourcePath": WORKSPACE_HOOK_PATH, "currentHash": current_hash,
+                "trustStatus": "trusted",
+            })
     return {"result": {"data": [{
         "cwd": "/workspace", "errors": [], "hooks": hooks,
     }]}}, trust
@@ -215,10 +233,14 @@ class InstallerTrustTests(unittest.TestCase):
             self.assertEqual(codex_config.read_text(encoding="utf-8"),
                              UNRELATED_TRUST_CONFIG)
 
-    def test_codex_hook_install_excludes_cached_session_bridge(self) -> None:
+    def test_codex_hook_install_follows_the_manifest(self) -> None:
         names = [path.name for path in install_agent_harness.codex_hook_templates()]
 
-        self.assertEqual(names, ["optmem_lifecycle.py"])
+        self.assertEqual(names, sorted(CODEX_HOOK_MODULES))
+        self.assertNotIn("cached_session_bridge.py", names)
+        self.assertNotIn("claude_method_guard.py", names)
+        for path in install_agent_harness.codex_hook_templates():
+            self.assertTrue(path.is_file(), path)
 
     def test_pinned_pstack_runtime_fails_fast(self) -> None:
         with tempfile.TemporaryDirectory() as raw_directory:
@@ -232,6 +254,33 @@ class InstallerTrustTests(unittest.TestCase):
 
 
 class HookTrustTests(unittest.TestCase):
+    def test_pre_tool_matcher_covers_canonical_codex_aliases(self) -> None:
+        matcher = HOOK_POLICY["PreToolUse"][0]
+        self.assertIsNotNone(matcher)
+        for tool_name in ("Bash", "apply_patch", "Agent"):
+            self.assertIsNotNone(re.fullmatch(str(matcher), tool_name), tool_name)
+        for tool_name in ("exec_command", "write_stdin", "spawn_agent"):
+            self.assertIsNone(re.fullmatch(str(matcher), tool_name), tool_name)
+
+    def test_hook_configs_have_exact_policy_owners_and_bounds(self) -> None:
+        paths = [Path(WORKSPACE_HOOK_PATH), TOOLS / "harness_templates/hooks.json"]
+        for path in paths:
+            configured = agent_harness_verify_common.load_json_object(path, path.name)["hooks"]
+            self.assertEqual(set(configured), set(HOOK_POLICY), path)
+            handler_count = sum(len(group["hooks"]) for groups in configured.values()
+                                for group in groups)
+            self.assertEqual(handler_count, 9, path)
+            for event, (matcher, owners) in HOOK_POLICY.items():
+                with self.subTest(path=path, event=event):
+                    self.assertEqual(len(configured[event]), 1)
+                    group = configured[event][0]
+                    self.assertEqual(group.get("matcher"), matcher)
+                    self.assertEqual(len(group["hooks"]), len(owners))
+                    for owner, (timeout, suffix, context_limit) in zip(group["hooks"], owners):
+                        self.assertTrue(owner["command"].endswith(suffix), owner)
+                        self.assertEqual(owner["timeout"], timeout)
+                        self.assertEqual(owner.get("additionalContextLimit"), context_limit)
+
     def test_trust_state_parser_reads_named_hook_entries(self) -> None:
         with tempfile.TemporaryDirectory() as raw_directory:
             path = Path(raw_directory) / "config.toml"
@@ -244,13 +293,14 @@ class HookTrustTests(unittest.TestCase):
         self.assertEqual(state["/workspace/.codex/hooks.json:stop:0:0"],
                          "sha256:workspace")
 
-    def test_four_current_trusted_workspace_hooks_pass(self) -> None:
+    def test_nine_trusted_handlers_expose_eight_events(self) -> None:
         response, trust = trusted_hook_fixture()
 
         rows = agent_harness_verify_runtime.validate_hook_trust(response, trust)
 
-        self.assertEqual([row["eventName"] for row in rows],
-                         sorted(HOOK_EVENTS.values()))
+        expected = [event for identity, event in HOOK_EVENTS.items()
+                    for _ in range(HOOK_HANDLER_COUNTS[identity])]
+        self.assertEqual([row["eventName"] for row in rows], sorted(expected))
 
     def test_stale_stored_hash_reports_offending_and_current_values(self) -> None:
         response, trust = trusted_hook_fixture()
@@ -283,7 +333,7 @@ class HookTrustTests(unittest.TestCase):
 
         rows = agent_harness_verify_runtime.validate_hook_trust(response, trust)
 
-        self.assertEqual(len(rows), 4)
+        self.assertEqual(len(rows), sum(HOOK_HANDLER_COUNTS.values()))
 
     def test_absent_state_keeps_static_rewrite_green_but_live_is_untrusted(self) -> None:
         response, _ = trusted_hook_fixture()

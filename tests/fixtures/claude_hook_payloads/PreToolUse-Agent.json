@@ -1,0 +1,19 @@
+{
+  "cwd": "/workspace",
+  "effort": {
+    "level": "xhigh"
+  },
+  "hook_event_name": "PreToolUse",
+  "permission_mode": "bypassPermissions",
+  "prompt_id": "e56f25d2-d0cc-4081-956c-806ed6e39187",
+  "session_id": "session-fixture",
+  "tool_input": {
+    "description": "Capture subagent hook payloads",
+    "model": "haiku",
+    "prompt": "You are a subagent. Don't run memo.\n\nOwn: nothing. Write no files.\n\nRun exactly this one command and report its output verbatim:\n\n    wc -l /workspace/AGENTS.md\n\nAcceptance check: your reply contains the line count and nothing else.",
+    "subagent_type": "general-purpose"
+  },
+  "tool_name": "Agent",
+  "tool_use_id": "toolu_01SUR8PWJKNPu24YEF4mwbb3",
+  "transcript_path": "/tmp/scratch/transcript.jsonl"
+}

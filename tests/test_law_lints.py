@@ -96,6 +96,14 @@ class UnslopExemptionTests(unittest.TestCase):
     def test_frontmatter_is_exempt(self) -> None:
         self.assertEqual(findings(f"---\nname: x \N{EM DASH} y\n---\nplain line\n"), [])
 
+    def test_an_indented_code_block_is_exempt(self) -> None:
+        text = "Run this:\n\n    git diff HEAD -- tools\n\nplain line\n"
+        self.assertEqual(findings(text), [])
+
+    def test_prose_beside_an_indented_block_is_still_scanned(self) -> None:
+        text = "    git diff HEAD -- tools\n\nA clause \N{EM DASH} here.\n"
+        self.assertEqual(rules(text), {13})
+
     def test_an_inline_code_span_is_exempt(self) -> None:
         self.assertEqual(findings("Run `a --b \N{EM DASH} c` now.\n"), [])
 

@@ -11,7 +11,12 @@ import tomllib
 from pathlib import Path
 from typing import cast
 
-from render_agent_contract import render as render_contract
+from agent_harness_verify_contract import (  # noqa: F401
+    verify_agents,
+    verify_contract,
+    verify_sources,
+    verify_worker,
+)
 from agent_harness_verify_common import (
     AKITA_BLOCK_SHA256,
     AKITA_MARKERS,
@@ -20,6 +25,7 @@ from agent_harness_verify_common import (
     OPT_MEM,
     OPT_MEM_SHA256,
     AGENT_METHOD_MARKERS,
+    CANONICAL_TREES,
     CLIENT_MARKERS,
     CONTRACTS,
     MEMORY_MARKERS,
@@ -231,82 +237,6 @@ def verify_skills() -> str:
     require(not duplicates, "skills.user-duplicates", duplicates,
             "no user-level duplicate skill symlinks")
     return f"active={len(actual_names)} unique_frontmatter={len(public_names)}"
-
-
-def marker_interior(raw: bytes, markers: tuple[str, str], name: str) -> bytes:
-    begin, end = (marker.encode() for marker in markers)
-    require(raw.count(begin) == 1 and raw.count(end) == 1, name,
-            {"begin": raw.count(begin), "end": raw.count(end)},
-            "each marker exactly once")
-    opening = begin + b"\n"
-    start = raw.find(opening)
-    stop = raw.find(end, start + len(opening))
-    require(start >= 0 and stop >= 0, name, markers, "markers on their own lines in order")
-    return raw[start + len(opening):stop]
-
-
-def read_contract(name: str) -> bytes:
-    """Read one client contract, naming it exactly when it is missing."""
-    path = ROOT / name
-    require(path.is_file(), "contract.path", str(path), f"existing {name}")
-    return path.read_bytes()
-
-
-def validate_akita_source(raw: bytes) -> None:
-    """Check the Akita block against its pin and against the vendored article."""
-    akita = marker_interior(raw, AKITA_MARKERS, "contract.akita-markers")
-    require(sha256_bytes(akita) == AKITA_BLOCK_SHA256, "contract.akita-block",
-            sha256_bytes(akita), AKITA_BLOCK_SHA256)
-    article = SOURCE_PATHS["akita"] / "content/2026/04/20/clean-code-para-agentes-de-ia/index.en.md"
-    require(article.is_file(), "contract.akita-source", str(article), "vendored Akita article")
-    source_block = b"".join(article.read_bytes().splitlines(keepends=True)[174:224])
-    require(akita == source_block, "contract.akita-source-block",
-            sha256_bytes(akita), sha256_bytes(source_block))
-
-
-def validate_contract_document(client: str, name: str, raw: bytes) -> None:
-    """Check one contract against the renderer, its size cap, and the unslop law."""
-    require(len(raw) < 32 * 1024, f"contract.{client}.bytes", len(raw), "less than 32768")
-    rendered = render_contract(client)
-    require(raw == rendered, f"contract.{client}.rendered",
-            sha256_bytes(raw), sha256_bytes(rendered))
-    require(raw.count(UNSLOP_LAW.encode()) == 1, f"contract.{client}.unslop-law",
-            raw.count(UNSLOP_LAW.encode()), "exact mandated sentence once")
-    validate_akita_source(raw)
-
-
-def shared_digests(raw: bytes, label: str) -> dict[str, str]:
-    """Return the digest of every block both clients must share."""
-    return {markers[0]: sha256_bytes(marker_interior(raw, markers, label))
-            for markers in SHARED_MARKERS}
-
-
-def validate_shared_blocks(documents: dict[str, bytes]) -> None:
-    """Check the shared blocks are byte-identical and the client blocks are not."""
-    digests = {name: shared_digests(raw, f"contract.{name}") for name, raw in documents.items()}
-    reference = next(iter(digests.values()))
-    for name, rows in digests.items():
-        require(rows == reference, f"contract.{name}.shared-blocks", rows, reference)
-    clients = {sha256_bytes(marker_interior(raw, CLIENT_MARKERS, f"contract.{name}"))
-               for name, raw in documents.items()}
-    require(len(clients) == len(documents), "contract.client-blocks", len(clients),
-            f"one distinct client block per contract ({len(documents)})")
-
-
-def verify_agents() -> str:
-    """Check every client contract. Example: verify_agents()."""
-    load_install_receipt()
-    documents = {name: read_contract(name) for name in CONTRACTS.values()}
-    for client, name in CONTRACTS.items():
-        validate_contract_document(client, name, documents[name])
-    validate_shared_blocks(documents)
-    sizes = " ".join(f"{name}={len(raw)}" for name, raw in sorted(documents.items()))
-    return f"{sizes} shared_blocks={len(SHARED_MARKERS)} akita_sha256={AKITA_BLOCK_SHA256}"
-
-
-def verify_contract() -> str:
-    """Alias so `verify_agent_harness.py contract` reads naturally."""
-    return verify_agents()
 
 
 def event_commands(event: str, groups: object) -> list[str]:

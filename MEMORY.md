@@ -430,6 +430,7 @@ New memories land here, newest last.
 - 2026-08-23 #191 Both harnesses are live-proven: 32 canaries on Claude and 30 on Codex drive the installed hooks and check every denial and every allowance.
 - 2026-08-23 #192 The reusable harness is exported to the private repo liquid-O2/trading-skills, 339 files, secret-scanned and clean-install verified into a scratch repository.
 - 2026-08-23 #193 USER supplied the same GitHub PAT twice and directed its use. Rotate it: it sits in plaintext in two session transcripts.
+- 2026-08-23 #194 The guard locked itself out. It gated the engage command on being engaged, and gated every non-read shell command on engagement, so a digest change left no way to repair it. D-117 makes engage always permitted.
 
 ## Checkpoints
 

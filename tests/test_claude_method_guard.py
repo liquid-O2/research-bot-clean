@@ -11,6 +11,9 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import tempfile
+import shutil
+import os
 from pathlib import Path
 from types import ModuleType
 import sys
@@ -91,6 +94,14 @@ class FixtureShapeTests(unittest.TestCase):
 class FailOpenTests(unittest.TestCase):
     """A guard bug must never become the next deadlock (D-108)."""
 
+    def setUp(self) -> None:
+        self.state = tempfile.mkdtemp(prefix="fail-open-")
+        environment = patch.dict(os.environ, {"CLAUDE_METHOD_REPO_ROOT": str(ROOT),
+                                              "CLAUDE_METHOD_STATE_ROOT": self.state})
+        environment.start()
+        self.addCleanup(environment.stop)
+        self.addCleanup(shutil.rmtree, self.state, True)
+
     def test_an_unexpected_error_allows_the_call_and_warns(self) -> None:
         payload = fixture("PreToolUse-Write")
         with patch.object(guard.policy, "load_state", side_effect=RuntimeError("disk on fire")):
@@ -106,11 +117,90 @@ class FailOpenTests(unittest.TestCase):
         decision = response["hookSpecificOutput"]["permissionDecision"]
         self.assertEqual(decision, "deny")
 
-    def test_stop_never_recurses(self) -> None:
-        self.assertEqual(guard.stop({"stop_hook_active": True}), {})
+    def test_a_repeat_stop_still_runs_its_walls(self) -> None:
+        """Returning early on stop_hook_active let the second attempt ship free."""
+        response = guard.stop({"stop_hook_active": True, "cwd": str(ROOT),
+                               "session_id": "recurse",
+                               "last_assistant_message": "Of course! Done."})
+        self.assertEqual(response.get("decision"), "block")
 
-    def test_subagent_stop_never_recurses(self) -> None:
-        self.assertEqual(guard.subagent_stop({"stop_hook_active": True}), {})
+    def test_a_repeat_subagent_stop_still_runs_its_wall(self) -> None:
+        response = guard.subagent_stop({"stop_hook_active": True, "cwd": str(ROOT),
+                                        "session_id": "recurse",
+                                        "last_assistant_message": "Of course! Done."})
+        self.assertEqual(response.get("decision"), "block")
+
+
+class StopWallTests(unittest.TestCase):
+    """No violation ships free, and no wall becomes a loop."""
+
+    def setUp(self) -> None:
+        self.state = tempfile.mkdtemp(prefix="stop-wall-")
+        self.environment = patch.dict(os.environ, {
+            "CLAUDE_METHOD_REPO_ROOT": str(ROOT),
+            "CLAUDE_METHOD_STATE_ROOT": self.state})
+        self.environment.start()
+        self.addCleanup(self.environment.stop)
+        self.addCleanup(shutil.rmtree, self.state, True)
+
+    def payload(self, message: str, active: bool = False) -> dict[str, object]:
+        return {"hook_event_name": "Stop", "session_id": "wall", "cwd": str(ROOT),
+                "last_assistant_message": message, "stop_hook_active": active}
+
+    def test_a_repeat_attempt_is_still_checked(self) -> None:
+        """The old guard returned {} whenever stop_hook_active was set."""
+        response = guard.stop(self.payload("Done \N{EM DASH} all good.", active=True))
+        self.assertEqual(response.get("decision"), "block")
+
+    def test_a_turn_is_released_after_repeated_blocks(self) -> None:
+        for _ in range(guard.MAX_TURN_BLOCKS):
+            guard.stop(self.payload("Done \N{EM DASH} all good.", active=True))
+        released = guard.stop(self.payload("Done \N{EM DASH} all good.", active=True))
+        self.assertNotIn("decision", released)
+        self.assertIn("released", released["systemMessage"])
+
+    def test_a_first_attempt_is_never_released(self) -> None:
+        for _ in range(guard.MAX_TURN_BLOCKS + 2):
+            response = guard.stop(self.payload("Done \N{EM DASH} all good."))
+            self.assertEqual(response.get("decision"), "block")
+
+    def test_a_new_prompt_resets_the_turn(self) -> None:
+        for _ in range(guard.MAX_TURN_BLOCKS + 1):
+            guard.stop(self.payload("Done \N{EM DASH} all good.", active=True))
+        guard.user_prompt_submit({"hook_event_name": "UserPromptSubmit", "session_id": "wall",
+                                  "cwd": str(ROOT), "prompt": "next task"})
+        response = guard.stop(self.payload("Done \N{EM DASH} all good.", active=True))
+        self.assertEqual(response.get("decision"), "block")
+
+    def test_the_order_matches_codex(self) -> None:
+        calls: list[str] = []
+        with (
+            patch.object(guard, "run_unlazy_stop", lambda _: calls.append("unlazy") or {}),
+            patch.object(guard, "method_evidence_violation",
+                         lambda _: calls.append("evidence") or None),
+            patch.object(guard, "clean_code_violation",
+                         lambda _: calls.append("clean-code") or None),
+            patch.object(guard, "unslop_violation",
+                         lambda *_: calls.append("unslop") or None),
+        ):
+            guard.stop(self.payload("clean prose"))
+        self.assertEqual(calls, ["unlazy", "evidence", "clean-code", "unslop"])
+
+
+class SessionScopeTests(unittest.TestCase):
+    """The code gate judges what this session wrote, not the whole diff."""
+
+    def test_a_session_with_no_writes_has_nothing_to_judge(self) -> None:
+        self.assertIsNone(rules.clean_code_violation(ROOT, []))
+
+    def test_a_written_file_with_a_violation_is_reported(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            (root / "bad.py").write_text("def f(a):\n    raise ValueError('x')\n",
+                                         encoding="utf-8")
+            reason = rules.clean_code_violation(root, ["bad.py"])
+        self.assertIn("bad.py", reason)
+        self.assertIn("what this session wrote", reason)
 
 
 class RouteTokenTests(unittest.TestCase):
@@ -158,92 +248,78 @@ class PathScopeTests(unittest.TestCase):
         self.assertFalse(rules.owned("engine/x.py", ["tools/**"]))
 
 
-class CommandTests(unittest.TestCase):
-    def test_a_mutating_command_exposes_its_targets(self) -> None:
-        self.assertEqual(rules.command_write_paths("rm -rf engine/x.py"), ["engine/x.py"])
 
-    def test_a_redirect_exposes_its_target(self) -> None:
-        self.assertIn("out.txt", rules.command_write_paths("echo hi > out.txt"))
+class CommandGateTests(unittest.TestCase):
+    """A shell command is a read or a change. The guard never guesses its paths.
 
-    def test_an_in_place_sed_counts_as_a_write(self) -> None:
-        self.assertIn("f.py", rules.command_write_paths("sed -i s/a/b/ f.py"))
+    It used to parse commands for the files they write, and every heuristic
+    produced a false denial on real work: a comparison inside a heredoc, an
+    unexpanded variable, a relative path after a `cd`, a redirect character
+    inside a quoted string. Ownership is checked on the tools that name a file.
+    """
 
-    def test_a_plain_read_writes_nothing(self) -> None:
-        self.assertIsNone(rules.command_write_paths("cat README.md"))
-
-    def test_read_only_commands_are_recognised(self) -> None:
-        for command in ("git status", "git diff HEAD", "ls -la", "wc -l MEMORY.md"):
+    def test_plain_reads_need_no_route(self) -> None:
+        for command in ("git status", "ls -la", "cat README.md", "wc -l MEMORY.md",
+                        "git diff HEAD", "rg pattern tools"):
             with self.subTest(command=command):
-                self.assertTrue(rules.readonly_command(command))
+                self.assertEqual(rules.scan_command(command).kind, "none")
 
-    def test_a_piped_command_is_not_treated_as_read_only(self) -> None:
-        self.assertFalse(rules.readonly_command("cat a > b"))
+    def test_an_ambiguous_change_is_opaque(self) -> None:
+        for command in ("python3 build.py", "npm install", "sed -i s/a/b/ f.py",
+                        f"cat {chr(62)} tools/x.py"):
+            with self.subTest(command=command):
+                self.assertEqual(rules.scan_command(command).kind, "opaque")
 
+    def test_an_unambiguous_mutation_names_its_paths(self) -> None:
+        self.assertEqual(rules.scan_command("rm -rf engine").paths, ("engine",))
+        self.assertEqual(rules.scan_command("mv tools/a.py engine/b.py").paths,
+                         ("tools/a.py", "engine/b.py"))
 
-class HeredocTests(unittest.TestCase):
-    """A heredoc body is data. Reading it as shell syntax denied a real write."""
+    def test_a_mode_argument_is_not_a_path(self) -> None:
+        self.assertEqual(rules.scan_command("chmod 777 tools/x.py").paths, ("tools/x.py",))
 
-    def command(self) -> str:
-        operator = chr(62)
-        return ("cat " + operator + " tools/target.py " + "<<'PY'\n"
-                "if lines " + operator + " MAX_LINES:\n"
-                "    raise ValueError(name)\n"
-                "PY\n")
+    def test_sed_reads_unless_it_edits_in_place(self) -> None:
+        self.assertEqual(rules.scan_command("sed -n 1,5p f.py").kind, "none")
+        self.assertEqual(rules.scan_command("sed -i s/a/b/ f.py").kind, "opaque")
 
-    def test_only_the_real_target_is_extracted(self) -> None:
-        self.assertEqual(rules.command_write_paths(self.command()), ["tools/target.py"])
+    def test_a_read_with_a_shell_operator_is_not_trusted_as_a_read(self) -> None:
+        self.assertEqual(rules.scan_command(f"cat a {chr(62)} b").kind, "opaque")
 
-    def test_a_comparison_inside_a_heredoc_is_not_a_redirect(self) -> None:
-        self.assertNotIn("MAX_LINES:", rules.command_write_paths(self.command()))
-
-    def test_a_quoted_and_an_unquoted_marker_both_close(self) -> None:
-        for marker in ("'PY'", "PY"):
-            with self.subTest(marker=marker):
-                body = f"cat {chr(62)} a.py <<{marker}\nx {chr(62)} y\nPY\n"
-                self.assertEqual(rules.command_write_paths(body), ["a.py"])
-
-
-class UnresolvablePathTests(unittest.TestCase):
-    """A path the guard cannot resolve is opaque, not repository-relative."""
-
-    def test_a_shell_variable_target_is_not_resolvable(self) -> None:
-        self.assertFalse(rules.resolvable("$SCRATCH/.token"))
-
-    def test_a_command_substitution_target_is_not_resolvable(self) -> None:
-        self.assertFalse(rules.resolvable("$(mktemp)/file"))
-
-    def test_a_literal_path_is_resolvable(self) -> None:
-        self.assertTrue(rules.resolvable("tools/x.py"))
-        self.assertTrue(rules.resolvable("/tmp/scratch/plan.md"))
-
-    def test_a_home_relative_path_stays_resolvable(self) -> None:
-        self.assertTrue(rules.resolvable("~/notes.md"))
-
-    def test_a_variable_target_scans_as_opaque(self) -> None:
-        command = "cat " + chr(62) + " $SCRATCH/.token"
-        self.assertEqual(rules.scan_command(command).kind, "opaque")
-
-    def test_a_literal_target_scans_as_paths(self) -> None:
-        command = "cat " + chr(62) + " tools/x.py"
-        self.assertEqual(rules.scan_command(command).kind, "paths")
+    def test_an_ambiguous_command_never_yields_a_path(self) -> None:
+        commands = (f"cat {chr(62)} tools/x.py <<'PY'\nif a {chr(62)} b:\n pass\nPY",
+                    f"cat {chr(62)} $SCRATCH/.token",
+                    f"cd /elsewhere && cat {chr(62)} notes.md",
+                    "printf '%s' 'x " + chr(62) + " denied'")
+        for command in commands:
+            with self.subTest(command=command[:30]):
+                self.assertEqual(rules.scan_command(command).paths, ())
 
 
-class DirectoryChangeTests(unittest.TestCase):
-    """A cd moves where relative paths land, and the payload cannot see that."""
+class AgentDocumentTests(unittest.TestCase):
+    """writing-for-agents governs the documents, not only the briefs."""
 
-    def command(self, target: str) -> str:
-        return f"cd /elsewhere && cat {chr(62)} {target}"
+    LAWFUL = {"standing_laws": ["unlazy", "writing-for-agents"], "owns": ["**"]}
+    UNLAWFUL = {"standing_laws": ["unlazy"], "owns": ["**"]}
 
-    def test_a_relative_target_after_a_cd_is_opaque(self) -> None:
-        self.assertEqual(rules.scan_command(self.command("notes.md")).kind, "opaque")
+    def test_a_skill_body_needs_the_authoring_law(self) -> None:
+        with self.assertRaises(ValueError) as caught:
+            rules.require_writing_law([".agents/skills/x/SKILL.md"], self.UNLAWFUL)
+        self.assertIn("writing-for-agents", str(caught.exception))
 
-    def test_an_absolute_target_after_a_cd_still_resolves(self) -> None:
-        scan = rules.scan_command(self.command("/tmp/notes.md"))
-        self.assertEqual(scan.kind, "paths")
-        self.assertIn("/tmp/notes.md", scan.paths)
+    def test_a_client_contract_needs_the_authoring_law(self) -> None:
+        for name in ("AGENTS.md", "CLAUDE.md"):
+            with self.subTest(document=name), self.assertRaises(ValueError):
+                rules.require_writing_law([name], self.UNLAWFUL)
 
-    def test_a_relative_target_without_a_cd_still_resolves(self) -> None:
-        self.assertEqual(rules.scan_command(f"cat {chr(62)} notes.md").kind, "paths")
+    def test_a_plan_document_needs_the_authoring_law(self) -> None:
+        with self.assertRaises(ValueError):
+            rules.require_writing_law(["design/some-plan.md"], self.UNLAWFUL)
+
+    def test_a_source_file_does_not(self) -> None:
+        rules.require_writing_law(["tools/x.py", "tests/test_x.py"], self.UNLAWFUL)
+
+    def test_the_law_present_allows_the_write(self) -> None:
+        rules.require_writing_law([".agents/skills/x/SKILL.md"], self.LAWFUL)
 
 
 class BriefTests(unittest.TestCase):

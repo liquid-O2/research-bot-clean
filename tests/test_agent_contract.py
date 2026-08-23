@@ -27,7 +27,7 @@ from agent_harness_verify_common import (  # noqa: E402
     SHARED_MARKERS,
     UNSLOP_LAW,
 )
-import agent_harness_verify_static as verifier  # noqa: E402
+import agent_harness_verify_contract as verifier  # noqa: E402
 import render_agent_contract as renderer  # noqa: E402
 import unslop_lint  # noqa: E402
 

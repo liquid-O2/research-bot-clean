@@ -70,17 +70,17 @@ def spawn_input(tool_name: str) -> bool:
 
 
 def scan_call(tool_name: str, tool_input: Mapping[str, object]) -> rules.WriteScan:
-    """Classify what one Codex tool call can change."""
+    """Classify what one Codex tool call can change.
+
+    A patch names its paths exactly, so it gets an ownership check. A shell
+    command does not, so it only has to have the method in context.
+    """
     patched = patch_paths(tool_input)
     if patched:
         return rules.WriteScan("paths", tuple(patched))
-    command = tool_input.get("command") if isinstance(tool_input.get("command"), str) else None
-    if command is not None:
+    command = tool_input.get("command", tool_input.get("cmd"))
+    if isinstance(command, str):
         return rules.scan_command(command)
-    other = tool_input.get("cmd")
-    if isinstance(other, str):
-        scan = rules.scan_command(other)
-        return rules.WriteScan("opaque") if scan.kind == "none" else scan
     return rules.WriteScan("none") if tool_name.lower() != "bash" else rules.WriteScan("opaque")
 
 
@@ -111,7 +111,26 @@ def check_write(paths: Sequence[str], state: JsonObject,
     contract = policy.current_contract(payload, state)
     rules.validate_write_paths(paths, contract)
     state["production_write"] = True
+    state["written_paths"] = sorted({*state.get("written_paths", []), *paths})
     policy.save_state(payload, state)
+
+
+def engage_verdict(tool_input: Mapping[str, object]) -> bool | None:
+    """Return True for a bare engage, None otherwise, refusing a hidden one.
+
+    A bare engage is always permitted. It is how a session obtains the method,
+    so gating it on the method is circular, and it locked this guard out of its
+    own repository.
+    """
+    command = tool_input.get("command", tool_input.get("cmd"))
+    if not isinstance(command, str):
+        return None
+    if rules.hidden_engage(command):
+        raise ValueError(f"engage must print into the transcript, and {command!r} sends "
+                         "it elsewhere. Run it bare, with no pipe and no redirect, so "
+                         "the method's exact text enters this session. A recorded digest "
+                         "does not prove it was read.")
+    return True if rules.bare_engage(command) else None
 
 
 def pre_tool_use(payload: Mapping[str, object]) -> JsonObject:
@@ -122,6 +141,8 @@ def pre_tool_use(payload: Mapping[str, object]) -> JsonObject:
         state = policy.load_state(payload)
         if spawn_input(tool_name):
             check_spawn(tool_input, state, payload)
+            return {}
+        if engage_verdict(tool_input) is True:
             return {}
         apply_scan(scan_call(tool_name, tool_input), tool_name, state, payload)
         return {}
@@ -136,9 +157,6 @@ def apply_scan(scan: rules.WriteScan, tool_name: str, state: JsonObject,
     """Apply the gate that matches what this call can change."""
     if scan.kind == "none":
         return
-    if scan.kind == "unparsed":
-        raise ValueError(f"A mutating {tool_name} command exposed no path for "
-                         "ownership checks. Name the file it writes.")
     if scan.kind == "opaque":
         check_opaque(state, payload)
         return
@@ -153,6 +171,8 @@ def user_prompt_submit(payload: Mapping[str, object]) -> JsonObject:
         policy.remember_session(payload)
         route = rules.route_from_prompt(str(payload.get("prompt") or ""))
         state = policy.load_state(payload)
+        state["turn_blocks"] = 0
+        policy.save_state(payload, state)
         if route is not None:
             state.update({"route": route, "epoch": int(state.get("epoch", 0)) + 1})
             state.pop("ready", None)
@@ -208,8 +228,10 @@ def method_evidence_violation(payload: Mapping[str, object]) -> str | None:
 
 def subagent_stop(payload: Mapping[str, object]) -> JsonObject:
     """Hold a subagent to the same prose law as the parent."""
-    violation = rules.unslop_violation(last_message(payload), policy.repo_root(payload))
-    return block(violation) if violation else {}
+    if exhausted(payload):
+        return {"systemMessage": "Subagent Stop wall released after repeated blocks."}
+    violation = unslop_violation(last_message(payload))
+    return record_block(payload, violation) if violation else {}
 
 
 def evidence_violation(payload: Mapping[str, object]) -> str | None:
@@ -218,28 +240,64 @@ def evidence_violation(payload: Mapping[str, object]) -> str | None:
     if not rules.route_selected(state) or not state.get("production_write"):
         return None
     try:
-        contract = policy.current_contract(payload, state)
-    except ValueError as error:
-        return str(error)
+        contract = policy.contract_on_disk(payload, state)
+    except (OSError, ValueError) as error:
+        return f"A production write happened, and its method contract is unreadable. {error}"
     return rules.review_receipt_violation(payload, contract)
 
 
+MAX_TURN_BLOCKS = 3
+
+
+def clean_code_violation(payload: Mapping[str, object]) -> str | None:
+    """Return the Akita violations in what this session wrote."""
+    state = policy.load_state(payload)
+    return rules.clean_code_violation(policy.repo_root(payload),
+                                      cast(list[str], state.get("written_paths", [])))
+
+
+def exhausted(payload: Mapping[str, object]) -> bool:
+    """Report whether this turn has been blocked too many times to keep trying."""
+    state = policy.load_state(payload)
+    blocks = int(state.get("turn_blocks", 0))
+    return payload.get("stop_hook_active") is True and blocks >= MAX_TURN_BLOCKS
+
+
+def record_block(payload: Mapping[str, object], reason: str) -> JsonObject:
+    """Count this block against the turn, then refuse the turn."""
+    state = policy.load_state(payload)
+    state["turn_blocks"] = int(state.get("turn_blocks", 0)) + 1
+    policy.save_state(payload, state)
+    return block(reason)
+
+
+def first_violation(payload: Mapping[str, object]) -> str | None:
+    """Return the first completion check that refuses, in order."""
+    for check in (method_evidence_violation, clean_code_violation):
+        reason = check(payload)
+        if reason:
+            return reason
+    return None
+
+
 def stop(payload: Mapping[str, object]) -> JsonObject:
-    """Refuse to end a turn that leaves the method's evidence missing."""
-    if payload.get("stop_hook_active"):
-        return {}
+    """Refuse to end a turn that leaves the method's evidence missing.
+
+    Unlazy owns completion, then the method's own evidence, then the code
+    standard, then the prose law on the reply. Claude runs the same order.
+    """
     try:
+        if exhausted(payload):
+            return {"systemMessage": f"Stop walls released after {MAX_TURN_BLOCKS} blocks in "
+                                     "one turn. The last reasons stand and were not fixed."}
         unlazy = run_unlazy_stop(payload)
         if unlazy.get("decision") == "block":
-            return unlazy
-        evidence = method_evidence_violation(payload)
-        if evidence:
-            return block(evidence)
-        akita = rules.clean_code_violation(policy.repo_root(payload))
-        if akita:
-            return block(akita)
+            return record_block(payload, str(unlazy.get("reason", "unlazy gates are unmet")))
+        reason = first_violation(payload)
+        if reason:
+            return record_block(payload, reason)
         violation = unslop_violation(last_message(payload))
-        return block(violation) if violation else unlazy
+        return record_block(payload, violation) if violation else unlazy
     except Exception as error:  # noqa: BLE001
         return allow_with_warning(f"{type(error).__name__}: {error}")
 

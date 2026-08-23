@@ -241,7 +241,16 @@ class MethodGuardTests(unittest.TestCase):
                     ["pre-tool-use"],
                     hook_payload("PreToolUse", tool_name="Bash", tool_input={"command": "git status"}),
                 )
-                for tool_input in ({"cmd": "git status"}, {"command": "python test.py"}):
+                # A read passes under either key, and a command that can change
+                # something needs the method under either key. The two used to
+                # behave differently, which was an accident of the old parser.
+                for tool_input in ({"cmd": "git status"}, {"command": "git status"}):
+                    _, passed, _ = self.call_guard(
+                        ["pre-tool-use"],
+                        hook_payload("PreToolUse", tool_name="Bash", tool_input=tool_input),
+                    )
+                    self.assertEqual(json.loads(passed.getvalue()), {})
+                for tool_input in ({"cmd": "python test.py"}, {"command": "python test.py"}):
                     _, denied, _ = self.call_guard(
                         ["pre-tool-use"],
                         hook_payload("PreToolUse", tool_name="Bash", tool_input=tool_input),
@@ -416,7 +425,7 @@ class MethodGuardTests(unittest.TestCase):
             patch.object(guard, "run_unlazy_stop", lambda _: calls.append("unlazy") or {}, create=True),
             patch.object(guard, "method_evidence_violation", evidence, create=True),
             patch.object(guard, "unslop_violation", unslop, create=True),
-            patch.object(guard.rules, "clean_code_violation", clean_code, create=True),
+            patch.object(guard, "clean_code_violation", clean_code, create=True),
         ):
             _, output, _ = self.call_guard(
                 ["stop"], hook_payload("Stop", last_assistant_message="bad prose")

@@ -60,82 +60,14 @@ RECEIPT_KEYS = {
 UPSTREAM_NAMES = {"pstack", "pocock", "unlazy", "optmem", "local-skills"}
 HEX_SHA256 = re.compile(r"[0-9a-f]{64}")
 NO_MEMO_LINE = "You are a subagent. Don't run memo."
-UNSLOP_LAW = (
-    "Pstack's exact `unslop` skill is mandatory for every user-visible sentence. "
-    "Read and follow it before writing commentary, questions, updates, or final replies."
+from agent_harness_contract import *  # noqa: F401,F403
+from agent_harness_contract import (  # noqa: F401
+    AGENT_METHOD_MARKERS, AGENT_ROUTING, AKITA_BLOCK_SHA256, AKITA_MARKERS,
+    CANONICAL_TREES, CLAUDE_GUARD_INSTALLED, CLAUDE_GUARD_TEMPLATE,
+    CLAUDE_HOOK_MODULES, CLIENT_BLOCKS, CLIENT_MARKERS, CODEX_HOOK_MODULES,
+    CONTRACTS, MEMORY_MARKERS, SHARED_HOOK_MODULES, SHARED_MARKERS, UNSLOP_LAW,
 )
-AGENT_ROUTING = f"""# Agent method
 
-{UNSLOP_LAW}
-
-`unslop` also governs every line you write to `MEMORY.md`. The ledger lints each line and refuses one that fails.
-
-For substantial work, read and follow `$unlazy` before work and before any done claim. Use its file-backed gates and exact Stop hook.
-
-Pstack owns the outer development method. Read `$poteto-mode`, its matching pristine playbook, and every applicable `principle-*` skill before planning or implementation. The 21 Pstack principles are binding when their stated condition matches.
-
-Use `$plan-flow` for planning. It replaces the client's built-in plan mode. Pstack owns the plan. Exact Pocock planning skills resolve decisions inside that plan. Stop before implementation.
-
-Use `$implement-flow` for implementation. Pstack owns the implementation playbook. Exact Pocock Implement, Pocock TDD, and code review run only at the playbook steps that select them.
-
-A repository write with no declared route selects `$implement-flow`. The method guard denies that write until the route's exact sources have entered the session. Recover by writing `.unlazy/<scope>/METHOD.json` and its `GATES.md`, then running the engage command the denial names.
-
-Compaction clears the guard's record. Those exact sources must enter the session again before the next write, whatever you still remember of them.
-
-Pstack owns unqualified `$tdd` and `$teach`. Pocock's colliding skills are `$pocock-tdd` and `$pocock-teach`. Preserve both upstream testing methods. Do not merge them or add another test process.
-
-Before production code, read `$clean-code-for-agents`. Akita is the primary code standard. Ousterhout adds deep modules only where a smaller interface removes knowledge from callers. Karpathy and Bigpowers add only compatible rules that fill a named gap.
-
-Before every subagent brief, read `$writing-for-agents`. Every subagent brief must contain exactly: `{NO_MEMO_LINE}` Subagents inherit the parent's live permission mode.
-
-Before writing a skill, a contract, or a plan, read `$writing-for-agents`. It governs every document an agent consumes.
-
-`.agents/skills` is the only repository skill authority. Read a skill there, or through the client link pointing at it, and change neither.
-"""
-SHARED_HOOK_MODULES = ("method_guard_support.py", "method_guard_rules.py")
-CODEX_HOOK_MODULES = (*SHARED_HOOK_MODULES, "method_guard.py", "optmem_lifecycle.py")
-CLAUDE_HOOK_MODULES = (*SHARED_HOOK_MODULES, "memory_ledger_hooks.py")
-CLAUDE_GUARD_TEMPLATE = "claude_method_guard.py"
-CLAUDE_GUARD_INSTALLED = "method_guard.py"
-MEMORY_MARKERS = ("<!-- MEMORY_BLOCK_BEGIN -->", "<!-- MEMORY_BLOCK_END -->")
-AGENT_METHOD_MARKERS = ("<!-- AGENT_METHOD_BLOCK_BEGIN -->", "<!-- AGENT_METHOD_BLOCK_END -->")
-CLIENT_MARKERS = ("<!-- CLIENT_BLOCK_BEGIN -->", "<!-- CLIENT_BLOCK_END -->")
-AKITA_MARKERS = ("<!-- AKITA_UPSTREAM_BLOCK_BEGIN -->", "<!-- AKITA_UPSTREAM_BLOCK_END -->")
-AKITA_BLOCK_SHA256 = "1a10a1a50fdb9d6c6bac1a06b056f2f8d4cbd0076aa76e72205344893e1567e6"
-SHARED_MARKERS = (MEMORY_MARKERS, AGENT_METHOD_MARKERS, AKITA_MARKERS)
-CONTRACTS = {"codex": "AGENTS.md", "claude": "CLAUDE.md"}
-CLIENT_BLOCKS = {
-    "codex": """## Codex specifics
-
-`$name` names a skill under `.agents/skills`. Codex loads that directory
-directly.
-
-`.codex/hooks.json` is the only repository hook source. Codex `.rules` files
-govern shell permissions only, so this repository does not use them for
-behavior.
-
-Routine implementation subagents run `gpt-5.6-sol` at medium reasoning. Reserve
-higher reasoning for architecture, ambiguous failures, and final review.
-""",
-    "claude": """## Claude Code specifics
-
-`$name` names the skill `name`. Invoke it with the Skill tool or `/name`. The
-canonical skills reach Claude as symlinks at `.claude/skills`, rebuilt by
-`python3 tools/install_claude_skills.py`.
-
-Type `$plan-flow` rather than entering built-in plan mode. The guard reads the
-route from your prompt and infers nothing from the permission mode.
-
-`.claude/settings.json` is the only repository hook source.
-`.claude/settings.local.json` holds personal settings and ships nothing.
-
-Every subagent runs as `method-worker`, which pins Opus 5 at medium effort and
-preloads `unslop`, `clean-code-for-agents`, `writing-for-agents` and `unlazy`.
-
-The repository `code-review` skill replaces the bundled `/code-review` on
-purpose, because `$implement-flow` selects the Pocock method at its review step.
-""",
-}
 BASELINE_CLASS_KEYS = {
     "tracked_deletions", "tracked_modifications", "staged_additions",
     "ignored_inputs", "removed_or_quarantined_scratch",
@@ -447,24 +379,27 @@ def path_entries(root: Path) -> list[tuple[str, Path]]:
     return sorted(entries, key=lambda item: item[0])
 
 
+def accumulate_path(metrics: dict[str, int], details: os.stat_result) -> None:
+    """Fold one path's size and kind into the running totals."""
+    if stat.S_ISDIR(details.st_mode):
+        metrics["directories"] += 1
+        return
+    metrics["apparent_bytes"] += details.st_size
+    metrics["allocated_bytes"] += details.st_blocks * 512
+    if stat.S_ISREG(details.st_mode):
+        metrics["regular_files"] += 1
+        metrics["regular_file_bytes"] += details.st_size
+    elif stat.S_ISLNK(details.st_mode):
+        metrics["symlinks"] += 1
+
+
 def path_tree_metrics(root: Path, excluded: frozenset[Path] = frozenset()) -> dict[str, int]:
     """Measure one path tree. Example: path_tree_metrics(ROOT / '.agents')."""
     metrics = {"directories": 0, "regular_files": 0, "symlinks": 0,
                "regular_file_bytes": 0, "apparent_bytes": 0, "allocated_bytes": 0}
     for _, path in path_entries(root):
-        if path in excluded:
-            continue
-        details = path.lstat()
-        if stat.S_ISDIR(details.st_mode):
-            metrics["directories"] += 1
-            continue
-        metrics["apparent_bytes"] += details.st_size
-        metrics["allocated_bytes"] += details.st_blocks * 512
-        if stat.S_ISREG(details.st_mode):
-            metrics["regular_files"] += 1
-            metrics["regular_file_bytes"] += details.st_size
-        elif stat.S_ISLNK(details.st_mode):
-            metrics["symlinks"] += 1
+        if path not in excluded:
+            accumulate_path(metrics, path.lstat())
     return metrics
 
 

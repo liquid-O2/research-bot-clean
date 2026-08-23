@@ -402,6 +402,21 @@ def validate_ready_digests(
                          f"{state.get('scope')!r}. Run engage again.")
 
 
+def contract_on_disk(payload: Mapping[str, object], state: JsonObject) -> JsonObject:
+    """Return the contract as it stands now, without the readiness check.
+
+    The digest record gates writes, and a turn ending is not a write. Marking a
+    gate met is the normal last act of a task and changes the GATES.md digest,
+    so checking readiness here would end every task by demanding a re-engage
+    that protects nothing. The next write still checks the digest and re-arms.
+    """
+    root = repo_root(payload)
+    _, contract = load_contract(root, state.get("scope"))
+    validate_contract(contract, state.get("route"))
+    gates_path(root, contract)
+    return contract
+
+
 def rearm(payload: Mapping[str, object], state: JsonObject, reason: str) -> None:
     state.pop("ready", None)
     state["rearm_reason"] = reason

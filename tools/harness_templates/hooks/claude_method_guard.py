@@ -77,17 +77,13 @@ def edit_paths(tool_input: Mapping[str, object]) -> list[str]:
 
 
 def write_targets(name: str, tool_input: Mapping[str, object]) -> list[str] | None:
-    """Return the paths this call writes, or None when it writes nothing."""
-    if name in WRITE_TOOLS:
-        return edit_paths(tool_input)
-    if name != "Bash":
-        return None
-    command = tool_input.get("command")
-    if not isinstance(command, str):
-        return None
-    if rules.readonly_command(command):
-        return None
-    return rules.command_write_paths(command)
+    """Return the exact paths this call writes, or None when it names none.
+
+    Only the tools that carry a file path get an ownership check. A shell
+    command is handled by `gate_write`, which requires the method without
+    pretending to know which files the command touches.
+    """
+    return edit_paths(tool_input) if name in WRITE_TOOLS else None
 
 
 def check_spawn(tool_input: Mapping[str, object], state: JsonObject,
@@ -115,6 +111,7 @@ def check_write(paths: Sequence[str], state: JsonObject,
     contract = policy.current_contract(payload, state)
     rules.validate_write_paths(paths, contract)
     state["production_write"] = True
+    state["written_paths"] = sorted({*state.get("written_paths", []), *paths})
     policy.save_state(payload, state)
     return None
 
@@ -127,21 +124,39 @@ def rearm_on_contract_edit(paths: Sequence[str], state: JsonObject,
     return None
 
 
-def check_opaque(state: JsonObject, payload: Mapping[str, object]) -> None:
-    """Require the method for a write whose target cannot be resolved."""
+def refuse_hidden_engage(command: str) -> None:
+    """Refuse an engage call whose output would never reach the transcript."""
+    if rules.hidden_engage(command):
+        raise ValueError(f"engage must print into the transcript, and {command!r} "
+                         "sends it elsewhere. Run it bare, with no pipe and no "
+                         "redirect, so the method's exact text enters this session. "
+                         "A recorded digest does not prove the text was read.")
+
+
+def gate_command(tool_input: Mapping[str, object], state: JsonObject,
+                 payload: Mapping[str, object]) -> JsonObject:
+    """Let a read through, and require the method for anything else."""
+    command = tool_input.get("command")
+    if not isinstance(command, str):
+        return {}
+    refuse_hidden_engage(command)
+    if rules.bare_engage(command) or rules.scan_command(command).kind == "none":
+        return {}
     if not rules.route_selected(state):
-        raise ValueError(f"A write to an unresolvable path requires an explicit $plan-flow "
-                         f"or $implement-flow route, and route={state.get('route')!r}.")
+        raise ValueError(f"A shell command that can change something requires an explicit "
+                         f"$plan-flow or $implement-flow route, and route="
+                         f"{state.get('route')!r}. Reads pass without one.")
     policy.current_contract(payload, state)
+    if state["route"] == "plan-flow":
+        raise ValueError("plan-flow permits reads and planning artifacts. "
+                         f"Send $implement-flow to run {command.split()[0]!r}.")
+    return {}
 
 
 def gate_write(targets: list[str] | None, state: JsonObject,
                payload: Mapping[str, object]) -> JsonObject | None:
-    """Apply the gate that matches what this write can reach."""
+    """Check ownership on named paths, or require the method for a shell call."""
     if targets is None:
-        return None
-    if not all(rules.resolvable(path) for path in targets):
-        check_opaque(state, payload)
         return None
     inside = rules.repository_paths(policy.repo_root(payload), targets)
     return check_write(inside, state, payload) if inside else None
@@ -156,6 +171,8 @@ def pre_tool_use(payload: Mapping[str, object]) -> JsonObject:
         if name in SPAWN_TOOLS:
             check_spawn(tool_input, state, payload)
             return {}
+        if name == "Bash":
+            return gate_command(tool_input, state, payload)
         return gate_write(write_targets(name, tool_input), state, payload) or {}
     except ValueError as error:
         return deny(str(error))
@@ -184,6 +201,8 @@ def user_prompt_submit(payload: Mapping[str, object]) -> JsonObject:
         policy.remember_session(payload)
         route = rules.route_from_prompt(prompt_text(payload))
         state = policy.load_state(payload)
+        state["turn_blocks"] = 0
+        policy.save_state(payload, state)
         if route is not None:
             select_route(payload, state, route)
         return context("UserPromptSubmit",
@@ -221,23 +240,79 @@ def rearm_notice(route: str, source: str) -> str:
             "repository write. What you remember of the method does not count.")
 
 
+MAX_TURN_BLOCKS = 3
+
+
+def run_unlazy_stop(payload: Mapping[str, object]) -> JsonObject:
+    """Run the pinned unlazy Stop wall for this repository."""
+    return rules.run_unlazy_stop(payload, policy.repo_root(payload))
+
+
+def method_evidence_violation(payload: Mapping[str, object]) -> str | None:
+    """Return the missing completion evidence, or None when the turn may end."""
+    return evidence_violation(payload)
+
+
+def clean_code_violation(payload: Mapping[str, object]) -> str | None:
+    """Return the Akita violations in what this session wrote."""
+    state = policy.load_state(payload)
+    return rules.clean_code_violation(policy.repo_root(payload),
+                                      cast(list[str], state.get("written_paths", [])))
+
+
+def unslop_violation(message: str, payload: Mapping[str, object]) -> str | None:
+    """Return the first unslop violation in a user-visible message."""
+    return rules.unslop_violation(message, policy.repo_root(payload))
+
+
+def exhausted(payload: Mapping[str, object]) -> bool:
+    """Report whether this turn has been blocked too many times to keep trying.
+
+    A wall that steps aside the moment `stop_hook_active` is set lets the second
+    attempt through unchecked, so one block per turn was the whole enforcement.
+    The walls keep running; only a repeatedly blocked turn is released, loudly,
+    so a wall cannot become a loop.
+    """
+    state = policy.load_state(payload)
+    blocks = int(state.get("turn_blocks", 0))
+    return payload.get("stop_hook_active") is True and blocks >= MAX_TURN_BLOCKS
+
+
+def record_block(payload: Mapping[str, object], reason: str) -> JsonObject:
+    """Count this block against the turn, then refuse the turn."""
+    state = policy.load_state(payload)
+    state["turn_blocks"] = int(state.get("turn_blocks", 0)) + 1
+    policy.save_state(payload, state)
+    return block(reason)
+
+
+def first_violation(payload: Mapping[str, object]) -> str | None:
+    """Return the first completion check that refuses, in order."""
+    for check in (method_evidence_violation, clean_code_violation):
+        reason = check(payload)
+        if reason:
+            return reason
+    return None
+
+
 def stop(payload: Mapping[str, object]) -> JsonObject:
-    """Refuse to end a turn that leaves the method's evidence missing."""
-    if payload.get("stop_hook_active"):
-        return {}
+    """Refuse to end a turn that leaves the method's evidence missing.
+
+    The order matches Codex exactly. Unlazy owns completion, then the method's
+    own evidence, then the code standard, then the prose law on the reply.
+    """
     try:
-        root = policy.repo_root(payload)
-        violation = rules.unslop_violation(last_message(payload), root)
-        if violation:
-            return block(violation)
-        unlazy = rules.run_unlazy_stop(payload, root)
+        if exhausted(payload):
+            return {"systemMessage": f"Stop walls released after {MAX_TURN_BLOCKS} blocks in "
+                                     "one turn. The last reasons stand and were not fixed."}
+        unlazy = run_unlazy_stop(payload)
         if unlazy.get("decision") == "block":
-            return unlazy
-        evidence = evidence_violation(payload)
-        if evidence:
-            return block(evidence)
-        akita = rules.clean_code_violation(root)
-        return block(akita) if akita else unlazy
+            return record_block(payload, str(unlazy.get("reason", "unlazy gates are unmet")))
+        reason = first_violation(payload)
+        if reason:
+            return record_block(payload, reason)
+        violation = unslop_violation(last_message(payload), payload)
+        return record_block(payload, violation) if violation else unlazy
     except Exception as error:  # noqa: BLE001
         return allow_with_warning(f"{type(error).__name__}: {error}")
 
@@ -248,9 +323,9 @@ def evidence_violation(payload: Mapping[str, object]) -> str | None:
     if not rules.route_selected(state) or not state.get("production_write"):
         return None
     try:
-        contract = policy.current_contract(payload, state)
-    except ValueError as error:
-        return str(error)
+        contract = policy.contract_on_disk(payload, state)
+    except (OSError, ValueError) as error:
+        return f"A production write happened, and its method contract is unreadable. {error}"
     return rules.review_receipt_violation(payload, contract)
 
 
@@ -262,11 +337,11 @@ def last_message(payload: Mapping[str, object]) -> str:
 
 def subagent_stop(payload: Mapping[str, object]) -> JsonObject:
     """Hold a subagent to the same prose law as the parent."""
-    if payload.get("stop_hook_active"):
-        return {}
     try:
-        violation = rules.unslop_violation(last_message(payload), policy.repo_root(payload))
-        return block(violation) if violation else {}
+        if exhausted(payload):
+            return {"systemMessage": "Subagent Stop wall released after repeated blocks."}
+        violation = unslop_violation(last_message(payload), payload)
+        return record_block(payload, violation) if violation else {}
     except Exception as error:  # noqa: BLE001
         return allow_with_warning(f"{type(error).__name__}: {error}")
 

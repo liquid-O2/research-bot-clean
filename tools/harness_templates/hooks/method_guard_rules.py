@@ -11,7 +11,6 @@ enforces every rule the lint knows, not the two a hand-written regex remembered.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from fnmatch import fnmatchcase
 import json
 from hashlib import sha256
@@ -25,6 +24,10 @@ import sys
 from types import ModuleType
 from typing import Mapping, Sequence, cast
 
+from shell_reading import (  # noqa: F401
+    WriteScan, bare_engage, command_words, hidden_engage, mutation_paths,
+    readonly_command, scan_command, simple_words,
+)
 from method_guard_support import (
     JsonObject,
     NO_MEMO,
@@ -37,25 +40,8 @@ ROUTE_TOKEN = re.compile(r"(?<![\w-])[$/](plan-flow|implement-flow)(?![\w-])")
 BOOTSTRAP = re.compile(r"\.unlazy/[a-z0-9][a-z0-9-]*/(?:METHOD\.json|GATES\.md)\Z")
 ALWAYS_WRITABLE = ("MEMORY.md",)
 PINNED_ROOTS = ("vendor/agent-sources/", ".agents/skills/")
-MUTATING_COMMANDS = frozenset({
-    "cp", "mv", "rm", "touch", "mkdir", "install", "tee", "truncate", "chmod", "dd",
-})
-READONLY_COMMANDS = frozenset({
-    "cat", "find", "grep", "head", "ls", "pwd", "readlink", "rg", "sed", "stat",
-    "tail", "test", "wc", "diff", "echo", "which",
-})
-READONLY_GIT = frozenset({"diff", "log", "show", "status", "branch", "blame"})
-REDIRECT = re.compile(r"(?:^|\s)(?:>>?|[12]>)\s*([^\s;&|]+)")
 _UNSLOP: ModuleType | None = None
 _CLEAN: ModuleType | None = None
-
-
-@dataclass(frozen=True)
-class WriteScan:
-    """What a tool call can change: nothing, named paths, or something opaque."""
-
-    kind: str
-    paths: tuple[str, ...] = ()
 
 
 def lint_candidates(root: Path) -> list[Path]:
@@ -153,127 +139,43 @@ def owned(path: str, patterns: Sequence[str]) -> bool:
                (pattern.endswith("/**") and path == pattern[:-3]) for pattern in patterns)
 
 
+AGENT_DOCUMENTS = re.compile(
+    r"(?:^|/)(?:SKILL\.md|AGENTS\.md|CLAUDE\.md)\Z|(?:^|/)design/.*\.md\Z")
+WRITING_LAW = "writing-for-agents"
+
+
+def agent_documents(paths: Sequence[str]) -> list[str]:
+    """Return the paths that are documents another agent will read as instructions."""
+    return [path for path in paths if AGENT_DOCUMENTS.search(path)]
+
+
+def require_writing_law(paths: Sequence[str], contract: JsonObject) -> None:
+    """Refuse to write an agent-facing document without its authoring method.
+
+    `writing-for-agents` governs every skill, contract and plan. Checking it only
+    on subagent briefs left the documents themselves unguarded, which is the
+    larger half of what the skill covers.
+    """
+    documents = agent_documents(paths)
+    if not documents:
+        return
+    laws = contract.get("standing_laws")
+    if not isinstance(laws, list) or WRITING_LAW not in laws:
+        raise ValueError(
+            f"Writing {documents[0]!r} needs ${WRITING_LAW} in this route's standing_laws, "
+            f"and the contract lists {laws!r}. Add it, then engage again so its text arrives."
+        )
+
+
 def validate_write_paths(paths: Sequence[str], contract: JsonObject) -> None:
     """Refuse a write to pinned sources or outside the contract's ownership."""
+    require_writing_law(paths, contract)
     patterns = path_list(contract.get("owns"), "owns")
     for path in paths:
         if path.startswith(PINNED_ROOTS):
             raise ValueError(f"Direct writes to pinned or canonical sources are denied: {path}")
         if not owned(path, patterns):
             raise ValueError(f"Write path {path!r} is outside METHOD.json owns {patterns!r}")
-
-
-def command_words(command: str) -> list[str] | None:
-    """Split a shell command, or None when it cannot be parsed."""
-    try:
-        return shlex.split(command)
-    except ValueError:
-        return None
-
-
-HEREDOC = re.compile(r"<<-?\s*['\"]?([A-Za-z_][A-Za-z0-9_]*)['\"]?")
-
-
-def strip_heredocs(command: str) -> str:
-    """Remove heredoc bodies before reading a command as shell syntax.
-
-    A heredoc body is data. Left in, a Python comparison such as
-    `if lines OPERATOR MAX:` reads as a shell redirect and the guard denies a
-    write to a path that never existed.
-    """
-    match = HEREDOC.search(command)
-    if match is None:
-        return command
-    marker = match.group(1)
-    lines = command.splitlines()
-    kept: list[str] = []
-    inside = False
-    for line in lines:
-        if inside:
-            inside = line.strip() != marker
-            continue
-        kept.append(line)
-        inside = bool(HEREDOC.search(line))
-    return "\n".join(kept)
-
-
-UNRESOLVED = re.compile(r"[$`]|~[^/\s]")
-
-
-def resolvable(path: str) -> bool:
-    """Report whether a write target can be resolved without running a shell.
-
-    A target holding a shell variable or a command substitution has no literal
-    value here. Treating it as a repository-relative path denied a write to the
-    scratchpad that the path never named.
-    """
-    return not UNRESOLVED.search(path)
-
-
-def command_write_paths(command: str) -> list[str] | None:
-    """Return the paths a shell command writes, or None when it names none."""
-    command = strip_heredocs(command)
-    words = command_words(command)
-    if words is None:
-        return []
-    executable = Path(words[0]).name if words else ""
-    redirects = REDIRECT.findall(command)
-    if executable in MUTATING_COMMANDS or (executable == "sed" and "-i" in words):
-        return [word for word in words[1:] if not word.startswith("-")] + redirects
-    if redirects:
-        return redirects
-    return [] if ">" in command else None
-
-
-def scan_command(command: str) -> WriteScan:
-    """Classify one shell command by what it can change.
-
-    Three outcomes, not two. A read changes nothing and needs no route. A write
-    with named targets is checked against ownership. Anything else is opaque:
-    `python build.py` may write, so it needs the method in context even though
-    no path can be checked.
-    """
-    if readonly_command(command):
-        return WriteScan("none")
-    paths = command_write_paths(command)
-    if paths is None:
-        return WriteScan("opaque")
-    if not paths:
-        return WriteScan("unparsed")
-    return classify_paths(paths, command)
-
-
-CHANGES_DIRECTORY = re.compile(r"(?:^|[;&|]\s*)cd\s")
-
-
-def classify_paths(paths: Sequence[str], command: str = "") -> WriteScan:
-    """Return a scan for named targets, opaque when any cannot be resolved.
-
-    A command that changes directory moves where its relative paths land, and
-    the hook payload only carries the session's own working directory. Rather
-    than resolve such a path against the wrong root, treat the write as opaque
-    so the method is still required and no false owner is invented.
-    """
-    relative = [path for path in paths if not path.startswith("/")]
-    if relative and CHANGES_DIRECTORY.search(command):
-        return WriteScan("opaque")
-    if not all(resolvable(path) for path in paths):
-        return WriteScan("opaque")
-    return WriteScan("paths", tuple(paths))
-
-
-def readonly_command(command: str) -> bool:
-    """Report whether a command is a plain read that needs no route."""
-    command = strip_heredocs(command)
-    if re.search(r"[;&|><`]", command):
-        return False
-    words = command_words(command)
-    if not words:
-        return False
-    executable = Path(words[0]).name
-    if executable in READONLY_COMMANDS:
-        return True
-    return executable == "git" and len(words) > 1 and words[1] in READONLY_GIT
 
 
 def brief_rules() -> tuple[tuple[re.Pattern[str], str], ...]:
@@ -443,15 +345,26 @@ def clean_code_findings(paths: Sequence[Path], root: Path) -> list[str]:
     return [f"{row.path}:{row.line} {row.rule}: {row.message}" for row in rows]
 
 
-def clean_code_violation(root: Path) -> str | None:
-    """Return the Akita violations in the current diff, or None when it is clean."""
-    lint = clean_code_module(root)
-    findings = clean_code_findings(lint.changed_files("HEAD"), root)
+def clean_code_violation(root: Path, written: Sequence[str]) -> str | None:
+    """Return the Akita violations in what this session wrote.
+
+    Scoped to this session's own writes rather than the whole diff. A gate that
+    linted every changed file blocked a turn over inherited code the session
+    never touched, which is noise, not enforcement.
+
+    One honest gap. A file written through an opaque shell command is not
+    recorded here, because the guard no longer parses commands for paths. Such a
+    write still requires the method in context; it just escapes this file lint.
+    """
+    if not written:
+        return None
+    paths = [root / name for name in written]
+    findings = clean_code_findings(paths, root)
     if not findings:
         return None
     listed = "\n".join(findings[:12])
-    return ("clean-code-for-agents refuses this diff. Fix these before finishing:\n"
-            f"{listed}")
+    return ("clean-code-for-agents refuses what this session wrote. "
+            f"Fix these before finishing:\n{listed}")
 
 
 STANDING_LAWS = (

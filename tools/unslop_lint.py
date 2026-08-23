@@ -34,6 +34,7 @@ CODE_SPAN = re.compile(r"`[^`\n]*`")
 URL = re.compile(r"(?:https?|file)://\S+")
 HEADING = re.compile(r"^(#{1,6})\s+(.*?)\s*$")
 BULLET = re.compile(r"^\s*(?:[-*+]|\d+\.)\s")
+INDENTED_CODE = re.compile(r"^(?: {4}|\t)\S")
 CAPITALIZED = re.compile(r"^[A-Z][a-z]+$")
 COLON = re.compile(r"(?<![:\d]):(?![:/\d])")
 WORD = re.compile(r"[A-Za-z][\w'-]*")
@@ -67,6 +68,9 @@ def read_allowlist(path: Path = ALLOWLIST_PATH) -> frozenset[str]:
 def mask_regions(text: str) -> list[str]:
     """Blank out code, frontmatter and verbatim blocks, keeping the line count.
 
+    An indented block is Markdown code just as a fenced one is. Reading it as
+    prose made `git diff HEAD -- path` fail rule 13 on its own path separator.
+
     A verbatim block is upstream text this repository copies byte-identically
     (the OptMem and Akita blocks in AGENTS.md). Rewriting it would break the
     digest check that keeps AGENTS.md and CLAUDE.md in step, so it is exempt.
@@ -80,7 +84,8 @@ def mask_regions(text: str) -> list[str]:
         in_frontmatter = frontmatter_state(in_frontmatter, index, line)
         in_fence, unfenced = fence_state(in_fence, line)
         in_verbatim, quotable = verbatim_state(in_verbatim, line)
-        skip = in_frontmatter or not unfenced or not quotable
+        skip = (in_frontmatter or not unfenced or not quotable
+                or INDENTED_CODE.match(line) is not None)
         masked.append("" if skip else line)
     return masked
 

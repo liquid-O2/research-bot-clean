@@ -76,6 +76,7 @@ class ShellReadingTests(unittest.TestCase):
             "python3 -c pass .codex/hooks/method_guard.py engage fixture",
             "/tmp/python3 .codex/hooks/method_guard.py engage fixture",
             "python3 /tmp/method_guard.py engage fixture",
+            "python3 scratch/.codex/hooks/method_guard.py engage fixture",
         )
 
         self.assertTrue(bare_engage(plain))

@@ -33,6 +33,7 @@ from agent_harness_verify_runtime import (
 from agent_harness_verify_static import (
     verify_agents,
     verify_agents_toml,
+    verify_contract,
     verify_archive,
     verify_hooks,
     verify_provenance,
@@ -46,6 +47,7 @@ CHECKS: dict[str, tuple[str, Callable[[], str]]] = {
     "skills": ("SKILLS", verify_skills),
     "codex-skills": ("CODEX SKILLS", verify_codex_skills),
     "agents": ("AGENTS", verify_agents),
+    "contract": ("CONTRACT", verify_contract),
     "hooks": ("HOOKS", verify_hooks),
     "lifecycle": ("LIFECYCLE", verify_lifecycle),
     "agents-toml": ("AGENT TOML", verify_agents_toml),

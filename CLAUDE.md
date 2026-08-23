@@ -63,17 +63,23 @@ Before writing a skill, a contract, or a plan, read `$writing-for-agents`. It go
 <!-- AGENT_METHOD_BLOCK_END -->
 
 <!-- CLIENT_BLOCK_BEGIN -->
-## Codex specifics
+## Claude Code specifics
 
-`$name` names a skill under `.agents/skills`. Codex loads that directory
-directly.
+`$name` names the skill `name`. Invoke it with the Skill tool or `/name`. The
+canonical skills reach Claude as symlinks at `.claude/skills`, rebuilt by
+`python3 tools/install_claude_skills.py`.
 
-`.codex/hooks.json` is the only repository hook source. Codex `.rules` files
-govern shell permissions only, so this repository does not use them for
-behavior.
+Type `$plan-flow` rather than entering built-in plan mode. The guard reads the
+route from your prompt and infers nothing from the permission mode.
 
-Routine implementation subagents run `gpt-5.6-sol` at medium reasoning. Reserve
-higher reasoning for architecture, ambiguous failures, and final review.
+`.claude/settings.json` is the only repository hook source.
+`.claude/settings.local.json` holds personal settings and ships nothing.
+
+Every subagent runs as `method-worker`, which pins Opus 5 at medium effort and
+preloads `unslop`, `clean-code-for-agents`, `writing-for-agents` and `unlazy`.
+
+The repository `code-review` skill replaces the bundled `/code-review` on
+purpose, because `$implement-flow` selects the Pocock method at its review step.
 <!-- CLIENT_BLOCK_END -->
 
 <!-- AKITA_UPSTREAM_BLOCK_BEGIN -->

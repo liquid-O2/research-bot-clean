@@ -12,8 +12,9 @@ from pathlib import Path
 from typing import Final, Sequence
 
 from agent_harness_sources import HOME, OPT_MEM, PINS, VENDOR_ROOT, WORKSPACE, SourcePin, pinned_runtime_error
+from render_agent_contract import render as render_contract
+from render_agent_contract import write_all as render_all_contracts
 from agent_harness_verify_common import (
-    AGENT_ROUTING,
     archived_relative,
     archive_kind,
     atomic_write,
@@ -246,26 +247,14 @@ def build_active_skills() -> list[str]:
     return render_active_skills(WORKSPACE / ".agents/skills")
 
 
-def exact_optmem_block() -> bytes:
-    return (TEMPLATES / "optmem-agent-block.md").read_bytes()
-
-
-def exact_akita_block() -> bytes:
-    article = next(pin.installed for pin in PINS if pin.name == "akita") / "content/2026/04/20/clean-code-para-agentes-de-ia/index.en.md"
-    return b"".join(article.read_bytes().splitlines(keepends=True)[174:224])
-
-
 def agents_document() -> bytes:
-    optmem = exact_optmem_block().decode()
-    akita = exact_akita_block().decode()
-    content = ("<!-- OPTMEM_UPSTREAM_BLOCK_BEGIN -->\n" + optmem +
-               "<!-- OPTMEM_UPSTREAM_BLOCK_END -->\n" + AGENT_ROUTING + "\n" +
-               "<!-- AKITA_UPSTREAM_BLOCK_BEGIN -->\n" + akita +
-               "<!-- AKITA_UPSTREAM_BLOCK_END -->\n")
-    encoded = content.encode()
-    if len(encoded) >= 32 * 1024:
-        raise ValueError(f"AGENTS.md bytes offending={len(encoded)}; expected less than 32768")
-    return encoded
+    """Render the Codex contract through the one shared renderer."""
+    return render_contract("codex")
+
+
+def write_client_contracts() -> dict[str, int]:
+    """Write every client contract from the shared blocks."""
+    return render_all_contracts()
 
 
 def codex_hook_templates() -> list[Path]:

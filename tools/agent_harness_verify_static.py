@@ -11,6 +11,7 @@ import tomllib
 from pathlib import Path
 from typing import cast
 
+from render_agent_contract import render as render_contract
 from agent_harness_verify_common import (
     AKITA_BLOCK_SHA256,
     AKITA_MARKERS,
@@ -18,8 +19,11 @@ from agent_harness_verify_common import (
     NO_MEMO_LINE,
     OPT_MEM,
     OPT_MEM_SHA256,
-    OPTMEM_BLOCK_SHA256,
-    OPTMEM_MARKERS,
+    AGENT_METHOD_MARKERS,
+    CLIENT_MARKERS,
+    CONTRACTS,
+    MEMORY_MARKERS,
+    SHARED_MARKERS,
     PINNED_COMMITS,
     PINNED_VENDOR_HASHES,
     ROOT,
@@ -41,6 +45,10 @@ from agent_harness_verify_common import (
 
 UPSTREAM_RECEIPT_FIELDS = {
     "source", "commit", "status", "commands_json", "exit_codes_json", "output_sha256",
+}
+REQUIRED_HOOK_EVENTS = {
+    "SessionStart", "UserPromptSubmit", "PreToolUse", "SubagentStart",
+    "SubagentStop", "PreCompact", "PostCompact", "Stop",
 }
 
 
@@ -172,12 +180,31 @@ def user_duplicate_skills(public_names: dict[str, str]) -> list[str]:
             if entry.is_symlink() and entry.name in public_names]
 
 
-def validate_skill_authorities(authority: Path) -> None:
+def validate_skill_authorities(authority: Path, names: list[str]) -> None:
+    """Check `.agents/skills` is the only place a skill body lives."""
     require(authority.is_dir(), "skills.authority", str(authority),
             "existing /workspace/.agents/skills")
-    for forbidden in (ROOT / ".codex/skills", ROOT / ".claude/skills"):
-        require(not os.path.lexists(forbidden), "skills.forbidden-authority",
-                str(forbidden), "absent path")
+    require(not os.path.lexists(ROOT / ".codex/skills"), "skills.forbidden-authority",
+            str(ROOT / ".codex/skills"), "absent path")
+    validate_client_links(ROOT / ".claude/skills", authority, names)
+
+
+def validate_client_links(mirror: Path, authority: Path, names: list[str]) -> None:
+    """Check a client mirror holds only links, and one per active skill.
+
+    A real directory here would be a second skill body, which is exactly what
+    the single-authority rule forbids. A link is the same bytes, so it is fine.
+    """
+    if not mirror.is_dir():
+        return
+    entries = sorted(entry for entry in mirror.iterdir() if not entry.name.startswith("."))
+    bodies = [str(entry) for entry in entries if not entry.is_symlink()]
+    require(not bodies, "skills.client-bodies", bodies, "only symlinks in a client mirror")
+    strays = [str(entry) for entry in entries
+              if not entry.resolve().is_relative_to(authority.resolve())]
+    require(not strays, "skills.client-targets", strays, f"links into {authority}")
+    linked = sorted(entry.name for entry in entries)
+    require(linked == names, "skills.client-names", linked, str(names))
 
 
 def validate_inventory_names(actual_names: list[str], receipt: dict[str, object]) -> None:
@@ -193,9 +220,9 @@ def verify_skills() -> str:
     """Check active skill authority. Example: verify_skills()."""
     receipt = load_install_receipt()
     authority = ROOT / ".agents/skills"
-    validate_skill_authorities(authority)
     entries = sorted(authority.iterdir(), key=lambda path: path.name)
     actual_names = [entry.name for entry in entries]
+    validate_skill_authorities(authority, actual_names)
     validate_inventory_names(actual_names, receipt)
     public_names: dict[str, str] = {}
     for entry in entries:
@@ -218,31 +245,68 @@ def marker_interior(raw: bytes, markers: tuple[str, str], name: str) -> bytes:
     return raw[start + len(opening):stop]
 
 
-def read_agents_document() -> bytes:
-    path = ROOT / "AGENTS.md"
-    require(path.is_file(), "agents.path", str(path), "existing AGENTS.md")
+def read_contract(name: str) -> bytes:
+    """Read one client contract, naming it exactly when it is missing."""
+    path = ROOT / name
+    require(path.is_file(), "contract.path", str(path), f"existing {name}")
     return path.read_bytes()
 
 
-def verify_agents() -> str:
-    """Check AGENTS.md wiring. Example: verify_agents()."""
-    load_install_receipt()
-    raw = read_agents_document()
-    require(len(raw) < 32 * 1024, "agents.bytes", len(raw), "less than 32768")
-    optmem = marker_interior(raw, OPTMEM_MARKERS, "agents.optmem-markers")
-    akita = marker_interior(raw, AKITA_MARKERS, "agents.akita-markers")
-    require(sha256_bytes(optmem) == OPTMEM_BLOCK_SHA256, "agents.optmem-block",
-            sha256_bytes(optmem), OPTMEM_BLOCK_SHA256)
-    require(sha256_bytes(akita) == AKITA_BLOCK_SHA256, "agents.akita-block",
+def validate_akita_source(raw: bytes) -> None:
+    """Check the Akita block against its pin and against the vendored article."""
+    akita = marker_interior(raw, AKITA_MARKERS, "contract.akita-markers")
+    require(sha256_bytes(akita) == AKITA_BLOCK_SHA256, "contract.akita-block",
             sha256_bytes(akita), AKITA_BLOCK_SHA256)
     article = SOURCE_PATHS["akita"] / "content/2026/04/20/clean-code-para-agentes-de-ia/index.en.md"
-    require(article.is_file(), "agents.akita-source", str(article), "vendored Akita article")
+    require(article.is_file(), "contract.akita-source", str(article), "vendored Akita article")
     source_block = b"".join(article.read_bytes().splitlines(keepends=True)[174:224])
-    require(akita == source_block, "agents.akita-source-block",
+    require(akita == source_block, "contract.akita-source-block",
             sha256_bytes(akita), sha256_bytes(source_block))
-    require(raw.count(UNSLOP_LAW.encode()) == 1, "agents.unslop-law",
+
+
+def validate_contract_document(client: str, name: str, raw: bytes) -> None:
+    """Check one contract against the renderer, its size cap, and the unslop law."""
+    require(len(raw) < 32 * 1024, f"contract.{client}.bytes", len(raw), "less than 32768")
+    rendered = render_contract(client)
+    require(raw == rendered, f"contract.{client}.rendered",
+            sha256_bytes(raw), sha256_bytes(rendered))
+    require(raw.count(UNSLOP_LAW.encode()) == 1, f"contract.{client}.unslop-law",
             raw.count(UNSLOP_LAW.encode()), "exact mandated sentence once")
-    return f"bytes={len(raw)} optmem_sha256={OPTMEM_BLOCK_SHA256} akita_sha256={AKITA_BLOCK_SHA256}"
+    validate_akita_source(raw)
+
+
+def shared_digests(raw: bytes, label: str) -> dict[str, str]:
+    """Return the digest of every block both clients must share."""
+    return {markers[0]: sha256_bytes(marker_interior(raw, markers, label))
+            for markers in SHARED_MARKERS}
+
+
+def validate_shared_blocks(documents: dict[str, bytes]) -> None:
+    """Check the shared blocks are byte-identical and the client blocks are not."""
+    digests = {name: shared_digests(raw, f"contract.{name}") for name, raw in documents.items()}
+    reference = next(iter(digests.values()))
+    for name, rows in digests.items():
+        require(rows == reference, f"contract.{name}.shared-blocks", rows, reference)
+    clients = {sha256_bytes(marker_interior(raw, CLIENT_MARKERS, f"contract.{name}"))
+               for name, raw in documents.items()}
+    require(len(clients) == len(documents), "contract.client-blocks", len(clients),
+            f"one distinct client block per contract ({len(documents)})")
+
+
+def verify_agents() -> str:
+    """Check every client contract. Example: verify_agents()."""
+    load_install_receipt()
+    documents = {name: read_contract(name) for name in CONTRACTS.values()}
+    for client, name in CONTRACTS.items():
+        validate_contract_document(client, name, documents[name])
+    validate_shared_blocks(documents)
+    sizes = " ".join(f"{name}={len(raw)}" for name, raw in sorted(documents.items()))
+    return f"{sizes} shared_blocks={len(SHARED_MARKERS)} akita_sha256={AKITA_BLOCK_SHA256}"
+
+
+def verify_contract() -> str:
+    """Alias so `verify_agent_harness.py contract` reads naturally."""
+    return verify_agents()
 
 
 def event_commands(event: str, groups: object) -> list[str]:
@@ -265,17 +329,21 @@ def hook_commands(config: dict[str, object]) -> dict[str, list[str]]:
     require(set(config) == {"hooks"} and isinstance(config["hooks"], dict),
             "hooks.schema", sorted(config), "top-level hooks object")
     hooks = cast(dict[str, object], config["hooks"])
-    required_events = {"SessionStart", "PreCompact", "PostCompact", "Stop"}
-    require(required_events <= set(hooks), "hooks.events", sorted(hooks),
-            f"events including {sorted(required_events)}")
-    require("UserPromptSubmit" not in hooks, "hooks.semantic-router",
-            "UserPromptSubmit", "absent event")
+    require(set(hooks) == REQUIRED_HOOK_EVENTS, "hooks.events", sorted(hooks),
+            str(sorted(REQUIRED_HOOK_EVENTS)))
     commands = {event: event_commands(event, groups) for event, groups in hooks.items()}
-    for event in required_events:
+    for event in REQUIRED_HOOK_EVENTS:
         require(commands[event], f"hooks.{event}.handlers", 0, "at least one handler")
     require(len(commands["Stop"]) == 1, "hooks.Stop.handlers",
             len(commands["Stop"]), "exactly one")
     return commands
+
+
+def expected_live_hook_inventory() -> tuple[set[str], int]:
+    config = load_json_object(ROOT / ".codex/hooks.json", "hooks.json")
+    commands = hook_commands(config)
+    events = {event[0].lower() + event[1:] for event in commands}
+    return events, sum(len(handlers) for handlers in commands.values())
 
 
 def command_scripts(command: str) -> dict[Path, str]:
@@ -313,11 +381,13 @@ def verify_script_syntax(script: Path, executable: str) -> None:
 def verify_hooks() -> str:
     """Check hook definitions and scripts. Example: verify_hooks()."""
     commands = hook_commands(load_json_object(ROOT / ".codex/hooks.json", "hooks.json"))
+    template = hook_commands(load_json_object(
+        ROOT / "tools/harness_templates/hooks.json", "hooks-template.json",
+    ))
+    require(commands == template, "hooks.template", commands, str(template))
     flattened = [command for values in commands.values() for command in values]
     require(not any(".claude" in command for command in flattened),
             "hooks.claude-command", flattened, "no active .claude command")
-    require(not any("user-prompt" in command.lower() for command in flattened),
-            "hooks.semantic-router", flattened, "no semantic prompt router command")
     scripts: dict[Path, str] = {}
     for command in flattened:
         scripts.update(command_scripts(command))

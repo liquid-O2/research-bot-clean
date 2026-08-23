@@ -64,32 +64,73 @@ UNSLOP_LAW = (
     "Pstack's exact `unslop` skill is mandatory for every user-visible sentence. "
     "Read and follow it before writing commentary, questions, updates, or final replies."
 )
-AGENT_ROUTING = f"""
-
-# Agent method
+AGENT_ROUTING = f"""# Agent method
 
 {UNSLOP_LAW}
+
+`unslop` also governs every line you write to `MEMORY.md`. The ledger lints each line and refuses one that fails.
 
 For substantial work, read and follow `$unlazy` before work and before any done claim. Use its file-backed gates and exact Stop hook.
 
 Pstack owns the outer development method. Read `$poteto-mode`, its matching pristine playbook, and every applicable `principle-*` skill before planning or implementation. The 21 Pstack principles are binding when their stated condition matches.
 
-Use `$plan-flow` when the user invokes it. Pstack owns the plan. Exact Pocock planning skills resolve decisions inside that plan. Stop before implementation.
+Use `$plan-flow` for planning. It replaces the client's built-in plan mode. Pstack owns the plan. Exact Pocock planning skills resolve decisions inside that plan. Stop before implementation.
 
-Use `$implement-flow` when the user invokes it. Pstack owns the implementation playbook. Exact Pocock Implement, Pocock TDD, and code review run only at the playbook steps that select them.
+Use `$implement-flow` for implementation. Pstack owns the implementation playbook. Exact Pocock Implement, Pocock TDD, and code review run only at the playbook steps that select them.
+
+A repository write with no declared route selects `$implement-flow`. The method guard denies that write until the route's exact sources have entered the session. Recover by writing `.unlazy/<scope>/METHOD.json` and its `GATES.md`, then running the engage command the denial names.
+
+Compaction clears the guard's record. Those exact sources must enter the session again before the next write, whatever you still remember of them.
 
 Pstack owns unqualified `$tdd` and `$teach`. Pocock's colliding skills are `$pocock-tdd` and `$pocock-teach`. Preserve both upstream testing methods. Do not merge them or add another test process.
 
 Before production code, read `$clean-code-for-agents`. Akita is the primary code standard. Ousterhout adds deep modules only where a smaller interface removes knowledge from callers. Karpathy and Bigpowers add only compatible rules that fill a named gap.
 
-Before every subagent brief, read `$writing-for-agents`. Every subagent brief must contain exactly: `You are a subagent. Don't run memo.` Subagents inherit the parent's live Codex permission mode.
+Before every subagent brief, read `$writing-for-agents`. Every subagent brief must contain exactly: `{NO_MEMO_LINE}` Subagents inherit the parent's live permission mode.
 
-`.agents/skills` is the only repository skill authority. `.codex/hooks.json` is the only repository hook source. Codex `.rules` files govern shell permissions only, so this repository does not use them for behavior.
+Before writing a skill, a contract, or a plan, read `$writing-for-agents`. It governs every document an agent consumes.
+
+`.agents/skills` is the only repository skill authority. Read a skill there, or through the client link pointing at it, and change neither.
 """
-OPTMEM_MARKERS = ("<!-- OPTMEM_UPSTREAM_BLOCK_BEGIN -->", "<!-- OPTMEM_UPSTREAM_BLOCK_END -->")
+MEMORY_MARKERS = ("<!-- MEMORY_BLOCK_BEGIN -->", "<!-- MEMORY_BLOCK_END -->")
+AGENT_METHOD_MARKERS = ("<!-- AGENT_METHOD_BLOCK_BEGIN -->", "<!-- AGENT_METHOD_BLOCK_END -->")
+CLIENT_MARKERS = ("<!-- CLIENT_BLOCK_BEGIN -->", "<!-- CLIENT_BLOCK_END -->")
 AKITA_MARKERS = ("<!-- AKITA_UPSTREAM_BLOCK_BEGIN -->", "<!-- AKITA_UPSTREAM_BLOCK_END -->")
-OPTMEM_BLOCK_SHA256 = "e5ac83cc88c7d339de305bbf5e29fedd5fc674470530973c7c78269494cbc17a"
 AKITA_BLOCK_SHA256 = "1a10a1a50fdb9d6c6bac1a06b056f2f8d4cbd0076aa76e72205344893e1567e6"
+SHARED_MARKERS = (MEMORY_MARKERS, AGENT_METHOD_MARKERS, AKITA_MARKERS)
+CONTRACTS = {"codex": "AGENTS.md", "claude": "CLAUDE.md"}
+CLIENT_BLOCKS = {
+    "codex": """## Codex specifics
+
+`$name` names a skill under `.agents/skills`. Codex loads that directory
+directly.
+
+`.codex/hooks.json` is the only repository hook source. Codex `.rules` files
+govern shell permissions only, so this repository does not use them for
+behavior.
+
+Routine implementation subagents run `gpt-5.6-sol` at medium reasoning. Reserve
+higher reasoning for architecture, ambiguous failures, and final review.
+""",
+    "claude": """## Claude Code specifics
+
+`$name` names the skill `name`. Invoke it with the Skill tool or `/name`. The
+canonical skills reach Claude as symlinks at `.claude/skills`, rebuilt by
+`python3 tools/install_claude_skills.py`.
+
+Type `$plan-flow` rather than entering built-in plan mode. The guard reads the
+route from your prompt and infers nothing from the permission mode.
+
+`.claude/settings.json` is the only repository hook source.
+`.claude/settings.local.json` holds personal settings and ships nothing.
+
+Every subagent runs as `method-worker`, which pins Opus 5 at medium effort and
+preloads `unslop`, `clean-code-for-agents`, `writing-for-agents` and `unlazy`.
+
+The repository `code-review` skill replaces the bundled `/code-review` on
+purpose, because `$implement-flow` selects the Pocock method at its review step.
+""",
+}
 BASELINE_CLASS_KEYS = {
     "tracked_deletions", "tracked_modifications", "staged_additions",
     "ignored_inputs", "removed_or_quarantined_scratch",

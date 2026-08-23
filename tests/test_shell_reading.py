@@ -8,7 +8,7 @@ import unittest
 HOOKS = Path(__file__).resolve().parents[1] / "tools/harness_templates/hooks"
 sys.path.insert(0, str(HOOKS))
 
-from shell_reading import WriteScan, scan_command  # noqa: E402
+from shell_reading import WriteScan, bare_engage, hidden_engage, scan_command  # noqa: E402
 
 
 PROVEN_READS = (
@@ -60,6 +60,19 @@ class ShellReadingTests(unittest.TestCase):
         command = "python3 tools/memory_ledger.py note 'one lasting fact'"
 
         self.assertEqual(scan_command(command), WriteScan("paths", ("MEMORY.md",)))
+
+    def test_engage_requires_one_plain_operator_free_command(self) -> None:
+        plain = "python3 .codex/hooks/method_guard.py engage fixture"
+        hidden = (
+            f"{plain}; touch bypass",
+            f"{plain}$(touch bypass)",
+        )
+
+        self.assertTrue(bare_engage(plain))
+        for command in hidden:
+            with self.subTest(command=command):
+                self.assertFalse(bare_engage(command))
+                self.assertTrue(hidden_engage(command))
 
 
 if __name__ == "__main__":

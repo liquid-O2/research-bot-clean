@@ -478,7 +478,10 @@ def _unlazy_block(payload: dict) -> bool:
             sys.path.insert(0, "/workspace/tools")
         from unlazy_gates import unlazy_stop_verdict
         cwd = Path(payload.get("cwd") or "/workspace")
-        unmet, digest = unlazy_stop_verdict(cwd)
+        # Scoped to THIS session's ledgers: two agents in one directory must not
+        # wall each other (defect found 2026-08-23).
+        unmet, digest = unlazy_stop_verdict(
+            cwd, session=(payload.get("session_id") or "nosession")[:64])
     except Exception as exc:  # a broken wall must never trap a session
         log(f"unlazy scan skipped: {exc!r}")
         return False

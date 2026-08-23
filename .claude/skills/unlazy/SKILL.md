@@ -107,6 +107,15 @@ a model call. Six consecutive blocks with an unchanged ledger release rather
 than trap; state lives in `/workspace/.unlazy-hook-state.json` (gitignored).
 Fixtures: `tools/test_skill_routing_gate.py --selftest` items 21-22.
 
+**Scope: a session is walled by ITS OWN ledgers** (defect found 2026-08-23).
+`GATES.md` is the session's primary ledger and is always enforced. A leaf under
+`gates/` walls this session only once this session has run the runner against it,
+which is exactly what orchestrated mode does when it verifies a leaf. Before that
+scoping, two agents working in `/workspace` walled each other: one session's
+in-flight leaf blocked the other's stop, and neither could clear a gate it did
+not own. Ownership is recorded per session under
+`.optmem/hook_state/unlazy_owned/`.
+
 It sits in front of the existing promise-catcher, so a turn must clear both:
 the ledger is full, and the final message does not promise work it did not
 start.

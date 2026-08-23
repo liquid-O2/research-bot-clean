@@ -18,6 +18,7 @@ Exit: 0 all met or honestly abandoned, 1 unmet remain, 2 usage/parse error.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import subprocess
 import sys
@@ -132,23 +133,69 @@ def unlazy_evidence_tail(output: str, limit: int = UNLAZY_EVIDENCE_MAX) -> str:
     return (" | ".join(lines[-2:]) or "(no output)")[:limit]
 
 
-def unlazy_gate_files(directory: Path) -> list[Path]:
-    """GATES.md plus gates/*.md, the two locations both unlazy scripts scan."""
+UNLAZY_OWNED_DIR = Path("/workspace/.optmem/hook_state/unlazy_owned")
+
+
+def unlazy_session_id() -> str:
+    """This session, for ledger ownership. The harness supplies it; a bare
+    fallback keeps the runner usable outside one."""
+    return (os.environ.get("UNLAZY_SESSION")
+            or os.environ.get("CLAUDE_SESSION_ID") or "nosession")[:64]
+
+
+def unlazy_claim(path: Path, session: str | None = None) -> None:
+    """Record that this session works this leaf ledger.
+
+    Scope defect found 2026-08-23: the wall scanned every gates/*.md under the
+    cwd, so two agents in /workspace walled each other. One session's in-flight
+    leaf blocked the other's stop, and neither could clear a gate it does not
+    own. A session is walled by ITS OWN ledgers.
+    """
+    try:
+        UNLAZY_OWNED_DIR.mkdir(parents=True, exist_ok=True)
+        marker = UNLAZY_OWNED_DIR / (session or unlazy_session_id())
+        seen = set(marker.read_text().splitlines()) if marker.exists() else set()
+        seen.add(str(path.resolve()))
+        marker.write_text("\n".join(sorted(seen)) + "\n")
+    except OSError:
+        pass          # ownership is an optimisation; never break the runner
+
+
+def unlazy_owned(session: str | None = None) -> set[str]:
+    try:
+        marker = UNLAZY_OWNED_DIR / (session or unlazy_session_id())
+        return set(marker.read_text().splitlines()) if marker.exists() else set()
+    except OSError:
+        return set()
+
+
+def unlazy_gate_files(directory: Path, session: str | None = None) -> list[Path]:
+    """This session's ledgers: GATES.md always, plus leaves it has worked.
+
+    GATES.md is the session's primary ledger and is always enforced. A leaf under
+    gates/ is enforced only once this session has actually run the runner against
+    it, which is what orchestrated mode does when it dispatches and verifies a
+    leaf. A leaf belonging to another agent in the same directory is therefore
+    that agent's wall, not this one's.
+    """
     found: list[Path] = []
     top = directory / "GATES.md"
     if top.exists():
         found.append(top)
     gdir = directory / "gates"
     if gdir.is_dir():
-        found.extend(sorted(p for p in gdir.iterdir() if p.suffix == ".md"))
+        owned = unlazy_owned(session)
+        found.extend(sorted(p for p in gdir.iterdir()
+                            if p.suffix == ".md" and str(p.resolve()) in owned))
     return found
 
 
-def unlazy_stop_verdict(directory: Path) -> tuple[list[str], str]:
+def unlazy_stop_verdict(directory: Path,
+                        session: str | None = None) -> tuple[list[str], str]:
     """(unmet gate ids, content hash) for the Stop wall. Empty list = allow."""
     unmet: list[str] = []
     combined = ""
-    for path in unlazy_gate_files(directory):
+    for path in unlazy_gate_files(directory, session):
         try:
             text = path.read_text(errors="replace")
         except OSError:
@@ -161,6 +208,11 @@ def unlazy_stop_verdict(directory: Path) -> tuple[list[str], str]:
 
 def unlazy_run_file(path: Path, status_only: bool, timeout_s: int) -> tuple[int, int, int]:
     """Run each unmet gate's CHECK, flip its box on EXPECT. -> (met, unmet, abandoned)."""
+    # Working a leaf is what claims it for this session. It lives here, not in
+    # the CLI wrapper, so any caller that runs a ledger is walled by it - the
+    # driver in orchestrated mode included.
+    if path.parent.name == "gates":
+        unlazy_claim(path)
     text = path.read_text(errors="replace")
     lines = text.split("\n")
     ledger = unlazy_parse_gates(text)
@@ -306,12 +358,45 @@ def unlazy_selftest() -> int:
 
         gdir = tmp / "gates"
         gdir.mkdir()
-        (gdir / "leaf.md").write_text("- [ ] L1: leaf\n  EVIDENCE: pending\n")
-        check("stop-verdict-scans-gates-dir", unlazy_stop_verdict(tmp)[0] == ["L1"])
-        first = unlazy_stop_verdict(tmp)[1]
-        (gdir / "leaf.md").write_text("- [ ] L1: leaf\n  EVIDENCE: pending\n  CHECK: true\n")
-        check("stop-verdict-hash-tracks-progress", unlazy_stop_verdict(tmp)[1] != first)
+        leaf = gdir / "leaf.md"
+        leaf.write_text("- [ ] L1: leaf\n  EVIDENCE: pending\n")
+        # A leaf this session has NOT worked belongs to whoever did: it must not
+        # wall us (scope defect, 2026-08-23 - two agents in one directory).
+        check("stop-verdict-ignores-unowned-leaf",
+              unlazy_stop_verdict(tmp, session="s-owner")[0] == [])
+        unlazy_claim(leaf, "s-owner")
+        check("stop-verdict-scans-owned-leaf",
+              unlazy_stop_verdict(tmp, session="s-owner")[0] == ["L1"])
+        check("stop-verdict-owner-is-per-session",
+              unlazy_stop_verdict(tmp, session="s-other")[0] == [],
+              "another session must not inherit this one's leaf")
+        first = unlazy_stop_verdict(tmp, session="s-owner")[1]
+        leaf.write_text("- [ ] L1: leaf\n  EVIDENCE: pending\n  CHECK: true\n")
+        check("stop-verdict-hash-tracks-progress",
+              unlazy_stop_verdict(tmp, session="s-owner")[1] != first)
 
+        UNLAZY_OWNED_DIR.joinpath("s-owner").unlink(missing_ok=True)
+        UNLAZY_OWNED_DIR.joinpath("s-other").unlink(missing_ok=True)
+        # RUNNING the runner against a leaf is what claims it. Without this the
+        # driver could work a leaf all day and never be walled by it, which
+        # silently disarms orchestrated mode.
+        import os as _os
+        prev = _os.environ.get("UNLAZY_SESSION")
+        _os.environ["UNLAZY_SESSION"] = "s-runner"
+        UNLAZY_OWNED_DIR.joinpath("s-runner").unlink(missing_ok=True)
+        claimed = tmp / "gates" / "claimed.md"
+        claimed.write_text("- [ ] C1: leaf\n  EVIDENCE: pending\n")
+        check("runner-does-not-claim-before-it-runs",
+              unlazy_stop_verdict(tmp, session="s-runner")[0] == [])
+        unlazy_run_file(claimed, status_only=True, timeout_s=5)
+        check("runner-claims-the-leaf-it-runs",
+              unlazy_stop_verdict(tmp, session="s-runner")[0] == ["C1"],
+              "the runner must claim a leaf it works, or the driver is never walled")
+        UNLAZY_OWNED_DIR.joinpath("s-runner").unlink(missing_ok=True)
+        if prev is None:
+            _os.environ.pop("UNLAZY_SESSION", None)
+        else:
+            _os.environ["UNLAZY_SESSION"] = prev
         noexpect = tmp / "gates" / "exit.md"
         noexpect.write_text("- [ ] E1: exit code decides\n  CHECK: true\n  EVIDENCE: pending\n")
         unlazy_run_file(noexpect, status_only=False, timeout_s=10)

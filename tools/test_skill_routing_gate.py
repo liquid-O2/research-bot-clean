@@ -330,10 +330,11 @@ def selftest() -> int:
     none_at_all = _stop_verdict({"README.md": "not a ledger\n"})
     check("unlazy-no-ledger-allows", none_at_all == {}, f"got {none_at_all!r}")
 
+    # A leaf under gates/ walls this session only once this session has worked
+    # it (scope defect 2026-08-23: two agents in one directory walled each
+    # other). Unowned, it is somebody else's ledger and must not block us.
     leafed = _stop_verdict({"gates/leaf-a.md": "- [ ] L1: leaf\n  EVIDENCE: pending\n"})
-    check("unlazy-scans-gates-dir",
-          leafed.get("decision") == "block" and "L1" in leafed.get("reason", ""),
-          f"got {leafed!r}")
+    check("unlazy-unowned-leaf-does-not-block", leafed == {}, f"got {leafed!r}")
 
     # Release valve: MAX_BLOCKS consecutive stops with an unchanged ledger must
     # let the session go rather than trap it.
@@ -361,6 +362,35 @@ def selftest() -> int:
     check("unlazy-do_stop-emits-block",
           wired.get("decision") == "block" and "W1" in wired.get("reason", ""),
           f"got {wired!r}")
+    mod.UNLAZY_STATE.unlink(missing_ok=True)
+
+    # 21c. D-111 scope defect, found 2026-08-23: the wall scanned every
+    # gates/*.md under the cwd, so two agents working in /workspace walled each
+    # other - one session's in-flight leaf ledger blocked the other's stop, and
+    # neither could clear a gate it does not own. A session is walled by ITS OWN
+    # ledgers: GATES.md always, plus any leaf ledger this session has actually
+    # run the runner against.
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        (root / "GATES.md").write_text("- [x] M1: mine\n  EVIDENCE: done\n")
+        (root / "gates").mkdir()
+        (root / "gates" / "someone-else.md").write_text(
+            "- [ ] X1: another session's leaf\n  EVIDENCE: pending\n")
+        mod.UNLAZY_STATE.unlink(missing_ok=True)
+        foreign = _stdout(mod._unlazy_block, {"cwd": str(root), "session_id": "mine"})
+        check("unlazy-foreign-ledger-does-not-wall-me", foreign == {}, f"got {foreign!r}")
+
+        # But a leaf this session HAS worked is enforced, so orchestrated mode
+        # still walls its own driver.
+        import subprocess
+        subprocess.run([sys.executable, "/workspace/tools/unlazy_gates.py", "--status",
+                        str(root / "gates" / "someone-else.md")],
+                       capture_output=True, env={**os.environ, "UNLAZY_SESSION": "mine"})
+        mod.UNLAZY_STATE.unlink(missing_ok=True)
+        owned = _stdout(mod._unlazy_block, {"cwd": str(root), "session_id": "mine"})
+        check("unlazy-own-leaf-still-walls-me",
+              owned.get("decision") == "block" and "X1" in owned.get("reason", ""),
+              f"got {owned!r}")
     mod.UNLAZY_STATE.unlink(missing_ok=True)
 
     # 22. The routing table names unlazy in BOTH always-on files (SKILLS.md law).

@@ -322,6 +322,48 @@ class AgentDocumentTests(unittest.TestCase):
         rules.require_writing_law([".agents/skills/x/SKILL.md"], self.LAWFUL)
 
 
+class ReceiptDigestTests(unittest.TestCase):
+    """The review wall must see every uncommitted change, new files included."""
+
+    def repo(self, root: Path) -> None:
+        import subprocess
+        subprocess.run(("git", "init", "-q", str(root)), check=True)
+        (root / "tracked.py").write_text("x = 1\n", encoding="utf-8")
+        subprocess.run(("git", "-C", str(root), "add", "-A"), check=True)
+        subprocess.run(("git", "-C", str(root), "-c", "user.name=t",
+                        "-c", "user.email=t@t", "commit", "-q", "-m", "base"), check=True)
+
+    def test_a_clean_tree_has_no_digest(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            self.repo(root)
+            self.assertIsNone(rules.diff_digest(root))
+
+    def test_an_edit_to_a_tracked_file_changes_the_digest(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            self.repo(root)
+            (root / "tracked.py").write_text("x = 2\n", encoding="utf-8")
+            self.assertIsNotNone(rules.diff_digest(root))
+
+    def test_a_brand_new_file_changes_the_digest(self) -> None:
+        """git diff HEAD alone is blind to this, and the wall was too."""
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            self.repo(root)
+            (root / "created.py").write_text("y = 1\n", encoding="utf-8")
+            self.assertIsNotNone(rules.diff_digest(root))
+
+    def test_new_file_content_matters_not_just_its_name(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            self.repo(root)
+            (root / "created.py").write_text("y = 1\n", encoding="utf-8")
+            first = rules.diff_digest(root)
+            (root / "created.py").write_text("y = 2\n", encoding="utf-8")
+            self.assertNotEqual(first, rules.diff_digest(root))
+
+
 class BriefTests(unittest.TestCase):
     GOOD = ("You are a subagent. Don't run memo.\n"
             "Own: tools/x.py\n"

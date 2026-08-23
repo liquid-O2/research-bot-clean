@@ -221,11 +221,35 @@ def validate_model_policy(tool_input: Mapping[str, object], contract: JsonObject
         raise ValueError(f"Agent launch requires {key}={expected!r}, got {actual!r}.")
 
 
+def untracked_files(root: Path) -> list[Path]:
+    """Return every untracked file git is not ignoring."""
+    result = subprocess.run(("git", "ls-files", "--others", "--exclude-standard"), cwd=root,
+                            check=False, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                            text=True)
+    if result.returncode != 0:
+        return []
+    return [root / line for line in result.stdout.splitlines() if line.strip()]
+
+
 def diff_digest(root: Path) -> str | None:
-    """Return a digest of the working-tree diff, or None when it is empty."""
+    """Return a digest of every uncommitted change, or None when there is none.
+
+    `git diff HEAD` alone is blind to a brand-new file, so a session that only
+    created files could end its turn with no review at all. Untracked files are
+    folded in by path and content, so creating one changes the digest exactly
+    as editing a tracked one does.
+    """
     result = subprocess.run(("git", "diff", "--binary", "HEAD"), cwd=root,
                             check=False, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    return sha256(result.stdout).hexdigest() if result.returncode == 0 and result.stdout else None
+    if result.returncode != 0:
+        return None
+    digest = sha256(result.stdout)
+    empty = not result.stdout
+    for path in sorted(untracked_files(root)):
+        digest.update(str(path.relative_to(root)).encode())
+        digest.update(path.read_bytes() if path.is_file() else b"")
+        empty = False
+    return None if empty else digest.hexdigest()
 
 
 def review_receipt_violation(payload: Mapping[str, object], contract: JsonObject) -> str | None:

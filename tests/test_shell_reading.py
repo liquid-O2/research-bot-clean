@@ -67,12 +67,20 @@ class ShellReadingTests(unittest.TestCase):
             f"{plain}; touch bypass",
             f"{plain}$(touch bypass)",
         )
+        mentions = (
+            "echo .codex/hooks/method_guard.py engage fixture",
+            "python3 -c pass .codex/hooks/method_guard.py engage fixture",
+        )
 
         self.assertTrue(bare_engage(plain))
         for command in hidden:
             with self.subTest(command=command):
                 self.assertFalse(bare_engage(command))
                 self.assertTrue(hidden_engage(command))
+        for command in mentions:
+            with self.subTest(command=command):
+                self.assertFalse(bare_engage(command))
+                self.assertFalse(hidden_engage(command))
 
 
 if __name__ == "__main__":

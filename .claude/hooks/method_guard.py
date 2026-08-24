@@ -240,12 +240,18 @@ def select_route(payload: Mapping[str, object], state: JsonObject, route: str) -
 
 def session_start(payload: Mapping[str, object]) -> JsonObject:
     """Restore the exact method after compaction or clear."""
-    return policy.session_start(payload)
+    try:
+        return policy.session_start(payload)
+    except Exception as error:  # noqa: BLE001
+        return allow_with_warning(f"{type(error).__name__}: {error}")
 
 
 def subagent_start(payload: Mapping[str, object]) -> JsonObject:
     """Give a starting subagent the complete active method."""
-    return policy.subagent_start(payload)
+    try:
+        return policy.subagent_start(payload)
+    except Exception as error:  # noqa: BLE001
+        return allow_with_warning(f"{type(error).__name__}: {error}")
 
 
 MAX_TURN_BLOCKS = 3

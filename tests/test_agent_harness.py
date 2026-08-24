@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from io import StringIO
 import re
 import shutil
 import sys
@@ -7,6 +8,7 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 TOOLS = Path(__file__).resolve().parents[1] / "tools"
 sys.path.insert(0, str(TOOLS))
@@ -16,6 +18,7 @@ import agent_harness_verify_runtime
 import agent_harness_verify_common
 from agent_harness_verify_common import CODEX_HOOK_MODULES, HarnessVerificationError
 import install_agent_harness
+import install_claude_harness
 import verify_agent_harness
 
 
@@ -263,6 +266,53 @@ class InstallerTrustTests(unittest.TestCase):
 
         self.assertIn(str(runtime), error)
         self.assertIn("expected absent mutable runtime", error)
+
+
+class ClaudeInstallerTests(unittest.TestCase):
+    def test_hook_manifest_includes_every_transitive_runtime_module(self) -> None:
+        names = set(install_claude_harness.CLAUDE_HOOK_MODULES)
+
+        self.assertIn("shell_reading.py", names)
+        self.assertIn("transcript_archive.py", names)
+
+    def test_check_mode_never_calls_an_installer(self) -> None:
+        output = StringIO()
+        with (
+            patch.object(install_claude_harness, "current_errors", return_value=[],
+                         create=True),
+            patch.object(install_claude_harness, "install_hooks",
+                         side_effect=AssertionError("check mode installed hooks")),
+            patch.object(install_claude_harness, "install_settings",
+                         side_effect=AssertionError("check mode wrote settings")),
+            patch.object(install_claude_harness.install_claude_skills, "main",
+                         side_effect=AssertionError("check mode rewrote skill links")),
+        ):
+            status = install_claude_harness.main(["--check"], output)
+
+        self.assertEqual(status, 0)
+
+    def test_settings_deliver_child_context_and_keep_one_child_stop_owner(self) -> None:
+        hooks = install_claude_harness.settings_document()["hooks"]
+
+        self.assertIn("SubagentStart", hooks)
+        start_commands = str(hooks["SubagentStart"])
+        stop_commands = str(hooks["SubagentStop"])
+        self.assertIn("method_guard.py subagent-start", start_commands)
+        self.assertEqual(stop_commands.count("method_guard.py subagent-stop"), 1)
+        self.assertNotIn("memory_ledger_hooks.py subagent-stop", stop_commands)
+
+    def test_canonical_claude_skill_links_are_not_rejected(self) -> None:
+        active = install_agent_harness.WORKSPACE / ".agents/skills"
+        names = sorted(entry.name for entry in active.iterdir())
+
+        errors = install_agent_harness.skill_tree_errors({"active_skill_names": names})
+
+        self.assertFalse([error for error in errors if ".claude/skills" in error], errors)
+
+    def test_codex_installer_does_not_manage_the_retired_claude_bridge(self) -> None:
+        installed = [str(target) for _, target in install_agent_harness.managed_file_pairs()]
+
+        self.assertFalse([path for path in installed if path.endswith("optmem_continuity.py")])
 
 
 class HookTrustTests(unittest.TestCase):

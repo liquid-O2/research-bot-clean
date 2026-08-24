@@ -9,6 +9,7 @@ that an unexpected internal failure lets the call through instead of denying it.
 
 from __future__ import annotations
 
+from io import StringIO
 import importlib.util
 import json
 import tempfile
@@ -90,6 +91,29 @@ class FixtureShapeTests(unittest.TestCase):
     def test_subagent_stop_carries_the_final_message(self) -> None:
         self.assertIn("last_assistant_message", fixture("SubagentStop"))
 
+    def test_subagent_start_is_an_active_guard_event(self) -> None:
+        self.assertIn("subagent-start", guard.EVENTS)
+
+    def test_compact_delegates_to_exact_packet_restoration(self) -> None:
+        expected = {"systemMessage": "restored exact packet"}
+        payload = {"hook_event_name": "SessionStart", "session_id": "session-fixture",
+                   "cwd": str(ROOT), "source": "compact"}
+        with patch.object(guard.policy, "session_start", return_value=expected) as restore:
+            response = guard.session_start(payload)
+
+        self.assertEqual(response, expected)
+        restore.assert_called_once_with(payload)
+
+    def test_subagent_start_delegates_to_exact_packet_delivery(self) -> None:
+        expected = {"systemMessage": "delivered exact packet"}
+        payload = fixture("SubagentStart")
+        self.assertTrue(hasattr(guard, "subagent_start"))
+        with patch.object(guard.policy, "subagent_start", return_value=expected) as deliver:
+            response = guard.subagent_start(payload)
+
+        self.assertEqual(response, expected)
+        deliver.assert_called_once_with(payload)
+
 
 class FailOpenTests(unittest.TestCase):
     """A guard bug must never become the next deadlock (D-108)."""
@@ -129,6 +153,26 @@ class FailOpenTests(unittest.TestCase):
                                         "session_id": "recurse",
                                         "last_assistant_message": "Of course! Done."})
         self.assertEqual(response.get("decision"), "block")
+
+    def test_engage_writes_the_packet_text_and_marks_the_final_chunk_ready(self) -> None:
+        packet = guard.policy.ExactMethodPacket("exact packet", "a" * 64, 12, {})
+        state = {"pending_ready": {"scope": "fixture"}}
+        output = StringIO()
+        errors = StringIO()
+        with (
+            patch.object(guard.policy, "prepare_engagement", return_value=(packet, state)),
+            patch.object(guard.policy, "rearm"),
+            patch.object(guard.policy, "mark_ready") as mark_ready,
+        ):
+            try:
+                status = guard.run_engage(["engage", "fixture"], output, errors)
+            except TypeError as error:
+                self.fail(f"engage serialized its packet object: {error}")
+
+        self.assertEqual(status, 0)
+        self.assertIn("exact packet", output.getvalue())
+        self.assertIn("<<<METHOD_PACKET_CHUNK_END>>>", output.getvalue())
+        mark_ready.assert_called_once()
 
 
 class StopWallTests(unittest.TestCase):
@@ -171,6 +215,47 @@ class StopWallTests(unittest.TestCase):
                                   "cwd": str(ROOT), "prompt": "next task"})
         response = guard.stop(self.payload("Done \N{EM DASH} all good.", active=True))
         self.assertEqual(response.get("decision"), "block")
+
+    def test_child_blocks_do_not_release_the_parent_stop_wall(self) -> None:
+        child = self.payload("Done \N{EM DASH} all good.", active=True)
+        child["hook_event_name"] = "SubagentStop"
+        child["agent_id"] = "child-fixture"
+        for _ in range(guard.MAX_TURN_BLOCKS):
+            guard.subagent_stop(child)
+        with (
+            patch.object(guard, "run_unlazy_stop", return_value={}),
+            patch.object(guard, "method_evidence_violation", return_value=None),
+            patch.object(guard, "clean_code_violation", return_value=None),
+        ):
+            response = guard.stop(self.payload("Done \N{EM DASH} all good.", active=True))
+
+        self.assertEqual(response.get("decision"), "block")
+
+    def test_unlazy_receives_only_the_scope_bound_to_this_session(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            scope = root / ".unlazy/active"
+            scope.mkdir(parents=True)
+            (scope / "session").write_text("wall\n", encoding="utf-8")
+            payload = self.payload("clean prose")
+            state = {"scope": "active", "route": "implement-flow"}
+            with (
+                patch.object(guard.policy, "repo_root", return_value=root),
+                patch.object(guard.policy, "load_state", return_value=state),
+                patch.object(guard.rules, "run_unlazy_stop", return_value={}) as run,
+            ):
+                guard.run_unlazy_stop(payload)
+
+        run.assert_called_once_with(payload, root, "active")
+
+    def test_an_accepted_child_stop_archives_its_final_transcript(self) -> None:
+        payload = dict(fixture("SubagentStop"))
+        payload["last_assistant_message"] = "The acceptance check passed."
+        with patch.object(guard, "archive_transcript", create=True) as archive:
+            response = guard.subagent_stop(payload)
+
+        self.assertEqual(response, {})
+        archive.assert_called_once_with(payload["agent_transcript_path"])
 
     def test_the_order_matches_codex(self) -> None:
         calls: list[str] = []
@@ -247,6 +332,14 @@ class PathScopeTests(unittest.TestCase):
         self.assertTrue(rules.owned("tools", ["tools/**"]))
         self.assertFalse(rules.owned("engine/x.py", ["tools/**"]))
 
+    def test_an_unrelated_method_scope_edit_does_not_rearm_the_active_scope(self) -> None:
+        state = {"scope": "active", "ready": {"packet": "current"}}
+        payload = {"session_id": "scope-fixture", "cwd": str(ROOT)}
+        with patch.object(guard.policy, "rearm") as rearm:
+            guard.rearm_on_contract_edit([".unlazy/unrelated/GATES.md"], state, payload)
+
+        rearm.assert_not_called()
+
 
 
 class CommandGateTests(unittest.TestCase):
@@ -293,6 +386,13 @@ class CommandGateTests(unittest.TestCase):
         for command in commands:
             with self.subTest(command=command[:30]):
                 self.assertEqual(rules.scan_command(command).paths, ())
+
+    def test_commands_with_write_capable_read_flags_are_not_reads(self) -> None:
+        commands = ("find . -delete", "git branch -D old",
+                    "sed -n 'w output.txt' input.txt", "rg --pre sh pattern")
+        for command in commands:
+            with self.subTest(command=command):
+                self.assertNotEqual(rules.scan_command(command).kind, "none")
 
 
 class AgentDocumentTests(unittest.TestCase):

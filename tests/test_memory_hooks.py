@@ -198,6 +198,40 @@ class MethodContextLifecycleTests(unittest.TestCase):
         self.assertEqual(child_bytes, final_bytes)
         self.assertEqual(pending_after, [])
 
+    def test_claude_subagent_stop_archives_a_complete_transcript_without_turn_id(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            archive = root / "archive"
+            transcript = root / "claude-child.jsonl"
+            final_bytes = b'{"type":"assistant","message":"done"}\n'
+            transcript.write_bytes(final_bytes)
+            payload = {
+                "hook_event_name": "SubagentStop",
+                "session_id": "claude-session",
+                "agent_id": "claude-child",
+                "agent_transcript_path": str(transcript),
+                "cwd": str(root),
+            }
+            with patch.dict(
+                os.environ,
+                {"CODEX_TRANSCRIPT_ARCHIVE_ROOT": str(archive)},
+                clear=False,
+            ):
+                module = load_memory_hook("claude_subagent_archive_test")
+                output = StringIO()
+                errors = StringIO()
+                status = module.main(
+                    ["subagent-stop"], StringIO(json.dumps(payload)), output, errors
+                )
+            digest = sha256(final_bytes).hexdigest()
+            archived = archive / "objects" / digest[:2] / f"{digest}.jsonl"
+            archived_bytes = archived.read_bytes() if archived.is_file() else b""
+
+        self.assertEqual(status, 0)
+        self.assertEqual(json.loads(output.getvalue()), {})
+        self.assertEqual(errors.getvalue(), "")
+        self.assertEqual(archived_bytes, final_bytes)
+
     def test_child_reconciliation_failure_does_not_hide_session_context(self) -> None:
         module = load_memory_hook("codex_child_reconciliation_failure_test")
         payload = hook_payload("SessionStart", cwd=str(ROOT), source="startup")

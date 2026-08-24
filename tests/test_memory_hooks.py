@@ -51,8 +51,13 @@ def chunk_body(response: str) -> str:
 
 def collect_direct_packet(fixture: MethodFixture) -> str:
     chunks: list[str] = []
-    for _ in range(32):
-        response = call_guard(["engage", fixture.scope], None)
+    response = call_guard(["engage", fixture.scope], None)
+    repeated = call_guard(["engage", fixture.scope], None)
+    if response != repeated:
+        actual_header = str(repeated).splitlines()[:1]
+        expected_header = str(response).splitlines()[:1]
+        raise AssertionError(f"repeat returned {actual_header!r}, expected {expected_header!r}")
+    for chunk_number in range(1, 33):
         if not isinstance(response, str):
             raise AssertionError(f"direct engage returned {type(response).__name__}, expected text")
         response_bytes = len(response.encode())
@@ -63,10 +68,18 @@ def collect_direct_packet(fixture: MethodFixture) -> str:
         if PACKET_END in response:
             if verdict != {}:
                 raise AssertionError(f"final engage chunk left writes blocked: {verdict}")
+            repeated = call_guard(["engage", fixture.scope, str(chunk_number)], None)
+            if response != repeated:
+                raise AssertionError(f"repeating final engage chunk {chunk_number} changed output")
             return "".join(chunks)
         reason = block_reason(StringIO(json.dumps(verdict)))
         if not isinstance(verdict, dict) or "entered" not in reason:
             raise AssertionError(f"partial engage chunk allowed a write: {verdict}")
+        next_number = chunk_number + 1
+        expected = f"engage {fixture.scope} {next_number}"
+        if expected not in response:
+            raise AssertionError(f"chunk {chunk_number} omitted next command {expected!r}")
+        response = call_guard(["engage", fixture.scope, str(next_number)], None)
     raise AssertionError(f"direct engage returned {len(chunks)} chunks, expected a final marker")
 
 

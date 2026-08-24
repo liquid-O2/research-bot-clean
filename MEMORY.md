@@ -475,6 +475,8 @@ New memories land here, newest last.
 - 2026-08-24 #236 LIVE METHOD PACKET DEFECT. The 19-leaf packet reached 192,569 bytes and tripped a redundant 192,000-byte inline cap, so native children received only an error. The renderer's 256,000-byte packet cap already bounds every injection path.
 - 2026-08-24 #237 CODEX CHILD LIFECYCLE PROOF. A native child received the full 192,569-byte packet, returned METHOD_ARCHIVE_CHILD_OK, ended with task_complete, and matched its 294,416-byte 080a1fbb archive. Parent matched 5dfac64e.
 - 2026-08-24 #238 CODEX CHILD FAIRNESS FIX. A 12-marker probe proved that a fixed eight-marker prefix could strand a completed child forever. A private cursor now rotates bounded batches; the public regression reaches the child on pass two.
+- 2026-08-24 #239 CODEX LIFECYCLE CHECKPOINT. Commits 60a4f0e, ce7f4b6, 2dcb6fc, and 3cbd805 pass 93 harness tests, 13 archive tests, 41 canaries, hook trust, clean-code, no-comments, and xhigh Standards and Spec reviews.
+- 2026-08-24 #240 CLAUDE HOOK CHECKPOINT. Commits 42910d6 and c164a28 fix imports, engage, compact restore, child packets and archives, Stop isolation, scope binding, shell reads, and non-mutating checks. Claude 43 and Codex 41 canaries pass; native Claude SessionStart passed.
 
 ## Checkpoints
 
@@ -592,4 +594,12 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - trigger: auto
 - cwd: /workspace
 - transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/c0/c0506df6777d2cca10493a593e944a20592a7d32a9e51fcb97718d8e9fafb71e.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T02:57:24Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/e2/e209b508e9ba232a5380a0eb0f997e06641957f4aa631049a352519e9a21f69e.jsonl
 - SessionStart restores the exact method packet before compact continuation

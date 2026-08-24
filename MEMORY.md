@@ -474,6 +474,7 @@ New memories land here, newest last.
 - 2026-08-24 #235 CODEX CHILD ARCHIVE DEFECT. Native SubagentStop copied 286,996 bytes before Codex appended the 296-byte task_complete record. Final source was 287,292 bytes. Synchronous SubagentStop archival can never be exact.
 - 2026-08-24 #236 LIVE METHOD PACKET DEFECT. The 19-leaf packet reached 192,569 bytes and tripped a redundant 192,000-byte inline cap, so native children received only an error. The renderer's 256,000-byte packet cap already bounds every injection path.
 - 2026-08-24 #237 CODEX CHILD LIFECYCLE PROOF. A native child received the full 192,569-byte packet, returned METHOD_ARCHIVE_CHILD_OK, ended with task_complete, and matched its 294,416-byte 080a1fbb archive. Parent matched 5dfac64e.
+- 2026-08-24 #238 CODEX CHILD FAIRNESS FIX. A 12-marker probe proved that a fixed eight-marker prefix could strand a completed child forever. A private cursor now rotates bounded batches; the public regression reaches the child on pass two.
 
 ## Checkpoints
 

@@ -32,6 +32,7 @@ LEDGER_TOOL = ROOT / "tools/memory_ledger.py"
 START_HERE = ROOT / "START_HERE.md"
 TAIL_LINES = 30
 JsonObject = dict[str, object]
+__all__ = ("main",)
 
 
 def load_ledger() -> ModuleType:
@@ -125,7 +126,7 @@ EVENTS = {"session-start": session_start,
 
 def main(argv: Sequence[str] | None = None, stdin: TextIO = sys.stdin,
          stdout: TextIO = sys.stdout, stderr: TextIO = sys.stderr) -> int:
-    """Run one continuity event and always allow the session to continue."""
+    """Run one event and return 0. Example: ``main([event], stdin, stdout)``."""
     arguments = list(sys.argv[1:] if argv is None else argv)
     if not arguments or arguments[0] not in EVENTS:
         raise ValueError(f"expected one of {sorted(EVENTS)}, got {arguments!r}")

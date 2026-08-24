@@ -84,6 +84,17 @@ def _defer_children(module: ModuleType, root: Path, count: int) -> list[tuple[Pa
     return rows
 
 
+class _FailMarkerUnlink:
+    def __init__(self, marker: Path) -> None:
+        self.marker = marker
+        self.original = Path.unlink
+
+    def __call__(self, path: Path, *args: object, **kwargs: object) -> None:
+        if path == self.marker:
+            raise OSError(f"simulated marker removal failure for {path}")
+        self.original(path, *args, **kwargs)
+
+
 def run_memory(command: str, payload: dict[str, object]) -> tuple[dict[str, object], str]:
     output = StringIO()
     errors = StringIO()
@@ -209,14 +220,8 @@ class TranscriptArchiveTests(unittest.TestCase):
             with archive_root(archive):
                 marker = module.defer_transcript(str(source), "turn-1")
                 source.write_bytes(source.read_bytes() + transcript_event("task_complete", "turn-1"))
-                original_unlink = Path.unlink
-
-                def fail_marker_unlink(path: Path, *args: object, **kwargs: object) -> None:
-                    if path == marker:
-                        raise OSError("simulated marker removal failure")
-                    original_unlink(path, *args, **kwargs)
-
-                with patch.object(Path, "unlink", fail_marker_unlink), self.assertRaises(Exception):
+                failure = _FailMarkerUnlink(marker)
+                with patch.object(Path, "unlink", autospec=True, side_effect=failure), self.assertRaises(Exception):
                     module.reconcile_pending_transcripts()
                 published = list((archive / "objects").rglob("*.jsonl"))
                 self.assertTrue(marker.exists())
@@ -294,6 +299,7 @@ class TranscriptArchiveTests(unittest.TestCase):
             archived = archive / "objects" / digest[:2] / f"{digest}.jsonl"
             self.assertFalse(marker.exists())
             self.assertEqual(archived.read_bytes(), source.read_bytes())
+            self.assertEqual(stat.S_IMODE((archive / "pending/.reconcile.lock").stat().st_mode), 0o600)
 
 
 class TranscriptLifecycleTests(unittest.TestCase):

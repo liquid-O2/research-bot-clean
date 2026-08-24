@@ -18,8 +18,8 @@ ARCHIVE_ROOT_ENV = "CODEX_TRANSCRIPT_ARCHIVE_ROOT"
 ARCHIVE_DIRECTORY_MODE = 0o700
 ARCHIVE_OBJECT_MODE = 0o600
 COPY_CHUNK_BYTES = 1024 * 1024
-PENDING_SCHEMA_VERSION = 1
-PENDING_RECONCILE_LIMIT = 8
+PENDING_SCHEMA_VERSION, PENDING_RECONCILE_LIMIT = 1, 8
+__all__ = ("TranscriptArchiveError", "archive_transcript", "defer_transcript", "reconcile_pending_transcripts")
 
 
 class TranscriptArchiveError(Exception):
@@ -71,7 +71,7 @@ def source_version(metadata: os.stat_result) -> tuple[int, ...]:
     )
 
 
-def open_regular_file(path: Path, label: str) -> tuple[int, tuple[int, ...]]:
+def open_regular_file(path: Path, label: str) -> tuple[int, os.stat_result]:
     metadata = path.lstat()
     if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode):
         raise TranscriptArchiveError(f"{label} is not a regular file: {path}")
@@ -83,7 +83,7 @@ def open_regular_file(path: Path, label: str) -> tuple[int, tuple[int, ...]]:
     except Exception:
         os.close(descriptor)
         raise
-    return descriptor, source_version(opened_metadata)
+    return descriptor, opened_metadata
 
 
 def stream_chunks(descriptor: int) -> Iterator[bytes]:
@@ -135,11 +135,11 @@ def publish_transcript(temporary: Path, destination: Path, expected_digest: str)
     fsync_directory(destination.parent)
 
 
-def file_matches_version(source: Path, descriptor: int, expected: tuple[int, ...]) -> bool:
+def file_matches_version(source: Path, descriptor: int, expected: os.stat_result) -> bool:
     try:
         return (
-            source_version(os.fstat(descriptor)) == expected
-            and source_version(source.lstat()) == expected
+            source_version(os.fstat(descriptor)) == source_version(expected)
+            and source_version(source.lstat()) == source_version(expected)
         )
     except OSError:
         return False
@@ -155,7 +155,7 @@ def create_archive_temporary() -> tuple[int, Path]:
 
 
 def copy_and_publish_transcript(
-    source: Path, descriptor: int, initial_version: tuple[int, ...]
+    source: Path, descriptor: int, initial_version: os.stat_result
 ) -> Path:
     temporary_descriptor, temporary = create_archive_temporary()
     os.close(temporary_descriptor)
@@ -173,6 +173,7 @@ def copy_and_publish_transcript(
 
 
 def archive_transcript(raw_source: object) -> Path:
+    """Archive exact bytes. Example: ``archive_transcript(path)``."""
     if not isinstance(raw_source, str) or not raw_source:
         raise TranscriptArchiveError(
             f"transcript_path must be a non-empty string, got {raw_source!r}")
@@ -195,7 +196,7 @@ def validate_turn_id(raw_turn_id: object) -> str:
     return raw_turn_id
 
 
-def canonical_open_source(raw_source: object) -> tuple[Path, int, tuple[int, ...]]:
+def canonical_open_source(raw_source: object) -> tuple[Path, int, os.stat_result]:
     if not isinstance(raw_source, str) or not raw_source:
         raise TranscriptArchiveError(
             f"transcript_path must be a non-empty string, got {raw_source!r}"
@@ -207,7 +208,7 @@ def canonical_open_source(raw_source: object) -> tuple[Path, int, tuple[int, ...
         raise TranscriptArchiveError(f"cannot open transcript source {source}: {error}") from error
     try:
         canonical = Path(os.path.realpath(source))
-        if source_version(canonical.lstat()) != version:
+        if source_version(canonical.lstat()) != source_version(version):
             raise TranscriptArchiveError(f"transcript source changed while resolving: {source}")
         return canonical, descriptor, version
     except Exception:
@@ -238,7 +239,7 @@ def pending_paths(source: Path) -> tuple[Path, Path]:
 
 
 @contextmanager
-def marker_lock(lock_path: Path) -> Iterator[None]:
+def marker_lock(lock_path: Path) -> Iterator[int]:
     flags = os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0)
     descriptor = os.open(lock_path, flags, ARCHIVE_OBJECT_MODE)
     try:
@@ -246,7 +247,7 @@ def marker_lock(lock_path: Path) -> Iterator[None]:
             raise TranscriptArchiveError(f"pending marker lock is not a regular file: {lock_path}")
         os.fchmod(descriptor, ARCHIVE_OBJECT_MODE)
         fcntl.flock(descriptor, fcntl.LOCK_EX)
-        yield
+        yield descriptor
     finally:
         fcntl.flock(descriptor, fcntl.LOCK_UN)
         os.close(descriptor)
@@ -270,14 +271,14 @@ def write_pending_marker(marker_path: Path, marker: dict[str, object]) -> None:
 
 
 def pending_marker_fields(
-    source: Path, version: tuple[int, ...], prefix_digest: str, turn_id: str
+    source: Path, version: os.stat_result, prefix_digest: str, turn_id: str
 ) -> dict[str, object]:
     return {
         "schema_version": PENDING_SCHEMA_VERSION,
         "source_path": str(source),
-        "device": version[0],
-        "inode": version[1],
-        "observed_bytes": version[3],
+        "device": version.st_dev,
+        "inode": version.st_ino,
+        "observed_bytes": version.st_size,
         "prefix_sha256": prefix_digest,
         "turn_id": turn_id,
         "generation": secrets.token_hex(16),
@@ -285,10 +286,11 @@ def pending_marker_fields(
 
 
 def defer_transcript(raw_source: object, raw_turn_id: object) -> Path:
+    """Record a child prefix. Example: ``defer_transcript(path, turn_id)``."""
     turn_id = validate_turn_id(raw_turn_id)
     source, descriptor, version = canonical_open_source(raw_source)
     try:
-        prefix_digest = digest_prefix(descriptor, version[3])
+        prefix_digest = digest_prefix(descriptor, version.st_size)
         if not file_matches_version(source, descriptor, version):
             raise TranscriptArchiveError(f"transcript source changed while deferring: {source}")
     finally:
@@ -303,7 +305,7 @@ def defer_transcript(raw_source: object, raw_turn_id: object) -> Path:
 def require_int_field(raw: object, field: str, marker_path: Path) -> int:
     if not isinstance(raw, int) or isinstance(raw, bool) or raw < 0:
         raise TranscriptArchiveError(
-            f"pending marker field {field!r} must be a non-negative integer: {marker_path}"
+            f"pending marker field {field!r} is {raw!r}; expected a non-negative integer: {marker_path}"
         )
     return raw
 
@@ -311,7 +313,7 @@ def require_int_field(raw: object, field: str, marker_path: Path) -> int:
 def require_string_field(raw: object, field: str, marker_path: Path) -> str:
     if not isinstance(raw, str) or not raw:
         raise TranscriptArchiveError(
-            f"pending marker field {field!r} must be a non-empty string: {marker_path}"
+            f"pending marker field {field!r} is {raw!r}; expected a non-empty string: {marker_path}"
         )
     return raw
 
@@ -319,8 +321,8 @@ def require_string_field(raw: object, field: str, marker_path: Path) -> str:
 def read_pending_fields(marker_path: Path) -> dict[str, object]:
     descriptor, version = open_regular_file(marker_path, "pending marker")
     try:
-        if stat.S_IMODE(os.fstat(descriptor).st_mode) != ARCHIVE_OBJECT_MODE:
-            raise TranscriptArchiveError(f"pending marker has an unsafe mode: {marker_path}")
+        if (actual := stat.S_IMODE(os.fstat(descriptor).st_mode)) != ARCHIVE_OBJECT_MODE:
+            raise TranscriptArchiveError(f"pending marker mode is {actual:#o}; expected 0o600: {marker_path}")
         with os.fdopen(descriptor, "rb", closefd=False) as marker_file:
             raw = json.load(marker_file)
         if not file_matches_version(marker_path, descriptor, version):
@@ -328,14 +330,14 @@ def read_pending_fields(marker_path: Path) -> dict[str, object]:
     finally:
         os.close(descriptor)
     if not isinstance(raw, dict) or raw.get("schema_version") != PENDING_SCHEMA_VERSION:
-        raise TranscriptArchiveError(f"pending marker has an unsupported schema: {marker_path}")
+        raise TranscriptArchiveError(f"pending marker schema is {(raw.get('schema_version') if isinstance(raw, dict) else type(raw).__name__)!r}; expected 1: {marker_path}")
     return raw
 
 
 def parse_prefix_digest(raw: object, marker_path: Path) -> str:
     digest = require_string_field(raw, "prefix_sha256", marker_path)
     if len(digest) != 64 or any(character not in "0123456789abcdef" for character in digest):
-        raise TranscriptArchiveError(f"pending marker prefix_sha256 is invalid: {marker_path}")
+        raise TranscriptArchiveError(f"pending marker prefix_sha256 is {digest!r}; expected 64 lowercase hex characters: {marker_path}")
     return digest
 
 
@@ -343,7 +345,7 @@ def parse_pending_marker(marker_path: Path) -> PendingTranscript:
     raw = read_pending_fields(marker_path)
     source = Path(require_string_field(raw.get("source_path"), "source_path", marker_path))
     if not source.is_absolute():
-        raise TranscriptArchiveError(f"pending marker source_path must be absolute: {marker_path}")
+        raise TranscriptArchiveError(f"pending marker source_path is {source!s}; expected an absolute path: {marker_path}")
     return PendingTranscript(
         source, require_int_field(raw.get("device"), "device", marker_path),
         require_int_field(raw.get("inode"), "inode", marker_path),
@@ -385,7 +387,7 @@ def pending_source_metadata(marker: PendingTranscript) -> os.stat_result | None:
         return None
     if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode):
         raise TranscriptArchiveError(
-            f"pending transcript source is not a regular file: {marker.source_path}"
+            f"pending transcript mode is {metadata.st_mode:#o}; expected a regular file: {marker.source_path}"
         )
     return metadata
 
@@ -403,7 +405,7 @@ def open_pending_descriptor(marker: PendingTranscript) -> int | None:
         ) from error
 
 
-def open_pending_source(marker: PendingTranscript) -> tuple[int, tuple[int, ...]] | None:
+def open_pending_source(marker: PendingTranscript) -> tuple[int, os.stat_result] | None:
     metadata = pending_source_metadata(marker)
     if metadata is None:
         return None
@@ -413,15 +415,14 @@ def open_pending_source(marker: PendingTranscript) -> tuple[int, tuple[int, ...]
     opened = os.fstat(descriptor)
     if opened.st_dev != marker.device or opened.st_ino != marker.inode:
         os.close(descriptor)
-        raise TranscriptArchiveError(f"pending transcript source was replaced: {marker.source_path}")
+        raise TranscriptArchiveError(f"pending transcript was replaced with identity {(opened.st_dev, opened.st_ino)!r}; expected {(marker.device, marker.inode)!r}: {marker.source_path}")
     if metadata.st_dev != opened.st_dev or metadata.st_ino != opened.st_ino:
         os.close(descriptor)
-        raise TranscriptArchiveError(f"pending transcript source changed while opening: {marker.source_path}")
-    version = source_version(opened)
-    if source_version(metadata) != version:
+        raise TranscriptArchiveError(f"pending transcript opened as {(opened.st_dev, opened.st_ino)!r}; expected {(metadata.st_dev, metadata.st_ino)!r}: {marker.source_path}")
+    if source_version(metadata) != source_version(opened):
         os.close(descriptor)
         return None
-    return descriptor, version
+    return descriptor, opened
 
 
 def archive_ready_pending(marker: PendingTranscript) -> Path | None:
@@ -430,10 +431,10 @@ def archive_ready_pending(marker: PendingTranscript) -> Path | None:
         return None
     descriptor, version = opened
     try:
-        if version[3] < marker.observed_bytes:
-            raise TranscriptArchiveError(f"pending transcript source shrank: {marker.source_path}")
-        if digest_prefix(descriptor, marker.observed_bytes) != marker.prefix_sha256:
-            raise TranscriptArchiveError(f"pending transcript prefix changed: {marker.source_path}")
+        if version.st_size < marker.observed_bytes:
+            raise TranscriptArchiveError(f"pending transcript size is {version.st_size}; expected at least {marker.observed_bytes}: {marker.source_path}")
+        if (actual_prefix := digest_prefix(descriptor, marker.observed_bytes)) != marker.prefix_sha256:
+            raise TranscriptArchiveError(f"pending transcript prefix is {actual_prefix}; expected {marker.prefix_sha256}: {marker.source_path}")
         if not file_matches_version(marker.source_path, descriptor, version):
             return None
         if not has_matching_terminal(descriptor, marker):
@@ -463,13 +464,30 @@ def reconcile_pending_marker(marker_path: Path) -> None:
         fsync_directory(marker_path.parent)
 
 
+def pending_batch(pending: Path, limit: int) -> list[Path]:
+    paths = sorted(pending.glob("*.json"))
+    if len(paths) <= limit:
+        return paths
+    with marker_lock(pending / ".reconcile.lock") as descriptor:
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        cursor = os.read(descriptor, 128).decode("ascii", errors="ignore").strip()
+        start = next((index for index, path in enumerate(paths) if path.name > cursor), 0)
+        batch = [paths[(start + offset) % len(paths)] for offset in range(limit)]
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        os.ftruncate(descriptor, 0)
+        os.write(descriptor, batch[-1].name.encode("ascii"))
+        os.fsync(descriptor)
+    return batch
+
+
 def reconcile_pending_transcripts(limit: int = PENDING_RECONCILE_LIMIT) -> None:
+    """Archive ready children. Example: ``reconcile_pending_transcripts()``."""
     if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1:
         raise TranscriptArchiveError(f"reconciliation limit must be a positive integer, got {limit!r}")
     pending = transcript_archive_root() / "pending"
     ensure_private_directory(pending)
     failures: list[Exception] = []
-    for marker_path in sorted(pending.glob("*.json"))[:limit]:
+    for marker_path in pending_batch(pending, limit):
         try:
             reconcile_pending_marker(marker_path)
         except Exception as error:

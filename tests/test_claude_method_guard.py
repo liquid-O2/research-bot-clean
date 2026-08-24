@@ -153,6 +153,19 @@ class FailOpenTests(unittest.TestCase):
         self.assertIn("failed open", response["systemMessage"])
         self.assertNotIn("hookSpecificOutput", response)
 
+    def test_session_start_failure_allows_startup_and_warns(self) -> None:
+        payload = {"hook_event_name": "SessionStart", "session_id": "session-fixture",
+                   "cwd": str(ROOT), "source": "startup"}
+        with patch.object(guard.policy, "session_start", side_effect=RuntimeError("bad state")):
+            response = guard.session_start(payload)
+        self.assertIn("failed open", response["systemMessage"])
+
+    def test_subagent_start_failure_allows_startup_and_warns(self) -> None:
+        payload = fixture("SubagentStart")
+        with patch.object(guard.policy, "subagent_start", side_effect=RuntimeError("bad state")):
+            response = guard.subagent_start(payload)
+        self.assertIn("failed open", response["systemMessage"])
+
     def test_a_policy_violation_still_denies(self) -> None:
         payload = dict(fixture("PreToolUse-Write"))
         payload["tool_input"] = {"file_path": str(ROOT / "engine/nope.py"), "content": "x"}

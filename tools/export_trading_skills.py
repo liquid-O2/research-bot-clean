@@ -258,17 +258,28 @@ def export_claude(target: Path) -> int:
     return copied
 
 
+def portable_shell_test(body: str) -> str:
+    """Tokenize the repository path once and accept an already-portable fixture."""
+    source = 'absolute = "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py engage fixture"'
+    portable = ('absolute = f"/usr/bin/python3 {HOOKS.parents[2]}/.codex/hooks/'
+                'method_guard.py engage fixture"')
+    source_count = body.count(source)
+    portable_count = body.count(portable)
+    if (source_count, portable_count) == (1, 0):
+        return body.replace(source, portable)
+    if (source_count, portable_count) == (0, 1):
+        return body
+    raise ValueError(
+        f"portable shell test markers source={source_count} portable={portable_count}; expected one"
+    )
+
+
 def export_tests(target: Path) -> int:
     """Copy focused tests and make the shell test derive its installed root."""
     copied = copy_named(TEST_MODULES, ROOT / "tests", target / "tests")
     shell_test = target / "tests/test_shell_reading.py"
-    old = 'absolute = "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py engage fixture"'
-    new = ('absolute = f"/usr/bin/python3 {HOOKS.parents[2]}/.codex/hooks/'
-           'method_guard.py engage fixture"')
     body = shell_test.read_text(encoding="utf-8")
-    if body.count(old) != 1:
-        raise ValueError(f"portable shell test marker count {body.count(old)}; expected 1")
-    shell_test.write_text(body.replace(old, new), encoding="utf-8")
+    shell_test.write_text(portable_shell_test(body), encoding="utf-8")
     copied += copy_tree(
         ROOT / "tests/fixtures/claude_hook_payloads",
         target / "tests/fixtures/claude_hook_payloads",

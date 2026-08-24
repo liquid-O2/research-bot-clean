@@ -45,6 +45,14 @@ def run_python(arguments: list[str], cwd: Path) -> subprocess.CompletedProcess[s
 
 
 class ExportManifestTests(unittest.TestCase):
+    def test_portable_shell_fixture_transform_is_idempotent(self) -> None:
+        source = 'absolute = "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py engage fixture"'
+        portable = ('absolute = f"/usr/bin/python3 {HOOKS.parents[2]}/.codex/hooks/'
+                    'method_guard.py engage fixture"')
+
+        self.assertEqual(exporter.portable_shell_test(source), portable)
+        self.assertEqual(exporter.portable_shell_test(portable), portable)
+
     def test_manifest_names_current_codex_dependencies(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             target = Path(raw) / "export"

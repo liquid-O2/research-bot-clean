@@ -274,6 +274,19 @@ def portable_shell_test(body: str) -> str:
     )
 
 
+def distribution_source(template_name: str, installed_name: str) -> Path:
+    """Select a source-tree template or its installed distribution copy."""
+    template = ROOT / "tools/harness_templates" / template_name
+    if template.is_file():
+        return template
+    installed = ROOT / installed_name
+    if installed.is_file():
+        return installed
+    raise ValueError(
+        f"distribution source missing: expected {template} or {installed}"
+    )
+
+
 def export_tests(target: Path) -> int:
     """Copy focused tests and make the shell test derive its installed root."""
     copied = copy_named(TEST_MODULES, ROOT / "tests", target / "tests")
@@ -301,8 +314,10 @@ def export_runtime(target: Path) -> int:
     copied += copy_named(TOOL_MODULES, ROOT / "tools", target / "tools")
     copied += export_generated_tools(target)
     copied += export_tests(target)
-    copied += copy_file(ROOT / "tools/harness_templates/export_install.py", target / "install.py")
-    copied += copy_file(ROOT / "tools/harness_templates/export_readme.md", target / "README.md")
+    copied += copy_file(distribution_source("export_install.py", "install.py"),
+                        target / "install.py")
+    copied += copy_file(distribution_source("export_readme.md", "README.md"),
+                        target / "README.md")
     (target / "install.py").chmod(0o755)
     (target / ".gitignore").write_text(
         "__pycache__/\n*.py[cod]\n.unlazy/\nMEMORY.md\n", encoding="utf-8",

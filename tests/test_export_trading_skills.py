@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,6 +53,16 @@ class ExportManifestTests(unittest.TestCase):
 
         self.assertEqual(exporter.portable_shell_test(source), portable)
         self.assertEqual(exporter.portable_shell_test(portable), portable)
+
+    def test_distribution_source_falls_back_to_the_installed_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            installed = root / "install.py"
+            installed.write_text("fixture\n", encoding="utf-8")
+            with patch.object(exporter, "ROOT", root):
+                selected = exporter.distribution_source("export_install.py", "install.py")
+
+        self.assertEqual(selected, installed)
 
     def test_manifest_names_current_codex_dependencies(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

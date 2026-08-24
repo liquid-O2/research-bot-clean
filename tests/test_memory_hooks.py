@@ -28,14 +28,14 @@ PACKET_START = "<<<METHOD_PACKET_START"
 MEMORY_HOOK_PATH = ROOT / "tools/harness_templates/hooks/memory_ledger_hooks.py"
 
 
-def load_memory_hook(name: str) -> ModuleType:
-    spec = importlib.util.spec_from_file_location(name, MEMORY_HOOK_PATH)
+def load_memory_hook(name: str, path: Path = MEMORY_HOOK_PATH) -> ModuleType:
+    spec = importlib.util.spec_from_file_location(name, path)
     if spec is None or spec.loader is None:
-        raise AssertionError(f"cannot load memory hook from {MEMORY_HOOK_PATH}")
+        raise AssertionError(f"cannot load memory hook from {path}")
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
     original_path = list(sys.path)
-    sys.path.insert(0, str(MEMORY_HOOK_PATH.parent))
+    sys.path.insert(0, str(path.parent))
     try:
         spec.loader.exec_module(module)
     finally:
@@ -142,6 +142,19 @@ class MethodContextLifecycleTests(unittest.TestCase):
             }
             with patch.dict(os.environ, environment, clear=False):
                 module = load_memory_hook("claude_memory_ledger_override_test")
+        self.assertEqual(module.ROOT, claude_root)
+
+    def test_installed_claude_hook_prefers_its_repository_override(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            codex_root = Path(raw) / "codex-repo"
+            claude_root = Path(raw) / "claude-repo"
+            environment = {
+                "CODEX_METHOD_REPO_ROOT": str(codex_root),
+                "CLAUDE_METHOD_REPO_ROOT": str(claude_root),
+            }
+            path = ROOT / ".claude/hooks/memory_ledger_hooks.py"
+            with patch.dict(os.environ, environment, clear=False):
+                module = load_memory_hook("installed_claude_override_test", path)
         self.assertEqual(module.ROOT, claude_root)
 
     def test_subagent_stop_defers_archive_until_task_complete(self) -> None:
@@ -270,6 +283,24 @@ class MethodContextLifecycleTests(unittest.TestCase):
         self.assertIn(PACKET_START, packet)
         self.assertIn(PACKET_END, packet)
         self.assertIn("exact router\n" + "x" * 40_000, packet)
+
+    def test_direct_final_chunk_cannot_skip_the_prior_chunks(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            fixture = MethodFixture(Path(raw))
+            fixture.write_contract()
+            fixture.write_gates()
+            fixture.sources["implement-flow"].write_text("x" * 40_000, encoding="utf-8")
+            with fixture.environment():
+                activate(fixture)
+                payload = {"cwd": str(fixture.repo), "scope": fixture.scope,
+                           "session_id": "session-fixture"}
+                packet, _ = method_guard.policy.prepare_engagement(payload)
+                final = len(method_guard.packet_chunks(packet.text))
+                response = call_guard(["engage", fixture.scope, str(final)], None)
+                verdict = call_guard(["pre-tool-use"], production_patch(fixture))
+        self.assertGreater(final, 1)
+        self.assertIn("rejected", response)
+        self.assertIn("entered", block_reason(StringIO(json.dumps(verdict))))
 
     def test_invalid_direct_chunk_keeps_an_existing_ready_record(self) -> None:
         invalid = (("0",), ("nope",), ("999",), ("1", "extra"))

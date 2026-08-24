@@ -1,14 +1,21 @@
 from __future__ import annotations
 
 from io import StringIO
+from hashlib import sha256
+import importlib.util
 import json
+import os
 from pathlib import Path
+import sys
 import tempfile
+from types import ModuleType
 import unittest
+from unittest.mock import patch
 
 from tests.test_agent_method_guard import (
     MethodFixture,
     NO_MEMO,
+    ROOT,
     block_reason,
     hook_payload,
     method_guard,
@@ -18,6 +25,17 @@ from tests.test_agent_method_guard import (
 CHUNK_END = "<<<METHOD_PACKET_CHUNK_END>>>"
 PACKET_END = "<<<METHOD_PACKET_END"
 PACKET_START = "<<<METHOD_PACKET_START"
+MEMORY_HOOK_PATH = ROOT / "tools/harness_templates/hooks/memory_ledger_hooks.py"
+
+
+def load_memory_hook(name: str) -> ModuleType:
+    spec = importlib.util.spec_from_file_location(name, MEMORY_HOOK_PATH)
+    if spec is None or spec.loader is None:
+        raise AssertionError(f"cannot load memory hook from {MEMORY_HOOK_PATH}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
 
 
 def call_guard(arguments: list[str], payload: dict[str, object] | None) -> dict[str, object] | str:
@@ -90,6 +108,86 @@ def collect_direct_packet(fixture: MethodFixture) -> str:
 
 
 class MethodContextLifecycleTests(unittest.TestCase):
+    def test_codex_repository_override_selects_the_memory_ledger_root(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            codex_root = Path(raw) / "codex-repo"
+            claude_root = Path(raw) / "claude-repo"
+            environment = {
+                "CODEX_METHOD_REPO_ROOT": str(codex_root),
+                "CLAUDE_METHOD_REPO_ROOT": str(claude_root),
+            }
+            with patch.dict(os.environ, environment, clear=False):
+                module = load_memory_hook("codex_memory_ledger_override_test")
+        self.assertEqual(module.ROOT, codex_root)
+
+    def test_claude_repository_override_remains_available_to_the_shared_hook(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            claude_root = Path(raw) / "claude-repo"
+            environment = {
+                "CODEX_METHOD_REPO_ROOT": "",
+                "CLAUDE_METHOD_REPO_ROOT": str(claude_root),
+            }
+            with patch.dict(os.environ, environment, clear=False):
+                module = load_memory_hook("claude_memory_ledger_override_test")
+        self.assertEqual(module.ROOT, claude_root)
+
+    def test_subagent_stop_defers_archive_until_task_complete(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            archive = root / "archive"
+            transcript = root / "agent.jsonl"
+            initial_bytes = b'{"ordinal":13,"type":"event_msg","payload":{"type":"token_count"}}\n'
+            terminal_bytes = (
+                b'{"ordinal":14,"type":"event_msg","payload":'
+                b'{"type":"task_complete","turn_id":"turn-fixture"}}\n'
+            )
+            transcript.write_bytes(initial_bytes)
+            payload = hook_payload(
+                "SubagentStop",
+                cwd=str(root),
+                agent_id="child-fixture",
+                agent_transcript_path=str(transcript),
+            )
+            with patch.dict(
+                os.environ,
+                {"CODEX_TRANSCRIPT_ARCHIVE_ROOT": str(archive)},
+                clear=False,
+            ):
+                module = load_memory_hook("codex_subagent_archive_test")
+                output = StringIO()
+                errors = StringIO()
+                status = module.main(
+                    ["subagent-stop"], StringIO(json.dumps(payload)), output, errors
+                )
+                pending = list((archive / "pending").glob("*.json"))
+                objects_before_terminal = list((archive / "objects").rglob("*.jsonl"))
+                transcript.write_bytes(initial_bytes + terminal_bytes)
+                parent = root / "parent.jsonl"
+                parent.write_bytes(b"parent transcript\n")
+                end_output = StringIO()
+                end_errors = StringIO()
+                end_status = module.main(
+                    ["session-end"],
+                    StringIO(json.dumps(hook_payload(
+                        "SessionEnd", cwd=str(root), transcript_path=str(parent)
+                    ))),
+                    end_output,
+                    end_errors,
+                )
+            final_bytes = transcript.read_bytes()
+            digest = sha256(final_bytes).hexdigest()
+            child_object = archive / "objects" / digest[:2] / f"{digest}.jsonl"
+        self.assertEqual(status, 0)
+        self.assertEqual(json.loads(output.getvalue()), {})
+        self.assertEqual(errors.getvalue(), "")
+        self.assertEqual(len(pending), 1)
+        self.assertEqual(objects_before_terminal, [])
+        self.assertEqual(end_status, 0)
+        self.assertEqual(json.loads(end_output.getvalue()), {})
+        self.assertEqual(end_errors.getvalue(), "")
+        self.assertEqual(child_object.read_bytes(), final_bytes)
+        self.assertEqual(list((archive / "pending").glob("*.json")), [])
+
     def test_direct_engage_needs_no_stdin_and_readies_only_after_final_chunk(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             fixture = MethodFixture(Path(raw))

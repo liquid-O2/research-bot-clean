@@ -12,12 +12,13 @@ restoration because that event accepts ``additionalContext``.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
 import sys
 from types import ModuleType
-from typing import Mapping, Sequence, TextIO
+from typing import Callable, Mapping, Sequence, TextIO
 
 from transcript_archive import (
     archive_transcript,
@@ -33,6 +34,13 @@ START_HERE = ROOT / "START_HERE.md"
 TAIL_LINES = 30
 JsonObject = dict[str, object]
 __all__ = ("main",)
+
+
+@dataclass(frozen=True)
+class _TranscriptActions:
+    archive: Callable[[object], Path]
+    defer: Callable[[object, object], Path]
+    reconcile: Callable[[], None]
 
 
 def load_ledger() -> ModuleType:
@@ -66,17 +74,18 @@ def start_here_pointer() -> str:
     return f"Read {START_HERE} for the project, the goal, and what has already failed."
 
 
-def reconcile_children(stderr: TextIO) -> None:
+def reconcile_children(stderr: TextIO, actions: _TranscriptActions) -> None:
     """Finish child archives without changing the lifecycle event outcome."""
     try:
-        reconcile_pending_transcripts()
+        actions.reconcile()
     except Exception as error:  # noqa: BLE001
         stderr.write(f"child transcript reconciliation failed: {type(error).__name__}: {error}\n")
 
 
-def session_start(payload: Mapping[str, object], stderr: TextIO) -> JsonObject:
+def session_start(payload: Mapping[str, object], stderr: TextIO,
+                  actions: _TranscriptActions) -> JsonObject:
     """Inject the memory tail at every session start, compaction included."""
-    reconcile_children(stderr)
+    reconcile_children(stderr, actions)
     source = str(payload.get("source") or "startup")
     header = (f"Memory ledger, last {TAIL_LINES} entries "
               f"(session source: {source}). Add one with "
@@ -97,24 +106,27 @@ def checkpoint_body(payload: Mapping[str, object], archive: Path) -> str:
     return "\n".join(rows)
 
 
-def pre_compact(payload: Mapping[str, object], _stderr: TextIO) -> JsonObject:
+def pre_compact(payload: Mapping[str, object], _stderr: TextIO,
+                actions: _TranscriptActions) -> JsonObject:
     """Archive the transcript and checkpoint its object without blocking."""
-    reconcile_children(_stderr)
-    archived = archive_transcript(payload.get("transcript_path"))
+    reconcile_children(_stderr, actions)
+    archived = actions.archive(payload.get("transcript_path"))
     ledger = load_ledger()
     ledger.append_checkpoint(checkpoint_body(payload, archived), ledger.ledger_path())
     return {}
 
 
-def session_end(payload: Mapping[str, object], _stderr: TextIO) -> JsonObject:
+def session_end(payload: Mapping[str, object], _stderr: TextIO,
+                actions: _TranscriptActions) -> JsonObject:
     """Archive the final transcript without adding a generic checkpoint."""
-    reconcile_children(_stderr)
-    archive_transcript(payload.get("transcript_path"))
+    reconcile_children(_stderr, actions)
+    actions.archive(payload.get("transcript_path"))
     return {}
 
 
-def subagent_stop(payload: Mapping[str, object], _stderr: TextIO) -> JsonObject:
-    defer_transcript(payload.get("agent_transcript_path"), payload.get("turn_id"))
+def subagent_stop(payload: Mapping[str, object], _stderr: TextIO,
+                  actions: _TranscriptActions) -> JsonObject:
+    actions.defer(payload.get("agent_transcript_path"), payload.get("turn_id"))
     return {}
 
 
@@ -125,14 +137,17 @@ EVENTS = {"session-start": session_start,
 
 
 def main(argv: Sequence[str] | None = None, stdin: TextIO = sys.stdin,
-         stdout: TextIO = sys.stdout, stderr: TextIO = sys.stderr) -> int:
+         stdout: TextIO = sys.stdout, stderr: TextIO = sys.stderr,
+         transcript_actions: _TranscriptActions | None = None) -> int:
     """Run one event and return 0. Example: ``main([event], stdin, stdout)``."""
     arguments = list(sys.argv[1:] if argv is None else argv)
     if not arguments or arguments[0] not in EVENTS:
         raise ValueError(f"expected one of {sorted(EVENTS)}, got {arguments!r}")
+    actions = transcript_actions or _TranscriptActions(
+        archive_transcript, defer_transcript, reconcile_pending_transcripts)
     try:
         payload = json.load(stdin)
-        response = EVENTS[arguments[0]](payload, stderr)
+        response = EVENTS[arguments[0]](payload, stderr, actions)
     except Exception as error:  # noqa: BLE001
         stderr.write(f"continuity hook failed: {type(error).__name__}: {error}\n")
         response = {}

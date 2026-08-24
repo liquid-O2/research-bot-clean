@@ -107,6 +107,14 @@ def collect_direct_packet(fixture: MethodFixture) -> str:
     raise AssertionError(f"direct engage returned {len(chunks)} chunks, expected a final marker")
 
 
+class _FailReconciliation:
+    def __init__(self, message: str) -> None:
+        self.message = message
+
+    def __call__(self) -> None:
+        raise RuntimeError(f"reconciliation failed with {self.message}")
+
+
 class MethodContextLifecycleTests(unittest.TestCase):
     def test_codex_repository_override_selects_the_memory_ledger_root(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -195,16 +203,14 @@ class MethodContextLifecycleTests(unittest.TestCase):
         payload = hook_payload("SessionStart", cwd=str(ROOT), source="startup")
         output = StringIO()
         errors = StringIO()
-        with (
-            patch.object(
-                module,
-                "reconcile_pending_transcripts",
-                side_effect=RuntimeError("damaged pending marker"),
-            ),
-            patch.object(module, "ledger_tail", return_value="lasting memory"),
-        ):
+        actions = module._TranscriptActions(
+            module.archive_transcript,
+            module.defer_transcript,
+            _FailReconciliation("damaged pending marker"),
+        )
+        with patch.object(module, "ledger_tail", return_value="lasting memory"):
             status = module.main(
-                ["session-start"], StringIO(json.dumps(payload)), output, errors
+                ["session-start"], StringIO(json.dumps(payload)), output, errors, actions
             )
         response = json.loads(output.getvalue())
         context = response["hookSpecificOutput"]["additionalContext"]

@@ -16,6 +16,7 @@ from canary_driver import (
     canary_contract,
     GOOD_BRIEF,
     NO_MEMO,
+    PACKET_END,
     ROOT,
     SCOPE,
     command_payload,
@@ -155,6 +156,25 @@ def spawn_canaries() -> list[Canary]:
           if active().name == "claude" else []),
         Canary("a well-formed spawn passes", "pre-tool-use",
                spawn_payload(GOOD_BRIEF), "allow", setup=engaged),
+    ]
+
+
+def subagent_context_canaries() -> list[Canary]:
+    payload = {
+        "hook_event_name": "SubagentStart",
+        "session_id": "canary",
+        "cwd": str(ROOT),
+        "agent_id": "canary-child",
+    }
+    return [
+        Canary(
+            "SubagentStart injects the complete method packet",
+            "subagent-start",
+            payload,
+            "context",
+            PACKET_END,
+            setup=engaged,
+        )
     ]
 
 
@@ -307,6 +327,7 @@ def all_canaries() -> list[Canary]:
     """Every canary, grouped by the law it checks."""
     return [*route_canaries(), *escape_canaries(), *plan_route_canaries(),
             *engagement_canaries(), *brief_canaries(), *shared_codebase_canaries(),
-            *spawn_canaries(), *gate_edit_canaries(), *engage_canaries(),
+            *spawn_canaries(), *subagent_context_canaries(),
+            *gate_edit_canaries(), *engage_canaries(),
             *document_canaries(), *self_repair_canaries(), *receipt_canaries(),
             *prose_canaries()]

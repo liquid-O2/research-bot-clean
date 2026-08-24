@@ -198,8 +198,23 @@ def session_start(payload: Mapping[str, object]) -> JsonObject:
 
 
 def subagent_start(payload: Mapping[str, object]) -> JsonObject:
-    """Tell a starting subagent the route and its ownership."""
-    return policy.subagent_start(payload)
+    """Give a starting subagent the complete active method."""
+    state = policy.load_state(payload)
+    try:
+        contract = policy.current_contract(payload, state)
+        sources = policy.method_sources(policy.repo_root(payload), contract)
+        packet = policy.render_method_packet(state["route"], state["epoch"], contract, sources)
+        if packet.utf8_bytes > policy.MAX_INLINE_METHOD_BYTES:
+            raise ValueError(
+                f"subagent method context is {packet.utf8_bytes} bytes; "
+                f"maximum is {policy.MAX_INLINE_METHOD_BYTES}"
+            )
+        child_context = f"{NO_MEMO}\n\n{packet.text}"
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
+        child_context = (
+            f"Method guard state error: {error}. Stop work and report this error to the parent."
+        )
+    return context("SubagentStart", child_context)
 
 
 def last_message(payload: Mapping[str, object]) -> str:

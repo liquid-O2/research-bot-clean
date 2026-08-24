@@ -465,6 +465,8 @@ New memories land here, newest last.
 - 2026-08-24 #226 CODEX HOOK TRUST. Removed two orphaned handler identities and pinned the three changed current hashes after explicit user authorization. Live verification reports nine current handlers trusted with no restart.
 - 2026-08-24 #227 CODEX COMPACT CHECKPOINT. Commit e185bcc removes active OptMem lifecycle, archives exact transcripts, restores the exact method packet after compact, and passes 113 harness tests, 8 archive tests, 40 canaries, hook verification, and trust verification.
 - 2026-08-24 #228 CODEX STOP FIX. Stop now invokes unlazy only for the active scope bound to the current session, passes that scope explicitly, isolates root and child retry counts, and ignores unrelated scope edits. Five regressions and 40 installed canaries pass.
+- 2026-08-24 #229 CODEX SUBAGENT PROOF. A native codex exec child received the full exact method packet, both source boundaries, the final packet hash, and the required no-memory sentence through SubagentStart.
+- 2026-08-24 #230 CODEX LIFECYCLE PATHS. collaboration.spawn_agent does not emit repository Codex hooks here. Native codex exec does, so live hook proof must use the native client path.
 
 ## Checkpoints
 
@@ -550,4 +552,12 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - trigger: auto
 - cwd: /workspace
 - transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/94/943eede9abb05d2b5bc97ec1f6ff70c668726f5acf6bafcd54ed3c25725c72be.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T01:13:06Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/45/45e506b38c476b2f143b49ba7f63232665a75673cca647b39563b3dceaebc997.jsonl
 - SessionStart restores the exact method packet before compact continuation

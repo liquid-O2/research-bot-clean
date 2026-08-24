@@ -50,7 +50,7 @@
             "type": "command",
             "command": "/usr/bin/python3 /workspace/.codex/hooks/method_guard.py subagent-start",
             "timeout": 10,
-            "additionalContextLimit": 6000
+            "additionalContextLimit": 0
           }
         ]
       }

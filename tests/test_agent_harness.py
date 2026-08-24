@@ -45,7 +45,7 @@ HOOK_POLICY: dict[str, tuple[str | None, tuple[HookOwner, ...]]] = {
     )),
     "UserPromptSubmit": (None, ((10, "method_guard.py user-prompt-submit", 6000),)),
     "PreToolUse": ("^(Bash|apply_patch|Agent)$", ((15, "method_guard.py pre-tool-use", None),)),
-    "SubagentStart": (None, ((10, "method_guard.py subagent-start", 6000),)),
+    "SubagentStart": (None, ((10, "method_guard.py subagent-start", 0),)),
     "SubagentStop": (None, ((15, "method_guard.py subagent-stop", None),)),
     "PreCompact": ("^(manual|auto)$", ((30, "memory_ledger_hooks.py pre-compact", None),)),
     "SessionEnd": (None, ((3, "memory_ledger_hooks.py session-end", None),)),

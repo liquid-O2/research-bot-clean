@@ -6,7 +6,13 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from tests.test_agent_method_guard import MethodFixture, block_reason, hook_payload, method_guard
+from tests.test_agent_method_guard import (
+    MethodFixture,
+    NO_MEMO,
+    block_reason,
+    hook_payload,
+    method_guard,
+)
 
 
 CHUNK_END = "<<<METHOD_PACKET_CHUNK_END>>>"
@@ -128,6 +134,24 @@ class MethodContextLifecycleTests(unittest.TestCase):
         context = response["hookSpecificOutput"]["additionalContext"]
         self.assertEqual(context, direct_packet)
         self.assertEqual(write, {})
+
+    def test_subagent_start_injects_complete_packet_and_no_memory_rule(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            fixture = MethodFixture(Path(raw))
+            fixture.write_contract()
+            fixture.write_gates()
+            with fixture.environment():
+                activate(fixture)
+                direct_packet = collect_direct_packet(fixture)
+                response = call_guard(
+                    ["subagent-start"],
+                    hook_payload(
+                        "SubagentStart", cwd=str(fixture.repo), agent_id="child-fixture"
+                    ),
+                )
+        self.assertIsInstance(response, dict)
+        context = response["hookSpecificOutput"]["additionalContext"]
+        self.assertEqual(context, f"{NO_MEMO}\n\n{direct_packet}")
 
 
 if __name__ == "__main__":

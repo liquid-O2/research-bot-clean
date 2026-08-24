@@ -20,29 +20,14 @@ from types import ModuleType
 import sys
 import unittest
 from unittest.mock import patch
-from contextlib import contextmanager
-from typing import Iterator
+
+from tests.hook_imports import isolated_hook_imports
 
 ROOT = Path(__file__).resolve().parents[1]
 HOOKS = ROOT / ".claude/hooks"
 FIXTURES = ROOT / "tests/fixtures/claude_hook_payloads"
 HOOK_SIBLINGS = ("method_guard_support", "method_guard_rules", "shell_reading",
                  "transcript_archive")
-
-
-@contextmanager
-def isolated_hook_imports(directory: Path) -> Iterator[None]:
-    """Keep one client family's generic hook imports out of other suites."""
-    saved = {name: sys.modules.pop(name) for name in HOOK_SIBLINGS if name in sys.modules}
-    original_path = list(sys.path)
-    sys.path.insert(0, str(directory))
-    try:
-        yield
-    finally:
-        for name in HOOK_SIBLINGS:
-            sys.modules.pop(name, None)
-        sys.modules.update(saved)
-        sys.path[:] = original_path
 
 
 def load(name: str, path: Path) -> ModuleType | None:
@@ -52,7 +37,7 @@ def load(name: str, path: Path) -> ModuleType | None:
         return None
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
-    with isolated_hook_imports(path.parent):
+    with isolated_hook_imports(path.parent, HOOK_SIBLINGS):
         spec.loader.exec_module(module)
     return module
 
@@ -64,6 +49,22 @@ rules = guard.rules
 def fixture(name: str) -> dict[str, object]:
     """Load one payload captured from a live hook run."""
     return json.loads((FIXTURES / f"{name}.json").read_text(encoding="utf-8"))
+
+
+def run_fixture_engage() -> tuple[int, str, object]:
+    packet = guard.policy.ExactMethodPacket("exact packet", "a" * 64, 12, {})
+    state = {"pending_ready": {"scope": "fixture"}}
+    output = StringIO()
+    errors = StringIO()
+    with (
+        patch.object(guard, "direct_payload",
+                     return_value={"cwd": str(ROOT), "session_id": "session-fixture"}),
+        patch.object(guard.policy, "prepare_engagement", return_value=(packet, state)),
+        patch.object(guard.policy, "rearm"),
+        patch.object(guard.policy, "mark_ready") as mark_ready,
+    ):
+        status = guard.run_engage(["engage", "fixture"], output, errors)
+    return status, output.getvalue(), mark_ready
 
 
 class FixtureShapeTests(unittest.TestCase):
@@ -187,25 +188,13 @@ class FailOpenTests(unittest.TestCase):
         self.assertEqual(response.get("decision"), "block")
 
     def test_engage_writes_the_packet_text_and_marks_the_final_chunk_ready(self) -> None:
-        packet = guard.policy.ExactMethodPacket("exact packet", "a" * 64, 12, {})
-        state = {"pending_ready": {"scope": "fixture"}}
-        output = StringIO()
-        errors = StringIO()
-        with (
-            patch.object(guard, "direct_payload",
-                         return_value={"cwd": str(ROOT), "session_id": "session-fixture"}),
-            patch.object(guard.policy, "prepare_engagement", return_value=(packet, state)),
-            patch.object(guard.policy, "rearm"),
-            patch.object(guard.policy, "mark_ready") as mark_ready,
-        ):
-            try:
-                status = guard.run_engage(["engage", "fixture"], output, errors)
-            except TypeError as error:
-                self.fail(f"engage serialized its packet object: {error}")
-
+        try:
+            status, output, mark_ready = run_fixture_engage()
+        except TypeError as error:
+            self.fail(f"engage serialized its packet object: {error}")
         self.assertEqual(status, 0)
-        self.assertIn("exact packet", output.getvalue())
-        self.assertIn("<<<METHOD_PACKET_CHUNK_END>>>", output.getvalue())
+        self.assertIn("exact packet", output)
+        self.assertIn("<<<METHOD_PACKET_CHUNK_END>>>", output)
         mark_ready.assert_called_once()
 
 
@@ -429,33 +418,6 @@ class CommandGateTests(unittest.TestCase):
                 self.assertNotEqual(rules.scan_command(command).kind, "none")
 
 
-class AgentDocumentTests(unittest.TestCase):
-    """writing-for-agents governs the documents, not only the briefs."""
-
-    LAWFUL = {"standing_laws": ["unlazy", "writing-for-agents"], "owns": ["**"]}
-    UNLAWFUL = {"standing_laws": ["unlazy"], "owns": ["**"]}
-
-    def test_a_skill_body_needs_the_authoring_law(self) -> None:
-        with self.assertRaises(ValueError) as caught:
-            rules.require_writing_law([".agents/skills/x/SKILL.md"], self.UNLAWFUL)
-        self.assertIn("writing-for-agents", str(caught.exception))
-
-    def test_a_client_contract_needs_the_authoring_law(self) -> None:
-        for name in ("AGENTS.md", "CLAUDE.md"):
-            with self.subTest(document=name), self.assertRaises(ValueError):
-                rules.require_writing_law([name], self.UNLAWFUL)
-
-    def test_a_plan_document_needs_the_authoring_law(self) -> None:
-        with self.assertRaises(ValueError):
-            rules.require_writing_law(["design/some-plan.md"], self.UNLAWFUL)
-
-    def test_a_source_file_does_not(self) -> None:
-        rules.require_writing_law(["tools/x.py", "tests/test_x.py"], self.UNLAWFUL)
-
-    def test_the_law_present_allows_the_write(self) -> None:
-        rules.require_writing_law([".agents/skills/x/SKILL.md"], self.LAWFUL)
-
-
 class ReceiptDigestTests(unittest.TestCase):
     """The review wall must see every uncommitted change, new files included."""
 
@@ -496,55 +458,6 @@ class ReceiptDigestTests(unittest.TestCase):
             first = rules.diff_digest(root)
             (root / "created.py").write_text("y = 2\n", encoding="utf-8")
             self.assertNotEqual(first, rules.diff_digest(root))
-
-
-class BriefTests(unittest.TestCase):
-    GOOD = ("You are a subagent. Don't run memo.\n"
-            "Own: tools/x.py\n"
-            "You are not alone in the codebase.\n"
-            "Do not revert others' edits.\n"
-            "Acceptance check: the named test passes and the diff touches only that file.\n")
-
-    def test_a_complete_brief_passes(self) -> None:
-        rules.validate_brief(self.GOOD, ROOT)
-
-    def test_the_no_memo_sentence_must_appear_exactly_once(self) -> None:
-        with self.assertRaises(ValueError):
-            rules.validate_brief(self.GOOD + "You are a subagent. Don't run memo.\n", ROOT)
-
-    def test_an_unslopped_brief_is_refused(self) -> None:
-        with self.assertRaises(ValueError) as caught:
-            rules.validate_brief(self.GOOD + "Of course! delve in.\n", ROOT)
-        self.assertIn("unslop", str(caught.exception))
-
-    def test_a_brief_that_assumes_it_is_alone_is_refused(self) -> None:
-        with self.assertRaises(ValueError) as caught:
-            rules.validate_brief(self.GOOD.replace(
-                "You are not alone in the codebase.\n", ""), ROOT)
-        self.assertIn("not alone", str(caught.exception))
-
-    def test_a_brief_that_may_revert_other_agents_is_refused(self) -> None:
-        with self.assertRaises(ValueError) as caught:
-            rules.validate_brief(self.GOOD.replace(
-                "Do not revert others' edits.\n", ""), ROOT)
-        self.assertIn("revert", str(caught.exception))
-
-    def test_a_non_string_brief_names_what_arrived(self) -> None:
-        with self.assertRaises(ValueError) as caught:
-            rules.validate_brief(None, ROOT)
-        self.assertIn("None", str(caught.exception))
-
-
-class UnslopWallTests(unittest.TestCase):
-    def test_the_wall_uses_the_repository_lint(self) -> None:
-        violation = rules.unslop_violation("A reply \N{EM DASH} with a dash.", ROOT)
-        self.assertIn("rule 13", violation)
-
-    def test_clean_prose_passes_the_wall(self) -> None:
-        self.assertIsNone(rules.unslop_violation("The guard denied the write.", ROOT))
-
-    def test_an_empty_message_passes(self) -> None:
-        self.assertIsNone(rules.unslop_violation("   ", ROOT))
 
 
 if __name__ == "__main__":

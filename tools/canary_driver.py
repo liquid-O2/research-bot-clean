@@ -245,6 +245,26 @@ def remember_engaged_state(
     ENGAGED_PACKETS[key] = result
 
 
+def run_engage_command(
+    command: tuple[str, ...], environment: dict[str, str],
+) -> subprocess.CompletedProcess[str]:
+    if ACTIVE.chunked_engage:
+        return collect_chunked_engage(command, environment)
+    return subprocess.run(
+        command, text=True, capture_output=True,
+        env=environment, timeout=30, check=False,
+    )
+
+
+def require_engage_success(
+    result: subprocess.CompletedProcess[str],
+) -> None:
+    if result.returncode == 0:
+        return
+    detail = result.stderr.strip() or result.stdout.strip() or "no output"
+    raise RuntimeError(f"engage failed with exit {result.returncode}: {detail}")
+
+
 def engage(state: Path, scope: str | None = None) -> subprocess.CompletedProcess[str]:
     """Run the engage command the denial messages tell the agent to run."""
     selected_scope = scope or method_scope_name(state)
@@ -256,14 +276,8 @@ def engage(state: Path, scope: str | None = None) -> subprocess.CompletedProcess
         return cached
     environment = guard_environment(state)
     command = (sys.executable, str(ACTIVE.guard), "engage", selected_scope)
-    if ACTIVE.chunked_engage:
-        result = collect_chunked_engage(command, environment)
-    else:
-        result = subprocess.run(command, text=True, capture_output=True,
-                                env=environment, timeout=30, check=False)
-    if result.returncode != 0:
-        detail = result.stderr.strip() or result.stdout.strip() or "no output"
-        raise RuntimeError(f"engage failed with exit {result.returncode}: {detail}")
+    result = run_engage_command(command, environment)
+    require_engage_success(result)
     remember_engaged_state(state, key, result)
     return result
 

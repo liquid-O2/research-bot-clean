@@ -78,6 +78,36 @@ def chunk_body(response: str) -> str:
     return body
 
 
+def call_memory_action(
+    name: str, action: str, payload: dict[str, object], archive: Path,
+) -> tuple[int, dict[str, object], str]:
+    with patch.dict(os.environ, {"CODEX_TRANSCRIPT_ARCHIVE_ROOT": str(archive)}, clear=False):
+        module = load_memory_hook(name)
+        output = StringIO()
+        errors = StringIO()
+        status = module.main(
+            [action], StringIO(json.dumps(payload)), output, errors,
+        )
+    return status, json.loads(output.getvalue()), errors.getvalue()
+
+
+def claude_child_fixture(
+    root: Path,
+) -> tuple[Path, Path, bytes, dict[str, object]]:
+    archive = root / "archive"
+    transcript = root / "claude-child.jsonl"
+    final_bytes = b'{"type":"assistant","message":"done"}\n'
+    transcript.write_bytes(final_bytes)
+    payload: dict[str, object] = {
+        "hook_event_name": "SubagentStop",
+        "session_id": "claude-session",
+        "agent_id": "claude-child",
+        "agent_transcript_path": str(transcript),
+        "cwd": str(root),
+    }
+    return archive, transcript, final_bytes, payload
+
+
 def collect_direct_packet(fixture: MethodFixture) -> str:
     chunks: list[str] = []
     response = call_guard(["engage", fixture.scope], None)
@@ -219,35 +249,17 @@ class MethodContextLifecycleTests(unittest.TestCase):
     def test_claude_subagent_stop_archives_a_complete_transcript_without_turn_id(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            archive = root / "archive"
-            transcript = root / "claude-child.jsonl"
-            final_bytes = b'{"type":"assistant","message":"done"}\n'
-            transcript.write_bytes(final_bytes)
-            payload = {
-                "hook_event_name": "SubagentStop",
-                "session_id": "claude-session",
-                "agent_id": "claude-child",
-                "agent_transcript_path": str(transcript),
-                "cwd": str(root),
-            }
-            with patch.dict(
-                os.environ,
-                {"CODEX_TRANSCRIPT_ARCHIVE_ROOT": str(archive)},
-                clear=False,
-            ):
-                module = load_memory_hook("claude_subagent_archive_test")
-                output = StringIO()
-                errors = StringIO()
-                status = module.main(
-                    ["subagent-stop"], StringIO(json.dumps(payload)), output, errors
-                )
+            archive, _, final_bytes, payload = claude_child_fixture(root)
+            status, output, errors = call_memory_action(
+                "claude_subagent_archive_test", "subagent-stop", payload, archive,
+            )
             digest = sha256(final_bytes).hexdigest()
             archived = archive / "objects" / digest[:2] / f"{digest}.jsonl"
             archived_bytes = archived.read_bytes() if archived.is_file() else b""
 
         self.assertEqual(status, 0)
-        self.assertEqual(json.loads(output.getvalue()), {})
-        self.assertEqual(errors.getvalue(), "")
+        self.assertEqual(output, {})
+        self.assertEqual(errors, "")
         self.assertEqual(archived_bytes, final_bytes)
 
     def test_child_reconciliation_failure_does_not_hide_session_context(self) -> None:

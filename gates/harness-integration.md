@@ -8,7 +8,7 @@ Scope: prove the installed harness through supported Codex discovery and lifecyc
   EVIDENCE: pending
 
 - [ ] G2: the harness unit and fixture suite passes from one command
-  CHECK: python3 -m unittest tests.test_agent_harness
+  CHECK: python3 -m unittest tests.test_agent_harness tests.test_claude_installer tests.test_hook_trust
   EXPECT: OK
   EVIDENCE: pending
 
@@ -46,4 +46,3 @@ Scope: prove the installed harness through supported Codex discovery and lifecyc
   CHECK: python3 tools/harness_rebuild_check.py report-counts
   EXPECT: REPORT COUNTS PASS
   EVIDENCE: pending
-

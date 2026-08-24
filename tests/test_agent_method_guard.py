@@ -13,6 +13,9 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+
+from tests.hook_imports import isolated_hook_imports
+
 ROOT = Path(__file__).resolve().parents[1]
 HOOKS = ROOT / "tools/harness_templates/hooks"
 METHOD_GUARD_PATH = HOOKS / "method_guard.py"
@@ -34,21 +37,6 @@ principle-minimize-reader-load""".split()
 HOOK_SIBLINGS = ("method_guard_support", "method_guard_rules", "shell_reading")
 
 
-@contextmanager
-def isolated_hook_imports(directory: Path) -> Iterator[None]:
-    """Keep one client family's generic hook imports out of other suites."""
-    saved = {name: sys.modules.pop(name) for name in HOOK_SIBLINGS if name in sys.modules}
-    original_path = list(sys.path)
-    sys.path.insert(0, str(directory))
-    try:
-        yield
-    finally:
-        for name in HOOK_SIBLINGS:
-            sys.modules.pop(name, None)
-        sys.modules.update(saved)
-        sys.path[:] = original_path
-
-
 def load_module(name: str, path: Path) -> ModuleType | None:
     if not path.is_file():
         return None
@@ -57,7 +45,7 @@ def load_module(name: str, path: Path) -> ModuleType | None:
         return None
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
-    with isolated_hook_imports(path.parent):
+    with isolated_hook_imports(path.parent, HOOK_SIBLINGS):
         spec.loader.exec_module(module)
     return module
 method_guard = load_module("codex_guard_under_test", METHOD_GUARD_PATH)

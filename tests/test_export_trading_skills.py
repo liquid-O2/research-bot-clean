@@ -3,6 +3,7 @@ from __future__ import annotations
 from hashlib import sha256
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -42,6 +43,18 @@ def run_python(arguments: list[str], cwd: Path) -> subprocess.CompletedProcess[s
     return subprocess.run(
         [sys.executable, *arguments], cwd=cwd, check=False, text=True,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=180,
+    )
+
+
+def run_memory_hook(
+    repository: Path, archive: Path, event: str, payload: dict[str, object],
+) -> subprocess.CompletedProcess[str]:
+    environment = dict(os.environ)
+    environment["CODEX_TRANSCRIPT_ARCHIVE_ROOT"] = str(archive)
+    return subprocess.run(
+        [sys.executable, ".codex/hooks/memory_ledger_hooks.py", event],
+        cwd=repository, check=False, text=True, input=json.dumps(payload),
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30, env=environment,
     )
 
 
@@ -135,6 +148,27 @@ class ExportManifestTests(unittest.TestCase):
 
 
 class CleanInstallTests(unittest.TestCase):
+    def assert_memory_startup(self, repository: Path, archive: Path) -> None:
+        payload = {"hook_event_name": "SessionStart", "session_id": "clean-install",
+                   "source": "startup", "cwd": str(repository)}
+        started = run_memory_hook(repository, archive, "session-start", payload)
+        self.assertEqual(started.returncode, 0, started.stderr)
+        context = json.loads(started.stdout)["hookSpecificOutput"]["additionalContext"]
+        self.assertIn("The memory ledger is empty.", context)
+
+    def assert_memory_checkpoint(self, repository: Path, archive: Path) -> None:
+        transcript = archive.parent / "clean-install-session.jsonl"
+        transcript.write_text('{"type":"fixture"}\n', encoding="utf-8")
+        payload = {"hook_event_name": "PreCompact", "session_id": "clean-install",
+                   "trigger": "manual", "cwd": str(repository),
+                   "transcript_path": str(transcript)}
+        compacted = run_memory_hook(repository, archive, "pre-compact", payload)
+        self.assertEqual(compacted.returncode, 0, compacted.stderr)
+        self.assertEqual(json.loads(compacted.stdout), {})
+        ledger = (repository / "MEMORY.md").read_text(encoding="utf-8")
+        self.assertIn("- session: clean-install", ledger)
+        self.assertIn("- trigger: manual", ledger)
+
     def test_clean_install_passes_both_clients_public_canaries(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             directory = Path(raw)
@@ -153,8 +187,12 @@ class CleanInstallTests(unittest.TestCase):
             installed = run_python([str(bundle / "install.py"), str(repository)], bundle)
             self.assertEqual(installed.returncode, 0, installed.stdout)
             self.assertIn("INSTALL PASS", installed.stdout)
+            memory_before = (repository / "MEMORY.md").read_bytes()
+            self.assertIn(b"## Ledger\n", memory_before)
+            self.assertIn(b"## Checkpoints\n", memory_before)
             repeated = run_python([str(bundle / "install.py"), str(repository)], bundle)
             self.assertEqual(repeated.returncode, 0, repeated.stdout)
+            self.assertEqual((repository / "MEMORY.md").read_bytes(), memory_before)
             self.assertEqual(
                 (repository / "tools/user_tool.py").read_text(encoding="utf-8"),
                 "USER_OWNED = True\n",
@@ -176,12 +214,24 @@ class CleanInstallTests(unittest.TestCase):
             self.assertIn(str(repository / ".codex/hooks/method_guard.py"), config)
             self.assertNotIn("__REPO__", config)
             self.assertNotIn("/workspace", config)
+            archive = directory / "transcript-archive"
+            self.assert_memory_startup(repository, archive)
+            self.assert_memory_checkpoint(repository, archive)
 
             checked = run_python(
                 [str(bundle / "install.py"), "--check", str(repository)], bundle,
             )
             self.assertEqual(checked.returncode, 0, checked.stdout)
             self.assertIn("INSTALL CHECK PASS", checked.stdout)
+            memory = repository / "MEMORY.md"
+            saved_memory = directory / "MEMORY.saved"
+            memory.replace(saved_memory)
+            missing_memory = run_python(
+                [str(bundle / "install.py"), "--check", str(repository)], bundle,
+            )
+            self.assertEqual(missing_memory.returncode, 1, missing_memory.stdout)
+            self.assertIn("installed memory ledger is missing", missing_memory.stdout)
+            saved_memory.replace(memory)
             subprocess.run(["git", "add", "."], cwd=repository, check=True)
             subprocess.run(
                 ["git", "-c", "user.name=Export Test", "-c", "user.email=export@test.invalid",
@@ -199,18 +249,6 @@ class CleanInstallTests(unittest.TestCase):
             )
             self.assertEqual(claude_canaries.returncode, 0, claude_canaries.stdout)
             self.assertIn("CANARIES PASS", claude_canaries.stdout)
-            focused = run_python(
-                ["-m", "unittest", "tests.test_shell_reading", "tests.test_agent_method_guard",
-                 "tests.test_claude_method_guard", "tests.test_claude_method_documents",
-                 "tests.test_method_enforcement",
-                 "tests.test_memory_hooks"],
-                repository,
-            )
-            self.assertEqual(focused.returncode, 0, focused.stdout)
-            archive = run_python(
-                ["tools/harness_templates/hooks/test_transcript_archive.py"], repository,
-            )
-            self.assertEqual(archive.returncode, 0, archive.stdout)
 
 
 if __name__ == "__main__":

@@ -19,6 +19,14 @@ CLAUDE_HOOK_MODULES = CODEX_HOOK_MODULES
 OBSOLETE_CODEX_HOOKS = ("cached_session_bridge.py", "optmem_lifecycle.py")
 OBSOLETE_CLAUDE_HOOKS = ("optmem_continuity.py",)
 REQUIRED_IGNORES = (".unlazy/", "MEMORY.md")
+EMPTY_MEMORY_LEDGER = """# Memory
+
+Durable project decisions and continuity checkpoints live here.
+
+## Ledger
+
+## Checkpoints
+"""
 
 
 def copy_file(source: Path, destination: Path) -> int:
@@ -114,6 +122,18 @@ def install_gitignore(target: Path) -> int:
     return 1
 
 
+def install_memory_ledger(target: Path) -> int:
+    """Create the private ledger once without replacing repository history."""
+    path = target / "MEMORY.md"
+    if path.is_file():
+        return 0
+    if path.exists() or path.is_symlink():
+        raise ValueError(f"memory ledger {path} is not a regular file")
+    path.write_text(EMPTY_MEMORY_LEDGER, encoding="utf-8")
+    path.chmod(0o600)
+    return 1
+
+
 def install(target: Path) -> dict[str, int]:
     """Copy every managed method component into the target."""
     if target == HERE:
@@ -128,6 +148,7 @@ def install(target: Path) -> dict[str, int]:
         "contract": copy_file(HERE / "AGENTS.md", target / "AGENTS.md"),
         "gitignore": install_gitignore(target),
         "hooks": install_hooks(target),
+        "memory": install_memory_ledger(target),
         "sources": copy_tree(HERE / "vendor/agent-sources", target / "vendor/agent-sources"),
         "tests": copy_tree(HERE / "tests", target / "tests"),
         "tools": copy_tree(HERE / "tools", target / "tools"),
@@ -232,6 +253,17 @@ def installed_ignore_errors(target: Path) -> list[str]:
     return errors
 
 
+def installed_memory_errors(target: Path) -> list[str]:
+    """Require a usable private ledger while leaving its entries unmanaged."""
+    path = target / "MEMORY.md"
+    if not path.is_file():
+        return [f"installed memory ledger is missing: {path}"]
+    headings = set(path.read_text(encoding="utf-8").splitlines())
+    required = {"## Ledger", "## Checkpoints"}
+    missing = sorted(required - headings)
+    return [f"installed memory ledger is missing headings: {missing!r}"] if missing else []
+
+
 def install_errors(target: Path) -> list[str]:
     """Return every installed file that differs from the export bundle."""
     return [
@@ -240,6 +272,7 @@ def install_errors(target: Path) -> list[str]:
         *installed_claude_hook_errors(target),
         *installed_claude_link_errors(target),
         *installed_ignore_errors(target),
+        *installed_memory_errors(target),
     ]
 
 

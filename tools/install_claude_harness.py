@@ -12,9 +12,12 @@ this installer owns.
 
 from __future__ import annotations
 
+import argparse
 import json
+import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 from typing import Sequence, TextIO
 
@@ -35,6 +38,17 @@ SETTINGS = ROOT / ".claude/settings.json"
 GUARD = f"/usr/bin/python3 {HOOKS}/{CLAUDE_GUARD_INSTALLED}"
 MEMORY = f"/usr/bin/python3 {HOOKS}/memory_ledger_hooks.py"
 WRITE_TOOLS = "Edit|Write|MultiEdit|NotebookEdit|Bash|Agent|Task"
+OBSOLETE_HOOKS = ("optmem_continuity.py",)
+IMPORT_SMOKE = """import importlib.util, pathlib, sys
+path = pathlib.Path(sys.argv[1])
+sys.path.insert(0, str(path.parent))
+spec = importlib.util.spec_from_file_location('claude_hook_import_smoke', path)
+if spec is None or spec.loader is None:
+    raise RuntimeError(f'cannot import {path}')
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+"""
 
 
 def hook(command: str, timeout: int = 15) -> dict[str, object]:
@@ -60,6 +74,7 @@ def settings_document() -> dict[str, object]:
         "PreToolUse": group([hook(f"{GUARD} pre-tool-use", 20)], WRITE_TOOLS),
         "PostToolUse": group([hook(f"{GUARD} post-tool-use", 20)],
                              "Edit|Write|MultiEdit|NotebookEdit"),
+        "SubagentStart": group([hook(f"{GUARD} subagent-start", 10)]),
         "SubagentStop": group([hook(f"{GUARD} subagent-stop", 15)]),
         "Stop": group([hook(f"{GUARD} stop", 30)]),
         "PreCompact": group([hook(f"{MEMORY} pre-compact", 30)], "manual|auto"),
@@ -78,6 +93,10 @@ def install_hooks() -> list[str]:
     shutil.copy2(TEMPLATES / CLAUDE_GUARD_TEMPLATE, guard)
     guard.chmod(0o755)
     installed.append(CLAUDE_GUARD_INSTALLED)
+    for name in OBSOLETE_HOOKS:
+        obsolete = HOOKS / name
+        if obsolete.is_file() or obsolete.is_symlink():
+            obsolete.unlink()
     return sorted(installed)
 
 
@@ -88,25 +107,98 @@ def install_settings() -> int:
     return len(body)
 
 
-def verify_installed(names: Sequence[str]) -> None:
-    """Check every module landed and the guard is executable."""
-    for name in names:
-        path = HOOKS / name
-        if not path.is_file():
-            raise ValueError(f"hook module did not install: {path}")
+def hook_file_pairs() -> list[tuple[Path, Path]]:
+    """Pair each source with the Claude path that must match it."""
+    pairs = [(TEMPLATES / name, HOOKS / name) for name in CLAUDE_HOOK_MODULES]
+    pairs.append((TEMPLATES / CLAUDE_GUARD_TEMPLATE,
+                  HOOKS / CLAUDE_GUARD_INSTALLED))
+    return pairs
+
+
+def import_error(path: Path) -> str | None:
+    """Return the import failure for one installed hook, if any."""
+    environment = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+    result = subprocess.run(
+        (sys.executable, "-c", IMPORT_SMOKE, str(path)), cwd=ROOT,
+        capture_output=True, text=True, timeout=10, check=False, env=environment,
+    )
+    if result.returncode == 0:
+        return None
+    detail = result.stderr.strip().splitlines()[-1] if result.stderr.strip() else "no stderr"
+    return f"hook import failed for {path}: {detail}"
+
+
+def hook_errors() -> list[str]:
+    """List missing, drifted, unimportable, or obsolete hook files."""
+    errors: list[str] = []
+    for source, installed in hook_file_pairs():
+        if not installed.is_file() or installed.read_bytes() != source.read_bytes():
+            errors.append(f"installed Claude hook differs from template: {installed}")
     guard = HOOKS / CLAUDE_GUARD_INSTALLED
-    if not guard.stat().st_mode & 0o111:
-        raise ValueError(f"installed guard is not executable: {guard}")
+    if guard.is_file() and not guard.stat().st_mode & 0o111:
+        errors.append(f"installed guard is not executable: {guard}")
+    errors.extend(error for _, path in hook_file_pairs()
+                  if path.is_file() and (error := import_error(path)))
+    errors.extend(f"obsolete Claude hook remains: {HOOKS / name}"
+                  for name in OBSOLETE_HOOKS if os.path.lexists(HOOKS / name))
+    return errors
 
 
-def main(argv: Sequence[str] | None = None, stdout: TextIO = sys.stdout) -> int:
-    """Install hooks, settings and skills, then report what landed."""
+def settings_errors() -> list[str]:
+    """List settings drift without rewriting the tracked file."""
+    expected = (json.dumps(settings_document(), indent=2) + "\n").encode()
+    if SETTINGS.is_file() and SETTINGS.read_bytes() == expected:
+        return []
+    return [f"installed Claude settings differ from generated settings: {SETTINGS}"]
+
+
+def skill_link_errors() -> list[str]:
+    """List Claude skill links that do not mirror the canonical authority."""
+    try:
+        names = install_claude_skills.expected_names(install_claude_skills.RECEIPT)
+        actual = sorted(entry.name for entry in install_claude_skills.TARGET.iterdir())
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        return [f"Claude skill links are unreadable: {error}"]
+    errors = [] if actual == names else [f"Claude skill links are {actual!r}, expected {names!r}"]
+    for name in names:
+        link = install_claude_skills.TARGET / name
+        if not link.is_symlink() or os.readlink(link) != install_claude_skills.link_target(name):
+            errors.append(f"Claude skill link differs from authority: {link}")
+    return errors
+
+
+def current_errors() -> list[str]:
+    """Return every installed Claude harness mismatch without changing it."""
+    return [*hook_errors(), *settings_errors(), *skill_link_errors()]
+
+
+def install(stdout: TextIO) -> int:
+    """Install hooks, settings, and skill links, then verify exact parity."""
     names = install_hooks()
-    verify_installed(names)
     size = install_settings()
     install_claude_skills.main([], stdout)
+    errors = current_errors()
+    if errors:
+        raise ValueError("\n".join(errors))
     stdout.write(f"CLAUDE HARNESS PASS hooks={len(names)} settings_bytes={size} "
                  f"events={len(settings_document()['hooks'])}\n")
+    return 0
+
+
+def main(argv: Sequence[str] | None = None, stdout: TextIO = sys.stdout,
+         stderr: TextIO = sys.stderr) -> int:
+    """Install the Claude harness or check it without writing."""
+    parser = argparse.ArgumentParser(description="Install or check the Claude agent setup.")
+    parser.add_argument("--check", action="store_true",
+                        help="Check hooks, settings, and skill links without writing.")
+    arguments = parser.parse_args(sys.argv[1:] if argv is None else argv)
+    if not arguments.check:
+        return install(stdout)
+    errors = current_errors()
+    if errors:
+        stderr.write("\n".join(errors) + "\n")
+        return 1
+    stdout.write("CLAUDE HARNESS CURRENT\n")
     return 0
 
 

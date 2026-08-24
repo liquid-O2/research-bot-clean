@@ -370,7 +370,7 @@ def skill_tree_errors(receipt: dict[str, object]) -> list[str]:
     nested_skills = sorted(active.glob("*/*/SKILL.md")) if active.is_dir() else []
     if nested_skills:
         errors.append(f"nested skill authorities remain: {nested_skills!r}")
-    for forbidden in (WORKSPACE / ".codex/skills", WORKSPACE / ".claude/skills"):
+    for forbidden in (WORKSPACE / ".codex/skills",):
         if path_exists(forbidden):
             errors.append(f"old skill authority still exists: {forbidden}")
     return errors
@@ -382,8 +382,6 @@ def managed_file_pairs() -> list[tuple[Path, Path]]:
           for source in codex_hook_templates()),
         *((source, WORKSPACE / ".codex/agents" / source.name)
           for source in sorted((TEMPLATES / "agents").glob("*.toml"))),
-        (TEMPLATES / "hooks/cached_session_bridge.py",
-         WORKSPACE / ".claude/hooks/optmem_continuity.py"),
     ]
 
 
@@ -461,9 +459,6 @@ def install() -> None:
     if runtime_error:
         raise ValueError(runtime_error)
     archive_old_setup()
-    bridge = WORKSPACE / ".claude/hooks/optmem_continuity.py"
-    bridge.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(TEMPLATES / "hooks/cached_session_bridge.py", bridge)
     rewrite_mixed_configs()
     for pin in PINS:
         copy_source(pin)

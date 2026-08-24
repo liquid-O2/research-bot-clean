@@ -51,7 +51,8 @@ CANONICAL_TREES = {
 SHARED_HOOK_MODULES = ("method_guard_support.py", "method_guard_rules.py")
 CODEX_HOOK_MODULES = (*SHARED_HOOK_MODULES, "method_guard.py", "memory_ledger_hooks.py",
                       "shell_reading.py", "transcript_archive.py")
-CLAUDE_HOOK_MODULES = (*SHARED_HOOK_MODULES, "memory_ledger_hooks.py")
+CLAUDE_HOOK_MODULES = (*SHARED_HOOK_MODULES, "memory_ledger_hooks.py",
+                       "shell_reading.py", "transcript_archive.py")
 CLAUDE_GUARD_TEMPLATE = "claude_method_guard.py"
 CLAUDE_GUARD_INSTALLED = "method_guard.py"
 MEMORY_MARKERS = ("<!-- MEMORY_BLOCK_BEGIN -->", "<!-- MEMORY_BLOCK_END -->")
@@ -88,6 +89,7 @@ route from your prompt and infers nothing from the permission mode.
 
 Every subagent runs as `method-worker`, which pins Opus 5 at medium effort and
 preloads `unslop`, `clean-code-for-agents`, `writing-for-agents` and `unlazy`.
+The SubagentStart hook also injects the active route's exact method packet.
 
 The repository `code-review` skill replaces the bundled `/code-review` on
 purpose, because `$implement-flow` selects the Pocock method at its review step.

@@ -15,8 +15,8 @@ because a guard that fails closed on its own bug becomes the next deadlock
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
+import re
 import sys
 from typing import Mapping, Sequence, TextIO, cast
 
@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import method_guard_support as policy  # noqa: E402
 import method_guard_rules as rules  # noqa: E402
+from transcript_archive import archive_transcript  # noqa: E402
 
 policy.configure("claude")
 
@@ -92,10 +93,19 @@ def check_spawn(tool_input: Mapping[str, object], state: JsonObject,
     root = policy.repo_root(payload)
     contract = policy.current_contract(payload, state)
     rules.validate_brief(tool_input.get("prompt"), root)
-    rules.validate_model_policy(tool_input, contract, "subagent_type",
-                                "subagent_type", "claude")
-    rules.validate_model_policy(tool_input, contract, "model",
-                                "routine_implementation_model", "claude")
+    require_spawn_value(tool_input, "subagent_type", "method-worker")
+    model_policy = contract.get("model_policy")
+    scoped = model_policy.get("claude") if isinstance(model_policy, dict) else None
+    expected_model = scoped.get("routine_implementation_model", "opus") \
+        if isinstance(scoped, dict) else "opus"
+    require_spawn_value(tool_input, "model", expected_model)
+
+
+def require_spawn_value(tool_input: Mapping[str, object], key: str, expected: object) -> None:
+    """Reject a Claude child launch that bypasses its pinned worker."""
+    actual = tool_input.get(key)
+    if actual != expected:
+        raise ValueError(f"Agent launch requires {key}={expected!r}, got {actual!r}.")
 
 
 def check_write(paths: Sequence[str], state: JsonObject,
@@ -119,9 +129,18 @@ def check_write(paths: Sequence[str], state: JsonObject,
 def rearm_on_contract_edit(paths: Sequence[str], state: JsonObject,
                            payload: Mapping[str, object]) -> None:
     """Clear readiness when the contract or its gates change under us."""
-    if rules.bootstrap_only(paths) and "ready" in state:
+    if rules.bootstrap_only(paths) and active_method_artifact(paths, state):
         policy.rearm(payload, state, "contract or gates edit")
     return None
+
+
+def active_method_artifact(paths: Sequence[str], state: JsonObject) -> bool:
+    """Report whether paths include this session's METHOD.json or GATES.md."""
+    scope = state.get("scope")
+    if not isinstance(scope, str):
+        return False
+    active = {f".unlazy/{scope}/METHOD.json", f".unlazy/{scope}/GATES.md"}
+    return any(path in active for path in paths)
 
 
 def refuse_hidden_engage(command: str) -> None:
@@ -201,7 +220,7 @@ def user_prompt_submit(payload: Mapping[str, object]) -> JsonObject:
         policy.remember_session(payload)
         route = rules.route_from_prompt(prompt_text(payload))
         state = policy.load_state(payload)
-        state["turn_blocks"] = 0
+        state["stop_blocks"] = {}
         policy.save_state(payload, state)
         if route is not None:
             select_route(payload, state, route)
@@ -220,24 +239,13 @@ def select_route(payload: Mapping[str, object], state: JsonObject, route: str) -
 
 
 def session_start(payload: Mapping[str, object]) -> JsonObject:
-    """Re-arm the guard after a compaction or a clear, and say what that means."""
-    try:
-        policy.remember_session(payload)
-        source = str(payload.get("source") or "")
-        state = policy.load_state(payload)
-        if source not in {"compact", "clear"} or not rules.route_selected(state):
-            return {}
-        policy.rearm(payload, state, source)
-        return context("SessionStart", rearm_notice(str(state["route"]), source))
-    except Exception as error:  # noqa: BLE001
-        return allow_with_warning(f"{type(error).__name__}: {error}")
+    """Restore the exact method after compaction or clear."""
+    return policy.session_start(payload)
 
 
-def rearm_notice(route: str, source: str) -> str:
-    """Explain that the method left context and must return before any write."""
-    return (f"Method guard re-armed after {source}. Route {route} is still selected, but its "
-            f"exact sources are no longer in this session. Run {ENGAGE_HINT} before the next "
-            "repository write. What you remember of the method does not count.")
+def subagent_start(payload: Mapping[str, object]) -> JsonObject:
+    """Give a starting subagent the complete active method."""
+    return policy.subagent_start(payload)
 
 
 MAX_TURN_BLOCKS = 3
@@ -245,7 +253,24 @@ MAX_TURN_BLOCKS = 3
 
 def run_unlazy_stop(payload: Mapping[str, object]) -> JsonObject:
     """Run the pinned unlazy Stop wall for this repository."""
-    return rules.run_unlazy_stop(payload, policy.repo_root(payload))
+    state = policy.load_state(payload)
+    scope = bound_unlazy_scope(payload, state)
+    if scope is None:
+        return {}
+    return rules.run_unlazy_stop(payload, policy.repo_root(payload), scope)
+
+
+def bound_unlazy_scope(payload: Mapping[str, object], state: JsonObject) -> str | None:
+    """Return only the active scope whose session marker matches this session."""
+    scope = state.get("scope")
+    if not isinstance(scope, str) or policy.SAFE_NAME.fullmatch(scope) is None:
+        return None
+    marker = policy.repo_root(payload) / ".unlazy" / scope / "session"
+    try:
+        owner = marker.read_text(encoding="utf-8").strip()
+    except (OSError, UnicodeError):
+        return None
+    return scope if owner == policy.payload_session_id(payload) else None
 
 
 def method_evidence_violation(payload: Mapping[str, object]) -> str | None:
@@ -266,24 +291,41 @@ def unslop_violation(message: str, payload: Mapping[str, object]) -> str | None:
 
 
 def exhausted(payload: Mapping[str, object]) -> bool:
-    """Report whether this turn has been blocked too many times to keep trying.
-
-    A wall that steps aside the moment `stop_hook_active` is set lets the second
-    attempt through unchecked, so one block per turn was the whole enforcement.
-    The walls keep running; only a repeatedly blocked turn is released, loudly,
-    so a wall cannot become a loop.
-    """
+    """Report whether this actor has been blocked too many times."""
     state = policy.load_state(payload)
-    blocks = int(state.get("turn_blocks", 0))
+    blocks = actor_blocks(state, stop_actor(payload))
     return payload.get("stop_hook_active") is True and blocks >= MAX_TURN_BLOCKS
 
 
 def record_block(payload: Mapping[str, object], reason: str) -> JsonObject:
-    """Count this block against the turn, then refuse the turn."""
+    """Count this block against one actor, then refuse the turn."""
     state = policy.load_state(payload)
-    state["turn_blocks"] = int(state.get("turn_blocks", 0)) + 1
+    actor = stop_actor(payload)
+    counts = state.get("stop_blocks")
+    if not isinstance(counts, dict):
+        counts = {}
+    counts[actor] = actor_blocks(state, actor) + 1
+    state["stop_blocks"] = counts
     policy.save_state(payload, state)
     return block(reason)
+
+
+def stop_actor(payload: Mapping[str, object]) -> str:
+    """Return a stable counter key for the root or one child."""
+    event = str(payload.get("hook_event_name") or payload.get("hookEventName") or "")
+    if event != "SubagentStop":
+        return "root"
+    agent = payload.get("agent_id") or payload.get("agentId") or "anonymous"
+    return f"subagent:{agent}"
+
+
+def actor_blocks(state: JsonObject, actor: str) -> int:
+    """Return one actor's valid non-negative block count."""
+    counts = state.get("stop_blocks")
+    if not isinstance(counts, dict):
+        return 0
+    count = counts.get(actor)
+    return count if type(count) is int and count >= 0 else 0
 
 
 def first_violation(payload: Mapping[str, object]) -> str | None:
@@ -336,24 +378,67 @@ def last_message(payload: Mapping[str, object]) -> str:
 
 
 def subagent_stop(payload: Mapping[str, object]) -> JsonObject:
-    """Hold a subagent to the same prose law as the parent."""
+    """Check child prose, then archive the accepted final transcript."""
     try:
         if exhausted(payload):
+            archive_transcript(payload.get("agent_transcript_path"))
             return {"systemMessage": "Subagent Stop wall released after repeated blocks."}
         violation = unslop_violation(last_message(payload), payload)
-        return record_block(payload, violation) if violation else {}
+        if violation:
+            return record_block(payload, violation)
+        archive_transcript(payload.get("agent_transcript_path"))
+        return {}
     except Exception as error:  # noqa: BLE001
         return allow_with_warning(f"{type(error).__name__}: {error}")
 
 
-def engage(scope: str | None, root: Path, stdout: TextIO) -> int:
-    """Print the exact method packet and record its digests for this session."""
-    payload = {"session_id": policy.current_session(root), "cwd": str(root), "scope": scope}
-    response, state = policy.prepare_engagement(payload)
-    json.dump(response, stdout, ensure_ascii=False, indent=2)
-    stdout.write("\n")
-    policy.save_state(payload, state)
-    return 0
+def direct_payload() -> JsonObject:
+    """Build the payload for a direct engage command."""
+    root = policy.repo_root({})
+    return {"cwd": str(root), "session_id": policy.current_session(root)}
+
+
+def packet_chunk(text: str, start: int) -> tuple[str, int]:
+    """Cut one bounded chunk without splitting a UTF-8 character."""
+    raw = text.encode()
+    end = min(start + policy.ENGAGE_CHUNK_BYTES, len(raw))
+    while end > start:
+        try:
+            return raw[start:end].decode(), end
+        except UnicodeDecodeError:
+            end -= 1
+    raise ValueError(f"method packet cannot split UTF-8 at byte {start}")
+
+
+def packet_chunks(text: str) -> tuple[str, ...]:
+    """Split one packet into the bounded direct-engage responses."""
+    chunks: list[str] = []
+    offset = 0
+    while offset < len(text.encode()):
+        chunk, offset = packet_chunk(text, offset)
+        chunks.append(chunk)
+    return tuple(chunks)
+
+
+def engage_arguments(arguments: Sequence[str]) -> tuple[str, int]:
+    """Parse ``engage <scope> [chunk]`` without accepting extra input."""
+    if len(arguments) not in (1, 2):
+        raise ValueError(f"expected engage <scope> [chunk], got {tuple(arguments)!r}")
+    if len(arguments) == 1:
+        return arguments[0], 1
+    if re.fullmatch(r"[0-9]+", arguments[1]) is None or int(arguments[1]) < 1:
+        raise ValueError(f"chunk must be a positive decimal, got {arguments[1]!r}")
+    return arguments[0], int(arguments[1])
+
+
+def chunk_response(packet: policy.ExactMethodPacket, chunks: tuple[str, ...],
+                   number: int, scope: str) -> str:
+    """Render one packet chunk and the next exact command, when needed."""
+    output = f"<<<METHOD_PACKET_CHUNK {number} sha256={packet.sha256}>>>\n"
+    output += f"{chunks[number - 1]}\n<<<METHOD_PACKET_CHUNK_END>>>\n"
+    if number < len(chunks):
+        output += f"python3 .claude/hooks/method_guard.py engage {scope} {number + 1}\n"
+    return output
 
 
 EVENTS = {
@@ -361,20 +446,33 @@ EVENTS = {
     "user-prompt-submit": user_prompt_submit,
     "pre-tool-use": pre_tool_use,
     "post-tool-use": post_tool_use,
+    "subagent-start": subagent_start,
     "subagent-stop": subagent_stop,
     "stop": stop,
 }
 
 
-def run_engage(arguments: Sequence[str], stdout: TextIO, stderr: TextIO) -> int:
-    """Handle the engage verb, which the agent calls as a shell command."""
-    scope = arguments[1] if len(arguments) > 1 else None
-    root = Path(os.environ.get(policy.env_name("REPO_ROOT")) or Path.cwd()).resolve()
+def run_engage(arguments: Sequence[str], stdout: TextIO, _stderr: TextIO) -> int:
+    """Emit one exact packet chunk and mark ready only after the final chunk."""
     try:
-        return engage(scope, root, stdout)
-    except (OSError, ValueError, json.JSONDecodeError) as error:
-        stderr.write(f"engage refused: {error}\n")
-        return 1
+        payload = direct_payload()
+        scope, number = engage_arguments(arguments[1:])
+        payload["scope"] = scope
+        packet, state = policy.prepare_engagement(payload)
+        chunks = packet_chunks(packet.text)
+        if number > len(chunks):
+            raise ValueError(f"chunk {number} is out of range; packet has {len(chunks)} chunks")
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
+        stdout.write(f"Method guard engage rejected: {error}\n")
+        return 0
+    pending_ready = state["pending_ready"]
+    policy.rearm(payload, state, "engage in progress")
+    state["pending_ready"] = pending_ready
+    stdout.write(chunk_response(packet, chunks, number, scope))
+    stdout.flush()
+    if number == len(chunks):
+        policy.mark_ready(payload, state)
+    return 0
 
 
 def main(argv: Sequence[str] | None = None, stdin: TextIO = sys.stdin,

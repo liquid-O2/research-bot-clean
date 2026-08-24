@@ -20,11 +20,29 @@ from types import ModuleType
 import sys
 import unittest
 from unittest.mock import patch
+from contextlib import contextmanager
+from typing import Iterator
 
 ROOT = Path(__file__).resolve().parents[1]
 HOOKS = ROOT / ".claude/hooks"
 FIXTURES = ROOT / "tests/fixtures/claude_hook_payloads"
-sys.path.insert(0, str(HOOKS))
+HOOK_SIBLINGS = ("method_guard_support", "method_guard_rules", "shell_reading",
+                 "transcript_archive")
+
+
+@contextmanager
+def isolated_hook_imports(directory: Path) -> Iterator[None]:
+    """Keep one client family's generic hook imports out of other suites."""
+    saved = {name: sys.modules.pop(name) for name in HOOK_SIBLINGS if name in sys.modules}
+    original_path = list(sys.path)
+    sys.path.insert(0, str(directory))
+    try:
+        yield
+    finally:
+        for name in HOOK_SIBLINGS:
+            sys.modules.pop(name, None)
+        sys.modules.update(saved)
+        sys.path[:] = original_path
 
 
 def load(name: str, path: Path) -> ModuleType | None:
@@ -34,12 +52,13 @@ def load(name: str, path: Path) -> ModuleType | None:
         return None
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
-    spec.loader.exec_module(module)
+    with isolated_hook_imports(path.parent):
+        spec.loader.exec_module(module)
     return module
 
 
 guard = load("claude_guard_under_test", HOOKS / "method_guard.py")
-rules = load("claude_rules_under_test", HOOKS / "method_guard_rules.py")
+rules = guard.rules
 
 
 def fixture(name: str) -> dict[str, object]:
@@ -160,6 +179,8 @@ class FailOpenTests(unittest.TestCase):
         output = StringIO()
         errors = StringIO()
         with (
+            patch.object(guard, "direct_payload",
+                         return_value={"cwd": str(ROOT), "session_id": "session-fixture"}),
             patch.object(guard.policy, "prepare_engagement", return_value=(packet, state)),
             patch.object(guard.policy, "rearm"),
             patch.object(guard.policy, "mark_ready") as mark_ready,

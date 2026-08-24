@@ -126,7 +126,11 @@ def session_end(payload: Mapping[str, object], _stderr: TextIO,
 
 def subagent_stop(payload: Mapping[str, object], _stderr: TextIO,
                   actions: _TranscriptActions) -> JsonObject:
-    actions.defer(payload.get("agent_transcript_path"), payload.get("turn_id"))
+    turn_id = payload.get("turn_id")
+    if isinstance(turn_id, str) and turn_id:
+        actions.defer(payload.get("agent_transcript_path"), turn_id)
+    else:
+        actions.archive(payload.get("agent_transcript_path"))
     return {}
 
 

@@ -34,7 +34,12 @@ def load_memory_hook(name: str) -> ModuleType:
         raise AssertionError(f"cannot load memory hook from {MEMORY_HOOK_PATH}")
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
-    spec.loader.exec_module(module)
+    original_path = list(sys.path)
+    sys.path.insert(0, str(MEMORY_HOOK_PATH.parent))
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        sys.path[:] = original_path
     return module
 
 

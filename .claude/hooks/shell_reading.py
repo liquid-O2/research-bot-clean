@@ -13,13 +13,9 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 import shlex
-from typing import Sequence
+from typing import Callable, Sequence
 
-READONLY_COMMANDS = frozenset({
-    "cat", "find", "grep", "head", "ls", "pwd", "readlink", "rg", "stat",
-    "tail", "test", "wc", "diff", "echo", "which", "file", "du", "df",
-})
-READONLY_GIT = frozenset({"diff", "log", "show", "status", "branch", "blame"})
+READONLY_GIT = frozenset({"blame", "diff", "log", "show", "status"})
 
 
 @dataclass(frozen=True)
@@ -30,53 +26,10 @@ class WriteScan:
     paths: tuple[str, ...] = ()
 
 
-def command_words(command: str) -> list[str] | None:
-    """Split a shell command, or None when it cannot be parsed."""
-    try:
-        return shlex.split(command)
-    except ValueError:
-        return None
-
-
-IN_PLACE = frozenset({"-i", "--in-place"})
 # These take a mode or an owner before their paths.
 MODE_FIRST = frozenset({"chmod", "chown", "install", "truncate"})
 MUTATORS = frozenset({"rm", "mv", "cp", "touch", "mkdir", "rmdir", "install",
                       "truncate", "chmod", "chown", "ln", "shred", "unlink"})
-
-
-def simple_words(command: str) -> list[str] | None:
-    """Return one command's words, or None when the shell would do more than run it.
-
-    A token that is or begins with a shell operator means redirection, piping,
-    substitution or chaining, and then this guard cannot say what runs or where
-    its paths land. Quoted text is safe, because splitting already consumed the
-    quotes: `printf 'x > y'` yields one word holding a greater-than sign, not a
-    redirect.
-    """
-    words = command_words(command)
-    if words is None or not words:
-        return None
-    if any(word.startswith(OPERATORS) or word in OPERATORS for word in words):
-        return None
-    return words
-
-
-def readonly_command(command: str) -> bool:
-    """Report whether a command only reads, so it needs no route.
-
-    Deliberately conservative. Misreading a read as a change costs an engaged
-    session and nothing else, so the allowlist stays small and exact.
-    """
-    words = simple_words(command)
-    if words is None:
-        return False
-    executable = Path(words[0]).name
-    if executable == "sed":
-        return not IN_PLACE.intersection(words)
-    if executable in READONLY_COMMANDS:
-        return True
-    return executable == "git" and len(words) > 1 and words[1] in READONLY_GIT
 
 
 def mutation_paths(command: str) -> tuple[str, ...]:
@@ -88,7 +41,7 @@ def mutation_paths(command: str) -> tuple[str, ...]:
     the point: a missed ownership check costs a little, and a refusal aimed at a
     file the command never touched costs the session.
     """
-    words = simple_words(command)
+    words = plain_command_words(command)
     if words is None or Path(words[0]).name not in MUTATORS:
         return ()
     arguments = [word for word in words[1:] if not word.startswith("-")]
@@ -97,10 +50,9 @@ def mutation_paths(command: str) -> tuple[str, ...]:
     return tuple(arguments)
 
 
-OPERATORS = (">", "<", "|", "&", ";", "$", "`", "(", ")")
-OPERATOR_TOKENS = frozenset({">", ">>", "<", "<<", "|", "||", "&", "&&", ";"})
 ENGAGE_SCRIPT = "method_guard" + ".py"
 ENGAGE_VERB = "eng" + "age"
+SAFE_SCOPE = re.compile(r"[a-z0-9][a-z0-9-]*\Z")
 
 
 def shell_tokens(command: str) -> list[str] | None:
@@ -117,6 +69,163 @@ def shell_tokens(command: str) -> list[str] | None:
         return None
 
 
+def has_expansion(word: str) -> bool:
+    """Report whether the shell could replace any part of this word."""
+    markers = "$`*?[]{}"
+    return word.startswith("~") or any(marker in word for marker in markers)
+
+
+def shell_operator(token: str) -> bool:
+    """Report whether shlex isolated shell control punctuation."""
+    return bool(token) and all(character in "><|&;()" for character in token)
+
+
+def plain_pipeline(command: str) -> list[list[str]] | None:
+    """Parse a pipeline with no shell behavior beyond plain pipes."""
+    if "\n" in command or "\r" in command:
+        return None
+    tokens = shell_tokens(command)
+    if not tokens:
+        return None
+    segments: list[list[str]] = [[]]
+    for token in tokens:
+        if token == "|" and not segments[-1]:
+            return None
+        if token == "|":
+            segments.append([])
+            continue
+        if shell_operator(token) or has_expansion(token):
+            return None
+        segments[-1].append(token)
+    return segments if segments[-1] else None
+
+
+def plain_arguments(arguments: Sequence[str]) -> bool:
+    """Accept operands and reject every option."""
+    return bool(arguments) and all(not word.startswith("-") for word in arguments)
+
+
+def optional_plain_arguments(arguments: Sequence[str]) -> bool:
+    """Accept zero or more operands and reject every option."""
+    return all(not word.startswith("-") for word in arguments)
+
+
+def cat_read(arguments: Sequence[str]) -> bool:
+    """Accept plain cat operands."""
+    return plain_arguments(arguments)
+
+
+def ls_read(arguments: Sequence[str]) -> bool:
+    """Accept operands and conventional short display options."""
+    letters = frozenset("aAbBcCdDfFgGhHiIklLmNopqQrRsStTuUvwxX1")
+    return all(not word.startswith("-") or (len(word) > 1 and set(word[1:]) <= letters)
+               for word in arguments)
+
+
+def wc_read(arguments: Sequence[str]) -> bool:
+    """Accept plain files with optional count-selection flags."""
+    allowed = frozenset({"-c", "-l", "-m", "-w", "-L"})
+    return bool(arguments) and all(word in allowed or not word.startswith("-")
+                                   for word in arguments)
+
+
+def rg_read(arguments: Sequence[str]) -> bool:
+    """Accept a plain search or a plain file listing."""
+    if arguments and arguments[0] == "--files":
+        return all(not word.startswith("-") for word in arguments[1:])
+    return plain_arguments(arguments)
+
+
+def find_read(arguments: Sequence[str]) -> bool:
+    """Accept paths with only type filters and printing."""
+    if not arguments or arguments[0].startswith("-"):
+        return False
+    index = 1
+    while index < len(arguments):
+        token = arguments[index]
+        if token == "-print":
+            index += 1
+            continue
+        if token != "-type" or index + 1 >= len(arguments):
+            return False
+        if arguments[index + 1] not in frozenset("bcdflps"):
+            return False
+        index += 2
+    return True
+
+
+def sed_read(arguments: Sequence[str]) -> bool:
+    """Accept numeric print ranges without sed's write or execute commands."""
+    if len(arguments) < 3 or arguments[0] != "-n":
+        return False
+    if re.fullmatch(r"\d+(?:,\d+)?p", arguments[1]) is None:
+        return False
+    return all(not word.startswith("-") for word in arguments[2:])
+
+
+def git_read(arguments: Sequence[str]) -> bool:
+    """Accept known read subcommands without behavior-changing options."""
+    if not arguments or arguments[0] not in READONLY_GIT:
+        return False
+    options = arguments[1:]
+    if arguments[0] == "diff":
+        return all(word == "--" or not word.startswith("-") for word in options)
+    return all(not word.startswith("-") for word in options)
+
+
+def command_read(arguments: Sequence[str]) -> bool:
+    """Accept shell executable lookup."""
+    return (len(arguments) == 2 and arguments[0] == "-v"
+            and not arguments[1].startswith("-"))
+
+
+def python_read(arguments: Sequence[str]) -> bool:
+    """Accept only the ledger's exact read forms."""
+    if len(arguments) != 3 or arguments[0] != "tools/memory_ledger.py":
+        return False
+    if arguments[1] == "tail":
+        return arguments[2].isdigit()
+    return arguments[1] == "recall" and not arguments[2].startswith("-")
+
+
+READ_VALIDATORS: dict[str, Callable[[Sequence[str]], bool]] = {
+    "cat": cat_read,
+    "command": command_read,
+    "diff": plain_arguments,
+    "file": plain_arguments,
+    "find": find_read,
+    "git": git_read,
+    "ls": ls_read,
+    "python3": python_read,
+    "rg": rg_read,
+    "sed": sed_read,
+    "sort": optional_plain_arguments,
+    "wc": wc_read,
+}
+
+
+def readonly_command(command: str) -> bool:
+    """Report whether every segment has a positive read grammar."""
+    segments = plain_pipeline(command)
+    if segments is None:
+        return False
+    for words in segments:
+        validator = READ_VALIDATORS.get(Path(words[0]).name)
+        if validator is None or not validator(words[1:]):
+            return False
+    return True
+
+
+def memory_note(command: str) -> bool:
+    """Report whether this is the ledger's exact named write form."""
+    words = plain_command_words(command)
+    if words is None or len(words) != 4:
+        return False
+    return (Path(words[0]).name == "python3"
+            and words[1:3] == ["tools/memory_ledger.py", "note"]
+            and not words[3].startswith("-"))
+
+
 def first_command(command: str) -> list[str]:
     """Return the words of the first command, before any shell operator."""
     tokens = shell_tokens(command)
@@ -124,17 +233,48 @@ def first_command(command: str) -> list[str]:
         return []
     words: list[str] = []
     for token in tokens:
-        if token in OPERATOR_TOKENS:
+        if shell_operator(token):
             break
         words.append(token)
     return words
 
 
+def plain_command_words(command: str) -> list[str] | None:
+    """Return one operator-free command without shell expansion."""
+    if "\n" in command or "\r" in command:
+        return None
+    tokens = shell_tokens(command)
+    if not tokens:
+        return None
+    if any(shell_operator(token) or has_expansion(token) for token in tokens):
+        return None
+    return tokens
+
+
 def invokes_engage(words: Sequence[str]) -> bool:
-    """Report whether these words actually run the guard's engage verb."""
-    pairs = zip(words, words[1:])
-    return any(Path(word).name == ENGAGE_SCRIPT and following == ENGAGE_VERB
-               for word, following in pairs)
+    """Report whether these words directly run the guard's engage verb."""
+    if len(words) not in (4, 5) or SAFE_SCOPE.fullmatch(words[3]) is None:
+        return False
+    repository = Path.cwd()
+    guard_paths = {
+        (repository / ".codex/hooks" / ENGAGE_SCRIPT).resolve(),
+        (repository / ".claude/hooks" / ENGAGE_SCRIPT).resolve(),
+    }
+    direct = (words[0] in ("python3", "/usr/bin/python3")
+              and Path(words[1]).resolve() in guard_paths
+              and words[2] == ENGAGE_VERB)
+    chunk = len(words) == 4 or (re.fullmatch(r"[0-9]+", words[4]) is not None
+                                and int(words[4]) > 0)
+    return direct and chunk
+
+
+def engage_attempt(words: Sequence[str]) -> bool:
+    if len(words) < 3 or words[0] not in ("python3", "/usr/bin/python3"):
+        return False
+    repository = Path.cwd()
+    guards = {(repository / client / ENGAGE_SCRIPT).resolve()
+              for client in (".codex/hooks", ".claude/hooks")}
+    return Path(words[1]).resolve() in guards and words[2] == ENGAGE_VERB
 
 
 def bare_engage(command: str) -> bool:
@@ -144,7 +284,8 @@ def bare_engage(command: str) -> bool:
     requiring the method first is circular, and it deadlocked the session that
     wrote this rule.
     """
-    return invokes_engage(first_command(command)) and simple_words(command) is not None
+    words = plain_command_words(command)
+    return words is not None and invokes_engage(words)
 
 
 def hidden_engage(command: str) -> bool:
@@ -159,7 +300,9 @@ def hidden_engage(command: str) -> bool:
     names the verb is not a call. A wrapper script could still hide the output;
     this closes the accident, not a determined workaround.
     """
-    return invokes_engage(first_command(command)) and simple_words(command) is None
+    words = first_command(command)
+    return engage_attempt(words) and (plain_command_words(command) is None
+                                      or not invokes_engage(words))
 
 
 def scan_command(command: str) -> WriteScan:
@@ -174,5 +317,7 @@ def scan_command(command: str) -> WriteScan:
     """
     if readonly_command(command):
         return WriteScan("none")
+    if memory_note(command):
+        return WriteScan("paths", ("MEMORY.md",))
     paths = mutation_paths(command)
     return WriteScan("paths", paths) if paths else WriteScan("opaque")

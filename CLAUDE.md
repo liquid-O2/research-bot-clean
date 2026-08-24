@@ -77,6 +77,7 @@ route from your prompt and infers nothing from the permission mode.
 
 Every subagent runs as `method-worker`, which pins Opus 5 at medium effort and
 preloads `unslop`, `clean-code-for-agents`, `writing-for-agents` and `unlazy`.
+The SubagentStart hook also injects the active route's exact method packet.
 
 The repository `code-review` skill replaces the bundled `/code-review` on
 purpose, because `$implement-flow` selects the Pocock method at its review step.

@@ -27,7 +27,6 @@ policy.configure("codex")
 
 PATCH_PATH = re.compile(r"^\*\*\* (?:Add|Update|Delete) File: (.+)$", re.MULTILINE)
 MOVE_PATH = re.compile(r"^\*\*\* Move to: (.+)$", re.MULTILINE)
-NO_MEMO = policy.NO_MEMO
 ROUTES = policy.ROUTES
 JsonObject = dict[str, object]
 ENGAGE_HINT = "method_guard.py engage"
@@ -199,17 +198,7 @@ def session_start(payload: Mapping[str, object]) -> JsonObject:
 
 def subagent_start(payload: Mapping[str, object]) -> JsonObject:
     """Give a starting subagent the complete active method."""
-    state = policy.load_state(payload)
-    try:
-        contract = policy.current_contract(payload, state)
-        sources = policy.method_sources(policy.repo_root(payload), contract)
-        packet = policy.render_method_packet(state["route"], state["epoch"], contract, sources)
-        child_context = f"{NO_MEMO}\n\n{packet.text}"
-    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
-        child_context = (
-            f"Method guard state error: {error}. Stop work and report this error to the parent."
-        )
-    return context("SubagentStart", child_context)
+    return policy.subagent_start(payload)
 
 
 def last_message(payload: Mapping[str, object]) -> str:

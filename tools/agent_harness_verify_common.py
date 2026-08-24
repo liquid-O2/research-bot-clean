@@ -103,7 +103,6 @@ CHECKPOINT_EXACT_PATHS = {
     "tools/verify_agent_harness.py", "tools/apply_skill_port_batch_20260821.py",
     "tools/install_house_skills.py", "tools/port_upstream_skills.py",
     "tools/test_skill_routing_gate.py", "tools/unlazy_gates.py",
-    ".claude/hooks/mempal_hub_hook.sh", ".claude/hooks/optmem_continuity.py",
     ".claude/skills_install_receipt.json",
 }
 CHECKPOINT_PREFIXES = (

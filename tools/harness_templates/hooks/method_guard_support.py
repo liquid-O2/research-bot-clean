@@ -483,11 +483,13 @@ def session_start(payload: Mapping[str, object]) -> JsonObject:
 
 
 def subagent_start(payload: Mapping[str, object]) -> JsonObject:
-    state = load_state(payload)
+    """Give a starting subagent the complete active method."""
     try:
+        state = load_state(payload)
         contract = current_contract(payload, state)
-        ownership = ", ".join(path_list(contract.get("owns"), "owns"))
-        context = f"Active route is {state['route']}. {NO_MEMO} Ownership is limited to {ownership}."
+        sources = method_sources(repo_root(payload), contract)
+        packet = render_method_packet(state["route"], state["epoch"], contract, sources)
+        context = f"{NO_MEMO}\n\n{packet.text}"
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
         context = f"Method guard state error: {error}. Stop work and report this error to the parent."
     return {"hookSpecificOutput": {

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from hashlib import sha256
 import json
 import os
@@ -17,6 +18,16 @@ SAFE_NAME = re.compile(r"[a-z0-9][a-z0-9-]*\Z")
 CLIENTS = {"codex": ("CODEX_METHOD", ".codex/method-guard"),
            "claude": ("CLAUDE_METHOD", ".claude/method-guard")}
 _CLIENT = "codex"
+MAX_METHOD_PACKET_BYTES = 256_000
+ENGAGE_CHUNK_BYTES = 24_000
+
+
+@dataclass(frozen=True)
+class ExactMethodPacket:
+    text: str
+    sha256: str
+    utf8_bytes: int
+    source_hashes: Mapping[str, str]
 
 
 def configure(client: str) -> None:
@@ -280,6 +291,27 @@ def source_row(name: str, path: Path) -> JsonObject:
             "content": raw.decode("utf-8")}
 
 
+def render_method_packet(route: object, epoch: object, contract: JsonObject,
+                         sources: list[JsonObject]) -> ExactMethodPacket:
+    sections = [f"<<<METHOD_PACKET_START route={route} epoch={epoch}>>>\n", "<<<METHOD_CONTRACT_START>>>\n",
+                json.dumps(contract, sort_keys=True, indent=2),
+                "\n<<<METHOD_CONTRACT_END>>>\n"]
+    hashes: dict[str, str] = {}
+    for row in sources:
+        name, path = str(row["name"]), str(row["path"])
+        digest, body = str(row["sha256"]), str(row["content"])
+        hashes[name] = digest
+        sections.extend((f"<<<METHOD_SOURCE_START name={name} path={path} sha256={digest}>>>\n",
+                         body, f"\n<<<METHOD_SOURCE_END name={name} sha256={digest}>>>\n"))
+    prefix = "".join(sections)
+    digest = sha256(prefix.encode()).hexdigest()
+    text = prefix + f"<<<METHOD_PACKET_END sha256={digest}>>>"
+    size = len(text.encode())
+    if size > MAX_METHOD_PACKET_BYTES:
+        raise ValueError(f"method packet is {size} bytes; cap is {MAX_METHOD_PACKET_BYTES}")
+    return ExactMethodPacket(text, digest, size, hashes)
+
+
 def method_sources(root: Path, contract: JsonObject) -> list[JsonObject]:
     configured = os.environ.get(env_name("PSTACK_ROOT"))
     pstack = Path(configured).resolve() if configured else pinned_pstack()
@@ -299,7 +331,7 @@ def gates_path(root: Path, contract: JsonObject) -> Path:
     return path
 
 
-def prepare_engagement(payload: Mapping[str, object]) -> tuple[JsonObject, JsonObject]:
+def prepare_engagement(payload: Mapping[str, object]) -> tuple[ExactMethodPacket, JsonObject]:
     root = repo_root(payload)
     state = load_state(payload)
     if state.get("route") not in ROUTES:
@@ -310,13 +342,19 @@ def prepare_engagement(payload: Mapping[str, object]) -> tuple[JsonObject, JsonO
     gates = gates_path(root, contract)
     require_ignored(root, (contract_path, gates))
     sources = method_sources(root, contract)
-    state["ready"] = ready_record(state, contract_path, gates, sources)
     state["scope"] = contract_path.parent.name
-    bind_unlazy_session(payload, contract_path.parent)
-    state.pop("rearm_reason", None)
-    packet = {"method_packet": {"route": state["route"], "epoch": state["epoch"],
-                                "contract": contract, "sources": sources}}
+    packet = render_method_packet(state["route"], state["epoch"], contract, sources)
+    state["pending_ready"] = ready_record(state, contract_path, gates, sources)
     return packet, state
+
+
+def mark_ready(payload: Mapping[str, object], state: JsonObject) -> None:
+    ready = state.pop("pending_ready")
+    state["ready"] = ready
+    state.pop("rearm_reason", None)
+    scope = repo_root(payload) / f".unlazy/{state['scope']}"
+    bind_unlazy_session(payload, scope)
+    save_state(payload, state)
 
 
 def bind_unlazy_session(payload: Mapping[str, object], scope_dir: Path) -> None:
@@ -421,6 +459,8 @@ def contract_on_disk(payload: Mapping[str, object], state: JsonObject) -> JsonOb
 
 def rearm(payload: Mapping[str, object], state: JsonObject, reason: str) -> None:
     state.pop("ready", None)
+    state.pop("pending_ready", None)
+    state.pop("engage_cursor", None)
     state["rearm_reason"] = reason
     save_state(payload, state)
 
@@ -429,18 +469,27 @@ def session_start(payload: Mapping[str, object]) -> JsonObject:
     source = str(payload.get("source") or "")
     if source not in {"compact", "clear"}:
         return {}
-    state = load_state(payload)
-    if state.get("route") in ROUTES:
+    try:
+        state = load_state(payload)
         rearm(payload, state, source)
-    return {}
+        request = {**payload, "scope": state.get("scope")}
+        packet, refreshed = prepare_engagement(request)
+        mark_ready(request, refreshed)
+        return {"hookSpecificOutput": {
+            "hookEventName": "SessionStart", "additionalContext": packet.text,
+        }}
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
+        return {"systemMessage": f"Method guard failed open: {error}"}
 
 
 def subagent_start(payload: Mapping[str, object]) -> JsonObject:
-    state = load_state(payload)
+    """Give a starting subagent the complete active method."""
     try:
+        state = load_state(payload)
         contract = current_contract(payload, state)
-        ownership = ", ".join(path_list(contract.get("owns"), "owns"))
-        context = f"Active route is {state['route']}. {NO_MEMO} Ownership is limited to {ownership}."
+        sources = method_sources(repo_root(payload), contract)
+        packet = render_method_packet(state["route"], state["epoch"], contract, sources)
+        context = f"{NO_MEMO}\n\n{packet.text}"
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
         context = f"Method guard state error: {error}. Stop work and report this error to the parent."
     return {"hookSpecificOutput": {

@@ -52,6 +52,17 @@
         "matcher": "Edit|Write|MultiEdit|NotebookEdit"
       }
     ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 /workspace/.claude/hooks/method_guard.py subagent-start",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "SubagentStop": [
       {
         "hooks": [

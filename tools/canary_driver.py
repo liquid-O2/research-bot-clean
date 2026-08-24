@@ -43,7 +43,7 @@ class Client:
 
 CLIENTS = {
     "claude": Client("claude", ROOT / ".claude/hooks/method_guard.py", "CLAUDE_METHOD",
-                     "Write", "Agent", "prompt", chunked_engage=False),
+                     "Write", "Agent", "prompt", chunked_engage=True),
     "codex": Client("codex", ROOT / ".codex/hooks/method_guard.py", "CODEX_METHOD",
                     "apply_patch", "collaboration.spawn_agent", "message", chunked_engage=True),
 }
@@ -138,7 +138,7 @@ def run_guard(verb: str, payload: dict[str, object], state: Path,
         environment["UNLAZY_SCOPE"] = scope
     result = subprocess.run((sys.executable, str(ACTIVE.guard), verb),
                             input=json.dumps(payload), text=True, capture_output=True,
-                            env=environment, check=False)
+                            env=environment, timeout=30, check=False)
     if result.returncode != 0:
         return {"_error": result.stderr.strip() or f"exit {result.returncode}"}
     return json.loads(result.stdout or "{}")
@@ -211,13 +211,13 @@ def direct_chunk_body(response: str) -> str:
     return body
 
 
-def collect_codex_engage(command: tuple[str, ...], environment: dict[str, str]
-                         ) -> subprocess.CompletedProcess[str]:
+def collect_chunked_engage(command: tuple[str, ...], environment: dict[str, str]
+                           ) -> subprocess.CompletedProcess[str]:
     chunks: list[str] = []
     for number in range(1, 33):
         arguments = command if number == 1 else (*command, str(number))
         result = subprocess.run(arguments, text=True, capture_output=True,
-                                env=environment, check=False)
+                                env=environment, timeout=30, check=False)
         if result.returncode != 0:
             return result
         chunks.append(direct_chunk_body(result.stdout))
@@ -257,12 +257,14 @@ def engage(state: Path, scope: str | None = None) -> subprocess.CompletedProcess
     environment = guard_environment(state)
     command = (sys.executable, str(ACTIVE.guard), "engage", selected_scope)
     if ACTIVE.chunked_engage:
-        result = collect_codex_engage(command, environment)
+        result = collect_chunked_engage(command, environment)
     else:
         result = subprocess.run(command, text=True, capture_output=True,
-                                env=environment, check=False)
-    if result.returncode == 0:
-        remember_engaged_state(state, key, result)
+                                env=environment, timeout=30, check=False)
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip() or "no output"
+        raise RuntimeError(f"engage failed with exit {result.returncode}: {detail}")
+    remember_engaged_state(state, key, result)
     return result
 
 

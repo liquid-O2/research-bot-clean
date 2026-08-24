@@ -73,6 +73,17 @@ def transcript_event(event_type: str, turn_id: str | None = None) -> bytes:
     return (json.dumps({"type": "event_msg", "payload": payload}) + "\n").encode()
 
 
+def _defer_children(module: ModuleType, root: Path, count: int) -> list[tuple[Path, Path, str]]:
+    rows = []
+    for number in range(count):
+        source = root / f"child-{number}.jsonl"
+        turn_id = f"turn-{number}"
+        source.write_bytes(transcript_event("token_count"))
+        marker = module.defer_transcript(str(source), turn_id)
+        rows.append((marker, source, turn_id))
+    return rows
+
+
 def run_memory(command: str, payload: dict[str, object]) -> tuple[dict[str, object], str]:
     output = StringIO()
     errors = StringIO()
@@ -266,6 +277,23 @@ class TranscriptArchiveTests(unittest.TestCase):
             self.assertTrue(unsafe_marker.exists())
             self.assertFalse(safe_marker.exists())
             self.assertEqual(safe_object.read_bytes(), safe.read_bytes())
+
+    def test_bounded_reconciliation_rotates_past_incomplete_markers(self) -> None:
+        module = require_archive(self)
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            archive = root / "archive"
+            with archive_root(archive):
+                rows = _defer_children(module, root, 12)
+                marker, source, turn_id = sorted(rows, key=lambda row: row[0].name)[-1]
+                source.write_bytes(source.read_bytes() + transcript_event("task_complete", turn_id))
+                module.reconcile_pending_transcripts(limit=8)
+                self.assertTrue(marker.exists())
+                module.reconcile_pending_transcripts(limit=8)
+            digest = sha256(source.read_bytes()).hexdigest()
+            archived = archive / "objects" / digest[:2] / f"{digest}.jsonl"
+            self.assertFalse(marker.exists())
+            self.assertEqual(archived.read_bytes(), source.read_bytes())
 
 
 class TranscriptLifecycleTests(unittest.TestCase):

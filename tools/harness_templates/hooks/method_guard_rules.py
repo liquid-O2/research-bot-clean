@@ -33,11 +33,37 @@ from method_guard_support import (
     NO_MEMO,
     ROUTES,
     path_list,
+    rearm,
     repo_root,
+    save_state,
 )
 
 ROUTE_TOKEN = re.compile(r"(?<![\w-])[$/](plan-flow|implement-flow)(?![\w-])")
 BOOTSTRAP = re.compile(r"\.unlazy/[a-z0-9][a-z0-9-]*/(?:METHOD\.json|GATES\.md)\Z")
+
+
+def require_contiguous_chunk(state: JsonObject, digest: str, number: int) -> None:
+    if number == 1:
+        return
+    cursor = state.get("engage_cursor")
+    if not isinstance(cursor, dict) or cursor.get("packet_sha256") != digest:
+        raise ValueError(f"chunk {number} requires chunk 1 of the same method packet")
+    highest = cursor.get("highest_contiguous_chunk")
+    if not isinstance(highest, int) or number not in {highest, highest + 1}:
+        raise ValueError(f"chunk {number} is not contiguous after chunk {highest!r}")
+
+
+def record_engage_chunk(
+    payload: JsonObject, state: JsonObject, digest: str, number: int,
+) -> None:
+    pending_ready = state["pending_ready"]
+    if number == 1:
+        rearm(payload, state, "engage in progress")
+        state["pending_ready"] = pending_ready
+    state["engage_cursor"] = {
+        "packet_sha256": digest, "highest_contiguous_chunk": number,
+    }
+    save_state(payload, state)
 ALWAYS_WRITABLE = ("MEMORY.md",)
 PINNED_ROOTS = ("vendor/agent-sources/", ".agents/skills/")
 _UNSLOP: ModuleType | None = None

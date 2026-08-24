@@ -108,7 +108,6 @@ def install_settings() -> int:
 
 
 def hook_file_pairs() -> list[tuple[Path, Path]]:
-    """Pair each source with the Claude path that must match it."""
     pairs = [(TEMPLATES / name, HOOKS / name) for name in CLAUDE_HOOK_MODULES]
     pairs.append((TEMPLATES / CLAUDE_GUARD_TEMPLATE,
                   HOOKS / CLAUDE_GUARD_INSTALLED))
@@ -116,7 +115,6 @@ def hook_file_pairs() -> list[tuple[Path, Path]]:
 
 
 def import_error(path: Path) -> str | None:
-    """Return the import failure for one installed hook, if any."""
     environment = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
     result = subprocess.run(
         (sys.executable, "-c", IMPORT_SMOKE, str(path)), cwd=ROOT,
@@ -129,7 +127,6 @@ def import_error(path: Path) -> str | None:
 
 
 def hook_errors() -> list[str]:
-    """List missing, drifted, unimportable, or obsolete hook files."""
     errors: list[str] = []
     for source, installed in hook_file_pairs():
         if not installed.is_file() or installed.read_bytes() != source.read_bytes():
@@ -145,7 +142,6 @@ def hook_errors() -> list[str]:
 
 
 def settings_errors() -> list[str]:
-    """List settings drift without rewriting the tracked file."""
     expected = (json.dumps(settings_document(), indent=2) + "\n").encode()
     if SETTINGS.is_file() and SETTINGS.read_bytes() == expected:
         return []
@@ -153,7 +149,6 @@ def settings_errors() -> list[str]:
 
 
 def skill_link_errors() -> list[str]:
-    """List Claude skill links that do not mirror the canonical authority."""
     try:
         names = install_claude_skills.expected_names(install_claude_skills.RECEIPT)
         actual = sorted(entry.name for entry in install_claude_skills.TARGET.iterdir())
@@ -168,12 +163,10 @@ def skill_link_errors() -> list[str]:
 
 
 def current_errors() -> list[str]:
-    """Return every installed Claude harness mismatch without changing it."""
     return [*hook_errors(), *settings_errors(), *skill_link_errors()]
 
 
 def install(stdout: TextIO) -> int:
-    """Install hooks, settings, and skill links, then verify exact parity."""
     names = install_hooks()
     size = install_settings()
     install_claude_skills.main([], stdout)
@@ -187,7 +180,7 @@ def install(stdout: TextIO) -> int:
 
 def main(argv: Sequence[str] | None = None, stdout: TextIO = sys.stdout,
          stderr: TextIO = sys.stderr) -> int:
-    """Install the Claude harness or check it without writing."""
+    """Install by default or run a read-only parity check. Example: ``main(["--check"])``."""
     parser = argparse.ArgumentParser(description="Install or check the Claude agent setup.")
     parser.add_argument("--check", action="store_true",
                         help="Check hooks, settings, and skill links without writing.")

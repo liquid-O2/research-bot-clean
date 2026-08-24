@@ -409,30 +409,6 @@ def engage_arguments(arguments: Sequence[str]) -> tuple[str, int]:
     return arguments[0], int(arguments[1])
 
 
-def require_contiguous_chunk(state: JsonObject, digest: str, number: int) -> None:
-    if number == 1:
-        return
-    cursor = state.get("engage_cursor")
-    if not isinstance(cursor, dict) or cursor.get("packet_sha256") != digest:
-        raise ValueError(f"chunk {number} requires chunk 1 of the same method packet")
-    highest = cursor.get("highest_contiguous_chunk")
-    if not isinstance(highest, int) or number not in {highest, highest + 1}:
-        raise ValueError(f"chunk {number} is not contiguous after chunk {highest!r}")
-
-
-def record_engage_chunk(
-    payload: JsonObject, state: JsonObject, digest: str, number: int,
-) -> None:
-    pending_ready = state["pending_ready"]
-    if number == 1:
-        policy.rearm(payload, state, "engage in progress")
-        state["pending_ready"] = pending_ready
-    state["engage_cursor"] = {
-        "packet_sha256": digest, "highest_contiguous_chunk": number,
-    }
-    policy.save_state(payload, state)
-
-
 def prepare_engage(
     arguments: Sequence[str],
 ) -> tuple[JsonObject, str, int, policy.ExactMethodPacket, JsonObject, tuple[str, ...]]:
@@ -443,7 +419,7 @@ def prepare_engage(
     chunks = packet_chunks(packet.text)
     if number > len(chunks):
         raise ValueError(f"chunk {number} is out of range; packet has {len(chunks)} chunks")
-    require_contiguous_chunk(state, packet.sha256, number)
+    rules.require_contiguous_chunk(state, packet.sha256, number)
     return payload, scope, number, packet, state, chunks
 
 
@@ -453,7 +429,7 @@ def run_engage(arguments: Sequence[str], stdout: TextIO) -> int:
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
         stdout.write(f"Method guard engage rejected: {error}\n")
         return 0
-    record_engage_chunk(payload, state, packet.sha256, number)
+    rules.record_engage_chunk(payload, state, packet.sha256, number)
     stdout.write(chunk_response(packet, chunks, number, scope))
     stdout.flush()
     if number == len(chunks):

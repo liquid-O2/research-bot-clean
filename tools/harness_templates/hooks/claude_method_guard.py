@@ -135,7 +135,6 @@ def rearm_on_contract_edit(paths: Sequence[str], state: JsonObject,
 
 
 def active_method_artifact(paths: Sequence[str], state: JsonObject) -> bool:
-    """Report whether paths include this session's METHOD.json or GATES.md."""
     scope = state.get("scope")
     if not isinstance(scope, str):
         return False
@@ -267,7 +266,7 @@ def run_unlazy_stop(payload: Mapping[str, object]) -> JsonObject:
 
 
 def bound_unlazy_scope(payload: Mapping[str, object], state: JsonObject) -> str | None:
-    """Return only the active scope whose session marker matches this session."""
+    """Keep one session from running another's unlazy Stop check."""
     scope = state.get("scope")
     if not isinstance(scope, str) or policy.SAFE_NAME.fullmatch(scope) is None:
         return None
@@ -297,14 +296,13 @@ def unslop_violation(message: str, payload: Mapping[str, object]) -> str | None:
 
 
 def exhausted(payload: Mapping[str, object]) -> bool:
-    """Report whether this actor has been blocked too many times."""
+    """Keep retries checked while giving each actor its own loop escape."""
     state = policy.load_state(payload)
     blocks = actor_blocks(state, stop_actor(payload))
     return payload.get("stop_hook_active") is True and blocks >= MAX_TURN_BLOCKS
 
 
 def record_block(payload: Mapping[str, object], reason: str) -> JsonObject:
-    """Count this block against one actor, then refuse the turn."""
     state = policy.load_state(payload)
     actor = stop_actor(payload)
     counts = state.get("stop_blocks")
@@ -317,7 +315,6 @@ def record_block(payload: Mapping[str, object], reason: str) -> JsonObject:
 
 
 def stop_actor(payload: Mapping[str, object]) -> str:
-    """Return a stable counter key for the root or one child."""
     event = str(payload.get("hook_event_name") or payload.get("hookEventName") or "")
     if event != "SubagentStop":
         return "root"
@@ -326,7 +323,6 @@ def stop_actor(payload: Mapping[str, object]) -> str:
 
 
 def actor_blocks(state: JsonObject, actor: str) -> int:
-    """Return one actor's valid non-negative block count."""
     counts = state.get("stop_blocks")
     if not isinstance(counts, dict):
         return 0
@@ -384,7 +380,7 @@ def last_message(payload: Mapping[str, object]) -> str:
 
 
 def subagent_stop(payload: Mapping[str, object]) -> JsonObject:
-    """Check child prose, then archive the accepted final transcript."""
+    """Apply the parent's prose gate before archiving a child that may finish."""
     try:
         if exhausted(payload):
             archive_transcript(payload.get("agent_transcript_path"))
@@ -399,13 +395,11 @@ def subagent_stop(payload: Mapping[str, object]) -> JsonObject:
 
 
 def direct_payload() -> JsonObject:
-    """Build the payload for a direct engage command."""
     root = policy.repo_root({})
     return {"cwd": str(root), "session_id": policy.current_session(root)}
 
 
 def packet_chunk(text: str, start: int) -> tuple[str, int]:
-    """Cut one bounded chunk without splitting a UTF-8 character."""
     raw = text.encode()
     end = min(start + policy.ENGAGE_CHUNK_BYTES, len(raw))
     while end > start:
@@ -417,7 +411,6 @@ def packet_chunk(text: str, start: int) -> tuple[str, int]:
 
 
 def packet_chunks(text: str) -> tuple[str, ...]:
-    """Split one packet into the bounded direct-engage responses."""
     chunks: list[str] = []
     offset = 0
     while offset < len(text.encode()):
@@ -427,7 +420,6 @@ def packet_chunks(text: str) -> tuple[str, ...]:
 
 
 def engage_arguments(arguments: Sequence[str]) -> tuple[str, int]:
-    """Parse ``engage <scope> [chunk]`` without accepting extra input."""
     if len(arguments) not in (1, 2):
         raise ValueError(f"expected engage <scope> [chunk], got {tuple(arguments)!r}")
     if len(arguments) == 1:
@@ -439,36 +431,11 @@ def engage_arguments(arguments: Sequence[str]) -> tuple[str, int]:
 
 def chunk_response(packet: policy.ExactMethodPacket, chunks: tuple[str, ...],
                    number: int, scope: str) -> str:
-    """Render one packet chunk and the next exact command, when needed."""
     output = f"<<<METHOD_PACKET_CHUNK {number} sha256={packet.sha256}>>>\n"
     output += f"{chunks[number - 1]}\n<<<METHOD_PACKET_CHUNK_END>>>\n"
     if number < len(chunks):
         output += f"python3 .claude/hooks/method_guard.py engage {scope} {number + 1}\n"
     return output
-
-
-def require_contiguous_chunk(state: JsonObject, digest: str, number: int) -> None:
-    if number == 1:
-        return
-    cursor = state.get("engage_cursor")
-    if not isinstance(cursor, dict) or cursor.get("packet_sha256") != digest:
-        raise ValueError(f"chunk {number} requires chunk 1 of the same method packet")
-    highest = cursor.get("highest_contiguous_chunk")
-    if not isinstance(highest, int) or number not in {highest, highest + 1}:
-        raise ValueError(f"chunk {number} is not contiguous after chunk {highest!r}")
-
-
-def record_engage_chunk(
-    payload: JsonObject, state: JsonObject, digest: str, number: int,
-) -> None:
-    pending_ready = state["pending_ready"]
-    if number == 1:
-        policy.rearm(payload, state, "engage in progress")
-        state["pending_ready"] = pending_ready
-    state["engage_cursor"] = {
-        "packet_sha256": digest, "highest_contiguous_chunk": number,
-    }
-    policy.save_state(payload, state)
 
 
 def prepare_engage(
@@ -481,7 +448,7 @@ def prepare_engage(
     chunks = packet_chunks(packet.text)
     if number > len(chunks):
         raise ValueError(f"chunk {number} is out of range; packet has {len(chunks)} chunks")
-    require_contiguous_chunk(state, packet.sha256, number)
+    rules.require_contiguous_chunk(state, packet.sha256, number)
     return payload, scope, number, packet, state, chunks
 
 
@@ -497,13 +464,12 @@ EVENTS = {
 
 
 def run_engage(arguments: Sequence[str], stdout: TextIO, _stderr: TextIO) -> int:
-    """Emit one exact packet chunk and mark ready only after the final chunk."""
     try:
         payload, scope, number, packet, state, chunks = prepare_engage(arguments)
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
         stdout.write(f"Method guard engage rejected: {error}\n")
         return 0
-    record_engage_chunk(payload, state, packet.sha256, number)
+    rules.record_engage_chunk(payload, state, packet.sha256, number)
     stdout.write(chunk_response(packet, chunks, number, scope))
     stdout.flush()
     if number == len(chunks):

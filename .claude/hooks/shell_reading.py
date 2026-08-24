@@ -70,18 +70,15 @@ def shell_tokens(command: str) -> list[str] | None:
 
 
 def has_expansion(word: str) -> bool:
-    """Report whether the shell could replace any part of this word."""
     markers = "$`*?[]{}"
     return word.startswith("~") or any(marker in word for marker in markers)
 
 
 def shell_operator(token: str) -> bool:
-    """Report whether shlex isolated shell control punctuation."""
     return bool(token) and all(character in "><|&;()" for character in token)
 
 
 def plain_pipeline(command: str) -> list[list[str]] | None:
-    """Parse a pipeline with no shell behavior beyond plain pipes."""
     if "\n" in command or "\r" in command:
         return None
     tokens = shell_tokens(command)
@@ -101,43 +98,36 @@ def plain_pipeline(command: str) -> list[list[str]] | None:
 
 
 def plain_arguments(arguments: Sequence[str]) -> bool:
-    """Accept operands and reject every option."""
     return bool(arguments) and all(not word.startswith("-") for word in arguments)
 
 
 def optional_plain_arguments(arguments: Sequence[str]) -> bool:
-    """Accept zero or more operands and reject every option."""
     return all(not word.startswith("-") for word in arguments)
 
 
 def cat_read(arguments: Sequence[str]) -> bool:
-    """Accept plain cat operands."""
     return plain_arguments(arguments)
 
 
 def ls_read(arguments: Sequence[str]) -> bool:
-    """Accept operands and conventional short display options."""
     letters = frozenset("aAbBcCdDfFgGhHiIklLmNopqQrRsStTuUvwxX1")
     return all(not word.startswith("-") or (len(word) > 1 and set(word[1:]) <= letters)
                for word in arguments)
 
 
 def wc_read(arguments: Sequence[str]) -> bool:
-    """Accept plain files with optional count-selection flags."""
     allowed = frozenset({"-c", "-l", "-m", "-w", "-L"})
     return bool(arguments) and all(word in allowed or not word.startswith("-")
                                    for word in arguments)
 
 
 def rg_read(arguments: Sequence[str]) -> bool:
-    """Accept a plain search or a plain file listing."""
     if arguments and arguments[0] == "--files":
         return all(not word.startswith("-") for word in arguments[1:])
     return plain_arguments(arguments)
 
 
 def find_read(arguments: Sequence[str]) -> bool:
-    """Accept paths with only type filters and printing."""
     if not arguments or arguments[0].startswith("-"):
         return False
     index = 1
@@ -155,7 +145,6 @@ def find_read(arguments: Sequence[str]) -> bool:
 
 
 def sed_read(arguments: Sequence[str]) -> bool:
-    """Accept numeric print ranges without sed's write or execute commands."""
     if len(arguments) < 3 or arguments[0] != "-n":
         return False
     if re.fullmatch(r"\d+(?:,\d+)?p", arguments[1]) is None:
@@ -164,7 +153,6 @@ def sed_read(arguments: Sequence[str]) -> bool:
 
 
 def git_read(arguments: Sequence[str]) -> bool:
-    """Accept known read subcommands without behavior-changing options."""
     if not arguments or arguments[0] not in READONLY_GIT:
         return False
     options = arguments[1:]
@@ -174,13 +162,11 @@ def git_read(arguments: Sequence[str]) -> bool:
 
 
 def command_read(arguments: Sequence[str]) -> bool:
-    """Accept shell executable lookup."""
     return (len(arguments) == 2 and arguments[0] == "-v"
             and not arguments[1].startswith("-"))
 
 
 def python_read(arguments: Sequence[str]) -> bool:
-    """Accept only the ledger's exact read forms."""
     if len(arguments) != 3 or arguments[0] != "tools/memory_ledger.py":
         return False
     if arguments[1] == "tail":
@@ -217,7 +203,6 @@ def readonly_command(command: str) -> bool:
 
 
 def memory_note(command: str) -> bool:
-    """Report whether this is the ledger's exact named write form."""
     words = plain_command_words(command)
     if words is None or len(words) != 4:
         return False
@@ -240,7 +225,6 @@ def first_command(command: str) -> list[str]:
 
 
 def plain_command_words(command: str) -> list[str] | None:
-    """Return one operator-free command without shell expansion."""
     if "\n" in command or "\r" in command:
         return None
     tokens = shell_tokens(command)
@@ -252,7 +236,6 @@ def plain_command_words(command: str) -> list[str] | None:
 
 
 def invokes_engage(words: Sequence[str]) -> bool:
-    """Report whether these words directly run the guard's engage verb."""
     if len(words) not in (4, 5) or SAFE_SCOPE.fullmatch(words[3]) is None:
         return False
     repository = Path.cwd()

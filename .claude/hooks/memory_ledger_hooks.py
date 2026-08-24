@@ -26,9 +26,16 @@ from transcript_archive import (
     reconcile_pending_transcripts,
 )
 
-ROOT = Path(os.environ.get("CODEX_METHOD_REPO_ROOT")
-            or os.environ.get("CLAUDE_METHOD_REPO_ROOT")
-            or Path(__file__).resolve().parents[2])
+def repository_root() -> Path:
+    client = Path(__file__).resolve().parents[1].name
+    names = (("CLAUDE_METHOD_REPO_ROOT", "CODEX_METHOD_REPO_ROOT")
+             if client == ".claude" else
+             ("CODEX_METHOD_REPO_ROOT", "CLAUDE_METHOD_REPO_ROOT"))
+    configured = next((os.environ[name] for name in names if os.environ.get(name)), None)
+    return Path(configured or Path(__file__).resolve().parents[2])
+
+
+ROOT = repository_root()
 LEDGER_TOOL = ROOT / "tools/memory_ledger.py"
 START_HERE = ROOT / "START_HERE.md"
 TAIL_LINES = 30

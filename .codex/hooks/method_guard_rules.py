@@ -25,8 +25,8 @@ from types import ModuleType
 from typing import Mapping, Sequence, cast
 
 from shell_reading import (  # noqa: F401
-    WriteScan, bare_engage, command_words, hidden_engage, mutation_paths,
-    readonly_command, scan_command, simple_words,
+    WriteScan, bare_engage, hidden_engage, mutation_paths, readonly_command,
+    scan_command,
 )
 from method_guard_support import (
     JsonObject,

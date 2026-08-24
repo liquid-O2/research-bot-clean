@@ -105,7 +105,8 @@ def archive_old_setup() -> None:
     for source in archive_sources():
         archive_one_source(source, manifest, recorded, manifest_path)
     if not manifest["items"]:
-        raise RuntimeError("archive items offending=[]; expected the pre-20260823 agent setup")
+        raise RuntimeError(
+            f"archive items offending={manifest['items']!r}; expected non-empty pre-20260823 setup")
     os.replace(ARCHIVE_STAGE, ARCHIVE)
 
 
@@ -267,12 +268,18 @@ def codex_hook_templates() -> list[Path]:
     return [TEMPLATES / "hooks" / name for name in sorted(CODEX_HOOK_MODULES)]
 
 
-def remove_unused_codex_bridge() -> None:
-    bridge = WORKSPACE / ".codex/hooks/cached_session_bridge.py"
-    if path_exists(bridge):
-        if bridge.is_dir() and not bridge.is_symlink():
-            raise ValueError(f"unused Codex bridge offending={bridge}; expected file or absent")
-        bridge.unlink()
+UNUSED_CODEX_HOOKS = ("cached_session_bridge.py", "optmem_lifecycle.py")
+
+
+def remove_unused_codex_hooks(hooks: Path | None = None) -> None:
+    directory = hooks or WORKSPACE / ".codex/hooks"
+    for name in UNUSED_CODEX_HOOKS:
+        path = directory / name
+        if not path_exists(path):
+            continue
+        if path.is_dir() and not path.is_symlink():
+            raise ValueError(f"unused Codex hook offending={path}; expected file or absent")
+        path.unlink()
 
 
 def install_codex_files() -> None:
@@ -283,7 +290,7 @@ def install_codex_files() -> None:
     shutil.copy2(TEMPLATES / "hooks.json", WORKSPACE / ".codex/hooks.json")
     for source in codex_hook_templates():
         shutil.copy2(source, hooks / source.name)
-    remove_unused_codex_bridge()
+    remove_unused_codex_hooks(hooks)
     for source in sorted((TEMPLATES / "agents").glob("*.toml")):
         shutil.copy2(source, agents / source.name)
     atomic_write(WORKSPACE / "AGENTS.md", agents_document())
@@ -390,9 +397,10 @@ def managed_install_errors() -> list[str]:
     for source, installed in managed_file_pairs():
         if not installed.is_file() or installed.read_bytes() != source.read_bytes():
             errors.append(f"installed managed file differs from template: {installed}")
-    unused_bridge = WORKSPACE / ".codex/hooks/cached_session_bridge.py"
-    if path_exists(unused_bridge):
-        errors.append(f"unused Codex bridge remains: {unused_bridge}")
+    for name in UNUSED_CODEX_HOOKS:
+        obsolete = WORKSPACE / ".codex/hooks" / name
+        if path_exists(obsolete):
+            errors.append(f"unused Codex hook remains: {obsolete}")
     agents_path = WORKSPACE / "AGENTS.md"
     if not agents_path.is_file() or agents_path.read_bytes() != agents_document():
         errors.append("installed AGENTS.md differs from generated document")

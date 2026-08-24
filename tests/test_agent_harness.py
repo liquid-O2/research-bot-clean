@@ -8,15 +8,13 @@ import threading
 import unittest
 from pathlib import Path
 
-
 TOOLS = Path(__file__).resolve().parents[1] / "tools"
 sys.path.insert(0, str(TOOLS))
 
 import agent_harness_verify_static
 import agent_harness_verify_runtime
 import agent_harness_verify_common
-from agent_harness_verify_common import HarnessVerificationError
-from agent_harness_verify_common import CODEX_HOOK_MODULES
+from agent_harness_verify_common import CODEX_HOOK_MODULES, HarnessVerificationError
 import install_agent_harness
 import verify_agent_harness
 
@@ -33,33 +31,24 @@ trusted_hash = "sha256:other"
 trusted_hash = "sha256:workspace"
 """
 WORKSPACE_HOOK_PATH = "/workspace/.codex/hooks.json"
-HOOK_EVENTS = {
-    "pre_compact": "preCompact",
-    "pre_tool_use": "preToolUse",
-    "post_compact": "postCompact",
-    "session_start": "sessionStart",
-    "stop": "stop",
-    "subagent_start": "subagentStart",
-    "subagent_stop": "subagentStop",
-    "user_prompt_submit": "userPromptSubmit",
-}
-HOOK_HANDLER_COUNTS = {name: 2 if name in {"session_start", "pre_compact"} else 1
-                       for name in HOOK_EVENTS}
+HOOK_EVENTS = dict(
+    pre_compact="preCompact", pre_tool_use="preToolUse", session_end="sessionEnd",
+    session_start="sessionStart", stop="stop", subagent_start="subagentStart",
+    subagent_stop="subagentStop", user_prompt_submit="userPromptSubmit",
+)
+HOOK_HANDLER_COUNTS = {name: 2 if name == "session_start" else 1 for name in HOOK_EVENTS}
 HookOwner = tuple[int, str, int | None]
 HOOK_POLICY: dict[str, tuple[str | None, tuple[HookOwner, ...]]] = {
     "SessionStart": ("^(startup|resume|clear|compact)$", (
         (20, "memory_ledger_hooks.py session-start", 12000),
-        (10, "method_guard.py session-start", 6000),
+        (10, "method_guard.py session-start", 0),
     )),
     "UserPromptSubmit": (None, ((10, "method_guard.py user-prompt-submit", 6000),)),
     "PreToolUse": ("^(Bash|apply_patch|Agent)$", ((15, "method_guard.py pre-tool-use", None),)),
     "SubagentStart": (None, ((10, "method_guard.py subagent-start", 6000),)),
     "SubagentStop": (None, ((15, "method_guard.py subagent-stop", None),)),
-    "PreCompact": ("^(manual|auto)$", (
-        (30, "optmem_lifecycle.py pre-compact", None),
-        (30, "memory_ledger_hooks.py pre-compact", None),
-    )),
-    "PostCompact": ("^(manual|auto)$", ((10, "optmem_lifecycle.py post-compact", None),)),
+    "PreCompact": ("^(manual|auto)$", ((30, "memory_ledger_hooks.py pre-compact", None),)),
+    "SessionEnd": (None, ((3, "memory_ledger_hooks.py session-end", None),)),
     "Stop": (None, ((30, "method_guard.py stop", None),)),
 }
 REAL_RMTREE = shutil.rmtree
@@ -244,8 +233,20 @@ class InstallerTrustTests(unittest.TestCase):
         self.assertEqual(names, sorted(CODEX_HOOK_MODULES))
         self.assertNotIn("cached_session_bridge.py", names)
         self.assertNotIn("claude_method_guard.py", names)
+        self.assertNotIn("optmem_lifecycle.py", names)
         for path in install_agent_harness.codex_hook_templates():
             self.assertTrue(path.is_file(), path)
+
+    def test_codex_install_removes_obsolete_hook_files(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            hooks = Path(raw_directory)
+            obsolete = ("cached_session_bridge.py", "optmem_lifecycle.py")
+            for name in obsolete:
+                (hooks / name).write_text("obsolete\n", encoding="utf-8")
+
+            install_agent_harness.remove_unused_codex_hooks(hooks)
+
+            self.assertTrue(all(not (hooks / name).exists() for name in obsolete))
 
     def test_pinned_pstack_runtime_fails_fast(self) -> None:
         with tempfile.TemporaryDirectory() as raw_directory:
@@ -274,7 +275,7 @@ class HookTrustTests(unittest.TestCase):
             self.assertEqual(set(configured), set(HOOK_POLICY), path)
             handler_count = sum(len(group["hooks"]) for groups in configured.values()
                                 for group in groups)
-            self.assertEqual(handler_count, 10, path)
+            self.assertEqual(handler_count, 9, path)
             for event, (matcher, owners) in HOOK_POLICY.items():
                 with self.subTest(path=path, event=event):
                     self.assertEqual(len(configured[event]), 1)

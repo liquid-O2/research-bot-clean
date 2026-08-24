@@ -13,7 +13,9 @@ from io import StringIO
 from pathlib import Path
 import sys
 import tempfile
+from types import ModuleType
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -221,6 +223,12 @@ class CleanCodeRuleTests(unittest.TestCase):
 class BriefLintTests(unittest.TestCase):
     def test_a_complete_brief_passes(self) -> None:
         self.assertEqual(brief_lint.main(["-"], StringIO(GOOD_BRIEF), StringIO()), 0)
+
+    def test_a_cached_foreign_hook_module_cannot_change_the_lint(self) -> None:
+        foreign = ModuleType("shell_reading")
+        with patch.dict(sys.modules, {"shell_reading": foreign}):
+            status = brief_lint.main(["-"], StringIO(GOOD_BRIEF), StringIO())
+        self.assertEqual(status, 0)
 
     def test_each_missing_element_is_reported(self) -> None:
         removals = ("You are a subagent. Don't run memo.\n", "Own: tools/x.py\n",

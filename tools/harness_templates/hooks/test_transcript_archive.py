@@ -145,8 +145,8 @@ class TranscriptArchiveTests(unittest.TestCase):
             target.chmod(0o600)
             with archive_root(root / "archive"), self.assertRaises(Exception) as caught:
                 module.archive_transcript(str(source))
-        self.assertIn("did not match", str(caught.exception))
-        self.assertEqual(target.read_bytes(), b"corrupt bytes\n")
+            self.assertIn("did not match", str(caught.exception))
+            self.assertEqual(target.read_bytes(), b"corrupt bytes\n")
 
 
 class TranscriptLifecycleTests(unittest.TestCase):
@@ -174,7 +174,10 @@ class TranscriptLifecycleTests(unittest.TestCase):
             self.assertEqual(response, {})
             self.assertEqual(errors, "")
             self.assertEqual(len(objects), 1)
-            self.assertIn(str(objects[0]), ledger.read_text(encoding="utf-8"))
+            checkpoint = ledger.read_text(encoding="utf-8")
+            self.assertIn(str(objects[0]), checkpoint)
+            self.assertIn("SessionStart restores the exact method packet", checkpoint)
+            self.assertNotIn("run the guard's engage command", checkpoint)
             self.assertFalse(continuity.exists())
 
     def test_session_end_archives_without_adding_a_generic_checkpoint(self) -> None:

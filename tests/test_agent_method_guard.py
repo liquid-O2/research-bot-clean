@@ -6,9 +6,9 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 from types import ModuleType
 from typing import Iterator
-import stat
 import sys
 import tempfile
 import unittest
@@ -16,8 +16,9 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 HOOKS = ROOT / "tools/harness_templates/hooks"
 METHOD_GUARD_PATH = HOOKS / "method_guard.py"
-LIFECYCLE_PATH = HOOKS / "optmem_lifecycle.py"
 NO_MEMO = "You are a subagent. Don't run memo."
+CHUNK_END = "<<<METHOD_PACKET_CHUNK_END>>>"
+PACKET_END = "<<<METHOD_PACKET_END"
 ROUTE_METHODS = {
     "investigation": ["how", "why"],
     "architecture": ["architect", "arena", "codebase-design"],
@@ -41,7 +42,17 @@ def load_module(name: str, path: Path) -> ModuleType | None:
     spec.loader.exec_module(module)
     return module
 method_guard = load_module("method_guard", METHOD_GUARD_PATH)
-optmem_lifecycle = load_module("method_guard_optmem_lifecycle", LIFECYCLE_PATH)
+
+
+def method_chunk_body(response: str) -> str:
+    try:
+        _, remainder = response.split("\n", 1)
+        body, _ = remainder.split(f"\n{CHUNK_END}\n", 1)
+    except ValueError as error:
+        raise AssertionError(f"malformed engage chunk {response!r}") from error
+    return body
+
+
 def hook_payload(event: str, **extra: object) -> dict[str, object]:
     return {
         "hook_event_name": event,
@@ -174,12 +185,27 @@ class MethodGuardTests(unittest.TestCase):
                 cwd=str(fixture.repo),
             ),
         )
-    def engage(self, fixture: MethodFixture) -> StringIO:
-        _, output, _ = self.call_guard(
-            ["engage"],
-            hook_payload("Engage", scope=fixture.scope, cwd=str(fixture.repo)),
-        )
+
+    def call_direct_guard(self, arguments: list[str]) -> StringIO:
+        guard = self.require_guard()
+        output = StringIO()
+        errors = StringIO()
+        status = guard.main(arguments, StringIO(), output, errors)
+        self.assertEqual(status, 0)
+        self.assertEqual(errors.getvalue(), "")
         return output
+
+    def engage(self, fixture: MethodFixture) -> StringIO:
+        chunks: list[str] = []
+        for number in range(1, 33):
+            arguments = ["engage", fixture.scope]
+            if number > 1:
+                arguments.append(str(number))
+            response = self.call_direct_guard(arguments).getvalue()
+            chunks.append(method_chunk_body(response))
+            if PACKET_END in response:
+                return StringIO("".join(chunks))
+        raise AssertionError(f"engage exceeded {len(chunks)} chunks")
     def prepare_engaged(self, fixture: MethodFixture) -> None:
         fixture.write_contract()
         fixture.write_gates()
@@ -201,7 +227,7 @@ class MethodGuardTests(unittest.TestCase):
             "SubagentStart",
             "SubagentStop",
             "PreCompact",
-            "PostCompact",
+            "SessionEnd",
             "Stop",
         }
         for config_path in [ROOT / ".codex/hooks.json", ROOT / "tools/harness_templates/hooks.json"]:
@@ -227,11 +253,13 @@ class MethodGuardTests(unittest.TestCase):
                 _, output, _ = self.call_guard(
                     ["pre-tool-use"], self.production_patch(fixture)
                 )
-            packet = json.loads(packet_output.getvalue())["method_packet"]
-            rows = {Path(row["path"]): row for row in packet["sources"]}
+            packet = packet_output.getvalue()
             required = [fixture.sources["poteto-mode"], *fixture.plan_sources.values()]
             for source in required:
-                self.assertEqual(rows[source]["content"], source.read_text(encoding="utf-8"))
+                digest = sha256(source.read_bytes()).hexdigest()
+                marker = f"path={source} sha256={digest}"
+                self.assertIn(marker, packet)
+                self.assertIn(source.read_text(encoding="utf-8"), packet)
             self.assertIn("plan-flow", block_reason(output))
     def test_bash_requires_command_and_non_read_only_calls_require_a_route(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -314,14 +342,17 @@ class MethodGuardTests(unittest.TestCase):
                 fixture.write_gates()
                 self.activate(fixture)
                 output = self.engage(fixture)
-            packet = json.loads(output.getvalue())
-            rows = {row["name"]: row for row in packet["method_packet"]["sources"]}
-            self.assertEqual(set(rows), set(fixture.sources))
+            packet = output.getvalue()
+            names = set(re.findall(r"<<<METHOD_SOURCE_START name=([^ ]+)", packet))
+            self.assertEqual(names, set(fixture.sources))
             for name, source in fixture.sources.items():
                 source_bytes = source.read_bytes()
-                self.assertEqual(rows[name]["content"].encode(), source_bytes, name)
-                self.assertEqual(rows[name]["sha256"], sha256(source_bytes).hexdigest(), name)
-    def test_digest_change_and_compact_resume_each_revoke_readiness(self) -> None:
+                digest = sha256(source_bytes).hexdigest()
+                marker = f"name={name} path={source} sha256={digest}"
+                self.assertIn(marker, packet, name)
+                self.assertIn(source_bytes.decode(), packet, name)
+
+    def test_digest_change_rearms_and_compact_restores_current_packet(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             fixture = MethodFixture(Path(raw))
             write = self.production_patch(fixture)
@@ -330,13 +361,15 @@ class MethodGuardTests(unittest.TestCase):
                 fixture.sources["implement-flow"].write_text("changed router\n", encoding="utf-8")
                 _, changed, _ = self.call_guard(["pre-tool-use"], write)
                 self.assertIn("source digest", block_reason(changed).lower())
-                self.engage(fixture)
-                self.call_guard(
+                direct = self.engage(fixture)
+                _, start, _ = self.call_guard(
                     ["session-start"],
                     hook_payload("SessionStart", source="compact", cwd=str(fixture.repo)),
                 )
                 _, resumed, _ = self.call_guard(["pre-tool-use"], write)
-            self.assertIn("compact", block_reason(resumed).lower())
+            context = json.loads(start.getvalue())["hookSpecificOutput"]["additionalContext"]
+            self.assertEqual(context, direct.getvalue())
+            self.assertEqual(json.loads(resumed.getvalue()), {})
     def test_subagent_launch_requires_exact_brief_scope_acceptance_and_model(self) -> None:
         valid = (
             f"{NO_MEMO}\n\nOwn only `tests/test_widget.py`.\n"
@@ -432,89 +465,5 @@ class MethodGuardTests(unittest.TestCase):
             )
         self.assertEqual(calls, ["unlazy", "evidence", "clean-code", "unslop"])
         self.assertIn("em dash", json.loads(output.getvalue())["reason"])
-FAKE_MEMO = """#!/usr/bin/python3
-import os
-from pathlib import Path
-import sys
-archive = Path(os.environ["CODEX_TRANSCRIPT_ARCHIVE_ROOT"])
-with Path(os.environ["MEMO_ORDER_LOG"]).open("a", encoding="utf-8") as stream:
-    stream.write(f"archive_objects={len(list(archive.rglob('*.jsonl')))}\\n")
-if sys.argv[1:] != ["nap"]:
-    raise SystemExit(7)
-print("Nothing left to compress.")
-"""
-class TranscriptArchiveTests(unittest.TestCase):
-    def test_precompact_archives_exact_bytes_once_before_memo_with_private_modes(self) -> None:
-        self.assertIsNotNone(optmem_lifecycle, f"missing lifecycle at {LIFECYCLE_PATH}")
-        with tempfile.TemporaryDirectory() as raw:
-            root = Path(raw)
-            transcript = root / "session.jsonl"
-            source_bytes = b'{"unicode":"\xe2\x98\x83"}\n\x00exact bytes\n'
-            transcript.write_bytes(source_bytes)
-            archive = root / "outside-git/archive"
-            memo = root / "memo"
-            memo.write_text(FAKE_MEMO, encoding="utf-8")
-            memo.chmod(0o755)
-            order_log = root / "order.log"
-            payload = hook_payload(
-                "PreCompact",
-                trigger="auto",
-                transcript_path=str(transcript),
-                cwd=str(root / "repo"),
-            )
-            environment = {
-                "CODEX_TRANSCRIPT_ARCHIVE_ROOT": str(archive),
-                "MEMO_ORDER_LOG": str(order_log),
-            }
-            with (
-                patch.object(optmem_lifecycle, "MEMO_CANDIDATES", (memo,)),
-                patch.dict(os.environ, environment, clear=False),
-            ):
-                for _ in range(2):
-                    output = StringIO()
-                    status = optmem_lifecycle.main(
-                        ["pre-compact"], StringIO(json.dumps(payload)), output, StringIO()
-                    )
-                    self.assertEqual(status, 0)
-                    self.assertEqual(json.loads(output.getvalue()), {})
-            objects = list(archive.rglob("*.jsonl"))
-            self.assertEqual(len(objects), 1)
-            self.assertEqual(objects[0].read_bytes(), source_bytes)
-            self.assertEqual(objects[0].stem, sha256(source_bytes).hexdigest())
-            self.assertEqual(stat.S_IMODE(objects[0].stat().st_mode), 0o600)
-            archive_directories = [archive, *(path for path in archive.rglob("*") if path.is_dir())]
-            self.assertTrue(all(stat.S_IMODE(path.stat().st_mode) == 0o700 for path in archive_directories))
-            self.assertEqual(order_log.read_text(encoding="utf-8").splitlines(), ["archive_objects=1"] * 2)
-    def test_precompact_archive_failure_reports_without_blocking(self) -> None:
-        self.assertIsNotNone(optmem_lifecycle, f"missing lifecycle at {LIFECYCLE_PATH}")
-        with tempfile.TemporaryDirectory() as raw:
-            root = Path(raw)
-            memo = root / "memo"
-            memo.write_text(FAKE_MEMO, encoding="utf-8")
-            memo.chmod(0o755)
-            order_log = root / "order.log"
-            environment = {
-                "CODEX_TRANSCRIPT_ARCHIVE_ROOT": str(root / "archive"),
-                "MEMO_ORDER_LOG": str(order_log),
-            }
-            payload = hook_payload(
-                "PreCompact",
-                trigger="manual",
-                transcript_path=str(root / "missing.jsonl"),
-            )
-            with (
-                patch.object(optmem_lifecycle, "MEMO_CANDIDATES", (memo,)),
-                patch.dict(os.environ, environment, clear=False),
-            ):
-                output = StringIO()
-                status = optmem_lifecycle.main(
-                    ["pre-compact"], StringIO(json.dumps(payload)), output, StringIO()
-                )
-            self.assertEqual(status, 0)
-            response = json.loads(output.getvalue())
-            self.assertNotIn("continue", response)
-            self.assertIn("Transcript archive failed", response["systemMessage"])
-            self.assertIn("archive", response["systemMessage"].lower())
-            self.assertFalse(order_log.exists(), "memo nap ran after an archive failure")
 if __name__ == "__main__":
     unittest.main()

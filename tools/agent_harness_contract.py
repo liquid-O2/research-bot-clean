@@ -29,7 +29,7 @@ Use `$implement-flow` for implementation. Pstack owns the implementation playboo
 
 A repository write with no declared route selects `$implement-flow`. The method guard denies that write until the route's exact sources have entered the session. Recover by writing `.unlazy/<scope>/METHOD.json` and its `GATES.md`, then running the engage command the denial names.
 
-Compaction clears the guard's record. Those exact sources must enter the session again before the next write, whatever you still remember of them.
+Compaction clears the guard's record. The compact lifecycle must inject those exact sources and restore readiness before the next write. Codex does this at SessionStart with `source=compact`; use direct engage only when automatic restoration reports a failure.
 
 Pstack owns unqualified `$tdd` and `$teach`. Pocock's colliding skills are `$pocock-tdd` and `$pocock-teach`. Preserve both upstream testing methods. Do not merge them or add another test process.
 
@@ -49,8 +49,8 @@ CANONICAL_TREES = {
     "vendor": "f08f741fa29ff79834f2c5b9cd3446a4add8523a",
 }
 SHARED_HOOK_MODULES = ("method_guard_support.py", "method_guard_rules.py")
-CODEX_HOOK_MODULES = (*SHARED_HOOK_MODULES, "method_guard.py", "optmem_lifecycle.py",
-                      "memory_ledger_hooks.py", "shell_reading.py")
+CODEX_HOOK_MODULES = (*SHARED_HOOK_MODULES, "method_guard.py", "memory_ledger_hooks.py",
+                      "shell_reading.py", "transcript_archive.py")
 CLAUDE_HOOK_MODULES = (*SHARED_HOOK_MODULES, "memory_ledger_hooks.py")
 CLAUDE_GUARD_TEMPLATE = "claude_method_guard.py"
 CLAUDE_GUARD_INSTALLED = "method_guard.py"

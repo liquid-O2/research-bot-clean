@@ -52,6 +52,7 @@ def mutation_paths(command: str) -> tuple[str, ...]:
 
 ENGAGE_SCRIPT = "method_guard" + ".py"
 ENGAGE_VERB = "eng" + "age"
+SAFE_SCOPE = re.compile(r"[a-z0-9][a-z0-9-]*\Z")
 
 
 def shell_tokens(command: str) -> list[str] | None:
@@ -252,16 +253,28 @@ def plain_command_words(command: str) -> list[str] | None:
 
 def invokes_engage(words: Sequence[str]) -> bool:
     """Report whether these words directly run the guard's engage verb."""
-    if len(words) not in (3, 4):
+    if len(words) not in (4, 5) or SAFE_SCOPE.fullmatch(words[3]) is None:
         return False
     repository = Path.cwd()
     guard_paths = {
         (repository / ".codex/hooks" / ENGAGE_SCRIPT).resolve(),
         (repository / ".claude/hooks" / ENGAGE_SCRIPT).resolve(),
     }
-    return (words[0] in ("python3", "/usr/bin/python3")
-            and Path(words[1]).resolve() in guard_paths
-            and words[2] == ENGAGE_VERB)
+    direct = (words[0] in ("python3", "/usr/bin/python3")
+              and Path(words[1]).resolve() in guard_paths
+              and words[2] == ENGAGE_VERB)
+    chunk = len(words) == 4 or (re.fullmatch(r"[0-9]+", words[4]) is not None
+                                and int(words[4]) > 0)
+    return direct and chunk
+
+
+def engage_attempt(words: Sequence[str]) -> bool:
+    if len(words) < 3 or words[0] not in ("python3", "/usr/bin/python3"):
+        return False
+    repository = Path.cwd()
+    guards = {(repository / client / ENGAGE_SCRIPT).resolve()
+              for client in (".codex/hooks", ".claude/hooks")}
+    return Path(words[1]).resolve() in guards and words[2] == ENGAGE_VERB
 
 
 def bare_engage(command: str) -> bool:
@@ -287,8 +300,9 @@ def hidden_engage(command: str) -> bool:
     names the verb is not a call. A wrapper script could still hide the output;
     this closes the accident, not a determined workaround.
     """
-    return (invokes_engage(first_command(command))
-            and plain_command_words(command) is None)
+    words = first_command(command)
+    return engage_attempt(words) and (plain_command_words(command) is None
+                                      or not invokes_engage(words))
 
 
 def scan_command(command: str) -> WriteScan:

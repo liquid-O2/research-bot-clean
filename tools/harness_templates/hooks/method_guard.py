@@ -318,16 +318,69 @@ def write_json(value: object, stdout: TextIO) -> None:
     stdout.write("\n")
 
 
-def run_engage(payload: Mapping[str, object], stdout: TextIO) -> int:
-    """Print the exact method packet and record its digests for this session."""
+def direct_payload() -> JsonObject:
+    root = policy.repo_root({})
+    return {"cwd": str(root), "session_id": policy.current_session(root)}
+
+
+def packet_chunk(text: str, start: int) -> tuple[str, int]:
+    raw = text.encode()
+    end = min(start + policy.ENGAGE_CHUNK_BYTES, len(raw))
+    while end > start:
+        try:
+            return raw[start:end].decode(), end
+        except UnicodeDecodeError:
+            end -= 1
+    raise ValueError(f"method packet cannot split UTF-8 at byte {start}")
+
+
+def packet_chunks(text: str) -> tuple[str, ...]:
+    chunks: list[str] = []
+    offset = 0
+    while offset < len(text.encode()):
+        chunk, offset = packet_chunk(text, offset)
+        chunks.append(chunk)
+    return tuple(chunks)
+
+
+def chunk_response(packet: policy.ExactMethodPacket, chunks: tuple[str, ...],
+                   number: int, scope: str) -> str:
+    output = f"<<<METHOD_PACKET_CHUNK {number} sha256={packet.sha256}>>>\n{chunks[number - 1]}\n"
+    output += "<<<METHOD_PACKET_CHUNK_END>>>\n"
+    if number < len(chunks):
+        output += f"python3 .codex/hooks/method_guard.py engage {scope} {number + 1}\n"
+    return output
+
+
+def engage_arguments(arguments: Sequence[str]) -> tuple[str, int]:
+    if len(arguments) not in (1, 2):
+        raise ValueError(f"expected engage <scope> [chunk], got {tuple(arguments)!r}")
+    if len(arguments) == 1:
+        return arguments[0], 1
+    if re.fullmatch(r"[0-9]+", arguments[1]) is None or int(arguments[1]) < 1:
+        raise ValueError(f"chunk must be a positive decimal, got {arguments[1]!r}")
+    return arguments[0], int(arguments[1])
+
+
+def run_engage(arguments: Sequence[str], stdout: TextIO) -> int:
     try:
-        response, state = policy.prepare_engagement(payload)
+        payload = direct_payload()
+        scope, number = engage_arguments(arguments)
+        payload["scope"] = scope
+        packet, state = policy.prepare_engagement(payload)
+        chunks = packet_chunks(packet.text)
+        if number > len(chunks):
+            raise ValueError(f"chunk {number} is out of range; packet has {len(chunks)} chunks")
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
-        write_json(block(str(error)), stdout)
+        stdout.write(f"Method guard engage rejected: {error}\n")
         return 0
-    write_json(response, stdout)
+    pending_ready = state["pending_ready"]
+    policy.rearm(payload, state, "engage in progress")
+    state["pending_ready"] = pending_ready
+    stdout.write(chunk_response(packet, chunks, number, scope))
     stdout.flush()
-    policy.save_state(payload, state)
+    if number == len(chunks):
+        policy.mark_ready(payload, state)
     return 0
 
 
@@ -335,12 +388,12 @@ def main(argv: Sequence[str] | None = None, stdin: TextIO = sys.stdin,
          stdout: TextIO = sys.stdout, stderr: TextIO = sys.stderr) -> int:
     """Run one hook event, or the engage command."""
     arguments = tuple(sys.argv[1:] if argv is None else argv)
+    if arguments and arguments[0] == "engage":
+        return run_engage(arguments[1:], stdout)
     payload = json.load(stdin)
     if not isinstance(payload, dict):
         raise ValueError(f"hook payload must be an object, got {type(payload).__name__}")
     mapping = cast(Mapping[str, object], payload)
-    if arguments == ("engage",):
-        return run_engage(mapping, stdout)
     if len(arguments) != 1 or arguments[0] not in EVENTS:
         raise ValueError(f"unknown method guard command {arguments!r}")
     try:

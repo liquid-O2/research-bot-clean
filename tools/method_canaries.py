@@ -71,9 +71,9 @@ def plan_route_canaries() -> list[Canary]:
                write_payload(str(ROOT / "tools/canary_probe.py")), "deny",
                "plan-flow denies production writes",
                setup=lambda state: select(state, "plan-flow")),
-        Canary("plan-flow reaches the planning branch, then asks for its method",
+        Canary("plan-flow reaches the planning branch, then requires its method",
                "pre-tool-use", write_payload(str(ROOT / "design/canary.md")), "deny",
-               "engage", setup=lambda state: select(state, "plan-flow")),
+               "METHOD", setup=lambda state: select(state, "plan-flow")),
     ]
 
 
@@ -88,14 +88,12 @@ def engaged(state: Path) -> None:
     engage(state)
 
 
-def engaged_then_compacted(state: Path) -> None:
-    """Engage, then take the method back out with a compaction."""
+def engaged_then_compact_restored(state: Path) -> None:
     engaged(state)
     compact(state)
 
 
 def engagement_canaries() -> list[Canary]:
-    """Canaries for the packet gate and its re-arm after a compaction."""
     return [
         Canary("an implementation write before engage is denied", "pre-tool-use",
                write_payload(str(ROOT / "tools/canary_probe.py")), "deny",
@@ -108,9 +106,9 @@ def engagement_canaries() -> list[Canary]:
         Canary("a write to a canonical skill is denied", "pre-tool-use",
                write_payload(str(ROOT / ".agents/skills/unslop/SKILL.md")), "deny",
                "pinned or canonical", setup=engaged),
-        Canary("a write after a compaction is denied until engage runs again", "pre-tool-use",
-               write_payload(str(ROOT / "tools/canary_probe.py")), "deny",
-               "after compact", setup=engaged_then_compacted),
+        Canary("an owned write after compact restoration passes", "pre-tool-use",
+               write_payload(str(ROOT / "tools/canary_probe.py")), "allow",
+               setup=engaged_then_compact_restored),
     ]
 
 
@@ -156,10 +154,6 @@ def spawn_canaries() -> list[Canary]:
         Canary("a well-formed spawn passes", "pre-tool-use",
                spawn_payload(GOOD_BRIEF), "allow", setup=engaged),
     ]
-
-
-OPEN_SCOPE = "canary-open-gate"
-DONE_SCOPE = "canary-met-gate"
 
 
 def write_scope(name: str, met: bool) -> None:
@@ -241,7 +235,7 @@ def self_repair_canaries() -> list[Canary]:
     verb = "eng" + "age"
     call = command_payload(f"{guard} {verb} {SCOPE}")
 
-    def rearmed(state: Path) -> None:
+    def restored(state: Path) -> None:
         engaged(state)
         compact(state)
 
@@ -249,8 +243,8 @@ def self_repair_canaries() -> list[Canary]:
         Canary("engage is permitted with no route at all", "pre-tool-use", call, "allow"),
         Canary("engage is permitted before the first engage", "pre-tool-use", call, "allow",
                setup=unengaged),
-        Canary("engage is permitted after a compaction re-arm", "pre-tool-use", call,
-               "allow", setup=rearmed),
+        Canary("engage remains permitted after compact restoration", "pre-tool-use", call,
+               "allow", setup=restored),
         Canary("engage is permitted while already engaged", "pre-tool-use", call, "allow",
                setup=engaged),
     ]

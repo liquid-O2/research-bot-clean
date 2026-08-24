@@ -54,7 +54,7 @@ UPSTREAM_RECEIPT_FIELDS = {
 }
 REQUIRED_HOOK_EVENTS = {
     "SessionStart", "UserPromptSubmit", "PreToolUse", "SubagentStart",
-    "SubagentStop", "PreCompact", "PostCompact", "Stop",
+    "SubagentStop", "PreCompact", "SessionEnd", "Stop",
 }
 
 

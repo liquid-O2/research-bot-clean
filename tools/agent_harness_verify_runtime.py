@@ -383,15 +383,12 @@ def verify_compact_order(payloads: list[dict[str, object]], root_id: object) -> 
               payload.get("session_id")) for payload in payloads]
     pre = next((index for index, item in enumerate(names)
                 if item[0] == "PreCompact" and item[2] == root_id), None)
-    post = next((index for index, item in enumerate(names)
-                 if item[0] == "PostCompact" and item[2] == root_id
-                 and pre is not None and index > pre), None)
     compact = next((index for index, item in enumerate(names)
                     if item[0] == "SessionStart" and item[1] == "compact"
-                    and item[2] == root_id and post is not None and index > post), None)
-    require(pre is not None and post is not None and compact is not None,
+                    and item[2] == root_id and pre is not None and index > pre), None)
+    require(pre is not None and compact is not None,
             "lifecycle.compact-order", names,
-            "PreCompact before PostCompact before SessionStart source=compact")
+            "PreCompact before SessionStart source=compact")
 
 
 def verify_lifecycle() -> str:

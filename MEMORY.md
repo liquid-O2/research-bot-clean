@@ -437,6 +437,32 @@ New memories land here, newest last.
 - 2026-08-23 #198 Codex re-trusted the changed hooks and the live probe reports HOOK TRUST PASS, nine handlers on current hashes. Both clients now run the same enforcement end to end.
 - 2026-08-23 #199 Codex now receives the ledger tail at SessionStart instead of the stale OptMem wake, and its PreCompact writes a ledger checkpoint beside the exact transcript archive. Compaction drills pass live on both clients.
 - 2026-08-23 #200 Codex trusted the ledger wiring. hook-trust reports PASS with ten handlers on current hashes, so both clients run the full enforcement and the shared memory end to end.
+- 2026-08-23 #201 USER: hooks must enforce actual skill behavior, not skill names. A safe-read fix may remove false denials but must keep opaque and mutating commands gated. Implement simple work inline when faster; use gpt-5.6-sol medium or high for delegated work.
+- 2026-08-23 #202 USER SAFETY: method enforcement must never soft-lock messaging or self-repair. Keep Stop bounded, fail open on hook bugs, keep engage reachable, and prove recovery with live canaries. Enforce skills without making the session fragile.
+- 2026-08-23 #203 USER DELIVERY: never open a PR for this repository. Finish work as verified commits on the current branch and use the existing direct-push authorization; skip every playbook PR step explicitly.
+- 2026-08-23 #204 USER MEMORY RULE. Codex conversations must feed both the durable ledger and exact transcript archive, not only Claude sessions. Keep lasting decisions in MEMORY.md and spool each Codex transcript at compaction.
+- 2026-08-23 #205 USER METHOD RULE. Planning and implementation must retain every applicable skill throughout the route. Hooks re-inject exact sources after compaction, check hashes before writes, enforce evidence, and keep recovery fail-safe.
+- 2026-08-23 #206 USER DISTRIBUTION RULE. Mirror every verified skill, hook, contract, installer, and harness change to the private trading-skills repository, then commit and push both repositories. Never retain credentials.
+- 2026-08-23 #207 USER MODEL RULE. Final review agents use gpt-5.6-sol with xhigh reasoning. Architecture uses high and routine implementation uses medium.
+- 2026-08-23 #208 USER ENFORCEMENT RULE. Derive hook obligations from canonical skill bodies and trigger rules. Enforce route baselines, conditional decisions, and evidence instead of skill names or duplicated prose.
+- 2026-08-23 #209 TESTING PRECEDENCE: cover each new behavior through the nearest agreed public seam. Do not create one direct test per private helper. Pocock's seam and anti-tautology rules govern how Akita's new-function test rule is satisfied.
+- 2026-08-23 #210 USER METHOD PRECEDENCE: Pstack owns the outer method. Pocock owns implementation, TDD, and review where Pstack selects them. Akita applies only when compatible. On conflict, the selected Pstack or Pocock rule wins.
+- 2026-08-23 #211 CORRECTION TO #210: Pstack and Pocock jointly govern both planning and implementation. Neither is confined to one phase or exclusive layer. Akita applies only where compatible with both.
+- 2026-08-23 #212 METHOD COMPOSITION: plan-flow and implement-flow must load and follow both exact Pstack and Pocock methods together. Neither method loses rules when the route composes them. The pair takes precedence over Akita.
+- 2026-08-23 #213 LIVE COMPACTION DEFECT. Codex still emitted an OptMem nap request for entries 184-185, and the first ledger tail after compaction was denied until manual engage. Both paths remain unfixed.
+- 2026-08-23 #214 USER COMPACTION RULE. PreCompact writes a checkpoint to MEMORY.md and archives the exact transcript. The supported compact restart reads the ledger and restores the exact method context. OptMem has no active lifecycle role.
+- 2026-08-23 #215 USER SCOPE. Audit every Codex and Claude hook, including event contracts, timeouts, failure behavior, installed and template copies, canaries, export, compaction, subagents, Stop, session end, and transcript retention.
+- 2026-08-23 #216 USER SEQUENCING. Finish and live-prove the full Codex hook audit first. Review Claude-specific hooks later as a separate checkpoint, while keeping shared templates compatible.
+- 2026-08-23 #217 CODEX HOOK AUDIT. The method packet is 181,479 bytes. Compact drops readiness, SubagentStart omits sources, PreCompact runs OptMem, SessionEnd is absent, child Stop shares root counters, and static checks miss installed dependency drift.
+- 2026-08-24 #218 CLASSIFIER FIX. c71e75f permits only positively parsed reads and exact ledger calls, rejects command chains and execution options, and confines the recovery exemption to the real guard script.
+- 2026-08-24 #219 STOP ROOT CAUSE. Pinned unlazy selects a sole scope before checking session ownership. With several scopes it emits a none-bound message. The Codex adapter must call it only with a scope bound to the current session.
+- 2026-08-24 #220 SCOPE REARM DEFECT. Editing a bootstrap GATES.md for an unrelated .unlazy scope revoked the active method packet and forced manual recovery. Only the active scope's METHOD.json or GATES.md may re-arm its session.
+- 2026-08-24 #221 CODEX COMPACT CONTRACT. PostCompact exists but cannot inject method context. SessionStart source=compact restores it before continuation. PreCompact archives and checkpoints without blocking.
+- 2026-08-24 #222 LIVE COMPACT FACT. The user did not restart. Automatic compaction in this session exposed broken restoration. Finish and live-prove compact recovery before returning to Stop work.
+- 2026-08-24 #223 METHOD SELECTION. clean-code-for-agents does not replace Pstack or Pocock design skills. Load every applicable skill by trigger; codebase-design is active here, while domain-modeling remains conditional.
+- 2026-08-24 #224 LIVE COMPACT PROOF. Automatic compact archived the exact transcript as SHA-256 object 44715806, wrote its ledger checkpoint, emitted no OptMem request, and restored the full method packet through SessionStart without a restart.
+- 2026-08-24 #225 CODEX COMPACT CANARY. The installed guard passed all 40 canaries with explicit idempotent engage chunks, safe rejected arguments, exact source digests, automatic compact restoration, ownership checks, and recovery access.
+- 2026-08-24 #226 CODEX HOOK TRUST. Removed two orphaned handler identities and pinned the three changed current hashes after explicit user authorization. Live verification reports nine current handlers trusted with no restart.
 
 ## Checkpoints
 
@@ -471,3 +497,55 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - cwd: /workspace
 - transcript spool: /workspace/artifacts/cache/continuity/drill-codex-20260823T225047Z.jsonl
 - the method packet left context here; run the guard's engage command before the next repository write
+
+### 2026-08-23T22:54:00Z
+
+- session 3dbd6f27-1813-46c6-a66c-1200ee0d88a2 ended (prompt_input_exit)
+
+### 2026-08-23T23:10:35Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript spool: /workspace/artifacts/cache/continuity/01a030d4-ea30-73a3-982b-f0e8c3cb2a23-20260823T231034Z.jsonl
+- the method packet left context here; run the guard's engage command before the next repository write
+
+### 2026-08-23T23:26:48Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript spool: /workspace/artifacts/cache/continuity/01a030d4-ea30-73a3-982b-f0e8c3cb2a23-20260823T232647Z.jsonl
+- the method packet left context here; run the guard's engage command before the next repository write
+
+### 2026-08-23T23:40:44Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript spool: /workspace/artifacts/cache/continuity/01a030d4-ea30-73a3-982b-f0e8c3cb2a23-20260823T234044Z.jsonl
+- the method packet left context here; run the guard's engage command before the next repository write
+
+### 2026-08-24T00:04:09Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript spool: /workspace/artifacts/cache/continuity/01a030d4-ea30-73a3-982b-f0e8c3cb2a23-20260824T000409Z.jsonl
+- the method packet left context here; run the guard's engage command before the next repository write
+
+### 2026-08-24T00:20:27Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/44/44715806e0ebbefc0c619bb4599b64b37b3dfe415bc7f8814a6f432d43de859e.jsonl
+- the method packet left context here; run the guard's engage command before the next repository write
+
+### 2026-08-24T00:45:14Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/94/943eede9abb05d2b5bc97ec1f6ff70c668726f5acf6bafcd54ed3c25725c72be.jsonl
+- SessionStart restores the exact method packet before compact continuation

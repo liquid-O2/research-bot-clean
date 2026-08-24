@@ -97,6 +97,20 @@ class MethodContextLifecycleTests(unittest.TestCase):
         self.assertIn(PACKET_END, packet)
         self.assertIn("exact router\n" + "x" * 40_000, packet)
 
+    def test_invalid_direct_chunk_keeps_an_existing_ready_record(self) -> None:
+        invalid = (("0",), ("nope",), ("999",), ("1", "extra"))
+        with tempfile.TemporaryDirectory() as raw:
+            fixture = MethodFixture(Path(raw))
+            fixture.write_contract()
+            fixture.write_gates()
+            with fixture.environment():
+                activate(fixture)
+                for suffix in invalid:
+                    collect_direct_packet(fixture)
+                    response = call_guard(["engage", fixture.scope, *suffix], None)
+                    self.assertIn("rejected", response)
+                    self.assertEqual(call_guard(["pre-tool-use"], production_patch(fixture)), {})
+
     def test_compact_session_start_injects_complete_packet_and_restores_writes(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             fixture = MethodFixture(Path(raw))

@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 from hashlib import sha256
 from pathlib import Path
+import re
 import shutil
 import sys
 import tempfile
@@ -24,7 +25,7 @@ from canary_driver import (  # noqa: E402
     Canary,
     Outcome,
     ROOT,
-    SCOPE,
+    drop_method_scopes,
     engage,
     read_verdict,
     run_guard,
@@ -62,18 +63,42 @@ def packet_outcome(state_root: Path) -> Outcome:
     canary = Canary("engage prints every source with a matching digest", "engage", {}, "allow")
     if result.returncode != 0:
         return Outcome(canary, "error", result.stderr.strip())
-    return Outcome(canary, *verify_packet(json.loads(result.stdout)))
+    return Outcome(canary, *verify_packet(result.stdout))
 
 
-def verify_packet(packet: dict[str, object]) -> tuple[str, str]:
+def verify_json_packet(packet: dict[str, object]) -> tuple[str, str]:
     """Check every packet source matches the bytes on disk."""
-    from hashlib import sha256
     sources = packet["method_packet"]["sources"]  # type: ignore[index]
     for row in sources:  # type: ignore[union-attr]
         raw = Path(str(row["path"])).read_bytes()
         if sha256(raw).hexdigest() != row["sha256"] or raw.decode() != row["content"]:
             return "error", f"packet source {row['name']} does not match its file"
     return "allow", f"{len(sources)} sources verified"  # type: ignore[arg-type]
+
+
+SOURCE_BLOCK = re.compile(
+    r"<<<METHOD_SOURCE_START name=([^ ]+) path=(.*?) sha256=([0-9a-f]{64})>>>\n"
+    r"(.*?)\n<<<METHOD_SOURCE_END name=\1 sha256=\3>>>", re.DOTALL)
+
+
+def verify_text_packet(packet: str) -> tuple[str, str]:
+    rows = SOURCE_BLOCK.findall(packet)
+    if not rows:
+        return "error", "direct packet has no source blocks"
+    for name, path, digest, content in rows:
+        raw = Path(path).read_bytes()
+        if sha256(raw).hexdigest() != digest or raw.decode() != content:
+            return "error", f"packet source {name} does not match its file"
+    prefix, marker = packet.rsplit("<<<METHOD_PACKET_END sha256=", 1)
+    if sha256(prefix.encode()).hexdigest() != marker.removesuffix(">>>"):
+        return "error", "method packet digest does not match its contents"
+    return "allow", f"{len(rows)} sources verified"
+
+
+def verify_packet(packet: str) -> tuple[str, str]:
+    if packet.lstrip().startswith("{"):
+        return verify_json_packet(json.loads(packet))
+    return verify_text_packet(packet)
 
 
 def unchanged_outcome(state_root: Path) -> Outcome:
@@ -125,6 +150,7 @@ def run_all(client: object, stdout: TextIO) -> int:
                      f"guard: {getattr(client, 'guard', '?')}\n")
         return report(outcomes, stdout)
     finally:
+        drop_method_scopes()
         shutil.rmtree(state_root, ignore_errors=True)
         drop_scope(OPEN_SCOPE)
         drop_scope(DONE_SCOPE)

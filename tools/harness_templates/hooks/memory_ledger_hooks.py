@@ -1,31 +1,29 @@
 #!/usr/bin/env python3
-"""Keep memory across sessions and compactions, without ever blocking one.
+"""Keep memory and transcript history without blocking lifecycle events.
 
-Output only, on every event, always (D-013 and D-108). A continuity hook that
-refuses a compaction is the failure this whole system exists to undo: OptMem's
-PreCompact returned `continue: false` while a compression was pending, and a
-full session had no way forward.
+Output only, on every event, always (D-013 and D-108). The old OptMem
+PreCompact hook returned ``continue: false`` while compression was pending.
+That deadlocked a full session, so continuity hooks report failures and never
+deny compaction or session shutdown.
 
-PostCompact cannot inject context; it may only return `continue`. So everything
-that has to survive a compaction rides on SessionStart with `source=compact`,
-which does accept `additionalContext`.
+PostCompact cannot inject context. SessionStart with ``source=compact`` owns
+restoration because that event accepts ``additionalContext``.
 """
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
-import shutil
 import sys
 from types import ModuleType
 from typing import Mapping, Sequence, TextIO
 
+from transcript_archive import archive_transcript
+
 ROOT = Path(os.environ.get("CLAUDE_METHOD_REPO_ROOT")
             or Path(__file__).resolve().parents[2])
 LEDGER_TOOL = ROOT / "tools/memory_ledger.py"
-SPOOL_ROOT = ROOT / "artifacts/cache/continuity"
 START_HERE = ROOT / "START_HERE.md"
 TAIL_LINES = 30
 JsonObject = dict[str, object]
@@ -72,54 +70,29 @@ def session_start(payload: Mapping[str, object]) -> JsonObject:
     return context("SessionStart", "\n\n".join(part for part in parts if part))
 
 
-def spool_transcript(payload: Mapping[str, object]) -> Path | None:
-    """Copy the verbatim transcript aside so a compaction loses nothing."""
-    raw = payload.get("transcript_path")
-    if not isinstance(raw, str) or not Path(raw).is_file():
-        return None
-    session = str(payload.get("session_id") or "unknown")
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    SPOOL_ROOT.mkdir(parents=True, exist_ok=True)
-    destination = SPOOL_ROOT / f"{session}-{stamp}.jsonl"
-    shutil.copy2(raw, destination)
-    return destination
-
-
-def checkpoint_body(payload: Mapping[str, object], spool: Path | None) -> str:
+def checkpoint_body(payload: Mapping[str, object], archive: Path) -> str:
     """Describe what this session was doing, in lines a later session can read."""
     rows = [
         f"- session: {payload.get('session_id')}",
         f"- trigger: {payload.get('trigger') or payload.get('source') or 'unknown'}",
         f"- cwd: {payload.get('cwd')}",
-        f"- transcript spool: {spool if spool else 'not available'}",
-        "- the method packet left context here; run the guard's engage command "
-        "before the next repository write",
+        f"- transcript archive: {archive}",
+        "- SessionStart restores the exact method packet before compact continuation",
     ]
     return "\n".join(rows)
 
 
-def pre_compact(payload: Mapping[str, object], stderr: TextIO) -> JsonObject:
-    """Spool the transcript and write a checkpoint. Never refuse the compaction."""
-    try:
-        spool = spool_transcript(payload)
-        ledger = load_ledger()
-        ledger.append_checkpoint(checkpoint_body(payload, spool), ledger.ledger_path())
-        return {"systemMessage": f"Continuity checkpoint written. Transcript spool: {spool}."}
-    except (OSError, ValueError) as error:
-        stderr.write(f"continuity checkpoint failed: {error}\n")
-        return {"systemMessage": f"Continuity checkpoint failed: {error}. Compaction continues."}
+def pre_compact(payload: Mapping[str, object], _stderr: TextIO) -> JsonObject:
+    """Archive the transcript and checkpoint its object without blocking."""
+    archived = archive_transcript(payload.get("transcript_path"))
+    ledger = load_ledger()
+    ledger.append_checkpoint(checkpoint_body(payload, archived), ledger.ledger_path())
+    return {}
 
 
-def session_end(payload: Mapping[str, object], stderr: TextIO) -> JsonObject:
-    """Close the session out in the ledger, quietly."""
-    try:
-        ledger = load_ledger()
-        ledger.append_checkpoint(
-            f"- session {payload.get('session_id')} ended "
-            f"({payload.get('reason') or 'no reason given'})",
-            ledger.ledger_path())
-    except (OSError, ValueError) as error:
-        stderr.write(f"session close-out failed: {error}\n")
+def session_end(payload: Mapping[str, object], _stderr: TextIO) -> JsonObject:
+    """Archive the final transcript without adding a generic checkpoint."""
+    archive_transcript(payload.get("transcript_path"))
     return {}
 
 
@@ -134,8 +107,8 @@ def main(argv: Sequence[str] | None = None, stdin: TextIO = sys.stdin,
     arguments = list(sys.argv[1:] if argv is None else argv)
     if not arguments or arguments[0] not in EVENTS:
         raise ValueError(f"expected one of {sorted(EVENTS)}, got {arguments!r}")
-    payload = json.load(stdin)
     try:
+        payload = json.load(stdin)
         response = EVENTS[arguments[0]](payload, stderr)
     except Exception as error:  # noqa: BLE001
         stderr.write(f"continuity hook failed: {type(error).__name__}: {error}\n")

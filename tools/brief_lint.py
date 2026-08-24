@@ -10,11 +10,12 @@ Read a brief on stdin, or name a file. A clean brief exits zero.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 import importlib.util
 from pathlib import Path
 import sys
 from types import ModuleType
-from typing import Sequence, TextIO
+from typing import Iterator, Sequence, TextIO
 
 ROOT = Path(__file__).resolve().parent.parent
 RULES = ROOT / ".claude/hooks/method_guard_rules.py"
@@ -27,18 +28,32 @@ CHECKLIST = (
     "A line saying not to revert other agents' edits.",
     "Prose that passes the unslop lint.",
 )
+HOOK_IMPORTS = ("shell_reading", "method_guard_support")
+
+
+@contextmanager
+def isolated_hook_imports(directory: Path) -> Iterator[None]:
+    saved = {name: sys.modules.pop(name) for name in HOOK_IMPORTS if name in sys.modules}
+    sys.path.insert(0, str(directory))
+    try:
+        yield
+    finally:
+        sys.path.pop(0)
+        for name in HOOK_IMPORTS:
+            sys.modules.pop(name, None)
+        sys.modules.update(saved)
 
 
 def load_rules(path: Path) -> ModuleType:
     """Import the guard's rules module, installed copy first."""
     source = path if path.is_file() else TEMPLATE_RULES
-    sys.path.insert(0, str(source.parent))
     spec = importlib.util.spec_from_file_location("brief_lint_rules", source)
     if spec is None or spec.loader is None:
         raise ValueError(f"guard rules module could not be loaded from {source}")
     module = importlib.util.module_from_spec(spec)
     sys.modules["brief_lint_rules"] = module
-    spec.loader.exec_module(module)
+    with isolated_hook_imports(source.parent):
+        spec.loader.exec_module(module)
     return module
 
 

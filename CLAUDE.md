@@ -49,7 +49,7 @@ Use `$implement-flow` for implementation. Pstack owns the implementation playboo
 
 A repository write with no declared route selects `$implement-flow`. The method guard denies that write until the route's exact sources have entered the session. Recover by writing `.unlazy/<scope>/METHOD.json` and its `GATES.md`, then running the engage command the denial names.
 
-Compaction clears the guard's record. Those exact sources must enter the session again before the next write, whatever you still remember of them.
+Compaction clears the guard's record. The compact lifecycle must inject those exact sources and restore readiness before the next write. Codex does this at SessionStart with `source=compact`; use direct engage only when automatic restoration reports a failure.
 
 Pstack owns unqualified `$tdd` and `$teach`. Pocock's colliding skills are `$pocock-tdd` and `$pocock-teach`. Preserve both upstream testing methods. Do not merge them or add another test process.
 

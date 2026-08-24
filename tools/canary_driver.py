@@ -9,6 +9,7 @@ would receive. `method_canaries` says what to drive; this says how.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from hashlib import sha256
 import json
 import os
 from pathlib import Path
@@ -19,7 +20,12 @@ import tempfile
 from typing import Callable, Sequence, TextIO
 
 ROOT = Path(__file__).resolve().parent.parent
-SCOPE = "claude-method-port"
+SCOPE = "method-canary"
+CHUNK_END = "<<<METHOD_PACKET_CHUNK_END>>>"
+PACKET_END = "<<<METHOD_PACKET_END"
+CREATED_METHOD_SCOPES: set[Path] = set()
+ENGAGED_STATE_SNAPSHOT: Path | None = None
+ENGAGED_PACKET: subprocess.CompletedProcess[str] | None = None
 
 
 @dataclass(frozen=True)
@@ -32,14 +38,14 @@ class Client:
     write_tool: str
     spawn_tool: str
     brief_key: str
-    stdin_engage: bool
+    chunked_engage: bool
 
 
 CLIENTS = {
     "claude": Client("claude", ROOT / ".claude/hooks/method_guard.py", "CLAUDE_METHOD",
-                     "Write", "Agent", "prompt", stdin_engage=False),
+                     "Write", "Agent", "prompt", chunked_engage=False),
     "codex": Client("codex", ROOT / ".codex/hooks/method_guard.py", "CODEX_METHOD",
-                    "apply_patch", "collaboration.spawn_agent", "message", stdin_engage=True),
+                    "apply_patch", "collaboration.spawn_agent", "message", chunked_engage=True),
 }
 ACTIVE = CLIENTS["claude"]
 NO_MEMO = "You are a subagent. Don't run memo."
@@ -144,16 +150,106 @@ def guard_environment(state: Path) -> dict[str, str]:
             f"{ACTIVE.env_prefix}_REPO_ROOT": str(ROOT), "PYTHONDONTWRITEBYTECODE": "1"}
 
 
-def engage(state: Path, scope: str = SCOPE) -> subprocess.CompletedProcess[str]:
+def method_scope_name(state: Path) -> str:
+    digest = sha256(str(state.parent.resolve()).encode()).hexdigest()[:16]
+    return f"method-canary-{digest}"
+
+
+def canary_contract(scope: str) -> dict[str, object]:
+    principles = ("principle-fix-root-causes", "principle-prove-it-works")
+    return {
+        "schema_version": 1, "route": "implement-flow", "playbook": "bug-fix",
+        "outer_method": ["implement-flow", "poteto-mode", "playbook:bug-fix"],
+        "nested_method": {"implementation": ["tdd", "pocock-tdd", "implement"],
+                          "review": ["code-review"]},
+        "standing_laws": ["unlazy", "clean-code-for-agents", "unslop",
+                          "writing-for-agents"],
+        "principles": [{"name": name, "decision": "exercise the installed guard",
+                        "evidence": "tools/run_method_canaries.py"} for name in principles],
+        "owns": ["tools/**", "CLAUDE.md"], "gates": f".unlazy/{scope}/GATES.md",
+        "model_policy": {"routine_implementation_model": "gpt-5.6-sol",
+                         "routine_implementation_reasoning": "medium",
+                         "claude": {"routine_implementation_model": "opus"}},
+    }
+
+
+def write_method_scope(state: Path) -> str:
+    scope = method_scope_name(state)
+    directory = ROOT / ".unlazy" / scope
+    directory.mkdir(parents=True, exist_ok=False)
+    (directory / "METHOD.json").write_text(
+        json.dumps(canary_contract(scope), indent=2) + "\n", encoding="utf-8")
+    (directory / "GATES.md").write_text(
+        "# Canary gates\n\n- [x] G1\n  CHECK: true\n  EXPECT: exit 0\n"
+        "  EVIDENCE: isolated canary fixture\n", encoding="utf-8")
+    CREATED_METHOD_SCOPES.add(directory)
+    return scope
+
+
+def drop_method_scopes() -> None:
+    global ENGAGED_PACKET, ENGAGED_STATE_SNAPSHOT
+    for directory in tuple(CREATED_METHOD_SCOPES):
+        shutil.rmtree(directory, ignore_errors=True)
+        CREATED_METHOD_SCOPES.discard(directory)
+    ENGAGED_PACKET = None
+    ENGAGED_STATE_SNAPSHOT = None
+
+
+def direct_chunk_body(response: str) -> str:
+    try:
+        _, remainder = response.split("\n", 1)
+        body, _ = remainder.split(f"\n{CHUNK_END}\n", 1)
+    except ValueError as error:
+        raise ValueError(f"malformed engage chunk {response!r}") from error
+    return body
+
+
+def collect_codex_engage(command: tuple[str, ...], environment: dict[str, str]
+                         ) -> subprocess.CompletedProcess[str]:
+    chunks: list[str] = []
+    for number in range(1, 33):
+        arguments = command if number == 1 else (*command, str(number))
+        result = subprocess.run(arguments, text=True, capture_output=True,
+                                env=environment, check=False)
+        if result.returncode != 0:
+            return result
+        chunks.append(direct_chunk_body(result.stdout))
+        if PACKET_END in result.stdout:
+            return subprocess.CompletedProcess(command, 0, "".join(chunks), result.stderr)
+    return subprocess.CompletedProcess(command, 1, "", "engage exceeded 32 chunks")
+
+
+def restore_engaged_state(state: Path) -> subprocess.CompletedProcess[str] | None:
+    if ENGAGED_STATE_SNAPSHOT is None or ENGAGED_PACKET is None:
+        return None
+    shutil.copytree(ENGAGED_STATE_SNAPSHOT, state, dirs_exist_ok=True)
+    return ENGAGED_PACKET
+
+
+def remember_engaged_state(state: Path, result: subprocess.CompletedProcess[str]) -> None:
+    global ENGAGED_PACKET, ENGAGED_STATE_SNAPSHOT
+    snapshot = state.parent / ".engaged-template"
+    shutil.copytree(state, snapshot)
+    ENGAGED_STATE_SNAPSHOT = snapshot
+    ENGAGED_PACKET = result
+
+
+def engage(state: Path, scope: str | None = None) -> subprocess.CompletedProcess[str]:
     """Run the engage command the denial messages tell the agent to run."""
+    cached = restore_engaged_state(state)
+    if cached is not None:
+        return cached
     environment = guard_environment(state)
-    if ACTIVE.stdin_engage:
-        payload = json.dumps({"hook_event_name": "Engage", "session_id": "canary",
-                              "cwd": str(ROOT), "scope": scope})
-        return subprocess.run((sys.executable, str(ACTIVE.guard), "engage"), input=payload,
-                              text=True, capture_output=True, env=environment, check=False)
-    return subprocess.run((sys.executable, str(ACTIVE.guard), "engage", scope),
-                          text=True, capture_output=True, env=environment, check=False)
+    selected_scope = scope or write_method_scope(state)
+    command = (sys.executable, str(ACTIVE.guard), "engage", selected_scope)
+    if ACTIVE.chunked_engage:
+        result = collect_codex_engage(command, environment)
+    else:
+        result = subprocess.run(command, text=True, capture_output=True,
+                                env=environment, check=False)
+    if result.returncode == 0:
+        remember_engaged_state(state, result)
+    return result
 
 
 def read_verdict(response: dict[str, object]) -> tuple[str, str]:

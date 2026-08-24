@@ -1,75 +1,67 @@
 # trading-skills
 
-An agent method that a hook enforces, for Claude Code and Codex.
+This private bundle installs the verified Codex and Claude Code method guards in another repository. Both clients require the selected Pstack playbook, the nested Pocock method, the standing laws, and each applicable principle before a repository write.
 
-The problem this solves is narrow and familiar. You write the rules down, the
-agent reads them once, and three hours later it is doing something else. Prose
-in an `AGENTS.md` is a suggestion. This makes it a gate.
+The bundle contains reusable method files only. It excludes trading code, market data, research artifacts, memory entries, transcripts, trust state, and credentials.
 
-## What it does
+## Inspect the bundle
 
-Before an agent writes to your repository it has to declare a route, and the
-guard injects the exact text of that route's method into the session. That
-means the router, the principles index, the selected playbook, the standing
-laws, the nested method and every applicable principle leaf. It records their digests. A
-write is refused until that has happened, and a compaction clears the record so
-it has to happen again.
+`MANIFEST.json` records every exported file with its SHA-256 digest. It also records each upstream commit and selected path. Review that file before you copy the bundle outside its private repository.
 
-The rules that a machine can decide are decided. Prose is linted for the AI
-tells that make writing unreadable. Python is linted for the shape rules the
-code standard sets. Every subagent brief is checked for its ownership, its
-completion bound and the sentence that stops it writing to memory.
+The main paths have these roles:
 
-Two limits, stated plainly. A hook cannot prove what a model privately
-understood; it can prove the exact instructions entered the session and refuse
-work that lacks the required artifacts. And a client may offer tools that bypass
-local hooks, though none of them reach your repository through the normal write
-path.
-
-## Layout
-
-| Path | What it holds |
+| Path | Contents |
 |---|---|
-| `skills/` | The canonical skill bodies. One authority, used unchanged by both clients. |
-| `vendor/` | The pinned upstream subtrees the skills reference, with licences. |
-| `hooks/` | The guard: shared policy, shared rules, one thin adapter per client. |
-| `claude/`, `codex/` | Each client's wiring and its pinned subagent. |
-| `contract/` | The generated `AGENTS.md` and `CLAUDE.md`, and the memory block they share. |
-| `tools/` | The three lints, the memory ledger, the installers, the canary runner. |
-| `tests/` | The suites, and hook payloads captured from live runs. |
+| `.agents/skills/` | The canonical Codex skill authority. |
+| `.codex/` | The installed hook modules and portable hook config. |
+| `.claude/` | The Claude hooks, portable settings, and worker. The installer creates canonical skill links. |
+| `vendor/agent-sources/` | The selected upstream files under immutable commit paths. |
+| `tools/harness_templates/` | The hook sources used by the installer and tests. |
+| `tools/` | The lints, memory ledger, canary runner, and exporter. |
+| `tests/` | Focused tests for the Codex guard, shell classifier, lifecycle hooks, and exporter. |
 
-## Install
+## Install the method
 
-    python3 install.py /path/to/your/repository
+Run the installer with the target repository path:
 
-The Claude hook paths are rewritten for that repository as it installs. Codex
-reads `.codex/hooks.json`, whose paths you set yourself.
+```text
+python3 install.py /path/to/repository
+```
 
-## Prove it
+The installer writes only the managed method paths. It resolves both clients' hook commands against the target repository. A second run converges on the same files and removes the obsolete lifecycle modules that this bundle replaced.
 
-    python3 tools/run_method_canaries.py --client claude
-    python3 tools/run_method_canaries.py --client codex
+Verify the copied files:
 
-Each canary drives the installed hook the way the client drives it and checks
-the verdict the agent would receive. They cover route selection, the packet
-gate, the re-arm after a compaction, the write-ownership rules, every subagent
-brief rule, and both directions of the Stop wall. A canary that fails names the
-law that stopped being enforced.
+```text
+python3 install.py --check /path/to/repository
+```
 
-## The escape hatches matter
+## Prove the installed guard
 
-A gate with no way out is a deadlock, and this project has already produced one:
-a memory hook that refused compaction while a compression was pending, on a
-session whose context was full. So these are never gated.
+Run both public canary entry points from the target repository:
 
-- Anything outside the repository root.
-- `MEMORY.md`, the append-only ledger.
-- `.unlazy/<scope>/METHOD.json` and its `GATES.md`, which are what unlock a route.
+```text
+python3 tools/run_method_canaries.py --client codex
+python3 tools/run_method_canaries.py --client claude
+```
 
-Every refusal names the command that clears it.
+The receipt canary compares the working tree with `HEAD`. Create the repository's first commit before you run the canaries.
 
-## Sources
+Run the focused unit tests:
 
-`MANIFEST.json` records the commit each pinned upstream came from. The subtrees
-here are only what the skills reference; clone the upstream for the rest.
-Licences ship beside each one.
+```text
+python3 -m unittest \
+  tests.test_shell_reading \
+  tests.test_agent_method_guard \
+  tests.test_claude_method_guard \
+  tests.test_method_enforcement \
+  tests.test_memory_hooks
+```
+
+The canaries drive both installed guards with their client event shapes. The tests cover the read-only shell classifier, exact method delivery, Stop isolation, and transcript retention through their public functions.
+
+## Keep repository state private
+
+The export does not contain `MEMORY.md`, `START_HERE.md`, `.unlazy/`, `.codex/harness/`, or transcript archives. The installed lifecycle hook creates local state only when Codex calls it.
+
+The Akita snapshot carries its CC BY-NC-SA 4.0 notice in its pinned `README.md`. The Karpathy snapshot states MIT in its pinned `README.md`. The other selected upstream trees include their license files. Keep this bundle private and preserve every pinned notice.

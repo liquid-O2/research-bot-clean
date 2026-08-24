@@ -465,5 +465,23 @@ class MethodGuardTests(unittest.TestCase):
             )
         self.assertEqual(calls, ["unlazy", "evidence", "clean-code", "unslop"])
         self.assertIn("em dash", json.loads(output.getvalue())["reason"])
+
+    def test_corrupt_state_storage_does_not_block_subagent_stop(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            fixture = MethodFixture(Path(raw))
+            fixture.state.write_text("not a directory\n", encoding="utf-8")
+            with fixture.environment():
+                _, output, _ = self.call_guard(
+                    ["subagent-stop"],
+                    hook_payload(
+                        "SubagentStop",
+                        cwd=str(fixture.repo),
+                        agent_id="child-fixture",
+                        last_assistant_message="Done with the assigned check.",
+                    ),
+                )
+        response = json.loads(output.getvalue())
+        self.assertNotIn("decision", response)
+        self.assertIn("failed open", str(response.get("systemMessage", "")).lower())
 if __name__ == "__main__":
     unittest.main()

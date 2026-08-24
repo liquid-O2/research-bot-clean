@@ -66,6 +66,13 @@ def require_archive(test: unittest.TestCase) -> ModuleType:
     return transcript_archive
 
 
+def transcript_event(event_type: str, turn_id: str | None = None) -> bytes:
+    payload = {"type": event_type}
+    if turn_id is not None:
+        payload["turn_id"] = turn_id
+    return (json.dumps({"type": "event_msg", "payload": payload}) + "\n").encode()
+
+
 def run_memory(command: str, payload: dict[str, object]) -> tuple[dict[str, object], str]:
     output = StringIO()
     errors = StringIO()
@@ -147,6 +154,118 @@ class TranscriptArchiveTests(unittest.TestCase):
                 module.archive_transcript(str(source))
             self.assertIn("did not match", str(caught.exception))
             self.assertEqual(target.read_bytes(), b"corrupt bytes\n")
+
+    def test_pending_marker_defers_until_the_matching_terminal_record(self) -> None:
+        module = require_archive(self)
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            archive = root / "archive"
+            source = root / "child.jsonl"
+            initial = transcript_event("token_count")
+            terminal = transcript_event("task_complete", "turn-1")
+            source.write_bytes(initial)
+            with archive_root(archive):
+                marker = module.defer_transcript(str(source), "turn-1")
+                module.reconcile_pending_transcripts()
+                objects_before_terminal = list((archive / "objects").rglob("*.jsonl"))
+                marker_fields = json.loads(marker.read_text(encoding="utf-8"))
+                source.write_bytes(initial + terminal)
+                module.reconcile_pending_transcripts()
+            final_bytes = source.read_bytes()
+            digest = sha256(final_bytes).hexdigest()
+            archived = archive / "objects" / digest[:2] / f"{digest}.jsonl"
+            self.assertEqual(objects_before_terminal, [])
+            self.assertEqual(archived.read_bytes(), final_bytes)
+            self.assertFalse(marker.exists())
+            self.assertEqual(marker_fields["schema_version"], 1)
+            self.assertEqual(marker_fields["source_path"], str(source.resolve()))
+            self.assertEqual(marker_fields["observed_bytes"], len(initial))
+            self.assertEqual(marker_fields["prefix_sha256"], sha256(initial).hexdigest())
+            self.assertEqual(marker_fields["turn_id"], "turn-1")
+            self.assertEqual(stat.S_IMODE((archive / "pending").stat().st_mode), 0o700)
+            self.assertTrue(all(
+                stat.S_IMODE(path.stat().st_mode) == 0o600
+                for path in (archive / "pending").iterdir()
+            ))
+
+    def test_retry_after_publish_before_marker_removal_converges(self) -> None:
+        module = require_archive(self)
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            archive = root / "archive"
+            source = root / "child.jsonl"
+            source.write_bytes(transcript_event("token_count"))
+            with archive_root(archive):
+                marker = module.defer_transcript(str(source), "turn-1")
+                source.write_bytes(source.read_bytes() + transcript_event("task_complete", "turn-1"))
+                original_unlink = Path.unlink
+
+                def fail_marker_unlink(path: Path, *args: object, **kwargs: object) -> None:
+                    if path == marker:
+                        raise OSError("simulated marker removal failure")
+                    original_unlink(path, *args, **kwargs)
+
+                with patch.object(Path, "unlink", fail_marker_unlink), self.assertRaises(Exception):
+                    module.reconcile_pending_transcripts()
+                published = list((archive / "objects").rglob("*.jsonl"))
+                self.assertTrue(marker.exists())
+                module.reconcile_pending_transcripts()
+            self.assertEqual(len(published), 1)
+            self.assertEqual(len(list((archive / "objects").rglob("*.jsonl"))), 1)
+            self.assertFalse(marker.exists())
+
+    def test_follow_up_turn_replaces_the_pending_generation(self) -> None:
+        module = require_archive(self)
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            archive = root / "archive"
+            source = root / "child.jsonl"
+            first_prefix = transcript_event("token_count")
+            first_terminal = transcript_event("task_complete", "turn-1")
+            second_prefix = transcript_event("token_count")
+            source.write_bytes(first_prefix)
+            with archive_root(archive):
+                marker = module.defer_transcript(str(source), "turn-1")
+                first_generation = json.loads(marker.read_text())["generation"]
+                source.write_bytes(first_prefix + first_terminal + second_prefix)
+                replaced = module.defer_transcript(str(source), "turn-2")
+                second_fields = json.loads(replaced.read_text())
+                source.write_bytes(source.read_bytes() + transcript_event("task_complete", "turn-2"))
+                module.reconcile_pending_transcripts()
+            final_bytes = source.read_bytes()
+            objects = list((archive / "objects").rglob("*.jsonl"))
+            self.assertEqual(marker, replaced)
+            self.assertNotEqual(first_generation, second_fields["generation"])
+            self.assertEqual(second_fields["turn_id"], "turn-2")
+            self.assertEqual(len(objects), 1)
+            self.assertEqual(objects[0].read_bytes(), final_bytes)
+            self.assertFalse(marker.exists())
+
+    def test_replacement_error_does_not_starve_a_later_marker(self) -> None:
+        module = require_archive(self)
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            archive = root / "archive"
+            unsafe = root / "a.jsonl"
+            safe = root / "z.jsonl"
+            initial = transcript_event("token_count")
+            unsafe.write_bytes(initial)
+            safe.write_bytes(initial)
+            with archive_root(archive):
+                unsafe_marker = module.defer_transcript(str(unsafe), "turn-a")
+                safe_marker = module.defer_transcript(str(safe), "turn-z")
+                replacement = root / "replacement.jsonl"
+                replacement.write_bytes(initial + transcript_event("task_complete", "turn-a"))
+                replacement.replace(unsafe)
+                safe.write_bytes(initial + transcript_event("task_complete", "turn-z"))
+                with self.assertRaises(Exception) as caught:
+                    module.reconcile_pending_transcripts()
+            safe_digest = sha256(safe.read_bytes()).hexdigest()
+            safe_object = archive / "objects" / safe_digest[:2] / f"{safe_digest}.jsonl"
+            self.assertIn("replaced", str(caught.exception))
+            self.assertTrue(unsafe_marker.exists())
+            self.assertFalse(safe_marker.exists())
+            self.assertEqual(safe_object.read_bytes(), safe.read_bytes())
 
 
 class TranscriptLifecycleTests(unittest.TestCase):

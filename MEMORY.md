@@ -467,6 +467,13 @@ New memories land here, newest last.
 - 2026-08-24 #228 CODEX STOP FIX. Stop now invokes unlazy only for the active scope bound to the current session, passes that scope explicitly, isolates root and child retry counts, and ignores unrelated scope edits. Five regressions and 40 installed canaries pass.
 - 2026-08-24 #229 CODEX SUBAGENT PROOF. A native codex exec child received the full exact method packet, both source boundaries, the final packet hash, and the required no-memory sentence through SubagentStart.
 - 2026-08-24 #230 CODEX LIFECYCLE PATHS. collaboration.spawn_agent does not emit repository Codex hooks here. Native codex exec does, so live hook proof must use the native client path.
+- 2026-08-24 #231 CODEX READ PROOF. Ten original safe-read forms passed the installed PreToolUse hook in a fresh state with no route or method contract; command chains and write-capable forms remain covered by denial tests.
+- 2026-08-24 #232 CODEX SESSIONEND PROOF. Native Codex exit archived its 966828-byte final transcript as object dac368c8 with mode 0600; source and archive SHA-256 hashes match exactly.
+- 2026-08-24 #233 CODEX STOP LIVE PROOF. The native probe hit seven open gates, blocked three times, then released and exited. The Stop wall enforced evidence without soft-locking the session.
+- 2026-08-24 #234 METHOD COVERAGE. clean-code-for-agents does not absorb Pstack or Pocock. Routes load applicable skills separately. This hook route now carries 19 applicable Pstack leaves; domain-modeling stays conditional on terminology, CONTEXT.md, or ADR work.
+- 2026-08-24 #235 CODEX CHILD ARCHIVE DEFECT. Native SubagentStop copied 286,996 bytes before Codex appended the 296-byte task_complete record. Final source was 287,292 bytes. Synchronous SubagentStop archival can never be exact.
+- 2026-08-24 #236 LIVE METHOD PACKET DEFECT. The 19-leaf packet reached 192,569 bytes and tripped a redundant 192,000-byte inline cap, so native children received only an error. The renderer's 256,000-byte packet cap already bounds every injection path.
+- 2026-08-24 #237 CODEX CHILD LIFECYCLE PROOF. A native child received the full 192,569-byte packet, returned METHOD_ARCHIVE_CHILD_OK, ended with task_complete, and matched its 294,416-byte 080a1fbb archive. Parent matched 5dfac64e.
 
 ## Checkpoints
 
@@ -560,4 +567,28 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - trigger: auto
 - cwd: /workspace
 - transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/45/45e506b38c476b2f143b49ba7f63232665a75673cca647b39563b3dceaebc997.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T01:42:59Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/3f/3fa2e61b2174dae028def8a8eefb54213db3b2435edc6ae3dccb677f16a13cac.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T01:59:33Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/0c/0c7c6c99afc9d5e457be593dbcdaafa2311345d5195059978c8514c0a86ddde2.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T02:28:09Z
+
+- session: 01a030d4-ea30-73a3-982b-f0e8c3cb2a23
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/c0/c0506df6777d2cca10493a593e944a20592a7d32a9e51fcb97718d8e9fafb71e.jsonl
 - SessionStart restores the exact method packet before compact continuation

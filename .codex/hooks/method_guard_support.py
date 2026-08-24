@@ -18,7 +18,6 @@ SAFE_NAME = re.compile(r"[a-z0-9][a-z0-9-]*\Z")
 CLIENTS = {"codex": ("CODEX_METHOD", ".codex/method-guard"),
            "claude": ("CLAUDE_METHOD", ".claude/method-guard")}
 _CLIENT = "codex"
-MAX_INLINE_METHOD_BYTES = 192_000
 MAX_METHOD_PACKET_BYTES = 256_000
 ENGAGE_CHUNK_BYTES = 24_000
 
@@ -475,9 +474,6 @@ def session_start(payload: Mapping[str, object]) -> JsonObject:
         rearm(payload, state, source)
         request = {**payload, "scope": state.get("scope")}
         packet, refreshed = prepare_engagement(request)
-        if packet.utf8_bytes > MAX_INLINE_METHOD_BYTES:
-            raise ValueError(f"automatic method context is {packet.utf8_bytes} bytes; "
-                             f"maximum is {MAX_INLINE_METHOD_BYTES}")
         mark_ready(request, refreshed)
         return {"hookSpecificOutput": {
             "hookEventName": "SessionStart", "additionalContext": packet.text,

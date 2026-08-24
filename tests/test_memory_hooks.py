@@ -276,7 +276,7 @@ class MethodContextLifecycleTests(unittest.TestCase):
         context = response["hookSpecificOutput"]["additionalContext"]
         self.assertEqual(context, f"{NO_MEMO}\n\n{direct_packet}")
 
-    def test_subagent_start_carries_a_packet_above_the_legacy_inline_cap(self) -> None:
+    def test_lifecycle_carries_a_packet_above_the_legacy_inline_cap(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             fixture = MethodFixture(Path(raw))
             fixture.write_contract()
@@ -293,10 +293,17 @@ class MethodContextLifecycleTests(unittest.TestCase):
                         "SubagentStart", cwd=str(fixture.repo), agent_id="child-fixture"
                     ),
                 )
+                compact = call_guard(
+                    ["session-start"],
+                    hook_payload("SessionStart", source="compact", cwd=str(fixture.repo)),
+                )
         self.assertGreater(len(direct_packet.encode()), 192_000)
         self.assertIsInstance(response, dict)
         context = response["hookSpecificOutput"]["additionalContext"]
         self.assertEqual(context, f"{NO_MEMO}\n\n{direct_packet}")
+        self.assertIsInstance(compact, dict)
+        compact_context = compact["hookSpecificOutput"]["additionalContext"]
+        self.assertEqual(compact_context, direct_packet)
 
 
 if __name__ == "__main__":

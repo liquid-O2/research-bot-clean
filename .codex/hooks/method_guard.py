@@ -204,11 +204,6 @@ def subagent_start(payload: Mapping[str, object]) -> JsonObject:
         contract = policy.current_contract(payload, state)
         sources = policy.method_sources(policy.repo_root(payload), contract)
         packet = policy.render_method_packet(state["route"], state["epoch"], contract, sources)
-        if packet.utf8_bytes > policy.MAX_INLINE_METHOD_BYTES:
-            raise ValueError(
-                f"subagent method context is {packet.utf8_bytes} bytes; "
-                f"maximum is {policy.MAX_INLINE_METHOD_BYTES}"
-            )
         child_context = f"{NO_MEMO}\n\n{packet.text}"
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
         child_context = (
@@ -267,10 +262,13 @@ def method_evidence_violation(payload: Mapping[str, object]) -> str | None:
 
 def subagent_stop(payload: Mapping[str, object]) -> JsonObject:
     """Hold a subagent to the same prose law as the parent."""
-    if exhausted(payload):
-        return {"systemMessage": "Subagent Stop wall released after repeated blocks."}
-    violation = unslop_violation(last_message(payload))
-    return record_block(payload, violation) if violation else {}
+    try:
+        if exhausted(payload):
+            return {"systemMessage": "Subagent Stop wall released after repeated blocks."}
+        violation = unslop_violation(last_message(payload))
+        return record_block(payload, violation) if violation else {}
+    except Exception as error:  # noqa: BLE001
+        return allow_with_warning(f"{type(error).__name__}: {error}")
 
 
 def evidence_violation(payload: Mapping[str, object]) -> str | None:

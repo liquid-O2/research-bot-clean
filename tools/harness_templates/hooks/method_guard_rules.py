@@ -301,15 +301,20 @@ def node_runtime() -> Path | None:
     return pinned if pinned.is_file() else None
 
 
-def call_unlazy(payload: Mapping[str, object], root: Path) -> subprocess.CompletedProcess[str]:
+def call_unlazy(payload: Mapping[str, object], root: Path,
+                scope: str | None = None) -> subprocess.CompletedProcess[str]:
     """Run the pinned unlazy stop hook as its own process."""
+    command = [str(node_runtime()), str(unlazy_stop_hook(root)), "--unlazy"]
+    if scope is not None:
+        command.extend(("--scope", scope))
     return subprocess.run(
-        (str(node_runtime()), str(unlazy_stop_hook(root)), "--unlazy"), cwd=root,
+        command, cwd=root,
         input=json.dumps(dict(payload)), text=True, encoding="utf-8",
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False, timeout=20)
 
 
-def run_unlazy_stop(payload: Mapping[str, object], root: Path) -> JsonObject:
+def run_unlazy_stop(payload: Mapping[str, object], root: Path,
+                    scope: str | None = None) -> JsonObject:
     """Run the pinned unlazy Stop wall and return its own decision.
 
     Unlazy owns completion discipline, so its wall is reused rather than
@@ -321,7 +326,7 @@ def run_unlazy_stop(payload: Mapping[str, object], root: Path) -> JsonObject:
         return {"systemMessage": f"unlazy Stop wall is not installed at {stop_hook}; "
                                  "completion is unguarded."}
     try:
-        completed = call_unlazy(payload, root)
+        completed = call_unlazy(payload, root, scope)
     except (OSError, subprocess.TimeoutExpired) as error:
         return {"systemMessage": f"unlazy Stop wall failed to run: {error}"}
     return read_unlazy_result(completed)

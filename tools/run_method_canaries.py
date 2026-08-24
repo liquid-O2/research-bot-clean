@@ -49,6 +49,8 @@ def run_one(canary: Canary, state_root: Path) -> Outcome:
     state.mkdir(parents=True, exist_ok=True)
     if canary.setup is not None:
         canary.setup(state)
+    elif canary.scope:
+        engaged(state, canary.scope)
     verdict, reason = read_verdict(
         run_guard(canary.verb, canary.payload, state, canary.scope))
     return Outcome(canary, verdict, reason)

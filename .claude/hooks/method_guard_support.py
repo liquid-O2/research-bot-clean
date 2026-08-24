@@ -11,7 +11,6 @@ import subprocess
 import tempfile
 from typing import Mapping, cast
 
-
 NO_MEMO = "You are a subagent. Don't run memo."
 ROUTES = {"plan-flow", "implement-flow"}
 SAFE_NAME = re.compile(r"[a-z0-9][a-z0-9-]*\Z")
@@ -100,8 +99,12 @@ def state_root() -> Path:
     return root
 
 
+def payload_session_id(payload: Mapping[str, object]) -> str:
+    return str(payload.get("session_id") or payload.get("sessionId") or "anonymous")
+
+
 def state_path(payload: Mapping[str, object]) -> Path:
-    session = str(payload.get("session_id") or payload.get("sessionId") or "anonymous")
+    session = payload_session_id(payload)
     directory = state_root() / digest_text(str(repo_root(payload)))
     directory.mkdir(parents=True, exist_ok=True, mode=0o700)
     directory.chmod(0o700)
@@ -115,7 +118,7 @@ def remember_session(payload: Mapping[str, object]) -> None:
     its own session id. Recording it here lets engage be a one-line command the
     denial message can quote verbatim.
     """
-    session = str(payload.get("session_id") or payload.get("sessionId") or "anonymous")
+    session = payload_session_id(payload)
     directory = state_root() / digest_text(str(repo_root(payload)))
     directory.mkdir(parents=True, exist_ok=True, mode=0o700)
     (directory / "current-session").write_text(session + "\n", encoding="utf-8")
@@ -323,8 +326,7 @@ def bind_unlazy_session(payload: Mapping[str, object], scope_dir: Path) -> None:
     Writing it here means engaging a route also arms the real gates wall, with
     no second mechanism to keep in step.
     """
-    session = str(payload.get("session_id") or payload.get("sessionId") or "anonymous")
-    (scope_dir / "session").write_text(session + "\n", encoding="utf-8")
+    (scope_dir / "session").write_text(payload_session_id(payload) + "\n", encoding="utf-8")
 
 
 def require_ignored(root: Path, paths: tuple[Path, Path]) -> None:

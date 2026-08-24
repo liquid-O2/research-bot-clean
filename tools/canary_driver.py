@@ -24,8 +24,8 @@ SCOPE = "method-canary"
 CHUNK_END = "<<<METHOD_PACKET_CHUNK_END>>>"
 PACKET_END = "<<<METHOD_PACKET_END"
 CREATED_METHOD_SCOPES: set[Path] = set()
-ENGAGED_STATE_SNAPSHOT: Path | None = None
-ENGAGED_PACKET: subprocess.CompletedProcess[str] | None = None
+ENGAGED_STATE_SNAPSHOTS: dict[str, Path] = {}
+ENGAGED_PACKETS: dict[str, subprocess.CompletedProcess[str]] = {}
 
 
 @dataclass(frozen=True)
@@ -155,6 +155,13 @@ def method_scope_name(state: Path) -> str:
     return f"method-canary-{digest}"
 
 
+def method_scope_key(scope: str) -> str:
+    digest = sha256()
+    for name in ("METHOD.json", "GATES.md"):
+        digest.update((ROOT / ".unlazy" / scope / name).read_bytes())
+    return f"{scope}:{digest.hexdigest()}"
+
+
 def canary_contract(scope: str) -> dict[str, object]:
     principles = ("principle-fix-root-causes", "principle-prove-it-works")
     return {
@@ -180,19 +187,19 @@ def write_method_scope(state: Path) -> str:
     (directory / "METHOD.json").write_text(
         json.dumps(canary_contract(scope), indent=2) + "\n", encoding="utf-8")
     (directory / "GATES.md").write_text(
-        "# Canary gates\n\n- [x] G1\n  CHECK: true\n  EXPECT: exit 0\n"
+        "# Canary gates\n\n- [x] G1: installed method fixture\n"
+        "  CHECK: true\n  EXPECT: exit 0\n"
         "  EVIDENCE: isolated canary fixture\n", encoding="utf-8")
     CREATED_METHOD_SCOPES.add(directory)
     return scope
 
 
 def drop_method_scopes() -> None:
-    global ENGAGED_PACKET, ENGAGED_STATE_SNAPSHOT
     for directory in tuple(CREATED_METHOD_SCOPES):
         shutil.rmtree(directory, ignore_errors=True)
         CREATED_METHOD_SCOPES.discard(directory)
-    ENGAGED_PACKET = None
-    ENGAGED_STATE_SNAPSHOT = None
+    ENGAGED_PACKETS.clear()
+    ENGAGED_STATE_SNAPSHOTS.clear()
 
 
 def direct_chunk_body(response: str) -> str:
@@ -219,28 +226,35 @@ def collect_codex_engage(command: tuple[str, ...], environment: dict[str, str]
     return subprocess.CompletedProcess(command, 1, "", "engage exceeded 32 chunks")
 
 
-def restore_engaged_state(state: Path) -> subprocess.CompletedProcess[str] | None:
-    if ENGAGED_STATE_SNAPSHOT is None or ENGAGED_PACKET is None:
+def restore_engaged_state(state: Path, key: str) -> subprocess.CompletedProcess[str] | None:
+    snapshot = ENGAGED_STATE_SNAPSHOTS.get(key)
+    packet = ENGAGED_PACKETS.get(key)
+    if snapshot is None or packet is None:
         return None
-    shutil.copytree(ENGAGED_STATE_SNAPSHOT, state, dirs_exist_ok=True)
-    return ENGAGED_PACKET
+    shutil.copytree(snapshot, state, dirs_exist_ok=True)
+    return packet
 
 
-def remember_engaged_state(state: Path, result: subprocess.CompletedProcess[str]) -> None:
-    global ENGAGED_PACKET, ENGAGED_STATE_SNAPSHOT
-    snapshot = state.parent / ".engaged-template"
+def remember_engaged_state(
+    state: Path, key: str, result: subprocess.CompletedProcess[str],
+) -> None:
+    suffix = sha256(key.encode()).hexdigest()[:16]
+    snapshot = state.parent / f".engaged-{suffix}"
     shutil.copytree(state, snapshot)
-    ENGAGED_STATE_SNAPSHOT = snapshot
-    ENGAGED_PACKET = result
+    ENGAGED_STATE_SNAPSHOTS[key] = snapshot
+    ENGAGED_PACKETS[key] = result
 
 
 def engage(state: Path, scope: str | None = None) -> subprocess.CompletedProcess[str]:
     """Run the engage command the denial messages tell the agent to run."""
-    cached = restore_engaged_state(state)
+    selected_scope = scope or method_scope_name(state)
+    if scope is None and not (ROOT / ".unlazy" / selected_scope).exists():
+        write_method_scope(state)
+    key = method_scope_key(selected_scope)
+    cached = restore_engaged_state(state, key)
     if cached is not None:
         return cached
     environment = guard_environment(state)
-    selected_scope = scope or write_method_scope(state)
     command = (sys.executable, str(ACTIVE.guard), "engage", selected_scope)
     if ACTIVE.chunked_engage:
         result = collect_codex_engage(command, environment)
@@ -248,7 +262,7 @@ def engage(state: Path, scope: str | None = None) -> subprocess.CompletedProcess
         result = subprocess.run(command, text=True, capture_output=True,
                                 env=environment, check=False)
     if result.returncode == 0:
-        remember_engaged_state(state, result)
+        remember_engaged_state(state, key, result)
     return result
 
 

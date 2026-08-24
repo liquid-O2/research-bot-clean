@@ -100,7 +100,7 @@ def check_write(paths: Sequence[str], state: JsonObject,
                 payload: Mapping[str, object]) -> None:
     """Apply the route and ownership rules to one repository write."""
     if rules.bootstrap_only(paths) or rules.always_writable(paths):
-        if rules.bootstrap_only(paths) and "ready" in state:
+        if rules.bootstrap_only(paths) and active_method_artifact(paths, state):
             policy.rearm(payload, state, "contract or gates edit")
         return
     if not rules.route_selected(state):
@@ -113,6 +113,14 @@ def check_write(paths: Sequence[str], state: JsonObject,
     state["production_write"] = True
     state["written_paths"] = sorted({*state.get("written_paths", []), *paths})
     policy.save_state(payload, state)
+
+
+def active_method_artifact(paths: Sequence[str], state: JsonObject) -> bool:
+    scope = state.get("scope")
+    if not isinstance(scope, str):
+        return False
+    active = {f".unlazy/{scope}/METHOD.json", f".unlazy/{scope}/GATES.md"}
+    return any(path in active for path in paths)
 
 
 def engage_verdict(tool_input: Mapping[str, object]) -> bool | None:
@@ -171,7 +179,7 @@ def user_prompt_submit(payload: Mapping[str, object]) -> JsonObject:
         policy.remember_session(payload)
         route = rules.route_from_prompt(str(payload.get("prompt") or ""))
         state = policy.load_state(payload)
-        state["turn_blocks"] = 0
+        state["stop_blocks"] = {}
         policy.save_state(payload, state)
         if route is not None:
             state.update({"route": route, "epoch": int(state.get("epoch", 0)) + 1})
@@ -213,7 +221,23 @@ def check_opaque(state: JsonObject, payload: Mapping[str, object]) -> None:
 
 def run_unlazy_stop(payload: Mapping[str, object]) -> JsonObject:
     """Run the pinned unlazy Stop wall for this repository."""
-    return rules.run_unlazy_stop(payload, policy.repo_root(payload))
+    state = policy.load_state(payload)
+    scope = bound_unlazy_scope(payload, state)
+    if scope is None:
+        return {}
+    return rules.run_unlazy_stop(payload, policy.repo_root(payload), scope)
+
+
+def bound_unlazy_scope(payload: Mapping[str, object], state: JsonObject) -> str | None:
+    scope = state.get("scope")
+    if not isinstance(scope, str) or policy.SAFE_NAME.fullmatch(scope) is None:
+        return None
+    marker = policy.repo_root(payload) / ".unlazy" / scope / "session"
+    try:
+        owner = marker.read_text(encoding="utf-8").strip()
+    except (OSError, UnicodeError):
+        return None
+    return scope if owner == policy.payload_session_id(payload) else None
 
 
 def unslop_violation(message: str) -> str | None:
@@ -249,6 +273,22 @@ def evidence_violation(payload: Mapping[str, object]) -> str | None:
 MAX_TURN_BLOCKS = 3
 
 
+def stop_actor(payload: Mapping[str, object]) -> str:
+    event = str(payload.get("hook_event_name") or payload.get("hookEventName") or "")
+    if event != "SubagentStop":
+        return "root"
+    agent = payload.get("agent_id") or payload.get("agentId") or "anonymous"
+    return f"subagent:{agent}"
+
+
+def actor_blocks(state: JsonObject, actor: str) -> int:
+    counts = state.get("stop_blocks")
+    if not isinstance(counts, dict):
+        return 0
+    count = counts.get(actor)
+    return count if type(count) is int and count >= 0 else 0
+
+
 def clean_code_violation(payload: Mapping[str, object]) -> str | None:
     """Return the Akita violations in what this session wrote."""
     state = policy.load_state(payload)
@@ -259,14 +299,19 @@ def clean_code_violation(payload: Mapping[str, object]) -> str | None:
 def exhausted(payload: Mapping[str, object]) -> bool:
     """Report whether this turn has been blocked too many times to keep trying."""
     state = policy.load_state(payload)
-    blocks = int(state.get("turn_blocks", 0))
+    blocks = actor_blocks(state, stop_actor(payload))
     return payload.get("stop_hook_active") is True and blocks >= MAX_TURN_BLOCKS
 
 
 def record_block(payload: Mapping[str, object], reason: str) -> JsonObject:
     """Count this block against the turn, then refuse the turn."""
     state = policy.load_state(payload)
-    state["turn_blocks"] = int(state.get("turn_blocks", 0)) + 1
+    actor = stop_actor(payload)
+    counts = state.get("stop_blocks")
+    if not isinstance(counts, dict):
+        counts = {}
+    counts[actor] = actor_blocks(state, actor) + 1
+    state["stop_blocks"] = counts
     policy.save_state(payload, state)
     return block(reason)
 

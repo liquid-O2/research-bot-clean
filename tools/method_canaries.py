@@ -6,12 +6,14 @@ enforces on itself. The runner drives; this module says what to drive.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import shutil
 
 from canary_driver import (
     active,
     Canary,
+    canary_contract,
     GOOD_BRIEF,
     NO_MEMO,
     ROOT,
@@ -82,10 +84,10 @@ def unengaged(state: Path) -> None:
     select(state, "implement-flow")
 
 
-def engaged(state: Path) -> None:
+def engaged(state: Path, scope: str | None = None) -> None:
     """Put the session on the implementation route with its method in context."""
     select(state, "implement-flow")
-    engage(state)
+    engage(state, scope)
 
 
 def engaged_then_compact_restored(state: Path) -> None:
@@ -162,6 +164,8 @@ def write_scope(name: str, met: bool) -> None:
     directory.mkdir(parents=True, exist_ok=True)
     box = "[x]" if met else "[ ]"
     evidence = "EVIDENCE: exit=0; output=OK" if met else "EVIDENCE: pending"
+    (directory / "METHOD.json").write_text(
+        json.dumps(canary_contract(name), indent=2) + "\n", encoding="utf-8")
     (directory / "GATES.md").write_text(
         f"# Gates: {name}\n\nOWNS: tools/canary_probe.py\n\n"
         f"- {box} G1: the canary scope reports a known state\n"
@@ -176,7 +180,8 @@ def drop_scope(name: str) -> None:
 
 def engaged_then_gate_closed(state: Path) -> None:
     """Engage, then mark a gate met, which is what ends a real task."""
-    engaged(state)
+    write_scope(DONE_SCOPE, met=False)
+    engaged(state, DONE_SCOPE)
     write_scope(DONE_SCOPE, met=True)
 
 
@@ -261,7 +266,7 @@ def receipt_canaries() -> list[Canary]:
     repository is not testing the guard.
     """
     def wrote_without_review(state: Path) -> None:
-        engaged(state)
+        engaged(state, DONE_SCOPE)
         PROBE.write_text('"""A canary probe, removed by the runner."""\n', encoding="utf-8")
         run_guard("pre-tool-use", write_payload(str(PROBE)), state)
 

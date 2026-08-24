@@ -463,6 +463,8 @@ New memories land here, newest last.
 - 2026-08-24 #224 LIVE COMPACT PROOF. Automatic compact archived the exact transcript as SHA-256 object 44715806, wrote its ledger checkpoint, emitted no OptMem request, and restored the full method packet through SessionStart without a restart.
 - 2026-08-24 #225 CODEX COMPACT CANARY. The installed guard passed all 40 canaries with explicit idempotent engage chunks, safe rejected arguments, exact source digests, automatic compact restoration, ownership checks, and recovery access.
 - 2026-08-24 #226 CODEX HOOK TRUST. Removed two orphaned handler identities and pinned the three changed current hashes after explicit user authorization. Live verification reports nine current handlers trusted with no restart.
+- 2026-08-24 #227 CODEX COMPACT CHECKPOINT. Commit e185bcc removes active OptMem lifecycle, archives exact transcripts, restores the exact method packet after compact, and passes 113 harness tests, 8 archive tests, 40 canaries, hook verification, and trust verification.
+- 2026-08-24 #228 CODEX STOP FIX. Stop now invokes unlazy only for the active scope bound to the current session, passes that scope explicitly, isolates root and child retry counts, and ignores unrelated scope edits. Five regressions and 40 installed canaries pass.
 
 ## Checkpoints
 

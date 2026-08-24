@@ -177,6 +177,8 @@ class MethodContextLifecycleTests(unittest.TestCase):
             final_bytes = transcript.read_bytes()
             digest = sha256(final_bytes).hexdigest()
             child_object = archive / "objects" / digest[:2] / f"{digest}.jsonl"
+            child_bytes = child_object.read_bytes() if child_object.is_file() else b""
+            pending_after = list((archive / "pending").glob("*.json"))
         self.assertEqual(status, 0)
         self.assertEqual(json.loads(output.getvalue()), {})
         self.assertEqual(errors.getvalue(), "")
@@ -185,8 +187,31 @@ class MethodContextLifecycleTests(unittest.TestCase):
         self.assertEqual(end_status, 0)
         self.assertEqual(json.loads(end_output.getvalue()), {})
         self.assertEqual(end_errors.getvalue(), "")
-        self.assertEqual(child_object.read_bytes(), final_bytes)
-        self.assertEqual(list((archive / "pending").glob("*.json")), [])
+        self.assertEqual(child_bytes, final_bytes)
+        self.assertEqual(pending_after, [])
+
+    def test_child_reconciliation_failure_does_not_hide_session_context(self) -> None:
+        module = load_memory_hook("codex_child_reconciliation_failure_test")
+        payload = hook_payload("SessionStart", cwd=str(ROOT), source="startup")
+        output = StringIO()
+        errors = StringIO()
+        with (
+            patch.object(
+                module,
+                "reconcile_pending_transcripts",
+                side_effect=RuntimeError("damaged pending marker"),
+            ),
+            patch.object(module, "ledger_tail", return_value="lasting memory"),
+        ):
+            status = module.main(
+                ["session-start"], StringIO(json.dumps(payload)), output, errors
+            )
+        response = json.loads(output.getvalue())
+        context = response["hookSpecificOutput"]["additionalContext"]
+        self.assertEqual(status, 0)
+        self.assertIn("lasting memory", context)
+        self.assertIn("damaged pending marker", errors.getvalue())
+        self.assertNotIn("continue", response)
 
     def test_direct_engage_needs_no_stdin_and_readies_only_after_final_chunk(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -247,6 +272,28 @@ class MethodContextLifecycleTests(unittest.TestCase):
                         "SubagentStart", cwd=str(fixture.repo), agent_id="child-fixture"
                     ),
                 )
+        self.assertIsInstance(response, dict)
+        context = response["hookSpecificOutput"]["additionalContext"]
+        self.assertEqual(context, f"{NO_MEMO}\n\n{direct_packet}")
+
+    def test_subagent_start_carries_a_packet_above_the_legacy_inline_cap(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            fixture = MethodFixture(Path(raw))
+            fixture.write_contract()
+            fixture.write_gates()
+            fixture.sources["implement-flow"].write_text(
+                "large exact source\n" + "x" * 190_000, encoding="utf-8"
+            )
+            with fixture.environment():
+                activate(fixture)
+                direct_packet = collect_direct_packet(fixture)
+                response = call_guard(
+                    ["subagent-start"],
+                    hook_payload(
+                        "SubagentStart", cwd=str(fixture.repo), agent_id="child-fixture"
+                    ),
+                )
+        self.assertGreater(len(direct_packet.encode()), 192_000)
         self.assertIsInstance(response, dict)
         context = response["hookSpecificOutput"]["additionalContext"]
         self.assertEqual(context, f"{NO_MEMO}\n\n{direct_packet}")

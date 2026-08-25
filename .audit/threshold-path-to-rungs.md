@@ -1,10 +1,12 @@
 # Clear THRESHOLD rungs from the $0 ENTER bottleneck
 
-The connected E1R walk never prefers ENTER on held THRESHOLD. Same-window teacher dollars already clear every rung. This file is the checkable path from that bottleneck to promotion. Rungs do not move.
+The connected walk never prefers ENTER. Same-window teacher dollars already clear every rung. The job is dollars per trade on held pre-2025H2 replay through `replay_policy_block`.
+
+Old tickets, recovery-plan sequences, and confirmation playbooks are prior attempts. They are not the method. Cite a disk fact from them only after you re-read the artifact. Pivot when a unit dies.
 
 ## Rungs
 
-A THRESHOLD `QRE2TABPOLICYBLOCK2` from `replay_policy_block` must show all of the following.
+A THRESHOLD `QRE2TABPOLICYBLOCK2` must show all of the following.
 
 - HG `usd_per_asset_day` at or above 2000
 - NKD `usd_per_asset_day` at or above 1500
@@ -23,7 +25,7 @@ The command that stays red until that is true is `python3 .audit/assert_threshol
 - Command. `python3 tools/run_tabular_recovery.py --phase rehearsal`
 - Artifact. `artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/e1r/evaluation/E1R_raw_THRESHOLD/real/seed_20260820/raw_block.json` schema `QRE2TABPOLICYBLOCK2`
 
-RAW can ENTER. `_learned_action` returns ENTER when enter regret is strictly below min(defer, pass). Occupancy is false and the 12-cap is unused. The walk reaches that function and never returns ENTER. THRESHOLD day traces have empty `policy_crossing_timestamps` and empty `selected_opportunity_ids`. `rejected_fallback` is lawful abstention accounting.
+RAW can ENTER. `_learned_action` returns ENTER when enter regret is strictly below min(defer, pass). Occupancy is false and the 12-cap is unused. The walk reaches that function and never returns ENTER. The gate counts 130 THRESHOLD traces, 0 `policy_crossing_timestamps` events, 0 `selected_opportunity_ids`, and 1 action change.
 
 Letter these separately. They are not the bottleneck.
 
@@ -32,70 +34,63 @@ Letter these separately. They are not the bottleneck.
 - Location-ranker THRESHOLD cash (HG 856.63, NKD 939.81, SI 1060.83) is diagnostic cell-pick `y`, not replay.
 - Confirmation v9 never opened THRESHOLD. `threshold_open_count` is 0. `NO_FEASIBLE_THRESHOLD` is a PLATT status.
 
-MEMORY #58 named the same head failure on an earlier E1R learner. This rehearsal rebuild reproduced $0. Treat #58 as history, not as tonight's ablation.
-
-Fable judgment (2026-08-25, `2c6d715e-f156-47fb-a978-00e203175019`) locked this cause. Two folds below override that write-up, not the cause.
-
 ## Red
 
 The rung gate is SHORT (exit 2) on the ten zero-trade blocks. That is red for any shortfall.
 
-The cause-specific check is the crossing count on the THRESHOLD trace store. Sum of `policy_crossing_timestamps` lengths is 0 and trades is 0. That pair holds only while the walk never prefers ENTER. The gate reports those counts under `enter_preference`. Teacher dollars on the same window are the mutant without the cause. The ceiling is $102201.25. A 0-trade assertion applied to that teacher block would fail.
+The cause-specific check is `enter_preference` on the THRESHOLD trace store. Crossings 0 and selected 0 hold only while the walk never prefers ENTER. Teacher dollars on the same window are the mutant without the cause. The ceiling is $102201.25. A 0-trade assertion applied to that teacher block would fail.
 
-Ablation that would restore learned trades, after this path exists. `evaluate_policy_block` and `_load_or_replay_day` do not pass `policy_mode`. They default to ARGMIN. `replay_policy_day` already accepts `MARGIN` in CALIBRATED mode. Stitch `policy_mode` through those two call sites, then replay one THRESHOLD seed CALIBRATED with `policy_mode=MARGIN` and the frozen admission. Do not run `--phase rehearsal` for this. One seed, 13 days.
+## Next units
 
-## Path
+Order by what the cause implies. Cheapest first. 2021 can kill. 2021 cannot promote. 2025H2 stays sealed.
 
-The rung predicate is unchanged on every step. 2021 can kill. 2021 cannot promote.
+1. **Publish why ENTER never wins on this walk.**
+   Action. From existing day traces and the FIT teacher-capture receipt, write the regret gap (enter versus min(defer, pass)) and the FIT capture rate. No new model. No full rehearsal.
+   Artifact. A small receipt next to `.audit/threshold-replay-dollars-20260825.json`.
+   Done. Both numbers are on disk and cited from real files.
+   Kill. The walk never reaches `_learned_action`. That would retract the named cause. We already know it reaches the function.
 
-1. **MARGIN kill on 2021 THRESHOLD.**
-   Action. Thread `policy_mode` into `evaluate_policy_block` and `_load_or_replay_day`. Replay seed 20260820 THRESHOLD CALIBRATED MARGIN with the frozen admission from `threshold_selection.json`.
-   Artifact. A MARGIN `*_block.json` under `e1r/evaluation/` plus a fresh gate report.
-   Done. `gate_detail.trades` is published. Crossing count is published.
-   Kill. Still 0 trades closes "the argmin pre-stage is the only lock." Trades with negative or far-short dollars closes reweight, re-threshold, and retrain of this head. A surprising clear does not promote. Stop and go to ticket 45.
-   Minutes path. One seed. Existing fitted bundles. No full rehearsal.
+2. **Restore ENTER on frozen artifacts, or close this head.**
+   Action. `replay_policy_day` already accepts CALIBRATED `policy_mode=MARGIN`. `evaluate_policy_block` and `_load_or_replay_day` do not pass it. Stitch that through and replay one THRESHOLD seed, 13 days, existing bundles. Do not run `--phase rehearsal`.
+   Artifact. A MARGIN `*_block.json` plus a fresh gate report.
+   Done. `gate_detail.trades` and `enter_preference` are published.
+   Kill. Still 0 trades, or trades that lose or miss the rungs by a lot. Then this head plus this rule family is closed. Do not retrain it. A surprising clear still does not promote.
 
-2. **2021 dollars-per-trade kill, only if step 1 ENTERs and still misses the rungs.**
-   Action. Measure whether any 2021 localizer can raise dollars per trade on THRESHOLD event `y`. Ticket 51 is "land in the top two", not a loser screen. THRESHOLD uniform top-2 mean is already under the per-trade bar for HG ($628 vs $667) and NKD ($434 vs $500). SI top-2 is about $615. Rank-0 times cells still clears. Event frontier, delayed-commit, and cell-size conditioner are 2021 kill tests with the ticket-44 residual (score minus side times entry price). Forward-vol is an evidence budget after a localizer survives, never a name score. Pivot tape only after the frontier dies.
+3. **If ENTER exists and dollars miss, raise dollars per trade on the same walk.**
+   Action. The 12-cap and size stay fixed. One cheap 2021 kill on whatever mechanism claims higher dollars per trade. Each claim needs a null and an entry-price twin. Location score on this tree was already `side * entry_price`.
+   Disk fact, not a ticket to execute. THRESHOLD event top-2 mean is already under the per-trade bar for HG ($628 vs $667) and NKD ($434 vs $500). Uniform top-2 on this held set cannot buy those two rungs.
    Artifact. A null-controlled receipt with per-asset THRESHOLD dollars, SE, and the entry-price twin.
-   Done. Every arm has a letter. Kill or survive is written.
-   Kill. Lifecycle shuffle or the entry-price twin absorbs the cash. Causal top-2 at ages 180, 240, and 290 misses the per-trade bar by 2 SE. Then 2021 location work is closed.
+   Done. The claim is lettered kill or survive.
+   Kill. The twin or the shuffle absorbs the cash. Stop spending 2021.
 
-3. **Ticket 45. One 2022 session through `build_corpus`.**
-   Action. Follow `design/entry_reset/tickets/45-corpus-pilot-one-session.md`.
-   Artifact. One strict-reloadable 2022 shard. Per-stage wall time. Prior-absent branch exercised. Feature order compared against a 2021 shard before the build.
-   Done. Every checkbox on the ticket is ticked with a path.
-   Kill. Silent forecast-context skip. Schema drift. Prior-absent branch wrong. Per-session wall time that makes 2788 sessions an hours job with no minutes path.
+4. **Get a later held replay only after a rule is worth reading.**
+   Action. A later window is useless until something ENTERs with a checkable rule. Pick the cheapest way to publish one later THRESHOLD `QRE2TABPOLICYBLOCK2`. That might be one existing shard, a one-session join, or a narrower corpus. Choose by wall time and by whether the rule from units 1-3 still applies.
+   Disk fact, not a mandate. 2022-2024 substrate exists under `artifacts/cache/corpus_2022_2024/`. Entry shards do not. Chronology names PRODUCTION_E2 THRESHOLD as 20220428-20220609. No evaluation block sits on those dates.
+   Done. One `QRE2TABPOLICYBLOCK2` from that later window.
+   Kill. Hours with no minutes path. Silent skip. A schema that cannot reload.
+   One held read. Gate exit 0 or SHORT. No second peek.
 
-4. **Ticket 48. Freeze the protocol.**
-   Action. Write the preregistration before any 2022-2024 selector dollars are read. Ticket 48's header says it is blocked by 47. Follow the ticket's why instead. Freeze first.
-   Artifact. The committed prereg. Era bounds, one held read per frozen rule, rungs verbatim, nulls named.
-   Done. The file is committed and names the selector that survived 2021 kills, or names "no 2021 survivor, first 2022 read is exploratory plumbing only."
-   Kill. The write is skipped and someone reads 2022-2024 dollars anyway.
+## Closed repeats
 
-5. **Ticket 47. Build 2022-2024.**
-   Action. Follow `design/entry_reset/tickets/47-build-2022-2024-corpus.md` after step 3's rate receipt and step 4's freeze.
-   Artifact. Shard count equals session count per asset, or a day-by-day gap letter. Strict reload sample per asset and year. 2025 stays out.
-   Done. Reload sample is green. Six-hour arithmetic is written from the pilot rate.
-   Kill. Scale arithmetic fails the minutes-or-hours budget. Strict reload fails.
+These are finished on evidence, not because a ticket said so.
 
-6. **One held 2022-2024 THRESHOLD read.**
-   Action. PRODUCTION_E2 THRESHOLD is 20220428-20220609. Run the frozen selector through `evaluate_policy_block` → `replay_policy_block` → `replay`. One read.
-   Artifact. A `QRE2TABPOLICYBLOCK2` whose `gate_detail` is the promotion receipt.
-   Done. `python3 .audit/assert_threshold_replay_receipt.py` exits 0.
-   Kill. Gate stays SHORT. Do not take a second held read. Label any extra look exploratory in the same sentence.
-
-## Closed
-
-Do the next untried step above. These repeats are finished.
-
-- Retrain, reweight, or threshold-sweep the E1R regret head. The 21-quantile grid is negative. `floor_feasible` is false on all five real seeds. MEMORY #58 already closed this once.
+- Retrain, reweight, or threshold-sweep the E1R regret head. The 21-quantile grid is negative. `floor_feasible` is false on all five real seeds.
 - Treat location-ranker 856, 939, and 1060 as replay progress.
 - Treat confirmation v9 `canonical_replay_executed` or PLATT `NO_FEASIBLE_THRESHOLD` as a THRESHOLD-role read.
-- Rebuild a ranker on side times entry price (ticket 44).
-- Re-run the rank-0 rich-cell analysis T50 retracted inside its null.
-- Price the hold as the payer (ticket 49 demoted).
+- Rank on side times entry price.
 - Extra size or extra entries to buy the rung.
-- Relax HG below 2000, or NKD or SI below 1500, or MDD to 1000 or above, or the 12-cap up.
-- Promote on any 2021 number, including a MARGIN surprise.
-- Inherit Grok for Fable or Sol seats. Allowed Task slugs are `claude-fable-5-thinking-high` and `gpt-5.6-sol-medium`.
+- Relax any rung.
+- Promote on any 2021 number.
+- Walk a ticket list because it is numbered.
+
+## Seats
+
+pstack roles. Parent stays Grok 4.6 xhigh. Do not set Auto.
+
+- Judgment, how explainer, why synthesizer. Fable. Account slug `claude-fable-5-thinking-max`. Also `claude-fable-5-thinking-xhigh`.
+- Specified implementation. Sol. Account slug `gpt-5.6-sol-max`. Also `gpt-5.6-sol-xhigh`.
+- Fast code and how explorer. `cursor-grok-4.6-xhigh-fast`.
+
+Prefix. Cursor Task and `cursor-agent --model` use `name-thinking-<effort>` or `name-<effort>`. OpenCode uses `provider/model#variant`, for example `anthropic/claude-fable-5#max` and `openai/gpt-5.6-sol#max`.
+
+This chat's Task widget may only list `claude-fable-5-thinking-high` and `gpt-5.6-sol-medium`. `cursor-agent models` is the account list. Prefer the account slug. Do not inherit Grok for Fable or Sol seats.

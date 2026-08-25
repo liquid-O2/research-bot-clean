@@ -24,6 +24,14 @@ RANKER = REPO / (
     "artifacts/entry_v2/tabular_recovery/diagnostics/"
     "location_ranker_20260823.json"
 )
+FIT_EXECUTION = REPO / (
+    "artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/"
+    "e1r/fit_only_execution.json"
+)
+THRESHOLD_SELECTION = REPO / (
+    "artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/"
+    "e1r/evaluation/threshold/real"
+)
 RUNGS = {"HG": 2000.0, "NKD": 1500.0, "SI": 1500.0}
 MAX_DRAWDOWN_USD = 1000.0
 MAX_ENTRIES_PORTFOLIO_DAY = 12
@@ -183,6 +191,87 @@ def enter_preference(root: Path) -> dict[str, int]:
     }
 
 
+def fit_capture(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError(
+            f"{path} must be a JSON object, got {type(payload).__name__}"
+        )
+    detail = payload.get("training_capture_detail")
+    if not isinstance(detail, dict):
+        raise ValueError(
+            f"{path} training_capture_detail must be an object, "
+            f"got {type(detail).__name__}"
+        )
+    rows: dict[str, dict[str, float | bool]] = {}
+    for name, row in detail.items():
+        if not isinstance(row, dict):
+            raise ValueError(
+                f"{path} training_capture_detail[{name!r}] must be an object, "
+                f"got {type(row).__name__}"
+            )
+        rows[str(name)] = {
+            "capture": float(row["capture"]),
+            "passed": bool(row["passed"]),
+        }
+    return {
+        "training_capture_pass": bool(payload.get("training_capture_pass")),
+        "target_capture": 0.9,
+        "by_seed": rows,
+    }
+
+
+def advantage_grids(root: Path) -> dict[str, dict[str, float | bool | int]]:
+    out: dict[str, dict[str, float | bool | int]] = {}
+    if not root.is_dir():
+        return out
+    for path in sorted(root.glob("seed_*/threshold_selection.json")):
+        payload = json.loads(path.read_text())
+        if not isinstance(payload, dict):
+            raise ValueError(
+                f"{path} must be a JSON object, got {type(payload).__name__}"
+            )
+        selection = payload.get("selection")
+        if not isinstance(selection, dict):
+            raise ValueError(
+                f"{path} selection must be an object, got {type(selection).__name__}"
+            )
+        thresholds = selection.get("thresholds_usd")
+        if not isinstance(thresholds, list) or not thresholds:
+            raise ValueError(
+                f"{path} selection.thresholds_usd must be a non-empty list, "
+                f"got {type(thresholds).__name__} {thresholds!r}"
+            )
+        values = [float(item) for item in thresholds]
+        out[str(payload.get("seed", path.parent.name))] = {
+            "floor_feasible": bool(selection.get("floor_feasible")),
+            "selected_threshold_usd": float(selection["selected_threshold_usd"]),
+            "grid_min_usd": min(values),
+            "grid_max_usd": max(values),
+            "n_quantiles": len(values),
+        }
+    return out
+
+
+def enter_gap() -> dict[str, Any]:
+    """Unit 1 receipt. Why ENTER never wins on the published walk."""
+
+    capture = fit_capture(FIT_EXECUTION)
+    grids = advantage_grids(THRESHOLD_SELECTION)
+    preference = enter_preference(THRESHOLD_BLOCKS)
+    return {
+        "schema": "QRE2THRESHOLDENTERGAP1",
+        "named_cause": "action_regret_head_never_prefers_enter",
+        "fit_capture": capture,
+        "threshold_advantage_grid": grids,
+        "enter_preference": preference,
+        "per_second_regrets_on_day_traces": "absent",
+        "check_command": (
+            "python3 .audit/assert_threshold_replay_receipt.py --enter-gap"
+        ),
+    }
+
+
 def policy_block_economics(path: Path) -> dict[str, Any]:
     text = path.read_text()
     if '"schema":"QRE2TABPOLICYBLOCK2"' not in text and (
@@ -251,6 +340,25 @@ def _selftest() -> int:
                 "selftest expected zero ENTER preference on THRESHOLD traces, "
                 f"got {preference!r}"
             )
+    if FIT_EXECUTION.is_file() and THRESHOLD_SELECTION.is_dir():
+        gap = enter_gap()
+        captures = [
+            float(row["capture"])
+            for row in gap["fit_capture"]["by_seed"].values()
+        ]
+        if not captures or max(captures) >= 0.05:
+            raise AssertionError(
+                "selftest expected FIT capture well under 5 percent, "
+                f"got {gap['fit_capture']!r}"
+            )
+        grids = gap["threshold_advantage_grid"]
+        if not grids:
+            raise AssertionError("selftest expected THRESHOLD advantage grids")
+        if any(float(row["grid_max_usd"]) >= 0.0 for row in grids.values()):
+            raise AssertionError(
+                "selftest expected an all-negative advantage grid, "
+                f"got {grids!r}"
+            )
     print("selftest_ok")
     return 0
 
@@ -258,6 +366,9 @@ def _selftest() -> int:
 def main() -> int:
     if "--selftest" in sys.argv[1:]:
         return _selftest()
+    if "--enter-gap" in sys.argv[1:]:
+        print(json.dumps(enter_gap(), indent=2, sort_keys=True))
+        return 0
     if not CONFIRMATION.is_dir():
         raise FileNotFoundError(
             f"confirmation receipt directory missing: {CONFIRMATION}"

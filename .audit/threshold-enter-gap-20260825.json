@@ -1,0 +1,75 @@
+{
+  "check_command": "python3 .audit/assert_threshold_replay_receipt.py --enter-gap",
+  "enter_preference": {
+    "action_change_events": 1,
+    "day_traces": 130,
+    "policy_crossing_events": 0,
+    "selected_opportunity_total": 0
+  },
+  "fit_capture": {
+    "by_seed": {
+      "real:20260820": {
+        "capture": 0.0043109520723563725,
+        "passed": false
+      },
+      "real:20260821": {
+        "capture": 0.0043109520723563725,
+        "passed": false
+      },
+      "real:20260822": {
+        "capture": 0.0,
+        "passed": false
+      },
+      "real:20260823": {
+        "capture": 0.0,
+        "passed": false
+      },
+      "real:20260824": {
+        "capture": 0.0043109520723563725,
+        "passed": false
+      }
+    },
+    "target_capture": 0.9,
+    "training_capture_pass": false
+  },
+  "named_cause": "action_regret_head_never_prefers_enter",
+  "per_second_regrets_on_day_traces": "absent",
+  "schema": "QRE2THRESHOLDENTERGAP1",
+  "threshold_advantage_grid": {
+    "20260820": {
+      "floor_feasible": false,
+      "grid_max_usd": -98.22097927943588,
+      "grid_min_usd": -648.9232397111049,
+      "n_quantiles": 21,
+      "selected_threshold_usd": -648.9232397111049
+    },
+    "20260821": {
+      "floor_feasible": false,
+      "grid_max_usd": -43.30677517982846,
+      "grid_min_usd": -649.1697193422649,
+      "n_quantiles": 21,
+      "selected_threshold_usd": -649.1697193422649
+    },
+    "20260822": {
+      "floor_feasible": false,
+      "grid_max_usd": -58.6108685347906,
+      "grid_min_usd": -643.6108685347906,
+      "n_quantiles": 21,
+      "selected_threshold_usd": -643.6108685347906
+    },
+    "20260823": {
+      "floor_feasible": false,
+      "grid_max_usd": -94.45533060755173,
+      "grid_min_usd": -682.1493521797033,
+      "n_quantiles": 21,
+      "selected_threshold_usd": -682.1493521797033
+    },
+    "20260824": {
+      "floor_feasible": false,
+      "grid_max_usd": -70.76116776780175,
+      "grid_min_usd": -672.36576538896,
+      "n_quantiles": 21,
+      "selected_threshold_usd": -672.36576538896
+    }
+  }
+}

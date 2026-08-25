@@ -1,0 +1,48 @@
+{
+  "schema": "QRE2THRESHOLDREPLAYDOLLARS1",
+  "role": "E1R THRESHOLD",
+  "bounds": [
+    20210721,
+    20210806
+  ],
+  "command": "python3 tools/run_tabular_recovery.py --phase rehearsal",
+  "replay_path": "run_fit_only_execution -> evaluate_policy_block -> replay_policy_block -> replay",
+  "artifact": "artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/e1r/evaluation/E1R_raw_THRESHOLD/real/seed_20260820/raw_block.json",
+  "schema_id": "QRE2TABPOLICYBLOCK2",
+  "mode": "RAW",
+  "h2_open_count": 0,
+  "seeds_real": [
+    20260820,
+    20260821,
+    20260822,
+    20260823,
+    20260824
+  ],
+  "all_real_and_shuffle_trades": 0,
+  "usd_per_active_portfolio_day": 0.0,
+  "max_drawdown_usd": 0.0,
+  "covered_asset_days": 0,
+  "eligible_asset_days": 39,
+  "exact_ceiling_usd": 102201.25,
+  "exact_ceiling_usd_by_asset": {
+    "HG": 40686.25,
+    "NKD": 25955.0,
+    "SI": 35560.0
+  },
+  "asset_day_ceiling": {
+    "HG": 3129.71,
+    "NKD": 1996.54,
+    "SI": 2735.38
+  },
+  "rungs": {
+    "HG": 2000.0,
+    "NKD": 1500.0,
+    "SI": 1500.0
+  },
+  "ceiling_clears_rungs": true,
+  "policy_clears_rungs": false,
+  "forward_calibrated_also_zero_trades": true,
+  "named_cause": "action_regret_head_never_prefers_enter",
+  "status": "ESTABLISHED",
+  "path": ".audit/threshold-path-to-rungs.md"
+}

@@ -42,7 +42,7 @@
   "ceiling_clears_rungs": true,
   "policy_clears_rungs": false,
   "forward_calibrated_also_zero_trades": true,
-  "named_cause": "action_regret_head_never_prefers_enter",
+  "named_cause": "e1r_regret_head_never_prefers_enter_on_any_walked_window",
   "status": "ESTABLISHED",
   "path": ".audit/threshold-path-to-rungs.md"
 }

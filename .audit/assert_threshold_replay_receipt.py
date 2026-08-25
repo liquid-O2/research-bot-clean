@@ -32,6 +32,10 @@ THRESHOLD_SELECTION = REPO / (
     "artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/"
     "e1r/evaluation/threshold/real"
 )
+MARGIN_RULE = REPO / (
+    "artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/"
+    "e1r/diagnosis/margin_rule"
+)
 RUNGS = {"HG": 2000.0, "NKD": 1500.0, "SI": 1500.0}
 MAX_DRAWDOWN_USD = 1000.0
 MAX_ENTRIES_PORTFOLIO_DAY = 12
@@ -261,13 +265,110 @@ def enter_gap() -> dict[str, Any]:
     preference = enter_preference(THRESHOLD_BLOCKS)
     return {
         "schema": "QRE2THRESHOLDENTERGAP1",
-        "named_cause": "action_regret_head_never_prefers_enter",
+        "named_cause": (
+            "e1r_regret_head_never_prefers_enter_on_any_walked_window"
+        ),
         "fit_capture": capture,
         "threshold_advantage_grid": grids,
         "enter_preference": preference,
         "per_second_regrets_on_day_traces": "absent",
         "check_command": (
             "python3 .audit/assert_threshold_replay_receipt.py --enter-gap"
+        ),
+    }
+
+
+def cheap_trace_emptiness(root: Path) -> dict[str, int]:
+    """Count day traces without parsing crossing maps.
+
+    MARGIN traces store large crossing lists. Full json.loads is the slow path.
+    """
+
+    days = 0
+    empty_selected = 0
+    empty_arrivals = 0
+    if not root.is_dir():
+        return {
+            "day_traces": 0,
+            "empty_selected": 0,
+            "empty_arrivals": 0,
+            "selected_nonzero": 0,
+        }
+    for path in root.rglob("*.json"):
+        if not (path.stem.isdigit() and len(path.stem) == 8):
+            continue
+        text = path.read_text()
+        if "QRE2TABLIVETRACESTORE1" not in text:
+            continue
+        days += 1
+        if (
+            '"selected_opportunity_ids":[]' in text
+            or '"selected_opportunity_ids": []' in text
+        ):
+            empty_selected += 1
+        if '"arrivals":[]' in text or '"arrivals": []' in text:
+            empty_arrivals += 1
+    return {
+        "day_traces": days,
+        "empty_selected": empty_selected,
+        "empty_arrivals": empty_arrivals,
+        "selected_nonzero": days - empty_selected,
+    }
+
+
+def block_clears_rungs(
+    *,
+    trades: int,
+    max_drawdown_usd: float,
+    usd_per_asset_day: dict[str, float] | None,
+) -> bool:
+    if trades <= 0:
+        return False
+    if max_drawdown_usd >= MAX_DRAWDOWN_USD:
+        return False
+    if usd_per_asset_day is None:
+        return False
+    for asset, rung in RUNGS.items():
+        if asset not in usd_per_asset_day:
+            raise ValueError(
+                f"usd_per_asset_day missing {asset}, got {sorted(usd_per_asset_day)}"
+            )
+        if float(usd_per_asset_day[asset]) < rung:
+            return False
+    return True
+
+
+def decide_verdict(blocks: list[dict[str, Any]]) -> tuple[str, str]:
+    if any(bool(row.get("clears_rungs")) for row in blocks):
+        return "PASS", "THRESHOLD policy block clears the rungs"
+    if blocks:
+        return (
+            "SHORT",
+            "THRESHOLD policy blocks exist and replay 0 trades while the "
+            "same-window exact ceiling clears the rungs",
+        )
+    return (
+        "INCONCLUSIVE",
+        "no confirmation receipt opened THRESHOLD with "
+        "exact_replay_ceiling_executed and threshold_economics_executed",
+    )
+
+
+def margin_closure() -> dict[str, Any]:
+    emptiness = cheap_trace_emptiness(MARGIN_RULE)
+    return {
+        "schema": "QRE2THRESHOLDMARGINCLOSURE1",
+        "named_cause": (
+            "e1r_regret_head_never_prefers_enter_on_any_walked_window"
+        ),
+        "root": str(MARGIN_RULE.relative_to(REPO)),
+        "emptiness": emptiness,
+        "closed": (
+            emptiness["day_traces"] > 0
+            and emptiness["selected_nonzero"] == 0
+        ),
+        "check_command": (
+            "python3 .audit/assert_threshold_replay_receipt.py --margin-closure"
         ),
     }
 
@@ -288,13 +389,20 @@ def policy_block_economics(path: Path) -> dict[str, Any]:
             raise ValueError(f"{path} gate_detail missing {key}")
         raw = chunk[at + len(token):].split(",", 1)[0].split("}", 1)[0]
         return float(raw)
+    trades = int(_num("trades"))
+    max_drawdown_usd = _num("max_drawdown_usd")
     return {
         "path": str(path.relative_to(REPO)),
-        "trades": int(_num("trades")),
+        "trades": trades,
         "usd_per_active_portfolio_day": _num("usd_per_active_portfolio_day"),
-        "max_drawdown_usd": _num("max_drawdown_usd"),
+        "max_drawdown_usd": max_drawdown_usd,
         "exact_ceiling_usd": _num("exact_ceiling_usd"),
-        "clears_rungs": False,
+        "usd_per_asset_day": None,
+        "clears_rungs": block_clears_rungs(
+            trades=trades,
+            max_drawdown_usd=max_drawdown_usd,
+            usd_per_asset_day=None,
+        ),
     }
 
 
@@ -340,6 +448,25 @@ def _selftest() -> int:
                 "selftest expected zero ENTER preference on THRESHOLD traces, "
                 f"got {preference!r}"
             )
+    passing = block_clears_rungs(
+        trades=12,
+        max_drawdown_usd=400.0,
+        usd_per_asset_day={"HG": 2100.0, "NKD": 1600.0, "SI": 1600.0},
+    )
+    if not passing:
+        raise AssertionError("selftest synthetic block must clear the rungs")
+    short = block_clears_rungs(
+        trades=0,
+        max_drawdown_usd=0.0,
+        usd_per_asset_day={"HG": 2100.0, "NKD": 1600.0, "SI": 1600.0},
+    )
+    if short:
+        raise AssertionError("selftest zero-trade block must not clear the rungs")
+    verdict, _reason = decide_verdict([{"clears_rungs": True}])
+    if verdict != "PASS":
+        raise AssertionError(
+            f"selftest expected PASS when a block clears, got {verdict!r}"
+        )
     if FIT_EXECUTION.is_file() and THRESHOLD_SELECTION.is_dir():
         gap = enter_gap()
         captures = [
@@ -369,6 +496,9 @@ def main() -> int:
     if "--enter-gap" in sys.argv[1:]:
         print(json.dumps(enter_gap(), indent=2, sort_keys=True))
         return 0
+    if "--margin-closure" in sys.argv[1:]:
+        print(json.dumps(margin_closure(), indent=2, sort_keys=True))
+        return 0
     if not CONFIRMATION.is_dir():
         raise FileNotFoundError(
             f"confirmation receipt directory missing: {CONFIRMATION}"
@@ -386,22 +516,8 @@ def main() -> int:
         for path in sorted(THRESHOLD_BLOCKS.rglob("raw_block.json")):
             blocks.append(policy_block_economics(path))
     preference = enter_preference(THRESHOLD_BLOCKS)
-    rungs_clear = any(row["clears_rungs"] for row in blocks)
-    if rungs_clear:
-        verdict = "PASS"
-        reason = "THRESHOLD policy block clears the rungs"
-    elif blocks:
-        verdict = "SHORT"
-        reason = (
-            "THRESHOLD policy blocks exist and replay 0 trades while the "
-            "same-window exact ceiling clears the rungs"
-        )
-    else:
-        verdict = "INCONCLUSIVE"
-        reason = (
-            "no confirmation receipt opened THRESHOLD with "
-            "exact_replay_ceiling_executed and threshold_economics_executed"
-        )
+    verdict, reason = decide_verdict(blocks)
+    rungs_clear = verdict == "PASS"
     report = {
         "schema": "QRE2THRESHOLDREPLAYGATE1",
         "verdict": verdict,
@@ -425,7 +541,9 @@ def main() -> int:
             REPO / "tools/probe_location_ranker.py"
         ).is_file(),
         "check_command": "python3 .audit/assert_threshold_replay_receipt.py",
-        "named_cause": "action_regret_head_never_prefers_enter",
+        "named_cause": (
+            "e1r_regret_head_never_prefers_enter_on_any_walked_window"
+        ),
         "enter_preference": preference,
     }
     print(json.dumps(report, indent=2, sort_keys=True))

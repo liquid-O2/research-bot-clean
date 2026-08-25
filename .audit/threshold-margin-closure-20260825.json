@@ -7,6 +7,13 @@
     "empty_selected": 588,
     "selected_nonzero": 0
   },
+  "full_parse_enter_preference": {
+    "action_change_events": 0,
+    "day_traces": 588,
+    "policy_crossing_events": 630338,
+    "selected_opportunity_total": 0,
+    "source": "enter_preference on diagnosis/margin_rule, 35s"
+  },
   "named_cause": "e1r_regret_head_never_prefers_enter_on_any_walked_window",
   "root": "artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/e1r/diagnosis/margin_rule",
   "schema": "QRE2THRESHOLDMARGINCLOSURE1"

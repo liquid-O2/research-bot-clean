@@ -10,6 +10,17 @@ This chat's Task widget may only list `claude-fable-5-thinking-high` and `gpt-5.
 
 Always start with `/poteto-mode`. Do not type `/architect` or `/figure-it-out` unless you are overriding the match.
 
+## Current (2026-08-26)
+
+Overnight diagnosis is on disk. Do not re-walk tickets. Do not predict the action matrices again unless `.audit/threshold-head-labels-20260826.json` is missing.
+
+- Cause. `e1r_regret_head_never_prefers_enter_on_any_walked_window`
+- Replay. $0 / 0 trades. `.../E1R_raw_THRESHOLD/real/seed_20260820/raw_block.json`
+- Path. `.audit/threshold-path-to-rungs.md`
+- Head-label. OOF ENTER-min is 0-2 rows. Frozen-all peaks at 0.15% against a 7.70% label rate. Feature-mismatch kill did not fire.
+
+Next implementable work is the awake refit fork in that path. Overnight must not AskQuestion and must not refit.
+
 ## 1. Diagnosis (Investigation)
 
 Read-only. No new *trading* model. No code change. LLM children must still use the pstack-models seats (Fable for how explainer and judgment).

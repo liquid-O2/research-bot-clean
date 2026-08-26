@@ -5,6 +5,8 @@ alwaysApply: true
 
 # Cursor pstack-lab
 
+CLI children skip this file. It is Cursor host wiring.
+
 This repo's plugin is `.cursor/plugins/pstack-lab`. It is a fork of marketplace pstack. Poteto Mode still owns playbooks. Unique Pocock pieces are hooked into that flow. You do not type grilling, to-spec, or wayfinder.
 
 `AGENTS.md`'s mandatory catalog block is for Codex and Grok. Cursor agents follow this file and `/poteto-mode`. Open a principle leaf only when its trigger matches.

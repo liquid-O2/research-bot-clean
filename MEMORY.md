@@ -5339,3 +5339,4 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - 2026-08-26 #583 HOST Codex hooks.state stripped. CLI children use Cursor Task briefs via cli-dispatch.md. Sol-max is covering peer and specified walker on different children. Fresh Grok, overnight-c.md.
 - 2026-08-26 #584 HOST All 46 pstack-lab skills symlinked into .cursor/skills .claude/skills .codex/skills .agents/skills. Grok inspect lists them as project. Re-run tools/install_pstack_skills.sh on a new pod.
 - 2026-08-26 #585 USER pstack-lab is the live catalog. Pocock grilling/to-spec/wayfinder sit inside poteto-mode, not as extra slash skills. Do not install the vendor Pocock tree beside it.
+- 2026-08-26 #586 DECISION CLI follow-rules no longer outrank Sol personality or force a START_HERE plus catalog tour. cursor-pstack is Cursor host only. 46 skills in .claude/.codex still tax Fable and Sol descriptions.

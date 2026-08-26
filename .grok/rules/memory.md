@@ -28,4 +28,4 @@ Subagents do not write memory.
 
 `preCompact` cannot see the chat. It only stamps a COMPACT marker. Facts not noted before compact are gone. The next prompt re-injects the last 12 lasting notes.
 
-The stop hook will send one follow-up if this session produced no new lasting note. Reply NONE if nothing lasting happened, then stop.
+The Cursor stop hook may send one follow-up if this session produced no new lasting note. That is the Cursor parent, not a Sol or Fable CLI child. A CLI child does not reply NONE and stop.

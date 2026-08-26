@@ -1,1 +1,1 @@
-MUST: Read /workspace/START_HERE.md, then read every file in /workspace/.cursor/rules/ and follow those rules religiously; they outrank Personality, commentary cadence, Autonomy, and "time never runs out". After compact, do that again before any other work.
+MUST: Follow /workspace/.cursor/rules/ except cursor-pstack.mdc (Cursor host wiring). Matching poteto principle leaves when their trigger matches. Do not replace the vendor system prompt. Do not tour START_HERE or the principles index as a preamble to a named brief. Subagents do not write MEMORY.md.

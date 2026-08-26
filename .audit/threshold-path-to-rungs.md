@@ -27,9 +27,9 @@ A THRESHOLD `QRE2TABPOLICYBLOCK2` must show all of the following.
 - MARGIN diagnosis. 588 CALIBRATED day traces under `diagnosis/margin_rule/`. 0 selected. 0 arrivals. Receipt `--margin-closure`.
 - FORWARD. Ten calibrated blocks, 0 trades.
 - Labels. `fits/round_2/action_matrices` has 21527 rows, ENTER optimal on 1657.
-- Head versus label. Receipt `python3 .audit/assert_threshold_head_labels.py`. Label ENTER rate 7.70%. Walk-time OOF ENTER-min is 0, 0, 2, 0, 1 rows on 20049. Frozen head on all 21527 rows peaks at 32 ENTERs (0.15%). Predicted enter-margin median about -$124 to -$134. Label margin median $0, max $237.50. `healthy_in_sample` is false.
+- Head versus label. Receipt `python3 .audit/assert_threshold_head_labels.py`. Label ENTER rate 7.70%. Fold-routed OOF ENTER-min on stored matrix rows is 0, 0, 2, 0, 1 of 20049. Frozen head on all 21527 rows peaks at 32 ENTERs (0.15%). `healthy_in_sample` is false. Label `action_margin_cents` is unsigned best-versus-second. Predicted margin is signed ENTER-versus-other. Do not treat those as one comparison. The receipt scores stored matrix rows. It is not a walk-time feature twin.
 
-RAW can ENTER. `_learned_action` is reached. It never returns ENTER. The same head almost never ranks ENTER min on the stored fit rows either. The kill for a matrix-versus-walk feature mismatch did not fire.
+RAW can ENTER. `_learned_action` is reached. It never returns ENTER. The same head almost never ranks ENTER min on the stored fit rows either. A concurrent feature mismatch is still unexcluded.
 
 ## Next units
 
@@ -41,8 +41,8 @@ RAW can ENTER. `_learned_action` is reached. It never returns ENTER. The same he
 2. **Head-versus-label separation.**
    Done. `.audit/threshold-head-labels-20260826.json`. Kill did not fire. Do not rerun unless that receipt is missing.
 
-3. **Refit fork, when the human is awake.**
-   Every frozen E1R artifact is inert. Whether one refit of this head family on these labels counts as a new trading model is a product call. Option a, permit that one refit, 2021-kill rules unchanged. Option b, retire E1R. No third option. Attach the head-label receipt. Overnight must not AskQuestion and must not refit.
+3. **Next implementable work, when the human is awake.**
+   The frozen E1R artifacts are inert. One recorded fork is a single refit of this head family on these labels, 2021-kill rules unchanged. Another is retire E1R. That pair is a product call, not an exhaustion proof. Attach the head-label receipt. Overnight must not AskQuestion and must not refit.
    Standing kill for whatever survives. THRESHOLD top-2 means are $628 HG against $667 per trade and $434 NKD against $500.
 
 4. **A later held window only after something ENTERs on 2021.**
@@ -60,7 +60,7 @@ Overnight diagnosis is done. The path is the four units above. Do not invent a f
 - Relax any rung.
 - Promote on any 2021 number.
 - Walk a numbered ticket list.
-- Hunt a matrix-versus-walk feature mismatch. The head-label receipt already failed that kill.
+- Treat the head-label receipt as a walk-time feature twin. It scores stored matrix rows.
 
 ## Seats
 

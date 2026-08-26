@@ -19,7 +19,7 @@ Overnight diagnosis is on disk. Do not re-walk tickets. Do not predict the actio
 - Path. `.audit/threshold-path-to-rungs.md`
 - Head-label. OOF ENTER-min is 0-2 rows. Frozen-all peaks at 0.15% against a 7.70% label rate. Feature-mismatch kill did not fire.
 
-Next implementable work is the awake refit fork in that path. Overnight must not AskQuestion and must not refit.
+Next implementable work waits for the human. One recorded fork is a single refit of this head family. Another is retire E1R. That pair is a product call, not an exhaustion proof. Overnight must not AskQuestion and must not refit.
 
 ## 1. Diagnosis (Investigation)
 

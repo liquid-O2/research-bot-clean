@@ -73,8 +73,8 @@ Cursor Ultra is exhausted (~97% monthly). Do not use Cursor as the overnight par
 
 | Seat | Who | How |
 |---|---|---|
-| Parent / overnight | Grok 4.6 xhigh on this TUI | Reads this file. Spawns Grok subagents. Writes MEMORY notes. Does not stop at a child receipt. |
-| Normal work | Grok `general-purpose`, `explore`, `plan` | `spawn_subagent` in this session. Same `/workspace`, same `.grok/rules/`. |
+| Parent / overnight | Grok 4.6 xhigh on this TUI | `/poteto-mode`. Hillclimb against the rungs. Writes MEMORY notes. Does not stop at a child receipt. |
+| Playbook workers | Grok `poteto-agent` | `.grok/agents/poteto-agent.md`. Reads poteto-mode SKILL.md first. Not `general-purpose`, `explore`, or `plan`. |
 | Designer / covering / Stage 1 judge | Fable `claude-fable-5-thinking-max` only | `claude -p --append-system-prompt-file .codex/follow-rules.md`. No thinking-high fallback. Not a Grok subagent. |
 | Specified hard walks | Sol `gpt-5.6-sol-max` | `codex exec`. `model_instructions_file` is the one follow-rules line. Not a Grok subagent. |
 
@@ -92,6 +92,13 @@ Paste files:
 and `.grok/rules/` (Grok `.md`, same bodies). Matching principle leaves are
 mandatory. The 21 leaves are not stuffed into the prompt. Equal-standing: open
 the leaf when its trigger matches. Do not install stock Pstack.
+
+The path to the rungs is the **hillclimb** playbook, not Feature and not the
+2026-08-23 ticket plan. Metric: HG 2000, NKD 1500, SI 1500, MDD under 1000, at
+most 12 entries, dollars per trade. The covering map is the hypothesis log.
+Unit C is the unblocked frontier. Wayfinder tickets only when a question is
+sharp and unnamed. C is already named. `/tdd` only for a cheap local test.
+Covering units already fail selftest plus mutants before the run.
 
 Overnight follows principle-never-block-on-the-human and
 `playbooks/autonomous-run.md`. A unit ends at a check
@@ -353,7 +360,9 @@ in the same sentence it is reported.
 | Session memory | `MEMORY.md`, `tools/memory_ledger.py` |
 | Covering map (live) | `.audit/briefs/threshold-covering-after-pivot-kill-out.md` |
 | C Stage 0 brief | `.audit/briefs/threshold-cfit-stage0.md` |
-| Cursor method | `.cursor/plugins/pstack-lab`, `.cursor/rules/` |
+| Cursor / poteto plugin | `.cursor/plugins/pstack-lab`, `.cursor/rules/` |
+| Grok poteto-agent | `.grok/agents/poteto-agent.md` |
+| Hillclimb playbook | `.cursor/plugins/pstack-lab/skills/poteto-mode/playbooks/hillclimb.md` |
 | Fable/Sol one-line append | `.codex/follow-rules.md` |
 | Canonical always-on bodies | `.cursor/rules/*.mdc` |
 | Grok always-on (loaded) | `.grok/rules/*.md` (same bodies, plus seats.md) |

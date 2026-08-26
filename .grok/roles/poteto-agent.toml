@@ -1,0 +1,3 @@
+description = "Poteto-mode playbook worker. Reads poteto-mode SKILL.md before work."
+default_capability_mode = "all"
+reasoning_effort = "high"

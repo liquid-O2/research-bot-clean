@@ -1,0 +1,456 @@
+{
+  "bounds": [
+    20210721,
+    20210806
+  ],
+  "check_command": "python3 .audit/score_wall_veto_kill.py",
+  "chosen_rule": {
+    "conditions_passed": 3,
+    "field": "wall_probability",
+    "h7_vetoed_commit_label_usd": -2495.0,
+    "h7_vetoed_net_negative": true,
+    "keep_top2": {
+      "hits": 75,
+      "rate": 1.0,
+      "total": 75
+    },
+    "keep_top2_gt_half": true,
+    "op": "gt",
+    "overlay": {
+      "H3": {
+        "kept": {
+          "commit_label_usd": 2954.9999999999995,
+          "event_not_top2": {
+            "commit_label_usd": -25410.0,
+            "n": 67
+          },
+          "n": 139,
+          "non_event": {
+            "commit_label_usd": -996.2499999999999,
+            "n": 28
+          },
+          "top2": {
+            "commit_label_usd": 29361.25,
+            "n": 44
+          }
+        },
+        "vetoed": {
+          "commit_label_usd": -2727.5000000000005,
+          "event_not_top2": {
+            "commit_label_usd": -1822.5000000000002,
+            "n": 2
+          },
+          "n": 3,
+          "non_event": {
+            "commit_label_usd": -905.0000000000001,
+            "n": 1
+          },
+          "top2": {
+            "commit_label_usd": 0.0,
+            "n": 0
+          }
+        }
+      },
+      "H5": {
+        "kept": {
+          "commit_label_usd": 426.2499999999998,
+          "event_not_top2": {
+            "commit_label_usd": -2232.5,
+            "n": 4
+          },
+          "n": 31,
+          "non_event": {
+            "commit_label_usd": 2488.75,
+            "n": 26
+          },
+          "top2": {
+            "commit_label_usd": 170.00000000000003,
+            "n": 1
+          }
+        },
+        "vetoed": {
+          "commit_label_usd": 0.0,
+          "event_not_top2": {
+            "commit_label_usd": 0.0,
+            "n": 0
+          },
+          "n": 0,
+          "non_event": {
+            "commit_label_usd": 0.0,
+            "n": 0
+          },
+          "top2": {
+            "commit_label_usd": 0.0,
+            "n": 0
+          }
+        }
+      },
+      "H7": {
+        "kept": {
+          "commit_label_usd": 443.7499999999993,
+          "event_not_top2": {
+            "commit_label_usd": -24978.75,
+            "n": 62
+          },
+          "n": 135,
+          "non_event": {
+            "commit_label_usd": 7535.0,
+            "n": 43
+          },
+          "top2": {
+            "commit_label_usd": 17887.5,
+            "n": 30
+          }
+        },
+        "vetoed": {
+          "commit_label_usd": -2495.0,
+          "event_not_top2": {
+            "commit_label_usd": -1810.0000000000002,
+            "n": 2
+          },
+          "n": 4,
+          "non_event": {
+            "commit_label_usd": -685.0,
+            "n": 2
+          },
+          "top2": {
+            "commit_label_usd": 0.0,
+            "n": 0
+          }
+        }
+      },
+      "pooled": {
+        "kept": {
+          "commit_label_usd": 3824.9999999999986,
+          "event_not_top2": {
+            "commit_label_usd": -52621.25,
+            "n": 133
+          },
+          "n": 305,
+          "non_event": {
+            "commit_label_usd": 9027.5,
+            "n": 97
+          },
+          "top2": {
+            "commit_label_usd": 47418.75,
+            "n": 75
+          }
+        },
+        "vetoed": {
+          "commit_label_usd": -5222.500000000001,
+          "event_not_top2": {
+            "commit_label_usd": -3632.5000000000005,
+            "n": 4
+          },
+          "n": 7,
+          "non_event": {
+            "commit_label_usd": -1590.0,
+            "n": 3
+          },
+          "top2": {
+            "commit_label_usd": 0.0,
+            "n": 0
+          }
+        }
+      }
+    },
+    "pooled_vetoed_commit_label_usd": -5222.500000000001,
+    "pooled_vetoed_net_negative": true,
+    "survives": true,
+    "threshold": 0.47014485861143746
+  },
+  "definitions": {
+    "named_0p2": "Prior candidate wall_probability > 0.2, reported even if it loses.",
+    "overlay_backfill": "Ignored. Allowed only because this is a kill test.",
+    "top2": "Hindsight measurement label only. Fewer than two same-cell event labels strictly above this name at age 180.",
+    "veto": "Drop the walked ENTER when wall_probability matches the rule.",
+    "wall_probability": "arrival.score.wall_probability on the stored walked ENTER"
+  },
+  "event_receipt_parity": {
+    "HG": {
+      "by_rank_mean_usd": {
+        "0": 906.2179487179487,
+        "1": 349.3269230769231,
+        "2": 50.23648648648651,
+        "3": -212.63888888888889,
+        "4": -396.4583333333333,
+        "5": -632.34375,
+        "6": -656.9230769230769,
+        "7": -702.1590909090909
+      },
+      "by_rank_n": {
+        "0": 39,
+        "1": 39,
+        "2": 37,
+        "3": 36,
+        "4": 30,
+        "5": 24,
+        "6": 13,
+        "7": 11
+      },
+      "n_events": 251
+    },
+    "NKD": {
+      "by_rank_mean_usd": {
+        "0": 569.0384615384615,
+        "1": 298.20512820512823,
+        "2": 96.64473684210526,
+        "3": -55.73529411764706,
+        "4": -210.46875,
+        "5": -339.13461538461536,
+        "6": -481.3888888888889,
+        "7": -770.625
+      },
+      "by_rank_n": {
+        "0": 39,
+        "1": 39,
+        "2": 38,
+        "3": 34,
+        "4": 32,
+        "5": 26,
+        "6": 18,
+        "7": 12
+      },
+      "n_events": 255
+    },
+    "SI": {
+      "by_rank_mean_usd": {
+        "0": 823.6764705882352,
+        "1": 406.74242424242425,
+        "2": 21.136363636363615,
+        "3": -226.15384615384616,
+        "4": -301.42857142857144,
+        "5": -424.11764705882354,
+        "6": -586.6666666666666,
+        "7": -817.5
+      },
+      "by_rank_n": {
+        "0": 34,
+        "1": 33,
+        "2": 33,
+        "3": 26,
+        "4": 21,
+        "5": 17,
+        "6": 15,
+        "7": 12
+      },
+      "n_events": 209
+    }
+  },
+  "kill_bar": {
+    "chosen_rank": "survives, then conditions passed, then bottleneck slack, then slack sum, then closeness to 0.2, then prefer gt",
+    "field": "wall_probability",
+    "keep_pooled_walked_top2_gt": 0.5,
+    "operators": [
+      "gt",
+      "ge"
+    ],
+    "population": "pooled H3+H5+H7 walked ENTERs",
+    "rules_scanned": 526,
+    "rules_survived": 250,
+    "stated_before_scan": true,
+    "vetoed_commit_label_usd_h7_net_negative": true,
+    "vetoed_commit_label_usd_pooled_net_negative": true
+  },
+  "named_0p2": {
+    "conditions_passed": 3,
+    "field": "wall_probability",
+    "h7_vetoed_commit_label_usd": -2932.5,
+    "h7_vetoed_net_negative": true,
+    "keep_top2": {
+      "hits": 45,
+      "rate": 0.6,
+      "total": 75
+    },
+    "keep_top2_gt_half": true,
+    "op": "gt",
+    "overlay": {
+      "H3": {
+        "kept": {
+          "commit_label_usd": -1312.5000000000002,
+          "event_not_top2": {
+            "commit_label_usd": -11133.75,
+            "n": 33
+          },
+          "n": 75,
+          "non_event": {
+            "commit_label_usd": -2496.2500000000005,
+            "n": 18
+          },
+          "top2": {
+            "commit_label_usd": 12317.5,
+            "n": 24
+          }
+        },
+        "vetoed": {
+          "commit_label_usd": 1539.9999999999993,
+          "event_not_top2": {
+            "commit_label_usd": -16098.750000000002,
+            "n": 36
+          },
+          "n": 67,
+          "non_event": {
+            "commit_label_usd": 595.0000000000002,
+            "n": 11
+          },
+          "top2": {
+            "commit_label_usd": 17043.75,
+            "n": 20
+          }
+        }
+      },
+      "H5": {
+        "kept": {
+          "commit_label_usd": 1143.7499999999998,
+          "event_not_top2": {
+            "commit_label_usd": -1790.0000000000002,
+            "n": 3
+          },
+          "n": 25,
+          "non_event": {
+            "commit_label_usd": 2763.75,
+            "n": 21
+          },
+          "top2": {
+            "commit_label_usd": 170.00000000000003,
+            "n": 1
+          }
+        },
+        "vetoed": {
+          "commit_label_usd": -717.5,
+          "event_not_top2": {
+            "commit_label_usd": -442.5,
+            "n": 1
+          },
+          "n": 6,
+          "non_event": {
+            "commit_label_usd": -275.0,
+            "n": 5
+          },
+          "top2": {
+            "commit_label_usd": 0.0,
+            "n": 0
+          }
+        }
+      },
+      "H7": {
+        "kept": {
+          "commit_label_usd": 881.2499999999998,
+          "event_not_top2": {
+            "commit_label_usd": -9967.5,
+            "n": 31
+          },
+          "n": 75,
+          "non_event": {
+            "commit_label_usd": 2761.25,
+            "n": 24
+          },
+          "top2": {
+            "commit_label_usd": 8087.5,
+            "n": 20
+          }
+        },
+        "vetoed": {
+          "commit_label_usd": -2932.5000000000005,
+          "event_not_top2": {
+            "commit_label_usd": -16821.25,
+            "n": 33
+          },
+          "n": 64,
+          "non_event": {
+            "commit_label_usd": 4088.75,
+            "n": 21
+          },
+          "top2": {
+            "commit_label_usd": 9800.0,
+            "n": 10
+          }
+        }
+      },
+      "pooled": {
+        "kept": {
+          "commit_label_usd": 712.4999999999993,
+          "event_not_top2": {
+            "commit_label_usd": -22891.25,
+            "n": 67
+          },
+          "n": 175,
+          "non_event": {
+            "commit_label_usd": 3028.7499999999995,
+            "n": 63
+          },
+          "top2": {
+            "commit_label_usd": 20575.0,
+            "n": 45
+          }
+        },
+        "vetoed": {
+          "commit_label_usd": -2110.0000000000014,
+          "event_not_top2": {
+            "commit_label_usd": -33362.5,
+            "n": 70
+          },
+          "n": 137,
+          "non_event": {
+            "commit_label_usd": 4408.75,
+            "n": 37
+          },
+          "top2": {
+            "commit_label_usd": 26843.75,
+            "n": 30
+          }
+        }
+      }
+    },
+    "pooled_vetoed_commit_label_usd": -2110.0,
+    "pooled_vetoed_net_negative": true,
+    "survives": true,
+    "threshold": 0.2
+  },
+  "promotion": "2021 cannot promote",
+  "schema": "QRE2THRESHOLDWALLVETOKILL1",
+  "seed": 20260820,
+  "separation": {
+    "auc_event_not_top2_higher_than_non_event": 0.5769343065693431,
+    "auc_top2_higher_than_event_not_top2": 0.4339659367396594,
+    "auc_top2_higher_than_non_event": 0.5134,
+    "event_not_top2": {
+      "mean": 0.22432645184849495,
+      "n": 137
+    },
+    "field": "wall_probability",
+    "non_event": {
+      "mean": 0.20806670014167497,
+      "n": 100
+    },
+    "top2": {
+      "mean": 0.19994874913390503,
+      "n": 75
+    }
+  },
+  "sources": {
+    "component_matrix": "artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/e1r/curriculum/fits/round_0/component_matrix",
+    "component_matrix_receipt_sha256": "7e9e25887afd99bc26ba5eeccaccc7bd8d504aefd399e9321f06995e8210bb48",
+    "delayed_outcomes": "artifacts/entry_v2/tabular_recovery/rehearsal/cache/outcome_sessions/6f421af32b02ff145d3b1147590f1f2112261b307d0f54f391240f1cdf5cb72f",
+    "event_economics": "artifacts/entry_v2/tabular_recovery/diagnostics/entry_economics_20260823.json",
+    "event_oracle": "artifacts/entry_v2/tabular_recovery/diagnostics/extreme_events_20260823.json"
+  },
+  "status": "OK",
+  "survives": true,
+  "variant_blocks": {
+    "H3": {
+      "pnl_usd": 227.49999999999852,
+      "trades": 142
+    },
+    "H5": {
+      "pnl_usd": 426.2499999999999,
+      "trades": 31
+    },
+    "H7": {
+      "pnl_usd": -2051.2500000000014,
+      "trades": 139
+    }
+  },
+  "wall_clock_sec": 20.683,
+  "workers": 14
+}

@@ -2,24 +2,24 @@
 
 Cursor parent stays **Grok 4.6 xhigh**. Do not set Auto. Auto means inherit parent, so children stay Grok.
 
-pstack seats (`~/.cursor/rules/pstack-models.mdc`). Fable for judgment and how explainer. Sol for specified implementation. Grok for fast code and how explorer.
+pstack seats (`~/.cursor/rules/pstack-models.mdc`). Divvy by role. Fable max for judgment, discussion, and how explainer. Grok 4.6 xhigh-fast for small code, how explorers, and swarm workers. Sol max only for specified hard implementation, hillclimb attempts, and gnarly wiring. Do not send every task to Sol.
 
 Account slugs from `cursor-agent models`. Fable `claude-fable-5-thinking-max` (also `thinking-xhigh`). Sol `gpt-5.6-sol-max` (also `xhigh`). Prefix is `thinking-<effort>` or `name-<effort>`. OpenCode uses `provider/model#variant`.
 
-This chat's Task widget may only list `claude-fable-5-thinking-high` and `gpt-5.6-sol-medium`. When the seat is max, run `cursor-agent --model claude-fable-5-thinking-max` or `--model gpt-5.6-sol-max`. Do not inherit Grok for those seats. If the UI shows no Fable/Sol Task cards, only Grok is billed.
+Fable seats are `claude-fable-5-thinking-max`. Sol seats are `gpt-5.6-sol-max`. Do not inherit Grok for those seats.
 
 Always start with `/poteto-mode`. Do not type `/architect` or `/figure-it-out` unless you are overriding the match.
 
 ## Current (2026-08-26)
 
-Overnight diagnosis is on disk. Do not re-walk tickets. Do not predict the action matrices again unless `.audit/threshold-head-labels-20260826.json` is missing.
+Do not walk tickets. Do not treat 45/47/54, forward-vol, or regime as the answer. Do not start another ENTER-weight refit. Old tickets and recovery-plan sequences are prior attempts. The goal is exact-replay rungs. The method is whatever survives a fresh bottleneck check.
 
-- Cause. `e1r_regret_head_never_prefers_enter_on_any_walked_window`
-- Replay. $0 / 0 trades. `.../E1R_raw_THRESHOLD/real/seed_20260820/raw_block.json`
-- Path. `.audit/threshold-path-to-rungs.md`
-- Head-label. OOF ENTER-min is 0-2 rows. Frozen-all peaks at 0.15% against a 7.70% label rate. Feature-mismatch kill did not fire.
-
-Next implementable work waits for the human. One recorded fork is a single refit of this head family. Another is retire E1R. That pair is a product call, not an exhaustion proof. Overnight must not AskQuestion and must not refit.
+- Goal. HG 2000 / NKD 1500 / SI 1500 per asset-day, MDD under 1000, at most 12 entries, one contract. Dollars per trade, not count. 2021 can kill. 2021 cannot promote. 2025H2 sealed. 2025H1 is allowed if a later window is earned.
+- Closed this morning. Action-head H1-H7. ENTER works. Dollars per trade do not. H5 is the only dollar-positive sparse book (+426.25, max 3). H7 filled the cap and lost. Receipts under `.audit/threshold-refit-h*.json`.
+- Top-2 join. `.audit/threshold-h5-top2.json`. Walked top-2 names pay about +$600/tr. Walked event names below top-2 pay about -$400/tr. H5's +$426 is non-event noise.
+- Roster is closed. `.audit/threshold-roster-kill.json` status `KILL`. Do not recombine those four fields. Do not wire roster into walk state.
+- Ceiling is already known. Do not re-prove it. Capture miss is the live unit. `.audit/threshold-capture-gap.json` verdict MISS. Earliest=best 149/1732 (8.6%). Winner mean rank 28 of 105. Latest and cheapest also miss. Next is one live G1 scalar that is not time or cost. Ticket 47 waits. Teacher-cash still cannot promote. Loop stays off.
+- Log. `.audit/threshold-hillclimb.tsv`
 
 ## 1. Diagnosis (Investigation)
 

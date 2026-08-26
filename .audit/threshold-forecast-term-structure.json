@@ -1,0 +1,378 @@
+{
+  "arm_catalogs": {
+    "catboost": [
+      "intraday_30",
+      "intraday_180",
+      "intraday_210",
+      "intraday_240",
+      "intraday_270"
+    ],
+    "ridge": [
+      "intraday_60",
+      "intraday_90",
+      "intraday_120",
+      "intraday_150",
+      "intraday_300",
+      "intraday_330"
+    ]
+  },
+  "arms": {
+    "catboost": {
+      "arm": "catboost",
+      "between_day_cv": 0.7493340592311506,
+      "heads": [
+        "intraday_30",
+        "intraday_180",
+        "intraday_210",
+        "intraday_240",
+        "intraday_270"
+      ],
+      "kill_fixed_curve": false,
+      "kill_flat_level": false,
+      "median_within_day_cv": 0.4556986419665698,
+      "n_days": 557,
+      "n_dropped_groups": 20,
+      "n_groups": 2101,
+      "n_heads": 5,
+      "normalized_across_day_cv": 0.190642580094184,
+      "normalized_across_day_cv_by_head": {
+        "intraday_180": 0.190642580094184,
+        "intraday_210": 0.1803585574136641,
+        "intraday_240": 0.18320703578010683,
+        "intraday_270": 0.29363708473727024,
+        "intraday_30": 0.3285618217469617
+      },
+      "p90_within_day_cv": 0.6706248014217207,
+      "ratio_normalized_to_within": 0.4183523112367967,
+      "ratio_within_to_between": 0.6081381679542719
+    },
+    "ridge": {
+      "arm": "ridge",
+      "between_day_cv": 0.7111653211087204,
+      "heads": [
+        "intraday_60",
+        "intraday_90",
+        "intraday_120",
+        "intraday_150",
+        "intraday_300",
+        "intraday_330"
+      ],
+      "kill_fixed_curve": false,
+      "kill_flat_level": false,
+      "median_within_day_cv": 0.3754884519494616,
+      "n_days": 557,
+      "n_dropped_groups": 20,
+      "n_groups": 2101,
+      "n_heads": 6,
+      "normalized_across_day_cv": 0.22278897828985988,
+      "normalized_across_day_cv_by_head": {
+        "intraday_120": 0.1583023658807699,
+        "intraday_150": 0.15316531663540764,
+        "intraday_300": 0.7960311986453116,
+        "intraday_330": 0.7277918425894158,
+        "intraday_60": 0.24125723817738082,
+        "intraday_90": 0.20432071840233895
+      },
+      "p90_within_day_cv": 0.5052795950386462,
+      "ratio_normalized_to_within": 0.5933311054792328,
+      "ratio_within_to_between": 0.5279903853636562
+    }
+  },
+  "check_command": "python3 .audit/score_forecast_term_structure.py",
+  "definitions": {
+    "arm_catalog": "This TSV publishes complementary heads per arm. A named-arm group is complete when it has every head that arm publishes in the window. Zero (arm, fold, day) groups have all 11 heads.",
+    "between_day_cv": "CV across days of the day's median after collapsing folds by per-head median",
+    "ratio_normalized_to_within": "median per-head across-day CV of day-median-normalized vectors / median_within_day_cv",
+    "ratio_within_to_between": "median_within_day_cv / between_day_cv",
+    "service": "Pooled (fold, day) 11-head curve. Reported. The two-arm verdict does not use it.",
+    "within_day_cv": "CV of forecast_variance across one (arm, fold, day) group's published heads"
+  },
+  "dollar_stop": null,
+  "dropped_groups": {
+    "by_reason": {
+      "incomplete_catalog": 40
+    },
+    "examples": [
+      {
+        "arm": "catboost",
+        "day": "2022-11-25",
+        "heads": [
+          "intraday_30",
+          "intraday_180"
+        ],
+        "outer_fold": 2,
+        "reason": "incomplete_catalog"
+      },
+      {
+        "arm": "catboost",
+        "day": "2022-11-25",
+        "heads": [
+          "intraday_30",
+          "intraday_180"
+        ],
+        "outer_fold": 3,
+        "reason": "incomplete_catalog"
+      },
+      {
+        "arm": "catboost",
+        "day": "2022-11-25",
+        "heads": [
+          "intraday_30",
+          "intraday_180"
+        ],
+        "outer_fold": 4,
+        "reason": "incomplete_catalog"
+      },
+      {
+        "arm": "catboost",
+        "day": "2023-07-03",
+        "heads": [
+          "intraday_30",
+          "intraday_180"
+        ],
+        "outer_fold": 4,
+        "reason": "incomplete_catalog"
+      },
+      {
+        "arm": "catboost",
+        "day": "2023-11-24",
+        "heads": [
+          "intraday_30",
+          "intraday_180"
+        ],
+        "outer_fold": 4,
+        "reason": "incomplete_catalog"
+      },
+      {
+        "arm": "catboost",
+        "day": "2022-11-25",
+        "heads": [
+          "intraday_30",
+          "intraday_180"
+        ],
+        "outer_fold": 5,
+        "reason": "incomplete_catalog"
+      },
+      {
+        "arm": "catboost",
+        "day": "2023-07-03",
+        "heads": [
+          "intraday_30",
+          "intraday_180"
+        ],
+        "outer_fold": 5,
+        "reason": "incomplete_catalog"
+      },
+      {
+        "arm": "catboost",
+        "day": "2023-11-24",
+        "heads": [
+          "intraday_30",
+          "intraday_180"
+        ],
+        "outer_fold": 5,
+        "reason": "incomplete_catalog"
+      }
+    ],
+    "n": 40
+  },
+  "intraday_heads": [
+    "intraday_30",
+    "intraday_60",
+    "intraday_90",
+    "intraday_120",
+    "intraday_150",
+    "intraday_180",
+    "intraday_210",
+    "intraday_240",
+    "intraday_270",
+    "intraday_300",
+    "intraday_330"
+  ],
+  "kill_bar": {
+    "fixed_curve": "across-day CV of day-median-normalized values under 10% of within-day CV on both arms",
+    "flat_level": "median within-day CV under 10% of between-day CV on both arms",
+    "fraction": 0.1,
+    "stated_before_scan": true
+  },
+  "kill_fixed_curve": false,
+  "kill_flat_level": false,
+  "n_groups_with_all_11_per_arm": 0,
+  "n_join_intraday_days": 563,
+  "n_source_rows": 37427,
+  "n_window_daily_rows": 2126,
+  "n_window_intraday_rows": 23231,
+  "schema": "QRE2THRESHOLDFCASTTERM1",
+  "service": {
+    "arm": "service",
+    "between_day_cv": 0.7199980144286419,
+    "heads": [
+      "intraday_30",
+      "intraday_60",
+      "intraday_90",
+      "intraday_120",
+      "intraday_150",
+      "intraday_180",
+      "intraday_210",
+      "intraday_240",
+      "intraday_270",
+      "intraday_300",
+      "intraday_330"
+    ],
+    "kill_fixed_curve": false,
+    "kill_flat_level": false,
+    "median_within_day_cv": 0.44354625922929364,
+    "n_days": 557,
+    "n_dropped_groups": 20,
+    "n_groups": 2101,
+    "n_heads": 11,
+    "normalized_across_day_cv": 0.27559195015603805,
+    "normalized_across_day_cv_by_head": {
+      "intraday_120": 0.2536335096881856,
+      "intraday_150": 0.20808483737459796,
+      "intraday_180": 0.18320997101129352,
+      "intraday_210": 0.27559195015603805,
+      "intraday_240": 0.31603879134097107,
+      "intraday_270": 0.4104317026079545,
+      "intraday_30": 0.2998391632043426,
+      "intraday_300": 0.6620466450190775,
+      "intraday_330": 0.5472711916410847,
+      "intraday_60": 0.26570180620492245,
+      "intraday_90": 0.26565545510561434
+    },
+    "p90_within_day_cv": 0.6213231657953115,
+    "ratio_normalized_to_within": 0.6213375593222381,
+    "ratio_within_to_between": 0.616038170023666
+  },
+  "service_dropped_groups": {
+    "by_reason": {
+      "incomplete_11": 20
+    },
+    "examples": [
+      {
+        "arm": "service",
+        "day": "2022-11-25",
+        "heads": [
+          "intraday_30",
+          "intraday_60",
+          "intraday_90",
+          "intraday_120",
+          "intraday_150",
+          "intraday_180"
+        ],
+        "outer_fold": 2,
+        "reason": "incomplete_11"
+      },
+      {
+        "arm": "service",
+        "day": "2022-11-25",
+        "heads": [
+          "intraday_30",
+          "intraday_60",
+          "intraday_90",
+          "intraday_120",
+          "intraday_150",
+          "intraday_180"
+        ],
+        "outer_fold": 3,
+        "reason": "incomplete_11"
+      },
+      {
+        "arm": "service",
+        "day": "2022-11-25",
+        "heads": [
+          "intraday_30",
+          "intraday_60",
+          "intraday_90",
+          "intraday_120",
+          "intraday_150",
+          "intraday_180"
+        ],
+        "outer_fold": 4,
+        "reason": "incomplete_11"
+      },
+      {
+        "arm": "service",
+        "day": "2023-07-03",
+        "heads": [
+          "intraday_30",
+          "intraday_60",
+          "intraday_90",
+          "intraday_120",
+          "intraday_150",
+          "intraday_180"
+        ],
+        "outer_fold": 4,
+        "reason": "incomplete_11"
+      },
+      {
+        "arm": "service",
+        "day": "2023-11-24",
+        "heads": [
+          "intraday_30",
+          "intraday_60",
+          "intraday_90",
+          "intraday_120",
+          "intraday_150",
+          "intraday_180"
+        ],
+        "outer_fold": 4,
+        "reason": "incomplete_11"
+      },
+      {
+        "arm": "service",
+        "day": "2022-11-25",
+        "heads": [
+          "intraday_30",
+          "intraday_60",
+          "intraday_90",
+          "intraday_120",
+          "intraday_150",
+          "intraday_180"
+        ],
+        "outer_fold": 5,
+        "reason": "incomplete_11"
+      },
+      {
+        "arm": "service",
+        "day": "2023-07-03",
+        "heads": [
+          "intraday_30",
+          "intraday_60",
+          "intraday_90",
+          "intraday_120",
+          "intraday_150",
+          "intraday_180"
+        ],
+        "outer_fold": 5,
+        "reason": "incomplete_11"
+      },
+      {
+        "arm": "service",
+        "day": "2023-11-24",
+        "heads": [
+          "intraday_30",
+          "intraday_60",
+          "intraday_90",
+          "intraday_120",
+          "intraday_150",
+          "intraday_180"
+        ],
+        "outer_fold": 5,
+        "reason": "incomplete_11"
+      }
+    ],
+    "n": 20
+  },
+  "sources": {
+    "forecasts": "artifacts/runs/e6_vol_forecasts_v2/vol_service_forecasts.tsv"
+  },
+  "status": "OK",
+  "survives": true,
+  "verdict": "SURVIVE",
+  "wall_clock_sec": 0.219,
+  "window": [
+    "2022-10-02",
+    "2024-12-31"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "bundle": "artifacts/cache/threshold_refit/multiclass/seed_20260820/FROZEN_Q3_E8/action_MultiClass",
+  "bundle_receipt_sha256": "bef1403e7435d4526c061f43d106fb38c95017187400bbd128e98af2ad353c5d",
+  "check_command": "python3 .audit/refit_e1r_action_head.py",
+  "fitted_this_run": true,
+  "healthy_on_validation": false,
+  "hypothesis": "H1_MultiClass_same_chronology",
+  "objective": "MultiClass",
+  "schema": "QRE2THRESHOLDREFITH1",
+  "score_days": [
+    20210712,
+    20210831
+  ],
+  "seed": 20260820,
+  "slices": {
+    "all_rows": {
+      "label_enter_count": 1657,
+      "label_enter_rate": 0.07697310354438612,
+      "n_rows": 21527,
+      "pred_enter_count": 247,
+      "pred_enter_rate": 0.01147396293027361
+    },
+    "score_range": {
+      "label_enter_count": 1088,
+      "label_enter_rate": 0.0768090363572185,
+      "n_rows": 14165,
+      "pred_enter_count": 127,
+      "pred_enter_rate": 0.008965760677726791
+    },
+    "train": {
+      "label_enter_count": 161,
+      "label_enter_rate": 0.032783547139075546,
+      "n_rows": 4911,
+      "pred_enter_count": 90,
+      "pred_enter_rate": 0.01832620647525962
+    },
+    "validation": {
+      "label_enter_count": 408,
+      "label_enter_rate": 0.1664626682986536,
+      "n_rows": 2451,
+      "pred_enter_count": 30,
+      "pred_enter_rate": 0.012239902080783354
+    }
+  },
+  "train_days": [
+    20210610,
+    20210701
+  ],
+  "validation_days": [
+    20210702,
+    20210709
+  ]
+}

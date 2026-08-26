@@ -1,0 +1,129 @@
+{
+  "check_command": "python3 .audit/score_threshold_2022_2024_ceiling.py",
+  "dollar_stop": {
+    "applied": "Either line clears all three rungs. Ticket 47 (shard build) becomes the next unit. Its downstream stop, written now. The fitted instrument gets one frozen-rule teacher-cash read on the era. It must post HG at or above 2000, NKD at or above 1500, SI at or above 1500 per asset-day with `max_drawdown_usd` under 1000 and at most 12 entries, or the instrument family dies. A pass there still cannot promote. Promotion needs the one `QRE2TABPOLICYBLOCK2` block that exits `assert_threshold_replay_receipt.py` at 0. 2025H1 stays unread until that walk exists. 2025H2 stays sealed.",
+    "gated_clears_rungs": true,
+    "gated_shortfall_usd": {},
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "ungated_clears_rungs": true,
+    "ungated_shortfall_usd": {},
+    "verbatim": {
+      "KILL": "Both lines miss any rung (HG under 2000, or NKD under 1500, or SI under 1500 `usd_per_asset_day`). Then no within-cell instrument, however good, reaches the rungs on this era under the caps. Ticket 47 as motivated is dead spend, and the covering answer is one line: nothing remaining covers the rungs.",
+      "PROCEED": "Either line clears all three rungs. Ticket 47 (shard build) becomes the next unit. Its downstream stop, written now. The fitted instrument gets one frozen-rule teacher-cash read on the era. It must post HG at or above 2000, NKD at or above 1500, SI at or above 1500 per asset-day with `max_drawdown_usd` under 1000 and at most 12 entries, or the instrument family dies. A pass there still cannot promote. Promotion needs the one `QRE2TABPOLICYBLOCK2` block that exits `assert_threshold_replay_receipt.py` at 0. 2025H1 stays unread until that walk exists. 2025H2 stays sealed."
+    },
+    "verdict": "PROCEED"
+  },
+  "gated": {
+    "cash_total_usd": {
+      "HG": 543513.75,
+      "NKD": 740152.5,
+      "SI": 741170.0
+    },
+    "clears_rungs": true,
+    "days": {
+      "HG": 197,
+      "NKD": 194,
+      "SI": 191
+    },
+    "entry_cap": 12,
+    "entry_cap_ok": true,
+    "max_drawdown_usd": 0.0,
+    "max_entries_portfolio_day": 9,
+    "overlap_violations": 0,
+    "per_trade_mean_usd": 1171.1025159051476,
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "shortfall_usd": {},
+    "trades": 1729,
+    "usd_per_asset_day": {
+      "HG": 2758.953045685279,
+      "NKD": 3815.2190721649486,
+      "SI": 3880.471204188482
+    }
+  },
+  "label": "exploratory hindsight teacher-cash. It can kill and cannot promote.",
+  "n_forecast_rows_read": 37427,
+  "refused_no_forecast": 0,
+  "refused_no_forecast_days": [],
+  "routed": 708,
+  "rule": "For each era asset-day in 2022-03-09 through 2024-12-31 that is joinable (nonzero candidates file plus a routed forecast day, the killed read's definition), in each cell (asset, d8, phase) take the READY teacher name with maximum `cert_close_usd`, tie-break lexicographically smallest `candidate_id`. Enter it only when that maximum is positive. One contract, at most 12 entries per portfolio day (9 natural). A joinable day whose cells all sit at or below zero stays in the denominator at zero cash.",
+  "schema": "QRE2THRESHOLD20222024CEILING1",
+  "selected": 198,
+  "sources": {
+    "candidates_root": "artifacts/cache/port/entry_v2/g1/candidates",
+    "forecasts": {
+      "path": "artifacts/runs/e6_vol_forecasts_v2/vol_service_forecasts.tsv",
+      "sha256": "9bea40ac23749bf5f39e8147e96db45c651c140c5fc1573fec8e036c2b7b7a2c"
+    },
+    "freeze": {
+      "path": ".audit/threshold-2022-2024-freeze.md",
+      "sha256": "730fa98017e1e37532f0d4b0b0d209dc4d7512c3dbb752d95467086f4ff3854d"
+    },
+    "killed_read": {
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "max_drawdown_usd": 95281.25,
+      "path": ".audit/threshold-2022-2024-read.json",
+      "per_trade_mean_usd": -36.85697808535179,
+      "sha256": "2f988fe93d895b06f01f64fa9191c4c4827e370312219dfd4c563b46dea6a891",
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -99.0989847715736,
+        "NKD": -68.80154639175258,
+        "SI": -162.5130890052356
+      },
+      "verdict": "KILL"
+    },
+    "receipts_root": "artifacts/cache/port/entry_v2/g1/receipts",
+    "teacher_root": "artifacts/cache/port/entry_v2/g1/teacher"
+  },
+  "status": "PROCEED",
+  "ungated": {
+    "cash_total_usd": {
+      "HG": 1712500.0,
+      "NKD": 2104837.5,
+      "SI": 2340970.0
+    },
+    "clears_rungs": true,
+    "days": {
+      "HG": 693,
+      "NKD": 685,
+      "SI": 662
+    },
+    "entry_cap": 12,
+    "entry_cap_ok": true,
+    "max_drawdown_usd": 0.0,
+    "max_entries_portfolio_day": 9,
+    "overlap_violations": 0,
+    "per_trade_mean_usd": 1016.8935766182299,
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "shortfall_usd": {},
+    "trades": 6056,
+    "usd_per_asset_day": {
+      "HG": 2471.1399711399713,
+      "NKD": 3072.7554744525546,
+      "SI": 3536.2084592145015
+    }
+  },
+  "verdict": "PROCEED",
+  "wall_clock_sec": 31.297,
+  "window": [
+    "2022-03-09",
+    "2024-12-31"
+  ],
+  "workers": 14
+}

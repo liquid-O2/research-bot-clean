@@ -1,0 +1,35 @@
+{
+  "action_roster_receipt_sha256": "1b06b947a6fe9f60ec82050960d1ead065f2529bfb9d4eba8de45f8925abdf15",
+  "block": "artifacts/cache/threshold_refit/replay/H7_raw_THRESHOLD/real/seed_20260820/raw_block.json",
+  "block_receipt_sha256": "a430a93d518ce1b1f84e7971eb69f27b7c219acd09c10ad93c6d7a721d88cbee",
+  "check_command": "ENTRY_V2_DENSE_STORE=artifacts/entry_v2/tabular_recovery/dense_store ENTRY_V2_PREDICT_THREADS=16 python3 .audit/replay_threshold_h3.py --h7-official-enter",
+  "clears_rungs": false,
+  "entries_by_day": [
+    12,
+    12,
+    12,
+    9,
+    12,
+    12,
+    11,
+    11,
+    6,
+    10,
+    11,
+    9,
+    12
+  ],
+  "gate_target_pass": false,
+  "hypothesis": "H7_MultiClass_official_E1R_enter_balance_THRESHOLD_RAW",
+  "max_drawdown_usd": 9050.000000000002,
+  "max_entries_portfolio_day": 12,
+  "schema": "QRE2THRESHOLDREFITH7REPLAY1",
+  "seed": 20260820,
+  "total_pnl_usd": -2051.2500000000014,
+  "trades": 139,
+  "usd_per_asset_day": {
+    "HG": 469.71153846153845,
+    "NKD": -25.192307692307693,
+    "SI": -602.3076923076925
+  }
+}

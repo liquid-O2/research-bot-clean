@@ -64,4 +64,4 @@ Overnight diagnosis is done. The path is the four units above. Do not invent a f
 
 ## Seats
 
-Parent Grok 4.6 xhigh. Judgment Fable `claude-fable-5-thinking-max` via `cursor-agent --model` when Task rejects the slug. Specified work Sol `gpt-5.6-sol-max`. Do not inherit Grok for those seats.
+Parent Grok 4.6 xhigh. Judgment Fable `claude-fable-5-thinking-max`. Specified work Sol `gpt-5.6-sol-max`. Do not inherit Grok for those seats.

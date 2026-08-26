@@ -478,6 +478,67 @@ New memories land here, newest last.
 - 2026-08-24 #239 CODEX LIFECYCLE CHECKPOINT. Commits 60a4f0e, ce7f4b6, 2dcb6fc, and 3cbd805 pass 93 harness tests, 13 archive tests, 41 canaries, hook trust, clean-code, no-comments, and xhigh Standards and Spec reviews.
 - 2026-08-24 #240 CLAUDE HOOK CHECKPOINT. Commits 42910d6 and c164a28 fix imports, engage, compact restore, child packets and archives, Stop isolation, scope binding, shell reads, and non-mutating checks. Claude 43 and Codex 41 canaries pass; native Claude SessionStart passed.
 - 2026-08-24 #241 HOOK DELIVERY. Codex and Claude now require contiguous engage chunks, fail open on startup faults, use client-specific memory roots, and pass 41/43 canaries. Export commit 4f6b7ca and target 33ed86b pass clean-install lifecycle proof and xhigh review.
+- 2026-08-24 #242 Leftover METHOD.json files under .unlazy/claude-installer-tests and .unlazy/hook-read-classifier-fix make unscoped Codex writes fail with found-2. Name a new kebab-case scope for this work. Engage one of those two only to continue it.
+- 2026-08-24 #243 USER PLAN RULE. Treat forward volatility and regime conditioning as hypotheses, not the answer. Re-audit the causal bottleneck and compare other paths that can reach the fixed exact-replay goal.
+- 2026-08-24 #244 USER SCIENCE RULE. Seek novel causal ways to realize the oracle. Each path must add identifiable information and state its falsifier; do not repeat broad column scans followed by null verdicts.
+- 2026-08-24 #245 USER TIMING RULE. Entry need not occur at candidate formation. A short causal confirmation wait is allowed; diagnose the evolving confirmation state instead of forcing formation-time prediction.
+- 2026-08-24 #246 HOOK PLAN DECISION. Keep the plan-flow artifact-classification repair separate from Entry V2. Allow method-required planning ledgers and logs, name the real offending path, and regression-test implement-flow too.
+- 2026-08-24 #247 ENTRY PLAN DEFECT. ENTRY_PLAN_20260823 predates later corrections: the long hold is not the payer, its late label tail is not foundational, and ticket 51 still carries the withdrawn two-entry path.
+- 2026-08-24 #248 MEMORY COMPACT FINDING. PreCompact appends unnumbered blocks under Checkpoints. The tail command and SessionStart inject numbered notes only, so the new checkpoint stays hidden after compact.
+- 2026-08-24 #249 PLUGIN PLAN. Package Pstack route enforcement as pstack-flow-enforcer. Track artifact-backed phases, bound exploration, restore compact state, and gate Stop. Keep repository skills authoritative.
+- 2026-08-24 #250 Grok ignores UserPromptSubmit and SessionStart stdout, so compact cannot re-inject the method packet. Only PreToolUse deny and Stop block survive compaction on Grok. A vanilla pstack plugin is more skill text, not an enforcer.
+- 2026-08-24 #251 Do not install the stock pstack plugin on Grok or Cursor. Repo plan-flow and implement-flow compose Pstack with Pocock. The stock plugin is Pstack-only and would duplicate skills and drop Pocock.
+- 2026-08-24 #252 Cursor will not fix method drift. Stock pstack is skills only. Cursor can inject at sessionStart and follow up on stop, but Remote-SSH dies on disconnect and preCompact cannot restore a packet. FLOW.json plus Stop/PreToolUse remains the enforcement.
+- 2026-08-24 #253 USER POD: remaining credit is one day on the current 263GiB/96GB-VRAM box. Next work is probes not CatBoost. Prefer cheapest pod with at least ~80GiB RAM on the same /workspace volume. 24GiB OOMs. 50GiB is tight. Do not spend that day on a plugin.
+- 2026-08-24 #254 MIGRATE: new pod RTX 4000 Ada 20GB VRAM, 60GB RAM, 16 vCPU, 0.28/hr, new network volume. SSH key algo@workspace-migrate. Copy via rsync over exposed TCP. Keep old pod up until checksum. Do not spend this on a plugin.
+- 2026-08-24 #255 MIGRATE SETUP: recreate original bootstrap. adduser algo --disabled-password, NOPASSWD sudo, fnm/uv/CLIs under algo. Transfer SSH key goes on root only, never algo authorized_keys.
+- 2026-08-24 #256 USER HOST: Cursor Remote-SSH to RunPod is not durable. Cursor local on a git clone for plugin work. Codex CLI on the pod for plan-flow. Grok CLI on the pod for implement-flow. Do not proxy GPT into Grok Build. Do not dump the method packet into AGENTS.md.
+- 2026-08-24 #257 USER CORRECTION. Codex plan-flow still drops the skill after one or two compacts. Host change does not fix that. Science stays on the data box. Enforcement is deny-until-the-current-skill-file-is-read plus Stop until the phase artifact exists.
+- 2026-08-24 #258 USER HOST. Always-on Cursor needs 64-128GB RAM, not a 32GB cloud VPS. GPU jobs can be RunPod Serverless plus Flash with the network volume in the same DC. That does not replace the skill gate.
+- 2026-08-24 #259 RUNPOD S3: rclone 1.58 lists then 401 missing Authorization on PUT. rclone 1.75 SignatureDoesNotMatch on list and put. Zero successful S3 copies. Resume rsync over SSH. Need R2 keys if we switch.
+- 2026-08-24 #260 RUNPOD S3: AWS CLI 1.46 list/put/get works on both volumes. rclone 1.58 PUT presigns, RunPod 401s. rclone 1.75 works with --s3-use-x-id=false --s3-no-head --s3-use-unsigned-payload --s3-disable-checksum --s3-sign-accept-encoding=false. Default copy false-fails on UTC Date. No R2.
+- 2026-08-24 #261 CODEX PLAN: compact SessionStart injects latest_checkpoint() before numbered tail, 11500-byte budget. Skill follow is repo FLOW.json plus read-phase deny/Stop, not a plugin. Residuals: Grok has no compact event; artifact digest does not prove reasoning.
+- 2026-08-24 #262 USER PLUGIN: Codex plugin is Codex-only. Other clients get their own plugins. Do not constrain the Codex plugin to Grok SessionStart/PreToolUse behavior.
+- 2026-08-24 #263 S3 COPY: killed SSH rsync. AWS CLI 1.46 put/get works without checksum env; 128MiB put in 5.4s. rclone 1.75 needs --no-check-dest plus --s3-no-head. Started aws s3 sync 32-wide to lqwu1nidn5 excluding cache/venv.
+- 2026-08-24 #264 USER CURSOR: wants Grok implement + GPT 5.6 plan in one UI. macOS Remote-SSH drops on idle. Cursor CLI or agent worker on the pod can outlive the laptop. Do not use Cursor Remote-SSH as the science runtime.
+- 2026-08-24 #265 TAILSCALE: worth it on the pod for a stable 100.x hop that skips RunPod public TCP idle kills. Persist state on /workspace, userspace-networking, Tailscale SSH. Does not keep a Cursor agent chat alive across macOS sleep.
+- 2026-08-24 #266 GROK LOOP: Outer session is Grok Build on the pod. Sol consults are ephemeral codex exec gpt-5.6-sol. Brief starts with the no-memo sentence, names exact skill files to read, demands an artifact, stays read-only. Parent checks. No long Codex plan-flow. No Cursor science UI.
+- 2026-08-24 #267 PLAN SPLIT: do not run plan-flow in one Codex window. Grok holds the index. Each Sol burst is one playbook step plus an artifact, then dies. Diagnosis needs a falsifier and a veto from a model that did not write it. Hooks are not that veto.
+- 2026-08-24 #268 COPY STOPPED: user halt. Dest 37G from rsync, 18126 files. futures_mbp1 47G not on dest. aws s3 sync listed 19min with read_bytes 0 then killed.
+- 2026-08-24 #269 R2 COPY: rclone 1.75 list/put/get ok on runp. Started copy /workspace -> r2:runp at 64 transfers, exclude venv/node_modules/pycache. Dest wipe waits until this finishes. Keys in /tmp/rclone-r2.conf 0600 only.
+- 2026-08-24 #270 HOOK LAW: no shell-line classifier as the skill gate. Deny production file tools until this session recorded a Read of the current SKILL.md. Stop until the phase artifact hash moves. Leftover METHOD.json must not lock writes. Blocking sed -n of a skill is a bug.
+- 2026-08-24 #271 CODEX 01a0325f: three compacts, replacement_history has no method packet. PreCompact wrote unnumbered Checkpoints 06:28Z. tail() hid them. 26 PreToolUse blocks, mostly rg/git/date/ls. plan-flow denied PLAN.md. Drift after compact 2.
+- 2026-08-24 #272 USER HOOK: current PreToolUse shell classifier is the failure. Keep PreCompact numbered COMPACT notes and Stop-on-phase-file only. Remove Bash PreToolUse. Skill follow is Grok parent plus ephemeral Codex exec, not a packet.
+- 2026-08-24 #273 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived 52bc48c6.
+- 2026-08-24 #274 CODEX GUARD DESIGN: SessionStart restores the exact method packet and latest checkpoint. PreToolUse gates path-aware writes only. Pstack owns phases, and unlazy gates their artifacts. Bash is outside method enforcement.
+- 2026-08-24 #275 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived 6b1b45d5.
+- 2026-08-24 #276 CODEX CONTINUITY DESIGN. METHOD accounts for every principle. Active leaves and dependencies enter the packet. FLOW points to the current source anchor. PreCompact snapshots FLOW. Unlazy gates Stop only for the session-bound scope.
+- 2026-08-24 #277 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived 9113f292.
+- 2026-08-24 #278 USER CONTINUITY STANDARD. Fresh planning, plan-to-implementation handoff, and repeated compaction must preserve exact methods without blocking valid commands or production paths. Test failure and recovery paths durably.
+- 2026-08-24 #279 CODEX FILE POLICY. Remove per-file write authorization. Enforce route readiness, exact sources, anchored workflow progress, compact receipts, explicit continuation, and session-scoped completion evidence.
+- 2026-08-24 #280 CODEX EXECUTION ENFORCEMENT. Exact source injection is entry only. FLOW must track required methods and evidence-gated frame receipts. Transitions validate artifacts, checks, and principle decisions. Stop rejects missing receipts.
+- 2026-08-24 #281 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived 27f4bde8.
+- 2026-08-24 #282 CODEX ENFORCEMENT POLICY. Deterministic FLOW validation is the blocking authority. Model review may advise but cannot gate hooks because availability and verdicts vary. Phase entry and exit require exact method, principle, artifact, and check receipts.
+- 2026-08-24 #283 METHOD MODEL CORRECTION. Principle assignment alone is too weak. Enforcement must cover outer workflows, standing laws such as clean-code, every selected nested method, explicit exclusions, exact source-anchored step obligations, and evidence-gated transitions.
+- 2026-08-24 #284 PRINCIPLE MODEL CORRECTION. Principles are cross-cutting conditional laws, never owned by one method. Reassess all 21 at each transition. Method obligations and principle applicability are separate axes, both restored on compact and checked independently.
+- 2026-08-24 #285 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived fe21adbb.
+- 2026-08-24 #286 COMPACT BINDING. Resume must match the exact numbered PreCompact checkpoint, method packet, FLOW digest, transition epoch, and compact generation. Missing or stale memory keeps repository writes blocked.
+- 2026-08-24 #287 CORRECTION TO #286. Memory freshness is diagnostic, not a write gate. METHOD.json and FLOW.json restore enforcement. Missing or stale checkpoints warn visibly while method recovery and ordinary commands continue.
+- 2026-08-24 #288 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived db70d8e0.
+- 2026-08-24 #289 CODEX LAW MODEL CORRECTION. The 21 count covers only Pstack principle leaves. Preserve a separate per-transition ledger for Pocock design, TDD, test, mocking, writing rules, and Akita additions; workflow steps remain a third axis.
+- 2026-08-24 #290 CODEX EXECUTION CORRECTION. Manual METHOD and FLOW editing is drift. Build one initializer and one transition command before expanding policy. New sessions must generate state from canonical code, never reconstruct JSON schemas from prompts.
+- 2026-08-24 #291 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived e06cca1d.
+- 2026-08-24 #292 CODEX PRINCIPLE USE CORRECTION. Loading sources is not application. Reject generic principle decisions. Compile task-specific plain-language assessments into METHOD and FLOW before engagement.
+- 2026-08-24 #293 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived 367632ee.
+- 2026-08-24 #294 CODEX REVIEW GENERATION. PreToolUse appends paths to an external journal. Review runs Akita once and records its byte generation. Stop reads only fixed state and journal size. A race or later write invalidates the receipt.
+- 2026-08-24 #295 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived 5df86eef.
+- 2026-08-24 #296 R2 rclone tail is artifacts/cache/port/m2/era sheet.txt+appendix.txt (~400k regenerable, ~2h rebuild). corpus_2022_2024 is the cache that matters. venvs/logs/probes are not.
+- 2026-08-24 #297 R2 copy killed. rclone purge r2:runp running. nkd-hg/rty/russel untouched. Local tree not deleted.
+- 2026-08-24 #298 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived 91cdd0d8.
+- 2026-08-24 #299 R2 wipe switched to aws s3 rm --recursive on runp. Deletes in flight. Copy remains dead. Other buckets untouched.
+- 2026-08-24 #300 CODEX REPAIR COMPLETE. Stop reads fixed state and journal size. Explicit review scans paths. Clear drops prior scope. Compact restore reloads exact methods and workflow. All 26 gates and 44 installed Codex canaries pass.
+- 2026-08-24 #301 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived dacd08ca.
+- 2026-08-24 #302 CORRECTION TO #300. Deadline coverage was incomplete. UserPromptSubmit and SubagentStart exceeded Codex limits. G27 reopened completion for bounded automatic hook work.
 
 ## Checkpoints
 
@@ -620,3 +681,4596 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - cwd: /workspace
 - transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/17/17958eeebf06e43c33ecd3e12c4eb37a1f0ad0a3485f916877a20824c0395f88.jsonl
 - SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T06:28:06Z
+
+- session: 01a0325f-07d6-7af0-9787-40636fb961dc
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/ae/ae9b8363e11762bb8bdf584bb3538acffa97866e1a63ad3b6508926046aedfd4.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T06:32:11Z
+
+- session: 01a0325f-07d6-7af0-9787-40636fb961dc
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/88/882db2a1fdbfd11c9bf28b5517035fafdd3b159cb996e2fba285b555f9cd39bc.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T06:32:56Z
+
+- session: 01a0325f-07d6-7af0-9787-40636fb961dc
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/04/046b016d2940dc5be8c250f1e956a439ea7bb50f68d47a2f333756425a6f28cf.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T06:46:30Z
+
+- session: 01a0325f-07d6-7af0-9787-40636fb961dc
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/82/8274393b5fa966c5f528dfbf6d3a21460aaa3334d5e53dcd7cc5152425aeffb1.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T06:54:10Z
+
+- session: 01a0325f-07d6-7af0-9787-40636fb961dc
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/0e/0eeb9c15bab1396bdfea24f2a93675643c7d4603a8cb88dd2d75b6909cda15d9.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T07:05:24Z
+
+- session: 01a0325f-07d6-7af0-9787-40636fb961dc
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/e5/e564661d9a0553cc1997fd5aacfe22f60ad14986cd0ac3338d2ca7af7ca5f31f.jsonl
+- SessionStart restores the exact method packet before compact continuation
+
+### 2026-08-24T10:03:56Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/52/52bc48c634fd1721d9ffba95ab2ccf2b29dcede38765427bd04e9bff8af74f05.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+
+### 2026-08-24T10:22:40Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/6b/6b1b45d57355f5ea7986d9449560fea93ab7ae251efbb18335eca278625d2c11.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: compact-ledger-repair
+- method packet: cce37cdf3f2618f582a9aa9e5df366242001d859b92b86d82bf8913161dd4733
+
+### 2026-08-24T10:34:24Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/91/9113f292113edf139b9127d12bfc9367274d11c652348fc03799e786fa9148a8.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: compact-ledger-repair
+- method packet: 34ac3e85a3216243c86186abb6dc6be8614082282408479255d740b68cba9886
+
+### 2026-08-24T11:02:32Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/27/27f4bde8231807fe787dc75f7fe0f139d8e133b64bfeb75e152c3abd847dbdb9.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: compact-ledger-repair
+- method packet: b19037df5ffa143e909be50870d3dbc9b2d35e67d2293f513a0d45b4dd4a264e
+- flow digest: fb21ce98c6a99b01685a5564e0515840fd0043e9125d6f464c6e0fd2092c214c
+- workflow frame: playbook:bug-fix at 4. Verify on the same surface; the original repro now passes.
+- workflow frame: architect at ## Phase D: Implement against the sketch
+- workflow frame: implement:pristine at Run typechecking regularly, single test files regularly, and the full test suite once at the end.
+- workflow frame: pocock-tdd:pristine at Red before green.
+- next action: Finish the memory lifecycle, install the Codex hooks, and run the failure matrix.
+- compact note: #281
+
+### 2026-08-24T11:26:55Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/fe/fe21adbb3f57bdea58f84a54ed76d7925d546682408154505664ca4655d0d85c.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: compact-ledger-repair
+- method packet: 0cd027b6aab61b05833c5b2a613eff82081f5fc1a84e6ce9ea5a5152a21f8c64
+- flow digest: 80e87a833743f2b236dec496d2036f7acc1c456a75521854f8aabbf79dfd3bd8
+- workflow frame: playbook:bug-fix at 4. Verify on the same surface; the original repro now passes.; methods: implement-flow, poteto-mode, playbook:bug-fix, unlazy, diagnosing-bugs
+- workflow frame: architect at ## Phase D: Implement against the sketch; methods: domain-modeling, architect, codebase-design
+- workflow frame: implement:pristine at Run typechecking regularly, single test files regularly, and the full test suite once at the end.; methods: clean-code-for-agents, unslop, writing-for-agents, tdd, implement, deslop, technical-writing
+- workflow frame: pocock-tdd:pristine at Red before green.; methods: pocock-tdd
+- workflow frame: code-review at ### 5. Aggregate; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: diagnosing-bugs is active
+- method receipt: architect is active
+- method receipt: codebase-design is active
+- method receipt: tdd is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- method receipt: deslop is active
+- method receipt: technical-writing is active
+- workflow obligation: route-implement-flow is active
+- workflow obligation: poteto-non-negotiables is active
+- workflow obligation: bug-fix-verify is active
+- workflow obligation: unlazy-final-audit is active
+- workflow obligation: clean-code-akita is active
+- workflow obligation: unslop-visible-writing is active
+- workflow obligation: writing-agent-docs is active
+- workflow obligation: domain-obligation-model is active
+- workflow obligation: diagnosis-tight-loop is active
+- workflow obligation: architect-implement is active
+- workflow obligation: design-deep-module is active
+- workflow obligation: pstack-tdd-loop is active
+- workflow obligation: pocock-tdd-rules is active
+- workflow obligation: pocock-implement-checks is active
+- workflow obligation: review-two-axes is active
+- workflow obligation: deslop-diff is active
+- workflow obligation: technical-writing-review is active
+- next action: Finish the obligation validator, install the Codex hooks, and run every transition and compact failure canary.
+- compact note: #285
+
+### 2026-08-24T11:49:21Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/db/db70d8e05b8ebd4f352dd46b201721c7dd7de8d6bc3ed3dd1db6dce9bffc20e7.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- method checkpoint error: ValueError: METHOD.json changed under compact-ledger-repair. Run engage again.
+- compact note: #288
+
+### 2026-08-24T12:08:11Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/e0/e06cca1de50e3749e9beaf83abccf7664e66b68bfd17b80b4970ae899a512a5c.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- compact note: #291
+
+### 2026-08-24T12:41:01Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/36/367632ee2b4fef399d786739bb291d53f062ed68cb189eeb731fc867591890f2.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: compact-ledger-repair
+- method packet: ed956f6d6c355ad12e2179a782d12d531b60ac36f0f5aab9df02389a7c2e49c5
+- flow digest: 770f9c6cb4b838ffe6ee338c7c3ff97a230986357336eac58820628ed50bbb68
+- transition epoch: 5
+- workflow frame: playbook:bug-fix at 4. Verify on the same surface; the original repro now passes.; methods: implement-flow, poteto-mode, playbook:bug-fix, unlazy, diagnosing-bugs
+- workflow frame: architect at ## Phase D: Implement against the sketch; methods: domain-modeling, architect, codebase-design
+- workflow frame: implement:pristine at Run typechecking regularly, single test files regularly, and the full test suite once at the end.; methods: clean-code-for-agents, unslop, writing-for-agents, tdd, implement, deslop, technical-writing
+- workflow frame: pocock-tdd:pristine at Red before green.; methods: pocock-tdd
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: diagnosing-bugs is active
+- method receipt: architect is active
+- method receipt: codebase-design is active
+- method receipt: tdd is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- method receipt: deslop is active
+- method receipt: technical-writing is active
+- workflow obligation: route-implement-flow is complete
+- workflow obligation: route-read-playbook is complete
+- workflow obligation: route-keep-standing-laws is complete
+- workflow obligation: route-run-pocock-implement is active
+- workflow obligation: route-preserve-tdd-names is pending
+- workflow obligation: poteto-non-negotiables is active
+- workflow obligation: bug-fix-reproduce is complete
+- workflow obligation: bug-fix-bisect is complete
+- workflow obligation: bug-fix-plan is complete
+- workflow obligation: bug-fix-verify is active
+- workflow obligation: bug-fix-stage-proof is pending
+- workflow obligation: bug-fix-open-pr is pending
+- workflow obligation: unlazy-final-audit is active
+- workflow obligation: clean-code-akita is active
+- workflow obligation: unslop-visible-writing is active
+- workflow obligation: writing-agent-docs is active
+- workflow obligation: domain-obligation-model is active
+- workflow obligation: diagnosis-tight-loop is complete
+- workflow obligation: diagnosis-reproduce-minimise is complete
+- workflow obligation: diagnosis-hypotheses is complete
+- workflow obligation: diagnosis-instrument is complete
+- workflow obligation: diagnosis-fix-regression is active
+- workflow obligation: diagnosis-cleanup is pending
+- workflow obligation: architect-ground is complete
+- workflow obligation: architect-sketch is complete
+- workflow obligation: architect-agree is complete
+- workflow obligation: architect-implement is active
+- workflow obligation: architect-scrap is pending
+- workflow obligation: design-deep-module is active
+- workflow obligation: tdd-understand is complete
+- workflow obligation: tdd-choose-check is complete
+- workflow obligation: tdd-write-red is complete
+- workflow obligation: tdd-run-red is complete
+- workflow obligation: tdd-fix is active
+- workflow obligation: tdd-run-green is pending
+- workflow obligation: tdd-nearby-validation is pending
+- workflow obligation: pocock-tdd-rules is active
+- workflow obligation: pocock-implement-checks is active
+- workflow obligation: review-pin-fixed-point is active
+- workflow obligation: review-find-spec is pending
+- workflow obligation: review-find-standards is pending
+- workflow obligation: review-run-axes is pending
+- workflow obligation: review-two-axes is pending
+- workflow obligation: deslop-diff is active
+- workflow obligation: technical-writing-review is active
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-fix-root-causes, principle-laziness-protocol, principle-prove-it-works, principle-sequence-verifiable-units, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-make-operations-idempotent, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-subtract-before-you-add, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-structure, akita-formatting
+- next action: Re-engage transition three, add the fresh-task isolation regression, then run focused hook checks.
+- compact note: #293
+
+### 2026-08-24T13:20:38Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/5d/5df86eef00d3e6d65cba89d62adb9fa493aa45b842d79f93fe231760ab65800f.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- method checkpoint error: ValueError: GATES.md changed under compact-ledger-repair. Run engage again.
+- compact note: #295
+
+### 2026-08-24T14:03:59Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/91/91cdd0d87af1343ad5ac455a7a02d3a3439a65a87e8927309c4a02f7fa98ad29.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: compact-ledger-repair
+- method packet: 8f635fa924acd629652b66dab22133bedec5847a42523e542539d024c3b5f4ba
+- flow digest: e914b28e16001c8d42b698e03e1432da89f978e2752d0abaa284726ba354cd8c
+- transition epoch: 8
+- workflow frame: playbook:bug-fix at 4. Verify on the same surface; the original repro now passes.; methods: implement-flow, poteto-mode, playbook:bug-fix, unlazy, diagnosing-bugs
+- workflow frame: architect at ## Phase D: Implement against the sketch; methods: domain-modeling, architect, codebase-design
+- workflow frame: implement:pristine at Run typechecking regularly, single test files regularly, and the full test suite once at the end.; methods: clean-code-for-agents, unslop, writing-for-agents, tdd, implement, deslop, technical-writing
+- workflow frame: pocock-tdd:pristine at Red before green.; methods: pocock-tdd
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: diagnosing-bugs is active
+- method receipt: architect is active
+- method receipt: codebase-design is active
+- method receipt: tdd is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- method receipt: deslop is active
+- method receipt: technical-writing is active
+- workflow obligation: route-implement-flow is complete
+- workflow obligation: route-read-playbook is complete
+- workflow obligation: route-keep-standing-laws is complete
+- workflow obligation: route-run-pocock-implement is active
+- workflow obligation: route-preserve-tdd-names is pending
+- workflow obligation: poteto-non-negotiables is active
+- workflow obligation: bug-fix-reproduce is complete
+- workflow obligation: bug-fix-bisect is complete
+- workflow obligation: bug-fix-plan is complete
+- workflow obligation: bug-fix-verify is active
+- workflow obligation: bug-fix-stage-proof is pending
+- workflow obligation: bug-fix-open-pr is pending
+- workflow obligation: unlazy-final-audit is active
+- workflow obligation: clean-code-akita is active
+- workflow obligation: unslop-visible-writing is active
+- workflow obligation: writing-agent-docs is active
+- workflow obligation: domain-obligation-model is active
+- workflow obligation: diagnosis-tight-loop is complete
+- workflow obligation: diagnosis-reproduce-minimise is complete
+- workflow obligation: diagnosis-hypotheses is complete
+- workflow obligation: diagnosis-instrument is complete
+- workflow obligation: diagnosis-fix-regression is active
+- workflow obligation: diagnosis-cleanup is pending
+- workflow obligation: architect-ground is complete
+- workflow obligation: architect-sketch is complete
+- workflow obligation: architect-agree is complete
+- workflow obligation: architect-implement is active
+- workflow obligation: architect-scrap is pending
+- workflow obligation: design-deep-module is active
+- workflow obligation: tdd-understand is complete
+- workflow obligation: tdd-choose-check is complete
+- workflow obligation: tdd-write-red is complete
+- workflow obligation: tdd-run-red is complete
+- workflow obligation: tdd-fix is active
+- workflow obligation: tdd-run-green is pending
+- workflow obligation: tdd-nearby-validation is pending
+- workflow obligation: pocock-tdd-rules is active
+- workflow obligation: pocock-implement-checks is active
+- workflow obligation: review-pin-fixed-point is active
+- workflow obligation: review-find-spec is pending
+- workflow obligation: review-find-standards is pending
+- workflow obligation: review-run-axes is pending
+- workflow obligation: review-two-axes is pending
+- workflow obligation: deslop-diff is active
+- workflow obligation: technical-writing-review is active
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-fix-root-causes, principle-laziness-protocol, principle-prove-it-works, principle-sequence-verifiable-units, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-make-operations-idempotent, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-subtract-before-you-add, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-structure, akita-formatting
+- next action: Re-engage transition three, add the fresh-task isolation regression, then run focused hook checks.
+- compact note: #298
+
+### 2026-08-24T15:00:52Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/da/dacd08ca21b3d0d741ff902491664723e7ae9547ccc6ef5b6a34292c4ca6e6d5.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- method checkpoint error: ValueError: GATES.md changed under compact-ledger-repair. Run engage again.
+- compact note: #301
+- 2026-08-24 #303 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived 6b8e7bd1.
+
+### 2026-08-24T15:25:24Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/6b/6b8e7bd1cfe7cd636debf245becfb42436d829768a45561f7119eabf250c402e.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: compact-ledger-repair
+- method packet: eb6d753c6889fcb3b802dcdc81e20656b91cf34a0be154991d1b5504d6f86d69
+- flow digest: 6e90dc653e7bf3a42878f2598825c897806580c93aad01f32581a5fd4f4e57ca
+- transition epoch: 9
+- method receipt: implement-flow is complete
+- method receipt: poteto-mode is complete
+- method receipt: playbook:bug-fix is complete
+- method receipt: unlazy is complete
+- method receipt: clean-code-for-agents is complete
+- method receipt: unslop is complete
+- method receipt: writing-for-agents is complete
+- method receipt: domain-modeling is complete
+- method receipt: diagnosing-bugs is complete
+- method receipt: architect is complete
+- method receipt: codebase-design is complete
+- method receipt: tdd is complete
+- method receipt: pocock-tdd is complete
+- method receipt: implement is complete
+- method receipt: code-review is complete
+- method receipt: deslop is complete
+- method receipt: technical-writing is complete
+- workflow obligation: route-implement-flow is complete
+- workflow obligation: route-read-playbook is complete
+- workflow obligation: route-keep-standing-laws is complete
+- workflow obligation: route-run-pocock-implement is complete
+- workflow obligation: route-preserve-tdd-names is complete
+- workflow obligation: poteto-non-negotiables is complete
+- workflow obligation: bug-fix-reproduce is complete
+- workflow obligation: bug-fix-bisect is complete
+- workflow obligation: bug-fix-plan is complete
+- workflow obligation: bug-fix-verify is complete
+- workflow obligation: bug-fix-stage-proof is complete
+- workflow obligation: bug-fix-open-pr is skipped
+- workflow obligation: unlazy-final-audit is complete
+- workflow obligation: clean-code-akita is complete
+- workflow obligation: unslop-visible-writing is complete
+- workflow obligation: writing-agent-docs is complete
+- workflow obligation: domain-obligation-model is complete
+- workflow obligation: diagnosis-tight-loop is complete
+- workflow obligation: diagnosis-reproduce-minimise is complete
+- workflow obligation: diagnosis-hypotheses is complete
+- workflow obligation: diagnosis-instrument is complete
+- workflow obligation: diagnosis-fix-regression is complete
+- workflow obligation: diagnosis-cleanup is complete
+- workflow obligation: architect-ground is complete
+- workflow obligation: architect-sketch is complete
+- workflow obligation: architect-agree is complete
+- workflow obligation: architect-implement is complete
+- workflow obligation: architect-scrap is skipped
+- workflow obligation: design-deep-module is complete
+- workflow obligation: tdd-understand is complete
+- workflow obligation: tdd-choose-check is complete
+- workflow obligation: tdd-write-red is complete
+- workflow obligation: tdd-run-red is complete
+- workflow obligation: tdd-fix is complete
+- workflow obligation: tdd-run-green is complete
+- workflow obligation: tdd-nearby-validation is complete
+- workflow obligation: pocock-tdd-rules is complete
+- workflow obligation: pocock-implement-checks is complete
+- workflow obligation: review-pin-fixed-point is complete
+- workflow obligation: review-find-spec is complete
+- workflow obligation: review-find-standards is complete
+- workflow obligation: review-run-axes is complete
+- workflow obligation: review-two-axes is complete
+- workflow obligation: deslop-diff is complete
+- workflow obligation: technical-writing-review is complete
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-fix-root-causes, principle-laziness-protocol, principle-prove-it-works, principle-sequence-verifiable-units, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-make-operations-idempotent, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-subtract-before-you-add, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-structure, akita-formatting
+- next action: The Codex compact-ledger repair is complete. Start the next task with a fresh route.
+- compact note: #303
+- 2026-08-24 #304 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 archived 133ac8d1.
+
+### 2026-08-24T15:29:25Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/pending/133ac8d1c30f711e248c6e841b72ddd143aad9bf8d2886c7bca03914cb6dd524.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: compact-ledger-repair
+- method packet: eb6d753c6889fcb3b802dcdc81e20656b91cf34a0be154991d1b5504d6f86d69
+- flow digest: 6e90dc653e7bf3a42878f2598825c897806580c93aad01f32581a5fd4f4e57ca
+- transition epoch: 9
+- method receipt: implement-flow is complete
+- method receipt: poteto-mode is complete
+- method receipt: playbook:bug-fix is complete
+- method receipt: unlazy is complete
+- method receipt: clean-code-for-agents is complete
+- method receipt: unslop is complete
+- method receipt: writing-for-agents is complete
+- method receipt: domain-modeling is complete
+- method receipt: diagnosing-bugs is complete
+- method receipt: architect is complete
+- method receipt: codebase-design is complete
+- method receipt: tdd is complete
+- method receipt: pocock-tdd is complete
+- method receipt: implement is complete
+- method receipt: code-review is complete
+- method receipt: deslop is complete
+- method receipt: technical-writing is complete
+- workflow obligation: route-implement-flow is complete
+- workflow obligation: route-read-playbook is complete
+- workflow obligation: route-keep-standing-laws is complete
+- workflow obligation: route-run-pocock-implement is complete
+- workflow obligation: route-preserve-tdd-names is complete
+- workflow obligation: poteto-non-negotiables is complete
+- workflow obligation: bug-fix-reproduce is complete
+- workflow obligation: bug-fix-bisect is complete
+- workflow obligation: bug-fix-plan is complete
+- workflow obligation: bug-fix-verify is complete
+- workflow obligation: bug-fix-stage-proof is complete
+- workflow obligation: bug-fix-open-pr is skipped
+- workflow obligation: unlazy-final-audit is complete
+- workflow obligation: clean-code-akita is complete
+- workflow obligation: unslop-visible-writing is complete
+- workflow obligation: writing-agent-docs is complete
+- workflow obligation: domain-obligation-model is complete
+- workflow obligation: diagnosis-tight-loop is complete
+- workflow obligation: diagnosis-reproduce-minimise is complete
+- workflow obligation: diagnosis-hypotheses is complete
+- workflow obligation: diagnosis-instrument is complete
+- workflow obligation: diagnosis-fix-regression is complete
+- workflow obligation: diagnosis-cleanup is complete
+- workflow obligation: architect-ground is complete
+- workflow obligation: architect-sketch is complete
+- workflow obligation: architect-agree is complete
+- workflow obligation: architect-implement is complete
+- workflow obligation: architect-scrap is skipped
+- workflow obligation: design-deep-module is complete
+- workflow obligation: tdd-understand is complete
+- workflow obligation: tdd-choose-check is complete
+- workflow obligation: tdd-write-red is complete
+- workflow obligation: tdd-run-red is complete
+- workflow obligation: tdd-fix is complete
+- workflow obligation: tdd-run-green is complete
+- workflow obligation: tdd-nearby-validation is complete
+- workflow obligation: pocock-tdd-rules is complete
+- workflow obligation: pocock-implement-checks is complete
+- workflow obligation: review-pin-fixed-point is complete
+- workflow obligation: review-find-spec is complete
+- workflow obligation: review-find-standards is complete
+- workflow obligation: review-run-axes is complete
+- workflow obligation: review-two-axes is complete
+- workflow obligation: deslop-diff is complete
+- workflow obligation: technical-writing-review is complete
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-fix-root-causes, principle-laziness-protocol, principle-prove-it-works, principle-sequence-verifiable-units, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-make-operations-idempotent, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-subtract-before-you-add, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-structure, akita-formatting
+- next action: The Codex compact-ledger repair is complete. Start the next task with a fresh route.
+- compact note: #304
+- 2026-08-24 #305 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 queued 133ac8d1.
+
+### 2026-08-24T15:57:40Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/133ac8d1c30f711e248c6e841b72ddd143aad9bf8d2886c7bca03914cb6dd524-cb26f3cd918f333515e925afe3f7da25.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- compact note: #305
+- 2026-08-24 #306 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 queued 133ac8d1.
+
+### 2026-08-24T16:34:39Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/133ac8d1c30f711e248c6e841b72ddd143aad9bf8d2886c7bca03914cb6dd524-46f5ce5036f717dbfb5d942e8bc4cb5c.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: compact-ledger-repair-final
+- method packet: 7a333976d9ff01bb5cc1dfe011a1226ef6fc83c1807c306f5e22c1869bd2ceb2
+- flow digest: 4902703377bbb5a3c2456d437be75d7ae07e61220c8b46cfab2d1d804cc894e5
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: diagnosing-bugs at ## Phase 1: Build a feedback loop; methods: diagnosing-bugs
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: why at # Why; methods: why
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: tdd at # TDD Bug Fix; methods: tdd
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: diagnosing-bugs is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: why is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: tdd is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: diagnosing-bugs-1 is active
+- workflow obligation: diagnosing-bugs-2 is pending
+- workflow obligation: diagnosing-bugs-3 is pending
+- workflow obligation: diagnosing-bugs-4 is pending
+- workflow obligation: diagnosing-bugs-5 is pending
+- workflow obligation: diagnosing-bugs-6 is pending
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: why-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: tdd-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-fix-root-causes, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-structure, akita-formatting
+- next action: Complete the active workflow steps for Repair large transcript durability, stale source recovery, failed-gate re-entry, lifecycle timeout, and Akita shape violations for Codex hooks..
+- compact note: #306
+- 2026-08-24 #307 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 queued 133ac8d1.
+
+### 2026-08-24T16:57:08Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/133ac8d1c30f711e248c6e841b72ddd143aad9bf8d2886c7bca03914cb6dd524-a5cf5f9dcbc98b4f6ed6c77a30abfd3d.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: compact-ledger-repair-final
+- method packet: 7a333976d9ff01bb5cc1dfe011a1226ef6fc83c1807c306f5e22c1869bd2ceb2
+- flow digest: 4902703377bbb5a3c2456d437be75d7ae07e61220c8b46cfab2d1d804cc894e5
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: diagnosing-bugs at ## Phase 1: Build a feedback loop; methods: diagnosing-bugs
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: why at # Why; methods: why
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: tdd at # TDD Bug Fix; methods: tdd
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: diagnosing-bugs is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: why is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: tdd is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: diagnosing-bugs-1 is active
+- workflow obligation: diagnosing-bugs-2 is pending
+- workflow obligation: diagnosing-bugs-3 is pending
+- workflow obligation: diagnosing-bugs-4 is pending
+- workflow obligation: diagnosing-bugs-5 is pending
+- workflow obligation: diagnosing-bugs-6 is pending
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: why-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: tdd-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-fix-root-causes, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-structure, akita-formatting
+- next action: Complete the active workflow steps for Repair large transcript durability, stale source recovery, failed-gate re-entry, lifecycle timeout, and Akita shape violations for Codex hooks..
+- compact note: #307
+- 2026-08-24 #308 COMPACT session 01a03330-2c2d-7ef3-87bb-0dc07477f126 queued 133ac8d1.
+
+### 2026-08-24T17:40:57Z
+
+- session: 01a03330-2c2d-7ef3-87bb-0dc07477f126
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/133ac8d1c30f711e248c6e841b72ddd143aad9bf8d2886c7bca03914cb6dd524-6a115b853c71d5e9bbfdfc46c7948295.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- compact note: #308
+- 2026-08-24 #309 CODEX HOOK REPAIR VERIFIED. Generated AGENTS.md names poteto-mode and every principle-* source. All 10 gates pass; the harness is current; final review records generation 5796.
+- 2026-08-24 #310 R2 runp empty. 515605 objects deleted. list KeyCount 0, rclone size 0. Copy still dead. nkd-hg/rty/russel untouched.
+- 2026-08-24 #311 TRADING-SKILLS BACKUP. Private liquid-O2/trading-skills main is synced at c0f291f with 407 audited files. Clean-install and Codex canaries pass. No memory, transcripts, credentials, or trading data were exported.
+- 2026-08-24 #312 REPO CLEANUP PLAN RESET. The tracked design/repo_cleanup plan predates MEMORY.md and current harness rules. Revise it to preserve all virtual environments and dot directories, keep START_HERE.md and MEMORY.md, and audit only non-dot repository material.
+- 2026-08-24 #313 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add archived b5cc6797.
+
+### 2026-08-24T18:38:39Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: archived
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/b5/b5cc67979ddfce58500e67682a0b2063fc7bc4f3a5e00247238e6894dfcdf9f4.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: plan-flow
+- scope: repo-cleanup-plan
+- method packet: 6d8d7bf4c844b5f04bd0263ddeadd61b7f525d3c640eb9f2a785e289c862aee9
+- flow digest: 0b321c581be30d4d28174e111826d0ef264dd687bfc821bb257855a264e1a4c9
+- transition epoch: 1
+- workflow frame: plan-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely, including its Principles index.; methods: plan-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:multi-phase-plan at ### Multi-phase or multi-PR plan; methods: playbook:multi-phase-plan
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: how at # How; methods: how
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- method receipt: plan-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:multi-phase-plan is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: how is active
+- method receipt: codebase-design is active
+- workflow obligation: plan-flow-1 is active
+- workflow obligation: plan-flow-2 is pending
+- workflow obligation: plan-flow-3 is pending
+- workflow obligation: plan-flow-4 is pending
+- workflow obligation: plan-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-multi-phase-plan-1 is active
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: codebase-design-1 is active
+- active principles: principle-boundary-discipline, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-sequence-verifiable-units, principle-subtract-before-you-add, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-test-quality, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Audit the non-dot, non-venv repository and produce a phased, lossless cleanup and restructuring plan rooted at START_HERE.md without implementing the cleanup.
+- compact note: #313
+- 2026-08-24 #314 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued f22dbec7.
+
+### 2026-08-24T18:50:34Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/f22dbec7217b43ad3873bf882588804b279426a8db20e32f3f5670eb939b9193-a3e643abadf714e88fb56eec3c6861d9.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: plan-flow
+- scope: repo-cleanup-plan
+- method packet: 6d8d7bf4c844b5f04bd0263ddeadd61b7f525d3c640eb9f2a785e289c862aee9
+- flow digest: 0b321c581be30d4d28174e111826d0ef264dd687bfc821bb257855a264e1a4c9
+- transition epoch: 1
+- workflow frame: plan-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely, including its Principles index.; methods: plan-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:multi-phase-plan at ### Multi-phase or multi-PR plan; methods: playbook:multi-phase-plan
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: how at # How; methods: how
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- method receipt: plan-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:multi-phase-plan is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: how is active
+- method receipt: codebase-design is active
+- workflow obligation: plan-flow-1 is active
+- workflow obligation: plan-flow-2 is pending
+- workflow obligation: plan-flow-3 is pending
+- workflow obligation: plan-flow-4 is pending
+- workflow obligation: plan-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-multi-phase-plan-1 is active
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: codebase-design-1 is active
+- active principles: principle-boundary-discipline, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-sequence-verifiable-units, principle-subtract-before-you-add, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-test-quality, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Audit the non-dot, non-venv repository and produce a phased, lossless cleanup and restructuring plan rooted at START_HERE.md without implementing the cleanup.
+- compact note: #314
+- 2026-08-24 #315 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-24T19:13:10Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-fed654cc6bd50a4ba62cdc7046b52a47.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: plan-flow
+- scope: repo-cleanup-plan
+- method packet: e8e7ca0f081a5cc8743578100e4184d71f300782b889ce8932748311a1c68e2f
+- flow digest: 85808e064ed81c4e7f46749feac29c8ba0787c79509dc19418e4f91c7cfe9465
+- transition epoch: 2
+- workflow frame: plan-flow at 2. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md` and `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/references/plan.md` completely. Those Pstack files own the outer planning sequence and its deliverable.; methods: plan-flow
+- method receipt: plan-flow is active
+- method receipt: poteto-mode is complete
+- method receipt: playbook:multi-phase-plan is complete
+- method receipt: unlazy is complete
+- method receipt: clean-code-for-agents is complete
+- method receipt: unslop is complete
+- method receipt: writing-for-agents is complete
+- method receipt: domain-modeling is complete
+- method receipt: how is complete
+- method receipt: codebase-design is complete
+- workflow obligation: plan-flow-1 is complete
+- workflow obligation: plan-flow-2 is active
+- workflow obligation: plan-flow-3 is pending
+- workflow obligation: plan-flow-4 is pending
+- workflow obligation: plan-flow-5 is pending
+- workflow obligation: poteto-mode-1 is complete
+- workflow obligation: playbook-multi-phase-plan-1 is complete
+- workflow obligation: unlazy-1 is complete
+- workflow obligation: clean-code-for-agents-1 is complete
+- workflow obligation: unslop-1 is complete
+- workflow obligation: writing-for-agents-1 is complete
+- workflow obligation: domain-modeling-1 is complete
+- workflow obligation: how-1 is complete
+- workflow obligation: codebase-design-1 is complete
+- active principles: principle-boundary-discipline, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-sequence-verifiable-units, principle-subtract-before-you-add, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-test-quality, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Write the revised overview, eleven phase files, and testing contract from the settled evidence and decisions.
+- compact note: #315
+- 2026-08-24 #316 REPO CLEANUP PLAN. Revised design/repo_cleanup into eleven lossless phases. Dot directories and virtual environments are opaque keep zones. START_HERE.md, PROJECT.md, MEMORY.md, public README.md, machine authority, sealed data, and the live corpus survive.
+- 2026-08-24 #317 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-24T19:34:12Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-0bf65f15bee1cd25b35adaab35bdea2c.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #317
+- 2026-08-24 #318 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 0d9ea8f8.
+
+### 2026-08-24T19:34:27Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/0d9ea8f895382842fca5ee9cb8be5b7f6bfcb9f5577426056c82c81e82c7997c-bb2c214e22f1041891e7da912cae5b47.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #318
+- 2026-08-24 #319 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add archived 15a236b9.
+
+### 2026-08-24T19:38:27Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: archived
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/15/15a236b9ec698d5d5625828029b6f4fa4fbd839542c6c3834286f9c8ecbadfe5.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #319
+- 2026-08-24 #320 REPO CLEANUP REPORT. Final handoff must show measured bytes saved, before and after tree shape, file and directory counts, source and documentation lines, tests, protected keeps, and final repository size.
+- 2026-08-24 #321 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-24T21:13:18Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-e116dbe6ce62ac60235100cd42e0dd1d.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #321
+- 2026-08-24 #322 REPO CLEANUP PHASE 1. Stable baseline c8157127 covers 41 audited roots, 969075 files, 39661 directories, 661764651008 allocated bytes, 386 opaque roots, 483704 code lines, and 33857 documentation lines. Eight checks pass; six fail; two block; two are gaps.
+- 2026-08-24 #323 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-24T22:03:50Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-a428c4262429e3fa46a81e2ed02d0ab5.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #323
+- 2026-08-24 #324 USER CORRECTION. All 21 Pstack principles govern code shape and implementation choices, not only workflow. Akita adds measurable constraints and does not replace them.
+- 2026-08-24 #325 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-24T22:45:54Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-7eae3798fffffb122add4d4c66a7c434.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #325
+- 2026-08-24 #326 REPO CLEANUP PHASE 2 DEFECT. Replacing an approved root with a symlink redirected apply outside the repository. The red test deleted the outside file; fix requires directory-anchored operations.
+- 2026-08-25 #327 REPO CLEANUP PHASE 2 SAFETY. Directory-anchored apply now blocks parent-symlink escape. Ready deletion requires independent identical recovery, closed authority, safe roles, and literal paths.
+- 2026-08-25 #328 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T06:27:23Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-d4b6b2a7d882d9fe6f480302db5184ac.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #328
+- 2026-08-25 #329 REPO CLEANUP PHASE 2 JOURNAL. Canonical transitions, group-wide preflight, sealed control-path refusal, and restart reconciliation pass 36 cleanup tests. All touched cleanup functions meet Akita shape limits.
+- 2026-08-25 #330 REPO CLEANUP VENV SAFETY. Audit now identifies arbitrary virtual-environment names through pyvenv.cfg metadata and prunes each directory before traversal. It never reads the marker or payload bytes. Thirty-seven cleanup tests pass.
+- 2026-08-25 #331 REPO CLEANUP VENV APPLY. Inspection and apply now share marker-based virtual-environment protection. A red test first proved apply could delete the protected payload; the fixed path refuses before mutation. Thirty-eight cleanup tests pass.
+- 2026-08-25 #332 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add archived 0986ee11.
+
+### 2026-08-25T06:44:52Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: archived
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/09/0986ee110847c65b493dd99cbd533307b26f80f8204193fc09462385d604c4f8.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #332
+- 2026-08-25 #333 REPO CLEANUP REGISTRY CANONICALITY. Inspection now rejects duplicate or unsorted paths, noncanonical relative paths, noncanonical JSON lists, and contradictory fact-home states. Five boundary tests prove the refusals.
+- 2026-08-25 #334 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add archived 5a1f28f1.
+
+### 2026-08-25T06:54:00Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: archived
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/5a/5a1f28f13c3205b9f9b9b94adf9de62488581b7eafe4e05d70e4fb0ce6d4245f.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #334
+- 2026-08-25 #335 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T07:07:05Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-e57fd8b43ca1d405b08f18d06035bafe.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #335
+- 2026-08-25 #336 REPO CLEANUP METADATA IDENTITY. Apply now binds content, size, mode, owner, mtime, xattrs, and inode flags to one Linux identity. Fifty-four cleanup tests pass, including 2,048-file worker determinism.
+- 2026-08-25 #337 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add archived 24c9239a.
+
+### 2026-08-25T07:38:34Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: archived
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/24/24c9239a4ed8ded562a9df302568aec7f4e7ef4092dcece3b36be45bd3785760.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #337
+- 2026-08-25 #338 REPO CLEANUP ROOT CONTROL. Audit and apply now share a nonblocking root lease, anchored publication, framed root journal, marked pending files, torn-tail repair, and collision refusal. Sixty-three cleanup tests pass.
+- 2026-08-25 #339 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T07:51:22Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-9ea937cd2d82fbb358bcc117f56d50ec.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #339
+- 2026-08-25 #340 REPO CLEANUP COVERAGE. Audit and verification now have closed request and receipt types. Verification independently proves exact path-kind coverage without writes. Seventy-four cleanup tests pass.
+- 2026-08-25 #341 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add archived f206ffe1.
+
+### 2026-08-25T08:01:55Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: archived
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/f2/f206ffe1594c01850c26dc326a0b462578154f05ed06d90d2236ebdf230f4145.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #341
+- 2026-08-25 #342 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 3cfaaf1c.
+
+### 2026-08-25T08:03:05Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/3cfaaf1c635a590101b262fc34c6f36590cbe9cf0805a434fa906ab3119bb723-78833c75fba259d5f4d104338a7a8730.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #342
+- 2026-08-25 #343 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add archived 7cc89873.
+
+### 2026-08-25T08:09:00Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: archived
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/7c/7cc89873f56842ae572103f30f511cde434de71506abdb496482d4636ac95eaa.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #343
+- 2026-08-25 #344 REPO CLEANUP MARKER DEFECT. Audit probed pyvenv.cfg through a symlink ancestor outside the repository and misclassified the symlink as a virtual environment. The policy slice needs no-follow directory marker checks.
+- 2026-08-25 #345 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 3cfaaf1c.
+
+### 2026-08-25T08:27:09Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/3cfaaf1c635a590101b262fc34c6f36590cbe9cf0805a434fa906ab3119bb723-6b4ce895d31b4b2bced90abcff2458b6.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #345
+- 2026-08-25 #346 USER CORRECTION. Do not explore later cleanup phases while the current gate remains open. Finish and verify Phase 2 before any Phase 3 or later work resumes.
+- 2026-08-25 #347 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T08:35:42Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-0cbc7827785a82ec0619b47507237991.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #347
+- 2026-08-25 #348 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 8f33a3c2.
+
+### 2026-08-25T08:38:32Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/8f33a3c24d25a70032c317c2c6ef56e1dac92c05fbd6e1d214f72b6dbbfe13c9-042d194d8890fba09f2805a288191012.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #348
+- 2026-08-25 #349 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 3cfaaf1c.
+
+### 2026-08-25T08:51:41Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/3cfaaf1c635a590101b262fc34c6f36590cbe9cf0805a434fa906ab3119bb723-596bd2b023377102d7cb10caebd6ff6d.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #349
+- 2026-08-25 #350 REPO CLEANUP PHASE 2 POLICY. Fixed policy SHA-256 539752ae binds four opaque roots. Descriptor-safe scans block marker symlink escape, cap open child descriptors at depth, and preserve baseline c8157127. Seventeen tests and targeted Akita lint pass.
+- 2026-08-25 #351 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 3cfaaf1c.
+
+### 2026-08-25T09:18:03Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/3cfaaf1c635a590101b262fc34c6f36590cbe9cf0805a434fa906ab3119bb723-6d692079d5147e60c4efc7a24c6a844b.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #351
+- 2026-08-25 #352 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T09:18:38Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-474503e2732e02e056d70ebfaf5ae2e0.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #352
+- 2026-08-25 #353 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 8f33a3c2.
+
+### 2026-08-25T09:23:38Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/8f33a3c24d25a70032c317c2c6ef56e1dac92c05fbd6e1d214f72b6dbbfe13c9-c49dc28a3f35826ea6fdf96a9477bcb2.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #353
+- 2026-08-25 #354 REPO CLEANUP PHASE 2 METRICS. Workers read only through held no-follow descriptor chains. Ancestor replacement, permission failure, descriptor exhaustion, and read failure refuse without outside reads or silent undercount. Sixteen tests and targeted Akita lint pass.
+- 2026-08-25 #355 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 3cfaaf1c.
+
+### 2026-08-25T09:38:24Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/3cfaaf1c635a590101b262fc34c6f36590cbe9cf0805a434fa906ab3119bb723-57c74c53ef2cbc80ad0fd83763fbdc32.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #355
+- 2026-08-25 #356 REPO CLEANUP PHASE 2 ROOT IDENTITY. Audit, verify, plan, assessment, apply, and baseline scans now duplicate held no-follow root descriptors. Pathname swaps cannot redirect reads or writes. Fifty-two focused tests and targeted Akita lint pass.
+- 2026-08-25 #357 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add archived 24b7f469.
+
+### 2026-08-25T09:44:13Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: archived
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/24/24b7f469fc426b00cec974f0ee03c6bd683f949a8401a679fb0f62c16527b86d.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #357
+- 2026-08-25 #358 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T09:44:42Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-834cc0950b176bb4d7f2665769609ff1.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #358
+- 2026-08-25 #359 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 3cfaaf1c.
+
+### 2026-08-25T10:01:49Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/3cfaaf1c635a590101b262fc34c6f36590cbe9cf0805a434fa906ab3119bb723-084da01f4612b95222e7f8fe6e76d833.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #359
+- 2026-08-25 #360 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 8f33a3c2.
+
+### 2026-08-25T10:13:10Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/8f33a3c24d25a70032c317c2c6ef56e1dac92c05fbd6e1d214f72b6dbbfe13c9-5ecd300e76066adcb0638eb3a7e64df5.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #360
+- 2026-08-25 #361 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T10:20:01Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-be3f9e4eacca2c5fb0a1ea0212cfeaa8.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #361
+- 2026-08-25 #362 REPO CLEANUP PHASE 2 RUNTIME SAFETY. Apply now refuses detached local recovery, replaced move destinations before mutation, and exact destinations while a stage remains. Thirty-three public action and crash tests pass with ResourceWarning errors.
+- 2026-08-25 #363 REPO CLEANUP PHASE 2 PLAN PUBLICATION. CLI rejects in-repository outputs before compilation and publishes external plans through a durable no-clobber link with rollback and clean retry. Fourteen CLI tests and targeted Akita lint pass.
+- 2026-08-25 #364 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 85c19ff0.
+
+### 2026-08-25T10:35:27Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/85c19ff0d76d72aaf8d5b576c9101ebaeec0f06ac83d4b572c1003f3a4e19519-935fe09920adb6e8fb5e6ce5ae883d4d.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #364
+- 2026-08-25 #365 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 3cfaaf1c.
+
+### 2026-08-25T10:41:13Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/3cfaaf1c635a590101b262fc34c6f36590cbe9cf0805a434fa906ab3119bb723-0f1bdc73260bad2723a395ef18b95539.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #365
+- 2026-08-25 #366 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 8f33a3c2.
+
+### 2026-08-25T10:48:30Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/8f33a3c24d25a70032c317c2c6ef56e1dac92c05fbd6e1d214f72b6dbbfe13c9-bbbad4cb885dfacc65d7e3a0585662bc.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #366
+- 2026-08-25 #367 REPO CLEANUP SCAN BASELINE. The current workers=64 traversal is serial. A real protected non-dot scan covered 41 roots, 865,928 files, and 26,325 directories in 290.009 seconds with 78,420 KiB peak RSS. Parallel root traversal is required before final audit.
+- 2026-08-25 #368 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T10:56:55Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-45416adc0be6911b0d297a4ed15779f3.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #368
+- 2026-08-25 #369 REPO CLEANUP PHASE 2 RESOURCE BOUNDS. Apply now validates sharded group identity, caps each selected group at 64 operations and 128 directory ancestors, avoids non-selected retained reads, and passes all 151 cleanup tests.
+- 2026-08-25 #370 REPO CLEANUP PHASE 2 SUBTRACTION. One descriptor capture core now serves linked files and anonymous recovery files, removing 96 production lines. Forty-nine focused tests, py_compile, and Akita lint pass.
+- 2026-08-25 #371 REPO CLEANUP PHASE 2 CLI. Direct script help no longer fails on package imports. The red public CLI test now passes with all fifteen CLI tests, py_compile, and Akita lint.
+- 2026-08-25 #372 USER CORRECTION. Phase 2 itself must capture the full approved liveness evidence set. Phase 9 recomputes evidence before deletion but does not replace Phase 2 discovery. Do not defer this requirement.
+- 2026-08-25 #373 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued 4d2e5a7a.
+
+### 2026-08-25T11:22:40Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/4d2e5a7ad3c5b66cedac5c0c9ac3d04a8bd94fd643cac899c4660515794ad016-4885393e4610cc93292594a1e2422836.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #373
+- 2026-08-25 #374 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T11:36:26Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-938f4dd5d9cad7a59a6eeb4c72774954.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #374
+- 2026-08-25 #375 USER CORRECTION. Phase 2 was safe but overbuilt before producing the real liveness registry. Freeze its interface, reject work that does not close G2, and measure progress by closed gates.
+- 2026-08-25 #376 REPO CLEANUP SCAN BENCHMARK. The reviewed 16-worker scan covers 41 roots, 865,936 files, and 26,325 directories in 202.839 seconds with 89,724 KiB RSS. It saves 87.170 seconds per scan versus the 290.009-second serial baseline.
+- 2026-08-25 #377 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T12:22:52Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-20d662f8f5eb8eb4d54e71ae4199a8b0.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #377
+- 2026-08-25 #378 USER CORRECTION. Show the full principle and method catalog reminder at work-driven checkpoints, including session, compaction, phase, gate, implementation, review, completion, and periodic tool activity. User turns are too rare. Keep it non-blocking.
+- 2026-08-25 #379 PHASE 2 AUDIT DEFECT. A root link such as [root](.) reached RepoPath before membership filtering and aborted the 66-minute audit. Root references are valid non-registry destinations. The regression and all 182 cleanup tests pass.
+- 2026-08-25 #380 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add archived f95e9444.
+
+### 2026-08-25T15:05:46Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: archived
+- transcript archive: /home/algo/.local/state/codex/transcript-archive/objects/f9/f95e9444f195f4478a92aea83d5eae534a89a7274a648d46ab60f5a10dbc8d8c.jsonl
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #380
+- 2026-08-25 #381 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued c67f6ad2.
+
+### 2026-08-25T15:05:52Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/c67f6ad232de0c0359fd79e331e40d91fb7c368aac9109d6ec43e0f418ab7965-494ce247e433f83f255862e290b95529.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #381
+- 2026-08-25 #382 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued ea942068.
+
+### 2026-08-25T15:15:11Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/ea942068a1e70120a1c76e3ba6832dc55e8df87197a23182a050c732f8224bfe-363ba2d92705aa2604ad0b272babf727.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #382
+- 2026-08-25 #383 USER EXECUTION BUDGET. Complete the remaining cleanup in 16 hours or less. Full audits must finish within 30 minutes. Use all 16 vCPUs for independent work, preserve this across compaction, optimize first, then add the catalog reminder hook and revise the plan.
+- 2026-08-25 #384 PHASE 2 AUDIT ROOT CAUSE. The 2-hour audit was stopped. The traceback caught _path_candidates scanning the full 865k-path set for each bare reference. Build direct basename and module indexes before adding process parallelism.
+- 2026-08-25 #385 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T15:45:09Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-69962fa52ad9b0a64a6a6d1896cfaaf8.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: c4e96c27d311dd604706c98cd1f6ae79b7e8bd844e57bda13a3b05e24c73503a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #385
+- 2026-08-25 #386 PHASE 2 AUDIT PERFORMANCE. The indexed resolver completed the real 16-worker 893,245-path audit in 939.773 seconds. Registry SHA-256 is 61068e064716291e8232ef2670249c12971985d3d104fa443dab090b91f9f0dd.
+- 2026-08-25 #387 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T16:33:52Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-1e31c29eb073c11260af25bad88503c7.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: implement-flow
+- scope: repo-cleanup-implementation
+- method packet: 4a4151618f129e3f436e0ed0dd095e211b2882b6e2e16c6a33d85300fff9861a
+- flow digest: eb875a71409dfce7ede3e48f163b2b7007cc27d3fafda886572afab0447ad78a
+- transition epoch: 1
+- workflow frame: implement-flow at 1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.; methods: implement-flow
+- workflow frame: poteto-mode at # Poteto mode; methods: poteto-mode
+- workflow frame: playbook:bug-fix at 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.; methods: playbook:bug-fix
+- workflow frame: unlazy at # Unlazy; methods: unlazy
+- workflow frame: clean-code-for-agents at # Clean code for agents; methods: clean-code-for-agents
+- workflow frame: unslop at # Unslop; methods: unslop
+- workflow frame: writing-for-agents at ## Context pointers; methods: writing-for-agents
+- workflow frame: domain-modeling at # Domain Modeling; methods: domain-modeling
+- workflow frame: how at # How; methods: how
+- workflow frame: architect at ## Phase A: Ground the problem; methods: architect
+- workflow frame: arena at # Arena; methods: arena
+- workflow frame: codebase-design at # Codebase Design; methods: codebase-design
+- workflow frame: pocock-tdd at # Pocock TDD pointer; methods: pocock-tdd
+- workflow frame: implement at # Implement pointer; methods: implement
+- workflow frame: code-review at ### 1. Pin the fixed point; methods: code-review
+- method receipt: implement-flow is active
+- method receipt: poteto-mode is active
+- method receipt: playbook:bug-fix is active
+- method receipt: unlazy is active
+- method receipt: clean-code-for-agents is active
+- method receipt: unslop is active
+- method receipt: writing-for-agents is active
+- method receipt: domain-modeling is active
+- method receipt: how is active
+- method receipt: architect is active
+- method receipt: arena is active
+- method receipt: codebase-design is active
+- method receipt: pocock-tdd is active
+- method receipt: implement is active
+- method receipt: code-review is active
+- workflow obligation: implement-flow-1 is active
+- workflow obligation: implement-flow-2 is pending
+- workflow obligation: implement-flow-3 is pending
+- workflow obligation: implement-flow-4 is pending
+- workflow obligation: implement-flow-5 is pending
+- workflow obligation: poteto-mode-1 is active
+- workflow obligation: playbook-bug-fix-1 is active
+- workflow obligation: playbook-bug-fix-2 is pending
+- workflow obligation: playbook-bug-fix-3 is pending
+- workflow obligation: playbook-bug-fix-4 is pending
+- workflow obligation: playbook-bug-fix-5 is pending
+- workflow obligation: playbook-bug-fix-6 is pending
+- workflow obligation: unlazy-1 is active
+- workflow obligation: clean-code-for-agents-1 is active
+- workflow obligation: unslop-1 is active
+- workflow obligation: writing-for-agents-1 is active
+- workflow obligation: domain-modeling-1 is active
+- workflow obligation: how-1 is active
+- workflow obligation: architect-1 is active
+- workflow obligation: architect-2 is pending
+- workflow obligation: architect-3 is pending
+- workflow obligation: architect-4 is pending
+- workflow obligation: architect-5 is pending
+- workflow obligation: arena-1 is active
+- workflow obligation: codebase-design-1 is active
+- workflow obligation: pocock-tdd-1 is active
+- workflow obligation: implement-1 is active
+- workflow obligation: code-review-1 is active
+- workflow obligation: code-review-2 is pending
+- workflow obligation: code-review-3 is pending
+- workflow obligation: code-review-4 is pending
+- workflow obligation: code-review-5 is pending
+- active principles: principle-boundary-discipline, principle-build-the-lever, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state, principle-sequence-verifiable-units, principle-subtract-before-you-add, principle-type-system-discipline, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-design-it-twice, pocock-tdd-good-tests, pocock-tdd-seams, pocock-tdd-antipatterns, pocock-tdd-loop, pocock-test-quality, pocock-mocking-boundaries, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, pocock-implementation-checks, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones..
+- compact note: #387
+- 2026-08-25 #388 USER EXECUTION CADENCE. Collect the complete defect set at each wave boundary, repair it as one batch, then run one full verification. Keep narrow red-green checks inside repairs. Avoid serial whole-review and fix loops.
+- 2026-08-25 #389 USER HOST 2026-08-25. Wants Cursor Ultra plus Grok 4.6. Durable path is pod agent worker start (My Machines), not Remote-SSH. Stock pstack plugin still out. Cursor cloud VMs miss the volume.
+- 2026-08-25 #390 Cursor pod-side ready. Remote-SSH root@213.173.111.111:35766. cursor-server on volume. cursor-agent CLI installed. Grok agent symlink left alone. Worker still needs user login.
+- 2026-08-25 #391 CATALOG REMINDER HOOK. The exact equal-standing AGENTS block now appears at session, route, checkpoint, transition, review, completion, and every 16 allowed tools without blocking. The 277-test suite and both client canaries pass.
+- 2026-08-25 #392 COMPACT session 01a034f0-f080-71a2-9fa7-c5217c1c4add queued b619ea23.
+
+### 2026-08-25T17:25:57Z
+
+- session: 01a034f0-f080-71a2-9fa7-c5217c1c4add
+- trigger: auto
+- cwd: /workspace
+- transcript status: queued
+- transcript record: /home/algo/.local/state/codex/transcript-archive/jobs/b619ea23b2e0fc7e5c24ddf061af2613cc9cbd15cb514960ee47d5270311c13b-285bab7e686fba8b58ad072562ad1b0e.json
+- Read MEMORY.md Checkpoints after compact. Injection is not the gate.
+- route: plan-flow
+- scope: repo-cleanup-plan
+- method packet: 9ac4243c4cf9e1a8fe47e7fd7762c180f36f38da334e6bae8c97f8146795106b
+- flow digest: 59afdca2b76bbf29fbb74d9a3fb4924257eb2fbc9d5ad60f3088a1669cc3b826
+- transition epoch: 6
+- method receipt: plan-flow is complete
+- method receipt: poteto-mode is complete
+- method receipt: playbook:multi-phase-plan is complete
+- method receipt: unlazy is complete
+- method receipt: clean-code-for-agents is complete
+- method receipt: unslop is complete
+- method receipt: writing-for-agents is complete
+- method receipt: domain-modeling is complete
+- method receipt: how is complete
+- method receipt: codebase-design is complete
+- workflow obligation: plan-flow-1 is complete
+- workflow obligation: plan-flow-2 is complete
+- workflow obligation: plan-flow-3 is complete
+- workflow obligation: plan-flow-4 is complete
+- workflow obligation: plan-flow-5 is complete
+- workflow obligation: poteto-mode-1 is complete
+- workflow obligation: playbook-multi-phase-plan-1 is complete
+- workflow obligation: unlazy-1 is complete
+- workflow obligation: clean-code-for-agents-1 is complete
+- workflow obligation: unslop-1 is complete
+- workflow obligation: writing-for-agents-1 is complete
+- workflow obligation: domain-modeling-1 is complete
+- workflow obligation: how-1 is complete
+- workflow obligation: codebase-design-1 is complete
+- active principles: principle-boundary-discipline, principle-encode-lessons-in-structure, principle-exhaust-the-design-space, principle-experience-first, principle-foundational-thinking, principle-guard-the-context-window, principle-laziness-protocol, principle-make-operations-idempotent, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-never-block-on-the-human, principle-outcome-oriented-execution, principle-prove-it-works, principle-redesign-from-first-principles, principle-sequence-verifiable-units, principle-subtract-before-you-add, pocock-codebase-glossary, pocock-codebase-depth, pocock-codebase-principles, pocock-codebase-testability, pocock-codebase-relationships, pocock-codebase-rejected-framings, pocock-codebase-going-deeper, pocock-deepening-dependencies, pocock-deepening-seams, pocock-deepening-tests, pocock-test-quality, pocock-writing-context, pocock-writing-loads, pocock-writing-hierarchy, pocock-writing-completion, pocock-writing-split, pocock-writing-leading-words, pocock-writing-pruning, akita-code-style, akita-comments, akita-tests, akita-dependencies, akita-structure, akita-formatting, akita-logging
+- next action: Deliver the plan and stop before implementation.
+- compact note: #392
+- 2026-08-25 #393 Cursor project rules added: .cursor/rules/smallest-change.mdc and cursor-pstack.mdc. Confirm in Settings, Rules. Stock plugin still installed in-app via /add-plugin pstack plus /setup-pstack. Durable agent is worker, not Remote-SSH.
+- 2026-08-25 #394 REPO CLEANUP REPLAN. Four execution waves replace eleven phases. Each wave uses one defect sweep, one repair batch, and one proof. The critical path is 12h15m with 3h45m reserve and a 16h ceiling.
+- 2026-08-25 #395 Cursor overlay 2026-08-25. Archived .claude/skills (76 links) to archive/claude-codex-host-20260825. Unique Pocock/Akita in .cursor/skills. Nudge hook + CURSOR.md + akita rule. Still need in-app /add-plugin pstack and /setup-pstack.
+- 2026-08-25 #396 pstack-lab plugin at .cursor/plugins/pstack-lab. Poteto Mode forks pstack. Folded codebase-design, writing-for-agents, grilling-flow, wayfinder planning, tight-loop, two-axis+one-pass. Local symlink ~/.cursor/plugins/local/pstack-lab. Cursor CLI: --plugin-dir.
+- 2026-08-25 #397 Cursor rules 2026-08-25. equal-standing.mdc keeps matching principle triggers equal without a 21-row receipt. memory.mdc uses MEMORY.md via ledger CLI. No Codex catalog-reminder hook.
+- 2026-08-25 #398 Cursor hooks 2026-08-25. sessionStart injects MEMORY tail. preCompact writes checkpoint. Next prompt re-injects tail. No postCompact in Cursor. smallest-change.mdc is laziness-protocol as alwaysApply, not a new index principle.
+- 2026-08-25 #399 MEMORY wake is 12 lasting notes, compact markers filtered. Note shape is one fact, 280-byte cap from OptMem, unslop-gated. Do not load writing-for-agents to write a line.
+- 2026-08-25 #400 DECISION Agent writes MEMORY.md. Human does not. Unslop is always-on for user replies.
+- 2026-08-25 #401 RESULT Stop followup is one-shot when the wake fingerprint is unchanged.
+- 2026-08-25 #402 RESULT setup-pstack wrote ~/.cursor/rules/pstack-models.mdc. Grok roles use cursor-grok-4.6-xhigh-fast.
+- 2026-08-25 #403 RESULT lean-repo 2026-08-25. START_HERE and AGENTS.md Cursor-sized. Sediment archived to archive/lean-repo-20260825.
+- 2026-08-25 #404 HOST Removed repo .claude and .codex. Archived under archive/claude-codex-host-20260825. Cursor no longer loads method_guard PreToolUse.
+- 2026-08-25 #405 HOST Repo .claude and .codex are gone. Cursor must start a new chat so method_guard PreToolUse is not still cached.
+- 2026-08-25 #406 LEAN REPO 2026-08-25. Deleted 361 dead code files: the superseded agent-harness generation and the M0-M3 port lineage. Live port island is 5 files behind port_m2/availability.py. Battery green, entry_v2 718 tests bit-identical to baseline.
+- 2026-08-25 #407 LEAN REPO REMAINDER. The mempalace and neural_sufficiency families are dead by START_HERE yet coupled, because neural_sufficiency_source_manifest.py enumerates mempalace modules. They need their own pinned pass.
+- 2026-08-25 #408 LEAN REPO WAVE 2. Deleted 71 stale MemPalace and closed confirmation-experiment files, then trimmed test_confirmation to its 22 live tests. MemPalace was unhooked in ledger #17. Battery green; 646-test suite has the same 27 baseline failures.
+- 2026-08-25 #409 USER LEAN REPO SCOPE. Clean the full code tree, not only obvious dead clusters. Remove neural and unused Rust. Apply Akita and codebase-design to live code. Leave raw data, artifacts, and caches untouched.
+- 2026-08-25 #410 COMPACT session 99065f16-aba5-40aa-8efe-ce9a96258a8f queued compact-.
+
+### 2026-08-25T21:16:47Z
+
+- session: 99065f16-aba5-40aa-8efe-ce9a96258a8f
+- transcript record: compact-auto-116.73666666666666
+- trigger: auto
+- context_usage_percent: 116.73666666666666
+- message_count: 427
+- is_first_compaction: True
+- compact note: #410
+- 2026-08-25 #411 COMPACT session 99065f16-aba5-40aa-8efe-ce9a96258a8f queued compact-.
+
+### 2026-08-25T21:16:47Z
+
+- session: 99065f16-aba5-40aa-8efe-ce9a96258a8f
+- transcript record: compact-auto-116.73666666666666
+- trigger: auto
+- context_usage_percent: 116.73666666666666
+- message_count: 427
+- is_first_compaction: True
+- compact note: #411
+- 2026-08-25 #412 RESULT qr_entry_v2 C++ is live. qr_entry_v2_g1 --stage candidates|teacher is the frozen generator tickets 45/47 need for the 2022-2024 corpus, and corpus.py strict-loads its artifacts. C++ deletion may only target trees it does not link.
+- 2026-08-25 #413 DECISION C++ keep set is the 19 qrdisc sources. Tickets 45/47 use the oracle path, not qr_entry_v2_g1. Frozen candidate artifacts stay on disk. Remaining qr_entry_v2 and every other first-party C++ tree are dead.
+- 2026-08-25 #414 RESULT Live port island is availability.py plus LeakRefusal. m2_common, port_m0, and port_m1 exist only to import that exception. Move LeakRefusal, then delete the three folders.
+- 2026-08-25 #415 DECISION Delete .agents on this Cursor host. Live AGENTS.md and START_HERE.md name pstack-lab only. Hide provenance trees in .cursorignore. Do not delete archive worktrees without an identity check.
+- 2026-08-25 #416 DECISION Lean-repo wave keeps 19 qrdisc sources, live tabular/corpus/confirmation, and two GPU probes. Neural, Rust, unused C++, .agents, attic, and harness leave in one batch. No ticket-45 runner this wave.
+- 2026-08-25 #417 HOST OpenCode 1.18.21 AGENTS.md is always injected. instructions glob .mdc dumps ALL files, no alwaysApply. Local plugin system.transform works. npm opencode-cursor-rules last publish 2026-02-07. Do not use stale Cursor-rules plugins.
+- 2026-08-25 #418 RESULT Lean-repo wave deleted Rust, unused C++, neural modules, .agents, attic, harness, and dead probes. Kept 19 qrdisc sources, live tabular/corpus/confirmation, two GPU probes, and two forward-vol tools ticket 54 tests import. Fast battery is green.
+- 2026-08-25 #419 HOST OpenCode poteto is default primary with full poteto-mode SKILL as prompt. Task types poteto-agent generalPurpose explore comment-sicko. Parent xai/grok-4.6. Hard work openai/gpt-5.6-sol. Need /connect xAI and OpenAI.
+- 2026-08-25 #420 HOST /setup-pstack writes OpenCode .opencode/rules/pstack-models.mdc with xai/grok-4.6#xhigh and openai/gpt-5.6-sol#max. Cursor still uses ~/.cursor/rules/pstack-models.mdc.
+- 2026-08-25 #421 HOST Fable advisor slots on OpenCode are anthropic/claude-fable-5#max. Needs Anthropic API key via /connect. Anthropic prohibits Pro/Max OAuth in third-party tools. OpenCode unbundled those plugins at 1.3.0.
+- 2026-08-25 #422 HOST Grok Build can add Sol/Fable as custom models in ~/.grok/config.toml via API keys. ChatGPT and Claude Max subscriptions are not first-party on Grok Build. Anthropic prohibits Max OAuth in third-party tools.
+- 2026-08-25 #423 COMPACT session 99065f16-aba5-40aa-8efe-ce9a96258a8f queued compact-.
+
+### 2026-08-25T22:08:05Z
+
+- session: 99065f16-aba5-40aa-8efe-ce9a96258a8f
+- transcript record: compact-auto-0
+- trigger: auto
+- context_usage_percent: 0
+- message_count: 349
+- is_first_compaction: False
+- compact note: #423
+- 2026-08-25 #424 COMPACT session 99065f16-aba5-40aa-8efe-ce9a96258a8f queued compact-.
+
+### 2026-08-25T22:08:05Z
+
+- session: 99065f16-aba5-40aa-8efe-ce9a96258a8f
+- transcript record: compact-auto-0
+- trigger: auto
+- context_usage_percent: 0
+- message_count: 349
+- is_first_compaction: False
+- compact note: #424
+- 2026-08-25 #425 HOST OpenCode overlay mirrors Cursor: .opencode/skills first then pstack-lab. claude_advisor tool blocks on claude -p for Fable seats. Do not use oh-my-opencode.
+- 2026-08-25 #426 DECISION Live reshape keeps public seams build_corpus and feature_map. Forecast, session product, artifacts, and merge become owning modules. No re-export barrel.
+- 2026-08-25 #427 RESULT OpenCode smoke: poteto primary loaded, claude_advisor called Claude CLI, got CLAUDE_OK. No OpenCode auth.json. xAI/OpenAI still need /connect. Duplicate overlay skills removed.
+- 2026-08-25 #428 RESULT diagnostic_inputs.py split into six modules under 500 lines. Public import path kept. 14 tests OK.
+- 2026-08-25 #429 RESULT tabular_fallbacks.py split into failure, histogram, expert modules. Public import path kept. Failure-ladder test green.
+- 2026-08-25 #430 RESULT context_sources.py split into roster, loaders, tensor. Public import path kept. 5 tests OK.
+- 2026-08-25 #431 COMPACT session 99065f16-aba5-40aa-8efe-ce9a96258a8f queued compact-.
+
+### 2026-08-25T22:24:59Z
+
+- session: 99065f16-aba5-40aa-8efe-ce9a96258a8f
+- transcript record: compact-auto-91.248828125
+- trigger: auto
+- context_usage_percent: 91.248828125
+- message_count: 317
+- is_first_compaction: False
+- compact note: #431
+- 2026-08-25 #432 COMPACT session 99065f16-aba5-40aa-8efe-ce9a96258a8f queued compact-.
+
+### 2026-08-25T22:24:59Z
+
+- session: 99065f16-aba5-40aa-8efe-ce9a96258a8f
+- transcript record: compact-auto-91.248828125
+- trigger: auto
+- context_usage_percent: 91.248828125
+- message_count: 317
+- is_first_compaction: False
+- compact note: #432
+- 2026-08-25 #433 No Grok pstack plugin is installed. Hillclimb/planning are poteto-mode playbooks, not auto skills. Cursor often stops at the required todo copy; Grok planning is native plan mode and spawn_subagent.
+- 2026-08-25 #434 RESULT confirmation.py split into types, dataset, index, plane. Public seam kept. 21 tests OK.
+- 2026-08-25 #435 RESULT corpus.py split behind build_corpus. Merge lives in corpus_merge*. test_corpus 16 OK.
+- 2026-08-25 #436 RESULT teacher types extracted to teacher_types.py. teacher.py 346. test_entry_v2 9 OK.
+- 2026-08-25 #437 RESULT discretionary_features.py is the plane seam at 500 lines. Family modules own maps. 20 tests OK.
+- 2026-08-25 #438 RESULT confirmation_diagnostics shuffle/ablations moved to confirmation_controls.py. 21 tests OK.
+- 2026-08-25 #439 RESULT common calendar/denominator lives in common_calendar.py. common.py 378. test_common green.
+- 2026-08-25 #440 RESULT tabular_evaluation.py split into io, policy, teacher, calibration. walk_twin green.
+- 2026-08-25 #441 RESULT DurableProduct and sidecar guards live in durable_product.py. durable_store.py 473. session_stream and pod_local_lock green.
+- 2026-08-25 #442 RESULT confirmation_experiment keeps FEATURE_CACHE_SCHEMA and campaign helper names after the roster/cache split. 21 confirmation tests OK.
+- 2026-08-25 #443 RESULT confirmation_experiment.py restored as roster/cache seam after the extract deleted it. 488 lines. 21 tests OK.
+- 2026-08-25 #444 RESULT tabular_models.py is a 41-line facade. Fit, component, and action live in siblings. Loss literals stay on the facade for test_tabular_fit_backends.
+- 2026-08-25 #445 RESULT Delayed outcome, shard, and audit modules sit next to a 69-line delayed_corpus facade. walk_twin 19 OK.
+- 2026-08-25 #446 COMPACT session 99065f16-aba5-40aa-8efe-ce9a96258a8f queued compact-.
+
+### 2026-08-25T22:53:58Z
+
+- session: 99065f16-aba5-40aa-8efe-ce9a96258a8f
+- transcript record: compact-auto-92.841015625
+- trigger: auto
+- context_usage_percent: 92.841015625
+- message_count: 547
+- is_first_compaction: False
+- compact note: #446
+- 2026-08-25 #447 COMPACT session 99065f16-aba5-40aa-8efe-ce9a96258a8f queued compact-.
+
+### 2026-08-25T22:53:58Z
+
+- session: 99065f16-aba5-40aa-8efe-ce9a96258a8f
+- transcript record: compact-auto-92.841015625
+- trigger: auto
+- context_usage_percent: 92.841015625
+- message_count: 547
+- is_first_compaction: False
+- compact note: #447
+- 2026-08-25 #448 USER principles outrank Akita. File-cap splits that make pass-throughs are a miss. Akita is a later shape check.
+- 2026-08-25 #449 USER fast-enough: minutes path when it exists, parallel cores, no hours-for-minutes; do not over-optimize.
+- 2026-08-25 #450 RESULT threshold prompts stored at .cursor/prompts/threshold-next.md (Investigation first, then hillclimb or figure-it-out).
+- 2026-08-25 #451 RESULT lean tree 2026-08-25: engine prod 115 files / 14 over 500 (was ~80 files / 36 over 500). corpus 377, disc plane 500, confirmation 499. tabular_campaign 946 still largest.
+- 2026-08-25 #452 RESULT DurableProduct folded back into durable_store.py. durable_product.py deleted. session_stream and lock tests green.
+- 2026-08-25 #453 DECISION clean_code_lint drops file-too-long. Pure re-export modules fail except session_stream, tabular_models, tabular_delayed_corpus.
+- 2026-08-25 #454 USER fast-enough: estimate wall time before run; if an hour can be minutes via numpy/numba/cython/cores/GPU, do that first; no last-percent spend.
+- 2026-08-25 #455 RESULT entry_v2 split is a flat prefix dump: 80 private cross-file imports, 0-public helper files, 39 tabular_*.py. Reader hops >3. Not agent-easy.
+- 2026-08-25 #456 USER Akita file/function/nesting caps are soft. Poteto principles are mandatory. Do not split to clear a lint fail.
+- 2026-08-25 #457 RESULT clean_code_lint no longer fails file-too-long, function-too-long, nesting, or barrels. Types and exception values still fail.
+- 2026-08-25 #458 USER Cursor billed only Grok 4.6 because parent was xhigh and poteto never Tasked Fable/Sol. Keep parent Grok xhigh; do not set Auto. Auto inherits parent.
+- 2026-08-25 #459 RESULT THRESHOLD bottleneck investigation: no confirmation receipt opened THRESHOLD (threshold_open_count=0). Location-ranker THRESHOLD diagnostic cash HG 856.63 NKD 939.81 SI 1060.83 loc_insufficient. Not canonical replay. Ticket 45 still ready-for-agent.
+- 2026-08-25 #460 RESULT 2021 THRESHOLD event top-2 mean HG 627.8 vs need 666.7, NKD 433.6 vs 500 (entry_economics_20260823.json). START_HERE quoted TRAIN. No THRESHOLD exact-replay receipt. v9 confirmation threshold_open_count=0.
+- 2026-08-25 #461 RESULT E1R THRESHOLD canonical replay is 0 trades / 0 usd on all 10 seeds. Artifact E1R_raw_THRESHOLD raw_block.json. Command run_tabular_recovery --phase rehearsal. Same-window exact ceiling 102201.25 clears rungs. FORWARD calibrated also 0.
+- 2026-08-25 #462 RESULT Task rejects claude-fable-5-thinking-max. Fable seats used claude-fable-5-thinking-high. Do not inherit Grok for those seats.
+- 2026-08-25 #463 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-25T23:30:02Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-92.21015625
+- trigger: auto
+- context_usage_percent: 92.21015625
+- message_count: 260
+- is_first_compaction: True
+- compact note: #463
+- 2026-08-25 #464 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-25T23:30:02Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-92.21015625
+- trigger: auto
+- context_usage_percent: 92.21015625
+- message_count: 260
+- is_first_compaction: True
+- compact note: #464
+- 2026-08-25 #465 USER tickets and recovery plans are hypotheses not the path. Redesign from the proven bottleneck. Do not walk a numbered ticket list as gospel.
+- 2026-08-25 #466 USER Fable and Sol have max on this account. cursor-agent models: claude-fable-5-thinking-max and gpt-5.6-sol-max. Prefix thinking-<effort> or #<effort>. Task widget may list only high/medium. Do not inherit Grok.
+- 2026-08-25 #467 USER stay on poteto-mode. Matching principle leaves are mandatory. Do not skip the catalog. Equal standing still closes unmatched leaves.
+- 2026-08-25 #468 RESULT THRESHOLD enter-gap receipt: FIT capture 0.0-0.43% vs 0.9. All 5 advantage grids negative. 130 traces 0 crossings. python3 .audit/assert_threshold_replay_receipt.py --enter-gap
+- 2026-08-25 #469 RESULT THRESHOLD unit 2 is not a rerun. evaluate_policy_block runs THRESHOLD RAW only. Calibration and admission exist. MARGIN needs a new CALIBRATED identity and 13 fresh day traces.
+- 2026-08-25 #470 RESULT Fable max: E1R head never ENTERs on any walked window. MARGIN already ran, 588 traces 0 selected. Do not stitch policy_mode. Gate selftest can PASS. Refit is an awake fork.
+- 2026-08-26 #471 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T00:04:09Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-0
+- trigger: auto
+- context_usage_percent: 0
+- message_count: 408
+- is_first_compaction: False
+- compact note: #471
+- 2026-08-26 #472 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T00:04:10Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-0
+- trigger: auto
+- context_usage_percent: 0
+- message_count: 408
+- is_first_compaction: False
+- compact note: #472
+- 2026-08-26 #473 RESULT Head-versus-label 561f6cb. OOF ENTER-min 0-2/20049. Frozen-all peak 32/21527 (0.15%) vs 7.70% labels. Feature-mismatch kill failed. Fit miss stands.
+- 2026-08-26 #474 RESULT Sol trail 407899. Head-label OOF is stored-matrix rows, not a walk-time twin. Margins unlike. Refit-or-retire is a product call, not exhaustion.
+- 2026-08-26 #475 RESULT H1 MultiClass val ENTER-min 30/2451 (1.22%) vs 16.6% labels. Score-range 127/14165. Frozen was 0. Keep bar failed. H2 PairLogit running.
+- 2026-08-26 #476 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T07:38:26Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-90.3953125
+- trigger: auto
+- context_usage_percent: 90.3953125
+- message_count: 285
+- is_first_compaction: False
+- compact note: #476
+- 2026-08-26 #477 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T07:38:26Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-90.3953125
+- trigger: auto
+- context_usage_percent: 90.3953125
+- message_count: 285
+- is_first_compaction: False
+- compact note: #477
+- 2026-08-26 #478 RESULT H3 MultiClass enter-balance kept. Val ENTER-min 702/2451 (28.6%) vs 16.6% labels. Score-range 3659/14165. Scale 29.50. THRESHOLD RAW replay running.
+- 2026-08-26 #479 USER Hillclimb attempts and specified wiring go through poteto-agent Sol max. How explainer is Fable max. Do not implement those as parent Grok.
+- 2026-08-26 #480 RESULT H3 THRESHOLD RAW still no receipt after 15m. Process alive, no replay tree. Sol owns unstick.
+- 2026-08-26 #481 RESULT H3 replay killed at 27m. Open fd was HG-20210721.qre2. Cache-miss rematerialize. Fresh Sol owns cache-only load.
+- 2026-08-26 #482 RESULT H3 replay copies killed. Both had HG-20210721.qre2 open. Dense identity miss rematerialize. Store already has THRESHOLD days.
+- 2026-08-26 #483 RESULT H3 THRESHOLD RAW 142 trades 227.50 usd. HG 688 NKD -246 SI -425/day. MDD 9755. Cap 12. ENTER works. Rungs fail.
+- 2026-08-26 #484 RESULT H4 mild ENTER weight val 173/2451 (7.06%) vs keep 8.32%. No replay. H5 is official FIT/PLATT unweighted MultiClass.
+- 2026-08-26 #485 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T09:13:12Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-90.690234375
+- trigger: auto
+- context_usage_percent: 90.690234375
+- message_count: 399
+- is_first_compaction: False
+- compact note: #485
+- 2026-08-26 #486 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T09:13:12Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-90.690234375
+- trigger: auto
+- context_usage_percent: 90.690234375
+- message_count: 399
+- is_first_compaction: False
+- compact note: #486
+- 2026-08-26 #487 RESULT H5 unweighted MultiClass official FIT/PLATT kept. PLATT ENTER-min 102/2425 4.21% vs keep 4.10%. THRESHOLD RAW walk live, 3 day traces.
+- 2026-08-26 #488 RESULT H5 THRESHOLD RAW 31 trades 426.25 usd HG 105 NKD 23 SI -96 MDD 2050 max 3 entries. clears_rungs=false. Next H6 PairLogit+enter-balance.
+- 2026-08-26 #489 RESULT H6 PairLogit+enter-balance reverted. Val ENTER-min 38/2451 1.55% vs keep 8.32%. No replay. Next H7 official MultiClass+enter-balance.
+- 2026-08-26 #490 RESULT H7 official MultiClass+enter-balance kept. PLATT ENTER-min 481/2425 19.84% scale 11.94. THRESHOLD RAW walk live.
+- 2026-08-26 #491 RESULT H7 THRESHOLD RAW 139 trades -2051.25 usd HG 470 NKD -25 SI -602 MDD 9050 cap 12. clears_rungs=false. Worse than H5. Next is how on dollar quality.
+- 2026-08-26 #492 USER action-head ENTER-weight hillclimb is the wrong path. Use START_HERE ticket 45 then 47 then 54. 2025H1 allowed later. 2025H2 sealed.
+- 2026-08-26 #493 USER tickets 45/47/54 are not the answer either. Re-audit bottleneck. Compare paths. Do not walk ticket lists.
+- 2026-08-26 #494 RESULT H5 vs H7 how named occupancy-gated first-crossing conveyor. H7 102 re-entries median 7.5m and 35 walls. Next candidate is RAW wall_probability veto.
+- 2026-08-26 #495 COMPACT session 6eebb057-ef58-4023-b653-1df4b9ca21e4 queued compact-.
+
+### 2026-08-26T10:45:20Z
+
+- session: 6eebb057-ef58-4023-b653-1df4b9ca21e4
+- transcript record: compact-auto-92.97169117647059
+- trigger: auto
+- context_usage_percent: 92.97169117647059
+- message_count: 195
+- is_first_compaction: True
+- compact note: #495
+- 2026-08-26 #496 COMPACT session 6eebb057-ef58-4023-b653-1df4b9ca21e4 queued compact-.
+
+### 2026-08-26T10:45:20Z
+
+- session: 6eebb057-ef58-4023-b653-1df4b9ca21e4
+- transcript record: compact-auto-92.97169117647059
+- trigger: auto
+- context_usage_percent: 92.97169117647059
+- message_count: 195
+- is_first_compaction: True
+- compact note: #496
+- 2026-08-26 #497 RESULT Remaining-path how named within-cell event identity. Next is H5/H7 vs teacher leak autopsy on disk. Not tickets. Not ENTER weight.
+- 2026-08-26 #498 COMPACT session b20b9dca-fd00-404e-9353-b408d657772a queued compact-.
+
+### 2026-08-26T10:57:56Z
+
+- session: b20b9dca-fd00-404e-9353-b408d657772a
+- transcript record: compact-auto-98.35404411764705
+- trigger: auto
+- context_usage_percent: 98.35404411764705
+- message_count: 186
+- is_first_compaction: True
+- compact note: #498
+- 2026-08-26 #499 COMPACT session b20b9dca-fd00-404e-9353-b408d657772a queued compact-.
+
+### 2026-08-26T10:57:56Z
+
+- session: b20b9dca-fd00-404e-9353-b408d657772a
+- transcript record: compact-auto-98.35404411764705
+- trigger: auto
+- context_usage_percent: 98.35404411764705
+- message_count: 186
+- is_first_compaction: True
+- compact note: #499
+- 2026-08-26 #500 USER After Sol returns, re-engage poteto properly. Fable for discussion. Grok xhigh-fast for small work. Sol only when specified and hard.
+- 2026-08-26 #501 COMPACT session 6eebb057-ef58-4023-b653-1df4b9ca21e4 queued compact-.
+
+### 2026-08-26T11:01:38Z
+
+- session: 6eebb057-ef58-4023-b653-1df4b9ca21e4
+- transcript record: compact-auto-93.2591911764706
+- trigger: auto
+- context_usage_percent: 93.2591911764706
+- message_count: 292
+- is_first_compaction: False
+- compact note: #501
+- 2026-08-26 #502 COMPACT session 6eebb057-ef58-4023-b653-1df4b9ca21e4 queued compact-.
+
+### 2026-08-26T11:01:38Z
+
+- session: 6eebb057-ef58-4023-b653-1df4b9ca21e4
+- transcript record: compact-auto-93.2591911764706
+- trigger: auto
+- context_usage_percent: 93.2591911764706
+- message_count: 292
+- is_first_compaction: False
+- compact note: #502
+- 2026-08-26 #503 RESULT H5 top-2 join 1/31. Teacher 2/31. Cell-best 0/31. H3 top-2 44/142 H7 30/139. H5 dollars are not payer selection.
+- 2026-08-26 #504 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T11:10:33Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-90.7703125
+- trigger: auto
+- context_usage_percent: 90.7703125
+- message_count: 442
+- is_first_compaction: False
+- compact note: #504
+- 2026-08-26 #505 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T11:10:33Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-90.7703125
+- trigger: auto
+- context_usage_percent: 90.7703125
+- message_count: 442
+- is_first_compaction: False
+- compact note: #505
+- 2026-08-26 #506 DECISION Next unit is 2021 causal roster kill test. Grok writes score_roster_kill.py. Fable judges. Sol out.
+- 2026-08-26 #507 RESULT Roster kill KILL. 216 single-field rules, 0 survived. AUCs 0.45-0.50. event_order>0 was best fail.
+- 2026-08-26 #508 DECISION Roster closed. Next is wall-veto overlay kill on stored traces. RAW walk waits on that receipt.
+- 2026-08-26 #509 RESULT Wall-veto overlay status OK. 250 of 526 cuts met the bar. Chosen gt 0.47 vetoes 7 trades. Named 0.2 also survives.
+- 2026-08-26 #510 USER 12h poteto loop spent quota proving E1R cannot hit rungs (H5 +426, H7 -2051, roster 0/216). Process fail: local hill on a dead head. Fable used as kill-judge not covering search.
+- 2026-08-26 #511 USER Stop after Fable wall-veto judgment. Stop the loop. Do not re-arm. Do not start the next unit.
+- 2026-08-26 #512 USER Fable seats are thinking-max only. Do not fall back to thinking-high when Task omits the slug. Spawn cursor-agent --model claude-fable-5-thinking-max.
+- 2026-08-26 #513 RESULT Fable judged wall veto as bar-only, not a mechanism. Named H7 RAW 0.2 walk. Loop stopped before that walk.
+- 2026-08-26 #514 RESULT Fable wall-veto is bar-only not a mechanism. Named H7 RAW wall>0.2 as probe; that walk cannot reach rungs. Covering search still the next parent prompt.
+- 2026-08-26 #515 USER Covering search not another E1R kill. Fable how then Fable judgment. No H7 wall-veto walk.
+- 2026-08-26 #516 RESULT Covering how. 2021 covered out. Survivors are forecast-plane 2022-2024, late-age, cell-concentration closure.
+- 2026-08-26 #517 DECISION Covering experiment is forecast term-structure flatness on the stored TSV. Grok script. Not started. 2021 cannot cover rungs.
+- 2026-08-26 #518 DECISION Running forecast term-structure flatness. Grok writes score_forecast_term_structure.py. Ticket 45 waits.
+- 2026-08-26 #519 RESULT Forecast term-structure SURVIVE. Service 11-head within/between CV 0.616 vs kill 0.10. Ticket 45 not started.
+- 2026-08-26 #520 RESULT Covering TSV term-structure SURVIVE (CV 0.616 vs kill 0.10, dollar_stop null). Same hole: bar pass, no rungs. Next is ticket 45 on a G1 session day, not another score script.
+- 2026-08-26 #521 DECISION Ticket 45 starts on SI/20221003. One-day window. Weekend pilot stays. No ticket 47.
+- 2026-08-26 #522 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T12:31:38Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-92.63125
+- trigger: auto
+- context_usage_percent: 92.63125
+- message_count: 298
+- is_first_compaction: False
+- compact note: #522
+- 2026-08-26 #523 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T12:31:39Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-92.63125
+- trigger: auto
+- context_usage_percent: 92.63125
+- message_count: 298
+- is_first_compaction: False
+- compact note: #523
+- 2026-08-26 #524 RESULT Ticket 45 SI/20221003 failed wiring. 0 CLEAR READY. phase MISSING MIN_TRAIN. Schema match. HG/20221003 retry started.
+- 2026-08-26 #525 RESULT Ticket 45 HG/20221003 bound forecast. 307 CLEAR READY. Corpus refused 16MiB array cache. Cache resize rerun started.
+- 2026-08-26 #526 RESULT Ticket 45 wiring PASS HG/20221003. Forecast bound. 307 G1 rows. Schema match. Next is one freeze then one authorized read.
+- 2026-08-26 #527 DECISION Freeze then one authorized 2022-2024 read started. Fable how first. No peek until freeze exists. No ticket 47.
+- 2026-08-26 #528 USER R6 does not make the corpus 40 min. R6 is 1.85x, about 4.6h at 37 ages. Nine-age grid is 1.11h. Flags exhausted.
+- 2026-08-26 #529 USER Shortcut OK only if it prints rungs or names the exact blocker. Bar pass is not enough. Full corpus only if stored join cannot answer.
+- 2026-08-26 #530 RESULT Freeze how closed. Stored G1 plus forecast join exists. Forecast allocates cells, not names. Freeze write started. No peek yet.
+- 2026-08-26 #531 DECISION 2022-2024 freeze bound. Expanding-median catboost daily variance day-gate. Earliest CLEAR name pick. Authorized read started.
+- 2026-08-26 #532 RESULT 2022-2024 teacher-cash KILL. HG -99 NKD -69 SI -163 per asset-day. MDD 95281. 1734 trades. Day-gate plus earliest CLEAR is dead.
+- 2026-08-26 #533 DECISION Next unit is exploratory cell-best ceiling on 2022-2024. Both lines must clear rungs or the last shape dies. Ticket 47 waits.
+- 2026-08-26 #534 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T13:42:37Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-0
+- trigger: auto
+- context_usage_percent: 0
+- message_count: 269
+- is_first_compaction: False
+- compact note: #534
+- 2026-08-26 #535 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T13:42:38Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-0
+- trigger: auto
+- context_usage_percent: 0
+- message_count: 269
+- is_first_compaction: False
+- compact note: #535
+- 2026-08-26 #536 RESULT Ceiling PROCEED. Gated HG 2759 NKD 3815 SI 3880. Ticket 47 next. D-109 2.58h LAUNCH.
+- 2026-08-26 #537 COMPACT session 14ec1edd-462c-45db-b92c-d6ec4e41ad98 queued compact-.
+
+### 2026-08-26T14:00:49Z
+
+- session: 14ec1edd-462c-45db-b92c-d6ec4e41ad98
+- transcript record: compact-auto-92.49117647058823
+- trigger: auto
+- context_usage_percent: 92.49117647058823
+- message_count: 197
+- is_first_compaction: True
+- compact note: #537
+- 2026-08-26 #538 COMPACT session 14ec1edd-462c-45db-b92c-d6ec4e41ad98 queued compact-.
+
+### 2026-08-26T14:00:49Z
+
+- session: 14ec1edd-462c-45db-b92c-d6ec4e41ad98
+- transcript record: compact-auto-92.49117647058823
+- trigger: auto
+- context_usage_percent: 92.49117647058823
+- message_count: 197
+- is_first_compaction: True
+- compact note: #538
+- 2026-08-26 #539 USER Ceiling is already known every year. The work is why we cannot capture it, then fix that. Do not re-prove the ceiling.
+- 2026-08-26 #540 RESULT Capture miss. Earliest=best 149/1732 (8.6%). Winner mean rank 28 of 105. Latest and cheapest also KILL.

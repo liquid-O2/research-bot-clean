@@ -1,0 +1,348 @@
+{
+  "bounds": [
+    20210721,
+    20210806
+  ],
+  "check_command": "python3 .audit/score_roster_kill.py",
+  "chosen_rule": {
+    "field": "event_order",
+    "keep_top2": {
+      "hits": 55,
+      "rate": 0.7333333333333333,
+      "total": 75
+    },
+    "op": "gt",
+    "remove_event_not_top2": {
+      "hits": 38,
+      "rate": 0.2773722627737226,
+      "total": 137
+    },
+    "survives": false,
+    "threshold": 0
+  },
+  "definitions": {
+    "commit_event_rank": "Event count already flagged by this name's eligibility second (formed + 180s). Running state, not final events_in_cell.",
+    "event_order": "0-based arrival order. Count of events already formed in the same asset-day-phase cell before this name forms.",
+    "overlay_backfill": "Ignored. Allowed only because this is a kill test.",
+    "running_occupancy": "Event count already flagged (eligibility = formed + 180s) before this name forms.",
+    "score_depth": "Absolute score gap versus the prior same-side extreme among earlier-formed events. First event on that side is 0.0.",
+    "top2": "Hindsight measurement label only. Fewer than two same-cell event labels strictly above this name at age 180.",
+    "veto": "Drop the walked ENTER when the single-field rule matches."
+  },
+  "event_receipt_parity": {
+    "HG": {
+      "by_rank_mean_usd": {
+        "0": 906.2179487179487,
+        "1": 349.3269230769231,
+        "2": 50.23648648648651,
+        "3": -212.63888888888889,
+        "4": -396.4583333333333,
+        "5": -632.34375,
+        "6": -656.9230769230769,
+        "7": -702.1590909090909
+      },
+      "by_rank_n": {
+        "0": 39,
+        "1": 39,
+        "2": 37,
+        "3": 36,
+        "4": 30,
+        "5": 24,
+        "6": 13,
+        "7": 11
+      },
+      "n_events": 251
+    },
+    "NKD": {
+      "by_rank_mean_usd": {
+        "0": 569.0384615384615,
+        "1": 298.20512820512823,
+        "2": 96.64473684210526,
+        "3": -55.73529411764706,
+        "4": -210.46875,
+        "5": -339.13461538461536,
+        "6": -481.3888888888889,
+        "7": -770.625
+      },
+      "by_rank_n": {
+        "0": 39,
+        "1": 39,
+        "2": 38,
+        "3": 34,
+        "4": 32,
+        "5": 26,
+        "6": 18,
+        "7": 12
+      },
+      "n_events": 255
+    },
+    "SI": {
+      "by_rank_mean_usd": {
+        "0": 823.6764705882352,
+        "1": 406.74242424242425,
+        "2": 21.136363636363615,
+        "3": -226.15384615384616,
+        "4": -301.42857142857144,
+        "5": -424.11764705882354,
+        "6": -586.6666666666666,
+        "7": -817.5
+      },
+      "by_rank_n": {
+        "0": 34,
+        "1": 33,
+        "2": 33,
+        "3": 26,
+        "4": 21,
+        "5": 17,
+        "6": 15,
+        "7": 12
+      },
+      "n_events": 209
+    }
+  },
+  "event_set": {
+    "by_asset": {
+      "HG": {
+        "n_events": 251,
+        "n_top2": 78
+      },
+      "NKD": {
+        "n_events": 255,
+        "n_top2": 78
+      },
+      "SI": {
+        "n_events": 209,
+        "n_top2": 67
+      }
+    },
+    "n_events": 715,
+    "n_top2": 223,
+    "rank_0_plus_1": {
+      "HG": 78,
+      "NKD": 78,
+      "SI": 67
+    }
+  },
+  "kill_bar": {
+    "keep_top2_gt": 0.5,
+    "population": "pooled H3+H5+H7 walked event-name ENTERs",
+    "remove_event_not_top2_gt": 0.5,
+    "rules_scanned": 216,
+    "rules_survived": 0,
+    "stated_before_scan": true
+  },
+  "overlay": {
+    "H3": {
+      "kept": {
+        "commit_label_usd": 4533.749999999999,
+        "event_not_top2": {
+          "commit_label_usd": -20566.25,
+          "n": 57
+        },
+        "n": 92,
+        "non_event": {
+          "commit_label_usd": 0.0,
+          "n": 0
+        },
+        "top2": {
+          "commit_label_usd": 25100.0,
+          "n": 35
+        }
+      },
+      "vetoed": {
+        "commit_label_usd": -4306.25,
+        "event_not_top2": {
+          "commit_label_usd": -6666.25,
+          "n": 12
+        },
+        "n": 50,
+        "non_event": {
+          "commit_label_usd": -1901.25,
+          "n": 29
+        },
+        "top2": {
+          "commit_label_usd": 4261.25,
+          "n": 9
+        }
+      },
+      "wall_overlap": {
+        "also_wall_n": 18,
+        "also_wall_rate": 0.36,
+        "veto_if_wall_probability_gt": 0.2,
+        "vetoed_n": 50
+      }
+    },
+    "H5": {
+      "kept": {
+        "commit_label_usd": -2090.0,
+        "event_not_top2": {
+          "commit_label_usd": -2090.0,
+          "n": 3
+        },
+        "n": 3,
+        "non_event": {
+          "commit_label_usd": 0.0,
+          "n": 0
+        },
+        "top2": {
+          "commit_label_usd": 0.0,
+          "n": 0
+        }
+      },
+      "vetoed": {
+        "commit_label_usd": 2516.25,
+        "event_not_top2": {
+          "commit_label_usd": -142.5,
+          "n": 1
+        },
+        "n": 28,
+        "non_event": {
+          "commit_label_usd": 2488.75,
+          "n": 26
+        },
+        "top2": {
+          "commit_label_usd": 170.00000000000003,
+          "n": 1
+        }
+      },
+      "wall_overlap": {
+        "also_wall_n": 5,
+        "also_wall_rate": 0.17857142857142858,
+        "veto_if_wall_probability_gt": 0.2,
+        "vetoed_n": 28
+      }
+    },
+    "H7": {
+      "kept": {
+        "commit_label_usd": -3076.2500000000005,
+        "event_not_top2": {
+          "commit_label_usd": -18282.5,
+          "n": 39
+        },
+        "n": 59,
+        "non_event": {
+          "commit_label_usd": 0.0,
+          "n": 0
+        },
+        "top2": {
+          "commit_label_usd": 15206.25,
+          "n": 20
+        }
+      },
+      "vetoed": {
+        "commit_label_usd": 1024.9999999999995,
+        "event_not_top2": {
+          "commit_label_usd": -8506.25,
+          "n": 25
+        },
+        "n": 80,
+        "non_event": {
+          "commit_label_usd": 6850.0,
+          "n": 45
+        },
+        "top2": {
+          "commit_label_usd": 2681.25,
+          "n": 10
+        }
+      },
+      "wall_overlap": {
+        "also_wall_n": 36,
+        "also_wall_rate": 0.45,
+        "veto_if_wall_probability_gt": 0.2,
+        "vetoed_n": 80
+      }
+    },
+    "pooled": {
+      "kept": {
+        "commit_label_usd": -632.5000000000013,
+        "event_not_top2": {
+          "commit_label_usd": -40938.75,
+          "n": 99
+        },
+        "n": 154,
+        "non_event": {
+          "commit_label_usd": 0.0,
+          "n": 0
+        },
+        "top2": {
+          "commit_label_usd": 40306.25,
+          "n": 55
+        }
+      },
+      "vetoed": {
+        "commit_label_usd": -765.0000000000007,
+        "event_not_top2": {
+          "commit_label_usd": -15315.000000000002,
+          "n": 38
+        },
+        "n": 158,
+        "non_event": {
+          "commit_label_usd": 7437.5,
+          "n": 100
+        },
+        "top2": {
+          "commit_label_usd": 7112.5,
+          "n": 20
+        }
+      },
+      "wall_overlap": {
+        "also_wall_n": 59,
+        "also_wall_rate": 0.37341772151898733,
+        "veto_if_wall_probability_gt": 0.2,
+        "vetoed_n": 158
+      }
+    }
+  },
+  "schema": "QRE2THRESHOLDROSTERKILL1",
+  "score_depth_first_on_side": 0.0,
+  "seed": 20260820,
+  "separation": {
+    "commit_event_rank": {
+      "auc_top2_higher": 0.45528911006598854,
+      "rank2plus_mean": 4.41869918699187,
+      "rank2plus_median": 4.0,
+      "rank2plus_n": 492,
+      "top2_mean": 3.874439461883408,
+      "top2_median": 4.0,
+      "top2_n": 223
+    },
+    "event_order": {
+      "auc_top2_higher": 0.45528911006598854,
+      "rank2plus_mean": 3.4186991869918697,
+      "rank2plus_median": 3.0,
+      "rank2plus_n": 492,
+      "top2_mean": 2.874439461883408,
+      "top2_median": 3.0,
+      "top2_n": 223
+    },
+    "running_occupancy": {
+      "auc_top2_higher": 0.46334627583944,
+      "rank2plus_mean": 3.2154471544715446,
+      "rank2plus_median": 3.0,
+      "rank2plus_n": 492,
+      "top2_mean": 2.7354260089686098,
+      "top2_median": 2.0,
+      "top2_n": 223
+    },
+    "score_depth": {
+      "auc_top2_higher": 0.49724743884210143,
+      "rank2plus_mean": 125.80907020626998,
+      "rank2plus_median": 61.025386810302734,
+      "rank2plus_n": 492,
+      "top2_mean": 117.13523130994207,
+      "top2_median": 74.99996948242188,
+      "top2_n": 223
+    }
+  },
+  "sources": {
+    "component_matrix": "artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/e1r/curriculum/fits/round_0/component_matrix",
+    "component_matrix_receipt_sha256": "7e9e25887afd99bc26ba5eeccaccc7bd8d504aefd399e9321f06995e8210bb48",
+    "delayed_outcomes": "artifacts/entry_v2/tabular_recovery/rehearsal/cache/outcome_sessions/6f421af32b02ff145d3b1147590f1f2112261b307d0f54f391240f1cdf5cb72f",
+    "event_economics": "artifacts/entry_v2/tabular_recovery/diagnostics/entry_economics_20260823.json",
+    "event_oracle": "artifacts/entry_v2/tabular_recovery/diagnostics/extreme_events_20260823.json"
+  },
+  "status": "KILL",
+  "survives": false,
+  "wall_clock_sec": 16.138,
+  "workers": 6
+}

@@ -1,0 +1,57 @@
+{
+  "bundle": "artifacts/cache/threshold_refit/multiclass_official_enter_balance/seed_20260820/FROZEN_Q3_E8/action_MultiClass",
+  "bundle_receipt_sha256": "25689ce2d298f093b9885fca814f1034c91410b48a383e9f266fac1818321965",
+  "check_command": "ENTRY_V2_PREDICT_THREADS=16 python3 .audit/refit_e1r_action_head.py --official-e1r --enter-balance",
+  "enter_balance": true,
+  "enter_balance_scale": 11.938488576449911,
+  "enter_scale_override": null,
+  "fitted_this_run": true,
+  "healthy_on_validation": true,
+  "hypothesis": "H7_MultiClass_official_E1R_enter_balance",
+  "objective": "MultiClass",
+  "official_e1r": true,
+  "schema": "QRE2THRESHOLDREFITH1",
+  "score_days": [
+    20210721,
+    20210806
+  ],
+  "seed": 20260820,
+  "slices": {
+    "all_rows": {
+      "label_enter_count": 1657,
+      "label_enter_rate": 0.07697310354438612,
+      "n_rows": 21527,
+      "pred_enter_count": 3287,
+      "pred_enter_rate": 0.1526919682259488
+    },
+    "score_range": {
+      "label_enter_count": 395,
+      "label_enter_rate": 0.07231783229586232,
+      "n_rows": 5462,
+      "pred_enter_count": 755,
+      "pred_enter_rate": 0.13822775540095203
+    },
+    "train": {
+      "label_enter_count": 569,
+      "label_enter_rate": 0.07728878022276556,
+      "n_rows": 7362,
+      "pred_enter_count": 1024,
+      "pred_enter_rate": 0.13909263787014398
+    },
+    "validation": {
+      "label_enter_count": 199,
+      "label_enter_rate": 0.08206185567010309,
+      "n_rows": 2425,
+      "pred_enter_count": 481,
+      "pred_enter_rate": 0.19835051546391752
+    }
+  },
+  "train_days": [
+    20210531,
+    20210709
+  ],
+  "validation_days": [
+    20210712,
+    20210720
+  ]
+}

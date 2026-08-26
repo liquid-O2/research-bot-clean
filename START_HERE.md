@@ -1,6 +1,6 @@
-# START HERE. The one file for a new session (current 2026-08-23)
+# START HERE (2026-08-26)
 
-You are working on **Entry V2**: a tabular entry policy for SI, HG and NKD
+You are working on **Entry V2**, a tabular entry policy for SI, HG and NKD
 futures that must bank more than **$2,000 per asset-day on HG** and **$1,500 on
 NKD and SI**, from one contract per asset, on held pre-2025H2 blocks, in exact
 chronological replay dollars, with at most **12 entries per portfolio-day**, one
@@ -9,73 +9,47 @@ position per asset, and maximum drawdown under $1,000.
 The goal is the user's and is non-negotiable (D-110). Neural is dead. The
 candidate generator is frozen. 2025H2 is sealed.
 
-Read this file, then `STATE.md`'s first NEXT_ACTION block. Everything else is
-depth you can reach for when you need it.
+**Live cursor.** The 2022-2024 ceiling is already known. Do not re-prove it.
+Capture miss is the work. `.audit/threshold-capture-gap.json` verdict MISS.
+Earliest CLEAR matches cell-best in 149 of 1732 cells. The winner sits at mean
+time rank 28 in a mean cell of 105 names. Latest and cheapest CLEAR also miss.
+Next unit is one live G1 scalar that is not time and not frozen_cost. Ticket 47
+waits. 2021 can kill. 2021 cannot promote. 2025H2 stays sealed.
 
 ---
 
 # 1. How to work here
 
-## MEMORY.md is the session memory (D-116)
+## Memory
 
-It outlives every session, compaction, model and vendor change. Compaction
-summaries are **not** the memory. Do not start from `DIRECTIVES.md`.
+`MEMORY.md` outlives every session, compaction, model and vendor change.
+Compaction summaries are not the memory.
 
-1. First command of the session. `python3 tools/memory_ledger.py tail 40`. The
-   SessionStart hook already injects this, so read what it gave you.
-2. While working. `python3 tools/memory_ledger.py note "<one line, 280 bytes>"`
-   for decisions, verdicts, receipt digests and user rulings. Not narration.
-   Every line passes the unslop lint, so write it clean the first time.
-3. To find an old fact. `python3 tools/memory_ledger.py recall <regex>`. It
-   searches the whole history, the 186 imported OptMem entries included.
-4. Spawning a subagent. Its brief must carry this sentence exactly once.
-   `You are a subagent. Don't run memo.`
+1. SessionStart injects the last **12 lasting notes**. Read what the hook gave you.
+2. Older facts: `python3 tools/memory_ledger.py recall '<regex>'`.
+3. When something lasting happens: `python3 tools/memory_ledger.py note "<one line, 280 bytes>"`. The parent agent writes notes. Not narration.
+4. Subagent briefs must include exactly once: `You are a subagent. Don't run memo.`
 
-There is no compression step, so no memory chore can block a session. OptMem
-stays installed at `~/.optmem/memo` and nothing gates on it. Its PreCompact
-hook used to refuse compaction while a compression was pending, which
-deadlocked a full session on 2026-08-23; it now reports and never blocks.
+## Method (Cursor)
 
-## Skills are law, and the guard enforces them (D-112, D-114)
+`/poteto-mode` owns playbooks, principles, and review. Plugin:
+`.cursor/plugins/pstack-lab`. Project overlays: `.cursor/skills` and
+`.cursor/rules` (`cursor-pstack`, `equal-standing`, `memory`, `one-pass`,
+`unslop`, `fast-enough`, `akita`, `smallest-change`). Principles first, then
+Akita as a shape check.
 
-`.agents/skills` is the sole skill authority. Codex reads it directly, Claude
-Code reaches the same bytes through symlinks at `.claude/skills`. `AGENTS.md`
-and `CLAUDE.md` are generated from shared blocks, so a rule cannot differ
-between the two clients.
+Start the CLI:
 
-Entering a route is the first thing you do, not an afterthought.
+```text
+cursor-agent --plugin-dir /workspace/.cursor/plugins/pstack-lab
+```
 
-1. Type `$plan-flow` to plan, or `$implement-flow` to build. Use `$plan-flow`
-   rather than the client's built-in plan mode. The guard reads the route from
-   your prompt and infers nothing from the permission mode.
-2. Write `.unlazy/<scope>/METHOD.json` and its `GATES.md`. Both stay writable
-   without a route, because they are what unlocks one.
-3. Run the engage command the guard names. It prints the exact router, the
-   Poteto principles index, the selected playbook, the standing laws, the
-   nested method and every applicable principle leaf, then records their
-   digests.
+Then `/poteto-mode <goal>`. Run `/setup-pstack` once per account for per-role
+Task models (`~/.cursor/rules/pstack-models.mdc`). Threshold prompts after
+login: `.cursor/prompts/threshold-next.md`.
 
-A repository write with no route selects `$implement-flow` and is denied until
-that packet arrives. A compaction clears the record, so run engage again; what
-you remember of the method does not count. Writes outside the repository,
-`MEMORY.md` and the two bootstrap files are never gated.
-
-Prove the whole thing with `python3 tools/run_method_canaries.py --client claude`
-and `--client codex`. Verify the install with
-`python3 tools/verify_agent_harness.py skills`, `contract`, and `hooks`.
-
-## The unlazy wall (D-111)
-
-Before any substantial work item, write acceptance gates to `/workspace/GATES.md`.
-`python3 tools/unlazy_gates.py` runs the CHECK lines and records evidence. The
-Stop hook **denies the turn** while a gate is unmet, and a checked box whose
-`EVIDENCE:` still reads `pending` counts as unmet. Honest exit:
-`ABANDON: <id> <reason>` at column 0, reported.
-
-Scope, fixed 2026-08-23: **a session is walled by its own ledgers.** `GATES.md`
-is always enforced; a leaf under `gates/` walls you only once you have run the
-runner against it. Two agents in `/workspace` no longer wall each other.
-Finished ledgers are archived under `design/gates_ledgers/`.
+`AGENTS.md` is a short pointer. Archived Codex onboarding lives under
+`archive/lean-repo-20260825/`.
 
 ## Commands
 
@@ -297,20 +271,19 @@ in the same sentence it is reported.
 | What | Where |
 |---|---|
 | This file | `START_HERE.md` |
-| Live cursor | `STATE.md`, first NEXT_ACTION block |
-| Live vs inherited, closures WITH scope | `CURRENT.md` |
-| Skill wiring and the enforcement layers | `SKILLS.md` |
+| Agent pointer | `AGENTS.md` |
+| Session memory | `MEMORY.md`, `tools/memory_ledger.py` |
+| Cursor method | `.cursor/plugins/pstack-lab`, `.cursor/rules/` |
+| Archived onboarding | `archive/lean-repo-20260825/` (STATE, DIRECTIVES, gates, unlazy) |
 | The plan | `design/entry_reset/ENTRY_PLAN_20260823.md` |
 | Tickets | `design/entry_reset/tickets/` |
 | Verdicts, newest first | `design/entry_reset/T54_FORWARD_VOL_20260823.md`, `T53_REGIME_SPLIT_20260823.md`, `T52_REGIME_20260823.md`, `T50_DIAGNOSIS_20260823.md`, `T44_TAUTOLOGY_AUDIT_20260823.md`, `T41_R6_SPEED_20260823.md`, `T42_CORPUS_GRID_20260823.md`, `T43_RESOLUTION_20260823.md`, `T39_VERDICT_20260823.md`, `T35_VERDICT_20260823.md`, `T29_T34_VERDICT_20260823.md` |
 | Receipts | `artifacts/entry_v2/tabular_recovery/diagnostics/` |
 | Probe logs | `artifacts/cache/t28_logs/` |
-| Finished gate ledgers | `design/gates_ledgers/` |
-| Defect classes, all paid for | `.claude/skills/generalizing-fixes/DEFECT_CLASSES.md` |
 | Hardware truth | `HARDWARE.md` |
 | Data inventory | `DATA_INVENTORY.md` |
 
 ## If the pod restarted
 
 Reinstall from `HARDWARE.md`, then `bash tools/run_all_checks.sh --fast`. The
-matrix, receipts and OptMem live on `/workspace`. The overlay `/` does not.
+matrix, receipts and memory ledger live on `/workspace`. The overlay `/` does not.

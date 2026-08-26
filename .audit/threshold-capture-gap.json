@@ -1,0 +1,351 @@
+{
+  "capture": {
+    "best_time_rank_hist": {
+      "0": 149,
+      "1": 105,
+      "10": 43,
+      "100": 1,
+      "101": 3,
+      "104": 1,
+      "105": 4,
+      "106": 2,
+      "107": 1,
+      "108": 1,
+      "109": 3,
+      "11": 41,
+      "110": 3,
+      "111": 2,
+      "113": 1,
+      "114": 1,
+      "115": 1,
+      "116": 3,
+      "118": 1,
+      "119": 1,
+      "12": 44,
+      "120": 2,
+      "121": 3,
+      "122": 1,
+      "123": 1,
+      "124": 1,
+      "125": 1,
+      "126": 3,
+      "127": 1,
+      "128": 1,
+      "13": 28,
+      "130": 1,
+      "131": 4,
+      "132": 4,
+      "133": 1,
+      "135": 1,
+      "137": 2,
+      "138": 2,
+      "139": 1,
+      "14": 25,
+      "141": 2,
+      "143": 2,
+      "145": 1,
+      "146": 3,
+      "147": 1,
+      "148": 1,
+      "149": 1,
+      "15": 31,
+      "150": 1,
+      "153": 1,
+      "157": 2,
+      "158": 1,
+      "16": 33,
+      "160": 1,
+      "163": 1,
+      "166": 2,
+      "17": 27,
+      "171": 1,
+      "172": 2,
+      "173": 1,
+      "18": 31,
+      "182": 1,
+      "184": 2,
+      "19": 24,
+      "194": 2,
+      "198": 1,
+      "2": 76,
+      "20": 24,
+      "200": 2,
+      "208": 1,
+      "21": 27,
+      "213": 1,
+      "22": 32,
+      "224": 1,
+      "23": 16,
+      "24": 21,
+      "249": 1,
+      "25": 17,
+      "26": 21,
+      "27": 13,
+      "271": 1,
+      "275": 1,
+      "28": 20,
+      "29": 18,
+      "292": 1,
+      "3": 68,
+      "30": 12,
+      "31": 7,
+      "32": 8,
+      "33": 13,
+      "34": 17,
+      "35": 7,
+      "36": 20,
+      "365": 1,
+      "37": 6,
+      "38": 16,
+      "39": 9,
+      "4": 69,
+      "40": 17,
+      "41": 8,
+      "42": 20,
+      "43": 9,
+      "44": 10,
+      "45": 9,
+      "46": 7,
+      "47": 2,
+      "48": 7,
+      "49": 8,
+      "5": 47,
+      "50": 16,
+      "51": 9,
+      "52": 7,
+      "53": 3,
+      "54": 5,
+      "55": 5,
+      "56": 17,
+      "57": 6,
+      "58": 3,
+      "59": 6,
+      "6": 40,
+      "60": 5,
+      "61": 8,
+      "62": 3,
+      "63": 2,
+      "64": 2,
+      "65": 4,
+      "66": 6,
+      "67": 2,
+      "68": 4,
+      "69": 1,
+      "7": 33,
+      "70": 8,
+      "71": 2,
+      "72": 8,
+      "73": 4,
+      "74": 5,
+      "75": 3,
+      "76": 5,
+      "77": 5,
+      "78": 4,
+      "79": 3,
+      "8": 44,
+      "80": 2,
+      "81": 2,
+      "82": 3,
+      "83": 3,
+      "84": 4,
+      "85": 3,
+      "86": 2,
+      "87": 5,
+      "88": 3,
+      "89": 2,
+      "9": 42,
+      "90": 3,
+      "91": 3,
+      "92": 3,
+      "93": 3,
+      "94": 2,
+      "95": 3,
+      "97": 2,
+      "99": 3
+    },
+    "cash_left_on_table_usd": 2088412.5,
+    "match_rate": 0.08602771362586605,
+    "mean_best_time_rank": 28.221709006928407,
+    "mean_cell_n_clear": 105.48903002309468,
+    "n_cells": 1732,
+    "n_earliest_is_best": 149
+  },
+  "check_command": "python3 .audit/score_threshold_capture_gap.py",
+  "dollar_stop": {
+    "applied": "Earliest, latest, and cheapest CLEAR all miss the rungs. Earliest matches cell-best in 149 of 1732 cells (match_rate 0.0860). Mean time rank of the winner is 28.22 in a mean cell of 105.5 CLEAR names. The miss is within-cell identity, not a missing ceiling, and not first-versus-last or frozen_cost. Next unit is one live G1 scalar that is not time or cost, or one fitted name instrument. Teacher-cash still cannot promote.",
+    "captured_live_rules": [],
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "verdict": "MISS"
+  },
+  "label": "live name pick versus cell-best on the stored join. It can name the miss and cannot promote.",
+  "lines": {
+    "cell_best": {
+      "cash_total_usd": {
+        "HG": 543513.75,
+        "NKD": 740152.5,
+        "SI": 741170.0
+      },
+      "clears_rungs": true,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 0.0,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": 1171.1025159051476,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {},
+      "trades": 1729,
+      "usd_per_asset_day": {
+        "HG": 2758.953045685279,
+        "NKD": 3815.2190721649486,
+        "SI": 3880.471204188482
+      }
+    },
+    "cheapest": {
+      "cash_total_usd": {
+        "HG": -1366.25,
+        "NKD": -17635.0,
+        "SI": 1865.0
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 36358.75,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -9.882497116493656,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2006.9352791878173,
+        "NKD": 1590.9020618556701,
+        "SI": 1490.235602094241
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -6.935279187817259,
+        "NKD": -90.9020618556701,
+        "SI": 9.764397905759163
+      }
+    },
+    "earliest": {
+      "cash_total_usd": {
+        "HG": -19522.5,
+        "NKD": -13347.5,
+        "SI": -31040.0
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 95281.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -36.85697808535179,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2099.0989847715737,
+        "NKD": 1568.8015463917525,
+        "SI": 1662.5130890052355
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -99.0989847715736,
+        "NKD": -68.80154639175258,
+        "SI": -162.5130890052356
+      }
+    },
+    "latest": {
+      "cash_total_usd": {
+        "HG": -8355.0,
+        "NKD": -16387.5,
+        "SI": -7790.0
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 32733.75,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -18.761534025374857,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2042.4111675126903,
+        "NKD": 1584.471649484536,
+        "SI": 1540.7853403141362
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -42.411167512690355,
+        "NKD": -84.47164948453609,
+        "SI": -40.78534031413613
+      }
+    }
+  },
+  "n_forecast_rows_read": 37427,
+  "rule": "On every joinable 2022-03-09 through 2024-12-31 cell, compare the killed read's earliest CLEAR to the latest CLEAR, the cheapest frozen_cost CLEAR, and the READY teacher with maximum cert_close_usd. Score each live rule the same way as the killed read: one contract per cell, cash is cert_close_usd on READY. Cell-best enters only when that maximum is positive. The day gate is the freeze expanding median.",
+  "schema": "QRE2THRESHOLDCAPTUREGAP1",
+  "sources": {
+    "candidates_root": "artifacts/cache/port/entry_v2/g1/candidates",
+    "forecasts": {
+      "path": "artifacts/runs/e6_vol_forecasts_v2/vol_service_forecasts.tsv",
+      "sha256": "9bea40ac23749bf5f39e8147e96db45c651c140c5fc1573fec8e036c2b7b7a2c"
+    },
+    "freeze": {
+      "path": ".audit/threshold-2022-2024-freeze.md",
+      "sha256": "730fa98017e1e37532f0d4b0b0d209dc4d7512c3dbb752d95467086f4ff3854d"
+    },
+    "killed_read": {
+      "path": ".audit/threshold-2022-2024-read.json",
+      "sha256": "2f988fe93d895b06f01f64fa9191c4c4827e370312219dfd4c563b46dea6a891"
+    },
+    "receipts_root": "artifacts/cache/port/entry_v2/g1/receipts",
+    "teacher_root": "artifacts/cache/port/entry_v2/g1/teacher"
+  },
+  "status": "MISS",
+  "verdict": "MISS",
+  "wall_clock_sec": 34.196,
+  "window": [
+    "2022-03-09",
+    "2024-12-31"
+  ],
+  "workers": 14
+}

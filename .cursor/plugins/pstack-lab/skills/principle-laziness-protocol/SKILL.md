@@ -15,4 +15,6 @@ Writing code is cheap for you, which makes over-engineering easy. Counter it by 
 - **Question the threading.** If a task asks you to pass a new signal through types, schemas, pipelines, or similar layers, stop and look for a more direct path.
 - **Sweat the small leaks.** Remove tiny pass-throughs, representation leaks, and duplicated choices before they spread. Small leaks compound into permanent coordination costs.
 
+A found plan, ticket folder, or method packet is not an assignment. If START_HERE does not name it as the live unit, leave it. Overdoing is extra phases, extra tickets, extra scanners, and extra packets. Stop at the named gate.
+
 **Prime directive:** If a human developer would find the code exhausting to maintain, it is a bad solution. Be lazy. Stay simple.

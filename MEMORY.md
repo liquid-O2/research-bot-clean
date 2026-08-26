@@ -5332,3 +5332,4 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - 2026-08-26 #576 rclone 1.75 R2 flags: tristate needs =true/=false. Smoke put/get of START_HERE.md to r2:runp/_bootstrap ok. Full copy next. Walls untouched.
 - 2026-08-26 #577 GitHub main at 3fd74cd. rclone copy /workspace -> r2:runp in flight, 64 transfers, walls nkd-hg/rty/russel untouched. Log artifacts/cache/r2_backup.log.
 - 2026-08-26 #578 DECISION Fable and Sol keep vendor system prompts. One-line append is .codex/follow-rules.md, which says read START_HERE then every file in .cursor/rules. Codex model_instructions_file is on. AGENTS.md is the backup. Compact rereads START_HERE.
+- 2026-08-26 #579 USER old tickets are 2026-08-23 plan-flow backlog, not a poteto queue. START_HERE no longer lists them as the frontier. Grok native rules are .grok/rules/follow.md, same one line as Fable/Sol. New pod restore is tools/r2_restore.sh.

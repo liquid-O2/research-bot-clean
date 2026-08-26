@@ -8,10 +8,14 @@ alwaysApply: true
 This is not a new principle. It is **principle-laziness-protocol** and **principle-subtract-before-you-add** as an always-on Cursor rule, so the brake still fires when the agent never opens `/poteto-mode`.
 
 - Ship the smallest diff that closes the named gate. Prefer deletion.
-- Do not add a framework, scanner, or extra phase unless the gate names it.
+- Do not add a framework, scanner, extra phase, or extra ticket unless the gate names it.
 - A cleanup or "simple" task is not a redesign. Close the current gate, then stop.
 - Do not expand a plan after the user accepted it. New scope needs a new ask.
 - `exhaust-the-design-space` means 2-3 cheap prototypes when the design is actually open. It does not mean inventing ten phases.
 - If a step would take more than one session or a full-repo walk, split it or index it. Do not scan hundreds of thousands of files to prove a theory.
+
+Finding a plan is not a reason to run it. `design/entry_reset/tickets/` and `ENTRY_PLAN_20260823.md` are the 2026-08-23 plan-flow backlog. They are not the live queue. Do not resume 37, 46, 47, 45, 48, 51, or 54 because the files exist. The live unit is the one START_HERE names under Live cursor.
+
+Codex and Fable overdo by opening the next phase because the current one reminded them of a ticket, a catalog, or a packet. One named unit. Stop at the receipt. Laziness-protocol is deletion and the smallest gate, not a second plan.
 
 Codex session `01a034f0` is the anti-pattern: plan-flow plus a mandatory full-catalog packet, then Phase 2 grew a custom audit engine instead of writing the liveness registry.

@@ -1,5 +1,8 @@
 # Entry V2 — the plan, 2026-08-23
 
+SUPERSEDED. Live work is START_HERE live cursor (covering C). This file is the
+2026-08-23 plan-flow backlog. Do not walk it. Tickets 37, 46, 47 stay unstarted.
+
 Written after the ticket-44 audit and with the 2022-2024 substrate on disk. It
 names the main issue, which the program has never had written down in one line,
 and it is deliberately not another arm over the 1,764 columns at ages <= 300 s.

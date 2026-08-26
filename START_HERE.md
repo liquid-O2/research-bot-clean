@@ -91,8 +91,10 @@ Plugin: `.cursor/plugins/pstack-lab`. Overlays: `.cursor/skills`, `.cursor/rules
 Principles first, then Akita as a shape check. Do not install stock Pstack.
 
 On this Grok host, the order is this file, covering map, live brief. Canonical
-rule bodies live in `.cursor/rules/`. The one-line append is
-`.codex/follow-rules.md`. Do not stuff those bodies into the vendor prompt.
+rule bodies live in `.cursor/rules/`. Grok appends `.grok/rules/follow.md` to
+its own system prompt (native `.grok/rules/`, not Cursor `.mdc`). Fable and Sol
+get the same line via `.codex/follow-rules.md`. Do not stuff the bodies into
+the vendor prompt.
 
 ## Commands
 
@@ -119,6 +121,30 @@ binaries. Those ride R2. Do not put secrets in git. Rclone keys live at
 `.secrets/rclone-r2.conf` (mode 0600, gitignored). Fallback `/tmp/rclone-r2.conf`.
 
 Backup command: `bash tools/r2_backup.sh`. GitHub push first, then that script.
+
+## New pod
+
+Keys are not in git. Put `.secrets/rclone-r2.conf` (or `/tmp/rclone-r2.conf`)
+on the box first. Then pull the volume:
+
+    bash tools/r2_restore.sh
+
+If the tree is empty and the script is not there yet:
+
+    rclone copy r2:runp /workspace --config /tmp/rclone-r2.conf \
+      --transfers 64 --fast-list --no-check-dest --s3-no-check-bucket \
+      --s3-use-x-id=false --s3-no-head --s3-use-unsigned-payload=true \
+      --s3-disable-checksum --s3-sign-accept-encoding=false
+
+Do not write `nkd-hg`, `rty`, or `russel`. Overlay `/` is empty after a pod
+start, so reinstall from `HARDWARE.md` with `uv`. Skills come with the tree
+under `.cursor/plugins/pstack-lab`. Do not install stock Pstack.
+
+Codex on the new box needs this line in `~/.codex/config.toml`:
+
+    model_instructions_file = "/workspace/.codex/follow-rules.md"
+
+Grok loads `.grok/rules/follow.md` by itself. Same one line as Fable and Sol.
 
 ---
 
@@ -282,27 +308,15 @@ forward-vol plane and the entry plane can be joined at all.
 
 # 5. The frontier
 
-Tickets live in `design/entry_reset/tickets/`. The plan is
-`design/entry_reset/ENTRY_PLAN_20260823.md`.
+The live unit is in Live cursor. Right now that is covering C.
 
-1. **45 — one-session pilot** through `build_corpus`. The gate everything blocks
-   on. Must catch the prior-absent first-day branch, forecast-context wiring
-   (2021 never exercised it), schema drift, and the measured per-session cost.
-2. **46 — extended age grid.** The corpus grid is nine ages
-   (`ConfirmationConfig.age_grid="CORPUS"`), which is the union of what every
-   live probe reads. For a REBUILD that criterion is circular, so the grid gains
-   a late tail (600 to 10,800 s) preregistered from the hold's own entry ages.
-   Costs the `max_delay_sec in (300, 600)` refusal, which is teacher-identity
-   machinery.
-3. **47 — build the corpus.** R6 adoption is DEFERRED on purpose: the oracle path
-   is 2.0-4 h wall, inside the cap, and wiring a native plane into a 2,000-line
-   production file to save an hour serialises science behind harness work.
-4. **48 — freeze the protocol** before any 2022+ outcome is read.
-5. **54 — join the forward-vol model.** The chain to MEASURE, not assume:
-   forecast range (21-28% skill) → realized range → cell-best (ticket 19 measured
-   Spearman 0.82 between cells on 2021).
-6. **51 — land in the top two**, and **37** (`pivot_mid2` / G1 tape tagging) only
-   if the plane closes.
+`design/entry_reset/tickets/` and `ENTRY_PLAN_20260823.md` are the 2026-08-23
+plan-flow backlog, written when Pstack plan-flow was added. Poteto covering
+never replaced them with new tickets. That folder is not a queue. Finding it
+is not a reason to execute it. Do not walk 37, 46, 47, 45, 48, 51, or 54.
+
+B (late ages) is ticket 46's shape. It waits until C dies. Ticket 47 as a copy
+of the 2021 schema is dead spend.
 
 ## The protocol that must not be broken
 
@@ -337,10 +351,11 @@ in the same sentence it is reported.
 | Cursor method | `.cursor/plugins/pstack-lab`, `.cursor/rules/` |
 | Fable/Sol one-line append | `.codex/follow-rules.md` |
 | Canonical rule bodies | `.cursor/rules/` |
-| R2 backup | `tools/r2_backup.sh`, keys in `.secrets/rclone-r2.conf` |
+| Grok native rules | `.grok/rules/follow.md` (one line, same as Fable/Sol) |
+| R2 backup / restore | `tools/r2_backup.sh`, `tools/r2_restore.sh`, keys in `.secrets/rclone-r2.conf` |
 | Archived onboarding | `archive/lean-repo-20260825/` (STATE, DIRECTIVES, gates, unlazy) |
-| The plan | `design/entry_reset/ENTRY_PLAN_20260823.md` |
-| Tickets | `design/entry_reset/tickets/` |
+| 2026-08-23 plan (not live) | `design/entry_reset/ENTRY_PLAN_20260823.md` |
+| 2026-08-23 tickets (not a queue) | `design/entry_reset/tickets/` |
 | Verdicts, newest first | `design/entry_reset/T54_FORWARD_VOL_20260823.md`, `T53_REGIME_SPLIT_20260823.md`, `T52_REGIME_20260823.md`, `T50_DIAGNOSIS_20260823.md`, `T44_TAUTOLOGY_AUDIT_20260823.md`, `T41_R6_SPEED_20260823.md`, `T42_CORPUS_GRID_20260823.md`, `T43_RESOLUTION_20260823.md`, `T39_VERDICT_20260823.md`, `T35_VERDICT_20260823.md`, `T29_T34_VERDICT_20260823.md` |
 | Receipts | `artifacts/entry_v2/tabular_recovery/diagnostics/` |
 | Probe logs | `artifacts/cache/t28_logs/` |

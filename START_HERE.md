@@ -73,11 +73,12 @@ Cursor Ultra is exhausted (~97% monthly). Do not use Cursor as the overnight par
 
 | Seat | Who | How |
 |---|---|---|
-| Parent | Grok 4.6 xhigh on this TUI | Reads this file. Tasks the others. Writes MEMORY notes. |
-| Designer / covering / Stage 1 judge | Fable `claude-fable-5-thinking-max` only | Parent Tasks, or `claude -p --append-system-prompt-file .codex/follow-rules.md`. No thinking-high fallback. |
-| Specified hard walks | Sol `gpt-5.6-sol-max` | `codex exec`. Codex `model_instructions_file` is the one follow-rules line. Vendor prompt stays intact. |
+| Parent / overnight | Grok 4.6 xhigh on this TUI | Reads this file. Spawns Grok subagents. Writes MEMORY notes. Does not stop at a child receipt. |
+| Normal work | Grok `general-purpose`, `explore`, `plan` | `spawn_subagent` in this session. Same `/workspace`, same `.grok/rules/`. |
+| Designer / covering / Stage 1 judge | Fable `claude-fable-5-thinking-max` only | `claude -p --append-system-prompt-file .codex/follow-rules.md`. No thinking-high fallback. Not a Grok subagent. |
+| Specified hard walks | Sol `gpt-5.6-sol-max` | `codex exec`. `model_instructions_file` is the one follow-rules line. Not a Grok subagent. |
 
-Send parent-facing prompts to the parent. The parent Tasks the seat. Do not write "You are Fable" into a parent paste.
+Send parent-facing prompts to the parent. Do not write "You are Fable" into a parent paste. Do not `/model` the parent onto Sol or Fable.
 
 Paste files:
 
@@ -86,15 +87,19 @@ Paste files:
 
 ## Method
 
-`/poteto-mode` owns playbooks, principles, and review when Cursor has quota.
-Plugin: `.cursor/plugins/pstack-lab`. Overlays: `.cursor/skills`, `.cursor/rules`.
-Principles first, then Akita as a shape check. Do not install stock Pstack.
+`/poteto-mode` owns playbooks and the principle catalog. Plugin:
+`.cursor/plugins/pstack-lab`. Always-on layer is `.cursor/rules/` (Cursor `.mdc`)
+and `.grok/rules/` (Grok `.md`, same bodies). Matching principle leaves are
+mandatory. The 21 leaves are not stuffed into the prompt. Equal-standing: open
+the leaf when its trigger matches. Do not install stock Pstack.
 
-On this Grok host, the order is this file, covering map, live brief. Canonical
-rule bodies live in `.cursor/rules/`. Grok appends `.grok/rules/follow.md` to
-its own system prompt (native `.grok/rules/`, not Cursor `.mdc`). Fable and Sol
-get the same line via `.codex/follow-rules.md`. Do not stuff the bodies into
-the vendor prompt.
+Overnight follows principle-never-block-on-the-human and
+`playbooks/autonomous-run.md`. A unit ends at a check
+(principle-sequence-verifiable-units). The parent then continues. A specified
+CLI child stops at its named receipt. The parent does not.
+
+On this Grok host, the order is this file, covering map, live brief. Fable and
+Sol keep their vendor system prompts plus `.codex/follow-rules.md`.
 
 ## Commands
 
@@ -350,8 +355,9 @@ in the same sentence it is reported.
 | C Stage 0 brief | `.audit/briefs/threshold-cfit-stage0.md` |
 | Cursor method | `.cursor/plugins/pstack-lab`, `.cursor/rules/` |
 | Fable/Sol one-line append | `.codex/follow-rules.md` |
-| Canonical rule bodies | `.cursor/rules/` |
-| Grok native rules | `.grok/rules/follow.md` (one line, same as Fable/Sol) |
+| Canonical always-on bodies | `.cursor/rules/*.mdc` |
+| Grok always-on (loaded) | `.grok/rules/*.md` (same bodies, plus seats.md) |
+| Principle catalog | poteto-mode SKILL.md Principles section. Matching leaves only. |
 | R2 backup / restore | `tools/r2_backup.sh`, `tools/r2_restore.sh`, keys in `.secrets/rclone-r2.conf` |
 | Archived onboarding | `archive/lean-repo-20260825/` (STATE, DIRECTIVES, gates, unlazy) |
 | 2026-08-23 plan (not live) | `design/entry_reset/ENTRY_PLAN_20260823.md` |

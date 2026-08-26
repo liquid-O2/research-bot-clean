@@ -1,8 +1,3 @@
----
-description: Bias to the smallest change. Blocks plan and implement overbuild.
-alwaysApply: true
----
-
 # Smallest change
 
 This is not a new principle. It is **principle-laziness-protocol** and **principle-subtract-before-you-add** as an always-on rule, so the brake still fires when the agent never opens `/poteto-mode`.

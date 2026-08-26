@@ -35,14 +35,17 @@ stay unstarted. 2021 can kill. 2021 cannot promote. 2025H2 stays sealed.
 Cursor Ultra is exhausted (~97% monthly). Do not use Cursor as the overnight
 parent. Daily parent is this Grok TUI. Sol specified walks: `codex exec` or
 Cursor Task only if quota returns. Fable: `claude -p` with
-`.codex/always-on-rules.md` appended, or Cursor Task
-`claude-fable-5-thinking-max` if quota returns.
+`--append-system-prompt-file .codex/follow-rules.md`, or Cursor Task
+`claude-fable-5-thinking-max` if quota returns. Sol and Fable keep their
+vendor system prompts. The only add is one line: read `.cursor/rules/`
+and follow those files. After compact, read this file first.
 
 ---
 
 # 1. How to work here
 
-Any host, any model. This file is the index. `AGENTS.md` only points here.
+Any host, any model. This file is the index. `AGENTS.md` also says to
+follow `.cursor/rules/` as a backup if the one-line append is missing.
 
 ## First read
 
@@ -71,8 +74,8 @@ Cursor Ultra is exhausted (~97% monthly). Do not use Cursor as the overnight par
 | Seat | Who | How |
 |---|---|---|
 | Parent | Grok 4.6 xhigh on this TUI | Reads this file. Tasks the others. Writes MEMORY notes. |
-| Designer / covering / Stage 1 judge | Fable `claude-fable-5-thinking-max` only | Parent Tasks, or `claude -p` with `--append-system-prompt-file .codex/always-on-rules.md`. No thinking-high fallback. |
-| Specified hard walks | Sol `gpt-5.6-sol-max` | `codex exec`. Codex `model_instructions_file` is off (held). |
+| Designer / covering / Stage 1 judge | Fable `claude-fable-5-thinking-max` only | Parent Tasks, or `claude -p --append-system-prompt-file .codex/follow-rules.md`. No thinking-high fallback. |
+| Specified hard walks | Sol `gpt-5.6-sol-max` | `codex exec`. Codex `model_instructions_file` is the one follow-rules line. Vendor prompt stays intact. |
 
 Send parent-facing prompts to the parent. The parent Tasks the seat. Do not write "You are Fable" into a parent paste.
 
@@ -87,8 +90,9 @@ Paste files:
 Plugin: `.cursor/plugins/pstack-lab`. Overlays: `.cursor/skills`, `.cursor/rules`.
 Principles first, then Akita as a shape check. Do not install stock Pstack.
 
-On this Grok host, the order is this file, covering map, live brief. Rules text
-for append-only use: `.codex/always-on-rules.md`.
+On this Grok host, the order is this file, covering map, live brief. Canonical
+rule bodies live in `.cursor/rules/`. The one-line append is
+`.codex/follow-rules.md`. Do not stuff those bodies into the vendor prompt.
 
 ## Commands
 
@@ -331,7 +335,8 @@ in the same sentence it is reported.
 | Covering map (live) | `.audit/briefs/threshold-covering-after-pivot-kill-out.md` |
 | C Stage 0 brief | `.audit/briefs/threshold-cfit-stage0.md` |
 | Cursor method | `.cursor/plugins/pstack-lab`, `.cursor/rules/` |
-| Fable/Sol append rules | `.codex/always-on-rules.md` |
+| Fable/Sol one-line append | `.codex/follow-rules.md` |
+| Canonical rule bodies | `.cursor/rules/` |
 | R2 backup | `tools/r2_backup.sh`, keys in `.secrets/rclone-r2.conf` |
 | Archived onboarding | `archive/lean-repo-20260825/` (STATE, DIRECTIVES, gates, unlazy) |
 | The plan | `design/entry_reset/ENTRY_PLAN_20260823.md` |

@@ -1,8 +1,11 @@
-# Cursor agents
+# Agents
 
-Read `START_HERE.md` first. Every host, every model. That file is the live
-index (goal, covering unit, seats, memory, GitHub/R2). Compaction summaries
-are not the record.
+Follow every file in `.cursor/rules/` religiously. Read the folder. Apply each
+file. Those rules outrank personality, commentary cadence, autonomy, and
+"time never runs out".
+
+Read `START_HERE.md` first. After compact, read `START_HERE.md` again, then
+`.cursor/rules/` again. Compaction summaries are not the record.
 
 SessionStart injects the last 12 lasting notes from `MEMORY.md`.
 

@@ -5338,3 +5338,4 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - 2026-08-26 #582 HOST rclone throttled to 8 transfers, nice 15, ignore-existing. Overnight paste .cursor/prompts/overnight-c.md. Fresh Grok session, do not resume the old chat.
 - 2026-08-26 #583 HOST Codex hooks.state stripped. CLI children use Cursor Task briefs via cli-dispatch.md. Sol-max is covering peer and specified walker on different children. Fresh Grok, overnight-c.md.
 - 2026-08-26 #584 HOST All 46 pstack-lab skills symlinked into .cursor/skills .claude/skills .codex/skills .agents/skills. Grok inspect lists them as project. Re-run tools/install_pstack_skills.sh on a new pod.
+- 2026-08-26 #585 USER pstack-lab is the live catalog. Pocock grilling/to-spec/wayfinder sit inside poteto-mode, not as extra slash skills. Do not install the vendor Pocock tree beside it.

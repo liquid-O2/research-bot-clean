@@ -37,4 +37,7 @@ A symlink also lives at `~/.cursor/plugins/local/pstack-lab`.
 - Minutes-not-hours is `.cursor/rules/fast-enough.mdc`. Do not over-optimize.
 - Akita is the later shape check, `.cursor/rules/akita.mdc`. Design the seam first.
 
-Project `.cursor/skills` only overrides `poteto-mode`, `principle-codebase-design`, `writing-for-agents`, and `tdd`. The rest come from the plugin.
+`.cursor/skills`, `.claude/skills`, `.codex/skills`, and `.agents/skills` are
+symlinks to this plugin's skill tree. There is one catalog. Pocock grilling,
+to-spec, and wayfinder are inside poteto-mode (`references/grilling-flow.md`,
+`references/wayfinder-planning.md`), not extra slash skills.

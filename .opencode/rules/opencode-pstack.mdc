@@ -1,0 +1,41 @@
+---
+description: OpenCode pstack wiring. Parent is Grok. Hard work is GPT 5.6 Sol. Task types match the Cursor plugin.
+alwaysApply: true
+---
+
+# OpenCode pstack
+
+This host is OpenCode. Ignore `cursor-agent`. Ignore Cursor model slugs.
+
+The method is still `/poteto-mode` from `.cursor/plugins/pstack-lab/skills/poteto-mode/SKILL.md`. That file is the poteto primary prompt. Do not treat it as a skill you load once and turn into a todo list.
+
+A todo list is not the work. When a playbook leaf names a delegate, fire `task` and keep going. Do not implement that leaf in the parent.
+
+Matching poteto principles outrank Akita. Design the seam first. Estimate wall time before a run. `.cursor/rules/fast-enough.mdc` owns the minutes path (vectorize, Numba/Cython, 13–16 cores, GPU with a parity receipt). Do not over-spend on the last percent.
+
+## Task types
+
+Same menu as the Cursor plugin. Names must match.
+
+- Playbook code-writing delegates and ad-hoc helpers: `subagent_type: "poteto-agent"`.
+- `how`, `why`, `interrogate`, `reflect`, `swarm`, `architect` workers: use the type that skill names. On OpenCode, `generalPurpose` exists as an alias of `general`. Do not rewrite those calls to `poteto-agent`.
+- Read-only search: `explore` is allowed.
+- Comment sweep: `comment-sicko`.
+- Do not refuse `task`. Do not substitute `build` for a named worker.
+
+## Models
+
+Same role table as Cursor. File: `.opencode/rules/pstack-models.mdc`. `/setup-pstack` rewrites it. Do not use Cursor slugs here.
+
+- Parent and Grok roles: `xai/grok-4.6#xhigh`
+- Hard / Sol roles: `openai/gpt-5.6-sol#max`
+
+Pass those strings as Task `model`. `inherit-parent` omits `model`. If a provider is not connected, inherit-parent. Do not write `gpt-5` or bare `grok-4`.
+
+Fable seats (how explainer, judgment and prose, why synthesizer, architect advice) call the `claude_advisor` tool. That runs the official `claude` CLI, blocks until it exits, and returns the full reply. Do not `task` Fable. Do not `bash` Claude. Wait for `claude_advisor` to finish, then continue the playbook.
+
+## Overlay
+
+Cursor's plugin is `.cursor/plugins/pstack-lab` (full skill tree, agents, rules). The project overlay is `.cursor/skills` (five names that win over the plugin: poteto-mode, principle-codebase-design, writing-for-agents, tdd, unslop). Those five are symlinks to the plugin today.
+
+OpenCode: `skills.paths` lists the overlay dir first, then the plugin tree. `.opencode/agents` and `.opencode/commands` are the plugin agents and `/poteto-mode`. `.opencode/plugins/pstack-cursor.js` injects `.mdc` rules. Do not install oh-my-opencode. It replaces the primary agent.

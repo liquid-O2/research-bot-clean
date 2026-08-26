@@ -338,6 +338,19 @@ struct EventKey {
     return std::tie(lhs.ts_recv_ns, lhs.ordinal) <
            std::tie(rhs.ts_recv_ns, rhs.ordinal);
   }
+  friend bool operator==(const EventKey&, const EventKey&) = default;
+};
+
+struct PivotBirth {
+  std::int8_t side = 0;
+  std::int64_t pivot_mid2 = 0;
+  EventKey pivot_key{};
+  std::int64_t leg_start_mid2 = 0;
+  EventKey leg_start_key{};
+  std::int64_t conf_mid2 = 0;
+  std::int64_t threshold_mid2_raw = 0;
+
+  friend bool operator==(const PivotBirth&, const PivotBirth&) = default;
 };
 
 struct RawZigZag {
@@ -348,7 +361,7 @@ struct RawZigZag {
   EventKey low_key{};
   std::int8_t direction = 0;
 
-  [[nodiscard]] std::optional<std::int8_t> observe(
+  [[nodiscard]] std::optional<PivotBirth> observe(
       std::int64_t mid2, EventKey key, std::int64_t threshold) {
     if (!initialized) {
       initialized = true;
@@ -361,10 +374,12 @@ struct RawZigZag {
         high = mid2;
         high_key = key;
       } else if (high - mid2 >= threshold) {
+        const PivotBirth birth{
+            -1, high, high_key, low, low_key, mid2, threshold};
         direction = -1;
         low = mid2;
         low_key = key;
-        return static_cast<std::int8_t>(-1);
+        return birth;
       }
       return std::nullopt;
     }
@@ -373,10 +388,12 @@ struct RawZigZag {
         low = mid2;
         low_key = key;
       } else if (mid2 - low >= threshold) {
+        const PivotBirth birth{
+            1, low, low_key, high, high_key, mid2, threshold};
         direction = 1;
         high = mid2;
         high_key = key;
-        return static_cast<std::int8_t>(1);
+        return birth;
       }
       return std::nullopt;
     }
@@ -399,16 +416,20 @@ struct RawZigZag {
       }
     }
     if (down) {
+      const PivotBirth birth{
+          -1, high, high_key, low, low_key, mid2, threshold};
       direction = -1;
       low = mid2;
       low_key = key;
-      return static_cast<std::int8_t>(-1);
+      return birth;
     }
     if (up) {
+      const PivotBirth birth{
+          1, low, low_key, high, high_key, mid2, threshold};
       direction = 1;
       high = mid2;
       high_key = key;
-      return static_cast<std::int8_t>(1);
+      return birth;
     }
     return std::nullopt;
   }
@@ -908,8 +929,12 @@ Expected<CandidateSession, Refusal> generate_g1_candidates(
   }
 
   std::array<RawZigZag, kG1RungCount> machines{};
+  struct ConfirmationBirths {
+    std::uint8_t rung_mask = 0;
+    std::array<std::optional<PivotBirth>, kG1RungCount> by_rung{};
+  };
   std::map<std::tuple<std::uint64_t, std::uint64_t, std::int8_t, std::uint64_t>,
-           std::uint8_t>
+           ConfirmationBirths>
       confirmations;
   std::vector<SaneObservation> sane;
   sane.reserve(pack.rows.size());
@@ -994,12 +1019,19 @@ Expected<CandidateSession, Refusal> generate_g1_candidates(
     if (!priors.atr14_present) continue;
     const EventKey key{row.ts_recv_ns, static_cast<std::uint64_t>(i)};
     for (std::size_t r = 0; r < machines.size(); ++r) {
-      const auto side = machines[r].observe(
+      const auto birth = machines[r].observe(
           observed.value().mid2, key, thresholds[observed.value().phase][r]);
-      if (side.has_value()) {
-        confirmations[{row.ts_recv_ns, static_cast<std::uint64_t>(i), *side,
-                       decision.generation}] |=
-            static_cast<std::uint8_t>(1u << r);
+      if (birth.has_value()) {
+        ConfirmationBirths& confirmation =
+            confirmations[{row.ts_recv_ns, static_cast<std::uint64_t>(i),
+                           birth->side, decision.generation}];
+        if (confirmation.by_rung[r].has_value()) {
+          return refuse<CandidateSession>(g1_content(
+              "qr_entry_v2::generate_g1_candidates",
+              "one rung fired twice at one confirmation"));
+        }
+        confirmation.rung_mask |= static_cast<std::uint8_t>(1u << r);
+        confirmation.by_rung[r] = *birth;
       }
     }
   }
@@ -1028,9 +1060,15 @@ Expected<CandidateSession, Refusal> generate_g1_candidates(
   }
 
   result.confirmations = confirmations.size();
-  std::map<std::tuple<std::uint64_t, std::uint64_t, std::int8_t>, CandidateRow> emitted;
+  struct EmittedCandidate {
+    CandidateRow candidate;
+    std::array<std::optional<PivotBirth>, kG1RungCount> by_rung{};
+  };
+  std::map<std::tuple<std::uint64_t, std::uint64_t, std::int8_t>,
+           EmittedCandidate>
+      emitted;
   const std::uint64_t close_ns = static_cast<std::uint64_t>(lock.close_utc) * kNsPerSecond;
-  for (const auto& [key, rung_mask] : confirmations) {
+  for (const auto& [key, confirmation] : confirmations) {
     const auto [confirmation_ts, confirmation_ordinal, side,
                 confirmation_generation] = key;
     const std::uint8_t confirmation_phase = phase_at(confirmation_ts, schedule);
@@ -1109,7 +1147,7 @@ Expected<CandidateSession, Refusal> generate_g1_candidates(
           utc_second(decision_ts) - lock.open_utc);
       candidate.side = side;
       candidate.phase = decision_phase;
-      candidate.rung_mask = rung_mask;
+      candidate.rung_mask = confirmation.rung_mask;
       candidate.delay = delay;
       candidate.phase_open_utc = decision_clocks.open_utc;
       candidate.phase_close_utc = decision_clocks.close_utc;
@@ -1128,32 +1166,77 @@ Expected<CandidateSession, Refusal> generate_g1_candidates(
       candidate.spread_prior_usd = spread.median_spread_usd;
       candidate.sane_ceiling_usd = spread.sane_ceiling_usd;
       const auto emission_key = std::make_tuple(decision_ts, confirmation_ordinal, side);
-      auto [found, inserted] = emitted.emplace(emission_key, candidate);
+      auto [found, inserted] = emitted.emplace(
+          emission_key, EmittedCandidate{candidate, confirmation.by_rung});
       if (!inserted) {
-        found->second.rung_mask = static_cast<std::uint8_t>(found->second.rung_mask | rung_mask);
+        found->second.candidate.rung_mask = static_cast<std::uint8_t>(
+            found->second.candidate.rung_mask | confirmation.rung_mask);
+        for (std::size_t r = 0; r < kG1RungCount; ++r) {
+          if (!confirmation.by_rung[r].has_value()) continue;
+          if (found->second.by_rung[r].has_value() &&
+              found->second.by_rung[r] != confirmation.by_rung[r]) {
+            return refuse<CandidateSession>(g1_content(
+                "qr_entry_v2::generate_g1_candidates",
+                "merged candidate has conflicting pivot births"));
+          }
+          found->second.by_rung[r] = confirmation.by_rung[r];
+        }
       }
     }
   }
   std::set<std::uint64_t> cutoffs;
-  for (const auto& [key, candidate] : emitted) {
+  for (const auto& [key, emission] : emitted) {
     (void)key;
-    cutoffs.insert(candidate.event_cutoff);
+    cutoffs.insert(emission.candidate.event_cutoff);
   }
   auto hashes = prefix_hashes(pack, cutoffs);
   if (!hashes) return refuse<CandidateSession>(hashes.error());
   result.candidates.reserve(emitted.size());
+  result.pivots.reserve(emitted.size() * kG1RungCount);
   const std::string pack_sha = event_pack_sha256(pack);
   if (!valid_sha256(pack_sha)) {
     return refuse<CandidateSession>(g1_content(
         "qr_entry_v2::generate_g1_candidates", "event pack has no valid SHA-256 identity"));
   }
-  for (auto& [key, candidate] : emitted) {
+  for (auto& [key, emission] : emitted) {
     (void)key;
+    CandidateRow& candidate = emission.candidate;
     candidate.event_pack_sha256 = pack_sha;
     candidate.prefix_sha256 = hashes.value().at(candidate.event_cutoff);
     candidate.clock_law_receipt_sha256 = kClockLawReceiptSha256;
     candidate.candidate_id = candidate_id_impl(candidate);
     candidate.lineage_sha256 = candidate_lineage_impl(candidate);
+    for (std::size_t r = 0; r < kG1RungCount; ++r) {
+      const bool fired =
+          (candidate.rung_mask & static_cast<std::uint8_t>(1u << r)) != 0u;
+      if (fired != emission.by_rung[r].has_value()) {
+        return refuse<CandidateSession>(g1_content(
+            "qr_entry_v2::generate_g1_candidates",
+            "candidate rung mask differs from pivot births"));
+      }
+      if (!fired) continue;
+      const PivotBirth& birth = *emission.by_rung[r];
+      if (birth.side != candidate.side || birth.threshold_mid2_raw <= 0) {
+        return refuse<CandidateSession>(g1_content(
+            "qr_entry_v2::generate_g1_candidates",
+            "pivot birth differs from candidate confirmation"));
+      }
+      PivotRow pivot;
+      pivot.candidate_id = candidate.candidate_id;
+      pivot.asset = candidate.asset;
+      pivot.d8 = candidate.d8;
+      pivot.rung_index = static_cast<std::uint8_t>(r);
+      pivot.side = birth.side;
+      pivot.pivot_mid2 = birth.pivot_mid2;
+      pivot.pivot_ts_recv_ns = birth.pivot_key.ts_recv_ns;
+      pivot.pivot_ordinal = birth.pivot_key.ordinal;
+      pivot.leg_start_mid2 = birth.leg_start_mid2;
+      pivot.leg_start_ts_recv_ns = birth.leg_start_key.ts_recv_ns;
+      pivot.leg_start_ordinal = birth.leg_start_key.ordinal;
+      pivot.conf_mid2 = birth.conf_mid2;
+      pivot.threshold_mid2_raw = birth.threshold_mid2_raw;
+      result.pivots.push_back(std::move(pivot));
+    }
     result.candidates.push_back(std::move(candidate));
   }
   result.status = CandidateSessionStatus::READY;

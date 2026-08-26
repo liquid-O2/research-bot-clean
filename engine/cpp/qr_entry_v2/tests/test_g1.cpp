@@ -2,12 +2,18 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <cstdint>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
+#include <iterator>
 #include <limits>
+#include <optional>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -28,6 +34,7 @@ using qr::entry_v2::ExpectedSession;
 using qr::entry_v2::LockRow;
 using qr::entry_v2::LockStatus;
 using qr::entry_v2::PhaseRow;
+using qr::entry_v2::PivotRow;
 using qr::entry_v2::TeacherRow;
 using qr::entry_v2::TeacherStatus;
 using qr::futsess::Asset;
@@ -116,6 +123,130 @@ EventPack confirmation_pack(std::int64_t equal_decision_mid2) {
   pack.rows[3].ts_event_ns = base + 600u;
   pack.header.n_events = pack.rows.size();
   return pack;
+}
+
+LockRow pivot_lock() {
+  LockRow lock = lock_row();
+  lock.close_utc = kDay0 + 100;
+  return lock;
+}
+
+EventPack pivot_pack(std::int64_t future_mid2) {
+  EventPack pack;
+  std::memcpy(pack.header.magic, "QRE2EVT2", 8);
+  pack.header.version = 2;
+  pack.header.asset_idx = static_cast<std::uint8_t>(Asset::SI);
+  pack.header.d8 = 20240101;
+  pack.header.locked_iid = 17;
+  pack.header.open_utc = kDay0;
+  pack.header.close_utc = kDay0 + 100;
+  pack.header.row_bytes = qr::entry_v2::kEventRowBytes;
+  const std::uint64_t base_ts = static_cast<std::uint64_t>(kDay0) * kNs;
+  constexpr std::int64_t base_mid2 = 50'000'000'000LL;
+  pack.rows = {
+      bbo(base_ts, base_mid2, 1),
+      bbo(base_ts + kNs, base_mid2 + 120'000'000LL, 2),
+      bbo(base_ts + 2 * kNs, base_mid2 + 200'000'000LL, 3),
+      bbo(base_ts + 3 * kNs, base_mid2 - 200'000'000LL, 4),
+      bbo(base_ts + 18 * kNs, future_mid2, 5),
+  };
+  pack.header.n_events = pack.rows.size();
+  pack.artifact_sha256 = std::string(64, 'a');
+  return pack;
+}
+
+std::vector<PivotRow> pivots_for(
+    const std::vector<PivotRow>& rows, std::string_view candidate_id) {
+  std::vector<PivotRow> out;
+  std::copy_if(rows.begin(), rows.end(), std::back_inserter(out),
+               [candidate_id](const PivotRow& row) {
+                 return row.candidate_id == candidate_id;
+               });
+  return out;
+}
+
+std::string pivot_bytes(const std::vector<PivotRow>& rows) {
+  std::ostringstream out;
+  out << "# QRE2G1PIVOT1\n"
+         "candidate_id\tasset\td8\trung_index\tside\tpivot_mid2"
+         "\tpivot_ts_recv_ns\tpivot_ordinal\tleg_start_mid2"
+         "\tleg_start_ts_recv_ns\tleg_start_ordinal\tconf_mid2"
+         "\tthreshold_mid2_raw\n";
+  for (const PivotRow& row : rows) {
+    out << row.candidate_id << '\t'
+        << qr::futsess::asset_spec(row.asset).name << '\t' << row.d8 << '\t'
+        << static_cast<unsigned>(row.rung_index) << '\t'
+        << static_cast<int>(row.side) << '\t' << row.pivot_mid2 << '\t'
+        << row.pivot_ts_recv_ns << '\t' << row.pivot_ordinal << '\t'
+        << row.leg_start_mid2 << '\t' << row.leg_start_ts_recv_ns << '\t'
+        << row.leg_start_ordinal << '\t' << row.conf_mid2 << '\t'
+        << row.threshold_mid2_raw << '\n';
+  }
+  return out.str();
+}
+
+std::vector<std::string> split_tabs(std::string_view line) {
+  std::vector<std::string> fields;
+  std::size_t start = 0;
+  while (start <= line.size()) {
+    const std::size_t tab = line.find('\t', start);
+    const std::size_t end =
+        tab == std::string_view::npos ? line.size() : tab;
+    fields.emplace_back(line.substr(start, end - start));
+    if (tab == std::string_view::npos) break;
+    start = tab + 1;
+  }
+  return fields;
+}
+
+std::optional<DayPriors> load_prior(
+    const std::filesystem::path& path, std::string_view asset,
+    std::int32_t wanted_d8) {
+  std::ifstream in(path);
+  std::string line;
+  try {
+    while (std::getline(in, line)) {
+      if (line.empty() || line[0] == '#' ||
+          line.starts_with("asset\t")) {
+        continue;
+      }
+      const std::vector<std::string> fields = split_tabs(line);
+      if (fields.size() != 19u || fields[0] != asset ||
+          std::stoi(fields[1]) != wanted_d8) {
+        continue;
+      }
+      DayPriors prior;
+      const auto number = [](const std::string& text) {
+        return text == "NA" ? std::numeric_limits<double>::quiet_NaN()
+                            : std::stod(text);
+      };
+      prior.d8 = wanted_d8;
+      prior.atr14_present = std::stoi(fields[2]) != 0;
+      prior.atr14_prev_usd = number(fields[3]);
+      for (std::size_t p = 0; p < prior.phase.size(); ++p) {
+        const std::size_t offset = 4u + p * 5u;
+        prior.phase[p].present = std::stoi(fields[offset]) != 0;
+        prior.phase[p].completed_sessions =
+            static_cast<std::uint32_t>(std::stoul(fields[offset + 1u]));
+        prior.phase[p].observations = std::stoull(fields[offset + 2u]);
+        prior.phase[p].median_spread_usd = number(fields[offset + 3u]);
+        prior.phase[p].sane_ceiling_usd = number(fields[offset + 4u]);
+      }
+      return prior;
+    }
+  } catch (const std::exception&) {
+    return std::nullopt;
+  }
+  return std::nullopt;
+}
+
+std::int64_t raw_tick(Asset asset) {
+  switch (asset) {
+    case Asset::SI: return 5'000'000;
+    case Asset::HG: return 500'000;
+    case Asset::NKD: return 5'000'000'000;
+  }
+  return 0;
 }
 
 const CandidateRow& fast_long(const std::vector<CandidateRow>& rows) {
@@ -277,6 +408,138 @@ TEST(EntryV2Candidates, EqualTimestampIsFutureAndFutureMutationCannotChangeTheCa
   EXPECT_EQ(refused_teacher.value()[0].status, TeacherStatus::NO_SANE_SUFFIX);
   EXPECT_EQ(refused_teacher.value()[0].compliance,
             qr::entry_v2::ComplianceStatus::PROHIBITED);
+}
+
+TEST(EntryV2Candidates, PivotBirthRowsUsePreFlipStateAndExcludeFutureRows) {
+  constexpr std::int64_t base_mid2 = 50'000'000'000LL;
+  EventPack first = pivot_pack(base_mid2 - 190'000'000LL);
+  EventPack mutated = pivot_pack(base_mid2 - 180'000'000LL);
+  auto baseline = qr::entry_v2::generate_g1_candidates(
+      Asset::SI, pivot_lock(), phase_schedule(), first, ready_priors(), 0);
+  auto future_changed = qr::entry_v2::generate_g1_candidates(
+      Asset::SI, pivot_lock(), phase_schedule(), mutated, ready_priors(), 0);
+  ASSERT_TRUE(baseline.has_value()) << baseline.error().message();
+  ASSERT_TRUE(future_changed.has_value()) << future_changed.error().message();
+  ASSERT_EQ(baseline.value().candidates.size(),
+            future_changed.value().candidates.size());
+  for (std::size_t i = 0; i < baseline.value().candidates.size(); ++i) {
+    EXPECT_EQ(baseline.value().candidates[i].candidate_id,
+              future_changed.value().candidates[i].candidate_id);
+    EXPECT_EQ(baseline.value().candidates[i].prefix_sha256,
+              future_changed.value().candidates[i].prefix_sha256);
+    EXPECT_EQ(baseline.value().candidates[i].rung_mask,
+              future_changed.value().candidates[i].rung_mask);
+  }
+  ASSERT_EQ(baseline.value().pivots, future_changed.value().pivots);
+
+  const auto candidate = std::find_if(
+      baseline.value().candidates.begin(), baseline.value().candidates.end(),
+      [](const CandidateRow& row) {
+        return row.delay == CandidateDelay::FAST_OPEN_15 && row.side == -1 &&
+               row.confirmation_event_ordinal == 3u;
+      });
+  ASSERT_NE(candidate, baseline.value().candidates.end());
+  const std::vector<PivotRow> pivots =
+      pivots_for(baseline.value().pivots, candidate->candidate_id);
+  ASSERT_EQ(pivots.size(), qr::entry_v2::kG1RungCount);
+  for (std::size_t rung = 0; rung < pivots.size(); ++rung) {
+    const PivotRow& row = pivots[rung];
+    EXPECT_EQ(row.rung_index, rung);
+    EXPECT_EQ(row.side, -1);
+    EXPECT_EQ(row.pivot_mid2, base_mid2 + 200'000'000LL);
+    EXPECT_EQ(row.pivot_ordinal, 2u);
+    EXPECT_EQ(row.leg_start_mid2, base_mid2);
+    EXPECT_EQ(row.leg_start_ordinal, 0u);
+    EXPECT_EQ(row.conf_mid2, base_mid2 - 200'000'000LL);
+    EXPECT_GT(row.threshold_mid2_raw, 0);
+  }
+}
+
+TEST(EntryV2Candidates, RealSessionFutureMutationLeavesPivotTagBytesUnchanged) {
+  const char* root_env = std::getenv("QRE2_G1_REAL_ROOT");
+  const char* asset_env = std::getenv("QRE2_G1_REAL_ASSET");
+  const char* d8_env = std::getenv("QRE2_G1_REAL_D8");
+  if (root_env == nullptr || asset_env == nullptr || d8_env == nullptr) {
+    GTEST_SKIP();
+  }
+  Asset asset{};
+  ASSERT_TRUE(qr::futsess::asset_from_name(asset_env, &asset));
+  const std::int32_t d8 = std::stoi(d8_env);
+  qr::entry_v2::Config config;
+  config.asset = asset;
+  config.output_root = root_env;
+  auto locks = qr::entry_v2::read_locks(config);
+  auto phases = qr::entry_v2::read_phases(config);
+  ASSERT_TRUE(locks.has_value()) << locks.error().message();
+  ASSERT_TRUE(phases.has_value()) << phases.error().message();
+  const auto lock = std::find_if(
+      locks.value().begin(), locks.value().end(),
+      [d8](const LockRow& row) { return row.d8 == d8; });
+  ASSERT_NE(lock, locks.value().end());
+  const auto phase = std::find_if(
+      phases.value().begin(), phases.value().end(),
+      [d8](const PhaseRow& row) { return row.month == d8 / 100; });
+  ASSERT_NE(phase, phases.value().end());
+  const std::filesystem::path root(root_env);
+  const auto prior = load_prior(
+      root / "g1" / "priors" / (std::string(asset_env) + ".tsv"),
+      asset_env, d8);
+  ASSERT_TRUE(prior.has_value());
+  const auto started = std::chrono::steady_clock::now();
+  auto pack = qr::entry_v2::read_event_pack(
+      (root / "events" / asset_env /
+       (std::to_string(d8) + ".qre2")).string(),
+      "");
+  ASSERT_TRUE(pack.has_value()) << pack.error().message();
+  const std::size_t ordinal = static_cast<std::size_t>(
+      std::distance(locks.value().begin(), lock));
+  auto baseline = qr::entry_v2::generate_g1_candidates(
+      asset, *lock, *phase, pack.value(), *prior, ordinal);
+  const auto elapsed = std::chrono::steady_clock::now() - started;
+  ASSERT_TRUE(baseline.has_value()) << baseline.error().message();
+  const auto candidate = std::find_if(
+      baseline.value().candidates.begin(), baseline.value().candidates.end(),
+      [&pack](const CandidateRow& row) {
+        if (row.event_cutoff >= pack.value().rows.size()) return false;
+        const EventRow& future =
+            pack.value().rows[static_cast<std::size_t>(row.event_cutoff)];
+        return future.bid_px > 0 && future.ask_px > future.bid_px;
+      });
+  ASSERT_NE(candidate, baseline.value().candidates.end());
+  ASSERT_FALSE(pivots_for(
+      baseline.value().pivots, candidate->candidate_id).empty());
+  std::cout << "QRE2_PIVOT_REAL_SESSION"
+            << "\tasset=" << asset_env
+            << "\td8=" << d8
+            << "\traw_events=" << pack.value().rows.size()
+            << "\twall_ns="
+            << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   elapsed).count()
+            << '\n';
+
+  EventPack changed = pack.value();
+  EventRow& future =
+      changed.rows[static_cast<std::size_t>(candidate->event_cutoff)];
+  const std::int64_t tick = raw_tick(asset);
+  ASSERT_GT(tick, 0);
+  ASSERT_LE(future.ask_px, std::numeric_limits<std::int64_t>::max() - tick);
+  future.bid_px += tick;
+  future.ask_px += tick;
+  future.price = future.ask_px;
+  auto mutated = qr::entry_v2::generate_g1_candidates(
+      asset, *lock, *phase, changed, *prior, ordinal);
+  ASSERT_TRUE(mutated.has_value()) << mutated.error().message();
+  const auto same_candidate = std::find_if(
+      mutated.value().candidates.begin(), mutated.value().candidates.end(),
+      [&candidate](const CandidateRow& row) {
+        return row.candidate_id == candidate->candidate_id;
+      });
+  ASSERT_NE(same_candidate, mutated.value().candidates.end());
+  EXPECT_EQ(
+      pivot_bytes(pivots_for(
+          baseline.value().pivots, candidate->candidate_id)),
+      pivot_bytes(pivots_for(
+          mutated.value().pivots, same_candidate->candidate_id)));
 }
 
 TEST(EntryV2Candidates, SnapshotAndBookHealthFlagsCannotManufactureEconomicMotion) {

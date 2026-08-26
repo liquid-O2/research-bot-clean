@@ -5274,3 +5274,58 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - compact note: #538
 - 2026-08-26 #539 USER Ceiling is already known every year. The work is why we cannot capture it, then fix that. Do not re-prove the ceiling.
 - 2026-08-26 #540 RESULT Capture miss. Earliest=best 149/1732 (8.6%). Winner mean rank 28 of 105. Latest and cheapest also KILL.
+- 2026-08-26 #541 USER Entry only. One mini contract. No exits. No extra size. How/why/pinpoint then Fable or Sol independently. Sure-shot to rungs.
+- 2026-08-26 #542 RESULT Ticket 47 era pass aborted at 1/2788. Parked. Capture miss stays the unit.
+- 2026-08-26 #543 RESULT Sol replicated capture MISS. 149/1732 match. Winner rank 28 of 105. Selftest ok.
+- 2026-08-26 #544 RESULT Live G1 min/max scalars MISS. Side only positive book, still far under rungs. Next is rank vs cell-best.
+- 2026-08-26 #545 RESULT Why-docs slice landed. Freeze bound earliest CLEAR as skill-free. design/entry_reset never names it.
+- 2026-08-26 #546 RESULT Why-source slice landed. pick_cell_names and earliest CLEAR first appear in 2a7e301. No PR.
+- 2026-08-26 #547 RESULT How: pick_cell_names loses 99.98% of the 2.09M gap. Identity, not day-gate or skip.
+- 2026-08-26 #548 RESULT Single-column live rank MISS. No sort key puts winner near top. Next is fitted name on stored G1 columns.
+- 2026-08-26 #549 RESULT Why synth: freeze bound skill-free earliest CLEAR because T53/T54 have no name instrument. Direct.
+- 2026-08-26 #550 RESULT Fit-name MISS. 135/1732 match, worse than earliest. Stored G1 columns have no identity. Next is 2021 feature-rank.
+- 2026-08-26 #551 RESULT 2021 feature-rank MISS. mean_winner_rank 21.10, frac_top5 0.268, usd/asset-day HG -279.42 NKD -30.38 SI -425.62. Ticket 47 as motivated is dead. Receipt .audit/threshold-feature-rank.json.
+- 2026-08-26 #552 RESULT 2021 feature-rank MISS. 3505 cols mean rank 21.1 top5 0.268. Ticket 47 same schema is dead spend.
+- 2026-08-26 #553 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T14:59:54Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-91.813671875
+- trigger: auto
+- context_usage_percent: 91.813671875
+- message_count: 379
+- is_first_compaction: False
+- compact note: #553
+- 2026-08-26 #554 COMPACT session bf7a35bf-37fa-471c-b47f-6fa59f98cd8e queued compact-.
+
+### 2026-08-26T14:59:54Z
+
+- session: bf7a35bf-37fa-471c-b47f-6fa59f98cd8e
+- transcript record: compact-auto-91.813671875
+- trigger: auto
+- context_usage_percent: 91.813671875
+- message_count: 379
+- is_first_compaction: False
+- compact note: #554
+- 2026-08-26 #555 RESULT covering map v2: stored-kill trio scanned 8/34 candidate columns; ordinal+setter plane untried; one experiment threshold-stored-name-rules (8 causal lines, rungs-or-kill); brief at .audit/briefs/threshold-covering-after-stored-kill-out.md.
+- 2026-08-26 #556 RESULT stored name-rules KILL: 8 causal lines miss; ceiling_setters HG 1908.37 misses rung; 2021 extreme-event story does not transfer; .audit/threshold-stored-name-rules.json
+- 2026-08-26 #557 RESULT covering map v3: QRSESS1 tape is last unpriced stored plane; fitted-34 demoted; next experiment threshold-tape-name-rules (8 causal lines, rungs-or-kill); brief at .audit/briefs/threshold-covering-after-name-rules-kill-out.md.
+- 2026-08-26 #558 RESULT tape name-rules KILL: 8 causal lines miss; envelope_tape8 HG 1949.96 misses rung; no unfitted stored-artifact path remains; .audit/threshold-tape-name-rules.json
+- 2026-08-26 #559 RESULT covering map v4: no minutes path; stored unfitted plane closed; remaining A=G1 pivot-birth tag (not T37), B=late ages if A dies, C=fitted recorded not authorized; brief .audit/briefs/threshold-covering-after-tape-kill-out.md
+- 2026-08-26 #560 RESULT covering v4: stored unfitted plane closed (tape envelope HG 1949.96). 2022-2024 cell-best still clears 2759/3815/3880. Remaining A=G1 pivot tag, B=late ages. No minutes path.
+- 2026-08-26 #561 DECISION experiment A Stage 0 in flight: G1 pivot-birth tag only through 2021 THRESHOLD; Stage 1 waits; no era generate; brief .audit/briefs/threshold-pivot-stage0.md
+- 2026-08-26 #562 USER Stage 0 may install missing build tools. Prefer user site or /workspace/artifacts, not overlay /.
+- 2026-08-26 #563 Grok inspect loads only AGENTS.md (~241 tok). compat.cursor.rules is ON but .cursor/rules/*.mdc are not ingested; Grok rules dirs scan *.md only. No first-party Codex ChatGPT-subscription path in Grok (custom models need API keys).
+- 2026-08-26 #564 Cursor Task follow-through is a fresh child plus a tight first-turn brief. CLI can copy that, not alwaysApply prepend. Codex overthink is prompt.md, not missing AGENTS.md. Claude custom agents replace the system prompt.
+- 2026-08-26 #565 RESULT Stage 0 pivot tag PASS pending Fable: QRE2G1PIVOTSTAGE01, 15 THRESHOLD days/asset, no era tags, mutants killed, wall 241s; .audit/threshold-pivot-stage0.json
+- 2026-08-26 #566 Closest alwaysApply recreations: Claude .claude/rules re-inject on compact (parent only; children drop them, issue 61467). OpenCode needs system.transform plugin not AGENTS.md. Pi has pi-rules (before_agent_start+tool_result). Codex cannot.
+- 2026-08-26 #567 RESULT Stage 0 Fable PASS. Stage 1 2021 THRESHOLD kill in flight. If KILL, stop and wait. Brief .audit/briefs/threshold-pivot-stage1.md
+- 2026-08-26 #568 RESULT Stage 1 receipt reports KILL pending Fable. Envelope HG 1788.75 NKD 1192.12 SI 1854.38. No causal line clears joint rungs. .audit/threshold-pivot-stage1.json
+- 2026-08-26 #569 HOST: Codex 0.149.1 sol-system-prompt is live cache template plus .codex/always-on-rules.md via model_instructions_file. Add-only. Fable: --append-system-prompt-file same rules file.
+- 2026-08-26 #570 RESULT Stage 1 pivot family KILL, Fable-judged from bytes. Envelope SI-only partial clear. Joint rungs missed. Stage 2 not authorized. Stop and wait.
+- 2026-08-26 #571 RESULT: pivot Stage 1 KILL. Unfitted G1 geometry at age 180 closed. Stage 2 not authorized. Remaining forks B late ages vs C fitted read, new covering map. Codex model_instructions_file reverted.
+- 2026-08-26 #572 RESULT covering map v5 after pivot Stage 1 KILL. Named next is unit C fitted read at age 180. No minutes path. B late ages if C dies. Brief .audit/briefs/threshold-covering-after-pivot-kill-out.md
+- 2026-08-26 #573 USER: covering 137c23f0 was Fable max child, not parent Grok. Map stands: unit C fitted read. Stage 0 brief .audit/briefs/threshold-cfit-stage0.md.
+- 2026-08-26 #574 USER stopped C-fit Stage 0 before Sol ran. Era tags not emitted. Stage 1 unstarted.
+- 2026-08-26 #575 Cursor Ultra ~97% exhausted. START_HERE is the bootstrap on every host. GitHub liquid-O2/research-bot-clean then rclone copy to r2:runp. Keys at .secrets/rclone-r2.conf (gitignored). Covering unit C unstarted.

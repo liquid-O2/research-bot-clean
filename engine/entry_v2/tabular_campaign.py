@@ -29,10 +29,11 @@ from .confirmation_experiment import (
 from .contracts import SessionRef
 from .event_pack import EventPack
 from .exact_delayed_teacher import (
-    DayOptionUniverse, ExactDelayedTeacherDay, build_exact_delayed_teacher_day,
+    ExactDelayedTeacherDay, build_exact_delayed_teacher_day,
     publish_teacher_manifest, replay_exact_teacher_day,
     replay_perfect_teacher_actions,
 )
+from .exact_teacher_types import DayOptionUniverse
 from .tabular_delayed_corpus import (
     CausalFeatureShard, DelayedOutcomeShard,
     encode_causal_relations,

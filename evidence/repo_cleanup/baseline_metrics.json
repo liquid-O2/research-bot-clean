@@ -1,0 +1,73 @@
+{
+  "candidate_path_sha256": "e2dd9256ac342ca9ae516c90f03fa55f3d31658ae9421ba3b64d82c6981f4db3",
+  "excluded_roots": [
+    "artifacts",
+    "data",
+    "evidence",
+    "transcripts"
+  ],
+  "languages": {
+    "C++": {
+      "files": 301,
+      "lines": 99918
+    },
+    "C/C++ header": {
+      "files": 176,
+      "lines": 28137
+    },
+    "Documentation": {
+      "files": 749,
+      "lines": 85874
+    },
+    "JavaScript": {
+      "files": 1,
+      "lines": 170
+    },
+    "Python": {
+      "files": 639,
+      "lines": 326344
+    },
+    "Rust": {
+      "files": 87,
+      "lines": 49837
+    },
+    "Shell": {
+      "files": 90,
+      "lines": 5053
+    },
+    "TypeScript": {
+      "files": 72,
+      "lines": 20537
+    }
+  },
+  "receipt_sha256": "3bf556e18229f09e847c93072349801b5ca1124926a602799b7d4f12e69618ec",
+  "roles": {
+    "documentation": {
+      "files": 255,
+      "lines": 33857
+    },
+    "historical": {
+      "files": 122,
+      "lines": 28167
+    },
+    "maintained": {
+      "files": 927,
+      "lines": 398721
+    },
+    "tests": {
+      "files": 219,
+      "lines": 84983
+    },
+    "vendored": {
+      "files": 592,
+      "lines": 70142
+    }
+  },
+  "schema_version": 1,
+  "totals": {
+    "code_files": 1146,
+    "code_lines": 483704,
+    "documentation_files": 255,
+    "documentation_lines": 33857
+  }
+}

@@ -38,6 +38,8 @@ ENTRY = re.compile(r"^- (\d{4}-\d{2}-\d{2}) #(\d+) (.*)$")
 INDEX_TOKEN = re.compile(r"#(\d+)\b")
 MAX_ENTRY_BYTES = 280
 DEFAULT_TAIL = 40
+MAX_HOOK_SCAN_BYTES = 512_000
+MAX_CHECKPOINT_BYTES = 64_000
 
 
 def ledger_path() -> Path:
@@ -110,22 +112,134 @@ def append_note(text: str, path: Path) -> str:
     """Validate and append one memory, returning the rendered entry."""
     line = validate_note(text)
     with pod_local_flock(path):
-        lines = read_lines(path)
-        entry = f"- {today()} #{next_index(lines)} {line}"
-        lines.insert(insertion_point(lines), entry)
-        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        require_ledger_headings(path)
+        entry = f"- {today()} #{bounded_next_index(path)} {line}"
+        append_text(path, entry + "\n")
     return entry
 
 
 def append_checkpoint(body: str, path: Path) -> str:
-    """Append a compaction checkpoint. Never linted, never able to block."""
+    """Append one numbered compact note and its checkpoint under one lock."""
+    body_size = len(body.encode("utf-8"))
+    if body_size > MAX_CHECKPOINT_BYTES:
+        raise ValueError(
+            f"compact checkpoint is {body_size} bytes; cap is {MAX_CHECKPOINT_BYTES}"
+        )
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    block = f"\n### {stamp}\n\n{body.rstrip()}\n"
+    note = compact_note(body)
     with pod_local_flock(path):
-        lines = read_lines(path)
-        heading_index(lines, CHECKPOINT_HEADING)
-        path.write_text("\n".join(lines).rstrip("\n") + "\n" + block, encoding="utf-8")
+        require_ledger_headings(path)
+        number = bounded_next_index(path)
+        entry = f"- {today()} #{number} {note}"
+        block = f"\n### {stamp}\n\n{body.rstrip()}\n- compact note: #{number}\n"
+        append_text(path, entry + "\n" + block)
     return block
+
+
+def append_text(path: Path, text: str) -> None:
+    """Append one bounded ledger record without rewriting prior history."""
+    with path.open("a", encoding="utf-8") as stream:
+        stream.write(text)
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def require_ledger_headings(path: Path) -> None:
+    """Validate the fixed ledger header without scanning its history."""
+    raw = read_prefix(path, MAX_HOOK_SCAN_BYTES)
+    headings = set(raw.decode("utf-8").splitlines())
+    missing = {LEDGER_HEADING, CHECKPOINT_HEADING} - headings
+    if missing:
+        raise ValueError(f"ledger is missing headings {sorted(missing)!r}: {path}")
+
+
+def read_prefix(path: Path, limit: int) -> bytes:
+    with path.open("rb") as stream:
+        return stream.read(limit)
+
+
+def read_suffix(path: Path, limit: int = MAX_HOOK_SCAN_BYTES) -> str:
+    """Read at most the final limit bytes, starting on a complete UTF-8 line."""
+    size = path.stat().st_size
+    with path.open("rb") as stream:
+        stream.seek(max(0, size - limit))
+        raw = stream.read(limit)
+    if size > limit:
+        raw = raw.split(b"\n", 1)[-1]
+    return raw.decode("utf-8")
+
+
+def bounded_next_index(path: Path) -> int:
+    """Find the next live index from a fixed-size suffix."""
+    lines = read_suffix(path).splitlines()
+    numbers = [int(match.group(2)) for line in lines if (match := ENTRY.match(line))]
+    numbers.extend(
+        int(match.group(1)) for line in lines
+        if (match := re.fullmatch(r"- compact note: #(\d+)", line))
+    )
+    if not numbers:
+        if path.stat().st_size <= MAX_HOOK_SCAN_BYTES:
+            return 0
+        raise ValueError(
+            f"the last {MAX_HOOK_SCAN_BYTES} ledger bytes contain no numbered entry: {path}"
+        )
+    return max(numbers) + 1
+
+
+def compact_note(body: str) -> str:
+    """Return the validated numbered-note text for one compact checkpoint."""
+    session = compact_field(body, "session")
+    archive = compact_value(body, "transcript archive")
+    record = compact_value(body, "transcript record")
+    action, path = ("archived", archive) if archive else ("queued", record)
+    short = Path(path).name[:8] if path else "none"
+    return validate_note(f"COMPACT session {session} {action} {short}.")
+
+
+def compact_field(body: str, name: str) -> str:
+    """Return one checkpoint field, or unknown when the line is missing."""
+    return compact_value(body, name) or "unknown"
+
+
+def compact_value(body: str, name: str) -> str | None:
+    """Return one checkpoint field when the line carries a value."""
+    prefix = f"- {name}: "
+    for line in body.splitlines():
+        if line.startswith(prefix):
+            value = line[len(prefix):].strip()
+            return value or None
+    return None
+
+
+def latest_checkpoint(path: Path) -> str | None:
+    """Return the newest ### block under Checkpoints, or None."""
+    lines = read_lines(path)
+    start = heading_index(lines, CHECKPOINT_HEADING)
+    heads = [index for index, line in enumerate(lines[start + 1:], start + 1)
+             if line.startswith("### ")]
+    if not heads:
+        return None
+    begin = heads[-1]
+    following = [index for index in heads if index > begin]
+    end = following[0] if following else len(lines)
+    block = "\n".join(lines[begin:end]).strip()
+    return block or None
+
+
+def latest_checkpoint_bounded(path: Path) -> str | None:
+    """Return the newest complete checkpoint from a fixed-size suffix."""
+    lines = read_suffix(path).splitlines()
+    heads = [index for index, line in enumerate(lines) if line.startswith("### ")]
+    if not heads:
+        return None
+    begin = heads[-1]
+    ends = [
+        index + 1 for index, line in enumerate(lines[begin:], begin)
+        if re.fullmatch(r"- compact note: #\d+", line)
+    ]
+    if not ends:
+        return None
+    return "\n".join(lines[begin:ends[0]]).strip() or None
 
 
 def ledger_entries(lines: Sequence[str]) -> list[str]:
@@ -136,6 +250,12 @@ def ledger_entries(lines: Sequence[str]) -> list[str]:
 def tail(count: int, path: Path) -> list[str]:
     """Return the most recent entries, newest last."""
     entries = ledger_entries(read_lines(path))
+    return entries[-count:] if count > 0 else entries
+
+
+def tail_bounded(count: int, path: Path) -> list[str]:
+    """Return recent entries after reading a fixed-size ledger suffix."""
+    entries = ledger_entries(read_suffix(path).splitlines())
     return entries[-count:] if count > 0 else entries
 
 

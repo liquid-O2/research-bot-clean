@@ -1,0 +1,1780 @@
+{
+  "schema_version": 4,
+  "route": "implement-flow",
+  "scope": "repo-cleanup-implementation",
+  "transition_epoch": 1,
+  "frames": [
+    {
+      "source": "implement-flow",
+      "anchor": "1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.",
+      "methods": [
+        "implement-flow"
+      ],
+      "obligations": [
+        "implement-flow-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "poteto-mode",
+      "anchor": "# Poteto mode",
+      "methods": [
+        "poteto-mode"
+      ],
+      "obligations": [
+        "poteto-mode-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "playbook:bug-fix",
+      "anchor": "1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.",
+      "methods": [
+        "playbook:bug-fix"
+      ],
+      "obligations": [
+        "playbook-bug-fix-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "unlazy",
+      "anchor": "# Unlazy",
+      "methods": [
+        "unlazy"
+      ],
+      "obligations": [
+        "unlazy-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "clean-code-for-agents",
+      "anchor": "# Clean code for agents",
+      "methods": [
+        "clean-code-for-agents"
+      ],
+      "obligations": [
+        "clean-code-for-agents-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "unslop",
+      "anchor": "# Unslop",
+      "methods": [
+        "unslop"
+      ],
+      "obligations": [
+        "unslop-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "writing-for-agents",
+      "anchor": "## Context pointers",
+      "methods": [
+        "writing-for-agents"
+      ],
+      "obligations": [
+        "writing-for-agents-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "domain-modeling",
+      "anchor": "# Domain Modeling",
+      "methods": [
+        "domain-modeling"
+      ],
+      "obligations": [
+        "domain-modeling-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "how",
+      "anchor": "# How",
+      "methods": [
+        "how"
+      ],
+      "obligations": [
+        "how-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "architect",
+      "anchor": "## Phase A: Ground the problem",
+      "methods": [
+        "architect"
+      ],
+      "obligations": [
+        "architect-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "arena",
+      "anchor": "# Arena",
+      "methods": [
+        "arena"
+      ],
+      "obligations": [
+        "arena-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "codebase-design",
+      "anchor": "# Codebase Design",
+      "methods": [
+        "codebase-design"
+      ],
+      "obligations": [
+        "codebase-design-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "pocock-tdd",
+      "anchor": "# Pocock TDD pointer",
+      "methods": [
+        "pocock-tdd"
+      ],
+      "obligations": [
+        "pocock-tdd-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "implement",
+      "anchor": "# Implement pointer",
+      "methods": [
+        "implement"
+      ],
+      "obligations": [
+        "implement-1"
+      ],
+      "status": "active"
+    },
+    {
+      "source": "code-review",
+      "anchor": "### 1. Pin the fixed point",
+      "methods": [
+        "code-review"
+      ],
+      "obligations": [
+        "code-review-1"
+      ],
+      "status": "active"
+    }
+  ],
+  "receipts": [
+    {
+      "method": "implement-flow",
+      "status": "active"
+    },
+    {
+      "method": "poteto-mode",
+      "status": "active"
+    },
+    {
+      "method": "playbook:bug-fix",
+      "status": "active"
+    },
+    {
+      "method": "unlazy",
+      "status": "active"
+    },
+    {
+      "method": "clean-code-for-agents",
+      "status": "active"
+    },
+    {
+      "method": "unslop",
+      "status": "active"
+    },
+    {
+      "method": "writing-for-agents",
+      "status": "active"
+    },
+    {
+      "method": "domain-modeling",
+      "status": "active"
+    },
+    {
+      "method": "how",
+      "status": "active"
+    },
+    {
+      "method": "architect",
+      "status": "active"
+    },
+    {
+      "method": "arena",
+      "status": "active"
+    },
+    {
+      "method": "codebase-design",
+      "status": "active"
+    },
+    {
+      "method": "pocock-tdd",
+      "status": "active"
+    },
+    {
+      "method": "implement",
+      "status": "active"
+    },
+    {
+      "method": "code-review",
+      "status": "active"
+    }
+  ],
+  "obligations": [
+    {
+      "id": "implement-flow-1",
+      "status": "active"
+    },
+    {
+      "id": "implement-flow-2",
+      "status": "pending"
+    },
+    {
+      "id": "implement-flow-3",
+      "status": "pending"
+    },
+    {
+      "id": "implement-flow-4",
+      "status": "pending"
+    },
+    {
+      "id": "implement-flow-5",
+      "status": "pending"
+    },
+    {
+      "id": "poteto-mode-1",
+      "status": "active"
+    },
+    {
+      "id": "playbook-bug-fix-1",
+      "status": "active"
+    },
+    {
+      "id": "playbook-bug-fix-2",
+      "status": "pending"
+    },
+    {
+      "id": "playbook-bug-fix-3",
+      "status": "pending"
+    },
+    {
+      "id": "playbook-bug-fix-4",
+      "status": "pending"
+    },
+    {
+      "id": "playbook-bug-fix-5",
+      "status": "pending"
+    },
+    {
+      "id": "playbook-bug-fix-6",
+      "status": "pending"
+    },
+    {
+      "id": "unlazy-1",
+      "status": "active"
+    },
+    {
+      "id": "clean-code-for-agents-1",
+      "status": "active"
+    },
+    {
+      "id": "unslop-1",
+      "status": "active"
+    },
+    {
+      "id": "writing-for-agents-1",
+      "status": "active"
+    },
+    {
+      "id": "domain-modeling-1",
+      "status": "active"
+    },
+    {
+      "id": "how-1",
+      "status": "active"
+    },
+    {
+      "id": "architect-1",
+      "status": "active"
+    },
+    {
+      "id": "architect-2",
+      "status": "pending"
+    },
+    {
+      "id": "architect-3",
+      "status": "pending"
+    },
+    {
+      "id": "architect-4",
+      "status": "pending"
+    },
+    {
+      "id": "architect-5",
+      "status": "pending"
+    },
+    {
+      "id": "arena-1",
+      "status": "active"
+    },
+    {
+      "id": "codebase-design-1",
+      "status": "active"
+    },
+    {
+      "id": "pocock-tdd-1",
+      "status": "active"
+    },
+    {
+      "id": "implement-1",
+      "status": "active"
+    },
+    {
+      "id": "code-review-1",
+      "status": "active"
+    },
+    {
+      "id": "code-review-2",
+      "status": "pending"
+    },
+    {
+      "id": "code-review-3",
+      "status": "pending"
+    },
+    {
+      "id": "code-review-4",
+      "status": "pending"
+    },
+    {
+      "id": "code-review-5",
+      "status": "pending"
+    }
+  ],
+  "principle_assessment": {
+    "epoch": 1,
+    "entries": [
+      {
+        "name": "principle-boundary-discipline",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Validate manifests, CLI input, paths, hashes, and recovery only at their owning seams.",
+            "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-build-the-lever",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Build one dry-run cleanup command and verifier instead of editing the repository by hand.",
+            "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-encode-lessons-in-structure",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Replace repeated file laws with registry validation, denial checks, and the test dispatcher.",
+            "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-exhaust-the-design-space",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Use architect and arena before accepting replay, analysis, or corpus interface changes.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-experience-first",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Leave the next agent one START_HERE path and the maintainer one owner per fact.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-fix-root-causes",
+        "status": "inactive",
+        "reason": "No defect is under diagnosis at route entry. Apply it if a verification unit enters a debugging loop."
+      },
+      {
+        "name": "principle-foundational-thinking",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Land protection, liveness shapes, and complete verification before deletion.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-guard-the-context-window",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Work phase by phase and delegate bounded, disjoint tasks.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-laziness-protocol",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Prefer proven deletion, consolidation, and existing interfaces over new layers.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-make-operations-idempotent",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Make audit, move, deduplicate, and delete operations dry-runnable and convergent.",
+            "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-migrate-callers-then-delete-legacy-apis",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Move every caller, test, build rule, and pointer with each removed path or interface.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-minimize-reader-load",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Contract the root, remove pass-throughs, and give every fact one canonical home.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-model-the-domain",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Encode liveness, semantic role, recovery, action, and state in typed registry rows.",
+            "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-never-block-on-the-human",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Proceed with reversible verified work and pause only before an unmanifested delete or external write.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-outcome-oriented-execution",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Converge on the target tree without permanent redirects, dual interfaces, or an archive root.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-prove-it-works",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Bind every destructive unit to a recovery, rebuild, identity, or semantic oracle.",
+            "evidence": "design/repo_cleanup/testing.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-redesign-from-first-principles",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Separate current state, stable rules, chronology, machine authority, data, and evidence.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-separate-before-serializing-shared-state",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Give workers disjoint write ownership and keep destructive phases under one registry writer.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-sequence-verifiable-units",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Execute eleven ordered phases and keep every completed unit green.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-subtract-before-you-add",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Remove proven safe waste before path moves, module reshaping, and documentation polish.",
+            "evidence": "design/repo_cleanup/overview.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-type-system-discipline",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Use enums and typed rows for liveness states, actions, recovery classes, and interfaces.",
+            "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-glossary",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Use module, interface, seam, adapter, depth, leverage, and locality consistently.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-depth",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Keep replay, analysis, corpus, and dispatch interfaces smaller than hidden knowledge.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-principles",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Apply the deletion test and real-adapter rule before keeping an abstraction.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-testability",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Accept dependencies and test behavior through each module interface.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-relationships",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Place interfaces at seams that concentrate changing knowledge.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-rejected-framings",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Reject line-count depth, transport-type interfaces, and overloaded boundary terminology.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-going-deeper",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Classify dependencies and replace shallow tests with interface tests.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-deepening-dependencies",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Classify redesigned dependencies before choosing adapters.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-deepening-seams",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Expose seams only when real production and test implementations justify them.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-deepening-tests",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Delete retired internal tests after replacement interface tests pass.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-design-it-twice",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Compare at least two distinct interfaces for each deepening candidate.",
+            "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-tdd-good-tests",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Write behavior tests through public interfaces with independent expected values.",
+            "evidence": "design/repo_cleanup/testing.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-tdd-seams",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Test the approved cleanup CLI, registry, dispatcher, replay, corpus, and root seams.",
+            "evidence": "design/repo_cleanup/testing.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-tdd-antipatterns",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Reject private tests, internal mocks, tautologies, and horizontal test batches.",
+            "evidence": "design/repo_cleanup/testing.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-tdd-loop",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Run one failing behavior test, one minimal implementation, and one green proof per slice.",
+            "evidence": "design/repo_cleanup/testing.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-test-quality",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Keep expected values independent and tests stable across internal refactors.",
+            "evidence": "design/repo_cleanup/testing.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-mocking-boundaries",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Use named fakes only for filesystem, recovery, time, and true external seams.",
+            "evidence": "design/repo_cleanup/testing.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-context",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Use sharp START_HERE pointers and keep branch facts out of always-loaded prose.",
+            "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-loads",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Reduce agent context load and maintainer document-choice load.",
+            "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-hierarchy",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Keep current steps, stable rules, chronology, and exact authority in separate owners.",
+            "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-completion",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Give each retained agent document a checkable purpose and deletion criterion.",
+            "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-split",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Split reference only when a real branch earns a pointer.",
+            "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-leading-words",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Use liveness, authority, recovery, and chronology as stable terms.",
+            "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-pruning",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Delete cached facts, duplicate meaning, stale branches, and no-op instructions.",
+            "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-implementation-checks",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Run narrow tests throughout and the complete registry at the end.",
+            "evidence": "design/repo_cleanup/testing.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-code-style",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Keep touched functions focused, files below 500 lines, names specific, and types explicit.",
+            "evidence": "AGENTS.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-comments",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Preserve intent comments and remove narration introduced by this work.",
+            "evidence": "AGENTS.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-tests",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Give new behavior independent tests and keep one complete project command.",
+            "evidence": "AGENTS.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-dependencies",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Inject external dependencies and hide third-party details behind owned interfaces.",
+            "evidence": "AGENTS.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-structure",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Use predictable paths and split modules by owned knowledge.",
+            "evidence": "AGENTS.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-formatting",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Run each language default formatter over touched production files.",
+            "evidence": "AGENTS.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-logging",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Keep diagnostic logs structured and CLI output plain.",
+            "evidence": "AGENTS.md",
+            "obligations": [
+              "architect-1",
+              "arena-1",
+              "clean-code-for-agents-1",
+              "code-review-1",
+              "codebase-design-1",
+              "domain-modeling-1",
+              "how-1",
+              "implement-1",
+              "implement-flow-1",
+              "playbook-bug-fix-1",
+              "pocock-tdd-1",
+              "poteto-mode-1",
+              "unlazy-1",
+              "unslop-1",
+              "writing-for-agents-1"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "next_action": "Complete the active workflow steps for Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones.."
+}

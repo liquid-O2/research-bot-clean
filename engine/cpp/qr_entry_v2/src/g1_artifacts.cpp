@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <charconv>
 #include <cmath>
 #include <cstdlib>
@@ -29,6 +30,8 @@ using qr::futsess::JsonWriter;
 
 constexpr std::string_view kCandidateSchema = "QRE2G1CAND2";
 constexpr std::string_view kCandidateManifestSchema = "QRE2G1CANDMAN2";
+constexpr std::string_view kPivotSchema = "QRE2G1PIVOT1";
+constexpr std::string_view kPivotManifestSchema = "QRE2G1PIVOTMAN1";
 constexpr std::string_view kPriorSchema = "QRE2G1PRIOR2";
 constexpr std::string_view kTeacherSchema = "QRE2G1TEACH2";
 constexpr std::string_view kTeacherManifestSchema = "QRE2G1TEACHMAN2";
@@ -49,6 +52,14 @@ struct CandidateManifestLine {
   std::string event_pack_sha256;
   std::string receipt_file;
   std::string receipt_sha256;
+};
+
+struct PivotManifestLine {
+  std::int32_t d8 = 0;
+  std::uint64_t rows = 0;
+  std::uint64_t candidates = 0;
+  std::string pivot_file;
+  std::string pivot_sha256;
 };
 
 struct TeacherManifestLine {
@@ -247,6 +258,15 @@ struct CandidateAuthority {
 
 [[nodiscard]] fs::path candidate_manifest_path(const Config& config) {
   return g1_root(config) / "candidates" / asset_name(config.asset) / "manifest.tsv";
+}
+
+[[nodiscard]] fs::path pivot_path(const Config& config, std::int32_t d8) {
+  return g1_root(config) / "pivot" / asset_name(config.asset) /
+         (std::to_string(d8) + ".tsv");
+}
+
+[[nodiscard]] fs::path pivot_manifest_path(const Config& config) {
+  return g1_root(config) / "pivot" / asset_name(config.asset) / "manifest.tsv";
 }
 
 [[nodiscard]] fs::path prior_path(const Config& config) {
@@ -489,6 +509,59 @@ template <class T>
         << number_or_na(row.compliance_distance_sec) << '\t'
         << (row.compliance_artifact_sha256.empty() ? "ABSENT" :
             row.compliance_artifact_sha256) << '\n';
+  }
+  return out.str();
+}
+
+[[nodiscard]] Expected<std::string, Refusal> render_pivot_rows(
+    const Config& config, std::int32_t d8,
+    const std::vector<CandidateRow>& candidates,
+    const std::vector<PivotRow>& pivots) {
+  std::map<std::string, const CandidateRow*> by_id;
+  std::size_t expected_rows = 0;
+  for (const CandidateRow& candidate : candidates) {
+    if (!by_id.emplace(candidate.candidate_id, &candidate).second) {
+      return refuse<std::string>(content_refusal(
+          "qr_entry_v2::g1_artifacts/render_pivot_rows",
+          "candidate identity is duplicated"));
+    }
+    expected_rows += static_cast<std::size_t>(
+        std::popcount(static_cast<unsigned>(candidate.rung_mask)));
+  }
+  std::set<std::pair<std::string, std::uint8_t>> keys;
+  for (const PivotRow& pivot : pivots) {
+    const auto candidate = by_id.find(pivot.candidate_id);
+    if (candidate == by_id.end() || pivot.asset != config.asset ||
+        pivot.d8 != d8 || pivot.side != candidate->second->side ||
+        pivot.rung_index >= kG1RungCount ||
+        (candidate->second->rung_mask &
+         static_cast<std::uint8_t>(1u << pivot.rung_index)) == 0u ||
+        !keys.emplace(pivot.candidate_id, pivot.rung_index).second) {
+      return refuse<std::string>(content_refusal(
+          "qr_entry_v2::g1_artifacts/render_pivot_rows",
+          "pivot row differs from its candidate rung"));
+    }
+  }
+  if (pivots.size() != expected_rows) {
+    return refuse<std::string>(content_refusal(
+        "qr_entry_v2::g1_artifacts/render_pivot_rows",
+        "pivot row count differs from candidate rung masks"));
+  }
+  std::ostringstream out;
+  out << "# " << kPivotSchema << ' ' << window_tag(config) << " d8=" << d8
+      << '\n';
+  out << "candidate_id\tasset\td8\trung_index\tside\tpivot_mid2"
+         "\tpivot_ts_recv_ns\tpivot_ordinal\tleg_start_mid2"
+         "\tleg_start_ts_recv_ns\tleg_start_ordinal\tconf_mid2"
+         "\tthreshold_mid2_raw\n";
+  for (const PivotRow& pivot : pivots) {
+    out << pivot.candidate_id << '\t' << asset_name(pivot.asset) << '\t'
+        << pivot.d8 << '\t' << static_cast<unsigned>(pivot.rung_index) << '\t'
+        << static_cast<int>(pivot.side) << '\t' << pivot.pivot_mid2 << '\t'
+        << pivot.pivot_ts_recv_ns << '\t' << pivot.pivot_ordinal << '\t'
+        << pivot.leg_start_mid2 << '\t' << pivot.leg_start_ts_recv_ns << '\t'
+        << pivot.leg_start_ordinal << '\t' << pivot.conf_mid2 << '\t'
+        << pivot.threshold_mid2_raw << '\n';
   }
   return out.str();
 }
@@ -1027,6 +1100,19 @@ namespace {
   return out.str();
 }
 
+[[nodiscard]] std::string render_pivot_manifest(
+    const Config& config, const std::vector<PivotManifestLine>& rows) {
+  std::ostringstream out;
+  out << "# " << kPivotManifestSchema << ' ' << window_tag(config) << '\n';
+  out << "asset\td8\trows\tcandidates\tpivot_file\tpivot_sha256\n";
+  for (const PivotManifestLine& row : rows) {
+    out << asset_name(config.asset) << '\t' << row.d8 << '\t' << row.rows
+        << '\t' << row.candidates << '\t' << row.pivot_file << '\t'
+        << row.pivot_sha256 << '\n';
+  }
+  return out.str();
+}
+
 [[nodiscard]] std::string render_teacher_manifest(
     const Config& config, const std::vector<TeacherManifestLine>& rows) {
   std::ostringstream out;
@@ -1065,12 +1151,18 @@ namespace {
   json.value_int(static_cast<std::int64_t>(stats.no_candidate_sessions));
   json.key("candidates");
   json.value_int(static_cast<std::int64_t>(stats.candidates));
+  json.key("pivot_rows");
+  json.value_int(static_cast<std::int64_t>(stats.pivot_rows));
   json.key("teacher_ready");
   json.value_int(static_cast<std::int64_t>(stats.teacher_ready));
   json.key("teacher_refused");
   json.value_int(static_cast<std::int64_t>(stats.teacher_refused));
   json.key("manifest_sha256");
   json.value_string(std::string(manifest_sha));
+  json.key("pivot_manifest_sha256");
+  stats.pivot_manifest_sha256.empty()
+      ? json.value_null()
+      : json.value_string(stats.pivot_manifest_sha256);
   json.key("auxiliary_sha256");
   auxiliary_sha.empty() ? json.value_null() : json.value_string(std::string(auxiliary_sha));
   json.key("compliance_artifact_sha256");
@@ -1118,7 +1210,9 @@ Expected<G1BuildStats, Refusal> build_g1_candidate_artifacts(
   std::ostringstream prior_text;
   prior_text << render_prior_header(config);
   std::vector<CandidateManifestLine> manifest;
+  std::vector<PivotManifestLine> pivot_manifest;
   manifest.reserve(locks.value().size());
+  pivot_manifest.reserve(locks.value().size());
   G1BuildStats stats;
   for (std::size_t ordinal = 0; ordinal < locks.value().size(); ++ordinal) {
     const LockRow& lock = locks.value()[ordinal];
@@ -1180,6 +1274,13 @@ Expected<G1BuildStats, Refusal> build_g1_candidate_artifacts(
     auto wrote = write_atomic(output, candidate_text);
     if (!wrote) return refuse<G1BuildStats>(wrote.error());
     const std::string output_sha = sha256_bytes(candidate_text);
+    auto pivot_text = render_pivot_rows(
+        config, lock.d8, session.candidates, session.pivots);
+    if (!pivot_text) return refuse<G1BuildStats>(pivot_text.error());
+    const fs::path pivot_output = pivot_path(config, lock.d8);
+    wrote = write_atomic(pivot_output, pivot_text.value());
+    if (!wrote) return refuse<G1BuildStats>(wrote.error());
+    const std::string pivot_sha = sha256_bytes(pivot_text.value());
     const std::string receipt_text = candidate_session_receipt(
         config, session, output_sha, event_sha, locks_sha.value(),
         phases_sha.value(), compliance);
@@ -1200,8 +1301,12 @@ Expected<G1BuildStats, Refusal> build_g1_candidate_artifacts(
     line.receipt_file = relative_to_root(config, receipt);
     line.receipt_sha256 = sha256_bytes(receipt_text);
     manifest.push_back(std::move(line));
+    pivot_manifest.push_back(PivotManifestLine{
+        lock.d8, session.pivots.size(), session.candidates.size(),
+        relative_to_root(config, pivot_output), pivot_sha});
     ++stats.sessions;
     stats.candidates += session.candidates.size();
+    stats.pivot_rows += session.pivots.size();
     if (session.candidates.empty()) ++stats.no_candidate_sessions;
     auto committed = prior_state.commit(session.completed);
     if (!committed) return refuse<G1BuildStats>(committed.error());
@@ -1214,10 +1319,16 @@ Expected<G1BuildStats, Refusal> build_g1_candidate_artifacts(
   wrote = write_atomic(candidate_manifest_path(config), manifest_text);
   if (!wrote) return refuse<G1BuildStats>(wrote.error());
   stats.manifest_sha256 = sha256_bytes(manifest_text);
+  const std::string pivot_manifest_text =
+      render_pivot_manifest(config, pivot_manifest);
+  wrote = write_atomic(pivot_manifest_path(config), pivot_manifest_text);
+  if (!wrote) return refuse<G1BuildStats>(wrote.error());
+  stats.pivot_manifest_sha256 = sha256_bytes(pivot_manifest_text);
   const std::string receipt_text = aggregate_receipt(
       config, "candidates", kCandidateReceiptSchema, stats,
       stats.manifest_sha256,
-      sha256_bytes(prior_sha + "\n" + event_authority.value().manifest_sha256),
+      sha256_bytes(prior_sha + "\n" + event_authority.value().manifest_sha256 +
+                   "\n" + stats.pivot_manifest_sha256),
       compliance != nullptr && compliance->available
           ? std::string_view(compliance->artifact_sha256)
           : std::string_view{});

@@ -1,0 +1,862 @@
+{
+  "schema_version": 4,
+  "route": "plan-flow",
+  "scope": "repo-cleanup-plan",
+  "transition_epoch": 6,
+  "frames": [],
+  "receipts": [
+    {
+      "method": "plan-flow",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md",
+        "design/repo_cleanup/overview.md"
+      ],
+      "gates": [
+        "G0",
+        "G1",
+        "G7",
+        "G6"
+      ]
+    },
+    {
+      "method": "poteto-mode",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "method": "playbook:multi-phase-plan",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "method": "unlazy",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "method": "clean-code-for-agents",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "method": "unslop",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "method": "writing-for-agents",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "method": "domain-modeling",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "method": "how",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "method": "codebase-design",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    }
+  ],
+  "obligations": [
+    {
+      "id": "plan-flow-1",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "id": "plan-flow-2",
+      "status": "complete",
+      "artifacts": [
+        "design/repo_cleanup/overview.md"
+      ],
+      "gates": [
+        "G1"
+      ]
+    },
+    {
+      "id": "plan-flow-3",
+      "status": "complete",
+      "artifacts": [
+        "design/repo_cleanup/overview.md"
+      ],
+      "gates": [
+        "G7"
+      ]
+    },
+    {
+      "id": "plan-flow-4",
+      "status": "complete",
+      "artifacts": [
+        "design/repo_cleanup/overview.md"
+      ],
+      "gates": [
+        "G6"
+      ]
+    },
+    {
+      "id": "plan-flow-5",
+      "status": "complete",
+      "artifacts": [
+        "design/repo_cleanup/overview.md"
+      ],
+      "gates": [
+        "G1"
+      ]
+    },
+    {
+      "id": "poteto-mode-1",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "id": "playbook-multi-phase-plan-1",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "id": "unlazy-1",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "id": "clean-code-for-agents-1",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "id": "unslop-1",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "id": "writing-for-agents-1",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "id": "domain-modeling-1",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "id": "how-1",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    },
+    {
+      "id": "codebase-design-1",
+      "status": "complete",
+      "artifacts": [
+        ".unlazy/repo-cleanup-plan/GATES.md"
+      ],
+      "gates": [
+        "G0"
+      ]
+    }
+  ],
+  "principle_assessment": {
+    "epoch": 6,
+    "entries": [
+      {
+        "name": "principle-boundary-discipline",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Preserve true CLI, filesystem, data, and external-system seams; remove internal validation or adapters only after callers and tests prove them redundant.",
+            "evidence": "The requested cleanup spans tools, data artifacts, workflow hooks, and trading code with distinct system seams.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-build-the-lever",
+        "status": "inactive",
+        "reason": "The plan will specify a cleanup manifest and verifier, but building those implementation artifacts now would violate plan-flow."
+      },
+      {
+        "name": "principle-encode-lessons-in-structure",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Replace repeated operational prose with discoverable config, generated indexes, or checks; retain judgment-heavy decisions in one durable source.",
+            "evidence": "START_HERE.md repeats commands and workflow policy that also exist in scripts, hooks, and AGENTS.md.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-exhaust-the-design-space",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Compare at least three target repository shapes before selecting the phased migration.",
+            "evidence": "The whole-repository restructure has no single obvious file layout and plan-flow requires alternatives.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-experience-first",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Optimize the entry path for the next agent and maintainer so START_HERE.md answers where to begin without caching discoverable facts.",
+            "evidence": "The user explicitly named START_HERE.md as the universal entry point.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-fix-root-causes",
+        "status": "inactive",
+        "reason": "No defect is being debugged; obsolete-file judgments will use dependency and history evidence instead."
+      },
+      {
+        "name": "principle-foundational-thinking",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Define the file-liveness classification and target information hierarchy before planning moves or deletions.",
+            "evidence": "Lossless cleanup depends on distinguishing authoritative, generated, reproducible, historical, and dead material.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-guard-the-context-window",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Partition exploration by code, documentation, and data or operations, and retain only file pointers and findings in the main thread.",
+            "evidence": "The repository has enough files and long documents to overwhelm one undifferentiated scan.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-laziness-protocol",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Prefer deletion, consolidation, and flatter ownership over new layers or replacement documentation.",
+            "evidence": "The user's desired end state is an extremely lean repository with no functionality loss.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-make-operations-idempotent",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Require the eventual inventory, move, archive, and delete operations to be dry-runnable and safe after partial completion.",
+            "evidence": "A whole-repository cleanup can be interrupted and must converge without duplicating or losing files.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-migrate-callers-then-delete-legacy-apis",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Move imports, command references, documentation pointers, and tests in the same phase that removes each old path.",
+            "evidence": "The user wants the old code gone, and internal callers do not justify compatibility layers.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-minimize-reader-load",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Measure cleanup candidates by layers to trace and hidden state to remember, then collapse one-caller wrappers and duplicate knowledge.",
+            "evidence": "START_HERE.md currently asks a newcomer to cross several documents and retain historical state before acting.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-model-the-domain",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Represent the audit as a file-liveness registry with ownership, authority, reproducibility, consumers, replacement, and disposition fields.",
+            "evidence": "Scattered keep or delete judgments would otherwise repeat shape assumptions across hundreds of files.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-never-block-on-the-human",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Infer reversible planning choices from repository evidence and surface any real product decision in the completed plan instead of pausing the audit.",
+            "evidence": "The user supplied the target, exclusions, and lossless constraint; the remaining work is observable.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-outcome-oriented-execution",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Plan explicit verification points that converge on the target tree without permanent redirect files or dual documentation systems.",
+            "evidence": "The requested end state is one clear entry path and a lean tree, not a long compatibility period.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-prove-it-works",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Every proposed deletion class needs direct proof from imports, invocations, tests, artifacts, or reproducibility before removal; the final tree needs full checks and smoke runs.",
+            "evidence": "The user made losslessness the acceptance condition.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-redesign-from-first-principles",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Design the target repository as if START_HERE.md, durable memory, and the live trading workflow had been foundational, then migrate toward it in checked phases.",
+            "evidence": "The user requested an entire repository restructure rather than local tidying.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-separate-before-serializing-shared-state",
+        "status": "inactive",
+        "reason": "Explorers are read-only and the implementation plan will sequence repository writes; no concurrent mutable target is required."
+      },
+      {
+        "name": "principle-sequence-verifiable-units",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Split the cleanup into inventory, retirement, code consolidation, layout migration, documentation compression, and final proof units, each ending in checks.",
+            "evidence": "A repository-wide migration cannot be verified honestly as one batch.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-subtract-before-you-add",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Retire dead and reproducible material before introducing the final directory structure or rewriting the remaining documentation.",
+            "evidence": "The user asked to remove useless code and files before polishing the surviving tree.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-type-system-discipline",
+        "status": "inactive",
+        "reason": "The planning route defines no production signatures or typed data model; implementation phases will apply this when consolidating typed code."
+      },
+      {
+        "name": "pocock-codebase-glossary",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Use module, interface, depth, seam, adapter, leverage, and locality consistently in every architectural finding.",
+            "evidence": ".agents/skills/codebase-design/SKILL.md glossary",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-depth",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Use the deletion test to distinguish shallow pass-through modules from deep modules that concentrate knowledge.",
+            "evidence": ".agents/skills/codebase-design/SKILL.md deep versus shallow guidance",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-principles",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Keep interfaces small, treat them as test surfaces, and reject hypothetical seams that have only one adapter.",
+            "evidence": ".agents/skills/codebase-design/SKILL.md principles",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-testability",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Prefer modules whose dependencies enter through parameters and whose observable results can be checked without internal mutation.",
+            "evidence": ".agents/skills/codebase-design/SKILL.md designing for testability section",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-relationships",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Evaluate every proposed seam by the module interface it hosts, the adapters it needs, and the locality and leverage it creates.",
+            "evidence": ".agents/skills/codebase-design/SKILL.md relationships section",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-rejected-framings",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Do not score modules by line-count ratios or confuse interfaces with language-level signatures.",
+            "evidence": ".agents/skills/codebase-design/SKILL.md rejected framings",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-going-deeper",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Classify dependencies before recommending that shallow modules merge or move behind a smaller interface.",
+            "evidence": ".agents/skills/codebase-design/DEEPENING.md",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-deepening-dependencies",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Tag each candidate dependency as in-process, local-substitutable, remote-owned, or external so its test plan is honest.",
+            "evidence": ".agents/skills/codebase-design/DEEPENING.md dependency categories",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-deepening-seams",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Keep internal test seams private and expose a new port only when production and test adapters make the seam real.",
+            "evidence": ".agents/skills/codebase-design/DEEPENING.md seam discipline",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-deepening-tests",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Replace tests of retired shallow modules with observable tests at the surviving deep module's interface.",
+            "evidence": ".agents/skills/codebase-design/DEEPENING.md replace-don't-layer strategy",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-design-it-twice",
+        "status": "inactive",
+        "reason": "No specific deepened module interface has been selected; the plan compares repository layouts without inventing production interfaces."
+      },
+      {
+        "name": "pocock-tdd-good-tests",
+        "status": "inactive",
+        "reason": "No tests are written during plan-flow."
+      },
+      {
+        "name": "pocock-tdd-seams",
+        "status": "inactive",
+        "reason": "Codebase-design supplies the test-surface decision needed by the plan; no TDD seam is exercised now."
+      },
+      {
+        "name": "pocock-tdd-antipatterns",
+        "status": "inactive",
+        "reason": "No production test suite changes occur in this planning task."
+      },
+      {
+        "name": "pocock-tdd-loop",
+        "status": "inactive",
+        "reason": "The red-green-refactor loop belongs to the later implementation route."
+      },
+      {
+        "name": "pocock-test-quality",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Specify checks against public behavior and real entry points so tests survive internal consolidation.",
+            "evidence": "The lossless requirement cannot be proven by path-existence checks alone.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-mocking-boundaries",
+        "status": "inactive",
+        "reason": "The plan does not create a new third-party dependency or test double."
+      },
+      {
+        "name": "pocock-writing-context",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Make START_HERE.md a strong pointer to live state and durable memory rather than an always-loaded copy of them.",
+            "evidence": "The user wants START_HERE.md to remain the universal entry document.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-loads",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Spend context load only on universal rules and spend human lookup effort on branch-specific history or evidence.",
+            "evidence": ".agents/skills/writing-for-agents/SKILL.md two-load model",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-hierarchy",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Put immediate session steps in START_HERE.md, current state in one disclosed file, and durable chronology in MEMORY.md.",
+            "evidence": ".agents/skills/writing-for-agents/SKILL.md information hierarchy",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-completion",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Give every cleanup phase an observable finish condition and refuse vague outcomes such as documentation cleaned up.",
+            "evidence": ".agents/skills/writing-for-agents/SKILL.md completion criteria",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-split",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Split the plan by independently verifiable migration phase while keeping the final repository documentation split to the fewest live branches.",
+            "evidence": "The implementation spans more than three phases, while the target documentation budget is one or two files beyond memory.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-leading-words",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Use stable classification terms such as authoritative, generated, reproducible, historical, and dead throughout the plan and later manifest.",
+            "evidence": ".agents/skills/writing-for-agents/SKILL.md leading-word guidance",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-pruning",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Delete duplicate caches of config and commands, disclose branch-only history, and retain one source for each decision.",
+            "evidence": "The user's complaint is documentation sediment and repeated obsolete material.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-implementation-checks",
+        "status": "inactive",
+        "reason": "Implementation checks will be specified per phase but no implementation step runs in plan-flow."
+      },
+      {
+        "name": "akita-code-style",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Require surviving and consolidated production functions, names, types, and modules to meet the repository's Akita limits.",
+            "evidence": "AGENTS.md Code style block and the user's request to clean useless code as well as files",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-comments",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Preserve comments that carry why or provenance and remove only narration that the code already states.",
+            "evidence": "AGENTS.md Comments block makes comment intent part of losslessness.",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-tests",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Require regression tests for consolidation and one project command for each independently shippable phase.",
+            "evidence": "AGENTS.md Tests block and the user's no-functionality-loss requirement",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-dependencies",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Preserve dependency injection and project-owned adapters while removing unused third-party packages only after import and runtime proof.",
+            "evidence": "AGENTS.md Dependencies block",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-structure",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Organize surviving files by one responsibility and predictable framework or domain paths, with files below 500 lines.",
+            "evidence": "AGENTS.md Structure block and the requested whole-repository restructure",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-formatting",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Run each language's default formatter after code moves and consolidation instead of hand-formatting.",
+            "evidence": "AGENTS.md Formatting block",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-logging",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "Keep structured logs for diagnostics and plain text for user-facing commands when consolidating tools.",
+            "evidence": "AGENTS.md Logging block",
+            "obligations": [
+              "plan-flow-5"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "next_action": "Deliver the plan and stop before implementation."
+}

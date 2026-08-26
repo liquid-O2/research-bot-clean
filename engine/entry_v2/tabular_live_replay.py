@@ -14,8 +14,9 @@ from . import common as C
 from .contracts import (
     CausalEntryExample,EntryScore,RawPrefixRef,SessionRef,Side,
 )
-from .exact_delayed_teacher import (
-    DayOptionUniverse, PortfolioPrefixCondition, RolloutStateProposal, _arrival,
+from .exact_delayed_teacher import _arrival
+from .exact_teacher_types import (
+    DayOptionUniverse, PortfolioPrefixCondition, RolloutStateProposal,
 )
 from .replay import ReplayOutcome,ScoredArrival,replay
 from .tabular_action_features import build_action_feature_matrix, qrf4_regime_matrix

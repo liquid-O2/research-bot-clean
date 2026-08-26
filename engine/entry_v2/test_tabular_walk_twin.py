@@ -13,7 +13,7 @@ from unittest import mock
 import numpy as np
 
 from . import common as C
-from .exact_delayed_teacher import DayOptionUniverse
+from .exact_teacher_types import DayOptionUniverse
 from .tabular_calibration import AdmissionContract
 from .tabular_delayed_corpus import CausalFeatureShard
 from .tabular_live_replay import replay_policy_day, save_policy_day_trace
@@ -457,7 +457,7 @@ class WalkTwinMultistateCacheHelperTest(unittest.TestCase):
         trace.  Built here from tabular_evaluation's own pieces, not from the
         helper's output."""
 
-        from .tabular_evaluation import _trace_identity
+        from .tabular_evaluation_io import _trace_identity
         expected = tuple(
             self.root / "calibrated" / _trace_identity(
                 day=WTWIN_TEST_DAY, mode="CALIBRATED",

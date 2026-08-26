@@ -1,8 +1,8 @@
 """Build, load and register the qrdisc native extension.
 
 BUILD LOCATION LAW
-    Build trees live ONLY under /workspace/artifacts/cache/cpp (engine/cpp/
-    CMakeLists.txt:4-6).  Nothing is written to the container overlay, and
+    Build trees live ONLY under /workspace/artifacts/cache/cpp.  The loader
+    invokes g++ directly.  Nothing is written to the container overlay, and
     nothing is ever downloaded: the extension is the raw CPython C API against
     the interpreter's own headers plus numpy's, both already on this box.
 
@@ -109,7 +109,7 @@ QRDISC_CPP_SOURCES = (
     "src/qrdisc_assembly_tail.cpp",
     "src/qrdisc_pymodule.cpp",
 )
-# House FP law (engine/cpp/CMakeLists.txt:36): -ffp-contract=off, no fast-math,
+# House FP law: -ffp-contract=off, no fast-math,
 # warnings are errors.  Python/numpy headers come in with -isystem so their own
 # pedantic diagnostics cannot fail our build.
 # Ticket 41, and the measurement matters more than the reasoning. -O3 with

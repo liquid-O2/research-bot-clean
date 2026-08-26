@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "route": "implement-flow",
+  "playbook": "refactoring",
+  "gates": ".unlazy/claude-installer-tests/GATES.md",
+  "outer_method": [
+    "implement-flow",
+    "poteto-mode",
+    "playbook:refactoring"
+  ],
+  "nested_method": {
+    "investigation": ["how"],
+    "implementation": ["tdd", "pocock-tdd", "implement"],
+    "review": ["code-review"]
+  },
+  "method_composition": {
+    "owners": ["pstack", "pocock"],
+    "applies_to": ["implementation"],
+    "akita": "compatible-only"
+  },
+  "skill_selections": [
+    {
+      "name": "how",
+      "branch": "investigation",
+      "trigger": "installer tests move across modules",
+      "decision": "Trace installer check behavior and current test helpers before moving tests.",
+      "evidence": "tools/install_claude_harness.py and tests/test_agent_harness.py"
+    },
+    {
+      "name": "tdd",
+      "branch": "implementation",
+      "trigger": "new installer failure-path coverage",
+      "decision": "Add direct behavioral tests for each requested check failure and immutability.",
+      "evidence": "tests/test_claude_installer.py"
+    },
+    {
+      "name": "pocock-tdd",
+      "branch": "implementation",
+      "trigger": "implement-flow test seam",
+      "decision": "Exercise the public installer check entry point and its real mismatch verifier.",
+      "evidence": "tests/test_claude_installer.py"
+    },
+    {
+      "name": "implement",
+      "branch": "implementation",
+      "trigger": "implement-flow route",
+      "decision": "Keep the change confined to focused test modules.",
+      "evidence": "tests/test_claude_installer.py and tests/test_hook_trust.py"
+    },
+    {
+      "name": "code-review",
+      "branch": "review",
+      "trigger": "final test-only diff",
+      "decision": "Inspect the focused diff for production coupling and tautological mocks.",
+      "evidence": "final owned diff review"
+    }
+  ],
+  "standing_laws": [
+    "unlazy",
+    "clean-code-for-agents",
+    "unslop",
+    "writing-for-agents"
+  ],
+  "testing_choice": {
+    "selected": ["tdd", "pocock-tdd"],
+    "reason": "The installer exposes fast public check seams and filesystem behavior that can be verified directly."
+  },
+  "engagement": {
+    "mode": "exact-source-packet",
+    "required": [
+      "router",
+      "poteto-mode-with-principles-index",
+      "selected-playbook",
+      "standing-laws",
+      "nested-method-sources",
+      "selected-principle-leaves"
+    ],
+    "rearm_after": ["compact", "clear", "source-digest-change"]
+  },
+  "principles": [
+    {
+      "name": "principle-laziness-protocol",
+      "decision": "Move existing classes intact before adding only the requested cases.",
+      "evidence": "focused test diff"
+    },
+    {
+      "name": "principle-subtract-before-you-add",
+      "decision": "Remove the oversized classes from the broad module before extending coverage.",
+      "evidence": "tests/test_agent_harness.py"
+    },
+    {
+      "name": "principle-minimize-reader-load",
+      "decision": "Give Claude installer and hook-trust behavior one focused module each.",
+      "evidence": "tests/test_claude_installer.py and tests/test_hook_trust.py"
+    },
+    {
+      "name": "principle-model-the-domain",
+      "decision": "Organize tests by installer failure category and observable result instead of installer implementation phase.",
+      "evidence": "tests/test_claude_installer.py"
+    },
+    {
+      "name": "principle-foundational-thinking",
+      "decision": "Use temporary repository trees as the shared test data shape for file-state checks.",
+      "evidence": "tests/test_claude_installer.py"
+    },
+    {
+      "name": "principle-redesign-from-first-principles",
+      "decision": "Treat focused installer ownership as the natural test layout rather than appending to the catch-all module.",
+      "evidence": "focused test modules"
+    },
+    {
+      "name": "principle-prove-it-works",
+      "decision": "Run focused unittest modules, line-count checks, and git diff validation.",
+      "evidence": ".unlazy/claude-installer-tests/GATES.md"
+    },
+    {
+      "name": "principle-sequence-verifiable-units",
+      "decision": "Verify the class move before adding failure-path cases, then run the combined focused suite.",
+      "evidence": ".unlazy/claude-installer-tests/GATES.md"
+    }
+  ],
+  "owns": [
+    "tests/test_agent_harness.py",
+    "tests/test_claude_installer.py",
+    "tests/test_hook_trust.py"
+  ]
+}

@@ -1,0 +1,308 @@
+{
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.test_repo_cleanup_baseline"
+      ],
+      "check_id": "baseline-unit",
+      "cwd": ".",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expected_token": "OK",
+      "lane": "repository",
+      "reason": "",
+      "result_sha256": "e8fdc5c35a4bea27b4d92ae8e555896eb354d0e0d0d7cc8925e22b57e106cba4",
+      "status": "pass",
+      "token_present": true
+    },
+    {
+      "argv": [
+        "bash",
+        "tools/run_all_checks.sh",
+        "--fast"
+      ],
+      "check_id": "current-fast",
+      "cwd": ".",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expected_token": "ALL CHECKS GREEN",
+      "lane": "python-fast",
+      "reason": "",
+      "result_sha256": "800122a38fb8c83293ac1636df65a629ea801f725d04605e6cc97a6e27f5391c",
+      "status": "pass",
+      "token_present": true
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "engine.entry_v2.test_common.CommonTest.test_holdout_and_2026_refuse",
+        "engine.entry_v2.test_common.CommonTest.test_payload_date_guard_ignores_only_opaque_sha256_tokens",
+        "engine.entry_v2.test_common.CommonTest.test_payload_date_guard_ignores_rng_seed_path_identities"
+      ],
+      "check_id": "sealed-date-metadata",
+      "cwd": ".",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expected_token": "OK",
+      "lane": "repository",
+      "reason": "",
+      "result_sha256": "8932709ba4b0b83ea3c1279695a66610b46e442c400ded68ae8f86529b10f33c",
+      "status": "pass",
+      "token_present": true
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "engine/Cargo.toml",
+        "--workspace",
+        "--lib"
+      ],
+      "check_id": "rust-workspace-lib",
+      "cwd": ".",
+      "exit_code": 127,
+      "expected_exit_code": 0,
+      "expected_token": "test result: ok",
+      "lane": "rust",
+      "reason": "cannot start cargo; expected an executable command: [Errno 2] No such file or directory: 'cargo'",
+      "result_sha256": "21d88837657a26227887bd322c5a96a6383dc86b11b3eafefb3ebbc1113906b9",
+      "status": "fail",
+      "token_present": false
+    },
+    {
+      "argv": [
+        "cmake",
+        "--preset",
+        "dev"
+      ],
+      "check_id": "cpp-configure-dev",
+      "cwd": "engine/cpp",
+      "exit_code": 1,
+      "expected_exit_code": 0,
+      "expected_token": "Build files have been written",
+      "lane": "cpp",
+      "reason": "the Ninja executable required by the configured generator is absent",
+      "result_sha256": "bff583c2154e42bc21870318c85e1c5db52c7c60c76d1f3b97862237e7b47b28",
+      "status": "fail",
+      "token_present": false
+    },
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "--preset",
+        "dev",
+        "-j",
+        "12"
+      ],
+      "check_id": "cpp-build-dev",
+      "cwd": "engine/cpp",
+      "exit_code": 1,
+      "expected_exit_code": 0,
+      "expected_token": "",
+      "lane": "cpp",
+      "reason": "the development tree cannot rebuild while Ninja is absent",
+      "result_sha256": "4dc6c4d381d77b1dcd18223b8abbd99242f700ea177875929524deae81b326ac",
+      "status": "fail",
+      "token_present": true
+    },
+    {
+      "argv": [
+        "ctest",
+        "--preset",
+        "dev"
+      ],
+      "check_id": "cpp-ctest-dev",
+      "cwd": "engine/cpp",
+      "exit_code": 8,
+      "expected_exit_code": 0,
+      "expected_token": "100% tests passed",
+      "lane": "cpp",
+      "reason": "six of 28 suites fail on removed frozen-spec paths or missing data/tokens inputs",
+      "result_sha256": "fb97b5283453b136c603797285b3f0fbf1f83e07c3effa93b24abf9060ee90e9",
+      "status": "fail",
+      "token_present": false
+    },
+    {
+      "argv": [
+        "bash",
+        "engine/cpp/scripts/check_red_ledger.sh"
+      ],
+      "check_id": "cpp-red-ledger",
+      "cwd": ".",
+      "exit_code": 1,
+      "expected_exit_code": 0,
+      "expected_token": "OK: red ledger proves all",
+      "lane": "red-proof",
+      "reason": "47 built tests have no row in the native red-proof ledger",
+      "result_sha256": "ae01411b41843f9648b01b9dde0111913b74a9771ebc19bfa297da416937b432",
+      "status": "fail",
+      "token_present": false
+    },
+    {
+      "argv": [
+        "bash",
+        "engine/cpp/scripts/check_red_ledger_python.sh"
+      ],
+      "check_id": "cpp-red-ledger-python",
+      "cwd": ".",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expected_token": "OK: red ledger proves all",
+      "lane": "red-proof",
+      "reason": "",
+      "result_sha256": "cd297177d21e5814dc5b784424d077a50e45e90c88928b3fc6764d9b981e787e",
+      "status": "pass",
+      "token_present": true
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/run_tabular_recovery.py",
+        "--help"
+      ],
+      "check_id": "recovery-help",
+      "cwd": ".",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expected_token": "--phase",
+      "lane": "repository",
+      "reason": "",
+      "result_sha256": "ed3f2a5c0986a4b9ffe2bd30bb2f8893255d9a526ced3623acce3de22facd7b8",
+      "status": "pass",
+      "token_present": true
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/run_tabular_recovery.py",
+        "--phase",
+        "status",
+        "--rehearsal-root",
+        "/tmp/repo-cleanup-baseline-i4eqxlaw/rehearsal",
+        "--campaign-root",
+        "/tmp/repo-cleanup-baseline-i4eqxlaw/campaign"
+      ],
+      "check_id": "recovery-status",
+      "cwd": ".",
+      "exit_code": 1,
+      "expected_exit_code": 0,
+      "expected_token": "\"h2_open_count\": 0",
+      "lane": "repository",
+      "reason": "main assigns to local status and shadows the status command function",
+      "result_sha256": "32701565138abc205a2e4bd6b0acdde3d78c41837e1d8a62d1de47bc5874912a",
+      "status": "fail",
+      "token_present": false
+    },
+    {
+      "argv": [
+        "artifacts/cache/cpp/dev/bin/qr_entry_v2_build",
+        "--help"
+      ],
+      "check_id": "native-help",
+      "cwd": ".",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expected_token": "ordinary CLI cannot exceed 20250701",
+      "lane": "cpp",
+      "reason": "",
+      "result_sha256": "52238159d50fa8979f1fc7b106f39ebebd03123f27bf80bcd16be508eb70c22b",
+      "status": "pass",
+      "token_present": true
+    },
+    {
+      "argv": [
+        "artifacts/cache/cpp/dev/bin/qr_entry_v2_build"
+      ],
+      "check_id": "native-refusal",
+      "cwd": ".",
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "expected_token": "usage:",
+      "lane": "cpp",
+      "reason": "",
+      "result_sha256": "3d1dea0d7f13e754e4443b7791e9e820156c6ac62db62a1e7ea042b2d71df477",
+      "status": "pass",
+      "token_present": true
+    },
+    {
+      "argv": [
+        "artifacts/cache/cpp/dev/bin/qr_entry_v2_tests"
+      ],
+      "check_id": "native-bounded-success",
+      "cwd": ".",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expected_token": "[  PASSED  ]",
+      "lane": "cpp",
+      "reason": "",
+      "result_sha256": "f52ff11812a1d5342ac12b5636b624eaa7a0c97e6158ac7b7969d92aaef5b50d",
+      "status": "pass",
+      "token_present": true
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "check_id": "root-agent-harness",
+      "cwd": ".",
+      "lane": "agent-method",
+      "reason": "the current root suite enters protected dot directories",
+      "result_sha256": "3cbefa26fd8fc85d2818e396fa1a73e83034ce3712159e36a63ddf52a9d88268",
+      "status": "blocked"
+    },
+    {
+      "argv": [
+        "bash",
+        "engine/cpp/ci/run_all.sh"
+      ],
+      "check_id": "cpp-all-gates",
+      "cwd": ".",
+      "lane": "real-file",
+      "reason": "WP6 and dependent gates open sealed publication payloads",
+      "result_sha256": "066b12c03f4320ced6e066f75ec492c502cafe1b649aeb777212d0fa8d5c78e5",
+      "status": "blocked"
+    },
+    {
+      "argv": [],
+      "check_id": "remaining-python-and-selftests",
+      "cwd": ".",
+      "lane": "python-full",
+      "reason": "the current runner has no protected-safe complete registry",
+      "result_sha256": "101e74e53081d28446dd5e7788a4964f567234018cd9f745328e763a2daf29a9",
+      "status": "gap"
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/apply_freeze_batch_20260821.py",
+        "--selftest"
+      ],
+      "check_id": "apply-freeze-selftest",
+      "cwd": ".",
+      "lane": "selftest",
+      "reason": "the current runner documents its consumed-anchor fixture as failing",
+      "result_sha256": "555102b494025950cb1321154647b0b25e80cc79e757bb15bdab6d53dbe3dedd",
+      "status": "gap"
+    }
+  ],
+  "result_sha256": "65925817ce02c191a48a29750392abff0ceba34c023f51f242758a07cb147a27",
+  "schema_version": 1,
+  "summary": {
+    "blocked": 2,
+    "fail": 6,
+    "gap": 2,
+    "pass": 8
+  }
+}

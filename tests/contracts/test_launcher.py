@@ -21,7 +21,7 @@ def main() -> int:
         launch = subprocess.run(
             [
                 "bash",
-                str(ROOT / "lab/run.sh"),
+                str(ROOT / "tools/run.sh"),
                 "smoke",
                 "--",
                 "bash",
@@ -45,12 +45,12 @@ def main() -> int:
         if (run_dir / "smoke.hb").read_text().strip() != "heartbeat":
             raise RuntimeError("heartbeat registry mismatch")
         subprocess.run(
-            ["bash", str(ROOT / "lab/watchdog.sh"), "--check"],
+            ["bash", str(ROOT / "tools/watchdog.sh"), "--check"],
             env=env,
             check=True,
         )
         listing = subprocess.check_output(
-            ["bash", str(ROOT / "lab/run.sh"), "--list"],
+            ["bash", str(ROOT / "tools/run.sh"), "--list"],
             env=env,
             text=True,
         )

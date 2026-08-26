@@ -1,0 +1,31 @@
+---
+description: OpenCode pstack per-role Task models. Same roles as Cursor. Grok 4.6 xhigh and GPT 5.6 Sol max.
+alwaysApply: true
+---
+
+# pstack model configuration (OpenCode)
+
+Same role list as `~/.cursor/rules/pstack-models.mdc`. Slugs are OpenCode `provider/model#variant`. `inherit-parent` or `auto` omits Task `model`.
+
+Cursor `cursor-grok-4.6-xhigh-fast` is `xai/grok-4.6#xhigh` here.
+Cursor `gpt-5.6-sol-max` is `openai/gpt-5.6-sol#max` here.
+Cursor `claude-fable-5-thinking-max` is `anthropic/claude-fable-5#max` here. Advisor and architect only. Needs `/connect` Anthropic with an API key. Claude Pro/Max OAuth in third-party tools is prohibited by Anthropic.
+
+feature, refactoring: xai/grok-4.6#xhigh
+bug-fix: openai/gpt-5.6-sol#max
+perf-issue: openai/gpt-5.6-sol#max
+hillclimb: openai/gpt-5.6-sol#max
+judgment and prose: anthropic/claude-fable-5#max
+hardest tasks: openai/gpt-5.6-sol#max
+how explorer: xai/grok-4.6#xhigh
+how explainer: anthropic/claude-fable-5#max
+how critics: anthropic/claude-fable-5#max, openai/gpt-5.6-sol#max, xai/grok-4.6#xhigh
+why investigators: xai/grok-4.6#xhigh
+why synthesizer: anthropic/claude-fable-5#max
+reflect tooling: openai/gpt-5.6-sol#max
+reflect judgment, divergent, synthesizer: anthropic/claude-fable-5#max
+arena runners: anthropic/claude-fable-5#max, openai/gpt-5.6-sol#max, xai/grok-4.6#xhigh
+arena cross-judge pool: anthropic/claude-fable-5#max, openai/gpt-5.6-sol#max, xai/grok-4.6#xhigh
+swarm workers: xai/grok-4.6#xhigh
+architect runners: anthropic/claude-fable-5#max, openai/gpt-5.6-sol#max, xai/grok-4.6#xhigh
+interrogate reviewers: anthropic/claude-fable-5#max, openai/gpt-5.6-sol#max, xai/grok-4.6#xhigh

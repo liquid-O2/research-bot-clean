@@ -1,0 +1,42 @@
+[
+  {
+    "name": "pstack-models",
+    "mode": "always",
+    "file": "/workspace/.opencode/rules/pstack-models.mdc"
+  },
+  {
+    "name": "unslop",
+    "mode": "always",
+    "file": "/workspace/.cursor/rules/unslop.mdc"
+  },
+  {
+    "name": "memory",
+    "mode": "always",
+    "file": "/workspace/.cursor/rules/memory.mdc"
+  },
+  {
+    "name": "equal-standing",
+    "mode": "always",
+    "file": "/workspace/.cursor/rules/equal-standing.mdc"
+  },
+  {
+    "name": "akita",
+    "mode": "always",
+    "file": "/workspace/.cursor/rules/akita.mdc"
+  },
+  {
+    "name": "smallest-change",
+    "mode": "always",
+    "file": "/workspace/.cursor/rules/smallest-change.mdc"
+  },
+  {
+    "name": "one-pass",
+    "mode": "always",
+    "file": "/workspace/.cursor/rules/one-pass.mdc"
+  },
+  {
+    "name": "opencode-pstack",
+    "mode": "always",
+    "file": "/workspace/.opencode/rules/opencode-pstack.mdc"
+  }
+]

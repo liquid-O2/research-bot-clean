@@ -1,0 +1,882 @@
+{
+  "schema_version": 4,
+  "route": "implement-flow",
+  "scope": "method-canary-318f8085d208f751",
+  "transition_epoch": 1,
+  "frames": [
+    {
+      "source": "playbook:bug-fix",
+      "anchor": "4. Verify on the same surface; the original repro now passes.",
+      "methods": [
+        "implement-flow",
+        "poteto-mode",
+        "playbook:bug-fix",
+        "unlazy",
+        "clean-code-for-agents",
+        "unslop",
+        "writing-for-agents",
+        "diagnosing-bugs"
+      ],
+      "obligations": [
+        "apply-implement-flow",
+        "apply-poteto-mode",
+        "apply-playbook-bug-fix",
+        "apply-unlazy",
+        "apply-clean-code-for-agents",
+        "apply-unslop",
+        "apply-writing-for-agents",
+        "apply-diagnosing-bugs"
+      ],
+      "status": "active"
+    }
+  ],
+  "receipts": [
+    {
+      "method": "implement-flow",
+      "status": "active"
+    },
+    {
+      "method": "poteto-mode",
+      "status": "active"
+    },
+    {
+      "method": "playbook:bug-fix",
+      "status": "active"
+    },
+    {
+      "method": "unlazy",
+      "status": "active"
+    },
+    {
+      "method": "clean-code-for-agents",
+      "status": "active"
+    },
+    {
+      "method": "unslop",
+      "status": "active"
+    },
+    {
+      "method": "writing-for-agents",
+      "status": "active"
+    },
+    {
+      "method": "diagnosing-bugs",
+      "status": "active"
+    }
+  ],
+  "obligations": [
+    {
+      "id": "apply-implement-flow",
+      "status": "active"
+    },
+    {
+      "id": "apply-poteto-mode",
+      "status": "active"
+    },
+    {
+      "id": "apply-playbook-bug-fix",
+      "status": "active"
+    },
+    {
+      "id": "apply-unlazy",
+      "status": "active"
+    },
+    {
+      "id": "apply-clean-code-for-agents",
+      "status": "active"
+    },
+    {
+      "id": "apply-unslop",
+      "status": "active"
+    },
+    {
+      "id": "apply-writing-for-agents",
+      "status": "active"
+    },
+    {
+      "id": "apply-diagnosing-bugs",
+      "status": "active"
+    }
+  ],
+  "principle_assessment": {
+    "epoch": 1,
+    "entries": [
+      {
+        "name": "principle-fix-root-causes",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise the installed guard",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-prove-it-works",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise the installed guard",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "principle-boundary-discipline",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-build-the-lever",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-encode-lessons-in-structure",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-exhaust-the-design-space",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-experience-first",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-foundational-thinking",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-guard-the-context-window",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-laziness-protocol",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-make-operations-idempotent",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-migrate-callers-then-delete-legacy-apis",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-minimize-reader-load",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-model-the-domain",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-never-block-on-the-human",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-outcome-oriented-execution",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-redesign-from-first-principles",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-separate-before-serializing-shared-state",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-sequence-verifiable-units",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-subtract-before-you-add",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "principle-type-system-discipline",
+        "status": "inactive",
+        "reason": "the canary does not exercise this trigger"
+      },
+      {
+        "name": "pocock-codebase-glossary",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-codebase-glossary in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-depth",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-codebase-depth in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-principles",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-codebase-principles in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-testability",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-codebase-testability in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-relationships",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-codebase-relationships in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-rejected-framings",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-codebase-rejected-framings in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-codebase-going-deeper",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-codebase-going-deeper in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-deepening-dependencies",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-deepening-dependencies in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-deepening-seams",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-deepening-seams in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-deepening-tests",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-deepening-tests in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-design-it-twice",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-design-it-twice in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-tdd-good-tests",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-tdd-good-tests in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-tdd-seams",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-tdd-seams in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-tdd-antipatterns",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-tdd-antipatterns in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-tdd-loop",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-tdd-loop in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-test-quality",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-test-quality in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-mocking-boundaries",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-mocking-boundaries in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-context",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-writing-context in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-loads",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-writing-loads in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-hierarchy",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-writing-hierarchy in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-completion",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-writing-completion in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-split",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-writing-split in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-leading-words",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-writing-leading-words in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-writing-pruning",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-writing-pruning in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "pocock-implementation-checks",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise pocock-implementation-checks in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-code-style",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise akita-code-style in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-comments",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise akita-comments in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-tests",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise akita-tests in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-dependencies",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise akita-dependencies in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-structure",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise akita-structure in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-formatting",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise akita-formatting in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "akita-logging",
+        "status": "active",
+        "decisions": [
+          {
+            "decision": "exercise akita-logging in the installed canary",
+            "evidence": "tools/run_method_canaries.py",
+            "obligations": [
+              "apply-implement-flow",
+              "apply-poteto-mode",
+              "apply-playbook-bug-fix",
+              "apply-unlazy",
+              "apply-clean-code-for-agents",
+              "apply-unslop",
+              "apply-writing-for-agents",
+              "apply-diagnosing-bugs"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "next_action": "Run the installed method canary."
+}

@@ -1,0 +1,40 @@
+---
+description: Cursor CLI pstack-lab wiring. poteto-agent, overlay skills, plugin path.
+alwaysApply: true
+---
+
+# Cursor pstack-lab
+
+This repo's plugin is `.cursor/plugins/pstack-lab`. It is a fork of marketplace pstack. Poteto Mode still owns playbooks. Unique Pocock pieces are hooked into that flow. You do not type grilling, to-spec, or wayfinder.
+
+`AGENTS.md`'s mandatory catalog block is for Codex and Grok. Cursor agents follow this file and `/poteto-mode`. Open a principle leaf only when its trigger matches.
+
+## Cursor CLI (this host)
+
+Start with `/poteto-mode`. Spawn `subagent_type: "poteto-agent"`.
+
+Load the plugin if a session does not already see `pstack-lab`:
+
+```text
+cursor-agent --plugin-dir /workspace/.cursor/plugins/pstack-lab
+```
+
+A symlink also lives at `~/.cursor/plugins/local/pstack-lab`.
+
+`/setup-pstack` still writes `~/.cursor/rules/pstack-models.mdc` with Task slugs this account has. Do not guess slugs.
+
+## What the mode does for you
+
+- Feature and bug-fix playbooks already include design, implementation, review, and verify.
+- New or changed interfaces open **principle-codebase-design**.
+- Product forks that need a human follow `references/grilling-flow.md` inside the AskQuestion trigger.
+- Work too big for one session follows `references/wayfinder-planning.md` from the plan playbook.
+- Briefs, skills, plans, CONTEXT.md follow **writing-for-agents**.
+- Review is two-axis, then one repair pass. See `.cursor/rules/one-pass.mdc`.
+- Matching principle triggers are equal. See `.cursor/rules/equal-standing.mdc`. Those leaves outrank Akita.
+- Session memory is `.cursor/rules/memory.mdc`. The parent agent writes notes. The human does not.
+- Every user-visible sentence follows `.cursor/rules/unslop.mdc`.
+- Minutes-not-hours is `.cursor/rules/fast-enough.mdc`. Do not over-optimize.
+- Akita is the later shape check, `.cursor/rules/akita.mdc`. Design the seam first.
+
+Project `.cursor/skills` only overrides `poteto-mode`, `principle-codebase-design`, `writing-for-agents`, and `tdd`. The rest come from the plugin.

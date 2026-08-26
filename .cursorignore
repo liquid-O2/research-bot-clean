@@ -1,0 +1,25 @@
+# Claude Code and Codex host trees. Cursor must not scan or list them.
+.claude/
+.codex/
+CLAUDE.md
+
+.cursor/hooks/state/
+
+# House routers that overbuilt Codex. Cursor uses /poteto-mode plus .cursor/skills.
+
+# Historical prose. Agents read START_HERE.md and live design tickets.
+archive/
+docs/
+knowledge/
+provenance/
+research/
+retirement/
+transcripts/
+design/REFUTED/
+design/book_confirmations/
+design/candidates/
+design/harness_rebuild_20260823/
+evidence/claims/
+evidence/failures/
+evidence/port_m*/
+vendor/agent-sources/

@@ -18,7 +18,7 @@ Do not walk tickets. Do not treat 45/47/54, forward-vol, or regime as the answer
 - Closed this morning. Action-head H1-H7. ENTER works. Dollars per trade do not. H5 is the only dollar-positive sparse book (+426.25, max 3). H7 filled the cap and lost. Receipts under `.audit/threshold-refit-h*.json`.
 - Top-2 join. `.audit/threshold-h5-top2.json`. Walked top-2 names pay about +$600/tr. Walked event names below top-2 pay about -$400/tr. H5's +$426 is non-event noise.
 - Roster is closed. `.audit/threshold-roster-kill.json` status `KILL`. Do not recombine those four fields. Do not wire roster into walk state.
-- Ceiling is already known. Do not re-prove it. Capture miss is the live unit. `.audit/threshold-capture-gap.json` verdict MISS. Earliest=best 149/1732 (8.6%). Winner mean rank 28 of 105. Latest and cheapest also miss. Next is one live G1 scalar that is not time or cost. Ticket 47 waits. Teacher-cash still cannot promote. Loop stays off.
+- Capture miss is ESTABLISHED. Every stored unfitted path is closed. Experiment A Stage 1 KILL. Covering map v5 names unit C, the fitted read at age 180. `.audit/briefs/threshold-covering-after-pivot-kill-out.md`. Not started. Tickets 37, 46, 47 stay unstarted. Teacher-cash still cannot promote. Loop stays off.
 - Log. `.audit/threshold-hillclimb.tsv`
 
 ## 1. Diagnosis (Investigation)

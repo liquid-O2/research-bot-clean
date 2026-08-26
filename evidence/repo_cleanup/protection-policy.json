@@ -1,0 +1,1 @@
+{"registered_roots":[{"path":"artifacts/cache/research-tools-venv","reason":"virtual_environment"},{"path":"artifacts/cache/select-toolchain/science","reason":"virtual_environment"},{"path":"artifacts/cache/venvs","reason":"virtual_environment"},{"path":"data/private_project_vault","reason":"private_vault"}],"schema":"repo-cleanup-protection-policy-v1"}

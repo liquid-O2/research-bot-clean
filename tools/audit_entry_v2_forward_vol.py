@@ -28,7 +28,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "engine"))
 
 from entry_v2 import common as C  # noqa: E402
-from entry_v2.corpus import (  # noqa: E402
+from entry_v2.corpus_forecast import (  # noqa: E402
     FORECAST_QUANTILES,
     FORECAST_SEGMENTS,
     QRE2_FORECAST_LAW_SHA256,

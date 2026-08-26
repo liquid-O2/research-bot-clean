@@ -1,0 +1,105 @@
+{
+  "check_command": "python3 .audit/score_threshold_fit_name.py",
+  "dollar_stop": {
+    "applied": "Fitted name pick misses the rungs. Remaining unknown is whether corpus features (ticket 47) can rank the winner. Teacher-cash still cannot promote. 2025 stays unread.",
+    "captured_live_rules": [],
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "usd_per_asset_day": {
+      "HG": -106.45939086294416,
+      "NKD": 67.40979381443299,
+      "SI": -368.7041884816754
+    },
+    "verdict": "MISS"
+  },
+  "features": [
+    "time_rank",
+    "frozen_cost_usd",
+    "entry_spread_usd",
+    "compliance_distance_sec",
+    "sane_ceiling_usd",
+    "atr14_prev_usd",
+    "entry_mid2",
+    "side"
+  ],
+  "fit": {
+    "learner": "sklearn.LogisticRegression",
+    "match_rate": 0.0779445727482679,
+    "n_cells_with_winner": 1732,
+    "n_fallback_cells": 9,
+    "n_match_cell_best": 135,
+    "n_picked_cells": 1734,
+    "n_train_cells_last": 1732,
+    "n_train_rows_last": 182707
+  },
+  "label": "causal expanding-window fitted name pick on stored live G1 columns. It can name a capture fix and cannot promote.",
+  "learner": "sklearn.LogisticRegression",
+  "lines": {
+    "fitted": {
+      "cash_total_usd": {
+        "HG": -20972.5,
+        "NKD": 13077.5,
+        "SI": -70422.5
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 113245.0,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -45.16580161476355,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2106.459390862944,
+        "NKD": 1432.590206185567,
+        "SI": 1868.7041884816754
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -106.45939086294416,
+        "NKD": 67.40979381443299,
+        "SI": -368.7041884816754
+      }
+    }
+  },
+  "n_forecast_rows_read": 37427,
+  "rule": "On every joinable 2022-03-09 through 2024-12-31 gated cell, score every CLEAR name with LogisticRegression trained only on gated joinable cells whose d8 is strictly before that day. Binary target is is_cell_best among CLEAR names, the READY cell-best. Features are live only: decision_ts_ns as rank-in-cell, frozen_cost_usd, entry_spread_usd, compliance_distance_sec, sane_ceiling_usd, atr14_prev_usd, entry_mid2, side. Standardized. Pick the max score, tie-break smallest candidate_id. No train or one class falls back to earliest CLEAR. One contract per cell. Cash is cert_close_usd on READY. The day gate is the freeze expanding median. Teacher-cash still cannot promote.",
+  "schema": "QRE2THRESHOLDFITNAME1",
+  "sources": {
+    "candidates_root": "artifacts/cache/port/entry_v2/g1/candidates",
+    "forecasts": {
+      "path": "artifacts/runs/e6_vol_forecasts_v2/vol_service_forecasts.tsv",
+      "sha256": "9bea40ac23749bf5f39e8147e96db45c651c140c5fc1573fec8e036c2b7b7a2c"
+    },
+    "freeze": {
+      "path": ".audit/threshold-2022-2024-freeze.md",
+      "sha256": "730fa98017e1e37532f0d4b0b0d209dc4d7512c3dbb752d95467086f4ff3854d"
+    },
+    "killed_read": {
+      "path": ".audit/threshold-2022-2024-read.json",
+      "sha256": "2f988fe93d895b06f01f64fa9191c4c4827e370312219dfd4c563b46dea6a891"
+    },
+    "receipts_root": "artifacts/cache/port/entry_v2/g1/receipts",
+    "teacher_root": "artifacts/cache/port/entry_v2/g1/teacher"
+  },
+  "status": "MISS",
+  "verdict": "MISS",
+  "wall_clock_sec": 99.388,
+  "window": [
+    "2022-03-09",
+    "2024-12-31"
+  ],
+  "workers": 14
+}

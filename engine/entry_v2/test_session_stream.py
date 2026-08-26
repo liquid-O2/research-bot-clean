@@ -12,7 +12,6 @@ import unittest
 from unittest import mock
 
 import numpy as np
-import torch
 
 from . import common as C
 from .contracts import CausalEntryExample, RawPrefixRef, Side
@@ -24,8 +23,6 @@ from .session_stream import (
     SessionArrayCache,
     SessionEventSource,
 )
-from .train import EntrySessionBatch, EntrySessionSpec, SelfSupervisedTargets
-from .selected_horizon_contract import SCHEMA_SHA256 as SELECTED_SCHEMA_SHA256
 
 
 class SessionStreamTest(unittest.TestCase):
@@ -190,7 +187,7 @@ class SessionStreamTest(unittest.TestCase):
 
         with mock.patch("engine.entry_v2.session_stream.EventPack", TrackingPack), \
                 mock.patch.object(C, "file_sha256", side_effect=counted_sha):
-            with self.source.materialize() as arrays:
+            with self.source.open_arrays() as arrays:
                 continuous, categorical = arrays
                 self.assertEqual(continuous.shape, (3, 16))
                 self.assertEqual(categorical.shape, (3, 5))
@@ -293,75 +290,6 @@ class SessionStreamTest(unittest.TestCase):
         future = self.path.with_name("20250701.qre2")
         with self.assertRaisesRegex(C.EntryV2Refusal, "2025H2 HOLDOUT"):
             replace(self.source, qre2_path=future, d8=20250701)
-
-    def test_streams_into_existing_entry_session_batch_type(self) -> None:
-        examples = []
-        for index, cutoff in enumerate((2, 3)):
-            decision = int(self.rows[cutoff]["ts_recv_ns"])
-            ref = RawPrefixRef(
-                shard=str(self.path),
-                event_start_index=0,
-                event_end_index=cutoff,
-                event_count=cutoff,
-                first_availability_ts_ns=int(self.rows[0]["ts_recv_ns"]),
-                last_availability_ts_ns=int(
-                    self.rows[cutoff - 1]["ts_recv_ns"]
-                ),
-                source_hash=self.source_sha,
-            )
-            examples.append(CausalEntryExample(
-                candidate_id=f"SI-{self.D8}-{index}",
-                asset="SI",
-                trading_day=self.D8,
-                session_id=f"SI-{self.D8}",
-                decision_ts_ns=decision,
-                side=Side.LONG,
-                phase="G1_PHASE_0",
-                locked_iid=self.IID,
-                raw_prefix_ref=ref,
-                lineage_hash=str(index + 4) * 64,
-            ))
-        n = len(examples)
-        template = EntrySessionSpec(
-            source=self.source,
-            examples=tuple(examples),
-            candidate_cutoffs=torch.tensor([2, 3], dtype=torch.int64),
-            candidate_features=torch.zeros((n, 1), dtype=torch.float64),
-            context_values=torch.zeros((n, 1, 1, 1), dtype=torch.float64),
-            context_type_ids=torch.zeros((1,), dtype=torch.int64),
-            context_valid=torch.ones((n, 1, 1), dtype=torch.bool),
-            self_supervised=SelfSupervisedTargets(
-                horizon_value=torch.zeros((n, 4), dtype=torch.float64),
-                horizon_valid=torch.ones((n, 4), dtype=torch.bool),
-                phase_class=torch.zeros(n, dtype=torch.int64),
-                phase_valid=torch.ones(n, dtype=torch.bool),
-            ),
-            selected_horizon_value=torch.arange(
-                n * 6, dtype=torch.float64).reshape(n, 6),
-            selected_horizon_valid=torch.tensor(
-                [[True, True, False, True, True, True]] * n),
-            # B-10: the typed per-coordinate censor cause travels with the
-            # target; a censored coordinate keeps its named cause code.
-            selected_horizon_status=torch.tensor(
-                [[0, 0, 2, 0, 0, 0]] * n, dtype=torch.int8),
-            selected_horizon_schema_sha256=SELECTED_SCHEMA_SHA256,
-        )
-        with self.source.materialize(template) as batch:
-            self.assertIsInstance(batch, EntrySessionBatch)
-            self.assertEqual(batch.event_continuous.shape, (3, 16))
-            self.assertEqual(batch.event_categorical.shape, (3, 5))
-            self.assertEqual(batch.candidate_ids, template.candidate_ids)
-            self.assertIs(batch.candidate_features, template.candidate_features)
-            self.assertIs(batch.context_values, template.context_values)
-            self.assertIs(batch.self_supervised, template.self_supervised)
-            self.assertIs(batch.selected_horizon_value,
-                          template.selected_horizon_value)
-            self.assertIs(batch.selected_horizon_valid,
-                          template.selected_horizon_valid)
-            self.assertEqual(batch.selected_horizon_value.numpy().tobytes(),
-                             template.selected_horizon_value.numpy().tobytes())
-            self.assertIs(batch.selected_horizon_status,
-                          template.selected_horizon_status)
 
     def test_cache_reuses_one_bitwise_immutable_conversion_without_receipt_drift(
             self) -> None:

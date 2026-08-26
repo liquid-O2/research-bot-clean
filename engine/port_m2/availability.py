@@ -46,14 +46,11 @@ import bisect
 import csv
 import datetime as dt
 import os
-import sys
 from zoneinfo import ZoneInfo
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-if _HERE not in sys.path:
-    sys.path.insert(0, _HERE)
+class LeakRefusal(RuntimeError):
+    """Raised by the D-057 guard. A refusal must reach the caller."""
 
-import m2_common as MC                    # noqa: E402
 
 REF_ROOT = "/workspace/artifacts/reference"
 LAG_TABLE = os.path.join(REF_ROOT, "port_context", "AVAILABILITY_LAGS.tsv")
@@ -355,10 +352,10 @@ RULES = {
 def availability_ts(rule, stamp_date):
     """The single entry point.  Unknown rule = refusal, never a default."""
     if rule not in RULES:
-        raise MC.LeakRefusal("D-057: unknown avail_rule %r" % rule)
+        raise LeakRefusal("D-057: unknown avail_rule %r" % rule)
     fn = RULES[rule]
     if fn is None:
-        raise MC.LeakRefusal(
+        raise LeakRefusal(
             "D-057: %s series are schedule-exempt and must not be lag-joined"
             % rule)
     return fn(stamp_date)
@@ -407,11 +404,11 @@ def vintage_class(series_id, path=LAG_TABLE):
     """
     t = lag_table_index(path)
     if series_id not in t:
-        raise MC.LeakRefusal("D-057: %s has no AVAILABILITY_LAGS.tsv row"
+        raise LeakRefusal("D-057: %s has no AVAILABILITY_LAGS.tsv row"
                              % series_id)
     v = (t[series_id].get("vintage_class") or "").strip()
     if v not in VINTAGE_CLASSES:
-        raise MC.LeakRefusal(
+        raise LeakRefusal(
             "R14: %s carries no declared vintage_class (got %r); the lag table "
             "must state FIRST_PRINT / REVISED_VALUE / SCHEDULE explicitly"
             % (series_id, v))
@@ -484,7 +481,7 @@ class AvailSeries(object):
         if bad:
             guard.refusals.append((self.series_id, "calendar_exhausted",
                                    str(bad[-1]), str(dd)))
-            raise MC.LeakRefusal(
+            raise LeakRefusal(
                 "D-057/R86: %s has %d observation(s) whose availability date "
                 "cannot be computed (calendar ends before stamp %s); serving "
                 "an older value at decision date %s would be a stale answer"

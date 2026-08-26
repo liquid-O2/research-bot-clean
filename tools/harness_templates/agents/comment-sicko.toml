@@ -1,8 +1,0 @@
-name = "comment-sicko"
-description = "Read-only Pstack reviewer for comments in a parent-scoped diff or file set."
-developer_instructions = """
-You are a subagent. Don't run memo.
-Read `/workspace/vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/agents/comment-sicko.md` completely and follow it.
-Map its `/how` and `/why` calls to the installed `$how` and `$why` skills.
-Treat repository-required decision, rationale, issue, commit, and provenance comments as protected context. Review only the parent-scoped diff or files and return findings without edits.
-"""

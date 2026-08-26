@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from types import MappingProxyType
 from typing import Any, Mapping
 import math
 
@@ -256,70 +255,8 @@ def _sha(value: object) -> bool:
     )
 
 
-def validate_capacity_document(
-    document: Mapping[str, Any], *, expected_sha256: str | None = None,
-    require_goal: bool = True,
-) -> Mapping[str, Any]:
-    """Validate exact, unclipped replay economics and return immutable rows."""
-    if (document.get("schema") != SCHEMA
-            or document.get("values_clipped") is not False
-            or document.get("asset_day_denominator") != DENOMINATOR
-            or not isinstance(document.get("per_asset"), Mapping)
-            or set(document["per_asset"]) != set(C.ASSETS)):
-        raise C.EntryV2Refusal("capacity authority schema/denominator differs")
-    if expected_sha256 is not None and C.object_sha256(document) != expected_sha256:
-        raise C.EntryV2Refusal("capacity authority hash differs")
-    out: dict[str, Mapping[str, Any]] = {}
-    for asset in C.ASSETS:
-        row = document["per_asset"][asset]
-        try:
-            days = int(row["included_trading_days"]); trades = int(row["trades"])
-            total = float(row["total_pnl_usd"])
-            per_day = float(row["usd_per_asset_day"])
-            per_trade = float(row["usd_per_trade"])
-            oracle_total = float(row["oracle_total_pnl_usd"])
-            oracle_day = float(row["oracle_usd_per_asset_day"])
-            capture = float(row["oracle_capture"])
-            mdd = float(row["chronological_max_drawdown_usd"])
-            p90 = float(row["drawdown_p90_usd"])
-            days_with_trades = int(row["days_with_trades"])
-            regime = str(row["capacity_regime"])
-        except (KeyError, TypeError, ValueError) as exc:
-            raise C.EntryV2Refusal(f"{asset} capacity row is incomplete") from exc
-        eligibility = capacity_eligibility(row)
-        declared = row.get("eligibility")
-        per_trade_exact = (total / trades == per_trade if trades > 0
-                           else total == 0.0 and per_trade == 0.0)
-        capture_exact = (capture == total / oracle_total if oracle_total != 0.0
-                         else total == 0.0 and capture == 0.0)
-        exact = (days > 0 and trades >= 0
-                 and all(math.isfinite(v) for v in
-                         (total, per_day, per_trade, oracle_total, oracle_day,
-                          capture, mdd, p90))
-                 and total / days == per_day and per_trade_exact
-                 and oracle_total / days == oracle_day
-                 and capture_exact and mdd >= 0.0 and p90 >= 0.0
-                 and row.get("threshold_feasibility_sha256")
-                    == eligibility.threshold_feasibility_sha256
-                 and row.get("capacity_eligibility_sha256")
-                    == eligibility.receipt_sha256
-                 and declared in {"ELIGIBLE", "INELIGIBLE"}
-                 and (declared == "ELIGIBLE") == eligibility.eligible
-                 and (not (require_goal or declared == "ELIGIBLE")
-                      or eligibility.eligible)
-                 and row.get("values_clipped") is False
-                 and row.get("asset_day_denominator") == DENOMINATOR
-                 and _sha(row.get("replay_receipt_sha256"))
-                 and _sha(row.get("oracle_replay_receipt_sha256")))
-        if not exact:
-            raise C.EntryV2Refusal(f"{asset} capacity economics do not reconcile")
-        out[asset] = MappingProxyType(dict(row))
-    return MappingProxyType(out)
-
-
 __all__ = ["SCHEMA", "DENOMINATOR", "FIT_ONLY_MIN_ORACLE_CAPTURE",
            "CapacityEligibility", "FitOnlyGoalRecovery",
            "ThresholdFeasibility", "capacity_eligibility",
            "capacity_regime_from_oracle", "required_floor_usd",
-           "fit_only_goal_recovery", "threshold_feasibility",
-           "validate_capacity_document"]
+           "fit_only_goal_recovery", "threshold_feasibility"]

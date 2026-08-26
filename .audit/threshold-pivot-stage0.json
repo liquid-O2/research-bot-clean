@@ -1,0 +1,273 @@
+{
+  "asset_chain_workers": 3,
+  "build": {
+    "status": "PASS",
+    "wall_seconds": 7.270533453673124,
+    "workers": 16
+  },
+  "chains": {
+    "HG": {
+      "status": "PASS",
+      "stdout_sha256": "006995c1d330eb821adb4a7b12d780ce7bcc07c8af7d9b8489aad2cf9a8c3bdf",
+      "wall_seconds": 68.74243430607021
+    },
+    "NKD": {
+      "status": "PASS",
+      "stdout_sha256": "3f148f2b336bd13744f36d5de10f9e491c517c56d0e9dacdd790656612f71118",
+      "wall_seconds": 53.1476160697639
+    },
+    "SI": {
+      "status": "PASS",
+      "stdout_sha256": "958526ebb12a9518eef762ab89489bb9021424c08b7baf6ae9ba4393566887c9",
+      "wall_seconds": 20.955671267583966
+    }
+  },
+  "determinism_guard": {
+    "fields": [
+      "candidate_id sequence",
+      "prefix_sha256",
+      "rung_mask",
+      "row count"
+    ],
+    "per_asset": {
+      "HG": {
+        "aggregate_tag_sha256": "8728a39371596c2a5e4329dee8451694d1a9a3c55b36788caa3492923f203bbc",
+        "candidates": 37873,
+        "days": 187,
+        "manifest_sha256": "df0c152368747f62a1f0b73ede386bc1ed8a259cd803225e78696bcf993a67f4",
+        "max_d8": 20210806,
+        "pivot_rows": 37895,
+        "status": "PASS",
+        "threshold_days": 15,
+        "threshold_tag_sha256s": {
+          "20210721": "7b7d63d23a42c81119fcc04b16165364085171a35656d5b9e01014cafede6410",
+          "20210722": "5993edab22ea9bcf2d03565c616ca839c4d973d81a0936a87f273db9a7133bb1",
+          "20210723": "43fe60cb741e962b1e643668443f28fa0d6eea3de3aef46b88725ffa4f2658d2",
+          "20210725": "19c981bd95ff3e87fac603bb4790d179a324db1a88508733127fb5b373711834",
+          "20210726": "9692067e81ce04cc267792a4a7df7e9c2078c491facfad1b649b83d26a125178",
+          "20210727": "310874430671f0d459b623bf31c293732b6e2d8b6de0b6dc7ec692335594ee48",
+          "20210728": "7f229880fd5af07d4a7dbbb1def62968996b1f3323625d989308be9517829b11",
+          "20210729": "7b92cc2df21b7f80251010dce885f4202b4cade476f1cea78d5e2f344ec0d4df",
+          "20210730": "4ed50a933247a82b95abd956f63012b3c7262fed41fa6d6c4e0a39d51ba9e6a9",
+          "20210801": "4e9b691d85305fa69ee0cb47b3ba6466adac7f149a930a2bf3d896e95b6b511c",
+          "20210802": "c360b38e8cfe50e5d80e7075cf8c443c6c4f298a0ce2b8f8ac94d55871095b0b",
+          "20210803": "eb0592463392f05a6d0b16b557982198c682743ff56cc89f9c70e1448c5f8fbc",
+          "20210804": "7e591fa3d3f6e7e7d65995774028131ea3a4b1b3b8b38e8b4b56ea4aefc2aa93",
+          "20210805": "9659cd9bfcfa0dca14e049e91de863082aade8ddcefbbdd4bf672cb7a6ef5d34",
+          "20210806": "b92c3be5068fdcd1a56bdf8e4a87a8e2e30879af521913539c3e8cb918f146e4"
+        },
+        "threshold_tags": 15
+      },
+      "NKD": {
+        "aggregate_tag_sha256": "69df3673eb18f2dd25db981f9ad98f11aff21c1895d357d171d79c47dd4ee131",
+        "candidates": 38304,
+        "days": 187,
+        "manifest_sha256": "04fa44c8a76b9d295ebc5f1d6f3f18a2dd8514af8319f5aa1840fba4ceff69d2",
+        "max_d8": 20210806,
+        "pivot_rows": 38351,
+        "status": "PASS",
+        "threshold_days": 15,
+        "threshold_tag_sha256s": {
+          "20210721": "9863b0dbc90bd74a1db568a9070d53a5676ae862919e127c472e3a11553b69b4",
+          "20210722": "7fff454dc4484b49c54ecd698e4fa61e0d579660a6a9b18886e8a5481cf46694",
+          "20210723": "fffcbec547f9119077816b1645584cc606f78067519b4b364d99f7feb20b6b11",
+          "20210725": "19c981bd95ff3e87fac603bb4790d179a324db1a88508733127fb5b373711834",
+          "20210726": "ef8b2b1b0ae22fb04e8d784aa47fd159f488ad339674d81cebb68b024afd4ed8",
+          "20210727": "87b2dea5d029285a5ec45c47938b157a7feafd3ba37c0fa26d67abbbe0f936e9",
+          "20210728": "3ec68626bf47981362a263647d5e799aac33a56fe126d27c6510a08ce83c3f47",
+          "20210729": "8f08fc1f758c346a2c33f5b05212f09a7955c57ddcaf9897f996f17b2997de98",
+          "20210730": "04ed49ceccc6860d2aaa24958cc500590b4f431d60efe55593a37339791c3210",
+          "20210801": "4e9b691d85305fa69ee0cb47b3ba6466adac7f149a930a2bf3d896e95b6b511c",
+          "20210802": "8ad20058ab59fc0ff31fa4382172498fca825e9913160fcc2c846a05d7a9f370",
+          "20210803": "3c25d7af6aa9f67208b12abe80f2b40bb3ddf77f345bb5e9e5f49b94b68c8b05",
+          "20210804": "a6a5bbfdc9959f5be4d2bc616c425150641511dde40a60cf2dc287ecbe3ae042",
+          "20210805": "8ae683e031264b1482dd02a3b2fd812708e051497e75d589ee68b6f92b2ba07f",
+          "20210806": "84d66e709478deae699d271ebcc8d08e4f53dc68495dba7c61963c8bf355c60f"
+        },
+        "threshold_tags": 15
+      },
+      "SI": {
+        "aggregate_tag_sha256": "85759a2637096ecd689c60cb2b3167ada440100e426c88fc23b86336721d7e6c",
+        "candidates": 6478,
+        "days": 59,
+        "manifest_sha256": "309350167a766b61275a70a852f5208c17b16cdeb80f168d26c0ddee33215568",
+        "max_d8": 20210806,
+        "pivot_rows": 6501,
+        "status": "PASS",
+        "threshold_days": 15,
+        "threshold_tag_sha256s": {
+          "20210721": "f1da24815654fe24225b5a6de3030381e30a7896588cafbc5c84969e3918485e",
+          "20210722": "c11663a34232896a6153bf501622b61b5d9651344b543cce09216e3be7e28cf8",
+          "20210723": "966a480beb58c4207d5b8759803f1103e15f8bcac6562324aee065feba9dbe12",
+          "20210725": "19c981bd95ff3e87fac603bb4790d179a324db1a88508733127fb5b373711834",
+          "20210726": "9088870a58f4b41a92e6981f944e882ab1eeccd02ac1151475b745bd60ed038d",
+          "20210727": "bc3a3c666a4a79e03a36c08aeedd350c7df7798ee65b0091edf52dcfe1cc147a",
+          "20210728": "5efd5c31b5a1a3e2dfd248ab089e60aad1f3ef329490b2b2a4958c5bc1880daf",
+          "20210729": "6a45516b33c5b82098e30ae3cd2107e2af0f8c412d859548b747779f6d37b5f1",
+          "20210730": "6a9c228a2796817db0b244a728a2b57d851bda83332800557347e4c2c3298dbb",
+          "20210801": "4e9b691d85305fa69ee0cb47b3ba6466adac7f149a930a2bf3d896e95b6b511c",
+          "20210802": "bf65bff73d4ed5238265ea374e3df3d30f74fa0d7408e08765d8e56643947ebb",
+          "20210803": "2dbc8b8430fbb29a77978a38bc049e6522d7504db2bb370189ab63450793d77a",
+          "20210804": "a56960b70b83fb4e674483c9f2f4aa13a5a59bf8ad8029e2fbd0fe548958d3fc",
+          "20210805": "c2f0564a9b69d6b585aa8d4791f530f8ec65ae9930e45f720d1a2592ccb8ed94",
+          "20210806": "431664519756c5ff9af1662a03f780624f99acfd9ea339bcc2ba5b5da6a7e101"
+        },
+        "threshold_tags": 15
+      }
+    },
+    "status": "PASS"
+  },
+  "emitted_2022_2024_tags": false,
+  "future_mutation_differential": {
+    "asset": "SI",
+    "d8": 20210624,
+    "raw_events": 536771,
+    "status": "PASS",
+    "tag_bytes_identical": true,
+    "wall_seconds": 0.275856223
+  },
+  "guard_mutant": {
+    "mutation": "one stored candidate_id corrupted on a synthetic day",
+    "refused": true,
+    "status": "KILLED"
+  },
+  "mutants": {
+    "leg_start_captured_after_flip": {
+      "status": "KILLED",
+      "test_exit_code": 1
+    },
+    "post_cutoff_event_leaks_into_tag": {
+      "status": "KILLED",
+      "test_exit_code": 1
+    },
+    "side_swapped_in_record": {
+      "status": "KILLED",
+      "test_exit_code": 1
+    }
+  },
+  "peek_note": "Candidate-side inputs widen to G1's own pre-decision confirmation state. No teacher artifact is parsed in Stage 0. This is a kill instrument and cannot promote.",
+  "per_asset_day_counts": {
+    "HG": {
+      "days": 187,
+      "threshold_days": 15,
+      "threshold_tags": 15
+    },
+    "NKD": {
+      "days": 187,
+      "threshold_days": 15,
+      "threshold_tags": 15
+    },
+    "SI": {
+      "days": 59,
+      "threshold_days": 15,
+      "threshold_tags": 15
+    }
+  },
+  "pivot_root": "/workspace/artifacts/cache/port/entry_v2/g1/pivot",
+  "projection": {
+    "holds": true,
+    "method": "one real read-plus-generate session scaled by raw event count",
+    "projected_chain_seconds": {
+      "HG": 41.155231712879285,
+      "NKD": 19.15994044934095,
+      "SI": 14.117949015727275
+    },
+    "sample_asset": "SI",
+    "sample_d8": 20210624,
+    "sample_raw_events": 536771,
+    "sample_wall_seconds": 0.275856223,
+    "seconds_per_event": 5.139178960860404e-07,
+    "status": "PASS",
+    "tripwire_seconds": 7200
+  },
+  "schema": "QRE2G1PIVOTSTAGE01",
+  "selftest": {
+    "candidate_guard": {
+      "status": "PASS"
+    },
+    "cpp": {
+      "status": "PASS",
+      "test": "EntryV2Candidates.PivotBirthRowsUsePreFlipStateAndExcludeFutureRows"
+    }
+  },
+  "status": "PASS",
+  "stored_candidate_artifacts_rewritten": false,
+  "stored_receipt_artifacts_rewritten": false,
+  "stored_teacher_artifacts_rewritten": false,
+  "tag_sha256s": {
+    "HG": {
+      "aggregate_sha256": "8728a39371596c2a5e4329dee8451694d1a9a3c55b36788caa3492923f203bbc",
+      "manifest_sha256": "df0c152368747f62a1f0b73ede386bc1ed8a259cd803225e78696bcf993a67f4",
+      "threshold_days": {
+        "20210721": "7b7d63d23a42c81119fcc04b16165364085171a35656d5b9e01014cafede6410",
+        "20210722": "5993edab22ea9bcf2d03565c616ca839c4d973d81a0936a87f273db9a7133bb1",
+        "20210723": "43fe60cb741e962b1e643668443f28fa0d6eea3de3aef46b88725ffa4f2658d2",
+        "20210725": "19c981bd95ff3e87fac603bb4790d179a324db1a88508733127fb5b373711834",
+        "20210726": "9692067e81ce04cc267792a4a7df7e9c2078c491facfad1b649b83d26a125178",
+        "20210727": "310874430671f0d459b623bf31c293732b6e2d8b6de0b6dc7ec692335594ee48",
+        "20210728": "7f229880fd5af07d4a7dbbb1def62968996b1f3323625d989308be9517829b11",
+        "20210729": "7b92cc2df21b7f80251010dce885f4202b4cade476f1cea78d5e2f344ec0d4df",
+        "20210730": "4ed50a933247a82b95abd956f63012b3c7262fed41fa6d6c4e0a39d51ba9e6a9",
+        "20210801": "4e9b691d85305fa69ee0cb47b3ba6466adac7f149a930a2bf3d896e95b6b511c",
+        "20210802": "c360b38e8cfe50e5d80e7075cf8c443c6c4f298a0ce2b8f8ac94d55871095b0b",
+        "20210803": "eb0592463392f05a6d0b16b557982198c682743ff56cc89f9c70e1448c5f8fbc",
+        "20210804": "7e591fa3d3f6e7e7d65995774028131ea3a4b1b3b8b38e8b4b56ea4aefc2aa93",
+        "20210805": "9659cd9bfcfa0dca14e049e91de863082aade8ddcefbbdd4bf672cb7a6ef5d34",
+        "20210806": "b92c3be5068fdcd1a56bdf8e4a87a8e2e30879af521913539c3e8cb918f146e4"
+      }
+    },
+    "NKD": {
+      "aggregate_sha256": "69df3673eb18f2dd25db981f9ad98f11aff21c1895d357d171d79c47dd4ee131",
+      "manifest_sha256": "04fa44c8a76b9d295ebc5f1d6f3f18a2dd8514af8319f5aa1840fba4ceff69d2",
+      "threshold_days": {
+        "20210721": "9863b0dbc90bd74a1db568a9070d53a5676ae862919e127c472e3a11553b69b4",
+        "20210722": "7fff454dc4484b49c54ecd698e4fa61e0d579660a6a9b18886e8a5481cf46694",
+        "20210723": "fffcbec547f9119077816b1645584cc606f78067519b4b364d99f7feb20b6b11",
+        "20210725": "19c981bd95ff3e87fac603bb4790d179a324db1a88508733127fb5b373711834",
+        "20210726": "ef8b2b1b0ae22fb04e8d784aa47fd159f488ad339674d81cebb68b024afd4ed8",
+        "20210727": "87b2dea5d029285a5ec45c47938b157a7feafd3ba37c0fa26d67abbbe0f936e9",
+        "20210728": "3ec68626bf47981362a263647d5e799aac33a56fe126d27c6510a08ce83c3f47",
+        "20210729": "8f08fc1f758c346a2c33f5b05212f09a7955c57ddcaf9897f996f17b2997de98",
+        "20210730": "04ed49ceccc6860d2aaa24958cc500590b4f431d60efe55593a37339791c3210",
+        "20210801": "4e9b691d85305fa69ee0cb47b3ba6466adac7f149a930a2bf3d896e95b6b511c",
+        "20210802": "8ad20058ab59fc0ff31fa4382172498fca825e9913160fcc2c846a05d7a9f370",
+        "20210803": "3c25d7af6aa9f67208b12abe80f2b40bb3ddf77f345bb5e9e5f49b94b68c8b05",
+        "20210804": "a6a5bbfdc9959f5be4d2bc616c425150641511dde40a60cf2dc287ecbe3ae042",
+        "20210805": "8ae683e031264b1482dd02a3b2fd812708e051497e75d589ee68b6f92b2ba07f",
+        "20210806": "84d66e709478deae699d271ebcc8d08e4f53dc68495dba7c61963c8bf355c60f"
+      }
+    },
+    "SI": {
+      "aggregate_sha256": "85759a2637096ecd689c60cb2b3167ada440100e426c88fc23b86336721d7e6c",
+      "manifest_sha256": "309350167a766b61275a70a852f5208c17b16cdeb80f168d26c0ddee33215568",
+      "threshold_days": {
+        "20210721": "f1da24815654fe24225b5a6de3030381e30a7896588cafbc5c84969e3918485e",
+        "20210722": "c11663a34232896a6153bf501622b61b5d9651344b543cce09216e3be7e28cf8",
+        "20210723": "966a480beb58c4207d5b8759803f1103e15f8bcac6562324aee065feba9dbe12",
+        "20210725": "19c981bd95ff3e87fac603bb4790d179a324db1a88508733127fb5b373711834",
+        "20210726": "9088870a58f4b41a92e6981f944e882ab1eeccd02ac1151475b745bd60ed038d",
+        "20210727": "bc3a3c666a4a79e03a36c08aeedd350c7df7798ee65b0091edf52dcfe1cc147a",
+        "20210728": "5efd5c31b5a1a3e2dfd248ab089e60aad1f3ef329490b2b2a4958c5bc1880daf",
+        "20210729": "6a45516b33c5b82098e30ae3cd2107e2af0f8c412d859548b747779f6d37b5f1",
+        "20210730": "6a9c228a2796817db0b244a728a2b57d851bda83332800557347e4c2c3298dbb",
+        "20210801": "4e9b691d85305fa69ee0cb47b3ba6466adac7f149a930a2bf3d896e95b6b511c",
+        "20210802": "bf65bff73d4ed5238265ea374e3df3d30f74fa0d7408e08765d8e56643947ebb",
+        "20210803": "2dbc8b8430fbb29a77978a38bc049e6522d7504db2bb370189ab63450793d77a",
+        "20210804": "a56960b70b83fb4e674483c9f2f4aa13a5a59bf8ad8029e2fbd0fe548958d3fc",
+        "20210805": "c2f0564a9b69d6b585aa8d4791f530f8ec65ae9930e45f720d1a2592ccb8ed94",
+        "20210806": "431664519756c5ff9af1662a03f780624f99acfd9ea339bcc2ba5b5da6a7e101"
+      }
+    }
+  },
+  "teacher_fields_parsed": [],
+  "tickets_started": [],
+  "tripwire_seconds": 7200,
+  "wall_clock_seconds": 240.99046651646495,
+  "window": {
+    "end_d8_exclusive": 20210807,
+    "start_d8": 20210101,
+    "threshold_end_d8_exclusive": 20210807,
+    "threshold_start_d8": 20210721
+  },
+  "worker_budget": 16
+}

@@ -108,17 +108,19 @@ void print_stats(std::string_view stage, const qr::entry_v2::Config& config,
   std::printf(
       "stage\t%.*s\nasset\t%s\nstart_d8\t%d\nend_d8_exclusive\t%d\n"
       "sessions\t%llu\nno_candidate_sessions\t%llu\ncandidates\t%llu\n"
-      "teacher_ready\t%llu\nteacher_refused\t%llu\nmanifest_sha256\t%s\n"
-      "receipt_sha256\t%s\n",
+      "pivot_rows\t%llu\nteacher_ready\t%llu\nteacher_refused\t%llu\n"
+      "manifest_sha256\t%s\npivot_manifest_sha256\t%s\nreceipt_sha256\t%s\n",
       static_cast<int>(stage.size()), stage.data(),
       qr::futsess::asset_spec(config.asset).name, config.start_d8,
       config.end_d8_exclusive,
       static_cast<unsigned long long>(stats.sessions),
       static_cast<unsigned long long>(stats.no_candidate_sessions),
       static_cast<unsigned long long>(stats.candidates),
+      static_cast<unsigned long long>(stats.pivot_rows),
       static_cast<unsigned long long>(stats.teacher_ready),
       static_cast<unsigned long long>(stats.teacher_refused),
-      stats.manifest_sha256.c_str(), stats.receipt_sha256.c_str());
+      stats.manifest_sha256.c_str(), stats.pivot_manifest_sha256.c_str(),
+      stats.receipt_sha256.c_str());
 }
 
 int refusal(const qr::Refusal& error) {

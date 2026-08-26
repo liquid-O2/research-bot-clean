@@ -1,0 +1,452 @@
+{
+  "candidate_columns": [
+    "candidate_id",
+    "asset",
+    "d8",
+    "phase",
+    "decision_ts_ns",
+    "compliance_status",
+    "frozen_cost_usd",
+    "confirmation_event_ordinal",
+    "prefix_last_event_ordinal",
+    "spread_prior_usd",
+    "spread_prior_present",
+    "entry_mid2",
+    "side"
+  ],
+  "causal_lines": [
+    "ordinal_freshest",
+    "ordinal_stalest",
+    "ordinal_latest_event",
+    "extreme_last_setter",
+    "extreme_deepest_setter",
+    "extreme_first_nontrivial_setter",
+    "spread_prior_max",
+    "spread_prior_min"
+  ],
+  "ceiling_setters": {
+    "cash_total_usd": {
+      "HG": 375948.75,
+      "NKD": 506382.5,
+      "SI": 471530.0
+    },
+    "clears_rungs": false,
+    "clears_stop": false,
+    "days": {
+      "HG": 197,
+      "NKD": 194,
+      "SI": 191
+    },
+    "entry_cap": 12,
+    "entry_cap_ok": true,
+    "max_drawdown_usd": 0.0,
+    "max_entries_portfolio_day": 9,
+    "overlap_violations": 0,
+    "per_trade_mean_usd": 857.4168777707409,
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "shortfall_usd": {
+      "HG": 91.63071065989857
+    },
+    "trades": 1579,
+    "usd_per_asset_day": {
+      "HG": 1908.3692893401014,
+      "NKD": 2610.2190721649486,
+      "SI": 2468.743455497382
+    }
+  },
+  "check_command": "python3 .audit/score_threshold_stored_name_rules.py",
+  "dollar_stop": {
+    "applied": "KILL fired because all eight causal lines miss.",
+    "causal_lines_clearing": [],
+    "drawdown_limit_usd": 1000.0,
+    "entry_cap": 12,
+    "required_overlap_violations": 0,
+    "required_trades_min": 1,
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "verbatim": "## Dollar stop. Bound now, fires on the receipt.\n\n- **RUNGS.** Any of the eight causal lines posts, on the gated denominators, trades > 0, HG >= 2000, NKD >= 1500, SI >= 1500 `usd_per_asset_day`, `max_drawdown_usd` < 1000, at most 12 entries per portfolio day, overlap 0. That line becomes the instrument. Next unit, pre-written: freeze the winning rule text as the name pick, then the one `QRE2TABPOLICYBLOCK2` engine walk that exits `python3 .audit/assert_threshold_replay_receipt.py` at 0, per the protocol in `.audit/threshold-2022-2024-freeze.md` and ticket 48. A teacher pass is still not THRESHOLD. Ticket 47 as a schema copy stays dead either way.\n- **KILL.** All eight causal lines miss. Then no unfitted stored-column rule reaches the rungs, and with the scanned-8 receipts the stored era join is closed for rule picks. `ceiling_setters` in the same receipt then binds the residue: if it also misses the rungs, the extreme-event structure does not transfer to era CLEAR rows and the rebuild respec must not lean on it; if it clears, identity lives inside 7-24 setters per cell and no simple order finds it. Either way the covering map collapses to survivors 2 and 3: ticket 37 tape and pivot columns, ticket 46 late ages, on a rebuild respecified around whichever plane, gated by their own tickets. One recorded fork, not authorized here: a single causal fitted read on the full 34-column schema, the only stored-join unit a KILL leaves open.",
+    "verdict": "KILL"
+  },
+  "label": "eight causal stored-join name rules on the unscanned live plane, plus an exploratory hindsight setter ceiling. Teacher-cash can kill and cannot promote.",
+  "lines": {
+    "extreme_deepest_setter": {
+      "cash_total_usd": {
+        "HG": -69016.25,
+        "NKD": -105547.5,
+        "SI": -93515.0
+      },
+      "clears_rungs": false,
+      "clears_stop": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 268843.75,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -154.60135524798156,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2350.3362944162436,
+        "NKD": 2044.0592783505153,
+        "SI": 1989.607329842932
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -350.3362944162437,
+        "NKD": -544.0592783505155,
+        "SI": -489.60732984293196
+      }
+    },
+    "extreme_first_nontrivial_setter": {
+      "cash_total_usd": {
+        "HG": -21891.25,
+        "NKD": 6715.0,
+        "SI": -33127.5
+      },
+      "clears_rungs": false,
+      "clears_stop": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 82851.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -27.856833910034602,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2111.1230964467004,
+        "NKD": 1465.3865979381444,
+        "SI": 1673.4424083769634
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -111.1230964467005,
+        "NKD": 34.61340206185567,
+        "SI": -173.44240837696336
+      }
+    },
+    "extreme_last_setter": {
+      "cash_total_usd": {
+        "HG": -185691.25,
+        "NKD": -227597.5,
+        "SI": -219027.5
+      },
+      "clears_rungs": false,
+      "clears_stop": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 632316.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -364.65758362168395,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2942.5951776649745,
+        "NKD": 2673.1829896907216,
+        "SI": 2646.740837696335
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -942.5951776649746,
+        "NKD": -1173.1829896907216,
+        "SI": -1146.7408376963351
+      }
+    },
+    "ordinal_freshest": {
+      "cash_total_usd": {
+        "HG": -12585.0,
+        "NKD": 3795.0,
+        "SI": -14497.5
+      },
+      "clears_rungs": false,
+      "clears_stop": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 38855.0,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -13.429930795847751,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2063.8832487309646,
+        "NKD": 1480.4381443298969,
+        "SI": 1575.9031413612565
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -63.88324873096447,
+        "NKD": 19.561855670103093,
+        "SI": -75.90314136125654
+      }
+    },
+    "ordinal_latest_event": {
+      "cash_total_usd": {
+        "HG": -8405.0,
+        "NKD": -16387.5,
+        "SI": -7777.5
+      },
+      "clears_rungs": false,
+      "clears_stop": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 32771.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -18.78316032295271,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2042.6649746192893,
+        "NKD": 1584.471649484536,
+        "SI": 1540.719895287958
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -42.66497461928934,
+        "NKD": -84.47164948453609,
+        "SI": -40.71989528795812
+      }
+    },
+    "ordinal_stalest": {
+      "cash_total_usd": {
+        "HG": -25047.5,
+        "NKD": -33647.5,
+        "SI": -45215.0
+      },
+      "clears_rungs": false,
+      "clears_stop": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 109447.5,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -59.925028835063436,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2127.1446700507613,
+        "NKD": 1673.4407216494847,
+        "SI": 1736.7277486910994
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -127.14467005076142,
+        "NKD": -173.44072164948454,
+        "SI": -236.72774869109946
+      }
+    },
+    "spread_prior_max": {
+      "cash_total_usd": {
+        "HG": -19522.5,
+        "NKD": -13347.5,
+        "SI": -31040.0
+      },
+      "clears_rungs": false,
+      "clears_stop": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 95281.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -36.85697808535179,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2099.0989847715737,
+        "NKD": 1568.8015463917525,
+        "SI": 1662.5130890052355
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -99.0989847715736,
+        "NKD": -68.80154639175258,
+        "SI": -162.5130890052356
+      }
+    },
+    "spread_prior_min": {
+      "cash_total_usd": {
+        "HG": -19522.5,
+        "NKD": -13347.5,
+        "SI": -31040.0
+      },
+      "clears_rungs": false,
+      "clears_stop": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 95281.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -36.85697808535179,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2099.0989847715737,
+        "NKD": 1568.8015463917525,
+        "SI": 1662.5130890052355
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -99.0989847715736,
+        "NKD": -68.80154639175258,
+        "SI": -162.5130890052356
+      }
+    }
+  },
+  "n_forecast_rows_read": 37427,
+  "peek_note": "candidate-side columns widen; teacher-side license is unchanged from rank-live and capture-gap; kill instrument, cannot promote.",
+  "routed": 708,
+  "rule": "On every joinable 2022-03-09 through 2024-12-31 gated cell, order CLEAR names by (decision_ts_ns, candidate_id), derive ordinal recency and strict same-side running-extreme setters, and apply each of the eight preregistered causal name rules. Pick one contract per cell. Cash is cert_close_usd on READY. The day gate is the freeze expanding median.",
+  "rules": {
+    "extreme_deepest_setter": "Setter with max excess. Tie max decision_ts_ns.",
+    "extreme_first_nontrivial_setter": "Earliest setter with excess > 0. Fallback earliest CLEAR.",
+    "extreme_last_setter": "Setter with max decision_ts_ns.",
+    "ordinal_freshest": "Min recency. Tie max decision_ts_ns. Tie smallest candidate_id.",
+    "ordinal_latest_event": "Max confirmation_event_ordinal. Tie smallest candidate_id.",
+    "ordinal_stalest": "Max recency. Tie max decision_ts_ns. Tie smallest candidate_id.",
+    "spread_prior_max": "Max spread_prior_usd among spread_prior_present == 1. Fallback earliest CLEAR.",
+    "spread_prior_min": "Min spread_prior_usd among spread_prior_present == 1. Fallback earliest CLEAR."
+  },
+  "schema": "QRE2THRESHOLDSTOREDNAMERULES1",
+  "selected": 198,
+  "sources": {
+    "candidates_root": "artifacts/cache/port/entry_v2/g1/candidates",
+    "covering_brief": {
+      "path": ".audit/briefs/threshold-covering-after-stored-kill-out.md",
+      "sha256": "f0f6541d3f64e005a3f4c270cf5720b17a80b8c3fbf19588c90e6d15ceb65532"
+    },
+    "forecasts": {
+      "path": "artifacts/runs/e6_vol_forecasts_v2/vol_service_forecasts.tsv",
+      "sha256": "9bea40ac23749bf5f39e8147e96db45c651c140c5fc1573fec8e036c2b7b7a2c"
+    },
+    "freeze": {
+      "path": ".audit/threshold-2022-2024-freeze.md",
+      "sha256": "730fa98017e1e37532f0d4b0b0d209dc4d7512c3dbb752d95467086f4ff3854d"
+    },
+    "full_roster_ceiling": {
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "max_drawdown_usd": 0.0,
+      "path": ".audit/threshold-2022-2024-ceiling.json",
+      "per_trade_mean_usd": 1171.1025159051476,
+      "schema": "QRE2THRESHOLD20222024CEILING1",
+      "sha256": "b406de8415e7cdb17e953676022385c219ac9f931cc4a5337d387077ef1e3e95",
+      "trades": 1729,
+      "usd_per_asset_day": {
+        "HG": 2758.953045685279,
+        "NKD": 3815.2190721649486,
+        "SI": 3880.471204188482
+      },
+      "verdict": "PROCEED"
+    },
+    "killed_read": {
+      "path": ".audit/threshold-2022-2024-read.json",
+      "sha256": "2f988fe93d895b06f01f64fa9191c4c4827e370312219dfd4c563b46dea6a891"
+    },
+    "receipts_root": "artifacts/cache/port/entry_v2/g1/receipts",
+    "sibling_loaders": {
+      "live_scalars": {
+        "path": ".audit/score_threshold_live_scalars.py",
+        "sha256": "606c4818ab5675cb91c17c2ed3615589d6746a69ad72e25b8ff2d151e5904ff6"
+      },
+      "rank_live": {
+        "path": ".audit/score_threshold_rank_live.py",
+        "sha256": "4e5c5886e345f985f9265cec436ea68a3f9f399bdb0e30093e85be53cd48bc1e"
+      }
+    },
+    "specification_brief": {
+      "path": ".audit/briefs/threshold-stored-name-rules.md",
+      "sha256": "189fc0970e84a77bbb3fe9d801f06eac97a6ca01a8581bb932ef319ccaf3bece"
+    },
+    "teacher_root": "artifacts/cache/port/entry_v2/g1/teacher"
+  },
+  "status": "KILL",
+  "teacher_columns": [
+    "candidate_id",
+    "status",
+    "cert_close_usd",
+    "exit_ts_ns"
+  ],
+  "verdict": "KILL",
+  "wall_clock_sec": 38.955,
+  "window": [
+    "2022-03-09",
+    "2024-12-31"
+  ],
+  "workers": 14
+}

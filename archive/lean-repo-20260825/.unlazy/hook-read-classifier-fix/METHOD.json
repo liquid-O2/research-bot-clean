@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "route": "implement-flow",
+  "playbook": "bug-fix",
+  "outer_method": [
+    "implement-flow",
+    "poteto-mode",
+    "playbook:bug-fix"
+  ],
+  "nested_method": {
+    "investigation": [
+      "diagnosing-bugs",
+      "how",
+      "why"
+    ],
+    "architecture": [
+      "architect",
+      "arena",
+      "codebase-design"
+    ],
+    "implementation": [
+      "tdd",
+      "pocock-tdd",
+      "implement"
+    ],
+    "review": [
+      "code-review",
+      "no-comments",
+      "deslop"
+    ],
+    "documentation": [
+      "technical-writing"
+    ]
+  },
+  "method_composition": {
+    "owners": [
+      "pstack",
+      "pocock"
+    ],
+    "applies_to": [
+      "planning",
+      "implementation"
+    ],
+    "akita": "compatible-only"
+  },
+  "skill_selections": [
+    {
+      "name": "diagnosing-bugs",
+      "branch": "investigation",
+      "trigger": "reported hook failures",
+      "decision": "Build deterministic reproductions before changing policy.",
+      "evidence": "The original read commands and unsafe option variants have recorded verdicts."
+    },
+    {
+      "name": "how",
+      "branch": "investigation",
+      "trigger": "nontrivial hook subsystem change",
+      "decision": "Trace classification, readiness, lifecycle, and export ownership before editing.",
+      "evidence": "The traced owners are recorded in /tmp/arena-hook-guard/synthesis.md."
+    },
+    {
+      "name": "why",
+      "branch": "investigation",
+      "trigger": "regression history",
+      "decision": "Preserve the reasons for conservative shell parsing and bounded Stop behavior.",
+      "evidence": "MEMORY.md entries #187, #194, and #195 record prior deadlocks and bypasses."
+    },
+    {
+      "name": "architect",
+      "branch": "architecture",
+      "trigger": "the repair crosses command, lifecycle, and export functions",
+      "decision": "Freeze module ownership and packet delivery before implementation.",
+      "evidence": "/tmp/arena-hook-guard/synthesis.md"
+    },
+    {
+      "name": "arena",
+      "branch": "architecture",
+      "trigger": "several viable hook designs",
+      "decision": "Compare three complete designs and use an independent judge.",
+      "evidence": "/tmp/arena-hook-guard/cross-judge.md"
+    },
+    {
+      "name": "codebase-design",
+      "branch": "architecture",
+      "trigger": "changed shell and lifecycle interfaces",
+      "decision": "Keep scan_command as the shell seam and one secure archive interface.",
+      "evidence": "/tmp/arena-hook-guard/synthesis.md"
+    },
+    {
+      "name": "tdd",
+      "branch": "implementation",
+      "trigger": "cheap local regression seams",
+      "decision": "Land the focused failing behavior checks before the fix.",
+      "evidence": "tests/test_shell_reading.py and the bug-fix playbook"
+    },
+    {
+      "name": "pocock-tdd",
+      "branch": "implementation",
+      "trigger": "Pocock Implement reaches the same agreed public seams",
+      "decision": "Test behavior through scan_command, guard main, lifecycle main, and export entry points.",
+      "evidence": "The user requires Pstack and Pocock to govern the implementation together."
+    },
+    {
+      "name": "implement",
+      "branch": "implementation",
+      "trigger": "implement-flow route",
+      "decision": "Run pristine Pocock Implement at the playbook implementation step.",
+      "evidence": ".agents/skills/implement-flow/SKILL.md"
+    },
+    {
+      "name": "code-review",
+      "branch": "review",
+      "trigger": "production hook changes",
+      "decision": "Run independent Standards and Spec reviews against the final diff.",
+      "evidence": "The user requires final reviewers at xhigh reasoning."
+    },
+    {
+      "name": "no-comments",
+      "branch": "review",
+      "trigger": "review before delivery",
+      "decision": "Remove narrating comments while preserving decision and defect comments.",
+      "evidence": "Poteto Mode selects no-comments before review."
+    },
+    {
+      "name": "deslop",
+      "branch": "review",
+      "trigger": "commit preparation",
+      "decision": "Remove generated code clutter before each commit.",
+      "evidence": "Poteto Mode selects deslop before commit."
+    },
+    {
+      "name": "technical-writing",
+      "branch": "documentation",
+      "trigger": "shared contracts, lifecycle docs, and commit messages",
+      "decision": "Keep the generated contract and hook explanations concise and exact.",
+      "evidence": "AGENTS.md, CLAUDE.md, START_HERE.md, and the delivery commits"
+    }
+  ],
+  "standing_laws": [
+    "unlazy",
+    "clean-code-for-agents",
+    "unslop",
+    "writing-for-agents"
+  ],
+  "testing_choice": {
+    "selected": [
+      "tdd",
+      "pocock-tdd"
+    ],
+    "reason": "The shell classifier and lifecycle hooks have fast public seams that reproduce the false denials, stale memory output, and recovery failures before each fix."
+  },
+  "engagement": {
+    "mode": "exact-source-packet",
+    "required": [
+      "router",
+      "poteto-mode-with-principles-index",
+      "selected-playbook",
+      "standing-laws",
+      "nested-method-sources",
+      "selected-principle-leaves"
+    ],
+    "rearm_after": [
+      "compact",
+      "clear",
+      "source-digest-change"
+    ]
+  },
+  "principles": [
+    {
+      "name": "principle-fix-root-causes",
+      "decision": "Fix the shell classifier, broken engage CLI, stale OptMem call, and missing Codex session archive at their owning boundaries.",
+      "evidence": "hook investigation traces"
+    },
+    {
+      "name": "principle-laziness-protocol",
+      "decision": "Extend the existing parser with the smallest safe read forms and no new enforcement layer.",
+      "evidence": "tools/harness_templates/hooks/shell_reading.py"
+    },
+    {
+      "name": "principle-model-the-domain",
+      "decision": "Represent a safe read pipeline as parsed command segments whose verbs are all read-only.",
+      "evidence": "tools/harness_templates/hooks/shell_reading.py"
+    },
+    {
+      "name": "principle-type-system-discipline",
+      "decision": "Keep source pins and method packet state in explicit typed records, and parse untyped hook payloads at their boundaries.",
+      "evidence": "tools/export_trading_skills.py and .codex/hooks/method_guard.py"
+    },
+    {
+      "name": "principle-boundary-discipline",
+      "decision": "Classify raw shell text once at the hook boundary and keep method policy unchanged.",
+      "evidence": ".codex/hooks/shell_reading.py"
+    },
+    {
+      "name": "principle-encode-lessons-in-structure",
+      "decision": "Lock false denials, nearby bypass attempts, compaction re-engagement, and Codex transcript retention into regression tests and live canaries.",
+      "evidence": "tests and method canaries"
+    },
+    {
+      "name": "principle-sequence-verifiable-units",
+      "decision": "Land the failing regression before the classifier fix, then verify each installed client copy.",
+      "evidence": "git history"
+    },
+    {
+      "name": "principle-prove-it-works",
+      "decision": "Run the original commands through the installed hook and rerun denial canaries after the fix.",
+      "evidence": ".unlazy/hook-read-classifier-fix/GATES.md"
+    },
+    {
+      "name": "principle-exhaust-the-design-space",
+      "decision": "Compare two parser and recovery designs before changing the hook boundary.",
+      "evidence": "architect arena synthesis"
+    },
+    {
+      "name": "principle-minimize-reader-load",
+      "decision": "Keep shell syntax parsing, command safety policy, and route enforcement in their existing single owners.",
+      "evidence": "tools/harness_templates/hooks/shell_reading.py"
+    },
+    {
+      "name": "principle-subtract-before-you-add",
+      "decision": "Remove stale pipelines, obsolete OptMem compression output, and the canary-only stdin engage branch before adding recovery coverage.",
+      "evidence": "tools/canary_driver.py and tools/harness_templates/hooks/optmem_lifecycle.py"
+    },
+    {
+      "name": "principle-foundational-thinking",
+      "decision": "Define safe command segments, route readiness, and transcript retention states before writing control flow.",
+      "evidence": "architect arena synthesis"
+    },
+    {
+      "name": "principle-redesign-from-first-principles",
+      "decision": "Treat direct recovery and Codex conversation retention as lifecycle invariants instead of adding test-only exceptions.",
+      "evidence": "architect arena synthesis"
+    },
+    {
+      "name": "principle-make-operations-idempotent",
+      "decision": "Make repeated engagement, compaction, canary setup, and transcript archiving converge without stale fixtures or duplicate state.",
+      "evidence": "method and memory lifecycle tests"
+    },
+    {
+      "name": "principle-separate-before-serializing-shared-state",
+      "decision": "Give each canary run an isolated method scope and keep shared hook state behind the existing lock.",
+      "evidence": "tools/canary_driver.py"
+    },
+    {
+      "name": "principle-guard-the-context-window",
+      "decision": "Delegate independent architecture candidates and retain only their scored synthesis in the main thread.",
+      "evidence": "architect arena synthesis"
+    },
+    {
+      "name": "principle-build-the-lever",
+      "decision": "Make the canary runner and clean-export verifier reproduce the hook and distribution guarantees in one command.",
+      "evidence": "tools/run_method_canaries.py and export verification"
+    },
+    {
+      "name": "principle-migrate-callers-then-delete-legacy-apis",
+      "decision": "Move every engage caller to the direct CLI and delete the synthetic stdin branch in the same change.",
+      "evidence": "tools/canary_driver.py and method guard tests"
+    },
+    {
+      "name": "principle-outcome-oriented-execution",
+      "decision": "Converge hook callers and lifecycle paths at explicit Codex, Claude, and export checkpoints, then require full verification before delivery.",
+      "evidence": ".unlazy/hook-read-classifier-fix/GATES.md and git history"
+    }
+  ],
+  "owns": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "START_HERE.md",
+    "tools/agent_harness_contract.py",
+    "tools/agent_harness_verify_common.py",
+    "tools/agent_harness_verify_runtime.py",
+    "tools/agent_harness_verify_static.py",
+    "tools/install_agent_harness.py",
+    "tools/install_claude_harness.py",
+    "tools/render_agent_contract.py",
+    "tools/brief_lint.py",
+    "tools/harness_templates/hooks/shell_reading.py",
+    "tools/harness_templates/hooks/method_guard.py",
+    "tools/harness_templates/hooks/claude_method_guard.py",
+    "tools/harness_templates/hooks/method_guard_support.py",
+    "tools/harness_templates/hooks/method_guard_rules.py",
+    "tools/harness_templates/hooks/transcript_archive.py",
+    "tools/harness_templates/hooks/optmem_lifecycle.py",
+    "tools/harness_templates/hooks/memory_ledger_hooks.py",
+    "tools/harness_templates/hooks/cached_session_bridge.py",
+    "tools/harness_templates/memory-agent-block.md",
+    "tools/harness_templates/hooks.json",
+    ".codex/hooks/shell_reading.py",
+    ".codex/hooks/method_guard.py",
+    ".codex/hooks/method_guard_support.py",
+    ".codex/hooks/method_guard_rules.py",
+    ".codex/hooks/transcript_archive.py",
+    ".codex/hooks/optmem_lifecycle.py",
+    ".codex/hooks/memory_ledger_hooks.py",
+    ".codex/hooks.json",
+    ".claude/hooks/shell_reading.py",
+    ".claude/hooks/method_guard.py",
+    ".claude/hooks/method_guard_support.py",
+    ".claude/hooks/method_guard_rules.py",
+    ".claude/hooks/transcript_archive.py",
+    ".claude/hooks/memory_ledger_hooks.py",
+    ".claude/hooks/optmem_continuity.py",
+    ".claude/settings.json",
+    "tools/canary_driver.py",
+    "tools/method_canaries.py",
+    "tools/run_method_canaries.py",
+    "tools/export_trading_skills.py",
+    "tools/harness_templates/export_install.py",
+    "tools/harness_templates/export_readme.md",
+    "tests/test_agent_method_guard.py",
+    "tests/test_claude_method_guard.py",
+    "tests/hook_imports.py",
+    "tests/test_claude_installer.py",
+    "tests/test_claude_method_documents.py",
+    "tests/test_hook_trust.py",
+    "tests/test_agent_harness.py",
+    "tests/test_agent_contract.py",
+    "tests/test_memory_ledger.py",
+    "tests/test_shell_reading.py",
+    "tests/test_method_enforcement.py",
+    "tests/test_memory_hooks.py",
+    "tests/test_law_lints.py",
+    "tests/test_export_trading_skills.py",
+    "gates/harness-integration.md",
+    "tools/harness_templates/hooks/test_optmem_lifecycle.py",
+    "tools/harness_templates/hooks/test_transcript_archive.py",
+    "tools/harness_templates/hooks/test_cached_session_bridge.py",
+    ".unlazy/claude-method-port/**",
+    ".unlazy/repo-cleanup-implementation/**",
+    ".unlazy/repo-cleanup-plan/**",
+    ".unlazy/skill-enforcement/**"
+  ],
+  "gates": ".unlazy/hook-read-classifier-fix/GATES.md",
+  "model_policy": {
+    "routine_implementation_model": "gpt-5.6-sol",
+    "routine_implementation_reasoning": "medium",
+    "architecture_reasoning": "high",
+    "final_review_reasoning": "xhigh",
+    "higher_reasoning_for": [
+      "architecture",
+      "ambiguous failures",
+      "final review"
+    ],
+    "roles": {
+      "routine-implementation": {
+        "model": "gpt-5.6-sol",
+        "reasoning_effort": "medium"
+      },
+      "architecture": {
+        "model": "gpt-5.6-sol",
+        "reasoning_effort": "high"
+      },
+      "final-review": {
+        "model": "gpt-5.6-sol",
+        "reasoning_effort": "xhigh"
+      }
+    }
+  }
+}

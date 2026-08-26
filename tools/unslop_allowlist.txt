@@ -21,7 +21,6 @@ haiku
 gpt
 sol
 optmem
-mempalace
 pstack
 pocock
 poteto

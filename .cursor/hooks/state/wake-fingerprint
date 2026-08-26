@@ -1,0 +1,12 @@
+- 2026-08-25 #458 USER Cursor billed only Grok 4.6 because parent was xhigh and poteto never Tasked Fable/Sol. Keep parent Grok xhigh; do not set Auto. Auto inherits parent.
+- 2026-08-25 #459 RESULT THRESHOLD bottleneck investigation: no confirmation receipt opened THRESHOLD (threshold_open_count=0). Location-ranker THRESHOLD diagnostic cash HG 856.63 NKD 939.81 SI 1060.83 loc_insufficient. Not canonical replay. Ticket 45 still ready-for-agent.
+- 2026-08-25 #460 RESULT 2021 THRESHOLD event top-2 mean HG 627.8 vs need 666.7, NKD 433.6 vs 500 (entry_economics_20260823.json). START_HERE quoted TRAIN. No THRESHOLD exact-replay receipt. v9 confirmation threshold_open_count=0.
+- 2026-08-25 #461 RESULT E1R THRESHOLD canonical replay is 0 trades / 0 usd on all 10 seeds. Artifact E1R_raw_THRESHOLD raw_block.json. Command run_tabular_recovery --phase rehearsal. Same-window exact ceiling 102201.25 clears rungs. FORWARD calibrated also 0.
+- 2026-08-25 #462 RESULT Task rejects claude-fable-5-thinking-max. Fable seats used claude-fable-5-thinking-high. Do not inherit Grok for those seats.
+- 2026-08-25 #465 USER tickets and recovery plans are hypotheses not the path. Redesign from the proven bottleneck. Do not walk a numbered ticket list as gospel.
+- 2026-08-25 #466 USER Fable and Sol have max on this account. cursor-agent models: claude-fable-5-thinking-max and gpt-5.6-sol-max. Prefix thinking-<effort> or #<effort>. Task widget may list only high/medium. Do not inherit Grok.
+- 2026-08-25 #467 USER stay on poteto-mode. Matching principle leaves are mandatory. Do not skip the catalog. Equal standing still closes unmatched leaves.
+- 2026-08-25 #468 RESULT THRESHOLD enter-gap receipt: FIT capture 0.0-0.43% vs 0.9. All 5 advantage grids negative. 130 traces 0 crossings. python3 .audit/assert_threshold_replay_receipt.py --enter-gap
+- 2026-08-25 #469 RESULT THRESHOLD unit 2 is not a rerun. evaluate_policy_block runs THRESHOLD RAW only. Calibration and admission exist. MARGIN needs a new CALIBRATED identity and 13 fresh day traces.
+- 2026-08-25 #470 RESULT Fable max: E1R head never ENTERs on any walked window. MARGIN already ran, 588 traces 0 selected. Do not stitch policy_mode. Gate selftest can PASS. Refit is an awake fork.
+- 2026-08-26 #473 RESULT Head-versus-label 561f6cb. OOF ENTER-min 0-2/20049. Frozen-all peak 32/21527 (0.15%) vs 7.70% labels. Feature-mismatch kill failed. Fit miss stands.

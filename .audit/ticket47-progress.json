@@ -1,0 +1,9 @@
+{
+  "schema": "QRE2TICKET47PROGRESS1",
+  "status": "STOPPED",
+  "reason": "Ticket 47 parked. Capture miss is the live unit. Do not resume.",
+  "completed": 1,
+  "total": 2788,
+  "detail": "HG/20220102",
+  "pid": 3046468
+}

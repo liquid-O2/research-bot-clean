@@ -1,0 +1,12 @@
+- `verdict`: `MISS`
+- `capture.n_cells`: `1732`
+- `capture.n_earliest_is_best`: `149`
+- `capture.match_rate`: `0.08602771362586605`
+- `capture.mean_best_time_rank`: `28.221709006928407`
+- `capture.mean_cell_n_clear`: `105.48903002309468`
+- `capture.cash_left_on_table_usd`: `2088412.5`
+- `lines.earliest.usd_per_asset_day`: `{"HG": -99.0989847715736, "NKD": -68.80154639175258, "SI": -162.5130890052356}`
+- `lines.latest.usd_per_asset_day`: `{"HG": -42.411167512690355, "NKD": -84.47164948453609, "SI": -40.78534031413613}`
+- `lines.cheapest.usd_per_asset_day`: `{"HG": -6.935279187817259, "NKD": -90.9020618556701, "SI": 9.764397905759163}`
+- `lines.cell_best.usd_per_asset_day`: `{"HG": 2758.953045685279, "NKD": 3815.2190721649486, "SI": 3880.471204188482}`
+- The live earliest-CLEAR decision loses, as `dollar_stop.applied` states that earliest, latest, and cheapest CLEAR all miss the rungs.

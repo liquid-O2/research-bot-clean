@@ -27,3 +27,15 @@ provenance/entry_v2/.entry-v2-durable-store/
 /.unlazy-hook-state.json
 /.unlazy/
 /archive/agent-harness-pre-20260823/
+/archive/claude-codex-host-20260825/
+
+# Secrets and vendor prompt dumps stay off GitHub. They still ride R2.
+/.secrets/
+.codex/sol-system-prompt.md
+.opencode/node_modules/
+
+# Ticket 45 session arrays are bulk. JSON receipts in .audit/ stay.
+.audit/ticket45-durable-*/
+
+# Lean-repo path inventory. Too large for GitHub. Lives on R2.
+/evidence/repo_cleanup/retention.tsv

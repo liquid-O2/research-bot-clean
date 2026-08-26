@@ -1,0 +1,151 @@
+{
+  "check_command": "python3 .audit/score_threshold_rank_live.py",
+  "dollar_stop": {
+    "applied": "No live G1 column-direction puts mean_winner_rank at or under 2.0 or frac_top5 at or above 0.50. Remaining unit is a fitted name instrument on stored join features, still one teacher-cash read, still cannot promote.",
+    "ranking_columns": [],
+    "verdict": "MISS"
+  },
+  "label": "live G1 column rank of READY cell-best on the stored join. It can name a frozen pick and cannot promote.",
+  "n_forecast_rows_read": 37427,
+  "ranks": {
+    "atr14_prev_usd_asc": {
+      "frac_rank0": 0.028290993071593534,
+      "frac_top5": 0.09006928406466513,
+      "mean_winner_rank": 50.16339491916859,
+      "median_winner_rank": 31.0,
+      "n_cells": 1732
+    },
+    "atr14_prev_usd_desc": {
+      "frac_rank0": 0.028290993071593534,
+      "frac_top5": 0.09006928406466513,
+      "mean_winner_rank": 50.16339491916859,
+      "median_winner_rank": 31.0,
+      "n_cells": 1732
+    },
+    "compliance_distance_sec_asc": {
+      "frac_rank0": 0.04214780600461894,
+      "frac_top5": 0.14145496535796767,
+      "mean_winner_rank": 46.66743648960739,
+      "median_winner_rank": 29.0,
+      "n_cells": 1732
+    },
+    "compliance_distance_sec_desc": {
+      "frac_rank0": 0.04387990762124711,
+      "frac_top5": 0.1403002309468822,
+      "mean_winner_rank": 57.821593533487295,
+      "median_winner_rank": 34.5,
+      "n_cells": 1732
+    },
+    "decision_ts_ns_asc": {
+      "frac_rank0": 0.08602771362586605,
+      "frac_top5": 0.26963048498845266,
+      "mean_winner_rank": 28.221709006928407,
+      "median_winner_rank": 15.0,
+      "n_cells": 1732
+    },
+    "decision_ts_ns_desc": {
+      "frac_rank0": 0.0017321016166281756,
+      "frac_top5": 0.01674364896073903,
+      "mean_winner_rank": 76.26732101616628,
+      "median_winner_rank": 51.0,
+      "n_cells": 1732
+    },
+    "entry_mid2_asc": {
+      "frac_rank0": 0.14549653579676675,
+      "frac_top5": 0.4780600461893764,
+      "mean_winner_rank": 53.372401847575055,
+      "median_winner_rank": 6.0,
+      "n_cells": 1732
+    },
+    "entry_mid2_desc": {
+      "frac_rank0": 0.13568129330254042,
+      "frac_top5": 0.45381062355658197,
+      "mean_winner_rank": 50.95092378752887,
+      "median_winner_rank": 12.0,
+      "n_cells": 1732
+    },
+    "entry_spread_usd_asc": {
+      "frac_rank0": 0.024826789838337183,
+      "frac_top5": 0.10796766743648961,
+      "mean_winner_rank": 46.71709006928406,
+      "median_winner_rank": 29.0,
+      "n_cells": 1732
+    },
+    "entry_spread_usd_desc": {
+      "frac_rank0": 0.016166281755196306,
+      "frac_top5": 0.07909930715935334,
+      "mean_winner_rank": 55.48325635103926,
+      "median_winner_rank": 35.0,
+      "n_cells": 1732
+    },
+    "frozen_cost_usd_asc": {
+      "frac_rank0": 0.024826789838337183,
+      "frac_top5": 0.10796766743648961,
+      "mean_winner_rank": 46.71709006928406,
+      "median_winner_rank": 29.0,
+      "n_cells": 1732
+    },
+    "frozen_cost_usd_desc": {
+      "frac_rank0": 0.016166281755196306,
+      "frac_top5": 0.07909930715935334,
+      "mean_winner_rank": 55.48325635103926,
+      "median_winner_rank": 35.0,
+      "n_cells": 1732
+    },
+    "sane_ceiling_usd_asc": {
+      "frac_rank0": 0.028290993071593534,
+      "frac_top5": 0.09006928406466513,
+      "mean_winner_rank": 50.16339491916859,
+      "median_winner_rank": 31.0,
+      "n_cells": 1732
+    },
+    "sane_ceiling_usd_desc": {
+      "frac_rank0": 0.028290993071593534,
+      "frac_top5": 0.09006928406466513,
+      "mean_winner_rank": 50.16339491916859,
+      "median_winner_rank": 31.0,
+      "n_cells": 1732
+    },
+    "side_asc": {
+      "frac_rank0": 0.024826789838337183,
+      "frac_top5": 0.09295612009237875,
+      "mean_winner_rank": 50.61143187066975,
+      "median_winner_rank": 32.0,
+      "n_cells": 1732
+    },
+    "side_desc": {
+      "frac_rank0": 0.02020785219399538,
+      "frac_top5": 0.10219399538106236,
+      "mean_winner_rank": 51.80831408775982,
+      "median_winner_rank": 32.0,
+      "n_cells": 1732
+    }
+  },
+  "rule": "On every joinable 2022-03-09 through 2024-12-31 gated cell that has a READY teacher name, take the READY cell-best (maximum cert_close_usd, tie-break lexicographically smallest candidate_id). Rank every CLEAR name in that cell by each live G1 column, ascending and descending. Rank is the 0-based index after sorting by the column, then lexicographically smallest candidate_id. The day gate is the freeze median. Teacher-cash still cannot promote.",
+  "schema": "QRE2THRESHOLDRANKLIVE1",
+  "sources": {
+    "candidates_root": "artifacts/cache/port/entry_v2/g1/candidates",
+    "forecasts": {
+      "path": "artifacts/runs/e6_vol_forecasts_v2/vol_service_forecasts.tsv",
+      "sha256": "9bea40ac23749bf5f39e8147e96db45c651c140c5fc1573fec8e036c2b7b7a2c"
+    },
+    "freeze": {
+      "path": ".audit/threshold-2022-2024-freeze.md",
+      "sha256": "730fa98017e1e37532f0d4b0b0d209dc4d7512c3dbb752d95467086f4ff3854d"
+    },
+    "killed_read": {
+      "path": ".audit/threshold-2022-2024-read.json",
+      "sha256": "2f988fe93d895b06f01f64fa9191c4c4827e370312219dfd4c563b46dea6a891"
+    },
+    "receipts_root": "artifacts/cache/port/entry_v2/g1/receipts",
+    "teacher_root": "artifacts/cache/port/entry_v2/g1/teacher"
+  },
+  "status": "MISS",
+  "verdict": "MISS",
+  "wall_clock_sec": 38.256,
+  "window": [
+    "2022-03-09",
+    "2024-12-31"
+  ],
+  "workers": 14
+}

@@ -1,5 +1,0 @@
-LIFECYCLE RECEIPT 1
-codex_version=codex-cli 0.149.0
-event_log=/workspace/.codex/harness/receipts/lifecycle-events.jsonl
-event_log_sha256=0dbeb8654f3e08b536e7955bae2bb3fa0eea40981324aa017f9a74973cf0d4c3
-verification=PROBE_VERIFY_OK

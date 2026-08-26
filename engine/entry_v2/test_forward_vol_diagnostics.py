@@ -18,7 +18,7 @@ from tools.audit_entry_v2_forward_vol import (
     _range_persistence_targets,
     point_diagnostic,
 )
-from entry_v2.corpus import QRE2_FORECAST_LAW_SHA256
+from entry_v2.corpus_forecast import QRE2_FORECAST_LAW_SHA256
 from tools.probe_entry_v2_forward_vol_sigma import causal_ratio_calibration
 
 

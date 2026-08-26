@@ -19,7 +19,6 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
-import import_optmem_ledger  # noqa: E402
 import memory_ledger  # noqa: E402
 
 SKELETON = """# Memory
@@ -38,12 +37,6 @@ New memories land here, newest last.
 
 Written by the PreCompact hook.
 """
-OPTMEM_LOG = (
-    "#0 2026-08-01 first lasting fact\n"
-    "#1 2026-08-02 second lasting fact\n"
-)
-
-
 class LedgerFixture(unittest.TestCase):
     def setUp(self) -> None:
         self.directory = tempfile.TemporaryDirectory()
@@ -119,6 +112,13 @@ class ReadTests(LedgerFixture):
 
 
 class CheckpointTests(LedgerFixture):
+    def test_checkpoint_append_preserves_existing_bytes(self) -> None:
+        before = self.path.read_bytes()
+        inode = self.path.stat().st_ino
+        memory_ledger.append_checkpoint("- route: implement-flow", self.path)
+        self.assertTrue(self.path.read_bytes().startswith(before))
+        self.assertEqual(self.path.stat().st_ino, inode)
+
     def test_a_checkpoint_appends_under_its_heading(self) -> None:
         memory_ledger.append_checkpoint("- route: implement-flow", self.path)
         tail = self.body().split("## Checkpoints")[1]
@@ -133,43 +133,44 @@ class CheckpointTests(LedgerFixture):
         memory_ledger.append_checkpoint("- route: plan-flow", self.path)
         self.assertIn(entry, self.body())
 
+    def test_a_checkpoint_also_lands_a_numbered_tail_note(self) -> None:
+        memory_ledger.append_checkpoint("- session: session-fixture\n- transcript archive: /tmp/ae9b8363.jsonl", self.path)
+        entries = memory_ledger.tail(5, self.path)
+        joined = "\n".join(entries)
+        self.assertTrue(any("COMPACT" in line for line in entries), joined)
+        checkpoint = memory_ledger.latest_checkpoint(self.path)
+        self.assertEqual(checkpoint.splitlines()[0][:3], "###")
+        note_number = next(line.split("#", 1)[1].split(" ", 1)[0]
+                           for line in entries if "COMPACT" in line)
+        self.assertIn(f"- compact note: #{note_number}", checkpoint)
 
-class ImportTests(unittest.TestCase):
-    def setUp(self) -> None:
-        self.directory = tempfile.TemporaryDirectory()
-        self.root = Path(self.directory.name)
-        self.store = self.root / "optmem"
-        (self.store / "TREE").mkdir(parents=True)
-        (self.store / "LOG.txt").write_text(OPTMEM_LOG, encoding="utf-8")
-        (self.store / "TREE/2").write_text("a summary of the pair\n", encoding="utf-8")
-        self.target = self.root / "MEMORY.md"
-        self.addCleanup(self.directory.cleanup)
+    def test_latest_checkpoint_is_the_newest_block(self) -> None:
+        memory_ledger.append_checkpoint("- session: first", self.path)
+        memory_ledger.append_checkpoint("- session: second", self.path)
+        latest = memory_ledger.latest_checkpoint(self.path)
+        self.assertIsNotNone(latest)
+        self.assertIn("session: second", latest)
+        self.assertNotIn("session: first", latest)
 
-    def build(self) -> str:
-        import_optmem_ledger.main([str(self.store), str(self.target)], StringIO())
-        return self.target.read_text(encoding="utf-8")
+    def test_bounded_readers_find_records_after_large_history(self) -> None:
+        self.path.write_text(
+            SKELETON + ("historical filler\n" * 40_000)
+            + "- 2026-08-24 #10 cache migration complete\n",
+            encoding="utf-8",
+        )
+        memory_ledger.append_checkpoint(
+            "- session: bounded\n- transcript archive: /tmp/pending.json", self.path
+        )
+        self.assertIn("COMPACT", memory_ledger.tail_bounded(1, self.path)[0])
+        self.assertIn("session: bounded", memory_ledger.latest_checkpoint_bounded(self.path))
 
-    def test_every_entry_and_summary_lands(self) -> None:
-        text = self.build()
-        self.assertIn("#0 first lasting fact", text)
-        self.assertIn("#1 second lasting fact", text)
-        self.assertIn("#0-1 a summary of the pair", text)
-
-    def test_the_imported_block_carries_the_lint_exemption(self) -> None:
-        text = self.build()
-        self.assertIn(import_optmem_ledger.IGNORE_START, text)
-        self.assertIn(import_optmem_ledger.IGNORE_END, text)
-
-    def test_reimport_is_idempotent(self) -> None:
-        self.assertEqual(self.build(), self.build())
-
-    def test_reimport_preserves_live_entries_and_checkpoints(self) -> None:
-        self.build()
-        entry = memory_ledger.append_note("a live line", self.target)
-        memory_ledger.append_checkpoint("- route: implement-flow", self.target)
-        rebuilt = self.build()
-        self.assertIn(entry, rebuilt)
-        self.assertIn("route: implement-flow", rebuilt)
+    def test_queued_checkpoint_note_names_the_durable_record(self) -> None:
+        memory_ledger.append_checkpoint(
+            "- session: queued\n- transcript status: queued\n"
+            "- transcript record: /tmp/job-ticket.json",
+            self.path,
+        )
+        self.assertIn("queued job-tick", memory_ledger.tail_bounded(1, self.path)[0])
 
 
 if __name__ == "__main__":

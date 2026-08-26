@@ -1,0 +1,553 @@
+{
+  "schema_version": 1,
+  "route": "plan-flow",
+  "task": "Audit the non-dot, non-venv repository and produce a phased, lossless cleanup and restructuring plan rooted at START_HERE.md without implementing the cleanup",
+  "transition_epoch": 6,
+  "instructions": "Replace every pending status with apply plus decision and evidence, or skip plus reason. Keep names and structure unchanged.",
+  "sections": {
+    "methods": [
+      {
+        "name": "diagnosing-bugs",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The task is a forward-looking repository audit and plan, not a reported failure or performance regression."
+      },
+      {
+        "name": "domain-modeling",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Define lossless, authority, liveness, current state, chronology, recovery, and protected scope precisely before the self-grilling decisions enter the plan.",
+        "evidence": "The user authorized the grilling session, and the cleanup depends on stable meanings for the file-liveness registry and the three-document authority lifecycle.",
+        "reason": null
+      },
+      {
+        "name": "how",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Trace entry points, runtime flows, ownership, and dependencies before judging code or files obsolete.",
+        "evidence": ".agents/skills/how/SKILL.md and the user's request to understand the codebase before restructuring it",
+        "reason": null
+      },
+      {
+        "name": "why",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The task needs current liveness and dependency evidence, not a sourced reconstruction of one past design decision."
+      },
+      {
+        "name": "architect",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "Plan-flow stops before code crosses function or module interfaces; codebase-design owns the current structural analysis."
+      },
+      {
+        "name": "arena",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "No competing implementation artifacts will be built during this read-only planning route."
+      },
+      {
+        "name": "codebase-design",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Judge modules by depth, locality, seam placement, test surface, and the deletion test while producing cleanup candidates.",
+        "evidence": ".agents/skills/codebase-design/SKILL.md and .agents/skills/improve-codebase-architecture/SKILL.md",
+        "reason": null
+      },
+      {
+        "name": "tdd",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "No production behavior is implemented in plan-flow."
+      },
+      {
+        "name": "pocock-tdd",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The deliverable is a plan; each implementation phase will name behavior-level verification without running a TDD loop now."
+      },
+      {
+        "name": "implement",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The selected plan-flow route explicitly stops before implementation."
+      },
+      {
+        "name": "code-review",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "There is no production diff to review; the planning gates inspect the plan artifact instead."
+      }
+    ],
+    "pstack_principles": [
+      {
+        "name": "principle-boundary-discipline",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Preserve true CLI, filesystem, data, and external-system seams; remove internal validation or adapters only after callers and tests prove them redundant.",
+        "evidence": "The requested cleanup spans tools, data artifacts, workflow hooks, and trading code with distinct system seams.",
+        "reason": null
+      },
+      {
+        "name": "principle-build-the-lever",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The plan will specify a cleanup manifest and verifier, but building those implementation artifacts now would violate plan-flow."
+      },
+      {
+        "name": "principle-encode-lessons-in-structure",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Replace repeated operational prose with discoverable config, generated indexes, or checks; retain judgment-heavy decisions in one durable source.",
+        "evidence": "START_HERE.md repeats commands and workflow policy that also exist in scripts, hooks, and AGENTS.md.",
+        "reason": null
+      },
+      {
+        "name": "principle-exhaust-the-design-space",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Compare at least three target repository shapes before selecting the phased migration.",
+        "evidence": "The whole-repository restructure has no single obvious file layout and plan-flow requires alternatives.",
+        "reason": null
+      },
+      {
+        "name": "principle-experience-first",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Optimize the entry path for the next agent and maintainer so START_HERE.md answers where to begin without caching discoverable facts.",
+        "evidence": "The user explicitly named START_HERE.md as the universal entry point.",
+        "reason": null
+      },
+      {
+        "name": "principle-fix-root-causes",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "No defect is being debugged; obsolete-file judgments will use dependency and history evidence instead."
+      },
+      {
+        "name": "principle-foundational-thinking",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Define the file-liveness classification and target information hierarchy before planning moves or deletions.",
+        "evidence": "Lossless cleanup depends on distinguishing authoritative, generated, reproducible, historical, and dead material.",
+        "reason": null
+      },
+      {
+        "name": "principle-guard-the-context-window",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Partition exploration by code, documentation, and data or operations, and retain only file pointers and findings in the main thread.",
+        "evidence": "The repository has enough files and long documents to overwhelm one undifferentiated scan.",
+        "reason": null
+      },
+      {
+        "name": "principle-laziness-protocol",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Prefer deletion, consolidation, and flatter ownership over new layers or replacement documentation.",
+        "evidence": "The user's desired end state is an extremely lean repository with no functionality loss.",
+        "reason": null
+      },
+      {
+        "name": "principle-make-operations-idempotent",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Require the eventual inventory, move, archive, and delete operations to be dry-runnable and safe after partial completion.",
+        "evidence": "A whole-repository cleanup can be interrupted and must converge without duplicating or losing files.",
+        "reason": null
+      },
+      {
+        "name": "principle-migrate-callers-then-delete-legacy-apis",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Move imports, command references, documentation pointers, and tests in the same phase that removes each old path.",
+        "evidence": "The user wants the old code gone, and internal callers do not justify compatibility layers.",
+        "reason": null
+      },
+      {
+        "name": "principle-minimize-reader-load",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Measure cleanup candidates by layers to trace and hidden state to remember, then collapse one-caller wrappers and duplicate knowledge.",
+        "evidence": "START_HERE.md currently asks a newcomer to cross several documents and retain historical state before acting.",
+        "reason": null
+      },
+      {
+        "name": "principle-model-the-domain",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Represent the audit as a file-liveness registry with ownership, authority, reproducibility, consumers, replacement, and disposition fields.",
+        "evidence": "Scattered keep or delete judgments would otherwise repeat shape assumptions across hundreds of files.",
+        "reason": null
+      },
+      {
+        "name": "principle-never-block-on-the-human",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Infer reversible planning choices from repository evidence and surface any real product decision in the completed plan instead of pausing the audit.",
+        "evidence": "The user supplied the target, exclusions, and lossless constraint; the remaining work is observable.",
+        "reason": null
+      },
+      {
+        "name": "principle-outcome-oriented-execution",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Plan explicit verification points that converge on the target tree without permanent redirect files or dual documentation systems.",
+        "evidence": "The requested end state is one clear entry path and a lean tree, not a long compatibility period.",
+        "reason": null
+      },
+      {
+        "name": "principle-prove-it-works",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Every proposed deletion class needs direct proof from imports, invocations, tests, artifacts, or reproducibility before removal; the final tree needs full checks and smoke runs.",
+        "evidence": "The user made losslessness the acceptance condition.",
+        "reason": null
+      },
+      {
+        "name": "principle-redesign-from-first-principles",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Design the target repository as if START_HERE.md, durable memory, and the live trading workflow had been foundational, then migrate toward it in checked phases.",
+        "evidence": "The user requested an entire repository restructure rather than local tidying.",
+        "reason": null
+      },
+      {
+        "name": "principle-separate-before-serializing-shared-state",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "Explorers are read-only and the implementation plan will sequence repository writes; no concurrent mutable target is required."
+      },
+      {
+        "name": "principle-sequence-verifiable-units",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Split the cleanup into inventory, retirement, code consolidation, layout migration, documentation compression, and final proof units, each ending in checks.",
+        "evidence": "A repository-wide migration cannot be verified honestly as one batch.",
+        "reason": null
+      },
+      {
+        "name": "principle-subtract-before-you-add",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Retire dead and reproducible material before introducing the final directory structure or rewriting the remaining documentation.",
+        "evidence": "The user asked to remove useless code and files before polishing the surviving tree.",
+        "reason": null
+      },
+      {
+        "name": "principle-type-system-discipline",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The planning route defines no production signatures or typed data model; implementation phases will apply this when consolidating typed code."
+      }
+    ],
+    "supplemental_principles": [
+      {
+        "name": "pocock-codebase-glossary",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Use module, interface, depth, seam, adapter, leverage, and locality consistently in every architectural finding.",
+        "evidence": ".agents/skills/codebase-design/SKILL.md glossary",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-depth",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Use the deletion test to distinguish shallow pass-through modules from deep modules that concentrate knowledge.",
+        "evidence": ".agents/skills/codebase-design/SKILL.md deep versus shallow guidance",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-principles",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Keep interfaces small, treat them as test surfaces, and reject hypothetical seams that have only one adapter.",
+        "evidence": ".agents/skills/codebase-design/SKILL.md principles",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-testability",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Prefer modules whose dependencies enter through parameters and whose observable results can be checked without internal mutation.",
+        "evidence": ".agents/skills/codebase-design/SKILL.md designing for testability section",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-relationships",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Evaluate every proposed seam by the module interface it hosts, the adapters it needs, and the locality and leverage it creates.",
+        "evidence": ".agents/skills/codebase-design/SKILL.md relationships section",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-rejected-framings",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Do not score modules by line-count ratios or confuse interfaces with language-level signatures.",
+        "evidence": ".agents/skills/codebase-design/SKILL.md rejected framings",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-going-deeper",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Classify dependencies before recommending that shallow modules merge or move behind a smaller interface.",
+        "evidence": ".agents/skills/codebase-design/DEEPENING.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-dependencies",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Tag each candidate dependency as in-process, local-substitutable, remote-owned, or external so its test plan is honest.",
+        "evidence": ".agents/skills/codebase-design/DEEPENING.md dependency categories",
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-seams",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Keep internal test seams private and expose a new port only when production and test adapters make the seam real.",
+        "evidence": ".agents/skills/codebase-design/DEEPENING.md seam discipline",
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-tests",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Replace tests of retired shallow modules with observable tests at the surviving deep module's interface.",
+        "evidence": ".agents/skills/codebase-design/DEEPENING.md replace-don't-layer strategy",
+        "reason": null
+      },
+      {
+        "name": "pocock-design-it-twice",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "No specific deepened module interface has been selected; the plan compares repository layouts without inventing production interfaces."
+      },
+      {
+        "name": "pocock-tdd-good-tests",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "No tests are written during plan-flow."
+      },
+      {
+        "name": "pocock-tdd-seams",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "Codebase-design supplies the test-surface decision needed by the plan; no TDD seam is exercised now."
+      },
+      {
+        "name": "pocock-tdd-antipatterns",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "No production test suite changes occur in this planning task."
+      },
+      {
+        "name": "pocock-tdd-loop",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The red-green-refactor loop belongs to the later implementation route."
+      },
+      {
+        "name": "pocock-test-quality",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Specify checks against public behavior and real entry points so tests survive internal consolidation.",
+        "evidence": "The lossless requirement cannot be proven by path-existence checks alone.",
+        "reason": null
+      },
+      {
+        "name": "pocock-mocking-boundaries",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The plan does not create a new third-party dependency or test double."
+      },
+      {
+        "name": "pocock-writing-context",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Make START_HERE.md a strong pointer to live state and durable memory rather than an always-loaded copy of them.",
+        "evidence": "The user wants START_HERE.md to remain the universal entry document.",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-loads",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Spend context load only on universal rules and spend human lookup effort on branch-specific history or evidence.",
+        "evidence": ".agents/skills/writing-for-agents/SKILL.md two-load model",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-hierarchy",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Put immediate session steps in START_HERE.md, current state in one disclosed file, and durable chronology in MEMORY.md.",
+        "evidence": ".agents/skills/writing-for-agents/SKILL.md information hierarchy",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-completion",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Give every cleanup phase an observable finish condition and refuse vague outcomes such as documentation cleaned up.",
+        "evidence": ".agents/skills/writing-for-agents/SKILL.md completion criteria",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-split",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Split the plan by independently verifiable migration phase while keeping the final repository documentation split to the fewest live branches.",
+        "evidence": "The implementation spans more than three phases, while the target documentation budget is one or two files beyond memory.",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-leading-words",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Use stable classification terms such as authoritative, generated, reproducible, historical, and dead throughout the plan and later manifest.",
+        "evidence": ".agents/skills/writing-for-agents/SKILL.md leading-word guidance",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-pruning",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Delete duplicate caches of config and commands, disclose branch-only history, and retain one source for each decision.",
+        "evidence": "The user's complaint is documentation sediment and repeated obsolete material.",
+        "reason": null
+      },
+      {
+        "name": "pocock-implementation-checks",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "Implementation checks will be specified per phase but no implementation step runs in plan-flow."
+      },
+      {
+        "name": "akita-code-style",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Require surviving and consolidated production functions, names, types, and modules to meet the repository's Akita limits.",
+        "evidence": "AGENTS.md Code style block and the user's request to clean useless code as well as files",
+        "reason": null
+      },
+      {
+        "name": "akita-comments",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Preserve comments that carry why or provenance and remove only narration that the code already states.",
+        "evidence": "AGENTS.md Comments block makes comment intent part of losslessness.",
+        "reason": null
+      },
+      {
+        "name": "akita-tests",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Require regression tests for consolidation and one project command for each independently shippable phase.",
+        "evidence": "AGENTS.md Tests block and the user's no-functionality-loss requirement",
+        "reason": null
+      },
+      {
+        "name": "akita-dependencies",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Preserve dependency injection and project-owned adapters while removing unused third-party packages only after import and runtime proof.",
+        "evidence": "AGENTS.md Dependencies block",
+        "reason": null
+      },
+      {
+        "name": "akita-structure",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Organize surviving files by one responsibility and predictable framework or domain paths, with files below 500 lines.",
+        "evidence": "AGENTS.md Structure block and the requested whole-repository restructure",
+        "reason": null
+      },
+      {
+        "name": "akita-formatting",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Run each language's default formatter after code moves and consolidation instead of hand-formatting.",
+        "evidence": "AGENTS.md Formatting block",
+        "reason": null
+      },
+      {
+        "name": "akita-logging",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Keep structured logs for diagnostics and plain text for user-facing commands when consolidating tools.",
+        "evidence": "AGENTS.md Logging block",
+        "reason": null
+      }
+    ],
+    "foundations": [
+      {
+        "name": "codebase-design",
+        "epoch": 6,
+        "status": "apply",
+        "decision": "Use deep-module vocabulary and the deletion test as the foundation for all restructuring candidates.",
+        "evidence": ".agents/skills/codebase-design/SKILL.md",
+        "reason": null
+      },
+      {
+        "name": "diagnosing-bugs",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "Repository cleanup planning is not a bug diagnosis."
+      },
+      {
+        "name": "domain-modeling",
+        "epoch": 6,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "Existing glossary terms will be consumed; plan-flow will not create or edit domain glossary or ADR files."
+      }
+    ]
+  }
+}

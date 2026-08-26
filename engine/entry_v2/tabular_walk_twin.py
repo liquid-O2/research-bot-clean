@@ -22,8 +22,9 @@ import numpy as np
 
 from . import common as C
 from .contracts import EntryScore
-from .exact_delayed_teacher import (
-    DayOptionUniverse, PortfolioPrefixCondition, RolloutStateProposal, _arrival,
+from .exact_delayed_teacher import _arrival
+from .exact_teacher_types import (
+    DayOptionUniverse, PortfolioPrefixCondition, RolloutStateProposal,
 )
 from .tabular_action_features import build_action_feature_matrix, qrf4_regime_matrix
 from .tabular_calibration import (
@@ -668,7 +669,7 @@ def _wtwin_multistate_targets(*, day: int, universe: DayOptionUniverse,
     must not pull in the evaluation stack.
     """
 
-    from .tabular_evaluation import _trace_identity
+    from .tabular_evaluation_io import _trace_identity
     root = Path(output_root)
     return tuple(
         root / "calibrated" / _trace_identity(

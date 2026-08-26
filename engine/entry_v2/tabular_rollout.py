@@ -9,10 +9,11 @@ from typing import Mapping,Sequence
 import numpy as np
 
 from . import common as C
-from .exact_delayed_teacher import (
-    DayOptionUniverse,ExactDaySolver,ExactDelayedTeacherDay,
-    PortfolioPrefixCondition,RolloutStateProposal,
-    add_rollout_relabels,rollout_error_queries,
+from .exact_delayed_teacher import ExactDelayedTeacherDay
+from .exact_teacher_build import add_rollout_relabels,rollout_error_queries
+from .exact_teacher_solver import ExactDaySolver
+from .exact_teacher_types import (
+    DayOptionUniverse,PortfolioPrefixCondition,RolloutStateProposal,
 )
 from .tabular_action_features import build_action_feature_matrix
 from .tabular_delayed_corpus import CausalFeatureShard,prepare_runtime_feature_shard

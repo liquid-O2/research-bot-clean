@@ -9,57 +9,112 @@ position per asset, and maximum drawdown under $1,000.
 The goal is the user's and is non-negotiable (D-110). Neural is dead. The
 candidate generator is frozen. 2025H2 is sealed.
 
-**Live cursor.** The 2022-2024 ceiling is already known. Do not re-prove it.
-Capture miss is the work. `.audit/threshold-capture-gap.json` verdict MISS.
-Earliest CLEAR matches cell-best in 149 of 1732 cells. The winner sits at mean
-time rank 28 in a mean cell of 105 names. Latest and cheapest CLEAR also miss.
-Next unit is one live G1 scalar that is not time and not frozen_cost. Ticket 47
-waits. 2021 can kill. 2021 cannot promote. 2025H2 stays sealed.
+**Read this file first.** Every host, every model. Compaction summaries are
+not the record. `MEMORY.md` plus this page are.
+
+## Live cursor (2026-08-26)
+
+The 2022-2024 ceiling is already known. Do not re-prove it. Capture miss is
+the work. `.audit/threshold-capture-gap.json` verdict MISS. Identity is 99.98%
+of the $2.09M gap. Cell-best on the gated join: HG 2758.95 / NKD 3815.22 /
+SI 3880.47 (`.audit/threshold-2022-2024-ceiling.json`).
+
+Every unfitted stored read is closed (scalars, rank, fit-name, stored name
+rules, tape name rules, 2021 feature-rank). G1 pivot-birth tags exist for the
+2021 prefix only. Stage 0 PASS. Stage 1 KILL
+(`.audit/briefs/threshold-pivot-stage1-judge-out.md`): unfitted geometry at
+age 180 missed every 2021 THRESHOLD rung. Stage 2 is not authorized.
+
+Covering map after that KILL (Fable, `.audit/briefs/threshold-covering-after-pivot-kill-out.md`):
+**next unit is C**, one fitted name pick at age 180. Stage 0 brief:
+`.audit/briefs/threshold-cfit-stage0.md` (era pivot tags 20210807-20241231,
+do not rewrite 2021, do not fit). Stage 1 is the fit and does not start until
+Stage 0 PASS is judged. B (late ages) waits until C dies. Tickets 37, 46, 47
+stay unstarted. 2021 can kill. 2021 cannot promote. 2025H2 stays sealed.
+
+Cursor Ultra is exhausted (~97% monthly). Do not use Cursor as the overnight
+parent. Daily parent is this Grok TUI. Sol specified walks: `codex exec` or
+Cursor Task only if quota returns. Fable: `claude -p` with
+`.codex/always-on-rules.md` appended, or Cursor Task
+`claude-fable-5-thinking-max` if quota returns.
 
 ---
 
 # 1. How to work here
 
+Any host, any model. This file is the index. `AGENTS.md` only points here.
+
+## First read
+
+1. This file, live cursor then this section.
+2. Memory: last 12 notes if injected, else `python3 tools/memory_ledger.py tail 12`.
+3. Covering map: `.audit/briefs/threshold-covering-after-pivot-kill-out.md`.
+4. The one live brief named in live cursor. Nothing else until that unit is judged.
+
+Do not rediscover closed kills. Compaction summaries are not the record.
+
 ## Memory
 
-`MEMORY.md` outlives every session, compaction, model and vendor change.
-Compaction summaries are not the memory.
+`MEMORY.md` and `tools/memory_ledger.py` live in this repo. They outlive
+every session, compaction, model, and vendor change.
 
-1. SessionStart injects the last **12 lasting notes**. Read what the hook gave you.
-2. Older facts: `python3 tools/memory_ledger.py recall '<regex>'`.
-3. When something lasting happens: `python3 tools/memory_ledger.py note "<one line, 280 bytes>"`. The parent agent writes notes. Not narration.
-4. Subagent briefs must include exactly once: `You are a subagent. Don't run memo.`
+1. Older facts: `python3 tools/memory_ledger.py recall '<regex>'`.
+2. Lasting fact: `python3 tools/memory_ledger.py note "<one line, 280 bytes>"`. The parent writes notes. Not narration.
+3. Subagent briefs include exactly once: `You are a subagent. Don't run memo.`
 
-## Method (Cursor)
+Lock helper is `engine/entry_v2/pod_local_lock.py` (the ledger already finds it). Unslop lint is `tools/unslop_lint.py`.
 
-`/poteto-mode` owns playbooks, principles, and review. Plugin:
-`.cursor/plugins/pstack-lab`. Project overlays: `.cursor/skills` and
-`.cursor/rules` (`cursor-pstack`, `equal-standing`, `memory`, `one-pass`,
-`unslop`, `fast-enough`, `akita`, `smallest-change`). Principles first, then
-Akita as a shape check.
+## Seats
 
-Start the CLI:
+Cursor Ultra is exhausted (~97% monthly). Do not use Cursor as the overnight parent.
 
-```text
-cursor-agent --plugin-dir /workspace/.cursor/plugins/pstack-lab
-```
+| Seat | Who | How |
+|---|---|---|
+| Parent | Grok 4.6 xhigh on this TUI | Reads this file. Tasks the others. Writes MEMORY notes. |
+| Designer / covering / Stage 1 judge | Fable `claude-fable-5-thinking-max` only | Parent Tasks, or `claude -p` with `--append-system-prompt-file .codex/always-on-rules.md`. No thinking-high fallback. |
+| Specified hard walks | Sol `gpt-5.6-sol-max` | `codex exec`. Codex `model_instructions_file` is off (held). |
 
-Then `/poteto-mode <goal>`. Run `/setup-pstack` once per account for per-role
-Task models (`~/.cursor/rules/pstack-models.mdc`). Threshold prompts after
-login: `.cursor/prompts/threshold-next.md`.
+Send parent-facing prompts to the parent. The parent Tasks the seat. Do not write "You are Fable" into a parent paste.
 
-`AGENTS.md` is a short pointer. Archived Codex onboarding lives under
-`archive/lean-repo-20260825/`.
+Paste files:
+
+- Covering: `.cursor/prompts/threshold-covering.md`
+- C Stage 0: `.audit/briefs/threshold-cfit-stage0.md`
+
+## Method
+
+`/poteto-mode` owns playbooks, principles, and review when Cursor has quota.
+Plugin: `.cursor/plugins/pstack-lab`. Overlays: `.cursor/skills`, `.cursor/rules`.
+Principles first, then Akita as a shape check. Do not install stock Pstack.
+
+On this Grok host, the order is this file, covering map, live brief. Rules text
+for append-only use: `.codex/always-on-rules.md`.
 
 ## Commands
 
-- Tests: `python3 -m unittest <module>`. **pytest is not installed.**
+- Tests: `python3 -m unittest <module>`. pytest is not installed.
 - Full battery: `bash tools/run_all_checks.sh --fast`
 - Every probe carries `--selftest`. Run it, then mutate the code and confirm the
   selftest goes red. A fixture no mutant kills is decoration.
-- Hardware: `HARDWARE.md`. `nproc` and `free` LIE here — 13.6 cores, 263 GiB.
-- Pod restarts wipe the overlay. Reinstall recipe is in `HARDWARE.md`; install
+- Hardware: `HARDWARE.md`. `nproc` and `free` lie here. 13.6 cores, 263 GiB.
+- Pod restarts wipe the overlay. Reinstall recipe is in `HARDWARE.md`. Install
   with `uv`, not pip.
+
+## Durability
+
+Two copies, two jobs. GitHub is the code. R2 is the volume.
+
+| Layer | What | Where |
+|---|---|---|
+| GitHub | Code, MEMORY, briefs, receipts that fit git | `https://github.com/liquid-O2/research-bot-clean` branch `main` |
+| R2 `runp` | Full `/workspace` backup (artifacts, data, `.git`) | `rclone` remote `r2:runp` |
+| R2 `nkd-hg`, `rty`, `russel` | Source tapes. Walls. | List only. Never write. Never purge. |
+
+Git does not hold `/data/`, `/artifacts/`, `.optmem/`, node_modules, or session
+binaries. Those ride R2. Do not put secrets in git. Rclone keys live at
+`.secrets/rclone-r2.conf` (mode 0600, gitignored). Fallback `/tmp/rclone-r2.conf`.
+
+Backup command: `bash tools/r2_backup.sh`. GitHub push first, then that script.
 
 ---
 
@@ -273,7 +328,11 @@ in the same sentence it is reported.
 | This file | `START_HERE.md` |
 | Agent pointer | `AGENTS.md` |
 | Session memory | `MEMORY.md`, `tools/memory_ledger.py` |
+| Covering map (live) | `.audit/briefs/threshold-covering-after-pivot-kill-out.md` |
+| C Stage 0 brief | `.audit/briefs/threshold-cfit-stage0.md` |
 | Cursor method | `.cursor/plugins/pstack-lab`, `.cursor/rules/` |
+| Fable/Sol append rules | `.codex/always-on-rules.md` |
+| R2 backup | `tools/r2_backup.sh`, keys in `.secrets/rclone-r2.conf` |
 | Archived onboarding | `archive/lean-repo-20260825/` (STATE, DIRECTIVES, gates, unlazy) |
 | The plan | `design/entry_reset/ENTRY_PLAN_20260823.md` |
 | Tickets | `design/entry_reset/tickets/` |

@@ -27,9 +27,10 @@ from . import common as C
 from .contracts import (
     CausalEntryExample, EntryScore, RawPrefixRef, SessionRef, Side,
 )
-from .exact_delayed_teacher import (
-    ActionQuery, DayOptionUniverse, ExactDaySolver, PortfolioPrefixCondition,
-    _arrival,
+from .exact_delayed_teacher import _arrival
+from .exact_teacher_solver import ExactDaySolver
+from .exact_teacher_types import (
+    ActionQuery, DayOptionUniverse, PortfolioPrefixCondition,
 )
 from .replay import ReplayOutcome, ScoredArrival, replay
 from .tabular_calibration import (
@@ -784,24 +785,12 @@ class PublicContractTests(unittest.TestCase):
         builder_width=len(COMPONENT_STACK_NAMES)+len(ACTION_STATE_FEATURE_NAMES)
         self.assertEqual(builder_width, 10+len(ACTION_STATE_FEATURE_NAMES))
 
-    def test_neural_runner_is_retired_without_spawn(self):
-        import importlib.util
-        import inspect
-        from .tabular_rehearsal import publish_launch_rehearsal
+    def test_recovery_runner_has_no_neural_phase(self):
         path=C.REPO_ROOT/"tools"/"run_tabular_recovery.py"
         text=path.read_text(encoding="utf-8")
-        self.assertNotIn("engine.entry_v2.neural_sufficiency_production", text)
-        spec=importlib.util.spec_from_file_location(
-            "entry_v2_run_tabular_recovery", path)
-        module=importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        result=module._run_neural(Path("/tmp/unused-neural-root"))
-        self.assertEqual(result["status"], "RETIRED")
-        self.assertIs(result["spawned_neural_production"], False)
-        self.assertIs(result["neural_escalation_allowed"], False)
-        launch=inspect.getsource(publish_launch_rehearsal)
-        self.assertIn('neural_rehearsal.get("status")!="RETIRED"', launch)
-        self.assertNotIn('neural_rehearsal.get("status")!="PASS"', launch)
+        self.assertNotIn("neural_sufficiency", text)
+        self.assertNotIn("--neural-run-root", text)
+        self.assertNotIn('choices=("status","neural"', text)
 
 
 if __name__ == "__main__":

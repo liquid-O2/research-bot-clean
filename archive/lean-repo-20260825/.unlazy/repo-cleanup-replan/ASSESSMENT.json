@@ -1,0 +1,553 @@
+{
+  "schema_version": 1,
+  "route": "plan-flow",
+  "task": "Rewrite the lossless repository cleanup plan into four execution waves within a 16-hour ceiling, with one defect sweep and one repair batch per wave.",
+  "transition_epoch": 1,
+  "instructions": "Replace every pending status with apply plus decision and evidence, or skip plus reason. Keep names and structure unchanged.",
+  "sections": {
+    "methods": [
+      {
+        "name": "diagnosing-bugs",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "domain-modeling",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "how",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "why",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "architect",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "arena",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "codebase-design",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "tdd",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "implement",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "code-review",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      }
+    ],
+    "pstack_principles": [
+      {
+        "name": "principle-boundary-discipline",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-build-the-lever",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-encode-lessons-in-structure",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-exhaust-the-design-space",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-experience-first",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-fix-root-causes",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-foundational-thinking",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-guard-the-context-window",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-laziness-protocol",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-make-operations-idempotent",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-migrate-callers-then-delete-legacy-apis",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-minimize-reader-load",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-model-the-domain",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-never-block-on-the-human",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-outcome-oriented-execution",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-prove-it-works",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-redesign-from-first-principles",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-separate-before-serializing-shared-state",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-sequence-verifiable-units",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-subtract-before-you-add",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "principle-type-system-discipline",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      }
+    ],
+    "supplemental_principles": [
+      {
+        "name": "pocock-codebase-glossary",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-depth",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-principles",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-testability",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-relationships",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-rejected-framings",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-going-deeper",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-dependencies",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-seams",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-tests",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-design-it-twice",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-good-tests",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-seams",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-antipatterns",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-loop",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-test-quality",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-mocking-boundaries",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-context",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-loads",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-hierarchy",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-completion",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-split",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-leading-words",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-pruning",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "pocock-implementation-checks",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "akita-code-style",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "akita-comments",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "akita-tests",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "akita-dependencies",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "akita-structure",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "akita-formatting",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "akita-logging",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      }
+    ],
+    "foundations": [
+      {
+        "name": "codebase-design",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "diagnosing-bugs",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      },
+      {
+        "name": "domain-modeling",
+        "epoch": 1,
+        "status": "pending",
+        "decision": null,
+        "evidence": null,
+        "reason": null
+      }
+    ]
+  }
+}

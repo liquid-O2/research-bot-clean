@@ -1,0 +1,442 @@
+{
+  "schema_version": 1,
+  "route": "plan-flow",
+  "playbook": "multi-phase-plan",
+  "outer_method": [
+    "plan-flow",
+    "poteto-mode",
+    "playbook:multi-phase-plan"
+  ],
+  "nested_method": {
+    "investigation": [
+      "diagnosing-bugs",
+      "domain-modeling",
+      "how",
+      "why"
+    ],
+    "architecture": [
+      "architect",
+      "arena",
+      "codebase-design"
+    ],
+    "implementation": [
+      "tdd",
+      "pocock-tdd",
+      "implement"
+    ],
+    "review": [
+      "code-review"
+    ]
+  },
+  "standing_laws": [
+    "unlazy",
+    "clean-code-for-agents",
+    "unslop",
+    "writing-for-agents"
+  ],
+  "source_policy": {
+    "pstack_principles": "all-exact",
+    "pocock_principles": "all-exact",
+    "akita_principles": "compatible-exact",
+    "engineering_foundations": "all-exact",
+    "linked_references": "declared-exact"
+  },
+  "linked_references": [
+    {
+      "name": "architect:design-red-flags",
+      "path": ".agents/skills/architect/references/design-red-flags.md",
+      "reason": "Screen changed interfaces before implementation."
+    }
+  ],
+  "gates": ".unlazy/repo-cleanup-plan/GATES.md",
+  "model_policy": {
+    "routine_implementation_model": "gpt-5.6-sol",
+    "routine_implementation_reasoning": "medium",
+    "higher_reasoning_for": [
+      "architecture",
+      "ambiguous failures",
+      "final review"
+    ]
+  },
+  "principles": [
+    {
+      "name": "principle-boundary-discipline",
+      "decision": "Preserve true CLI, filesystem, data, and external-system seams; remove internal validation or adapters only after callers and tests prove them redundant.",
+      "evidence": "The requested cleanup spans tools, data artifacts, workflow hooks, and trading code with distinct system seams."
+    },
+    {
+      "name": "principle-encode-lessons-in-structure",
+      "decision": "Replace repeated operational prose with discoverable config, generated indexes, or checks; retain judgment-heavy decisions in one durable source.",
+      "evidence": "START_HERE.md repeats commands and workflow policy that also exist in scripts, hooks, and AGENTS.md."
+    },
+    {
+      "name": "principle-exhaust-the-design-space",
+      "decision": "Compare at least three target repository shapes before selecting the phased migration.",
+      "evidence": "The whole-repository restructure has no single obvious file layout and plan-flow requires alternatives."
+    },
+    {
+      "name": "principle-experience-first",
+      "decision": "Optimize the entry path for the next agent and maintainer so START_HERE.md answers where to begin without caching discoverable facts.",
+      "evidence": "The user explicitly named START_HERE.md as the universal entry point."
+    },
+    {
+      "name": "principle-foundational-thinking",
+      "decision": "Define the file-liveness classification and target information hierarchy before planning moves or deletions.",
+      "evidence": "Lossless cleanup depends on distinguishing authoritative, generated, reproducible, historical, and dead material."
+    },
+    {
+      "name": "principle-guard-the-context-window",
+      "decision": "Partition exploration by code, documentation, and data or operations, and retain only file pointers and findings in the main thread.",
+      "evidence": "The repository has enough files and long documents to overwhelm one undifferentiated scan."
+    },
+    {
+      "name": "principle-laziness-protocol",
+      "decision": "Prefer deletion, consolidation, and flatter ownership over new layers or replacement documentation.",
+      "evidence": "The user's desired end state is an extremely lean repository with no functionality loss."
+    },
+    {
+      "name": "principle-make-operations-idempotent",
+      "decision": "Require the eventual inventory, move, archive, and delete operations to be dry-runnable and safe after partial completion.",
+      "evidence": "A whole-repository cleanup can be interrupted and must converge without duplicating or losing files."
+    },
+    {
+      "name": "principle-migrate-callers-then-delete-legacy-apis",
+      "decision": "Move imports, command references, documentation pointers, and tests in the same phase that removes each old path.",
+      "evidence": "The user wants the old code gone, and internal callers do not justify compatibility layers."
+    },
+    {
+      "name": "principle-minimize-reader-load",
+      "decision": "Measure cleanup candidates by layers to trace and hidden state to remember, then collapse one-caller wrappers and duplicate knowledge.",
+      "evidence": "START_HERE.md currently asks a newcomer to cross several documents and retain historical state before acting."
+    },
+    {
+      "name": "principle-model-the-domain",
+      "decision": "Represent the audit as a file-liveness registry with ownership, authority, reproducibility, consumers, replacement, and disposition fields.",
+      "evidence": "Scattered keep or delete judgments would otherwise repeat shape assumptions across hundreds of files."
+    },
+    {
+      "name": "principle-never-block-on-the-human",
+      "decision": "Infer reversible planning choices from repository evidence and surface any real product decision in the completed plan instead of pausing the audit.",
+      "evidence": "The user supplied the target, exclusions, and lossless constraint; the remaining work is observable."
+    },
+    {
+      "name": "principle-outcome-oriented-execution",
+      "decision": "Plan explicit verification points that converge on the target tree without permanent redirect files or dual documentation systems.",
+      "evidence": "The requested end state is one clear entry path and a lean tree, not a long compatibility period."
+    },
+    {
+      "name": "principle-prove-it-works",
+      "decision": "Every proposed deletion class needs direct proof from imports, invocations, tests, artifacts, or reproducibility before removal; the final tree needs full checks and smoke runs.",
+      "evidence": "The user made losslessness the acceptance condition."
+    },
+    {
+      "name": "principle-redesign-from-first-principles",
+      "decision": "Design the target repository as if START_HERE.md, durable memory, and the live trading workflow had been foundational, then migrate toward it in checked phases.",
+      "evidence": "The user requested an entire repository restructure rather than local tidying."
+    },
+    {
+      "name": "principle-sequence-verifiable-units",
+      "decision": "Split the cleanup into inventory, retirement, code consolidation, layout migration, documentation compression, and final proof units, each ending in checks.",
+      "evidence": "A repository-wide migration cannot be verified honestly as one batch."
+    },
+    {
+      "name": "principle-subtract-before-you-add",
+      "decision": "Retire dead and reproducible material before introducing the final directory structure or rewriting the remaining documentation.",
+      "evidence": "The user asked to remove useless code and files before polishing the surviving tree."
+    }
+  ],
+  "principle_exclusions": [
+    {
+      "name": "principle-build-the-lever",
+      "reason": "The plan will specify a cleanup manifest and verifier, but building those implementation artifacts now would violate plan-flow."
+    },
+    {
+      "name": "principle-fix-root-causes",
+      "reason": "No defect is being debugged; obsolete-file judgments will use dependency and history evidence instead."
+    },
+    {
+      "name": "principle-separate-before-serializing-shared-state",
+      "reason": "Explorers are read-only and the implementation plan will sequence repository writes; no concurrent mutable target is required."
+    },
+    {
+      "name": "principle-type-system-discipline",
+      "reason": "The planning route defines no production signatures or typed data model; implementation phases will apply this when consolidating typed code."
+    }
+  ],
+  "foundation_assessments": [
+    {
+      "name": "codebase-design",
+      "status": "active",
+      "reason": "Use deep-module vocabulary and the deletion test as the foundation for all restructuring candidates."
+    },
+    {
+      "name": "diagnosing-bugs",
+      "status": "inactive",
+      "reason": "Repository cleanup planning is not a bug diagnosis."
+    },
+    {
+      "name": "domain-modeling",
+      "status": "inactive",
+      "reason": "Existing glossary terms will be consumed; plan-flow will not create or edit domain glossary or ADR files."
+    }
+  ],
+  "skill_selections": [
+    {
+      "name": "domain-modeling",
+      "branch": "investigation",
+      "trigger": "Define lossless, authority, liveness, current state, chronology, recovery, and protected scope precisely before the self-grilling decisions enter the plan.",
+      "decision": "Define lossless, authority, liveness, current state, chronology, recovery, and protected scope precisely before the self-grilling decisions enter the plan.",
+      "evidence": "The user authorized the grilling session, and the cleanup depends on stable meanings for the file-liveness registry and the three-document authority lifecycle."
+    },
+    {
+      "name": "how",
+      "branch": "investigation",
+      "trigger": "Trace entry points, runtime flows, ownership, and dependencies before judging code or files obsolete.",
+      "decision": "Trace entry points, runtime flows, ownership, and dependencies before judging code or files obsolete.",
+      "evidence": ".agents/skills/how/SKILL.md and the user's request to understand the codebase before restructuring it"
+    },
+    {
+      "name": "codebase-design",
+      "branch": "architecture",
+      "trigger": "Judge modules by depth, locality, seam placement, test surface, and the deletion test while producing cleanup candidates.",
+      "decision": "Judge modules by depth, locality, seam placement, test surface, and the deletion test while producing cleanup candidates.",
+      "evidence": ".agents/skills/codebase-design/SKILL.md and .agents/skills/improve-codebase-architecture/SKILL.md"
+    }
+  ],
+  "method_exclusions": [
+    {
+      "name": "diagnosing-bugs",
+      "reason": "The task is a forward-looking repository audit and plan, not a reported failure or performance regression."
+    },
+    {
+      "name": "why",
+      "reason": "The task needs current liveness and dependency evidence, not a sourced reconstruction of one past design decision."
+    },
+    {
+      "name": "architect",
+      "reason": "Plan-flow stops before code crosses function or module interfaces; codebase-design owns the current structural analysis."
+    },
+    {
+      "name": "arena",
+      "reason": "No competing implementation artifacts will be built during this read-only planning route."
+    },
+    {
+      "name": "tdd",
+      "reason": "No production behavior is implemented in plan-flow."
+    },
+    {
+      "name": "pocock-tdd",
+      "reason": "The deliverable is a plan; each implementation phase will name behavior-level verification without running a TDD loop now."
+    },
+    {
+      "name": "implement",
+      "reason": "The selected plan-flow route explicitly stops before implementation."
+    },
+    {
+      "name": "code-review",
+      "reason": "There is no production diff to review; the planning gates inspect the plan artifact instead."
+    }
+  ],
+  "workflow_obligations": [
+    {
+      "id": "plan-flow-1",
+      "method": "plan-flow",
+      "source": "plan-flow",
+      "anchor": "1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely, including its Principles index.",
+      "outcome": "Complete plan-flow step 1.",
+      "depends_on": [],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "plan-flow-2",
+      "method": "plan-flow",
+      "source": "plan-flow",
+      "anchor": "2. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md` and `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/references/plan.md` completely. Those Pstack files own the outer planning sequence and its deliverable.",
+      "outcome": "Complete plan-flow step 2.",
+      "depends_on": [
+        "plan-flow-1"
+      ],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "plan-flow-3",
+      "method": "plan-flow",
+      "source": "plan-flow",
+      "anchor": "3. Run exact Pocock skills only where the Pstack plan needs them. Use `$grilling` with `$domain-modeling` for unresolved decisions, `$research` for facts from primary sources, and `$wayfinder` only when the route is too foggy for one session. Once decisions are settled, use `$to-spec`, then `$to-tickets` when the approved work needs tickets.",
+      "outcome": "Complete plan-flow step 3.",
+      "depends_on": [
+        "plan-flow-2"
+      ],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "plan-flow-4",
+      "method": "plan-flow",
+      "source": "plan-flow",
+      "anchor": "4. Follow every selected skill in full. Return its result to the Pstack planning sequence without combining or rewriting either method.",
+      "outcome": "Complete plan-flow step 4.",
+      "depends_on": [
+        "plan-flow-3"
+      ],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "plan-flow-5",
+      "method": "plan-flow",
+      "source": "plan-flow",
+      "anchor": "5. Deliver the plan and stop. Leave implementation for a later explicit request.",
+      "outcome": "Complete plan-flow step 5.",
+      "depends_on": [
+        "plan-flow-4"
+      ],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "poteto-mode-1",
+      "method": "poteto-mode",
+      "source": "poteto-mode",
+      "anchor": "# Poteto mode",
+      "outcome": "Complete poteto-mode step 1.",
+      "depends_on": [],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "playbook-multi-phase-plan-1",
+      "method": "playbook:multi-phase-plan",
+      "source": "playbook:multi-phase-plan",
+      "anchor": "### Multi-phase or multi-PR plan",
+      "outcome": "Complete playbook:multi-phase-plan step 1.",
+      "depends_on": [],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "unlazy-1",
+      "method": "unlazy",
+      "source": "unlazy",
+      "anchor": "# Unlazy",
+      "outcome": "Complete unlazy step 1.",
+      "depends_on": [],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "clean-code-for-agents-1",
+      "method": "clean-code-for-agents",
+      "source": "clean-code-for-agents",
+      "anchor": "# Clean code for agents",
+      "outcome": "Complete clean-code-for-agents step 1.",
+      "depends_on": [],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "unslop-1",
+      "method": "unslop",
+      "source": "unslop",
+      "anchor": "# Unslop",
+      "outcome": "Complete unslop step 1.",
+      "depends_on": [],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "writing-for-agents-1",
+      "method": "writing-for-agents",
+      "source": "writing-for-agents",
+      "anchor": "## Context pointers",
+      "outcome": "Complete writing-for-agents step 1.",
+      "depends_on": [],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "domain-modeling-1",
+      "method": "domain-modeling",
+      "source": "domain-modeling",
+      "anchor": "# Domain Modeling",
+      "outcome": "Complete domain-modeling step 1.",
+      "depends_on": [],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "how-1",
+      "method": "how",
+      "source": "how",
+      "anchor": "# How",
+      "outcome": "Complete how step 1.",
+      "depends_on": [],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "codebase-design-1",
+      "method": "codebase-design",
+      "source": "codebase-design",
+      "anchor": "# Codebase Design",
+      "outcome": "Complete codebase-design step 1.",
+      "depends_on": [],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    }
+  ],
+  "method_coverage": [
+    {
+      "method": "plan-flow",
+      "source": "plan-flow",
+      "mode": "all-top-level-numbered"
+    },
+    {
+      "method": "poteto-mode",
+      "source": "poteto-mode",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "playbook:multi-phase-plan",
+      "source": "playbook:multi-phase-plan",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "unlazy",
+      "source": "unlazy",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "clean-code-for-agents",
+      "source": "clean-code-for-agents",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "unslop",
+      "source": "unslop",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "writing-for-agents",
+      "source": "writing-for-agents",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "domain-modeling",
+      "source": "domain-modeling",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "how",
+      "source": "how",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "codebase-design",
+      "source": "codebase-design",
+      "mode": "declared-anchors"
+    }
+  ]
+}

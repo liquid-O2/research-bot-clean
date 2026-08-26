@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-"""Check Python against the checkable half of the Akita block in AGENTS.md.
+"""Check Python types and exception messages. Shape is not a fail gate.
 
-The contract caps files at 500 lines and functions at 4 to 20, asks for two
-levels of nesting, explicit types, and exception messages that carry the
-offending value. Those are decidable, so they are decided here.
+File length, function length, nesting, and re-export barrels used to fail
+here. Agents split to clear those fails and ignored the principle leaves.
+Principles own shape. This tool does not.
 
-The half that needs a reader stays with `code-review`: whether a comment records
-a why, whether a dependency is injected, whether a name is specific. This tool
-reports those as reviewer items rather than pretending to judge them.
-
-Default scope is the current diff, which is what the Akita rule itself asks for:
-audit the final diff, not the tree.
+It still flags missing or vague types, and exception messages that name no
+value. Default scope is the current diff, which is why a clean working tree
+prints PASS while the package is still a mess.
 """
 
 from __future__ import annotations
@@ -22,15 +19,6 @@ import subprocess
 import sys
 from typing import Iterator, Sequence, TextIO
 
-# Length and nesting are production-code rules. A test method holds one whole
-# scenario, and splitting it to fit a cap separates a fixture from its use,
-# which makes the test worse rather than better. Types and exception messages
-# still apply everywhere, because those help a reader in any file.
-SHAPE_EXEMPT = ("tests/", "test_", "_test.py", "/fixtures/")
-MAX_FILE_LINES = 500
-MAX_FUNCTION_LINES = 20
-MAX_NESTING = 2
-NESTING_NODES = (ast.If, ast.For, ast.While, ast.With, ast.Try, ast.AsyncFor, ast.AsyncWith)
 VAGUE_TYPES = {"Any"}
 # Control flow, not error reporting: these carry no offending value by design.
 CONTROL_EXCEPTIONS = {"SystemExit", "StopIteration", "StopAsyncIteration", "KeyboardInterrupt"}
@@ -39,6 +27,7 @@ REVIEWER_ITEMS = (
     "Dependencies arrive through a parameter, not a global or an import.",
     "Names are specific enough to return few matches when grepped.",
     "Every new function has a test, and every fix has a regression test.",
+    "Shape (file length, function length, nesting, barrels) is a principle decision, not a lint fail.",
 )
 
 
@@ -69,64 +58,9 @@ def collect_files(targets: Sequence[str]) -> list[Path]:
     return [path for path in files if path.is_file() and path.suffix == ".py"]
 
 
-def body_span(node: ast.AST) -> int:
-    """Return how many lines a definition occupies."""
-    end = getattr(node, "end_lineno", None)
-    start = getattr(node, "lineno", None)
-    return (end - start + 1) if end and start else 0
-
-
 def is_definition(node: ast.AST) -> bool:
     """Report whether a node defines a function."""
     return isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-
-
-def docstring_lines(node: ast.AST) -> int:
-    """Return how many lines a definition spends on its docstring."""
-    body = getattr(node, "body", [])
-    if not body or not isinstance(body[0], ast.Expr):
-        return 0
-    value = body[0].value
-    if not isinstance(value, ast.Constant) or not isinstance(value.value, str):
-        return 0
-    return body_span(body[0])
-
-
-def code_lines(node: ast.AST) -> int:
-    """Return a definition's line count, excluding its docstring."""
-    return body_span(node) - docstring_lines(node)
-
-
-def check_length(path: Path, node: ast.AST) -> Iterator[Finding]:
-    """Flag a function over the twenty line cap, docstring excluded."""
-    lines = code_lines(node)
-    if lines <= MAX_FUNCTION_LINES:
-        return
-    name = getattr(node, "name", "?")
-    yield Finding(str(path), node.lineno, "function-too-long",
-                  f"{name} is {lines} code lines, over the {MAX_FUNCTION_LINES} line cap. "
-                  "Split it by responsibility.")
-
-
-def depth_of(node: ast.AST, depth: int = 0) -> int:
-    """Return the deepest nesting level inside one function body."""
-    deepest = depth
-    for child in ast.iter_child_nodes(node):
-        if is_definition(child) or isinstance(child, ast.ClassDef):
-            continue
-        step = depth + 1 if isinstance(child, NESTING_NODES) else depth
-        deepest = max(deepest, depth_of(child, step))
-    return deepest
-
-
-def check_nesting(path: Path, node: ast.AST) -> Iterator[Finding]:
-    """Flag a function nested deeper than two levels."""
-    depth = depth_of(node)
-    if depth <= MAX_NESTING:
-        return
-    yield Finding(str(path), node.lineno, "nesting-too-deep",
-                  f"{getattr(node, 'name', '?')} nests {depth} levels, over {MAX_NESTING}. "
-                  "Use an early return.")
 
 
 def annotation_name(annotation: ast.expr | None) -> str:
@@ -188,37 +122,13 @@ def check_raises(path: Path, tree: ast.AST) -> Iterator[Finding]:
                           "Exception message carries no offending value or expected shape.")
 
 
-def check_file_length(path: Path, source: str) -> Iterator[Finding]:
-    """Flag a file over the line cap."""
-    lines = len(source.splitlines())
-    if lines <= MAX_FILE_LINES:
-        return
-    yield Finding(str(path), 1, "file-too-long",
-                  f"{lines} lines, over the {MAX_FILE_LINES} line cap. "
-                  "Split it by responsibility.")
-
-
-def definition_findings(path: Path, tree: ast.AST, exempt: bool = False) -> list[Finding]:
-    """Return every per-function finding in one parsed file."""
+def definition_findings(path: Path, tree: ast.AST) -> list[Finding]:
+    """Return type findings for every function in one parsed file."""
     findings: list[Finding] = []
     for node in ast.walk(tree):
         if is_definition(node):
-            findings.extend(node_findings(path, node, exempt))
+            findings.extend(check_types(path, node))
     return findings
-
-
-def node_findings(path: Path, node: ast.AST, exempt: bool) -> list[Finding]:
-    """Return the findings for one definition, honouring the shape exemption."""
-    findings = list(check_types(path, node))
-    if exempt:
-        return findings
-    return [*check_length(path, node), *check_nesting(path, node), *findings]
-
-
-def shape_exempt(path: Path) -> bool:
-    """Report whether the length and nesting caps apply to this file."""
-    name = path.as_posix()
-    return any(marker in name or path.name.startswith("test_") for marker in SHAPE_EXEMPT)
 
 
 def lint_file(path: Path) -> list[Finding]:
@@ -228,9 +138,7 @@ def lint_file(path: Path) -> list[Finding]:
         tree = ast.parse(source)
     except SyntaxError as error:
         return [Finding(str(path), error.lineno or 1, "syntax-error", str(error))]
-    findings = [*check_raises(path, tree), *definition_findings(path, tree, shape_exempt(path))]
-    if not shape_exempt(path):
-        findings.extend(check_file_length(path, source))
+    findings = [*check_raises(path, tree), *definition_findings(path, tree)]
     return sorted(findings, key=lambda row: (row.path, row.line))
 
 

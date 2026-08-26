@@ -20,4 +20,4 @@ A pod restart resets `/` (overlay): catboost, scipy, pandas, scikit-learn, pyarr
 `UV_LINK_MODE=copy ~/.local/bin/uv pip install --python /usr/bin/python3 --system --break-system-packages --prefix ~/.local "catboost==1.2.10" "numpy==2.1.2" scipy scikit-learn threadpoolctl safetensors joblib jsonschema zstandard databento-dbn`
 (zstandard + databento-dbn: the port_m0 substrate the A1/corpus path imports — found missing on the second relaunch; sweep with an import loop over engine/entry_v2 before any launch.)
 (`--prefix ~/.local`: the system dist-packages is root-owned; the user site is what `python3` imports from.)
-Then `bash tools/run_all_checks.sh --fast` before any run. The qrdisc native `.so` rebuilds itself on first load (cmake/g++ present in the image).
+Then `bash tools/run_all_checks.sh --fast` before any run. The qrdisc native `.so` rebuilds itself on first load (`g++` is present in the image).

@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "route": "plan-flow",
+  "playbook": "multi-phase-plan",
+  "gates": ".unlazy/entry-v2-recovery-plan/GATES.md",
+  "outer_method": [
+    "plan-flow",
+    "poteto-mode",
+    "playbook:multi-phase-plan"
+  ],
+  "nested_method": {
+    "investigation": [
+      "diagnosing-bugs",
+      "how",
+      "research",
+      "swarm"
+    ],
+    "design": [
+      "domain-modeling",
+      "codebase-design"
+    ],
+    "planning": [
+      "to-spec"
+    ],
+    "documentation": [
+      "technical-writing",
+      "show-me-your-work"
+    ],
+    "verification": [
+      "control-cli"
+    ]
+  },
+  "method_composition": {
+    "owners": [
+      "pstack",
+      "pocock"
+    ],
+    "applies_to": [
+      "planning"
+    ],
+    "akita": "compatible-only"
+  },
+  "model_policy": {
+    "codex": {
+      "routine_implementation_model": "gpt-5.6-sol",
+      "routine_implementation_reasoning": "high"
+    }
+  },
+  "skill_selections": [
+    {
+      "name": "diagnosing-bugs",
+      "branch": "investigation",
+      "trigger": "the live entry policy misses every dollar target",
+      "decision": "Require a red-capable receipt that measures the present shortfall and the information-versus-payoff trade at each allowed confirmation age.",
+      "evidence": "diagnostics/location_ranker_20260823.json and the final plan gates"
+    },
+    {
+      "name": "how",
+      "branch": "investigation",
+      "trigger": "the corpus, event, selector, and replay paths span several modules",
+      "decision": "Trace each path from raw sessions to chronological replay before choosing a seam.",
+      "evidence": ".unlazy/entry-v2-recovery-plan/findings/execution-path.md"
+    },
+    {
+      "name": "research",
+      "branch": "investigation",
+      "trigger": "the diagnosis depends on local primary artifacts and source code",
+      "decision": "Audit every causal claim against the artifact or code that owns it.",
+      "evidence": "design/entry_reset/55-entry-v2-recovery-plan/evidence.md"
+    },
+    {
+      "name": "swarm",
+      "branch": "investigation",
+      "trigger": "the planning playbook requires parallel codebase exploration",
+      "decision": "Partition execution, evidence, and frontier analysis into three disjoint reports and require a result from every slice.",
+      "evidence": ".unlazy/entry-v2-recovery-plan/findings"
+    },
+    {
+      "name": "domain-modeling",
+      "branch": "design",
+      "trigger": "cell, candidate lifecycle, observation, commit decision, and outcome read must stay distinct",
+      "decision": "Use the repository's exact terms and reject any hypothesis that conflates cell conditioning, event localization, confirmation, and outcome evaluation.",
+      "evidence": "START_HERE.md and plan data structures"
+    },
+    {
+      "name": "codebase-design",
+      "branch": "design",
+      "trigger": "each causal signal family needs a testable seam without forcing one data source into the policy",
+      "decision": "Identify the smallest existing interface that can compare time-valid observation sequences and commit times without making one signal family foundational.",
+      "evidence": "the alternatives and phase files in the final plan"
+    },
+    {
+      "name": "to-spec",
+      "branch": "planning",
+      "trigger": "the evidence must become an implementation-ready contract",
+      "decision": "State user outcomes, implementation decisions, test seams, and exclusions before ticket work.",
+      "evidence": "design/entry_reset/55-entry-v2-recovery-plan/overview.md"
+    },
+    {
+      "name": "technical-writing",
+      "branch": "documentation",
+      "trigger": "the deliverable is a multi-file technical plan",
+      "decision": "Keep the overview explanatory and every phase file action-oriented.",
+      "evidence": "design/entry_reset/55-entry-v2-recovery-plan"
+    },
+    {
+      "name": "show-me-your-work",
+      "branch": "documentation",
+      "trigger": "the plan resolves a long sequence of failed approaches",
+      "decision": "Keep an append-only decision trail with artifact pointers.",
+      "evidence": "/tmp/entry-v2-recovery-plan.tsv"
+    },
+    {
+      "name": "control-cli",
+      "branch": "verification",
+      "trigger": "corpus construction and replay run through command-line entry points",
+      "decision": "Require deterministic CLI receipts for the pilot, build, join, and final replay phases.",
+      "evidence": "design/entry_reset/55-entry-v2-recovery-plan/testing.md"
+    }
+  ],
+  "standing_laws": [
+    "unlazy",
+    "clean-code-for-agents",
+    "unslop",
+    "writing-for-agents"
+  ],
+  "testing_choice": {
+    "selected": [
+      "diagnosing-bugs",
+      "control-cli"
+    ],
+    "reason": "The current policy has saved replay receipts and the open frontier has deterministic command-line entry points."
+  },
+  "engagement": {
+    "mode": "exact-source-packet",
+    "required": [
+      "router",
+      "poteto-mode-with-principles-index",
+      "selected-playbook",
+      "standing-laws",
+      "nested-method-sources",
+      "selected-principle-leaves"
+    ],
+    "rearm_after": [
+      "compact",
+      "clear",
+      "source-digest-change"
+    ]
+  },
+  "principles": [
+    {
+      "name": "principle-fix-root-causes",
+      "decision": "Separate the missing selector information from already disproved generator, leverage, and model explanations.",
+      "evidence": "START_HERE.md sections 2 through 5"
+    },
+    {
+      "name": "principle-laziness-protocol",
+      "decision": "Do not rerun closed searches or wire the R6 speed path before the exact oracle path exceeds its cap.",
+      "evidence": "design/entry_reset/ENTRY_PLAN_20260823.md"
+    },
+    {
+      "name": "principle-foundational-thinking",
+      "decision": "Freeze the candidate lifecycle, observation sequence, commit decision, and replay data shapes before testing a policy.",
+      "evidence": "the final plan's phase data structures"
+    },
+    {
+      "name": "principle-redesign-from-first-principles",
+      "decision": "Design the entry-policy experiment around causal information available by a chosen short commit time, with formation-time entry as one control.",
+      "evidence": "the final plan's hypothesis map"
+    },
+    {
+      "name": "principle-subtract-before-you-add",
+      "decision": "Retire circular age limits and closed location stories before extending the data plane.",
+      "evidence": "tickets 46 and 54 plus T44_TAUTOLOGY_AUDIT_20260823.md"
+    },
+    {
+      "name": "principle-minimize-reader-load",
+      "decision": "Make one overview own the diagnosis, scope, alternatives, and ordered phase links.",
+      "evidence": "design/entry_reset/55-entry-v2-recovery-plan/overview.md"
+    },
+    {
+      "name": "principle-outcome-oriented-execution",
+      "decision": "Sequence toward an exact replay verdict and avoid temporary compatibility work that cannot change that verdict.",
+      "evidence": "the final plan's phase order"
+    },
+    {
+      "name": "principle-exhaust-the-design-space",
+      "decision": "Compare structurally distinct ways to localize a top-two event, including short confirmation, forward volatility, and non-regime paths.",
+      "evidence": "the final plan's alternatives"
+    },
+    {
+      "name": "principle-build-the-lever",
+      "decision": "Ship a rerunnable plan verifier and command oracles with the plan.",
+      "evidence": "design/entry_reset/55-entry-v2-recovery-plan/verify_plan.py and GATES.md"
+    },
+    {
+      "name": "principle-model-the-domain",
+      "decision": "Represent cell value, candidate lifecycle, event identity, time-valid observations, commit decisions, and sealed outcome reads as separate records.",
+      "evidence": "the final plan's data structures"
+    },
+    {
+      "name": "principle-boundary-discipline",
+      "decision": "Validate each external observation once at its time-aware join, then pass trusted observations to pure policy scoring.",
+      "evidence": "the observation-boundary phase"
+    },
+    {
+      "name": "principle-type-system-discipline",
+      "decision": "Give formation time, observation time, event age, commit time, signal family, and outcome-read state distinct fields.",
+      "evidence": "the causal observation schema"
+    },
+    {
+      "name": "principle-make-operations-idempotent",
+      "decision": "Require corpus shards and receipts to converge after interruption or retry.",
+      "evidence": "the corpus build phases"
+    },
+    {
+      "name": "principle-migrate-callers-then-delete-legacy-apis",
+      "decision": "Move every corpus caller to the extended age contract and remove the teacher-only delay refusal in one phase.",
+      "evidence": "ticket 46 and the age-grid phase"
+    },
+    {
+      "name": "principle-separate-before-serializing-shared-state",
+      "decision": "Give corpus shards separate outputs and merge only their immutable receipts.",
+      "evidence": "the corpus build phase"
+    },
+    {
+      "name": "principle-prove-it-works",
+      "decision": "Require pilot, observation, confirmation-age, policy, and replay receipts from their real command paths.",
+      "evidence": "design/entry_reset/55-entry-v2-recovery-plan/testing.md"
+    },
+    {
+      "name": "principle-sequence-verifiable-units",
+      "decision": "End every phase with a receipt that unlocks the next phase.",
+      "evidence": "the final plan's phase dependencies"
+    },
+    {
+      "name": "principle-guard-the-context-window",
+      "decision": "Split architecture, evidence, and frontier exploration into file-backed findings before synthesis.",
+      "evidence": ".unlazy/entry-v2-recovery-plan/findings"
+    },
+    {
+      "name": "principle-never-block-on-the-human",
+      "decision": "Resolve observable questions from code and receipts while preserving the user's fixed dollar goal and sealed-data rules.",
+      "evidence": "START_HERE.md and MEMORY.md"
+    },
+    {
+      "name": "principle-encode-lessons-in-structure",
+      "decision": "Turn nulls, entry-price controls, read limits, and resolution thresholds into executable protocol checks.",
+      "evidence": "the protocol and testing files"
+    }
+  ],
+  "owns": [
+    ".unlazy/entry-v2-recovery-plan/**",
+    "design/entry_reset/55-entry-v2-recovery-plan/**"
+  ]
+}

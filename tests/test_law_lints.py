@@ -13,14 +13,11 @@ from io import StringIO
 from pathlib import Path
 import sys
 import tempfile
-from types import ModuleType
 import unittest
-from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
-import brief_lint  # noqa: E402
 import clean_code_lint  # noqa: E402
 import unslop_lint  # noqa: E402
 
@@ -167,9 +164,6 @@ class CommandLineTests(unittest.TestCase):
 
 Q3 = chr(34) * 3
 DIRTY_CODE = {
-    "function-too-long": "def f(a: int) -> int:\n" + "    a += 1\n" * 25 + "    return a\n",
-    "nesting-too-deep": ("def f(a: int) -> int:\n    if a:\n        for _ in range(a):\n"
-                         "            while a:\n                a -= 1\n    return a\n"),
     "missing-parameter-type": "def f(a) -> int:\n    return 1\n",
     "missing-return-type": "def f(a: int):\n    return 1\n",
     "vague-type": "from typing import Any\ndef f(a: Any) -> int:\n    return 1\n",
@@ -182,13 +176,6 @@ CLEAN_CODE = (
     '        raise TypeError(f"left must be an int, got {left!r}")\n'
     "    return left + right\n"
 )
-GOOD_BRIEF = ("You are a subagent. Don't run memo.\n"
-              "Own: tools/x.py\n"
-              "You are not alone in the codebase.\n"
-              "Do not revert others' edits.\n"
-              "Acceptance check: the named test passes.\n")
-
-
 def code_rules(source: str) -> set[str]:
     """Return the clean-code rules one snippet trips."""
     with tempfile.TemporaryDirectory() as raw:
@@ -210,47 +197,25 @@ class CleanCodeRuleTests(unittest.TestCase):
         source = "def f() -> int:\n    raise SystemExit(1)\n"
         self.assertNotIn("opaque-exception", code_rules(source))
 
-    def test_a_long_file_is_flagged(self) -> None:
-        source = "x = 1\n" * (clean_code_lint.MAX_FILE_LINES + 1)
-        self.assertIn("file-too-long", code_rules(source))
+    def test_shape_caps_do_not_fail(self) -> None:
+        long_fn = "def f(a: int) -> int:\n" + "    a += 1\n" * 25 + "    return a\n"
+        nested = ("def f(a: int) -> int:\n    if a:\n        for _ in range(a):\n"
+                  "            while a:\n                a -= 1\n    return a\n")
+        barrel = 'from .other import Foo\n__all__ = ["Foo"]\n'
+        long_file = "x = 1\n" * 501
+        for source in (long_fn, nested, barrel, long_file):
+            rules = code_rules(source)
+            self.assertNotIn("function-too-long", rules)
+            self.assertNotIn("nesting-too-deep", rules)
+            self.assertNotIn("pass-through-module", rules)
+            self.assertNotIn("file-too-long", rules)
 
-    def test_the_shipped_harness_passes_its_own_rule(self) -> None:
-        findings = [row for path in sorted((ROOT / ".claude/hooks").glob("*.py"))
-                    for row in clean_code_lint.lint_file(path)]
+    def test_the_shipped_lints_pass_their_own_rule(self) -> None:
+        shipped = ("memory_ledger.py", "unslop_lint.py", "unslop_rules.py",
+                   "clean_code_lint.py")
+        findings = [row for name in shipped
+                    for row in clean_code_lint.lint_file(ROOT / "tools" / name)]
         self.assertEqual([row.message for row in findings], [])
-
-
-class BriefLintTests(unittest.TestCase):
-    def test_a_complete_brief_passes(self) -> None:
-        self.assertEqual(brief_lint.main(["-"], StringIO(GOOD_BRIEF), StringIO()), 0)
-
-    def test_a_cached_foreign_hook_module_cannot_change_the_lint(self) -> None:
-        foreign = ModuleType("shell_reading")
-        with patch.dict(sys.modules, {"shell_reading": foreign}):
-            status = brief_lint.main(["-"], StringIO(GOOD_BRIEF), StringIO())
-        self.assertEqual(status, 0)
-
-    def test_each_missing_element_is_reported(self) -> None:
-        removals = ("You are a subagent. Don't run memo.\n", "Own: tools/x.py\n",
-                    "You are not alone in the codebase.\n", "Do not revert others' edits.\n",
-                    "Acceptance check: the named test passes.\n")
-        for line in removals:
-            with self.subTest(missing=line.strip()):
-                output = StringIO()
-                status = brief_lint.main(["-"], StringIO(GOOD_BRIEF.replace(line, "")), output)
-                self.assertEqual(status, 1)
-                self.assertIn("BRIEF FAIL", output.getvalue())
-
-    def test_an_unslopped_brief_is_reported(self) -> None:
-        output = StringIO()
-        brief = GOOD_BRIEF + "Of course! This is a testament to the work.\n"
-        self.assertEqual(brief_lint.main(["-"], StringIO(brief), output), 1)
-        self.assertIn("unslop", output.getvalue())
-
-    def test_a_failure_prints_the_checklist(self) -> None:
-        output = StringIO()
-        brief_lint.main(["-"], StringIO("do it"), output)
-        self.assertIn("A brief must carry", output.getvalue())
 
 
 if __name__ == "__main__":

@@ -1,0 +1,1529 @@
+{
+  "block_tag": "E1R_raw_THRESHOLD",
+  "candidate_columns": [
+    "candidate_id",
+    "asset",
+    "d8",
+    "phase",
+    "decision_ts_ns",
+    "compliance_status",
+    "frozen_cost_usd",
+    "side",
+    "entry_mid2",
+    "rung_mask"
+  ],
+  "causal_lines": [
+    "pivot_leg_with",
+    "pivot_leg_against",
+    "pivot_retrace_max",
+    "pivot_retrace_min",
+    "pivot_age_max",
+    "pivot_age_min",
+    "pivot_legdur_max",
+    "pivot_legdur_min"
+  ],
+  "dollar_stop": {
+    "applied": "KILL because all eight causal lines and envelope_pivot8 miss the 2021 dollar rungs. The unfitted pivot-geometry family is closed.",
+    "causal_lines_clearing": [],
+    "drawdown_limit_usd": 1000.0,
+    "entry_cap": 12,
+    "envelope_pivot8_clears": false,
+    "required_overlap_violations": 0,
+    "required_trades_min": 1,
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "verbatim": "- **KILL at stage 1.** All eight causal lines and `envelope_pivot8` miss every rung on the 2021 THRESHOLD block. The unfitted pivot-geometry family is closed without spending an era read. The remaining forks are late ages (B) against the single fitted read (C respecified over geometry plus `rung_mask`, `delay`, and the twelve dead instruments), decided by a new covering map, not another unfitted scan. A 2021 clear promotes nothing; it only unlocks stage 2.",
+    "verdict": "KILL"
+  },
+  "envelope_pivot8": {
+    "cash_total_usd": {
+      "HG": 23253.75,
+      "NKD": 15497.5,
+      "SI": 22252.5
+    },
+    "clears_full_threshold": false,
+    "clears_rungs": false,
+    "clears_stage1_dollar_gate": false,
+    "days": {
+      "HG": 13,
+      "NKD": 13,
+      "SI": 12
+    },
+    "entry_cap": 12,
+    "entry_cap_ok": true,
+    "entry_price_twin_cells": 112,
+    "entry_price_twin_match_rate": 0.017857142857142856,
+    "entry_price_twin_matches": 2,
+    "max_drawdown_usd": 0.0,
+    "max_entries_portfolio_day": 9,
+    "overlap_violations": 0,
+    "per_trade_mean_usd": 564.8495370370371,
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "shortfall_usd": {
+      "HG": 211.25,
+      "NKD": 307.8846153846155
+    },
+    "trades": 108,
+    "usd_per_asset_day": {
+      "HG": 1788.75,
+      "NKD": 1192.1153846153845,
+      "SI": 1854.375
+    }
+  },
+  "label": "eight frozen causal pivot-geometry name rules on the 2021 THRESHOLD block, plus the exploratory hindsight envelope_pivot8 family bound. Teacher-cash can kill and cannot promote.",
+  "lines": {
+    "pivot_age_max": {
+      "cash_total_usd": {
+        "HG": -8601.25,
+        "NKD": -4095.0,
+        "SI": 2630.0
+      },
+      "clears_full_threshold": false,
+      "clears_rungs": false,
+      "clears_stage1_dollar_gate": false,
+      "days": {
+        "HG": 13,
+        "NKD": 13,
+        "SI": 12
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "entry_price_twin_cells": 113,
+      "entry_price_twin_match_rate": 0.061946902654867256,
+      "entry_price_twin_matches": 7,
+      "max_drawdown_usd": 10317.5,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -89.08185840707965,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2661.6346153846152,
+        "NKD": 1815.0,
+        "SI": 1280.8333333333333
+      },
+      "trades": 113,
+      "usd_per_asset_day": {
+        "HG": -661.6346153846154,
+        "NKD": -315.0,
+        "SI": 219.16666666666666
+      }
+    },
+    "pivot_age_min": {
+      "cash_total_usd": {
+        "HG": -1213.75,
+        "NKD": 1292.5,
+        "SI": -6652.5
+      },
+      "clears_full_threshold": false,
+      "clears_rungs": false,
+      "clears_stage1_dollar_gate": false,
+      "days": {
+        "HG": 13,
+        "NKD": 13,
+        "SI": 12
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "entry_price_twin_cells": 113,
+      "entry_price_twin_match_rate": 0.017699115044247787,
+      "entry_price_twin_matches": 2,
+      "max_drawdown_usd": 9682.5,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -58.174778761061944,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2093.3653846153848,
+        "NKD": 1400.576923076923,
+        "SI": 2054.375
+      },
+      "trades": 113,
+      "usd_per_asset_day": {
+        "HG": -93.36538461538461,
+        "NKD": 99.42307692307692,
+        "SI": -554.375
+      }
+    },
+    "pivot_leg_against": {
+      "cash_total_usd": {
+        "HG": 2661.25,
+        "NKD": -4870.0,
+        "SI": -3290.0
+      },
+      "clears_full_threshold": false,
+      "clears_rungs": false,
+      "clears_stage1_dollar_gate": false,
+      "days": {
+        "HG": 13,
+        "NKD": 13,
+        "SI": 12
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "entry_price_twin_cells": 113,
+      "entry_price_twin_match_rate": 0.02654867256637168,
+      "entry_price_twin_matches": 3,
+      "max_drawdown_usd": 8406.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -48.66150442477876,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 1795.2884615384614,
+        "NKD": 1874.6153846153848,
+        "SI": 1774.1666666666667
+      },
+      "trades": 113,
+      "usd_per_asset_day": {
+        "HG": 204.71153846153845,
+        "NKD": -374.61538461538464,
+        "SI": -274.1666666666667
+      }
+    },
+    "pivot_leg_with": {
+      "cash_total_usd": {
+        "HG": -2995.0,
+        "NKD": -3157.5,
+        "SI": -3665.0
+      },
+      "clears_full_threshold": false,
+      "clears_rungs": false,
+      "clears_stage1_dollar_gate": false,
+      "days": {
+        "HG": 13,
+        "NKD": 13,
+        "SI": 12
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "entry_price_twin_cells": 113,
+      "entry_price_twin_match_rate": 0.05309734513274336,
+      "entry_price_twin_matches": 6,
+      "max_drawdown_usd": 10298.75,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -86.88053097345133,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2230.3846153846152,
+        "NKD": 1742.8846153846155,
+        "SI": 1805.4166666666667
+      },
+      "trades": 113,
+      "usd_per_asset_day": {
+        "HG": -230.3846153846154,
+        "NKD": -242.8846153846154,
+        "SI": -305.4166666666667
+      }
+    },
+    "pivot_legdur_max": {
+      "cash_total_usd": {
+        "HG": 2248.75,
+        "NKD": 1005.0,
+        "SI": 1585.0
+      },
+      "clears_full_threshold": false,
+      "clears_rungs": false,
+      "clears_stage1_dollar_gate": false,
+      "days": {
+        "HG": 13,
+        "NKD": 13,
+        "SI": 12
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "entry_price_twin_cells": 113,
+      "entry_price_twin_match_rate": 0.02654867256637168,
+      "entry_price_twin_matches": 3,
+      "max_drawdown_usd": 2912.5,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": 42.82079646017699,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 1827.0192307692307,
+        "NKD": 1422.6923076923076,
+        "SI": 1367.9166666666667
+      },
+      "trades": 113,
+      "usd_per_asset_day": {
+        "HG": 172.98076923076923,
+        "NKD": 77.3076923076923,
+        "SI": 132.08333333333334
+      }
+    },
+    "pivot_legdur_min": {
+      "cash_total_usd": {
+        "HG": -7557.5,
+        "NKD": -2982.5,
+        "SI": 805.0
+      },
+      "clears_full_threshold": false,
+      "clears_rungs": false,
+      "clears_stage1_dollar_gate": false,
+      "days": {
+        "HG": 13,
+        "NKD": 13,
+        "SI": 12
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "entry_price_twin_cells": 113,
+      "entry_price_twin_match_rate": 0.04424778761061947,
+      "entry_price_twin_matches": 5,
+      "max_drawdown_usd": 15280.0,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -86.15044247787611,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2581.346153846154,
+        "NKD": 1729.423076923077,
+        "SI": 1432.9166666666667
+      },
+      "trades": 113,
+      "usd_per_asset_day": {
+        "HG": -581.3461538461538,
+        "NKD": -229.42307692307693,
+        "SI": 67.08333333333333
+      }
+    },
+    "pivot_retrace_max": {
+      "cash_total_usd": {
+        "HG": -2001.25,
+        "NKD": -3195.0,
+        "SI": -4690.0
+      },
+      "clears_full_threshold": false,
+      "clears_rungs": false,
+      "clears_stage1_dollar_gate": false,
+      "days": {
+        "HG": 13,
+        "NKD": 13,
+        "SI": 12
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "entry_price_twin_cells": 113,
+      "entry_price_twin_match_rate": 0.061946902654867256,
+      "entry_price_twin_matches": 7,
+      "max_drawdown_usd": 12331.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -87.48893805309734,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2153.9423076923076,
+        "NKD": 1745.7692307692307,
+        "SI": 1890.8333333333333
+      },
+      "trades": 113,
+      "usd_per_asset_day": {
+        "HG": -153.94230769230768,
+        "NKD": -245.76923076923077,
+        "SI": -390.8333333333333
+      }
+    },
+    "pivot_retrace_min": {
+      "cash_total_usd": {
+        "HG": -382.5,
+        "NKD": -1020.0,
+        "SI": -6395.0
+      },
+      "clears_full_threshold": false,
+      "clears_rungs": false,
+      "clears_stage1_dollar_gate": false,
+      "days": {
+        "HG": 13,
+        "NKD": 13,
+        "SI": 12
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "entry_price_twin_cells": 113,
+      "entry_price_twin_match_rate": 0.017699115044247787,
+      "entry_price_twin_matches": 2,
+      "max_drawdown_usd": 10162.5,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -69.00442477876106,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2029.423076923077,
+        "NKD": 1578.4615384615386,
+        "SI": 2032.9166666666665
+      },
+      "trades": 113,
+      "usd_per_asset_day": {
+        "HG": -29.423076923076923,
+        "NKD": -78.46153846153847,
+        "SI": -532.9166666666666
+      }
+    }
+  },
+  "n_dense_feature_bytes_read": 0,
+  "n_era_bytes_read": 0,
+  "n_forecast_rows_read": 0,
+  "peek_note": "Candidate-side inputs widen to G1's own pre-decision confirmation state. Teacher parse stays candidate_id, status, cert_close_usd, exit_ts_ns. This is a kill instrument and cannot promote.",
+  "pivot_columns": [
+    "candidate_id",
+    "asset",
+    "d8",
+    "rung_index",
+    "side",
+    "pivot_mid2",
+    "pivot_ts_recv_ns",
+    "pivot_ordinal",
+    "leg_start_mid2",
+    "leg_start_ts_recv_ns",
+    "leg_start_ordinal",
+    "conf_mid2",
+    "threshold_mid2_raw"
+  ],
+  "pivot_rung_selection": "lowest fired rung_index per candidate_id",
+  "rule": "On every joinable 20210721 through 20210806 dense-store THRESHOLD asset-day, join each CLEAR G1 candidate to its lowest fired QRE2G1PIVOT1 rung. Apply the eight frozen pivot-geometry rules with ties on maximum decision_ts_ns then smallest candidate_id. Pick one contract per cell. Cash is cert_close_usd on READY. The hindsight envelope enters only a positive READY pick. A 2021 clear promotes nothing.",
+  "rules": {
+    "pivot_age_max": "Argmax of decision_ts_ns - pivot_ts_recv_ns.",
+    "pivot_age_min": "Argmin of decision_ts_ns - pivot_ts_recv_ns.",
+    "pivot_leg_against": "Argmin of side times (pivot_mid2 - leg_start_mid2).",
+    "pivot_leg_with": "Argmax of side times (pivot_mid2 - leg_start_mid2).",
+    "pivot_legdur_max": "Argmax of pivot_ts_recv_ns - leg_start_ts_recv_ns.",
+    "pivot_legdur_min": "Argmin of pivot_ts_recv_ns - leg_start_ts_recv_ns.",
+    "pivot_retrace_max": "Argmax of abs(pivot_mid2 - conf_mid2) divided by abs(pivot_mid2 - leg_start_mid2).",
+    "pivot_retrace_min": "Argmin of abs(pivot_mid2 - conf_mid2) divided by abs(pivot_mid2 - leg_start_mid2)."
+  },
+  "schema": "QRE2THRESHOLDPIVOTSTAGE11",
+  "sources": {
+    "candidates_root": "artifacts/cache/port/entry_v2/g1/candidates",
+    "covering_brief": {
+      "path": ".audit/briefs/threshold-covering-after-tape-kill-out.md",
+      "sha256": "917bfa84b0e71c418b35f2bd84f14ecbb0ac8da008f8e1fa8ae8eb7817e31d4e"
+    },
+    "dense_store_root": "artifacts/entry_v2/tabular_recovery/dense_store",
+    "feature_rank_receipt": {
+      "path": ".audit/threshold-feature-rank.json",
+      "schema": "QRE2THRESHOLDFEATURERANK1",
+      "sha256": "6810df423541eed1a8154682f541395add926234914e3a47c65d540b0abe1b81"
+    },
+    "joined_artifacts": [
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210721.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210721.candidates.json",
+          "sha256": "9b05fe34d9d5306b73d2148f3f96c083bd0fe091138c0262aed5d8b261fc0ffe"
+        },
+        "d8": 20210721,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/2f86a973fbc7b1e9a6e06c2b81cf2d6253afd359f7a58a8f91bbc554422f7b6a/HG/20210721.npz",
+          "identity": "2f86a973fbc7b1e9a6e06c2b81cf2d6253afd359f7a58a8f91bbc554422f7b6a",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/2f86a973fbc7b1e9a6e06c2b81cf2d6253afd359f7a58a8f91bbc554422f7b6a/HG/20210721.json",
+            "sha256": "f6494a1544a10dd8c870a232d0691e80d8fcd516e6babf29b44cfa534a3171c3"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 204,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210721.tsv",
+          "sha256": "7b7d63d23a42c81119fcc04b16165364085171a35656d5b9e01014cafede6410"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210721.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210721.teacher.json",
+          "sha256": "4aba0f6d4ff834a54511f939f8317347e2b1965481190905426271589290ed04"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210721.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210721.candidates.json",
+          "sha256": "9b6d623f867858896ae06573ee001c49c3c24648f7734f1c35c1517bbcc32d4e"
+        },
+        "d8": 20210721,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/285b7a3696521f49ac59ed32aa27d0eca003a9bd91092bbbd9d2c42908f11ffa/NKD/20210721.npz",
+          "identity": "285b7a3696521f49ac59ed32aa27d0eca003a9bd91092bbbd9d2c42908f11ffa",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/285b7a3696521f49ac59ed32aa27d0eca003a9bd91092bbbd9d2c42908f11ffa/NKD/20210721.json",
+            "sha256": "5d3876c613884339e39a3a88604566551623fcbb3a28c8356af59dbfec180b81"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 268,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210721.tsv",
+          "sha256": "9863b0dbc90bd74a1db568a9070d53a5676ae862919e127c472e3a11553b69b4"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210721.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210721.teacher.json",
+          "sha256": "c0f9e2680bfda7e35efb617486f8034fcd7ba0b27c10527107a505ee0796889b"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210721.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210721.candidates.json",
+          "sha256": "9438ff310ada7e0fb8558a391419f5b28c7aec3b5c9f5c795d2c168ec34565dd"
+        },
+        "d8": 20210721,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/6de6f8a2b92514437af8d2c08ecb262db4394d360e13a938c3a715323dfc4e33/SI/20210721.npz",
+          "identity": "6de6f8a2b92514437af8d2c08ecb262db4394d360e13a938c3a715323dfc4e33",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/6de6f8a2b92514437af8d2c08ecb262db4394d360e13a938c3a715323dfc4e33/SI/20210721.json",
+            "sha256": "e109c28e7c4ce38748a44ea9945919965c12169e4baf0e37b45854be0a5f5212"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 269,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210721.tsv",
+          "sha256": "f1da24815654fe24225b5a6de3030381e30a7896588cafbc5c84969e3918485e"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210721.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210721.teacher.json",
+          "sha256": "5846d99f5baf37e81c1301d024e77272c8a5f65e1617c4f1ecea5976c4767984"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210722.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210722.candidates.json",
+          "sha256": "d1b22855c60b8027010bea25d637f1b6920e3f8c1ed217c37a1ca117898a64d7"
+        },
+        "d8": 20210722,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/776dfe559ec047b529001497b554e31210ce1594dacf3d0c08fd38a0a6489cc4/HG/20210722.npz",
+          "identity": "776dfe559ec047b529001497b554e31210ce1594dacf3d0c08fd38a0a6489cc4",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/776dfe559ec047b529001497b554e31210ce1594dacf3d0c08fd38a0a6489cc4/HG/20210722.json",
+            "sha256": "8faa49dc817c6e4bc727ae59f031d08af3e61a7fef80a3d9251f728c278f52ff"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 229,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210722.tsv",
+          "sha256": "5993edab22ea9bcf2d03565c616ca839c4d973d81a0936a87f273db9a7133bb1"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210722.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210722.teacher.json",
+          "sha256": "3e31d2d3e1c56aab4cbff102809d7c065844e0d41123282b4f3a945a90f2b93a"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210722.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210722.candidates.json",
+          "sha256": "ca9a398f99368a5f3a6b208a9dcfca1db3b721b26d7663ec4c1b3deb2813320f"
+        },
+        "d8": 20210722,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/ad7c58a066f6f980c01f150a3d0be988afc15cf211996fd3775c7c7fba67be33/NKD/20210722.npz",
+          "identity": "ad7c58a066f6f980c01f150a3d0be988afc15cf211996fd3775c7c7fba67be33",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/ad7c58a066f6f980c01f150a3d0be988afc15cf211996fd3775c7c7fba67be33/NKD/20210722.json",
+            "sha256": "c386e5753a6fa7314502141a8c56dc6fdabedbb84dad1bd3637ce83572b52376"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 135,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210722.tsv",
+          "sha256": "7fff454dc4484b49c54ecd698e4fa61e0d579660a6a9b18886e8a5481cf46694"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210722.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210722.teacher.json",
+          "sha256": "50a9be01ade712e6e0ef0ccb0b17e36c5e0dd5f79b97b82f5472627f5587d108"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210722.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210722.candidates.json",
+          "sha256": "3da075a8bb1f058e09040a36399c7b5a2dd8fbefd8de55f9f01c938c617a24dd"
+        },
+        "d8": 20210722,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/4ff5af29a278da59d2cd1136c3863d227ecf820b61c67b369d6327adfc8e6807/SI/20210722.npz",
+          "identity": "4ff5af29a278da59d2cd1136c3863d227ecf820b61c67b369d6327adfc8e6807",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/4ff5af29a278da59d2cd1136c3863d227ecf820b61c67b369d6327adfc8e6807/SI/20210722.json",
+            "sha256": "d6a7a04540ba4a2296839aad85707445d314886db5b815b237e57f513d0f884e"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 213,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210722.tsv",
+          "sha256": "c11663a34232896a6153bf501622b61b5d9651344b543cce09216e3be7e28cf8"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210722.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210722.teacher.json",
+          "sha256": "51c93bc00ea94830da1e4941b722fdb4d2ef8d2d83010c8fb0728f3f18ecd0f4"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210723.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210723.candidates.json",
+          "sha256": "056e896318e0298dacd48c90031b58c28487f5f14dd49ead3e328513c41679f8"
+        },
+        "d8": 20210723,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/496a3c65aab9032e2038ea4a11773df5514c131d280328b1462c57c51014b4a6/HG/20210723.npz",
+          "identity": "496a3c65aab9032e2038ea4a11773df5514c131d280328b1462c57c51014b4a6",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/496a3c65aab9032e2038ea4a11773df5514c131d280328b1462c57c51014b4a6/HG/20210723.json",
+            "sha256": "cd2a4d5eb235abcd2b0d777567fc26f095cfdc87bb29678181a930604bacfeb5"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 305,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210723.tsv",
+          "sha256": "43fe60cb741e962b1e643668443f28fa0d6eea3de3aef46b88725ffa4f2658d2"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210723.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210723.teacher.json",
+          "sha256": "3f848c5032e3338b953134e3c230da54004d10589c730c51ba952744e1547c57"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210723.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210723.candidates.json",
+          "sha256": "96ab56e0e9f1591c406cd8862f13ebb7efd115473475c370dbd0459d1177abf8"
+        },
+        "d8": 20210723,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/ea24599f001d024b90922d4b20962bcc3377dcc81019371f66497d1bf50d4606/NKD/20210723.npz",
+          "identity": "ea24599f001d024b90922d4b20962bcc3377dcc81019371f66497d1bf50d4606",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/ea24599f001d024b90922d4b20962bcc3377dcc81019371f66497d1bf50d4606/NKD/20210723.json",
+            "sha256": "ee57fd1de262ca19789101bb1288ebe53a1b56be2bf1a3dbb0af5ae79f8d904d"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 110,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210723.tsv",
+          "sha256": "fffcbec547f9119077816b1645584cc606f78067519b4b364d99f7feb20b6b11"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210723.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210723.teacher.json",
+          "sha256": "cd9b5434966698f39a1b370489abfad1059baf1c62d0554d1e1e6fc26cf75c75"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210723.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210723.candidates.json",
+          "sha256": "3dee9e8e63147744a7fe5225f5cda0dfb8668958a4f269bc1ab0d37639c705e2"
+        },
+        "d8": 20210723,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/b8eaf0b9721eb857eba2b71bff7b0125f309ee7eef8f57376fa5810d27b14d6b/SI/20210723.npz",
+          "identity": "b8eaf0b9721eb857eba2b71bff7b0125f309ee7eef8f57376fa5810d27b14d6b",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/b8eaf0b9721eb857eba2b71bff7b0125f309ee7eef8f57376fa5810d27b14d6b/SI/20210723.json",
+            "sha256": "af4e5d3f29f76b0aab8d18ee63504115a233409fcd03f690cab4d5e7e057eda7"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 187,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210723.tsv",
+          "sha256": "966a480beb58c4207d5b8759803f1103e15f8bcac6562324aee065feba9dbe12"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210723.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210723.teacher.json",
+          "sha256": "4205e10a1c6ac431044f27ebfc9e2f9f1c63a10b9211f8e9deda339804cb8e69"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210726.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210726.candidates.json",
+          "sha256": "d2f9711b60a3c7cbfd2d12a00ada9d35ed91cf5f66f85c526a597bd523740d5b"
+        },
+        "d8": 20210726,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/06d775ca68bad5aeefe9e14017615bba956ab8bc60f4915210af043bfe16a8e3/HG/20210726.npz",
+          "identity": "06d775ca68bad5aeefe9e14017615bba956ab8bc60f4915210af043bfe16a8e3",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/06d775ca68bad5aeefe9e14017615bba956ab8bc60f4915210af043bfe16a8e3/HG/20210726.json",
+            "sha256": "0145b47105d505752486d7973da41b409c53dac9962dea8153b86ec8a6180257"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 478,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210726.tsv",
+          "sha256": "9692067e81ce04cc267792a4a7df7e9c2078c491facfad1b649b83d26a125178"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210726.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210726.teacher.json",
+          "sha256": "6ec54c7bdaca6675279083012187c44e461b2353ba707e85ae972de2b9f472f9"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210726.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210726.candidates.json",
+          "sha256": "0ba864b37b034961f739e28dcb4daea705f964f172cbb7e67a739d5499521852"
+        },
+        "d8": 20210726,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/000a065c4b7197a600e94f791e2b673a29d1eea5b579261b17887bbb9e75eca7/NKD/20210726.npz",
+          "identity": "000a065c4b7197a600e94f791e2b673a29d1eea5b579261b17887bbb9e75eca7",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/000a065c4b7197a600e94f791e2b673a29d1eea5b579261b17887bbb9e75eca7/NKD/20210726.json",
+            "sha256": "b3b091f54ff6ec64b6db308f83b93c424c7ac59d6a72d8f1c0d62dc6236a6785"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 282,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210726.tsv",
+          "sha256": "ef8b2b1b0ae22fb04e8d784aa47fd159f488ad339674d81cebb68b024afd4ed8"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210726.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210726.teacher.json",
+          "sha256": "6cdf2504b5ac26944ab6763f8a21429935ca215e748d752b03d9406977fef040"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210726.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210726.candidates.json",
+          "sha256": "bf82761ee0a6f6b82e0aef759d6bfd0e90786bd76eae8ae9f80372e045f4f770"
+        },
+        "d8": 20210726,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/c45b0219d7fe814a6f0c3dd18cd1b2306898b3c092fec78eaf28651311a60551/SI/20210726.npz",
+          "identity": "c45b0219d7fe814a6f0c3dd18cd1b2306898b3c092fec78eaf28651311a60551",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/c45b0219d7fe814a6f0c3dd18cd1b2306898b3c092fec78eaf28651311a60551/SI/20210726.json",
+            "sha256": "d1874a0b38fda6fdb527279645d8598ec1a944ca255cdac008bc389d8d5571f7"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 3,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210726.tsv",
+          "sha256": "9088870a58f4b41a92e6981f944e882ab1eeccd02ac1151475b745bd60ed038d"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210726.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210726.teacher.json",
+          "sha256": "b36f1d0201a7ba510b7bc8c8b0012759589c284b4528cd35f75724a40327870c"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210727.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210727.candidates.json",
+          "sha256": "d51f9045aa5da4c4e6602c1edb212781ebb1795410fb7bc78a2eba33fde473c4"
+        },
+        "d8": 20210727,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/e295c2410d52b242b1b9b510605f1e978530f2ce5b0dafd432c0998fa129baaa/HG/20210727.npz",
+          "identity": "e295c2410d52b242b1b9b510605f1e978530f2ce5b0dafd432c0998fa129baaa",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/e295c2410d52b242b1b9b510605f1e978530f2ce5b0dafd432c0998fa129baaa/HG/20210727.json",
+            "sha256": "8b4c1973e69bb0d44849e7ee1700ac6b493e1d60b73b6f27773372146ecce9b7"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 411,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210727.tsv",
+          "sha256": "310874430671f0d459b623bf31c293732b6e2d8b6de0b6dc7ec692335594ee48"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210727.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210727.teacher.json",
+          "sha256": "b076b78bacb12f820c874c086e67e473361357f889e73e7de576bb9a2e060561"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210727.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210727.candidates.json",
+          "sha256": "b3d15beb21865fa0a514500db6141b20a36179b78415cbb4ca99076e956d5189"
+        },
+        "d8": 20210727,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/1d12144d56a363511e7f4d04b8e185fe866b743705ccf8217dbadd015c0a426d/NKD/20210727.npz",
+          "identity": "1d12144d56a363511e7f4d04b8e185fe866b743705ccf8217dbadd015c0a426d",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/1d12144d56a363511e7f4d04b8e185fe866b743705ccf8217dbadd015c0a426d/NKD/20210727.json",
+            "sha256": "6e6259d15e546ee493857614dda82ce2c52a15e6a27446f511816f666f2d191c"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 402,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210727.tsv",
+          "sha256": "87b2dea5d029285a5ec45c47938b157a7feafd3ba37c0fa26d67abbbe0f936e9"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210727.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210727.teacher.json",
+          "sha256": "fdb652cb6b7f6e438bdc0a0463734d50a973b076f8ea93c08fa2b902d2a440a4"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210727.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210727.candidates.json",
+          "sha256": "74ed6ac8607a9bbd0d79065ba6a1f875fb8b86abc605fac682ad9f30b839e2e5"
+        },
+        "d8": 20210727,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/6c949d5868f89e1bafee47520daaf5d03da653fbfd9698102af7b49f28751921/SI/20210727.npz",
+          "identity": "6c949d5868f89e1bafee47520daaf5d03da653fbfd9698102af7b49f28751921",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/6c949d5868f89e1bafee47520daaf5d03da653fbfd9698102af7b49f28751921/SI/20210727.json",
+            "sha256": "a8858c8fb0bfd31b7cc63aa5a750c858d661e3b3445ca491049984d644a1fb0f"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 264,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210727.tsv",
+          "sha256": "bc3a3c666a4a79e03a36c08aeedd350c7df7798ee65b0091edf52dcfe1cc147a"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210727.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210727.teacher.json",
+          "sha256": "9e7744b5670719b6efb64ca3aa68f6b18b226d5f0bf867634040bde987cab296"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210728.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210728.candidates.json",
+          "sha256": "a77100d907b0387c11559fd1748e86532f1de1579b3aab8b99b36d52b52f3168"
+        },
+        "d8": 20210728,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/097c77159a747f00696b83d24b378f9cd618154159fdf8901e3ba72a29e3420a/HG/20210728.npz",
+          "identity": "097c77159a747f00696b83d24b378f9cd618154159fdf8901e3ba72a29e3420a",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/097c77159a747f00696b83d24b378f9cd618154159fdf8901e3ba72a29e3420a/HG/20210728.json",
+            "sha256": "41a213183daf378cc34e21f3cf235318fa65430be1b68074825d6f4d2698a821"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 374,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210728.tsv",
+          "sha256": "7f229880fd5af07d4a7dbbb1def62968996b1f3323625d989308be9517829b11"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210728.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210728.teacher.json",
+          "sha256": "57ecc0b5e0cbf28cbe088a4e258fe3c3044ce536679bf682d5a08123fd508661"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210728.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210728.candidates.json",
+          "sha256": "a3991b2b17d9f5626562b4650f6e93dc8f893706f51ada86291d5662947d9a9c"
+        },
+        "d8": 20210728,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/b41b89ea2704c89c55b3bd3400074aeba79eb6cbf83d09d4220051cffe48e4db/NKD/20210728.npz",
+          "identity": "b41b89ea2704c89c55b3bd3400074aeba79eb6cbf83d09d4220051cffe48e4db",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/b41b89ea2704c89c55b3bd3400074aeba79eb6cbf83d09d4220051cffe48e4db/NKD/20210728.json",
+            "sha256": "9cda705a0088d9a91ca04ddfbb71596812cbb9c0e9ee8599f16b7bd4b7d1553e"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 294,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210728.tsv",
+          "sha256": "3ec68626bf47981362a263647d5e799aac33a56fe126d27c6510a08ce83c3f47"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210728.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210728.teacher.json",
+          "sha256": "3081f00726bd6246e73cf83136b4eb591dda095c4634ad4bf67ded74eae85c0c"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210728.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210728.candidates.json",
+          "sha256": "cb0156e55c9b75cf54ee3e0adfb39d9b9a1e30fd84a9f05debdbb47dde05f4dc"
+        },
+        "d8": 20210728,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/0f4ba6dbb3553e98d28750877ad822a0d5a8ba3e1a00edd6c498f976ec322697/SI/20210728.npz",
+          "identity": "0f4ba6dbb3553e98d28750877ad822a0d5a8ba3e1a00edd6c498f976ec322697",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/0f4ba6dbb3553e98d28750877ad822a0d5a8ba3e1a00edd6c498f976ec322697/SI/20210728.json",
+            "sha256": "90e9217f29134743e29f286219edc2c14f252029205024f662c7167ac9f15419"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 282,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210728.tsv",
+          "sha256": "5efd5c31b5a1a3e2dfd248ab089e60aad1f3ef329490b2b2a4958c5bc1880daf"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210728.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210728.teacher.json",
+          "sha256": "322d8189e33705b0da55a983b2adc3d5210a17f29829a69c4f90287182152f2b"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210729.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210729.candidates.json",
+          "sha256": "5a5656f4867a90d09c9e18cdbf3de448862e5648f7ee6006e10cf0b617ec63c9"
+        },
+        "d8": 20210729,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/9a98ec1e5cc045ca16ee2a865d3ebc7dd81dd195bb68bf0339d83d8f12b539cb/HG/20210729.npz",
+          "identity": "9a98ec1e5cc045ca16ee2a865d3ebc7dd81dd195bb68bf0339d83d8f12b539cb",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/9a98ec1e5cc045ca16ee2a865d3ebc7dd81dd195bb68bf0339d83d8f12b539cb/HG/20210729.json",
+            "sha256": "37830f6a32349a5290ec9466aa748d658680b00b41bdf7d0fce26dd9a6b13a04"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 206,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210729.tsv",
+          "sha256": "7b92cc2df21b7f80251010dce885f4202b4cade476f1cea78d5e2f344ec0d4df"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210729.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210729.teacher.json",
+          "sha256": "f7ffc9e096e704e97052d3bc8a227ff2f64a43039035a83ce19600dd6c889e20"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210729.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210729.candidates.json",
+          "sha256": "223d2d28ae591af15e0ed06f6e391283150b0f21e910e200ab01a83028ae1a41"
+        },
+        "d8": 20210729,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/6a3127088cb23456eee75a7eb4e73b76a99fd117d8067778acac325010fbec7c/NKD/20210729.npz",
+          "identity": "6a3127088cb23456eee75a7eb4e73b76a99fd117d8067778acac325010fbec7c",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/6a3127088cb23456eee75a7eb4e73b76a99fd117d8067778acac325010fbec7c/NKD/20210729.json",
+            "sha256": "b67a073f7860dc845473b5f3acaf63f91ba34d53c6b95e4dfd132dfbc7994f83"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 174,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210729.tsv",
+          "sha256": "8f08fc1f758c346a2c33f5b05212f09a7955c57ddcaf9897f996f17b2997de98"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210729.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210729.teacher.json",
+          "sha256": "4a84530f0b3f4e8ba48d58fcb17961dac2c03f271b2177a02fa3b3f73c84f43a"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210729.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210729.candidates.json",
+          "sha256": "be306080824ed40cb7dd36576819f4200de9326f926e8bcdd651b324987b008c"
+        },
+        "d8": 20210729,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/15171ec4e8de8d7473ac5a6ad7733961a01750a85e36cba4f18943de5113d6e7/SI/20210729.npz",
+          "identity": "15171ec4e8de8d7473ac5a6ad7733961a01750a85e36cba4f18943de5113d6e7",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/15171ec4e8de8d7473ac5a6ad7733961a01750a85e36cba4f18943de5113d6e7/SI/20210729.json",
+            "sha256": "c208517558dfca4b86284bf2e399af94af67be8741f9f9c70b8eabe71b00fd77"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 251,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210729.tsv",
+          "sha256": "6a45516b33c5b82098e30ae3cd2107e2af0f8c412d859548b747779f6d37b5f1"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210729.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210729.teacher.json",
+          "sha256": "0647fa6c5daa6c76575a08718a131aca02a80961773a13e8decda522de40f63d"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210730.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210730.candidates.json",
+          "sha256": "c1fae218d0693a27cc8d7356ef3c2fb598051bd438a6ba9de6eb050e560fed11"
+        },
+        "d8": 20210730,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/6dd0bc5a9af2c8f38b023737c06c24ebfb1d558994adbaab99d4ee69e51305da/HG/20210730.npz",
+          "identity": "6dd0bc5a9af2c8f38b023737c06c24ebfb1d558994adbaab99d4ee69e51305da",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/6dd0bc5a9af2c8f38b023737c06c24ebfb1d558994adbaab99d4ee69e51305da/HG/20210730.json",
+            "sha256": "5f7c422394a16bcab69f32d8edb6767e68abb07527c7a7e792b73a536f81b52e"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 322,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210730.tsv",
+          "sha256": "4ed50a933247a82b95abd956f63012b3c7262fed41fa6d6c4e0a39d51ba9e6a9"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210730.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210730.teacher.json",
+          "sha256": "c83f9aeef9fac27773b6dd4cf56628badca37f1fd00c9432e2631fb829fb8a2d"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210730.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210730.candidates.json",
+          "sha256": "b315c4cb2fe3a997a7aa7dd939c0563465fd093454681405864a0e245ee5bc94"
+        },
+        "d8": 20210730,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/7c0ab434c825d4c6753fa752878e57f65c86ecaf2ddce8e491be94aeabd47084/NKD/20210730.npz",
+          "identity": "7c0ab434c825d4c6753fa752878e57f65c86ecaf2ddce8e491be94aeabd47084",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/7c0ab434c825d4c6753fa752878e57f65c86ecaf2ddce8e491be94aeabd47084/NKD/20210730.json",
+            "sha256": "1956f77b55488aa89e8fc32c23ec771614d4e773b3ad614357aba2ef8031c46c"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 401,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210730.tsv",
+          "sha256": "04ed49ceccc6860d2aaa24958cc500590b4f431d60efe55593a37339791c3210"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210730.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210730.teacher.json",
+          "sha256": "e239a92b52d5811d24ba6baf9b4efbffa23fa854907454cfcaa9fea8db1bdc87"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210730.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210730.candidates.json",
+          "sha256": "15d285913bcfeec05d956f33dd9a1c8a12b115474e81898599c30d37b9a54ad5"
+        },
+        "d8": 20210730,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/0eae6b9da3478e0589b0650a6fcfdd626f24d1c5774b2e9f2c7ed41da00df393/SI/20210730.npz",
+          "identity": "0eae6b9da3478e0589b0650a6fcfdd626f24d1c5774b2e9f2c7ed41da00df393",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/0eae6b9da3478e0589b0650a6fcfdd626f24d1c5774b2e9f2c7ed41da00df393/SI/20210730.json",
+            "sha256": "1dd8fa60b38ef9d1f34954ae9a5b30c1339c0b222596fd4137029cf04047a188"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 181,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210730.tsv",
+          "sha256": "6a9c228a2796817db0b244a728a2b57d851bda83332800557347e4c2c3298dbb"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210730.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210730.teacher.json",
+          "sha256": "73ebde4796bd34ed64d4ef9b408db80f46e85bd7d7ecf472df625052b9a6cee0"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210802.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210802.candidates.json",
+          "sha256": "6f2fbb89cb43266c612775fa324cee01acaca5895436025c4fee08881d6e6eee"
+        },
+        "d8": 20210802,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/7c13d7a70bc1ae338301e44928cea6ceb7f10e54a253f23eb4617a7b3cd4e8cc/HG/20210802.npz",
+          "identity": "7c13d7a70bc1ae338301e44928cea6ceb7f10e54a253f23eb4617a7b3cd4e8cc",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/7c13d7a70bc1ae338301e44928cea6ceb7f10e54a253f23eb4617a7b3cd4e8cc/HG/20210802.json",
+            "sha256": "4b6e4b5e957107a40cbbeb8f46001792e6220d2810c1a627c9b2f758470001d9"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 268,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210802.tsv",
+          "sha256": "c360b38e8cfe50e5d80e7075cf8c443c6c4f298a0ce2b8f8ac94d55871095b0b"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210802.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210802.teacher.json",
+          "sha256": "b5eb92e2936c79c6db5fa838565ce637244f405dc594505d49c74c50baf8d6ce"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210802.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210802.candidates.json",
+          "sha256": "4cf35c3be7364c13201a212d60189009c94bc6f7a88df427d2a889f624c2a6e4"
+        },
+        "d8": 20210802,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/4bce799a0ac86ad270e86b7e7de856bc3956331e4dc493e5cd69af73789c92bf/NKD/20210802.npz",
+          "identity": "4bce799a0ac86ad270e86b7e7de856bc3956331e4dc493e5cd69af73789c92bf",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/4bce799a0ac86ad270e86b7e7de856bc3956331e4dc493e5cd69af73789c92bf/NKD/20210802.json",
+            "sha256": "65058fd51925fa39bee81135be492d0141ca315a5199359a2b5bbfa9fd1844f1"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 201,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210802.tsv",
+          "sha256": "8ad20058ab59fc0ff31fa4382172498fca825e9913160fcc2c846a05d7a9f370"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210802.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210802.teacher.json",
+          "sha256": "58d0dc71f51614eb1c178cd8309653140f526eb85180110bf38ce24acc520b76"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210803.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210803.candidates.json",
+          "sha256": "f946c815a50eb579245b26bd06820846a2e11cc1bceeee576d73b4662ea0d02c"
+        },
+        "d8": 20210803,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/4058c00050d775301fd3f4a14535881b2c25bec60e8fee99a2f33128495579f2/HG/20210803.npz",
+          "identity": "4058c00050d775301fd3f4a14535881b2c25bec60e8fee99a2f33128495579f2",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/4058c00050d775301fd3f4a14535881b2c25bec60e8fee99a2f33128495579f2/HG/20210803.json",
+            "sha256": "6cd5f5e133fd8eb1f084bd6855a4f34196579fc4f343c414147f179f189f4c73"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 242,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210803.tsv",
+          "sha256": "eb0592463392f05a6d0b16b557982198c682743ff56cc89f9c70e1448c5f8fbc"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210803.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210803.teacher.json",
+          "sha256": "55b16a76e3ebfd333421799cea9417e2809d2bc5cfa5a3e6c1a39416aaf9fb16"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210803.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210803.candidates.json",
+          "sha256": "99ced033b4af1772a185446cbc55742e3286350ef7c73947b12df05179b9994f"
+        },
+        "d8": 20210803,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/ba6ee64dc48d9f5190540c7c05e3f39b58ea136985331f42473e464033208eef/NKD/20210803.npz",
+          "identity": "ba6ee64dc48d9f5190540c7c05e3f39b58ea136985331f42473e464033208eef",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/ba6ee64dc48d9f5190540c7c05e3f39b58ea136985331f42473e464033208eef/NKD/20210803.json",
+            "sha256": "4350836add74f806b865dae34521c77ecba3f1144676ba7a26ff79d117895e5a"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 255,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210803.tsv",
+          "sha256": "3c25d7af6aa9f67208b12abe80f2b40bb3ddf77f345bb5e9e5f49b94b68c8b05"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210803.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210803.teacher.json",
+          "sha256": "ad5768a65f8222fb5352c4a96c42bb8c30d9c8679cb257e8f8523ea00fa2fe03"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210803.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210803.candidates.json",
+          "sha256": "481175211492571b62dd64b74a5616297e6b2500b16502a13e80b66b28ffc200"
+        },
+        "d8": 20210803,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/7af3f2194c89f52fc1f83b65c0fbee7eccd7edc7475cf89f4b9763009ca0399e/SI/20210803.npz",
+          "identity": "7af3f2194c89f52fc1f83b65c0fbee7eccd7edc7475cf89f4b9763009ca0399e",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/7af3f2194c89f52fc1f83b65c0fbee7eccd7edc7475cf89f4b9763009ca0399e/SI/20210803.json",
+            "sha256": "a5c08a8cf79d831a88f70457716c81616da1b8aa519ae46de71285ac2d4a1619"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 155,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210803.tsv",
+          "sha256": "2dbc8b8430fbb29a77978a38bc049e6522d7504db2bb370189ab63450793d77a"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210803.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210803.teacher.json",
+          "sha256": "1c32abe298b80f08daea9a7da71daa9bcb3ee06fdf195de04d11f0516c489788"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210804.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210804.candidates.json",
+          "sha256": "a8f87b625889e15eb970f06bc8d6d893c789d7a26794b19d5ff63f51f46d01a7"
+        },
+        "d8": 20210804,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/61c90595452e445b098d75a4c2faaf73313fb7bd8dc348293e22c48cefa459c8/HG/20210804.npz",
+          "identity": "61c90595452e445b098d75a4c2faaf73313fb7bd8dc348293e22c48cefa459c8",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/61c90595452e445b098d75a4c2faaf73313fb7bd8dc348293e22c48cefa459c8/HG/20210804.json",
+            "sha256": "0206c5be4473bdbd091f32976e0737d05f1857e994150b20b6505269c0b1eb48"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 189,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210804.tsv",
+          "sha256": "7e591fa3d3f6e7e7d65995774028131ea3a4b1b3b8b38e8b4b56ea4aefc2aa93"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210804.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210804.teacher.json",
+          "sha256": "a917f98779fb9c6d90e7a12b156cbe6b154c40d04146cc35acb8f118e8bea4f4"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210804.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210804.candidates.json",
+          "sha256": "7eab4120f701f0c65a0af80dbc0d2c4dc746580febb8038ac6f56bb370bd7075"
+        },
+        "d8": 20210804,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/80975a2b53e7212e5139b3ab89773cd72fdffbe2107097065ed03681da29f7be/NKD/20210804.npz",
+          "identity": "80975a2b53e7212e5139b3ab89773cd72fdffbe2107097065ed03681da29f7be",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/80975a2b53e7212e5139b3ab89773cd72fdffbe2107097065ed03681da29f7be/NKD/20210804.json",
+            "sha256": "f8e7b0b957f44341e5678036a164a38b10080f32106f71efabbccb637ad59b3d"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 174,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210804.tsv",
+          "sha256": "a6a5bbfdc9959f5be4d2bc616c425150641511dde40a60cf2dc287ecbe3ae042"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210804.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210804.teacher.json",
+          "sha256": "5e48f8ca4de89154781fa933846a47c4f37a5878f0ea2372fdcf2f73c005a98f"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210804.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210804.candidates.json",
+          "sha256": "27d74b80c7180e81b4e78b95fe3343be8ca71ba964a6144ba96ef8ff3c4e2db0"
+        },
+        "d8": 20210804,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/e3f6a84c15bcaf2d29fea14ad4bfc1067cd1278c3eb642659895ccb203c711ba/SI/20210804.npz",
+          "identity": "e3f6a84c15bcaf2d29fea14ad4bfc1067cd1278c3eb642659895ccb203c711ba",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/e3f6a84c15bcaf2d29fea14ad4bfc1067cd1278c3eb642659895ccb203c711ba/SI/20210804.json",
+            "sha256": "077941e53af04a077b22f25e5d159f71810372c2b6a2841b5daf475d5675a6d2"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 255,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210804.tsv",
+          "sha256": "a56960b70b83fb4e674483c9f2f4aa13a5a59bf8ad8029e2fbd0fe548958d3fc"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210804.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210804.teacher.json",
+          "sha256": "c5b057e4ca78b988b9f80c316d759f2ede7820d106d1914f11880e5ca7053542"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210805.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210805.candidates.json",
+          "sha256": "92f223831db2656cc7409b04469bba22ee7b4dc22de34d4f9882b61d027ff7dc"
+        },
+        "d8": 20210805,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/20d9bbbf886518620b31ac69252e28540e34af3465af9dcb685dbd096d85ea31/HG/20210805.npz",
+          "identity": "20d9bbbf886518620b31ac69252e28540e34af3465af9dcb685dbd096d85ea31",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/20d9bbbf886518620b31ac69252e28540e34af3465af9dcb685dbd096d85ea31/HG/20210805.json",
+            "sha256": "812fa850b21b89fda60a36a77daad06c2e232e92ea0768a388908912d230635d"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 144,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210805.tsv",
+          "sha256": "9659cd9bfcfa0dca14e049e91de863082aade8ddcefbbdd4bf672cb7a6ef5d34"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210805.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210805.teacher.json",
+          "sha256": "bafe716f447570dc975f88c395c5fb3582148719b06c6521e5a6b947aa5710d9"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210805.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210805.candidates.json",
+          "sha256": "9605afb216b6c46f6940d0e189d56548c6f72665ec2d4bff120a6652f398598a"
+        },
+        "d8": 20210805,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/161571a760665e27223a5dda8a0a1cb077c90bd0638104bf10a13827b5928f20/NKD/20210805.npz",
+          "identity": "161571a760665e27223a5dda8a0a1cb077c90bd0638104bf10a13827b5928f20",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/161571a760665e27223a5dda8a0a1cb077c90bd0638104bf10a13827b5928f20/NKD/20210805.json",
+            "sha256": "cc79329e02d36f86bd077a3654578dc45bb8c0e78a3696bf566ac635fbbf4d26"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 155,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210805.tsv",
+          "sha256": "8ae683e031264b1482dd02a3b2fd812708e051497e75d589ee68b6f92b2ba07f"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210805.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210805.teacher.json",
+          "sha256": "78602f3f17faf26dfd99099f2feb3b37771824a2501e9ca1ae2df4a7f00f1f22"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210805.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210805.candidates.json",
+          "sha256": "9153310b20eb4388756edf8a6ff0c04f70ca64340abb32ddaa0f6752f76cd379"
+        },
+        "d8": 20210805,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/214f35066df54a87e41c2e4a0b01805e9d586e9fb4ab78e50e3865361a4f073d/SI/20210805.npz",
+          "identity": "214f35066df54a87e41c2e4a0b01805e9d586e9fb4ab78e50e3865361a4f073d",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/214f35066df54a87e41c2e4a0b01805e9d586e9fb4ab78e50e3865361a4f073d/SI/20210805.json",
+            "sha256": "dbb7e322d6882cac5b06064befc5e56affbc9c8ef9fdbc00fe7c57ba67a5c98c"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 176,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210805.tsv",
+          "sha256": "c2f0564a9b69d6b585aa8d4791f530f8ec65ae9930e45f720d1a2592ccb8ed94"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210805.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210805.teacher.json",
+          "sha256": "a3a92b4c4c150695881b1631f12506158accd1eab2aa87b035252d330302fc23"
+        }
+      },
+      {
+        "asset": "HG",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/HG/20210806.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210806.candidates.json",
+          "sha256": "64bae59265eb305b3ebaead12e32db325f28d3d4b008a9feb9c420d5b741d5df"
+        },
+        "d8": 20210806,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/8c31b16432ba6697bbbbe64b306545c9493e7df9ea0c613637089c683defea12/HG/20210806.npz",
+          "identity": "8c31b16432ba6697bbbbe64b306545c9493e7df9ea0c613637089c683defea12",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/8c31b16432ba6697bbbbe64b306545c9493e7df9ea0c613637089c683defea12/HG/20210806.json",
+            "sha256": "b4d333c79b7cc25e9596ae93a4d7162e03736dd2d0679e01cb8d1ea0486e1ed8"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 216,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/HG/20210806.tsv",
+          "sha256": "b92c3be5068fdcd1a56bdf8e4a87a8e2e30879af521913539c3e8cb918f146e4"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/HG/20210806.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/HG/20210806.teacher.json",
+          "sha256": "eebb4051f46c1d27c74f8ba29e673b4c54dc95139aa910a7d14c56d140e366b7"
+        }
+      },
+      {
+        "asset": "NKD",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/NKD/20210806.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210806.candidates.json",
+          "sha256": "970600447daad92ca240556ef4a6fc8378e7cc12d1b768564b9768defea2f304"
+        },
+        "d8": 20210806,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/080b3ef045dc49cd8fe2ac839f6d98d3aff385ae74474b12c81ae03d2d9b15d2/NKD/20210806.npz",
+          "identity": "080b3ef045dc49cd8fe2ac839f6d98d3aff385ae74474b12c81ae03d2d9b15d2",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/080b3ef045dc49cd8fe2ac839f6d98d3aff385ae74474b12c81ae03d2d9b15d2/NKD/20210806.json",
+            "sha256": "3b6b0834f24aae83b24283805e12892a7ae329087133f6ca0289b87bb0522f4a"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 179,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/NKD/20210806.tsv",
+          "sha256": "84d66e709478deae699d271ebcc8d08e4f53dc68495dba7c61963c8bf355c60f"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/NKD/20210806.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/NKD/20210806.teacher.json",
+          "sha256": "b8921151662fa27ea49f7d69677da90c74a598dae6e6adea4d5931809daf1730"
+        }
+      },
+      {
+        "asset": "SI",
+        "candidates": {
+          "path": "artifacts/cache/port/entry_v2/g1/candidates/SI/20210806.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210806.candidates.json",
+          "sha256": "337b7c39d0d274ed43e48a185dfbf560824c769dc6a878bbc961ebca56841866"
+        },
+        "d8": 20210806,
+        "dense_store": {
+          "artifact_path": "artifacts/entry_v2/tabular_recovery/dense_store/7d18046d38c4fdc99b85b6666819ee62b4d35e52541a8ce3f658c390c0cef008/SI/20210806.npz",
+          "identity": "7d18046d38c4fdc99b85b6666819ee62b4d35e52541a8ce3f658c390c0cef008",
+          "metadata": {
+            "path": "artifacts/entry_v2/tabular_recovery/dense_store/7d18046d38c4fdc99b85b6666819ee62b4d35e52541a8ce3f658c390c0cef008/SI/20210806.json",
+            "sha256": "5dbb8bab4e0cea2144e80e78d75787babec279e45cd75077cebf03854db0f6ac"
+          }
+        },
+        "pivot": {
+          "lowest_fired_rung_rows": 352,
+          "path": "artifacts/cache/port/entry_v2/g1/pivot/SI/20210806.tsv",
+          "sha256": "431664519756c5ff9af1662a03f780624f99acfd9ea339bcc2ba5b5da6a7e101"
+        },
+        "teacher": {
+          "path": "artifacts/cache/port/entry_v2/g1/teacher/SI/20210806.tsv",
+          "receipt": "artifacts/cache/port/entry_v2/g1/receipts/SI/20210806.teacher.json",
+          "sha256": "a0161874c2f9a9a70a5e51b0635e087577dca990fbfec43024ce4251829cfeb4"
+        }
+      }
+    ],
+    "pivot_root": "artifacts/cache/port/entry_v2/g1/pivot",
+    "receipts_root": "artifacts/cache/port/entry_v2/g1/receipts",
+    "script": {
+      "path": ".audit/score_threshold_pivot_name_rules.py",
+      "sha256": "9bcf041f6374fbc464e15d1235c17b45517bda77a5e880cd816fde27d77074de"
+    },
+    "stage0_receipt": {
+      "path": ".audit/threshold-pivot-stage0.json",
+      "schema": "QRE2G1PIVOTSTAGE01",
+      "sha256": "583418d79eb3dee607b71220f86478da7e2da78c21e482786ae1d6fe499b6496",
+      "status": "PASS"
+    },
+    "stage1_brief": {
+      "path": ".audit/briefs/threshold-pivot-stage1.md",
+      "sha256": "3af15fadb2e9cdd1325a7675a7eb635f9ca73c1f93153070462f7276d6cd75fb"
+    },
+    "teacher_root": "artifacts/cache/port/entry_v2/g1/teacher",
+    "threshold_block": {
+      "bounds": [
+        20210721,
+        20210806
+      ],
+      "path": "artifacts/entry_v2/tabular_recovery/rehearsal/fit_only/e1r/evaluation/E1R_raw_THRESHOLD/real/seed_20260820/raw_block.json",
+      "schema": "QRE2TABPOLICYBLOCK2",
+      "sha256": "ce3662c22247bfc988d87a24154b6c2d703a4aa52bd8d69dfb59f9186a7e4f72",
+      "tag": "E1R_raw_THRESHOLD"
+    }
+  },
+  "status": "KILL",
+  "teacher_columns": [
+    "candidate_id",
+    "status",
+    "cert_close_usd",
+    "exit_ts_ns"
+  ],
+  "tie_break": [
+    "max decision_ts_ns",
+    "smallest candidate_id"
+  ],
+  "verdict": "KILL",
+  "verification_commands": {
+    "mutants": [
+      "QRE2_PIVOT_MUTANT=post_flip_leg_used_as_feature python3 .audit/score_threshold_pivot_name_rules.py --selftest",
+      "QRE2_PIVOT_MUTANT=missing_tag_accepted python3 .audit/score_threshold_pivot_name_rules.py --selftest",
+      "QRE2_PIVOT_MUTANT=envelope_includes_non_positive_cell python3 .audit/score_threshold_pivot_name_rules.py --selftest"
+    ],
+    "selftest": "python3 .audit/score_threshold_pivot_name_rules.py --selftest"
+  },
+  "wall_clock_sec": 7.613,
+  "window": [
+    "2021-07-21",
+    "2021-08-06"
+  ],
+  "workers": 14
+}

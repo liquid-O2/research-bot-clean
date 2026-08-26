@@ -1,0 +1,553 @@
+{
+  "schema_version": 1,
+  "route": "implement-flow",
+  "task": "Implement the approved eleven-phase lossless repository cleanup plan while preserving every dot directory and virtual environment as opaque keep zones.",
+  "transition_epoch": 1,
+  "instructions": "Replace every pending status with apply plus decision and evidence, or skip plus reason. Keep names and structure unchanged.",
+  "sections": {
+    "methods": [
+      {
+        "name": "diagnosing-bugs",
+        "epoch": 1,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "This is a planned migration, not a reported defect. Activate it only if a baseline failure exposes a separate bug."
+      },
+      {
+        "name": "domain-modeling",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use one liveness registry and one authority lifecycle model for every file disposition.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "how",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Trace each live subsystem, command, verifier, and data path before changing it.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "why",
+        "epoch": 1,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The approved plan records the relevant rationale. Direct liveness evidence decides implementation."
+      },
+      {
+        "name": "architect",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Design replay, analysis, corpus, registry, and test-dispatch interfaces before editing production code.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "arena",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Compare distinct interface sketches for each one-way module redesign.",
+        "evidence": ".agents/skills/architect/SKILL.md",
+        "reason": null
+      },
+      {
+        "name": "codebase-design",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Judge changed modules by depth, locality, seam placement, and the deletion test.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "tdd",
+        "epoch": 1,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "Implement-flow selects pocock-tdd. Unqualified Pstack TDD does not own this route."
+      },
+      {
+        "name": "pocock-tdd",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use red-green slices at the approved cleanup CLI, registry, dispatcher, replay, corpus, and root seams.",
+        "evidence": "design/repo_cleanup/testing.md",
+        "reason": null
+      },
+      {
+        "name": "implement",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Implement the approved eleven-phase cleanup and run narrow checks plus the final suite.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "code-review",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Review the final diff against standards and the approved cleanup plan as separate axes.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      }
+    ],
+    "pstack_principles": [
+      {
+        "name": "principle-boundary-discipline",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Validate manifests, CLI input, paths, hashes, and recovery only at their owning seams.",
+        "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+        "reason": null
+      },
+      {
+        "name": "principle-build-the-lever",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Build one dry-run cleanup command and verifier instead of editing the repository by hand.",
+        "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+        "reason": null
+      },
+      {
+        "name": "principle-encode-lessons-in-structure",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Replace repeated file laws with registry validation, denial checks, and the test dispatcher.",
+        "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+        "reason": null
+      },
+      {
+        "name": "principle-exhaust-the-design-space",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use architect and arena before accepting replay, analysis, or corpus interface changes.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "principle-experience-first",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Leave the next agent one START_HERE path and the maintainer one owner per fact.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-fix-root-causes",
+        "epoch": 1,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "No defect is under diagnosis at route entry. Apply it if a verification unit enters a debugging loop."
+      },
+      {
+        "name": "principle-foundational-thinking",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Land protection, liveness shapes, and complete verification before deletion.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-guard-the-context-window",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Work phase by phase and delegate bounded, disjoint tasks.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-laziness-protocol",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Prefer proven deletion, consolidation, and existing interfaces over new layers.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-make-operations-idempotent",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Make audit, move, deduplicate, and delete operations dry-runnable and convergent.",
+        "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+        "reason": null
+      },
+      {
+        "name": "principle-migrate-callers-then-delete-legacy-apis",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Move every caller, test, build rule, and pointer with each removed path or interface.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-minimize-reader-load",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Contract the root, remove pass-throughs, and give every fact one canonical home.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-model-the-domain",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Encode liveness, semantic role, recovery, action, and state in typed registry rows.",
+        "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+        "reason": null
+      },
+      {
+        "name": "principle-never-block-on-the-human",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Proceed with reversible verified work and pause only before an unmanifested delete or external write.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-outcome-oriented-execution",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Converge on the target tree without permanent redirects, dual interfaces, or an archive root.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-prove-it-works",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Bind every destructive unit to a recovery, rebuild, identity, or semantic oracle.",
+        "evidence": "design/repo_cleanup/testing.md",
+        "reason": null
+      },
+      {
+        "name": "principle-redesign-from-first-principles",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Separate current state, stable rules, chronology, machine authority, data, and evidence.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-separate-before-serializing-shared-state",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Give workers disjoint write ownership and keep destructive phases under one registry writer.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-sequence-verifiable-units",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Execute eleven ordered phases and keep every completed unit green.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-subtract-before-you-add",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Remove proven safe waste before path moves, module reshaping, and documentation polish.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      },
+      {
+        "name": "principle-type-system-discipline",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use enums and typed rows for liveness states, actions, recovery classes, and interfaces.",
+        "evidence": "design/repo_cleanup/phase-02-liveness-registry.md",
+        "reason": null
+      }
+    ],
+    "supplemental_principles": [
+      {
+        "name": "pocock-codebase-glossary",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use module, interface, seam, adapter, depth, leverage, and locality consistently.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-depth",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Keep replay, analysis, corpus, and dispatch interfaces smaller than hidden knowledge.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-principles",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Apply the deletion test and real-adapter rule before keeping an abstraction.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-testability",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Accept dependencies and test behavior through each module interface.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-relationships",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Place interfaces at seams that concentrate changing knowledge.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-rejected-framings",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Reject line-count depth, transport-type interfaces, and overloaded boundary terminology.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-going-deeper",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Classify dependencies and replace shallow tests with interface tests.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-dependencies",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Classify redesigned dependencies before choosing adapters.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-seams",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Expose seams only when real production and test implementations justify them.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-tests",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Delete retired internal tests after replacement interface tests pass.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-design-it-twice",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Compare at least two distinct interfaces for each deepening candidate.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-good-tests",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Write behavior tests through public interfaces with independent expected values.",
+        "evidence": "design/repo_cleanup/testing.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-seams",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Test the approved cleanup CLI, registry, dispatcher, replay, corpus, and root seams.",
+        "evidence": "design/repo_cleanup/testing.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-antipatterns",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Reject private tests, internal mocks, tautologies, and horizontal test batches.",
+        "evidence": "design/repo_cleanup/testing.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-loop",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Run one failing behavior test, one minimal implementation, and one green proof per slice.",
+        "evidence": "design/repo_cleanup/testing.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-test-quality",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Keep expected values independent and tests stable across internal refactors.",
+        "evidence": "design/repo_cleanup/testing.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-mocking-boundaries",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use named fakes only for filesystem, recovery, time, and true external seams.",
+        "evidence": "design/repo_cleanup/testing.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-context",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use sharp START_HERE pointers and keep branch facts out of always-loaded prose.",
+        "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-loads",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Reduce agent context load and maintainer document-choice load.",
+        "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-hierarchy",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Keep current steps, stable rules, chronology, and exact authority in separate owners.",
+        "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-completion",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Give each retained agent document a checkable purpose and deletion criterion.",
+        "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-split",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Split reference only when a real branch earns a pointer.",
+        "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-leading-words",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use liveness, authority, recovery, and chronology as stable terms.",
+        "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-pruning",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Delete cached facts, duplicate meaning, stale branches, and no-op instructions.",
+        "evidence": "design/repo_cleanup/phase-10-root-contraction.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-implementation-checks",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Run narrow tests throughout and the complete registry at the end.",
+        "evidence": "design/repo_cleanup/testing.md",
+        "reason": null
+      },
+      {
+        "name": "akita-code-style",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Keep touched functions focused, files below 500 lines, names specific, and types explicit.",
+        "evidence": "AGENTS.md",
+        "reason": null
+      },
+      {
+        "name": "akita-comments",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Preserve intent comments and remove narration introduced by this work.",
+        "evidence": "AGENTS.md",
+        "reason": null
+      },
+      {
+        "name": "akita-tests",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Give new behavior independent tests and keep one complete project command.",
+        "evidence": "AGENTS.md",
+        "reason": null
+      },
+      {
+        "name": "akita-dependencies",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Inject external dependencies and hide third-party details behind owned interfaces.",
+        "evidence": "AGENTS.md",
+        "reason": null
+      },
+      {
+        "name": "akita-structure",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use predictable paths and split modules by owned knowledge.",
+        "evidence": "AGENTS.md",
+        "reason": null
+      },
+      {
+        "name": "akita-formatting",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Run each language default formatter over touched production files.",
+        "evidence": "AGENTS.md",
+        "reason": null
+      },
+      {
+        "name": "akita-logging",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Keep diagnostic logs structured and CLI output plain.",
+        "evidence": "AGENTS.md",
+        "reason": null
+      }
+    ],
+    "foundations": [
+      {
+        "name": "codebase-design",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use deep-module design for every interface-changing phase.",
+        "evidence": "design/repo_cleanup/phase-08-deepen-live-modules.md",
+        "reason": null
+      },
+      {
+        "name": "diagnosing-bugs",
+        "epoch": 1,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The work starts as a planned migration, not defect diagnosis."
+      },
+      {
+        "name": "domain-modeling",
+        "epoch": 1,
+        "status": "apply",
+        "decision": "Use liveness and authority models for every disposition.",
+        "evidence": "design/repo_cleanup/overview.md",
+        "reason": null
+      }
+    ]
+  }
+}

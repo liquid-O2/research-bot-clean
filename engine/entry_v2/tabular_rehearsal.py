@@ -19,9 +19,10 @@ from .confirmation_experiment import AuthoritativeConfirmationSessionSpec
 from .contracts import SessionRef
 from .event_pack import EventPack,HEADER_BYTES,ROW_BYTES
 from .exact_delayed_teacher import (
-    DayOptionUniverse,ExactDelayedTeacherDay,replay_exact_teacher_day,
+    ExactDelayedTeacherDay,replay_exact_teacher_day,
     replay_perfect_teacher_actions,
 )
+from .exact_teacher_types import DayOptionUniverse
 from .tabular_action_features import build_action_feature_matrix
 from .tabular_campaign import (
     CachedRecoverySession,CachedTeacherDay,
@@ -277,53 +278,9 @@ def run_real_future_mutation_adversary(*,
         shutil.rmtree(stage,ignore_errors=True)
 
 
-def validate_neural_fit_only_rehearsal(run_root:str|Path)->Mapping[str,object]:
-    """Strictly load the mandatory legacy neural/direct/CatBoost rehearsal."""
-
-    from .neural_sufficiency_production import (
-        ProductionDiagnosticRefusal,_validate_fit_only_rehearsal_gate,
-    )
-    root=Path(run_root).resolve()
-    try:neural_receipt,status=_validate_fit_only_rehearsal_gate(root/"components")
-    except ProductionDiagnosticRefusal as exc:
-        raise RecoveryRefusal("mandatory neural rehearsal is not valid") from exc
-    try:
-        boundary=json.loads((root/"fit-only-rehearsal.json").read_text())
-        reload=json.loads((root/"fit-only-reload.json").read_text())
-    except (OSError,UnicodeError,json.JSONDecodeError) as exc:
-        raise RecoveryRefusal("neural separate-process reload is absent") from exc
-    boundary_core={key:value for key,value in boundary.items()
-                   if key!="receipt_sha256"}
-    reload_core={key:value for key,value in reload.items()
-                 if key!="receipt_sha256"}
-    if (status!="PASS" or boundary.get("status")!="PASS"
-            or boundary.get("held_launch_permitted") is not True
-            or boundary.get("fit_only_rehearsal_sha256")!=neural_receipt
-            or C.object_sha256(boundary_core)!=boundary.get("receipt_sha256")
-            or reload.get("schema")!="entry-v2-fit-only-strict-reload-v1"
-            or reload.get("status")!="PASS"
-            or reload.get("fit_only_boundary_sha256")
-               !=boundary.get("receipt_sha256")
-            or reload.get("producer_process_identity_sha256")
-               ==reload.get("consumer_process_identity_sha256")
-            or reload.get("separate_process_strict_reload") is not True
-            or reload.get("held_stage_started") is not False
-            or reload.get("h2_permit") is not False
-            or C.object_sha256(reload_core)!=reload.get("receipt_sha256")):
-        raise RecoveryRefusal("neural rehearsal/reload gate differs")
-    core={"schema":"QRE2TABNEURALREHEARSALBINDING1",
-        "run_root":str(root),"fit_only_rehearsal_sha256":neural_receipt,
-        "orchestration_boundary_sha256":boundary["receipt_sha256"],
-        "strict_reload_sha256":reload["receipt_sha256"],
-        "all_registered_arms_heads_objectives":True,
-        "direct_and_catboost":True,"mapper_calibration_threshold_replay":True,
-        "status":"PASS","h2_open_count":0}
-    return MappingProxyType({**core,"receipt_sha256":C.object_sha256(core)})
-
-
 def publish_launch_rehearsal(*,e1r:FitOnlyExecutionResult,
         e2r:FitOnlyExecutionResult,engineering_audit:Mapping[str,object],
-        future_mutation:Mapping[str,object],neural_rehearsal:Mapping[str,object],
+        future_mutation:Mapping[str,object],
         failure_branch_inventory:Mapping[str,object],
         config:RecoveryConfig,
         output_path:str|Path)->Mapping[str,object]:
@@ -335,8 +292,6 @@ def publish_launch_rehearsal(*,e1r:FitOnlyExecutionResult,
     engineering_receipt=_verified_mapping(
         engineering_audit,ENGINEERING_AUDIT_SCHEMA)
     future_receipt=_verified_mapping(future_mutation,FUTURE_MUTATION_SCHEMA)
-    neural_receipt=_verified_mapping(
-        neural_rehearsal,"QRE2TABNEURALREHEARSALBINDING1")
     inventory_receipt=_verified_mapping(
         failure_branch_inventory,"QRE2TABFAILUREINVENTORY1")
     if (e1r.name!="E1R" or e2r.name!="E2R"
@@ -345,15 +300,12 @@ def publish_launch_rehearsal(*,e1r:FitOnlyExecutionResult,
             or e1r.chronology.receipt_sha256==e2r.chronology.receipt_sha256
             or engineering_audit.get("schema")!=ENGINEERING_AUDIT_SCHEMA
             or future_mutation.get("schema")!=FUTURE_MUTATION_SCHEMA
-            or neural_rehearsal.get("status")!="RETIRED"
-            or neural_rehearsal.get("neural_escalation_allowed") is not False
-            or neural_rehearsal.get("spawned_neural_production") is not False
             or failure_branch_inventory.get(
                 "all_registered_branches_accounted_for") is not True
             or failure_branch_inventory.get(
                 "real_pre_h2_production_paths") is not True
             or any(value.get("h2_open_count")!=0 for value in (
-                engineering_audit,future_mutation,neural_rehearsal,
+                engineering_audit,future_mutation,
                 failure_branch_inventory))):
         raise RecoveryRefusal("long-campaign rehearsal boundary did not pass")
     core={"schema":LAUNCH_REHEARSAL_SCHEMA,"status":"PASS",
@@ -361,7 +313,6 @@ def publish_launch_rehearsal(*,e1r:FitOnlyExecutionResult,
         "e2r_receipt_sha256":e2r.receipt_sha256,
         "engineering_audit_receipt_sha256":engineering_receipt,
         "future_mutation_receipt_sha256":future_receipt,
-        "neural_rehearsal_receipt_sha256":neural_receipt,
         "failure_branch_inventory_receipt_sha256":
             inventory_receipt,
         "same_implementations_as_campaign":True,
@@ -426,5 +377,4 @@ def publish_production_rehearsal(*,launch_rehearsal:Mapping[str,object],
 __all__=["ENGINEERING_AUDIT_SCHEMA","FUTURE_MUTATION_SCHEMA",
          "LAUNCH_REHEARSAL_SCHEMA","PRODUCTION_REHEARSAL_SCHEMA",
          "audit_real_teacher_chain","publish_launch_rehearsal",
-         "publish_production_rehearsal","run_real_future_mutation_adversary",
-         "validate_neural_fit_only_rehearsal"]
+         "publish_production_rehearsal","run_real_future_mutation_adversary"]

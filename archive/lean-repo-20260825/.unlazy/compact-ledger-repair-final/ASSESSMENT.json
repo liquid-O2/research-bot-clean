@@ -1,0 +1,553 @@
+{
+  "schema_version": 1,
+  "route": "implement-flow",
+  "task": "Repair large transcript durability, stale source recovery, failed-gate re-entry, lifecycle timeout, and Akita shape violations for Codex hooks.",
+  "transition_epoch": 9,
+  "instructions": "Replace every pending status with apply plus decision and evidence, or skip plus reason. Keep names and structure unchanged.",
+  "sections": {
+    "methods": [
+      {
+        "name": "diagnosing-bugs",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Reproduce from the rollout file before changing hooks.",
+        "evidence": "01a0325f compacted three times with no method packet in replacement_history.",
+        "reason": null
+      },
+      {
+        "name": "domain-modeling",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Give each record one name and one owner, then validate those terms in the hook.",
+        "evidence": ".unlazy/compact-ledger-repair/FLOW.json",
+        "reason": null
+      },
+      {
+        "name": "how",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Trace the engagement, compaction, transcript, and canary paths before changing module ownership.",
+        "evidence": "tools/harness_templates/hooks",
+        "reason": null
+      },
+      {
+        "name": "why",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Use failed gate receipts and review findings to identify why repair sessions can deadlock.",
+        "evidence": ".unlazy/compact-ledger-repair/GATES.md",
+        "reason": null
+      },
+      {
+        "name": "architect",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Use immutable method policy, mutable obligation progress, and append-only compact memory.",
+        "evidence": ".unlazy/compact-ledger-repair/CODEX_PROMPT.md",
+        "reason": null
+      },
+      {
+        "name": "arena",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Compare synchronous archival, broad background scans, and one-marker workers before choosing the archive seam.",
+        "evidence": ".unlazy/compact-ledger-repair/CODEX_PROMPT.md",
+        "reason": null
+      },
+      {
+        "name": "codebase-design",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep cache validation and transcript archival behind interfaces that hide storage and retry rules.",
+        "evidence": "tools/harness_templates/hooks/method_guard_obligations.py",
+        "reason": null
+      },
+      {
+        "name": "tdd",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Land failing tests for compact notes, Bash bypass, PLAN.md, named engagement, and SessionStart context limit.",
+        "evidence": "tests/test_memory_ledger.py tests/test_agent_method_guard.py tests/test_memory_hooks.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Test append_checkpoint, exact method dependency packets, session_start, and planning_paths.",
+        "evidence": "bug-fix playbook step 5",
+        "reason": null
+      },
+      {
+        "name": "implement",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Run Pocock Implement at the playbook implementation step.",
+        "evidence": ".agents/skills/implement-flow/SKILL.md",
+        "reason": null
+      },
+      {
+        "name": "code-review",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Review the final diff against repository standards and the compact-continuity specification.",
+        "evidence": ".unlazy/compact-ledger-repair/CODEX_PROMPT.md",
+        "reason": null
+      }
+    ],
+    "pstack_principles": [
+      {
+        "name": "principle-boundary-discipline",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Parse METHOD.json and FLOW.json once at the hook boundary and pass validated records inward.",
+        "evidence": "tools/harness_templates/hooks/method_guard_flow.py",
+        "reason": null
+      },
+      {
+        "name": "principle-build-the-lever",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Use one installed canary driver to reproduce lifecycle, transition, and recovery paths.",
+        "evidence": "tools/canary_driver.py",
+        "reason": null
+      },
+      {
+        "name": "principle-encode-lessons-in-structure",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Encode complete method accounting and independent principle assessment in validators and regressions.",
+        "evidence": "tools/harness_templates/hooks/method_guard_obligations.py tools/harness_templates/hooks/method_guard_principles.py",
+        "reason": null
+      },
+      {
+        "name": "principle-exhaust-the-design-space",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Choose the obligation graph and transition ledger after comparing three distinct enforcement designs.",
+        "evidence": ".unlazy/compact-ledger-repair/CODEX_PROMPT.md",
+        "reason": null
+      },
+      {
+        "name": "principle-experience-first",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Warn on degraded memory without disabling normal commands or method recovery.",
+        "evidence": "tools/harness_templates/hooks/memory_ledger_hooks.py",
+        "reason": null
+      },
+      {
+        "name": "principle-fix-root-causes",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Replace shell and path classification with workflow transition validation.",
+        "evidence": "tools/harness_templates/hooks/method_guard.py",
+        "reason": null
+      },
+      {
+        "name": "principle-foundational-thinking",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Separate immutable method policy, mutable transition progress, cross-cutting principle assessments, and append-only memory.",
+        "evidence": ".unlazy/compact-ledger-repair/FLOW.json",
+        "reason": null
+      },
+      {
+        "name": "principle-guard-the-context-window",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Inject exact sources at engagement and compact restoration, then use a short workflow card on later turns.",
+        "evidence": "tools/harness_templates/hooks/method_guard_flow.py",
+        "reason": null
+      },
+      {
+        "name": "principle-laziness-protocol",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep Bash and file paths outside method authorization and add no model call to a hook.",
+        "evidence": "tools/harness_templates/hooks/method_guard.py",
+        "reason": null
+      },
+      {
+        "name": "principle-make-operations-idempotent",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Make repeated lifecycle calls converge while stale continuation tokens fail with a current recovery command.",
+        "evidence": "tests/test_agent_method_guard.py tests/test_memory_hooks.py",
+        "reason": null
+      },
+      {
+        "name": "principle-migrate-callers-then-delete-legacy-apis",
+        "epoch": 9,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "This repair changes lifecycle state and does not introduce a replacement internal API."
+      },
+      {
+        "name": "principle-minimize-reader-load",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep method obligations and principle assessment behind separate validators consumed by one FLOW loader.",
+        "evidence": "tools/harness_templates/hooks/method_guard_flow.py",
+        "reason": null
+      },
+      {
+        "name": "principle-model-the-domain",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Represent workflow state as frames, method receipts, obligations, a transition epoch, and principle assessments.",
+        "evidence": "tools/harness_templates/hooks/method_guard_flow.py",
+        "reason": null
+      },
+      {
+        "name": "principle-never-block-on-the-human",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep reversible recovery automatic and reserve blocking for stale method state at a repository write boundary.",
+        "evidence": "tools/harness_templates/hooks/method_guard.py",
+        "reason": null
+      },
+      {
+        "name": "principle-outcome-oriented-execution",
+        "epoch": 9,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "This repair is a bug fix, not a planned rewrite or migration with temporary breakage."
+      },
+      {
+        "name": "principle-prove-it-works",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Verify the installed hooks through fresh, handoff, failed-memory, and repeated-compact canaries.",
+        "evidence": ".unlazy/compact-ledger-repair/GATES.md",
+        "reason": null
+      },
+      {
+        "name": "principle-redesign-from-first-principles",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Treat compaction continuity as part of the workflow model instead of another command classifier.",
+        "evidence": "tools/harness_templates/hooks",
+        "reason": null
+      },
+      {
+        "name": "principle-separate-before-serializing-shared-state",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep per-session readiness outside the repository and bind unlazy completion to one named scope.",
+        "evidence": "tools/harness_templates/hooks/method_guard_support.py",
+        "reason": null
+      },
+      {
+        "name": "principle-sequence-verifiable-units",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Close schema, transition, compact, install, and full-check units in order.",
+        "evidence": ".unlazy/compact-ledger-repair/GATES.md",
+        "reason": null
+      },
+      {
+        "name": "principle-subtract-before-you-add",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Remove Bash enforcement, path authorization, and method-owned principles before adding transition checks.",
+        "evidence": "tools/harness_templates/hooks/method_guard.py tools/harness_templates/hooks/method_guard_obligations.py",
+        "reason": null
+      },
+      {
+        "name": "principle-type-system-discipline",
+        "epoch": 9,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The touched runtime is Python and has no static type checker in this repository."
+      }
+    ],
+    "supplemental_principles": [
+      {
+        "name": "pocock-codebase-glossary",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Use module, interface, seam, adapter, depth, leverage, and locality consistently in the guard design.",
+        "evidence": "tools/harness_templates/hooks/method_guard_flow.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-depth",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep lifecycle complexity behind the engagement and FLOW interfaces.",
+        "evidence": "tools/harness_templates/hooks/method_guard_support.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-principles",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Apply the deletion test, the interface test surface, and the two-adapter seam rule to each new module.",
+        "evidence": "tools/harness_templates/hooks/method_guard_obligations.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-testability",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep validators pure and test them through the public guard and FLOW loaders.",
+        "evidence": "tests/test_agent_method_guard.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-relationships",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep one interface per module and place adapters only at real lifecycle seams.",
+        "evidence": "tools/harness_templates/hooks/method_guard_flow.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-rejected-framings",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Judge module depth by hidden policy, not implementation line count.",
+        "evidence": "tools/harness_templates/hooks/method_guard_foundations.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-codebase-going-deeper",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Load the exact deepening and design-it-twice references with the principle stack.",
+        "evidence": "tools/harness_templates/hooks/method_guard_foundations.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-dependencies",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Treat the hook adapter as local infrastructure and the validators as in-process modules.",
+        "evidence": "tools/harness_templates/hooks/method_guard.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-seams",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep the client adapter thin while the shared state interface owns policy.",
+        "evidence": "tools/harness_templates/hooks/method_guard_support.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-deepening-tests",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Test observable guard outcomes instead of internal helper call order.",
+        "evidence": "tests/test_agent_method_guard.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-design-it-twice",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Retain the comparison of the allowlist, duplicated phase machine, and path-independent continuity designs.",
+        "evidence": ".unlazy/compact-ledger-repair/CODEX_PROMPT.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-good-tests",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Assert user-visible permission and lifecycle behavior through public hook events.",
+        "evidence": "tests/test_agent_method_guard.py tests/test_memory_hooks.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-seams",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Use UserPromptSubmit, PreToolUse, SessionStart, PreCompact, and Stop as the agreed test seams.",
+        "evidence": "tests/test_agent_method_guard.py tests/test_memory_hooks.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-antipatterns",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Reject implementation-coupled, tautological, and horizontally sliced tests.",
+        "evidence": "tests/test_agent_method_guard.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-tdd-loop",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep each regression red before its smallest green change and defer refactoring to review.",
+        "evidence": "tests/test_agent_method_guard.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-test-quality",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Use independent expected values and observable behavior in every new hook test.",
+        "evidence": "tests/test_agent_method_guard.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-mocking-boundaries",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Fake only filesystem, process, and lifecycle boundaries in the hook tests.",
+        "evidence": "tests/test_memory_hooks.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-context",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Use route and compact pointers that name the exact condition for loading their sources.",
+        "evidence": ".unlazy/compact-ledger-repair/CODEX_PROMPT.md",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-loads",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep the full packet at route entry and compact restore, then use a short workflow card.",
+        "evidence": "tools/harness_templates/hooks/method_guard_flow.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-hierarchy",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep ordered steps in method obligations and cross-cutting rules in the principle stack.",
+        "evidence": "tools/harness_templates/hooks/method_guard_obligations.py tools/harness_templates/hooks/method_guard_principles.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-completion",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Give every workflow obligation a source anchor, outcome, dependency, and closure evidence.",
+        "evidence": ".unlazy/compact-ledger-repair/METHOD.json",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-split",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Split policy modules by owned knowledge while keeping one FLOW interface.",
+        "evidence": "tools/harness_templates/hooks/method_guard_flow.py",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-leading-words",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Use method, obligation, frame, receipt, checkpoint, and continuation as stable domain terms.",
+        "evidence": ".unlazy/compact-ledger-repair/METHOD.json",
+        "reason": null
+      },
+      {
+        "name": "pocock-writing-pruning",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep one source for each rule and remove copied shell and path classifiers.",
+        "evidence": "tools/harness_templates/hooks",
+        "reason": null
+      },
+      {
+        "name": "pocock-implementation-checks",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Run focused test files during edits and the complete approved suite once at the end.",
+        "evidence": ".unlazy/compact-ledger-repair/GATES.md",
+        "reason": null
+      },
+      {
+        "name": "akita-code-style",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep touched production functions short, files below 500 lines, names specific, and types explicit.",
+        "evidence": "tools/harness_templates/hooks",
+        "reason": null
+      },
+      {
+        "name": "akita-comments",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Preserve decision comments and remove narration from the changed hook code.",
+        "evidence": "tools/harness_templates/hooks",
+        "reason": null
+      },
+      {
+        "name": "akita-tests",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Give new behavior a focused regression and keep tests fast, independent, repeatable, and self-validating.",
+        "evidence": "tests/test_agent_method_guard.py tests/test_memory_hooks.py",
+        "reason": null
+      },
+      {
+        "name": "akita-dependencies",
+        "epoch": 9,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "This repair adds no third-party dependency or external service adapter."
+      },
+      {
+        "name": "akita-structure",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep hook policy in focused modules under the existing template and installed paths.",
+        "evidence": "tools/harness_templates/hooks",
+        "reason": null
+      },
+      {
+        "name": "akita-formatting",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Use the repository Python formatting and unittest conventions without adding a style process.",
+        "evidence": "tools/harness_templates/hooks tests/test_agent_method_guard.py",
+        "reason": null
+      },
+      {
+        "name": "akita-logging",
+        "epoch": 9,
+        "status": "skip",
+        "decision": null,
+        "evidence": null,
+        "reason": "The hook emits protocol responses and user-facing diagnostics, not application logs."
+      }
+    ],
+    "foundations": [
+      {
+        "name": "codebase-design",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Keep lifecycle validation behind one obligation module and expose validated records to adapters.",
+        "evidence": "tools/harness_templates/hooks/method_guard_obligations.py",
+        "reason": null
+      },
+      {
+        "name": "diagnosing-bugs",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Drive installed lifecycle failures through deterministic local fixtures before altering hook policy.",
+        "evidence": "01a0325f compacted three times with no method packet in replacement_history.",
+        "reason": null
+      },
+      {
+        "name": "domain-modeling",
+        "epoch": 9,
+        "status": "apply",
+        "decision": "Name pending archive records, ready method records, and continuation tokens once across the repair.",
+        "evidence": ".unlazy/compact-ledger-repair/FLOW.json",
+        "reason": null
+      }
+    ]
+  }
+}

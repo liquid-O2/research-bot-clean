@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/hooks/nudge.py"
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": ".cursor/hooks/nudge.py"
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/nudge.py"
+      }
+    ],
+    "preCompact": [
+      {
+        "command": ".cursor/hooks/nudge.py"
+      }
+    ]
+  }
+}

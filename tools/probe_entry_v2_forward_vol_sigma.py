@@ -23,7 +23,7 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "engine"))
 
 from entry_v2 import common as C  # noqa: E402
-from entry_v2.corpus import FORECAST_SEGMENTS  # noqa: E402
+from entry_v2.corpus_forecast import FORECAST_SEGMENTS  # noqa: E402
 from tools import audit_entry_v2_forward_vol as A  # noqa: E402
 
 

@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "route": "implement-flow",
+  "playbook": "bug-fix",
+  "outer_method": [
+    "implement-flow",
+    "poteto-mode",
+    "playbook:bug-fix"
+  ],
+  "nested_method": {
+    "implementation": [
+      "tdd",
+      "pocock-tdd",
+      "implement"
+    ],
+    "investigation": [
+      "diagnosing-bugs",
+      "domain-modeling"
+    ],
+    "architecture": [
+      "codebase-design"
+    ],
+    "review": [
+      "code-review"
+    ]
+  },
+  "standing_laws": [
+    "unlazy",
+    "clean-code-for-agents",
+    "unslop",
+    "writing-for-agents"
+  ],
+  "principles": [
+    {
+      "name": "principle-fix-root-causes",
+      "decision": "exercise the installed guard",
+      "evidence": "tools/run_method_canaries.py"
+    },
+    {
+      "name": "principle-prove-it-works",
+      "decision": "exercise the installed guard",
+      "evidence": "tools/run_method_canaries.py"
+    }
+  ],
+  "principle_exclusions": [
+    {
+      "name": "principle-boundary-discipline",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-build-the-lever",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-encode-lessons-in-structure",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-exhaust-the-design-space",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-experience-first",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-foundational-thinking",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-guard-the-context-window",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-laziness-protocol",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-make-operations-idempotent",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-migrate-callers-then-delete-legacy-apis",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-minimize-reader-load",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-model-the-domain",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-never-block-on-the-human",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-outcome-oriented-execution",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-redesign-from-first-principles",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-separate-before-serializing-shared-state",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-sequence-verifiable-units",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-subtract-before-you-add",
+      "reason": "the canary does not exercise this trigger"
+    },
+    {
+      "name": "principle-type-system-discipline",
+      "reason": "the canary does not exercise this trigger"
+    }
+  ],
+  "source_policy": {
+    "pstack_principles": "all-exact",
+    "pocock_principles": "all-exact",
+    "akita_principles": "compatible-exact",
+    "engineering_foundations": "all-exact",
+    "linked_references": "declared-exact"
+  },
+  "foundation_assessments": [
+    {
+      "name": "codebase-design",
+      "status": "active",
+      "reason": "the canary exercises exact foundation loading"
+    },
+    {
+      "name": "diagnosing-bugs",
+      "status": "active",
+      "reason": "the canary exercises exact foundation loading"
+    },
+    {
+      "name": "domain-modeling",
+      "status": "active",
+      "reason": "the canary exercises exact foundation loading"
+    }
+  ],
+  "linked_references": [
+    {
+      "name": "architect:design-red-flags",
+      "path": ".agents/skills/architect/references/design-red-flags.md",
+      "reason": "the canary exercises exact linked reference loading"
+    }
+  ],
+  "skill_selections": [
+    {
+      "name": "diagnosing-bugs",
+      "branch": "investigation",
+      "trigger": "the canary reproduces guard failures",
+      "decision": "run the deterministic canary loop",
+      "evidence": "tools/run_method_canaries.py"
+    }
+  ],
+  "method_exclusions": [
+    {
+      "name": "tdd",
+      "reason": "the canary does not exercise this method"
+    },
+    {
+      "name": "pocock-tdd",
+      "reason": "the canary does not exercise this method"
+    },
+    {
+      "name": "implement",
+      "reason": "the canary does not exercise this method"
+    },
+    {
+      "name": "domain-modeling",
+      "reason": "the canary does not exercise this method"
+    },
+    {
+      "name": "codebase-design",
+      "reason": "the canary does not exercise this method"
+    },
+    {
+      "name": "code-review",
+      "reason": "the canary does not exercise this method"
+    }
+  ],
+  "workflow_obligations": [
+    {
+      "id": "apply-implement-flow",
+      "method": "implement-flow",
+      "source": "implement-flow",
+      "anchor": "1. Invoke `$poteto-mode`.",
+      "outcome": "Apply implement-flow to the canary.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "apply-poteto-mode",
+      "method": "poteto-mode",
+      "source": "poteto-mode",
+      "anchor": "## Non-negotiables",
+      "outcome": "Apply poteto-mode to the canary.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "apply-playbook-bug-fix",
+      "method": "playbook:bug-fix",
+      "source": "playbook:bug-fix",
+      "anchor": "4. Verify on the same surface; the original repro now passes.",
+      "outcome": "Apply playbook:bug-fix to the canary.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "apply-unlazy",
+      "method": "unlazy",
+      "source": "unlazy",
+      "anchor": "# Unlazy",
+      "outcome": "Apply unlazy to the canary.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "apply-clean-code-for-agents",
+      "method": "clean-code-for-agents",
+      "source": "clean-code-for-agents",
+      "anchor": "# Clean code for agents",
+      "outcome": "Apply clean-code-for-agents to the canary.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "apply-unslop",
+      "method": "unslop",
+      "source": "unslop",
+      "anchor": "# Unslop",
+      "outcome": "Apply unslop to the canary.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "apply-writing-for-agents",
+      "method": "writing-for-agents",
+      "source": "writing-for-agents",
+      "anchor": "## Steps and completion criteria",
+      "outcome": "Apply writing-for-agents to the canary.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "apply-diagnosing-bugs",
+      "method": "diagnosing-bugs",
+      "source": "diagnosing-bugs",
+      "anchor": "## Phase 1: Build a feedback loop",
+      "outcome": "Apply diagnosing-bugs to the canary.",
+      "depends_on": [],
+      "skippable": false
+    }
+  ],
+  "method_coverage": [
+    {
+      "method": "implement-flow",
+      "source": "implement-flow",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "poteto-mode",
+      "source": "poteto-mode",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "playbook:bug-fix",
+      "source": "playbook:bug-fix",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "unlazy",
+      "source": "unlazy",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "clean-code-for-agents",
+      "source": "clean-code-for-agents",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "unslop",
+      "source": "unslop",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "writing-for-agents",
+      "source": "writing-for-agents",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "diagnosing-bugs",
+      "source": "diagnosing-bugs",
+      "mode": "declared-anchors"
+    }
+  ],
+  "owns": [
+    "tools/**",
+    "CLAUDE.md"
+  ],
+  "gates": ".unlazy/method-canary-318f8085d208f751/GATES.md",
+  "model_policy": {
+    "routine_implementation_model": "gpt-5.6-sol",
+    "routine_implementation_reasoning": "medium",
+    "claude": {
+      "routine_implementation_model": "opus"
+    }
+  }
+}

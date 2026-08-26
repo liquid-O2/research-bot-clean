@@ -1,0 +1,74 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
+  "share": "disabled",
+  "snapshot": false,
+  "model": "xai/grok-4.6",
+  "default_agent": "poteto",
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "artifacts/**",
+      "data/**",
+      "archive/**",
+      ".git/**"
+    ]
+  },
+  "skills": {
+    "paths": [
+      "/workspace/.cursor/plugins/pstack-lab/skills"
+    ]
+  },
+  "permission": {
+    "task": {
+      "*": "allow",
+      "poteto-agent": "allow",
+      "generalPurpose": "allow",
+      "general-purpose": "allow",
+      "general": "allow",
+      "explore": "allow",
+      "comment-sicko": "allow"
+    }
+  },
+  "agent": {
+    "poteto": {
+      "description": "pstack poteto-mode primary. Playbooks, principles, Task to poteto-agent, generalPurpose, explore, comment-sicko. Parent is Grok 4.6 xhigh.",
+      "mode": "primary",
+      "model": "xai/grok-4.6",
+      "variant": "xhigh",
+      "prompt": "{file:.cursor/plugins/pstack-lab/skills/poteto-mode/SKILL.md}",
+      "permission": {
+        "task": {
+          "*": "allow"
+        }
+      }
+    },
+    "poteto-agent": {
+      "description": "Playbook worker for /poteto-mode. Resume an existing poteto-agent. Not for how/why/reflect/swarm/interrogate/architect panels.",
+      "mode": "subagent",
+      "prompt": "{file:.cursor/plugins/pstack-lab/skills/poteto-mode/SKILL.md}",
+      "permission": {
+        "task": {
+          "*": "allow"
+        }
+      }
+    },
+    "generalPurpose": {
+      "mode": "subagent"
+    },
+    "general-purpose": {
+      "mode": "subagent"
+    },
+    "comment-sicko": {
+      "mode": "subagent",
+      "prompt": "{file:.cursor/plugins/pstack-lab/agents/comment-sicko.md}"
+    },
+    "build": {
+      "permission": {
+        "task": {
+          "*": "allow"
+        }
+      }
+    }
+  }
+}

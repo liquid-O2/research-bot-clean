@@ -15,7 +15,11 @@ import torch
 from . import common as C
 from .context_sources import CausalContextRepository
 from .corpus import (
-    AssetArtifactSet,
+    _prefix_sha256,
+    build_corpus,
+)
+from .corpus_artifacts import AssetArtifactSet, _read_pinned
+from .corpus_forecast import (
     ExplicitForecastRows,
     ForecastQuery,
     ForecastRow,
@@ -24,13 +28,12 @@ from .corpus import (
     QRE2ForecastArtifactInput,
     QRE2ForecastProvider,
     QRE2_FORECAST_LAW_SHA256,
-    _FORECAST_COLUMNS,
     _forecast_features,
     _forecast_lineage,
     _forecast_vintage_features,
-    _prefix_sha256,
-    _read_pinned,
-    build_corpus,
+)
+from .corpus_forecast_qre2 import _FORECAST_COLUMNS
+from .corpus_merge import (
     merge_asset_corpora,
     merge_chronological_corpora,
 )
@@ -39,16 +42,6 @@ from .plan_contract import CLOCK_LAW_RECEIPT_FILE_SHA256
 from .session_stream import CUTOFF_RULE
 from .session_stream import SessionArrayCache
 from .durable_store import DurableEntryV2Store
-from .causal_label_atlas import EndpointStatus
-from .selected_horizon_contract import (
-    COORDINATES as SELECTED_HORIZON_COORDINATES,
-    COVERAGE_LAW as SELECTED_HORIZON_COVERAGE_LAW,
-    COVERAGE_LAW_SHA256 as SELECTED_HORIZON_COVERAGE_LAW_SHA256,
-    COVERAGE_SCHEMA as SELECTED_HORIZON_COVERAGE_SCHEMA,
-    SCHEMA_SHA256 as SELECTED_HORIZON_SCHEMA_SHA256,
-    TARGET_LAW as SELECTED_HORIZON_TARGET_LAW,
-    selected_horizon_coverage_receipt,
-)
 
 
 NS = 1_000_000_000
@@ -598,20 +591,11 @@ class CorpusBridgeTest(unittest.TestCase):
             self.assertEqual(qre2_hashes, 1)
             self.assertEqual(len(corpus.sessions), 1)
             self.assertEqual(corpus.sessions[0].candidate_ids, (fixture.clear_id,))
-            self.assertEqual(
-                corpus.model_input_binding.corpus_receipt_sha256,
-                corpus.receipt["receipt_sha256"],
-            )
-            self.assertEqual(
-                corpus.model_input_binding.session_stream_receipt_aggregate_sha256,
-                corpus.receipt["session_stream_receipt_aggregate_sha256"],
-            )
-            with corpus.sessions[0].source.open_batch(corpus.sessions[0]) as batch:
+            with corpus.sessions[0].source.open_arrays() as (continuous, _cat):
                 self.assertEqual(
-                    batch.event_continuous.shape[0],
+                    continuous.shape[0],
                     corpus.sessions[0].source.max_cutoff,
                 )
-                self.assertIs(batch.context_values, corpus.sessions[0].context_values)
             self.assertEqual(len(corpus.replay.expected_sessions), 2)
             self.assertEqual(corpus.receipt["compliance_counts"], {
                 "CLEAR": 1, "PROHIBITED": 1, "COMPLIANCE_UNKNOWN": 0})
@@ -769,124 +753,6 @@ class CorpusBridgeTest(unittest.TestCase):
             merged_body["corpus_window"] = merged_window
             self.assertEqual(merged_body, full_body)
 
-            # A selected-target corpus legitimately keeps the representation-
-            # only history before the diagnostic start, then requires a
-            # complete attached suffix.  Chronological merge must preserve
-            # that one boundary rather than demanding all-or-none attachment.
-            selected_start = fixtures[0].empty_d8
-
-            def attach_coverage(part):
-                sessions = []
-                diagnostic_rows = []
-                selected_by_key = {}
-                corpus_rows = []
-                for spec in part.sessions:
-                    attached = spec.trading_day >= selected_start
-                    candidate_hash = C.object_sha256(list(spec.candidate_ids))
-                    corpus_rows.append({
-                        "asset": spec.asset,
-                        "trading_day": spec.trading_day,
-                        "session_id": spec.session_id,
-                        "candidate_count": len(spec.candidate_ids),
-                        "candidate_ids_sha256": candidate_hash,
-                        "selected_attached": attached,
-                    })
-                    if attached:
-                        values = torch.zeros(
-                            (spec.rows, 6), dtype=torch.float64)
-                        valid = torch.ones((spec.rows, 6), dtype=torch.bool)
-                        status = torch.zeros(
-                            (spec.rows, 6), dtype=torch.int8)
-                        spec = replace(
-                            spec, selected_horizon_value=values,
-                            selected_horizon_valid=valid,
-                            selected_horizon_status=status,
-                            selected_horizon_schema_sha256=
-                                SELECTED_HORIZON_SCHEMA_SHA256,
-                        )
-                        tensor_hash = C.object_sha256({
-                            "candidate_ids": list(spec.candidate_ids),
-                            "value": values.tolist(), "valid": valid.tolist(),
-                        })
-                        selected_by_key[(spec.asset, spec.trading_day,
-                                         spec.session_id)] = tensor_hash
-                        diagnostic_rows.append({
-                            "asset": spec.asset,
-                            "trading_day": spec.trading_day,
-                            "source_receipt_sha256":
-                                spec.source.receipt.receipt_sha256,
-                            "candidate_count": len(spec.candidate_ids),
-                            "candidate_ids_sha256": candidate_hash,
-                            "eligible_ready_count": len(spec.candidate_ids),
-                            "eligible_ready_ids_sha256": candidate_hash,
-                        })
-                    sessions.append(spec)
-                coverage = selected_horizon_coverage_receipt(
-                    start_d8=selected_start, corpus_sessions=corpus_rows,
-                    diagnostic_sessions=diagnostic_rows,
-                )
-                session_specs = []
-                for row in part.receipt["session_specs"]:
-                    key = (str(row["asset"]), int(row["d8"]),
-                           str(row["session_id"]))
-                    value = dict(row)
-                    if key in selected_by_key:
-                        value["selected_horizon_tensors_sha256"] = (
-                            selected_by_key[key])
-                        value["selected_horizon_schema_sha256"] = (
-                            SELECTED_HORIZON_SCHEMA_SHA256)
-                        value["selected_horizon_status_sha256"] = "9" * 64
-                    session_specs.append(value)
-                receipt = dict(part.receipt)
-                receipt.pop("receipt_sha256")
-                receipt.update({
-                    "schema": "entry-v2-corpus-v7",
-                    "selected_horizon_coordinates":
-                        list(SELECTED_HORIZON_COORDINATES),
-                    "selected_horizon_schema_sha256":
-                        SELECTED_HORIZON_SCHEMA_SHA256,
-                    "selected_horizon_target_law":
-                        SELECTED_HORIZON_TARGET_LAW,
-                    "selected_horizon_status_codes":
-                        [item.value for item in EndpointStatus],
-                    "selected_horizon_coverage_schema":
-                        SELECTED_HORIZON_COVERAGE_SCHEMA,
-                    "selected_horizon_coverage_law":
-                        SELECTED_HORIZON_COVERAGE_LAW,
-                    "selected_horizon_coverage_law_sha256":
-                        SELECTED_HORIZON_COVERAGE_LAW_SHA256,
-                    "selected_horizon_start_d8": selected_start,
-                    "selected_horizon_coverage": dict(coverage),
-                    "selected_horizon_coverage_sha256":
-                        coverage["receipt_sha256"],
-                    "selected_horizon_tensors_aggregate_sha256":
-                        C.object_sha256(sorted(selected_by_key.values())),
-                    "session_specs": session_specs,
-                })
-                receipt["receipt_sha256"] = C.object_sha256(receipt)
-                binding = replace(
-                    part.model_input_binding,
-                    corpus_receipt_sha256=receipt["receipt_sha256"],
-                )
-                return replace(
-                    part, sessions=tuple(sessions),
-                    receipt=MappingProxyType(receipt),
-                    model_input_binding=binding,
-                )
-
-            selected_merged = merge_chronological_corpora((
-                attach_coverage(first), attach_coverage(second),
-            ))
-            self.assertEqual(
-                [spec.selected_horizon_value is not None
-                 for spec in selected_merged.sessions],
-                [spec.trading_day >= selected_start
-                 for spec in selected_merged.sessions],
-            )
-            coverage = selected_merged.receipt["selected_horizon_coverage"]
-            self.assertEqual(coverage["prefix_unattached_session_count"], 3)
-            self.assertEqual(coverage["suffix_attached_session_count"], 3)
-
             with self.assertRaisesRegex(C.EntryV2Refusal, "overlap or gap"):
                 merge_chronological_corpora((first, first))
             overlapping = build_corpus(
@@ -952,8 +818,6 @@ class CorpusBridgeTest(unittest.TestCase):
             merged = merge_asset_corpora(parts)
 
             self.assertEqual(dict(merged.receipt), dict(serial.receipt))
-            self.assertEqual(merged.model_input_binding,
-                             serial.model_input_binding)
             self.assertEqual(merged.teacher.store_hash,
                              serial.teacher.store_hash)
             self.assertEqual(merged.replay.expected_sessions,

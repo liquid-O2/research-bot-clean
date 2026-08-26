@@ -1,0 +1,764 @@
+{
+  "schema_version": 1,
+  "route": "implement-flow",
+  "playbook": "bug-fix",
+  "outer_method": [
+    "implement-flow",
+    "poteto-mode",
+    "playbook:bug-fix"
+  ],
+  "nested_method": {
+    "investigation": [
+      "diagnosing-bugs",
+      "domain-modeling",
+      "how",
+      "why"
+    ],
+    "architecture": [
+      "architect",
+      "arena",
+      "codebase-design"
+    ],
+    "implementation": [
+      "tdd",
+      "pocock-tdd",
+      "implement"
+    ],
+    "review": [
+      "code-review"
+    ]
+  },
+  "standing_laws": [
+    "unlazy",
+    "clean-code-for-agents",
+    "unslop",
+    "writing-for-agents"
+  ],
+  "source_policy": {
+    "pstack_principles": "all-exact",
+    "pocock_principles": "all-exact",
+    "akita_principles": "compatible-exact",
+    "engineering_foundations": "all-exact",
+    "linked_references": "declared-exact"
+  },
+  "linked_references": [
+    {
+      "name": "architect:design-red-flags",
+      "path": ".agents/skills/architect/references/design-red-flags.md",
+      "reason": "Screen changed interfaces before implementation."
+    }
+  ],
+  "gates": ".unlazy/compact-ledger-repair-final/GATES.md",
+  "model_policy": {
+    "routine_implementation_model": "gpt-5.6-sol",
+    "routine_implementation_reasoning": "medium",
+    "higher_reasoning_for": [
+      "architecture",
+      "ambiguous failures",
+      "final review"
+    ]
+  },
+  "principles": [
+    {
+      "name": "principle-boundary-discipline",
+      "decision": "Parse METHOD.json and FLOW.json once at the hook boundary and pass validated records inward.",
+      "evidence": "tools/harness_templates/hooks/method_guard_flow.py"
+    },
+    {
+      "name": "principle-build-the-lever",
+      "decision": "Use one installed canary driver to reproduce lifecycle, transition, and recovery paths.",
+      "evidence": "tools/canary_driver.py"
+    },
+    {
+      "name": "principle-encode-lessons-in-structure",
+      "decision": "Encode complete method accounting and independent principle assessment in validators and regressions.",
+      "evidence": "tools/harness_templates/hooks/method_guard_obligations.py tools/harness_templates/hooks/method_guard_principles.py"
+    },
+    {
+      "name": "principle-exhaust-the-design-space",
+      "decision": "Choose the obligation graph and transition ledger after comparing three distinct enforcement designs.",
+      "evidence": ".unlazy/compact-ledger-repair/CODEX_PROMPT.md"
+    },
+    {
+      "name": "principle-experience-first",
+      "decision": "Warn on degraded memory without disabling normal commands or method recovery.",
+      "evidence": "tools/harness_templates/hooks/memory_ledger_hooks.py"
+    },
+    {
+      "name": "principle-fix-root-causes",
+      "decision": "Replace shell and path classification with workflow transition validation.",
+      "evidence": "tools/harness_templates/hooks/method_guard.py"
+    },
+    {
+      "name": "principle-foundational-thinking",
+      "decision": "Separate immutable method policy, mutable transition progress, cross-cutting principle assessments, and append-only memory.",
+      "evidence": ".unlazy/compact-ledger-repair/FLOW.json"
+    },
+    {
+      "name": "principle-guard-the-context-window",
+      "decision": "Inject exact sources at engagement and compact restoration, then use a short workflow card on later turns.",
+      "evidence": "tools/harness_templates/hooks/method_guard_flow.py"
+    },
+    {
+      "name": "principle-laziness-protocol",
+      "decision": "Keep Bash and file paths outside method authorization and add no model call to a hook.",
+      "evidence": "tools/harness_templates/hooks/method_guard.py"
+    },
+    {
+      "name": "principle-make-operations-idempotent",
+      "decision": "Make repeated lifecycle calls converge while stale continuation tokens fail with a current recovery command.",
+      "evidence": "tests/test_agent_method_guard.py tests/test_memory_hooks.py"
+    },
+    {
+      "name": "principle-minimize-reader-load",
+      "decision": "Keep method obligations and principle assessment behind separate validators consumed by one FLOW loader.",
+      "evidence": "tools/harness_templates/hooks/method_guard_flow.py"
+    },
+    {
+      "name": "principle-model-the-domain",
+      "decision": "Represent workflow state as frames, method receipts, obligations, a transition epoch, and principle assessments.",
+      "evidence": "tools/harness_templates/hooks/method_guard_flow.py"
+    },
+    {
+      "name": "principle-never-block-on-the-human",
+      "decision": "Keep reversible recovery automatic and reserve blocking for stale method state at a repository write boundary.",
+      "evidence": "tools/harness_templates/hooks/method_guard.py"
+    },
+    {
+      "name": "principle-prove-it-works",
+      "decision": "Verify the installed hooks through fresh, handoff, failed-memory, and repeated-compact canaries.",
+      "evidence": ".unlazy/compact-ledger-repair/GATES.md"
+    },
+    {
+      "name": "principle-redesign-from-first-principles",
+      "decision": "Treat compaction continuity as part of the workflow model instead of another command classifier.",
+      "evidence": "tools/harness_templates/hooks"
+    },
+    {
+      "name": "principle-separate-before-serializing-shared-state",
+      "decision": "Keep per-session readiness outside the repository and bind unlazy completion to one named scope.",
+      "evidence": "tools/harness_templates/hooks/method_guard_support.py"
+    },
+    {
+      "name": "principle-sequence-verifiable-units",
+      "decision": "Close schema, transition, compact, install, and full-check units in order.",
+      "evidence": ".unlazy/compact-ledger-repair/GATES.md"
+    },
+    {
+      "name": "principle-subtract-before-you-add",
+      "decision": "Remove Bash enforcement, path authorization, and method-owned principles before adding transition checks.",
+      "evidence": "tools/harness_templates/hooks/method_guard.py tools/harness_templates/hooks/method_guard_obligations.py"
+    }
+  ],
+  "principle_exclusions": [
+    {
+      "name": "principle-migrate-callers-then-delete-legacy-apis",
+      "reason": "This repair changes lifecycle state and does not introduce a replacement internal API."
+    },
+    {
+      "name": "principle-outcome-oriented-execution",
+      "reason": "This repair is a bug fix, not a planned rewrite or migration with temporary breakage."
+    },
+    {
+      "name": "principle-type-system-discipline",
+      "reason": "The touched runtime is Python and has no static type checker in this repository."
+    }
+  ],
+  "foundation_assessments": [
+    {
+      "name": "codebase-design",
+      "status": "active",
+      "reason": "Keep lifecycle validation behind one obligation module and expose validated records to adapters."
+    },
+    {
+      "name": "diagnosing-bugs",
+      "status": "active",
+      "reason": "Drive installed lifecycle failures through deterministic local fixtures before altering hook policy."
+    },
+    {
+      "name": "domain-modeling",
+      "status": "active",
+      "reason": "Name pending archive records, ready method records, and continuation tokens once across the repair."
+    }
+  ],
+  "skill_selections": [
+    {
+      "name": "diagnosing-bugs",
+      "branch": "investigation",
+      "trigger": "Reproduce from the rollout file before changing hooks.",
+      "decision": "Reproduce from the rollout file before changing hooks.",
+      "evidence": "01a0325f compacted three times with no method packet in replacement_history."
+    },
+    {
+      "name": "domain-modeling",
+      "branch": "investigation",
+      "trigger": "Give each record one name and one owner, then validate those terms in the hook.",
+      "decision": "Give each record one name and one owner, then validate those terms in the hook.",
+      "evidence": ".unlazy/compact-ledger-repair/FLOW.json"
+    },
+    {
+      "name": "how",
+      "branch": "investigation",
+      "trigger": "Trace the engagement, compaction, transcript, and canary paths before changing module ownership.",
+      "decision": "Trace the engagement, compaction, transcript, and canary paths before changing module ownership.",
+      "evidence": "tools/harness_templates/hooks"
+    },
+    {
+      "name": "why",
+      "branch": "investigation",
+      "trigger": "Use failed gate receipts and review findings to identify why repair sessions can deadlock.",
+      "decision": "Use failed gate receipts and review findings to identify why repair sessions can deadlock.",
+      "evidence": ".unlazy/compact-ledger-repair/GATES.md"
+    },
+    {
+      "name": "architect",
+      "branch": "architecture",
+      "trigger": "Use immutable method policy, mutable obligation progress, and append-only compact memory.",
+      "decision": "Use immutable method policy, mutable obligation progress, and append-only compact memory.",
+      "evidence": ".unlazy/compact-ledger-repair/CODEX_PROMPT.md"
+    },
+    {
+      "name": "arena",
+      "branch": "architecture",
+      "trigger": "Compare synchronous archival, broad background scans, and one-marker workers before choosing the archive seam.",
+      "decision": "Compare synchronous archival, broad background scans, and one-marker workers before choosing the archive seam.",
+      "evidence": ".unlazy/compact-ledger-repair/CODEX_PROMPT.md"
+    },
+    {
+      "name": "codebase-design",
+      "branch": "architecture",
+      "trigger": "Keep cache validation and transcript archival behind interfaces that hide storage and retry rules.",
+      "decision": "Keep cache validation and transcript archival behind interfaces that hide storage and retry rules.",
+      "evidence": "tools/harness_templates/hooks/method_guard_obligations.py"
+    },
+    {
+      "name": "tdd",
+      "branch": "implementation",
+      "trigger": "Land failing tests for compact notes, Bash bypass, PLAN.md, named engagement, and SessionStart context limit.",
+      "decision": "Land failing tests for compact notes, Bash bypass, PLAN.md, named engagement, and SessionStart context limit.",
+      "evidence": "tests/test_memory_ledger.py tests/test_agent_method_guard.py tests/test_memory_hooks.py"
+    },
+    {
+      "name": "pocock-tdd",
+      "branch": "implementation",
+      "trigger": "Test append_checkpoint, exact method dependency packets, session_start, and planning_paths.",
+      "decision": "Test append_checkpoint, exact method dependency packets, session_start, and planning_paths.",
+      "evidence": "bug-fix playbook step 5"
+    },
+    {
+      "name": "implement",
+      "branch": "implementation",
+      "trigger": "Run Pocock Implement at the playbook implementation step.",
+      "decision": "Run Pocock Implement at the playbook implementation step.",
+      "evidence": ".agents/skills/implement-flow/SKILL.md"
+    },
+    {
+      "name": "code-review",
+      "branch": "review",
+      "trigger": "Review the final diff against repository standards and the compact-continuity specification.",
+      "decision": "Review the final diff against repository standards and the compact-continuity specification.",
+      "evidence": ".unlazy/compact-ledger-repair/CODEX_PROMPT.md"
+    }
+  ],
+  "method_exclusions": [],
+  "workflow_obligations": [
+    {
+      "id": "implement-flow-1",
+      "method": "implement-flow",
+      "source": "implement-flow",
+      "anchor": "1. Invoke `$poteto-mode`. Read `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/SKILL.md` completely and let Poteto Mode choose the implementation playbook.",
+      "outcome": "Complete implement-flow step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "implement-flow-2",
+      "method": "implement-flow",
+      "source": "implement-flow",
+      "anchor": "2. Read the selected file under `../../../vendor/agent-sources/pstack/46125561306434d8a1d7745d540d8932ab0cd2a2/pstack/skills/poteto-mode/playbooks/` completely. The Pstack playbook owns the outer sequence, proof method, and completion boundary.",
+      "outcome": "Complete implement-flow step 2.",
+      "depends_on": [
+        "implement-flow-1"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "implement-flow-3",
+      "method": "implement-flow",
+      "source": "implement-flow",
+      "anchor": "3. Keep `$unlazy` and `$clean-code-for-agents` active as standing laws. They do not replace a playbook step or a testing method.",
+      "outcome": "Complete implement-flow step 3.",
+      "depends_on": [
+        "implement-flow-2"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "implement-flow-4",
+      "method": "implement-flow",
+      "source": "implement-flow",
+      "anchor": "4. At the playbook's implementation step, invoke `$implement` for the agreed spec or ticket. That wrapper preserves exact Pocock Implement, `$pocock-tdd` at pre-agreed seams, and `$code-review` at its review step.",
+      "outcome": "Complete implement-flow step 4.",
+      "depends_on": [
+        "implement-flow-3"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "implement-flow-5",
+      "method": "implement-flow",
+      "source": "implement-flow",
+      "anchor": "5. An unqualified Pstack `tdd` call remains `$tdd`. The Pocock name mapping applies only inside the Pocock method.",
+      "outcome": "Complete implement-flow step 5.",
+      "depends_on": [
+        "implement-flow-4"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "poteto-mode-1",
+      "method": "poteto-mode",
+      "source": "poteto-mode",
+      "anchor": "# Poteto mode",
+      "outcome": "Complete poteto-mode step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "playbook-bug-fix-1",
+      "method": "playbook:bug-fix",
+      "source": "playbook:bug-fix",
+      "anchor": "1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables). Don't hand the repro to the user. A debug or instrumentation protocol that says to ask the user does not override this; you drive the instrumented runtime. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. Won't reproduce directly, force it: synthesize the trigger, tighten conditions, or instrument until it fires. A bug you can't reproduce, you can't prove fixed.",
+      "outcome": "Complete playbook:bug-fix step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "playbook-bug-fix-2",
+      "method": "playbook:bug-fix",
+      "source": "playbook:bug-fix",
+      "anchor": "2. Binary-search the cause. Form the candidate hypotheses, then rule them out until one survives. Seed them with `how` over the affected subsystem and the **why** skill for regression history. Each pass, take the split that cuts the most remaining problem space, get runtime evidence, eliminate. When program state is unclear, add instrumentation or logging and read it as the code runs. Don't guess. Drive a long or stubborn hunt with Cursor's `/loop` command. Confirm the surviving *mechanism* with runtime evidence before the step-3 architect/interrogate fan-out; a design grounded on a plausible-but-unconfirmed cause can be unanimously wrong while the real cause sits one subsystem over.",
+      "outcome": "Complete playbook:bug-fix step 2.",
+      "depends_on": [
+        "playbook-bug-fix-1"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "playbook-bug-fix-3",
+      "method": "playbook:bug-fix",
+      "source": "playbook:bug-fix",
+      "anchor": "3. Plan the fix. If it crosses a function boundary, `architect` first. Delegate implementation to a subagent using your configured bug-fix model (default `gpt-5.6-sol-max`) with a specific scope; review the diff.",
+      "outcome": "Complete playbook:bug-fix step 3.",
+      "depends_on": [
+        "playbook-bug-fix-2"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "playbook-bug-fix-4",
+      "method": "playbook:bug-fix",
+      "source": "playbook:bug-fix",
+      "anchor": "4. Verify on the same surface; the original repro now passes. \"Inconclusive\" or wrong-surface is not a pass; flag it. Unit tests show branch behavior, not bug absence.",
+      "outcome": "Complete playbook:bug-fix step 4.",
+      "depends_on": [
+        "playbook-bug-fix-3"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "playbook-bug-fix-5",
+      "method": "playbook:bug-fix",
+      "source": "playbook:bug-fix",
+      "anchor": "5. Stage the commits so the failing repro lands before the fix in git history; the diff tells the story. See the **tdd** skill for the failing-test-first cadence when the bug has a cheap local test path; skip it when the test would be expensive, integration-heavy, or unclear.",
+      "outcome": "Complete playbook:bug-fix step 5.",
+      "depends_on": [
+        "playbook-bug-fix-4"
+      ],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "playbook-bug-fix-6",
+      "method": "playbook:bug-fix",
+      "source": "playbook:bug-fix",
+      "anchor": "6. Run **Opening a PR**.",
+      "outcome": "Complete playbook:bug-fix step 6.",
+      "depends_on": [
+        "playbook-bug-fix-5"
+      ],
+      "skippable": true,
+      "skip_condition": "A higher-priority instruction makes this step inapplicable."
+    },
+    {
+      "id": "unlazy-1",
+      "method": "unlazy",
+      "source": "unlazy",
+      "anchor": "# Unlazy",
+      "outcome": "Complete unlazy step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "clean-code-for-agents-1",
+      "method": "clean-code-for-agents",
+      "source": "clean-code-for-agents",
+      "anchor": "# Clean code for agents",
+      "outcome": "Complete clean-code-for-agents step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "unslop-1",
+      "method": "unslop",
+      "source": "unslop",
+      "anchor": "# Unslop",
+      "outcome": "Complete unslop step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "writing-for-agents-1",
+      "method": "writing-for-agents",
+      "source": "writing-for-agents",
+      "anchor": "## Context pointers",
+      "outcome": "Complete writing-for-agents step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "diagnosing-bugs-1",
+      "method": "diagnosing-bugs",
+      "source": "diagnosing-bugs",
+      "anchor": "## Phase 1: Build a feedback loop",
+      "outcome": "Complete diagnosing-bugs step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "diagnosing-bugs-2",
+      "method": "diagnosing-bugs",
+      "source": "diagnosing-bugs",
+      "anchor": "## Phase 2: Reproduce + minimise",
+      "outcome": "Complete diagnosing-bugs step 2.",
+      "depends_on": [
+        "diagnosing-bugs-1"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "diagnosing-bugs-3",
+      "method": "diagnosing-bugs",
+      "source": "diagnosing-bugs",
+      "anchor": "## Phase 3: Hypothesise",
+      "outcome": "Complete diagnosing-bugs step 3.",
+      "depends_on": [
+        "diagnosing-bugs-2"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "diagnosing-bugs-4",
+      "method": "diagnosing-bugs",
+      "source": "diagnosing-bugs",
+      "anchor": "## Phase 4: Instrument",
+      "outcome": "Complete diagnosing-bugs step 4.",
+      "depends_on": [
+        "diagnosing-bugs-3"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "diagnosing-bugs-5",
+      "method": "diagnosing-bugs",
+      "source": "diagnosing-bugs",
+      "anchor": "## Phase 5: Fix + regression test",
+      "outcome": "Complete diagnosing-bugs step 5.",
+      "depends_on": [
+        "diagnosing-bugs-4"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "diagnosing-bugs-6",
+      "method": "diagnosing-bugs",
+      "source": "diagnosing-bugs",
+      "anchor": "## Phase 6: Cleanup",
+      "outcome": "Complete diagnosing-bugs step 6.",
+      "depends_on": [
+        "diagnosing-bugs-5"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "domain-modeling-1",
+      "method": "domain-modeling",
+      "source": "domain-modeling",
+      "anchor": "# Domain Modeling",
+      "outcome": "Complete domain-modeling step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "how-1",
+      "method": "how",
+      "source": "how",
+      "anchor": "# How",
+      "outcome": "Complete how step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "why-1",
+      "method": "why",
+      "source": "why",
+      "anchor": "# Why",
+      "outcome": "Complete why step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "architect-1",
+      "method": "architect",
+      "source": "architect",
+      "anchor": "## Phase A: Ground the problem",
+      "outcome": "Complete architect step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "architect-2",
+      "method": "architect",
+      "source": "architect",
+      "anchor": "## Phase B: Sketch",
+      "outcome": "Complete architect step 2.",
+      "depends_on": [
+        "architect-1"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "architect-3",
+      "method": "architect",
+      "source": "architect",
+      "anchor": "## Phase C: Agree (opt-in)",
+      "outcome": "Complete architect step 3.",
+      "depends_on": [
+        "architect-2"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "architect-4",
+      "method": "architect",
+      "source": "architect",
+      "anchor": "## Phase D: Implement against the sketch",
+      "outcome": "Complete architect step 4.",
+      "depends_on": [
+        "architect-3"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "architect-5",
+      "method": "architect",
+      "source": "architect",
+      "anchor": "## Phase E: Scrap when the architecture is wrong",
+      "outcome": "Complete architect step 5.",
+      "depends_on": [
+        "architect-4"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "arena-1",
+      "method": "arena",
+      "source": "arena",
+      "anchor": "# Arena",
+      "outcome": "Complete arena step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "codebase-design-1",
+      "method": "codebase-design",
+      "source": "codebase-design",
+      "anchor": "# Codebase Design",
+      "outcome": "Complete codebase-design step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "tdd-1",
+      "method": "tdd",
+      "source": "tdd",
+      "anchor": "# TDD Bug Fix",
+      "outcome": "Complete tdd step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "pocock-tdd-1",
+      "method": "pocock-tdd",
+      "source": "pocock-tdd",
+      "anchor": "# Pocock TDD pointer",
+      "outcome": "Complete pocock-tdd step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "implement-1",
+      "method": "implement",
+      "source": "implement",
+      "anchor": "# Implement pointer",
+      "outcome": "Complete implement step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "code-review-1",
+      "method": "code-review",
+      "source": "code-review",
+      "anchor": "### 1. Pin the fixed point",
+      "outcome": "Complete code-review step 1.",
+      "depends_on": [],
+      "skippable": false
+    },
+    {
+      "id": "code-review-2",
+      "method": "code-review",
+      "source": "code-review",
+      "anchor": "### 2. Identify the spec source",
+      "outcome": "Complete code-review step 2.",
+      "depends_on": [
+        "code-review-1"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "code-review-3",
+      "method": "code-review",
+      "source": "code-review",
+      "anchor": "### 3. Identify the standards sources",
+      "outcome": "Complete code-review step 3.",
+      "depends_on": [
+        "code-review-2"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "code-review-4",
+      "method": "code-review",
+      "source": "code-review",
+      "anchor": "### 4. Spawn both sub-agents in parallel",
+      "outcome": "Complete code-review step 4.",
+      "depends_on": [
+        "code-review-3"
+      ],
+      "skippable": false
+    },
+    {
+      "id": "code-review-5",
+      "method": "code-review",
+      "source": "code-review",
+      "anchor": "### 5. Aggregate",
+      "outcome": "Complete code-review step 5.",
+      "depends_on": [
+        "code-review-4"
+      ],
+      "skippable": false
+    }
+  ],
+  "method_coverage": [
+    {
+      "method": "implement-flow",
+      "source": "implement-flow",
+      "mode": "all-top-level-numbered"
+    },
+    {
+      "method": "poteto-mode",
+      "source": "poteto-mode",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "playbook:bug-fix",
+      "source": "playbook:bug-fix",
+      "mode": "all-top-level-numbered"
+    },
+    {
+      "method": "unlazy",
+      "source": "unlazy",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "clean-code-for-agents",
+      "source": "clean-code-for-agents",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "unslop",
+      "source": "unslop",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "writing-for-agents",
+      "source": "writing-for-agents",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "diagnosing-bugs",
+      "source": "diagnosing-bugs",
+      "mode": "all-phase-headings"
+    },
+    {
+      "method": "domain-modeling",
+      "source": "domain-modeling",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "how",
+      "source": "how",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "why",
+      "source": "why",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "architect",
+      "source": "architect",
+      "mode": "all-phase-headings"
+    },
+    {
+      "method": "arena",
+      "source": "arena",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "codebase-design",
+      "source": "codebase-design",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "tdd",
+      "source": "tdd",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "pocock-tdd",
+      "source": "pocock-tdd",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "implement",
+      "source": "implement",
+      "mode": "declared-anchors"
+    },
+    {
+      "method": "code-review",
+      "source": "code-review",
+      "mode": "all-numbered-headings"
+    }
+  ]
+}

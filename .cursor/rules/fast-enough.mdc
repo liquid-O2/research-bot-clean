@@ -1,0 +1,12 @@
+---
+description: Estimate wall time before a run. Make hour-jobs minutes when a real path exists. Do not over-spend on the last percent.
+alwaysApply: true
+---
+
+# Fast enough
+
+Before you launch a job, say how long it should take. If the honest answer is an hour and a minutes path exists, take the minutes path first. Do not start the slow run and hope.
+
+A minutes path is ordinary here: vectorized NumPy, Numba or Cython on a hot loop, all **effective** cores (13–16, never `nproc`'s 64; see `HARDWARE.md`), or the GPU when the work is actually GPU-shaped. GPU fits change numerics on this box. Do not count a GPU result until a CPU-vs-GPU parity receipt exists.
+
+Do not spend a session hunting the last percent. No extra framework, no micro-opt pass, no rewrite of a job that already finishes in minutes. The test is wall-clock of the named gate, not a benchmark for its own sake.

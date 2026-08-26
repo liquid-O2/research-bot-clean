@@ -1,0 +1,329 @@
+{
+  "check_command": "python3 .audit/score_threshold_feature_rank.py",
+  "dollar_stop": {
+    "applied": "Stored 2021 corpus features do not put mean_winner_rank at or under 2.0 or frac_top5 at or above 0.50. Ticket 47 as motivated is dead spend, and the covering answer is that no remaining stored instrument recovers identity. Teacher-cash still cannot promote.",
+    "frac_top5": 0.26785714285714285,
+    "mean_winner_rank": 21.098214285714285,
+    "usd_per_asset_day": {
+      "HG": -279.4230769230769,
+      "NKD": -30.384615384615383,
+      "SI": -425.625
+    },
+    "verdict": "MISS"
+  },
+  "feature_count": 3505,
+  "features_head": [
+    "asset_SI",
+    "asset_HG",
+    "asset_NKD",
+    "side",
+    "phase_index",
+    "candidate_count",
+    "min_alert_age_sec",
+    "max_alert_age_sec"
+  ],
+  "fit": {
+    "learner": "sklearn.LogisticRegression",
+    "match_rate": 0.0625,
+    "n_cells_with_winner": 112,
+    "n_fallback_cells": 9,
+    "n_match_cell_best": 7,
+    "n_picked_cells": 112,
+    "n_train_cells_last": 112,
+    "n_train_rows_last": 9038
+  },
+  "label": "causal expanding-window fitted rank of READY cell-best on stored 2021 dense shards. 2021 can kill and cannot promote.",
+  "learner": "sklearn.LogisticRegression",
+  "lines": {
+    "argmax": {
+      "cash_total_usd": {
+        "HG": -3632.5,
+        "NKD": -395.0,
+        "SI": -5107.5
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 13,
+        "NKD": 13,
+        "SI": 12
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 10846.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -81.5625,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2279.423076923077,
+        "NKD": 1530.3846153846155,
+        "SI": 1925.625
+      },
+      "trades": 112,
+      "usd_per_asset_day": {
+        "HG": -279.4230769230769,
+        "NKD": -30.384615384615383,
+        "SI": -425.625
+      }
+    }
+  },
+  "n_forecast_rows_read": 0,
+  "n_shards": 38,
+  "ranks": {
+    "frac_rank0": 0.0625,
+    "frac_top5": 0.26785714285714285,
+    "mean_winner_rank": 21.098214285714285,
+    "median_winner_rank": 11.0,
+    "n_cells": 112
+  },
+  "rule": "On every joinable 20210721-20210806 asset-day that already has a dense shard, join the first snapshot of each CLEAR name to G1. Target is the READY cell-best. Score names with LogisticRegression trained only on joinable cells whose d8 is strictly before that day. Rank is the 0-based index after sorting by score descending, then smallest candidate_id. No train or one class falls back to earliest CLEAR. Pick argmax and price it with teacher cert_close_usd on READY. Do not rematerialize. Teacher-cash still cannot promote.",
+  "schema": "QRE2THRESHOLDFEATURERANK1",
+  "sources": {
+    "candidates_root": "artifacts/cache/port/entry_v2/g1/candidates",
+    "dense_store": "artifacts/entry_v2/tabular_recovery/dense_store",
+    "receipts_root": "artifacts/cache/port/entry_v2/g1/receipts",
+    "shards": [
+      {
+        "asset": "HG",
+        "d8": 20210721,
+        "identity": "2f86a973fbc7b1e9a6e06c2b81cf2d6253afd359f7a58a8f91bbc554422f7b6a",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/2f86a973fbc7b1e9a6e06c2b81cf2d6253afd359f7a58a8f91bbc554422f7b6a/HG/20210721.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210721,
+        "identity": "285b7a3696521f49ac59ed32aa27d0eca003a9bd91092bbbd9d2c42908f11ffa",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/285b7a3696521f49ac59ed32aa27d0eca003a9bd91092bbbd9d2c42908f11ffa/NKD/20210721.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210721,
+        "identity": "6de6f8a2b92514437af8d2c08ecb262db4394d360e13a938c3a715323dfc4e33",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/6de6f8a2b92514437af8d2c08ecb262db4394d360e13a938c3a715323dfc4e33/SI/20210721.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210722,
+        "identity": "776dfe559ec047b529001497b554e31210ce1594dacf3d0c08fd38a0a6489cc4",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/776dfe559ec047b529001497b554e31210ce1594dacf3d0c08fd38a0a6489cc4/HG/20210722.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210722,
+        "identity": "ad7c58a066f6f980c01f150a3d0be988afc15cf211996fd3775c7c7fba67be33",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/ad7c58a066f6f980c01f150a3d0be988afc15cf211996fd3775c7c7fba67be33/NKD/20210722.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210722,
+        "identity": "4ff5af29a278da59d2cd1136c3863d227ecf820b61c67b369d6327adfc8e6807",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/4ff5af29a278da59d2cd1136c3863d227ecf820b61c67b369d6327adfc8e6807/SI/20210722.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210723,
+        "identity": "496a3c65aab9032e2038ea4a11773df5514c131d280328b1462c57c51014b4a6",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/496a3c65aab9032e2038ea4a11773df5514c131d280328b1462c57c51014b4a6/HG/20210723.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210723,
+        "identity": "ea24599f001d024b90922d4b20962bcc3377dcc81019371f66497d1bf50d4606",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/ea24599f001d024b90922d4b20962bcc3377dcc81019371f66497d1bf50d4606/NKD/20210723.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210723,
+        "identity": "b8eaf0b9721eb857eba2b71bff7b0125f309ee7eef8f57376fa5810d27b14d6b",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/b8eaf0b9721eb857eba2b71bff7b0125f309ee7eef8f57376fa5810d27b14d6b/SI/20210723.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210726,
+        "identity": "06d775ca68bad5aeefe9e14017615bba956ab8bc60f4915210af043bfe16a8e3",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/06d775ca68bad5aeefe9e14017615bba956ab8bc60f4915210af043bfe16a8e3/HG/20210726.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210726,
+        "identity": "000a065c4b7197a600e94f791e2b673a29d1eea5b579261b17887bbb9e75eca7",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/000a065c4b7197a600e94f791e2b673a29d1eea5b579261b17887bbb9e75eca7/NKD/20210726.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210726,
+        "identity": "c45b0219d7fe814a6f0c3dd18cd1b2306898b3c092fec78eaf28651311a60551",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/c45b0219d7fe814a6f0c3dd18cd1b2306898b3c092fec78eaf28651311a60551/SI/20210726.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210727,
+        "identity": "e295c2410d52b242b1b9b510605f1e978530f2ce5b0dafd432c0998fa129baaa",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/e295c2410d52b242b1b9b510605f1e978530f2ce5b0dafd432c0998fa129baaa/HG/20210727.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210727,
+        "identity": "1d12144d56a363511e7f4d04b8e185fe866b743705ccf8217dbadd015c0a426d",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/1d12144d56a363511e7f4d04b8e185fe866b743705ccf8217dbadd015c0a426d/NKD/20210727.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210727,
+        "identity": "6c949d5868f89e1bafee47520daaf5d03da653fbfd9698102af7b49f28751921",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/6c949d5868f89e1bafee47520daaf5d03da653fbfd9698102af7b49f28751921/SI/20210727.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210728,
+        "identity": "097c77159a747f00696b83d24b378f9cd618154159fdf8901e3ba72a29e3420a",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/097c77159a747f00696b83d24b378f9cd618154159fdf8901e3ba72a29e3420a/HG/20210728.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210728,
+        "identity": "b41b89ea2704c89c55b3bd3400074aeba79eb6cbf83d09d4220051cffe48e4db",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/b41b89ea2704c89c55b3bd3400074aeba79eb6cbf83d09d4220051cffe48e4db/NKD/20210728.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210728,
+        "identity": "0f4ba6dbb3553e98d28750877ad822a0d5a8ba3e1a00edd6c498f976ec322697",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/0f4ba6dbb3553e98d28750877ad822a0d5a8ba3e1a00edd6c498f976ec322697/SI/20210728.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210729,
+        "identity": "9a98ec1e5cc045ca16ee2a865d3ebc7dd81dd195bb68bf0339d83d8f12b539cb",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/9a98ec1e5cc045ca16ee2a865d3ebc7dd81dd195bb68bf0339d83d8f12b539cb/HG/20210729.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210729,
+        "identity": "6a3127088cb23456eee75a7eb4e73b76a99fd117d8067778acac325010fbec7c",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/6a3127088cb23456eee75a7eb4e73b76a99fd117d8067778acac325010fbec7c/NKD/20210729.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210729,
+        "identity": "15171ec4e8de8d7473ac5a6ad7733961a01750a85e36cba4f18943de5113d6e7",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/15171ec4e8de8d7473ac5a6ad7733961a01750a85e36cba4f18943de5113d6e7/SI/20210729.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210730,
+        "identity": "6dd0bc5a9af2c8f38b023737c06c24ebfb1d558994adbaab99d4ee69e51305da",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/6dd0bc5a9af2c8f38b023737c06c24ebfb1d558994adbaab99d4ee69e51305da/HG/20210730.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210730,
+        "identity": "7c0ab434c825d4c6753fa752878e57f65c86ecaf2ddce8e491be94aeabd47084",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/7c0ab434c825d4c6753fa752878e57f65c86ecaf2ddce8e491be94aeabd47084/NKD/20210730.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210730,
+        "identity": "0eae6b9da3478e0589b0650a6fcfdd626f24d1c5774b2e9f2c7ed41da00df393",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/0eae6b9da3478e0589b0650a6fcfdd626f24d1c5774b2e9f2c7ed41da00df393/SI/20210730.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210802,
+        "identity": "7c13d7a70bc1ae338301e44928cea6ceb7f10e54a253f23eb4617a7b3cd4e8cc",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/7c13d7a70bc1ae338301e44928cea6ceb7f10e54a253f23eb4617a7b3cd4e8cc/HG/20210802.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210802,
+        "identity": "4bce799a0ac86ad270e86b7e7de856bc3956331e4dc493e5cd69af73789c92bf",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/4bce799a0ac86ad270e86b7e7de856bc3956331e4dc493e5cd69af73789c92bf/NKD/20210802.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210803,
+        "identity": "4058c00050d775301fd3f4a14535881b2c25bec60e8fee99a2f33128495579f2",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/4058c00050d775301fd3f4a14535881b2c25bec60e8fee99a2f33128495579f2/HG/20210803.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210803,
+        "identity": "ba6ee64dc48d9f5190540c7c05e3f39b58ea136985331f42473e464033208eef",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/ba6ee64dc48d9f5190540c7c05e3f39b58ea136985331f42473e464033208eef/NKD/20210803.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210803,
+        "identity": "7af3f2194c89f52fc1f83b65c0fbee7eccd7edc7475cf89f4b9763009ca0399e",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/7af3f2194c89f52fc1f83b65c0fbee7eccd7edc7475cf89f4b9763009ca0399e/SI/20210803.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210804,
+        "identity": "61c90595452e445b098d75a4c2faaf73313fb7bd8dc348293e22c48cefa459c8",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/61c90595452e445b098d75a4c2faaf73313fb7bd8dc348293e22c48cefa459c8/HG/20210804.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210804,
+        "identity": "80975a2b53e7212e5139b3ab89773cd72fdffbe2107097065ed03681da29f7be",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/80975a2b53e7212e5139b3ab89773cd72fdffbe2107097065ed03681da29f7be/NKD/20210804.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210804,
+        "identity": "e3f6a84c15bcaf2d29fea14ad4bfc1067cd1278c3eb642659895ccb203c711ba",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/e3f6a84c15bcaf2d29fea14ad4bfc1067cd1278c3eb642659895ccb203c711ba/SI/20210804.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210805,
+        "identity": "20d9bbbf886518620b31ac69252e28540e34af3465af9dcb685dbd096d85ea31",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/20d9bbbf886518620b31ac69252e28540e34af3465af9dcb685dbd096d85ea31/HG/20210805.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210805,
+        "identity": "161571a760665e27223a5dda8a0a1cb077c90bd0638104bf10a13827b5928f20",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/161571a760665e27223a5dda8a0a1cb077c90bd0638104bf10a13827b5928f20/NKD/20210805.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210805,
+        "identity": "214f35066df54a87e41c2e4a0b01805e9d586e9fb4ab78e50e3865361a4f073d",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/214f35066df54a87e41c2e4a0b01805e9d586e9fb4ab78e50e3865361a4f073d/SI/20210805.npz"
+      },
+      {
+        "asset": "HG",
+        "d8": 20210806,
+        "identity": "8c31b16432ba6697bbbbe64b306545c9493e7df9ea0c613637089c683defea12",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/8c31b16432ba6697bbbbe64b306545c9493e7df9ea0c613637089c683defea12/HG/20210806.npz"
+      },
+      {
+        "asset": "NKD",
+        "d8": 20210806,
+        "identity": "080b3ef045dc49cd8fe2ac839f6d98d3aff385ae74474b12c81ae03d2d9b15d2",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/080b3ef045dc49cd8fe2ac839f6d98d3aff385ae74474b12c81ae03d2d9b15d2/NKD/20210806.npz"
+      },
+      {
+        "asset": "SI",
+        "d8": 20210806,
+        "identity": "7d18046d38c4fdc99b85b6666819ee62b4d35e52541a8ce3f658c390c0cef008",
+        "path": "artifacts/entry_v2/tabular_recovery/dense_store/7d18046d38c4fdc99b85b6666819ee62b4d35e52541a8ce3f658c390c0cef008/SI/20210806.npz"
+      }
+    ],
+    "teacher_root": "artifacts/cache/port/entry_v2/g1/teacher"
+  },
+  "status": "MISS",
+  "verdict": "MISS",
+  "wall_clock_sec": 162.487,
+  "window": [
+    "2021-07-21",
+    "2021-08-06"
+  ],
+  "workers": 14
+}

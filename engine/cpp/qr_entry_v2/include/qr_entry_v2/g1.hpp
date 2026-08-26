@@ -203,6 +203,24 @@ struct CandidateRow {
   std::string compliance_artifact_sha256;
 };
 
+struct PivotRow {
+  std::string candidate_id;
+  qr::futsess::Asset asset = qr::futsess::Asset::SI;
+  std::int32_t d8 = 0;
+  std::uint8_t rung_index = 0;
+  std::int8_t side = 0;
+  std::int64_t pivot_mid2 = 0;
+  std::uint64_t pivot_ts_recv_ns = 0;
+  std::uint64_t pivot_ordinal = 0;
+  std::int64_t leg_start_mid2 = 0;
+  std::uint64_t leg_start_ts_recv_ns = 0;
+  std::uint64_t leg_start_ordinal = 0;
+  std::int64_t conf_mid2 = 0;
+  std::int64_t threshold_mid2_raw = 0;
+
+  friend bool operator==(const PivotRow&, const PivotRow&) = default;
+};
+
 // Versioned identity primitives are public so every artifact reader can
 // recompute them instead of trusting stored identity text.
 [[nodiscard]] std::string g1_candidate_id(const CandidateRow& row);
@@ -215,6 +233,7 @@ struct CandidateSession {
   DayPriors priors{};
   CompletedSessionInput completed{};
   std::vector<CandidateRow> candidates;
+  std::vector<PivotRow> pivots;
   std::uint64_t raw_events = 0;
   std::uint64_t two_sided_events = 0;
   std::uint64_t sane_events = 0;
@@ -313,9 +332,11 @@ struct G1BuildStats {
   std::uint64_t sessions = 0;
   std::uint64_t no_candidate_sessions = 0;
   std::uint64_t candidates = 0;
+  std::uint64_t pivot_rows = 0;
   std::uint64_t teacher_ready = 0;
   std::uint64_t teacher_refused = 0;
   std::string manifest_sha256;
+  std::string pivot_manifest_sha256;
   std::string receipt_sha256;
 };
 

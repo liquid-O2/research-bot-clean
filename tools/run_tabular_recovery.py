@@ -2,7 +2,7 @@
 """Restartable top-level runner for the Entry V2 recovery contract.
 
 No full 908,346-candidate campaign is entered until the real E1R/E2R,
-failure-branch inventory, future-mutation, engineering, neural, and strict
+failure-branch inventory, future-mutation, engineering, and strict
 reload gates have published a passing launch receipt.  2025H2 has no CLI path.
 """
 
@@ -162,15 +162,6 @@ def _fit_kwargs(execution:FailureBranchExecution)->Mapping[str,object]:
     raise RecoveryRefusal("fit-only failure branch is unregistered")
 
 
-def _run_neural(run_root:Path)->Mapping[str,object]:
-    """Neural is dead. Do not spawn neural_sufficiency_production."""
-    del run_root
-    core={"schema":"QRE2TABNEURALREHEARSALBINDING1",
-        "status":"RETIRED","neural_escalation_allowed":False,
-        "spawned_neural_production":False,"h2_open_count":0}
-    return MappingProxyType({**core,"receipt_sha256":C.object_sha256(core)})
-
-
 def _economic_summary(development:DevelopmentEvaluationResult
                       )->Mapping[str,object]:
     rows={}
@@ -226,8 +217,7 @@ def _restart_snapshot(curriculum:TwoRoundCurriculumResult)->CausalSnapshotInput:
         (0,0,0,0,0,0),str(shard.phase[index]))
 
 
-def run_rehearsal(*,source_root:Path,run_root:Path,
-        neural_root:Path)->Mapping[str,object]:
+def run_rehearsal(*,source_root:Path,run_root:Path)->Mapping[str,object]:
     config=RecoveryConfig();specs=discover_authoritative_session_specs(
         source_root,REHEARSAL_BOUNDS);sessions=_sessions(specs)
     cache=run_root/"cache";outcomes,teachers,features=_materialize(
@@ -352,10 +342,9 @@ def run_rehearsal(*,source_root:Path,run_root:Path,
         feature_schema=final_e1r.curriculum.final_round.feature_schema,
         component_roster=component,action_roster=action,
         output_root=run_root/"future_mutation",max_delay_sec=horizon)
-    neural=_run_neural(neural_root)
     launch=publish_launch_rehearsal(e1r=final_e1r,e2r=final_e2r,
         engineering_audit=engineering,future_mutation=mutation,
-        neural_rehearsal=neural,failure_branch_inventory=inventory,
+        failure_branch_inventory=inventory,
         config=config,output_path=run_root/"launch_rehearsal.json")
     return MappingProxyType({"schema":"QRE2TABREHEARSALRUN1",
         "status":"PASS","launch_rehearsal":dict(launch),
@@ -488,7 +477,7 @@ def status(*,rehearsal_root:Path,campaign_root:Path)->Mapping[str,object]:
 
 def arguments()->argparse.Namespace:
     parser=argparse.ArgumentParser()
-    parser.add_argument("--phase",choices=("status","neural","rehearsal",
+    parser.add_argument("--phase",choices=("status","rehearsal",
         "campaign","all"),default="status")
     parser.add_argument("--source-root",type=Path,
         default=REPO_ROOT/"artifacts/cache/port/entry_v2")
@@ -496,8 +485,6 @@ def arguments()->argparse.Namespace:
         default=REPO_ROOT/"artifacts/entry_v2/tabular_recovery/rehearsal")
     parser.add_argument("--campaign-root",type=Path,
         default=REPO_ROOT/"artifacts/entry_v2/tabular_recovery/campaign")
-    parser.add_argument("--neural-run-root",type=Path,
-        default=REPO_ROOT/"artifacts/cache/port/entry_v2_runs/pre_h2_tabular_gate")
     return parser.parse_args()
 
 
@@ -542,16 +529,13 @@ def main()->int:
           flush=True)
     if args.phase=="status":result=status(rehearsal_root=args.rehearsal_root,
                                            campaign_root=args.campaign_root)
-    elif args.phase=="neural":result=_run_neural(args.neural_run_root)
     elif args.phase=="rehearsal":result=run_rehearsal(
-        source_root=args.source_root,run_root=args.rehearsal_root,
-        neural_root=args.neural_run_root)
+        source_root=args.source_root,run_root=args.rehearsal_root)
     elif args.phase=="campaign":result=run_campaign(source_root=args.source_root,
         run_root=args.campaign_root,rehearsal_root=args.rehearsal_root)
     else:
-        _run_neural(args.neural_run_root)
         rehearsal=run_rehearsal(source_root=args.source_root,
-            run_root=args.rehearsal_root,neural_root=args.neural_run_root)
+            run_root=args.rehearsal_root)
         if rehearsal.get("status")!="PASS":result=rehearsal
         else:result=run_campaign(source_root=args.source_root,
             run_root=args.campaign_root,rehearsal_root=args.rehearsal_root)

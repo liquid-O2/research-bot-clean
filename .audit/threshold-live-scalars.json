@@ -1,0 +1,289 @@
+{
+  "check_command": "python3 .audit/score_threshold_live_scalars.py",
+  "dollar_stop": {
+    "applied": "Every named live G1 scalar misses the rungs. Remaining unit is a fitted name instrument, still one frozen-rule teacher-cash read, still cannot promote.",
+    "captured_live_rules": [],
+    "rungs_usd": {
+      "HG": 2000.0,
+      "NKD": 1500.0,
+      "SI": 1500.0
+    },
+    "verdict": "MISS"
+  },
+  "label": "one live G1 scalar pick per gated cell on the stored join. It can name a capture fix and cannot promote.",
+  "lines": {
+    "max_atr14_prev_usd": {
+      "cash_total_usd": {
+        "HG": -15210.0,
+        "NKD": -22560.0,
+        "SI": -11435.0
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 60338.75,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -28.376585928489042,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2077.208121827411,
+        "NKD": 1616.2886597938145,
+        "SI": 1559.869109947644
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -77.20812182741116,
+        "NKD": -116.28865979381443,
+        "SI": -59.86910994764398
+      }
+    },
+    "max_compliance_distance_sec": {
+      "cash_total_usd": {
+        "HG": -878.75,
+        "NKD": -17355.0,
+        "SI": -36192.5
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 77651.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -31.38768742791234,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2004.4606598984772,
+        "NKD": 1589.458762886598,
+        "SI": 1689.4895287958116
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -4.460659898477157,
+        "NKD": -89.45876288659794,
+        "SI": -189.4895287958115
+      }
+    },
+    "max_entry_spread_usd": {
+      "cash_total_usd": {
+        "HG": -3466.25,
+        "NKD": -48655.0,
+        "SI": -45152.5
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 97626.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -56.09789504036909,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2017.5951776649747,
+        "NKD": 1750.798969072165,
+        "SI": 1736.4005235602094
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -17.59517766497462,
+        "NKD": -250.79896907216494,
+        "SI": -236.40052356020942
+      }
+    },
+    "min_compliance_distance_sec": {
+      "cash_total_usd": {
+        "HG": -26267.5,
+        "NKD": -8230.0,
+        "SI": 3287.5
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 37995.0,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -17.998846597462514,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2133.3375634517765,
+        "NKD": 1542.4226804123712,
+        "SI": 1482.7879581151833
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -133.33756345177665,
+        "NKD": -42.422680412371136,
+        "SI": 17.212041884816752
+      }
+    },
+    "min_entry_spread_usd": {
+      "cash_total_usd": {
+        "HG": -1366.25,
+        "NKD": -17635.0,
+        "SI": 1865.0
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 36358.75,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -9.882497116493656,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2006.9352791878173,
+        "NKD": 1590.9020618556701,
+        "SI": 1490.235602094241
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -6.935279187817259,
+        "NKD": -90.9020618556701,
+        "SI": 9.764397905759163
+      }
+    },
+    "min_sane_ceiling_usd": {
+      "cash_total_usd": {
+        "HG": -15210.0,
+        "NKD": -22560.0,
+        "SI": -11435.0
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 60338.75,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": -28.376585928489042,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 2077.208121827411,
+        "NKD": 1616.2886597938145,
+        "SI": 1559.869109947644
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": -77.20812182741116,
+        "NKD": -116.28865979381443,
+        "SI": -59.86910994764398
+      }
+    },
+    "side": {
+      "cash_total_usd": {
+        "HG": 21477.5,
+        "NKD": 28190.0,
+        "SI": 25797.5
+      },
+      "clears_rungs": false,
+      "days": {
+        "HG": 197,
+        "NKD": 194,
+        "SI": 191
+      },
+      "entry_cap": 12,
+      "entry_cap_ok": true,
+      "max_drawdown_usd": 27551.25,
+      "max_entries_portfolio_day": 9,
+      "overlap_violations": 0,
+      "per_trade_mean_usd": 43.52076124567474,
+      "rungs_usd": {
+        "HG": 2000.0,
+        "NKD": 1500.0,
+        "SI": 1500.0
+      },
+      "shortfall_usd": {
+        "HG": 1890.9771573604062,
+        "NKD": 1354.6907216494847,
+        "SI": 1364.934554973822
+      },
+      "trades": 1734,
+      "usd_per_asset_day": {
+        "HG": 109.0228426395939,
+        "NKD": 145.30927835051546,
+        "SI": 135.065445026178
+      }
+    }
+  },
+  "n_forecast_rows_read": 37427,
+  "rule": "On every joinable 2022-03-09 through 2024-12-31 gated cell, pick among CLEAR names using one live G1 column at a time: min or max entry_spread_usd, min or max compliance_distance_sec, min sane_ceiling_usd, max atr14_prev_usd, or the earlier CLEAR on the majority side. Tie-break lexicographically smallest candidate_id. One contract per cell. Cash is cert_close_usd on READY. The day gate is the freeze expanding median. Teacher-cash still cannot promote.",
+  "schema": "QRE2THRESHOLDLIVESCALARS1",
+  "sources": {
+    "candidates_root": "artifacts/cache/port/entry_v2/g1/candidates",
+    "forecasts": {
+      "path": "artifacts/runs/e6_vol_forecasts_v2/vol_service_forecasts.tsv",
+      "sha256": "9bea40ac23749bf5f39e8147e96db45c651c140c5fc1573fec8e036c2b7b7a2c"
+    },
+    "freeze": {
+      "path": ".audit/threshold-2022-2024-freeze.md",
+      "sha256": "730fa98017e1e37532f0d4b0b0d209dc4d7512c3dbb752d95467086f4ff3854d"
+    },
+    "killed_read": {
+      "path": ".audit/threshold-2022-2024-read.json",
+      "sha256": "2f988fe93d895b06f01f64fa9191c4c4827e370312219dfd4c563b46dea6a891"
+    },
+    "receipts_root": "artifacts/cache/port/entry_v2/g1/receipts",
+    "teacher_root": "artifacts/cache/port/entry_v2/g1/teacher"
+  },
+  "status": "MISS",
+  "verdict": "MISS",
+  "wall_clock_sec": 36.585,
+  "window": [
+    "2022-03-09",
+    "2024-12-31"
+  ],
+  "workers": 14
+}

@@ -1,9 +1,0 @@
-{
-  "agent_id": "agent-fixture",
-  "agent_type": "general-purpose",
-  "cwd": "/workspace",
-  "hook_event_name": "SubagentStart",
-  "prompt_id": "e56f25d2-d0cc-4081-956c-806ed6e39187",
-  "session_id": "session-fixture",
-  "transcript_path": "/tmp/scratch/transcript.jsonl"
-}

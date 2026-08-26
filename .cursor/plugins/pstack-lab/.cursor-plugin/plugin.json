@@ -1,0 +1,27 @@
+{
+	"name": "pstack-lab",
+	"displayName": "pstack-lab",
+	"version": "0.15.0",
+	"description": "pstack fork for this repo. Poteto Mode plus codebase-design, writing-for-agents, and one-pass review. Cursor CLI loads it from the project plugin dir.",
+	"author": {
+		"name": "lab"
+	},
+	"license": "MIT",
+	"keywords": [
+		"pstack",
+		"poteto-mode",
+		"workflow",
+		"principles"
+	],
+	"category": "developer-tools",
+	"tags": [
+		"workflow",
+		"principles",
+		"review",
+		"planning"
+	],
+	"skills": "./skills/",
+	"agents": "./agents/",
+	"rules": "./rules/",
+	"hooks": "./hooks/hooks.json"
+}

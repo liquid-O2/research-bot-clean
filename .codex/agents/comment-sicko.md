@@ -1,0 +1,1 @@
+../../.cursor/plugins/pstack-lab/agents/comment-sicko.md

@@ -157,7 +157,10 @@ If the tree is empty and the script is not there yet:
 
 Do not write `nkd-hg`, `rty`, or `russel`. Overlay `/` is empty after a pod
 start, so reinstall from `HARDWARE.md` with `uv`. Skills come with the tree
-under `.cursor/plugins/pstack-lab`. Do not install stock Pstack.
+under `.cursor/plugins/pstack-lab`. After restore run
+`bash tools/install_pstack_skills.sh` so `.claude/skills`, `.codex/skills`,
+`.cursor/skills`, and `.agents/skills` all symlink that tree. Do not install
+stock Pstack.
 
 Codex on the new box needs this line in `~/.codex/config.toml`:
 
@@ -367,7 +370,8 @@ in the same sentence it is reported.
 | Session memory | `MEMORY.md`, `tools/memory_ledger.py` |
 | Covering map (live) | `.audit/briefs/threshold-covering-after-pivot-kill-out.md` |
 | C Stage 0 brief | `.audit/briefs/threshold-cfit-stage0.md` |
-| Cursor / poteto plugin | `.cursor/plugins/pstack-lab`, `.cursor/rules/` |
+| pstack-lab skills (canonical) | `.cursor/plugins/pstack-lab/skills/` |
+| Same skills on every host | `.cursor/skills`, `.claude/skills`, `.codex/skills`, `.agents/skills` (symlinks). Re-run `tools/install_pstack_skills.sh`. |
 | Grok poteto-agent | `.grok/agents/poteto-agent.md` |
 | Hillclimb playbook | `.cursor/plugins/pstack-lab/skills/poteto-mode/playbooks/hillclimb.md` |
 | Fable/Sol one-line append | `.codex/follow-rules.md` |

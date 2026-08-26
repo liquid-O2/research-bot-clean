@@ -5330,3 +5330,4 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - 2026-08-26 #574 USER stopped C-fit Stage 0 before Sol ran. Era tags not emitted. Stage 1 unstarted.
 - 2026-08-26 #575 Cursor Ultra ~97% exhausted. START_HERE is the bootstrap on every host. GitHub liquid-O2/research-bot-clean then rclone copy to r2:runp. Keys at .secrets/rclone-r2.conf (gitignored). Covering unit C unstarted.
 - 2026-08-26 #576 rclone 1.75 R2 flags: tristate needs =true/=false. Smoke put/get of START_HERE.md to r2:runp/_bootstrap ok. Full copy next. Walls untouched.
+- 2026-08-26 #577 GitHub main at 3fd74cd. rclone copy /workspace -> r2:runp in flight, 64 transfers, walls nkd-hg/rty/russel untouched. Log artifacts/cache/r2_backup.log.

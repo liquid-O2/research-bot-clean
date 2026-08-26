@@ -28,15 +28,17 @@ case "${DEST}" in
 esac
 
 # Flags from MEMORY #260 / #269. rclone 1.75 on Cloudflare R2.
+# Tristate flags need =true/=false; a bare --s3-use-unsigned-payload eats the next arg.
 exec rclone copy "${ROOT}" "${DEST}" \
   --config "${CONF}" \
   --transfers "${RCLONE_TRANSFERS:-64}" \
   --checkers 32 \
   --fast-list \
   --no-check-dest \
+  --s3-no-check-bucket \
   --s3-use-x-id=false \
   --s3-no-head \
-  --s3-use-unsigned-payload \
+  --s3-use-unsigned-payload=true \
   --s3-disable-checksum \
   --s3-sign-accept-encoding=false \
   --exclude 'node_modules/**' \

@@ -75,10 +75,17 @@ Cursor Ultra is exhausted (~97% monthly). Do not use Cursor as the overnight par
 |---|---|---|
 | Parent / overnight | Grok 4.6 xhigh on this TUI | `/poteto-mode`. Hillclimb against the rungs. Writes MEMORY notes. Does not stop at a child receipt. |
 | Playbook workers | Grok `poteto-agent` | `.grok/agents/poteto-agent.md`. Reads poteto-mode SKILL.md first. Not `general-purpose`, `explore`, or `plan`. |
-| Designer / covering / Stage 1 judge | Fable `claude-fable-5-thinking-max` only | `claude -p --append-system-prompt-file .codex/follow-rules.md`. No thinking-high fallback. Not a Grok subagent. |
-| Specified hard walks | Sol `gpt-5.6-sol-max` | `codex exec`. `model_instructions_file` is the one follow-rules line. Not a Grok subagent. |
+| Designer / covering / Stage judge | Fable `claude-fable-5-thinking-max` only | `claude -p --append-system-prompt-file .codex/follow-rules.md`. No thinking-high. Not a Grok subagent. |
+| Peer on covering / planning | Sol `gpt-5.6-sol-max` | Same brief as Fable, parallel. `codex exec` with `model_instructions_file` already set. Does not execute a plan it just wrote. |
+| Specified hard walks | Sol `gpt-5.6-sol-max` | Fresh child, different brief, the sequence Fable named. |
 
-Send parent-facing prompts to the parent. Do not write "You are Fable" into a parent paste. Do not `/model` the parent onto Sol or Fable.
+Send parent-facing prompts to the parent. Do not write "You are Fable" into a
+parent paste. Do not `/model` the parent onto Sol or Fable.
+
+CLI children match Cursor Tasks: envelope
+`.cursor/prompts/cli-child-header.md`, then the role brief from
+`.cursor/prompts/cli-dispatch.md`. Overnight paste:
+`.cursor/prompts/overnight-c.md`. No Claude or Codex hooks.
 
 Paste files:
 

@@ -1,19 +1,37 @@
 # Overnight parent paste. Fresh Grok session. Do not resume the old chat.
 
+Sol's vendor prompt is already intact. `~/.codex/config.toml` already has
+`model_instructions_file = "/workspace/.codex/follow-rules.md"` (one line:
+read START_HERE, then `.cursor/rules/`). Do not rebuild Sol's system prompt.
+Still pass it on the exec line so it cannot drop.
+
+Fable: vendor prompt plus `--append-system-prompt-file /workspace/.codex/follow-rules.md`.
+
+CLI children are Cursor Tasks over the shell. Envelope
+`.cursor/prompts/cli-child-header.md`, then the brief that skill would have
+passed to that Task. Dispatch table: `.cursor/prompts/cli-dispatch.md`.
+Do not invent a new prompt. Do not load Claude or Codex hooks.
+
 ```text
 /poteto-mode new task. hillclimb Entry V2 rungs overnight. Don't stop. Going to bed.
 
-Read START_HERE.md first, then .audit/briefs/threshold-covering-after-pivot-kill-out.md, then .audit/briefs/threshold-cfit-stage0.md. Compaction summaries are not the record.
+Read START_HERE.md. Compaction summaries are not the record. /poteto-mode owns the loop. Hillclimb playbook. Metric: HG 2000, NKD 1500, SI 1500 usd_per_asset_day, MDD under 1000, at most 12 entries, dollars per trade, one contract. Stop the night only on RUNGS, or on a genuine dead end that Fable named after a covering search. A plateau is not a stop.
 
-Predicate: `.audit/threshold-cfit-stage0.json` exists and Fable has judged it. On PASS, Sol runs Stage 1 from that covering map until `.audit/threshold-cfit-stage1.json` exists and Fable has judged it. RUNGS: stop and write the next freeze unit. KILL: stop. B is not tonight's work. Stage 0 STOP: report and wait. Do not amend.
+Seats. Parent is Grok 4.6 xhigh. You write MEMORY notes. Playbook workers: spawn poteto-agent. Never general-purpose, explore, or plan.
 
-Parent stays Grok 4.6 xhigh. Playbook workers: spawn poteto-agent. Do not use general-purpose, explore, or plan.
+Fable (claude-fable-5-thinking-max only, no thinking-high) is designer and Stage judge. Sol-max is a peer on covering and planning, same brief, parallel, like how-critics / arena. You do not write the covering map. A second opinion is the same prompt against a different model. If they disagree, record both. Fable's named next experiment is what gets run. Sol does not execute a plan it authored alone.
 
-Sol specified walks: `codex exec` with gpt-5.6-sol-max. Brief `.audit/briefs/threshold-cfit-stage0.md` for Stage 0. Do not inherit Grok. Fable judges: `claude -p --append-system-prompt-file /workspace/.codex/follow-rules.md` as claude-fable-5-thinking-max only. No thinking-high. You write MEMORY notes. Subagents do not.
+Fable CLI: claude -p --append-system-prompt-file /workspace/.codex/follow-rules.md. Body: envelope plus the brief that role would get in Cursor (covering file, judge file, explainer-prompt, critic-prompt, reviewer-prompt, or runner-prompt).
 
-rclone is already copying /workspace to r2:runp in the background, throttled. Do not kill it. Do not start another rclone. Do not du the volume.
+Sol-max CLI: codex exec -m gpt-5.6-sol-max -c model_instructions_file="/workspace/.codex/follow-rules.md" -c model_reasoning_effort="high". Body: envelope plus that same role brief when Sol is the peer, or plus the live unit brief when Sol is the walker. Never both in one child. Vendor prompt stays. Do not inherit Grok.
 
-Do not walk design/entry_reset/tickets. Do not start B, D, or tickets 37, 46, 47. Do not fit until Stage 0 PASS is judged. Do not touch 2025. Three asset chains, never 64 workers.
+Start at the named frontier: pointer .audit/briefs/threshold-cfit-stage0.md (C Stage 0). After the receipt, pointer Fable at that receipt plus the covering map for judgment. Stage 0 STOP: report, do not amend, do not start Stage 1. Stage 0 PASS: pointer Sol at Stage 1 in .audit/briefs/threshold-covering-after-pivot-kill-out.md.
 
-Keep a decision log. Plateau: pivot inside C's frozen spec, do not invent a new unit.
+On RUNGS: write the freeze unit the covering map already named, then stop the hillclimb.
+
+On KILL, stall, or several rejects: do not tweak the dead unit. C's stop forbids a second config, seed sweep, feature widening, or per-asset resurrection. Covering search is the plan step. Same brief to Fable and to Sol-max in parallel: header plus .cursor/prompts/threshold-covering.md. They list remaining whole-shape ways to the rungs, kill what is already dead, and each name one next experiment. You read both. Fable's name is the one Sol then executes, on a fresh child, different brief. If C is dead, the last map ranked B (late ages). They have to say it after the receipt. D is a component. Do not walk design/entry_reset/tickets/.
+
+rclone is copying to r2:runp, throttled to 8 transfers. Do not kill it. Do not start another. Do not du the volume. Do not touch 2025. Three asset chains, never 64 workers.
+
+Keep a decision log via show-me-your-work. One row per attempt.
 ```

@@ -5336,3 +5336,4 @@ Written by the PreCompact hook so a compaction loses nothing. Newest last.
 - 2026-08-26 #580 DECISION Always-on stop-at-receipt killed overnight. Child walks end at a named receipt. Parent continues under never-block-on-the-human. Grok loads .grok/rules/*.md. Matching principle leaves only. Sol/Fable stay CLI.
 - 2026-08-26 #581 DECISION Playbook workers on Grok are poteto-agent, not general-purpose/explore/plan. Path to rungs is hillclimb plus covering map. Unit C is the frontier. No new ticket list. TDD only if a cheap local test exists.
 - 2026-08-26 #582 HOST rclone throttled to 8 transfers, nice 15, ignore-existing. Overnight paste .cursor/prompts/overnight-c.md. Fresh Grok session, do not resume the old chat.
+- 2026-08-26 #583 HOST Codex hooks.state stripped. CLI children use Cursor Task briefs via cli-dispatch.md. Sol-max is covering peer and specified walker on different children. Fresh Grok, overnight-c.md.

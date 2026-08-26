@@ -19,8 +19,9 @@ SessionStart injects the last 12 lasting notes from `MEMORY.md`.
 Parent is Grok. Playbook workers are `poteto-agent`. Do not substitute
 `general-purpose`, `explore`, or `plan` for that work.
 
-Fable and Sol run through their CLIs, not as Grok subagents and not by
-switching the parent model.
+Fable and Sol-max run through their CLIs, not as Grok subagents and not by
+switching the parent model. Covering and planning: same brief to both.
+Fable is designer. Sol-max is peer. Specified walks: Sol-max on a fresh child.
 
 ## Memory
 

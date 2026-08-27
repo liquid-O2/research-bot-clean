@@ -613,6 +613,143 @@ text, verified citations). Three findings are load-bearing and binding:
    source's own two-sided warning that stricter filters can cost more in
    frequency than they buy in accuracy.
 
+## Sweep 8 frozen pre-7b: the survival-gated fade (Fable, 2026-08-27)
+
+Frozen BEFORE sweep 7b's bleed numbers exist, so 7b picks between branches
+and never shapes the model. Zero-fit round; no weights, no supervised fit.
+
+Gate, per (cell, side), at completed bars with extreme age >= 5 min: five
+evidence components, each a walk-forward stratum percentile (asset,
+phase; strictly-prior-day calibration), oriented larger = safer: E1
+quiet-age percentile within the stratum's interarrival distribution; E2
+tape-die-off (inverse percentile of last-10-min quote events + volume vs
+the side's episode history); E3 one-sidedness of the last touch print
+(banked, one-shot); E4 interarrival stretch (current gap / side's median
+gap so far); E5 opposite-side extreme recency. G = mean(E1..E5); fire
+when G >= the stratum 60th percentile (frozen, not swept) AND remaining
+time >= 1800 s AND the side's extreme age is inside the asset's cash
+window (45 min NKD, 60 min SI and HG). Both sides monitored; first fire
+wins; an opposite new extreme cancels a pending entry and re-arms.
+
+Entry variants, pre-registered: A = first fade-side CLEAR candidate after
+the fire; B = same but only candidates whose decision quote sits inside
+the zone (within 0.15 ATR of the extreme; abstain if none within 15 min).
+Variant C (conditional, opened only if 7b's flipped-fade line is
+cash-positive on either deciding asset): the same gate applied to the
+flipped join side. Primary no-cash metric: post-entry extension rate;
+then soft-hit, coverage, delay-from-terminal median and p90, per phase;
+side agreement diagnostic only. Controls: sweep-7a's first-quiet line and
+a random-timing draw. Selection: variant per asset by lowest post-entry
+extension at coverage >= 0.35, then price that one line per asset (cash,
+walls, MDD both orderings, replay, 2% stress, block null).
+
+Keep-to-price bar: postX <= 0.25 at coverage >= 0.35. Freeze-candidate
+bar: the standing HOLD bar (rungs, MDD < 1000 both orderings, stress,
+adjusted null <= 0.05) on NKD and SI. Kill routes to the matched-twins
+certificate and the regime-scoped variant. 7b's lawful influence is
+exactly: branch priority (late-dominated losses tighten the lateness law;
+hard-wrong-dominated opens variant C) - nothing else.
+
+## Sweep 7b verdict and the sweep-8 amendments (Fable ruling, 2026-08-27)
+
+`.audit/mill-sweep7b.json`, rows sweep7b-001..006, all KILL. Two rulings
+and two amendments, all pre-cash for sweep 8:
+
+1. **The flip is dead and variant C stays closed.** Measured flip
+   agreement is 0.463/0.473/0.410 - the 0.618 lead was the naive
+   complement awarding the 12-14% unsharp band to the flip. The charter's
+   variant-C condition (flip cash-positive on a deciding asset)
+   technically fired on NKD (+30.9), but 7b's own registered decision
+   table (INTERESTING=False, every bound fired, stress -115 to -378)
+   supersedes it; ruling recorded rather than silently applied.
+2. **The bleed has a name: SOFT-WRONG/IN-BUDGET - right idea, wrong
+   depth.** 67/84/77% of gross loss with wall rates 0.47-0.74: fades of
+   the smaller-but-positive side, entered near the trigger, get walled by
+   the residual extension before their remaining value can realize. The
+   side was never the problem; the DEPTH of the entry relative to the
+   coming extension is. Hard-wrongs are 8-16% of loss. The
+   18-ticks-inside source geometry is now our own measured mechanism.
+3. **Amendment one, evidence-forced: the lateness cap is dropped.** LATE
+   entries are the profit center (win 0.86-0.92, wall 0.00-0.04, +310 to
+   +466 usd/day buckets); excluding them makes every asset worse by 150-
+   450 usd/day. The frozen fire-window (extreme age inside 45/60 min) is
+   replaced by remaining-time >= 1800 s only. The O4b decay curves bound
+   oracle cash, not causal safety; a causal fire that comes late is late
+   BECAUSE the extension resolved, which is selection, not decay.
+4. **Amendment two: depth entry is primary, not a variant.** Entry takes
+   the first fade-side candidate whose decision quote sits inside the
+   zone (within 0.15 ATR of the extreme); the any-candidate form becomes
+   the control. This attacks SWIB directly.
+
+Both amendments are recorded here before sweep 8 reads any outcome; the
+gate's five evidences, the 60th-percentile bar, postX as primary metric,
+and all other frozen terms stand unchanged.
+
+## Sweep 7a verdict and the survival reframe (Fable, 2026-08-27, overnight)
+
+`.audit/mill-sweep7a.json`, rows sweep7a-001..012, all KILL. The held-
+retest join and cross-phase memory are both side coins (error 0.47-0.57,
+Wilson uppers to 0.68, against the 0.02 ceiling); coverage was never
+binding (0.91-0.98 on screen A, no_candidate zero everywhere).
+
+The finding that reframes everything: **soft-hit is 0.91-0.98 on every
+asset and both screens.** At these trigger moments, nearly ANY fade side
+carries positive remaining value. The side question - the object of
+sweeps 5 through 7a - is economically nearly irrelevant. The bleed
+mechanism is post-trigger extension: median trigger delay is NEGATIVE
+(the join fires before the direction's true terminal extreme, which then
+extends), and the post-trigger new-extreme rate runs 0.44-0.88. Money is
+lost to entering while the run is still alive, not to fading the wrong
+end.
+
+Binding consequences: (1) the primary no-cash metric for every successor
+is the post-entry extension rate (the loss mechanism), not side
+agreement; (2) the central family is the per-side SURVIVAL gate - will
+this direction print another extreme? - via the competing-risk/renewal
+model (Sol attacks 5 and 7), with the tape-speed die-off (quote-event and
+volume decay, our own series) and the banked terminality separators (F
+one-sidedness AUC 0.61-0.66, S persistence) as evidence, walk-forward,
+selective; (3) lateness is bought with coverage, which has 0.5+ of
+headroom above the floors; (4) entry depth inside the zone buys wall
+buffer against residual extension (zone dip p75 is 0.19-0.26 ATR - about
+700 USD on HG - so depth is not optional). Sweep 7b's bleed decomposition
+(running) prices each bucket; sweep 8 implements the survival-gated fade.
+
+## Why can't we decide: the label post-mortem and the anti-correlation
+lead (Fable, 2026-08-27, overnight; USER question)
+
+USER asked whether the labels are wrong and whether the teacher was
+inherently wrong to learn from. The honest answers, and one discovery:
+
+1. **The teacher as PRICER is law; the teacher as TEACHER was poison.**
+   The wall/phase-close law defines the game's cash and stays. But as a
+   learning signal it conflates two different errors: a right-side entry
+   900 too early receives the same -900 as a wrong-side entry. Anything
+   trained or selected on raw cert/wall outcomes inherits that confusion,
+   which is part of why every side signal has graded as a coin. The
+   B-era's use of STORED teacher labels added READY survivorship and
+   snapshot framing on top - measured poison, long abandoned. The mill's
+   Delta* label fixed the timing conflation for SELECTION; the residual
+   label risks are the soft-hit asymmetry (a "wrong" pick with positive
+   remaining value is not a disaster) and the arbitrary ambiguity band -
+   both now being measured, not assumed.
+2. **The discovery: first-quiet side-hit is consistently BELOW coin**
+   (0.36-0.47 across sweeps 5 and 6 arms; NKD D-alone 0.382). An
+   anti-correlated signal is a signal. Flipping the fade at the SAME
+   entries gives 0.53-0.62 side agreement for free - NKD 0.618 - at
+   identical coverage and delay, with zero new selection freedom. The
+   structural reading: the first-quiet extreme tends to be the RESTING
+   side (the exhaustion-drift lesson, now measured on our bytes), so the
+   flipped rule is a JOIN policy - enter the drift away from the resting
+   extreme - discovered through the anti-correlation rather than
+   assumed. Nobody ever priced it; the side-flip lines in earlier sweeps
+   were polarity controls on OTHER families.
+3. **The bleed decomposition is the WHY instrument.** Every D-alone entry
+   buckets into {hard-wrong, soft-wrong, right} x {in-budget, late}; cash
+   per bucket says exactly which failure eats the money - decision
+   quality, the delay tail, or label fiction. Dispatched with the flip
+   pricing as sweep 7b.
+
 ## Decisive flow test verdict: KILL; the discretionary layer is closed
 (Fable, 2026-08-27, overnight)
 

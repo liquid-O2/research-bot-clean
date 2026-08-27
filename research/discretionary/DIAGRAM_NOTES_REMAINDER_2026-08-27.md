@@ -19,7 +19,345 @@ end.
 
 ---
 
-## PLACEHOLDER_CONSOLIDATED
+## Consolidated: the new computable rules these diagrams add
+
+Everything below is *new* against `DIAGRAM_NOTES_FLOW`, `CROSSWALK_AUDIT_FLOW` and
+`CROSSWALK_AUDIT_STRUCTURE`. Rules already carried by those three (18-tick adverse
+excursion, the 3-tick reward system, limit-versus-market 1.80/0.81, AUC 0.54,
+absorption-versus-exhaustion, the hard POC/mid-balance veto, the POC flip) are not
+repeated. Ordered by expected effect on the fade.
+
+**1. The trigger is a comparison between defences, not a single defence.**
+`18k-payout-session.pdf` p7: "A level does not become the trade because price
+touched it. It becomes the trade when the same side defends it a second time, **with
+more conviction than the first**." The first two attempts at that exact level "did
+not have that participation and were let go." `origin-of-the-move (1).pdf` p10 says
+the same from the other side: "No result, twice, from the same participants is as
+loud as the tape gets." Computable and self-scaling: require defence strength at
+touch *k* to exceed defence strength at touch *k-1*, where strength is
+absorbed-volume or refresh-size normalised to the level's own first defence. This
+converts multi-peak from a *condition* into the *signal*, and no absolute unit is
+involved.
+
+**2. The wall test is a two-slope regression over the refresh sequence, and the
+information is in refreshes two and three.** `18k-payout-session.pdf` p11: real size
+"refreshes at a roughly steady pace and a roughly steady size... a genuine defender
+does not run out of appetite three prints in"; fake size shows "each refresh a
+little smaller than the last, **the pacing between them stretching out**, until it
+stops coming back at all. That thinning is what precedes the level finally giving
+way." Computable: over the refresh sequence at a price, regress replaced-size on
+refresh index *and* inter-refresh interval on refresh index; a wall is flat/flat, a
+failing level is negative-size *and* positive-interval. Self-scaling by normalising
+size to the first refresh and interval to its own median. `dom-lesson-7.pdf` p7 gives
+the companion filter as a dimensionless ratio: **book-size churn at a price divided
+by traded volume at that price** — "Prints are truth, the display is a story."
+
+**3. The quiet failure is a tape-speed gap, and the author says it is the more
+common case.** `origin-of-the-move (1).pdf` p14: "The squeeze fails with **no
+aggressive orders at the failure at all: the speed of tape just dies. The absence of
+result is itself the signal, and it is the quieter, more common version of this
+model.**" The figure shows a dense Speed-of-Tape cluster followed by a visible gap.
+Computable and self-scaling: tape-speed (prints or aggressive volume per unit time)
+collapsing below a low percentile of its own recent distribution *at the level where
+the squeeze should have delivered*. A detector built only on visible absorption
+prints misses the majority case by the source's own account.
+
+**4. Delta's sign is conditioned on location — at an extreme it inverts.**
+`trapped-buyers-one-retest.pdf` p4: heavy one-sided buy delta concentrated in the
+top rows of the profile at a recent high is "**a flag to watch for exactly this, not
+a reason to join the buyers**," because those buyers become forced sellers. Against
+this, `a-clean-continuation-short.pdf` p4 reads stacking negative delta into a
+resistance node as confirming the short. The two reconcile on *whose* delta it is
+relative to the level, not on raw sign. And `ny-am-session (1).pdf` p7 supplies the
+counter-example that stops this becoming a magnitude rule: strongly negative CVD
+(panel scale -500 to -900) into a level **did not** carry the break and the short was
+stopped. Computable: use per-price delta from the profile, signed relative to the
+level's defending side, never raw bar delta magnitude as a break predictor.
+
+**5. Deceleration into the level is the trigger, not arrival at it.**
+`ny-am-session (1).pdf` p10: "**The move up is losing aggression candle by candle,
+not gaining it**... which is the tell I was waiting on, not just fading a level
+because it's a level." Computable and self-scaling: require a negative slope on
+aggressive volume or CVD rate over the approach leg. This is the first-difference
+form of `whos-in-control` p4's arrival-mode rule, and `fp-lesson-8.pdf` p7 states the
+footprint version — "A level hit by exhausted aggression behaves differently to one
+hit by fresh conviction," measured on the diagonals *on approach*.
+
+**6. A hard abstention gate keyed to profile modality, and a permission table keyed
+to day type.** `reading-the-volume-profile.pdf` p9 on the trending profile: "when you
+see one, **get off. There's nothing to trade**... A trending profile isn't a setup,
+it's a signal to stop looking for one," with the named failure being repeated
+counter-trend re-entry until the account is gone. `amt-lesson-1.pdf` p10 gives the
+table: Trend Day "**continuation only, never fade it**"; Normal Day "**fade the
+extremes, target the POC**"; Non-Trend Day "the edge is knowing there is no edge."
+`amt-lesson-1.pdf` p11 adds a cheap early classifier — Open Drive vetoes the fade,
+Open Auction sanctions it — and `tpo-lesson-3.pdf` p8 adds a third from the initial
+balance (first hour; IB holds all day permits the fade, IB breaks early one-sided
+forbids it). Three independent classifiers that can be required to agree. All are
+computable from bar data; none needs a tick constant.
+
+**7. Excess versus poor extremes inverts the trade, and the marker's reliability is
+asset-dependent by the source's own statement.** `tpo-lesson-3.pdf` p6-p7 and p9:
+excess is ">=2 rows of the same letter at the extreme", finished business, "**expect
+those extremes to hold on first test**"; a poor high or low is flat with no taper,
+"unfinished business the market tends to revisit", i.e. a *target*, not a level to
+fade from. And the porting law stated by the source: "**On NQ** poor highs and lows
+usually appear as a single TPO tail and they are useful... **On ES** the thicker
+market structure creates shorter, firmer tails. Poor extremes are less reliable on ES
+and rarely used." Form only; measure on our assets — asserted here by the author, not
+imposed by us. Note item 3 of the p9 checklist is the **only** sanction in the
+library for acting on a first touch, and it applies solely at an excess extreme.
+
+**8. Ledges are stationary; VAH/VAL/POC are not, and that is the actual objection to
+using them.** `vp-lesson-2.pdf` p5: "VAH, VAL and POC are useful, but **they
+recalculate as price moves. They drift with the session, like a lagging indicator. A
+ledge does not move.**" `mastering-amt-vp (1).pdf` p3 states the same as rule three,
+"**STOP USING VAH/VAL for levels**." Computable: anchor zones to volume-density
+regime changes (the price where build-up starts or fade-away begins — an edge
+detection on the volume histogram) with a **fixed birth time**, not to a recomputed
+value-area boundary. Any backtest keyed to intrasession VAH/VAL is quietly using a
+moving anchor.
+
+**9. Penetration depth does not establish acceptance; failure to sustain from inside
+does.** `amt-on-live-markets.pdf` p10: price "**dipped meaningfully into the previous
+balance, deep enough that a less patient read might have called it accepted. It still
+failed to actually hold and trade lower from inside it**... The rejection was real, it
+just took longer to confirm than the textbook version does." This is the
+structural-scale twin of the refill paper's 18-tick result, and it generalises the
+correction: acceptance is a **dwell-time and rotation-count** measurement, not a
+distance one. `amt-on-live-markets.pdf` p6 gives the same test in its cleanest form —
+acceptance is "price spending time there and building structure", rejection is "price
+enters an area and quickly moves away from it" — which needs no tick constant at all
+and is the most portable statement of the rejection-versus-rest boundary in the whole
+library.
+
+**10. Level quality is not cacheable; it must be recomputed on each visit.**
+`amt-on-live-markets.pdf` p11: a week-long established balance, revisited on a
+dump-through basis, is reclassified as an LVN void — "price simply dumped straight
+through and is now holding at the lower extreme instead, the low volume node behavior
+from earlier in the document." `a-clean-continuation-short.pdf` p7 says the same of
+HTF low-volume nodes: price "stalls and tries to build balance there, or, if there's
+enough selling pressure, it slices straight through," with the delta print at arrival
+naming the branch. Computable: an LVN is bimodal, not a fade target by construction,
+and the branch is selected by aggression present at the moment of arrival.
+
+**11. The resting order is itself the filter — stated as design intent, not just as
+a statistic.** `origin-of-the-move (1).pdf` p12: "**The order rests below the wick so
+only aggressive continuation can tag it in. If sellers don't come with result, there
+is no fill and no trade. The order type is doing the filtering.**" Same page: a
+stop-out does not invalidate the read — "the re-entry sits right below, and the read
+has not changed." Computable: coverage floor and execution side are one decision, and
+the fill rate is a *feature of the setup definition*, not a cost to be minimised.
+
+**12. The trail carries a large, measurable share of the realised edge, and it is
+event-driven.** `ny-am-session (1).pdf` p8-p9 measures it on a single trade: entry at
+**R:R 0.69** on a 58-tick / -$290 fixed initial risk, exit at **R:R 1.83** purely
+from trailing — a 2.65x improvement with the entry and initial stop held fixed.
+`18k-payout-session.pdf` p8 defines the mechanism: the stop moves to each new
+"protected high" that "closed with real speed of tape behind it", walking "one
+protected high at a time **rather than by a fixed distance**".
+`origin-of-the-move (1).pdf` p13 keys the same trail to "each new aggression pocket".
+And `origin-of-the-move (1).pdf` p9 defines the **exit as the mirror of the entry**:
+"Trail until buyers hit a wall and get fully absorbed: that absorption is the exit."
+Consequence for the mill: an entry-acceptance rule that filters on minimum R:R at
+entry would have rejected two of the library's best-documented winners.
+
+**13. Two documented entries deliberately violate 1:1 at entry, and the sources say
+so explicitly.** `18k-payout-session.pdf` p8: starting R:R 0.69, "it fails the
+arithmetic before it fails the read," taken because the level was strong.
+`ny-am-session (1).pdf` p8: R:R 0.69, "Most traders would skip that outright."
+Against this, `2345-funded-session (1).pdf` p7 plans **R:R 5.59** and
+`a-clean-continuation-short.pdf` p8 plans **6.11** on a re-entry. The method spans
+nearly an order of magnitude in entry geometry, so R:R is an output of level quality
+plus exit policy, not an input filter.
+
+**14. Re-entry has two different stated gates, and neither is a count.**
+`a-clean-continuation-short.pdf` p8: re-enter only once "the same level kept behaving
+the same way on repeat — Sellers had control, price went lower. Price came back up to
+the level, sellers had control again. It went lower again," i.e. **an additional
+completed cycle by the same side at the identical price**, and the re-entry is sized
+at a materially wider ratio (6.11) than the first attempt. `origin-of-the-move (1).pdf`
+p12: the re-entry level is **pre-placed below the stop** and "the read has not
+changed." Against both, `10k-first-month (1).pdf` p13 records the anti-pattern —
+three shorts, same level, same 20-tick stop, same ~5.00 R:R, all losing — with the
+veto: "a short like this one doesn't get taken at all, **regardless of how clean the
+local order flow looks**", because HTF absorption at the opposing level had already
+set the bias. Same page adds a level-set invalidation: once a two-weeks-untested level
+finally broke, "everything below it stopped being a place to sell from."
+
+**15. Concurrency is gated on the open position's risk state, not on a position cap.**
+`18k-payout-session.pdf` p10: "the fourth trade was affordable specifically because
+the third one was no longer at risk." Computable: permit a second position once the
+first has a stop locked beyond breakeven.
+
+**16. Two session-level governors, both self-scaling, one on each tail.** Left tail:
+`refill-effect (1).pdf` p21, "**stop trading for the day once you are down four risk
+units**", worth ~14 points of evaluation pass rate, and — the part the earlier passes
+did not carry — **the benefit grows with risk size** (+3 at $40/R, +13/+14 at
+$120-150/R), so it is a fat-tail truncation whose value scales with exposure. Right
+tail: `2345-funded-session (1).pdf` p9, a target "capped by a funded account
+consistency rule: a prop firm payout requirement that no single day can represent too
+large a share of total profit", plus a session-completion stop independent of
+remaining signal quality. `ny-am-session (1).pdf` p11 adds the intraday analogue:
+risk cut to ~$100 "deliberately small this late in the day with the objective already
+close."
+
+**17. The deployed strategy has a time-stop, and it is a named parameter.**
+`refill-effect (1).pdf` p12 and p15: "cancel after 30 minutes, one position at a
+time", and the engine's own parameter string reads `Aggression-Memory Tick ·
+rest_min=30 variant=3 entry_in=12 t_minutes=30 sl_ticks=32 tp_ticks=96`. Two things
+here are new: the **30-minute working-order life** as a first-class parameter (an
+unfilled resting order at a zone is withdrawn, not left working), and `variant=3`,
+which reveals the zone-construction rule is one of several enumerated variants rather
+than a unique definition. Self-scaling restatement of the geometry: entry depth ≈
+0.375 × stop, target = 3 × stop, time-stop = 30 minutes.
+
+**18. A reusable robustness acceptance criterion, asset-agnostic.**
+`refill-effect (1).pdf` p17-p18: sweep the exit cube (stop × target × entry depth),
+plot in-sample against held-out average R per configuration, and require a high **rank
+correlation (theirs: 0.92)** plus a contiguous profitable region rather than a single
+winning cell — "A curve-fit edge is one bright dot in a sea of noise; this is a
+coherent warm region. **The parameters barely matter, the concept does.**" Their
+profitable region spans roughly stop 30-55 and target 50-100 ticks. This is a
+falsifiable protocol we can run on our own sweeps unchanged.
+
+**19. The achievable object is a calibrated ranking, and its ceiling is modest.**
+`origin-of-the-move (1).pdf` p17: touch grading out-of-sample **AUC 0.63** against a
+stated placebo of **0.51**, and a hold rate running **25% → 63% monotonically across
+deciles**, with the caveat "modest by design". Fading every touch unfiltered is
+**-0.285R** after costs on a **42%** base rate. Together these say the deliverable is
+a monotone grader, not a classifier, and the honest ceiling is small.
+
+**20. Two named, dimensionless flow thresholds that port without calibration.**
+`fp-lesson-8.pdf` p5: an imbalance is flagged when one side is "**3x to 4x larger**
+than the diagonal opposite" — and p4 specifies the comparison exactly as ask[p]
+versus bid[p-1], one tick down, "**diagonal, not side by side**", which a naive
+implementation gets wrong. p6 adds the stacking rule: "**Three or more imbalances in
+a row build an unfinished auction, the market tends to return and finish it**" (p7
+loosens this to "two or three", so treat the count as a tunable in 2-4).
+`2345-funded-session (1).pdf` p5 adds the live trigger: "**a 350 percent divergence
+between buying and selling aggression alongside a small imbalance**", explicitly
+gated by an HTF context where the opposing side was already weak — "that combination
+is what separated this from a random entry on a green box alone."
+
+**21. VWAP deviation bands are the one fully self-scaling location gate in the
+library.** `vwap-lesson-10.pdf` p3-p4: the median is "the POC of the session so far";
+bands at **1, 2 and 2.5** standard deviations; and the two rules — "the trades worth
+taking live **beyond the 1 band and ideally at the 2**", and "**only trade VWAP
+extremes WITH absorption, never on the touch alone**", with the warning that
+"deviation is probability, not a wall." p6 adds three computable CVD reads: a
+price/CVD divergence, a breakout grade (CVD slope during the break; flat or falling
+CVD implies fakeout), and an absorption detector (price variance near zero while
+|CVD slope| stays high). p7 adds anchored VWAP from a zone's own birth time, which is
+literally the trapped-inventory breakeven for everyone who traded since the zone was
+built. None of this needs a tick constant.
+
+**22. Two stated conditional probabilities with fully specified antecedents, and one
+used as a timing veto.** `mastering-amt-vp (1).pdf` p16: "**If the RTH session opens
+inside the previous ETH profile's balance, there is a 73% chance** of the session
+going on to hit that ETH profile's MPOC, its mid" — used to hold and trail rather
+than take the first target. p15: "**94% chance of price touching either the overnight
+high or the overnight low** during the current session" — used as a *timing veto*,
+which is the novel application: "the level isn't wrong, the timing is," when a stop
+sits between entry and an untagged overnight extreme. Self-scaling form: veto when an
+untagged overnight extreme lies within roughly one stop-width beyond entry.
+`amt-on-live-markets.pdf` p9 supplies a third with its own live tell: after a failed
+auction, 80% full traverse versus 20% range-bound, discriminated by POC behaviour —
+repeated failure to break and hold POC selects the range branch, aggressive break plus
+held retest selects the traverse. `reading-the-volume-profile.pdf` p5 states the same
+POC rule independently.
+
+**23. Overnight inventory gives a complete, entirely pre-open session bias.**
+`mastering-amt-vp (1).pdf` p14: the window is 6pm to 9:30am NY; "net long overnight,
+the path of least resistance at 9:30 is higher, net short, it's lower"; one clean
+distribution means the net environment usually continues, while "**a double
+distribution and the low volume node between the two humps becomes the decision
+point**", respected or disrespected at the open. All three inputs — overnight net
+delta sign, overnight profile modality, and the inter-hump LVN price — are computable
+before the session opens.
+
+**24. The failed-auction fade has a fully ordered template and a discrimination test
+that flips the trade's sign.** `mastering-amt-vp (1).pdf` p10: "**Balance, break, tag
+the prior balance's POC, reject**, and the established balance gets its boundary hit
+four times out of five." p11 then tests it on two visually near-identical real charts
+and gives the discriminator: chart 2 "fails the definition even though it looks
+similar: price does break balance and does retest a grey zone, but **it never tags a
+*prior* balance and rejects there** — it simply breaks down, keeps going, and the
+retest is a trend continuation entry, not a failed auction. **Same visual grammar,
+opposite trade.**" Computable: whether the retested zone is a previously-established
+balance, plus time-to-reject. `amt-lesson-1.pdf` p8 gives the fadeable-breakout
+signature in three self-scaling parts — breakout-bar volume not elevated versus its own
+trailing distribution, elevated wick-to-body ratio, and return inside value within a
+few rotations.
+
+**25. The default-and-flip pair, with the flip's own target named.**
+`a-clean-continuation-short.pdf` p5: "if price comes back to the top of that balance,
+the default expectation is shorts, **unless price closes above it with real, extreme
+buying pressure. If that pressure shows up, the read flips to a retest and longs back
+toward the session's VWAP instead.**" This is the only place in the library where the
+fade's invalidation arrives with its own trade attached, and both the flip condition
+and the flip target are computable.
+
+**26. Regime selects the exit, not the entry.** `a-clean-continuation-short.pdf` p6:
+gamma-long "raises the odds of chop rather than a clean move all the way to the lower
+extreme", so a nearer exit was taken *even though POC would also have worked*;
+gamma-negative "lines up with why price dropped and dumped." `code-3-orderflow.pdf`
+p4 generalises it to the account: "**FUNDED ACCOUNTS — Favour fixed RR plus one
+partial. The drawdown rules punish creativity.**" A mill optimising expectancy alone
+picks the wrong exit for a barrier-constrained account.
+
+**27. A second, independent zone constructor, and a display threshold for "large".**
+`refill-effect (1).pdf` p5 builds the zone from **clustered large aggressive prints**,
+with the paper's own display threshold at **>=40 contracts on MNQ** (form only; on our
+assets this must be a per-asset percentile of single-print size).
+`fp-lesson-8.pdf` p6 builds an equivalent zone from **>=3 consecutive diagonal
+imbalances**. These are different constructors for the same object and should be
+compared, not assumed equivalent. `dom-lesson-5.pdf` p3 shows the raw field the
+refresh test needs is native: a **signed per-level size-change column** on the ladder.
+
+**28. Two more confirmation windows, all different quantities, none interchangeable.**
+Adding to the flow file's correction that 3 ticks (favourable, validating) and 18
+ticks (adverse, median winner's excursion) must not be merged: `dom-lesson-7.pdf` p4
+adds a **2-tick participation window** — after confirming the reload, "wait for more
+participants to add on **within 2 ticks**" before entering. That is a *radius for
+additional participants*, not a displacement. Three quantities, three purposes, three
+signs. All are form only; on our assets each should be re-derived, and the 2-tick one
+is naturally a small multiple of the modal spread.
+
+**29. The value-area percentage is a tunable, not a constant — and the library
+disagrees with itself about it.** `reading-the-volume-profile.pdf` p4 says "roughly 68
+percent"; `mastering-amt-vp (1).pdf` p5 and `amt-lesson-1.pdf` p5 say roughly 70%
+(the latter as an explicit platform setting, "set Value Area Volume to 70");
+`amt-on-live-markets.pdf` p4 says only "the majority". And `code-3-orderflow.pdf` p7
+proposes changing it outright: "**Set the value area at 40% instead of 70% for
+intraday work. The tighter range produces cleaner, more frequent reactions at the
+edges.**" That last is a directly testable knob on every value-area rule in the
+library, and its stated rationale is exactly the coverage-versus-precision trade the
+mill is tuning.
+
+**30. Two unresolved conflicts to carry as forks rather than average away.** First,
+**P and B shape polarity**: `mastering-amt-vp (1).pdf` p7 says a P (fat top) "resolves
+with price breaking down out of the bottom" and B (fat bottom) resolves higher, while
+`reading-the-volume-profile.pdf` p10-p11 and `amt-lesson-1.pdf` p6 read P as
+underlying trend higher and B as lower. Same library, opposite signs. Second,
+**continuation versus reversal preference**: `reading-the-volume-profile.pdf` p6
+states its author "trades continuations, and rarely trades reversals, because
+continuations give him a higher win rate. **That's a personal statistic, not a claim
+about which read is theoretically correct**" — a well-caveated challenge to a
+fade-oriented mill from the structure half's most prolific source. Carry it as a
+pre-registered two-sided comparison, alongside `average-unprofitable-trader` p13's
+point that a stricter filter can produce a worse account.
+
+**Ordering law, asserted independently by five documents.** `vp-lesson-2.pdf` p7:
+"**Structure first, confirmation second, execution last.** The profile tells you where
+the trade lives, the tape tells you when to take it." `tpo-lesson-3.pdf` p9: "The
+profile is context, **never the trigger**." `dom-lesson-5.pdf` p7: "**Bring a level to
+the ladder** — never watch the DOM in a vacuum." `code-3-orderflow.pdf` p6: "**Higher
+timeframe narrative first, lower timeframe entries second**", with "if your level sits
+inside a balance, avoid trading it" stated as a hard veto. `fp-lesson-8.pdf` p7:
+"Bring the level — the footprint is the microscope, the level is the slide." This is
+the inverse of a flow-first feature mill: location is a gate, not a weighted feature,
+and it is the same conclusion the AUC 0.54 result reaches from the data side.
 
 ---
 
@@ -623,7 +961,7 @@ initiative print **arms** the level and does not trigger it; the trigger is the
 return, with strictly greater aggression than the first attempt; and the stop is
 placed at the opposing side's absorption point rather than at a fixed distance.
 
-**p11-PLACEHOLDER — the squeeze variant, entered without a retest.** Text-only. It distinguishes
+**p11 — the squeeze variant, entered without a retest.** Text-only. It distinguishes
 this third setup from the second: "this one is actually a squeeze, not an origin of
 the move, because it never failed the way the second trade's first attempt did.
 Sellers showed willingness to price lower and the move happened fast, with real
@@ -638,12 +976,6 @@ aggression and the opposing side is absorbed immediately, the retest gate is wai
 and the stop tightens to the absorption point. The slow lane (initiative, refusal,
 return with greater aggression) and the fast lane (immediate absorption of the
 counter-attack) are explicitly the same model at different speeds.
-
----
-
-## Completeness note
-
-PLACEHOLDER_COMPLETENESS
 
 ---
 
@@ -1703,3 +2035,488 @@ value-area rule in the library, and the source's stated reason — more frequent
 edge reactions — is exactly the coverage-versus-precision trade the mill is tuning.
 The thesis-as-a-box rule is a bias invalidation zone with an explicit
 do-not-defend-the-old-bias clause.
+
+---
+
+## origin-of-the-move (1).pdf
+
+**p4 — the aggression schematic.** A hand-drawn black-background schematic titled
+"Agression schematic:" carrying the definition inline: "Aggression = a market order
+that crosses the spread to get filled now, accepting a worse price for immediacy.
+It shows intent/urgency of wanting to continue price." Left half draws the two
+directions, a green-circled buy print and a red-circled sell print on candle bodies.
+Right half draws a sequence: sell aggression with result on the way down, a green
+buy print absorbing at the low, an up-move, and then that same buy-aggression area
+boxed in white and revisited later. The prose adds two derived reads: **aggression
+testing** — on return to an old aggression area, if price "cuts through and closes
+beyond it, they have no result, and price usually continues until it finds the next
+area of aggression" — and **aggression memory**: "price remembers where aggression
+traded. That is not a slogan; it is the single strongest family of features in the
+research paper's model." Computable content: the level object is an *aggression
+area with a memory*, tested by a close beyond it, and the source names this family
+as the one that carries the model's signal.
+
+**p5 — the squeeze schematic and the refill clock.** A hand-drawn schematic with a
+rounded box labelled "Multiple buyers' aggression being abs for the catalyst"
+containing three green-circled prints, arrows running from it up a climbing
+diagonal of green prints annotated "Aggressive buyers willing to price higher at
+worser prices so the orders will refill with more aggression against the previous
+passive sellers", feeding a fast vertical release whose base carries a circle
+labelled "ENTRY" and a dotted line "Protected by buyers (covered)". The bottom
+label names the mechanism: "**REFILL clock: AGGRESSIVE (NO RESULT) to AGGRESSIVE
+(WITH RESULT)**." Closing line: "If squeezes always worked, that entry would be the
+whole model. They don't, and statistics say so." Computable content: the refill
+clock is a **state transition on the same participant** — aggression that got no
+result, later getting result — which is a two-episode object and cannot be detected
+from a single window.
+
+**p6 — the OFM, the whole model on one slide, with two entries marked.** The full
+schematic read left to right: a catalyst box "Multiple buyers' aggression being
+abs", a rally labelled "Buyers punch to the wall", a top where "Sellers regain
+control" holds the first attempt, a pullback into a second box labelled "**Buyers
+refill entry here higher risk area**", then a second climb that breaks the wall and
+releases, with the base circle labelled "Buyers refill back entry here" and
+handwritten "Entry", "**SL -> below aggression**", "Protected by buyers (covered)".
+The caption is explicit about which is the default: "Two entries are marked. The
+early refill entry is higher risk, higher reward. **The main entry comes on the
+re-squeeze after the failure**, with the stop loss below the aggression that built
+it... That stop rule is not decoration: below the aggression is the point where the
+read is simply wrong." The boxed rule: "On the re-squeeze, after the first squeeze
+fails and price retests the failure area. Earlier refill entries exist but carry
+more risk; they are marked on the schematic for completeness, **not as the
+default**." Targets: "discretionary and come from the higher-timeframe thesis; as a
+scalp model, **1R to 3R is the working zone**, and trailing handles the rest."
+Computable content: this is the library's canonical entry template and it is a
+**second-attempt entry by construction** — attempt one must fail before the setup
+exists. The stop is defined semantically (below the aggression that built the level
+= where the read is falsified) rather than by distance, which makes the stop
+distance a function of the zone's own geometry.
+
+**p7 — example 1, a B+ short on the retest of a failed squeeze.** A real 40-range
+chart, price roughly 29288 down to 29218, times 10:39-10:51, with a blue reference
+line near 29251. Circled prints upper left are "buyers willing to price in, getting
+exhausted into the catalyst." A large outlined rectangle marks "the failed-squeeze
+area", with a maroon box above and a green box below carrying a "SELL 1" fill tag.
+The caption gives the geometry numerically: "the bracket on screen is the live
+trade: **27 ticks risked for 40**." The ordered text boxes: "Buyers keep pricing in
+and keep getting absorbed into the catalyst. On the return to the failure area,
+sellers keep their result: the refill clock has flipped in their favor," then "Short
+on the retest of the failed squeeze, **stop above the sellers' aggression. Where the
+aggression fails is where the read is wrong, so that is where the stop lives.**" A
+Speed of Tape (10) histogram below shows print clusters at the catalyst (10:43-44)
+and again at the retest (10:50-51). Computable content: entry is on a later retest,
+with at least two earlier buyer prints marked before the failed-squeeze box even
+forms — **not a first-touch entry** — and the R:R here is 40/27 ≈ 1.5, i.e. a
+working scalp geometry well short of the 3:1 the refill paper deployed.
+
+**p8 — example 2, the retest of failed sell aggression.** A real range-bar chart,
+roughly 29925 to 29875, times 10:13-10:32, blue reference near 29910. A red circle
+at lower left marks "the aggression that started the squeeze". A thin white
+rectangle mid-chart marks the entry area, with red and green tags at the retest.
+Caption: "Sellers willing to price lower, the catalyst drawn at the lowest
+aggression, and the entry bracket sitting on the retest." Text boxes: "**The squeeze
+releases fast (the speed of tape spikes with it), then fails back above the
+catalyst. Sellers hitting a wall into passive buyers is the confirmation to wait
+for**," then "Entry on the retest of the sell aggression with the stop just above
+it. **The target is discretionary and comes from the thesis, not from the pattern.**"
+The tape histogram shows one tall red spike at 10:19 coinciding with the fast
+release. Computable content: the confirmation is a *conjunction of a tape-speed
+spike on release and a failure back above the catalyst* — a two-part, timed event,
+and the source explicitly refuses to let the pattern set the target.
+
+**p9 — example 3, an uptrend OFM completed, with the exit rule.** A real range-bar
+uptrend with three stacked white rectangles stepping upward, "the white boxes
+marking where buyers' aggression was absorbed and retested on the way up". Text
+boxes: "Buyers get absorbed while willing to price higher. **Price crossing above old
+sell aggression converts that past participation into passive support underneath.**
+The punch to the wall gets no reward, and the pullback lands in the area buyers
+controlled," then "Entry on the buy aggression returning into that area, stop at the
+low or below the aggression. **Trail until buyers hit a wall and get fully absorbed:
+that absorption is the exit.**" The tape histogram is buy-dominant across the
+sequence. Computable content: two rules the earlier passes did not carry — a **level
+polarity flip driven by price crossing an old opposite-side aggression zone**, which
+converts it from resistance into passive support; and an **exit defined as the
+mirror of the entry signal** (absorption of the trend-side aggression), not as a
+target or a trail distance. Three white boxes on one leg is another direct
+multi-peak confirmation.
+
+**p10 — example 4, the whole sequence in one red path, with two failures.** A
+screenshot from a different application dated 20/06/2026, price roughly 30610 to
+30535. A thick hand-inked red path traces the model end to end, starting at a
+cluster of circles labelled "sellers show they are in control", arcing down to a
+red-filled rectangle, a leg labelled "refill", and continuing to a second smaller
+high with handwritten "sl". Text boxes: "Buyers hit the wall and get absorbed,
+sellers regain control. **The squeeze lower punches into a wall twice and gets no
+reward either time. No result, twice, from the same participants is as loud as the
+tape gets**," then "The entry is the failure of the squeeze, where sellers step back
+in with result. Stop above the aggression that failed." Computable content: **two
+consecutive no-result attempts by the same participants at the same wall is stated
+as the strongest available signal**, and the entry fires on the second failure. This
+is the multi-peak claim promoted from a condition to the signal itself.
+
+**p11 — replay, setup only, and an explicit refusal to enter.** A "Replay Manage"
+tool (NQ-CME, 10/07/2026 10:15, speed x1, market depth on). Price 29950 down to
+29865; a wide magenta rectangle marks the catalyst across a flat stretch near
+29910-29920 before a sharp drop toward 29885-29888. Caption: "Balance with
+absorption on both sides, sellers holding control. The catalyst is marked; the
+squeeze fails fast lower and sellers punch straight into passive buyers." Text
+boxes: "Inside a balance a squeeze can go either way; it depends who is most in
+control. Sellers are, so the squeeze lower is the expectation, and its failure is
+the setup," and the explicit rule: "**No short until price reclaims above the
+catalyst and fails again. Patience here is the trade.**" Computable content: a named
+waiting condition — reclaim above the catalyst *and* fail again — with the page
+showing no entry taken. The "inside a balance a squeeze can go either way" line
+also states that the balance context does not determine the direction; control does.
+
+**p12 — replay, the fill, and the order type doing the filtering.** The same replay
+with a full DOM ticket at right (NQ-202609, Open P/L -125.00 $). A small white
+rectangle around 29897-29900 marks "the retest area the entry came from", with
+bracket lines projected right. Caption: "Filled short one contract; the bracket is
+live on the ladder." The two text boxes carry the most reusable execution rule in
+the document: "**The order rests below the wick so only aggressive continuation can
+tag it in. If sellers don't come with result, there is no fill and no trade. The
+order type is doing the filtering**," and "Stop above the intermediate wick. If it
+stops out, fine: the re-entry sits right below, and the read has not changed."
+Computable content: **the resting order is itself a filter** — the same argument
+`refill-effect` p11 made statistically (limit 1.80 versus market 0.81 "precisely
+because it demands the flush"), here stated as design intent. And the re-entry rule
+is explicit: a stop-out does not invalidate the read, and the re-entry level is
+pre-placed.
+
+**p13 — replay, the trail and the pre-registered objective.** The same replay
+advanced, Daily P/L now positive. Two magenta bands are projected forward; price
+runs lower in tall down candles. Caption: "The stop has walked down above each new
+pocket of aggression as price breaks lower; the trade runs into the higher-timeframe
+objective from the daily profile and takes profit there." Text boxes: "**Cut the loss
+branch off while the win branch keeps running. Each new aggression pocket that forms
+below gives the stop a new home above it**," and "**The thesis, not a feeling: the
+objective was the value area of the daily profile, set before the trade existed.**"
+Computable content: the same protected-extreme trail as `18k-payout-session` p8 but
+keyed to *aggression pockets* rather than swing highs, and a target that is a
+named profile object fixed before entry. Note the value-area objective is asserted
+in prose only; no VAH/VAL/POC is actually drawn on the chart image.
+
+**p14 — the passive edition, where the signal is an absence.** A second replay
+trade, long, complete, price 29950 down to 29800. A tall green rectangle sits above
+a dark-red rectangle sharing a boundary near 29900 where a circle and cyan "OFM"
+mark the entry; a wide purple band near 29793-29800 marks the buyer zone below.
+Caption: "The second replay trade, long this time, at take-profit. The squeeze
+failed passively and the entry triggered above the buyers." The text box is the one
+the structure crosswalk flagged as decisive: "**The squeeze fails with no aggressive
+orders at the failure at all: the speed of tape just dies. The absence of result is
+itself the signal, and it is the quieter, more common version of this model.**"
+Entry rule: "Entry above the buyers, stop below the aggression, scalp target in the
+1R to 3R zone. Same model, passive edition." The tape histogram is scaled 0-100 here
+(against 0-50 elsewhere) and shows a dense cluster then a **gap**. Computable
+content: a fully specified quiet-failure detector — tape-speed collapsing to near
+zero at the level where the squeeze should have delivered — and the source says this
+is the *more common* form. A detector built only on visible absorption prints will
+miss the majority case by the author's own account.
+
+**p17 — the stat sheet, every number with its caveat.** No figure; a three-column
+table, Statistic / Value / Caveat. THE RAW CONCEPT: touches that hold, unfiltered =
+**42%** ("base rate, not a trading rule"); fade every touch = **-0.285R/trade**
+("after modelled costs; nobody should run this"). SELECTION: touch grading,
+out-of-sample = **AUC 0.63** ("modest by design; placebo scores 0.51"); hold rate,
+worst to best decile = **25% -> 63%** ("monotonic, but historical buckets"); order
+flow alone = **AUC 0.54** ("memory + location do the real work"). EXECUTION / THE
+REFILL: median winner's dip past the touch = **18 ticks** ("a median; queues can be
+less kind live"); resting limit, Q1, independent engine = **68.8% / PF 1.80 /
++$2,112** ("64 trades, one quarter, engine we didn't build"); market order, same
+signals = **27.2% / PF 0.81 / -$405** ("proves the execution effect, nothing more").
+OUT-OF-SAMPLE: 79 held-out sessions = **+0.143R, PF 1.19, +78R** ("542 trades; one
+regime slice of one year"); independent engine, full year = **+$3,803, PF 1.45,
+~+0.07R** ("stricter fills; the conservative quote"); worst quarter = **-$647, PF
+0.76** ("disclosed and counted, not trimmed"). ROBUSTNESS: reverse split / rotating
+folds = **+0.14R to +0.22R** ("AUC 0.61 to 0.64; still one dataset"); parameter
+grid, train versus test = **rank corr 0.92** ("a plateau, not proof any setting
+works"). PROP ECONOMICS: pass at $60/$80/$100 per R = **96.7% / 92.2% / 85.7%**;
+-4R daily stop = **+14 pts pass rate** ("the largest single lever found"); first
+payout at $80/R = **95.5%** ("payout capped ~$2k/cycle"); three staggered accounts =
+**P(>=1 payout) ~ 99.6%** ("assumes independence and the edge persisting"). Footnote:
+"All figures are historical simulation after modelled costs... Educational
+statistics, not a promise of future performance." Computable content: the two
+numbers that matter most for our arbiter and were not in the earlier passes are the
+**AUC 0.63 grading ceiling against a 0.51 placebo**, and the **monotonic 25%->63%
+decile hold rate**, which together say the achievable object is a calibrated
+ranking, not a classifier — and the honest ceiling is modest.
+
+---
+
+## ny-am-session (1).pdf
+
+**p4 — trade 1, the refill, before.** A dark order-flow platform screenshot,
+NQ-202609, "10D - 8T", **40 Range** bars (not time bars), clock 09:09-09:37. Panels:
+range-bar price, a "Speed of Tape (10)" histogram, a **CVD sub-panel** (red/green
+step line plus smoothed grey overlay, scale +-200), and a DOM ladder beside a 3-bar
+pink/mint volume-delta profile. A teal arrow reads "sellers absorbed at the bottom,
+no result for the push"; caption: "Sellers get absorbed at the bottom of the range
+here, **the two small circles** marking where buyers stepped in and held. The stop
+sits just below." The live read: "sellers are being absorbed at the bottom, stop just
+below these buyers that are in control, targeting higher timeframe objective."
+Ladder tags: pink at 29804.25, last price 29761.50 just above a green tag at
+29757.25, and an orange STP tag reading "-260.00 $" at 29744.25 — the stop sitting
+roughly a dozen-plus points under the marked absorption. The source frames the
+mechanism as the signal: "**That refill is the signal itself... a read of who's
+actually winning the fight for that price.**" Computable content: two absorption
+prints, not one, mark the zone; the stop sits below the *lower* of them; and the
+target is a pre-existing HTF objective rather than a multiple.
+
+**p5 — trade 1, after.** Same chart zoomed out, a green arrow "buyers regain
+control, the refill runs to $755" with a vertical marker and crosshair at the entry
+moment; **CVD ramps up sharply coincident with the markout**. Sequence: absorption
+prints, refill begins at the marked instant, price runs "straight into the target",
+closes for $755, stop having sat "just below the absorption", target "the higher
+timeframe objective sitting directly above". Called "the cleanest trade of the
+day", with the disclosure that four trades ran and "not all of them were this
+tidy". Computable content: the CVD slope turning positive at the refill instant is
+a directly observable confirmation coincident with entry, and it is the fast lane in
+live form.
+
+**p6 — trade 2, the loss, before.** Same platform; a decline into a level bounded by
+a green rectangle with prior rejection marks above and a third retest lower. Teal
+arrow: "**third retest of the level, still no buyers stepping in**"; caption: "Price
+retests a level that had already rejected sellers twice. No buyers show up to defend
+it a third time." A hand-drawn white diagonal on the CVD panel underscores falling
+delta into the third test. The source flags this as the deliberate counter-example:
+"Sellers had already hit this level twice with nothing to show for it... On the
+third retest, still nothing, so the short went in: 'I'm in these shorts with my stop
+just above, targeting this area, kind of low risk.'" Clock 09:59-10:14, immediately
+after trade 1. Computable content: this is the **multi-peak rule applied in the
+opposite direction** — two prior no-result pushes plus a third with still no
+defence, read as the level being abandoned rather than defended. It is the same
+counting logic as the winning trades and it produced the day's loss, which is
+exactly why it matters.
+
+**p7 — trade 2, after, the stop-out.** A salmon arrow reads "stopped for -$100, the
+level held anyway"; caption: "Stop sits just above, risk kept deliberately small.
+Price ticks back up through it before the actual move develops." Tags: a teal STP
+"-235.00 $" at 29621.25, last price 29614.00, a red SL TP at 29608.50 — the stop
+about 7 points above last. The CVD panel's scale has stepped down to a -500 to -900
+range, i.e. strongly negative delta into the failed short. The stated lesson is
+precise: "**Low risk doesn't mean no risk, and a level failing to hold twice doesn't
+guarantee it fails a third time.**" And: "The read was reasonable given what was in
+front of me. The market just didn't cooperate. That's a real cost of doing this for
+a living, not a mistake to edit out of the video." Note the realised loss is -$100
+while the on-chart tag reads -235.00 $, consistent with the six parallel accounts
+running different sizes on one signal. Computable content: **heavily negative CVD
+into a level did not carry the break** — a direct counter-example to using
+cumulative delta magnitude as a break predictor, and it comes from the same author
+whose winning trades read delta the other way.
+
+**p8 — trade 3, trailing convexity, entry at R:R 0.69.** Teal arrow "entry goes in
+here at only R:R 0.69 on paper"; caption: "Entry goes in at R:R 0.69, a small
+starting reward against the risk. **Aggressive buying lines up right as the level
+confirms.**" Tags: green at 29654.50, last 29650.50, orange STP "-290.00 $" at
+29640.00. The source names the model and the arithmetic: "The entry itself wasn't a
+high reward-to-risk trade on paper: R:R 0.69, meaning the initial target was smaller
+than the initial risk. **Most traders would skip that outright.**" Computable
+content: the second independent instance in this library of a deliberately sub-1R
+entry justified by level quality plus a trailing exit — the acceptance rule cannot
+be a minimum-R:R filter at entry.
+
+**p9 — trade 3, after, R:R 1.83 from the trail.** Green arrow "stop trailed behind
+price, now R:R 1.83". A gold tag reads "BUY 1 | R:R 1.83" on a purple line at entry
+29652.00, with a red block below reading "-290.00 $ | **58 ticks**" — the platform
+computes live R:R on the position, initial risk fixed at 58 ticks / -$290, trailed
+exit at 29680.25. Sequence: entry at a "kg one retest" setup, fixed initial stop,
+stop walked behind price as it runs, exit only when the trail is tagged — "the same
+entry that started at R:R 0.69 had become R:R 1.83, just from letting the stop do
+the work instead of a fixed target." Computable content: a **2.65x improvement in
+realised R:R produced entirely by the exit policy on a fixed entry and fixed initial
+stop** — the cleanest available measurement of how much of this method's edge lives
+in the trail rather than the trigger.
+
+**p10 — trade 4, before, deceleration as the trigger.** A teal arrow "sellers
+exhausted right into the resistance level" points at a red-outlined rectangle with
+price tags 29767.75/29764.75, several circle markers on local pivots, gridlines
+29820 down to 29730, and a CVD panel (scale 50 / 0 / -200 / -400 / -600) whose curve
+**flattens and rolls over into the level**. Caption: "Price stalls into a resistance
+level already marked out ahead of time. **The move up is losing aggression candle by
+candle, not gaining it.**" The trigger is stated as deceleration, not location: "the
+move into it was losing steam rather than accelerating, **which is the tell I was
+waiting on, not just fading a level because it's a level.**" Computable content: a
+**first-difference condition on aggression into the level** — the fade requires the
+approach to be decelerating, which is computable as a negative slope on per-bar
+aggressive volume or CVD rate over the approach leg, and it is self-scaling.
+
+**p11 — trade 4, after, and the session roll-up.** Salmon arrow "this short closes
+the day, up a 1k". Tags: teal STP "-100.00 $" at 29769.25 just above the resistance,
+red SL TP at 29764.25 matching p10's band, and a green LMT "855.00 $" far below at
+29721.50 (~42.75 points) — a resting target much larger than the trade needed.
+Caption: "The short goes in against that resistance, risking about $100. It's the
+last trade of the day." The result was a deliberately capped win: "Risk was kept to
+about $100, **deliberately small this late in the day with the objective already
+close.**" Session roll-up: "**Four trades shown here, three wins and a loss, netting
+a bit over $1,000 across six accounts.** That's the honest version of what a
+professional session looks like: not zero losses, just a process that holds up
+across the losses too." Computable content: **risk per trade is scaled down as the
+session objective is approached** — a time-and-progress-dependent sizing rule, which
+is the intraday analogue of the -4R daily stop and appears nowhere in the crosswalk.
+
+---
+
+## 2345-funded-session (1).pdf
+
+**p4 — reading an all-time-high environment.** Same platform (NQ-202609, 10D-8T, 40
+Range), a grinding uptrend with three magenta markers at three consolidation
+shelves, each boxed as a failed reclaim attempt. Caption: "The grind higher this
+session's thesis was built against. **Multiple failed attempts to reclaim the range
+below**, each one adding to the case that buyers were priced in, not just leading."
+The CVD sub-panel shows a rising step-line on a thousands scale, roughly 1.7K-3.9K
+of net cumulative delta through the grind; right-edge delta bars are uniformly
+mint. Small live tags "+2.03" and "+2" sit beside columns headed "SD+2"/"SD+1" —
+live standard-deviation band readouts, i.e. the VWAP-deviation machinery of
+`vwap-lesson-10` running on the live chart. Stated rule: "The weekly delta profile
+showed heavy buying aggression behind the move, **which is a different statement
+than 'price is going up.' It's a statement about who is actually in control of the
+auction.**" The objective was deliberately left neutral: "wait for the pullback and
+trade within the directional push, not... predict a target in advance."
+
+**p5 — the entry signal, and the one named numeric trigger.** Same chart zoomed on
+the last consolidation shelf before a breakout leg, three magenta markers at its
+left edge. The local delta bars flip to two dark-red bars under one mint bar, read as
+"sellers who had been rewarded at this level earlier failed to hold it a second
+time." The trigger is the most quantitative rule in either session document: "a tool
+that flags a specific condition: **a 350 percent divergence between buying and
+selling aggression alongside a small imbalance**, printed automatically as a green
+box when it fires... passive absorption on one side and aggressive pressure on the
+other, at the same price." The source is explicit the box alone is insufficient — it
+must sit "inside a higher timeframe area where the opposing side was already known to
+be weak", and "that combination... is what separated this from a random entry on a
+green box alone." Named an "origin of the move" long, entered where the box fired.
+Computable content: a **350% aggression divergence at a price, gated by an HTF
+weakness context** — the ratio is dimensionless and ports directly; the gate is the
+same location-before-flow ordering the whole library asserts.
+
+**p6 — real absorption versus a level that merely worked before.** A different,
+non-platform chart pulled from a prior session (the one behind the $18,000 payout).
+A grey/red horizontal band marks "a resistance area that had been used, and dumped
+from, multiple times"; a magenta delta-type oscillator spikes in short bursts, mostly
+staying under the band, while a green hand-drawn arrow labels a stretch where price
+grinds up into it: "price rising = high conviction of that session sellers had insane
+control". Expanded: "**across the entire consolidation session, CVD was dying while
+price held or drifted up, meaning the passive limits at that level were being
+consumed and reloaded, not defended for free.**" Computable content: the
+discriminator between a level that "worked before" and one "currently being tested
+and passed" is a **price-versus-CVD divergence measured across the whole
+consolidation**, not at the touch — price flat-to-up while CVD decays says the
+passive side is absorbing at cost. This is a slow-window version of the absorption
+test and it is independent of the 350% tool.
+
+**p7 — trade 1 live, the long, at R:R 5.59.** Same platform; a sharp impulsive leg
+off a base with a grey rectangle marking a small **microbalance** consolidation
+partway up (two magenta markers on it) and a curved blue baseline (VWAP) under the
+leg, clock ~09:21-09:31. Sequence: price shows "the strength to push through a short
+term microbalance", entry on that push, then management becomes mechanical: "once
+the position moved favourably, **the stop trailed to the most recent protected low
+rather than a fixed distance**, so the trade could only give back a defined amount of
+what it had already earned." Caption states the planned geometry: "The long entry,
+**R:R 5.59** planned against a stop below the microbalance low that formed the
+entry." Target: "set at a higher timeframe level rather than a fixed tick count...
+**react to structure that already exists, don't invent a round number to aim at.**"
+Computable content: the **microbalance** is a named, small-scale balance object whose
+low defines the stop — a zone-local structural stop rather than a distance — and the
+planned R:R here (5.59) sits far above the 0.69 of the previous document, so the
+method spans nearly an order of magnitude in entry geometry.
+
+**p8 — trade 1, trailing to target.** Continuation with two grey microbalance shelves
+stacked below the final push. Tags: a pink LMT-type "1080.00 $" at 29358.25, an
+orange "345.00 $" at 29321.50 mid-trail, a green SL TP near 29304.25 close to the
+original protected-low stop; delta bars mint, CVD ~3.7K-3.9K. The stated goal ties
+the target to account arithmetic rather than to structure: "this trade needed to do
+two things: **recover a loss carried from the prior session, and add the 500 dollars
+left on the table the day before**... It hit target, both conditions met, protected
+low trailing intact the whole way there." Rule restated: "**The stop only ever moves
+toward protecting what the trade has already made, never further into risk.**"
+Computable content: a monotone-non-increasing risk constraint on the trail, and a
+target set by a **cross-session P&L obligation** — which is a real behaviour in the
+sources and a genuine contaminant if the trade selection is being modelled as
+independent draws.
+
+**p9 — trade 2 live, the short, capped by a consistency rule.** Same chart type, a
+down-leg with magenta markers, a grey shelf and a red supply band. Tags show a
+breakeven-trailed stop at 29370.25, last 29367.25, and a green LMT "310.00 $" at
+29354.75. The setup mirrors trade 1 inverted: "entered on a lower push after the same
+kind of microbalance read as the first trade, this time working in the opposite
+direction." The target is explicitly capped by the account, not the chart:
+"deliberately smaller than the setup alone would have called for, **capped by a
+funded account consistency rule: a prop firm payout requirement that no single day
+can represent too large a share of total profit**... sizing the plan to the account's
+rules, not just to the chart." Session ends by plan: "the account was up 1.3k for the
+day off these two trades", stopped "not because the setups stopped, because the plan
+for the session was already complete." Computable content: a **daily profit cap
+driven by a consistency rule**, which truncates the right tail of the daily
+distribution — the mirror of the -4R daily stop truncating the left — and a
+session-completion stop that is independent of remaining signal quality.
+
+**p10 — the numbers, both days counted.** Not a price chart but the account's own
+August 2026 P&L calendar. A red cell reads **-$558** ("3 trades", the prior session),
+the next day a green cell reads **+$2,345** ("5 trades", this session); the widget
+header shows "Payout Requests $0" and "Net P&L **+$1,787**". Quoted: "Both numbers
+are shown here directly off the account, not restated from memory, because **a funded
+account series that only ever shows the green days isn't actually showing the
+process.**" Caption: "A losing day, immediately followed by this session, both
+counted." Computable content: nothing mechanical, but it establishes the
+document's own disclosure standard, and note the headline session of five trades is
+reported here while the narrative covers two — the other three are not shown.
+
+---
+
+
+---
+
+## Completeness note
+
+This pass read, at full resolution, every page listed in the brief:
+`refill-effect (1)` 5, 7, 12, 14, 15, 17, 18, 19, 20, 21 (the retry agent's own
+skip list, complete); `trapped-buyers-one-retest` 4 and 10; and the chart-bearing
+pages of all seventeen structure-half documents, located by scanning every page of
+each PDF for image area and drawing count rather than by guessing. That came to
+134 rendered pages, of which 122 were structure-half. **No page named in the brief
+was left unread**, and no document on the list was skipped.
+
+Pages deliberately not read, with reasons. Within the seventeen structure
+documents, pages that the scan showed to be pure prose with no figure, no
+schematic and no screenshot were not rendered — title pages, contents pages,
+promotional callouts and text-only chapter openers. Where such a page nonetheless
+carried a rule the diagrams depend on, the batch readers picked it up from the
+adjacent figure pages and it is recorded above (this is why, for example,
+`18k-payout-session` p11, `a-clean-continuation-short` p6/p9/p11,
+`dom-lesson-5` p4, `dom-lesson-7` p3/p5/p6/p7, `fp-lesson-8` p3-p7 and
+`code-3-orderflow` p3-p7 appear here despite being text-only: they were rendered
+and read because their document's figure pages were, and their content proved
+load-bearing).
+
+Two limits on what is above. First, four documents in the library were not in
+scope for this pass and remain read only at text level by the crosswalks:
+`vix-lesson-4`, `only-trade-big-trades (1)`, `anatomy-of-a-losing-start (1)`,
+`stop-re-entering`, `average-unprofitable-trader`, `code-1-thesis`, `code-2-risk`,
+`emotion`, `data-engine`, `dom-lesson-6`, `fp-lesson-9`, `whos-in-control` and
+`reading-delta`. The last four were covered by `DIAGRAM_NOTES_FLOW`; the rest were
+not diagram-read by anyone, and `only-trade-big-trades` pp.14-15 in particular
+(the gamma/balance regime inversion, ranked third on the structure crosswalk's
+top-ten) has never been visually confirmed. That is the largest remaining gap.
+
+Second, resolution limits. Several live-platform screenshots carry order-ticket
+digits too small to read reliably at 125 dpi — noted inline wherever it affected a
+figure (`origin-of-the-move` pp.7-14 bracket tags, `ny-am-session` and
+`2345-funded-session` ladder tags, `vwap-lesson-10` p8's Source dropdown). Where a
+number is quoted above it was legible or stated in the surrounding prose; where it
+was not, that is said explicitly rather than guessed. Two pages had content cut off
+at the page edge in the source PDF itself (`tpo-lesson-3` p5's "HOW TO USE THEM"
+box and p6's Excess High panel). One figure's colour coding is unreliable:
+`origin-of-the-move` p7 circles buy prints in red where the schematics use red for
+sells, so circle colour should not be trusted as a side indicator on the live
+charts.
+
+Finally, the standing law, restated because this document is dense with the
+sources' own numbers: every tick count, dollar figure, contract threshold and
+percentage above is the source author's, measured on NQ/MNQ (or in a few cases ES),
+under their own caveats — historical simulation after modelled costs, one dataset,
+or the author's own account records. They are recorded as **form only**. The
+dimensionless quantities (the 3x-4x diagonal imbalance ratio, the 350% divergence,
+the >=3 stacked imbalance count, VWAP deviation multiples, R-multiples, the 0.5-2%
+risk band, the -4R daily stop, the rank-correlation robustness criterion, and every
+percentile or slope formulation above) are the ones that port without
+recalibration. Everything else must be re-measured on our assets before use.
